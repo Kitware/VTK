@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.23");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.24");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -685,6 +685,12 @@ vtkStreamingDemandDrivenPipeline::MarkOutputsGenerated(vtkInformation* request)
 //----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 {
+  // Has the algorithm asked to be executed again?
+  if(this->ContinueExecuting)
+    {
+    return 1;
+    }
+
   // If no port is specified, check all ports.  This behavior is
   // implemented by the superclass.
   if(outputPort < 0)
@@ -694,12 +700,6 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 
   // Does the superclass want to execute?
   if(this->Superclass::NeedToExecuteData(outputPort))
-    {
-    return 1;
-    }
-
-  // Has the algorithm asked to be executed again?
-  if(this->ContinueExecuting)
     {
     return 1;
     }
