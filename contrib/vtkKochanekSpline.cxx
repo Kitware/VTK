@@ -41,11 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkKochanekSpline.h"
 
-// Description
+// Description:
 // Construct a KochanekSpline wth the following defaults:
-// DefaultBias = 0
-// DefaultTension = 0
-// DefaultContinuity = 0
+// DefaultBias = 0,
+// DefaultTension = 0,
+// DefaultContinuity = 0.
 vtkKochanekSpline::vtkKochanekSpline ()
 {
   this->DefaultBias = 0.0;
@@ -53,8 +53,8 @@ vtkKochanekSpline::vtkKochanekSpline ()
   this->DefaultContinuity = 0.0;
 }
 
-// Description
-// Compute Kochanek Splines for each dependent variable
+// Description:
+// Compute Kochanek Spline coefficients.
 void vtkKochanekSpline::Compute ()
 {
   float *ts, *xs;
@@ -109,7 +109,7 @@ void vtkKochanekSpline::Compute ()
 
 #define EPSILON .0001
 
-// Description
+// Description:
 // Compute the coefficients for a 1D spline
 void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
                         float tension, float bias, float continuity,

@@ -82,15 +82,20 @@ public:
 
   void Compute ();
 
+  // Description:
+  // Set the bias for all points. Default is 0.
   vtkSetMacro(DefaultBias,float);
   vtkGetMacro(DefaultBias,float);
 
+  // Description:
+  // Set the tension for all points. Default is 0.
   vtkSetMacro(DefaultTension,float);
   vtkGetMacro(DefaultTension,float);
 
+  // Description:
+  // Set the continuity for all points. Default is 0.
   vtkSetMacro(DefaultContinuity,float);
   vtkGetMacro(DefaultContinuity,float);
-
 
 protected:
   void Fit1D (int n, float *x, float *y,

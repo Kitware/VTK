@@ -68,27 +68,27 @@ public:
   vtkGetMacro(ClampValue,int);
   vtkBooleanMacro(ClampValue,int);
 
-  // Description
+  // Description:
   // Evaluate a 1D spline.
   float Evaluate (float t);
 
-  // Description
+  // Description:
   // Compute the coefficients for the spline.
   virtual void Compute () = 0;
 
-  // Description
+  // Description:
   // Add a pair of points to be fit with the spline.
   void AddPoint (float t, float x);
 
-  // Description
+  // Description:
   // Remove a point from the data to be fit with the spline.
   void RemovePoint (float t);
  
-  // Description
+  // Description:
   // Remove all points from the data.
   void RemoveAllPoints ();
 
-  // Description
+  // Description:
   // Set the type of constraint of the left(right) end points. Three
   // contraints are available:
   // 
