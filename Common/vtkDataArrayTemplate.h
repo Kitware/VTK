@@ -187,6 +187,8 @@ private:
 #if defined(VTK_DATA_ARRAY_TEMPLATE_TYPE)
 # if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
 #  pragma warning (push)
+#  pragma warning (disable: 4091) // warning C4091: 'extern ' : 
+   // ignored on left of 'int' when no variable is declared
 #  pragma warning (disable: 4231) // Compiler-specific extension warning.
    // Use an "extern explicit instantiation" to give the class a DLL
    // interface.  This is a compiler-specific extension.
