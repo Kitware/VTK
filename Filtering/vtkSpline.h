@@ -48,12 +48,6 @@ public:
   vtkTypeRevisionMacro(vtkSpline,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  virtual vtkSpline* MakeObject();
-#endif
-
   // Description:
   // Set/Get ClampValue. If On, results of the interpolation will be
   // clamped to the min/max of the input data.

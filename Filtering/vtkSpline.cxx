@@ -16,7 +16,7 @@
 
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.21");
+vtkCxxRevisionMacro(vtkSpline, "1.22");
 
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
@@ -144,12 +144,3 @@ void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Closed: " << (this->Closed ? "On\n" : "Off\n");
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-vtkSpline* vtkSpline::MakeObject()
-{
-  VTK_LEGACY_METHOD(MakeObject, "4.2");
-  return this->NewInstance();
-}
-#endif

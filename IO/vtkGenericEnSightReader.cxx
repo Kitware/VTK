@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.51");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.52");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1407,66 +1407,3 @@ void vtkGenericEnSightReader::SetCellArrayStatus(const char* name, int status)
     this->CellDataArraySelection->DisableArray(name);
     }
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-void vtkGenericEnSightReader::AddVariableName(char* variableName,
-                                              int attributeType)
-{
-  VTK_LEGACY_METHOD(AddVariableName, "4.4");
-  if (attributeType == 0)
-    {
-    this->PointDataArraySelection->EnableArray(variableName);
-    }
-  else if (attributeType == 1)
-    {
-    this->CellDataArraySelection->EnableArray(variableName);
-    }
-}
-
-void vtkGenericEnSightReader::AddPointVariableName(char* variableName)
-{
-  VTK_LEGACY_METHOD(AddPointVariableName, "4.4");
-  this->PointDataArraySelection->EnableArray(variableName);
-}
-
-void vtkGenericEnSightReader::AddCellVariableName(char* variableName)
-{
-  VTK_LEGACY_METHOD(AddCellVariableName, "4.4");
-  this->CellDataArraySelection->EnableArray(variableName);
-}
-
-void vtkGenericEnSightReader::RemoveAllVariableNames()
-{
-  VTK_LEGACY_METHOD(RemoveAllVariableNames, "4.4");
-  this->PointDataArraySelection->RemoveAllArrays();
-  this->CellDataArraySelection->RemoveAllArrays();
-}
-
-void vtkGenericEnSightReader::RemoveAllPointVariableNames()
-{
-  VTK_LEGACY_METHOD(RemoveAllPointVariableNames, "4.4");
-  this->PointDataArraySelection->RemoveAllArrays();
-}
-
-void vtkGenericEnSightReader::RemoveAllCellVariableNames()
-{
-  VTK_LEGACY_METHOD(RemoveAllCellVariableNames, "4.4");
-  this->CellDataArraySelection->RemoveAllArrays();
-}
-
-int vtkGenericEnSightReader::IsRequestedVariable(const char* variableName,
-                                                 int attributeType)
-{
-  VTK_LEGACY_METHOD(IsRequestedVariable, "4.4");
-  if(attributeType == 0)
-    {
-    return this->PointDataArraySelection->ArrayIsEnabled(variableName);
-    }
-  else
-    {
-    return this->CellDataArraySelection->ArrayIsEnabled(variableName);
-    }
-}
-
-#endif

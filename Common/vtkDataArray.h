@@ -60,12 +60,6 @@ public:
   virtual int Allocate(vtkIdType sz, vtkIdType ext=1000) = 0;
   virtual void Initialize() = 0;
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  virtual vtkDataArray* MakeObject();
-#endif
-
   // Description:
   // Return the underlying data type. An integer indicating data type is 
   // returned as specified in vtkSetGet.h.

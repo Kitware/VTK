@@ -46,12 +46,6 @@ public:
   // Return object to instantiated state.
   virtual void Initialize();
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  vtkPoints* MakeObject();
-#endif
-
   // Description:
   // Set/Get the underlying data array. This function must be implemented
   // in a concrete subclass to check for consistency. (The tuple size must

@@ -60,12 +60,6 @@ public:
   // coordinates specified.
   void Initialize(int npts, vtkIdType *pts, vtkPoints *p);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  virtual vtkCell* MakeObject();
-#endif
-
   // Description:
   // Copy this cell by reference counting the internal data structures. 
   // This is safe if you want a "read-only" copy. If you modify the cell

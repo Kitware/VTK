@@ -64,12 +64,6 @@ public:
   // Note that ext is no longer used.
   int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  virtual vtkFieldData* MakeObject();
-#endif
-
   // Description:
   // Copy data array structure from a given field.  The same arrays
   // will exist with the same types, but will contain nothing in the
@@ -85,15 +79,6 @@ public:
   // be used if the number of arrays which will be added is
   // known, it can be omitted with a small computation cost.
   void AllocateArrays(int num);
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-  void SetNumberOfArrays(int num)
-    {
-      vtkWarningMacro("This method will be deprecated. Please use "
-                      "AllocateArrays() instead.");
-      this->AllocateArrays(num);
-    }
-#endif
 
   // Description:
   // Get the number of arrays of data available.

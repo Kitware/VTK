@@ -168,12 +168,6 @@ public:
   virtual void ComputeInternalFileName(int slice);
   vtkGetStringMacro(InternalFileName);
   
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  virtual vtkImageReader2* MakeObject();
-#endif
-  
   // Description:
   // Return non zero if the reader can read the given file name.
   // Should be implemented by all sub-classes of vtkImageReader2.

@@ -173,19 +173,6 @@ public:
   };
 //ETX
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility.  Do not use.
-  // Instead, use the GetPointArrayStatus and similar methods.
-  void AddVariableName(char* variableName, int attributeType);
-  void AddPointVariableName(char* variableName);
-  void AddCellVariableName(char* variableName);
-  void RemoveAllVariableNames();
-  void RemoveAllPointVariableNames();
-  void RemoveAllCellVariableNames();
-  int IsRequestedVariable(const char* variableName, int attributeType);
-#endif
-  
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();

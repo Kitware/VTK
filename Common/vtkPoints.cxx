@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.49");
+vtkCxxRevisionMacro(vtkPoints, "1.50");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -303,15 +303,3 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" << bounds[2] << ", " << bounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << bounds[4] << ", " << bounds[5] << ")\n";
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-vtkPoints *vtkPoints::MakeObject()
-{
-  VTK_LEGACY_METHOD(MakeObject, "4.2");  
-  vtkPoints *p = vtkPoints::New();
-  p->SetDataType(this->GetDataType());
-  return p;
-}
-#endif
-

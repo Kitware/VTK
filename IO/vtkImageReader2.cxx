@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.26");
+vtkCxxRevisionMacro(vtkImageReader2, "1.27");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -732,12 +732,3 @@ void vtkImageReader2::SetDataScalarType(int type)
   // Set the default output scalar type
   this->GetOutput()->SetScalarType(this->DataScalarType);
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-vtkImageReader2* vtkImageReader2::MakeObject()
-{
-  VTK_LEGACY_METHOD(MakeObject, "4.2");
-  return this->NewInstance();
-}
-#endif
