@@ -30,7 +30,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.27");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.28");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -115,7 +115,7 @@ void vtkJPEGWriter::Write()
         sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
         }
       }
-    this->GetInput()->UpdateData();
+    this->GetInput()->Update();
     this->WriteSlice(this->GetInput());
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {
