@@ -78,6 +78,7 @@ public:
 
   int Pop(float &priority, int location=0);
   float Delete(int id);
+  float GetPriority(int id);
   void Insert(float priority, int id);
   int GetNumberOfItems() {return this->MaxId+1;};
 
@@ -107,6 +108,21 @@ inline float vtkPriorityQueue::Delete(int id)
     this->Pop(priority,loc);
     }
   return priority;
+};
+
+// Description:
+// Get the priority of an entry in the queue with specified id. Returns priority
+// value of that id or VTK_LARGE_FLOAT if not in queue.
+inline float vtkPriorityQueue::GetPriority(int id)
+{
+  int loc;
+
+  if ( id <= this->ItemLocation.GetMaxId() &&  
+  (loc=this->ItemLocation.GetValue(id)) != -1 )
+    {
+    return this->Array[loc].priority;
+    }
+  return VTK_LARGE_FLOAT;
 };
 
 #endif
