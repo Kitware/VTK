@@ -97,7 +97,7 @@ public:
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
   // the returned inverse transform will automatically update.
-  vtkPerspectiveTransform *GetInverse() {
+  vtkGeneralTransform *GetInverse() {
     return (vtkPerspectiveTransform *)this->VirtualGetInverse(); };
 
   // Description:

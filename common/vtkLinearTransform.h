@@ -92,7 +92,7 @@ public:
   // Description:
   // Get the inverse of this transform.  If you modify this transform,
   // the returned inverse transform will automatically update.
-  vtkLinearTransform *GetInverse() {
+  vtkGeneralTransform *GetInverse() {
     return (vtkLinearTransform *)this->VirtualGetInverse(); };
 
   // Description:
