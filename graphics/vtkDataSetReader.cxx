@@ -344,9 +344,9 @@ void vtkDataSetReader::Execute()
 	preader->SetOutput((vtkRectilinearGrid *)(output));
 	}
       preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString());
       preader->SetInputString(this->Reader->GetInputString(),
 			      this->Reader->GetInputStringLength());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
       preader->SetScalarsName(this->Reader->GetScalarsName());
       preader->SetVectorsName(this->Reader->GetVectorsName());
       preader->SetNormalsName(this->Reader->GetNormalsName());
@@ -370,9 +370,9 @@ void vtkDataSetReader::Execute()
 	preader->SetOutput((vtkUnstructuredGrid *)(output));
 	}
       preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString());
       preader->SetInputString(this->Reader->GetInputString(),
 			      this->Reader->GetInputStringLength());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
       preader->SetScalarsName(this->Reader->GetScalarsName());
       preader->SetVectorsName(this->Reader->GetVectorsName());
       preader->SetNormalsName(this->Reader->GetNormalsName());
