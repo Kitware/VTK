@@ -65,25 +65,14 @@ void vtkRendererSource::Execute()
     }
 
   // calc the pixel range for the renderer
-  this->Input->SetViewPoint(-1,-1,0);
-  this->Input->ViewToDisplay();
-  x1 = this->Input->GetDisplayPoint()[0];
-  y1 = this->Input->GetDisplayPoint()[1];
-  this->Input->SetViewPoint(1,1,0);
-  this->Input->ViewToDisplay();
-  x2 = this->Input->GetDisplayPoint()[0];
-  y2 = this->Input->GetDisplayPoint()[1];
-
-  if (x1 < 0) x1 = 0;
-  if (y1 < 0) y1 = 0;
-  if (x2 >= (this->Input->GetRenderWindow())->GetSize()[0]) 
-    {
-    x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
-    }
-  if (y2 >= (this->Input->GetRenderWindow())->GetSize()[1]) 
-    {
-    y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
-    }
+  x1 = this->Input->GetViewport()[0]*
+    ((this->Input->GetRenderWindow())->GetSize()[0] - 1);
+  y1 = this->Input->GetViewport()[1]*
+    ((this->Input->GetRenderWindow())->GetSize()[1] - 1);
+  x2 = this->Input->GetViewport()[2]*
+    ((this->Input->GetRenderWindow())->GetSize()[0] - 1);
+  y2 = this->Input->GetViewport()[3]*
+    ((this->Input->GetRenderWindow())->GetSize()[1] - 1);
 
   if (this->WholeWindow)
     {
