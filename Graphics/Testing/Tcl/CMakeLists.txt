@@ -58,6 +58,13 @@ IF (VTK_USE_RENDERING)
       EnSightBlow1Bin
       EnSightBlow2ASCII
       EnSightBlow2Bin
+      EnSightIronProtASCII
+      EnSightIronProtBin
+      EnSightOfficeASCII
+      EnSightOfficeBin
+      EnSightRectGridASCII
+      EnSightRectGridBin
+      EnSightMandelbrot
       EnSightCompound
       extractPolyData
       extractUGrid
