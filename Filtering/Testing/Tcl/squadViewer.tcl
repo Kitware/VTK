@@ -1,5 +1,5 @@
 package require vtktcl_interactor
-source [file join [file dirname [info script]] TkInteractor.tcl]
+package require vtktcl_widgets
 
 set root [toplevel .top -visual {truecolor 24}]
 wm title .top "superquadric viewer"
