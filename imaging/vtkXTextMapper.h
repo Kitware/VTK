@@ -78,8 +78,13 @@ public:
   // Draw the text to the screen.
   void Render(vtkViewport* viewport, vtkActor2D* actor);
 
-protected:
+  // Description:
+  // What is the size of the rectangle required to draw this
+  // mapper ?
+  void GetSize(vtkViewport* viewport, int *size);
 
+protected:
+  Font CurrentFont;
 };
 
 

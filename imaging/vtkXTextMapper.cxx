@@ -87,9 +87,6 @@ void vtkXTextMapper::SetFontSize(int size)
       break;
     }
 
-  vtkErrorMacro (<< size << " point font is not available.  Using " 
-                 << this->FontSize << " point.");
-
   return;
 }
 
@@ -123,6 +120,91 @@ int vtkXTextMapper::GetCompositingMode(vtkActor2D* actor)
 	  return GXcopy;
   }
 
+}
+
+void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
+{
+  if (this->Input == NULL) 
+    {
+    vtkErrorMacro (<<"vtkXTextMapper::Render - No input");
+    }
+  
+  // Get the window info
+  vtkWindow*  window = viewport->GetVTKWindow();
+  Display* displayId = (Display*) window->GetGenericDisplayId();
+  GC gc = (GC) window->GetGenericContext();
+  Window windowId = (Window) window->GetGenericWindowId();
+
+  // Set up the font name string. Note: currently there is no checking to see
+  // if we've exceeded the fontname length.
+  // Foundry
+  char fontname[256]= "*";
+ 
+  // Family
+  switch (this->FontFamily)
+    {
+    case VTK_ARIAL:
+      strcat(fontname, "helvetica-");
+      break;
+    case VTK_COURIER:
+      strcat(fontname, "courier-");
+      break;
+    case VTK_TIMES:
+      strcat(fontname, "times-");
+      break;
+    default:
+      strcat(fontname, "helvetica-");
+    }
+
+  // Weight
+  if (this->Bold == 1)
+    {
+    strcat(fontname, "bold-");
+    }
+  else
+    {
+    strcat (fontname, "medium-");
+    }
+
+  // Slant
+  if (this->Italic == 1)
+    {
+    if (this->FontFamily == VTK_TIMES) strcat(fontname, "i-");
+    else strcat(fontname, "o-");
+    }
+  else
+    {
+    strcat(fontname, "r-");
+    }
+
+  char tempString[100];
+ 
+  // Set width, pixels, point size
+  sprintf(tempString, "*-%d-*", 10*this->FontSize);
+
+  strcat(fontname, tempString);
+
+  vtkDebugMacro(<<"vtkXTextMapper::Render - Font specifier: " << fontname);
+
+  // Set the font
+  int cnt;
+  char **fn = XListFonts(displayId, fontname, 1, &cnt);
+  if (fn)
+    {
+    XFreeFontNames(fn);
+    }
+  if (!cnt)
+    {
+    sprintf(fontname,"9x15");
+    }
+  Font font = XLoadFont(displayId,  fontname );
+  int dir, as, des;
+  XCharStruct overall;
+  XQueryTextExtents(displayId, font, this->Input, strlen(this->Input),
+		    &dir, &as, &des, &overall);
+  size[1] = as + des;
+  size[0] = overall.width;
+  this->CurrentFont = font;
 }
 
 void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
@@ -186,7 +268,6 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
 
   // Compute the shifts to match up the pixel bits with the mask bits
   int rshift = 0;
-
   while ( ((rmask & 0x80000000) == 0) && (rshift < 32))
     {
     rmask = rmask << 1;
@@ -194,7 +275,6 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     }
 
   int gshift = 0;
-
   while ( ((gmask & 0x80000000) == 0) && (gshift < 32))
     {
     gmask = gmask << 1;
@@ -202,7 +282,6 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     }
 
   int bshift = 0;
-
   while ( ((bmask & 0x80000000) == 0) && (bshift < 32))
     {
     bmask = bmask << 1;
@@ -220,73 +299,26 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   shadowForeground = shadowForeground | ((gmask & (shadowGreen<<24)) >>gshift);
   shadowForeground = shadowForeground | ((bmask & (shadowBlue<< 24)) >>bshift);
 
-
-  // Set up the font name string. Note: currently there is no checking to see
-  // if we've exceeded the fontname length.
-
-  // Foundry
-  char fontname[256]= "*";
- 
-  // Family
-  switch (this->FontFamily)
+  // compute the size of the string so that we can center it etc.
+  // a side effect is that this->CurrentFont will be set so that
+  // we can use it here. That saves the expensice process of 
+  // computing it again
+  int size[2];
+  this->GetSize(viewport,size);
+  XSetFont(displayId, gc, this->CurrentFont);
+  
+  // adjust actorPos to account for justification
+  int pos[2];
+  pos[0] = actorPos[0];
+  pos[1] = actorPos[1];
+  switch (this->Justification)
     {
-    case VTK_ARIAL:
-      strcat(fontname, "helvetica-");
-      break;
-    case VTK_COURIER:
-      strcat(fontname, "courier-");
-      break;
-    case VTK_TIMES:
-      strcat(fontname, "times-");
-      break;
-    default:
-      strcat(fontname, "helvetica-");
+    // do nothing for case 0 left
+    case 1: pos[0] = pos[0] - size[0] / 2; break;
+    case 2: pos[0] = pos[0] - size[0]; break;
     }
-
-  // Weight
-  if (this->Bold == 1)
-    {
-    strcat(fontname, "bold-");
-    }
-  else
-    {
-    strcat (fontname, "medium-");
-    }
-
-  // Slant
-  if (this->Italic == 1)
-    {
-    if (this->FontFamily == VTK_TIMES) strcat(fontname, "i-");
-    else strcat(fontname, "o-");
-    }
-  else
-    {
-    strcat(fontname, "r-");
-    }
-
-  char tempString[100];
- 
-  // Set width, pixels, point size
-  sprintf(tempString, "*-%d-*", 10*this->FontSize);
-
-  strcat(fontname, tempString);
-
-  vtkDebugMacro(<<"vtkXTextMapper::Render - Font specifier: " << fontname);
-
-  // Set the font
-  int cnt;
-  char **fn = XListFonts(displayId, fontname, 1, &cnt);
-  if (fn)
-    {
-    XFreeFontNames(fn);
-    }
-  if (!cnt)
-    {
-    sprintf(fontname,"9x15");
-    }
-  Font font = XLoadFont(displayId,  fontname );
-  XSetFont(displayId, gc, font);
-
+  
+    
   // Set the compositing mode for the actor
   int compositeMode = this->GetCompositingMode(actor);
   XSetFunction(displayId, gc, compositeMode);
@@ -299,19 +331,18 @@ void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   if (this->Shadow)
     {
     XSetForeground(displayId, gc, shadowForeground);
-    XDrawString(displayId, drawable, gc, actorPos[0]+1, actorPos[1]+1,
+    XDrawString(displayId, drawable, gc, pos[0]+1, pos[1]+1,
                 this->Input, strlen(this->Input));
     }
   
   // Draw the string
   XSetForeground(displayId, gc, foreground);
-  XDrawString(displayId, drawable, gc, actorPos[0], actorPos[1],
+  XDrawString(displayId, drawable, gc, pos[0], pos[1],
               this->Input, strlen(this->Input));
  
   // Flush the X queue
   XFlush(displayId);
   XSync(displayId, False);
- 
 }
 
 
