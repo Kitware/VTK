@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.78");
+vtkCxxRevisionMacro(vtkMath, "1.79");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -31,7 +31,7 @@ long vtkMath::Seed = 1177; // One authors home address
 #define VTK_K_Q 127773                  /* VTK_K_M div VTK_K_A */
 #define VTK_K_R 2836                    /* VTK_K_M mod VTK_K_A */
 //
-// Some useful macros
+// Some useful macros and functions
 //
 #define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
 // avoid dll boundary problems
@@ -213,8 +213,6 @@ void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
 // the matrix is specified in size. If error is found, method returns a 0.
 int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 {
-  static int *index = NULL, maxSize=0;
-
   // if we solving something simple, just solve it
   //
   if (size == 2)
@@ -250,21 +248,11 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
   // System of equations is not trivial, use Crout's method
   //
   
-  
-  //
   // Check on allocation of working vectors
   //
-  if ( index == NULL ) 
-    {
-    index = new int[size];
-    maxSize = size;
-    } 
-  else if ( size > maxSize ) 
-    {
-    delete [] index;
-    index = new int[size];
-    maxSize = size;
-    }
+  int *index, scratch[10];
+  index = ( size < 10 ? scratch : new int[size] );
+
   //
   // Factor and solve matrix
   //
@@ -274,6 +262,7 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
     }
   vtkMath::LUSolveLinearSystem(A,index,x,size);
 
+  if (size >= 10 ) delete [] index;
   return 1;
 }
 
@@ -283,26 +272,26 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 // if inverse not computed.
 int vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
-  static int *index = NULL, maxSize=0;
-  static double *column = NULL;
+  int *index, iScratch[10];
+  double *column, dScratch[10];
 
-  //
   // Check on allocation of working vectors
   //
-  if ( index == NULL ) 
+  if ( size < 10 ) 
     {
-    index = new int[size];
-    column = new double[size];
-    maxSize = size;
+    index = iScratch;
+    column = dScratch;
     } 
-  else if ( size > maxSize ) 
+
+  int retVal = vtkMath::InvertMatrix(A, AI, size, index, column);
+
+  if ( size >= 10 ) 
     {
-    delete [] index; delete [] column;
-    index = new int[size];
-    column = new double[size];
-    maxSize = size;
-    }
-  return vtkMath::InvertMatrix(A, AI, size, index, column);
+    delete [] index;
+    delete [] column;
+    } 
+  
+  return retVal;
 }
 
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
@@ -312,7 +301,9 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 // found, method returns 0. 
 int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 {
-  double *scale = new double[size];
+  double scratch[10];
+  double *scale = (size<10 ? scratch : new double[size]);
+
   int i, j, k;
   int maxI = 0;
   double largest, temp1, temp2, sum;
@@ -401,7 +392,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
       }
     }
 
-  delete [] scale;
+  if (size >= 10 ) delete [] scale;
 
   return 1;
 }
@@ -459,7 +450,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 #undef VTK_SMALL_NUMBER
 
 #define VTK_ROTATE(a,i,j,k,l) g=a[i][j];h=a[k][l];a[i][j]=g-s*(h+g*tau);\
-        a[k][l]=h+s*(g-h*tau);
+        a[k][l]=h+s*(g-h*tau)
 
 #define VTK_MAX_ROTATIONS 20
 
@@ -569,21 +560,21 @@ static inline int vtkJacobiN(T **a, int n, T *w, T **v)
           // ip already shifted left by 1 unit
           for (j = 0;j <= ip-1;j++) 
             {
-            VTK_ROTATE(a,j,ip,j,iq)
-              }
+            VTK_ROTATE(a,j,ip,j,iq);
+            }
           // ip and iq already shifted left by 1 unit
           for (j = ip+1;j <= iq-1;j++) 
             {
-            VTK_ROTATE(a,ip,j,j,iq)
-              }
+            VTK_ROTATE(a,ip,j,j,iq);
+            }
           // iq already shifted left by 1 unit
           for (j=iq+1; j<n; j++) 
             {
-            VTK_ROTATE(a,ip,j,iq,j)
-              }
+            VTK_ROTATE(a,ip,j,iq,j);
+            }
           for (j=0; j<n; j++) 
             {
-            VTK_ROTATE(v,j,ip,j,iq)
+            VTK_ROTATE(v,j,ip,j,iq);
             }
           }
         }
