@@ -39,7 +39,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.1");
+vtkCxxRevisionMacro(vtkImageData, "1.2");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -688,8 +688,12 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell *vtkNotUsed(cell),
   //  From this location get the cell id
   //
   subId = 0;
-  return loc[2] * (dims[0]-1)*(dims[1]-1) +
-         loc[1] * (dims[0]-1) + loc[0];
+
+  int extent[6];
+  this->GetExtent(extent);
+
+  return (loc[2]-extent[4]) * (dims[0]-1)*(dims[1]-1) +
+         (loc[1]-extent[2]) * (dims[0]-1) + loc[0] - extent[0];
 }
 
 //----------------------------------------------------------------------------
@@ -1024,12 +1028,7 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
       pcoords[i] = doubleLoc - (double)ijk[i];
       }
 
-    else if ( ijk[i] < extent[i*2] || ijk[i] > extent[i*2+1] ) 
-      {
-      return 0;
-      } 
-
-    else //if ( ijk[i] == extent[i*2+1] )
+    else if (doubleLoc == static_cast<double>(extent[i*2+1]))
       {
       if (dims[i] == 1)
         {
@@ -1041,6 +1040,11 @@ int vtkImageData::ComputeStructuredCoordinates(double x[3], int ijk[3],
         pcoords[i] = 1.0;
         }
       }
+
+    else // if ( ijk[i] < extent[i*2] || ijk[i] >= extent[i*2+1] ) 
+      {
+      return 0;
+      } 
 
     }
   return 1;
