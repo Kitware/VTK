@@ -150,8 +150,7 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     {
     if (!(strcmp(concrete[i],"vtkXRenderWindow") &&
           strcmp(concrete[i],"vtkXRenderWindowInteractor") &&
-          strcmp(concrete[i],"vtkImageXViewer") &&
-		  strcmp(concrete[i], "vtkXImageMapper") &&
+          strcmp(concrete[i], "vtkXImageMapper") &&
 		  strcmp(concrete[i], "vtkXImageWindow") &&
 		  strcmp(concrete[i], "vtkXTextMapper") &&
 		  strcmp(concrete[i], "vtkXPolyMapper2D") &&
@@ -180,8 +179,7 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
     {
     if (!(strcmp(abstract[i],"vtkXRenderWindow") &&
           strcmp(abstract[i],"vtkXRenderWindowInteractor") &&
-          strcmp(abstract[i],"vtkImageXViewer") &&
-		  strcmp(concrete[i], "vtkXImageMapper") &&
+          strcmp(concrete[i], "vtkXImageMapper") &&
 		  strcmp(concrete[i], "vtkXImageWindow") &&
 		  strcmp(concrete[i], "vtkXTextMapper") &&
 		  strcmp(concrete[i], "vtkXPolyMapper2D") &&
@@ -570,9 +568,6 @@ int ReadMakefiles(CPcmakerDlg *vals)
     UpdateStart(LT_IMAGING);
     sprintf(fname,"%s\\imaging\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("imaging"));
-	  concrete[num_concrete] = strdup("vtkImageWin32Viewer");
-    concrete_lib[num_concrete] = strdup("imaging");
-    num_concrete++;
 	  concrete[num_concrete] = strdup("vtkWin32ImageMapper");
     concrete_lib[num_concrete] = strdup("imaging");
     num_concrete++;
