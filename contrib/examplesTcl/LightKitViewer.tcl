@@ -9,12 +9,13 @@ source $VTK_TCL/TkInteractor.tcl
 
 # demonstrate LightKit functionality.
 
+vtkRenderWindow renWin
+
 set root [toplevel .top -visual {truecolor 24}]
 wm title .top "LightKit Viewer"
-wm protocol .top WM_DELETE_WINDOW exit
+wm protocol .top WM_DELETE_WINDOW [list cleanupAndExit renWin]
 wm withdraw .
 
-vtkRenderWindow renWin
 set renWidget [vtkTkRenderWidget $root.ren -width 400 -height 400 -rw renWin]
 BindTkRenderWidget $renWidget
 
@@ -85,7 +86,8 @@ set maintlum [checkbutton $headfrm.maintlum -variable MaintainLuminance]
 
 set butfrm [frame $headfrm.butfrm]
 set helpbut [button $butfrm.helpbut -text "Help" -command showHelp]
-set quitbut [button $butfrm.quitbut -text "Quit" -command exit]
+set quitbut [button $butfrm.quitbut -text "Quit" \
+	-command [list cleanupAndExit renWin]]
 pack $helpbut -side left -expand  true -fill x
 pack $quitbut -side right -expand true -fill x
 
@@ -137,6 +139,14 @@ ren1 SetBackground 0.1 0.1 0.15
 [ren1 GetActiveCamera] Zoom 1.5
 [ren1 GetActiveCamera] Elevation 40
 [ren1 GetActiveCamera] Azimuth -20
+
+proc cleanupAndExit {renwin} {
+    # this seems a little silly, but it avoids an warning message
+    # in vtk circa 3.2.
+
+    renWin Delete
+    exit
+}
 
 proc SetLightWarmth {lt x} {
     lightKit Set${lt}LightWarmth $x
