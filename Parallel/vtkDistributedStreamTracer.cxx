@@ -29,7 +29,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.2");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.3");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -242,7 +242,7 @@ int vtkDistributedStreamTracer::ProcessTask(float seed[3],
   vtkIntArray* streamIds = vtkIntArray::New();
   streamIds->SetNumberOfTuples(1);
   streamIds->SetName("Streamline Ids");
-  lastCellId = this->TmpOutputs.size() - 1;
+  lastCellId = static_cast<int>(this->TmpOutputs.size()) - 1;
   streamIds->SetComponent(0, 0, lastCellId);
   tmpOutput->GetCellData()->AddArray(streamIds);
   streamIds->Delete();
