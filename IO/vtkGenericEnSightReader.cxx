@@ -26,7 +26,9 @@
 #include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.35");
+#include <string>
+
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.36");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -322,21 +324,25 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
               // file set and fill in wildcards from there.
               this->ReplaceWildcards(fileName, timeSet, fileSet);
               }
+            vtkstd::string sfilename;
             if (this->FilePath)
               {
-              strcpy(line, this->FilePath);
-              strcat(line, fileName);
-              vtkDebugMacro("full path to geometry file: " << line);
+              sfilename = this->FilePath;
+              sfilename += fileName;
+              vtkDebugMacro("full path to geometry file: " 
+                            << sfilename.c_str());
               }
             else
               {
-              strcpy(line, fileName);
-              } // got full path to geometry file
+              sfilename = fileName;
+              }
+  
+            // got full path to geometry file
           
-            this->IFile = fopen(line, "rb");
+            this->IFile = fopen(sfilename.c_str(), "rb");
             if (this->IFile == NULL)
               {
-              vtkErrorMacro("Unable to open file: " << line);
+              vtkErrorMacro("Unable to open file: " << sfilename.c_str());
               this->IFile = NULL;
               delete [] fileName;
               return 0;
@@ -408,21 +414,25 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           // wildcards from there.
           this->ReplaceWildcards(fileName, timeSet, fileSet);
           }
+        vtkstd::string sfilename;
         if (this->FilePath)
           {
-          strcpy(line, this->FilePath);
-          strcat(line, fileName);
-          vtkDebugMacro("full path to geometry file: " << line);
+          sfilename = this->FilePath;
+          sfilename += fileName;
+          vtkDebugMacro("full path to geometry file: " 
+                        << sfilename.c_str());
           }
         else
           {
-          strcpy(line, fileName);
-          } // got full path to geometry file
+          sfilename = fileName;
+          }
         
-        this->IFile = fopen(line, "rb");
+        // got full path to geometry file
+        
+        this->IFile = fopen(sfilename.c_str(), "rb");
         if (this->IFile == NULL)
           {
-          vtkErrorMacro("Unable to open file: " << line);
+          vtkErrorMacro("Unable to open file: " << sfilename.c_str());
           fclose(this->IFile);
           this->IFile = NULL;
           delete [] fileName;

@@ -31,8 +31,9 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <ctype.h>
+#include <string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.26");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.27");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -82,21 +83,22 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     vtkErrorMacro("A GeometryFileName must be specified in the case file.");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to geometry file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
   
@@ -644,21 +646,23 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
     vtkErrorMacro("A MeasuredFileName must be specified in the case file.");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to measured geometry file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to measured geometry file: " 
+                  << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
@@ -784,21 +788,22 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
     vtkErrorMacro("NULL ScalarPerNode variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to scalar per node file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
@@ -997,21 +1002,22 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
     vtkErrorMacro("NULL VectorPerNode variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to vector per node file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to vector per node file: " << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
@@ -1188,21 +1194,23 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
     vtkErrorMacro("NULL TensorSymmPerNode variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to tensor symm per node file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to tensor symm per node file: " 
+                  << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
@@ -1346,21 +1354,23 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
     vtkErrorMacro("NULL ScalarPerElement variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to scalar per element file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to scalar per element file: " 
+                  << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
@@ -1529,21 +1539,23 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
     vtkErrorMacro("NULL VectorPerElement variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to vector per element file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to vector per element file: " 
+                  << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
@@ -1704,21 +1716,23 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
     vtkErrorMacro("NULL TensorPerElement variable file name");
     return 0;
     }
+  vtkstd::string sfilename;
   if (this->FilePath)
     {
-    strcpy(line, this->FilePath);
-    strcat(line, fileName);
-    vtkDebugMacro("full path to tensor per element file: " << line);
+    sfilename = this->FilePath;
+    sfilename += fileName;
+    vtkDebugMacro("full path to tensor per element file: " 
+                  << sfilename.c_str());
     }
   else
     {
-    strcpy(line, fileName);
+    sfilename = fileName;
     }
   
-  this->IFile = fopen(line, "rb");
+  this->IFile = fopen(sfilename.c_str(), "rb");
   if (this->IFile == NULL)
     {
-    vtkErrorMacro("Unable to open file: " << line);
+    vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     return 0;
     }
 
