@@ -1,3 +1,8 @@
+# Only do this on CMake 1.4
+
+IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
+  IF (CMAKE_MINOR_VERSION MATCHES [4-9][0-9]*)
+
 # create the VTK/Python  executable
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Python/vtkpython.cxx.in 
@@ -115,3 +120,5 @@ INSTALL_TARGETS(/bin vtkpython)
 INCLUDE (${VTK_BINARY_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Wrapping/Tcl/LocalUserOptions.cmake OPTIONAL)
 
+  ENDIF (CMAKE_MINOR_VERSION MATCHES [4-9][0-9]*)
+ENDIF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
