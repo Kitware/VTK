@@ -33,6 +33,7 @@ vtkImageCast \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageExtractComponents \
+vtkImageFlip \
 vtkImageHSVToRGB \
 vtkImageLogic \
 vtkImageMedian3D \
@@ -76,7 +77,6 @@ vtkTIFFWriter
 #vtkImageFFT \
 #vtkImageFFT1D \
 #vtkImageFeatureAnd \
-#vtkImageFlip \
 #vtkImageFourierCenter \
 #vtkImageFourierCenter1D \
 #vtkImageGaussianSmooth \

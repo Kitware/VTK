@@ -38,8 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
-#include "vtkImageCache.h"
 #include "vtkImageFlip.h"
 
 
@@ -47,34 +45,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFlip::vtkImageFlip()
 {
-  this->NumberOfExecutionAxes = 4;
   this->PreserveImageExtent = 1;
+  this->FilteredAxis = 0;
 }
 
-//----------------------------------------------------------------------------
-void vtkImageFlip::SetFilteredAxes(int num, int *axes)
-{
-  this->vtkImageFilter::SetFilteredAxes(num, axes);
-  this->NumberOfExecutionAxes = 4;
-}
-						 
 //----------------------------------------------------------------------------
 // Description:
 // Image extent is modified by this filter.
 void vtkImageFlip::ExecuteImageInformation()
 {
-  int idx, axis, extent[8], temp;
+  int extent[6];
+  int axis, temp;
 
   if ( ! this->PreserveImageExtent)
     {
     this->Input->GetWholeExtent(extent);
-    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-      {
-      axis = this->FilteredAxes[idx];
-      temp = extent[axis*2];
-      extent[axis*2] = -extent[axis*2+1];
-      extent[axis*2+1] = -temp;
-      }
+    axis = this->FilteredAxis;
+    temp = extent[axis*2+1];
+    extent[axis*2+1] = -temp;
     this->Output->SetWholeExtent(extent);
     }
 }
@@ -82,145 +70,116 @@ void vtkImageFlip::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 // Description:
 // What input should be requested.
-void vtkImageFlip::ComputeRequiredInputUpdateExtent()
+void vtkImageFlip::ComputeRequiredInputUpdateExtent(int inExt[6], 
+						    int outExt[6])
 {
-  int idx, axis, extent[8], temp, sum;
+  int axis, sum;
   int *wholeExtent;
   
-  this->Output->GetUpdateExtent(extent);
-  wholeExtent = this->Output->GetWholeExtent();
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-    {
-    axis = this->FilteredAxes[idx];
-    if (this->PreserveImageExtent)
-      {
-      temp = extent[axis*2];
-      sum = wholeExtent[axis*2] + wholeExtent[axis*2+1];
-      extent[axis*2] = -extent[axis*2+1]+sum;
-      extent[axis*2+1] = -temp+sum;
-      }
-    else
-      {
-      temp = extent[axis*2];
-      extent[axis*2] = -extent[axis*2+1];
-      extent[axis*2+1] = -temp;
-      }
-    }
+  // copy out to in
+  memcpy((void *)inExt, (void *)outExt, 6 * sizeof(int));
   
+  wholeExtent = this->Output->GetWholeExtent();
+  axis = this->FilteredAxis;
+  if (this->PreserveImageExtent)
+    {
+    sum = wholeExtent[axis*2] + wholeExtent[axis*2+1];
+    inExt[axis*2] = -outExt[axis*2+1]+sum;
+    inExt[axis*2+1] = -outExt[axis*2]+sum;
+    }
+  else
+    {
+    inExt[axis*2] = -outExt[axis*2+1];
+    inExt[axis*2+1] = -outExt[axis*2];
+    }
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
-template <class IT, class OT>
-static void vtkImageFlipExecute(vtkImageFlip *self,
-			 vtkImageRegion *inRegion, IT *inPtr,
-			 vtkImageRegion *outRegion, OT *outPtr){
-  int min0, max0, min1, max1, min2, max2, min3, max3;
-  int idx0, idx1, idx2, idx3;
-  int inInc0, inInc1, inInc2, inInc3;
-  int outInc0, outInc1, outInc2, outInc3;
-  IT  *inPtr0, *inPtr1, *inPtr2, *inPtr3;
-  OT  *outPtr0, *outPtr1, *outPtr2, *outPtr3;
+template <class T>
+static void vtkImageFlipExecute(vtkImageFlip *self, int id,
+				vtkImageData *inData, int *inExt,
+				vtkImageData *outData, int *outExt, T *outPtr)
+{
+  int idxX, idxY, idxZ;
+  int maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outSkipY, outSkipZ;
+  T *inPtrX, *inPtrY, *inPtrZ;
+  int scalarSize;
+  unsigned long count = 0;
+  unsigned long target;
 
-  self = self;
-  outPtr = outPtr;
+  // find the region to loop over
+  maxX = outExt[1] - outExt[0]; 
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  // target is for progress ...
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
+
+  // Get increments to march through data 
+  inData->GetIncrements(inIncX, inIncY, inIncZ);
+  // outIncX is a place holder
+  outData->GetContinuousIncrements(outExt, outIncX, outSkipY, outSkipZ);
+  // for x, increment is used because all components are copied at once
+  outIncX = inData->GetNumberOfScalarComponents();
+  // for memcpy
+  scalarSize = sizeof(T)*outIncX;
   
-  // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
-
-  if (self->GetNumberOfFilteredAxes() > 0)
+  // Get the starting in pointer
+  inPtrZ = (T *)inData->GetScalarPointerForExtent(inExt);
+  // adjust the increments (and pointer) for the flip
+  switch (self->GetFilteredAxis())
     {
-    outPtr += (max0 - min0) * outInc0;
-    outInc0 = -outInc0;
-    }
-  if (self->GetNumberOfFilteredAxes() > 1)
-    {
-    outPtr += (max1 - min1) * outInc1;
-    outInc1 = -outInc1;
-    }
-  if (self->GetNumberOfFilteredAxes() > 2)
-    {
-    outPtr += (max2 - min2) * outInc2;
-    outInc2 = -outInc2;
-    }
-  if (self->GetNumberOfFilteredAxes() > 3)
-    {
-    outPtr += (max3 - min3) * outInc3;
-    outInc3 = -outInc3;
+    case 0:
+      inPtrZ += maxX * inIncX;
+      inIncX = -inIncX;
+      break;
+    case 1:
+      inPtrZ += maxY * inIncY;
+      inIncY = -inIncY;
+      break;
+    case 2:
+      inPtrZ += maxZ * inIncZ;
+      inIncZ = -inIncZ;
+      break;
+    default:
+      vtkGenericWarningMacro("Bad axis " << self->GetFilteredAxis());
+      return;
     }
   
   // Loop through ouput pixels
-  outPtr3 = outPtr;
-  inPtr3 = inPtr;
-  for (idx3 = min3; idx3 <= max3; ++idx3)
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outPtr2 = outPtr3;
-    inPtr2 = inPtr3;
-    for (idx2 = min2; idx2 <= max2; ++idx2)
+    inPtrY = inPtrZ;
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      outPtr1 = outPtr2;
-      inPtr1 = inPtr2;
-      for (idx1 = min1; idx1 <= max1; ++idx1)
+      // handle updating progress method
+      if (!id) 
 	{
-	outPtr0 = outPtr1;
-	inPtr0 = inPtr1;
-	for (idx0 = min0; idx0 <= max0; ++idx0)
-	  {
-	  *outPtr0 = (OT)(*inPtr0);
-	  outPtr0 += outInc0;
-	  inPtr0  += inInc0;
-	  }
-	outPtr1 += outInc1;
-	inPtr1 += inInc1;
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      outPtr2 += outInc2;
-      inPtr2 += inInc2;
+      inPtrX = inPtrY;
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	// Pixel operation
+	memcpy((void *)outPtr, (void *)inPtrX, scalarSize);
+	outPtr += outIncX;
+	inPtrX += inIncX;
+	}
+      outPtr += outSkipY;
+      inPtrY += inIncY;
       }
-    outPtr3 += outInc3;
-    inPtr3 += inInc3;
+    outPtr += outSkipZ;
+    inPtrZ += inIncZ;
     }
 }
 
 
-
-//----------------------------------------------------------------------------
-template <class T>
-static void vtkImageFlipExecute(vtkImageFlip *self,
-			 vtkImageRegion *inRegion, T *inPtr,
-			 vtkImageRegion *outRegion)
-{
-  void *outPtr = outRegion->GetScalarPointer();
-  switch (outRegion->GetScalarType())
-    {
-    case VTK_FLOAT:
-      vtkImageFlipExecute(self, inRegion, (T *)(inPtr), 
-			  outRegion, (float *)(outPtr));
-      break;
-    case VTK_INT:
-      vtkImageFlipExecute(self, inRegion, (T *)(inPtr), 
-			  outRegion, (int *)(outPtr)); 
-      break;
-    case VTK_SHORT:
-      vtkImageFlipExecute(self, inRegion, (T *)(inPtr), 
-			  outRegion, (short *)(outPtr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageFlipExecute(self, inRegion, (T *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr)); 
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageFlipExecute(self, inRegion, (T *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr)); 
-      break;
-    default:
-      vtkGenericWarningMacro("Execute: Unknown output ScalarType");
-      return;
-    }
-}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -228,30 +187,44 @@ static void vtkImageFlipExecute(vtkImageFlip *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageFlip::Execute(vtkImageRegion *inRegion, 
-				vtkImageRegion *outRegion) {
-  void *inPtr = inRegion->GetScalarPointer();
+void vtkImageFlip::ThreadedExecute(vtkImageData *inData, 
+				   vtkImageData *outData,
+				   int outExt[6], int id) 
+{
+  int inExt[6];
+  void *outPtr;
   
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  outPtr = outData->GetScalarPointerForExtent(outExt);
+  this->ComputeRequiredInputUpdateExtent(inExt, outExt);
 
-  switch (inRegion->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+               << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
+  
+  switch (outData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageFlipExecute(this, inRegion, (float *)(inPtr), outRegion);
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageFlipExecute(this, inRegion, (int *)(inPtr), outRegion);
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageFlipExecute(this, inRegion, (short *)(inPtr), outRegion);
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageFlipExecute(this, inRegion, (unsigned short *)(inPtr), 
-			  outRegion);
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageFlipExecute(this, inRegion, (unsigned char *)(inPtr), outRegion);
+      vtkImageFlipExecute(this, id, inData, inExt, 
+			  outData, outExt, (unsigned char *)(outPtr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

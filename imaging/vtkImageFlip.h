@@ -38,12 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFlip - This flips axes of an image. Right becomes left ...
+// .NAME vtkImageFlip - This flips an axis of an image. Right becomes left ...
 // .SECTION Description
-// vtkImageFlip will reflect the data over all of the filtered axes.
-// The Origin and Spacing are not changed, min0 and max0 of extent are
-// negated, and are swapped.  If PreserveImageExtent is "On", then the 
-// image is shifted so that it has the same image extent.  
+// vtkImageFlip will reflect the data along the filtered axis.
+// If PreserveImageExtent is "On", then the 
+// image is shifted so that it has the same image extent, and the origin is
+// shifted appropriately. When PreserveImageExtent is "off",
+// The Origin  is not changed, min and max of extent (opf filtered axis) are
+// negated, and are swapped.  
 // The default preserves the extent of the input.
 
 #ifndef __vtkImageFlip_h
@@ -61,8 +63,10 @@ public:
 
   // Description:
   // Specify which axes will be flipped.
-  void SetFilteredAxes(int num, int *axes);
-  vtkImageSetMacro(FilteredAxes, int);
+  vtkSetMacro(FilteredAxis, int);
+  vtkGetMacro(FilteredAxis, int);
+  // For compatability with old scripts
+  void SetFilteredAxes(int axis) {this->SetFilteredAxis(axis);}
   
   // Description:
   // If PreseveImageExtent is off, then extent of axis0 is simply
@@ -73,11 +77,13 @@ public:
   vtkBooleanMacro(PreserveImageExtent, int);
   
 protected:
+  int FilteredAxis;
   int PreserveImageExtent;
   
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int outExt[6], int id);
 };
 
 #endif
