@@ -44,6 +44,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Python.h"
 #include "vtkCommand.h"
 
+#if defined(WIN32) && !defined(VTKSTATIC)
+ #if defined(vtkCommon_EXPORTS) || defined(VTKDLL)
+  #define VTK_EXPORT __declspec( dllexport )
+ #else
+  #define VTK_EXPORT __declspec( dllimport )
+ #endif
+#else
+ #define VTK_EXPORT
+#endif
+
 // This is the VTK/Python 'class,' it contains the method list and a pointer
 // to the superclass
 typedef vtkObject *(*vtknewfunc)();
