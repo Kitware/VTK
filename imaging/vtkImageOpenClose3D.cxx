@@ -120,6 +120,19 @@ void vtkImageOpenClose3D::DebugOn()
     this->Filter1->DebugOn();
     }
 }
+//----------------------------------------------------------------------------
+void vtkImageOpenClose3D::DebugOff()
+{
+  this->vtkObject::DebugOff();
+  if (this->Filter0)
+    {
+    this->Filter0->DebugOff();
+    }
+  if (this->Filter1)
+    {
+    this->Filter1->DebugOff();
+    }
+}
 
 
 
