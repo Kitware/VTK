@@ -1626,7 +1626,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
   int j,k;
   PlyElement *elem;
   PlyProperty *prop;
-  FILE *fp = plyfile->fp;
+  //FILE *fp = plyfile->fp;
   char *elem_data,*item=0;
   char *item_ptr;
   int item_size=0;
