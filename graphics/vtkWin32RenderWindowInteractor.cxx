@@ -105,7 +105,6 @@ void vtkWin32RenderWindowInteractor::Initialize()
   position= ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-  SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
   SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
   /* add callback */
 
@@ -198,9 +197,11 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 {
   static LPARAM lastPos;
   float xf,yf;
+  vtkWin32OglrRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
 
-  me = (vtkWin32RenderWindowInteractor *)GetWindowLong(hWnd,GWL_USERDATA);
+  ren = (vtkWin32OglrRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
+  me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
 
   switch (uMsg)
     {
@@ -217,13 +218,13 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_LBUTTONDOWN: 
       me->FindPokedCamera(LOWORD(lParam),me->Size[1] - HIWORD(lParam));\
       if (wParam & MK_SHIFT)
-	{
-	me->StartPan();
-	}
+	      {
+	      me->StartPan();
+	      }
       else
-	{
-	me->StartRotate(); 
-	}
+	      {
+	      me->StartRotate(); 
+	      }
       break;
 	    
     case WM_LBUTTONUP: me->EndRotate(); me->EndPan(); break;
@@ -239,89 +240,89 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	    
     case WM_CHAR:
       switch (wParam)
-	{
-	case 'e': 
-    {
-      // do a cleaner exit from windows
-      // first free up the windows resources
-      // me->RenderWindow->Delete();
-      PostQuitMessage(0); 
-    }
-    break;
-	case 'u':
-	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
-	  break;
-	case 'r':
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	  me->CurrentRenderer->ResetCamera();
-	  me->RenderWindow->Render();
-	  break;
-	case 'w':
-	  {
-	  vtkActorCollection *ac;
-	  vtkActor *anActor, *aPart;
-		
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	    {
-	    for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
 	      {
-	      aPart->GetProperty()->SetWireframe();
-	      }
-	    }
-		
-	  me->RenderWindow->Render();
-	  }
-	  break;
-	case 's':
-	  {
-	  vtkActorCollection *ac;
-	  vtkActor *anActor, *aPart;
-		
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	  ac = me->CurrentRenderer->GetActors();
-	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
-	    {
-	    for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+	      case 'e': 
+          {
+          // do a cleaner exit from windows
+          // first free up the windows resources
+          // me->RenderWindow->Delete();
+          PostQuitMessage(0); 
+          }
+        break;
+	    case 'u':
+	      if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
+	      break;
+	    case 'r':
+	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	      me->CurrentRenderer->ResetCamera();
+	      me->RenderWindow->Render();
+	      break;
+	    case 'w':
 	      {
-	      aPart->GetProperty()->SetSurface();
-	      }
-	    }
+	      vtkActorCollection *ac;
+	      vtkActor *anActor, *aPart;
 		
-	  me->RenderWindow->Render();
-	  }
-	  break;
-	case '3':
-	  {
-	  if (me->RenderWindow->GetStereoRender())
-	    {
-	    me->RenderWindow->StereoRenderOff();
+	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	      ac = me->CurrentRenderer->GetActors();
+	      for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	        {
+	        for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+	          {
+	          aPart->GetProperty()->SetWireframe();
+	          }
+	        }
+		
+	      me->RenderWindow->Render();
+	      }
+	      break;
+	    case 's':
+	      {
+	      vtkActorCollection *ac;
+	      vtkActor *anActor, *aPart;
+		
+	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	      ac = me->CurrentRenderer->GetActors();
+	      for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
+	        {
+	        for (anActor->InitPartTraversal(); aPart=anActor->GetNextPart(); )
+	          {
+	          aPart->GetProperty()->SetSurface();
+	         }
+	       }
+		
+	      me->RenderWindow->Render();
+	      }
+	      break;
+	    case '3':
+	      {
+	      if (me->RenderWindow->GetStereoRender())
+	        {
+	        me->RenderWindow->StereoRenderOff();
+	        }
+	      else
+	        {
+	        me->RenderWindow->StereoRenderOn();
+	        }
+	      me->RenderWindow->Render();
+	      }
+	      break;
+	    case 'p':
+	      {
+	      me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
+	      if (me->StartPickMethod)
+	        {
+	        (*me->StartPickMethod)(me->StartPickMethodArg);
+	        }
+	      me->Picker->Pick(LOWORD(lastPos), me->Size[1]-HIWORD(lastPos),
+			      0.0, me->CurrentRenderer);
+	      me->HighlightActor(me->Picker->GetAssembly());
+	      if (me->EndPickMethod)
+	        {
+	        (*me->EndPickMethod)(me->EndPickMethodArg);
+	        }
+	      }
+	      break;
 	    }
-	  else
-	    {
-	    me->RenderWindow->StereoRenderOn();
-	    }
-	  me->RenderWindow->Render();
-	  }
-	  break;
-	case 'p':
-	  {
-	  me->FindPokedRenderer(LOWORD(lastPos),me->Size[1]-HIWORD(lastPos));
-	  if (me->StartPickMethod)
-	    {
-	    (*me->StartPickMethod)(me->StartPickMethodArg);
-	    }
-	  me->Picker->Pick(LOWORD(lastPos), me->Size[1]-HIWORD(lastPos),
-			   0.0, me->CurrentRenderer);
-	  me->HighlightActor(me->Picker->GetAssembly());
-	  if (me->EndPickMethod)
-	    {
-	    (*me->EndPickMethod)(me->EndPickMethodArg);
-	    }
-	  }
-	  break;
-	}
       break;
 
     case WM_TIMER:
@@ -388,33 +389,32 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	  me->RenderWindow->Render();
 	  }
 	  break;
-	case VTKXI_ZOOM :
-	  {
-	  float zoomFactor;
-	  float *clippingRange;
-	  yf = ((me->Size[1] - HIWORD(lastPos)) - me->Center[1])/
-	    (float)me->Center[1];
-	  zoomFactor = pow((double)1.1,(double)yf);
-	  if (me->CurrentCamera->GetParallelProjection())
-	    {
-	    me->CurrentCamera->
-	      SetParallelScale(me->CurrentCamera->GetParallelScale()/zoomFactor);
-	    }
-	  else
-	    {
-	    clippingRange = me->CurrentCamera->GetClippingRange();
-	    me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
+	    case VTKXI_ZOOM :
+	      {
+	      float zoomFactor;
+	      float *clippingRange;
+	      yf = ((me->Size[1] - HIWORD(lastPos)) - me->Center[1])/
+	        (float)me->Center[1];
+	      zoomFactor = pow((double)1.1,(double)yf);
+	      if (me->CurrentCamera->GetParallelProjection())
+	        {
+	        me->CurrentCamera->
+	          SetParallelScale(me->CurrentCamera->GetParallelScale()/zoomFactor);
+	        }
+	      else
+	        {
+	        clippingRange = me->CurrentCamera->GetClippingRange();
+	        me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
 						clippingRange[1]/zoomFactor);
-	    me->CurrentCamera->Dolly(zoomFactor);
+	        me->CurrentCamera->Dolly(zoomFactor);
+	        }
+	      me->RenderWindow->Render();
+	      }
+	      break;
 	    }
-	  me->RenderWindow->Render();
-	  }
-	  break;
-	}
       break;
     default:
       return me->OldProc(hWnd,uMsg,wParam,lParam);
-      //          return DefWindowProc(hWnd,uMsg,wParam,lParam);
     }
   return 0;
 }

@@ -53,15 +53,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class VTK_EXPORT vtkWin32OglrRenderWindow : public vtkRenderWindow
 {
-protected:
-  HGLRC  ContextId;
-  HDC	 DeviceContext;			//	hsr	
-  BOOL   MFChandledWindow;		//  hsr
-  HWND   WindowId;
-  HWND   NextWindowId;
-  int    OwnWindow;
-  int    ScreenSize[2];
-  int    MultiSamples;
+public:
+  HINSTANCE ApplicationInstance;
+  HPALETTE  Palette;
+  HGLRC     ContextId;
+  HDC	      DeviceContext;			//	hsr	
+  BOOL      MFChandledWindow;		//  hsr
+  HWND      WindowId;
+  HWND      ParentId;
+  HWND      NextWindowId;
+  int       OwnWindow;
+  int       ScreenSize[2];
+  int       MultiSamples;
 
 public:
   vtkWin32OglrRenderWindow();
@@ -92,6 +95,8 @@ public:
   HWND      GetWindowId();
   void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
   void		SetWindowId(HWND);
+  void    SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+  void		SetParentId(HWND);
   void		SetContextId(HGLRC);	// hsr
   void		SetDeviceContext(HDC);	// hsr
   void      SetNextWindowId(HWND);

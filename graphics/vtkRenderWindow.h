@@ -295,6 +295,10 @@ public:
   void SetDesiredUpdateRate(float);
   vtkGetMacro(DesiredUpdateRate,float);
 
+  // Description:
+  // Get the interactor associated with this render window
+  vtkGetObjectMacro(Interactor,vtkRenderWindowInteractor);
+
 protected:
   virtual void DoStereoRender();
   virtual void DoFDRender();
