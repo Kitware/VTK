@@ -60,6 +60,8 @@ vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
 vtkImageHybridMedian2D \
+vtkImageIdealHighPass \
+vtkImageIdealLowPass \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
 vtkImageLogic \
@@ -109,8 +111,7 @@ vtkXTextMapper
 #vtkImageFeatureAnd \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
-#vtkImageIdealHighPass \
-#vtkImageIdealLowPass \
+
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
 #vtkImageOpenClose3D \
