@@ -64,6 +64,7 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
 vtkClipPolyData::~vtkClipPolyData()
 {
   this->ClippedOutput->Delete();
+  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
 }
 
 // Description:

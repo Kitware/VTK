@@ -60,6 +60,7 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 vtkCutter::~vtkCutter()
 {
   this->ContourValues->Delete();
+  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
 }
 
 // Description:
