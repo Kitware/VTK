@@ -381,6 +381,15 @@ public:
   void SetTrackballModeToJoystick();
   vtkGetMacro(TrackballMode, int);
   
+  // Description:
+  // This methods sets the Size ivar of the interactor without
+  // actually changing the size of the window. Normally
+  // application programmers would use UpdateSize if anything.
+  // This is useful for letting someone else change the size of
+  // the rendering window and just letting the interactor
+  // know about the change.
+  vtkSetVector2Macro(Size,int);
+  vtkGetVector2Macro(Size,int);
   
 protected:
   vtkRenderWindow *RenderWindow;
