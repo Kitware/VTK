@@ -48,6 +48,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // in the first set will get mapped close to point 1 in the second set, 
 // etc. Call SetSourceLandmarks and SetTargetLandmarks to specify the two
 // sets of landmarks, ensure they have the same number of points.
+// .SECTION Caveats
+// Whenever you add, subtract, or set points you must call Modified()
+// on the vtkPoints object, or the transformation might not update.
 // .SECTION see also
 // vtkLinearTransform
 
@@ -70,9 +73,12 @@ public:
 
   // Description:
   // Specify the source and target landmark sets. The two sets must have 
-  // the same number of points.
+  // the same number of points.  If you add or change points in these objects,
+  // you must call Modified() on them or the transformation might not update.
   void SetSourceLandmarks(vtkPoints *points);
   void SetTargetLandmarks(vtkPoints *points);
+  vtkGetObjectMacro(SourceLandmarks, vtkPoints);
+  vtkGetObjectMacro(TargetLandmarks, vtkPoints);
 
   // Description:
   // Set the number of degrees of freedom to constrain the solution to.

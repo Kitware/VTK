@@ -18,8 +18,7 @@ ABSTRACT_H =
 
 CONCRETE_H = 
 
-ABSTRACT = \
-vtkWarpTransform
+ABSTRACT = 
 
 CONCRETE = \
 vtkArcPlotter \

@@ -49,8 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // landmark. The points in between are interpolated smoothly using
 // Bookstein's Thin Plate Spline algorithm.
 // .SECTION Caveats
-// The inverse transform is calculated using an iterative method,
+// 1) The inverse transform is calculated using an iterative method,
 // and is several times more expensive than the forward transform.
+// 2) Whenever you add, subtract, or set points you must call Modified()
+// on the vtkPoints object, or the transformation might not update.
+// 3) Collinear point configurations (except those that lie in the XY plane)
+// result in an unstable transformation.
 // .SECTION see also
 // vtkGridTransform vtkGeneralTransform
 
@@ -100,12 +104,16 @@ public:
 //ETX
 
   // Description:
-  // Set the source landmarks for the warp.
+  // Set the source landmarks for the warp.  If you add or change the
+  // vtkPoints object, you must call Modified() on it or the transformation
+  // might not update.
   void SetSourceLandmarks(vtkPoints *source);
   vtkGetObjectMacro(SourceLandmarks,vtkPoints);
 
   // Description:
-  // Set the target landmarks for the warp.
+  // Set the target landmarks for the warp.  If you add or change the
+  // vtkPoints object, you must call Modified() on it or the transformation
+  // might not update.
   void SetTargetLandmarks(vtkPoints *target);
   vtkGetObjectMacro(TargetLandmarks,vtkPoints);
 
