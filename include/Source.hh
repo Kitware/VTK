@@ -43,9 +43,9 @@ public:
 
 protected:
   virtual void Execute();
-  void (*StartMethod)(void *arg);
+  void (*StartMethod)(void *);
   void *StartMethodArg;
-  void (*EndMethod)(void *arg);
+  void (*EndMethod)(void *);
   void *EndMethodArg;
   vlTimeStamp ExecuteTime;
 
