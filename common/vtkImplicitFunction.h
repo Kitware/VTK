@@ -51,26 +51,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // boolean combinations implicit functions (see vtkImplicitBoolean).
 //
 // vtkImplicitFunction provides a mechanism to transform the implicit
-// function(s) via a transformation matrix. This capability can be used to 
-// translate, orient, or scale implicit functions. For example, a sphere 
-// implicit function can be transformed into an oriented ellipse. This is 
-// accomplished by using an instance of vtkTransform.
+// function(s) via a vtkGeneralTransform.  This capability can be used to 
+// translate, orient, scale, or warp implicit functions.  For example, 
+// a sphere implicit function can be transformed into an oriented ellipse. 
 
 // .SECTION Caveats
-// The transformation matrix transforms a point into the space of the implicit
+// The transformation transforms a point into the space of the implicit
 // function (i.e., the model space). Typically we want to transform the 
 // implicit model into world coordinates. In this case the inverse of the 
-// transformation matrix is required.
+// transformation is required.
 
 // .SECTION See Also
-// vtkTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane vtkPlanes
-// vtkQuadric vtkImplicitVolume vtkSampleFunction vtkCutter vtkClipPolyData
+// vtkGeneralTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane 
+// vtkPlanes vtkQuadric vtkImplicitVolume vtkSampleFunction vtkCutter
+// vtkClipPolyData
 
 #ifndef __vtkImplicitFunction_h
 #define __vtkImplicitFunction_h
 
 #include "vtkObject.h"
-#include "vtkTransform.h"
+#include "vtkGeneralTransform.h"
 
 class VTK_EXPORT vtkImplicitFunction : public vtkObject
 {
@@ -86,28 +86,40 @@ public:
   // Description:
   // Evaluate function at position x-y-z and return value. Point x[3] is
   // transformed through transform (if provided).
-  float FunctionValue(float x[3]);
+  float FunctionValue(const float x[3]);
+  float FunctionValue(float x, float y, float z) {
+    float xyz[3] = {x, y, z}; return this->FunctionValue(xyz); };
 
   // Description:
   // Evaluate function gradient at position x-y-z and pass back vector. Point
   // x[3] is transformed through transform (if provided).
-  void FunctionGradient(float x[3], float g[3]);
+  void FunctionGradient(const float x[3], float g[3]);
+  float *FunctionGradient(const float x[3]);
+  float *FunctionGradient(float x, float y, float z) {
+    float xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); };
+
 
   // Description:
-  // Evaluate function at position x-y-z and return value. Must be implemented
-  // by derived class.
+  // Set/Get a transformation to apply to input points before
+  // executing the implicit function.
+  vtkSetObjectMacro(Transform,vtkGeneralTransform);
+  vtkGetObjectMacro(Transform,vtkGeneralTransform);
+
+  // Description:
+  // Evaluate function at position x-y-z and return value.  You should
+  // generally not call this method directly, you should use 
+  // FunctionValue() instead.  This method must be implemented by 
+  // any derived class. 
   virtual float EvaluateFunction(float x[3]) = 0;
-  float EvaluateFunction(float x, float y, float z);
+  float EvaluateFunction(float x, float y, float z) {
+    float xyz[3] = {x, y, z}; return this->EvaluateFunction(xyz); };
 
   // Description:
-  // Evaluate function gradient at position x-y-z and pass back vector. Must
-  // be implemented by derived class.
+  // Evaluate function gradient at position x-y-z and pass back vector. 
+  // You should generally not call this method directly, you should use 
+  // FunctionGradient() instead.  This method must be implemented by 
+  // any derived class. 
   virtual void EvaluateGradient(float x[3], float g[3]) = 0;
-
-  // Description:
-  // Set/Get transformation matrix to transform implicit function.
-  vtkSetObjectMacro(Transform,vtkTransform);
-  vtkGetObjectMacro(Transform,vtkTransform);
 
 protected:
   vtkImplicitFunction();
@@ -115,7 +127,7 @@ protected:
   vtkImplicitFunction(const vtkImplicitFunction&) {};
   void operator=(const vtkImplicitFunction&) {};
 
-  vtkTransform *Transform;
+  vtkGeneralTransform *Transform;
 
 };
 

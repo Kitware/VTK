@@ -51,71 +51,47 @@ vtkImplicitFunction::~vtkImplicitFunction()
   this->SetTransform(NULL);
 }
 
-float vtkImplicitFunction::EvaluateFunction(float x, float y, float z)
-{
-  float xyz[3];
-  xyz[0] = x; xyz[1] = y; xyz[2] = z;
-  return this->EvaluateFunction (xyz);
-}
-
 // Evaluate function at position x-y-z and return value. Point x[3] is
 // transformed through transform (if provided).
-float vtkImplicitFunction::FunctionValue(float x[3])
+float vtkImplicitFunction::FunctionValue(const float x[3])
 {
   if ( ! this->Transform )
     {
-    return this->EvaluateFunction(x);
+    return this->EvaluateFunction((float *)x);
     }
 
   else //pass point through transform
     {
-    float pt[4];
-    int i;
-
-    pt[0] = x[0];
-    pt[1] = x[1];
-    pt[2] = x[2];
-    pt[3] = 1.0;
-    this->Transform->MultiplyPoint(pt,pt);
-    if (pt[3] != 1.0 )
-      {
-      for (i=0; i<3; i++)
-	{
-	pt[i] /= pt[3];
-	}
-      }
-
+    float pt[3];
+    this->Transform->TransformPoint(x,pt);
     return this->EvaluateFunction((float *)pt);
     }
 }
 
 // Evaluate function gradient at position x-y-z and pass back vector. Point
 // x[3] is transformed through transform (if provided).
-void vtkImplicitFunction::FunctionGradient(float x[3], float g[3])
+void vtkImplicitFunction::FunctionGradient(const float x[3], float g[3])
 {
   if ( ! this->Transform )
     {
-    this->EvaluateGradient(x,g);
+    this->EvaluateGradient((float *)x,g);
     }
 
   else //pass point through transform
     {
-    float pt[4];
-    int i;
-
-    pt[0] = x[0];
-    pt[1] = x[1];
-    pt[2] = x[2];
-    pt[3] = 1.0;
-    this->Transform->MultiplyPoint(pt,pt);
-    if (pt[3] != 1.0 )
-      {
-      for (i=0; i<3; i++)
-	{
-	pt[i] /= pt[3];
-	}
-      }
+    float pt[3];
+    float A[3][3];
+    this->Transform->Update();
+    this->Transform->InternalTransformDerivative(x,pt,A);
     this->EvaluateGradient((float *)pt,g);
+
+    // the gradient must be multiplied by the inverse of the
+    // transposed inverse of the derivative of the transform,
+    // which is (of course) just the transpose of the derivative.
+    float x = g[0], y = g[1], z = g[2];
+    g[0] = x*A[0][0] + y*A[1][0] + z*A[2][0];
+    g[1] = x*A[0][1] + y*A[1][1] + z*A[2][1];
+    g[2] = x*A[0][2] + y*A[1][2] + z*A[2][2];
     }
 }
 
@@ -149,4 +125,5 @@ void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Transform: (None)\n";
     }
 }
+
 
