@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -326,7 +326,6 @@ void vtkInteractorStyleTrackballCamera::Dolly()
   int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
   double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
   double zoomFactor = pow((double)1.1, dyf);
-  printf("dy: %d, dyf: %lf, zoomFactor: %lf\n", dy, dyf, zoomFactor); 
   
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   if (cam->GetParallelProjection())
