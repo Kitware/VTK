@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToPolyFilter.h"
 #include "vtkImplicitFunction.h"
 
-#define VTK_MAX_CONTOURS 256
+#define VTK_MAX_CONTOURS 1024
 
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyFilter
 {
