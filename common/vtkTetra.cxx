@@ -160,43 +160,44 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
 			   vtkIdList& pts)
 {
-  float t1 = pcoords[0] - pcoords[1];
-  float t2 = pcoords[1] - pcoords[2];
-  float t3 = pcoords[0] - pcoords[2];
-  float t4 = pcoords[0] + pcoords[1] + 2.0*pcoords[2] - 1.3333333;
-  float t5 = pcoords[0] + 2.0*pcoords[1] + pcoords[2] - 1.3333333;
-  float t6 = 2.0*pcoords[0] + pcoords[1] + pcoords[2] - 1.3333333;
-
+  float minPCoord = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
+  int i, idx=3;
+  
+  for ( i=0; i < 3; i++ )
+    {
+    if ( pcoords[i] < minPCoord )
+      {
+      minPCoord = pcoords[i];
+      idx = i;
+      }
+    }
+  
   pts.SetNumberOfIds(3);
-
-  // compare against three lines in parametric space that divide element
-  // into three pieces
-  if ( t3 >= 0.0 && t2 >= 0.0 && t4 < 0.0 )
+  switch (idx) //find the face closest to the point
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(2));
-    pts.SetId(2,this->PointIds.GetId(1));
-    }
-
-  else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 )
-    {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
-    pts.SetId(2,this->PointIds.GetId(3));
-    }
-
-  else if ( t4 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
-    {
-    pts.SetId(0,this->PointIds.GetId(1));
-    pts.SetId(1,this->PointIds.GetId(2));
-    pts.SetId(2,this->PointIds.GetId(3));
-    }
-
-  else //if ( t1 < 0.0 && t3 < 0.0 && t6 < 0.0 )
-    {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(2));
-    pts.SetId(2,this->PointIds.GetId(3));
+    case 0:
+      pts.SetId(0,this->PointIds.GetId(0));
+      pts.SetId(1,this->PointIds.GetId(2));
+      pts.SetId(2,this->PointIds.GetId(3));
+      break;
+      
+    case 1:
+      pts.SetId(0,this->PointIds.GetId(0));
+      pts.SetId(1,this->PointIds.GetId(1));
+      pts.SetId(2,this->PointIds.GetId(3));
+      break;
+      
+    case 2:
+      pts.SetId(0,this->PointIds.GetId(0));
+      pts.SetId(1,this->PointIds.GetId(1));
+      pts.SetId(2,this->PointIds.GetId(2));
+      break;
+      
+    case 3:
+      pts.SetId(0,this->PointIds.GetId(1));
+      pts.SetId(1,this->PointIds.GetId(2));
+      pts.SetId(2,this->PointIds.GetId(3));
+      break;
     }
 
   if ( pcoords[0] < 0.0 || pcoords[1] < 0.0 || pcoords[2] < 0.0 ||
