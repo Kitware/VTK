@@ -1075,7 +1075,7 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
         }
       if (cExt[j*2] > cExt[j*2+1])
         {
-        area = 0.0;
+        area = 0;
         }
       else
         {
