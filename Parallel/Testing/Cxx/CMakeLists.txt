@@ -42,32 +42,32 @@ IF (VTK_DATA_ROOT)
 
     IF (VTK_USE_MPI)
      IF (UNIX)
-      IF (MPIRUN)
-        ADD_TEST(ParallelIsoMPI-image ${MPIRUN} ${MPI_PREFLAGS}
+      IF (VTK_MPIRUN_EXE)
+        ADD_TEST(ParallelIsoMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/ParallelIso.cxx.png
-                 ${MPI_POSTFLAGS})
-        ADD_TEST(TestCommunicatorMPI-image ${MPIRUN} ${MPI_PREFLAGS}
+                 ${VTK_MPI_POSTFLAGS})
+        ADD_TEST(TestCommunicatorMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/GenericCommunicator.cxx.png
-                 ${MPI_POSTFLAGS})
-        ADD_TEST(TestPStreamMPI-image ${MPIRUN} ${MPI_PREFLAGS}
+                 ${VTK_MPI_POSTFLAGS})
+        ADD_TEST(TestPStreamMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/TestPStream
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/TestPStream.cxx.png
-                 ${MPI_POSTFLAGS})
+                 ${VTK_MPI_POSTFLAGS})
         IF (MPI_MAX_NUMPROCS)
           IF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
-           ADD_TEST(MPIGroups-image ${MPIRUN} -np ${MPI_MAX_NUMPROCS}
+           ADD_TEST(MPIGroups-image ${VTK_MPIRUN_EXE} -np ${MPI_MAX_NUMPROCS}
                    ${CXX_TEST_PATH}/MPIGroups
                    -D ${VTK_DATA_ROOT}
                    -V Baseline/Parallel/MPIGroups.cxx.png
-                   ${MPI_POSTFLAGS})
+                   ${VTK_MPI_POSTFLAGS})
           ENDIF (MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
         ENDIF (MPI_MAX_NUMPROCS)
-      ENDIF(MPIRUN)
+      ENDIF(VTK_MPIRUN_EXE)
      ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
       IF (VTK_HAS_THREADS)
@@ -90,12 +90,12 @@ ELSE (VTK_DATA_ROOT)
     ENDIF (VTK_HAS_THREADS)
     IF (VTK_USE_MPI)
      IF(UNIX)
-      IF (MPIRUN)
-        ADD_TEST(ParallelIsoMPI ${MPIRUN} ${MPI_PREFLAGS}
-                 ${CXX_TEST_PATH}/ParallelIsoTest ${MPI_POSTFLAGS})
-        ADD_TEST(TestCommunicatorMPI ${MPIRUN} ${MPI_PREFLAGS}
-                 ${CXX_TEST_PATH}/GenericCommunicator ${MPI_POSTFLAGS})
-      ENDIF(MPIRUN)
+      IF (VTK_MPIRUN_EXE)
+        ADD_TEST(ParallelIsoMPI ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/ParallelIsoTest ${VTK_MPI_POSTFLAGS})
+        ADD_TEST(TestCommunicatorMPI ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
+      ENDIF(VTK_MPIRUN_EXE)
      ENDIF(UNIX)
     ELSE (VTK_USE_MPI)
       IF (VTK_HAS_THREADS)

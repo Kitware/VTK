@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 1.4)
 PROJECT(VTK)
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
+#-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 4)
 SET(VTK_MINOR_VERSION 1)
@@ -9,6 +10,7 @@ SET(VTK_BUILD_VERSION 1)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
+#-----------------------------------------------------------------------------
 # Figure out which version of the VTK_MAKE_INSTANTIATOR command is
 # available with this version of CMake.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
@@ -46,6 +48,7 @@ IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
                 ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
+#-----------------------------------------------------------------------------
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
 SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS} CACHE INTERNAL "Is this VTK built with shared libraries.")
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
@@ -89,14 +92,14 @@ IF (VTK_USE_PARALLEL)
     MARK_AS_ADVANCED(VTK_USE_MPI)
     IF(BUILD_TESTING)
       IF (VTK_USE_MPI)
-        FIND_PROGRAM(MPIRUN NAMES mpirun lamexec)
-        MARK_AS_ADVANCED(MPIRUN)
-        SET (MPI_PREFLAGS "-np 2" CACHE STRING " Flags used by mpi start program.")
-        SET (MPI_POSTFLAGS "" CACHE STRING "Flags used by mpi start program.")
-        SET (MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications.")
-        MARK_AS_ADVANCED(MPI_PREFLAGS MPI_POSTFLAGS MPI_MAX_NUMPROCS)
-        SEPARATE_ARGUMENTS(MPI_PREFLAGS)
-        SEPARATE_ARGUMENTS(MPI_POSTFLAGS)
+        FIND_PROGRAM(VTK_MPIRUN_EXE NAMES mpirun lamexec)
+        MARK_AS_ADVANCED(VTK_MPIRUN_EXE)
+        SET (VTK_MPI_PREFLAGS "-np 2" CACHE STRING " Flags used by mpi start program.")
+        SET (VTK_MPI_POSTFLAGS "" CACHE STRING "Flags used by mpi start program.")
+        SET (VTK_MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications.")
+        MARK_AS_ADVANCED(VTK_MPI_PREFLAGS VTK_MPI_POSTFLAGS VTK_MPI_MAX_NUMPROCS)
+        SEPARATE_ARGUMENTS(VTK_MPI_PREFLAGS)
+        SEPARATE_ARGUMENTS(VTK_MPI_POSTFLAGS)
       ENDIF (VTK_USE_MPI)
     ENDIF(BUILD_TESTING)
 ENDIF (VTK_USE_PARALLEL)
@@ -286,6 +289,11 @@ IF (VTK_USE_RENDERING)
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_HYBRID)
+  # hybrid requires rendering
+  IF (NOT VTK_USE_RENDERING)
+    MESSAGE("The Hybrid option requires Rendering, but you do not have Rendering selected." "Warning")
+  ENDIF (NOT VTK_USE_RENDERING)
+
   IF (WIN32)
     OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Use Video for Windows for video input" OFF)
     OPTION(VTK_USE_MATROX_IMAGING "Use Matrox Imaging Library for video input" OFF)
