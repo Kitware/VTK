@@ -1,6 +1,6 @@
 PROJECT(VTK)
 
-SUBDIRS(Wrapping Common Filtering)
+SUBDIRS(Wrapping Common Filtering Imaging)
 
 BUILD_SHARED_LIBRARIES()
 
@@ -17,23 +17,19 @@ ENDIF (WIN32)
 #
 OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
 IF (VTK_WRAP_TCL)
-  # try to find the Tcl libraries
-  FIND_LIBRARY(TCL82_LIB_PATH tcl82 "C:/Program Files/Tcl/lib")
-  IF (TCL82_LIB_PATH)
-    LINK_LIBRARIES (tcl82)
-    LINK_DIRECTORIES (${TCL82_LIB_PATH})
-  ELSE (TCL82_LIB_PATH)
-    FIND_LIBRARY(TCL80_LIB_PATH tcl80 /usr/lib)
-    IF (TCL80_LIB_PATH)
-      LINK_LIBRARIES (tcl80)
-      LINK_DIRECTORIES (${TCL80_LIB_PATH})
-    ENDIF (TCL80_LIB_PATH)
-  ENDIF (TCL82_LIB_PATH)
-    
-  FIND_PATH(TCL_INCLUDE_PATH tcl.h /usr/include /usr/local/include)
+  INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindTCL.cmake)
+
+  # add in the Tcl values if found
   IF (TCL_INCLUDE_PATH)
     INCLUDE_DIRECTORIES(${TCL_INCLUDE_PATH})
   ENDIF (TCL_INCLUDE_PATH)
+  IF (TCL_LIB_PATH)
+    LINK_DIRECTORIES (${TCL_LIB_PATH})
+  ENDIF (TCL_LIB_PATH)
+  IF (TCL_LIBRARY)
+    LINK_LIBRARIES (${TCL_LIBRARY})
+  ENDIF (TCL_LIBRARY)
+
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
   UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
 ENDIF (VTK_WRAP_TCL)
@@ -56,8 +52,8 @@ INCLUDE_DIRECTORIES(
 ${VTK_BINARY_DIR} 
 ${VTK_SOURCE_DIR}/Common
 ${VTK_SOURCE_DIR}/Filtering
+${VTK_SOURCE_DIR}/Imaging
 ${VTK_SOURCE_DIR}/rendering 
-${VTK_SOURCE_DIR}/imaging
 ${VTK_SOURCE_DIR}/io
 ${VTK_SOURCE_DIR}/implicit
 ${VTK_SOURCE_DIR}/graphics
@@ -66,8 +62,8 @@ ${VTK_SOURCE_DIR}/graphics
 LINK_DIRECTORIES(
 ${VTK_BINARY_DIR}/Common 
 ${VTK_BINARY_DIR}/Filtering
+${VTK_BINARY_DIR}/Imaging
 ${VTK_BINARY_DIR}/rendering
-${VTK_BINARY_DIR}/imaging
 ${VTK_BINARY_DIR}/io
 ${VTK_BINARY_DIR}/implicit
 ${VTK_BINARY_DIR}/graphics
