@@ -148,7 +148,7 @@ type Get##name () { \
 void Set##name (char* _arg)
 
 #define vtkSafeSetStringMacro2(name,cname) \
-void cname##::Set##name (char* _arg) \
+void cname::Set##name (char* _arg) \
   { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
