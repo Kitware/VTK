@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.55");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.56");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -174,24 +174,22 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
   target = (unsigned long)((max2 - min2 + 1)*(max1 - min1 +1)/50.0);
   target++;
 
-
+  int reverse = self->GetReverseStencil();
+  
   // Loop through input pixels
   for (idZ = min2; idZ <= max2; idZ++)
     {
     for (idY = min1; idY <= max1; idY++)
       {
-      if (!(count%target)) 
+      if (!(count%target))
         {
         self->UpdateProgress(count/(50.0*target));
         }
       count++;
 
-      // loop over stencil sub-extents
-      iter = 0;
-      if (self->GetReverseStencil())
-        { // flag that we want the complementary extents
-        iter = -1;
-        }
+      // loop over stencil sub-extents, -1 flags
+      // that we want the complementary extents
+      iter = reverse ? -1 : 0;
 
       pmin0 = min0;
       pmax0 = max0;
