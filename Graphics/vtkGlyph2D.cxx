@@ -22,7 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.14");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.15");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
@@ -60,9 +60,9 @@ void vtkGlyph2D::Execute()
 
   pd = input->GetPointData();
 
-  inScalars = pd->GetScalars();
-  inVectors = pd->GetVectors();
-  inNormals = pd->GetNormals();
+  inScalars = pd->GetScalars(this->InputScalarsSelection);
+  inVectors = pd->GetVectors(this->InputVectorsSelection);
+  inNormals = pd->GetNormals(this->InputNormalsSelection);
 
   vtkDataArray* temp = 0;
   if (pd)

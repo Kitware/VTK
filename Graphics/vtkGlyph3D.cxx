@@ -22,7 +22,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.101");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.102");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -45,6 +45,9 @@ vtkGlyph3D::vtkGlyph3D()
   this->GeneratePointIds = 0;
   this->PointIdsName = NULL;
   this->SetPointIdsName("InputPointIds");
+  this->InputScalarsSelection = NULL;
+  this->InputVectorsSelection = NULL;
+  this->InputNormalsSelection = NULL;
 }
 
 vtkGlyph3D::~vtkGlyph3D()
@@ -53,6 +56,9 @@ vtkGlyph3D::~vtkGlyph3D()
     {
     delete []PointIdsName;
     }
+  this->SetInputScalarsSelection(NULL);
+  this->SetInputVectorsSelection(NULL);
+  this->SetInputNormalsSelection(NULL);
 }
 
 void vtkGlyph3D::Execute()
@@ -92,9 +98,9 @@ void vtkGlyph3D::Execute()
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  inScalars = pd->GetScalars();
-  inVectors = pd->GetVectors();
-  inNormals = pd->GetNormals();
+  inScalars = pd->GetScalars(this->InputScalarsSelection);
+  inVectors = pd->GetVectors(this->InputVectorsSelection);
+  inNormals = pd->GetNormals(this->InputNormalsSelection);
 
   vtkDataArray* temp = 0;
   if (pd)
@@ -663,6 +669,12 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Indexing off\n";
     }
+  os << indent << "InputScalarsSelection: " 
+     << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
+  os << indent << "InputVectorsSelection: " 
+     << (this->InputVectorsSelection ? this->InputVectorsSelection : "(none)") << "\n";
+  os << indent << "InputNormalsSelection: " 
+     << (this->InputNormalsSelection ? this->InputNormalsSelection : "(none)") << "\n";
 }
 
 void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
