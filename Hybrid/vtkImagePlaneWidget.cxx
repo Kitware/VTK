@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.34");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.35");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -138,6 +138,9 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->GenerateTexturePlane();
   this->GenerateCursor();
   this->GenerateText();
+  
+  this->CursorActor->VisibilityOff();
+  
 }
 
 vtkImagePlaneWidget::~vtkImagePlaneWidget()
