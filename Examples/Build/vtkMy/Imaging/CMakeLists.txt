@@ -19,7 +19,7 @@ TARGET_LINK_LIBRARIES(vtkmyImaging vtkmyCommon vtkImaging)
 IF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
   VTK_WRAP_TCL (vtkmyImagingTCL ImagingTCL_SRCS ${Imaging_SRCS})
   ADD_LIBRARY (vtkmyImagingTCL SHARED ${ImagingTCL_SRCS})
-  TARGET_LINK_LIBRARIES (vtkmyImagingTCL vtkmyCommonTCL vtkmyImaging)
+  TARGET_LINK_LIBRARIES (vtkmyImagingTCL vtkmyCommonTCL vtkmyImaging vtkImagingTCL)
 ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 
 # Create the vtkmyImaging Python library.
