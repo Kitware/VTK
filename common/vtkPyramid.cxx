@@ -574,48 +574,46 @@ void vtkPyramid::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 //
 void vtkPyramid::InterpolationFunctions(float pcoords[3], float sf[5])
 {
-  if ( pcoords[2] == 1.0 )
-    {
-    sf[0] = sf[1] = sf[2] = sf[3] = 0.0;
-    sf[4] = 1.0;
-    }
-  else
-    {
-    float f1 = (1.0 - pcoords[2]);
-    float f2 = (2.0 * pcoords[0] - 1.0) / (1.0 - pcoords[2]);
-    float f3 = (2.0 * pcoords[1] - 1.0) / (1.0 - pcoords[2]);
-    sf[0] = 0.25 * f1 * (1.0 - f2) * (1.0 - f3);
-    sf[1] = 0.25 * f1 * (1.0 + f2) * (1.0 - f3);
-    sf[2] = 0.25 * f1 * (1.0 + f2) * (1.0 + f3);
-    sf[3] = 0.25 * f1 * (1.0 - f2) * (1.0 + f3);
-    sf[4] = pcoords[2];
-    }
+  double rm, sm, tm;
+
+  rm = 1. - pcoords[0];
+  sm = 1. - pcoords[1];
+  tm = 1. - pcoords[2];
+
+  sf[0] = rm*sm*tm;
+  sf[1] = pcoords[0]*sm*tm;
+  sf[2] = pcoords[0]*pcoords[1]*tm;
+  sf[3] = rm*pcoords[1]*tm;
+  sf[4] = pcoords[2];
 }
 
 void vtkPyramid::InterpolationDerivs(float pcoords[3], float derivs[15])
-{
-  float f2 = (2.0 * pcoords[0] - 1.0) / (1.0 - pcoords[2]);
-  float f3 = (2.0 * pcoords[1] - 1.0) / (1.0 - pcoords[2]);
+{ 
+  double rm, sm, tm;
+
+  rm = 1. - pcoords[0];
+  sm = 1. - pcoords[1];
+  tm = 1. - pcoords[2];
 
   // r-derivatives
-  derivs[0] = -0.5 * (1.0 - f3);
-  derivs[1] =  0.5 * (1.0 - f3);
-  derivs[2] =  0.5 * (1.0 + f3);
-  derivs[3] = -0.5 * (1.0 + f3);
+  derivs[0] = -sm*tm;
+  derivs[1] = sm*tm;
+  derivs[2] = pcoords[1]*tm;
+  derivs[3] = -pcoords[1]*tm;
   derivs[4] = 0.0;
 
   // s-derivatives
-  derivs[5] = -0.5 * (1.0 - f2);
-  derivs[6] = -0.5 * (1.0 + f2);
-  derivs[7] =  0.5 * (1.0 + f2);
-  derivs[8] =  0.5 * (1.0 - f2);
+  derivs[5] = -rm*tm;
+  derivs[6] = -pcoords[0]*tm;
+  derivs[7] = pcoords[0]*tm;
+  derivs[8] = rm*tm;
   derivs[9] = 0.0;
 
   // t-derivatives
-  derivs[10] = -0.25 * (1.0 - f2) * (1.0 - f3);
-  derivs[11] = -0.25 * (1.0 + f2) * (1.0 - f3);
-  derivs[12] = -0.25 * (1.0 + f2) * (1.0 + f3);
-  derivs[13] = -0.25 * (1.0 - f2) * (1.0 + f3);
+  derivs[10] = -rm*sm;
+  derivs[11] = -pcoords[0]*sm;
+  derivs[12] = -pcoords[0]*pcoords[1];
+  derivs[13] = -rm*pcoords[1];
   derivs[14] = 1.0;
 }
 
