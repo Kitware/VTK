@@ -62,8 +62,32 @@ vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   this->TimerId = timerId++;
 }
 
+
 vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 {
+  vtkWin32OpenGLRenderWindow *tmp;
+
+  // we need to release any hold we have on a windows event loop
+  if (this->WindowId)
+	{
+    vtkWin32OpenGLRenderWindow *ren;
+    ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
+	tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+    // watch for odd conditions
+    if (tmp != ren)
+      {
+      // OK someone else has a hold on our event handler
+      // so lets have them handle this stuff
+      // well send a USER message to the other
+      // event handler so that it can properly
+      // call this event handler if required
+      this->OldProc(this->WindowId,WM_USER+14,28,(LONG)this->OldProc);
+      }
+    else
+      {
+      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
+	  }
+    }
 }
 
 void  vtkWin32RenderWindowInteractor::Start()

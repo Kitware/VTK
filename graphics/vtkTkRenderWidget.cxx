@@ -357,6 +357,12 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
     self->OldProc = tmp;
     return 1;
     }
+  if ((message == WM_USER+14)&&(wParam == 28))
+    {
+    WNDPROC tmp = (WNDPROC)lParam;
+    self->OldProc = tmp;
+    return 1;
+    }
 
   // forward message to Tk handler
   SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);

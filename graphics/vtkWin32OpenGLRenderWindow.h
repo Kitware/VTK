@@ -66,6 +66,7 @@ public:
   int       MultiSamples;
 public:
   vtkWin32OpenGLRenderWindow();
+  ~vtkWin32OpenGLRenderWindow();
   static vtkWin32OpenGLRenderWindow *New() {return new vtkWin32OpenGLRenderWindow;};
   const char *GetClassName() {return "vtkWin32OpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);

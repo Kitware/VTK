@@ -72,6 +72,11 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
     strcpy( this->WindowName, "Visualization Toolkit - Win32OpenGL" );
 }
 
+vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
+{
+  if (this->WindowId && this->OwnWindow) DestroyWindow(this->WindowId);
+}
+
 int vtkWin32OpenGLRenderWindow::GetEventPending()
 {
   MSG msg;
@@ -324,6 +329,7 @@ LRESULT APIENTRY vtkWin32OpenGLWndProc(HWND hWnd, UINT message, WPARAM wParam, L
           me->Palette = NULL;
           }
         ReleaseDC(me->WindowId, me->DeviceContext);
+		me->WindowId = NULL;
         return 0;
     case WM_SIZE:
         /* track window size changes */
@@ -703,10 +709,11 @@ unsigned char *vtkWin32OpenGLRenderWindow::GetPixelData(int x1, int y1, int x2, 
     glReadBuffer(GL_BACK);
     }
   p_data = data;
-  for (yloop = y_hi; yloop >= y_low; yloop--)
+  for (yloop = y_low; yloop <= y_hi; yloop++)
     {
     // read in a row of pixels 
-    glReadPixels(x_low,yloop,(x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glReadPixels(x_low,yloop,(x_hi-x_low+1),1, 
+		 GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
       *p_data = buffer[xloop*4]; p_data++;
