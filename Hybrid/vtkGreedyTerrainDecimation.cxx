@@ -26,17 +26,9 @@
 #include "vtkTriangle.h"
 #include "vtkDoubleArray.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
+#include <vtkstd/vector>
 
-#include <vector>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.11");
+vtkCxxRevisionMacro(vtkGreedyTerrainDecimation, "1.12");
 vtkStandardNewMacro(vtkGreedyTerrainDecimation);
 
 // Define some constants describing vertices

@@ -28,17 +28,9 @@
 #include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
+#include <vtkstd/string>
 
-#include <string>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.41");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.42");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 

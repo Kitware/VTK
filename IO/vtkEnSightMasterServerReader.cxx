@@ -19,17 +19,10 @@
 
 #include "vtkObjectFactory.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
+#include <vtkstd/string>
 
-#include <string>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.7");
+//----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.8");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)

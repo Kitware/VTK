@@ -23,15 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 2)
-#endif
-#include <vector>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+#include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.26");
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.27");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
 
 typedef vtkstd::vector< vtkDataSet* > DataSetsTypeBase;

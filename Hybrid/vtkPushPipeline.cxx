@@ -30,17 +30,9 @@
 #include "vtkSource.h"
 #include "vtkVolumeMapper.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 2)
-#endif
-
-#include <vector>
-#include <map>
-#include <algorithm>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+#include <vtkstd/vector>
+#include <vtkstd/map>
+#include <vtkstd/algorithm>
 
 typedef vtkstd::vector< vtkSmartPointer<vtkRenderWindow> > WindowsTypeBase;
 typedef vtkstd::map< vtkSmartPointer<vtkProcessObject>,
@@ -126,7 +118,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.14");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.15");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()

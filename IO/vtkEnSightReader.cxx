@@ -28,18 +28,10 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
+#include <vtkstd/string>
+#include <vtkstd/vector>
 
-#include <string>
-#include <vector>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-vtkCxxRevisionMacro(vtkEnSightReader, "1.46");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.47");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;

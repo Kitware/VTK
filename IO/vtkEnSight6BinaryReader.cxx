@@ -31,18 +31,9 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <ctype.h>
+#include <vtkstd/string>
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
-
-#include <string>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.29");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.30");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------

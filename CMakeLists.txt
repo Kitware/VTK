@@ -424,6 +424,15 @@ IF(VTK_USE_MPI AND BUILD_TESTING)
 ENDIF(VTK_USE_MPI AND BUILD_TESTING)
 
 #-----------------------------------------------------------------------------
+# Create STL header wrappers to block warnings in the STL headers.
+FOREACH(header string vector set map algorithm)
+  SET(VTK_STL_HEADER "${header}")
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/Utilities/vtkstd.h.in
+                 ${VTK_BINARY_DIR}/vtkstd/${header} @ONLY IMMEDIATE)
+  INSTALL_FILES(/include/vtk/vtkstd FILES ${VTK_BINARY_DIR}/vtkstd/${header})
+ENDFOREACH(header)
+
+#-----------------------------------------------------------------------------
 # VTK utility script locations.
 SET(VTK_DOXYGEN_HOME ${VTK_SOURCE_DIR}/Utilities/Doxygen)
 SET(VTK_HEADER_TESTING_PY ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py)

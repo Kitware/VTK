@@ -29,18 +29,10 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
-
-#include <string>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 #include <ctype.h>
+#include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.38");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.39");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------

@@ -27,14 +27,8 @@
 #include "vtkSmartPointerBase.h"
 #include "vtkTimeStamp.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 3)
-#endif
-#include <map>
-#include <string>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+#include <vtkstd/map>
+#include <vtkstd/string>
 
 #if defined ( _MSC_VER )
 #  define vtkConvertPtrToLong(x) ((long)(PtrToUlong(x)))

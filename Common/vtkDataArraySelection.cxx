@@ -18,19 +18,11 @@
 #include "vtkDataArraySelection.h"
 #include "vtkObjectFactory.h"
 
-#ifdef _MSC_VER
-#pragma warning (push, 2)
-#endif
+#include <vtkstd/vector>
+#include <vtkstd/string>
+#include <vtkstd/algorithm>
 
-#include <vector>
-#include <string>
-#include <algorithm>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.12");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.13");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
