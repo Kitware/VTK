@@ -42,65 +42,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .NAME vtkMatrixToPerspectiveTransform - convert a matrix to a transform
 // .SECTION Description
-// This is a very simple class which allows a vtkMatrix4x4 to be used in
-// place of a vtkPerspectiveTransform or vtkGeneralTransform.  For example,
-// if you use it as a proxy between a matrix and vtkTransformPolyDataFilter
-// then any modifications to the matrix will automatically be reflected in
-// the output of the filter.
-// .SECTION See Also
-// vtkProjectionTransform vtkMatrix4x4 vtkMatrixToLinearTransform  
+// This class has been renamed to vtkMatrixToHomogenousTransform.  Use
+// that class instead.
 
 #ifndef __vtkMatrixToPerspectiveTransform_h
 #define __vtkMatrixToPerspectiveTransform_h
 
-#include "vtkPerspectiveTransform.h"
+#include "vtkMatrixToHomogenousTransform.h"
 #include "vtkMatrix4x4.h"
 
 class VTK_EXPORT vtkMatrixToPerspectiveTransform : 
-  public vtkPerspectiveTransform
+  public vtkMatrixToHomogenousTransform
 {
  public:
   static vtkMatrixToPerspectiveTransform *New();
-  vtkTypeMacro(vtkMatrixToPerspectiveTransform,vtkPerspectiveTransform);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  vtkTypeMacro(vtkMatrixToPerspectiveTransform,vtkMatrixToHomogenousTransform);
 
-  vtkSetObjectMacro(Input,vtkMatrix4x4);
-  vtkGetObjectMacro(Input,vtkMatrix4x4);
-
-  // Description:
-  // Identity, doesn't do anything.
-  void Identity() {};
-
-  // Description:
-  // The input matrix is left as-is, but the transformation matrix
-  // is inverted.
-  void Inverse();
-
-  // Description:
-  // Get the MTime: this is the bit of magic that makes everything work.
-  unsigned long GetMTime();
-
-  // Description:
-  // Make a new transform of the same type.
-  vtkGeneralTransform *MakeTransform();
-
-  // Description:
-  // This method is deprecated.
-  void SetMatrix(vtkMatrix4x4 *matrix) {
-    this->SetInput(matrix);
-    vtkWarningMacro("SetMatrix: deprecated, use SetInput() instead"); }
+  vtkAbstractTransform *MakeTransform();
 
 protected:
   vtkMatrixToPerspectiveTransform();
   ~vtkMatrixToPerspectiveTransform();
   vtkMatrixToPerspectiveTransform(const vtkMatrixToPerspectiveTransform&) {};
   void operator=(const vtkMatrixToPerspectiveTransform&) {};
-
-  void InternalUpdate();
-  void InternalDeepCopy(vtkGeneralTransform *transform);
-
-  int InverseFlag;
-  vtkMatrix4x4 *Input;
 };
 
 #endif
+

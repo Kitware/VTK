@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkIdentityTransform.h
+  Module:    vtkHomogenousTransform.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -39,42 +39,32 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkIdentityTransform - a transform that doesn't do anything
+// .NAME vtkHomogenousTransform - superclass for homogenous transformations
 // .SECTION Description
-// vtkIdentityTransform is a transformation which will simply pass coordinate
-// data unchanged.  All other transform types can also do this, however,
-// the vtkIdentityTransform does so with much greater efficiency.
+// vtkHomogenousTransform provides a generic interface for homogenous 
+// transformations, i.e. transformations which can be represented by 
+// multiplying a 4x4 matrix with a homogenous coordinate. 
 // .SECTION see also
-// vtkLinearTransform
+// vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
 
 
-#ifndef __vtkIdentityTransform_h
-#define __vtkIdentityTransform_h
+#ifndef __vtkHomogenousTransform_h
+#define __vtkHomogenousTransform_h
 
-#include "vtkLinearTransform.h"
+#include "vtkAbstractTransform.h"
+#include "vtkMatrix4x4.h"
 
-class VTK_EXPORT vtkIdentityTransform : public vtkLinearTransform
+class VTK_EXPORT vtkHomogenousTransform : public vtkAbstractTransform
 {
 public:
-  static vtkIdentityTransform *New();
 
-  vtkTypeMacro(vtkIdentityTransform,vtkLinearTransform);
+  vtkTypeMacro(vtkHomogenousTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Apply the transformation to a series of points, and append the
   // results to outPts.  
   void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
-
-  // Description:
-  // Apply the transformation to a series of normals, and append the
-  // results to outNms.  
-  void TransformNormals(vtkNormals *inNms, vtkNormals *outNms);
-
-  // Description:
-  // Apply the transformation to a series of vectors, and append the
-  // results to outVrs.  
-  void TransformVectors(vtkVectors *inVrs, vtkVectors *outVrs);
 
   // Description:
   // Apply the transformation to a combination of points, normals
@@ -86,27 +76,34 @@ public:
 				     vtkVectors *inVrs, 
 				     vtkVectors *outVrs);
 
-  // Invert the transformation.  This doesn't do anything to the 
-  // identity transformation.
-  void Inverse() {};
+  // Description:
+  // Get a copy of the internal transformation matrix.  The
+  // transform is Updated first, to guarantee that the matrix
+  // is valid.
+  void GetMatrix(vtkMatrix4x4 *m);
+
+  // Description:
+  // Get a pointer to an internal vtkMatrix4x4 that represents
+  // the transformation.  An Update() is called on the transform
+  // to ensure that the matrix is up-to-date when you get it.
+  // You should not store the matrix pointer anywhere because it
+  // might become stale.
+  vtkMatrix4x4 *GetMatrix() { this->Update(); return this->Matrix; };
+
+  // Description:
+  // This is an obsolete method provided for backwards-compatibility.
+  vtkMatrix4x4 *GetMatrixPointer() { return this->GetMatrix(); };
+
+  // Description:
+  // Just like GetInverse(), but includes typecast to vtkHomogenousTransform.
+  vtkHomogenousTransform *GetHomogenousInverse() {
+    return (vtkHomogenousTransform *)this->GetInverse(); };
 
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);
   void InternalTransformPoint(const double in[3], double out[3]);
-
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformNormal(const float in[3], float out[3]);
-  void InternalTransformNormal(const double in[3], double out[3]);
-
-  // Description:
-  // This will calculate the transformation without calling Update.
-  // Meant for use only within other VTK classes.
-  void InternalTransformVector(const float in[3], float out[3]);
-  void InternalTransformVector(const double in[3], double out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
@@ -117,20 +114,15 @@ public:
   void InternalTransformDerivative(const double in[3], double out[3],
 				   double derivative[3][3]);
 
-  // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkAbstractTransform *t);
-
-  // Description:
-  // Make a transform of the same type.  This will actually
-  // return the same transform.
-  vtkAbstractTransform *MakeTransform();
-
 protected:
-  vtkIdentityTransform();
-  ~vtkIdentityTransform();
-  vtkIdentityTransform(const vtkIdentityTransform&) {};
-  void operator=(const vtkIdentityTransform&) {};
+  vtkHomogenousTransform();
+  ~vtkHomogenousTransform();
+  vtkHomogenousTransform(const vtkHomogenousTransform&) {};
+  void operator=(const vtkHomogenousTransform&) {};
+
+  void InternalDeepCopy(vtkAbstractTransform *transform);
+
+  vtkMatrix4x4 *Matrix;
 };
 
 #endif

@@ -39,138 +39,151 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkGeneralTransform - superclass for geometric transformations
+// .NAME vtkGeneralTransform - allows operations on any transforms
 // .SECTION Description
-// vtkGeneralTransform is the superclass for all VTK geometric 
-// transformations.  The VTK transform heirarchy is split into two
-// major branches: warp transformations and perspective (including linear)
-// transformations.  The latter can be represented in terms of a 4x4
-// transformation matrix, the former cannot.  
-// <p>Transformations can be pipelined through two mechanisms:  
-// <p>1) GetInverse() returns the pipelined
-// inverse of a transformation i.e. if you modify the original transform,
-// any transform previously returned by the GetInverse() method will
-// automatically update itself according to the change.
-// <p>2) you can do pipelined concatenation of transformations through 
-// either the Concatenate() method or by directly using the
-// vtkGeneralTransformConcatenation class.
+// vtkGeneralTransform is like vtkTransform and vtkPerspectiveTransform,
+// but it will work with any vtkAbstractTransform as input.  It is
+// not as efficient as the other two, however, because arbitrary
+// transformations cannot be concatenated by matrix multiplication.
+// Transform concatenation is simulated by passing each input point
+// through each transform in turn.  
 // .SECTION see also
-// vtkWarpTransform vtkPerspectiveTransform vtkLinearTransform 
-// vtkIdentityTransform vtkGeneralTransformConcatenation 
-// vtkTransformPolyDataFilter vtkImageReslice
+// vtkTransform vtkPerspectiveTransform
 
+#include "vtkAbstractTransform.h"
 
 #ifndef __vtkGeneralTransform_h
 #define __vtkGeneralTransform_h
 
-#include "vtkObject.h"
-#include "vtkMatrix4x4.h"
-#include "vtkPoints.h"
-#include "vtkNormals.h"
-#include "vtkVectors.h"
-#include "vtkMutexLock.h"
-
-class VTK_EXPORT vtkGeneralTransform : public vtkObject
+class VTK_EXPORT vtkGeneralTransform : public vtkAbstractTransform
 {
 public:
+  static vtkGeneralTransform *New();
 
-  vtkTypeMacro(vtkGeneralTransform,vtkObject);
+  vtkTypeMacro(vtkGeneralTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Set this tranformation to the identity transformation.  If 
+  // the transform has an Input, then the transformation will be
+  // reset so that it is the same as the Input.
+  void Identity() { this->Concatenation->Identity(); this->Modified(); };
 
   // Description:
-  // Apply the transformation to a coordinate.  You can use the same 
-  // array to store both the input and output point.
-  void TransformPoint(const float in[3], float out[3]) {
-    this->Update(); this->InternalTransformPoint(in,out); };
+  // Invert the transformation.  This will also set a flag so that
+  // the transformation will use the inverse of its Input, if an Input
+  // has been set.
+  void Inverse() { this->Concatenation->Inverse(); this->Modified(); };
 
   // Description:
-  // Apply the transformation to a double-precision coordinate.  
-  // You can use the same array to store both the input and output point.
-  void TransformPoint(const double in[3], double out[3]) {
-    this->Update(); this->InternalTransformPoint(in,out); };
+  // Create a translation matrix and concatenate it with the current
+  // transformation according to PreMultiply or PostMultiply semantics.
+  void Translate(double x, double y, double z) {
+    this->Concatenation->Translate(x,y,z); };
+  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); };
+  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); };
 
   // Description:
-  // Synonymous with TransformDoublePoint(x,y,z).
-  // Use this if you are programming in python, tcl or Java.
-  double *TransformPoint(double x, double y, double z) {
-    return this->TransformDoublePoint(x,y,z); }
-  double *TransformPoint(const double point[3]) {
-    return this->TransformPoint(point[0],point[1],point[2]); };
+  // Create a rotation matrix and concatenate it with the current
+  // transformation according to PreMultiply or PostMultiply semantics.
+  // The angle is in degrees, and (x,y,z) specifies the axis that the
+  // rotation will be performed around. 
+  void RotateWXYZ(double angle, double x, double y, double z) {
+    this->Concatenation->Rotate(angle,x,y,z); };
+  void RotateWXYZ(double angle, const double axis[3]) {
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+  void RotateWXYZ(double angle, const float axis[3]) {
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
 
   // Description:
-  // Apply the transformation to an (x,y,z) coordinate.
-  // Use this if you are programming in python, tcl or Java.
-  float *TransformFloatPoint(float x, float y, float z);
-  float *TransformFloatPoint(const float point[3]) {
-    return this->TransformFloatPoint(point[0],point[1],point[2]); };
+  // Create a rotation matrix about the X, Y, or Z axis and concatenate
+  // it with the current transformation according to PreMultiply or
+  // PostMultiply semantics.  The angle is expressed in degrees.
+  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); };
+  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); };
+  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); };
 
   // Description:
-  // Apply the transformation to a double-precision (x,y,z) coordinate.
-  // Use this if you are programming in python, tcl or Java.
-  double *TransformDoublePoint(double x, double y, double z);
-  double *TransformDoublePoint(const double point[3]) {
-    return this->TransformDoublePoint(point[0],point[1],point[2]); };
+  // Create a scale matrix (i.e. set the diagonal elements to x, y, z)
+  // and concatenate it with the current transformation according to
+  // PreMultiply or PostMultiply semantics.
+  void Scale(double x, double y, double z) {
+    this->Concatenation->Scale(x,y,z); };
+  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); };
+  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); };
 
   // Description:
-  // Apply the transformation to a series of points, and append the
-  // results to outPts.  
-  virtual void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  // Concatenates the matrix with the current transformation according
+  // to PreMultiply or PostMultiply semantics.
+  void Concatenate(vtkMatrix4x4 *matrix) { 
+    this->Concatenate(*matrix->Element); };
+  void Concatenate(const double elements[16]) {
+    this->Concatenation->Concatenate(elements); };
 
   // Description:
-  // Apply the transformation to a combination of points, normals
-  // and vectors.  
-  virtual void TransformPointsNormalsVectors(vtkPoints *inPts, 
-					     vtkPoints *outPts, 
-					     vtkNormals *inNms, 
-					     vtkNormals *outNms,
-					     vtkVectors *inVrs, 
-					     vtkVectors *outVrs);
+  // Concatenate the specified transform with the current transformation
+  // according to PreMultiply or PostMultiply semantics.
+  // The concatenation is pipelined, meaning that if any of the
+  // transformations are changed, even after Concatenate() is called,
+  // those changes will be reflected when you call TransformPoint().
+  void Concatenate(vtkAbstractTransform *transform);
 
   // Description:
-  // Get the inverse of this transform.  If you modify this transform,
-  // the returned inverse transform will automatically update.
-  vtkGeneralTransform *GetInverse();
+  // Sets the internal state of the transform to PreMultiply. All subsequent
+  // operations will occur before those already represented in the
+  // current transformation.  In homogenous matrix notation, M = M*A where
+  // M is the current transformation matrix and A is the applied matrix.
+  // The default is PreMultiply.
+  void PreMultiply() { 
+    if (this->Concatenation->GetPreMultiplyFlag()) { return; }
+    this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); };
 
   // Description:
-  // Set a transformation that this transform will be the inverse of.
-  // This transform will automatically update to agree with the 
-  // inverse transform that you set.
-  void SetInverse(vtkGeneralTransform *transform);
+  // Sets the internal state of the transform to PostMultiply. All subsequent
+  // operations will occur after those already represented in the
+  // current transformation.  In homogenous matrix notation, M = A*M where
+  // M is the current transformation matrix and A is the applied matrix.
+  // The default is PreMultiply.
+  void PostMultiply()  { 
+    if (!this->Concatenation->GetPreMultiplyFlag()) { return; }
+    this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
 
   // Description:
-  // Invert the transformation.
-  virtual void Inverse() = 0;
+  // Pushes the current transformation onto the transformation stack.
+  void Push() { if (this->Stack == NULL) { 
+                    this->Stack = vtkTransformConcatenationStack::New(); }
+                this->Stack->Push(&this->Concatenation); 
+                this->Modified(); };
 
   // Description:
-  // Copy this transform from another of the same type.
-  void DeepCopy(vtkGeneralTransform *);
+  // Deletes the transformation on the top of the stack and sets the top 
+  // to the next transformation on the stack.
+  void Pop() { if (this->Stack == NULL) { return; }
+               this->Stack->Pop(&this->Concatenation);
+               this->Modified(); };
 
   // Description:
-  // Update the transform to account for any changes which
-  // have been made.  You do not have to call this method 
-  // yourself, it is called automatically whenever the
-  // transform needs an update.
-  void Update();
+  // Set the input for this transformation.  This will be used as the
+  // base transformation if it is set.  This method allows you to build
+  // a transform pipeline: if the input is modified, then this transformation
+  // will automatically update accordingly.
+  void SetInput(vtkAbstractTransform *input);
+  vtkAbstractTransform *GetInput() { return this->Input; };
 
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  virtual void InternalTransformPoint(const float in[3], float out[3]) = 0;
-  virtual void InternalTransformPoint(const double in[3], double out[3]) = 0;
+  void InternalTransformPoint(const float in[3], float out[3]);
+  void InternalTransformPoint(const double in[3], double out[3]);
 
   // Description:
-  // This will transform a point and, at the same time, calculate a
-  // 3x3 Jacobian matrix that provides the partial derivatives of the
-  // transformation at that point.  This method does not call Update.
-  // Meant for use only within other VTK classes.
-  virtual void InternalTransformDerivative(const float in[3], float out[3],
-					   float derivative[3][3]) = 0;
-  virtual void InternalTransformDerivative(const double in[3], double out[3],
-					   double derivative[3][3]) = 0;
-
-  // Description:
-  // Make another transform of the same type.
-  virtual vtkGeneralTransform *MakeTransform() = 0;
+  // This will calculate the transformation as well as its derivative
+  // without calling Update.  Meant for use only within other VTK
+  // classes.
+  void InternalTransformDerivative(const float in[3], float out[3],
+				   float derivative[3][3]);
+  void InternalTransformDerivative(const double in[3], double out[3],
+				   double derivative[3][3]);
 
   // Description:
   // Check for self-reference.  Will return true if concatenating
@@ -179,22 +192,15 @@ public:
   // CircuitCheck is automatically called by SetInput(), SetInverse(),
   // and Concatenate(vtkXTransform *).  Avoid using this function,
   // it is experimental.
-  virtual int CircuitCheck(vtkGeneralTransform *transform);
+  int CircuitCheck(vtkAbstractTransform *transform);
 
   // Description:
-  // Override GetMTime necessary because of inverse transforms.
+  // Make another transform of the same type.
+  vtkAbstractTransform *MakeTransform();
+
+  // Description:
+  // Override GetMTime to account for input and concatenation.
   unsigned long GetMTime();
-
-  // Description:
-  // Needs a special UnRegister() implementation to avoid
-  // circular references.
-  void UnRegister(vtkObject *O);
-
-  // Description:
-  // This method is deprecated in the base class.  It is still valid
-  // to use it on many of the specialized classes.
-  void Identity() { 
-    vtkWarningMacro("vtkGeneralTransform::Identity() is deprecated"); };
 
 protected:
   vtkGeneralTransform();
@@ -202,160 +208,14 @@ protected:
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
 
-  // Description:
-  // Perform any subclass-specific Update.
-  virtual void InternalUpdate() {};
+  void InternalDeepCopy(vtkAbstractTransform *t);
+  void InternalUpdate();
 
-  // Description:
-  // Perform any subclass-specific DeepCopy. 
-  virtual void InternalDeepCopy(vtkGeneralTransform *) {};
-
-  float InternalFloatPoint[3];
-  double InternalDoublePoint[3];
-
-private:
-  
-//BTX
-  // We need to record the time of the last update, and we also need
-  // to do mutex locking so updates don't collide.  These are private
-  // because Update() is not virtual.
-  // If DependsOnInverse is set, then this transform object will
-  // check its inverse on every update, and update itself accordingly
-  // if necessary.
-//ETX
-  vtkTimeStamp UpdateTime;
-  vtkSimpleMutexLock UpdateMutex;
-  vtkSimpleMutexLock InverseMutex;
-  int DependsOnInverse;
-
-//BTX
-  // MyInverse is a transform which is the inverse of this one.
-//ETX
-  vtkGeneralTransform *MyInverse;
-
-  int InUnRegister;
+  vtkAbstractTransform *Input;
+  vtkTransformConcatenation *Concatenation;
+  vtkTransformConcatenationStack *Stack;
 };
 
-//BTX
-//-------------------------------------------------------------------------
-// A simple data structure to hold both a transform and its inverse.
-// One of ForwardTransform or InverseTransform might be NULL,
-// and must be acquired by calling GetInverse() on the other.
-class vtkTransformPair
-{
-public:
-  vtkGeneralTransform *ForwardTransform;
-  vtkGeneralTransform *InverseTransform;
-  
-  void SwapForwardInverse() {
-    vtkGeneralTransform *tmp = this->ForwardTransform;
-    this->ForwardTransform = this->InverseTransform;
-    this->InverseTransform = tmp; };
-};
-
-// A helper class (not derived from vtkObject) to store a series of
-// transformations in a pipelined concatenation.
-class VTK_EXPORT vtkTransformConcatenation
-{
-public:
-  static vtkTransformConcatenation *New() {
-    return new vtkTransformConcatenation(); };
-  void Delete() { delete this; };
-
-  // add a transform to the list according to Pre/PostMultiply semantics
-  void Concatenate(vtkGeneralTransform *transform); 
-    
-  // concatenate with a matrix according to Pre/PostMultiply semantics
-  void Concatenate(const double elements[16]);
-
-  // set the PreMultiply flag
-  void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; };
-  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; };
-  
-  // the three basic linear transformations
-  void Translate(double x, double y, double z);
-  void Rotate(double angle, double x, double y, double z);
-  void Scale(double x, double y, double z);
-
-  // invert the concatenation
-  void Inverse();
-  
-  // get the inverse flag
-  int GetInverseFlag() { return this->InverseFlag; };
-  
-  // identity simply clears the transform list
-  void Identity();
-    
-  // copy the list
-  void DeepCopy(vtkTransformConcatenation *transform);
-    
-  // the number of stored transforms
-  int GetNumberOfTransforms() { return this->NumberOfTransforms; };
-    
-  // the number of transforms that were pre-concatenated (note that
-  // whenever Iverse() is called, the pre-concatenated and
-  // post-concatenated transforms are switched)
-  int GetNumberOfPreTransforms() { return this->NumberOfPreTransforms; };
-
-  // the number of transforms that were post-concatenated.
-  int GetNumberOfPostTransforms() { 
-    return this->NumberOfTransforms-this->NumberOfPreTransforms; };
-
-  // get one of the transforms
-  vtkGeneralTransform *GetTransform(int i);
-    
-  // get maximum MTime of all transforms
-  unsigned long GetMaxMTime();
-    
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-protected:
-  vtkTransformConcatenation();
-  ~vtkTransformConcatenation();  
-    
-  int InverseFlag;
-  int PreMultiplyFlag;
-    
-  vtkMatrix4x4 *PreMatrix;
-  vtkMatrix4x4 *PostMatrix;
-  vtkGeneralTransform *PreMatrixTransform;
-  vtkGeneralTransform *PostMatrixTransform;
-
-  int NumberOfTransforms;
-  int NumberOfPreTransforms;
-  int MaxNumberOfTransforms;
-  vtkTransformPair *TransformList;
-};
-
-// A helper class (not derived from vtkObject) to store a stack of
-// concatenations.
-class VTK_EXPORT vtkTransformConcatenationStack
-{
-public:
-  static vtkTransformConcatenationStack *New() {
-    return new vtkTransformConcatenationStack(); };
-  void Delete() { delete this; };
-
-  // pop will pop delete 'concat', then pop the
-  // top item on the stack onto 'concat'.
-  void Pop(vtkTransformConcatenation **concat);
-
-  // push will move 'concat' onto the stack, and
-  // make 'concat' a copy of its previous self
-  void Push(vtkTransformConcatenation **concat);
-
-  void DeepCopy(vtkTransformConcatenationStack *stack);
-
-protected:
-  vtkTransformConcatenationStack();
-  ~vtkTransformConcatenationStack();
-
-  int StackSize;
-  vtkTransformConcatenation **Stack;
-  vtkTransformConcatenation **StackBottom;
-};
-
-//ETX
 
 #endif
 

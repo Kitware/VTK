@@ -59,7 +59,7 @@ vtkLinearTransformConcatenation *vtkLinearTransformConcatenation::New()
 //----------------------------------------------------------------------------
 vtkLinearTransformConcatenation::vtkLinearTransformConcatenation()
 {
-  vtkWarningMacro("This class is obsolete, use vtkTransform instead");
+  vtkWarningMacro(<<"This class is obsolete, use vtkTransform instead");
 }
 
 //----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ void vtkLinearTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkLinearTransformConcatenation::MakeTransform()
+vtkAbstractTransform *vtkLinearTransformConcatenation::MakeTransform()
 {
   return vtkLinearTransformConcatenation::New();
 }

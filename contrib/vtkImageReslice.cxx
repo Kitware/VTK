@@ -156,9 +156,9 @@ unsigned long int vtkImageReslice::GetMTime()
     {
     time = this->ResliceTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->ResliceTransform->IsA("vtkPerspectiveTransform"))
+    if (this->ResliceTransform->IsA("vtkHomogenousTransform"))
       {
-      time = ((vtkPerspectiveTransform *)this->ResliceTransform)
+      time = ((vtkHomogenousTransform *)this->ResliceTransform)
 	->GetMatrixPointer()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
       }    
@@ -209,7 +209,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
   if (this->ResliceTransform)
     {
     this->ResliceTransform->Update();
-    if (!this->ResliceTransform->IsA("vtkPerspectiveTransform"))
+    if (!this->ResliceTransform->IsA("vtkHomogenousTransform"))
       { // set the input to the whole extent if the transform
 	// is nonlinear
       this->GetInput()->GetWholeExtent(inExt);
@@ -371,10 +371,10 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     matrix->DeepCopy(this->ResliceAxes);
     }
   if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkPerspectiveTransform"))
+      this->ResliceTransform->IsA("vtkHomogenousTransform"))
     {
     vtkMatrix4x4 *transformMatrix = 
-      ((vtkPerspectiveTransform *)this->ResliceTransform)->GetMatrixPointer();
+      ((vtkHomogenousTransform *)this->ResliceTransform)->GetMatrixPointer();
     this->ResliceTransform->Update();
     vtkMatrix4x4::Multiply4x4(transformMatrix,matrix,matrix);
     }
@@ -1223,7 +1223,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
                      T *background, int numscalars,
                      int inExt[6], int inInc[3]);
 
-  vtkGeneralTransform *transform = self->GetResliceTransform();
+  vtkAbstractTransform *transform = self->GetResliceTransform();
   vtkMatrix4x4 *matrix = self->GetResliceAxes();
 
   inOrigin = inData->GetOrigin();
@@ -1280,7 +1280,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 	  matrix->MultiplyPoint(point,point);
 	  f = 1.0f/point[3];
 	  point[0] *= f; // deal with w if the matrix
-	  point[1] *= f; //   was a perspective transform
+	  point[1] *= f; //   was a Homogenous transform
 	  point[2] *= f;
 	  }
 	if (transform)
@@ -1316,7 +1316,7 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 {
   if (this->Optimization && 
       !(this->ResliceTransform && 
-	!this->ResliceTransform->IsA("vtkPerspectiveTransform")))
+	!this->ResliceTransform->IsA("vtkHomogenousTransform")))
     {
     this->OptimizedThreadedExecute(inData,outData,outExt,id);
     return;
@@ -2995,11 +2995,11 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     transform->SetMatrix(this->GetResliceAxes());
     }
   if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkPerspectiveTransform") && 
+      this->ResliceTransform->IsA("vtkHomogenousTransform") && 
       this->Optimization)
     {
     transform->PostMultiply();
-    transform->Concatenate(((vtkPerspectiveTransform *)
+    transform->Concatenate(((vtkHomogenousTransform *)
 			    this->ResliceTransform)->GetMatrixPointer());
     }
   

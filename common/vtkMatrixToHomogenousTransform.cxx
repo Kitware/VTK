@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkGeneralTransformConcatenation.cxx
+  Module:    vtkMatrixToHomogenousTransform.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to David G. Gobbi who developed this class.
+
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -36,46 +36,106 @@ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+OF THIS EVEN, SOFTWARE IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-
-#include "vtkGeneralTransformConcatenation.h"
+#include "vtkMatrixToHomogenousTransform.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkGeneralTransformConcatenation *vtkGeneralTransformConcatenation::New()
+vtkMatrixToHomogenousTransform* vtkMatrixToHomogenousTransform::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGeneralTransformConcatenation");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrixToHomogenousTransform");
   if(ret)
     {
-    return (vtkGeneralTransformConcatenation*)ret;
+    return (vtkMatrixToHomogenousTransform*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkGeneralTransformConcatenation;
+  return new vtkMatrixToHomogenousTransform;
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransformConcatenation::vtkGeneralTransformConcatenation()
+vtkMatrixToHomogenousTransform::vtkMatrixToHomogenousTransform()
 {
-  vtkWarningMacro(<<"This class is obsolete, use vtkGeneralTransform instead");
+  this->Input = NULL;
+  this->InverseFlag = 0;
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransformConcatenation::~vtkGeneralTransformConcatenation()
+vtkMatrixToHomogenousTransform::~vtkMatrixToHomogenousTransform()
 {
+  this->SetInput(NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
+void vtkMatrixToHomogenousTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os,indent);
+  this->Update();
+
+  vtkHomogenousTransform::PrintSelf(os, indent);
+  os << indent << "Input: " << this->Input << "\n";
+  os << indent << "InverseFlag: " << this->InverseFlag << "\n";
 }
 
 //----------------------------------------------------------------------------
-vtkAbstractTransform *vtkGeneralTransformConcatenation::MakeTransform()
+void vtkMatrixToHomogenousTransform::Inverse()
 {
-  return vtkGeneralTransformConcatenation::New();
+  this->InverseFlag = !this->InverseFlag;
+  this->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkMatrixToHomogenousTransform::InternalUpdate()
+{
+  if (this->Input)
+    {
+    this->Matrix->DeepCopy(this->Input);
+    if (this->InverseFlag)
+      {
+      this->Matrix->Invert();
+      }
+    }
+  else
+    {
+    this->Matrix->Identity();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkMatrixToHomogenousTransform::InternalDeepCopy(
+						vtkAbstractTransform *gtrans)
+{
+  vtkMatrixToHomogenousTransform *transform = 
+    (vtkMatrixToHomogenousTransform *)gtrans;
+
+  this->SetInput(transform->Input);
+
+  if (this->InverseFlag != transform->InverseFlag)
+    {
+    this->Inverse();
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkAbstractTransform *vtkMatrixToHomogenousTransform::MakeTransform()
+{
+  return vtkMatrixToHomogenousTransform::New();
+}
+
+//----------------------------------------------------------------------------
+// Get the MTime
+unsigned long vtkMatrixToHomogenousTransform::GetMTime()
+{
+  unsigned long mtime = this->vtkHomogenousTransform::GetMTime();
+
+  if (this->Input)
+    {
+    unsigned long matrixMTime = this->Input->GetMTime();
+    if (matrixMTime > mtime)
+      {
+      return matrixMTime;
+      }
+    }
+  return mtime;
+}

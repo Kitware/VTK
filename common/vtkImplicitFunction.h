@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // boolean combinations implicit functions (see vtkImplicitBoolean).
 //
 // vtkImplicitFunction provides a mechanism to transform the implicit
-// function(s) via a vtkGeneralTransform.  This capability can be used to 
+// function(s) via a vtkAbstractTransform.  This capability can be used to 
 // translate, orient, scale, or warp implicit functions.  For example, 
 // a sphere implicit function can be transformed into an oriented ellipse. 
 
@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // transformation is required.
 
 // .SECTION See Also
-// vtkGeneralTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane 
+// vtkAbstractTransform vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane 
 // vtkPlanes vtkQuadric vtkImplicitVolume vtkSampleFunction vtkCutter
 // vtkClipPolyData
 
@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkImplicitFunction_h
 
 #include "vtkObject.h"
-#include "vtkGeneralTransform.h"
+#include "vtkAbstractTransform.h"
 
 class VTK_EXPORT vtkImplicitFunction : public vtkObject
 {
@@ -103,8 +103,8 @@ public:
   // Description:
   // Set/Get a transformation to apply to input points before
   // executing the implicit function.
-  vtkSetObjectMacro(Transform,vtkGeneralTransform);
-  vtkGetObjectMacro(Transform,vtkGeneralTransform);
+  vtkSetObjectMacro(Transform,vtkAbstractTransform);
+  vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
   // Description:
   // Evaluate function at position x-y-z and return value.  You should
@@ -128,7 +128,7 @@ protected:
   vtkImplicitFunction(const vtkImplicitFunction&) {};
   void operator=(const vtkImplicitFunction&) {};
 
-  vtkGeneralTransform *Transform;
+  vtkAbstractTransform *Transform;
   float ReturnValue[3];
 };
 

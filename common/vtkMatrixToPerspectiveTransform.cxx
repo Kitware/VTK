@@ -58,84 +58,17 @@ vtkMatrixToPerspectiveTransform* vtkMatrixToPerspectiveTransform::New()
 //----------------------------------------------------------------------------
 vtkMatrixToPerspectiveTransform::vtkMatrixToPerspectiveTransform()
 {
-  this->Input = NULL;
-  this->InverseFlag = 0;
+  vtkWarningMacro(<<"this class has been renamed to vtkMatrixToHomogenousTransform");
 }
 
 //----------------------------------------------------------------------------
 vtkMatrixToPerspectiveTransform::~vtkMatrixToPerspectiveTransform()
 {
-  this->SetInput(NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
-{
-  this->Update();
-
-  vtkPerspectiveTransform::PrintSelf(os, indent);
-  os << indent << "Input: " << this->Input << "\n";
-  os << indent << "InverseFlag: " << this->InverseFlag << "\n";
-}
-
-//----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::Inverse()
-{
-  this->InverseFlag = !this->InverseFlag;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::InternalUpdate()
-{
-  if (this->Input)
-    {
-    this->Matrix->DeepCopy(this->Input);
-    if (this->InverseFlag)
-      {
-      this->Matrix->Invert();
-      }
-    }
-  else
-    {
-    this->Matrix->Identity();
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::InternalDeepCopy(
-						vtkGeneralTransform *gtrans)
-{
-  vtkMatrixToPerspectiveTransform *transform = 
-    (vtkMatrixToPerspectiveTransform *)gtrans;
-
-  this->SetInput(transform->Input);
-
-  if (this->InverseFlag != transform->InverseFlag)
-    {
-    this->Inverse();
-    }
-}
-
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkMatrixToPerspectiveTransform::MakeTransform()
+vtkAbstractTransform *vtkMatrixToPerspectiveTransform::MakeTransform()
 {
   return vtkMatrixToPerspectiveTransform::New();
 }
 
-//----------------------------------------------------------------------------
-// Get the MTime
-unsigned long vtkMatrixToPerspectiveTransform::GetMTime()
-{
-  unsigned long mtime = this->vtkPerspectiveTransform::GetMTime();
-
-  if (this->Input)
-    {
-    unsigned long matrixMTime = this->Input->GetMTime();
-    if (matrixMTime > mtime)
-      {
-      return matrixMTime;
-      }
-    }
-  return mtime;
-}

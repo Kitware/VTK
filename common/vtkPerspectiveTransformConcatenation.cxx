@@ -59,7 +59,7 @@ vtkPerspectiveTransformConcatenation *vtkPerspectiveTransformConcatenation::New(
 //----------------------------------------------------------------------------
 vtkPerspectiveTransformConcatenation::vtkPerspectiveTransformConcatenation()
 {
-  vtkWarningMacro("This class is obsolete, use vtkProjectionTransform instead");
+  vtkWarningMacro(<<"This class is obsolete, use vtkPerspectiveTransform instead");
 }
 
 //----------------------------------------------------------------------------
@@ -70,11 +70,11 @@ vtkPerspectiveTransformConcatenation::~vtkPerspectiveTransformConcatenation()
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProjectionTransform::PrintSelf(os,indent);
+  vtkPerspectiveTransform::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkPerspectiveTransformConcatenation::MakeTransform()
+vtkAbstractTransform *vtkPerspectiveTransformConcatenation::MakeTransform()
 {
   return vtkPerspectiveTransformConcatenation::New();
 }

@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // landmark. The points in between are interpolated smoothly using
 // Bookstein's Thin Plate Spline algorithm.
 // .SECTION Caveats
-// The inverse grid transform is calculated using an iterative method,
+// The inverse transform is calculated using an iterative method,
 // and is several times more expensive than the forward transform.
 // .SECTION see also
 // vtkGridTransform vtkGeneralTransform
@@ -115,7 +115,7 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform();
 
 protected:
   vtkThinPlateSplineTransform();
@@ -129,7 +129,7 @@ protected:
 
   // Description:
   // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform);
 
   void ForwardTransformPoint(const float in[3], float out[3]);
   void ForwardTransformPoint(const double in[3], double out[3]);

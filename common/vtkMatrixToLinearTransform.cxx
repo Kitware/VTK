@@ -103,7 +103,7 @@ void vtkMatrixToLinearTransform::InternalUpdate()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToLinearTransform::InternalDeepCopy(vtkGeneralTransform *gtrans)
+void vtkMatrixToLinearTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 {
   vtkMatrixToLinearTransform *transform = 
     (vtkMatrixToLinearTransform *)gtrans;
@@ -117,7 +117,7 @@ void vtkMatrixToLinearTransform::InternalDeepCopy(vtkGeneralTransform *gtrans)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkMatrixToLinearTransform::MakeTransform()
+vtkAbstractTransform *vtkMatrixToLinearTransform::MakeTransform()
 {
   return vtkMatrixToLinearTransform::New();
 }

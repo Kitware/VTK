@@ -74,14 +74,13 @@ void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------
-void vtkIdentityTransform::InternalDeepCopy(
-                                   vtkGeneralTransform *vtkNotUsed(transform))
+void vtkIdentityTransform::InternalDeepCopy(vtkAbstractTransform *)
 {
   // nothin' to do
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkIdentityTransform::MakeTransform()
+vtkAbstractTransform *vtkIdentityTransform::MakeTransform()
 {
   return vtkIdentityTransform::New();
 }

@@ -370,13 +370,13 @@ void vtkLandmarkTransform::Inverse()
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkLandmarkTransform::MakeTransform()
+vtkAbstractTransform *vtkLandmarkTransform::MakeTransform()
 {
   return vtkLandmarkTransform::New(); 
 }
 
 //----------------------------------------------------------------------------
-void vtkLandmarkTransform::InternalDeepCopy(vtkGeneralTransform *transform)
+void vtkLandmarkTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 {
   vtkLandmarkTransform *t = (vtkLandmarkTransform *)transform;
 

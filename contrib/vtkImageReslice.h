@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Caveats
 // This filter is very inefficient if the output X dimension is 1.
 // .SECTION see also
-// vtkGeneralTransform vtkMatrix4x4
+// vtkAbstractTransform vtkMatrix4x4
 
 
 #ifndef __vtkImageReslice_h
@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkGeneralTransform.h"
+#include "vtkAbstractTransform.h"
 #include "vtkMatrix4x4.h"
 
 class vtkMatrix4x4;
@@ -107,8 +107,8 @@ public:
   // equivalent to applying the inverse of the same transform to
   // the image before resampling it.  Nonlinear transforms can be
   // used here.
-  vtkSetObjectMacro(ResliceTransform,vtkGeneralTransform);
-  vtkGetObjectMacro(ResliceTransform,vtkGeneralTransform);
+  vtkSetObjectMacro(ResliceTransform,vtkAbstractTransform);
+  vtkGetObjectMacro(ResliceTransform,vtkAbstractTransform);
 
   // Description:
   // Turn on wrap-pad feature (default: off). 
@@ -200,7 +200,7 @@ protected:
   void operator=(const vtkImageReslice&) {};
 
   vtkMatrix4x4 *ResliceAxes;
-  vtkGeneralTransform *ResliceTransform;
+  vtkAbstractTransform *ResliceTransform;
   vtkMatrix4x4 *IndexMatrix;
   int Wrap;
   int Mirror;

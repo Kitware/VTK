@@ -108,7 +108,7 @@ void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform::InternalDeepCopy(vtkGeneralTransform *gtrans)
+void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 {
   vtkTransform *transform = (vtkTransform *)gtrans;
 
@@ -170,8 +170,8 @@ void vtkTransform::InternalUpdate()
   // concatenate PreTransforms 
   for (i = nPreTransforms-1; i >= 0; i--)
     {
-    vtkPerspectiveTransform *transform = 
-      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
+    vtkHomogenousTransform *transform = 
+      (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
 			      this->Matrix);
     }
@@ -179,8 +179,8 @@ void vtkTransform::InternalUpdate()
   // concatenate PostTransforms
   for (i = nPreTransforms; i < nTransforms; i++)
     {
-    vtkPerspectiveTransform *transform = 
-      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
+    vtkHomogenousTransform *transform = 
+      (vtkHomogenousTransform *)this->Concatenation->GetTransform(i);
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
 			      this->Matrix);
     }
@@ -223,7 +223,7 @@ void vtkTransform::SetInput(vtkLinearTransform *input)
 }
 
 //----------------------------------------------------------------------------
-int vtkTransform::CircuitCheck(vtkGeneralTransform *transform)
+int vtkTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
   if (this->vtkLinearTransform::CircuitCheck(transform) ||
       this->Input && this->Input->CircuitCheck(transform))
@@ -244,7 +244,7 @@ int vtkTransform::CircuitCheck(vtkGeneralTransform *transform)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkTransform::MakeTransform()
+vtkAbstractTransform *vtkTransform::MakeTransform()
 {
   return vtkTransform::New();
 }

@@ -50,13 +50,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkWarpTransform_h
 #define __vtkWarpTransform_h
 
-#include "vtkGeneralTransform.h"
+#include "vtkAbstractTransform.h"
 
-class VTK_EXPORT vtkWarpTransform : public vtkGeneralTransform
+class VTK_EXPORT vtkWarpTransform : public vtkAbstractTransform
 {
 public:
 
-  vtkTypeMacro(vtkWarpTransform,vtkGeneralTransform);
+  vtkTypeMacro(vtkWarpTransform,vtkAbstractTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

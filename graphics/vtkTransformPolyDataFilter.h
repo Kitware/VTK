@@ -77,8 +77,8 @@ public:
 
   // Description:
   // Specify the transform object used to transform points.
-  vtkSetObjectMacro(Transform,vtkGeneralTransform);
-  vtkGetObjectMacro(Transform,vtkGeneralTransform);
+  vtkSetObjectMacro(Transform,vtkAbstractTransform);
+  vtkGetObjectMacro(Transform,vtkAbstractTransform);
 
 protected:
   vtkTransformPolyDataFilter();
@@ -87,7 +87,7 @@ protected:
   void operator=(const vtkTransformPolyDataFilter&) {};
 
   void Execute();
-  vtkGeneralTransform *Transform;
+  vtkAbstractTransform *Transform;
 };
 
 #endif

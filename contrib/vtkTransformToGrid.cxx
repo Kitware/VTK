@@ -141,7 +141,7 @@ static void vtkTransformToGridMinMax(vtkTransformToGrid *self,
 				     float &minDisplacement,
 				     float &maxDisplacement)
 {
-  vtkGeneralTransform *transform = self->GetInput();
+  vtkAbstractTransform *transform = self->GetInput();
   transform->Update();
 
   if (!transform)
@@ -298,7 +298,7 @@ static void vtkTransformToGridExecute(vtkTransformToGrid *self,
 			       float shift, float scale,
 			       int id)
 {
-  vtkGeneralTransform *transform = self->GetInput();
+  vtkAbstractTransform *transform = self->GetInput();
   int isIdentity = 0;
   if (transform == 0)
     {

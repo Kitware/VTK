@@ -43,15 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // transformations
 // .SECTION Description
 // This class is obsolete, all of its functionality can be found
-// in vtkProjectionTransform.
+// in vtkPerspectiveTransform.
 
 #ifndef __vtkPerspectiveTransformConcatenation_h
 #define __vtkPerspectiveTransformConcatenation_h
 
-#include "vtkProjectionTransform.h"
+#include "vtkPerspectiveTransform.h"
 
 class VTK_EXPORT vtkPerspectiveTransformConcatenation : 
-  public vtkProjectionTransform
+  public vtkPerspectiveTransform
 {
 public:
   static vtkPerspectiveTransformConcatenation *New();
@@ -61,7 +61,7 @@ public:
   
   // Description:
   // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform();
 
 protected:
   vtkPerspectiveTransformConcatenation();

@@ -22,9 +22,9 @@ vtkFeatureNormals	GetNormal	301 3
 vtkFPoints		GetPoint	301 3
 vtkFloatTCoords		GetTCoord	301 3
 vtkFloatVectors		GetVector	301 3
-vtkGeneralTransform	TransformPoint	307 3
-vtkGeneralTransform	TransformFloatPoint 301 3
-vtkGeneralTransform	TransformDoublePoint 307 3
+vtkAbstractTransform	TransformPoint	307 3
+vtkAbstractTransform	TransformFloatPoint 301 3
+vtkAbstractTransform	TransformDoublePoint 307 3
 vtkLinearTransform	TransformNormal 307 3
 vtkLinearTransform	TransformFloatNormal 301 3
 vtkLinearTransform	TransformDoubleNormal 307 3

@@ -209,7 +209,7 @@ void vtkThinPlateSplineTransform::SetTargetLandmarks(vtkPoints *target)
 //------------------------------------------------------------------------
 unsigned long vtkThinPlateSplineTransform::GetMTime()
 {
-  unsigned long result = this->vtkGeneralTransform::GetMTime();
+  unsigned long result = this->vtkWarpTransform::GetMTime();
   unsigned long mtime;
 
   if (this->SourceLandmarks)
@@ -744,14 +744,14 @@ void vtkThinPlateSplineTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkThinPlateSplineTransform::MakeTransform()
+vtkAbstractTransform *vtkThinPlateSplineTransform::MakeTransform()
 {
   return vtkThinPlateSplineTransform::New(); 
 }
 
 //----------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::InternalDeepCopy(
-				      vtkGeneralTransform *transform)
+				      vtkAbstractTransform *transform)
 {
   vtkThinPlateSplineTransform *t = (vtkThinPlateSplineTransform *)transform;
 

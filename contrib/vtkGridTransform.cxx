@@ -848,7 +848,7 @@ void vtkGridTransform::PrintSelf(ostream& os, vtkIndent indent)
 unsigned long vtkGridTransform::GetMTime()
 {
   unsigned long mtime,result;
-  result = vtkGeneralTransform::GetMTime();
+  result = vtkWarpTransform::GetMTime();
   if (this->DisplacementGrid)
     {
     this->DisplacementGrid->UpdateInformation();
@@ -1215,7 +1215,7 @@ void vtkGridTransform::InverseTransformPoint(const double point[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkGridTransform::InternalDeepCopy(vtkGeneralTransform *transform)
+void vtkGridTransform::InternalDeepCopy(vtkAbstractTransform *transform)
 {
   vtkGridTransform *gridTransform = (vtkGridTransform *)transform;
 
@@ -1267,7 +1267,7 @@ void vtkGridTransform::InternalUpdate()
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGridTransform::MakeTransform()
+vtkAbstractTransform *vtkGridTransform::MakeTransform()
 {
   return vtkGridTransform::New();
 }

@@ -96,7 +96,7 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform();
 
 protected:
   vtkLandmarkTransform();
@@ -109,7 +109,7 @@ protected:
 
   // Description:
   // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform);
 
   vtkPoints* SourceLandmarks;
   vtkPoints* TargetLandmarks;

@@ -62,7 +62,7 @@ class VTK_EXPORT vtkGridTransform : public vtkWarpTransform
 {
 public:
   static vtkGridTransform *New();
-  vtkTypeMacro(vtkGridTransform,vtkGeneralTransform);
+  vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -102,7 +102,7 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  vtkGeneralTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform();
 
   // Description:
   // Get the MTime.
@@ -120,7 +120,7 @@ protected:
 
   // Description:
   // Copy this transform from another of the same type.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform);
 
   void ForwardTransformPoint(const float in[3], float out[3]);
   void ForwardTransformPoint(const double in[3], double out[3]);

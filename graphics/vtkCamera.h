@@ -48,14 +48,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // model including view up vector, clipping planes, and 
 // camera perspective.
 // .SECTION See Also
-// vtkProjectionTransform vtkPerspectiveTransform 
+// vtkPerspectiveTransform
 
 #ifndef __vtkCamera_h
 #define __vtkCamera_h
 
 #include "vtkObject.h"
 #include "vtkTransform.h"
-#include "vtkProjectionTransform.h"
+#include "vtkPerspectiveTransform.h"
 
 class vtkRenderer;
 
@@ -387,8 +387,8 @@ protected:
   double ViewPlaneNormal[3];
 
   vtkTransform *ViewTransform;
-  vtkProjectionTransform *PerspectiveTransform;
-  vtkProjectionTransform *Transform;
+  vtkPerspectiveTransform *PerspectiveTransform;
+  vtkPerspectiveTransform *Transform;
 
   double FocalDisk;
 

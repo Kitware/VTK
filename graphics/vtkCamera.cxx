@@ -90,9 +90,9 @@ vtkCamera::vtkCamera()
 
   this->FocalDisk = 1.0;
 
-  this->Transform = vtkProjectionTransform::New();
+  this->Transform = vtkPerspectiveTransform::New();
   this->ViewTransform = vtkTransform::New();
-  this->PerspectiveTransform = vtkProjectionTransform::New();
+  this->PerspectiveTransform = vtkPerspectiveTransform::New();
 
   // initialize the ViewTransform
   this->ComputeViewTransform();

@@ -1,11 +1,11 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLinearTransformConcatenation.h
+  Module:    vtkMatrixToHomogenousTransform.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to David G. Gobbi who developed this class.
+
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -39,40 +39,66 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkLinearTransformConcatenation - obsolete class
+
+// .NAME vtkMatrixToHomogenousTransform - convert a matrix to a transform
 // .SECTION Description
-// This class is obsolete, all of its functionality can be found
-// in vtkTransform.
+// This is a very simple class which allows a vtkMatrix4x4 to be used in
+// place of a vtkHomogenousTransform or vtkAbstractTransform.  For example,
+// if you use it as a proxy between a matrix and vtkTransformPolyDataFilter
+// then any modifications to the matrix will automatically be reflected in
+// the output of the filter.
+// .SECTION See Also
+// vtkPerspectiveTransform vtkMatrix4x4 vtkMatrixToLinearTransform  
 
-#ifndef __vtkLinearTransformConcatenation_h
-#define __vtkLinearTransformConcatenation_h
+#ifndef __vtkMatrixToHomogenousTransform_h
+#define __vtkMatrixToHomogenousTransform_h
 
-#include "vtkTransform.h"
+#include "vtkHomogenousTransform.h"
+#include "vtkMatrix4x4.h"
 
-class VTK_EXPORT vtkLinearTransformConcatenation : 
-  public vtkTransform
+class VTK_EXPORT vtkMatrixToHomogenousTransform : 
+  public vtkHomogenousTransform
 {
-public:
-  static vtkLinearTransformConcatenation *New();
+ public:
+  static vtkMatrixToHomogenousTransform *New();
+  vtkTypeMacro(vtkMatrixToHomogenousTransform,vtkHomogenousTransform);
+  void PrintSelf (ostream& os, vtkIndent indent);
 
-  vtkTypeMacro(vtkLinearTransformConcatenation,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
-  
+  // Set the input matrix.  Any modifications to the matrix will be
+  // reflected in the transformation.
+  vtkSetObjectMacro(Input,vtkMatrix4x4);
+  vtkGetObjectMacro(Input,vtkMatrix4x4);
+
   // Description:
-  // Make another transform of the same type.
+  // The input matrix is left as-is, but the transformation matrix
+  // is inverted.
+  void Inverse();
+
+  // Description:
+  // Get the MTime: this is the bit of magic that makes everything work.
+  unsigned long GetMTime();
+
+  // Description:
+  // Make a new transform of the same type.
   vtkAbstractTransform *MakeTransform();
 
+  // Description:
+  // This method is deprecated.
+  void SetMatrix(vtkMatrix4x4 *matrix) {
+    this->SetInput(matrix);
+    vtkWarningMacro("SetMatrix: deprecated, use SetInput() instead"); }
+
 protected:
-  vtkLinearTransformConcatenation();
-  ~vtkLinearTransformConcatenation();
-  vtkLinearTransformConcatenation(
-	  const vtkLinearTransformConcatenation&) {};
-  void operator=(const vtkLinearTransformConcatenation&) {};
+  vtkMatrixToHomogenousTransform();
+  ~vtkMatrixToHomogenousTransform();
+  vtkMatrixToHomogenousTransform(const vtkMatrixToHomogenousTransform&) {};
+  void operator=(const vtkMatrixToHomogenousTransform&) {};
+
+  void InternalUpdate();
+  void InternalDeepCopy(vtkAbstractTransform *transform);
+
+  int InverseFlag;
+  vtkMatrix4x4 *Input;
 };
 
 #endif
-
-
-
-
-

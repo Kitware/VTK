@@ -18,16 +18,16 @@ vtkObjectFactoryCollection
 
 ABSTRACT = \
 vtkAbstractMapper \
+vtkAbstractTransform \
 vtkAttributeData \
 vtkCell \
 vtkDataArray \
 vtkDataSet \
-vtkGeneralTransform \
+vtkHomogenousTransform \
 vtkLinearTransform \
 vtkImplicitFunction \
 vtkLocator \
 vtkObjectFactory \
-vtkPerspectiveTransform \
 vtkPointSet \
 vtkScalarsToColors \
 vtkViewport \
@@ -64,6 +64,7 @@ vtkFloatScalars \
 vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
+vtkGeneralTransform \
 vtkGeneralTransformConcatenation \
 vtkGenericCell \
 vtkHexahedron \
@@ -83,6 +84,7 @@ vtkLookupTable \
 vtkMapper2D \
 vtkMath \
 vtkMatrix4x4 \
+vtkMatrixToHomogenousTransform \
 vtkMatrixToLinearTransform \
 vtkMatrixToPerspectiveTransform \
 vtkMergePoints2D \
@@ -91,6 +93,7 @@ vtkMutexLock \
 vtkNormals \
 vtkObject \
 vtkOutputWindow \
+vtkPerspectiveTransform \
 vtkPerspectiveTransformConcatenation \
 vtkPixel \
 vtkPlane \
