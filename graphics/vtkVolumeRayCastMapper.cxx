@@ -76,10 +76,22 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 {
   if ( this->RGBAImage )
-    delete this->RGBAImage;
+    delete [] this->RGBAImage;
 
   if ( this->ZImage )
-    delete this->ZImage;
+    delete [] this->ZImage;
+
+  if ( this->ScalarOpacityTFArray )
+    delete [] this->ScalarOpacityTFArray;
+
+  if ( this->RGBTFArray )
+    delete [] this->RGBTFArray;
+
+  if ( this->GrayTFArray )
+    delete [] this->GrayTFArray;
+
+  if ( this->CorrectedScalarOpacityTFArray )
+    delete [] this->CorrectedScalarOpacityTFArray;
 }
 
 void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
@@ -367,12 +379,12 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // If there'a a color image already allocated, delete it.  Create a new
   // image. This image is RGBA in floats.
   if ( this->RGBAImage )
-    delete this->RGBAImage;
+    delete [] this->RGBAImage;
   this->RGBAImage = new float[ this->ViewRaysSize[0] * 
 			       this->ViewRaysSize[1] * 4 ];
 
   if ( this->ZImage )
-    delete this->ZImage;
+    delete [] this->ZImage;
   
   // If there is a depth image already allocated, delete it. Create a new
   // depth image.  The depth image is z values in perspective coordinates
@@ -761,9 +773,9 @@ void vtkVolumeRayCastMapper::RenderParallelImage( vtkRenderer *ren )
     } // For each pixel loop
 
   // Delete the objects we created
-  delete pixel_offset_x;
-  delete pixel_offset_y;
-  delete pixel_offset_z;
+  delete [] pixel_offset_x;
+  delete [] pixel_offset_y;
+  delete [] pixel_offset_z;
 
 }
 
@@ -1307,7 +1319,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
     if ( gray_tf_needs_updating )
       {
       if ( this->GrayTFArray )
-	delete this->GrayTFArray;
+	delete [] this->GrayTFArray;
 
       this->GrayTFArray = new float[(int)(0x100)];
       gray_transfer_function->GetTable( (float)(0x00),
@@ -1338,7 +1350,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
       {
       // Get values 0-65535 (65536 values)
       if ( this->ScalarOpacityTFArray )
-	delete this->ScalarOpacityTFArray;
+	delete [] this->ScalarOpacityTFArray;
 
       this->ScalarOpacityTFArray = new float[(int)(0x10000)];
       scalar_opacity_transfer_function->GetTable( (float)(0x0000),
@@ -1351,7 +1363,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
     if ( gray_tf_needs_updating )
       {
       if ( this->GrayTFArray )
-	delete this->GrayTFArray;
+	delete [] this->GrayTFArray;
 
       this->GrayTFArray = new float[(int)(0x10000)];
       gray_transfer_function->GetTable( (float)(0x0000),
@@ -1364,7 +1376,7 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
     if ( rgb_tf_needs_updating )
       {
       if ( this->RGBTFArray )
-	delete this->RGBTFArray;
+	delete [] this->RGBTFArray;
       
       this->RGBTFArray = new float[3 * (int)(0x10000)];
       rgb_transfer_function->GetTable( (float)(0x0000),
