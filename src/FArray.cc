@@ -54,7 +54,10 @@ vlFloatArray::vlFloatArray(const int sz, const int ext)
 
 vlFloatArray::~vlFloatArray()
 {
-  delete [] this->Array;
+  if (this->Array)
+    {
+    delete [] this->Array;
+    }
 }
 
 // Description:
@@ -136,11 +139,15 @@ float *vlFloatArray::Resize(const int sz)
     return 0;
     }
 
-  memcpy(newArray, this->Array,
-         (sz < this->Size ? sz : this->Size) * sizeof(float));
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array,
+	   (sz < this->Size ? sz : this->Size) * sizeof(float));
+    delete [] this->Array;
+    }
 
   this->Size = newSize;
-  delete [] this->Array;
   this->Array = newArray;
 
   return this->Array;
