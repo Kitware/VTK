@@ -206,7 +206,7 @@ static void vtkImageQuantizeRGBToIndexHistogram( T *inPtr,
 	  v[0] = *(rgbPtr++) - bounds[0];
 	  v[1] = *(rgbPtr++) - bounds[2];
 	  v[2] = *(rgbPtr++) - bounds[4];
-	  if ( v[0] < max[0] && v[1] < max[1] && v[2] < max[2] )
+	  if ( (int)v[0] < max[0] && (int)v[1] < max[1] && (int)v[2] < max[2] )
 	    {
 	    histogram[0][(unsigned char)v[0]]++;  
 	    histogram[1][(unsigned char)v[1]]++;  
