@@ -227,7 +227,7 @@ void vlGlyph3D::Execute()
     if ( scaleSource )
       {
       scale *= this->ScaleFactor;
-      if ( scale == 0,0 ) scale = 1.0e-10;
+      if ( scale == 0.0 ) scale = 1.0e-10;
       trans.Scale(scale,scale,scale);
       }
 
