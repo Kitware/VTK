@@ -306,5 +306,5 @@ void vtkStructuredPointsReader::Execute()
 
 void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsReader::PrintSelf(os,indent);
+  vtkDataReader::PrintSelf(os,indent);
 }
