@@ -1,17 +1,17 @@
 """
-vtkImageExportToArray: a NumPy front-end to vtkImageExport
+vtkImageExportToArray - a NumPy front-end to vtkImageExport
 
 This class converts a VTK image to a Numeric Python array.
 
 To use this class, you must have the LLNL Numeric Python distribution
 (http://numpy.sf.net)
 
-Methods:
+Methods
 
   SetInput(input) -- connect to VTK image pipeline
   GetArray()      -- execute pipeline and return a Numeric array
-  
-Convert VTK_UNSIGNED_SHORT to python Int:
+
+Convert VTK_UNSIGNED_SHORT to python Int
 (this might be necessary because Python doesn't support unsigned short,
 the default is to cast unsigned short to signed short).
 
@@ -19,17 +19,29 @@ the default is to cast unsigned short to signed short).
   ConvertUnsignedShortToIntOn()
   ConvertUnsignedShortToIntOff()
 
-From vtkImageExport:
+From vtkImageExport
 
   GetDataExtent()
   GetDataSpacing()
   GetDataOrigin()
 """
-  
+
 import Numeric
 import umath
 from vtk import vtkImageExport
 from vtkConstants import *
+
+_NEW_NUMERIC = 0
+try:
+    val = float(Numeric.__version__)
+except ValueError:
+    _NEW_NUMERIC = 0
+else:
+    if val > 20.0:
+        _NEW_NUMERIC = 1
+    else:
+        _NEW_NUMERIC = 0
+
 
 class vtkImageExportToArray:
     def __init__(self):
@@ -77,6 +89,7 @@ class vtkImageExportToArray:
 
     def GetArray(self):
         input = self.__export.GetInput()
+        input.UpdateInformation()
         type = input.GetScalarType()
         extent = input.GetWholeExtent()
         numComponents = input.GetNumberOfScalarComponents()
@@ -87,18 +100,22 @@ class vtkImageExportToArray:
             dim = dim + (numComponents,)
         size = dim[0]*dim[1]*dim[2]*numComponents*self.__sizeDict[type]
 
-        imString = Numeric.zeros((size,),Numeric.UnsignedInt8).tostring()
-        self.__export.Export(imString)
+        if _NEW_NUMERIC:
+            imArray = Numeric.zeros((size,),Numeric.UnsignedInt8)
+            self.__export.Export(imArray)
+        else:
+            imString = Numeric.zeros((size,),
+                                     Numeric.UnsignedInt8).tostring()
+            self.__export.Export(imString)
+            imArray = Numeric.fromstring(imString,self.__typeDict[type])
+            # just to remind myself of the dangers of memory management
+            del imString
 
-        imArray = Numeric.fromstring(imString,self.__typeDict[type])
-        imArray = Numeric.reshape(imArray,dim)
-
+        # reshape array appropriately.
+        imArray = Numeric.reshape(imArray, dim)
         # convert unsigned short to int to avoid sign issues
         if (type == VTK_UNSIGNED_SHORT and self.__ConvertUnsignedShortToInt):
             imArray = umath.bitwise_and(imArray.astype(Numeric.Int32),0xffff)
-
-        # just to remind myself of the dangers of memory management
-        del imString
 
         return imArray
         
