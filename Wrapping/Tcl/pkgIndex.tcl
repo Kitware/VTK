@@ -113,3 +113,11 @@ package ifneeded vtktcl_widgets 1.0 {
     package provide vtktcl_widgets 1.0
 }
 
+
+package ifneeded vtktcl_colors 1.0 {
+ 
+    global vtkpackagehome
+    source [file join $vtkpackagehome colors.tcl]
+
+    package provide vtktcl_colors 1.0
+}
