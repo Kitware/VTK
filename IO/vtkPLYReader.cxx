@@ -261,8 +261,11 @@ void vtkPLYReader::Execute()
       output->SetPolys(polys);
       polys->Delete();
       }//if face
+
+    free(elist[i]); //allocated by ply_open_for_reading
     
     }//for all elements of the PLY file
+  free(elist); //allocated by ply_open_for_reading
   
   vtkDebugMacro( <<"Read: " << numPts << " points, " 
                  << numPolys << " polygons");
