@@ -116,7 +116,8 @@ protected:
 
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
-  // vtkUnstructuredGrid output.  Return 0 if EOF reached.
+  // vtkUnstructuredGrid output.  Return 0 if EOF reached. Return -1 if
+  // an error occurred.
   virtual int CreateUnstructuredGridOutput(int partId, char line[256]);
   
   // Description:

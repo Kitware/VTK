@@ -267,6 +267,9 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
       }
     else
       {
+      // It does not matter which unstructured part we get the point data from because
+      // it is the same for all of them.
+      partId = this->UnstructuredPartIds->GetId(0);
       scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetFieldData()->
 	GetArray(description, arrayNum));
       }
