@@ -41,192 +41,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDicer.h"
 #include "vtkMath.h"
 
-// Create object with 5000 points per piece.
+// Instantiate object.
 vtkDicer::vtkDicer()
 {
   this->NumberOfPointsPerPiece = 5000;
-  this->NumberOfPieces = 0;
+  this->NumberOfPieces = 10;
+  this->MemoryLimit = 50000; //50 MBytes
+  this->NumberOfActualPieces = 0;
+  this->FieldData = 0;
+  this->DiceMode = VTK_DICE_MODE_NUMBER_OF_POINTS;
 }
 
-void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
+// This method unifies the measures used to define piece size. Call this
+// in the subclass Execute() method.
+void vtkDicer::UpdatePieceMeasures()
 {
-  int i, numPts=ptIds->GetNumberOfIds();
-  int ptId;
-  vtkOBBTree *OBB = vtkOBBTree::New();
-  vtkDataSet *input= this->GetInput();
+  vtkDataSet *input = this->GetInput();
+  int numPts = input->GetNumberOfPoints();
+  unsigned long memSize = input->GetActualMemorySize();
 
-  float size[3];
-
-  //
-  // Gather all the points into a single list
-  //
-  for ( this->PointsList->Reset(), i=0; i < numPts; i++ )
+  if ( this->DiceMode == VTK_DICE_MODE_NUMBER_OF_POINTS )
     {
-    ptId = ptIds->GetId(i);
-    this->PointsList->InsertNextPoint(input->GetPoint(ptId));
+    this->NumberOfPieces = ceil((double)numPts/this->NumberOfPointsPerPiece);
+    this->MemoryLimit = ceil((double)memSize/this->NumberOfPieces);
     }
 
-  //
-  // Now compute the OBB
-  //
-  OBB->ComputeOBB(this->PointsList, OBBptr->Corner, OBBptr->Axes[0], 
-                  OBBptr->Axes[1], OBBptr->Axes[2], size);
-  OBB->Delete();
-  OBB = NULL;
-  
-  //
-  // Check whether to continue recursing; if so, create two children and
-  // assign cells to appropriate child.
-  //
-  if ( numPts > this->NumberOfPointsPerPiece )
+  else if ( this->DiceMode == VTK_DICE_MODE_SPECIFIED_NUMBER )
     {
-    vtkOBBNode *LHnode= new vtkOBBNode;
-    vtkOBBNode *RHnode= new vtkOBBNode;
-    OBBptr->Kids = new vtkOBBNode *[2];
-    OBBptr->Kids[0] = LHnode;
-    OBBptr->Kids[1] = RHnode;
-    vtkIdList *LHlist = vtkIdList::New();
-    LHlist->Allocate(numPts/2);
-    vtkIdList *RHlist = vtkIdList::New();
-    RHlist->Allocate(numPts/2);
-    LHnode->Parent = OBBptr;
-    RHnode->Parent = OBBptr;
-    float n[3], p[3], *x, val;
-
-    //split the longest axis down the middle
-    for (i=0; i < 3; i++) //compute split point
-      {
-      p[i] = OBBptr->Corner[i] + OBBptr->Axes[0][i]/2.0 + 
-             OBBptr->Axes[1][i]/2.0 + OBBptr->Axes[2][i]/2.0;
-      }
-
-    // compute split normal
-    for (i=0 ; i < 3; i++)
-      {
-      n[i] = OBBptr->Axes[0][i];
-      }
-    vtkMath::Normalize(n);
-
-    //traverse cells, assigning to appropriate child list as necessary
-    for ( i=0; i < numPts; i++ )
-      {
-      ptId = ptIds->GetId(i);
-      x = input->GetPoint(ptId);
-      val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
-
-      if ( val < 0.0 ) 
-        { 
-        LHlist->InsertNextId(ptId);
-        }
-      else 
-        {
-        RHlist->InsertNextId(ptId);
-        }
-
-      }//for all points
-
-    ptIds->Delete(); //don't need to keep anymore
-    this->BuildTree(LHlist, LHnode);
-    this->BuildTree(RHlist, RHnode);
-    }//if should build tree
-
-  else //terminate recursion
-    {
-    ptIds->Squeeze();
-    OBBptr->Cells = ptIds;
-    }
-}
-
-// Current implementation uses an OBBTree to split up the dataset.
-void vtkDicer::Execute()
-{
-  int ptId, numPts;
-  vtkIdList *ptIds;
-  vtkScalars *groupIds;
-  vtkOBBNode *root;
-  vtkDataSet *input= this->GetInput();
-  vtkDataSet *output= this->GetOutput();
-
-  vtkDebugMacro(<<"Dicing object");
-
-  if ( (numPts = input->GetNumberOfPoints()) < 1 )
-    {
-    vtkErrorMacro(<<"No data to dice!");
-    return;
+    this->NumberOfPointsPerPiece = ceil((double)numPts/this->NumberOfPieces);
+    this->MemoryLimit = ceil((double)memSize/this->NumberOfPieces);
     }
 
-  //
-  // Create list of points
-  //
-  this->PointsList = vtkPoints::New();
-  this->PointsList->Allocate(numPts);
-  ptIds = vtkIdList::New();
-  ptIds->SetNumberOfIds(numPts);
-  for ( ptId=0; ptId < numPts; ptId++ )
+  else //this->DiceMode == VTK_DICE_MODE_MEMORY_LIMIT
     {
-    ptIds->SetId(ptId,ptId);
-    }
-
-  root = new vtkOBBNode;
-  this->BuildTree(ptIds,root);
-
-  //
-  // Generate scalar values
-  //
-  this->PointsList->Delete(); this->PointsList = NULL;
-  groupIds = vtkScalars::New(VTK_SHORT,1);
-  groupIds->SetNumberOfScalars(numPts);
-  this->NumberOfPieces = 0;
-  this->MarkPoints(root,groupIds);
-  this->DeleteTree(root);
-  delete root;
-  
-  vtkDebugMacro(<<"Created " << this->NumberOfPieces << " pieces");
-//
-// Update self
-//
-  output->GetPointData()->CopyScalarsOff();
-  output->GetPointData()->PassData(input->GetPointData());
-
-  output->GetCellData()->PassData(input->GetCellData());
-
-  output->GetPointData()->SetScalars(groupIds);
-  groupIds->Delete();
-}
-
-void vtkDicer::MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds)
-{
-  if ( OBBptr->Kids == NULL ) //leaf OBB
-    {
-    vtkIdList *ptIds;
-    int i, ptId, numIds;
-
-    ptIds = OBBptr->Cells;
-    if ( (numIds=ptIds->GetNumberOfIds()) > 0 )
-      {
-      for ( i=0; i < numIds; i++ )
-        {
-        ptId = ptIds->GetId(i);
-        groupIds->SetScalar(ptId,this->NumberOfPieces);
-        }
-      this->NumberOfPieces++;
-      }//if any points in this leaf OBB
-    }
-  else
-    {
-    this->MarkPoints(OBBptr->Kids[0],groupIds);
-    this->MarkPoints(OBBptr->Kids[1],groupIds);
-    }
-}
-
-void vtkDicer::DeleteTree(vtkOBBNode *OBBptr)
-{
-  if ( OBBptr->Kids != NULL )
-    {
-    this->DeleteTree(OBBptr->Kids[0]);
-    this->DeleteTree(OBBptr->Kids[1]);
-    delete OBBptr->Kids[0];
-    delete OBBptr->Kids[1];
+    this->NumberOfPieces = ceil((double)memSize/this->MemoryLimit);
+    this->NumberOfPointsPerPiece = ceil((double)numPts/this->NumberOfPieces);
     }
 }
 
@@ -234,6 +83,30 @@ void vtkDicer::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
-  os << indent << "Number of Points per Piece: " << this->NumberOfPointsPerPiece << "\n";;
-  os << indent << "Number of Pieces: " << this->NumberOfPieces << "\n";;
+  os << indent << "Number of Points per Piece: " 
+     << this->NumberOfPointsPerPiece << "\n";
+
+  os << indent << "Number of Pieces: " 
+     << this->NumberOfPieces << "\n";
+
+  os << indent << "Memory Limit: " 
+     << this->MemoryLimit << "\n";
+
+  os << indent << "Number of Actual Pieces: " 
+     << this->NumberOfActualPieces << "\n";
+
+  os << indent << "Field Data: " << (this->FieldData ? "On\n" : "Off\n");
+
+  if ( this->DiceMode == VTK_DICE_MODE_NUMBER_OF_POINTS )
+    {
+    os << indent << "Dice Mode: Number Of Points\n";
+    }
+  else if ( this->DiceMode == VTK_DICE_MODE_SPECIFIED_NUMBER )
+    {
+    os << indent << "Dice Mode: Specified Number\n";
+    }
+  else
+    {
+    os << indent << "Dice Mode: Memory Limit\n";
+    }
 }

@@ -38,33 +38,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDicer - divide dataset into spatially aggregated pieces
+// .NAME vtkDicer - abstract superclass to divide dataset into pieces
 // .SECTION Description
-// vtkDicer separates the cells of a dataset into spatially aggregated 
-// pieces. These pieces can then be operated on by other filters (e.g.,
-// vtkThreshold). One application is to break very large polygonal models
-// into pieces and performing viewing and occlusion culling on the pieces.
+// Subclasses of vtkDicer divides the input dataset into separate
+// pieces.  These pieces can then be operated on by other filters
+// (e.g., vtkThreshold). One application is to break very large
+// polygonal models into pieces and performing viewing and occlusion
+// culling on the pieces. Multiple pieces can also be streamed through
+// the visualization pipeline.
 //
-// To use this filter, you must specify the number of points per piece. The
-// filter attempts to create groups of points (containing the number of cells
-// specified). The groups are created to minimize the size of the bounding 
-// box of the group. The filter indicates which group the points belong in
-// by creating a scalar value corresponding to group number. Use the method
-// GetNumberOfPieces() to determine how many pieces were found.
+// To use this filter, you must specify the execution mode of the
+// filter; i.e., set the way that the piece size is controlled (do
+// this by setting the DiceMode ivar). The filter does not change the
+// geometry or topology of the input dataset, rather it generates
+// integer numbers that indicate which piece a particular point
+// belongs to (i.e., it modifies the point and cell attribute
+// data). The integer number can be placed into the output scalar
+// data, or the output field data.
 
 // .SECTION Caveats
-// The number of cells per group will not always be less than the requested
-// value. The groups are not guaranteed to generate the minimal bounding 
-// boxes.
+// The number of pieces generated may be less that the specified number
+// of pieces. 
 
 // .SECTION See Also
-// vtkThreshold
+// vtkOBBDicer vtkConnectedDicer vtkSpatialDicer
 
 #ifndef __vtkDicer_h
 #define __vtkDicer_h
 
 #include "vtkDataSetToDataSetFilter.h"
-#include "vtkOBBTree.h"
+
+#define VTK_DICE_MODE_NUMBER_OF_POINTS 0
+#define VTK_DICE_MODE_SPECIFIED_NUMBER 1
+#define VTK_DICE_MODE_MEMORY_LIMIT 2
 
 class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
@@ -73,18 +79,56 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Create object with 5000 points per piece.
-  static vtkDicer *New() {return new vtkDicer;};
+  // Set/Get the flag which controls whether to generate scalar data
+  // or field data. If this flag is off, scalar data is generated.
+  // Otherwise, field data is generated. Note that both cell and point
+  // data is generated - the data are integer numbers indicating which 
+  // piece a particular cell and point belongs to.
+  vtkSetMacro(FieldData,int);
+  vtkGetMacro(FieldData,int);
+  vtkBooleanMacro(FieldData,int);
 
   // Description:
-  // Specify the number of cells per group (i.e., piece).
-  vtkSetMacro(NumberOfPointsPerPiece,int);
+  // Specify the method to determine how many pieces the data should be
+  // broken into. By default, the number of points per piece is used.
+  vtkSetClampMacro(DiceMode,int,VTK_DICE_MODE_NUMBER_OF_POINTS,VTK_DICE_MODE_MEMORY_LIMIT);
+  vtkGetMacro(DiceMode,int);
+  void SetDiceModeToNumberOfPointsPerPiece()
+    {this->SetDiceMode(VTK_DICE_MODE_NUMBER_OF_POINTS);};
+  void SetDiceModeToSpecifiedNumberOfPieces()
+    {this->SetDiceMode(VTK_DICE_MODE_SPECIFIED_NUMBER);};
+  void SetDiceModeToMemoryLimitPerPiece()
+    {this->SetDiceMode(VTK_DICE_MODE_MEMORY_LIMIT);};
+
+  // Description:
+  // Use the following method after the filter has updated to
+  // determine the actual number of pieces the data was separated
+  // into.
+  vtkGetMacro(NumberOfActualPieces,int);
+
+  // Description:
+  // Control piece size based on the maximum number of points per piece.
+  // (This ivar has effect only when the DiceMode is set to 
+  // SetDiceModeToNumberOfPoints().)
+  vtkSetClampMacro(NumberOfPointsPerPiece,int,1000,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfPointsPerPiece,int);
 
   // Description:
-  // Get the number of pieces the object was broken into. The return value
-  // is updated when the filter executes.
+  // Set/Get the number of pieces the object is to be separated into. 
+  // (This ivar has effect only when the DiceMode is set to 
+  // SetDiceModeToSpecifiedNumber()). Note that the ivar
+  // NumberOfPieces is a target - depending on the particulars of the
+  // data, fewer pieces than the target value may be created.
+  vtkSetClampMacro(NumberOfPieces,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfPieces,int);
+
+  // Description:
+  // Control piece size based on a memory limit.  (This ivar has
+  // effect only when the DiceMode is set to
+  // SetDiceModeToMemoryLimit()). The memory limit should be set
+  // in kilobytes.
+  vtkSetClampMacro(MemoryLimit,unsigned long,100,VTK_LARGE_INTEGER);
+  vtkGetMacro(MemoryLimit,unsigned long);
 
 protected:
   vtkDicer();
@@ -92,18 +136,15 @@ protected:
   vtkDicer(const vtkDicer&) {};
   void operator=(const vtkDicer&) {};
 
-  // Usual data generation method
-  void Execute();
+  virtual void UpdatePieceMeasures();
 
-  int NumberOfPointsPerPiece;
-  short NumberOfPieces;
+  int           NumberOfPointsPerPiece;
+  int           NumberOfPieces;
+  unsigned long MemoryLimit;
+  int           NumberOfActualPieces;
+  int           FieldData;
+  int           DiceMode;
 
-  //implementation ivars and methods
-  void BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr);
-  void MarkPoints(vtkOBBNode *OBBptr, vtkScalars *groupIds);
-  void DeleteTree(vtkOBBNode *OBBptr);
-  vtkPoints *PointsList;
-  
 };
 
 #endif
