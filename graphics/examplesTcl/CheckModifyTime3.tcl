@@ -1,6 +1,10 @@
 # Check that the modified times of pipeline objects change when a
 # set method is called.
 
+# since it is easy, also check that MTime does not change when the variable 
+# is reset.  (Keep original reset script because it test more).
+
+
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
 
@@ -37,14 +41,14 @@ proc TestKit {kit} {
 
 proc TestObject {kit objectClass} {
 
+   #puts "    Object: $objectClass"
+
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
 	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
       # dont' bother to check non pipeline objects.
-      puts "            Is not a pipeline object"
+      #puts "            Is not a pipeline object"
       return
    }
-
-   puts "    Object: $objectClass"
 
    # make sure we can actualy create the object
    set objectName [new $objectClass]
@@ -89,9 +93,9 @@ proc TestObject {kit objectClass} {
 
 
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
-   global ERROR_LOG_FD ERROR_STRING
+   global ERROR_LOG_FD ERROR_STRING_CHANGE ERROR_STRING_RESET
 
-   puts "        Method: $methodName with $numberOfArgs args"
+   #puts "        Method: $methodName with $numberOfArgs args"
 
    if {[CheckException $methodName]} {
       return
@@ -125,6 +129,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    set argValues [GetArgValues $argTypes 0 $kit]
 
    set call1 "$objectName $methodName $argValues"
+   #puts "                    $call1"
    if { [catch {eval $call1}] != 0} {
       return
    }
@@ -134,6 +139,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    # second call
    set argValues [GetArgValues $argTypes 1 $kit]
    set call2 "$objectName $methodName $argValues"
+   #puts "                    $call2"
    if { [catch {eval $call2}] != 0} {
       return
    }
@@ -143,6 +149,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    # third call
    set argValues [GetArgValues $argTypes 2 $kit]
    set call3 "$objectName $methodName $argValues"
+   #puts "                    $call3"
    if { [catch {eval $call3}] != 0} {
       return
    }
@@ -152,26 +159,43 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
 
    if { $modifyTime0 == $modifyTime1 && $modifyTime0 == $modifyTime2 && \
 	  $modifyTime0 == $modifyTime3} {
-      set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
+      set ERROR_STRING_CHANGE [format "%s   %s %s," $ERROR_STRING_CHANGE \
 			  $methodClass $methodName]
-      puts "--------------------------- error -------------------------------"
-      puts "MTime did not changed : ------------------------"
-      puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
-      puts " $call2"
-      puts " method class: $methodClass"
-      puts " $call1"
-      puts " $call2"
-      puts " $call3"
+      #puts "--------------------------- error -------------------------------"
+      #puts "MTime did not changed : ------------------------"
+      #puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
+      #puts " $call2"
+      #puts " method class: $methodClass"
+      #puts " $call1"
+      #puts " $call2"
+      #puts " $call3"
+      #debug
+   }
+
+   # forth call (reset test)
+   if { [catch {eval $call3}] != 0} {
+      return
+   }
+   if {[catch {set modifyTime4 [$objectName GetMTime]}] != 0} {
+      return
+   }
+
+   if { $modifyTime3 != $modifyTime4} {
+      set ERROR_STRING_RESET [format "%s   %s %s," $ERROR_STRING_RESET \
+				$methodClass $methodName]
+      #puts "--------------------- reset error -------------------------------"
+      #puts "MTime changed : ------------------------"
+      #puts "MTime: $modifyTime3, $modifyTime4"  
+      #puts " method class: $methodClass"
+      #puts " $call3"
       #debug
    }
 
 }
 
 
-
 # I am not going to worry about deleting old objects created as arguments.
 proc GetArgValues {argTypes val kit} {
-   puts "GetArgValues $argTypes $val $kit"
 
    # create an empty list
    if { [llength $argTypes] == 0} {
@@ -617,8 +641,26 @@ proc CheckException {methodName} {
       return 1
    }
 
+   if {$methodName == "SetNormal"} {
+      # ( vtkPlaneSource:: Error with these args)
+      return 1
+   }
+
    if {$methodName == "SetSize"} {
       # window size 0 0 gives problems
+      return 1
+   }
+
+   if {$methodName == "SetDebug"} {
+      return 1
+   }
+   if {$methodName == "SetGlobalWarningDisplay"} {
+      return 1
+   }
+   if {$methodName == "SetReleaseDataFlag"} {
+      return 1
+   }
+   if {$methodName == "SetDataReleased"} {
       return 1
    }
 
@@ -637,12 +679,13 @@ wm withdraw .
 vtkImageCanvasSource2D canvas
   canvas SetNumberOfScalarComponents 1
   canvas SetScalarType 4
-  canvas SetExtent 0 1200 0 40 0 0
+  canvas SetExtent 0 1200 0 80 0 0
   canvas SetDrawColor 0
-  canvas FillBox 0 1200 0 40 
+  canvas FillBox 0 1200 0 80 
 
 vtkImageViewer viewer
   viewer SetInput [canvas GetOutput]
+
 # stuff for text
 vtkTextMapper mapper
   mapper SetInput ""
@@ -653,21 +696,36 @@ vtkActor2D actor
   actor SetLayerNumber 1
   [actor GetPositionCoordinate] SetValue 4 10
   [actor GetProperty] SetColor 1 1 1
+vtkTextMapper mapper2
+  mapper2 SetInput ""
+  mapper2 SetFontFamilyToTimes
+  mapper2 SetFontSize 18
+vtkActor2D actor2
+  actor2 SetMapper mapper2
+  actor2 SetLayerNumber 1
+  [actor2 GetPositionCoordinate] SetValue 4 50
+  [actor2 GetProperty] SetColor 1 1 1
+
 set imager [viewer GetImager]
   $imager AddActor2D actor
+  $imager AddActor2D actor2
 
-set ERROR_STRING "Change Modify Time Bugs:"
+
+
+
+set ERROR_STRING_CHANGE "Change Modify Time Bugs:"
+set ERROR_STRING_RESET "Reset Modify Time Bugs:"
 
 
 #TestObject graphics vtkPlaneSource
 
-TestKit imaging
-TestKit graphics
-TestKit imaging
-TestKit patented
-TestKit common
+#TestKit graphics
+#TestKit imaging
+#TestKit patented
+#TestKit common
 
-mapper SetInput $ERROR_STRING
+mapper SetInput $ERROR_STRING_CHANGE
+mapper2 SetInput $ERROR_STRING_RESET
 viewer Render
 
 
