@@ -60,12 +60,6 @@ renWin SetSize 450 450
 [ren1 GetActiveCamera] Azimuth 180
 iren Initialize
 
-
-
-renWin Render
-exit
-
-
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
