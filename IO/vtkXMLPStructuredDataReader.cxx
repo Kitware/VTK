@@ -19,16 +19,18 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkExtentSplitter.h"
 #include "vtkTableExtentTranslator.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.9.2.1");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
 {
   this->ExtentTranslator = vtkTableExtentTranslator::New();
+  this->ExtentSplitter = vtkExtentSplitter::New();
   this->PieceExtents = 0;
 }
 
@@ -36,6 +38,7 @@ vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
 vtkXMLPStructuredDataReader::~vtkXMLPStructuredDataReader()
 {
   if(this->NumberOfPieces) { this->DestroyPieces(); }
+  this->ExtentSplitter->Delete();
   this->ExtentTranslator->Delete();
 }
 
@@ -88,68 +91,69 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
   // Let superclasses read data.  This also allocates output data.
   this->Superclass::ReadXMLData();
   
+  // Use the ExtentSplitter to split the update extent into
+  // sub-extents read by each piece.
+  if(!this->ComputePieceSubExtents())
+    {
+    // Not all needed data are available.
+    this->DataError = 1;
+    return;
+    }
+  
   // Split current progress range based on fraction contributed by
-  // each piece.
+  // each sub-extent.
   float progressRange[2] = {0,0};
   this->GetProgressRange(progressRange);
   
   // Calculate the cumulative fraction of data contributed by each
-  // piece (for progress).
-  float* fractions = new float[this->NumberOfPieces+1];
+  // sub-extent (for progress).
+  int n = this->ExtentSplitter->GetNumberOfSubExtents();
+  float* fractions = new float[n+1];
   int i;
   fractions[0] = 0;
-  for(i=0;i < this->NumberOfPieces;++i)
+  for(i=0;i < n;++i)
     {
-    int* pieceExtent = this->PieceExtents + i*6;
+    // Get this sub-extent.
+    this->ExtentSplitter->GetSubExtent(i, this->SubExtent);
+    
+    // Add this sub-extent's volume to the cumulative volume.
     int pieceDims[3] = {0,0,0};
-    // Intersect the extents to get the part we need to read.
-    if(this->IntersectExtents(pieceExtent, this->UpdateExtent,
-                              this->SubExtent))
-      {      
-      this->ComputeDimensions(this->SubExtent, pieceDims, 1);
-      fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
-      }
-    else
-      {
-      fractions[i+1] = 0;
-      }
+    this->ComputeDimensions(this->SubExtent, pieceDims, 1);
+    fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
     }
-  if(fractions[this->NumberOfPieces] == 0)
+  if(fractions[n] == 0)
     {
-    fractions[this->NumberOfPieces] = 1;
+    fractions[n] = 1;
     }
-  for(i=1;i <= this->NumberOfPieces;++i)
+  for(i=1;i <= n;++i)
     {
-    fractions[i] = fractions[i] / fractions[this->NumberOfPieces];
+    fractions[i] = fractions[i] / fractions[n];
     }
   
-  // Read the data needed from each piece.
-  for(i=0;(i < this->NumberOfPieces && !this->AbortExecute &&
-           !this->DataError);++i)
+  // Read the data needed from each sub-extent.
+  for(i=0;(i < n && !this->AbortExecute && !this->DataError);++i)
     {
-    // Set the range of progress for this piece.
+    // Set the range of progress for this sub-extent.
     this->SetProgressRange(progressRange, i, fractions);
     
-    // Intersect the extents to get the part we need to read.
-    int* pieceExtent = this->PieceExtents + i*6;
-    if(this->IntersectExtents(pieceExtent, this->UpdateExtent,
-                              this->SubExtent))
+    // Get this sub-extent and the piece from which to read it.
+    int piece = this->ExtentSplitter->GetSubExtentSource(i);
+    this->ExtentSplitter->GetSubExtent(i, this->SubExtent);
+    
+    vtkDebugMacro("Reading extent "
+                  << this->SubExtent[0] << " " << this->SubExtent[1] << " "
+                  << this->SubExtent[2] << " " << this->SubExtent[3] << " "
+                  << this->SubExtent[4] << " " << this->SubExtent[5]
+                  << " from piece " << piece);
+    
+    this->ComputeDimensions(this->SubExtent, this->SubPointDimensions, 1);
+    this->ComputeDimensions(this->SubExtent, this->SubCellDimensions, 0);
+    
+    // Read the data from this piece.
+    if(!this->Superclass::ReadPieceData(piece))
       {
-      vtkDebugMacro("Reading extent "
-                    << this->SubExtent[0] << " " << this->SubExtent[1] << " "
-                    << this->SubExtent[2] << " " << this->SubExtent[3] << " "
-                    << this->SubExtent[4] << " " << this->SubExtent[5]
-                    << " from piece " << i);
-      
-      this->ComputeDimensions(this->SubExtent, this->SubPointDimensions, 1);
-      this->ComputeDimensions(this->SubExtent, this->SubCellDimensions, 0);
-      
-      // Read the data from this piece.
-      if(!this->Superclass::ReadPieceData(i))
-        {
-        // An error occurred while reading the piece.
-        this->DataError = 1;
-        }
+      // An error occurred while reading the piece.
+      this->DataError = 1;
       }
     }
   
@@ -224,14 +228,21 @@ void vtkXMLPStructuredDataReader::DestroyPieces()
 //----------------------------------------------------------------------------
 int vtkXMLPStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
+  // Superclass will create a reader for the piece's file.
   if(!this->Superclass::ReadPiece(ePiece)) { return 0; }
+  
+  // Get the extent of the piece.
   int* pieceExtent = this->PieceExtents+this->Piece*6;
   if(ePiece->GetVectorAttribute("Extent", 6, pieceExtent) < 6)
     {
     vtkErrorMacro("Piece " << this->Piece << " has invalid Extent.");
     return 0;
     }
+  
+  // Set this table entry in the extent translator.
   this->ExtentTranslator->SetExtentForPiece(this->Piece, pieceExtent);
+  this->ExtentTranslator->SetPieceAvailable(this->Piece,
+                                            this->CanReadPiece(this->Piece));
   
   return 1;
 }
@@ -364,4 +375,50 @@ vtkXMLPStructuredDataReader
         }
       }
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLPStructuredDataReader::ComputePieceSubExtents()
+{
+  // Reset the extent splitter.
+  this->ExtentSplitter->RemoveAllExtentSources();
+  
+  // Add each readable piece as an extent source.
+  int i;
+  for(i=0;i < this->NumberOfPieces;++i)
+    {
+    if(this->CanReadPiece(i))
+      {
+      this->ExtentSplitter->AddExtentSource(i, 0, this->PieceExtents + i*6);
+      }
+    }
+  
+  // We want to split the entire update extent across the pieces.
+  this->ExtentSplitter->AddExtent(this->UpdateExtent);
+  
+  // Compute the sub-extents.
+  if(!this->ExtentSplitter->ComputeSubExtents())
+    {
+    // A portion of the extent is not available.
+    ostrstream e;
+    e << "No available piece provides data for the following extents:\n";    
+    for(i=0; i < this->ExtentSplitter->GetNumberOfSubExtents(); ++i)
+      {
+      if(this->ExtentSplitter->GetSubExtentSource(i) < 0)
+        {
+        int extent[6];
+        this->ExtentSplitter->GetSubExtent(i, extent);
+        e << "    "
+          << extent[0] << " " << extent[1] << "  "
+          << extent[2] << " " << extent[3] << "  "
+          << extent[4] << " " << extent[5] << "\n";
+        }
+      }
+    e << "The UpdateExtent cannot be filled." << ends;
+    vtkErrorMacro(<< e.str());
+    e.rdbuf()->freeze(0);
+    return 0;
+    }
+  
+  return 1;
 }

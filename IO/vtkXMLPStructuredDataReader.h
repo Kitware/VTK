@@ -29,6 +29,7 @@
 
 #include "vtkXMLPDataReader.h"
 
+class vtkExtentSplitter;
 class vtkExtentTranslator;
 class vtkTableExtentTranslator;
 class vtkXMLStructuredDataReader;
@@ -73,8 +74,10 @@ protected:
                      int* outExtent, int* outDimensions, int* outIncrements,
                      int* subExtent, int* subDimensions,
                      vtkDataArray* inArray, vtkDataArray* outArray);
+  int ComputePieceSubExtents();
   
   vtkTableExtentTranslator* ExtentTranslator;
+  vtkExtentSplitter* ExtentSplitter;
   
   // The extent to be updated in the output.
   int UpdateExtent[6];
