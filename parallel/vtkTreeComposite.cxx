@@ -123,7 +123,7 @@ vtkTreeComposite::vtkTreeComposite()
 
   this->PData = this->ZData = NULL;
   
-  this->Lock = 0;
+  //this->Lock = 0;
   this->UseChar = 0;
   this->UseCompositing = 1;
   
@@ -142,10 +142,10 @@ vtkTreeComposite::~vtkTreeComposite()
   
   this->SetWindowSize(0,0);
   
-  if (this->Lock)
-    {
-    vtkErrorMacro("Destructing while locked!");
-    }
+  //if (this->Lock)
+  //  {
+  //  vtkErrorMacro("Destructing while locked!");
+  //  }
 }
 
 
@@ -240,6 +240,14 @@ void vtkTreeCompositeResetCameraClippingRange(vtkObject *caller,
   self->ResetCameraClippingRange(ren);
 }
 
+//-------------------------------------------------------------------------
+void vtkTreeCompositeAbortRenderCheck(void *arg)
+{
+  vtkTreeComposite *self = (vtkTreeComposite*)arg;
+  
+  self->CheckForAbortRender();
+}
+
 //----------------------------------------------------------------------------
 void vtkTreeCompositeRenderRMI(void *arg, void *, int, int)
 {
@@ -262,7 +270,7 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
 {
   vtkRendererCollection *rens;
   vtkRenderer *ren;
-  
+
   if (this->RenderWindow == renWin)
     {
     return;
@@ -297,40 +305,47 @@ void vtkTreeComposite::SetRenderWindow(vtkRenderWindow *renWin)
     renWin->Register(this);
     this->RenderWindow = renWin;
     this->SetRenderWindowInteractor(renWin->GetInteractor());
-    if (this->Controller && this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller)
       {
-      vtkCallbackCommand *cbc;
-      cbc= new vtkCallbackCommand;
-      cbc->SetCallback(vtkTreeCompositeStartRender);
-      cbc->SetClientData((void*)this);
-      // renWin will delete the cbc when the observer is removed.
-      this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
-      
-      cbc = new vtkCallbackCommand;
-      cbc->SetCallback(vtkTreeCompositeEndRender);
-      cbc->SetClientData((void*)this);
-      // renWin will delete the cbc when the observer is removed.
-      this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
-      
-      // Will make do with first renderer. (Assumes renderer does not change.)
-      rens = this->RenderWindow->GetRenderers();
-      rens->InitTraversal();
-      ren = rens->GetNextItem();
-      if (ren)
+      // In case a subclass wants to check for aborts.
+      this->RenderWindow->SetAbortCheckMethod(vtkTreeCompositeAbortRenderCheck,
+					      (void*)this);
+      if (this->Controller && this->Controller->GetLocalProcessId() == 0)
 	{
-	cbc = new vtkCallbackCommand;
-	cbc->SetCallback(vtkTreeCompositeResetCameraClippingRange);
+	vtkCallbackCommand *cbc;
+	
+	cbc= new vtkCallbackCommand;
+	cbc->SetCallback(vtkTreeCompositeStartRender);
 	cbc->SetClientData((void*)this);
-	// ren will delete the cbc when the observer is removed.
-	this->ResetCameraClippingRangeTag = 
-	  ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
-
+	// renWin will delete the cbc when the observer is removed.
+	this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
+	
 	cbc = new vtkCallbackCommand;
-	cbc->SetCallback(vtkTreeCompositeResetCamera);
+	cbc->SetCallback(vtkTreeCompositeEndRender);
 	cbc->SetClientData((void*)this);
-	// ren will delete the cbc when the observer is removed.
-	this->ResetCameraTag = 
-	  ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
+	// renWin will delete the cbc when the observer is removed.
+	this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
+	
+	// Will make do with first renderer. (Assumes renderer does not change.)
+	rens = this->RenderWindow->GetRenderers();
+	rens->InitTraversal();
+	ren = rens->GetNextItem();
+	if (ren)
+	  {
+	  cbc = new vtkCallbackCommand;
+	  cbc->SetCallback(vtkTreeCompositeResetCameraClippingRange);
+	  cbc->SetClientData((void*)this);
+	  // ren will delete the cbc when the observer is removed.
+	  this->ResetCameraClippingRangeTag = 
+	    ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
+	  
+	  cbc = new vtkCallbackCommand;
+	  cbc->SetCallback(vtkTreeCompositeResetCamera);
+	  cbc->SetClientData((void*)this);
+	  // ren will delete the cbc when the observer is removed.
+	  this->ResetCameraTag = 
+	    ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
+	  }
 	}
       }
     }
@@ -449,7 +464,14 @@ void vtkTreeComposite::RenderRMI()
   renWin->Render();  
   
   
+  
   this->SetWindowSize(winInfo.Size[0], winInfo.Size[1]);
+  
+  if (this->CheckForAbortComposite())
+    {
+    return;
+    }
+  
   this->Composite();
 }
 
@@ -528,13 +550,13 @@ void vtkTreeComposite::StartRender()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
 
-  if (controller == NULL || this->Lock)
+  if (controller == NULL) // || this->Lock)
     {
     return;
     }
   
   // Lock here, unlock at end render.
-  this->Lock = 1;
+  //this->Lock = 1;
   
   // Trigger the satelite processes to start their render routine.
   rens = this->RenderWindow->GetRenderers();
@@ -555,6 +577,7 @@ void vtkTreeComposite::StartRender()
   winInfo.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
   for (id = 1; id < numProcs; ++id)
     {
+    
     controller->TriggerRMI(id, NULL, 0, vtkTreeComposite::RENDER_RMI_TAG);
     // Synchronize the size of the windows.
     controller->Send((char*)(&winInfo), 
@@ -612,6 +635,13 @@ void vtkTreeComposite::EndRender()
     {
     return;
     }
+
+  // EndRender only happens on root.
+  if (this->CheckForAbortComposite())
+    {
+    //this->Lock = 0;
+    return;
+    }
   
   windowSize = renWin->GetSize();
   numProcs = controller->GetNumberOfProcesses();
@@ -628,7 +658,7 @@ void vtkTreeComposite::EndRender()
   renWin->Frame();
   
   // Release lock.
-  this->Lock = 0;
+  //this->Lock = 0;
 }
 
 
@@ -637,17 +667,17 @@ void vtkTreeComposite::ResetCamera(vtkRenderer *ren)
 {
   float bounds[6];
 
-  if (this->Controller == NULL || this->Lock)
+  if (this->Controller == NULL) // || this->Lock)
     {
     return;
     }
 
-  this->Lock = 1;
+  //this->Lock = 1;
   
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCamera(bounds);
   
-  this->Lock = 0;
+  //this->Lock = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -655,17 +685,17 @@ void vtkTreeComposite::ResetCameraClippingRange(vtkRenderer *ren)
 {
   float bounds[6];
 
-  if (this->Controller == NULL || this->Lock)
+  if (this->Controller == NULL) // || this->Lock)
     {
     return;
     }
 
-  this->Lock = 1;
+  //this->Lock = 1;
   
   this->ComputeVisiblePropBounds(ren, bounds);
   ren->ResetCameraClippingRange(bounds);
 
-  this->Lock = 0;
+  //this->Lock = 0;
 }
 
 //----------------------------------------------------------------------------
