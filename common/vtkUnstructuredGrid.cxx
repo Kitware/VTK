@@ -51,6 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTetra.h"
 #include "vtkHexahedron.h"
 #include "vtkVoxel.h"
+#include "vtkWedge.h"
+#include "vtkPyramid.h"
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {
@@ -66,6 +68,8 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Tetra = vtkTetra::New();
   this->Voxel = vtkVoxel::New();
   this->Hexahedron = vtkHexahedron::New();
+  this->Wedge = vtkWedge::New();
+  this->Pyramid = vtkPyramid::New();
 
   this->Connectivity = NULL;
   this->Cells = NULL;
@@ -134,6 +138,8 @@ vtkUnstructuredGrid::~vtkUnstructuredGrid()
   this->Tetra->Delete();
   this->Voxel->Delete();
   this->Hexahedron->Delete();
+  this->Wedge->Delete();
+  this->Pyramid->Delete();
 }
 
 // Copy the geometric and topological structure of an input unstructured grid.
@@ -243,15 +249,26 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
     case VTK_HEXAHEDRON:
       cell = this->Hexahedron;
       break;
+
+    case VTK_WEDGE:
+      cell = this->Wedge;
+      break;
+
+    case VTK_PYRAMID:
+      cell = this->Pyramid;
+      break;
     }
 
   loc = this->Cells->GetCellLocation(cellId);
   this->Connectivity->GetCell(loc,numPts,pts); 
 
+  cell->PointIds->SetNumberOfIds(numPts);
+  cell->Points->SetNumberOfPoints(numPts);
+
   for (i=0; i<numPts; i++)
     {
-    cell->PointIds->InsertId(i,pts[i]);
-    cell->Points->InsertPoint(i,this->Points->GetPoint(pts[i]));
+    cell->PointIds->SetId(i,pts[i]);
+    cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
     }
 
   return cell;
@@ -453,11 +470,9 @@ void vtkUnstructuredGrid::ResizeCellList(int ptId, int size)
 // ReplaceLinkedCell() to replace a cell when cell structure has been built.
 void vtkUnstructuredGrid::ReplaceCell(int cellId, int npts, int *pts)
 {
-  int loc, type;
+  int loc;
 
   loc = this->Cells->GetCellLocation(cellId);
-  type = this->Cells->GetCellType(cellId);
-
   this->Connectivity->ReplaceCell(loc,npts,pts);
 }
 
