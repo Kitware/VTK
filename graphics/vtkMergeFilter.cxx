@@ -250,6 +250,8 @@ void vtkMergeFilter::Execute()
 {
   int numPts, numScalars=0, numVectors=0, numNormals=0, numTCoords=0;
   int numTensors=0, numTuples=0;
+  int numCells, numCellScalars=0, numCellVectors=0, numCellNormals=0;
+  int numCellTCoords=0, numCellTensors=0, numCellTuples=0;
   vtkPointData *pd;
   vtkScalars *scalars = NULL;
   vtkVectors *vectors = NULL;
@@ -257,8 +259,16 @@ void vtkMergeFilter::Execute()
   vtkTCoords *tcoords = NULL;
   vtkTensors *tensors = NULL;
   vtkFieldData *f = NULL;
+  vtkCellData *cd;
+  vtkScalars *cellScalars = NULL;
+  vtkVectors *cellVectors = NULL;
+  vtkNormals *cellNormals = NULL;
+  vtkTCoords *cellTCoords = NULL;
+  vtkTensors *cellTensors = NULL;
+  vtkFieldData *cellf = NULL;
   vtkDataSet *output = (vtkDataSet *)this->Output;
   vtkPointData *outputPD = output->GetPointData();
+  vtkCellData *outputCD = output->GetCellData();
   
   vtkDebugMacro(<<"Merging data!");
 
@@ -268,12 +278,16 @@ void vtkMergeFilter::Execute()
     {
     vtkWarningMacro(<<"Nothing to merge!");
     }
+  numCells = this->Geometry->GetNumberOfCells();
   
   if ( this->Scalars ) 
     {
     pd = this->Scalars->GetPointData();
     scalars = pd->GetScalars();
-    if ( scalars != NULL ) numScalars= scalars->GetNumberOfScalars();
+    if ( scalars != NULL ) numScalars = scalars->GetNumberOfScalars();
+    cd = this->Scalars->GetCellData();
+    cellScalars = cd->GetScalars();
+    if ( cellScalars != NULL ) numCellScalars = cellScalars->GetNumberOfScalars();
     }
 
   if ( this->Vectors ) 
@@ -281,6 +295,9 @@ void vtkMergeFilter::Execute()
     pd = this->Vectors->GetPointData();
     vectors = pd->GetVectors();
     if ( vectors != NULL ) numVectors= vectors->GetNumberOfVectors();
+    cd = this->Vectors->GetCellData();
+    cellVectors = cd->GetVectors();
+    if ( cellVectors != NULL ) numCellVectors = cellVectors->GetNumberOfVectors();
     }
 
   if ( this->Normals ) 
@@ -288,6 +305,9 @@ void vtkMergeFilter::Execute()
     pd = this->Normals->GetPointData();
     normals = pd->GetNormals();
     if ( normals != NULL ) numNormals= normals->GetNumberOfNormals();
+    cd = this->Normals->GetCellData();
+    cellNormals = cd->GetNormals();
+    if ( cellNormals != NULL ) numCellNormals = cellNormals->GetNumberOfNormals();
     }
 
   if ( this->TCoords ) 
@@ -295,6 +315,9 @@ void vtkMergeFilter::Execute()
     pd = this->TCoords->GetPointData();
     tcoords = pd->GetTCoords();
     if ( tcoords != NULL ) numTCoords= tcoords->GetNumberOfTCoords();
+    cd = this->TCoords->GetCellData();
+    cellTCoords = cd->GetTCoords();
+    if ( cellTCoords != NULL ) numCellTCoords = cellTCoords->GetNumberOfTCoords();
     }
 
   if ( this->Tensors ) 
@@ -302,6 +325,9 @@ void vtkMergeFilter::Execute()
     pd = this->Tensors->GetPointData();
     tensors = pd->GetTensors();
     if ( tensors != NULL ) numTensors = tensors->GetNumberOfTensors();
+    cd = this->Tensors->GetCellData();
+    cellTensors = cd->GetTensors();
+    if ( cellTensors != NULL ) numCellTensors = cellTensors->GetNumberOfTensors();
     }
 
   if ( this->FieldData ) 
@@ -309,26 +335,41 @@ void vtkMergeFilter::Execute()
     pd = this->FieldData->GetPointData();
     f = pd->GetFieldData();
     if ( f != NULL ) numTuples = f->GetNumberOfTuples();
+    cd = this->FieldData->GetCellData();
+    cellf = cd->GetFieldData();
+    if ( cellf != NULL ) numCellTuples = cellf->GetNumberOfTuples();
     }
 
   // merge data only if it is consistent
   if ( numPts == numScalars )
     outputPD->SetScalars(scalars);
+  if ( numCells == numCellScalars )
+    outputCD->SetScalars(cellScalars);
 
   if ( numPts == numVectors )
     outputPD->SetVectors(vectors);
+  if ( numCells == numCellVectors )
+    outputCD->SetVectors(cellVectors);
     
   if ( numPts == numNormals )
     outputPD->SetNormals(normals);
+  if ( numCells == numCellNormals )
+    outputCD->SetNormals(cellNormals);
 
   if ( numPts == numTCoords )
     outputPD->SetTCoords(tcoords);
+  if ( numCells == numCellTCoords )
+    outputCD->SetTCoords(cellTCoords);
 
   if ( numPts == numTensors )
     outputPD->SetTensors(tensors);
+  if ( numCells == numCellTensors )
+    outputCD->SetTensors(cellTensors);
 
   if ( numPts == numTuples )
     outputPD->SetFieldData(f);
+  if ( numCells == numCellTuples )
+    outputCD->SetFieldData(cellf);
 }
 
 // Get the output as vtkPolyData.
