@@ -21,7 +21,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.36");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.37");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -38,6 +38,7 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->GrayTransferFunction[i]            = NULL;
     this->RGBTransferFunction[i]             = NULL;
     this->ScalarOpacity[i]                   = NULL;
+    this->ScalarOpacityUnitDistance[i]       = 1.0;
     this->GradientOpacity[i]                 = NULL;
     this->DefaultGradientOpacity[i]          = NULL;
     this->DisableGradientOpacity[i]          = 0;
@@ -292,6 +293,33 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity( int index )
   return this->ScalarOpacity[index];
 }
 
+void vtkVolumeProperty::SetScalarOpacityUnitDistance( int index, float distance )
+{
+  if ( index < 0 || index > 3 )
+    {
+    vtkErrorMacro("Bad index - must be between 0 and 3");
+    return;
+    }
+
+  if ( this->ScalarOpacityUnitDistance[index] != distance )
+    {
+    this->ScalarOpacityUnitDistance[index] = distance;
+    this->Modified();
+    }
+}
+
+float vtkVolumeProperty::GetScalarOpacityUnitDistance( int index )
+{
+  if ( index < 0 || index > 3 )
+    {
+    vtkErrorMacro("Bad index - must be between 0 and 3");
+    return 0;
+    }
+
+  return  this->ScalarOpacityUnitDistance[index];
+}
+
+  
 // Set the gradient opacity transfer function 
 void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *function )
 {

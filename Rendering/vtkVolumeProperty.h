@@ -150,6 +150,19 @@ public:
     {return this->GetScalarOpacity(0);};
       
   // Description:
+  // Set/Get the unit distance on which the scalar opacity transfer function
+  // is defined. By default this is 1.0, meaning that over a distance of
+  // 1.0 units, a given opacity (from the transfer function) is accumulated.
+  // This is adjusted for the actual sampling distance during rendering.
+  void SetScalarOpacityUnitDistance( int index, float distance );
+  void SetScalarOpacityUnitDistance( float distance )
+    {this->SetScalarOpacityUnitDistance( 0, distance );}
+  float GetScalarOpacityUnitDistance( int index );
+  float GetScalarOpacityUnitDistance()
+    {return this->GetScalarOpacityUnitDistance(0);}
+  
+  
+  // Description:
   // Set the opacity of a volume to an opacity transfer function based
   // on gradient magnitude for the given component.
   void SetGradientOpacity( int index, vtkPiecewiseFunction *function );
@@ -295,7 +308,8 @@ protected:
 
   vtkPiecewiseFunction          *ScalarOpacity[VTK_MAX_VRCOMP];
   vtkTimeStamp                  ScalarOpacityMTime[VTK_MAX_VRCOMP];
-
+  float                         ScalarOpacityUnitDistance[VTK_MAX_VRCOMP];
+  
   vtkPiecewiseFunction          *GradientOpacity[VTK_MAX_VRCOMP];
   vtkTimeStamp                  GradientOpacityMTime[VTK_MAX_VRCOMP];
   vtkPiecewiseFunction          *DefaultGradientOpacity[VTK_MAX_VRCOMP];
