@@ -347,7 +347,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 	case 'e': 
 	  if (me->ExitMethod) (*me->ExitMethod)(me->ExitMethodArg);
-	  else PostQuitMessage(0);
+	  else exit(0);  //PostQuitMessage(0);
 	  break;
 	case 'u':
 	  if (me->UserMethod) (*me->UserMethod)(me->UserMethodArg);
