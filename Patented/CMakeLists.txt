@@ -20,7 +20,8 @@ IF (VTK_WRAP_TCL)
   ADD_LIBRARY(vtkPatentedTCL PatentedTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL 
                          vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL 
-                         vtkCommonTCL)
+                         vtkCommonTCL
+                         ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkPatentedTCL)
 ENDIF (VTK_WRAP_TCL)
 

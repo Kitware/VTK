@@ -128,7 +128,8 @@ ADD_LIBRARY(vtkGraphics Graphics_SRCS)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS Graphics_SRCS)
   ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL )
+  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL 
+                         ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkGraphicsTCL)
 ENDIF (VTK_WRAP_TCL)
 

@@ -186,7 +186,8 @@ IF (VTK_WRAP_TCL)
                          vtkGraphicsTCL 
                          vtkImagingTCL 
                          vtkFilteringTCL 
-                         vtkCommonTCL)
+                         vtkCommonTCL
+                         ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkRenderingTCL)
 ENDIF (VTK_WRAP_TCL)
 

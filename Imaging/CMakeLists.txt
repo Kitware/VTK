@@ -109,7 +109,8 @@ ADD_LIBRARY(vtkImaging Imaging_SRCS)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkImagingTCL vtkFilteringTCL vtkCommonTCL )
+  TARGET_LINK_LIBRARIES (vtkImagingTCL vtkFilteringTCL vtkCommonTCL 
+                         ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkImagingTCL)
 ENDIF (VTK_WRAP_TCL)
 

@@ -86,7 +86,7 @@ ADD_LIBRARY(vtkFiltering Filtering_SRCS)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkFilteringTCL FilteringTCL_SRCS Filtering_SRCS)
   ADD_LIBRARY(vtkFilteringTCL FilteringTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL )
+  TARGET_LINK_LIBRARIES (vtkFilteringTCL vtkCommonTCL ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkFilteringTCL)
 ENDIF (VTK_WRAP_TCL)
 

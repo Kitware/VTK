@@ -47,7 +47,8 @@ IF (VTK_WRAP_TCL)
                          vtkGraphicsTCL 
                          vtkImagingTCL 
                          vtkFilteringTCL 
-                         vtkCommonTCL)
+                         vtkCommonTCL
+                         ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib vtkParallelTCL)
 
   IF (VTK_USE_MPI)
