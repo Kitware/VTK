@@ -26,11 +26,13 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 #include "vtkgluPickMatrix.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPlane.h"
 
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.39");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.40");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 

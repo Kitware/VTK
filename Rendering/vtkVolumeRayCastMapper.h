@@ -31,6 +31,9 @@
 #include "vtkVolumeRayCastFunction.h" // For VTKVRCStaticInfo 
                                       // and VTKVRCDynamicInfo
 
+class vtkEncodedGradientEstimator;
+class vtkEncodedGradientShader;
+class vtkMatrix4x4;
 class vtkMultiThreader;
 class vtkPlaneCollection;
 class vtkRenderer;
@@ -38,8 +41,6 @@ class vtkTimerLog;
 class vtkVolume;
 class vtkVolumeRayCastFunction;
 class vtkVolumeTransform;
-class vtkEncodedGradientEstimator;
-class vtkEncodedGradientShader;
 
 // Macro for floor of x
 #define vtkFloorFuncMacro(x)   (((x) < 0.0)?((int)((x)-1.0)):((int)(x)))

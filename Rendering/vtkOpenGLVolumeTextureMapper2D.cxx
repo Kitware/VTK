@@ -16,8 +16,14 @@
 
 =========================================================================*/
 #include "vtkOpenGLVolumeTextureMapper2D.h"
+
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPlaneCollection.h"
+#include "vtkTimerLog.h"
 #include "vtkVolume.h"
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -25,11 +31,10 @@
 #include <GL/gl.h>
 #endif
 #endif
-#include "vtkObjectFactory.h"
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.27");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper2D, "1.28");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper2D);
 #endif
 

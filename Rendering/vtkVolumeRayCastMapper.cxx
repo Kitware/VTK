@@ -26,11 +26,12 @@
 #include "vtkPlaneCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkTimerLog.h"
 #include "vtkVolumeRayCastFunction.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.85");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.86");
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
                      vtkVolumeRayCastFunction );

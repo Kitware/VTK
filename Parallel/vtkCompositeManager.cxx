@@ -30,6 +30,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkTimerLog.h"
 #include "vtkToolkits.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -43,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.32");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.33");
 vtkStandardNewMacro(vtkCompositeManager);
 
 vtkCxxSetObjectMacro(vtkCompositeManager,Compositer, vtkCompositer);

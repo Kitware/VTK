@@ -18,16 +18,16 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkClipPolyData.h"
+#include "vtkDebugLeaks.h"
+#include "vtkPlanes.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-
-#include "vtkRegressionTestImage.h"
-#include "vtkDebugLeaks.h"
 
 // Generate a sphere. Create a view frustum looking at the sphere
 // Clip anything inside the frustum, then back away and view result
