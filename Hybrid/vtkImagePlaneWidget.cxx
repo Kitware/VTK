@@ -38,7 +38,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.26");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.27");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
@@ -255,7 +255,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     if ( this->PlanePicker )
       {
-      this->PlaneActor->PickableOn();
+      this->PlaneActor->PickableOff();
       }
 
     this->InvokeEvent(vtkCommand::DisableEvent,0);
