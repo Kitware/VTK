@@ -232,6 +232,29 @@ int TestNonTemplateMemberTemplate()
 
 //----------------------------------------------------------------------------
 
+/* Test member template of template.  */
+
+template <class T>
+class OuterTemplate
+{
+  T* Pointer;
+public:
+  template <class U> void Set(U* u) { this->Pointer = u; }
+  template <class U> void Get(U*& u) { u = static_cast<U*>(this->Pointer); }
+};
+
+int TestTemplateMemberTemplate()
+{
+  int x = 123;
+  int* px = 0;
+  OuterTemplate<void> nt;
+  nt.Set(&x);
+  nt.Get(px);
+  return (*px == 123);
+}
+
+//----------------------------------------------------------------------------
+
 /* Test use of standard "bool" type and values.  */
 
 #if !defined(VTK_CXX_SGI_6)
@@ -518,6 +541,7 @@ int main()
   int result = 0;
   DO_TEST(TestFullySpecializedFunction);
   DO_TEST(TestNonTemplateMemberTemplate);
+  DO_TEST(TestTemplateMemberTemplate);
 #if !defined(VTK_CXX_SGI_6)
   DO_TEST(TestBool);
 #endif
