@@ -164,6 +164,19 @@ void Form1::updateCoords( vtkObject * obj)
 
 void Form1::popup( vtkObject * obj, unsigned long , void * client_data, vtkCommand* command)
 {
+
+  // A note about context menus in Qt and the QVTKWidget
+  // You may find it easy to just do context menus on right button up,
+  // due to the event proxy mechanism in place.
+  
+  // That usually works, except in some cases.
+  // One case is where you capture context menu events that 
+  // child windows don't process.  You could end up with a second 
+  // context menu after the first one.
+
+  // See QVTKWidget::ContextMenuEvent enum which was added after the 
+  // writing of this example.
+
   // get interactor
   vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::SafeDownCast(obj);
   // consume event so the interactor style doesn't get it

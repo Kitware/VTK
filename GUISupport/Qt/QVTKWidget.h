@@ -34,6 +34,7 @@
 class vtkRenderWindow;
 class QVTKInteractor;
 #include <vtkRenderWindowInteractor.h>
+#include <vtkCommand.h>
 #include <vtkConfigure.h>
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
@@ -77,6 +78,17 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     
     //! get the Qt/vtk interactor that was either created by default or set by the user
     QVTKInteractor* GetInteractor();
+    
+    //! vtk user events to handle extra qt events
+    //! these events can be picked up by command observers on the interactor
+    enum vtkCustomEvents
+    {
+      ContextMenuEvent = vtkCommand::UserEvent + 100,
+      DragEnterEvent,
+      DragMoveEvent,
+      DragLeaveEvent,
+      DropEvent
+    };
 
     // Description:
     // Enables/disables automatic image caching.  If disabled (the default),
@@ -176,9 +188,22 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     //! overload Qt's event() to capture more keys
     bool event( QEvent* e );
     
+    //! overload context menu event
+    virtual void contextMenuEvent(QContextMenuEvent*);
+    //! overload drag enter event
+    virtual void dragEnterEvent(QDragEnterEvent*);
+    //! overload drag move event
+    virtual void dragMoveEvent(QDragMoveEvent*);
+    //! overload drag leave event
+    virtual void dragLeaveEvent(QDragLeaveEvent*);
+    //! overload drop event
+    virtual void dropEvent(QDropEvent*);
+    
     //! the vtk render window
     vtkRenderWindow* mRenWin;
     
+    //! set up an X11 window based on a visual and colormap
+    //! that VTK chooses
     void x11_setup_window();
 
 #if defined(Q_WS_MAC) && QT_VERSION < 0x040000

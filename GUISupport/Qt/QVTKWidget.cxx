@@ -384,15 +384,15 @@ void QVTKWidget::mousePressEvent(QMouseEvent* event)
   switch(event->button())
   {
     case Qt::LeftButton:
-      iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
+      iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, event);
       break;
 
     case Qt::MidButton:
-      iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
+      iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, event);
       break;
 
     case Qt::RightButton:
-      iren->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
+      iren->InvokeEvent(vtkCommand::RightButtonPressEvent, event);
       break;
 
     default:
@@ -417,13 +417,13 @@ void QVTKWidget::mouseMoveEvent(QMouseEvent* event)
       (event->state() & Qt::ShiftButton));
   
   // invoke vtk event
-  iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  iren->InvokeEvent(vtkCommand::MouseMoveEvent, event);
 }
 
 
 /*! handle enter event
  */
-void QVTKWidget::enterEvent(QEvent* )
+void QVTKWidget::enterEvent(QEvent* event)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -432,12 +432,12 @@ void QVTKWidget::enterEvent(QEvent* )
   if(!iren || !iren->GetEnabled())
     return;
 
-  iren->InvokeEvent(vtkCommand::EnterEvent, NULL);
+  iren->InvokeEvent(vtkCommand::EnterEvent, event);
 }
 
 /*! handle leave event
  */
-void QVTKWidget::leaveEvent(QEvent* )
+void QVTKWidget::leaveEvent(QEvent* event)
 {
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
@@ -446,7 +446,7 @@ void QVTKWidget::leaveEvent(QEvent* )
   if(!iren || !iren->GetEnabled())
     return;
   
-  iren->InvokeEvent(vtkCommand::LeaveEvent, NULL);
+  iren->InvokeEvent(vtkCommand::LeaveEvent, event);
 }
 
 /*! handle mouse release event
@@ -469,15 +469,15 @@ void QVTKWidget::mouseReleaseEvent(QMouseEvent* event)
   switch(event->button())
   {
     case Qt::LeftButton:
-      iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
+      iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, event);
       break;
 
     case Qt::MidButton:
-      iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
+      iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, event);
       break;
 
     case Qt::RightButton:
-      iren->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
+      iren->InvokeEvent(vtkCommand::RightButtonReleaseEvent, event);
       break;
 
     default:
@@ -517,11 +517,11 @@ void QVTKWidget::keyPressEvent(QKeyEvent* event)
       ascii_key, event->count(), keysym);
   
   // invoke vtk event
-  iren->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+  iren->InvokeEvent(vtkCommand::KeyPressEvent, event);
   
   // invoke char event only for ascii characters
   if(ascii_key)
-    iren->InvokeEvent(vtkCommand::CharEvent, NULL);
+    iren->InvokeEvent(vtkCommand::CharEvent, event);
 }
 
 /*! handle key release event
@@ -558,7 +558,7 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* event)
       event->count(), keysym);
 
   // invoke vtk event
-  iren->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+  iren->InvokeEvent(vtkCommand::KeyReleaseEvent, event);
 }
 
 #ifndef QT_NO_WHEELEVENT
@@ -584,9 +584,9 @@ void QVTKWidget::wheelEvent(QWheelEvent* event)
   // invoke vtk event
   // if delta is positive, it is a forward wheel event
   if(event->delta() > 0)
-    iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
+    iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, event);
   else
-    iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
+    iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, event);
 
 #else
   QWidget::wheelEvent(event);
@@ -611,6 +611,89 @@ void QVTKWidget::focusOutEvent(QFocusEvent*)
     // active status changes.  We don't even use
     // color groups so we do nothing here.
 }
+
+
+void QVTKWidget::contextMenuEvent(QContextMenuEvent* event)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // give interactor the event information
+  iren->SetEventInformationFlipY(event->x(), event->y(), 
+      (event->state() & Qt::ControlButton), 
+      (event->state() & Qt::ShiftButton ));
+
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::ContextMenuEvent, event);
+  
+  // if event wasn't consumed, pass it down
+  if(!event->isConsumed())
+    QWidget::contextMenuEvent(event);
+
+}
+
+void QVTKWidget::dragEnterEvent(QDragEnterEvent* event)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::DragEnterEvent, event);
+}
+
+void QVTKWidget::dragMoveEvent(QDragMoveEvent* event)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // give interactor the event information
+  iren->SetEventInformationFlipY(event->pos().x(), event->pos().y());
+
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::DragMoveEvent, event);
+}
+
+void QVTKWidget::dragLeaveEvent(QDragLeaveEvent* event)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::DragLeaveEvent, event);
+}
+
+void QVTKWidget::dropEvent(QDropEvent* event)
+{
+  vtkRenderWindowInteractor* iren = NULL;
+  if(this->mRenWin)
+    iren = this->mRenWin->GetInteractor();
+  
+  if(!iren || !iren->GetEnabled())
+    return;
+  
+  // give interactor the event information
+  iren->SetEventInformationFlipY(event->pos().x(), event->pos().y());
+
+  // invoke event and pass qt event for additional data as well
+  iren->InvokeEvent(QVTKWidget::DropEvent, event);
+}
+
 
 /*! handle reparenting of widgets
  */
@@ -681,7 +764,7 @@ void QVTKWidget::setParent(QWidget* parent, Qt::WFlags f)
 
 void QVTKWidget::hide()
 {
-#if defined (Q_WS_MAC)
+#if defined (Q_WS_MAC) && defined(QVTK_HAVE_VTK_4_5)
   if (this->mRenWin)
     {
     // gotta finalize the window on the mac to make it really disappear
@@ -697,7 +780,7 @@ void QVTKWidget::show()
   this->markCachedImageAsDirty();
 
   QWidget::show();
-#if defined (Q_WS_MAC)
+#if defined (Q_WS_MAC) && defined(QVTK_HAVE_VTK_4_5)
   if (this->mRenWin)
     {
     // gotta start the window on the mac to make it come back
@@ -987,20 +1070,19 @@ void QVTKWidget::x11_setup_window()
   // create the X window based on information VTK gave us
   XSetWindowAttributes attrib;
   attrib.colormap = cmap;
+
   Window parent = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
     parent = parentWidget()->winId();
   Window win = XCreateWindow(display, parent, x(), y(), width(), height(),
                              0, vi->depth, InputOutput, vi->visual,
-                             CWBackPixel | CWBorderPixel | CWColormap,
-                             &attrib);
+                             CWColormap, &attrib);
   
   // backup colormap stuff
-  Window top_level_window = topLevelWidget()->winId();
   Window *cmw;
   Window *cmwret;
   int count;
-  if ( XGetWMColormapWindows(display, top_level_window, &cmwret, &count) )
+  if ( XGetWMColormapWindows(display, topLevelWidget()->winId(), &cmwret, &count) )
     {
     cmw = new Window[count+1];
     memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
@@ -1029,8 +1111,11 @@ void QVTKWidget::x11_setup_window()
   create(win);
     
   // restore colormaps
-  XSetWMColormapWindows( display, top_level_window, cmw, count );
+  XSetWMColormapWindows( display, topLevelWidget()->winId(), cmw, count );
+
+  delete [] cmw;
   
+  XFlush(display);
 
   // restore widget states
   this->setMouseTracking(tracking);
@@ -1038,8 +1123,6 @@ void QVTKWidget::x11_setup_window()
   setFocusPolicy(focus_policy);
   if(visible)
     show();
-
-  XFlush(display);
 
 #endif
 }
