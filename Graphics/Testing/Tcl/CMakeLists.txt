@@ -229,3 +229,9 @@ ENDIF (VTK_USE_RENDERING)
 ADD_TEST(PrintSelf-Graphics ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/Graphics)
+
+ADD_TEST(TestSetObjectMacro-Graphics ${TCL_TCLSH}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+         "${VTK_SOURCE_DIR}/Graphics/vtk\\\\*.h"
+         "vtkSetObjectMacro"
+         )
