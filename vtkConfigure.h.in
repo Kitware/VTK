@@ -4,8 +4,8 @@
  */
 
 /* what byte order */
-#cmakedefine WORDS_BIGENDIAN
-#ifdef WORDS_BIGENDIAN
+#cmakedefine CMAKE_WORDS_BIGENDIAN
+#ifdef CMAKE_WORDS_BIGENDIAN
   #define VTK_WORDS_BIGENDIAN 
 #endif
 
