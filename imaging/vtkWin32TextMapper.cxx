@@ -41,6 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWin32TextMapper.h"
 #include "vtkWin32ImageWindow.h"
 
+vtkWin32TextMapper::vtkWin32TextMapper()
+{
+  this->LastSize[0] = 0;
+  this->LastSize[1] = 0;
+  this->Font = 0;
+}
+
+
 int vtkWin32TextMapper::GetCompositingMode(vtkActor2D* actor)
 {
   vtkProperty2D* tempProp = actor->GetProperty();
@@ -85,6 +93,14 @@ int vtkWin32TextMapper::GetCompositingMode(vtkActor2D* actor)
 
 void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 {
+  // Check to see whether we have to rebuild anything
+  if ( this->GetMTime() < this->BuildTime)
+    {
+    size[0] = this->LastSize[0];
+    size[1] = this->LastSize[1];
+    return;
+    }
+  
   // Check for input
   if (this->Input == NULL) 
     {
@@ -144,8 +160,12 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   fontStruct.lfPitchAndFamily = DEFAULT_PITCH | family;
   strcpy(fontStruct.lfFaceName, fontname);
    
-  HFONT hFont = CreateFontIndirect(&fontStruct);
-  HFONT hOldFont = (HFONT) SelectObject(hdc, hFont);
+  if (this->Font)
+    {
+    DeleteObject(this->Font);
+    }
+  this->Font = CreateFontIndirect(&fontStruct);
+  HFONT hOldFont = (HFONT) SelectObject(hdc, this->Font);
 
   // Define bounding rectangle
   RECT rect;
@@ -158,6 +178,9 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   size[1] = DrawText(hdc, this->Input, strlen(this->Input), &rect, 
 		     DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
   size[0] = rect.right - rect.left + 1;
+  this->LastSize[0] = size[0];
+  this->LastSize[1] = size[1];
+  this->BuildTime.Modified();
 }
 
 void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport, 
@@ -179,17 +202,10 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
  
   // Get the position of the text actor
   POINT ptDestOff;
-  int xOffset = 0;
-  int yOffset = 0;
-
-  // Get the position of the text actor
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
-  xOffset = actorPos[0];
-  yOffset = actorPos[1];
-
-  ptDestOff.x = xOffset;
-  ptDestOff.y = yOffset;
+  ptDestOff.x = actorPos[0];
+  ptDestOff.y = actorPos[1];
 
   // Set up the font color from the text actor
   unsigned char red = 0;
@@ -215,55 +231,19 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
     }
 
 
-  // Create the font
-  LOGFONT fontStruct;
-  char fontname[32];
-  DWORD family;
-  switch (this->FontFamily)
-    {
-    case VTK_ARIAL:
-      strcpy(fontname, "Arial");
-	  family = FF_SWISS;
-	  break;
-	case VTK_TIMES:
-      strcpy(fontname, "Times Roman");
-	  family = FF_ROMAN;
-	  break;
-	case VTK_COURIER:
-      strcpy(fontname, "Courier");
-	  family = FF_MODERN;
-	  break;
-	default:
-      strcpy(fontname, "Arial");
-	  family = FF_SWISS;
-	  break;
-    }
-  fontStruct.lfHeight = MulDiv(this->FontSize,window->GetDPI(), 72);  
-  // height in logical units
-  fontStruct.lfWidth = 0;  // default width
-  fontStruct.lfEscapement = 0;
-  fontStruct.lfOrientation = 0;
-  if (this->Bold == 1)
-    {
-    fontStruct.lfWeight = FW_BOLD;
-    }
-  else 
-    {
-    fontStruct.lfWeight = FW_NORMAL;
-    }
-  fontStruct.lfItalic = this->Italic;
-  fontStruct.lfUnderline = 0;
-  fontStruct.lfStrikeOut = 0;
-  fontStruct.lfCharSet = ANSI_CHARSET;
-  fontStruct.lfOutPrecision = OUT_DEFAULT_PRECIS;
-  fontStruct.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-  fontStruct.lfQuality = DEFAULT_QUALITY;
-  fontStruct.lfPitchAndFamily = DEFAULT_PITCH | family;
-  strcpy(fontStruct.lfFaceName, fontname);
-   
-  HFONT hFont = CreateFontIndirect(&fontStruct);
-  HFONT hOldFont = (HFONT) SelectObject(hdc, hFont);
+  // Define bounding rectangle
+  RECT rect;
+  rect.left = ptDestOff.x;
+  rect.top = ptDestOff.y;
+  rect.bottom = ptDestOff.y;
+  rect.right = ptDestOff.x;
 
+  int size[2];
+  this->GetSize(viewport, size);
+  SelectObject(hdc, this->Font);
+  rect.right = rect.left + size[0];
+  rect.top = rect.bottom - size[1];
+  
   // Set the compositing operator
   int compositeMode = this->GetCompositingMode(actor);
   SetROP2(hdc, compositeMode);
@@ -274,19 +254,6 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
     vtkErrorMacro(<<"vtkWin32TextMapper::Render - ROP not set!");
     }
 
-  // Define bounding rectangle
-  RECT rect;
-  rect.left = ptDestOff.x;
-  rect.top = ptDestOff.y;
-  rect.bottom = ptDestOff.y;
-  rect.right = ptDestOff.x;
-
-      
-  // Calculate the size of the bounding rectangle
-  DrawText(hdc, this->Input, strlen(this->Input), &rect, 
-	   DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
-
-  // adjust the rectangle to account for lower left origin
   int winJust;
   switch (this->Justification)
     {
@@ -304,8 +271,6 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
       rect.left = rect.right;
       rect.right = rect.right - tmp;
     }
-  rect.top = 2*rect.top - rect.bottom;
-  rect.bottom = ptDestOff.y;
 
   // Set the colors for the shadow
   long status;
@@ -335,8 +300,4 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   // Draw the text
   DrawText(hdc, this->Input, strlen(this->Input), &rect, winJust|DT_NOPREFIX);
 
-  SelectObject(hdc, hOldFont);
-  DeleteObject(hFont);
-
 }
-

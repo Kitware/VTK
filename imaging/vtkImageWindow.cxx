@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageWindow.h"
 
 #ifdef _WIN32
-  #include "vtkWin32OpenGLImageWIndow.h"
+  #include "vtkWin32OpenGLImageWindow.h"
   #include "vtkWin32ImageWindow.h"
 #else
   #include "vtkXImageWindow.h"

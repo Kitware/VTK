@@ -140,7 +140,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glDisable( GL_DEPTH_TEST );
   glDisable( GL_LIGHTING);
   glOrtho(-actorPos[0],-actorPos[0] + size[0] - 1,
-	  -actorPos[1], -actorPos[1] +size[1] -1, -1, 1);
+	  -actorPos[1], -actorPos[1] +size[1] -1, 0, 1);
   
   aPrim = input->GetPolys();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)

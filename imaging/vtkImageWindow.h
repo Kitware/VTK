@@ -138,7 +138,7 @@ public:
   
   // Description:
   // Draw the contents of the window
-  void Render();
+  virtual void Render();
 
   // Description:
   // Erase the window contents 
