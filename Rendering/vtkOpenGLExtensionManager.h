@@ -166,6 +166,10 @@ protected:
   vtkTimeStamp BuildTime;
 
   virtual void ReadOpenGLExtensions();
+
+private:
+  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&); // Not implemented
+  void operator=(const vtkOpenGLExtensionManager&); // Not implemented
 };
 
 #endif //__vtkOpenGLExtensionManager
