@@ -8,11 +8,11 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 # warp an image with a thin plate spline
 
 # first, create an image to warp
-vtkImageGridSource grid
-grid SetGridSpacing 16 16 0
-grid SetGridOrigin 0 0 0
-grid SetDataExtent 0 255 0 255 0 0
-grid SetDataScalarTypeToUnsignedChar
+vtkImageGridSource imageGrid
+imageGrid SetGridSpacing 16 16 0
+imageGrid SetGridOrigin 0 0 0
+imageGrid SetDataExtent 0 255 0 255 0 0
+imageGrid SetDataScalarTypeToUnsignedChar
 
 vtkLookupTable table
 table SetTableRange 0 1
@@ -23,7 +23,7 @@ table SetAlphaRange 0.0 1.0
 table Build
 
 vtkImageMapToColors alpha
-alpha SetInput [grid GetOutput]
+alpha SetInput [imageGrid GetOutput]
 alpha SetLookupTable table
 
 vtkPNMReader reader1

@@ -50,8 +50,14 @@ vtkImageReslice reslice
   reslice SetResliceTransform transform
   reslice SetInterpolationModeToLinear
 
+vtkImageCacheFilter cac
+  cac SetInput [reslice GetOutput]
+  cac SetCacheSize 1000
+
+cac SetInput [reslice GetOutput]
+
 vtkImageViewer viewer
-  viewer SetInput [reslice GetOutput]
+  viewer SetInput [cac GetOutput]
   viewer SetZSlice 90
   viewer SetColorWindow 2000
   viewer SetColorLevel 1000
