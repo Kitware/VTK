@@ -19,10 +19,10 @@ void FTBitmapGlyph::ConvertGlyph()
 {
   // This function will always fail if the glyph's format isn't scalable????
   err = FT_Glyph_To_Bitmap( &glyph, ft_render_mode_mono, 0, 1);
-  if( err || ft_glyph_format_bitmap != glyph->format)
+  if( err || ft_glyph_format_bitmap != this->glyph->format)
   {return;}
 
-  FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)glyph;
+  FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)this->glyph;
   FT_Bitmap*      source = &bitmap->bitmap;
 
   //check the pixel mode
@@ -32,33 +32,49 @@ void FTBitmapGlyph::ConvertGlyph()
   int srcHeight = source->rows;
   int srcPitch = source->pitch;
     
-   // FIXME What about dest alignment?
-    destWidth = srcWidth;
-    destHeight = srcHeight;
-    
+  // FIXME What about dest alignment?
+  destWidth = srcWidth;
+  destHeight = srcHeight;
+  
   if( destWidth && destHeight)
     {
     data = new unsigned char[srcPitch * destHeight];
-      
-      for(int y = 0; y < srcHeight; ++y)
+    
+#if 1
+    unsigned char *src = source->buffer;
+    unsigned char *src_row;
+    
+    unsigned char *dest = data + ((destHeight - 1) * srcPitch);
+    size_t dest_step = srcPitch * 2;
+    
+    for(int y = 0; y < srcHeight; ++y)
       {
-        --destHeight;
-        for(int x = 0; x < srcPitch; ++x)
+      src_row = src;
+      for(int x = 0; x < srcPitch; ++x)
+        {
+        *dest++ = *src_row++;
+        }
+      src += srcPitch;
+      dest -= dest_step;
+      }
+
+#else
+
+    for(int y = 0; y < srcHeight; ++y)
+      {
+      --destHeight;
+      for(int x = 0; x < srcPitch; ++x)
         {
         *( data + ( destHeight * srcPitch + x)) = *( source->buffer + ( y * srcPitch) + x);
         }      
       }
 
-      destHeight = srcHeight;
-  }
+#endif    
+    destHeight = srcHeight;
+    }
   
   pos.x = bitmap->left;
   pos.y = srcHeight - bitmap->top;
-  
-  // discard glyph image (bitmap or not)
-  // Is this the right place to do this?
-  FT_Done_Glyph( glyph );
-  
   this->glyphHasBeenConverted = 1;
 }
 
@@ -67,6 +83,10 @@ FTBitmapGlyph::~FTBitmapGlyph()
 {
   if( data)
     delete [] data;
+
+  // discard glyph image (bitmap or not)
+  // Is this the right place to do this?
+  FT_Done_Glyph( this->glyph );
 }
 
 
