@@ -385,7 +385,7 @@ public:
 			  * (Bounds[7]-Bounds[6]+1)
 			  * (Bounds[9]-Bounds[8]+1));};
   
-  // Description:
+    // Description:
   // This method returns 1 if this bounding box has zero volume.
   int IsEmpty() {return (Bounds[1] < Bounds[0] 
 			 || Bounds[3] < Bounds[2] 
@@ -406,6 +406,8 @@ public:
   // the data memory may be deleted also.
   void ImportMemory(void *ptr);
   void *ExportMemory();
+
+  int GetMemorySize();
   
   void Allocate();
   void ReleaseData();

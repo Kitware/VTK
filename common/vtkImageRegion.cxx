@@ -133,6 +133,40 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
+// Returns the size of the bounded memory in KiloBytes.  
+// It is used to determine when to split while streaming.
+int vtkImageRegion::GetMemorySize()
+{
+  int size;
+  
+  switch (this->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      size = sizeof(float);
+      break;
+    case VTK_IMAGE_INT:
+      size = sizeof(int);
+      break;
+    case VTK_IMAGE_SHORT:
+      size = sizeof(short);
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      size = sizeof(unsigned short);
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      size = sizeof(char);
+      break;
+    default:
+      vtkErrorMacro(<< "ImportMemory: Cannot handle DataType.");
+    }   
+  
+  return size * this->GetVolume() / 1000;
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
 // This function allows you to write into a region.  If there are multple
 // references to the data, the data is copied into a new object.
 void vtkImageRegion::MakeWritable()
@@ -890,7 +924,7 @@ void vtkImageRegion::Translate(int *vector, int dim)
     }
 
   // Since the data might have multiple references, we can not just modify it.
-  if (this->Data->GetRefCount() > 1)
+  if (this->Data && this->Data->GetRefCount() > 1)
     {
     newData = new vtkImageData;
     newData->SetAxes(this->Data->GetAxes());
@@ -913,9 +947,13 @@ void vtkImageRegion::Translate(int *vector, int dim)
       allVector[idx] = 0;
       }
     }
-  vtkImageRegionChangeVectorCoordinateSystem(allVector, this->Axes, 
+
+  if (this->Data)
+    {
+    vtkImageRegionChangeVectorCoordinateSystem(allVector, this->Axes, 
 					     allVector, this->Data->GetAxes());
-  this->Data->Translate(allVector);
+    this->Data->Translate(allVector);
+    }
 }
 
 

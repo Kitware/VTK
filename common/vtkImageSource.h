@@ -63,6 +63,8 @@ public:
   char *GetClassName() {return "vtkImageSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  virtual vtkImageRegion *Update();
+  
   // Description:
   // This method should the allocate and generate the Region's data, or
   // if the data could not be generated set the split factor.
