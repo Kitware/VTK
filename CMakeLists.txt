@@ -869,8 +869,8 @@ INCLUDE(${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
 
 # If the version of CMake was too old, complain and build nothing.
 # These should be the last lines in this file.
-ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
+ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
   MESSAGE(SEND_ERROR
           "This version of CMake is too old to build VTK.  "
           "Please upgrade to CMake 1.6.")
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
