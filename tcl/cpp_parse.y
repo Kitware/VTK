@@ -1099,6 +1099,23 @@ handle_special()
     fprintf(yyout,"      }\n");
     fprintf(yyout,"    }\n");
     }
+  if (!strcmp(class_name,"vtkImageViewer"))
+    {
+    fprintf(yyout,"  if ((!strcmp(\"SetTkWindow\",argv[1]))&&(argc == 3))\n");
+    fprintf(yyout,"    {\n");
+    fprintf(yyout,"    error = 0;\n\n");
+    fprintf(yyout,"    if (!error)\n");
+    fprintf(yyout,"      {\n");
+    fprintf(yyout,"      Tk_Window awin;\n\n");
+    fprintf(yyout,"      awin = Tk_NameToWindow(interp,argv[2],Tk_MainWindow(interp));\n");
+    fprintf(yyout,"      Tk_MakeWindowExist(awin);\n");
+    fprintf(yyout,"      op->SetDisplayId((void *)Tk_Display(awin));\n");
+    fprintf(yyout,"      op->SetWindowId((void *)Tk_WindowId(awin));\n");
+    fprintf(yyout,"      interp->result[0] = '\\0';\n");
+    fprintf(yyout,"      return TCL_OK;\n");
+    fprintf(yyout,"      }\n");
+    fprintf(yyout,"    }\n");
+    }
 }
 
 main(int argc,char *argv[])
