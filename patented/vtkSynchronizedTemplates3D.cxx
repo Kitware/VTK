@@ -380,7 +380,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 	// Increments are different for cells.
 	// Since the cells are not contoured until the second row of templates,
 	// subtract 1 from i,j,and k.  Note: first cube is formed when i=0, j=1, and k=1.
-	inCellId = (j-inExt[2]-1)*(xdim-1) + (k-inExt[4]-1)*(xdim-1)*(ydim-1);
+	inCellId = (xMin-inExt[0]) + (inExt[1]-inExt[0])*( (j-inExt[2]-1) + (k-inExt[4]-1)*(inExt[3]-inExt[2]) );
 
         y = origin[1] + j*spacing[1];
         xz[1] = y;
