@@ -20,10 +20,16 @@
 // vtkQuadraticQuad is a concrete implementation of vtkNonLinearCell to
 // represent a two-dimensional, isoparametric parabolic quadrilateral
 // element. The interpolation is the standard finite element, quadratic
-// isoparametric shape function. The cell includes a mid-edge node. The
-// ordering of the eight points defining the cell are point ids (1-4,5-8) 
-// where ids 1-4 define the four corner vertices of the quad; ids 5-8 define
-// the midedge nodes (1,2), (2,3), (3,4), (4,1).
+// isoparametric shape function. The cell includes a mid-edge node for each
+// of the four edges of the cell. The ordering of the eight points defining
+// the cell are point ids (1-4,5-8) where ids 1-4 define the four corner
+// vertices of the quad; ids 5-8 define the midedge nodes (1,2), (2,3),
+// (3,4), (4,1).
+
+// .SECTION See Also
+// vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
+// vtkQuadraticHexahedron
+
 
 #ifndef __vtkQuadraticQuad_h
 #define __vtkQuadraticQuad_h

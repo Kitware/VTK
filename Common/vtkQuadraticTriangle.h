@@ -26,6 +26,10 @@
 // (1,2); id #5 is the midedge node between points (2,3); and id #6 is the 
 // midedge node between points (3,1).
 
+// .SECTION See Also
+// vtkQuadraticEdge vtkQuadraticTetra
+// vtQuadraticQuad vtkQuadraticHexahedron
+
 #ifndef __vtkQuadraticTriangle_h
 #define __vtkQuadraticTriangle_h
 

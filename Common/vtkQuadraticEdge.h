@@ -24,6 +24,10 @@
 // three points defining the cell is point ids (1,2,3) where id #3 is the
 // midedge node.
 
+// .SECTION See Also
+// vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
+// vtQuadraticQuad vtkQuadraticHexahedron
+
 #ifndef __vtkQuadraticEdge_h
 #define __vtkQuadraticEdge_h
 

@@ -24,7 +24,7 @@
 #include "vtkTetra.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticTetra, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticTetra, "1.2");
 vtkStandardNewMacro(vtkQuadraticTetra);
 
 // Construct the line with two points.
@@ -62,36 +62,41 @@ vtkCell *vtkQuadraticTetra::MakeObject()
   return (vtkCell *)cell;
 }
 
+static int TetraEdge[6][3] = { {0,1,4}, {1,2,5}, {2,0,6}, 
+                                {0,3,7}, {1,3,8}, {2,3,9} };
+
 vtkCell *vtkQuadraticTetra::GetEdge(int edgeId)
 {
   edgeId = (edgeId < 0 ? 0 : (edgeId > 5 ? 5 : edgeId ));
 
   // load point id's
-  this->Edge->PointIds->SetId(0,this->PointIds->GetId(edgeId));
-  this->Edge->PointIds->SetId(1,this->PointIds->GetId(edgeId+1));
-  this->Edge->PointIds->SetId(2,this->PointIds->GetId(edgeId+3));
+  this->Edge->PointIds->SetId(0,this->PointIds->GetId(TetraEdge[edgeId][0]));
+  this->Edge->PointIds->SetId(1,this->PointIds->GetId(TetraEdge[edgeId][1]));
+  this->Edge->PointIds->SetId(2,this->PointIds->GetId(TetraEdge[edgeId][2]));
 
   // load coordinates
-  this->Edge->Points->SetPoint(0,this->Points->GetPoint(edgeId));
-  this->Edge->Points->SetPoint(1,this->Points->GetPoint(edgeId+1));
-  this->Edge->Points->SetPoint(2,this->Points->GetPoint(edgeId+3));
+  this->Edge->Points->SetPoint(0,this->Points->GetPoint(TetraEdge[edgeId][0]));
+  this->Edge->Points->SetPoint(1,this->Points->GetPoint(TetraEdge[edgeId][1]));
+  this->Edge->Points->SetPoint(2,this->Points->GetPoint(TetraEdge[edgeId][2]));
 
   return this->Edge;
 }
+
+static int TetraFace[4][6] = { {0,1,2,4,5,6}, {0,1,3,4,8,7}, 
+                                {1,2,3,5,9,8}, {2,0,3,6,7,9} };
 
 vtkCell *vtkQuadraticTetra::GetFace(int faceId)
 {
   faceId = (faceId < 0 ? 0 : (faceId > 3 ? 3 : faceId ));
 
-  // load point id's
-  this->Face->PointIds->SetId(0,this->PointIds->GetId(faceId));
-  this->Face->PointIds->SetId(1,this->PointIds->GetId(faceId+1));
-  this->Face->PointIds->SetId(2,this->PointIds->GetId(faceId+3));
-
-  // load coordinates
-  this->Face->Points->SetPoint(0,this->Points->GetPoint(faceId));
-  this->Face->Points->SetPoint(1,this->Points->GetPoint(faceId+1));
-  this->Face->Points->SetPoint(2,this->Points->GetPoint(faceId+3));
+  // load point id's and coordinates
+  for (int i=0; i< 6; i++)
+    {
+    this->Face->PointIds->SetId(
+      i,this->PointIds->GetId(TetraFace[faceId][i]));
+    this->Face->Points->SetPoint(
+      i,this->Points->GetPoint(TetraFace[faceId][i]));
+    }
 
   return this->Face;
 }
@@ -259,18 +264,67 @@ int vtkQuadraticTetra::GetParametricCenter(float pcoords[3])
 }
 
 // Compute interpolation functions. Node [2] is the mid-edge node.
-void vtkQuadraticTetra::InterpolationFunctions(float pcoords[3], float weights[3])
+void vtkQuadraticTetra::InterpolationFunctions(float pcoords[3], 
+                                               float weights[3])
 {
-  weights[0] = 2.0 * (pcoords[0] - 0.5) * (pcoords[0] - 1.0);
-  weights[1] = 2.0 * pcoords[0] * (pcoords[0] - 0.5);
-  weights[2] = 4.0 * pcoords[0] * (1.0 - pcoords[0]);
+  float r = pcoords[0];
+  float s = pcoords[1];
+  float t = pcoords[2];
+  float u = 1.0 - r - s - t;
+
+  // corners
+  weights[0] = u*(2.0*u - 1.0);
+  weights[1] = r*(2.0*r - 1.0);
+  weights[2] = s*(2.0*s - 1.0);
+  weights[3] = t*(2.0*t - 1.0);
+
+  // midedge
+  weights[4] = 4.0 * u * r;
+  weights[5] = 4.0 * r * s;
+  weights[6] = 4.0 * s * u;
+  weights[7] = 4.0 * u * t;
+  weights[8] = 4.0 * s * t;
+  weights[9] = 4.0 * r * t;
 }
 
 // Derivatives in parametric space.
-void vtkQuadraticTetra::InterpolationDerivs(float pcoords[3], float derivs[3])
+void vtkQuadraticTetra::InterpolationDerivs(float pcoords[3], float derivs[30])
 {
-  derivs[0] = 4.0 * pcoords[0] - 3.0;
-  derivs[1] = 4.0 * pcoords[0] - 1.0;
-  derivs[2] = 4.0 - pcoords[0] * 8.0;
+  // r-derivatives
+  derivs[0] = ;
+  derivs[1] = ;
+  derivs[2] = ;
+  derivs[3] = ;
+  derivs[4] = ;
+  derivs[5] = ;
+  derivs[6] = ;
+  derivs[7] = ;
+  derivs[8] = ;
+  derivs[9] = ;
+
+  // s-derivatives
+  derivs[10] = ;
+  derivs[11] = ;
+  derivs[12] = ;
+  derivs[13] = ;
+  derivs[14] = ;
+  derivs[15] = ;
+  derivs[16] = ;
+  derivs[17] = ;
+  derivs[18] = ;
+  derivs[19] = ;
+
+  // t-derivatives
+  derivs[20] = ;
+  derivs[21] = ;
+  derivs[22] = ;
+  derivs[23] = ;
+  derivs[24] = ;
+  derivs[25] = ;
+  derivs[26] = ;
+  derivs[27] = ;
+  derivs[28] = ;
+  derivs[29] = ;
+  
 }
 
