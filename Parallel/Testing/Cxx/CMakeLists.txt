@@ -21,7 +21,7 @@ ADD_EXECUTABLE(GenericCommunicator GenericCommunicator)
 ADD_EXECUTABLE(ThreadedCommunicator ThreadedCommunicator)
 IF (VTK_USE_MPI)
   ADD_EXECUTABLE(MPIGroups MPIGroups)
-IF (VTK_USE_MPI)
+ENDIF (VTK_USE_MPI)
  
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)
