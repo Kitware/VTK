@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkAppendPolyData::vtkAppendPolyData()
 {
   this->Output = new vtkPolyData;
+  this->Output->SetSource(this);
 }
 
 // Description:

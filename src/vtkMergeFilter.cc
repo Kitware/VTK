@@ -58,16 +58,25 @@ void vtkMergeFilter::SetGeometry(vtkDataSet *input)
 {
   if ( this->Geometry != input )
     {
-    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    vtkDebugMacro(<<" setting Geometry to " << (void *)input);
     this->Geometry = input;
     this->Modified();
-
-    // since the input has changed we might need to create a new output
-    if (strcmp(this->Output->GetClassName(),this->Geometry->GetClassName()))
+    
+    if (!this->Output)
       {
-      this->Output->Delete();
       this->Output = this->Geometry->MakeObject();
-      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      this->Output->SetSource(this);
+      }
+    else
+      {
+      // since the input has changed we might need to create a new output
+      if (strcmp(this->Output->GetClassName(),this->Geometry->GetClassName()))
+	{
+	this->Output->Delete();
+	this->Output = this->Geometry->MakeObject();
+	this->Output->SetSource(this);
+	vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+	}
       }
     }
 }
