@@ -60,6 +60,7 @@ vtkCleanPolyData* vtkCleanPolyData::New()
 // Construct object with initial Tolerance of 0.0
 vtkCleanPolyData::vtkCleanPolyData()
 {
+  this->PointMerging = 1;
   this->ToleranceIsAbsolute  = 0;
   this->Tolerance            = 0.0;
   this->AbsoluteTolerance    = 1.0;
@@ -73,7 +74,7 @@ vtkCleanPolyData::vtkCleanPolyData()
 //--------------------------------------------------------------------------
 vtkCleanPolyData::~vtkCleanPolyData()
 {
-  ReleaseLocator();
+  this->ReleaseLocator();
 }
 
 //--------------------------------------------------------------------------
@@ -143,15 +144,10 @@ void vtkCleanPolyData::ComputeInputUpdateExtents(vtkDataObject *output)
 //--------------------------------------------------------------------------
 void vtkCleanPolyData::Execute()
 {
-  vtkPolyData  *input = this->GetInput();
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
-  vtkPoints    *inPts = input->GetPoints();
-  vtkIdType numPts = input->GetNumberOfPoints();
-  //
+  vtkPolyData *input = this->GetInput(); //always defined on entry into Execute
+  vtkPoints   *inPts = input->GetPoints();
+  vtkIdType   numPts = input->GetNumberOfPoints();
+
   vtkDebugMacro(<<"Beginning PolyData clean");
   if ( (numPts<1) || (inPts == NULL ) )
     {
@@ -161,6 +157,7 @@ void vtkCleanPolyData::Execute()
   vtkIdType *updatedPts = new vtkIdType[input->GetMaxCellSize()];
 
   vtkIdType numNewPts;
+  vtkIdType numUsedPts=0;
   vtkPoints *newPts = vtkPoints::New();
   newPts->Allocate(numPts);
 
@@ -172,6 +169,7 @@ void vtkCleanPolyData::Execute()
   vtkIdType *pts;
   float x[3];
   float newx[3];
+  vtkIdType *pointMap; //used if no merging
 
   vtkCellArray *inVerts  = input->GetVerts(),  *newVerts  = NULL;
   vtkCellArray *inLines  = input->GetLines(),  *newLines  = NULL;
@@ -183,20 +181,31 @@ void vtkCleanPolyData::Execute()
 
   // We must be careful to 'operate' on the bounds of the locator so
   // that all inserted points lie inside it
-  this->CreateDefaultLocator();
-  if (this->ToleranceIsAbsolute) 
+  if ( this->PointMerging )
     {
-    this->Locator->SetTolerance(this->AbsoluteTolerance);
-    } 
-  else 
-    {
-    this->Locator->SetTolerance(this->Tolerance*input->GetLength());
+    this->CreateDefaultLocator();
+    if (this->ToleranceIsAbsolute) 
+      {
+      this->Locator->SetTolerance(this->AbsoluteTolerance);
+      } 
+    else 
+      {
+      this->Locator->SetTolerance(this->Tolerance*input->GetLength());
+      }
+    float originalbounds[6], mappedbounds[6];
+    input->GetBounds(originalbounds);
+    this->OperateOnBounds(originalbounds,mappedbounds);
+    this->Locator->InitPointInsertion(newPts, mappedbounds);
     }
-  float originalbounds[6], mappedbounds[6];
-  input->GetBounds(originalbounds);
-  this->OperateOnBounds(originalbounds,mappedbounds);
-  this->Locator->InitPointInsertion(newPts, mappedbounds);
-
+  else
+    {
+    pointMap = new vtkIdType [numPts];
+    for (i=0; i < numPts; i++)
+      {
+      pointMap[i] = -1; //initialize unused
+      }
+    }
+  
   vtkPolyData  *output   = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData  *outputCD = output->GetCellData();
@@ -232,17 +241,27 @@ void vtkCleanPolyData::Execute()
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
-        if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        if ( ! this->PointMerging )
           {
-          updatedPts[numNewPts++] = ptId;
+          if ( (ptId=pointMap[pts[i]]) == -1 )
+            {
+            pointMap[pts[i]] = ptId = numUsedPts++;
+            newPts->SetPoint(ptId,newx);
+            outputPD->CopyData(inputPD,pts[i],ptId);
+            }
+          }
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+          {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
-        }
+        updatedPts[numNewPts++] = ptId;
+        }//for all points of vertex cell
+
       if ( numNewPts > 0 ) 
         {
         newId = newVerts->InsertNextCell(numNewPts,updatedPts);
         outputCD->CopyData(inputCD, inCellID, newId);
-        if (vertIDcounter!=newId) 
+        if ( vertIDcounter != newId) 
           {
           vtkErrorMacro(<<"Vertex ID fault in vertex test");
           }
@@ -267,7 +286,16 @@ void vtkCleanPolyData::Execute()
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
-        if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        if ( ! this->PointMerging )
+          {
+          if ( (ptId=pointMap[pts[i]]) == -1 )
+            {
+            pointMap[pts[i]] = ptId = numUsedPts++;
+            newPts->SetPoint(ptId,newx);
+            outputPD->CopyData(inputPD,pts[i],ptId);
+            }
+          }
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
@@ -275,7 +303,7 @@ void vtkCleanPolyData::Execute()
           {
           updatedPts[numNewPts++] = ptId;
           }
-        }
+        }//for all cell points
       if ( (numNewPts>1) || !this->ConvertLinesToPoints ) 
         {
         newId = newLines->InsertNextCell(numNewPts,updatedPts);
@@ -324,7 +352,16 @@ void vtkCleanPolyData::Execute()
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
-        if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        if ( ! this->PointMerging )
+          {
+          if ( (ptId=pointMap[pts[i]]) == -1 )
+            {
+            pointMap[pts[i]] = ptId = numUsedPts++;
+            newPts->SetPoint(ptId,newx);
+            outputPD->CopyData(inputPD,pts[i],ptId);
+            }
+          }
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
@@ -332,7 +369,7 @@ void vtkCleanPolyData::Execute()
           {
           updatedPts[numNewPts++] = ptId;
           }
-        } //for points in polygon
+        } //for points in cell
       if ( numNewPts>2 && updatedPts[0] == updatedPts[numNewPts-1] ) 
         {
         numNewPts--;
@@ -401,7 +438,16 @@ void vtkCleanPolyData::Execute()
         {
         inPts->GetPoint(pts[i],x);
         this->OperateOnPoint(x, newx);
-        if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
+        if ( ! this->PointMerging )
+          {
+          if ( (ptId=pointMap[pts[i]]) == -1 )
+            {
+            pointMap[pts[i]] = ptId = numUsedPts++;
+            newPts->SetPoint(ptId,newx);
+            outputPD->CopyData(inputPD,pts[i],ptId);
+            }
+          }
+        else if ( this->Locator->InsertUniquePoint(newx, ptId) ) 
           {
           outputPD->CopyData(inputPD,pts[i],ptId);
           }
@@ -481,7 +527,15 @@ void vtkCleanPolyData::Execute()
   // Update ourselves and release memory
   //
   delete [] updatedPts;
-  this->Locator->Initialize(); //release memory.
+  if ( this->PointMerging )
+    {
+    this->Locator->Initialize(); //release memory.
+    }
+  else
+    {
+    newPts->SetNumberOfPoints(numUsedPts);
+    delete [] pointMap;
+    }
 
   // Now transfer all CellData from Lines/Polys/Strips into final
   // Cell data output
@@ -598,7 +652,7 @@ void vtkCleanPolyData::CreateDefaultLocator()
     } 
   else 
     {
-    // lets check the tolerance wasn't changed from zero to non zero
+    // check that the tolerance wasn't changed from zero to non-zero
     if ((tol>0.0) && (this->GetLocator()->GetTolerance()==0.0)) 
       {
       this->ReleaseLocator();
@@ -621,18 +675,21 @@ void vtkCleanPolyData::ReleaseLocator(void)
 void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent) 
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
+
+  os << indent << "Point Merging: "
+     << (this->PointMerging ? "On\n" : "Off\n");
   os << indent << "ToleranceIsAbsolute: "
-     << this->ToleranceIsAbsolute << "\n";
+     << (this->ToleranceIsAbsolute ? "On\n" : "Off\n");
   os << indent << "Tolerance: "
-     << this->Tolerance << "\n";
+     << (this->Tolerance ? "On\n" : "Off\n");
   os << indent << "AbsoluteTolerance: "
-     << this->AbsoluteTolerance << "\n";
+     << (this->AbsoluteTolerance ? "On\n" : "Off\n");
   os << indent << "ConvertPolysToLines: "
-     << this->ConvertPolysToLines << "\n";
+     << (this->ConvertPolysToLines ? "On\n" : "Off\n");
   os << indent << "ConvertLinesToPoints: "
-     << this->ConvertLinesToPoints << "\n";
+     << (this->ConvertLinesToPoints ? "On\n" : "Off\n");
   os << indent << "ConvertStripsToPolys: "
-     << this->ConvertStripsToPolys << "\n";
+     << (this->ConvertStripsToPolys ? "On\n" : "Off\n");
   if ( this->Locator ) 
     {
     os << indent << "Locator: " << this->Locator << "\n";
@@ -642,7 +699,7 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
   os << indent << "PieceInvariant: "
-     << this->PieceInvariant << "\n";
+     << (this->PieceInvariant ? "On\n" : "Off\n");
 }
 
 //--------------------------------------------------------------------------

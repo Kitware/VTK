@@ -39,16 +39,18 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkCleanPolyData - merge duplicate points and remove degenerate primitives
+// .NAME vtkCleanPolyData - merge duplicate points, and/or remove unused points and/or remove degenerate cells
 // .SECTION Description
 // vtkCleanPolyData is a filter that takes polygonal data as input and
-// generates polygonal data as output. vtkCleanPolyData merges duplicate
-// points (within specified tolerance), and if enabled transforms degenerate
-// topology into appropriate form (for example, triangle is converted
-// into line if two points of triangle are merged). Conversion of
-// degenerate forms is controlled by the flags
-// ConvertLinesToPoints, ConvertPolysToLines, ConvertStripsToPolys
-// which act cumulatively such that a degenerate strip may become a poly.
+// generates polygonal data as output. vtkCleanPolyData can merge duplicate
+// points (within specified tolerance and if enabled), eliminate points 
+// that are not used, and if enabled, transform degenerate cells into 
+// appropriate forms (for example, a triangle is converted into a line 
+// if two points of triangle are merged). 
+//
+// Conversion of degenerate cells is controlled by the flags
+// ConvertLinesToPoints, ConvertPolysToLines, ConvertStripsToPolys which act
+// cumulatively such that a degenerate strip may become a poly.
 // The full set is
 // Line with 1 points -> Vert (if ConvertLinesToPoints)
 // Poly with 2 points -> Line (if ConvertPolysToLines)
@@ -58,19 +60,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Strp with 1 points -> Vert (if ConvertStripsToPolys && ConvertPolysToLines
 //   && ConvertLinesToPoints)
 //
-// If tolerance is specified precisely=0.0, then this object will use
-// the vtkMergePoints object to merge points (very fast). Otherwise the
-// slower vtkPointLocator is used.
-// Before inserting points into the point locator, this class calls
-// a function OperateOnPoint which can be used (in subclasses) to further
-// refine the cleaning process. See vtkQuantizePolyDataPoints.
+// If tolerance is specified precisely=0.0, then vtkCleanPolyData will use
+// the vtkMergePoints object to merge points (which is faster). Otherwise the
+// slower vtkPointLocator is used.  Before inserting points into the point
+// locator, this class calls a function OperateOnPoint which can be used (in
+// subclasses) to further refine the cleaning process. See
+// vtkQuantizePolyDataPoints.
+//
+// Note that merging of points can be disabled. In this case, a point locator
+// will not be used, and points that are not used by any cells will be 
+// eliminated, but never merged.
 
 // .SECTION Caveats
 // Merging points can alter topology, including introducing non-manifold
-// forms. Tolerance should be chosen carefully to avoid these problems.
+// forms. The tolerance should be chosen carefully to avoid these problems.
 // Subclasses should handle OperateOnBounds as well as OperateOnPoint
-// to ensure locator is correctly initialized (i.e. all modified points must
-// lie inside modified bounds).
+// to ensure that the locator is correctly initialized (i.e. all modified 
+// points must lie inside modified bounds).
 //
 // .SECTION See Also
 // vtkQuantizePolyDataPoints
@@ -124,6 +130,15 @@ public:
   vtkGetMacro(ConvertStripsToPolys,int);
 
   // Description:
+  // Set/Get a boolean value that controls whether point merging is
+  // performed. If on, a locator will be used, and points laying within 
+  // the appropriate tolerance may be merged. If off, points are never
+  // merged. By default, merging is on.
+  vtkSetMacro(PointMerging,int);
+  vtkGetMacro(PointMerging,int);
+  vtkBooleanMacro(PointMerging,int);
+
+  // Description:
   // Set/Get a spatial locator for speeding the search process. By
   // default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
@@ -169,6 +184,7 @@ protected:
   void ExecuteInformation();
   virtual void ComputeInputUpdateExtents(vtkDataObject *output);
 
+  int   PointMerging;
   float Tolerance;
   float AbsoluteTolerance;
   int ConvertLinesToPoints;
