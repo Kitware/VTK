@@ -25,21 +25,13 @@ vtkSphereSource sphere
   sphere SetThetaResolution 6
   sphere SetRadius 1
 
-sphere Update
-set sphereOut [sphere GetOutput]
-$sphereOut Register ""
-sphere SetOutput ""
-
-[$sphereOut GetPointData] SetNormals ""
-
 vtkElevationFilter el
-  el SetInput $sphereOut
+  el SetInput [sphere GetOutput]
 #  el SetInput [sphere GetOutput]
   el SetLowPoint 0 0 0
   el SetHighPoint 0 0 1
 
 vtkQuadricDecimation mesh
-#  mesh SetInput $sphereOut
   mesh SetInput [el GetOutput]
   mesh SetMaximumCost 6
   mesh SetMaximumCollapsedEdges 1
@@ -65,3 +57,8 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
+
+
+renWin Render
+vtkCommand DeleteAllObjects
+exit
