@@ -25,6 +25,8 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkProperty.h"
+#include "vtkCamera.h"
 
 int main(int argc, char *argv[])
 {
