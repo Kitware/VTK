@@ -26,10 +26,11 @@
 #define __vtkOpenGLRenderWindow_h
 
 #include "vtkRenderWindow.h"
+
 #ifdef __APPLE__
-#include <OpenGL/gl.h>
+#include <OpenGL/gl.h> // Needed for GLuint
 #else
-#include <GL/gl.h>
+#include <GL/gl.h> // Needed for GLuint
 #endif
 
 class vtkIdList;

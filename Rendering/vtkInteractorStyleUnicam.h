@@ -86,24 +86,6 @@
 class vtkCamera;
 class vtkWorldPointPicker;
 
-// define 'TheTime()' function-- returns time in elapsed seconds
-#if defined(_WIN32) || defined(WIN32)
-#include <winbase.h>
-
-inline double TheTime() 
-  {return double(GetTickCount())/1000.0;}
-#else
-#include <sys/time.h>
-
-inline double TheTime() 
-{
-  struct timeval ts; struct timezone tz;
-  gettimeofday(&ts, &tz);
-  return (double)(ts.tv_sec + ts.tv_usec/1e6);
-}
-#endif
-
-
 // 
 // XXX - would have preferred to make these enumerations within the class,
 //    enum { NONE=0, BUTTON_LEFT, BUTTON_MIDDLE, BUTTON_RIGHT };

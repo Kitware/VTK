@@ -28,7 +28,7 @@
 #define __vtkRenderWindowCollection_h
 
 #include "vtkCollection.h"
-#include "vtkRenderWindow.h"
+#include "vtkRenderWindow.h" // Needed for static cast
 
 class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
 {

@@ -19,11 +19,12 @@
 
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkImageData.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.24");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.25");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {

@@ -28,7 +28,7 @@
 #define __vtkRendererCollection_h
 
 #include "vtkCollection.h"
-#include "vtkRenderer.h"
+#include "vtkRenderer.h" // Needed for static cast
 
 class VTK_RENDERING_EXPORT vtkRendererCollection : public vtkCollection
 {

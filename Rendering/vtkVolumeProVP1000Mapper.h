@@ -53,9 +53,9 @@
 #include "vtkVolumeProMapper.h"
 
 #ifdef _WIN32
-#include "VolumePro1000/inc/vli.h"
+#include "VolumePro1000/inc/vli.h" // Needed for VLI internal types
 #else
-#include "vli3/include/vli.h"
+#include "vli3/include/vli.h" // Needed for VLI internal types
 #endif
 
 #define VTK_VOLUME_16BIT 3

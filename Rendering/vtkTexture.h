@@ -45,12 +45,13 @@
 #define __vtkTexture_h
 
 #include "vtkProcessObject.h"
-#include "vtkImageData.h"
-#include "vtkLookupTable.h"
 
+class vtkImageData;
+class vtkLookupTable;
 class vtkRenderer;
-class vtkWindow;
 class vtkUnsignedCharArray;
+class vtkWindow;
+class vtkDataArray;
 
 #define VTK_TEXTURE_QUALITY_DEFAULT 0
 #define VTK_TEXTURE_QUALITY_16BIT   16

@@ -30,10 +30,10 @@
 #define __vtkVolumeMapper_h
 
 #include "vtkAbstractMapper3D.h"
-#include "vtkImageData.h"
 
 class vtkRenderer;
 class vtkVolume;
+class vtkImageData;
 
 #define VTK_CROP_SUBVOLUME              0x0002000
 #define VTK_CROP_FENCE                  0x2ebfeba
@@ -56,7 +56,7 @@ public:
 
   // Description:
   // Set/Get the input data
-  void SetInput( vtkImageData * );
+  virtual void SetInput( vtkImageData * );
   vtkImageData *GetInput();
 
   // Description:

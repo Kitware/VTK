@@ -50,8 +50,8 @@
 #define __vtkVolumeProMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vtkToolkits.h"
-#include "vtkVersion.h"
+#include "vtkToolkits.h" // Needed for VTK_HAVE_VP1000
+#include "vtkVersion.h" // Needed for VTK_*_VERSION
 
 //BTX
 #if defined (VTK_HAVE_VP1000) || defined (VTK_FORCE_COMPILE_VP1000)

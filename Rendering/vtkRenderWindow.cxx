@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.128");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.129");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1016,6 +1016,7 @@ void vtkRenderWindow::UnRegister(vtkObjectBase *o)
   this->vtkObject::UnRegister(o);
 }
 
-     
-
-
+const char *vtkRenderWindow::GetRenderLibrary() 
+{
+  return vtkGraphicsFactory::GetRenderLibrary();
+}

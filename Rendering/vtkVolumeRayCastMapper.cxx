@@ -21,6 +21,8 @@
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
+#include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
@@ -33,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.90");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.91");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

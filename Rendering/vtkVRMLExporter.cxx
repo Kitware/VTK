@@ -20,6 +20,7 @@
 #include "vtkAssemblyNode.h"
 #include "vtkCamera.h"
 #include "vtkGeometryFilter.h"
+#include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMath.h"
@@ -31,7 +32,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.65");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.66");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()

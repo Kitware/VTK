@@ -17,12 +17,13 @@
 =========================================================================*/
 #include "vtkPointPicker.h"
 
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMapper.h"
 #include "vtkVolumeMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointPicker, "1.28");
+vtkCxxRevisionMacro(vtkPointPicker, "1.29");
 vtkStandardNewMacro(vtkPointPicker);
 
 vtkPointPicker::vtkPointPicker()

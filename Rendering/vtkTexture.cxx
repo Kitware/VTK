@@ -16,13 +16,14 @@
 
 =========================================================================*/
 #include "vtkTexture.h"
+
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
+#include "vtkLookupTable.h"
 
-#include <stdlib.h>
-
-vtkCxxRevisionMacro(vtkTexture, "1.47");
+vtkCxxRevisionMacro(vtkTexture, "1.48");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

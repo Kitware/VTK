@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkCellPicker.h"
 
+#include "vtkGenericCell.h"
+#include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.30");
+vtkCxxRevisionMacro(vtkCellPicker, "1.31");
 vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()

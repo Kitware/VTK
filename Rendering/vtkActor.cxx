@@ -19,6 +19,7 @@
 
 #include "vtkAssemblyPaths.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
 #include "vtkLinearTransform.h"
 #include "vtkMapper.h"
 #include "vtkPropCollection.h"
@@ -29,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.118");
+vtkCxxRevisionMacro(vtkActor, "1.119");
 
 vtkCxxSetObjectMacro(vtkActor,Texture,vtkTexture);
 

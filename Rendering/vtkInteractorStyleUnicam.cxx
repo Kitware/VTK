@@ -38,8 +38,25 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.28");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.29");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
+
+// define 'TheTime()' function-- returns time in elapsed seconds
+#if defined(_WIN32) || defined(WIN32)
+#include <winbase.h>
+
+static double TheTime() 
+  {return double(GetTickCount())/1000.0;}
+#else
+#include <sys/time.h>
+
+static double TheTime() 
+{
+  struct timeval ts; struct timezone tz;
+  gettimeofday(&ts, &tz);
+  return (double)(ts.tv_sec + ts.tv_usec/1e6);
+}
+#endif
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
 {

@@ -20,6 +20,7 @@
 #include "vtkAssemblyNode.h"
 #include "vtkCamera.h"
 #include "vtkGeometryFilter.h"
+#include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMath.h"
@@ -32,7 +33,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.48");
+vtkCxxRevisionMacro(vtkIVExporter, "1.49");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()

@@ -53,9 +53,9 @@
 #include "vtkVolumeProMapper.h"
 
 #ifdef _WIN32
-#include "VolumePro/inc/vli.h"
+#include "VolumePro/inc/vli.h" // Needed for VLI internals
 #else
-#include "vli/include/vli.h"
+#include "vli/include/vli.h" // Needed for VLI internals
 #endif
 
 #ifdef VTK_USE_VOLUMEPRO

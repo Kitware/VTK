@@ -42,7 +42,6 @@
 #define __vtkRenderWindow_h
 
 #include "vtkWindow.h"
-#include "vtkGraphicsFactory.h"
 
 class vtkFloatArray;
 class vtkRenderWindowInteractor;
@@ -91,8 +90,7 @@ public:
 
   // Description:
   // What rendering library has the user requested
-  static const char *GetRenderLibrary() {
-    return vtkGraphicsFactory::GetRenderLibrary();};
+  static const char *GetRenderLibrary();
 
   // Description:
   // Return the collection of renderers in the render window.
