@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.6");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.7");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -60,17 +60,18 @@ char* vtkMetaImageWriter::GetRAWFileName()
 void vtkMetaImageWriter::Write()
 {
   vtkImageData* id = this->GetInput();
-  id->Update();
   if ( !id )
     {
     vtkErrorMacro("Input not specified");
     return;
     }
+
   if ( !this->MHDFileName )
     {
     vtkErrorMacro("Output file name not specified");
     return;
     }
+  id->Update();
   if ( !this->GetRAWFileName() )
     {
     vtkDebugMacro("Raw file name not specified. Specifying one...");
