@@ -81,6 +81,10 @@ public:
   vtkGetMacro(ClipData, int);
   vtkBooleanMacro(ClipData, int);
 
+  // Description:
+  // Hack set output by piece
+  void SetOutputWholeExtent(int piece, int numPieces);
+
 protected:
   vtkImageClip();
   ~vtkImageClip() {};
@@ -96,6 +100,7 @@ protected:
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
+  int SplitExtent(int piece, int numPieces, int *ext);
 };
 
 

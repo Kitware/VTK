@@ -278,3 +278,103 @@ void vtkImageClip::CopyData(vtkImageData *inData, vtkImageData *outData,
       }
     }
 }
+
+
+//----------------------------------------------------------------------------
+void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
+{
+  vtkImageData *input = this->GetInput();
+  int ext[6];
+
+  if (input == NULL)
+    {
+    vtkErrorMacro("We must have an input to set the output extent by piece.");
+    return;
+    }
+
+  input->UpdateInformation();
+  input->GetWholeExtent(ext);
+  this->SplitExtent(piece, numPieces, ext);
+
+  this->SetOutputWholeExtent(ext);
+}
+
+//----------------------------------------------------------------------------
+// Assumes UpdateInformation was called first.
+int vtkImageClip::SplitExtent(int piece, int numPieces, int *ext)
+{
+  int numPiecesInFirstHalf;
+  int size[3], mid, splitAxis;
+
+  // keep splitting until we have only one piece.
+  // piece and numPieces will always be relative to the current ext. 
+  while (numPieces > 1)
+    {
+    // Get the dimensions for each axis.
+    size[0] = ext[1]-ext[0];
+    size[1] = ext[3]-ext[2];
+    size[2] = ext[5]-ext[4];
+    // choose the biggest axis
+    if (size[2] >= size[1] && size[2] >= size[0] && 
+	size[2]/2 >= 2)
+      {
+      splitAxis = 2;
+      }
+    else if (size[1] >= size[0] && size[1]/2 >= 2)
+      {
+      splitAxis = 1;
+      }
+    else if (size[0]/2 >= 2)
+      {
+      splitAxis = 0;
+      }
+    else
+      {
+      // signal no more splits possible
+      splitAxis = -1;
+      }
+
+    if (splitAxis == -1)
+      {
+      // can not split any more.
+      if (piece == 0)
+        {
+        // just return the remaining piece
+        numPieces = 1;
+        }
+      else
+        {
+        // the rest must be empty
+        return 0;
+        }
+      }
+    else
+      {
+      // split the chosen axis into two pieces.
+      numPiecesInFirstHalf = (numPieces / 2);
+      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
+	+ ext[splitAxis*2];
+      if (piece < numPiecesInFirstHalf)
+        {
+        // piece is in the first half
+        // set extent to the first half of the previous value.
+        ext[splitAxis*2+1] = mid;
+        // piece must adjust.
+        numPieces = numPiecesInFirstHalf;
+        }
+      else
+        {
+        // piece is in the second half.
+        // set the extent to be the second half. (two halves share points)
+        ext[splitAxis*2] = mid;
+        // piece must adjust
+        numPieces = numPieces - numPiecesInFirstHalf;
+        piece -= numPiecesInFirstHalf;
+        }
+      }
+    } // end of while
+
+  return 1;
+}
+
+
