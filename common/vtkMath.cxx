@@ -48,10 +48,10 @@ long vtkMath::Seed = 1177; // One authors home address
 //
 // some constants we need
 //
-#define K_A 16807
-#define K_M 2147483647			/* Mersenne prime 2^31 -1 */
-#define K_Q 127773			/* K_M div K_A */
-#define K_R 2836			/* K_M mod K_A */
+#define VTK_K_A 16807
+#define VTK_K_M 2147483647			/* Mersenne prime 2^31 -1 */
+#define VTK_K_Q 127773			/* VTK_K_M div VTK_K_A */
+#define VTK_K_R 2836			/* VTK_K_M mod VTK_K_A */
 //
 // Some useful macros
 //
@@ -68,13 +68,13 @@ float vtkMath::Random()
   // by Stephen K. Park and Keith W. Miller in Communications of the ACM,
   // 31, 10 (Oct. 1988) pp. 1192-1201.
   // Borrowed from: Fuat C. Baran, Columbia University, 1988.
-  hi = vtkMath::Seed / K_Q;
-  lo = vtkMath::Seed % K_Q;
-  if ((vtkMath::Seed = K_A * lo - K_R * hi) <= 0)
+  hi = vtkMath::Seed / VTK_K_Q;
+  lo = vtkMath::Seed % VTK_K_Q;
+  if ((vtkMath::Seed = VTK_K_A * lo - VTK_K_R * hi) <= 0)
     {
-    Seed += K_M;
+    Seed += VTK_K_M;
     }
-  return ((float) vtkMath::Seed / K_M);
+  return ((float) vtkMath::Seed / VTK_K_M);
 }
 
 // Initialize seed value. NOTE: Random() has the bad property that 
