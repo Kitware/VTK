@@ -154,12 +154,10 @@ IF (WIN32)
                vtkWin32OpenGLImageWindow
                vtkWin32OpenGLTextMapper
                vtkWin32TextMapper)
-
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
   IF(MESA_OS_LIBRARY)
     LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
   ENDIF(MESA_OS_LIBRARY)
-  
 ELSE (WIN32)
   IF (APPLE)
     SET(HAVE_OPENGL_SRCS ON)
@@ -264,14 +262,16 @@ IF (VTK_WRAP_TCL)
         FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
           ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk83)
       ENDIF (TK_LIBRARY MATCHES tk83.lib)
-    ENDIF (TK_LIBRARY)
-    FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
+      IF (TK_LIBRARY MATCHES tk82.lib)
+        FIND_PATH(TK_INTERNAL_PATH tkWinInt.h 
           ${VTK_SOURCE_DIR}/Rendering/tkInternals)
+      ENDIF (TK_LIBRARY MATCHES tk83.lib)
+    ENDIF (TK_LIBRARY)
     IF (TK_INTERNAL_PATH)
       INCLUDE_DIRECTORIES(${TK_INTERNAL_PATH})
     ENDIF (TK_INTERNAL_PATH) 
     # for builds against the source tree on windows
-    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INTERNAL_PATH}/../xlib)
+    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH}/../xlib)
     IF (TK_XLIB_PATH)
       INCLUDE_DIRECTORIES(${TK_XLIB_PATH})
     ENDIF (TK_XLIB_PATH) 
