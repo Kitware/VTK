@@ -13,14 +13,8 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for shrink filter
-//
 #include "ShrinkF.hh"
 
-//
-// Shrink cells towards their centroid
-//
 void vlShrinkFilter::Execute()
 {
   vlIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);

@@ -14,6 +14,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 
+// .NAME vlIndent - control print indentation
+// .SECTION Description
+// vlIndent is used to control indentation during the chaining print 
+// process.
+
 #ifndef __vlIndent_h
 #define __vlIndent_h
 

@@ -15,9 +15,21 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Class to transform points
-//
+// .NAME vlTransformFilter - transform points and associated normals and vectors
+// .SECTION Description
+// vlTransformFilter is a filter to transform point coordinates and 
+// associated point normals and vectors. Other point data is passed
+// through the filter.
+// 
+// An alternative method of transformation is to use vlActors methods
+// to scale, rotate, and translate objects. The difference between the
+// two methods is that vlActor's transformation simply effects where
+// objects are rendered (via the graphics pipeline), whereas
+// vlTransformFilter actually modifies point coordinates in the 
+// visualization pipeline. This is necessary for some objects 
+// (e.g., vlProbeFilter) that require point coordinates as input.
+// .EXAMPLE XFormSph.cc
+
 #ifndef __vlTransformFilter_h
 #define __vlTransformFilter_h
 

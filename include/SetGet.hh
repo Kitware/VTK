@@ -13,27 +13,28 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
+// .NAME SetGet Macros - standard macros for setting/getting instance
+//                       variable values
+// .SECTION Description
+// The SetGet macros are used to interface to instance variables
+// in a standard fashion. This includes properly treating modified time,
+// registering/unregistering object use, and printing out debug 
+// information.
 //
-// Macros for setting and getting instance variables.  Macros are available 
-// for  built-in types; for character strings; vector arrays of built-in 
-// types size 2,3,4; and for setting objects (i.e., Registering objects).
-// Macros enforce proper use of Debug, Modified time, and Registering objects.
-//
+// Macros are available for built-in types; for character strings; 
+// vector arrays of built-in types size 2,3,4; and for setting 
+// objects (i.e., Registering objects).
 
 #ifndef __vlSetGet_hh
 #define __vlSetGet_hh
 
 #include <string.h>
-// 
-// For super speedy execution define __vlNoDebug
-//
-//#define __vlNoDebug
 
 //
 // Some constants used throughout code
 //
 #define LARGE_FLOAT 1.0e29
-#define LARGE_INTEGER 2147483646 /* 2**31 - 1 */
+#define LARGE_INTEGER 2147483646 // 2^31 - 1
 
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());

@@ -13,26 +13,28 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Classes that need to keep track of modification / execution time use
-// this class.
-//
+// .NAME vlTimeStamp - record modification and/or execution time
+// .SECTION Description
+// vlTimeStamp records a unique time when the method Modified() is 
+// executed. This time is guaranteed to be montonically increasing.
+// Subclasses use this object to record modified and/or execution time.
+
 #ifndef __vlTimeStamp_h
 #define __vlTimeStamp_h
 
 class vlTimeStamp 
 {
 public:
-  vlTimeStamp() {this->ModifiedTime = 0;};
+  vlTimeStamp() : ModifiedTime(0) {};
   void Modified() {this->ModifiedTime = ++vlTime;};
   unsigned long int GetMTime() {return ModifiedTime;};
-  // Using >= and <= in the operators below handles special cases when
-  // modified times are equal. Only occurs for recently instantiated objects.
+
   int operator>(vlTimeStamp& ts) 
     {return (this->ModifiedTime > ts.ModifiedTime);};
   int operator<(vlTimeStamp& ts) 
     {return (this->ModifiedTime < ts.ModifiedTime);};
   operator unsigned long int() {return this->ModifiedTime;};
+
 private:
   unsigned long ModifiedTime;
   static unsigned long vlTime;

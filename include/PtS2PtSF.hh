@@ -15,10 +15,14 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// PointSetToPointSetFilter are filters that take PointSet in and 
-// generate PointSet as output.
-//
+// .NAME vlPointSetToPointSetFilter - abstract filter class 
+// .SECTION Description
+// vlPointSetToPointSetFilter is an abstract filter class that take as 
+// input a vlPointSet (or any subclass of vlPointSet) and generates on 
+// output a vlPointSet. The concrete subclasses of 
+// vlPointSetToPointSetFilter (at a minimum) modify their point
+// coordinates.
+
 #ifndef __vlPointSetToPointSetFilter_h
 #define __vlPointSetToPointSetFilter_h
 
@@ -37,8 +41,8 @@ public:
   // dataset interface
   vlDataSet *MakeObject() {return this->PointSet->MakeObject();};
   int GetNumberOfCells() {return this->PointSet->GetNumberOfCells();};
-  int GetNumberOfPoints() {return this->PointSet->GetNumberOfPoints();};
-  float *GetPoint(int i) {return this->PointSet->GetPoint(i);};
+  int GetNumberOfPoints() {return this->Points->GetNumberOfPoints();};
+  float *GetPoint(int i) {return this->Points->GetPoint(i);};
   vlCell *GetCell(int cellId) {return this->PointSet->GetCell(cellId);};
   int GetCellType(int cellId) {return this->PointSet->GetCellType(cellId);};
   void GetCellPoints(int cellId, vlIdList& ptIds)

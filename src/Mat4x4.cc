@@ -17,7 +17,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 
 #include "Mat4x4.hh"
+#include "vlMath.hh"
 
+// Description:
+// Construct identity matrix.
 vlMatrix4x4::vlMatrix4x4 ()
 {
   int i,j;
@@ -45,6 +48,8 @@ vlMatrix4x4::vlMatrix4x4(const vlMatrix4x4& m)
     }
 }
 
+// Description:
+// Set all elements of matrix to input value.
 void vlMatrix4x4::operator= (float element)
 {
   int i,j;
@@ -59,6 +64,8 @@ void vlMatrix4x4::operator= (float element)
   this->Modified ();
 }
 
+// Description:
+// Multiply a point (in homogeneous coordinates) by matrix.
 void vlMatrix4x4::PointMultiply(float in[4],float result[4])
 {
   int i;
@@ -78,11 +85,11 @@ void vlMatrix4x4::PointMultiply(float in[4],float result[4])
   
 }
 
+// Description:
+// Matrix Inversion (by Richard Carling from "Graphics Gems", 
+// Academic Press, 1990).
 void vlMatrix4x4::Invert (vlMatrix4x4 in,vlMatrix4x4 & out)
 {
-// Matrix Inversion
-// by Richard Carling
-// from "Graphics Gems", Academic Press, 1990
 
 #define SMALL_NUMBER	1.e-9
 
@@ -118,48 +125,12 @@ void vlMatrix4x4::Invert (vlMatrix4x4 in,vlMatrix4x4 & out)
     for(j=0; j<4; j++)
       out.Element[i][j] = out.Element[i][j] / det;
 }
-/*
- * double = det2x2( double a, double b, double c, double d )
- * 
- * calculate the determinent of a 2x2 matrix.
- */
 
-static double det2x2( double a, double b, double c, double d)
-{
-    double ans;
-    ans = a * d - b * c;
-    return ans;
-}
-
-/*
- * double = det3x3(  a1, a2, a3, b1, b2, b3, c1, c2, c3 )
- * 
- * calculate the determinent of a 3x3 matrix
- * in the form
- *
- *     | a1,  b1,  c1 |
- *     | a2,  b2,  c2 |
- *     | a3,  b3,  c3 |
- */
-
-static double det3x3( double a1, double a2, double a3, double b1, double b2, double b3, double c1, double c2, double c3 )
-{
-    double ans;
-
-    ans = a1 * det2x2( b2, b3, c2, c3 )
-        - b1 * det2x2( a2, a3, c2, c3 )
-        + c1 * det2x2( a2, a3, b2, b3 );
-    return ans;
-}
-
+// Description:
+// Compute the determinate of the matrix.
 float vlMatrix4x4::Determinant (vlMatrix4x4 & in)
-/*
- * double = det4x4( matrix )
- * 
- * calculate the determinent of a 4x4 matrix.
- */
 {
-  double ans;
+  vlMath math;
   double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 
   // assign to individual variable names to aid selecting
@@ -177,13 +148,14 @@ float vlMatrix4x4::Determinant (vlMatrix4x4 & in)
   a4 = in.Element[3][0]; b4 = in.Element[3][1]; 
   c4 = in.Element[3][2]; d4 = in.Element[3][3];
 
-  ans = a1 * det3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4)
-      - b1 * det3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
-      + c1 * det3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4)
-      - d1 * det3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
-  return ans;
+  return a1 * math.Determinate3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4)
+       - b1 * math.Determinate3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
+       + c1 * math.Determinate3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4)
+       - d1 * math.Determinate3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 }
 
+// Description:
+// Compute adjoint of matrix.
 void vlMatrix4x4::Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out)
 {
 // 
@@ -202,8 +174,8 @@ void vlMatrix4x4::Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out)
 //
 //    The matrix B = (b  ) is the adjoint of A
 //                     ij
-///
-
+//
+  vlMath m;
   double a1, a2, a3, a4, b1, b2, b3, b4;
   double c1, c2, c3, c4, d1, d2, d3, d4;
 
@@ -225,25 +197,25 @@ void vlMatrix4x4::Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out)
 
   // row column labeling reversed since we transpose rows & columns
 
-  out.Element[0][0]  =   det3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4);
-  out.Element[1][0]  = - det3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4);
-  out.Element[2][0]  =   det3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4);
-  out.Element[3][0]  = - det3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+  out.Element[0][0]  =   m.Determinate3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4);
+  out.Element[1][0]  = - m.Determinate3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4);
+  out.Element[2][0]  =   m.Determinate3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4);
+  out.Element[3][0]  = - m.Determinate3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
         
-  out.Element[0][1]  = - det3x3( b1, b3, b4, c1, c3, c4, d1, d3, d4);
-  out.Element[1][1]  =   det3x3( a1, a3, a4, c1, c3, c4, d1, d3, d4);
-  out.Element[2][1]  = - det3x3( a1, a3, a4, b1, b3, b4, d1, d3, d4);
-  out.Element[3][1]  =   det3x3( a1, a3, a4, b1, b3, b4, c1, c3, c4);
+  out.Element[0][1]  = - m.Determinate3x3( b1, b3, b4, c1, c3, c4, d1, d3, d4);
+  out.Element[1][1]  =   m.Determinate3x3( a1, a3, a4, c1, c3, c4, d1, d3, d4);
+  out.Element[2][1]  = - m.Determinate3x3( a1, a3, a4, b1, b3, b4, d1, d3, d4);
+  out.Element[3][1]  =   m.Determinate3x3( a1, a3, a4, b1, b3, b4, c1, c3, c4);
         
-  out.Element[0][2]  =   det3x3( b1, b2, b4, c1, c2, c4, d1, d2, d4);
-  out.Element[1][2]  = - det3x3( a1, a2, a4, c1, c2, c4, d1, d2, d4);
-  out.Element[2][2]  =   det3x3( a1, a2, a4, b1, b2, b4, d1, d2, d4);
-  out.Element[3][2]  = - det3x3( a1, a2, a4, b1, b2, b4, c1, c2, c4);
+  out.Element[0][2]  =   m.Determinate3x3( b1, b2, b4, c1, c2, c4, d1, d2, d4);
+  out.Element[1][2]  = - m.Determinate3x3( a1, a2, a4, c1, c2, c4, d1, d2, d4);
+  out.Element[2][2]  =   m.Determinate3x3( a1, a2, a4, b1, b2, b4, d1, d2, d4);
+  out.Element[3][2]  = - m.Determinate3x3( a1, a2, a4, b1, b2, b4, c1, c2, c4);
         
-  out.Element[0][3]  = - det3x3( b1, b2, b3, c1, c2, c3, d1, d2, d3);
-  out.Element[1][3]  =   det3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
-  out.Element[2][3]  = - det3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
-  out.Element[3][3]  =   det3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
+  out.Element[0][3]  = - m.Determinate3x3( b1, b2, b3, c1, c2, c3, d1, d2, d3);
+  out.Element[1][3]  =   m.Determinate3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
+  out.Element[2][3]  = - m.Determinate3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
+  out.Element[3][3]  =   m.Determinate3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
 void vlMatrix4x4::operator= (vlMatrix4x4& source)
@@ -257,6 +229,22 @@ void vlMatrix4x4::operator= (vlMatrix4x4& source)
       this->Element[i][j] = source.Element[i][j];
       }
     }
+}
+
+// Description:
+// 
+void vlMatrix4x4::Transpose (vlMatrix4x4 in,vlMatrix4x4 & out)
+{
+  int i, j;
+  float temp;
+
+  for (i=0; i<4; i++)
+    for(j=i; j<4; j++)
+      {
+      temp = in.Element[i][j];
+      out.Element[i][j] = in.Element[j][i];
+      out.Element[j][i] = temp;
+      }
 }
 
 void vlMatrix4x4::PrintSelf (ostream& os, vlIndent indent)
@@ -278,17 +266,3 @@ void vlMatrix4x4::PrintSelf (ostream& os, vlIndent indent)
     }
 }
 
-
-void vlMatrix4x4::Transpose (vlMatrix4x4 in,vlMatrix4x4 & out)
-{
-  int i, j;
-  float temp;
-
-  for (i=0; i<4; i++)
-    for(j=i; j<4; j++)
-      {
-      temp = in.Element[i][j];
-      out.Element[i][j] = in.Element[j][i];
-      out.Element[j][i] = temp;
-      }
-}

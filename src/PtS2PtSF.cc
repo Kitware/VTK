@@ -33,8 +33,12 @@ vlPointSetToPointSetFilter::~vlPointSetToPointSetFilter()
 void vlPointSetToPointSetFilter::Update()
 {
   vlPointData *pd;
+  vlPoints *points;
 
   vlPointSetFilter::Update();
+  // Copy data from this filter to internal data set.
+  pd = this->PointSet->GetPointData();
+  *pd = this->PointData;
 }
 
 void vlPointSetToPointSetFilter::Initialize()

@@ -19,6 +19,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 static char blanks[NumberOfBlanks+1]="                                        ";
 
+// Description:
+// Determine the next indentation level.
 vlIndent vlIndent::GetNextIndent()
 {
   int indent = this->Indent + vlStdIndent;
@@ -26,6 +28,8 @@ vlIndent vlIndent::GetNextIndent()
   return indent;
 }
 
+// Description:
+// Print out the indentation.
 ostream& operator<<(ostream& os, vlIndent& ind)
 {
   os << blanks + (NumberOfBlanks-ind.Indent) ;

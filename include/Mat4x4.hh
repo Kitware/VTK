@@ -29,13 +29,9 @@ class vlMatrix4x4 : public vlObject
   void operator= (vlMatrix4x4& source);
   float *operator[](const unsigned int i) {return &(Element[i][0]);};
 
-  //  Calculate the inverse of in and
-  //  return it in out.
   void Invert (vlMatrix4x4 in,vlMatrix4x4 & out);
   void Invert (void) { Invert(*this,*this);};
 
-  //  Calculate the transpose of in and
-  //  return it in out.
   void Transpose (vlMatrix4x4 in,vlMatrix4x4 & out);
   void Transpose (void) { Transpose(*this,*this);};
 

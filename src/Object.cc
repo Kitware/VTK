@@ -59,6 +59,13 @@ void vlObject::UnRegister(vlObject* o)
   if (--this->RefCount <= 0) delete this;
 }
 
+// Description:
+// Return the modification for this object.
+unsigned long int vlObject::GetMTime() 
+{
+  return this->MTime.GetMTime();
+}
+
 void vlObject::Print(ostream& os)
 {
   vlIndent indent;

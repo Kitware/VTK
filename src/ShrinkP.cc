@@ -13,15 +13,8 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for shrink filter
-//
 #include "ShrinkP.hh"
 
-//
-// Shrink verts, lines, polygons, triangle strips towards their centroid.
-// Polylines and triangle strips are broken into pieces.
-//
 void vlShrinkPolyData::Execute()
 {
   int i, j, k;

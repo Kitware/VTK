@@ -44,7 +44,6 @@ vlTransform::vlTransform ()
 
 // Description:
 // Copy constructor
-
 vlTransform::vlTransform (const vlTransform& t)
 {
   int i;
@@ -317,7 +316,7 @@ void vlTransform::Scale ( float x, float y, float z)
 }
 
 // Description:
-//  Translate in x, y, z directions using current transformation matrix.
+// Translate in x, y, z directions using current transformation matrix.
 void vlTransform::Translate ( float x, float y, float z)
 {
   vlMatrix4x4 ctm;
@@ -340,7 +339,7 @@ void vlTransform::Translate ( float x, float y, float z)
 }
 
 // Description:
-//  Obtain transpose of current transformation matrix.
+// Obtain transpose of current transformation matrix.
 void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
 {
   vlMatrix4x4 temp;
@@ -355,7 +354,7 @@ void vlTransform::GetTranspose (vlMatrix4x4& (transpose))
 }
 
 // Description:
-//  Invert current transformation matrix.
+// Invert current transformation matrix.
 void vlTransform::Inverse ()
 {
   (**this->Stack).Invert (**this->Stack, **this->Stack);
@@ -532,7 +531,7 @@ void vlTransform::Identity ()
 }
 
 // Description:
-// Concatenates \fImatrix\fR with the current transformation matrix.
+// Concatenates input matrix with the current transformation matrix.
 // The resulting matrix becomes the new current transformation matrix.
 
 void vlTransform::Concatenate (vlMatrix4x4 & matrix)
@@ -597,8 +596,6 @@ vlTransform::~vlTransform ()
   delete this->Stack;
 }
 
-// Description:
-// Print method.
 void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 {
   vlMatrix4x4 ctm;
@@ -643,26 +640,31 @@ void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
   for (ptId=0; ptId < numPts; ptId++)
     {
     x = inPts->GetPoint(ptId);
-    for (i=0; i<3; i++) newX[i] = x[i];
-    newX[3] = 1.0;
+    for (i=0; i<3; i++)
+      {
+      newX[i] = (**this->Stack).Element[i][0] * x[0] +
+                (**this->Stack).Element[i][1] * x[1] +
+                (**this->Stack).Element[i][2] * x[2] +
+                (**this->Stack).Element[i][3];
+      }
 
-    this->Stack[0]->PointMultiply(newX,newX);
-
-    for (i=0; i<3; i++) newX[i] /= newX[3];  //normalize
     outPts->SetPoint(ptId, newX);
     }
 }
 
 // Description:
 // Multiplies list of vectors by current transformation matrix.
-// Special multiplication since these are vectors.
+// Special multiplication since these are vectors. Multiplies vectors
+// by the transposed inverse of the matrix, ignoring the translational
+// components.
 
 void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
 {
-  float newV[4];
+  float newV[3];
   float *v;
   int ptId, i;
   int numVectors = inVectors->GetNumberOfVectors();
+  vlMath math;
 
   this->Push();
   this->Inverse();
@@ -671,12 +673,14 @@ void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
   for (ptId=0; ptId < numVectors; ptId++)
     {
     v = inVectors->GetVector(ptId);
-    for (i=0; i<3; i++) newV[i] = v[i];
-    newV[3] = 1.0;
+    for (i=0; i<3; i++)
+      {
+      newV[i] = (**this->Stack).Element[i][0] * v[0] +
+                (**this->Stack).Element[i][1] * v[1] +
+                (**this->Stack).Element[i][2] * v[2];
+      }
 
-    this->Stack[0]->PointMultiply(newV,newV);
-
-    for (i=0; i<3; i++) newV[i] /= newV[3];  //normalize
+    math.Normalize(newV);
     outVectors->SetVector(ptId, newV);
     }
   this->Pop();
@@ -684,14 +688,17 @@ void vlTransform::MultiplyVectors(vlVectors *inVectors, vlVectors *outVectors)
 
 // Description:
 // Multiplies list of normals by current transformation matrix.
-// Special multiplication since these are vectors.
+// Special multiplication since these are vectors. Multiplies vectors
+// by the transposed inverse of the matrix, ignoring the translational
+// components.
 
 void vlTransform::MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals)
 {
-  float newN[4];
+  float newN[3];
   float *n;
   int ptId, i;
   int numNormals = inNormals->GetNumberOfNormals();
+  vlMath math;
 
   this->Push();
   this->Inverse();
@@ -700,14 +707,15 @@ void vlTransform::MultiplyNormals(vlNormals *inNormals, vlNormals *outNormals)
   for (ptId=0; ptId < numNormals; ptId++)
     {
     n = inNormals->GetNormal(ptId);
-    for (i=0; i<3; i++) newN[i] = n[i];
-    newN[3] = 1.0;
+    for (i=0; i<3; i++)
+      {
+      newN[i] = (**this->Stack).Element[i][0] * n[0] +
+                (**this->Stack).Element[i][1] * n[1] +
+                (**this->Stack).Element[i][2] * n[2];
+      }
 
-    this->Stack[0]->PointMultiply(newN,newN);
-
-    for (i=0; i<3; i++) newN[i] /= newN[3];  //normalize
+    math.Normalize(newN);
     outNormals->SetNormal(ptId, newN);
     }
   this->Pop();
-
 }
