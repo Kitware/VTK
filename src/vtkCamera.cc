@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.hh"
 #include "vtkRenderWindow.hh"
 #include "vtkCameraDevice.hh"
+#include "vtkTimeStamp.hh"
 
 // Description:
 // Construct camera instance with its focal point at the origin, 
@@ -739,6 +740,8 @@ void vtkCamera::Zoom(float amount)
   if (amount <= 0.0) return;
   
   this->ViewAngle = this->ViewAngle/amount;
+
+  this->ViewingRaysModified();
 }
 
 
@@ -961,6 +964,8 @@ void vtkCamera::Roll (float angle)
 void vtkCamera::SetViewPlaneNormal(float X,float Y,float Z)
 {
   float norm;
+  float dx, dy, dz;
+  float dot_product;
 
   // normalize it
   norm = sqrt( X * X + Y * Y + Z * Z );
@@ -976,13 +981,49 @@ void vtkCamera::SetViewPlaneNormal(float X,float Y,float Z)
 
   vtkDebugMacro(<< " ViewPlaneNormal set to ( " << X/norm << ", "
   << Y/norm << ", " << Z/norm << ")");
+ 
+  // Compute the dot product between the view plane normal and the 
+  // direction of projection. If this has changed, the viewing rays need 
+  // to be recalculated.
+  dx = this->Position[0] - this->FocalPoint[0];
+  dy = this->Position[1] - this->FocalPoint[1];
+  dz = this->Position[2] - this->FocalPoint[2];
   
+  norm = sqrt(dx*dx+dy*dy+dz*dz);
+
+  if (norm > 0.0) 
+    {
+    dx = dx / norm;
+    dy = dy / norm;
+    dz = dz / norm;
+    }
+  
+  dot_product = dx*this->ViewPlaneNormal[0] +
+		dy*this->ViewPlaneNormal[1] +
+		dz*this->ViewPlaneNormal[2];
+
+  if( abs((this->VPN_dot_DOP - dot_product)) > 0.001 )
+    {
+    this->VPN_dot_DOP = dot_product;
+    this->ViewingRaysModified();
+    }
+
   this->Modified();
 }
 
 void vtkCamera::SetViewPlaneNormal(float a[3])
 {
   this->SetViewPlaneNormal(a[0],a[1],a[2]);
+}
+
+unsigned long int vtkCamera::GetViewingRaysMTime()
+{
+  return this->ViewingRaysMTime.GetMTime();
+}
+
+void vtkCamera::ViewingRaysModified()
+{
+  this->ViewingRaysMTime.Modified();
 }
 
 void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
