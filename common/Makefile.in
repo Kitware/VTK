@@ -41,9 +41,11 @@ vtkBitmap \
 vtkByteSwap \
 vtkCellArray \
 vtkCellList \
+vtkCharArray \
 vtkCollection \
 vtkDoubleArray \
 vtkEdgeTable \
+vtkEmptyCell \
 vtkFloatArray \
 vtkFloatNormals \
 vtkFloatPoints \
@@ -68,7 +70,6 @@ vtkLookupTable \
 vtkMath \
 vtkMatrix4x4 \
 vtkMultiThreader \
-vtkNULLCell \
 vtkObject \
 vtkPixel \
 vtkPixmap \
