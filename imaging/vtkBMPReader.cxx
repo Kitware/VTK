@@ -448,6 +448,7 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageReader::PrintSelf(os,indent);
 
+  // this->Colors is not printed
   os << indent << "Depth: " << this->Depth << "\n";
 }
 
