@@ -215,10 +215,17 @@ SET_SOURCE_FILES_PROPERTIES(
 )
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator CommonInstantiator_SRCS
+IF (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR2(vtkCommonInstantiator CommonInstantiator_SRCS
                       ${Common_SRCS}
                       EXPORT_MACRO VTK_COMMON_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
+ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
+  VTK_MAKE_INSTANTIATOR(vtkCommonInstantiator CommonInstantiator_SRCS
+                      ${Common_SRCS}
+                      EXPORT_MACRO VTK_COMMON_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 ADD_LIBRARY(vtkCommon ${Common_SRCS} ${CommonInstantiator_SRCS})
 
 # Allow the user to customize their build with some local options
