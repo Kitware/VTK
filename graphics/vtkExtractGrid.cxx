@@ -50,21 +50,6 @@ vtkExtractGrid::vtkExtractGrid()
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
 }
 
-void vtkExtractGrid::SetVOI(int imin, int imax, int jmin, int jmax, 
-                             int kmin, int kmax)
-{
-  int dim[6];
-
-  dim[0] = imin;
-  dim[1] = imax;
-  dim[2] = jmin;
-  dim[3] = jmax;
-  dim[4] = kmin;
-  dim[5] = kmax;
-
-  this->SetVOI(dim);
-}
-
 void vtkExtractGrid::Execute()
 {
   vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;

@@ -77,9 +77,8 @@ public:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured grid
   // dataset can be of any topological dimension (i.e., point, line, plane,
   // or 3D grid). 
-  vtkSetVectorMacro(VOI,int,6);
+  vtkSetVector6Macro(VOI,int);
   vtkGetVectorMacro(VOI,int,6);
-  void SetVOI(int imin, int imax, int jmin, int jmax, int kmin, int kmax);
 
   // Description:
   // Set the sampling rate in the i, j, and k directions. If the rate is > 1, 
