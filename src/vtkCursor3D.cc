@@ -46,6 +46,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // all parts of cursor visible, and wrapping off.
 vtkCursor3D::vtkCursor3D()
 {
+  vtkFloatPoints *pts;
+
+  this->Focus = new vtkPolyData;
+  pts = new vtkFloatPoints(1);
+  pts->vtkPoints::InsertPoint(0, 0.0, 0.0, 0.0);
+  this->Focus->SetPoints(pts);
+  pts->Delete();
+
   this->ModelBounds[0] = -1.0;
   this->ModelBounds[1] = 1.0;
   this->ModelBounds[2] = -1.0;
@@ -63,6 +71,11 @@ vtkCursor3D::vtkCursor3D()
   this->YShadows = 1;
   this->ZShadows = 1;
   this->Wrap = 0;
+}
+
+vtkCursor3D::~vtkCursor3D()
+{
+  this->Focus->Delete();
 }
 
 void vtkCursor3D::Execute()
@@ -318,6 +331,8 @@ void vtkCursor3D::Execute()
 //
 // Update ourselves and release memory
 //
+  this->Focus->GetPoints()->SetPoint(0,this->FocalPoint);
+
   output->SetPoints(newPts);
   newPts->Delete();
 
@@ -337,8 +352,8 @@ void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
     this->Modified();
 
     this->ModelBounds[0] = xmin; this->ModelBounds[1] = xmax; 
-    this->ModelBounds[2] = xmin; this->ModelBounds[3] = xmax; 
-    this->ModelBounds[4] = xmin; this->ModelBounds[5] = xmax; 
+    this->ModelBounds[2] = ymin; this->ModelBounds[3] = ymax; 
+    this->ModelBounds[4] = zmin; this->ModelBounds[5] = zmax; 
 
     for (int i=0; i<3; i++)
       if ( this->ModelBounds[2*i] > this->ModelBounds[2*i+1] )
