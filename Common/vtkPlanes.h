@@ -50,10 +50,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the convex region. Thus, a negative function value means that a point is
 // inside the convex region.
 //
-// To define the planes you must create two objects: a subclass of 
-// vtkPoints (e.g., vtkPoints) and a subclass of vtkNormals (e.g., 
-// vtkNormals). The points define a point on the plane, and the normals
-// specify plane normals.
+// There are several methods to define the set of planes. The most general is
+// to supply an instance of vtkPoints and an instance of vtkNormals. (The 
+// points define a point on the plane, and the normals corresponding plane 
+// normals.) Two other specialized ways are to 1) supply six planes defining 
+// the view frustrum of a camera, and 2) provide a bounding box.
+
+// .SECTION See Also
+// vtkCamera
 
 #ifndef __vtkPlanes_h
 #define __vtkPlanes_h
@@ -93,8 +97,17 @@ public:
     { this->SetNormals(normals->GetData()); }
 
   // Description:
-  // Specify the planes - see camera Get frustum planes definition.
+  // An alternative method to specify six planes defined by the camera view 
+  // frustrum. See vtkCamera::GetFrustumPlanes() documentation.
   void SetFrustumPlanes(float planes[24]);
+
+  // Description:
+  // An alternative method to specify six planes defined by a bounding box.
+  // The bounding box is a six-vector defined as (xmin,xmax,ymin,ymax,zmin,zmax).
+  // It defines six planes orthogonal to the x-y-z coordinate axes.
+  void SetBounds(float bounds[6]);
+  void SetBounds(float xmin, float xmax, float ymin, float ymax,
+                 float zmin, float zmax);
 
   // Description:
   // Return the number of planes in the set of planes.
@@ -119,6 +132,7 @@ protected:
 
 private:
   float Planes[24];
+  float Bounds[6];
 
 };
 
