@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.19");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.20");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -48,7 +48,7 @@ static void CStrToPStr (StringPtr outString, const char *inString)
     {
     *(((char*)outString) + x + 1) = *(inString + x++);
     }  
-  while ((*(inString + x) != 0)  && (x < 256));
+  while ((*(inString + x) != 0)  && (x < 255));
   *((char*)outString) = (char) x;
 }
 
