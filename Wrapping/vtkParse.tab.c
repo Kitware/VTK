@@ -1971,7 +1971,7 @@ case 131:
      currentFunction->ArgTypes[0] = 309;
      currentFunction->ArgCounts[0] = 1;
      currentFunction->ArgClasses[0] = vtkstrdup("vtkObject");
-     currentFunction->ReturnType = 309;
+     currentFunction->ReturnType = 2309;
      currentFunction->ReturnClass = vtkstrdup(yyvsp[-3].str);
      output_function();
      }
