@@ -83,16 +83,16 @@ public:
   virtual void Initialize();
   virtual void Initialize(XtAppContext app);
   virtual void Start();
-  void UpdateSize(int,int);
-  void StartRotate();
-  void EndRotate();
-  void StartZoom();
-  void EndZoom();
-  void StartPan();
-  void EndPan();
-  void SetWidget(Widget);
-  void SetupNewWindow(int Stereo = 0);
-  void FinishSettingUpNewWindow();
+  virtual void UpdateSize(int,int);
+  virtual void StartRotate();
+  virtual void EndRotate();
+  virtual void StartZoom();
+  virtual void EndZoom();
+  virtual void StartPan();
+  virtual void EndPan();
+  virtual void SetWidget(Widget);
+  virtual void SetupNewWindow(int Stereo = 0);
+  virtual void FinishSettingUpNewWindow();
   
   friend void vtkXRenderWindowInteractorCallback(Widget,XtPointer,
 					     XEvent *,Boolean *);
