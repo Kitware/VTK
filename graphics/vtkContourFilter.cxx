@@ -138,9 +138,7 @@ void vtkContourFilter::Execute()
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
   vtkScalars *cellScalars;
-	vtkTimerLog *timer = vtkTimerLog::New();
 
-	timer->StartTimer();
   vtkDebugMacro(<< "Executing contour filter");
 
 	if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
@@ -254,45 +252,41 @@ void vtkContourFilter::Execute()
 					} //for all cells
 				} //for all contour values
 			} //using scalar tree
-		} //else (for if vtkUnstructuredGrid)
 
-	vtkDebugMacro(<<"Created: " 
-			          << newPts->GetNumberOfPoints() << " points, " 
-				        << newVerts->GetNumberOfCells() << " verts, " 
-						    << newLines->GetNumberOfCells() << " lines, " 
-							  << newPolys->GetNumberOfCells() << " triangles");
-  //
-  // Update ourselves.  Because we don't know up front how many verts, lines,
-  // polys we've created, take care to reclaim memory. 
-  //
-	output->SetPoints(newPts);
-	newPts->Delete();
-	cellScalars->Delete();
+		vtkDebugMacro(<<"Created: " 
+				          << newPts->GetNumberOfPoints() << " points, " 
+					        << newVerts->GetNumberOfCells() << " verts, " 
+							    << newLines->GetNumberOfCells() << " lines, " 
+								  << newPolys->GetNumberOfCells() << " triangles");
+		//
+		// Update ourselves.  Because we don't know up front how many verts, lines,
+		// polys we've created, take care to reclaim memory. 
+		//
+		output->SetPoints(newPts);
+		newPts->Delete();
+		cellScalars->Delete();
   
-	if (newVerts->GetNumberOfCells())
-		{
-		output->SetVerts(newVerts);
-		}
-	newVerts->Delete();
+		if (newVerts->GetNumberOfCells())
+			{
+			output->SetVerts(newVerts);
+			}
+		newVerts->Delete();
 
-	if (newLines->GetNumberOfCells())
-	   {
-	  output->SetLines(newLines);
-	  }
-	newLines->Delete();
+		if (newLines->GetNumberOfCells())
+			{
+			output->SetLines(newLines);
+			}
+		newLines->Delete();
 
-	if (newPolys->GetNumberOfCells())
-		{
-		output->SetPolys(newPolys);
-		}
-	newPolys->Delete();
+		if (newPolys->GetNumberOfCells())
+			{
+			output->SetPolys(newPolys);
+			}
+		newPolys->Delete();
 
-	this->Locator->Initialize();//releases leftover memory
-	output->Squeeze();
-
-	timer->StopTimer();
-	vtkErrorMacro(<<"elapsed time: " << timer->GetElapsedTime());
-	timer->Delete();
+		this->Locator->Initialize();//releases leftover memory
+		output->Squeeze();
+		} //else (for if vtkUnstructuredGrid)
 }
 
 // Specify a spatial locator for merging points. By default, 
