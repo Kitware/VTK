@@ -47,6 +47,7 @@ class vlTransform : public vlObject
   //  The bottom of the stack.
   float Vector[4];
   // a temp vector used in operations
+  float Orientation[3];
  public:
   vlTransform ();
   //  Constructs a transform. Sets the following defaults:
@@ -100,7 +101,7 @@ class vlTransform : public vlObject
   void GetInverse ( vlMatrix4x4& inverse);
   //  Returns the inverse of the current transformation
   //  matrix.
-  void GetOrientation ( float & x, float & y, float & z);
+  float *GetOrientation();
   //  Returns the equivalent x, y, z rotations that
   //  will reproduce the orientaion of the current
   //  tranformation matrix if it was created with:
