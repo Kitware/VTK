@@ -41,9 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
 vtkIdList* vtkIdList::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,64 +53,180 @@ vtkIdList* vtkIdList::New()
   return new vtkIdList;
 }
 
-
-
-
-vtkIdList::vtkIdList(const int sz, const int ext)
+vtkIdList::vtkIdList()
 {
-  this->Ia = vtkIntArray::New(); //reference count is 1
-  this->Ia->Allocate(sz,ext);
+  this->NumberOfIds = 0;
+  this->Size = 0;
+  this->Ids = NULL;
 }
 
 vtkIdList::~vtkIdList()
 {
-  this->Ia->Delete();
-}
-
-// Copy an id list by reference counting internal array.
-void vtkIdList::ShallowCopy(vtkIdList *ids)
-{
-  if ( ids->Ia != NULL )
+  if ( this->Ids != NULL )
     {
-    this->Ia->Delete();
-    this->Ia = ids->Ia;
-    this->Ia->Register(this);
+    delete [] this->Ids;
     }
 }
 
-// Copy an id list by explicitly copying the internal array.
-void vtkIdList::DeepCopy(vtkIdList *ids)
+void vtkIdList::Initialize()
 {
-  if ( ids->Ia != NULL )
+  if ( this->Ids != NULL )
     {
-    this->Ia->DeepCopy(ids->Ia);
+    delete [] this->Ids;
+    this->Ids = NULL;
     }
+  this->NumberOfIds = 0;
+  this->Size = 0;
 }
 
-// Delete specified id from list. Will replace all occurences of id in list.
-void vtkIdList::DeleteId(int Id)
+int vtkIdList::Allocate(const int sz, const int vtkNotUsed(strategy))
 {
-  int i=0, numIds=this->GetNumberOfIds();
-
-  // while loop is necessary to delete all occurences of Id
-  while ( i < numIds )
+  if ( sz > this->Size)
     {
-    // first find id
-    for ( ; i < numIds; i++)
+    this->Initialize();
+    this->Size = ( sz > 0 ? sz : 1);
+    if ( (this->Ids = new int[this->Size]) == NULL )
       {
-      if ( this->GetId(i) == Id )
-	{
+      return 0;
+      }
+    }
+
+  this->NumberOfIds = 0;
+  return 1;
+}
+
+void vtkIdList::SetNumberOfIds(const int number)
+{
+  this->Allocate(number,0);
+  this->NumberOfIds = number;
+}
+
+void vtkIdList::InsertId(const int i, const int id)
+{
+  if ( i >= this->Size )
+    {
+    this->Resize(i+1);
+    }
+  this->Ids[i] = id;
+  if ( i >= this->NumberOfIds )
+    {
+    this->NumberOfIds = i + 1;
+    }
+}
+
+int vtkIdList::InsertNextId(const int id)
+{
+  if ( this->NumberOfIds >= this->Size )
+    {
+    this->Resize(this->NumberOfIds+1);
+    }
+  this->Ids[this->NumberOfIds++] = id;
+  return this->NumberOfIds-1;
+}
+
+int vtkIdList::InsertUniqueId(const int id)
+{
+  for (int i=0; i < this->NumberOfIds; i++)
+    {
+    if ( id == this->Ids[i] )
+      {
+      return i;
+      }
+    }
+  
+  return this->InsertNextId(id);
+}
+
+int *vtkIdList::WritePointer(const int i, const int number)
+{
+  int newSize=i+number;
+  if ( newSize > this->Size )
+    {
+    this->Resize(newSize);
+    }
+  if ( newSize > this->NumberOfIds )
+    {
+    this->NumberOfIds = newSize;
+    }
+  return this->Ids + i;
+}
+
+void vtkIdList::DeleteId(int id)
+{
+  int i=0;
+
+  // while loop is necessary to delete all occurences of id
+  while ( i < this->NumberOfIds )
+    {
+    for ( ; i < this->NumberOfIds; i++)
+      {
+      if ( this->Ids[i] == id )
+        {
         break;
-	}
+        }
       }
 
     // if found; replace current id with last
-    if ( i < numIds )
+    if ( i < this->NumberOfIds )
       {
-      this->SetId(i,this->Ia->GetValue(this->Ia->GetMaxId()));
-      this->Ia->SetNumberOfValues(--numIds);
+      this->SetId(i,this->Ids[this->NumberOfIds-1]);
+      this->NumberOfIds--;
       }
     }
+}
+
+void vtkIdList::DeepCopy(vtkIdList *ids)
+{
+  ids->Initialize();
+  ids->NumberOfIds = this->NumberOfIds;
+  ids->Size = this->Size;
+  ids->Ids = new int [this->Size];
+  for (int i=0; i < this->NumberOfIds; i++)
+    {
+    ids->Ids[i] = this->Ids[i];
+    }
+}
+
+int *vtkIdList::Resize(const int sz)
+{
+  int *newIds;
+  int newSize;
+
+  if ( sz > this->Size ) 
+    {
+    newSize = this->Size + sz;
+    }
+  else if (sz == this->Size)
+    {
+    return this->Ids;
+    }
+  else 
+    {
+    newSize = sz;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return 0;
+    }
+
+  if ( (newIds = new int[newSize]) == NULL )
+    { 
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return 0;
+    }
+
+  if (this->Ids)
+    {
+    memcpy(newIds, this->Ids,
+           (sz < this->Size ? sz : this->Size) * sizeof(int));
+    delete [] this->Ids;
+    }
+
+  this->Size = newSize;
+  this->Ids = newIds;
+  return this->Ids;
 }
 
 #define VTK_TMP_ARRAY_SIZE 500
@@ -138,9 +251,9 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
       {
       id = thisIds[i];
       if ( otherIds.IsId(id) != (-1) )
-	{
-	this->InsertNextId(id);
-	}
+        {
+        this->InsertNextId(id);
+        }
       }
     } 
   else 
@@ -156,19 +269,18 @@ void vtkIdList::IntersectWith(vtkIdList& otherIds)
       {
       id = *(thisIds + i);
       if ( otherIds.IsId(id) != (-1) )
-	{
-	this->InsertNextId(id);
-	}
+        {
+        this->InsertNextId(id);
+        }
       }
     delete [] thisIds;
     }
 }
 #undef VTK_TMP_ARRAY_SIZE
 
-
 void vtkIdList::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Number of Ids: " << this->Ia->GetMaxId()+1 << "\n";
+  os << indent << "Number of Ids: " << this->NumberOfIds << "\n";
 }

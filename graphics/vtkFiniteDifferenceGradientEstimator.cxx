@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedCharArray.h"
 #include "vtkShortArray.h"
 #include "vtkUnsignedShortArray.h"
+#include "vtkIntArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkUnsignedLongArray.h"

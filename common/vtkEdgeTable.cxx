@@ -40,9 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkEdgeTable.h"
 #include "vtkPoints.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
-
-
 
 //------------------------------------------------------------------------------
 vtkEdgeTable* vtkEdgeTable::New()

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkIdFilter.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 
 

@@ -49,7 +49,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkEdgeTable_h
 
 #include "vtkObject.h"
-#include "vtkIdList.h"
+
+class vtkIdList;
 class vtkPoints;
 
 class VTK_EXPORT vtkEdgeTable : public vtkObject
