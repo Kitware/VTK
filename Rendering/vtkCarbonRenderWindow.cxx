@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.25");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.26");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -588,7 +588,8 @@ void vtkCarbonRenderWindow::InitializeApplication()
 
 //--------------------------------------------------------------------------
 // Initialize the window for rendering.
-void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
+void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
+                              int vtkNotUsed(width), int vtkNotUsed(height))
 {
   GDHandle hGD = NULL;
   GLint depthSizeSupport;
