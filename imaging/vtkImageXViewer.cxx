@@ -146,7 +146,7 @@ void vtkImageXViewer::SetPosition(int x, int y)
 // Description:
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkImageXViewerRenderGrey(vtkImageXViewer *self, 
+static void vtkImageXViewerRenderGray(vtkImageXViewer *self, 
 				      vtkImageRegion *region,
 				      T *inPtr, unsigned char *outPtr)
 {
@@ -449,26 +449,26 @@ void vtkImageXViewer::Render(void)
     }
   else
     {
-    // GreyScale images.
+    // GrayScale images.
     ptr0 = region->GetScalarPointer();
     // Call the appropriate templated function
     switch (region->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageXViewerRenderGrey(this, region, (float *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, region, (float *)(ptr0), dataOut);
 	break;
       case VTK_INT:
-	vtkImageXViewerRenderGrey(this, region, (int *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, region, (int *)(ptr0), dataOut);
 	break;
       case VTK_SHORT:
-	vtkImageXViewerRenderGrey(this, region, (short *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, region, (short *)(ptr0), dataOut);
 	break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageXViewerRenderGrey(this, region, (unsigned short *)(ptr0), 
+	vtkImageXViewerRenderGray(this, region, (unsigned short *)(ptr0), 
 				  dataOut);
 	break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageXViewerRenderGrey(this, region, (unsigned char *)(ptr0), 
+	vtkImageXViewerRenderGray(this, region, (unsigned char *)(ptr0), 
 				  dataOut);
 	break;
       }   
