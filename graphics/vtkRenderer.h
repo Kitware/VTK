@@ -50,18 +50,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // rendering features such as two-sided lighting can also be controlled.
 
 // .SECTION See Also
-// vtkRenderWindow vtkActor vtkCamera vtkLight
+// vtkRenderWindow vtkActor vtkCamera vtkLight vtkVolume vtkRayCaster
 
 #ifndef __vtkRenderer_h
 #define __vtkRenderer_h
 
 #include "vtkMatrix4x4.h"
 #include "vtkLightCollection.h"
+#include "vtkVolumeCollection.h"
 #include "vtkCamera.h"
 #include "vtkActor.h"
 
 class vtkRenderWindow;
-class vtkNewVolumeRenderer;
+class vtkRayCaster;
+class vtkVolume;
+class vtkRayCaster;
 
 class VTK_EXPORT vtkRenderer : public vtkObject
 {
@@ -74,18 +77,18 @@ public:
 
   void AddLight(vtkLight *);
   void AddActor(vtkActor *);
+  void AddVolume(vtkVolume *);
 
   void RemoveLight(vtkLight *);
   void RemoveActor(vtkActor *);
+  void RemoveVolume(vtkVolume *);
 
   vtkLightCollection *GetLights();
   vtkActorCollection *GetActors();
+  vtkVolumeCollection *GetVolumes();
 
   void SetActiveCamera(vtkCamera *);
   vtkCamera *GetActiveCamera();
-
-  void SetNewVolumeRenderer(vtkNewVolumeRenderer *);
-  vtkNewVolumeRenderer *GetNewVolumeRenderer();
 
   // Description:
   // Set/Get the background color of the rendering screen using an rgb color
@@ -199,8 +202,7 @@ public:
   void DisplayToWorld();
   void WorldToDisplay();
 
-  float *GetViewRays();
-  int   *GetViewRaysSize();
+  vtkGetObjectMacro(RayCaster,vtkRayCaster);
 
   void SetStartRenderMethod(void (*f)(void *), void *arg);
   void SetEndRenderMethod(void (*f)(void *), void *arg);
@@ -210,16 +212,13 @@ public:
 protected:
   void UpdateViewRays();
 
-  vtkNewVolumeRenderer *NewVolumeRenderer;
+  vtkRayCaster *RayCaster;
 
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
   vtkLightCollection Lights;
   vtkActorCollection Actors;
-
-  float *ViewRays;
-  int   ViewRaysSize[2];
-  unsigned long ViewRaysCamMtime;
+  vtkVolumeCollection Volumes;
 
   float Ambient[3];  
   float Background[3];  
@@ -250,6 +249,10 @@ inline vtkLightCollection *vtkRenderer::GetLights() {return &(this->Lights);};
 // Description:
 // Get the list of actors for this renderer.
 inline vtkActorCollection *vtkRenderer::GetActors() {return &(this->Actors);};
+
+// Description:
+// Get the list of volumes for this renderer.
+inline vtkVolumeCollection *vtkRenderer::GetVolumes() {return &(this->Volumes);};
 
 // Description:
 // Convert display (or screen) coordinates to world coordinates.

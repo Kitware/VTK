@@ -43,8 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkNewVolumeRenderer.h"
 #include "vtkMath.h"
+#include "vtkVolume.h"
+#include "vtkRayCaster.h"
 
 // Description:
 // Create a vtkRenderer with a black background, a white ambient light, 
@@ -53,11 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkRenderer::vtkRenderer()
 {
   this->ActiveCamera = NULL;
-
-  this->ViewRays = NULL;
-  this->ViewRaysSize[0] = 0;
-  this->ViewRaysSize[1] = 0;
-  this->ViewRaysCamMtime = 0;
 
   this->Ambient[0] = 1;
   this->Ambient[1] = 1;
@@ -85,10 +81,12 @@ vtkRenderer::vtkRenderer()
   this->Viewport[2] = 1;
   this->Viewport[3] = 1;
 
+  this->RayCaster = vtkRayCaster::New();
+  this->RayCaster->SetRenderer( this );
+
   this->AllocatedRenderTime = 0;
   
   this->Aspect[0] = this->Aspect[1] = 1.0;
-  this->NewVolumeRenderer = NULL;
   this->SelfCreatedCamera = 0;
   this->SelfCreatedLight = 0;
   this->CreatedLight = NULL;
@@ -178,20 +176,6 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 }
 
 // Description:
-// Set the volume renderer to use
-void vtkRenderer::SetNewVolumeRenderer(vtkNewVolumeRenderer *vol)
-{
-  this->NewVolumeRenderer = vol;
-}
-
-// Description:
-// Get the volume renderer.
-vtkNewVolumeRenderer *vtkRenderer::GetNewVolumeRenderer()
-{
-  return this->NewVolumeRenderer;
-}
-
-// Description:
 // Add a light to the list of lights.
 void vtkRenderer::AddLight(vtkLight *light)
 {
@@ -206,6 +190,13 @@ void vtkRenderer::AddActor(vtkActor *actor)
 }
 
 // Description:
+// Add a volume to the list of volumes.
+void vtkRenderer::AddVolume(vtkVolume *volume)
+{
+  this->Volumes.AddItem(volume);
+}
+
+// Description:
 // Remove a light from the list of lights.
 void vtkRenderer::RemoveLight(vtkLight *light)
 {
@@ -217,6 +208,13 @@ void vtkRenderer::RemoveLight(vtkLight *light)
 void vtkRenderer::RemoveActor(vtkActor *actor)
 {
   this->Actors.RemoveItem(actor);
+}
+
+// Description:
+// Remove a volume from the list of volumes.
+void vtkRenderer::RemoveVolume(vtkVolume *volume)
+{
+  this->Volumes.RemoveItem(volume);
 }
 
 void vtkRenderer::CreateLight(void)
@@ -235,10 +233,11 @@ void vtkRenderer::CreateLight(void)
 // camera position to focal point) so that all of the actors can be seen.
 void vtkRenderer::ResetCamera()
 {
-  vtkActor *anActor;
-  float *bounds;
-  float allBounds[6];
-  int nothingVisible=1;
+  vtkActor   *anActor;
+  vtkVolume  *aVolume;
+  float      *bounds;
+  float      allBounds[6];
+  int        nothingVisible=1;
 
   allBounds[0] = allBounds[2] = allBounds[4] = VTK_LARGE_FLOAT;
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
@@ -267,37 +266,29 @@ void vtkRenderer::ResetCamera()
       }
     }
 
-  // loop through volumes if any
-//  if (this->VolumeRenderer)
-//    {
-//    for (this->VolumeRenderer->GetVolumes()->InitTraversal(); 
-//	 (aVolume = this->VolumeRenderer->GetVolumes()->GetNextItem()); )
-//      {
-      // if it's invisible, we can skip the rest 
-//      if ( aVolume->GetVisibility() )
-//	{
-//	nothingVisible = 0;
-//	bounds = aVolume->GetBounds();
-	
-//	if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
-//	if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
-//	if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
-//	if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
-//	if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
-//	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
-//	}
-//      }
-//    }
-
-  if ( this->NewVolumeRenderer )
+  // loop through volumes
+  for ( this->Volumes.InitTraversal(); 
+	(aVolume = this->Volumes.GetNextItem()); )
     {
-    // Add bounds code!!!
+    // if it's invisible we can skip the rest 
+    if ( aVolume->GetVisibility() )
+      {
+      nothingVisible = 0;
+      bounds = aVolume->GetBounds();
 
+      if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
+      if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
+      if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
+      if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
+      if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
+      if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+      }
     }
+
 
   if ( nothingVisible )
     {
-    vtkErrorMacro(<< "Can't reset camera if no actors are visible");
+    vtkErrorMacro(<< "Can't reset camera if no actors or volumes are visible");
     return;
     }
 
@@ -513,138 +504,6 @@ int vtkRenderer::IsInViewport(int x,int y)
   return 0;
 }
 
-void vtkRenderer::UpdateViewRays()
-{
-  float xpos, ypos, zpos;
-  float xinc, yinc;
-  float *vr_ptr;
-
-  float mag;
-  float nx, ny, nz;
-
-  float *aspect;
-
-  int   	x, y;
-  vtkMatrix4x4	mat;
-  float		result[4];
-
-  if( !this->ViewRays )
-    {
-    vtkErrorMacro(<< "No memory allocated to build viewing rays.");
-    return;
-    }
-
-  // Loop through each pixel and compute viewing ray
-
-  // get the perspective transformation from the active camera
-  aspect = this->GetAspect();
-
-  mat = this->ActiveCamera->GetPerspectiveTransform(aspect[0]/aspect[1],0,1);
-
-  mat.Invert();
-  mat.Transpose();
-
-  vr_ptr = this->ViewRays;
-
-  xinc = 2.0/(float)(this->ViewRaysSize[0]);
-  yinc = 2.0/(float)(this->ViewRaysSize[1]);
-
-  ypos = -1.0 + yinc/2.0;
-  zpos =  1.0;
- 
-  nx = ny = nz = 0.0;
-
-  for( y=0; y<this->ViewRaysSize[1]; y++ )
-  {
-    xpos = -1.0 + xinc/2.0;
-    for( x=0; x<this->ViewRaysSize[0]; x++ )
-    {
-      result[0] = xpos;
-      result[1] = ypos;
-      result[2] = 1.0;
-      result[3] = 1.0;
-
-      mat.PointMultiply(result,result);
-
-      // Normalize view ray
-      mag = sqrt( (double)(result[0]*result[0] + 
-			   result[1]*result[1] + result[2]*result[2]) );
-
-      if( mag != 0.0 )
-      {
-        nx = result[0]/mag;
-        ny = result[1]/mag;
-        nz = result[2]/mag;
-      }
-      else
-        nx = ny = nz = 0.0;
-
-      *(vr_ptr++) = nx;
-      *(vr_ptr++) = ny;
-      *(vr_ptr++) = nz;
-
-      xpos += xinc;
-    }
-    ypos += yinc;
-  }
-}
-
-int *vtkRenderer::GetViewRaysSize()
-{
-  this->GetViewRays();
-
-  return( this->ViewRaysSize );
-}
-
-float *vtkRenderer::GetViewRays()
-{
-  int    size[2];
-  int    *rwin_size;
-  float  *vp_size;
-
-  unsigned long  cam_mtime;
-
-  int    update_rays = 0;
-
-  // get physical window dimensions
-  rwin_size = this->RenderWindow->GetSize();
-  vp_size = this->GetViewport();
-
-  size[0] = (int)(rwin_size[0]*(float)(vp_size[2] - vp_size[0]));
-  size[1] = (int)(rwin_size[1]*(float)(vp_size[3] - vp_size[1]));
-
-  // Allocate viewing rays memory if pixel size has changed
-  if( (!this->ViewRays) ||
-      (size[0] != this->ViewRaysSize[0]) ||
-      (size[1] != this->ViewRaysSize[1]) )
-  {
-    if( this->ViewRays )
-      free( this->ViewRays );
-
-    this->ViewRaysSize[0] = size[0];
-    this->ViewRaysSize[1] = size[1];
-
-    this->ViewRays = new float[(size[0]*size[1]*3)];
-
-    update_rays = 1;
-  }
-
-  // Check to see if camera mtime has changed
-  cam_mtime = this->ActiveCamera->GetViewingRaysMTime();
-
-  if( cam_mtime != this->ViewRaysCamMtime )
-    {
-    this->ViewRaysCamMtime = cam_mtime;
-    update_rays = 1;
-    }
-
-  if( update_rays )
-    this->UpdateViewRays();
-
-  return( this->ViewRays );
-}
-
-
 // Description:
 // Specify a function to be called before rendering process begins.
 // Function will be called with argument provided.
@@ -765,10 +624,13 @@ int vtkRenderer::VisibleActorCount()
 
 int vtkRenderer::VisibleVolumeCount()
 {
-  int count = 0;
+  int        count = 0;
+  vtkVolume  *aVolume;
 
-  if( this->NewVolumeRenderer )
-    count++;
+  // loop through volumes
+  for (this->Volumes.InitTraversal(); (aVolume = this->Volumes.GetNextItem()); )
+    if (aVolume->GetVisibility())
+      count++;
 
   return count;
 
