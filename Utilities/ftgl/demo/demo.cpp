@@ -42,6 +42,8 @@ const char* DEFAULT_FONT = "arial.ttf";
 
 int file_exists( const char * filename );
 
+void draw_scene();
+
 void
 my_init( const char* font_filename )
 {
@@ -126,9 +128,24 @@ do_ortho()
   glLoadIdentity();
 }
 
+#ifndef CALLBACK
+#define CALLBACK
+#endif
+
+extern "C" {
 
 void
-my_reshape(int w, int h)
+CALLBACK my_display(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    draw_scene();
+
+    glutSwapBuffers();
+}
+
+void
+CALLBACK my_reshape(int w, int h)
 {
   width = w;
   height = h;
@@ -137,7 +154,7 @@ my_reshape(int w, int h)
 }
 
 void
-my_handle_key(unsigned char key, int x, int y)
+CALLBACK my_handle_key(unsigned char key, int x, int y)
 {
    switch (key) {
 
@@ -162,6 +179,8 @@ my_handle_key(unsigned char key, int x, int y)
       break;
    }
 }
+
+} // End of extern C
 
 void
 draw_scene()
@@ -260,16 +279,6 @@ draw_scene()
    }
 }
 
-
-void
-my_display(void)
-{
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    draw_scene();
-
-    glutSwapBuffers();
-}
 
 int 
 file_exists( const char * filename )

@@ -263,35 +263,6 @@ void do_display ()
   glutSwapBuffers();
 }
 
-void display()
-{
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-     SetCamera();
-  
-  glPushMatrix();
-
-  switch( current_font)
-  {
-    case FTGL_BITMAP:
-    case FTGL_PIXMAP:
-      glRasterPos2i( w_win / 2, h_win / 2);
-      glTranslatef(  w_win / 2, h_win / 2, 0.0);
-      break;
-    case FTGL_OUTLINE:
-    case FTGL_POLYGON:
-    case FTGL_EXTRUDE:
-    case FTGL_TEXTURE:
-      tbMatrix();
-      break;
-  }
-  
-  do_display();
-
-  glPopMatrix();
-
-}
-
 void myinit ()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -353,8 +324,42 @@ void myinit ()
 
 }
 
+#ifndef CALLBACK
+#define CALLBACK
+#endif
 
-void parsekey(unsigned char key, int, int)
+extern "C" {
+
+void CALLBACK display()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+     SetCamera();
+  
+  glPushMatrix();
+
+  switch( current_font)
+  {
+    case FTGL_BITMAP:
+    case FTGL_PIXMAP:
+      glRasterPos2i( w_win / 2, h_win / 2);
+      glTranslatef(  w_win / 2, h_win / 2, 0.0);
+      break;
+    case FTGL_OUTLINE:
+    case FTGL_POLYGON:
+    case FTGL_EXTRUDE:
+    case FTGL_TEXTURE:
+      tbMatrix();
+      break;
+  }
+  
+  do_display();
+
+  glPopMatrix();
+
+}
+
+void CALLBACK parsekey(unsigned char key, int, int)
 {
   switch (key)
   {
@@ -395,7 +400,7 @@ void parsekey(unsigned char key, int, int)
 }
 
 
-void parsekey_special(int key, int, int)
+void CALLBACK parsekey_special(int key, int, int)
 {
   switch (key)
   {
@@ -414,17 +419,17 @@ void parsekey_special(int key, int, int)
   }
 }
 
-void motion(int x, int y)
+void CALLBACK motion(int x, int y)
 {
   tbMotion( x, y);
 }
 
-void mouse(int button, int state, int x, int y)
+void CALLBACK mouse(int button, int state, int x, int y)
 {
   tbMouse( button, state, x, y);
 }
 
-void myReshape(int w, int h)
+void CALLBACK myReshape(int w, int h)
 {
   glMatrixMode (GL_MODELVIEW);
   glViewport (0, 0, w, h);
@@ -436,6 +441,8 @@ void myReshape(int w, int h)
   
   tbReshape(w_win, h_win);
 }
+
+} // End of extern C
 
 void SetCamera(void)
 {
