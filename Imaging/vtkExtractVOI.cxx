@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.39");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.40");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -163,12 +163,11 @@ void vtkExtractVOI::RequestData(
   vtkCellData *outCD=output->GetCellData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
   int newCellId;
-  double origin[3], ar[3], outOrigin[3], outAR[3];
+  double origin[3], ar[3];
   int sliceSize, outSize, jOffset, kOffset, rate[3];
   int wholeExtent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
   int *inExt = input->GetExtent();
-  int *outExt = output->GetExtent();
 
   vtkDebugMacro(<< "Extracting VOI");
   //
@@ -223,8 +222,6 @@ void vtkExtractVOI::RequestData(
       outDims[i] = 1;
       }
 
-    outAR[i] = ar[i] * this->SampleRate[i];
-    outOrigin[i] = origin[i] + voi[2*i]*ar[i] - outExt[2*i]*outAR[i];
     outSize *= outDims[i];
     }
   

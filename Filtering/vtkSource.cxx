@@ -26,20 +26,11 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.5");
+vtkCxxRevisionMacro(vtkSource, "1.6");
 
 #ifndef NULL
 #define NULL 0
 #endif
-
-class vtkSourceToDataObjectFriendship
-{
-public:
-  static void Crop(vtkDataObject* obj)
-    {
-    obj->Crop();
-    }
-};
 
 class vtkSourceToDataSetFriendship
 {
@@ -755,10 +746,6 @@ int vtkSource::ProcessRequest(vtkInformation* request,
         {
         info->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
         info->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
-        }
-      if(this->Outputs[i] && this->Outputs[i]->GetRequestExactExtent())
-        {
-        vtkSourceToDataObjectFriendship::Crop(this->Outputs[i]);
         }
       if(vtkDataSet* ds = vtkDataSet::SafeDownCast(this->Outputs[i]))
         {

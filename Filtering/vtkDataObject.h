@@ -40,7 +40,7 @@ class vtkFieldData;
 class vtkInformation;
 class vtkProcessObject;
 class vtkSource;
-class vtkSourceToDataObjectFriendship;
+class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
 class vtkExtentTranslator;
 class vtkInformationDataObjectKey;
 class vtkInformationDoubleVectorKey;
@@ -266,8 +266,8 @@ public:
   // consumer cannot handle this (i.e. DataSetToDataSetFitler)
   // the image will crop itself.  This functionality used to be in 
   // ImageToStructuredPoints.
-  void SetRequestExactExtent(int v);
-  vtkGetMacro(RequestExactExtent, int);
+  virtual void SetRequestExactExtent(int flag);
+  virtual int GetRequestExactExtent();
   vtkBooleanMacro(RequestExactExtent, int);
   
   // Description:
@@ -397,14 +397,6 @@ protected:
   virtual void CopyPipelineInformation(vtkInformation* oldPInfo,
                                        vtkInformation* newPInfo);
   
-  // This request flag indicates whether the requester can handle 
-  // more data than requested.  Right now it is used in vtkImageData.
-  // Image filters can return more data than requested.  The the 
-  // consumer cannot handle this (i.e. DataSetToDataSetFitler)
-  // this image will crop itself.  This functionality used to be in 
-  // ImageToStructuredPoints.
-  int RequestExactExtent;
-
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
 
@@ -433,7 +425,7 @@ protected:
   //ETX
 
   //BTX
-  friend class vtkSourceToDataObjectFriendship;
+  friend class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
   //ETX
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.

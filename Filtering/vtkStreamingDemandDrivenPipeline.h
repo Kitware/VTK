@@ -26,7 +26,6 @@ class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
-class vtkStreamingDemandDrivenPipelineInternals;
 
 class VTK_FILTERING_EXPORT vtkStreamingDemandDrivenPipeline : public vtkDemandDrivenPipeline
 {
@@ -55,6 +54,7 @@ public:
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
   static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
+  static vtkInformationIntegerKey* EXACT_EXTENT();
 
   int PropagateUpdateExtent(int outputPort);
 
@@ -74,6 +74,8 @@ public:
   int GetUpdateNumberOfPieces(int port);
   int SetUpdateGhostLevel(int port, int n);
   int GetUpdateGhostLevel(int port);
+  int SetRequestExactExtent(int port, int flag);
+  int GetRequestExactExtent(int port);
   int SetExtentTranslator(int port, vtkExtentTranslator* translator);
   vtkExtentTranslator* GetExtentTranslator(int port);
   int SetWholeBoundingBox(int port, double bb[6]);
@@ -85,6 +87,7 @@ protected:
   ~vtkStreamingDemandDrivenPipeline();
 
   virtual int ExecuteInformation();
+  virtual int ExecuteData(int outputPort);
   virtual void CopyDefaultDownstreamInformation();
   virtual void CopyDefaultUpstreamInformation(int outputPort);
   int VerifyOutputInformation(int outputPort);
@@ -96,8 +99,6 @@ protected:
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
-private:
-  vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;
 private:
   vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
