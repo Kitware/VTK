@@ -45,9 +45,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVersion.h"
 
 #include "Python.h"
+#include <sys/stat.h>
 
 extern "C" {
   extern DL_EXPORT(int) Py_Main(int, char **);
+}
+
+// return true if the file exists
+static int vtkPythonFileExists(const char* filename)
+{
+  struct stat fs;
+  if (stat(filename, &fs) != 0) 
+    {
+    return 0;
+    }
+  return 1;
 }
 
 int
@@ -86,55 +98,21 @@ main(int argc, char **argv)
   // Initialize interpreter.
   Py_Initialize();
 
-  // Get the full path of the executable and strip the executable name
-  // so that we are left with full location of the executable.
-  const char* cpath = Py_GetProgramFullPath();
-  char* rpath = new char[ strlen(cpath) +1 ];
-  char epath[] = "@VTK_EXECUTABLE_PATH@";
-  unsigned int last = 0;
-  unsigned int cc;
-  for ( cc = 0; cc < strlen(cpath); cc ++ )
+  // If the location of the library path and wrapping path exist, add
+  // them to the list.
+  
+  // Get the pointer to path list object, append both paths, and
+  // make sure to decrease reference counting for both path strings.
+  PyObject* path = PySys_GetObject("path");
+  PyObject* newpath;
+  if ( ::vtkPythonFileExists("@VTK_LIBRARY_PATH@") )
     {
-    if ( cpath[cc] == '/' || cpath[cc] == '\\' )
-      {
-      last = cc;
-      rpath[cc] = '/';
-      }
-    else
-      {
-      rpath[cc] = cpath[cc];
-      }
-    }
-  rpath[last] = 0;
-
-#ifdef _WIN32
-  // On Windows we might have to fix the case of letter. This will not
-  // fix all the cases, but in most cases it will work. There might
-  // still be a problem with network paths.
-  if ( rpath[0] >= 'a' && rpath[0] <= 'z' && rpath[1] == ':' )
-    {
-    rpath[0] += 'A' - 'a';
-    }
-  if ( epath[0] >= 'a' && epath[0] <= 'z' && epath[1] == ':' )
-    {
-    epath[0] += 'A' - 'a';
-    }
-#endif
-
-  unsigned int l1 = strlen(rpath);
-  unsigned int l2 = strlen(epath);
-  if ( l1 > l2 && strncmp(rpath, epath, l2) == 0 )
-    {
-    // If the location of the executable is the same as executable
-    // output path, then we are running from the build tree.
-
-    // Get the pointer to path list object, append both paths, and
-    // make sure to decrease reference counting for both path strings.
-    PyObject* path = PySys_GetObject("path");
-    PyObject* newpath;
     newpath = PyString_FromString("@VTK_LIBRARY_PATH@");
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
+    }
+  if ( ::vtkPythonFileExists("@VTK_SOURCE_DIR@/Wrapping/Python") )
+    {
     newpath = PyString_FromString("@VTK_SOURCE_DIR@/Wrapping/Python");
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
