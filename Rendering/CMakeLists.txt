@@ -384,13 +384,6 @@ IF (VTK_WRAP_PYTHON)
                               ${TK_LIBRARY})
        INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)
      ENDIF(NOT VTK_USE_COCOA)
-
-     # find the tk internals for win32
-     IF (WIN32)
-       # for builds against the source tree on windows
-       FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} ${TK_INCLUDE_PATH}/../xlib)
-       MARK_AS_ADVANCED(TK_XLIB_PATH)
-     ENDIF (WIN32)
   ENDIF (TK_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
 

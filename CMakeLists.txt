@@ -514,13 +514,11 @@ IF(VTK_USE_RENDERING)
 ENDIF(VTK_USE_RENDERING)
 
 IF(VTK_INCLUDE_NEED_TK)
-  # Need Tk sources on Cygwin.
+  # Need Tk sources on windows
   IF(WIN32)
-    IF(UNIX)
-      FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} 
-                ${TK_INCLUDE_PATH}/../xlib)
-      MARK_AS_ADVANCED(TK_XLIB_PATH)
-    ENDIF(UNIX)
+    FIND_PATH(TK_XLIB_PATH X11/Xlib.h ${TK_INCLUDE_PATH} 
+              ${TK_INCLUDE_PATH}/../xlib)
+    MARK_AS_ADVANCED(TK_XLIB_PATH)
   ENDIF(WIN32)
   # Need Tk headers and libraries for python TK widgets
   IF(NOT VTK_WRAP_TCL)
