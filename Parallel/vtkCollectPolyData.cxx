@@ -20,19 +20,23 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellData.h"
 #include "vtkMultiProcessController.h"
+#include "vtkSocketController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.11");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.12");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 vtkCxxSetObjectMacro(vtkCollectPolyData,Controller, vtkMultiProcessController);
+vtkCxxSetObjectMacro(vtkCollectPolyData,SocketController, vtkSocketController);
 
 //----------------------------------------------------------------------------
 vtkCollectPolyData::vtkCollectPolyData()
 {
+  this->MemorySize = 0;
   this->Threshold = 1000;
+  this->SocketController = NULL;
 
   // Controller keeps a reference to this object as well.
   this->Controller = NULL;
@@ -44,6 +48,7 @@ vtkCollectPolyData::vtkCollectPolyData()
 vtkCollectPolyData::~vtkCollectPolyData()
 {
   this->SetController(0);
+  this->SetSocketController(0);
 }
 
 //----------------------------------------------------------------------------
@@ -76,7 +81,7 @@ void vtkCollectPolyData::ComputeInputUpdateExtents(vtkDataObject *output)
 
   
 //----------------------------------------------------------------------------
-void vtkCollectPolyData::Execute()
+void vtkCollectPolyData::ExecuteData(vtkDataObject*)
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -91,12 +96,43 @@ void vtkCollectPolyData::Execute()
     return;
     }
 
-  if (this->Controller == NULL)
-    {
+  if (this->Controller == NULL && this->SocketController == NULL)
+    { // Running as a single process.
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-    this->Collected = 0;
+    this->Collected = 1;
+    return;
+    }
+
+  if (this->Controller == NULL && this->SocketController != NULL)
+    { // This is a client.  We assume no data on client for input.
+    // How large will the data be if it is collected.
+    this->SocketController->Receive(&size, 1, 1, 839823);
+    // Save for external use.
+    this->MemorySize = size;
+    if (size > this->Threshold)
+      {
+      this->Collected = 0;
+      }
+    else
+      {
+      this->Collected = 1;
+      }
+    // Communicate descision to all processes.
+    this->SocketController->Send(&this->Collected, 1, 1, 839824);
+    if (this->Collected)
+      {
+      vtkPolyData *pd = NULL;;
+      pd = vtkPolyData::New();
+      this->SocketController->Receive(pd, 1, 121767);
+      output->CopyStructure(pd);
+      output->GetPointData()->PassData(pd->GetPointData());
+      output->GetCellData()->PassData(pd->GetCellData());
+      pd->Delete();
+      pd = NULL;
+      }
+    // If not collected, output will be empty from initialization.
     return;
     }
   
@@ -112,13 +148,25 @@ void vtkCollectPolyData::Execute()
       this->Controller->Receive(&tmp, 1, idx, 839823);
       size += tmp;
       }
-    if (size > this->Threshold)
+    // Save for external use.
+    this->MemorySize = size;
+    // If there is a client, then send the size to it.
+    if (this->SocketController)
       {
-      this->Collected = 0;
+      this->SocketController->Send(&size, 1, 1, 839823);
+      this->SocketController->Receive(&this->Collected, 1, 1, 839824);
       }
     else
       {
-      this->Collected = 1;
+      // We make the collection decision here.      
+      if (size > this->Threshold)
+        {
+        this->Collected = 0;
+        }
+      else
+        {
+        this->Collected = 1;
+        }
       }
     // Communicate descision to all processes.
     for (idx = 1; idx < numProcs; ++idx)
@@ -128,7 +176,7 @@ void vtkCollectPolyData::Execute()
       }
     }
   else
-    {
+    { // Satellite on server.
     //cerr << "Sending size" << size << endl;
     this->Controller->Send(&size, 1, 0, 839823);
     //cerr << "Receive collection decision.\n";
@@ -166,9 +214,17 @@ void vtkCollectPolyData::Execute()
       }
     append->Update();
     input = append->GetOutput();
-    output->CopyStructure(input);
-    output->GetPointData()->PassData(input->GetPointData());
-    output->GetCellData()->PassData(input->GetCellData());
+    if (this->SocketController)
+      { // Send collected data onto client.
+      this->SocketController->Send(input, 1, 121767);
+      // output will be empty.
+      }
+    else
+      { // No client. Keep the output here.
+      output->CopyStructure(input);
+      output->GetPointData()->PassData(input->GetPointData());
+      output->GetCellData()->PassData(input->GetCellData());
+      }
     append->Delete();
     append = NULL;
     }
@@ -186,8 +242,10 @@ void vtkCollectPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "MemorySize: " << this->MemorySize << endl;
   os << indent << "Threshold: " << this->Threshold << "\n";
   os << indent << "Collected: " << this->Collected << "\n";
   os << indent << "Controller: (" << this->Controller << ")\n";
+  os << indent << "SocketController: (" << this->SocketController << ")\n";
 }
 

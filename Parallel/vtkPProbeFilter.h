@@ -24,6 +24,7 @@
 #include "vtkProbeFilter.h"
 
 class vtkMultiProcessController;
+class vtkSocketController;
 
 class VTK_PARALLEL_EXPORT vtkPProbeFilter : public vtkProbeFilter
 {
@@ -39,16 +40,24 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
+  // Description:
+  // Use only in client server mode for paraview.
+  // We distinguish the client by the controller.
+  // The client should have a socket controller, but not a controller.
+  virtual void SetSocketController(vtkSocketController*);
+  vtkGetObjectMacro(SocketController, vtkSocketController);
+
 protected:
   vtkPProbeFilter();
   ~vtkPProbeFilter();
 
   // Usual data generation method
-  virtual void Execute();
+  virtual void ExecuteData(vtkDataObject*);
   virtual void ExecuteInformation();
   virtual void ComputeInputUpdateExtents(vtkDataObject *output);
 
   vtkMultiProcessController* Controller;
+  vtkSocketController* SocketController;
 
 private:
   vtkPProbeFilter(const vtkPProbeFilter&);  // Not implemented.
