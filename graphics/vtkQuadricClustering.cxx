@@ -97,8 +97,6 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->FeatureEdges->FeatureEdgesOff();
   this->FeatureEdges->BoundaryEdgesOn();
   this->FeaturePoints = vtkPoints::New();
-
-  this->FeaturePD = vtkPolyData::New();
 }
 
 //----------------------------------------------------------------------------
@@ -108,9 +106,6 @@ vtkQuadricClustering::~vtkQuadricClustering()
   this->FeatureEdges = NULL;
   this->FeaturePoints->Delete();
   this->FeaturePoints = NULL;
-  
-  this->FeaturePD->Delete();
-  this->FeaturePD = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -1013,7 +1008,6 @@ void vtkQuadricClustering::EndAppendUsingPoints(vtkPolyData *input)
       }
     }
 
-
   output->SetPolys(this->OutputTriangleArray);
   output->SetPoints(outputPoints);
   outputPoints->Delete();
@@ -1094,7 +1088,6 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
   float radAngle = vtkMath::DegreesToRadians() * this->FeaturePointsAngle;
   
   this->FeaturePoints->Allocate(numPts);
-  this->FeaturePD->Allocate(numPts);
   
   for (i = 0; i < numPts; i++)
     {
@@ -1125,15 +1118,11 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
       {
       edgePts->GetPoint(pointTable[i][0], featurePoint);
       pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
-      this->FeaturePD->InsertNextCell(VTK_VERTEX, 1, pointId);
-      vtkDebugMacro("inserting end point");
       }
     else if (pointTable[i][1] > 2)
       {
       edgePts->GetPoint(pointTable[i][0], featurePoint);
       pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
-      this->FeaturePD->InsertNextCell(VTK_VERTEX, 1, pointId);
-      vtkDebugMacro("inserting point with multiple edges");
       }
     else if (pointTable[i][1] == 2)
       {
@@ -1159,14 +1148,10 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
         {
         edgePts->GetPoint(pointTable[i][0], featurePoint);
         pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
-        this->FeaturePD->InsertNextCell(VTK_VERTEX, 1, pointId);
-        vtkDebugMacro("inserting feature point");
         }
       }
     }
 
-  this->FeaturePD->SetPoints(this->FeaturePoints);
-  
   pointIdList->Delete();
   pointIdList = NULL;
   for (i = 0; i < numPts; i++)
@@ -1210,4 +1195,7 @@ void vtkQuadricClustering::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "UseFeatureEdges: " << this->UseFeatureEdges << endl;
   os << indent << "FeatureEdges: (" << this->FeatureEdges << ")\n";
+  
+  os << indent << "FeaturePointsAngle: " << this->FeaturePointsAngle << endl;
+  os << indent << "UseFeaturePoints: " << this->UseFeaturePoints << endl;
 }

@@ -182,8 +182,6 @@ public:
   void Append(vtkPolyData *piece);
   void EndAppend();
 
-  vtkGetObjectMacro(FeaturePD, vtkPolyData);
-  
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -277,9 +275,6 @@ protected:
   vtkFeatureEdges *FeatureEdges;
   vtkPoints *FeaturePoints;
   float FeaturePointsAngle;
-
-  // for debugging the feature points
-  vtkPolyData *FeaturePD;
 };
 
 #endif
