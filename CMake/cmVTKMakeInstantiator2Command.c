@@ -268,7 +268,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       classes[i] = info->CAPI->GetFilenameWithoutExtension(classes[i]);
       }
-    info->CAPI->Free(srcName);
+    info->CAPI->Free((char*)srcName);
     }    
   
   /* Generate the header */
