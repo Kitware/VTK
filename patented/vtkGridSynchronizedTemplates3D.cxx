@@ -1028,7 +1028,6 @@ int vtkGridSynchronizedTemplates3D::ComputeDivisionExtents(vtkDataObject *out,
 
 //----------------------------------------------------------------------------
 // Assumes UpdateInformation was called first.
-// Also assumes numDivisions is less than wholeDim[2]-1.
 int vtkGridSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
                                                 int *ext)
 {
@@ -1042,7 +1041,8 @@ int vtkGridSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
     size[0] = ext[1]-ext[0];
     size[1] = ext[3]-ext[2];
     size[2] = ext[5]-ext[4];
-    if (size[2] > size[1] && size[2] > size[0] && size[2]/2 > this->MinimumPieceSize[2])
+    if (size[2] > size[1] && size[2] > size[0] && 
+	size[2]/2 > this->MinimumPieceSize[2])
       {
       splitAxis = 2;
       }
@@ -1077,8 +1077,9 @@ int vtkGridSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
     else
       {
       // split the chosen axis into two pieces.
-      mid = (size[splitAxis] / 2) + ext[splitAxis*2];
       numPiecesInFirstHalf = (numPieces / 2);
+      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
+	+ ext[splitAxis*2];
       if (piece < numPiecesInFirstHalf)
         {
         // piece is in the first half

@@ -2,7 +2,7 @@
 # vtkAppendPolyData filter.
 
 # parameters
-set NUMBER_OF_PIECES 8
+set NUMBER_OF_PIECES 13
 
 
 
@@ -27,8 +27,8 @@ vtkImageReader reader
     reader SetFilePrefix "../../../vtkdata/headsq/half"
     reader SetDataSpacing 1.6 1.6 1.5
 
-vtkAppendPolyData append
-    append ParallelStreamingOn
+vtkAppendPolyData app
+    app ParallelStreamingOn
 
 for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
 #  vtkContourFilter iso$i
@@ -37,19 +37,22 @@ for {set i 0} {$i < $NUMBER_OF_PIECES} {incr i} {
     iso$i SetValue 0 500
     iso$i ComputeScalarsOff
     iso$i ComputeGradientsOff
+    iso$i SetNumberOfThreads 1
 
-  set val [expr 0.0 + $i / ($NUMBER_OF_PIECES - 1.0)]
+  if {$NUMBER_OF_PIECES == 1} {
+     set val 0.0
+  } else {
+     set val [expr 0.0 + $i / ($NUMBER_OF_PIECES - 1.0)]
+  }
   vtkElevationFilter elev$i
     elev$i SetInput [iso$i GetOutput]
     elev$i SetScalarRange $val [expr $val+0.001]
 
-  append AddInput [elev$i GetOutput]
+  app AddInput [elev$i GetOutput]
 }
 
-
-
 vtkPolyDataMapper mapper
-  mapper SetInput [append GetOutput]
+  mapper SetInput [app GetOutput]
   mapper ImmediateModeRenderingOn
 
 vtkActor actor
@@ -77,6 +80,8 @@ ren1 SetBackground 0.9 .9 .9
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
+
+ren1 ResetCameraClippingRange
 
 
 renWin SetSize 450 450

@@ -78,9 +78,9 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->MinimumPieceSize[0] = 10;
-  this->MinimumPieceSize[1] = 10;
-  this->MinimumPieceSize[2] = 10;
+  this->MinimumPieceSize[0] = 1;
+  this->MinimumPieceSize[1] = 1;
+  this->MinimumPieceSize[2] = 1;
 
   this->ExecuteExtent[0] = this->ExecuteExtent[1] 
     = this->ExecuteExtent[2] = this->ExecuteExtent[3] 
@@ -101,7 +101,7 @@ vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
   this->Threader->Delete();
 }
 
-//----------------------------------------------------------------------------// Description:
+//----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
 unsigned long vtkSynchronizedTemplates3D::GetMTime()
@@ -262,6 +262,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   yMax = exExt[3];
   zMin = exExt[4];
   zMax = exExt[5];
+  
   // increments to move through scalars
   data->GetIncrements(xInc, yInc, zInc);
   wholeExt = self->GetInput()->GetWholeExtent();
@@ -293,8 +294,8 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     }
   for (i = 0; i < xdim; i++)
     {
-    isect1[(yMax*xdim + i)*3 + 1] = -1;
-    isect1[(yMax*xdim + i)*3*2 + 1] = -1;
+    isect1[((ydim-1)*xdim + i)*3 + 1] = -1;
+    isect1[((ydim-1)*xdim + i)*3*2 + 1] = -1;
     }
 
   // for each contour
@@ -365,7 +366,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             }
           if (j < yMax)
 	    {
-	    s2 = (inPtrX + xdim);
+	    s2 = (inPtrX + yInc);
 	    v2 = (*s2 < value ? 0 : 1);
 	    if (v0 ^ v2)
 	      {
@@ -382,7 +383,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 	    }
 	  if (k < zMax)
 	    {
-	    s3 = (inPtrX + zstep);
+	    s3 = (inPtrX + zInc);
 	    v3 = (*s3 < value ? 0 : 1);
 	    if (v0 ^ v3)
 	      {
@@ -634,6 +635,20 @@ void vtkSynchronizedTemplates3D::ExecuteInformation()
     }
   this->GetOutput()->SetEstimatedWholeMemorySize(
     numTris*sizeTri + numPts*sizePt);
+  
+  // Lets determine how many piece we can divide the output into.
+  // OK lets be picky and compute this exactly.
+  
+  numPts = (dims[0]-1) / this->MinimumPieceSize[0];
+  if (numPts <= 0) {numPts = 1;}
+  numTris = numPts;
+  numPts = (dims[1]-1) / this->MinimumPieceSize[1];
+  if (numPts <= 0) {numPts = 1;}
+  numTris *= numPts;
+  numPts = (dims[2]-1) / this->MinimumPieceSize[2];
+  if (numPts <= 0) {numPts = 1;}
+  numTris *= numPts;
+  this->GetOutput()->SetMaximumNumberOfPieces(numTris);
 }
 
 //----------------------------------------------------------------------------
@@ -774,10 +789,10 @@ int vtkSynchronizedTemplates3D::GetNumberOfStreamDivisions()
   return num;
 }
 
+
 //----------------------------------------------------------------------------
 // Assumes UpdateInformation was called first.
-// Also assumes numDivisions is less than wholeDim[2]-1.
-int vtkSynchronizedTemplates3D::SplitExtent2(int piece, int numPieces,
+int vtkSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
                                                 int *ext)
 {
   int numPiecesInFirstHalf;
@@ -787,18 +802,21 @@ int vtkSynchronizedTemplates3D::SplitExtent2(int piece, int numPieces,
   // piece and numPieces will always be relative to the current ext. 
   while (numPieces > 1)
     {
+    // Get the dimensions for each axis.
     size[0] = ext[1]-ext[0];
     size[1] = ext[3]-ext[2];
     size[2] = ext[5]-ext[4];
-    if (size[2] > size[1] && size[2] > size[0] && size[2]/2 > this->MinimumPieceSize[2])
+    // choose the biggest axis
+    if (size[2] >= size[1] && size[2] >= size[0] && 
+	size[2]/2 >= this->MinimumPieceSize[2])
       {
       splitAxis = 2;
       }
-    else if (size[1] > size[0] && size[1]/2 > this->MinimumPieceSize[1])
+    else if (size[1] >= size[0] && size[1]/2 >= this->MinimumPieceSize[1])
       {
       splitAxis = 1;
       }
-    else if (size[0]/2 > this->MinimumPieceSize[0])
+    else if (size[0]/2 >= this->MinimumPieceSize[0])
       {
       splitAxis = 0;
       }
@@ -825,8 +843,9 @@ int vtkSynchronizedTemplates3D::SplitExtent2(int piece, int numPieces,
     else
       {
       // split the chosen axis into two pieces.
-      mid = (size[splitAxis] / 2) + ext[splitAxis*2];
       numPiecesInFirstHalf = (numPieces / 2);
+      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
+	+ ext[splitAxis*2];
       if (piece < numPiecesInFirstHalf)
         {
         // piece is in the first half
@@ -847,30 +866,6 @@ int vtkSynchronizedTemplates3D::SplitExtent2(int piece, int numPieces,
       }
     } // end of while
 
-
-
-
-
-
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-// Only divide up the z axis for now.
-int vtkSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
-					    int *ext)
-{
-  int tmp;
-  int start;
-  
-  tmp = ext[5] - ext[4];
-  ext[5] = ext[4] + ((piece+1) * tmp)/numPieces;
-  ext[4] = ext[4] + (piece * tmp)/numPieces;
-  
-  if (ext[4] == ext[5])
-    {
-    return 0;
-    }
   return 1;
 }
 
