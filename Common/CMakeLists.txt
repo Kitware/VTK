@@ -77,6 +77,7 @@ vtkMultiThreader.cxx
 vtkMutexLock.cxx
 vtkNonLinearCell.cxx
 vtkObject.cxx
+vtkObjectBase.cxx
 vtkObjectFactory.cxx
 vtkObjectFactoryCollection.cxx
 vtkOldStyleCallbackCommand.cxx
@@ -188,6 +189,7 @@ WRAP_EXCLUDE_FILES(
   vtkImageIterator
   vtkImageProgressIterator
   vtkLargeInteger
+  vtkObjectBase
   vtkOldStyleCallbackCommand
   vtkString
 )
