@@ -133,7 +133,7 @@ public:
   // Description:
   // Set/get the integrator type to be used in the stream line
   // calculation. The object passed is not actually used but
-  // is cloned with MakeObject in the process of integration 
+  // is cloned with NewInstance in the process of integration 
   // (prototype pattern). The default is 2nd order Runge Kutta.
   // The integrator can also be changed using SetIntegratorType.
   // The recognized solvers are:
