@@ -47,6 +47,14 @@ public:
   vtkGetVector6Macro(WholeExtent,int);
   
   // Description:
+  // This flag determines whether the Size or spacing of 
+  // a data set remain constant (when extent is changed).  
+  // By default, size remains constant.
+  vtkSetMacro(ConstantSize, int);
+  vtkGetMacro(ConstantSize, int);
+  vtkBooleanMacro(ConstantSize, int);
+
+  // Description:
   // Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
   // to the axes of the 3D Volume. 
   // 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
@@ -66,6 +74,15 @@ public:
   vtkSetVector4Macro(SampleCX, double);
   //void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
   vtkGetVector4Macro(SampleCX, double);
+
+  // Description:
+  // Just a different way of setting the sample.  
+  // This sets the size of the 4D volume. 
+  // SampleCX is computed from size and extent.
+  // Size is ignored when a dimension i 0 (collapsed).
+  void SetSizeCX(double cReal, double cImag, double xReal, double xImag);
+  double *GetSizeCX();
+  void GetSizeCX(double s[4]);
 
   // Description:
   // The maximum number of cycles run to see if the value goes over 2
@@ -104,6 +121,13 @@ protected:
   // Initial complex value at origin.
   double SampleCX[4];
   unsigned short MaximumNumberOfIterations;
+
+  // A temporary vector that is computed as needed.
+  // It is used to return a vector.
+  double SizeCX[4];
+
+  // A flag for keeping size constant (vs. keeping the spacing).
+  int ConstantSize;
 
   virtual void ExecuteData(vtkDataObject *outData);
   virtual void ExecuteInformation();
