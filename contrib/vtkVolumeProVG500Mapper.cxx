@@ -597,7 +597,7 @@ void vtkVolumeProVG500Mapper::UpdateVolume( vtkRenderer * vtkNotUsed(ren), vtkVo
   unsigned char		    *uc_data_ptr;
   unsigned short	    *us_data_ptr;
   void                      *data_ptr;
-  vtkStructuredPoints       *input = this->GetInput();
+  vtkImageData              *input = this->GetInput();
   vtkTransform              *volumeTransform;
   vtkTransform              *scalarTransform;
   int                       i, j;
@@ -912,7 +912,9 @@ void vtkVolumeProVG500Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
     return;
     }
   else
-    {
+    {    
+    this->GetInput()->UpdateInformation();
+    this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
     } 
 

@@ -233,7 +233,7 @@ protected:
   // The Volume, and the Input that was used to build the volume
   // and the time at which it was last built.
   VLIVolume            *Volume;
-  vtkStructuredPoints  *VolumeInput;
+  vtkImageData         *VolumeInput;
   vtkTimeStamp         *VolumeBuildTime;
 
   // The type of data in the volume - 8bit, 12bit upper, or 12bit lower

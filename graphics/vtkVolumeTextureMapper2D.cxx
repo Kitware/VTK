@@ -1262,7 +1262,7 @@ vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
 
 void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 {
-  vtkStructuredPoints    *input = this->GetInput();
+  vtkImageData           *input = this->GetInput();
   int                    size[3];
   void                   *inputPointer;
   int                    inputType;

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkEncodedGradientEstimator - Superclass for gradient estimation
 // .SECTION Description
 // vtkEncodedGradientEstimator is an abstract superclass for gradient 
-// estimation. It takes a scalar input of vtkStructuredPoints, computes
+// estimation. It takes a scalar input of vtkImageData, computes
 // a gradient value for every point, and encodes this value into a 
 // three byte value (2 for direction, 1 for magnitude) using the 
 // vtkDirectionEncoder. The direction encoder is defaulted to a
@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 #include "vtkMultiThreader.h"
-#include "vtkStructuredPoints.h"
+#include "vtkImageData.h"
 #include "vtkDirectionEncoder.h"
 
 class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
@@ -72,8 +72,8 @@ public:
   // Description:
   // Set/Get the scalar input for which the normals will be 
   // calculated
-  vtkSetObjectMacro( Input, vtkStructuredPoints );
-  vtkGetObjectMacro( Input, vtkStructuredPoints );
+  vtkSetObjectMacro( Input, vtkImageData );
+  vtkGetObjectMacro( Input, vtkImageData );
 
   // Description:
   // Set/Get the scale and bias for the gradient magnitude
@@ -174,7 +174,7 @@ public:
   // this does not work with all compilers
 
   // The input scalar data on which the normals are computed
-  vtkStructuredPoints   *Input;
+  vtkImageData         *Input;
 
   // The encoded normals (2 bytes) and the size of the encoded normals
   unsigned short        *EncodedNormals;
@@ -188,7 +188,6 @@ public:
 
   vtkGetVectorMacro( InputSize, int, 3 );
   vtkGetVectorMacro( InputAspect, float, 3 );
-
 
 protected:
   vtkEncodedGradientEstimator();

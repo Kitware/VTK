@@ -558,14 +558,13 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
   gray_transfer_function             = this->Property->GetGrayTransferFunction();
   color_channels                     = this->Property->GetColorChannels();
 
-  if ( ((vtkStructuredPoints *)this->Mapper->GetInput())->
-       GetPointData()->GetScalars() == NULL )
+  if ( this->Mapper->GetInput()->GetPointData()->GetScalars() == NULL )
     {
     vtkErrorMacro(<<"Need scalar data to volume render");
     return;
     }
     
-  data_type = ((vtkStructuredPoints *)this->Mapper->GetInput())->
+  data_type = this->Mapper->GetInput()->
     GetPointData()->GetScalars()->GetDataType();
 
   if ( scalar_opacity_transfer_function == NULL )

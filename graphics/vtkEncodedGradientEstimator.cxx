@@ -152,15 +152,15 @@ vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
   this->Modified();
 }
 
-int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xyz_index ) 
+int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xyzIndex ) 
 {
   this->Update();
-  return *(this->EncodedNormals + xyz_index);
+  return *(this->EncodedNormals + xyzIndex);
 }
 
-int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int x_index, 
-							int y_index,
-							int z_index )
+int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int xIndex, 
+							int yIndex,
+							int zIndex )
 {
   int ystep, zstep;
 
@@ -170,7 +170,7 @@ int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int x_index,
   ystep = this->InputSize[0];
   zstep = this->InputSize[0] * this->InputSize[1];
 
-  return *(this->EncodedNormals + z_index * zstep + y_index * ystep + x_index);
+  return *(this->EncodedNormals + zIndex * zstep + yIndex * ystep + xIndex);
 }
 
 unsigned short *vtkEncodedGradientEstimator::GetEncodedNormals()
@@ -189,29 +189,38 @@ unsigned char *vtkEncodedGradientEstimator::GetGradientMagnitudes()
 
 void vtkEncodedGradientEstimator::Update( )
 {
-  int                scalar_input_size[3];
-  float              scalar_input_aspect[3];
+  int                scalarInputSize[3];
+  float              scalarInputAspect[3];
   double             startSeconds, endSeconds;
   double             startCPUSeconds, endCPUSeconds;
 
+  if ( !this->Input )
+    {
+    vtkErrorMacro(<< "No input in gradient estimator.");
+    return;
+    }
+    
   if ( this->GetMTime() > this->BuildTime || 
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
        this->Input->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
     {
-
+    this->Input->UpdateInformation();
+    this->Input->SetUpdateExtentToWholeExtent();
+    this->Input->Update();
+    
     startSeconds = vtkTimerLog::GetCurrentTime();
     startCPUSeconds = vtkTimerLog::GetCPUTime();
     
     // Get the dimensions of the data and its aspect ratio
-    this->Input->GetDimensions( scalar_input_size );
-    this->Input->GetSpacing( scalar_input_aspect );
+    this->Input->GetDimensions( scalarInputSize );
+    this->Input->GetSpacing( scalarInputAspect );
     
     // If we previously have allocated space for the encoded normals,
     // and this space is no longer the right size, delete it
-    if ( this->EncodedNormalsSize[0] != scalar_input_size[0] ||
-	 this->EncodedNormalsSize[1] != scalar_input_size[1] ||
-	 this->EncodedNormalsSize[2] != scalar_input_size[2] )
+    if ( this->EncodedNormalsSize[0] != scalarInputSize[0] ||
+	 this->EncodedNormalsSize[1] != scalarInputSize[1] ||
+	 this->EncodedNormalsSize[2] != scalarInputSize[2] )
       {
       if ( this->EncodedNormals )
 	{
@@ -228,24 +237,24 @@ void vtkEncodedGradientEstimator::Update( )
     // Allocate space for the encoded normals if necessary
     if ( !this->EncodedNormals )
       {
-      this->EncodedNormals = new unsigned short[ scalar_input_size[0] *
-					         scalar_input_size[1] *
-					         scalar_input_size[2] ];
-      this->EncodedNormalsSize[0] = scalar_input_size[0];
-      this->EncodedNormalsSize[1] = scalar_input_size[1];
-      this->EncodedNormalsSize[2] = scalar_input_size[2];
+      this->EncodedNormals = new unsigned short[ scalarInputSize[0] *
+					         scalarInputSize[1] *
+					         scalarInputSize[2] ];
+      this->EncodedNormalsSize[0] = scalarInputSize[0];
+      this->EncodedNormalsSize[1] = scalarInputSize[1];
+      this->EncodedNormalsSize[2] = scalarInputSize[2];
       }
 
     if ( !this->GradientMagnitudes && this->ComputeGradientMagnitudes )
       {
-      this->GradientMagnitudes = new unsigned char[ scalar_input_size[0] *
-				 	            scalar_input_size[1] *
-						    scalar_input_size[2] ];
+      this->GradientMagnitudes = new unsigned char[ scalarInputSize[0] *
+				 	            scalarInputSize[1] *
+						    scalarInputSize[2] ];
       }
 
     // Copy info that multi threaded function will need into temp variables
-    memcpy( this->InputSize, scalar_input_size, 3 * sizeof(int) );
-    memcpy( this->InputAspect, scalar_input_aspect, 3 * sizeof(float) );
+    memcpy( this->InputSize, scalarInputSize, 3 * sizeof(int) );
+    memcpy( this->InputAspect, scalarInputAspect, 3 * sizeof(float) );
 
     if ( this->CylinderClip && 
 	 (this->InputSize[0] == this->InputSize[1]) )

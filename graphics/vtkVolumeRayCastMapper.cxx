@@ -172,11 +172,15 @@ void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
     }
   else
     {
+    this->GetInput()->UpdateInformation();
+    this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
     } 
 
   if ( this->GetRGBTextureInput() )
     {
+    this->GetRGBTextureInput()->UpdateInformation();
+    this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
     this->GetRGBTextureInput()->Update();
     }
 
@@ -813,7 +817,7 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   vtkTransform           *worldToVolumeTransform;
   vtkTransform           *viewToVolumeTransform;
   vtkRayCaster           *ray_caster;
-  vtkStructuredPoints    *input = this->GetInput();
+  vtkImageData           *input = this->GetInput();
   float                  spacing[3], data_origin[3];
   int                    i, j;
   int                    scalarDataSize[3];

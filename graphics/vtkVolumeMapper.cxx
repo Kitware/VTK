@@ -66,11 +66,15 @@ void vtkVolumeMapper::Update()
 {
   if ( this->GetInput() )
     {
+    this->GetInput()->UpdateInformation();
+    this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
     }
 
   if ( this->GetRGBTextureInput() )
     {
+    this->GetRGBTextureInput()->UpdateInformation();
+    this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
     this->GetRGBTextureInput()->Update();
     }
 }
@@ -87,34 +91,38 @@ float *vtkVolumeMapper::GetBounds()
     }
   else
     {
+    this->GetInput()->UpdateInformation();
+    this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
     this->GetInput()->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }
 
-void vtkVolumeMapper::SetInput( vtkStructuredPoints *input )
+void vtkVolumeMapper::SetInput( vtkImageData *input )
 {
   this->vtkProcessObject::SetNthInput(0, input);
 }
 
-vtkStructuredPoints *vtkVolumeMapper::GetInput()
+vtkImageData *vtkVolumeMapper::GetInput()
 {
   if (this->NumberOfInputs < 1)
     {
     return NULL;
     }
-  return (vtkStructuredPoints*)(this->Inputs[0]);
+  return (vtkImageData*)(this->Inputs[0]);
 }
 
 
-void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
+void vtkVolumeMapper::SetRGBTextureInput( vtkImageData *rgbTexture )
 {
   vtkPointData    *pd;
   vtkScalars      *scalars;
 
   if ( rgbTexture )
     {
+    rgbTexture->UpdateInformation();
+    rgbTexture->SetUpdateExtentToWholeExtent();
     rgbTexture->Update();
     pd = rgbTexture->GetPointData();
     if ( !pd )
@@ -144,13 +152,13 @@ void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
 
 }
 
-vtkStructuredPoints *vtkVolumeMapper::GetRGBTextureInput()
+vtkImageData *vtkVolumeMapper::GetRGBTextureInput()
 {
   if (this->NumberOfInputs < 2)
     {
     return NULL;
     }
-  return (vtkStructuredPoints *)(this->Inputs[1]);
+  return (vtkImageData *)(this->Inputs[1]);
 }
 
 

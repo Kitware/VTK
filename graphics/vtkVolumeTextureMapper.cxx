@@ -114,11 +114,15 @@ void vtkVolumeTextureMapper::Update()
 {
   if ( this->GetInput() )
     {
+    this->GetInput()->UpdateInformation();
+    this->GetInput()->SetUpdateExtentToWholeExtent();
     this->GetInput()->Update();
     }
 
   if ( this->GetRGBTextureInput() )
     {
+    this->GetRGBTextureInput()->UpdateInformation();
+    this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
     this->GetRGBTextureInput()->Update();
     }
 }
