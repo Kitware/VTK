@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.3");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.4");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -61,6 +61,7 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   // if we already have an Interactor then stop observing it
   if (this->Interactor)
     {
+    this->SetEnabled(0); //disable the old interactor
     this->Interactor->RemoveObserver(this->KeypressCallbackCommand);
     }
 
