@@ -61,8 +61,8 @@ class vlTransform : public vlObject
   float *GetOrientation();
   void GetPosition (float & x,float & y,float & z);
   void GetScale ( float & x, float & y, float & z);
-  vlMatrix4x4 & GetMatrix ();
-  void GetMatrix (vlMatrix4x4 & ctm);
+  vlMatrix4x4& GetMatrix();
+  void GetMatrix (vlMatrix4x4& m);
   void Concatenate (vlMatrix4x4 & matrix);
   void Multiply4x4 ( vlMatrix4x4 & a, vlMatrix4x4 & b, vlMatrix4x4 & c);
   void PointMultiply (float in[4],float out[4]);
