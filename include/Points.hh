@@ -81,6 +81,7 @@ public:
 
   virtual void ComputeBounds();
   float *GetBounds();
+  void GetBounds(float bounds[6]);
 
 protected:
   float Bounds[6];
