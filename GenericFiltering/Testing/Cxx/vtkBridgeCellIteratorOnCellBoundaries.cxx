@@ -28,7 +28,7 @@
 #include "vtkVertex.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkBridgeCellIteratorOnCellBoundaries, "1.2");
+vtkCxxRevisionMacro(vtkBridgeCellIteratorOnCellBoundaries, "1.3");
 vtkStandardNewMacro(vtkBridgeCellIteratorOnCellBoundaries);
 
 //-----------------------------------------------------------------------------
@@ -106,7 +106,6 @@ void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell *c)
   vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
   
   vtkCell *vc=0;
-  vtkIdType ptId;
   
   switch(this->Dim)
     {
@@ -117,9 +116,8 @@ void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell *c)
       vc=this->DataSetCell->Cell->GetEdge(this->Id);
       break;
     case 0:
-      ptId=this->DataSetCell->Cell->GetPointId(this->Id);
-      vc=vtkVertex::New(); // memory leak?
-      vc->Points->InsertNextPoint(this->DataSetCell->Cell->Points->GetPoint(ptId));
+      vc=vtkVertex::New();
+      vc->Points->InsertNextPoint(this->DataSetCell->Cell->Points->GetPoint(this->Id));
       vc->PointIds->InsertNextId(0);
       break;
     default:
@@ -128,6 +126,10 @@ void vtkBridgeCellIteratorOnCellBoundaries::GetCell(vtkGenericAdaptorCell *c)
     }
   
   c2->InitWithCell(vc,this->Id); // this->Id unique?
+  if(this->Dim==0)
+    {
+    vc->Delete();
+    }
 }
   
 //-----------------------------------------------------------------------------
@@ -141,7 +143,6 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellBoundaries::GetCell()
   assert("pre: not_at_end" && !IsAtEnd());
   
   vtkCell *vc=0;
-  vtkIdType ptId;
   
   switch(this->Dim)
     {
@@ -152,9 +153,8 @@ vtkGenericAdaptorCell *vtkBridgeCellIteratorOnCellBoundaries::GetCell()
       vc=this->DataSetCell->Cell->GetEdge(this->Id);
       break;
     case 0:
-      ptId=this->DataSetCell->Cell->GetPointId(this->Id);
       vc=vtkVertex::New();
-      vc->Points->InsertNextPoint(this->DataSetCell->Cell->Points->GetPoint(ptId));
+      vc->Points->InsertNextPoint(this->DataSetCell->Cell->Points->GetPoint(this->Id));
       vc->PointIds->InsertNextId(0);
       break;
     default:
