@@ -25,7 +25,7 @@
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.29");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.30");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -165,7 +165,14 @@ void vtkGenericEnSightReader::Execute()
   
   for (i = 0; i < this->Reader->GetNumberOfOutputs(); i++)
     {
-    this->SetNthOutput(i, this->Reader->GetOutput(i));
+    if ( ! this->GetOutput(i))
+      {
+      this->SetNthOutput(i, this->Reader->GetOutput(i));
+      }
+    else
+      {
+      this->GetOutput(i)->ShallowCopy(this->Reader->GetOutput(i));
+      }
     }
   for (i = 0; i < this->Reader->GetNumberOfVariables(); i++)
     {
@@ -260,7 +267,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           if (!fileName)
             {
             vtkErrorMacro(
-	      "A GeometryFileName must be specified in the case file.");
+              "A GeometryFileName must be specified in the case file.");
             return 0;
             }
           if (strrchr(fileName, '*') != NULL)
@@ -341,7 +348,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         if (!fileName)
           {
           vtkErrorMacro(
-	    "A GeometryFileName must be specified in the case file.");
+            "A GeometryFileName must be specified in the case file.");
           return 0;
           }
         if (strrchr(fileName, '*') != NULL)

@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.38");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.39");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()
@@ -77,6 +77,10 @@ vtkEnSightReader::vtkEnSightReader()
 
   this->NumberOfMeasuredPoints = 0;
   this->MeasuredNodeIds = vtkIdList::New();
+  
+  this->OutputsAreValid = 1;
+  this->InitialRead = 1;
+  this->NumberOfNewOutputs;
 }
 
 //----------------------------------------------------------------------------
@@ -183,6 +187,10 @@ void vtkEnSightReader::Execute()
     vtkErrorMacro("error reading case file");
     return;
     }
+  
+  this->OutputsAreValid = 1;
+  this->NumberOfNewOutputs = 0;
+  this->NumberOfGeometryParts = 0;
   if (this->GeometryFileName)
     {
     timeStep = timeStepInFile = 1;
@@ -256,12 +264,14 @@ void vtkEnSightReader::Execute()
           }
         }
       }
+    
     if (!this->ReadGeometryFile(fileName, timeStepInFile))
       {
       vtkErrorMacro("error reading geometry file");
       delete [] fileName;
       return;
       }
+    
     delete [] fileName;
     }
   if (this->MeasuredFileName)
@@ -345,6 +355,15 @@ void vtkEnSightReader::Execute()
       }
     delete [] fileName;
     }
+  if (!this->CheckOutputConsistency())
+    {
+    for (i = 0; i < this->NumberOfOutputs; i++)
+      {
+      this->GetOutput(i)->Initialize();
+      }
+    return;
+    }
+
   if ((this->NumberOfVariables + this->NumberOfComplexVariables) > 0)
     {
     if (!this->ReadVariableFiles())
@@ -558,6 +577,19 @@ int vtkEnSightReader::ReadCaseFile()
           strncmp(line, "TIME", 4) != 0 &&
           strncmp(line, "FILE", 4) != 0)
       {
+      this->NumberOfScalarsPerNode = 0;
+      this->NumberOfVectorsPerNode = 0;
+      this->NumberOfTensorsSymmPerNode = 0;
+      this->NumberOfScalarsPerElement = 0;
+      this->NumberOfVectorsPerElement = 0;
+      this->NumberOfTensorsSymmPerElement = 0;
+      this->NumberOfScalarsPerMeasuredNode = 0;
+      this->NumberOfVectorsPerMeasuredNode = 0;
+      this->NumberOfComplexScalarsPerNode = 0;
+      this->NumberOfComplexVectorsPerNode = 0;
+      this->NumberOfComplexScalarsPerElement = 0;
+      this->NumberOfComplexVectorsPerElement = 0;
+      
       if (strncmp(line, "constant", 8) == 0)
         {
         vtkDebugMacro(<< line);
@@ -1815,6 +1847,22 @@ void vtkEnSightReader::ReplaceNthOutput(int idx, vtkDataObject* newOutput)
 
 }
 
+int vtkEnSightReader::CheckOutputConsistency()
+{
+  if (this->NumberOfOutputs > this->NumberOfNewOutputs &&
+      ! this->InitialRead)
+    {
+    vtkErrorMacro("Cannot decrease number of outputs after initial read");
+    this->OutputsAreValid = 0;
+    }
+  
+  if (this->InitialRead)
+    {
+    this->InitialRead = 0;
+    }
+  
+  return this->OutputsAreValid;
+}
 
 //----------------------------------------------------------------------------
 void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)

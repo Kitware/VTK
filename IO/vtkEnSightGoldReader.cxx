@@ -26,7 +26,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.29");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.30");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -243,6 +243,12 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
     pd->Delete();
     
     this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
+    }
+  else if ( ! this->GetOutput(this->NumberOfGeometryParts)->IsA("vtkPolyData"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
 
   geom = ((vtkPolyData*)this->GetOutput(this->NumberOfGeometryParts));
@@ -1044,6 +1050,8 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
   int idx, cellType;
   vtkIdType cellId;
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new unstructured output");
@@ -1053,6 +1061,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
     
     this->UnstructuredPartIds->InsertNextId(partId);
     }
+  else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
+    }
+    
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
   
   idx = this->UnstructuredPartIds->IsId(partId);
@@ -1618,12 +1633,20 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   float point[3];
   int numPts;
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
     this->SetNthOutput(partId, sgrid);
     sgrid->Delete();
+    }
+  else if ( ! this->GetOutput(partId)->IsA("vtkStructuredGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
   
   if (sscanf(line, " %*s %s", subLine) == 1)
@@ -1693,12 +1716,20 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   vtkFloatArray *zCoords = vtkFloatArray::New();
   int numPts;
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new structured grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
     this->SetNthOutput(partId, rgrid);
     rgrid->Delete();
+    }
+  else if ( ! this->GetOutput(partId)->IsA("vtkRectilinearGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
@@ -1768,12 +1799,20 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId, char line[256])
   float origin[3], delta[3];
   int numPts;
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();
     this->SetNthOutput(partId, idata);
     idata->Delete();
+    }
+  else if ( ! this->GetOutput(partId)->IsA("vtkImageData"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)

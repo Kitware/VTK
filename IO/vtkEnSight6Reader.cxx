@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.30");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.31");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -285,18 +285,26 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
   this->ReadLine(line);
   this->NumberOfMeasuredPoints = atoi(line);
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(this->NumberOfGeometryParts) == NULL)
     {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
-    pd->Allocate(this->NumberOfMeasuredPoints);
     this->SetNthOutput(this->NumberOfGeometryParts, pd);
     pd->Delete();
+    }
+  else if ( ! this->GetOutput(this->NumberOfGeometryParts)->IsA("vtkPolyData"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
   
   this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
         
   geom = ((vtkPolyData*)this->GetOutput(this->NumberOfGeometryParts));
+  geom->Allocate(this->NumberOfMeasuredPoints);
     
   newPoints = vtkPoints::New();
   newPoints->Allocate(this->NumberOfMeasuredPoints);
@@ -1375,6 +1383,8 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
   int numElements;
   int idx, cellId, cellType, testId;
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new unstructured output");
@@ -1384,6 +1394,13 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
     
     this->UnstructuredPartIds->InsertNextId(partId);
     }
+  else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
+    }
+  
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
   
   idx = this->UnstructuredPartIds->IsId(partId);
@@ -1889,12 +1906,20 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   float coords[6];
   int iblanks[10];
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
     this->SetNthOutput(partId, sgrid);
     sgrid->Delete();
+    }
+  else if ( ! this->GetOutput(partId)->IsA("vtkStructuredGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
   
   if (sscanf(line, " %*s %s", subLine) == 1)

@@ -27,7 +27,7 @@
 #include "vtkByteSwap.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.20");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.21");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -627,6 +627,8 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
   vtkPoints *points = vtkPoints::New();
   vtkPolyData *pd = vtkPolyData::New();
   
+  this->NumberOfNewOutputs++;
+
   // Initialize
   //
   if (!fileName)
@@ -649,6 +651,14 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
   if (this->IFile == NULL)
     {
     vtkErrorMacro("Unable to open file: " << line);
+    return 0;
+    }
+
+  if (this->GetOutput(this->NumberOfGeometryParts) &&
+      ! this->GetOutput(this->NumberOfGeometryParts)->IsA("vtkPolyData"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
     return 0;
     }
   
@@ -1089,7 +1099,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
         partId = this->UnstructuredPartIds->GetId(i);
         output = this->GetOutput(partId);
         vectors->SetName(description);
-        output->GetPointData()-> AddArray(vectors);
+        output->GetPointData()->AddArray(vectors);
         if (!output->GetPointData()->GetVectors())
           {
           output->GetPointData()->SetVectors(vectors);
@@ -1651,7 +1661,7 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
       lineRead = this->ReadLine(line);
       }
     vectors->SetName(description);
-    output->GetCellData()-> AddArray(vectors);
+    output->GetCellData()->AddArray(vectors);
     if (!output->GetCellData()->GetVectors())
       {
       output->GetCellData()->SetVectors(vectors);
@@ -1854,6 +1864,8 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
   int numElements;
   int idx, cellType;
   vtkIdType cellId;
+
+  this->NumberOfNewOutputs++;
   
   if (this->GetOutput(partId) == NULL)
     {
@@ -1864,6 +1876,13 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
     
     this->UnstructuredPartIds->InsertNextId(partId);
     }
+  else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
+    }
+  
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
   
   idx = this->UnstructuredPartIds->IsId(partId);
@@ -2407,12 +2426,20 @@ int vtkEnSight6BinaryReader::CreateStructuredGridOutput(int partId,
   float *coordsRead;
   int *iblanks;
   
+  this->NumberOfNewOutputs++;
+  
   if (this->GetOutput(partId) == NULL)
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
     this->SetNthOutput(partId, sgrid);
     sgrid->Delete();
+    }
+  else if ( ! this->GetOutput(partId)->IsA("vtkStructuredGrid"))
+    {
+    vtkErrorMacro("Cannot change type of output");
+    this->OutputsAreValid = 0;
+    return 0;
     }
   
   if (sscanf(line, " %*s %s", subLine) == 1)

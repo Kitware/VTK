@@ -22,6 +22,8 @@
 
 #include "vtkGenericEnSightReader.h"
 
+class vtkDataSetCollection;
+
 class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
@@ -74,6 +76,15 @@ public:
   // reader without changing it's modification time.
   // Make sure that you pass the right type of data object.
   void ReplaceNthOutput(int n, vtkDataObject* output);
+  
+  // Description:
+  // OutputsAreValid indicates whether the outputs from this reader have
+  // changed in a consistent way.  If during re-reading (because of a change in
+  // time step or data set) the number of outputs becomes less than the current
+  // number or the type of a particular output changes (e.g., from
+  // vtkUnstructuredGrid to vtkImageData), then this flag is set to 0.
+  // Otherwise it is set to 1.
+  vtkGetMacro(OutputsAreValid, int);
   
 protected:
   vtkEnSightReader();
@@ -249,6 +260,13 @@ protected:
   // global list of points for measured geometry
   int NumberOfMeasuredPoints;
   vtkIdList *MeasuredNodeIds;
+  
+  int NumberOfNewOutputs;
+  int OutputsAreValid;
+  int InitialRead;
+  
+  int CheckOutputConsistency();
+  
 private:
   vtkEnSightReader(const vtkEnSightReader&);  // Not implemented.
   void operator=(const vtkEnSightReader&);  // Not implemented.
