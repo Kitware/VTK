@@ -179,7 +179,7 @@ void vlGeometryFilter::Execute()
               npts = face->GetNumberOfPoints();
               for ( i=0; i < npts; i++)
                 {
-                ptId = cell->GetPointId(i);
+                ptId = face->GetPointId(i);
                 x = this->Input->GetPoint(ptId);
                 pts[i] = newPts->InsertNextPoint(x);
                 this->PointData.CopyData(pd,ptId,pts[i]);
