@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.18");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.19");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -441,8 +441,9 @@ void vtkPlaneWidget::PositionHandles()
   float p2[3];
   this->PlaneSource->GetNormal(this->Normal);
   vtkMath::Normalize(this->Normal);
-  float d = sqrt( vtkMath::Distance2BetweenPoints(
-                                                  this->PlaneSource->GetPoint1(),this->PlaneSource->GetPoint2()) );
+  float d = sqrt( 
+    vtkMath::Distance2BetweenPoints(
+      this->PlaneSource->GetPoint1(),this->PlaneSource->GetPoint2()) );
   p2[0] = center[0] + 0.35 * d * this->Normal[0];
   p2[1] = center[1] + 0.35 * d * this->Normal[1];
   p2[2] = center[2] + 0.35 * d * this->Normal[2];
