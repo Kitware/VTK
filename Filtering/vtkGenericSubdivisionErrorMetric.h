@@ -48,7 +48,7 @@ public:
   // Standard VTK type and error macros.
   vtkTypeRevisionMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+ 
   // Description:
   // Does the edge need to be subdivided according to the implemented
   // computation?
@@ -70,24 +70,21 @@ public:
                                   double *midPoint,
                                   double *rightPoint,
                                   double alpha)=0;
-  
+
   // Description:
   // The cell that the edge belongs to.
   void SetGenericCell(vtkGenericAdaptorCell *cell);
   vtkGetObjectMacro(GenericCell,vtkGenericAdaptorCell);
-  
+
   // Description:
-  // Set the datatset to be tessellated.
+  // Set/Get the datatset to be tessellated.
   void SetDataSet(vtkGenericDataSet *ds);
-  
-  // Description:
-  // Return the dataset to be tessellated.
-  vtkGenericDataSet *GetDataSet();
-  
+  vtkGetObjectMacro(DataSet,vtkGenericDataSet);
+
 protected:
   vtkGenericSubdivisionErrorMetric();
-  virtual ~vtkGenericSubdivisionErrorMetric();
- 
+  ~vtkGenericSubdivisionErrorMetric();
+
   vtkGenericAdaptorCell *GenericCell;
   vtkGenericDataSet *DataSet;
 

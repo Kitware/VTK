@@ -22,13 +22,13 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.4");
+vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.5");
 
 //-----------------------------------------------------------------------------
 vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
 {
   this->GenericCell = NULL;
-  this->DataSet=0;
+  this->DataSet = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -37,27 +37,19 @@ vtkGenericSubdivisionErrorMetric::~vtkGenericSubdivisionErrorMetric()
 }
 
 //-----------------------------------------------------------------------------
+// Avoid reference loop
 void vtkGenericSubdivisionErrorMetric::SetGenericCell(vtkGenericAdaptorCell *c)
 {
-  this->GenericCell=c;
+  this->GenericCell = c;
   this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-// Description:
-// Set the datatset to be tessellated.
+// Avoid reference loop
 void vtkGenericSubdivisionErrorMetric::SetDataSet(vtkGenericDataSet *ds)
 {
-  this->DataSet=ds;
+  this->DataSet = ds;
   this->Modified();
-}
-
-//-----------------------------------------------------------------------------
-// Description:
-// Return the dataset to be tessellated.
-vtkGenericDataSet *vtkGenericSubdivisionErrorMetric::GetDataSet()
-{
-  return this->DataSet;
 }
 
 //-----------------------------------------------------------------------------
