@@ -74,11 +74,6 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   vtkMapper *mapper;
   vtkVolumeMapper *volumeMapper;
 
-  if ( (numPts = input->GetNumberOfPoints()) < 1 )
-    {
-    return 2.0;
-    }
-
   // Get the underlying dataset
   //
   if ( (mapper=vtkMapper::SafeDownCast(m)) != NULL )
@@ -90,6 +85,11 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     input = volumeMapper->GetInput();
     }
   else
+    {
+    return 2.0;
+    }
+
+  if ( (numPts = input->GetNumberOfPoints()) < 1 )
     {
     return 2.0;
     }
