@@ -93,6 +93,7 @@ class VTK_EXPORT vtkMultiThreader : public vtkObject
 public:
   vtkMultiThreader();
   ~vtkMultiThreader();
+  vtkMultiThreader *New() {return new vtkMultiThreader;};
   char *GetClassName() {return "vtkMultiThreader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

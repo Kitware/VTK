@@ -55,6 +55,7 @@ class VTK_EXPORT vtkTetra : public vtkCell
 public:
   vtkTetra();
   vtkTetra(const vtkTetra& t);
+  vtkTetra *New() {return new vtkTetra;};
   char *GetClassName() {return "vtkTetra";};
 
   // cell methods

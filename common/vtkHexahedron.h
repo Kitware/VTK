@@ -53,6 +53,7 @@ class VTK_EXPORT vtkHexahedron : public vtkCell
 public:
   vtkHexahedron();
   vtkHexahedron(const vtkHexahedron& h);
+  vtkHexahedron *New() {return new vtkHexahedron;};
   char *GetClassName() {return "vtkHexahedron";};
 
   // cell methods

@@ -59,6 +59,7 @@ public:
 
   int Allocate(const int sz, const int dim=3, const int ext=1000);
   void Initialize() {this->T->Initialize();};
+  vtkFloatTensors *New() {return new vtkFloatTensors;};
   char *GetClassName() {return "vtkFloatTensors";};
 
   // vtkTensors interface

@@ -59,6 +59,7 @@ public:
 
   int Allocate(const int sz, const int dim=2, const int ext=1000) {return this->TC->Allocate(dim*sz,dim*ext);};
   void Initialize() {this->TC->Initialize();};
+  vtkFloatTCoords *New() {return new vtkFloatTCoords;};
   char *GetClassName() {return "vtkFloatTCoords";};
 
   // vtkTCoords interface

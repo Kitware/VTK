@@ -65,6 +65,7 @@ public:
   vtkStack();
   ~vtkStack();
   void PrintSelf(ostream& os, vtkIndent indent);
+  vtkStack *New() {return new vtkStack;};
   char *GetClassName() {return "vtkStack";};
 
   void Push(vtkObject *);

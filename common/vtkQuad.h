@@ -53,6 +53,7 @@ class VTK_EXPORT vtkQuad : public vtkCell
 public:
   vtkQuad();
   vtkQuad(const vtkQuad& q);
+  vtkQuad *New() {return new vtkQuad;};
   char *GetClassName() {return "vtkQuad";};
 
   // cell methods

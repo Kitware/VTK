@@ -57,6 +57,7 @@ public:
   vtkGraymap(const vtkGraymap& fs);
   vtkGraymap(const int sz, const int ext=1000);
   ~vtkGraymap();
+  vtkGraymap *New() {return new vtkGraymap;};
   char *GetClassName() {return "vtkGraymap";};
 
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};

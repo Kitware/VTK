@@ -58,7 +58,8 @@ public:
   vtkIntArray(const int sz, const int ext=1000);
   vtkIntArray(const vtkIntArray& ia);
   ~vtkIntArray();
-  virtual char *GetClassName() {return "vtkIntArray";};
+  virtual vtkIntArray *New() {return new vtkIntArray;};
+  char *GetClassName() {return "vtkIntArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // access/insertion methods

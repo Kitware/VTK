@@ -58,6 +58,7 @@ class VTK_EXPORT vtkStructuredPointsSource : public vtkSource
 {
 public:
   vtkStructuredPointsSource();
+  vtkStructuredPointsSource *New() {return new vtkStructuredPointsSource;};
   char *GetClassName() {return "vtkStructuredPointsSource";};
 
   // Description:

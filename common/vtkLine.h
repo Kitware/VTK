@@ -52,6 +52,7 @@ class VTK_EXPORT vtkLine : public vtkCell
 public:
   vtkLine();
   vtkLine(const vtkLine& l);
+  vtkLine *New() {return new vtkLine;};
   char *GetClassName() {return "vtkLine";};
 
   // cell methods

@@ -53,6 +53,7 @@ class VTK_EXPORT vtkPolyVertex : public vtkCell
 public:
   vtkPolyVertex() {};
   vtkPolyVertex(const vtkPolyVertex& pp);
+  vtkPolyVertex *New() {return new vtkPolyVertex;};
   char *GetClassName() {return "vtkPolyVertex";};
 
   // cell methods

@@ -71,6 +71,7 @@ public:
   vtkCollection();
   virtual ~vtkCollection();
   void PrintSelf(ostream& os, vtkIndent indent);
+  vtkCollection *New() {return new vtkCollection;};
   char *GetClassName() {return "vtkCollection";};
 
   void AddItem(vtkObject *);

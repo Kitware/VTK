@@ -63,6 +63,7 @@ public:
   
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(4*sz,4*ext);};
   void Initialize() {this->S->Initialize();};
+  vtkAPixmap *New() {return new vtkAPixmap;};
   char *GetClassName() {return "vtkAPixmap";};
 
   // vtkScalar interface

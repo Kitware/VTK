@@ -71,6 +71,7 @@ public:
   int Allocate(const int sz, const int ext=1000) 
     {return this->Ia->Allocate(sz,ext);};
   void Initialize() {this->Ia->Initialize();};
+  vtkCellArray *New() {return new vtkCellArray;};
   char *GetClassName() {return "vtkCellArray";};
 
   int GetNumberOfCells();

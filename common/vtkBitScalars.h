@@ -60,6 +60,7 @@ public:
 
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
   void Initialize() {this->S->Initialize();};
+  vtkBitScalars *New() {return new vtkBitScalars;};
   char *GetClassName() {return "vtkBitScalars";};
 
   // vtkScalar interface

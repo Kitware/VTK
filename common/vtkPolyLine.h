@@ -56,6 +56,7 @@ class VTK_EXPORT vtkPolyLine : public vtkCell
 public:
   vtkPolyLine() {};
   vtkPolyLine(const vtkPolyLine& pl);
+  vtkPolyLine *New() {return new vtkPolyLine;};
   char *GetClassName() {return "vtkPolyLine";};
 
   int GenerateNormals(vtkPoints *, vtkCellArray *, vtkFloatNormals *);

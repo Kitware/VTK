@@ -57,6 +57,7 @@ class VTK_EXPORT vtkIdList : public vtkObject
   ~vtkIdList();
 
   vtkIdList &operator=(const vtkIdList& ids) {*(this->Ia) = *(ids.Ia); return *this;};
+  vtkIdList *New() {return new vtkIdList;};
   char *GetClassName() {return "vtkIdList";};
   void Squeeze() {this->Ia->Squeeze();};
 

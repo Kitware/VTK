@@ -65,6 +65,7 @@ class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 public:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
   void Build();
+  vtkWindowLevelLookupTable *New() {return new vtkWindowLevelLookupTable;};
   char *GetClassName() {return "vtkWindowLevelLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

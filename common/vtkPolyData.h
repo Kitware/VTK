@@ -72,6 +72,7 @@ public:
   vtkPolyData();
   vtkPolyData(const vtkPolyData& pd);
   ~vtkPolyData();
+  vtkPolyData *New() {return new vtkPolyData;};
   char *GetClassName() {return "vtkPolyData";};
   char *GetDataType() {return "vtkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -55,6 +55,7 @@ class VTK_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
   vtkPlane();
+  vtkPlane *New() {return new vtkPlane;};
   char *GetClassName() {return "vtkPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
