@@ -11,7 +11,8 @@ srcdir        = @srcdir@
 VPATH         = @srcdir@
 
 MPI_OBJ = \
-vtkMPIController
+vtkMPIController \
+vtkMPIGroup
 
 
 ABSTRACT_H = 
