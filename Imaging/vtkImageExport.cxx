@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.27");
+vtkCxxRevisionMacro(vtkImageExport, "1.28");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ int vtkImageExport::GetDataMemorySize()
   input->UpdateInformation();
   int *extent = input->GetWholeExtent();
   int size = input->GetScalarSize();
-  size *= input->GetNumberOfScalarComponents();
+  size *= input->GetPipelineNumberOfScalarComponents();
   size *= (extent[1] - extent[0] + 1);
   size *= (extent[3] - extent[2] + 1);
   size *= (extent[5] - extent[4] + 1);
@@ -388,7 +388,7 @@ const char* vtkImageExport::ScalarTypeCallback()
     return "unsigned char";
     }
   
-  switch (this->GetInput()->GetScalarType())
+  switch (this->GetInput()->GetPipelineScalarType())
     {
     case VTK_DOUBLE:
       { return "double"; }
@@ -423,7 +423,7 @@ int vtkImageExport::NumberOfComponentsCallback()
     }
   else
     {
-    return this->GetInput()->GetNumberOfScalarComponents();
+    return this->GetInput()->GetPipelineNumberOfScalarComponents();
     }
 }
 
@@ -475,7 +475,7 @@ int vtkImageExport::GetDataNumberOfScalarComponents()
     return 1; 
     }
   this->GetInput()->UpdateInformation();
-  return this->GetInput()->GetNumberOfScalarComponents(); 
+  return this->GetInput()->GetPipelineNumberOfScalarComponents(); 
 }
 
 int vtkImageExport::GetDataScalarType() 
@@ -485,7 +485,7 @@ int vtkImageExport::GetDataScalarType()
     return VTK_UNSIGNED_CHAR; 
     }
   this->GetInput()->UpdateInformation();
-  return this->GetInput()->GetScalarType(); 
+  return this->GetInput()->GetPipelineScalarType();
 }
 
 int *vtkImageExport::GetDataExtent() 
