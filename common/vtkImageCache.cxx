@@ -48,6 +48,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // automatically by the vtkImageCachedSource, it does not.
 vtkImageCache::vtkImageCache()
 {
+  int idx;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->AspectRatio[idx] = 1.0;
+    this->Origin[idx] = 0.0;
+    this->ImageExtent[idx*2] = this->ImageExtent[idx*2+1] = 0;
+    }
+  
   this->Source = NULL;
   
   // Invalid data type
@@ -138,10 +147,17 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     region->SetAxes(1, 2, 3, 4, 0);
     region->GetImageExtent(this->ImageExtent);
     region->GetAspectRatio(this->AspectRatio);
+    region->GetOrigin(this->Origin);
     this->ImageInformationTime.Modified();
 
     // Leave the region in the original (before this method) coordinate system.
     region->SetAxes(saveAxes);
+ 
+    // The cache will change the data type if it has to
+    if (this->ScalarType != VTK_VOID)
+      {
+      region->SetScalarType(this->ScalarType);
+      }
     
     return;
     }
@@ -152,7 +168,14 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   region->SetAxes(1, 2, 3, 4, 0);
   region->SetImageExtent(this->ImageExtent);
   region->SetAspectRatio(this->AspectRatio);
+  region->SetOrigin(this->Origin);
 
+  // The cache will change the data type if it has to
+  if (this->ScalarType != VTK_VOID)
+    {
+    region->SetScalarType(this->ScalarType);
+    }
+  
   // Leave the region in the original (before this method) coordinate system.
   region->SetAxes(saveAxes);
 }

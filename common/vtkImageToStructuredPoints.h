@@ -67,6 +67,8 @@ public:
   // Set/Get the scalar input object from the image pipeline.
   vtkSetObjectMacro(ScalarInput,vtkImageSource);
   vtkGetObjectMacro(ScalarInput,vtkImageSource);
+  void SetInput(vtkImageSource *input) {this->SetScalarInput(input);} 
+  vtkImageSource *GetInput() {return this->GetScalarInput();} 
 
   // Description:
   // Set/Get the vector input object from the image pipeline.

@@ -109,6 +109,13 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
+  os << indent << "Origin: (" << this->Origin[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Origin[idx];
+    }
+  os << ")\n";
+  
   os << indent << "ScalarType: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
      << "\n";
   

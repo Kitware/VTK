@@ -89,7 +89,10 @@ public:
   // Get the dimensionality of the source.
   // The Update/Execute methods operate on this number of axes.
   vtkGetMacro(Dimensionality, int);
-  
+
+  // Description:
+  // This method updates the cache with the whole image extent.
+  void Update();
   
 protected:
   vtkImageCache *Output;

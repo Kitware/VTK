@@ -340,6 +340,16 @@ int vtkImageCachedSource::GetOutputScalarType()
 
 
 
+//----------------------------------------------------------------------------
+void vtkImageCachedSource::Update()
+{
+  vtkImageRegion *region;
+  
+  this->CheckCache();
+  region = this->Output->Update();
+  // Get rid of our reference count
+  region->Delete();
+}
 
 
 //----------------------------------------------------------------------------
