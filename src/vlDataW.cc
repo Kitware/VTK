@@ -199,7 +199,7 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
         {
         p = points->GetPoint(i);
         fprintf (fp, "%f %f %f ", p[0], p[1], p[2]);
-        if ( i != 0 && !(i%2) ) fprintf (fp,"\n");
+        if ( (i%2) ) fprintf (fp,"\n");
         }
       }
     else
@@ -211,7 +211,7 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
     fprintf (fp,"\n");
     }
 
-  if ( !strcmp(type,"int") )
+  else if ( !strcmp(type,"int") )
     {
     vlIntPoints *ipoints = (vlIntPoints *)points;
     fprintf (fp, "int\n");
@@ -222,7 +222,7 @@ int vlDataWriter::WritePoints(FILE *fp, vlPoints *points)
         {
         p = ipoints->GetPtr(3*i);
         fprintf (fp, "%d %d %d", p[0], p[1], p[2]);
-        if ( i != 0 && !(i%2) ) fprintf (fp,"\n");
+        if ( (i%2) ) fprintf (fp,"\n");
         }
       }
     else
@@ -267,7 +267,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
           {
           s = scalars->GetScalar(i);
           fprintf (fp, "%d ", (s!=0.0?1:0));
-          if ( i != 0 && !(i%6) ) fprintf (fp,"\n");
+          if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
       else
@@ -289,7 +289,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
           {
           s = (unsigned char) scalars->GetScalar(i);
           fprintf (fp, "%c ", s);
-          if ( i != 0 && !(i%6) ) fprintf (fp,"\n");
+          if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
       else
@@ -311,7 +311,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
           {
           s = (short) scalars->GetScalar(i);
           fprintf (fp, "%d ", s);
-          if ( i != 0 && !(i%6) ) fprintf (fp,"\n");
+          if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
       else
@@ -333,7 +333,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
           {
           s = scalars->GetScalar(i);
           fprintf (fp, "%d ", s);
-          if ( i != 0 && !(i%6) ) fprintf (fp,"\n");
+          if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
       else
@@ -355,7 +355,7 @@ int vlDataWriter::WriteScalarData(FILE *fp, vlScalars *scalars, int numPts)
           {
           s = scalars->GetScalar(i);
           fprintf (fp, "%f ", s);
-          if ( i != 0 && !(i%6) ) fprintf (fp,"\n");
+          if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
       else
@@ -476,7 +476,7 @@ int vlDataWriter::WriteVectorData(FILE *fp, vlVectors *vectors, int numPts)
         {
         v = vectors->GetVector(i);
         fprintf (fp, "%f %f %f ", v[0], v[1], v[2]);
-        if ( i != 0 && !(i%2) ) fprintf (fp,"\n");
+        if ( (i%2) ) fprintf (fp,"\n");
         }
       }
     else
@@ -513,7 +513,7 @@ int vlDataWriter::WriteNormalData(FILE *fp, vlNormals *normals, int numPts)
         {
         n = normals->GetNormal(i);
         fprintf (fp, "%f %f %f ", n[0], n[1], n[2]);
-        if ( i != 0 && !(i%2) ) fprintf (fp,"\n");
+        if ( (i%2) ) fprintf (fp,"\n");
         }
       }
     else
@@ -551,7 +551,7 @@ int vlDataWriter::WriteTCoordData(FILE *fp, vlTCoords *tcoords, int numPts)
         {
         tc = tcoords->GetTCoord(i);
         for (j=0; j<dim; j++) fprintf (fp, "%f ", tc[j]);
-        if ( i != 0 && !(i%3) ) fprintf (fp,"\n");
+        if ( !((i+1)%3) ) fprintf (fp,"\n");
         }
       }
     else
