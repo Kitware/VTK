@@ -233,7 +233,20 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   for (i = 0; i < 3; i++) 
     {
     direction1[i]   = a1[i] - a0[i];
-    origin[i]      = (a0[i] - bounds[2*i])/(bounds[2*i+1] - bounds[2*i]);
+    if ((bounds[2*i+1] - bounds[2*i])!=0)
+    {
+      origin[i]      = (a0[i] - bounds[2*i])/(bounds[2*i+1] - bounds[2*i]);
+    }
+    else {
+      if ((a0[i] - bounds[2*i])>0)
+      {
+        origin[i] = VTK_LARGE_FLOAT;
+      }
+      else
+      {
+        origin[i] = -VTK_LARGE_FLOAT;
+      }
+    }
     direction2[i]  = (a1[i] - a0[i])/(bounds[2*i+1] - bounds[2*i]);
     bounds2[2*i]   = 0;
     bounds2[2*i+1] = 1.0;
