@@ -131,17 +131,25 @@ public:
   
   
   // For testing the object from tcl
-  void DrawRobot(float x, float y, float theta, float theta2)
-  {float state[4]; state[0] = x; state[1] = y; state[2] = theta; 
-  state[3] = theta2; this->DrawRobot(state);};
+  void DrawRobot(float x, float y, float t2, float t3)
+  {float s[4]; s[0]=x; s[1]=y; s[2]=t2; s[3]=t3; this->DrawRobot(s);};
+  void DrawRobot(float x, float y, float t2, float t3, float t4)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=t2; s[3]=t3; s[4]=t4; this->DrawRobot(s);};
+    void DrawRobot(float x, float y, float t2, float t3, float t4, float t5, float t6)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=t2; s[3]=t3; s[4]=t4; s[5]=t5; s[6]=t6;
+  this->DrawRobot(s);};
 
-  void DrawChild(float x, float y, float theta, float t2, int axis, float d)
-  {float state[4]; state[0] = x; state[1] = y; state[2] = theta;
-  state[3] = t2; GetChildState(state, axis, d, state); this->DrawRobot(state);};
+  void DrawChild(float x, float y, float t2, float t3, int axis, float d)
+  {float s[4]; s[0]=x; s[1]=y; s[2]=t2; s[3]=t3; 
+  GetChildState(s, axis, d, s); this->DrawRobot(s);};
   
-  void PrintCollision(float x, float y, float theta, float t2)
-  {float state[4]; state[0] = x; state[1] = y; state[2] = theta; state[3] = t2;
-  if (this->Collide(state)) printf("Collision\n"); else printf("Free\n");};
+  void PrintCollision(float x, float y, float t2, float t3)
+  {float s[4]; s[0]=x; s[1]=y; s[2]=t2; s[3]=t3;
+  if (this->Collide(s)) printf("Collision\n"); else printf("Free\n");};
+  
+  void PrintCollision(float x, float y, float t2, float t3, float t4, float t5, float t6)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=t2; s[3]=t3; s[4]=t4; s[5]=t5; s[6]=t6;
+  if (this->Collide(s)) printf("Collision\n"); else printf("Free\n");};
   
   vtkGetMacro(RotationFactor, float);
   

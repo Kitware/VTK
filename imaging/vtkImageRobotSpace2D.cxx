@@ -39,10 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdio.h>
 #include <math.h>
-#include "vtkImageXViewer.h"
+//#include "vtkImageXViewer.h"
 #include "vtkImageRobotSpace2D.h"
 #include "vtkImageDistance.h"
 
+
+#define GUIDE_POINT_HACK 50.0
 
 // State is in pixel units.
 
@@ -179,11 +181,11 @@ void vtkImageRobotSpace2D::Wrap(float *state)
   state += 2;
   for (idx = 0; idx <= this->NumberOfJoints; ++idx)
     {
-    while (*state < 0.0)
+    while (*state < -3.1415927)
       {
       *state += 6.283185307;   // 2pi
       }
-    while (*state > 6.283185307)
+    while (*state > 3.1415927)
       {
       *state -= 6.283185307;
       }
@@ -279,7 +281,11 @@ float vtkImageRobotSpace2D::Distance(float *p0, float *p1)
   sum = 0.0;
   for (idx = 0; idx < 2; ++idx)
     {
-    sum += fabs(*p0++ - *p1++);
+    temp = (*p0++ - *p1++);
+    // Try a hack for guide point.
+    temp *= GUIDE_POINT_HACK;
+    sum += temp * temp;
+    //sum += fabs(*p0++ - *p1++);
     }
   
   // handle robot rotation
@@ -290,7 +296,7 @@ float vtkImageRobotSpace2D::Distance(float *p0, float *p1)
     temp = 6.2831835 - temp;
     }
   temp /= this->RotationFactor;
-  sum += temp;
+  sum += temp * temp;
   
   // handle joint rotation
   for (idx = 0; idx < this->NumberOfJoints; ++idx)
@@ -302,10 +308,10 @@ float vtkImageRobotSpace2D::Distance(float *p0, float *p1)
       temp = 6.2831835 - temp;
       }
     temp /= this->Joints[idx]->GetFactor();
-    sum += temp;
+    sum += temp * temp;
     }
   
-  return sum;
+  return sqrt(sum);
 }
 
 
@@ -343,13 +349,13 @@ void vtkImageRobotSpace2D::GetMiddleState(float *s0, float *s1, float *middle)
   
   // Rotation of robot.
   temp = *s0 - *s1;
-  if (temp > 3.1415927)
+  while (temp > 3.1415927)
     {
-    temp -= 6.2831853;
+    temp -= 6.283185307;
     }
-  if (temp < -3.1415927)
+  while (temp < -3.1415927)
     {
-    temp += 6.2831853;
+    temp += 6.283185307;
     }
   *tmid = *s1 + temp * 0.5;
   ++tmid;
@@ -399,7 +405,7 @@ void vtkImageRobotSpace2D::GetChildState(float *state, int axis,
   // add distance along one direction.
   if (axis < 2)
     {
-    child[axis] += distance;
+    child[axis] += distance / GUIDE_POINT_HACK;
     }
   else if (axis == 2)
     {
@@ -464,15 +470,15 @@ void vtkImageRobotSpace2D::AnimatePath(vtkClaw *planner)
   int idx, idxJoint;
   int numberOfStates;
   float *state;
-  vtkImageXViewer *viewer;
+  //vtkImageXViewer *viewer;
   
   if ( !planner || !this->Canvas)
     {
     return;
     }
 
-  viewer = new vtkImageXViewer;  
-  viewer->SetInput(this->Canvas->GetOutput());
+  //viewer = new vtkImageXViewer;  
+  //viewer->SetInput(this->Canvas->GetOutput());
   
   numberOfStates = planner->GetPathLength();
   state = this->NewState();
@@ -490,12 +496,12 @@ void vtkImageRobotSpace2D::AnimatePath(vtkClaw *planner)
     
     this->ClearCanvas();
     this->Robot->Draw(this->Canvas);
-    viewer->Render();
+    //viewer->Render();
     printf("%d: pause:", idx);
     getchar();
     }
   
-  viewer->Delete();
+  //viewer->Delete();
 }
 
     

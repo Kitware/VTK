@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkStateSpace.h"
+//#include "vtkImageXViewer.h"
 
 
 
@@ -103,12 +104,22 @@ public:
   {float s[3]; s[0] = x; s[1] = y; s[2] = z; this->SetStartState(s);};
   void SetStartState(float x, float y, float z, float t)
   {float s[4]; s[0]=x; s[1]=y; s[2]=z; s[3]=t; this->SetStartState(s);};
+  void SetStartState(float x, float y, float z, float t3, float t4)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=z; s[3]=t3; s[4]=t4; this->SetStartState(s);};
+  void SetStartState(float x, float y, float z, float t3, float t4, float t5, float t6)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=z; s[3]=t3; s[4]=t4; s[5]=t5; s[6]=t6;
+  this->SetStartState(s);};
 
   void SetGoalState(float *state);
   void SetGoalState(float x, float y, float z)
   {float s[3]; s[0] = x; s[1] = y; s[2] = z; this->SetGoalState(s);};
   void SetGoalState(float x, float y, float z, float t)
   {float s[4]; s[0]=x; s[1]=y; s[2]=z; s[3]=t; this->SetGoalState(s);};
+  void SetGoalState(float x, float y, float z, float t3, float t4)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=z; s[3]=t3; s[4]=t4; this->SetGoalState(s);};
+  void SetGoalState(float x, float y, float z, float t3, float t4, float t5, float t6)
+  {float s[7]; s[0]=x; s[1]=y; s[2]=z; s[3]=t3; s[4]=t4; s[5]=t5; s[6]=t6;
+  this->SetGoalState(s);};
 
   void SetSearchStrategies (int num, int *strategies);
   void GeneratePath();
@@ -154,6 +165,11 @@ protected:
   float GoalPercentage;
   // The distance children are spawned from parent as fraction of radius.
   float ChildFraction;
+  // To avoid numerical errors and add some "tolerance"
+  // neighbors have to be a little closer that r1+r2.
+  // Distance between neighbors has to be less than frac*(r1+r2).
+  float NeighborFraction;
+  
   // Any returned path is put here.
   SphereList *Path;
   // The object which defines the state space we are searching.
@@ -161,6 +177,24 @@ protected:
   // An array to compute which children are covered. ([2*DegreesOfFreedom]).
   int *Candidates;
 
+  // Space approximation manger.
+  // A list of points (stored as Sphere centers) which are not in free space
+  SphereList *Collisions;
+  SphereList *FreeSpheres;
+  // Create spheres while testing links (but add them later.
+  SphereList *DeferredSpheres;
+
+  //vtkImageXViewer *Viewer;
+  
+  // Functions to handle Spheres and locking ...
+  Sphere *SphereNew(float *center, Sphere *parent);
+  Sphere *SphereAdd(Sphere *b);
+  void NewDeferredSphere(float *center);
+  void AddDeferredSpheres();
+  void CheckForMergedNetworks(Sphere *s);
+  void SphereCollisionAdd(Sphere *b, Sphere *parent);
+  void CollisionAdd(float *state, Sphere *parent);
+  
   Sphere *SphereMake(float *center, float radius, int visited);
   void SphereListElementFree(SphereList *l);
   void SphereListAllFree(SphereList *l);
@@ -172,7 +206,6 @@ protected:
   int SpheresCollisionCount();
   void SphereRadiusReduce(Sphere *b, float radius);
   void SphereNeighborsPrune(Sphere *b);
-  void SphereCollisionAdd(Sphere *b, Sphere *parent);
   void SphereFree(Sphere *b);
   void SphereAllFree();
   void SphereCollisionsPrune();
@@ -186,7 +219,7 @@ protected:
   void SpheresPrint(SphereList *spheres);
   int SpheresCount(SphereList *spheres);
   void SphereSearchStrategySet(int strategy);
-  int SphereCandidateChoose(Sphere *b, float *proposed);
+  void SphereCandidateChoose(Sphere *b, float *proposed);
   float SphereNearestNetworkMoveEvaluate(Sphere *b, int axis, int direction);
   float SphereNearestGlobalMoveEvaluate(Sphere *b, float *proposed);
   float SpherePioneerLocalMoveEvaluate(Sphere *b, float *proposed);
@@ -202,7 +235,6 @@ protected:
   float SphereMinimumWellSortCompute(Sphere *b);
   float SphereCloseToleranceSortCompute(Sphere *b);
   float SphereNarrowWellSortCompute(Sphere *b);
-  void PathVerifyStepSet(float step_size);
   int SmoothSphere(Sphere *s);
   void SphereLinkVerifiedRecord(Sphere *b0, Sphere *b1);
   int SphereLinkVerifiedAlready(Sphere *b0, Sphere *b1);
@@ -210,8 +242,6 @@ protected:
   int SphereLinkStates(float *s1, float *s2, float distance);
   int SphereStartGoalInitialize(float *start_state, float *goal_state,
 				float radius);
-  Sphere *SphereNew(float *center, Sphere *parent);
-  Sphere *SphereAdd(Sphere *b);
   int PathVerify(SphereList *path);
   int SphereLinkVerify(Sphere *b0, Sphere *b1);
   SphereList *PathGenerate(int additional_Spheres, 
