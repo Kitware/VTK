@@ -41,10 +41,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageIdealLowPass - Simple frequency domain band pass.
 // .SECTION Description
+// This filter only works on an image after it has been converted to
+// frequency domain by a vtkImageFFT filter.  A vtkImageRFFT filter
+// can be used to convert the output back into the spatial domain.
 // vtkImageIdealLowPass just sets a portion of the image to zero.  The result
 // is an image with a lot of ringing.  Input and Output must be floats.
 // Dimensionality is set when the axes are set.  Defaults to 2D on X and Y
 // axes.
+
+// .SECTION See Also
+// vtkImageButterworthLowPass vtkImageIdealHighPass vtkImageFFT vtkImageRFFT
 
 
 

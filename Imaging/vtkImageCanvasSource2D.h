@@ -43,7 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkImageCanvasSource2D is a source that starts as a blank image.
 // you may add to the image with two-dimensional drawing routines.
-// It can paint multi-spectral images.
+// It can paint multi-spectral images.  This object is unusual because
+// it is a data object itself and not a source.
 
 
 #ifndef __vtkImageCanvasSource2D_h
@@ -82,7 +83,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // To drawing into a different image, set it with this method.
+  // To draw into a different image, set it with this method.
   void SetImageData(vtkImageData *image);
   vtkGetObjectMacro(ImageData, vtkImageData);
   
@@ -109,7 +110,8 @@ public:
 
   // Description:
   // Fill a colored area with another color. (like connectivity)
-  // All pixels connected to pixel (x, y) get replaced by draw color.
+  // All pixels connected (and with the same value) to pixel (x, y) 
+  // get replaced by the current "DrawColor".
   void FillPixel(int x, int y);
 
   // Description:
@@ -119,10 +121,13 @@ public:
   
   // Description:
   // These methods also set the WholeExtent of this "DataObject".
+  // This is just like vtkImageData.  It sets the size of the canvas.
+  // Extent is a min max 3D box.  Minimums and maximums are inclusive.
   void SetExtent(int *extent);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
   
   // Description:
+  // The drawing operations can only draw into one 2D XY plane at a time.
   // If the canvas is a 3D volume, then this z value is used
   // as the default for 2D operations.
   vtkSetMacro(DefaultZ, int);

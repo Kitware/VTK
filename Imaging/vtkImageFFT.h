@@ -42,11 +42,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageFFT -  Fast Fourier Transform.
 // .SECTION Description
 // vtkImageFFT implements a  fast Fourier transform.  The input
-// can have real or imaginary data in any components and data types, but
-// the output is always float with real values in component0, and
+// can have real or complex data in any components and data types, but
+// the output is always complex floats with real values in component0, and
 // imaginary values in component1.  The filter is fastest for images that
-// have power of two sizes.  Multi dimensional FFT's are decomposed so
-// that each axis executes in series.
+// have power of two sizes.  The filter uses a butterfly fitlers for each
+// prime factor of the dimension.  This makes images with prime number dimensions 
+// (i.e. 17x17) much slower to compute.  Multi dimensional (i.e volumes) 
+// FFT's are decomposed so that each axis executes in series.
 
 
 #ifndef __vtkImageFFT_h

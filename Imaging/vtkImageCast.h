@@ -63,7 +63,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the desired output scalar type to cast to
+  // Set the desired output scalar type to cast to.
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
   void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
