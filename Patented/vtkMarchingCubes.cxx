@@ -211,7 +211,7 @@ static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, i
   float s[8], value;
   int i, j, k, sliceSize;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
-  TRIANGLE_CASES *triCase;
+  VTK_TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, index, *vert;
   vtkIdType ptIds[3];
@@ -344,7 +344,8 @@ static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, i
 	    {
 	    continue;
 	    }
-          triCase = VTK_MARCHING_CUBES_TRICASES + index;
+
+	  triCase = VTK_TRIANGLE_CASES::GetCases() + index;
           edge = triCase->edges;
 
           for ( ; edge[0] > -1; edge += 3 )
