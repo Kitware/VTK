@@ -95,6 +95,8 @@ void vtkVoxelReader::Execute()
     newScalars->SetScalar(i++,(int)(uc&0x01));
     }
 
+  fclose( fp );
+
   vtkDebugMacro(<< "Read " << numPts<< " points");
 
   output->GetPointData()->SetScalars(newScalars);
