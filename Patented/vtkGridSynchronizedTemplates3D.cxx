@@ -800,14 +800,15 @@ void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *o
   int piece, numPieces, ghostLevel;
   int *wholeExt;
   int ext[6];
-  vtkExtentTranslator *translator = input->GetExtentTranslator();
-  
+  vtkExtentTranslator *translator;
+
   if (!input)
     {
     vtkErrorMacro(<< "Input not set.");
     return;
     }
 
+  translator = input->GetExtentTranslator();  
   wholeExt = input->GetWholeExtent();
 
   // Get request from output

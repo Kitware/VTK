@@ -144,14 +144,23 @@ void vtkDataSetToDataObjectFilter::Execute()
       {
       vtkRectilinearGrid *rgrid=(vtkRectilinearGrid *)input;
       da = rgrid->GetXCoordinates();
-      da->SetName("XCoordinates");
-      fd->AddArray( da );
+      if (da != NULL)
+        {
+        da->SetName("XCoordinates");
+        fd->AddArray( da );
+        }
       da = rgrid->GetYCoordinates();
-      da->SetName("YCoordinates");
-      fd->AddArray( da );
+      if (da != NULL)
+        {
+        da->SetName("YCoordinates");
+        fd->AddArray( da );
+        }
       da = rgrid->GetZCoordinates();
-      da->SetName("ZCoordinates");
-      fd->AddArray( da );
+      if (da != NULL)
+        {
+        da->SetName("ZCoordinates");
+        fd->AddArray( da );
+        }
       }
     
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
