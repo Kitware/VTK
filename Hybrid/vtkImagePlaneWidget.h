@@ -416,7 +416,18 @@ protected:
   int MiddleButtonAutoModifier;
   int RightButtonAutoModifier;
 
-//BTX - manage the state of the widget
+  //BTX
+  enum
+  {
+    NO_BUTTON     = 0,
+    LEFT_BUTTON   = 1,
+    MIDDLE_BUTTON = 2,
+    RIGHT_BUTTON  = 3
+  };
+  //ETX
+  int LastButtonPressed;
+
+  //BTX - manage the state of the widget
   int State;
   enum WidgetState
   {
@@ -430,7 +441,7 @@ protected:
     Scaling,
     Outside
   };
-//ETX
+  //ETX
 
   // Handles the events
   static void ProcessEvents(vtkObject* object,
