@@ -228,7 +228,8 @@ ZIPPostEncode(TIFF* tif)
                 switch (state) {
                 case Z_STREAM_END:
                 case Z_OK:
-                    if (sp->stream.avail_out != tif->tif_rawdatasize) {
+                    if ((tsize_t)sp->stream.avail_out != 
+                        tif->tif_rawdatasize) {
                             tif->tif_rawcc =
                                 tif->tif_rawdatasize - sp->stream.avail_out;
                             TIFFFlushData1(tif);
