@@ -47,7 +47,9 @@ vtkTransform t2r
 
 # concatenate with initial transform
 vtkLinearTransformConcatenation t2
-t2 Concatenate t1 t2t t2r 
+t2 Concatenate t1
+t2 Concatenate t2t
+t2 Concatenate t2r 
 
 vtkTransformPolyDataFilter f2
 f2 SetInput [c2 GetOutput]
@@ -75,7 +77,9 @@ vtkTransform t3r
 
 # concatenate with previous segment
 vtkLinearTransformConcatenation t3
-t3 Concatenate t2 t3t t3r
+t3 Concatenate t2
+t3 Concatenate t3t
+t3 Concatenate t3r
 
 vtkTransformPolyDataFilter f3
 f3 SetInput [c3 GetOutput]
