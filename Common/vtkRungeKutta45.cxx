@@ -18,7 +18,7 @@
 #include "vtkRungeKutta45.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.1");
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.2");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters
@@ -116,13 +116,13 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     }
 
   float errRatio, tmp, tmp2;
-  int retVal, sign, shouldBreak = 0;
+  int retVal, shouldBreak = 0;
 
   // Reduce the step size until estimated error <= maximum allowed error
   while ( estErr > maxError )
     {
-    if (retVal = 
-	this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr))
+    if ((retVal = 
+	 this->ComputeAStep(xprev, dxprev, xnext, t, delT, estErr)))
       {
       delTActual = delT;
       return retVal;
@@ -139,11 +139,11 @@ int vtkRungeKutta45::ComputeNextStep(float* xprev, float* dxprev,
     // Empirical formulae for calculating next step size
     if ( errRatio > 1 )
       {
-      tmp = delT*pow(errRatio, -0.25);
+      tmp = delT*pow(errRatio, static_cast<float>(-0.25));
       }
     else
       {
-      tmp = delT*pow(errRatio, -0.2);
+      tmp = delT*pow(errRatio, static_cast<float>(-0.2));
       }
     tmp2 = fabs(tmp);
     
