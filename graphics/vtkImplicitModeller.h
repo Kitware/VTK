@@ -40,15 +40,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImplicitModeller - compute distance from input geometry on structured point dataset
 // .SECTION Description
+
+
 // vtkImplicitModeller is a filter that computes the distance from the input
-// geometry to the points in a structured point set. This distance function can 
-// then be "contoured" to generate new, offset surfaces from the original 
-// geometry. An important feature of this object is "capping". If capping is 
-// turned on, after  the implicit model is created, the values on the boundary 
-// of the structured points dataset are set to the cap value. This is used to 
-// force closure of the resulting contoured surface. Note, however, that large 
-// cap values can generate weird surface normals in those cells adjacent to the 
-// boundary of the dataset. Using s amller cap value will reduce this effect.
+// geometry to the points of an output structured point set. This distance
+// function can then be "contoured" to generate new, offset surfaces from
+// the original geometry. An important feature of this object is
+// "capping". If capping is turned on, after the implicit model is created,
+// the values on the boundary of the structured points dataset are set to
+// the cap value. This is used to force closure of the resulting contoured
+// surface. Note, however, that large cap values can generate weird surface
+// normals in those cells adjacent to the boundary of the dataset. Using
+// smaller cap value will reduce this effect.
+//
+// Another important ivar is MaximumDistance. This controls how far into the
+// volume the distance function is computed from the input geometry.  Small
+// values give significant increases in performance. However, there can
+// strange sampling effects at the extreme range of the MaximumDistance.
+//
+// In order to properly execute and sample the input data, a rectangular
+// region in space must be defined (this is the ivar ModelBounds).  If not
+// explicitly defined, the model bounds will be computed. Note that to avoid
+// boundary effects, it is possible to adjust the model bounds (i.e., using
+// the AdjustBounds and AdjustDistance ivars) to strictly contain the
+// sampled data.
+//
+// This filter has one other unusual capability: it is possible to append
+// data in a sequence of operations to generate a single output. This is
+// useful when you have multiple datasets and want to create a
+// conglomeration of all the data.
 
 // .SECTION See Also
 // vtkSampleFunction vtkContourFilter
@@ -81,10 +101,27 @@ public:
   vtkGetMacro(MaximumDistance,float);
 
   // Description:
-  // Specify the region in space in which to perform the sampling.
+  // Specify the region in space in which to perform the sampling. If
+  // not specified, it will be computed automatically.
   vtkSetVectorMacro(ModelBounds,float,6);
   vtkGetVectorMacro(ModelBounds,float,6);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+
+  // Description:
+  // Control how the model bounds are computed. If the ivar AdjustBounds
+  // is set, then the bounds specified (or computed automatically) is modified
+  // by the fraction given by AdjustDistance. This means that the model
+  // bounds is expanded in each of the x-y-z directions.
+  vtkSetMacro(AdjustBounds,int);
+  vtkGetMacro(AdjustBounds,int);
+  vtkBooleanMacro(AdjustBounds,int);
+  
+  // Description:
+  // Specify the amount to grow the model bounds (if the ivar AdjustBounds
+  // is set). The value is a fraction of the maximum length of the sides
+  // of the box specified by the model bounds.
+  vtkSetClampMacro(AdjustDistance,float,-1.0,1.0);
+  vtkGetMacro(AdjustDistance,float);
 
   // Description:
   // The outer boundary of the structured point set can be assigned a 
@@ -115,6 +152,8 @@ protected:
   int Capping;
   float CapValue;
   int DataAppended;
+  int AdjustBounds;
+  float AdjustDistance;
 };
 
 #endif

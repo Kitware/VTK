@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // equal to a large positive number.
 vtkImplicitModeller::vtkImplicitModeller()
 {
-  this->MaximumDistance = 0.1;
+  this->MaximumDistance = 0.075;
 
   this->ModelBounds[0] = 0.0;
   this->ModelBounds[1] = 0.0;
@@ -65,6 +65,8 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->CapValue = sqrt(VTK_LARGE_FLOAT) / 3.0;
 
   this->DataAppended = 0;
+  this->AdjustBounds = 1;
+  this->AdjustDistance = 0.0125;
 }
 
 void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -278,9 +280,9 @@ void vtkImplicitModeller::Update()
 // Compute ModelBounds from input geometry.
 float vtkImplicitModeller::ComputeModelBounds()
 {
-  float *bounds, maxDist;
-  int i, adjustBounds=0;
-  vtkStructuredPoints *output = this->GetOutput();
+  float *bounds, maxDist, h[3];
+  int i;
+  vtkStructuredPoints *output=this->GetOutput();
   float tempf[3];
   
   // compute model bounds if not set previously
@@ -288,7 +290,6 @@ float vtkImplicitModeller::ComputeModelBounds()
   this->ModelBounds[2] >= this->ModelBounds[3] ||
   this->ModelBounds[4] >= this->ModelBounds[5] )
     {
-    adjustBounds = 1;
     bounds = this->Input->GetBounds();
     }
   else
@@ -297,18 +298,18 @@ float vtkImplicitModeller::ComputeModelBounds()
     }
 
   for (maxDist=0.0, i=0; i<3; i++)
-    if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
+    if ( (h[i]=(bounds[2*i+1] - bounds[2*i])) > maxDist )
       maxDist = bounds[2*i+1] - bounds[2*i];
 
   maxDist *= this->MaximumDistance;
 
   // adjust bounds so model fits strictly inside (only if not set previously)
-  if ( adjustBounds )
+  if ( this->AdjustBounds )
     {
     for (i=0; i<3; i++)
       {
-      this->ModelBounds[2*i] = bounds[2*i] - maxDist;
-      this->ModelBounds[2*i+1] = bounds[2*i+1] + maxDist;
+      this->ModelBounds[2*i] = bounds[2*i] - h[i]*this->AdjustDistance;
+      this->ModelBounds[2*i+1] = bounds[2*i+1] + h[i]*this->AdjustDistance;
       }
     }
 
