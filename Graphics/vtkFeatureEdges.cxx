@@ -17,16 +17,19 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.69");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.70");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -52,9 +55,21 @@ vtkFeatureEdges::~vtkFeatureEdges()
 }
 
 // Generate feature edges for mesh
-void vtkFeatureEdges::Execute()
+int vtkFeatureEdges::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input= this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkFloatArray *newScalars = NULL;
@@ -73,7 +88,6 @@ void vtkFeatureEdges::Execute()
   vtkIdType numPts, numCells, numPolys, numStrips, nei;
   vtkIdList *neighbors;
   vtkIdType p1, p2, newId;
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   unsigned char* ghostLevels=0;
@@ -106,11 +120,11 @@ void vtkFeatureEdges::Execute()
        (numPolys < 1 && numStrips < 1) )
     {
     //vtkErrorMacro(<<"No input data!");
-    return;
+    return 0;
     }
 
   if ( !this->BoundaryEdges && !this->NonManifoldEdges && 
-  !this->FeatureEdges && !this->ManifoldEdges )
+       !this->FeatureEdges && !this->ManifoldEdges )
     {
     vtkDebugMacro(<<"All edge types turned off!");
     }
@@ -344,6 +358,8 @@ void vtkFeatureEdges::Execute()
     outCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     }
+
+  return 1;
 }
 
 void vtkFeatureEdges::CreateDefaultLocator()
@@ -377,7 +393,7 @@ void vtkFeatureEdges::SetLocator(vtkPointLocator *locator)
 
 unsigned long int vtkFeatureEdges::GetMTime()
 {
-  unsigned long mTime=this-> vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )
@@ -388,18 +404,29 @@ unsigned long int vtkFeatureEdges::GetMTime()
   return mTime;
 }
 
-void vtkFeatureEdges::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkFeatureEdges::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int numPieces, ghostLevel;
   
-  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 
-  numPieces = output->GetUpdateNumberOfPieces();
-  ghostLevel = output->GetUpdateGhostLevel();
   if (numPieces > 1)
     {
-    this->GetInput()->SetUpdateGhostLevel(ghostLevel + 1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel + 1);
     }
+
+  return 1;
 }
 
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)
