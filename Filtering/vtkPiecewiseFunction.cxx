@@ -19,7 +19,7 @@
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.34");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.35");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -316,10 +316,11 @@ int vtkPiecewiseFunction::InsertPoint( float x, float val )
       // Overwrite value if found
       if( x == this->Function[(i*2)] )
         {
-        this->Function[(i*2 + 1)] = val;
-
-        this->Modified();
-
+        if (this->Function[(i*2 + 1)] != val)
+          {
+          this->Function[(i*2 + 1)] = val;
+          this->Modified();
+          }
         return( i );
         }
 
@@ -453,6 +454,10 @@ int vtkPiecewiseFunction::RemovePoint( float x )
 // Removes all points from the function.
 void vtkPiecewiseFunction::RemoveAllPoints()
 {
+  if (!this->FunctionSize)
+    {
+    return;
+    }
   this->FunctionSize     = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;

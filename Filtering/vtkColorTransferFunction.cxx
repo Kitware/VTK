@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.45");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.46");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -193,59 +193,65 @@ int vtkColorTransferFunction::AddRGBPoint( float x, float r,
   // Do we have an exact match?
   if ( i < this->NumberOfPoints && this->Function[4*i] == x )
     {
-    this->Function[4*i  ] = x;
-    this->Function[4*i+1] = r;
-    this->Function[4*i+2] = g;
-    this->Function[4*i+3] = b;    
-    }
-  // otherwise we have to add it before the current location
-  else
-    {
-    // We need more space
-    if ( this->NumberOfPoints == this->FunctionSize )
+    if (this->Function[4*i+1] != r ||
+        this->Function[4*i+2] != g ||
+        this->Function[4*i+3] != b)
       {
-      if ( this->FunctionSize )
-        {
-        this->FunctionSize *= 2;
-        }
-      else
-        {
-        this->FunctionSize = 100;
-        }
+      this->Function[4*i+1] = r;
+      this->Function[4*i+2] = g;
+      this->Function[4*i+3] = b;    
+      this->Modified();
+      }
+    
+    return i;
+    }
 
-      float *tmp = new float[this->FunctionSize*4];
-      if ( i > 0 )
-        {
-        memcpy( tmp, this->Function, i*sizeof(float)*4 );
-        }
-      if ( i < this->NumberOfPoints )
-        {
-        memcpy( tmp+i+1, this->Function+i, 
-                (this->NumberOfPoints-i)*sizeof(float)*4 );
-        }
-      if ( this->Function )
-        {
-        delete [] this->Function;
-        }
-      this->Function = tmp;
+  // otherwise we have to add it before the current location
+  // We need more space
+  if ( this->NumberOfPoints == this->FunctionSize )
+    {
+    if ( this->FunctionSize )
+      {
+      this->FunctionSize *= 2;
       }
     else
       {
-      for ( int j = this->NumberOfPoints - 1; j >= i; j-- )
-        {
-        this->Function[4*(j+1)  ] = this->Function[4*j  ];
-        this->Function[4*(j+1)+1] = this->Function[4*j+1];
-        this->Function[4*(j+1)+2] = this->Function[4*j+2];
-        this->Function[4*(j+1)+3] = this->Function[4*j+3];
-        }
+      this->FunctionSize = 100;
       }
-    this->Function[i*4  ] = x;
-    this->Function[i*4+1] = r;
-    this->Function[i*4+2] = g;
-    this->Function[i*4+3] = b;
-    
-    this->NumberOfPoints++;
+
+    float *tmp = new float[this->FunctionSize*4];
+    if ( i > 0 )
+      {
+      memcpy( tmp, this->Function, i*sizeof(float)*4 );
+      }
+    if ( i < this->NumberOfPoints )
+      {
+      memcpy( tmp+i+1, this->Function+i, 
+              (this->NumberOfPoints-i)*sizeof(float)*4 );
+      }
+    if ( this->Function )
+      {
+      delete [] this->Function;
+      }
+    this->Function = tmp;
     }
+  else
+    {
+    for ( int j = this->NumberOfPoints - 1; j >= i; j-- )
+      {
+      this->Function[4*(j+1)  ] = this->Function[4*j  ];
+      this->Function[4*(j+1)+1] = this->Function[4*j+1];
+      this->Function[4*(j+1)+2] = this->Function[4*j+2];
+      this->Function[4*(j+1)+3] = this->Function[4*j+3];
+      }
+    }
+
+  this->Function[i*4  ] = x;
+  this->Function[i*4+1] = r;
+  this->Function[i*4+2] = g;
+  this->Function[i*4+3] = b;
+    
+  this->NumberOfPoints++;
   
   this->Range[0] = *this->Function;
   this->Range[1] = *(this->Function + (this->NumberOfPoints-1)*4); 
@@ -316,6 +322,11 @@ int vtkColorTransferFunction::RemovePoint( float x )
 // Remove all points
 void vtkColorTransferFunction::RemoveAllPoints()
 {
+  if (!this->NumberOfPoints)
+    {
+    return;
+    }
+
   this->NumberOfPoints = 0;
   
   this->Range[0] = 0;
