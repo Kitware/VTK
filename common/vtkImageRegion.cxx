@@ -128,7 +128,7 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
 // Convert 4d vector (not extent!) from one coordinate system into another
 // coordinate system.  "vectIn" and "vectOut" may be the same array.
 template <class T>
-void
+static void
 vtkImageRegionChangeVectorCoordinateSystem(T *vectIn, int *axesIn, 
 					   T *vectOut, int *axesOut)
 {
@@ -775,7 +775,7 @@ void vtkImageRegion::Translate(int dim, int *vector)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageRegionFill(vtkImageRegion *self, T value)
+static void vtkImageRegionFill(vtkImageRegion *self, T value)
 {
   int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
   int inc0, inc1, inc2, inc3, inc4;
@@ -852,7 +852,7 @@ void vtkImageRegion::Fill(float value)
 // since data in region has same extent as region, 5 nested loops are not
 // actually necessary.  But to keep this method tolerent to future changes ...
 template <class T>
-void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
+static void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
 {
   int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
   int inc0, inc1, inc2, inc3, inc4;
