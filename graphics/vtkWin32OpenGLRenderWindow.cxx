@@ -781,9 +781,9 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
                  -1.0 );
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
   glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
 
@@ -972,9 +972,9 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1), 
 		 -1.0 );
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
   glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   if (!blend)
@@ -1079,9 +1079,9 @@ void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glLoadIdentity();
   glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
                  2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
   glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);

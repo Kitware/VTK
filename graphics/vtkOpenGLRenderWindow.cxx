@@ -795,9 +795,9 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1),
 		   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
 		   -1.0 );
-    glMatrixMode( GL_MODELVIEW );
-    glPopMatrix();
     glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
+    glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
 
     glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
@@ -817,9 +817,9 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
                  -1.0 );
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
   glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
@@ -894,10 +894,12 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   if (front)
     {
     glDrawBuffer(GL_FRONT);
+printf("Drawing to the FRONT buffer\n");
     }
   else
     {
     glDrawBuffer(GL_BACK);
+printf("Drawing to the BACK buffer\n");
     }
 
   if (y1 < y2)
@@ -935,9 +937,9 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
                  (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
 		 -1.0 );
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
   glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   if (!blend)
@@ -949,6 +951,7 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   else
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
+printf("Not BLENDing\n");
     }
 }
 
@@ -1040,9 +1043,9 @@ void vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glLoadIdentity();
   glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
                  2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
-  glMatrixMode( GL_MODELVIEW );
-  glPopMatrix();
   glMatrixMode( GL_PROJECTION );
+  glPopMatrix();
+  glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
 
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
