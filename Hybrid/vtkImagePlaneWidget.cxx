@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.8");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.9");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -51,7 +51,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->OriginalWindow = 1.0;
   this->OriginalLevel = 0.5;
   this->TextureInterpolate = 1;
-  this->ResliceInterpolate = VTK_CUBIC_RESLICE;
+  this->ResliceInterpolate = -1;
   this->UserPickerEnabled = 0;
 
   // Represent the plane
@@ -102,8 +102,8 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
 
   this->SetRepresentation();
 
-  this->ResliceAxes = NULL;
   this->Reslice = NULL;
+  this->ResliceAxes = NULL;  
   this->TexturePlaneCoords = NULL;
   this->TexturePlaneMapper = NULL;
   this->TexturePlaneActor = NULL;
@@ -348,6 +348,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reslice Interpolate: " << this->ResliceInterpolate << "\n";
   os << indent << "Texture Interpolate: " 
      << (this->TextureInterpolate ? "On\n" : "Off\n") ;
+  os << indent << "Restrict Plane To Volume: " 
+     << (this->RestrictPlaneToVolume ? "On\n" : "Off\n") ;
 }
 
 void vtkImagePlaneWidget::PositionHandles()
@@ -1043,37 +1045,32 @@ void vtkImagePlaneWidget::SetRepresentation()
     }
 }
 
-void vtkImagePlaneWidget::SetResliceInterpolateToNearestNeighbour()
+void vtkImagePlaneWidget::SetResliceInterpolate(int i)
 {
+  if ( this->ResliceInterpolate == i )
+    {
+    return;
+    }
+  this->ResliceInterpolate = i;
+  this->Modified();
+
   if ( ! this->Reslice )
     {
     return;
     }
-
-  this->Reslice->SetInterpolationModeToNearestNeighbor();
-  this->ResliceInterpolate = VTK_NEAREST_RESLICE;  
-}
-
-void vtkImagePlaneWidget::SetResliceInterpolateToLinear()
-{
-  if ( ! this->Reslice )
+  
+  if ( i == 0 )
     {
-    return;
-    }
-
-  this->Reslice->SetInterpolationModeToLinear();
-  this->ResliceInterpolate = VTK_LINEAR_RESLICE;
-}
-
-void vtkImagePlaneWidget::SetResliceInterpolateToCubic()
-{
-  if ( ! this->Reslice )
+    this->Reslice->SetInterpolationModeToNearestNeighbor();
+    } 
+  else if ( i == 1)
     {
-    return;
+    this->Reslice->SetInterpolationModeToLinear(); 
     }
-
-  this->Reslice->SetInterpolationModeToCubic();
-  this->ResliceInterpolate = VTK_CUBIC_RESLICE;  
+  else
+    {
+    this->Reslice->SetInterpolationModeToCubic();
+    }
 }
 
 void vtkImagePlaneWidget::SetPicker(vtkCellPicker* picker)

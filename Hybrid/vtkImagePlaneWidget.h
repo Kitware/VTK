@@ -182,11 +182,15 @@ public:
   void SetSlicePosition(float position);
 
   // Description:
-  // Set the interpolation to use when texturing the plane.
+  // Set the interpolation to use when texturing the plane.  
+  void SetResliceInterpolate(int);
   vtkGetMacro(ResliceInterpolate,int);
-  void SetResliceInterpolateToNearestNeighbour();
-  void SetResliceInterpolateToLinear();
-  void SetResliceInterpolateToCubic();
+  void SetResliceInterpolateToNearestNeighbour()
+    { this->SetResliceInterpolate(0); }
+  void SetResliceInterpolateToLinear()
+    { this->SetResliceInterpolate(1); }
+  void SetResliceInterpolateToCubic()
+    { this->SetResliceInterpolate(2); }
 
   // Description:
   // Make sure that the plane remains within the volume.
