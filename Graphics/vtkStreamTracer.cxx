@@ -1,15 +1,15 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
-  Module:    vtkStreamTracer.cxx
+Program:   Visualization Toolkit
+Module:    vtkStreamTracer.cxx
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+All rights reserved.
+See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
+This software is distributed WITHOUT ANY WARRANTY; without even
+the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkStreamTracer.h"
@@ -35,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.33");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.34");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -795,13 +795,13 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       // local rotation = vorticity . unit tangent ( i.e. velocity/speed )
       if (speed != 0.0)
         {
-          omega = vtkMath::Dot(vort, velocity);
-          omega /= speed;
-          omega *= this->RotationScale;
+        omega = vtkMath::Dot(vort, velocity);
+        omega /= speed;
+        omega *= this->RotationScale;
         }
       else
         {
-          omega = 0.0;
+        omega = 0.0;
         }
       angularVel->InsertNextValue(omega);
       rotation->InsertNextValue(0.0);
@@ -875,11 +875,27 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
         break;
         }
 
+      // It is not enough to use the starting point for stagnation calculation
+      // Use delX/delT to calculate speed and check if it is below
+      // stagnation threshold
+      double disp[3];
+      for (i=0; i<3; i++)
+        {
+        disp[i] = point2[i] - point1[i];
+        }
+      if ( (delT.Interval == 0) ||  
+           (vtkMath::Norm(disp) / fabs(delT.Interval) <= this->TerminalSpeed) )
+        {
+        retVal = STAGNATION;
+        break;
+        }
+
       accumTime += stepTaken;
       // Calculate propagation (using the same units as MaximumPropagation
       propagation += fabs(this->ConvertToUnit(delT, 
                                               this->MaximumPropagation.Unit,
                                               cellLength, speed));
+
 
 
       // This is the next starting point
@@ -1060,14 +1076,22 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal)
       vtkDoubleArray* normals = vtkDoubleArray::New();
       normals->SetNumberOfComponents(3);
       normals->SetNumberOfTuples(numPts);
-        
+      // Make sure the normals are initialized in case 
+      // GenerateSlidingNormals() fails and returns before
+      // creating all normals
+      for(vtkIdType idx=0; idx<numPts; idx++)
+        {
+        normals->SetTuple3(idx, 1, 0, 0);
+        }
+
       lineNormalGenerator->GenerateSlidingNormals(outputPoints,
                                                   outputLines,
                                                   normals,
                                                   firstNormal);
       lineNormalGenerator->Delete();
 
-      int i, j;
+      vtkIdType i;
+      int j;
       double normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
       double velocity[3];
       normals->SetName("Normals");
@@ -1142,7 +1166,7 @@ void vtkStreamTracer::SimpleIntegrate(double seed[3],
     // Calculate the next step using the integrator provided
     // Break if the next point is out of bounds.
     if (integrator->ComputeNextStep(point1, point2, 0, delt, 
-                                     stepTaken, 0, 0, 0, error) != 0)
+                                    stepTaken, 0, 0, 0, error) != 0)
       {
       memcpy(lastPoint, point2, 3*sizeof(double));
       break;
