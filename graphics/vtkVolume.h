@@ -267,6 +267,7 @@ public:
   // Override in order to take into account screen coverage
   void AddEstimatedRenderTime( float t, vtkViewport *vp );
   float GetEstimatedRenderTime( vtkViewport *vp );
+  float GetEstimatedRenderTime() {return vtkProp3D::GetEstimatedRenderTime();}
   
 //ETX
 
