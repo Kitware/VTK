@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-02-08 17:20:57 barre>
+# modified by S. Barre (Time-stamp: <2002-02-12 13:34:29 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -14,15 +14,15 @@
 #   TAR_PROG=@TAR@           (INCLUDE(${CMAKE_ROOT}/Modules/FindCygwin.cmake))
 #   WGET_PROG=@WGET@         (INCLUDE(${CMAKE_ROOT}/Modules/FindWget.cmake))
 #
-export DOXYGEN_PROG=@DOXYGEN@   # Doxygen
-export GZIP_PROG=@GZIP@         # gzip (Unix-like 'gzip compressor')
-export GNUPLOT_PROG=@GNUPLOT@   # gnuplot (data plotting program)
-export HHC_PROG=@HHC@           # HTML Help Compiler
-export MV_PROG=@MV@             # mv (Unix-like 'move/rename files')
-export PERL_PROG=@PERL@         # Perl
-export RM_PROG=@RM@             # rm (Unix-like 'remove files')
-export TAR_PROG=@TAR@           # tar (Unix-like 'archiver')
-export WGET_PROG=@WGET@         # wget (remote file retrieval)
+export DOXYGEN_PROG="@DOXYGEN@"   # Doxygen
+export GZIP_PROG="@GZIP@"         # gzip (Unix-like 'gzip compressor')
+export GNUPLOT_PROG="@GNUPLOT@"   # gnuplot (data plotting program)
+export HHC_PROG="@HHC@"           # HTML Help Compiler
+export MV_PROG="@MV@"             # mv (Unix-like 'move/rename files')
+export PERL_PROG="@PERL@"         # Perl
+export RM_PROG="@RM@"             # rm (Unix-like 'remove files')
+export TAR_PROG="@TAR@"           # tar (Unix-like 'archiver')
+export WGET_PROG="@WGET@"         # wget (remote file retrieval)
 
 # PROJECT_NAME:
 # Documentation/project name. Used in some of the resulting file names and
@@ -41,14 +41,14 @@ export PROJECT_NAME=VTK
 # Example: 
 #   PATH_TO_VTK_DOX_SCRIPTS=@VTK_SOURCE_DIR@/Utilities/Doxygen
 #
-export PATH_TO_VTK_DOX_SCRIPTS=@VTK_SOURCE_DIR@/Utilities/Doxygen
+export PATH_TO_VTK_DOX_SCRIPTS="@VTK_SOURCE_DIR@/Utilities/Doxygen"
 
 # SOURCE_DIR:
 # Source directory. The top directory of the source files.
 # Example: 
 #   SOURCE_DIR=@VTK_SOURCE_DIR@
 #
-export SOURCE_DIR=@VTK_SOURCE_DIR@
+export SOURCE_DIR="@VTK_SOURCE_DIR@"
 
 # REL_PATH_TO_TOP:
 # Relative path from the top directory of the source files to the directory
@@ -70,15 +70,15 @@ export REL_PATH_TO_TOP=.
 #   DOXTEMP=DOXTEMP=@VTK_BINARY_DIR@/Utilities/Doxygen
 #   INTERMEDIATE_DOX_DIR=$DOXTEMP/dox
 #
-export DOXTEMP=@VTK_BINARY_DIR@/Utilities/Doxygen
-export INTERMEDIATE_DOX_DIR=$DOXTEMP/dox
+export DOXTEMP="@VTK_BINARY_DIR@/Utilities/Doxygen"
+export INTERMEDIATE_DOX_DIR="$DOXTEMP/dox"
 
 # DATA_ROOT:
 # Data directory. The root directory of the data files.
 # Example: 
 #   DATA_ROOT=@VTK_DATA_ROOT@
 #
-export DATA_ROOT=@VTK_DATA_ROOT@
+export DATA_ROOT="@VTK_DATA_ROOT@"
 
 # CVSWEB_CHECKOUT, CVSWEB_CHECKOUT_SUFFIX, 
 # CVSWEB_DATA_CHECKOUT, CVSWEB_DATA_CHECKOUT_SUFFIX:
@@ -103,7 +103,7 @@ export CVSWEB_DATA_CHECKOUT_SUFFIX=
 # Example: 
 #   DOXYFILE=$DOXTEMP/doxyfile
 #
-export DOXYFILE=$DOXTEMP/doxyfile
+export DOXYFILE="$DOXTEMP/doxyfile"
 
 # OUTPUT_DIRECTORY ALLOW_ERASE_OUTPUT_DIRECTORY:
 # Path to the Doxygen output directory (where the resulting doc is stored).
@@ -114,7 +114,7 @@ export DOXYFILE=$DOXTEMP/doxyfile
 #   OUTPUT_DIRECTORY=$DOXTEMP/doc
 #   ALLOW_ERASE_OUTPUT_DIRECTORY=ON
 #
-export OUTPUT_DIRECTORY=$DOXTEMP/doc
+export OUTPUT_DIRECTORY="$DOXTEMP/doc"
 export ALLOW_ERASE_OUTPUT_DIRECTORY=ON
 
 # COMPILE_HTML_HELP RESULTING_HTML_HELP_FILE:
@@ -133,7 +133,7 @@ export ALLOW_ERASE_OUTPUT_DIRECTORY=ON
 #   RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
 #
 export COMPILE_HTML_HELP=@DOCUMENTATION_HTML_HELP@
-export RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
+export RESULTING_HTML_HELP_FILE="$DOXTEMP/vtk4.chm"
 
 # CREATE_HTML_TARZ_ARCHIVE RESULTING_HTML_TARZ_ARCHIVE_FILE:
 # Create a compressed (gzip) tar archive of the html directory (located
@@ -146,7 +146,7 @@ export RESULTING_HTML_HELP_FILE=$DOXTEMP/vtk4.chm
 #   RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/vtk4-html.tar.gz
 #
 export CREATE_HTML_TARZ_ARCHIVE=@DOCUMENTATION_HTML_TARZ@
-export RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/vtk4-html.tar.gz
+export RESULTING_HTML_TARZ_ARCHIVE_FILE="$DOXTEMP/vtk4-html.tar.gz"
 
 # DOWNLOAD_VTK_TAGFILE VTK_TAGFILE VTK_TAGFILE_REMOTE_DIR VTK_TAGFILE_DEST_DIR:
 # Download the VTK tag file, name, remote location and destination dir of this
@@ -165,7 +165,7 @@ export RESULTING_HTML_TARZ_ARCHIVE_FILE=$DOXTEMP/vtk4-html.tar.gz
 export DOWNLOAD_VTK_TAGFILE=OFF
 export VTK_TAGFILE=vtk4-nightly.tag
 export VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly
-export VTK_TAGFILE_DEST_DIR=$DOXTEMP
+export VTK_TAGFILE_DEST_DIR="$DOXTEMP"
 
 # ----------------------------------------------------------------------------
 # Convert the VTK headers to the Doxygen format.
