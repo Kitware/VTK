@@ -97,6 +97,7 @@ vtkImplicitWindowFunction.cxx
 vtkInformation.cxx
 vtkInformationDataObjectVectorKey.cxx
 vtkInformationDataObjectKey.cxx
+vtkInformationExecutiveKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
@@ -227,6 +228,7 @@ vtkImageToImageFilter
 vtkImageTwoInputFilter
 vtkInformationDataObjectVectorKey
 vtkInformationDataObjectKey
+vtkInformationExecutiveKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey
 vtkInformationIntegerKey
