@@ -84,6 +84,14 @@ vtkVolumeProperty::~vtkVolumeProperty()
     }
 }
 
+void vtkVolumeProperty::UpdateMTimes() 
+{
+  this->Modified();
+  this->GrayTransferFunctionMTime.Modified();
+  this->RGBTransferFunctionMTime.Modified();
+  this->ScalarOpacityMTime.Modified();
+  this->GradientOpacityMTime.Modified();
+}
 
 void vtkVolumeProperty::SetGradientOpacityScale( float v )
 {

@@ -193,6 +193,13 @@ public:
   void SetGradientOpacityBias( float v );
   float GetGradientOpacityBias( );
 
+  // Description:
+  // UpdateMTimes performed a Modified() on all TimeStamps.
+  // This is used by vtkVolume when the property is set, so
+  // that any other object that might have been caching
+  // information for the property will rebuild.
+  void UpdateMTimes(); 
+
 protected:
 
   int				InterpolationType;

@@ -293,7 +293,11 @@ void vtkVolume::SetVolumeProperty(vtkVolumeProperty *property)
     {
     if (this->VolumeProperty != NULL) {this->VolumeProperty->UnRegister(this);}
     this->VolumeProperty = property;
-    if (this->VolumeProperty != NULL) {this->VolumeProperty->Register(this);}
+    if (this->VolumeProperty != NULL) 
+      {
+      this->VolumeProperty->Register(this);
+      this->VolumeProperty->UpdateMTimes();
+      }
     this->Modified();
     }
 }
