@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProjectedTexture, "1.23");
+vtkCxxRevisionMacro(vtkProjectedTexture, "1.24");
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:
@@ -43,6 +43,8 @@ vtkProjectedTexture::vtkProjectedTexture()
   this->AspectRatio[0] = 1.0;
   this->AspectRatio[1] = 1.0;
   this->AspectRatio[2] = 1.0;
+  this->MirrorSeparation = 1.0;
+  this->CameraMode = VTK_PROJECTED_TEXTURE_USE_PINHOLE;
   this->SRange[0] = 0.0;
   this->SRange[1] = 1.0;
   this->TRange[0] = 0.0;
@@ -129,30 +131,89 @@ void vtkProjectedTexture::Execute()
     {
       p = output->GetPoint(i);
 
-      for (j = 0; j < 3; j++) {
+      for (j = 0; j < 3; j++) 
+        {
         diff[j] = p[j] - this->Position[j];
-      }
+        }
       
       proj = vtkMath::Dot(diff, this->Orientation);
-      if(proj < 1.0e-10 && proj > -1.0e-10) {
-        vtkWarningMacro(<<"Singularity:  point located at frustum Position");
-        tcoords[0] = sOffset;
-        tcoords[1] = tOffset;
-      } 
 
-      else {
-        for (j = 0; j < 3; j++)
+      // New mode to handle a two mirror camera with separation of 
+      // MirrorSeparation -- In this case, we assume that the first mirror
+      // controls the elevation and the second controls the azimuth.  Texture
+      // coordinates for the elevation are handled as normal, while those for
+      // the azimuth must be calculated based on a new baseline difference to 
+      // include the mirror separation.
+      if (this->CameraMode == VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS)
+        {
+        // First calculate elevation coordinate t.
+        if(proj < 1.0e-10 && proj > -1.0e-10) 
           {
-          diff[j] = diff[j]/proj - this->Orientation[j];
+          vtkWarningMacro(<<"Singularity:  point located at elevation frustum Position");
+          tcoords[1] = tOffset;
+          } 
+        else
+          {
+          for (j = 0; j < 3; j++)
+            {
+            diff[j] = diff[j]/proj - this->Orientation[j];
+            }
+          
+          t = vtkMath::Dot(diff, upv);
+          tcoords[1] = t * tScale + tOffset;
           }
 
-        s = vtkMath::Dot(diff, rightv);
-        t = vtkMath::Dot(diff, upv);
+        // Now with t complete, continue on to calculate coordinate s
+        // by offsetting the center of the lens back by MirrorSeparation
+        // in direction opposite to the orientation.
+        for (j = 0; j < 3; j++) 
+          {
+          diff[j] = p[j] - this->Position[j] + (this->MirrorSeparation*this->Orientation[j]);
+          }
 
-        tcoords[0] = s * sScale + sOffset;
-        tcoords[1] = t * tScale + tOffset;
-      }
-      
+        proj = vtkMath::Dot(diff, this->Orientation);
+        
+        if(proj < 1.0e-10 && proj > -1.0e-10) 
+          {
+          vtkWarningMacro(<<"Singularity:  point located at azimuth frustum Position");
+          tcoords[0] = sOffset;
+          } 
+        else
+          {
+          for (j = 0; j < 3; j++)
+            {
+            diff[j] = diff[j]/proj - this->Orientation[j];
+            }
+          
+          s = vtkMath::Dot(diff, rightv);
+          sSize = this->AspectRatio[0] / (this->AspectRatio[2] + this->MirrorSeparation);
+          sScale = (this->SRange[1] - this->SRange[0])/sSize;
+          sOffset = (this->SRange[1] - this->SRange[0])/2.0 + this->SRange[0];
+          tcoords[0] = s * sScale + sOffset;
+          }
+        }
+      else
+        {
+        if(proj < 1.0e-10 && proj > -1.0e-10) 
+          {
+          vtkWarningMacro(<<"Singularity:  point located at frustum Position");
+          tcoords[0] = sOffset;
+          tcoords[1] = tOffset;
+          } 
+        else 
+          {
+          for (j = 0; j < 3; j++)
+            {
+            diff[j] = diff[j]/proj - this->Orientation[j];
+            }
+          
+          s = vtkMath::Dot(diff, rightv);
+          t = vtkMath::Dot(diff, upv);
+          
+          tcoords[0] = s * sScale + sOffset;
+          tcoords[1] = t * tScale + tOffset;
+          }
+        }
       newTCoords->SetTuple(i,tcoords);
     }
   //
@@ -195,4 +256,19 @@ void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
                                 << this->AspectRatio[1] << ", "
                                 << this->AspectRatio[2] << ")\n";
 
+  os << indent << "CameraMode: ";
+  if (this->CameraMode == VTK_PROJECTED_TEXTURE_USE_PINHOLE)
+  {
+    os << "Pinhole\n";
+  }
+  else if (this->CameraMode == VTK_PROJECTED_TEXTURE_USE_TWO_MIRRORS)
+  {
+    os << "Two Mirror\n";
+  }
+  else
+  {
+    os << "Illegal Mode\n";
+  }
+
+  os << indent << "MirrorSeparation: " << this->MirrorSeparation << "\n";
 }
