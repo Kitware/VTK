@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkXYPlotWidget, "1.2");
+vtkCxxRevisionMacro(vtkXYPlotWidget, "1.3");
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
@@ -82,7 +82,7 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
                    this->EventCallbackCommand, this->Priority);
 
-    // Add the scalar bar
+    // Add the xy plot
     this->CurrentRenderer->AddProp(this->XYPlotActor);
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
@@ -242,7 +242,7 @@ void vtkXYPlotWidget::OnLeftButtonDown()
   int *pos2 = this->XYPlotActor->GetPosition2Coordinate()
     ->GetComputedDisplayValue(this->CurrentRenderer);
 
-  // are we not over the scalar bar, ignore
+  // are we not over the xy plot, ignore
   if (X < pos1[0] || X > pos2[0] || Y < pos1[1] || Y > pos2[1])
     {
     return;
@@ -273,7 +273,7 @@ void vtkXYPlotWidget::OnMouseMove()
   int Y = this->Interactor->GetEventPosition()[1];
 
   
-  // compute the display bounds of the scalar bar if we are inside or outside
+  // compute the display bounds of the xy plot if we are inside or outside
   int *pos1, *pos2;
   if (this->State == vtkXYPlotWidget::Outside ||
       this->State == vtkXYPlotWidget::Inside)
@@ -285,7 +285,7 @@ void vtkXYPlotWidget::OnMouseMove()
   
     if (this->State == vtkXYPlotWidget::Outside)
       {
-      // if we are not over the scalar bar, ignore
+      // if we are not over the xy plot, ignore
       if (X < pos1[0] || X > pos2[0] ||
           Y < pos1[1] || Y > pos2[1])
         {
@@ -329,7 +329,7 @@ void vtkXYPlotWidget::OnMouseMove()
   par2[0] = fpos1[0] + fpos2[0];  
   par2[1] = fpos1[1] + fpos2[1];  
     
-  // based on the state, adjust the ScalarBar parameters
+  // based on the state, adjust the xy plot parameters
   switch (this->State)
     {
     case vtkXYPlotWidget::AdjustingP1:
@@ -366,7 +366,7 @@ void vtkXYPlotWidget::OnMouseMove()
       par1[1] = par1[1] + YF - this->StartPosition[1];
       par2[0] = par2[0] + XF - this->StartPosition[0];
       par2[1] = par2[1] + YF - this->StartPosition[1];
-      // then check for an orientation change if the scalar bar moves so that
+      // then check for an orientation change if the xy plot moves so that
       // its center is closer to a different edge that its current edge by
       // 0.2 then swap orientation
       float centerX = (par1[0] + par2[0])/2.0;
@@ -409,8 +409,8 @@ void vtkXYPlotWidget::OnMouseMove()
       break;
     }
   
-  // push the change out to the scalar bar
-  // make sure the scalar bar doesn't shrink to nothing
+  // push the change out to the xy plot 
+  // make sure the xy plot doesn't shrink to nothing
   if (par2[0] > par1[0] && par2[1] > par1[1])
     {
     this->XYPlotActor->GetPositionCoordinate()->SetValue(par1[0],par1[1]);

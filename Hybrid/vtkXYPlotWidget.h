@@ -17,16 +17,15 @@
 =========================================================================*/
 // .NAME vtkXYPlotWidget - 2D widget for manipulating a XY plot
 // .SECTION Description
-// This class provides support for interactively manipulating the
-// position, size, and orientation of a scalar bar. It listens to Left
-// mouse events and mouse movement. It will change the cursor shape
-// based on its location. If the cursor is over an edge of the scalar
-// bar it will change the cursor shape to a resize edge shape. If the
-// position of a XY plot is moved to be close to the center of one of
-// the four edges of the viewport, then the XY plot will change its
-// orientation to align with that edge. This orientation is sticky in
-// that it will stay that orientation until the position is moved
-// close to another edge.
+// This class provides support for interactively manipulating the position,
+// size, and orientation of a XY Plot. It listens to Left mouse events and
+// mouse movement. It will change the cursor shape based on its location. If
+// the cursor is over an edge of thea XY plot it will change the cursor shape
+// to a resize edge shape. If the position of a XY plot is moved to be close to
+// the center of one of the four edges of the viewport, then the XY plot will
+// change its orientation to align with that edge. This orientation is sticky
+// in that it will stay that orientation until the position is moved close to
+// another edge.
 
 // .SECTION See Also
 // vtkInteractorObserver
@@ -47,7 +46,7 @@ public:
 
   // Description:
   // Get the XY plot used by this Widget. One is created automatically.
-  virtual void SetXYPlotActor(vtkXYPlotActor *scalarbar);
+  virtual void SetXYPlotActor(vtkXYPlotActor *);
   vtkGetObjectMacro(XYPlotActor,vtkXYPlotActor);
   
   // Description:
