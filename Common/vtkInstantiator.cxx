@@ -40,8 +40,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
+#include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkInstantiator, "1.2");
+vtkCxxRevisionMacro(vtkInstantiator, "1.3");
 vtkStandardNewMacro(vtkInstantiator);
 
 // Node in hash table.
@@ -98,11 +99,14 @@ private:
   void operator=(const vtkInstantiatorHashTable&);  // Not implemented.
 };
 
-vtkCxxRevisionMacro(vtkInstantiatorHashTable, "1.2");
+vtkCxxRevisionMacro(vtkInstantiatorHashTable, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInstantiatorHashTable* vtkInstantiatorHashTable::New()
 {
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkInstantiatorHashTable");
+#endif    
   // Don't use the object factory because it may not have been
   // initialized when this table is allocated.
   return new vtkInstantiatorHashTable;
