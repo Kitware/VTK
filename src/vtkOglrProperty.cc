@@ -55,7 +55,8 @@ void vtkOglrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 
 // Description:
 // Actual property render method.
-void vtkOglrProperty::Render(vtkProperty *prop, vtkOglrRenderer *ren)
+void vtkOglrProperty::Render(vtkProperty *prop, 
+			     vtkOglrRenderer *vtkNotUsed(ren))
 {
   int i;
   GLenum method;

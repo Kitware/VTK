@@ -116,7 +116,7 @@ void vtkAppendFilter::Execute()
   int tensorsPresent, userDefinedPresent;
   int numPts, numCells, ptOffset;
   vtkFloatPoints *newPts;
-  vtkPointData *pd;
+  vtkPointData *pd = NULL;
   vtkIdList ptIds(VTK_CELL_SIZE), newPtIds(VTK_CELL_SIZE);
   int i;
   vtkDataSet *ds;

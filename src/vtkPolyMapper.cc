@@ -95,7 +95,7 @@ float *vtkPolyMapper::GetBounds()
 void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   vtkPointData *pd;
-  vtkScalars *scalars;
+  vtkScalars *scalars = NULL;
   int i, numPts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkColorScalars *colors;

@@ -110,19 +110,23 @@ void vtkGaussianSplatter::Execute()
   vtkStructuredPoints *output = this->GetOutput();
   
   vtkDebugMacro(<< "Splatting data");
-//
-//  Make sure points are available
-//
+  // init a couple variables to prevent compiler warnings
+  jp = 0;
+  kp = 0;
+  
+  //
+  //  Make sure points are available
+  //
   if ( (numSplatPts=this->Input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No points to splat!");
     return;
     }
-//
-//  Compute the radius of influence of the points.  If an
-//  automatically generated bounding box has been generated, increase
-//  its size slightly to acoomodate the radius of influence.
-//
+  //
+  //  Compute the radius of influence of the points.  If an
+  //  automatically generated bounding box has been generated, increase
+  //  its size slightly to acoomodate the radius of influence.
+  //
   Eccentricity2 = this->Eccentricity * this->Eccentricity;
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 

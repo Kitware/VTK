@@ -143,7 +143,7 @@ char *vtkDataSetReader::GetLookupTableName()
 void vtkDataSetReader::Execute()
 {
   char line[256];
-  vtkDataSet *output;
+  vtkDataSet *output = NULL;
   
   vtkDebugMacro(<<"Reading vtk dataset...");
   if ( this->Debug ) this->Reader.DebugOn();

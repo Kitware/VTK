@@ -53,7 +53,8 @@ void vtkDashedStreamLine::Execute()
   vtkFloatScalars *newScalars=NULL;
   vtkCellArray *newLines;
   int i, ptId, j, pts[2];
-  float tOffset, x[3], v[3], s, r, xPrev[3], vPrev[3], scalarPrev;
+  float tOffset, x[3], v[3], r, xPrev[3], vPrev[3], scalarPrev;
+  float s = 0;
   float xEnd[3], vEnd[3], sEnd;
   vtkPolyData *output = this->GetOutput();
   

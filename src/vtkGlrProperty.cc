@@ -61,7 +61,7 @@ void vtkGlrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 
 // Description:
 // Actual property render method.
-void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *ren)
+void vtkGlrProperty::Render(vtkProperty *prop, vtkGlrRenderer *vtkNotUsed(ren))
 {
   int i, method;
   float Ambient, Diffuse, Specular;

@@ -507,8 +507,9 @@ Visual *vtkSbrRenderWindow::GetDesiredVisual ()
 // Description:
 // Create a window for starbase output.
 int vtkSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos, 
-				     int width,int height,int depth, 
-				     char name[80])
+				      int width,int vtkNotUsed(height),
+				      int depth, 
+				      char name[80])
 {
   Window win;
   XVisualInfo *pVisInfo,visInfo;

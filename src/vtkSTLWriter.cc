@@ -71,8 +71,9 @@ void vtkSTLWriter::WriteData()
   vtkCellArray *polys;
   vtkPolyData *input=(vtkPolyData *)this->Input;
 
-  if ( (pts = input->GetPoints()) == NULL ||
-  (polys = input->GetPolys()) == NULL )
+  polys = input->GetPolys();
+  pts = input->GetPoints();
+  if (pts == NULL || polys == NULL )
     {
     vtkErrorMacro(<<"No data to write!");
     return;

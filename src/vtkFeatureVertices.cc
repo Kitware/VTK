@@ -64,7 +64,8 @@ void vtkFeatureVertices::Execute()
   vtkPolyData Mesh;
   int i, j, numCells, cellId, numPts;
   int numBVertices, numNonManifoldVertices, numFvertices;
-  float scalar, *x1, x[3], xPrev[3], xNext[3], cosAngle;
+  float scalar = 0;
+  float *x1, x[3], xPrev[3], xNext[3], cosAngle;
   float vPrev[3], vNext[3];
   vtkMath math;
   int vertId[1];
@@ -77,9 +78,10 @@ void vtkFeatureVertices::Execute()
 //
 //  Check input
 //
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
-  (inPts=input->GetPoints()) == NULL || 
-  (inLines=input->GetPolys()) == NULL )
+  inPts=input->GetPoints();
+  inLines=input->GetPolys();
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || inPts == NULL || 
+       inLines == NULL)
     {
     vtkErrorMacro(<<"No input data!");
     return;

@@ -113,11 +113,11 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   vtkPoints *inPts;
   vtkCellArray *inPolys;
   vtkPolyData *input=(vtkPolyData *)this->Input;
-//
-// Check input
-//
-  if ( (inPts=input->GetPoints()) == NULL ||
-  (inPolys=input->GetPolys()) == NULL )
+  //
+  // Check input
+  //
+  inPolys=input->GetPolys();
+  if ( (inPts=input->GetPoints()) == NULL || inPolys == NULL )
     {
     vtkErrorMacro(<<"No data to write!");
     return;

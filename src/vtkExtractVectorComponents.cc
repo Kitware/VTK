@@ -176,7 +176,7 @@ void vtkExtractVectorComponents::Update()
 
 void vtkExtractVectorComponents::Execute()
 {
-  int i, numVectors;
+  int i, numVectors = 0;
   float *v;
   vtkVectors *vectors;
   vtkFloatScalars *vx, *vy, *vz;

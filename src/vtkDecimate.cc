@@ -118,10 +118,10 @@ vtkDecimate::vtkDecimate()
 //
 void vtkDecimate::Execute()
 {
-  int numPts, numTris;
+  int numPts, numTris = 0;
   vtkPoints *inPts;
   vtkCellArray *inPolys;
-  int numVerts;
+  int numVerts = 0;
   float *bounds, max;
   int i, ptId;
   vtkCellArray *newPolys;
@@ -365,7 +365,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   int ptId, cellId, npts, *pts;
   vtkFloatPoints *newPts;
   vtkCellArray *newPolys;
-  vtkFloatScalars *newScalars;
+  vtkFloatScalars *newScalars = NULL;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   

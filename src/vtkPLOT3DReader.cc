@@ -92,7 +92,7 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
 void vtkPLOT3DReader::Execute()
 {
   FILE *xyzFp, *QFp, *funcFp;
-  int error;
+  int error = 0;
   vtkStructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -299,7 +299,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
   float m[3], params[4];
-  int numGrids, numPts;
+  int numGrids, numPts = 0;
   vtkByteSwap swapper;
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )

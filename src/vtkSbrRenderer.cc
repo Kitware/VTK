@@ -61,7 +61,7 @@ int vtkSbrRenderer::UpdateActors()
   int count = 0;
  
   // loop through actors 
-  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
+  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
     if (anActor->GetVisibility())
@@ -114,7 +114,7 @@ int vtkSbrRenderer::UpdateLights ()
 
   cur_light= this->NumberOfLightsBound;
 
-  for ( this->Lights.InitTraversal(); light = this->Lights.GetNextItem(); )
+  for (this->Lights.InitTraversal(); (light = this->Lights.GetNextItem()); )
     {
 
     status = light->GetSwitch();

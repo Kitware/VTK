@@ -126,7 +126,7 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inStrips, *newStrips;
   int i, ptId, ptOffset;
   int numPts, numCells;
-  vtkPointData *pd;
+  vtkPointData *pd = NULL;
   int npts, *pts;
   vtkPolyData *output = (vtkPolyData *)this->Output;
   vtkPointData *outputPD = output->GetPointData();

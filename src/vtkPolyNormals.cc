@@ -80,7 +80,7 @@ void vtkPolyNormals::Execute()
   vtkCellArray *inPolys;
   vtkPolygon poly;
   vtkMath math;
-  vtkFloatPoints *newPts;
+  vtkFloatPoints *newPts = NULL;
   vtkFloatNormals *newNormals;
   vtkPointData *pd, *outPD;
   float n[3];
@@ -92,8 +92,8 @@ void vtkPolyNormals::Execute()
 
   vtkDebugMacro(<<"Generating surface normals");
 
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
-  (numPolys=input->GetNumberOfPolys()) < 1 )
+  numPolys=input->GetNumberOfPolys();
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || numPolys < 1)
     {
     vtkErrorMacro(<<"No data to generate normals for!");
     return;

@@ -54,7 +54,8 @@ void vtkStreamPoints::Execute()
   vtkFloatVectors *newVectors;
   vtkFloatScalars *newScalars=NULL;
   vtkCellArray *newVerts;
-  int i, ptId, j, id, npts;
+  int i, ptId, j, id;
+  int npts = 0;
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 

@@ -270,7 +270,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
 
 int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
 {
-  int i, size;
+  int i, size = 0;
   char *type, *name;
   vtkLookupTable *lut;
 

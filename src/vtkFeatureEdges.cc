@@ -66,13 +66,14 @@ void vtkFeatureEdges::Execute()
   vtkPolyData Mesh;
   int i, j, numNei, cellId;
   int numBEdges, numNonManifoldEdges, numFedges;
-  float scalar, n[3], *x1, *x2, cosAngle;
+  float scalar, n[3], *x1, *x2;
+  float cosAngle = 0;
   vtkMath math;
   vtkPolygon poly;
   int lineIds[2];
   int npts, *pts;
   vtkCellArray *inPolys;
-  vtkFloatNormals *polyNormals;
+  vtkFloatNormals *polyNormals = NULL;
   int numPts, nei;
   vtkIdList neighbors(VTK_CELL_SIZE);
   int p1, p2;
@@ -82,9 +83,10 @@ void vtkFeatureEdges::Execute()
 //
 //  Check input
 //
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
-  (inPts=input->GetPoints()) == NULL || 
-  (inPolys=input->GetPolys()) == NULL )
+  inPts=input->GetPoints();
+  inPolys=input->GetPolys();
+  if ( (numPts=input->GetNumberOfPoints()) < 1 || inPts == NULL ||
+       inPolys == NULL )
     {
     vtkErrorMacro(<<"No input data!");
     return;
@@ -156,7 +158,7 @@ void vtkFeatureEdges::Execute()
         }
 
       else if ( this->FeatureEdges && 
-      numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
+		numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
         {
         if ( math.Dot(polyNormals->GetNormal(nei),polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {

@@ -57,17 +57,19 @@ void vtkTubeFilter::Execute()
 {
   int i, j, k;
   vtkPoints *inPts;
-  vtkCellArray *inLines;
+  vtkCellArray *inLines = NULL;
   vtkNormals *inNormals;
   vtkScalars *inScalars=NULL;
   vtkVectors *inVectors=NULL;
-  int numPts, numNewPts;
+  int numPts = 0;
+  int numNewPts;
   vtkFloatPoints *newPts;
   vtkFloatNormals *newNormals;
   vtkCellArray *newStrips;
   vtkMath math;
   int npts, *pts, i1, i2, ptOffset=0;
-  float p[3], pNext[3], maxSpeed;
+  float p[3], pNext[3];
+  float maxSpeed = 0;
   float *n, normal[3], nP[3];
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;

@@ -69,7 +69,7 @@ void vtkTextureMapToPlane::Execute()
   int i, j;
   float *bounds;
   float proj, minProj, axis[3], sAxis[3], tAxis[3];
-  int dir;
+  int dir = 0;
   float s, t, sSf, tSf, *p;
   vtkDataSet *output=this->Output;
 
@@ -160,7 +160,8 @@ void vtkTextureMapToPlane::ComputeNormal()
 {
   int numPts=this->Output->GetNumberOfPoints();
   float m[9], v[3], *x;
-  int i, ptId, dir;
+  int i, ptId;
+  int dir = 0;
   float length, w, *c1, *c2, *c3, det;
   float *bounds;
   vtkMath math;

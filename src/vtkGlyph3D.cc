@@ -86,7 +86,8 @@ void vtkGlyph3D::Execute()
   int npts;
   vtkIdList pts(VTK_CELL_SIZE);
   int orient, scaleSource, ptIncr, cellId;
-  float scale, den;
+  float scale = 1;
+  float den;
   vtkMath math;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();

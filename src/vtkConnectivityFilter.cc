@@ -65,7 +65,8 @@ void vtkConnectivityFilter::Execute()
   vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
   vtkPointData *pd;
   int id;
-  int maxCellsInRegion, largestRegionId;
+  int maxCellsInRegion;
+  int largestRegionId = 0;
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -73,8 +74,8 @@ void vtkConnectivityFilter::Execute()
   //
   //  Check input/allocate storage
   //
-  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 ||
-  (numCells=this->Input->GetNumberOfCells()) < 1 )
+  numCells=this->Input->GetNumberOfCells();
+  if ( (numPts=this->Input->GetNumberOfPoints()) < 1 || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to connect!");
     return;

@@ -79,8 +79,9 @@ void vtkRotationalExtrusionFilter::Execute()
 //
   vtkDebugMacro(<<"Rotationally extruding data");
 
-  if ( (numPts=input->GetNumberOfPoints()) < 1 || 
-  (numCells=input->GetNumberOfCells()) < 1 )
+  numPts = input->GetNumberOfPoints();
+  numCells = input->GetNumberOfCells();
+  if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to extrude!");
     return;

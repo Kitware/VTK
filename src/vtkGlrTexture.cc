@@ -70,7 +70,7 @@ void vtkGlrTexture::Load(vtkTexture *txt, vtkRenderer *ren)
 
 // Description:
 // Actual Texture load method.
-void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *ren)
+void vtkGlrTexture::Load(vtkTexture *txt, vtkGlrRenderer *vtkNotUsed(ren))
 {
   // make sure it can handle textures
   if (!getgdesc(GD_TEXTURE)) 

@@ -51,7 +51,8 @@ void vtkWarpTo::Execute()
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPointSet *output=(vtkPointSet *)this->Output;
   static vtkMath math;
-  float mag, minMag;
+  float mag;
+  float minMag = 0;
   
   vtkDebugMacro(<<"Warping data to a point");
 

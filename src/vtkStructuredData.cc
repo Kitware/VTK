@@ -120,33 +120,29 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
   int d01 = dim[0]*dim[1];
  
   ptIds.Reset();
+  iMin = iMax = jMin = jMax = kMin = kMax = 0;
 
   switch (dataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      iMin = iMax = jMin = jMax = kMin = kMax = 0;
       break;
 
     case VTK_X_LINE:
-      jMin = jMax = kMin = kMax = 0;
       iMin = cellId;
       iMax = cellId + 1;
       break;
 
     case VTK_Y_LINE:
-      iMin = iMax = kMin = kMax = 0;
       jMin = cellId;
       jMax = cellId + 1;
       break;
 
     case VTK_Z_LINE:
-      iMin = iMax = jMin = jMax = 0;
       kMin = cellId;
       kMax = cellId + 1;
       break;
 
     case VTK_XY_PLANE:
-      kMin = kMax = 0;
       iMin = cellId % (dim[0]-1);
       iMax = iMin + 1;
       jMin = cellId / (dim[0]-1);
@@ -154,7 +150,6 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
       break;
 
     case VTK_YZ_PLANE:
-      iMin = iMax = 0;
       jMin = cellId % (dim[1]-1);
       jMax = jMin + 1;
       kMin = cellId / (dim[1]-1);
@@ -162,7 +157,6 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
       break;
 
     case VTK_XZ_PLANE:
-      jMin = jMax = 0;
       iMin = cellId % (dim[0]-1);
       iMax = iMin + 1;
       kMin = cellId / (dim[0]-1);

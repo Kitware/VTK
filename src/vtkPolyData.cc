@@ -134,7 +134,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
   static vtkPolygon poly;
   static vtkQuad quad;
   int i, loc, numPts, *pts;
-  vtkCell *cell;
+  vtkCell *cell = NULL;
   unsigned char type;
 
   if ( !this->Cells ) this->BuildCells();

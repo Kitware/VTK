@@ -117,7 +117,7 @@ void vtkPointLoad::Execute()
   int i, j, k;
   vtkFloatTensors *newTensors;
   vtkTensor tensor;
-  vtkFloatScalars *newScalars;
+  vtkFloatScalars *newScalars = NULL;
   int numPts;
   vtkMath math;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;

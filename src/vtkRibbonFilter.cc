@@ -62,7 +62,7 @@ void vtkRibbonFilter::Execute()
   vtkNormals *inNormals;
   vtkPointData *pd, *outPD;
   vtkCellArray *inLines;
-  int numNewPts;
+  int numNewPts = 0;
   vtkFloatPoints *newPts;
   vtkFloatNormals *newNormals;
   vtkCellArray *newStrips;
@@ -84,9 +84,11 @@ void vtkRibbonFilter::Execute()
 //
   vtkDebugMacro(<<"Creating ribbon");
 
-  if ( !(inPts=input->GetPoints()) || 
-  (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||
-  !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
+  inPts=input->GetPoints();
+  inLines = input->GetLines();
+  if ( !inPts || 
+       (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||
+       !inLines || inLines->GetNumberOfCells() < 1 )
     {
     vtkErrorMacro(<< ": No input data!\n");
     return;

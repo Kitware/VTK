@@ -156,7 +156,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
   static vtkVoxel voxel;
   static vtkHexahedron hexa;
   int i, loc, numPts, *pts;
-  vtkCell *cell;
+  vtkCell *cell = NULL;
 
   switch (this->Cells->GetCellType(cellId))
     {

@@ -93,7 +93,8 @@ void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction *f)
 // Evaluate boolean combinations of implicit function using current operator.
 float vtkImplicitBoolean::EvaluateFunction(float x[3])
 {
-  float value, v;
+  float value = 0;
+  float v;
   vtkImplicitFunction *f;
 
   if ( this->OperationType == VTK_UNION )
@@ -147,7 +148,8 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
 // Evaluate gradient of boolean combination.
 void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 {
-  float value, v;
+  float value = 0;
+  float v;
   vtkImplicitFunction *f;
 
   if ( this->OperationType == VTK_UNION )

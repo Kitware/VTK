@@ -64,7 +64,7 @@ int vtkGlrRenderer::UpdateActors()
   mmode(MVIEWING);
 
   // loop through actors 
-  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
+  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
     {
     // if it's invisible, we can skip the rest 
     if (anActor->GetVisibility())
@@ -141,7 +141,7 @@ int vtkGlrRenderer::UpdateLights ()
   mmode(MVIEWING);
   pushmatrix();
 
-  for ( this->Lights.InitTraversal(); light = this->Lights.GetNextItem(); )
+  for (this->Lights.InitTraversal(); (light = this->Lights.GetNextItem()); )
     {
 
     status = light->GetSwitch();

@@ -219,7 +219,7 @@ void vtkDelaunay2D::Execute()
   vtkIdList neighbors(2), cells(64);
   float center[3], radius, tol;
   vtkMath math;
-  char *triUse;
+  char *triUse = NULL;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 //

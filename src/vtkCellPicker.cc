@@ -57,11 +57,13 @@ void vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   vtkDataSet *input=m->GetInput();
 
   if ( (numCells = input->GetNumberOfCells()) < 1 ) return;
-//
-//  Intersect each cell with ray.  Keep track of one closest to 
-//  the eye (and within the clipping range).
-//
-  for (minCellId=(-1),tMin=VTK_LARGE_FLOAT,cellId=0; cellId<numCells; cellId++) 
+  //
+  //  Intersect each cell with ray.  Keep track of one closest to 
+  //  the eye (and within the clipping range).
+  //
+  minCellId = -1;
+  minSubId = -1;
+  for (tMin=VTK_LARGE_FLOAT,cellId=0; cellId<numCells; cellId++) 
     {
     cell = input->GetCell(cellId);
 

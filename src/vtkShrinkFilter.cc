@@ -57,8 +57,9 @@ void vtkShrinkFilter::Execute()
 
   vtkDebugMacro(<<"Shrinking cells");
 
-  if ( (numCells=this->Input->GetNumberOfCells()) < 1 ||
-  (numPts = this->Input->GetNumberOfPoints()) < 1 )
+  numCells=this->Input->GetNumberOfCells();
+  numPts = this->Input->GetNumberOfPoints();
+  if (numCells < 1 || numPts < 1)
     {
     vtkErrorMacro(<<"No data to shrink!");
     return;

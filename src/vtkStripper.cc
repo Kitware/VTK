@@ -58,7 +58,7 @@ void vtkStripper::Execute()
   int numTriPts, *triPts;
   vtkIdList cellIds(VTK_CELL_SIZE);
   int pts[VTK_CELL_SIZE];
-  int neighbor;
+  int neighbor = 0;
   vtkPolyData Mesh;
   char *visited;
   int numStripPts, *stripPts;

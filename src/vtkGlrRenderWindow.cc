@@ -325,7 +325,7 @@ void vtkGlrRenderWindow::WindowConfigure()
 		     (unsigned long)this->MultiSamples);
     set_config_value(GLX_NORMAL,GLX_MSZSIZE,the_config,32);
     if (extract_config_value(GLX_NORMAL,GLX_MSSAMPLE,the_config)
-	< this->MultiSamples) 
+	< (unsigned int)this->MultiSamples) 
       {
       vtkDebugMacro(<< " Only got " << 
       extract_config_value(GLX_NORMAL,GLX_MSSAMPLE,the_config) 
@@ -823,7 +823,7 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     xloop,yloop;
   unsigned long   *buffer;
   unsigned char   *p_data = NULL;
-  long lastBuffer;
+  long lastBuffer = 0;
   
   // set the current window 
   GLXwinset(this->DisplayId,this->WindowId);

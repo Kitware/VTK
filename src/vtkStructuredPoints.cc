@@ -108,38 +108,35 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
- 
+
+  iMin = iMax = jMin = jMax = kMin = kMax = 0;
+  
   // 
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      iMin = iMax = jMin = jMax = kMin = kMax = 0;
       cell = &vertex;
       break;
 
     case VTK_X_LINE:
-      jMin = jMax = kMin = kMax = 0;
       iMin = cellId;
       iMax = cellId + 1;
       cell = &line;
       break;
 
     case VTK_Y_LINE:
-      iMin = iMax = kMin = kMax = 0;
       jMin = cellId;
       jMax = cellId + 1;
       cell = &line;
       break;
 
     case VTK_Z_LINE:
-      iMin = iMax = jMin = jMax = 0;
       kMin = cellId;
       kMax = cellId + 1;
       cell = &line;
       break;
 
     case VTK_XY_PLANE:
-      kMin = kMax = 0;
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
       jMin = cellId / (this->Dimensions[0]-1);
@@ -148,7 +145,6 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
       break;
 
     case VTK_YZ_PLANE:
-      iMin = iMax = 0;
       jMin = cellId % (this->Dimensions[1]-1);
       jMax = jMin + 1;
       kMin = cellId / (this->Dimensions[1]-1);
@@ -157,7 +153,6 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
       break;
 
     case VTK_XZ_PLANE:
-      jMin = jMax = 0;
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
       kMin = cellId / (this->Dimensions[0]-1);

@@ -56,7 +56,8 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkRenderer *ren,int light_index)
 
 // Description:
 // Actual light render method.
-void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
+void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *vtkNotUsed(ren),
+			  int light_index)
 {
   float	dx, dy, dz;
   float	color[4];

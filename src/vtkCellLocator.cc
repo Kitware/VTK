@@ -112,7 +112,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   float bounds2[6];
   int i, leafStart, prod, loop;
   vtkCell *cell;
-  int bestCellId;
+  int bestCellId = -1;
   int idx, cellId;
   float tMax, dist[3];
   float hits[3];

@@ -65,10 +65,11 @@ vtkMCubesReader::~vtkMCubesReader()
 
 void vtkMCubesReader::Execute()
 {
-  FILE *fp, *limitp;
+  FILE *fp;
+  FILE *limitp = NULL;
   vtkFloatPoints *newPts;
   vtkCellArray *newPolys;
-  vtkFloatNormals *newNormals;
+  vtkFloatNormals *newNormals = NULL;
   float bounds[6];
   int i, j, k, numPts, numTris;
   typedef struct {float x[3], n[3];} pointType;
