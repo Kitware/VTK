@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.9");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.10");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -191,7 +191,54 @@ void vtkConvexPointSet::Clip(float value,
 int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3], 
                                     vtkIdList *pts)
 {
-  return 0;
+  int i;
+  vtkIdType minId;
+  float p[3], *x, dist2, minDist2=VTK_LARGE_FLOAT, pMin[3], closest[3], pc[3];
+  float weights[4];
+
+  // Get the current global coordinate
+  this->EvaluateLocation(subId, pcoords, p, weights);
+
+  // Find the closest point
+  vtkIdType numPts = this->PointIds->GetNumberOfIds();
+  for (i=0; i < numPts; i++)
+    {
+    x = this->Points->GetPoint(i);
+    dist2 = vtkMath::Distance2BetweenPoints(x,p);
+    if ( dist2 < minDist2 )
+      {
+      minId = i;
+      pMin[0] = x[0];
+      pMin[1] = x[1];
+      pMin[2] = x[2];
+      }
+    }
+
+  // Get the faces connected to the point, find the closest face
+  this->BoundaryTris->Reset();
+  this->Triangulator->AddTriangles(this->BoundaryTris);
+  int numTris = this->BoundaryTris->GetNumberOfCells();
+
+  vtkIdType npts, *tpts;
+  for ( minDist2=VTK_LARGE_FLOAT, this->BoundaryTris->InitTraversal(); 
+        this->BoundaryTris->GetNextCell(npts,tpts); )
+    {
+    this->Triangle->PointIds->SetId(0,tpts[0]);
+    this->Triangle->PointIds->SetId(1,tpts[1]);
+    this->Triangle->PointIds->SetId(2,tpts[2]);
+    this->Triangle->Points->SetPoint(0,this->Points->GetPoint(tpts[0]));
+    this->Triangle->Points->SetPoint(1,this->Points->GetPoint(tpts[1]));
+    this->Triangle->Points->SetPoint(2,this->Points->GetPoint(tpts[2]));
+    this->Triangle->EvaluatePosition(pMin, closest, subId, pc, dist2, weights);
+    if ( dist2 < minDist2 )
+      {
+      pts->SetId(0,this->PointIds->GetId(tpts[0]));
+      pts->SetId(1,this->PointIds->GetId(tpts[1]));
+      pts->SetId(2,this->PointIds->GetId(tpts[2]));
+      }
+    }
+
+  return 1;
 }
 
 int vtkConvexPointSet::EvaluatePosition(float x[3], float* closestPoint,

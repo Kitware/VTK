@@ -177,6 +177,12 @@ public:
   // list provided. The method returns the number of triangles.
   vtkIdType AddTriangles(vtkCellArray *connectivity);
   
+  // Description:
+  // Add the triangle faces classified (2=boundary) and attached to the
+  // specified point id to the connectivity list provided. (The id is the
+  // same as that specified in InsertPoint().)  
+  vtkIdType AddTriangles(vtkIdType id, vtkCellArray *connectivity);
+  
 protected:
   vtkOrderedTriangulator();
   ~vtkOrderedTriangulator();
