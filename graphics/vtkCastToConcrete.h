@@ -85,6 +85,10 @@ public:
   void Update();
 
   // Description:
+  // Specify the input data or filter.
+  void SetInput(vtkDataSet *input);
+
+  // Description:
   // Get the output of this filter. If output is NULL then input hasn't been
   // set which is necessary for abstract objects.
   vtkDataSet *GetOutput();

@@ -101,6 +101,7 @@ void vtkCastToConcrete::Update()
       {
       this->UpdateProgress(1.0);
       }
+    this->SetDataReleased(0);
     if ( this->EndMethod )
       {
       (*this->EndMethod)(this->EndMethodArg);
@@ -155,6 +156,54 @@ void vtkCastToConcrete::Execute()
     }
 }
 
+// Specify the input data or filter.
+void vtkCastToConcrete::SetInput(vtkDataSet *input)
+{
+  if ( this->Input != input )
+    {
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    if (this->Input) {this->Input->UnRegister(this);}
+    this->Input = input;
+    if (this->Input) {this->Input->Register(this);}
+    this->Modified();
+
+    if ( input == NULL )
+      {
+      return;
+      }
+
+    if ( input->GetDataSetType() == VTK_POLY_DATA )
+      {
+      this->Output = this->PolyData;
+      }
+
+    else if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+      {
+      this->Output = this->StructuredPoints;
+      }
+
+    else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
+      {
+      this->Output = this->StructuredGrid;
+      }
+
+    else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
+      {
+      this->Output = this->UnstructuredGrid;
+      }
+
+    else if ( input->GetDataSetType() == VTK_RECTILINEAR_GRID )
+      {
+      this->Output = this->RectilinearGrid;
+      }
+
+    else
+      {
+      vtkErrorMacro(<<"Mismatch in data type");
+      }
+    }
+}
+
 // Get the output of this filter. If output is NULL then input hasn't been set
 // which is necessary for abstract objects.
 vtkDataSet *vtkCastToConcrete::GetOutput()
@@ -163,7 +212,7 @@ vtkDataSet *vtkCastToConcrete::GetOutput()
     {
     vtkErrorMacro(<<"Filter requires input to be set before output can be retrieved");
     }
-  return (vtkDataSet *)this->Input;
+  return (vtkDataSet *)this->Output;
 }
 
 // Get the output of this filter as type vtkPolyData. Performs run-time
