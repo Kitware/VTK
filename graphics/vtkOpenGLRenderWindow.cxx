@@ -110,6 +110,7 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    this->OwnDisplay = 1;
     }
 
   // try every possibility stoping when we find one that works
@@ -184,10 +185,6 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     if (this->OwnWindow && this->DisplayId && this->WindowId)
       {
       XDestroyWindow(this->DisplayId,this->WindowId);
-      }
-    if (this->DisplayId)
-      {
-      XSync(this->DisplayId,0);
       }
     }
 }
@@ -313,6 +310,7 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    this->OwnDisplay = 1;
     }
 
   v = this->GetDesiredVisualInfo();

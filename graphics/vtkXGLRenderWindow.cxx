@@ -311,6 +311,7 @@ int vtkXGLRenderWindow::GetDesiredDepth ()
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    this->OwnDisplay = 1;
     }
 
   /* get the default depth to use */
@@ -333,6 +334,7 @@ Colormap vtkXGLRenderWindow::GetDesiredColormap ()
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    this->OwnDisplay = 1;
     }
 
   if (this->ColorMap) 
@@ -373,6 +375,7 @@ Visual *vtkXGLRenderWindow::GetDesiredVisual ()
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    this->OwnDisplay = 1;
     }
 
   /* get the default visual to use */
@@ -454,6 +457,7 @@ void vtkXGLRenderWindow::WindowInitialize (void)
       {
       vtkErrorMacro(<< "bad X server connection.\n");
       }
+    this->OwnDisplay = 1;
     }
 
   // get the default visual to use 
