@@ -442,6 +442,8 @@ void vtkMesaRenderWindow::WindowInitialize (void)
       XFree(v);
       }
     this->Mapped = 1;
+    this->Size[0] = width;
+    this->Size[1] = height;      
     }
   else
     {

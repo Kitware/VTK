@@ -512,6 +512,11 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
   glAlphaFunc(GL_GREATER,0);
   
   this->Mapped = 1;
+  
+  // I do not know why the default size is not just set to 300 in the constructor.
+  // But it needs to be set for the first render.
+  this->Size[0] = width;
+  this->Size[1] = height;
 
   // free the visual info
   if (v)
