@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.16");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.17");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -84,10 +84,11 @@ vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
     delete [] this->Transforms;
     }
 
-    delete [] this->CellDataWeightArray;
-    delete [] this->WeightArray;
-    delete [] this->CellDataTransformIndexArray;
-    delete [] this->TransformIndexArray;
+  // Setting these strings to NULL has the side-effect of deleting them.
+  this->SetCellDataWeightArray(NULL);
+  this->SetWeightArray(NULL);
+  this->SetCellDataTransformIndexArray(NULL);
+  this->SetTransformIndexArray(NULL);
 }
 
 //----------------------------------------------------------------------------
