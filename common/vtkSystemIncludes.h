@@ -91,7 +91,7 @@ using std::ifstream;
 #endif
 
 #ifdef VTK_USE_64BIT_IDS
-typedef long vtkIdType
+typedef long vtkIdType;
 #else
 typedef int vtkIdType;
 #endif
