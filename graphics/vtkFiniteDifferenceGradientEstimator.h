@@ -70,8 +70,6 @@ public:
 
 protected:
 
-  friend VTK_THREAD_RETURN_TYPE FiniteDiffGradEst_SwitchOnDataType( void *arg );
-
   // Description:
   // Recompute the encoded normals and gradient magnitudes.
   void  UpdateNormals( void );
