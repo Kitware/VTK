@@ -1021,8 +1021,12 @@ void vtkRenderWindow::UnRegister(vtkObject *o)
     {
     if (this->GetReferenceCount() + this->Interactor->GetReferenceCount() == 3)
       {
+      this->vtkObject::UnRegister(o);
+      vtkRenderWindowInteractor *tmp = this->Interactor;
+      tmp->Register(0);
       this->Interactor->SetRenderWindow(NULL);
-      this->SetInteractor(NULL);
+      tmp->UnRegister(0);
+      return;
       }
     }
   
