@@ -25,6 +25,8 @@
 
 #include "vtkObject.h"
 
+class vtkDataArray;
+
 class VTK_COMMON_EXPORT vtkMath : public vtkObject
 {
 public:
@@ -488,6 +490,11 @@ public:
                        double *r, double *g, double *b);
 
   // Description:
+  // Convert color from Lab to XYZ system, and vice-versa
+  static void LabToXYZ(double lab[3], double xyz[3]);
+  static void XYZToRGB(double xyz[3], double rgb[3]);
+
+  // Description:
   // Set the bounds to an uninitialized state
   static void UninitializeBounds(double bounds[6]){
     bounds[0] = 1.0;
@@ -517,6 +524,32 @@ public:
     double *values, int nb_values, const double range[2]);
   static void ClampValues(
     const double *values, int nb_values, const double range[2], double *clamped_values);
+
+  // Description:
+  // Return the scalar type that is most likely to have enough precision 
+  // to store a given range of data once it has been scaled and shifted 
+  // (i.e. [range_min * scale + shift, range_max * scale + shift]. 
+  // If any one of the parameters is not an integer number (decimal part != 0),
+  // the search will default to float types only (float or double)
+  // Return -1 on error or no scalar type found.
+  static int GetScalarTypeFittingRange(
+    double range_min, double range_max, 
+    double scale = 1.0, double shift = 0.0);
+
+  // Description:
+  // Get a vtkDataArray's scalar range for a given component. 
+  // If the vtkDataArray's data type is unsigned char (VTK_UNSIGNED_CHAR)
+  // the range is adjusted to the whole data type range [0, 255.0]. 
+  // Same goes for unsigned short (VTK_UNSIGNED_SHORT) but the upper bound 
+  // is also adjusted down to 4095.0 if was between ]255, 4095.0].
+  // Return 1 on success, 0 otherwise.
+  static int GetAdjustedScalarRange(
+    vtkDataArray *array, int comp, double range[2]);
+ 
+  // Description:
+  // Return true if first 3D extent is within second 3D extent
+  // Extent is x-min, x-max, y-min, y-max, z-min, z-max
+  static int ExtentIsWithinOtherExtent(int extent1[6], int extent2[6]);
 
 protected:
   vtkMath() {};

@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.54");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.55");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 //----------------------------------------------------------------------------
@@ -1163,6 +1163,59 @@ void vtkColorTransferFunction::FillFromDataPointer(int nb, double *ptr)
     ptr += 4;
     nb--;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkColorTransferFunction::AdjustRange(double range[2])
+{
+  if (!range)
+    {
+    return 0;
+    }
+
+  double *function_range = this->GetRange();
+  
+  // Make sure we have points at each end of the range
+
+  double rgb[3];
+  if (function_range[0] < range[0])
+    {
+    this->GetColor(range[0], rgb);
+    this->AddRGBPoint(range[0], rgb[0], rgb[1], rgb[2]);
+    }
+  else
+    {
+    this->GetColor(function_range[0], rgb);
+    this->AddRGBPoint(range[0], rgb[0], rgb[1], rgb[2]);
+    }
+
+  if (function_range[1] > range[1])
+    {
+    this->GetColor(range[1], rgb);
+    this->AddRGBPoint(range[1], rgb[0], rgb[1], rgb[2]);
+    }
+  else
+    {
+    this->GetColor(function_range[1], rgb);
+    this->AddRGBPoint(range[1], rgb[0], rgb[1], rgb[2]);
+    }
+
+  // Remove all points out-of-range
+
+  int func_size = this->GetSize();
+  double *func_ptr = this->GetDataPointer();
+  
+  int i;
+  for (i = func_size - 1; i >= 0; i--)
+    {
+    double x = func_ptr[i * 4];
+    if (x < range[0] || x > range[1])
+      {
+      this->RemovePoint(x);
+      }
+    }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -15,7 +15,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.40");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.41");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -545,6 +545,53 @@ double vtkPiecewiseFunction::GetValue( double x )
 double *vtkPiecewiseFunction::GetRange()
 {
   return this->FunctionRange;
+}
+
+int vtkPiecewiseFunction::AdjustRange(double range[2])
+{
+  if (!range)
+    {
+    return 0;
+    }
+
+  double *function_range = this->GetRange();
+  
+  // Make sure we have points at each end of the range
+
+  if (function_range[0] < range[0])
+    {
+    this->AddPoint(range[0], this->GetValue(range[0]));
+    }
+  else
+    {
+    this->AddPoint(range[0], this->GetValue(function_range[0]));
+    }
+
+  if (function_range[1] > range[1])
+    {
+    this->AddPoint(range[1], this->GetValue(range[1]));
+    }
+  else
+    {
+    this->AddPoint(range[1], this->GetValue(function_range[1]));
+    }
+
+  // Remove all points out-of-range
+
+  int func_size = this->GetSize();
+  double *func_ptr = this->GetDataPointer();
+  
+  int i;
+  for (i = func_size - 1; i >= 0; i--)
+    {
+    double x = func_ptr[i * 2];
+    if (x < range[0] || x > range[1])
+      {
+      this->RemovePoint(x);
+      }
+    }
+
+  return 1;
 }
 
 // Returns a table of function values evaluated at regular intervals

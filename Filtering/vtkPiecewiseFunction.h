@@ -76,6 +76,12 @@ public:
   double *GetRange();
 
   // Description:
+  // Remove all points out of the new range, and make sure there is a point
+  // at each end of that range.
+  // Return 1 on success, 0 otherwise.
+  int AdjustRange(double range[2]);
+
+  // Description:
   // Fills in an array of function values evaluated at regular intervals.
   // Parameter "stride" is used to step through the output "table". It is
   // used by vtkColorTransferFunction to fill in an rgb table using three

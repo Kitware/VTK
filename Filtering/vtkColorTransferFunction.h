@@ -87,6 +87,12 @@ public:
   vtkGetVector2Macro( Range, double );
 
   // Description:
+  // Remove all points out of the new range, and make sure there is a point
+  // at each end of that range.
+  // Return 1 on success, 0 otherwise.
+  int AdjustRange(double range[2]);
+
+  // Description:
   // Fills in a table of n function values between x1 and x2
   void GetTable( double x1, double x2, int n, double* table );
   void GetTable( double x1, double x2, int n, float* table );
