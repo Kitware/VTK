@@ -27,13 +27,13 @@
 // I did not make this a subclass of in place filter because
 // the references on the data do not matter. I make no modifications
 // to the data.
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageClip : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageClip : public vtkImageToImageFilter
 {
 public:
   static vtkImageClip *New();
-  vtkTypeRevisionMacro(vtkImageClip,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageClip,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -69,18 +69,13 @@ protected:
 
   int ClipData;
   
-  void ExecuteInformation (vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
-
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
 
   int SplitExtentTmp(int piece, int numPieces, int *ext);
 
-  virtual void RequestData(vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
-
+  virtual void ExecuteData(vtkDataObject *out);
 private:
   vtkImageClip(const vtkImageClip&);  // Not implemented.
   void operator=(const vtkImageClip&);  // Not implemented.

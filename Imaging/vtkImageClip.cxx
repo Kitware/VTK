@@ -17,13 +17,10 @@
 #include "vtkCellData.h"
 #include "vtkExtentTranslator.h"
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.51");
+vtkCxxRevisionMacro(vtkImageClip, "1.52");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
@@ -40,6 +37,7 @@ vtkImageClip::vtkImageClip()
   this->OutputWholeExtent[3] =
   this->OutputWholeExtent[5] = VTK_LARGE_INTEGER;
 }
+
 
 //----------------------------------------------------------------------------
 void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
@@ -84,8 +82,11 @@ void vtkImageClip::SetOutputWholeExtent(int extent[6])
   if (modified)
     {
     this->Modified();
-    vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+    vtkImageData *output = this->GetOutput();
+    if (output)
+      {
+      output->SetUpdateExtent(extent);
+      }
     }
 }
 
@@ -102,6 +103,7 @@ void vtkImageClip::SetOutputWholeExtent(int minX, int maxX,
   this->SetOutputWholeExtent(extent);
 }
 
+
 //----------------------------------------------------------------------------
 void vtkImageClip::GetOutputWholeExtent(int extent[6])
 {
@@ -113,20 +115,15 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
     }
 }
 
+
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageClip::ExecuteInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageClip::ExecuteInformation(vtkImageData *inData, 
+                                      vtkImageData *outData)
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
   int idx, extent[6];
   
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
+  inData->GetWholeExtent(extent);
   if ( ! this->Initialized)
     {
     this->SetOutputWholeExtent(extent);
@@ -150,10 +147,11 @@ void vtkImageClip::ExecuteInformation (
       {
       extent[idx*2] = extent[idx*2+1];
       }
-    }
-
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
+      }
+  
+  outData->SetWholeExtent(extent);
 }
+
 
 //----------------------------------------------------------------------------
 // Sets the output whole extent to be the input whole extent.
@@ -166,24 +164,24 @@ void vtkImageClip::ResetOutputWholeExtent()
     }
 
   this->GetInput()->UpdateInformation();
-  vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  this->SetOutputWholeExtent(inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+  this->SetOutputWholeExtent(this->GetInput()->GetWholeExtent());
 }
+
+
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageClip::RequestData(vtkInformation *vtkNotUsed(request),
-                               vtkInformationVector **inputVector,
-                               vtkInformationVector *outputVector)
+void vtkImageClip::ExecuteData(vtkDataObject *)
 {
   int *inExt;
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  vtkImageData *outData = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *inData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *outData = this->GetOutput();
+  vtkImageData *inData = this->GetInput();
+  
+  vtkDebugMacro(<<"Executing image clip");
+  if (inData == NULL)
+    {
+    return;
+    }
 
   inExt  = inData->GetExtent(); 
 
@@ -197,15 +195,14 @@ void vtkImageClip::RequestData(vtkInformation *vtkNotUsed(request),
     } 
 }
 
+
+
+
 //----------------------------------------------------------------------------
 void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
 {
-  vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
-  vtkImageData *input = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *output = vtkImageData::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *input = this->GetInput();
+  vtkImageData *output = this->GetOutput();
   vtkExtentTranslator *translator;
   int ext[6];
 
@@ -227,7 +224,7 @@ void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
     }
 
   input->UpdateInformation();
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
+  input->GetWholeExtent(ext);
   translator->SetWholeExtent(ext);
   translator->SetPiece(piece);
   translator->SetNumberOfPieces(numPieces);
@@ -236,3 +233,6 @@ void vtkImageClip::SetOutputWholeExtent(int piece, int numPieces)
   translator->GetExtent(ext);
   this->SetOutputWholeExtent(ext);
 }
+
+
+
