@@ -18,11 +18,13 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkLinearTransform.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.31");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.32");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
                      Transform,vtkAbstractTransform);
@@ -37,8 +39,21 @@ vtkTransformPolyDataFilter::~vtkTransformPolyDataFilter()
   this->SetTransform(NULL);
 }
 
-void vtkTransformPolyDataFilter::Execute()
+int vtkTransformPolyDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkDataArray *inVectors, *inCellVectors;
@@ -46,8 +61,6 @@ void vtkTransformPolyDataFilter::Execute()
   vtkDataArray *inNormals, *inCellNormals;
   vtkFloatArray *newNormals=NULL, *newCellNormals=NULL;
   vtkIdType numPts, numCells;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
 
@@ -58,7 +71,7 @@ void vtkTransformPolyDataFilter::Execute()
   if ( this->Transform == NULL )
     {
     vtkErrorMacro(<<"No transform defined!");
-    return;
+    return 0;
     }
 
   inPts = input->GetPoints();
@@ -70,7 +83,7 @@ void vtkTransformPolyDataFilter::Execute()
   if ( !inPts )
     {
     vtkErrorMacro(<<"No input data");
-    return;
+    return 0;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -171,6 +184,8 @@ void vtkTransformPolyDataFilter::Execute()
 
   outPD->PassData(pd);
   outCD->PassData(cd);
+
+  return 1;
 }
 
 unsigned long vtkTransformPolyDataFilter::GetMTime()

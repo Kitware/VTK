@@ -34,15 +34,15 @@
 #ifndef __vtkTransformPolyDataFilter_h
 #define __vtkTransformPolyDataFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkAbstractTransform;
 
-class VTK_GRAPHICS_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkTransformPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTransformPolyDataFilter *New();
-  vtkTypeRevisionMacro(vtkTransformPolyDataFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTransformPolyDataFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,7 +58,7 @@ protected:
   vtkTransformPolyDataFilter();
   ~vtkTransformPolyDataFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkAbstractTransform *Transform;
 private:
   vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&);  // Not implemented.
@@ -66,5 +66,3 @@ private:
 };
 
 #endif
-
-
