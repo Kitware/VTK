@@ -173,7 +173,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 842 "vtkParse.y"
+# line 848 "vtkParse.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -477,7 +477,7 @@ yytabelem yyr2[]={
      4,     2,     5,     7,     3,     5,     7,     5,     1,     7,
      7,     9,     1,    10,     3,     3,     2,     4,    10,     8,
      8,     6,     6,     0,     2,     3,     1,     8,     3,     1,
-     8,     3,     0,     4,     6,     4,     4,     0,     1,     7,
+     8,     3,     0,     4,     6,     4,     5,     1,     1,     7,
      9,     5,     3,     5,     7,     3,     5,     3,     3,     5,
      5,     1,     7,     3,     3,     3,     3,     3,     3,     3,
      3,     3,     3,     0,     4,     5,     1,    10,     3,     3,
@@ -1382,95 +1382,108 @@ case 38:
 case 39:
 # line 259 "vtkParse.y"
 {
-      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
+      currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 
+	yypvt[-0].integer / 10000; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
-	yypvt[-1].integer;
+	yypvt[-1].integer + yypvt[-0].integer % 10000;
+      /* fail if array is not const */
+      if (((yypvt[-0].integer % 10000)/100) % 10 != 0 
+	  && (yypvt[-1].integer / 1000) != 1 ) {
+	currentFunction->ArrayFailure = 1;
+      }
     } break;
 case 41:
-# line 265 "vtkParse.y"
+# line 271 "vtkParse.y"
 { 
       postSig("void (*func)(void *) ");
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 5000;
     } break;
+case 46:
+# line 281 "vtkParse.y"
+{ yyval.integer = yypvt[-0].integer; } break;
+case 47:
+# line 283 "vtkParse.y"
+{ yyval.integer = 0; } break;
 case 48:
-# line 279 "vtkParse.y"
-{char temp[100]; sprintf(temp,"[%i]",yypvt[-0].integer); postSig(temp);} break;
+# line 284 "vtkParse.y"
+{ char temp[100]; sprintf(temp,"[%i]",yypvt[-0].integer); 
+                   postSig(temp); } break;
 case 49:
-# line 280 "vtkParse.y"
-{ currentFunction->ArrayFailure = 1; } break;
+# line 286 "vtkParse.y"
+{ yyval.integer = 300 + 10000 * yypvt[-2].integer; } break;
 case 50:
-# line 282 "vtkParse.y"
-{ postSig("[]"); currentFunction->ArrayFailure = 1; } break;
+# line 288 "vtkParse.y"
+{ postSig("[]"); yyval.integer = 300; } break;
 case 51:
-# line 285 "vtkParse.y"
+# line 291 "vtkParse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 52:
-# line 286 "vtkParse.y"
+# line 292 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 53:
-# line 287 "vtkParse.y"
+# line 293 "vtkParse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 54:
-# line 288 "vtkParse.y"
+# line 294 "vtkParse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 55:
-# line 290 "vtkParse.y"
+# line 296 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 56:
-# line 292 "vtkParse.y"
+# line 298 "vtkParse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 57:
-# line 301 "vtkParse.y"
+# line 307 "vtkParse.y"
 { postSig("&"); yyval.integer = 100;} break;
 case 58:
-# line 302 "vtkParse.y"
+# line 308 "vtkParse.y"
 { postSig("*"); yyval.integer = 300;} break;
 case 59:
-# line 303 "vtkParse.y"
+# line 309 "vtkParse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 60:
-# line 304 "vtkParse.y"
+# line 310 "vtkParse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 61:
-# line 306 "vtkParse.y"
+# line 312 "vtkParse.y"
 {postSig("unsigned ");} break;
 case 62:
-# line 307 "vtkParse.y"
+# line 313 "vtkParse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 63:
-# line 308 "vtkParse.y"
+# line 314 "vtkParse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 64:
-# line 311 "vtkParse.y"
+# line 317 "vtkParse.y"
 { postSig("float "); yyval.integer = 1;} break;
 case 65:
-# line 312 "vtkParse.y"
+# line 318 "vtkParse.y"
 { postSig("void "); yyval.integer = 2;} break;
 case 66:
-# line 313 "vtkParse.y"
+# line 319 "vtkParse.y"
 { postSig("char "); yyval.integer = 3;} break;
 case 67:
-# line 314 "vtkParse.y"
+# line 320 "vtkParse.y"
 { postSig("int "); yyval.integer = 4;} break;
 case 68:
-# line 315 "vtkParse.y"
+# line 321 "vtkParse.y"
 { postSig("short "); yyval.integer = 5;} break;
 case 69:
-# line 316 "vtkParse.y"
+# line 322 "vtkParse.y"
 { postSig("long "); yyval.integer = 6;} break;
 case 70:
-# line 317 "vtkParse.y"
+# line 323 "vtkParse.y"
 { postSig("double "); yyval.integer = 7;} break;
 case 71:
-# line 318 "vtkParse.y"
+# line 324 "vtkParse.y"
 {       
       char ctmpid[2048];
       sprintf(ctmpid,"%s ",yypvt[-0].str);
       postSig(ctmpid);
       yyval.integer = 8;} break;
 case 72:
-# line 324 "vtkParse.y"
+# line 330 "vtkParse.y"
 { 
       char ctmpid[2048];
       sprintf(ctmpid,"%s ",yypvt[-0].str);
@@ -1488,40 +1501,40 @@ case 72:
         }
     } break;
 case 75:
-# line 344 "vtkParse.y"
+# line 350 "vtkParse.y"
 { 
       data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
       data.NumberOfSuperClasses++; 
     } break;
 case 76:
-# line 349 "vtkParse.y"
+# line 355 "vtkParse.y"
 { 
       data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
       data.NumberOfSuperClasses++; 
     } break;
 case 78:
-# line 354 "vtkParse.y"
+# line 360 "vtkParse.y"
 {in_public = 1;} break;
 case 79:
-# line 354 "vtkParse.y"
+# line 360 "vtkParse.y"
 {in_public = 0;} break;
 case 80:
-# line 355 "vtkParse.y"
+# line 361 "vtkParse.y"
 {in_public = 0;} break;
 case 83:
-# line 359 "vtkParse.y"
+# line 365 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 84:
-# line 360 "vtkParse.y"
+# line 366 "vtkParse.y"
 {yyval.integer = -1;} break;
 case 85:
-# line 360 "vtkParse.y"
+# line 366 "vtkParse.y"
 {yyval.integer = -1;} break;
 case 86:
-# line 364 "vtkParse.y"
+# line 370 "vtkParse.y"
 {preSig("void Set"); postSig(" ("); } break;
 case 87:
-# line 365 "vtkParse.y"
+# line 371 "vtkParse.y"
 {
    postSig(");");
    sprintf(temps,"Set%s",yypvt[-4].str); 
@@ -1533,13 +1546,13 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 375 "vtkParse.y"
+# line 381 "vtkParse.y"
 {postSig("Get");} break;
 case 89:
-# line 375 "vtkParse.y"
+# line 381 "vtkParse.y"
 {postSig(" ();"); invertSig = 1;} break;
 case 90:
-# line 377 "vtkParse.y"
+# line 383 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-4].str); 
    currentFunction->Name = strdup(temps);
@@ -1548,10 +1561,10 @@ case 90:
    output_function();
    } break;
 case 91:
-# line 384 "vtkParse.y"
+# line 390 "vtkParse.y"
 {preSig("void Set");} break;
 case 92:
-# line 385 "vtkParse.y"
+# line 391 "vtkParse.y"
 {
    postSig(" (char *);"); 
    sprintf(temps,"Set%s",yypvt[-1].str); 
@@ -1563,10 +1576,10 @@ case 92:
    output_function();
    } break;
 case 93:
-# line 395 "vtkParse.y"
+# line 401 "vtkParse.y"
 {preSig("char *Get");} break;
 case 94:
-# line 396 "vtkParse.y"
+# line 402 "vtkParse.y"
 { 
    postSig(" ();");
    sprintf(temps,"Get%s",yypvt[-1].str); 
@@ -1576,13 +1589,13 @@ case 94:
    output_function();
    } break;
 case 95:
-# line 405 "vtkParse.y"
+# line 411 "vtkParse.y"
 {preSig("void Set"); postSig(" ("); } break;
 case 96:
-# line 406 "vtkParse.y"
+# line 412 "vtkParse.y"
 {postSig(");"); openSig = 0;} break;
 case 97:
-# line 407 "vtkParse.y"
+# line 413 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-7].str); 
    currentFunction->Name = strdup(temps);
@@ -1593,10 +1606,10 @@ case 97:
    output_function();
    } break;
 case 98:
-# line 417 "vtkParse.y"
+# line 423 "vtkParse.y"
 {preSig("void Set"); postSig(" ("); } break;
 case 99:
-# line 418 "vtkParse.y"
+# line 424 "vtkParse.y"
 { 
    postSig("*);");
    sprintf(temps,"Set%s",yypvt[-4].str); 
@@ -1608,10 +1621,10 @@ case 99:
    output_function();
    } break;
 case 100:
-# line 429 "vtkParse.y"
+# line 435 "vtkParse.y"
 {preSig("void Set"); postSig(" ("); } break;
 case 101:
-# line 430 "vtkParse.y"
+# line 436 "vtkParse.y"
 { 
    postSig("*);");
    sprintf(temps,"Set%s",yypvt[-4].str); 
@@ -1623,13 +1636,13 @@ case 101:
    output_function();
    } break;
 case 102:
-# line 440 "vtkParse.y"
+# line 446 "vtkParse.y"
 {postSig("*Get");} break;
 case 103:
-# line 441 "vtkParse.y"
+# line 447 "vtkParse.y"
 {postSig(" ();"); invertSig = 1;} break;
 case 104:
-# line 442 "vtkParse.y"
+# line 448 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-4].str); 
    currentFunction->Name = strdup(temps);
@@ -1638,10 +1651,10 @@ case 104:
    output_function();
    } break;
 case 105:
-# line 450 "vtkParse.y"
+# line 456 "vtkParse.y"
 {preSig("void "); postSig("On ();"); openSig = 0; } break;
 case 106:
-# line 452 "vtkParse.y"
+# line 458 "vtkParse.y"
 { 
    sprintf(temps,"%sOn",yypvt[-4].str); 
    currentFunction->Name = strdup(temps);
@@ -1657,13 +1670,13 @@ case 106:
    output_function();
    } break;
 case 107:
-# line 467 "vtkParse.y"
+# line 473 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 108:
-# line 472 "vtkParse.y"
+# line 478 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s , %s);",yypvt[-4].str,
@@ -1689,13 +1702,13 @@ case 108:
    output_function();
    } break;
 case 109:
-# line 497 "vtkParse.y"
+# line 503 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 110:
-# line 502 "vtkParse.y"
+# line 508 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yypvt[-4].str);
@@ -1708,13 +1721,13 @@ case 110:
    output_function();
    } break;
 case 111:
-# line 514 "vtkParse.y"
+# line 520 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 112:
-# line 519 "vtkParse.y"
+# line 525 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s);",
@@ -1742,13 +1755,13 @@ case 112:
    output_function();
    } break;
 case 113:
-# line 546 "vtkParse.y"
+# line 552 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 114:
-# line 551 "vtkParse.y"
+# line 557 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yypvt[-4].str);
@@ -1761,13 +1774,13 @@ case 114:
    output_function();
    } break;
 case 115:
-# line 563 "vtkParse.y"
+# line 569 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 116:
-# line 568 "vtkParse.y"
+# line 574 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s);",
@@ -1797,13 +1810,13 @@ case 116:
    output_function();
    } break;
 case 117:
-# line 597 "vtkParse.y"
+# line 603 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 118:
-# line 602 "vtkParse.y"
+# line 608 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yypvt[-4].str);
@@ -1816,13 +1829,13 @@ case 118:
    output_function();
    } break;
 case 119:
-# line 614 "vtkParse.y"
+# line 620 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 120:
-# line 619 "vtkParse.y"
+# line 625 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s , %s, %s, %s, %s, %s);",
@@ -1856,13 +1869,13 @@ case 120:
    output_function();
    } break;
 case 121:
-# line 652 "vtkParse.y"
+# line 658 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 122:
-# line 657 "vtkParse.y"
+# line 663 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yypvt[-4].str);
@@ -1875,13 +1888,13 @@ case 122:
    output_function();
    } break;
 case 123:
-# line 669 "vtkParse.y"
+# line 675 "vtkParse.y"
 {
       free (currentFunction->Signature);
       currentFunction->Signature = NULL;
       } break;
 case 124:
-# line 674 "vtkParse.y"
+# line 680 "vtkParse.y"
 {
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"void Set%s (%s [%i]);",yypvt[-6].str,
@@ -1895,13 +1908,13 @@ case 124:
      output_function();
    } break;
 case 125:
-# line 687 "vtkParse.y"
+# line 693 "vtkParse.y"
 {
      free (currentFunction->Signature);
      currentFunction->Signature = NULL;
      } break;
 case 126:
-# line 692 "vtkParse.y"
+# line 698 "vtkParse.y"
 { 
    char *local = strdup(currentFunction->Signature);
    sprintf(currentFunction->Signature,"%s *Get%s ();",local, yypvt[-6].str);
@@ -1914,7 +1927,7 @@ case 126:
    output_function();
    } break;
 case 127:
-# line 704 "vtkParse.y"
+# line 710 "vtkParse.y"
 { 
      char *local = strdup(currentFunction->Signature);
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
@@ -1963,7 +1976,7 @@ case 127:
      output_function();
    } break;
 case 128:
-# line 752 "vtkParse.y"
+# line 758 "vtkParse.y"
 { 
      char *local = strdup(currentFunction->Signature);
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
@@ -2014,7 +2027,7 @@ case 128:
      output_function();
    } break;
 case 129:
-# line 802 "vtkParse.y"
+# line 808 "vtkParse.y"
 { 
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
