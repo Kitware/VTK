@@ -237,7 +237,11 @@ class wxVTKRenderWindow(baseClass):
         EVT_LEAVE_WINDOW(self, self._OnLeaveWindow)
 
         EVT_CHAR(self, self.OnChar)
-        EVT_KEY_DOWN(self, self.OnKeyDown)
+
+        # If we use EVT_KEY_DOWN instead of EVT_CHAR, capital versions
+        # of all characters are always returned.  EVT_CHAR also performs
+        # other necessary keyboard-dependent translations.
+        EVT_CHAR(self, self.OnKeyDown)
         EVT_KEY_UP(self, self.OnKeyUp)
         
         EVT_SIZE(self, self._OnSize)
@@ -418,13 +422,13 @@ class wxVTKRenderWindow(baseClass):
         pass
 
     def OnKeyDown(self,event):
-        if event.GetKeyCode() == ord('R'):
+        if event.GetKeyCode() == ord('r'):
             self.Reset(event)
-        if event.GetKeyCode() == ord('W'):
+        if event.GetKeyCode() == ord('w'):
             self.Wireframe()
-        if event.GetKeyCode() == ord('S'):
+        if event.GetKeyCode() == ord('s'):
             self.Surface()
-        if event.GetKeyCode() == ord('P'):
+        if event.GetKeyCode() == ord('p'):
             self.PickActor(event)
 
         if event.GetKeyCode() < 256:
@@ -458,6 +462,7 @@ class wxVTKRenderWindow(baseClass):
             self._RenderWindow.WindowRemap()
             # store the new situation
             self.__handle = self.GetHandle()
+
             self._RenderWindow.Render()
 
     def UpdateRenderer(self,event):

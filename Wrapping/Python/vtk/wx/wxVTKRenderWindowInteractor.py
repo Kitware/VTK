@@ -190,7 +190,10 @@ class wxVTKRenderWindowInteractor(baseClass):
         EVT_ENTER_WINDOW(self, self.OnEnter)
         EVT_LEAVE_WINDOW(self, self.OnLeave)
 
-        EVT_KEY_DOWN(self, self.OnKeyDown)
+        # If we use EVT_KEY_DOWN instead of EVT_CHAR, capital versions
+        # of all characters are always returned.  EVT_CHAR also performs
+        # other necessary keyboard-dependent translations.
+        EVT_CHAR(self, self.OnKeyDown)
         EVT_KEY_UP(self, self.OnKeyUp)
         
         EVT_SIZE(self, self.OnSize)
@@ -292,7 +295,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         key = chr(0)
         if keycode < 256:
             key = chr(keycode)
-        
+
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, key, 0,
                                             keysym)
