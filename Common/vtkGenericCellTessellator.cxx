@@ -343,7 +343,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.3");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.4");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 
@@ -1139,15 +1139,16 @@ void vtkGenericCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 void vtkGenericCellTessellator::RemoveEdgesFromEdgeTable( vtkTriangleTile &tri )
 {
   vtkIdType l,r;
+  int i;
   
   // First setup the point reference count:
-  for(int i = 0; i<3; i++)
+  for(i = 0; i<3; i++)
     {
     this->EdgeTable->RemovePoint( tri.GetPointId(i));
     }
 
   // Clean the hash table by removing all edges from this tet, loop over edges:
-  for(int i=0;i<3;i++)
+  for(i=0;i<3;i++)
     {
     l = TRIANGLE_EDGES_TABLE[i][0];
     r = TRIANGLE_EDGES_TABLE[i][1];
@@ -1159,15 +1160,16 @@ void vtkGenericCellTessellator::RemoveEdgesFromEdgeTable( vtkTriangleTile &tri )
 void vtkGenericCellTessellator::RemoveEdgesFromEdgeTable( vtkTetraTile &tetra )
 {
   vtkIdType l,r;
+  int i;
   
   // First setup the point reference count:
-  for(int i = 0; i<4; i++)
+  for(i = 0; i<4; i++)
     {
     this->EdgeTable->RemovePoint( tetra.GetPointId(i));
     }
 
   // Clean the hash table by removing all edges from this tet, loop over edges:
-  for(int i=0;i<6;i++)
+  for(i=0;i<6;i++)
     {
     l = TETRA_EDGES_TABLE[i][0];
     r = TETRA_EDGES_TABLE[i][1];
@@ -1233,6 +1235,8 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
                                            vtkCellArray *cellArray,
                                            vtkDoubleArray *scalars  )
 {
+  int i;
+  
   // Save parameter for later use
   this->GenericCell = cell;
   this->TessellatePoints = points;
@@ -1265,7 +1269,7 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   this->GenericCell->GetPointIds(tetra);
   Reorder(tetra, order);
 
-  for(int i=0; i<4; i++)
+  for(i=0; i<4; i++)
     {
     //this->GenericCell->GetParametricCoords(order[i], point);
     point = this->GenericCell->GetParametricCoords() + 3*order[i];
@@ -1296,7 +1300,7 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
 
     int n = curr.Refine( this, piece );
     
-    for( int i = 0; i<n; i++) 
+    for(i = 0; i<n; i++) 
       {
       work.push( piece[i] );
       }
@@ -1306,7 +1310,7 @@ void vtkGenericCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     }
 
   // remove top level points
-  for(int i = 0; i<4; i++)
+  for(i = 0; i<4; i++)
     {
     this->EdgeTable->RemovePoint( root.GetPointId(i) );
     }
@@ -1342,6 +1346,7 @@ void vtkGenericCellTessellator
                          vtkIdType index, vtkDoubleArray *points,
                          vtkCellArray *cellArray, vtkDoubleArray *scalars)
 {
+  int i=0;
   // Save parameter for later use
   this->TessellateCellArray = cellArray;
   this->TessellatePoints = points;
@@ -1375,7 +1380,7 @@ void vtkGenericCellTessellator
       indexTab[0] = 0;
       indexTab[1] = 2;
       indexTab[2] = 1;
-      for(int i=0; i<3; i++)
+      for(i=0; i<3; i++)
         {
         point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
         root.SetVertex(i, point);
@@ -1389,7 +1394,7 @@ void vtkGenericCellTessellator
       indexTab[0] = 0;
       indexTab[1] = 1;
       indexTab[2] = 3;
-      for(int i=0; i<3; i++)
+      for(i=0; i<3; i++)
         {
         point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
         root.SetVertex(i, point);
@@ -1403,7 +1408,7 @@ void vtkGenericCellTessellator
       indexTab[0] = 1;
       indexTab[1] = 2;
       indexTab[2] = 3;
-      for(int i=0; i<3; i++)
+      for(i=0; i<3; i++)
         {
         point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
         root.SetVertex(i, point);
@@ -1417,7 +1422,7 @@ void vtkGenericCellTessellator
       indexTab[0] = 2;
       indexTab[1] = 0;
       indexTab[2] = 3;
-      for(int i=0; i<3; i++)
+      for(i=0; i<3; i++)
         {
         point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
         root.SetVertex(i, point);
