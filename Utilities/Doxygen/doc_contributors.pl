@@ -143,7 +143,7 @@ foreach my $option (
     $args{$option} = $default{$option} 
       if ! exists $args{$option} && exists $default{$option};
 }
-                    
+
 $args{"verbose"} = 1 if exists $default{"verbose"};
 
 $args{"cachedir"} =~ s/[\\\/]*$// if exists $args{"cachedir"};
@@ -158,7 +158,7 @@ STDOUT->autoflush;
 STDERR->autoflush;
 
 my $start_time = time();
-    
+
 # -------------------------------------------------------------------------
 # Read the authors list
 
@@ -214,7 +214,7 @@ if (exists $args{"authors"}) {
                   if  exists $args{"verbose"};
             }
         }
-        
+
         print " => ", scalar keys %authors, " authors(s) read from ", basename($args{"authors"}), ".\n";
     }
 }
@@ -235,21 +235,21 @@ sub parse_revision {
     my ($revision, $fields_line, $message) = ($1, $2, $3);
     my ($author, $date, $time, $lines_add, $lines_rem) = 
       (undef, undef, undef, undef, undef);
-    
+
     my @fields = split (';', $fields_line);
 
-    if ($fields[0] =~ m/date:\s+(\d+\/\d+\/\d+)\s+(\d+:\d+:\d+)$/) {
+    if ($fields[0] =~ m/date:\s+(\d+-\d+-\d+)\s+(\d+:\d+:\d+)\s+\+0000$/) {
         ($date, $time) = ($1, $2);
     } else {
         carp "Unable to find date of revision!\n";
     }
-        
+
     if ($fields[1] =~ m/author:\s+(.+)$/) {
         $author = $1;
     } else {
         carp "Unable to find author of revision!\n";
     }
-        
+
     if (exists $fields[3] && $fields[3] =~ m/lines:\s+\+(\d+)\s+\-(\d+)$/) {
         ($lines_add, $lines_rem) = ($1, $2);
     }
@@ -346,7 +346,7 @@ foreach my $file_name (@files_submitted) {
     my $output;
 
     my $old_slurp = $/;
-    undef $/;                           # slurp mode  
+    undef $/;                           # slurp mode
     
     # Use the cache if it exists, is not older than file, and not empty
 
@@ -384,9 +384,9 @@ foreach my $file_name (@files_submitted) {
     }
 
     $files_visited{$file_name} = 1;
-    
+
     # Process revisions
-    
+
     my @file_revisions = 
       split('----------------------------\nrevision ', $output);
     shift @file_revisions;
@@ -420,7 +420,7 @@ foreach my $file_name (@files_submitted) {
               = $lines_add;
             $log_by_file_revision{$file_name}{$revision}{'lines_rem'} 
               = $lines_rem;
-            
+
             $lines_added += $lines_add - $lines_rem;
 
             $log_revision_by_signature_file
@@ -438,7 +438,7 @@ foreach my $file_name (@files_submitted) {
 
     my @lines = <FILE>;
     close(FILE);
-    
+ 
     $log_by_file_revision{$file_name}{'1.1'}{'lines_add'} 
       = (scalar @lines) - $lines_added;
     if ($log_by_file_revision{$file_name}{'1.1'}{'lines_add'} < 0) {
@@ -640,7 +640,7 @@ while (@classes_names) {
     # Read that header
 
     my $old_slurp = $/;
-    undef $/; # slurp mode  
+    undef $/; # slurp mode
 
     if (!sysopen(HEADERFILE, 
                  $header, 
@@ -651,7 +651,7 @@ while (@classes_names) {
 
     my $headerfile = <HEADERFILE>;
     close(HEADERFILE);
-    
+ 
     $/ = $old_slurp;
 
     # Search for the documentation block (@class ...)
@@ -908,7 +908,7 @@ foreach my $contributor (@contributors_sorted) {
         last if $ratio < $args{"min_class"};
         push @ok_classes, "$class_name (" . int($ratio * 100.0) . "%)";
     }
-    
+ 
     # Files
 
     my @ok_files; 
@@ -917,7 +917,7 @@ foreach my $contributor (@contributors_sorted) {
       sort {$contribution_by_author_file{$contributor}{$b} <=> 
               $contribution_by_author_file{$contributor}{$a}}
         keys %{$not_class_file_by_author{$contributor}};
-    
+ 
     foreach my $file_name (@files_sorted) {
         next if basename($file_name) =~ m/$args{"class_group"}/;
         last if scalar @ok_files > $args{"max_file_nb"};
