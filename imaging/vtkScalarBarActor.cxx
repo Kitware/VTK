@@ -208,7 +208,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Check to see whether we have to rebuild everything
-  if (viewport->GetMTime() > this->BuildTime)
+  if ( viewport->GetMTime() > this->BuildTime || 
+       ( viewport->GetVTKWindow() && 
+	 viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
     {
     // if the viewport has changed we may - or may not need
     // to rebuild, it depends on if the projected coords chage
