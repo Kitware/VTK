@@ -118,10 +118,6 @@ public:
 				   double derivative[3][3]);
 
   // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkAbstractTransform *t);
-
-  // Description:
   // Make a transform of the same type.  This will actually
   // return the same transform.
   vtkAbstractTransform *MakeTransform();
@@ -131,6 +127,9 @@ protected:
   ~vtkIdentityTransform();
   vtkIdentityTransform(const vtkIdentityTransform&) {};
   void operator=(const vtkIdentityTransform&) {};
+
+  void InternalDeepCopy(vtkAbstractTransform *t);
+
 };
 
 #endif
