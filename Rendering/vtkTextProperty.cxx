@@ -15,57 +15,17 @@
 #include "vtkTextProperty.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextProperty, "1.9");
+vtkCxxRevisionMacro(vtkTextProperty, "1.10");
 vtkStandardNewMacro(vtkTextProperty);
 
 //----------------------------------------------------------------------------
-// Control wheter to globally force text antialiasing (ALL), 
-// disable antialiasing (NONE), allow antialising (SOME) depending on
-// the per-object AntiAliasing attribute.
- 
-static int vtkTextPropertyGlobalAntiAliasing = VTK_TEXT_GLOBAL_ANTIALIASING_SOME;
-
-void vtkTextProperty::SetGlobalAntiAliasing(int val)
-{
-  if (val == vtkTextPropertyGlobalAntiAliasing)
-    {
-    return;
-    }
-  if (val < VTK_TEXT_GLOBAL_ANTIALIASING_SOME)
-    {
-    val = VTK_TEXT_GLOBAL_ANTIALIASING_SOME;
-    }
-  else if (val > VTK_TEXT_GLOBAL_ANTIALIASING_ALL)
-    {
-    val = VTK_TEXT_GLOBAL_ANTIALIASING_ALL;
-    }
-
-  vtkTextPropertyGlobalAntiAliasing = val;
-}
-
-int vtkTextProperty::GetGlobalAntiAliasing()
-{
-  return vtkTextPropertyGlobalAntiAliasing;
-}
-
-//----------------------------------------------------------------------------
-// Creates a new text property with Font size 12, bold off, italic off,
-// and Arial font
-
 vtkTextProperty::vtkTextProperty()
 {
-  // TOFIX: the default text prop color is set to a special (-1, -1, -1) value
-  // to maintain backward compatibility for a while. Text mapper classes will
-  // use the Actor2D color instead of the text prop color if this value is 
-  // found (i.e. if the text prop color has not been set).
+  this->Color[0] = 1.0;
+  this->Color[1] = 1.0;
+  this->Color[2] = 1.0;
 
-  this->Color[0] = -1.0;
-  this->Color[1] = -1.0;
-  this->Color[2] = -1.0;
-
-  // TOFIX: same goes for opacity
-
-  this->Opacity  = -1.0;
+  this->Opacity  = 1.0;
 
   this->FontFamily = VTK_ARIAL;
   this->FontSize = 12;
@@ -73,20 +33,17 @@ vtkTextProperty::vtkTextProperty()
   this->Bold = 0;
   this->Italic = 0;
   this->Shadow = 0;
-  this->AntiAliasing = 1;
 
   this->Justification = VTK_TEXT_LEFT;
   this->VerticalJustification = VTK_TEXT_BOTTOM;
 
   this->LineOffset = 0.0;
-  this->LineSpacing = 1.1;
+  this->LineSpacing = 1.1; // why not 1.0 ?
 
-  this->FaceFileName = NULL;
+  this->Orientation = 0.0;
 }
 
 //----------------------------------------------------------------------------
-// Shallow copy of a text property.
-
 void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
 {
   if (!tprop)
@@ -103,7 +60,8 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
   this->SetBold(tprop->GetBold());
   this->SetItalic(tprop->GetItalic());
   this->SetShadow(tprop->GetShadow());
-  this->SetAntiAliasing(tprop->GetAntiAliasing());
+
+  this->SetOrientation(tprop->GetOrientation());
 
   this->SetJustification(tprop->GetJustification());
   this->SetVerticalJustification(tprop->GetVerticalJustification());
@@ -111,56 +69,20 @@ void vtkTextProperty::ShallowCopy(vtkTextProperty *tprop)
   this->SetLineOffset(tprop->GetLineOffset());
   this->SetLineSpacing(tprop->GetLineSpacing());
 
-  this->SetFaceFileName(tprop->GetFaceFileName());
 }
 
 //----------------------------------------------------------------------------
-vtkTextProperty::~vtkTextProperty()
+void vtkTextProperty::GetShadowColor(double color[3])
 {
-  if (this->FaceFileName)
-    {
-    delete [] this->FaceFileName;
-    this->FaceFileName = NULL;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkTextProperty::SetFaceFileName(const char *name)
-{
-  // Same name
-
-  if (this->FaceFileName && name && (!strcmp(this->FaceFileName, name)))
-    {
-    return;
-    }
-
-  // Both empty ?
-
-  if (!name && !this->FaceFileName)
-    {
-    return;
-    }
-
-  // Release old name
-
-  if (this->FaceFileName)
-    {
-    delete [] this->FaceFileName;
-    }
-
-  // Copy
-
-  if (name)
-    {
-    this->FaceFileName = new char[strlen(name) + 1];
-    strcpy(this->FaceFileName, name);
-    }
-  else
-    {
-    this->FaceFileName = NULL;
-    }
-
-  this->Modified();
+#if 1
+  double average = (this->Color[0] + this->Color[1] + this->Color[2]) / 3.0;
+#else
+  double average = (0.30 * this->Color[0] + 
+                    0.59 * this->Color[1] + 
+                    0.11 * this->Color[2]);
+#endif
+  double shadow_i = average > 0.5 ? 0.0 : 1.0;
+  color[0] = color[1] = color[2] = shadow_i; 
 }
 
 //----------------------------------------------------------------------------
@@ -186,15 +108,8 @@ void vtkTextProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vertical justification: " 
      << this->GetVerticalJustificationAsString() << "\n";
 
+  os << indent << "Orientation: " << this->Orientation << "\n";
+
   os << indent << "Line Offset: " << this->LineOffset << "\n";
   os << indent << "Line Spacing: " << this->LineSpacing << "\n";
-  os << indent << "AntiAliasing: " << this->AntiAliasing << "\n";
-  if (this->FaceFileName)
-    {
-    os << indent << "FaceFileName: " << this->FaceFileName << "\n";
-    }
-  else
-    {
-    os << indent << "FaceFileName: (none)\n";
-    }
 }

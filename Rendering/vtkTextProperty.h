@@ -18,7 +18,6 @@
 // The primary properties that can be set are color, opacity, font size, 
 // font family horizontal and vertical justification, bold/italic/shadow 
 // styles.
-
 // .SECTION See Also
 // vtkTextMapper vtkTextActor vtkLegendBoxActor vtkCaptionActor2D
 
@@ -60,7 +59,7 @@ public:
   char *GetFontFamilyAsString();
 
   // Description:
-  // Set/Get the font size.
+  // Set/Get the font size (in pixels).
   vtkSetClampMacro(FontSize,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(FontSize, int);
 
@@ -81,26 +80,11 @@ public:
   vtkSetMacro(Shadow, int);
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
-  
-  // Description:
-  // Enable/disable the local aliasing hint.
-  vtkSetMacro(AntiAliasing, int);
-  vtkGetMacro(AntiAliasing, int);
-  vtkBooleanMacro(AntiAliasing, int);
 
   // Description:
-  // Set/Get the global antialiasing hint. Control whether to *globally* force
-  // text antialiasing (ALL), disable antialiasing (NONE) or allow antialising
-  // depending on the per-object AntiAliasing attribute (SOME).
-  static int GetGlobalAntiAliasing();
-  static void SetGlobalAntiAliasing(int val);
-  static void SetGlobalAntiAliasingToSome() 
-    { vtkTextProperty::SetGlobalAntiAliasing(VTK_TEXT_GLOBAL_ANTIALIASING_SOME); };
-  static void SetGlobalAntiAliasingToNone() 
-    { vtkTextProperty::SetGlobalAntiAliasing(VTK_TEXT_GLOBAL_ANTIALIASING_NONE); };
-  static void SetGlobalAntiAliasingToAll()  
-    { vtkTextProperty::SetGlobalAntiAliasing(VTK_TEXT_GLOBAL_ANTIALIASING_ALL); };
-    
+  // Get the shadow color. It is computed from the Color ivar
+  void GetShadowColor(double color[3]);
+  
   // Description:
   // Set/Get the horizontal justification to left (default), centered,
   // or right.
@@ -128,28 +112,28 @@ public:
   char *GetVerticalJustificationAsString();
     
   // Description:
-  // These methods can be used to control the spacing and placement of 
-  // text (in the vertical direction). LineOffset is a vertical offset 
-  // (measured in pixels); LineSpacing is the spacing between lines, 
+  // Set/Get the text's orientation (in degrees).
+  vtkSetMacro(Orientation,double);
+  vtkGetMacro(Orientation,double);
+
+  // Description:
+  // Set/Get the (extra) spacing between lines, 
   // expressed as a text height multiplication factor.
-  vtkSetMacro(LineOffset, double);
-  vtkGetMacro(LineOffset, double);
   vtkSetMacro(LineSpacing, double);
   vtkGetMacro(LineSpacing, double);
+  
+  // Description:
+  // Set/Get the vertical offset (measured in pixels).
+  vtkSetMacro(LineOffset, double);
+  vtkGetMacro(LineOffset, double);
   
   // Description:
   // Shallow copy of a text property.
   void ShallowCopy(vtkTextProperty *tprop);
   
-  // Description:
-  // Specify a face file name (unsupported feature). A face filename will
-  // override the font family as well as the bold and italic attributes.
-  void SetFaceFileName(const char *);
-  vtkGetStringMacro(FaceFileName);
-
 protected:
   vtkTextProperty();
-  ~vtkTextProperty();
+  ~vtkTextProperty() {};
 
   double Color[3];
   double Opacity;
@@ -158,12 +142,11 @@ protected:
   int   Bold;
   int   Italic;
   int   Shadow;
-  int   AntiAliasing;
   int   Justification;
   int   VerticalJustification;
+  double Orientation;
   double LineOffset;
   double LineSpacing;
-  char  *FaceFileName;
   
 private:
   vtkTextProperty(const vtkTextProperty&);  // Not implemented.
