@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include "Python.h"
 
@@ -20,7 +21,7 @@ void initvtkpython()
   
   n = PyDict_Size(d2);
   i = 0;
-  while (i < n)
+  for (j = 0; j < n; j++)
     {
     PyDict_Next(d2,&i,&k,&v);
     PyDict_SetItem(d1,k,v);
@@ -34,7 +35,7 @@ void initvtkpython()
  
   n = PyDict_Size(d2);
   i = 0;
-  while (i < n)
+  for (j = 0; j < n; j++)
     {
     PyDict_Next(d2,&i,&k,&v);
     PyDict_SetItem(d1,k,v);
@@ -49,7 +50,7 @@ void initvtkpython()
  
   n = PyDict_Size(d2);
   i = 0;
-  while (i < n)
+  for (j = 0; j < n; j++)
     {
     PyDict_Next(d2,&i,&k,&v);
     PyDict_SetItem(d1,k,v);
@@ -60,11 +61,10 @@ void initvtkpython()
   initlibVTKPatentedPython();
   m2 = PyImport_AddModule("libVTKPatentedPython");
   d2 = PyModule_GetDict(m2);
-  if (!d2) Py_FatalError("can't get dictionary for module libVTKPatentedPython!");
  
   n = PyDict_Size(d2);
   i = 0;
-  while (i < n)
+  for (j = 0; j < n; j++)
     {
     PyDict_Next(d2,&i,&k,&v);
     PyDict_SetItem(d1,k,v);
@@ -79,7 +79,7 @@ void initvtkpython()
  
   n = PyDict_Size(d2);
   i = 0;
-  while (i < n)
+  for (j = 0; j < n; j++)
     {
     PyDict_Next(d2,&i,&k,&v);
     PyDict_SetItem(d1,k,v);
@@ -94,11 +94,10 @@ void initvtkpython()
  
   n = PyDict_Size(d2);
   i = 0;
-  while (i < n)
+  for (j = 0; j < n; j++)
     {
     PyDict_Next(d2,&i,&k,&v);
     PyDict_SetItem(d1,k,v);
     }
 #endif
-
 }
