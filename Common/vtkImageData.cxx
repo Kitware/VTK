@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.134");
+vtkCxxRevisionMacro(vtkImageData, "1.135");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1613,9 +1613,9 @@ int vtkImageData::GetScalarSize()
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
-static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
-                                    vtkImageData *outData, OT *outPtr,
-                                    int outExt[6])
+void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
+                             vtkImageData *outData, OT *outPtr,
+                             int outExt[6])
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -1656,8 +1656,8 @@ static void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
-                                    vtkImageData *outData, int outExt[6])
+void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
+                             vtkImageData *outData, int outExt[6])
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
 

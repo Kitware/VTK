@@ -33,7 +33,7 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.50");
+vtkCxxRevisionMacro(vtkDataArray, "1.51");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -77,8 +77,8 @@ const char* vtkDataArray::GetName()
 }
 
 template <class IT, class OT>
-static void vtkDeepCopyArrayOfDifferentType(IT *input, OT *output,
-                                            int numTuples, int nComp)
+void vtkDeepCopyArrayOfDifferentType(IT *input, OT *output,
+                                     int numTuples, int nComp)
 {
   int i, j;
   for (i=0; i<numTuples; i++)
@@ -91,7 +91,7 @@ static void vtkDeepCopyArrayOfDifferentType(IT *input, OT *output,
 }
 
 template <class IT>
-static void vtkDeepCopySwitchOnOutput(IT *input, vtkDataArray *da,
+void vtkDeepCopySwitchOnOutput(IT *input, vtkDataArray *da,
                                       int numTuples, int nComp)
 {
   void *output = da->GetVoidPointer(0);
@@ -681,7 +681,7 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
 }
 
 template <class IT, class OT>
-static void CopyTuples(IT* input, OT* output, int nComp, vtkIdList* ptIds )
+void vtkCopyTuples(IT* input, OT* output, int nComp, vtkIdList* ptIds )
 {
   int i, j;
   int num=ptIds->GetNumberOfIds();
@@ -695,11 +695,12 @@ static void CopyTuples(IT* input, OT* output, int nComp, vtkIdList* ptIds )
 }
 
 template <class IT>
-static void CopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
+void vtkCopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
 {
   switch (output->GetDataType())
     {
-    vtkTemplateMacro4(CopyTuples, input, (VTK_TT *)output->GetVoidPointer(0), 
+    vtkTemplateMacro4(vtkCopyTuples, input, 
+                      (VTK_TT *)output->GetVoidPointer(0), 
                       output->GetNumberOfComponents(), ptIds );
 
     default:
@@ -719,7 +720,7 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
 
   switch (this->GetDataType())
     {
-    vtkTemplateMacro3(CopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
+    vtkTemplateMacro3(vtkCopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
                       ptIds );
     // This is not supported by the template macro.
     // Switch to using the float interface.
@@ -739,8 +740,8 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
 }
 
 template <class IT, class OT>
-static void CopyTuples(IT* input, OT* output, int nComp, 
-                       vtkIdType p1, vtkIdType p2)
+void vtkCopyTuples(IT* input, OT* output, int nComp, 
+                   vtkIdType p1, vtkIdType p2)
 {
   int i, j;
   int num=p2-p1+1;
@@ -754,12 +755,13 @@ static void CopyTuples(IT* input, OT* output, int nComp,
 }
 
 template <class IT>
-static void CopyTuples1(IT* input, vtkDataArray* output, 
-                        vtkIdType p1, vtkIdType p2)
+void vtkCopyTuples1(IT* input, vtkDataArray* output, 
+                    vtkIdType p1, vtkIdType p2)
 {
   switch (output->GetDataType())
     {
-    vtkTemplateMacro5(CopyTuples, input, (VTK_TT *)output->GetVoidPointer(0), 
+    vtkTemplateMacro5(vtkCopyTuples, input, 
+                      (VTK_TT *)output->GetVoidPointer(0), 
                       output->GetNumberOfComponents(), p1, p2 );
 
     default:
@@ -780,7 +782,7 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
 
   switch (this->GetDataType())
     {
-    vtkTemplateMacro4(CopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
+    vtkTemplateMacro4(vtkCopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
                       p1, p2 );
     // This is not supported by the template macro.
     // Switch to using the float interface.

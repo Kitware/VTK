@@ -21,7 +21,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkSphericalTransform, "1.3");
+vtkCxxRevisionMacro(vtkSphericalTransform, "1.4");
 vtkStandardNewMacro(vtkSphericalTransform);
 
 //----------------------------------------------------------------------------
@@ -61,8 +61,8 @@ vtkAbstractTransform *vtkSphericalTransform::MakeTransform()
 }
 
 template<class T>
-static void vtkSphericalToRectangular(const T inPoint[3], T outPoint[3],
-                                      T derivative[3][3])
+void vtkSphericalToRectangular(const T inPoint[3], T outPoint[3],
+                               T derivative[3][3])
 {
   T r = inPoint[0];
   T sinphi = sin(inPoint[1]);
@@ -91,7 +91,7 @@ static void vtkSphericalToRectangular(const T inPoint[3], T outPoint[3],
 }
 
 template<class T>
-static void vtkRectangularToSpherical(const T inPoint[3], T outPoint[3])
+void vtkRectangularToSpherical(const T inPoint[3], T outPoint[3])
 {
   T x = inPoint[0];
   T y = inPoint[1];

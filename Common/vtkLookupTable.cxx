@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.83");
+vtkCxxRevisionMacro(vtkLookupTable, "1.84");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -297,8 +297,8 @@ void vtkLookupTableLogRange(float range[2], float logRange[2])
 }
 
 // Apply log to value, with appropriate constraints.
-static inline float vtkApplyLogScale(float v, float range[2], 
-                                     float logRange[2])
+inline float vtkApplyLogScale(float v, float range[2], 
+                                 float logRange[2])
 {
   // is the range set for negative numbers?
   if (range[0] < 0)
@@ -335,10 +335,10 @@ static inline float vtkApplyLogScale(float v, float range[2],
 }                 
 
 // Apply shift/scale to the scalar value v and do table lookup.
-static inline unsigned char *vtkLinearLookup(float v,   
-                                             unsigned char *table,
-                                             float maxIndex,
-                                             float shift, float scale)
+inline unsigned char *vtkLinearLookup(float v,   
+                                          unsigned char *table,
+                                          float maxIndex,
+                                          float shift, float scale)
 {
   float findx = (v + shift)*scale;
   if (findx < 0)
@@ -456,9 +456,9 @@ unsigned char *vtkLookupTable::MapValue(float v)
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template<class T>
-static void vtkLookupTableMapData(vtkLookupTable *self, T *input, 
-                                  unsigned char *output, int length, 
-                                  int inIncr, int outFormat)
+void vtkLookupTableMapData(vtkLookupTable *self, T *input, 
+                           unsigned char *output, int length, 
+                           int inIncr, int outFormat)
 {
   int i = length;
   float *range = self->GetTableRange();
