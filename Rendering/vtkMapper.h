@@ -342,7 +342,7 @@ protected:
   vtkFloatArray *ColorCoordinates;
   // 1D ColorMap used for the texture image.
   vtkImageData* ColorTextureMap;
-  void MapScalarsToTexture(vtkDataArray* scalars);
+  void MapScalarsToTexture(vtkDataArray* scalars, double alpha);
 
   vtkScalarsToColors *LookupTable;
   int ScalarVisibility;

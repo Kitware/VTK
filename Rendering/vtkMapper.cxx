@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.115");
+vtkCxxRevisionMacro(vtkMapper, "1.116");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -279,7 +279,6 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     {
     this->LookupTable->SetRange(this->ScalarRange);
     }
-  this->LookupTable->SetAlpha(alpha);
 
   // Decide betweeen texture color or vertex color.
   // Cell data always uses vertext color.
@@ -291,7 +290,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     if ( this->ColorMode != VTK_COLOR_MODE_DEFAULT || 
          (vtkUnsignedCharArray::SafeDownCast(scalars)) == 0 )
       { // Texture color option.
-      this->MapScalarsToTexture(scalars);
+      this->MapScalarsToTexture(scalars, alpha);
       return 0;
       }
     }
@@ -333,6 +332,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
     }
   
   // map scalars
+  this->LookupTable->SetAlpha(alpha);
   this->Colors = this->LookupTable->
     MapScalars(scalars, this->ColorMode, this->ArrayComponent);
   // Consistent register and unregisters
@@ -547,7 +547,7 @@ void vtkMapperCreateColorTextureCoordinates(T* input, float* output,
 #define ColorTextureMapSize 256
 // a side effect of this is that this->ColorCoordinates and 
 // this->ColorTexture are set.
-void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars)
+void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
 {
   double* range = this->LookupTable->GetRange();
   
@@ -564,8 +564,10 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars)
   // Set a new lookup table changes this->MTime.
   if (this->ColorTextureMap == 0 || 
       this->GetMTime() > this->ColorTextureMap->GetMTime() ||
-      this->LookupTable->GetMTime() > this->ColorTextureMap->GetMTime())
+      this->LookupTable->GetMTime() > this->ColorTextureMap->GetMTime() ||
+      this->LookupTable->GetAlpha() != alpha)
     {
+    this->LookupTable->SetAlpha(alpha);
     if ( this->ColorTextureMap )
       {
       this->ColorTextureMap->UnRegister(this);
