@@ -29,7 +29,12 @@
 // group as the user communicator but uses a different context. Therefore,
 // the user and the internal communications can not interfere with each
 // other (even if the same message tag is used).
-
+//
+// .SECTION Note
+// The internal behavior can be changed using the environment variable: 
+// VTK_CONTROLLER ( can be 'MPI' or 'Threaded' ). By defaut a vtkDummyController
+// is created
+//
 // .SECTION see also
 // vtkMPIController vtkThreadedController vtkInputPort vtkOutputPort 
 // vtkCommunicator vtkSharedMemoryCommunicator vtkMPICommunicator
