@@ -182,7 +182,7 @@ protected:
   virtual void ExecuteDataEnd(vtkInformation* request);
 
   // Override this to handle cropping and ghost levels.
-  virtual void MarkOutputsGenerated();
+  virtual void MarkOutputsGenerated(vtkInformation* request);
 
   // Remove update/whole extent when resetting pipeline information.
   virtual void ResetPipelineInformation(int port, vtkInformation*);

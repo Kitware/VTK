@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.7");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.8");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -122,17 +122,6 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
       dataInfo->Get(vtkDataObject::DATA_EXTENT(), extent);
       outputInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                       extent, 6);
-      // for now we only do this for image data, once these ivars are in the
-      // info object we can just do a has check
-      vtkImageData *id = vtkImageData::SafeDownCast(this->Output);
-      if (id)
-        {
-        outputInfo->Set(vtkDataObject::SCALAR_TYPE(),id->GetScalarType());
-        outputInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-                        id->GetNumberOfScalarComponents());
-        outputInfo->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
-        outputInfo->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
-        }
       }
     }
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))

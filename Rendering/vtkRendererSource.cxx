@@ -27,7 +27,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.60");
+vtkCxxRevisionMacro(vtkRendererSource, "1.61");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -334,26 +334,6 @@ int vtkRendererSource::ProcessRequest(vtkInformation* request,
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     this->RequestInformation(request, inputVector, outputVector);
-    // after executing set the origin and spacing from the
-    // info
-    int i;
-    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = outputVector->GetInformationObject(i);
-      vtkImageData *output = 
-        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-      // if execute info didn't set origin and spacing then we set them
-      if (!info->Has(vtkDataObject::ORIGIN()))
-        {
-        info->Set(vtkDataObject::ORIGIN(),0,0,0);
-        info->Set(vtkDataObject::SPACING(),1,1,1);
-        }
-      if (output)
-        {
-        output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
-        output->SetSpacing(info->Get(vtkDataObject::SPACING()));
-        }
-      }
     return 1;
     }
 

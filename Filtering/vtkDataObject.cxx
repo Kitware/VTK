@@ -29,7 +29,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.13");
+vtkCxxRevisionMacro(vtkDataObject, "1.14");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -334,7 +334,18 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 }
 
 //----------------------------------------------------------------------------
+void vtkDataObject::CopyInformationToPipeline(vtkInformation*, vtkInformation*)
+{
+  // Copy nothing by default.
+}
 
+//----------------------------------------------------------------------------
+void vtkDataObject::CopyInformationFromPipeline(vtkInformation*)
+{
+  // Copy nothing by default.
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObject::DataHasBeenGenerated()
 {
   this->DataReleased = 0;
@@ -372,19 +383,6 @@ int vtkDataObject::ShouldIReleaseData()
     {
     return 0;
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkDataObject::CopyPipelineInformation(vtkInformation* oldPInfo,
-                                            vtkInformation* newPInfo)
-{
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES());
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED());
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-  newPInfo->CopyEntry(oldPInfo, vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
 
 //----------------------------------------------------------------------------

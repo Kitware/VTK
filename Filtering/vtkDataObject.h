@@ -303,6 +303,20 @@ public:
   virtual int GetMaximumNumberOfPieces();
 
   // Description:
+  // Copy information about this data object to its
+  // PipelineInformation from its own Information for the given
+  // request.  If the second argument is not NULL then it is the
+  // pipeline information object for the input to this data object's
+  // producer.
+  virtual void CopyInformationToPipeline(vtkInformation* request,
+                                         vtkInformation* input);
+
+  // Description:
+  // Copy information about this data object from the
+  // PipelineInformation to its own Information for the given request.
+  virtual void CopyInformationFromPipeline(vtkInformation* request);
+
+  // Description:
   // This method is called by the source when it executes to generate data.
   // It is sort of the opposite of ReleaseData.
   // It sets the DataReleased flag to 0, and sets a new UpdateTime.
@@ -395,9 +409,6 @@ protected:
   // Keep track of data release during network execution
   int DataReleased; 
 
-  virtual void CopyPipelineInformation(vtkInformation* oldPInfo,
-                                       vtkInformation* newPInfo);
-  
   // When was this data last generated?
   vtkTimeStamp UpdateTime;  
 

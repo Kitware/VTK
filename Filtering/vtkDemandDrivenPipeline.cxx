@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.21");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.22");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -238,23 +238,6 @@ vtkDemandDrivenPipeline
 {
   // Let the superclass copy first.
   this->Superclass::CopyDefaultInformation(request, direction);
-
-  if(request->Has(REQUEST_INFORMATION()))
-    {
-    if(this->GetNumberOfInputPorts() > 0)
-      {
-      // Copy information from the first input to all outputs.
-      if(vtkInformation* inInfo = this->GetInputInformation(0, 0))
-        {
-        for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-          {
-          vtkInformation* outInfo = this->GetOutputInformation(i);
-          outInfo->CopyEntry(inInfo, vtkDataObject::SCALAR_TYPE());
-          outInfo->CopyEntry(inInfo, vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
-          }
-        }
-      }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -418,6 +401,23 @@ int vtkDemandDrivenPipeline::ExecuteDataObject(vtkInformation* request)
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteInformation(vtkInformation* request)
 {
+  // Give each output data object a chance to set default values in
+  // its pipeline information.  Provide the first input's information
+  // to each output.
+  vtkInformation* inInfo = 0;
+  if(this->GetNumberOfInputPorts() > 0)
+    {
+    inInfo = this->GetInputInformation(0, 0);
+    }
+  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+    {
+    vtkInformation* outInfo = this->GetOutputInformation(i);
+    if(vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT()))
+      {
+      outData->CopyInformationToPipeline(request, inInfo);
+      }
+    }
+
   // Invoke the request on the algorithm.
   return this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
 }
@@ -454,6 +454,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
     if(data && !outInfo->Get(DATA_NOT_GENERATED()))
       {
       data->PrepareForNewData();
+      data->CopyInformationFromPipeline(request);
       }
     }
 
@@ -466,7 +467,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation*)
+void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
 {
   // The algorithm has either finished or aborted.
   if(!this->Algorithm->GetAbortExecute())
@@ -478,7 +479,7 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation*)
   this->Algorithm->InvokeEvent(vtkCommand::EndEvent,NULL);
 
   // Tell outputs they have been generated.
-  this->MarkOutputsGenerated();
+  this->MarkOutputsGenerated(request);
 
   // Remove any not-generated mark.
   vtkInformationVector* outputs = this->GetOutputInformation();
@@ -490,7 +491,7 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation*)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::MarkOutputsGenerated()
+void vtkDemandDrivenPipeline::MarkOutputsGenerated(vtkInformation*)
 {
   // Tell all generated outputs that they have been generated.
   vtkInformationVector* outputs = this->GetOutputInformation();

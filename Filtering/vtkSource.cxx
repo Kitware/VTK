@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.14");
+vtkCxxRevisionMacro(vtkSource, "1.15");
 
 #ifndef NULL
 #define NULL 0
@@ -542,42 +542,48 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     vtkDebugMacro("ProcessRequest(REQUEST_INFORMATION) "
                   "calling ExecuteInformation.");
 
-    // for image data copy the wbb into origin and spacing
-    if(vtkExecutive* e = this->GetExecutive())
+    // Old-style filters will get origin and spacing from the input
+    // data objects themselves.  We handle this here by copying the
+    // pipeline information version of these values into the data
+    // object's version.
+    for(i=0; i < this->NumberOfInputs; ++i)
       {
-      for(i=0; i < this->NumberOfInputs; ++i)
+      vtkInformation* info = inputVector[0]->GetInformationObject(i);
+      if(vtkImageData* id = vtkImageData::SafeDownCast(
+           info->Get(vtkDataObject::DATA_OBJECT())))
         {
-        vtkInformation* info = e->GetInputInformation(0, i);
-        vtkImageData *id = vtkImageData::SafeDownCast(
-          info->Get(vtkDataObject::DATA_OBJECT()));
-        if (id && 
-            info->Has(vtkDataObject::ORIGIN()))
+        if(info->Has(vtkDataObject::ORIGIN()))
           {
           id->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+          }
+        if(info->Has(vtkDataObject::SPACING()))
+          {
           id->SetSpacing(info->Get(vtkDataObject::SPACING()));
           }
         }
       }
-    
-      // Ask the subclass to fill in the information for the outputs.
+
+    // Ask the subclass to fill in the information for the outputs.
     this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
     this->ExecuteInformation();
 
-    // for image data copy the origin and spacing into the bbox
+    // The number of outputs may have been changed by execute information.
+    outputVector->SetNumberOfInformationObjects(this->NumberOfOutputs);
+
+    // Old-style filters will set the origin and spacing on the output
+    // data objects themselves.  We handle this here by copying the
+    // information back to the pipeline information.
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
-      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
-      vtkImageData *id = vtkImageData::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-      if (id)
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      if(vtkImageData* id = vtkImageData::SafeDownCast(
+           info->Get(vtkDataObject::DATA_OBJECT())))
         {
         info->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
         info->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
         }
       }
 
-    // The number of outputs may have been changed by execute information.
-    outputVector->SetNumberOfInformationObjects(this->NumberOfOutputs);
     return 1;
     }
   else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
@@ -710,15 +716,19 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     // Cleanup the outputs.
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
-      // for image data copy the origin and spacing into the bbox
-      vtkInformation* info = this->GetExecutive()->GetOutputInformation(i);
-      vtkImageData *id = vtkImageData::SafeDownCast(
-        info->Get(vtkDataObject::DATA_OBJECT()));
-      if (id)
+      vtkInformation* info = outputVector->GetInformationObject(i);
+
+      // Old-style filters will set the origin and spacing on the output
+      // data objects themselves.  We handle this here by copying the
+      // information back to the pipeline information.
+      if(vtkImageData* id = vtkImageData::SafeDownCast(
+           info->Get(vtkDataObject::DATA_OBJECT())))
         {
         info->Set(vtkDataObject::ORIGIN(), id->GetOrigin(), 3);
         info->Set(vtkDataObject::SPACING(), id->GetSpacing(), 3);
         }
+
+      // Compute the ghost level array for the output if necessary.
       if(vtkDataSet* ds = vtkDataSet::SafeDownCast(this->Outputs[i]))
         {
         vtkSourceToDataSetFriendship::GenerateGhostLevelArray(ds);

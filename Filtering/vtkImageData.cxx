@@ -41,7 +41,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.4");
+vtkCxxRevisionMacro(vtkImageData, "1.5");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -114,6 +114,78 @@ void vtkImageData::Initialize()
   if(this->Information)
     {
     this->SetDimensions(0,0,0);
+    }
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
+                                             vtkInformation* input)
+{
+  // Let the superclass copy whatever it wants.
+  this->Superclass::CopyInformationToPipeline(request, input);
+
+  // Set default pipeline information during a request for information.
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    // Copy settings from the input if available.  Otherwise use our
+    // current settings.
+    vtkInformation* output = this->PipelineInformation;
+
+    // Set origin.
+    if(input && input->Has(ORIGIN()))
+      {
+      output->CopyEntry(input, ORIGIN());
+      }
+    else
+      {
+      output->Set(ORIGIN(), this->GetOrigin(), 3);
+      }
+
+    // Set spacing.
+    if(input && input->Has(SPACING()))
+      {
+      output->CopyEntry(input, SPACING());
+      }
+    else
+      {
+      output->Set(SPACING(), this->GetSpacing(), 3);
+      }
+
+    // Set scalar type.
+    if(input && input->Has(SCALAR_TYPE()))
+      {
+      output->CopyEntry(input, SCALAR_TYPE());
+      }
+    else
+      {
+      output->Set(SCALAR_TYPE(), this->GetScalarType());
+      }
+
+    // Set scalar number of components.
+    if(input && input->Has(SCALAR_NUMBER_OF_COMPONENTS()))
+      {
+      output->CopyEntry(input, SCALAR_NUMBER_OF_COMPONENTS());
+      }
+    else
+      {
+      output->Set(SCALAR_NUMBER_OF_COMPONENTS(),
+                  this->GetNumberOfScalarComponents());
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageData::CopyInformationFromPipeline(vtkInformation* request)
+{
+  // Let the superclass copy whatever it wants.
+  this->Superclass::CopyInformationFromPipeline(request);
+
+  // Copy pipeline information to data information before the producer
+  // executes.
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    this->CopyOriginAndSpacingFromPipeline();
     }
 }
 
@@ -1086,6 +1158,19 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageData::UpdateInformation()
+{
+  // Use the compatibility method in the superclass to update the
+  // information.
+  this->Superclass::UpdateInformation();
+
+  // Now copy the information the caller is probably expecting to get
+  // from this data object instead of the pipeline information.  This
+  // preserves compatibility.
+  this->CopyOriginAndSpacingFromPipeline();
+}
+
+//----------------------------------------------------------------------------
 void vtkImageData::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
@@ -1233,11 +1318,19 @@ void vtkImageData::ComputeIncrements()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageData::CopyPipelineInformation(vtkInformation* oldPInfo,
-                                           vtkInformation* newPInfo)
+void vtkImageData::CopyOriginAndSpacingFromPipeline()
 {
-  newPInfo->CopyEntry(oldPInfo, vtkDataObject::SCALAR_TYPE());
-  newPInfo->CopyEntry(oldPInfo, vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+  // Copy origin and spacing from pipeline information to the internal
+  // copies.
+  vtkInformation* info = this->PipelineInformation;
+  if(info->Has(SPACING()))
+    {
+    this->SetSpacing(info->Get(SPACING()));
+    }
+  if(info->Has(ORIGIN()))
+    {
+    this->SetOrigin(info->Get(ORIGIN()));
+    }
 }
 
 //----------------------------------------------------------------------------

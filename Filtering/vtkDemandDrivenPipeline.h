@@ -166,7 +166,7 @@ protected:
   // Handle before/after operations for ExecuteData method.
   virtual void ExecuteDataStart(vtkInformation* request);
   virtual void ExecuteDataEnd(vtkInformation* request);
-  virtual void MarkOutputsGenerated();
+  virtual void MarkOutputsGenerated(vtkInformation* request);
 
   // Largest MTime of any algorithm on this executive or preceding
   // executives.

@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.19");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.20");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -254,8 +254,6 @@ vtkStreamingDemandDrivenPipeline
           outInfo->CopyEntry(inInfo, WHOLE_EXTENT());
           outInfo->CopyEntry(inInfo, MAXIMUM_NUMBER_OF_PIECES());
           outInfo->CopyEntry(inInfo, EXTENT_TRANSLATOR());
-          outInfo->CopyEntry(inInfo, vtkDataObject::ORIGIN());
-          outInfo->CopyEntry(inInfo, vtkDataObject::SPACING());
           }
         }
       }
@@ -592,12 +590,13 @@ vtkStreamingDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::MarkOutputsGenerated()
+void
+vtkStreamingDemandDrivenPipeline::MarkOutputsGenerated(vtkInformation* request)
 {
   // Tell outputs they have been generated.
-  this->Superclass::MarkOutputsGenerated();
+  this->Superclass::MarkOutputsGenerated(request);
 
-  // Handle cropping and ghost levels for generated outputs.
+  // Compute ghost level arrays for generated outputs.
   vtkInformationVector* outputs = this->GetOutputInformation();
   for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
     {
@@ -605,10 +604,6 @@ void vtkStreamingDemandDrivenPipeline::MarkOutputsGenerated()
     vtkDataObject* data = outInfo->Get(vtkDataObject::DATA_OBJECT());
     if(data && !outInfo->Get(DATA_NOT_GENERATED()))
       {
-      if(outInfo->Get(EXACT_EXTENT()))
-        {
-        data->Crop();
-        }
       if(vtkDataSet* ds = vtkDataSet::SafeDownCast(data))
         {
         ds->GenerateGhostLevelArray();

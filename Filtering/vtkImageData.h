@@ -139,6 +139,12 @@ public:
   void GetAxisUpdateExtent(int axis, int &min, int &max);
 
   // Description:
+  // Override to copy information from pipeline information to data
+  // information for backward compatibility.  See
+  // vtkDataObject::UpdateInformation for details.
+  virtual void UpdateInformation();
+
+  // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
   // (i.e. vtkDataSetToStructuredPointsFilter).  This assumes that WholeExtent
   // is valid (UpdateInformation has been called).
@@ -294,6 +300,13 @@ public:
   void CopyTypeSpecificInformation( vtkDataObject *image );
 
   // Description:
+  // Override these to handle origin, spacing, scalar type, and scalar
+  // number of components.  See vtkDataObject for details.
+  virtual void CopyInformationToPipeline(vtkInformation* request,
+                                         vtkInformation* input);
+  virtual void CopyInformationFromPipeline(vtkInformation* request);
+
+  // Description:
   // make the output data ready for new data to be inserted. For most 
   // objects we just call Initialize. But for image data we leave the old
   // data in case the memory can be reused.
@@ -353,8 +366,7 @@ protected:
   double Spacing[3];
 
   void ComputeIncrements();
-  virtual void CopyPipelineInformation(vtkInformation* oldPInfo,
-                                       vtkInformation* newPInfo);
+  void CopyOriginAndSpacingFromPipeline();
 
 private:
   void InternalImageDataCopy(vtkImageData *src);
