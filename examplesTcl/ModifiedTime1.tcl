@@ -673,6 +673,11 @@ proc CheckException {methodName} {
       return 1
    }
 
+   if {$methodName == "SetBackgroundColor"} {
+      # ( vtkXImageWindow:: Error with these args)
+      return 1
+   }
+
    if {$methodName == "SetSize"} {
       # window size 0 0 gives problems
       return 1
