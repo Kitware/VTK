@@ -34,6 +34,12 @@ IF (HAVE_PNG)
         TestHybridMedian2D
         TestIdealLowPass
         TestInPlaceFilter
+        TestIslandRemoval2D
+        TestMapToWindowLevelColors
+        TestMask2
+        TestMedian3D
+        TestNormalize
+        TestQuantizeTo16Colors
         )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
