@@ -67,7 +67,7 @@ void vtkFieldData::Initialize()
 
   if ( this->Data )
     {
-    for ( i=0; i<NumberOfArrays; i++ )
+    for ( i=0; i<this->NumberOfArrays; i++ )
       {
       if ( this->Data[i] != NULL ) 
 	{
@@ -246,7 +246,7 @@ int vtkFieldData::GetNumberOfComponents()
 // Get the number of tuples in the field.
 int vtkFieldData::GetNumberOfTuples()
 {
-  int i, numTuples;
+  int i, numTuples = 0;
   
   for ( i=0; i < this->NumberOfArrays; i++ )
     {
