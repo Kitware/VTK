@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.3");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -664,7 +664,7 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
 }
 
 //----------------------------------------------------------------------------
-template <typename T>
+template <class T>
 int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name,
                                      int length, T* data)
 {
@@ -768,7 +768,7 @@ int vtkXMLWriter::WriteStringAttribute(const char* name, const char* value)
 }
 
 //----------------------------------------------------------------------------
-template <typename T>
+template <class T>
 int vtkXMLWriteAsciiData(ostream& os, T* data, int length, vtkIndent indent)
 {
   int columns = 6;

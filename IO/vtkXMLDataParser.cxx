@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkBase64InputStream.h"
 #include "vtkDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.2");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.3");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -771,7 +771,7 @@ unsigned long vtkXMLDataParser::ReadAppendedData(unsigned long offset,
 }
 
 //----------------------------------------------------------------------------
-template <typename T>
+template <class T>
 T* vtkXMLParseAsciiData(istream& is, int* length, T* vtkNotUsed(dummy))
 {
   int dataLength = 0;
