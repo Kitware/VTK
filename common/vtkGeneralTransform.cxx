@@ -241,7 +241,7 @@ void vtkGeneralTransform::LUFactor3x3(float A[3][3], int index[3])
       {
       largest = tmp;
       }
-    scale[i] = 1.0/largest;
+    scale[i] = 1.0f/largest;
     }
   
   // Loop over all columns using Crout's method
@@ -265,7 +265,7 @@ void vtkGeneralTransform::LUFactor3x3(float A[3][3], int index[3])
     }
   index[0] = maxI;
 
-  A[0][0] = 1.0/A[0][0];
+  A[0][0] = 1.0f/A[0][0];
   A[1][0] *= A[0][0];
   A[2][0] *= A[0][0];
     
@@ -281,7 +281,7 @@ void vtkGeneralTransform::LUFactor3x3(float A[3][3], int index[3])
     scale[2] = scale[1];
     }
   index[1] = maxI;
-  A[1][1] = 1.0/A[1][1];
+  A[1][1] = 1.0f/A[1][1];
   A[2][1] *= A[1][1];
 
   // third column
@@ -289,7 +289,7 @@ void vtkGeneralTransform::LUFactor3x3(float A[3][3], int index[3])
   A[2][2] -= A[2][0]*A[0][2] + A[2][1]*A[1][2];
   largest = scale[2]*fabs(A[2][2]);
   index[2] = 2;
-  A[2][2] = 1.0/A[2][2];
+  A[2][2] = 1.0f/A[2][2];
 }
 
 //----------------------------------------------------------------------------
@@ -395,8 +395,8 @@ void vtkGeneralTransform::Invert3x3(const float A[3][3], float AI[3][3])
   for (int i = 0; i < 3; i++)
     {
     float *x = tmp[i];
-    x[0] = x[1] = x[2] = 0.0;
-    x[i] = 1.0;
+    x[0] = x[1] = x[2] = 0.0f;
+    x[i] = 1.0f;
     vtkGeneralTransform::LUSolve3x3(AI,index,x);
     }
   for (int j = 0; j < 3; j++)
@@ -412,7 +412,7 @@ void vtkGeneralTransform::Invert3x3(const float A[3][3], float AI[3][3])
 void vtkGeneralTransform::Identity3x3(float A[3][3])
 {
   memset(A,0,9*sizeof(float));
-  A[0][0] = A[1][1] = A[2][2] = 1.0;
+  A[0][0] = A[1][1] = A[2][2] = 1.0f;
 }
 
 

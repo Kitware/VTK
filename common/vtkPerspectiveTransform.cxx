@@ -57,12 +57,12 @@ template <class T>
 static inline void vtkPerspectiveTransformPoint(const T in[3], T out[3], 
 					   double M[4][4])
 {
-  float x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
-  float y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
-  float z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
-  float w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
+  T x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
+  T y = M[1][0]*in[0] + M[1][1]*in[1] + M[1][2]*in[2] + M[1][3];
+  T z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
+  T w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
 
-  double f = 1.0/w;
+  T f = T(1.0)/w;
   out[0] = x*f; 
   out[1] = y*f; 
   out[2] = z*f; 
@@ -106,7 +106,7 @@ void vtkPerspectiveTransform::InternalTransformDerivative(const float in[3],
   float z = M[2][0]*in[0] + M[2][1]*in[1] + M[2][2]*in[2] + M[2][3];
   float w = M[3][0]*in[0] + M[3][1]*in[1] + M[3][2]*in[2] + M[3][3];
 
-  double f = 1.0/w;
+  float f = 1.0f/w;
   out[0] = x*f; 
   out[1] = y*f; 
   out[2] = z*f; 
@@ -158,7 +158,7 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   double L[4][4];
   float inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
   float w;
-  double f;
+  float f;
   
   this->Update();
 
@@ -180,7 +180,7 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     w =         M[3][0]*inPnt[0]+M[3][1]*inPnt[1]+M[3][2]*inPnt[2]+M[3][3];
 
     // apply perspective correction
-    f = 1.0/w;
+    f = 1.0f/w;
     outPnt[0] *= f;
     outPnt[1] *= f;
     outPnt[2] *= f;
