@@ -71,6 +71,8 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   dsi_win = (JAWT_Win32DrawingSurfaceInfo*)dsi->platformInfo;
   temp0->SetWindowId((void *)dsi_win->hwnd);
   temp0->SetDisplayId((void *)dsi_win->hdc);
+  // also set parent id to avoid border sizes being added
+  temp0->SetParentId((void *)dsi_win->hdc);
 // use mac code
 #elif defined(VTK_USE_CARBON)
   JAWT_MacDrawingSurfaceInfo* dsi_mac;
