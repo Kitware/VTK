@@ -259,6 +259,18 @@ public:
   vtkBooleanMacro(AccumulateError,int);
 
   // Description:
+  // The MaximumError is normally defined as a fraction of the dataset bounding
+  // diagonal. By setting ErrorIsAbsolute to 1, the error is instead defined
+  // as that specified by AbsoluteError. By default ErrorIsAbsolute=0.
+  vtkSetMacro(ErrorIsAbsolute,int);
+  vtkGetMacro(ErrorIsAbsolute,int);
+
+  // Description:
+  // Same as MaximumError, but to be used when ErrorIsAbsolute is 1
+  vtkSetClampMacro(AbsoluteError,float,0.0,VTK_LARGE_FLOAT);
+  vtkGetMacro(AbsoluteError,float);
+
+  // Description:
   // Turn on/off the deletion of vertices on the boundary of a mesh. This
   // may limit the maximum reduction that may be achieved.
   vtkSetMacro(BoundaryVertexDeletion,int);
@@ -315,11 +327,13 @@ protected:
   float TargetReduction;
   float FeatureAngle;
   float MaximumError;
+  float AbsoluteError;
+  int ErrorIsAbsolute;
   int AccumulateError;
   float SplitAngle;
   int Splitting;
   int PreSplitMesh;
-  int BoundaryVertexDeletion;  
+  int BoundaryVertexDeletion;
   int PreserveTopology;
   int Degree;
   float InflectionPointRatio;
@@ -328,11 +342,11 @@ protected:
   // to replace a static object
   vtkIdList *Neighbors;
   vtkPriorityQueue *EdgeLengths;
-  
+
   void SplitMesh();
   int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
                      int fedges[2]);
-  int FindSplit(int type, int fedges[2], int& pt1, int& pt2, 
+  int FindSplit(int type, int fedges[2], int& pt1, int& pt2,
                 vtkIdList *CollapseTris);
   int IsValidSplit(int index);
   void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2);

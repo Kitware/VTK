@@ -110,6 +110,8 @@ vtkDecimatePro::vtkDecimatePro()
   this->FeatureAngle = 15.0;
   this->PreserveTopology = 0;
   this->MaximumError = VTK_LARGE_FLOAT;
+  this->AbsoluteError = VTK_LARGE_FLOAT;
+  this->ErrorIsAbsolute = 0;
   this->AccumulateError = 0;
   this->SplitAngle = 75.0;
   this->Splitting = 1;
@@ -183,8 +185,16 @@ void vtkDecimatePro::Execute()
     max = ((bounds[2*i+1]-bounds[2*i]) > max ? 
            (bounds[2*i+1]-bounds[2*i]) : max);
     }
-  this->Error = (this->MaximumError >= VTK_LARGE_FLOAT ? 
+  if (!this->ErrorIsAbsolute)
+  {
+    this->Error = (this->MaximumError >= VTK_LARGE_FLOAT ?
            VTK_LARGE_FLOAT : this->MaximumError * max);
+  }
+  else
+  {
+    this->Error = (this->AbsoluteError >= VTK_LARGE_FLOAT ?
+           VTK_LARGE_FLOAT : this->AbsoluteError);
+  }
   this->Tolerance = VTK_TOLERANCE * input->GetLength();
   this->CosAngle = 
     cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
@@ -1663,15 +1673,16 @@ void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Degree: " << this->Degree << "\n";
 
-  os << indent << "Preserve Topology: "  << (this->PreserveTopology ? "On\n" : "Off\n");
-  os << indent << "Maximum Error: " << this->MaximumError << "\n";
-
-  os << indent << "Accumulate Error: " << (this->AccumulateError ? "On\n" : "Off\n");
+  os << indent << "Preserve Topology: " << (this->PreserveTopology ? "On\n" : "Off\n");
+  os << indent << "Maximum Error: "     << this->MaximumError << "\n";
+  os << indent << "Accumulate Error: "  << (this->AccumulateError ? "On\n" : "Off\n");
+  os << indent << "Error is Absolute: " << (this->ErrorIsAbsolute ? "On\n" : "Off\n");
+  os << indent << "Absolute Error: "    << this->AbsoluteError << "\n";
 
   os << indent << "Boundary Vertex Deletion: "  << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");
 
   os << indent << "Inflection Point Ratio: " << this->InflectionPointRatio << "\n";
-  os << indent << "Number Of Inflection Points: " 
+  os << indent << "Number Of Inflection Points: "
      << this->GetNumberOfInflectionPoints() << "\n";
 
 }
