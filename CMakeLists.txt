@@ -1,0 +1,68 @@
+PROJECT(VTK)
+
+SUBDIRS(Wrapping Common)
+
+IF(WIN32)
+  ADD_DEFINITIONS(-DVTKDLL)
+ENDIF(WIN32)
+
+#
+# get information for Tcl wrapping 
+#
+OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
+IF (VTK_WRAP_TCL)
+  FIND_LIBRARY(TCL_LIB_PATH tcl82 ${VTK_SOURCE_DIR}/pcmaker)
+  FIND_PATH(TCL_INCLUDE_PATH tcl.h ${VTK_SOURCE_DIR}/pcmaker/xlib)
+  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
+  UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
+  LINK_LIBRARIES (tcl82)
+  INCLUDE_DIRECTORIES(${TCL_INCLUDE_PATH})
+ENDIF (VTK_WRAP_TCL)
+
+#
+# get information for Python wrapping 
+#
+OPTION(VTK_WRAP_PYTHON "wrap classes into the Python interpreted language")
+IF (VTK_WRAP_PYTHON)
+  FIND_LIBRARY(PY_LIB_PATH python21_d )
+  FIND_LIBRARY(PY_LIB_PATH2 python21)
+  FIND_PATH(PY_INCLUDE_PATH Python.h)
+  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
+  UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
+  LINK_LIBRARIES (debug python21_d optimized python21)
+  INCLUDE_DIRECTORIES(${PY_INCLUDE_PATH})
+ENDIF (VTK_WRAP_PYTHON)
+
+INCLUDE_DIRECTORIES(
+${VTK_BINARY_DIR} 
+${VTK_SOURCE_DIR}/common 
+${VTK_SOURCE_DIR}/common2 
+${VTK_SOURCE_DIR}/rendering 
+${VTK_SOURCE_DIR}/imaging
+${VTK_SOURCE_DIR}/io
+${VTK_SOURCE_DIR}/implicit
+${VTK_SOURCE_DIR}/graphics
+)
+
+LINK_DIRECTORIES(
+${VTK_BINARY_DIR}/common 
+${VTK_BINARY_DIR}/common2
+${VTK_BINARY_DIR}/rendering
+${VTK_BINARY_DIR}/imaging
+${VTK_BINARY_DIR}/io
+${VTK_BINARY_DIR}/implicit
+${VTK_BINARY_DIR}/graphics
+${TCL_LIB_PATH}
+${PY_LIB_PATH}
+${PY_LIB_PATH2}
+)
+
+BUILD_SHARED_LIBRARIES()
+
+IF (UNIX)
+  LINK_LIBRARIES(${THREAD_LIBS} ${DL_LIBS} -lm)
+ENDIF (UNIX)
+
+
+
+
