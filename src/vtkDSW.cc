@@ -16,8 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vtkDSW.hh"
 #include "vtkPolyW.hh"
 #include "vtkSPtsW.hh"
-#include "vtkSGridW.hh"
-#include "vtkUGridW.hh"
+#include "vtkSGrdW.hh"
+#include "vtkUGrdW.hh"
 
 // Description:
 // Specify the input data or filter.

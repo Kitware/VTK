@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "vtkUGridW.hh"
+#include "vtkUGrdW.hh"
 
 // Description:
 // Specify the input data or filter.
