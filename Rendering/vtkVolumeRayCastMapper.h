@@ -26,6 +26,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo 
                                       // and vtkVolumeRayCastDynamicInfo
+#include "vtkFastNumericConversion.h"
 class vtkEncodedGradientEstimator;
 class vtkEncodedGradientShader;
 class vtkMatrix4x4;
@@ -40,28 +41,17 @@ class vtkTransform;
 
 //BTX
 // Macro for floor of x
+
 inline int vtkFloorFuncMacro(double x)
 {
-#if defined i386 || defined _M_IX86
-  double tempval;
-  // use 52-bit precision of IEEE double to round (x - 0.25) to 
-  // the nearest multiple of 0.5, according to prevailing rounding
-  // mode which is IEEE round-to-nearest,even
-  tempval = (x - 0.25) + 3377699720527872.0; // (2**51)*1.5
-  // extract mantissa, use shift to divide by 2 and hence get rid
-  // of the bit that gets messed up because the FPU uses
-  // round-to-nearest,even mode instead of round-to-nearest,+infinity
-  return ((int*)&tempval)[0] >> 1;
-#else
-  // quick-and-dirty, assumes x >= 0
-  return (int)(x);
-#endif
+  return vtkFastNumericConversion::QuickFloor(x);
 }
+
 
 // Macro for rounding x (for x >= 0)
 inline int vtkRoundFuncMacro(double x)
 {
-  return vtkFloorFuncMacro(x + 0.5);
+  return vtkFastNumericConversion::Round(x);
 }
 //ETX
 
