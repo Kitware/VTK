@@ -273,6 +273,7 @@ protected:
   void operator=(const vtkDataObjectToDataSetFilter&) {};
 
   void Execute(); //generate output data
+  void ExecuteInformation();
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
   char Updating;

@@ -238,6 +238,57 @@ vtkDataObject *vtkDataObjectToDataSetFilter::GetInput()
 
 
 //----------------------------------------------------------------------------
+void vtkDataObjectToDataSetFilter::ExecuteInformation()
+{
+  int npts;
+  vtkDataObject *input = this->GetInput();
+
+  switch (this->DataSetType)
+    {
+    case VTK_POLY_DATA:
+      break;
+
+    case VTK_STRUCTURED_POINTS:
+      // We need the array to get the dimensions
+      input->Update();
+      this->ConstructDimensions();
+      this->ConstructSpacing();
+      this->ConstructOrigin();
+      
+      this->GetStructuredPointsOutput()->SetWholeExtent(
+		  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                  0, this->Dimensions[2]-1);
+      this->GetStructuredPointsOutput()->SetOrigin(this->Origin);
+      this->GetStructuredPointsOutput()->SetSpacing(this->Spacing);
+      break;
+
+    case VTK_STRUCTURED_GRID:
+      // We need the array to get the dimensions
+      input->Update();
+      this->ConstructDimensions();
+      this->GetStructuredGridOutput()->SetWholeExtent(
+		  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                  0, this->Dimensions[2]-1);
+      break;
+
+    case VTK_RECTILINEAR_GRID:
+      // We need the array to get the dimensions
+      input->Update();
+      this->ConstructDimensions();
+      this->GetRectilinearGridOutput()->SetWholeExtent(
+		  0, this->Dimensions[0]-1, 0, this->Dimensions[1]-1, 
+                  0, this->Dimensions[2]-1);
+      break;
+
+    case VTK_UNSTRUCTURED_GRID:
+      break;
+
+    default:
+      vtkErrorMacro(<<"Unsupported dataset type!");
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::Execute()
 {
   int npts;
