@@ -167,6 +167,16 @@ void vtkProbeFilter::Execute()
       outPD->NullPoint(ptId);
       }
     }
+  // BUG FIX: JB.
+  // Output gets setup from input, but when output is imagedata, scalartype
+  // depends on source scalartype not input scalartype
+  if (output->IsA("vtkImageData"))
+    {
+    vtkImageData *out = (vtkImageData*)output;
+    vtkScalars *s = outPD->GetScalars();
+    out->SetScalarType(s->GetDataType());
+    out->SetNumberOfScalarComponents(s->GetNumberOfComponents());
+    }
   if (mcs>256)
     {
     delete [] weights;
