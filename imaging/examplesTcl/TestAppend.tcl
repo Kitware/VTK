@@ -36,8 +36,6 @@ viewer SetInput [clip GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 
-puts [viewer Print]
-
 # Create the GUI: two renderer widgets and a quit button
 #
 wm withdraw .
