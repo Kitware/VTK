@@ -20,14 +20,14 @@
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
-#include "vtkDataCompressor.h"
+#include "vtkZLibDataCompressor.h"
 #include "vtkDataSet.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.14");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.15");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ vtkXMLWriter::vtkXMLWriter()
 
   // Initialize compression data.
   this->BlockSize = 32768;
-  this->Compressor = 0;
+  this->Compressor = vtkZLibDataCompressor::New();
   this->CompressionHeader = 0;
   
   this->EncodeAppendedData = 1;
