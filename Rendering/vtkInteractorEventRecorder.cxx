@@ -20,14 +20,14 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.4");
+vtkCxxRevisionMacro(vtkInteractorEventRecorder, "1.5");
 vtkStandardNewMacro(vtkInteractorEventRecorder);
 
 float vtkInteractorEventRecorder::StreamVersion = 1.0;
 
 vtkInteractorEventRecorder::vtkInteractorEventRecorder()
 {
-  // take over the processing of delete and keypress events from the superclass
+  //take over the processing of delete and keypress events from the superclass
   this->KeyPressCallbackCommand->SetCallback(
     vtkInteractorEventRecorder::ProcessCharEvent);
 
@@ -35,7 +35,7 @@ vtkInteractorEventRecorder::vtkInteractorEventRecorder()
   this->EventCallbackCommand->SetCallback(
     vtkInteractorEventRecorder::ProcessEvents);
 
-  this->FileName = 0;
+  this->FileName = NULL;
 
   this->State = vtkInteractorEventRecorder::Start;
   this->InputStream = NULL;
@@ -62,6 +62,12 @@ vtkInteractorEventRecorder::~vtkInteractorEventRecorder()
     {
     delete this->OutputStream;
     this->OutputStream = NULL;
+    }
+  
+  if ( this->InputString )
+    {
+    delete [] this->InputString;
+    this->InputString = NULL;
     }
 }
 
