@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformFilter, "1.42");
+vtkCxxRevisionMacro(vtkTransformFilter, "1.43");
 vtkStandardNewMacro(vtkTransformFilter);
 vtkCxxSetObjectMacro(vtkTransformFilter,Transform,vtkAbstractTransform);
 
@@ -87,12 +87,14 @@ void vtkTransformFilter::Execute()
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3*numPts);
+    newVectors->SetName(inVectors->GetName());
     }
   if ( inNormals ) 
     {
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(3*numPts);
+    newNormals->SetName(inNormals->GetName());
     }
 
   this->UpdateProgress (.2);
