@@ -51,7 +51,7 @@ IF (VTK_DATA_ROOT)
     ADD_TEST(ThreadedCommunicator-image 
              ${CXX_TEST_PATH}/ThreadedCommunicator
              -D ${VTK_DATA_ROOT}
-             -V Baseline/Parallel/ParallelIsoTest.png)
+             -V Baseline/Parallel/GenericCommunicator.png)
 
     IF (VTK_USE_MPI)
       IF (MPIRUN)
