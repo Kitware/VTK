@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSmoothPolyDataFilter.h - adjust point positions using Laplacian smoothing
+// .NAME vtkSmoothPolyDataFilter - adjust point positions using Laplacian smoothing
 // .SECTION Description
 // vtkSmoothPolyDataFilter.h is a filter that adjusts point coordinates using 
 // Laplacian smoothing. The effect is to "relax" the mesh, making the cells 

@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkProperty2D
+// .NAME vtkProperty2D - represent surface properties of a 2D image
 // .SECTION Description
 // vtkProperty2D contains properties used to render two dimensional images
 // and annotations.
