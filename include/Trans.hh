@@ -45,6 +45,8 @@ class vlTransform : public vlObject
   //  the stack is the current transformation matrix.
   vlMatrix4x4 ** StackBottom;
   //  The bottom of the stack.
+  float Vector[4];
+  // a temp vector used in operations
  public:
   vlTransform ();
   //  Constructs a transform. Sets the following defaults:
@@ -130,6 +132,13 @@ class vlTransform : public vlObject
   //  Multiplies two 4 x 4 matrices and produces a
   //  4 x 4 matrix. The output matrix can be the
   //  same as either of the two input matrices.
+  void VectorMultiply (float in[4],float out[4]) 
+     {this->Stack[0]->VectorMultiply(in,out);};
+  //  Multiplies two 4 x 4 matrices and produces a
+  //  4 x 4 matrix. The output matrix can be the
+  //  same as either of the two input matrices.
+  vlSetVector4Macro(Vector,float);
+  float *GetVector();
 };
 
 #endif
