@@ -247,6 +247,7 @@ vtkTransformTextureCoords \
 vtkTriangleFilter \
 vtkTriangularTexture \
 vtkTriangularTCoords \
+vtkTubeFilter \
 vtkUGFacetReader \
 vtkUnstructuredGridFilter \
 vtkUnstructuredGridReader \
