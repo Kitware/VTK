@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.21");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.22");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -229,8 +229,11 @@ void vtkXMLDataParser::FindAppendedDataPosition()
   // the data.
   if(c != '_')
     {
-    vtkWarningMacro("First character in AppendedData is "
-                    << int(c) << ", not '_'");
+    vtkWarningMacro("First character in AppendedData is ASCII value "
+                    << int(c) << ", not '_'.  Scan for first character "
+                    << "started from file position "
+                    << this->GetXMLByteIndex()
+                    << ".  The return position is " << returnPosition << ".");
     --this->AppendedDataPosition;
     }
 
