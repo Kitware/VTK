@@ -93,27 +93,27 @@ void vtkQuadricDecimation::Execute()
   vtkPolyData *testOutput = this->GetTestOutput();
   vtkPoints *testPoints = vtkPoints::New();
   vtkCellArray *testEdges = vtkCellArray::New();
-  int testId0, testId1;
+  vtkIdType testId0, testId1;
   vtkCellArray *triangles = input->GetPolys();
-  int numTris = triangles->GetNumberOfCells();
-  int numPts = input->GetNumberOfPoints();
-  int i, j, edgeId;
-  int newCellPts[3];
+  vtkIdType numTris = triangles->GetNumberOfCells();
+  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkIdType edgeId, i, newCellPts[3];
+  int j;
   vtkIdType *cellPts, numCellPts;
   float cost, x[3];
   vtkPoints *targetPoints = vtkPoints::New();
   vtkPointData *targetPointData = vtkPointData::New();
   vtkPointData *outPD = output->GetPointData();
   vtkIdList *changedEdges = vtkIdList::New();
-  int collapsedCell;
+  vtkIdType collapsedCell;
   vtkIdList *collapsedCells = vtkIdList::New();
-  int endPtIds[2], edge[2];
+  vtkIdType endPtIds[2], edge[2];
   vtkIdList *changedCells = vtkIdList::New();
   vtkIdList *newEdges = vtkIdList::New();
   vtkIdList *outputCellList = vtkIdList::New();
   vtkCellArray *outputPolys = vtkCellArray::New();
   vtkGenericCell *cell = vtkGenericCell::New();
-  int cellId;
+  vtkIdType cellId;
 
   if (input->GetPolys() == NULL)
     {
@@ -366,7 +366,7 @@ void vtkQuadricDecimation::Execute()
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::ComputeQuadric(int pointId)
+void vtkQuadricDecimation::ComputeQuadric(vtkIdType pointId)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkPolyData *input = this->GetInput();
@@ -374,7 +374,7 @@ void vtkQuadricDecimation::ComputeQuadric(int pointId)
   float n[3], d;
   vtkPoints *cellPts;
   vtkIdList *cellPtIdList;
-  int cellPtIds[3];
+  vtkIdType cellPtIds[3];
   float point0[3], point1[3], point2[3];
   float tempP1[3], tempP2[3];
   float triArea2;
@@ -523,7 +523,7 @@ void vtkQuadricDecimation::ComputeQuadric(int pointId)
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::AddQuadric(int oldPtId, int newPtId)
+void vtkQuadricDecimation::AddQuadric(vtkIdType oldPtId, vtkIdType newPtId)
 {
   int i;
   
@@ -535,11 +535,11 @@ void vtkQuadricDecimation::AddQuadric(int oldPtId, int newPtId)
 }
 
 //----------------------------------------------------------------------------
-float vtkQuadricDecimation::ComputeCost(int edgeId, float x[3],
+float vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, float x[3],
                                         vtkPointData *pd)
 {
   float C[3][3], BBT[3][3], A[3][3], b1[3], Bb2[3], b[3];
-  int pointIds[2];
+  vtkIdType pointIds[2];
   float cost = 0.0;
   float *quad = new float[11 + 4 * this->NumberOfComponents];
   int i, j;
@@ -747,11 +747,12 @@ float vtkQuadricDecimation::ComputeCost(int edgeId, float x[3],
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::FindAffectedEdges(int p1Id, int p2Id,
+void vtkQuadricDecimation::FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id,
 					     vtkIdList *edges)
 {
   vtkIdList *cellIds = vtkIdList::New();
-  int i, j, edgeId, pointId;
+  vtkIdType edgeId, pointId;
+  int i, j;
   vtkGenericCell *cell = vtkGenericCell::New();
   
   edges->Reset();
@@ -801,7 +802,7 @@ void vtkQuadricDecimation::FindAffectedEdges(int p1Id, int p2Id,
 }
 
 //----------------------------------------------------------------------------
-int vtkQuadricDecimation::GetEdgeCellId(int p1Id, int p2Id)
+vtkIdType vtkQuadricDecimation::GetEdgeCellId(vtkIdType p1Id, vtkIdType p2Id)
 {
   int i;
   vtkIdType *cells;

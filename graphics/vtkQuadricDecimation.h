@@ -83,7 +83,7 @@ public:
   vtkGetMacro(MaximumCollapsedEdges, int);
 
   // Description:
-  // For debuggin: the last edge / triangles that were collapsed.
+  // For debugging: the last edge / triangles that were collapsed.
   vtkPolyData *GetTestOutput() {return this->GetOutput(1);}
   
 protected:
@@ -96,27 +96,27 @@ protected:
 
   // Description:
   // Compute quadric for this vertex.
-  void ComputeQuadric(int pointId);
+  void ComputeQuadric(vtkIdType pointId);
 
   // Description:
   // Add the quadrics for these 2 points since the edge between them has
   // been collapsed.
-  void AddQuadric(int oldPtId, int newPtId);
+  void AddQuadric(vtkIdType oldPtId, vtkIdType newPtId);
   
   // Description:
   // Compute cost for contracting this edge and the point that gives us this
   // cost.
-  float ComputeCost(int edgeId, float x[3], vtkPointData *pd);
+  float ComputeCost(vtkIdType edgeId, float x[3], vtkPointData *pd);
 
   // Description:
   // Find all edges that will have an endpoint change ids because of an edge
   // collapse.  p1Id and p2Id are the endpoints of the edge.  p2Id is the
   // pointId being removed.
-  void FindAffectedEdges(int p1Id, int p2Id, vtkIdList *edges);
+  void FindAffectedEdges(vtkIdType p1Id, vtkIdType p2Id, vtkIdList *edges);
   
   // Description:
   // Find a cell that uses this edge.
-  int GetEdgeCellId(int p1Id, int p2Id);
+  vtkIdType GetEdgeCellId(vtkIdType p1Id, vtkIdType p2Id);
   
   // Description:
   // Find out how many components there are for each attribute for this

@@ -81,13 +81,14 @@ vtkSelectVisiblePoints::~vtkSelectVisiblePoints()
 
 void vtkSelectVisiblePoints::Execute()
 {
-  int ptId, id, visible;
+  vtkIdType ptId, id;
+  int visible;
   vtkPoints *outPts;
   vtkDataSet *input= this->GetInput();
   vtkPolyData *output=this->GetOutput();
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
-  int numPts=input->GetNumberOfPoints();
+  vtkIdType numPts=input->GetNumberOfPoints();
   float x[4], dx[3], z, diff;
   int selection[4];
   
@@ -145,7 +146,7 @@ void vtkSelectVisiblePoints::Execute()
     }
   
   int abort=0;
-  int progressInterval=numPts/20+1;
+  vtkIdType progressInterval=numPts/20+1;
   x[3] = 1.0;
   for (id=(-1), ptId=0; ptId < numPts && !abort; ptId++)
     {
