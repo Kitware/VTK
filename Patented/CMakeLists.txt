@@ -45,9 +45,14 @@ IF (VTK_WRAP_PYTHON)
                          vtkImagingPython
                          vtkFilteringPython
                          vtkCommonPython)
-  TARGET_LINK_LIBRARIES (vtkPatentedPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkPatentedPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkPatentedPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
+
   INSTALL_TARGETS(/lib/vtk vtkPatentedPython)
 ENDIF (VTK_WRAP_PYTHON)
 

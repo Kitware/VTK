@@ -99,9 +99,13 @@ IF (VTK_WRAP_PYTHON)
                            vtkFilteringPython 
                            vtkCommonPython)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkIOPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkIOPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkIOPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
   INSTALL_TARGETS(/lib/vtk vtkIOPython)
 ENDIF (VTK_WRAP_PYTHON)
 

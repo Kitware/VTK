@@ -342,9 +342,14 @@ IF (VTK_WRAP_PYTHON)
                            vtkCommonPython)
   ENDIF (APPLE)
 
-  TARGET_LINK_LIBRARIES (vtkRenderingPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkRenderingPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkRenderingPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
+
   INSTALL_TARGETS(/lib/vtk vtkRenderingPython)
   IF (TK_LIBRARY)
      SOURCE_FILES(RenderingPythonTkWidgets_SRCS 

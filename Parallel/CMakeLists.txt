@@ -145,9 +145,14 @@ IF (VTK_WRAP_PYTHON)
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkParallelPython 
 			 ${OPENGL_LIBRARY})
-  TARGET_LINK_LIBRARIES (vtkParallelPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkParallelPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkParallelPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
+
   INSTALL_TARGETS(/lib/vtk vtkParallelPython)
 ENDIF (VTK_WRAP_PYTHON)
 

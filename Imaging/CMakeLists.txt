@@ -150,9 +150,13 @@ IF (VTK_WRAP_PYTHON)
                            vtkCommonPython)
   ENDIF (APPLE)
 
-  TARGET_LINK_LIBRARIES (vtkImagingPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkImagingPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkImagingPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
 
   INSTALL_TARGETS(/lib/vtk vtkImagingPython)
 ENDIF (VTK_WRAP_PYTHON)

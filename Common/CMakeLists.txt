@@ -198,9 +198,13 @@ IF (VTK_WRAP_PYTHON)
   ELSE (APPLE)
     ADD_LIBRARY(vtkCommonPython SHARED CommonPython_SRCS vtkPythonUtil)
   ENDIF(APPLE)
-  TARGET_LINK_LIBRARIES (vtkCommonPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkCommonPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkCommonPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
   INSTALL_TARGETS(/lib/vtk vtkCommonPython)
 ENDIF (VTK_WRAP_PYTHON)
 

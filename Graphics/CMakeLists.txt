@@ -178,10 +178,14 @@ IF (VTK_WRAP_PYTHON)
   ELSE (APPLE)
     ADD_LIBRARY(vtkGraphicsPython SHARED GraphicsPython_SRCS)
     TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
+  ENDIF (APPLE)
+  IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkGraphicsPython 
                            debug ${PYTHON_DEBUG_LIBRARY} 
                            optimized ${PYTHON_LIBRARY})
-  ENDIF (APPLE)
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkGraphicsPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
   INSTALL_TARGETS(/lib/vtk vtkGraphicsPython)
 ENDIF (VTK_WRAP_PYTHON)
 

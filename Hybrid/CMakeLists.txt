@@ -89,9 +89,13 @@ IF (VTK_WRAP_PYTHON)
                          vtkCommonPython)
   TARGET_LINK_LIBRARIES (vtkHybridPython 
 			 ${OPENGL_LIBRARY})
-  TARGET_LINK_LIBRARIES (vtkHybridPython 
-                         debug ${PYTHON_DEBUG_LIBRARY} 
-                         optimized ${PYTHON_LIBRARY})
+  IF(WIN32)
+    TARGET_LINK_LIBRARIES (vtkHybridPython 
+                           debug ${PYTHON_DEBUG_LIBRARY} 
+                           optimized ${PYTHON_LIBRARY})
+  ELSE(WIN32)
+    TARGET_LINK_LIBRARIES (vtkHybridPython ${PYTHON_LIBRARY})
+  ENDIF(WIN32)
   IF (WIN32)
     IF (VTK_USE_VIDEO_FOR_WINDOWS)
       TARGET_LINK_LIBRARIES (vtkHybridPython vfw32)
