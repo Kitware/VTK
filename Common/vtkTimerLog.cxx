@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.38");
+vtkCxxRevisionMacro(vtkTimerLog, "1.39");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -90,7 +90,7 @@ void vtkTimerLog::AllocateLog()
 // Remove timer log.
 void vtkTimerLog::CleanupLog()
 {
-  if ( vtkTimerLog::TimerLog )
+  if ( !vtkTimerLog::TimerLog )
     {
     return;
     }
