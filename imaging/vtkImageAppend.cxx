@@ -116,6 +116,9 @@ void vtkImageAppend::ComputeRequiredInputUpdateExtent(int inExt[6],
     return;
     }
   
+  // default input extent will be that of output extent
+  memcpy(inExt,outExt,sizeof(int)*6);
+
   // Find the outMin/max of the appended axis for this input.
   extent = this->Inputs[whichInput]->GetWholeExtent();
   shift = this->Shifts[whichInput];
