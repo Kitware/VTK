@@ -10,6 +10,90 @@ SUBDIR_DEPENDS(Imaging Filtering)
 SUBDIR_DEPENDS(Graphics Filtering)
 SUBDIR_DEPENDS(IO Filtering)
 
+SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all libraries.")
+SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
+
+OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
+OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
+OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
+OPTION (VTK_USE_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
+
+OPTION (VTK_USE_PARALLEL "Build the parallel directory classes")
+IF (VTK_USE_PARALLEL)
+    OPTION (VTK_USE_MPI 
+      "use MPI (Message Passing Interface) library for parallel support")
+    IF(BUILD_TESTING)
+     IF (DART_ROOT)
+      IF (VTK_USE_MPI)
+        FIND_PROGRAM(MPIRUN names mpirun lamexec)
+        SET (MPI_PREFLAGS "-np 2" CACHE STRING " Flags used by mpi start program.")
+        SET (MPI_POSTFLAGS "" CACHE STRING " Flags used by mpi start program.")
+      ENDIF (VTK_USE_MPI)
+     ENDIF (DART_ROOT)
+    ENDIF(BUILD_TESTING)
+ENDIF (VTK_USE_PARALLEL)
+
+OPTION (VTK_MANGLE_MESA "Use mangled Mesa with OpenGL" OFF)
+IF (VTK_MANGLE_MESA)
+  FIND_LIBRARY(MESA_LIBRARY MesaGL
+  /usr/local/lib 
+  )
+  FIND_LIBRARY(MESA_OS_LIBRARY MesaOS
+  /usr/local/lib 
+  )
+ENDIF (VTK_MANGLE_MESA)
+
+OPTION(VTK_WRAP_TCL "wrap classes into the TCL intepreted language")
+IF (VTK_WRAP_TCL)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindTCL.cmake)
+  UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
+  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
+  IF (EXECUTABLE_OUTPUT_PATH)
+    SET (VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)
+  ELSE (EXECUTABLE_OUTPUT_PATH)
+    SET (VTK_EXECUTABLE ${VTK_BINARY_DIR}/Wrapping/Tcl/vtk)
+  ENDIF (EXECUTABLE_OUTPUT_PATH)
+ENDIF (VTK_WRAP_TCL)
+
+OPTION(VTK_WRAP_PYTHON "wrap classes into the Python interpreted language")
+IF (VTK_WRAP_PYTHON)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
+  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
+  UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
+  IF(BUILD_TESTING)
+   IF (DART_ROOT)
+    FIND_PROGRAM(PYTHON_EXECUTABLE names python)
+   ENDIF (DART_ROOT)
+  ENDIF(BUILD_TESTING)
+ENDIF (VTK_WRAP_PYTHON)
+
+OPTION(VTK_WRAP_JAVA "wrap classes into the Java language")
+IF (VTK_WRAP_JAVA)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindJNI.cmake)
+  INCLUDE (${CMAKE_ROOT}/Modules/FindJNI.cmake)
+  FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
+  UTILITY_SOURCE(VTK_WRAP_JAVA_EXE vtkWrapJava Wrapping vtkWrapJava.c)
+  UTILITY_SOURCE(VTK_PARSE_JAVA_EXE vtkParseJava Wrapping vtkParseJava.c)
+  # where to write the resulting .java files
+  IF (NOT VTK_JAVA_HOME)
+    SET (VTK_JAVA_HOME . CACHE PATH "Path to Java install")
+  ENDIF (NOT VTK_JAVA_HOME)
+ENDIF (VTK_WRAP_JAVA)
+
+OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
+
+# where will executable tests be written ?
+IF (EXECUTABLE_OUTPUT_PATH)
+    SET (CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
+ELSE (EXECUTABLE_OUTPUT_PATH)
+    SET (CXX_TEST_PATH .)
+ENDIF (EXECUTABLE_OUTPUT_PATH)
+
+#
+# try to find the data files for VTKData
+#
+FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData)
+
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 
 IF (VTK_USE_RENDERING)
@@ -29,8 +113,17 @@ ENDIF (VTK_USE_PATENTED)
 
 IF (VTK_USE_PARALLEL)
   SUBDIRS(Parallel)
-  SUBDIR_DEPENDS(Parallel Rendering)
+  SUBDIR_DEPENDS(Parallel Rendering Hybrid)
+  IF (VTK_USE_PATENTED)
+    IF (VTK_USE_MPI)
+      IF (VTK_WRAP_TCL)
+         SUBDIR_DEPENDS(Parallel Patented)
+      ENDIF (VTK_WRAP_TCL)
+    ENDIF (VTK_USE_MPI)
+  ENDIF (VTK_USE_PATENTED)
 ENDIF (VTK_USE_PARALLEL)
+
+SUBDIRS(Work)
 
 IF (VTK_WRAP_TCL)
   SUBDIRS(Wrapping/Tcl)
