@@ -1,0 +1,91 @@
+/*=========================================================================
+  
+  Program:   Visualization Toolkit
+  Module:    vtkLODActor.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+  
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
+The following terms apply to all files associated with the software unless
+explicitly disclaimed in individual files. This copyright specifically does
+not apply to the related textbook "The Visualization Toolkit" ISBN
+013199837-4 published by Prentice Hall which is covered by its own copyright.
+
+The authors hereby grant permission to use, copy, and distribute this
+software and its documentation for any purpose, provided that existing
+copyright notices are retained in all copies and that this notice is included
+verbatim in any distributions. Additionally, the authors grant permission to
+modify this software and its documentation for any purpose, provided that
+such modifications are not distributed without the explicit consent of the
+authors and that existing copyright notices are retained in all copies. Some
+of the algorithms implemented by this software are patented, observe all
+applicable patent law.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF,
+EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+"AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+=========================================================================*/
+// .NAME vtkLODActor - a subclass of actor that supports multiple LOD
+// .SECTION Description
+// vtkLODActor is an actor that stores multiple Levels of Detail and can
+// automatically switch between them.
+
+#ifndef __vtkLODActor_hh
+#define __vtkLODActor_hh
+
+#include "vtkActor.hh"
+#include "vtkMaskPoints.hh"
+#include "vtkOutlineFilter.hh"
+#include "vtkPolyMapper.hh"
+#include "vtkGlyph3D.hh"
+#include "vtkPointSource.hh"
+
+class vtkLODActor : public vtkActor
+{
+ public:
+  vtkLODActor();
+  ~vtkLODActor();
+  char *GetClassName() {return "vtkLODActor";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  virtual void Render(vtkRenderer *ren);
+
+  // Description:
+  // Set/Get the level of detail threshold for the lowest resolution
+  vtkGetMacro(LowThreshold,float);
+  vtkSetMacro(LowThreshold,float);
+
+  // Description:
+  // Set/Get the level of detail threshold for the medium resolution
+  vtkGetMacro(MediumThreshold,float);
+  vtkSetMacro(MediumThreshold,float);
+  
+protected:
+  vtkPointSource      PointSource;
+  vtkGlyph3D          Glyph3D;
+  vtkPolyMapper       MediumMapper;
+  vtkPolyMapper       LowMapper;
+  vtkMaskPoints       MaskPoints;
+  vtkOutlineFilter    OutlineFilter;
+  vtkTimeStamp        BuildTime;
+  float               Size;
+  float               LowThreshold;
+  float               MediumThreshold;
+  float               Timings[3];
+};
+
+#endif
+
+
