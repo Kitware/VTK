@@ -15,7 +15,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     SET(MyTests ${MyTests}     
       volProt.cxx
       MeshQuality.cxx
-#      TestHierarchicalBox.cxx
       TestHierarchicalBoxPipeline.cxx
       TestMultiBlock.cxx
       )
