@@ -19,7 +19,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericAdaptorCell.h"
 
-vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.2");
+vtkCxxRevisionMacro(vtkGenericSubdivisionErrorMetric,"1.3");
 vtkStandardNewMacro(vtkGenericSubdivisionErrorMetric);
 
 vtkCxxSetObjectMacro(vtkGenericSubdivisionErrorMetric, GenericCell,vtkGenericAdaptorCell);
@@ -54,9 +54,18 @@ void vtkGenericSubdivisionErrorMetric::SetAttributeCollection(vtkGenericAttribut
     delete[] this->Edge1Cache;
     delete[] this->Edge2Cache;
     }
-  int numComp = this->AttributeCollection->GetNumberOfComponents();
-  this->Edge1Cache = new double[numComp+3];
-  this->Edge2Cache = new double[numComp+3];
+  
+  if(this->AttributeCollection!=0)
+    {
+    int numComp = this->AttributeCollection->GetNumberOfComponents();
+    this->Edge1Cache = new double[numComp+3];
+    this->Edge2Cache = new double[numComp+3];
+    }
+  else
+    {
+    this->Edge1Cache = 0;
+    this->Edge2Cache = 0;
+    }
 }
 
 
