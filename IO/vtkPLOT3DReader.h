@@ -147,6 +147,13 @@ public:
   vtkBooleanMacro(IBlanking, int);
 
   // Description:
+  // If only two-dimensional data was written to the file,
+  // turn this on.
+  vtkSetMacro(TwoDimensionalGeometry, int);
+  vtkGetMacro(TwoDimensionalGeometry, int);
+  vtkBooleanMacro(TwoDimensionalGeometry, int);
+
+  // Description:
   // Try to read a binary file even if the file length seems to be
   // inconsistent with the header information. Use this with caution,
   // if the file length is not the same as calculated from the header.
@@ -278,6 +285,7 @@ protected:
 
   int BinaryFile;
   int HasByteCount;
+  int TwoDimensionalGeometry;
   int MultiGrid;
   int ForceRead;
   int ByteOrder;

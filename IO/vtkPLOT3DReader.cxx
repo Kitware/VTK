@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.67");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.68");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -44,6 +44,7 @@ vtkPLOT3DReader::vtkPLOT3DReader()
   this->ForceRead = 0;
   this->ByteOrder = FILE_BIG_ENDIAN;
   this->IBlanking = 0;
+  this->TwoDimensionalGeometry = 0;
   this->DoNotReduceNumberOfOutputs = 1;
 
   this->R = 1.0;
@@ -200,8 +201,17 @@ void vtkPLOT3DReader::CalculateFileSize(FILE* fp)
 // Estimate the size of a grid (binary file only)
 long vtkPLOT3DReader::EstimateSize(int ni, int nj, int nk)
 {
-  long size = 3*4; // the header portion, 3 ints
-  size += ni*nj*nk*3*4; // x, y, z
+  long size; // the header portion, 3 ints
+  if (!this->TwoDimensionalGeometry)
+    {
+    size = 3*4;
+    size += ni*nj*nk*3*4; // x, y, z
+    }
+  else
+    {
+    size = 2*4;
+    size += ni*nj*nk*2*4; // x, y, z
+    }
   if (this->HasByteCount)
     {
     size += 2*4; // the byte counts
@@ -303,7 +313,14 @@ int vtkPLOT3DReader::GetNumberOfOutputsInternal(FILE* xyzFp, int verify)
         int ni, nj, nk;
         this->ReadIntBlock(xyzFp, 1, &ni);
         this->ReadIntBlock(xyzFp, 1, &nj);
-        this->ReadIntBlock(xyzFp, 1, &nk);
+        if (!this->TwoDimensionalGeometry)
+          {
+          this->ReadIntBlock(xyzFp, 1, &nk);
+          }
+        else
+          {
+          nk = 1;
+          }
         fileSize += this->EstimateSize(ni, nj, nk);
         // If this number is larger than the file size, there
         // is something wrong.
@@ -364,6 +381,7 @@ int vtkPLOT3DReader::ReadGeometryHeader(FILE* fp)
 {
   int numGrid = this->GetNumberOfOutputsInternal(fp, 1);
   int i;
+  vtkDebugMacro("Geometry number of grids: " << numGrid);
   if ( numGrid == 0 )
     {
     // Bad file, set all extents to invalid.
@@ -381,7 +399,16 @@ int vtkPLOT3DReader::ReadGeometryHeader(FILE* fp)
     int ni, nj, nk;
     this->ReadIntBlock(fp, 1, &ni);
     this->ReadIntBlock(fp, 1, &nj);
-    this->ReadIntBlock(fp, 1, &nk);
+    if (!this->TwoDimensionalGeometry)
+      {
+      this->ReadIntBlock(fp, 1, &nk);
+      }
+    else
+      {
+      nk = 1;
+      }
+    vtkDebugMacro("Geometry, block " << i << " dimensions: "
+                  << ni << " " << nj << " " << nk);
     this->GetOutput(i)->SetWholeExtent(0, ni-1, 0, nj-1, 0, nk-1);
     }
   this->SkipByteCount(fp);
@@ -391,6 +418,7 @@ int vtkPLOT3DReader::ReadGeometryHeader(FILE* fp)
 int vtkPLOT3DReader::ReadQHeader(FILE* fp)
 {
   int numGrid = this->GetNumberOfOutputsInternal(fp, 0);
+  vtkDebugMacro("Q number of grids: " << numGrid);
   if ( numGrid == 0 )
     {
     return VTK_ERROR;
@@ -403,6 +431,8 @@ int vtkPLOT3DReader::ReadQHeader(FILE* fp)
     this->ReadIntBlock(fp, 1, &ni);
     this->ReadIntBlock(fp, 1, &nj);
     this->ReadIntBlock(fp, 1, &nk);
+    vtkDebugMacro("Q, block " << i << " dimensions: "
+                  << ni << " " << nj << " " << nk);
 
     int extent[6];
     this->GetOutput(i)->GetWholeExtent(extent);
@@ -432,7 +462,7 @@ void vtkPLOT3DReader::SetScalarFunctionNumber(int num)
       {
       if ( this->FunctionList->GetValue(i) == num )
         {
-        int found=1;
+        found=1;
         }
       }
     if (!found)
@@ -457,7 +487,7 @@ void vtkPLOT3DReader::SetVectorFunctionNumber(int num)
       {
       if ( this->FunctionList->GetValue(i) == num )
         {
-        int found=1;
+        found=1;
         }
       }
     if (!found)
@@ -517,6 +547,16 @@ void vtkPLOT3DReader::Execute()
   int ndim, nx, ny, nz;
   vtkIdType index;
 
+  int numberOfDims;
+  if (!this->TwoDimensionalGeometry)
+    {
+    numberOfDims = 3;
+    }
+  else
+    {
+    numberOfDims = 2;
+    }
+  
   for(i=0; i<this->NumberOfOutputs; i++)
     {
 
@@ -539,7 +579,7 @@ void vtkPLOT3DReader::Execute()
     parray->Delete();
 
     float coord;
-    for(ndim=0; ndim < 3; ndim++)
+    for(ndim=0; ndim < numberOfDims; ndim++)
       {
       for(nz=0; nz < dims[2]; nz++)
         {
@@ -568,6 +608,16 @@ void vtkPLOT3DReader::Execute()
           }
         }
       }
+
+    if (this->TwoDimensionalGeometry)
+      {
+      vtkIdType ipts, npts=parray->GetNumberOfTuples();
+      for(ipts=0; ipts < npts; ipts++)
+        {
+        parray->SetComponent(ipts, 2, 0);
+        }
+      }
+
     if (this->IBlanking)
       {
       vtkUnsignedCharArray* iblank = vtkUnsignedCharArray::New();
@@ -665,7 +715,7 @@ void vtkPLOT3DReader::Execute()
       momentum->SetName("Momentum");
 
       float comp;
-      for(ndim=0; ndim < 3; ndim++)
+      for(ndim=0; ndim < numberOfDims; ndim++)
         {
         for(nz=0; nz < dims[2]; nz++)
           {
@@ -683,6 +733,14 @@ void vtkPLOT3DReader::Execute()
               momentum->SetComponent(index, ndim, comp);
               }
             }
+          }
+        }
+      if (this->TwoDimensionalGeometry)
+        {
+        vtkIdType ipts, npts=momentum->GetNumberOfTuples();
+        for(ipts=0; ipts < npts; ipts++)
+          {
+          momentum->SetComponent(ipts, 2, 0);
           }
         }
 
