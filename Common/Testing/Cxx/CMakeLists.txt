@@ -49,7 +49,4 @@ ADD_TEST(TestCxxFeatures ${CXX_TEST_PATH}/TestCxxFeatures)
 #
 ADD_EXECUTABLE(TestInstantiator TestInstantiator.cxx)
 TARGET_LINK_LIBRARIES(TestInstantiator vtkCommon)
-IF (APPLE)
-  TARGET_LINK_LIBRARIES(TestInstantiator "-framework AppKit")
-ENDIF (APPLE)
 ADD_TEST(TestInstantiator ${CXX_TEST_PATH}/TestInstantiator)
