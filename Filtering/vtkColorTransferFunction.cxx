@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.49");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.50");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -436,7 +436,8 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( h1 - h2 > 0.5 || h2 - h1 > 0.5 )
+          if ( this->ColorSpace == VTK_CTF_HSV &&
+               (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
             if ( h1 > h2 )
@@ -567,7 +568,8 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( h1 - h2 > 0.5 || h2 - h1 > 0.5 )
+          if ( this->ColorSpace == VTK_CTF_HSV &&
+               (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
             if ( h1 > h2 )
@@ -713,7 +715,8 @@ const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( h1 - h2 > 0.5 || h2 - h1 > 0.5 )
+          if ( this->ColorSpace == VTK_CTF_HSV &&
+               (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
             if ( h1 > h2 )
@@ -808,10 +811,15 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Color Space: RGB\n";
     }
-  else
+  else if ( this->ColorSpace == VTK_CTF_HSV )
     {
     os << indent << "Color Space: HSV\n";
     }
+  else
+    {
+    os << indent << "Color Space: HSV (No Wrap)\n";
+    }
+  
   
   os << indent << "Range: " << this->Range[0] << " to " 
      << this->Range[1] << endl;
