@@ -343,7 +343,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.5");
+vtkCxxRevisionMacro(vtkGenericCellTessellator, "1.6");
 vtkStandardNewMacro(vtkGenericCellTessellator);
 vtkCxxSetObjectMacro(vtkGenericCellTessellator, ErrorMetric, vtkGenericSubdivisionErrorMetric);
 
@@ -412,7 +412,8 @@ public:
     }
 
   // can tile be split; if so, return TessellatePointsing tiles
-  int Refine( vtkGenericCellTessellator* tess, vtkTriangleTile res[4] );
+  //  vtkTriangleTile res[4]
+  int Refine( vtkGenericCellTessellator* tess, vtkTriangleTile *res );
 
 private:
   // Keep track of local coordinate in order to evaluate shape function
@@ -486,7 +487,8 @@ public:
   // can tile be split; if so, return TessellatePointsing tiles
   // There can't be more than 8 tetras as it corresponds to the splitting
   // of all edges 
-  int Refine( vtkGenericCellTessellator* tess, vtkTetraTile res[8] );
+  // vtkTetraTile res[8]
+  int Refine( vtkGenericCellTessellator* tess, vtkTetraTile *res );
 
 private:
   // Need to keep track of local coordinate to evaluate shape functions
@@ -498,7 +500,7 @@ private:
 
 //-----------------------------------------------------------------------------
 int vtkTriangleTile::Refine(vtkGenericCellTessellator* tess,
-                            vtkTriangleTile res[4] )
+                            vtkTriangleTile *res ) // res[4]
 {
   int i, index;
   int numTriangleCreated;
@@ -687,7 +689,7 @@ static void Reorder(vtkIdType in[4], vtkIdType order[4])
 
 //-----------------------------------------------------------------------------
 int vtkTetraTile::Refine( vtkGenericCellTessellator* tess,
-                          vtkTetraTile res[8] )
+                          vtkTetraTile *res ) // res[8]
 {
   int i, index;
   int numTetraCreated;
