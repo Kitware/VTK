@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageToImageFilter::vtkImageToImageFilter()
 {
   this->Bypass = 0;
-  this->Updating = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 }
@@ -82,171 +81,17 @@ vtkImageData *vtkImageToImageFilter::GetInput()
 }
 
 
+  
 
 //----------------------------------------------------------------------------
-// This Method returns the MTime of the pipeline upto and including this filter
-// Note: current implementation may create a cascade of GetPipelineMTime calls.
-// Each GetPipelineMTime call propagates the call all the way to the original
-// source.  
-unsigned long int vtkImageToImageFilter::GetPipelineMTime()
-{
-  unsigned long int time1, time2;
-
-  // This objects MTime
-  // (Super class considers cache in case cache did not originate message)
-  time1 = this->GetMTime();
-  if ( ! this->GetInput())
-    {
-    vtkWarningMacro(<< "GetPipelineMTime: Input not set.");
-    return time1;
-    }
-  
-  // Pipeline mtime 
-  time2 = this->GetInput()->GetPipelineMTime();
-  
-  // Return the larger of the two 
-  if (time2 > time1)
-    {
-    time1 = time2;
-    }
-
-  return time1;
-}
-
-
-//----------------------------------------------------------------------------
-// This method is called by the cache.  It eventually calls the
-// Execute(vtkImageData *, vtkImageData *) method.
-// Information has already been updated by this point, 
-// and outRegion is in local coordinates.
-// This method will stream to get the input, and loops over extra axes.
-// Only the UpdateExtent from output will get updated.
-void vtkImageToImageFilter::InternalUpdate(vtkDataObject *data)
-{
-  vtkImageData *outData = (vtkImageData *)data;
-
-  // Make sure the Input has been set.
-  if ( ! this->GetInput())
-    {
-    vtkErrorMacro(<< "Input is not set.");
-    return;
-    }
-
-  // prevent infinite update loops.
-  if (this->Updating)
-    {
-    return;
-    }
-  this->Updating = 1;
-  this->AbortExecute = 0;
-
-  // In case this update is called directly.
-  this->UpdateInformation();
-  this->GetOutput()->ClipUpdateExtentWithWholeExtent();
-
-  // since cache no longer exists we must allocate the scalars here
-  // This may be a bad place to allocate data (before input->update)
-  this->InterceptCacheUpdate();
-  outData->SetExtent(outData->GetUpdateExtent());
-  outData->AllocateScalars();  
-  
-  // Handle bypass condition.
-  if (this->Bypass)
-    {
-    vtkImageData *inData;
-
-    this->GetInput()->SetUpdateExtent(this->GetOutput()->GetUpdateExtent());
-    this->GetInput()->InternalUpdate();
-    inData = this->GetInput();
-    if (!inData)
-      {
-      vtkWarningMacro("No input data provided!");
-      }
-    else
-      {
-      outData->GetPointData()->PassData(inData->GetPointData());
-      }
-
-    // release input data
-    if (this->GetInput()->ShouldIReleaseData())
-      {
-      this->GetInput()->ReleaseData();
-      }
-    this->Updating = 0;
-    return;
-    }
-  
-  this->RecursiveStreamUpdate(outData);
-
-  this->Updating = 0;
-}
-
-
-
-  
-//----------------------------------------------------------------------------
-// This method can be called recursively for streaming.
-// The extent of the outRegion changes, dim remains the same.
-void vtkImageToImageFilter::RecursiveStreamUpdate(vtkImageData *outData)
-{
-  int memory;
-  vtkImageData *inData;
-  int inExt[6], outExt[6];
-    
-  // abort if required
-  if (this->AbortExecute) 
-    {
-    return;
-    }
-  
-  // Compute the required input region extent.
-  // Copy to fill in extent of extra dimensions.
-  this->ComputeInputUpdateExtent(inExt, this->GetOutput()->GetUpdateExtent());
-  this->GetInput()->SetUpdateExtent(inExt),    
-  
-  // determine the amount of memory that will be used by the input region.
-  memory = this->GetInput()->GetUpdateExtentMemorySize();
-  
-  // Split the inRegion if we are streaming.
-  if ((memory > this->GetInput()->GetMemoryLimit()))
-    {
-    this->GetOutput()->GetUpdateExtent(outExt);
-    vtkWarningMacro("RecursiveStreamUpdate: Streaming disabled ")
-    }
-  
-  // No Streaming required.
-  // Get the input region (Update extent was set at start of this method).
-  this->GetInput()->InternalUpdate();
-  inData = this->GetInput();
-
-  // The StartMethod call is placed here to be after updating the input.
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  // fill the output region 
-  this->Execute(inData, outData);
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
-  
-  // Like the graphics pipeline this source releases inputs data.
-  if (this->GetInput()->ShouldIReleaseData())
-    {
-    this->GetInput()->ReleaseData();
-    }
-}
-
-
-//----------------------------------------------------------------------------
-// This method sets the WholeExtent, Spacing and Origin of the output.
-void vtkImageToImageFilter::UpdateInformation()
+// This method can be overriden in a subclass to compute the output
+// Information: WholeExtent, Spacing, Origin, ScalarType and
+// NumberOfScalarComponents.
+void vtkImageToImageFilter::ExecuteInformation()
 {
   vtkImageData *input = this->GetInput();
   vtkImageData *output = this->GetOutput();
-  int *iTmp;
-  
+
   // Make sure the Input has been set.
   if ( ! input)
     {
@@ -254,53 +99,41 @@ void vtkImageToImageFilter::UpdateInformation()
     return;
     }
 
-  this->vtkSource::UpdateInformation();
+  // Subclass did not write a ExecuteInformation method.
+  // Set the dafaults.
+  // Setting defaults will modify the data if the sublcass overrides the 
+  // defaults.  But this should be OK because ExecuteTime (and UpdateTime)
+  // should be out of date anyway if this method is being called.
+  output->SetWholeExtent(input->GetWholeExtent());
+  output->SetSpacing(input->GetSpacing());
+  output->SetOrigin(input->GetOrigin());
+  output->SetScalarType(input->GetScalarType());
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
 
-  // I do not like setting up the defaults here because it could modify
-  // the output which would cause more Executes than necessary.
-  // Try to detect an already initialized output.  This in no good either.
-  // The input could change.  The real solution is to put defaults into.
-  // ExecuteInformation.  Anyone who implements an ExecuteInformation
-  // method would have to fill in all fields.
-  iTmp = output->GetWholeExtent();
-  if (iTmp[0] == 0 && iTmp[1] == 0 && iTmp[2] == 0 && 
-      iTmp[3] == 0 && iTmp[4] == 0 && iTmp[5] == 0)
-    {
-    output->SetWholeExtent(input->GetWholeExtent());
-	output->SetSpacing(input->GetSpacing());
-	output->SetOrigin(input->GetOrigin());
-    }
-
-  if (output->GetScalarType() == VTK_VOID)
-    {
-    output->SetScalarType(input->GetScalarType());
-    }
-  if (output->GetNumberOfScalarComponents() == 0)
-    {
-    output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
-    }
 
   if ( ! this->Bypass)
     {
-    // legacy (hack to check to see if subclass used wrong method.
-    this->ExecuteImageInformationHack = 1;
+    // Maybe the subclass is using the old style method.
     this->ExecuteImageInformation();
-    if (this->ExecuteImageInformationHack == 1)
-      {
-      vtkWarningMacro("Rename your ExecuteImageInformation to ExecuteInformation");
-      }
-    // the correct call.
-    // Let the subclass modify the default.
-    this->ExecuteInformation();
     }
 }
 
 
+
 //----------------------------------------------------------------------------
-// This method can be overriden in a subclass to compute the output
-// Information: WholeExtent, Spacing and Origin.
-void vtkImageToImageFilter::ExecuteInformation()
+// This is the superclasses method.  Call the legacy imaging method.
+int vtkImageToImageFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 {
+  vtkImageData *output = (vtkImageData*)data;
+  int *outExt, inExt[6];
+
+  // Multiple inputs will be handled in a subclass.
+  outExt = output->GetUpdateExtent();
+  this->ComputeInputUpdateExtent(inExt, outExt);
+
+  this->GetInput()->SetUpdateExtent(inExt);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -312,6 +145,10 @@ void vtkImageToImageFilter::ComputeInputUpdateExtent(int inExt[6], int outExt[6]
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 }
+
+
+
+
 
 struct vtkImageThreadStruct
 {
@@ -359,6 +196,16 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 }
 
 
+//----------------------------------------------------------------------------
+// This is the superclasses style of Execute method.  Convert it into
+// an imaging style Execute method.
+void vtkImageToImageFilter::Execute()
+{
+  this->Execute(this->GetInput(), this->GetOutput());
+}
+
+
+//----------------------------------------------------------------------------
 void vtkImageToImageFilter::Execute(vtkImageData *inData, 
 				    vtkImageData *outData)
 {

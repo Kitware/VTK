@@ -173,7 +173,8 @@ public:
   // the estimated size of the data (in kilobytes) after the whole
   // extent is updated.  Setting the value does not alter MTime.
   void SetEstimatedMemorySize(unsigned long v) {this->EstimatedMemorySize = v;}
-  unsigned long GetEstimatedMemorySize() {return this->EstimatedMemorySize;}
+  virtual unsigned long GetEstimatedMemorySize() 
+    {return this->EstimatedMemorySize;}
 
   // Description:
   // Method implemented in the subclasses to make sure the update extent

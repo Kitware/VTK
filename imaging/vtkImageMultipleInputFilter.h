@@ -77,22 +77,6 @@ public:
   virtual void AddInput(vtkImageData *input);
   
   // Description:
-  // Called by the cache
-  void InternalUpdate(vtkDataObject *outData);
-
-  // Description:
-  // This method gets the boundary of the inputs then computes and returns 
-  // the boundary of the largest region that can be generated. 
-  void UpdateInformation();
-
-  // Description:
-  // This Method returns the MTime of the pipeline up to and including this
-  // filter Note: current implementation may create a cascade of
-  // GetPipelineMTime calls.  Each GetPipelineMTime call propagates the call
-  // all the way to the original source.  This works, but is not elegant. 
-  unsigned long int GetPipelineMTime();
-
-  // Description:
   // Get one input to this filter.
   vtkImageData *GetInput(int num);
   vtkImageData *GetInput();
@@ -124,13 +108,16 @@ public:
 protected:
   vtkMultiThreader *Threader;
   int Bypass;
-  int Updating;
   int NumberOfThreads;
   
-  virtual void ExecuteInformation();
+  void ExecuteInformation();
+  virtual ExecuteImageInformation() {};
+
+  int ComputeInputUpdateExtents(vtkDataObject *out);
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
 						int whichInput);
-  virtual void RecursiveStreamUpdate(vtkImageData *outData);
+
+  void Execute();
   virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);
 
 };

@@ -67,26 +67,19 @@ vtkImageData *vtkImageSource::GetOutput()
 }
 
 //----------------------------------------------------------------------------
-// This method is called by the cache.
-void vtkImageSource::InternalUpdate(vtkDataObject *data)
+// vtkImageData has a legacy API.  The execute method does not allocate the 
+// scalars.  Intercept cache update lets the subclass override the extent
+// allocated here.
+void vtkImageSource::StreamExecuteStart()
 {
-  vtkImageData *image = (vtkImageData *)data;
+  vtkImageData *output = this->GetOutput();
+  int idx;
 
-  // since cache no longer exists we must allocate the scalars here
   this->InterceptCacheUpdate();
-  image->SetExtent(image->GetUpdateExtent());
-  image->AllocateScalars();
-  
-  this->AbortExecute = 0;
-  if ( this->StartMethod )
-    {
-    (*this->StartMethod)(this->StartMethodArg);
-    }
-  this->Execute(image);
-  if ( this->EndMethod )
-    {
-    (*this->EndMethod)(this->EndMethodArg);
-    }
+  // If we have multiple Outputs, they need to be allocate
+  // in a subclass.  We cannot be sure all outputs are images.
+  output->SetExtent(output->GetUpdateExtent());
+  output->AllocateScalars();
 }
 
 //----------------------------------------------------------------------------
@@ -95,6 +88,13 @@ void vtkImageSource::InternalUpdate(vtkDataObject *data)
 // specified.  The default method does not alter the specified region extent.
 void vtkImageSource::InterceptCacheUpdate()
 {
+}
+
+//----------------------------------------------------------------------------
+// Convert to Imaging API
+void vtkImageSource::Execute()
+{
+  this->Execute(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------

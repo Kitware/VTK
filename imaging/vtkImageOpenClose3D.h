@@ -94,11 +94,6 @@ public:
   // It justs feeds the request to the sub filter.
   vtkImageData *GetOutput();
 
-  // Description:
-  // A method used internally, which is part of the vtkImageToImageFilter API.
-  // Return the maximum MTime of this filter, and all of the previous filters
-  // in the pipline.
-  unsigned long GetPipelineMTime();
 
   // Foward filter messages
 

@@ -96,8 +96,8 @@ proc MandelbrotUpdate {} {
   mandelbrot SetMaximumNumberOfIterations $MAX_ITERATIONS
   
   # A bug !
-  [mandelbrot GetOutput] ReleaseData
-  [map GetOutput] ReleaseData
+  #[mandelbrot GetOutput] ReleaseData
+  #[map GetOutput] ReleaseData
 
   mandelbrot Update
   set tmp [[mandelbrot GetOutput] GetScalarRange]

@@ -1748,7 +1748,7 @@ void vtkImageData::GetAxisUpdateExtent(int idx, int &min, int &max)
 // This method returns the memory that would be required for scalars on update.
 // The returned value is in units KBytes.
 // This method is used for determining when to stream.
-long vtkImageData::GetUpdateExtentMemorySize()
+unsigned long vtkImageData::GetEstimatedMemorySize()
 {
   double size = (float)this->NumberOfScalarComponents;
   int idx;
@@ -1788,11 +1788,13 @@ long vtkImageData::GetUpdateExtentMemorySize()
   // (multiple input filters) so do not give an error.
   if (size < 0)
     {
+    this->EstimatedMemorySize = 0;
     return 0;
     }
 
   long lsize = (long)(size / 1000.0);
   
+  this->EstimatedMemorySize = lsize;
   return lsize;
 }
 

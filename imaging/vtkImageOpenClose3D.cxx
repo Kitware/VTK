@@ -208,36 +208,6 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
 
 
 
-//----------------------------------------------------------------------------
-// This Method returns the MTime of the pipeline before this filter.
-// It propagates the message back.
-unsigned long int vtkImageOpenClose3D::GetPipelineMTime()
-{
-  unsigned long int time1, time2;
-
-  // This objects MTime
-  time1 = this->GetMTime();
-
-  if ( ! this->Filter1)
-    {
-    vtkWarningMacro(<< "GetPipelineMTime: Sub filter not created yet.");
-    return 0;
-    }
-  else
-    {
-    // Pipeline mtime
-    time2 = this->Filter1->GetPipelineMTime();
-    
-    // Return the larger of the two
-    if (time2 > time1)
-      {
-      time1 = time2;
-      }
-    }
-  
-  return time1;
-}
-
 
 
 

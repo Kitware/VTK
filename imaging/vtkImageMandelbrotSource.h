@@ -99,7 +99,6 @@ public:
   void Zoom(double factor);
   void Pan(double x, double y, double z);
 
-  void UpdateInformation();
 
 protected:
   int WholeExtent[6];
@@ -111,6 +110,7 @@ protected:
   int JuliaSet;
   
   void Execute(vtkImageData *outData);
+  void ExecuteInformation();
   unsigned short EvaluateSet(double x, double y, double z);
 };
 

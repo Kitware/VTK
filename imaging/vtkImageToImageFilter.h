@@ -69,26 +69,6 @@ public:
   vtkImageData *GetInput();
   
   // Description:
-  // This method is called by the cache.  It eventually calls the
-  // Execute(vtkImageData *, vtkImageData *) method.
-  // Information has already been updated by this point, 
-  // and outRegion is in local coordinates.
-  // This method will stream to get the input, and loops over extra axes.
-  // Only the UpdateExtent from output will get updated.
-  virtual void InternalUpdate(vtkDataObject *outData);
-  
-  // Description:
-  // This method sets the WholeExtent, Spacing and Origin of the output.
-  virtual void UpdateInformation();
-
-  // Description:
-  // This Method returns the MTime of the pipeline up to and including this
-  // filter Note: current implementation may create a cascade of
-  // GetPipelineMTime calls.  Each GetPipelineMTime call propagates the call
-  // all the way to the original source.
-  unsigned long int GetPipelineMTime();
-
-  // Description:
   // Turning bypass on will cause the filter to turn off and
   // simply pass the data through.  This main purpose for this functionality
   // is support for vtkImageDecomposedFilter.  InputMemoryLimit is ignored
@@ -98,23 +78,28 @@ public:
   vtkBooleanMacro(Bypass,int);
 
   // Description:
-  // The InputMemoryLimit will cause this filter to initiate streaming.
-  // The problem is divided up until the memory used by the input data
-  // is less than this limit. (units kiloBytes)
-  void SetInputMemoryLimit(int limit);
-  long GetInputMemoryLimit();
+  // If the subclass does not define an Execute method, then the task
+  // will be broken up, multiple threads will be spawned, and each thread
+  // will call this method. It is public so that the thread functions
+  // can call this method.
+  virtual void ThreadedExecute(vtkImageData *inData, 
+			       vtkImageData *outData,
+			       int extent[6], int threadId);
   
   // Description:
   // Get/Set the number of threads to create when rendering
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
+  // ----- Streaming -----
+
   // Description:
-  // subclasses should define this function
-  virtual void ThreadedExecute(vtkImageData *inData, 
-			       vtkImageData *outData,
-			       int extent[6], int threadId);
-  
+  // The InputMemoryLimit will cause this filter to initiate streaming.
+  // The problem is divided up until the memory used by the input data
+  // is less than this limit. (units kiloBytes)
+  void SetInputMemoryLimit(int limit);
+  long GetInputMemoryLimit();
+
   // Description:
   // Putting this here until I merge graphics and imaging streaming.
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
@@ -134,21 +119,17 @@ public:
 protected:
   vtkMultiThreader *Threader;
   int Bypass;
-  int Updating;
   int NumberOfThreads;
   
-  virtual void ExecuteInformation();
+  void ExecuteInformation();
+  virtual void ExecuteImageInformation() {};
+
+  int ComputeInputUpdateExtents(vtkDataObject *output);
   virtual void ComputeInputUpdateExtent(int inExt[6],int outExt[6]);
 
-  virtual void RecursiveStreamUpdate(vtkImageData *outData);
+  void Execute();
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 
-  // Description:
-  // Legacy method.  May go away at any time. It should be called 
-  // UpdateInformation.
-  virtual void ExecuteImageInformation() 
-    {this->ExecuteImageInformationHack = 0;}
-  int ExecuteImageInformationHack;
 };
 
 #endif
