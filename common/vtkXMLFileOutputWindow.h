@@ -41,19 +41,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkXMLFileOutputWindow - XML File Specific output window class
 // .SECTION Description
-// Writes debug/warning/error output to an XML file. Uses prefined XML tags
-// for each text display method. The text is processed to replace XML
-// markup characters.
-//   DisplayText - &ltText&gt
-//   DisplayErrorText - &ltError&gt
-//   DisplayWarningText - &ltWarning&gt
-//   DisplayGenericWarningText - &ltGenericWarning&gt
-//   DisplayDebugText - &ltDebug&gt
-//
-// The method DisplayTag outputs the text unprocessed.
-//
-// To use this class, instantiate it and then call SetInstance(this).
+// Writes debug/warning/error output to an XML file. Uses prefined XML
+// tags for each text display method. The text is processed to replace
+// XML markup characters.
 // 
+//   DisplayText - <Text>
+// 
+//   DisplayErrorText - <Error>
+// 
+//   DisplayWarningText - <Warning>
+// 
+//   DisplayGenericWarningText - <GenericWarning>
+// 
+//   DisplayDebugText - <Debug.
+// 
+// The method DisplayTag outputs the text unprocessed.  To use this
+// class, instantiate it and then call SetInstance(this).
+
 
 #ifndef __vtkXMLFileOutputWindow_h
 #define __vtkXMLFileOutputWindow_h
@@ -70,7 +74,7 @@ public:
 
   // Description:
   // Put the text into the log file. The text is processed to
-  // replace &, <, > with &amp, &lt, and &gt
+  // replace &, <, > with &amp, &lt, and &gt.
   // Each display method outputs a different XML tag.
   virtual void DisplayText(const char*);
   virtual void DisplayErrorText(const char*);
