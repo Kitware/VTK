@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.12");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.13");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -188,7 +188,11 @@ int vtkXMLWriter::Write()
     }
   
   // Try to open the output file for writing.
-  ofstream outFile(this->FileName);
+#ifdef _WIN32
+  ofstream outFile(this->FileName, ios::out | ios::binary);
+#else
+  ofstream outFile(this->FileName, ios::out);
+#endif
   if(!outFile)
     {
     vtkErrorMacro("Error opening output file \"" << this->FileName << "\"");
