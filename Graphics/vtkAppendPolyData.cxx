@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.94");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.95");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -78,24 +78,15 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 // should only be used when UserManagedInputs is true.
 void vtkAppendPolyData::SetNumberOfInputs(int num)
 {
-  int overlap;
   if (!this->UserManagedInputs)
     {
     vtkErrorMacro(<<
       "SetNumberOfInputs is not supported if UserManagedInputs is false");
     return;
     }
-  // if the user sets inputs to be less than we already have, we'd better
-  // unregister the tailend ones that are being discarded
-  overlap = this->NumberOfInputs - num;
-  if (overlap>0)
-    {
-    for (int i=0; i<overlap; i++)
-      {
-      this->RemoveInputConnection(0, this->GetInputConnection(0, i+num));
-      }
-    }
-  this->NumberOfInputs = num;
+
+  // Ask the superclass to set the number of connections.
+  this->SetNumberOfInputConnections(0, num);
 }
 
 //----------------------------------------------------------------------------
@@ -108,30 +99,9 @@ void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
       "SetInputByNumber is not supported if UserManagedInputs is false");
     return;
     }
-  
-  int numConnections = this->GetNumberOfInputConnections(0);
-  vtkAlgorithmOutput *algOutput = 0;
-  if (input)
-    {
-    algOutput = input->GetProducerPort();
-    }
-  else
-    {
-    vtkErrorMacro("Cannot set NULL input.");
-    return;
-    }
 
-  if (num < numConnections)
-    {
-    if (algOutput)
-      {
-      this->SetNthInputConnection(0, num, algOutput);
-      }
-    }
-  else if (num == this->GetNumberOfInputConnections(0) && algOutput)
-    {
-    this->AddInputConnection(0, algOutput);
-    }
+  // Ask the superclass to connect the input.
+  this->SetNthInputConnection(0, num, input? input->GetProducerPort() : 0);
 }
 
 //----------------------------------------------------------------------------

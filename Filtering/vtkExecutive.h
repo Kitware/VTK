@@ -33,6 +33,7 @@ class vtkDataObject;
 class vtkExecutiveInternals;
 class vtkInformation;
 class vtkInformationExecutivePortKey;
+class vtkInformationExecutivePortVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationKeyVectorKey;
 class vtkInformationVector;
@@ -59,12 +60,26 @@ public:
   virtual int Update(int port);
 
   // Description:
+  // Get the number of input/output ports for the algorithm associated
+  // with this executive.  Returns 0 if no algorithm is set.
+  int GetNumberOfInputPorts();
+  int GetNumberOfOutputPorts();
+
+  // Description:
+  // Get the number of input connections on the given port.
+  int GetNumberOfInputConnections(int port);
+
+  // Description:
   // Get the pipeline information object for the given output port.
   virtual vtkInformation* GetOutputInformation(int port);
 
   // Description:
   // Get the pipeline information for the given input connection.
   vtkInformation* GetInputInformation(int port, int connection);
+
+  // Description:
+  // Get the pipeline information vectors for the given input port.
+  vtkInformationVector* GetInputInformation(int port);
 
   // Description:
   // Get the executive managing the given input connection.
@@ -94,6 +109,11 @@ public:
   static vtkInformationExecutivePortKey* PRODUCER();
 
   // Description:
+  // Information key to store the executive/port number pairs
+  // consuming an information object.
+  static vtkInformationExecutivePortVectorKey* CONSUMERS();
+
+  // Description:
   // Information key to store the output port number from which a
   // request is made.
   static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
@@ -118,11 +138,6 @@ protected:
   int InputPortIndexInRange(int port, const char* action);
   int OutputPortIndexInRange(int port, const char* action);
 
-  // Get the number of input/output ports for the algorithm.  Returns
-  // 0 if no algorithm is set.
-  int GetNumberOfInputPorts();
-  int GetNumberOfOutputPorts();
-
   // Access methods to arguments passed to vtkAlgorithm::ProcessRequest.
   vtkInformationVector** GetInputInformation();
   vtkInformationVector* GetOutputInformation();
@@ -140,9 +155,6 @@ protected:
   // Bring the existence of output data objects up to date.
   virtual int UpdateDataObject()=0;
 
-  // Bring the input information up to date with current connections.
-  void UpdateInputInformationVector();
-
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 
@@ -155,6 +167,11 @@ protected:
   int InAlgorithm;
 
 private:
+
+  // Store an information object for each output port of the algorithm.
+  vtkInformationVector* OutputInformation;
+
+  // Internal implementation details.
   vtkExecutiveInternals* ExecutiveInternal;
 
   //BTX

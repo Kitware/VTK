@@ -74,6 +74,9 @@ public:
   virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
+  virtual void SetNthInputConnection(int port, int index,
+                                     vtkAlgorithmOutput* input);
+  virtual void SetNumberOfInputConnections(int port, int n);
 protected:
   vtkProcessObject();
   ~vtkProcessObject();

@@ -20,19 +20,20 @@
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationExecutivePortKey.h"
+#include "vtkInformationExecutivePortVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
-#include "vtkSource.h"
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.19");
+vtkCxxRevisionMacro(vtkExecutive, "1.20");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
+vtkInformationKeyMacro(vtkExecutive, CONSUMERS, ExecutivePortVector);
 vtkInformationKeyMacro(vtkExecutive, FORWARD_DIRECTION, Integer);
 vtkInformationKeyMacro(vtkExecutive, FROM_OUTPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkExecutive, KEYS_TO_COPY, KeyVector);
@@ -42,9 +43,7 @@ vtkInformationKeyMacro(vtkExecutive, PRODUCER, ExecutivePort);
 class vtkExecutiveInternals
 {
 public:
-  vtkSmartPointer<vtkInformationVector> OutputInformation;
   vtkstd::vector<vtkInformationVector*> InputInformation;
-
   vtkExecutiveInternals();
   ~vtkExecutiveInternals();
   vtkInformationVector** GetInputInformation(int newNumberOfPorts);
@@ -53,8 +52,6 @@ public:
 //----------------------------------------------------------------------------
 vtkExecutiveInternals::vtkExecutiveInternals()
 {
-  // Create the single output information vector.
-  this->OutputInformation = vtkSmartPointer<vtkInformationVector>::New();
 }
 
 //----------------------------------------------------------------------------
@@ -119,6 +116,7 @@ vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
 vtkExecutive::vtkExecutive()
 {
   this->ExecutiveInternal = new vtkExecutiveInternals;
+  this->OutputInformation = vtkInformationVector::New();
   this->Algorithm = 0;
   this->InAlgorithm = 0;
 }
@@ -127,6 +125,10 @@ vtkExecutive::vtkExecutive()
 vtkExecutive::~vtkExecutive()
 {
   this->SetAlgorithm(0);
+  if(this->OutputInformation)
+    {
+    this->OutputInformation->Delete();
+    }
   delete this->ExecutiveInternal;
 }
 
@@ -164,19 +166,15 @@ void vtkExecutive::SetAlgorithm(vtkAlgorithm* newAlgorithm)
   vtkAlgorithm* oldAlgorithm = this->Algorithm;
   if(oldAlgorithm != newAlgorithm)
     {
-    this->Algorithm = newAlgorithm;
     if(newAlgorithm)
       {
       newAlgorithm->Register(this);
       }
+    this->Algorithm = newAlgorithm;
     if(oldAlgorithm)
       {
       oldAlgorithm->UnRegister(this);
       }
-
-    // Update the connected pipeline information objects.
-    this->UpdateInputInformationVector();
-
     this->Modified();
     }
 }
@@ -202,36 +200,6 @@ vtkInformationVector** vtkExecutive::GetInputInformation()
 }
 
 //----------------------------------------------------------------------------
-void vtkExecutive::UpdateInputInformationVector()
-{
-  if(this->Algorithm)
-    {
-    // Store all the input connection information objects.
-    int numPorts = this->Algorithm->GetNumberOfInputPorts();
-    vtkInformationVector** inVectorArray =
-      this->ExecutiveInternal->GetInputInformation(numPorts);
-    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-      {
-      vtkInformationVector* inVector = inVectorArray[i];
-      int numConnections = this->Algorithm->GetNumberOfInputConnections(i);
-      inVector->SetNumberOfInformationObjects(numConnections);
-      for(int j=0; j < numConnections; ++j)
-        {
-        vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
-        vtkExecutive* inExecutive = this->GetInputExecutive(i, j);
-        vtkInformation* info =
-          inExecutive->GetOutputInformation(input->GetIndex());
-        inVector->SetInformationObject(j, info);
-        }
-      }
-    }
-  else
-    {
-    this->ExecutiveInternal->GetInputInformation(0);
-    }
-}
-
-//----------------------------------------------------------------------------
 vtkInformation* vtkExecutive::GetInputInformation(int port, int connection)
 {
   if(!this->InputPortIndexInRange(port, "get connected input information from"))
@@ -243,33 +211,35 @@ vtkInformation* vtkExecutive::GetInputInformation(int port, int connection)
 }
 
 //----------------------------------------------------------------------------
+vtkInformationVector* vtkExecutive::GetInputInformation(int port)
+{
+  if(!this->InputPortIndexInRange(port, "get input information vector from"))
+    {
+    return 0;
+    }
+  return this->GetInputInformation()[port];
+}
+
+//----------------------------------------------------------------------------
 vtkInformationVector* vtkExecutive::GetOutputInformation()
 {
-  if(!this->ExecutiveInternal->OutputInformation)
-    {
-    this->ExecutiveInternal->OutputInformation =
-      vtkSmartPointer<vtkInformationVector>::New();
-    }
-
   // Set the length of the vector to match the number of ports.
   int oldNumberOfPorts =
-    this->ExecutiveInternal->OutputInformation
-    ->GetNumberOfInformationObjects();
-  this->ExecutiveInternal->OutputInformation
-    ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfOutputPorts());
+    this->OutputInformation->GetNumberOfInformationObjects();
+  this->OutputInformation
+    ->SetNumberOfInformationObjects(this->GetNumberOfOutputPorts());
 
   // For any new information obects, set the executive pointer and
   // port number on the information object to tell it what produces
   // it.
-  for (int i = oldNumberOfPorts;
-       i < this->Algorithm->GetNumberOfOutputPorts();++i)
+  for(int i = oldNumberOfPorts;
+      i < this->Algorithm->GetNumberOfOutputPorts();++i)
     {
-    vtkInformation* info =
-      this->ExecutiveInternal->OutputInformation->GetInformationObject(i);
+    vtkInformation* info = this->OutputInformation->GetInformationObject(i);
     info->Set(vtkExecutive::PRODUCER(), this, i);
     }
 
-  return this->ExecutiveInternal->OutputInformation;
+  return this->OutputInformation;
 }
 
 //----------------------------------------------------------------------------
@@ -314,8 +284,7 @@ void vtkExecutive::ReportReferences(vtkGarbageCollector* collector)
                               this->ExecutiveInternal->InputInformation[i],
                               "Input Information Vector");
     }
-  vtkGarbageCollectorReport(collector,
-                            this->ExecutiveInternal->OutputInformation,
+  vtkGarbageCollectorReport(collector, this->OutputInformation,
                             "Output Information Vector");
   this->Superclass::ReportReferences(collector);
 }
@@ -355,6 +324,17 @@ int vtkExecutive::GetNumberOfOutputPorts()
     return this->Algorithm->GetNumberOfOutputPorts();
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkExecutive::GetNumberOfInputConnections(int port)
+{
+  if(!this->InputPortIndexInRange(port, "get number of connections for"))
+    {
+    return 0;
+    }
+  vtkInformationVector* inputs = this->GetInputInformation(port);
+  return inputs->GetNumberOfInformationObjects();
 }
 
 //----------------------------------------------------------------------------

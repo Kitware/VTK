@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.17");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.18");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -475,13 +475,6 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
     vtkErrorMacro("No data object has been set in the information for "
                   "output port " << outputPort << ".");
     return 0;
-    }
-
-  // If the data object is a dummy used by vtkProcessObject to store
-  // NULL connections for backward compatibility, then check nothing.
-  if(dataObject->IsA("vtkProcessObjectDummyData"))
-    {
-    return 1;
     }
 
   // Check extents.

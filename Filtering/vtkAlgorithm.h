@@ -233,6 +233,10 @@ protected:
   vtkAlgorithm();
   ~vtkAlgorithm();
 
+  // Keys used to indicate that input/output port information has been
+  // filled.
+  static vtkInformationIntegerKey* PORT_REQUIREMENTS_FILLED();
+
   // Arbitrary extra information associated with this algorithm
   vtkInformation* Information;
 
@@ -261,10 +265,19 @@ protected:
   int OutputPortIndexInRange(int index, const char* action);
 
   // Description:
-  // Replace the Nth connection on the given input port.  This should
-  // not be used to remove an input, so the pointer cannot be NULL.
-  // For use only by subclasses.
-  void SetNthInputConnection(int port, int index, vtkAlgorithmOutput* input);
+  // Replace the Nth connection on the given input port.  For use only
+  // by this class and subclasses.  If this is used to store a NULL
+  // input then the subclass must be able to handle NULL inputs in its
+  // ProcessRequest method.
+  virtual void SetNthInputConnection(int port, int index,
+                                     vtkAlgorithmOutput* input);
+
+  // Description:
+  // Set the number of input connections on the given input port.  For
+  // use only by this class and subclasses.  If this is used to store
+  // a NULL input then the subclass must be able to handle NULL inputs
+  // in its ProcessRequest method.
+  virtual void SetNumberOfInputConnections(int port, int n);
 
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
@@ -282,6 +295,9 @@ protected:
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 private:
+  vtkExecutive* Executive;
+  vtkInformationVector* InputPortInformation;
+  vtkInformationVector* OutputPortInformation;
   vtkAlgorithmInternals* AlgorithmInternal;
   static void ConnectionAdd(vtkAlgorithm* producer, int producerPort,
                             vtkAlgorithm* consumer, int consumerPort);

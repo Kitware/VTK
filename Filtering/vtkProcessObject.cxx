@@ -17,38 +17,14 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkDebugLeaks.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
-#include "vtkInformation.h"
 
-#include "vtkDebugLeaks.h"
-
-vtkCxxRevisionMacro(vtkProcessObject, "1.5");
-
-//----------------------------------------------------------------------------
-
-// Fake data object type used to represent NULL connections for the
-// compatibility layer.
-class vtkProcessObjectDummyData: public vtkDataObject
-{
-public:
-  vtkTypeMacro(vtkProcessObjectDummyData, vtkDataObject);
-  static vtkProcessObjectDummyData* New()
-    {
-#ifdef VTK_DEBUG_LEAKS
-    vtkDebugLeaks::ConstructClass("vtkProcessObjectDummyData");
-#endif
-    return new vtkProcessObjectDummyData;
-    }
-protected:
-  vtkProcessObjectDummyData() {}; 
-  virtual ~vtkProcessObjectDummyData() {}; 
-private:
-  vtkProcessObjectDummyData(const vtkProcessObjectDummyData&);
-  void operator=(const vtkProcessObjectDummyData&);  // Not implemented.
-};
+vtkCxxRevisionMacro(vtkProcessObject, "1.6");
 
 //----------------------------------------------------------------------------
 vtkProcessObject::vtkProcessObject()
@@ -135,41 +111,8 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject* input)
     return;
     }
 
-  if(input && num > this->GetNumberOfInputConnections(0))
-    {
-    // Avoid creating holes in input array.  Use dummy data to fill in
-    // the missing connections.
-    for(int i=this->GetNumberOfInputConnections(0); i < num; ++i)
-      {
-      vtkProcessObjectDummyData* d = vtkProcessObjectDummyData::New();
-      this->AddInputInternal(d);
-      d->Delete();
-      }
-
-    // Now add the real input.
-    this->AddInputInternal(input);
-    }
-  else if(!input && num < this->GetNumberOfInputConnections(0)-1)
-    {
-    vtkErrorMacro("SetNthInput cannot set input index " << num
-                  << " to NULL because there are "
-                  << this->GetNumberOfInputConnections(0)
-                  << " connections and NULL connections are not allowed.");
-    }
-  else if(input && num == this->GetNumberOfInputConnections(0))
-    {
-    this->AddInputInternal(input);
-    }
-  else if(!input && num == this->GetNumberOfInputConnections(0)-1)
-    {
-    // need to get the current algorithm input if there is one
-    vtkAlgorithmOutput *inputToBeRemoved = this->GetInputConnection(0,num);
-    this->RemoveInputConnection(0, inputToBeRemoved);
-    }
-  else if(input && num < this->GetNumberOfInputConnections(0))
-    {
-    this->SetNthInputConnection(0, num, input->GetProducerPort());
-    }
+  // Ask the superclass to connect the input.
+  this->SetNthInputConnection(0, idx, input? input->GetProducerPort() : 0);
 }
 
 //----------------------------------------------------------------------------
@@ -227,6 +170,21 @@ void vtkProcessObject::RemoveInputConnection(int port, vtkAlgorithmOutput* input
 }
 
 //----------------------------------------------------------------------------
+void vtkProcessObject::SetNthInputConnection(int port, int index,
+                                             vtkAlgorithmOutput* input)
+{
+  this->Superclass::SetNthInputConnection(port, index, input);
+  this->SetupInputs();
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::SetNumberOfInputConnections(int port, int n)
+{
+  this->Superclass::SetNumberOfInputConnections(port, n);
+  this->SetupInputs();
+}
+
+//----------------------------------------------------------------------------
 void vtkProcessObject::AddInputInternal(vtkDataObject* input)
 {
   if(input)
@@ -247,6 +205,11 @@ void vtkProcessObject::RemoveInputInternal(vtkDataObject* input)
 //----------------------------------------------------------------------------
 void vtkProcessObject::SetupInputs()
 {
+  int cbp = 0;
+  if(this->IsA("vtkColorByPart"))
+    {
+    cbp = 1;
+    }
   // Construct a new array of input data objects using connections
   // from input port 0.
   typedef vtkDataObject* vtkDataObjectPointer;
@@ -258,37 +221,41 @@ void vtkProcessObject::SetupInputs()
     int count=0;
     for(int i=0; i < this->GetNumberOfInputConnections(0); ++i)
       {
-      vtkAlgorithmOutput* ic = this->GetInputConnection(0, i);
-      newInputs[count] = ic->GetProducer()->GetOutputDataObject(ic->GetIndex());
+      // Get the input connection, if any.
+      if(vtkAlgorithmOutput* ic = this->GetInputConnection(0, i))
+        {
+        newInputs[count] =
+          ic->GetProducer()->GetOutputDataObject(ic->GetIndex());
+        }
+      else
+        {
+        newInputs[count] = 0;
+        }
       if(newInputs[count])
         {
-        // If the connection has dummy data, set a NULL input.
-        if(newInputs[count]->IsA("vtkProcessObjectDummyData"))
+        // If the data object was already an input, avoid the
+        // Register/UnRegister cycle.
+        int found = 0;
+        for(int j=0; !found && j < this->NumberOfInputs; ++j)
           {
-          newInputs[count] = 0;
-          }
-        else
-          {
-          // If the data object was already an input, avoid the
-          // Register/UnRegister cycle.
-          int found = 0;
-          for(int j=0; !found && j < this->NumberOfInputs; ++j)
+          if(newInputs[count] == this->Inputs[j])
             {
-            if(newInputs[count] == this->Inputs[j])
-              {
-              this->Inputs[j] = 0;
-              found = 1;
-              }
-            }
-          if(!found)
-            {
-            newInputs[count]->Register(this);
+            this->Inputs[j] = 0;
+            found = 1;
             }
           }
-        ++count;
+        if(!found)
+          {
+          newInputs[count]->Register(this);
+          }
         }
+      ++count;
       }
     newNumberOfInputs = count;
+    if(cbp && count == 3)
+      {
+      cout << "Tada" << endl;
+      }
     }
 
   // Remove the old array of input data objects.

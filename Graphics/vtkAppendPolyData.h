@@ -116,7 +116,6 @@ protected:
     { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
 
   int UserManagedInputs;
-  int NumberOfInputs;
 
 private:
   vtkAppendPolyData(const vtkAppendPolyData&);  // Not implemented.

@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.19");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.20");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -577,18 +577,11 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index)
   vtkInformation* info = this->Algorithm->GetInputPortInformation(port);
   vtkDataObject* input = this->GetInputData(port, index);
 
-  // Special case for compatibility layer to support NULL inputs.
-  if(this->Algorithm->IsA("vtkProcessObject") &&
-     input->IsA("vtkProcessObjectDummyData"))
-    {
-    return 1;
-    }
-
   // Enforce required type, if any.
   if(const char* dt = info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()))
     {
-    // The input cannot be NULL.
-    if(!input)
+    // The input cannot be NULL unless the port is optional.
+    if(!input && !info->Get(vtkAlgorithm::INPUT_IS_OPTIONAL()))
       {
       vtkErrorMacro("Input for connection index " << index
                     << " on input port index " << port
@@ -598,8 +591,8 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index)
       return 0;
       }
 
-    // The input must be of required type.
-    if(!input->IsA(dt))
+    // The input must be of required type or NULL.
+    if(input && !input->IsA(dt))
       {
       vtkErrorMacro("Input for connection index " << index
                     << " on input port index " << port
@@ -657,9 +650,8 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, int index)
     }
   vtkDataObject* input = this->GetInputData(port, index);
 
-  // Special case for compatibility layer to support NULL inputs.
-  if(this->Algorithm->IsA("vtkProcessObject") &&
-     input->IsA("vtkProcessObjectDummyData"))
+  // NULL inputs do not have to have the proper fields.
+  if(!input)
     {
     return 1;
     }
