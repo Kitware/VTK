@@ -47,8 +47,10 @@ C_FLAGS = ${USER_CFLAGS} ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
 
 all: vtkpython @TKWIDGET_TARGETS@
 
-vtkpython: vtkpython.so
-	@echo ""
+vtkpython: Makefile vtkpython
+	${CXX} -o vtkpython vtkpython.o \
+	-L. ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 vtkpython.o: vtkpython.c Makefile
 	$(CC) $(C_FLAGS) -c -o vtkpython.o $(srcdir)/vtkpython.c
