@@ -321,7 +321,7 @@ protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
   ~vtkDataSet();  
-  vtkDataSet(const vtkDataSet& ds) {};
+  vtkDataSet(const vtkDataSet&) {};
   void operator=(const vtkDataSet&) {};  
 
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell

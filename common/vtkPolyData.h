@@ -398,7 +398,7 @@ public:
 protected:
   vtkPolyData();
   ~vtkPolyData();
-  vtkPolyData(const vtkPolyData& pd) {};
+  vtkPolyData(const vtkPolyData&) {};
   void operator=(const vtkPolyData&) {};
 
   // constant cell objects returned by GetCell called.
