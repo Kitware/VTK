@@ -681,7 +681,9 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
       float t[9];
       for (i=0; i<numPts; i++)
         {
-        if ((retStat=fscanf(fp,"%f %f %f",t,t+1,t+2,t+3,t+4,t+5,t+6,t+7,t+8)) == EOF || retStat < 9)
+        if ((retStat=fscanf(fp,"%f %f %f %f %f %f %f %f %f",
+			    t,t+1,t+2,t+3,t+4,t+5,t+6,t+7,t+8)) 
+	    == EOF || retStat < 9)
           {
           vtkErrorMacro(<<"Error reading tensors!");
           return 0;
