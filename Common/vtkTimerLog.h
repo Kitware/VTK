@@ -92,7 +92,7 @@ public:
   // This flag will turn loging of events off or on.  
   // By default, logging is on.
   static void SetLogging(int v) {vtkTimerLog::Logging = v;}
-  static int GetLogging(int v) {return vtkTimerLog::Logging;}
+  static int GetLogging() {return vtkTimerLog::Logging;}
   static void LoggingOn() {vtkTimerLog::SetLogging(1);}
   static void LoggingOff() {vtkTimerLog::SetLogging(0);}
 
