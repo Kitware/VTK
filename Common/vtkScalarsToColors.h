@@ -108,8 +108,16 @@ public:
   // the data is mapped through this instance of ScalarsToColors. The offset
   // is used for data arrays with more than one component; it indicates 
   // which component to use to do the blending.
+  // When the component argument is -1, then the this object uses its
+  // own selected technique to change a vector into a scalar to map.
   vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
                                    int component);
+
+  // Description:
+  // If the mapper does not select which component of a vector
+  // to map to colors, you can specify it here.
+  vtkSetMacro(VectorComponent, int);
+  vtkGetMacro(VectorComponent, int);
   
   // Description:
   // Map a set of scalars through the lookup table in a single operation. 
@@ -140,10 +148,13 @@ public:
     vtkUnsignedCharArray *colors, int numComp, int numTuples);
 
 protected:
-  vtkScalarsToColors():Alpha(1.0) {}
+  vtkScalarsToColors();
   ~vtkScalarsToColors() {}
 
   float Alpha;
+
+  // How to map arrays with multiple components.
+  int VectorComponent;
 
 private:
   float RGB[3];

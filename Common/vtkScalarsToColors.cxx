@@ -19,7 +19,13 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkScalarsToColors, "1.17");
+vtkCxxRevisionMacro(vtkScalarsToColors, "1.18");
+
+vtkScalarsToColors::vtkScalarsToColors()
+{
+  this->Alpha = 1.0;
+  this->VectorComponent = 0;
+}
 
 // do not use SetMacro() because we do not the table to rebuild.
 void vtkScalarsToColors::SetAlpha(float alpha)
@@ -46,6 +52,21 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
     newColors = vtkUnsignedCharArray::New();
     newColors->SetNumberOfComponents(4);
     newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
+    // If mapper did not specify a component, use our component.
+    if (comp < 0)
+      {
+      comp = this->VectorComponent;
+      }
+    // Just some error checking.
+    if (comp < 0)
+      {
+      comp = 0;
+      }
+    if (comp >= scalars->GetNumberOfComponents())
+      {
+      comp = scalars->GetNumberOfComponents()-1;
+      }
+    // Fill in the colors.
     this->
       MapScalarsThroughTable2(scalars->GetVoidPointer(comp), 
                               newColors->GetPointer(0),
@@ -200,4 +221,5 @@ void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << endl;
+  os << indent << "VectorComponent: " << this->VectorComponent << endl;
 }
