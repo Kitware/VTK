@@ -72,14 +72,14 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\pcmaker.ico"
 // Dialog
 //
 
-IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 261
+IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 290
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,31,240,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,97,240,50,14
+    DEFPUSHBUTTON   "OK",IDOK,31,269,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,97,269,50,14
     GROUPBOX        "What Compiler",IDC_COMPILER,7,125,171,25,WS_TABSTOP
     EDITTEXT        IDC_WHEREVTK,16,15,155,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
@@ -112,6 +112,9 @@ BEGIN
     LTEXT           "Where is your Java JDK (this is optional)",IDC_STATIC,
                     10,93,141,13
     EDITTEXT        IDC_WHEREJDK,16,105,153,15,ES_AUTOHSCROLL
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",WS_BORDER,
+                    7,249,171,14
+    LTEXT           "Progress",IDC_STATIC,7,239,77,11
 END
 
 
@@ -171,7 +174,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 178
         TOPMARGIN, 7
-        BOTTOMMARGIN, 254
+        BOTTOMMARGIN, 283
     END
 END
 #endif    // APSTUDIO_INVOKED

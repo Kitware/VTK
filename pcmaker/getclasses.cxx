@@ -237,6 +237,9 @@ void stuffit(FILE *fp)
   /* the main declaration */
   fprintf(fp,"\n\nint %s_SafeInit(Tcl_Interp *interp)\n{\n",kitName);
   fprintf(fp,"  return %s_Init(interp);\n}\n",kitName);
+
+  /* prototype for tkRenderWidget */
+  fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
   
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
@@ -250,7 +253,9 @@ void stuffit(FILE *fp)
 
     /* create special vtkCommand command */
     fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
-    }
+    /* initialize the tkRenderWidget */
+    fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
+  }
   
   for (i = 0; i < anindex; i++)
     {
@@ -326,29 +331,23 @@ void MakeForce(char *fname)
   }
 }
 
-void doMSCHeader(FILE *fp, const char *vtkHome,
-	      const char *vtkBuild, const char *vtkCompiler, int Debug, int doPatented);
-void doBorHeader(FILE *fp, const char *vtkHome,
-	      const char *vtkBuild, const char *vtkCompiler, int Debug, int doPatented);
-void doMSCTclHeader(FILE *fp, const char *vtkHome,
-		 const char *vtkBuild, const char *vtkCompiler, int Debug,
-     int doAddedValue, int doPatented);
-void doBorTclHeader(FILE *fp, const char *vtkHome,
-		 const char *vtkBuild, const char *vtkCompiler, int Debug,
-     int doAddedValue, int doPatented);
-void doMSCJavaHeader(FILE *fp, const char *vtkHome,
-		 const char *vtkBuild, const char *vtkCompiler, const char *vtkJDK, int Debug,
-     int doAddedValue, int doPatented);
-void doBorJavaHeader(FILE *fp, const char *vtkHome,
-		 const char *vtkBuild, const char *vtkCompiler, const char *vtkJDK, int Debug,
-     int doAddedValue, int doPatented);
+void doMSCHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doMSCTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doBorTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
 
+// generate depend info for a .cxx file
+// outputs the result as DEPEND
+extern void OutputDepends(char *file, FILE *fp, const char *vtkHome);
 
 void makeMakefile(CPcmakerDlg *vals)
 {
   char fname[256];
   FILE *ofp;
   int doAddedValue = 0;
+  int total;
   
   sprintf(fname,"%s\\common\\Makefile.in",vals->m_WhereVTK);
   readInMakefile(fname,strdup("common"));
@@ -446,30 +445,37 @@ void makeMakefile(CPcmakerDlg *vals)
   sprintf(fname,"%s\\vtkdll\\vtkPCForce.cxx",vals->m_WhereBuild);
   MakeForce(fname);
 
+  // set up the progress indicator
+  total = 2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h;
+  if (strlen(vals->m_WhereJDK) > 1)
+    {
+    total = total + num_concrete + num_abstract + num_abstract_h + num_concrete_h;
+    } 
+  vals->m_Progress.SetRange(0,total);
+  vals->m_Progress.SetPos(0);
+
   // spit out a Makefile
   sprintf(fname,"%s\\vtkdll\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-    vals->m_Debug,vals->m_Patented);
-  if (vals->m_BorlandComp) doBorHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-    vals->m_Debug,vals->m_Patented);
+  if (vals->m_MSComp) doMSCHeader(ofp, vals, doAddedValue);
+  if (vals->m_BorlandComp) doBorHeader(ofp, vals, doAddedValue);
   fclose(ofp);
 
   sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCTclHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-    vals->m_Debug, doAddedValue,vals->m_Patented);
-  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-    vals->m_Debug, doAddedValue,vals->m_Patented);
+  if (vals->m_MSComp) doMSCTclHeader(ofp, vals, doAddedValue);
+  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals, doAddedValue);
   fclose(ofp);
 
-  sprintf(fname,"%s\\vtkjava\\makefile",vals->m_WhereBuild);
-  ofp = fopen(fname,"w");
-  if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-     vals->m_WhereJDK, vals->m_Debug, doAddedValue,vals->m_Patented);
-  if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-     vals->m_WhereJDK, vals->m_Debug, doAddedValue,vals->m_Patented);
-  fclose(ofp);
+  // generate the java makefiles if requested
+  if (strlen(vals->m_WhereJDK) > 1)
+    {
+    sprintf(fname,"%s\\vtkjava\\makefile",vals->m_WhereBuild);
+    ofp = fopen(fname,"w");
+    if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals, doAddedValue);
+    if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals, doAddedValue);
+    fclose(ofp);
+    }
 }
 
 
@@ -478,11 +484,10 @@ void makeMakefile(CPcmakerDlg *vals)
   Here are the different makefile methods
 *******************************************************************************/
 
-void doMSCHeader(FILE *fp, const char *vtkHome,
-              const char *vtkBuild, const char *vtkCompiler, int Debug,
-              int doPatented)
+void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
+  char file[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"CPP=cl.exe\n\n");
@@ -492,20 +497,20 @@ void doMSCHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\"$(OUTDIR)\" :\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
-  if (Debug)
+  if (vals->m_Debug)
     {
     fprintf(fp,"CPP_PROJ=/nologo /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
     fprintf(fp,"CPP_PROJ=/nologo /MT /G5 /Ox /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\volume\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  if (doPatented)
+  if (vals->m_Patented)
     {
     fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
-      vtkHome);
+      vals->m_WhereVTK);
     }
   else
     {
@@ -513,15 +518,15 @@ void doMSCHeader(FILE *fp, const char *vtkHome,
     }
   fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
-  if (Debug)
+  if (vals->m_Debug)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:%s\\mfc\\lib /libpath:%s\\lib %s\\lib\\opengl32.lib %s\\lib\\glaux.lib /nologo /version:1.3 /subsystem:windows\\\n",
-    vtkCompiler, vtkCompiler, vtkCompiler, vtkCompiler);
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib %s\\lib\\opengl32.lib %s\\lib\\glaux.lib /nologo /version:1.3 /subsystem:windows\\\n",
-    vtkCompiler, vtkCompiler, vtkCompiler, vtkCompiler);
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" \"%s\\lib\\opengl32.lib\" \"%s\\lib\\glaux.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   fprintf(fp," /dll /incremental:no /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtkdll.dll\" /implib:\"$(OUTDIR)/vtkdll.lib\" \n");
@@ -564,56 +569,60 @@ void doMSCHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
   fprintf(fp,"BuildCmds= \\\n");
-  if (Debug)
+  if (vals->m_Debug)
     {
     fprintf(fp,"	$(CPP) /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
-      vtkCompiler, vtkCompiler, vtkHome,vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK,vals->m_WhereVTK);
     }
   else
     {
     fprintf(fp,"	$(CPP) /nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
-      vtkCompiler, vtkCompiler, vtkHome,vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK,vals->m_WhereVTK);
     }
   fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(OUTDIR)/\" /c %s\\vtkdll\\StdAfx.cpp \\\n",
-	  vtkHome);
+	  vals->m_WhereVTK);
   fprintf(fp,"	\n");
   fprintf(fp,"\n");
   fprintf(fp,"\"$(OUTDIR)\\StdAfx.obj\" : %s\\vtkdll\\StdAfx.cpp \"$(OUTDIR)\"\n",
-	  vtkHome);
+	  vals->m_WhereVTK);
   fprintf(fp,"   $(BuildCmds)\n");
   fprintf(fp,"\n");
   fprintf(fp,"\"$(OUTDIR)\\vtkPCForce.obj\" : vtkPCForce.cxx \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) vtkPCForce.cxx\n\n");
   fprintf(fp,"\"$(OUTDIR)\\vtkdll.obj\" : %s\\vtkdll\\vtkdll.cpp \"$(OUTDIR)\"\n",
-	    vtkHome);
-  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\vtkdll\\vtkdll.cpp\n\n",vtkHome);
+	    vals->m_WhereVTK);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\vtkdll\\vtkdll.cpp\n\n",vals->m_WhereVTK);
 
   for (i = 0; i < num_abstract; i++)
   {
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx \"$(OUTDIR)\"\n",
-	    abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+	    abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\%s\\%s.cxx\n\n",
-		vtkHome,abstract_lib[i],abstract[i]);
+		vals->m_WhereVTK,abstract_lib[i],abstract[i]);
   }
   for (i = 0; i < num_concrete; i++)
   {
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx \"$(OUTDIR)\"\n",
-	    concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : %s\\%s\\%s.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\%s\\%s.cxx\n\n",
-	    vtkHome,concrete_lib[i],concrete[i]);
+	    vals->m_WhereVTK,concrete_lib[i],concrete[i]);
   }
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorHeader(FILE *fp, const char *vtkHome,
-              const char *vtkBuild, const char *vtkCompiler, int Debug,
-              int doPatented)
+void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
 
   fprintf(fp,"# VTK Borland makefile\n");
-  fprintf(fp,"OUTDIR=%s\\vtkdll\\obj\n\n",vtkBuild);
+  fprintf(fp,"OUTDIR=%s\\vtkdll\\obj\n\n",vals->m_WhereBuild);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
   fprintf(fp,"ALL : vtkdll.dll\n\n");
 
@@ -623,7 +632,7 @@ void doBorHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"  echo Make Config\n");
     fprintf(fp,"    Copy &&| \n");
 
-  if (Debug)
+  if (vals->m_Debug)
     {
 
     fprintf(fp,"-D_DEBUG -v -R \n");
@@ -632,24 +641,24 @@ void doBorHeader(FILE *fp, const char *vtkHome,
     {
  fprintf(fp,"-v- -R- \n");
        }
-  if (doPatented)
+  if (vals->m_Patented)
     {
     fprintf(fp,"-DUSE_PATENTED -I%s\\patented\n",
-      vtkHome);
+      vals->m_WhereVTK);
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL\n",
-      vtkHome);
+      vals->m_WhereVTK);
  fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics;%s\\volume -DWIN32\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
- fprintf(fp," -I%s\\imaging \n",vtkHome);
- fprintf(fp," -I%s\\contrib \n",vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+ fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
+ fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   fprintf(fp,"LINK32=tlink32.exe\n\n");
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib \\\n",
-  vtkCompiler);
-  if (Debug)
+  vals->m_WhereCompiler);
+  if (vals->m_Debug)
     {
     fprintf(fp,"  -v \\\n");
     }
@@ -672,7 +681,7 @@ void doBorHeader(FILE *fp, const char *vtkHome,
   }
   fprintf(fp,"\n");
   fprintf(fp,"LINK32_OBJS= \\\n");
-  fprintf(fp,"    %s\\lib\\c0d32.obj+ \\\n",vtkCompiler);
+  fprintf(fp,"    %s\\lib\\c0d32.obj+ \\\n",vals->m_WhereCompiler);
   fprintf(fp,"    obj\\StdAfx.obj+ \\\n");
   fprintf(fp,"    obj\\vtkdll.obj+ \\\n");
   fprintf(fp,"    obj\\vtkPCForce.obj");
@@ -686,12 +695,12 @@ void doBorHeader(FILE *fp, const char *vtkHome,
   }
     fprintf(fp,", \\\n $<,$*,  \\\n");   // this is the target and map file name
 
-    fprintf(fp,"    %s\\lib\\bfc40.lib+ \\\n",vtkCompiler);
-    fprintf(fp,"    %s\\lib\\bfcs40.lib+ \\\n",vtkCompiler);
-    fprintf(fp,"    %s\\lib\\import32.lib+ \\\n",vtkCompiler);
-     fprintf(fp,"   %s\\lib\\cw32.lib+ \\\n",vtkCompiler);
-    fprintf(fp,"    %s\\lib\\cw32mt.lib+ \\\n",vtkCompiler);
-    fprintf(fp,"    %s\\lib\\gl\\glaux.lib \\\n",vtkCompiler);
+    fprintf(fp,"    %s\\lib\\bfc40.lib+ \\\n",vals->m_WhereCompiler);
+    fprintf(fp,"    %s\\lib\\bfcs40.lib+ \\\n",vals->m_WhereCompiler);
+    fprintf(fp,"    %s\\lib\\import32.lib+ \\\n",vals->m_WhereCompiler);
+     fprintf(fp,"   %s\\lib\\cw32.lib+ \\\n",vals->m_WhereCompiler);
+    fprintf(fp,"    %s\\lib\\cw32mt.lib+ \\\n",vals->m_WhereCompiler);
+    fprintf(fp,"    %s\\lib\\gl\\glaux.lib \\\n",vals->m_WhereCompiler);
  fprintf(fp,"\n");
   fprintf(fp,"vtkdll.dll : \"obj\" $(DEF_FILE) $(DEPLINK32_OBJS)\n");
   fprintf(fp,"    $(LINK32) @&&|\n");
@@ -734,47 +743,46 @@ void doBorHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\n");
 
   fprintf(fp,"obj\\StdAfx.obj : %s\\vtkdll\\StdAfx.cpp \n",
-	  vtkHome);
+	  vals->m_WhereVTK);
   fprintf(fp,"  $(CPP) @&&| \n");
-  fprintf(fp,"-I%s\\vtkdll -oobj\\StdAfx.obj %s\\vtkdll\\StdAfx.cpp \n",vtkHome,vtkHome);
+  fprintf(fp,"-I%s\\vtkdll -oobj\\StdAfx.obj %s\\vtkdll\\StdAfx.cpp \n",vals->m_WhereVTK,vals->m_WhereVTK);
   fprintf(fp,"|  \n");
   fprintf(fp,"obj\\vtkPCForce.obj : vtkPCForce.cxx \n");
   fprintf(fp,"  $(CPP) @&&|\n");
   fprintf(fp,"-oobj\\vtkPCForce.obj vtkPCForce.cxx \n\n");
   fprintf(fp,"|  \n");
   fprintf(fp,"obj\\vtkdll.obj : %s\\vtkdll\\vtkdll.cpp \n",
-	    vtkHome);
+	    vals->m_WhereVTK);
   fprintf(fp,"  $(CPP) @&&|\n");
-  fprintf(fp,"-I%s\\vtkdll -oobj\\vtkdll.obj %s\\vtkdll\\vtkdll.cpp \n\n",vtkHome,vtkHome);
+  fprintf(fp,"-I%s\\vtkdll -oobj\\vtkdll.obj %s\\vtkdll\\vtkdll.cpp \n\n",vals->m_WhereVTK,vals->m_WhereVTK);
   fprintf(fp,"|  \n");
 
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"obj\\%s.obj : %s\\%s\\%s.cxx \n",
-	    abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+	    abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
   fprintf(fp,"  $(CPP) @&&|\n");
     fprintf(fp,"-oobj\\%s.obj %s\\%s\\%s.cxx \n\n",
-		abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
   fprintf(fp,"|  \n");
   }
   for (i = 0; i < num_concrete; i++)
   {
     fprintf(fp,"obj\\%s.obj : %s\\%s\\%s.cxx \n",
-	    concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
   fprintf(fp,"  $(CPP) @&&|\n");
     fprintf(fp,"-oobj\\%s.obj %s\\%s\\%s.cxx \n\n",
-	    concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
   fprintf(fp,"|  \n");
   }
 
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSCTclHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild, const char *vtkCompiler, int Debug,
-       int doAddedValue, int doPatented)
+void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
+  char file [256];
 
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"CPP=cl.exe\n\n");
@@ -785,38 +793,38 @@ void doMSCTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-  if (Debug)
+  if (vals->m_Debug)
     {
     fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
     fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  if (doPatented)
+  if (vals->m_Patented)
     {
     fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
-      vtkHome);
+      vals->m_WhereVTK);
     }
   else
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
-    vtkHome, vtkHome, vtkHome, vtkHome);
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp," /Fp\"$(OUTDIR)/vtktcl.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
-  if (Debug)
+  if (vals->m_Debug)
     {
-    fprintf(fp,"LINK32_FLAGS=$(OUTDIR)\\vtktcldll.obj $(OUTDIR)\\vtktcl.obj $(OUTDIR)\\vtktclobjs.lib /debug /libpath:%s\\mfc\\lib /libpath:%s\\lib nafxcwd.lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
-	    vtkCompiler, vtkCompiler, vtkHome, vtkHome);
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcldll.obj\" \"$(OUTDIR)\\vtktcl.obj\" \"$(OUTDIR)\\vtktclobjs.lib\" /debug /libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" nafxcwd.lib ..\\vtkdll\\obj\\vtkdll.lib \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=$(OUTDIR)\\vtktcldll.obj $(OUTDIR)\\vtktcl.obj $(OUTDIR)\\vtktclobjs.lib /libpath:%s\\mfc\\lib /libpath:%s\\lib nafxcw.lib ..\\vtkdll\\obj\\vtkdll.lib %s\\pcmaker\\tk42.lib %s\\pcmaker\\tcl76.lib /nologo /version:1.3 /subsystem:windows\\\n",
-	    vtkCompiler, vtkCompiler, vtkHome, vtkHome);
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtktcldll.obj\" \"$(OUTDIR)\\vtktcl.obj\" \"$(OUTDIR)\\vtktclobjs.lib\" /libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" nafxcw.lib ..\\vtkdll\\obj\\vtkdll.lib \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" /nologo /version:1.3 /subsystem:windows\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n"); 
@@ -825,6 +833,7 @@ void doMSCTclHeader(FILE *fp, const char *vtkHome,
   
   fprintf(fp,"LINK32_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
+  if (vals->m_Graphics) fprintf(fp,"    \"$(OUTDIR)\\vtkTkRenderWidget.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstract[i]);
@@ -872,74 +881,93 @@ void doMSCTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
   fprintf(fp,"\"$(OUTDIR)\\vtkTclUtil.obj\" : %s\\common\\vtkTclUtil.cxx \"$(OUTDIR)\"\n",
-	  vtkHome);
-  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\common\\vtkTclUtil.cxx\n\n",vtkHome);
+	  vals->m_WhereVTK);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\common\\vtkTclUtil.cxx\"\n\n",vals->m_WhereVTK);
+  if (vals->m_Graphics)
+    {
+    sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : %s\\graphics\\vtkTkRenderWidget.cxx $(DEPEND) \"$(OUTDIR)\"\n",
+	    vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
   fprintf(fp,"\"$(OUTDIR)\\vtktcl.obj\" : src\\vtktcl.cxx \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtktcl.cxx\n\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtktcldll.obj\" : %s\\vtkdll\\vtktcldll.cpp \"$(OUTDIR)\"\n",vtkHome);
-  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\vtkdll\\vtktcldll.cpp\n\n",vtkHome);
+  fprintf(fp,"\"$(OUTDIR)\\vtktcldll.obj\" : \"%s\\vtkdll\\vtktcldll.cpp\" \"$(OUTDIR)\"\n",vals->m_WhereVTK);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\vtkdll\\vtktcldll.cpp\"\n\n",vals->m_WhereVTK);
 
   for (i = 0; i < num_abstract; i++)
   {
-    fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"$(OUTDIR)\"\n",
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
-		vtkHome, abstract[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, abstract[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		abstract[i],abstract[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",abstract[i]);
   }
 
   for (i = 0; i < num_concrete; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
-		vtkHome, concrete[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, concrete[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		concrete[i],concrete[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",concrete[i]);
   }
 
   for (i = 0; i < num_abstract_h; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		abstract_h[i],vtkHome,abstract_h_lib[i],abstract_h[i]);
+		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
-		vtkHome, abstract_h[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, abstract_h[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		abstract_h[i],abstract_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",abstract_h[i]);
   }
 
   for (i = 0; i < num_concrete_h; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sTcl.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		concrete_h[i],vtkHome,concrete_h_lib[i],concrete_h[i]);
+		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
-		vtkHome, concrete_h[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, concrete_h[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		concrete_h[i],concrete_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",concrete_h[i]);
   }
 
   fprintf(fp,"################################################################################\n");
 }
-void doBorTclHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild, const char *vtkCompiler, int Debug,
-       int doAddedValue, int doPatented)
+
+void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
   fprintf(fp,"# VTK Borland makefile\n");
-  fprintf(fp,"OUTDIR=%s\\vtktcl\\obj\n\n",vtkBuild);
+  fprintf(fp,"OUTDIR=%s\\vtktcl\\obj\n\n",vals->m_WhereBuild);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
   fprintf(fp,"ALL : vtktcl.dll\n\n");
 
@@ -949,7 +977,7 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"  echo Make Config\n");
     fprintf(fp,"    Copy &&| \n");
 
-  if (Debug)
+  if (vals->m_Debug)
     {
 
     fprintf(fp,"-D_DEBUG -v -R \n");
@@ -958,27 +986,27 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
     {
  fprintf(fp,"-v- -R- \n");
        }
-  if (doPatented)
+  if (vals->m_Patented)
     {
     fprintf(fp,"-DUSE_PATENTED -I%s\\patented\n",
-      vtkHome);
+      vals->m_WhereVTK);
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL\n",
-      vtkHome);
+      vals->m_WhereVTK);
  fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics;%s\\volume -DWIN32\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
- fprintf(fp," -I%s\\pcmaker\\xlib \n",vtkHome);
- fprintf(fp," -I%s\\imaging \n",vtkHome);
- fprintf(fp," -I%s\\contrib \n",vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+ fprintf(fp," -I%s\\pcmaker\\xlib \n",vals->m_WhereVTK);
+ fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
+ fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
   if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume -I%s\\volume \\\n",
-    vtkHome, vtkHome, vtkHome, vtkHome);
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   fprintf(fp,"LINK32=tlink32.exe\n\n");
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib;..\\vtkdll\\obj\\vtkdll.lib;%s\\pcmaker\\tk42.lib;%s\\pcmaker\\tcl76.lib \\\n",
-  vtkCompiler,vtkCompiler,vtkCompiler);
-  if (Debug)
+  vals->m_WhereCompiler,vals->m_WhereCompiler,vals->m_WhereCompiler);
+  if (vals->m_Debug)
     {
     fprintf(fp,"  -v \\\n");
     }
@@ -1065,9 +1093,9 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
   fprintf(fp,"obj\\vtkTclUtil.obj : %s\\common\\vtkTclUtil.cxx \n",
-	  vtkHome);
+	  vals->m_WhereVTK);
   fprintf(fp,"  $(CPP) @&&|\n");
-  fprintf(fp,"-oobj\\vtkTclUtil.obj  %s\\common\\vtkTclUtil.cxx\n\n",vtkHome,vtkHome);
+  fprintf(fp,"-oobj\\vtkTclUtil.obj  %s\\common\\vtkTclUtil.cxx\n\n",vals->m_WhereVTK,vals->m_WhereVTK);
    fprintf(fp,"|  \n");
   fprintf(fp,"obj\\vtktcl.obj : src\\vtktcl.cxx \n");
   fprintf(fp,"  $(CPP) @&&|\n");
@@ -1077,11 +1105,11 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"src\\%sTcl.cxx : %s\\%s\\%s.h \n",
-		abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
-		vtkHome, abstract[i]);
+		vals->m_WhereVTK, abstract[i]);
     fprintf(fp,"obj\\%sTcl.obj : src\\%sTcl.cxx \n",
 		abstract[i],abstract[i]);
   fprintf(fp,"  $(CPP) @&&|\n");
@@ -1092,11 +1120,11 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_concrete; i++)
   {
     fprintf(fp,"src\\%sTcl.cxx : %s\\%s\\%s.h \n",
-		concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
-		vtkHome, concrete[i]);
+		vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"obj\\%sTcl.obj : src\\%sTcl.cxx \n",
 		concrete[i],concrete[i]);
   fprintf(fp,"  $(CPP) @&&|\n");
@@ -1107,11 +1135,11 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_abstract_h; i++)
   {
     fprintf(fp,"src\\%sTcl.cxx : %s\\%s\\%s.h \n",
-		abstract_h[i],vtkHome,abstract_h_lib[i],abstract_h[i]);
+		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 0 > src\\%sTcl.cxx\n\n",
-		vtkHome, abstract_h[i]);
+		vals->m_WhereVTK, abstract_h[i]);
     fprintf(fp,"obj\\%sTcl.obj : src\\%sTcl.cxx \n",
 		abstract_h[i],abstract_h[i]);
   fprintf(fp,"  $(CPP) @&&|\n");
@@ -1122,11 +1150,11 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_concrete_h; i++)
   {
     fprintf(fp,"src\\%sTcl.cxx : %s\\%s\\%s.h \n",
-		concrete_h[i],vtkHome,concrete_h_lib[i],concrete_h[i]);
+		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\cpp_parse\\Debug\\cpp_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints 1 > src\\%sTcl.cxx\n\n",
-		vtkHome, concrete_h[i]);
+		vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"obj\\%sTcl.obj : src\\%sTcl.cxx \n",
 		concrete_h[i],concrete_h[i]);
   fprintf(fp,"  $(CPP) @&&|\n");
@@ -1137,12 +1165,10 @@ void doBorTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSCJavaHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild, const char *vtkCompiler,
-         const char *vtkJDK, int Debug,
-       int doAddedValue, int doPatented)
+void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
+  char file[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"CPP=cl.exe\n\n");
@@ -1153,39 +1179,39 @@ void doMSCJavaHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
 
-  if (Debug)
+  if (vals->m_Debug)
     {
     fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
   else
     {
     fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\"  /I \"%s\\volume\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  if (doPatented)
+  if (vals->m_Patented)
     {
     fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
-      vtkHome);
+      vals->m_WhereVTK);
     }
   else
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
     }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" /I \"%s\\volume\" \\\n",
-    vtkHome, vtkHome, vtkHome, vtkHome);
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fp\"$(OUTDIR)/vtkjava.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n",
-    vtkJDK, vtkJDK);
+    vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
-  if (Debug)
+  if (vals->m_Debug)
     {
-    fprintf(fp,"LINK32_FLAGS=/debug /libpath:%s\\mfc\\lib /libpath:%s\\lib nafxcwd.lib ..\\vtkdll\\obj\\vtkdll.lib /nologo /version:1.3 /subsystem:windows\\\n",
-	    vtkCompiler, vtkCompiler);
+    fprintf(fp,"LINK32_FLAGS=/debug /libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" nafxcwd.lib ..\\vtkdll\\obj\\vtkdll.lib /nologo /version:1.3 /subsystem:windows\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=/libpath:%s\\mfc\\lib /libpath:%s\\lib nafxcw.lib ..\\vtkdll\\obj\\vtkdll.lib /nologo /version:1.3 /subsystem:windows\\\n",
-	    vtkCompiler, vtkCompiler);
+    fprintf(fp,"LINK32_FLAGS=/libpath:\"%s\\mfc\\lib\" /libpath:\"%s\\lib\" nafxcw.lib ..\\vtkdll\\obj\\vtkdll.lib /nologo /version:1.3 /subsystem:windows\\\n",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler);
     }
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtkjava.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtkjava.dll\" /implib:\"$(OUTDIR)/vtkjava.lib\" \n");
@@ -1233,89 +1259,99 @@ void doMSCJavaHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\n");
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(OUTDIR)\\vtkJavaUtil.obj\" : %s\\common\\vtkJavaUtil.cxx \"$(OUTDIR)\"\n",
-	  vtkHome);
-  fprintf(fp,"  $(CPP) $(CPP_PROJ) %s\\common\\vtkJavaUtil.cxx\n\n",vtkHome);
+  fprintf(fp,"\"$(OUTDIR)\\vtkJavaUtil.obj\" : \"%s\\common\\vtkJavaUtil.cxx\" \"$(OUTDIR)\"\n",
+	  vals->m_WhereVTK);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\common\\vtkJavaUtil.cxx\"\n\n",vals->m_WhereVTK);
 
   for (i = 0; i < num_abstract; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract_h[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, abstract[i]);
+		vals->m_WhereVTK, abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, abstract[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, abstract[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		abstract[i],abstract[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sJava.cxx\n\n",abstract[i]);
   }
 
   for (i = 0; i < num_concrete; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, concrete[i]);
+		vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, concrete[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, concrete[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		concrete[i],concrete[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sJava.cxx\n\n",concrete[i]);
   }
 
   for (i = 0; i < num_abstract_h; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		abstract_h[i],vtkHome,abstract_h_lib[i],abstract_h[i]);
+		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, abstract_h[i]);
+		vals->m_WhereVTK, abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, abstract_h[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, abstract_h[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		abstract_h[i],abstract_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sJava.cxx\n\n",abstract_h[i]);
   }
 
   for (i = 0; i < num_concrete_h; i++)
   {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    vals->m_Progress.OffsetPos(1);
     fprintf(fp,"\"src\\%sJava.cxx\" : %s\\%s\\%s.h \"$(OUTDIR)\"\n",
-		concrete_h[i],vtkHome,concrete_h_lib[i],concrete_h[i]);
+		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, concrete_h[i]);
+		vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, concrete_h[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx \"$(OUTDIR)\"\n",
+		vals->m_WhereVTK, concrete_h[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sJava.obj\" : src\\%sJava.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
 		concrete_h[i],concrete_h[i]);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sJava.cxx\n\n",concrete_h[i]);
   }
 
   fprintf(fp,"################################################################################\n");
 }
-void doBorJavaHeader(FILE *fp, const char *vtkHome,
-		   const char *vtkBuild, const char *vtkCompiler,
-         const char *vtkJDK, int Debug,
-       int doAddedValue, int doPatented)
+
+void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
 
   fprintf(fp,"# VTK Borland makefile\n");
-  fprintf(fp,"OUTDIR=%s\\vtkjava\\obj\n\n",vtkBuild);
+  fprintf(fp,"OUTDIR=%s\\vtkjava\\obj\n\n",vals->m_WhereBuild);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
   fprintf(fp,"ALL : vtkjava.dll\n\n");
 
@@ -1325,7 +1361,7 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"  echo Make Config\n");
     fprintf(fp,"    Copy &&| \n");
 
-  if (Debug)
+  if (vals->m_Debug)
     {
 
     fprintf(fp,"-D_DEBUG -v -R \n");
@@ -1334,28 +1370,28 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
     {
  fprintf(fp,"-v- -R- \n");
        }
-  if (doPatented)
+  if (vals->m_Patented)
     {
     fprintf(fp,"-DUSE_PATENTED -I%s\\patented\n",
-      vtkHome);
+      vals->m_WhereVTK);
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;VTKJAVA\n",
-      vtkHome);
+      vals->m_WhereVTK);
  fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics;%s\\volume -DWIN32\n",
-      vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome);
- fprintf(fp," -I%s\\include \n",vtkJDK);
- fprintf(fp," -I%s\\include\\win32 \n",vtkJDK);
- fprintf(fp," -I%s\\imaging \n",vtkHome);
- fprintf(fp," -I%s\\contrib \n",vtkHome);
+      vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+ fprintf(fp," -I%s\\include \n",vals->m_WhereJDK);
+ fprintf(fp," -I%s\\include\\win32 \n",vals->m_WhereJDK);
+ fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
+ fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
   if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume -I%s\\volume \\\n",
-    vtkHome, vtkHome, vtkHome, vtkHome);
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   fprintf(fp,"LINK32=tlink32.exe\n\n");
 
   fprintf(fp,"LINK32_FLAGS=-L%s\\lib \\\n",
-  vtkCompiler);
-  if (Debug)
+  vals->m_WhereCompiler);
+  if (vals->m_Debug)
     {
     fprintf(fp,"  -v \\\n");
     }
@@ -1402,7 +1438,7 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"+ \\\n    obj\\%sJava.obj",concrete_h[i]);
   }
     fprintf(fp,", \\\n $<,$*,  \\\n");   // this is the target and map file name
-    fprintf(fp,"    %s\\java\\lib\\javai.lib \\\n",vtkCompiler);
+    fprintf(fp,"    %s\\java\\lib\\javai.lib \\\n",vals->m_WhereCompiler);
   fprintf(fp,"\n");
   fprintf(fp,"vtkjava.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS)\n");
   fprintf(fp,"    $(LINK32) @&&| \n");
@@ -1442,23 +1478,23 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
   fprintf(fp,"\n");
   fprintf(fp,"obj\\vtkJavaUtil.obj : %s\\common\\vtkJavaUtil.cxx \n",
-	  vtkHome);
+	  vals->m_WhereVTK);
   fprintf(fp,"  $(CPP) @&&|\n");
-  fprintf(fp,"-oobj\\vtkJavaUtil.obj  %s\\common\\vtkJavaUtil.cxx\n\n",vtkHome);
+  fprintf(fp,"-oobj\\vtkJavaUtil.obj  %s\\common\\vtkJavaUtil.cxx\n\n",vals->m_WhereVTK);
    fprintf(fp,"|  \n");
 
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"src\\%sJava.cxx : %s\\%s\\%s.h \n",
-		abstract[i],vtkHome,abstract_lib[i],abstract[i]);
+		abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, abstract[i]);
+		vals->m_WhereVTK, abstract[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_lib[i], abstract[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_lib[i], abstract[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, abstract[i]);
+		vals->m_WhereVTK, abstract[i]);
     fprintf(fp,"obj\\%sJava.obj : src\\%sJava.cxx \n",
 		abstract[i],abstract[i]);
     fprintf(fp,"  $(CPP) @&&|");
@@ -1469,15 +1505,15 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_concrete; i++)
   {
     fprintf(fp,"src\\%sJava.cxx : %s\\%s\\%s.h \n",
-		concrete[i],vtkHome,concrete_lib[i],concrete[i]);
+		concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, concrete[i]);
+		vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_lib[i], concrete[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_lib[i], concrete[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, concrete[i]);
+		vals->m_WhereVTK, concrete[i]);
     fprintf(fp,"obj\\%sJava.obj : src\\%sJava.cxx \n",
 		concrete[i],concrete[i]);
     fprintf(fp,"  $(CPP) @&&|");
@@ -1489,15 +1525,15 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_abstract_h; i++)
   {
     fprintf(fp,"src\\%sJava.cxx\" : %s\\%s\\%s.h \n",
-		abstract_h[i],vtkHome,abstract_h_lib[i],abstract_h[i]);
+		abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, abstract_h[i]);
+		vals->m_WhereVTK, abstract_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, abstract_h_lib[i], abstract_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, abstract_h[i]);
+		vals->m_WhereVTK, abstract_h[i]);
     fprintf(fp,"obj\\%sJava.obj : src\\%sJava.cxx \n",
 		abstract_h[i],abstract_h[i]);
     fprintf(fp,"  $(CPP) @&&|");
@@ -1508,15 +1544,15 @@ void doBorJavaHeader(FILE *fp, const char *vtkHome,
   for (i = 0; i < num_concrete_h; i++)
   {
     fprintf(fp,"src\\%sJava.cxx : %s\\%s\\%s.h \n",
-		concrete_h[i],vtkHome,concrete_h_lib[i],concrete_h[i]);
+		concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_wrap\\Debug\\java_wrap %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > src\\%sJava.cxx\n\n",
-		vtkHome, concrete_h[i]);
+		vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"   %s\\pcmaker\\java_parse\\Debug\\java_parse %s\\%s\\%s.h\\\n",
-		vtkHome, vtkHome, concrete_h_lib[i], concrete_h[i]);
+		vals->m_WhereVTK, vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
     fprintf(fp,"  %s\\tcl\\hints > vtk\\%s.java\n\n",
-		vtkHome, concrete_h[i]);
+		vals->m_WhereVTK, concrete_h[i]);
     fprintf(fp,"obj\\%sJava.obj : src\\%sJava.cxx \n",
 		concrete_h[i],concrete_h[i]);
     fprintf(fp,"  $(CPP) @&&|");

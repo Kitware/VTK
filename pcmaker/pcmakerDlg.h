@@ -13,6 +13,7 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CPcmakerDlg)
 	enum { IDD = IDD_PCMAKER_DIALOG };
+	CProgressCtrl	m_Progress;
 	CString	m_WhereVTK;
 	CString	m_WhereBuild;
 	CString	m_WhereJDK;

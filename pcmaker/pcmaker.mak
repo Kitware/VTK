@@ -1,4 +1,4 @@
-# Microsoft Developer Studio Generated NMAKE File, Format Version 4.10
+# Microsoft Developer Studio Generated NMAKE File, Format Version 4.20
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
@@ -67,6 +67,7 @@ ALL : "java_wrap - Win32 Release" "java_parse - Win32 Release"\
 
 CLEAN : 
 	-@erase "$(INTDIR)\getclasses.obj"
+	-@erase "$(INTDIR)\makedepend.obj"
 	-@erase "$(INTDIR)\pcmaker.obj"
 	-@erase "$(INTDIR)\pcmaker.pch"
 	-@erase "$(INTDIR)\pcmaker.res"
@@ -125,6 +126,7 @@ LINK32_FLAGS=/nologo /subsystem:windows /incremental:no\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
 	"$(INTDIR)\getclasses.obj" \
+	"$(INTDIR)\makedepend.obj" \
 	"$(INTDIR)\pcmaker.obj" \
 	"$(INTDIR)\pcmaker.res" \
 	"$(INTDIR)\pcmakerDlg.obj" \
@@ -155,6 +157,7 @@ ALL : "java_wrap - Win32 Debug" "java_parse - Win32 Debug"\
 
 CLEAN : 
 	-@erase "$(INTDIR)\getclasses.obj"
+	-@erase "$(INTDIR)\makedepend.obj"
 	-@erase "$(INTDIR)\pcmaker.obj"
 	-@erase "$(INTDIR)\pcmaker.pch"
 	-@erase "$(INTDIR)\pcmaker.res"
@@ -217,6 +220,7 @@ LINK32_FLAGS=/nologo /subsystem:windows /incremental:yes\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /debug /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
 	"$(INTDIR)\getclasses.obj" \
+	"$(INTDIR)\makedepend.obj" \
 	"$(INTDIR)\pcmaker.obj" \
 	"$(INTDIR)\pcmaker.res" \
 	"$(INTDIR)\pcmakerDlg.obj" \
@@ -862,6 +866,15 @@ DEP_CPP_GETCL=\
 !ENDIF 
 
 # End Project Dependency
+################################################################################
+# Begin Source File
+
+SOURCE=.\makedepend.cxx
+
+"$(INTDIR)\makedepend.obj" : $(SOURCE) "$(INTDIR)"
+
+
+# End Source File
 # End Target
 ################################################################################
 # Begin Target
@@ -879,6 +892,9 @@ DEP_CPP_GETCL=\
 # Begin Source File
 
 SOURCE=..\tcl\y.tab.c
+
+!IF  "$(CFG)" == "cpp_parse - Win32 Release"
+
 DEP_CPP_Y_TAB=\
 	"..\tcl\lex.yy.c"\
 	
@@ -886,6 +902,18 @@ DEP_CPP_Y_TAB=\
 "$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
+
+!ELSEIF  "$(CFG)" == "cpp_parse - Win32 Debug"
+
+DEP_CPP_Y_TAB=\
+	"..\tcl\lex.yy.c"\
+	
+
+"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
 
 # End Source File
 # End Target
