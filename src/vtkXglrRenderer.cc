@@ -176,6 +176,11 @@ void vtkXglrRenderer::Render(void)
     this->VolumeRenderer->Render((vtkRenderer *)this);
     }
 
+  if (this->NewVolumeRenderer)
+    {
+    this->NewVolumeRenderer->Render((vtkRenderer *)this);
+    }
+
   if (this->EndRenderMethod) 
     {
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
