@@ -16,6 +16,12 @@ INCLUDE_DIRECTORIES (
 )
 
 #
+# Collect the required libs
+#
+SET (VTKFTGL_LIBS "")
+
+#
+#
 # Do not use the STL (portability issue)
 #
 SET (VTKFTGL_DO_NOT_USE_STL 1)
@@ -67,7 +73,7 @@ IF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
   IF (GLU_INCLUDE_PATH)
     INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
   ENDIF (GLU_INCLUDE_PATH)
-  LINK_LIBRARIES (${GLU_LIBRARY})
+  SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${GLU_LIBRARY}")
 ENDIF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
 
 #
@@ -91,9 +97,9 @@ ENDIF (WIN32)
 # Unix flags
 #
 IF (UNIX)
-  # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
-  SET (VTKFTGL_HPUX_SOURCE 1)
-  # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+  IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+    SET (VTKFTGL_HPUX_SOURCE 1)
+  ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
 ENDIF (UNIX)
 
 #
@@ -112,15 +118,18 @@ INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 IF (OPENGL_INCLUDE_PATH)
   INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_PATH})
 ENDIF (OPENGL_INCLUDE_PATH)
-LINK_LIBRARIES (${OPENGL_LIBRARY})
+SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${OPENGL_LIBRARY}")
+
+#
+# We obviously need FreeType
+#
+SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};vtkfreetype")
 
 #
 # Define the library (and install it)
 #
 ADD_LIBRARY (vtkftgl ${FTGL_SRCS})
-TARGET_LINK_LIBRARIES(vtkftgl
-  vtkfreetype
-)
+TARGET_LINK_LIBRARIES(vtkftgl ${VTKFTGL_LIBS})
 INSTALL_TARGETS (/lib/vtk vtkftgl)
 
 #
@@ -152,21 +161,24 @@ IF (FTGL_BUILD_EXAMPLES)
   INCLUDE (${CMAKE_ROOT}/Modules/FindGLUT.cmake)
 
   IF (GLU_LIBRARY AND GLUT_LIBRARY)
+
+    SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_LIBS}")
+
     IF (GLUT_INCLUDE_PATH)
       INCLUDE_DIRECTORIES (${GLUT_INCLUDE_PATH})
     ENDIF (GLUT_INCLUDE_PATH)
-    LINK_LIBRARIES (${GLUT_LIBRARY})
+    SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};${GLUT_LIBRARY}")
 
     IF (GLU_INCLUDE_PATH)
       INCLUDE_DIRECTORIES (${GLU_INCLUDE_PATH})
     ENDIF (GLU_INCLUDE_PATH)
-    LINK_LIBRARIES (${GLU_LIBRARY})
+    SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};${GLU_LIBRARY}")
 
     #
     # Do we need X ?
     #
     IF (VTK_USE_X)
-      LINK_LIBRARIES (-lXt)
+      SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};-lXt")
       FIND_LIBRARY (XMU_LIBRARY Xmu
         /usr/lib 
         /usr/local/lib 
@@ -177,21 +189,21 @@ IF (FTGL_BUILD_EXAMPLES)
       )
       MARK_AS_ADVANCED (XMU_LIBRARY)
       IF (XMU_LIBRARY)
-        LINK_LIBRARIES (${XMU_LIBRARY})
+        SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};${XMU_LIBRARY}")
       ENDIF (XMU_LIBRARY)
-      LINK_LIBRARIES(${CMAKE_X_LIBS})
+      SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};${CMAKE_X_LIBS}")
     ENDIF (VTK_USE_X)
 
     #
     # Win32 flags
     #
-	IF (WIN32)
+    IF (WIN32)
       # - Avoid the glutCreateMenu_ATEXIT_HACK pb.
       # - Sort-of a hack to avoid the bug in glut.h to avoid
       #   ambiguity between 'std::exit(int)' and 'std::exit(int)' in function
       ADD_DEFINITIONS (-DGLUT_DISABLE_ATEXIT_HACK)
       ADD_DEFINITIONS (-DGLUT_BUILDING_LIB)
-	ENDIF (WIN32)
+    ENDIF (WIN32)
 
     #
     # Apple flags
@@ -204,10 +216,7 @@ IF (FTGL_BUILD_EXAMPLES)
     #
     # Link examples to FTGL and Freetype
     #
-    LINK_LIBRARIES (
-      vtkftgl
-      vtkfreetype
-    )
+    SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};vtkftgl;vtkfreetype")
 
     #
     # Example 1
@@ -218,11 +227,13 @@ IF (FTGL_BUILD_EXAMPLES)
       demo/FTGLDemo.cpp
     )
     ADD_EXECUTABLE (ftgl_demo ${FTGL_DEMO_SRCS})
+    TARGET_LINK_LIBRARIES(ftgl_demo ${VTKFTGL_EXAMPLES_LIBS})
 
     #
     # Example 2
     #
     ADD_EXECUTABLE (ftgl_demo2 demo/demo.cpp)
+    TARGET_LINK_LIBRARIES(ftgl_demo2 ${VTKFTGL_EXAMPLES_LIBS})
 
   ENDIF (GLU_LIBRARY AND GLUT_LIBRARY)
 

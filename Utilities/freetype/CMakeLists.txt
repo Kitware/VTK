@@ -71,9 +71,9 @@ ENDIF (WIN32)
 # Unix flags and specific drivers
 #
 IF (UNIX)
-  # IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
-  SET (VTKFREETYPE_HPUX_SOURCE 1)
-  # ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+  IF (CMAKE_SYSTEM MATCHES "HP-UX.*")
+    SET (VTKFREETYPE_HPUX_SOURCE 1)
+  ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
   SET( FREETYPE_SRCS ${FREETYPE_SRCS} builds/unix/ftsystem.c)
   CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/builds/unix/ftconfig.h.in
                   ${VTKFREETYPE_BINARY_DIR}/builds/unix/ftconfig.h)
