@@ -85,10 +85,6 @@ class vtkTkRenderWidget(Tkinter.Widget):
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         Tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
-        # initialize some variables
-        self._RenderWindow = renderWindow
-        renderWindow.UnRegister(renderWindow)
-        
         self._CurrentRenderer = None
         self._CurrentCamera = None
         self._CurrentZoom = 1.0
@@ -114,6 +110,15 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
         # create the Tk bindings
         self.BindTkRenderWidget()
+
+    def __getattr__(self,attr):
+        # because the tk part of vtkTkRenderWidget must have
+        # the only remaining reference to the RenderWindow when
+        # it is destroyed, we can't actually store the RenderWindow
+        # as an attribute but instead have to get it from the tk-side
+        if attr == '_RenderWindow':
+            return self.GetRenderWindow()
+        return Tkinter.Widget.__getattr__(self,attr)
 
     def BindTkRenderWidget(self):
         """
@@ -152,7 +157,8 @@ class vtkTkRenderWidget(Tkinter.Widget):
         return self._CurrentZoom
 
     def GetRenderWindow(self):
-        return self._RenderWindow
+        addr = self.tk.call(self._w, 'GetRenderWindow')[5:]
+        return vtkRenderWindow('_%s_vtkRenderWindow_p' % addr)
 
     def GetPicker(self):
         return self._Picker
@@ -224,12 +230,9 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
     def StartMotion(self,x,y):
         self.UpdateRenderer(x,y)
-        if self._CurrentRenderer:
-            self._RenderWindow.SetDesiredUpdateRate(1.0)
 
     def EndMotion(self,x,y):
         if self._CurrentRenderer:
-            self._RenderWindow.SetDesiredUpdateRate(0.1)
             self.Render()
 
     def Rotate(self,x,y):
@@ -394,8 +397,7 @@ if __name__ == "__main__":
     pane = vtkTkRenderWidget(root,width=300,height=300)
 
     ren = vtkRenderer()
-    renWin = pane.GetRenderWindow()
-    renWin.AddRenderer(ren)
+    pane.GetRenderWindow().AddRenderer(ren)
 
     cone = vtkConeSource()
     cone.SetResolution(8)
