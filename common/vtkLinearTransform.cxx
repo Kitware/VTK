@@ -54,7 +54,7 @@ void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------
 template <class T>
-static inline void vtkLinearTransformPoint(const T in[3], T out[3], 
+static inline void vtkLinearTransformPoint(T in[3], T out[3], 
 					   double matrix[4][4])
 {
   float x = in[0];
@@ -67,7 +67,7 @@ static inline void vtkLinearTransformPoint(const T in[3], T out[3],
 }
 
 //------------------------------------------------------------------------
-void vtkLinearTransform::TransformPoint(const float in[3], float out[3])
+void vtkLinearTransform::TransformPoint(float in[3], float out[3])
 {
   this->Update();
 
@@ -76,7 +76,7 @@ void vtkLinearTransform::TransformPoint(const float in[3], float out[3])
 
 //------------------------------------------------------------------------
 
-void vtkLinearTransform::TransformPoint(const double in[3], double out[3])
+void vtkLinearTransform::TransformPoint(double in[3], double out[3])
 {
   this->Update();
 
@@ -84,14 +84,14 @@ void vtkLinearTransform::TransformPoint(const double in[3], double out[3])
 }
 
 //------------------------------------------------------------------------
-void vtkLinearTransform::InternalTransformPoint(const float in[3], 
+void vtkLinearTransform::InternalTransformPoint(float in[3], 
 						float out[3])
 {
   vtkLinearTransformPoint(in,out,this->Matrix->Element);
 }
 
 //----------------------------------------------------------------------------
-void vtkLinearTransform::InternalTransformDerivative(const float in[3], 
+void vtkLinearTransform::InternalTransformDerivative(float in[3], 
 						     float out[3],
 						     float derivative[3][3])
 {

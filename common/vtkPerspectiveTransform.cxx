@@ -54,7 +54,7 @@ void vtkPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------
 template <class T>
-static inline void vtkPerspectiveTransformPoint(const T in[3], T out[3], 
+static inline void vtkPerspectiveTransformPoint(T in[3], T out[3], 
 					   double M[4][4])
 {
   float x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
@@ -69,7 +69,7 @@ static inline void vtkPerspectiveTransformPoint(const T in[3], T out[3],
 }
 
 //------------------------------------------------------------------------
-void vtkPerspectiveTransform::TransformPoint(const float in[3], 
+void vtkPerspectiveTransform::TransformPoint(float in[3], 
 					     float out[3])
 {
   this->Update();
@@ -79,7 +79,7 @@ void vtkPerspectiveTransform::TransformPoint(const float in[3],
 
 //------------------------------------------------------------------------
 
-void vtkPerspectiveTransform::TransformPoint(const double in[3], 
+void vtkPerspectiveTransform::TransformPoint(double in[3], 
 					     double out[3])
 {
   this->Update();
@@ -88,14 +88,14 @@ void vtkPerspectiveTransform::TransformPoint(const double in[3],
 }
 
 //------------------------------------------------------------------------
-void vtkPerspectiveTransform::InternalTransformPoint(const float in[3], 
+void vtkPerspectiveTransform::InternalTransformPoint(float in[3], 
 						     float out[3])
 {
   vtkPerspectiveTransformPoint(in,out,this->Matrix->Element);
 }
 
 //----------------------------------------------------------------------------
-void vtkPerspectiveTransform::InternalTransformDerivative(const float in[3], 
+void vtkPerspectiveTransform::InternalTransformDerivative(float in[3], 
 						    float out[3],
 						    float derivative[3][3])
 {

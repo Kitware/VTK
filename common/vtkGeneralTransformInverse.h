@@ -100,13 +100,13 @@ public:
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
+  void InternalTransformPoint(float in[3], float out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
-  void InternalTransformDerivative(const float in[3], float out[3],
+  void InternalTransformDerivative(float in[3], float out[3],
 				   float derivative[3][3]);
 
 protected:

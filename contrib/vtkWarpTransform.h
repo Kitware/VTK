@@ -67,13 +67,13 @@ public:
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
+  void InternalTransformPoint(float in[3], float out[3]);
 
   // Description:
   // This will calculate the transformation as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
-  void InternalTransformDerivative(const float in[3], float out[3],
+  void InternalTransformDerivative(float in[3], float out[3],
 				   float derivative[3][3]);
 
 protected:
@@ -87,10 +87,10 @@ protected:
   // an interative technique such as Newton's method.  The InverseFlag
   // specifies whether we should calculate the inverse transformation
   // instead of providing the forward transformation.
-  virtual void ForwardTransformPoint(const float in[3], float out[3]) = 0;
-  virtual void ForwardTransformDerivative(const float in[3], float out[3],
+  virtual void ForwardTransformPoint(float in[3], float out[3]) = 0;
+  virtual void ForwardTransformDerivative(float in[3], float out[3],
 					  float derivative[3][3]) = 0;
-  virtual void InverseTransformPoint(const float in[3], float out[3]) = 0;
+  virtual void InverseTransformPoint(float in[3], float out[3]) = 0;
 
   int InverseFlag;
 };

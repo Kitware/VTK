@@ -378,7 +378,7 @@ void vtkThinPlateSplineTransform::Update()
 // The matrix W was created by Update.  Not much has to be done to
 // apply the transform:  do an affine transformation, then do
 // perturbations based on the landmarks.
-void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
+void vtkThinPlateSplineTransform::ForwardTransformPoint(float point[3],
 							float output[3])
 {
   int N = this->NumberOfPoints;
@@ -429,7 +429,7 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
 //----------------------------------------------------------------------------
 // calculate the thin plate spline as well as the derivative
 void vtkThinPlateSplineTransform::ForwardTransformDerivative(
-						       const float point[3],
+						       float point[3],
 						       float output[3],
 						       float derivative[3][3])
 {
@@ -521,7 +521,7 @@ void vtkThinPlateSplineTransform::ForwardTransformDerivative(
 // Simply switching the input & output landmarks will not invert the 
 // transform, so instead we use Newton's method to iteratively invert
 // the transformation.
-void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3], 
+void vtkThinPlateSplineTransform::InverseTransformPoint(float point[3], 
 							float output[3])
 {
   if (this->NumberOfPoints == 0)
