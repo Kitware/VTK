@@ -89,7 +89,7 @@ void vtkHedgeHog::Execute()
   //
   for (ptId=0; ptId < numPts; ptId++)
     {
-    if ( ! (i % 10000) ) //abort/progress
+    if ( ! (ptId % 10000) ) //abort/progress
       {
       this->UpdateProgress ((float)ptId/numPts);
       if (this->GetAbortExecute())
