@@ -58,8 +58,6 @@ void vlStructuredDataSet::SetDimensions(int i, int j, int k)
 
 void vlStructuredDataSet::SetDimensions(int dim[3])
 {
-  int i;
-
   if ( dim[0] != this->Dimensions[0] || dim[1] != Dimensions[1] ||
   dim[2] != Dimensions[2] )
     {

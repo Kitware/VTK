@@ -116,6 +116,8 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       break;
 
     case XYZ_GRID:
+      { // braces necessary because some compilers don't like jumping
+        // over initializers
       int cd01 = this->Dimensions[0]*this->Dimensions[1];
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
@@ -124,6 +126,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       kMin = cellId / cd01;
       kMax = kMin + 1;
       cell = &brick;
+      }
       break;
     }
 

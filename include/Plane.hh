@@ -31,7 +31,7 @@ public:
   char *GetClassName() {return "vlPlane";};
 
   // project point onto plane, returning coordinates
-  int ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3]);
+  void ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3]);
 
   float Evaluate(float normal[3], float origin[3], float x[3])
     {return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 

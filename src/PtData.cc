@@ -252,7 +252,7 @@ static vlFloatVectors cellVectors(MAX_CELL_SIZE);
 static vlFloatNormals cellNormals(MAX_CELL_SIZE);
 static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
 
-void vlPointData::InterpolateInitialize(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1)
+void vlPointData::InterpolateInitialize(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
 {
   this->CopyInitialize(pd, sze, ext, sFlg, vFlg, nFlg, tFlg);
 

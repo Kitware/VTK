@@ -42,11 +42,7 @@ public:
   vlIntPoints &operator=(const vlIntPoints& fp);
   void operator+=(const vlIntPoints& fp) {this->P += fp.P;};
 
-  float *GetPoint(int i) 
-    {static float x[3];
-    int *iptr=this->P.GetPtr(3*i);
-    x[0] = (float)iptr[0]; x[1] = (float)iptr[1]; x[2] = (float)iptr[2];
-    return x;};
+  float *GetPoint(int i);
   void SetPoint(int i, float x[3]) 
     {i*=3; this->P[i]=(int)x[0]; this->P[i+1]=(int)x[1]; this->P[i+2]=(int)x[2];};
   void InsertPoint(int i, float *x) {

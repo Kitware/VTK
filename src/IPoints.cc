@@ -32,3 +32,10 @@ vlIntPoints& vlIntPoints::operator=(const vlIntPoints& fp)
   return *this;
 }
 
+float *vlIntPoints::GetPoint(int i)
+{
+  static float x[3];
+  int *iptr = this->P.GetPtr(3*i);
+  x[0] = (float)iptr[0]; x[1] = (float)iptr[1]; x[2] = (float)iptr[2];
+  return x;
+};

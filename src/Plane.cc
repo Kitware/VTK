@@ -29,7 +29,7 @@ vlPlane::vlPlane()
   this->Origin[2] = 0.0;
 }
 
-int vlPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
+void vlPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
 {
   int i;
   vlMath math;

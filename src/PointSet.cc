@@ -37,8 +37,8 @@ unsigned long int vlPointSet::GetMTime()
 {
   unsigned long int dsTime = vlDataSet::GetMTime();
 
-  if ( this->Points.GetMTime() > dsTime ) dsTime = this->Points.GetMTime();
-  if ( this->Locator.GetMTime() > dsTime ) dsTime = this->Locator.GetMTime();
+  if ( this->Points->GetMTime() > dsTime ) dsTime = this->Points->GetMTime();
+  if ( this->Locator->GetMTime() > dsTime ) dsTime = this->Locator->GetMTime();
 
   return dsTime;
 }

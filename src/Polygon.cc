@@ -465,6 +465,7 @@ int vlPolygon::Triangulate(vlIdList &outTris)
       outTris.InsertId(i,this->PointIds.GetId(Tris.GetId(i)));
       }
     }
+  return 1;
 }
 
 //
@@ -569,7 +570,7 @@ int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 //
 //  Create two loops from the one using the splitting vertices provided.
 //
-  SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
+  this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
 //
 //  Create splitting plane.  Splitting plane is parallel to the loop
 //  plane normal and contains the splitting vertices fedges[0] and fedges[1].

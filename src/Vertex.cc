@@ -24,7 +24,6 @@ int vlPoint::EvaluatePosition(float x[3], int& subId, float pcoords[3],
 {
   int numPts;
   float *X;
-  float dist2;
   vlMath math;
 
   subId = 0;
