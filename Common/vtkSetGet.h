@@ -554,7 +554,7 @@ virtual float *Get##name() \
   { \
     return this->thisClass::IsTypeOf(type); \
   } \
-  static thisClass* SafeDownCast(vtkObject *o) \
+  static thisClass* SafeDownCast(vtkObjectBase *o) \
   { \
     if ( o && o->IsA(#thisClass) ) \
       { \
@@ -563,7 +563,7 @@ virtual float *Get##name() \
     return NULL;\
   } \
   protected: \
-  virtual vtkObject *NewInstanceInternal() const \
+  virtual vtkObjectBase *NewInstanceInternal() const \
   { \
     return thisClass::New(); \
   } \
