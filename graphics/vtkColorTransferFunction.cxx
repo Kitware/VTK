@@ -88,6 +88,32 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   this->Blue = NULL;  
 }
 
+unsigned long int vtkColorTransferFunction::GetMTime()
+{
+  unsigned long mTime=this->vtkScalarsToColors::GetMTime();
+  unsigned long time;
+
+  if ( this->Red != NULL )
+    {
+    time = this->Red->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->Green != NULL )
+    {
+    time = this->Green->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  if ( this->Blue != NULL )
+    {
+    time = this->Blue->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
+
 // Returns the sum of the number of function points used to specify 
 // the three independent functions (R,G,B)
 int vtkColorTransferFunction::GetTotalSize()

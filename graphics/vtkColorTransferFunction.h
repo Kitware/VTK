@@ -65,6 +65,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Get the color transfer function mtime plus consider its three
+  // piecewise functions.
+  unsigned long int GetMTime();
+  
+  // Description:
   // Returns the sum of the number of function points used to specify 
   // the three independent functions (R,G,B).
   int  GetTotalSize();
