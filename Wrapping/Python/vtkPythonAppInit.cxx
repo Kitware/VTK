@@ -89,7 +89,7 @@ static vtkMPICleanup VTKMPICleanup;
 #endif // VTK_COMPILED_USING_MPI
 
 extern "C" {
-  extern DL_EXPORT(int) Py_Main(int, char **);
+  extern DL_IMPORT(int) Py_Main(int, char **);
 }
 
 static void vtkPythonAppInitEnableMSVCDebugHook();
