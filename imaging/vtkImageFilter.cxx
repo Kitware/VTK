@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkTimerLog.h"
 #include "vtkImageFilter.h"
 #include "vtkImageCache.h"
 
@@ -204,6 +205,8 @@ void vtkImageFilter::UpdatePointData2(int dim, vtkImageRegion *inRegion,
   inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
   
+  vtkTimerLogMacro("Entering Update");
+  
   // determine the amount of memory that will be used by the input region.
   memory = inRegion->GetVolume();
   switch (this->Input->GetScalarType())
@@ -279,6 +282,7 @@ void vtkImageFilter::UpdatePointData2(int dim, vtkImageRegion *inRegion,
   this->Input->UpdateRegion(inRegion);
   // fill the output region 
   this->Execute(dim, inRegion, outRegion);
+  vtkTimerLogMacro("Finished Update");
 }
 
 
