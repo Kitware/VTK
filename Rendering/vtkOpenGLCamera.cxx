@@ -30,7 +30,7 @@
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.49");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.50");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -145,9 +145,12 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->GetAspect(aspect);
 
   glMatrixMode( GL_PROJECTION);
-  matrix->DeepCopy(this->GetPerspectiveTransformMatrix(1.0*usize/vsize,
-                                                       -1,1));
-  matrix->Transpose();
+  if(usize && vsize)
+    {
+    matrix->DeepCopy(this->GetPerspectiveTransformMatrix(1.0*usize/vsize,
+                                                         -1,1));
+    matrix->Transpose();
+    }
   if(ren->GetIsPicking())
     {
     int size[2]; size[0] = usize; size[1] = vsize;
