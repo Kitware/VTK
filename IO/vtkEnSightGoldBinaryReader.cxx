@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.37");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.38");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -700,7 +700,6 @@ int vtkEnSightGoldBinaryReader::SkipRectilinearGrid(char line[256])
   int lineRead = 1;
   int iblanked = 0;
   int dimensions[3];
-  float *tempCoords;
   int numPts;
   
   if (sscanf(line, " %*s %*s %s", subLine) == 1)
@@ -1077,7 +1076,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
   char line[80]; 
   int partId, numPts, i;
   vtkFloatArray *vectors;
-  float tuple[3], vector[3];
+  float tuple[3];
   float *comp1, *comp2, *comp3;
   float *vectorsRead;
   vtkDataSet *output;
