@@ -7,7 +7,7 @@ vtkPNMReader pnmReader
   pnmReader SetFileName "../../vtkdata/masonry.ppm"
   #pnmReader SetFileName "../../vtkdata/billBoard.pgm"
 
-vtkImageXViewer viewer
+vtkImageViewer viewer
   viewer SetColorWindow 160
   viewer SetColorLevel 80
   viewer SetInput [pnmReader GetOutput]
