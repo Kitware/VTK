@@ -12,6 +12,7 @@ ME = Imaging
 
 # put all vtkFoo.cxx files here as .o files
 SRC_OBJ = \
+vtkImageAdaptiveFilter.o \
 vtkImageAnisotropicDiffusion2D.o \
 vtkImageAnisotropicDiffusion3D.o \
 vtkImageArithmetic.o \
@@ -60,6 +61,7 @@ vtkImageXViewer.o
 
 # put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o \ files
 TCL_OBJ = \
+tcl/vtkImageAdaptiveFilterTcl.o \
 tcl/vtkImageAnisotropicDiffusion2DTcl.o \
 tcl/vtkImageAnisotropicDiffusion3DTcl.o \
 tcl/vtkImageArithmeticTcl.o \
@@ -107,6 +109,7 @@ tcl/vtkImageXViewerTcl.o
 
 # put all vtk classes that are concrete here as vtkFooTcl.h files
 TCL_NEWS = \
+vtkImageAdaptiveFilter.h \
 vtkImageAnisotropicDiffusion2D.h \
 vtkImageAnisotropicDiffusion3D.h \
 vtkImageArithmetic.h \
@@ -208,6 +211,8 @@ CLEAN_TCL         = @CLEAN_TCL@
 #
 # concrete classes will pass the last argument of 1 abstract will be 0.
 #
+tcl/vtkImageAdaptiveFilterTcl.cxx: vtkImageAdaptiveFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageAdaptiveFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageAdaptiveFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageAdaptiveFilterTcl.cxx
 
 tcl/vtkImageAnisotropicDiffusion2DTcl.cxx: vtkImageAnisotropicDiffusion2D.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageAnisotropicDiffusion2DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageAnisotropicDiffusion2D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageAnisotropicDiffusion2DTcl.cxx
