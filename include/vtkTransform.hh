@@ -44,10 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkTransform maintains a stack of 4x4 transformation matrices.  A
 // variety of methods are provided to manipulate the translation,
 // scale, and rotation components of the matrix.  Methods operate on
-// the transformation at the top of the stack.
+// the matrix at the top of the stack. Many object such as vtkActor and
+// vtkCamera use this class for performing their matrix operations.
+
 // .SECTION Caveats
 // By default the initial matrix is the identity matrix.
 // .EXAMPLE XFormSph.cc
+// .SECTION see also
+// vtkMatrix4x4
 
 #ifndef __vtkTransform_hh
 #define __vtkTransform_hh
