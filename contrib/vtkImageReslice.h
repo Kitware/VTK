@@ -167,22 +167,24 @@ public:
   // The OutputSpacing default is (1,1,1), and the 
   // default OutputOrigin and OutputExtent are set to cover the entire
   // transformed input extent.
+  //
+  // NOTE: The OutputOrigin and OutputExtent values are only used if
+  // OutputAlwaysCenteredOnInputOff. Otherwise, they are automatically computed.
   vtkSetVector3Macro(OutputSpacing, float);
   vtkGetVector3Macro(OutputSpacing, float);
   vtkSetVector3Macro(OutputOrigin, float);
   vtkGetVector3Macro(OutputOrigin, float);
   vtkSetVector6Macro(OutputExtent, int);
   vtkGetVector6Macro(OutputExtent, int);
+  vtkSetClampMacro( OutputAlwaysCenteredOnInput, int, 0, 1 );
+  vtkGetMacro( OutputAlwaysCenteredOnInput, int );
+  vtkBooleanMacro( OutputAlwaysCenteredOnInput, int );
+  
 
   // Description:
   // When determining the modified time of the filter, 
   // this check the modified time of the transform and matrix.
   unsigned long int GetMTime();
-
-  // Description:
-  // We need to override the SetInput method in order to reset some
-  // parameters to default values when the input is changed
-  virtual void SetInput(vtkImageData *input);
 
 //BTX
   // Description:
@@ -208,7 +210,8 @@ protected:
   float OutputOrigin[3];
   float OutputSpacing[3];
   int OutputExtent[6];
-
+  int OutputAlwaysCenteredOnInput;
+  
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

@@ -78,6 +78,8 @@ vtkImageReslice::vtkImageReslice()
   this->OutputExtent[2] = this->OutputExtent[3] = INT_MAX;
   this->OutputExtent[4] = this->OutputExtent[5] = INT_MAX;
 
+  this->OutputAlwaysCenteredOnInput = 0;
+  
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
   this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
@@ -105,24 +107,6 @@ vtkImageReslice::~vtkImageReslice()
     this->IndexMatrix->Delete();
     }
 }
-//----------------------------------------------------------------------------
-
-void vtkImageReslice::SetInput( vtkImageData *input )
-{
-  // Call the superclasses method
-  this->vtkImageToImageFilter::SetInput( input );
-  
-  // flag to set defaults later
-  this->OutputOrigin[0] = FLT_MAX;
-  this->OutputOrigin[1] = FLT_MAX;
-  this->OutputOrigin[2] = FLT_MAX;
-
-  // ditto
-  this->OutputExtent[0] = this->OutputExtent[1] = INT_MAX;
-  this->OutputExtent[2] = this->OutputExtent[3] = INT_MAX;
-  this->OutputExtent[4] = this->OutputExtent[5] = INT_MAX;  
-}
-
 
 //----------------------------------------------------------------------------
 void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
@@ -147,6 +131,8 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputExtent[1] << " " << this->OutputExtent[2] << " " <<
     this->OutputExtent[3] << " " << this->OutputExtent[4] << " " <<
     this->OutputExtent[5] << "\n";
+  os << indent << "OutputAlwaysCenteredOnInput: " << 
+    (this->OutputAlwaysCenteredOnInput ? "On\n":"Off\n");
   os << indent << "Wrap: " << (this->Wrap ? "On\n":"Off\n");
   os << indent << "Mirror: " << (this->Mirror ? "On\n":"Off\n");
   os << indent << "InterpolationMode: " 
@@ -428,7 +414,7 @@ invertible");
     }
 
   // default extent covers entire input extent
-  if (this->OutputExtent[0] == INT_MAX)
+  if ( this->OutputAlwaysCenteredOnInput || this->OutputExtent[0] == INT_MAX)
     {
     for (i = 0; i < 3; i++)
       {
@@ -476,7 +462,7 @@ invertible");
       this->OutputExtent[2*i+1] = inWholeExt[2*i]+
 	vtkResliceCeil((maxOut[i]-minOut[i])/spacing);
 
-      if (this->OutputOrigin[i] == FLT_MAX)
+      if (this->OutputAlwaysCenteredOnInput || this->OutputOrigin[i] == FLT_MAX )
 	{
 	this->OutputOrigin[i] = minOut[i]-this->OutputExtent[2*i]*spacing;
 	}
@@ -484,7 +470,7 @@ invertible");
     }
 
   // default origin places centre of output over centre of input
-  if (this->OutputOrigin[0] == FLT_MAX)
+  if (this->OutputAlwaysCenteredOnInput || this->OutputOrigin[0] == FLT_MAX )
     {
     for (i = 0; i < 3; i++)
       {
