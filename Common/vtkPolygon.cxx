@@ -988,7 +988,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   // determine whether point is inside of polygon
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-       (this->PointInPolygon(closest, this->Points->GetNumberOfPoints(), 
+       (this->PointInPolygon(x, this->Points->GetNumberOfPoints(), 
                              ((vtkFloatArray *)this->Points->GetData())
                              ->GetPointer(0), this->GetBounds(),n)
         == VTK_POLYGON_INSIDE) )
