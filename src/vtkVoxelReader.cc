@@ -104,5 +104,6 @@ void vtkVoxelReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
 }

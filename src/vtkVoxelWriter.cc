@@ -138,7 +138,8 @@ void vtkVoxelWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
 
-  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
 }
 
 

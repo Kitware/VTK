@@ -691,10 +691,8 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkWriter::PrintSelf(os,indent);
 
-  if ( this->Filename )
-    os << indent << "Filename: " << this->Filename << "\n";
-  else
-    os << indent << "Filename: (None)\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
 
   if ( this->FileType == VTK_BINARY )
     os << indent << "File Type: BINARY\n";

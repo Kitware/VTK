@@ -429,7 +429,8 @@ void vtkCyberReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
 }
 
 //---------------------- Cyberware code follows ---------------------------//

@@ -293,7 +293,8 @@ void vtkPNMReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredPointsSource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
   os << indent << "Image Range: (" << this->ImageRange[0] << ", " 
      << this->ImageRange[1] << ")\n";
   os << indent << "Data Origin: (" << this->DataOrigin[0] << ", "

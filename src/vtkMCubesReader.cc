@@ -217,8 +217,10 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Filename: " << this->Filename << "\n";
-  os << indent << "Limits Filename: " << this->LimitsFilename << "\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "Limits Filename: " 
+     << (this->LimitsFilename ? this->LimitsFilename : "(none)") << "\n";
   os << indent << "Normals: " << (this->Normals ? "On\n" : "Off\n");
   os << indent << "FlipNormals: " << (this->FlipNormals ? "On\n" : "Off\n");
 }

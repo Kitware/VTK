@@ -277,12 +277,16 @@ void vtkBYUReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Geometry Filename: " << this->GeometryFilename << "\n";
+  os << indent << "Geometry Filename: " 
+     << (this->GeometryFilename ? this->GeometryFilename : "(none)") << "\n";
   os << indent << "Read Displacement: " << (this->ReadDisplacement ? "On\n" : "Off\n");
-  os << indent << "Displacement Filename: " << this->DisplacementFilename << "\n";
+  os << indent << "Displacement Filename: " 
+     << (this->DisplacementFilename ? this->DisplacementFilename : "(none)") << "\n";
   os << indent << "Read Scalar: " << (this->ReadScalar ? "On\n" : "Off\n");
-  os << indent << "Scalar Filename: " << this->ScalarFilename << "\n";
+  os << indent << "Scalar Filename: " 
+     << (this->ScalarFilename ? this->ScalarFilename : "(none)") << "\n";
   os << indent << "Read Texture: " << (this->ReadTexture ? "On\n" : "Off\n");
-  os << indent << "Texture Filename: " << this->TextureFilename << "\n";
+  os << indent << "Texture Filename: " 
+     << (this->TextureFilename ? this->TextureFilename : "(none)") << "\n";
 }
 

@@ -566,10 +566,8 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
 
-  if ( this->Filename )
-    os << indent << "Filename: " << this->Filename << "\n";
-  else
-    os << indent << "Filename: (None)\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
 }
 
 

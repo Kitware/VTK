@@ -366,13 +366,8 @@ void vtkSliceCubes::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Reader: (none)\n";
     }
 
-  if ( this->Filename )
-    os << indent << "Filename: " << this->Filename << "\n";
-  else
-    os << indent << "Filename: (None)\n";
-
-  if ( this->LimitsFilename )
-    os << indent << "Limits Filename: " << this->LimitsFilename << "\n";
-  else
-    os << indent << "Limits Filename: (None)\n";
+  os << indent << "Filename: " 
+     << (this->Filename ? this->Filename : "(none)") << "\n";
+  os << indent << "Limits Filename: " 
+     << (this->LimitsFilename ? this->LimitsFilename : "(none)") << "\n";
 }
