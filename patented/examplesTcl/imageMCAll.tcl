@@ -30,7 +30,7 @@ foreach vtkType $types {
     castTo$vtkType SetInput [clip$vtkType GetOutput]
     castTo$vtkType ClampOverflowOn
 
-  vtkImageMarchingCubes iso$vtkType
+  vtkMarchingContourFilter iso$vtkType
     iso$vtkType SetInput [castTo$vtkType GetOutput]
     iso$vtkType GenerateValues 1 30 30
 
