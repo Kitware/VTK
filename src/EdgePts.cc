@@ -34,6 +34,13 @@ void vlEdgePoints::Execute()
   vlScalars *inScalars;
   vlFloatPoints *newPts;
   vlCellArray *newVerts;
+  int cellId, above, below, ptId, i, numEdges, edgeId;
+  vlCell *cell, *edge;
+  float range[2];
+  float s0, s1, x0[3], x1[3], x[3], r;
+  vlFloatScalars *newScalars, cellScalars(MAX_CELL_SIZE);
+  vlIdList neighbors(MAX_CELL_SIZE);
+  int visitedNei, nei, pts[1];
 
   vlDebugMacro(<< "Generating edge points");
 //
@@ -47,12 +54,16 @@ void vlEdgePoints::Execute()
     return;
     }
 
-  range = inScalars->GetRange();
-  if ( value < range[0] || value > range[1] )
+  inScalars->GetRange(range);
+  if ( this->Value < range[0] || this->Value > range[1] )
     {
-    vlErrorMacro(<<"Value lies outside of scalar range");
+    vlWarningMacro(<<"Value lies outside of scalar range");
     return;
     }
+
+  newPts = new vlFloatPoints(5000,10000);
+  newScalars = new vlFloatScalars(5000,10000);
+  newVerts = new vlCellArray(5000,10000);
 //
 // Traverse all edges. Since edges are not explicitly represented, use a
 // trick: traverse all cells and obtain cell edges and then cell edge
@@ -61,9 +72,8 @@ void vlEdgePoints::Execute()
 //
   for (cellId=0; cellId<Input->GetNumberOfCells(); cellId++)
     {
-    cell = Input->GetCell(cellId);
-    cellPts = cell->GetPointIds();
-    inScalars->GetScalars(*cellPts,cellScalars);
+    cell = this->Input->GetCell(cellId);
+    inScalars->GetScalars(cell->PointIds,cellScalars);
 
     // loop over 8 points of voxel to check if cell straddles value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
@@ -78,7 +88,7 @@ void vlEdgePoints::Execute()
       {
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
         {
-        cell->Contour(value, &cellScalars, newPts, newVerts, NULL, 
+        cell->Contour(this->Value, &cellScalars, newPts, newVerts, NULL, 
                       NULL, newScalars);
         }
 
@@ -90,35 +100,53 @@ void vlEdgePoints::Execute()
           edge = cell->GetEdge(edgeId);
           inScalars->GetScalars(edge->PointIds,cellScalars);
 
-          if ( ((s0=cellScalars.GetScalar(0)) < this->Value &&
-          (s1=cellScalars.GetScalar(1)) >= this->Value) ||
+          s0 = cellScalars.GetScalar(0);
+          s1 = cellScalars.GetScalar(1);
+          if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
             {
-            this->GetCellNeighbors(cellId,edge->PointIds,neighbors);
-            for (i=0; i<neighbors.GetNumberOf
-            
-          }
-
-        }
-      }
-    }
+            this->Input->GetCellNeighbors(cellId,edge->PointIds,neighbors);
+            for (visitedNei=0, i=0; i<neighbors.GetNumberOfIds(); i++)
+              {
+              if ( neighbors.GetId(i) < cellId )
+                {
+                visitedNei = 1;
+                break;
+                }
+              }
+            if ( ! visitedNei ) //interpolate edge for point
+              {
+              edge->Points.GetPoint(0,x0);
+              edge->Points.GetPoint(1,x1);
+              r = (this->Value - s0) / (s1 - s0);
+              for (i=0; i<3; i++) x[i] = x0[i] + r * (x1[i] - x0[i]);
+              pts[0] = newPts->InsertNextPoint(x);
+              newScalars->InsertScalar(pts[0],this->Value);
+              newVerts->InsertNextCell(1,pts);
+              }
+            }
+          } //for each edge
+        } //dimension 2 and higher
+      } //above and below
+    } //for all cells
 
   vlDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");
 //
-// Update ourselves.  Because we don't know up front how many verts, lines,
-// polys we've created, take care to reclaim memory. 
+// Update ourselves.  Because we don't know up front how many verts we've 
+// created, take care to reclaim memory. 
 //
   this->SetPoints(newPts);
   this->SetVerts(newVerts);
+  this->PointData.SetScalars(newScalars);
 
   this->Squeeze();
 }
 
 void vlEdgePoints::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
 
-  os << indent << "Contour Values: " << this->Value << "\n";
+  os << indent << "Contour Value: " << this->Value << "\n";
 
 }
 
