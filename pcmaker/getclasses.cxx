@@ -133,8 +133,10 @@ void doMSHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
   fprintf(fp,"# ADD BASE CPP /nologo /MD /W3 /GX /O2 /D \"WIN32\" /D \"NDEBUG\" /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /Yu\"stdafx.h\" /c\n");
-  fprintf(fp,"# ADD CPP /nologo /MD /GX /O2 /I \"%s\\common\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\" /YX /c\n",vtkHome);
-  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\common\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",vtkHome);
+  fprintf(fp,"# ADD CPP /nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\" /YX /c\n",
+    vtkHome,vtkHome);
+  fprintf(fp,"CPP_PROJ=/nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    vtkHome,vtkHome);
   fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(INTDIR)/vtkdll.pch\" /YX /Fo\"$(INTDIR)/\" /c \n");
   fprintf(fp,"CPP_OBJS=.\\Release/\n");
@@ -199,8 +201,10 @@ void doMSHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
   fprintf(fp,"\n");
   fprintf(fp,"# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /D \"WIN32\" /D \"_DEBUG\" /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /Yu\"stdafx.h\" /c\n");
-  fprintf(fp,"# ADD CPP /nologo /MD /Gm /GX /Zi /Od /I \"%s\\common\" /D \"_DEBUG\" /D \"WIN32\" /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\" /YX /c\n",vtkHome);
-  fprintf(fp,"CPP_PROJ=/nologo /MD /Gm /GX /Zi /Od /I \"%s\\common\" /D \"_DEBUG\" /D \"WIN32\" /D\\\n",vtkHome);
+  fprintf(fp,"# ADD CPP /nologo /MD /Gm /GX /Zi /Od /I \"%s\\common\" /I \"%s\\graphics\" /D \"_DEBUG\" /D \"WIN32\" /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\" /YX /c\n",
+    vtkHome,vtkHome);
+  fprintf(fp,"CPP_PROJ=/nologo /MD /Gm /GX /Zi /Od /I \"%s\\common\" /I \"%s\\graphics\" /D \"_DEBUG\" /D \"WIN32\" /D\\\n",
+    vtkHome,vtkHome);
   fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(INTDIR)/vtkdll.pch\" /YX /Fo\"$(INTDIR)/\" /Fd\"$(INTDIR)/\" /c \n");
   fprintf(fp,"CPP_OBJS=.\\Debug/\n");
@@ -309,7 +313,8 @@ void doMSHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"# ADD CPP /Yc\"stdafx.h\"\n");
   fprintf(fp,"\n");
   fprintf(fp,"BuildCmds= \\\n");
-  fprintf(fp,"	$(CPP) /nologo /MD /GX /O2 /I \"%s\\common\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",vtkHome);
+  fprintf(fp,"	$(CPP) /nologo /MD /GX /O2 /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
+    vtkHome,vtkHome);
   fprintf(fp," /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(INTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(INTDIR)/\" /c $(SOURCE) \\\n");
   fprintf(fp,"	\n");
@@ -325,7 +330,8 @@ void doMSHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"# ADD CPP /Yc\"stdafx.h\"\n");
   fprintf(fp,"\n");
   fprintf(fp,"BuildCmds= \\\n");
-  fprintf(fp,"	$(CPP) /nologo /MD /Gm /GX /Zi /Od /I \"%s\\common\" /D \"_DEBUG\" /D \"WIN32\" /D\\\n",vtkHome);
+  fprintf(fp,"	$(CPP) /nologo /MD /Gm /GX /Zi /Od /I \"%s\\common\" /I \"%s\\graphics\" /D \"_DEBUG\" /D \"WIN32\" /D\\\n",
+    vtkHome,vtkHome);
   fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_AFXDLL\" /D \"_MBCS\" /D \"_USRDLL\" /D \"VTKDLL\"\\\n");
   fprintf(fp," /Fp\"$(INTDIR)/vtkdll.pch\" /Yc\"stdafx.h\" /Fo\"$(INTDIR)/\" /Fd\"$(INTDIR)/\" /c\\\n");
   fprintf(fp," $(SOURCE) \\\n");
@@ -392,6 +398,36 @@ void doMSHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"################################################################################\n");
 }
 
+void removeUNIXOnlyFiles()
+{
+  int i;
+
+  for (i = 0; i < num_concrete; i++)
+  {
+    if (!(strcmp(concrete[i],"vtkXRenderWindow") &&
+          strcmp(concrete[i],"vtkXRenderWindowInteractor") &&
+          strcmp(concrete[i],"vtkImageXViewer")))
+    {
+      concrete[i] = concrete[num_concrete - 1];
+      concrete_lib[i] = concrete_lib[num_concrete-1];
+      num_concrete--;
+      i--;
+    }
+  }
+  for (i = 0; i < num_abstract; i++)
+  {
+    if (!(strcmp(abstract[i],"vtkXRenderWindow") &&
+          strcmp(abstract[i],"vtkXRenderWindowInteractor") &&
+          strcmp(abstract[i],"vtkImageXViewer")))
+    {
+      abstract[i] = abstract[num_abstract - 1];
+      abstract_lib[i] = abstract_lib[num_abstract - 1];
+      num_abstract--;
+      i--;
+    }
+  }
+}
+
 void makeMakefile(const char *vtkHome, const char *vtkBuild,
                   int useMS)
 {
@@ -406,6 +442,9 @@ void makeMakefile(const char *vtkHome, const char *vtkBuild,
   readInMakefile(fname,strdup("imaging"));
   sprintf(fname,"%s/contrib/Makefile.in",vtkHome);
   readInMakefile(fname,strdup("contrib"));
+
+  //remove any UNIX only stuff
+  removeUNIXOnlyFiles();
 
   // add in the OpenGL stuff etc that we need
   concrete[num_concrete] = strdup("vtkOglrRenderer");
