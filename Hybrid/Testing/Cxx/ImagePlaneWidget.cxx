@@ -77,6 +77,7 @@ int main( int argc, char *argv[] )
   planeWidgetX->SetPlaneOrientationToXAxes();  
   planeWidgetX->SetSliceIndex(32);
   planeWidgetX->SetPicker(picker);
+  planeWidgetX->GetPlaneProperty()->SetColor(1,0,0);
   planeWidgetX->On();
 
   vtkImagePlaneWidget* planeWidgetY = vtkImagePlaneWidget::New();
@@ -85,6 +86,7 @@ int main( int argc, char *argv[] )
   planeWidgetY->SetPlaneOrientationToYAxes();
   planeWidgetY->SetSliceIndex(32);
   planeWidgetY->SetPicker(picker);
+  planeWidgetY->GetPlaneProperty()->SetColor(1,1,0);
   planeWidgetY->On();
 
   vtkImagePlaneWidget* planeWidgetZ = vtkImagePlaneWidget::New();
@@ -93,6 +95,7 @@ int main( int argc, char *argv[] )
   planeWidgetZ->SetPlaneOrientationToZAxes();
   planeWidgetZ->SetSliceIndex(46);
   planeWidgetZ->SetPicker(picker);
+  planeWidgetZ->GetPlaneProperty()->SetColor(0,0,1);
   planeWidgetZ->On();
 
   ren1->AddActor( outlineActor);
