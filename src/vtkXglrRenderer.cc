@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrLight.hh"
 #include "vtkXglrRenderWindow.hh"
 #include "vtkXglrRenderer.hh"
+#include "vtkNewVolumeRenderer.hh"
 #include "vtkVolumeRenderer.hh"
 
 
