@@ -30,6 +30,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrRenW.hh"
 #endif
 
+#ifdef USE_X
+#include "XInter.hh"
+#endif
+
+#ifdef USE_MSW
+// #include "MSWInter.hh"
+#endif
+
 vlRenderMaster::vlRenderMaster()
 {
 }
@@ -90,4 +98,23 @@ void vlRenderMaster::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
     }
+}
+
+
+// Description:
+// Create named renderer type.
+vlInteractiveRenderer *vlRenderMaster::MakeInteractiveRenderer()
+{
+
+#ifdef USE_X
+  vlXInteractiveRenderer *ren;
+  ren = new vlXInteractiveRenderer;
+  return (vlInteractiveRenderer *)ren;
+#endif
+
+#ifdef USE_MSW
+#endif
+
+  vlErrorMacro(<<"RenderMaster Error: unable to return interactive renderer.\n");
+  return (vlInteractiveRenderer *)NULL;
 }
