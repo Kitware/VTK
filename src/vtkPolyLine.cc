@@ -66,7 +66,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
   float *p, *pPrev, *pNext;
   float n_norm;
   int i, j, fillIn;
-  int aNormalComputed, normalComputed[VTK_MAX_CELL_SIZE];
+  int aNormalComputed, *normalComputed;
 //
 //  Loop over all lines. 
 // 
@@ -124,7 +124,8 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
 //
 //  Else have polyline. Initialize normal computation.
 //
-    for (i=0; i<npts && i<VTK_MAX_CELL_SIZE; i++) normalComputed[i] = 0;
+    normalComputed = new int[npts+1];
+    for (i=0; i<=npts; i++) normalComputed[i] = 0;
     p = pts->GetPoint(linePts[0]);
     pNext = pts->GetPoint(linePts[1]);
 
@@ -215,6 +216,7 @@ int vtkPolyLine::GenerateNormals(vtkPoints *pts, vtkCellArray *lines, vtkFloatNo
           }
         }
       }
+    delete [] normalComputed;
 //
 //  Check that normals don't flip around wildly.
 //
