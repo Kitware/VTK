@@ -65,7 +65,7 @@ imagerMinimum SetViewport 0 0 .5 .33
 imagerMaximum SetViewport 0 .33 .5 .667
 imagerMean SetViewport .5 0 1 .33
 imagerMedian SetViewport .5 .33 1 .667
-imager SetViewport 0 .667 .5 1
+imager SetViewport 0 .667 1 1
 
 imgWin SetSize 256 384
 imgWin Render
