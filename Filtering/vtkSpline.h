@@ -137,6 +137,7 @@ protected:
   // Helper methods
   double ComputeLeftDerivative();
   double ComputeRightDerivative();
+  int FindIndex(int size, double t);
 
 private:
   vtkSpline(const vtkSpline&);  // Not implemented.

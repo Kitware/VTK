@@ -16,7 +16,7 @@
 
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.23");
+vtkCxxRevisionMacro(vtkSpline, "1.24");
 
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
@@ -127,6 +127,37 @@ unsigned long vtkSpline::GetMTime()
 
   return mTime;
 }
+
+int vtkSpline::FindIndex(int size, double t)
+{
+  int index=0;
+  if ( size > 2 ) //bisection method for speed
+    {
+    int rightIdx = size - 1;
+    int centerIdx = rightIdx - size/2;
+    for (int converged=0; !converged; )
+      {
+      if ( this->Intervals[index] <= t && t <= this->Intervals[centerIdx] )
+        {
+        rightIdx = centerIdx;
+        }
+      else //if ( this->Intervals[centerIdx] < t && t <= this->Intervals[rightIdx] )
+        {
+        index = centerIdx;
+        }
+      if ( (index + 1) == rightIdx )
+        {
+        converged = 1;
+        }
+      else
+        {
+        centerIdx = index + (rightIdx-index)/2;
+        }
+      }//while not converged
+    }
+  return index;
+}
+
 
 void vtkSpline::PrintSelf(ostream& os, vtkIndent indent)
 {

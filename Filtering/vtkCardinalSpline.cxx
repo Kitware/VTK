@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.23");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.24");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -41,7 +41,7 @@ vtkCardinalSpline::vtkCardinalSpline ()
 // Evaluate a 1D Spline
 double vtkCardinalSpline::Evaluate (double t)
 {
-  int i, index;
+  int index;
   int size = this->PiecewiseFunction->GetSize ();
   double *intervals;
   double *coefficients;
@@ -77,16 +77,8 @@ double vtkCardinalSpline::Evaluate (double t)
     t = intervals[size - 1];
     }
 
-  // find pointer to cubic spline coefficient
-  index = 0;
-  for (i = 1; i < size; i++)
-    {
-    index = i - 1;
-    if (t < intervals[i])
-      {
-      break;
-      }
-    }
+  // find pointer to cubic spline coefficient using bisection method
+  index = this->FindIndex(size,t);
 
   // calculate offset within interval
   t = (t - intervals[index]);
