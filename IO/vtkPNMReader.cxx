@@ -18,7 +18,7 @@
 #include "vtkPNMReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPNMReader, "1.26");
+vtkCxxRevisionMacro(vtkPNMReader, "1.27");
 vtkStandardNewMacro(vtkPNMReader);
 
 char vtkPNMReaderGetChar(FILE *fp)
@@ -161,7 +161,8 @@ void vtkPNMReader::ExecuteInformation()
     }
   else
     {
-    vtkErrorMacro(<<"Unknown file type! Not a binary PGM or PPM");
+    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
+                  <<" is not a binary PGM or PPM!");
     return;
     }
 

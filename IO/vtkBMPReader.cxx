@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.34");
+vtkCxxRevisionMacro(vtkBMPReader, "1.35");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -86,7 +86,8 @@ void vtkBMPReader::ExecuteInformation()
   // compare magic number to determine file type
   if ((fgetc(fp) != 'B')||(fgetc(fp) != 'M'))
     {
-    vtkErrorMacro(<<"Unknown file type! Not a Windows BMP file!");
+    vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
+                  <<" is not a Windows BMP file!");
     fclose(fp);
     return;
     }
@@ -119,7 +120,8 @@ void vtkBMPReader::ExecuteInformation()
     // error checking
     if ((infoSize != 40)&&(infoSize != 12))
       {
-      vtkErrorMacro(<<"Unknown file type! Not a Windows BMP file!");
+      vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
+                    <<" is not a Windows BMP file!");
       fclose(fp);
       return;
       }
@@ -152,7 +154,8 @@ void vtkBMPReader::ExecuteInformation()
     // error checking
     if ((infoSize != 40)&&(infoSize != 12))
       {
-      vtkErrorMacro(<<"Unknown file type! Not a Windows BMP file!");
+      vtkErrorMacro(<<"Unknown file type! " << this->InternalFileName 
+                    <<" is not a Windows BMP file!");
       fclose(fp);
       return;
       }
