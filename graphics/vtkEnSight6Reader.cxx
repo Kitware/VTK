@@ -237,6 +237,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
   vtkPoints *newPoints = NULL;
   int i;
   vtkIdType id;
+  int tempId;
   float coords[3];
   vtkPolyData *geom;
   
@@ -320,9 +321,10 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
   for (i = 0; i < this->NumberOfMeasuredPoints; i++)
     {
     this->ReadLine(line);
-    sscanf(line, " %8d %12e %12e %12e", &id, &coords[0], &coords[1],
+    sscanf(line, " %8d %12e %12e %12e", &tempId, &coords[0], &coords[1],
 	   &coords[2]);
-    id--;
+    tempId--;
+    id = tempId;
     this->MeasuredNodeIds->InsertNextId(id);
     newPoints->InsertNextPoint(coords);
     geom->InsertNextCell(VTK_VERTEX, 1, &id);
