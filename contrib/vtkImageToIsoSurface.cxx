@@ -5,7 +5,6 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -300,6 +299,10 @@ void vtkImageToIsoSurface::Execute()
 // This method uses central differences to compute the gradient
 // of a point. Note: This method assumes that max > min for all 3 axes!
 // It does not consider aspect ratio.
+// b0 (b1, b2) indicates the boundary conditions for the three axes.: 
+// b0 = -1 => pixel is on x axis minimum of region.
+// b0 = 0 => no boundary conditions
+// b0 = +1 => pixel is on x axis maximum of region.
 template <class T>
 static void vtkImageToIsoSurfaceComputePointGradient(T *ptr, float *g,
 					     int inc0, int inc1, int inc2,
@@ -494,9 +497,9 @@ static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
     vtkImageToIsoSurfaceComputePointGradient(ptrB, gB, inc0, inc1, inc2, 
 					     b0, b1, b2);
     // Interpolate Gradient
-    g[0] = g[0] + temp * (gB[0] - g[0]);
-    g[1] = g[1] + temp * (gB[1] - g[1]);
-    g[2] = g[2] + temp * (gB[2] - g[2]);
+    g[0] = (g[0] + temp * (gB[0] - g[0])) / aspectRatio[0];
+    g[1] = (g[1] + temp * (gB[1] - g[1])) / aspectRatio[1];
+    g[2] = (g[2] + temp * (gB[2] - g[2])) / aspectRatio[2];
     if (self->ComputeGradients)
       {
       self->Gradients->InsertNextVector(g);
@@ -591,6 +594,9 @@ static void vtkImageToIsoSurfaceMarch(vtkImageToIsoSurface *self,
   int min0, max0, min1, max1, min2, max2;
   int inc0, inc1, inc2;
   T *ptr0, *ptr1, *ptr2;
+
+  // avoid warnings
+  ptr = ptr;
   
   // Get information to loop through images.
   inRegion->GetExtent(min0, max0, min1, max1, min2, max2);

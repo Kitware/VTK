@@ -1,8 +1,8 @@
 catch {load vtktcl}
 # get the interactor ui
-source vtkInt.tcl
-source colors.tcl
-source vtkImageInclude.tcl
+source ../../graphics/examplesTcl/vtkInt.tcl
+source ../../graphics/examplesTcl/colors.tcl
+source ../../imaging/examplesTcl/vtkImageInclude.tcl
 
 # First create the render master
 vtkRenderMaster rm
