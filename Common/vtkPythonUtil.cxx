@@ -109,7 +109,7 @@ static PyObject *PyVTKObject_PyString(PyVTKObject *self)
   self->vtk_ptr->Print(buf);
   buf.put('\0');
   PyObject *res = PyString_FromString(buf.str());
-  buf.freeze(0);
+  delete [] buf.str();
   return res;
 }
 
