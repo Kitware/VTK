@@ -82,7 +82,7 @@ vtkLODProp3D::vtkLODProp3D()
   this->AutomaticLODSelection         = 1;
   this->SelectedLODID                 = 1000;
   this->SelectedLODIndex              = -1;
-  this->SelectedPickLODID             = 0;
+  this->SelectedPickLODID             = 1000;
   this->AutomaticPickLODSelection     = 1;
   this->PreviousPickProp              = NULL;
   this->PreviousPickMethod            = NULL;
@@ -877,20 +877,18 @@ void vtkLODProp3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AutomaticLODSelection: " 
      << (this->AutomaticLODSelection ? "On\n" : "Off\n");
 
-  vtkPropCollection* pc = vtkPropCollection::New();
-  this->GetActors(pc);
+  os << indent << "AutomaticPickLODSelection: " 
+     << (this->AutomaticPickLODSelection ? "On\n" : "Off\n");
 
-  os << indent << "Actors: "; pc->PrintSelf(os, indent);
-  
-
+  os << indent << "SelectedPickLODID: " << this->SelectedPickLODID << endl;
 }
 
 void vtkLODProp3D::GetActors(vtkPropCollection *ac)
 {
   vtkDebugMacro(<< "vtkLODProp3D::GetActors");
+  int index = 0;
   if (this->AutomaticPickLODSelection)
     {
-    int index = 0;
     if ( this->SelectedLODIndex < 0 ||
 	 this->SelectedLODIndex >= this->NumberOfEntries )
       {
@@ -908,7 +906,12 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
       {
       this->PreviousPickProp->SetPickMethod(NULL, NULL);
       }
-    ac->AddItem(this->LODs[this->SelectedPickLODID].Prop3D);
+    index = this->ConvertIDToIndex(this->SelectedPickLODID);
+    if (index == VTK_INVALID_LOD_INDEX) 
+      {
+      return;
+      }
+    ac->AddItem(this->LODs[index].Prop3D);
     }
 }
 
