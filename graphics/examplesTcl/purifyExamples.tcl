@@ -20,7 +20,7 @@ set noTest {
    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl
    volTkInteractor.tcl spikeColor.tcl tkwin.tcl 
    purifyExamples.tcl 
-
+   combColorIso.tcl
    genPineRoot.tcl pineRoot.tcl hawaii.tcl
    mcubes.tcl LOx.tcl VolCutKnee.tcl recursiveDC.tcl
 
