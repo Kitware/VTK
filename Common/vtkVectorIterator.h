@@ -66,37 +66,33 @@ public:
   // Retrieve the data from the iterator. 
   // This method returns VTK_OK if key was retrieved correctly.
   int GetData(DType&);
-
+  
   // Description:
   // Initialize the traversal of the container. 
   // Set the iterator to the "beginning" of the container.
   void InitTraversal();
-
+  
   // Description:
-  // Check if the iterator is at the end of the container. Return 
-  // VTK_OK if it is.
+  // Check if the iterator is at the end of the container. Returns 1
+  // for yes and 0 for no.
   int IsDoneWithTraversal();
-
+  
   // Description:
   // Increment the iterator to the next location.
-  // Return VTK_OK if everything is ok.
-  int GoToNextItem();
-
+  void GoToNextItem();
+  
   // Description:
   // Decrement the iterator to the next location.
-  // Return VTK_OK if everything is ok.
-  int GoToPreviousItem();
-
+  void GoToPreviousItem();
+  
   // Description:
   // Go to the first item of the list.
-  // Return VTK_OK if everything is ok.
-  int GoToFirstItem() { this->InitTraversal(); return VTK_OK; }
-
+  void GoToFirstItem();
+  
   // Description:
   // Go to the last item of the list.
-  // Return VTK_OK if everything is ok.
-  int GoToLastItem();
-
+  void GoToLastItem();
+  
 protected:
   static vtkVectorIterator<DType> *New(); 
 

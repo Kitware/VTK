@@ -234,7 +234,7 @@ int TestVectorList()
   vtkVector<const char*>::IteratorType *it = strings->NewIterator();
   //cout << "Try iterator" << endl;
   it->GoToFirstItem();
-  while ( it->IsDoneWithTraversal() != VTK_OK )
+  while ( !it->IsDoneWithTraversal() )
     {
     const char* str = 0;
     vtkIdType idx = 0;
@@ -252,7 +252,7 @@ int TestVectorList()
     it->GoToNextItem();
     }
   it->GoToLastItem();
-  while( it->IsDoneWithTraversal() != VTK_OK )
+  while( !it->IsDoneWithTraversal() )
     {
     const char* str = 0;
     vtkIdType idx = 0;

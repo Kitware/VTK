@@ -106,6 +106,40 @@ private:
   void operator=(const vtkAbstractMap&); // Not implemented
 };
 
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
+int vtkContainerCompareMethod(const vtkAbstractMapItem<KeyType, DataType>& d1,
+                              const vtkAbstractMapItem<KeyType, DataType>& d2)
+{
+  // Use only the Key for comparison.
+  return vtkContainerCompareMethod(d1.Key, d2.Key);
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
+vtkAbstractMapItem<KeyType, DataType>
+vtkContainerCreateMethod(const vtkAbstractMapItem<KeyType, DataType>& item)
+{
+  // Copy both components from the input.
+  vtkAbstractMapItem<KeyType, DataType> result =
+    {
+      vtkContainerCreateMethod(item.Key),
+      vtkContainerCreateMethod(item.Data)
+    };
+  return result;
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
+void vtkContainerDeleteMethod(vtkAbstractMapItem<KeyType, DataType>& item)
+{
+  // Delete both components.
+  vtkContainerDeleteMethod(item.Key);
+  vtkContainerDeleteMethod(item.Data);
+}
+
+//----------------------------------------------------------------------------
+
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkAbstractMap.txx"
 #endif 

@@ -25,6 +25,7 @@
 #include "vtkAbstractIterator.txx"
 #include "vtkVector.h"
 
+//----------------------------------------------------------------------------
 template <class DType>
 vtkVectorIterator<DType> *vtkVectorIterator<DType>::New()
 { 
@@ -34,119 +35,94 @@ vtkVectorIterator<DType> *vtkVectorIterator<DType>::New()
   return new vtkVectorIterator<DType>(); 
 }
 
+//----------------------------------------------------------------------------
 template<class DType>
 void vtkVectorIterator<DType>::InitTraversal()
 {
-  if ( !this->Container )
-    {
-    //cout << "No container" << endl;
-    return;
-    }
-  this->Index = 0;
+  this->GoToFirstItem();
 }
 
-// Description:
-// Retrieve the index of the element.
-// This method returns VTK_OK if key was retrieved correctly.
+//----------------------------------------------------------------------------
 template<class DType>
 int vtkVectorIterator<DType>::GetKey(vtkIdType& key)
 {
-  vtkVector<DType> *llist 
-    = static_cast<vtkVector<DType>*>(this->Container);
-  if ( this->Index >= llist->GetNumberOfItems() )
-    {
-    return VTK_ERROR;
-    }
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  if ( this->Index == llist->NumberOfItems ) { return VTK_ERROR; }
   key = this->Index;
   return VTK_OK;
 }
 
-// Description:
-// Retrieve the data from the iterator. 
-// This method returns VTK_OK if key was retrieved correctly.
+//----------------------------------------------------------------------------
 template<class DType>
 int vtkVectorIterator<DType>::GetData(DType& data)
 {
-  vtkVector<DType> *llist 
-    = static_cast<vtkVector<DType>*>(this->Container);
-  if ( this->Index >= llist->GetNumberOfItems() )
-    {
-    return VTK_ERROR;
-    }
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  if ( this->Index == llist->NumberOfItems ) { return VTK_ERROR; }
   data = llist->Array[this->Index];
   return VTK_OK;
 }
 
-// Description:
-// Check if the iterator is at the end of the container. Return 
-// VTK_OK if it is.
+//----------------------------------------------------------------------------
 template<class DType>
 int vtkVectorIterator<DType>::IsDoneWithTraversal()
 {
-  vtkVector<DType> *llist 
-    = static_cast<vtkVector<DType>*>(this->Container);
-  if ( this->Index >= llist->GetNumberOfItems() )
-    {
-    return VTK_OK;
-    }
-  return VTK_ERROR;
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  return (this->Index == llist->NumberOfItems)? 1:0;
 }
 
-// Description:
-// Increment the iterator to the next location.
-// Return VTK_OK if everything is ok.
+//----------------------------------------------------------------------------
 template<class DType>
-int vtkVectorIterator<DType>::GoToNextItem()
+void vtkVectorIterator<DType>::GoToNextItem()
 {
-  vtkVector<DType> *llist 
-    = static_cast<vtkVector<DType>*>(this->Container);
-  if ( this->Index >= llist->GetNumberOfItems() )
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  if(this->Index < llist->NumberOfItems)
     {
-    return VTK_ERROR;
+    ++this->Index;
     }
-  this->Index++;
-  return VTK_OK;
+  else
+    {
+    this->Index = 0;
+    }
 }
 
-// Description:
-// Decrement the iterator to the next location.
-// Return VTK_OK if everything is ok.
+//----------------------------------------------------------------------------
 template<class DType>
-int vtkVectorIterator<DType>::GoToPreviousItem()
+void vtkVectorIterator<DType>::GoToPreviousItem()
 {
-  vtkVector<DType> *llist 
-    = static_cast<vtkVector<DType>*>(this->Container);
-  if ( this->Index < 0 || this->Index >= llist->GetNumberOfItems() )
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  if(this->Index > 0)
     {
-    return VTK_ERROR;
+    --this->Index;
     }
-  if ( this->Index == 0 )
+  else
     {
-    this->Index = llist->GetNumberOfItems();
-    return VTK_OK;
+    this->Index = llist->NumberOfItems;
     }
-  this->Index--;
-  return VTK_OK;
 }
 
+//----------------------------------------------------------------------------
 template<class DType>
-int vtkVectorIterator<DType>::GoToLastItem()
+void vtkVectorIterator<DType>::GoToFirstItem()
 {
-  if ( !this->Container )
-    {
-    //cout << "No container" << endl;
-    return VTK_ERROR;
-    }
-  vtkVector<DType> *llist 
-    = static_cast<vtkVector<DType>*>(this->Container);
-  if ( llist->GetNumberOfItems() <= 0 )
-    {
-    return VTK_ERROR;
-    }
-  
-  this->Index = llist->GetNumberOfItems()-1;  
-  return VTK_OK;
+  this->Index = 0;
 }
+
+//----------------------------------------------------------------------------
+template<class DType>
+void vtkVectorIterator<DType>::GoToLastItem()
+{
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  if(llist->NumberOfItems > 0)
+    {
+    this->Index = llist->NumberOfItems-1;  
+    }
+  else
+    {
+    this->Index = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 
 #if defined ( _MSC_VER )
 template <class DType>
