@@ -21,15 +21,15 @@
 #ifndef __vtkUGFacetReader_h
 #define __vtkUGFacetReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPointLocator;
 class vtkShortArray;
 
-class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkUGFacetReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkUGFacetReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkUGFacetReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,7 +83,7 @@ protected:
   vtkUGFacetReader();
   ~vtkUGFacetReader();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char *FileName;
   vtkShortArray *PartColors;
@@ -96,5 +96,3 @@ private:
 };
 
 #endif
-
-

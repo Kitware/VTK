@@ -18,12 +18,14 @@
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkUGFacetReader, "1.46");
+vtkCxxRevisionMacro(vtkUGFacetReader, "1.47");
 vtkStandardNewMacro(vtkUGFacetReader);
 
 // Construct object to extract all parts, and with point merging
@@ -36,6 +38,8 @@ vtkUGFacetReader::vtkUGFacetReader()
 
   this->Merging = 1;
   this->Locator = NULL;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkUGFacetReader::~vtkUGFacetReader()
@@ -59,7 +63,7 @@ vtkUGFacetReader::~vtkUGFacetReader()
 // then this object is modified as well.
 unsigned long vtkUGFacetReader::GetMTime()
 {
-  unsigned long mTime1=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime1=this->Superclass::GetMTime();
   unsigned long mTime2;
   
   if (this->Locator)
@@ -72,8 +76,18 @@ unsigned long vtkUGFacetReader::GetMTime()
 }
 
 
-void vtkUGFacetReader::Execute()
+int vtkUGFacetReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   FILE *fp;
   char header[36];
   struct {float  v1[3], v2[3], v3[3], n1[3], n2[3], n3[3];} facet;
@@ -83,7 +97,6 @@ void vtkUGFacetReader::Execute()
   vtkPoints *newPts, *mergedPts;
   vtkFloatArray *newNormals, *mergedNormals;
   vtkCellArray *newPolys, *mergedPolys;
-  vtkPolyData *output = this->GetOutput();
   fpos_t pos;
   int triEstimate;
 
@@ -91,14 +104,14 @@ void vtkUGFacetReader::Execute()
   if ( this->FileName == NULL || strlen(this->FileName) == 0)
     {
     vtkErrorMacro(<<"No FileName specified...please specify one.");
-    return;
+    return 0;
     }
 
   // open the file
   if ( (fp = fopen(this->FileName, "rb")) == NULL) 
     {
     vtkErrorMacro(<<"Cannot open file specified.");
-    return;
+    return 0;
     }
 
   // read the header stuff
@@ -107,7 +120,7 @@ void vtkUGFacetReader::Execute()
   fread (header, 1, 36, fp) <= 0 )
     {
     vtkErrorMacro(<<"File ended prematurely");
-    return;
+    return 0;
     }
 
   // swap bytes since this is a binary file format
@@ -266,6 +279,8 @@ void vtkUGFacetReader::Execute()
     }
 
   output->Squeeze();
+
+  return 1;
 }
 
 int vtkUGFacetReader::GetNumberOfParts()
@@ -371,4 +386,3 @@ void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 }
-
