@@ -49,35 +49,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkVoxel_h
 #define __vtkVoxel_h
 
+#include "vtkCell3D.h"
 #include "vtkLine.h"
 #include "vtkPixel.h"
 
-class VTK_EXPORT vtkVoxel : public vtkCell
+class VTK_EXPORT vtkVoxel : public vtkCell3D
 {
 public:
   static vtkVoxel *New();
   vtkTypeMacro(vtkVoxel,vtkCell);
 
   // Description:
+  // See vtkCell3D API for description of these methods.
+  virtual void GetEdge(int edgeId, int* &pts);
+  virtual void GetFace(int faceId, int* &pts);
+
+  // Description:
   // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
-  int GetCellType() {return VTK_VOXEL;};
-  int GetCellDimension() {return 3;};
-  int GetNumberOfEdges() {return 12;};
-  int GetNumberOfFaces() {return 6;};
+  int GetCellType() {return VTK_VOXEL;}
+  int GetCellDimension() {return 3;}
+  int GetNumberOfEdges() {return 12;}
+  int GetNumberOfFaces() {return 6;}
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
-  static int *GetFaceArray(int faceId);
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, int cellId, vtkCellData *outCd);
-  void Clip(float value, vtkScalars *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *tetras,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
   int EvaluatePosition(float x[3], float* closestPoint,
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
@@ -93,22 +94,14 @@ public:
   // Voxel specific methods for interpolation and derivatives.
   static void InterpolationFunctions(float pcoords[3], float weights[8]);
   static void InterpolationDerivs(float pcoords[3], float derivs[24]);
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  int CellBoundary(int subId, float pcoords[3], vtkIdList &pts)
-    {VTK_LEGACY_METHOD(CellBoundary,"3.2"); return this->CellBoundary(subId, pcoords, &pts);}
-  int Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
-    {VTK_LEGACY_METHOD(Triangulate,"3.2"); return this->Triangulate(index, &ptIds, &pts);}
-#endif
-  
+  static int *GetEdgeArray(int edgeId);
+  static int *GetFaceArray(int faceId);
 
 protected:
   vtkVoxel();
   ~vtkVoxel();
-  vtkVoxel(const vtkVoxel&) {};
-  void operator=(const vtkVoxel&) {};
+  vtkVoxel(const vtkVoxel&) {}
+  void operator=(const vtkVoxel&) {}
 
   vtkLine *Line;
   vtkPixel *Pixel;

@@ -48,14 +48,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkPyramid_h
 #define __vtkPyramid_h
 
-#include "vtkCell.h"
+#include "vtkCell3D.h"
 #include "vtkLine.h"
 #include "vtkTriangle.h"
 #include "vtkQuad.h"
 
 class vtkUnstructuredGrid;
 
-class VTK_EXPORT vtkPyramid : public vtkCell
+class VTK_EXPORT vtkPyramid : public vtkCell3D
 {
 public:
   vtkTypeMacro(vtkPyramid,vtkCell);
@@ -65,25 +65,25 @@ public:
   static vtkPyramid *New();
 
   // Description:
+  // See vtkCell3D API for description of these methods.
+  virtual void GetEdge(int edgeId, int* &pts);
+  virtual void GetFace(int faceId, int* &pts);
+
+  // Description:
   // See the vtkCell API for descriptions of these methods.
   vtkCell *MakeObject();
-  int GetCellType() {return VTK_PYRAMID;};
-  int GetCellDimension() {return 3;};
-  int GetNumberOfEdges() {return 8;};
-  int GetNumberOfFaces() {return 5;};
+  int GetCellType() {return VTK_PYRAMID;}
+  int GetCellDimension() {return 3;}
+  int GetNumberOfEdges() {return 8;}
+  int GetNumberOfFaces() {return 5;}
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
-  static int *GetFaceArray(int faceId);
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, int cellId, vtkCellData *outCd);
-  void Clip(float value, vtkScalars *cellScalars, 
-            vtkPointLocator *locator, vtkCellArray *cells,
-            vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
   int EvaluatePosition(float x[3], float* closestPoint,
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
@@ -105,6 +105,8 @@ public:
   static void InterpolationFunctions(float pcoords[3], float weights[5]);
   static void InterpolationDerivs(float pcoords[3], float derivs[15]);
   int JacobianInverse(float pcoords[3], double **inverse, float derivs[15]);
+  static int *GetEdgeArray(int edgeId);
+  static int *GetFaceArray(int faceId);
 
 protected:
   vtkPyramid();
