@@ -100,9 +100,9 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
       {
       dim[i] = inDim[i];
       if (inDim[i] > 1)
-	{
-	dataDim++;
-	}
+        {
+        dataDim++;
+        }
       }
 
     if ( dataDim == 3 )
@@ -112,32 +112,32 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
     else if ( dataDim == 2)
       {
       if ( inDim[0] == 1 )
-	{
-	dataDescription = VTK_YZ_PLANE;
-	}
+        {
+        dataDescription = VTK_YZ_PLANE;
+        }
       else if ( inDim[1] == 1 )
-	{
-	dataDescription = VTK_XZ_PLANE;
-	}
+        {
+        dataDescription = VTK_XZ_PLANE;
+        }
       else
-	{
-	dataDescription = VTK_XY_PLANE;
-	}
+        {
+        dataDescription = VTK_XY_PLANE;
+        }
       }
     else if ( dataDim == 1 )
       {
       if ( inDim[0] != 1 )
-	{
-	dataDescription = VTK_X_LINE;
-	}
+        {
+        dataDescription = VTK_X_LINE;
+        }
       else if ( inDim[1] != 1 )
-	{
-	dataDescription = VTK_Y_LINE;
-	}
+        {
+        dataDescription = VTK_Y_LINE;
+        }
       else
-	{
-	dataDescription = VTK_Z_LINE;
-	}
+        {
+        dataDescription = VTK_Z_LINE;
+        }
       }
     else
       {
@@ -302,7 +302,7 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList *ptIds,
 // Get the cells using a point. (See vtkDataSet for more info.)
 void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
 {
-  int ptDim[3], cellDim[3];
+  int cellDim[3];
   int ptLoc[3], cellLoc[3];
   int i, j, cellId;
   static int offset[8][3] = {{-1,0,0}, {-1,-1,0}, {-1,-1,-1}, {-1,0,-1},
@@ -310,20 +310,19 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
 
   for (i=0; i<3; i++) 
     {
-    ptDim[i] = dim[i];
-    cellDim[i] = ptDim[i] - 1;
+    cellDim[i] = dim[i] - 1;
     if (cellDim[i] == 0)
       {
       cellDim[i] = 1;
       }
     }
-  //
+
   //  Get the location of the point
   //
-  ptLoc[0] = ptId % ptDim[0];
-  ptLoc[1] = (ptId / ptDim[0]) % ptDim[1];
-  ptLoc[2] = ptId / (ptDim[0]*ptDim[1]);
-  //
+  ptLoc[0] = ptId % dim[0];
+  ptLoc[1] = (ptId / dim[0]) % dim[1];
+  ptLoc[2] = ptId / (dim[0]*dim[1]);
+
   //  From the point location, compute the cell locations.  There are at
   //  most eight possible.
   //
@@ -335,9 +334,9 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
       {
       cellLoc[i] = ptLoc[i] + offset[j][i];
       if ( cellLoc[i] < 0 || cellLoc[i] >= cellDim[i] ) 
-	{
+        {
         break;
-	}
+        }
       }
     if ( i >= 3 ) //add cell
       {
