@@ -676,7 +676,8 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
     matrix[0][2] = 0;
     matrix[1][2] = 0;
     matrix[2][2] = (nearz - farz);
-    matrix[2][3] = nearz;
+    matrix[2][3] = nearz + (nearz - farz)*this->ClippingRange[0]/
+      (this->ClippingRange[1] - this->ClippingRange[0]);
     matrix[3][2] = 0;
     matrix[3][3] = 1;
     }
