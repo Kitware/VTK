@@ -112,12 +112,7 @@ ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS ${Parallel_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY(vtkParallelTCL SHARED vtkOSXParallelTclInit.c ${ParallelTCL_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
-  ENDIF (APPLE)
-
+  ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
   TARGET_LINK_LIBRARIES (vtkParallelTCL vtkParallel vtkIOTCL vtkRenderingTCL)
   INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
 ENDIF (VTK_WRAP_TCL)
