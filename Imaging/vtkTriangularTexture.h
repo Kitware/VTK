@@ -31,12 +31,12 @@
 #ifndef __vtkTriangularTexture_h
 #define __vtkTriangularTexture_h
 
-#include "vtkStructuredPointsSource.h"
+#include "vtkImageSource.h"
 
-class VTK_IMAGING_EXPORT vtkTriangularTexture : public vtkStructuredPointsSource
+class VTK_IMAGING_EXPORT vtkTriangularTexture : public vtkImageSource
 {
 public:
-  vtkTypeRevisionMacro(vtkTriangularTexture,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkTriangularTexture,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -71,7 +71,8 @@ protected:
   vtkTriangularTexture();
   ~vtkTriangularTexture() {};
 
-  void Execute();
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *data);
 
   int XSize;
   int YSize;
