@@ -39,15 +39,9 @@ public:
   vtkSetMacro(NumberOfStreamDivisions,int);
   vtkGetMacro(NumberOfStreamDivisions,int);
   
-#ifdef VTK_USE_EXECUTIVES
   virtual void Update() { this->vtkAlgorithm::Update();};  
   virtual void UpdateWholeExtent() { 
     this->vtkAlgorithm::UpdateWholeExtent();};  
-#else
-  // Description:
-  // Need to override since this is where streaming will be done
-  void UpdateData( vtkDataObject *out );
-#endif
   
   // Description:
   // Get the extent translator that will be used to split the requests

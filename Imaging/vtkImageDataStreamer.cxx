@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.31.2.1");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.31.2.2");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -68,104 +68,7 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-//----------------------------------------------------------------------------
-#ifndef VTK_USE_EXECUTIVES
-void vtkImageDataStreamer::UpdateData(vtkDataObject *vtkNotUsed(out))
-{
-  int idx;
-  vtkImageData *input = this->GetInput();
-  vtkImageData *output = this->GetOutput();
-  int piece;
-  
-  // prevent chasing our tail
-  if (this->Updating)
-    {
-    return;
-    }
-  
-  // Propagate the update call - make sure everything we
-  // might rely on is up-to-date
-  // Must call PropagateUpdateExtent before UpdateData if multiple 
-  // inputs since they may lead back to the same data object.
-  this->Updating = 1;
-
-  if (!input || !output)
-    {
-    vtkWarningMacro("ImageDataStreamer Requires an input to execute!");
-    return;
-    }
-  
-  // Initialize all the outputs
-  vtkExtentTranslator *translator = this->GetExtentTranslator();
-  output->PrepareForNewData(); 
-
-  // If there is a start method, call it
-  this->AbortExecute = 0;
-  this->Progress = 0.0;
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
-  output->SetExtent(output->GetUpdateExtent());
-  //output->AllocateScalars();
-  AllocateOutputData(output);
-  
-  // now start the loop over the number of pieces
-  translator->SetWholeExtent(output->GetUpdateExtent());
-  translator->SetNumberOfPieces(this->NumberOfStreamDivisions);
-  for (piece = 0; 
-       piece < this->NumberOfStreamDivisions && !this->AbortExecute; 
-       piece++)
-    {
-    translator->SetPiece(piece);
-    if (translator->PieceToExtentByPoints())
-      {
-      input->SetUpdateExtent(translator->GetExtent());
-      input->PropagateUpdateExtent();
-      input->UpdateData();
-      // copy the resulting data into the output buffer
-      output->CopyAndCastFrom(input, translator->GetExtent());    
-      this->UpdateProgress((float)(piece+1.0)/(float)this->NumberOfStreamDivisions);
-      }
-    }
-  
-  this->Updating = 0;  
-  
-  // If we ended due to aborting, push the progress up to 1.0 (since
-  // it probably didn't end there)
-  if ( !this->AbortExecute )
-    {
-    this->UpdateProgress(1.0);
-    }
-
-  // Call the end method, if there is one
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
-    
-  // Now we have to mark the data as up to data.
-  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-    {
-    if (this->Outputs[idx])
-      {
-      this->Outputs[idx]->DataHasBeenGenerated();
-      }
-    }
-  
-  // Release any inputs if marked for release
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    if (this->Inputs[idx] != NULL)
-      {
-      if ( this->Inputs[idx]->ShouldIReleaseData() )
-        {
-        this->Inputs[idx]->ReleaseData();
-        }
-      }  
-    }
-  
-  // Information gets invalidated as soon as Update is called,
-  // so validate it again here.
-  this->InformationTime.Modified();
-}
-#endif
-
-  
+//---------------------------------------------------------------------------- 
 int vtkImageDataStreamer::FillOutputPortInformation(
   int port, vtkInformation* info)
 {
@@ -232,8 +135,6 @@ int vtkImageDataStreamer::ProcessDownstreamRequest(
   vtkInformationVector *inputVector, 
   vtkInformationVector *outputVector)
 {
-#ifdef VTK_USE_EXECUTIVES
-
   // this is basically execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
@@ -320,11 +221,8 @@ int vtkImageDataStreamer::ProcessDownstreamRequest(
     
     return 1;
     }
-  return 0;
-#else
   return this->Superclass::ProcessDownstreamRequest(request, inputVector,
                                                     outputVector);
-#endif
 }
 
 
