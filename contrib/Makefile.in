@@ -25,12 +25,9 @@ CONCRETE = \
 vtkDEMReader \
 vtkEarthSource \
 vtkImageReslice \
-vtkInputPort \
 vtkIVWriter \
 vtkMassProperties \
-vtkMultiProcessController \
 vtkOBJReader \
-vtkOutputPort \
 vtkPolyDataCollector \
 vtkProjectedTexture \
 vtkRenderLargeImage \
@@ -40,7 +37,6 @@ vtkRIBProperty \
 vtkSuperquadric \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
-vtkThreadedController \
 vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkSurfaceReconstructionFilter \
