@@ -23,3 +23,10 @@ IF (BUILD_DOCUMENTATION)
 ENDIF (BUILD_DOCUMENTATION)
 
 INCLUDE (${VTK_SOURCE_DIR}/Utilities/Doxygen/LocalUserOptions.cmake OPTIONAL)
+
+INSTALL_FILES(/lib/vtk/doxygen "\\.css$")
+INSTALL_FILES(/lib/vtk/doxygen "\\.gif$")
+INSTALL_FILES(/lib/vtk/doxygen "\\.html$")
+INSTALL_FILES(/lib/vtk/doxygen "\\.pl$")
+INSTALL_FILES(/lib/vtk/doxygen "\\.stop$")
+INSTALL_FILES(/lib/vtk/doxygen .txt authors doc_readme)
