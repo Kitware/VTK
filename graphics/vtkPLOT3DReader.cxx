@@ -1105,15 +1105,15 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
   vtkVectors *vorticity;
   int dims[3], ijsize;
   vtkPoints *points;
-  int i, j, k, idx, idx2;
+  int i, j, k, idx, idx2, ii;
   float vort[3], xp[3], xm[3], vp[3], vm[3], factor;
   float xxi, yxi, zxi, uxi, vxi, wxi;
   float xeta, yeta, zeta, ueta, veta, weta;
   float xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
   float aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
-//
-//  Check that the required data is available
-//
+
+  //  Check that the required data is available
+  //
   if ( (points=this->GetOutput()->GetPoints()) == NULL || this->Density == NULL || 
   this->Momentum == NULL || this->Energy == NULL )
     {
@@ -1136,16 +1136,14 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
       {
       for (i=0; i<dims[0]; i++) 
         {
-//
-//  Xi derivatives.
-//
+        //  Xi derivatives.
         if ( dims[0] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++)
-	    {
-	    vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
-	    }
+          for (ii=0; ii<3; ii++)
+            {
+            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+            }
           xp[0] = 1.0;
           }
         else if ( i == 0 ) 
@@ -1185,16 +1183,15 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
         uxi = factor * (vp[0] - vm[0]);
         vxi = factor * (vp[1] - vm[1]);
         wxi = factor * (vp[2] - vm[2]);
-//
-//  Eta derivatives.
-//
+
+        //  Eta derivatives.
         if ( dims[1] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++)
-	    {
-	    vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
-	    }
+          for (ii=0; ii<3; ii++)
+            {
+            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+            }
           xp[1] = 1.0;
           }
         else if ( j == 0 ) 
@@ -1228,22 +1225,22 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           velocity->GetVector(idx2,vm);
           }
 
+
         xeta = factor * (xp[0] - xm[0]);
         yeta = factor * (xp[1] - xm[1]);
         zeta = factor * (xp[2] - xm[2]);
         ueta = factor * (vp[0] - vm[0]);
         veta = factor * (vp[1] - vm[1]);
         weta = factor * (vp[2] - vm[2]);
-//
-//  Zeta derivatives.
-//
+
+        //  Zeta derivatives.
         if ( dims[2] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++)
-	    {
-	    vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
-	    }
+          for (ii=0; ii<3; ii++)
+            {
+            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+            }
           xp[2] = 1.0;
           }
         else if ( k == 0 ) 
@@ -1277,46 +1274,43 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
           velocity->GetVector(idx2,vm);
           }
 
+
         xzeta = factor * (xp[0] - xm[0]);
         yzeta = factor * (xp[1] - xm[1]);
         zzeta = factor * (xp[2] - xm[2]);
         uzeta = factor * (vp[0] - vm[0]);
         vzeta = factor * (vp[1] - vm[1]);
         wzeta = factor * (vp[2] - vm[2]);
-//
-//  Now calculate the Jacobian.  Grids occasionally have singularities, or
-//  points where the Jacobian is infinite (the inverse is zero).  For these
-//  cases, we'll set the Jacobian to zero, which will result in a zero 
-//  vorticity.
-//
+
+        // Now calculate the Jacobian.  Grids occasionally have
+        // singularities, or points where the Jacobian is infinite (the
+        // inverse is zero).  For these cases, we'll set the Jacobian to
+        // zero, which will result in a zero vorticity.
+        //
         aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
               -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
         if (aj != 0.0)
-	  {
-	  aj = 1. / aj;
-	  }
-//
-//  Xi metrics.
-//
+          {
+          aj = 1. / aj;
+          }
+
+        //  Xi metrics.
         xix  =  aj*(yeta*zzeta-zeta*yzeta);
         xiy  = -aj*(xeta*zzeta-zeta*xzeta);
         xiz  =  aj*(xeta*yzeta-yeta*xzeta);
-//
-//  Eta metrics.
-//
+
+        //  Eta metrics.
         etax = -aj*(yxi*zzeta-zxi*yzeta);
         etay =  aj*(xxi*zzeta-zxi*xzeta);
         etaz = -aj*(xxi*yzeta-yxi*xzeta);
-//
-//  Zeta metrics.
-//
+
+        //  Zeta metrics.
         zetax=  aj*(yxi*zeta-zxi*yeta);
         zetay= -aj*(xxi*zeta-zxi*xeta);
         zetaz=  aj*(xxi*yeta-yxi*xeta);
-//
-//
-//  Finally, the vorticity components.
-//
+
+        //  Finally, the vorticity components.
+        //
         vort[0]= xiy*wxi+etay*weta+zetay*wzeta - xiz*vxi-etaz*veta-zetaz*vzeta;
         vort[1]= xiz*uxi+etaz*ueta+zetaz*uzeta - xix*wxi-etax*weta-zetax*wzeta;
         vort[2]= xix*vxi+etax*veta+zetax*vzeta - xiy*uxi-etay*ueta-zetay*uzeta;
