@@ -26,6 +26,7 @@
 #include "vtkConeSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
+#include "vtkCamera.h"
 
 int main( int argc, char *argv[] )
 {

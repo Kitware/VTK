@@ -24,6 +24,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkCommand.h"
+#include "vtkCamera.h"
 
 class myCallback : public vtkCommand
 {
