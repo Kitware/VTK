@@ -1116,11 +1116,11 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     rg->SetZCoordinates(data);
     }
 
-
-
   vtkDebugMacro(<<"Read " << data->GetNumberOfTuples() << " coordinates");
   float progress = this->GetProgress();
   this->UpdateProgress(progress + 0.5*(1.0 - progress));
+
+  data->Delete();
 
   return 1;
 }
