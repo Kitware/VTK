@@ -80,7 +80,7 @@ void vtkFileOutputWindow::Initialize()
     {
     if (!this->FileName)
       {
-      char* fileName = "vtkMessageLog.log";
+      char* fileName = (char *) "vtkMessageLog.log";
       this->FileName = new char[strlen(fileName)+1];
       strcpy(this->FileName, fileName);
       }
