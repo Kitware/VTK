@@ -39,8 +39,8 @@ int main( int argc, char *argv[] )
   renWin->SetSize( 200, 200 );
   
   vtkSphereSource *sphereSource = vtkSphereSource::New();
-  sphereSource->SetThetaResolution(30.0);
-  sphereSource->SetPhiResolution(30.0);
+  sphereSource->SetThetaResolution(30);
+  sphereSource->SetPhiResolution(30);
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetInput( sphereSource->GetOutput() );
   
