@@ -100,13 +100,15 @@ static void ComputeGradients(
   float               scale, bias;
   int                 computeGradientMagnitudes;
   vtkDirectionEncoder *direction_encoder;
+  int                 zeroPad;
   
   estimator->GetInputSize( size );
   estimator->GetInputAspect( aspect );
   computeGradientMagnitudes = estimator->GetComputeGradientMagnitudes();
   scale = estimator->GetGradientMagnitudeScale();
   bias = estimator->GetGradientMagnitudeBias();
-
+  zeroPad = estimator->GetZeroPad();
+  
   // Compute steps through the volume in x, y, and z
   xstep = 1;
   ystep = size[0];
@@ -202,11 +204,25 @@ static void ComputeGradients(
 	// Compute the X component
 	if ( x < estimator->SampleSpacingInVoxels ) 
 	  {
-	  n[0] = -((float)*(dptr+xstep));
+          if ( zeroPad )
+            {
+            n[0] = -((float)*(dptr+xstep));
+            }
+          else
+            {
+            n[0] = 2.0*((float)*(dptr) - (float)*(dptr+xstep));
+            }
 	  }
 	else if ( x >= size[0] - estimator->SampleSpacingInVoxels )
 	  {
-	  n[0] =  ((float)*(dptr-xstep));
+          if ( zeroPad )
+            {
+            n[0] =  ((float)*(dptr-xstep));
+            }
+          else
+            {
+            n[0] = 2.0*((float)*(dptr-xstep) - (float)*(dptr));
+            }
 	  }
 	else
 	  {
@@ -216,11 +232,25 @@ static void ComputeGradients(
 	// Compute the Y component
 	if ( y < estimator->SampleSpacingInVoxels )
 	  {
-	  n[1] = -((float)*(dptr+ystep));
-	  }
+          if ( zeroPad )
+            {
+            n[1] = -((float)*(dptr+ystep));
+            }
+          else
+            {
+            n[1] = 2.0*((float)*(dptr) - (float)*(dptr+ystep)); 
+            }
+          }
 	else if ( y >= size[1] - estimator->SampleSpacingInVoxels )
 	  {
-	  n[1] =  ((float)*(dptr-ystep));
+          if ( zeroPad )
+            {
+            n[1] =  ((float)*(dptr-ystep));
+            }
+          else
+            {
+            n[1] = 2.0*((float)*(dptr-ystep) - (float)*(dptr)); 
+            }
 	  }
 	else
 	  {
@@ -230,11 +260,25 @@ static void ComputeGradients(
 	// Compute the Z component
 	if ( z < estimator->SampleSpacingInVoxels )
 	  {
-	  n[2] = -((float)*(dptr+zstep));
+          if ( zeroPad )
+            {
+            n[2] = -((float)*(dptr+zstep));
+            }
+          else
+            {
+            n[2] = 2.0*((float)*(dptr) - (float)*(dptr+zstep)); 
+            }
 	  }
 	else if ( z >= size[2] - estimator->SampleSpacingInVoxels )
 	  {
-	  n[2] =  ((float)*(dptr-zstep));
+          if ( zeroPad )
+            {
+            n[2] =  ((float)*(dptr-zstep));
+            }
+          else
+            {
+            n[2] = 2.0*((float)*(dptr-zstep) - (float)*(dptr)); 
+            }
 	  }
 	else
 	  {
@@ -287,14 +331,6 @@ static void ComputeGradients(
 
 	// Convert the gradient direction into an encoded index value
 	*nptr = direction_encoder->GetEncodedDirection( n );
-
-	if ( *nptr == 52685 )
-	  {
-	    vtkGenericWarningMacro( << "computed 52685 due to " << n[0] << " " << n[1] << " " << n[2] );
-	    vtkGenericWarningMacro( << direction_encoder->GetNumberOfEncodedDirections() );
-	*nptr = direction_encoder->GetEncodedDirection( n );
-	  }
-
 	nptr++;
 	dptr++;
 
