@@ -76,6 +76,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->Clamping = 0;
   this->IndexMode = VTK_INDEXING_OFF;
   this->NumberOfRequiredInputs = 1;
+  this->GeneratePointIds = 0;
 }
 
 vtkGlyph3D::~vtkGlyph3D()
@@ -111,6 +112,7 @@ void vtkGlyph3D::Execute()
   vtkDataSet *input = this->GetInput();
   int numberOfSources = this->GetNumberOfSources();
   vtkPolyData *defaultSource = NULL;
+  vtkIdTypeArray *pointIds;
   
   vtkDebugMacro(<<"Generating glyphs");
 
@@ -250,6 +252,13 @@ void vtkGlyph3D::Execute()
 
   newPts = vtkPoints::New();
   newPts->Allocate(numPts*numSourcePts);
+  if ( this->GeneratePointIds )
+    {
+    pointIds = vtkIdTypeArray::New();
+    pointIds->SetName("InputPointIds");
+    pointIds->Allocate(numPts*numSourcePts);
+    outputPD->AddArray(pointIds);
+    }
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR && inScalars )
     {
     newScalars =  inScalars->MakeObject ();
@@ -516,6 +525,16 @@ void vtkGlyph3D::Execute()
         outputPD->CopyData(pd,i,ptIncr+i);
         }
       }
+
+    // If point ids are to be generated, do it here
+    if ( this->GeneratePointIds )
+      {
+      for (i=0; i < numSourcePts; i++)
+        {
+        pointIds->InsertNextValue(inPtId);
+        }
+      }
+
     ptIncr += numSourcePts;
     } 
   
@@ -603,6 +622,9 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
+  os << indent << "Generate Point Ids " 
+     << (this->GeneratePointIds ? "On\n" : "Off\n");
+  
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   if ( this->GetNumberOfSources() < 2 )

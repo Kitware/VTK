@@ -220,6 +220,15 @@ public:
   void SetIndexModeToOff() {this->SetIndexMode(VTK_INDEXING_OFF);};
   const char *GetIndexModeAsString();
 
+  // Description:
+  // Enable/disable the generation of point ids as part of the output. The point
+  // ids are the id of the input generating point. The point ids are stored in the
+  // output point field data and named "InputPointIds". Point generation is useful 
+  // for debugging and pick operations.
+  vtkSetMacro(GeneratePointIds,int);
+  vtkGetMacro(GeneratePointIds,int);
+  vtkBooleanMacro(GeneratePointIds,int);
+
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
@@ -241,6 +250,8 @@ protected:
   int VectorMode; // Orient/scale via normal or via vector data
   int Clamping; // whether to clamp scale factor
   int IndexMode; // what to use to index into glyph table
+  int GeneratePointIds; // produce input points ids for each output point
+   
 };
 
 // Description:
