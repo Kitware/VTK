@@ -806,7 +806,9 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
       this->WindowId = 
 	      CreateWindow("vtkImage", this->WindowName,
 		     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		     0, 0, this->Size[0], this->Size[1],
+		     0, 0, this->Size[0]+2*GetSystemMetrics(SM_CXFRAME),
+         this->Size[1] + 2*GetSystemMetrics(SM_CYFRAME) + 
+         GetSystemMetrics(SM_CYCAPTION),
 		     NULL, NULL, this->ApplicationInstance, NULL);
       }
     if (!this->WindowId)
