@@ -148,6 +148,7 @@ void vtkRenderWindow::Render()
       {
       p1 = this->AccumulationBuffer;
       unsigned char *p2;
+      unsigned char *p3;
       if (this->ResultFrame)
 	{
 	p2 = this->ResultFrame;
@@ -156,6 +157,7 @@ void vtkRenderWindow::Render()
 	{
 	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
 	}
+      p3 = p2;
       for (y = 0; y < size[1]; y++)
 	{
 	for (x = 0; x < size[0]; x++)
@@ -165,7 +167,7 @@ void vtkRenderWindow::Render()
 	  *p1 += *p2; p1++; p2++;
 	  }
 	}
-      delete [] p2;
+      delete [] p3;
       }
     
     // if this is the last sub frame then convert back into unsigned char
@@ -199,12 +201,13 @@ void vtkRenderWindow::Render()
       this->AccumulationBuffer = NULL;
       }
     }
-  else
+  else // no subframes
     {
     // get the size
     size = this->GetSize();
 
     this->DoAARender();
+    // if we had some accumulation occur
     if (this->AccumulationBuffer)
       {
       float num;
@@ -347,6 +350,7 @@ void vtkRenderWindow::DoAARender()
       if (!this->FDFrames)
 	{
 	unsigned char *p2;
+	unsigned char *p3;
 	if (this->ResultFrame)
 	  {
 	  p2 = this->ResultFrame;
@@ -355,6 +359,7 @@ void vtkRenderWindow::DoAARender()
 	  {
 	  p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
 	  }
+	p3 = p2;
 	for (y = 0; y < size[1]; y++)
 	  {
 	  for (x = 0; x < size[0]; x++)
@@ -364,7 +369,7 @@ void vtkRenderWindow::DoAARender()
 	    *p1 += (float)*p2; p1++; p2++;
 	    }
 	  }
-	delete [] p2;
+	delete [] p3;
 	}
       }
     }
@@ -388,6 +393,7 @@ void vtkRenderWindow::DoFDRender()
     int *size;
     int x,y;
     unsigned char *p2;
+    unsigned char *p3;
     float *p1;
     vtkRenderer *aren;
     vtkCamera *acam;
@@ -462,6 +468,7 @@ void vtkRenderWindow::DoFDRender()
 	{
 	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
 	}
+      p3 = p2;
       for (y = 0; y < size[1]; y++)
 	{
 	for (x = 0; x < size[0]; x++)
@@ -471,7 +478,7 @@ void vtkRenderWindow::DoFDRender()
 	  *p1 += (float)*p2; p1++; p2++;
 	  }
 	}
-      delete [] p2;;
+      delete [] p3;
       }
   
     // free memory
