@@ -133,7 +133,6 @@ void vtkRibbonFilter::Execute()
     vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
     deleteNormals = 1;
     inNormals = vtkNormals::New();
-
     ((vtkNormals *)inNormals)->Allocate(numPts);
     if ( this->UseDefaultNormal )
       {
@@ -166,6 +165,7 @@ void vtkRibbonFilter::Execute()
   newPts->Allocate(numNewPts);
   newNormals = vtkNormals::New();
   newNormals->Allocate(numNewPts);
+  newNormals->GetData()->SetName("Normals");
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 
