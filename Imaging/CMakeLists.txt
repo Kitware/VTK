@@ -17,6 +17,7 @@ vtkImageConnector
 vtkImageConstantPad
 vtkImageContinuousDilate3D
 vtkImageContinuousErode3D
+vtkImageConvolve
 vtkImageCorrelation
 vtkImageCursor3D
 vtkImageDataStreamer
