@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.56");
+vtkCxxRevisionMacro(vtkConeSource, "1.57");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void vtkConeSource::Execute()
   
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
-  maxPieces = this->Resolution;
+  maxPieces = this->Resolution != 0 ? this->Resolution : 1;
   if (numPieces > maxPieces)
     {
     numPieces = maxPieces;
