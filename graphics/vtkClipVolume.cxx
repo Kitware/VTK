@@ -170,7 +170,9 @@ void vtkClipVolume::Execute()
     {
     vtkScalars *tmpScalars = vtkScalars::New();
     tmpScalars->Allocate(numPts);
-    inPD = new vtkPointData(*(input->GetPointData()));//copies original
+    inPD = vtkPointData::New();
+    inPD->ShallowCopy(*(input->GetPointData()));
+    //    inPD = new vtkPointData(*(input->GetPointData()));//copies original
     if ( this->GenerateClipScalars ) inPD->SetScalars(tmpScalars);
     for ( i=0; i < numPts; i++ )
       {
