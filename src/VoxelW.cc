@@ -31,16 +31,13 @@ vlVoxelWriter::~vlVoxelWriter()
 void vlVoxelWriter::Write()
 {
   FILE *fp;
-  int cellNum, i, j, k;
-  float *bounds;
-  float maxDistance;
+  int i, j, k;
   vlBitScalars *newScalars;
   int numPts, idx;
   int bitcount;
   unsigned char uc;
   int *dim;
   float *origin,*aspect;
-  vlPointData *pt_data;
 
   vlDebugMacro(<< "Writing Voxel model");
 
