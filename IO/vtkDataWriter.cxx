@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.94");
+vtkCxxRevisionMacro(vtkDataWriter, "1.95");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -54,8 +54,7 @@ vtkDataWriter::vtkDataWriter()
   strcpy(this->Header,"vtk output");
   this->FileType = VTK_ASCII;
 
-  this->ScalarsName = new char[8];
-  strcpy(this->ScalarsName,"scalars");
+  this->ScalarsName = 0;
 
   this->VectorsName = new char[8];
   strcpy(this->VectorsName,"vectors");
@@ -665,25 +664,39 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     char format[1024];
     *fp << "SCALARS ";
 
+    char* scalarsName = 0;
     // Buffer size is size of array name times four because 
     // in theory there could be array name consisting of only
     // weird symbols.
-    if (scalars->GetName())
+    if (!this->ScalarsName)
       {
-      char *buffer = new char[ strlen(scalars->GetName()) * 4 + 1];
-      this->EncodeArrayName(buffer, scalars->GetName());
-      this->SetScalarsName(buffer);
-      delete [] buffer;
+      if (scalars->GetName())
+        {
+        scalarsName = new char[ strlen(scalars->GetName()) * 4 + 1];
+        this->EncodeArrayName(scalarsName, scalars->GetName());
+        }
+      else
+        {
+        scalarsName = new char[ strlen("scalars") + 1];
+        strcpy(scalarsName, "scalars");
+        }
       }
+    else
+      {
+      scalarsName = new char[ strlen(this->ScalarsName) * 4 + 1];
+      this->EncodeArrayName(scalarsName, this->ScalarsName);
+      }
+
     if (numComp == 1) 
       {
-      sprintf(format,"%s %%s\nLOOKUP_TABLE %s\n",this->ScalarsName, name);
+      sprintf(format,"%s %%s\nLOOKUP_TABLE %s\n", scalarsName, name);
       } 
     else 
       {
       sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n",
-              this->ScalarsName, numComp, name);
+              scalarsName, numComp, name);
       }
+    delete[] scalarsName;
     if (this->WriteArray(fp, scalars->GetDataType(), scalars, format, 
                          num, numComp) == 0)
       {
@@ -750,17 +763,32 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
 
   *fp << "VECTORS ";
 
+  char* vectorsName = 0;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  if (vectors->GetName())
+  if (!this->VectorsName)
     {
-    char *buffer = new char[ strlen(vectors->GetName()) * 4 + 1];
-    this->EncodeArrayName(buffer, vectors->GetName());
-    this->SetVectorsName(buffer);
-    delete [] buffer;
+    if (vectors->GetName())
+      {
+      vectorsName = new char[ strlen(vectors->GetName()) * 4 + 1];
+      this->EncodeArrayName(vectorsName, vectors->GetName());
+      }
+    else
+      {
+      vectorsName = new char[ strlen("vectors") + 1];
+      strcpy(vectorsName, "vectors");
+      }
     }
-  sprintf(format, "%s %s\n", this->VectorsName, "%s");
+  else
+    {
+    vectorsName = new char[ strlen(this->VectorsName) * 4 + 1];
+    this->EncodeArrayName(vectorsName, this->VectorsName);
+    }
+
+  sprintf(format, "%s %s\n", vectorsName, "%s");
+  delete[] vectorsName;
+
   return this->WriteArray(fp, vectors->GetDataType(), vectors, format, num, 3);
 }
 
@@ -768,18 +796,33 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
 {
   char format[1024];
 
+  char* normalsName = 0;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  if (normals->GetName())
+  if (!this->NormalsName)
     {
-    char *buffer = new char[ strlen(normals->GetName()) * 4 + 1];
-    this->EncodeArrayName(buffer, normals->GetName());
-    this->SetNormalsName(buffer);
-    delete [] buffer;
+    if (normals->GetName())
+      {
+      normalsName = new char[ strlen(normals->GetName()) * 4 + 1];
+      this->EncodeArrayName(normalsName, normals->GetName());
+      }
+    else
+      {
+      normalsName = new char[ strlen("normals") + 1];
+      strcpy(normalsName, "normals");
+      }
     }
+  else
+    {
+    normalsName = new char[ strlen(this->NormalsName) * 4 + 1];
+    this->EncodeArrayName(normalsName, this->NormalsName);
+    }
+
   *fp << "NORMALS ";
-  sprintf(format, "%s %s\n", this->NormalsName, "%s");
+  sprintf(format, "%s %s\n", normalsName, "%s");
+  delete[] normalsName;
+
   return this->WriteArray(fp, normals->GetDataType(), normals, format, num, 3);
 }
 
@@ -788,19 +831,34 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
 
+  char* tcoordsName = 0;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  if (tcoords->GetName())
+  if (!this->TCoordsName)
     {
-    char *buffer = new char[ strlen(tcoords->GetName()) * 4 + 1];
-    this->EncodeArrayName(buffer, tcoords->GetName());
-    this->SetTCoordsName(buffer);
-    delete [] buffer;
+    if (tcoords->GetName())
+      {
+      tcoordsName = new char[ strlen(tcoords->GetName()) * 4 + 1];
+      this->EncodeArrayName(tcoordsName, tcoords->GetName());
+      }
+    else
+      {
+      tcoordsName = new char[ strlen("tcoords") + 1];
+      strcpy(tcoordsName, "tcoords");
+      }
     }
+  else
+    {
+    tcoordsName = new char[ strlen(this->TCoordsName) * 4 + 1];
+    this->EncodeArrayName(tcoordsName, this->TCoordsName);
+    }
+
 
   *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", this->TCoordsName, dim, "%s");
+  delete[] tcoordsName;
+
   return this->WriteArray(fp, tcoords->GetDataType(), tcoords, format, num, 
                           dim);
 }
@@ -809,18 +867,33 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
 {
   char format[1024];
 
+  char* tensorsName = 0;
   // Buffer size is size of array name times four because 
   // in theory there could be array name consisting of only
   // weird symbols.
-  if (tensors->GetName())
+  if (!this->TensorsName)
     {
-    char *buffer = new char[ strlen(tensors->GetName()) * 4 + 1];
-    this->EncodeArrayName(buffer, tensors->GetName());
-    this->SetTensorsName(buffer);
-    delete [] buffer;
+    if (tensors->GetName())
+      {
+      tensorsName = new char[ strlen(tensors->GetName()) * 4 + 1];
+      this->EncodeArrayName(tensorsName, tensors->GetName());
+      }
+    else
+      {
+      tensorsName = new char[ strlen("tensors") + 1];
+      strcpy(tensorsName, "tensors");
+      }
     }
+  else
+    {
+    tensorsName = new char[ strlen(this->TensorsName) * 4 + 1];
+    this->EncodeArrayName(tensorsName, this->TensorsName);
+    }
+
   *fp << "TENSORS "; 
-  sprintf(format, "%s %s\n", this->TensorsName, "%s");
+  sprintf(format, "%s %s\n", tensorsName, "%s");
+  delete[] tensorsName;
+
   return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, 9);
 }
 
