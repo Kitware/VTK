@@ -19,6 +19,7 @@ vtkGenericEnSightReader
 vtkImageReader
 vtkImageReader2
 vtkImageWriter
+vtkJPEGWriter
 vtkMCubesReader
 vtkMCubesWriter
 vtkOBJReader
@@ -64,7 +65,7 @@ vtkWriter
 )
 
 ADD_LIBRARY(vtkIO IO_SRCS)
-LINK_LIBRARIES ( png zlib )
+LINK_LIBRARIES ( png zlib jpeg )
 
 # Allow the user to customize their build with some local options
 #
