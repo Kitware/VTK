@@ -1,0 +1,113 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkMCubesReader.hh
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+
+This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
+The following terms apply to all files associated with the software unless
+explicitly disclaimed in individual files. This copyright specifically does
+not apply to the related textbook "The Visualization Toolkit" ISBN
+013199837-4 published by Prentice Hall which is covered by its own copyright.
+
+The authors hereby grant permission to use, copy, and distribute this
+software and its documentation for any purpose, provided that existing
+copyright notices are retained in all copies and that this notice is included
+verbatim in any distributions. Additionally, the authors grant permission to
+modify this software and its documentation for any purpose, provided that
+such modifications are not distributed without the explicit consent of the
+authors and that existing copyright notices are retained in all copies. Some
+of the algorithms implemented by this software are patented, observe all
+applicable patent law.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF,
+EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+"AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+=========================================================================*/
+// .NAME vtkMCubesReader - read binary marching cubes file
+// .SECTION Description
+// vtkMCubesReader is a source object that reads binary marching cubes
+// files. (Marching cubes is an iso-surfacing technique that generates 
+// many triangles). The binary format is supported by B. Lorensen's
+// marching cubes program. The format repeats point coordinates, so
+// this object will merge the points with a vtkLocator object. You can 
+// choose to supply the vtkLocator or use the default.
+// .SECTION Caveats
+// Binary files assumed written in sun/hp/sgi form.
+
+#ifndef __vtkMCubesReader_h
+#define __vtkMCubesReader_h
+
+#include <stdio.h>
+#include "vtkPolySource.hh"
+#include "vtkFloatPoints.hh"
+#include "vtkCellArray.hh"
+
+class vtkMCubesReader : public vtkPolySource 
+{
+public:
+  vtkMCubesReader();
+  ~vtkMCubesReader();
+  char *GetClassName() {return "vtkMCubesReader";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Specify file name of marching cubes file.
+  vtkSetStringMacro(Filename);
+  vtkGetStringMacro(Filename);
+
+  // Description:
+  // Specify file name of marching cubes limits file.
+  vtkSetStringMacro(LimitsFilename);
+  vtkGetStringMacro(LimitsFilename);
+
+  // Description:
+  // Specify whether to flip normals in opposite direction.
+  vtkSetMacro(FlipNormals,int);
+  vtkGetMacro(FlipNormals,int);
+  vtkBooleanMacro(FlipNormals,int);
+
+  // Description:
+  // Specify whether to read normals.
+  vtkSetMacro(Normals,int);
+  vtkGetMacro(Normals,int);
+  vtkBooleanMacro(Normals,int);
+
+  void SetLocator(vtkLocator *locator);
+  void SetLocator(vtkLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkLocator);
+
+  // Description:
+  // Create default locator. Used to create one when none is specified.
+  void CreateDefaultLocator();
+
+protected:
+  char *Filename;
+  char *LimitsFilename;
+
+  vtkLocator *Locator;
+  int SelfCreatedLocator;
+
+  int FlipNormals;
+  int Normals;
+
+  void Execute();
+};
+
+#endif
+
+
