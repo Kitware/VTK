@@ -137,6 +137,10 @@ public:
   // is stored in length.
   int ReceiveMessage(char *data, int *length, int maxlength);
 
+  // Description:
+  // Send message. 
+  int SendMessage(const char *data, int length);
+
 protected:
 
   int Socket;

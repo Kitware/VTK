@@ -48,7 +48,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.32");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.33");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -138,7 +138,7 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(int), 
+  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(int), 
                      tag, this->Socket);
 }
 
@@ -148,7 +148,7 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data),length*sizeof(unsigned long), 
+  return ::SendMessage(reinterpret_cast<char*>(data),length*sizeof(unsigned long), 
                      tag, this->Socket);
 }
 //----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ int vtkSocketCommunicator::Send(char *data, int length,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
+  return ::SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ int vtkSocketCommunicator::Send(unsigned char *data, int length,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
+  return ::SendMessage(reinterpret_cast<char*>(data), length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ int vtkSocketCommunicator::Send(float *data, int length,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(float), 
+  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(float), 
                      tag, this->Socket);
 }
 
@@ -185,7 +185,7 @@ int vtkSocketCommunicator::Send(double *data, int length,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(double), 
+  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(double), 
                      tag, this->Socket);
 }
 
@@ -196,7 +196,7 @@ int vtkSocketCommunicator::Send(vtkIdType *data, int length,
 {
   vtkSCCheckForError;
 
-  return SendMessage(reinterpret_cast<char*>(data), length*sizeof(vtkIdType), 
+  return ::SendMessage(reinterpret_cast<char*>(data), length*sizeof(vtkIdType), 
                      tag, this->Socket);
 }
 #endif
@@ -279,10 +279,35 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
 int vtkSocketCommunicator::ReceiveMessage(char *data, int *length, 
                                           int maxlength)
 {
+  if ( this->Socket < 0 )
+    {
+    return VTK_ERROR;
+    }
+  
   *length = recv( this->Socket, data, maxlength, 0 );
-
-  return 1;
+  if ( length < 0 )
+    {
+    return VTK_ERROR;
+    }
+  return VTK_OK;
 }
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::SendMessage(const char *data, int length)
+{
+  if ( this->Socket < 0 || length < 0 || !data )
+    {
+    return VTK_ERROR;
+    }
+  int total = 0;
+  total = send(this->Socket, data, length, 0);
+  if ( total != length )
+    {
+    return VTK_ERROR;
+    }
+  return VTK_OK;
+}
+
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId, 
                                    int tag)
@@ -404,7 +429,7 @@ int vtkSocketCommunicator::WaitForConnection(int port)
     char IAmBE = 0;
 #endif
     vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-    SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+    ::SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
     
     if ( clientIsBE != IAmBE )
       {
@@ -469,7 +494,7 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   char IAmBE = 0;
 #endif
   vtkDebugMacro(<< "I am " << ( IAmBE ? "big" : "little" ) << "-endian");
-  SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
+  ::SendMessage( &IAmBE, 1, vtkSocketController::ENDIAN_TAG, this->Socket );
 
   char serverIsBE;
   if ( !this->ReceiveMessage( &serverIsBE, sizeof(char), 1,
