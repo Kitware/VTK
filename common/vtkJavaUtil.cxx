@@ -52,11 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 #define _INTEGRAL_MAX_BITS 64
 
-#ifdef _WIN32
-#include "vtkSetGet.h"
-#include "vtkWin32Header.h"
-
 #include "vtkObject.h"
+
+#ifdef _WIN32
 HANDLE vtkGlobalMutex = NULL;
 #define VTK_GET_MUTEX() WaitForSingleObject(vtkGlobalMutex,INFINITE)
 #define VTK_RELEASE_MUTEX() ReleaseMutex(vtkGlobalMutex)
@@ -284,6 +282,8 @@ int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
 
 
 // delete an object from the hash
+// doesn't need a mutex because it is only called from within
+// the above func which does have a mutex
 void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
 {
   void *ptr;
@@ -326,8 +326,10 @@ void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
   int id;
   
   id = vtkJavaGetId(env,obj);
+  VTK_GET_MUTEX();
   ptr = vtkInstanceLookup->GetHashTableValue((void *)id);
   command = (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue((void *)id);
+  VTK_RELEASE_MUTEX();
 
 #ifdef VTKJAVADEBUG
   vtkGenericWarningMacro("Checking into id " << id << " ptr = " << ptr);
