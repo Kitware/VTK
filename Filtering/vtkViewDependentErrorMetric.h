@@ -61,7 +61,7 @@ public:
   // of the vertices of the edge is greater than `value'.
   // For instance, 0.25 will give better result than 1.
   // \pre positive_value: value>0
-  vtkSetClampMacro(PixelTolerance,double,0.0,VTK_DOUBLE_MAX);
+  void SetPixelTolerance(double value);
 
   // Description:
   // Set/Get the renderer with `renderer' on which the error metric 
