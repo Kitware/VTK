@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkAssembly.h"
+#include "vtkRenderWindow.h"
 
 // Construct object with no children.
 vtkAssembly::vtkAssembly()

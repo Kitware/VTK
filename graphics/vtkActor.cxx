@@ -254,8 +254,10 @@ void vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
     }
 }
 
-void vtkActor::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+void vtkActor::ReleaseGraphicsResources(vtkWindow *win)
 {
+  vtkRenderWindow *renWin = (vtkRenderWindow *)win;
+
   // pass this information onto the mapper
   if (this->Mapper)
     {

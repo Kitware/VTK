@@ -842,8 +842,7 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
 // no reference counting!
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
-  vtkActor *actor;
-  vtkVolume *volume;
+  vtkProp *aProp;
   
   if (renwin != this->RenderWindow)
     {
@@ -851,19 +850,12 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
     // this information needs to be passed to the renderer's actors and volumes
     // so they can release and render window specific (or graphics context
     // specific) information (such as display lists and texture ids)
-    this->Actors->InitTraversal();
-    for ( actor = (vtkActor *) this->Actors->GetNextItemAsObject();
-	  actor != NULL;
-	  actor = (vtkActor *) this->Actors->GetNextItemAsObject() )
+    this->Props->InitTraversal();
+    for ( aProp = this->Props->GetNextItem();
+	  aProp != NULL;
+	  aProp = this->Props->GetNextItem() )
       {
-      actor->ReleaseGraphicsResources(this->RenderWindow);
-      }
-    this->Volumes->InitTraversal();
-    for ( volume = (vtkVolume *) this->Volumes->GetNextItemAsObject();
-	  volume != NULL;
-	  volume = (vtkVolume *) this->Volumes->GetNextItemAsObject() )
-      {
-      volume->ReleaseGraphicsResources(this->RenderWindow);
+	aProp->ReleaseGraphicsResources(this->RenderWindow);
       }
     // what about lights?
     // what about cullers?
