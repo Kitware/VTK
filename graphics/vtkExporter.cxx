@@ -52,6 +52,19 @@ vtkExporter::vtkExporter()
   this->EndWriteArg = NULL;
 }
 
+vtkExporter::~vtkExporter()
+{
+  if ((this->StartWriteArg)&&(this->StartWriteArgDelete))
+    {
+    (*this->StartWriteArgDelete)(this->StartWriteArg);
+    }
+  if ((this->EndWriteArg)&&(this->EndWriteArgDelete))
+    {
+    (*this->EndWriteArgDelete)(this->EndWriteArg);
+    }
+}
+
+
 // Write data to output. Method executes subclasses WriteData() method, as 
 // well as StartWrite() and EndWrite() methods.
 void vtkExporter::Write()
