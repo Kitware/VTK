@@ -56,7 +56,6 @@ public:
   // Set the rotation angle to use.
   vtkSetMacro(Angle, double);
   vtkGetMacro(Angle, double);
-  vtkBooleanMacro(Angle, int);
 
   // Description:
   // Set the rotation center coordinates.
@@ -69,7 +68,6 @@ public:
   // All copies will be appended to form a single output
   vtkSetMacro(NumberOfCopies, int);
   vtkGetMacro(NumberOfCopies, int);
-  vtkBooleanMacro(NumberOfCopies, int);
 
   // Description:
   // If on (the default), copy the input geometry to the output. If off,
