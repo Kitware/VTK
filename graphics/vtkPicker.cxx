@@ -323,8 +323,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         if ( vtkCell::HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
           picked = 1;
-          this->IntersectWithLine((float *)p1Mapper, 
-				  (float *)p2Mapper,tol,actor,part,mapper);
+          t = this->IntersectWithLine((float *)p1Mapper, 
+				      (float *)p2Mapper,tol,actor,part,mapper);
           this->Actors->AddItem(part);
 	  this->PickedPositions->InsertNextPoint
 	    ((1.0 - t)*p1World[0] + t*p2World[0],
