@@ -82,10 +82,8 @@ vtkUnstructuredGrid aTetraGrid
   aTetraGrid Allocate 1 1
   aTetraGrid InsertNextCell [aTetra GetCellType] [aTetra GetPointIds]
   aTetraGrid SetPoints tetraPoints
-vtkUnstructuredGrid aTetraCopy
-  aTetraCopy ShallowCopy aTetraGrid
 vtkDataSetMapper aTetraMapper
-  aTetraMapper SetInput aTetraCopy
+  aTetraMapper SetInput aTetraGrid
 vtkActor aTetraActor
   aTetraActor SetMapper aTetraMapper
   aTetraActor AddPosition 4 0 0
@@ -110,10 +108,8 @@ vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid Allocate 1 1
   aWedgeGrid InsertNextCell [aWedge GetCellType] [aWedge GetPointIds]
   aWedgeGrid SetPoints wedgePoints
-vtkUnstructuredGrid aWedgeCopy
-  aWedgeCopy DeepCopy aWedgeGrid
 vtkDataSetMapper aWedgeMapper
-  aWedgeMapper SetInput aWedgeCopy
+  aWedgeMapper SetInput aWedgeGrid
 vtkActor aWedgeActor
   aWedgeActor SetMapper aWedgeMapper
   aWedgeActor AddPosition 6 0 0
