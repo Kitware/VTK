@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
-class vlStackElement
+class vlStackElement //;prevents pick-up by man page generator
 {
  public:
   vlStackElement():Item(NULL),Next(NULL) {};

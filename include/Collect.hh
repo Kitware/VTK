@@ -25,7 +25,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "Object.hh"
 
-class vlCollectionElement
+class vlCollectionElement //;prevents pick-up by man page generator
 {
  public:
   vlCollectionElement():Item(NULL),Next(NULL) {};
