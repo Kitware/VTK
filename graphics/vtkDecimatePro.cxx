@@ -160,6 +160,7 @@ int vtkVertexQueue::Pop(float &error)
 
   else
     {
+    recycled = 0; //in case program is run again
     return -1; //every point has been processed
     }
 }
@@ -194,11 +195,15 @@ void vtkVertexQueue::Insert(int ptId, float error)
         error = ComputeSimpleError(X,Normal,Pt);
         }
 
-      else if ( type == VTK_INTERIOR_EDGE_VERTEX || type == VTK_BOUNDARY_VERTEX )
+      else if ( type == VTK_BOUNDARY_VERTEX  || 
+      (type == VTK_INTERIOR_EDGE_VERTEX && (!Split || DeferSplit)) )
         {
         simpleType = 1;
-        error = ComputeEdgeError(X, V->Array[fedges[0]].x, 
-                                 V->Array[fedges[1]].x);
+        if ( ncells == 1 ) //compute better error for single triangle 
+          error = ComputeSingleTriangleError(X,V->Array[0].x, V->Array[1].x);
+        else
+          error = ComputeEdgeError(X, V->Array[fedges[0]].x, 
+                                   V->Array[fedges[1]].x);
         }
 
       if ( simpleType )
@@ -208,7 +213,7 @@ void vtkVertexQueue::Insert(int ptId, float error)
 
       // Type is complex so we break it up (if not defering splitting). A side-effect
       //  of splitting a vertex is that it inserts it and any new vertices into queue.
-      else if ( Split && !DeferSplit )
+      else if ( Split && !DeferSplit ) //not a simple type and splitting on
         {
         SplitVertex(ptId, type, ncells, cells);
         } //not a simple type
@@ -398,14 +403,15 @@ void vtkDecimatePro::Execute()
       }//if cells attached
     }//while queue not empty and reduction not satisfied
 
-  vtkDebugMacro(<<"\n\tReduction " << reduction
+  vtkDebugMacro(<<"\n\tReduction " << reduction << " (" << numTris << " vs. " 
+                << numTris - totalEliminated << " triangles)"
                 <<"\n\tPerformed " << numPops << " vertex pops"
                 <<"\n\tFound " << this->GetNumberOfInflectionPoints() 
-                    <<" inflection points"
+                <<" inflection points"
                 <<"\n\tPerformed " << NumSplits << " vertex splits"
                 <<"\n\tRecycled " << numRecycles << " points"
                 <<"\n\tAdded " << Mesh->GetNumberOfPoints() - numPts 
-                    << " new points");
+                << " new points");
 
 
   // Generate output at the given reduction level.
@@ -793,9 +799,10 @@ static int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
 //
 static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tris)
 {
-  int i, j, id, p1, p2, numFEdges, fedge1, fedge2;
+  int i, j, id, numFEdges, fedge1, fedge2;
   int nverts, *verts, tri, numSplitTris, veryFirst;
-  float x1[3], x2[3], error;
+  float error;
+  int startTri, p[2], maxGroupSize;
 
   NumSplits++;
   //
@@ -867,56 +874,31 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
       error = ComputeEdgeError(X, V->Array[0].x, V->Array[veryFirst].x);
     else
       error = ComputeEdgeError(X, V->Array[veryFirst].x, V->Array[fedge1].x);
-    VertexQueue->Insert(id,error);    
-    }
-
-  //triangulation has failed so we'll cut the loop in half
-  else if ( type == VTK_RECYCLE ) 
-    {
-    // First triangle is detached from other vertices
-    Mesh->GetCellPoints(tris[0],nverts,verts);
-    p1 = ( verts[0] != ptId ? verts[0] : verts[1] );
-    p2 = ( verts[1] != ptId && verts[1] != p1 ? verts[1] : verts[2] );
-    Mesh->GetPoint(p1,x1);
-    Mesh->GetPoint(p2,x2);
-    error = ComputeEdgeError(X, x1, x2);
     VertexQueue->Insert(ptId,error);    
-
-    // Other connected triangles are detached by creating a new vertex and
-    // attaching triangles to it (and detaching from old).
-    for ( i=1; i < numTris; i++ )
-      {
-      Mesh->RemoveReferenceToCell(ptId,tris[i]);
-
-      id = Mesh->InsertNextLinkedPoint(X,1);
-      Mesh->AddReferenceToCell(id,tris[i]);
-      Mesh->ReplaceCellPoint(tris[i], ptId, id);
-
-      // Compute error and insert into priority queue
-      Mesh->GetCellPoints(tris[i],nverts,verts);
-      p1 = ( verts[0] != id ? verts[0] : verts[1] );
-      p2 = ( verts[1] != id && verts[1] != p1 ? verts[1] : verts[2] );
-      Mesh->GetPoint(p1,x1);
-      Mesh->GetPoint(p2,x2);
-      error = ComputeSingleTriangleError(X, x1, x2);
-      VertexQueue->Insert(id,error);    
-      }
     }
 
-  // Default case just splits off triangle(s) that form manifold groups
+  // Default case just splits off triangle(s) that form manifold groups. Note: this
+  // code also handles high-degree vertices.
   else
     {
-    static vtkIdList triangles(VTK_MAX_TRIS_PER_VERTEX);
-    static vtkIdList cellIds(5,10);
-    static vtkIdList group(VTK_MAX_TRIS_PER_VERTEX);
-    int startTri, p[2];
+    vtkIdList triangles(VTK_MAX_TRIS_PER_VERTEX);
+    vtkIdList cellIds(5,10);
+    vtkIdList group(VTK_MAX_TRIS_PER_VERTEX);
+
+     //changes in group size control how to split loop
+    if ( type == VTK_RECYCLE ) //split loop in half
+       maxGroupSize = (numTris/2) + 1;
+    else
+       maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
 
     for ( triangles.Reset(), i=0; i < numTris; i++ ) triangles.SetId(i,tris[i]);
 
     // now group into manifold pieces
-    for ( group.Reset(), i=0, id=ptId; triangles.GetNumberOfIds() > 0; i++ )
+    for ( i=0, id=ptId; triangles.GetNumberOfIds() > 0; i++ )
       {
+      group.Reset();
       startTri = triangles.GetId(0);
+      group.InsertId(0,startTri);
       triangles.DeleteId(startTri);
       Mesh->GetCellPoints(startTri,nverts,verts);
       p[0] = ( verts[0] != ptId ? verts[0] : verts[1] );
@@ -928,12 +910,15 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
         for ( tri=startTri; p[j] >= 0; )
           {
           Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], cellIds);
-          if ( cellIds.GetNumberOfIds() == 1 && triangles.IsId((tri=cellIds.GetId(0))))
+          if ( cellIds.GetNumberOfIds() == 1 && triangles.IsId((tri=cellIds.GetId(0)))
+          && group.GetNumberOfIds() < maxGroupSize )
             {
             group.InsertNextId(tri);
             triangles.DeleteId(tri);
             Mesh->GetCellPoints(tri,nverts,verts);
-            p[j] = ( verts[1] != ptId && verts[1] != p[j] ? verts[1] : verts[2] );
+            if ( verts[0] != ptId && verts[0] != p[j] ) p[j] = verts[0];
+            else if ( verts[1] != ptId && verts[1] != p[j] ) p[j] = verts[1];
+            else p[j] = verts[2];
             }
           else p[j] = -1;
           }
@@ -949,6 +934,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
           Mesh->RemoveReferenceToCell(ptId, tri);
           Mesh->ReplaceCellPoint(tri, ptId, id);
           }
+        VertexQueue->Insert(id);
         }//if not first group
       }//for all groups
     }
