@@ -27,7 +27,6 @@
 #define __vtkWindow_h
 
 #include "vtkObject.h"
-#include <stdio.h>
 
 class vtkUnsignedCharArray;
 
