@@ -94,6 +94,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef struct {
   int VertexId;
+  // Dimension is suposed to be a flag representing the dimension of the cells
+  // contributing to the quadric. Lines: 1, Triangles: 2 (and points 0 in the future?)
+  unsigned char Dimension;
   float Quadric[9];
 } VTK_POINT_QUADRIC;
 
@@ -177,6 +180,10 @@ protected:
 				  float point[3]);
 
   // Description:
+  // Adds the triangle to the quadric array and to the geometry.
+  void AddTriangle(float *p0, float *p1, float *p2);
+
+  // Description:
   // Initialize the quadric matrix to 0's.
   void InitializeQuadric(float quadric[9]);
   
@@ -191,9 +198,8 @@ protected:
   int UseInputPoints;
 
   // Unfinished option to handle boundary edges differently.
-  void MatchBoundary(vtkPolyData *pd);
-  void AddBoundaryEdge(int binId, float *pt0, float *pt1);
-  void ComputeBestEdgePoint(vtkPoints *points, int ptId, float *coef);
+  void AppendBoundaryQuadrics(vtkPolyData *pd);
+  void AddEdgeQuadric(int *binIds, float *pt0, float *pt1);
   int MatchBoundaries;
 
   int NumberOfXDivisions;
