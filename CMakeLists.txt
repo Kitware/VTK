@@ -691,6 +691,8 @@ MACRO (VTK_INCLUDE_TCL_TK_MODULES)
 ENDMACRO (VTK_INCLUDE_TCL_TK_MODULES)
 
 IF(VTK_WRAP_TCL)
+  SET(VTK_WRAP_TCL3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+  INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake")
 
   VTK_INCLUDE_TCL_TK_MODULES()
 
@@ -731,12 +733,16 @@ INSTALL_FILES(/lib/vtk/CMake FILES
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support.
 IF(VTK_WRAP_PYTHON)
+  SET(VTK_WRAP_PYTHON3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+  INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapPython.cmake")
   INCLUDE(${CMAKE_ROOT}/Modules/FindPythonLibs.cmake)
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_PYTHON_EXE vtkWrapPython Wrapping vtkWrapPython.c)
+  UTILITY_SOURCE(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit 
+                   Wrapping vtkWrapPythonInit.c)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping)
-  MARK_AS_ADVANCED(VTK_WRAP_PYTHON_EXE VTK_WRAP_HINTS)
+  MARK_AS_ADVANCED(VTK_WRAP_PYTHON_EXE VTK_WRAP_PYTHON_INIT_EXE VTK_WRAP_HINTS)
 
   # VTK tcl executables.
   SET(VTK_PYTHON_EXE ${EXECUTABLE_OUTPUT_PATH}/vtkpython)
@@ -769,14 +775,18 @@ ENDIF(VTK_WRAP_PYTHON)
 #-----------------------------------------------------------------------------
 # Configure Java wrapping support.
 IF(VTK_WRAP_JAVA)
+  SET(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping")
+  INCLUDE("${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake")
   INCLUDE(${CMAKE_ROOT}/Modules/FindJava.cmake)
   INCLUDE(${CMAKE_ROOT}/Modules/FindJNI.cmake)
 
   # Wrapping executables.
   UTILITY_SOURCE(VTK_WRAP_JAVA_EXE vtkWrapJava Wrapping vtkWrapJava.c)
   UTILITY_SOURCE(VTK_PARSE_JAVA_EXE vtkParseJava Wrapping vtkParseJava.c)
+  UTILITY_SOURCE(VTK_WRAP_JAVA_INIT_EXE vtkWrapJavaInit 
+                   Wrapping vtkWrapJavaInit.c)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping)
-  MARK_AS_ADVANCED(VTK_WRAP_JAVA_EXE VTK_PARSE_JAVA_EXE VTK_WRAP_HINTS)
+  MARK_AS_ADVANCED(VTK_WRAP_JAVA_EXE VTK_WRAP_JAVA_INIT_EXE VTK_PARSE_JAVA_EXE VTK_WRAP_HINTS)
 
   # Java package location.
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
