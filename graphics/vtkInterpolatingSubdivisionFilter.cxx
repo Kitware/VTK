@@ -63,6 +63,13 @@ void vtkInterpolatingSubdivisionFilter::Execute()
 
   vtkDebugMacro(<< "Generating subdivision surface using interpolating scheme");
 
+  
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
+
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
 

@@ -63,6 +63,11 @@ void vtkApproximatingSubdivisionFilter::Execute()
   vtkIntArray *edgeData;
 
   vtkDebugMacro(<< "Generating subdivision surface using approximating scheme");
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
 
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();

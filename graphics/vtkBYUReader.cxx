@@ -102,6 +102,11 @@ void vtkBYUReader::Execute()
   FILE *geomFp;
   int numPts;
 
+  if (this->GeometryFileName == NULL)
+    {
+    vtkErrorMacro(<< "No GeometryFileName specified!");
+    return;
+    }
   if ((geomFp = fopen(this->GeometryFileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "Geometry file: " << this->GeometryFileName << " not found");
