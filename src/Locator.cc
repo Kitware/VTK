@@ -13,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "Locator.hh"
 #include "vlMath.hh"
 
@@ -32,6 +31,8 @@ public:
 protected:
   vlIntArray P;
 };
+// some compiler can't initialize static file scope objects -ugh
+static vlNeighborPoints *Buckets; 
 
 inline int vlNeighborPoints::InsertNextPoint(int *x) 
 {
@@ -42,13 +43,15 @@ inline int vlNeighborPoints::InsertNextPoint(int *x)
   return id/3;
 }
 
-static vlNeighborPoints Buckets(26,50);
 
 // Description:
 // Construct with automatic computation of divisions, averaging
 // 25 points per bucket.
 vlLocator::vlLocator()
 {
+  static vlNeighborPoints BucketStorage(26,50);;
+  Buckets = &BucketStorage;
+
   this->Points = NULL;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->Automatic = 1;
@@ -59,6 +62,7 @@ vlLocator::vlLocator()
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->InsertionPointId = 0;
   this->InsertionTol2 = 0.0001;
+
 }
 
 vlLocator::~vlLocator()
@@ -132,9 +136,9 @@ int vlLocator::FindClosestPoint(float x[3])
     {
     this->GetBucketNeighbors (ijk, this->Divisions, level);
 
-    for (i=0; i<Buckets.GetNumberOfNeighbors(); i++) 
+    for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
       {
-      nei = Buckets.GetPoint(i);
+      nei = Buckets->GetPoint(i);
       cno = nei[0] + nei[1]*this->Divisions[0] + 
             nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -163,9 +167,9 @@ int vlLocator::FindClosestPoint(float x[3])
 //  Don't want to search all the neighbors, only those that could
 //  possibly have points closer than the current closest.
 //
-  for (i=0; i<Buckets.GetNumberOfNeighbors(); i++) 
+  for (i=0; i<Buckets->GetNumberOfNeighbors(); i++) 
     {
-    nei = Buckets.GetPoint(i);
+    nei = Buckets->GetPoint(i);
 
     for (dist2=0,j=0; j<3; j++) 
       {
@@ -262,9 +266,9 @@ int *vlLocator::MergePoints()
         {
         this->GetBucketNeighbors (ijk, this->Divisions, lvl);
 
-        for ( k=0; k < Buckets.GetNumberOfNeighbors(); k++ ) 
+        for ( k=0; k < Buckets->GetNumberOfNeighbors(); k++ ) 
           {
-          nei = Buckets.GetPoint(k);
+          nei = Buckets->GetPoint(k);
           cno = nei[0] + nei[1]*this->Divisions[0] + 
                 nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -390,13 +394,13 @@ void vlLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 //
 //  Initialize
 //
-  Buckets.Reset();
+  Buckets->Reset();
 //
 //  If at this bucket, just place into list
 //
   if ( level == 0 ) 
     {
-    Buckets.InsertNextPoint(ijk);
+    Buckets->InsertNextPoint(ijk);
     return;
     }
 //
@@ -422,7 +426,7 @@ void vlLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
         k == (ijk[2] + level) || k == (ijk[2] - level) ) 
           {
           nei[0]=i; nei[1]=j; nei[2]=k;
-          Buckets.InsertNextPoint(nei);
+          Buckets->InsertNextPoint(nei);
           }
         }
       }
@@ -523,9 +527,9 @@ int vlLocator::InsertPoint(float x[3])
       {
       this->GetBucketNeighbors (ijk, this->Divisions, lvl);
 
-      for ( i=0; i < Buckets.GetNumberOfNeighbors(); i++ ) 
+      for ( i=0; i < Buckets->GetNumberOfNeighbors(); i++ ) 
         {
-        nei = Buckets.GetPoint(i);
+        nei = Buckets->GetPoint(i);
         cno = nei[0] + nei[1]*this->Divisions[0] + 
               nei[2]*this->Divisions[0]*this->Divisions[1];
 
