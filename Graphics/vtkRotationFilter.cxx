@@ -23,8 +23,9 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkMath.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRotationFilter, "1.7");
+vtkCxxRevisionMacro(vtkRotationFilter, "1.8");
 vtkStandardNewMacro(vtkRotationFilter);
 
 //---------------------------------------------------------------------------
@@ -85,7 +86,7 @@ int vtkRotationFilter::RequestData(
 
   double tuple[3];
   vtkPoints *outPoints;
-  double point[3], center[3];
+  double point[3], center[3], negativCenter[3];
   int ptId, cellId, j, k;
   vtkGenericCell *cell = vtkGenericCell::New();
   vtkIdList *ptIds = vtkIdList::New();
@@ -132,87 +133,53 @@ int vtkRotationFilter::RequestData(
       outPD->CopyData(inPD, i, ptId);
       }
     }
-
+  vtkTransform *localTransform = vtkTransform::New();
   // Rotate points.
-  double angle = this->GetAngle()*vtkMath::DegreesToRadians();
+  // double angle = this->GetAngle()*vtkMath::DegreesToRadians();
   this->GetCenter(center);
-  switch (this->Axis)
+  negativCenter[0] = -center[0];
+  negativCenter[1] = -center[1];
+  negativCenter[2] = -center[2];
+
+  for (k = 0; k < this->GetNumberOfCopies(); k++)
+   {
+   localTransform->Identity();
+   localTransform->Translate(center);
+   switch (this->Axis)
     {
-    case USE_X:
-      for (k = 0; k < this->GetNumberOfCopies(); k++)
-        {
-         for (i = 0; i < numPts; i++)
-           {
-           input->GetPoint(i, point);
-           ptId =
-             outPoints->InsertNextPoint((point[0]-center[0]),
-                                        (point[1]-center[1])*cos(angle*(1+k)) - (point[2]-center[2])*sin(angle*(1+k)),
-                                        (point[1]-center[1])*sin(angle*(1+k)) + (point[2]-center[2])*cos(angle*(1+k)));
-           outPD->CopyData(inPD, i, ptId);
-           if (inPtVectors)
-             {
-             inPtVectors->GetTuple(i, tuple);
-             outPtVectors->SetTuple(ptId, tuple);
-             }
-           if (inPtNormals)
-             {
-             inPtNormals->GetTuple(i, tuple);
-            outPtNormals->SetTuple(ptId, tuple);
-             }
-           }
-        }
-    break;
+     case USE_X:
+        localTransform->RotateX((k+1)*this->GetAngle());
+     break;
 
-    case USE_Y:
-      for (k = 0; k < this->GetNumberOfCopies(); k++)
-        {
-         for (i = 0; i < numPts; i++)
-           {
-           input->GetPoint(i, point);
-           ptId =
-             outPoints->InsertNextPoint((point[0]-center[0])*cos(angle*(1+k)) + (point[2]-center[2])*sin(angle*(1+k)),
-                                        (point[1]-center[1]),
-                                       -(point[0]-center[0])*sin(angle*(1+k)) + (point[2]-center[2])*cos(angle*(1+k)));
-           outPD->CopyData(inPD, i, ptId);
-           if (inPtVectors)
-             {
-             inPtVectors->GetTuple(i, tuple);
-             outPtVectors->SetTuple(ptId, tuple);
-             }
-           if (inPtNormals)
-             {
-             inPtNormals->GetTuple(i, tuple);
-             outPtNormals->SetTuple(ptId, tuple);
-            }
-           }
-        }
-    break;
+     case USE_Y:
+        localTransform->RotateY((k+1)*this->GetAngle());
+     break;
 
-    case USE_Z:
-      for (k = 0; k < this->GetNumberOfCopies(); k++)
-        {
-        for (i = 0; i < numPts; i++)
-           {
-          input->GetPoint(i, point);
-          ptId =
-            outPoints->InsertNextPoint( (point[0]-center[0])*cos(angle*(1+k)) - (point[1]-center[1])*sin(angle*(1+k)),
-                                        (point[0]-center[0])*sin(angle*(1+k)) + (point[1]-center[1])*cos(angle*(1+k)),
-                                        (point[2]-center[2]));
-          outPD->CopyData(inPD, i, ptId);
-          if (inPtVectors)
-            {
-            inPtVectors->GetTuple(i, tuple);
-            outPtVectors->SetTuple(ptId, tuple);
-            }
-           if (inPtNormals)
-             {
-             inPtNormals->GetTuple(i, tuple);
-             outPtNormals->SetTuple(ptId, tuple);
-             }
-           }
-        }
-      break;
+     case USE_Z:
+        localTransform->RotateZ((k+1)*this->GetAngle());
+     break;
+     }
+   localTransform->Translate(negativCenter);
+   for (i = 0; i < numPts; i++)
+    {
+    input->GetPoint(i, point);
+    localTransform->TransformPoint(point, point);
+    ptId = outPoints->InsertNextPoint(point);
+    outPD->CopyData(inPD, i, ptId);
+    if (inPtVectors)
+      {
+      inPtVectors->GetTuple(i, tuple);
+      outPtVectors->SetTuple(ptId, tuple);
+      }
+    if (inPtNormals)
+      {
+      //inPtNormals->GetTuple(i, tuple);
+      //outPtNormals->SetTuple(ptId, tuple);
+      }
     }
+   }
+
+  localTransform->Delete();
 
   int numCellPts,  cellType;
   vtkIdType *newCellPts;
@@ -244,30 +211,20 @@ int vtkRotationFilter::RequestData(
       // introduce to flip all the triangles properly.
       if (cellType == VTK_TRIANGLE_STRIP && numCellPts % 2 == 0)
         {
-        numCellPts++;
-        newCellPts = new vtkIdType[numCellPts];
-         newCellPts[0] = cellPts->GetId(0) + numPts;
-        newCellPts[1] = cellPts->GetId(2) + numPts;
-        newCellPts[2] = cellPts->GetId(1) + numPts;
-        newCellPts[3] = cellPts->GetId(2) + numPts;
-        for (j = 4; j < numCellPts; j++)
-          {
-          newCellPts[j] = cellPts->GetId(j-1) + numPts*k;
-          if (this->CopyInput)
-            {
-            newCellPts[j] += numPts;
-            }
-          }
+        cerr << "Here\n";
         }
       else
-        {
+        {cerr << "celltype " << cellType << " numCellPts " << numCellPts << "\n";
         newCellPts = new vtkIdType[numCellPts];
-        for (j = numCellPts-1; j >= 0; j--)
+        //for (j = numCellPts-1; j >= 0; j--)
+        for (j = 0; j < numCellPts; j++)
           {
-          newCellPts[numCellPts-1-j] = cellPts->GetId(j) + numPts*k;
+          //newCellPts[numCellPts-1-j] = cellPts->GetId(j) + numPts*k;
+          newCellPts[j] = cellPts->GetId(j) + numPts*k;
            if (this->CopyInput)
             {
-             newCellPts[numCellPts-1-j] += numPts;
+             //newCellPts[numCellPts-1-j] += numPts;
+             newCellPts[j] += numPts;
             }
           }
         }
@@ -281,8 +238,8 @@ int vtkRotationFilter::RequestData(
         }
       if (inCellNormals)
         {
-        inCellNormals->GetTuple(i, tuple);
-        outCellNormals->SetTuple(cellId, tuple);
+        //inCellNormals->GetTuple(i, tuple);
+        //outCellNormals->SetTuple(cellId, tuple);
         }
       }
     }
