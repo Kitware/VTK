@@ -37,10 +37,11 @@ public:
   vtkTypeRevisionMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  //BTX
   // Description:
   // Get/Set the writer's input.
-  void SetInput(vtkRectilinearGrid* input);
   vtkRectilinearGrid* GetInput();
+  //ETX
   
   // Description:
   // Get the default file extension for files written by this writer.
@@ -50,6 +51,9 @@ protected:
   vtkXMLRectilinearGridWriter();
   ~vtkXMLRectilinearGridWriter();  
   
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   int WriteAppendedMode(vtkIndent indent);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);

@@ -22,7 +22,7 @@
 #ifndef __vtkXMLWriter_h
 #define __vtkXMLWriter_h
 
-#include "vtkProcessObject.h"
+#include "vtkAlgorithm.h"
 
 class vtkCellData;
 class vtkDataArray;
@@ -33,10 +33,10 @@ class vtkOutputStream;
 class vtkPointData;
 class vtkPoints;
 
-class VTK_IO_EXPORT vtkXMLWriter : public vtkProcessObject
+class VTK_IO_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkXMLWriter,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkXMLWriter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   //BTX
@@ -118,6 +118,14 @@ public:
   vtkBooleanMacro(EncodeAppendedData, int);
   
   // Description:
+  // Set/Get an input of this algorithm. You should not override these
+  // methods because they are not the only way to connect a pipeline
+  void SetInput(vtkDataObject *);
+  void SetInput(int, vtkDataObject*);
+  vtkDataObject *GetInput(int port);
+  vtkDataObject *GetInput() { return this->GetInput(0); };
+
+  // Description:
   // Get the default file extension for files written by this writer.
   virtual const char* GetDefaultFileExtension()=0;
   
@@ -129,6 +137,13 @@ protected:
   vtkXMLWriter();
   ~vtkXMLWriter();
   
+  virtual int ProcessRequest(vtkInformation* request,
+                             vtkInformationVector** inputVector,
+                             vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
+
   // The name of the output file.
   char* FileName;
   

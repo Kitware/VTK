@@ -13,11 +13,13 @@
 
 =========================================================================*/
 #include "vtkXMLPPolyDataWriter.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkPolyData.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLPPolyDataWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLPPolyDataWriter, "1.3");
 vtkStandardNewMacro(vtkXMLPPolyDataWriter);
 
 //----------------------------------------------------------------------------
@@ -37,20 +39,9 @@ void vtkXMLPPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPPolyDataWriter::SetInput(vtkPolyData* input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkPolyData* vtkXMLPPolyDataWriter::GetInput()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-  
-  return static_cast<vtkPolyData*>(this->Inputs[0]);
+  return static_cast<vtkPolyData*>(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
@@ -73,4 +64,11 @@ vtkXMLPPolyDataWriter::CreateUnstructuredPieceWriter()
   vtkXMLPolyDataWriter* pWriter = vtkXMLPolyDataWriter::New();
   pWriter->SetInput(this->GetInput());
   return pWriter;
+}
+
+int vtkXMLPPolyDataWriter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }

@@ -17,6 +17,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
@@ -28,7 +29,7 @@
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.7");
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -53,26 +54,15 @@ void vtkXMLDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataSetWriter::SetInput(vtkDataSet* input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkDataSet* vtkXMLDataSetWriter::GetInput()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-  
-  return static_cast<vtkDataSet*>(this->Inputs[0]);
+  return static_cast<vtkDataSet*>(this->Superclass::GetInput());
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::WriteInternal()
 {  
-  vtkDataSet* input = this->GetInput();
+  vtkDataSet* input = vtkDataSet::SafeDownCast(this->GetInput());
   vtkXMLWriter* writer = 0;
   
   // Create a writer based on the data set type.
@@ -161,7 +151,7 @@ void vtkXMLDataSetWriter::ProgressCallbackFunction(vtkObject* caller,
                                                    unsigned long,
                                                    void* clientdata, void*)
 {
-  vtkProcessObject* w = vtkProcessObject::SafeDownCast(caller);
+  vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
   if(w)
     {
     reinterpret_cast<vtkXMLDataSetWriter*>(clientdata)->ProgressCallback(w);
@@ -169,7 +159,7 @@ void vtkXMLDataSetWriter::ProgressCallbackFunction(vtkObject* caller,
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLDataSetWriter::ProgressCallback(vtkProcessObject* w)
+void vtkXMLDataSetWriter::ProgressCallback(vtkAlgorithm* w)
 {
   float width = this->ProgressRange[1]-this->ProgressRange[0];
   float internalProgress = w->GetProgress();
@@ -179,4 +169,11 @@ void vtkXMLDataSetWriter::ProgressCallback(vtkProcessObject* w)
     {
     w->SetAbortExecute(1);
     }
+}
+
+int vtkXMLDataSetWriter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }

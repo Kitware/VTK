@@ -37,11 +37,12 @@ public:
   static vtkXMLPUnstructuredGridWriter* New();
   vtkTypeRevisionMacro(vtkXMLPUnstructuredGridWriter,vtkXMLPUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+
+  //BTX
   // Description:
   // Get/Set the writer's input.
-  void SetInput(vtkUnstructuredGrid* input);
   vtkUnstructuredGrid* GetInput();
+  //ETX
   
   // Description:
   // Get the default file extension for files written by this writer.
@@ -51,6 +52,9 @@ protected:
   vtkXMLPUnstructuredGridWriter();
   ~vtkXMLPUnstructuredGridWriter();
   
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   const char* GetDataSetName();
   vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter(); 
   

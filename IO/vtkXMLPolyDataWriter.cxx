@@ -17,11 +17,12 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.6");
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
 //----------------------------------------------------------------------------
@@ -41,21 +42,11 @@ void vtkXMLPolyDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPolyDataWriter::SetInput(vtkPolyData* input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkPolyData* vtkXMLPolyDataWriter::GetInput()
 {
-  if(this->NumberOfInputs < 1)
-    {
-    return 0;
-    }
-  
-  return static_cast<vtkPolyData*>(this->Inputs[0]);
+  return static_cast<vtkPolyData*>(this->Superclass::GetInput());
 }
+
 
 //----------------------------------------------------------------------------
 const char* vtkXMLPolyDataWriter::GetDataSetName()
@@ -402,4 +393,11 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
     {
     fractions[i+1] = fractions[i+1] / fractions[5];
     }
+}
+
+int vtkXMLPolyDataWriter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }
