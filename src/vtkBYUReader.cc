@@ -95,7 +95,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   vtkCellArray *newPolys;
   float x[3];
   vtkIdList pts(VTK_CELL_SIZE);
-  int id, polyId, pt;
+  int polyId, pt;
   vtkPolyData *output = this->GetOutput();
   
   //
