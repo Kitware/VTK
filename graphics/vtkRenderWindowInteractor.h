@@ -244,7 +244,8 @@ protected:
   int   ActorMode;
   float DesiredUpdateRate;
   float StillUpdateRate;
-  int   EventPosition[2], Size[2];
+  int   EventPosition[2];
+  int   Size[2];
   
   // user methods that can be used to override default behaviour
   void (*StartPickMethod)(void *);
