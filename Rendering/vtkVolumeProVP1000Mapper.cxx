@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.13");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.14");
 
 vtkVolumeProVP1000Mapper::vtkVolumeProVP1000Mapper()
 {
@@ -932,44 +932,46 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   
   this->DrawBoundingBox = 0;
   
-  if ( (width > imageWidth || height > imageHeight) &&
-       (width < 2000 && height < 2000) )
+  if (width > imageWidth || height > imageHeight)
     {
-    float aspectRatio = (float)imageWidth / (float)imageHeight;
-    int widthDiff, heightDiff, newWidth, newHeight;
-    float increase;
-    
-    widthDiff = width - imageWidth;
-    heightDiff = height - imageHeight;
-    if (widthDiff > heightDiff)
+    if (width < 2000 && height < 2000)
       {
-      increase = (float)width / (float)imageWidth;
-      newWidth = width;
-      newHeight = ceil(imageHeight*increase);
+      float aspectRatio = (float)imageWidth / (float)imageHeight;
+      int widthDiff, heightDiff, newWidth, newHeight;
+      float increase;
+      
+      widthDiff = width - imageWidth;
+      heightDiff = height - imageHeight;
+      if (widthDiff > heightDiff)
+        {
+        increase = (float)width / (float)imageWidth;
+        newWidth = width;
+        newHeight = ceil(imageHeight*increase);
+        }
+      else
+        {
+        increase = (float)height / (float)imageHeight;
+        newWidth = ceil(imageWidth*increase);
+        newHeight = height;
+        }
+      this->ImageBuffer->Release();
+      static VLIFieldDescriptor sImageBufferFields[4] =
+      {
+        VLIFieldDescriptor(0, 8, kVLIUnsignedFraction),
+        VLIFieldDescriptor(8, 8, kVLIUnsignedFraction),
+        VLIFieldDescriptor(16, 8, kVLIUnsignedFraction),
+        VLIFieldDescriptor(24, 8, kVLIUnsignedFraction)
+      };
+      
+      this->ImageBuffer = VLIImageBuffer::Create(kVLIBoard0, newWidth,
+                                                 newHeight, 32, 4,
+                                                 sImageBufferFields);
+      this->ImageBuffer->SetBorderValue(0, 0, 0, 0);
       }
     else
       {
-      increase = (float)height / (float)imageHeight;
-      newWidth = ceil(imageWidth*increase);
-      newHeight = height;
+      this->DrawBoundingBox = 1;
       }
-    this->ImageBuffer->Release();
-    static VLIFieldDescriptor sImageBufferFields[4] =
-    {
-      VLIFieldDescriptor(0, 8, kVLIUnsignedFraction),
-      VLIFieldDescriptor(8, 8, kVLIUnsignedFraction),
-      VLIFieldDescriptor(16, 8, kVLIUnsignedFraction),
-      VLIFieldDescriptor(24, 8, kVLIUnsignedFraction)
-    };
-    
-    this->ImageBuffer = VLIImageBuffer::Create(kVLIBoard0, newWidth,
-                                               newHeight, 32, 4,
-                                               sImageBufferFields);
-    this->ImageBuffer->SetBorderValue(0, 0, 0, 0);
-    }
-  else
-    {
-    this->DrawBoundingBox = 1;
     }
   
   if ( ! this->DrawBoundingBox)
