@@ -96,7 +96,6 @@ public:
   // avoid dll boundary problems
   void* operator new( size_t tSize, const char *, int);
   void* operator new( size_t tSize );
-  void operator delete( void* p, const char *, int); // make VC++ 6 happy
   void operator delete( void* p );
 #endif 
   

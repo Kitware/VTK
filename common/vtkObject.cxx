@@ -58,11 +58,6 @@ void* vtkObject::operator new(size_t nSize)
   return p;
 }
 
-void vtkObject::operator delete( void *p, const char *, int)
-{
-  free(p);
-}
-
 void vtkObject::operator delete( void *p )
 {
   free(p);
