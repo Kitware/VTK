@@ -396,6 +396,7 @@ vtkSphereSource ball
 foreach cell "aVoxel aHexahedron aTetra aPixel aQuad aTriangle aPolygon aTriangleStrip aLine aPolyLine aVertex aPolyVertex" {
   vtkCellCenters ${cell}Centers
     ${cell}Centers SetInput ${cell}Grid
+    ${cell}Centers VertexCellsOn
   vtkGlyph3D ${cell}Glyph3D
     ${cell}Glyph3D SetInput [${cell}Centers GetOutput]
     ${cell}Glyph3D SetSource [ball GetOutput]
