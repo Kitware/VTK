@@ -258,6 +258,7 @@ public:
   virtual void *GetGenericDisplayId() {return NULL;};
   virtual void *GetGenericWindowId() {return NULL;};
   virtual void *GetGenericParentId() {return NULL;};
+  virtual void *GetGenericContext() {return NULL;};
   virtual void SetWindowInfo(char *) {};
 
 protected:
