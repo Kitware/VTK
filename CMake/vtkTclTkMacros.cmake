@@ -42,7 +42,6 @@ MACRO (VTK_GET_TCL_TK_VERSION tcl_tk_major_version tcl_tk_minor_version)
         ".*#define TCL_VERSION[ \t]*\"([0-9][0-9]*\\.[0-9][0-9]*)\".*" "\\1"
         tcl_include_file "${tcl_include_file}")
       IF(${tcl_include_file} MATCHES "^[0-9]*\\.[0-9]*$")
-        MESSAGE("Version ${tcl_include_file}")
         STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\1" "${tcl_tk_major_version}"
           "${tcl_include_file}")
         STRING(REGEX REPLACE "^([0-9]*)\\.([0-9]*)$" "\\2" "${tcl_tk_minor_version}"
