@@ -127,8 +127,14 @@ void vtkLODActor::Render(vtkRenderer *ren)
     this->GetProperty();
     }
   this->Property->Render(this, ren);
+  if (this->BackfaceProperty)
+    {
+    this->BackfaceProperty->BackfaceRender(this, ren);
+    this->Device->SetBackfaceProperty(this->BackfaceProperty);
+    }
   this->Device->SetProperty(this->Property);
   
+
   /* render the texture */
   if (this->Texture) this->Texture->Render(ren);
     
