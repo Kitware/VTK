@@ -33,3 +33,9 @@ ENDIF (VTK_USE_RENDERING)
 ADD_TEST(PrintSelf-IO ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/IO)
+
+ADD_TEST(TestSetObjectMacro-IO ${TCL_TCLSH}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+         "${VTK_SOURCE_DIR}/IO/vtk\\\\*.h"
+         "vtkSetObjectMacro"
+         )
