@@ -31,6 +31,9 @@ IF (VTK_USE_RENDERING)
 
 ENDIF (VTK_USE_RENDERING)
 
+ADD_TEST(TestEmptyXML ${VTK_EXECUTABLE}
+         ${VTK_SOURCE_DIR}/IO/Testing/Tcl/TestEmptyXML.tcl)
+
 ADD_TEST(PrintSelf-IO ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/IO)
