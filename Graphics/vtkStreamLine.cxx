@@ -123,7 +123,7 @@ void vtkStreamLine::Execute()
     }
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,
-					    VTK_CELL_SIZE));
+                                            VTK_CELL_SIZE));
   //
   // Loop over all streamers generating points
   //
@@ -170,14 +170,14 @@ void vtkStreamLine::Execute()
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           newScalars->InsertTuple(id,&s);
           }
-	
-	if ( this->Vorticity )
-	  {
-	  // Store the rotation values. Used after all the streamlines
-	  // are generated.
-	  theta = sPrev->theta + r * (sPtr->theta - sPrev->theta);
-	  rotation->InsertTuple(id, &theta);
-	  }
+        
+        if ( this->Vorticity )
+          {
+          // Store the rotation values. Used after all the streamlines
+          // are generated.
+          theta = sPrev->theta + r * (sPtr->theta - sPrev->theta);
+          rotation->InsertTuple(id, &theta);
+          }
 
         tOffset += this->StepLength;
 
@@ -217,9 +217,9 @@ void vtkStreamLine::Execute()
       costheta = cos(theta);
       sintheta = sin(theta);
       for(j=0; j<3; j++)
-	{
-	normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
-	}
+        {
+        normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+        }
       normals->SetTuple(i, normal);
       }
     output->GetPointData()->SetNormals(normals);
