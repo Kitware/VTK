@@ -20,7 +20,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.5");
+vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.6");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -227,7 +227,7 @@ char* vtkXMLPDataWriter::CreatePieceFileName(int index, const char* path)
 {
   ostrstream fn_with_warning_C4701;
   if(path) { fn_with_warning_C4701 << path; }
-  fn_with_warning_C4701 << this->FileNameBase << index;
+  fn_with_warning_C4701 << this->FileNameBase << "_" << index;
   if(this->PieceFileNameExtension) 
   { fn_with_warning_C4701 << this->PieceFileNameExtension; }
   //if(this->FileNameExtension) 
