@@ -1,6 +1,7 @@
 SOURCE_FILES( Imaging_SRCS
 vtkBooleanTexture
 vtkExtractVOI
+vtkGaussianSplatter
 vtkImageAccumulate
 vtkImageAnisotropicDiffusion2D
 vtkImageAnisotropicDiffusion3D
@@ -86,9 +87,13 @@ vtkImageThreshold
 vtkImageTranslateExtent
 vtkImageVariance3D
 vtkImageWrapPad
+vtkImplicitModeller
 vtkPointLoad
 vtkSampleFunction
+vtkShepardMethod
+vtkSurfaceReconstructionFilter 
 vtkTriangularTexture
+vtkVoxelModeller
 vtkWindowToImageFilter 
 )
 

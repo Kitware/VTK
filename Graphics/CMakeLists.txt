@@ -41,7 +41,6 @@ vtkExtractTensorComponents
 vtkExtractUnstructuredGrid
 vtkExtractVectorComponents
 vtkFeatureEdges
-vtkGaussianSplatter
 vtkGeometryFilter
 vtkGlyph2D
 vtkGlyph3D
@@ -50,7 +49,6 @@ vtkHedgeHog
 vtkHull
 vtkHyperStreamline
 vtkIdFilter
-vtkImplicitModeller
 vtkImplicitTextureCoords
 vtkInterpolateDataSetAttributes
 vtkInterpolatingSubdivisionFilter
@@ -95,7 +93,6 @@ vtkRibbonFilter
 vtkRotationalExtrusionFilter
 vtkRuledSurfaceFilter
 vtkSelectPolyData
-vtkShepardMethod
 vtkShrinkFilter
 vtkShrinkPolyData
 vtkSimpleElevationFilter
@@ -111,7 +108,6 @@ vtkStructuredPointsGeometryFilter
 vtkSubPixelPositionEdgels
 vtkSubdivideTetra 
 vtkSuperquadricSource 
-vtkSurfaceReconstructionFilter 
 vtkTensorGlyph
 vtkTextSource
 vtkTextureMapToCylinder
@@ -130,7 +126,6 @@ vtkTubeFilter
 vtkVectorDot
 vtkVectorNorm
 vtkVoxelContoursToSurfaceFilter
-vtkVoxelModeller
 vtkWarpLens
 vtkWarpScalar
 vtkWarpTo
