@@ -126,7 +126,6 @@ int vtkLongArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -164,7 +163,6 @@ void vtkLongArray::DeepCopy(vtkDataArray *sa)
     this->NumberOfComponents = sa->GetNumberOfComponents();
     this->MaxId = sa->GetMaxId();
     this->Size = sa->GetSize();
-    this->Extend = sa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new long[this->Size];
@@ -189,7 +187,7 @@ void vtkLongArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-long *vtkLongArray::Resize(const int sz)
+long *vtkLongArray::ResizeAndExtend(const int sz)
 {
   long *newArray;
   int newSize;
@@ -229,11 +227,58 @@ long *vtkLongArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
 
   return this->Array;
+}
+
+void vtkLongArray::Resize(const int sz)
+{
+  long *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+  
+  if ( (newArray = new long[newSize]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
+         (newSize < this->Size ? newSize : this->Size) * sizeof(long));
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
 }
 
 // Set the number of n-tuples in the array.

@@ -125,7 +125,6 @@ int vtkUnsignedCharArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -163,7 +162,6 @@ void vtkUnsignedCharArray::DeepCopy(vtkDataArray *ia)
     this->NumberOfComponents = ia->GetNumberOfComponents();
     this->MaxId = ia->GetMaxId();
     this->Size = ia->GetSize();
-    this->Extend = ia->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new unsigned char[this->Size];
@@ -190,7 +188,7 @@ void vtkUnsignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-unsigned char *vtkUnsignedCharArray::Resize(const int sz)
+unsigned char *vtkUnsignedCharArray::ResizeAndExtend(const int sz)
 {
   unsigned char *newArray;
   int newSize;
@@ -231,11 +229,59 @@ unsigned char *vtkUnsignedCharArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
 
   return this->Array;
+}
+
+void vtkUnsignedCharArray::Resize(const int sz)
+{
+  unsigned char *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new unsigned char[newSize]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
+	   (newSize < this->Size ? newSize : this->Size) * sizeof(char));
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
 }
 
 // Set the number of n-tuples in the array.

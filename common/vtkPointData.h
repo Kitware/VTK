@@ -58,8 +58,6 @@ public:
 
   vtkTypeMacro(vtkPointData,vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Set point data to null values
   void NullPoint(int ptId);
 
 protected:

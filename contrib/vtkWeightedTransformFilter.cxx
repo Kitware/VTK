@@ -692,29 +692,33 @@ void vtkWeightedTransformFilter::Execute()
   if (newNormals)
   {
     outPD->SetNormals(newNormals);
+    outPD->CopyNormalsOff();
     newNormals->Delete();
   }
 
   if (newVectors)
   {
     outPD->SetVectors(newVectors);
+    outPD->CopyVectorsOff();
     newVectors->Delete();
   }
 
   if (newCellNormals)
   {
     outCD->SetNormals(newCellNormals);
+    outCD->CopyNormalsOff();
     newCellNormals->Delete();
   }
 
   if (newCellVectors)
   {
     outCD->SetVectors(newCellVectors);
+    outCD->CopyVectorsOff();
     newCellVectors->Delete();
   }
 
-  outPD->PassNoReplaceData(pd);
-  outCD->PassNoReplaceData(cd);
+  outPD->PassData(pd);
+  outCD->PassData(cd);
 }
 
 //----------------------------------------------------------------------------

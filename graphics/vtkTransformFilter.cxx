@@ -175,28 +175,32 @@ void vtkTransformFilter::Execute()
     {
     outPD->SetNormals(newNormals);
     newNormals->Delete();
+    outPD->CopyNormalsOff();
     }
 
   if (newVectors)
     {
     outPD->SetVectors(newVectors);
     newVectors->Delete();
+    outPD->CopyVectorsOff();
     }
 
   if (newCellNormals)
     {
     outCD->SetNormals(newCellNormals);
     newCellNormals->Delete();
+    outCD->CopyNormalsOff();
     }
 
   if (newCellVectors)
     {
     outCD->SetVectors(newCellVectors);
     newCellVectors->Delete();
+    outCD->CopyVectorsOff();
     }
 
-  outPD->PassNoReplaceData(pd);
-  outCD->PassNoReplaceData(cd);
+  outPD->PassData(pd);
+  outCD->PassData(cd);
 }
 
 unsigned long vtkTransformFilter::GetMTime()

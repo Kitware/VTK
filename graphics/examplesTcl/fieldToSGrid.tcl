@@ -6,16 +6,18 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 # Demonstrate the generation of a structured grid from field data. The output
 # should be similar to combIso.tcl.
 
+
 # get the interactor ui
 source $VTK_TCL/vtkInt.tcl
 source $VTK_TCL/colors.tcl
 
 # Create a reader and write out the field
-vtkPLOT3DReader pl3d
-    pl3d SetXYZFileName "$VTK_DATA/combxyz.bin"
-    pl3d SetQFileName "$VTK_DATA/combq.bin"
+vtkStructuredGridReader pl3d
+    pl3d SetFileName "$VTK_DATA/comb.vtk"
+
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [pl3d GetOutput]
+
 vtkDataObjectWriter writer
     writer SetInput [ds2do GetOutput]
     writer SetFileName "SGridField.vtk"
@@ -35,10 +37,10 @@ vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetStructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 PointVectors 0 
-    fd2ad SetVectorComponent 1 PointVectors 1 
-    fd2ad SetVectorComponent 2 PointVectors 2 
-    fd2ad SetScalarComponent 0 PointScalars 0 
+    fd2ad SetVectorComponent 0 vectors 0 
+    fd2ad SetVectorComponent 1 vectors 1 
+    fd2ad SetVectorComponent 2 vectors 2 
+    fd2ad SetScalarComponent 0 scalars 0 
 
 # create pipeline
 #

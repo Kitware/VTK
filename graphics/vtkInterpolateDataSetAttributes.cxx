@@ -195,9 +195,10 @@ void vtkInterpolateDataSetAttributes::Execute()
     {
     outputPD->CopyTensorsOn();
     }
+  // *TODO* Fix
   if ( inputPD->GetFieldData() && input2PD->GetFieldData() )
     {
-    outputPD->CopyFieldDataOn();
+    // outputPD->CopyFieldDataOn();
     }
   outputPD->InterpolateAllocate(inputPD);
 
@@ -222,12 +223,14 @@ void vtkInterpolateDataSetAttributes::Execute()
     {
     outputCD->CopyTensorsOn();
     }
+  // *TODO* Fix
   if ( inputCD->GetFieldData() && input2CD->GetFieldData() )
     {
-    outputCD->CopyFieldDataOn();
+    // outputCD->CopyFieldDataOn();
     }
   outputCD->InterpolateAllocate(inputCD);
 
+ 
   // Interpolate point data. We'll assume that it takes 50% of the time
   for ( i=0; i < numPts; i++ )
     {

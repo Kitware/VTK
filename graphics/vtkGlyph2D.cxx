@@ -97,11 +97,10 @@ void vtkGlyph2D::Execute()
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
 
-  vtkFieldData* fd = pd->GetFieldData();
   vtkDataArray* temp = 0;
-  if (fd)
+  if (pd)
     {
-    temp = fd->GetArray("vtkGhostLevels");
+    temp = pd->GetArray("vtkGhostLevels");
     }
   if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
     || (temp->GetNumberOfComponents() != 1))

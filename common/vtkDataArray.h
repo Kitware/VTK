@@ -56,6 +56,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // represent scalars (1-4 components), 3D vectors (3 components), texture
 // coordinates (1-3 components), tensors, (9 components) and so on.
 // 
+// Each data array is required to have a character-string name. The 
+// naming of the array occurs automatically when it is instantiated, but 
+// you are free to name arrays using the SetName() method. 
+// (The array name is used for data manipulation.)
+//
 // .SECTION See Also
 // vtkBitArray vtkCharArray vtkUnsignedCharArray vtkShortArray
 // vtkUnsignedShortArray vtkIntArray vtkUnsignedIntArray vtkLongArray
@@ -65,8 +70,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkDataArray_h
 
 #include "vtkObject.h"
+#include "vtkLargeInteger.h"
 
 class vtkFloatArray;
+class vtkLookupTable;
 
 class VTK_EXPORT vtkDataArray : public vtkObject 
 {
@@ -74,6 +81,9 @@ public:
   vtkTypeMacro(vtkDataArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Allocate memory for this array. Delete old storage only if necessary.
+  // Note that ext is no longer used.
   virtual int Allocate(const int sz, const int ext=1000) = 0;
   virtual void Initialize() = 0;
 
@@ -163,7 +173,7 @@ public:
   // floating point values. This method is provided as a convenience for data
   // exchange, and is not very fast.
   virtual void GetData(int tupleMin, int tupleMax, int compMin, int compMax, 
-		       vtkFloatArray &data);
+		       vtkFloatArray* data);
 
   // Description:
   // Deep copy of data. Copies data from different data arrays even if
@@ -178,7 +188,11 @@ public:
   // Description:
   // Free any unnecessary memory.
   virtual void Squeeze() = 0;
-  
+
+  // Description:
+  // Resize the array while conserving the data.
+  virtual void Resize(int numTuples) = 0;
+
   // Description:
   // Reset to an empty state, without freeing any memory.
   void Reset() 
@@ -193,12 +207,6 @@ public:
   // What is the maximum id currently in the array.
   int GetMaxId() 
     {return this->MaxId;}
-
-  // Description:
-  // By how many elements should the array increase when more memory is 
-  // required.
-  int GetExtend() 
-    {return this->Extend;}
 
   // Description:
   // This method lets the user specify data to be held by the array.  The 
@@ -219,24 +227,36 @@ public:
   // been updated.
   unsigned long GetActualMemorySize();
   
-#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataArray &da) 
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&da);}
-#endif
+  // Create default lookup table. Generally used to create one when none
+  // is available.
+  void CreateDefaultLookupTable();
+
+  // Description:
+  // Set/get the lookup table associated with this scalar data, if any.
+  void SetLookupTable(vtkLookupTable *lut);
+  vtkGetObjectMacro(LookupTable,vtkLookupTable);
   
+  // Description:
+  // Set/get array's name
+  void SetName(const char* name);
+  const char* GetName();
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);
-  ~vtkDataArray() {};
+  ~vtkDataArray();
   vtkDataArray(const vtkDataArray&) {};
   void operator=(const vtkDataArray&) {};
 
+  vtkLookupTable *LookupTable;
+
   int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far
-  int Extend;    // grow array by this amount
   int NumberOfComponents; // the number of components per tuple
+
+  static unsigned long ArrayNamePostfix;
+  char* Name;
 };
 
 #endif

@@ -34,7 +34,7 @@ vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetPolyDataOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetScalarComponent 0 PointScalars 0 
+    fd2ad SetScalarComponent 0 my_scalars 0 
 
 vtkPolyDataMapper mapper
     mapper SetInput [fd2ad GetPolyDataOutput]

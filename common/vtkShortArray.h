@@ -60,6 +60,7 @@ public:
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
+  // Note that ext is no longer used.
   int Allocate(const int sz, const int ext=1000);
 
   // Description:
@@ -106,7 +107,11 @@ public:
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  void Squeeze() {this->Resize (this->MaxId+1);};
+  void Squeeze() {this->ResizeAndExtend (this->MaxId+1);};
+
+  // Description:
+  // Resize the array while conserving the data.
+  virtual void Resize(int numTuples);
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
@@ -190,7 +195,7 @@ protected:
   void operator=(const vtkShortArray&) {};
 
   short *Array;   // pointer to data
-  short *Resize(const int sz);  // function to resize data
+  short *ResizeAndExtend(const int sz);  // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
@@ -210,7 +215,7 @@ inline short *vtkShortArray::WritePointer(const int id, const int number)
   int newSize=id+number;
   if ( newSize > this->Size )
     {
-    this->Resize(newSize);
+    this->ResizeAndExtend(newSize);
     }
   if ( (--newSize) > this->MaxId )
     {
@@ -223,7 +228,7 @@ inline void vtkShortArray::InsertValue(const int id, const short i)
 {
   if ( id >= this->Size )
     {
-    this->Resize(id+1);
+    this->ResizeAndExtend(id+1);
     }
   this->Array[id] = i;
   if ( id > this->MaxId )

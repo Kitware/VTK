@@ -36,10 +36,10 @@ vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetRectilinearGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 PointVectors 0 
-    fd2ad SetVectorComponent 1 PointVectors 1 
-    fd2ad SetVectorComponent 2 PointVectors 2 
-    fd2ad SetScalarComponent 0 PointScalars 0 
+    fd2ad SetVectorComponent 0 vectors 0 
+    fd2ad SetVectorComponent 1 vectors 1 
+    fd2ad SetVectorComponent 2 vectors 2 
+    fd2ad SetScalarComponent 0 scalars 0 
     fd2ad Update
 
 # create pipeline

@@ -60,10 +60,6 @@ public:
   vtkTypeMacro(vtkCellData,vtkDataSetAttributes);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set cell data to null values
-  void NullCell(int cellId);
-  
 protected:
   vtkCellData() {}; //make sure constructor and desctructor are protected
   ~vtkCellData() {};

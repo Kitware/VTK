@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTensors.h"
 #include "vtkFieldData.h"
 
-class VTK_EXPORT vtkDataSetAttributes : public vtkObject
+class VTK_EXPORT vtkDataSetAttributes : public vtkFieldData
 {
 public:
   // Description:
@@ -71,28 +71,30 @@ public:
 
   // Description:
   // Initialize all of the object's data to NULL
-  void Initialize();
+  virtual void Initialize();
 
   // Description:
   // Attributes have a chance to bring themselves up to date; right
   // now this is ignored.
-  virtual void Update() {};
+  virtual void Update() {}
 
   // Description:
   // Pass entire arrays of input data through to output. Obey the "copy"
-  // flags.
+  // flags. Note that if the copy flag of an attribute is off,
+  // the corresponding array will not be passed. However if the
+  // copy flag of an attribute is on, the corresponding array
+  // will be copied even if the array is in not the list of arrays
+  // to be copied.
   void PassData(vtkDataSetAttributes* pd);
-
-  // Description:
-  // Pass entire arrays of input data through to output. Obey the "copy"
-  // flags. Only passes the data if the output attribute is NULL (i.e., not
-  // set).
-  void PassNoReplaceData(vtkDataSetAttributes* pd);
 
   // Description:
   // Allocates point data for point-by-point (or cell-by-cell) copy operation.
   // If sze=0, then use the input DataSetAttributes to create (i.e., find 
   // initial size of) new objects; otherwise use the sze variable.
+  // Note that pd HAS to be the vtkDataSetAttributes object which
+  // will later be used with CopyData. If this is not the case,
+  // consider using the alternative forms of CopyAllocate and CopyData.
+  // ext is no longer used.
   void CopyAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
 
   // Description:
@@ -102,6 +104,9 @@ public:
 
   // Description:
   // Initialize point interpolation method.
+  // Note that pd HAS to be the vtkDataSetAttributes object which
+  // will later be used with InterpolatePoint or InterpolateEdge.
+  // ext is no longer used.
   void InterpolateAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
   
   // Description:
@@ -116,7 +121,7 @@ public:
   // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
   // has been invoked before using this method.
   void InterpolateEdge(vtkDataSetAttributes *fromPd, int toId, int p1, int p2,
-                        float t);
+                       float t);
 
   // Description:
   // Interpolate data from the same id (point or cell) at different points
@@ -126,7 +131,8 @@ public:
   // from1 and from2, and the type of data for from1 and from2 are the same.
   // Make sure that the method InterpolateAllocate() has been invoked before 
   // using this method.
-  void InterpolateTime(vtkDataSetAttributes *from1, vtkDataSetAttributes *from2,
+  void InterpolateTime(vtkDataSetAttributes *from1, 
+		       vtkDataSetAttributes *from2,
                        int id, float t);
 
   // Description:
@@ -139,85 +145,104 @@ public:
   void ShallowCopy(vtkDataSetAttributes *pd);
 
   // Description:
-  // Resize object to just fit data requirements. Reclaims extra memory.
-  void Squeeze();
-
-  // Description:
-  // Check object's components for modified times.
-  unsigned long int GetMTime();
-
-  // Description:
   // Set/Get the scalar data.
-  vtkSetObjectMacro(Scalars,vtkScalars);
-  vtkGetObjectMacro(Scalars,vtkScalars);
+  int SetScalars(vtkDataArray* da) 
+    { return this->SetAttribute(da, SCALARS); }
+  void SetScalars(vtkScalars* scalars)
+    { this->SetAttributeData(scalars, SCALARS); }
+  vtkScalars* GetScalars();
+  vtkDataArray* GetActiveScalars() 
+    { return this->GetActiveAttribute(SCALARS); }
 
   // Description:
   // Set/Get the vector data.
-  vtkSetObjectMacro(Vectors,vtkVectors);
-  vtkGetObjectMacro(Vectors,vtkVectors);
+  int SetVectors(vtkDataArray* da) 
+    { return this->SetAttribute(da, VECTORS); }
+  void SetVectors(vtkVectors* vectors)
+    { this->SetAttributeData(vectors, VECTORS); }
+  vtkVectors* GetVectors();
+  vtkDataArray* GetActiveVectors() 
+    { return this->GetActiveAttribute(VECTORS); }
 
   // Description:
   // Set/get the normal data.
-  vtkSetObjectMacro(Normals,vtkNormals);
-  vtkGetObjectMacro(Normals,vtkNormals);
+  int SetNormals(vtkDataArray* da) 
+    { return this->SetAttribute(da, NORMALS); }
+  void SetNormals(vtkNormals* normals)
+    { this->SetAttributeData(normals, NORMALS); }
+  vtkNormals* GetNormals();
+  vtkDataArray* GetActiveNormals() 
+    { return this->GetActiveAttribute(NORMALS); }
 
   // Description:
   // Set/Get the texture coordinate data.
-  vtkSetObjectMacro(TCoords,vtkTCoords);
-  vtkGetObjectMacro(TCoords,vtkTCoords);
+  int SetTCoords(vtkDataArray* da) 
+    { return this->SetAttribute(da, TCOORDS); }
+  void SetTCoords(vtkTCoords* tcoords)
+    { this->SetAttributeData(tcoords, TCOORDS); }
+  vtkTCoords* GetTCoords();
+  vtkDataArray* GetActiveTCoords() 
+    { return this->GetActiveAttribute(TCOORDS); }
 
   // Description:
   // Set/Get the tensor data.
-  vtkSetObjectMacro(Tensors,vtkTensors);
-  vtkGetObjectMacro(Tensors,vtkTensors);
+  int SetTensors(vtkDataArray* da) 
+    { return this->SetAttribute(da, TENSORS); }
+  void SetTensors(vtkTensors* Tensors)
+    { this->SetAttributeData(Tensors, TENSORS); }
+  vtkTensors* GetTensors();
+  vtkDataArray* GetActiveTensors() 
+    { return this->GetActiveAttribute(TENSORS); }
 
   // Description:
-  // Set/Get the field data.
-  vtkSetObjectMacro(FieldData,vtkFieldData);
-  vtkGetObjectMacro(FieldData,vtkFieldData);
+  // Get the field data.
+  vtkFieldData* GetFieldData() { return this; }
+
+  // Description:
+  // Specify whether to copy the data attribute referred to by index i.
+  void SetCopyAttribute (int index, int value) 
+    { 
+      if (this->CopyAttributeFlags[ index ] != value) 
+	{ 
+	this->CopyAttributeFlags[ index ] = value; 
+	this->Modified(); 
+	} 
+    } 
 
   // Description:
   // Turn on/off the copying of scalar data.
-  vtkSetMacro(CopyScalars,int);
-  vtkGetMacro(CopyScalars,int);
-  vtkBooleanMacro(CopyScalars,int);
+  void SetCopyScalars(int i) { this->SetCopyAttribute(SCALARS, i); }
+  int GetCopyScalars() { return this->CopyAttributeFlags[SCALARS]; }
+  vtkBooleanMacro(CopyScalars, int);
 
   // Description:
   // Turn on/off the copying of vector data.
-  vtkSetMacro(CopyVectors,int);
-  vtkGetMacro(CopyVectors,int);
-  vtkBooleanMacro(CopyVectors,int);
+  void SetCopyVectors(int i) { this->SetCopyAttribute(VECTORS, i); }
+  int GetCopyVectors() { return this->CopyAttributeFlags[VECTORS]; }
+  vtkBooleanMacro(CopyVectors, int);
 
   // Description:
   // Turn on/off the copying of normals data.
-  vtkSetMacro(CopyNormals,int);
-  vtkGetMacro(CopyNormals,int);
-  vtkBooleanMacro(CopyNormals,int);
+  void SetCopyNormals(int i) { this->SetCopyAttribute(NORMALS, i); }
+  int GetCopyNormals() { return this->CopyAttributeFlags[NORMALS]; }
+  vtkBooleanMacro(CopyNormals, int);
 
   // Description:
   // Turn on/off the copying of texture coordinates data.
-  vtkSetMacro(CopyTCoords,int);
-  vtkGetMacro(CopyTCoords,int);
-  vtkBooleanMacro(CopyTCoords,int);
+  void SetCopyTCoords(int i) { this->SetCopyAttribute(TCOORDS, i); }
+  int GetCopyTCoords() { return this->CopyAttributeFlags[TCOORDS]; }
+  vtkBooleanMacro(CopyTCoords, int);
 
   // Description:
   // Turn on/off the copying of tensor data.
-  vtkSetMacro(CopyTensors,int);
-  vtkGetMacro(CopyTensors,int);
-  vtkBooleanMacro(CopyTensors,int);
+  void SetCopyTensors(int i) { this->SetCopyAttribute(TENSORS, i); }
+  int GetCopyTensors() { return this->CopyAttributeFlags[TENSORS]; }
+  vtkBooleanMacro(CopyTensors, int);
 
   // Description:
-  // Turn on/off the copying of field data.
-  vtkSetMacro(CopyFieldData,int);
-  vtkGetMacro(CopyFieldData,int);
-  vtkBooleanMacro(CopyFieldData,int);
-
-  // Description;
-  // Flag indicates whether any data is to be copied or interpolated. This
-  // flag can be used to improve performance by avoiding extra CopyData() or
-  // Interpolate() calls. This method returns valid results only after
-  // CopyAllocate() or InterpolateAllocate() has been invoked.
-  int GetAnyEnabled() {return this->AnyEnabled;}
+  // Turn on/off the copying of the field specified by name.
+  void CopyFieldOn(const char* name);
+  void CopyFieldOff(const char* name);
 
   // Description:
   // Turn on copying of all data.
@@ -236,28 +261,104 @@ public:
                  int toId);
 
   // Description:
-  // Return the memory in kilobytes consumed by this attribute data. 
-  // Used to support streaming and reading/writing data. The value 
-  // returned is guaranteed to be greater than or equal to the memory 
-  // required to actually represent the data represented by this object. 
-  // The information returned is valid only after the pipeline has 
-  // been updated.
-  unsigned long GetActualMemorySize();
-  
-#ifndef VTK_REMOVE_LEGACY_CODE
+  // Get the field data array indices corresponding to scalars, 
+  // vectors, tensors, etc.
+  void GetAttributeIndices(int* indexArray);
+
   // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkDataSetAttributes &pd) 
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&pd);}
-  void ShallowCopy(vtkDataSetAttributes &pd) 
-    {VTK_LEGACY_METHOD(ShalowCopy,"3.2"); this->ShallowCopy(&pd);}
-#endif
-  
+  // Determine whether a data array of index idx is considered a data set
+  // attribute (i.e., scalar, vector, tensor, etc). Return less-than zero 
+  // if it is, otherwise an index 0<=idx<NUM_ATTRIBUTES to indicate 
+  // which attribute.
+  int IsArrayAnAttribute(int idx);
+
+  // Description:
+  // Return an attribute given the attribute type
+  // (see vtkDataSetAttributes::AttributeTypes).
+  vtkDataArray* GetActiveAttribute(int attributeType);
+
+//BTX
+  // Always keep NUM_ATTRIBUTES as the last entry
+  enum AttributeTypes {
+    SCALARS=0,
+    VECTORS=1,
+    NORMALS=2,
+    TCOORDS=3,
+    TENSORS=4,
+    NUM_ATTRIBUTES
+  };
+
+  // This public class is used to perform set operations, other misc. 
+  // operations on fields. For example, vtkAppendFilter uses it to 
+  // determine which attributes the input datasets share in common.
+  class VTK_EXPORT FieldList
+  {
+  public:
+    FieldList(int numInputs);
+    ~FieldList();
+
+    void InitializeFieldList(vtkDataSetAttributes* dsa);
+    void IntersectFieldList(vtkDataSetAttributes* dsa);
+
+    //Determine whether data is available
+    int IsAttributePresent(int attrType); //true/false attributes specified
+    int IsFieldPresent(const char *name); //return idx into field arrays
+
+    friend class vtkDataSetAttributes;
+
+  protected:
+    FieldList(const FieldList&) {} //prevent these methods from being used
+    void operator=(const FieldList&) {}
+
+  private:
+    void SetField(int index, vtkDataArray *da);
+    void RemoveField(const char *name);
+    void ClearFields();
+    
+    //These keep track of what is common across datasets
+    char** Fields; //the names of the fields (first five are named attributes)
+    int *FieldTypes; //the types of the fields (first five are named 
+                     //attributes)
+    int *FieldComponents; //the number of components in each  fields 
+                          // (first five are named attributes)
+    int *FieldIndices; //output data array index 
+                       // (first five are named attributes)
+    vtkLookupTable **LUT; //luts associated with each array
+    int NumberOfTuples; //a running total of values
+    int NumberOfFields; //the number of fields
+    
+    //For every vtkDataSetAttributes that are processed, keep track of the 
+    //indices into various things. The indices are organized so that the
+    //first NUM_ATTRIBUTES refer to attributes, the next refer to the 
+    //non-attribute fields, for a total of NUM_ATTRIBUTES + NumberOfFields.
+    //CurrentInput is the current input being processed.
+    int **DSAIndices;
+    int NumberOfDSAIndices;
+    int CurrentInput;
+  };
+
+  // Description:
+  // A special form of CopyAllocate() to be used with FieldLists. Use it 
+  // when you are copying data from a set of vtkDataSetAttributes.
+  void CopyAllocate(vtkDataSetAttributes::FieldList& list, int sze=0, 
+                    int ext=1000);
+
+  // Description:
+  // A special form of CopyData() to be used with FieldLists. Use it when 
+  // you are copying data from a set of vtkDataSetAttributes. Make sure 
+  // that you have called the special form of CopyAllocate that accepts 
+  // FieldLists.
+  void CopyData(vtkDataSetAttributes::FieldList& list, 
+		vtkDataSetAttributes* dsa, int idx, int fromId, int toId);
+
+  friend class vtkDataSetAttributes::FieldList;
+//ETX
+
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
-  vtkDataSetAttributes(const vtkDataSetAttributes&) {};
-  void operator=(const vtkDataSetAttributes&) {};
+  vtkDataSetAttributes(const vtkDataSetAttributes&) {}
+  void operator=(const vtkDataSetAttributes&) {}
 
   // special methods to support managing data
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,
@@ -266,39 +367,38 @@ protected:
                         int id1, int id2, float t);
   void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
                         vtkDataArray *toData, int id, float t);
-  
-  // support manipulation and access of attribute data
-  vtkScalars *Scalars;
-  vtkVectors *Vectors;
-  vtkNormals *Normals;
-  vtkTCoords *TCoords;
-  vtkTensors *Tensors;
-  vtkFieldData *FieldData;
 
-  // User flags control whether data is to be copied
-  int CopyScalars;
-  int CopyVectors;
-  int CopyNormals;
-  int CopyTCoords;
-  int CopyTensors;
-  int CopyFieldData;
+  // Manage data arrays as the  attributes scalars, vectors, tensors, etc...
+  vtkAttributeData* Attributes[NUM_ATTRIBUTES]; //pointer to attributes arrays
+  int AttributeIndices[NUM_ATTRIBUTES]; //index to attribute array in field data
+  int CopyAttributeFlags[NUM_ATTRIBUTES]; //copy flag for attribute data
+  char** CopyFieldOffFlags; //the names of fields not to be copied
+  int NumberOfFieldFlags; //the number of fields not to be copied
 
-  // Flags are evaluated in CopyAllocate to determine whether copying is possible
-  int AnyEnabled;
-  int CopyScalarsEnabled;
-  int CopyVectorsEnabled;
-  int CopyNormalsEnabled;
-  int CopyTCoordsEnabled;
-  int CopyTensorsEnabled;
-  int CopyFieldDataEnabled;
+//BTX
+  vtkFieldData::Iterator RequiredArrays;
+//ETX
 
-  // used to set null values
-  float Null3Tuple[3];
-  float Null4Tuple[4];
-  vtkTensor *NullTensor;
-  float *NullTuple;
-  int TupleSize;
-  float *Tuple;
+  int* TargetIndices;
+
+  virtual void RemoveArray(int index);
+
+private:
+  int SetAttribute(vtkDataArray* da, int attributeType);
+  void SetAttributeData(vtkAttributeData* newAtt, int attributeType);
+  vtkAttributeData* GetAttributeData(int attributeType);
+  void SetActiveAttribute(int index, int attributeType);
+  int SetActiveAttribute(const char* name, int attributeType);
+  int FindOffFlag(const char* field);
+  void CopyFieldFlags(const vtkDataSetAttributes* source);
+  void ClearFieldFlags();
+
+//BTX
+
+  vtkFieldData::Iterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);
+
+//ETX
+
 };
 
 #endif

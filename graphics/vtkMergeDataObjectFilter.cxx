@@ -124,7 +124,10 @@ void vtkMergeDataObjectFilter::Execute()
       vtkErrorMacro(<<"Field data size incompatible with number of cells");
       return;
       }
-    output->GetCellData()->SetFieldData(fd);
+    for(int i=0; i<fd->GetNumberOfArrays(); i++)
+      {
+      output->GetCellData()->AddArray(fd->GetArray(i));
+      }
     }
   else if ( this->OutputField == VTK_POINT_DATA_FIELD )
     {
@@ -134,7 +137,10 @@ void vtkMergeDataObjectFilter::Execute()
       vtkErrorMacro(<<"Field data size incompatible with number of points");
       return;
       }
-    output->GetPointData()->SetFieldData(fd);
+    for(int i=0; i<fd->GetNumberOfArrays(); i++)
+      {
+      output->GetPointData()->AddArray(fd->GetArray(i));
+      }
     }
   else //( this->OutputField == VTK_DATA_OBJECT_FIELD )
     {

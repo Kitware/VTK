@@ -184,8 +184,6 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
   char line[256];
   int partId, numPts, i;
   vtkFloatArray *scalars;
-  vtkFieldData *fieldData;
-  int arrayNum;
   
   // Initialize
   //
@@ -232,30 +230,23 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetFieldData()->
-	GetArray(description, arrayNum));
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetArray(description));
       }
+
     for (i = 0; i < numPts; i++)
       {
       this->ReadNextDataLine(line);
       scalars->InsertComponent(i, component, atof(line));
       }
-    if (this->GetOutput(partId)->GetPointData()->GetFieldData() == NULL)
-      {
-      fieldData = vtkFieldData::New();
-      fieldData->Allocate(1000);
-      this->GetOutput(partId)->GetPointData()->SetFieldData(fieldData);
-      fieldData->Delete();
-      }
     if (component == 0)
       {
-      this->GetOutput(partId)->GetPointData()->GetFieldData()->
-	AddArray(scalars, description);
+      scalars->SetName(description);
+      this->GetOutput(partId)->GetPointData()->AddArray(scalars);
       scalars->Delete();
       }
     else
       {
-      this->GetOutput(partId)->GetPointData()->GetFieldData()->SetArray(arrayNum, scalars);
+      this->GetOutput(partId)->GetPointData()->AddArray(scalars);
       }
     }
   
@@ -270,7 +261,6 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description)
   char line[256]; 
   int partId, numPts, i, j;
   vtkFloatArray *vectors;
-  vtkFieldData *fieldData;
  
   // Initialize
   //
@@ -320,15 +310,8 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description)
         vectors->InsertComponent(j, i, atof(line));
         }
       }
-    if (this->GetOutput(partId)->GetPointData()->GetFieldData() == NULL)
-      {
-      fieldData = vtkFieldData::New();
-      fieldData->Allocate(1000);
-      this->GetOutput(partId)->GetPointData()->SetFieldData(fieldData);
-      fieldData->Delete();
-      }
-    this->GetOutput(partId)->GetPointData()->GetFieldData()->
-      AddArray(vectors, description);
+    vectors->SetName(description);
+    this->GetOutput(partId)->GetPointData()->AddArray(vectors);
     vectors->Delete();
     }
 
@@ -343,7 +326,6 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description)
   char line[256];
   int partId, numPts, i, j;
   vtkFloatArray *tensors;
-  vtkFieldData *fieldData;
   
   // Initialize
   //
@@ -393,15 +375,8 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description)
         tensors->InsertComponent(j, i, atof(line));
         }
       }
-    if (this->GetOutput(partId)->GetPointData()->GetFieldData() == NULL)
-      {
-      fieldData = vtkFieldData::New();
-      fieldData->Allocate(1000);
-      this->GetOutput(partId)->GetPointData()->SetFieldData(fieldData);
-      fieldData->Delete();
-      }
-    this->GetOutput(partId)->GetPointData()->GetFieldData()->
-      AddArray(tensors, description);
+    tensors->SetName(description);
+    this->GetOutput(partId)->GetPointData()->AddArray(tensors);
     tensors->Delete();
     }
 
@@ -417,10 +392,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName, char* descriptio
   char line[256];
   int partId, numCells, numCellsPerElement, i, idx;
   vtkFloatArray *scalars;
-  vtkFieldData *fieldData;
   int lineRead, elementType;
   float scalar;
-  int arrayNum;
   
   // Initialize
   //
@@ -467,8 +440,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName, char* descriptio
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->GetFieldData()->
-	GetArray(description, arrayNum));
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->
+	GetArray(description));
       }
     
     // need to find out from CellIds how many cells we have of this element
@@ -507,23 +480,15 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName, char* descriptio
         lineRead = this->ReadNextDataLine(line);
         } // end while
       } // end else
-    if (this->GetOutput(partId)->GetCellData()->GetFieldData() == NULL)
-      {
-      fieldData = vtkFieldData::New();
-      fieldData->Allocate(1000);
-      this->GetOutput(partId)->GetCellData()->SetFieldData(fieldData);
-      fieldData->Delete();
-      }
     if (component == 0)
       {
-      this->GetOutput(partId)->GetCellData()->GetFieldData()->
-	AddArray(scalars, description);
+      scalars->SetName(description);
+      this->GetOutput(partId)->GetCellData()->AddArray(scalars);
       scalars->Delete();
       }
     else
       {
-      this->GetOutput(partId)->GetCellData()->GetFieldData()->
-	SetArray(arrayNum, scalars);
+      this->GetOutput(partId)->GetCellData()->AddArray(scalars);
       }
     }
   
@@ -539,7 +504,6 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, idx;
   vtkFloatArray *vectors;
-  vtkFieldData *fieldData;
   int lineRead, elementType;
   float value;
   
@@ -626,15 +590,8 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
         lineRead = this->ReadNextDataLine(line);
         } // end while
       } // end else
-    if (this->GetOutput(partId)->GetCellData()->GetFieldData() == NULL)
-      {
-      fieldData = vtkFieldData::New();
-      fieldData->Allocate(1000);
-      this->GetOutput(partId)->GetCellData()->SetFieldData(fieldData);
-      fieldData->Delete();
-      }
-    this->GetOutput(partId)->GetCellData()->GetFieldData()->
-      AddArray(vectors, description);
+    vectors->SetName(description);
+    this->GetOutput(partId)->GetCellData()->AddArray(vectors);
     vectors->Delete();
     }
   
@@ -650,7 +607,6 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, idx;
   vtkFloatArray *tensors;
-  vtkFieldData *fieldData;
   int lineRead, elementType;
   float value;
   
@@ -737,15 +693,8 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
         lineRead = this->ReadNextDataLine(line);
         } // end while
       } // end else
-    if (this->GetOutput(partId)->GetCellData()->GetFieldData() == NULL)
-      {
-      fieldData = vtkFieldData::New();
-      fieldData->Allocate(1000);
-      this->GetOutput(partId)->GetCellData()->SetFieldData(fieldData);
-      fieldData->Delete();
-      }
-    this->GetOutput(partId)->GetCellData()->GetFieldData()->
-      AddArray(tensors, description);
+    tensors->SetName(description);
+    this->GetOutput(partId)->GetCellData()->AddArray(tensors);
     tensors->Delete();
     }
   

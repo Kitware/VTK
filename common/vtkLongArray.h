@@ -60,6 +60,7 @@ public:
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
+  // Note that ext is no longer used.
   int Allocate(const int sz, const int ext=1000);
 
   // Description:
@@ -68,7 +69,11 @@ public:
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  void Squeeze() {this->Resize (this->MaxId+1);};
+  void Squeeze() {this->ResizeAndExtend (this->MaxId+1);};
+
+  // Description:
+  // Resize the array while conserving the data.
+  virtual void Resize(int numTuples);
 
   // Description:
   // Create the same type object as this (virtual constructor).
@@ -172,7 +177,7 @@ protected:
   void operator=(const vtkLongArray&) {};
 
   long *Array;   // pointer to data
-  long *Resize(const int sz);  // function to resize data
+  long *ResizeAndExtend(const int sz);  // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
@@ -191,7 +196,7 @@ inline long *vtkLongArray::WritePointer(const int id, const int number)
   int newSize=id+number;
   if ( newSize > this->Size )
     {
-    this->Resize(newSize);
+    this->ResizeAndExtend(newSize);
     }
   if ( (--newSize) > this->MaxId )
     {
@@ -204,7 +209,7 @@ inline void vtkLongArray::InsertValue(const int id, const long i)
 {
   if ( id >= this->Size )
     {
-    this->Resize(id+1);
+    this->ResizeAndExtend(id+1);
     }
   this->Array[id] = i;
   if ( id > this->MaxId )

@@ -59,6 +59,7 @@ public:
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
+  // Note that ext is no longer used.
   int Allocate(const int sz, const int ext=1000);
 
   // Description:
@@ -105,7 +106,11 @@ public:
 
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  void Squeeze() {this->Resize (this->MaxId+1);};
+  void Squeeze() {this->ResizeAndExtend(this->MaxId+1);};
+
+  // Description:
+  // Resize the array while conserving the data.
+  virtual void Resize(int numTuples);
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
@@ -194,7 +199,7 @@ protected:
   void operator=(const vtkFloatArray&) {};
 
   float *Array;  // pointer to data
-  float *Resize(const int sz);  // function to reallocate data
+  float *ResizeAndExtend(const int sz);  // function to reallocate data
 
   int SaveUserArray;
 };
@@ -211,7 +216,7 @@ inline float *vtkFloatArray::WritePointer(const int id, const int number)
   int newSize=id+number;
   if ( newSize > this->Size )
     {
-    this->Resize(newSize);
+    this->ResizeAndExtend(newSize);
     }
   if ( (--newSize) > this->MaxId )
     {
@@ -224,7 +229,7 @@ inline void vtkFloatArray::InsertValue(const int id, const float f)
 {
   if ( id >= this->Size )
     {
-    this->Resize(id+1);
+    this->ResizeAndExtend(id+1);
     }
   this->Array[id] = f;
   if ( id > this->MaxId )

@@ -157,12 +157,9 @@ void vtkRendererSource::Execute()
     zPtr = zArray->WritePointer(0, numOutPts);
     memcpy(zPtr,zBuf,numOutPts*sizeof(float));
 
-    vtkFieldData *zField = vtkFieldData::New();
-    zField->SetArray(0, zArray);
-    zField->SetArrayName(0, "ZBuffer");
+    zArray->SetName("ZBuffer");
+    output->GetPointData()->AddArray(zArray);
     zArray->Delete();
-    output->GetPointData()->SetFieldData(zField);
-    zField->Delete();
     delete [] zBuf;
     }
   

@@ -41,15 +41,64 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
+#include "vtkLookupTable.h"
+#include "vtkCriticalSection.h"
+
+unsigned long vtkDataArray::ArrayNamePostfix = 0;
+
+static vtkSimpleCriticalSection DataArrayCritSec;
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(int numComp)
 {
   this->Size = 0;
   this->MaxId = -1;
-  this->Extend = 1000;
+  this->LookupTable = NULL;
 
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
+  this->Name = 0;
+  DataArrayCritSec.Lock();
+  ostrstream buf;
+  buf << "Array_";
+  buf << vtkDataArray::ArrayNamePostfix << ends; 
+  vtkDataArray::ArrayNamePostfix++;
+  this->SetName(buf.str());
+  DataArrayCritSec.Unlock();
+}
+
+vtkDataArray::~vtkDataArray()
+{
+  if ( this->LookupTable )
+    {
+    this->LookupTable->Delete();
+    }
+  delete[] this->Name;
+}
+
+void vtkDataArray::SetName(const char* name)
+{
+  if (!name)
+    {
+    vtkWarningMacro("Array name can not be NULL.");
+    return;
+    }
+  delete[] this->Name;
+  this->Name = 0;
+  int size = strlen(name);
+  if (size > 0)
+    {
+    this->Name = new char[size+1];
+    strcpy(this->Name, name);
+    }
+  else
+    {
+    return;
+    }
+}
+
+const char* vtkDataArray::GetName()
+{
+  return this->Name;
 }
 
 void vtkDataArray::DeepCopy(vtkDataArray *da)
@@ -123,13 +172,13 @@ void vtkDataArray::InsertComponent(const int i, const int j, const float c)
   delete [] tuple;
 }
 
-void vtkDataArray::GetData(int tupleMin, int tupleMax, int compMin, int compMax, 
-			   vtkFloatArray &data)
+void vtkDataArray::GetData(int tupleMin, int tupleMax, int compMin, 
+			   int compMax, vtkFloatArray* data)
 {
   int i, j;
   int numComp=this->GetNumberOfComponents();
   float *tuple=new float[numComp];
-  float *ptr=data.WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
+  float *ptr=data->WritePointer(0,(tupleMax-tupleMin+1)*(compMax-compMin+1));
   
   for (j=tupleMin; j <= tupleMax; j++)
     {
@@ -140,6 +189,34 @@ void vtkDataArray::GetData(int tupleMin, int tupleMax, int compMin, int compMax,
       }
     }
   delete [] tuple;
+}
+
+void vtkDataArray::CreateDefaultLookupTable()
+{
+  if ( this->LookupTable )
+    {
+    this->LookupTable->UnRegister(this);
+    }
+  this->LookupTable = vtkLookupTable::New();
+  // make sure it is built 
+  // otherwise problems with InsertScalar trying to map through 
+  // non built lut
+  this->LookupTable->Build();
+  this->LookupTable->Register(this);
+}
+
+void vtkDataArray::SetLookupTable(vtkLookupTable* lut)
+{
+  if ( this->LookupTable != lut ) 
+    {
+    if ( this->LookupTable )
+      {
+      this->LookupTable->UnRegister(this);
+      }
+    this->LookupTable = lut;
+    this->LookupTable->Register(this);
+    this->Modified();
+    }
 }
 
 // default double behaviour
@@ -263,5 +340,13 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
-  os << indent << "Extend size: " << this->Extend << "\n";
+  if ( this->LookupTable )
+    {
+    os << indent << "Lookup Table:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "LookupTable: (none)\n";
+    }
 }

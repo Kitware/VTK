@@ -228,8 +228,8 @@ void vtkDecimatePro::Execute()
     newPolys->Delete(); //registered by Mesh and preserved
 
     meshPD = this->Mesh->GetPointData();
-    meshPD->CopyAllocate(inPD, numPts);
     meshPD->DeepCopy(inPD);
+    meshPD->CopyAllocate(meshPD, input->GetNumberOfPoints());
 
     this->Mesh->BuildLinks();
     }

@@ -129,7 +129,6 @@ int vtkDoubleArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -167,7 +166,6 @@ void vtkDoubleArray::DeepCopy(vtkDataArray *fa)
     this->NumberOfComponents = fa->GetNumberOfComponents();
     this->MaxId = fa->GetMaxId();
     this->Size = fa->GetSize();
-    this->Extend = fa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new double[this->Size];
@@ -191,7 +189,7 @@ void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
 
 // Protected function does "reallocate"
 //
-double *vtkDoubleArray::Resize(const int sz)
+double *vtkDoubleArray::ResizeAndExtend(const int sz)
 {
   double *newArray;
   int newSize;
@@ -231,11 +229,58 @@ double *vtkDoubleArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
 
   return this->Array;
+}
+
+void vtkDoubleArray::Resize(const int sz)
+{
+  double *newArray;
+  int newSize = sz*NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new double[newSize]) == NULL )
+    { 
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array,
+         (newSize < this->Size ? newSize : this->Size) * sizeof(double));
+    if (!this->SaveUserArray)
+      {
+      delete[] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
 }
 
 // Set the number of n-tuples in the array.

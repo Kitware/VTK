@@ -124,7 +124,6 @@ int vtkUnsignedIntArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -162,7 +161,6 @@ void vtkUnsignedIntArray::DeepCopy(vtkDataArray *sa)
     this->NumberOfComponents = sa->GetNumberOfComponents();
     this->MaxId = sa->GetMaxId();
     this->Size = sa->GetSize();
-    this->Extend = sa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new unsigned int[this->Size];
@@ -188,7 +186,7 @@ void vtkUnsignedIntArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-unsigned int *vtkUnsignedIntArray::Resize(const int sz)
+unsigned int *vtkUnsignedIntArray::ResizeAndExtend(const int sz)
 {
   unsigned int *newArray;
   int newSize;
@@ -228,11 +226,58 @@ unsigned int *vtkUnsignedIntArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
 
   return this->Array;
+}
+
+void vtkUnsignedIntArray::Resize(const int sz)
+{
+  unsigned int *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new unsigned int[newSize]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
+         (newSize < this->Size ? newSize : this->Size) * sizeof(unsigned int));
+    if (!this->SaveUserArray)
+      {
+      delete[] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
 }
 
 

@@ -323,15 +323,8 @@ void vtkGetRemoteGhostCells::Execute()
     newCells->Reset();
     }
   
-  if (!output->GetCellData()->GetFieldData())
-    {
-    vtkFieldData* field = vtkFieldData::New();
-    output->GetCellData()->SetFieldData(field);
-    field->Delete();
-    }
-  
-  output->GetCellData()->GetFieldData()
-    ->AddReplaceArray(ghostLevels, "vtkGhostLevels");
+  ghostLevels->SetName("vtkGhostLevels");
+  output->GetCellData()->AddArray(ghostLevels);
   
   points->Delete();
   points = NULL;

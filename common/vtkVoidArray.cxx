@@ -93,7 +93,6 @@ int vtkVoidArray::Allocate(const int sz, const int ext)
       }
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -126,7 +125,6 @@ void vtkVoidArray::DeepCopy(vtkDataArray *da)
 
     this->MaxId = da->GetMaxId();
     this->Size = da->GetSize();
-    this->Extend = da->GetExtend();
 
     this->Array = new voidPtr[this->Size];
     memcpy(this->Array, da->GetVoidPointer(0), this->Size*sizeof(void *));
@@ -149,7 +147,7 @@ void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 
 // Protected function does "reallocate"
 //
-void** vtkVoidArray::Resize(const int sz)
+void** vtkVoidArray::ResizeAndExtend(const int sz)
 {
   void** newArray;
   int newSize;
@@ -182,6 +180,10 @@ void** vtkVoidArray::Resize(const int sz)
   memcpy(newArray, this->Array,
          (sz < this->Size ? sz : this->Size) * sizeof(voidPtr));
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   delete [] this->Array;
   this->Array = newArray;
@@ -189,6 +191,41 @@ void** vtkVoidArray::Resize(const int sz)
   return this->Array;
 }
 
+void vtkVoidArray::Resize(const int sz)
+{
+  void** newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new voidPtr[newSize]) == NULL )
+    { 
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  memcpy(newArray, this->Array,
+         (newSize < this->Size ? newSize : this->Size) * sizeof(voidPtr));
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  delete [] this->Array;
+  this->Array = newArray;
+
+  return;
+}
 
 // Set the number of n-tuples in the array.
 void vtkVoidArray::SetNumberOfTuples(const int number)

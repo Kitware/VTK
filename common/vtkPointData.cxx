@@ -57,39 +57,23 @@ vtkPointData* vtkPointData::New()
   return new vtkPointData;
 }
 
-
-
-
 void vtkPointData::NullPoint (int ptId)
 {
-  if ( this->Scalars )
+  vtkFieldData::Iterator it(this);
+  vtkDataArray* da;
+  for(da=it.Begin(); !it.End(); da=it.Next())
     {
-    this->Scalars->GetData()->InsertTuple(ptId, this->Null4Tuple);
-    }
-
-  if ( this->Vectors )
-    {
-    this->Vectors->InsertVector(ptId,this->Null3Tuple);
-    }
-
-  if ( this->Normals )
-    {
-    this->Normals->InsertNormal(ptId,this->Null3Tuple);
-    }
-
-  if ( this->TCoords )
-    {
-    this->TCoords->InsertTCoord(ptId,this->Null3Tuple);
-    }
-
-  if ( this->Tensors )
-    {
-    this->Tensors->InsertTensor(ptId,this->NullTensor);
-    }
-
-  if ( this->FieldData )
-    {
-    this->FieldData->InsertTuple(ptId,this->NullTuple);
+    if (da)
+      {
+      int length = da->GetNumberOfComponents();
+      float* tuple = new float[length];
+      for(int j=0; j<length; j++)
+	{
+	tuple[j] = 0;
+	}
+      da->InsertTuple(ptId, tuple);
+      delete[] tuple;
+      }
     }
 }
 

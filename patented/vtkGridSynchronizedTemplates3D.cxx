@@ -1001,14 +1001,62 @@ void vtkGridSynchronizedTemplates3D::Execute()
     output->SetPoints(newPts);
     output->SetPolys(newPolys);
   
+
     // Allocate point data for copying.
     // Could anything bad happen if the piece happens to be empty?
+    vtkDataSetAttributes::FieldList ptList(this->NumberOfThreads);
+    int firstPD=1;
+    for (idx = 0; idx < this->NumberOfThreads; ++idx)
+      {
+      threadPD = this->Threads[idx]->GetPointData();
+      
+      if ( !this->Threads[idx] || 
+	   this->Threads[idx]->GetNumberOfPoints() <= 0 )
+        {
+        continue; //no input, just skip
+        }
+
+      if ( firstPD )
+        {
+        ptList.InitializeFieldList(threadPD);
+        firstPD = 0;
+        }
+      else
+        {
+        ptList.IntersectFieldList(threadPD);
+        }
+      }
+
+    vtkDataSetAttributes::FieldList clList(this->NumberOfThreads);
+    int firstCD=1;
+
+    for (idx = 0; idx < this->NumberOfThreads; ++idx)
+      {
+      threadCD = this->Threads[idx]->GetCellData();
+      
+      if ( !this->Threads[idx] || 
+	   this->Threads[idx]->GetNumberOfPoints() <= 0 )
+        {
+        continue; //no input, just skip
+        }
+
+      if ( firstCD )
+        {
+        clList.InitializeFieldList(threadCD);
+        firstCD = 0;
+        }
+      else
+        {
+        clList.IntersectFieldList(threadCD);
+        }
+      }
+
+
     outPD = output->GetPointData();
-    outPD->CopyAllOn();
-    outPD->CopyAllocate(threadOut->GetPointData(), totalPoints, 1000);
+    outPD->CopyAllocate(ptList, totalPoints);
     outCD = output->GetCellData();
-    outCD->CopyAllOn();
-    outCD->CopyAllocate(threadOut->GetCellData(), totalCells, 1000);
+    outCD->CopyAllocate(clList, totalCells);
+
     // Now copy all.    
     for (idx = 0; idx < this->NumberOfThreads; ++idx)
       {
@@ -1024,7 +1072,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
 	  {
 	  newIdx = ptIdx + offset;
 	  newPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
-	  outPD->CopyData(threadPD, ptIdx, newIdx);
+	  outPD->CopyData(ptList,threadPD,idx,ptIdx,newIdx);
 	  }
 	// copy the triangles.
 	threadTris = threadOut->GetPolys();
@@ -1039,7 +1087,7 @@ void vtkGridSynchronizedTemplates3D::Execute()
 	    newCellPts[1] = cellPts[1] + offset;
 	    newCellPts[2] = cellPts[2] + offset;
 	    outId = newPolys->InsertNextCell(3, newCellPts); 
-	    outCD->CopyData(threadCD, inId, outId);
+	    outCD->CopyData(clList,threadCD, idx, inId, outId);
 	    }
 	  ++inId;
 	  }

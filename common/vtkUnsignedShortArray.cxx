@@ -124,7 +124,6 @@ int vtkUnsignedShortArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -162,7 +161,6 @@ void vtkUnsignedShortArray::DeepCopy(vtkDataArray *sa)
     this->NumberOfComponents = sa->GetNumberOfComponents();
     this->MaxId = sa->GetMaxId();
     this->Size = sa->GetSize();
-    this->Extend = sa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new unsigned short[this->Size];
@@ -189,7 +187,7 @@ void vtkUnsignedShortArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-unsigned short *vtkUnsignedShortArray::Resize(const int sz)
+unsigned short *vtkUnsignedShortArray::ResizeAndExtend(const int sz)
 {
   unsigned short *newArray;
   int newSize;
@@ -229,6 +227,10 @@ unsigned short *vtkUnsignedShortArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
@@ -236,6 +238,48 @@ unsigned short *vtkUnsignedShortArray::Resize(const int sz)
   return this->Array;
 }
 
+void vtkUnsignedShortArray::Resize(const int sz)
+{
+  unsigned short *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new unsigned short[newSize]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
+         (newSize < this->Size ? newSize : this->Size) * sizeof(unsigned short));
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
+}
 
 // Set the number of n-tuples in the array.
 void vtkUnsignedShortArray::SetNumberOfTuples(const int number)

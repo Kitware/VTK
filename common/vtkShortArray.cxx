@@ -124,7 +124,6 @@ int vtkShortArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -162,7 +161,6 @@ void vtkShortArray::DeepCopy(vtkDataArray *sa)
     this->NumberOfComponents = sa->GetNumberOfComponents();
     this->MaxId = sa->GetMaxId();
     this->Size = sa->GetSize();
-    this->Extend = sa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new short[this->Size];
@@ -187,7 +185,7 @@ void vtkShortArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-short *vtkShortArray::Resize(const int sz)
+short *vtkShortArray::ResizeAndExtend(const int sz)
 {
   short *newArray;
   int newSize;
@@ -227,11 +225,58 @@ short *vtkShortArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
 
   return this->Array;
+}
+
+void vtkShortArray::Resize(const int sz)
+{
+  short *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new short[newSize]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
+         (newSize < this->Size ? newSize : this->Size) * sizeof(short));
+    if (!this->SaveUserArray)
+      {  
+      delete [] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
 }
 
 // Set the number of n-tuples in the array.

@@ -73,6 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataObjectSource.h"
 #include "vtkDataSet.h"
+#include "vtkCollection.h"
 
 class VTK_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectSource
 {
@@ -118,10 +119,10 @@ public:
   // Cast input to DataSet.
   virtual void SetInput(vtkDataSet *input);
   vtkDataSet *GetInput();
-  
+
 protected:
   vtkDataSetToDataObjectFilter();
-  ~vtkDataSetToDataObjectFilter() {};
+  ~vtkDataSetToDataObjectFilter();
   vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) {};
   void operator=(const vtkDataSetToDataObjectFilter&) {};
 
@@ -133,7 +134,7 @@ protected:
   int PointData;
   int CellData;
   int FieldData;
-  
+
 };
 
 #endif

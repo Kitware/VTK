@@ -57,43 +57,6 @@ vtkCellData* vtkCellData::New()
   return new vtkCellData;
 }
 
-
-
-
-void vtkCellData::NullCell (int ptId)
-{
-  if ( this->Scalars )
-    {
-    this->Scalars->GetData()->InsertTuple(ptId, this->Null4Tuple);
-    }
-
-  if ( this->Vectors )
-    {
-    this->Vectors->InsertVector(ptId,this->Null3Tuple);
-    }
-
-  if ( this->Normals )
-    {
-    this->Normals->InsertNormal(ptId,this->Null3Tuple);
-    }
-
-  if ( this->TCoords )
-    {
-    this->TCoords->InsertTCoord(ptId,this->Null3Tuple);
-    }
-
-  if ( this->Tensors )
-    {
-    this->Tensors->InsertTensor(ptId,(this->NullTensor));
-    }
-
-  if ( this->FieldData )
-    {
-    this->FieldData->InsertTuple(ptId,this->NullTuple);
-    }
-
-}
-
 void vtkCellData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetAttributes::PrintSelf(os,indent);

@@ -157,6 +157,7 @@ vtkFieldDataToAttributeDataFilter::~vtkFieldDataToAttributeDataFilter()
 //
 void vtkFieldDataToAttributeDataFilter::Execute()
 {
+
   int num;
   vtkDataSetAttributes *attr;
   vtkFieldData *fd;
@@ -167,6 +168,10 @@ void vtkFieldDataToAttributeDataFilter::Execute()
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
+
+  // Pass here so that the attributes/fields can be over-written later
+  output->GetPointData()->PassData(input->GetPointData());
+  output->GetCellData()->PassData(input->GetCellData());
 
   if ( this->OutputAttributeData == VTK_CELL_DATA )
     {
@@ -192,11 +197,11 @@ void vtkFieldDataToAttributeDataFilter::Execute()
     }
   else if ( this->InputField == VTK_POINT_DATA_FIELD )
     {
-    fd = input->GetPointData()->GetFieldData();
+    fd = input->GetPointData();
     }
   else if ( this->InputField == VTK_CELL_DATA_FIELD )
     {
-    fd = input->GetCellData()->GetFieldData();
+    fd = input->GetCellData();
     }
   if ( fd == NULL )
     {
@@ -226,8 +231,6 @@ void vtkFieldDataToAttributeDataFilter::Execute()
                          this->NormalNormalize);
   this->ConstructFieldData(num, attr);
   
-  output->GetPointData()->PassNoReplaceData(input->GetPointData());
-  output->GetCellData()->PassNoReplaceData(input->GetCellData());
 }
 
 void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os, 
@@ -1077,10 +1080,45 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
 {
   vtkDataArray *da;
   int numComp;
+  int found=0;
 
   if ( name != NULL )
     {
-    if ( (da = fd->GetArray(name)) == NULL )
+    vtkDataSetAttributes* dsa;
+    if ((dsa=vtkDataSetAttributes::SafeDownCast(fd)))
+      {
+      found=1;
+      if(!strcmp("PointScalars", name) || !strcmp("CellScalars", name))
+	{
+	da = dsa->GetActiveScalars();
+	}
+      else if(!strcmp("PointVectors", name) || !strcmp("CellVectors", name))
+	{
+	da = dsa->GetActiveVectors();
+	}
+      else if(!strcmp("PointTensors", name) || !strcmp("CellTensors", name))
+	{
+	da = dsa->GetActiveTensors();
+	}
+      else if(!strcmp("PointNormals", name) || !strcmp("CellNormals", name))
+	{
+	da = dsa->GetActiveNormals();
+	}
+      else if(!strcmp("PointTCoords", name) || !strcmp("CellTCoords", name))
+	{
+	da = dsa->GetActiveTCoords();
+	}
+      else
+	{
+	found=0;
+	}
+      }
+    if (!found || !da)
+      {
+      da = fd->GetArray(name);
+      }
+
+    if ( da == NULL )
       {
       return NULL;
       }

@@ -76,8 +76,6 @@ vtkIdFilter::vtkIdFilter()
 void vtkIdFilter::Execute()
 {
   int id, numPts, numCells;
-  vtkScalars *newScalars;
-  vtkFieldData *newField;
   vtkIntArray *ptIds;
   vtkIntArray *cellIds;
   vtkDataSet *input = this->GetInput();
@@ -109,18 +107,14 @@ void vtkIdFilter::Execute()
 
     if ( ! this->FieldData )
       {
-      newScalars = vtkScalars::New();
-      newScalars->SetData(ptIds);
-      outPD->SetScalars(newScalars);
-      newScalars->Delete();
+      outPD->SetScalars(ptIds);
+      outPD->CopyScalarsOff();
       }
     else
       {
-      newField = vtkFieldData::New();
-      newField->SetNumberOfArrays(1);
-      newField->SetArray(0, ptIds);
-      outPD->SetFieldData(newField);
-      newField->Delete();
+      ptIds->SetName("vtkIdFilter_Ids");
+      outPD->AddArray(ptIds);
+      outPD->CopyFieldOff("vtkIdFilter_Ids");
       }
     ptIds->Delete();
     }
@@ -139,26 +133,20 @@ void vtkIdFilter::Execute()
 
     if ( ! this->FieldData )
       {
-      newScalars = vtkScalars::New();
-      newScalars->SetData(cellIds);
-      outCD->SetScalars(newScalars);
-      newScalars->Delete();
+      outCD->SetScalars(cellIds);
+      outCD->CopyScalarsOff();
       }
     else
       {
-      newField = vtkFieldData::New();
-      newField->SetNumberOfArrays(1);
-      newField->SetArray(0, cellIds);
-      outCD->SetFieldData(newField);
-      newField->Delete();
+      cellIds->SetName("vtkIdFilter_Ids");
+      outCD->AddArray(cellIds);
+      outCD->CopyFieldOff("vtkIdFilter_Ids");
       }
     cellIds->Delete();
     }
 
-  // Update self
-  //
-  outPD->PassNoReplaceData(inPD);
-  outCD->PassNoReplaceData(inCD);
+  outPD->PassData(inPD);
+  outCD->PassData(inCD);
 }
 
 void vtkIdFilter::PrintSelf(ostream& os, vtkIndent indent)

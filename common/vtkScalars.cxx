@@ -59,14 +59,11 @@ vtkScalars* vtkScalars::New()
 }
 
 
-
-
 vtkScalars::vtkScalars() 
 {
   this->Range[0] = this->Range[2] = this->Range[4] = this->Range[6] = 0.0;
   this->Range[1] = this->Range[3] = this->Range[5] = this->Range[7] = 1.0;
 
-  this->LookupTable = NULL;
   this->ActiveComponent = 0;
   
   this->CurrentAlpha = 1.0;
@@ -85,11 +82,18 @@ vtkScalars *vtkScalars::New(int dataType, int numComp)
 
 vtkScalars::~vtkScalars()
 {
-  if ( this->LookupTable )
-    {
-    this->LookupTable->Delete();
-    }
 }
+
+//  // Copy all vtkScalars ivars (except ComputeTime, CurrentLookupTable
+//  // Colors)
+//  void vtkScalars::CopyObject(vtkScalars* source)
+//  {
+//    this->SetData(source->Data);
+//    memcpy(this->Range, source->Range, 6*sizeof(float));
+//    this->ActiveComponent = source->ActiveComponent;
+//    this->CurrentAlpha = source->CurrentAlpha;
+  
+//  }
 
 // Set the data for this object. The tuple dimension must be consistent with
 // the object.
@@ -179,29 +183,25 @@ void vtkScalars::GetRange(float range[2])
 
 void vtkScalars::CreateDefaultLookupTable()
 {
-  if ( this->LookupTable )
-    {
-    this->LookupTable->UnRegister(this);
-    }
-  this->LookupTable = vtkLookupTable::New();
-  // make sure it is built 
-  // otherwise problems with InsertScalar trying to map through 
-  // non built lut
-  this->LookupTable->Build();
-  this->LookupTable->Register(this);
+  this->Data->CreateDefaultLookupTable();
 }
 
+vtkLookupTable* vtkScalars::GetLookupTable()
+{
+  if (this->Data)
+    {
+    return this->Data->GetLookupTable();
+    }
+  else
+    {
+    return 0;
+    }
+}
 void vtkScalars::SetLookupTable(vtkLookupTable *lut)
 {
-  if ( this->LookupTable != lut ) 
+  if (this->Data)
     {
-    if ( this->LookupTable )
-      {
-      this->LookupTable->UnRegister(this);
-      }
-    this->LookupTable = lut;
-    this->LookupTable->Register(this);
-    this->Modified();
+    this->Data->SetLookupTable(lut);
     }
 }
 
@@ -417,15 +417,6 @@ void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
   range = this->GetRange();
   os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
-  if ( this->LookupTable )
-    {
-    os << indent << "Lookup Table:\n";
-    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "LookupTable: (none)\n";
-    }
 
   os << indent << "Number Of Components: " << this->GetNumberOfComponents() << "\n";
   os << indent << "Active Component: " << this->ActiveComponent << "\n";

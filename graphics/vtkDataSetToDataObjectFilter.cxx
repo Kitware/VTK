@@ -49,7 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkDataSetToDataObjectFilter* vtkDataSetToDataObjectFilter::New()
 {
@@ -64,8 +63,6 @@ vtkDataSetToDataObjectFilter* vtkDataSetToDataObjectFilter::New()
 }
 
 
-
-
 //----------------------------------------------------------------------------
 // Instantiate object.
 vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
@@ -78,19 +75,17 @@ vtkDataSetToDataObjectFilter::vtkDataSetToDataObjectFilter()
   this->FieldData = 1;
 }
 
+vtkDataSetToDataObjectFilter::~vtkDataSetToDataObjectFilter()
+{
+}
+
 //----------------------------------------------------------------------------
 void vtkDataSetToDataObjectFilter::Execute()
 {
   vtkDataSet *input = this->GetInput();
-  vtkScalars *scalars;
-  vtkVectors *vectors;
-  vtkTensors *tensors;
-  vtkNormals *normals;
-  vtkTCoords *tcoords;
-  vtkFieldData *fieldData;
-  int arrayNum=0;
   vtkFieldData *fd=vtkFieldData::New();
   vtkDataArray *da;
+  int i;
   
   vtkDebugMacro(<<"Generating field data from data set");
 
@@ -99,8 +94,8 @@ void vtkDataSetToDataObjectFilter::Execute()
     if ( input->GetDataObjectType() == VTK_POLY_DATA )
       {
       da = ((vtkPolyData *)input)->GetPoints()->GetData();
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, "Points");
+      da->SetName("Points");
+      fd->AddArray( da );
       }
 
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_POINTS )
@@ -114,8 +109,8 @@ void vtkDataSetToDataObjectFilter::Execute()
       origin->SetValue(0, org[0]);
       origin->SetValue(1, org[1]);
       origin->SetValue(2, org[2]);
-      fd->SetArray(arrayNum, origin);
-      fd->SetArrayName(arrayNum++, "Origin");
+      origin->SetName("Origin");
+      fd->AddArray(origin);
       origin->Delete();
 
       vtkFloatArray *spacing=vtkFloatArray::New();
@@ -125,37 +120,37 @@ void vtkDataSetToDataObjectFilter::Execute()
       spacing->SetValue(0, sp[0]);
       spacing->SetValue(1, sp[1]);
       spacing->SetValue(2, sp[2]);
-      fd->SetArray(arrayNum, spacing);
-      fd->SetArrayName(arrayNum++, "Spacing");
+      spacing->SetName("Spacing");
+      fd->AddArray(spacing);
       spacing->Delete();
       }
     
     else if ( input->GetDataObjectType() == VTK_STRUCTURED_GRID )
       {
       da = ((vtkStructuredGrid *)input)->GetPoints()->GetData();
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, "Points");
+      da->SetName("Points");
+      fd->AddArray(da);
       }
     
     else if ( input->GetDataObjectType() == VTK_RECTILINEAR_GRID )
       {
       vtkRectilinearGrid *rgrid=(vtkRectilinearGrid *)input;
       da = rgrid->GetXCoordinates()->GetData();
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, "XCoordinates");
+      da->SetName("XCoordinates");
+      fd->AddArray( da );
       da = rgrid->GetYCoordinates()->GetData();
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, "YCoordinates");
+      da->SetName("YCoordinates");
+      fd->AddArray( da );
       da = rgrid->GetZCoordinates()->GetData();
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, "ZCoordinates");
+      da->SetName("ZCoordinates");
+      fd->AddArray( da );
       }
     
     else if ( input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID )
       {
       da = ((vtkUnstructuredGrid *)input)->GetPoints()->GetData();
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, "Points");
+      da->SetName("Points");
+      fd->AddArray( da );
       }
 
     else
@@ -174,26 +169,26 @@ void vtkDataSetToDataObjectFilter::Execute()
       if ( pd->GetVerts()->GetNumberOfCells() > 0 )
         {
         ca = pd->GetVerts();
-        fd->SetArray(arrayNum, ca->GetData());
-        fd->SetArrayName(arrayNum++, "Verts");
+	ca->GetData()->SetName("Verts");
+        fd->AddArray( ca->GetData() );
         }
       if ( pd->GetLines()->GetNumberOfCells() > 0 )
         {
         ca = pd->GetLines();
-        fd->SetArray(arrayNum, ca->GetData());
-        fd->SetArrayName(arrayNum++, "Lines");
+	ca->GetData()->SetName("Lines");
+        fd->AddArray( ca->GetData() );
         }
       if ( pd->GetPolys()->GetNumberOfCells() > 0 )
         {
         ca = pd->GetPolys();
-        fd->SetArray(arrayNum, ca->GetData());
-        fd->SetArrayName(arrayNum++, "Polys");
+	ca->GetData()->SetName("Polys");
+        fd->AddArray( ca->GetData() );
         }
       if ( pd->GetStrips()->GetNumberOfCells() > 0 )
         {
         ca = pd->GetStrips();
-        fd->SetArray(arrayNum, ca->GetData());
-        fd->SetArrayName(arrayNum++, "Strips");
+	ca->GetData()->SetName("Strips");
+        fd->AddArray( ca->GetData() );
         }
       }
 
@@ -206,8 +201,8 @@ void vtkDataSetToDataObjectFilter::Execute()
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
-      fd->SetArray(arrayNum, dimensions);
-      fd->SetArrayName(arrayNum++, "Dimensions");
+      dimensions->SetName("Dimensions");
+      fd->AddArray( dimensions );
       dimensions->Delete();
       }
     
@@ -220,8 +215,8 @@ void vtkDataSetToDataObjectFilter::Execute()
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
-      fd->SetArray(arrayNum, dimensions);
-      fd->SetArrayName(arrayNum++, "Dimensions");
+      dimensions->SetName("Dimensions");
+      fd->AddArray( dimensions );
       dimensions->Delete();
       }
     
@@ -234,8 +229,8 @@ void vtkDataSetToDataObjectFilter::Execute()
       dimensions->SetValue(0, dims[0]);
       dimensions->SetValue(1, dims[1]);
       dimensions->SetValue(2, dims[2]);
-      fd->SetArray(arrayNum, dimensions);
-      fd->SetArrayName(arrayNum++, "Dimensions");
+      dimensions->SetName("Dimensions");
+      fd->AddArray( dimensions );
       dimensions->Delete();
       }
     
@@ -244,18 +239,18 @@ void vtkDataSetToDataObjectFilter::Execute()
       vtkCellArray *ca=((vtkUnstructuredGrid *)input)->GetCells();
       if ( ca != NULL && ca->GetNumberOfCells() > 0 )
         {
-        fd->SetArray(arrayNum, ca->GetData());
-        fd->SetArrayName(arrayNum++, "Cells");
+	ca->GetData()->SetName("Cells");
+        fd->AddArray( ca->GetData() );
 
         int numCells=input->GetNumberOfCells();
         vtkIntArray *types=vtkIntArray::New();
         types->SetNumberOfValues(numCells);
-        for (int i=0; i<numCells; i++)
+        for (i=0; i<numCells; i++)
           {
           types->SetValue(i, input->GetCellType(i));
           }
-        fd->SetArray(arrayNum, types);
-        fd->SetArrayName(arrayNum++, "CellTypes");
+	types->SetName("CellTypes");
+        fd->AddArray( types ); 
 	types->Delete();
         }
       }
@@ -267,111 +262,38 @@ void vtkDataSetToDataObjectFilter::Execute()
       }
     }
   
+  vtkFieldData* fieldData;
+
   if (this->FieldData)
     {
     fieldData = input->GetFieldData();
     
     for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
-      da = fieldData->GetArray(i);
-      fd->SetArray(arrayNum, da);
-      fd->SetArrayName(arrayNum++, fieldData->GetArrayName(i));
+      fd->AddArray(fieldData->GetArray(i));
       }
     }
-  
+
   if (this->PointData)
     {
-    vtkPointData *inPD=input->GetPointData();
-
-    if ( (scalars=inPD->GetScalars()) )
+    fieldData = input->GetPointData();
+    
+    for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
-      fd->SetArray(arrayNum, scalars->GetData());
-      fd->SetArrayName(arrayNum++, "PointScalars");
-      }
-
-    if ( (vectors=inPD->GetVectors()) )
-      {
-      fd->SetArray(arrayNum, vectors->GetData());
-      fd->SetArrayName(arrayNum++, "PointVectors");
-      }
-
-    if ( (tensors=inPD->GetTensors()) )
-      {
-      fd->SetArray(arrayNum, tensors->GetData());
-      fd->SetArrayName(arrayNum++, "PointTensors");
-      }
-
-    if ( (normals=inPD->GetNormals()) )
-      {
-      fd->SetArray(arrayNum, normals->GetData());
-      fd->SetArrayName(arrayNum++, "PointNormals");
-      }
-
-    if ( (tcoords=inPD->GetTCoords()) )
-      {
-      fd->SetArray(arrayNum, tcoords->GetData());
-      fd->SetArrayName(arrayNum++, "PointTCoords");
-      }
-
-    if ( (fieldData=inPD->GetFieldData()) )
-      {
-      for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
-        {
-        da = fieldData->GetArray(i);
-        fd->SetArray(arrayNum, da);
-        fd->SetArrayName(arrayNum++, fieldData->GetArrayName(i));
-        }
+      fd->AddArray(fieldData->GetArray(i));
       }
     }
-  
+
   if (this->CellData)
     {
-    vtkCellData *inCD=input->GetCellData();
+    fieldData = input->GetCellData();
     
-    if ( (scalars=inCD->GetScalars()) )
+    for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
       {
-      fd->SetArray(arrayNum, scalars->GetData());
-      fd->SetArrayName(arrayNum++, "CellScalars");
-      }
-
-    if ( (vectors=inCD->GetVectors()) )
-      {
-      fd->SetArray(arrayNum, vectors->GetData());
-      fd->SetArrayName(arrayNum++, "CellVectors");
-      }
-
-    if ( (tensors=inCD->GetTensors()) )
-      {
-      fd->SetArray(arrayNum, tensors->GetData());
-      fd->SetArrayName(arrayNum++, "CellTensors");
-      }
-
-    if ( (normals=inCD->GetNormals()) )
-      {
-      fd->SetArray(arrayNum, normals->GetData());
-      fd->SetArrayName(arrayNum++, "CellNormals");
-      }
-
-    if ( (tcoords=inCD->GetTCoords()) )
-      {
-      fd->SetArray(arrayNum, tcoords->GetData());
-      fd->SetArrayName(arrayNum++, "CellTCoords");
-      }
-
-    if ( (fieldData=inCD->GetFieldData()) )
-      {
-      for (int i=0; i<fieldData->GetNumberOfArrays(); i++)
-        {
-        da = fieldData->GetArray(i);
-        fd->SetArray(arrayNum, da);
-        fd->SetArrayName(arrayNum++, fieldData->GetArrayName(i));
-        }
+      fd->AddArray(fieldData->GetArray(i));
       }
     }
 
-  vtkDebugMacro(<<"Created field data with " << fd->GetNumberOfArrays()
-                <<"arrays");
-  
   this->GetOutput()->SetFieldData(fd);
   fd->Delete();
 }

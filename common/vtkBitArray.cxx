@@ -137,7 +137,6 @@ int vtkBitArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -175,7 +174,6 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
     this->NumberOfComponents = ia->GetNumberOfComponents();
     this->MaxId = ia->GetMaxId();
     this->Size = ia->GetSize();
-    this->Extend = ia->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new unsigned char[(this->Size+7)/8];
@@ -201,7 +199,7 @@ void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate". Sz is the number of "bits", and we
 // can allocate only 8-bit bytes.
-unsigned char *vtkBitArray::Resize(const int sz)
+unsigned char *vtkBitArray::ResizeAndExtend(const int sz)
 {
   unsigned char *newArray;
   int newSize;
@@ -243,6 +241,10 @@ unsigned char *vtkBitArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
@@ -250,6 +252,50 @@ unsigned char *vtkBitArray::Resize(const int sz)
   return this->Array;
 }
 
+void vtkBitArray::Resize(const int sz)
+{
+  unsigned char *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new unsigned char[(newSize+7)/8]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    int usedSize = (newSize < this->Size) ? newSize : this->Size;
+
+    memcpy(newArray, this->Array, 
+         ((usedSize+7)/8)*sizeof(unsigned char));
+    if (!this->SaveUserArray)
+      {
+	delete[] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
+}
 
 // Set the number of n-tuples in the array.
 void vtkBitArray::SetNumberOfTuples(const int number)

@@ -540,8 +540,9 @@ void vtkSelectPolyData::Execute()
 
     output->CopyStructure(this->Mesh); //pass geometry/topology unchanged
     outPD->SetScalars(selectionScalars);
-    outPD->PassNoReplaceData(inPD);
-    outCD->PassNoReplaceData(inCD);
+    outPD->CopyScalarsOff();
+    outPD->PassData(inPD);
+    outCD->PassData(inCD);
     selectionScalars->Delete();
     }
     

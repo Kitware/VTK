@@ -15,7 +15,7 @@ reader SetDataByteOrderToLittleEndian
 reader SetDataExtent 0 255 0 255 47 47
 reader SetDataSpacing 1.0 1.0 2.0
 reader SetDataOrigin 0.0 0.0 92.0
-reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
 

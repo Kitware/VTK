@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 vtkAppendPolyData* vtkAppendPolyData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -139,32 +139,6 @@ void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
 void vtkAppendPolyData::Execute()
 {
   int idx;
-  // check no null inputs are present
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    vtkPolyData *pd = (vtkPolyData *)(this->Inputs[idx]);
-    if (!pd)
-      {
-      vtkErrorMacro(<<"Can't execute with NULL input");
-      return;
-      }
-    }
-  //
-  int scalarsPresentInPD;
-  vtkScalars *newPtScalars = NULL;
-  int vectorsPresentInPD;
-  vtkVectors *newPtVectors = NULL;
-  int normalsPresentInPD;
-  vtkNormals *newPtNormals = NULL;
-  int tcoordsPresentInPD;
-  vtkTCoords *newPtTCoords = NULL;
-  int tensorsPresentInPD;
-  vtkTensors *newPtTensors = NULL;
-  int fieldPresentInPD;
-  vtkFieldData *newPtField = NULL;
-  int scalarsPresentInCD, vectorsPresentInCD;
-  int normalsPresentInCD, tcoordsPresentInCD;
-  int tensorsPresentInCD, fieldPresentInCD;
   vtkPolyData *ds;
   vtkPoints  *inPts;
   vtkPoints *newPts;
@@ -173,35 +147,32 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inPolys, *newPolys;
   int sizePolys, numPolys, *pPolys;
   vtkCellArray *inStrips, *newStrips;
-  int i, ptOffset, cellId, cellOffset;
   int numPts, numCells;
-  vtkPointData *pd = NULL;
-  vtkCellData *cd = NULL;
-  int npts, *pts;
+  vtkPointData *inPD = NULL;
+  vtkCellData *inCD = NULL;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
+  vtkScalars *newPtScalars = NULL;
+  vtkVectors *newPtVectors = NULL;
+  vtkNormals *newPtNormals = NULL;
+  vtkTCoords *newPtTCoords = NULL;
+  vtkTensors *newPtTensors = NULL;
+  int i, ptId, cellId, npts, *pts;
   
-  vtkDebugMacro(<<"Appending data together");
+  vtkDebugMacro(<<"Appending polydata");
 
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;
   numCells = 0;
-
-  scalarsPresentInPD = 1;
-  vectorsPresentInPD = 1;
-  normalsPresentInPD = 1;
-  tcoordsPresentInPD = 1;
-  tensorsPresentInPD = 1;
-  fieldPresentInPD = 1;
-  scalarsPresentInCD = 1;
-  vectorsPresentInCD = 1;
-  normalsPresentInCD = 1;
-  tcoordsPresentInCD = 1;
-  tensorsPresentInCD = 1;
-  fieldPresentInCD = 1;
-
   sizePolys = numPolys = 0;
+
+  // These are used to determine which fields are available for appending
+  vtkDataSetAttributes::FieldList ptList(this->NumberOfInputs);
+  vtkDataSetAttributes::FieldList cellList(this->NumberOfInputs);
+  int firstPD=1;
+  int firstCD=1;
+
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkPolyData *)(this->Inputs[idx]);
@@ -222,162 +193,30 @@ void vtkAppendPolyData::Execute()
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
 
-      if (ds->GetNumberOfPoints() > 0)
+      inPD = ds->GetPointData();
+      if ( firstPD )
         {
-        pd = ds->GetPointData();
-          
-        // complicated test to make sure all inputs that have points also
-        // have scalars, and point scalars of all inputs are of the same type
-        // with the same number of components.  Otherwise do not copy.
-        if (pd->GetScalars() == NULL )
-          {
-          scalarsPresentInPD = 0;
-          }
-        if (scalarsPresentInPD && newPtScalars == NULL)
-          {
-          newPtScalars = (vtkScalars*)(pd->GetScalars()->MakeObject());
-          }
-        if (newPtScalars)
-          {
-          if (pd->GetScalars() == NULL ||
-              newPtScalars->GetDataType() != pd->GetScalars()->GetDataType() ||
-              newPtScalars->GetNumberOfComponents() 
-              != pd->GetScalars()->GetNumberOfComponents())
-            {
-            scalarsPresentInPD = 0;
-            newPtScalars->Delete();
-            newPtScalars = NULL;
-            }
-          }
-        // now for normals
-        if (pd->GetNormals() == NULL )
-          {
-          normalsPresentInPD = 0;
-          }
-        if (normalsPresentInPD && newPtNormals == NULL)
-          {
-          newPtNormals = (vtkNormals*)(pd->GetNormals()->MakeObject());
-          }
-        if (newPtNormals)
-          {
-          if (pd->GetNormals() == NULL ||
-              newPtNormals->GetDataType() != pd->GetNormals()->GetDataType())
-            {
-            normalsPresentInPD = 0;
-            newPtNormals->Delete();
-            newPtNormals = NULL;
-            }
-          }
-        // now for vectors
-        if (pd->GetVectors() == NULL )
-          {
-          vectorsPresentInPD = 0;
-          }
-        if (vectorsPresentInPD && newPtVectors == NULL)
-          {
-          newPtVectors = (vtkVectors*)(pd->GetVectors()->MakeObject());
-          }
-        if (newPtVectors)
-          {
-          if (pd->GetVectors() == NULL ||
-              newPtVectors->GetDataType() != pd->GetVectors()->GetDataType())
-            {
-            vectorsPresentInPD = 0;
-            newPtVectors->Delete();
-            newPtVectors = NULL;
-            }
-          }
-        // now for TCoords
-        if (pd->GetTCoords() == NULL )
-          {
-          tcoordsPresentInPD = 0;
-          }
-        if (tcoordsPresentInPD && newPtTCoords == NULL)
-          {
-          newPtTCoords = (vtkTCoords*)(pd->GetTCoords()->MakeObject());
-          }
-        if (newPtTCoords)
-          {
-          if (pd->GetTCoords() == NULL ||
-              newPtTCoords->GetDataType() != pd->GetTCoords()->GetDataType())
-            {
-            tcoordsPresentInPD = 0;
-            newPtTCoords->Delete();
-            newPtTCoords = NULL;
-            }
-          }
-        // now for tensors
-        if (pd->GetTensors() == NULL )
-          {
-          tensorsPresentInPD = 0;
-          }
-        if (tensorsPresentInPD && newPtTensors == NULL)
-          {
-          newPtTensors = (vtkTensors*)(pd->GetTensors()->MakeObject());
-          }
-        if (newPtTensors)
-          {
-          if (pd->GetTensors() == NULL ||
-              newPtTensors->GetDataType() != pd->GetTensors()->GetDataType())
-            {
-            tensorsPresentInPD = 0;
-            newPtTensors->Delete();
-            newPtTensors = NULL;
-            }
-          }
-        // now for field data
-        if (pd->GetFieldData() == NULL )
-          {
-          fieldPresentInPD = 0;
-          }
-        if (fieldPresentInPD && newPtField == NULL)
-          {
-          newPtField = (vtkFieldData*)(pd->GetFieldData()->MakeObject());
-          }
-        if (newPtField)
-          {
-          if (pd->GetFieldData() == NULL ||
-              newPtField->GetNumberOfArrays() 
-              != pd->GetFieldData()->GetNumberOfArrays())
-            {
-            // We should really check for array type too !
-            fieldPresentInPD = 0;
-            newPtField->Delete();
-            newPtField = NULL;
-            }
-          }
+        ptList.InitializeFieldList(inPD);
+        firstPD = 0;
         }
+      else
+        {
+        ptList.IntersectFieldList(inPD);
+        }
+      
+      inCD = ds->GetCellData();
+      if ( firstCD )
+        {
+        cellList.InitializeFieldList(inCD);
+        firstCD = 0;
+        }
+      else
+        {
+        cellList.IntersectFieldList(inCD);
+        }
+      }//for non-empty dataset
+    }//for each input
 
-      if (ds->GetNumberOfCells() > 0)
-        {
-        cd = ds->GetCellData();
-        if ( cd && cd->GetScalars() == NULL )
-          {
-          scalarsPresentInCD &= 0;
-          }
-        if ( cd && cd->GetVectors() == NULL )
-          {
-          vectorsPresentInCD &= 0;
-          }
-        if ( cd && cd->GetNormals() == NULL )
-          {
-          normalsPresentInCD &= 0;
-          }
-        if ( cd && cd->GetTCoords() == NULL )
-          {
-          tcoordsPresentInCD &= 0;
-          }
-        if ( cd && cd->GetTensors() == NULL )
-          {
-          tensorsPresentInCD &= 0;
-          }
-        if ( cd && cd->GetFieldData() == NULL )
-          {
-          fieldPresentInCD &= 0;
-          }
-        }
-      }
-    }
   if ( numPts < 1 || numCells < 1 )
     {
     //vtkErrorMacro(<<"No data to append!");
@@ -385,111 +224,35 @@ void vtkAppendPolyData::Execute()
     }
   this->UpdateProgress(0.10);
 
-  // Now can allocate memory
-
-  // we are going to copy date directly
-  outputPD->CopyScalarsOff();
-  if (newPtScalars)
-    {
-    newPtScalars->SetNumberOfScalars(numPts);
-    }
-  outputPD->CopyNormalsOff();
-  if (newPtNormals)
-    {
-    newPtNormals->SetNumberOfNormals(numPts);
-    }
-  outputPD->CopyVectorsOff();
-  if (newPtVectors)
-    {
-    newPtVectors->SetNumberOfVectors(numPts);
-    }
-  outputPD->CopyTCoordsOff();
-  if (newPtTCoords)
-    {
-    newPtTCoords->SetNumberOfTCoords(numPts);
-    }
-  outputPD->CopyTensorsOff();
-  if (newPtTensors)
-    {
-    newPtTensors->SetNumberOfTensors(numPts);
-    }
-  outputPD->CopyFieldDataOff();
-  if (newPtField)
-    {
-    for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
-      {
-      newPtField->GetArray(i)->SetNumberOfTuples(numPts);
-      }
-    }
-  
-  if ( !vectorsPresentInPD )
-    {
-    outputPD->CopyVectorsOff();
-    }
-  if ( !tcoordsPresentInPD )
-    {
-    outputPD->CopyTCoordsOff();
-    }
-  if ( !tensorsPresentInPD )
-    {
-    outputPD->CopyTensorsOff();
-    }
-  if ( !fieldPresentInPD )
-    {
-    outputPD->CopyFieldDataOff();
-    }
-
-  // now do cell data
-  if ( !scalarsPresentInCD )
-    {
-    outputCD->CopyScalarsOff();
-    }
-  if ( !vectorsPresentInCD )
-    {
-    outputCD->CopyVectorsOff();
-    }
-  if ( !normalsPresentInCD )
-    {
-    outputCD->CopyNormalsOff();
-    }
-  if ( !tcoordsPresentInCD )
-    {
-    outputCD->CopyTCoordsOff();
-    }
-  if ( !tensorsPresentInCD )
-    {
-    outputCD->CopyTensorsOff();
-    }
-  if ( !fieldPresentInCD )
-    {
-    outputCD->CopyFieldDataOff();
-    }
-  outputCD->CopyAllocate(cd,numCells);
-
-
-  // Examine all points data and check if they're the same type. If not,
+  // Examine the points and check if they're the same type. If not,
   // use highest (double probably), otherwise the type of the first
   // array (float no doubt). Depends on defs in vtkSetGet.h - Warning.
+  int ttype, firstType=1, AllSame=1;
+  int pointtype;
 
-  int ttype, AllSame=1;
-  int pointtype = ((vtkPolyData *)(this->Inputs[0]))->GetPoints()->GetData()->GetDataType();
-  //
+  // Keep track of types for fast point append
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkPolyData *)(this->Inputs[idx]);
     if (ds != NULL && ds->GetNumberOfPoints()>0)
       {
+      if ( firstType )
+        {
+	firstType = 0;
+        pointtype = ds->GetPoints()->GetData()->GetDataType();
+        }
       ttype = ds->GetPoints()->GetData()->GetDataType();
-      if (ttype!=pointtype)
+      
+      if ( ttype != pointtype )
         {
         AllSame = 0;
         vtkDebugMacro(<<"Different point data types");
         }
-      pointtype = pointtype>ttype ? pointtype : ttype;
+      pointtype = pointtype > ttype ? pointtype : ttype;
       }
     }
-  //
 
+  // Allocate geometry/topology
   newPts = vtkPoints::New(pointtype);
   newPts->SetNumberOfPoints(numPts);
 
@@ -505,9 +268,45 @@ void vtkAppendPolyData::Execute()
   newPolys = vtkCellArray::New();
   pPolys = newPolys->WritePointer(numPolys, sizePolys);
 
+  // These are created manually for faster execution
+  if ( ptList.IsAttributePresent(vtkDataSetAttributes::SCALARS) > -1 )
+    {
+    outputPD->CopyScalarsOff();
+    newPtScalars = (vtkScalars *)inPD->GetScalars()->MakeObject();
+    newPtScalars->SetNumberOfScalars(numPts);
+    }
+  if ( ptList.IsAttributePresent(vtkDataSetAttributes::VECTORS) > -1 )
+    {
+    outputPD->CopyVectorsOff();
+    newPtVectors = (vtkVectors *)inPD->GetVectors()->MakeObject();
+    newPtVectors->SetNumberOfVectors(numPts);
+    }
+  if ( ptList.IsAttributePresent(vtkDataSetAttributes::TENSORS) > -1 )
+    {
+    outputPD->CopyTensorsOff();
+    newPtTensors = (vtkTensors *)inPD->GetTensors()->MakeObject();
+    newPtTensors->SetNumberOfTensors(numPts);
+    }
+  if ( ptList.IsAttributePresent(vtkDataSetAttributes::NORMALS) > -1 )
+    {
+    outputPD->CopyNormalsOff();
+    newPtNormals = (vtkNormals *)inPD->GetNormals()->MakeObject();
+    newPtNormals->SetNumberOfNormals(numPts);
+    }
+  if ( ptList.IsAttributePresent(vtkDataSetAttributes::TCOORDS) > -1 )
+    {
+    outputPD->CopyTCoordsOff();
+    newPtTCoords = (vtkTCoords *)inPD->GetTCoords()->MakeObject();
+    newPtTCoords->SetNumberOfTCoords(numPts);
+    }
+
+  // Allocate the point and cell data
+  outputPD->CopyAllocate(ptList,numPts);
+  outputCD->CopyAllocate(cellList,numCells);
+
   // loop over all input sets
-  ptOffset = 0;
-  cellOffset = 0;
+  int ptOffset = 0;
+  int cellOffset = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     this->UpdateProgress(0.2 + 0.8*idx/this->NumberOfInputs);
@@ -515,7 +314,6 @@ void vtkAppendPolyData::Execute()
     // this check is not necessary, but I'll put it in anyway
     if (ds != NULL)
       {
-
       numPts = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
       if ( numPts <= 0 && numCells <= 0 )
@@ -523,8 +321,8 @@ void vtkAppendPolyData::Execute()
         continue; //no input, just skip
         }
 
-      pd = ds->GetPointData();
-      cd = ds->GetCellData();
+      inPD = ds->GetPointData();
+      inCD = ds->GetCellData();
 
       inPts = ds->GetPoints();
       inVerts = ds->GetVerts();
@@ -538,62 +336,58 @@ void vtkAppendPolyData::Execute()
         if (AllSame)
           {
           this->AppendData(newPts->GetData(),
-                         inPts->GetData(), ptOffset);
+                           inPts->GetData(), ptOffset);
           }
         else
           {
           this->AppendDifferentPoints(newPts->GetData(),
-                         inPts->GetData(), ptOffset);
+                                      inPts->GetData(), ptOffset);
           }
         // copy scalars directly
         if (newPtScalars)
           {
           this->AppendData(newPtScalars->GetData(),
-                           pd->GetScalars()->GetData(), ptOffset);
+                           inPD->GetScalars()->GetData(), ptOffset);
           }
         // copy normals directly
         if (newPtNormals)
           {
           this->AppendData(newPtNormals->GetData(),
-                           pd->GetNormals()->GetData(), ptOffset);
+                           inPD->GetNormals()->GetData(), ptOffset);
           }
         // copy vectors directly
         if (newPtVectors)
           {
           this->AppendData(newPtVectors->GetData(),
-                           pd->GetVectors()->GetData(), ptOffset);
+                           inPD->GetVectors()->GetData(), ptOffset);
           }
         // copy tcoords directly
         if (newPtTCoords)
           {
           this->AppendData(newPtTCoords->GetData(),
-                           pd->GetTCoords()->GetData(), ptOffset);
+                           inPD->GetTCoords()->GetData(), ptOffset);
           }
         // copy tensors directly
         if (newPtTensors)
           {
           this->AppendData(newPtTensors->GetData(),
-                           pd->GetTensors()->GetData(), ptOffset);
+                           inPD->GetTensors()->GetData(), ptOffset);
           }
-        // copy field directly
-        if (newPtField)
+        // append the remainder of the field data
+        for (ptId=0; ptId < numPts; ptId++)
           {
-          for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
-            {
-            this->AppendData(newPtField->GetArray(i),
-                             pd->GetFieldData()->GetArray(i), ptOffset);
-            }
+          outputPD->CopyData(ptList,inPD,idx,ptId,ptId+ptOffset);
           }
         }
 
-      if (ds->GetNumberOfPoints() > 0)
+      if (ds->GetNumberOfCells() > 0)
         {
         // cell data could be made efficient like the point data,
         // but I will wait on that.
         // copy cell data
         for (cellId=0; cellId < numCells; cellId++)
           {
-          outputCD->CopyData(cd,cellId,cellId+cellOffset);
+          outputCD->CopyData(cellList,inCD,idx,cellId,cellId+cellOffset);
           }
         
         // copy the cells
@@ -632,7 +426,6 @@ void vtkAppendPolyData::Execute()
       }
     }
   
-  //
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -662,11 +455,6 @@ void vtkAppendPolyData::Execute()
     {
     output->GetPointData()->SetTensors(newPtTensors);
     newPtTensors->Delete();
-    }
-  if (newPtField)
-    {
-    output->GetPointData()->SetFieldData(newPtField);
-    newPtField->Delete();
     }
   
   if ( newVerts->GetNumberOfCells() > 0 )
@@ -850,10 +638,8 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest, vtkDataArray *
     vtkErrorMacro("Destination not big enough");
     return;
     }
-    
 
   int vals = src->GetMaxId()+1;
-
   switch (dest->GetDataType())
     {
     //

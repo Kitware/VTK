@@ -89,6 +89,11 @@ void vtkCellDataToPointData::Execute()
     return;
     }
   
+  // Pass the point data first. The fields and attributes
+  // which also exist in the cell data of the input will
+  // be over-written during CopyAllocate
+  output->GetPointData()->PassData(input->GetPointData());
+
   // notice that inPD and outPD are vtkCellData and vtkPointData; respectively.
   // It's weird, but it works.
   outPD->CopyAllocate(inPD,numPts);
@@ -120,9 +125,6 @@ void vtkCellDataToPointData::Execute()
       }
     }
 
-  // Pass through any point data that's in the input and not defined in the output.
-  output->GetPointData()->PassNoReplaceData(input->GetPointData());
-  
   if ( this->PassCellData )
     {
     output->GetCellData()->PassData(input->GetCellData());

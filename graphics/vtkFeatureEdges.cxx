@@ -113,12 +113,12 @@ void vtkFeatureEdges::Execute()
   vtkDebugMacro(<<"Executing feature edges");
 
   vtkDataArray* temp = 0;
-  if (cd->GetFieldData())
+  if (cd)
     {
-    temp = cd->GetFieldData()->GetArray("vtkGhostLevels");
+    temp = cd->GetArray("vtkGhostLevels");
     }
   if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
-    || (temp->GetNumberOfComponents() != 1))
+       || (temp->GetNumberOfComponents() != 1))
     {
     vtkDebugMacro("No appropriate ghost levels field available.");
     }

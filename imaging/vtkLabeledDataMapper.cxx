@@ -148,16 +148,17 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   int i, j, numComp = 0, pointIdLabels, activeComp = 0;
   char string[1024], format[1024];
   float val, x[3];
+  vtkDataArray *data;
+  float *tuple=NULL;
   vtkDataSet *input=this->GetInput();
+  vtkPointData *pd=input->GetPointData();
+
   if ( ! input )
     {
     vtkErrorMacro(<<"Need input data to render labels");
     return;
     }
-  vtkPointData *pd=input->GetPointData();
-  vtkDataArray *data;
-  float *tuple=NULL;
-  vtkFieldData *fd;
+
 
   input->Update();
 
@@ -206,12 +207,9 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 	  }
 	break;
       case VTK_LABEL_FIELD_DATA:
-	if ( (fd=pd->GetFieldData()) )
-	  {
-	  int arrayNum = (this->FieldDataArray < fd->GetNumberOfArrays() ?
-		      this->FieldDataArray : fd->GetNumberOfArrays() - 1);
-	  data = pd->GetFieldData()->GetArray(arrayNum);
-	  }
+	int arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
+			this->FieldDataArray : pd->GetNumberOfArrays() - 1);
+	data = pd->GetArray(arrayNum);
 	break;
       }
 

@@ -128,7 +128,6 @@ int vtkCharArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -160,7 +159,6 @@ void vtkCharArray::DeepCopy(vtkDataArray *ia)
     this->NumberOfComponents = ia->GetNumberOfComponents();
     this->MaxId = ia->GetMaxId();
     this->Size = ia->GetSize();
-    this->Extend = ia->GetExtend();
     this->SaveUserArray = 0;
     this->Array = new char[this->Size];
     memcpy(this->Array, (char*) ia->GetVoidPointer(0), this->Size*sizeof(char));
@@ -184,7 +182,7 @@ void vtkCharArray::PrintSelf(ostream& os, vtkIndent indent)
 //
 // Private function does "reallocate"
 //
-char *vtkCharArray::Resize(const int sz)
+char *vtkCharArray::ResizeAndExtend(const int sz)
 {
   char *newArray;
   int newSize;
@@ -225,11 +223,59 @@ char *vtkCharArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
 
   return this->Array;
+}
+
+void vtkCharArray::Resize(const int sz)
+{
+  char *newArray;
+  int newSize = sz*this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new char[newSize]) == NULL )
+    {
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
+	   (newSize < this->Size ? newSize : this->Size) * sizeof(char));
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+
+  return;
 }
 
 // Set the number of tuples in the array. Note that this allocates space

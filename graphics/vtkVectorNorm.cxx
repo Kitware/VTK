@@ -138,6 +138,7 @@ void vtkVectorNorm::Execute()
 
     outPD->SetScalars(newScalars);
     newScalars->Delete();
+    outPD->CopyScalarsOff();
     }//if computing point scalars
 
   // Allocate / operate on cell data
@@ -177,11 +178,12 @@ void vtkVectorNorm::Execute()
 
     outCD->SetScalars(newScalars);
     newScalars->Delete();
+    outCD->CopyScalarsOff();
     }//if computing cell scalars
 
   // Pass appropriate data through to output
-  outPD->PassNoReplaceData(pd);
-  outCD->PassNoReplaceData(cd);
+  outPD->PassData(pd);
+  outCD->PassData(cd);
 }
 
 // Return the method for generating scalar data as a string.

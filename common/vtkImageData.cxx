@@ -1110,8 +1110,7 @@ void vtkImageData::UpdateData()
   if(this->Piece != this->UpdatePiece ||
      this->NumberOfPieces != this->UpdateNumberOfPieces ||
      this->GhostLevel != this->UpdateGhostLevel ||
-     this->PointData->GetFieldData() == NULL ||
-     !this->PointData->GetFieldData()->GetArray("vtkGhostLevels"))
+     !this->PointData->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
     vtkUnsignedCharArray *levels;
     int zeroExt[6], extent[6];
@@ -1193,14 +1192,8 @@ void vtkImageData::UpdateData()
 	  }
 	}
       }
-    vtkFieldData* fd;
-    if (!(fd=this->PointData->GetFieldData()))
-      {
-      fd = vtkFieldData::New();
-      this->PointData->SetFieldData(fd);
-      fd->Delete();
-      }
-    fd->AddReplaceArray(levels, "vtkGhostLevels");
+    levels->SetName("vtkGhostLevels");
+    this->PointData->AddArray(levels);
     levels->Delete();
     levels = NULL;
   
@@ -1285,13 +1278,8 @@ void vtkImageData::UpdateData()
 	  }
 	}
       }
-    if (!(fd=this->CellData->GetFieldData()))
-      {
-      fd = vtkFieldData::New();
-      this->CellData->SetFieldData(fd);
-      fd->Delete();
-      }
-    fd->AddReplaceArray(levels, "vtkGhostLevels");
+    levels->SetName("vtkGhostLevels");
+    this->CellData->AddArray(levels);
     levels->Delete();
     levels = NULL;
     }

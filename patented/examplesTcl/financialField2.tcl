@@ -41,8 +41,8 @@ global VTK_DATA
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {timeLate InsertNextValue $v($j)}
    }
-   field SetArray 0 timeLate
-   field SetArrayName 0 TIME_LATE
+   timeLate SetName TIME_LATE
+   field AddArray timeLate
 
    # MONTHLY_PAYMENT - independent variable
    while { [gets $file arrayName] == 0 } {}
@@ -53,8 +53,8 @@ global VTK_DATA
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyPayment InsertNextValue $v($j)}
    }
-   field SetArray 1 monthlyPayment
-   field SetArrayName 1 MONTHLY_PAYMENT
+   monthlyPayment SetName  MONTHLY_PAYMENT
+   field AddArray monthlyPayment
 
    # UNPAID_PRINCIPLE - skip
    while { [gets $file arrayName] == 0 } {}
@@ -77,8 +77,8 @@ global VTK_DATA
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {interestRate InsertNextValue $v($j)}
    }
-   field SetArray 2 interestRate
-   field SetArrayName 2 INTEREST_RATE
+   interestRate SetName INTEREST_RATE
+   field AddArray interestRate 
 
    # MONTHLY_INCOME - independent variable
    while { [gets $file arrayName] == 0 } {}
@@ -89,9 +89,8 @@ global VTK_DATA
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyIncome InsertNextValue $v($j)}
    }
-   field SetArray 3 monthlyIncome
-   field SetArrayName 3 MONTHLY_INCOME
-
+   monthlyIncome SetName MONTHLY_INCOME
+   field AddArray monthlyIncome 
    [dos GetOutput] SetFieldData field
 }
 

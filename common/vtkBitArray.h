@@ -60,6 +60,7 @@ public:
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
+  // Note that ext is no longer used.
   int Allocate(const int sz, const int ext=1000);
 
   // Description:
@@ -103,6 +104,10 @@ public:
   // Description:
   // Free any unneeded memory.
   void Squeeze();
+
+  // Description:
+  // Resize the array while conserving the data.
+  virtual void Resize(int numTuples);
 
   // Description:
   // Get the data at a particular index.
@@ -166,7 +171,7 @@ protected:
   void operator=(const vtkBitArray&) {};
 
   unsigned char *Array;   // pointer to data
-  unsigned char *Resize(const int sz);  // function to resize data
+  unsigned char *ResizeAndExtend(const int sz);  // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
@@ -184,7 +189,7 @@ inline unsigned char *vtkBitArray::WritePointer(const int id, const int number)
   int newSize=id+number;
   if ( newSize > this->Size )
     {
-    this->Resize(newSize);
+    this->ResizeAndExtend(newSize);
     }
   if ( (--newSize) > this->MaxId )
     {
@@ -215,7 +220,7 @@ inline void vtkBitArray::InsertValue(const int id, const int i)
 {
   if ( id >= this->Size )
     {
-    this->Resize(id+1);
+    this->ResizeAndExtend(id+1);
     }
   if (i)
     {
@@ -236,7 +241,7 @@ inline int vtkBitArray::InsertNextValue(const int i)
   this->InsertValue (++this->MaxId,i); return this->MaxId;
 }
 
-inline void vtkBitArray::Squeeze() {this->Resize (this->MaxId+1);}
+inline void vtkBitArray::Squeeze() {this->ResizeAndExtend (this->MaxId+1);}
 
 #endif
 

@@ -35,26 +35,26 @@ proc parseFile {} {
    # read TIME_LATE - dependent variable
    while { [gets $file arrayName] == 0 } {}
    vtkFloatArray timeLate
+   timeLate SetName TIME_LATE
    for {set i 0} {$i < $numLines} {incr i} {
       set line [gets $file]
       set m [scan $line "%f %f %f %f %f %f %f %f" \
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {timeLate InsertNextValue $v($j)}
    }
-   field SetArray 0 timeLate
-   field SetArrayName 0 TIME_LATE
+   field AddArray timeLate 
 
    # MONTHLY_PAYMENT - independent variable
    while { [gets $file arrayName] == 0 } {}
    vtkFloatArray monthlyPayment
+   monthlyPayment SetName MONTHLY_PAYMENT
    for {set i 0} {$i < $numLines} {incr i} {
       set line [gets $file]
       set m [scan $line "%f %f %f %f %f %f %f %f" \
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyPayment InsertNextValue $v($j)}
    }
-   field SetArray 1 monthlyPayment
-   field SetArrayName 1 MONTHLY_PAYMENT
+   field AddArray monthlyPayment 
 
    # UNPAID_PRINCIPLE - skip
    while { [gets $file arrayName] == 0 } {}
@@ -71,26 +71,26 @@ proc parseFile {} {
    # INTEREST_RATE - independnet variable
    while { [gets $file arrayName] == 0 } {}
    vtkFloatArray interestRate
+   interestRate SetName INTEREST_RATE
    for {set i 0} {$i < $numLines} {incr i} {
       set line [gets $file]
       set m [scan $line "%f %f %f %f %f %f %f %f" \
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {interestRate InsertNextValue $v($j)}
    }
-   field SetArray 2 interestRate
-   field SetArrayName 2 INTEREST_RATE
+   field AddArray interestRate 
 
    # MONTHLY_INCOME - independent variable
    while { [gets $file arrayName] == 0 } {}
    vtkIntArray monthlyIncome
+   monthlyIncome SetName MONTHLY_INCOME
    for {set i 0} {$i < $numLines} {incr i} {
       set line [gets $file]
       set m [scan $line "%d %d %d %d %d %d %d %d" \
 	    v(0) v(1) v(2) v(3) v(4) v(5) v(6) v(7)]
       for {set j 0} {$j < $m} {incr j} {monthlyIncome InsertNextValue $v($j)}
    }
-   field SetArray 3 monthlyIncome
-   field SetArrayName 3 MONTHLY_INCOME
+   field AddArray  monthlyIncome 
 
    [dos GetOutput] SetFieldData field
 }

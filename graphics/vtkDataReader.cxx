@@ -629,7 +629,10 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
 	{
 	return 0;
 	}
-      a->SetFieldData(f);
+      for(int i=0; i<f->GetNumberOfArrays(); i++)
+	{
+	a->AddArray(f->GetArray(i));
+	}
       f->Delete();
       }
     //
@@ -755,7 +758,10 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
 	{
 	return 0;
 	}
-      a->SetFieldData(f);
+      for(int i=0; i<f->GetNumberOfArrays(); i++)
+	{
+	a->AddArray(f->GetArray(i));
+	}
       f->Delete();
       }
     //
@@ -1191,14 +1197,12 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
   data = this->ReadArray(line, numPts, numComp);
   if ( data != NULL )
     {
-    vtkScalars *scalars=vtkScalars::New();
-    scalars->SetData(data);
-    data->Delete();
+    data->SetName(name);
     if ( ! skipScalar )
       {
-      a->SetScalars(scalars);
+      a->SetScalars(data);
       }
-    scalars->Delete();
+    data->Delete();
     }
   else
     {
@@ -1236,14 +1240,12 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
   data = this->ReadArray(line, numPts, 3);
   if ( data != NULL )
     {
-    vtkVectors *vectors=vtkVectors::New();
-    vectors->SetData(data);
-    data->Delete();
+    data->SetName(name);
     if ( ! skipVector )
       {
-      a->SetVectors(vectors);
+      a->SetVectors(data);
       }
-    vectors->Delete();
+    data->Delete();
     }
   else
     {
@@ -1282,14 +1284,12 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
   data = this->ReadArray(line, numPts, 3);
   if ( data != NULL )
     {
-    vtkNormals *normals=vtkNormals::New();
-    normals->SetData(data);
-    data->Delete();
+    data->SetName(name);
     if ( ! skipNormal )
       {
-      a->SetNormals(normals);
+      a->SetNormals(data);
       }
-    normals->Delete();
+    data->Delete();
     }
   else
     {
@@ -1326,14 +1326,12 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
   data = this->ReadArray(line, numPts, 9);
   if ( data != NULL )
     {
-    vtkTensors *tensors=vtkTensors::New();
-    tensors->SetData(data);
-    data->Delete();
+    data->SetName(name);
     if ( ! skipTensor )
       {
-      a->SetTensors(tensors);
+      a->SetTensors(data);
       }
-    tensors->Delete();
+    data->Delete();
     }
   else
     {
@@ -1380,10 +1378,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
       {
       if ( ! skipScalar ) 
 	{
-	vtkScalars *scalars=vtkScalars::New(VTK_UNSIGNED_CHAR,numComp);
-	scalars->SetData(data);
-	a->SetScalars(scalars);
-	scalars->Delete();
+	data->SetName(name);
+	a->SetScalars(data);
 	}
       data->Delete();
       }
@@ -1406,6 +1402,7 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 	vtkUnsignedCharArray *ucharData=
 	  (vtkUnsignedCharArray *)scalars->GetData();
 	ucharData->SetNumberOfTuples(numPts);
+	ucharData->SetName(name);
 	for (i=0; i<numPts; i++)
 	  {
 	  for (j=0; j<numComp; j++)
@@ -1467,14 +1464,12 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
   data = this->ReadArray(line, numPts, dim);
   if ( data != NULL )
     {
-    vtkTCoords *tcoords=vtkTCoords::New();
-    tcoords->SetData(data);
-    data->Delete();
+    data->SetName(name);
     if ( ! skipTCoord )
       {
-      a->SetTCoords(tcoords);
+      a->SetTCoords(data);
       }
-    tcoords->Delete();
+    data->Delete();
     }
   else
     {
@@ -1733,12 +1728,12 @@ vtkFieldData *vtkDataReader::ReadFieldData()
     this->Read(&numTuples);
     this->ReadString(type);
     data = this->ReadArray(type, numTuples, numComp);
+    data->SetName(name);
     if ( data != NULL )
       {
       if ( ! skipField )
         {
-        f->SetArray(i,data);
-        f->SetArrayName(i,name);
+        f->AddArray(data);
         }
       data->Delete();
       }

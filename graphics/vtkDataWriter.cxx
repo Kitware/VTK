@@ -783,32 +783,70 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkTensors *tensors, int num)
   return this->WriteArray(fp, tensors->GetDataType(), tensors->GetData(), format, num, 9);
 }
 
+static int vtkIsInTheList(int index, int* list, int numElem)
+{
+  for(int i=0; i<numElem; i++)
+    {
+    if (index == list[i])
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
+
 int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 {
   char format[1024];
-  int i, numArrays=f->GetNumberOfArrays();
+  int i, numArrays=f->GetNumberOfArrays(), actNumArrays=0;
   int numComp, numTuples;
+  int attributeIndices[vtkDataSetAttributes::NUM_ATTRIBUTES];
   vtkDataArray *array;
 
-  if ( numArrays < 1 )
+  for(i=0; i<vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
+    {
+    attributeIndices[i] = -1;
+    }
+  vtkDataSetAttributes* dsa;
+  if ((dsa=vtkDataSetAttributes::SafeDownCast(f)))
+    {
+    dsa->GetAttributeIndices(attributeIndices);
+    }
+
+  for (i=0; i < numArrays; i++)
+    {
+    if (!vtkIsInTheList(i, attributeIndices, 
+			vtkDataSetAttributes::NUM_ATTRIBUTES))
+      {
+      actNumArrays++;
+      }
+    }
+  if ( actNumArrays < 1 )
     {
     return 1;
     }
-  *fp << "FIELD " << this->FieldDataName << " " << numArrays << "\n";
-  
+  *fp << "FIELD " << this->FieldDataName << " " << actNumArrays << "\n";
+
+
   for (i=0; i < numArrays; i++)
     {
-    array = f->GetArray(i);
-    if ( array != NULL )
+    if (!vtkIsInTheList(i, attributeIndices, 
+			vtkDataSetAttributes::NUM_ATTRIBUTES))
       {
-      numComp = array->GetNumberOfComponents();
-      numTuples = array->GetNumberOfTuples();
-      sprintf(format, "%s %d %d %s\n", f->GetArrayName(i), numComp, numTuples, "%s");
-      this->WriteArray(fp, array->GetDataType(), array, format, numTuples, numComp);
-      }
-    else
-      {
-      *fp << "NULL_ARRAY"; 
+      array = f->GetArray(i);
+      if ( array != NULL )
+	{
+	numComp = array->GetNumberOfComponents();
+	numTuples = array->GetNumberOfTuples();
+	sprintf(format, "%s %d %d %s\n", array->GetName(), numComp, numTuples, 
+		"%s");
+	this->WriteArray(fp, array->GetDataType(), array, format, numTuples, 
+			 numComp);
+	}
+      else
+	{
+	*fp << "NULL_ARRAY"; 
+	}
       }
     }
   

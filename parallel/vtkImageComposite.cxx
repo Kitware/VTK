@@ -111,7 +111,6 @@ void vtkImageComposite::Execute()
   vtkScalars *inPScalars;
   vtkDataArray *inZData;
   vtkFloatArray *outZArray;
-  vtkFieldData *outZField;
   float *outZPtr, *inZ, *outZ;
   vtkScalars *outPScalars;
   int alphaFlag = 0;
@@ -133,9 +132,8 @@ void vtkImageComposite::Execute()
   outZArray->Allocate(numPts);
   outZArray->SetNumberOfTuples(numPts);
   outZPtr = outZArray->WritePointer(0, numPts);
-  outZField = vtkFieldData::New();
-  outZField->SetArray(0, outZArray);
-  outZField->SetArrayName(0, "ZBuffer");
+  outZArray->SetName("ZBuffer");
+  output->GetPointData()->AddArray(outZArray);
 
   outPScalars = vtkScalars::New();
   if (alphaFlag)
@@ -256,9 +254,7 @@ void vtkImageComposite::Execute()
       }
     }
   output->GetPointData()->SetScalars(outPScalars);
-  output->GetPointData()->SetFieldData(outZField);
   outPScalars->Delete();
-  outZField->Delete();
   outZArray->Delete();
 
 }

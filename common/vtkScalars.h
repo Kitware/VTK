@@ -167,7 +167,7 @@ public:
   // Description:
   // Set/get the lookup table associated with this scalar data, if any.
   void SetLookupTable(vtkLookupTable *lut);
-  vtkGetObjectMacro(LookupTable,vtkLookupTable);
+  vtkLookupTable* GetLookupTable();
 
   // Description:
   // Given a list of point ids, return an array of scalar values.
@@ -213,7 +213,6 @@ protected:
 
   float Range[8];
   vtkTimeStamp ComputeTime;
-  vtkLookupTable *LookupTable;
   int ActiveComponent; //for multiple component scalars, the current component
 
   // following stuff is used for converting scalars to colors

@@ -43,10 +43,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkAppendFilter is a filter that appends one of more datasets into a single
 // unstructured grid. All geometry is extracted and appended, but point 
-// attributes (i.e., scalars, vectors, normals) are extracted and appended
-// only if all datasets have the point attributes available. (For example, 
-// if one dataset has scalars but another does not, scalars will not be 
-// appended.)
+// attributes (i.e., scalars, vectors, normals, field data, etc.) are extracted 
+// and appended only if all datasets have the point attributes available. 
+// (For example, if one dataset has scalars but another does not, scalars will 
+// not be appended.)
 
 // .SECTION See Also
 // vtkAppendPolyData
@@ -84,15 +84,6 @@ public:
   // will not be reflected in the actual inputs.
   vtkDataSetCollection *GetInputList();
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void AddInput(vtkDataSet& in) 
-    {VTK_LEGACY_METHOD(AddInput,"3.2"); this->AddInput(&in);}
-  void RemoveInput(vtkDataSet& in) 
-    {VTK_LEGACY_METHOD(RemoveInput,"3.2"); this->RemoveInput(&in);}
-#endif
-  
 protected:
   vtkAppendFilter();
   ~vtkAppendFilter();
@@ -101,11 +92,12 @@ protected:
 
   // Usual data generation method
   void Execute();
+
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
   vtkDataSetCollection *InputList;
 
- private:
+private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };

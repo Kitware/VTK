@@ -32,10 +32,10 @@ vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetUnstructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 PointVectors 0 
-    fd2ad SetVectorComponent 1 PointVectors 1 
-    fd2ad SetVectorComponent 2 PointVectors 2 
-    fd2ad SetScalarComponent 0 PointScalars 0 
+    fd2ad SetVectorComponent 0 displacement9 0 
+    fd2ad SetVectorComponent 1 displacement9 1 
+    fd2ad SetVectorComponent 2 displacement9 2 
+    fd2ad SetScalarComponent 0 thickness9 0 
     
 # Now start visualizing
 vtkWarpVector warp

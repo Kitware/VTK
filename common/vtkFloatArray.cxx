@@ -123,7 +123,6 @@ int vtkFloatArray::Allocate(const int sz, const int ext)
     this->SaveUserArray = 0;
     }
 
-  this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
   return 1;
@@ -161,7 +160,6 @@ void vtkFloatArray::DeepCopy(vtkDataArray *fa)
     this->NumberOfComponents = fa->GetNumberOfComponents();
     this->MaxId = fa->GetMaxId();
     this->Size = fa->GetSize();
-    this->Extend = fa->GetExtend();
     this->SaveUserArray = 0;
 
     this->Array = new float[this->Size];
@@ -185,7 +183,7 @@ void vtkFloatArray::PrintSelf(ostream& os, vtkIndent indent)
 
 // Protected function does "reallocate"
 //
-float *vtkFloatArray::Resize(const int sz)
+float *vtkFloatArray::ResizeAndExtend(const int sz)
 {
   float *newArray;
   int newSize;
@@ -225,10 +223,56 @@ float *vtkFloatArray::Resize(const int sz)
       }
     }
 
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
   this->Size = newSize;
   this->Array = newArray;
   this->SaveUserArray = 0;
   return this->Array;
+}
+
+void vtkFloatArray::Resize(const int sz)
+{
+  float *newArray;
+  int newSize = sz * this->NumberOfComponents;
+
+  if (newSize == this->Size)
+    {
+    return;
+    }
+
+  if (newSize <= 0)
+    {
+    this->Initialize();
+    return;
+    }
+
+  if ( (newArray = new float[newSize]) == NULL )
+    { 
+    vtkErrorMacro(<< "Cannot allocate memory\n");
+    return;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array,
+	   (newSize < this->Size ? newSize : this->Size) * sizeof(float));
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
+    }
+
+  if (newSize < this->Size)
+    {
+    this->MaxId = newSize-1;
+    }
+  this->Size = newSize;
+  this->Array = newArray;
+  this->SaveUserArray = 0;
+  return;
 }
 
 // Set the number of n-tuples in the array.

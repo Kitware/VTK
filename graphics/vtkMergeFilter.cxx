@@ -48,6 +48,116 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
+class vtkFieldNode
+{
+public:
+  vtkFieldNode(const char* name, vtkDataSet* ptr=0)
+    {
+      int length = strlen(name);
+      if (length > 0)
+	{
+	this->Name = new char[length+1];
+	strcpy(this->Name, name);
+	}
+      else
+	{
+	this->Name = 0;
+	}
+      this->Ptr = ptr;
+      this->Next = 0;
+    }
+  ~vtkFieldNode()
+    {
+      delete[] this->Name;
+    }
+
+  const char* GetName()
+    {
+      return Name;
+    }
+  vtkDataSet* Ptr;
+  vtkFieldNode* Next;
+private:
+  vtkFieldNode(const vtkFieldNode&) {}
+  void operator=(const vtkFieldNode&) {}
+  char* Name;
+};
+
+class vtkFieldList
+{
+public:
+  vtkFieldList()
+    {
+      this->First = 0;
+      this->Last = 0;
+    }
+  ~vtkFieldList()
+    {
+      vtkFieldNode* node = this->First;
+      vtkFieldNode* next;
+      while(node)
+	{
+	next = node->Next;
+	delete node;
+	node = next;
+	}
+    }
+
+
+  void Add(const char* name, vtkDataSet* ptr)
+    {
+      vtkFieldNode* newNode = new vtkFieldNode(name, ptr);
+      if (!this->First)
+	{
+	this->First = newNode;
+	this->Last = newNode;
+	}
+      else
+	{
+	this->Last->Next = newNode;
+	this->Last = newNode;
+	}
+    }
+
+  friend class vtkFieldListIterator;
+
+private:
+  vtkFieldNode* First;
+  vtkFieldNode* Last;
+};
+
+class vtkFieldListIterator
+{
+public:
+  vtkFieldListIterator(vtkFieldList* list)
+    {
+      this->List = list;
+      this->Position = 0;
+    }
+  void Begin()
+    {
+      this->Position = this->List->First;
+    }
+  void Next()
+    {
+      if (this->Position)
+	{
+ 	this->Position = this->Position->Next;
+	}
+    }
+  int End()
+    {
+      return this->Position ? 0 : 1;
+    }
+  vtkFieldNode* Get()
+    {
+      return this->Position;
+    }
+  
+private:
+  vtkFieldNode* Position;
+  vtkFieldList* List;
+};
 
 //------------------------------------------------------------------------------
 vtkMergeFilter* vtkMergeFilter::New()
@@ -68,10 +178,12 @@ vtkMergeFilter* vtkMergeFilter::New()
 // Create object with no input or output.
 vtkMergeFilter::vtkMergeFilter()
 {
+  this->FieldList = new vtkFieldList;
 }
 
 vtkMergeFilter::~vtkMergeFilter()
 {
+  delete this->FieldList;
 }
 
 void vtkMergeFilter::SetScalars(vtkDataSet *input)
@@ -139,40 +251,29 @@ vtkDataSet *vtkMergeFilter::GetTensors()
   return (vtkDataSet *)(this->Inputs[5]);
 }
 
-void vtkMergeFilter::SetFieldData(vtkDataSet *input)
+void vtkMergeFilter::AddField(const char* name, vtkDataSet* input)
 {
-  this->vtkProcessObject::SetNthInput(6, input);
+  this->FieldList->Add(name, input);
 }
-vtkDataSet *vtkMergeFilter::GetFieldData()
-{
-  if (this->NumberOfInputs < 7)
-    {
-    return NULL;
-    }
-  return (vtkDataSet *)(this->Inputs[6]);
-}
-
 
 void vtkMergeFilter::Execute()
 {
   int numPts, numScalars=0, numVectors=0, numNormals=0, numTCoords=0;
-  int numTensors=0, numTuples=0;
+  int numTensors=0;
   int numCells, numCellScalars=0, numCellVectors=0, numCellNormals=0;
-  int numCellTCoords=0, numCellTensors=0, numCellTuples=0;
+  int numCellTCoords=0, numCellTensors=0;
   vtkPointData *pd;
   vtkScalars *scalars = NULL;
   vtkVectors *vectors = NULL;
   vtkNormals *normals = NULL;
   vtkTCoords *tcoords = NULL;
   vtkTensors *tensors = NULL;
-  vtkFieldData *f = NULL;
   vtkCellData *cd;
   vtkScalars *cellScalars = NULL;
   vtkVectors *cellVectors = NULL;
   vtkNormals *cellNormals = NULL;
   vtkTCoords *cellTCoords = NULL;
   vtkTensors *cellTensors = NULL;
-  vtkFieldData *cellf = NULL;
   vtkDataSet *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
@@ -267,22 +368,6 @@ void vtkMergeFilter::Execute()
       }
     }
 
-  if ( this->GetFieldData() ) 
-    {
-    pd = this->GetFieldData()->GetPointData();
-    f = pd->GetFieldData();
-    if ( f != NULL )
-      {
-      numTuples = f->GetNumberOfTuples();
-      }
-    cd = this->GetFieldData()->GetCellData();
-    cellf = cd->GetFieldData();
-    if ( cellf != NULL )
-      {
-      numCellTuples = cellf->GetNumberOfTuples();
-      }
-    }
-
   // merge data only if it is consistent
   if ( numPts == numScalars )
     {
@@ -329,13 +414,31 @@ void vtkMergeFilter::Execute()
     outputCD->SetTensors(cellTensors);
     }
 
-  if ( numPts == numTuples )
+  vtkFieldListIterator it(this->FieldList);
+  vtkDataArray* da;
+  const char* name;
+  int num;
+  for(it.Begin(); !it.End() ; it.Next())
     {
-    outputPD->SetFieldData(f);
-    }
-  if ( numCells == numCellTuples )
-    {
-    outputCD->SetFieldData(cellf);
+    pd = it.Get()->Ptr->GetPointData();
+    cd = it.Get()->Ptr->GetCellData();
+    name = it.Get()->GetName();
+    if ( (da=pd->GetArray(name)) )
+      {
+      num = da->GetNumberOfTuples();
+      if (num == numPts)
+	{
+	outputPD->AddArray(da);
+	}
+      }
+    if ( (da=cd->GetArray(name)) )
+      {
+      num = da->GetNumberOfTuples();
+      if (num == numPts)
+	{
+	outputCD->AddArray(da);
+	}
+      }
     }
 }
 

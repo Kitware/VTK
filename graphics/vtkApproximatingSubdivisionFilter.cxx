@@ -141,11 +141,14 @@ void vtkApproximatingSubdivisionFilter::Execute()
   // Get rid of ghost cells if we have to.
   unsigned char* ghostLevels=0;
   
-  vtkFieldData* fd = inputDS->GetCellData()->GetFieldData();
-  if (fd)
+  vtkCellData* cd = inputDS->GetCellData();
+  if (cd)
     {
-    vtkDataArray* temp = fd->GetArray("vtkGhostLevels");
-    ghostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+    vtkDataArray* temp = cd->GetArray("vtkGhostLevels");
+    if (temp)
+      {
+      ghostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
+      }
     }
   int updateGhostLevel = output->GetUpdateGhostLevel();
   

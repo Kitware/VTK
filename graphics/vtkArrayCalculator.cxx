@@ -335,13 +335,14 @@ void vtkArrayCalculator::Execute()
   output->GetPointData()->PassData(inPD);
   output->GetCellData()->PassData(inCD);
   
+  resultArray->SetName(this->ResultArrayName);
   if (attributeDataType == 0)
     {
-    output->GetPointData()->GetFieldData()->AddReplaceArray(resultArray, this->ResultArrayName);
+    output->GetPointData()->GetFieldData()->AddArray(resultArray);
     }
   else
     {
-    output->GetCellData()->GetFieldData()->AddReplaceArray(resultArray, this->ResultArrayName);
+    output->GetCellData()->GetFieldData()->AddArray(resultArray);
     }
   resultArray->Delete();
   resultArray = NULL;

@@ -49,7 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // float, char, etc.), and there may be variable numbers of components in
 // each array. Note that each data array is assumed to be "m" in length
 // (i.e., number of tuples), which typically corresponds to the number of
-// points or cells in a dataset.
+// points or cells in a dataset. Also, each data array must have a
+// character-string name. (This is used to manipulate data.)
 //
 // There are two ways of manipulating and interfacing to fields. You can do
 // it generically by manipulating components/tuples via a float-type data
@@ -79,10 +80,11 @@ public:
 
   // Description:
   // Release all data but do not delete object.
-  void Initialize();
+  virtual void Initialize();
 
   // Description:
   // Allocate data for each array.
+  // Note that ext is no longer used.
   int Allocate(const int sz, const int ext=1000);
 
   // Description:
@@ -91,16 +93,35 @@ public:
   vtkFieldData *MakeObject();
 
   // Description:
-  // Set the number of arrays used to define the field.
+  // SetNumberOfArrays actually sets the number of
+  // vtkDataArray pointers in the vtkFieldData object, not the
+  // number of used pointers (arrays). Adding more arrays will
+  // cause the object to dynamically adjust the number of pointers
+  // if it needs to extend. Therefore, SetNumberOfArrays can
+  // be used if the number of arrays which will be added is
+  // known but it is not required.
   void SetNumberOfArrays(int num);
 
   // Description:
-  // Set an array to define the field.
-  void SetArray(int i, vtkDataArray *);
+  // Get the number of arrays of data available.
+  // This does not include NULL array pointers therefore after
+  // fd->SetNumberOfArrays(n); nArrays = GetNumberOfArrays()
+  // nArrays is not necessarily equal to n.
+  int GetNumberOfArrays();
 
   // Description:
-  // Get the number of arrays of data available.
-  int GetNumberOfArrays();
+  // Add an array to the array list. If an array with the same name
+  // already exists - then the added array will replace it.
+  int AddArray(vtkDataArray *array);
+
+  // Description:
+  // Remove an array (with the given name) from the list of arrays.
+  void RemoveArray(const char *name)
+    {
+      int i;
+      this->GetArray(name, i);
+      this->RemoveArray(i);
+    }
 
   // Description:
   // Return the ith array in the field. A NULL is returned if the
@@ -108,105 +129,29 @@ public:
   vtkDataArray *GetArray(int i);
 
   // Description:
-  // Add an array to the end of the array list, return the new array index
-  int AddArray(vtkDataArray *array);
-
-  // Description:
-  // Add an array to the end of the array list, and set the name
-  // return the new array index
-  int AddArray(vtkDataArray *array, const char *name);
-
-  // Description:
-  // Add an array to the end of the array list, and set the name
-  // return the new array index. if array with given name
-  // already exists - overwrites it
-  int AddReplaceArray(vtkDataArray *array, const char *name);
-
-  // Description:
-  // Add an array to the end of the array list, and set the name
-  // return the new array index. returns -1 if array with given name
-  // already exists and does not overwrite it
-  int AddNoReplaceArray(vtkDataArray *array, const char *name);
-
-  // Description:
-  // Return the array containing the ith component of the field. The
-  // return value is an integer number n 0<=n<this->NumberOfArrays. Also,
-  // an integer value is returned indicating the component in the array
-  // is returned. Method returns -1 if specified component is not
-  // in the field.
-  int GetArrayContainingComponent(int i, int& arrayComp);
-
-  // Description:
-  // Return the array with the name given. Returns NULL is array not found.
-  vtkDataArray *GetArray(const char *arrayName);
-
-  // Description:
   // Return the array with the name given. Returns NULL is array not found.
   // Also returns index of array if found, -1 otherwise
   vtkDataArray *GetArray(const char *arrayName, int &index);
 
-  // Description:
-  // Set/Get the name for an array of data.
-  void SetArrayName(int i,const char *name);
-  char *GetArrayName(int i);
+  // Return the array with the name given. Returns NULL is array not found.
+  vtkDataArray *GetArray(const char *arrayName);
 
   // Description:
-  // Get the number of components in the field. This is determined by adding
-  // up the components in each non-NULL array.
-  int GetNumberOfComponents();
-
-  // Description:
-  // Get the number of tuples in the field. Note: some fields have arrays with
-  // different numbers of tuples; this method returns the number of tuples in
-  // the first array. Mixed-length arrays may have to be treated specially.
-  int GetNumberOfTuples();
-
-  // Description:
-  // Set the number of tuples for each data array in the field.
-  void SetNumberOfTuples(const int number);
-
-  // Description:
-  // Return a tuple consisting of a concatenation of all data from all
-  // the different arrays. Note that everything is converted to and from
-  // float values.
-  float *GetTuple(const int i);
-
-  // Description:
-  // Copy the ith tuple value into a user provided tuple array. Make
-  // sure that you've allocated enough space for the copy.
-  void GetTuple(const int i, float * tuple);
-
-  // Description:
-  // Set the tuple value at the ith location. Set operations
-  // mean that no range checking is performed, so they're faster.
-  void SetTuple(const int i, const float * tuple);
-
-  // Description:
-  // Insert the tuple value at the ith location. Range checking is
-  // performed and memory allocates as necessary.
-  void InsertTuple(const int i, const float * tuple);
-
-  // Description:
-  // Insert the tuple value at the end of the tuple matrix. Range
-  // checking is performed and memory is allocated as necessary.
-  int InsertNextTuple(const float * tuple);
-
-  // Description:
-  // Get the component value at the ith tuple (or row) and jth component (or
-  // column).
-  float GetComponent(const int i, const int j);
-
-  // Description:
-  // Set the component value at the ith tuple (or row) and jth component (or
-  // column).  Range checking is not performed, so set the object up properly
-  // before invoking.
-  void SetComponent(const int i, const int j, const float c);
-  
-  // Description:
-  // Insert the component value at the ith tuple (or row) and jth component
-  // (or column).  Range checking is performed and memory allocated as
-  // necessary o hold data.
-  void InsertComponent(const int i, const int j, const float c);
+  // Get the name of ith array.
+  // Note that this is equivalent to:
+  // GetArray(i)->GetName() if ith array pointer is not NULL
+  const char* GetArrayName(int i)
+    {
+      vtkDataArray* da;
+      if ((da=this->GetArray(i)))
+	{
+	return da->GetName();
+	}
+      else
+	{
+	return 0;
+	}
+    }
 
   // Description:
   // Copy a field by creating new data arrays (i.e., duplicate storage).
@@ -214,7 +159,7 @@ public:
 
   // Description:
   // Copy a field by reference counting the data arrays.
-  void ShallowCopy(vtkFieldData *da);
+  virtual void ShallowCopy(vtkFieldData *da);
 
   // Description:
   // Squeezes each data array in the field (Squeeze() reclaims unused memory.)
@@ -226,40 +171,225 @@ public:
   void Reset();
 
   // Description:
-  // Get a field from a list of ids. Supplied field f should have same types 
-  // and number of data arrays as this one (i.e., like MakeObject() returns).
-  void GetField(vtkIdList *ptId, vtkFieldData *f);
-
-  // Description:
   // Return the memory in kilobytes consumed by this field data. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to
   // actually represent the data represented by this object.
   virtual unsigned long GetActualMemorySize();
-  
-#ifndef VTK_REMOVE_LEGACY_CODE
+
   // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkFieldData &da) 
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&da);}
-  void ShallowCopy(vtkFieldData &da) 
-    {VTK_LEGACY_METHOD(ShallowCopy,"3.2"); this->ShallowCopy(&da);}
-  void GetField(vtkIdList& ptId, vtkFieldData& f) 
-    {VTK_LEGACY_METHOD(GetField,"3.2"); this->GetField(&ptId, &f);}
-#endif
+  // Check object's components for modified times.
+  unsigned long int GetMTime();
   
+  // Description:
+  // Get a field from a list of ids. Supplied field f should have same types 
+  // and number of data arrays as this one (i.e., like MakeObject() returns).
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void GetField(vtkIdList *ptId, vtkFieldData *f);
+
+  // Description:
+  // Return the array containing the ith component of the field. The
+  // return value is an integer number n 0<=n<this->NumberOfArrays. Also,
+  // an integer value is returned indicating the component in the array
+  // is returned. Method returns -1 if specified component is not
+  // in the field.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  int GetArrayContainingComponent(int i, int& arrayComp);
+
+  // Description:
+  // Get the number of components in the field. This is determined by adding
+  // up the components in each non-NULL array.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  int GetNumberOfComponents();
+
+  // Description:
+  // Get the number of tuples in the field. Note: some fields have arrays with
+  // different numbers of tuples; this method returns the number of tuples in
+  // the first array. Mixed-length arrays may have to be treated specially.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  int GetNumberOfTuples();
+
+  // Description:
+  // Set the number of tuples for each data array in the field.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void SetNumberOfTuples(const int number);
+
+  // Description:
+  // Return a tuple consisting of a concatenation of all data from all
+  // the different arrays. Note that everything is converted to and from
+  // float values.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  float *GetTuple(const int i);
+
+  // Description:
+  // Copy the ith tuple value into a user provided tuple array. Make
+  // sure that you've allocated enough space for the copy.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void GetTuple(const int i, float * tuple);
+
+  // Description:
+  // Set the tuple value at the ith location. Set operations
+  // mean that no range checking is performed, so they're faster.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void SetTuple(const int i, const float * tuple);
+
+  // Description:
+  // Insert the tuple value at the ith location. Range checking is
+  // performed and memory allocates as necessary.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void InsertTuple(const int i, const float * tuple);
+
+  // Description:
+  // Insert the tuple value at the end of the tuple matrix. Range
+  // checking is performed and memory is allocated as necessary.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  int InsertNextTuple(const float * tuple);
+
+  // Description:
+  // Get the component value at the ith tuple (or row) and jth component (or
+  // column).
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  float GetComponent(const int i, const int j);
+
+  // Description:
+  // Set the component value at the ith tuple (or row) and jth component (or
+  // column).  Range checking is not performed, so set the object up properly
+  // before invoking.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void SetComponent(const int i, const int j, const float c);
+  
+  // Description:
+  // Insert the component value at the ith tuple (or row) and jth component
+  // (or column).  Range checking is performed and memory allocated as
+  // necessary o hold data.
+  // This method should not be used if the instance is from a
+  // subclass of vtkFieldData (vtkPointData or vtkCellData).
+  // This is because in those cases, the attribute data is 
+  // stored with the other fields and will cause the method
+  // to behave in an unexpected way.
+  void InsertComponent(const int i, const int j, const float c);
+
 protected:
+
   vtkFieldData();
   ~vtkFieldData();
   vtkFieldData(const vtkFieldData&) {};
   void operator=(const vtkFieldData&) {};
 
   int NumberOfArrays;
+  int NumberOfActiveArrays;
   vtkDataArray **Data;
-  char **ArrayNames;
 
   int TupleSize; //used for type conversion
   float *Tuple;
+
+  // Description:
+  // Set an array to define the field.
+  void SetArray(int i, vtkDataArray *array);
+
+  virtual void RemoveArray(int index);
+
+//BTX
+
+public:  
+  class VTK_EXPORT Iterator
+  {
+  public:
+
+    Iterator();
+    Iterator(const Iterator& source);
+    Iterator& operator=(const Iterator& source);
+    ~Iterator();
+    Iterator(vtkFieldData* dsa, const int* list=0, 
+	     unsigned int listSize=0);
+
+    vtkDataArray* Begin()
+      {
+	this->Position = -1;
+	return this->Next();
+      }
+    int End() const
+      {
+	return (this->Position >= this->ListSize);
+      }
+    vtkDataArray* Next()
+      {
+	this->Position++;
+	return (this->End() ? 0 : 
+		Fields->GetArray(this->List[this->Position]));
+      }
+    int GetListSize() const
+      {
+	return this->ListSize;
+      }
+    int GetCurrentIndex()
+      {
+	return this->List[this->Position];
+      }
+
+    void DetachFieldData();
+
+  protected:
+    int IsInList(int index);
+
+    int* List;
+    int ListSize;
+    int Position;
+    vtkFieldData* Fields;
+    int Detached;
+  };
+
+//ETX
+
 };
+
 
 #endif

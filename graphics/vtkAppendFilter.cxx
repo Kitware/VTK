@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAppendFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkAppendFilter* vtkAppendFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkAppendFilter* vtkAppendFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkAppendFilter;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()
@@ -123,20 +118,12 @@ vtkDataSetCollection *vtkAppendFilter::GetInputList()
   return this->InputList;
 }
 
-
-
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 void vtkAppendFilter::Execute()
 {
-  int scalarsPresentInPD, vectorsPresentInPD;
-  int normalsPresentInPD, tcoordsPresentInPD;
-  int tensorsPresentInPD, fieldPresentInPD;
-  int scalarsPresentInCD, vectorsPresentInCD;
-  int normalsPresentInCD, tcoordsPresentInCD;
-  int tensorsPresentInCD, fieldPresentInCD;
   int numPts, numCells, ptOffset, cellOffset;
-  int   tenth, count;
+  int   tenth, count, abort=0;
   float decimal;
   vtkPoints *newPts;
   vtkPointData *pd = NULL;
@@ -151,25 +138,20 @@ void vtkAppendFilter::Execute()
   
   vtkDebugMacro(<<"Appending data together");
 
-  // loop over all data sets, checking to see what point data is available.
+  // Loop over all data sets, checking to see what data is common to 
+  // all inputs. Note that data is common if 1) it is the same attribute 
+  // type (scalar, vector, etc.), 2) it is the same native type (int, 
+  // float, etc.), and 3) if a data array in a field, if it has the same name.
   count   = 0;
   decimal = 0.0;
 
   numPts = 0;
   numCells = 0;
-  scalarsPresentInPD = 1;
-  vectorsPresentInPD = 1;
-  normalsPresentInPD = 1;
-  tcoordsPresentInPD = 1;
-  tensorsPresentInPD = 1;
-  fieldPresentInPD = 1;
-  scalarsPresentInCD = 1;
-  vectorsPresentInCD = 1;
-  normalsPresentInCD = 1;
-  tcoordsPresentInCD = 1;
-  tensorsPresentInCD = 1;
-  fieldPresentInCD = 1;
 
+  vtkDataSetAttributes::FieldList ptList(this->NumberOfInputs);
+  vtkDataSetAttributes::FieldList cellList(this->NumberOfInputs);
+  int firstPD=1;
+  int firstCD=1;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkDataSet *)(this->Inputs[idx]);
@@ -179,62 +161,33 @@ void vtkAppendFilter::Execute()
         {
         continue; //no input, just skip
         }
+
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
+
       pd = ds->GetPointData();
-      
-      if ( pd && pd->GetScalars() == NULL )
+      if ( firstPD )
         {
-        scalarsPresentInPD &= 0;
+        ptList.InitializeFieldList(pd);
+        firstPD = 0;
         }
-      if ( pd && pd->GetVectors() == NULL )
+      else
         {
-        vectorsPresentInPD &= 0;
-        }
-      if ( pd && pd->GetNormals() == NULL )
-        {
-        normalsPresentInPD &= 0;
-        }
-      if ( pd && pd->GetTCoords() == NULL )
-        {
-        tcoordsPresentInPD &= 0;
-        }
-      if ( pd && pd->GetTensors() == NULL )
-        {
-        tensorsPresentInPD &= 0;
-        }
-      if ( pd && pd->GetFieldData() == NULL )
-        {
-        fieldPresentInPD &= 0;
+        ptList.IntersectFieldList(pd);
         }
       
       cd = ds->GetCellData();
-      if ( cd && cd->GetScalars() == NULL )
+      if ( firstCD )
         {
-        scalarsPresentInCD &= 0;
+        cellList.InitializeFieldList(cd);
+        firstCD = 0;
         }
-      if ( cd && cd->GetVectors() == NULL )
+      else
         {
-        vectorsPresentInCD &= 0;
+        cellList.IntersectFieldList(cd);
         }
-      if ( cd && cd->GetNormals() == NULL )
-        {
-        normalsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetTCoords() == NULL )
-        {
-        tcoordsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetTensors() == NULL )
-        {
-        tensorsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetFieldData() == NULL )
-        {
-        fieldPresentInCD &= 0;
-        }
-      }
-    }
+      }//if non-empty dataset
+    }//for all inputs
 
   if ( numPts < 1 || numCells < 1 )
     {
@@ -242,76 +195,22 @@ void vtkAppendFilter::Execute()
     return;
     }
   
-  tenth = (numPts + numCells) / 10;
-  if (tenth == 0)
-    {
-    tenth = 1;
-    }
-
   // Now can allocate memory
   output->Allocate(numCells); //allocate storage for geometry/topology
-  if ( !scalarsPresentInPD )
-    {
-    outputPD->CopyScalarsOff();
-    }
-  if ( !vectorsPresentInPD )
-    {
-    outputPD->CopyVectorsOff();
-    }
-  if ( !normalsPresentInPD )
-    {
-    outputPD->CopyNormalsOff();
-    }
-  if ( !tcoordsPresentInPD )
-    {
-    outputPD->CopyTCoordsOff();
-    }
-  if ( !tensorsPresentInPD )
-    {
-    outputPD->CopyTensorsOff();
-    }
-  if ( !fieldPresentInPD )
-    {
-    outputPD->CopyFieldDataOff();
-    }
-  outputPD->CopyAllocate(pd,numPts);
-
-  // now do cell data
-  if ( !scalarsPresentInCD )
-    {
-    outputCD->CopyScalarsOff();
-    }
-  if ( !vectorsPresentInCD )
-    {
-    outputCD->CopyVectorsOff();
-    }
-  if ( !normalsPresentInCD )
-    {
-    outputCD->CopyNormalsOff();
-    }
-  if ( !tcoordsPresentInCD )
-    {
-    outputCD->CopyTCoordsOff();
-    }
-  if ( !tensorsPresentInCD )
-    {
-    outputCD->CopyTensorsOff();
-    }
-  if ( !fieldPresentInCD )
-    {
-    outputCD->CopyFieldDataOff();
-    }
-  outputCD->CopyAllocate(cd,numCells);
+  outputPD->CopyAllocate(ptList,numPts);
+  outputCD->CopyAllocate(cellList,numCells);
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
   ptIds = vtkIdList::New(); ptIds->Allocate(VTK_CELL_SIZE);
   newPtIds = vtkIdList::New(); newPtIds->Allocate(VTK_CELL_SIZE);
-
   
+  // Append each input dataset together
+  //
+  tenth = (numPts + numCells)/10 + 1;
   ptOffset=0;
   cellOffset=0;
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 0; idx < this->NumberOfInputs && !abort; ++idx)
     {
     ds = (vtkDataSet *)(this->Inputs[idx]);
     if (ds != NULL)
@@ -321,55 +220,48 @@ void vtkAppendFilter::Execute()
       pd = ds->GetPointData();
       
       // copy points and point data
-      for (ptId=0; ptId < numPts; ptId++)
+      for (ptId=0; ptId < numPts && !abort; ptId++)
         {
         newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
-        outputPD->CopyData(pd,ptId,ptId+ptOffset);
+        outputPD->CopyData(ptList,pd,idx,ptId,ptId+ptOffset);
 
-	// Update progress
-	count++;
-	if ((count % tenth) == 0) 
-	  {
-	    decimal += 0.1;
-	    this->UpdateProgress (decimal);
-	    if (this->GetAbortExecute())
-	      {
-		break; 
-	      }
-	  }
+        // Update progress
+        count++;
+        if ( !(count % tenth) ) 
+          {
+          decimal += 0.1;
+          this->UpdateProgress (decimal);
+          abort = this->GetAbortExecute();
+          }
         }
       
       cd = ds->GetCellData();
       // copy cell and cell data
-      for (cellId=0; cellId < numCells; cellId++)
+      for (cellId=0; cellId < numCells && !abort; cellId++)
         {
-	  ds->GetCellPoints(cellId, ptIds);
-	  newPtIds->Reset ();
-	  for (i=0; i < ptIds->GetNumberOfIds(); i++)
-	    {
-	      newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
-	    }
-	  newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
-	  outputCD->CopyData(cd,cellId,newCellId);
+        ds->GetCellPoints(cellId, ptIds);
+        newPtIds->Reset ();
+        for (i=0; i < ptIds->GetNumberOfIds(); i++)
+          {
+          newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
+          }
+        newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+        outputCD->CopyData(cellList,cd,idx,cellId,newCellId);
 
-	  // Update progress
-	  count++;
-	  if ((count % tenth) == 0) 
-	    {
-	      decimal += 0.1;
-	      this->UpdateProgress (decimal);
-	      if (this->GetAbortExecute())
-		{
-		  break; 
-		}
-	    }
+        // Update progress
+        count++;
+        if ( !(count % tenth) ) 
+          {
+          decimal += 0.1;
+          this->UpdateProgress (decimal);
+          abort = this->GetAbortExecute();
+          }
         }
       ptOffset+=numPts;
       cellOffset+=numCells;
       }
     }
   
-  //
   // Update ourselves and release memory
   //
   output->SetPoints(newPts);
@@ -383,11 +275,3 @@ void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 }
-
-
-
-
-
-
-
-
