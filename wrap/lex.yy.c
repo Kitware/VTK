@@ -230,92 +230,92 @@ break;
 case 21:
 
 # line 111 "vtkParse.l"
-return(LONG);
+	return(CLASS);
 break;
 case 22:
 
 # line 112 "vtkParse.l"
-	return(CLASS);
+ 	return(PUBLIC);
 break;
 case 23:
 
 # line 113 "vtkParse.l"
- 	return(PUBLIC);
+ 	return(PRIVATE);
 break;
 case 24:
 
 # line 114 "vtkParse.l"
- 	return(PRIVATE);
+	return(PROTECTED);
 break;
 case 25:
 
 # line 115 "vtkParse.l"
-	return(PROTECTED);
+	        return(INT);
 break;
 case 26:
 
 # line 116 "vtkParse.l"
-	        return(INT);
+	return(FLOAT);
 break;
 case 27:
 
 # line 117 "vtkParse.l"
-	return(FLOAT);
+	return(SHORT);
 break;
 case 28:
 
 # line 118 "vtkParse.l"
-	return(SHORT);
+ 	return(LONG);
 break;
 case 29:
 
 # line 119 "vtkParse.l"
- 	return(LONG);
+	return(DOUBLE);
 break;
 case 30:
 
 # line 120 "vtkParse.l"
-	return(DOUBLE);
+	        return(VOID);
 break;
 case 31:
 
 # line 121 "vtkParse.l"
-	        return(VOID);
+	        return(CHAR);
 break;
 case 32:
 
 # line 122 "vtkParse.l"
-	        return(CHAR);
+      return(VIRTUAL);
 break;
 case 33:
 
 # line 123 "vtkParse.l"
-      return(VIRTUAL);
+        return(CONST);
 break;
 case 34:
 
 # line 124 "vtkParse.l"
-        return(CONST);
+     return(OPERATOR);
 break;
 case 35:
 
 # line 125 "vtkParse.l"
-     return(OPERATOR);
+     return(UNSIGNED);
 break;
 case 36:
 
 # line 126 "vtkParse.l"
-     return(UNSIGNED);
+       return(FRIEND);
 break;
 case 37:
 
 # line 127 "vtkParse.l"
-       return(FRIEND);
+       return(STATIC);
 break;
 case 38:
 
-# line 128 "vtkParse.l"
-       return(STATIC);
+# line 129 "vtkParse.l"
+           return(LONG);
 break;
 case 39:
 
@@ -701,6 +701,190 @@ int yyvstop[] = {
 65,
 0,
 
+25,
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+64,
+65,
+0,
+
+10,
+0,
+
+10,
+11,
+0,
+
+10,
+11,
+0,
+
+10,
+11,
+0,
+
+65,
+0,
+
+31,
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+28,
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+30,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+64,
+65,
+0,
+
+10,
+0,
+
+10,
+0,
+
+10,
+0,
+
+10,
+11,
+0,
+
+10,
+11,
+0,
+
+10,
+11,
+0,
+
+65,
+0,
+
+21,
+65,
+0,
+
+33,
+65,
+0,
+
+65,
+0,
+
 26,
 65,
 0,
@@ -729,191 +913,7 @@ int yyvstop[] = {
 65,
 0,
 
-65,
-0,
-
-65,
-0,
-
-64,
-65,
-0,
-
-10,
-0,
-
-10,
-11,
-0,
-
-10,
-11,
-0,
-
-10,
-11,
-0,
-
-65,
-0,
-
-32,
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-29,
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-31,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-64,
-65,
-0,
-
-10,
-0,
-
-10,
-0,
-
-10,
-0,
-
-10,
-11,
-0,
-
-10,
-11,
-0,
-
-10,
-11,
-0,
-
-65,
-0,
-
-22,
-65,
-0,
-
-34,
-65,
-0,
-
-65,
-0,
-
 27,
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-28,
 65,
 0,
 
@@ -987,40 +987,40 @@ int yyvstop[] = {
 65,
 0,
 
-30,
+29,
+65,
+0,
+
+36,
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+65,
+0,
+
+22,
+65,
+0,
+
 65,
 0,
 
 37,
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-65,
-0,
-
-23,
-65,
-0,
-
-65,
-0,
-
-38,
 65,
 0,
 
@@ -1107,7 +1107,7 @@ int yyvstop[] = {
 65,
 0,
 
-24,
+23,
 65,
 0,
 
@@ -1120,7 +1120,7 @@ int yyvstop[] = {
 65,
 0,
 
-33,
+32,
 65,
 0,
 
@@ -1222,7 +1222,7 @@ int yyvstop[] = {
 18,
 0,
 
-35,
+34,
 65,
 0,
 
@@ -1233,7 +1233,7 @@ int yyvstop[] = {
 65,
 0,
 
-36,
+35,
 65,
 0,
 
@@ -1329,7 +1329,7 @@ int yyvstop[] = {
 19,
 0,
 
-25,
+24,
 65,
 0,
 
@@ -1356,7 +1356,7 @@ int yyvstop[] = {
 65,
 0,
 
-21,
+38,
 64,
 65,
 0,
