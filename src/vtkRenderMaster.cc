@@ -43,10 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkRenderMaster.hh"
 
-#ifdef USE_KGLR
-#include "vtkKglrRenderWindow.hh"
-#endif
-
 #ifdef USE_SBR
 #include "vtkSbrRenderWindow.hh"
 #endif
@@ -71,16 +67,6 @@ vtkRenderMaster::vtkRenderMaster()
 // Create named renderer type.
 vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
 {
-
-#ifdef USE_KGLR
-  if (!strncmp("kglr",type,4))
-    {
-    vtkKglrRenderWindow *ren;
-    ren = new vtkKglrRenderWindow;
-    return (vtkRenderWindow *)ren;
-    }
-#endif
-
 #ifdef USE_SBR
   if (!strncmp("sbr",type,4))
     {
@@ -128,10 +114,28 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(void)
 {
   char *temp;
   
-  // if nothing is set then try kglr
+  // if nothing is set then work down the list of possible renderers
   temp = getenv("VTK_RENDERER");
-  if (!temp) temp = "kglr";
-
+  if (!temp) 
+    {
+#ifdef USE_GLR
+    temp = "glr";
+#endif
+#ifdef USE_OGLR
+    temp = "oglr";
+#endif
+#ifdef USE_SBR
+    temp = "sbr";
+#endif
+#ifdef USE_XGLR
+    temp = "xglr";
+#endif
+    if (!temp)
+      {
+      vtkErrorMacro(<<"RenderMaster Error: this version of vtk does not have any rendering libraries built in.\n");
+      }
+    }
+    
   return (this->MakeRenderWindow(temp));
 }
 
