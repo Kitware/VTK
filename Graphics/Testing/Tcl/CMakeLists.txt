@@ -75,6 +75,7 @@ IF (VTK_USE_RENDERING)
       reconstructSurface
       quadricCut
       rectGrid
+      recursiveDC
       scalarConn
       schwarz
       shepards
