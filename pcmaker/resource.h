@@ -45,6 +45,7 @@
 #define IDC_LOCAL                       1036
 #define IDC_VTK_INSTALL_BROWSE          1037
 #define IDC_VTK_LIB_BROWSE              1038
+#define IDC_LIBPREFIX                   1038
 #define IDC_COMPILER_PATH_BROWSE        1039
 #define IDC_JDK_WHERE                   1040
 #define IDC_WhereLibTCL                 1040
@@ -57,7 +58,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

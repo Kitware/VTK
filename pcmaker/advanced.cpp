@@ -23,6 +23,7 @@ advanced::advanced(CWnd* pParent /*=NULL*/)
 	m_EXTRA_LINK_FLAGS = _T("");
 	m_WhereTcl = _T("");
 	m_WhereTk = _T("");
+	m_LibPrefix = _T("vtk");
 	//}}AFX_DATA_INIT
 }
 
@@ -39,6 +40,8 @@ void advanced::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_WhereTcl, 512);
 	DDX_Text(pDX, IDC_WHERETK, m_WhereTk);
 	DDV_MaxChars(pDX, m_WhereTk, 512);
+	DDX_Text(pDX, IDC_LIBPREFIX, m_LibPrefix);
+	DDV_MaxChars(pDX, m_LibPrefix, 40);
 	//}}AFX_DATA_MAP
 }
 

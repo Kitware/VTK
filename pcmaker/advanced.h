@@ -17,6 +17,7 @@ public:
 	CString	m_EXTRA_LINK_FLAGS;
 	CString	m_WhereTcl;
 	CString	m_WhereTk;
+	CString	m_LibPrefix;
 	//}}AFX_DATA
 
 

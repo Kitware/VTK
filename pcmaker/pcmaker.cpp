@@ -127,6 +127,7 @@ int ReadRegistry(CPcmakerDlg &dlg)
     ReadAValue(hKey, &(dlg.adlg.m_EXTRA_LINK_FLAGS),"EXTRA_LINK_FLAGS","");
     ReadAValue(hKey, &(dlg.adlg.m_WhereTcl),"WhereTcl","");
     ReadAValue(hKey, &(dlg.adlg.m_WhereTk),"WhereTk","");
+    ReadAValue(hKey, &(dlg.adlg.m_LibPrefix),"LibPrefix","");
 
     // save which compiler
     dwType = REG_DWORD;
@@ -224,6 +225,9 @@ void WriteRegistry(CPcmakerDlg &dlg)
     RegSetValueEx(hKey, _T("WhereTk"), 0, REG_SZ, 
 		  (CONST BYTE *)(const char *)dlg.adlg.m_WhereTk, 
 		  dlg.adlg.m_WhereTk.GetLength());
+    RegSetValueEx(hKey, _T("LibPrefix"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_LibPrefix, 
+		  dlg.adlg.m_LibPrefix.GetLength());
 
     dwData = 0;
     dwData |= (dlg.m_MSComp)?1:0;
@@ -276,6 +280,7 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WherePy = "";
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
+    dlg.adlg.m_LibPrefix  = "vtk";
     }
    if (strncmp(m_lpCmdLine, "nightly", 7) == 0)  // skip any trailing characters
     {
@@ -287,6 +292,7 @@ BOOL CPcmakerApp::InitInstance()
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
     dlg.adlg.m_EXTRA_LINK_FLAGS = "";
+    dlg.adlg.m_LibPrefix  = "vtk";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
     }
@@ -299,6 +305,7 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WherePy = "";
     dlg.adlg.m_WhereTcl = "";
     dlg.adlg.m_WhereTk  = "";
+    dlg.adlg.m_LibPrefix  = "vtk";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
     }
@@ -313,6 +320,7 @@ BOOL CPcmakerApp::InitInstance()
     dlg.adlg.m_WhereTk  = "";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
+    dlg.adlg.m_LibPrefix  = "vtk";
     }
    else if (m_lpCmdLine[0] != '\0')
     {

@@ -1156,8 +1156,8 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
     {
     fprintf(fp,"vtkJavaLib :\n");
     fprintf(fp,"   cd vtkjava\n");
-    fprintf(fp,"   nmake ..\\lib\\vtkjava.dll\n");
-    fprintf(fp,"   nmake ..\\lib\\vtkjava.dll\n");
+    fprintf(fp,"   nmake ..\\lib\\%sjava.dll\n",vals->adlg.m_LibPrefix);
+    fprintf(fp,"   nmake ..\\lib\\%sjava.dll\n",vals->adlg.m_LibPrefix);
     fprintf(fp,"   cd ../\n\n");
     }
 
@@ -1167,13 +1167,13 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"   cd vtkpython\n");
     if (debugFlag)
       {
-      fprintf(fp,"   nmake ..\\lib\\vtkpython_d.dll\n");
-      fprintf(fp,"   nmake ..\\lib\\vtkpython_d.dll\n");
+      fprintf(fp,"   nmake ..\\lib\\%spython_d.dll\n",vals->adlg.m_LibPrefix);
+      fprintf(fp,"   nmake ..\\lib\\%spython_d.dll\n",vals->adlg.m_LibPrefix);
       }
     else
       {
-      fprintf(fp,"   nmake ..\\lib\\vtkpython.dll\n");
-      fprintf(fp,"   nmake ..\\lib\\vtkpython.dll\n");
+      fprintf(fp,"   nmake ..\\lib\\%spython.dll\n",vals->adlg.m_LibPrefix);
+      fprintf(fp,"   nmake ..\\lib\\%spython.dll\n",vals->adlg.m_LibPrefix);
       }
     fprintf(fp,"   cd ../\n\n");
     }
@@ -1183,8 +1183,8 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
     {
     fprintf(fp,"vtkTclLib :\n");
     fprintf(fp,"   cd vtktcl\n");
-    fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
-    fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
+    fprintf(fp,"   nmake ..\\lib\\%stcl.dll\n",vals->adlg.m_LibPrefix);
+    fprintf(fp,"   nmake ..\\lib\\%stcl.dll\n",vals->adlg.m_LibPrefix);
     fprintf(fp,"   cd ../\n\n");
     }
 
@@ -1222,7 +1222,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"LIBDIR=..\\lib\n\n");
 
 
-  fprintf(fp,"NONINCREMENTAL : vtkdll.dll\n\n");
+  fprintf(fp,"NONINCREMENTAL : %sdll.dll\n\n",vals->adlg.m_LibPrefix);
 
 
   if (debugFlag)
@@ -1277,7 +1277,8 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
 
   fprintf(fp,"ALL_FLAGS= /dll /incremental:no /machine:I386\\\n");
-  fprintf(fp," /out:vtkdll.dll /implib:vtkdll.lib \n\n");
+  fprintf(fp," /out:%sdll.dll /implib:%sdll.lib \n\n",vals->adlg.m_LibPrefix,
+	  vals->adlg.m_LibPrefix);
 
 
   fprintf(fp,"COMMON_FLAGS= /dll /incremental:yes /machine:I386\\\n");
@@ -1417,7 +1418,8 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
 
 
-  fprintf(fp,"vtkdll.dll : $(DEF_FILE) $(COMMON_OBJS) $(PATENTED_OBJS) ");
+  fprintf(fp,"%sdll.dll : $(DEF_FILE) $(COMMON_OBJS) $(PATENTED_OBJS) ",
+	  vals->adlg.m_LibPrefix);
   fprintf(fp," $(IMAGING_OBJS) $(CONTRIB_OBJS) $(LOCAL_OBJS) ");
   for (i = 0; i < NumOfGraphicsLibs; i++)
     fprintf(fp,"$(GRAPHICS_OBJS%d) ",i);
@@ -1595,7 +1597,8 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"WHERECOMP=%s\n\n",vals->m_WhereCompiler);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
 
-  fprintf(fp,"ALL : vtkdll.dll  vtkdll.lib\n\n");
+  fprintf(fp,"ALL : %sdll.dll  %sdll.lib\n\n",
+	  vals->adlg.m_LibPrefix, vals->adlg.m_LibPrefix);
 
   fprintf(fp,"\"obj\" :\n");
   fprintf(fp,"    if not exist \"obj$(NULL)\" mkdir \"obj\"\n");
@@ -1726,14 +1729,17 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
       }
   fprintf(fp,"\n");
 
-  fprintf(fp,"vtkdll.dll : \"obj\" $(DEF_FILE) $(DEPLINK32_OBJS)\n");
+  fprintf(fp,"%sdll.dll : \"obj\" $(DEF_FILE) $(DEPLINK32_OBJS)\n",
+	  vals->adlg.m_LibPrefix);
 
   fprintf(fp,"    $(LINK32) @&&|\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
   fprintf(fp,"| \n");
  
-  fprintf(fp,"vtkdll.lib : vtkdll.dll \n");
-  fprintf(fp,"      implib -w $@ vtkdll.dll \n");
+  fprintf(fp,"%sdll.lib : %sdll.dll \n", vals->adlg.m_LibPrefix,
+	  vals->adlg.m_LibPrefix);
+  fprintf(fp,"      implib -w $@ %sdll.dll \n",
+	  vals->adlg.m_LibPrefix);
  
   fprintf(fp,"\n");
   fprintf(fp,".c{$(CPP_OBJS)}.obj:\n");
@@ -1817,7 +1823,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"LIBDIR=..\\lib\n\n");
 
-  fprintf(fp,"ALL : vtktcl.dll\n\n");
+  fprintf(fp,"ALL : %stcl.dll\n\n",vals->adlg.m_LibPrefix);
 
   fprintf(fp,"\"$(OUTDIR)\" :\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
@@ -1892,17 +1898,19 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp," \"%s\\pcmaker\\tk82.lib\" \"%s\\pcmaker\\tcl82.lib\" \n",
 	    vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtktcl.pdb\" /machine:I386\\\n");
-  fprintf(fp," /out:\"$(LIBDIR)/vtktcl.dll\" /implib:\"$(LIBDIR)/vtktcl.lib\" \n\n"); 
-  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:vtktcl.pdb /machine:I386\\\n");
-  fprintf(fp," /out:vtktcl.dll /implib:vtktcl.lib \n\n"); 
+  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/%stcl.pdb\" /machine:I386\\\n",vals->adlg.m_LibPrefix);
+  fprintf(fp," /out:\"$(LIBDIR)/%stcl.dll\" /implib:\"$(LIBDIR)/%stcl.lib\" \n\n",vals->adlg.m_LibPrefix,vals->adlg.m_LibPrefix); 
+  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:%stcl.pdb /machine:I386\\\n",vals->adlg.m_LibPrefix);
+  fprintf(fp," /out:%stcl.dll /implib:%stcl.lib \n\n",vals->adlg.m_LibPrefix
+	  ,vals->adlg.m_LibPrefix); 
   fprintf(fp,"LIB_FLAGS=/machine:I386\n\n"); 
 
 
   fprintf(fp,"TCLOBJLIBS=vtktclotherobjs.lib vtktclgraphicsobjs.lib\n\n");
 
 
-  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\vtkdll.lib \n\n");
+  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\%sdll.lib \n\n",
+	  vals->adlg.m_LibPrefix);
 
 
   fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
@@ -1977,13 +1985,13 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concrete_h[i]);
   fprintf(fp,"\n");
   
-  fprintf(fp,"vtktcl.dll : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(TCLOBJLIBS)\n");
+  fprintf(fp,"%stcl.dll : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(TCLOBJLIBS)\n",vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS2) $(TCLOBJLIBS) $(VTKDLL_LIB)\n");
   fprintf(fp,"<<\n\n");
 
 
-  fprintf(fp,"\"$(LIBDIR)\\vtktcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(TCLOBJLIBS)\n");
+  fprintf(fp,"\"$(LIBDIR)\\%stcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(TCLOBJLIBS)\n",vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS1) $(TCLOBJLIBS) $(VTK_LIBRARIES)\n");
   fprintf(fp,"<<\n\n");
@@ -2140,7 +2148,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"WHEREVTK=%s\n",vals->m_WhereVTK);
   fprintf(fp,"WHERECOMP=%s\n\n",vals->m_WhereCompiler);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
-  fprintf(fp,"ALL : vtktcl.dll\n\n");
+  fprintf(fp,"ALL : %stcl.dll\n\n",vals->adlg.m_LibPrefix);
 
 
   fprintf(fp,"$(OUTDIR) ::\n");
@@ -2185,7 +2193,8 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	fprintf(fp,"LINK32=tlink32.exe\n\n");
 	}
 
-  fprintf(fp,"LINK32_FLAGS=-L$(WHERECOMP)\\lib;..\\vtkdll\\vtkdll.lib;$(WHEREVTK)\\pcmaker\\tk82.lib;$(WHEREVTK)\\pcmaker\\tcl82.lib \\\n");
+  fprintf(fp,"LINK32_FLAGS=-L$(WHERECOMP)\\lib;..\\vtkdll\\%sdll.lib;$(WHEREVTK)\\pcmaker\\tk82.lib;$(WHEREVTK)\\pcmaker\\tcl82.lib \\\n",
+	  vals->adlg.m_LibPrefix);
   if (debugFlag)
     {
     fprintf(fp,"  -v \\\n");
@@ -2271,13 +2280,14 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	{
   fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
       }
-  fprintf(fp,"    ..\\vtkdll\\vtkdll.lib \\\n");
+  fprintf(fp,"    ..\\vtkdll\\%sdll.lib \\\n",vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tk82.lib \\\n");
 
   fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tcl82.lib \\\n");
 
   fprintf(fp," \n");
-  fprintf(fp,"vtktcl.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS) obj\n");
+  fprintf(fp,"%stcl.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS) obj\n",
+	  vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(LINK32) @&&|\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
   fprintf(fp,"|\n");
@@ -2417,7 +2427,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"LIBDIR=..\\lib\n\n");
 
 
-  fprintf(fp,"ALL : vtkjava.dll\n\n");
+  fprintf(fp,"ALL : %sjava.dll\n\n",vals->adlg.m_LibPrefix);
 
 
   fprintf(fp,"\"$(OUTDIR)\" :\n");
@@ -2462,14 +2472,13 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
 
 
-  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtkjava.pdb\" /machine:I386\\\n");
-  fprintf(fp," /out:\"$(LIBDIR)/vtkjava.dll\" /implib:\"$(LIBDIR)/vtkjava.lib\" \n"); 
-  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:vtktcl.pdb /machine:I386\\\n");
-  fprintf(fp," /out:vtkjava.dll /implib:vtkjava.lib \n"); 
+  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/%sjava.pdb\" /machine:I386\\\n",vals->adlg.m_LibPrefix);
+  fprintf(fp," /out:\"$(LIBDIR)/%sjava.dll\" /implib:\"$(LIBDIR)/%sjava.lib\" \n",vals->adlg.m_LibPrefix,vals->adlg.m_LibPrefix); 
+  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:%sjava.pdb /machine:I386\\\n",vals->adlg.m_LibPrefix);
+  fprintf(fp," /out:%sjava.dll /implib:%sjava.lib \n",vals->adlg.m_LibPrefix,
+	  vals->adlg.m_LibPrefix); 
 
-
-  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\vtkdll.lib \n");
-
+  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\%sdll.lib \n",vals->adlg.m_LibPrefix);
 
   fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
   if (vals->m_Graphics) 
@@ -2509,12 +2518,13 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
 
   fprintf(fp,"\n");
-  fprintf(fp,"vtkjava.dll : $(DEF_FILE) $(LINK32_OBJS)\n");
+  fprintf(fp,"%sjava.dll : $(DEF_FILE) $(LINK32_OBJS)\n",vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS2) $(LINK32_OBJS) $(VTKDLL_LIB)\n");
   fprintf(fp,"<<\n");
   fprintf(fp,"\n");
-  fprintf(fp,"\"$(LIBDIR)\\vtkjava.dll\" : $(DEF_FILE) $(LINK32_OBJS)\n");
+  fprintf(fp,"\"$(LIBDIR)\\%sjava.dll\" : $(DEF_FILE) $(LINK32_OBJS)\n",
+	  vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS1) $(LINK32_OBJS) $(VTK_LIBRARIES)\n");
   fprintf(fp,"<<\n");
@@ -2644,7 +2654,7 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"WHEREJDK=%s\n\n",vals->m_WhereJDK);
   fprintf(fp,"WHERECOMP=%s\n\n",vals->m_WhereCompiler);
   fprintf(fp,"CPP=BCC32.exe +CPP_PROJ.CFG\n\n");
-  fprintf(fp,"ALL : vtkjava.dll\n\n");
+  fprintf(fp,"ALL : %sjava.dll\n\n",vals->adlg.m_LibPrefix);
 
   fprintf(fp,"$(OUTDIR) ::\n");
   fprintf(fp,"    if not exist \"$(OUTDIR)$(NULL)\" mkdir \"$(OUTDIR)\"\n");
@@ -2788,13 +2798,14 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 	}
 
   fprintf(fp,"    $(WHERECOMP)\\lib\\import32.lib \\\n");
- if (bbuilder < 4) 
-	{
-  fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
-      }
-  fprintf(fp,"    ..\\vtkdll\\vtkdll.lib \\\n");
+  if (bbuilder < 4) 
+    {
+      fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
+    }
+  fprintf(fp,"    ..\\vtkdll\\%sdll.lib \\\n",vals->adlg.m_LibPrefix);
   fprintf(fp,"\n");
-  fprintf(fp,"vtkjava.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS)\n");
+  fprintf(fp,"%sjava.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS)\n",
+	  vals->adlg.m_LibPrefix);
   fprintf(fp,"    $(LINK32) @&&| \n");
   fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
   fprintf(fp,"|  \n");
@@ -2965,13 +2976,13 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   if (debugFlag)
     {
-    fprintf(fp,"ALL : vtkpython_d.dll\n\n");
-    sprintf(targetName,"vtkpython_d");
+    fprintf(fp,"ALL : %spython_d.dll\n\n",vals->adlg.m_LibPrefix);
+    sprintf(targetName,"%spython_d",vals->adlg.m_LibPrefix);
     }
   else
     {
-    fprintf(fp,"ALL : vtkpython.dll\n\n");
-    sprintf(targetName,"vtkpython");
+    fprintf(fp,"ALL : %spython.dll\n\n",vals->adlg.m_LibPrefix);
+    sprintf(targetName,"%spython",vals->adlg.m_LibPrefix);
     }
 
   fprintf(fp,"\"$(OUTDIR)\" :\n");
@@ -3045,7 +3056,8 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"PYTHONOBJLIBS=vtkpythonotherobjs.lib vtkpythongraphicsobjs.lib\n\n");
 
 
-  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\vtkdll.lib \n\n");
+  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\%sdll.lib \n\n",
+	  vals->adlg.m_LibPrefix);
 
 
   fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
@@ -3434,9 +3446,11 @@ void SetupSplitGraphicsDepends(CPcmakerDlg *vals)
       for (j = 0; j < 2; j++);
       {
       if (j)
-	sprintf(file,"%s\\lib\\vtktcl.dll",vals->m_WhereBuild);
+	sprintf(file,"%s\\lib\\%stcl.dll",vals->m_WhereBuild,
+		vals->adlg.m_LibPrefix);
       else
-	sprintf(file,"%s\\Debug\\lib\\vtktcl.dll",vals->m_WhereBuild);
+	sprintf(file,"%s\\Debug\\lib\\%stcl.dll",vals->m_WhereBuild,
+		vals->adlg.m_LibPrefix);
 				
       if (!stat(file,&statBuff)) // does exist, so delete it
 	{
@@ -3464,9 +3478,11 @@ void SetupSplitGraphicsDepends(CPcmakerDlg *vals)
         if (i == 40) // handle the tcl dll
           {
           if (j)
-            sprintf(file,"%s\\lib\\vtktcl.dll",vals->m_WhereBuild);
+            sprintf(file,"%s\\lib\\%stcl.dll",vals->m_WhereBuild,
+		    vals->adlg.m_LibPrefix);
           else
-            sprintf(file,"%s\\Debug\\lib\\vtktcl.dll",vals->m_WhereBuild);
+            sprintf(file,"%s\\Debug\\lib\\%stcl.dll",vals->m_WhereBuild,
+		    vals->adlg.m_LibPrefix);
           }
         else
           {
