@@ -1,3 +1,3 @@
-# build zlib, png and jpeg
-SUBDIRS(zlib png jpeg Doxygen)
+# build zlib, png, jpeg, and tiff
 
+SUBDIRS(zlib png jpeg tiff Doxygen)
