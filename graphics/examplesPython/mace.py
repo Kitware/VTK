@@ -14,7 +14,7 @@ iren.SetRenderWindow( renWin )
 sphere = vtkSphereSource()
 sphereMapper = vtkPolyDataMapper()
 sphereMapper.SetInput( sphere.GetOutput() )
-sphereActor = vtkActor()
+sphereActor = vtkLODActor()
 sphereActor.SetMapper( sphereMapper )
 
 # create the spikes using a cone source and the sphere source
@@ -31,7 +31,7 @@ glyph.ReleaseDataFlagOn()
 
 spikeMapper = vtkPolyDataMapper()
 spikeMapper.SetInput( glyph.GetOutput() )
-spikeActor = vtkActor()
+spikeActor = vtkLODActor()
 spikeActor.SetMapper( spikeMapper )
 
 # Add the actors to the renderer,.Set the background and size
@@ -40,23 +40,6 @@ ren1.AddActor( sphereActor )
 ren1.AddActor( spikeActor )
 ren1.SetBackground( 0.1, 0.2, 0.4 )
 renWin.SetSize( 300, 300 )
-
-def foo():
-  print "In Callback"
-# end of foo
-
-def foo2():
-  print "  Rendering"
-# end of foo2
-
-def foo3():
-  print "  Filtering"
-# end of foo3
-
-iren.SetUserMethod(foo)
-ren1.SetStartRenderMethod(foo2)
-glyph.SetStartMethod(foo3)
-
 
 # render the image
 #
