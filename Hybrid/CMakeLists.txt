@@ -1,6 +1,4 @@
 SOURCE_FILES ( Hybrid_SRCS
-vtkArcPlotter 
-vtkBranchExtentTranslator 
 vtkCellDerivatives 
 vtkCubeAxesActor2D 
 vtkDEMReader 
