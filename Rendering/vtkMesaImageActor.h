@@ -60,6 +60,7 @@ protected:
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
   float Coords[12];
   float TCoords[8];
+  int TextureSize[2];
 private:
   vtkMesaImageActor(const vtkMesaImageActor&);  // Not implemented.
   void operator=(const vtkMesaImageActor&);  // Not implemented.
