@@ -64,26 +64,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Create a pipelined concatenation of two perspective transforms.  
-  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
-					      vtkPerspectiveTransform *t2) {
-    return vtkPerspectiveTransformConcatenation::Concatenate(t1,t2,0,0); };
-
-  // Description:
-  // Create a pipelined concatenation of three perspective transforms.  
-  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
-					      vtkPerspectiveTransform *t2,
-					      vtkPerspectiveTransform *t3) {
-    return vtkPerspectiveTransformConcatenation::Concatenate(t1,t2,t3,0); };
-
-  // Description:
-  // Create a pipelined concatenation of four perspective transforms.  
-  static vtkPerspectiveTransform *Concatenate(vtkPerspectiveTransform *t1,
-					      vtkPerspectiveTransform *t2,
-					      vtkPerspectiveTransform *t3,
-					      vtkPerspectiveTransform *t4);
-
-  // Description:
   // Concatenate the current transform with the specified transform,
   // taking the PreMultiply flag into consideration.
   void Concatenate(vtkPerspectiveTransform *transform);

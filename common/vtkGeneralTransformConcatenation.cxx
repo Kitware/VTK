@@ -170,24 +170,6 @@ void vtkGeneralTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransformConcatenation::Concatenate(
-					vtkGeneralTransform *t1,
-					vtkGeneralTransform *t2,
-					vtkGeneralTransform *t3,
-					vtkGeneralTransform *t4)
-{
-  vtkGeneralTransformConcatenation *concat =
-    vtkGeneralTransformConcatenation::New();
-
-  if (t1) { concat->Concatenate(t1); }
-  if (t2) { concat->Concatenate(t2); }
-  if (t3) { concat->Concatenate(t3); }
-  if (t4) { concat->Concatenate(t4); }
-
-  return concat;
-}
-
 //------------------------------------------------------------------------
 // Check the InverseFlag, and perform a forward or reverse transform
 // as appropriate.
