@@ -22,7 +22,7 @@
 #include <string>
 #include <algorithm>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.7");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.8");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
@@ -53,7 +53,7 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDataArraySelection::EnableArray(const char* name)
 {
   vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
   if(i != this->ArrayNames->end())
     {
     int& setting = (*this->ArraySettings)[i-this->ArrayNames->begin()];
@@ -75,7 +75,7 @@ void vtkDataArraySelection::EnableArray(const char* name)
 void vtkDataArraySelection::DisableArray(const char* name)
 {
   vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
   if(i != this->ArrayNames->end())
     {
     int& setting = (*this->ArraySettings)[i - this->ArrayNames->begin()];
@@ -98,7 +98,7 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name)
 {
   // Check if there is a specific entry for this array.
   vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
   if(i != this->ArrayNames->end())
     {
     return (*this->ArraySettings)[i - this->ArrayNames->begin()];
@@ -113,7 +113,7 @@ int vtkDataArraySelection::ArrayExists(const char* name)
 {
   // Check if there is a specific entry for this array.
   vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
   return i != this->ArrayNames->end();
 }
 
@@ -238,7 +238,7 @@ void vtkDataArraySelection::SetArrays(const char* const* names, int numArrays)
     // Otherwise, default to on.
     vtkstd::vector<vtkstd::string>::iterator it =
       vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(),
-                   names[i]);
+                   vtkstd::string(names[i]));
     int setting = 1;
     if(it != this->ArrayNames->end())
       {
