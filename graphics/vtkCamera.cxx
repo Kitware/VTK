@@ -622,7 +622,7 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   
   // now do the shear to get the z axis to go through the
   // center of the window
-  ftemp = PRP[2]*tan(this->ViewAngle*aspect*3.1415926/360.0);
+  ftemp = PRP[2]*aspect*tan(this->ViewAngle*3.1415926/360.0);
   DOP[0] = ftemp*this->WindowCenter[0] - PRP[0];
   ftemp = PRP[2]*tan(this->ViewAngle*3.1415926/360.0);
   DOP[1] = ftemp*this->WindowCenter[1] - PRP[1];
