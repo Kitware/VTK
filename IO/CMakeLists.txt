@@ -49,6 +49,15 @@ vtkVolumeReader
 vtkWriter
 )
 
+# Optional Stanford University PLY file format
+IF(PLY_LIBRARY)
+  IF(PLY_PATH)
+    SOURCE_FILES( IO_SRCS vtkPLYReader vtkPLYWriter )
+    INCLUDE_DIRECTORIES( ${PLY_PATH} )
+    LINK_LIBRARIES( ${PLY_LIBRARY} )
+  ENDIF(PLY_PATH)
+ENDIF(PLY_LIBRARY)
+
 ABSTRACT_FILES(
 vtkEnSightReader
 vtkVolumeReader
