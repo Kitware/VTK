@@ -49,10 +49,6 @@ vtkLineSource rake
   rake SetResolution 40
   rake SetPoint1  -5 -1 1.3
   rake SetPoint2  -5  1 1.3
-#  rake SetPoint1  -5 -1 0.3
-#  rake SetPoint2  -5  1 0.3
-#  rake SetPoint1  1.10 0 0.3
-#  rake SetPoint2  2.50 0 0.3
 vtkStreamLine streamers
   streamers SetInput [pl3d GetOutput]
   streamers SetSource [rake GetOutput]
@@ -120,10 +116,7 @@ renWin Render
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-
 renWin Render
-#renWin SetFileName "LOxGrid.tcl.ppm"
-#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
