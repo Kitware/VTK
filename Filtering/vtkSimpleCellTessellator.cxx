@@ -364,7 +364,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.6");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.7");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -394,7 +394,7 @@ public:
     {
       int result=1;
       int k=0;
-      while(k<4 && result)
+      while(k<3 && result)
         {
         result=!((local[0] ==this->Vertex[k][0]) &&
                  (local[1] == this->Vertex[k][1])
@@ -408,9 +408,9 @@ public:
     {
       // Mid point are different from all original points.
       int isValid=1;
-      int j=4;
+      int j=3;
       int k;
-      while(j<10 && isValid)
+      while(j<6 && isValid)
         {
         // Don't even look at original points if the mid-point is not
         // initialized
@@ -420,7 +420,7 @@ public:
           {
           k=0;
           isValid=1;
-          while(k<4 && isValid)
+          while(k<3 && isValid)
             {
             isValid=!((this->Vertex[j][0] ==this->Vertex[k][0]) &&
               (this->Vertex[j][1] == this->Vertex[k][1])
