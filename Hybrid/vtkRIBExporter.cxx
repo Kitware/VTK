@@ -40,7 +40,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.61");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.62");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];
@@ -129,7 +129,8 @@ void vtkRIBExporter::WriteData()
   //  All textures must be made first
   //
   ac = ren->GetActors();
-  for ( ac->InitTraversal (); (anActor = ac->GetNextActor()); )
+  vtkCollectionSimpleIterator ait;
+  for ( ac->InitTraversal (ait); (anActor = ac->GetNextActor(ait)); )
     {
     // see if the actor has a mapper. it could be an assembly
     if (anActor->GetMapper() == NULL)
@@ -193,7 +194,7 @@ void vtkRIBExporter::WriteData()
   vtkAssemblyNode *node;
   ac = ren->GetActors();
   vtkAssemblyPath *apath;
-  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
+  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {

@@ -41,7 +41,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.57");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.58");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -1022,8 +1022,9 @@ void vtkCompositeManager::InitializePieces()
   while ( (ren = rens->GetNextRenderer(sit)) )
     {
     actors = ren->GetActors();
-    actors->InitTraversal();
-    while ( (actor = actors->GetNextItem()) )
+    vtkCollectionSimpleIterator ait;
+    actors->InitTraversal(ait);
+    while ( (actor = actors->GetNextActor(ait)) )
       {
       mapper = actor->GetMapper();
       pdMapper = vtkPolyDataMapper::SafeDownCast(mapper);

@@ -22,7 +22,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.55");
+vtkCxxRevisionMacro(vtkAssembly, "1.56");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -64,10 +64,11 @@ void vtkAssembly::ShallowCopy(vtkProp *prop)
   if ( a != NULL )
     {
     this->Parts->RemoveAllItems();
-    a->Parts->InitTraversal();
+    vtkCollectionSimpleIterator pit;
+    a->Parts->InitTraversal(pit);
     for (int i=0; i<0; i++)
       {
-      this->Parts->AddItem(a->Parts->GetNextProp3D());
+      this->Parts->AddItem(a->Parts->GetNextProp3D(pit));
       }
     }
 
@@ -156,8 +157,9 @@ void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 {
   vtkProp3D *prop3D;
 
-  for ( this->Parts->InitTraversal(); 
-        (prop3D = this->Parts->GetNextProp3D()); )
+  vtkCollectionSimpleIterator pit;
+  for ( this->Parts->InitTraversal(pit); 
+        (prop3D = this->Parts->GetNextProp3D(pit)); )
     {
     prop3D->ReleaseGraphicsResources(renWin);
     }
@@ -248,8 +250,9 @@ void vtkAssembly::UpdatePaths()
     
     // Add nodes as we proceed down the hierarchy
     vtkProp3D *prop3D;
-    for ( this->Parts->InitTraversal(); 
-          (prop3D = this->Parts->GetNextProp3D()); )
+    vtkCollectionSimpleIterator pit;
+    for ( this->Parts->InitTraversal(pit); 
+          (prop3D = this->Parts->GetNextProp3D(pit)); )
       {
       path->AddNode(prop3D,prop3D->GetMatrix());
 
@@ -272,8 +275,9 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
 {
   vtkProp3D *prop3D;
 
-  for ( this->Parts->InitTraversal(); 
-        (prop3D = this->Parts->GetNextProp3D()); )
+  vtkCollectionSimpleIterator pit;
+  for ( this->Parts->InitTraversal(pit); 
+        (prop3D = this->Parts->GetNextProp3D(pit)); )
     {
     path->AddNode(prop3D,prop3D->GetMatrix());
 
@@ -353,7 +357,9 @@ unsigned long int vtkAssembly::GetMTime()
   unsigned long time;
   vtkProp3D *prop;
 
-  for (this->Parts->InitTraversal(); (prop = this->Parts->GetNextProp3D()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Parts->InitTraversal(pit); 
+       (prop = this->Parts->GetNextProp3D(pit)); )
     {
     time = prop->GetMTime();
     mTime = ( time > mTime ? time : mTime );

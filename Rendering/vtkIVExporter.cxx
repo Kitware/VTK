@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.59");
+vtkCxxRevisionMacro(vtkIVExporter, "1.60");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -167,7 +167,8 @@ void vtkIVExporter::WriteData()
   // do the actors now
   ac = ren->GetActors();
   vtkAssemblyPath *apath;
-  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
+  vtkCollectionSimpleIterator ait;
+  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {

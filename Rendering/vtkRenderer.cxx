@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.203");
+vtkCxxRevisionMacro(vtkRenderer, "1.204");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -156,8 +156,9 @@ void vtkRenderer::Render(void)
         goto completed_mod_check;
         }
       }
-    for (this->Props->InitTraversal(); 
-         (aProp = this->Props->GetNextProp()); )
+    vtkCollectionSimpleIterator pit;
+    for (this->Props->InitTraversal(pit); 
+         (aProp = this->Props->GetNextProp(pit)); )
       {
       // if it's invisible, we can skip the rest 
       if (aProp->GetVisibility())
@@ -206,8 +207,9 @@ void vtkRenderer::Render(void)
     }
 
   this->PropArrayCount = 0;
-  for ( i = 0, this->Props->InitTraversal(); 
-        (aProp = this->Props->GetNextProp());i++ )
+  vtkCollectionSimpleIterator pit;
+  for ( i = 0, this->Props->InitTraversal(pit); 
+        (aProp = this->Props->GetNextProp(pit));i++ )
     {
     if ( aProp->GetVisibility() )
       {
@@ -539,8 +541,9 @@ vtkActorCollection *vtkRenderer::GetActors()
   // clear the collection first
   this->Actors->RemoveAllItems();
   
-  for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit); 
+       (aProp = this->Props->GetNextProp(pit)); )
     {
     aProp->GetActors(this->Actors);
     }
@@ -555,8 +558,9 @@ vtkVolumeCollection *vtkRenderer::GetVolumes()
   // clear the collection first
   this->Volumes->RemoveAllItems();
   
-  for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit); 
+       (aProp = this->Props->GetNextProp(pit)); )
     {
     aProp->GetVolumes(this->Volumes);
     }
@@ -627,7 +631,9 @@ void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_DOUBLE_MAX;
   
   // loop through all props
-  for (this->Props->InitTraversal(); (prop = this->Props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit); 
+       (prop = this->Props->GetNextProp(pit)); )
     {
     // if it's invisible, or has no geometry, we can skip the rest 
     if ( prop->GetVisibility() )
@@ -920,10 +926,11 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
     // this information needs to be passed to the renderer's actors and
     // volumes so they can release and render window specific (or graphics
     // context specific) information (such as display lists and texture ids)
-    this->Props->InitTraversal();
-    for ( aProp = this->Props->GetNextProp();
+    vtkCollectionSimpleIterator pit;
+    this->Props->InitTraversal(pit);
+    for ( aProp = this->Props->GetNextProp(pit);
           aProp != NULL;
-          aProp = this->Props->GetNextProp() )
+          aProp = this->Props->GetNextProp(pit) )
       {
       aProp->ReleaseGraphicsResources(this->RenderWindow);
       }
@@ -1131,8 +1138,9 @@ int vtkRenderer::VisibleActorCount()
   int count = 0;
 
   // loop through Props
-  for (this->Props->InitTraversal();
-       (aProp = this->Props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit);
+       (aProp = this->Props->GetNextProp(pit)); )
     {
     if (aProp->GetVisibility())
       {
@@ -1148,8 +1156,9 @@ int vtkRenderer::VisibleVolumeCount()
   vtkProp *aProp;
 
   // loop through volumes
-  for (this->Props->InitTraversal(); 
-        (aProp = this->Props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit); 
+        (aProp = this->Props->GetNextProp(pit)); )
     {
     if (aProp->GetVisibility())
       {
@@ -1260,7 +1269,8 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   // This collection will be further culled by using a bounding box
   // pick later (vtkPicker). Things that are not vtkProp3D will get 
   // put into the Paths list directly.
-  for (  props->InitTraversal(); (aProp = props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (  props->InitTraversal(pit); (aProp = props->GetNextProp(pit)); )
     {
     if ( aProp->GetPickable() && aProp->GetVisibility() )
       {
@@ -1286,7 +1296,7 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
   // Create a picker to do the culling process
   vtkPicker* cullPicker = vtkPicker::New();
   // Add each of the Actors from the pickFrom list into the picker
-  for ( pickFrom->InitTraversal(); (aProp = pickFrom->GetNextProp()); )
+  for ( pickFrom->InitTraversal(pit); (aProp = pickFrom->GetNextProp(pit)); )
     {
     cullPicker->AddPickList(aProp);
     }
@@ -1300,7 +1310,9 @@ void vtkRenderer::PickRender(vtkPropCollection *props)
 
   // Put all the ones that were picked by the cull process
   // into the PathArray to be picked from
-  for (cullPicked->InitTraversal(); (aProp = cullPicked->GetNextProp3D());)
+  vtkCollectionSimpleIterator p3dit;
+  for (cullPicked->InitTraversal(p3dit); 
+       (aProp = cullPicked->GetNextProp3D(p3dit));)
     {
     if ( aProp != NULL )
       {

@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.54");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.55");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -103,7 +103,8 @@ void vtkOBJExporter::WriteData()
   
   ac = ren->GetActors();
   vtkAssemblyPath *apath;
-  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
+  vtkCollectionSimpleIterator ait;
+  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {

@@ -115,7 +115,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.19");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.20");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
@@ -725,9 +725,9 @@ int vtkPushPipeline::IsRendererReady(vtkRenderer *ren)
   // check for other props
   vtkPropCollection *pc = ren->GetProps();
   vtkProp *prop;
-  for (pc->InitTraversal(); (prop = pc->GetNextProp()) != NULL;)
+  vtkCollectionSimpleIterator pit;
+  for (pc->InitTraversal(pit); (prop = pc->GetNextProp(pit)) != NULL;)
     {
-
     // look for image actors
     vtkImageActor *ia = vtkImageActor::SafeDownCast(prop);
     if (ia)
@@ -780,7 +780,8 @@ void vtkPushPipeline::ConsumeRendererInputs(vtkRenderer *ren)
   // check for other props
   vtkPropCollection *pc = ren->GetProps();
   vtkProp *prop;
-  for (pc->InitTraversal(); (prop = pc->GetNextProp()) != NULL;)
+  vtkCollectionSimpleIterator pit;
+  for (pc->InitTraversal(pit); (prop = pc->GetNextProp(pit)) != NULL;)
     {
     vtkImageActor *ia = vtkImageActor::SafeDownCast(prop);
     if (ia)
@@ -823,7 +824,8 @@ void vtkPushPipeline::SetupRenderer(vtkRenderer *ren)
   // check for other props
   vtkPropCollection *pc = ren->GetProps();
   vtkProp *prop;
-  for (pc->InitTraversal(); (prop = pc->GetNextProp()) != NULL;)
+  vtkCollectionSimpleIterator pit;
+  for (pc->InitTraversal(pit); (prop = pc->GetNextProp(pit)) != NULL;)
     {
 
     // look for image actors

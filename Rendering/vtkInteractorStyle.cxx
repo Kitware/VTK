@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.94");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.95");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -728,7 +728,8 @@ void vtkInteractorStyle::OnChar()
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
       ac = this->CurrentRenderer->GetActors();
-      for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
+      vtkCollectionSimpleIterator ait;
+      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); ) 
         {
         for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
           {
@@ -749,7 +750,8 @@ void vtkInteractorStyle::OnChar()
       this->FindPokedRenderer(rwi->GetEventPosition()[0],
                               rwi->GetEventPosition()[1]);
       ac = this->CurrentRenderer->GetActors();
-      for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
+      vtkCollectionSimpleIterator ait;
+      for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); ) 
         {
         for (anActor->InitPathTraversal(); (path=anActor->GetNextPath()); ) 
           {

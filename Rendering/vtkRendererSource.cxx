@@ -23,7 +23,7 @@
 #include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.51");
+vtkCxxRevisionMacro(vtkRendererSource, "1.52");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkCxxSetObjectMacro(vtkRendererSource,Input,vtkRenderer);
@@ -260,8 +260,9 @@ void vtkRendererSource::UpdateInformation()
     t1 = t2;
     }
   actors = ren->GetActors();
-  actors->InitTraversal();
-  while ( (actor = actors->GetNextItem()) )
+  vtkCollectionSimpleIterator ait;
+  actors->InitTraversal(ait);
+  while ( (actor = actors->GetNextActor(ait)) )
     {
     t2 = actor->GetMTime();
     if (t2 > t1)

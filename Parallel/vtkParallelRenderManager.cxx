@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.26");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.27");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -373,8 +373,9 @@ void vtkParallelRenderManager::InitializePieces()
   while ( (ren = rens->GetNextRenderer(rsit)) )
     {
     actors = ren->GetActors();
-    actors->InitTraversal();
-    while ( (actor = actors->GetNextItem()) )
+    vtkCollectionSimpleIterator ait;
+    actors->InitTraversal(ait);
+    while ( (actor = actors->GetNextActor(ait)) )
       {
       mapper = actor->GetMapper();
       pdMapper = vtkPolyDataMapper::SafeDownCast(mapper);

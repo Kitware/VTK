@@ -53,6 +53,14 @@ class VTK_RENDERING_EXPORT vtkVolumeCollection : public vtkPropCollection
   // where possible.
   vtkVolume *GetNextItem() { return this->GetNextVolume(); };
 
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkVolume *GetNextVolume(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkVolume *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+
 protected:
   vtkVolumeCollection() {};
   ~vtkVolumeCollection() {};

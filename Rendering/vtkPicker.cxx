@@ -35,7 +35,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.84");
+vtkCxxRevisionMacro(vtkPicker, "1.85");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -269,7 +269,8 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   vtkAssemblyPath *path;
   vtkProperty *tempProperty;
   this->Transform->PostMultiply();
-  for ( props->InitTraversal(); (prop=props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for ( props->InitTraversal(pit); (prop=props->GetNextProp(pit)); )
     {
     for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
       {

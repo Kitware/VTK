@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.76");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.77");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -164,7 +164,8 @@ void vtkVRMLExporter::WriteData()
   // do the actors now
   ac = ren->GetActors();
   vtkAssemblyPath *apath;
-  for (ac->InitTraversal(); (anActor = ac->GetNextActor()); )
+  vtkCollectionSimpleIterator ait;
+  for (ac->InitTraversal(ait); (anActor = ac->GetNextActor(ait)); )
     {
     for (anActor->InitPathTraversal(); (apath=anActor->GetNextPath()); )
       {

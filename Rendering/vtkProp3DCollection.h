@@ -46,6 +46,14 @@ public:
   // Get the last actor in the list.
   vtkProp3D *GetLastProp3D();
 
+  //BTX
+  // Description: 
+  // Reentrant safe way to get an object in a collection. Just pass the
+  // same cookie back and forth. 
+  vtkProp3D *GetNextProp3D(vtkCollectionSimpleIterator &cookie) {
+    return static_cast<vtkProp3D *>(this->GetNextItemAsObject(cookie));};
+  //ETX
+  
 protected:
   vtkProp3DCollection() {};
   ~vtkProp3DCollection() {};
