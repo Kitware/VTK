@@ -46,6 +46,7 @@ public:
 
   // Description:
   // Get the ScalarBar used by this Widget. One is created automatically.
+  void SetScalarBarActor(vtkScalarBarActor *scalarbar);
   vtkGetObjectMacro(ScalarBarActor,vtkScalarBarActor);
   
   // Description:
