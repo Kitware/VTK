@@ -54,15 +54,16 @@ class vtkVectors;
 class VTK_EXPORT vtkVectors : public vtkAttributeData
 {
 public:
-  static vtkVectors *New(int dataType=VTK_FLOAT) {
-    return new vtkVectors(dataType);};
+  static vtkVectors *New(int dataType);
+  static vtkVectors *New() {return new vtkVectors;};
+
 
   const char *GetClassName() {return "vtkVectors";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Create a copy of this object.
-  vtkAttributeData *MakeObject(){return new vtkVectors(this->GetDataType());};
+  vtkAttributeData *MakeObject(){return vtkVectors::New(this->GetDataType());};
 
   // Description:
   // Return number of vectors in array.
@@ -126,7 +127,7 @@ public:
 
 
 protected:
-  vtkVectors(int dataType=VTK_FLOAT);
+  vtkVectors();
   ~vtkVectors() {};
   vtkVectors(const vtkVectors&) {};
   void operator=(const vtkVectors&) {};

@@ -41,8 +41,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkMath.h"
 
+vtkVectors *vtkVectors::New(int dataType)
+{
+  vtkVectors *res = new vtkVectors();
+  res->SetDataType(dataType);
+  res->GetData()->SetNumberOfComponents(3);
+  return res;
+}
+
 // Construct object with an initial data array of type float.
-vtkVectors::vtkVectors(int dataType) : vtkAttributeData(dataType)
+vtkVectors::vtkVectors() 
 {
   this->MaxNorm = 0.0;
   this->Data->SetNumberOfComponents(3);

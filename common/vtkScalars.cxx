@@ -41,11 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkLookupTable.h"
 
-vtkScalars::vtkScalars(int dataType, int dim) : vtkAttributeData(dataType)
+vtkScalars::vtkScalars() 
 {
-  dim = (dim < 1 ? 1 : (dim > 4 ? 4 : dim));
-  this->Data->SetNumberOfComponents(dim);
-
   this->Range[0] = this->Range[2] = this->Range[4] = this->Range[6] = 0.0;
   this->Range[1] = this->Range[3] = this->Range[5] = this->Range[7] = 1.0;
 
@@ -55,6 +52,15 @@ vtkScalars::vtkScalars(int dataType, int dim) : vtkAttributeData(dataType)
   this->CurrentAlpha = 1.0;
   this->CurrentLookupTable = NULL;
   this->CurrentColorFunction = &vtkScalars::MapThroughLookupTable;
+  this->SetNumberOfComponents(1);
+}
+
+vtkScalars *vtkScalars::New(int dataType, int numComp)
+{
+  vtkScalars *res = new vtkScalars();
+  res->SetDataType(dataType);
+  res->SetNumberOfComponents(numComp);
+  return res;
 }
 
 vtkScalars::~vtkScalars()

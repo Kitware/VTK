@@ -74,7 +74,7 @@ public:
   float *WritePointer(const int id, const int number);
 
 protected:
-  vtkFloatTCoords():vtkTCoords(VTK_FLOAT) {};
+  vtkFloatTCoords() {};
   ~vtkFloatTCoords() {};
   vtkFloatTCoords(const vtkFloatTCoords&) {};
   void operator=(const vtkFloatTCoords&) {};

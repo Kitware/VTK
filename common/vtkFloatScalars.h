@@ -74,7 +74,7 @@ public:
   float *WritePointer(const int id, const int number);
 
 protected:
-  vtkFloatScalars():vtkScalars(VTK_FLOAT) {};
+  vtkFloatScalars() {};
   ~vtkFloatScalars() {};
   vtkFloatScalars(const vtkFloatScalars&) {};
   void operator=(const vtkFloatScalars&) {};

@@ -40,8 +40,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTensors.h"
 
+
+vtkTensors *vtkTensors::New(int dataType)
+{
+  vtkTensors *res = new vtkTensors();
+  res->SetDataType(dataType);
+  res->GetData()->SetNumberOfComponents(9);
+  return res;
+}
+
 // Construct object with an initial data array of type float.
-vtkTensors::vtkTensors(int dataType) : vtkAttributeData(dataType)
+vtkTensors::vtkTensors()
 {
   this->Data->SetNumberOfComponents(9);
   this->T = vtkTensor::New();

@@ -55,15 +55,15 @@ class vtkTensors;
 class VTK_EXPORT vtkTensors : public vtkAttributeData
 {
 public:
-  static vtkTensors *New(int dataType=VTK_FLOAT) {
-    return new vtkTensors(dataType);};
+  static vtkTensors *New(int dataType);
+  static vtkTensors *New() {return new vtkTensors;};
 
   const char *GetClassName() {return "vtkTensors";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.
-  vtkAttributeData *MakeObject() {return new vtkTensors(this->GetDataType());};
+  vtkAttributeData *MakeObject() {return vtkTensors::New(this->GetDataType());};
 
   // Description:
   // Return number of tensors in array.
@@ -115,7 +115,7 @@ public:
   void GetTensor(int id, vtkTensor& t) {this->GetTensor(id, &t);}
 
 protected:
-  vtkTensors(int dataType=VTK_FLOAT);
+  vtkTensors();
   ~vtkTensors();
   vtkTensors(const vtkTensors&) {};
   void operator=(const vtkTensors&) {};

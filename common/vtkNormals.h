@@ -55,14 +55,15 @@ class vtkNormals;
 class VTK_EXPORT vtkNormals : public vtkAttributeData
 {
 public:
-  static vtkNormals *New(int dataType=VTK_FLOAT) {return new vtkNormals(dataType);};
+  static vtkNormals *New(int dataType);
+  static vtkNormals *New() {return new vtkNormals;};
 
   const char *GetClassName() {return "vtkNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create a copy of this object.
-  vtkAttributeData *MakeObject(){return new vtkNormals(this->GetDataType());};
+  vtkAttributeData *MakeObject(){return vtkNormals::New(this->GetDataType());};
   
   // Description:
   // Return number of normals in array.
@@ -116,7 +117,7 @@ public:
   void GetNormals(vtkIdList& ptId, vtkNormals& fn) {this->GetNormals(&ptId, &fn);}
   
 protected:
-  vtkNormals(int dataType=VTK_FLOAT);
+  vtkNormals();
   ~vtkNormals() {};
   vtkNormals(const vtkNormals&) {};
   void operator=(const vtkNormals&) {};
