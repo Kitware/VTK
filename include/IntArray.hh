@@ -30,6 +30,7 @@ public:
   void SetMaxId(int id);
   int *GetArray();
   void Reset();
+  virtual char *GetClassName() {return "vlIntArray";};
 
 private:
   int *Array;   // pointer to data
