@@ -99,9 +99,9 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  void ExecuteData(vtkInformation *request, 
-                   vtkInformationVector *inputVector, 
-                   vtkInformationVector *outputVector);
+  virtual void ExecuteData(vtkInformation *request, 
+                           vtkInformationVector *inputVector, 
+                           vtkInformationVector *outputVector);
 
   // just allocate the output data
   virtual void AllocateOutputData(vtkImageData *out, 
