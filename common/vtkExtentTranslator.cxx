@@ -326,7 +326,7 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
         {
         // piece is in the first half
         // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid.CastToInt();
+        ext[splitAxis*2+1] = mid.CastToInt() - 1;
         // piece must adjust.
         numPieces = numPiecesInFirstHalf;
         }
@@ -334,7 +334,7 @@ int vtkExtentTranslator::SplitExtentByPoints(int piece, int numPieces,
         {
         // piece is in the second half.
         // set the extent to be the second half.
-        ext[splitAxis*2] = mid.CastToInt() + 1;
+        ext[splitAxis*2] = mid.CastToInt();
         // piece must adjust
         numPieces = numPieces - numPiecesInFirstHalf;
         piece -= numPiecesInFirstHalf;
