@@ -20,10 +20,28 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.20");
+vtkCxxRevisionMacro(vtkGridTransform, "1.21");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
+
+
+//--------------------------------------------------------------------------
+// The 'floor' function on x86 and mips is many times slower than these
+// and is used a lot in this code, optimize for different CPU architectures
+inline int vtkGridFloor(double x)
+{
+#if defined mips || defined sparc || defined __ppc__
+  return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+#elif defined i386 || defined _M_IX86
+  unsigned int hilo[2];
+  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
+  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+#else
+  return int(floor(x));
+#endif
+}
+
 
 //----------------------------------------------------------------------------
 // fast floor() function for converting a double to an int
@@ -32,18 +50,8 @@ vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
 
 inline int vtkGridFloor(double x, double &f)
 {
-  int ix = int(x);
+  int ix = vtkGridFloor(x);
   f = x-ix;
-  if (f < 0) { f = x - (--ix); }
-
-  return ix;
-}
-
-inline int vtkGridFloor(double x)
-{
-  int ix = int(x);
-  if (x-ix < 0) { ix--; }
-
   return ix;
 }
 
