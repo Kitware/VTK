@@ -14,53 +14,64 @@
 #ifndef @KWSYS_NAMESPACE@_Configure_hxx
 #define @KWSYS_NAMESPACE@_Configure_hxx
 
-/* Defined if kwsys namespace is "kwsys".  */
-#if @KWSYS_NAME_IS_KWSYS@
-# define @KWSYS_NAMESPACE@_NAME_IS_KWSYS
-#endif
+/* Whether kwsys namespace is "kwsys".  */
+#define @KWSYS_NAMESPACE@_NAME_IS_KWSYS @KWSYS_NAME_IS_KWSYS@
 
-/* Defined if no ANSI C++ stream headers are present.  */
-#if @KWSYS_NO_ANSI_STREAM_HEADERS@
-# define @KWSYS_NAMESPACE@_NO_ANSI_STREAM_HEADERS
-#endif
+/* Whether ANSI C++ stream headers are present.  */
+#define @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS @KWSYS_HAVE_ANSI_STREAMS@
 
-/* Defined if no ANSI C++ <sstream> header is present.  */
-#if @KWSYS_NO_ANSI_STRING_STREAM@
-# define @KWSYS_NAMESPACE@_NO_ANSI_STRING_STREAM
-#endif
+/* Whether ANSI C++ streams are in std namespace.  */
+#define @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS_STD @KWSYS_HAVE_ANSI_STREAMS_STD@
 
-/* Defined if no std namespace is present.  */
-#if @KWSYS_NO_STD_NAMESPACE@
-# define @KWSYS_NAMESPACE@_NO_STD_NAMESPACE
-#endif
+/* Whether ANSI C++ <sstream> header is present and needed.  */
+#define @KWSYS_NAMESPACE@_HAVE_ANSI_SSTREAM @KWSYS_HAVE_ANSI_SSTREAM@
 
-/* Defined if std namespace is the GCC hack.  */
+/* Whether old C++ <strstream.h> header is present and needed.  */
+#define @KWSYS_NAMESPACE@_HAVE_OLD_STRSTREAM_H @KWSYS_HAVE_OLD_STRSTREAM_H@
+
+/* Whether old C++ <strstrea.h> header is present and needed.  */
+#define @KWSYS_NAMESPACE@_HAVE_OLD_STRSTREA_H @KWSYS_HAVE_OLD_STRSTREA_H@
+
+/* Whether STL is in std namespace.  */
+#define @KWSYS_NAMESPACE@_HAVE_STL_STD @KWSYS_HAVE_STL_STD@
+
+/* Whether the std namespace is the GCC 2.95 hack.  */
 #if defined(__GNUC__) && (__GNUC__ < 3)
-# define @KWSYS_NAMESPACE@_FAKE_STD_NAMESPACE
+# define @KWSYS_NAMESPACE@_FAKE_STD_NAMESPACE 1
+#else
+# define @KWSYS_NAMESPACE@_FAKE_STD_NAMESPACE 0
 #endif
 
-/* Define the std namespace macro.  */
-#if defined(@KWSYS_NAMESPACE@_NO_STD_NAMESPACE)
-# define @KWSYS_NAMESPACE@_std
+/* Define the stl namespace macro.  */
+#if @KWSYS_NAMESPACE@_HAVE_STL_STD
+# define @KWSYS_NAMESPACE@_stl std
 #else
-# define @KWSYS_NAMESPACE@_std std
+# define @KWSYS_NAMESPACE@_stl
+#endif
+
+/* Define the ios namespace macro.  */
+#if @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS_STD
+# define @KWSYS_NAMESPACE@_ios_namespace std
+#else
+# define @KWSYS_NAMESPACE@_ios_namespace
+#endif
+#if @KWSYS_NAMESPACE@_HAVE_ANSI_SSTREAM
+# define @KWSYS_NAMESPACE@_ios @KWSYS_NAMESPACE@_ios_namespace
+#else
+# define @KWSYS_NAMESPACE@_ios @KWSYS_NAMESPACE@_ios
 #endif
 
 /* If building a C++ file in kwsys itself, give the source file
    access to the macros without a configured namespace.  */
 #if defined(KWSYS_NAMESPACE)
-# if !defined(@KWSYS_NAMESPACE@_NAME_IS_KWSYS)
-#  define kwsys_std @KWSYS_NAMESPACE@_std
+# if !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
+#  define kwsys_stl @KWSYS_NAMESPACE@_stl
+#  define kwsys_ios @KWSYS_NAMESPACE@_ios
 # endif
-# if defined(@KWSYS_NAMESPACE@_NO_STD_NAMESPACE)
-#  define KWSYS_NO_STD_NAMESPACE
-# endif
-# if defined(@KWSYS_NAMESPACE@_NO_ANSI_STREAM_HEADERS)
-#  define KWSYS_NO_ANSI_STREAM_HEADERS
-# endif
-# if defined(@KWSYS_NAMESPACE@_NO_ANSI_STRING_STREAM)
-#  define KWSYS_NO_ANSI_STRING_STREAM
-# endif
+# define KWSYS_HAVE_STL_STD          @KWSYS_NAMESPACE@_HAVE_STL_STD
+# define KWSYS_HAVE_ANSI_STREAMS     @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS
+# define KWSYS_HAVE_ANSI_STREAMS_STD @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS_STD
+# define KWSYS_HAVE_ANSI_SSTREAM     @KWSYS_NAMESPACE@_HAVE_ANSI_SSTREAM
 #endif
 
 #endif

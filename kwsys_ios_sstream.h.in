@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   KWSys - Kitware System Library
-  Module:    kwsys_std_sstream.h.in
+  Module:    kwsys_ios_sstream.h.in
 
   Copyright (c) Kitware, Inc., Insight Consortium.  All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -11,17 +11,17 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef @KWSYS_NAMESPACE@_std_sstream
-#define @KWSYS_NAMESPACE@_std_sstream
+#ifndef @KWSYS_NAMESPACE@_ios_sstream
+#define @KWSYS_NAMESPACE@_ios_sstream
 
 #include <@KWSYS_NAMESPACE@/Configure.hxx>
 
 /* Define this macro temporarily to keep the code readable.  */
-#if !defined (KWSYS_NAMESPACE) && !defined(@KWSYS_NAMESPACE@_NAME_IS_KWSYS)
-# define kwsys_std @KWSYS_NAMESPACE@_std
+#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
+# define kwsys_stl @KWSYS_NAMESPACE@_stl
 #endif
 
-#if !defined(@KWSYS_NAMESPACE@_NO_ANSI_STRING_STREAM)
+#if @KWSYS_NAMESPACE@_HAVE_ANSI_SSTREAM
 # ifdef _MSC_VER
 #  pragma warning (push, 1)
 #  pragma warning (disable: 4702)
@@ -35,23 +35,12 @@
 #  pragma warning (push, 1)
 #  pragma warning (disable: 4702)
 # endif
-# if !defined(@KWSYS_NAMESPACE@_NO_ANSI_STREAM_HEADERS)
+# if @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS
 #  include <strstream>
-# else
+# elif @KWSYS_NAMESPACE@_HAVE_OLD_STRSTREAM_H
 #  include <strstream.h>
-#  if !defined(@KWSYS_NAMESPACE@_NO_STD_NAMESPACE) && !defined(@KWSYS_NAMESPACE@_FAKE_STD_NAMESPACE)
-namespace std
-{
-  using ::ostream;
-  using ::istream;
-  using ::istrstream;
-  using ::ostrstream;
-  using ::ios;
-  using ::endl;
-  using ::ends;
-  using ::flush;
-}
-#  endif
+# elif @KWSYS_NAMESPACE@_HAVE_OLD_STRSTREA_H
+#  include <strstrea.h>
 # endif
 # ifdef _MSC_VER
 #  pragma warning(pop)
@@ -60,51 +49,57 @@ namespace std
 // Only have old std::strstream classes.  Wrap them to look like new
 // ostringstream and istringstream classes.
 
-# include <@KWSYS_NAMESPACE@/std/string>
+# include <@KWSYS_NAMESPACE@/stl/string>
 
-# if !defined(@KWSYS_NAMESPACE@_NO_STD_NAMESPACE)
-namespace std
+namespace @KWSYS_NAMESPACE@_ios
 {
-# endif
+using @KWSYS_NAMESPACE@_ios_namespace::ostream;
+using @KWSYS_NAMESPACE@_ios_namespace::istream;
+using @KWSYS_NAMESPACE@_ios_namespace::istrstream;
+using @KWSYS_NAMESPACE@_ios_namespace::ostrstream;
+using @KWSYS_NAMESPACE@_ios_namespace::ios;
+using @KWSYS_NAMESPACE@_ios_namespace::endl;
+using @KWSYS_NAMESPACE@_ios_namespace::ends;
+using @KWSYS_NAMESPACE@_ios_namespace::flush;
 
 class ostringstream_cleanup
 {
 public:
-  ostringstream_cleanup(kwsys_std::ostrstream& ostr): m_OStrStream(ostr) {}
+  ostringstream_cleanup(ostrstream& ostr): m_OStrStream(ostr) {}
   ~ostringstream_cleanup() { m_OStrStream.rdbuf()->freeze(0); }
   static void IgnoreUnusedVariable(const ostringstream_cleanup&) {}
 protected:
-  kwsys_std::ostrstream& m_OStrStream;
+  ostrstream& m_OStrStream;
 };
 
-class ostringstream: public kwsys_std::ostrstream
+class ostringstream: public ostrstream
 {
 public:
-  typedef kwsys_std::ostrstream Superclass;
+  typedef ostrstream Superclass;
   ostringstream() {}
-  kwsys_std::string str()
+  kwsys_stl::string str()
     {
     ostringstream_cleanup cleanup(*this);
     ostringstream_cleanup::IgnoreUnusedVariable(cleanup);
     int pcount = this->pcount();
     const char* ptr = this->Superclass::str();
-    return kwsys_std::string(ptr?ptr:"", pcount);
+    return kwsys_stl::string(ptr?ptr:"", pcount);
     }
 private:
   ostringstream(const ostringstream&);
   void operator=(const ostringstream&);
 };
 
-class istringstream: private kwsys_std::string, public kwsys_std::istrstream
+class istringstream: private kwsys_stl::string, public istrstream
 {
 public:
-  typedef kwsys_std::string StdString;
-  typedef kwsys_std::istrstream IStrStream;
+  typedef kwsys_stl::string StdString;
+  typedef istrstream IStrStream;
   istringstream(): StdString(), IStrStream(StdString::c_str()) {}
-  istringstream(const kwsys_std::string& s):
+  istringstream(const kwsys_stl::string& s):
     StdString(s), IStrStream(StdString::c_str()) {}
-  kwsys_std::string str() const { return *this; }
-  void str(const kwsys_std::string& s)
+  kwsys_stl::string str() const { return *this; }
+  void str(const kwsys_stl::string& s)
     {
     // Very dangerous.  If this throws, the object is hosed.  When the
     // destructor is later called, the program is hosed too.
@@ -116,15 +111,13 @@ private:
   void operator=(const istringstream&);
 };
 
-# if !defined(@KWSYS_NAMESPACE@_NO_STD_NAMESPACE)
-}
-# endif
+} // namespace @KWSYS_NAMESPACE@_ios
 
 #endif
 
 /* Undefine temporary macro.  */
-#if !defined (KWSYS_NAMESPACE) && !defined(@KWSYS_NAMESPACE@_NAME_IS_KWSYS)
-# undef kwsys_std
+#if !defined (KWSYS_NAMESPACE) && !@KWSYS_NAMESPACE@_NAME_IS_KWSYS
+# undef kwsys_stl
 #endif
 
 #endif

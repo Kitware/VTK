@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   KWSys - Kitware System Library
-  Module:    kwsys_std_iosfwd.h.in
+  Module:    kwsys_ios_fstream.h.in
 
   Copyright (c) Kitware, Inc., Insight Consortium.  All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
@@ -11,8 +11,8 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#ifndef @KWSYS_NAMESPACE@_std_iosfwd
-#define @KWSYS_NAMESPACE@_std_iosfwd
+#ifndef @KWSYS_NAMESPACE@_ios_fstream
+#define @KWSYS_NAMESPACE@_ios_fstream
 
 #include <@KWSYS_NAMESPACE@/Configure.hxx>
 
@@ -21,26 +21,23 @@
 #pragma warning (disable: 4702)
 #endif
 
-#if !defined(@KWSYS_NAMESPACE@_NO_ANSI_STREAM_HEADERS)
-# include <iosfwd>
+#if @KWSYS_NAMESPACE@_HAVE_ANSI_STREAMS
+# include <fstream>
 #else
-class fstream;
-class ifstream;
-class ios;
-class istream;
-class ofstream;
-class ostream;
-# if !defined(@KWSYS_NAMESPACE@_NO_STD_NAMESPACE) && !defined(@KWSYS_NAMESPACE@_FAKE_STD_NAMESPACE)
-namespace std
+# include <fstream.h>
+#endif
+
+#if !@KWSYS_NAMESPACE@_HAVE_ANSI_SSTREAM
+namespace @KWSYS_NAMESPACE@_ios
 {
-  using ::fstream;
-  using ::ifstream;
-  using ::ios;
-  using ::istream;
-  using ::ofstream;
-  using ::ostream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ostream;
+  using @KWSYS_NAMESPACE@_ios_namespace::istream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ofstream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ifstream;
+  using @KWSYS_NAMESPACE@_ios_namespace::ios;
+  using @KWSYS_NAMESPACE@_ios_namespace::endl;
+  using @KWSYS_NAMESPACE@_ios_namespace::flush;
 }
-# endif
 #endif
 
 #ifdef _MSC_VER

@@ -13,7 +13,7 @@
 =========================================================================*/
 #include <kwsys/Directory.hxx>
 #include <kwsys/Process.h>
-#include <kwsys/std/iostream>
+#include <kwsys/ios/iostream>
 
 int main()
 {
@@ -26,9 +26,9 @@ int main()
   int length = 0;
   while(kwsysProcess_WaitForData(kp, &data, &length, 0))
     {
-    kwsys_std::cout.write(data, length);
+    kwsys_ios::cout.write(data, length);
     }
   kwsysProcess_Delete(kp);
-  kwsys_std::cout << kwsys_std::endl;
+  kwsys_ios::cout << kwsys_ios::endl;
   return 0;
 }
