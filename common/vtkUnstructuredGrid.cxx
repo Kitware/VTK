@@ -576,7 +576,7 @@ int vtkUnstructuredGrid::InsertNextLinkedCell(int type, int npts, int *pts)
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces,
-					  int ghostLevel)
+                                          int ghostLevel)
 {
   this->UpdatePiece = piece;
   this->UpdateNumberOfPieces = numPieces;
@@ -586,7 +586,7 @@ void vtkUnstructuredGrid::SetUpdateExtent(int piece, int numPieces,
 
 //----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetUpdateExtent(int &piece, int &numPieces,
-					  int &ghostLevel)
+                                          int &ghostLevel)
 {
   piece = this->UpdatePiece;
   numPieces = this->UpdateNumberOfPieces;
@@ -726,11 +726,17 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
      << this->UpdateExtent[5] << endl;
 }
 
+// Determine neighbors as follows. Find the (shortest) list of cells that
+// uses one of the points in ptIds. For each cell, in the list, see whether
+// it contains the other points in the ptIds list. If so, it's a neighbor.
+//
 void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
                                            vtkIdList *cellIds)
 {
-  int i, j, numPts, cellNum;
-  int allFound, oneFound;
+  int i, j, k;
+  int numPts, minNumCells, *minCells, ptId, numCells, *cells, *pts;
+  int match, minPtId;
+  int npts, *cellPts;
   
   if ( ! this->Links )
     {
@@ -739,42 +745,48 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
   
   cellIds->Reset();
   
-  // load list with candidate cells, remove current cell
-  int ptId = ptIds->GetId(0);
-  int numPrime = this->Links->GetNcells(ptId);
-  int *primeCells = this->Links->GetCells(ptId);
-  numPts=ptIds->GetNumberOfIds();
-                        
-  // for each potential cell
-  for (cellNum = 0; cellNum < numPrime; cellNum++)
+  //Find the point used by the fewest number of cells
+  //
+  numPts = ptIds->GetNumberOfIds();
+  pts = ptIds->GetPointer(0);
+  for (minNumCells=VTK_LARGE_INTEGER,i=0; i<numPts; i++)
     {
-    // ignore the original cell
-    if (primeCells[cellNum] != cellId)
+    ptId = pts[i];
+    numCells = this->Links->GetNcells(ptId);
+    cells = this->Links->GetCells(ptId);
+    if ( numCells < minNumCells )
       {
-      // are all the remaining face points in the cell ?
-      for (allFound=1, i=1; i < numPts && allFound; i++)
-        {
-        ptId = ptIds->GetId(i);
-        int numCurrent = this->Links->GetNcells(ptId);
-        int *currentCells = this->Links->GetCells(ptId);
-        oneFound = 0;
-        for (j = 0; j < numCurrent; j++)
-          {
-          if (primeCells[cellNum] == currentCells[j])
-            {
-            oneFound = 1;
-            break;
-            }
-          }
-        if (!oneFound)
-          {
-          allFound = 0;
-          }
-        }
-      if (allFound)
-        {
-        cellIds->InsertNextId(primeCells[cellNum]);
-        }
+      minNumCells = numCells;
+      minCells = cells;
+      minPtId = ptId;
       }
     }
+
+  //Now for each cell, see if it contains all the points
+  //in the ptIds list.
+  for (i=0; i<minNumCells; i++)
+    {
+    if ( minCells[i] != cellId ) //don't include current cell
+      {
+      this->GetCellPoints(minCells[i],npts,cellPts);
+      for (match=1, j=0; j<numPts && match; j++) //for all pts in input cell
+        {
+        if ( pts[j] != minPtId ) //of course minPtId is contained by cell
+          {
+          for (match=k=0; k<npts; k++) //for all points in candidate cell
+            {
+            if ( pts[j] == cellPts[k] )
+              {
+              match = 1; //a match was found
+              break; 
+              }
+            }//for all points in current cell
+          }//if not guaranteed match
+        }//for all points in input cell
+      if ( match )
+        {
+        cellIds->InsertNextId(minCells[i]);
+        }
+      }//if not the reference cell
+    }//for all candidate cells attached to point
 }
