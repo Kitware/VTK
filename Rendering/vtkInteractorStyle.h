@@ -98,6 +98,8 @@
 
 class vtkPolyDataMapper;
 class vtkOutlineSource;
+class vtkCallbackCommand;
+
 
 class VTK_RENDERING_EXPORT vtkInteractorStyle : public vtkObject 
 {
@@ -248,6 +250,9 @@ protected:
   virtual void StartTimer();
   virtual void EndTimer();
 
+  static void ProcessEvents(vtkObject* object, unsigned long event,
+                            void* clientdata, void* calldata);
+  
   // Data we need to maintain internally
   vtkRenderWindowInteractor *Interactor;
   //
@@ -274,6 +279,7 @@ protected:
   int                PropPicked;          // boolean: prop picked?
   float              PickColor[3];        // support 2D picking
   vtkActor2D         *PickedActor2D;
+  vtkCallbackCommand* EventCallbackCommand;
 
   unsigned long LeftButtonPressTag;
   unsigned long LeftButtonReleaseTag;

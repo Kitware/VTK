@@ -22,8 +22,9 @@
 #include "vtkCellPicker.h"
 #include "vtkAssemblyNode.h"
 #include "vtkOldStyleCallbackCommand.h"
+#include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.50");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.51");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -35,6 +36,11 @@ vtkInteractorStyle *vtkInteractorStyle::New()
 vtkInteractorStyle::vtkInteractorStyle() 
 {
   this->Interactor       = NULL;
+  this->EventCallbackCommand = vtkCallbackCommand::New();
+  this->EventCallbackCommand->SetClientData(this);
+  this->EventCallbackCommand->SetCallback(vtkInteractorStyle::ProcessEvents);
+
+
   this->CurrentCamera    = NULL;
   this->CurrentLight     = NULL;
   this->CurrentRenderer  = NULL;
@@ -63,13 +69,15 @@ vtkInteractorStyle::vtkInteractorStyle()
   this->MiddleButtonReleaseTag = 0;
   this->RightButtonPressTag = 0;
   this->RightButtonReleaseTag = 0;
-  
   this->LastPos[0] = this->LastPos[1] = 0;
 }
 
 //----------------------------------------------------------------------------
-vtkInteractorStyle::~vtkInteractorStyle() 
+vtkInteractorStyle::~vtkInteractorStyle()
 {
+  // remove observers
+  this->SetInteractor(0);
+  this->EventCallbackCommand->Delete();
   if ( this->OutlineActor ) 
     {
     // if we change style when an object is selected, we must remove the
@@ -709,8 +717,8 @@ void vtkInteractorStyle::OnChar(int ctrl, int shift,
   switch (keycode) 
     {
     // JCP Animation control
-    case 'a' :
-    case 'A' :
+    case 'm' :
+    case 'M' :
       if (this->AnimState == VTKIS_ANIM_OFF) 
         {
         this->StartAnimate();
@@ -942,9 +950,7 @@ void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), int vtkNotUsed(shift)
 void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift, 
                                           int X, int Y) 
 {
-  //
- this->UpdateInternalState(ctrl, shift, X, Y);
-  //
+  this->UpdateInternalState(ctrl, shift, X, Y);
   this->FindPokedCamera(X, Y);
   if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
     {
@@ -1102,15 +1108,42 @@ void vtkInteractorStyle::OnRightButtonUp(int ctrl, int shift, int X, int Y)
 // mess. 
 void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
 {
+  if(i == this->Interactor)
+    {
+    return;
+    }
+  // if we already have an Interactor then stop observing it
+  if(this->Interactor)
+    {
+    this->Interactor->RemoveObserver(this->EventCallbackCommand);
+    }
   this->Interactor = i;
+  // add observers for each of the events handled in ProcessEvents
+  if(i)
+    {
+    i->AddObserver(vtkCommand::EnterEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::LeaveEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::MiddleButtonPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::ConfigureEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::TimerEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::KeyPressEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::KeyReleaseEvent, this->EventCallbackCommand);
+    i->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand);
+    }
 }
 
 // Description:
 // transform from display to world coordinates.
 // WorldPt has to be allocated as 4 vector
 void vtkInteractorStyle::ComputeDisplayToWorld(double x, double y,
-                                                      double z,
-                                                      float *worldPt)
+                                               double z,
+                                               float *worldPt)
 {
   this->CurrentRenderer->SetDisplayPoint(x, y, z);
   this->CurrentRenderer->DisplayToWorld();
@@ -1372,3 +1405,65 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+void vtkInteractorStyle::ProcessEvents(vtkObject* object, unsigned long event,
+                                       void* clientdata, void* calldata)
+{
+  vtkInteractorStyle* self = reinterpret_cast<vtkInteractorStyle *>( clientdata );
+  vtkRenderWindowInteractor* rwi = static_cast<vtkRenderWindowInteractor *>( object );
+  int* XY = rwi->GetEventPosition();
+  switch(event)
+    {
+    case vtkCommand::EnterEvent: 
+      self->OnEnter(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::LeaveEvent:
+      self->OnLeave(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::MouseMoveEvent:
+      self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::LeftButtonPressEvent:
+      self->OnLeftButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::LeftButtonReleaseEvent:
+      self->OnLeftButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::MiddleButtonPressEvent:
+      self->OnMiddleButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::MiddleButtonReleaseEvent:
+      self->OnMiddleButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::RightButtonPressEvent:
+      self->OnRightButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::RightButtonReleaseEvent:
+      self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
+      break;
+    case vtkCommand::ConfigureEvent:
+      {
+      int* size = rwi->GetSize();
+      self->OnConfigure(size[0], size[1]);
+      break;
+      }
+    case vtkCommand::TimerEvent:
+      self->OnTimer();
+      break;
+    case vtkCommand::KeyPressEvent:
+      self->OnKeyDown(rwi->GetControlKey(), rwi->GetShiftKey(), rwi->GetKeyCode(), 
+                      rwi->GetRepeatCount());
+      self->OnKeyPress(rwi->GetControlKey(), rwi->GetShiftKey(), rwi->GetKeyCode(), 
+                       const_cast<char*>(rwi->GetKeySym()), rwi->GetRepeatCount());
+      break;
+    case vtkCommand::KeyReleaseEvent:
+      self->OnKeyUp(rwi->GetControlKey(), rwi->GetShiftKey(), 
+                    rwi->GetKeyCode(), rwi->GetRepeatCount());
+      self->OnKeyRelease(rwi->GetControlKey(), rwi->GetShiftKey(), rwi->GetKeyCode(), 
+                         const_cast<char*>(rwi->GetKeySym()), rwi->GetRepeatCount()); 
+      break;
+    case vtkCommand::CharEvent:
+      self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
+                   rwi->GetKeyCode(), rwi->GetRepeatCount());
+      break;
+    }
+}

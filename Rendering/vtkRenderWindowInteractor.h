@@ -93,16 +93,6 @@ public:
   virtual void UpdateSize(int x,int y);
 
   // Description:
-  // This methods sets the Size ivar of the interactor without
-  // actually changing the size of the window. Normally
-  // application programmers would use UpdateSize if anything.
-  // This is useful for letting someone else change the size of
-  // the rendering window and just letting the interactor
-  // know about the change.
-  vtkSetVector2Macro(Size,int);
-  vtkGetVector2Macro(Size,int);
-
-  // Description:
   // Timer methods must be overridden by platform dependent subclasses.
   // flag is passed to indicate if this is first timer set or an update
   // as Win32 uses repeating timers, whereas X uses One shot more timer
@@ -127,12 +117,6 @@ public:
   vtkSetMacro(LightFollowCamera,int);
   vtkGetMacro(LightFollowCamera,int);
   vtkBooleanMacro(LightFollowCamera,int);
-
-  // Description:
-  // This method can be used by user callbacks to get the
-  // x, y, coordinates of the current event.
-  vtkSetVector2Macro(EventPosition,int);
-  vtkGetVectorMacro(EventPosition,int,2);
 
   // Description:
   // Set/Get the desired update rate. This is used by vtkLODActor's to tell
@@ -242,6 +226,56 @@ public:
   vtkSetMacro(Dolly,float);
   vtkGetMacro(Dolly,float);
 
+  // Description:
+  // Set/Get information about the current event.   The current x,y postion
+  // is in the EventPosition.   The other information is about key board input.
+  vtkSetVector2Macro(EventPosition,int);
+  vtkGetVectorMacro(EventPosition,int,2);
+  vtkSetMacro(ControlKey, int);
+  vtkGetMacro(ControlKey, int);
+  vtkSetMacro(ShiftKey, int);
+  vtkGetMacro(ShiftKey, int);
+  vtkSetMacro(KeyCode, int);
+  vtkGetMacro(KeyCode, int);
+  vtkSetMacro(RepeatCount, int);
+  vtkGetMacro(RepeatCount, int);
+  vtkSetStringMacro(KeySym);
+  vtkGetStringMacro(KeySym);
+
+  // Description:
+  // Set all the event information in one call.  This should be called for each
+  // event to assure that the information from the last event has been cleared.
+  void SetEventInformation(int x, int y, int ctrl=0, int shift=0, int keycode=0, int repeatcount=0,
+                           const char* keysym=0)
+    {
+      this->EventPosition[0] = x;
+      this->EventPosition[1] = y;
+      this->ControlKey = ctrl;
+      this->ShiftKey = shift;
+      this->KeyCode = keycode;
+      this->RepeatCount = repeatcount;
+      if(keysym)
+        {
+        this->SetKeySym(keysym);
+        }
+      this->Modified();
+    }
+  
+      
+      
+  
+  
+  // Description:
+  // This methods sets the Size ivar of the interactor without
+  // actually changing the size of the window. Normally
+  // application programmers would use UpdateSize if anything.
+  // This is useful for letting someone else change the size of
+  // the rendering window and just letting the interactor
+  // know about the change.
+  vtkSetVector2Macro(Size,int);
+  vtkGetVector2Macro(Size,int);
+
+
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
@@ -259,7 +293,13 @@ protected:
   int   LightFollowCamera;
   int   ActorMode;
   float DesiredUpdateRate;
-  float StillUpdateRate;
+  float StillUpdateRate;  
+  // Event information
+  int   ControlKey;
+  int   ShiftKey;
+  char  KeyCode;
+  int   RepeatCount;
+  char* KeySym; 
   int   EventPosition[2];
   int   Size[2];
   

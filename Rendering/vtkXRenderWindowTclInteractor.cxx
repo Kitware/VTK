@@ -21,7 +21,6 @@
 #include <X11/X.h>
 #include <X11/keysym.h>
 #include "vtkXRenderWindowTclInteractor.h"
-#include "vtkInteractorStyle.h"
 #include "vtkXOpenGLRenderWindow.h"
 #include "vtkActor.h"
 #include <X11/Shell.h>
@@ -32,7 +31,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.33");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.34");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -357,16 +356,18 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         }
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = me->Size[1] - (reinterpret_cast<XButtonEvent*>(event))->y - 1;
+      me->SetEventInformation(xp, yp,
+                              ctrl, shift);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 
-          me->InteractorStyle->OnLeftButtonDown(ctrl, shift, xp, yp);
+          me->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
           break;
         case Button2: 
-          me->InteractorStyle->OnMiddleButtonDown(ctrl, shift, xp, yp);
+          me->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
           break;
         case Button3: 
-          me->InteractorStyle->OnRightButtonDown(ctrl, shift, xp, yp);
+          me->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
           break;
         }
       }
@@ -386,17 +387,19 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         shift = 1;
         }
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
-      yp = me->Size[1] - (reinterpret_cast<XButtonEvent*>(event))->y - 1;
+      yp = me->Size[1] - (reinterpret_cast<XButtonEvent*>(event))->y - 1; 
+      me->SetEventInformation(xp, yp,
+                              ctrl, shift);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 
-          me->InteractorStyle->OnLeftButtonUp(ctrl, shift, xp, yp);
+          me->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
           break;
         case Button2: 
-          me->InteractorStyle->OnMiddleButtonUp(ctrl, shift, xp, yp);
+          me->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
           break;
         case Button3: 
-          me->InteractorStyle->OnRightButtonUp(ctrl, shift, xp, yp);
+          me->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
           break;
         }
       }
@@ -408,7 +411,8 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       if (me->TopLevelShell != NULL)
         {
         XtSetKeyboardFocus(me->TopLevelShell, me->top);
-        }
+        } 
+      me->InvokeEvent(vtkCommand::EnterEvent, NULL);
       }
       break;
 
@@ -431,8 +435,10 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       xp = (reinterpret_cast<XKeyEvent*>(event))->x;
       yp = me->Size[1] - (reinterpret_cast<XKeyEvent*>(event))->y - 1;
       if (!me->Enabled) return;
-      me->InteractorStyle->OnMouseMove(0,0,xp,yp);
-      me->InteractorStyle->OnChar(ctrl, shift, buffer[0], 1);
+      me->SetEventInformation(xp, yp,
+                              0, 0, buffer[0], 1, buffer);
+      me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      me->InvokeEvent(vtkCommand::CharEvent, NULL);
       }
       break;      
       
@@ -451,7 +457,9 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         }
       xp = (reinterpret_cast<XMotionEvent*>(event))->x;
       yp = me->Size[1] - (reinterpret_cast<XMotionEvent*>(event))->y - 1;
-      me->InteractorStyle->OnMouseMove(ctrl, shift, xp, yp);
+      me->SetEventInformation(xp, yp,
+                              ctrl, shift);
+      me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
       }
       break;
     }
@@ -471,8 +479,10 @@ void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
   XQueryPointer(me->DisplayId,me->WindowId,
                 &root,&child,&root_x,&root_y,&x,&y,&keys);
   if (!me->Enabled) return;
-  me->InteractorStyle->OnMouseMove(0,0,x,me->Size[1] - y);
-  me->InteractorStyle->OnTimer();
+  me->SetEventInformation(x, me->Size[1] - y,
+                            0, 0);
+  me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  me->InvokeEvent(vtkCommand::TimerEvent, NULL);
 }
 
 int vtkXRenderWindowTclInteractor::CreateTimer(int vtkNotUsed(timertype)) 
