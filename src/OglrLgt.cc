@@ -88,16 +88,13 @@ void vtkOglrLight::Render(vtkLight *lgt, vtkOglrRenderer *ren,int light_index)
     Info[2] = dz;
     glLightfv( light_index, GL_SPOT_DIRECTION, Info );
 
-    Info[0] = lgt->GetExponent();
-    glLightfv( light_index, GL_SPOT_EXPONENT, Info );
-
-    Info[0] = lgt->GetConeAngle();
-    glLightfv( light_index, GL_SPOT_CUTOFF, Info );
+    glLightf( light_index, GL_SPOT_EXPONENT, lgt->GetExponent());
+    glLightf( light_index, GL_SPOT_CUTOFF, lgt->GetConeAngle());
 
     float *AttenuationValues = lgt->GetAttenuationValues();
-    glLightfv( light_index, GL_CONSTANT_ATTENUATION, AttenuationValues);
-    glLightfv( light_index, GL_LINEAR_ATTENUATION, AttenuationValues + 1);
-    glLightfv( light_index, GL_QUADRATIC_ATTENUATION, AttenuationValues + 2);
+    glLightf( light_index, GL_CONSTANT_ATTENUATION, AttenuationValues[0]);
+    glLightf( light_index, GL_LINEAR_ATTENUATION, AttenuationValues[1]);
+    glLightf( light_index, GL_QUADRATIC_ATTENUATION, AttenuationValues[2]);
     }
 
 }
