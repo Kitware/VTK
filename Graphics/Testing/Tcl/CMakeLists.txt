@@ -144,6 +144,7 @@ IF (VTK_USE_RENDERING)
       TestGraphLayoutFilter
       testHexaPenta
       TestMultiBlockStreamer
+      TestParametricFunctions
       TestPlatonicSolids
       TestQuadricClustering
       TestRectilinearGridToTetrahedra
