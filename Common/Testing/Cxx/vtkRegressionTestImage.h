@@ -72,6 +72,19 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
       return 1; 
       } 
     cerr << "Failed Image Test : " << rt_id->GetThresholdedError() << endl;
+    char *rt_diffName = new char [strlen(fname) + 12];
+    sprintf(rt_diffName,"%s.diff.png",fname);
+    FILE *rt_dout = fopen(rt_diffName,"wb"); 
+    if (rt_dout) 
+      { 
+      fclose(rt_dout);
+      vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
+      rt_pngw->SetFileName(rt_diffName);
+      rt_pngw->SetInput(rt_id->GetOutput());
+      rt_pngw->Write();
+      rt_pngw->Delete();
+      }
+    delete [] rt_diffName;
     rt_id->Delete(); 
     delete[] fname;
     return 0;
