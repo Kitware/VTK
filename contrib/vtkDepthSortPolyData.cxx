@@ -193,6 +193,7 @@ void vtkDepthSortPolyData::Execute()
     sortScalars->SetNumberOfScalars(numCells);
     scalars = ((vtkUnsignedIntArray *)sortScalars->GetData())->GetPointer(0);
     }
+  outCD->CopyAllocate(inCD);
   output->Allocate(numCells);
   for ( cellId=0; cellId < numCells; cellId++ )
     {
@@ -221,6 +222,7 @@ void vtkDepthSortPolyData::Execute()
     }
 
   // Clean up and get out    
+  delete [] depth;
   cell->Delete();
   output->Squeeze();
 }
