@@ -128,7 +128,7 @@ protected:
   float InitialBounds[6];
   float InitialLength;
   float HandleSize;
-  float SizeHandles(float factor=1.0);
+  float SizeHandles(float factor);
   virtual void SizeHandles() {}//subclass in turn invokes parent's SizeHandles()
   
   //used to track the depth of the last pick; also interacts with handle sizing
