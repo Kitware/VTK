@@ -20,7 +20,7 @@ set XRAD             200
 set YRAD             200
 
 vtkImageMandelbrotSource mandelbrot1
-  mandelbrot1 SetMaximumNumberOfIterations $MAX_ITERATIONS_1
+  mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
   mandelbrot1 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
                             [expr -$YRAD] [expr $YRAD-1] 0 0
   mandelbrot1 SetSpacing [expr 1.3 / $XRAD]
@@ -47,7 +47,7 @@ vtkImageViewer viewer
 
 
 vtkImageMandelbrotSource mandelbrot2
-  mandelbrot2 SetMaximumNumberOfIterations $MAX_ITERATIONS_2
+  mandelbrot2 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_2)]
   mandelbrot2 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
                             [expr -$YRAD] [expr $YRAD-1] 0 0
   mandelbrot2 SetSpacing [expr 1.3 / $XRAD]
@@ -166,8 +166,8 @@ proc MandelbrotUpdate {} {
   global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE
   global manView julView manRange julRange
 
-  mandelbrot1 SetMaximumNumberOfIterations $MAX_ITERATIONS_1
-  mandelbrot2 SetMaximumNumberOfIterations $MAX_ITERATIONS_1
+  mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
+  mandelbrot2 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
   
   set tmp [mandelbrot1 GetOriginCX]
   set cr [lindex $tmp 0]
