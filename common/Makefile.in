@@ -70,12 +70,6 @@ vtkExtentTranslator \
 vtkFieldData \
 vtkFileOutputWindow \
 vtkFloatArray \
-vtkFloatNormals \
-vtkFloatPoints \
-vtkFloatScalars \
-vtkFloatTCoords \
-vtkFloatTensors \
-vtkFloatVectors \
 vtkFunctionParser \
 vtkGeneralTransform \
 vtkGenericCell \
