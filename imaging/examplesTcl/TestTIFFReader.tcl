@@ -4,7 +4,7 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 
 
 vtkTIFFReader reader
-reader SetFileName "../../../vtkdata/testTIFF.tif"
+reader SetFileName "$VTK_DATA/testTIFF.tif"
 #reader SetFileName $argv
 
 vtkImageViewer viewer
