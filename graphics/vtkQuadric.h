@@ -52,18 +52,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
+
+// Description
+// Construct quadric with all coefficients = 1.
   vtkQuadric();
+
   static vtkQuadric *New() {return new vtkQuadric;};
   const char *GetClassName() {return "vtkQuadric";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
+
+// Description
+// Evaluate quadric equation.
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate the gradient to the quadric equation.
   void EvaluateGradient(float x[3], float g[3]);
 
+
+
+// Description
+// Set the 10 coefficients of the quadric equation.
   void SetCoefficients(float a[10]);
+
+
+// Description
+// Set the 10 coefficients of the quadric equation.
   void SetCoefficients(float a0, float a1, float a2, float a3, float a4, 
                        float a5, float a6, float a7, float a8, float a9);
+
   vtkGetVectorMacro(Coefficients,float,10);
 
 protected:

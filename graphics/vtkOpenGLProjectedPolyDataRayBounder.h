@@ -64,11 +64,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOpenGLProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
  public:
+
+// Description:
+// Construct a new vtkOpenGLProjectedPolyDataRayBounder.  The depth range
+// buffer is initially NULL and no display list has been created
   vtkOpenGLProjectedPolyDataRayBounder();
+
+
+// Description:
+// Destruct the vtkOpenGLProjectedPolyDataRayBounder.  Free the 
+// DepthRangeBuffer if necessary
   ~vtkOpenGLProjectedPolyDataRayBounder();
+
   static vtkOpenGLProjectedPolyDataRayBounder *New() {return new vtkOpenGLProjectedPolyDataRayBounder;};
   const char *GetClassName() {return "vtkOpenGLProjectedPolyDataRayBounder";};
+
+// Description:
+// Print the vtkOpenGLProjectedPolyDataRayBounder
   void PrintSelf(ostream& os, vtkIndent indent);
+
 
  protected:
   GLuint    DisplayList;

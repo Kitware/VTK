@@ -85,7 +85,13 @@ class vtkDelaunay3D;
 class VTK_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
 public:
+
+// Description:
+// Construct with user-specified implicit function; InsideOut turned off; value
+// set to 0.0; and generate clip scalars turned off. The merge tolerance is set
+// to 0.01.
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
+
   ~vtkClipVolume();
   static vtkClipVolume *New() {return new vtkClipVolume;};
   const char *GetClassName() {return "vtkClipVolume";};
@@ -141,7 +147,12 @@ public:
   vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
   vtkGetMacro(MergeTolerance,float);
   
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

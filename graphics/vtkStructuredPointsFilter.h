@@ -60,7 +60,11 @@ public:
   static vtkStructuredPointsFilter *New() {return new vtkStructuredPointsFilter;};
   const char *GetClassName() {return "vtkStructuredPointsFilter";};
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkStructuredPoints *input);
+
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}

@@ -61,7 +61,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRibbonFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
+
+// Description:
+// Construct ribbon so that width is 0.1, the width does 
+// not vary with scalar values, and the width factor is 2.0.
   vtkRibbonFilter();
+
   static vtkRibbonFilter *New() {return new vtkRibbonFilter;};
   const char *GetClassName() {return "vtkRibbonFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -58,7 +58,13 @@ class vtkRenderer;
 class VTK_EXPORT vtkCamera : public vtkReferenceCount
 {
  public:
+
+// Description:
+// Construct camera instance with its focal point at the origin, 
+// and position=(0,0,1). The view up is along the y-axis, 
+// view angle is 30 degrees, and the clipping range is (.1,1000).
   vtkCamera();
+
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkCamera *New();
   const char *GetClassName() {return "vtkCamera";};
@@ -139,10 +145,21 @@ class VTK_EXPORT vtkCamera : public vtkReferenceCount
   vtkSetMacro(LeftEye,int);
   vtkGetMacro(LeftEye,int);
 
+
+// Description:
+// Set the distance between clipping planes. A side effect of this method is
+// to adjust the back clipping plane to be equal to the front clipping plane 
+// plus the thickness.
   void SetThickness(float);
+
   vtkGetMacro(Thickness,float);
 
+
+// Description:
+// Set the distance of the focal point from the camera. The focal point is 
+// modified accordingly. This should be positive.
   void SetDistance(float);
+
   vtkGetMacro(Distance,float);
 
   // Description: 
@@ -163,32 +180,126 @@ class VTK_EXPORT vtkCamera : public vtkReferenceCount
   vtkBooleanMacro(ParallelProjection,int);
 
   void SetViewPlaneNormal(float a[3]);
+
+// Description:
+// Set the direction that the camera points.
+// Adjusts position to be consistent with the view plane normal.
   void SetViewPlaneNormal(float x, float y, float z);
+
+
+// Description:
+// Compute the view plane normal from the position and focal point.
   void ComputeViewPlaneNormal();
+
+
+// Description:
+// Compute the camera distance, which is the distance between the 
+// focal point and position.
   void ComputeDistance();
+
+
+// Description:
+// Compute the view transform matrix. This is used in converting 
+// between view and world coordinates. It does not include any 
+// perspective effects but it does include shearing and scaling.
   void ComputeViewTransform();
+
+
+// Description:
+// Compute the perspective transform matrix. This is used in converting 
+// between view and world coordinates.
   void ComputePerspectiveTransform(float aspect, float nearz, float farz);
+
+
+// Description:
+// Return the perspective transform matrix. See ComputePerspectiveTransform.
   vtkMatrix4x4 &GetViewTransform();
+
+
+// Description:
+// Return the perspective transform matrix. See ComputePerspectiveTransform.
   vtkMatrix4x4 &GetPerspectiveTransform(float aspect,
 					float nearz, float farz);
+
+
+// Description:
+// Return the perspective transform matrix. See ComputePerspectiveTransform.
   vtkMatrix4x4 &GetCompositePerspectiveTransform(float aspect, 
 						 float nearz, float farz);
+
   vtkGetVectorMacro(ViewPlaneNormal,float,3);
 
+
+// Description:
+// Set the roll angle of the camera about the view plane normal.
   void SetRoll(float);
+
+
+// Description:
+// Rotate the camera around the view plane normal.
   void Roll(float);
+
+
+// Description:
+// Returns the roll of the camera.
   float GetRoll();
 
+
+
+// Description:
+// Change the ViewAngle of the camera so that more or less of a scene 
+// occupies the viewport. A value > 1 is a zoom-in. A value < 1 is a zoom-out.
   void Zoom(float);
+
+
+// Description:
+// Move the position of the camera along the view plane normal. Moving
+// towards the focal point (e.g., > 1) is a dolly-in, moving away 
+// from the focal point (e.g., < 1) is a dolly-out.
   void Dolly(float);
+
+
+// Description:
+// Rotate the camera about the view up vector centered at the focal point.
   void Azimuth(float);
+
+
+// Description:
+// Rotate the focal point about the view up vector centered at the camera's 
+// position. 
   void Yaw(float);
+
+
+// Description:
+// Rotate the camera about the cross product of the view plane normal and 
+// the view up vector centered on the focal point.
   void Elevation(float);
+
+
+// Description:
+// Rotate the focal point about the cross product of the view up vector 
+// and the view plane normal, centered at the camera's position.
   void Pitch(float);
+
+
+// Description:
+// Recompute the view up vector so that it is perpendicular to the
+// view plane normal.
   void OrthogonalizeViewUp();
 
+
+
+// Description:
+// Returns the orientation of the camera. This is a vector of X,Y and Z 
+// rotations that when performed in the order RotateZ, RotateX, and finally
+// RotateY, will yield the same 3x3 rotation matrix for the camera.
   float *GetOrientation();
+
+
+// Description:
+// Returns the WXYZ orientation of the camera. 
   float *GetOrientationWXYZ();
+
 
   unsigned long int GetViewingRaysMTime();
   void              ViewingRaysModified();

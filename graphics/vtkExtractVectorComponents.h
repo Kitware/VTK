@@ -70,15 +70,52 @@ public:
   const char *GetClassName() {return "vtkExtractVectorComponents";};
 
   // filter interface (need to overload because of multiple output
+
+// Description:
+// Update input to this filter and the filter itself. Note that we are 
+// overloading this method because the output is an abstract dataset type.
+// This requires special treatment.
   void Update();
+
+
+// Description:
+// Specify the input data or filter.
   virtual void SetInput(vtkDataSet *input);
+
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};
 
+
+// Description:
+// Get the output dataset representing velocity x-component. If output is NULL
+// then input hasn't been set, which is necessary for abstract objects. (Note:
+// this method returns the same information as the GetOutput() method with an
+// index of 0.)
   vtkDataSet *GetVxComponent();
+
+
+// Description:
+// Get the output dataset representing velocity y-component. If output is NULL
+// then input hasn't been set, which is necessary for abstract objects. (Note:
+// this method returns the same information as the GetOutput() method with an
+// index of 1.)
   vtkDataSet *GetVyComponent();
+
+
+// Description:
+// Get the output dataset representing velocity z-component. If output is NULL
+// then input hasn't been set, which is necessary for abstract objects. (Note:
+// this method returns the same information as the GetOutput() method with an
+// index of 2.)
   vtkDataSet *GetVzComponent();
 
+
+
+// Description:
+// Get the output dataset containing the indicated component. The component is 
+// specified by an index between (0,2) corresponding to the x, y, or z vector
+// component. By default, the x component is extracted.
   vtkDataSet *GetOutput(int i=0); //default extracts vector component.
+
 
 protected:
   void Execute();

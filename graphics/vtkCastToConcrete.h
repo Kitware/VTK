@@ -75,20 +75,58 @@ class VTK_EXPORT vtkCastToConcrete : public vtkDataSetFilter
 {
 
 public:
+
+// Description:
+// Construct object.
   vtkCastToConcrete();
+
   ~vtkCastToConcrete();
   static vtkCastToConcrete *New() {return new vtkCastToConcrete;};
   const char *GetClassName() {return "vtkCastToConcrete";};
 
   // filter interface (special pass-thru)
+
+// Description:
+// Special method just passes Update through pipeline.
   void Update();
 
+
+
+// Description:
+// Get the output of this filter. If output is NULL then input hasn't been set
+// which is necessary for abstract objects.
   vtkDataSet *GetOutput();
+
+
+// Description:
+// Get the output of this filter as type vtkPolyData. Performs run-time
+// checking on type. Returns NULL if wrong type.
   vtkPolyData *GetPolyDataOutput();
+
+
+// Description:
+// Get the output of this filter as type vtkStructuredPoints. Performs run-time
+// checking on type. Returns NULL if wrong type.
   vtkStructuredPoints *GetStructuredPointsOutput();
+
+
+// Description:
+// Get the output of this filter as type vtkStructuredGrid. Performs run-time
+// checking on type. Returns NULL if wrong type.
   vtkStructuredGrid *GetStructuredGridOutput();
+
+
+// Description:
+// Get the output of this filter as type vtkUnstructuredGrid. Performs run-time
+// checking on type. Returns NULL if wrong type.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
+
+
+// Description:
+// Get the output of this filter as type vtkUnstructuredGrid. Performs run-time
+// checking on type. Returns NULL if wrong type.
   vtkRectilinearGrid *GetRectilinearGridOutput();
+
 
 protected:
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter

@@ -53,11 +53,19 @@ class vtkStarbaseRenderer;
 class VTK_EXPORT vtkStarbaseTexture : public vtkTexture
 {
 public:
+
+// Description:
+// Initializes an instance, generates a unique index.
   vtkStarbaseTexture();
+
   static vtkStarbaseTexture *New() {return new vtkStarbaseTexture;};
   const char *GetClassName() {return "vtkStarbaseTexture";};
   
+
+// Description:
+// Actual Texture load method.
   void Load(vtkRenderer *ren);
+
   
 protected:
   vtkTimeStamp   LoadTime;

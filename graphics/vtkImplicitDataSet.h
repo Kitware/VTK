@@ -69,7 +69,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
+
+// Description
+// Construct an vtkImplicitDataSet with no initial dataset; the OutValue
+// set to a large negative number; and the OutGradient set to (0,0,1).
   vtkImplicitDataSet();
+
   ~vtkImplicitDataSet();
   static vtkImplicitDataSet *New() {return new vtkImplicitDataSet;};
   const char *GetClassName() {return "vtkImplicitDataSet";};
@@ -78,8 +83,17 @@ public:
   unsigned long int GetMTime();
 
   // ImplicitFunction interface
+
+// Description
+// Evaluate the implicit function. This returns the interpolated scalar value
+// at x[3].
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate implicit function gradient.
   void EvaluateGradient(float x[3], float n[3]);
+
 
   // Description:
   // Specify the dataset used for the implicit function evaluation.

@@ -125,19 +125,56 @@ public:
 class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object with initial starting position (0,0,0); integration step 
+// length 0.2; step length 0.01; forward integration; terminal eigenvalue 0.0;
+// number of sides 6; radius 0.5; and logarithmic scaling off.
   vtkHyperStreamline();
+
   ~vtkHyperStreamline();
   static vtkHyperStreamline *New() {return new vtkHyperStreamline;};
   const char *GetClassName() {return "vtkHyperStreamline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify the start of the hyperstreamline in the cell coordinate system. 
+// That is, cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(int cellId, int subId, float pcoords[3]);
+
+
+// Description:
+// Specify the start of the hyperstreamline in the cell coordinate system. 
+// That is, cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(int cellId, int subId, float r, float s, float t);
+
+
+// Description:
+// Get the starting location of the hyperstreamline in the cell coordinate
+// system. Returns the cell that the starting point is in.
   int GetStartLocation(int& subId, float pcoords[3]);
 
+
+
+// Description:
+// Specify the start of the hyperstreamline in the global coordinate system. 
+// Starting from position implies that a search must be performed to find 
+// initial cell to start integration from.
   void SetStartPosition(float x[3]);
+
+
+// Description:
+// Specify the start of the hyperstreamline in the global coordinate system. 
+// Starting from position implies that a search must be performed to find 
+// initial cell to start integration from.
   void SetStartPosition(float x, float y, float z);
+
+
+// Description:
+// Get the start position of the hyperstreamline in global x-y-z coordinates.
   float *GetStartPosition();
+
 
   // Description:
   // Specify the maximum length of the hyperstreamline expressed as absolute
@@ -145,9 +182,27 @@ public:
   vtkSetClampMacro(MaximumPropagationDistance,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(MaximumPropagationDistance,float);
 
+
+// Description:
+// Use the major eigenvector field as the vector field through which to 
+// integrate. The major eigenvector is the eigenvector whose corresponding
+// eigenvalue is closest to positive infinity.
   void IntegrateMajorEigenvector();
+
+
+// Description:
+// Use the major eigenvector field as the vector field through which to 
+// integrate. The major eigenvector is the eigenvector whose corresponding
+// eigenvalue is between the major and minor eigenvalues.
   void IntegrateMediumEigenvector();
+
+
+// Description:
+// Use the major eigenvector field as the vector field through which to 
+// integrate. The major eigenvector is the eigenvector whose corresponding
+// eigenvalue is closest to negative infinity.
   void IntegrateMinorEigenvector();
+
 
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of

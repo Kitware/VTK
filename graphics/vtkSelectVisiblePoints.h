@@ -73,7 +73,12 @@ class vtkRenderer;
 class VTK_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Instantiate object with no renderer; window selection turned off; 
+// tolerance set to 0.01; and select invisible off.
   vtkSelectVisiblePoints();
+
   static vtkSelectVisiblePoints *New() {return new vtkSelectVisiblePoints;};
   const char *GetClassName() {return "vtkSelectVisiblePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);

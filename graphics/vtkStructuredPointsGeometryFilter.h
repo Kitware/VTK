@@ -65,13 +65,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsGeometryFilter : public vtkStructuredPointsToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct with initial extent of all the data
   vtkStructuredPointsGeometryFilter();
+
   static vtkStructuredPointsGeometryFilter *New() {return new vtkStructuredPointsGeometryFilter;};
   const char *GetClassName() {return "vtkStructuredPointsGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
+
+// Description:
+// Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
   void SetExtent(int *extent);
+
   int *GetExtent() { return this->Extent;};
 
 protected:

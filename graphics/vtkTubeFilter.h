@@ -70,7 +70,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object with radius 0.5, radius variation turned off, the number 
+// of sides set to 3, and radius factor of 10.
   vtkTubeFilter();
+
   static vtkTubeFilter *New() {return new vtkTubeFilter;};
   const char *GetClassName() {return "vtkTubeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

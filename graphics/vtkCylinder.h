@@ -58,14 +58,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
+
+// Description
+// Construct cylinder radius of 0.5.
   vtkCylinder();
+
   static vtkCylinder *New() {return new vtkCylinder;};
   const char *GetClassName() {return "vtkCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
+
+// Description
+// Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate cylinder function gradient.
   void EvaluateGradient(float x[3], float g[3]);
+
 
   // Description:
   // Set/Get cylinder radius.

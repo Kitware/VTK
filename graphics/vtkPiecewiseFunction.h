@@ -55,11 +55,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPiecewiseFunction : public vtkObject 
 {
 public:
+
+// Description:
+// Construct a new vtkPiecewiseFunction with default values
   vtkPiecewiseFunction();
+
+
+// Description:
+// Destruct a vtkPiecewiseFunction
   ~vtkPiecewiseFunction();
+
   static vtkPiecewiseFunction *New() {return new vtkPiecewiseFunction;};
   const char *GetClassName() {return "vtkPiecewiseFunction";};
+
+// Description:
+// Print method for tkPiecewiseFunction
   void PrintSelf(ostream& os, vtkIndent indent);
+
 
   // Description:
   // Get the number of points used to specify the function

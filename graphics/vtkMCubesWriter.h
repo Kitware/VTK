@@ -61,7 +61,11 @@ class VTK_EXPORT vtkMCubesWriter : public vtkPolyDataWriter
 {
 
 public:
+
+// Description:
+// Create object.
   vtkMCubesWriter();
+
   ~vtkMCubesWriter();
   static vtkMCubesWriter *New() {return new vtkMCubesWriter;};
   const char *GetClassName() {return "vtkMCubesWriter";};

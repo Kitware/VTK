@@ -57,7 +57,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
+
+// Description:
+// Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+// and LoadValue = 1.
   vtkPointLoad();
+
   static vtkPointLoad *New() {return new vtkPointLoad;};
   const char *GetClassName() {return "vtkPointLoad";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -67,8 +72,18 @@ public:
   vtkSetMacro(LoadValue,float);
   vtkGetMacro(LoadValue,float);
 
+
+// Description:
+// Specify the dimensions of the volume. A stress tensor will be computed for
+// each point in the volume.
   void SetSampleDimensions(int i, int j, int k);
+
+
+// Description:
+// Specify the dimensions of the volume. A stress tensor will be computed for
+// each point in the volume.
   void SetSampleDimensions(int dim[3]);
+
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:

@@ -57,7 +57,11 @@ class VTK_EXPORT vtkStarbaseCamera : public vtkCamera
   static vtkStarbaseCamera *New() {return new vtkStarbaseCamera;};
   const char *GetClassName() {return "vtkStarbaseCamera";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkRenderer *ren);
+
 };
 
 #endif

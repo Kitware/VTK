@@ -63,9 +63,17 @@ public:
   const char *GetClassName() {return "vtkAppendFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Add a dataset to the list of data to append.
   void AddInput(vtkDataSet *in);
+
   void AddInput(vtkDataSet& in) {this->AddInput(&in);};
+
+// Description:
+// Remove a dataset from the list of data to append.
   void RemoveInput(vtkDataSet *in);
+
   void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};
   vtkDataSetCollection *GetInputList() {return &(this->InputList);};
 

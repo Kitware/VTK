@@ -58,14 +58,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
+
+// Description
+// Construct cone with angle of 45 degrees.
   vtkCone();
+
   static vtkCone *New() {return new vtkCone;};
   const char *GetClassName() {return "vtkCone";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
+
+// Description
+// Evaluate cone equation.
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate cone normal.
   void EvaluateGradient(float x[3], float g[3]);
+
 
   // Description:
   // Set/Get the cone angle (expressed in degrees).

@@ -79,7 +79,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMCubesReader : public vtkPolyDataSource 
 {
 public:
+
+// Description:
+// Construct object with FlipNormals turned off and Normals set to true.
   vtkMCubesReader();
+
   ~vtkMCubesReader();
   static vtkMCubesReader *New() {return new vtkMCubesReader;};
   const char *GetClassName() {return "vtkMCubesReader";};
@@ -109,7 +113,12 @@ public:
   vtkGetMacro(Normals,int);
   vtkBooleanMacro(Normals,int);
 
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

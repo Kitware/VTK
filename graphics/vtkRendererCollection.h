@@ -63,7 +63,11 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
   void RemoveItem(vtkRenderer *a);
   int IsItemPresent(vtkRenderer *a);
   vtkRenderer *GetNextItem();
+
+// Description:
+// Forward the Render() method to each renderer in the list.
   void Render();
+
   void Render2D();
 };
 

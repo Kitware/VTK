@@ -58,7 +58,11 @@ public:
   static vtkStarbaseActor *New() {return new vtkStarbaseActor;};
   const char *GetClassName() {return "vtkStarbaseActor";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
+
 };
 
 #endif

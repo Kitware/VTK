@@ -55,15 +55,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
+
+// Description:
+// Construct object with dimensions=(50,50,50); automatic computation of 
+// bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
+// scalar warping turned on.
   vtkGaussianSplatter();
+
   static vtkGaussianSplatter *New() {return new vtkGaussianSplatter;};
   const char *GetClassName() {return "vtkGaussianSplatter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Compute the size of the sample bounding box automatically from the
+// input data.
   void ComputeModelBounds();
 
+
+
+// Description:
+// Set the dimensions of the sampling structured point set.
   void SetSampleDimensions(int i, int j, int k);
+
+
+// Description:
+// Set the dimensions of the sampling structured point set.
   void SetSampleDimensions(int dim[3]);
+
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:

@@ -56,14 +56,26 @@ class vtkXGLRenderer;
 class VTK_EXPORT vtkXGLPolyDataMapper : public vtkPolyDataMapper
 {
 public:
+
+// Description:
+// Construct empty object.
   vtkXGLPolyDataMapper();
+
   virtual ~vtkXGLPolyDataMapper();
   static vtkXGLPolyDataMapper *New() {return new vtkXGLPolyDataMapper;};
   const char *GetClassName() {return "vtkXGLPolyDataMapper";};
 
   virtual void Render(vtkRenderer *ren, vtkActor *a);
+
+// Description:
+// Build the data structure for the XGL PolyDataMapper.
   void Build(vtkPolyData *data, vtkScalars *c);
+
+
+// Description:
+// Catch vtkGeometry PolyDataMapper draw method and call actual method.
   void Draw(vtkRenderer *ren, vtkActor *a);
+
 
 protected:
   float *AddVertexComputeNormal(int npts, int pointSize, int *pts, 

@@ -56,7 +56,11 @@ class VTK_EXPORT vtkStarbaseProperty : public vtkProperty
   static vtkStarbaseProperty *New() {return new vtkStarbaseProperty;};
   const char *GetClassName() {return "vtkStarbaseProperty";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkActor *a, vtkRenderer *ren);
+
 };
 
 #endif

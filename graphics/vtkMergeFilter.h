@@ -61,7 +61,11 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkMergeFilter : public vtkFilter
 {
 public:
+
+// Description:
+// Create object with no input or output.
   vtkMergeFilter();
+
   ~vtkMergeFilter();
   static vtkMergeFilter *New() {return new vtkMergeFilter;};
   const char *GetClassName() {return "vtkMergeFilter";};

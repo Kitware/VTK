@@ -62,7 +62,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
+// set to (1,1,1). Rotation of the texture coordinates is turned off.
   vtkTransformTextureCoords();
+
   static vtkTransformTextureCoords *New() {return new vtkTransformTextureCoords;};
   const char *GetClassName() {return "vtkTransformTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -74,7 +79,12 @@ public:
   vtkGetVectorMacro(Position,float,3);
 
   void AddPosition(float deltaPosition[3]);
+
+// Description:
+// Incrementally change the position of the texture map (i.e., does a
+// translate or shift of the texture coordinates).
   void AddPosition(float deltaR, float deltaS, float deltaT);
+
 
   // Description:
   // Set/Get the scale of the texture map. Scaling in performed independently 

@@ -54,13 +54,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUGFacetReader : public vtkPolyDataSource 
 {
 public:
+
+// Description:
+// Construct object to extract all parts, and with point merging
+// turned on.
   vtkUGFacetReader();
+
   ~vtkUGFacetReader();
   static vtkUGFacetReader *New() {return new vtkUGFacetReader;};
   const char *GetClassName() {return "vtkUGFacetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Overload standard modified time function. If locator is modified,
+// then this object is modified as well.
   unsigned long GetMTime();
+
 
   // Description:
   // Specify Unigraphics file name.
@@ -69,7 +79,11 @@ public:
 
   // Special methods for interrogating data file.
   int GetNumberOfParts();
+
+// Description:
+// Retrieve color index for the parts in the file.
   short GetPartColorIndex(int partId);
+
 
   // Description:
   // Specify the desired part to extract. The part number must range between
@@ -85,7 +99,12 @@ public:
   vtkGetMacro(Merging,int);
   vtkBooleanMacro(Merging,int);
 
+
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

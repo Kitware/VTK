@@ -80,11 +80,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:
+
+// Description:
+// Construct a new vtkVolumeProperty with default values
   vtkVolumeProperty();
+
+
+// Description:
+// Destruct a vtkVolumeProperty
   ~vtkVolumeProperty();
+
   static vtkVolumeProperty *New() {return new vtkVolumeProperty;};
   const char *GetClassName() {return "vtkVolumeProperty";};
+
+// Description:
+// Print the state of the volume property.
   void PrintSelf(ostream& os, vtkIndent indent);
+
 
   // Description:
   // Set the interpolation type for sampling a volume.

@@ -117,7 +117,12 @@ class vtkSphereArray;
 class VTK_EXPORT vtkDelaunay3D : public vtkPointSetFilter
 {
 public:
+
+// Description:
+// Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
+// BoundingTriangulation turned off.
   vtkDelaunay3D();
+
   ~vtkDelaunay3D();
   static vtkDelaunay3D *New() {return new vtkDelaunay3D;};
   const char *GetClassName() {return "vtkDelaunay3D";};
@@ -158,7 +163,12 @@ public:
   vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
 
   // Use different object for locating "coincident" vertices
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 
@@ -169,13 +179,52 @@ public:
 
   // Methods available to other objects for forming and manipulating 
   // triangulations.
+
+// Description:
+// This is a helper method used with InsertPoint() to create 
+// tetrahedronalizations of points. Its purpose is construct an initial
+// Delaunay triangulation into which to inject other points. You must
+// specify the center of a cubical bounding box and its length, as well
+// as the numer of points to insert. The method returns a pointer to
+// an unstructured grid. Use this pointer to manipulate the mesh as
+// necessary. You must delete (with Delete()) the mesh when done.
+// Note: This initialization method places points forming bounding octahedron
+// at the end of the Mesh's point list. That is, InsertPoint() assumes that
+// you will be inserting points between (0,numPtsToInsert-1).
   vtkUnstructuredGrid *InitPointInsertion(float center[3], float length, 
 					  int numPts, vtkPoints* &pts);
+
+
+// Description:
+// This is a helper method used with InsertPoint() to create 
+// tetrahedronalizations of points. Its purpose is construct an initial
+// Delaunay triangulation into which to inject other points. You must
+// specify the number of points you wish to insert, and then define an
+// initial Delaunay tetrahedronalization. This is defined by specifying 
+// the number of tetrahedra, and a list of points coordinates defining
+// the tetra (total of 4*numTetra points). The method returns a pointer 
+// to an unstructured grid. Use this pointer to manipulate the mesh as
+// necessary. You must delete (with Delete()) the mesh when done.
+// Note: The points you insert using InsertPoint() will range from
+// (0,numPtsToInsert-1). Make sure that numPtsToInsert is large enough to
+// accomodate this.
   vtkUnstructuredGrid *InitPointInsertion(int numPtsToInsert,  int numTetra,
                           vtkPoints &boundingTetraPts, float bounds[6],
                           vtkPoints* &pts);
+
+
+// Description:
+// This is a helper method used with InitPointInsertion() to create
+// tetrahedronalizations of points. Its purpose is to inject point at
+// coordinates specified into tetrahedronalization. The point id is an index
+// into the list of points in the mesh structure.  (See
+// vtkDelaunay3D::InitPointInsertion() for more information.)  When you have
+// completed inserting points, traverse the mesh structure to extract desired
+// tetrahedra (or tetra faces and edges). The holeTetras id list lists all the
+// tetrahedra that are deleted (invalid) in the mesh structure.
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 		   int id, float x[3], vtkIdList& holeTetras);
+
   
   unsigned long int GetMTime();
 

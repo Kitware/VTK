@@ -58,7 +58,11 @@ public:
   static vtkXGLLight *New() {return new vtkXGLLight;};
   const char *GetClassName() {return "vtkXGLLight";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkRenderer *ren,int light_index);
+
   
 };
 

@@ -56,10 +56,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEncodedGradientEstimator : public vtkReferenceCount
 {
 public:
+
+// Description:
+// Construct a vtkEncodedGradientEstimator with initial values of NULL for
+// the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
+// indicate that the IndexTable has not yet been initialized. The
+// GradientMagnitudeRange and the GradientMangitudeTable are 
+// initialized to default values - these will change in the future
+// when magnitude of gradient opacities are included
   vtkEncodedGradientEstimator();
+
+
+// Description:
+// Destruct a vtkEncodedGradientEstimator - free up any memory used
   ~vtkEncodedGradientEstimator();
+
   const char *GetClassName() {return "vtkEncodedGradientEstimator";};
+
+// Description:
+// Print the vtkEncodedGradientEstimator
   void PrintSelf( ostream& os, vtkIndent index );
+
 
   // Description:
   // Set/Get the scalar input for which the normals will be 

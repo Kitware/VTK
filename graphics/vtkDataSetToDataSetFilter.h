@@ -78,27 +78,66 @@ class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {
 
 public:
+
+// Description:
+// Construct object.
   vtkDataSetToDataSetFilter();
+
   ~vtkDataSetToDataSetFilter();
   static vtkDataSetToDataSetFilter *New() {return new vtkDataSetToDataSetFilter;};
   const char *GetClassName() {return "vtkDataSetToDataSetFilter";};
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkDataSet *input);
+
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
 
   // filter interface (need to overload because of abstract interface)
+
+// Description:
+// Update input to this filter and the filter itself. Note that we are 
+// overloading this method because the output is an abstract dataset type.
+// This requires special treatment.
   void Update();
 
+
   // get the output as a dataset - requires setting input first
+
+// Description:
+// Get the output of this filter. If output is NULL then input hasn't been set
+// which is necessary for abstract objects.
   vtkDataSet *GetOutput();
 
+
   // get the output in different forms - does run-time checking
+
+// Description:
+// Get the output as vtkPolyData.
   vtkPolyData *GetPolyDataOutput();
+
+
+// Description:
+// Get the output as vtkStructuredPoints.
   vtkStructuredPoints *GetStructuredPointsOutput();
+
+
+// Description:
+// Get the output as vtkStructuredGrid.
   vtkStructuredGrid *GetStructuredGridOutput();
+
+
+// Description:
+// Get the output as vtkUnstructuredGrid.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
+
+
+// Description:
+// Get the output as vtkRectilinearGrid. 
   vtkRectilinearGrid *GetRectilinearGridOutput();
+
   
   
 protected:

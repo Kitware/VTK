@@ -85,11 +85,23 @@ class vtkVolume;
 class VTK_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
+
+// Description:
+// Construct a new vtkVolumeRayCastMapper with default values
   vtkVolumeRayCastMapper();
+
+
+// Description:
+// Destruct a vtkVolumeRayCastMapper - clean up any memory used
   ~vtkVolumeRayCastMapper();
+
   static vtkVolumeRayCastMapper *New() {return new vtkVolumeRayCastMapper;};
   const char *GetClassName() {return "vtkVolumeRayCastMapper";};
+
+// Description:
+// Print method for vtkVolumeRayCastMapper
   void PrintSelf( ostream& os, vtkIndent index );
+
 
   // Description:
   // Set/Get the distance between samples.  This variable is only

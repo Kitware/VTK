@@ -74,7 +74,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
+// and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
+// automatically generated.
   vtkTextureMapToCylinder();
+
   static vtkTextureMapToCylinder *New() {return new vtkTextureMapToCylinder;};
   const char *GetClassName() {return "vtkTextureMapToCylinder";};
   void PrintSelf(ostream& os, vtkIndent indent);

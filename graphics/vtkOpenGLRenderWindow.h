@@ -61,23 +61,67 @@ protected:
 
 public:
   vtkOpenGLRenderWindow();
+
+// Description:
+// free up memory & close the window
   ~vtkOpenGLRenderWindow();
+
   static vtkOpenGLRenderWindow *New() {return new vtkOpenGLRenderWindow;};
   const char *GetClassName() {return "vtkOpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
+
+// Description:
+// Begin the rendering process.
   void Start(void);
+
+
+// Description:
+// End the rendering process and display the image.
   void Frame(void);
+
+
+// Description:
+// Specify various window parameters.
   void WindowConfigure(void);
+
+
+// Description:
+// Initialize the window for rendering.
   void WindowInitialize(void);
+
+
+// Description:
+// Initialize the rendering window.
   void Initialize(void);
+
+
+// Description:
+// Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
+
+
+// Description:
+// Resize the window.
   void WindowRemap(void);
+
+
+// Description:
+// Set the preferred window size to full screen.
   void PrefFullScreen(void);
+
+
+// Description:
+// Specify the size of the rendering window.
   void SetSize(int,int);
 
+
   virtual int      GetDesiredDepth();
+
+// Description:
+// Get a colormap from the windowing system.
   virtual Colormap GetDesiredColormap();
+
   virtual Visual  *GetDesiredVisual();
   XVisualInfo     *GetDesiredVisualInfo();
 
@@ -90,7 +134,11 @@ public:
   vtkGetMacro(MultiSamples,int);
 
   // stereo rendering stuff
+
+// Description:
+// Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
+
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 

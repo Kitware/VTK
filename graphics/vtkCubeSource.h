@@ -77,10 +77,18 @@ public:
   vtkSetVector3Macro(Center,float);
   vtkGetVectorMacro(Center,float,3);
 
+
+// Description:
+// Convenience method allows creation of cube by specifying bounding box.
   void SetBounds(float xMin, float xMax,
 	         float yMin, float yMax,
 		 float zMin, float zMax);
+
+
+// Description:
+// Convenience method allows creation of cube by specifying bounding box.
   void SetBounds(float bounds[6]);
+
 
 protected:
   void Execute();

@@ -55,11 +55,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkColorTransferFunction : public vtkObject 
 {
 public:
+
+// Description:
+// Construct a new vtkColorTransferFunction with default values
   vtkColorTransferFunction();
+
+
+// Description:
+// Destruct a vtkColorTransferFunction
   ~vtkColorTransferFunction();
+
   static vtkColorTransferFunction *New() {return new vtkColorTransferFunction;};
   const char *GetClassName() {return "vtkColorTransferFunction";};
+
+// Description:
+// Print method for vtkColorTransferFunction
   void PrintSelf(ostream& os, vtkIndent indent);
+
 
   // Description:
   // Returns the sum of the number of function points used to specify 

@@ -51,14 +51,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
+
+// Description
+// Construct sphere with center at (0,0,0) and radius=0.5.
   vtkSphere();
+
   static vtkSphere *New() {return new vtkSphere;};
   const char *GetClassName() {return "vtkSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
+
+// Description
+// Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate sphere gradient.
   void EvaluateGradient(float x[3], float n[3]);
+
 
   vtkSetMacro(Radius,float);
   vtkGetMacro(Radius,float);

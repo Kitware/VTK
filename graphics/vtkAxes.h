@@ -54,7 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAxes : public vtkPolyDataSource 
 {
 public:
+
+// Description:
+// Construct with origin=(0,0,0) and scale factor=1.
   vtkAxes();
+
   static vtkAxes *New() {return new vtkAxes;};
   const char *GetClassName() {return "vtkAxes";};
   void PrintSelf(ostream& os, vtkIndent indent);

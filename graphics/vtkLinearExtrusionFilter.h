@@ -81,7 +81,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
+
+// Description:
+// Create object with normal extrusion type, capping on, scale factor=1.0,
+// vector (0,0,1), and extrusion point (0,0,0).
   vtkLinearExtrusionFilter();
+
   static vtkLinearExtrusionFilter *New() {return new vtkLinearExtrusionFilter;};
   const char *GetClassName() {return "vtkLinearExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

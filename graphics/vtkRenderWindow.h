@@ -78,17 +78,36 @@ class vtkPolyDataMapperDevice;
 class VTK_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
+
+// Description:
+// Construct an instance of  vtkRenderWindow with its screen size 
+// set to 300x300, borders turned on, positioned at (0,0), double 
+// buffering turned on.
   vtkRenderWindow();
+
   ~vtkRenderWindow();
   static vtkRenderWindow *New();
   const char *GetClassName() {return "vtkRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Add a renderer to the list of renderers.
   void AddRenderer(vtkRenderer *);
+
+
+// Description:
+// Remove a renderer from the list of renderers.
   void RemoveRenderer(vtkRenderer *);
+
   vtkRendererCollection *GetRenderers() {return &(this->Renderers);};
 
+
+// Description:
+// Ask each renderer owned by this RenderWindow to render its image and 
+// synchronize this process.
   virtual void Render();
+
 
   // Description:
   // Initialize the rendering process.
@@ -148,11 +167,32 @@ public:
     {this->SetStereoType(VTK_STEREO_RIGHT);};
   char *GetStereoTypeAsString();
 
+
+// Description:
+// Update the system, if needed, due to stereo rendering. For some stereo 
+// methods, subclasses might need to switch some hardware settings here.
   virtual void StereoUpdate();
+
+
+// Description:
+// Intermediate method performs operations required between the rendering
+// of the left and right eye.
   virtual void StereoMidpoint();
+
+
+// Description:
+// Handles work required once both views have been rendered when using
+// stereo rendering.
   virtual void StereoRenderComplete();
 
+
+
+// Description:
+// This method indicates if a StereoOn/Off will require the window to 
+// be remapped. Some types of stereo rendering require a new window
+// to be created.
   virtual int  GetRemapWindow();
+
   virtual void WindowRemap() {};
   
   // Description:
@@ -237,8 +277,17 @@ public:
   virtual int GetEventPending() { return 0;};
   
   
+
+// Description:
+// Specify a function to be called to check and see if an abort
+// of the rendering in progress is desired.
   void SetAbortCheckMethod(void (*f)(void *), void *arg);
+
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
   void SetAbortCheckMethodArgDelete(void (*f)(void *));
+
 
   // Description:
   // Set/Get the desired update rate. This is used with

@@ -78,7 +78,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct with default extraction mode to extract largest regions.
   vtkPolyDataConnectivityFilter();
+
   ~vtkPolyDataConnectivityFilter();
   static vtkPolyDataConnectivityFilter *New() {return new vtkPolyDataConnectivityFilter;};
   const char *GetClassName() {return "vtkPolyDataConnectivityFilter";};
@@ -115,16 +119,44 @@ public:
   char *GetExtractionModeAsString();
 
   // Use with point or cell seeded extraction methods
+
+// Description:
+// Initialize list of point ids/cell ids used to seed regions.
   void InitializeSeedList();
+
+
+// Description:
+// Add a seed id (point or cell id). Note: ids are 0-offset.
   void AddSeed(int id);
+
+
+// Description:
+// Delete a seed id (point or cell id). Note: ids are 0-offset.
   void DeleteSeed(int id);
 
+
   // Use with extract specified regions 
+
+// Description:
+// Initialize list of region ids to extract.
   void InitializeSpecifiedRegionList();
+
+
+// Description:
+// Add a region id to extract. Note: ids are 0-offset.
   void AddSpecifiedRegion(int id);
+
+
+// Description:
+// Delete a region id to extract. Note: ids are 0-offset.
   void DeleteSpecifiedRegion(int id);
 
+
+
+// Description:
+// Obtain the number of connected regions.
   int GetNumberOfExtractedRegions();
+
 
   // Description:
   // The connectivity extraction algorithm works recursively. In some systems 

@@ -99,21 +99,50 @@ public:
 class VTK_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
+
+// Description:
+// Construct with automatic computation of divisions, averaging
+// 25 cells per octant.
   vtkOBBTree();
+
   ~vtkOBBTree();
   static vtkOBBTree *New() {return new vtkOBBTree;};
   const char *GetClassName() {return "vtkOBBTree";};
 
+
+// Description:
+// Compute an OBB from the list of points given. Return the corner point
+// and the three axes defining the orientation of the OBB. Also return
+// a sorted list of relative "sizes" of axes for comparison purposes.
   void ComputeOBB(vtkPoints *pts, float corner[3], float max[3], 
                   float mid[3], float min[3], float size[3]);
 
+
+
+// Description:
+// Return intersection point of line defined by two points (a0,a1) in dataset
+// coordinate system; returning cellId (or -1 if no intersection). The 
+// argument list returns the intersection parametric coordinate, t, along 
+// the line; the coordinate of intersection, x[3]; the cell parametric
+// coordinates, pcoords[3]; and subId of the cell. (Not yet implemented.)
   int IntersectWithLine(float a0[3], float a1[3], float& t, 
                         float x[3], float pcoords[3],int &subId);
+
 
   // satisfy locator'a abstract interface
   void FreeSearchStructure();
   void BuildLocator();
+
+// Description:
+// Create polygonal representation for OBB tree at specified level. If 
+// level < 0, then the leaf OBB nodes will be gathered. The aspect ratio (ar)
+// and line diameter (d) are used to control the building of the 
+// representation. If a OBB node edge ratio's are greater than ar, then the
+// dimension of the OBB is collapsed (OBB->plane->line). A "line" OBB will be
+// represented either as two crossed polygons, or as a line, depending on
+// the relative diameter of the OBB compared to the diameter (d).
   void GenerateRepresentation(int level, vtkPolyData *pd);
+
 
 protected:
   vtkOBBNode *Tree;

@@ -61,7 +61,12 @@ class vtkImplicitFunction;
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct with user-specified implicit function; initial value of 0.0; and
+// generating cut scalars turned off.
   vtkCutter(vtkImplicitFunction *cf=NULL);
+
   ~vtkCutter();
   static vtkCutter *New() {return new vtkCutter;};
   const char *GetClassName() {return "vtkCutter";};
@@ -92,7 +97,12 @@ public:
   vtkGetMacro(GenerateCutScalars,int);
   vtkBooleanMacro(GenerateCutScalars,int);
 
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

@@ -75,7 +75,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Construct object to extract nothing and to not pass tensor data
+// through the pipeline.
   vtkExtractTensorComponents();
+
   static vtkExtractTensorComponents *New() {return new vtkExtractTensorComponents;};
   const char *GetClassName() {return "vtkExtractTensorComponents";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -68,9 +68,17 @@ public:
   const char *GetClassName() {return "vtkXGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Concrete XGL render method.
   void DeviceRender(void);
 
+
+
+// Description:
+// Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
+
 
   Xgl_3d_ctx *GetContext() {return &(this->Context);};
   Xgl_win_ras  *GetRaster() 

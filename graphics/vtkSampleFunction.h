@@ -58,7 +58,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSampleFunction : public vtkStructuredPointsSource
 {
 public:
+
+// Description:
+// Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+// Capping turned off, and normal generation on.
   vtkSampleFunction();
+
   ~vtkSampleFunction();
   static vtkSampleFunction *New() {return new vtkSampleFunction;};
   const char *GetClassName() {return "vtkSampleFunction";};
@@ -75,8 +80,16 @@ public:
   // in the scalar object.
   vtkSetObjectMacro(Scalars,vtkScalars);
 
+
+// Description:
+// Specify the dimensions of the data on which to sample.
   void SetSampleDimensions(int i, int j, int k);
+
+
+// Description:
+// Specify the dimensions of the data on which to sample.
   void SetSampleDimensions(int dim[3]);
+
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:

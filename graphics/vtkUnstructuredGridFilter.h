@@ -55,7 +55,11 @@ public:
   static vtkUnstructuredGridFilter *New() {return new vtkUnstructuredGridFilter;};
   const char *GetClassName() {return "vtkUnstructuredGridFilter";};
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkUnstructuredGrid *input);
+
   void SetInput(vtkUnstructuredGrid &input) {this->SetInput(&input);};
   vtkUnstructuredGrid *GetInput() {return (vtkUnstructuredGrid *)this->Input;};
                                

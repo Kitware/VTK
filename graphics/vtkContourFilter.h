@@ -84,7 +84,12 @@ class vtkScalarTree;
 class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object with initial range (0,1) and single contour value
+// of 0.0.
   vtkContourFilter();
+
   static vtkContourFilter *New() {return new vtkContourFilter;};
   ~vtkContourFilter();
   const char *GetClassName() {return "vtkContourFilter";};
@@ -133,7 +138,12 @@ public:
   vtkGetMacro(UseScalarTree,int);
   vtkBooleanMacro(UseScalarTree,int);
 
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

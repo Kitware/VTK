@@ -62,27 +62,53 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRayCaster : public vtkObject
 {
 public:
+
+// Description:
+// Constructor for vtkRayCaster
   vtkRayCaster();
+
+
+// Description:
+// Destructor for vtkRayCaster
   ~vtkRayCaster();
+
   static vtkRayCaster *New() {return new vtkRayCaster;};
   const char *GetClassName() {return "vtkRayCaster";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Renders its volumes to create a composite image.
+
+// Description:
+// Main routine to do the volume rendering.
   int Render(vtkRenderer *);
+
  
   // Methods for a vtkVolumeMapper to retrieve latest color and zbuffer
   float *GetCurrentColorBuffer() { return (this->cbuffer); };
   float *GetCurrentZBuffer() { return (this->zbuffer); };
 
   float *GetPerspectiveViewRays();
+
+// Description:
+// Get the size in pixels of the view rays for the selected scale indexl
   void GetViewRaysSize( int size[2] );
+
 
   float *GetParallelStartPosition( void );
   float *GetParallelIncrements( void );
 
+
+// Description:
+// Set the scale factor for a given level. This is used during multi-
+// resolution interactive rendering
   void SetImageScale(int level, float scale); 
+
+
+// Description:
+// Get the scale factor for a given level. This is used during multi-
+// resolution interactive rendering
   float GetImageScale(int level); 
+
   
   vtkSetClampMacro(SelectedImageScaleIndex, int, 0, VTK_MAX_VIEW_RAYS_LEVEL-1);
   vtkGetMacro( SelectedImageScaleIndex, int );
@@ -93,12 +119,30 @@ public:
   vtkSetObjectMacro(Renderer,vtkRenderer);
   vtkGetObjectMacro(Renderer,vtkRenderer);
 
+
+// Description:
+// This method returns the scale that should be applied to the viewport
+// for geometric rendering, and for the image in volume rendering. It 
+// is either explicitly set (if AutomaticScaleAdjustment is off) or
+// is adjusted automatically to get the desired frame rate.
+//
+// Note: IMPORTANT!!!! This should only be called once per render!!!
+//
   float GetViewportScaleFactor( vtkRenderer *ren );
+
   float GetViewportStepSize( );
   
   vtkGetMacro( AutomaticScaleAdjustment, int );
+
+// Description:
+// Turn the automatic scale adjustment on
   void AutomaticScaleAdjustmentOn( void );
+
+
+// Description:
+// Turn the automatic scale adjustment off
   void AutomaticScaleAdjustmentOff( void );
+
 
   vtkSetClampMacro( AutomaticScaleLowerLimit, float, 0.0, 1.0 );
   vtkGetMacro( AutomaticScaleLowerLimit, float );

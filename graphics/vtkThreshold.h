@@ -70,9 +70,21 @@ public:
   const char *GetClassName() {return "vtkThreshold";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Criterion is cells whose scalars are less or equal to lower threshold.
   void ThresholdByLower(float lower);
+
+
+// Description:
+// Criterion is cells whose scalars are greater or equal to upper threshold.
   void ThresholdByUpper(float upper);
+
+
+// Description:
+// Criterion is cells whose scalars are between lower and upper thresholds.
   void ThresholdBetween(float lower, float upper);
+
   
   vtkGetMacro(UpperThreshold,float);
   vtkGetMacro(LowerThreshold,float);

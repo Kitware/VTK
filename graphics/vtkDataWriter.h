@@ -68,7 +68,12 @@ class vtkDataArray;
 class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
+
+// Description:
+// Created object with default header, ASCII format, and default names for 
+// scalars, vectors, tensors, normals, and texture coordinates.
   vtkDataWriter();
+
   ~vtkDataWriter();
   static vtkDataWriter *New() {return new vtkDataWriter;};
   const char *GetClassName() {return "vtkDataWriter";};
@@ -133,15 +138,41 @@ public:
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
 
+
+// Description:
+// Open a vtk data file. Returns NULL if error.
   FILE *OpenVTKFile();
+
+
+// Description:
+// Write the header of a vtk data file. Returns 0 if error.
   int WriteHeader(FILE *fp);
+
   int WritePoints(FILE *fp, vtkPoints *p);
+
+// Description:
+// Write out coordinates for rectilinear grids.
   int WriteCoordinates(FILE *fp, vtkScalars *coords, int axes);
+
   int WriteCells(FILE *fp, vtkCellArray *cells, char *label);
+
+// Description:
+// Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
+// Returns 0 if error.
   int WriteCellData(FILE *fp, vtkDataSet *ds);
+
+
+// Description:
+// Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
+// Returns 0 if error.
   int WritePointData(FILE *fp, vtkDataSet *ds);
+
   int WriteFieldData(FILE *fp, vtkFieldData *f);
+
+// Description:
+// Close a vtk file.
   void CloseVTKFile(FILE *fp);
+
 
 protected:
   void WriteData(); //dummy method to allow this class to be instantiated and delegated to

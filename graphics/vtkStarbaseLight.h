@@ -58,7 +58,11 @@ public:
   static vtkStarbaseLight *New() {return new vtkStarbaseLight;};
   const char *GetClassName() {return "vtkStarbaseLight";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkRenderer *ren,int light_index);
+
 };
 
 #endif

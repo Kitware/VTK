@@ -65,7 +65,11 @@ public:
   static vtkDataSetFilter *New() {return new vtkDataSetFilter;};
   const char *GetClassName() {return "vtkDataSetFilter";};
 
+
+// Description:
+// Specify the input data or filter.
   virtual void SetInput(vtkDataSet *input);
+
   virtual void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};

@@ -69,7 +69,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSpline : public vtkObject
 {
 public:
+
+// Description
+// Construct a spline wth the folloing defaults:
+// ClampValueOff
   vtkSpline();
+
   ~vtkSpline ();
   const char *GetClassName() {return "vtkSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);

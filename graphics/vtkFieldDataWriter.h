@@ -57,12 +57,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFieldDataWriter : public vtkWriter
 {
 public:
+
+// Description:
+// Instantiate object with no input.
   vtkFieldDataWriter();
+
   static vtkFieldDataWriter *New() {return new vtkFieldDataWriter;};
   const char *GetClassName() {return "vtkFieldDataWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkDataObject *input);
+
   void SetInput(vtkDataObject &input) {this->SetInput(&input);};
   vtkDataObject *GetInput() {return this->Input;};
                                

@@ -109,7 +109,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDelaunay2D : public vtkPointSetFilter
 {
 public:
+
+// Description:
+// Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;
+// BoundingTriangulation turned off.
   vtkDelaunay2D();
+
   static vtkDelaunay2D *New() {return new vtkDelaunay2D;};
   const char *GetClassName() {return "vtkDelaunay2D";};
   void PrintSelf(ostream& os, vtkIndent indent);

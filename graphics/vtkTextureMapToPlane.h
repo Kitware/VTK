@@ -68,7 +68,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToPlane : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Construct with s,t range=(0,1) and automatic plane generation turned on.
   vtkTextureMapToPlane();
+
   static vtkTextureMapToPlane *New() {return new vtkTextureMapToPlane;};
   const char *GetClassName() {return "vtkTextureMapToPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -162,7 +162,16 @@ public:
 class VTK_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
+
+// Description:
+// Create object with specified reduction of 90% and feature angle of
+// 15 degrees. Edge splitting is on, defer splitting is on, and the
+// split angle is 75 degrees. Topology preservation is off, delete
+// boundary vertices is on, and the maximum error is set to
+// VTK_LARGE_FLOAT. The inflection point ratio is 10 and the vertex
+// degree is 25. Error accumulation is turned off.
   vtkDecimatePro();
+
   ~vtkDecimatePro();
   static vtkDecimatePro *New() {return new vtkDecimatePro;};
   const char *GetClassName() {return "vtkDecimatePro";};
@@ -265,9 +274,29 @@ public:
   // reduction values at each inflection point. Note: the first inflection
   // point always occurs right before non-planar triangles are decimated
   // (i.e., as the error becomes non-zero).
+
+// Description:
+// Get the number of inflection points. Only returns a valid value
+// after the filter has executed.
   int GetNumberOfInflectionPoints();
+
+
+// Description:
+// Get a list of inflection points. These are float values 0 < r <= 1.0 
+// corresponding to reduction level, and there are a total of
+// NumberOfInflectionPoints() values. You must provide an array (of
+// the correct size) into which the inflection points are written.
   void GetInflectionPoints(float *inflectionPoints);
+
+
+// Description:
+// Get a list of inflection points. These are float values 0 < r <= 1.0 
+// corresponding to reduction level, and there are a total of
+// NumberOfInflectionPoints() values. You must provide an array (of
+// the correct size) into which the inflection points are written.
+// This method returns a pointer to a list of inflection points.
   float *GetInflectionPoints();
+
 
 protected:
   void Execute();

@@ -79,7 +79,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
+
+// Description:
+// Construct object with NULL file prefix; file pattern "%s.%d"; image range 
+// set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
+// header size 0; and byte swapping turned off.
   vtkVolume16Reader();
+
   static vtkVolume16Reader *New() {return new vtkVolume16Reader;};
   const char *GetClassName() {return "vtkVolume16Reader";};
   void PrintSelf(ostream& os, vtkIndent indent);

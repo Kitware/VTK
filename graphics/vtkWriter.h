@@ -67,12 +67,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWriter : public vtkProcessObject
 {
 public:
+
+// Description:
+// Construct with no start and end write methods or arguments.
   vtkWriter();
+
   const char *GetClassName() {return "vtkWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Write data to output. Method executes subclasses WriteData() method, as 
+// well as StartMethod() and EndMethod() methods.
   virtual void Write();
+
+
+// Description:
+// Convenient alias for Write() method.
   void Update();
+
 
 protected:
   virtual void WriteData() = 0; //internal method every subclass must respond to

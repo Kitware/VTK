@@ -57,7 +57,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkReverseSense : public vtkPolyDataToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object so that behavior is to reverse cell ordering and
+// leave normal orientation as is.
   vtkReverseSense();
+
   static vtkReverseSense *New() {return new vtkReverseSense;};
   const char *GetClassName() {return "vtkReverseSense";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -53,12 +53,20 @@ class vtkXGLRenderer;
 class VTK_EXPORT vtkXGLTexture : public vtkTexture
 {
 public:
+
+// Description:
+// Initializes an instance, generates a unique index.
   vtkXGLTexture();
+
   ~vtkXGLTexture();
   static vtkXGLTexture *New() {return new vtkXGLTexture;};
   const char *GetClassName() {return "vtkXGLTexture";};
   
+
+// Description:
+// Implement base class method.
   void Load(vtkRenderer *ren);
+
   
 protected:
   vtkTimeStamp   LoadTime;

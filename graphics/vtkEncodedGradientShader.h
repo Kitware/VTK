@@ -56,11 +56,21 @@ class vtkEncodedGradientEstimator;
 class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
+
+// Description:
   vtkEncodedGradientShader();
+
+
+// Description:
   ~vtkEncodedGradientShader();
+
   static vtkEncodedGradientShader *New() {return new vtkEncodedGradientShader;};
   const char *GetClassName() {return "vtkEncodedGradientShader";};
+
+// Description:
+// Print the vtkEncodedGradientShader
   void PrintSelf( ostream& os, vtkIndent index );
+
 
   // Description:
   // Cause the shading table to be updated

@@ -68,7 +68,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 {
 public:
+
+// Description:
+// Construct object to extract all of the input data.
   vtkExtractGrid();
+
   static vtkExtractGrid *New() {return new vtkExtractGrid;};
   const char *GetClassName() {return "vtkExtractGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);

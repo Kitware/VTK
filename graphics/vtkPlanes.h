@@ -69,8 +69,16 @@ public:
   const char *GetClassName() {return "vtkPlanes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description
+// Evaluate plane equations. Return smallest absolute value.
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate planes gradient.
   void EvaluateGradient(float x[3], float n[3]);
+
 
   // Description:
   // Specify a list of points defining points through which the planes pass.

@@ -59,7 +59,11 @@ public:
   const char *GetClassName() {return "vtkRectilinearGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkRectilinearGrid *input);
+
   void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};
   vtkRectilinearGrid *GetInput() {return (vtkRectilinearGrid *)this->Input;};
                                

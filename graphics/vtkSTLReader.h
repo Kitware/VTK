@@ -65,13 +65,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSTLReader : public vtkPolyDataSource 
 {
 public:
+
+// Description:
+// Construct object with merging set to true.
   vtkSTLReader();
+
   ~vtkSTLReader();
   static vtkSTLReader *New() {return new vtkSTLReader;};
   const char *GetClassName() {return "vtkSTLReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Overload standard modified time function. If locator is modified,
+// then this object is modified as well.
   unsigned long GetMTime();
+
 
   // Description:
   // Specify file name of stereo lithography file.
@@ -84,7 +93,12 @@ public:
   vtkGetMacro(Merging,int);
   vtkBooleanMacro(Merging,int);
 
+
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

@@ -59,7 +59,11 @@ public:
   const char *GetClassName() {return "vtkDataSetWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkDataSet *input);
+
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};
   void SetInput(vtkImageCache *cache)
     {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}

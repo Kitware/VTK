@@ -59,7 +59,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBYUWriter : public vtkPolyDataWriter
 {
 public:
+
+// Description:
+// Create object so that it writes displacement, scalar, and texture files
+// (if data is available).
   vtkBYUWriter();
+
   ~vtkBYUWriter();
   static vtkBYUWriter *New() {return new vtkBYUWriter;};
   const char *GetClassName() {return "vtkBYUWriter";};

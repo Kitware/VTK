@@ -75,7 +75,11 @@ class vtkRenderer;
 class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
+
+// Description:
+// Construct object and initialize.
   vtkTexture();
+
   ~vtkTexture();
   static vtkTexture *New();
   const char *GetClassName() {return "vtkTexture";};

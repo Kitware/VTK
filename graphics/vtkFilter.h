@@ -61,7 +61,11 @@ class vtkDataSet;
 class VTK_EXPORT vtkFilter : public vtkSource
 {
 public:
+
+// Description:
+// Construct new filter without start or end methods.
   vtkFilter();
+
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkFilter *New() {return new vtkFilter;};
   const char *GetClassName() {return "vtkFilter";};

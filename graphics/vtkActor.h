@@ -70,16 +70,33 @@ class vtkMapper;
 class VTK_EXPORT vtkActor : public vtkProp
 {
  public:
+
+// Description:
+// Creates an actor with the following defaults: origin(0,0,0) 
+// position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
+// orientation=(0,0,0). No user defined matrix and no texture map.
   vtkActor();
+
   ~vtkActor();
   static vtkActor *New();
   const char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// This causes the actor to be rendered. It in turn will render the actor's
+// property, texture map and then mapper. If a property hasn't been 
+// assigned, then the actor will create one automatically. Note that a 
+// side effect of this method is that the visualization network is updated.
   virtual void Render(vtkRenderer *ren);
+
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
+
+// Description:
+// Shallow copy of an actor.
   vtkActor &operator=(const vtkActor& actor);
+
 
   // Description: 
   // Set/Get the property object that controls this
@@ -126,7 +143,11 @@ class VTK_EXPORT vtkActor : public vtkProp
   // efficient.
   void GetMatrix(vtkMatrix4x4& m);
 
+
+// Description:
+// Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   float *GetBounds();
+
 
   // Description:
   // Subclasses of vtkActor can be composed of one or more parts. A part is an

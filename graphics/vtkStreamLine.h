@@ -75,7 +75,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
+
+// Description:
+// Construct object with step size set to 1.0.
   vtkStreamLine();
+
   static vtkStreamLine *New() {return new vtkStreamLine;};
   const char *GetClassName() {return "vtkStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);

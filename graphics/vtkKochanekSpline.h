@@ -75,12 +75,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
+
+// Description:
+// Construct a KochanekSpline wth the following defaults:
+// DefaultBias = 0,
+// DefaultTension = 0,
+// DefaultContinuity = 0.
   vtkKochanekSpline();
+
   static vtkKochanekSpline *New() {return new vtkKochanekSpline;};
   const char *GetClassName() {return "vtkKochanekSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Compute Kochanek Spline coefficients.
   void Compute ();
+
 
   // Description:
   // Evaluate a 1D Kochanek spline.

@@ -58,7 +58,11 @@ public:
   static vtkRectilinearGridFilter *New() {return new vtkRectilinearGridFilter;};
   const char *GetClassName() {return "vtkRectilinearGridFilter";};
 
+
+// Description:
+// Specify the input Grid or filter.
   void SetInput(vtkRectilinearGrid *input);
+
   void SetInput(vtkRectilinearGrid &input) {this->SetInput(&input);};
   vtkRectilinearGrid *GetInput() {return (vtkRectilinearGrid *)this->Input;};
 

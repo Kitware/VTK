@@ -114,7 +114,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object with number of iterations 20; relaxation factor .01;
+// feature edge smoothing turned off; feature 
+// angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
+// on. Error scalars and vectors are not generated (by default). The 
+// convergence criterion is 0.0 of the bounding box diagonal.
   vtkSmoothPolyDataFilter();
+
   static vtkSmoothPolyDataFilter *New() {return new vtkSmoothPolyDataFilter;};
   const char *GetClassName() {return "vtkSmoothPolyDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

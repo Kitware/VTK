@@ -78,7 +78,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Create object with texture dimension=2 and no r-s-t implicit functions
+// defined and FlipTexture turned off.
   vtkImplicitTextureCoords();
+
   static vtkImplicitTextureCoords *New() {return new vtkImplicitTextureCoords;};
   const char *GetClassName() {return "vtkImplicitTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -105,7 +110,13 @@ public:
   vtkGetMacro(FlipTexture,int);
   vtkBooleanMacro(FlipTexture,int);
   
+
+// Description:
+// Update input to this filter and the filter itself. Note that we are 
+// overloading this method because the output is an abstract dataset type.
+// This requires special treatment.
   void Update();
+
   
 protected:
   void Execute();

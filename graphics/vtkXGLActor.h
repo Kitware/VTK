@@ -58,7 +58,11 @@ public:
   static vtkXGLActor *New() {return new vtkXGLActor;};
   const char *GetClassName() {return "vtkXGLActor";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
+
 };
 
 #endif

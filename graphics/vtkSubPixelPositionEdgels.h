@@ -68,9 +68,18 @@ public:
   vtkSubPixelPositionEdgels();
   static vtkSubPixelPositionEdgels *New() {return new vtkSubPixelPositionEdgels;};
   const char *GetClassName() {return "vtkSubPixelPositionEdgels";};
+
+// Description:
+// Print the state of the class.
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+
+// Description:
+// Override update method because execution can branch two ways 
+// (Input and GradMaps)
   void Update();
+
 
   // Description:
   // Set/Get the gradient data for doing the position adjustments.

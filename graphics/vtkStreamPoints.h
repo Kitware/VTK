@@ -55,7 +55,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
+
+// Description:
+// Construct object with time increment set to 1.0.
   vtkStreamPoints();
+
   static vtkStreamPoints *New() {return new vtkStreamPoints;};
   const char *GetClassName() {return "vtkStreamPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);

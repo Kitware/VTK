@@ -64,7 +64,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
   vtkRectilinearGridGeometryFilter();
+
   static vtkRectilinearGridGeometryFilter *New() {return new vtkRectilinearGridGeometryFilter;};
   const char *GetClassName() {return "vtkRectilinearGridGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -74,8 +78,16 @@ public:
   // kmin,kmax).
   vtkGetVectorMacro(Extent,int,6);
 
+
+// Description:
+// Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
+
+
+// Description:
+// Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
   void SetExtent(int *extent);
+
 
 protected:
   void Execute();

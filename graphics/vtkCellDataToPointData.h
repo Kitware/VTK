@@ -64,7 +64,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCellDataToPointData : public vtkDataSetToDataSetFilter
 {
 public:
+
+// Description:
+// Instantiate object so that cell data is not passed to output.
   vtkCellDataToPointData();
+
   static vtkCellDataToPointData *New() {return new vtkCellDataToPointData;};
   const char *GetClassName() {return "vtkCellDataToPointData";};
   void PrintSelf(ostream& os, vtkIndent indent);

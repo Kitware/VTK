@@ -58,7 +58,11 @@ public:
   static vtkOpenGLActor *New() {return new vtkOpenGLActor;};
   const char *GetClassName() {return "vtkOpenGLActor";};
 
+
+// Description:
+// Actual actor render method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
+
 };
 
 #endif

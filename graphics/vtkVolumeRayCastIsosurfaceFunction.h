@@ -61,11 +61,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkVolumeRayCastFunction
 {
 public:
+
+// Description:
+// Construct a new vtkVolumeRayCastIsosurfaceFunction with a default ramp.
+// This ramp is best suited for unsigned char data and should
+// probably be modified before rendering any other data type.
+// The ParcBuildValue is set to LinearRampRange[0] + 1, ensuring
+// that the Parc structure will be built during the first render.
   vtkVolumeRayCastIsosurfaceFunction();
+
+
+// Description:
+// Destruct the vtkVolumeRayCastIsosurfaceFunction
   ~vtkVolumeRayCastIsosurfaceFunction();
+
   static vtkVolumeRayCastIsosurfaceFunction *New() {return new vtkVolumeRayCastIsosurfaceFunction;};
   const char *GetClassName() {return "vtkVolumeRayCastIsosurfaceFunction";};
+
+// Description:
+// Print method for vtkVolumeRayCastIsosurfaceFunction
   void PrintSelf( ostream& os, vtkIndent index );
+
 
   // Description:
   // Give a ray type (0 = unsigned char, 1 = unsigned short,

@@ -71,7 +71,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToSphere : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
+// sphere center is automatically computed.
   vtkTextureMapToSphere();
+
   static vtkTextureMapToSphere *New() {return new vtkTextureMapToSphere;};
   const char *GetClassName() {return "vtkTextureMapToSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);

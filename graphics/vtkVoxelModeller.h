@@ -56,15 +56,35 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
+
+// Description:
+// Construct an instance of vtkVoxelModeller with its sample dimensions
+// set to (50,50,50), and so that the model bounds are
+// automatically computed from its input. The maximum distance is set to 
+// examine the whole grid. This could be made much faster, and probably
+// will be in the future.
   vtkVoxelModeller();
+
   static vtkVoxelModeller *New() {return new vtkVoxelModeller;};
   const char *GetClassName() {return "vtkVoxelModeller";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Compute the ModelBounds based on the input geometry.
   float ComputeModelBounds(float origin[3], float ar[3]);
 
+
+
+// Description:
+// Set the i-j-k dimensions on which to sample the distance function.
   void SetSampleDimensions(int i, int j, int k);
+
+
+// Description:
+// Set the i-j-k dimensions on which to sample the distance function.
   void SetSampleDimensions(int dim[3]);
+
   vtkGetVectorMacro(SampleDimensions,int,3);
 
   // Description:
@@ -74,7 +94,11 @@ public:
   vtkGetMacro(MaximumDistance,float);
 
   // Specify the position in space to perform the sampling.
+
+// Description:
+// Specify the position in space to perform the voxelization.
   void SetModelBounds(float *bounds);
+
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
   vtkGetVectorMacro(ModelBounds,float,6);
 

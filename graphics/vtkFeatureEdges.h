@@ -59,7 +59,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFeatureEdges : public vtkPolyDataToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object with feature angle = 30; all types of edges extracted
+// and colored.
   vtkFeatureEdges();
+
   static vtkFeatureEdges *New() {return new vtkFeatureEdges;};
   const char *GetClassName() {return "vtkFeatureEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);

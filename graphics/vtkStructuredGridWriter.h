@@ -59,7 +59,11 @@ public:
   const char *GetClassName() {return "vtkStructuredGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify the input data or filter.
   void SetInput(vtkStructuredGrid *input);
+
   void SetInput(vtkStructuredGrid &input) {this->SetInput(&input);};
   vtkStructuredGrid *GetInput() {return (vtkStructuredGrid *)this->Input;};
                                

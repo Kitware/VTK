@@ -58,7 +58,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {
 public:
+
+// Description:
+// Construct object with ExtractInside turned on.
   vtkExtractGeometry(vtkImplicitFunction *f=NULL);
+
   static vtkExtractGeometry *New() {return new vtkExtractGeometry;};
   const char *GetClassName() {return "vtkExtractGeometry";};
   void PrintSelf(ostream& os, vtkIndent indent);

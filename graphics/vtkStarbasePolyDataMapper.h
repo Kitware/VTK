@@ -55,14 +55,26 @@ class vtkStarbaseRenderer;
 class VTK_EXPORT vtkStarbasePolyDataMapper : public vtkPolyDataMapper
 {
 public:
+
+// Description:
+// Construct empty object.
   vtkStarbasePolyDataMapper();
+
   virtual ~vtkStarbasePolyDataMapper();
   static vtkStarbasePolyDataMapper *New() {return new vtkStarbasePolyDataMapper;};
   const char *GetClassName() {return "vtkStarbasePolyDataMapper";};
 
   virtual void Render(vtkRenderer *ren, vtkActor *a);
+
+// Description:
+// Build the data structure for the starbase polygon PolyDataMapper.
   void Build(vtkPolyData *, vtkScalars *);
+
+
+// Description:
+// Load polydata into starbase graphics library.
   void Draw(vtkRenderer *ren, vtkActor *act);
+
 
 protected:
   float *Prim;

@@ -56,8 +56,16 @@ class VTK_EXPORT vtkOpenGLProperty : public vtkProperty
   static vtkOpenGLProperty *New() {return new vtkOpenGLProperty;};
   const char *GetClassName() {return "vtkOpenGLProperty";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkActor *a, vtkRenderer *ren);
+
+
+// Description:
+// Implement base class method.
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);
+
 };
 
 #endif

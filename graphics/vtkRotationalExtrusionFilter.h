@@ -84,7 +84,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilter 
 {
 public:
+
+// Description:
+// Create object with capping on, angle of 360 degrees, resolution = 12, and
+// no translation along z-axis.
+// vector (0,0,1), and point (0,0,0).
   vtkRotationalExtrusionFilter();
+
   static vtkRotationalExtrusionFilter *New() {return new vtkRotationalExtrusionFilter;};
   const char *GetClassName() {return "vtkRotationalExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);

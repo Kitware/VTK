@@ -64,7 +64,11 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkFieldDataToDataSet : public vtkSource
 {
 public:
+
+// Description:
+// Instantiate object with no input and no defined output.
   vtkFieldDataToDataSet();
+
   ~vtkFieldDataToDataSet();
   static vtkFieldDataToDataSet *New() {return new vtkFieldDataToDataSet;};
   const char *GetClassName() {return "vtkFieldDataToDataSet";};

@@ -126,21 +126,60 @@ public:
 class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object to start from position (0,0,0); integrate forward; terminal
+// speed 0.0; vorticity computation off; integrations step length 0.2; and
+// maximum propagation time 100.0.
   vtkStreamer();
+
   ~vtkStreamer();
   static vtkStreamer *New() {return new vtkStreamer;};
   const char *GetClassName() {return "vtkStreamer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+
+// Description:
+// Specify the start of the streamline in the cell coordinate system. That is,
+// cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(int cellId, int subId, float pcoords[3]);
+
+
+// Description:
+// Specify the start of the streamline in the cell coordinate system. That is,
+// cellId and subId (if composite cell), and parametric coordinates.
   void SetStartLocation(int cellId, int subId, float r, float s, float t);
+
+
+// Description:
+// Get the starting location of the streamline in the cell coordinate system.
   int GetStartLocation(int& subId, float pcoords[3]);
 
+
+
+// Description:
+// Specify the start of the streamline in the global coordinate system. Search
+// must be performed to find initial cell to start integration from.
   void SetStartPosition(float x[3]);
+
+
+// Description:
+// Specify the start of the streamline in the global coordinate system. Search
+// must be performed to find initial cell to start integration from.
   void SetStartPosition(float x, float y, float z);
+
+
+// Description:
+// Get the start position in global x-y-z coordinates.
   float *GetStartPosition();
 
+
+
+// Description:
+// Override update method because execution can branch two ways (via Input 
+// and Source).
   void Update();
+
 
   // Description:
   // Specify the source object used to generate starting points.

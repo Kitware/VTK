@@ -65,11 +65,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
+
+// Description:
+// Construct a new vtkVolumeRayCastMIPFunction 
   vtkVolumeRayCastMIPFunction();
+
+
+// Description:
+// Destruct the vtkVolumeRayCastMIPFunction
   ~vtkVolumeRayCastMIPFunction();
+
   static vtkVolumeRayCastMIPFunction *New() {return new vtkVolumeRayCastMIPFunction;};
   const char *GetClassName() {return "vtkVolumeRayCastMIPFunction";};
+
+// Description:
+// Print method for vtkVolumeRayCastMIPFunction
   void PrintSelf( ostream& os, vtkIndent index );
+
 
   // Description:
   // Give a ray type (0 = unsigned char, 1 = unsigned short,
@@ -83,7 +95,10 @@ public:
 		 float ray_position[3], float ray_increment[3],
 		 int num_steps, float pixel_value[6] );
 
+
+// Description:
   float GetZeroOpacityThreshold( vtkVolume *vol );
+
 
   // Description:
   // Set the MaximizeMethod to either ScalarValue or 

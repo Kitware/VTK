@@ -58,14 +58,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCursor3D : public vtkPolyDataSource 
 {
 public:
+
+// Description:
+// Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
+// all parts of cursor visible, and wrapping off.
   vtkCursor3D();
+
   ~vtkCursor3D();
   static vtkCursor3D *New() {return new vtkCursor3D;};
   const char *GetClassName() {return "vtkCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetModelBounds(float *bounds);
+
+// Description:
+// Set the boundary of the 3D cursor.
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+
   vtkGetVectorMacro(ModelBounds,float,6);
 
   // Description:
@@ -116,8 +125,16 @@ public:
   vtkPolyData *GetFocus() {return (vtkPolyData *)this->Focus;};
 
   // Convenience methods turn all wires on or off.
+
+// Description:
+// Turn every part of the 3D cursor on.
   void AllOn();
+
+
+// Description:
+// Turn every part of the 3D cursor off.
   void AllOff();
+
 
 protected:
   void Execute();

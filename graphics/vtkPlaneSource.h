@@ -72,7 +72,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPlaneSource : public vtkPolyDataSource 
 {
 public:
+
+// Description:
+// Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
+// and centered at the origin.
   vtkPlaneSource();
+
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkPlaneSource *New() {return new vtkPlaneSource;};
   const char *GetClassName() {return "vtkPlaneSource";};
@@ -88,7 +93,11 @@ public:
   vtkGetMacro(YResolution,int);
 
   // Convenience functions.
+
+// Description:
+// Set the number of x-y subdivisions in the plane.
   void SetResolution(const int xR, const int yR);
+
   void GetResolution(int& xR,int& yR) {xR=this->XResolution; yR=this->YResolution;};
 
   // Description:
@@ -124,7 +133,12 @@ public:
   void SetNormal(float n[3]);
   vtkGetVectorMacro(Normal,float,3);
 
+
+// Description:
+// Translate the plane in the direction of the normal by the distance specified.
+// Negative values move the plane in the opposite direction.
   void Push(float distance);
+
 
 protected:
   void Execute();

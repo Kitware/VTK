@@ -65,7 +65,11 @@ public:
   // overload because of vtkDataReader ivar
   unsigned long int GetMTime();
 
+
+// Description:
+// Specify file name of vtk field data file to read.
   void SetFileName(char *name);
+
   char *GetFileName();
 
   // Description:
@@ -80,9 +84,18 @@ public:
   int GetReadFromInputString() {return this->Reader.GetReadFromInputString();};
   vtkBooleanMacro(ReadFromInputString,int);
 
+
+// Description:
+// Get the type of file (ASCII or BINARY)
   int GetFileType();
 
+
+
+// Description:
+// Set the name of the field data to extract. If not specified, uses 
+// first field data encountered in file.
   void SetFieldDataName(char *name);
+
   char *GetFieldDataName();
 
 protected:

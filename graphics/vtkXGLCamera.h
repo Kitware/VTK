@@ -56,7 +56,11 @@ class VTK_EXPORT vtkXGLCamera : public vtkCamera
   static vtkXGLCamera *New() {return new vtkXGLCamera;};
   const char *GetClassName() {return "vtkXGLCamera";};
 
+
+// Description:
+// Implement base class method.
   void Render(vtkRenderer *ren);
+
 
 };
 

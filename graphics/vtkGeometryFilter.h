@@ -75,7 +75,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct with all types of clipping turned off.
   vtkGeometryFilter();
+
   ~vtkGeometryFilter();
   static vtkGeometryFilter *New() {return new vtkGeometryFilter;};
   const char *GetClassName() {return "vtkGeometryFilter";};
@@ -120,8 +124,16 @@ public:
   vtkGetMacro(CellMaximum,int);
 
   // Specify x-y-z box for geometric region clipping
+
+// Description:
+// Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
   void SetExtent(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);
+
+
+// Description:
+// Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
   void SetExtent(float *extent);
+
   float *GetExtent() { return this->Extent;};
 
   // Description:
@@ -133,7 +145,12 @@ public:
   vtkBooleanMacro(Merging,int);
 
   // Specify locator (default locator created otherwise).
+
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
+
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
 

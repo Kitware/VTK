@@ -85,11 +85,23 @@ class vtkRenderer;
 class VTK_EXPORT vtkViewRays :public vtkObject
   {
   public:
+
+// Description:
+// Constructor for vtkViewRays. Default everything to NULL or 0
   vtkViewRays(void);
+
+
+// Description:
+// Destructor for vtkViewRays. Free up the memory used by the view rays
   ~vtkViewRays(void);
+
   static vtkViewRays *New() {return new vtkViewRays;};
   const char *GetClassName() {return "vtkViewRays";};
+
+// Description:
+// Print the class
   void PrintSelf(ostream& os,vtkIndent indent);
+
 
   // Description:
   // Specify the vtkRenderer whose camera will be used to to calculate 

@@ -76,23 +76,67 @@ public:
   const char *GetClassName() {return "vtkWin32OpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
+
+// Description:
+// Begin the rendering process.
   void Start(void);
+
+
+// Description:
+// End the rendering process and display the image.
   void Frame(void);
+
+
+// Description:
+// Specify various window parameters.
   void WindowConfigure(void);
+
+
+// Description:
+// Initialize the window for rendering.
   void WindowInitialize(void);
+
+
+// Description:
+// Initialize the rendering window.
   void Initialize(void);
+
+
+// Description:
+// Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
+
+
+// Description:
+// Remap the window.
   void WindowRemap(void);
+
+
+// Description:
+// Set the preferred window size to full screen.
   void PrefFullScreen(void);
+
   void SetSize(int,int);
+
+// Description:
+// Get the current size of the window.
   int *GetSize();
+
   void SetPosition(int,int);
   int *GetScreenSize();
+
+// Description:
+// Get the position in screen coordinates of the window.
   int *GetPosition();
+
 
   virtual void SetWindowName(char *);
   
+
+// Description:
+// Set this RenderWindow's X window id to a pre-existing window.
   void SetWindowInfo(char *);
+
   //BTX
   virtual void *GetGenericDisplayId() {return NULL;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
@@ -100,14 +144,30 @@ public:
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
   virtual void SetDisplayId(void *) {};
   
+
+// Description:
+// Get the window id.
   HWND  GetWindowId();
+
   void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+
+// Description:
+// Set the window id to a pre-existing window.
   void  SetWindowId(HWND);
+
   void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
+
+// Description:
+// Set the window id to a pre-existing window.
   void  SetParentId(HWND);
+
   void  SetContextId(HGLRC);	// hsr
   void  SetDeviceContext(HDC);	// hsr
+
+// Description:
+// Set the window id of the new window once a WindowRemap is done.
   void  SetNextWindowId(HWND);
+
   //ETX
 
   // supply base class virtual function
@@ -115,7 +175,11 @@ public:
   vtkGetMacro(MultiSamples,int);
 
   // stereo rendering stuff
+
+// Description:
+// Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
+
   
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 

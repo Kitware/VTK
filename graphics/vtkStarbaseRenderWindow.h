@@ -62,19 +62,55 @@ public:
   const char *GetClassName() {return "vtkStarbaseRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
+
+// Description:
+// Begin the rendering process.
   void Start(void);
+
+
+// Description:
+// End the rendering process and display the image.
   void Frame(void);
+
+
+// Description:
+// Initialize the rendering window.
   void WindowInitialize(void);
+
+
+// Description:
+// Initialize the rendering window.
   void Initialize(void);
+
+
+// Description:
+// Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
+
+
+// Description:
+// Resize the window.
   void WindowRemap(void);
+
+
+// Description:
+// Set the preferred window size to full screen.
   void PrefFullScreen(void);
+
+
+// Description:
+// Specify the size of the rendering window.
   void SetSize(int,int);
+
 
   vtkGetMacro(Fd,int);
 
   // stereo rendering stuff
+
+// Description:
+// Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
+
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
@@ -94,10 +130,22 @@ public:
 
   // Xwindow stuff
   int      GetDesiredDepth();
+
+// Description:
+// Obtain a colormap from windowing system.
   Colormap GetDesiredColormap();
+
+
+// Description:
+// Get a visual from the windowing system.
   Visual  *GetDesiredVisual();
+
+
+// Description:
+// Create a window for starbase output.
   int      CreateXWindow(Display *,int x,int y,int w,int h,int depth,
 			 char name[80]);
+
 
 protected:
   int      Fd;

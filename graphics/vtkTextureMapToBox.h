@@ -60,13 +60,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTextureMapToBox : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Construct with r-s-t range=(0,1) and automatic box generation turned on.
   vtkTextureMapToBox();
+
   static vtkTextureMapToBox *New() {return new vtkTextureMapToBox;};
   const char *GetClassName() {return "vtkTextureMapToBox";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void SetBox(float *box);
+
+// Description:
+// Specify the bounding box to map into.
   void SetBox(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+
   vtkGetVectorMacro(Box,float,6);
 
   // Description:

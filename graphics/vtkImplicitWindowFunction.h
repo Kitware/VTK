@@ -62,15 +62,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
+
+// Description:
+// Construct object with window range (0,1) and window values (0,1).
   vtkImplicitWindowFunction();
+
   ~vtkImplicitWindowFunction();
   static vtkImplicitWindowFunction *New() {return new vtkImplicitWindowFunction;};
   const char *GetClassName() {return "vtkImplicitWindowFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // implicit function interface
+
+// Description
+// Evaluate window function.
   float EvaluateFunction(float x[3]);
+
+
+// Description
+// Evaluate window function gradient. Just return implicit function gradient.
   void EvaluateGradient(float x[3], float n[3]);
+
 
   // Description:
   // Specify an implicit function to operate on.

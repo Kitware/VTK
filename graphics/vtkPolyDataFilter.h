@@ -58,7 +58,11 @@ public:
   static vtkPolyDataFilter *New() {return new vtkPolyDataFilter;};
   const char *GetClassName() {return "vtkPolyDataFilter";};
 
+
+// Description:
+// Specify the input data or filter.
   virtual void SetInput(vtkPolyData *input);
+
   void SetInput(vtkPolyData &input) {this->SetInput(&input);};
   vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
 };

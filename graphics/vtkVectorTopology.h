@@ -67,7 +67,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorTopology : public vtkDataSetToPolyDataFilter
 {
 public:
+
+// Description:
+// Construct object with distance 0.1.
   vtkVectorTopology();
+
   static vtkVectorTopology *New() {return new vtkVectorTopology;};
   const char *GetClassName() {return "vtkVectorTopology";};
   void PrintSelf(ostream& os, vtkIndent indent);

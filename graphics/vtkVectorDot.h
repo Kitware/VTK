@@ -54,7 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter 
 {
 public:
+
+// Description:
+// Construct object with scalar range is (-1,1).
   vtkVectorDot();
+
   static vtkVectorDot *New() {return new vtkVectorDot;};
   const char *GetClassName() {return "vtkVectorDot";};
   void PrintSelf(ostream& os, vtkIndent indent);

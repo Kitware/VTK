@@ -67,7 +67,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
+
+// Description:
+// Construct object to extract all of the input data.
   vtkExtractVOI();
+
   static vtkExtractVOI *New() {return new vtkExtractVOI;};
   const char *GetClassName() {return "vtkExtractVOI";};
   void PrintSelf(ostream& os, vtkIndent indent);

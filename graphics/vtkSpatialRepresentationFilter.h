@@ -112,7 +112,11 @@ public:
   // reset requested output levels
   void ResetOutput();
 
+
+// Description:
+// Update input to this filter and the filter itself.
   void Update();
+
 
 protected:
   void Execute();
