@@ -99,7 +99,7 @@ protected:
   int ClampOverflow;
   int OutputScalarType;
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void UpdateData(vtkImageData *data);
+  void UpdateData(vtkDataObject *data);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);

@@ -80,7 +80,7 @@ void vtkImageCast::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 
 //----------------------------------------------------------------------------
 // The update method first checks to see is a cast is necessary.
-void vtkImageCast::UpdateData(vtkImageData *data)
+void vtkImageCast::UpdateData(vtkDataObject *data)
 {
   
   if (! this->GetInput() || ! this->GetOutput())
