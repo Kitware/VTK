@@ -45,6 +45,7 @@ mapper2 ColorByArrayComponent "vtkGhostLevels" 0
 mapper2 SetGhostLevel 4
 
 # check the pipeline size
+extract2 UpdateInformation
 vtkPipelineSize psize
 if {[psize GetEstimatedSize extract2 0 0] > 100} {
    puts stderr "ERROR: Pipeline Size increased"

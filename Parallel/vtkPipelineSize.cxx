@@ -28,7 +28,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPipelineSize, "1.13.10.1");
+vtkCxxRevisionMacro(vtkPipelineSize, "1.13.10.2");
 vtkStandardNewMacro(vtkPipelineSize);
 
 unsigned long 
@@ -38,8 +38,6 @@ vtkPipelineSize::GetEstimatedSize(vtkAlgorithm *input, int inputPort,
   unsigned long sizes[3];
   unsigned long memorySize = 0;
   
-  vtkDemandDrivenPipeline::SafeDownCast(
-    input->GetExecutive())->UpdateInformation();
 
   if(vtkAlgorithmOutput* inInfo =
      input->GetInputConnection(inputPort, connection))
