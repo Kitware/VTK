@@ -21,11 +21,13 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.38");
+vtkCxxRevisionMacro(vtkPolyDataConnectivityFilter, "1.39");
 vtkStandardNewMacro(vtkPolyDataConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -60,8 +62,21 @@ vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
   this->SpecifiedRegionIds->Delete();
 }
 
-void vtkPolyDataConnectivityFilter::Execute()
+int vtkPolyDataConnectivityFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, newCellId, i, pt;
   int j;
   vtkIdType numPts, numCells;
@@ -71,8 +86,6 @@ void vtkPolyDataConnectivityFilter::Execute()
   unsigned short ncells;
   vtkIdType maxCellsInRegion;
   int largestRegionId = 0;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
   
@@ -85,7 +98,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   if (inPts == NULL)
     {
     vtkErrorMacro("No points!");
-    return;
+    return 0;
     }
 
   numPts = inPts->GetNumberOfPoints();
@@ -94,7 +107,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   if ( numPts < 1 || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to connect!");
-    return;
+    return 0;
     }
 
   // See whether to consider scalar connectivity
@@ -401,7 +414,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   vtkDebugMacro (<< "Total # of cells accounted for: " << count);
   vtkDebugMacro (<<"Extracted " << output->GetNumberOfCells() << " cells");
 
-  return;
+  return 1;
 }
 
 // Mark current cell as visited and assign region number.  Note:

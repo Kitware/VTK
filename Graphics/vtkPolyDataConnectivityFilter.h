@@ -41,7 +41,7 @@
 #ifndef __vtkPolyDataConnectivityFilter_h
 #define __vtkPolyDataConnectivityFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
@@ -54,10 +54,10 @@ class vtkDataArray;
 class vtkIdList;
 class vtkIdTypeArray;
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPolyDataConnectivityFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkPolyDataConnectivityFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -142,7 +142,7 @@ protected:
   ~vtkPolyDataConnectivityFilter();
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
