@@ -58,7 +58,7 @@ public:
   static vtkImageThreshold *New() {return new vtkImageThreshold;};
   const char *GetClassName() {return "vtkImageThreshold";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // The values greater than or equal to the value match.
   void ThresholdByUpper(float thresh);
@@ -102,14 +102,14 @@ public:
   // Set the desired output scalar type to cast to
   vtkSetMacro(OutputScalarType, int);
   vtkGetMacro(OutputScalarType, int);
-  void SetOutputScalarTypeToFloat() {this->SetOutputScalarType(VTK_FLOAT);}
-  void SetOutputScalarTypeToInt() {this->SetOutputScalarType(VTK_INT);}
-  void SetOutputScalarTypeToShort() {this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToFloat() {this->SetOutputScalarType(VTK_FLOAT);};
+  void SetOutputScalarTypeToInt() {this->SetOutputScalarType(VTK_INT);};
+  void SetOutputScalarTypeToShort() {this->SetOutputScalarType(VTK_SHORT);};
   void SetOutputScalarTypeToUnsignedShort() 
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
   void SetOutputScalarTypeToUnsignedChar() 
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
-
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
+  
 protected:
   float UpperThreshold;
   float LowerThreshold;
@@ -117,7 +117,7 @@ protected:
   float InValue;
   int ReplaceOut;
   float OutValue;
-
+  
   int OutputScalarType;
 
   void ExecuteImageInformation();

@@ -66,13 +66,13 @@ public:
   // Set the desired output scalar type to cast to
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
-  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);}
-  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);}
-  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);}
-  void SetOutputScalarTypeToUnsignedShort()
-    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToFloat(){this->SetOutputScalarType(VTK_FLOAT);};
+  void SetOutputScalarTypeToInt(){this->SetOutputScalarType(VTK_INT);};
+  void SetOutputScalarTypeToShort(){this->SetOutputScalarType(VTK_SHORT);};
+  void SetOutputScalarTypeToUnsignedShort()   
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);};
   void SetOutputScalarTypeToUnsignedChar()
-    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);};
 
   // Description:
   // When the ClampOverflow flag is on, the data is thresholded so that
@@ -93,6 +93,7 @@ protected:
 };
 
 #endif
+
 
 
 
