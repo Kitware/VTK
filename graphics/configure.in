@@ -137,6 +137,12 @@ AC_ARG_WITH(tcl,
 AC_SUBST(BUILD_TCL)
 AC_SUBST(CLEAN_TCL)
 
+TKWIDGET=""
+AC_ARG_WITH(tkwidget,
+         [  --with-tkwidget           build the vtkTkRenderWidget class],
+	 TKWIDGET=vtkTkRenderWidget.o)
+AC_SUBST(TKWIDGET)
+
 AC_ARG_WITH(java,
          [  --with-java             build vtk with java support],
          BUILD_JAVA=build_java

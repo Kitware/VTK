@@ -671,6 +671,14 @@ AC_SUBST(SHLIB_LD_LIBS)
 AC_SUBST(SHLIB_SUFFIX)
 AC_SUBST(SHLIB_VERSION)
 
+USE_TKWIDGET_FLAG=""
+if test "$vtk_use_graphics" = "yes"; then
+  AC_ARG_WITH(tkwidget,
+         [  --with-tkwidget           build the vtkTkRenderWidget class],
+	 USE_TKWIDGET_FLAG=-DUSE_TKWIDGET)
+fi
+AC_SUBST(USE_TKWIDGET_FLAG)
+
 ##########################
 ##			##
 ## Check thread support ##
