@@ -5,7 +5,29 @@ proc ReadCPUTimeTable { } {
     if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
 
     source CPUTimeTable.tcl
+    SetCPUTimeTestArchAndKit
     return
+}
+
+proc SetCPUTimeTestArchAndKit { } {
+    global CPUTimeTestKit
+    global CPUTimeTestArch
+    global env
+
+    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
+
+    ## Find the real path - cd there, then do a pwd to get the
+    ## actual path and not the link.
+    set currentDir [pwd]
+    cd $VTK_HISTORY_PATH
+    set testDir [pwd]
+    cd $currentDir
+
+    ## Keep track of the parts of the path used to construct the
+    ## path for previous days
+    set CPUTimeTestKit [file tail $testDir]
+    set CPUTimeTestArch [file tail [file dirname $testDir]]
+
 }
 
 proc ComputeLimits { theList } {
@@ -69,15 +91,19 @@ proc ComputeLimits { theList } {
 proc CheckTime { theTest {currentTime -1}} {
     global CPUTimeTable
     global env
+    global CPUTimeTestKit
+    global CPUTimeTestArch
 
     if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
+
+    SetCPUTimeTestArchAndKit
 
     ## Get the name of the test
     set theTest [file rootname $theTest]
 
     ## Get the list of times for this test out of the time table
     set timelist ""
-    catch { set timelist $CPUTimeTable($theTest) }
+    catch { set timelist $CPUTimeTable(${theTest}_${CPUTimeTestArch}_${CPUTimeTestKit}) }
 
     ## remove ending -1's
     set i [expr [llength $timelist] - 1]
@@ -182,12 +208,16 @@ proc GeneratePlotFiles { theTest currentTime } {
 
 proc GeneratePlotFile { theTest plotname fromDay toDay { lastTime -1 } } {
     global CPUTimeTable
+    global CPUTimeTestKit
+    global CPUTimeTestArch
     global env
     global VTK_RESULTS_PATH
     global tcl_platform
     global env
 
-    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
+    if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} { return }
+
+    SetCPUTimeTestArchAndKit
 
     if { [catch {set VTK_TIME_ARCH $env(VTK_TIME_ARCH)}] != 0} {
 	set VTK_TIME_ARCH ""
@@ -208,8 +238,7 @@ proc GeneratePlotFile { theTest plotname fromDay toDay { lastTime -1 } } {
     set theTest [file rootname $theTest]
 
     set timelist ""
-    catch { set timelist $CPUTimeTable($theTest) }
-    
+    catch { set timelist $CPUTimeTable(${theTest}_${CPUTimeTestArch}_${CPUTimeTestKit}) }
     if { $timelist == "" } { return }
 
     ## remove ending -1's
@@ -244,19 +273,63 @@ proc GeneratePlotFile { theTest plotname fromDay toDay { lastTime -1 } } {
     set low  [lindex $limits 0]
     set high [lindex $limits 1]
 
+    ## Find the bounds for the graph - go 10% greater than the
+    ## max and 10% less than the min (where 10% is 0.1 times the
+    ## (max - min). Make sure min doesn't drop below 0.
+    set minlimit 9999
+    set maxlimit 0
+    if { $lastTime == -1 } {
+	for { set i [expr $numSamples - 1] } { $i >= 0 } { incr i -1 } {
+	    set v [lindex $timelist $i]
+	    if { $v != -1 } {
+		if { $v < $minlimit } { set minlimit $v }
+		if { $v > $maxlimit } { set maxlimit $v }
+	    }
+	}
+    } else {
+	for { set i [expr $numSamples - 2] } { $i >= 0 } { incr i -1 } {
+	    set v [lindex $timelist $i]
+	    if { $v != -1 } {
+		if { $v < $minlimit } { set minlimit $v }
+		if { $v > $maxlimit } { set maxlimit $v }
+	    } 
+	}
+	if { $lastTime < $minlimit } { set minlimit $lastTime }
+	if { $lastTime > $maxlimit } { set maxlimit $lastTime }
+    }
+    if { $low  < $minlimit } { set minlimit $low }
+    if { $high > $maxlimit } { set maxlimit $high }
+    set range [expr $maxlimit - $minlimit]
+    set minlimit [expr $minlimit - 0.1 * $range]
+    set maxlimit [expr $maxlimit + 0.1 * $range]
+    if { $minlimit < 0 } { set minlimit 0 }
+    
+    
+
     puts $fd "BAR_GRAPH"
     puts $fd "375 250"
-    puts $fd "CPU Time History - $numSamples days"
+    if { $VTK_TIME_ARCH != "" } {
+	if { $VTK_TIME_ARCH == "WinNT" } {
+	    puts $fd "Wall Time History - $numSamples days"
+	} else {
+	    puts $fd "CPU Time History - $numSamples days"
+	}
+    } elseif {$tcl_platform(os) == "Windows NT"} {
+	puts $fd "Wall Time History - $numSamples days"
+    } else {
+	puts $fd "CPU Time History - $numSamples days"
+    }
     if { $numSamples <= 15 } {
 	puts $fd "Days Ago"
     } else {
 	puts $fd "Weeks Ago"
     }
     puts $fd $XAxisLabel
+    puts $fd "1 $minlimit $maxlimit"
     puts $fd "1 $low $high"
     puts $fd "$numSamples"
     if { $numSamples <= 15 } {
-	for { set i $numSamples } { $i > 0 } { incr i -1 } {
+	for { set i [expr $numSamples - 1] } { $i >= 0 } { incr i -1 } {
 	    puts $fd "$i"
 	}
     } else {
