@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // set are colors (overall, ambient, diffuse, specular, and edge color);
 // specular power; opacity of the object; the representation of the
 // object (points, wireframe, or surface); and the shading method to be 
-// used (flat, Gouraud, and Phong).
+// used (flat, Gouraud, and Phong). Also, some special graphics features
+// like backface properties can be set and manipulated with this object.
 // .SECTION See Also
 // vtkActor vtkPropertyDevice
 
@@ -137,12 +138,6 @@ public:
   vtkBooleanMacro(EdgeVisibility,int);
 
   // Description:
-  // Turn backface properties on and off (not implemented yet).
-  vtkGetMacro(Backface,int);
-  vtkSetMacro(Backface,int);
-  vtkBooleanMacro(Backface,int);
-
-  // Description:
   // Set/Get the ambient surface color. Not all renderers support separate
   // ambient and diffuse colors. From a physical standpoint it really
   // doesn't make too much sense to have both. For the rendering
@@ -165,6 +160,28 @@ public:
   vtkSetVector3Macro(EdgeColor,float);
   vtkGetVectorMacro(EdgeColor,float,3);
 
+  // Description:
+  // Turn backface properties on and off (not implemented yet).
+  vtkGetMacro(Backface,int);
+  vtkSetMacro(Backface,int);
+  vtkBooleanMacro(Backface,int);
+
+  // Description:
+  // Turn on/off fast culling of polygons based on orientation of normal 
+  // with respect to camera. If backface culling is on, polygons facing
+  // away from camera are not drawn.
+  vtkGetMacro(BackfaceCulling,int);
+  vtkSetMacro(BackfaceCulling,int);
+  vtkBooleanMacro(BackfaceCulling,int);
+
+  // Description:
+  // Turn on/off fast culling of polygons based on orientation of normal 
+  // with respect to camera. If frontface culling is on, polygons facing
+  // towards camera are not drawn.
+  vtkGetMacro(FrontfaceCulling,int);
+  vtkSetMacro(FrontfaceCulling,int);
+  vtkBooleanMacro(FrontfaceCulling,int);
+
 protected:
   float Color[3];
   float AmbientColor[3];
@@ -180,6 +197,8 @@ protected:
   int   Representation;
   int   EdgeVisibility;
   int   Backface;
+  int   BackfaceCulling;
+  int   FrontfaceCulling;
   vtkPropertyDevice *Device;
 };
 

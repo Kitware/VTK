@@ -70,9 +70,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Points arranged on a regular lattice (termed degenerate cases) can be 
 // triangulated in more than one way (at least according to the Delaunay 
 // criterion). The choice of triangulation (as implemented by 
-// this algorithm) depends on the order of the input points. The first three
-// points will form a triangle; other degenerate points will not break
-// this triangle.
+// this algorithm) depends on the order of the input points. The first four
+// points will form a tetrahedron; other degenerate points (relative to this
+// initial tetrahedron) will not break it.
 //
 // Points that are coincident (or nearly so) may be discarded by the
 // algorithm.  This is because the Delaunay triangulation requires
@@ -85,7 +85,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // multiplier used to control the size of the initial triangulation. The 
 // larger the offset value, the more likely you will generate a convex hull;
 // and the more likely you are to see numerical problems.
- 
+//
+// The implementation of this algorithm varies from the 2D Delaunay
+// algorithm (i.e., vtkDelaunay2D) in an important way. When points are
+// injected into the triangulation, the search for the enclosing tetrahedron
+// is quite different. In the 3D case, the closest previously inserted point
+// point is found, and then the connected tetrahedra are searched to find
+// the containing one. (In 2D, a "walk" towards the enclosing triangle is
+// performed.) If the triangulation is Delaunay, then an 
+
 // .SECTION See Also
 // vtkDelaunay2D vtkGaussianSplatter vtkUnstructuredGrid
 

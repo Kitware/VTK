@@ -46,9 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // a camera view into an image. vtkRenderer also performs coordinate 
 // transformation between world coordinates, view coordinates (the computer
 // graphics rendering coordinate system), and display coordinates (the 
-// actual screen coordinates on the display device).
+// actual screen coordinates on the display device). Certain advanced 
+// rendering features such as two-sided lighting can also be controlled.
 
-// .SECTION see also
+// .SECTION See Also
 // vtkRenderWindow vtkActor vtkCamera vtkLight
 
 #ifndef __vtkRenderer_hh
@@ -170,6 +171,15 @@ public:
   vtkSetVector4Macro(Viewport,float);
   vtkGetVectorMacro(Viewport,float,4);
 
+  // Description:
+  // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
+  // off, then only the side of the surface facing the light(s) will be lit,
+  // and the other side dark. If two-sided lighting on, both sides of the 
+  // surface will be lit.
+  vtkGetMacro(TwoSidedLighting,int);
+  vtkSetMacro(TwoSidedLighting,int);
+  vtkBooleanMacro(TwoSidedLighting,int);
+
   virtual float *GetCenter();
 
   virtual void DisplayToView(); // these get modified in subclasses
@@ -203,6 +213,7 @@ protected:
   int   SelfCreatedCamera;
   int   SelfCreatedLight;
   float AllocatedRenderTime;
+  int   TwoSidedLighting;
   
   void (*StartRenderMethod)(void *);
   void (*StartRenderMethodArgDelete)(void *);
