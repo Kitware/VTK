@@ -14,14 +14,13 @@
 =========================================================================*/
 // .NAME vtkSurfaceReconstructionFilter - reconstructs a surface from unorganized points
 // .SECTION Description
-// 
 // vtkSurfaceReconstructionFilter takes a list of points assumed to lie on
 // the surface of a solid 3D object. A signed measure of the distance to the
 // surface is computed and sampled on a regular grid. The grid can then be
 // contoured at zero to extract the surface. The default values for
 // neighborhood size and sample spacing should give reasonable results for
 // most uses but can be set if desired. This procedure is based on the PhD
-// work of Hugues Hoppe: http://www.research.microsoft.com/-hoppe
+// work of Hugues Hoppe: http://www.research.microsoft.com/~hoppe
 
 #ifndef __vtkSurfaceReconstructionFilter_h
 #define __vtkSurfaceReconstructionFilter_h
@@ -63,6 +62,7 @@ protected:
 
   int NeighborhoodSize;
   double SampleSpacing;
+
 private:
   vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);  // Not implemented.
   void operator=(const vtkSurfaceReconstructionFilter&);  // Not implemented.
