@@ -74,6 +74,7 @@ public:
 protected:
   // Description:
   // Destructor.
+  vtkGenericPointIterator();
   virtual ~vtkGenericPointIterator();
   
 private:

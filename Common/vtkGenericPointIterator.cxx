@@ -14,7 +14,12 @@
 =========================================================================*/
 #include "vtkGenericPointIterator.h"
 
-vtkCxxRevisionMacro(vtkGenericPointIterator, "1.1");
+vtkCxxRevisionMacro(vtkGenericPointIterator, "1.2");
+
+//----------------------------------------------------------------------------
+vtkGenericPointIterator::vtkGenericPointIterator()
+{
+}
 
 //----------------------------------------------------------------------------
 vtkGenericPointIterator::~vtkGenericPointIterator()
