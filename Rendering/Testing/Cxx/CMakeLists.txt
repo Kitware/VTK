@@ -52,7 +52,7 @@ ENDFOREACH(test)
 FOREACH (exe
 #    TimeRenderer
 #    TimeRenderer2
-    VTKBenchmark
+    VTKBenchMark
     )
   ADD_EXECUTABLE(${exe} ${exe}.cxx)
   TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO)
