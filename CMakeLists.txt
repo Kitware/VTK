@@ -118,6 +118,12 @@ IF (VTK_WRAP_JAVA)
   ENDIF (WIN32)
 ENDIF (VTK_WRAP_JAVA)
 
+IF(WIN32)
+  OPTION(VTK_DISPLAY_WIN32_WARNINGS "Show all warnings on Visual C++ with option /W4"
+         OFF)
+  MARK_AS_ADVANCED(VTK_DISPLAY_WIN32_WARNINGS)
+ENDIF(WIN32)
+
 OPTION(VTK_USE_ANSI_STDLIB "Use the ANSI standard iostream library", OFF)
 
 #
