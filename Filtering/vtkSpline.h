@@ -92,21 +92,28 @@ public:
   vtkBooleanMacro(Closed,int);
 
   // Description:
-  // Set the type of constraint of the left(right) end points. Three
+  // Set the type of constraint of the left(right) end points. Four
   // constraints are available:
   // 
-  // 1: the first derivative at left(right)most point is set to
+  // 0: the first derivative at left(right) most point is determined
+  // from the line defined from the first(last) two points.
+  //
+  // 1: the first derivative at left(right) most point is set to
   // Left(Right)Value.
   // 
-  // 2: the second derivative at left(right)most point is set to
+  // 2: the second derivative at left(right) most point is set to
   // Left(Right)Value.
   // 
   // 3: the second derivative at left(right)most points is Left(Right)Value
   // times second derivative at first interior point.
-  vtkSetClampMacro(LeftConstraint,int,1,3);
+  vtkSetClampMacro(LeftConstraint,int,0,3);
   vtkGetMacro(LeftConstraint,int);
-  vtkSetClampMacro(RightConstraint,int,1,3);
+  vtkSetClampMacro(RightConstraint,int,0,3);
   vtkGetMacro(RightConstraint,int);
+
+  // Description:
+  // The values of the derivative on the left and right sides. The value
+  // is used only if the left(right) constraint is type 1-3.
   vtkSetMacro(LeftValue,float);
   vtkGetMacro(LeftValue,float);
   vtkSetMacro(RightValue,float);
@@ -134,6 +141,10 @@ protected:
   float RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
   int Closed;
+
+  // Helper methods
+  float ComputeLeftDerivative();
+  float ComputeRightDerivative();
 
 private:
   vtkSpline(const vtkSpline&);  // Not implemented.

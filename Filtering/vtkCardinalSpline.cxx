@@ -18,14 +18,13 @@
 #include "vtkCardinalSpline.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.17");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.18");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 // Construct a Cardinal Spline.
 vtkCardinalSpline::vtkCardinalSpline ()
 {
 }
-
 
 // Evaluate a 1D Spline
 float vtkCardinalSpline::Evaluate (float t)
@@ -205,6 +204,12 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
   // develop constraint at leftmost point.
   switch (leftConstraint) 
     {
+    case 0:
+      // desired slope at leftmost point is derivative from two points
+      coefficients[0][1] = 1.0;
+      coefficients[0][2] = 0.0;
+      work[0] = this->ComputeLeftDerivative();
+      break;
     case 1:
       // desired slope at leftmost point is leftValue.
       coefficients[0][1] = 1.0;
@@ -226,94 +231,99 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
                                 (2.0 + leftValue));
       work[0]= 6.0 * ((1.0 + leftValue) / (2.0 + leftValue)) *
                  ((y[1] - y[0]) / (x[1]-x[0]));
-
       break;
     }
 
     // develop body of band matrix.
-    for (k = 1; k < size - 1; k++)
-      {
-      xlk = x[k] - x[k-1];
-      xlkp = x[k+1] - x[k];
-      coefficients[k][0] = xlkp;
-      coefficients[k][1] = 2.0 * (xlkp + xlk);
-      coefficients[k][2] = xlk;
-      work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
-                ((xlk * (y[k+1] - y[k])) / xlkp));
-      }
+  for (k = 1; k < size - 1; k++)
+    {
+    xlk = x[k] - x[k-1];
+    xlkp = x[k+1] - x[k];
+    coefficients[k][0] = xlkp;
+    coefficients[k][1] = 2.0 * (xlkp + xlk);
+    coefficients[k][2] = xlk;
+    work[k] = 3.0 * (((xlkp * (y[k] - y[k-1])) / xlk) +
+                     ((xlk * (y[k+1] - y[k])) / xlkp));
+    }
 
-    // develop constraint at rightmost point.
-    switch (rightConstraint) 
-      {
-      case 1:
-        // desired slope at rightmost point is rightValue
-        coefficients[size - 1][0] = 0.0;
-        coefficients[size - 1][1] = 1.0;
-        work[size - 1] = rightValue;
-        break;
-      case 2:
-        // desired second derivative at rightmost point is rightValue.
-        coefficients[size-1][0] = 1.0;
-        coefficients[size-1][1] = 2.0;
-        work[size-1] = 3.0 * ((y[size-1] - y[size-2]) / 
-          (x[size-1] - x[size-2])) +
-          0.5 * (x[size-1]-x[size-2]) * rightValue;
-        break;
-      case 3:
-        // desired second derivative at rightmost point is
-        // rightValue times second derivative at last interior point.
-        coefficients[size-1][0] = 4.0 * ((0.5 + rightValue) /
-                                   (2.0 + rightValue));
-        coefficients[size-1][1] = 2.0;
-        work[size-1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
-                  ((y[size-1] - y[size-2]) /
-                   (x[size-1] - x[size-2]));
-        break;
-      }
+  // develop constraint at rightmost point.
+  switch (rightConstraint) 
+    {
+    case 0:
+      // desired slope at leftmost point is derivative from two points
+      coefficients[size - 1][0] = 0.0;
+      coefficients[size - 1][1] = 1.0;
+      work[size - 1] = this->ComputeRightDerivative();
+      break;
+    case 1:
+      // desired slope at rightmost point is rightValue
+      coefficients[size - 1][0] = 0.0;
+      coefficients[size - 1][1] = 1.0;
+      work[size - 1] = rightValue;
+      break;
+    case 2:
+      // desired second derivative at rightmost point is rightValue.
+      coefficients[size-1][0] = 1.0;
+      coefficients[size-1][1] = 2.0;
+      work[size-1] = 3.0 * ((y[size-1] - y[size-2]) / 
+                            (x[size-1] - x[size-2])) +
+        0.5 * (x[size-1]-x[size-2]) * rightValue;
+      break;
+    case 3:
+      // desired second derivative at rightmost point is
+      // rightValue times second derivative at last interior point.
+      coefficients[size-1][0] = 4.0 * ((0.5 + rightValue) /
+                                       (2.0 + rightValue));
+      coefficients[size-1][1] = 2.0;
+      work[size-1] = 6.0 * ((1.0 + rightValue) / (2.0 + rightValue)) *
+        ((y[size-1] - y[size-2]) /
+         (x[size-1] - x[size-2]));
+      break;
+    }
 
-    // solve resulting set of equations.
-    coefficients[0][2] = coefficients[0][2] / coefficients[0][1];
-    work[0] = work[0] / coefficients[0][1];
-    coefficients[size-1][2] = 0.0;
+  // solve resulting set of equations.
+  coefficients[0][2] = coefficients[0][2] / coefficients[0][1];
+  work[0] = work[0] / coefficients[0][1];
+  coefficients[size-1][2] = 0.0;
 
-    for (k = 1; k < size; k++)
-      {
-      coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] *
-                         coefficients[k-1][2]);
-      coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
-      work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
-                           / coefficients[k][1];
-      }
+  for (k = 1; k < size; k++)
+    {
+    coefficients[k][1] = coefficients[k][1] - (coefficients[k][0] *
+                                               coefficients[k-1][2]);
+    coefficients[k][2] = coefficients[k][2] / coefficients[k][1];
+    work[k]  = (work[k] - (coefficients[k][0] * work[k-1]))
+      / coefficients[k][1];
+    }
 
-    for (k = size - 2; k >= 0; k--)
-      {
-      work[k] = work[k] - (coefficients[k][2] * work[k+1]);
-      }
+  for (k = size - 2; k >= 0; k--)
+    {
+    work[k] = work[k] - (coefficients[k][2] * work[k+1]);
+    }
 
-    // the column vector work now contains the first
-    // derivative of the spline function at each joint.
-    // compute the coefficients of the cubic between
-    // each pair of joints.
-    for (k = 0; k < size - 1; k++)
-      {
-      b = x[k+1] - x[k];
-      coefficients[k][0] = y[k];
-      coefficients[k][1] = work[k];
-      coefficients[k][2] = (3.0 * (y[k+1] - y[k])) / (b * b) - 
-                        (work[k+1] + 2.0 * work[k]) / b;
-      coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) + 
-                        (work[k+1] + work[k]) / (b * b);
-      }
+  // the column vector work now contains the first
+  // derivative of the spline function at each joint.
+  // compute the coefficients of the cubic between
+  // each pair of joints.
+  for (k = 0; k < size - 1; k++)
+    {
+    b = x[k+1] - x[k];
+    coefficients[k][0] = y[k];
+    coefficients[k][1] = work[k];
+    coefficients[k][2] = (3.0 * (y[k+1] - y[k])) / (b * b) - 
+      (work[k+1] + 2.0 * work[k]) / b;
+    coefficients[k][3] = (2.0 * (y[k] - y[k+1])) / (b * b * b) + 
+      (work[k+1] + work[k]) / (b * b);
+    }
 
-    // the coefficients of a fictitious nth cubic
-    // are evaluated.  This may simplify
-    // algorithms which include both end points.
+  // the coefficients of a fictitious nth cubic
+  // are evaluated.  This may simplify
+  // algorithms which include both end points.
 
-    coefficients[size-1][0] = y[size-1];
-    coefficients[size-1][1] = work[size-1];
-    coefficients[size-1][2] = coefficients[size-2][2] + 
-                3.0 * coefficients[size-2][3] * b;
-    coefficients[size-1][3] = coefficients[size-2][3];
+  coefficients[size-1][0] = y[size-1];
+  coefficients[size-1][1] = work[size-1];
+  coefficients[size-1][2] = coefficients[size-2][2] + 
+    3.0 * coefficients[size-2][3] * b;
+  coefficients[size-1][3] = coefficients[size-2][3];
 
 }
 
