@@ -35,6 +35,7 @@
 
 // Constructor
 SimpleView::SimpleView( QWidget* parent, const char* name, WFlags fl) 
+ : uiSimpleView(parent, name, fl)
 {
   // QT/VTK interact
   ren = vtkRenderer::New();
