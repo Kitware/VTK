@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.64");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.65");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -69,7 +69,7 @@ void vtkTubeFilter::Execute()
   vtkIdType i;
   float range[2], maxSpeed=0;
   vtkCellArray *newStrips;
-  vtkIdType npts, *pts;
+  vtkIdType npts=0, *pts=NULL;
   vtkIdType offset=0;
   vtkFloatArray *newTCoords=NULL;
   int abort=0;
@@ -574,7 +574,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
 {
   vtkIdType i;
   int k;
-  float tc;
+  float tc=0.0;
 
   int numSides = this->NumberOfSides;
   if ( ! this->SidesShareVertices )
