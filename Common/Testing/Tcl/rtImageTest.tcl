@@ -199,22 +199,23 @@ if {$validImageFound != 0} {
                rt_gamma SetShift 0
                rt_gamma SetScale 10
 
-               vtkPNGWriter rt_pngw_dashboard
-               rt_pngw_dashboard SetFileName $validImage.diff.small.png
-               rt_pngw_dashboard SetInput [rt_gamma GetOutput]
-               rt_pngw_dashboard Write
+               vtkJPEGWriter rt_jpegw_dashboard
+               rt_jpegw_dashboard SetFileName $validImage.diff.small.jpg
+               rt_jpegw_dashboard SetInput [rt_gamma GetOutput]
+               rt_jpegw_dashboard SetQuality 85
+               rt_jpegw_dashboard Write
 
 	       # write out the image that was generated
 	       rt_shrink SetInput [rt_id GetInput]
-	       rt_pngw_dashboard SetInput [rt_shrink GetOutput]
-	       rt_pngw_dashboard SetFileName $validImage.test.small.png
-	       rt_pngw_dashboard Write
+	       rt_jpegw_dashboard SetInput [rt_shrink GetOutput]
+	       rt_jpegw_dashboard SetFileName $validImage.test.small.jpg
+	       rt_jpegw_dashboard Write
 
 	       # write out the valid image that matched
 	       rt_shrink SetInput [rt_id GetImage]
-	       rt_pngw_dashboard SetInput [rt_shrink GetOutput]
-	       rt_pngw_dashboard SetFileName $validImage.small.png
-	       rt_pngw_dashboard Write
+	       rt_jpegw_dashboard SetInput [rt_shrink GetOutput]
+	       rt_jpegw_dashboard SetFileName $validImage.small.jpg
+	       rt_jpegw_dashboard Write
 
 	   }
 	   puts "Failed Image Test with error: $imageError"
@@ -231,16 +232,16 @@ if {$validImageFound != 0} {
 	       puts "</DartMeasurement>"
 	   }
 	   
-	   puts -nonewline "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">"
-	   puts -nonewline "$validImage.test.small.png"
+	   puts -nonewline "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">"
+	   puts -nonewline "$validImage.test.small.jpg"
 	   puts "</DartMeasurementFile>"
 
-	   puts -nonewline "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">"
-	   puts -nonewline "$validImage.diff.small.png"
+	   puts -nonewline "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/jpeg\">"
+	   puts -nonewline "$validImage.diff.small.jpg"
 	   puts "</DartMeasurementFile>"
 
-	   puts -nonewline "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">"
-	   puts -nonewline "$validImage.small.png"
+	   puts -nonewline "<DartMeasurementFile name=\"ValidImage\" type=\"image/jpeg\">"
+	   puts -nonewline "$validImage.small.jpg"
 	   puts "</DartMeasurementFile>"
 	   
 	   vtkCommand DeleteAllObjects
