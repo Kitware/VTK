@@ -145,6 +145,24 @@ float vtkHashMap<KeyType,DataType>::GetMaximumLoadFactor() const
 
 //----------------------------------------------------------------------------
 template<class KeyType, class DataType>
+void vtkHashMap<KeyType,DataType>::SetNumberOfBuckets(vtkIdType n)
+{
+  // Disable automatic rehashing.
+  this->MaximumLoadFactor = 0;
+  
+  // Set the number of buckets.
+  this->RehashItems((n > 0)? n : 1);
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
+vtkIdType vtkHashMap<KeyType,DataType>::GetNumberOfBuckets() const
+{
+  return this->NumberOfBuckets;
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
 void vtkHashMap<KeyType,DataType>::PrintHashingStatus(ostream& os,
                                                       vtkIndent indent) const
 {
@@ -203,39 +221,49 @@ void vtkHashMap<KeyType,DataType>::CheckLoadFactor()
   float loadFactor = float(this->NumberOfItems) / float(this->NumberOfBuckets);
   if(loadFactor > this->MaximumLoadFactor)
     {
-    // Create new buckets.
-    vtkIdType newNumberOfBuckets = (this->NumberOfBuckets*2)+7;
-    BucketType** newBuckets = new BucketType*[newNumberOfBuckets];
-    vtkIdType i;
-    for(i=0;i < newNumberOfBuckets;++i)
-      {
-      newBuckets[i] = BucketType::New();
-      }
-    
-    // Re-hash the items.
-    ItemType item;
-    vtkIdType bucket;
-    IteratorType* it = this->NewIterator();
-    while(!it->IsDoneWithTraversal())
-      {
-      it->Iterator->GetData(item);
-      bucket = vtkHashMapHashMethod(item.Key) % newNumberOfBuckets;
-      newBuckets[bucket]->AppendItem(item);
-      it->GoToNextItem();
-      }
-    it->Delete();
-    
-    // Delete the old buckets.
-    for(i=0; i < this->NumberOfBuckets; ++i)
-      {
-      this->Buckets[i]->Delete();
-      }
-    delete [] this->Buckets;
-    
-    // Save the new buckets.
-    this->Buckets = newBuckets;
-    this->NumberOfBuckets = newNumberOfBuckets;
+    // Load factor is too big.  Increase the number of buckets.
+    this->RehashItems((this->NumberOfBuckets*2)+7);
     }
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType, class DataType>
+void vtkHashMap<KeyType,DataType>::RehashItems(vtkIdType newNumberOfBuckets)
+{
+  if(newNumberOfBuckets < 1) { return; }
+  if(this->NumberOfBuckets == newNumberOfBuckets) { return; }
+  
+  // Create new buckets.
+  BucketType** newBuckets = new BucketType*[newNumberOfBuckets];
+  vtkIdType i;
+  for(i=0;i < newNumberOfBuckets;++i)
+    {
+    newBuckets[i] = BucketType::New();
+    }
+  
+  // Re-hash the items.
+  ItemType item;
+  vtkIdType bucket;
+  IteratorType* it = this->NewIterator();
+  while(!it->IsDoneWithTraversal())
+    {
+    it->Iterator->GetData(item);
+    bucket = vtkHashMapHashMethod(item.Key) % newNumberOfBuckets;
+    newBuckets[bucket]->AppendItem(item);
+    it->GoToNextItem();
+    }
+  it->Delete();
+  
+  // Delete the old buckets.
+  for(i=0; i < this->NumberOfBuckets; ++i)
+    {
+    this->Buckets[i]->Delete();
+    }
+  delete [] this->Buckets;
+  
+  // Save the new buckets.
+  this->Buckets = newBuckets;
+  this->NumberOfBuckets = newNumberOfBuckets;
 }
 
 //----------------------------------------------------------------------------
