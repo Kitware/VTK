@@ -58,6 +58,13 @@ public:
     this->P[id-1] = x[1];
     return id/3;
   }
+  int InsertNextPoint(float *x) {
+    int id = this->P.GetMaxId() + 3;
+    this->P.InsertValue(id,(int)x[2]);
+    this->P[id-2] = (int)x[0];
+    this->P[id-1] = (int)x[1];
+    return id/3;
+  }
 
 protected:
   vlIntArray P;

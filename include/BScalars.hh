@@ -49,6 +49,7 @@ public:
   void InsertScalar(int i, float s) {S.InsertValue(i,(int)s);};
   void InsertScalar(int i, int s) {S.InsertValue(i,s);};
   int InsertNextScalar(int s) {return S.InsertNextValue(s);};
+  int InsertNextScalar(float s) {return S.InsertNextValue((int)s);};
 
 private:
   vlBitArray S;

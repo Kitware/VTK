@@ -51,6 +51,7 @@ public:
   void InsertScalar(int i, float s) {S.InsertValue(i,(short)s);};
   void InsertScalar(int i, short s) {S.InsertValue(i,s);};
   int InsertNextScalar(short s) {return S.InsertNextValue(s);};
+  int InsertNextScalar(float s) {return S.InsertNextValue((short)s);};
 
 private:
   vlShortArray S;

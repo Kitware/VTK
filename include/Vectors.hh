@@ -32,8 +32,9 @@ public:
   virtual vlVectors *MakeObject(int sze, int ext=1000) = 0;
   virtual int GetNumberOfVectors() = 0;
   virtual float *GetVector(int i) = 0;
-  virtual void SetVector(int i,float x[3]) = 0;       // fast insert
-  virtual void InsertVector(int i, float x[3]) = 0;   // allocates memory as necessary
+  virtual void SetVector(int i,float v[3]) = 0;       // fast insert
+  virtual void InsertVector(int i, float v[3]) = 0;   // allocates memory as necessary
+  virtual int InsertNextVector(float v[3]) = 0;
   virtual void Squeeze() = 0;
 
   void GetVectors(vlIdList& ptId, vlFloatVectors& fp);

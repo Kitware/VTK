@@ -34,6 +34,7 @@ public:
   virtual float GetScalar(int i) = 0;
   virtual void SetScalar(int i, float s) = 0;     // fast insert
   virtual void InsertScalar(int i, float s) = 0;  // allocates memory as necessary
+  virtual int InsertNextScalar(float s) = 0;
   virtual void Squeeze() = 0;
 
   void GetScalars(vlIdList& ptId, vlFloatScalars& fs);

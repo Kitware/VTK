@@ -123,6 +123,7 @@ void vlGeometryFilter::Execute()
 // Allocate
 //
   newPts = new vlFloatPoints(1000,10000);
+  this->Allocate(1000,10000);
   this->PointData.CopyAllocate(pd,1000,10000);
 //
 // Traverse cells to extract geometry

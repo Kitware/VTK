@@ -34,6 +34,7 @@ public:
   virtual float *GetPoint(int i) = 0;
   virtual void SetPoint(int i,float x[3]) = 0;       // fast insert
   virtual void InsertPoint(int i, float x[3]) = 0;   // allocates memory as necessary
+  virtual int InsertNextPoint(float x[3]) = 0;
   virtual void Squeeze() = 0; // reclaim memory
 
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp);

@@ -15,16 +15,22 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Sample implicit function on StructuredPointSet
-//
+// .NAME vlSampleFunction - sample an implicit function over a structured point set
+// .SECTION Description
+// vlSampleFunction is a source object that evaluates an implicit function
+// and normals at each point in a vlStructuredPointSet. The user can 
+// specify the sample dimensions and location in space to perform the
+// sampling. To create closed surfaces (in conjunction with the 
+// vlContourFilter), capping can be turned on to set a particular 
+// value on the boundaries of the sample space.
+
 #ifndef __vlSampleFunction_h
 #define __vlSampleFunction_h
 
-#include "DS2SPtsF.hh"
+#include "SPtsSrc.hh"
 #include "ImpFunc.hh"
 
-class vlSampleFunction : public vlDataSetToStructuredPointsFilter 
+class vlSampleFunction : public vlStructuredPointsSource
 {
 public:
   vlSampleFunction();
@@ -39,8 +45,8 @@ public:
   void SetSampleDimensions(int dim[3]);
   vlGetVectorMacro(SampleDimensions,int);
 
-  void SetModelBounds(float *bounds);
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+  void SetModelBounds(float *bounds);
   vlGetVectorMacro(ModelBounds,float);
 
   vlSetMacro(Capping,int);
@@ -49,6 +55,12 @@ public:
   
   vlSetMacro(CapValue,float);
   vlGetMacro(CapValue,float);
+
+  vlSetMacro(ComputeNormals,int);
+  vlGetMacro(ComputeNormals,int);
+  vlBooleanMacro(ComputeNormals,int);
+
+  unsigned long int GetMTime();
 
 protected:
   void Execute();
@@ -59,6 +71,7 @@ protected:
   int Capping;
   float CapValue;
   vlImplicitFunction *ImplicitFunction;
+  int ComputeNormals;
 };
 
 #endif

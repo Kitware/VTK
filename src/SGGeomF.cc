@@ -15,9 +15,9 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "StrGeom.hh"
+#include "StrGeomF.hh"
 
-vlStructuredGeometry::vlStructuredGeometry()
+vlStructuredGeometryFilter::vlStructuredGeometryFilter()
 {
   this->Extent[0] = 0;
   this->Extent[1] = 100;
@@ -28,7 +28,7 @@ vlStructuredGeometry::vlStructuredGeometry()
 }
 
 
-void vlStructuredGeometry::Execute()
+void vlStructuredGeometryFilter::Execute()
 {
   vlPointData *pd;
   int *dims, dimension, dir[3], diff[3];
@@ -247,7 +247,7 @@ void vlStructuredGeometry::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlStructuredGeometry::SetExtent(int iMin, int iMax, int jMin, int jMax, 
+void vlStructuredGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
                                    int kMin, int kMax)
 {
   int extent[6];
@@ -262,7 +262,7 @@ void vlStructuredGeometry::SetExtent(int iMin, int iMax, int jMin, int jMax,
   this->SetExtent(extent);
 }
 
-void vlStructuredGeometry::SetExtent(int *extent)
+void vlStructuredGeometryFilter::SetExtent(int *extent)
 {
   int i;
 

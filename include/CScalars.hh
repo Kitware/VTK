@@ -51,6 +51,7 @@ public:
   void InsertScalar(int i, float s) {S.InsertValue(i,(char)s);};
   void InsertScalar(int i, char s) {S.InsertValue(i,s);};
   int InsertNextScalar(char s) {return S.InsertNextValue(s);};
+  int InsertNextScalar(float s) {return S.InsertNextValue((char)s);};
 
 private:
   vlCharArray S;

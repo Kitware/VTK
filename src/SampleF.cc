@@ -18,7 +18,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "SampleF.hh"
 #include "FScalars.hh"
+#include "FNormals.hh"
 
+// Description
+// Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
+// Capping turned off, and normal generation on.
 vlSampleFunction::vlSampleFunction()
 {
   this->ModelBounds[0] = -1.0;
@@ -32,17 +36,19 @@ vlSampleFunction::vlSampleFunction()
   this->SampleDimensions[1] = 50;
   this->SampleDimensions[2] = 50;
 
-  this->Capping = 1;
+  this->Capping = 0;
   this->CapValue = LARGE_FLOAT;
 
   this->ImplicitFunction = NULL;
+
+  this->ComputeNormals = 1;
 }
 
 void vlSampleFunction::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlSampleFunction::GetClassName()))
     {
-    vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+    vlStructuredPointsSource::PrintSelf(os,indent);
 
     os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                  << this->SampleDimensions[1] << ", "
@@ -54,11 +60,8 @@ void vlSampleFunction::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
-void vlSampleFunction::SetModelBounds(float *bounds)
-{
-  vlSampleFunction::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
-}
-
+// Description
+// The model bounds is the location in space in which the sampling occurs.
 void vlSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
@@ -74,24 +77,21 @@ void vlSampleFunction::SetModelBounds(float xmin, float xmax, float ymin, float 
     this->ModelBounds[3] = ymax;
     this->ModelBounds[4] = zmin;
     this->ModelBounds[5] = zmax;
-
-    this->Origin[0] = xmin;
-    this->Origin[1] = ymin;
-    this->Origin[2] = zmin;
-
-    if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
-    this->AspectRatio[0] = 1.0;
-    this->AspectRatio[1] = (ymax - ymin) / length;
-    this->AspectRatio[2] = (zmax - zmin) / length;
     }
+}
+
+void vlSampleFunction::SetModelBounds(float *bounds)
+{
+  vlSampleFunction::SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5]);
 }
 
 void vlSampleFunction::Execute()
 {
-  int ptId;
+  int ptId, i;
   vlFloatScalars *newScalars;
+  vlFloatNormals *newNormals=NULL;
   int numPts;
-  float p[3], s;
+  float *p, s;
 
   vlDebugMacro(<< "Sampling implicit function");
 //
@@ -109,14 +109,36 @@ void vlSampleFunction::Execute()
            * this->SampleDimensions[2];
   newScalars = new vlFloatScalars(numPts);
 
+  // Compute origin and aspect ratio
   this->SetDimensions(this->GetSampleDimensions());
+  for (i=0; i < 3; i++)
+    {
+    this->Origin[i] = this->ModelBounds[2*i];
+    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+                           / (this->SampleDimensions[i] - 1);
+    }
 //
 // Traverse all points evaluating implicit function at each point
 //
   for (ptId=0; ptId < numPts; ptId++ )
     {
+    p = this->GetPoint(ptId);
     s = this->ImplicitFunction->Evaluate(p[0], p[1], p[2]);
     newScalars->SetScalar(ptId,s);
+    }
+//
+// If normal computation turned on, compute them
+//
+  if ( this->ComputeNormals )
+    {
+    float n[3];
+    newNormals = new vlFloatNormals(numPts);
+    for (ptId=0; ptId < numPts; ptId++ )
+      {
+      p = this->GetPoint(ptId);
+      this->ImplicitFunction->EvaluateNormal(p[0], p[1], p[2], n);
+      newNormals->SetNormal(ptId,n);
+      }
     }
 //
 // If capping is turned on, set the distances of the outside of the volume
@@ -130,7 +152,7 @@ void vlSampleFunction::Execute()
 // Update self
 //
   this->PointData.SetScalars(newScalars);
-
+  this->PointData.SetNormals(newNormals);
 }
 
 
@@ -152,9 +174,24 @@ void vlSampleFunction::SetSampleDimensions(int dim[3])
   if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
   dim[2] != SampleDimensions[2] )
     {
-    for ( int i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
+    for ( int i=0; i<3; i++) 
+      this->SampleDimensions[i] = (dim[i] > 0 ? dim[i] : 1);
     this->Modified();
     }
+}
+
+unsigned long vlSampleFunction::GetMTime()
+{
+  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long impFuncMTime;
+
+  if ( this->ImplicitFunction != NULL )
+    {
+    impFuncMTime = this->ImplicitFunction->GetMTime();
+    mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
+    }
+
+  return mTime;
 }
 
 void vlSampleFunction::Cap(vlFloatScalars *s)

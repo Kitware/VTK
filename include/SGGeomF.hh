@@ -18,17 +18,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 // Create geometry for structured data
 //
-#ifndef __vlStructuredGeometry_h
-#define __vlStructuredGeometry_h
+#ifndef __vlStructuredGeometryFilter_h
+#define __vlStructuredGeometryFilter_h
 
 #include "SD2PolyF.hh"
 
-class vlStructuredGeometry : public vlStructuredDataSetToPolyFilter
+class vlStructuredGeometryFilter : public vlStructuredDataSetToPolyFilter
 {
 public:
-  vlStructuredGeometry();
-  ~vlStructuredGeometry() {};
-  char *GetClassName() {return "vlStructuredGeometry";};
+  vlStructuredGeometryFilter();
+  ~vlStructuredGeometryFilter() {};
+  char *GetClassName() {return "vlStructuredGeometryFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);

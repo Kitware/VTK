@@ -64,6 +64,8 @@ public:
   int GetNumberOfPolys();
   int GetNumberOfStrips();
 
+  // Allocate storage for cells when using following InsertNextCell method
+  void Allocate(int numCells=1000, int extSize=1000);
   // create verts, lines, polys, tmeshes from cell object
   void InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
   // Use this method to reclaim memory when using InsertNextCell()

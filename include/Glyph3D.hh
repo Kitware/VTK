@@ -15,9 +15,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Copy PolyData at every input point.
-//
+// .NAME vlGlyph3D - copy oriented and scaled geometry to every input point
+// .SECTION Description
+// vlGlyph3D is a filter that copies a geometry representation (in 
+// vlPolyData form) to every input point. The geometry may be oriented
+// along the input vectors or normals, and it may be scaled according
+// to scalar data or vector magnitude.
+
 #ifndef __vlGlyph3D_h
 #define __vlGlyph3D_h
 
@@ -25,8 +29,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #define SCALE_BY_SCALAR 0
 #define SCALE_BY_VECTOR 1
-#define ORIENT_BY_VECTOR 0
-#define ORIENT_BY_NORMAL 1
+#define USE_VECTOR 0
+#define USE_NORMAL 1
 
 class vlGlyph3D : public vlDataSetToPolyFilter
 {
@@ -60,28 +64,20 @@ public:
   vlSetMacro(Orient,int);
   vlGetMacro(Orient,int);
 
-  vlSetMacro(OrientMode,int);
-  vlGetMacro(OrientMode,int);
-  void OrientByVector() {this->SetScaleMode(ORIENT_BY_VECTOR);};
-  void OrientByNormal() {this->SetScaleMode(ORIENT_BY_NORMAL);};
+  vlSetMacro(VectorMode,int);
+  vlGetMacro(VectorMode,int);
+  void UseVector() {this->SetVectorMode(USE_VECTOR);};
+  void UseNormal() {this->SetVectorMode(USE_NORMAL);};
 
 protected:
-  // Usual data generation method
   void Execute();
-  // Geometry to copy to each point
-  vlPolyData *Source;
-  // Determine whether scaling of geometry is performed
-  int Scaling;
-  // Scale by scalar value or vector magnitude
-  int ScaleMode;
-  // Scale factor to use to scale geometry
-  float ScaleFactor;
-  // Range to use to perform scalar scaling
-  float Range[2];
-  // boolean controls whether to "orient" data
-  int Orient;
-  // Orient via normal or via vector data
-  int OrientMode;
+  vlPolyData *Source; // Geometry to copy to each point
+  int Scaling; // Determine whether scaling of geometry is performed
+  int ScaleMode; // Scale by scalar value or vector magnitude
+  float ScaleFactor; // Scale factor to use to scale geometry
+  float Range[2]; // Range to use to perform scalar scaling
+  int Orient; // boolean controls whether to "orient" data
+  int VectorMode; // Orient/scale via normal or via vector data
 };
 
 #endif

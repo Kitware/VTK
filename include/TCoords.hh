@@ -32,8 +32,9 @@ public:
   virtual vlTCoords *MakeObject(int sze, int d=2, int ext=1000) = 0;
   virtual int GetNumberOfTCoords() = 0;
   virtual float *GetTCoord(int i) = 0;
-  virtual void SetTCoord(int i,float *x) = 0;          // fast insert
-  virtual void InsertTCoord(int i, float *x) = 0;      // allocates memory as necessary
+  virtual void SetTCoord(int i,float *tc) = 0;          // fast insert
+  virtual void InsertTCoord(int i, float *tc) = 0;      // allocates memory as necessary
+  virtual int InsertNextTCoord(float *tc) = 0;
   virtual void Squeeze() = 0;
 
   void GetTCoords(vlIdList& ptId, vlFloatTCoords& fp);

@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "TriStrip.hh"
 #include "Quad.hh"
 #include "Polygon.hh"
-//
+
 // Initialize static member.  This member is used to simplify traversal
 // of verts, lines, polygons, and triangle strips lists.  It basically 
 // "marks" empty lists so that the traveral method "GetNextCell" 
@@ -44,6 +44,8 @@ vlPolyData::vlPolyData ()
   this->Links = NULL;
 }
 
+// Description:
+// Perform shallow construction of vlPolyData.
 vlPolyData::vlPolyData(const vlPolyData& pd) :
 vlPointSet(pd)
 {
@@ -148,6 +150,8 @@ vlCell *vlPolyData::GetCell(int cellId)
 
 }
 
+// Description:
+// Set the cell array defining vertices.
 void vlPolyData::SetVerts (vlCellArray* v) 
 {
   if ( v != this->Verts && v != this->Dummy )
@@ -158,12 +162,18 @@ void vlPolyData::SetVerts (vlCellArray* v)
     this->Modified();
     }
 }
+
+// Description:
+// Get the cell array defining vertices. If there are no vertices, an
+// empty array will be returned (convenience to simplify traversal).
 vlCellArray* vlPolyData::GetVerts()
 {
   if ( !this->Verts ) return this->Dummy;
   else return this->Verts;
 }
 
+// Description:
+// Set the cell array defining lines.
 void vlPolyData::SetLines (vlCellArray* l) 
 {
   if ( l != this->Lines && l != this->Dummy )
@@ -174,12 +184,18 @@ void vlPolyData::SetLines (vlCellArray* l)
     this->Modified();
     }
 }
+
+// Description:
+// Get the cell array defining lines. If there are no lines, an
+// empty array will be returned (convenience to simplify traversal).
 vlCellArray* vlPolyData::GetLines()
 {
   if ( !this->Lines ) return this->Dummy;
   else return this->Lines;
 }
 
+// Description:
+// Set the cell array defining polygons.
 void vlPolyData::SetPolys (vlCellArray* p) 
 {
   if ( p != this->Polys && p != this->Dummy )
@@ -190,12 +206,18 @@ void vlPolyData::SetPolys (vlCellArray* p)
     this->Modified();
     }
 }
+
+// Description:
+// Get the cell array defining polygons. If there are no polygons, an
+// empty array will be returned (convenience to simplify traversal).
 vlCellArray* vlPolyData::GetPolys()
 {
   if ( !this->Polys ) return this->Dummy;
   else return this->Polys;
 }
 
+// Description:
+// Set the cell array defining triangle strips.
 void vlPolyData::SetStrips (vlCellArray* s) 
 {
   if ( s != this->Strips && s != this->Dummy )
@@ -206,12 +228,19 @@ void vlPolyData::SetStrips (vlCellArray* s)
     this->Modified();
     }
 }
+
+// Description:
+// Get the cell array defining triangle strips. If there are no
+// triangle strips, an empty array will be returned (convenience to 
+// simplify traversal).
 vlCellArray* vlPolyData::GetStrips()
 {
   if ( !this->Strips ) return this->Dummy;
   else return this->Strips;
 }
 
+// Description:
+// 
 void vlPolyData::Initialize()
 {
   vlPointSet::Initialize();
@@ -414,42 +443,42 @@ void vlPolyData::GetPointCells(int ptId, vlIdList& cellIds)
     }
 }
 
+// Description:
+// Method allocates initial storage for vertex, line, polygon, and 
+// triangle strips arrays. Use this method before the method 
+// PolyData::InsertNextCell(). (Or, provide vertex, line, polygon, and
+// triangle strip cell arrays.)
+void vlPolyData::Allocate(int numCells, int extSize)
+{
+  this->SetVerts(new vlCellArray(numCells,extSize));
+  this->SetLines(new vlCellArray(numCells,extSize));
+  this->SetPolys(new vlCellArray(numCells,extSize));
+  this->SetStrips(new vlCellArray(numCells,extSize));
+}
+
+// Description:
+// Insert a cell of type vlPOINT, vlPOLY_POINTS, vlLINE, vlPOLY_LINE,
+// vlTRIANGLE, vlQUAD, vlPOLYGON, or vlTRIANGLE_STRIP.  Make sure that
+// the PolyData::Allocate() function has been called first or that vertex,
+// line, polygon, and triangle strip arrays have been supplied.
 
 void vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 {
-
-
   switch (type)
     {
     case vlPOINT: case vlPOLY_POINTS:
-      if ( this->Verts == NULL ) // hasn't been initialized
-        {
-        this->SetVerts(new vlCellArray(1000,1000));
-        }
       this->Verts->InsertNextCell(npts,pts);
       break;
 
     case vlLINE: case vlPOLY_LINE:
-      if ( this->Lines == NULL ) // hasn't been initialized
-        {
-        this->SetLines(new vlCellArray(1000,1000));
-        }
       this->Lines->InsertNextCell(npts,pts);
       break;
 
     case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
-      if ( this->Polys == NULL ) // hasn't been initialized
-        {
-        this->SetPolys(new vlCellArray(1000,1000));
-        }
       this->Polys->InsertNextCell(npts,pts);
       break;
 
     case vlTRIANGLE_STRIP:
-      if ( this->Strips == NULL ) // hasn't been initialized
-        {
-        this->SetStrips(new vlCellArray(1000,1000));
-        }
       this->Strips->InsertNextCell(npts,pts);
       break;
 
@@ -457,6 +486,12 @@ void vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
       vlErrorMacro(<<"Bad cell type! Can't insert!");
     }
 }
+
+// Description:
+// Recover extra allocated memory when creating data whose initial size
+// is unknown. Examples include using the InsertNextCell() method, or
+// when using the CellArray::EstimateSize() method to create vertices,
+// lines, polygons, or triangle strips.
 
 void vlPolyData::Squeeze()
 {
@@ -468,6 +503,8 @@ void vlPolyData::Squeeze()
   vlPointSet::Squeeze();
 }
 
+// Description:
+// Reverse the order of point ids defining the cell.
 void vlPolyData::ReverseCell(int cellId)
 {
   int loc, type;
@@ -496,6 +533,8 @@ void vlPolyData::ReverseCell(int cellId)
     }
 }
 
+// Description:
+// Replace the points defining cell "cellId" with a new set of points.
 void vlPolyData::ReplaceCell(int cellId, vlIdList& ptIds)
 {
   int loc, type;
