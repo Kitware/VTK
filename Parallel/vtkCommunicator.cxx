@@ -168,13 +168,20 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
 
   
   const char* name = data->GetName();
-  int len = strlen(name) + 1;
+  int len = 0;
+  if (name)
+    {
+    len = strlen(name) + 1;
+    }
 
   // send length of name
   this->Send( &len, 1, remoteHandle, tag);
 
-  // send name
-  this->Send( const_cast<char*>(name), len, remoteHandle, tag);
+  if (len > 0)
+    {
+    // send name
+    this->Send( const_cast<char*>(name), len, remoteHandle, tag);
+    }
 
   // now send the raw array
   switch (type)
@@ -295,12 +302,15 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
   // Next receive the length of the name.
   this->Receive( &nameLength, 1, remoteHandle, tag);
 
-  char *str = new char[nameLength]; 
-  this->DeleteAndSetMarshalString(str, nameLength);
-  
-  // Receive the name
-  this->Receive(this->MarshalString, nameLength, remoteHandle, tag);
-  this->MarshalDataLength = nameLength;
+  if ( nameLength > 0 )
+    {
+    char *str = new char[nameLength]; 
+    this->DeleteAndSetMarshalString(str, nameLength);
+    
+    // Receive the name
+    this->Receive(this->MarshalString, nameLength, remoteHandle, tag);
+    this->MarshalDataLength = nameLength;
+    }
 
   if (size < 0)
     {
@@ -366,7 +376,14 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle,
 
     }
 
-  data->SetName(this->MarshalString);
+  if (nameLength > 0)
+    {
+    data->SetName(this->MarshalString);
+    }
+  else
+    {
+    data->SetName(0);
+    }
   data->SetNumberOfComponents(numComponents);
 
   return 1;
