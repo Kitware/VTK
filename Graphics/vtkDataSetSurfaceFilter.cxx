@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.32");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.33");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -801,7 +801,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
         outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
         newLines->InsertCellPoint(outPtId);
         }
-//      outputCD->CopyData(cd,cellId,newCellId);
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
     else if (cellType == VTK_HEXAHEDRON)
@@ -864,7 +863,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
               }
             else
               {
-              vtkWarningMacro(<< "I cannot deal with faces with " << numPts
+              vtkWarningMacro(<< "I cannot deal with faces with " << numFacePts
                               << " points.");
               }
             } // for all cell faces
@@ -966,7 +965,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
       pts->InsertId(2, this->GetOutputPointId(ids[3], input, newPts, outputPD));
       pts->InsertId(3, this->GetOutputPointId(ids[2], input, newPts, outputPD));
       newPolys->InsertNextCell(pts);
-//      outputCD->CopyData(cd,cellId,newCellId);
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
     else if (cellType == VTK_POLYGON || cellType == VTK_TRIANGLE || cellType == VTK_QUAD)
@@ -979,7 +977,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
         pts->InsertId(i, outPtId);
         }
       newPolys->InsertNextCell(pts);
-//      outputCD->CopyData(cd,cellId,newCellId);
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
     else if (cellType == VTK_TRIANGLE_STRIP)
@@ -996,7 +993,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
           {
           ptIds[2] = this->GetOutputPointId(ids[i], input, newPts, outputPD); 
           newPolys->InsertNextCell(3, ptIds);
-//          outputCD->CopyData(cd,cellId,newCellId);
           outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
           ptIds[toggle] = ptIds[2];
           toggle = !toggle;
@@ -1016,19 +1012,15 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
       outPts[1] = this->GetOutputPointId(q->p1, input, newPts, outputPD);
       outPts[2] = this->GetOutputPointId(q->p2, input, newPts, outputPD);
       newPolys->InsertNextCell(3, outPts);
-//      outputCD->CopyData(inputCD, q->SourceId, cellId);
       outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
       }
     else
       {
-      //cerr << " Creating quad:  " << q->p0 << " " << q->p1 << " " 
-      //     << q->p2 << " " << q->p3 << endl;
       outPts[0] = this->GetOutputPointId(q->p0, input, newPts, outputPD);
       outPts[1] = this->GetOutputPointId(q->p1, input, newPts, outputPD);
       outPts[2] = this->GetOutputPointId(q->p2, input, newPts, outputPD);
       outPts[3] = this->GetOutputPointId(q->p3, input, newPts, outputPD);
       newPolys->InsertNextCell(4, outPts);
-//      outputCD->CopyData(inputCD, q->SourceId, cellId);
       outputCD->CopyData(inputCD, q->SourceId, this->NumberOfNewCells++);
       }
     }
@@ -1146,8 +1138,6 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
     b = tmp;
     }
 
-  // cerr << "Insert:  " << a << " " << b << " " << c << " " << d << endl;
-  
   // Look for existing quad in the hash;
   end = this->QuadHash + a;
   quad = *end;
@@ -1164,14 +1154,12 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
         // We have a match.
         quad->SourceId = -1;
         // That is all we need to do.  Hide any quad shared by two or more cells.
-        //cerr << "   Duplicate\n";
         return;
         }
       }
     quad = *end;
     }
   
-  //cerr << "  New\n";
   // Create a new quad and add it to the hash.
   quad = this->NewFastGeomQuad();
   quad->Next = NULL;
