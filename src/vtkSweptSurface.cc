@@ -461,7 +461,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
     t2->MultiplyPoint(xTrans1,xTrans2);
     if ( xTrans2[3] != 0.0 ) for (j=0; j<3; j++) xTrans2[j] /= xTrans2[3];
 
-    dist2 = math.Distance2BetweenPoints(xTrans1,xTrans2);
+    dist2 = math.Distance2BetweenPoints((float *)xTrans1,(float *)xTrans2);
     if ( dist2 > maxDist2 ) maxDist2 = dist2;
     }
 
