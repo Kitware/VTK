@@ -71,6 +71,7 @@ class VTK_EXPORT vtkTubeFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTubeFilter();
+  vtkTubeFilter *New() {return new vtkTubeFilter;};
   char *GetClassName() {return "vtkTubeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

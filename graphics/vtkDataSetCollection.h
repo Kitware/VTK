@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
+  vtkDataSetCollection *New() {return new vtkDataSetCollection;};
   char *GetClassName() {return "vtkDataSetCollection";};
 
   void AddItem(vtkDataSet *);

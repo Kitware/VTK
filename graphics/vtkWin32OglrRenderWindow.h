@@ -68,6 +68,7 @@ public:
 
 public:
   vtkWin32OglrRenderWindow();
+  vtkWin32OglrRenderWindow *New() {return new vtkWin32OglrRenderWindow;};
   char *GetClassName() {return "vtkWin32OglrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -56,6 +56,7 @@ class vtkActor;
 class VTK_EXPORT vtkActorCollection : public vtkCollection
 {
  public:
+  vtkActorCollection *New() {return new vtkActorCollection;};
   char *GetClassName() {return "vtkActorCollection";};
 
   void AddItem(vtkActor *a);

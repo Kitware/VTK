@@ -58,6 +58,7 @@ class VTK_EXPORT vtkXglrRenderWindow : public vtkXRenderWindow
 public:
   vtkXglrRenderWindow();
   ~vtkXglrRenderWindow();
+  vtkXglrRenderWindow *New() {return new vtkXglrRenderWindow;};
   char *GetClassName() {return "vtkXglrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

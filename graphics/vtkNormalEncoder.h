@@ -30,6 +30,7 @@ class VTK_EXPORT vtkNormalEncoder : public vtkObject
 public:
   vtkNormalEncoder();
   ~vtkNormalEncoder();
+  vtkNormalEncoder *New() {return new vtkNormalEncoder;};
   char *GetClassName() {return "vtkNormalEncoder";};
   void PrintSelf( ostream& os, vtkIndent index );
 

@@ -61,6 +61,7 @@ class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {
 
 public:
+  vtkDataSetToDataSetFilter *New() {return new vtkDataSetToDataSetFilter;};
   char *GetClassName() {return "vtkDataSetToDataSetFilter";};
   vtkDataSetToDataSetFilter() {this->Output = NULL;};
 

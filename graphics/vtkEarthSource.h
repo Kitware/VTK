@@ -56,6 +56,7 @@ class VTK_EXPORT vtkEarthSource : public vtkPolySource
 {
 public:
   vtkEarthSource();
+  vtkEarthSource *New() {return new vtkEarthSource;};
   char *GetClassName() {return "vtkEarthSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

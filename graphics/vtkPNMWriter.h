@@ -55,6 +55,7 @@ class VTK_EXPORT vtkPNMWriter : public vtkWriter
 public:
   vtkPNMWriter();
   ~vtkPNMWriter();
+  vtkPNMWriter *New() {return new vtkPNMWriter;};
   char *GetClassName() {return "vtkPNMWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

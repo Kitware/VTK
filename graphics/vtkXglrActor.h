@@ -55,6 +55,7 @@ class VTK_EXPORT vtkXglrActor : public vtkActorDevice
 protected:
   
 public:
+  vtkXglrActor *New() {return new vtkXglrActor;};
   char *GetClassName() {return "vtkXglrActor";};
 
   void Render(vtkActor *a, vtkRenderer *ren, vtkMapper *mapper);

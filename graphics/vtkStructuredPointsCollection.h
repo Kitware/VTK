@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
+  vtkStructuredPointsCollection *New() {return new vtkStructuredPointsCollection;};
   char *GetClassName() {return "vtkStructuredPointsCollection";};
 
   void AddItem(vtkStructuredPoints *);

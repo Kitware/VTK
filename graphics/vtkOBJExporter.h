@@ -61,6 +61,7 @@ class VTK_EXPORT vtkOBJExporter : public vtkExporter
 public:
   vtkOBJExporter();
   ~vtkOBJExporter();
+  vtkOBJExporter *New() {return new vtkOBJExporter;};
   char *GetClassName() {return "vtkOBJExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

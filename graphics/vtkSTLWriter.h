@@ -58,6 +58,7 @@ class VTK_EXPORT vtkSTLWriter : public vtkPolyWriter
 public:
   vtkSTLWriter();
   ~vtkSTLWriter();
+  vtkSTLWriter *New() {return new vtkSTLWriter;};
   char *GetClassName() {return "vtkSTLWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

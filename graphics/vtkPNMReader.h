@@ -72,6 +72,7 @@ class VTK_EXPORT vtkPNMReader : public vtkVolumeReader
 {
 public:
   vtkPNMReader();
+  vtkPNMReader *New() {return new vtkPNMReader;};
   char *GetClassName() {return "vtkPNMReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -70,6 +70,7 @@ class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter
 {
 public:
   vtkDicer();
+  vtkDicer *New() {return new vtkDicer;};
   char *GetClassName() {return "vtkDicer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

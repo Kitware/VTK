@@ -55,6 +55,7 @@ class VTK_EXPORT vtkOglrLight : public vtkLightDevice
 protected:
   
 public:
+  vtkOglrLight *New() {return new vtkOglrLight;};
   char *GetClassName() {return "vtkOglrLight";};
 
   void Render(vtkLight *lgt, vtkRenderer *ren,int light_index);

@@ -79,6 +79,7 @@ class VTK_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilt
 public:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter();
+  vtkConnectivityFilter *New() {return new vtkConnectivityFilter;};
   char *GetClassName() {return "vtkConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -53,6 +53,7 @@ class vtkSbrRenderer;
 class VTK_EXPORT vtkSbrProperty : public vtkPropertyDevice
 {
  public:
+  vtkSbrProperty *New() {return new vtkSbrProperty;};
   char *GetClassName() {return "vtkSbrProperty";};
 
   void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);

@@ -63,6 +63,7 @@ class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTransformTextureCoords();
+  vtkTransformTextureCoords *New() {return new vtkTransformTextureCoords;};
   char *GetClassName() {return "vtkTransformTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

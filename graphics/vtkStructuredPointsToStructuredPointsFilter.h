@@ -57,6 +57,7 @@ class VTK_EXPORT vtkStructuredPointsToStructuredPointsFilter : public vtkStructu
 {
 public:
   vtkStructuredPointsToStructuredPointsFilter();
+  vtkStructuredPointsToStructuredPointsFilter *New() {return new vtkStructuredPointsToStructuredPointsFilter;};
   char *GetClassName() {return "vtkStructuredPointsToStructuredPointsFilter";};
 
   // Description:

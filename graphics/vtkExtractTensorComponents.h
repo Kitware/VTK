@@ -63,6 +63,7 @@ class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter
 {
 public:
   vtkExtractTensorComponents();
+  vtkExtractTensorComponents *New() {return new vtkExtractTensorComponents;};
   char *GetClassName() {return "vtkExtractTensorComponents";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

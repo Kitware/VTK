@@ -57,6 +57,7 @@ class VTK_EXPORT vtkSbrRenderer : public vtkRenderer
 {
 public:
   vtkSbrRenderer();
+  vtkSbrRenderer *New() {return new vtkSbrRenderer;};
   char *GetClassName() {return "vtkSbrRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -110,6 +110,7 @@ class VTK_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource
 public:
   vtkPLOT3DReader();
   ~vtkPLOT3DReader();
+  vtkPLOT3DReader *New() {return new vtkPLOT3DReader;};
   char *GetClassName() {return "vtkPLOT3DReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

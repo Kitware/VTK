@@ -70,6 +70,7 @@ class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteract
 public:
   vtkWin32RenderWindowInteractor();
   ~vtkWin32RenderWindowInteractor();
+  vtkWin32RenderWindowInteractor *New() {return new vtkWin32RenderWindowInteractor;};
   char *GetClassName() {return "vtkWin32RenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

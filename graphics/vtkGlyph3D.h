@@ -108,6 +108,7 @@ class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyFilter
 public:
   vtkGlyph3D();
   ~vtkGlyph3D();
+  vtkGlyph3D *New() {return new vtkGlyph3D;};
   char *GetClassName() {return "vtkGlyph3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -79,6 +79,7 @@ class VTK_EXPORT vtkClipPolyData : public vtkPolyToPolyFilter
 public:
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
   ~vtkClipPolyData();
+  vtkClipPolyData *New() {return new vtkClipPolyData;};
   char *GetClassName() {return "vtkClipPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

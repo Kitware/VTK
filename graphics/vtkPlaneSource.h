@@ -74,6 +74,7 @@ class VTK_EXPORT vtkPlaneSource : public vtkPolySource
 public:
   vtkPlaneSource();
   void PrintSelf(ostream& os, vtkIndent indent);
+  vtkPlaneSource *New() {return new vtkPlaneSource;};
   char *GetClassName() {return "vtkPlaneSource";};
 
   // Description:

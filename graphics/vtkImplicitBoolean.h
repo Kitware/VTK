@@ -70,6 +70,7 @@ class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 public:
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
+  vtkImplicitBoolean *New() {return new vtkImplicitBoolean;};
   char *GetClassName() {return "vtkImplicitBoolean";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRendererCollection : public vtkCollection
 {
  public:
+  vtkRendererCollection *New() {return new vtkRendererCollection;};
   char *GetClassName() {return "vtkRendererCollection";};
 
   void AddItem(vtkRenderer *a);

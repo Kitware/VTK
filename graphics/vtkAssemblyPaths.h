@@ -57,6 +57,7 @@ class vtkActor;
 class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {
  public:
+  vtkAssemblyPaths *New() {return new vtkAssemblyPaths;};
   char *GetClassName() {return "vtkAssemblyPaths";};
 
   void AddItem(vtkActorCollection *a);

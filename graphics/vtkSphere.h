@@ -52,6 +52,7 @@ class VTK_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
   vtkSphere();
+  vtkSphere *New() {return new vtkSphere;};
   char *GetClassName() {return "vtkSphere";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

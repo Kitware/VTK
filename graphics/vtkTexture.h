@@ -78,6 +78,7 @@ class VTK_EXPORT vtkTexture : public vtkObject
 public:
   vtkTexture();
   ~vtkTexture();
+  vtkTexture *New() {return new vtkTexture;};
   char *GetClassName() {return "vtkTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -60,6 +60,7 @@ class VTK_EXPORT vtkFeatureEdges : public vtkPolyToPolyFilter
 {
 public:
   vtkFeatureEdges();
+  vtkFeatureEdges *New() {return new vtkFeatureEdges;};
   char *GetClassName() {return "vtkFeatureEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

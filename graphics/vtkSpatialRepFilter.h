@@ -89,6 +89,7 @@ class VTK_EXPORT vtkSpatialRepFilter : public vtkDataSetFilter
 public:
   vtkSpatialRepFilter();
   ~vtkSpatialRepFilter();
+  vtkSpatialRepFilter *New() {return new vtkSpatialRepFilter;};
   char *GetClassName() {return "vtkSpatialRepFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

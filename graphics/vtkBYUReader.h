@@ -56,6 +56,7 @@ class VTK_EXPORT vtkBYUReader : public vtkPolySource
 public:
   vtkBYUReader();
   ~vtkBYUReader();
+  vtkBYUReader *New() {return new vtkBYUReader;};
   char *GetClassName() {return "vtkBYUReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

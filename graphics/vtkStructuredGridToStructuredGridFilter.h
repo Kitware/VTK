@@ -57,6 +57,7 @@ class VTK_EXPORT vtkStructuredGridToStructuredGridFilter : public vtkStructuredG
 {
 public:
   vtkStructuredGridToStructuredGridFilter();
+  vtkStructuredGridToStructuredGridFilter *New() {return new vtkStructuredGridToStructuredGridFilter;};
   char *GetClassName() {return "vtkStructuredGridToStructuredGridFilter";};
 
   // Description:

@@ -58,6 +58,7 @@ class VTK_EXPORT vtkTransformStructuredPoints : public vtkStructuredPointsToStru
 {
 public:
   vtkTransformStructuredPoints();
+  vtkTransformStructuredPoints *New() {return new vtkTransformStructuredPoints;};
   char *GetClassName() {return "vtkTransformStructuredPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

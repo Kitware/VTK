@@ -71,6 +71,7 @@ class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyFilter
 {
 public:
   vtkGeometryFilter();
+  vtkGeometryFilter *New() {return new vtkGeometryFilter;};
   char *GetClassName() {return "vtkGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

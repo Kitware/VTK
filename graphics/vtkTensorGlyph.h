@@ -77,6 +77,7 @@ class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyFilter
 {
 public:
   vtkTensorGlyph();
+  vtkTensorGlyph *New() {return new vtkTensorGlyph;};
   char *GetClassName() {return "vtkTensorGlyph";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

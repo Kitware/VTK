@@ -55,6 +55,7 @@ class VTK_EXPORT vtkOglrActor : public vtkActorDevice
 protected:
   
 public:
+  vtkOglrActor *New() {return new vtkOglrActor;};
   char *GetClassName() {return "vtkOglrActor";};
 
   void Render(vtkActor *a, vtkRenderer *ren, vtkMapper *mapper);

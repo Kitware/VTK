@@ -55,6 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyFilter : public vtkFilter 
 {
 public:
+  vtkPolyFilter *New() {return new vtkPolyFilter;};
   char *GetClassName() {return "vtkPolyFilter";};
 
   virtual void SetInput(vtkPolyData *input);

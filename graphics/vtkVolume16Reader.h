@@ -77,6 +77,7 @@ class VTK_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
   vtkVolume16Reader();
+  vtkVolume16Reader *New() {return new vtkVolume16Reader;};
   char *GetClassName() {return "vtkVolume16Reader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

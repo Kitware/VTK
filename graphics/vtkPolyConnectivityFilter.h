@@ -79,6 +79,7 @@ class VTK_EXPORT vtkPolyConnectivityFilter : public vtkPolyToPolyFilter
 public:
   vtkPolyConnectivityFilter();
   ~vtkPolyConnectivityFilter();
+  vtkPolyConnectivityFilter *New() {return new vtkPolyConnectivityFilter;};
   char *GetClassName() {return "vtkPolyConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -164,6 +164,7 @@ class VTK_EXPORT vtkDecimatePro : public vtkPolyToPolyFilter
 public:
   vtkDecimatePro();
   ~vtkDecimatePro();
+  vtkDecimatePro *New() {return new vtkDecimatePro;};
   char *GetClassName() {return "vtkDecimatePro";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

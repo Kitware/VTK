@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredGridFilter : public vtkFilter 
 {
 public:
+  vtkUnstructuredGridFilter *New() {return new vtkUnstructuredGridFilter;};
   char *GetClassName() {return "vtkUnstructuredGridFilter";};
 
   void SetInput(vtkUnstructuredGrid *input);

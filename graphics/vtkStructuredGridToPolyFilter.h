@@ -56,6 +56,7 @@ class VTK_EXPORT vtkStructuredGridToPolyFilter : public vtkStructuredGridFilter
 {
 public:
   vtkStructuredGridToPolyFilter();
+  vtkStructuredGridToPolyFilter *New() {return new vtkStructuredGridToPolyFilter;};
   char *GetClassName() {return "vtkStructuredGridToPolyFilter";};
 
   // Description:

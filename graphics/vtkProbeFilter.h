@@ -56,6 +56,7 @@ class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkProbeFilter();
+  vtkProbeFilter *New() {return new vtkProbeFilter;};
   char *GetClassName() {return "vtkProbeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -60,6 +60,7 @@ class VTK_EXPORT vtkEdgePoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkEdgePoints();
+  vtkEdgePoints *New() {return new vtkEdgePoints;};
   char *GetClassName() {return "vtkEdgePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

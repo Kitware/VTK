@@ -57,6 +57,7 @@ class VTK_EXPORT vtkTexturedSphereSource : public vtkPolySource
 {
 public:
   vtkTexturedSphereSource(int res=8);
+  vtkTexturedSphereSource *New() {return new vtkTexturedSphereSource;};
   char *GetClassName() {return "vtkTexturedSphereSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

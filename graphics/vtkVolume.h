@@ -26,6 +26,7 @@ class VTK_EXPORT vtkVolume : public vtkProp
  public:
   vtkVolume();
   ~vtkVolume();
+  vtkVolume *New() {return new vtkVolume;};
   char *GetClassName() {return "vtkVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

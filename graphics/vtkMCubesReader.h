@@ -81,6 +81,7 @@ class VTK_EXPORT vtkMCubesReader : public vtkPolySource
 public:
   vtkMCubesReader();
   ~vtkMCubesReader();
+  vtkMCubesReader *New() {return new vtkMCubesReader;};
   char *GetClassName() {return "vtkMCubesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

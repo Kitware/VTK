@@ -60,6 +60,7 @@ class VTK_EXPORT vtkCursor3D : public vtkPolySource
 public:
   vtkCursor3D();
   ~vtkCursor3D();
+  vtkCursor3D *New() {return new vtkCursor3D;};
   char *GetClassName() {return "vtkCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -56,6 +56,7 @@ class VTK_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
   vtkMergePoints() {};
+  vtkMergePoints *New() {return new vtkMergePoints;};
   char *GetClassName() {return "vtkMergePoints";};
 
   int *MergePoints();

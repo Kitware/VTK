@@ -55,6 +55,7 @@ class VTK_EXPORT vtkVoxelReader : public vtkStructuredPointsSource
 public:
   vtkVoxelReader();
   ~vtkVoxelReader() {if (this->Filename) delete [] this->Filename;};
+  vtkVoxelReader *New() {return new vtkVoxelReader;};
   char *GetClassName() {return "vtkVoxelReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -83,6 +83,7 @@ class VTK_EXPORT vtkSphereTree : public vtkPolyToPolyFilter
 {
 public:
   vtkSphereTree();
+  vtkSphereTree *New() {return new vtkSphereTree;};
   char *GetClassName() {return "vtkSphereTree";};
 
   void Execute();

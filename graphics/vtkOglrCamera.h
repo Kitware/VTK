@@ -53,7 +53,8 @@ class vtkOglrRenderer;
 class VTK_EXPORT vtkOglrCamera : public vtkCameraDevice
 {
  public:
-  virtual char *GetClassName() {return "vtkOglrCamera";};
+  virtual vtkOglrCamera *New() {return new vtkOglrCamera;};
+  char *GetClassName() {return "vtkOglrCamera";};
 
   void Render(vtkCamera *cam, vtkRenderer *ren);
   void Render(vtkCamera *cam, vtkOglrRenderer *ren);

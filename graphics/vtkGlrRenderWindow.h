@@ -62,6 +62,7 @@ protected:
 public:
   vtkGlrRenderWindow();
   ~vtkGlrRenderWindow();
+  vtkGlrRenderWindow *New() {return new vtkGlrRenderWindow;};
   char *GetClassName() {return "vtkGlrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

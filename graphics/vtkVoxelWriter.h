@@ -56,6 +56,7 @@ class VTK_EXPORT vtkVoxelWriter : public vtkWriter
 public:
   vtkVoxelWriter();
   ~vtkVoxelWriter();
+  vtkVoxelWriter *New() {return new vtkVoxelWriter;};
   char *GetClassName() {return "vtkVoxelWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

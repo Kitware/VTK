@@ -56,6 +56,7 @@ class VTK_EXPORT vtkGlrPolyMapper : public vtkPolyMapperDevice
 {
  public:
   vtkGlrPolyMapper();
+  vtkGlrPolyMapper *New() {return new vtkGlrPolyMapper;};
   char *GetClassName() {return "vtkGlrPolyMapper";};
 
   void Build(vtkPolyData *, vtkColorScalars *);

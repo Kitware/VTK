@@ -58,6 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetFilter
 {
 public:
+  vtkPointSetToPointSetFilter *New() {return new vtkPointSetToPointSetFilter;};
   char *GetClassName() {return "vtkPointSetToPointSetFilter";};
   vtkPointSetToPointSetFilter() {this->Output = NULL;};
   

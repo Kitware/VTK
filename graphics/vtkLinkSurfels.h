@@ -76,6 +76,7 @@ class VTK_EXPORT vtkLinkSurfels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkLinkSurfels();
+  vtkLinkSurfels *New() {return new vtkLinkSurfels;};
   char *GetClassName() {return "vtkLinkSurfels";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

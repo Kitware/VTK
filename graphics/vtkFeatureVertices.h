@@ -66,6 +66,7 @@ class VTK_EXPORT vtkFeatureVertices : public vtkPolyToPolyFilter
 {
 public:
   vtkFeatureVertices();
+  vtkFeatureVertices *New() {return new vtkFeatureVertices;};
   char *GetClassName() {return "vtkFeatureVertices";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

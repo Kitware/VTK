@@ -60,6 +60,7 @@ class VTK_EXPORT vtkTriangularTexture : public vtkStructuredPointsSource
 {
 public:
   vtkTriangularTexture();
+  vtkTriangularTexture *New() {return new vtkTriangularTexture;};
   char *GetClassName() {return "vtkTriangularTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -58,6 +58,7 @@ class VTK_EXPORT vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
   vtkPointLoad();
+  vtkPointLoad *New() {return new vtkPointLoad;};
   char *GetClassName() {return "vtkPointLoad";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

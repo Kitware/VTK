@@ -55,6 +55,7 @@ class VTK_EXPORT vtkStructuredGridReader : public vtkStructuredGridSource
 {
 public:
   vtkStructuredGridReader();
+  vtkStructuredGridReader *New() {return new vtkStructuredGridReader;};
   char *GetClassName() {return "vtkStructuredGridReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

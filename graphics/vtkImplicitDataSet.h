@@ -71,6 +71,7 @@ class VTK_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 public:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
+  vtkImplicitDataSet *New() {return new vtkImplicitDataSet;};
   char *GetClassName() {return "vtkImplicitDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

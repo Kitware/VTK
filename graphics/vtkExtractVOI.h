@@ -68,6 +68,7 @@ class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFil
 {
 public:
   vtkExtractVOI();
+  vtkExtractVOI *New() {return new vtkExtractVOI;};
   char *GetClassName() {return "vtkExtractVOI";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

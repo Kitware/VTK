@@ -65,6 +65,7 @@ class VTK_EXPORT vtkTransformPolyFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTransformPolyFilter() : Transform(NULL) {};
+  vtkTransformPolyFilter *New() {return new vtkTransformPolyFilter;};
   char *GetClassName() {return "vtkTransformPolyFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
