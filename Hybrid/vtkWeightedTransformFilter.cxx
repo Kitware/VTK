@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.18");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.19");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.
@@ -850,9 +850,16 @@ void vtkWeightedTransformFilter::PrintSelf(ostream& os, vtkIndent indent)
 
     }
   os << indent << "AddInputValues: " << (this->AddInputValues ? "On" : "Off") << "\n";
-  os << indent << "WeightArray: " << this->WeightArray << "\n";
-  os << indent << "CellDataWeightArray: " << this->CellDataWeightArray << "\n";
-  os << indent << "TransformIndexArray: " << this->TransformIndexArray << "\n";
-  os << indent << "CellDataTransformIndexArray: " << this->CellDataTransformIndexArray << "\n";
+  os << indent << "WeightArray: "
+     << (this->WeightArray ? this->WeightArray : "(none)") << "\n";
+  os << indent << "CellDataWeightArray: "
+     << (this->CellDataWeightArray ? this->CellDataWeightArray : "(none)")
+     << "\n";
+  os << indent << "TransformIndexArray: "
+     << (this->TransformIndexArray ? this->TransformIndexArray : "(none)")
+     << "\n";
+  os << indent << "CellDataTransformIndexArray: "
+     << (this->CellDataTransformIndexArray ? this->CellDataTransformIndexArray : "(none)")
+     << "\n";
 }
 
