@@ -75,13 +75,20 @@ proc GetTime {} {
 
 set cam [ren1 GetActiveCamera]
 
+set count 0
+set totalTime 0.0
+
+
 # lets loop through a little animation to time the render.
 for {set i 0} {$i < 200} {incr i} {
   renWin Render
+  incr count
+  set totalTime [expr $totalTime + [ren1 GetLastRenderTimeInSeconds]]
   $cam Azimuth [expr 0.04 * (150 - $i)]
   $cam Elevation [expr 0.04 * ($i - 50)]
   $cam OrthogonalizeViewUp
   }
+
 
 
 # I am worried about numerical prescision 
@@ -104,5 +111,8 @@ iren Initialize
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+
+
+#tk_messageBox -message "Average frame rate = [expr 1.0 * $count / $totalTime]"
 
 
