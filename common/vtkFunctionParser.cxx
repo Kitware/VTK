@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkFunctionParser.h"
 #include "vtkObjectFactory.h"
-
+#include <ctype.h>
 
 vtkFunctionParser* vtkFunctionParser::New()
 {
