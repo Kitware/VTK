@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkProperty is an object that represents lighting and other surface
 // properties of a geometric object. The primary properties that can be 
-// set are colors (object, ambient, diffuse, specular, and edge color),
-// specular power, transparency of the object, the representation of the
+// set are colors (overall, ambient, diffuse, specular, and edge color),
+// specular power, opacity of the object, the representation of the
 // object (points, wireframe, or surface), and the shading method to be 
 // used (flat, Gouraud, and Phong).
 // .SECTION See Also
-// See vtkRenderer for definition of #define's.
+// vtkActor vtkPropertyDevice
 
 #ifndef __vtkProperty_hh
 #define __vtkProperty_hh
@@ -68,11 +68,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vtkProperty
-  // will load its data into graphics system in response to this method
-  // invocation.
+  // This method causes the property to set up whatever is required for
+  // its instance variables. This is actually handled by an instance of
+  // vtkPropertyDevice which is created automatically. 
   virtual void Render(vtkRenderer *ren);
 
+  // Description:
+  // Set the 
   void SetFlat (void);
   void SetGouraud (void);
   void SetPhong (void);
@@ -88,34 +90,39 @@ public:
   // Get the shading method for the object.
   vtkGetMacro(Interpolation,int);
 
+  // Description:
+  // Set the color of the object. Has the side effect of setting the
+  // ambient diffuse and specular colors as well. This is basically
+  // a quick overall color setting method.
   void SetColor(float r,float g,float b);
   void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
   vtkGetVectorMacro(Color,float,3);
 
   // Description:
-  // Set ambient coefficient.
+  // Set/Get the ambient lighting coefficient.
   vtkSetClampMacro(Ambient,float,0.0,1.0);
   vtkGetMacro(Ambient,float);
 
   // Description:
-  // Set diffuse coefficient.
+  // Set/Get the diffuse lighting coefficient.
   vtkSetClampMacro(Diffuse,float,0.0,1.0);
   vtkGetMacro(Diffuse,float);
 
   // Description:
-  // Set specular coefficient.
+  // Set/Get the specular lighting coefficient.
   vtkSetClampMacro(Specular,float,0.0,1.0);
   vtkGetMacro(Specular,float);
 
   // Description:
-  // Set the specular power.
+  // Set/Get the specular power.
   vtkSetClampMacro(SpecularPower,float,0.0,100.0);
   vtkGetMacro(SpecularPower,float);
 
   // Description:
-  // Set the object transparency.
-  vtkSetClampMacro(Transparency,float,0.0,1.0);
-  vtkGetMacro(Transparency,float);
+  // Set/Get the objects opacity. 1.0 is totally opaque and 0.0 is completely
+  // transparent.
+  vtkSetClampMacro(Opacity,float,0.0,1.0);
+  vtkGetMacro(Opacity,float);
 
   // Description:
   // Turn on/off the visibility of edges. On some renderers it is
@@ -132,22 +139,25 @@ public:
   vtkBooleanMacro(Backface,int);
 
   // Description:
-  // Set the ambient light color.
+  // Set/Get the ambient surface color. Not all renderers support separate
+  // ambient and diffuse colors. From a physical standpoint it really
+  // doesn't make too much sense to have both. For the rendering
+  // libraries that don't support both the diffuse color is used.
   vtkSetVector3Macro(AmbientColor,float);
   vtkGetVectorMacro(AmbientColor,float,3);
 
   // Description:
-  // Set the diffuse light color.
+  // Set/Get the diffuse surface color.
   vtkSetVector3Macro(DiffuseColor,float);
   vtkGetVectorMacro(DiffuseColor,float,3);
 
   // Description:
-  // Set the specular color.
+  // Set the specular surface color.
   vtkSetVector3Macro(SpecularColor,float);
   vtkGetVectorMacro(SpecularColor,float,3);
 
   // Description:
-  // Set the color of edges (if edge visibility enabled).
+  // Set the color of primitive edges (if edge visibility enabled).
   vtkSetVector3Macro(EdgeColor,float);
   vtkGetVectorMacro(EdgeColor,float,3);
 
@@ -161,7 +171,7 @@ protected:
   float Diffuse;
   float Specular;
   float SpecularPower;
-  float Transparency;
+  float Opacity;
   int   Interpolation; 
   int   Representation;
   int   EdgeVisibility;
