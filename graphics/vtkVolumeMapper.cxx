@@ -68,6 +68,7 @@ void vtkVolumeMapper::Update()
     {
     this->GetInput()->UpdateInformation();
     this->GetInput()->SetUpdateExtentToWholeExtent();
+    this->GetInput()->RequestExactExtentOn();
     this->GetInput()->Update();
     }
 
@@ -75,6 +76,7 @@ void vtkVolumeMapper::Update()
     {
     this->GetRGBTextureInput()->UpdateInformation();
     this->GetRGBTextureInput()->SetUpdateExtentToWholeExtent();
+    this->GetRGBTextureInput()->RequestExactExtentOn();
     this->GetRGBTextureInput()->Update();
     }
 }
