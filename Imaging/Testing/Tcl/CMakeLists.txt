@@ -57,6 +57,8 @@ IF (VTK_USE_RENDERING)
         TestSkeleton2D
         TestSobel2D
         TestSobel3D
+        TestStencilWithFunction
+        TestStencilWithImage
         TestVariance3D
         TestWrapPad
         )

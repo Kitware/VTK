@@ -44,6 +44,8 @@ IF (VTK_USE_RENDERING)
       TenEllip
       testDataSetTriangleFilter
       testQuadricDecimation
+      TransformConcatenation
+      TransformPolyData
       triangularTCoords
       ugFacet
       volTestClipRegions

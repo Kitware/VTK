@@ -8,7 +8,15 @@ IF (VTK_USE_RENDERING)
       financialField2
       largeImageOffset
       largeImageParallel
+      TestGridWarp3D
+      TestGridWarpCubic
+      TestGridWarpLinear
+      TestGridWarpNearest
+      TestImageStencilWithPolydata
+      TestThinPlateWarp
+      TestThinPlateWarp3D
       VRMLImporter
+      WarpPolyData
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
