@@ -1,4 +1,4 @@
-## Define bindings for a TkRenderWidget. Also define callbacks.
+## Procedure should be called to set bindings and initialize variables
 #
 proc BindTkRenderWidget {widget} {
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}
@@ -8,7 +8,7 @@ proc BindTkRenderWidget {widget} {
     bind $widget <B3-Motion> {Zoom %W %x %y}
     bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
-    bind $widget <Enter> {set oldFocus [focus]; focus %W}
+    bind $widget <Enter> {Enter %W}
     bind $widget <Leave> {focus $oldFocus}
 }
 
@@ -23,20 +23,34 @@ proc Render {} {
     $CurrentRenderWindow Render
 }
 
+proc UpdateRenderer {widget} {
+    global CurrentCamera CurrentLight 
+    global CurrentRenderWindow CurrentRenderer
+
+    set CurrentRenderWindow [$widget GetRenderWindow]
+    set renderers [$CurrentRenderWindow GetRenderers]
+    $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
+    set CurrentCamera [$CurrentRenderer GetActiveCamera]
+    set lights [$CurrentRenderer GetLights]
+    $lights InitTraversal; set CurrentLight [$lights GetNextItem]
+}
+
+proc Enter {widget} {
+    global oldFocus
+
+    set oldFocus [focus]
+    focus $widget
+    UpdateRenderer $widget
+}
+
 proc StartMotion {widget x y} {
     global CurrentCamera CurrentLight 
     global CurrentRenderWindow CurrentRenderer
     global LastX LastY
     global WindowX WindowY 
 
-    set CurrentRenderWindow [$widget GetRenderWindow]
+    UpdateRenderer $widget
     $CurrentRenderWindow SetDesiredUpdateRate 5.0
-
-    set renderers [$CurrentRenderWindow GetRenderers]
-    $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
-    set CurrentCamera [$CurrentRenderer GetActiveCamera]
-    set lights [$CurrentRenderer GetLights]
-    $lights InitTraversal; set CurrentLight [$lights GetNextItem]
 
     set LastX $x
     set LastY $y

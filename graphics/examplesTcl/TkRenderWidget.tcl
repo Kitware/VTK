@@ -41,7 +41,6 @@ set ren2   [$renWin2 MakeRenderer]
 
 
 # create a sphere source and actor
-#
 vtkSphereSource sphere
 vtkPolyMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
