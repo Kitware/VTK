@@ -58,6 +58,9 @@ IF (VTK_USE_RENDERING)
       EnSightBlow1Bin
       EnSightBlow2ASCII
       EnSightBlow2Bin
+      EnSightBlow3Bin
+      EnSightBlow4Bin
+      EnSightBlow5ASCII
       EnSightIronProtASCII
       EnSightIronProtBin
       EnSightOfficeASCII
