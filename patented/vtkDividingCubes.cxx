@@ -164,9 +164,13 @@ void vtkDividingCubes::Execute()
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
           if ( voxelScalars.GetScalar(vertNum) >= this->Value )
+	    {
             above = 1;
+	    }
           else if ( voxelScalars.GetScalar(vertNum) < this->Value )
+	    {
             below = 1;
+	    }
 
           if ( above && below ) // recursively generate points
             { //compute voxel normals and subdivide
@@ -207,7 +211,7 @@ void vtkDividingCubes::Execute()
   output->Squeeze();
 }
 
-#define POINTS_PER_POLY_VERTEX 10000
+#define VTK_POINTS_PER_POLY_VERTEX 10000
 
 void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
                                  float values[8])
@@ -256,7 +260,10 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
 
   // loop over sub-volume determining whether contour passes through subvoxels.
   // If so, generate center point in subvoxel.
-  for (i=0; i<3; i++) offset[i] = origin[i] + (h[i] / 2.0);
+  for (i=0; i<3; i++)
+    {
+    offset[i] = origin[i] + (h[i] / 2.0);
+    }
   for (k=0; k < (dim[2]-1); k++)
     {
     kOffset = k * SubSliceSize;
@@ -287,9 +294,13 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
           {
           if ( subVoxelScalars.GetScalar(vertNum) >= this->Value )
+	    {
             above = 1;
+	    }
           else if ( subVoxelScalars.GetScalar(vertNum) < this->Value )
+	    {
             below = 1;
+	    }
           }
 
         if ( (above && below) && !(this->Count++ % this->Increment) )
@@ -308,7 +319,7 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
           NewVerts->InsertCellPoint(id);
           NewNormals->InsertNormal(id,n);
 
-          if ( !(NewPts->GetNumberOfPoints() % POINTS_PER_POLY_VERTEX) )
+          if ( !(NewPts->GetNumberOfPoints() % VTK_POINTS_PER_POLY_VERTEX) )
             {
             vtkDebugMacro(<<"point# "<<NewPts->GetNumberOfPoints());
             }

@@ -145,11 +145,20 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 //
 // Get min/max contour values
 //
-  if ( numValues < 1 ) return;
+  if ( numValues < 1 )
+    {
+    return;
+    }
   for ( min=max=values[0], i=1; i < numValues; i++)
     {
-    if ( values[i] < min ) min = values[i];
-    if ( values[i] > max ) max = values[i];
+    if ( values[i] < min )
+      {
+      min = values[i];
+      }
+    if ( values[i] > max )
+      {
+      max = values[i];
+      }
     }
 
   //assign coordinate value to non-varying coordinate direction
@@ -198,9 +207,12 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 
         // Build the case table
         for ( ii=0, index = 0; ii < 4; ii++)
-            if ( s[ii] >= value )
-                index |= CASE_MASK[ii];
-
+	  {
+          if ( s[ii] >= value )
+	    {
+	    index |= CASE_MASK[ii];
+	    }
+	  }
         if ( index == 0 || index == 15 ) continue; //no lines
 
         lineCase = lineCases + index;
@@ -272,25 +284,49 @@ void vtkMarchingSquares::Execute()
 
   if ( input->GetDataDimension() != 2 )
     {
-    for (i=0; i < 6; i++) roi[i] = this->ImageRange[i];
+    for (i=0; i < 6; i++)
+      {
+      roi[i] = this->ImageRange[i];
+      }
     }
   else
     {
     roi[0] = roi[2] = roi[4] = 0;
-    for (i=0; i < 3; i++) roi[2*i+1] = dims[i] - 1;
+    for (i=0; i < 3; i++)
+      {
+      roi[2*i+1] = dims[i] - 1;
+      }
     }
 
   // check the final region of interest to make sure its acceptable
   for ( dim=0, i=0; i < 3; i++ )
     {
-    if ( roi[2*i+1] >= dims[i] ) roi[2*i+1] = dims[i] - 1;
-    else if ( roi[2*i+1] < 0 ) roi[2*i+1] = 0;
+    if ( roi[2*i+1] >= dims[i] )
+      {
+      roi[2*i+1] = dims[i] - 1;
+      }
+    else if ( roi[2*i+1] < 0 )
+      {
+      roi[2*i+1] = 0;
+      }
 
-    if ( roi[2*i] > roi[2*i+1] ) roi[2*i] = roi[2*i+1];
-    else if ( roi[2*i] < 0 ) roi[2*i] = 0;
+    if ( roi[2*i] > roi[2*i+1] )
+      {
+      roi[2*i] = roi[2*i+1];
+      }
+    else if ( roi[2*i] < 0 )
+      {
+      roi[2*i] = 0;
+      }
 
-    if ( (roi[2*i+1]-roi[2*i]) > 0 ) dim++;
-    else plane = i;
+    if ( (roi[2*i+1]-roi[2*i]) > 0 )
+      {
+      dim++;
+      }
+    else
+      {
+      plane = i;
+      }
     }
 
   if ( dim != 2 )
@@ -333,7 +369,10 @@ void vtkMarchingSquares::Execute()
 //
   estimatedSize = (int) (numContours * sqrt((double)dims[0]*dims[1]));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024) estimatedSize = 1024;
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
 
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
@@ -341,7 +380,10 @@ void vtkMarchingSquares::Execute()
   newLines->Allocate(newLines->EstimateSize(estimatedSize,2));
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
   this->Locator->InitPointInsertion (newPts, ((vtkDataSet *)this->Input)->GetBounds());
 //
 // Check data type and execute appropriate function

@@ -100,7 +100,10 @@ void vtkImageMarchingCubes::Update()
   if ( this->GetMTime() > this->ExecuteTime ||
        this->Input->GetPipelineMTime() > this->ExecuteTime)
     {
-    if (this->Output) this->Output->Initialize(); //clear output
+    if (this->Output)
+      {
+      this->Output->Initialize(); //clear output
+      }
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
@@ -248,10 +251,19 @@ void vtkImageMarchingCubes::Execute()
     this->Input->SetUpdateExtent(extent);
     inData = this->Input->UpdateAndReturnData();
     
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);    
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);    
+      }
     this->March(inData, chunkMin, chunkMax, numContours, values);
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
 
     if (this->Input->ShouldIReleaseData())
       {
@@ -465,11 +477,20 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
     float g[3], gB[3];
     // Find boundary conditions and compute gradient (first point)
     b0 = (idx0 == imageExtent[1]);
-    if (idx0 == imageExtent[0]) b0 = -1;
+    if (idx0 == imageExtent[0])
+      {
+      b0 = -1;
+      }
     b1 = (idx1 == imageExtent[3]);
-    if (idx1 == imageExtent[2]) b1 = -1;
+    if (idx1 == imageExtent[2])
+      {
+      b1 = -1;
+      }
     b2 = (idx2 == imageExtent[5]);
-    if (idx2 == imageExtent[4]) b2 = -1;
+    if (idx2 == imageExtent[4])
+      {
+      b2 = -1;
+      }
     vtkImageMarchingCubesComputePointGradient(ptr, g, inc0, inc1, inc2, 
 					     b0, b1, b2);
     // Find boundary conditions and compute gradient (second point)
@@ -532,14 +553,38 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
     value = values[valueIdx];
     // compute the case index
     cubeIndex = 0;
-    if ((float)(ptr[0]) > value) cubeIndex += 1;
-    if ((float)(ptr[inc0]) > value) cubeIndex += 2;
-    if ((float)(ptr[inc0 + inc1]) > value) cubeIndex += 4;
-    if ((float)(ptr[inc1]) > value) cubeIndex += 8;
-    if ((float)(ptr[inc2]) > value) cubeIndex += 16;
-    if ((float)(ptr[inc0 + inc2]) > value) cubeIndex += 32;
-    if ((float)(ptr[inc0 + inc1 + inc2]) > value) cubeIndex += 64;
-    if ((float)(ptr[inc1 + inc2]) > value) cubeIndex += 128;
+    if ((float)(ptr[0]) > value)
+      {
+      cubeIndex += 1;
+      }
+    if ((float)(ptr[inc0]) > value)
+      {
+      cubeIndex += 2;
+      }
+    if ((float)(ptr[inc0 + inc1]) > value)
+      {
+      cubeIndex += 4;
+      }
+    if ((float)(ptr[inc1]) > value)
+      {
+      cubeIndex += 8;
+      }
+    if ((float)(ptr[inc2]) > value)
+      {
+      cubeIndex += 16;
+      }
+    if ((float)(ptr[inc0 + inc2]) > value)
+      {
+      cubeIndex += 32;
+      }
+    if ((float)(ptr[inc0 + inc1 + inc2]) > value)
+      {
+      cubeIndex += 64;
+      }
+    if ((float)(ptr[inc1 + inc2]) > value)
+      {
+      cubeIndex += 128;
+      }
     // Make sure we have trianlges
     if (cubeIndex != 0 && cubeIndex != 255)
       {
@@ -607,7 +652,10 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
     for (idx1 = min1; idx1 < max1; ++idx1)
       {
       // update progress if necessary
-      if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+      if (!(count%target))
+	{
+	self->UpdateProgress(count/(50.0*target));
+	}
       count++;
       // continue with last loop
       ptr0 = ptr1;
