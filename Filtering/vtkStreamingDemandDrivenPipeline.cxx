@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.4");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.5");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -399,11 +399,8 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
       }
     if(!outInfo->Has(UPDATE_NUMBER_OF_GHOST_LEVELS()))
       {
-      vtkErrorMacro("No update number of ghost levels has been set in the "
-                    "information for output port " << outputPort
-                    << " on algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ").");
-      return 0;
+      // Use zero ghost levels by default.
+      outInfo->Set(UPDATE_NUMBER_OF_GHOST_LEVELS(), 0);
       }
     }
   else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
