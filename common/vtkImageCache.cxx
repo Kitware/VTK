@@ -197,6 +197,9 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   int saveBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
 
   vtkDebugMacro(<< "UpdateRegion: ");
+  
+  // First Update the Image information 
+  this->UpdateImageInformation(region);
 
   // Just in case the region already has data
   region->ReleaseData();

@@ -90,7 +90,7 @@ public:
   
   void DebugOn();
   void DebugOff();
-  void SetMemoryLimit(long limit);
+  void SetOutputMemoryLimit(long limit);
 
 protected:
   vtkImageCache *Output;

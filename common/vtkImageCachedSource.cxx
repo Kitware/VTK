@@ -286,7 +286,7 @@ unsigned long vtkImageCachedSource::GetPipelineMTime()
 // Limits the size of tile which can be returned. 
 // The messaged is forwarded to the sources cache.
 // If the source does not have a cache, a default cache is created.
-void vtkImageCachedSource::SetMemoryLimit(long limit)
+void vtkImageCachedSource::SetOutputMemoryLimit(long limit)
 {
   this->CheckCache();
   this->Output->SetMemoryLimit(limit);

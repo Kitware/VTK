@@ -225,6 +225,8 @@ void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
   region->SetAxes(this->GetAxes());
   // Set the bounds
   region->SetImageBounds(this->GetBounds());
+  // Set the aspect Ratio
+  region->SetAspectRatio(this->GetAspectRatio());
   // Restore coordinate system to the way it was.
   region->SetAxes(axesSave);
 }
