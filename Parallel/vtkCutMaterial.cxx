@@ -18,6 +18,8 @@
 #include "vtkCellData.h"
 #include "vtkCutter.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -25,7 +27,7 @@
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.14");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.15");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
@@ -64,9 +66,21 @@ vtkCutMaterial::~vtkCutMaterial()
   this->SetArrayName(NULL);
 }
 
-void vtkCutMaterial::Execute()
+int vtkCutMaterial::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkThreshold *thresh;
   vtkCutter *cutter;
   double *bds;
@@ -75,18 +89,18 @@ void vtkCutMaterial::Execute()
   if (this->MaterialArrayName == NULL || this->ArrayName == NULL)
     {
     vtkErrorMacro("Material and Array names must be set.");
-    return;
+    return 0;
     }
   
   if (input->GetCellData()->GetArray(this->MaterialArrayName) == NULL)
     {
     vtkErrorMacro("Could not find cell array " << this->MaterialArrayName);
-    return;
+    return 0;
     }
   if (input->GetCellData()->GetArray(this->ArrayName) == NULL)
     {
     vtkErrorMacro("Could not find cell array " << this->ArrayName);
-    return;
+    return 0;
     }
   
   // It would be nice to get rid of this in the future.
@@ -114,7 +128,6 @@ void vtkCutMaterial::Execute()
   cutter->SetValue(0, 0.0);
   cutter->Update();
 
-  vtkDataSet* output = this->GetOutput();
   output->CopyStructure(cutter->GetOutput());
   output->GetPointData()->PassData(
            cutter->GetOutput()->GetPointData());
@@ -123,6 +136,8 @@ void vtkCutMaterial::Execute()
 
   cutter->Delete();
   thresh->Delete();
+
+  return 1;
 }
 
 void vtkCutMaterial::ComputeNormal()
@@ -193,6 +208,12 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
   this->MaximumPoint[0] = (bds[0] + bds[1]) * 0.5;
   this->MaximumPoint[1] = (bds[2] + bds[3]) * 0.5;
   this->MaximumPoint[2] = (bds[4] + bds[5]) * 0.5;  
+}
+
+int vtkCutMaterial::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkCutMaterial::PrintSelf(ostream& os, vtkIndent indent)
