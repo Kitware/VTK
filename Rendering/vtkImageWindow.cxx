@@ -157,6 +157,7 @@ void vtkImageWindow::GetSize(int *x, int *y)
 vtkImageWindow* vtkImageWindow::New()
 {
   // First try to create the object from the vtkObjectFactory
+  vtkGenericWarningMacro("vtkImageWindow is being deprecated in version 4.1 please use vtkRenderWindow instead.");
   vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImageWindow");
   return (vtkImageWindow*)ret;
 }

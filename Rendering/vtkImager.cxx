@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 vtkImager* vtkImager::New()
 {
+  vtkGenericWarningMacro("vtkImager is being deprecated in version 4.1 please use vtkRenderer instead.");
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkImagingFactory::CreateInstance("vtkImager");
   if(ret)
