@@ -38,7 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkDataObjectSource - abstract class specifies interface for field source (or objects that generate field output)
+// .NAME vtkDataObjectSource - abstract class specifies interface for
+//  field source (or objects that generate field output)
 
 // .SECTION Description
 // vtkDataObjectSource is an abstract object that specifies behavior and
@@ -78,7 +79,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDataObjectSource_h
 
 #include "vtkSource.h"
-#include "vtkFieldData.h"
+
+class vtkDataObject;
 
 class VTK_EXPORT vtkDataObjectSource : public vtkSource
 {
