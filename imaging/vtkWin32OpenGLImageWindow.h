@@ -75,14 +75,6 @@ public:
   void Render();
 
   // Description:
-  // Set the desired background color for the window.
-  void SetBackgroundColor(float r, float g, float b);
-
-  // Description:
-  // Erase the window. Normally nor called by the user.
-  void EraseWindow();
-
-  // Description:
   // Set the size of the window.
   virtual void SetSize(int,int);
 

@@ -76,14 +76,6 @@ public:
   void Render();
 
   // Description:
-  // Set the desired background color for the window.
-  void SetBackgroundColor(float r, float g, float b);
-
-  // Description:
-  // Erase the window. Normally nor called by the user.
-  void EraseWindow();
-
-  // Description:
   // Xwindow get set functions
   virtual void *GetGenericDisplayId() {return (void *)this->DisplayId;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};

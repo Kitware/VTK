@@ -908,24 +908,5 @@ void vtkWin32OpenGLImageWindow::SetRGBAPixelData(int x1, int y1,
 }
 
 
-void vtkWin32OpenGLImageWindow::SetBackgroundColor(float r, float g, float b)
-{
-  vtkDebugMacro(<<"vtkWin32ImageWindow::SetBackgroundColor");
-  
-  this->MakeCurrent();
-  glClearColor( ((GLclampf)(r)),
-                ((GLclampf)(g)),
-                ((GLclampf)(b)),
-                ((GLclampf)(1.0)) );
-}
-
-void vtkWin32OpenGLImageWindow::EraseWindow()
-{
-  vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
-}
-
-
-
 
 

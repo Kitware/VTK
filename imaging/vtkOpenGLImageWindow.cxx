@@ -669,24 +669,6 @@ void vtkOpenGLImageWindow::MakeCurrent()
     }
 }
 
-void vtkOpenGLImageWindow::SetBackgroundColor(float r, float g, float b)
-{
-  vtkDebugMacro(<<"vtkImageWindow::SetBackgroundColor");
-  
-  this->MakeCurrent();
-  glClearColor( ((GLclampf)(r)),
-                ((GLclampf)(g)),
-                ((GLclampf)(b)),
-                ((GLclampf)(1.0)) );
-}
-
-void vtkOpenGLImageWindow::EraseWindow()
-{
-  vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)GL_COLOR_BUFFER_BIT);
-}
-
-
 // Set the X display id for this RenderWindow to use to a pre-existing 
 // X display id.
 
