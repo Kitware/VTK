@@ -55,6 +55,7 @@ public:
   vlGetVectorMacro(Values,float,MAX_CONTOURS);
 
   void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, float range1, float range2);
 
 protected:
   void Execute();

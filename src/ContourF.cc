@@ -49,6 +49,16 @@ void vlContourFilter::SetValue(int i, float value)
     }
 }
 
+void vlContourFilter::GenerateValues(int numContours, float range1, 
+				     float range2)
+{
+  float rng[2];
+
+  rng[0] = range1;
+  rng[1] = range2;
+  this->GenerateValues(numContours,rng);
+}
+
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
