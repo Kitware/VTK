@@ -54,12 +54,12 @@ int vtkOpenGLImager::RenderOpaqueGeometry()
   // find out if we should stereo render
   vport = this->GetViewport();
 
-  left = (int)(vport[0]*(size[0] -1));
-  right = (int)(vport[2]*(size[0] - 1));
+  left = (int)(vport[0]*(size[0] -1) + 0.5);
+  right = (int)(vport[2]*(size[0] - 1) + 0.5);
 
   // we will set this for all modes on the sparc
-  bottom = (int)(vport[1]*(size[1] -1));
-  top = (int)(vport[3]*(size[1] - 1));
+  bottom = (int)(vport[1]*(size[1] -1) + 0.5);
+  top = (int)(vport[3]*(size[1] - 1) + 0.5);
   glViewport(left,bottom,(right-left+1),(top-bottom+1));
   glEnable( GL_SCISSOR_TEST );
   glScissor( left, bottom,(right-left+1),(top-bottom+1));   
