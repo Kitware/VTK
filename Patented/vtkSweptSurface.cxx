@@ -165,7 +165,7 @@ void vtkSweptSurface::Execute()
 {
   vtkIdType i, numOutPts;
   vtkPointData *pd, *outPD;
-  vtkScalars *inScalars, *newScalars;
+  vtkDataArray *inScalars, *newScalars;
   float inSpacing[3], inOrigin[3];
   int inDim[3];
   int numSteps, stepNum;
@@ -191,7 +191,7 @@ void vtkSweptSurface::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
   
-  inScalars = pd->GetScalars();
+  inScalars = pd->GetActiveScalars();
   if ( input->GetNumberOfPoints() < 1 ||
   inScalars == NULL )
     {
@@ -240,11 +240,11 @@ void vtkSweptSurface::Execute()
   //
   numOutPts = this->SampleDimensions[0] * this->SampleDimensions[1] * 
               this->SampleDimensions[2];
-  newScalars = (vtkScalars *)inScalars->MakeObject();
-  newScalars->SetNumberOfScalars(numOutPts);
+  newScalars = inScalars->MakeObject();
+  newScalars->SetNumberOfTuples(numOutPts);
   for (i = 0; i < numOutPts; i++)
     {
-    newScalars->SetScalar(i,this->FillValue);
+    newScalars->SetComponent(i,0,this->FillValue);
     }
   //
   // Sample data at each point in path
@@ -325,8 +325,9 @@ void vtkSweptSurface::Execute()
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3], 
-                                 float inOrigin[3], float inSpacing[3], 
-                                 vtkScalars *inScalars, vtkScalars *outScalars)
+				  float inOrigin[3], float inSpacing[3], 
+				  vtkDataArray *inScalars, 
+				  vtkDataArray *outScalars)
 {
   int i, j, k;
   int inSliceSize=inDim[0]*inDim[1];
@@ -434,21 +435,21 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3],
 
           //get scalar values
           idx = ijk[0] + ijk[1]*inDim[0] + ijk[2]*inSliceSize;
-	  newScalar = inScalars->GetScalar(idx) * weights[0];
-	  newScalar += inScalars->GetScalar(idx+1) * weights[1];
-	  newScalar += inScalars->GetScalar(idx + inDim[0]) * weights[2];
-	  newScalar += inScalars->GetScalar(idx+1 + inDim[0]) * weights[3];
-	  newScalar += inScalars->GetScalar(idx + inSliceSize) * weights[4] ;
-	  newScalar += inScalars->GetScalar(idx+1 + inSliceSize) * weights[5];
-	  newScalar += inScalars->GetScalar(idx + inDim[0] + inSliceSize) *
+	  newScalar = inScalars->GetComponent(idx,0) * weights[0];
+	  newScalar += inScalars->GetComponent(idx+1,0) * weights[1];
+	  newScalar += inScalars->GetComponent(idx + inDim[0],0) * weights[2];
+	  newScalar += inScalars->GetComponent(idx+1 + inDim[0],0) * weights[3];
+	  newScalar += inScalars->GetComponent(idx + inSliceSize,0) * weights[4] ;
+	  newScalar += inScalars->GetComponent(idx+1 + inSliceSize,0) * weights[5];
+	  newScalar += inScalars->GetComponent(idx + inDim[0] + inSliceSize,0) *
             weights[6];
-	  newScalar += inScalars->GetScalar(idx+1 + inDim[0] + inSliceSize) *
+	  newScalar += inScalars->GetComponent(idx+1 + inDim[0] + inSliceSize,0) *
             weights[7];
 
-          scalar = outScalars->GetScalar((idx=i+jOffset+kOffset));
+          scalar = outScalars->GetComponent((idx=i+jOffset+kOffset),0);
           if ( newScalar < scalar )  //union operation
 	    {
-            outScalars->SetScalar(idx,newScalar);
+            outScalars->SetComponent(idx,0,newScalar);
 	    }
           }
         }
@@ -795,7 +796,7 @@ int vtkSweptSurface::ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2,
     }
 }
 
-void vtkSweptSurface::Cap(vtkScalars *s)
+void vtkSweptSurface::Cap(vtkDataArray *s)
 {
   int i,j,k;
   vtkIdType idx;
@@ -807,7 +808,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[0], this->FillValue);
+      s->SetComponent(i+j*this->SampleDimensions[0], 0, this->FillValue);
       }
     }
   k = this->SampleDimensions[2] - 1;
@@ -816,7 +817,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+j*this->SampleDimensions[0], this->FillValue);
+      s->SetComponent(idx+i+j*this->SampleDimensions[0], 0, this->FillValue);
       }
     }
 // j-k planes
@@ -825,7 +826,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->FillValue);
+      s->SetComponent(j*this->SampleDimensions[0]+k*d01, 0, this->FillValue);
       }
     }
   i = this->SampleDimensions[0] - 1;
@@ -833,7 +834,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     {
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->FillValue);
+      s->SetComponent(i+j*this->SampleDimensions[0]+k*d01, 0, this->FillValue);
       }
     }
 // i-k planes
@@ -842,7 +843,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(i+k*d01, this->FillValue);
+      s->SetComponent(i+k*d01, 0, this->FillValue);
       }
     }
   j = this->SampleDimensions[1] - 1;
@@ -851,7 +852,7 @@ void vtkSweptSurface::Cap(vtkScalars *s)
     {
     for (i=0; i<this->SampleDimensions[0]; i++)
       {
-      s->SetScalar(idx+i+k*d01, this->FillValue);
+      s->SetComponent(idx+i+k*d01, 0, this->FillValue);
       }
     }
 }

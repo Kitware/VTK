@@ -219,18 +219,18 @@ if (NeedGradients) \
     } \
   if (ComputeGradients) \
     { \
-    newGradients->InsertNextVector(n); \
+    newGradients->InsertNextTuple(n); \
     } \
   if (ComputeNormals) \
     { \
     vtkMath::Normalize(n); \
     n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2]; \
-    newNormals->InsertNextNormal(n); \
+    newNormals->InsertNextTuple(n); \
     }   \
 } \
 if (ComputeScalars) \
 { \
-  newScalars->InsertNextScalar(value); \
+  newScalars->InsertNextTuple(&value); \
 }
 
 //----------------------------------------------------------------------------
@@ -278,17 +278,17 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   vtkPointData *outPD = output->GetPointData();  
   vtkCellData *outCD = output->GetCellData();  
   // Use to be arguments
-  vtkScalars *newScalars;
-  vtkNormals *newNormals;
-  vtkVectors *newGradients;
+  vtkDataArray *newScalars;
+  vtkDataArray *newNormals;
+  vtkDataArray *newGradients;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
 
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
-  newScalars = output->GetPointData()->GetScalars();
-  newNormals = output->GetPointData()->GetNormals();
-  newGradients = output->GetPointData()->GetVectors();  
+  newScalars = output->GetPointData()->GetActiveScalars();
+  newNormals = output->GetPointData()->GetActiveNormals();
+  newGradients = output->GetPointData()->GetActiveVectors();  
   
   // this is an exploded execute extent.
   xMin = exExt[0];
@@ -631,9 +631,9 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  vtkScalars *newScalars = NULL;
-  vtkNormals *newNormals = NULL;
-  vtkVectors *newGradients = NULL;
+  vtkFloatArray *newScalars = NULL;
+  vtkFloatArray *newNormals = NULL;
+  vtkFloatArray *newGradients = NULL;
   long estimatedSize;  
   
   estimatedSize = (int) pow ((double) 
@@ -650,16 +650,18 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
   o->GetPointData()->CopyAllOn();
   if (this->ComputeNormals)
     {
-    newNormals = vtkNormals::New();
-    newNormals->Allocate(estimatedSize,estimatedSize/2);
-    newNormals->GetData()->SetName("Normals");
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(3*estimatedSize,3*estimatedSize/2);
+    newNormals->SetName("Normals");
     o->GetPointData()->CopyNormalsOff();
     }
   if (this->ComputeGradients)
     {
-    newGradients = vtkVectors::New();
-    newGradients->Allocate(estimatedSize,estimatedSize/2);
-    newGradients->GetData()->SetName("Gradients");
+    newGradients = vtkFloatArray::New();
+    newGradients->SetNumberOfComponents(3);
+    newGradients->Allocate(3*estimatedSize,3*estimatedSize/2);
+    newGradients->SetName("Gradients");
     o->GetPointData()->CopyVectorsOff();
     }
   // It is more efficient to just create the scalar array 
@@ -667,9 +669,9 @@ void vtkSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
   o->GetPointData()->CopyScalarsOff();
   if (this->ComputeScalars)
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(estimatedSize,estimatedSize/2);
-    newScalars->GetData()->SetName("Scalars");
+    newScalars->SetName("Scalars");
     }
   
   o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),

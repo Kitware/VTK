@@ -169,7 +169,7 @@ unsigned long vtkMarchingSquares::GetMTime()
 // Contouring filter specialized for images
 //
 template <class T>
-static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir[3],
+static void ContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3],
                   int start[2], int end[2], int offset[3], float ar[3], 
                   float origin[3], float *values, int numValues, 
                   vtkPointLocator *p, vtkCellArray *lines)
@@ -279,7 +279,7 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
               }
             if ( p->InsertUniquePoint(x, ptIds[ii]) )
               {
-              newScalars->InsertScalar(ptIds[ii],value);
+              newScalars->InsertComponent(ptIds[ii],0,value);
               }
             }
           
@@ -303,7 +303,8 @@ void vtkMarchingSquares::Execute()
   vtkPointData *pd;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkScalars *inScalars, *newScalars = NULL;
+  vtkDataArray *inScalars;
+  vtkDataArray *newScalars = NULL;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
   float origin[3], ar[3];
@@ -327,7 +328,7 @@ void vtkMarchingSquares::Execute()
     vtkErrorMacro(<<"PointData is NULL");
     return;
     }
-  inScalars=pd->GetScalars();
+  inScalars=pd->GetActiveScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
@@ -450,8 +451,8 @@ void vtkMarchingSquares::Execute()
       {
       case VTK_CHAR:
 	{
-	char *scalars = ((vtkCharArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_CHAR,1);
+	char *scalars = static_cast<vtkCharArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkCharArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -459,8 +460,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_UNSIGNED_CHAR:
 	{
-	unsigned char *scalars = ((vtkUnsignedCharArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_CHAR,1);
+	unsigned char *scalars = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkUnsignedCharArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -468,8 +469,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_SHORT:
 	{
-	short *scalars = ((vtkShortArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_SHORT,1);
+	short *scalars = static_cast<vtkShortArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkShortArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -477,8 +478,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_UNSIGNED_SHORT:
 	{
-	unsigned short *scalars = ((vtkUnsignedShortArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_SHORT,1);
+	unsigned short *scalars = static_cast<vtkUnsignedShortArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkUnsignedShortArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -486,8 +487,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_INT:
 	{
-	int *scalars = ((vtkIntArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_INT,1);
+	int *scalars = static_cast<vtkIntArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkIntArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -495,8 +496,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_UNSIGNED_INT:
 	{
-	unsigned int *scalars = ((vtkUnsignedIntArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_INT,1);
+	unsigned int *scalars = static_cast<vtkUnsignedIntArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkUnsignedIntArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -504,8 +505,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_LONG:
 	{
-	long *scalars = ((vtkLongArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_LONG,1);
+	long *scalars = static_cast<vtkLongArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkLongArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -513,8 +514,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_UNSIGNED_LONG:
 	{
-	unsigned long *scalars = ((vtkUnsignedLongArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_UNSIGNED_LONG,1);
+	unsigned long *scalars = static_cast<vtkUnsignedLongArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkUnsignedLongArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -522,8 +523,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_FLOAT:
 	{
-	float *scalars = ((vtkFloatArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_FLOAT,1);
+	float *scalars = static_cast<vtkFloatArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkFloatArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -531,8 +532,8 @@ void vtkMarchingSquares::Execute()
       break;
       case VTK_DOUBLE:
 	{
-	double *scalars = ((vtkDoubleArray *)inScalars->GetData())->GetPointer(0);
-	newScalars = vtkScalars::New(VTK_DOUBLE,1);
+	double *scalars = static_cast<vtkDoubleArray *>(inScalars)->GetPointer(0);
+	newScalars = vtkDoubleArray::New();
 	newScalars->Allocate(5000,25000);
 	ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		     values,numContours,this->Locator,newLines);
@@ -543,12 +544,13 @@ void vtkMarchingSquares::Execute()
 
   else //multiple components - have to convert
     {
-    vtkScalars *image = vtkScalars::New();
-    image->Allocate(dataSize);
-    inScalars->GetScalars(0,dataSize,image);
-    newScalars = vtkScalars::New(VTK_FLOAT);
+    vtkFloatArray *image = vtkFloatArray::New();
+    image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+    image->SetNumberOfTuples(dataSize);
+    inScalars->GetTuples(0,dataSize,image);
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(5000,25000);
-    float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
+    float *scalars = image->GetPointer(0);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
 		 values,numContours,this->Locator,newLines);
     image->Delete();

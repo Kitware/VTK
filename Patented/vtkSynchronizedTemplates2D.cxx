@@ -139,7 +139,7 @@ unsigned long vtkSynchronizedTemplates2D::GetMTime()
 template <class T>
 static void ContourImage(vtkSynchronizedTemplates2D *self,
 			 T *scalars, vtkPoints *newPts,
-			 vtkScalars *newScalars, vtkCellArray *lines)
+			 vtkDataArray *newScalars, vtkCellArray *lines)
 {
   float *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
@@ -316,7 +316,7 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	  *isect2Ptr = newPts->InsertNextPoint(x);
 	  if (newScalars)
 	    {
-	    newScalars->InsertNextScalar(value);
+	    newScalars->InsertNextTuple(&value);
 	    }
 	  }
 	else
@@ -335,7 +335,7 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	    *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
 	    if (newScalars)
 	      {
-	      newScalars->InsertNextScalar(value);
+	      newScalars->InsertNextTuple(&value);
 	      }
 	    }
 	  else
@@ -392,7 +392,7 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	  *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
 	  if (newScalars)
 	    {
-	    newScalars->InsertNextScalar(value);
+	    newScalars->InsertNextTuple(&value);
 	    }
 	  }
 	else
@@ -416,8 +416,8 @@ void vtkSynchronizedTemplates2D::Execute()
   vtkPointData  *pd = input->GetPointData();
   vtkPoints     *newPts;
   vtkCellArray  *newLines;
-  vtkScalars    *inScalars = pd->GetScalars();
-  vtkScalars    *newScalars = NULL;
+  vtkDataArray  *inScalars = pd->GetActiveScalars();
+  vtkDataArray  *newScalars = NULL;
   vtkPolyData   *output = this->GetOutput();
   int           *ext = input->GetUpdateExtent();
   int           dims[3];
@@ -464,7 +464,7 @@ void vtkSynchronizedTemplates2D::Execute()
     void *scalars = inScalars->GetVoidPointer(0);
     if (this->ComputeScalars)
       {
-      newScalars = vtkScalars::SafeDownCast(inScalars->MakeObject());
+      newScalars = inScalars->MakeObject();
       newScalars->Allocate(5000,25000);
       }
     switch (inScalars->GetDataType())
@@ -475,15 +475,16 @@ void vtkSynchronizedTemplates2D::Execute()
     }
   else //multiple components - have to convert
     {
-    vtkScalars *image = vtkScalars::New();
-    image->Allocate(dataSize);
-    inScalars->GetScalars(0,dataSize,image);
+    vtkFloatArray *image = vtkFloatArray::New();
+    image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+    image->SetNumberOfTuples(dataSize);
+    inScalars->GetTuples(0,dataSize,image);
     if (this->ComputeScalars)
       {
-      newScalars = vtkScalars::New(VTK_FLOAT);
+      newScalars = vtkFloatArray::New();
       newScalars->Allocate(5000,25000);
       }
-    float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
+    float *scalars =image->GetPointer(0);
     ContourImage(this, scalars, newPts, newScalars, newLines);
     image->Delete();
     }
