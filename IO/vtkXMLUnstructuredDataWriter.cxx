@@ -29,7 +29,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.4");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -170,7 +170,7 @@ void vtkXMLUnstructuredDataWriter::WriteInlinePieceAttributes()
 {
   vtkPointSet* input = this->GetInputAsPointSet();
   this->WriteScalarAttribute("NumberOfPoints",
-                             input->GetPoints()->GetNumberOfPoints());
+                             input->GetNumberOfPoints());
 }
 
 //----------------------------------------------------------------------------
