@@ -22,6 +22,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "KglrRenW.hh"
 #endif
 
+#ifdef USE_SBR
+#include "SbrRenW.hh"
+#endif
+
 vlRenderMaster::vlRenderMaster()
 {
 }
@@ -38,11 +42,26 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
     }
 #endif
 
+#ifdef USE_SBR
+  if (!strncmp("sbr",type,4))
+    {
+    vlSbrRenderWindow *ren;
+    ren = new vlSbrRenderWindow;
+    return (vlRenderWindow *)ren;
+    }
+#endif
+
   vlErrorMacro(<<"RenderMaster Error: unable to return render window.\n");
   return (vlRenderWindow *)NULL;
 }
 
 vlRenderWindow *vlRenderMaster::MakeRenderWindow(void)
 {
-  return (this->MakeRenderWindow(getenv("VL_RENDERER")));
+  char *temp;
+  
+  // if nothing is set then try kglr
+  temp = getenv("VL_RENDERER");
+  if (!temp) temp = "kglr";
+
+  return (this->MakeRenderWindow(temp));
 }
