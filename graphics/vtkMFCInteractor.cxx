@@ -685,6 +685,7 @@ void vtkMFCInteractor::StretchDIB(CDC *pDC,int x_position,int y_position, int x_
   BITMAPINFOHEADER   bi;         // bitmap header
   BITMAPINFOHEADER  *lpbi;       // pointer to BITMAPINFOHEADER
   DWORD              dwLen;      // size of memory block
+  HANDLE             hDIB;
 	int palsize = 0;
 
 	lpbi = &bi;
@@ -695,18 +696,22 @@ void vtkMFCInteractor::StretchDIB(CDC *pDC,int x_position,int y_position, int x_
 	if(lpbi->biBitCount<15) palsize = (1L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
     
 	dwLen = bi.biSize + palsize + bi.biSizeImage;
-   
-	lpbi = (BITMAPINFOHEADER *)malloc(dwLen);
-  lpbi->biSize = sizeof(BITMAPINFOHEADER);
-//	::GetDIBits(pDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
-//				NULL,	(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
-	::GetDIBits(pDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+  hDIB = ::GlobalAlloc(GHND, dwLen);
+  if (hDIB)
+    {
+	  lpbi = (LPBITMAPINFOHEADER) ::GlobalLock(hDIB);
+    lpbi->biSize = sizeof(BITMAPINFOHEADER);
+    ::GetDIBits(pDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+				NULL,	(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
+	  ::GetDIBits(pDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
 				(LPSTR)lpbi + (WORD)lpbi->biSize + palsize,
 				(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
-	StretchDIBits(pDC->GetSafeHdc(),x_position, y_position, x_width, y_width, 0, 0, 
+    ::StretchDIBits(pDC->GetSafeHdc(),x_position, y_position, x_width, y_width, 0, 0, 
 				        lpbi->biWidth, lpbi->biHeight,
 				        ((BYTE *)lpbi) + lpbi->biSize + palsize,	
-				        (BITMAPINFO *)lpbi,DIB_RGB_COLORS,SRCCOPY);
-	free(lpbi);
+				        (LPBITMAPINFO)lpbi,DIB_RGB_COLORS,SRCCOPY);
+    ::GlobalUnlock(hDIB);
+    ::GlobalFree(hDIB);
+    }
 }
 
