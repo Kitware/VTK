@@ -1,5 +1,3 @@
-// -*- c++ -*-
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -24,7 +22,6 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#include <vtkConfigure.h>
 #include <vtkstd/string>
 
 class Tokenizer

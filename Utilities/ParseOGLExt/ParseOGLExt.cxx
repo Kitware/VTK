@@ -1,9 +1,3 @@
-/* -*- c++ -*- */
-
-/* A program that will read in OpenGL extension header files and output VTK
- * code that handles extensions in a more platform-independent manner.
- */
-
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -18,6 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/* A program that will read in OpenGL extension header files and output VTK
+ * code that handles extensions in a more platform-independent manner.
+ */
+
 
 /*
  * Copyright 2003 Sandia Corporation.
@@ -28,12 +26,7 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#ifdef WIN32
-#  pragma warning(disable:4786)
-#endif
-
-#include <vtkConfigure.h>
-#include <vtkSystemIncludes.h>
+#include "vtkSystemIncludes.h"
 
 #include "Tokenizer.h"
 
