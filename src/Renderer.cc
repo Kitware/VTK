@@ -1,16 +1,16 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    Renderer.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <stdlib.h>
@@ -142,3 +142,36 @@ void vlRenderer::ViewToDisplay()
 
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
 }
+
+void vlRenderer::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlRenderer::GetClassName()))
+    {
+    this->vlObject::PrintSelf(os,indent);
+
+    os << indent << "Actors:\n";
+    this->Actors.PrintSelf(os,indent.GetNextIndent());
+    os << indent << "Ambient: (" << this->Ambient[0] << ", " 
+      << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
+    os << indent << "Aspect: (" << this->Aspect[0] << ", " 
+      << this->Aspect[1] << ")\n";
+    os << indent << "Background: (" << this->Background[0] << ", " 
+      << this->Background[1] << ", "  << this->Background[2] << ")\n";
+
+    os << indent << "Back Light: " << (this->BackLight ? "On\n" : "Off\n");
+    os << indent << "DisplayPoint: ("  << this->DisplayPoint[0] << ", " 
+      << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
+    os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
+    os << indent << "Lights:\n";
+    this->Lights.PrintSelf(os,indent.GetNextIndent());
+    os << indent << "Stereo Render: " 
+      << (this->StereoRender ? "On\n":"Off\n");
+
+    os << indent << "ViewPoint: (" << this->ViewPoint[0] << ", " 
+      << this->ViewPoint[1] << ", " << this->ViewPoint[2] << ")\n";
+    os << indent << "Viewport: (" << this->Viewport[0] << ", " 
+      << this->Viewport[1] << ", " << this->Viewport[2] << ", " 
+	<< this->Viewport[3] << ")\n";
+    }
+}
+

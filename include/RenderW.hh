@@ -1,16 +1,16 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    RenderW.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #ifndef __vlRenderWindow_hh
@@ -35,6 +35,7 @@ public:
 public:
   vlRenderWindow();
   char *GetClassName() {return "vlRenderWindow";};
+  void PrintSelf(ostream& os, vlIndent indent);
   void AddRenderers(vlRenderer *);
   virtual void Render();
   virtual void Frame() = 0;

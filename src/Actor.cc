@@ -1,18 +1,19 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    Actor.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+
 #include <stdlib.h>
 #include <iostream.h>
 #include <math.h>
@@ -83,4 +84,43 @@ vlMapper *vlActor::GetMapper()
 {
   return this->Mapper;
 }
+
+void vlActor::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlActor::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+    
+    os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
+    if ( this->Mapper )
+      {
+      os << indent << "Mapper:\n";
+      this->Mapper->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Mapper: (none)\n";
+      }
+    os << indent << "Orientation: (" << this->Orientation[0] << ", " 
+      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+    os << indent << "Origin: (" << this->Origin[0] << ", " 
+      << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+    os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
+    os << indent << "Position: (" << this->Position[0] << ", " 
+      << this->Position[1] << ", " << this->Position[2] << ")\n";
+    if ( this->Property )
+      {
+      os << indent << "Property:\n";
+      this->Property->PrintSelf(os,indent.GetNextIndent());
+      }
+    else
+      {
+      os << indent << "Property: (none)\n";
+      }
+    os << indent << "Scale: (" << this->Scale[0] << ", " 
+      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
+    os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
+    }
+}
+
 

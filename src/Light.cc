@@ -1,16 +1,16 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    Light.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <stdlib.h>
@@ -35,6 +35,25 @@ vlLight::vlLight()
 
   this->Intensity = 1.0;
 }
+
+
+void vlLight::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlLight::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+
+    os << indent << "Color: (" << this->Color[0] << ", " 
+      << this->Color[1] << ", " << this->Color[2] << ")\n";
+    os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
+      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
+    os << indent << "Intensity: " << this->Intensity << "\n";
+    os << indent << "Position: (" << this->Position[0] << ", " 
+      << this->Position[1] << ", " << this->Position[2] << ")\n";
+    os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
+    }
+}
+
 
 
 

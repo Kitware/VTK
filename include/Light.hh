@@ -1,16 +1,16 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    Light.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #ifndef __vlLight_hh
@@ -33,6 +33,7 @@ protected:
 public:
   vlLight();
   char *GetClassName() {return "vlLight";};
+  void PrintSelf(ostream& os, vlIndent indent);
   virtual void Render(vlRenderer *ren,int light_index) = 0;
 
   vlSetVector3Macro(Color,float);

@@ -1,16 +1,16 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    Camera.cc
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include <math.h>
@@ -114,39 +114,34 @@ float vlCamera::GetTwist()
   vup = this->ViewUp;
   vn = this->GetViewPlaneNormal();
 
-  /*
-   * compute: vn X ( vup X vn)
-   * and:     vn X ( y-axis X vn)
-   * then find the angle between the two projected vectors
-   */
+  // compute: vn X ( vup X vn)
+  // and:     vn X ( y-axis X vn)
+  // then find the angle between the two projected vectors
+  //
   y_axis[0] = y_axis[2] = 0.0; y_axis[1] = 1.0;
 
-  /*
-   * bump the view normal if it is parallel to the y-axis
-   */
+  // bump the view normal if it is parallel to the y-axis
+  //
   if ((vn[0] == 0.0) && (vn[2] == 0.0))
     vn[2] = 0.01*vn[1];
 
-  /*
-   * first project the view_up onto the view_plane
-   */
+  // first project the view_up onto the view_plane
+  //
   cross(vup, vn, v1);
   cross(vn, v1, v1);
 
-  /*
-   * then project the y-axis onto the view plane
-   */
+  // then project the y-axis onto the view plane
+  //
   cross(y_axis, vn, v2);
   cross(vn, v2, v2);
 
-  /*
-   * then find the angle between the two projected vectors
-   */
+  // then find the angle between the two projected vectors
+  //
   dot = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
   mag = sqrt((double)(v1[0]*v1[0] + v1[1]*v1[1] + v1[2]*v1[2]));
   mag *= sqrt((double)(v2[0]*v2[0] + v2[1]*v2[1] + v2[2]*v2[2]));
 
-  /* make sure we dont divide by 0 */
+  // make sure we dont divide by 0 
   if (mag != 0.0) 
     {
     cosang = dot / mag;
@@ -157,9 +152,8 @@ float vlCamera::GetTwist()
   else
     theta = 0.0;
 
-  /*
-   * now see if the angle is positive or negative
-   */
+  // now see if the angle is positive or negative
+  //
   cross(v1, v2, v1);
   dot = v1[0]*vn[0] + v1[1]*vn[1] + v1[2]*vn[2];
   
@@ -176,9 +170,8 @@ float *vlCamera::GetViewPlaneNormal()
   float distance;
   float vpn[3];
 
-  /*
-   * view plane normal is calculated from position and focal point
-   */
+  // view plane normal is calculated from position and focal point
+  //
   dx = this->Position[0] - this->FocalPoint[0];
   dy = this->Position[1] - this->FocalPoint[1];
   dz = this->Position[2] - this->FocalPoint[2];
@@ -195,5 +188,27 @@ float *vlCamera::GetViewPlaneNormal()
   vlDebugMacro(<< "Returning ViewPlaneNormal of (" << vpn[0] << " " << vpn[1] << " " << vpn[2] << ")\n");
 
   return vpn;
+}
+
+void vlCamera::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlCamera::GetClassName()))
+    {
+    vlObject::PrintSelf(os,indent);
+    
+    os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
+      << this->ClippingRange[2] << ")\n";
+    os << indent << "Eye Angle: " << this->EyeAngle << "\n";
+    os << indent << "Focal Point: (" << this->FocalPoint[0] << ", " 
+      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
+    os << indent << "Left Eye: " << this->LeftEye << "\n";
+    os << indent << "Position: (" << this->Position[0] << ", " 
+      << this->Position[1] << ", " << this->Position[2] << ")\n";
+    os << indent << "Switch: " << (this->Switch ? "On\n" : "Off\n");
+    os << indent << "Twist: " << this->GetTwist() << "\n";
+    os << indent << "View Angle: " << this->ViewAngle << "\n";
+    os << indent << "View Up: (" << this->ViewUp[0] << ", " 
+      << this->ViewUp[1] << ", " << this->ViewUp[2] << ")\n";
+    }
 }
 
