@@ -73,9 +73,12 @@ void vlObject::PrintHeader(ostream& os, vlIndent indent)
 
 void vlObject::PrintSelf(ostream& os, vlIndent indent)
 {
-  os << indent << "Debug state: " << this->Debug << "\n";
-  os << indent << "Modified Time: " << this->GetMtime() << "\n";
-  os << indent << "Reference Count: " << this->RefCount << "\n";
+  if (this->ShouldIPrint(vlObject::GetClassName()))
+    {
+    os << indent << "Debug state: " << this->Debug << "\n";
+    os << indent << "Modified Time: " << this->GetMtime() << "\n";
+    os << indent << "Reference Count: " << this->RefCount << "\n";
+    }
 }
 
 void vlObject::PrintTrailer(ostream& os, vlIndent indent)
