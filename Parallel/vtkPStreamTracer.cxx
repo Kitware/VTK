@@ -28,7 +28,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.7");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.8");
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
 vtkCxxSetObjectMacro(vtkPStreamTracer, 
@@ -299,7 +299,9 @@ void vtkPStreamTracer::Execute()
 
   if (this->Controller->GetNumberOfProcesses() == 1)
     {
+    this->GenerateNormalsInIntegrate = 1;
     this->Superclass::Execute();
+    this->GenerateNormalsInIntegrate = 0;
     return;
     }
 
