@@ -483,7 +483,7 @@ void vlCamera::CalcPerspectiveTransform ()
   if (distance > 0.0)
     {
     matrix[0][0] = (this->Position[2]-this->FocalPoint[2])/distance;
-    matrix[0][2] = -1.0*(this->FocalPoint[0] - 
+    matrix[2][0] = -1.0*(this->FocalPoint[0] - 
 			 this->Position[0])/distance;
     }
   else
@@ -496,17 +496,17 @@ void vlCamera::CalcPerspectiveTransform ()
       {
       matrix[0][0] = 1.0;
       }
-    matrix[0][2] = 0.0;
+    matrix[2][0] = 0.0;
     }
-  matrix[0][1] = matrix[0][3] = 0.0;
+  matrix[1][0] = matrix[3][0] = 0.0;
   matrix[1][1] = 1.0;
-  matrix[1][0] = matrix[1][2] = matrix[1][3] = 0.0;
-  matrix[2][0] = -1.0*matrix[0][2];
+  matrix[0][1] = matrix[2][1] = matrix[3][1] = 0.0;
+  matrix[0][2] = -1.0*matrix[2][0];
   matrix[2][2] = matrix[0][0];
-  matrix[2][3] = 0.0;
-  matrix[2][1] = 0.0;
+  matrix[3][2] = 0.0;
+  matrix[1][2] = 0.0;
   matrix[3][3] = 1.0;
-  matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
+  matrix[0][3] = matrix[1][3] = matrix[2][3] = 0.0;
 
   this->PerspectiveTransform.Concatenate(matrix);
   
@@ -520,16 +520,16 @@ void vlCamera::CalcPerspectiveTransform ()
 		  (this->Position[2]-this->FocalPoint[2])*
 		  (this->Position[2]-this->FocalPoint[2]));
   matrix[0][0] = 1.0;
-  matrix[0][1] = matrix[0][2] = matrix[0][3] = 0.0;
+  matrix[1][0] = matrix[2][0] = matrix[3][0] = 0.0;
   matrix[1][1] = distance_old/distance;
-  matrix[1][2] = (this->Position[1] - this->FocalPoint[1])/distance;
-  matrix[1][0] = matrix[1][3] = 0.0;
-  matrix[2][1] = -1.0*matrix[1][2];
+  matrix[2][1] = (this->Position[1] - this->FocalPoint[1])/distance;
+  matrix[0][1] = matrix[3][1] = 0.0;
+  matrix[1][2] = -1.0*matrix[2][1];
   matrix[2][2] = matrix[1][1];
-  matrix[2][3] = 0.0;
-  matrix[2][0] = 0.0;
+  matrix[3][2] = 0.0;
+  matrix[0][2] = 0.0;
   matrix[3][3] = 1.0;
-  matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
+  matrix[0][3] = matrix[1][3] = matrix[2][3] = 0.0;
 
   this->PerspectiveTransform.Concatenate(matrix);
 
@@ -538,17 +538,17 @@ void vlCamera::CalcPerspectiveTransform ()
   twist = this->GetTwist();
 
   matrix[0][0] = cos(-twist);
-  matrix[0][1] = sin(-twist);
-  matrix[0][2] = matrix[0][3] = 0.0;
-  matrix[1][0] = -1.0*matrix[0][1];
+  matrix[1][0] = sin(-twist);
+  matrix[2][0] = matrix[3][0] = 0.0;
+  matrix[0][1] = -1.0*matrix[1][0];
   matrix[1][1] = matrix[0][0];
-  matrix[1][2] = matrix[1][3] = 0.0;
-  matrix[2][1] = 0.0;
+  matrix[2][1] = matrix[3][1] = 0.0;
+  matrix[1][2] = 0.0;
   matrix[2][2] = 1.0;
-  matrix[2][3] = 0.0;
-  matrix[2][0] = 0.0;
+  matrix[3][2] = 0.0;
+  matrix[0][2] = 0.0;
   matrix[3][3] = 1.0;
-  matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
+  matrix[0][3] = matrix[1][3] = matrix[2][3] = 0.0;
 
   this->PerspectiveTransform.Concatenate(matrix);
 
@@ -561,16 +561,16 @@ void vlCamera::CalcPerspectiveTransform ()
   view_ratio   = tan ((fabs (this->ViewAngle) / 2.0) * 
 		      (3.1415926 / 180.0));
   matrix[0][0] = 1.0 / view_ratio;
-  matrix[0][1] = matrix[0][2] = matrix[0][3] = 0.0;
+  matrix[1][0] = matrix[2][0] = matrix[3][0] = 0.0;
   matrix[1][1] = 1.0 / view_ratio;
-  matrix[1][0] = matrix[1][2] = matrix[1][3] = 0.0;
+  matrix[0][1] = matrix[2][1] = matrix[3][1] = 0.0;
   matrix[2][2] = -1.0*(this->ClippingRange[1]+this->ClippingRange[0])
     /(this->ClippingRange[1]-this->ClippingRange[0]);
-  matrix[2][3] = -1.0;
-  matrix[2][0] = matrix[2][1] = 0.0;
-  matrix[3][2] = -2.0*this->ClippingRange[1]*this->ClippingRange[0]/ 
+  matrix[3][2] = -1.0;
+  matrix[0][2] = matrix[1][2] = 0.0;
+  matrix[2][3] = -2.0*this->ClippingRange[1]*this->ClippingRange[0]/ 
     (this->ClippingRange[1]-this->ClippingRange[0]);
-  matrix[3][0] = matrix[3][1] = 0.0;
+  matrix[0][3] = matrix[1][3] = 0.0;
   matrix[3][3] = 0.0;
 
   this->PerspectiveTransform.Concatenate(matrix);
