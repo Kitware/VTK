@@ -35,6 +35,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMarchingSquaresCases.h"
@@ -51,7 +52,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.61");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.62");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -59,9 +60,6 @@ vtkStandardNewMacro(vtkMarchingSquares);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkMarchingSquares::vtkMarchingSquares()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
-
   this->ContourValues = vtkContourValues::New();
 
   this->ImageRange[0] = 0; this->ImageRange[1] = VTK_LARGE_INTEGER;
@@ -80,26 +78,6 @@ vtkMarchingSquares::~vtkMarchingSquares()
     this->Locator = NULL;
     }
 }
-
-
-//----------------------------------------------------------------------------
-void vtkMarchingSquares::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkImageData *vtkMarchingSquares::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkImageData *)(this->Inputs[0]);
-}
-
-
 
 void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax, 
                                        int kmin, int kmax)
@@ -121,7 +99,7 @@ void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
 // then this object is modified as well.
 unsigned long vtkMarchingSquares::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
@@ -266,9 +244,21 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
 //
 // Contouring filter specialized for images (or slices from images)
 //
-void vtkMarchingSquares::Execute()
+int vtkMarchingSquares::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd;
   vtkPoints *newPts;
   vtkCellArray *newLines;
@@ -277,7 +267,6 @@ void vtkMarchingSquares::Execute()
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
   double origin[3], ar[3];
-  vtkPolyData *output = this->GetOutput();
   int start[2], end[2], offset[3], dir[3], estimatedSize;
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
@@ -286,22 +275,17 @@ void vtkMarchingSquares::Execute()
 //
 // Initialize and check input
 //
-  if (input == NULL)
-    {
-    vtkErrorMacro(<<"Input is NULL");
-    return;
-    }
   pd=input->GetPointData();
   if (pd ==NULL)
     {
     vtkErrorMacro(<<"PointData is NULL");
-    return;
+    return 1;
     }
   inScalars=pd->GetScalars();
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
-    return;
+    return 1;
     }
 //
 // Check dimensionality of data and get appropriate form
@@ -358,7 +342,7 @@ void vtkMarchingSquares::Execute()
   if ( dim != 2 )
     {
     vtkErrorMacro(<<"Marching squares requires 2D data");
-    return;
+    return 1;
     }
 //
 // Setup indices and offsets (since can have x-y or z-plane)
@@ -410,7 +394,7 @@ void vtkMarchingSquares::Execute()
     {
     this->CreateDefaultLocator();
     }
-  this->Locator->InitPointInsertion (newPts, this->GetInput()->GetBounds());
+  this->Locator->InitPointInsertion (newPts, input->GetBounds());
   //
   // Check data type and execute appropriate function
   //
@@ -546,6 +530,8 @@ void vtkMarchingSquares::Execute()
 
   this->Locator->Initialize();
   output->Squeeze();
+
+  return 1;
 }
 
 // Description:
@@ -616,5 +602,3 @@ void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 }
-
-

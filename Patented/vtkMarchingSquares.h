@@ -52,25 +52,20 @@
 #ifndef __vtkMarchingSquares_h
 #define __vtkMarchingSquares_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Passes calls to vtkContourValues
 
 class vtkImageData;
 class vtkPointLocator;
 
-class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMarchingSquares *New();
-  vtkTypeRevisionMacro(vtkMarchingSquares,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkMarchingSquares,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set / get the input data or filter.
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();  
-  
   // Description:
   // Set/Get the i-j-k index range which define a plane on which to generate 
   // contour lines. Using this ivar it is possible to input a 3D volume
@@ -81,6 +76,7 @@ public:
   void SetImageRange(int imin, int imax, int jmin, int jmax, 
                      int kmin, int kmax);
 
+  // Description:
   // Methods to set contour values
   void SetValue(int i, double value);
   double GetValue(int i);
@@ -91,6 +87,7 @@ public:
   void GenerateValues(int numContours, double range[2]);
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
+  // Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
 
@@ -106,7 +103,7 @@ protected:
   vtkMarchingSquares();
   ~vtkMarchingSquares();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkContourValues *ContourValues;
   int ImageRange[6];
@@ -168,4 +165,3 @@ inline void vtkMarchingSquares::GenerateValues(int numContours, double
 {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 #endif
-
