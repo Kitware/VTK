@@ -48,7 +48,7 @@ public:
   int CanReadFile(const char* fname);
   // Description:
   // .slc
-  virtual const char* GetFileExensions()
+  virtual const char* GetFileExtensions()
     {
       return ".slc";
     }
