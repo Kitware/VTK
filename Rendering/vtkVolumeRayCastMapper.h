@@ -26,7 +26,8 @@
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeRayCastFunction.h" // For vtkVolumeRayCastStaticInfo 
                                       // and vtkVolumeRayCastDynamicInfo
-#include "vtkFastNumericConversion.h"
+#include "vtkFastNumericConversion.h" // for fast rounding and floor
+
 class vtkEncodedGradientEstimator;
 class vtkEncodedGradientShader;
 class vtkMatrix4x4;
