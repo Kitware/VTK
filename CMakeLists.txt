@@ -326,6 +326,9 @@ VTK_THIRD_PARTY_OPTION(EXPAT expat)
 #-----------------------------------------------------------------------------
 # VTK requires special compiler flags on some platforms.
 IF(CMAKE_COMPILER_IS_GNUCXX)
+  # A GCC compiler.  Quiet warning about strstream deprecation.
+  SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
+  SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -Wno-deprecated")
   IF(WIN32)
     # The platform is gcc on cygwin.
     SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -mwin32")
@@ -372,7 +375,11 @@ ENDIF(VTK_USE_X)
 
 IF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
   # Use the highest warning level for visual studio.
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  IF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    STRING(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  ELSE(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+  ENDIF(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
 ENDIF(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv|nmake)")
 
 #-----------------------------------------------------------------------------
