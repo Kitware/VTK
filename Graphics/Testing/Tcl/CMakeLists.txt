@@ -44,6 +44,7 @@ IF (VTK_USE_RENDERING)
       Delaunay2DAlpha
       Delaunay2DTransform
       dicer
+      Disk
       eleState
       EnSight6Elements
       EnSightGoldElements
