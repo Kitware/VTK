@@ -51,14 +51,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTensor_h
 #define __vtkTensor_h
 
-#include "vtkWin32Header.h"
+#include "vtkObject.h"
 
-class VTK_EXPORT vtkTensor
+class VTK_EXPORT vtkTensor : public vtkObject
 {
 public:
   vtkTensor();
-  void Delete() {delete this;};
   static vtkTensor *New() {return new vtkTensor;};
+  const char *GetClassName() {return "vtkTensor";};
+
   void Initialize();
   float GetComponent(int i, int j);
   void SetComponent(int i, int j, float v);

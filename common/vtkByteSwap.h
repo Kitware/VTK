@@ -48,13 +48,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkByteSwap_h
 #include <stdio.h>
 
-#include "vtkWin32Header.h"
+#include "vtkObject.h"
 
-class VTK_EXPORT vtkByteSwap
+class VTK_EXPORT vtkByteSwap : public vtkObject
 {
 public:
-  void Delete() {delete this;};
   static vtkByteSwap *New() {return new vtkByteSwap;};
+  const char *GetClassName() {return "vtkByteSwap";};
 
   static void Swap2LE(short *s);
   static void Swap4LE(char *c);
