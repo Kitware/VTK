@@ -55,7 +55,7 @@ CXXFLAGS=-O
 #
 #CFLAGS=-O2 -Wall ${JAVA_INCLUDES}
 #CXXFLAGS=-O2 -Wall ${JAVA_INCLUDES}
-#MAKE_DEPEND_COMMAND=${CXX} -MM  $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make; ${CXX} -MM $(CPPFLAGS) $(CXX_FLAGS) tcl/*.cxx | sed -e "sz^\([^.]*\)\.oztcl/\1\.ozg" >> depend.make
+
 
 
 

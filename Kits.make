@@ -17,15 +17,19 @@ CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
-all: depend-check ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
+all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 
 .c.o:
 	${CC} ${CC_FLAGS} -c $< -o $@
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
 
+#------------------------------------------------------------------------------
+depend: ../targets
+	../targets ${srcdir} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
+
 targets.make: ../targets Makefile
-	../targets concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
+	../targets ${srcdir} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
 
 #------------------------------------------------------------------------------
 # rules for the normal library
@@ -70,18 +74,7 @@ libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_
 	$(SHLIB_LD) -o libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
 	  ${KIT_OBJ} ${JAVA_O_ADD} ${JAVA_WRAP}
 
-#------------------------------------------------------------------------------
-depend: 
-	-$(MAKE_DEPEND_COMMAND)
 
-depend-check:
-	@-dotofiles=`ls tcl/*.o *.o 2>/dev/null` ; \
-	if [ -r depend.make -a ! -s depend.make -a "X$$dotofiles" != X ] ; then \
-	    echo "**********************************************************" ; \
-	    echo "  Warning! No dependencies for $(ME) .o files exist." ; \
-	    echo '    "make depend" or "rm *.o tcl/*.o" is *highly* recommended.' ; \
-	    echo "**********************************************************" ; \
-	fi
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL} $(CLEAN_JAVA)
 	-rm -f *.o *.a *.so *.sl *~ *.make Makefile

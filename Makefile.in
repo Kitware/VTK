@@ -64,8 +64,8 @@ all: targets ${BUILD_TCL} ${BUILD_JAVA} build_common \
 	${BUILD_GEMSVOLUME} ${BUILD_PATENTED} \
 	${BUILD_TCL}${BUILD_TCL} ${BUILD_JAVA}${BUILD_JAVA}
 
-targets: ${srcdir}/targets.c
-	${CC} -o targets ${srcdir}/targets.c
+targets: ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
+	${CXX} -o targets ${srcdir}/targets.cxx ${srcdir}/makedepend.cxx
 
 build_common: targets ${BUILD_TCL} ${BUILD_JAVA}
 	cd common;     ${MAKE} -${MAKEFLAGS} targets.make
