@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDebugLeaks.h"
 #include "vtkOutputWindow.h"
 #include "vtkObjectFactory.h"
+#include "vtkOutputWindow.h"
 
 // A singleton that prints out the table, and deletes the table.
 class vtkPrintLeaksAtExit
@@ -52,6 +53,7 @@ public:
     }
   ~vtkPrintLeaksAtExit()
     {
+      vtkObjectFactory::UnRegisterAllFactories();
       vtkDebugLeaks::PrintCurrentLeaks();
       vtkDebugLeaks::DeleteTable();
     }  
@@ -294,6 +296,7 @@ void vtkDebugLeaks::PrintCurrentLeaks()
     {
     return;
     }
+  vtkOutputWindow::GetInstance()->PromptUserOn();
   vtkGenericWarningMacro("vtkDebugLeaks has detected LEAKS!\n ");
   vtkObjectFactory::UnRegisterAllFactories();
   vtkDebugLeaks::MemoryTable->PrintTable();
