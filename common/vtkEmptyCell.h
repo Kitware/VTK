@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCell.h"
 
-class vtkEmptyCell : public vtkCell
+class VTK_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
   vtkEmptyCell() {};
