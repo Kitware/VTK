@@ -231,19 +231,21 @@ static Visual * xlib_getpseudocolorvisual(Display *display,int screen,
     int		nvisuals;
     int		i;
 
-	  templ.screen = screen;
-	  templ.depth = depth;
+    templ.screen = screen;
+    templ.depth = depth;
+    
+    visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
+			     &templ, &nvisuals);
+    
+    for (v = visuals, i = 0; i < nvisuals; v++, i++)
+      if (v->c_class == PseudoColor) 
+	{
+	vis = v->visual;
+	break;						
+	}
 
-	  visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
-			&templ, &nvisuals);
-
-	  for (v = visuals, i = 0; i < nvisuals; v++, i++)
-		if (v->c_class == PseudoColor) {
-			vis = v->visual;
-			break;						
-		}
-
-	return(vis);
+    XFree(visuals);
+    return(vis);
 }
 
 /*
@@ -251,25 +253,27 @@ static Visual * xlib_getpseudocolorvisual(Display *display,int screen,
  */
 static Visual * xlib_gettruecolorvisual(Display *display,int screen,int depth)
 {
-    XVisualInfo templ;
-    XVisualInfo *visuals, *v;
-    Visual	*vis = NULL;
-    int		nvisuals;
-    int		i;
-
-	  templ.screen = screen;
-	  templ.depth = depth;
-
-	  visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
-			&templ, &nvisuals);
-
-	  for (v = visuals, i = 0; i < nvisuals; v++, i++)
-		if (v->c_class == TrueColor) {
-			vis = v->visual;
-			break;						
-		}
-
-	return(vis);
+  XVisualInfo templ;
+  XVisualInfo *visuals, *v;
+  Visual	*vis = NULL;
+  int		nvisuals;
+  int		i;
+  
+  templ.screen = screen;
+  templ.depth = depth;
+  
+  visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
+			   &templ, &nvisuals);
+  
+  for (v = visuals, i = 0; i < nvisuals; v++, i++)
+    if (v->c_class == TrueColor) 
+      {
+      vis = v->visual;
+      break;						
+      }
+  
+  XFree(visuals);
+  return(vis);
 }
 
 /*
@@ -278,25 +282,27 @@ static Visual * xlib_gettruecolorvisual(Display *display,int screen,int depth)
 static Visual * xlib_getdirectcolorvisual(Display *display,
 					  int screen,int depth)
 {
-    XVisualInfo templ;
-    XVisualInfo *visuals, *v;
-    Visual	*vis = NULL;
-    int		nvisuals;
-    int		i;
-
-	  templ.screen = screen;
-	  templ.depth = depth;
-
-	  visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
-			&templ, &nvisuals);
-
-	  for (v = visuals, i = 0; i < nvisuals; v++, i++)
-		if (v->c_class == DirectColor) {
-			vis = v->visual;
-			break;						
-		}
-
-	return(vis);
+  XVisualInfo templ;
+  XVisualInfo *visuals, *v;
+  Visual	*vis = NULL;
+  int		nvisuals;
+  int		i;
+  
+  templ.screen = screen;
+  templ.depth = depth;
+  
+  visuals = XGetVisualInfo(display, VisualScreenMask | VisualDepthMask,
+			   &templ, &nvisuals);
+  
+  for (v = visuals, i = 0; i < nvisuals; v++, i++)
+    if (v->c_class == DirectColor) 
+      {
+      vis = v->visual;
+      break;						
+      }
+  
+  XFree(visuals);
+  return(vis);
 }
 
 
@@ -306,70 +312,45 @@ static Visual * xlib_getdirectcolorvisual(Display *display,
  * This should be called instead of xglut_argprocess if you
  * don't want your user to be able to select the color type
  * and visual of xglut.
+ * Mods thanks to Michael Halle
  */
 static int xlib_get_best_depth(Display *display)
 {
-  int depth;
-  Visual *vis;
+  if(xlib_gettruecolorvisual(display, DefaultScreen(display), 24))
+    return(24);
+  
+  if(xlib_getdirectcolorvisual(display, DefaultScreen(display), 24))
+    return(24);
+  
+  if(xlib_getpseudocolorvisual(display, DefaultScreen(display), 8))
+    return(8);
 
-  vis = xlib_gettruecolorvisual(display, DefaultScreen(display), 24);
-  if (vis == NULL) 
-    {
-    vis = xlib_getdirectcolorvisual(display, DefaultScreen(display), 24);
-    if (vis == NULL) 
-      {
-      vis = xlib_getpseudocolorvisual(display, DefaultScreen(display), 8); 
-      if (vis == NULL) 
-	{
-	fprintf(stderr,"can't get visual info\n");
-	exit(1);
-	}
-      else 
-	{
-	depth = 8;
-	}
-      }
-    else 
-      {
-      depth = 24;
-      }
-    }
-  else 
-    {
-    depth = 24;
-    }
-
-  return(depth);
+  cerr << "vtkXglrRenderWindow Error: can't get visual info\n";
+  exit(1);
 }
 
 /*
  * get the best visual for XGL accelerated colors
+ * Mods thanks to Michael Halle
  */
 static Visual *xlib_get_best_visual(Display *display)
 {
-  int depth;
   Visual *vis;
-
-    vis = xlib_getdirectcolorvisual(display, DefaultScreen(display), 24);
-    if (vis == NULL) 
-      {
-      vis = xlib_getpseudocolorvisual(display, DefaultScreen(display), 8); 
-      if (vis == NULL) 
-	{
-	fprintf(stderr,"can't get visual info\n");
-	exit(1);
-	}
-      else 
-	{
-	depth = 8;
-	}
-      }
-    else 
-      {
-      depth = 24;
-      }
-
-  return (vis);
+  
+  vis = xlib_gettruecolorvisual(display, DefaultScreen(display), 24);
+  if(vis != NULL)
+    return(vis);
+  
+  vis = xlib_getdirectcolorvisual(display, DefaultScreen(display), 24);
+  if(vis != NULL)
+    return(vis);
+  
+  vis = xlib_getpseudocolorvisual(display, DefaultScreen(display), 8); 
+  if(vis != NULL)
+    return(vis);
+  
+  cerr << "vtkXglrRenderWindow Error: can't get visual info\n";
+  exit(1);
 }
 
 
