@@ -74,28 +74,23 @@ protected:
 };
 
 //----------------------------------------------------------------------------
-// Need to switch on bool type because std::less requires bool return
+// Need to use vtkstd_bool type because std::less requires bool return
 // type from operators.  This example should not be used to justify
 // using bool elsewhere in VTK.
-#ifdef VTK_COMPILER_HAS_BOOL
-# define VTK_SMART_POINTER_BASE_BOOL bool
-#else
-# define VTK_SMART_POINTER_BASE_BOOL int
-#endif
 
 #define VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(op) \
-  inline VTK_SMART_POINTER_BASE_BOOL \
+  inline vtkstd_bool \
   operator op (const vtkSmartPointerBase& l, const vtkSmartPointerBase& r) \
     { \
     return (static_cast<void*>(l.GetPointer()) op \
             static_cast<void*>(r.GetPointer())); \
     } \
-  inline VTK_SMART_POINTER_BASE_BOOL \
+  inline vtkstd_bool \
   operator op (vtkObjectBase* l, const vtkSmartPointerBase& r) \
     { \
     return (static_cast<void*>(l) op static_cast<void*>(r.GetPointer())); \
     } \
-  inline VTK_SMART_POINTER_BASE_BOOL \
+  inline vtkstd_bool \
   operator op (const vtkSmartPointerBase& l, vtkObjectBase* r) \
     { \
     return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \
@@ -110,7 +105,6 @@ VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(>)
 VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(>=)
 
 #undef VTK_SMART_POINTER_BASE_DEFINE_OPERATOR
-#undef VTK_SMART_POINTER_BASE_BOOL
 
 // Description:
 // Streaming operator to print smart pointer like regular pointers.

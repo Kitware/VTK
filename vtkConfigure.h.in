@@ -90,4 +90,13 @@
 # define vtkstd
 #endif
 
+/* Define a "vtkstd_bool" type.  This should be used as the
+   return type of comparison operators to keep STL happy on all
+   platforms.  It should not be used elsewhere.  */
+#ifdef VTK_COMPILER_HAS_BOOL
+typedef bool vtkstd_bool;
+#else
+typedef int vtkstd_bool;
+#endif
+
 #endif
