@@ -164,6 +164,7 @@ vtkSource.cxx
 vtkSpline.cxx
 vtkStreamingDemandDrivenPipeline.cxx
 vtkStructuredGrid.cxx
+vtkStructuredGridAlgorithm.cxx
 vtkStructuredGridSource.cxx
 vtkStructuredGridToPolyDataFilter.cxx
 vtkStructuredGridToStructuredGridFilter.cxx
