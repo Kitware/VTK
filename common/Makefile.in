@@ -13,6 +13,7 @@ VPATH         = @srcdir@
 ABSTRACT_H = 
 
 CONCRETE_H = \
+vtkDataSetCollection \
 vtkFloatNormals \
 vtkFloatPoints \
 vtkFloatScalars \

@@ -50,7 +50,6 @@ CONCRETE_H = \
 vtkActorCollection \
 vtkAssemblyPaths \
 vtkCullerCollection \
-vtkDataSetCollection \
 vtkMapperCollection \
 vtkPolyDataCollection \
 vtkRenderWindowCollection \
