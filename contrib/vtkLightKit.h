@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    $ $
+  Module:    vtkLightKit.h
   Language:  C++
-  Date:      $ $
-  Version:   $ $
+  Date:      $Date$
+  Version:   $Revision$
   Thanks:    Michael Halle, Brigham and Women's Hospital
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
