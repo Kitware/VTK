@@ -13,28 +13,28 @@
 
 =========================================================================*/
 // This example demonstrates how multi-block datasets can be processed
-// using the new vtkMultiBlockDataSet class. Since the native pipeline
-// support is not yet available, helper classes are used outside the
-// pipeline to process the dataset. See the comments below for details.
+// using the new vtkHierarchicalDataSet class.
 // 
 // The command line arguments are:
 // -D <path> => path to the data (VTKData); the data should be in <path>/Data/
 
 #include "vtkActor.h"
-#include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataVisitor.h"
+#include "vtkCellDataToPointData.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
-#include "vtkMultiBlockApplyFilterCommand.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkHierarchicalDataSet.h"
+#include "vtkHierarchicalDataSetGeometryFilter.h"
+#include "vtkOutlineCornerFilter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkTestUtilities.h"
-#include "vtkRegressionTestImage.h"
+#include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkShrinkPolyData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkStructuredGridOutlineFilter.h"
+#include "vtkTestUtilities.h"
 #include "vtkXMLStructuredGridReader.h"
 
 int main(int argc, char* argv[])
@@ -51,9 +51,10 @@ int main(int argc, char* argv[])
   // three pieces and wrote them out separately.
   int i;
   vtkXMLStructuredGridReader* reader = vtkXMLStructuredGridReader::New();
+
   // vtkMultiBlockDataSet respresents multi-block datasets. See
   // the class documentation for more information.
-  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
+  vtkHierarchicalDataSet* mb = vtkHierarchicalDataSet::New();
 
   for (i=0; i<3; i++)
     {
@@ -79,99 +80,78 @@ int main(int argc, char* argv[])
     sg->ShallowCopy(reader->GetOutput());
 
     // Add the structured grid to the multi-block dataset
-    mb->AddDataSet(sg);
+    mb->SetDataSet(0, i, sg);
     sg->Delete();
     }
   reader->Delete();
 
-  // Here is how a multi-block dataset is processed currently:
-  // 1. Create a command to be applied to each sub-dataset in the multi-block
-  //    dataset. Usually this is vtkMultiBlockApplyFilterCommand. This
-  //    command applies a filter to each sub-dataset and collects the
-  //    outputs in an another multi-block dataset.
-  // 2. Create a visitor that will iterate over the sub-datasets and
-  //    apply the command to each.
-  // 3. Get the output from the command.
+  // Multi-block can be processed with regular VTK filters in two ways:
+  // 1. Pass through a multi-block aware consumer. Since a multi-block 
+  //    aware mapper is not yet available, vtkHierarchicalDataSetGeometryFilter
+  //    can be used
+  // 2. Assign the composite executive (vtkCompositeDataPipeline) to
+  //    all "simple" (that work only on simple, non-composite datasets) filters  
 
-  // Create the command
-  vtkMultiBlockApplyFilterCommand* comm = 
-    vtkMultiBlockApplyFilterCommand::New();
+  // outline
+  vtkStructuredGridOutlineFilter* of = vtkStructuredGridOutlineFilter::New();
+  of->SetInput(mb);
 
-  // Create and assign the filter.
-  vtkContourFilter* filter = vtkContourFilter::New();
-  // Note that we are setting the contour values directly
-  // on the filter. There is no way of doing this through
-  // the command or visitor.
-  filter->SetValue(0, 0.45);
-  comm->SetFilter(filter);
-  filter->Delete();
+  // geometry filter
+  // This filter is multi-block aware and will request blocks from the
+  // input. These blocks will be processed by simple processes as if they
+  // are the whole dataset
+  vtkHierarchicalDataSetGeometryFilter* geom1 = 
+    vtkHierarchicalDataSetGeometryFilter::New();
+  geom1->SetInputConnection(0, of->GetOutputPort(0));
 
-  // Ask the multi-block dataset to create an appropriate visitor
-  // for us.
-  vtkCompositeDataVisitor* visitor = mb->NewVisitor();
-  // Tell the visitor to use the command we create
-  visitor->SetCommand(comm);
+  // Rendering objects
+  vtkPolyDataMapper* geoMapper = vtkPolyDataMapper::New();
+  geoMapper->SetInputConnection(0, geom1->GetOutputPort(0));
 
-  // Apply the command to each sub-dataset. If any of the sub-datasets
-  // are composite datasets, the visitor will recursively process those
-  // and their sub-datasets.
-  visitor->Execute();
+  vtkActor* geoActor = vtkActor::New();
+  geoActor->SetMapper(geoMapper);
+  geoActor->GetProperty()->SetColor(0, 0, 0);
+  ren->AddActor(geoActor);
 
-  // After the execution, the output should contain all the
-  // iso-surfaces (one polydata for each sub-dataset)
-  vtkMultiBlockDataSet* output = comm->GetOutput();
+  // cell 2 point and contour
+  vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
+  c2p->SetInput(mb);
 
-  // We now create a mapper/actor pair for each iso-surface.
+  vtkContourFilter* contour = vtkContourFilter::New();
+  contour->SetInputConnection(0, c2p->GetOutputPort(0));
+  contour->SetValue(0, 0.45);
 
-  // Ask the output multi-block dataset to create an appropriate
-  // iterator. This is a forward iterator.
-  vtkCompositeDataIterator* iter = output->NewIterator();
-  iter->GoToFirstItem();
-  while (!iter->IsDoneWithTraversal())
-    {
-    // For each polydata, create a mapper/actor pair
-    vtkPolyData* pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
-    if (pd)
-      {
-      vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-      mapper->SetInput(pd);
-      vtkActor* actor = vtkActor::New();
-      actor->SetMapper(mapper);
-      mapper->Delete();
-      ren->AddActor(actor);
-      actor->Delete();
-      }
-    iter->GoToNextItem();
-    }
-  iter->Delete();
+  // geometry filter
+  vtkHierarchicalDataSetGeometryFilter* geom2 = 
+    vtkHierarchicalDataSetGeometryFilter::New();
+  geom2->SetInputConnection(0, contour->GetOutputPort(0));
 
-  // In the future (once the pipeline changes are finished), it
-  // will be possible to do the following:
-  // 
-  // vtkMultiBlockSomethingReader* reader = vtkMultiBlockSomethingReader::New()
-  //
-  // vtkContourFilter* contour = vtkContourFilter::New();
-  // contour->SetInput(reader->GetOutput());
-  //
-  // /* This might or might not be necessary */
-  // vtkMultiBlockPolyDataGeometryFilter* geom =  
-  //      vtkMultiBlockPolyDataGeometryFilter::New();
-  // geom->SetInput(contour->GetOutput());
-  //
-  // vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  // mapper->SetInput(geom->GetOutput());
+  // Rendering objects
+  vtkPolyDataMapper* contMapper = vtkPolyDataMapper::New();
+  contMapper->SetInputConnection(0, geom2->GetOutputPort(0));
 
-  // Standard testing code.
+  vtkActor* contActor = vtkActor::New();
+  contActor->SetMapper(contMapper);
+  contActor->GetProperty()->SetColor(1, 0, 0);
+  ren->AddActor(contActor);
+
   ren->SetBackground(1,1,1);
   renWin->SetSize(300,300);
   iren->Start();
 
   // Cleanup
+  of->Delete();
+  geom1->Delete();
+  geoMapper->Delete();
+  geoActor->Delete();
+  c2p->Delete();
+  contour->Delete();
+  geom2->Delete();
+  contMapper->Delete();
+  contActor->Delete();
   ren->Delete();
   renWin->Delete();
   iren->Delete();
-  comm->Delete();
-  visitor->Delete();
   mb->Delete();
 
   return 0;

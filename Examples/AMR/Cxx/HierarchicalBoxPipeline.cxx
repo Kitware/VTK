@@ -14,23 +14,19 @@
 =========================================================================*/
 // This example demonstrates how hierarchical box (uniform rectilinear)
 // AMR datasets can be processed using the new vtkHierarchicalBoxDataSet class. 
-// Since the native pipeline support is not yet available, special AMR
-// filters are used to process the dataset. These filters are simple
-// wrappers around the corresponding dataset filters.
-// See the comments below for details.
 // 
 // The command line arguments are:
 // -D <path> => path to the data (VTKData); the data should be in <path>/Data/
 
 #include "vtkActor.h"
 #include "vtkAMRBox.h"
+#include "vtkCellDataToPointData.h"
+#include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
-#include "vtkHierarchicalBoxCellDataToPointData.h"
-#include "vtkHierarchicalBoxContour.h"
 #include "vtkHierarchicalBoxDataSet.h"
-#include "vtkHierarchicalBoxOutlineFilter.h"
+#include "vtkHierarchicalDataSetGeometryFilter.h"
 #include "vtkImageData.h"
-#include "vtkPolyData.h"
+#include "vtkOutlineCornerFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkTestUtilities.h"
@@ -155,72 +151,64 @@ int main(int argc, char* argv[])
   // lower level information)
   hb->GenerateVisibilityArrays();
 
-  // We now create a simple pipeline using AMR filters. The AMR
-  // filters can be simple wrappers around existing dataset filters.
-  // However, some of these filters are special. For example, 
-  // cell data to point data conversion requires knowledge about
-  // neighbors (same level or higher) to minimize artifacts at
-  // the boundaries.
-  vtkHierarchicalBoxCellDataToPointData* c2p =
-    vtkHierarchicalBoxCellDataToPointData::New();
+  // We now create a simple pipeline.
+  // AMR datasets can be processed with regular VTK filters in two ways:
+  // 1. Pass through a AMR aware consumer. Since a AMR 
+  //    aware mapper is not yet available, vtkHierarchicalDataSetGeometryFilter
+  //    can be used
+  // 2. Assign the composite executive (vtkCompositeDataPipeline) to
+  //    all "simple" (that work only on simple, non-composite datasets) filters  
+  vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
   c2p->SetInput(hb);
 
-  // The contour filter is a simple wrapper around the dataset
-  // filter. When the pipeline changes are completed, there will
-  // be no need for this.
-  vtkHierarchicalBoxContour* contour = vtkHierarchicalBoxContour::New();
-  contour->SetInput(c2p->GetOutput());
+  // contour
+  vtkContourFilter* contour = vtkContourFilter::New();
+  contour->SetInputConnection(0, c2p->GetOutputPort(0));
   contour->SelectInputScalars("phi");
   contour->SetValue(0, -0.013);
 
+  // geometry filter
+  // This filter is AMR aware and will request blocks from the
+  // input. These blocks will be processed by simple processes as if they
+  // are the whole dataset
+  vtkHierarchicalDataSetGeometryFilter* geom1 = 
+    vtkHierarchicalDataSetGeometryFilter::New();
+  geom1->SetInputConnection(0, contour->GetOutputPort(0));
+
   // Rendering objects
   vtkPolyDataMapper* ctMapper = vtkPolyDataMapper::New();
-  ctMapper->SetInput(contour->GetOutput());
+  ctMapper->SetInputConnection(0, geom1->GetOutputPort(0));
+
   vtkActor* ctActor = vtkActor::New();
   ctActor->SetMapper(ctMapper);
   ren->AddActor(ctActor);
 
-  // The outline filter is a simple wrapper around the dataset
-  // filter. When the pipeline changes are completed, there will
-  // be no need for this.
-  vtkHierarchicalBoxOutlineFilter* outline = 
-    vtkHierarchicalBoxOutlineFilter::New();
+  // outline
+  vtkOutlineCornerFilter* outline = vtkOutlineCornerFilter::New();
   outline->SetInput(hb);
 
+  vtkHierarchicalDataSetGeometryFilter* geom2 = 
+    vtkHierarchicalDataSetGeometryFilter::New();
+  geom2->SetInputConnection(0, outline->GetOutputPort(0));
+  
   // Rendering objects
   vtkPolyDataMapper* outMapper = vtkPolyDataMapper::New();
-  outMapper->SetInput(outline->GetOutput());
+  outMapper->SetInputConnection(0, geom2->GetOutputPort(0));
+
   vtkActor* outActor = vtkActor::New();
   outActor->SetMapper(outMapper);
   outActor->GetProperty()->SetColor(0, 0, 0);
   ren->AddActor(outActor);
 
   // In the future (once the pipeline changes are finished), it
-  // will be possible to do the following:
-  // 
-  // vtkHBoxAMRSomethingReader* reader = vtkHBoxAMRSomethingReader::New()
-  //
-  // vtkHierarchicalBoxCellDataToPointData* c2p = 
-  //   vtkHierarchicalBoxCellDataToPointData::New();
-  // c2p->SetInput(reader->GetOutput());
-  //
-  // vtkContourFilter* contour = vtkContourFilter::New();
-  // contour->SetInput(c2p->GetOutput());
-  //
-  // /* This might or might not be necessary */
-  // vtkMultiBlockPolyDataGeometryFilter* geom =  
-  //      vtkMultiBlockPolyDataGeometryFilter::New();
-  // geom->SetInput(contour->GetOutput());
-  //
-  // vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  // mapper->SetInput(geom->GetOutput());
-
   // Standard testing code.
   ren->SetBackground(1,1,1);
   renWin->SetSize(300,300);
   iren->Start();
 
   // Cleanup
+  geom1->Delete();
+  geom2->Delete();
   ren->Delete();
   renWin->Delete();
   iren->Delete();

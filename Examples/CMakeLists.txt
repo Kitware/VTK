@@ -109,8 +109,8 @@ ELSE(VTK_BINARY_DIR)
   # Most examples require rendering support.
   IF(VTK_USE_RENDERING)
     SUBDIRS(
-      #AMR/Cxx
-      #MultiBlock/Cxx
+      AMR/Cxx
+      MultiBlock/Cxx
       DataManipulation/Cxx
       Medical/Cxx
       Modelling/Cxx
