@@ -49,11 +49,15 @@ Q190351 and Q150956.
 #pragma warning (disable: 4706)
 #endif
 
-/* The whole child pipeline will have one standard output and one
-   standard error.  */
-#define KWSYSPE_PIPE_COUNT 2
+/* The number of pipes for the child's output.  The standard stdout
+   and stderr pipes are the first two.  One more pipe is used to
+   detect when the child process has terminated.  The third pipe is
+   not given to the child process, so it cannot close it until it
+   terminates.  */
+#define KWSYSPE_PIPE_COUNT 3
 #define KWSYSPE_PIPE_STDOUT 0
 #define KWSYSPE_PIPE_STDERR 1
+#define KWSYSPE_PIPE_TERM 2
 
 /* The maximum amount to read from a pipe at a time.  */
 #define KWSYSPE_PIPE_BUFFER_SIZE 1024
@@ -62,12 +66,22 @@ Q190351 and Q150956.
 
 typedef LARGE_INTEGER kwsysProcessTime;
 
+typedef struct kwsysProcessCreateInformation_s
+{
+  /* Windows child startup control data.  */
+  STARTUPINFO StartupInfo;
+
+  /* Inherited pipe handles.  */
+  HANDLE InheritedWrite[KWSYSPE_PIPE_COUNT];
+} kwsysProcessCreateInformation;
+
 /*--------------------------------------------------------------------------*/
 typedef struct kwsysProcessPipeData_s kwsysProcessPipeData;
 static DWORD WINAPI kwsysProcessPipeThread(LPVOID ptd);
 static void kwsysProcessPipeThreadReadPipe(kwsysProcess* cp, kwsysProcessPipeData* td);
 static int kwsysProcessInitialize(kwsysProcess* cp);
-static int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
+static int kwsysProcessCreate(kwsysProcess* cp, int index,
+                              kwsysProcessCreateInformation* si,
                               PHANDLE readEnd);
 static void kwsysProcessDestroy(kwsysProcess* cp, int event);
 static void kwsysProcessCleanupHandle(PHANDLE h);
@@ -252,7 +266,7 @@ kwsysProcess* kwsysProcess_New()
   ZeroMemory(&osv, sizeof(osv));
   osv.dwOSVersionInfoSize = sizeof(osv);
   GetVersionEx(&osv);
-  if(osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
+  if(osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS || 1)
     {
     /* This is Win9x.  We need the console forwarding executable to
        work-around a Windows 9x bug.  */
@@ -769,8 +783,8 @@ void kwsysProcess_Execute(kwsysProcess* cp)
 {
   int i;
 
-  /* Windows child startup control data.  */
-  STARTUPINFO si;
+  /* Child startup control data.  */
+  kwsysProcessCreateInformation si;
   
   /* Do not execute a second time.  */
   if(cp->State == kwsysProcess_State_Executing)
@@ -803,37 +817,53 @@ void kwsysProcess_Execute(kwsysProcess* cp)
 
   /* Initialize startup info data.  */
   ZeroMemory(&si, sizeof(si));
-  si.cb = sizeof(si);
+  si.StartupInfo.cb = sizeof(si.StartupInfo);
   
   /* Decide whether a child window should be shown.  */
-  si.dwFlags |= STARTF_USESHOWWINDOW;
-  si.wShowWindow = (unsigned short)(cp->HideWindow?SW_HIDE:SW_SHOWDEFAULT);
+  si.StartupInfo.dwFlags |= STARTF_USESHOWWINDOW;
+  si.StartupInfo.wShowWindow =
+    (unsigned short)(cp->HideWindow?SW_HIDE:SW_SHOWDEFAULT);
   
   /* Connect the child's output pipes to the threads.  */
-  si.dwFlags = STARTF_USESTDHANDLES;
-  
-  /* Create the stderr pipe to be shared by all processes.  Neither
-     end is directly inherited.  */
-  if(!CreatePipe(&cp->Pipe[KWSYSPE_PIPE_STDERR].Read,
-                 &cp->Pipe[KWSYSPE_PIPE_STDERR].Write, 0, 0))
+  si.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+
+  /* Create pipes to be shared by all processes in the pipeline.  */
+  for(i=KWSYSPE_PIPE_STDERR; i < KWSYSPE_PIPE_COUNT; ++i)
     {
-    kwsysProcessCleanup(cp, 1);
-    return;
-    }
+    /* Create a pipe.  Neither end is directly inherited.  */
+    if(!CreatePipe(&cp->Pipe[i].Read,
+                   &cp->Pipe[i].Write, 0, 0))
+      {
+      kwsysProcessCleanup(cp, 1);
+      for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
+        {
+        kwsysProcessCleanupHandle(&si.InheritedWrite[i]);
+        }
+      return;
+      }
     
-  /* Create an inherited duplicate of the write end.  This also closes
-     the non-inherited version. */
-  if(!DuplicateHandle(GetCurrentProcess(), cp->Pipe[KWSYSPE_PIPE_STDERR].Write,
-                      GetCurrentProcess(), &cp->Pipe[KWSYSPE_PIPE_STDERR].Write,
-                      0, TRUE, (DUPLICATE_CLOSE_SOURCE |
-                                DUPLICATE_SAME_ACCESS)))
-    {
-    /* Write end is already closed.  */
-    cp->Pipe[KWSYSPE_PIPE_STDERR].Write = 0;
-    kwsysProcessCleanup(cp, 1);
-    return;
+    /* Create an inherited duplicate of the write end, but do not
+       close the non-inherited version.  We need to keep it open
+       to use in waking up the pipe threads.  */
+    if(!DuplicateHandle(GetCurrentProcess(), cp->Pipe[i].Write,
+                        GetCurrentProcess(), &si.InheritedWrite[i],
+                        0, TRUE, DUPLICATE_SAME_ACCESS))
+      {
+      /* Write end is already closed.  */
+      cp->Pipe[i].Write = 0;
+      kwsysProcessCleanup(cp, 1);
+      for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
+        {
+        kwsysProcessCleanupHandle(&si.InheritedWrite[i]);
+        }
+      return;
+      }
     }
-  si.hStdError = cp->Pipe[KWSYSPE_PIPE_STDERR].Write;
+
+  /* All children will share the stderr pipe.  They will also share
+     the termination pipe, but will not be given handles to it.  This
+     will allow detection of process termination when the pipe closes.  */
+  si.StartupInfo.hStdError = si.InheritedWrite[KWSYSPE_PIPE_STDERR];
 
   /* Create the pipeline of processes.  */
   {
@@ -853,16 +883,27 @@ void kwsysProcess_Execute(kwsysProcess* cp)
       kwsysProcessCleanupHandle(&readEnd);
       if(i > 0)
         {
-        kwsysProcessCleanupHandle(&si.hStdInput);
+        kwsysProcessCleanupHandle(&si.StartupInfo.hStdInput);
         }
-      kwsysProcessCleanupHandle(&si.hStdOutput);
+      kwsysProcessCleanupHandle(&si.StartupInfo.hStdOutput);
+      for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
+        {
+        kwsysProcessCleanupHandle(&si.InheritedWrite[i]);
+        }
       return;
       }
     }
-  /* Save handles to the output pipe for the last process.  */
-  cp->Pipe[KWSYSPE_PIPE_STDOUT].Write = si.hStdOutput;
+
+  /* Save a handle to the output pipe for the last process.  */
   cp->Pipe[KWSYSPE_PIPE_STDOUT].Read = readEnd;
   }
+
+  /* Close the inherited handles to the pipes shared by all processes
+     in the pipeline.  */
+  for(i=0; i < KWSYSPE_PIPE_COUNT; ++i)
+    {
+    kwsysProcessCleanupHandle(&si.InheritedWrite[i]);
+    }
 
   /* The timeout period starts now.  */
   cp->StartTime = kwsysProcessTimeGetCurrent();
@@ -980,6 +1021,10 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
         {
         /* The pipe closed.  */
         --cp->PipesLeft;
+        }
+      else if(cp->CurrentIndex == KWSYSPE_PIPE_TERM)
+        {
+        /* This is data on the special termination pipe.  Ignore it.  */
         }
       else if(pipes & (1 << cp->CurrentIndex))
         {
@@ -1322,7 +1367,8 @@ int kwsysProcessInitialize(kwsysProcess* cp)
 }
 
 /*--------------------------------------------------------------------------*/
-int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
+int kwsysProcessCreate(kwsysProcess* cp, int index,
+                       kwsysProcessCreateInformation* si,
                        PHANDLE readEnd)
 {
   HANDLE errorWriteEnd = 0;
@@ -1341,14 +1387,14 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
       {
       return 0;
       }
-    si->hStdInput = *readEnd;
+    si->StartupInfo.hStdInput = *readEnd;
 
     /* This function is done with this handle.  */
     *readEnd = 0;
     }
   else
     {
-    si->hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    si->StartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
     }
 
   /* Setup the process's stdout.  */
@@ -1362,16 +1408,31 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
     return 0;
     }
 
-  /* Create an inherited duplicate of the write end.  This also closes
-     the non-inherited version. */
-  if(!DuplicateHandle(GetCurrentProcess(), writeEnd,
-                      GetCurrentProcess(), &writeEnd,
-                      0, TRUE, (DUPLICATE_CLOSE_SOURCE |
-                                DUPLICATE_SAME_ACCESS)))
+  /* Create an inherited duplicate of the write end.  Close the
+     non-inherited version unless this is the last process.  Save the
+     non-inherited write end of the last process.  */
+  if(index == cp->NumberOfCommands-1)
     {
-    return 0;
+    cp->Pipe[KWSYSPE_PIPE_STDOUT].Write = writeEnd;
+    if(!DuplicateHandle(GetCurrentProcess(), writeEnd,
+                        GetCurrentProcess(), &writeEnd,
+                        0, TRUE, DUPLICATE_SAME_ACCESS))
+      {
+      return 0;
+      }
     }
-  si->hStdOutput = writeEnd;
+  else
+    {
+    if(!DuplicateHandle(GetCurrentProcess(), writeEnd,
+                        GetCurrentProcess(), &writeEnd,
+                        0, TRUE, (DUPLICATE_CLOSE_SOURCE |
+                                  DUPLICATE_SAME_ACCESS)))
+      {
+      return 0;
+      }
+    }
+
+  si->StartupInfo.hStdOutput = writeEnd;
   }
 
   /* Create the child process.  */
@@ -1399,7 +1460,7 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
       }
 
     /* The forwarding executable is given a handle to the error pipe
-       and a handle to the resume and kill events.  */
+       and resume and kill events.  */
     realCommand = malloc(strlen(cp->Win9x)+strlen(cp->Commands[index])+100);
     if(!realCommand)
       {
@@ -1420,7 +1481,8 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
      children have been created before running any one.  */
   r = CreateProcess(0, realCommand, 0, 0, TRUE,
                     cp->Win9x? 0 : CREATE_SUSPENDED, 0,
-                    cp->WorkingDirectory, si, &cp->ProcessInformation[index]);
+                    cp->WorkingDirectory, &si->StartupInfo,
+                    &cp->ProcessInformation[index]);
 
   if(cp->Win9x)
     {
@@ -1475,13 +1537,11 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
   if(index > 0)
     {
     /* Close our handle to the input pipe for the current process.  */
-    kwsysProcessCleanupHandle(&si->hStdInput);
+    kwsysProcessCleanupHandle(&si->StartupInfo.hStdInput);
     }
-  if(index < cp->NumberOfCommands-1)
-    {
-    /* Close our handle to the output pipe for the current process.  */
-    kwsysProcessCleanupHandle(&si->hStdOutput);
-    }
+
+  /* The parent process does not need the inhertied pipe write end.  */
+  kwsysProcessCleanupHandle(&si->StartupInfo.hStdOutput);
 
   return 1;
 }
