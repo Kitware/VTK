@@ -75,6 +75,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->Filename = NULL;
   this->Erase = 1;
   this->SwapBuffers = 1;
+  this->PPMImageFilePtr = NULL;
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -593,8 +594,8 @@ int vtkRenderWindow::OpenPPMImageFile()
   //  open the ppm file and write header 
   if ( this->Filename != NULL && *this->Filename != '\0')
     {
-    PpmImageFilePtr = fopen(this->Filename,"wb");
-    if (!PpmImageFilePtr)
+    this->PPMImageFilePtr = fopen(this->Filename,"wb");
+    if (!this->PPMImageFilePtr)
       {
       vtkErrorMacro(<< "RenderWindow unable to open image file for writing\n");
       return 0;
@@ -606,8 +607,8 @@ int vtkRenderWindow::OpenPPMImageFile()
 
 void vtkRenderWindow::ClosePPMImageFile()
 {
-  fclose(PpmImageFilePtr);
-  PpmImageFilePtr = NULL;
+  fclose(this->PPMImageFilePtr);
+  this->PPMImageFilePtr = NULL;
 }
 
 
@@ -622,19 +623,19 @@ void vtkRenderWindow::WritePPMImageFile()
   // get the data
   buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,1);
 
-  if(!PpmImageFilePtr)
+  if(!this->PPMImageFilePtr)
     {
     vtkErrorMacro(<< "RenderWindow: no image file for writing\n");
     return;
     }
  
   // write out the header info 
-  fprintf(PpmImageFilePtr,"P6\n%i %i\n255\n",size[0],size[1]);
+  fprintf(this->PPMImageFilePtr,"P6\n%i %i\n255\n",size[0],size[1]);
  
   // now write the binary info 
   for (i = size[1]-1; i >= 0; i--)
     {
-    fwrite(buffer + i*size[0]*3,1,size[0]*3,PpmImageFilePtr);
+    fwrite(buffer + i*size[0]*3,1,size[0]*3,this->PPMImageFilePtr);
     }
 
   delete [] buffer;
