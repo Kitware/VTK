@@ -149,7 +149,7 @@ void vtkStripper::Execute()
       } // if not visited
     } // for all elements
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   delete [] visited;
 
@@ -158,6 +158,7 @@ void vtkStripper::Execute()
 
   newStrips->Squeeze();
   this->SetStrips(newStrips);
+  newStrips->Delete();
 
   // pass through verts and lines
   this->SetVerts(input->GetVerts());

@@ -237,12 +237,31 @@ void vtkStructuredGridGeometryFilter::Execute()
 
     } // switch
 //
-// Update self
+// Update self and release memory
 //
-  this->SetPoints(newPts);
-  this->SetVerts(newVerts);
-  this->SetLines(newLines);
-  this->SetPolys(newPolys);
+  if (newPts)
+    {
+    this->SetPoints(newPts);
+    newPts->Delete();
+    }
+
+  if (newVerts)
+    {
+    this->SetVerts(newVerts);
+    newVerts->Delete();
+    }
+
+  if (newLines)
+    {
+    this->SetLines(newLines);
+    newLines->Delete();
+    }
+
+  if (newPolys)
+    {
+    this->SetPolys(newPolys);
+    newPolys->Delete();
+    }
 }
 
 void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 

@@ -112,11 +112,13 @@ void vtkExtractGeometry::Execute()
       }
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   delete [] pointMap;
 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->Squeeze();
 }
 

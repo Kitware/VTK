@@ -199,7 +199,7 @@ void vtkStructuredData::_Initialize()
 
   if ( this->PointVisibility )
     {
-    delete [] this->PointVisibility;
+    this->PointVisibility->Delete();
     this->PointVisibility = NULL;
     }
 }

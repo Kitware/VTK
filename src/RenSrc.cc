@@ -77,6 +77,7 @@ void vtkRendererSource::Execute()
 
   // Update ourselves
   this->PointData.SetScalars(outScalars);
+  outScalars->Delete();
 
   // free the memory
   delete [] pixels;

@@ -53,7 +53,7 @@ vtkVolume::vtkVolume()
 vtkVolume::~vtkVolume()
 {
   if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
-    delete this->LookupTable;
+    this->LookupTable->Delete();
 }
 
 // Description:
@@ -62,7 +62,7 @@ void vtkVolume::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
-    if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
+    if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
     this->SelfCreatedLookupTable = 0;
     this->LookupTable = lut;
     this->Modified();
@@ -77,7 +77,7 @@ vtkLookupTable *vtkVolume::GetLookupTable()
 
 void vtkVolume::CreateDefaultLookupTable()
 {
-  if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
+  if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
   this->LookupTable = new vtkLookupTable;
   this->LookupTable->SetAlphaRange(0,1);
   this->SelfCreatedLookupTable = 1;

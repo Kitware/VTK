@@ -75,8 +75,8 @@ void vtkTransform::Pop ()
   if (this->Stack == this->StackBottom) return;
 
   // free the stack matrix storage
-  delete *this->Stack;
-  *this->Stack = 0;
+  (*this->Stack)->Delete();
+  *this->Stack = NULL;
 
   // update the stack
   this->Stack--;
@@ -603,9 +603,9 @@ vtkTransform::~vtkTransform ()
   while (this->Stack != this->StackBottom) this->Pop ();
 
   // delete the bottom matrix
-  delete *this->Stack;
+  (*this->Stack)->Delete();
 
-  // delet the stack itself
+  // delete the stack itself
   delete this->Stack;
 }
 

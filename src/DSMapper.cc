@@ -25,8 +25,8 @@ vtkDataSetMapper::vtkDataSetMapper()
 vtkDataSetMapper::~vtkDataSetMapper()
 {
   // delete internally created objects.
-  if ( this->GeometryExtractor ) delete this->GeometryExtractor;
-  if ( this->PolyMapper ) delete this->PolyMapper;
+  if ( this->GeometryExtractor ) this->GeometryExtractor->Delete();
+  if ( this->PolyMapper ) this->PolyMapper->Delete();
 }
 
 void vtkDataSetMapper::SetInput(vtkDataSet *in)

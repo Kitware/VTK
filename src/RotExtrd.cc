@@ -207,12 +207,25 @@ void vtkRotationalExtrusionFilter::Execute()
       } //for each polygon or triangle strip
     } //for each cell
 //
-// Send data to output
+// Update ourselves and release memory
 //
   this->SetPoints(newPts);
-  if ( newLines ) this->SetLines(newLines);
-  if ( newPolys ) this->SetPolys(newPolys);
+  newPts->Delete();
+
+  if ( newLines ) 
+    {
+    this->SetLines(newLines);
+    newLines->Delete();
+    }
+
+  if ( newPolys ) 
+    {
+    this->SetPolys(newPolys);
+    newPolys->Delete();
+    }
+
   this->SetStrips(newStrips);
+  newStrips->Delete();
 
   this->Squeeze();
 }

@@ -79,8 +79,19 @@ void vtkTransformFilter::Execute()
   this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
-  this->PointData.SetNormals(newNormals);
-  this->PointData.SetVectors(newVectors);
+  newPts->Delete();
+
+  if (newNormals)
+    {
+    this->PointData.SetNormals(newNormals);
+    newNormals->Delete();
+    }
+
+  if (newVectors)
+    {
+    this->PointData.SetVectors(newVectors);
+    newVectors->Delete();
+    }
 }
 
 unsigned long vtkTransformFilter::GetMTime()

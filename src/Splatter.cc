@@ -190,12 +190,12 @@ void vtkGaussianSplatter::Execute()
     this->Cap(NewScalars);
     }
 //
-// Update self
+// Update self and release memeory
 //
   delete [] Visited;
 
   this->PointData.SetScalars(NewScalars);
-
+  NewScalars->Delete();
 }
 
 // Description:

@@ -77,11 +77,12 @@ void vtkVectorNorm::Execute()
       }
     }
 //
-// Update self
+// Update self and release memory
 //
   this->PointData.CopyScalarsOff();
   this->PointData.PassData(pd);
 
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 

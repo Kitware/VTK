@@ -188,20 +188,21 @@ void vtkGeometryFilter::Execute()
               this->InsertNextCell(face->GetCellType(), npts, pts);
               }
             }
-            delete cellCopy;
+            cellCopy->Delete();
           break;
 
         } //switch
       } //if visible
     } //for all cells
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->Squeeze();
 
   if ( cellVis ) delete [] cellVis;
-
 }
 
 void vtkGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

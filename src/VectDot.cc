@@ -87,12 +87,13 @@ void vtkVectorDot::Execute()
     newScalars->InsertScalar(ptId,s);
     }
 //
-// Update self
+// Update self and relase memory
 //
   this->PointData.CopyScalarsOff();
   this->PointData.PassData(this->Input->GetPointData());
 
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)

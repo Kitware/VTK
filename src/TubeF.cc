@@ -75,7 +75,7 @@ void vtkTubeFilter::Execute()
     if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
       {
       vtkErrorMacro(<< "No normals for line!\n");
-      delete inNormals;
+      inNormals->Delete();
       return;
       }
     }
@@ -211,12 +211,17 @@ void vtkTubeFilter::Execute()
 //
 // Update ourselves
 //
-  if ( deleteNormals ) delete inNormals;
+  if ( deleteNormals ) inNormals->Delete();
 
   this->SetPoints(newPts);
+  newPts->Delete();
 
   this->SetStrips(newStrips);
+  newStrips->Delete();
+
   this->PointData.SetNormals(newNormals);
+  newNormals->Delete();
+
   this->Squeeze();
 }
 

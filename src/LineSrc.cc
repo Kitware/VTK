@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for Line generator
-//
 #include <math.h>
 #include "LineSrc.hh"
 #include "FPoints.hh"
@@ -76,11 +73,16 @@ void vtkLineSource::Execute()
     newLines->InsertNextCell(2,pts);
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
+
   this->SetLines(newLines);
+  newLines->Delete();
 }
 
 void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)

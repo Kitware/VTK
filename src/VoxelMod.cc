@@ -172,7 +172,7 @@ void vtkVoxelModeller::Execute()
 // Update self
 //
   this->PointData.SetScalars(newScalars);
-
+  newScalars->Delete();
 }
 
 // Description:

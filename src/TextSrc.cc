@@ -327,11 +327,17 @@ void vtkTextSource::Execute()
       }
     pos++;
     }
-
-  // Update ourselves
+//
+// Update ourselves and release memory
+//
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
+
   this->SetPolys(newPolys);
+  newPolys->Delete();
 }
 
 void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)

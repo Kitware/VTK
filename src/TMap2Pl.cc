@@ -126,6 +126,7 @@ void vtkTextureMapToPlane::Execute()
   this->PointData.PassData(this->Input->GetPointData());
 
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
 }
 
 #define TOLERANCE 1.0e-03

@@ -102,9 +102,15 @@ void vtkThresholdPoints::Execute()
 
   vtkDebugMacro(<< "Extracted " << this->GetNumberOfPoints() << " points.");
 
-  // now clean up / update ourselves
+//
+// Update ourselves and release memory
+//
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->SetVerts(verts);
+  verts->Delete();
+
   this->Squeeze();
 }
 

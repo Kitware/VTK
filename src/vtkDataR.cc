@@ -249,6 +249,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
         }
       }
     ps->SetPoints(points);
+    points->Delete();
     }
 
   else if ( ! strncmp(line, "float", 5) )
@@ -279,6 +280,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
         }
       }
     ps->SetPoints(points);
+    points->Delete();
     }
 
   else 
@@ -349,8 +351,8 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetScalar(i,iv);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( ! strncmp(line, "unsigned char", 13) )
@@ -380,8 +382,8 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetScalar(i,c);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( ! strncmp(line, "short", 5) )
@@ -411,8 +413,8 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetScalar(i,s);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( ! strncmp(line, "int", 3) )
@@ -442,8 +444,8 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetScalar(i,iv);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( ! strncmp(line, "float", 5) )
@@ -473,8 +475,8 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetScalar(i,f);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else 
@@ -536,8 +538,8 @@ int vtkDataReader::ReadVectorData(FILE *fp, vtkDataSet *ds, int numPts)
         vectors->SetVector(i,v);
         }
       }
-    if ( skipVector ) delete vectors;
-    else ds->GetPointData()->SetVectors(vectors);
+    if ( ! skipVector ) ds->GetPointData()->SetVectors(vectors);
+    vectors->Delete();
     }
 
   else 
@@ -598,8 +600,8 @@ int vtkDataReader::ReadNormalData(FILE *fp, vtkDataSet *ds, int numPts)
         normals->SetNormal(i,n);
         }
       }
-    if ( skipNormal ) delete normals;
-    else ds->GetPointData()->SetNormals(normals);
+    if ( ! skipNormal ) ds->GetPointData()->SetNormals(normals);
+    normals->Delete();
     }
 
   else 
@@ -663,8 +665,8 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
         tensors->SetTensor(i,tensor);
         }
       }
-    if ( skipTensor ) delete tensors;
-    else ds->GetPointData()->SetTensors(tensors);
+    if ( ! skipTensor ) ds->GetPointData()->SetTensors(tensors);
+    tensors->Delete();
     }
 
   else 
@@ -728,8 +730,8 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetColor(i,rgba);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( nValues == 2 )
@@ -763,8 +765,8 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetColor(i,rgba);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( nValues == 3 )
@@ -799,8 +801,8 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetColor(i,rgba);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else if ( nValues == 4 )
@@ -835,8 +837,8 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
         scalars->SetColor(i,rgba);
         }
       }
-    if ( skipScalar ) delete scalars;
-    else ds->GetPointData()->SetScalars(scalars);
+    if ( ! skipScalar ) ds->GetPointData()->SetScalars(scalars);
+    scalars->Delete();
     }
 
   else
@@ -909,8 +911,8 @@ int vtkDataReader::ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts)
         tcoords->SetTCoord(i,tc);
         }
       }
-    if ( skipTCoord ) delete tcoords;
-    else ds->GetPointData()->SetTCoords(tcoords);
+    if ( ! skipTCoord ) ds->GetPointData()->SetTCoords(tcoords);
+    tcoords->Delete();
     }
 
   else 
@@ -971,8 +973,8 @@ int vtkDataReader::ReadLutData(FILE *fp, vtkDataSet *ds, int numPts)
       }
     }
 
-  if ( skipTable ) delete lut;
-  else ds->GetPointData()->GetScalars()->SetLookupTable(lut);
+  if ( ! skipTable ) ds->GetPointData()->GetScalars()->SetLookupTable(lut);
+  lut->Delete();
 
   return 1;
 }

@@ -223,6 +223,7 @@ void vtkShepardMethod::Execute()
 //
   delete [] sum;
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 // Description:

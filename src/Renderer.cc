@@ -74,9 +74,9 @@ vtkRenderer::vtkRenderer()
 vtkRenderer::~vtkRenderer()
 {
   if ( this->SelfCreatedCamera && this->ActiveCamera != NULL) 
-    delete this->ActiveCamera;
+    this->ActiveCamera->Delete();
   if ( this->SelfCreatedLight && this->CreatedLight != NULL) 
-    delete this->CreatedLight;
+    this->CreatedLight->Delete();
 }
 
 // Description:
@@ -85,7 +85,7 @@ void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
   if ( this->ActiveCamera != cam ) 
     {
-    if ( this->SelfCreatedCamera ) delete this->ActiveCamera;
+    if ( this->SelfCreatedCamera ) this->ActiveCamera->Delete();
     this->SelfCreatedCamera = 0;
     this->ActiveCamera = cam;
     this->Modified();

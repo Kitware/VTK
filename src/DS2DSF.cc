@@ -24,7 +24,7 @@ vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
 
 vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()
 {
-  delete this->DataSet;
+  this->DataSet->Delete();
 }
 
 // Description:

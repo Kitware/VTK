@@ -164,14 +164,16 @@ void vtkFeatureEdges::Execute()
 //
 //  Update ourselves.
 //
-  if ( this->FeatureEdges ) delete polyNormals;
+  if ( this->FeatureEdges ) polyNormals->Delete();
 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->SetLines(newLines);
-  if ( this->Coloring )
-    this->PointData.SetScalars(newScalars);
-  else
-    delete newScalars;
+  newLines->Delete();
+
+  if ( this->Coloring ) this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 void vtkFeatureEdges::PrintSelf(ostream& os, vtkIndent indent)

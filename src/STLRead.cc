@@ -34,7 +34,7 @@ vtkSTLReader::vtkSTLReader()
 vtkSTLReader::~vtkSTLReader()
 {
   if (this->Filename) delete [] this->Filename;
-  if (this->SelfCreatedLocator) delete this->Locator;
+  if (this->SelfCreatedLocator) this->Locator->Delete();
 }
 
 void vtkSTLReader::Execute()
@@ -55,7 +55,6 @@ void vtkSTLReader::Execute()
 
   newPts = new vtkFloatPoints(5000,10000);
   newPolys = new vtkCellArray(10000,20000);
-  
 //
 // Depending upon file type, read differently
 //
@@ -96,8 +95,8 @@ void vtkSTLReader::Execute()
         mergedPolys->InsertNextCell(3,nodes);
       }
 
-      delete newPts;
-      delete newPolys;
+      newPts->Delete();
+      newPolys->Delete();
 
       vtkDebugMacro(<< "Merged to: " 
                    << mergedPts->GetNumberOfPoints() << " points, " 
@@ -109,18 +108,17 @@ void vtkSTLReader::Execute()
     mergedPolys = newPolys;
     }
 //
-// Since we sized the dynamic arrays arbitrarily to begin with 
-// need to resize them to fit data
-//
-  mergedPts->Squeeze();
-  mergedPolys->Squeeze();
-//
 // Update ourselves
 //
   this->SetPoints(mergedPts);
+  mergedPts->Delete();
+
   this->SetPolys(mergedPolys);
+  mergedPolys->Delete();
 
   if (this->Locator) this->Locator->Initialize(); //free storage
+
+  this->Squeeze();
 }
 
 int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *newPolys)
@@ -242,7 +240,7 @@ void vtkSTLReader::SetLocator(vtkLocator *locator)
 {
   if ( this->Locator != locator ) 
     {
-    if ( this->SelfCreatedLocator ) delete this->Locator;
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
     this->SelfCreatedLocator = 0;
     this->Locator = locator;
     this->Modified();
@@ -251,7 +249,7 @@ void vtkSTLReader::SetLocator(vtkLocator *locator)
 
 void vtkSTLReader::CreateDefaultLocator()
 {
-  if ( this->SelfCreatedLocator ) delete this->Locator;
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
   this->Locator = new vtkMergePoints;
   this->SelfCreatedLocator = 1;
 }

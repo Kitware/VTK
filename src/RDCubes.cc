@@ -133,11 +133,17 @@ void vtkRecursiveDividingCubes::Execute()
     }
   vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << "points");
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(NewPts);
+  NewPts->Delete();
+
   this->SetVerts(NewVerts);
+  NewVerts->Delete();
+
   this->GetPointData()->SetNormals(NewNormals);
+  NewNormals->Delete();
+
   this->Squeeze();
 }
 

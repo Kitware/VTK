@@ -52,12 +52,13 @@ void vtkWarpTo::Execute()
     newPts->SetPoint(ptId, newX);
     }
   //
-  // Update ourselves
+  // Update ourselves and release memory
   //
   this->PointData.CopyNormalsOff(); // distorted geometry - normals are bad
   this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
+  newPts->Delete();
 }
 
 void vtkWarpTo::PrintSelf(ostream& os, vtkIndent indent)

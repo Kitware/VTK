@@ -30,6 +30,12 @@ vtkDataSet(ps)
   this->Locator = ps.Locator;
 }
 
+vtkPointSet::~vtkPointSet ()
+{
+  this->Initialize();
+  if ( this->Locator ) this->Locator->Delete();
+}
+
 void vtkPointSet::Initialize()
 {
   vtkDataSet::Initialize();

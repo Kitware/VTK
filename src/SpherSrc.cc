@@ -123,11 +123,16 @@ void vtkSphereSource::Execute()
       }
     }
 //
-// Update ourselves
+// Update ourselves and release memeory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->PointData.SetNormals(newNormals);
+  newNormals->Delete();
+
   this->SetPolys(newPolys);
+  newPolys->Delete();
 }
 
 void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)

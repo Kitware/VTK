@@ -375,11 +375,17 @@ void vtkCyberReader::Execute()
   npolygon = newTris->GetNumberOfCells();
   vtkDebugMacro(<<"Read "<<nvertex<<" vertices, "<<npolygon<<" polygons");
 //
-//  Send to data out
+//  Update output and release memory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->SetPolys(newTris);
+  newTris->Delete();
+
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
+
   this->Squeeze();
 //
 //  Free resources

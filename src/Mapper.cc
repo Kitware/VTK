@@ -39,7 +39,7 @@ vtkMapper::vtkMapper()
 vtkMapper::~vtkMapper()
 {
   if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
-    delete this->LookupTable;
+    this->LookupTable->Delete();
 }
 
 // Description:
@@ -134,7 +134,7 @@ void vtkMapper::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
-    if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
+    if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
     this->SelfCreatedLookupTable = 0;
     this->LookupTable = lut;
     this->Modified();
@@ -149,7 +149,7 @@ vtkLookupTable *vtkMapper::GetLookupTable()
 
 void vtkMapper::CreateDefaultLookupTable()
 {
-  if ( this->SelfCreatedLookupTable ) delete this->LookupTable;
+  if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
   this->LookupTable = new vtkLookupTable;
   this->SelfCreatedLookupTable = 1;
 }

@@ -31,6 +31,7 @@ class vtkPointSet : public vtkDataSet
 {
 public:
   vtkPointSet();
+  ~vtkPointSet();
   vtkPointSet(const vtkPointSet& ps);
   char *GetClassName() {return "vtkPointSet";};
   void PrintSelf(ostream& os, vtkIndent indent);

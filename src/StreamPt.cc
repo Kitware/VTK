@@ -88,8 +88,16 @@ void vtkStreamPoints::Execute()
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points");
 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->PointData.SetVectors(newVectors);
-  if ( newScalars ) this->PointData.SetScalars(newScalars);
+  newVectors->Delete();
+
+  if ( newScalars ) 
+    {
+    this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
+    }
 
   this->Squeeze();
 }

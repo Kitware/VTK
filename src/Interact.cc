@@ -49,8 +49,8 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
-  if ( this->OutlineActor ) delete this->OutlineActor;
-  if ( this->SelfCreatedPicker && this->Picker) delete this->Picker;
+  if ( this->OutlineActor ) this->OutlineActor->Delete();
+  if ( this->SelfCreatedPicker && this->Picker) this->Picker->Delete();
 }
 
 void vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
@@ -165,7 +165,7 @@ void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
 {
   if ( this->Picker != picker ) 
     {
-    if ( this->SelfCreatedPicker ) delete this->Picker;
+    if ( this->SelfCreatedPicker ) this->Picker->Delete();
     this->SelfCreatedPicker = 0;
     this->Picker = picker;
     this->Modified();
@@ -174,7 +174,7 @@ void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
 
 vtkPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 {
-  if ( this->SelfCreatedPicker ) delete this->Picker;
+  if ( this->SelfCreatedPicker ) this->Picker->Delete();
   this->SelfCreatedPicker = 1;
   return new vtkCellPicker;
 }

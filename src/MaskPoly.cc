@@ -134,16 +134,37 @@ void vtkMaskPolyData::Execute()
       }
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   // pass through points and point data
   this->SetPoints(input->GetPoints());
   pd = input->GetPointData();
   this->PointData = *pd;
-  this->SetVerts(newVerts);
-  this->SetLines(newLines);
-  this->SetPolys(newPolys);
-  this->SetStrips(newStrips);
+
+  if (newVerts)
+    {
+    this->SetVerts(newVerts);
+    newVerts->Delete();
+    }
+
+  if (newLines)
+    {
+    this->SetLines(newLines);
+    newLines->Delete();
+    } 
+
+  if (newPolys)
+    {
+    this->SetPolys(newPolys);
+    newPolys->Delete();
+    }
+
+  if (newStrips)
+    {
+    this->SetStrips(newStrips);
+    newStrips->Delete();
+    }
+
   this->Squeeze();
 }
 

@@ -78,9 +78,11 @@ void vtkOutlineFilter::Execute()
   pts[0] = 3; pts[1] = 7;
   newLines->InsertNextCell(2,pts);
 //
-// Update selves
+// Update selves and release memory
 //
   this->SetPoints(newPts);
-  this->SetLines(newLines);
+  newPts->Delete();
 
+  this->SetLines(newLines);
+  newLines->Delete();
 }

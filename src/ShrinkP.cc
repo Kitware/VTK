@@ -173,13 +173,19 @@ void vtkShrinkPolyData::Execute()
       }
     }
 //
-// Update self
+// Update self and release memory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
 
   this->SetVerts(newVerts);
+  newVerts->Delete();
+
   this->SetLines(newLines);
+  newLines->Delete();
+ 
   this->SetPolys(newPolys);
+  newPolys->Delete();
 }
 
 

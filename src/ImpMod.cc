@@ -174,10 +174,10 @@ void vtkImplicitModeller::Execute()
     this->Cap(newScalars);
     }
 //
-// Update self
+// Update self and release memory
 //
   this->PointData.SetScalars(newScalars);
-
+  newScalars->Delete();
 }
 
 // Description:

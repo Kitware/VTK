@@ -99,12 +99,13 @@ void vtkWarpScalar::Execute()
     newPts->SetPoint(ptId, newX);
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->PointData.CopyNormalsOff(); // distorted geometry - normals are bad
   this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
+  newPts->Delete();
 }
 
 void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)

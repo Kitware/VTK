@@ -136,8 +136,13 @@ void vtkEdgePoints::Execute()
 // created, take care to reclaim memory. 
 //
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->SetVerts(newVerts);
+  newVerts->Delete();
+
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 
   this->Squeeze();
 }
@@ -147,7 +152,6 @@ void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
   os << indent << "Contour Value: " << this->Value << "\n";
-
 }
 
 

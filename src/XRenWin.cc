@@ -27,6 +27,11 @@ vtkXRenderWindow::vtkXRenderWindow()
   this->ColorMap = (Colormap)NULL;
 }
 
+vtkXRenderWindow::~vtkXRenderWindow()
+{
+  if (this->Interactor) this->Interactor->Delete();
+}
+
 // Description:
 // Get the size of the screen in pixels
 int *vtkXRenderWindow::GetScreenSize()

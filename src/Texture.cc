@@ -34,7 +34,7 @@ vtkTexture::~vtkTexture()
 {
   if (this->Device)
     {
-    delete this->Device;
+    this->Device->Delete();
     }
 }
 

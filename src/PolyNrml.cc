@@ -142,7 +142,7 @@ void vtkPolyNormals::Execute()
     vtkDebugMacro(<<"Exceeded recursion depth " << NumExceededMaxDepth
                  <<" times");
 
-    delete Seeds;
+    Seeds->Delete();
     }
 //
 //  Compute polygon normals
@@ -200,7 +200,7 @@ void vtkPolyNormals::Execute()
       newPts->SetPoint(ptId,inPts->GetPoint(oldId));
       this->PointData.CopyData(pd,oldId,ptId);
       }
-    delete Map;
+    Map->Delete();
     } 
   else //no splitting
     {
@@ -210,7 +210,7 @@ void vtkPolyNormals::Execute()
 //  Finally, traverse all elements, computing polygon normals and
 //  accumalating them at the vertices.
 //
-  if ( Visited ) delete Visited;
+  if ( Visited ) delete [] Visited;
 
   if ( this->FlipNormals && ! this->Consistency ) flipDirection = -1.0;
 
@@ -241,7 +241,7 @@ void vtkPolyNormals::Execute()
       }
     newNormals->SetNormal(i,n);
     }
-  delete PolyNormals;
+  PolyNormals->Delete();
 //
 //  Update ourselves.  If no new nodes have been created (i.e., no
 //  splitting), can simply pass data through.
@@ -256,13 +256,17 @@ void vtkPolyNormals::Execute()
   else
     {
     this->SetPoints(newPts);
+    newPts->Delete();
     }
 
   this->PointData.SetNormals(newNormals);
-  this->SetPolys(newPolys);
+  newNormals->Delete();
 
-  delete OldMesh;
-  delete NewMesh;
+  this->SetPolys(newPolys);
+  newPolys->Delete();
+
+  OldMesh->Delete();
+  NewMesh->Delete();
 }
 
 //

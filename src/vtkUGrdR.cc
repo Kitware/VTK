@@ -192,6 +192,7 @@ void vtkUnstructuredGridReader::Execute()
         if ( !this->Reader.ReadCells(fp, size, cells->WritePtr(ncells,size)) ) return;
         cells->WrotePtr();
         if ( cells && types ) this->SetCells(types, cells);
+        cells->Delete();
         }
 
       else if ( ! strncmp(line,"cell_types",5) )

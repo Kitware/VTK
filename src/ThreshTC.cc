@@ -101,6 +101,7 @@ void vtkThresholdTextureCoords::Execute()
     } //for all points
 
   this->GetPointData()->SetTCoords(newTCoords);
+  newTCoords->Delete();
 }
 
 void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)

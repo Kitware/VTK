@@ -26,6 +26,7 @@ vtkDataSetReader::vtkDataSetReader()
 
 vtkDataSetReader::~vtkDataSetReader()
 {
+  if ( this->DataSet ) this->DataSet->Delete();
 }
 
 // Description:
@@ -219,7 +220,7 @@ void vtkDataSetReader::Execute()
 //
 // Create appropriate dataset
 //
-  if ( this->DataSet ) delete this->DataSet;
+  if ( this->DataSet ) this->DataSet->Delete();
   this->DataSet = reader;
   this->PointData = *(reader->GetPointData());
 

@@ -72,15 +72,26 @@ void vtkTransformPolyFilter::Execute()
     this->Transform->MultiplyNormals(inNormals,newNormals);
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->PointData.CopyVectorsOff();
   this->PointData.CopyNormalsOff();
   this->PointData.PassData(input->GetPointData());
 
   this->SetPoints(newPts);
-  this->PointData.SetNormals(newNormals);
-  this->PointData.SetVectors(newVectors);
+  newPts->Delete();
+
+  if (newNormals)
+    {
+    this->PointData.SetNormals(newNormals);
+    newNormals->Delete();
+    }
+
+  if (newVectors)
+    {
+    this->PointData.SetVectors(newVectors);
+    newVectors->Delete();
+    }
 
   this->SetVerts(input->GetVerts());
   this->SetLines(input->GetLines());

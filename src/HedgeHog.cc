@@ -68,10 +68,13 @@ void vtkHedgeHog::Execute()
     this->PointData.CopyData(pd,ptId,pts[1]);
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->SetLines(newLines);
+  newLines->Delete();
 }
 
 void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)

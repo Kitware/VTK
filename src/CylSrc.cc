@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for cylinder generator
-//
 #include <math.h>
 #include "CylSrc.hh"
 #include "FPoints.hh"
@@ -150,14 +147,20 @@ void vtkCylinderSource::Execute()
 
     } // if capping
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->PointData.SetNormals(newNormals);
+  newNormals->Delete();
+
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   this->SetPolys(newPolys);
+  newPolys->Delete();
 }
 
 void vtkCylinderSource::PrintSelf(ostream& os, vtkIndent indent)

@@ -55,10 +55,13 @@ void vtkPointSource::Execute()
     newVerts->InsertCellPoint(newPoints->InsertNextPoint(x));
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->SetVerts(newVerts);
+  newVerts->Delete();
 }
 
 void vtkPointSource::PrintSelf(ostream& os, vtkIndent indent)

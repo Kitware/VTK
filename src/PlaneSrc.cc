@@ -97,13 +97,19 @@ void vtkPlaneSource::Execute()
       }
     }
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   this->SetPoints(newPoints);
+  newPoints->Delete();
+
   this->PointData.SetNormals(newNormals);
+  newNormals->Delete();
+
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
 
   this->SetPolys(newPolys);
+  newPolys->Delete();
 }
 
 void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)

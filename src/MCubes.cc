@@ -324,10 +324,20 @@ void vtkMarchingCubes::Execute()
 // we've created, take care to reclaim memory. 
 //
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->SetPolys(newPolys);
+  newPolys->Delete();
+
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
+
   this->PointData.SetVectors(newGradients);
+  newGradients->Delete();
+
   this->PointData.SetNormals(newNormals);
+  newNormals->Delete();
+
   this->Squeeze();
 }
 

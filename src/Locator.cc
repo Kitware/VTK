@@ -15,7 +15,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Locator.hh"
 #include "vtkMath.hh"
-
 #include "IntArray.hh"
 
 class vtkNeighborPoints
@@ -88,7 +87,7 @@ void vtkLocator::FreeSearchStructure()
     {
     for (i=0; i<this->NumberOfBuckets; i++)
       {
-      if ( (ptIds = this->HashTable[i]) ) delete ptIds;
+      if ( (ptIds = this->HashTable[i]) ) ptIds->Delete();
       }
     delete [] this->HashTable;
     this->HashTable = NULL;

@@ -50,6 +50,7 @@ void vtkPNMSource::Execute()
   this->SetAspectRatio(this->DataAspectRatio);
   this->SetOrigin(this->DataOrigin);
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
@@ -95,7 +96,7 @@ vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
       }
     else
       {
-      delete graymap;
+      graymap->Delete();
       }
     }
 
@@ -108,7 +109,7 @@ vtkColorScalars *vtkPNMSource::ReadImage(int dim[3])
       }
     else
       {
-      delete pixmap;
+      pixmap->Delete();
       }
     }
   else

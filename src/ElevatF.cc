@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for elevation filter
-//
 #include "ElevatF.hh"
 #include "vtkMath.hh"
 #include "FScalars.hh"
@@ -94,6 +91,7 @@ void vtkElevationFilter::Execute()
   this->PointData.PassData(this->Input->GetPointData());
 
   this->PointData.SetScalars(newScalars);
+  newScalars->Delete();
 }
 
 void vtkElevationFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -24,7 +24,7 @@ vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
 
 vtkPointSetToPointSetFilter::~vtkPointSetToPointSetFilter()
 {
-  delete this->PointSet;
+  this->PointSet->Delete();
 }
 
 vtkDataSet* vtkPointSetToPointSetFilter::MakeObject()

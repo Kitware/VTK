@@ -127,18 +127,27 @@ void vtkDashedStreamLine::Execute()
       } //for this streamer
     } //for all streamers
 //
-// Update ourselves
+// Update ourselves and release memory
 //
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->PointData.SetVectors(newVectors);
-  if ( newScalars ) this->PointData.SetScalars(newScalars);
+  newVectors->Delete();
+
+  if ( newScalars )
+    {
+    this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
+    }
+
   this->SetLines(newLines);
+  newLines->Delete();
 
   this->Squeeze();
-
 }
 
 void vtkDashedStreamLine::PrintSelf(ostream& os, vtkIndent indent)

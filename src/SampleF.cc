@@ -164,7 +164,13 @@ void vtkSampleFunction::Execute()
 // Update self
 //
   this->PointData.SetScalars(newScalars);
-  this->PointData.SetNormals(newNormals);
+  newScalars->Delete();
+
+  if (newNormals)
+    {
+    this->PointData.SetNormals(newNormals);
+    newNormals->Delete();
+    }
 }
 
 

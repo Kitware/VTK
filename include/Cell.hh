@@ -46,7 +46,7 @@ class vtkCellArray;
 class vtkCell : public vtkObject
 {
 public:
-  vtkCell(): Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE) {};
+  vtkCell();
   void Initialize(int npts, int *pts, vtkPoints *p);
   char *GetClassName() {return "vtkCell";};
   void PrintSelf(ostream& os, vtkIndent indent);

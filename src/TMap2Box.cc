@@ -87,6 +87,7 @@ void vtkTextureMapToBox::Execute()
   this->PointData.PassData(this->Input->GetPointData());
 
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
 }
 
 // Description:

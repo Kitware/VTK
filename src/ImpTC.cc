@@ -126,6 +126,7 @@ void vtkImplicitTextureCoords::Execute()
   this->PointData.PassData(input->GetPointData());
 
   this->PointData.SetTCoords(newTCoords);
+  newTCoords->Delete();
 }
 
 void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)

@@ -22,7 +22,7 @@ void vtkTriangleFilter::Execute()
   vtkCellArray *inPolys=input->GetPolys();
   vtkCellArray *inStrips=input->GetStrips();;
   int npts, *pts;
-  vtkCellArray *newPolys=NULL;
+  vtkCellArray *newPolys;
   int numCells;
   int p1, p2, p3;
   vtkPolygon poly;
@@ -89,6 +89,7 @@ void vtkTriangleFilter::Execute()
 //
   newPolys->Squeeze();
   this->SetPolys(newPolys);
+  newPolys->Delete();
 
   // pass through points and point data
   this->SetPoints(input->GetPoints());

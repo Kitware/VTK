@@ -117,9 +117,11 @@ void vtkStructuredGridOutlineFilter::Execute()
       }
     }
 //
-// Update selves
+// Update selves and release memory
 //
   this->SetPoints(newPts);
-  this->SetLines(newLines);
+  newPts->Delete();
 
+  this->SetLines(newLines);
+  newLines->Delete();
 }

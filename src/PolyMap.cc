@@ -35,11 +35,11 @@ vtkPolyMapper::vtkPolyMapper()
 vtkPolyMapper::~vtkPolyMapper()
 {
   //delete internally created objects
-  if ( this->Verts != NULL ) delete this->Verts;
-  if ( this->Lines != NULL ) delete this->Lines;
-  if ( this->Polys != NULL ) delete this->Polys;
-  if ( this->Strips != NULL ) delete this->Strips;
-  if ( this->Colors != NULL ) delete this->Colors;
+  if ( this->Verts != NULL ) this->Verts->Delete();
+  if ( this->Lines != NULL ) this->Lines->Delete();
+  if ( this->Polys != NULL ) this->Polys->Delete();
+  if ( this->Strips != NULL ) this->Strips->Delete();
+  if ( this->Colors != NULL ) this->Colors->Delete();
 }
 
 void vtkPolyMapper::SetInput(vtkPolyData *in)
@@ -133,7 +133,7 @@ void vtkPolyMapper::Render(vtkRenderer *ren)
       }
     else
       {
-      if ( this->Colors ) delete this->Colors;
+      if ( this->Colors ) this->Colors->Delete();
       this->Colors = colors = NULL;
       }
 

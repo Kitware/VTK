@@ -117,12 +117,21 @@ void vtkStreamLine::Execute()
                << newLines->GetNumberOfCells() << " lines");
 
   this->SetPoints(newPts);
+  newPts->Delete();
+
   this->PointData.SetVectors(newVectors);
-  if ( newScalars ) this->PointData.SetScalars(newScalars);
+  newVectors->Delete();
+
+  if ( newScalars ) 
+    {
+    this->PointData.SetScalars(newScalars);
+    newScalars->Delete();
+    }
+
   this->SetLines(newLines);
+  newLines->Delete();
 
   this->Squeeze();
-
 }
 
 void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
