@@ -60,10 +60,6 @@ public:
   static vtkWin32TextMapper *New();
 
   // Description:
-  // Actally draw the text.
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
-
-  // Description:
   // What is the size of the rectangle required to draw this
   // mapper ?
   void GetSize(vtkViewport* viewport, int size[2]);

@@ -67,10 +67,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32OpenGLImageWindow.h"
 #include "vtkWin32OpenGLTextMapper.h"
 #include "vtkOpenGLPolyDataMapper2D.h"
-#include "vtkWin32TextMapper.h"
-#include "vtkWin32ImageWindow.h"
-#include "vtkWin32ImageMapper.h"
-#include "vtkWin32PolyDataMapper2D.h"
 #else
  #ifdef VTK_USE_QUARTZ
   #include "vtkOpenGLImageMapper.h"
@@ -80,11 +76,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #include "vtkQuartzImageWindow.h"
   #include "vtkQuartzImageMapper.h"
   #include "vtkQuartzPolyDataMapper2D.h"
- #else
-  #include "vtkXTextMapper.h"
-  #include "vtkXImageWindow.h"
-  #include "vtkXImageMapper.h"
-  #include "vtkXPolyDataMapper2D.h"
  #endif
 #endif
 
@@ -118,13 +109,13 @@ const char *vtkImagingFactoryGetRenderLibrary()
   //  does not have opengl but they do have mesa, then use it
 #ifndef VTK_USE_OGLR
 #ifdef VTK_USE_MESA
-	if ( temp != NULL )
-	{
-		if (!strcmp("OpenGL",temp))
-		{
-			temp = "Mesa";
-		}
-	}
+  if ( temp != NULL )
+    {
+    if (!strcmp("OpenGL",temp))
+      {
+      temp = "Mesa";
+      }
+    }
 #endif
 #endif
   
@@ -163,30 +154,9 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
   vtkDebugLeaks::DestructClass(vtkclassname);
 #endif
 
-#ifdef VTK_USE_OGLR
-#ifdef VTK_USE_NATIVE_IMAGING
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkXTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-      {
-      return vtkXImageWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkImager") == 0)
-      {
-      return NULL;
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkXImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkXPolyDataMapper2D::New();
-      }
-#else
   const char *rl = vtkImagingFactoryGetRenderLibrary();
+
+#ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -211,28 +181,8 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
-#endif
 
 #ifdef _WIN32
-#ifdef VTK_USE_NATIVE_IMAGING
-  if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-    {
-    return vtkWin32TextMapper::New();
-    }
-  if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-    {
-    return vtkWin32ImageWindow::New();
-    }
-  if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-    {
-    return vtkWin32ImageMapper::New();
-    }
-  if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-    {
-    return vtkWin32PolyDataMapper2D::New();
-    }
-#else
-  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("Win32OpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -257,28 +207,8 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
-#endif
 
 #ifdef VTK_USE_QUARTZ
-#ifdef VTK_USE_NATIVE_IMAGING
-  if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-    {
-    return vtkQuartzTextMapper::New();
-    }
-  if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-    {
-    return vtkQuartzImageWindow::New();
-    }
-  if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-    {
-    return vtkQuartzImageMapper::New();
-    }
-  if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-    {
-    return vtkQuartzPolyDataMapper2D::New();
-    }
-#else
-  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("QuartzOpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -303,29 +233,9 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       }
     }
 #endif
-#endif
 
 
 #ifdef VTK_USE_MESA
-#ifdef VTK_USE_NATIVE_IMAGING
-    if(strcmp(vtkclassname, "vtkTextMapper") == 0)
-      {
-      return vtkXTextMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageWindow") == 0)
-      {
-      return vtkXImageWindow::New();
-      }
-    if(strcmp(vtkclassname, "vtkImageMapper") == 0)
-      {
-      return vtkXImageMapper::New();
-      }
-    if(strcmp(vtkclassname, "vtkPolyDataMapper2D") == 0)
-      {
-      return vtkXPolyDataMapper2D::New();
-      }
-#else
-  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("Mesa",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -349,7 +259,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       return vtkMesaPolyDataMapper2D::New();
       }
     }
-#endif
 #endif 
   vtkGenericWarningMacro("Attempting to create an OpenGL or Mesa based object with a VTK that is not linked/configured with Mesa/OpenGL.");
   abort();
