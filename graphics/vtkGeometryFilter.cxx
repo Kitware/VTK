@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPyramid.h"
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkGeometryFilter* vtkGeometryFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -160,6 +160,11 @@ void vtkGeometryFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
+
+  if (numCells == 0)
+    {
+    return;
+    }
 
   switch (input->GetDataObjectType())
     {
