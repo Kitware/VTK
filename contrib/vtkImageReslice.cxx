@@ -167,24 +167,33 @@ unsigned long int vtkImageReslice::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-// check a matrix to see whether it is the identity matrix
+// fast floor() function for converting a float to an int
+// (the floor() implementation on some computers is much slower than this,
+// because they require some 'exact' behaviour that we don't).
 
-static int vtkIsIdentityMatrix(vtkMatrix4x4 *matrix)
+static inline int vtkResliceFloor(float x, float &f)
 {
-  static double identity[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
-  int i,j;
+  int ix = int(x);
+  f = x-ix;
+  if (f < 0) { f = x - (--ix); }
 
-  for (i = 0; i < 4; i++)
-    {
-    for (j = 0; j < 4; j++)
-      {
-      if (matrix->GetElement(i,j) != identity[4*i+j])
-	{
-	return 0;
-	}
-      }
-    }
-  return 1;
+  return ix;
+}
+
+static inline int vtkResliceFloor(float x)
+{
+  int ix = int(x);
+  if (x-ix < 0) { ix--; }
+
+  return ix;
+}
+
+static inline int vtkResliceCeil(float x)
+{
+  int ix = int(x);
+  if (x-ix > 0) { ix++; }
+
+  return ix;
 }
 
 //----------------------------------------------------------------------------
@@ -266,18 +275,18 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       int extra = (this->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
 	{
-	k = int(floor(point[j]))-extra;
+	k = vtkResliceFloor(point[j])-extra;
 	if (k < inExt[2*j]) 
 	  {
 	  inExt[2*j] = k;
 	  }
 	if (wrap)
 	  {
-	  k = int(floor(point[j]))+1+extra;	
+	  k = vtkResliceFloor(point[j])+1+extra;	
 	  }
 	else
 	  {
-	  k = int(ceil(point[j]))+extra;
+	  k = vtkResliceCeil(point[j])+extra;
 	  }	
 	if (k > inExt[2*j+1])
 	  {
@@ -289,7 +298,7 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       {
       for (j = 0; j < 3; j++) 
 	{
-	k = int(floor(point[j] + 0.5f));
+	k = vtkResliceFloor(point[j] + 0.5f);
 	if (k < inExt[2*j])
 	  { 
 	  inExt[2*j] = k;
@@ -445,7 +454,7 @@ invertible");
 	}
       this->OutputExtent[2*i] = inWholeExt[2*i];
       this->OutputExtent[2*i+1] = inWholeExt[2*i]+
-	int(ceil((maxOut[i]-minOut[i])/spacing));
+	vtkResliceCeil((maxOut[i]-minOut[i])/spacing);
 
       if (this->OutputOrigin[i] == FLT_MAX)
 	{
@@ -494,27 +503,27 @@ invertible");
 
 // in the case of a tie between integers, the larger integer wins.
 
-static inline void vtkResliceRound(double val, unsigned char& rnd)
+static inline void vtkResliceRound(float val, unsigned char& rnd)
 {
   rnd = (unsigned char)(val+0.5);
 }
 
-static inline void vtkResliceRound(double val, short& rnd)
+static inline void vtkResliceRound(float val, short& rnd)
 {
   rnd = (short)((int)(val+32768.5)-32768);
 }
 
-static inline void vtkResliceRound(double val, unsigned short& rnd)
+static inline void vtkResliceRound(float val, unsigned short& rnd)
 {
   rnd = (unsigned short)(val+0.5);
 }
 
-static inline void vtkResliceRound(double val, int& rnd)
+static inline void vtkResliceRound(float val, int& rnd)
 {
   rnd = (int)(floor(val+0.5));
 }
 
-static inline void vtkResliceRound(double val, float& rnd)
+static inline void vtkResliceRound(float val, float& rnd)
 {
   rnd = (float)(val);
 }
@@ -522,7 +531,7 @@ static inline void vtkResliceRound(double val, float& rnd)
 //----------------------------------------------------------------------------
 // clamping functions for each type
 
-static inline void vtkResliceClamp(double val, unsigned char& clamp)
+static inline void vtkResliceClamp(float val, unsigned char& clamp)
 {
   if (val < VTK_UNSIGNED_CHAR_MIN)
     { 
@@ -535,7 +544,7 @@ static inline void vtkResliceClamp(double val, unsigned char& clamp)
   vtkResliceRound(val,clamp);
 }
 
-static inline void vtkResliceClamp(double val, short& clamp)
+static inline void vtkResliceClamp(float val, short& clamp)
 {
   if (val < VTK_SHORT_MIN)
     { 
@@ -548,7 +557,7 @@ static inline void vtkResliceClamp(double val, short& clamp)
   vtkResliceRound(val,clamp);
 }
 
-static inline void vtkResliceClamp(double val, unsigned short& clamp)
+static inline void vtkResliceClamp(float val, unsigned short& clamp)
 {
   if (val < VTK_UNSIGNED_SHORT_MIN)
     { 
@@ -561,7 +570,7 @@ static inline void vtkResliceClamp(double val, unsigned short& clamp)
   vtkResliceRound(val,clamp);
 }
 
-static inline void vtkResliceClamp(double val, int& clamp)
+static inline void vtkResliceClamp(float val, int& clamp)
 {
   if (val < VTK_INT_MIN) 
     {
@@ -574,7 +583,7 @@ static inline void vtkResliceClamp(double val, int& clamp)
   vtkResliceRound(val,clamp);
 }
 
-static inline void vtkResliceClamp(double val, float& clamp)
+static inline void vtkResliceClamp(float val, float& clamp)
 {
   if (val < VTK_FLOAT_MIN)
     { 
@@ -585,6 +594,19 @@ static inline void vtkResliceClamp(double val, float& clamp)
     val = VTK_FLOAT_MAX;
     }
   vtkResliceRound(val,clamp);
+}
+
+//----------------------------------------------------------------------------
+// copy a pixel, advance the output pointer but not the input pointer
+
+template<class T>
+static inline void vtkCopyPixel(T *&out, T *in, int numscalars)
+{
+  do
+    {
+    *out++ = *in++;
+    }
+  while (--numscalars);
 }
 
 //----------------------------------------------------------------------------
@@ -629,17 +651,10 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 				     T *background, int numscalars, 
 				     int inExt[6], int inInc[3])
 {
-  int i;
-
-  // the +1/-1 avoids round-to-zero truncation between -1 and 0,
-  // and is cheaper than doing floor()
-  int floorX = int(point[0]+1)-1;
-  int floorY = int(point[1]+1)-1;
-  int floorZ = int(point[2]+1)-1;
-
-  float fx = point[0]-floorX;
-  float fy = point[1]-floorY;
-  float fz = point[2]-floorZ;
+  float fx,fy,fz;
+  int floorX = vtkResliceFloor(point[0],fx);
+  int floorY = vtkResliceFloor(point[1],fy);
+  int floorZ = vtkResliceFloor(point[2],fz);
 
   int inIdX0 = floorX-inExt[0];
   int inIdY0 = floorY-inExt[2];
@@ -655,10 +670,7 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
     {// out of bounds: clear to background color 
     if (background)
       {
-      for (i = 0; i < numscalars; i++)
-	{ 
-        *outPtr++ = *background++;
-	}
+      vtkCopyPixel(outPtr,background,numscalars);
       }
     return 0;
     }
@@ -681,16 +693,16 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
     int i110 = factX1+factY1+factZ;
     int i111 = factX1+factY1+factZ1;
 
-    float rx = 1 - fx;
-    float ry = 1 - fy;
-    float rz = 1 - fz;
+    float rx = 1.0f - fx;
+    float ry = 1.0f - fy;
+    float rz = 1.0f - fz;
       
     float ryrz = ry*rz;
     float ryfz = ry*fz;
     float fyrz = fy*rz;
     float fyfz = fy*fz;
 
-    for (i = 0; i < numscalars; i++) 
+    do
       {
       vtkResliceRound((rx*(ryrz*inPtr[i000]+ryfz*inPtr[i001]+
 			   fyrz*inPtr[i010]+fyfz*inPtr[i011])
@@ -699,6 +711,8 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 		      *outPtr++);
       inPtr++;
       }
+    while (--numscalars);
+
     return 1;
     }
 }			  
@@ -709,29 +723,10 @@ static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 					   T *mirror, int numscalars, 
 					   int inExt[6], int inInc[3])
 {
-  int i;
-
-  int floorX = int(point[0]+1)-1;
-  int floorY = int(point[1]+1)-1;
-  int floorZ = int(point[2]+1)-1;
-
-  float fx = point[0]-floorX;
-  float fy = point[1]-floorY;
-  float fz = point[2]-floorZ;
-
-  // this corrects for differences between int() and floor()
-  if (fx < 0)
-    {
-    fx = point[0] - (--floorX);
-    }
-  if (fy < 0)
-    {
-    fy = point[1] - (--floorY);
-    }
-  if (fz < 0)
-    {
-    fz = point[2] - (--floorZ);
-    }
+  float fx,fy,fz;
+  int floorX = vtkResliceFloor(point[0],fx);
+  int floorY = vtkResliceFloor(point[1],fy);
+  int floorZ = vtkResliceFloor(point[2],fz);
 
   int inIdX = floorX-inExt[0];
   int inIdY = floorY-inExt[2];
@@ -774,16 +769,16 @@ static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
   int i110 = factX1+factY1+factZ;
   int i111 = factX1+factY1+factZ1;
 
-  float rx = 1 - fx;
-  float ry = 1 - fy;
-  float rz = 1 - fz;
+  float rx = 1.0f - fx;
+  float ry = 1.0f - fy;
+  float rz = 1.0f - fz;
   
   float ryrz = ry*rz;
   float ryfz = ry*fz;
   float fyrz = fy*rz;
   float fyfz = fy*fz;
 
-  for (i = 0; i < numscalars; i++) 
+  do
     {
     vtkResliceRound((rx*(ryrz*inPtr[i000]+ryfz*inPtr[i001]+
 			 fyrz*inPtr[i010]+fyfz*inPtr[i011])
@@ -792,6 +787,8 @@ static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 		    *outPtr++);
     inPtr++;
     }
+  while (--numscalars);
+
   return 1;
 }			  
 
@@ -806,31 +803,25 @@ static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
                                            T *background, int numscalars, 
                                            int inExt[6], int inInc[3])
 {
-  int i;
-  int inIdX = int(point[0]+1.5f)-inExt[0]-1;
-  int inIdY = int(point[1]+1.5f)-inExt[2]-1;
-  int inIdZ = int(point[2]+1.5f)-inExt[4]-1;
-  
+  int inIdX = vtkResliceFloor(point[0]+0.5f)-inExt[0];
+  int inIdY = vtkResliceFloor(point[1]+0.5f)-inExt[2];
+  int inIdZ = vtkResliceFloor(point[2]+0.5f)-inExt[4];
+
   if (inIdX < 0 || inIdX > inExt[1]-inExt[0]
       || inIdY < 0 || inIdY > inExt[3]-inExt[2]
       || inIdZ < 0 || inIdZ > inExt[5]-inExt[4] )
     {
     if (background)
       {
-      for (i = 0; i < numscalars; i++)
-	{
-	*outPtr++ = *background++;
-	}
+      vtkCopyPixel(outPtr,background,numscalars);
       }
     return 0;
     }
   else 
     {
     inPtr += inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
-    for (i = 0; i < numscalars; i++)
-      {
-      *outPtr++ = *inPtr++;
-      }
+    vtkCopyPixel(outPtr,inPtr,numscalars);
+
     return 1;
     }
 } 
@@ -842,31 +833,9 @@ static int vtkNearestNeighborInterpolationRepeat(float *point, T *inPtr,
 						 T *mirror, int numscalars, 
 						 int inExt[6], int inInc[3])
 {
-  int i;
-
-  // round-to-zero vs. round-to-neg-infinity strikes again
-  float vX = point[0]+1.5f;
-  float vY = point[1]+1.5f;
-  float vZ = point[2]+1.5f;
-
-  int floorX = int(vX)-1;
-  int floorY = int(vY)-1;
-  int floorZ = int(vZ)-1;
-
-  if (vX < floorX+1) 
-    {
-    floorX--;
-    }
-  if (vY < floorY+1)
-    { 
-    floorY--;
-    }
-  if (vZ < floorZ+1) 
-    {
-    floorZ--;
-    }
-
-  int inIdX, inIdY, inIdZ;
+  int inIdX = vtkResliceFloor(point[0]+0.5f)-inExt[0];
+  int inIdY = vtkResliceFloor(point[1]+0.5f)-inExt[2];
+  int inIdZ = vtkResliceFloor(point[2]+0.5f)-inExt[4];
 
   int inExtX = inExt[1]-inExt[0]+1;
   int inExtY = inExt[3]-inExt[2]+1;
@@ -874,22 +843,20 @@ static int vtkNearestNeighborInterpolationRepeat(float *point, T *inPtr,
 
   if (mirror)
     {
-    inIdX = vtkInterpolateMirror(floorX-inExt[0],inExtX);
-    inIdY = vtkInterpolateMirror(floorY-inExt[2],inExtY);
-    inIdZ = vtkInterpolateMirror(floorZ-inExt[4],inExtZ);
+    inIdX = vtkInterpolateMirror(inIdX,inExtX);
+    inIdY = vtkInterpolateMirror(inIdY,inExtY);
+    inIdZ = vtkInterpolateMirror(inIdZ,inExtZ);
     }
   else
     {
-    inIdX = vtkInterpolateWrap(floorX-inExt[0],inExtX);
-    inIdY = vtkInterpolateWrap(floorY-inExt[2],inExtY);
-    inIdZ = vtkInterpolateWrap(floorZ-inExt[4],inExtZ);
+    inIdX = vtkInterpolateWrap(inIdX,inExtX);
+    inIdY = vtkInterpolateWrap(inIdY,inExtY);
+    inIdZ = vtkInterpolateWrap(inIdZ,inExtZ);
     }
   
   inPtr += inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
-  for (i = 0; i < numscalars; i++)
-    {
-    *outPtr++ = *inPtr++;
-    }
+  vtkCopyPixel(outPtr,inPtr,numscalars);
+
   return 1; 
 } 
 
@@ -960,18 +927,12 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 				    T *background, int numscalars, 
 				    int inExt[6], int inInc[3])
 {
-  int i;
   int factX[4],factY[4],factZ[4];
 
-  // the +1/-1 avoids round-to-zero truncation between -1 and 0,
-  // and is cheaper than doing floor()
-  int floorX = int(point[0]+1)-1;
-  int floorY = int(point[1]+1)-1;
-  int floorZ = int(point[2]+1)-1;
-
-  float fx = point[0]-floorX;
-  float fy = point[1]-floorY;
-  float fz = point[2]-floorZ;
+  float fx,fy,fz;
+  int floorX = vtkResliceFloor(point[0],fx);
+  int floorY = vtkResliceFloor(point[1],fy);
+  int floorZ = vtkResliceFloor(point[2],fz);
 
   int inIdX = floorX-inExt[0];
   int inIdY = floorY-inExt[2];
@@ -993,19 +954,16 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     {// out of bounds: clear to background color
     if (background)
       {
-      for (i = 0; i < numscalars; i++)
-	{ 
-	*outPtr++ = *background++;
-	}
+      vtkCopyPixel(outPtr,background,numscalars);
       }
     return 0;
     }
   else 
     {// do tricubic interpolation
     float fX[4],fY[4],fZ[4];
-    double vY,vZ,val;
+    float vY,vZ,val;
     T *inPtr1, *inPtr2;
-    int j,k,l,jl,jm,kl,km,ll,lm;
+    int i,j,k,l,jl,jm,kl,km,ll,lm;
     
     for (i = 0; i < 4; i++)
       {
@@ -1034,7 +992,7 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 
     // Finally, here is the tricubic interpolation
     // (or cubic-cubic-linear, or cubic-nearest-cubic, etc)
-    for (i = 0; i < numscalars; i++)
+    do
       {
       val = 0;
       for (j = jl; j < jm; j++)
@@ -1056,6 +1014,8 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
       vtkResliceClamp(val,*outPtr++); // clamp to limits of type
       inPtr++;
       }
+    while (--numscalars);
+
     return 1;
     }
 }		  
@@ -1066,35 +1026,17 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 					  T *mirror, int numscalars, 
 					  int inExt[6], int inInc[3])
 {
-  int i;
   int factX[4],factY[4],factZ[4];
 
-  int floorX = int(point[0]+1)-1;
-  int floorY = int(point[1]+1)-1;
-  int floorZ = int(point[2]+1)-1;
-
-  float fx = point[0]-floorX;
-  float fy = point[1]-floorY;
-  float fz = point[2]-floorZ;
-
-  // this corrects for differences between int() and floor()
-  if (fx < 0)
-    {
-    fx = point[0] - (--floorX);
-    }
-  if (fy < 0)
-    {
-    fy = point[1] - (--floorY);
-    }
-  if (fz < 0)
-    {
-    fz = point[2] - (--floorZ);
-    }
+  float fx,fy,fz;
+  int floorX = vtkResliceFloor(point[0],fx);
+  int floorY = vtkResliceFloor(point[1],fy);
+  int floorZ = vtkResliceFloor(point[2],fz);
 
   float fX[4],fY[4],fZ[4];
-  double vY,vZ,val;
+  float vY,vZ,val;
   T *inPtr1, *inPtr2;
-  int j,k,l;
+  int i,j,k,l;
 
   int inIdX = floorX-inExt[0];
   int inIdY = floorY-inExt[2];
@@ -1128,7 +1070,7 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
   vtkImageResliceSetInterpCoeffs(fZ,&i,&i,fz,7);
 
   // Finally, here is the tricubic interpolation
-  for (i = 0; i < numscalars; i++)
+  do
     {
     val = 0;
     for (j = 0; j < 4; j++)
@@ -1150,6 +1092,8 @@ static int vtkTricubicInterpolationRepeat(float *point, T *inPtr, T *outPtr,
     vtkResliceClamp(val,*outPtr++); // clamp to limits of type
     inPtr++;
     }
+  while (--numscalars);
+
   return 1;
 }		  
 
@@ -1412,96 +1356,12 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------
-// The transform matrix supplied by the user converts output coordinates
-// to input coordinates.  
-// To speed up the pixel lookup, the following function provides a
-// matrix which converts output pixel indices to input pixel indices.
-
-vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
-{
-  // first verify that we have to update the matrix
-  if (this->IndexMatrix)
-    {
-    if (this->IndexMatrix->GetMTime() > this->GetMTime())
-      {
-      return this->IndexMatrix;
-      }
-    }
-  else
-    {
-    this->IndexMatrix = vtkMatrix4x4::New();
-    }
-
-  int i;
-  int isIdentity = 0;
-  float inOrigin[3];
-  float inSpacing[3];
-  float outOrigin[3];
-  float outSpacing[3];
-
-  this->GetInput()->GetSpacing(inSpacing);
-  this->GetInput()->GetOrigin(inOrigin);
-  this->GetOutput()->GetSpacing(outSpacing);
-  this->GetOutput()->GetOrigin(outOrigin);  
-  
-  vtkTransform *transform = vtkTransform::New();
-  vtkMatrix4x4 *inMatrix = vtkMatrix4x4::New();
-  vtkMatrix4x4 *outMatrix = vtkMatrix4x4::New();
-
-  if (this->ResliceAxes)
-    {
-    transform->SetMatrix(this->GetResliceAxes());
-    }
-  if (this->ResliceTransform && 
-      this->ResliceTransform->IsA("vtkPerspectiveTransform") && 
-      this->Optimization)
-    {
-    transform->PostMultiply();
-    transform->Concatenate(((vtkPerspectiveTransform *)
-			    this->ResliceTransform)->GetMatrixPointer());
-    }
-  
-  // check to see if we have an identity matrix
-  isIdentity = vtkIsIdentityMatrix(transform->GetMatrixPointer());
-
-  // the outMatrix takes OutputData indices to OutputData coordinates,
-  // the inMatrix takes InputData coordinates to InputData indices
-  for (i = 0; i < 3; i++) 
-    {
-    if (inSpacing[i] != outSpacing[i] || inOrigin[i] != outOrigin[i])
-      {
-      isIdentity = 0;
-      }
-    inMatrix->Element[i][i] = 1.0f/inSpacing[i];
-    inMatrix->Element[i][3] = -inOrigin[i]/inSpacing[i];
-    outMatrix->Element[i][i] = outSpacing[i];
-    outMatrix->Element[i][3] = outOrigin[i];
-    }
-
-  if (!isIdentity)
-    {
-    transform->PreMultiply();
-    transform->Concatenate(outMatrix);
-    transform->PostMultiply();
-    transform->Concatenate(inMatrix);
-    }
-
-  transform->GetMatrix(this->IndexMatrix);
-  
-  transform->Delete();
-  inMatrix->Delete();
-  outMatrix->Delete();
-
-  return this->IndexMatrix;
-}
-
 void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6], 
 							int outExt[6])
 {
   int i,j,k;
   int idX,idY,idZ;
-  double xAxis[4], yAxis[4], zAxis[4], origin[4], dpoint[4];
+  float xAxis[4], yAxis[4], zAxis[4], origin[4], dpoint[4];
   float point[4],f;
 
   int wrap = (this->GetWrap() || this->GetInterpolate());
@@ -1546,18 +1406,18 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
       int extra = (this->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
 	{
-	k = int(floor(point[j]))-extra;
+	k = vtkResliceFloor(point[j])-extra;
 	if (k < inExt[2*j])
 	  { 
 	  inExt[2*j] = k;
 	  }
 	if (wrap)
 	  {
-	  k = int(floor(point[j]))+1+extra;
+	  k = vtkResliceFloor(point[j])+1+extra;
 	  }
 	else
 	  {
-	  k = int(ceil(point[j]))+extra;
+	  k = vtkResliceCeil(point[j])+extra;
 	  }
 	if (k > inExt[2*j+1])
 	  { 
@@ -1569,7 +1429,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
       {
       for (j = 0; j < 3; j++) 
 	{
-	k = int(floor(point[j] + 0.5f));
+	k = vtkResliceFloor(point[j] + 0.5f);
 	if (k < inExt[2*j]) 
 	  {
 	  inExt[2*j] = k;
@@ -1649,7 +1509,7 @@ static int intersectionLow(double *point, double *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if ((int(p + 1.5f) - 1) < limit[ai])
+    if (vtkResliceFloor(p + 0.5f) < limit[ai])
       {
       r += sign[ai];
       }
@@ -1666,7 +1526,7 @@ static int intersectionLow(double *point, double *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if ((int(p + 1.5f) - 1) >= limit[ai])
+    if (vtkResliceFloor(p + 0.5f) >= limit[ai])
       {
       r -= sign[ai];
       }
@@ -1709,7 +1569,7 @@ static int intersectionHigh(double *point, double *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if ((int(p + 1.5f) - 1) > limit[ai])
+    if (vtkResliceFloor(p + 0.5f) > limit[ai])
       {
       r -= sign[ai];
       }
@@ -1726,7 +1586,7 @@ static int intersectionHigh(double *point, double *axis, int *sign,
     f = 1.0f/f;
     p *= f;
     
-    if ((int(p + 1.5f) - 1) <= limit[ai])
+    if (vtkResliceFloor(p + 0.5f) <= limit[ai])
       {
       r += sign[ai];
       }
@@ -1759,8 +1619,8 @@ static int isBounded(double *point, double *xAxis, int *inMin,
   fbp *= f;
   fcp *= f;
 
-  int bp = int(fbp + 1.5f)-1;
-  int cp = int(fcp + 1.5f)-1;
+  int bp = vtkResliceFloor(fbp + 0.5f);
+  int cp = vtkResliceFloor(fcp + 0.5f);
   
   return (bp >= inMin[bi] && bp <= inMax[bi] &&
 	  cp >= inMin[ci] && cp <= inMax[ci]);
@@ -1839,8 +1699,8 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point,
     p1 *= f1;
     p2 *= f2;
 
-    indx1[i] = int(p1 + 1.5f) - 1;
-    indx2[i] = int(p2 + 1.5f) - 1;
+    indx1[i] = vtkResliceFloor(p1 + 0.5f);
+    indx2[i] = vtkResliceFloor(p2 + 0.5f);
     }
   if (isBounded(point,xAxis,inMin,inMax,ix,r1))
     { // passed through x face, check opposing face
@@ -2113,12 +1973,15 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  inPoint[0] = inPoint1[0]+idX*xAxis[0];
 	  inPoint[1] = inPoint1[1]+idX*xAxis[1];
 	  inPoint[2] = inPoint1[2]+idX*xAxis[2];
-	  inPoint[3] = inPoint1[3]+idX*xAxis[3];
+	  if (inPoint1[3] != 1.0f || xAxis[3] != 0.0f)
+	    { // only do perspective if necessary
+	    inPoint[3] = inPoint1[3]+idX*xAxis[3];
 
-	  f = 1.0f/inPoint[3];
-	  inPoint[0] *= f;
-	  inPoint[1] *= f;
-	  inPoint[2] *= f;
+	    f = 1.0f/inPoint[3];
+	    inPoint[0] *= f;
+	    inPoint[1] *= f;
+	    inPoint[2] *= f;
+	    }
 
 	  interpolate(inPoint, inPtr, outPtr, background, 
 		      numscalars, inExt, inInc);
@@ -2162,10 +2025,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  {
 	  for (idX = outExt[0]; idX < r1; idX++)
 	    {
-	    for (i = 0; i < numscalars; i++)
-	      {
-	      *outPtr++ = background[i];
-	      }
+	    vtkCopyPixel(outPtr,background,numscalars);
 	    }
 	  }
 	
@@ -2176,19 +2036,22 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	    inPoint[0] = inPoint1[0]+idX*xAxis[0];
 	    inPoint[1] = inPoint1[1]+idX*xAxis[1];
 	    inPoint[2] = inPoint1[2]+idX*xAxis[2];
-	    inPoint[3] = inPoint1[3]+idX*xAxis[3];
+	    if (inPoint1[3] != 1.0f || xAxis[3] != 0.0f)
+	      { // only do perspective if necessary
+	      inPoint[3] = inPoint1[3]+idX*xAxis[3];
 
-	    f = 1.0f/inPoint[3];
-	    inPoint[0] *= f;
-	    inPoint[1] *= f;
-	    inPoint[2] *= f;
+	      f = 1.0f/inPoint[3];
+	      inPoint[0] *= f;
+	      inPoint[1] *= f;
+	      inPoint[2] *= f;
+	      }
 	    
 	    interpolate(inPoint, inPtr, outPtr, background, 
 			numscalars, inExt, inInc);
 	    outPtr += numscalars;
 	    }
 	  }
-	else if (inPoint[3] != 1.0 || xAxis[3] != 0.0)
+	else if (inPoint[3] != 1.0f || xAxis[3] != 0.0f)
 	  {  // Nearest-Neighbor, no extent checks, perspective
 	  T *inPtr1;
 
@@ -2198,23 +2061,18 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	    inPoint[1] = inPoint1[1]+idX*xAxis[1];
 	    inPoint[2] = inPoint1[2]+idX*xAxis[2];
 	    inPoint[3] = inPoint1[3]+idX*xAxis[3];
-
+	    
 	    f = 1.0f/inPoint[3];
 	    inPoint[0] *= f;
 	    inPoint[1] *= f;
 	    inPoint[2] *= f;
 	    
-	    // the +1.5/-1 thing avoids int() vs. floor() difference 
-	    inIdX = int(inPoint[0]+1.5f)-inExt[0]-1;
-	    inIdY = int(inPoint[1]+1.5f)-inExt[2]-1;
-	    inIdZ = int(inPoint[2]+1.5f)-inExt[4]-1;
-	    
-	    inPtr1 = inPtr+inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
+	    inIdX = vtkResliceFloor(inPoint[0]+0.5f)-inExt[0];
+	    inIdY = vtkResliceFloor(inPoint[1]+0.5f)-inExt[2];
+	    inIdZ = vtkResliceFloor(inPoint[2]+0.5f)-inExt[4];
 
-	    for (i = 0; i < numscalars; i++)
-	      {
-	      *outPtr++ = *inPtr1++;
-	      }
+	    inPtr1 = inPtr+inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
+	    vtkCopyPixel(outPtr,inPtr1,numscalars);
 	    }
 	  }
 	else
@@ -2227,17 +2085,12 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	    inPoint[1] = inPoint1[1]+idX*xAxis[1];
 	    inPoint[2] = inPoint1[2]+idX*xAxis[2];
 
-	    // the +1.5/-1 thing avoids int() vs. floor() difference 
-	    inIdX = int(inPoint[0]+1.5f)-inExt[0]-1;
-	    inIdY = int(inPoint[1]+1.5f)-inExt[2]-1;
-	    inIdZ = int(inPoint[2]+1.5f)-inExt[4]-1;
-	    
-	    inPtr1 = inPtr+inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
+	    inIdX = vtkResliceFloor(inPoint[0]+0.5f)-inExt[0];
+	    inIdY = vtkResliceFloor(inPoint[1]+0.5f)-inExt[2];
+	    inIdZ = vtkResliceFloor(inPoint[2]+0.5f)-inExt[4];
 
-	    for (i = 0; i < numscalars; i++)
-	      {
-	      *outPtr++ = *inPtr1++;
-	      }
+	    inPtr1 = inPtr+inIdX*inInc[0]+inIdY*inInc[1]+inIdZ*inInc[2];
+	    vtkCopyPixel(outPtr,inPtr1,numscalars);
 	    }
 	  }
   
@@ -2253,10 +2106,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  {
 	  for (idX = r2+1; idX <= outExt[1]; idX++)
 	    {
-	    for (i = 0; i < numscalars; i++)
-	      {
-	      *outPtr++ = background[i];
-	      }
+	    vtkCopyPixel(outPtr,background,numscalars);
 	    }
 	  }
 	}
@@ -2265,7 +2115,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
       }
     outPtr += outIncZ;
     }
-
+  
   vtkFreeBackground(self,&background);
 }
 
@@ -2328,7 +2178,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
     } 
 
   int trunc, inId0, inId1, inExtK, outExtJ, doInterp;
-  float point,f;
+  float point,f,r;
   
   // set up input traversal table for linear interpolation  
   for (j = 0; j < 3; j++)
@@ -2350,9 +2200,8 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
     for (i = 0; i < outExtJ; i++)
       {
       point = newmat[k][3]+(i+outExt[2*j])*newmat[k][j];
-      trunc = int(point+1)-1;
-      f = point-trunc;
-      constants[j][2*i] = 1-f;
+      trunc = vtkResliceFloor(point,f);
+      constants[j][2*i] = 1.0f-f;
       constants[j][2*i+1] = f;
       
       doInterp = (f != 0);
@@ -2458,10 +2307,7 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
       // clear pixels to left of input extent
       for (idX = 0; idX < r1; idX++)
 	{
-	for (i = 0; i < numscalars; i++)
-	  {
-	  *outPtr++ = background[i];
-	  }
+	vtkCopyPixel(outPtr,background,numscalars);
 	}
 
       for (idX = r1; idX <= r2; idX++)
@@ -2486,7 +2332,8 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
 	
 	T *inPtr0 = inPtr;
 
-	for (i = 0; i < numscalars; i++)
+	i = numscalars;
+	do 
 	  {
 	  vtkResliceRound((rx*(ryrz*inPtr0[i000]+ryfz*inPtr0[i001]+
 			       fyrz*inPtr0[i010]+fyfz*inPtr0[i011])
@@ -2495,15 +2342,13 @@ static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
 			  *outPtr++);
 	  inPtr0++;
 	  }
+	while (--i);
 	}
 
       // clear pixels to right of input extent
       for (idX = r2+1; idX < outExtX; idX++)
         {
-	for (i = 0; i < numscalars; i++)
-	  {
-	  *outPtr++ = background[i];
-	  }
+	vtkCopyPixel(outPtr,background,numscalars);
 	}
 
       outPtr += outIncY;
@@ -2574,13 +2419,13 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
       }
     } 
 
-  int trunc, inId0, inId1, inId2, inId3, inExtK, outExtJ, doInterp, interpMode;
+  int trunc, inId[4], inExtK, outExtJ, doInterp, interpMode;
   float point,f;
   
   // set up input traversal table for cubic interpolation  
   for (j = 0; j < 3; j++)
     {
-      outExtJ = outExt[2*j+1]-outExt[2*j]+1;
+    outExtJ = outExt[2*j+1]-outExt[2*j]+1;
     traversal[j] = new int[outExtJ*4];
     constants[j] = new float[outExtJ*4];
     low[j] = new int[outExtJ];
@@ -2599,35 +2444,34 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
     for (i = 0; i < outExtJ; i++)
       {
       point = newmat[k][3]+(i+outExt[2*j])*newmat[k][j];
-      trunc = int(point+1)-1;
-      f = point-trunc;      
+      trunc = vtkResliceFloor(point,f);
       doInterp = (f != 0);
-      inId1 = trunc - inExt[2*k];
-      inId0 = inId1-1;
-      inId2 = inId1+1;
-      inId3 = inId1+2;
+      inId[1] = trunc - inExt[2*k];
+      inId[0] = inId[1]-1;
+      inId[2] = inId[1]+1;
+      inId[3] = inId[1]+2;
 
       if (self->GetMirror())
 	{
-	inId0 = vtkInterpolateMirror(inId0, inExtK);
-	inId1 = vtkInterpolateMirror(inId1, inExtK);
-	inId2 = vtkInterpolateMirror(inId2, inExtK);
-	inId3 = vtkInterpolateMirror(inId3, inExtK);
+	inId[0] = vtkInterpolateMirror(inId[0], inExtK);
+	inId[1] = vtkInterpolateMirror(inId[1], inExtK);
+	inId[2] = vtkInterpolateMirror(inId[2], inExtK);
+	inId[3] = vtkInterpolateMirror(inId[3], inExtK);
 	interpMode = 6+doInterp;
 	region = 1;
 	}
       else if (self->GetWrap())
 	{
-	inId0 = vtkInterpolateWrap(inId0, inExtK);
-	inId1 = vtkInterpolateWrap(inId1, inExtK);
-	inId2 = vtkInterpolateWrap(inId2, inExtK);
-	inId3 = vtkInterpolateWrap(inId3, inExtK);
+	inId[0] = vtkInterpolateWrap(inId[0], inExtK);
+	inId[1] = vtkInterpolateWrap(inId[1], inExtK);
+	inId[2] = vtkInterpolateWrap(inId[2], inExtK);
+	inId[3] = vtkInterpolateWrap(inId[3], inExtK);
 	interpMode = 6+doInterp;
 	region = 1;
 	}      
       else
 	{
-        if (inId1 < 0 || inId1+doInterp >= inExtK)
+        if (inId[1] < 0 || inId[1]+doInterp >= inExtK)
 	  {
 	  if (region == 1)
 	    { // leaving the input extent
@@ -2643,16 +2487,21 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 	    clipExt[2*j] = i;	   
 	    }
 	  }
-	interpMode = ((inId1 > 0) << 2) + 
-	              ((inId3 < inExtK) << 1) +
+	interpMode = ((inId[1] > 0) << 2) + 
+	              ((inId[3] < inExtK) << 1) +
 	              doInterp; 
 	}
       vtkImageResliceSetInterpCoeffs(&constants[j][4*i],&low[j][i],
 				     &high[j][i],f,interpMode);
-      traversal[j][4*i] = inId0*inInc[k];
-      traversal[j][4*i+1] = inId1*inInc[k];
-      traversal[j][4*i+2] = inId2*inInc[k];
-      traversal[j][4*i+3] = inId3*inInc[k];
+      // set default values
+      for (l = 0; l < 4; l++)
+	{
+	traversal[j][4*i+l] = inId[1]*inInc[k];
+	}
+      for (l = low[j][i]; l <= high[j][i]; l++)
+	{ 
+	traversal[j][4*i+l] = inId[l]*inInc[k];
+	}
       }
     if (region == 0)
       { // never entered input extent!
@@ -2718,10 +2567,7 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
       // clear pixels to left of input extent
       for (idX = 0; idX < r1; idX++)
 	{
-	for (i = 0; i < numscalars; i++)
-	  {
-	  *outPtr++ = background[i];
-	  }
+	vtkCopyPixel(outPtr,background,numscalars);
 	}
 
       for (idX = r1; idX <= r2; idX++)
@@ -2740,9 +2586,10 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 	
 	T *inPtr0 = inPtr;
 	T *inPtr1,*inPtr2;
-	double val,vY,vZ;
+	float val,vY,vZ;
 
-	for (l = 0; l < numscalars; l++)
+	l = numscalars;
+	do
 	  {
 	  val = 0;
 	  for (k = lz; k < hz; k++)
@@ -2752,11 +2599,10 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 	    for (j = ly; j < hy; j++)
 	      {
 	      inPtr2 = inPtr1 + iY[j];
-	      vY = 0;
-	      for (i = lx; i < hx; i++)
-		{
-	        vY += *(inPtr2+iX[i]) * fX[i]; 
-		}
+	      vY = *(inPtr2+iX[0]) * fX[0] +
+		   *(inPtr2+iX[1]) * fX[1] +
+		   *(inPtr2+iX[2]) * fX[2] +
+		   *(inPtr2+iX[3]) * fX[3];
 	      vZ += vY*fY[j]; 
 	      }
 	    val += vZ*fZ[k];
@@ -2764,15 +2610,13 @@ static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
 	  vtkResliceClamp(val,*outPtr++); // clamp to limits of type
 	  inPtr0++;
 	  }
+	while (--l);
 	}
       
       // clear pixels to right of input extent
       for (idX = r2+1; idX < outExtX; idX++)
         {
-	for (i = 0; i < numscalars; i++)
-	  {
-	  *outPtr++ = background[i];
-	  }
+	vtkCopyPixel(outPtr,background,numscalars);
 	}
 
       outPtr += outIncY;
@@ -2862,8 +2706,8 @@ static void vtkOptimizedPermuteExecuteNearest(vtkImageReslice *self,
     region = 0;
     for (i = 0; i < outExtJ; i++)
       {
-      inId = int((newmat[k][3]+(i+outExt[2*j])*newmat[k][j])+1.5f) 
-	       - inExt[2*k]- 1;
+      inId = vtkResliceFloor((newmat[k][3]+(i+outExt[2*j])*newmat[k][j])+0.5f)
+	           - inExt[2*k];
       if (self->GetMirror())
 	{
 	inId = vtkInterpolateMirror(inId, inExtK);
@@ -2961,30 +2805,20 @@ static void vtkOptimizedPermuteExecuteNearest(vtkImageReslice *self,
         // clear pixels to left of input extent
         for (idX = outExt[0]; idX < r1; idX++)
  	  {
-	  for (i = 0; i < numscalars; i++)
-	    {
-	    *outPtr++ = background[i];
-	    }
+	  vtkCopyPixel(outPtr,background,numscalars);
 	  }
 
 	// do nearest-neighbor interpolation
         for (idX = r1; idX <= r2; idX++)
 	  {
 	  inPtr2 = inPtr1 + traversal[0][idX];
-	
-	  for (i = 0; i < numscalars; i++)
-	    {
-	    *outPtr++ = *inPtr2++;
-	    }
+	  vtkCopyPixel(outPtr,inPtr2,numscalars);
 	  }
 
         // clear pixels to right of input extent
         for (idX = r2+1; idX < outExtX; idX++)
           {
-	  for (i = 0; i < numscalars; i++)
-	    {
-	    *outPtr++ = background[i];
-	    }
+	  vtkCopyPixel(outPtr,background,numscalars);
 	  }
 	}
 
@@ -2999,6 +2833,27 @@ static void vtkOptimizedPermuteExecuteNearest(vtkImageReslice *self,
     }
 
   vtkFreeBackground(self,&background);
+}
+
+//----------------------------------------------------------------------------
+// check a matrix to see whether it is the identity matrix
+
+static int vtkIsIdentityMatrix(vtkMatrix4x4 *matrix)
+{
+  static double identity[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+  int i,j;
+
+  for (i = 0; i < 4; i++)
+    {
+    for (j = 0; j < 4; j++)
+      {
+      if (matrix->GetElement(i,j) != identity[4*i+j])
+	{
+	return 0;
+	}
+      }
+    }
+  return 1;
 }
 
 // check a matrix to ensure that it is a permutation+scale+translation
@@ -3096,6 +2951,83 @@ static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
 }
     
 //----------------------------------------------------------------------------
+// The transform matrix supplied by the user converts output coordinates
+// to input coordinates.  
+// To speed up the pixel lookup, the following function provides a
+// matrix which converts output pixel indices to input pixel indices.
+
+vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
+{
+  // first verify that we have to update the matrix
+  if (this->IndexMatrix == NULL)
+    {
+    this->IndexMatrix = vtkMatrix4x4::New();
+    }
+
+  int i;
+  int isIdentity = 0;
+  float inOrigin[3];
+  float inSpacing[3];
+  float outOrigin[3];
+  float outSpacing[3];
+
+  this->GetInput()->GetSpacing(inSpacing);
+  this->GetInput()->GetOrigin(inOrigin);
+  this->GetOutput()->GetSpacing(outSpacing);
+  this->GetOutput()->GetOrigin(outOrigin);  
+  
+  vtkTransform *transform = vtkTransform::New();
+  vtkMatrix4x4 *inMatrix = vtkMatrix4x4::New();
+  vtkMatrix4x4 *outMatrix = vtkMatrix4x4::New();
+
+  if (this->ResliceAxes)
+    {
+    transform->SetMatrix(this->GetResliceAxes());
+    }
+  if (this->ResliceTransform && 
+      this->ResliceTransform->IsA("vtkPerspectiveTransform") && 
+      this->Optimization)
+    {
+    transform->PostMultiply();
+    transform->Concatenate(((vtkPerspectiveTransform *)
+			    this->ResliceTransform)->GetMatrixPointer());
+    }
+  
+  // check to see if we have an identity matrix
+  isIdentity = vtkIsIdentityMatrix(transform->GetMatrixPointer());
+
+  // the outMatrix takes OutputData indices to OutputData coordinates,
+  // the inMatrix takes InputData coordinates to InputData indices
+  for (i = 0; i < 3; i++) 
+    {
+    if (inSpacing[i] != outSpacing[i] || inOrigin[i] != outOrigin[i])
+      {
+      isIdentity = 0;
+      }
+    inMatrix->Element[i][i] = 1.0f/inSpacing[i];
+    inMatrix->Element[i][3] = -inOrigin[i]/inSpacing[i];
+    outMatrix->Element[i][i] = outSpacing[i];
+    outMatrix->Element[i][3] = outOrigin[i];
+    }
+
+  if (!isIdentity)
+    {
+    transform->PreMultiply();
+    transform->Concatenate(outMatrix);
+    transform->PostMultiply();
+    transform->Concatenate(inMatrix);
+    }
+
+  transform->GetMatrix(this->IndexMatrix);
+  
+  transform->Delete();
+  inMatrix->Delete();
+  outMatrix->Delete();
+
+  return this->IndexMatrix;
+}
+
+//----------------------------------------------------------------------------
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
@@ -3120,7 +3052,7 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
 
   // change transform matrix so that instead of taking 
   // input coords -> output coords it takes output indices -> input indices
-  vtkMatrix4x4 *matrix = this->GetIndexMatrix();
+  vtkMatrix4x4 *matrix = this->IndexMatrix;
   
   if (vtkIsPermutationMatrix(matrix))
     {
