@@ -105,7 +105,7 @@ void vtkMarchingCubes::GenerateValues(int numContours, float r1, float r2)
 }
 
 void ComputePointGradient(int i, int j, int k, short *s, int dims[3], 
-                      int sliceSize, float origin[3], float aspectRatio[3], float n[3])
+                      int sliceSize, float aspectRatio[3], float n[3])
 {
   float sp, sm;
 
@@ -301,14 +301,14 @@ void vtkMarchingCubes::Execute()
           pts[7][2] = pts[0][2] + aspectRatio[2];
 
           //create gradients
-          ComputePointGradient(i,j,k, scalars, dims, sliceSize, origin, aspectRatio, gradients[0]);
-          ComputePointGradient(i+1,j,k, scalars, dims, sliceSize, origin, aspectRatio, gradients[1]);
-          ComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, origin, aspectRatio, gradients[2]);
-          ComputePointGradient(i,j+1,k, scalars, dims, sliceSize, origin, aspectRatio, gradients[3]);
-          ComputePointGradient(i,j,k+1, scalars, dims, sliceSize, origin, aspectRatio, gradients[4]);
-          ComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, origin, aspectRatio, gradients[5]);
-          ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, origin, aspectRatio, gradients[6]);
-          ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, origin, aspectRatio, gradients[7]);
+          ComputePointGradient(i,j,k, scalars, dims, sliceSize, aspectRatio, gradients[0]);
+          ComputePointGradient(i+1,j,k, scalars, dims, sliceSize, aspectRatio, gradients[1]);
+          ComputePointGradient(i+1,j+1,k, scalars, dims, sliceSize, aspectRatio, gradients[2]);
+          ComputePointGradient(i,j+1,k, scalars, dims, sliceSize, aspectRatio, gradients[3]);
+          ComputePointGradient(i,j,k+1, scalars, dims, sliceSize, aspectRatio, gradients[4]);
+          ComputePointGradient(i+1,j,k+1, scalars, dims, sliceSize, aspectRatio, gradients[5]);
+          ComputePointGradient(i+1,j+1,k+1, scalars, dims, sliceSize, aspectRatio, gradients[6]);
+          ComputePointGradient(i,j+1,k+1, scalars, dims, sliceSize, aspectRatio, gradients[7]);
 
           triCase = triCases + index;
           edge = triCase->edges;

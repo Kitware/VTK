@@ -79,13 +79,13 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
 
   if (minDist2 == 0.0)
     {
-    return 1;
     pcoords[0] = 0.0;
+    return 1;
     }
   else
     {
-    return 0;
     pcoords[0] = -10.0;
+    return 0;
     }
 
 }
