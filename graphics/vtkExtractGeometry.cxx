@@ -40,11 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkExtractGeometry.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkExtractGeometry* vtkExtractGeometry::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +56,6 @@ vtkExtractGeometry* vtkExtractGeometry::New()
   return new vtkExtractGeometry;
 }
 
-
-
-
 // Construct object with ExtractInside turned on.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 {
@@ -70,6 +66,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
     }
     
   this->ExtractInside = 1;
+  this->ExtractBoundaryCells = 0;
 }
 
 vtkExtractGeometry::~vtkExtractGeometry()
@@ -109,6 +106,8 @@ void vtkExtractGeometry::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
+  int npts;
+  numCells = input->GetNumberOfCells();
   
   vtkDebugMacro(<< "Extracting geometry");
 
@@ -129,9 +128,9 @@ void vtkExtractGeometry::Execute()
     {
     multiplier = -1.0;
     }
-  //
-  // Loop over all points determining whether they are inside implicit function
-  // Copy if they are.
+
+  // Loop over all points determining whether they are inside the
+  // implicit function. Copy the points and point data if they are.
   //
   numPts = input->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
@@ -146,51 +145,116 @@ void vtkExtractGeometry::Execute()
   newPts->Allocate(numPts/4,numPts);
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
+  vtkFloatArray *newScalars;
   
-  for ( ptId=0; ptId < numPts; ptId++ )
+  if ( ! this->ExtractBoundaryCells )
     {
-    x = input->GetPoint(ptId);
-    if ( (this->ImplicitFunction->FunctionValue(x)*multiplier) < 0.0 )
+    for ( ptId=0; ptId < numPts; ptId++ )
       {
-      newId = newPts->InsertNextPoint(x);
-      pointMap[ptId] = newId;
-      outputPD->CopyData(pd,ptId,newId);
+      x = input->GetPoint(ptId);
+      if ( (this->ImplicitFunction->FunctionValue(x)*multiplier) < 0.0 )
+        {
+        newId = newPts->InsertNextPoint(x);
+        pointMap[ptId] = newId;
+        outputPD->CopyData(pd,ptId,newId);
+        }
       }
     }
-//
-// Now loop over all cells to see whether they are inside implicit
-// function. Copy if they are.
-//
-  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
+  else
+    {
+    // To extract boundary cells, we have to create supplemental information
+    if ( this->ExtractBoundaryCells )
+      {
+      float val;
+      newScalars = vtkFloatArray::New();
+      newScalars->SetNumberOfValues(numPts);
+
+      for (ptId=0; ptId < numPts; ptId++ )
+        {
+        x = input->GetPoint(ptId);
+        val = this->ImplicitFunction->FunctionValue(x) * multiplier;
+        newScalars->SetValue(ptId, val);
+        if ( val < 0.0 )
+          {
+          newId = newPts->InsertNextPoint(x);
+          pointMap[ptId] = newId;
+          outputPD->CopyData(pd,ptId,newId);
+          }
+        }
+      }
+    }
+
+  // Now loop over all cells to see whether they are inside implicit
+  // function (or on boundary if ExtractBoundaryCells is on).
+  //
+  for (cellId=0; cellId < numCells; cellId++)
     {
     cell = input->GetCell(cellId);
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
 
     newCellPts->Reset();
-    for ( i=0; i < numCellPts; i++)
+    if ( ! this->ExtractBoundaryCells ) //requires less work
       {
-      ptId = cellPts->GetId(i);
-      if ( pointMap[ptId] < 0 )
-	{
-	break;
-	}
-      newCellPts->InsertId(i,pointMap[ptId]);
-      }
-
-    if ( i >= numCellPts )
+      for ( npts=0, i=0; i < numCellPts; i++, npts++)
+        {
+        ptId = cellPts->GetId(i);
+        if ( pointMap[ptId] < 0 )
+          {
+          break; //this cell won't be inserted
+          }
+        else
+          {
+          newCellPts->InsertId(i,pointMap[ptId]);
+          }
+        }
+      } //if don't want to extract boundary cells
+    
+    else //want boundary cells
+      {
+      for ( npts=0, i=0; i < numCellPts; i++ )
+        {
+        ptId = cellPts->GetId(i);
+        if ( newScalars->GetValue(ptId) <= 0.0 )
+          {
+          npts++;
+          }
+        }
+      if ( npts > 0 )
+        {
+        for ( i=0; i < numCellPts; i++ )
+          {
+          ptId = cellPts->GetId(i);
+          if ( pointMap[ptId] < 0 )
+            {
+            x = input->GetPoint(ptId);
+            newId = newPts->InsertNextPoint(x);
+            pointMap[ptId] = newId;
+            outputPD->CopyData(pd,ptId,newId);
+            }
+          newCellPts->InsertId(i,pointMap[ptId]);
+          }
+        }//a boundary or interior cell
+      }//if mapping boundary cells
+      
+    if ( npts >= numCellPts || (this->ExtractBoundaryCells && npts > 0) )
       {
       newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
       outputCD->CopyData(cd,cellId,newCellId);
       }
-    }
-  //
+    }//for all cells
+
   // Update ourselves and release memory
   //
   delete [] pointMap;
   newCellPts->Delete();
   output->SetPoints(newPts);
   newPts->Delete();
+
+  if ( this->ExtractBoundaryCells )
+    {
+    newScalars->Delete();
+    }
 
   output->Squeeze();
 }
@@ -199,6 +263,10 @@ void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
-  os << indent << "Implicit Function: " << (void *)this->ImplicitFunction << "\n";
-  os << indent << "Extract Inside: " << (this->ExtractInside ? "On\n" : "Off\n");
+  os << indent << "Implicit Function: " 
+     << (void *)this->ImplicitFunction << "\n";
+  os << indent << "Extract Inside: " 
+     << (this->ExtractInside ? "On\n" : "Off\n");
+  os << indent << "Extract Boundary Cells: " 
+     << (this->ExtractBoundaryCells ? "On\n" : "Off\n");
 }
