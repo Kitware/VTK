@@ -1,4 +1,5 @@
 package require vtktcl
+package require vtktcl_interact
 
 # Create renderer stuff
 #
