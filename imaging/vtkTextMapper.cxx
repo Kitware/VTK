@@ -66,11 +66,18 @@ vtkTextMapper::vtkTextMapper()
 vtkTextMapper *vtkTextMapper::New()
 {
 #ifdef _WIN32
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkWin32OpenGLTextMapper::New();
+#else
   return vtkWin32TextMapper::New();
+#endif
 #else
 #ifdef VTK_USE_OGLR
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkXOpenGLTextMapper::New();
+#else
+  return vtkXTextMapper::New();
+#endif
 #else
   return vtkXTextMapper::New();
 #endif

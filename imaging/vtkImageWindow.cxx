@@ -164,11 +164,18 @@ void vtkImageWindow::GetSize(int *x, int *y)
 vtkImageWindow* vtkImageWindow::New()
 {
 #ifdef _WIN32
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkWin32OpenGLImageWindow::New();
+#else
   return vtkWin32ImageWindow::New();
+#endif
 #else
 #ifdef VTK_USE_OGLR
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImageWindow::New();
+#else
+  return vtkXImageWindow::New();
+#endif
 #else
     return vtkXImageWindow::New();
 #endif

@@ -86,11 +86,18 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
 {
 #ifdef _WIN32
+#ifndef VTK_USE_NATIVE_IMAGING
     return vtkOpenGLPolyDataMapper2D::New();
+#else
     return vtkWin32PolyDataMapper2D::New();
+#endif
 #else
 #ifdef VTK_USE_OGLR
+#ifndef VTK_USE_NATIVE_IMAGING
     return vtkOpenGLPolyDataMapper2D::New();
+#else
+    return vtkXPolyDataMapper2D::New();
+#endif
 #else
     return vtkXPolyDataMapper2D::New();
 #endif

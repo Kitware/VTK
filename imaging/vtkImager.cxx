@@ -52,10 +52,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImager* vtkImager::New()
 {
 #ifdef _WIN32
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImager::New();
 #endif
+#endif
 #ifdef VTK_USE_OGLR
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImager::New();
+#endif
 #endif
   return new vtkImager;
 }

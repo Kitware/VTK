@@ -97,11 +97,18 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 vtkImageMapper* vtkImageMapper::New()
 {
 #ifdef _WIN32
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImageMapper::New();
+#else
   return vtkWin32ImageMapper::New();
+#endif
 #else
 #ifdef VTK_USE_OGLR
+#ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImageMapper::New();
+#else
+  return vtkXImageMapper::New();
+#endif
 #endif
   return vtkXImageMapper::New();
 #endif
