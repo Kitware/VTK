@@ -48,6 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStateSpace.h"
 #include "vtkImageRegion.h"
+#include "vtkImagePaint.h"
+#include "vtkImageViewer.h"
 #include "vtkPolyData.h"
 #include "vtkClaw.h"
 
@@ -60,14 +62,18 @@ public:
   char *GetClassName() {return "vtkImageStateSpace";};
 
   // Description:
-  // This StateSpace only deals with volumes, 
-  // so there are 3 degrees of freedom.
-  int GetDegreesOfFreedom(){return 3;};
-
+  // For debugging.  Maybe it should know the planner anyway.
+  vtkSetObjectMacro(Planner, vtkClaw);
+  
   // Description:
   // This StateSpace only deals with volumes, 
-  // so the state vectors have three elements (x, y, z).
-  int GetStateDimensionality(){return 3;};
+  // so there are 3 degrees of freedom.
+  int GetDegreesOfFreedom();
+
+  // Description:
+  // This state space is general for any dimensionality
+  vtkSetMacro(StateDimensionality, int);
+  vtkGetMacro(StateDimensionality, int);
 
   // Description:
   // Allocates a new state.
@@ -96,32 +102,45 @@ public:
   vtkGetObjectMacro(Region,vtkImageRegion);
   
   // Description:
-  // Set/Get the number of dimensions to use.
-  vtkSetMacro(NumberOfDimensions,int);
-  vtkGetMacro(NumberOfDimensions,int);
-  
-  // Description:
-  // Set/Get the threhold which defines collision space.
-  vtkSetMacro(Threshold,float);
-  vtkGetMacro(Threshold,float);
+  // Set/Get the value which defines collision space.
+  vtkSetMacro(CollisionValue,int);
+  vtkGetMacro(CollisionValue,int);
 
-  // For debugging.
-  void DrawPath(vtkClaw *claw, float value);
+  // Description:
+  // Get the viewer to give planning feedback.
+  vtkImageViewer *GetViewer();
+  vtkImagePaint *GetCanvas();
+
+  void DrawPath(vtkClaw *claw);
   
   vtkPolyData *GetPathPolyData(vtkClaw *planner);
   vtkPolyData *GetSpherePolyData(vtkClaw *planner);
   vtkPolyData *GetCollisionPolyData(vtkClaw *planner);
   
+  // Description:
+  // The planner can call this method to report the end of a sample period 
+  void SampleCallBack(vtkClaw *planner);
+
+  void CollisionCallBack(float *collision);
+
+  
   
 protected:
-  int NumberOfDimensions;
+  vtkClaw *Planner;
+  int StateDimensionality;
   vtkImageRegion *Region;
-  float Threshold;
+  int CollisionValue;
+  vtkImagePaint *Canvas;
+  vtkImageViewer *Viewer;
 
   // Description:
   // This function make sure the circular parameter is in range -rad -> rad.
   // Same point, smaller(smallest) absolute parameter values.
   void Wrap(float *state);
+  
+  void CheckCanvas();
+  void ClearCanvas();
+  
 };
 
 #endif

@@ -113,7 +113,7 @@ void vtkImageArithmeticExecute(vtkImageArithmetic *self,
 	    }
 	  else
 	    {
-	    *outPtr0 = *in1Ptr0 / 0.00001;
+	    *outPtr0 = (T)(*in1Ptr0 / 0.00001);
 	    }
 	}
       

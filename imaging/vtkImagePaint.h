@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImagePadFilter.h
+  Module:    vtkImagePaint.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,51 +38,51 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImagePadFilter - Super class for filters that fill in extra pixels.
+// .NAME vtkImagePaint - A region that can be drawn into with colors.
 // .SECTION Description
-// vtkImagePadFilter Changes the image extent of an image.  If the image
-// extent is larger than the input image extent, the extra pixels are
-// filled by an alogorithm detemined by the subclass.
-// The image extent of the output has to be specified.
+// vtkImagePaint is a region object with methods to draw boxs, lines ...
+// over the data.  Components are used for RGB values.
+// vtkImageDraw is a subset of paint.  Maybe these two classes should
+// be combined.
 
 
-#ifndef __vtkImagePadFilter_h
-#define __vtkImagePadFilter_h
+#ifndef __vtkImagePaint_h
+#define __vtkImagePaint_h
+
+#include <math.h>
+#include "vtkImageRegion.h"
 
 
-#include "vtkImageFilter.h"
-
-class vtkImagePadFilter : public vtkImageFilter
+class vtkImagePaint : public vtkImageRegion
 {
 public:
-  vtkImagePadFilter();
-  char *GetClassName() {return "vtkImagePadFilter";};
+  vtkImagePaint();
+  ~vtkImagePaint();
+  char *GetClassName() {return "vtkImagePaint";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  // Description:
+  // Set/Get DrawValue.  This is the value that is used when filling regions
+  // or drawing lines.
+  vtkSetVector3Macro(DrawColor,float);
+  vtkGetVector3Macro(DrawColor,float);
+  
+  void FillBox(int min0, int max0, int min1, int max1);
+  void FillTube(int x0, int y0, int x1, int y1, float radius);
+  void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
+  void DrawCircle(int c0, int c1, float radius);
+  void DrawPoint(int p0, int p1);
+  void DrawSegment(int x0, int y0, int x1, int y1);
+  void DrawSegment3D(float *p0, float *p1);
 
-  // Description:
-  // The image extent of the output has to be set explicitely.
-  void SetOutputImageExtent(int num, int *extent);
-  vtkImageSetExtentMacro(OutputImageExtent);
-  void GetOutputImageExtent(int num, int *extent);
-  vtkImageGetExtentMacro(OutputImageExtent);
-  
-  // Description:
-  // This affects the OutputImage Extent
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes,int);
-  
 protected:
-  int OutputImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion);
-
-void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
-				  int *extentOut, int *axesOut);
+  float DrawColor[3];
+  
+  int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 };
 
-#endif
 
+
+#endif
 
 

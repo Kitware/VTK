@@ -38,8 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include <stdlib.h>
 #include "vtkImageStateSpace.h"
 #include "vtkImageDraw.h"
+#include "vtkImageWrapPad.h"
 
 
 // State is in pixel units.
@@ -47,8 +49,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageStateSpace::vtkImageStateSpace()
 {
+  this->Planner = NULL;
   this->Region = NULL;
-  this->NumberOfDimensions = 3;
+  // Canvas and viewer is for panning in images feedback
+  this->Canvas = NULL;
+  this->Viewer = NULL;
+  // Default is volumes.
+  this->StateDimensionality = 3;
+  this->CollisionValue = 0;
 }
 
 
@@ -59,7 +67,21 @@ vtkImageStateSpace::~vtkImageStateSpace()
     {
     this->Region->Delete();
     }
+  if (this->Canvas)
+    {
+    this->Canvas->Delete();
+    }
+  if (this->Viewer)
+    {
+    this->Viewer->Delete();
+    }
 }
+
+//----------------------------------------------------------------------------
+int vtkImageStateSpace::GetDegreesOfFreedom()
+{
+  return this->StateDimensionality;
+};
 
 
 //----------------------------------------------------------------------------
@@ -67,13 +89,8 @@ vtkImageStateSpace::~vtkImageStateSpace()
 // This method removes redundant locations in state space.
 void vtkImageStateSpace::Wrap(float *state)
 {
-  int idx;
-
-  // Collapse extra dimensions
-  for (idx = this->NumberOfDimensions; idx < 3; ++idx)
-    {
-    state[idx] = 0.0;
-    }
+  // Default is that the state space ends at the borders.
+  state = state;
 }
 
 
@@ -89,7 +106,7 @@ float vtkImageStateSpace::BoundsTest(float *state)
   
   // Make sure the state is in the bounds of the strucutred point set.
   extent = this->Region->GetExtent();
-  for (idx = 0; idx < this->NumberOfDimensions; ++idx)
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     round = (int)(floor(state[idx] + 0.5));
     if (round < extent[idx*2] || round > extent[idx*2+1])
@@ -111,7 +128,7 @@ float vtkImageStateSpace::Distance(float *p0, float *p1)
   float temp;
   float *aspectRatio = this->Region->GetAspectRatio();
   
-  for (idx = 0; idx < this->NumberOfDimensions; ++idx)
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     temp = (p0[idx] - p1[idx]) * aspectRatio[idx];
     sum += temp * temp;
@@ -130,29 +147,30 @@ int vtkImageStateSpace::Collide(float *state)
 
   // Round values
   extent = this->Region->GetExtent();
-  for (idx = 0; idx < this->NumberOfDimensions; ++idx)
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     round[idx] = (int)(floor(state[idx] + 0.5));
     if ((round[idx] < extent[idx*2]) || (round[idx] > extent[idx*2+1]))
       {
+      // Out of the region means collision.
       return 1;
       }
     }
   
-  ptr = this->Region->GetScalarPointer(this->NumberOfDimensions, round);
+  ptr = this->Region->GetScalarPointer(this->StateDimensionality, round);
 
   switch (this->Region->GetScalarType())
     {
     case VTK_FLOAT:
-      return *((float *)ptr) > this->Threshold;
+      return *((int *)ptr) == this->CollisionValue;
     case VTK_INT:
-      return (float)(*((int *)ptr)) > this->Threshold;
+      return (int)(*((int *)ptr)) == this->CollisionValue;
     case VTK_SHORT:
-      return (float)(*((short *)ptr)) > this->Threshold;
+      return (int)(*((short *)ptr)) == this->CollisionValue;
     case VTK_UNSIGNED_SHORT:
-      return (float)(*((unsigned short *)ptr)) > this->Threshold;
+      return (int)(*((unsigned short *)ptr)) == this->CollisionValue;
     case VTK_UNSIGNED_CHAR:
-      return (float)(*((unsigned char *)ptr)) > this->Threshold;
+      return (int)(*((unsigned char *)ptr)) == this->CollisionValue;
     default:
       vtkErrorMacro(<< "Collide: Unknown data type");
       return 0;
@@ -170,7 +188,7 @@ void vtkImageStateSpace::GetMiddleState(float *s0, float *s1, float *middle)
 {
   int idx;
   
-  for (idx = 0; idx < 3; ++idx)
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     middle[idx] = (s0[idx] + s1[idx]) / 2.0;
     }
@@ -188,7 +206,7 @@ void vtkImageStateSpace::GetChildState(float *state, int axis, float distance,
   int idx;
 
   // First copy the state.
-  for (idx = 0; idx < 3; ++idx)
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
     {
     child[idx] = state[idx];
     }
@@ -199,39 +217,318 @@ void vtkImageStateSpace::GetChildState(float *state, int axis, float distance,
 
   
 
+
+//============================================================================
+// Stuff specialized for 2d images.
+//============================================================================
+
+
 //----------------------------------------------------------------------------
-// This method draws a path
-void vtkImageStateSpace::DrawPath(vtkClaw *planner, float value)
+// Description:
+// This Method makes sure the canvas has been created. 
+// The region must be set before this method is called.
+void vtkImageStateSpace::CheckCanvas()
+{
+  int axes[3];
+  
+  if ( ! this->Region)
+    {
+    vtkErrorMacro(<< "CheckCanvas: Region must be set.");
+    return;
+    }
+  this->Region->GetAxes(2, axes);
+  axes[2] = VTK_IMAGE_COMPONENT_AXIS;
+  
+  if ( ! this->Canvas)
+    {
+    this->Canvas = new vtkImagePaint;
+    this->Canvas->SetAxes(3, axes);
+    this->Canvas->SetExtent(2, this->Region->GetExtent());
+    this->Canvas->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 0, 2);
+    this->ClearCanvas();
+    }
+
+  if ( ! this->Viewer)
+    {
+    this->Viewer = vtkImageViewer::New();
+    // Viewer is non standard.
+    this->Viewer->SetAxes(axes[0], axes[1], axes[2]);
+    this->Viewer->SetInput(this->Canvas->GetOutput());
+    this->Viewer->SetColorWindow(1.0);
+    this->Viewer->SetColorLevel(0.5);
+    this->Viewer->ColorFlagOn();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This Method initializes the canvas from the region.
+// It redraws the region in the canvas in gray scale.
+void vtkImageStateSpace::ClearCanvas()
+{
+  vtkImageWrapPad *duplicate;
+  int axes[3];
+  
+  if ( ! this->Region)
+    {
+    vtkErrorMacro(<< "CheckCanvas: Region must be set.");
+    return;
+    }
+  
+  if ( ! this->Canvas)
+    {
+    vtkErrorMacro(<< "CheckCanvas: no canvas.");
+    return;
+    }
+
+  this->Region->GetAxes(2, axes);
+  axes[2] = VTK_IMAGE_COMPONENT_AXIS;
+  duplicate = new vtkImageWrapPad;
+  duplicate->SetInput(this->Region->GetOutput());
+  // Setup the ouput extent to match Canvas extent
+  duplicate->SetAxes(this->Canvas->GetAxes());  
+  duplicate->SetOutputImageExtent(this->Canvas->GetExtent());
+  // Since Component must be repeated, it cannot be the last axis.
+  duplicate->SetAxes(3, axes);
+  duplicate->GetOutput()->UpdateRegion(this->Canvas);
+
+  duplicate->Delete();
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageViewer *vtkImageStateSpace::GetViewer()
+{
+  this->CheckCanvas();
+  return this->Viewer;
+}
+
+//----------------------------------------------------------------------------
+vtkImagePaint *vtkImageStateSpace::GetCanvas()
+{
+  this->CheckCanvas();
+  return this->Canvas;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStateSpace::SampleCallBack(vtkClaw *planner)
+{
+  SphereList *list;
+  Sphere *sphere;
+  SphereList *neighbors;
+  Sphere *neighbor;
+  int x, y;
+  int x2, y2;
+  int count;
+  
+  printf("SampleCallBack\n");
+  fflush(stdout);
+  this->Planner = planner;
+  
+  if (this->StateDimensionality != 2)
+    {
+    vtkErrorMacro(<< "Call backs only work with images");
+    return;
+    }
+
+  this->CheckCanvas();
+  this->ClearCanvas();
+  // Draw all of the spheres.
+  list = planner->GetFreeSpheres();
+  count = 0;
+  while (list)
+    {
+    sphere = list->Item;
+    x = (int)(floor(sphere->Center[0] + 0.5));
+    y = (int)(floor(sphere->Center[1] + 0.5));
+    // Draw the surface
+    this->Canvas->SetDrawColor(1, 1, 0);
+    this->Canvas->DrawCircle(x, y, sphere->Radius);
+    // Draw the links to neighbors
+    this->Canvas->SetDrawColor(1, 0, 0);
+    neighbors = sphere->Neighbors;
+    while(neighbors)
+      {
+      neighbor = neighbors->Item;
+      x2 = (int)(floor(neighbor->Center[0] + 0.5));
+      y2 = (int)(floor(neighbor->Center[1] + 0.5));
+      this->Canvas->DrawSegment(x, y, x2, y2);
+      neighbors = neighbors->Next;
+      }
+    ++count;
+    list = list->Next;
+    }
+  
+  printf("%d Spheres\n", count);
+  fflush(stdout);
+
+  // Draw all of the collision.
+  list = planner->GetCollisionSpheres();
+  count = 0;
+  while (list)
+    {
+    sphere = list->Item;
+    x = (int)(floor(sphere->Center[0] + 0.5));
+    y = (int)(floor(sphere->Center[1] + 0.5));
+    // Draw the collision location
+    this->Canvas->SetDrawColor(0, 1, 0);
+    this->Canvas->DrawPoint(x, y);
+    ++count;
+    list = list->Next;
+    }
+  
+  printf("%d Collisions\n", count);
+  fflush(stdout);
+
+  this->Viewer->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStateSpace::CollisionCallBack(float *collision)
+{
+  SphereList *list;
+  Sphere *sphere;
+  SphereList *neighbors;
+  Sphere *neighbor;
+  int x, y;
+  int x2, y2;
+  int count;
+
+  // I am through debugging.
+  if(1)
+    {
+    return;
+    }
+  
+  
+  if (! this->Planner)
+    {
+    return;
+    }
+  
+  printf("CollisionCallBack\n");
+  fflush(stdout);
+  
+  if (this->StateDimensionality != 2)
+    {
+    vtkErrorMacro(<< "Call backs only work with images");
+    return;
+    }
+
+  this->CheckCanvas();
+  this->ClearCanvas();
+  // Draw all of the spheres.
+  list = this->Planner->GetFreeSpheres();
+  count = 0;
+  while (list)
+    {
+    sphere = list->Item;
+    x = (int)(floor(sphere->Center[0] + 0.5));
+    y = (int)(floor(sphere->Center[1] + 0.5));
+    // Draw the surface
+    this->Canvas->SetDrawColor(1, 1, 0);
+    this->Canvas->DrawCircle(x, y, sphere->Radius);
+    // Draw the links to neighbors
+    this->Canvas->SetDrawColor(1, 0, 0);
+    neighbors = sphere->Neighbors;
+    while(neighbors)
+      {
+      neighbor = neighbors->Item;
+      x2 = (int)(floor(neighbor->Center[0] + 0.5));
+      y2 = (int)(floor(neighbor->Center[1] + 0.5));
+      this->Canvas->DrawSegment(x, y, x2, y2);
+      neighbors = neighbors->Next;
+      }
+    ++count;
+    list = list->Next;
+    }
+  
+  printf("%d Spheres\n", count);
+  fflush(stdout);
+
+  // Draw all of the collision.
+  list = this->Planner->GetCollisionSpheres();
+  count = 0;
+  while (list)
+    {
+    sphere = list->Item;
+    x = (int)(floor(sphere->Center[0] + 0.5));
+    y = (int)(floor(sphere->Center[1] + 0.5));
+    // Draw the collision location
+    this->Canvas->SetDrawColor(0, 1, 0);
+    this->Canvas->DrawPoint(x, y);
+    ++count;
+    list = list->Next;
+    }
+  
+  printf("%d Collisions\n", count);
+  fflush(stdout);
+
+  // Draw the newest collision as a cross
+  x = (int)(floor(collision[0] + 0.5));
+  y = (int)(floor(collision[1] + 0.5));
+  // Draw the collision location
+  this->Canvas->SetDrawColor(0, 1, 0);
+  this->Canvas->DrawSegment(x+5, y+5, x-5, y-5);
+  this->Canvas->DrawSegment(x+5, y-5, x-5, y+5);
+  
+  this->Viewer->Render();
+  printf("Collision: %d, %d \n", x, y);
+  printf("Pause:");
+  getchar();
+  
+}
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method draws a path.  It only works for a 2d space for now.
+// Canvas DrawColor can be set before this method is called.
+void vtkImageStateSpace::DrawPath(vtkClaw *planner)
 {
   int idx;
   int numberOfStates;
-  float state1[3], state2[3];
-  vtkImageDraw *canvas;
+  float state1[2], state2[2];
+  int x1, y1, x2, y2;
+
+  // This only works for 2d data sets.
+  if (this->StateDimensionality != 2)
+    {
+    vtkErrorMacro(<< "GetPathPolyData: Only hanldes volumes");
+    return;
+    }
+
+  // Make sure the canvas has been created.
+  this->CheckCanvas();
   
   if ( !planner || !this->Region)
     {
     return;
     }
 
-  canvas = new vtkImageDraw;
-  canvas->SetExtent(VTK_IMAGE_DIMENSIONS, this->Region->GetExtent());
-  this->Region->UpdateRegion(canvas);
-  canvas->SetDrawValue(value);
-  
   numberOfStates = planner->GetPathLength();
   
   for(idx = 1; idx < numberOfStates; ++idx)
     {
     planner->GetPathState(idx - 1, state1);
     planner->GetPathState(idx, state2);
-    canvas->DrawSegment3D(state1, state2);
+    x1 = (int)(floor(state1[0] + 0.5));
+    y1 = (int)(floor(state1[1] + 0.5));
+    x2 = (int)(floor(state2[0] + 0.5));
+    y2 = (int)(floor(state2[1] + 0.5));
+    this->Canvas->DrawSegment(x1, y1, x2, y2);
     }
-  
-  canvas->Delete();
 }
 
 
 
+
+
+//============================================================================
+// Stuff specialized for volumes.
+//============================================================================
 
 
 //----------------------------------------------------------------------------
@@ -249,6 +546,12 @@ vtkPolyData *vtkImageStateSpace::GetPathPolyData(vtkClaw *planner)
   int idx;
   int ptIds[2];
 
+  // This only works for 3d data sets.
+  if (this->StateDimensionality != 3)
+    {
+    vtkErrorMacro(<< "GetPathPolyData: Only hanldes volumes");
+    return NULL;
+    }
   
   if ( ! planner || ! this->Region)
     {
@@ -321,6 +624,13 @@ vtkPolyData *vtkImageStateSpace::GetSpherePolyData(vtkClaw *planner)
   int idx;
 
   
+  // This only works for 3d data sets.
+  if (this->StateDimensionality != 3)
+    {
+    vtkErrorMacro(<< "GetPathPolyData: Only hanldes volumes");
+    return NULL;
+    }
+  
   if ( ! planner || ! this->Region)
     {
     vtkErrorMacro(<< "Need a planner and a region.");
@@ -366,6 +676,13 @@ vtkPolyData *vtkImageStateSpace::GetCollisionPolyData(vtkClaw *planner)
   float *aspectRatio;
   float x[3];
   int idx;
+  
+  // This only works for 3d data sets.
+  if (this->StateDimensionality != 3)
+    {
+    vtkErrorMacro(<< "GetPathPolyData: Only hanldes volumes");
+    return NULL;
+    }
   
   if ( ! planner || ! this->Region)
     {

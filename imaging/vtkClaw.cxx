@@ -85,7 +85,7 @@ vtkClaw::vtkClaw()
   this->StateSpace = NULL;
   this->Candidates = NULL;
   this->DeferredSpheres = NULL;
-  this->CallBack = 0;
+  this->CallBacks = 0;
   
   this->FreeSpheres = NULL;
   this->Collisions = NULL;
@@ -94,6 +94,8 @@ vtkClaw::vtkClaw()
   this->SearchStrategies[1] = VTK_CLAW_PIONEER_LOCAL;
   this->SearchStrategies[2] = VTK_CLAW_WELL_NOISE;
   this->NumberOfSearchStrategies = 3;
+  
+  this->PruneCollisions = 1;
   
 }
 
@@ -184,7 +186,7 @@ void vtkClaw::SetStateSpace(vtkStateSpace *space)
     }
   
   // Allocate static temporary array used to compute uncovered candidates.
-  this->Candidates = (int *)malloc(sizeof(int) * this->DegreesOfFreedom * 2);
+  this->Candidates = (float *)malloc(sizeof(int) * this->DegreesOfFreedom * 2);
   // Allocate start and goal states.
   this->StartState = space->NewState();
   this->GoalState = space->NewState();
@@ -196,7 +198,7 @@ void vtkClaw::SetStateSpace(vtkStateSpace *space)
     }
   for (idx = 0; idx < this->DegreesOfFreedom * 2; ++idx)
     {
-    this->Candidates[idx] = 0;
+    this->Candidates[idx] = 0.0;
     }
 }
 
@@ -295,7 +297,7 @@ void vtkClaw::GeneratePath()
   // Give the space some scale.
   ROBOT_RADIUS = this->InitialSphereRadius * 2;
   
-  /* get rid of all the Spheres from previous runs */
+  // get rid of all the Spheres from previous runs
   // SphereAllFree();
   // this->SphereVerifiedLinksClear();
 
@@ -303,6 +305,13 @@ void vtkClaw::GeneratePath()
     {
     this->SphereStartGoalInitialize(this->StartState, this->GoalState, 
 				    this->InitialSphereRadius);
+    }
+
+  // Sanity check
+  if(!START_SPHERE || !GOAL_SPHERE)
+    {
+    vtkErrorMacro(<< "GeneratePath: Start or Goal is not initialized");
+    return;
     }
   
   /* call the path generation routines */
@@ -325,7 +334,7 @@ void vtkClaw::GeneratePath()
     if (! path && startIterations)
       {
       vtkDebugMacro(<< "Searching start");
-      path = this->PathGenerate(startIterations, 0, this->ChildFraction);
+      path = this->PathGenerate(startIterations, 0);
       vtkDebugMacro(<< "num free = " << SpheresFreeCount()
                     << ", num collisions = " << SpheresCollisionCount());
       }
@@ -334,151 +343,26 @@ void vtkClaw::GeneratePath()
     if (! path && goalIterations)
       {
       vtkDebugMacro(<< "Searching goal");
-      path = PathGenerate(goalIterations, 1, this->ChildFraction);
+      path = PathGenerate(goalIterations, 1);
       vtkDebugMacro(<< "num free = " << SpheresFreeCount()
                     << ", num collisions = " << SpheresCollisionCount());
       }
 
-    SphereCollisionsPrune();
+    if (this->PruneCollisions)
+      {
+      CollisionsPrune();
+      }
     
     // Report to the state space, we have finished a sample period.
-    if (this->CallBack)
+    if (this->CallBacks)
       {
-      this->StateSpace->SampleCallBack();
+      this->StateSpace->SampleCallBack(this);
       }
     }
 
   // how should we return the path
   // should we delete any previous path????????????????????????????????????
   this->Path = path;
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method calls the SmoothPath method a number of times.
-void vtkClaw::SmoothPath(int number)
-{
-  int idx;
-  
-  for (idx = 0; idx < number; ++idx)
-    {
-    if ( ! this->SmoothPath())
-      {
-      printf("No more smoothing needed !!!!!!!!!!!!!!!!!!!!!!!!\n");
-      return;
-      }
-    }
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method smooths an existing path (found by GeneratePath) by making
-// the map around the path more acurate.  Since the path naturally stays
-// clear of collision space, the path will be smoother.  If the path breaks
-// CLAW is invoked to connect the gaps.
-// It returns 1 if the path was changed, 0 otherwise.
-int vtkClaw::SmoothPath()
-{
-  SphereList *path;
-  int flag = 0;
-  
-  // Create all the children of nodes in the path.
-  path = this->Path;
-  // loop through states in a path
-  while (path)
-    {
-    if (this->SmoothSphere(path->Item))
-      {
-      flag = 1;
-      }
-    path = path->Next;
-    }
-  
-  // Assuming that claw is initialized  properly (see GeneratePath)
-  // Only use nearest network strategy (assume gaps are small)
-  this->SphereSearchStrategySet(VTK_CLAW_NEAREST_NETWORK);
-  path = this->PathGetValid(START_SPHERE, GOAL_SPHERE);
-  while( ! path)
-    {
-    // Only search goal (because oll other networks are considered start)
-    vtkDebugMacro(<< "Searching goal");
-    path = PathGenerate(200, 1, this->ChildFraction);
-    vtkDebugMacro(<< "num free = " << SpheresFreeCount()
-                  << ", num collisions = " << SpheresCollisionCount());
-    }
-
-  // should we delete any previous path?????????????????????????????????
-  this->Path = path;
-  
-  return flag;
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// A helper method for SmoothPath.  This method makes sure a sphere 
-// has no free neighbors.  It returns 1 if the sphere was modified.
-int vtkClaw::SmoothSphere(Sphere *s)
-{
-  int axis;
-  float *child = this->StateSpace->NewState();
-  float temp;
-  int flag = 0;
-  
-  if (this->Debug)
-    {
-    printf("Smoothing sphere:\n    ");
-    SpherePrint(s);
-    }
-
-  temp = s->Radius * this->ChildFraction;
-  // loop through axes (to find children)
-  for (axis = 0; axis < this->DegreesOfFreedom; ++axis)
-    {
-    this->StateSpace->GetChildState(s->Center, axis, temp, child);
-    if (this->StateSpace->Collide(child))
-      {
-      // Collision
-      this->CollisionAdd(child, s);
-      vtkDebugMacro(<< "Collision");
-      // Call this function recursively (sphere now has smaller radius)
-      this->SmoothSphere(s);
-      delete [] child;
-      return 1;
-      }
-    else if (this->SphereCandidateValid(s, child))
-      {
-      // Make a neighbor
-      flag = 1;
-      this->SphereNew(child, s);
-      }
-
-    this->StateSpace->GetChildState(s->Center, axis, -temp, child);
-    if (this->StateSpace->Collide(child))
-      {
-      // Collision
-      this->CollisionAdd(child, s);
-      vtkDebugMacro(<< "Collision");
-      // Call this function recursively (sphere now has smaller radius)
-      this->SmoothSphere(s);
-      delete [] child;
-      return 1;
-      }
-    else if (this->SphereCandidateValid(s, child))
-      {
-      // Make a neighbor
-      flag = 1;
-      this->SphereNew(child, s);
-      }
-    }
-  
-  delete [] child;
-  return flag;
 }
 
 
@@ -659,9 +543,6 @@ void vtkClaw::GetPathState(int idx, float *state)
 //############################################################################
 
 
-
-/* determines where child should be created in sphere */
-static float SPHERE_CHILD_FRACTION = 0.65;
 
 /* For returning bestSphere from last network searched */
 static int LAST_NETWORK_SEARCHED = 0;
@@ -963,7 +844,7 @@ void vtkClaw::CollisionAdd(float *state, Sphere *parent)
   this->SphereCollisionAdd(b, parent);
   
   // Inform the state space that a collision has been recorded.
-  if (this->CallBack)
+  if (this->CallBacks)
     {
     this->StateSpace->CollisionCallBack(b->Center);
     }
@@ -981,27 +862,51 @@ void vtkClaw::SphereCollisionAdd(Sphere *b, Sphere *parent)
   this->Collisions = this->SphereListAdd(this->Collisions, b);
   b->Visited = -1;
 
-  if ( parent){
-    /* We are garenteed parent is the only sphere which contains collision */
+  if ( parent)
+    {
+    // We are garenteed parent is the only sphere which contains collision 
     temp = this->StateSpace->Distance(parent->Center, b->Center);
-    /* Reduce the spheres radius */
+    // Reduce the spheres radius 
     this->SphereRadiusReduce(parent, temp);
-    /* Add collision neighbor */
+    // Add collision neighbor
     b->Neighbors = this->SphereListAdd(b->Neighbors, parent);
-  } else {
-    /* This collision must be from verifiing a path. Check all spheres */
-    l = this->FreeSpheres;
-    while (l){
-    temp = this->StateSpace->Distance(l->Item->Center, b->Center);
-    if (temp < l->Item->Radius){
-	/* Reduce the spheres radius */
+
+    // Since we changed the CandidateValid concept, this collision
+    // may be in more than one sphere.  Check the neighbors.
+    // Because of neighbor fraction concept, collision may in be spheres
+    // other than neighbors. Oh well, it will just have to do!
+    l = parent->Neighbors;
+    while (l)
+      {
+      temp = this->StateSpace->Distance(l->Item->Center, b->Center);
+      if (temp < l->Item->Radius)
+	{
+	// Reduce the spheres radius 
 	this->SphereRadiusReduce(l->Item, temp);
-	/* Add collision neighbor */
+	// Add collision neighbor 
 	b->Neighbors = this->SphereListAdd(b->Neighbors, l->Item);
-      }
+	}
       l = l->Next;
+      }
+    
     }
-  }
+  else 
+    {
+    // This collision must be from verifiing a path. Check all spheres 
+    l = this->FreeSpheres;
+    while (l)
+      {
+      temp = this->StateSpace->Distance(l->Item->Center, b->Center);
+      if (temp < l->Item->Radius)
+	{
+	// Reduce the spheres radius 
+	this->SphereRadiusReduce(l->Item, temp);
+	// Add collision neighbor 
+	b->Neighbors = this->SphereListAdd(b->Neighbors, l->Item);
+	}
+      l = l->Next;
+      }
+    }
 }
 
 
@@ -1046,8 +951,9 @@ void vtkClaw::SphereAllFree()
 
 
 //----------------------------------------------------------------------------
+// Description:
 // This function removes collisions that do not have neighbors.
-void vtkClaw::SphereCollisionsPrune()
+void vtkClaw::CollisionsPrune()
 {
   SphereList *newCollisions = NULL;
   SphereList *newNeighbors;
@@ -1174,10 +1080,11 @@ Sphere *vtkClaw::SphereNew(float *center, Sphere *parent)
 {
   Sphere *b;
   
-  if (this->StateSpace->Collide(center)){
+  if (this->StateSpace->Collide(center))
+    {
     this->CollisionAdd(center, parent);
     return NULL;
-  }
+    }
 
   if (parent)
     b = this->SphereMake(center, SPHERE_MAX_RADIUS, parent->Visited);
@@ -1188,7 +1095,7 @@ Sphere *vtkClaw::SphereNew(float *center, Sphere *parent)
   this->SphereAdd(b);
 
   // Report to the state space that we have a new sphere
-  if (this->CallBack)
+  if (this->CallBacks)
     {
     this->StateSpace->SphereCallBack(b);
     }
@@ -1392,32 +1299,38 @@ int vtkClaw::SphereNumNeighbors(Sphere *b)
       
 //----------------------------------------------------------------------------
 // This function returns 1 if a candidate child for a sphere is not
-// Already mapped. It returns 0 otherwise.
-int vtkClaw::SphereCandidateValid(Sphere *b, float *proposed)
+// Already mapped. It returns 0 otherwise.  Now returns a value from 0 to 1.
+// Note: Logic flaw. Two spheres can cover eachother candidates.  The
+// Situation can occur that there exists no uncovered candidates.
+// Go back to surface area concept.  Test points on surface.
+float vtkClaw::SphereCandidateValid(Sphere *b, float *proposed)
 {
-  float temp = b->Radius * SPHERE_CHILD_FRACTION;
+  float valid = 1.0;
   SphereList *l;
   Sphere *other;
 
-  /* handle if the sphere touches itself */
-  if (this->StateSpace->Distance(b->Center, proposed) < (temp * 0.9))
+  // handle if the sphere touches itself 
+  // This rarely occurs, so the fraction does not mean much.
+  if (this->StateSpace->Distance(b->Center, proposed) 
+      < (b->Radius * this->NeighborFraction))
     {
-    return 0;
+    valid *= 0.001;
     }
 
-  /* Remove if a neighbor contains this point */
+  /* handle if a neighbor contains this point */
   l = b->Neighbors;
   while (l)
     {
     other = l->Item;
     l = l->Next;
+    // I could use a fuzzy distance.
     if (this->StateSpace->Distance(other->Center, proposed) < other->Radius)
       {
-      return 0;
+      valid *= 0.0001;
       }
     }
   
-  return 1;
+  return valid;
 }
   
 
@@ -1425,17 +1338,16 @@ int vtkClaw::SphereCandidateValid(Sphere *b, float *proposed)
 // This function returns (pointer argument) an array which tells which 
 // search directions of a Sphere are already filled (and which are free).
 // The integer return value is the number of candidates.
-int vtkClaw::SphereCandidatesGet(Sphere *b)
+float vtkClaw::SphereCandidatesGet(Sphere *b)
 {
   float *proposed = this->StateSpace->NewState();
-  int numCandidates, valid;
+  float numCandidates, valid;
   int direction, axis;
-  float temp;
+  float temp = b->Radius * 0.9; // Back away from surface so child will cover.
 
   numCandidates = 0;
   
   /* Find the number of unoccupied inbounds candidates */
-  temp = b->Radius * SPHERE_CHILD_FRACTION;
   for (axis = 0; axis < this->DegreesOfFreedom; ++axis){
     for (direction = 0; direction < 2; ++direction){
       /* Set up child state */
@@ -1468,7 +1380,7 @@ int vtkClaw::SphereCandidatesGet(Sphere *b)
 float vtkClaw::SphereSurfaceArea(Sphere *b)
 {
   if ( ! b->SurfaceAreaValid){
-    b->SurfaceArea = (float)(SphereCandidatesGet(b));
+    b->SurfaceArea = SphereCandidatesGet(b);
     /* consider the guide tube at this point */
     b->SurfaceArea *= this->StateSpace->BoundsTest(b->Center);
     b->SurfaceAreaValid = (char)(1);
@@ -1587,7 +1499,7 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
     for (direction = 0; direction < 2; ++direction)
       {
       // set up the candidate state
-      temp = b->Radius * SPHERE_CHILD_FRACTION;
+      temp = b->Radius * this->ChildFraction;
       if (direction)
 	{
 	this->StateSpace->GetChildState(b->Center, axis, temp, proposed);
@@ -1627,10 +1539,7 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
 	}
       
       // We want uncovered first, but if all are covered, rank the covered.
-      if (this->Candidates[axis * 2 + direction] == 0)
-	{
-	temp *= 0.0001;
-	}
+      temp *= this->Candidates[axis * 2 + direction];
       
       // Should we consider State Bounds?
       // Are they taken care of in "MoveEvaluate" or
@@ -1649,7 +1558,7 @@ void vtkClaw::SphereCandidateChoose(Sphere *b, float *proposed)
     }
   
   // set up the best proposed position
-  temp = b->Radius * SPHERE_CHILD_FRACTION;
+  temp = b->Radius * this->ChildFraction;
   if (bestDirection)
     {
     this->StateSpace->GetChildState(b->Center, bestAxis, temp, proposed);
@@ -1996,28 +1905,20 @@ float vtkClaw::SphereNarrowWellSortCompute(Sphere *b)
 
 
 //----------------------------------------------------------------------------
-// External
 // This function fills the free space with spheres until a path is found,
 // or until "additionalSpheres" additional spheres are created.
-// It returns the verified path or NULL.
-SphereList *vtkClaw::PathGenerate(int additionalSpheres, 
-				  int network, float childFraction)
+// It returns the verified path or NULL.  The Start and goal must
+// be initialized before this function is called.
+SphereList *vtkClaw::PathGenerate(int additionalSpheres, int network)
 {
   Sphere *b;
   float *center = this->StateSpace->NewState();
-  SphereList *path = NULL;
+  SphereList *path;
 
-  
-  SPHERE_CHILD_FRACTION = childFraction;
   LAST_NETWORK_SEARCHED = network;
 
-  if(!START_SPHERE || !GOAL_SPHERE)
-    {
-    vtkErrorMacro(<< "start and goal position must be initialized "
-        << "(PathGenerate)");
-    delete [] center;
-    return NULL;
-    }
+  // In case a path already exists.
+  path = this->PathGetValid(START_SPHERE, GOAL_SPHERE);
   
   while (!path && additionalSpheres > 0)
     { // if the newest Sphere contains goal, find path and try to verify 
@@ -2319,8 +2220,276 @@ SphereList *vtkClaw::PathUnravel(Sphere *start)
 
 
 /*----------------------------------------------------------------------------
-  End of path routines 
+  Smoothing stuff 
 ----------------------------------------------------------------------------*/
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method calls the ExplorePath
+void vtkClaw::ExplorePath(int number)
+{
+  int idx;
+  
+  for (idx = 0; idx < number; ++idx)
+    {
+    if ( ! this->ExplorePath())
+      {
+      printf("Path explored !!!!!!!!!!!!!!!!!!!!!!!!\n");
+      return;
+      }
+    // Report to the state space, we have finished a sample period.
+    if (this->CallBacks)
+      {
+      this->StateSpace->SampleCallBack(this);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method explored an existing path (found by GeneratePath) and makes
+// the map around the path more acurate.  Since the path naturally stays
+// clear of collision space, the path will be smoother.  If the path breaks
+// CLAW is invoked to connect the gaps.
+// It returns 1 if the path was changed, 0 otherwise.
+int vtkClaw::ExplorePath()
+{
+  SphereList *path;
+  int flag = 0;
+  
+  // Sanity check
+  if(!START_SPHERE || !GOAL_SPHERE)
+    {
+    vtkErrorMacro(<< "GeneratePath: Start or Goal is not initialized");
+    return 0;
+    }
+  
+  // Create all the children of nodes in the path.
+  path = this->Path;
+  // loop through states in a path
+  while (path)
+    {
+    if (this->ExploreSphere(path->Item))
+      {
+      flag = 1;
+      }
+    path = path->Next;
+    }
+  
+  // Assuming that claw is initialized  properly (see GeneratePath)
+  // Only use nearest network strategy (assume gaps are small)
+  this->SphereSearchStrategySet(VTK_CLAW_NEAREST_NETWORK);
+  path = this->PathGetValid(START_SPHERE, GOAL_SPHERE);
+  while( ! path)
+    {
+    // Only search goal (because oll other networks are considered start)
+    vtkDebugMacro(<< "Searching goal");
+    path = PathGenerate(200, 1);
+    vtkDebugMacro(<< "num free = " << SpheresFreeCount()
+                  << ", num collisions = " << SpheresCollisionCount());
+    }
+
+  // should we delete any previous path?????????????????????????????????
+  this->Path = path;
+  
+  return flag;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// A helper method for SmoothPath.  This method makes sure a sphere 
+// has no free neighbors.  It returns 1 if the sphere was modified.
+int vtkClaw::ExploreSphere(Sphere *s)
+{
+  int axis;
+  float dSurf = s->Radius * 0.9; // Back away from surface.
+  float dChild = s->Radius * this->ChildFraction;
+  float *child = this->StateSpace->NewState();
+  int flag = 0;
+  
+  if (this->Debug)
+    {
+    printf("Smoothing sphere:\n    ");
+    SpherePrint(s);
+    }
+
+  // loop through axes (to find children)
+  for (axis = 0; axis < this->DegreesOfFreedom; ++axis)
+    {
+    // Get point on surface
+    this->StateSpace->GetChildState(s->Center, axis, dSurf, child);
+    if (this->SphereCandidateValid(s, child) > 0.5)
+      { // this surface is not covered
+      // make a child
+      this->StateSpace->GetChildState(s->Center, axis, dChild, child);
+      if (this->StateSpace->Collide(child))
+	{
+	// Collision
+	this->CollisionAdd(child, s);
+	vtkDebugMacro(<< "Collision");
+	// Call this function recursively (sphere now has smaller radius)
+	this->ExploreSphere(s);
+	delete [] child;
+	return 1;
+	}
+      else 
+	{
+	// Make a neighbor
+	flag = 1;
+	this->SphereNew(child, s);
+	}
+      }
+    
+    // Same for negative direction
+    this->StateSpace->GetChildState(s->Center, axis, -dSurf, child);
+    if (this->SphereCandidateValid(s, child) > 0.5)
+      { // this surface is not covered
+      // make a child
+      this->StateSpace->GetChildState(s->Center, axis, -dChild, child);
+      if (this->StateSpace->Collide(child))
+	{
+	// Collision
+	this->CollisionAdd(child, s);
+	vtkDebugMacro(<< "Collision");
+	// Call this function recursively (sphere now has smaller radius)
+	this->ExploreSphere(s);
+	delete [] child;
+	return 1;
+	}
+      else 
+	{
+	// Make a neighbor
+	flag = 1;
+	this->SphereNew(child, s);
+	}
+      }
+    }
+  
+  delete [] child;
+  return flag;
+}
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method calls the SmoothPath method a number of times.
+void vtkClaw::SmoothPath(int number)
+{
+  int idx;
+  
+  for (idx = 0; idx < number; ++idx)
+    {
+    if ( ! this->SmoothPath())
+      {
+      printf("No more smoothing possible !!!!!!!!!!!!!!!!!!!!!!!!\n");
+      return;
+      }
+    // Report to the state space, we have finished a sample period.
+    if (this->CallBacks)
+      {
+      this->StateSpace->SampleCallBack(this);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method smooths an existing path (found by GeneratePath) by
+// Adding spheres to reduce sharp bends.  Returns 1 if the path was changed.
+int vtkClaw::SmoothPath()
+{
+  SphereList *path1, *path2, *path3;
+  int flag = 0;
+  
+  // Sanity check
+  if(!START_SPHERE || !GOAL_SPHERE)
+    {
+    vtkErrorMacro(<< "GeneratePath: Start or Goal is not initialized");
+    return 0;
+    }
+  
+  // Path must be at least 3 spheres.
+  path1 = this->Path;
+  if (! path1 || ! (path2 = path1->Next) || ! (path3 = path2->Next))
+    {
+    return 0;
+    }
+
+  // Loop through all the bends (3 spheres)
+  while (path3)
+    {
+    if (this->SmoothBend(path1->Item, path2->Item, path3->Item))
+      {
+      flag = 1;
+      }
+    path1 = path2;
+    path2 = path3;
+    path3 = path2->Next;
+    }
+
+  // Smoothing can add collisions which can break paths.
+  // Assuming that claw is initialized  properly (see GeneratePath)
+  // Only use nearest network strategy (assume gaps are small)
+  this->SphereSearchStrategySet(VTK_CLAW_NEAREST_NETWORK);
+  path1 = this->PathGetValid(START_SPHERE, GOAL_SPHERE);
+  while( ! path1)
+    {
+    // Only search goal (because oll other networks are considered start)
+    vtkDebugMacro(<< "Searching goal");
+    path1 = PathGenerate(200, 1);
+    vtkDebugMacro(<< "num free = " << SpheresFreeCount()
+                  << ", num collisions = " << SpheresCollisionCount());
+    }
+
+  // should we delete any previous path?????????????????????????????????
+  this->Path = path1;
+  
+  return flag;
+}
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method adds a sphere to reduce the sharpness of a bend.
+// Returns 1 if the a sphere was created.
+int vtkClaw::SmoothBend(Sphere *s1, Sphere *s2, Sphere *s3)
+{
+  float *newState;
+  Sphere *b;
+  int idx;
+  
+  
+  newState = this->StateSpace->NewState();
+  for (idx = 0; idx < this->StateDimensionality; ++idx)
+    {
+    newState[idx] = (s1->Center[idx] + s2->Center[idx] + s3->Center[idx])/3.0;
+    }
+  
+   if (this->StateSpace->Collide(newState))
+     {
+     this->CollisionAdd(newState, s2);
+     delete [] newState;
+     return 0;
+     }
+   else
+     {
+     b = this->SphereMake(newState, SPHERE_MAX_RADIUS, 0);
+     // Add this sphere to the networks(neighbors ...).
+     this->SphereAdd(b);
+     delete [] newState;
+     return 1;
+     }
+   
+}
+
+  
+
+
 
 
 

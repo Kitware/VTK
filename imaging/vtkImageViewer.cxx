@@ -56,8 +56,8 @@ vtkImageViewer::vtkImageViewer()
   this->ColorLevel = 127.0;
   this->ColorFlag = 0;
   this->Red = 0;
-  this->Green = 0;
-  this->Blue = 0;
+  this->Green = 1;
+  this->Blue = 2;
 
   this->XOffset = 0;
   this->YOffset = 0;

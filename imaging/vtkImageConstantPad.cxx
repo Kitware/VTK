@@ -75,7 +75,7 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   T constant;
 
 
-  constant = self->GetConstant();
+  constant = (T)(self->GetConstant());
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
   inRegion->GetImageExtent(imageMin0, imageMax0, imageMin1, imageMax1, 

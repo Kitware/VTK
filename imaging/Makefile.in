@@ -65,6 +65,7 @@ vtkImageMIPFilter \
 vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImageOpenClose \
+vtkImagePaint \
 vtkImageRFFT \
 vtkImageRFFT1D \
 vtkImageRobotSpace2D \

@@ -73,15 +73,15 @@ typedef struct Sphere;
 struct Sphere
   {
   float *Center;
-  float Radius;         /* radius of this sphere */
-  SphereList *Neighbors; /* other spheres whose centers fall within this box */
+  float Radius;         // radius of this sphere 
+  SphereList *Neighbors; // other spheres whose centers fall within this box 
   char  SortValid;
-  float Sort;           /* the sphere with the largest sort value get choosen */
+  float Sort;           // the sphere with the largest sort value get choosen
   char SurfaceAreaValid;
   float SurfaceArea;
-  short Visited;        /* For searching graph */
-  Sphere *Nearest;      /* nearest sphere of another network */
-  float NearestVal;     /* distance of that sphere */
+  short Visited;        // For searching graph
+  Sphere *Nearest;      // nearest sphere of another network
+  float NearestVal;     // distance of that sphere
   };
  
  
@@ -100,14 +100,30 @@ public:
   ~vtkClaw();
   char *GetClassName() {return "vtkClaw";};
 
+  void CollisionsPrune();
+
+  // Description:
+  // When PruneCollisions is on, Collisions that are not limiting
+  // any spheres are removed (every sample).
+  vtkSetMacro(PruneCollisions, int);
+  vtkGetMacro(PruneCollisions, int);
+  vtkBooleanMacro(PruneCollisions, int);
+  
+  // Description:
+  // Sample period id the number of spheres that are added before the
+  // strategy changes.  Also, a call back method is called at the end
+  // of each period.
+  vtkSetMacro(SamplePeriod, int);
+  vtkGetMacro(SamplePeriod, int);
+
   // Description:
   // Turing CallBackOn makes the planner report to the states space
   // When a collision is added, sphere is added, or a sample period is
   // finished.  The state space can display this information however it
   // wants.
-  vtkSetMacro(CallBack, int);
-  vtkGetMacro(CallBack, int);
-  vtkBooleanMacro(CallBack, int);
+  vtkSetMacro(CallBacks, int);
+  vtkGetMacro(CallBacks, int);
+  vtkBooleanMacro(CallBacks, int);
   
   // To customize the seach strategies.
   void ClearSearchStrategies();
@@ -130,6 +146,8 @@ public:
   
   void SetStateSpace(vtkStateSpace *space);
   void SetStartState(float *state);
+  void SetStartState(float x, float y)
+  {float s[2]; s[0] = x; s[1] = y; this->SetStartState(s);};
   void SetStartState(float x, float y, float z)
   {float s[3]; s[0] = x; s[1] = y; s[2] = z; this->SetStartState(s);};
   void SetStartState(float x, float y, float z, float t)
@@ -141,6 +159,8 @@ public:
   this->SetStartState(s);};
 
   void SetGoalState(float *state);
+  void SetGoalState(float x, float y)
+  {float s[2]; s[0] = x; s[1] = y; this->SetGoalState(s);};
   void SetGoalState(float x, float y, float z)
   {float s[3]; s[0] = x; s[1] = y; s[2] = z; this->SetGoalState(s);};
   void SetGoalState(float x, float y, float z, float t)
@@ -153,8 +173,13 @@ public:
 
   void SetSearchStrategies (int num, int *strategies);
   void GeneratePath();
+
+  void ExplorePath(int number);
+  int ExplorePath();
+
   void SmoothPath(int number);
   int SmoothPath();
+
   void PrintFreeSpheres();
   void SavePath(char *fileName);
   void LoadPath(char *fileName);
@@ -171,11 +196,18 @@ public:
   SphereList *GetSpheres();
   // Get A list of spheres that defines the path.
   SphereList *GetPath();
+  // Get A list of all spheres
+  SphereList *GetFreeSpheres(){return this->FreeSpheres;};
+  // Get A list of all collision spheres
+  SphereList *GetCollisionSpheres(){return this->Collisions;};
   
   
 protected:
+  // When this flag is set, collisions are pruned every sample.
+  int PruneCollisions;
+  
   // Flag to call state space to display collisions, spheres ...
-  int CallBack;
+  int CallBacks;
   
   // How many directions can we move (gotten from StateSpace.
   int DegreesOfFreedom;
@@ -208,7 +240,7 @@ protected:
   // The object which defines the state space we are searching.
   vtkStateSpace *StateSpace;
   // An array to compute which children are covered. ([2*DegreesOfFreedom]).
-  int *Candidates;
+  float *Candidates;
 
   // Space approximation manger.
   // A list of points (stored as Sphere centers) which are not in free space
@@ -217,8 +249,6 @@ protected:
   // Create spheres while testing links (but add them later.
   SphereList *DeferredSpheres;
 
-  //vtkImageXViewer *Viewer;
-  
   // Functions to handle Spheres and locking ...
   Sphere *SphereNew(float *center, Sphere *parent);
   void SphereAdd(Sphere *b);
@@ -241,13 +271,12 @@ protected:
   void SphereNeighborsPrune(Sphere *b);
   void SphereFree(Sphere *b);
   void SphereAllFree();
-  void SphereCollisionsPrune();
   float SphereNearestVal(Sphere *b);
   Sphere *SphereNearest(Sphere *b);
   void SpherePrint(Sphere *b);
   int SphereNumNeighbors(Sphere *b);
-  int SphereCandidateValid(Sphere *b, float *proposed);
-  int SphereCandidatesGet(Sphere *b);
+  float SphereCandidateValid(Sphere *b, float *proposed);
+  float SphereCandidatesGet(Sphere *b);
   float SphereSurfaceArea(Sphere *b);
   void SpheresPrint(SphereList *spheres);
   int SpheresCount(SphereList *spheres);
@@ -268,7 +297,8 @@ protected:
   float SphereMinimumWellSortCompute(Sphere *b);
   float SphereCloseToleranceSortCompute(Sphere *b);
   float SphereNarrowWellSortCompute(Sphere *b);
-  int SmoothSphere(Sphere *s);
+  int ExploreSphere(Sphere *s);
+  int SmoothBend(Sphere *s1, Sphere *s2, Sphere *s3);
   void SphereLinkVerifiedRecord(Sphere *b0, Sphere *b1);
   int SphereLinkVerifiedAlready(Sphere *b0, Sphere *b1);
   void SphereVerifiedLinksClear();
@@ -277,14 +307,11 @@ protected:
 				float radius);
   int PathVerify(SphereList *path);
   int SphereLinkVerify(Sphere *b0, Sphere *b1);
-  SphereList *PathGenerate(int additional_Spheres, 
-			   int network, float child_fraction);
+  SphereList *PathGenerate(int additional_Spheres, int network);
   SphereList *PathGetValid(Sphere *start_Sphere, Sphere *goal_Sphere);
   SphereList *PathSearch(Sphere *start, Sphere *end);
   SphereList *PathUnravel(Sphere *start);
 };
-
-#include "vtkStateSpace.h"
 
 #endif
 

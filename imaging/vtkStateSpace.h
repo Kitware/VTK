@@ -64,8 +64,7 @@ public:
   virtual void CollisionCallBack(float *state){state = state;};
   // Description:
   // The planner can call this method to report the end of a sample period.
-  virtual void SampleCallBack(){};
-  
+  virtual void SampleCallBack(vtkClaw *planner){planner = planner;};
     
   
   // Description:
