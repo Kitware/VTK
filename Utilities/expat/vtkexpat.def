@@ -1,0 +1,14 @@
+LIBRARY vtkexpat
+EXPORTS XmlParseXmlDecl
+        XmlInitEncoding
+        XmlGetUtf8InternalEncoding
+        XmlGetUtf16InternalEncoding
+        XmlUtf8Encode
+        XmlUtf16Encode
+        XmlSizeOfUnknownEncoding
+        XmlInitUnknownEncoding
+        XmlParseXmlDeclNS
+        XmlInitEncodingNS
+        XmlGetUtf8InternalEncodingNS
+        XmlGetUtf16InternalEncodingNS
+        XmlInitUnknownEncodingNS
