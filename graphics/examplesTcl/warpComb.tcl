@@ -41,7 +41,7 @@ vtkCastToConcrete caster
 vtkPolyNormals normals
     normals SetInput [caster GetPolyDataOutput]
     normals SetFeatureAngle 60
-vtkDataSetMapper planeMapper
+vtkPolyMapper planeMapper
     planeMapper SetInput [normals GetOutput]
     eval planeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor planeActor
