@@ -122,6 +122,7 @@ void vtkPLOT3DReader::Execute()
     fclose(xyzFp);
     xyzFp = fopen(this->XYZFilename, "rb");
     error = this->ReadBinaryGrid(xyzFp,output);
+    fclose(xyzFp);
     }
   
   if ( error )
@@ -152,6 +153,7 @@ void vtkPLOT3DReader::Execute()
       fclose(QFp);
       QFp = fopen(this->QFilename, "rb");
       error = this->ReadBinarySolution(QFp,output);
+      fclose(QFp);
       }
     
     if ( error )
@@ -183,6 +185,7 @@ void vtkPLOT3DReader::Execute()
       fclose(funcFp);
       funcFp = fopen(this->FunctionFilename, "rb");
       error = this->ReadBinaryFunctionFile(funcFp,output);
+      fclose(funcFp);
       }
     
     if ( error )
@@ -212,6 +215,7 @@ void vtkPLOT3DReader::Execute()
       fclose(funcFp);
       funcFp = fopen(this->VectorFunctionFilename, "rb");
       error = this->ReadBinaryVectorFunctionFile(funcFp,output);
+      fclose(funcFp);
       }
     
     if ( error )
