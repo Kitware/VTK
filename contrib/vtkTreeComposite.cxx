@@ -690,9 +690,9 @@ void vtkTreeComposite::InitializeOffScreen()
     }
   
 #ifdef _WIN32
-  vtkWin32RenderWindow *renWin;
+  vtkWin32OpenGLRenderWindow *renWin;
   
-  renWin = vtkWin32RenderWindow::SafeDownCast(this->RenderWindow);
+  renWin = vtkWin32OpenGLRenderWindow::SafeDownCast(this->RenderWindow);
   if (renWin)
     {
     // I do not want to replace the original.
