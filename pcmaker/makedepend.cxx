@@ -81,57 +81,6 @@ void CheckAndAdd(char *name, const char *vtkHome)
     return;
     }
 
-  // if control reaches here then it hasn't been found yet
-  sprintf(fname,"%s\\working\\%s",vtkHome,name);
-  if (!stat(fname,&statBuff))
-    {
-    // add this to the depend list
-    sprintf(depends[num],"working\\%s",name);
-    strcpy(names[num],name);
-    num++;
-    // now recurse
-    GetDepends(fname,vtkHome);
-    return;
-    }
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fname,"%s\\gemsvolume\\%s",vtkHome,name);
-  if (!stat(fname,&statBuff))
-    {
-    // add this to the depend list
-    sprintf(depends[num],"gemsvolume\\%s",name);
-    strcpy(names[num],name);
-    num++;
-    // now recurse
-    GetDepends(fname,vtkHome);
-    return;
-    }
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fname,"%s\\gemsio\\%s",vtkHome,name);
-  if (!stat(fname,&statBuff))
-    {
-    // add this to the depend list
-    sprintf(depends[num],"gemsio\\%s",name);
-    strcpy(names[num],name);
-    num++;
-    // now recurse
-    GetDepends(fname,vtkHome);
-    return;
-    }
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fname,"%s\\gemsip\\%s",vtkHome,name);
-  if (!stat(fname,&statBuff))
-    {
-    // add this to the depend list
-    sprintf(depends[num],"gemsip\\%s",name);
-    strcpy(names[num],name);
-    num++;
-    // now recurse
-    GetDepends(fname,vtkHome);
-    return;
-    }
 }
 
 
