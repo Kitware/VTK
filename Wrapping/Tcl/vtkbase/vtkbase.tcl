@@ -15,13 +15,14 @@ namespace eval ::vtk {
 
     variable complain_on_loading 1
 
-    proc load_component {name} {
+    proc load_component {name {optional_paths {}}} {
         
         global tcl_platform auto_path env
         
         # First dir is empty, to let Tcl try in the current dir
         
-        set dirs {""}
+        set dirs $optional_paths
+        set dirs [concat $dirs {""}]
         set ext [info sharedlibextension]
         if {$tcl_platform(platform) == "unix"} {
             set prefix "lib"
@@ -44,7 +45,7 @@ namespace eval ::vtk {
 
         foreach dir $dirs {
             set libname [file join $dir ${prefix}${name}${ext}]
-	    if {[file exists $libname]} {
+            if {[file exists $libname]} {
                 if {![catch {load $libname} errormsg]} {
                     # WARNING: it HAS to be "" so that pkg_mkIndex work (since
                     # while evaluating a package ::vtk::load_component won't
