@@ -74,7 +74,7 @@ vtkExtentTranslator::vtkExtentTranslator()
   this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1; 
 
   // Set a default split mode to be slabs
-  this->SplitMode   = vtkExtentTranslator::Z_SLAB_MODE;
+  this->SplitMode   = vtkExtentTranslator::BLOCK_MODE;
 }
 
 //----------------------------------------------------------------------------
