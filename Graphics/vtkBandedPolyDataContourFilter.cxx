@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.14");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.15");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -54,6 +54,8 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->ContourValues = vtkContourValues::New();
   this->Clipping = 0;
   this->ScalarMode = VTK_SCALAR_MODE_INDEX;
+  this->SetNthOutput(1,vtkPolyData::New());
+  this->Outputs[1]->Delete();
 }
 
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
@@ -425,6 +427,17 @@ void vtkBandedPolyDataContourFilter::Execute()
     vtkCellArray *polys = input->GetPolys();
     vtkCellArray *tmpPolys = NULL;
 
+    // If contour edges requested, set things up.
+    vtkCellArray *contourEdges;
+    if ( this->GenerateContourEdges )
+      {
+      contourEdges = vtkCellArray::New();
+      contourEdges->Allocate(numCells);
+      this->GetContourEdgesOutput()->SetLines(contourEdges);
+      contourEdges->Delete();
+      this->GetContourEdgesOutput()->SetPoints(newPts);
+      }
+
     // Set up structures for processing polygons
     maxCellSize = polys->GetMaxCellSize();
     maxCellSize *= (1 + this->NumberOfClipValues);
@@ -534,6 +547,21 @@ void vtkBandedPolyDataContourFilter::Execute()
           }
         } //for all points and edges
       
+      //Produce contour edges if requested
+      if ( this->GenerateContourEdges )
+        {
+        for (i=0; i < numFullPts; i++)
+          {
+          if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
+               s[i] == s[(i+1)%numFullPts] )
+            {
+            contourEdges->InsertNextCell(2);
+            contourEdges->InsertCellPoint(fullPoly[i]);
+            contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
+            }
+          }
+        }
+      
       //Very important: have to find the right starting vertex. The vertex
       //needs to be one where the contour values increase in both directions.
       //Really should check whether the vertex is convex.
@@ -579,6 +607,12 @@ void vtkBandedPolyDataContourFilter::Execute()
         }
       cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
                                 cellId,s[idx],newScalars);
+      if ( this->GenerateContourEdges )
+        {
+        contourEdges->InsertNextCell(2);
+        contourEdges->InsertCellPoint(fullPoly[mR]);
+        contourEdges->InsertCellPoint(fullPoly[mL]);
+        }
 
       //We've got an edge (mL,mR) that marks the edge of the region not yet
       //clipped. We move this edge forward from intersection point to
@@ -632,6 +666,12 @@ void vtkBandedPolyDataContourFilter::Execute()
           //add the polygon
           cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
                                     cellId,s[mR],newScalars);
+          if ( this->GenerateContourEdges )
+            {
+            contourEdges->InsertNextCell(2);
+            contourEdges->InsertCellPoint(fullPoly[mR]);
+            contourEdges->InsertCellPoint(fullPoly[mL]);
+            }
           mL = m2L;
           mR = m2R;
           }//add a polygon
@@ -689,6 +729,9 @@ unsigned long int vtkBandedPolyDataContourFilter::GetMTime()
 void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Generate Contour Edges: " 
+     << (this->GenerateContourEdges ? "On\n" : "Off\n");
 
   this->ContourValues->PrintSelf(os,indent);
   os << indent << "Clipping: " << (this->Clipping ? "On\n" : "Off\n");
