@@ -8,10 +8,11 @@ SET(MyTests
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}     
-  ImagePlaneWidget.cxx
-  TestLineWidget.cxx
-  TestPlaneWidget.cxx
-  TestPointWidget.cxx
+    PushTest.cxx
+    ImagePlaneWidget.cxx
+    TestLineWidget.cxx
+    TestPlaneWidget.cxx
+    TestPointWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})
