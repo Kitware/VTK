@@ -12,33 +12,37 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkButtonSource - create a ellipsoidal-shaped button
+// .NAME vtkButtonSource - abstract class for creating various button types
 // .SECTION Description
-// vtkButtonSource creates a ellipsoidal shaped button with
-// texture coordinates suitable for application of a texture map. This
-// provides a way to make nice looking 3D buttons. The buttons are 
-// represented as vtkPolyData that includes texture coordinates and
-// normals. The button lies in the x-y plane.
+// vtkButtonSource is an abstract class that defines an API for creating
+// "button-like" objects in VTK. A button is a geometry with a rectangular
+// region that can be textured. The button is divided into two regions: the
+// texture region and the shoulder region. The points in both regions are
+// assigned texture coordinates. The texture region has texture coordinates
+// consistent with the image to be placed on it.  All points in the shoulder
+// regions are assigned a texture coordinate specified by the user.  In this
+// way the shoulder region can be colored by the texture.
 //
-// To use this class you must define the major and minor axes lengths of an
-// ellipsoid (expressed as width (x), height (y) and depth (z)). The button
-// has a rectangular mesh region in the center with texture coordinates that
-// range smoothly from (0,1). (This flat region is called the texture
-// region.) The outer, curved portion of the button (called the shoulder) has
-// texture coordinates set to a user specified value (by default (0,0).
-// (This results in coloring the button curve the same color as the (s,t)
-// location of the texture map.) The resolution in the radial direction, the
-// texture region, and the shoulder region must also be set. The button can
-// be moved by specifying an origin.
+// Creating a vtkButtonSource requires specifying its center point. 
+// (Subclasses have other attributes that must be set to control 
+// the shape of the button.) You must also specify how to control
+// the shape of the texture region; i.e., wheter to size the
+// texture region proportional to the texture dimensions or whether
+// to size the texture region proportional to the button. Also, buttons
+// can be created single sided are mirrored to create two-sided buttons.
+
+// .SECTION See Also
+// vtkEllipticalButtonSource vtkRectangularButtonSource
+
+// .SECTION Caveats
+// The button is defined in the x-y plane. Use vtkTransformPolyDataFilter
+// or vtkGlyph3D to orient the button in a different direction.
+
 
 #ifndef __vtkButtonSource_h
 #define __vtkButtonSource_h
 
 #include "vtkPolyDataSource.h"
-
-class vtkCellArray;
-class vtkFloatArray;
-class vtkPoints;
 
 #define VTK_TEXTURE_STYLE_FIT_IMAGE    0
 #define VTK_TEXTURE_STYLE_PROPORTIONAL 1
@@ -50,64 +54,14 @@ public:
   vtkTypeRevisionMacro(vtkButtonSource,vtkPolyDataSource);
 
   // Description:
-  // Construct a circular button with depth 10% of its height.
-  static vtkButtonSource *New();
-
-  // Description:
-  // Set/Get the width of the button (the x-ellipsoid axis length * 2).
-  vtkSetClampMacro(Width,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Width,double);
-
-  // Description:
-  // Set/Get the height of the button (the y-ellipsoid axis length * 2).
-  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Height,double);
-
-  // Description:
-  // Set/Get the depth of the button (the z-eliipsoid axis length).
-  vtkSetClampMacro(Depth,double,0.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(Depth,double);
-
-  // Description:
-  // Set/Get the radial ratio. This is the measure of the radius of the
-  // outer ellipsoid to the inner ellipsoid of the button. The outer
-  // ellipsoid is the boundary of the button defined by the height and
-  // width. The inner ellipsoid circumscribes the texture region. Larger
-  // RadialRatio's cause the button to be more rounded (and the texture
-  // region to be smaller); smaller ratios produce sharply curved shoulders
-  // with a larger texture region.
-  vtkSetClampMacro(RadialRatio,double,1.0,VTK_DOUBLE_MAX);
-  vtkGetMacro(RadialRatio,double);
-
-  // Description:
-  // Specify the resolution of the button in the circumferential direction.
-  vtkSetClampMacro(CircumferentialResolution,int,4,VTK_LARGE_INTEGER);
-  vtkGetMacro(CircumferentialResolution,int);
-
-  // Description:
-  // Specify the resolution of the texture in the radial direction in the
-  // texture region.
-  vtkSetClampMacro(TextureResolution,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(TextureResolution,int);
-
-  // Description:
-  // Specify the resolution of the texture in the radial direction in the
-  // shoulder region.
-  vtkSetClampMacro(ShoulderResolution,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(ShoulderResolution,int);
-
-  // Description:
-  // Specify a point defining the origin of the button.
-  vtkSetVector3Macro(Origin,double);
-  vtkGetVectorMacro(Origin,double,3);
+  // Specify a point defining the origin (center) of the button.
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set/Get the style of the texture region: whether to size it
   // according to the x-y dimensions of the texture, or whether to make
   // the texture region proportional to the width/height of the button.
-  // When using the texture dimensions, the texture region is adjusted to
-  // be circumscribed by the elliptical, inner shape of the button.
-  // (The inner elliptical radius is controled by the RadiusRatio.)
   vtkSetClampMacro(TextureStyle,int,VTK_TEXTURE_STYLE_FIT_IMAGE,
                                     VTK_TEXTURE_STYLE_PROPORTIONAL);
   vtkGetMacro(TextureStyle,int);
@@ -140,46 +94,16 @@ protected:
   vtkButtonSource();
   ~vtkButtonSource() {}
 
-  void Execute();
-
-  double Width;
-  double Height;
-  double Depth;
-
-  int   CircumferentialResolution;
-  int   TextureResolution;
-  int   ShoulderResolution;
-
-  double Origin[3];
+  double Center[3];
   double ShoulderTextureCoordinate[2];
-
-  double RadialRatio;
-  int TextureStyle;
-  int TextureDimensions[2];
-  int TwoSided;
+  int    TextureStyle;
+  int    TextureDimensions[2];
+  int    TwoSided;
 
 private:
   vtkButtonSource(const vtkButtonSource&);  // Not implemented.
   void operator=(const vtkButtonSource&);  // Not implemented.
 
-  //internal variable related to axes of ellipsoid
-  double A;
-  double A2;
-  double B;
-  double B2;
-  double C;
-  double C2;
-  
-  double ComputeDepth(int inTextureRegion, double x, double y, double n[3]);
-  void InterpolateCurve(int inTextureRegion, vtkPoints *newPts, int numPts,
-                        vtkFloatArray *normals, vtkFloatArray *tcoords, 
-                        int res, int c1StartPoint,int c1Incr,
-                        int c2StartPoint,int s2Incr, int startPoint,int incr);
-  void CreatePolygons(vtkCellArray *newPolys, int num, int res, int startIdx);
-  void IntersectEllipseWithLine(double a2, double b2, double dX, double dY, 
-                                double& xe, double& ye);
-  
-    
 };
 
 #endif

@@ -13,7 +13,7 @@ set d1 [lindex $dims 0]
 set d2 [lindex $dims 1]
 
 # The first button
-vtkButtonSource bs
+vtkEllipticalButtonSource bs
   bs SetWidth 2
   bs SetHeight 1
   bs SetDepth 0.2
@@ -29,7 +29,7 @@ vtkActor b1
   b1 SetTexture t
 
 # The second button
-vtkButtonSource bs2
+vtkEllipticalButtonSource bs2
   bs2 SetWidth 2
   bs2 SetHeight 1
   bs2 SetDepth 0.2
@@ -38,7 +38,7 @@ vtkButtonSource bs2
   bs2 SetShoulderResolution 8
   bs2 SetTextureResolution 4
   bs2 TwoSidedOn
-  bs2 SetOrigin 2 0 0
+  bs2 SetCenter 2 0 0
   bs2 SetTextureStyleToFitImage
   bs2 SetTextureDimensions $d1 $d2
 vtkPolyDataMapper b2Mapper

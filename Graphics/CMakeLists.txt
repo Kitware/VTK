@@ -52,6 +52,7 @@ vtkDicer.cxx
 vtkDiskSource.cxx
 vtkEdgePoints.cxx
 vtkElevationFilter.cxx
+vtkEllipticalButtonSource.cxx
 vtkExtractEdges.cxx
 vtkExtractGeometry.cxx
 vtkExtractGrid.cxx
@@ -173,6 +174,7 @@ vtkWindowedSincPolyDataFilter.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkApproximatingSubdivisionFilter
+vtkButtonSource
 vtkDicer
 vtkInterpolatingSubdivisionFilter
 vtkStreamer
