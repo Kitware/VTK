@@ -161,6 +161,11 @@ public:
   // Traverse cells and determine if cells are all of the same type.
   int IsHomogeneous();
 
+  // Description:
+  // This method will remove any cell that has a ghost level array value
+  // greater or equal to level.
+  void RemoveGhostCells(int level);
+
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();
