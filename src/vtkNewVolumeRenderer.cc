@@ -22,10 +22,12 @@ vtkNewVolumeRenderer::~vtkNewVolumeRenderer()
 
 // Description:
 // Main routine to do the volume rendering.
-void vtkNewVolumeRenderer::Render(vtkRenderer *ren)
+int vtkNewVolumeRenderer::Render(vtkRenderer *ren)
 {
   if( 0 )
     ren->GetClassName();
+
+  return( 0 );
 }
 
 
