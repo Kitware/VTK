@@ -62,8 +62,8 @@ public:
   void DebugOn();
   void Modified();
   void SetInput(vtkImageCache *Input);
-  // void SetInput(vtkStructuredPoints *spts)
-  //    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+  void SetInput(vtkStructuredPoints *spts)
+    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   // Input memory limit causes streaming
   void SetInputMemoryLimit(long limit);
   vtkImageCache *GetOutput();
