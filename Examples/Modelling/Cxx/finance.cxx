@@ -28,18 +28,20 @@
 #include "vtkRenderer.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkTestUtilities.h"
 
-static vtkDataSet *ReadFinancialData(const char *x, const char *y, const char *z, const char *s);
+static vtkDataSet *ReadFinancialData(const char *fname, const char *x, const char *y, const char *z, const char *s);
 static int ParseFile(FILE *file, const char *tag, float *data);
 
 int main( int argc, char *argv[] )
 {
   double bounds[6];
-  vtkDataSet *dataSet;
-  
+ 
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/financial.txt");
   // read data
-  dataSet = ReadFinancialData("MONTHLY_PAYMENT","INTEREST_RATE",
+  vtkDataSet *dataSet = ReadFinancialData(fname, "MONTHLY_PAYMENT","INTEREST_RATE",
                               "LOAN_AMOUNT","TIME_LATE");
+  delete[] fname;
   if ( ! dataSet ) exit(0);
 
   // construct pipeline for original population
@@ -131,23 +133,13 @@ int main( int argc, char *argv[] )
   return 0;
 }
 
-static vtkDataSet *ReadFinancialData(const char *x, const char *y, const char *z, const char *s)
+static vtkDataSet *ReadFinancialData(const char* filename, const char *x, const char *y, const char *z, const char *s)
 {
   float xyz[3];
   FILE *file;
   int i, npts;
   char tag[80];
-  const char *temp=getenv("VTK_DATA_ROOT");
-  char filename[2048];
-  
-  if ( ! temp )
-    {
-    cerr << "ERROR: Please define environment variable VTK_DATA_ROOT\n";
-    return NULL;
-    }
-  strcpy(filename,temp);
-  strcat(filename,"/Data/financial.txt");
-  
+ 
   if ( (file = fopen(filename,"r")) == 0 )
     {
     cerr << "ERROR: Can't read file: " << filename << "\n";
