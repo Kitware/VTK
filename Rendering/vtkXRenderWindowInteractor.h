@@ -42,6 +42,10 @@
 
 class vtkCallbackCommand;
 
+// Forward declare internal friend functions.
+void vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
+void vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
+
 class VTK_RENDERING_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
