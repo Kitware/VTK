@@ -99,6 +99,7 @@ IF (VTK_USE_RENDERING)
       splitVectors
       stereoDresdenMace
       StreamPolyData
+      streamTracer
       stripF
       subdividePointData
       subDivideTetra

@@ -119,6 +119,7 @@ vtkSplitField.cxx
 vtkStreamLine.cxx
 vtkStreamPoints.cxx
 vtkStreamer.cxx
+vtkStreamTracer.cxx
 vtkStripper.cxx
 vtkStructuredGridGeometryFilter.cxx
 vtkStructuredGridOutlineFilter.cxx
