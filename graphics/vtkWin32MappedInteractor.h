@@ -134,7 +134,6 @@ protected:
   RECT  WindowRectangle;
   POINT LastPosition;
   unsigned int MiliSeconds;
-  vtkRenderWindow *RenderWindow;
   HPALETTE WindowPalette;
   void MakeDirectRenderer(HWND hwnd, RECT *rcBounds,vtkRenderWindow *renw);
   void MakeIndirectRenderer(int,int,int,vtkRenderWindow *);
