@@ -75,7 +75,7 @@ FILE (WRITE ${H_FILE} "${H_CONTENTS}")
 
 STRING (REGEX REPLACE
   "::Execute[ \t]*\\([^{]*{"
-  "::RequestData(\n  vtkInformation *vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n  vtkInformation *outInfo = outputVector->GetInformationObject(0);\n\n  // get the input and ouptut\n  vtkPolyData *input = vtkPolyData::SafeDownCast(\n    inInfo->Get(vtkDataObject::DATA_OBJECT()));\n  vtkPolyData *output = vtkPolyData::SafeDownCast(\n    outInfo->Get(vtkDataObject::DATA_OBJECT()));\n"
+  "::RequestData(\n  vtkInformation *vtkNotUsed(request),\n  vtkInformationVector **inputVector,\n  vtkInformationVector *outputVector)\n{\n  // get the info objects\n  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);\n  vtkInformation *outInfo = outputVector->GetInformationObject(0);\n\n  // get the input and output\n  vtkPolyData *input = vtkPolyData::SafeDownCast(\n    inInfo->Get(vtkDataObject::DATA_OBJECT()));\n  vtkPolyData *output = vtkPolyData::SafeDownCast(\n    outInfo->Get(vtkDataObject::DATA_OBJECT()));\n"
   CXX_CONTENTS "${CXX_CONTENTS}")
 
 STRING (REGEX REPLACE
