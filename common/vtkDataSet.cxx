@@ -355,8 +355,8 @@ void vtkDataSet::InternalDataSetCopy(vtkDataSet *src)
   this->ScalarRange[1] = src->ScalarRange[1];
   for (idx = 0; idx < 3; ++idx)
     {
-    this->Bounds[idx] = src->Bounds[idx];
-    this->Bounds[idx*2] = src->Bounds[idx*2];
+    this->Bounds[2*idx] = src->Bounds[2*idx];
+    this->Bounds[2*idx+1] = src->Bounds[2*idx+1];
     }
 }
 
