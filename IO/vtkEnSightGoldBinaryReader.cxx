@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.21");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.22");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -253,6 +253,8 @@ void vtkEnSightGoldBinaryReader::SkipTimeStep()
   
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
+    int tmpInt;
+    this->ReadInt(&tmpInt);
     this->ReadLine(line); // part description line
     lineRead = this->ReadLine(line);
     
@@ -292,7 +294,6 @@ void vtkEnSightGoldBinaryReader::SkipTimeStep()
         }
       }
     }
-  this->ReadLine(line); // END TIME STEP
 }
 
 //----------------------------------------------------------------------------
@@ -675,6 +676,10 @@ int vtkEnSightGoldBinaryReader::SkipUnstructuredGrid(char line[256])
       
       delete [] nodeIdList;
       }
+    else if (strncmp(line, "END TIME STEP", 13) == 0)
+      {
+      return 1;
+      }
     else
       {
       vtkErrorMacro("undefined geometry file line");
@@ -966,8 +971,6 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
         
         delete [] scalarsRead;
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1131,8 +1134,6 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
         this->ReadFloatArray(comp2, numPts);
         this->ReadFloatArray(comp3, numPts);
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -1292,8 +1293,6 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
         delete [] comp5;
         delete [] comp6;
         }
-      
-      this->ReadLine(line); // END TIME STEP
       }
     this->ReadLine(line);
     while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
@@ -2532,6 +2531,10 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
       
       delete [] nodeIds;
       delete [] nodeIdList;
+      }
+    else if (strncmp(line, "END TIME STEP", 13) == 0)
+      {
+      return 1;
       }
     else
       {

@@ -26,7 +26,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.28");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.29");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -1591,6 +1591,10 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }      
       delete [] nodeIds;
       delete [] intIds;
+      }
+    else if (strncmp(line, "END TIME STEP", 13) == 0)
+      {
+      return 1;
       }
     else
       {
