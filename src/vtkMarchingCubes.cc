@@ -57,7 +57,7 @@ vtkMarchingCubes::vtkMarchingCubes()
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
   this->ComputeNormals = 1;
-  this->ComputeGradients = 1;
+  this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 }
 
@@ -108,6 +108,8 @@ void vtkMarchingCubes::GenerateValues(int numContours, float r1, float r2)
 }
 
 
+// Calculate the gradient using central difference.
+// NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
 void ComputePointGradient(int i, int j, int k, T *s, int dims[3], 
                           int sliceSize, float aspectRatio[3], float n[3])
@@ -119,19 +121,19 @@ void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
     {
     sp = s[i+1 + j*dims[0] + k*sliceSize];
     sm = s[i + j*dims[0] + k*sliceSize];
-    n[0] = (sp - sm) / aspectRatio[0];
+    n[0] = (sm - sp) / aspectRatio[0];
     }
   else if ( i == (dims[0]-1) )
     {
     sp = s[i + j*dims[0] + k*sliceSize];
     sm = s[i-1 + j*dims[0] + k*sliceSize];
-    n[0] = (sp - sm) / aspectRatio[0];
+    n[0] = (sm - sp) / aspectRatio[0];
     }
   else
     {
     sp = s[i+1 + j*dims[0] + k*sliceSize];
     sm = s[i-1 + j*dims[0] + k*sliceSize];
-    n[0] = 0.5 * (sp - sm) / aspectRatio[0];
+    n[0] = 0.5 * (sm - sp) / aspectRatio[0];
     }
 
   // y-direction
@@ -139,19 +141,19 @@ void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
     {
     sp = s[i + (j+1)*dims[0] + k*sliceSize];
     sm = s[i + j*dims[0] + k*sliceSize];
-    n[1] = (sp - sm) / aspectRatio[1];
+    n[1] = (sm - sp) / aspectRatio[1];
     }
   else if ( j == (dims[1]-1) )
     {
     sp = s[i + j*dims[0] + k*sliceSize];
     sm = s[i + (j-1)*dims[0] + k*sliceSize];
-    n[1] = (sp - sm) / aspectRatio[1];
+    n[1] = (sm - sp) / aspectRatio[1];
     }
   else
     {
     sp = s[i + (j+1)*dims[0] + k*sliceSize];
     sm = s[i + (j-1)*dims[0] + k*sliceSize];
-    n[1] = 0.5 * (sp - sm) / aspectRatio[1];
+    n[1] = 0.5 * (sm - sp) / aspectRatio[1];
     }
 
   // z-direction
@@ -159,19 +161,19 @@ void ComputePointGradient(int i, int j, int k, T *s, int dims[3],
     {
     sp = s[i + j*dims[0] + (k+1)*sliceSize];
     sm = s[i + j*dims[0] + k*sliceSize];
-    n[2] = (sp - sm) / aspectRatio[2];
+    n[2] = (sm - sp) / aspectRatio[2];
     }
   else if ( k == (dims[2]-1) )
     {
     sp = s[i + j*dims[0] + k*sliceSize];
     sm = s[i + j*dims[0] + (k-1)*sliceSize];
-    n[2] = (sp - sm) / aspectRatio[2];
+    n[2] = (sm - sp) / aspectRatio[2];
     }
   else
     {
     sp = s[i + j*dims[0] + (k+1)*sliceSize];
     sm = s[i + j*dims[0] + (k-1)*sliceSize];
-    n[2] = 0.5 * (sp - sm) / aspectRatio[2];
+    n[2] = 0.5 * (sm - sp) / aspectRatio[2];
     }
 }
 

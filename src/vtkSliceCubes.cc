@@ -65,6 +65,8 @@ void vtkSliceCubes::Update()
   this->Execute();
 }
 
+// Calculate the gradient using central difference.
+// NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
 void ComputePointGradient(int i, int j, int k, int dims[3], 
                           float aspectRatio[3], float n[3],
@@ -77,19 +79,19 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
     {
     sp = s1[i+1 + j*dims[0]];
     sm = s1[i + j*dims[0]];
-    n[0] = (sp - sm) / aspectRatio[0];
+    n[0] = (sm - sp) / aspectRatio[0];
     }
   else if ( i == (dims[0]-1) )
     {
     sp = s1[i + j*dims[0]];
     sm = s1[i-1 + j*dims[0]];
-    n[0] = (sp - sm) / aspectRatio[0];
+    n[0] = (sm - sp) / aspectRatio[0];
     }
   else
     {
     sp = s1[i+1 + j*dims[0]];
     sm = s1[i-1 + j*dims[0]];
-    n[0] = 0.5 * (sp - sm) / aspectRatio[0];
+    n[0] = 0.5 * (sm - sp) / aspectRatio[0];
     }
 
   // y-direction
@@ -97,20 +99,20 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
     {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + j*dims[0]];
-    n[1] = (sp - sm) / aspectRatio[1];
+    n[1] = (sm - sp) / aspectRatio[1];
     }
   else if ( j == (dims[1]-1) )
     {
     sp = s1[i + j*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
-    n[1] = (sp - sm) / aspectRatio[1];
+    n[1] = (sm - sp) / aspectRatio[1];
     }
   else
 
     {
     sp = s1[i + (j+1)*dims[0]];
     sm = s1[i + (j-1)*dims[0]];
-    n[1] = 0.5 * (sp - sm) / aspectRatio[1];
+    n[1] = 0.5 * (sm - sp) / aspectRatio[1];
     }
 
   // z-direction
@@ -119,19 +121,19 @@ void ComputePointGradient(int i, int j, int k, int dims[3],
     {
     sp = s2[i + j*dims[0]];
     sm = s1[i + j*dims[0]];
-    n[2] = (sp - sm) / aspectRatio[2];
+    n[2] = (sm - sp) / aspectRatio[2];
     }
   else if ( k == (dims[2]-1) )
     {
     sp = s1[i + j*dims[0]];
     sm = s0[i + j*dims[0]];
-    n[2] = (sp - sm) / aspectRatio[2];
+    n[2] = (sm - sp) / aspectRatio[2];
     }
   else
     {
     sp = s2[i + j*dims[0]];
     sm = s0[i + j*dims[0]];
-    n[2] = 0.5 * (sp - sm) / aspectRatio[2];
+    n[2] = 0.5 * (sm - sp) / aspectRatio[2];
     }
 }
 
