@@ -41,9 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkWorldPointPicker - find world x,y,z corresponding to display x,y,z
 // .SECTION Description
 // vtkWorldPointPicker is used to find the x,y,z world coordinate of a screen
-// x,y,z. The actor and mapper are set to NULL.
+// x,y,z. This picker cannot pick actors and/or mappers, it simply computes an x-y-z
+// coordinate in world space (so the actor and mapper are set to NULL).
 // .SECTION See Also
 // vtkPicker vtkCellPicker vtkPointPicker
+// .SECTION Caveats
+// The PickMethod is not invoked, but StartPickMethod and EndPickMethod are.
 
 #ifndef __vtkWorldPointPicker_h
 #define __vtkWorldPointPicker_h

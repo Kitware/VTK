@@ -50,7 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // orientation=(0,0,0). No user defined matrix and no texture map.
 vtkProp::vtkProp()
 {
-
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
   this->Origin[2] = 0.0;
@@ -65,6 +64,9 @@ vtkProp::vtkProp()
 
   this->Visibility = 1;
   this->Pickable   = 1;
+  this->PickMethod = NULL;
+  this->PickMethodArgDelete = NULL;
+  this->PickMethodArg = NULL;
   this->Dragable   = 1;
   
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
@@ -72,6 +74,14 @@ vtkProp::vtkProp()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->UserMatrix = NULL;
+}
+
+vtkProp::~vtkProp()
+{
+  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
+    {
+    (*this->PickMethodArgDelete)(this->PickMethodArg);
+    }
 }
 
 // Description:
@@ -325,18 +335,55 @@ float *vtkProp::GetZRange()
   return &(this->Bounds[4]);
 }
 
+// Description:
+// This method is invoked when an instance of vtkProp (or subclass, 
+// e.g., vtkActor) is picked by vtkPicker.
+void vtkProp::SetPickMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->PickMethod || arg != this->PickMethodArg )
+    {
+    // delete the current arg if there is one and a delete method
+    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
+      {
+      (*this->PickMethodArgDelete)(this->PickMethodArg);
+      }
+    this->PickMethod = f;
+    this->PickMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set a method to delete user arguments for PickMethod.
+void vtkProp::SetPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->PickMethodArgDelete)
+    {
+    this->PickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
+
   os << indent << "Orientation: (" << this->Orientation[0] << ", " 
      << this->Orientation[1] << ", " << this->Orientation[2] << ")\n";
+
   os << indent << "Origin: (" << this->Origin[0] << ", " 
      << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+
   os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
+
+  if ( this->PickMethod ) os << indent << "Pick Method defined\n";
+  else os << indent <<"No Pick Method\n";
+
   os << indent << "Position: (" << this->Position[0] << ", " 
      << this->Position[1] << ", " << this->Position[2] << ")\n";
+
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 }
 

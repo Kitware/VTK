@@ -65,6 +65,7 @@ class VTK_EXPORT vtkProp : public vtkObject
 {
  public:
   vtkProp();
+  ~vtkProp();
   const char *GetClassName() {return "vtkProp";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -100,6 +101,12 @@ class VTK_EXPORT vtkProp : public vtkObject
   vtkBooleanMacro(Pickable,int);
 
   // Description:
+  // This method is invoked when an instance of vtkProp (or subclass, 
+  // e.g., vtkActor) is picked by vtkPicker.
+  void SetPickMethod(void (*f)(void *), void *arg);
+  void SetPickMethodArgDelete(void (*f)(void *));
+
+  // Description:
   // Set/Get the value of the dragable instance variable. This determines if 
   // an Prop, once picked, can be dragged (translated) through space.
   // This is typically done through an interactive mouse interface.
@@ -124,6 +131,8 @@ class VTK_EXPORT vtkProp : public vtkObject
   vtkMatrix4x4& GetMatrix();
   virtual void GetMatrix(vtkMatrix4x4& m) = 0;
 
+  // Get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box, center, and range
+  // along coordinate axes. Bounds are transfomed into world space.
   virtual float *GetBounds() = 0;
   void GetBounds(float bounds[6]);
   float *GetCenter();
@@ -131,17 +140,22 @@ class VTK_EXPORT vtkProp : public vtkObject
   float *GetYRange();
   float *GetZRange();
 
+  // rotation around axis and arbitrary vector
   void RotateX(float);
   void RotateY(float);
   void RotateZ(float);
   void RotateWXYZ(float,float,float,float);
 
+  // set Euler angles - order dependent
   void SetOrientation(float,float,float);
   void SetOrientation(float a[3]);
   float *GetOrientation();
   float *GetOrientationWXYZ();
   void AddOrientation(float,float,float);
   void AddOrientation(float a[3]);
+
+  // Method invokes PickMethod() if one defined
+  void Pick() {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
 
 protected:
   vtkMatrix4x4 *UserMatrix;
@@ -153,6 +167,9 @@ protected:
   float Center[3];
   int   Visibility;
   int   Pickable;
+  void (*PickMethod)(void *);
+  void (*PickMethodArgDelete)(void *);
+  void *PickMethodArg;
   int   Dragable;
   vtkTransform Transform;
   float Bounds[6];

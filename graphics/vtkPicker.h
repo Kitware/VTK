@@ -51,6 +51,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // actor and mapper that are "closest" to the camera. The closest actor is 
 // the one whose center point (i.e., center of bounding box) projected on the
 // ray is closest to the camera.
+//
+// vtkPicker has hooks for methods to call during the picking process.  These
+// methods are StartPickMethod(), PickMethod(), and EndPickMethod() which are
+// invoked prior to picking, when something is picked, and after all picking
+// candidates have been tested. Note that during the pick process the
+// PickAction of vtkProp (and its subclasses such as vtkActor) is called
+// prior to the pick action of vtkPicker.
+
 // .SECTION Caveats
 // vtkPicker and its subclasses will not pick actors that are "unpickable" 
 // (see vtkActor) or are fully transparent.
@@ -72,6 +80,7 @@ class VTK_EXPORT vtkPicker : public vtkObject
 {
 public:
   vtkPicker();
+  ~vtkPicker();
   static vtkPicker *New() {return new vtkPicker;};
   const char *GetClassName() {return "vtkPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -125,6 +134,14 @@ public:
            vtkRenderer *renderer);  
   int Pick(float selectionPt[3], vtkRenderer *renderer);  
 
+  // Methods to invoke during picking process
+  void SetStartPickMethod(void (*f)(void *), void *arg);
+  void SetPickMethod(void (*f)(void *), void *arg);
+  void SetEndPickMethod(void (*f)(void *), void *arg);
+  void SetStartPickMethodArgDelete(void (*f)(void *));
+  void SetPickMethodArgDelete(void (*f)(void *));
+  void SetEndPickMethodArgDelete(void (*f)(void *));
+
 protected:
   void MarkPicked(vtkActor *assem, vtkActor *a, vtkMapper *m, 
                   float tMin, float mapperPos[3]);
@@ -144,6 +161,17 @@ protected:
   float GlobalTMin; //parametric coordinate along pick ray where hit occured
   vtkTransform Transform; //use to perform ray transformation
   vtkActorCollection Actors; //candidate actors (based on bounding box)
+  
+  // the following are used to manage invocation of pick methods
+  void (*StartPickMethod)(void *);
+  void (*StartPickMethodArgDelete)(void *);
+  void *StartPickMethodArg;
+  void (*PickMethod)(void *);
+  void *PickMethodArg;
+  void (*PickMethodArgDelete)(void *);
+  void (*EndPickMethod)(void *);
+  void (*EndPickMethodArgDelete)(void *);
+  void *EndPickMethodArg;
 };
 
 inline vtkActorCollection* vtkPicker::GetActors() {return &(this->Actors);}

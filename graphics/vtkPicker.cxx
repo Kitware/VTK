@@ -69,6 +69,32 @@ vtkPicker::vtkPicker()
   this->Mapper = NULL;
   this->DataSet = NULL;
   this->GlobalTMin = VTK_LARGE_FLOAT;
+  
+  this->StartPickMethod = NULL;
+  this->StartPickMethodArgDelete = NULL;
+  this->StartPickMethodArg = NULL;
+  this->PickMethod = NULL;
+  this->PickMethodArgDelete = NULL;
+  this->PickMethodArg = NULL;
+  this->EndPickMethod = NULL;
+  this->EndPickMethodArgDelete = NULL;
+  this->EndPickMethodArg = NULL;
+}
+
+vtkPicker::~vtkPicker()
+{
+  if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
+    {
+    (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
+    }
+  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
+    {
+    (*this->PickMethodArgDelete)(this->PickMethodArg);
+    }
+  if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
+    {
+    (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
+    }
 }
 
 // Update state when actor is picked.
@@ -90,14 +116,17 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
     mapperHPosition[i] = mapperPos[i];
     }
   mapperHPosition[3] = 1.0;
-//
-// The point has to be transformed back into world coordinates.
-// Note: it is assumed that the transform is in the correct state.
-//
+
+  // The point has to be transformed back into world coordinates.
+  // Note: it is assumed that the transform is in the correct state.
   this->Transform.SetPoint(mapperHPosition);
   worldHPosition = this->Transform.GetPoint();
 
   for (i=0; i < 3; i++) this->PickPosition[i] = worldHPosition[i];
+  
+  // Invoke pick action if one defined - actor goes first
+  actor->Pick();
+  if ( this->StartPickMethod ) (*this->StartPickMethod)(this->StartPickMethodArg);
 }
 
 // Description:
@@ -127,9 +156,11 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   float *bounds, tol;
   float tF, tB;
   float hitPosition[3];
-//
-//  Initialize picking process
-//
+  
+  // Invoke start pick method if defined
+  if ( this->StartPickMethod ) (*this->StartPickMethod)(this->StartPickMethodArg);
+
+  //  Initialize picking process
   this->Renderer = renderer;
 
   this->SelectionPoint[0] = selectionX;
@@ -143,10 +174,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     vtkErrorMacro(<<"Must specify renderer!");
     return 0;
     }
-//
-// Get camera focal point and position. Convert to display (screen) 
-// coordinates. We need a depth value for z-buffer.
-//
+
+  // Get camera focal point and position. Convert to display (screen) 
+  // coordinates. We need a depth value for z-buffer.
+  //
   camera = renderer->GetActiveCamera();
   camera->GetPosition((float *)cameraPos); cameraPos[3] = 1.0;
   camera->GetFocalPoint((float *)cameraFP); cameraFP[3] = 1.0;
@@ -155,9 +186,9 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   renderer->WorldToDisplay();
   displayCoords = renderer->GetDisplayPoint();
   selectionZ = displayCoords[2];
-//
-// Convert the selection point into world coordinates.
-//
+
+  // Convert the selection point into world coordinates.
+  //
   renderer->SetDisplayPoint(selectionX, selectionY, selectionZ);
   renderer->DisplayToWorld();
   worldCoords = renderer->GetWorldPoint();
@@ -168,12 +199,11 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     }
   for (i=0; i < 3; i++) 
     this->PickPosition[i] = worldCoords[i] / worldCoords[3];
-//
-//  Compute the ray endpoints.  The ray is along the line running from
-//  the camera position to the selection point, starting where this line
-//  intersects the front clipping plane, and terminating where this
-//  line intersects the back clipping plane.
-//
+
+  //  Compute the ray endpoints.  The ray is along the line running from
+  //  the camera position to the selection point, starting where this line
+  //  intersects the front clipping plane, and terminating where this
+  //  line intersects the back clipping plane.
   for (i=0; i<3; i++) ray[i] = this->PickPosition[i] - cameraPos[i];
 
   if (( rayLength = vtkMath::Dot(ray,ray)) == 0.0 ) 
@@ -193,12 +223,12 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     p2World[i] = cameraPos[i] + tB*ray[i];
     }
   p1World[3] = p2World[3] = 1.0;
-//
-// Compute the tolerance in world coordinates.  Do this by
-// determining the world coordinates of the diagonal points of the
-// window, computing the width of the window in world coordinates, and 
-// multiplying by the tolerance.
-//
+
+  // Compute the tolerance in world coordinates.  Do this by
+  // determining the world coordinates of the diagonal points of the
+  // window, computing the width of the window in world coordinates, and 
+  // multiplying by the tolerance.
+  //
   viewport = renderer->GetViewport();
   winSize = renderer->GetRenderWindow()->GetSize();
   x = winSize[0] * viewport[0];
@@ -217,11 +247,11 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     tol += (windowUpperRight[i] - windowLowerLeft[i])*(windowUpperRight[i] - windowLowerLeft[i]);
 
   tol = sqrt (tol) * this->Tolerance;
-//
-//  Loop over all actors.  Transform ray (defined from position of
-//  camera to selection point) into coordinates of mapper (not
-//  transformed to actors coordinates!  Reduces overall computation!!!).
-//
+
+  //  Loop over all actors.  Transform ray (defined from position of
+  //  camera to selection point) into coordinates of mapper (not
+  //  transformed to actors coordinates!  Reduces overall computation!!!).
+  //
   actors = renderer->GetActors();
   this->Transform.PostMultiply();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
@@ -231,11 +261,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       visible = part->GetVisibility();
       pickable = part->GetPickable();
       opacity = part->GetProperty()->GetOpacity();
-//
-//  If actor can be picked, get its composite matrix, invert it, and
-//  use the inverted matrix to transform the ray points into mapper
-//  coordinates. 
-//
+
+      //  If actor can be picked, get its composite matrix, invert it, and
+      //  use the inverted matrix to transform the ray points into mapper
+      //  coordinates. 
       if ( visible && pickable && (opacity != 0.0) &&
       (mapper = part->GetMapper()) != NULL )
         {
@@ -257,15 +286,13 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           }
 
         this->Transform.Pop();
-//
-//  Have the ray endpoints in mapper space, now need to compare this
-//  with the mapper bounds to see whether intersection is possible.
-//
-//
-//  Get the bounding box of the modeller.  Note that the tolerance is
-//  added to the bounding box to make sure things on the edge of the
-//  bounding box are picked correctly.
-//
+
+	//  Have the ray endpoints in mapper space, now need to compare this
+	//  with the mapper bounds to see whether intersection is possible.
+	//
+	//  Get the bounding box of the modeller.  Note that the tolerance is
+	//  added to the bounding box to make sure things on the edge of the
+	//  bounding box are picked correctly.
         bounds = mapper->GetBounds();
         if ( vtkCell::HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
@@ -277,6 +304,9 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         }//if visible and pickable not transparent and has mapper
       }//for all parts
     }//for all actors
+
+  // Invoke end pick method if defined
+  if ( this->EndPickMethod ) (*this->EndPickMethod)(this->EndPickMethodArg);
 
   return picked;
 }
@@ -327,22 +357,125 @@ void vtkPicker::Initialize()
   this->GlobalTMin = VTK_LARGE_FLOAT;
 }
 
+// Description:
+// Specify function to be called as picking operation begins.
+void vtkPicker::SetStartPickMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->StartPickMethod || arg != this->StartPickMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartPickMethodArg)&&(this->StartPickMethodArgDelete))
+      {
+      (*this->StartPickMethodArgDelete)(this->StartPickMethodArg);
+      }
+    this->StartPickMethod = f;
+    this->StartPickMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Specify function to be called when something is picked.
+void vtkPicker::SetPickMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->PickMethod || arg != this->PickMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
+      {
+      (*this->PickMethodArgDelete)(this->PickMethodArg);
+      }
+    this->PickMethod = f;
+    this->PickMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Specify function to be called after all picking operations have been
+// performed.
+void vtkPicker::SetEndPickMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->EndPickMethod || arg != this->EndPickMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndPickMethodArg)&&(this->EndPickMethodArgDelete))
+      {
+      (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
+      }
+    this->EndPickMethod = f;
+    this->EndPickMethodArg = arg;
+    this->Modified();
+    }
+}
+
+
+// Description:
+// Set a method to delete user arguments for StartPickMethod.
+void vtkPicker::SetStartPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->StartPickMethodArgDelete)
+    {
+    this->StartPickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set a method to delete user arguments for PickMethod.
+void vtkPicker::SetPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->PickMethodArgDelete)
+    {
+    this->PickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set a method to delete user arguments for EndPickMethod.
+void vtkPicker::SetEndPickMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->EndPickMethodArgDelete)
+    {
+    this->EndPickMethodArgDelete = f;
+    this->Modified();
+    }
+}
+
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
   os << indent << "Renderer: " << this->Renderer << "\n";
+
   os << indent << "Selection Point: (" <<  this->SelectionPoint[0] << ","
      << this->SelectionPoint[1] << ","
      << this->SelectionPoint[2] << ")\n";
+
   os << indent << "Tolerance: " << this->Tolerance << "\n";
+
   os << indent << "Pick Position: (" <<  this->PickPosition[0] << ","
      << this->PickPosition[1] << ","
      << this->PickPosition[2] << ")\n";
+
   os << indent << "Mapper Position: (" <<  this->MapperPosition[0] << ","
      << this->MapperPosition[1] << ","
      << this->MapperPosition[2] << ")\n";
+
   os << indent << "Assembly: " << this->Assembly << "\n";
+
   os << indent << "Actor: " << this->Actor << "\n";
+
   os << indent << "Mapper: " << this->Mapper << "\n";
+
+  if ( this->StartPickMethod ) os << indent << "Start PickMethod defined\n";
+  else os << indent <<"No Start PickMethod\n";
+
+  if ( this->PickMethod ) os << indent << " PickMethod defined\n";
+  else os << indent << "No  PickMethod\n";
+
+  if ( this->EndPickMethod ) os << indent << "End PickMethod defined\n";
+  else os << indent << "No End PickMethod\n";
+
 }
