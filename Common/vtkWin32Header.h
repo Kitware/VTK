@@ -53,6 +53,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Windows specific stuff------------------------------------------
 #if defined(_WIN32) || defined(WIN32)
 
+// define strict header for windows
+#ifndef STRICT
+#define STRICT
+#endif
+
 #ifdef VTK_USE_ANSI_STDLIB
 #define NOMINMAX
 #endif
