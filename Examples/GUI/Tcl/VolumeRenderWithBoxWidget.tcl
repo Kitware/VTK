@@ -4,7 +4,8 @@ package require vtkinteraction
 # Demonstrate how to use the vtkBoxWidget to control volume rendering within the 
 # interior of the widget.
 
-# Load a volume, use the manipulator to control what's volume rendered.
+# Load a volume, use the widget to control what's volume rendered. Basically the
+# idea is that the vtkBoxWidget provides a box which clips the volume rendering.
 vtkVolume16Reader v16
   v16 SetDataDimensions 64 64
   [v16 GetOutput] SetOrigin 0.0 0.0 0.0
@@ -77,7 +78,8 @@ ren1 AddVolume newvol
 ren1 SetBackground 0 0 0
 renWin SetSize 300 300
 
-# place the interactor initially
+# Place the interactor initially. The output of the reader is used to place
+
 boxWidget SetInput [v16 GetOutput]
 boxWidget PlaceWidget
 boxWidget InsideOutOn
@@ -104,11 +106,10 @@ iren Initialize
 wm withdraw .
 
 proc StartInteraction {} {
-   ren1 RemoveVolume newvol
+   renWin SetDesiredUpdateRate 10
 }
 proc EndInteraction {} {
-   ren1 AddVolume newvol
-   renWin Render
+   renWin SetDesiredUpdateRate 0.001
 }
 
 vtkPlanes planes
