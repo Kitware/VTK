@@ -157,18 +157,10 @@ vtkProperty *vtkProperty::New()
 
 void vtkProperty::SetColor(float R,float G,float B)
 {
-  /* store the coordinates */
-  this->AmbientColor[0] = R;
-  this->DiffuseColor[0] = R;
-  this->SpecularColor[0] = R;
-
-  this->AmbientColor[1] = G;
-  this->DiffuseColor[1] = G;
-  this->SpecularColor[1] = G;
-
-  this->AmbientColor[2] = B;
-  this->DiffuseColor[2] = B;
-  this->SpecularColor[2] = B;
+  // Use Set macros to insure proper modified time behavior
+  this->SetAmbientColor(R,G,B);
+  this->SetDiffuseColor(R,G,B);
+  this->SetSpecularColor(R,G,B);
 }
 
 // Description:
