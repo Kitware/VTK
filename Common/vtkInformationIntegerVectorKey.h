@@ -40,6 +40,12 @@ public:
   int Length(vtkInformation* info);
   int Has(vtkInformation* info);
 
+  // Description:
+  // Copy the entry associated with this key from one information
+  // object to another.  If there is no entry in the first information
+  // object for this key, the value is removed from the second.
+  virtual void Copy(vtkInformation* from, vtkInformation* to);
+
 private:
   vtkInformationIntegerVectorKey(const vtkInformationIntegerVectorKey&);  // Not implemented.
   void operator=(const vtkInformationIntegerVectorKey&);  // Not implemented.

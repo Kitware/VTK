@@ -65,6 +65,12 @@ public:
   ~vtkInformationKey();
 
   // Description:
+  // Copy the entry associated with this key from one information
+  // object to another.  If there is no entry in the first information
+  // object for this key, the value is removed from the second.
+  virtual void Copy(vtkInformation* from, vtkInformation* to)=0;
+
+  // Description:
   // Remove this key from the given information object.
   void Remove(vtkInformation* info);
 

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkInformationIntegerKey.h"
 
-vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char* location):
@@ -67,4 +67,10 @@ int vtkInformationIntegerKey::Has(vtkInformation* info)
     vtkInformationIntegerValue::SafeDownCast(
       this->GetAsObjectBase(info));
   return v?1:0;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationIntegerKey::Copy(vtkInformation* from, vtkInformation* to)
+{
+  this->Set(to, this->Get(from));
 }
