@@ -68,6 +68,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 
+//BTX
+//forward declaration of a helper class
+class VTK_EXPORT vtkSimpleTransformConcatenation;
+//ETX
+
 class VTK_EXPORT vtkGeneralTransform : public vtkObject
 {
 public:
@@ -192,79 +197,78 @@ protected:
   
   int InUnRegister;
 
+  // The Concatenation is only for use within the vtkGeneralTransform class
+  // and within the vtk*Concatenation classes.
+  vtkSimpleTransformConcatenation *Concatenation;
+};
+
 //BTX
   //-------------------------------------------------------------------------
   // A helper class (not derived from vtkObject) to make it more efficient
   // to derive vtk*TransformConcatenation classes
-  class VTK_EXPORT vtkSimpleTransformConcatenation
-  {
-  public:
-    static vtkSimpleTransformConcatenation *New(
+class VTK_EXPORT vtkSimpleTransformConcatenation
+{
+public:
+  static vtkSimpleTransformConcatenation *New(
 				    vtkGeneralTransform *transform) {
-      return new vtkSimpleTransformConcatenation(transform); };
-    void Delete() { delete this; };
+    return new vtkSimpleTransformConcatenation(transform); };
+  void Delete() { delete this; };
 
     // add a transform to the list according to Pre/PostMultiply semantics
-    void Concatenate(vtkGeneralTransform *transform);
-    void Concatenate(vtkGeneralTransform *t1,
-		     vtkGeneralTransform *t2,
-		     vtkGeneralTransform *t3,
-		     vtkGeneralTransform *t4);
+  void Concatenate(vtkGeneralTransform *transform);
+  void Concatenate(vtkGeneralTransform *t1,
+		   vtkGeneralTransform *t2,
+		   vtkGeneralTransform *t3,
+		   vtkGeneralTransform *t4);
     
-    // inverse simply sets the inverse flag
-    void Inverse();
+  // inverse simply sets the inverse flag
+  void Inverse();
     
-    // identity simply clears the transform list
-    void Identity();
+  // identity simply clears the transform list
+  void Identity();
     
-    // copy the list
-    void DeepCopy(vtkSimpleTransformConcatenation *transform);
+  // copy the list
+  void DeepCopy(vtkSimpleTransformConcatenation *transform);
     
-    // the number of stored transforms
-    int GetNumberOfTransforms() { return this->NumberOfTransforms; };
+  // the number of stored transforms
+  int GetNumberOfTransforms() { return this->NumberOfTransforms; };
     
-    // get one of the transforms
-    vtkGeneralTransform *GetTransform(int i);
+  // get one of the transforms
+  vtkGeneralTransform *GetTransform(int i);
     
-    // switch between pre- and post-multiply mode
-    void PreMultiply() { 
-      this->PreMultiplyFlag = 1; this->Transform->Modified(); };
-    void PostMultiply() { 
-      this->PreMultiplyFlag = 0; this->Transform->Modified(); };
+  // switch between pre- and post-multiply mode
+  void PreMultiply() { 
+    this->PreMultiplyFlag = 1; this->Transform->Modified(); };
+  void PostMultiply() { 
+    this->PreMultiplyFlag = 0; this->Transform->Modified(); };
     
-    // determine which mode we are in
-    int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }; 
+  // determine which mode we are in
+  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }; 
 
-    // get maximum MTime of all transforms
-    unsigned long GetMaxMTime();
+  // get maximum MTime of all transforms
+  unsigned long GetMaxMTime();
     
-    // print relevant information
-    void PrintSelf(ostream& os, vtkIndent indent);
+  // print relevant information
+  void PrintSelf(ostream& os, vtkIndent indent);
     
-  protected:
-    vtkSimpleTransformConcatenation(vtkGeneralTransform *transform);
-    vtkSimpleTransformConcatenation() {}; // should never be called
-    ~vtkSimpleTransformConcatenation();  
+protected:
+  vtkSimpleTransformConcatenation(vtkGeneralTransform *transform);
+  vtkSimpleTransformConcatenation() {}; // should never be called
+  ~vtkSimpleTransformConcatenation();  
     
-    // the transform that owns us
-    vtkGeneralTransform *Transform;
+  // the transform that owns us
+  vtkGeneralTransform *Transform;
     
-    int InverseFlag;
-    int PreMultiplyFlag;
+  int InverseFlag;
+  int PreMultiplyFlag;
     
-    int NumberOfTransforms;
-    int MaxNumberOfTransforms;
-    vtkGeneralTransform **TransformList;
-    vtkGeneralTransform **InverseList;
-    int *DependencyList;
-  };
-
-  // The Concatenation is only for use within the vtkGeneralTransform class
-  // and within the vtk*Concatenation classes.
-  vtkSimpleTransformConcatenation *Concatenation;
-//ETX
-
+  int NumberOfTransforms;
+  int MaxNumberOfTransforms;
+  vtkGeneralTransform **TransformList;
+  vtkGeneralTransform **InverseList;
+  int *DependencyList;
 };
+//ETX
 
 #endif
 

@@ -80,8 +80,8 @@ void vtkGeneralTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 // Pass the point through each transform in turn
 template<class T2, class T3>
 static inline void vtkConcatenationTransformPoint(
-		 vtkGeneralTransform::vtkSimpleTransformConcatenation *concat,
-		 T2 input[3], T3 output[3])
+		                 vtkSimpleTransformConcatenation *concat,
+		                 T2 input[3], T3 output[3])
 {
   output[0] = input[0];
   output[1] = input[1];
@@ -98,8 +98,9 @@ static inline void vtkConcatenationTransformPoint(
 // concatenate the derivatives.
 template<class T2, class T3, class T4>
 static inline void vtkConcatenationTransformDerivative(
-		 vtkGeneralTransform::vtkSimpleTransformConcatenation *concat,
-		 T2 input[3], T3 output[3], T4 derivative[3][3])
+		                  vtkSimpleTransformConcatenation *concat,
+		                  T2 input[3], T3 output[3],
+                                  T4 derivative[3][3])
 {
   T4 matrix[3][3];
 

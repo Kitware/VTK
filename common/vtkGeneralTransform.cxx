@@ -240,8 +240,8 @@ void vtkGeneralTransform::UnRegister(vtkObject *o)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform::vtkSimpleTransformConcatenation::
-vtkSimpleTransformConcatenation(vtkGeneralTransform *transform)
+vtkSimpleTransformConcatenation::vtkSimpleTransformConcatenation(
+                                           vtkGeneralTransform *transform)
 {
   this->Transform = transform;
 
@@ -268,8 +268,7 @@ vtkSimpleTransformConcatenation(vtkGeneralTransform *transform)
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform::vtkSimpleTransformConcatenation::
-~vtkSimpleTransformConcatenation()
+vtkSimpleTransformConcatenation::~vtkSimpleTransformConcatenation()
 {
   if (this->NumberOfTransforms > 0)
     {
@@ -300,8 +299,7 @@ vtkGeneralTransform::vtkSimpleTransformConcatenation::
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::vtkSimpleTransformConcatenation::
-Concatenate(vtkGeneralTransform *trans)
+void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *trans)
 {
   vtkGeneralTransform **transList = this->TransformList;
   vtkGeneralTransform **inverseList = this->InverseList;
@@ -373,11 +371,10 @@ Concatenate(vtkGeneralTransform *trans)
 
 //----------------------------------------------------------------------------
 // concatenate a set of transforms in order.
-void vtkGeneralTransform::vtkSimpleTransformConcatenation::
-Concatenate(vtkGeneralTransform *t1,
-	    vtkGeneralTransform *t2,
-	    vtkGeneralTransform *t3,
-	    vtkGeneralTransform *t4)
+void vtkSimpleTransformConcatenation::Concatenate(vtkGeneralTransform *t1,
+						  vtkGeneralTransform *t2,
+						  vtkGeneralTransform *t3,
+						  vtkGeneralTransform *t4)
 {
   if (this->PreMultiplyFlag)
     {
@@ -396,8 +393,7 @@ Concatenate(vtkGeneralTransform *t1,
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::vtkSimpleTransformConcatenation::
-Inverse()
+void vtkSimpleTransformConcatenation::Inverse()
 {
   this->InverseFlag = !this->InverseFlag;
 
@@ -405,8 +401,7 @@ Inverse()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::vtkSimpleTransformConcatenation::
-Identity()
+void vtkSimpleTransformConcatenation::Identity()
 {
   if (this->NumberOfTransforms > 0)
     {
@@ -429,8 +424,7 @@ Identity()
 }
 
 //----------------------------------------------------------------------------
-vtkGeneralTransform *vtkGeneralTransform::vtkSimpleTransformConcatenation::
-GetTransform(int i)
+vtkGeneralTransform *vtkSimpleTransformConcatenation::GetTransform(int i)
 {
   vtkGeneralTransform *transform, *inverse;
   int dependency;
@@ -469,8 +463,7 @@ GetTransform(int i)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkGeneralTransform::vtkSimpleTransformConcatenation::
-GetMaxMTime()
+unsigned long vtkSimpleTransformConcatenation::GetMaxMTime()
 {
   unsigned long result = 0;
   unsigned long mtime;
@@ -495,8 +488,8 @@ GetMaxMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::vtkSimpleTransformConcatenation::
-DeepCopy(vtkSimpleTransformConcatenation *concatenation)
+void vtkSimpleTransformConcatenation::DeepCopy(
+                              vtkSimpleTransformConcatenation *concatenation)
 {
   this->Identity();
 
@@ -539,8 +532,7 @@ DeepCopy(vtkSimpleTransformConcatenation *concatenation)
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::vtkSimpleTransformConcatenation::
-PrintSelf(ostream& os, vtkIndent indent)
+void vtkSimpleTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
   os << indent << "NumberOfTransforms: " << this->NumberOfTransforms << "\n"; 
