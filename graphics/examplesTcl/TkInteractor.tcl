@@ -1,7 +1,7 @@
 ## Procedure should be called to set bindings and initialize variables
 #
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/WidgetObject.tcl
+catch {source ../../examplesTcl/vtkInt.tcl}
+catch {source ../../examplesTcl/WidgetObject.tcl}
 
 proc BindTkRenderWidget {widget} {
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}
@@ -107,7 +107,7 @@ proc StartMotion {widget x y} {
     UpdateRenderer $widget $x $y
     if { ! $RendererFound } { return }
 
-    $CurrentRenderWindow SetDesiredUpdateRate 5.0
+    $CurrentRenderWindow SetDesiredUpdateRate 1.0
 }
 
 proc EndMotion {widget x y} {
@@ -126,8 +126,8 @@ proc Rotate {widget x y} {
 
     if { ! $RendererFound } { return }
 
-    $CurrentCamera Azimuth [expr ($LastX - $x)]
-    $CurrentCamera Elevation [expr ($y - $LastY)]
+    $CurrentCamera Azimuth [expr ($LastX - $x)*0.3]
+    $CurrentCamera Elevation [expr ($y - $LastY)*0.3]
     $CurrentCamera OrthogonalizeViewUp
 
     set LastX $x
@@ -197,7 +197,7 @@ proc Zoom {widget x y} {
 
     if { ! $RendererFound } { return }
 
-    set zoomFactor [expr pow(1.02,($y - $LastY))]
+    set zoomFactor [expr pow(1.02,(0.5*($y - $LastY)))]
 
     if {[$CurrentCamera GetParallelProjection]} {
       set parallelScale [expr [$CurrentCamera GetParallelScale] * $zoomFactor];
