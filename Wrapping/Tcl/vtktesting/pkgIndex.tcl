@@ -1,1 +1,1 @@
-package ifneeded vtktesting 4.1 [list source [file join $dir vtktesting.tcl]]
+package ifneeded vtktesting 4.3 [list source [file join $dir vtktesting.tcl]]

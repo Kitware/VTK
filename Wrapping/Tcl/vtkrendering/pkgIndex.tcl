@@ -1,1 +1,1 @@
-package ifneeded vtkrendering 4.1 [list source [file join $dir vtkrendering.tcl]]
+package ifneeded vtkrendering 4.3 [list source [file join $dir vtkrendering.tcl]]

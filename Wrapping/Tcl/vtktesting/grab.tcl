@@ -1,4 +1,4 @@
-package require -exact vtkrendering 4.1
+package require -exact vtkrendering 4.3
 
 namespace eval ::vtk {
 

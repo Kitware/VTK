@@ -1,4 +1,4 @@
-package require -exact vtkcommon 4.1
+package require -exact vtkcommon 4.3
 
 foreach s {colors mccases backdrop grab} {
   source [file join [file dirname [info script]] "${s}.tcl"]
@@ -12,4 +12,4 @@ proc ::exit {{returnCode 0}} {
     return [::vtk::exit $returnCode]
 }
 
-package provide vtktesting 4.1
+package provide vtktesting 4.3

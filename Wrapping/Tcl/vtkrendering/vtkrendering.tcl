@@ -1,5 +1,5 @@
-package require -exact vtkgraphics 4.1
-package require -exact vtkimaging 4.1
+package require -exact vtkgraphics 4.3
+package require -exact vtkimaging 4.3
 
 catch {
     unset __tk_error
@@ -33,15 +33,15 @@ namespace eval ::vtk::rendering {
 
 if {[info commands ::vtk::init::require_package] != ""} {
   if {![info exists __tk_error] && \
-       [::vtk::init::require_package vtkRenderingTCL 4.1]} {
+       [::vtk::init::require_package vtkRenderingTCL 4.3]} {
     ::vtk::rendering::SetWin32ExitCallback
-    package provide vtkrendering 4.1
+    package provide vtkrendering 4.3
   }
 } else {
   if {![info exists __tk_error] && \
         ([info commands vtkAxisActor2D] != "" || \
         [::vtk::load_component vtkRenderingTCL] == "")} {
     ::vtk::rendering::SetWin32ExitCallback
-    package provide vtkrendering 4.1
+    package provide vtkrendering 4.3
   }
 }
