@@ -43,6 +43,7 @@ class vtkSource;
 class vtkStreamingDemandDrivenPipelineToDataObjectFriendship;
 class vtkExtentTranslator;
 class vtkInformationDataObjectKey;
+class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
@@ -416,6 +417,8 @@ public:
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();
+  static vtkInformationIntegerKey* DATA_TIME_INDEX();
+  static vtkInformationDoubleKey* DATA_TIME();
   static vtkInformationInformationVectorKey* POINT_DATA_VECTOR();
   static vtkInformationInformationVectorKey* CELL_DATA_VECTOR();
   static vtkInformationIntegerKey* FIELD_ARRAY_TYPE();

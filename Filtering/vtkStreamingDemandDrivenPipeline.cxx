@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.25");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.26");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -753,6 +753,18 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
        (updateExtent[0] <= updateExtent[1] &&
         updateExtent[2] <= updateExtent[3] &&
         updateExtent[4] <= updateExtent[5]))
+      {
+      return 1;
+      }
+    }
+
+  // if we are requesting a particular update time index, check
+  // if we have the desired time index
+  if ( outInfo->Has(UPDATE_TIME_INDEX()) )
+    {
+    if (!dataInfo->Has(vtkDataObject::DATA_TIME_INDEX()) ||
+      dataInfo->Get(vtkDataObject::DATA_TIME_INDEX()) !=
+      outInfo->Get(UPDATE_TIME_INDEX()))
       {
       return 1;
       }

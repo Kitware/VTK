@@ -24,6 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformationDataObjectKey.h"
+#include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
@@ -32,7 +33,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.17");
+vtkCxxRevisionMacro(vtkDataObject, "1.18");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -44,6 +45,8 @@ vtkInformationKeyMacro(vtkDataObject, DATA_EXTENT_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_GHOST_LEVELS, Integer);
+vtkInformationKeyMacro(vtkDataObject, DATA_TIME_INDEX, Integer);
+vtkInformationKeyMacro(vtkDataObject, DATA_TIME, Double);
 vtkInformationKeyMacro(vtkDataObject, POINT_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, CELL_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ARRAY_TYPE, Integer);
@@ -362,15 +365,28 @@ void vtkDataObject::CopyInformationToPipeline(vtkInformation *request,
     // current settings.
     vtkInformation* output = this->PipelineInformation;
 
-    // copy point data.
-    if (input && input->Has(POINT_DATA_VECTOR()))
+    if (input)
       {
-      output->CopyEntry(input, POINT_DATA_VECTOR(), 1);
-      }
-    // copy cell data.
-    if (input && input->Has(CELL_DATA_VECTOR()))
-      {
-      output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
+      // copy point data.
+      if (input->Has(POINT_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, POINT_DATA_VECTOR(), 1);
+        }
+      // copy cell data.
+      if (input && input->Has(CELL_DATA_VECTOR()))
+        {
+        output->CopyEntry(input, CELL_DATA_VECTOR(), 1);
+        }
+      // copy the actual time
+      if (input->Has(DATA_TIME()))
+        {
+        output->CopyEntry(input, DATA_TIME());
+        }
+      // copy the time index
+      if (input->Has(DATA_TIME_INDEX()))
+        {
+        output->CopyEntry(input, DATA_TIME_INDEX());
+        }
       }
     }
 }
