@@ -46,7 +46,7 @@ public:
   // special operators
   vlShortArray &operator=(const vlShortArray& ia);
   void operator+=(const vlShortArray& ia);
-  void operator+=(const short i) {this->InsertNextValue(i);};
+  void operator+=(const short i);
   short& operator[](const int i);
 
   // miscellaneous methods
@@ -88,6 +88,10 @@ inline int vlShortArray::InsertNextValue(const short i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
+}
+inline void vlShortArray::operator+=(const short i) 
+{
+  this->InsertNextValue(i);
 }
 
 // Description:
