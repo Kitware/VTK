@@ -91,7 +91,7 @@ virtual void SetAxis##name (int _axis, type _val) \
     { \
     if (this->Axes[_idx] == _axis) \
       { \
-      this->##name##[_idx] = _val; \
+      this->name[_idx] = _val; \
       this->Modified(); \
       return; \
       } \
@@ -139,7 +139,7 @@ virtual void GetAxis##name (int _axis, type &_val) \
     { \
     if (this->Axes[_idx] == _axis) \
       { \
-      _val  = this->##name##[_idx]; \
+      _val  = this->name[_idx]; \
       return; \
       } \
     } \
@@ -202,8 +202,8 @@ virtual void SetAxis##name (int _axis, int _min, int _max) \
     { \
     if (this->Axes[_idx] == _axis) \
       { \
-      this->##name##[_idx*2] = _min; \
-      this->##name##[_idx*2 + 1] = _max; \
+      this->name[_idx*2] = _min; \
+      this->name[_idx*2 + 1] = _max; \
       this->Modified(); \
       return; \
       } \
@@ -211,7 +211,7 @@ virtual void SetAxis##name (int _axis, int _min, int _max) \
   vtkErrorMacro(<< "Could not find axis number " << _axis); \
 } 
 #define vtkImageGetExtentMacro(name) \
-int *Get##name () { return this->##name ;}  \
+int *Get##name () { return this->name ;}  \
 virtual void Get##name (int _tmp[10]) { this->Get##name (5,_tmp);} \
 virtual void Get##name (int &_min0,int &_max0,int &_min1,int &_max1, \
 		int &_min2,int &_max2,int &_min3,int &_max3, \
@@ -264,8 +264,8 @@ virtual void GetAxis##name (int _axis, int &_min, int &_max) \
     { \
     if (this->Axes[_idx] == _axis) \
       { \
-      _min  = this->##name##[_idx*2]; \
-      _max  = this->##name##[_idx*2 + 1]; \
+      _min  = this->name[_idx*2]; \
+      _max  = this->name[_idx*2 + 1]; \
       return; \
       } \
     } \

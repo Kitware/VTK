@@ -59,7 +59,7 @@ vtkImageRegion::vtkImageRegion()
   
   this->SetExtent(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageExtent(0,0, 0,0, 0,0, 0,0, 0,0);
-  this->SetAspectRatio(0.0, 0.0, 0.0, 0.0, 0.0);
+  this->SetAspectRatio(1.0, 1.0, 1.0, 1.0, 0.0);
   this->SetOrigin(0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
@@ -104,13 +104,6 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "AspectRatio: (" << this->AspectRatio[0];
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    os << ", " << this->AspectRatio[idx];
-    }
-  os << ")\n";
-  
-  os << indent << "AspectRatio: (" << this->AspectRatio[0];
-  for (idx = 1; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
     {
     os << ", " << this->AspectRatio[idx];
     }
