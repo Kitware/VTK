@@ -274,7 +274,9 @@ vtkViewRays \
 vtkVolume \
 vtkVolumeProperty \
 vtkVolumeRayCastCompositeFunction \
+vtkVolumeRayCastIsosurfaceFunction \
 vtkVolumeRayCastMapper \
+vtkVolumeRayCastMIPFunction \
 vtkVolume16Reader \
 vtkVoxelModeller \
 vtkWarpLens \
