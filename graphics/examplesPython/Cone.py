@@ -13,6 +13,8 @@ ren = vtkRenderer()
 renWin = vtkRenderWindow()
 renWin.AddRenderer(ren)
 renWin.SetSize(300,300)
+renWin.StereoCapableWindowOn()
+
 iren = vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
