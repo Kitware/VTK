@@ -304,29 +304,90 @@ vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cel
   int npts, idx;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float xOut[3];
+  int iMax, jMax, kMax;
   static vtkCell *cell;
   static vtkVoxel voxel;
+  static vtkVertex vertex;
+  static vtkLine line;
+  static vtkPixel pixel;
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
     return NULL;
     }
-//
-// Get the parametric coordinates and weights for interpolation
-//
+
+  //
+  // Get the parametric coordinates and weights for interpolation
+  //
   vtkVoxel::InterpolationFunctions(pcoords,weights);
-//
-// Build a voxel
-//
-  cell = &voxel;
-  for (npts=0,k = loc[2]; k <= loc[2] + 1; k++)
+
+  switch (this->DataDescription)
+    {
+    case VTK_SINGLE_POINT: // cellId can only be = 0
+      iMax = loc[0];
+      jMax = loc[1];
+      kMax = loc[2];
+      cell = &vertex;
+      break;
+
+    case VTK_X_LINE:
+      iMax = loc[0] + 1;
+      jMax = loc[1];
+      kMax = loc[2];
+      cell = &line;
+      break;
+
+    case VTK_Y_LINE:
+      iMax = loc[0];
+      jMax = loc[1] + 1;
+      kMax = loc[2];
+      cell = &line;
+      break;
+
+    case VTK_Z_LINE:
+      iMax = loc[0];
+      jMax = loc[1];
+      kMax = loc[2] + 1;
+      cell = &line;
+      break;
+
+    case VTK_XY_PLANE:
+      iMax = loc[0] + 1;
+      jMax = loc[1] + 1;
+      kMax = loc[2];
+      cell = &pixel;
+      break;
+
+    case VTK_YZ_PLANE:
+      iMax = loc[0];
+      jMax = loc[1] + 1;
+      kMax = loc[2] + 1;
+      cell = &pixel;
+      break;
+
+    case VTK_XZ_PLANE:
+      iMax = loc[0] + 1;
+      jMax = loc[1];
+      kMax = loc[2] + 1;
+      cell = &pixel;
+      break;
+
+    case VTK_XYZ_GRID:
+      iMax = loc[0] + 1;
+      jMax = loc[1] + 1;
+      kMax = loc[2] + 1;
+      cell = &voxel;
+      break;
+    }
+
+  for (npts=0,k = loc[2]; k <= kMax; k++)
     {
     xOut[2] = this->Origin[2] + k * this->AspectRatio[2]; 
-    for (j = loc[1]; j <= loc[1] + 1; j++)
+    for (j = loc[1]; j <= jMax; j++)
       {
       xOut[1] = this->Origin[1] + j * this->AspectRatio[1]; 
       idx = loc[0] + j*this->Dimensions[0] + k*d01;
-      for (i = loc[0]; i <= loc[0] + 1; i++, idx++)
+      for (i = loc[0]; i <= iMax; i++, idx++)
         {
         xOut[0] = this->Origin[0] + i * this->AspectRatio[0]; 
 
