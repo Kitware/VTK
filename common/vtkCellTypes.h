@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Delete cell by setting to NULL cell type.
-  void DeleteCell(int cellId) { this->Array[cellId].type = VTK_NULL_ELEMENT;};
+  void DeleteCell(int cellId) { this->Array[cellId].type = VTK_EMPTY_CELL;};
 
   // Description:
   // Return the number of types in the list.
