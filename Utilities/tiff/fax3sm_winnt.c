@@ -2,7 +2,8 @@
     mkg3states program */
 #include "tiff.h"
 #include "tif_fax3.h"
- const  TIFFFaxTabEnt TIFFFaxMainTable[128] = {
+#include "tiffconf.h"
+const  TIFFFaxTabEnt TIFFFaxMainTable[128] = {
 12,7,0,3,1,0,5,3,1,3,1,0,2,3,0,3,1,0,4,3,1,3,1,0,1,4,0,3,1,0,5,3,1,3,1,0,
 2,3,0,3,1,0,4,3,1,3,1,0,5,6,2,3,1,0,5,3,1,3,1,0,2,3,0,3,1,0,4,3,1,3,1,0,
 1,4,0,3,1,0,5,3,1,3,1,0,2,3,0,3,1,0,4,3,1,3,1,0,5,7,3,3,1,0,5,3,1,3,1,0,
