@@ -39,8 +39,8 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     return 0;
     }
   
-  info->CAPI->ExpandSourceListArguments(mf, argc, argv, 
-                                        &newArgc, &newArgv, 2);
+  info->CAPI->ExpandSourceListArguments(mf, argc, (const char**)argv, 
+                                        &newArgc, (char***)&newArgv, 2);
   
   /* Now check and see if the value has been stored in the cache */
   /* already, if so use that value and don't look for the program */
@@ -143,6 +143,8 @@ static void FinalPass(void *inf, void *mf)
   const char *args[4];
   const char *depends[2];
   const char *depends2[2];
+  char **alldeps = 0;
+  char* util=0;
   int i;
   int numDepends, numArgs;
   const char *cdir = info->CAPI->GetCurrentDirectory(mf);
@@ -158,6 +160,7 @@ static void FinalPass(void *inf, void *mf)
     depends2[1] = hints;
     numDepends++;
     }
+  alldeps = (char**)malloc(sizeof(const char*)*cdata->NumberWrapped);
   for(i = 0; i < cdata->NumberWrapped; i++)
     {
     char *res;
@@ -187,15 +190,29 @@ static void FinalPass(void *inf, void *mf)
     free(res);
 
     res = (char *)malloc(strlen(resultDirectory) + 
-                         strlen(srcName) + 7);
-    sprintf(res,"%s/%s.java",resultDirectory,srcName);
+                         strlen(srcName) + 3);
+    sprintf(res,"%s/%s",resultDirectory,srcName);
+    sprintf(res+strlen(res)-4, ".java");
     args[numArgs-1] = res;
     info->CAPI->AddCustomCommand(mf, args[0],
                                  pjava, numArgs, args, numDepends, depends2, 
-                                 1, &res, cdata->LibraryName);
-    free(res);
+                                 1, (const char**)&res, cdata->LibraryName);
+    alldeps[i] = res;
     free(hname);
     }
+
+  util = malloc(strlen(cdata->LibraryName) + 12);
+  sprintf(util, "%sJavaClasses", cdata->LibraryName);
+  info->CAPI->AddUtilityCommand(mf, util, "", "", 1,
+                                cdata->NumberWrapped,
+                                (const char**)alldeps,
+                                0, 0);  
+  for(i = 0; i < cdata->NumberWrapped; i++)
+    {
+    free(alldeps[i]);
+    }
+  free(alldeps);
+  free(util);
 }
 
 static void Destructor(void *inf) 
