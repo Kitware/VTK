@@ -430,7 +430,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 //
 // See whether point is in triangle by evaluating its position.
 //
-  if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
+  if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) == 1)
     if ( dist2 <= tol2 ) return 1;
 
   return 0;
