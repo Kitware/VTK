@@ -38,12 +38,12 @@
 #ifndef __vtkShepardMethod_h
 #define __vtkShepardMethod_h
 
-#include "vtkDataSetToStructuredPointsFilter.h"
+#include "vtkDataSetToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
+class VTK_IMAGING_EXPORT vtkShepardMethod : public vtkDataSetToImageFilter 
 {
 public:
-  vtkTypeRevisionMacro(vtkShepardMethod,vtkDataSetToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkShepardMethod,vtkDataSetToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -92,7 +92,8 @@ protected:
   vtkShepardMethod();
   ~vtkShepardMethod() {};
 
-  void Execute();
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *);
 
   int SampleDimensions[3];
   float MaximumDistance;
