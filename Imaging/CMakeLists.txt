@@ -120,6 +120,15 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkImagingPython debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
+# if we are wrapping into Java then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_JAVA)
+  VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS Imaging_SRCS)
+  ADD_LIBRARY(vtkImagingJava ImagingJava_SRCS)
+  TARGET_LINK_LIBRARIES (vtkImagingJava vtkCommonJava vtkFilteringJava)
+ENDIF (VTK_WRAP_JAVA)
+
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering

@@ -192,6 +192,15 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkCommonPython debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
+# if we are wrapping into Java then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_JAVA)
+  SOURCE_FILES (CommonJava_SRCS vtkJavaUtil)
+  VTK_WRAP_JAVA(vtkCommonJava CommonJava_SRCS Common_SRCS)
+  ADD_LIBRARY(vtkCommonJava CommonJava_SRCS)
+ENDIF (VTK_WRAP_JAVA)
+
 LINK_LIBRARIES (vtkCommon )
 
 

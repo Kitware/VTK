@@ -188,6 +188,10 @@ IF (VTK_WRAP_PYTHON)
                          debug python21_d optimized python21)
 ENDIF (VTK_WRAP_PYTHON)
 
+  IF (JAVA_AWT_LIB_PATH)
+    TARGET_LINK_LIBRARIES (vtkCommonJava jawt)
+  ENDIF (JAVA_AWT_LIB_PATH)
+
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering 
