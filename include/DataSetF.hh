@@ -13,9 +13,8 @@ public:
   vlDataSetFilter();
   ~vlDataSetFilter();
   char *GetClassName() {return "vlDataSetFilter";};
-  void Execute();
-  void Update();
 
+  void Update();
   vlSetObjectMacro(Input,vlDataSet);
   vlGetObjectMacro(Input,vlDataSet);
 

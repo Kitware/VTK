@@ -33,7 +33,7 @@ void vlElevationFilter::Execute()
 // Initialize
 //
   this->Initialize();
-  if ( !this->Input || ((numPts=this->Input->NumPoints()) < 1) )
+  if ( ((numPts=this->Input->NumPoints()) < 1) )
     {
     cerr << "No input available for Elevation Filter\n";
     return;

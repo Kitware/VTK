@@ -12,9 +12,8 @@ public:
   vlPolyFilter() : Input(0) {};
   ~vlPolyFilter();
   char *GetClassName() {return "vlPolyFilter";};
-  void Execute();
-  void Update();
 
+  void Update();
   vlSetObjectMacro(Input,vlPolyData);
   vlGetObjectMacro(Input,vlPolyData);
 

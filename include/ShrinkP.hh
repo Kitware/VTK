@@ -11,13 +11,13 @@ class vlShrinkPolyData : public vlPolyToPolyFilter
 public:
   vlShrinkPolyData() {this->ShrinkFactor = 0.5;};
   ~vlShrinkPolyData() {};
-  void Execute();
   char *GetClassName() {return "vlShrinkPolyData";};
 
   vlSetMacro(ShrinkFactor,float);
   vlGetMacro(ShrinkFactor,float);
 
-private:
+protected:
+  void Execute();
   float ShrinkFactor;
 };
 

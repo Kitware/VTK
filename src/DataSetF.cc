@@ -16,11 +16,6 @@ vlDataSetFilter::~vlDataSetFilter()
     }
 }
 
-void vlDataSetFilter::Execute()
-{
-  cerr << "Executing DataSetFilter\n";
-}
-
 void vlDataSetFilter::Update()
 {
   // make sure input is available

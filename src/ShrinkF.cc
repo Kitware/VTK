@@ -12,8 +12,6 @@ void vlShrinkFilter::Execute()
   vlFloatPoints pt(25);
   int i, j, k;
   float center[3], *p;
-
-
 //
 // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
 // then create new vertices shrunk towards center.

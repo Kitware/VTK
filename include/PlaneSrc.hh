@@ -11,12 +11,12 @@ class vlPlaneSource : public vlPolySource
 public:
   vlPlaneSource() : XRes(1), YRes(1) {};
   vlPlaneSource(const int xR, const int yR) {XRes=xR; YRes=yR;};
-  void Execute();
   void SetResolution(const int xR, const int yR);
   void GetResolution(int& xR,int& yR) {xR=this->XRes; yR=this->YRes;};
   char *GetClassName() {return "vlPlaneSource";};
 
-private:
+protected:
+  void Execute();
   int XRes;
   int YRes;
 };

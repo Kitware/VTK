@@ -13,7 +13,6 @@ class vlLineSource : public vlPolySource
 public:
   vlLineSource(int res=1);
   char *GetClassName() {return "vlLineSource";};
-  void Execute();
 
   vlSetVector3Macro(Pt1,float);
   vlGetVectorMacro(Pt1,float);
@@ -25,6 +24,7 @@ public:
   vlGetMacro(Resolution,int);
 
 protected:
+  void Execute();
   float Pt1[3];
   float Pt2[3];
   int Resolution;

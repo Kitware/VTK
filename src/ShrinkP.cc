@@ -24,11 +24,6 @@ void vlShrinkPolyData::Execute()
 // Initialize
 //
   this->Initialize();
-  if ( !this->Input )
-    {
-    cerr << "No input available for ShrinkFilter\n";
-    return;
-    }
 
   inPts = this->Input->GetPoints();
   pd = this->Input->GetPointData();

@@ -8,11 +8,6 @@ vlPolyFilter::~vlPolyFilter()
     }
 }
 
-void vlPolyFilter::Execute()
-{
-  cerr << "Executing PolyFilter\n";
-}
-
 void vlPolyFilter::Update()
 {
   // make sure input is available

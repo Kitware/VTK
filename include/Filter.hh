@@ -13,11 +13,12 @@ public:
   vlFilter() : StartMethod(0), EndMethod(0), Updating(0) {};
   ~vlFilter() {};
   char *GetClassName() {return "vlFilter";};
-  virtual void Execute() = 0;
   virtual void Update() = 0;
   void SetStartMethod(void (*f)());
   void SetEndMethod(void (*f)());
+
 protected:
+  virtual void Execute() = 0;
   char Updating;
   void (*StartMethod)();
   void (*EndMethod)();

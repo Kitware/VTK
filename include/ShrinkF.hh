@@ -12,9 +12,9 @@ class vlShrinkFilter : public vlDataSetFilter, public vlPolyData
 public:
   vlShrinkFilter(const float sf=0.5) {this->ShrinkFactor = sf;};
   ~vlShrinkFilter() {};
-  void Execute();
   char *GetClassName() {return "vlShrinkFilter";};
-private:
+protected:
+  void Execute();
   float ShrinkFactor;
 };
 

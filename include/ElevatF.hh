@@ -10,7 +10,6 @@ class vlElevationFilter : public vlDataSetToDataSetFilter
 {
 public:
   vlElevationFilter();
-  void Execute();
   char *GetClassName() {return "vlElevationFilter";};
 
   vlSetVector3Macro(LowPoint,float);
@@ -23,6 +22,7 @@ public:
   vlGetVectorMacro(ScalarRange,float);
 
 protected:
+  void Execute();
   float LowPoint[3];
   float HighPoint[3];
   float ScalarRange[2];

@@ -12,12 +12,12 @@ public:
   vlSource() : StartMethod(0), EndMethod(0) {};
   ~vlSource() {};
   char *GetClassName() {return "vlSource";};
-  virtual void Execute();
   virtual void Update();
   void SetStartMethod(void (*f)());
   void SetEndMethod(void (*f)());
 
 protected:
+  virtual void Execute();
   void (*StartMethod)();
   void (*EndMethod)();
   vlTimeStamp ExecuteTime;
