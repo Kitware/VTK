@@ -365,7 +365,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.20");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.21");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -703,10 +703,6 @@ public:
           }
         }
       ++j;
-      }
-    if(!isValid)
-      {
-      cout<<"not valid: j="<<j<<" k="<<k<<endl;
       }
     return isValid;
   }
