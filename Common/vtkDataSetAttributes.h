@@ -85,7 +85,7 @@ public:
   // copy flag of an attribute is on, the corresponding array
   // will be copied even if the array is in not the list of arrays
   // to be copied.
-  void PassData(vtkDataSetAttributes* pd);
+  virtual void PassData(vtkFieldData* fd);
 
   // Description:
   // Allocates point data for point-by-point (or cell-by-cell) copy operation.
@@ -219,6 +219,10 @@ public:
   int SetActiveAttribute(const char* name, int attributeType);
 
   // Description:
+  // Make the array with the given index the active attribute.
+  int SetActiveAttribute(int index, int attributeType);
+
+  // Description:
   // Get the field data.
   vtkFieldData* GetFieldData() { return this; }
 
@@ -235,54 +239,105 @@ public:
 
   // Description:
   // Turn on/off the copying of scalar data.
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
   void SetCopyScalars(int i) { this->SetCopyAttribute(SCALARS, i); }
   int GetCopyScalars() { return this->CopyAttributeFlags[SCALARS]; }
   vtkBooleanMacro(CopyScalars, int);
 
   // Description:
   // Turn on/off the copying of vector data.
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
   void SetCopyVectors(int i) { this->SetCopyAttribute(VECTORS, i); }
   int GetCopyVectors() { return this->CopyAttributeFlags[VECTORS]; }
   vtkBooleanMacro(CopyVectors, int);
 
   // Description:
   // Turn on/off the copying of normals data.
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
   void SetCopyNormals(int i) { this->SetCopyAttribute(NORMALS, i); }
   int GetCopyNormals() { return this->CopyAttributeFlags[NORMALS]; }
   vtkBooleanMacro(CopyNormals, int);
 
   // Description:
   // Turn on/off the copying of texture coordinates data.
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
   void SetCopyTCoords(int i) { this->SetCopyAttribute(TCOORDS, i); }
   int GetCopyTCoords() { return this->CopyAttributeFlags[TCOORDS]; }
   vtkBooleanMacro(CopyTCoords, int);
 
   // Description:
   // Turn on/off the copying of tensor data.
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
   void SetCopyTensors(int i) { this->SetCopyAttribute(TENSORS, i); }
   int GetCopyTensors() { return this->CopyAttributeFlags[TENSORS]; }
   vtkBooleanMacro(CopyTensors, int);
 
   // Description:
-  // Turn on/off the copying of the field specified by name.
-  void CopyFieldOn(const char* name) { this->CopyFieldOnOff(name, 1); }
-  void CopyFieldOff(const char* name) { this->CopyFieldOnOff(name, 0); }
-
-  // Description:
   // Turn on copying of all data.
-  void CopyAllOn();
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
+  virtual void CopyAllOn();
 
   // Description:
   // Turn off copying of all data.
-  void CopyAllOff();
+  // During the copy/pass, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an attribute is set (on or off), it is applied.
+  //    This overrides rules 2 and 3.
+  // 2. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 3.
+  // 3. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
+  virtual void CopyAllOff();
 
   // Description:
   // Copy a tuple of data from one data array to another. This method (and
   // following ones) assume that the fromData and toData objects are of the
   // same type, and have the same number of components. This is true if you
   // invoke CopyAllocate() or InterpolateAllocate().
-  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, vtkIdType fromId,
-                 vtkIdType toId);
+  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, 
+		 vtkIdType fromId, vtkIdType toId);
 
   // Description:
   // Get the field data array indices corresponding to scalars, 
@@ -312,7 +367,8 @@ public:
 
 //BTX
   // Always keep NUM_ATTRIBUTES as the last entry
-  enum AttributeTypes {
+  enum AttributeTypes 
+  {
     SCALARS=0,
     VECTORS=1,
     NORMALS=2,
@@ -321,8 +377,11 @@ public:
     NUM_ATTRIBUTES
   };
 
-  enum AttributeLimitTypes {
-    MAX, EXACT, NOLIMIT
+  enum AttributeLimitTypes 
+  {
+    MAX, 
+    EXACT, 
+    NOLIMIT
   };
 
   // This public class is used to perform set operations, other misc. 
@@ -412,17 +471,7 @@ protected:
   int CopyAttributeFlags[NUM_ATTRIBUTES]; //copy flag for attribute data
 
 //BTX
-
-  struct CopyFieldFlag
-  {
-    char* ArrayName;
-    int IsCopied;
-  };
-  CopyFieldFlag* CopyFieldFlags; //the names of fields not to be copied
-  int NumberOfFieldFlags; //the number of fields not to be copied
-
   vtkFieldData::BasicIterator RequiredArrays;
-
 //ETX
 
   int* TargetIndices;
@@ -437,19 +486,10 @@ private:
   int SetAttribute(vtkDataArray* da, int attributeType);
   void SetAttributeData(vtkAttributeData* newAtt, int attributeType);
   vtkAttributeData* GetAttributeData(int attributeType);
-  int SetActiveAttribute(int index, int attributeType);
-  int FindFlag(const char* field);
-  int GetFlag(const char* field);
   static int CheckNumberOfComponents(vtkDataArray* da, int attributeType);
-  void CopyFlags(const vtkDataSetAttributes* source);
-  void ClearFieldFlags();
-  void CopyFieldOnOff(const char* name, int onOff);
-  int DoCopyAllOn;
-  int DoCopyAllOff;
+
 //BTX
-
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);
-
 //ETX
 
 };

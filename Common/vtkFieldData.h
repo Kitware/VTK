@@ -163,6 +163,42 @@ public:
     }
 
   // Description:
+  // Pass entire arrays of input data through to output. Obey the "copy"
+  // flags.
+  virtual void PassData(vtkFieldData* fd);
+
+  // Description:
+  // Turn on/off the copying of the field specified by name.
+  // During the copying/passing, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 2.
+  // 2. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
+  void CopyFieldOn(const char* name) { this->CopyFieldOnOff(name, 1); }
+  void CopyFieldOff(const char* name) { this->CopyFieldOnOff(name, 0); }
+
+  // Description:
+  // Turn on copying of all data.
+  // During the copying/passing, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 2.
+  // 2. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
+  virtual void CopyAllOn();
+
+  // Description:
+  // Turn off copying of all data.
+  // During the copying/passing, the following rules are followed for each
+  // array:
+  // 1. If the copy flag for an array is set (on or off), it is applied
+  //    This overrides rule 2.
+  // 2. If CopyAllOn is set, copy the array.
+  //    If CopyAllOff is set, do not copy the array
+  virtual void CopyAllOff();
+
+  // Description:
   // Copy a field by creating new data arrays (i.e., duplicate storage).
   virtual void DeepCopy(vtkFieldData *da);
 
@@ -420,6 +456,22 @@ public:
     vtkFieldData* Fields;
     int Detached;
   };
+
+  struct CopyFieldFlag
+  {
+    char* ArrayName;
+    int IsCopied;
+  };
+
+  CopyFieldFlag* CopyFieldFlags; //the names of fields not to be copied
+  int NumberOfFieldFlags; //the number of fields not to be copied
+  void CopyFieldOnOff(const char* name, int onOff);
+  void ClearFieldFlags();
+  int FindFlag(const char* field);
+  int GetFlag(const char* field);
+  void CopyFlags(const vtkFieldData* source);
+  int DoCopyAllOn;
+  int DoCopyAllOff;
 
 //ETX
 

@@ -80,119 +80,15 @@ vtkDataSetAttributes::vtkDataSetAttributes()
     this->CopyAttributeFlags[attributeType] = 1;
     this->Attributes[attributeType] = 0;
     }
-  this->CopyFieldFlags = 0;
-  this->NumberOfFieldFlags = 0;
   this->TargetIndices=0;
-  this->CopyAllOn();
 }
 
 // Destructor for the vtkDataSetAttributes objects.
 vtkDataSetAttributes::~vtkDataSetAttributes()
 {
   this->Initialize();
-  this->ClearFieldFlags();
   delete[] this->TargetIndices;
   this->TargetIndices = 0;
-}
-
-void vtkDataSetAttributes::CopyFieldOnOff(const char* field, int onOff)
-{
-  if (!field) { return; }
-  
-  int index;
-  // If the array is in the list, simply set IsCopied to onOff
-  if ((index=this->FindFlag(field)) != -1)
-    {
-    this->CopyFieldFlags[index].IsCopied = onOff;
-    }
-  else
-    {
-    // We need to reallocate the list of fields
-    vtkDataSetAttributes::CopyFieldFlag* newFlags =
-      new vtkDataSetAttributes::CopyFieldFlag[this->NumberOfFieldFlags+1];
-    // Copy old flags (pointer copy for name)
-    for(int i=0; i<this->NumberOfFieldFlags; i++)
-      {
-      newFlags[i].ArrayName = this->CopyFieldFlags[i].ArrayName;
-      newFlags[i].IsCopied = this->CopyFieldFlags[i].IsCopied;
-      }
-    // Copy new flag (strcpy)
-    char* newName = new char[strlen(field)+1];
-    strcpy(newName, field);
-    newFlags[this->NumberOfFieldFlags].ArrayName = newName;
-    newFlags[this->NumberOfFieldFlags].IsCopied = onOff;
-    this->NumberOfFieldFlags++;
-    delete[] this->CopyFieldFlags;
-    this->CopyFieldFlags = newFlags;
-    }
-}
-
-// Find if field is in CopyFieldFlags.
-// If it is, it returns the index otherwise it returns -1
-int vtkDataSetAttributes::FindFlag(const char* field)
-{
-  for(int i=0; i<this->NumberOfFieldFlags; i++)
-    {
-    if (this->CopyFieldFlags[i].ArrayName &&
-	!strcmp(field, this->CopyFieldFlags[i].ArrayName))
-      {
-      return i;
-      }
-    }
-  return -1;
-}
-
-// If there is no flag for this array, return -1.
-// If there is one: return 0 if off, 1 if on
-int vtkDataSetAttributes::GetFlag(const char* field)
-{
-  int index = this->FindFlag(field);
-  if ( index == -1 )
-    {
-    return -1;
-    }
-  else 
-    {
-    return  this->CopyFieldFlags[index].IsCopied;
-    }
-}
-
-// Deallocate and clear the list of fields.
-void vtkDataSetAttributes::ClearFieldFlags()
-{
-  if (this->NumberOfFieldFlags > 0)
-    {
-    for(int i=0; i<this->NumberOfFieldFlags; i++)
-      {
-      delete[] this->CopyFieldFlags[i].ArrayName;
-      }
-    }
-  delete[] this->CopyFieldFlags;
-  this->CopyFieldFlags=0;
-  this->NumberOfFieldFlags=0;
-}
-
-// Copy the fields list (with strcpy)
-void vtkDataSetAttributes::CopyFlags(const vtkDataSetAttributes* source)
-{
-  this->ClearFieldFlags();
-  this->NumberOfFieldFlags = source->NumberOfFieldFlags;
-  if ( this->NumberOfFieldFlags > 0 )
-    {
-    this->CopyFieldFlags = new 
-      vtkDataSetAttributes::CopyFieldFlag[this->NumberOfFieldFlags];
-    for(int i=0; i<this->NumberOfFieldFlags; i++)
-      {
-      this->CopyFieldFlags[i].ArrayName = 
-        new char[strlen(source->CopyFieldFlags[i].ArrayName)+1];
-      strcpy(this->CopyFieldFlags[i].ArrayName, 
-	     source->CopyFieldFlags[i].ArrayName);
-      }
-    }
-  else
-    {
-    this->CopyFieldFlags = 0;
-    }
 }
 
 
@@ -423,56 +319,65 @@ vtkFieldData::BasicIterator  vtkDataSetAttributes::ComputeRequiredArrays(
 
 // Pass entire arrays of input data through to output. Obey the "copy"
 // flags.
-void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
+void vtkDataSetAttributes::PassData(vtkFieldData* fd)
 {
-  if (!pd)
+  if (!fd)
     {
     return;
     }
 
-  // Create an iterator to iterate over the fields which will
-  // be passed, i.e. fields which are either:
-  // 1> in the list of _fields_ to be copied or
-  // 2> in the list of _attributes_ to be copied.
-  // Note that NULL data arrays are not copied
-  vtkFieldData::BasicIterator it = this->ComputeRequiredArrays(pd);
+  vtkDataSetAttributes* dsa = vtkDataSetAttributes::SafeDownCast(fd);
 
-  if ( it.GetListSize() > this->NumberOfArrays )
+  if (dsa)
     {
-    this->AllocateArrays(it.GetListSize());
-    }
-  if (it.GetListSize() == 0)
-    {
-    return;
-    }
-
-  // Since we are replacing, remove old attributes
-  int attributeType; //will change//
-  for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
-    {
-    if (this->CopyAttributeFlags[attributeType])
+    // Create an iterator to iterate over the fields which will
+    // be passed, i.e. fields which are either:
+    // 1> in the list of _fields_ to be copied or
+    // 2> in the list of _attributes_ to be copied.
+    // Note that NULL data arrays are not copied
+    vtkFieldData::BasicIterator it = this->ComputeRequiredArrays(dsa);
+    
+    if ( it.GetListSize() > this->NumberOfArrays )
       {
-      this->RemoveArray(this->AttributeIndices[attributeType]);
-      this->AttributeIndices[attributeType] = -1;
+      this->AllocateArrays(it.GetListSize());
       }
-    }
-
-  int i, arrayIndex;
-  for(i=it.BeginIndex(); !it.End(); i=it.NextIndex())
-    {
-     arrayIndex = this->AddArray(pd->GetArray(i));
-    // If necessary, make the array an attribute
-    if ( ((attributeType = pd->IsArrayAnAttribute(i)) != -1 ) && 
-	 this->CopyAttributeFlags[attributeType] )
+    if (it.GetListSize() == 0)
       {
-      this->SetActiveAttribute(arrayIndex, attributeType);
-      // Also pass the attribute data
-      this->Attributes[attributeType] = pd->Attributes[attributeType];
-      if (this->Attributes[attributeType])
+      return;
+      }
+    
+    // Since we are replacing, remove old attributes
+    int attributeType; //will change//
+    for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+      {
+      if (this->CopyAttributeFlags[attributeType])
 	{
-	this->Attributes[attributeType]->Register(this);
+	this->RemoveArray(this->AttributeIndices[attributeType]);
+	this->AttributeIndices[attributeType] = -1;
 	}
       }
+    
+    int i, arrayIndex;
+    for(i=it.BeginIndex(); !it.End(); i=it.NextIndex())
+      {
+      arrayIndex = this->AddArray(dsa->GetArray(i));
+      // If necessary, make the array an attribute
+      if ( ((attributeType = dsa->IsArrayAnAttribute(i)) != -1 ) && 
+	   this->CopyAttributeFlags[attributeType] )
+	{
+	this->SetActiveAttribute(arrayIndex, attributeType);
+	// Also pass the attribute data
+	this->Attributes[attributeType] = dsa->Attributes[attributeType];
+	if (this->Attributes[attributeType])
+	  {
+	  this->Attributes[attributeType]->Register(this);
+	  }
+	}
+      }
+    }
+  else
+    {
+    this->vtkFieldData::PassData(fd);
     }
 }
 

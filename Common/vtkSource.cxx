@@ -422,6 +422,22 @@ void vtkSource::UpdateData(vtkDataObject *output)
   else
     {
     this->ExecuteData(output);
+    // Pass the vtkDataObject's field data from the first input
+    // to all outputs
+    vtkFieldData* fd;
+    if ((this->NumberOfInputs > 0) && (this->Inputs[0]) && 
+	(fd = this->Inputs[0]->GetFieldData()))
+      {
+      vtkFieldData* outputFd;
+      for (idx = 0; idx < this->NumberOfOutputs; idx++)
+	{
+	if (this->Outputs[idx] && 
+	    (outputFd=this->Outputs[idx]->GetFieldData()))
+	  {
+	  outputFd->PassData(fd);
+	  }
+	}
+      }
     }
 
   // If we ended due to aborting, push the progress up to 1.0 (since

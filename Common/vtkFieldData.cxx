@@ -220,12 +220,17 @@ vtkFieldData::vtkFieldData()
   this->Tuple = NULL;
 
   this->NumberOfActiveArrays = 0;
+
+  this->CopyFieldFlags = 0;
+  this->NumberOfFieldFlags = 0;
+  this->CopyAllOn();
 }
 
 vtkFieldData::~vtkFieldData()
 {
   this->Initialize();
   delete[] this->Tuple;
+  this->ClearFieldFlags();
 }
 
 // Release all data but do not delete object.
@@ -434,6 +439,7 @@ void vtkFieldData::ShallowCopy(vtkFieldData *f)
     this->NumberOfActiveArrays++;
     this->SetArray(i, f->GetArray(i));
     }
+  this->CopyFlags(f);
 }
 
 
@@ -590,6 +596,136 @@ unsigned long int vtkFieldData::GetMTime()
     }
 
   return mTime;
+}
+
+void vtkFieldData::CopyFieldOnOff(const char* field, int onOff)
+{
+  if (!field) { return; }
+  
+  int index;
+  // If the array is in the list, simply set IsCopied to onOff
+  if ((index=this->FindFlag(field)) != -1)
+    {
+    this->CopyFieldFlags[index].IsCopied = onOff;
+    }
+  else
+    {
+    // We need to reallocate the list of fields
+    vtkFieldData::CopyFieldFlag* newFlags =
+      new vtkFieldData::CopyFieldFlag[this->NumberOfFieldFlags+1];
+    // Copy old flags (pointer copy for name)
+    for(int i=0; i<this->NumberOfFieldFlags; i++)
+      {
+      newFlags[i].ArrayName = this->CopyFieldFlags[i].ArrayName;
+      newFlags[i].IsCopied = this->CopyFieldFlags[i].IsCopied;
+      }
+    // Copy new flag (strcpy)
+    char* newName = new char[strlen(field)+1];
+    strcpy(newName, field);
+    newFlags[this->NumberOfFieldFlags].ArrayName = newName;
+    newFlags[this->NumberOfFieldFlags].IsCopied = onOff;
+    this->NumberOfFieldFlags++;
+    delete[] this->CopyFieldFlags;
+    this->CopyFieldFlags = newFlags;
+    }
+}
+
+// Turn on copying of all data.
+void vtkFieldData::CopyAllOn()
+{
+  this->DoCopyAllOn = 1;
+  this->DoCopyAllOff = 0;
+}
+
+// Turn off copying of all data.
+void vtkFieldData::CopyAllOff()
+{
+  this->DoCopyAllOn = 0;
+  this->DoCopyAllOff = 1;
+}
+
+// Deallocate and clear the list of fields.
+void vtkFieldData::ClearFieldFlags()
+{
+  if (this->NumberOfFieldFlags > 0)
+    {
+    for(int i=0; i<this->NumberOfFieldFlags; i++)
+      {
+      delete[] this->CopyFieldFlags[i].ArrayName;
+      }
+    }
+  delete[] this->CopyFieldFlags;
+  this->CopyFieldFlags=0;
+  this->NumberOfFieldFlags=0;
+}
+
+// Find if field is in CopyFieldFlags.
+// If it is, it returns the index otherwise it returns -1
+int vtkFieldData::FindFlag(const char* field)
+{
+  for(int i=0; i<this->NumberOfFieldFlags; i++)
+    {
+    if (this->CopyFieldFlags[i].ArrayName &&
+	!strcmp(field, this->CopyFieldFlags[i].ArrayName))
+      {
+      return i;
+      }
+    }
+  return -1;
+}
+
+// If there is no flag for this array, return -1.
+// If there is one: return 0 if off, 1 if on
+int vtkFieldData::GetFlag(const char* field)
+{
+  int index = this->FindFlag(field);
+  if ( index == -1 )
+    {
+    return -1;
+    }
+  else 
+    {
+    return  this->CopyFieldFlags[index].IsCopied;
+    }
+}
+
+// Copy the fields list (with strcpy)
+void vtkFieldData::CopyFlags(const vtkFieldData* source)
+{
+  this->ClearFieldFlags();
+  this->NumberOfFieldFlags = source->NumberOfFieldFlags;
+  if ( this->NumberOfFieldFlags > 0 )
+    {
+    this->CopyFieldFlags = new 
+      vtkFieldData::CopyFieldFlag[this->NumberOfFieldFlags];
+    for(int i=0; i<this->NumberOfFieldFlags; i++)
+      {
+      this->CopyFieldFlags[i].ArrayName = 
+        new char[strlen(source->CopyFieldFlags[i].ArrayName)+1];
+      strcpy(this->CopyFieldFlags[i].ArrayName, 
+	     source->CopyFieldFlags[i].ArrayName);
+      }
+    }
+  else
+    {
+    this->CopyFieldFlags = 0;
+    }
+}
+
+void vtkFieldData::PassData(vtkFieldData* fd)
+{
+  for(int i=0; i<fd->GetNumberOfArrays(); i++)
+    {
+    const char* arrayName = fd->GetArrayName(i);
+    // If there is no blocker for the given array
+    // and both CopyAllOff and CopyOn for that array are not true
+    if ( (this->GetFlag(arrayName) != 0) &&
+	 !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) &&
+	 fd->GetArray(i))
+      {
+      this->AddArray(fd->GetArray(i));
+      }
+    }
 }
 
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)

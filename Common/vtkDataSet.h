@@ -316,6 +316,15 @@ public:
   // Shallow and Deep copy.
   void ShallowCopy(vtkDataObject *src);  
   void DeepCopy(vtkDataObject *src);
+
+//BTX
+  enum FieldDataType 
+  {
+    DATA_OBJECT_FIELD=0,
+    POINT_DATA_FIELD=1,
+    CELL_DATA_FIELD=2
+  };
+//ETX
   
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
