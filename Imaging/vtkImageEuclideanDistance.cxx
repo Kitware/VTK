@@ -43,6 +43,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageEuclideanDistance.h"
+#include "vtkObjectFactory.h"
+
+//--------------------------------------------------------------------------
+vtkImageEuclideanDistance* vtkImageEuclideanDistance::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageEuclideanDistance");
+  if(ret)
+    {
+    return (vtkImageEuclideanDistance*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageEuclideanDistance;
+}
 
 //----------------------------------------------------------------------------
 // This defines the default values for the EDT parameters 
@@ -644,10 +658,10 @@ void vtkImageEuclideanDistance::ThreadedExecute(vtkImageData *inData, vtkImageDa
   // Call the specific algorithms. 
   switch( this->GetAlgorithm() ) 
     {
-    case EDT_SAITO:
+    case VTK_EDT_SAITO:
       vtkImageEuclideanDistanceExecuteSaito( this, outData, outExt, (float *)(outPtr) );
       break;
-    case EDT_SAITO_CACHED:
+    case VTK_EDT_SAITO_CACHED:
       vtkImageEuclideanDistanceExecuteSaitoCached( this, outData, outExt, (float *)(outPtr) );
       break;
     default:
@@ -725,6 +739,25 @@ int vtkImageEuclideanDistance::SplitExtent(int splitExt[6], int startExt[6],
   return total;
 }
 
+void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageDecomposeFilter::PrintSelf(os,indent);
+
+  os << indent << "Consider Anisotropy: " 
+     << (this->ConsiderAnisotropy ? "On\n" : "Off\n");
+  
+  os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
+
+  os << indent << "Algorithm: ";
+  if ( this->Algorithm == VTK_EDT_SAITO )
+    {
+    os << "Saito\n";
+    }
+  else 
+    {
+    os << "Saito Cached\n";
+    }
+}
   
 
 
