@@ -41,29 +41,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkQuadricClustering - reduce the number of triangles in a mesh
 // .SECTION Description
-// vtkQuadricClustering is a filter to reduce the number of triangles in
-// a triangle mesh, forming a good approximation to the original geometry. 
-// The input to vtkQuadricClustering is a vtkPolyData object, and only
-// triangles are treated. If you desire to decimate polygonal meshes, first
-// triangulate the polygons with vtkTriangleFilter object.  You must set
-// the number of divisions in each dimension (x, y, and z).
-//
-// The algorithm used is the one described by Peter Lindstrom in his
-// Siggraph 2000 paper, "Out-of-Core Simplification of Large Polygonal
-// Models."  The algorithm first gets the bounds of the input poly data.  It
-// then breaks this bounding volume into a user-specified number of spatial
-// bins.  It then reads each triangle from the input and hashes its vertices
-// into these bins.  (If this is the first time a bin has been visited,
-// initialize its quadric to the 0 matrix.)  If 2 or more vertices of the
-// triangle fall in the same bin, the triangle is dicarded.  If the triangle
-// is not discarded, the algorithm then computes the error quadric for this
-// triangle and adds it to the existing quadric for each bin corresponding to
-// a vertex of this triangle.  It adds the triangle to the list of output
-// triangles as a list of vertex identifiers.  (There is one vertex id per
-// bin.)  After all the triangles have been read, the representative vertex
-// for each bin is computed using the quadric for that bin.  This determines
-// the spatial location of the vertices of each of the triangles in the output.
 
+// vtkQuadricClustering is a filter to reduce the number of triangles in a
+// triangle mesh, forming a good approximation to the original geometry.  The
+// input to vtkQuadricClustering is a vtkPolyData object, and only triangles
+// are treated. If you desire to decimate polygonal meshes, first triangulate
+// the polygons with vtkTriangleFilter object. 
+//
+// The algorithm used is the one described by Peter Lindstrom in his Siggraph
+// 2000 paper, "Out-of-Core Simplification of Large Polygonal Models."  The
+// general approach of the algorithm is to cluster vertices in a uniform
+// binning of space, accumulating the quadric of each triangle (pushed out to
+// the triangles vertices) within each bin, and then determining an optimal
+// position for a single vertex in a bin by using the accumulated quadric. In
+// more detail, the algorithm first gets the bounds of the input poly data.
+// It then breaks this bounding volume into a user-specified number of
+// spatial bins.  It then reads each triangle from the input and hashes its
+// vertices into these bins.  (If this is the first time a bin has been
+// visited, initialize its quadric to the 0 matrix.)  If 2 or more vertices
+// of the triangle fall in the same bin, the triangle is dicarded.  If the
+// triangle is not discarded, the algorithm then computes the error quadric
+// for this triangle and adds it to the existing quadric for each bin
+// corresponding to a vertex of this triangle.  It adds the triangle to the
+// list of output triangles as a list of vertex identifiers.  (There is one
+// vertex id per bin.)  After all the triangles have been read, the
+// representative vertex for each bin is computed using the quadric for that
+// bin.  This determines the spatial location of the vertices of each of the
+// triangles in the output.
+//
+// To use this filter, specify the divisions defining the spatial subdivision
+// in the x, y, and z directions. You must also specify an input vtkPolyData.
+
+// .SECTION Caveats
+// This filter can drastically affect topology, i.e., topology is not 
+// preserved.
+
+// .SECTION See Also
+// vtkDecimatePro vtkDecimate
 
 #ifndef __vtkQuadricClustering_h
 #define __vtkQuadricClustering_h
@@ -73,7 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct {
   int VertexId;
   float Quadric[4][4];
-} POINT_QUADRIC;
+} VTK_POINT_QUADRIC;
 
 class VTK_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
 {
@@ -87,14 +101,16 @@ public:
   // Set/Get the number of divisions along each axis for the spatial bins.
   // The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*
   // NumberOfZDivisions.
-  vtkSetMacro(NumberOfXDivisions, int);
-  vtkSetMacro(NumberOfYDivisions, int);
-  vtkSetMacro(NumberOfZDivisions, int);
+  vtkSetClampMacro(NumberOfXDivisions, int, 2, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfYDivisions, int, 2, VTK_LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfZDivisions, int, 2, VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfXDivisions, int);
   vtkGetMacro(NumberOfYDivisions, int);
   vtkGetMacro(NumberOfZDivisions, int);
+  void SetNumberOfDivisions(int div[3]);
+  int *GetNumberOfDivisions();
+  void GetNumberOfDivisions(int div[3]);
 
-  
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -133,11 +149,12 @@ protected:
   int NumberOfXDivisions;
   int NumberOfYDivisions;
   int NumberOfZDivisions;
+ 
   float Bounds[6];
   float XBinSize;
   float YBinSize;
   float ZBinSize;
-  POINT_QUADRIC* QuadricArray;
+  VTK_POINT_QUADRIC* QuadricArray;
   vtkIdList *BinIds;
 };
 

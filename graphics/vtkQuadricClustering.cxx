@@ -62,9 +62,9 @@ vtkQuadricClustering::vtkQuadricClustering()
 {
   this->Bounds[0] = this->Bounds[1] = this->Bounds[2] = 0.0;
   this->Bounds[3] = this->Bounds[4] = this->Bounds[5] = 0.0;
-  this->NumberOfXDivisions = 0;
-  this->NumberOfYDivisions = 0;
-  this->NumberOfZDivisions = 0;
+  this->NumberOfXDivisions = 50;
+  this->NumberOfYDivisions = 50;
+  this->NumberOfZDivisions = 50;
   this->QuadricArray = NULL;
   this->BinIds = vtkIdList::New();
 }
@@ -92,26 +92,15 @@ void vtkQuadricClustering::Execute()
   float newPt[3];
   int vertexId;
   
-  if (input == NULL)
-    {
-    vtkErrorMacro("No input");
-    return;
-    }
-  if (this->NumberOfXDivisions <= 0 || this->NumberOfYDivisions <= 0 ||
-      this->NumberOfZDivisions <= 0)
-    {
-    vtkErrorMacro("Number of divisions in X, Y, and Z dimensions must be set");
-    return;
-    }
   if (numTris == 0)
     {
     vtkErrorMacro("No triangles to decimate");
     return;
     }
 
-  this->QuadricArray = new POINT_QUADRIC[this->NumberOfXDivisions *
-					this->NumberOfYDivisions *
-					this->NumberOfZDivisions];
+  this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfXDivisions *
+                                            this->NumberOfYDivisions *
+                                            this->NumberOfZDivisions];
   this->SetBounds(input->GetBounds());
   this->SetXBinSize((this->Bounds[1] - this->Bounds[0]) /
 		    this->NumberOfXDivisions);
@@ -316,6 +305,30 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
     {
     point[i] = cellCenter[i] + tempVector[i];
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::SetNumberOfDivisions(int div[3])
+{
+  this->SetNumberOfXDivisions(div[0]);
+  this->SetNumberOfYDivisions(div[1]);
+  this->SetNumberOfZDivisions(div[2]);
+}
+
+//----------------------------------------------------------------------------
+int *vtkQuadricClustering::GetNumberOfDivisions()
+{
+  static int div[3];
+  this->GetNumberOfDivisions(div);
+  return div;
+}
+
+//----------------------------------------------------------------------------
+void vtkQuadricClustering::GetNumberOfDivisions(int div[3])
+{
+  div[0] = this->NumberOfXDivisions;
+  div[1] = this->NumberOfYDivisions;
+  div[2] = this->NumberOfZDivisions;
 }
 
 //----------------------------------------------------------------------------
