@@ -158,8 +158,11 @@ protected:
   // Usual data generation method
   void Execute();
 
-  float Tolerance, AbsoluteTolerance;
-  int ConvertLinesToPoints, ConvertPolysToLines, ConvertStripsToPolys;
+  float Tolerance;
+  float AbsoluteTolerance;
+  int ConvertLinesToPoints;
+  int ConvertPolysToLines;
+  int ConvertStripsToPolys;
   int ToleranceIsAbsolute;
   vtkPointLocator *Locator;
 };
