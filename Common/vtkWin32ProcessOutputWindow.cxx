@@ -15,7 +15,7 @@
 #include "vtkWin32ProcessOutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.1");
+vtkCxxRevisionMacro(vtkWin32ProcessOutputWindow, "1.2");
 vtkStandardNewMacro(vtkWin32ProcessOutputWindow);
 
 //----------------------------------------------------------------------------
@@ -111,3 +111,13 @@ void vtkWin32ProcessOutputWindow::Write(const char* data, int length)
       }
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkWin32ProcessOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Executable: " 
+     << (this->Executable ? this->Executable : "(none)") << "\n";
+}
+

@@ -29,6 +29,7 @@ class VTK_COMMON_EXPORT vtkWin32ProcessOutputWindow : public vtkOutputWindow
 public:
   vtkTypeRevisionMacro(vtkWin32ProcessOutputWindow,vtkOutputWindow);
   static vtkWin32ProcessOutputWindow* New();
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Send text to the output window process.
