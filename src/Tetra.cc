@@ -28,7 +28,7 @@ int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
   float *pt1, *pt2, *pt3, *pt4;
   int i;
   float rhs[3], c1[3], c2[3], c3[3];
-  float det;
+  float det, p4;
   vlMath math;
 
   subId = 0;
@@ -56,14 +56,15 @@ int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[0] = math.Determinate3x3 (rhs,c2,c3) / det;
   pcoords[1] = math.Determinate3x3 (c1,rhs,c3) / det;
   pcoords[2] = math.Determinate3x3 (c1,c2,rhs) / det;
+  p4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
   if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-  pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
+  pcoords[2] >= 0.0 && pcoords[2] <= 1.0 && p4 >= 0.0 && p4 <= 1.0 )
     {
     closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
     dist2 = 0.0;
-    weights[0] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
+    weights[0] = p4;
     weights[1] = pcoords[0];
     weights[2] = pcoords[1];
     weights[3] = pcoords[2];
@@ -75,6 +76,12 @@ int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
       {
       if (pcoords[i] < 0.0) pcoords[i] = 0.0;
       if (pcoords[i] > 1.0) pcoords[i] = 1.0;
+      }
+    if ( (1.0 - pcoords[0] - pcoords[1] - pcoords[2]) < 0.0 )
+      // the point is hovering above face opposite tetra origin
+      {
+      float ratio = 1.0 / (pcoords[0] + pcoords[1] + pcoords[2]);
+      for (i=0; i < 3; i++) pcoords[i] *= ratio;
       }
     this->EvaluateLocation(subId, pcoords, closestPoint, weights);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
