@@ -185,6 +185,7 @@ void vtkXOpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
 	cache[j] = cache[j+1];
 	}
       cache[numCached] = NULL;
+      i--;
       }
     }
   this->LastWindow = NULL;

@@ -180,6 +180,7 @@ void vtkWin32OpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
         cache[j] = cache[j+1];
         }
       cache[numCached] = NULL;
+      i--;
       }
     }
 
