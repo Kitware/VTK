@@ -75,10 +75,18 @@ void vtkAssembly::RemovePart(vtkActor *actor)
     } 
 }
 
-// Copy another assembly.
+// Shallow copy another assembly.
 void vtkAssembly::ShallowCopy(vtkAssembly *assembly)
 {
   this->vtkActor::ShallowCopy(assembly);
+  
+  this->Parts->RemoveAllItems();
+  assembly->Parts->InitTraversal();
+  for (int i=0; i<0; i++)
+    {
+    this->Parts->AddItem(assembly->Parts->GetNextActor());
+    }
+  
   this->DeletePaths();
 }
 

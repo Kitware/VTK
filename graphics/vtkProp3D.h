@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // matrix as follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale)
 // Rot(y) Rot(x) Rot (z) Trans(origin) Trans(position). Both vtkActor and
 // vtkVolume are specializations of class vtkProp.  The constructor defaults
-// to: origin(0,0,0) position=(0,0,0) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). No user defined matrix and no texture map.
+// to: origin(0,0,0) position=(0,0,0) orientation=(0,0,0). 
+// No user defined matrix and no texture map.
 
 // .SECTION See Also
 // vtkProp vtkActor vtkAssembly vtkVolume
@@ -68,7 +68,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Shallow copy.
+  // Shallow copy of this vtkProp3D.
   void ShallowCopy(vtkProp3D *Prop3D);
 
   // Description:
@@ -93,30 +93,6 @@ public:
   // Description:
   // Method to set the scale isotropically
   void SetScale(float s) {this->SetScale(s,s,s);};
-
-  // Description:
-  // Set/Get the pickable instance variable.  This determines if the Prop3D
-  // can be picked (typically using the mouse). Also see dragable.
-  vtkSetMacro(Pickable,int);
-  vtkGetMacro(Pickable,int);
-  vtkBooleanMacro(Pickable,int);
-
-  // Description:
-  // This method is invoked when an instance of vtkProp3D (or subclass, 
-  // e.g., vtkActor) is picked by vtkPicker.
-  void SetPickMethod(void (*f)(void *), void *arg);
-  void SetPickMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set/Get the value of the dragable instance variable. This determines if 
-  // an Prop3D, once picked, can be dragged (translated) through space.
-  // This is typically done through an interactive mouse interface.
-  // This does not affect methods such as SetPosition, which will continue
-  // to work.  It is just intended to prevent some Prop3Ds from being
-  // dragged from within a user interface.
-  vtkSetMacro(Dragable,int);
-  vtkGetMacro(Dragable,int);
-  vtkBooleanMacro(Dragable,int);
 
   // Description:
   // In addition to the instance variables such as position and orientation,
@@ -231,20 +207,9 @@ public:
   void AddOrientation(float a[3]);
 
   // Description:
-  // Method invokes PickMethod() if one defined
-  virtual void Pick()
-    {
-    if (this->PickMethod)
-      {
-      (*this->PickMethod)(this->PickMethodArg);
-      }
-    };
-
-  // Description:
   // For legacy compatibility. Do not use.
   virtual vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
   virtual void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
-
 
 protected:
   vtkProp3D();
@@ -260,11 +225,6 @@ protected:
   float         Orientation[3];
   float         Scale[3];
   float         Center[3];
-  int           Pickable;
-  void          (*PickMethod)(void *);
-  void          (*PickMethodArgDelete)(void *);
-  void          *PickMethodArg;
-  int           Dragable;
   vtkTransform  *Transform;
   float         Bounds[6];
 };

@@ -40,15 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkActor - represents an object (geometry & properties) in a rendered scene 
 // .SECTION Description
-// vtkActor is used to represent an entity in a rendering scene.  It
-// inherits functions related to the actors position, and orientation
-// from vtkProp. The actor also has scaling and maintains a reference to the
-// defining geometry (i.e., the mapper), rendering properties, and
-// possibly a texture map.
-// vtkActor combines these instance variables into one 4x4
-// transformation matrix as follows: [x y z 1] = [x y z 1]
-// Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
-// Trans(position)
+// 
+// vtkActor is used to represent an entity in a rendering scene.  It inherits
+// functions related to the actors position, and orientation from
+// vtkProp. The actor also has scaling and maintains a reference to the
+// defining geometry (i.e., the mapper), rendering properties, and possibly a
+// texture map. vtkActor combines these instance variables into one 4x4
+// transformation matrix as follows: [x y z 1] = [x y z 1] Translate(-origin)
+// Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin) Trans(position)
 
 // .SECTION See Also
 // vtkProperty vtkTexture vtkMapper vtkAssembly vtkFollower vtkLODActor
@@ -60,7 +59,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkMapper.h"
-#include "vtkTransform.h"
 #include "vtkAssemblyPaths.h"
 
 class vtkRenderer;

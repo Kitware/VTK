@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 typedef double (*SqMatPtr)[4];
 
 // Construct with the following defaults: origin(0,0,0) 
-// position=(0,0,0) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). No user defined matrix and no texture map.
+// position=(0,0,0) and orientation=(0,0,0). No user defined 
+// matrix and no texture map.
 vtkProp3D::vtkProp3D()
 {
   this->Origin[0] = 0.0;
@@ -67,12 +67,6 @@ vtkProp3D::vtkProp3D()
   this->Scale[1] = 1.0;
   this->Scale[2] = 1.0;
 
-  this->Pickable   = 1;
-  this->PickMethod = NULL;
-  this->PickMethodArgDelete = NULL;
-  this->PickMethodArg = NULL;
-  this->Dragable   = 1;
-  
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 
@@ -85,10 +79,6 @@ vtkProp3D::vtkProp3D()
 
 vtkProp3D::~vtkProp3D()
 {
-  if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-    {
-    (*this->PickMethodArgDelete)(this->PickMethodArg);
-    }
   this->Matrix->Delete();
   this->Transform->Delete();
   if (this->UserMatrix)
@@ -103,6 +93,8 @@ void vtkProp3D::ShallowCopy(vtkProp3D *Prop3D)
 {
   int i;
 
+  this->vtkProp::ShallowCopy(Prop3D);
+
   for (i=0; i < 3; i++) 
     {
     this->Origin[i] = Prop3D->Origin[i];
@@ -111,12 +103,7 @@ void vtkProp3D::ShallowCopy(vtkProp3D *Prop3D)
     this->Center[i] = Prop3D->Center[i];
     this->Scale[i] = Prop3D->Scale[i];
     }
-
   this->Transform->DeepCopy(Prop3D->Transform);
-
-  this->Visibility = Prop3D->GetVisibility();
-  this->Pickable   = Prop3D->GetPickable();
-  this->Dragable   = Prop3D->GetDragable();
   
   for (i=0; i < 6; i++)
     {
@@ -381,48 +368,9 @@ float *vtkProp3D::GetZRange()
   return &(this->Bounds[4]);
 }
 
-// This method is invoked when an instance of vtkProp3D (or subclass, 
-// e.g., vtkActor) is picked by vtkPicker.
-void vtkProp3D::SetPickMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->PickMethod || arg != this->PickMethodArg )
-    {
-    // delete the current arg if there is one and a delete method
-    if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
-      {
-      (*this->PickMethodArgDelete)(this->PickMethodArg);
-      }
-    this->PickMethod = f;
-    this->PickMethodArg = arg;
-    this->Modified();
-    }
-}
-
-// Set a method to delete user arguments for PickMethod.
-void vtkProp3D::SetPickMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->PickMethodArgDelete)
-    {
-    this->PickMethodArgDelete = f;
-    this->Modified();
-    }
-}
-
 void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProp::PrintSelf(os,indent);
-
-  os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
-  os << indent << "Pickable: " << (this->Pickable ? "On\n" : "Off\n");
-
-  if ( this->PickMethod )
-    {
-    os << indent << "Pick Method defined\n";
-    }
-  else
-    {
-    os << indent <<"No Pick Method\n";
-    }
 
   if ( this->UserMatrix )
     {
