@@ -163,7 +163,7 @@ public:
                                  DICOMParser::VRTypes type,
                                  unsigned char* val,
                                  quadbyte len) ;
-  
+
   virtual void TransferSyntaxCallback(DICOMParser *parser,
                                       doublebyte group,
                                       doublebyte element,
@@ -421,6 +421,11 @@ public:
     return *(this->StudyUID);
     }
 
+  dicom_stl::string GetStudyID()
+    {
+    return *(this->StudyID);
+    }
+  
   void PatientNameCallback(DICOMParser *,
                            doublebyte,
                            doublebyte,
@@ -429,6 +434,13 @@ public:
                            quadbyte);
 
   void StudyUIDCallback(DICOMParser *,
+                           doublebyte,
+                           doublebyte,
+                           DICOMParser::VRTypes,
+                           unsigned char* val,
+                           quadbyte);
+
+  void StudyIDCallback(DICOMParser *,
                            doublebyte,
                            doublebyte,
                            DICOMParser::VRTypes,
@@ -446,6 +458,8 @@ public:
     {
     return this->GantryAngle;
     }
+
+  
 
  protected:
   int BitsAllocated;
@@ -481,6 +495,7 @@ public:
 
   dicom_stl::string* PatientName;
   dicom_stl::string* StudyUID;
+  dicom_stl::string* StudyID;
   float GantryAngle;
 
   DICOMMemberCallback<DICOMAppHelper>* SeriesUIDCB;
@@ -501,6 +516,7 @@ public:
   DICOMMemberCallback<DICOMAppHelper>* PixelDataCB;
   DICOMMemberCallback<DICOMAppHelper>* PatientNameCB;
   DICOMMemberCallback<DICOMAppHelper>* StudyUIDCB;
+  DICOMMemberCallback<DICOMAppHelper>* StudyIDCB;
 
   DICOMMemberCallback<DICOMAppHelper>* GantryAngleCB;
 
