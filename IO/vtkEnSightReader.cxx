@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.52");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.53");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -1123,7 +1123,8 @@ int vtkEnSightReader::ReadVariableFiles()
   vtkDataArray *times;
   float newTime;
   vtkIdList *numStepsList, *filenameNumbers;
-  int validTime, fileNum, filenameNum;
+  //int fileNum;
+  int validTime, filenameNum;
   char* fileName, *fileName2;
   
   for (i = 0; i < this->NumberOfVariables; i++)
@@ -1152,7 +1153,7 @@ int vtkEnSightReader::ReadVariableFiles()
     
     timeStep = 0;
     timeStepInFile = 1;
-    fileNum = 1;
+    //fileNum = 1;
     validTime = 1;
     fileName = new char[strlen(this->VariableFileNames[i]) + 1];
     strcpy(fileName, this->VariableFileNames[i]);
@@ -1213,7 +1214,7 @@ int vtkEnSightReader::ReadVariableFiles()
             numSteps += numStepsList->GetId(i);
             if (timeStep > numSteps)
               {
-              fileNum++;
+              //fileNum++;
               timeStepInFile -= numStepsList->GetId(i);
               }
             }
@@ -1294,7 +1295,7 @@ int vtkEnSightReader::ReadVariableFiles()
       }
     timeStep = 0;
     timeStepInFile = 1;
-    fileNum = 1;
+    //fileNum = 1;
     validTime = 1;
     fileName = new char[strlen(this->ComplexVariableFileNames[2*i]) + 1];
     strcpy(fileName, this->ComplexVariableFileNames[2*i]);

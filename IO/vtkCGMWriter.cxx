@@ -24,7 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCGMWriter, "1.16");
+vtkCxxRevisionMacro(vtkCGMWriter, "1.17");
 vtkStandardNewMacro(vtkCGMWriter);
 
 vtkCxxSetObjectMacro(vtkCGMWriter, Viewport, vtkViewport);
@@ -1158,7 +1158,6 @@ static int cgmCgmHeader(cgmImagePtr im)
   if (cgmAddElem(im, headerp, octet_count)) 
     {
     free(headerp);
-    headerp = 0;
     return 1;
     }
   else 
