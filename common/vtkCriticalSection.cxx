@@ -58,15 +58,12 @@ vtkCriticalSection* vtkCriticalSection::New()
 }
 
 
-
-
-// Construct a new vtkMutexLock 
-vtkSimpleCriticalSection::vtkSimpleCriticalSection()
+void vtkSimpleCriticalSection::Init()
 {
 #ifdef VTK_USE_SPROC
   init_lock( &this->CritSec );
 #endif
-
+  
 #ifdef _WIN32
   //this->MutexLock = CreateMutex( NULL, FALSE, NULL ); 
   InitializeCriticalSection(&this->CritSec);
@@ -79,8 +76,8 @@ vtkSimpleCriticalSection::vtkSimpleCriticalSection()
   pthread_mutex_init(&(this->CritSec), NULL);
 #endif
 #endif
-
 }
+
 
 // Destruct the vtkMutexVariable
 vtkSimpleCriticalSection::~vtkSimpleCriticalSection()

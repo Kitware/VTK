@@ -91,7 +91,22 @@ typedef int vtkCritSecType;
 class VTK_EXPORT vtkSimpleCriticalSection
 {
 public:
-  vtkSimpleCriticalSection();
+  vtkSimpleCriticalSection()
+    {
+      this->Init();
+    }
+
+  vtkSimpleCriticalSection(int isLocked)
+    {
+      this->Init();
+      if(isLocked)
+	{
+	this->Lock();
+	}
+    }
+
+  void Init();
+
   virtual ~vtkSimpleCriticalSection();
 
   static vtkSimpleCriticalSection *New();
