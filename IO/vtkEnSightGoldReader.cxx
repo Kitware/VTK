@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.43");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.44");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //----------------------------------------------------------------------------
@@ -50,6 +50,10 @@ int vtkEnSightGoldReader::ReadGeometryFile(char* fileName, int timeStep)
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
     }
@@ -189,6 +193,10 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to measured geometry file: " << sfilename.c_str());
     }
@@ -307,6 +315,10 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
     }
@@ -459,6 +471,10 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to vector per node file: " << sfilename.c_str());
     }
@@ -591,6 +607,10 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to tensor per node file: " << sfilename.c_str());
     }
@@ -683,6 +703,10 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to scalar per element file: " << sfilename.c_str());
     }
@@ -824,6 +848,10 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to vector per element file: " << sfilename.c_str());
     }
@@ -955,6 +983,10 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to tensor per element file: " << sfilename.c_str());
     }

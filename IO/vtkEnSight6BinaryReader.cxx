@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.40");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.41");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -134,6 +134,10 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to geometry file: " << sfilename.c_str());
     }
@@ -734,6 +738,10 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to measured geometry file: " 
                   << sfilename.c_str());
@@ -903,6 +911,10 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to scalar per node file: " << sfilename.c_str());
     }
@@ -1146,6 +1158,10 @@ int vtkEnSight6BinaryReader::ReadVectorsPerNode(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to vector per node file: " << sfilename.c_str());
     }
@@ -1342,6 +1358,10 @@ int vtkEnSight6BinaryReader::ReadTensorsPerNode(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to tensor symm per node file: " 
                   << sfilename.c_str());
@@ -1505,6 +1525,10 @@ int vtkEnSight6BinaryReader::ReadScalarsPerElement(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to scalar per element file: " 
                   << sfilename.c_str());
@@ -1695,6 +1719,10 @@ int vtkEnSight6BinaryReader::ReadVectorsPerElement(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to vector per element file: " 
                   << sfilename.c_str());
@@ -1875,6 +1903,10 @@ int vtkEnSight6BinaryReader::ReadTensorsPerElement(char* fileName,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += fileName;
     vtkDebugMacro("full path to tensor per element file: " 
                   << sfilename.c_str());

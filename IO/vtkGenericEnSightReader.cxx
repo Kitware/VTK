@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.55");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.56");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -278,6 +278,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += this->CaseFileName;
     vtkDebugMacro("full path to case file: " 
                   << sfilename.c_str());
@@ -358,6 +362,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             if (this->FilePath)
               {
               sfilename = this->FilePath;
+              if (sfilename.at(sfilename.length()-1) != '/')
+                {
+                sfilename += "/";
+                }
               sfilename += fileName;
               vtkDebugMacro("full path to geometry file: " 
                             << sfilename.c_str());
@@ -452,6 +460,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         if (this->FilePath)
           {
           sfilename = this->FilePath;
+          if (sfilename.at(sfilename.length()-1) != '/')
+            {
+            sfilename += "/";
+            }
           sfilename += fileName;
           vtkDebugMacro("full path to geometry file: " 
                         << sfilename.c_str());
@@ -986,6 +998,10 @@ void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += this->CaseFileName;
     vtkDebugMacro("full path to case file: " 
                   << sfilename.c_str());

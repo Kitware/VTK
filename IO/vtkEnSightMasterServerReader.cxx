@@ -19,7 +19,7 @@
 #include <vtkstd/string>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.10");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.11");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -99,6 +99,10 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
   if (this->FilePath)
     {
     sfilename = this->FilePath;
+    if (sfilename.at(sfilename.length()-1) != '/')
+      {
+      sfilename += "/";
+      }
     sfilename += this->CaseFileName;
     vtkDebugMacro("full path to case file: " << sfilename.c_str());
     }
