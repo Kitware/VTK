@@ -20,6 +20,9 @@ IF (VTK_USE_RENDERING)
       TestThinPlateWarp3D
       VRMLImporter
       WarpPolyData
+      xyPlot
+      xyPlot2
+      xyPlot3
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
