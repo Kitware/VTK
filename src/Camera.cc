@@ -861,7 +861,7 @@ void vlCamera::PrintSelf(ostream& os, vlIndent indent)
   this->GetOrientation();
 
   os << indent << "Clipping Range: (" << this->ClippingRange[0] << ", " 
-    << this->ClippingRange[2] << ")\n";
+    << this->ClippingRange[1] << ")\n";
   os << indent << "Distance: " << this->Distance << "\n";
   os << indent << "Eye Angle: " << this->EyeAngle << "\n";
   os << indent << "Focal Disk: " << this->FocalDisk << "\n";
