@@ -21,6 +21,7 @@ IF (VTK_USE_RENDERING)
       capSphere
       CellDataToPointData
       clipArt
+      clipComb
       clipImage
       clipQuadraticCells
       clipVolume
