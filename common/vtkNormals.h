@@ -82,6 +82,7 @@ public:
   // Make sure you use SetNumberOfNormals() to allocate memory prior
   // to using SetNormal().
   void SetNormal(int id, float n[3]){this->Data->SetTuple(id,n);};
+  void SetNormal(int id, float x, float y, float z);
 
   // Description:
   // Insert normal into object. Range checking performed and memory
@@ -121,6 +122,15 @@ inline void vtkNormals::SetNumberOfNormals(int number)
 {
   this->Data->SetNumberOfComponents(3);
   this->Data->SetNumberOfTuples(number);
+}
+
+inline void vtkNormals::SetNormal(int id, float nx, float ny, float nz)
+{
+  float n[3];
+  n[0] = nx;
+  n[1] = ny;
+  n[2] = nz;
+  this->Data->SetTuple(id,n);
 }
 
 inline void vtkNormals::InsertNormal(int id, float nx, float ny, float nz)

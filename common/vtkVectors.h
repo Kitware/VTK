@@ -82,6 +82,7 @@ public:
   // Make sure you use SetNumberOfVectors() to allocate memory prior
   // to using SetVector().
   void SetVector(int id, float v[3]) {this->Data->SetTuple(id,v);};
+  void SetVector(int id, float vx, float vy, float vz);
 
   // Description:
   // Insert vector into object. Range checking performed and memory
@@ -135,6 +136,15 @@ inline void vtkVectors::SetNumberOfVectors(int number)
   this->Data->SetNumberOfComponents(3);
   this->Data->SetNumberOfTuples(number);
 }
+
+inline void vtkVectors::SetVector(int id, float vx, float vy, float vz)
+{
+  float v[3];
+  v[0] = vx;
+  v[1] = vy;
+  v[2] = vz;
+  this->Data->SetTuple(id,v);
+};
 
 inline void vtkVectors::InsertVector(int id, float vx, float vy, float vz)
 {

@@ -95,6 +95,7 @@ public:
   // Make sure you use SetNumberOfTCoords() to allocate memory prior
   // to using SetTCoord().
   void SetTCoord(int id, float tc[3]) {this->Data->SetTuple(id,tc);};
+  void SetTCoord(int id, float r, float s, float t);
 
   // Description:
   // Insert TCoord into object. Range checking performed and memory
@@ -134,6 +135,15 @@ inline void vtkTCoords::SetNumberOfComponents(int num)
   num = (num < 1 ? 1 : (num > 3 ? 3 : num));
   this->Data->SetNumberOfComponents(num);
 }
+
+inline void vtkTCoords::SetTCoord(int id, float tx, float ty, float tz)
+{
+  float tc[3];
+  tc[0] = tx;
+  tc[1] = ty;
+  tc[2] = tz;
+  this->Data->SetTuple(id,tc);
+};
 
 inline void vtkTCoords::InsertTCoord(int id, float tx, float ty, float tz)
 {
