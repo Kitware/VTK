@@ -1,7 +1,4 @@
-# This script is for testing the 2dNonMaximalSuppressionFilter.
-# The filter works exclusively on the output of the gradient filter,
-# because it expects a phase (in radians) in the second component.
-# The effect is to pick the peaks of the gradient creating thin lines.
+# Simple viewer for images.
 
 
 set sliceNumber 22
@@ -19,32 +16,40 @@ set VTK_IMAGE_TIME_AXIS          3
 set VTK_IMAGE_COMPONENT_AXIS     4
 
 
+
+
 # Image pipeline
+
 vtkImage4dShortReader reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetSize 256 256 94 1;
 reader SetFileRoot "../../data/fullHead/headsq.%d"
 reader SetPixelMask 0x7fff;
+reader SetOutputDataType $VTK_IMAGE_FLOAT
 
-vtkImage2dGradientFilter gradient;
-gradient SetInput [reader GetOutput];
 
-vtkImage2dNonMaximalSuppressionFilter suppress;
-suppress SetInput [gradient GetOutput];
-suppress ReleaseDataFlagOff;
+vtkImage2dAnisotropicDiffusionFilter diffusion;
+diffusion SetInput [reader GetOutput];
+diffusion SetDiffusionFactor 0.2;
+diffusion SetDiffusionThreshold 200.0;
+diffusion SetNumberOfIterations 5;
+diffusion ReleaseDataFlagOff;
+
 
 vtkImageXViewer viewer;
 #viewer DebugOn;
-viewer SetInput [suppress GetOutput];
+viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
+viewer SetInput [diffusion GetOutput];
 viewer SetDefaultCoordinate2 $sliceNumber;
-viewer SetColorWindow 1000
-viewer SetColorLevel 500
+viewer SetColorWindow 3000
+viewer SetColorLevel 1500
 viewer Render;
 
 
 #make interface
 #
+
 frame .slice
 button .slice.up -text "Slice Up" -command SliceUp
 button .slice.down -text "Slice Down" -command SliceDown
@@ -52,15 +57,15 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1;
 label .wl.f1.windowLabel -text Window;
-scale .wl.f1.window -from 1 -to 2000 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
 frame .wl.f2;
 label .wl.f2.levelLabel -text Level;
-scale .wl.f2.level -from 1 -to 1000 -orient horizontal -command SetLevel
+scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 1000
-.wl.f2.level set 500
+.wl.f1.window set 3000
+.wl.f2.level set 1500
 
 
 pack .slice .wl -side left
@@ -69,36 +74,52 @@ pack .wl.f1 .wl.f2 .wl.video -side top
 pack .wl.f1.windowLabel .wl.f1.window -side left
 pack .wl.f2.levelLabel .wl.f2.level -side left
 
-#$renWin SetTkWindow .renwin
 
 proc SliceUp {} {
-        global sliceNumber viewer
-        if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
-        viewer SetDefaultCoordinate2 $sliceNumber;
-	viewer Render
-        puts $sliceNumber;
+   global sliceNumber viewer
+   if {$sliceNumber < 93} {set sliceNumber [expr $sliceNumber + 1]}
+   puts $sliceNumber
+   viewer SetDefaultCoordinate2 $sliceNumber;
+   viewer Render;
 }
 
 proc SliceDown {} {
-        global sliceNumber tform renWin
-        if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
-        viewer SetDefaultCoordinate2 $sliceNumber;
-	viewer Render
-        puts $sliceNumber;
+   global sliceNumber viewer
+   if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
+   puts $sliceNumber
+   viewer SetDefaultCoordinate2 $sliceNumber;
+   viewer Render;
 }
 
 proc SetWindow window {
-	global viewer
-        viewer SetColorWindow $window;
-        viewer Render;  
+   global viewer
+   viewer SetColorWindow $window;
+   viewer Render;
 }
+
 proc SetLevel level {
-	global viewer
-        viewer SetColorLevel $level;
-        viewer Render;  
+   global viewer
+   viewer SetColorLevel $level;
+   viewer Render;
 }
+
 proc SetInverseVideo {} {
+   global viewer
+   if { $inverseVideo == 0 } {
+      viewer SetWindow -255;
+   } else {
+      viewer SetWindow 255;
+   }		
+   viewer Render;
 }
+
+
+puts "Done";
+
+
+#$renWin Render
+#wm withdraw .
+
 
 
 
