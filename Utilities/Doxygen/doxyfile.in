@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # doxyfile for VTK
-# modified by S. Barre (Time-stamp: <2001-11-11 16:35:50 barre>
+# modified by S. Barre (Time-stamp: <2001-11-12 15:30:11 barre>
 # -------------------------------------------------------------------------
 
 PROJECT_NAME         = VTK
@@ -46,10 +46,12 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Patented" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_version.dox" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2examples.dox" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2tests.dox"
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_class2tests.dox" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events2.dox" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_events.dox" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_index.dox"
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://public.kitware.com/VTK/doc/nightly/html
 

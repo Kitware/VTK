@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2001-11-02 16:53:15 barre>
+# modified by S. Barre (Time-stamp: <2001-11-12 15:28:18 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -157,17 +157,45 @@ export VTK_TAGFILE_DEST_DIR=$DOXTEMP
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_header2doxygen.pl \
-        --to $INTERMEDIATE_DOX_DIR \
-        --relativeto $SOURCE_DIR/$REL_PATH_TO_TOP \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Common \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Filtering \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Graphics \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Imaging \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/IO \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Parallel \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Patented \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Rendering
+        --to "$INTERMEDIATE_DOX_DIR" \
+        --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering"
+fi
+
+# ----------------------------------------------------------------------------
+# Build the Events invocation list.
+
+if test "x$PERL_PROG" != "xNOTFOUND" ; then
+    $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_codematch.pl \
+        --codematch "\w(?:->|\.)InvokeEvent\s*\(\s*(vtkCommand::\w+)[\s,]" \
+        --label "Events" \
+        --project "$PROJECT_NAME" \
+        --sectionmatch "^vtkCommand::(\w)" \
+        --store "doc_""$PROJECT_NAME""_events.dox" \
+        --title "Event to Classes" \
+        --sectionmatch2 "^vtk(\w)" \
+        --store2 "doc_""$PROJECT_NAME""_events2.dox" \
+        --title2 "Class to Events" \
+        --to "$INTERMEDIATE_DOX_DIR" \
+        --unique "v" \
+        --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering"
 fi
 
 # ----------------------------------------------------------------------------
@@ -175,19 +203,19 @@ fi
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_index.pl \
-        --project $PROJECT_NAME \
-        --stop  $PATH_TO_VTK_DOX_SCRIPTS/doc_index.stop \
+        --project "$PROJECT_NAME" \
+        --stop  "$PATH_TO_VTK_DOX_SCRIPTS/doc_index.stop" \
         --store "doc_""$PROJECT_NAME""_index.dox" \
-        --to $INTERMEDIATE_DOX_DIR \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Common \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Filtering \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Graphics \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Imaging \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/IO \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Parallel \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Patented \
-        $SOURCE_DIR/$REL_PATH_TO_TOP/Rendering
+        --to "$INTERMEDIATE_DOX_DIR" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering"
 fi
 
 # ----------------------------------------------------------------------------
@@ -195,10 +223,10 @@ fi
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_version.pl \
-        --header $SOURCE_DIR/$REL_PATH_TO_TOP/Common/vtkVersion.h \
+        --header "$SOURCE_DIR/$REL_PATH_TO_TOP/Common/vtkVersion.h" \
         --logo "$PATH_TO_VTK_DOX_SCRIPTS/vtk-logo.gif" \
         --store "doc_""$PROJECT_NAME""_version.dox" \
-        --to $INTERMEDIATE_DOX_DIR
+        --to "$INTERMEDIATE_DOX_DIR"
 fi
 
 # ----------------------------------------------------------------------------
@@ -209,14 +237,14 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl \
         --dirmatch "^Examples\$" \
         --label "Examples" \
-        --link $CVSWEB_CHECKOUT \
-        --linksuffix $CVSWEB_CHECKOUT_SUFFIX \
-        --project $PROJECT_NAME \
+        --link "$CVSWEB_CHECKOUT" \
+        --linksuffix "$CVSWEB_CHECKOUT_SUFFIX" \
+        --project "$PROJECT_NAME" \
         --store "doc_""$PROJECT_NAME""_class2examples.dox" \
         --title "Class To Examples" \
-        --to $INTERMEDIATE_DOX_DIR \
+        --to "$INTERMEDIATE_DOX_DIR" \
         --unique "e" \
-        $SOURCE_DIR/$REL_PATH_TO_TOP
+        "$SOURCE_DIR/$REL_PATH_TO_TOP"
 fi
 
 # ----------------------------------------------------------------------------
@@ -227,14 +255,14 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_class2example.pl \
         --dirmatch "^Testing$" \
         --label "Tests" \
-        --link $CVSWEB_CHECKOUT \
-        --linksuffix $CVSWEB_CHECKOUT_SUFFIX \
-        --project $PROJECT_NAME \
+        --link "$CVSWEB_CHECKOUT" \
+        --linksuffix "$CVSWEB_CHECKOUT_SUFFIX" \
+        --project "$PROJECT_NAME" \
         --store "doc_""$PROJECT_NAME""_class2tests.dox" \
         --title "Class To Tests" \
-        --to $INTERMEDIATE_DOX_DIR \
+        --to "$INTERMEDIATE_DOX_DIR" \
         --unique "t" \
-        $SOURCE_DIR/$REL_PATH_TO_TOP
+        "$SOURCE_DIR/$REL_PATH_TO_TOP"
 fi
 
 # ----------------------------------------------------------------------------
@@ -244,8 +272,8 @@ if test "x$DOWNLOAD_VTK_TAGFILE" == "xON" ; then
   if test "x$VTK_TAGFILE" != "x" ; then
       if test "x$WGET_PROG" != "xNOTFOUND" ; then
           $WGET_PROG -nd -nH \
-              $VTK_TAGFILE_REMOTE_DIR/$VTK_TAGFILE \
-              -O $VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE
+              "$VTK_TAGFILE_REMOTE_DIR/$VTK_TAGFILE" \
+              -O "$VTK_TAGFILE_DEST_DIR/$VTK_TAGFILE"
       fi        
   fi
 fi
@@ -267,8 +295,8 @@ fi
 
 if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_rmpath.pl \
-        --to $INTERMEDIATE_DOX_DIR \
-        --html $OUTPUT_DIRECTORY/html
+        --to "$INTERMEDIATE_DOX_DIR" \
+        --html "$OUTPUT_DIRECTORY/html"
 fi
 
 # ----------------------------------------------------------------------------

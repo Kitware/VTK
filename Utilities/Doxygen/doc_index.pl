@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 16:42:49 barre>
+# Time-stamp: <2001-11-12 13:45:51 barre>
 #
 # Build full-text index 
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.22 (barre) :
+#   - use common build_page_doc proc
 #
 # 0.21 (barre) :
 #   - add --project name : project name, used to uniquify
@@ -48,7 +51,7 @@ use Fcntl;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.21, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.22, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -414,153 +417,11 @@ foreach my $word (@words) {
 print " => normalized to lowercase.\n";
 
 # -------------------------------------------------------------------------
-# Build index documentation and alphabetical section(s) weight(s)
-
-print "Building indexes doc and alphabetical section(s) weight(s)...\n";
-$intermediate_time = time();
-
-# @words is the array holding the words to document
-# %words_doc is a hash associating a word to its Doxygen doc (string)
-
-@words = sort keys %index;
-my %words_doc;
+# Build the page summary documentation
 
 # $indent is the indentation string
-# %sections_words is a hash associating a section (alphabetical letter) to
-# an array of words belonging to that section.
-#   Ex: $sections_words{"C"} => ("contour", "cut")
-# %sections_weight is a hash associating a section to its weight (the sum of 
-# the weights of each word belonging to that section).
-# @sections is the array holding the name of all sections
 
 my $indent = "    ";
-my (%sections_words, %sections_weight, @sections);
-
-# $navbar is the Doxygen string describing the sections' navigation bar
-
-my $navbar;
-
-# $prefix is a unique prefix that should be appended to each link
-
-my $prefix = "idx_" . $args{"project"};
-$prefix = lc($prefix);
-
-# Browse each word
-
-foreach my $word (@words) {
-
-    my @temp;
-
-    # Add word and group
-
-    # my $string = "\@anchor ex_$word $word"; 
-    # not needed and an anchor can not have '-' in it
-
-    my $string = $word;
-    my @group = sort keys %{$group{$word}};
-    $string .= " (" . join(", ", @group) . ")" if @group;
-    push @temp, $string;
-
-    # Add xrefs to classes, sorted by relevancy
-    
-    my @xrefs = sort { (($b =~ m/$word/i) <=> ($a =~ m/$word/i)) || ($index{$word}{$b} <=> $index{$word}{$a}) || ($a cmp $b)} (keys %{$index{$word}});
-    my @xrefs_lim;
-    my $count = 0;
-    foreach my $xref (@xrefs) {
-        last if ++$count > $args{"limit"};
-        push @xrefs_lim, $xref . " (" . $index{$word}{$xref} . ")";
-    }
-    $string = "  - " . join(", ", @xrefs_lim);
-    $string .= ", [...]" if scalar keys %{$index{$word}} > $args{"limit"};
-    push @temp, $string;
-
-    $words_doc{$word} = $indent . join("\n$indent", @temp) . "\n";
-
-    # Update section(s) and section(s) weight(s)
-
-    $word =~ /^(\w)/;
-    my $section = $1;
-    push @{$sections_words{$section}}, $word;
-    $sections_weight{$section} += length($words_doc{$word});
-
-    print " => ", $word, "\n" if exists $args{"verbose"};
-}
-
-print " => ", scalar @words, " words(s) documented in ", time() - $intermediate_time, " s.\n";
-
-@sections = sort keys %sections_words;
-
-# Build the navbar
-
-my @temp;
-foreach my $section (@sections) {
-    push @temp, "\@ref ${prefix}_section_$section \"$section\"";
-}
-$navbar = "$indent\@par Navigation: \n$indent\[" . join(" | ", @temp) . "]\n";
-
-# Add the (approximate) weight of the (header + navbar) to each section
-
-my $total_weight = 0;
-my $header_weight = length($indent) + 24 + length($navbar);
-
-foreach my $section (@sections) {
-    $sections_weight{$section} += $header_weight;
-    $total_weight += $sections_weight{$section};
-}
-
-if (exists $args{"verbose"}) {
-    foreach my $section (@sections) {
-        printf("\t- %s : %6d\n", $section, $sections_weight{$section});
-    }
-}
-
-print " => total weight is $total_weight in ", scalar @sections, " section(s) (mean is ", int($total_weight / scalar @sections), ")\n";
-
-# -------------------------------------------------------------------------
-# Compute the alphabetical groups by joining sections depending on weights
-
-print "Computing alphabetical group(s)/page(s)...\n";
-
-# %groups is a hash associating a group id (int) to an array of sections names
-# belonging to that group.
-#   Ex: $groups{"0"} => ("A", "B", "C")
-# %groups_weight is a hash associating a group id to its weight (the sum of 
-# the weights of each section belonging to that group).
-
-my (%groups, %groups_weight);
-
-my $groupid = 0;
-
-# Remove a section one by one, and put it in a group until the group if full,
-# then create a next group, etc., until the sections are exhausted.
-
-my @sections_temp = @sections;
-while (@sections_temp) {
-    $groups_weight{$groupid} = $sections_weight{$sections_temp[0]};
-    push @{$groups{$groupid}}, shift @sections_temp;
-    while (@sections_temp && 
-           ($groups_weight{$groupid} + $sections_weight{$sections_temp[0]}) 
-           <= $args{"weight"}) {
-        $groups_weight{$groupid} += $sections_weight{$sections_temp[0]};
-        push @{$groups{$groupid}}, shift @sections_temp;
-    }
-    $groupid++;
-}
-
-if (exists $args{"verbose"}) {
-    foreach my $groupid (sort {$a <=> $b} keys %groups) {
-        printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
-               $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
-    }
-}
-
-print " => max weight is ", $args{"weight"}, " per group/page, but a section can not be divided\n";
-print " => ", scalar  keys %groups, " group(s) for ", scalar @sections, " section(s)\n";
-
-# -------------------------------------------------------------------------
-# Build pages header (summary, version)
-
-print "Building pages header...\n";
 
 # $header is the Doxygen string summarizing what has been documented as well
 # as the credits.
@@ -569,7 +430,8 @@ my $header;
 my (@summary, @credits);
 
 push @summary, 
-  "  - $nb_files file(s) indexed by " . scalar @words . " word(s) on " . localtime(),
+  "  - $nb_files file(s) indexed by " . scalar @words . " word(s) on " . 
+  localtime(),
   "  - max limit is " . $args{"limit"} . " xref(s) per word";
 
 push @credits, 
@@ -580,45 +442,227 @@ $header = $indent . join("\n$indent", @summary) .
   "\n\n$indent" . join("\n$indent", @credits) . "\n\n";
 
 # -------------------------------------------------------------------------
-# Write documentation
+# Index to class
 
-my $destination_file = $args{"to"} . "/" . $args{"store"};
-print "Writing documentation to ", $destination_file, "...\n";
+print "Building page doc...\n";
 
-$intermediate_time = time();
+# @words is the array of words to document
 
-sysopen(DEST_FILE, 
-        $destination_file, 
-        O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
-  or croak "$PROGNAME: unable to open destination file $destination_file\n";
+my @words = sort keys %index;
 
-# Browse each group, each section in this group, each word in this section
+# $prefix is a unique prefix that is appended to each link
 
-foreach my $groupid (sort {$a <=> $b} keys %groups) {
+my $prefix = "idx_" . $args{"project"};
+$prefix = lc($prefix);
 
-    my $fromto = $groups{$groupid}[0];
-    $fromto .= ".." . $groups{$groupid}[scalar @{$groups{$groupid}} - 1]
-      if scalar @{$groups{$groupid}} > 1;
+# word_section_name returns the short string describing a word section
 
-    print DEST_FILE 
-      "/*! \@page ${prefix}_$groupid Full-text Index ($fromto)\n\n$header"; 
+sub word_section_name {
+    my ($word) = @_;
+    my @group = sort keys %{$group{$word}};
+    $word .= " (" . join(", ", @group) . ")" if @group;
+    return $word;
+}
+    
+# word_section_doc returns the doxygen doc for a word
 
-    foreach my $section (@{$groups{$groupid}}) {
-        print DEST_FILE 
-          "\n$indent\@section ${prefix}_section_$section $section\n\n$navbar\n";
-
-        foreach my $word (@{$sections_words{$section}}) {
-            print DEST_FILE $words_doc{$word}, "\n";
-        }
-        print "\t- $section\n" if exists $args{"verbose"};
+sub word_section_doc {
+    my ($word) = @_;
+    my @xrefs = sort { (($b =~ m/$word/i) <=> ($a =~ m/$word/i)) || ($index{$word}{$b} <=> $index{$word}{$a}) || ($a cmp $b)} (keys %{$index{$word}});
+    my @xrefs_lim;
+    my $count = 0;
+    foreach my $xref (@xrefs) {
+        last if ++$count > $args{"limit"};
+        push @xrefs_lim, $xref . " (" . $index{$word}{$xref} . ")";
     }
-
-    print DEST_FILE "*/\n\n";
+    my $string = "  - " . join(", ", @xrefs_lim);
+    $string .= ", [...]" if scalar keys %{$index{$word}} > $args{"limit"};
+    return $string . "\n";
 }
 
-close(DEST_FILE);
+# word_section_alpha returns the single alpha char corresponding to that
+# word's section.
+
+sub word_section_alpha {
+    my ($word) = @_;
+    $word =~ /^(\w)/;
+    return $1;
+}
+
+my $page_doc = build_page_doc($indent,
+                              "Full-text Index",
+                              \@words, 
+                              $prefix, 
+                              \&word_section_name, 
+                              \&word_section_doc,
+                              \&word_section_alpha,
+                              $header,
+                              $args{"to"} . "/" . $args{"store"});
 
 print join("\n", @summary), "\n";
-
 print "Finished in ", time() - $start_time, " s.\n";
+
+# -------------------------------------------------------------------------
+
+sub build_page_doc {
+
+    # $indent is the indentation string
+    # $rwords is a reference to the array of words to document
+    # $prefix is a unique prefix that is appended to each link
+    # word_section_name returns the short string describing a word section
+    # word_section_doc returns the doxygen doc for a word
+    # word_section_alpha returns the single alpha char corresponding to that
+    # word's section.
+    # $header is the Doxygen string summarizing what has been documented as 
+    # well as the credits.
+    # $destination_file is the name of the file where this page should be
+    # written to.
+
+    my ($ident, $title, $rwords, $prefix, $rword_section_name, $rword_section_doc, $rword_section_alpha, $header, $destination_file) = @_;
+
+    # %words_doc is a hash associating a word to its Doxygen doc (string)
+
+    my %words_doc;
+
+    # %sections_words is a hash associating a section (alphabetical letter) to
+    # an array of words belonging to that section.
+    #   Ex: $sections_words{"C"} => ("contour", "cut")
+    # %sections_weight is a hash associating a section to its weight (the sum 
+    # of the weights of each word belonging to that section).
+    # @sections is the array holding the name of all sections
+
+    my (%sections_words, %sections_weight, @sections);
+
+    # $navbar is the Doxygen string describing the sections' navigation bar
+    
+    my $navbar;
+    
+    my $intermediate_time = time();
+    
+    # Browse each word
+
+    foreach my $word (@$rwords) {
+
+        my @temp;
+        push @temp, &$rword_section_name($word), &$rword_section_doc($word);
+        $words_doc{$word} = $indent . join("\n$indent", @temp) . "\n";
+
+        # Update section(s) and section(s) weight(s)
+
+        my $section = &$rword_section_alpha($word);
+        push @{$sections_words{$section}}, $word;
+        $sections_weight{$section} += length($words_doc{$word});
+        
+        print " => ", $word, "\n" if exists $args{"verbose"};
+    }
+
+    print " => ", scalar @$rwords, " words(s) documented in ", time() - $intermediate_time, " s.\n";
+    
+    @sections = sort keys %sections_words;
+
+    # Build the navbar
+    
+    my @temp;
+    foreach my $section (@sections) {
+        push @temp, "\@ref ${prefix}_section_$section \"$section\"";
+    }
+    $navbar = "$indent\@par Navigation: \n$indent\[" . 
+      join(" | ", @temp) . "]\n";
+
+    # Add the (approximate) weight of the (header + navbar) to each section
+
+    my $total_weight = 0;
+    my $header_weight = length($indent) + 24 + length($navbar);
+
+    foreach my $section (@sections) {
+        $sections_weight{$section} += $header_weight;
+        $total_weight += $sections_weight{$section};
+    }
+
+    if (exists $args{"verbose"}) {
+        foreach my $section (@sections) {
+            printf("\t- %s : %6d\n", $section, $sections_weight{$section});
+        }
+    }
+
+    print " => total weight is $total_weight in ", scalar @sections, " section(s) (mean is ", int($total_weight / scalar @sections), ")\n";
+
+    # Compute the alphabetical groups by joining sections depending on weights
+
+    print "Computing alphabetical group(s)/page(s)...\n";
+
+    # %groups is a hash associating a group id (int) to an array of sections 
+    # namesbelonging to that group.
+    #   Ex: $groups{"0"} => ("A", "B", "C")
+    # %groups_weight is a hash associating a group id to its weight (the sum
+    # of the weights of each section belonging to that group).
+
+    my (%groups, %groups_weight);
+
+    my $groupid = 0;
+
+    # Remove a section one by one, and put it in a group until the group if 
+    # full,then create a next group, etc., until the sections are exhausted.
+
+    my @sections_temp = @sections;
+    while (@sections_temp) {
+        $groups_weight{$groupid} = $sections_weight{$sections_temp[0]};
+        push @{$groups{$groupid}}, shift @sections_temp;
+        while (@sections_temp && 
+               ($groups_weight{$groupid} +$sections_weight{$sections_temp[0]}) 
+               <= $args{"weight"}) {
+            $groups_weight{$groupid} += $sections_weight{$sections_temp[0]};
+            push @{$groups{$groupid}}, shift @sections_temp;
+        }
+        $groupid++;
+    }
+
+    if (exists $args{"verbose"}) {
+        foreach my $groupid (sort {$a <=> $b} keys %groups) {
+            printf("\t- %02d (weight: %7d) : %s\n", $groupid, 
+                   $groups_weight{$groupid}, join(", ", @{$groups{$groupid}}));
+        }
+    }
+
+    print " => max weight is ", $args{"weight"}, " per group/page, but a section can not be divided\n";
+    print " => ", scalar  keys %groups, " group(s) for ", scalar @sections, " section(s)\n";
+
+    # Build documentation page
+    # Browse each group, each section in this group, each word in this section
+
+    my $page_doc;
+
+    foreach my $groupid (sort {$a <=> $b} keys %groups) {
+
+        my $fromto = $groups{$groupid}[0];
+        $fromto .= ".." . $groups{$groupid}[scalar @{$groups{$groupid}} - 1]
+          if scalar @{$groups{$groupid}} > 1;
+
+        $page_doc .= 
+          "/*! \@page ${prefix}_$groupid $title ($fromto)\n\n$header"; 
+
+        foreach my $section (@{$groups{$groupid}}) {
+            $page_doc .=
+              "\n$indent\@section ${prefix}_section_$section $section\n\n$navbar\n";
+            foreach my $word (@{$sections_words{$section}}) {
+                $page_doc .= $words_doc{$word}, "\n";
+            }
+            print "\t- $section\n" if exists $args{"verbose"};
+        }
+        $page_doc .= "*/\n\n";
+    }
+
+    print "Writing documentation to ", $destination_file, "...\n";
+
+    $intermediate_time = time();
+
+    sysopen(DEST_FILE, 
+            $destination_file, 
+            O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
+     or croak "$PROGNAME: unable to open destination file $destination_file\n";
+    print DEST_FILE $page_doc;
+    close(DEST_FILE);
+
+    print " => written in ", time() - $intermediate_time, " s.\n";
+}
 
