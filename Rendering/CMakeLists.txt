@@ -324,12 +324,6 @@ IF(VTK_WRAP_TCL)
   ENDIF (APPLE AND VTK_BUILD_SHARED_LIBS)
 ENDIF(VTK_WRAP_TCL)
 
-SET(Kit_EXTRA_SRCS)
-SET(Kit_EXTRA_CMDS)
-SET(Kit_TCL_EXTRA_SRCS)
-SET(Kit_PYTHON_EXTRA_SRCS)
-SET(Kit_JAVA_EXTRA_SRCS)
-
 # -----------------------------------------------------------------
 
 # Setup vtkInstantiator registration for this library's classes.
