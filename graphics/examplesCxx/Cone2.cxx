@@ -9,6 +9,7 @@ main ()
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
     renWindow->AddRenderer(ren1);
   vtkRenderer *ren2 = vtkRenderer::New();
+    renWindow->AddRenderer(ren2);
 
   // create an actor and give it cone geometry
   vtkConeSource *cone = vtkConeSource::New();
