@@ -72,6 +72,7 @@ typedef struct
   float WallTime;
   int CpuTicks;
   char Event[VTK_LOG_EVENT_LENGTH];
+  unsigned char Indent;
 } vtkTimerLogEntry;
 //ETX
 
@@ -86,6 +87,14 @@ public:
 
   vtkTypeRevisionMacro(vtkTimerLog,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // This flag will turn loging of events off or on.  
+  // By default, logging is on.
+  static void SetLogging(int v) {vtkTimerLog::Logging = v;}
+  static int GetLogging(int v) {return vtkTimerLog::Logging;}
+  static void LoggingOn() {vtkTimerLog::SetLogging(1);}
+  static void LoggingOff() {vtkTimerLog::SetLogging(0);}
 
   // Description:
   // Set/Get the maximum number of entries allowed in the timer log
@@ -103,6 +112,23 @@ public:
   // Write the timing table out to a file.  Calculate some helpful
   // statistics (deltas and  percentages) in the process.
   static void DumpLog(char *filename);
+
+  // Description:
+  // I want to time events, so I am creating this interface to
+  // mark events that have a start and an end.  These events can be,
+  // nested. The standard Dumplog ignores the indents.
+  static void MarkStartEvent(char *EventString);
+  static void MarkEndEvent(char *EventString);
+//BTX
+  static void DumpLogWithIndents(ostream *os, float threshold);
+//ETX
+
+  // Description:
+  // Programatic access to events.  Indexed from 0 to num-1.
+  static int GetNumberOfEvents();
+  static int GetEventIndent(int i);
+  static float GetEventWallTime(int i);
+  static const char* GetEventString(int i);
 
   // Description:
   // Record a timing event and capture wall time and cpu ticks.
@@ -144,6 +170,10 @@ protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
   ~vtkTimerLog() {};
 
+  static vtkTimerLogEntry* GetEvent(int i);
+
+  static int               Logging;
+  static int               Indent;
   static int               MaxEntries;
   static int               NextEntry;
   static int               WrapFlag;

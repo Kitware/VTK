@@ -38,10 +38,12 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.30");
+vtkCxxRevisionMacro(vtkTimerLog, "1.31");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
+int vtkTimerLog::Logging = 1;
+int vtkTimerLog::Indent = 0;
 int vtkTimerLog::MaxEntries = 100;
 int vtkTimerLog::NextEntry = 0;
 int vtkTimerLog::WrapFlag = 0;
@@ -73,6 +75,7 @@ tms     vtkTimerLog::FirstCpuTicks;
 tms     vtkTimerLog::CurrentCpuTicks;
 #endif
 
+//----------------------------------------------------------------------------
 // Allocate timing table with MaxEntries elements.
 void vtkTimerLog::AllocateLog()
 {
@@ -84,6 +87,7 @@ void vtkTimerLog::AllocateLog()
 }
 
 
+//----------------------------------------------------------------------------
 // Clear the timing table.  walltime and cputime will also be set
 // to zero when the first new event is recorded.
 void vtkTimerLog::ResetLog()
@@ -95,12 +99,17 @@ void vtkTimerLog::ResetLog()
 }
 
 
+//----------------------------------------------------------------------------
 // Record a timing event.  The event is represented by a formatted
 // string.
 void vtkTimerLog::FormatAndMarkEvent(char *format, ...)
 {
-static  char event[4096];
+  if (! vtkTimerLog::Logging)
+    {
+    return;
+    }
 
+  static  char event[4096];
   va_list var_args;
   va_start(var_args, format);
   vsprintf(event, format, var_args);
@@ -110,9 +119,15 @@ static  char event[4096];
 }
 
 
+//----------------------------------------------------------------------------
 // Record a timing event and capture walltime and cputicks.
 void vtkTimerLog::MarkEvent(char *event)
 {
+  if (! vtkTimerLog::Logging)
+    {
+    return;
+    }
+
   int strsize;
   double time_diff;
   int ticks_diff;
@@ -143,6 +158,7 @@ void vtkTimerLog::MarkEvent(char *event)
     times(&FirstCpuTicks);
 #endif
     
+    vtkTimerLog::TimerLog[0].Indent = vtkTimerLog::Indent;
     vtkTimerLog::TimerLog[0].WallTime = 0.0;
     vtkTimerLog::TimerLog[0].CpuTicks = 0;
     strncpy(vtkTimerLog::TimerLog[0].Event, event, strsize);
@@ -185,6 +201,7 @@ void vtkTimerLog::MarkEvent(char *event)
                 (FirstCpuTicks.tms_utime + FirstCpuTicks.tms_stime);
 #endif
 
+  vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Indent = vtkTimerLog::Indent;
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].WallTime = (float)time_diff;
   vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].CpuTicks = ticks_diff;
   strncpy(vtkTimerLog::TimerLog[vtkTimerLog::NextEntry].Event, event, strsize);
@@ -199,6 +216,183 @@ void vtkTimerLog::MarkEvent(char *event)
 }
 
 
+//----------------------------------------------------------------------------
+// Record a timing event and capture walltime and cputicks.
+// Increments indent after mark.
+void vtkTimerLog::MarkStartEvent(char *event)
+{
+  if (! vtkTimerLog::Logging)
+    { // Maybe we should still change the Indent ...
+    return;
+    }
+
+  vtkTimerLog::MarkEvent(event);
+  ++vtkTimerLog::Indent;
+}
+
+//----------------------------------------------------------------------------
+// Record a timing event and capture walltime and cputicks.
+// Decrements indent after mark.
+void vtkTimerLog::MarkEndEvent(char *event)
+{
+  if (! vtkTimerLog::Logging)
+    { // Maybe we should still change the Indent ...
+    return;
+    }
+
+  vtkTimerLog::MarkEvent(event);
+  --vtkTimerLog::Indent;
+}
+
+//----------------------------------------------------------------------------
+// Record a timing event and capture walltime and cputicks.
+int vtkTimerLog::GetNumberOfEvents()
+{
+  if (vtkTimerLog::WrapFlag)
+    {
+    return vtkTimerLog::MaxEntries;
+    }
+   else
+    {
+    return vtkTimerLog::NextEntry;
+    } 
+}
+
+
+//----------------------------------------------------------------------------
+vtkTimerLogEntry *vtkTimerLog::GetEvent(int idx)
+{
+  int num = vtkTimerLog::GetNumberOfEvents();
+  int start = 0;
+  if (vtkTimerLog::WrapFlag)
+    {
+    start = vtkTimerLog::NextEntry;
+    }
+
+  if (idx < 0 || idx >= num)
+    {
+    cerr << "Bad entry index.";
+    return NULL;
+    }
+  idx = (idx + start) % vtkTimerLog::MaxEntries;
+
+  return vtkTimerLog::TimerLog + idx;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkTimerLog::GetEventIndent(int idx)
+{
+  vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
+
+  if (tmp) 
+    {
+    return tmp->Indent;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+float vtkTimerLog::GetEventWallTime(int idx)
+{
+  vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
+
+  if (tmp) 
+    {
+    return tmp->WallTime;
+    }
+  else
+    {
+    return 0.0;
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkTimerLog::GetEventString(int idx)
+{
+  vtkTimerLogEntry *tmp = vtkTimerLog::GetEvent(idx);
+
+  if (tmp) 
+    {
+    return tmp->Event;
+    }
+  else
+    {
+    return NULL;
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Write the timing table out to a file.  Calculate some helpful
+// statistics (deltas and  percentages) in the process.
+void vtkTimerLog::DumpLogWithIndents(ostream *os, float threshold)
+{
+#ifndef _WIN32_WCE
+  int num;
+  int i1, i2, j;
+  int indent1;
+  int nextIndent;
+  float dtime;
+  
+  num = vtkTimerLog::GetNumberOfEvents();
+
+  for (i1=0; i1 < num; i1++)
+    {
+    indent1 = vtkTimerLog::GetEventIndent(i1);
+
+    // Search for an end event.
+    i2 = i1 + 1;
+    while (i2 < num && vtkTimerLog::GetEventIndent(i2) > indent1)
+      { // This was a start event.
+      ++i2;
+      }
+    // If the next indent is smaller, then the event should be an end event.
+    if (i2 == num)
+      {
+      nextIndent = vtkTimerLog::Indent;
+      }
+    else
+      {
+      nextIndent = vtkTimerLog::GetEventIndent(i2);
+      }
+
+    // Backup one to get the end event.
+    --i2;
+
+    // Simple events and end events will have dtime of 0.
+    dtime = vtkTimerLog::GetEventWallTime(i2) - vtkTimerLog::GetEventWallTime(i1);
+    if (nextIndent == indent1)
+      { // not an end event
+      if (dtime >= threshold || i2 == i1)
+        { // start event past threshold or singleton event.
+        // Print the indent.
+        j = indent1;
+        while (j-- > 0)
+          {
+          *os << "    ";
+          }
+        *os << vtkTimerLog::GetEventString(i1);
+        if (i2 > i1)
+          { // Start event.
+          *os << ",  " << dtime << " seconds\n"; 
+          }
+        else
+          { // Singlton event.
+          *os << endl;
+          }
+        }
+      }
+    }
+  
+#endif
+}
+
+
+//----------------------------------------------------------------------------
 // Write the timing table out to a file.  Calculate some helpful
 // statistics (deltas and  percentages) in the process.
 void vtkTimerLog::DumpLog(char *filename)
@@ -206,10 +400,7 @@ void vtkTimerLog::DumpLog(char *filename)
 #ifndef _WIN32_WCE
   ofstream os(filename);
   int i;
-  
-  os << " Entry   Wall Time (sec)  Delta   CPU Time (sec)  Delta  %CPU   Event\n";
-  os << "----------------------------------------------------------------------\n";
-  
+    
   if ( vtkTimerLog::WrapFlag )
     {
     vtkTimerLog::DumpEntry(os, 0,
@@ -269,6 +460,7 @@ void vtkTimerLog::DumpLog(char *filename)
 }
 
 
+//----------------------------------------------------------------------------
 // Print method for vtkTimerLog.
 void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -308,6 +500,7 @@ void vtkTimerLog::PrintSelf(ostream& os, vtkIndent indent)
 // Methods to support simple timer functionality, separate from
 // timer table logging.
 
+//----------------------------------------------------------------------------
 // Returns the elapsed number of seconds since January 1, 1970. This
 // is also called Universal Coordinated Time.
 double vtkTimerLog::GetCurrentTime()
@@ -349,18 +542,21 @@ double vtkTimerLog::GetCPUTime()
   return currentCPUTime;
 }
 
+//----------------------------------------------------------------------------
 // Set the StartTime to the current time. Used with GetElapsedTime().
 void vtkTimerLog::StartTimer()
 {
   this->StartTime = vtkTimerLog::GetCurrentTime();
 }
 
+//----------------------------------------------------------------------------
 // Sets EndTime to the current time. Used with GetElapsedTime().
 void vtkTimerLog::StopTimer()
 {
   this->EndTime = vtkTimerLog::GetCurrentTime();
 }
 
+//----------------------------------------------------------------------------
 // Returns the difference between StartTime and EndTime as 
 // a floating point value indicating the elapsed time in seconds.
 double vtkTimerLog::GetElapsedTime()
@@ -368,6 +564,7 @@ double vtkTimerLog::GetElapsedTime()
   return (this->EndTime - this->StartTime);
 }
 
+//----------------------------------------------------------------------------
 void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime, 
                             float deltatime,
                             int tick, int deltatick, char *event)
@@ -388,11 +585,49 @@ void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime,
   os << event << "\n";
 }
 
+//----------------------------------------------------------------------------
 void vtkTimerLog::SetMaxEntries(int a)
 {
-  vtkTimerLog::MaxEntries = a;
-}
+  int num, i, offset;
+  vtkTimerLogEntry *newLog, *tmp;
 
+  if (vtkTimerLog::MaxEntries == a)
+    {
+    return;
+    }
+
+  newLog = new vtkTimerLogEntry[a];
+  if (vtkTimerLog::TimerLog == NULL)
+    {
+    vtkTimerLog::MaxEntries = a;
+    vtkTimerLog::TimerLog = newLog;
+    return;
+    }
+
+  // Copy the old log to the new.
+  num = vtkTimerLog::GetNumberOfEvents();
+  offset = 0;
+  if (a < num)
+    {
+    offset = num - a;
+    num = a;
+    }
+
+  for (i = 0; i < num; ++i)
+    {
+    tmp = vtkTimerLog::GetEvent(i+offset);
+    newLog[i] = *tmp;
+    }
+
+  delete [] vtkTimerLog::TimerLog;
+  vtkTimerLog::MaxEntries = a;
+  vtkTimerLog::TimerLog = newLog;
+  vtkTimerLog::WrapFlag = 0;
+  vtkTimerLog::NextEntry = num;
+}
+  
+
+//----------------------------------------------------------------------------
 int vtkTimerLog::GetMaxEntries()
 {
   return vtkTimerLog::MaxEntries;
