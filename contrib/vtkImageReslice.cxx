@@ -56,11 +56,13 @@ vtkImageReslice::vtkImageReslice()
   this->OutputExtent[0] = INT_MAX; // ditto
 
   this->Wrap = 0; // don't wrap
-
-  this->Interpolate = 0; // nearest-neighbor interpolation by default
-  this->InterpolationMode = VTK_RESLICE_LINEAR;
+  this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
   this->Optimization = 1; // optimizations seem to finally be stable...
-  this->BackgroundLevel = 0;
+
+  this->BackgroundColor[0] = 0;
+  this->BackgroundColor[1] = 0;
+  this->BackgroundColor[2] = 0;
+  this->BackgroundColor[3] = 0;
 
   this->ResliceTransform = NULL;
 }
@@ -90,11 +92,12 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputExtent[3] << " " << this->OutputExtent[4] << " " <<
     this->OutputExtent[5] << "\n";
   os << indent << "Wrap: " << (this->Wrap ? "On\n":"Off\n");
-  os << indent << "Interpolate: " << (this->Interpolate ? "On\n":"Off\n");
   os << indent << "InterpolationMode: " 
      << this->GetInterpolationModeAsString() << "\n";
   os << indent << "Optimization: " << (this->Optimization ? "On\n":"Off\n");
-  os << indent << "BackgroundLevel: " << this->BackgroundLevel << "\n";
+  os << indent << "BackgroundColor: " << this->BackgroundColor[0] << " " <<
+    this->BackgroundColor[1] << " " << this->BackgroundColor[2] << " " <<
+    this->BackgroundColor[3] << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -193,8 +196,7 @@ void vtkImageReslice::ComputeRequiredInputUpdateExtent(int inExt[6],
     point[3] = 1.0;
 
     // set 
-    if (this->GetInterpolate()
-	* this->GetInterpolationMode() != VTK_RESLICE_NEAREST)
+    if (this->GetInterpolationMode() != VTK_RESLICE_NEAREST)
       {
       int extra = (this->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
@@ -346,6 +348,174 @@ invertible");
   matrix->Delete();
 }
 
+//----------------------------------------------------------------------------
+//  Interplolation subroutines and associated code
+//----------------------------------------------------------------------------
+
+
+//----------------------------------------------------------------------------
+// first: a round-to-nearest function 
+#ifdef __unix__
+//  
+static inline double vtkResliceRound(double val)
+{
+  return rint(val);
+}
+#elif defined _MSC_VER && defined _M_IX86
+// The only efficient way to round is in assembler
+// This does the trick for Visual C++ on an x86
+static double vtkResliceRound(double val) 
+{ 
+  __asm
+    {
+    fld val; 
+    frndint;
+    } 
+}
+#else
+// this code ensures round-to-nearest/even behaviour
+// on non-UNIX, non-Wintel platforms
+double vtkResliceRound(double val)
+{
+  double trunc;
+  double rem;
+
+  trunc = floor(val);
+  rem = val-trunc;
+  if (rem < 0.5)
+    {
+    return trunc;
+    }
+  else if (rem > 0.5)
+    {
+    return trunc+1;
+    }
+  else if (trunc % 2)
+    {
+    return trunc+1;
+    }
+  else 
+    {
+    return trunc;
+    }
+}
+#endif
+
+//----------------------------------------------------------------------------
+// rounding functions split up for each type
+// (because we don't want to round if the result is a float!)
+
+static inline void vtkResliceRound(double val, unsigned char& rnd)
+{
+  rnd = (unsigned char)(vtkResliceRound(val));
+}
+
+static inline void vtkResliceRound(double val, short& rnd)
+{
+  rnd = (short)(vtkResliceRound(val));
+}
+
+static inline void vtkResliceRound(double val, unsigned short& rnd)
+{
+  rnd = (unsigned short)(vtkResliceRound(val));
+}
+
+static inline void vtkResliceRound(double val, int& rnd)
+{
+  rnd = (int)(vtkResliceRound(val));
+}
+
+static inline void vtkResliceRound(double val, float& rnd)
+{
+  rnd = (float)(val);
+}
+
+//----------------------------------------------------------------------------
+// clamping functions for each type
+
+static inline void vtkResliceClamp(double val, unsigned char& clamp)
+{
+  val = vtkResliceRound(val);
+  if (val < VTK_UNSIGNED_CHAR_MIN)
+    { 
+    val = VTK_UNSIGNED_CHAR_MIN;
+    }
+  if (val > VTK_UNSIGNED_CHAR_MAX)
+    { 
+    val = VTK_UNSIGNED_CHAR_MAX;
+    }
+  clamp = (unsigned char)(val);
+}
+
+static inline void vtkResliceClamp(double val, short& clamp)
+{
+  val = vtkResliceRound(val);
+  if (val < VTK_SHORT_MIN)
+    { 
+    val = VTK_SHORT_MIN;
+    }
+  if (val > VTK_SHORT_MAX)
+    { 
+    val = VTK_SHORT_MAX;
+    }
+  clamp = short(val);
+}
+
+static inline void vtkResliceClamp(double val, unsigned short& clamp)
+{
+  val = vtkResliceRound(val);
+  if (val < VTK_UNSIGNED_SHORT_MIN)
+    { 
+    val = VTK_UNSIGNED_SHORT_MIN;
+    }
+  if (val > VTK_UNSIGNED_SHORT_MAX)
+    { 
+    val = VTK_UNSIGNED_SHORT_MAX;
+    }
+  clamp = (unsigned short)(val);
+}
+
+static inline void vtkResliceClamp(double val, int& clamp)
+{
+  val = vtkResliceRound(val);
+  if (val < VTK_INT_MIN) 
+    {
+    val = VTK_INT_MIN;
+    }
+  if (val > VTK_INT_MAX) 
+    {
+    val = VTK_INT_MAX;
+    }
+  clamp = int(val);
+}
+
+static inline void vtkResliceClamp(double val, float& clamp)
+{
+  if (val < VTK_FLOAT_MIN)
+    { 
+    val = VTK_FLOAT_MIN;
+    }
+  if (val > VTK_FLOAT_MAX) 
+    {
+    val = VTK_FLOAT_MAX;
+    }
+  clamp = float(val);
+}
+
+//----------------------------------------------------------------------------
+// Perform a wrap to limit an index to [0,range).
+// Ensures correct behaviour when the index is negative.
+ 
+static inline int vtkInterpolateWrap(int num, int range)
+{
+  if ((num %= range) < 0)
+    {
+    num += range; // required for some % implementations
+    } 
+  return num;
+}
+
+//----------------------------------------------------------------------------
 // Do trilinear interpolation of the input data 'inPtr' of extent 'inExt'
 // at the 'point'.  The result is placed at 'outPtr'.  
 // If the lookup data is beyond the extent 'inExt', set 'outPtr' to
@@ -386,8 +556,10 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
     {// out of bounds: clear to background color 
     if (background)
       {
-      for (i = 0; i < numscalars; i++) 
+      for (i = 0; i < numscalars; i++)
+	{ 
         *outPtr++ = *background++;
+	}
       }
     return 0;
     }
@@ -421,24 +593,18 @@ static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 
     for (i = 0; i < numscalars; i++) 
       {
-      *outPtr++ = 
-	T(rx*(ryrz*inPtr[i000]+ryfz*inPtr[i001]+
-	      fyrz*inPtr[i010]+fyfz*inPtr[i011])
-	  + fx*(ryrz*inPtr[i100]+ryfz*inPtr[i101]+
-		fyrz*inPtr[i110]+fyfz*inPtr[i111]));
+      vtkResliceRound((rx*(ryrz*inPtr[i000]+ryfz*inPtr[i001]+
+			   fyrz*inPtr[i010]+fyfz*inPtr[i011])
+		       + fx*(ryrz*inPtr[i100]+ryfz*inPtr[i101]+
+			     fyrz*inPtr[i110]+fyfz*inPtr[i111])),
+		      *outPtr++);
       inPtr++;
       }
     return 1;
     }
 }			  
 
-static inline int vtkInterpolateWrap(int num, int range)
-{
-  if ((num %= range) < 0)
-    num += range; // required for some % implementations 
-  return num;
-}
-
+// trilinear interpolation with wrap-around behaviour
 template <class T>
 static int vtkTrilinearInterpolationWrap(float *point, T *inPtr, T *outPtr,
 					 T *background, int numscalars, 
@@ -456,11 +622,17 @@ static int vtkTrilinearInterpolationWrap(float *point, T *inPtr, T *outPtr,
 
   // this corrects for differences between int() and floor()
   if (fx < 0)
+    {
     fx = point[0] - (--floorX);
+    }
   if (fy < 0)
+    {
     fy = point[1] - (--floorY);
+    }
   if (fz < 0)
+    {
     fz = point[2] - (--floorZ);
+    }
 
   int inIdX = floorX-inExt[0];
   int inIdY = floorY-inExt[2];
@@ -498,11 +670,11 @@ static int vtkTrilinearInterpolationWrap(float *point, T *inPtr, T *outPtr,
 
   for (i = 0; i < numscalars; i++) 
     {
-    *outPtr++ = 
-      T(rx*(ryrz*inPtr[i000]+ryfz*inPtr[i001]+
-	    fyrz*inPtr[i010]+fyfz*inPtr[i011])
-	+ fx*(ryrz*inPtr[i100]+ryfz*inPtr[i101]+
-	      fyrz*inPtr[i110]+fyfz*inPtr[i111]));
+    vtkResliceRound((rx*(ryrz*inPtr[i000]+ryfz*inPtr[i001]+
+			 fyrz*inPtr[i010]+fyfz*inPtr[i011])
+		     + fx*(ryrz*inPtr[i100]+ryfz*inPtr[i101]+
+			   fyrz*inPtr[i110]+fyfz*inPtr[i111])),
+		    *outPtr++);
     inPtr++;
     }
   return 1;
@@ -531,7 +703,9 @@ static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
     if (background)
       {
       for (i = 0; i < numscalars; i++)
+	{
 	*outPtr++ = *background++;
+	}
       }
     return 0;
     }
@@ -546,6 +720,7 @@ static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
     }
 } 
 
+// nearest-neighbor interpolation with wrap-around behaviour
 template <class T>
 static int vtkNearestNeighborInterpolationWrap(float *point, T *inPtr, 
 					       T *outPtr,
@@ -563,9 +738,18 @@ static int vtkNearestNeighborInterpolationWrap(float *point, T *inPtr,
   int floorY = int(vY)-1;
   int floorZ = int(vZ)-1;
 
-  if (vX < floorX+1) floorX--;
-  if (vY < floorY+1) floorY--;
-  if (vZ < floorZ+1) floorZ--;
+  if (vX < floorX+1) 
+    {
+    floorX--;
+    }
+  if (vY < floorY+1)
+    { 
+    floorY--;
+    }
+  if (vZ < floorZ+1) 
+    {
+    floorZ--;
+    }
 
   int inIdX = vtkInterpolateWrap(floorX-inExt[0],
 				 inExt[1]-inExt[0]+1);
@@ -582,80 +766,18 @@ static int vtkNearestNeighborInterpolationWrap(float *point, T *inPtr,
   return 1; 
 } 
 
-// clamping functions for each type
-
-static inline void vtkResliceClamp(double val, unsigned char& clamp)
-{
-  if (val < VTK_UNSIGNED_CHAR_MIN)
-    { 
-    val = VTK_UNSIGNED_CHAR_MIN;
-    }
-  if (val > VTK_UNSIGNED_CHAR_MAX)
-    { 
-    val = VTK_UNSIGNED_CHAR_MAX;
-    }
-  clamp = (unsigned char)(val);
-}
-
-static inline void vtkResliceClamp(double val, short& clamp)
-{
-  if (val < VTK_SHORT_MIN)
-    { 
-    val = VTK_SHORT_MIN;
-    }
-  if (val > VTK_SHORT_MAX)
-    { 
-    val = VTK_SHORT_MAX;
-    }
-  clamp = short(val);
-}
-
-static inline void vtkResliceClamp(double val, unsigned short& clamp)
-{
-  if (val < VTK_UNSIGNED_SHORT_MIN)
-    { 
-    val = VTK_UNSIGNED_SHORT_MIN;
-    }
-  if (val > VTK_UNSIGNED_SHORT_MAX)
-    { 
-    val = VTK_UNSIGNED_SHORT_MAX;
-    }
-  clamp = (unsigned short)(val);
-}
-
-static inline void vtkResliceClamp(double val, int& clamp)
-{
-  if (val < VTK_INT_MIN) 
-    {
-    val = VTK_INT_MIN;
-    }
-  if (val > VTK_INT_MAX) 
-    {
-    val = VTK_INT_MAX;
-    }
-  clamp = int(val);
-}
-
-static inline void vtkResliceClamp(double val, float& clamp)
-{
-  if (val < VTK_FLOAT_MIN)
-    { 
-    val = VTK_FLOAT_MIN;
-    }
-  if (val > VTK_FLOAT_MAX) 
-    {
-    val = VTK_FLOAT_MAX;
-    }
-  clamp = float(val);
-}
-
-// Do tricubic interpolation of the input data 'inPtr' of extent 'inExt'
+// Do tricubic interpolation of the input data 'inPtr' of extent 'inExt' 
 // at the 'point'.  The result is placed at 'outPtr'.  
-// If any of the lookup data is beyond the extent 'inExt', try the
-// trilinear interpolant.
 // The number of scalar components in the data is 'numscalars'
 
-// set up the lookup indices and the interpolation coefficients
+// The tricubic interpolation ensures that both the intensity and
+// the first derivative of the intensity are smooth across the
+// image.  The first derivative is estimated using a 
+// centered-difference calculation.
+
+
+// helper function: set up the lookup indices and the interpolation 
+// coefficients
 
 void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f, 
 		     int interpMode)
@@ -666,11 +788,11 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
     {
     case 7:     // cubic interpolation
       *l = 0; *m = 4; 
-      fp1 = f+1; fm1 = f-1; fm2 = fm1-1;
-      F[0] = -f*fm1*fm2/6;
-      F[1] = fp1*fm1*fm2/2;
-      F[2] = -fp1*f*fm2/2;
-      F[3] = fp1*f*fm1/6;
+      fm1 = f-1;
+      F[0] = -f*fm1*fm1/2;
+      F[1] = ((3*f-2)*f-2)*fm1/2;
+      F[2] = -((3*f-4)*f-1)*f/2;
+      F[3] = f*f*fm1/2;
       break;
     case 0:     // no interpolation
     case 2:
@@ -678,8 +800,8 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
     case 6:
       *l = 1; *m = 2; 
       F[1] = 1;
-      break;    // linear interpolation
-    case 1:
+      break;
+    case 1:     // linear interpolation
       *l = 1; *m = 3;
       F[1] = 1-f;
       F[2] = f;
@@ -701,6 +823,7 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
     }
 }
 
+// tricubic interpolation
 template <class T>
 static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 				    T *background, int numscalars, 
@@ -739,8 +862,10 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     {// out of bounds: clear to background color
     if (background)
       {
-      for (i = 0; i < numscalars; i++) 
+      for (i = 0; i < numscalars; i++)
+	{ 
 	*outPtr++ = *background++;
+	}
       }
     return 0;
     }
@@ -752,11 +877,11 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     int j,k,l,jl,jm,kl,km,ll,lm;
     
     for (i = 0; i < 4; i++)
-    {
+      {
       factX[i] = (inIdX-1+i)*inInc[0];
       factY[i] = (inIdY-1+i)*inInc[1];
       factZ[i] = (inIdZ-1+i)*inInc[2];
-    }
+      }
 
     // depending on whether we are at the edge of the 
     // input extent, choose the appropriate interpolation
@@ -804,6 +929,7 @@ static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
     }
 }		  
 
+// tricubic interpolation with wrap-around behaviour
 template <class T>
 static int vtkTricubicInterpolationWrap(float *point, T *inPtr, T *outPtr,
 					T *background, int numscalars, 
@@ -822,11 +948,17 @@ static int vtkTricubicInterpolationWrap(float *point, T *inPtr, T *outPtr,
 
   // this corrects for differences between int() and floor()
   if (fx < 0)
+    {
     fx = point[0] - (--floorX);
+    }
   if (fy < 0)
+    {
     fy = point[1] - (--floorY);
+    }
   if (fz < 0)
+    {
     fz = point[2] - (--floorZ);
+    }
 
   int inIdX = floorX-inExt[0];
   int inIdY = floorY-inExt[2];
@@ -879,6 +1011,10 @@ static int vtkTricubicInterpolationWrap(float *point, T *inPtr, T *outPtr,
 }		  
 
 //----------------------------------------------------------------------------
+// End of interpolation code
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 // (this one function is pretty much the be-all and end-all of the
 // filter)
@@ -921,12 +1057,21 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   // Color for area outside of input volume extent  
   background = new T[numscalars];
   for (i = 0; i < numscalars; i++)
-    background[i] = T(self->GetBackgroundLevel());
+    {
+      if (i < 4)
+	{
+	vtkResliceClamp(self->GetBackgroundColor()[i],background[i]);
+	}
+      else
+	{
+	background[i] = 0;
+	}
+    }
 
   // Set interpolation method
   if (self->GetWrap())
     {
-    switch (self->GetInterpolate() * self->GetInterpolationMode())
+    switch (self->GetInterpolationMode())
       {
       case VTK_RESLICE_NEAREST:
 	interpolate = &vtkNearestNeighborInterpolationWrap;
@@ -941,7 +1086,7 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
     }
   else
     {
-    switch (self->GetInterpolate() * self->GetInterpolationMode())
+    switch (self->GetInterpolationMode())
       {
       case VTK_RESLICE_NEAREST:
 	interpolate = &vtkNearestNeighborInterpolation;
@@ -1039,16 +1184,21 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
     
     w = point[3] + idX*xAxis[3];
     
-    if (self->GetInterpolate() 
-	* self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
+    if (self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
       {
       for (j = 0; j < 3; j++) 
 	{
 	int extra = (self->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
 	k = int(floor((point[j]+idX*xAxis[j])/w))-extra;
-	if (k < inExt[2*j]) inExt[2*j] = k; 
+	if (k < inExt[2*j])
+	  { 
+	  inExt[2*j] = k;
+	  } 
 	k = int(ceil((point[j]+idX*xAxis[j])/w))+extra;
-	if (k > inExt[2*j+1]) inExt[2*j+1] = k;
+	if (k > inExt[2*j+1])
+	  { 
+	  inExt[2*j+1] = k;
+	  }
 	}
       }
     else
@@ -1056,8 +1206,14 @@ static void ComputeRequiredInputUpdateExtentOptimized(vtkImageReslice *self,
       for (j = 0; j < 3; j++) 
 	{
 	k = int(floor((point[j]+idX*xAxis[j])/w + 0.5));
-	if (k < inExt[2*j]) inExt[2*j] = k; 
-	if (k > inExt[2*j+1]) inExt[2*j+1] = k;
+	if (k < inExt[2*j]) 
+	  {
+	  inExt[2*j] = k;
+	  } 
+	if (k > inExt[2*j+1])
+	  { 
+	  inExt[2*j+1] = k;
+	  }
 	}
       }
     }
@@ -1079,21 +1235,31 @@ static int intersectionLow(double *point, double *axis, int *sign,
     /(axis[ai]-limit[ai]*axis[3]) + 0.5;
    
   if (rd < outExt[2*ai]) 
+    {
     r = outExt[2*ai];
+    }
   else if (rd > outExt[2*ai+1])
+    {
     r = outExt[2*ai+1];
+    }
   else
+    {
     r = int(rd);
+    }
   
   // move back and forth to find the point just inside the extent
   while (int( (point[ai]+r*axis[ai])/double(point[3]+r*axis[3]) + 1.5 )-1 
 	 < limit[ai])
+    {
     r += sign[ai];
+    }
 
   while (int( (point[ai]+(r-sign[ai])*axis[ai])
 	      /double(point[3]+(r-sign[ai])*axis[3]) + 1.5 )-1 
 	 >= limit[ai])
+    {
     r -= sign[ai];
+    }
 
   return r;
 }
@@ -1106,21 +1272,31 @@ static int intersectionHigh(double *point, double *axis, int *sign,
   double rd = (limit[ai]*point[3]-point[ai])
       /(axis[ai]-limit[ai]*axis[3]) + 0.5; 
     
-  if (rd < outExt[2*ai]) 
+  if (rd < outExt[2*ai])
+    { 
     r = outExt[2*ai];
+    }
   else if (rd > outExt[2*ai+1])
+    {
     r = outExt[2*ai+1];
+    }
   else
+    {
     r = int(rd);
+    }
   
   while (int( (point[ai]+r*axis[ai])/double(point[3]+r*axis[3]) + 1.5 )-1 
 	 > limit[ai])
+    {
     r -= sign[ai];
+    }
 
   while (int( (point[ai]+(r+sign[ai])*axis[ai])
 	      /double(point[3]+(r+sign[ai])*axis[3]) + 1.5 )-1 
 	 <= limit[ai])
+    {
     r += sign[ai];
+    }
 
   return r;
 }
@@ -1130,8 +1306,14 @@ static int isBounded(double *point, double *xAxis, int *inMin,
 {
   int bi = ai+1; 
   int ci = ai+2;
-  if (bi > 2) bi -= 3;  // coordinate index must be 0, 1 or 2
-  if (ci > 2) ci -= 3;
+  if (bi > 2) 
+    { 
+    bi -= 3; // coordinate index must be 0, 1 or 2 
+    } 
+  if (ci > 2)
+    { 
+    ci -= 3;
+    }
   double w = point[3]+r*xAxis[3];
   int bp = int((point[bi]+r*xAxis[bi])/w + 1.5)-1;
   int cp = int((point[ci]+r*xAxis[ci])/w + 1.5)-1;
@@ -1196,8 +1378,8 @@ int vtkImageReslice::FindExtent(int& r1, int& r2, double *point,
   
   for (i = 0; i < 3; i++)
     {
-      indx1[i] = int((point[i]+r1*xAxis[i])/w1+1.5)-1;
-      indx2[i] = int((point[i]+r2*xAxis[i])/w2+1.5)-1;
+    indx1[i] = int((point[i]+r1*xAxis[i])/w1+1.5)-1;
+    indx2[i] = int((point[i]+r2*xAxis[i])/w2+1.5)-1;
     }
   if (isBounded(point,xAxis,inMin,inMax,ix,r1))
     { // passed through x face, check opposing face
@@ -1410,7 +1592,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   // Set interpolation method
   if (self->GetWrap())
     {
-    switch (self->GetInterpolate() * self->GetInterpolationMode())
+    switch (self->GetInterpolationMode())
       {
       case VTK_RESLICE_NEAREST:
 	interpolate = &vtkNearestNeighborInterpolationWrap;
@@ -1425,7 +1607,7 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
     }
   else
     {
-    switch (self->GetInterpolate() * self->GetInterpolationMode())
+    switch (self->GetInterpolationMode())
       {
       case VTK_RESLICE_NEAREST:
 	interpolate = &vtkNearestNeighborInterpolation;
@@ -1460,7 +1642,16 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   // set up background levels
   background = new T[numscalars];
   for (i = 0; i < numscalars; i++)
-    background[i] = T(self->GetBackgroundLevel());
+    {
+      if (i < 4)
+	{
+	background[i] = T(self->GetBackgroundColor()[i]);
+	}
+      else
+	{
+	background[i] = 0;
+	}
+    }
 
   // change transform matrix so that instead of taking 
   // input coords -> output coords it takes output indices -> input indices
@@ -1524,26 +1715,43 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  }
 
 	// bound r1,r2 within reasonable limits
-	if (r1 < outExt[0]) r1 = outExt[0];
-	if (r2 > outExt[1]) r2 = outExt[1];
-	if (r1 > r2) r1 = r2+1;
-	if (r2 < r1) r2 = r1-1;
+	if (r1 < outExt[0]) 
+	  {
+	  r1 = outExt[0];
+	  }
+	if (r2 > outExt[1]) 
+	  {
+	  r2 = outExt[1];
+	  }
+	if (r1 > r2) 
+	  {
+	  r1 = r2+1;
+	  }
+	if (r2 < r1)
+	  { 
+	  r2 = r1-1;
+	  }
 
 	// clear pixels to left of input extent
 	if (numscalars == 1) // optimize for single scalar
 	  {
 	  for (idX = outExt[0]; idX < r1; idX++) 
+	    {
 	    *outPtr++ = background[0];
+	    }
 	  }
 	else             // multiple scalars
 	  {
 	  for (idX = outExt[0]; idX < r1; idX++)
+	    {
 	    for (i = 0; i < numscalars; i++)
+	      {
 	      *outPtr++ = background[i];
+	      }
+	    }
 	  }
 	
-	if (self->GetInterpolate() 
-	    * self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
+	if (self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
 	  { // Trilinear or tricubic
 	  for (idX = r1; idX <= r2; idX++)
 	    {
@@ -1582,14 +1790,20 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	// clear pixels to right of input extent
 	if (numscalars == 1) // optimize for single scalar
 	  {
-	  for (idX = r2+1; idX <= outExt[1]; idX++) 
+	  for (idX = r2+1; idX <= outExt[1]; idX++)
+	    { 
 	    *outPtr++ = background[0];
+	    }
 	  }
 	else // multiple scalars
 	  {
 	  for (idX = r2+1; idX <= outExt[1]; idX++)
+	    {
 	    for (i = 0; i < numscalars; i++)
+	      {
 	      *outPtr++ = background[i];
+	      }
+	    }
 	  }
 	}
 

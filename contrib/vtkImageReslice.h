@@ -89,12 +89,6 @@ public:
   vtkBooleanMacro(Wrap,int);
 
   // Description:
-  // Turn on interpolation (default is nearest-neighbor interpolation)
-  vtkSetMacro(Interpolate,int);
-  vtkGetMacro(Interpolate,int);
-  vtkBooleanMacro(Interpolate,int);
-
-  // Description:
   // Set interpolation mode, ignored unless InterpolateOn() has been set.
   // Default: Linear
   // Note 1: nearest neighbor is the same as no interpolation
@@ -110,6 +104,16 @@ public:
   char *GetInterpolationModeAsString();
 
   // Description:
+  // Convenience method for switching between nearest-neighbor 
+  // and linear interpolation
+  void SetInterpolate(int terp) { this->SetInterpolationMode( \
+     (terp ? VTK_RESLICE_LINEAR : VTK_RESLICE_NEAREST)); };
+  void InterpolateOn() { this->SetInterpolationModeToLinear(); };
+  void InterpolateOff() { SetInterpolationModeToNearestNeighbor(); };
+  int GetInterpolate() { 
+    return (GetInterpolationMode() != VTK_RESLICE_NEAREST); };
+
+  // Description:
   // Turn on and off optimizations (default on, turn them off only if
   // they are not stable on your architechture)
   vtkSetMacro(Optimization,int);
@@ -117,9 +121,14 @@ public:
   vtkBooleanMacro(Optimization,int);
 
   // Description:
-  // Allow user to set background grey level (default: black)
-  vtkSetMacro(BackgroundLevel, double);
-  vtkGetMacro(BackgroundLevel, double);
+  // Set the background color (for multi-component images)
+  vtkSetVector4Macro(BackgroundColor, float);
+  vtkGetVector4Macro(BackgroundColor, float);
+
+  // Description:
+  // Allow user to set background grey level (for single-component images)
+  void SetBackgroundLevel(float v) {this->SetBackgroundColor(v,v,v,v);};
+  float GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
 
   // Description:
   // Spacing, origin, and extent of output data
@@ -141,13 +150,13 @@ public:
 protected:
   vtkTransform *ResliceTransform;
   int Wrap;
-  int Interpolate;
   int InterpolationMode;
   int Optimization;
+  float BackgroundColor[4];
   float OutputOrigin[3];
   float OutputSpacing[3];
   int OutputExtent[6];
-  double BackgroundLevel;
+  float BackgroundLevel[4];
   void ExecuteImageInformation();
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   
