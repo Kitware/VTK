@@ -88,7 +88,7 @@ protected:
   vtkOrderedTriangulator *Triangulator;
   
   //Some cells define templates for interior clipping
-  virtual int ClipInteriorCell(vtkCellArray *tets)
+  virtual int ClipInteriorCell(vtkCellArray *)
     {return 0;}
 
 private:
