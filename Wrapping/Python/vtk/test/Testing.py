@@ -34,7 +34,7 @@ main(cases):
    the starting string of the functions used for testing.
 
 interact():
-    Interacts with the user if necessary.  The behaviour of this is
+    Interacts with the user if necessary.  The behavior of this is
     rather trivial and works best when using Tkinter.  It does not do
     anything by default and stops to interact with the user when given
     the appropriate command line arguments.
@@ -355,15 +355,19 @@ def usage():
     -D /path/to/VTKData
     --data-dir /path/to/VTKData
 
-          Directory containing VTK Data use for tests.  
+          Directory containing VTK Data use for tests.  If this option
+          is not set via the command line the environment variable
+          VTK_DATA_ROOT is used.  If the environment variable is not
+          set the value defaults to '../../../../VTKData'.
     
     -B /path/to/valid/image_dir/
     --baseline-root /path/to/valid/image_dir/
 
           This is a path to the directory containing the valid images
-          for comparison.  If the images do not exist they will be
-          created.  Defaults to the same value set for -D
-          (--data-dir).
+          for comparison.  If this option is not set via the command
+          line the environment variable VTK_BASELINE_ROOT is used.  If
+          the environment variable is not set the value defaults to
+          the same value set for -D (--data-dir).
 
     -v level
     --verbose level
@@ -374,8 +378,10 @@ def usage():
     -I
     --interact
 
-          Interacts with the user when chosen.  If this is not set the
-          test will run and exit as soon as it is done.
+          Interacts with the user when chosen.  If this is not chosen
+          the test will run and exit as soon as it is finished.  When
+          enabled, the behavior of this is rather trivial and works
+          best when the test uses Tkinter.
 
     -n
     --no-image
