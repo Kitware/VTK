@@ -27,7 +27,7 @@
 #include "vtkByteSwap.h"
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.22");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.23");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -1879,6 +1879,18 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);
+
+    idx = this->UnstructuredPartIds->IsId(partId);
+    if (this->CellIds == NULL)
+      {
+      this->CellIds = new vtkIdList **[16];
+      }
+    
+    this->CellIds[idx] = new vtkIdList *[16];
+    for (i = 0; i < 16; i++)
+      {
+      this->CellIds[idx][i] = vtkIdList::New();
+      }
     }
   else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
     {
@@ -1886,21 +1898,16 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(int partId,
     this->OutputsAreValid = 0;
     return 0;
     }
+  else
+    {
+    idx = this->UnstructuredPartIds->IsId(partId);
+    for (i = 0; i < 16; i++)
+      {
+      this->CellIds[idx][i]->Reset();
+      }
+    }
   
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
-  
-  idx = this->UnstructuredPartIds->IsId(partId);
-
-  if (this->CellIds == NULL)
-    {
-    this->CellIds = new vtkIdList **[16];
-    }
-  
-  this->CellIds[idx] = new vtkIdList *[16];
-  for (i = 0; i < 16; i++)
-    {
-    this->CellIds[idx][i] = vtkIdList::New();
-    }
   
   while(lineRead && strncmp(line, "part", 4) != 0)
     {

@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.24");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.25");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -52,6 +52,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   char line[80], subLine[80];
   int partId;
   int lineRead, i;
+  int firstPart = 1;
   
   // Initialize
   //
@@ -146,7 +147,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
     delete [] tempArray;
     lineRead = this->ReadLine(line); // "part"
     }
-  
+
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
     this->ReadInt(&partId);
@@ -2011,6 +2012,18 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);
+    
+    idx = this->UnstructuredPartIds->IsId(partId);
+    if (this->CellIds == NULL)
+      {
+      this->CellIds = new vtkIdList **[16];
+      }
+    
+    this->CellIds[idx] = new vtkIdList *[16];
+    for (i = 0; i < 16; i++)
+      {
+      this->CellIds[idx][i] = vtkIdList::New();
+      }
     }
   else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
     {
@@ -2018,21 +2031,16 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
     this->OutputsAreValid = 0;
     return 0;
     }
+  else
+    {
+    idx = this->UnstructuredPartIds->IsId(partId);
+    for (i = 0; i < 16; i++)
+      {
+      this->CellIds[idx][i]->Reset();
+      }
+    }
   
   ((vtkUnstructuredGrid *)this->GetOutput(partId))->Allocate(1000);
-  
-  idx = this->UnstructuredPartIds->IsId(partId);
-
-  if (this->CellIds == NULL)
-    {
-    this->CellIds = new vtkIdList **[16];
-    }
-  
-  this->CellIds[idx] = new vtkIdList *[16];
-  for (i = 0; i < 16; i++)
-    {
-    this->CellIds[idx][i] = vtkIdList::New();
-    }
   
   while(lineRead && strncmp(line, "part", 4) != 0)
     {
@@ -2653,6 +2661,24 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
   delete [] zCoords;
   // reading next line to check for EOF
   lineRead = this->ReadLine(line);
+  
+  if (strcmp(line, "node_ids") == 0)
+    {
+    int *nodeIds = new int[numPts];
+    this->ReadIntArray(nodeIds, numPts);
+    lineRead = this->ReadLine(line);
+    delete [] nodeIds;
+    }
+  if (strcmp(line, "element_ids") == 0)
+    {
+    int numElements = (dimensions[0] - 1) * (dimensions[1] - 1) *
+      (dimensions[2] - 1);
+    int *elementIds = new int[numElements];
+    this->ReadIntArray(elementIds, numElements);
+    lineRead = this->ReadLine(line);
+    delete [] elementIds;
+    }
+  
   return lineRead;
 }
 
@@ -2829,6 +2855,7 @@ int vtkEnSightGoldBinaryReader::ReadInt(int *result)
     {
     return 0;
     }
+
   vtkByteSwap::Swap4BE(result);
   
   return 1;
@@ -2846,6 +2873,7 @@ int vtkEnSightGoldBinaryReader::ReadIntArray(int *result,
     {
     return 0;
     }
+
   for (i = 0; i < numInts; i++)
     {
     vtkByteSwap::Swap4BE(&result[i]);
@@ -2866,6 +2894,7 @@ int vtkEnSightGoldBinaryReader::ReadFloatArray(float *result,
     {
     return 0;
     }
+
   for (i = 0; i < numFloats; i++)
     {
     vtkByteSwap::Swap4BE(&result[i]);
