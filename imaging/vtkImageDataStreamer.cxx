@@ -95,7 +95,7 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageDataStreamer::UpdateData(vtkDataObject *out)
+void vtkImageDataStreamer::UpdateData(vtkDataObject *vtkNotUsed(out))
 {
   int idx;
   vtkImageData *input = this->GetInput();

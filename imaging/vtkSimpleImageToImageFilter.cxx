@@ -90,7 +90,7 @@ void vtkSimpleImageToImageFilter::ExecuteInformation()
 
 
 void vtkSimpleImageToImageFilter::ComputeInputUpdateExtent( int inExt[6], 
-							    int outExt[6] )
+							    int vtkNotUsed(outExt)[6] )
 {
   vtkImageData *input = this->GetInput();
   // Make sure the Input has been set.
