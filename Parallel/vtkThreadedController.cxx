@@ -68,9 +68,9 @@ private:
   void operator=(const vtkThreadedControllerOutputWindow&);
 };
 
-vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.12");
+vtkCxxRevisionMacro(vtkThreadedControllerOutputWindow, "1.13");
 
-vtkCxxRevisionMacro(vtkThreadedController, "1.12");
+vtkCxxRevisionMacro(vtkThreadedController, "1.13");
 vtkStandardNewMacro(vtkThreadedController);
 
 void vtkThreadedController::CreateOutputWindow()
@@ -295,7 +295,9 @@ void vtkThreadedController::Start(int threadId)
 #elif defined VTK_USE_WIN32_THREADS
   localController->ThreadId = GetCurrentThreadId();
 #endif
-  
+
+  this->Barrier();
+
   if (this->MultipleMethodFlag)
     {
     if (this->MultipleMethod[threadId])
