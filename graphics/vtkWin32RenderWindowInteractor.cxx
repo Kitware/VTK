@@ -46,7 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkInteractorStyle.h"
 #include "vtkActor.h"
-#include <gl\gl.h>
+#ifndef VTK_IMPLEMENT_MESA_CXX
+#include <gl/gl.h>
+#endif
 #include "vtkObjectFactory.h"
 
 
