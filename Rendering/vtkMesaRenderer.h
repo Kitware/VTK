@@ -69,11 +69,11 @@ protected:
   virtual void UpdatePickId();
   virtual void DonePick();
   virtual unsigned int GetPickedId();
-  virtual float GetPickedZ();
+  virtual double GetPickedZ();
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
   //ETX
-  float PickedZ;
+  double PickedZ;
 private:
   vtkMesaRenderer(const vtkMesaRenderer&);  // Not implemented.
   void operator=(const vtkMesaRenderer&);  // Not implemented.
