@@ -61,7 +61,9 @@
 // properties of the widget. You can set the properties of the selected and
 // unselected representations of the spline. For example, you can set the
 // property for the handles and spline. In addition there are methods to
-// constrain the spline so that it is aligned with a plane.
+// constrain the spline so that it is aligned with a plane.  Note that a simple
+// ruler widget can be derived by setting the resolution to 1, the number of
+// handles to 2, and calling the GetSummedLength method!
 
 // .SECTION Thanks
 // Thanks to Dean Inglis for developing and contributing this class.
@@ -162,15 +164,19 @@ public:
   void GetPolyData(vtkPolyData *pd);
 
   // Description:
-  // Get the handle properties (the little balls are the handles). The
+  // Set/Get the handle properties (the little balls are the handles). The
   // properties of the handles when selected and normal can be manipulated.
+  virtual void SetHandleProperty(vtkProperty*);
   vtkGetObjectMacro(HandleProperty, vtkProperty);
+  virtual void SetSelectedHandleProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedHandleProperty, vtkProperty);
 
   // Description:
-  // Get the line properties. The properties of the line when selected
+  // Set/Get the line properties. The properties of the line when selected
   // and unselected can be manipulated.
+  virtual void SetLineProperty(vtkProperty*);
   vtkGetObjectMacro(LineProperty, vtkProperty);
+  virtual void SetSelectedLineProperty(vtkProperty*);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
 
   // Description:
@@ -204,11 +210,17 @@ public:
   // Description:
   // Control whether the spline is open or closed. A closed spline forms
   // a continuous loop: the first and last points are the same, and
-  // derivatives are continuous.  This method enforces consistency with
+  // derivatives are continuous. This method enforces consistency with
   // user supplied subclasses of vtkSpline.
   void SetClosed(int closed);
   vtkGetMacro(Closed,int);
   vtkBooleanMacro(Closed,int);
+
+  // Description:
+  // Get the approximate vs. the true arc length of the spline. Calculated as
+  // the summed lengths of the individual straight line segments. Use
+  // SetResolution to control the accuracy.
+  float GetSummedLength();
 
 protected:
   vtkSplineWidget();
