@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.67.4.1");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.67.4.2");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -144,7 +144,10 @@ void vtkTubeFilter::Execute()
     inScalars->GetRange(range,0);
     if ((range[1] - range[0]) == 0.0)
       {
-      vtkWarningMacro(<< "Scalar range is zero!");
+      if (this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR )
+        {
+        vtkWarningMacro(<< "Scalar range is zero!");
+        }
       range[1] = range[0] + 1.0;
       }
     }
