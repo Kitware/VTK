@@ -191,12 +191,13 @@ void do_return(FILE *fp)
       {
       fprintf(fp,"      tempH = vtkPythonGetObjectFromPointer((void *)temp%i);\n",
 	      MAX_ARGS);
-      fprintf(fp,"      if (!tempH)\n      {\n");
+      fprintf(fp,"      if (!tempH)\n        {\n");
       fprintf(fp,"        if ((tempH = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
 	      currentFunction->ReturnClass);
       fprintf(fp,"          return NULL;\n\n");
-      fprintf(fp,"        vtkPythonAddObjectToHash(tempH,(void *)temp%i,(void *)%s_Typecast,0);\n      }\n",
+      fprintf(fp,"        vtkPythonAddObjectToHash(tempH,(void *)temp%i,(void *)%s_Typecast);\n",
 	      MAX_ARGS, currentFunction->ReturnClass);
+      fprintf(fp,"        temp%i->Register(NULL);\n        }\n",MAX_ARGS);
       fprintf(fp,"      Py_INCREF(tempH);\n");
       fprintf(fp,"      return tempH;\n");
       break;
@@ -662,10 +663,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"{\n  %s *op;\n",data->ClassName);
   fprintf(fp,"  op = (%s *)vtkPythonGetPointerFromObject(self,\"%s\");\n",
 	  data->ClassName,data->ClassName);
-  fprintf(fp,"  if (vtkPythonShouldIDeleteObject(self))\n    {\n");
-  fprintf(fp,"    op->Delete();\n    }\n");
+  fprintf(fp,"  vtkPythonDeleteObjectFromHash(self);\n");
+  fprintf(fp,"  op->Delete();\n");
   fprintf(fp,"  PyMem_DEL(self);\n}\n\n");
-	
 
   fprintf(fp,"PyObject *Py%s_PyGetAttr(PyObject *self, char *name)\n",
 	  data->ClassName);
@@ -697,7 +697,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
 	    data->ClassName);
     fprintf(fp,"    return NULL;\n\n");
-    fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()),(void *)%s_Typecast,1);\n",
+    fprintf(fp,"  vtkPythonAddObjecToHash(obj,(void *)(%s::New()),(void *)%s_Typecast);\n",
 	    data->ClassName, data->ClassName);
     fprintf(fp,"  return obj;\n}\n\n");
 	  
