@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkEdgeTable.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.31");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.32");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -349,12 +349,20 @@ public:
 // Classes are used to represent points, faces, and tetras-------------------
 struct vtkOTPoint
 {
-  vtkOTPoint() : Id(0), SortId(0), InternalId(0), Type(Inside) 
+  vtkOTPoint() : Id(0), SortId(0), SortId2(0), InternalId(0), Type(Inside) 
     {this->X[0] = this->X[1] = this->X[2] = 0.0;}
   enum PointClassification 
     {Inside=0,Outside=1,Boundary=2,Added=3,NoInsert=4};
   vtkIdType Id; //Id to data outside this class
-  vtkIdType SortId; //Id used to sort in triangulation
+
+  //Id used to sort in triangulation
+  vtkIdType SortId;
+  //Second id used to sort in triangulation
+  //This can be used in situations where on id is not enough
+  //(for example, when the id is related to an edge which
+  // is described by two points)
+  vtkIdType SortId2; 
+
   vtkIdType InternalId; //Id (order) of point insertion
   double X[3];
   PointClassification Type; //inside, outside
@@ -433,6 +441,7 @@ vtkOrderedTriangulator::vtkOrderedTriangulator()
   this->Mesh = new vtkOTMesh;
   this->NumberOfPoints = 0;
   this->PreSorted = 0;
+  this->UseTwoSortIds = 0;
   // Create a memory pool, using a block size of 80
   this->Pool = new vtkMemoryPool(sizeof(vtkOTTetra), 80);
 }
@@ -578,6 +587,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
   
   this->Mesh->Points[idx].Id = id;
   this->Mesh->Points[idx].SortId = id;
+  this->Mesh->Points[idx].SortId2 = -1;
   this->Mesh->Points[idx].InternalId = -1; //dummy value
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
@@ -588,7 +598,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, float x[3],
 }
 
 vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
-                                              float x[3], int type)
+					      float x[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
   if ( idx > this->MaximumNumberOfPoints )
@@ -599,6 +609,30 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
   
   this->Mesh->Points[idx].Id = id;
   this->Mesh->Points[idx].SortId = sortid;
+  this->Mesh->Points[idx].SortId2 = -1;
+  this->Mesh->Points[idx].InternalId = -1; //dummy value
+  this->Mesh->Points[idx].X[0] = (double) x[0];
+  this->Mesh->Points[idx].X[1] = (double) x[1];
+  this->Mesh->Points[idx].X[2] = (double) x[2];
+  this->Mesh->Points[idx].Type = (vtkOTPoint::PointClassification) type;
+  
+  return idx;
+}
+
+vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
+					      vtkIdType sortid2,
+					      float x[3], int type)
+{
+  vtkIdType idx = this->NumberOfPoints++;
+  if ( idx > this->MaximumNumberOfPoints )
+    {
+    vtkErrorMacro(<< "Trying to insert more points than specified");
+    return idx;
+    }
+  
+  this->Mesh->Points[idx].Id = id;
+  this->Mesh->Points[idx].SortId = sortid;
+  this->Mesh->Points[idx].SortId2 = sortid2;
   this->Mesh->Points[idx].InternalId = -1; //dummy value
   this->Mesh->Points[idx].X[0] = (double) x[0];
   this->Mesh->Points[idx].X[1] = (double) x[1];
@@ -616,55 +650,87 @@ void vtkOrderedTriangulator::UpdatePointType(vtkIdType internalId, int type)
 
 //------------------------------------------------------------------------
 void vtkOTTetra::GetFacePoints(int i, vtkOTFace *face)
-  {
-    switch (i)
-      {
-      case 0:
-        face->Points[0] = this->Points[0];
-        face->Points[1] = this->Points[1];
-        face->Points[2] = this->Points[3];
-        break;
-      case 1:
-        face->Points[0] = this->Points[1];
-        face->Points[1] = this->Points[2];
-        face->Points[2] = this->Points[3];
-        break;
-      case 2:
-        face->Points[0] = this->Points[2];
-        face->Points[1] = this->Points[0];
-        face->Points[2] = this->Points[3];
-        break;
-      case 3:
-        face->Points[0] = this->Points[0];
-        face->Points[1] = this->Points[1];
-        face->Points[2] = this->Points[2];
-        break;
-      }
-  }
+{
+  switch (i)
+    {
+    case 0:
+      face->Points[0] = this->Points[0];
+      face->Points[1] = this->Points[1];
+      face->Points[2] = this->Points[3];
+      break;
+    case 1:
+      face->Points[0] = this->Points[1];
+      face->Points[1] = this->Points[2];
+      face->Points[2] = this->Points[3];
+      break;
+    case 2:
+      face->Points[0] = this->Points[2];
+      face->Points[1] = this->Points[0];
+      face->Points[2] = this->Points[3];
+      break;
+    case 3:
+      face->Points[0] = this->Points[0];
+      face->Points[1] = this->Points[1];
+      face->Points[2] = this->Points[2];
+      break;
+    }
+}
 
 //------------------------------------------------------------------------
- 
+
 extern "C" {
 #ifdef _WIN32_WCE
-int __cdecl vtkSortOnPointIds(const void *val1, const void *val2)
+  int __cdecl vtkSortOnIds(const void *val1, const void *val2)
 #else
-int vtkSortOnPointIds(const void *val1, const void *val2)
+  int vtkSortOnIds(const void *val1, const void *val2)
 #endif
-{
-  if (((vtkOTPoint *)val1)->SortId < ((vtkOTPoint *)val2)->SortId)
-    {
-    return (-1);
-    }
-  else if (((vtkOTPoint *)val1)->SortId > ((vtkOTPoint *)val2)->SortId)
-    {
-    return (1);
-    }
-  else
-    {
-    return (0);
-    }
+  {
+    if (((vtkOTPoint *)val1)->SortId < ((vtkOTPoint *)val2)->SortId)
+      {
+      return (-1);
+      }
+    else if (((vtkOTPoint *)val1)->SortId > ((vtkOTPoint *)val2)->SortId)
+      {
+      return (1);
+      }
+    else
+      {
+      return (0);
+      }
+  }
 }
+
+extern "C" {
+#ifdef _WIN32_WCE
+  int __cdecl vtkSortOnTwoIds(const void *val1, const void *val2)
+#else
+  int vtkSortOnTwoIds(const void *val1, const void *val2)
+#endif
+  {
+    if (((vtkOTPoint *)val1)->SortId2 < ((vtkOTPoint *)val2)->SortId2)
+      {
+      return (-1);
+      }
+    else if (((vtkOTPoint *)val1)->SortId2 > ((vtkOTPoint *)val2)->SortId2)
+      {
+      return (1);
+      }
+    
+    if (((vtkOTPoint *)val1)->SortId < ((vtkOTPoint *)val2)->SortId)
+      {
+      return (-1);
+      }
+    else if (((vtkOTPoint *)val1)->SortId > ((vtkOTPoint *)val2)->SortId)
+      {
+      return (1);
+      }
+    else
+      {
+      return (0);
+      }
+  }
 }
+
 //------------------------------------------------------------------------
 // See whether point is in sphere of tetrahedron
 int vtkOTTetra::InCircumSphere(double x[3])
@@ -889,8 +955,16 @@ void vtkOrderedTriangulator::Triangulate()
   // where they are (at the end of the list).
   if ( ! this->PreSorted )
     {
-    qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints, 
-          sizeof(vtkOTPoint), vtkSortOnPointIds);
+    if (this->UseTwoSortIds)
+      {
+      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints, 
+	    sizeof(vtkOTPoint), vtkSortOnTwoIds);
+      }
+    else
+      {
+      qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints, 
+	    sizeof(vtkOTPoint), vtkSortOnIds);
+      }
     }
 
   // Insert each point into the triangulation. Assign internal ids 

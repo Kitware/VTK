@@ -125,6 +125,8 @@ public:
   // the point with UpdatePointType().
   vtkIdType InsertPoint(vtkIdType id, float x[3], int type);
   vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, float x[3], int type);
+  vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid,  vtkIdType sortid2, 
+			float x[3], int type);
 
   // Description:
   // Perform the triangulation. (Complete all calls to InsertPoint() prior
@@ -144,9 +146,16 @@ public:
   // pre-sorted is enabled, the points are not sorted on point id.
   // By default, presorted is off. (The point id is defined in
   // InsertPoint().)
-  vtkSetMacro(PreSorted,int)
-  vtkGetMacro(PreSorted,int)
-  vtkBooleanMacro(PreSorted,int)
+  vtkSetMacro(PreSorted,int);
+  vtkGetMacro(PreSorted,int);
+  vtkBooleanMacro(PreSorted,int);
+
+  // Description:
+  // Tells the triangulator that a second sort id is provided
+  // for each point and should also be considered when sorting
+  vtkSetMacro(UseTwoSortIds,int);
+  vtkGetMacro(UseTwoSortIds,int);
+  vtkBooleanMacro(UseTwoSortIds,int);
 
   // Description:
   // Initialize and add the tetras and points from the triangulation to the
@@ -188,6 +197,7 @@ private:
   int NumberOfPoints; //number of points inserted
   int MaximumNumberOfPoints; //maximum possible number of points to be inserted
   int PreSorted;
+  int UseTwoSortIds;
   vtkMemoryPool* Pool;
   
 private:
