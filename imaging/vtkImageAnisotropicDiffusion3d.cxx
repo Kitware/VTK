@@ -47,13 +47,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageAnisotropicDiffusion3d fitler.
 vtkImageAnisotropicDiffusion3d::vtkImageAnisotropicDiffusion3d()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
   
   this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
   this->SetNumberOfIterations(4);
   this->DiffusionThreshold = 5.0;
-  this->DiffusionFactor = 0.3;
+  this->DiffusionFactor = 1;
+  this->FacesOn();
+  this->EdgesOn();
+  this->CornersOn();
 }
 
 
@@ -64,6 +67,34 @@ vtkImageAnisotropicDiffusion3d::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkImageSpatialFilter::PrintSelf(os, indent);
   os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";
   os << indent << "DiffusionThreshold: " << this->DiffusionThreshold << "\n";
+  os << indent << "DiffusionFactor: " << this->DiffusionFactor << "\n";
+
+  if (this->Faces)
+    {
+    os << indent << "Faces: On\n";
+    }
+  else
+    {
+    os << indent << "Faces: Off\n";
+    }
+
+  if (this->Edges)
+    {
+    os << indent << "Edges: On\n";
+    }
+  else
+    {
+    os << indent << "Edges: Off\n";
+    }
+
+  if (this->Corners)
+    {
+    os << indent << "Corners: On\n";
+    }
+  else
+    {
+    os << indent << "Corners: Off\n";
+    }
 }
 
 
@@ -81,8 +112,10 @@ void vtkImageAnisotropicDiffusion3d::SetNumberOfIterations(int num)
   temp = num*2 + 1;
   this->KernelSize[0] = temp;
   this->KernelSize[1] = temp;
+  this->KernelSize[2] = temp;
   this->KernelMiddle[0] = num;
   this->KernelMiddle[1] = num;
+  this->KernelMiddle[2] = num;
 
   this->NumberOfIterations = num;
 }
@@ -98,14 +131,14 @@ void vtkImageAnisotropicDiffusion3d::SetNumberOfIterations(int num)
 // templated function for the input region type.  The input and output regions
 // must have the same data type.
 void vtkImageAnisotropicDiffusion3d::Execute(vtkImageRegion *inRegion, 
-						     vtkImageRegion *outRegion)
+					     vtkImageRegion *outRegion)
 {
   int idx;
+  int extent[6];
   float ar0, ar1, ar2;
   vtkImageRegion *in;
   vtkImageRegion *out;
   vtkImageRegion *temp;
-  int extent[6]; 
 
   inRegion->GetAspectRatio(ar0, ar1, ar2);
   inRegion->GetExtent(extent, 3);
@@ -121,13 +154,16 @@ void vtkImageAnisotropicDiffusion3d::Execute(vtkImageRegion *inRegion,
   out->SetExtent(extent, 3);
   out->SetDataType(VTK_FLOAT);
   out->Allocate();
-
+  
+  // To compute extent of diffusion which will shrink.
+  outRegion->GetExtent(extent, 3);
+  
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
   // (but never get smaller than output region).
-  for (idx = 0; idx < this->NumberOfIterations; ++idx)
+  for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
     {
-    this->Iterate(in, out, ar0, ar1, ar2);
+    this->Iterate(in, out, ar0, ar1, ar2, extent, idx);
     temp = in;
     in = out;
     out = temp;
@@ -150,19 +186,48 @@ void vtkImageAnisotropicDiffusion3d::Execute(vtkImageRegion *inRegion,
 // and have the same extent.
 void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion, 
 					     vtkImageRegion *outRegion,
-					     float ar0, float ar1, float ar2)
+					     float ar0, float ar1, float ar2,
+					     int *coreExtent, int count)
 {
   int idx0, idx1, idx2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
+  int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
   int min0, max0, min1, max1, min2, max2;
   float *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
   float ar01, ar02, ar12, ar012, diff;
+  float fact;
 
-  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
+  inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
   inRegion->GetIncrements(inInc0, inInc1, inInc2);
   outRegion->GetIncrements(outInc0, outInc1, outInc2);
+
+  // Compute the factor from the number of neighbors.
+  // we could take distance into account and have face factor, edge factor ...
+  fact = 0.0;
+  if (this->Faces)
+    {
+    fact += 6;
+    }
+  if (this->Edges)
+    {
+    fact += 12;
+    }
+  if (this->Corners)
+    {
+    fact += 8;
+    }
+  if (fact > 0.0)
+    {
+    fact = this->DiffusionFactor / fact;
+    }
+  else
+    {
+    vtkWarningMacro(<< "Iterate: NO NEIGHBORS");
+    fact = this->DiffusionFactor;
+    }
+    
   ar01 = sqrt(ar0 * ar0 + ar1 * ar1) * this->DiffusionThreshold;
   ar02 = sqrt(ar0 * ar0 + ar2 * ar2) * this->DiffusionThreshold;
   ar12 = sqrt(ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
@@ -171,12 +236,30 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
   ar1 *= this->DiffusionThreshold;
   ar2 *= this->DiffusionThreshold;
   
-
-  // I appolgize for explicitely diffusing each neighbor, but it is the easiest
+  // Compute the shrinking extent to loop over.
+  min0 = coreExtent[0] - count;
+  max0 = coreExtent[1] + count;
+  min1 = coreExtent[2] - count;
+  max1 = coreExtent[3] + count;
+  min2 = coreExtent[4] - count;
+  max2 = coreExtent[5] + count;
+  // intersection
+  min0 = (min0 > inMin0) ? min0 : inMin0;
+  max0 = (max0 < inMax0) ? max0 : inMax0;
+  min1 = (min1 > inMin1) ? min1 : inMin1;
+  max1 = (max1 < inMax1) ? max1 : inMax1;
+  min2 = (min2 > inMin2) ? min2 : inMin2;
+  max2 = (max2 < inMax2) ? max2 : inMax2;
+  
+  vtkDebugMacro(<< "Iteration count: " << count << " ("
+  << min0 << ", " << max0 << ", " << min1 << ", " << max1 << ", " 
+  << min2 << ", " << max2 << ")");
+  
+  // I apologize for explicitely diffusing each neighbor, but it is the easiest
   // way to deal with the boundary conditions.  Besides it is fast.
   // (Are you sure every one is correct?!!!)
-  inPtr2 = (float *)(inRegion->GetScalarPointer());
-  outPtr2 = (float *)(outRegion->GetScalarPointer());
+  inPtr2 = (float *)(inRegion->GetScalarPointer(min0, min1, min2));
+  outPtr2 = (float *)(outRegion->GetScalarPointer(min0, min1, min2));
   for (idx2 = min2; idx2 <= max2; ++idx2, inPtr2+=inInc2, outPtr2+=outInc2)
     {
     inPtr1 = inPtr2;
@@ -190,243 +273,251 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	// Copy center
 	*outPtr0 = *inPtr0;
 	// Start diffusing
-	// left
-	if (idx0 != min0)
+	if (this->Faces)
 	  {
-	  diff = inPtr0[-inInc0] - *inPtr0;
-	  if (fabs(diff) < ar0)
+	  // left
+	  if (idx0 != inMin0)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0] - *inPtr0;
+	    if (fabs(diff) < ar0)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// right
-	if (idx0 != max0)
-	  {
-	  diff = inPtr0[inInc0] - *inPtr0;
-	  if (fabs(diff) < ar0)
+	  // right
+	  if (idx0 != inMax0)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0] - *inPtr0;
+	    if (fabs(diff) < ar0)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// up
-	if (idx1 != min1)
-	  {
-	  diff = inPtr0[-inInc1] - *inPtr0;
-	  if (fabs(diff) < ar1)
+	  // up
+	  if (idx1 != inMin1)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc1] - *inPtr0;
+	    if (fabs(diff) < ar1)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// down
-	if (idx1 != max1)
-	  {
-	  diff = inPtr0[inInc1] - *inPtr0;
-	  if (fabs(diff) < ar1)
+	  // down
+	  if (idx1 != inMax1)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc1] - *inPtr0;
+	    if (fabs(diff) < ar1)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// in
-	if (idx2 != min2)
-	  {
-	  diff = inPtr0[-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar2)
+	  // in
+	  if (idx2 != inMin2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar2)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// out
-	if (idx2 != max2)
-	  {
-	  diff = inPtr0[inInc2] - *inPtr0;
-	  if (fabs(diff) < ar2)
+	  // out
+	  if (idx2 != inMax2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-
-	// left up
-	if (idx0 != min0 && idx1 != min1)
-	  {
-	  diff = inPtr0[-inInc0-inInc1] - *inPtr0;
-	  if (fabs(diff) < ar01)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// right up
-	if (idx0 != max0 && idx1 != min1)
-	  {
-	  diff = inPtr0[inInc0-inInc1] - *inPtr0;
-	  if (fabs(diff) < ar01)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// left down
-	if (idx0 != min0 && idx1 != max1)
-	  {
-	  diff = inPtr0[-inInc0+inInc1] - *inPtr0;
-	  if (fabs(diff) < ar01)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// right down
-	if (idx0 != max0 && idx1 != max1)
-	  {
-	  diff = inPtr0[inInc0+inInc1] - *inPtr0;
-	  if (fabs(diff) < ar01)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc2] - *inPtr0;
+	    if (fabs(diff) < ar2)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
 	  }
 	
-	// left in
-	if (idx0 != min0 && idx2 != min2)
+	if (this->Edges)
 	  {
-	  diff = inPtr0[-inInc0-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar02)
+	  // left up
+	  if (idx0 != inMin0 && idx1 != inMin1)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0-inInc1] - *inPtr0;
+	    if (fabs(diff) < ar01)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// right in
-	if (idx0 != max0 && idx2 != min2)
-	  {
-	  diff = inPtr0[inInc0-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar02)
+	  // right up
+	  if (idx0 != inMax0 && idx1 != inMin1)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0-inInc1] - *inPtr0;
+	    if (fabs(diff) < ar01)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// left out
-	if (idx0 != min0 && idx2 != max2)
-	  {
-	  diff = inPtr0[-inInc0+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar02)
+	  // left down
+	  if (idx0 != inMin0 && idx1 != inMax1)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0+inInc1] - *inPtr0;
+	    if (fabs(diff) < ar01)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// right out
-	if (idx0 != max0 && idx2 != max2)
-	  {
-	  diff = inPtr0[inInc0+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar02)
+	  // right down
+	  if (idx0 != inMax0 && idx1 != inMax1)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0+inInc1] - *inPtr0;
+	    if (fabs(diff) < ar01)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  
+	  // left in
+	  if (idx0 != inMin0 && idx2 != inMin2)
+	    {
+	    diff = inPtr0[-inInc0-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar02)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  // right in
+	  if (idx0 != inMax0 && idx2 != inMin2)
+	    {
+	    diff = inPtr0[inInc0-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar02)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  // left out
+	  if (idx0 != inMin0 && idx2 != inMax2)
+	    {
+	    diff = inPtr0[-inInc0+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar02)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  // right out
+	  if (idx0 != inMax0 && idx2 != inMax2)
+	    {
+	    diff = inPtr0[inInc0+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar02)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  
+	  // up in
+	  if (idx1 != inMin1 && idx2 != inMin2)
+	    {
+	    diff = inPtr0[-inInc1-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar12)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  // down in
+	  if (idx1 != inMax1 && idx2 != inMin2)
+	    {
+	    diff = inPtr0[inInc1-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar12)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  // up out
+	  if (idx1 != inMin1 && idx2 != inMax2)
+	    {
+	    diff = inPtr0[-inInc1+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar12)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
+	    }
+	  // down out
+	  if (idx1 != inMax1 && idx2 != inMax2)
+	    {
+	    diff = inPtr0[inInc1+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar12)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
 	  }
 	
-	// up in
-	if (idx1 != min1 && idx2 != min2)
+	if (this->Corners)
 	  {
-	  diff = inPtr0[-inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar12)
+	  // left up in
+	  if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMin2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// down in
-	if (idx1 != max1 && idx2 != min2)
-	  {
-	  diff = inPtr0[inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar12)
+	  // right up in
+	  if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMin2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// up out
-	if (idx1 != min1 && idx2 != max2)
-	  {
-	  diff = inPtr0[-inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar12)
+	  // left down in
+	  if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMin2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// down out
-	if (idx1 != max1 && idx2 != max2)
-	  {
-	  diff = inPtr0[inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar12)
+	  // right down in
+	  if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMin2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-
-
-	// left up in
-	if (idx0 != min0 && idx1 != min1 && idx2 != min2)
-	  {
-	  diff = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
+	  // left up out
+	  if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMax2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// right up in
-	if (idx0 != max0 && idx1 != min1 && idx2 != min2)
-	  {
-	  diff = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
+	  // right up out
+	  if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMax2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// left down in
-	if (idx0 != min0 && idx1 != max1 && idx2 != min2)
-	  {
-	  diff = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
+	  // left down out
+	  if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMax2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
-	  }
-	// right down in
-	if (idx0 != max0 && idx1 != max1 && idx2 != min2)
-	  {
-	  diff = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
+	  // right down out
+	  if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMax2)
 	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// left up out
-	if (idx0 != min0 && idx1 != min1 && idx2 != max2)
-	  {
-	  diff = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// right up out
-	if (idx0 != max0 && idx1 != min1 && idx2 != max2)
-	  {
-	  diff = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// left down out
-	if (idx0 != min0 && idx1 != max1 && idx2 != max2)
-	  {
-	  diff = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
-	    }
-	  }
-	// right down out
-	if (idx0 != max0 && idx1 != max1 && idx2 != max2)
-	  {
-	  diff = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
-	  if (fabs(diff) < ar012)
-	    {
-	    *outPtr0 += diff * this->DiffusionFactor;
+	    diff = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
+	    if (fabs(diff) < ar012)
+	      {
+	      *outPtr0 += diff * fact;
+	      }
 	    }
 	  }
 	}

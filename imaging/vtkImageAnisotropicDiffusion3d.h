@@ -72,16 +72,32 @@ public:
   // Set/Get the difference factor
   vtkSetMacro(DiffusionFactor,float);
   vtkGetMacro(DiffusionFactor,float);
+
+  // Description:
+  // Choose neighbors to diffuse (6 faces, 12 edges, 8 corners).
+  vtkSetMacro(Faces,int);
+  vtkGetMacro(Faces,int);
+  vtkBooleanMacro(Faces,int);
+  vtkSetMacro(Edges,int);
+  vtkGetMacro(Edges,int);
+  vtkBooleanMacro(Edges,int);
+  vtkSetMacro(Corners,int);
+  vtkGetMacro(Corners,int);
+  vtkBooleanMacro(Corners,int);
   
   
 protected:
   int NumberOfIterations;
   float DiffusionThreshold;
   float DiffusionFactor;  
+  // to determine which neighbors to diffuse
+  int Faces;
+  int Edges;
+  int Corners;
   
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Iterate(vtkImageRegion *in, vtkImageRegion *out, 
-	       float ar0, float ar1, float ar3);
+	       float ar0, float ar1, float ar3, int *coreExtent, int count);
 };
 
 #endif
