@@ -125,7 +125,7 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
   else
     {
-    os << indent << "Data:\n";
+    os << indent << "Data: (" << this->Data << ")\n";
     this->Data->PrintSelf(os,indent.GetNextIndent());
     }
 }
