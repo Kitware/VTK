@@ -40,11 +40,6 @@ class vtkFloatArray;
 class vtkIdTypeArray;
 class vtkDataArraySelection;
 
-struct DataInfo {
-  long foffset; // offset in binary file
-  int veclen;   // number of components in the node or cell variable
-};
-
 class VTK_IO_EXPORT vtkAVSucdReader : public vtkUnstructuredGridSource
 {
 public:
@@ -127,15 +122,12 @@ protected:
   int NumberOfCellComponents;
   int NumberOfCellFields;
   int NumberOfFields;
-  int nlist_nodes;
+  int NlistNodes;
 
   ifstream *FileStream;
 
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
-
-  DataInfo *NodeDataInfo;
-  DataInfo *CellDataInfo;
 
   int DecrementNodeIds;
   int ByteOrder;
@@ -157,7 +149,15 @@ protected:
     PRISM = 6,
     HEX   = 7
   };
+
+  struct DataInfo {
+    long foffset; // offset in binary file
+    int  veclen;   // number of components in the node or cell variable
+  };
   //ETX
+
+  DataInfo *NodeDataInfo;
+  DataInfo *CellDataInfo;
 
 private:
   void ReadFile();

@@ -19,8 +19,6 @@
 // Aguilera (daniel.aguilera at cea.fr, CEA-DAM, France) who contributed code
 // und advice.  Please address all comments to Jean Favre (jfavre at cscs.ch)
 
-#include <ctype.h>
-
 #include "vtkAVSucdReader.h"
 #include "vtkDataArraySelection.h"
 #include "vtkErrorCode.h"
@@ -36,9 +34,10 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.20");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.21");
 vtkStandardNewMacro(vtkAVSucdReader);
 
+//----------------------------------------------------------------------------
 vtkAVSucdReader::vtkAVSucdReader()
 {
   this->FileName  = NULL;
@@ -60,6 +59,7 @@ vtkAVSucdReader::vtkAVSucdReader()
   this->CellDataArraySelection = vtkDataArraySelection::New();
 }
 
+//----------------------------------------------------------------------------
 vtkAVSucdReader::~vtkAVSucdReader()
 {
   if (this->FileName)
@@ -80,17 +80,20 @@ vtkAVSucdReader::~vtkAVSucdReader()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::SetByteOrderToBigEndian()
 {
   this->ByteOrder = FILE_BIG_ENDIAN;
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::SetByteOrderToLittleEndian()
 {
   this->ByteOrder = FILE_LITTLE_ENDIAN;
 }
 
+//----------------------------------------------------------------------------
 const char *vtkAVSucdReader::GetByteOrderAsString()
 {
   if ( this->ByteOrder ==  FILE_LITTLE_ENDIAN)
@@ -103,22 +106,20 @@ const char *vtkAVSucdReader::GetByteOrderAsString()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::Execute()
 {
   vtkDebugMacro( << "Reading AVS UCD file");
 
-  // If ExecuteInformation() failed the fs will be NULL and
+  // If ExecuteInformation() failed FileStream will be NULL and
   // ExecuteInformation() will have spit out an error.
-  if ( this->FileStream == NULL )
+  if ( this->FileStream )
     {
-    return;
+    this->ReadFile();
     }
-
-  this->ReadFile();
-
-  return;
 }
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -144,6 +145,7 @@ void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadFile()
 {
   this->ReadGeometry();
@@ -163,6 +165,7 @@ void vtkAVSucdReader::ReadFile()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ExecuteInformation()
 {
   char magic_number='\0';
@@ -172,11 +175,6 @@ void vtkAVSucdReader::ExecuteInformation()
   // first open file in binary mode to check the first byte.
   if ( !this->FileName )
     {
-    this->NumberOfNodes = 0;
-    this->NumberOfCells = 0;
-    this->NumberOfNodeFields = 0;
-    this->NumberOfCellFields = 0;
-    this->NumberOfFields = 0;
     vtkErrorMacro("No filename specified");
     return;
     }
@@ -255,17 +253,17 @@ void vtkAVSucdReader::ExecuteInformation()
       this->ReadIntBlock(1, &this->NumberOfNodeFields);
       this->ReadIntBlock(1, &this->NumberOfCellFields);
       this->ReadIntBlock(1, &this->NumberOfFields);
-      this->ReadIntBlock(1, &this->nlist_nodes);
+      this->ReadIntBlock(1, &this->NlistNodes);
 
       vtkDebugMacro( << this->NumberOfNodes << " "
                      << this->NumberOfCells << " "
                      << this->NumberOfNodeFields << " "
                      << this->NumberOfCellFields << " "
                      << this->NumberOfFields << " "
-                     << this->nlist_nodes << endl);
+                     << this->NlistNodes << endl);
 
       calculatedFileLength  = 1 + 6*4;
-      calculatedFileLength += 16 * this->NumberOfCells + 4 * this->nlist_nodes;
+      calculatedFileLength += 16 * this->NumberOfCells + 4 * this->NlistNodes;
       calculatedFileLength += 3*4 * this->NumberOfNodes;
       if(this->NumberOfNodeFields)
         {
@@ -291,29 +289,20 @@ void vtkAVSucdReader::ExecuteInformation()
       } // end of while loop
 
     const long base_offset = 1 + 6*4;
-    char BUFFER2[1024], BUFFER1[1024], label[32];
+    char buffer1[1024], buffer2[1024], label[32];
 
     long offset = base_offset + 16 * this->NumberOfCells + 
-      4 * this->nlist_nodes + 3 * 4 * this->NumberOfNodes;
+      4 * this->NlistNodes + 3 * 4 * this->NumberOfNodes;
 
     if(this->NumberOfNodeFields)
       {
       this->FileStream->seekg(offset,ios::beg);
-      this->FileStream->read(BUFFER1, sizeof(BUFFER1));
-      this->FileStream->read(BUFFER2, sizeof(BUFFER2)); // read 2nd array of 1024 bytes
+      this->FileStream->read(buffer1, sizeof(buffer1));
+      this->FileStream->read(buffer2, sizeof(buffer2)); // read 2nd array of 1024 bytes
       this->ReadIntBlock(1, &this->NumberOfNodeComponents);
 
       ncomp_list = new int[this->NumberOfNodeFields];
       this->ReadIntBlock(this->NumberOfNodeFields, ncomp_list);
-      //for(i=0; i < this->NumberOfNodeFields; i++)
-      //{
-      //cerr << "ncomp_list[" << i << "] = " << ncomp_list[i] << endl;
-      //}
-      //float *mx = new float[this->NumberOfNodeFields];
-      //this->ReadFloatBlock(this->NumberOfNodeFields, mx);
-      //cerr << "Min: " << mx[0] << ", " << mx[1] << ", " << mx[2] << endl;
-      //this->ReadFloatBlock(this->NumberOfNodeFields, mx);
-      //cerr << "Max: " << mx[0] << ", " << mx[1] << ", " << mx[2] << endl;
 
       offset +=  1024 + 1024 + 4 + 3 * 4 * this->NumberOfNodeFields;
   
@@ -321,7 +310,7 @@ void vtkAVSucdReader::ExecuteInformation()
       k = 0;
       for(i=0; i < this->NumberOfNodeComponents; i++)
         {
-        this->GetLabel(BUFFER1, i, label);
+        this->GetLabel(buffer1, i, label);
         vtkDebugMacro( << i+1 << " :found ND label = " << label 
                        << " [" << ncomp_list[i] << "]" <<endl);
         this->PointDataArraySelection->AddArray(label);
@@ -337,9 +326,9 @@ void vtkAVSucdReader::ExecuteInformation()
       offset += 4 * this->NumberOfNodes * this->NumberOfNodeFields + 
         4 * this->NumberOfNodeFields;
       this->FileStream->seekg(offset,ios::beg);
-      this->FileStream->read(BUFFER1, sizeof(BUFFER1));
+      this->FileStream->read(buffer1, sizeof(buffer1));
 
-      this->FileStream->read(BUFFER2, sizeof(BUFFER2)); // read 2nd array of 1024 bytes
+      this->FileStream->read(buffer2, sizeof(buffer2)); // read 2nd array of 1024 bytes
       this->ReadIntBlock(1, &this->NumberOfCellComponents);
 
       ncomp_list = new int[this->NumberOfCellFields];
@@ -351,7 +340,7 @@ void vtkAVSucdReader::ExecuteInformation()
       k = 0;
       for(i=0; i < this->NumberOfCellComponents; i++)
         {
-        this->GetLabel(BUFFER1, i, label);
+        this->GetLabel(buffer1, i, label);
         vtkDebugMacro( << i+1 << " :found CD label = " << label << " [" 
                        << ncomp_list[i] << "]" << endl);
         this->CellDataArraySelection->AddArray(label);
@@ -367,14 +356,14 @@ void vtkAVSucdReader::ExecuteInformation()
       offset += 4 * this->NumberOfCells * this->NumberOfCellFields + 
         4 * this->NumberOfCellFields;
       this->FileStream->seekg(offset,ios::beg);
-      this->FileStream->read(BUFFER1, sizeof(BUFFER1));
-      vtkDebugMacro(<< BUFFER1 << endl);
+      this->FileStream->read(buffer1, sizeof(buffer1));
+      vtkDebugMacro(<< buffer1 << endl);
 
       offset += 1024 + 1024 + 4 + 3 * 4 * this->NumberOfFields;
 
       for(i=0; i < this->NumberOfFields; i++)
         {
-        this->GetLabel(BUFFER1, i, label);
+        this->GetLabel(buffer1, i, label);
         vtkDebugMacro( << "found MD label = " << label << endl);
         }
       }
@@ -400,13 +389,13 @@ void vtkAVSucdReader::ExecuteInformation()
   vtkDebugMacro( << "end of ExecuteInformation\n");
 }
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadGeometry()
 {
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
+  vtkUnstructuredGrid *output = this->GetOutput();
 
   // add a material array
   vtkIntArray *materials = vtkIntArray::New();
-  materials->SetNumberOfComponents(1);
   materials->SetNumberOfTuples(this->NumberOfCells);
   materials->SetName("Material Id");
 
@@ -426,7 +415,7 @@ void vtkAVSucdReader::ReadGeometry()
     // this array contains a list of NumberOfCells tuples
     // each tuple is 1 integer, i.e. the number of indices following it (N)
     // followed by these N integers 
-    listcells->SetNumberOfValues(this->NumberOfCells + this->nlist_nodes);
+    listcells->SetNumberOfValues(this->NumberOfCells + this->NlistNodes);
 
     this->ReadBinaryCellTopology(materials, types, listcells);
     this->ReadXYZCoords(coords);
@@ -462,6 +451,7 @@ void vtkAVSucdReader::ReadGeometry()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials, 
                                              int *types, 
                                              vtkIdTypeArray *listcells)
@@ -472,19 +462,19 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
   int *ctype = new int[4 * this->NumberOfCells];
   if(ctype == NULL)
     {
-    vtkErrorMacro(<< "Error allocating Ctype memory");
+    vtkErrorMacro(<< "Error allocating ctype memory");
     }
 
   this->FileStream->seekg(6*4 + 1,ios::beg);
   this->ReadIntBlock(4 * this->NumberOfCells, ctype);
   
-  int *topology_list = new int[this->nlist_nodes];
+  int *topology_list = new int[this->NlistNodes];
   if(topology_list == NULL)
     {
     vtkErrorMacro(<< "Error allocating topology_list memory");
     }
 
-  this->ReadIntBlock(this->nlist_nodes, topology_list);
+  this->ReadIntBlock(this->NlistNodes, topology_list);
   this->UpdateProgress(0.25);
 
   for(i=0; i < this->NumberOfCells; i++)
@@ -533,6 +523,7 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials,
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials, 
                                             vtkUnstructuredGrid *output)
 {
@@ -548,7 +539,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
     *(this->FileStream) >> id;
     *(this->FileStream) >> mat[i];
     *(this->FileStream) >> ctype;
-    //cerr << mat[i] << ", " << ctype << endl;
+    vtkDebugMacro( << mat[i] << ", " << ctype );
     if(!strcmp(ctype, "pt"))
       {
       for(k=0; k < 1; k++)
@@ -658,6 +649,7 @@ void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials,
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
 {
   int i;
@@ -692,7 +684,7 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
   else
     {
     int id;  // no check is done to see that they are monotonously increasing
-    // read here the first node anc check if its id number is 0
+    // read here the first node and check if its id number is 0
 
     *(this->FileStream) >> id;
     i=0;
@@ -711,6 +703,7 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadNodeData()
 {
   int i, j, n;
@@ -821,6 +814,7 @@ void vtkAVSucdReader::ReadNodeData()
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::ReadCellData()
 {
   int i, j, n;
@@ -928,16 +922,19 @@ void vtkAVSucdReader::ReadCellData()
   vtkDebugMacro( << "End of ReadCellData()\n");
 }
 
+//----------------------------------------------------------------------------
 const char* vtkAVSucdReader::GetPointArrayName(int index)
 {
   return this->PointDataArraySelection->GetArrayName(index);
 }
 
+//----------------------------------------------------------------------------
 int vtkAVSucdReader::GetPointArrayStatus(const char* name)
 {
   return this->PointDataArraySelection->ArrayIsEnabled(name);
 }
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::SetPointArrayStatus(const char* name, int status)
 {
   if(status)
@@ -950,17 +947,20 @@ void vtkAVSucdReader::SetPointArrayStatus(const char* name, int status)
     }
 }
 
+//----------------------------------------------------------------------------
 const char* vtkAVSucdReader::GetCellArrayName(int index)
 {
   return this->CellDataArraySelection->GetArrayName(index);
 }
 
+//----------------------------------------------------------------------------
 int vtkAVSucdReader::GetCellArrayStatus(const char* name)
 {
   return this->CellDataArraySelection->ArrayIsEnabled(name);
 }
 
 
+//----------------------------------------------------------------------------
 void vtkAVSucdReader::SetCellArrayStatus(const char* name, int status)
 {
   if(status)
@@ -973,16 +973,19 @@ void vtkAVSucdReader::SetCellArrayStatus(const char* name, int status)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkAVSucdReader::GetNumberOfCellArrays()
 {
   return this->CellDataArraySelection->GetNumberOfArrays();
 }
 
+//----------------------------------------------------------------------------
 int vtkAVSucdReader::GetNumberOfPointArrays()
 {
   return this->PointDataArraySelection->GetNumberOfArrays();
 }
 
+//----------------------------------------------------------------------------
 int vtkAVSucdReader::GetLabel(char *string, int number, char *label)
 {
   int   i, j, k, len;
@@ -992,7 +995,8 @@ int vtkAVSucdReader::GetLabel(char *string, int number, char *label)
   // check to make sure that structure is not NULL
   if (string == NULL)
     {
-    return (0);
+    vtkErrorMacro( << "String is null");
+    return 0;
     }
 
   // search for the appropriate label
@@ -1014,7 +1018,7 @@ int vtkAVSucdReader::GetLabel(char *string, int number, char *label)
         // the nth label was not found, where n = number
         if (i < number)
           {
-          return (0);
+          return 0;
           }
         current = '.';
         }
@@ -1022,10 +1026,11 @@ int vtkAVSucdReader::GetLabel(char *string, int number, char *label)
     label[j] = '\0';
     }
   // a valid label was found
-  return (1);
+  return 1;
 }
 
 
+//----------------------------------------------------------------------------
 // Read a block of ints (ascii or binary) and return number read.
 int vtkAVSucdReader::ReadIntBlock(int n, int *block)
 {
@@ -1062,6 +1067,7 @@ int vtkAVSucdReader::ReadIntBlock(int n, int *block)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkAVSucdReader::ReadFloatBlock(int n, float* block)
 {
   if (this->BinaryFile)
