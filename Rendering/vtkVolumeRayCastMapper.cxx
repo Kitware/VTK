@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.86");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.87");
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
                      vtkVolumeRayCastFunction );
@@ -80,6 +80,13 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->VoxelsToViewMatrix     = vtkMatrix4x4::New();
   this->WorldToVoxelsMatrix    = vtkMatrix4x4::New();
   this->VoxelsToWorldMatrix    = vtkMatrix4x4::New();
+
+  this->VolumeMatrix           = vtkMatrix4x4::New();
+  
+  this->PerspectiveTransform   = vtkTransform::New();
+  this->VoxelsTransform        = vtkTransform::New();
+  this->VoxelsToViewTransform  = vtkTransform::New();
+  
   
   this->ImageMemorySize[0]     = 0;
   this->ImageMemorySize[1]     = 0;
@@ -122,6 +129,11 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
   this->VoxelsToViewMatrix->Delete();
   this->WorldToVoxelsMatrix->Delete();
   this->VoxelsToWorldMatrix->Delete();
+
+  this->VolumeMatrix->Delete();
+  
+  this->VoxelsTransform->Delete();
+  this->VoxelsToViewTransform->Delete();
   
   this->Threader->Delete();
   
@@ -321,9 +333,13 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // Keep track of the projection matrix - we'll need it in a couple of places
   // Get the projection matrix. The method is called perspective, but
   // the matrix is valid for perspective and parallel viewing transforms.
-  this->PerspectiveMatrix->DeepCopy(
-    cam->GetCompositePerspectiveTransformMatrix( aspect[0]/aspect[1], 
-                                                 0.0, 1.0 ) );
+  // Don't replace this with the GetCompositePerspectiveTransformMatrix because that
+  // turns off stereo rendering!!!
+  this->PerspectiveTransform->Identity();
+  this->PerspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 
+                                                        0.0, 1.0 ));
+  this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
+  this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
 
   // Compute some matrices from voxels to view and vice versa based 
   // on the whole input
@@ -1571,16 +1587,14 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
   int volumeDimensions[3];
   data->GetDimensions( volumeDimensions );
 
-  // Create some transform objects that we will need later
-  vtkTransform *voxelsTransform = vtkTransform::New();
-  vtkTransform *voxelsToViewTransform = vtkTransform::New();
-
+  vtkTransform *voxelsTransform = this->VoxelsTransform;
+  vtkTransform *voxelsToViewTransform = this->VoxelsToViewTransform;
+  
   // Get the volume matrix. This is a volume to world matrix right now. 
   // We'll need to invert it, translate by the origin and scale by the 
   // spacing to change it to a world to voxels matrix.
-  vtkMatrix4x4 *volMatrix = vtkMatrix4x4::New();
-  volMatrix->DeepCopy( vol->GetMatrix() );
-  voxelsToViewTransform->SetMatrix( volMatrix );
+  this->VolumeMatrix->DeepCopy( vol->GetMatrix() );
+  voxelsToViewTransform->SetMatrix( VolumeMatrix );
 
   // Create a transform that will account for the scaling and translation of
   // the scalar data. The is the volume to voxels matrix.
@@ -1612,11 +1626,7 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
   this->VoxelsToViewMatrix->DeepCopy( voxelsToViewTransform->GetMatrix() );
   
   this->ViewToVoxelsMatrix->DeepCopy( this->VoxelsToViewMatrix );
-  this->ViewToVoxelsMatrix->Invert();
-  
-  voxelsToViewTransform->Delete();
-  voxelsTransform->Delete();
-  volMatrix->Delete();
+  this->ViewToVoxelsMatrix->Invert();  
 }
 
 void vtkVolumeRayCastMapper::InitializeClippingPlanes( 

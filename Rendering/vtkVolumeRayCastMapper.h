@@ -41,6 +41,7 @@ class vtkTimerLog;
 class vtkVolume;
 class vtkVolumeRayCastFunction;
 class vtkVolumeTransform;
+class vtkTransform;
 
 // Macro for floor of x
 #define vtkFloorFuncMacro(x)   (((x) < 0.0)?((int)((x)-1.0)):((int)(x)))
@@ -198,6 +199,12 @@ protected:
   vtkMatrix4x4 *VoxelsToViewMatrix;
   vtkMatrix4x4 *WorldToVoxelsMatrix;
   vtkMatrix4x4 *VoxelsToWorldMatrix;
+
+  vtkMatrix4x4 *VolumeMatrix;
+  
+  vtkTransform *PerspectiveTransform;
+  vtkTransform *VoxelsTransform;
+  vtkTransform *VoxelsToViewTransform;
   
   // This is how big the image would be if it covered the entire viewport
   int            ImageViewportSize[2];
