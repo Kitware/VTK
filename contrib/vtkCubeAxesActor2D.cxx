@@ -46,6 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {
   this->Input = NULL;
+  this->Prop = NULL;
+  this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
+  this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
+  this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
+
   this->Camera = NULL;
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
 
@@ -93,9 +98,14 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
     this->Input->Delete();
     }
 
+  if ( this->Prop )
+    {
+    this->Prop->Delete();
+    }
+
   if ( this->Camera )
     {
-    this->Camera->UnRegister(this);
+    this->Camera->Delete();
     }
 
   this->XAxis->Delete();
@@ -162,7 +172,7 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
 int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   unsigned long mtime;
-  float bounds[6], x[3], slope, minSlope, num, den;
+  float bounds[6], *propBounds, x[3], slope, minSlope, num, den;
   float pts[8][3], lleft[2], d2, d2Min, min, max;
   int needsRebuild=0, *p;
   int i, j, k, idx, idx2;
@@ -171,16 +181,36 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   int *size = viewport->GetSize();
 
   // Initialization
-  if ( !this->Input || !this->Camera )
+  if ( !this->Camera )
     {
-    vtkErrorMacro(<<"No input or no camera!");
+    vtkErrorMacro(<<"No camera!");
     this->RenderSomething = 0;
     return 0;
     }
   
   this->RenderSomething = 1;
-  this->Input->Update();
-  this->Input->GetBounds(bounds);
+
+  // determine the bounds to use
+  if ( this->Input )
+    {
+    this->Input->Update();
+    this->Input->GetBounds(bounds);
+    }
+  else if ( this->Prop && 
+  ((propBounds = this->Prop->GetBounds()) && propBounds != NULL) )
+    {
+    for (i=0; i< 6; i++)
+      {
+      bounds[i] = propBounds[i];
+      }
+    }
+  else
+    {
+    for (i=0; i< 6; i++)
+      {
+      bounds[i] = this->Bounds[i];
+      }
+    }
   
   // Build the axes (almost always needed so we don't check mtime)
   // Transform all points into display coordinates
@@ -488,6 +518,23 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Input: (none)\n";
     }
 
+  if ( this->Prop )
+    {
+    os << indent << "Prop: (" << (void *)this->Prop << ")\n";
+    }
+  else
+    {
+    os << indent << "Prop: (none)\n";
+    }
+
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", " 
+     << this->Bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", " 
+     << this->Bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", " 
+     << this->Bounds[5] << ")\n";
+  
   if ( this->Camera )
     {
     os << indent << "Camera:\n";

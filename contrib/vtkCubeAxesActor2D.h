@@ -44,14 +44,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // bounding box of an input dataset. The axes include labels and titles
 // for the x-y-z axes. The algorithm selects the axes that are on the 
 // "exterior" of the bounding box, exterior as determined from examining
-// outer edges of the bounding box in projection (display) space.
+// outer edges of the bounding box in projection (display) space. Alternatively,
+// the edges closest to the viewer (i.e., camera position) can be drawn.
 // 
-// To use this object you must specify an input dataset and the camera used
+// To use this object you must define a bounding box and the camera used
 // to render the vtkCubeAxesActor2D. You may optionally define font family,
 // font size, bolding on/off, italics on/off, and text shadows on/off. (The
 // camera is used to control the scaling and position of the
 // vtkCubeAxesActor2D so that it fits in the viewport and always remains
 // visible.)
+//
+// The bounding box to use is defined in one of three ways. First, if the Input
+// ivar is defined, then the input dataset's bounds is used. If the Input is 
+// not defined, and the Prop (superclass of all actors) is defined, then the
+// Prop's bounds is used. If neither the Input or Prop is defined, then the
+// Bounds instance variable (an araay of six floats) is used.
 // 
 // .SECTION See Also
 // vtkActor2D vtkAxis2DActor vtkXYPlotActor
@@ -86,10 +93,26 @@ public:
   int RenderTranslucentGeometry(vtkViewport *viewport) {return 0;}
 
   // Description:
-  // Use the bounding box of this input dataset to draw the cube axes.
+  // Use the bounding box of this input dataset to draw the cube axes. If this
+  // is not specified, then the class will attempt to determine the bounds from
+  // the defined Prop or Bounds.
   vtkSetObjectMacro(Input, vtkDataSet);
   vtkGetObjectMacro(Input, vtkDataSet);
+
+  // Description:
+  // Use the bounding box of this prop to draw the cube axes. The Prop is used 
+  // to determine the bounds only if the Input is not defined.
+  vtkSetObjectMacro(Prop, vtkProp);
+  vtkGetObjectMacro(Prop, vtkProp);
   
+  // Description:
+  // Explicitly specify the region in space around which to draw the bounds.
+  // The bounds is used only when no Input or Prop is specified. The bounds
+  // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
+  // usre that the min's are less than the max's.
+  vtkSetVector6Macro(Bounds,float);
+  vtkGetVectorMacro(Bounds,float,6);
+
   // Description:
   // Set/Get the camera to perform scaling and translation of the 
   // vtkCubeAxesActor2D.
@@ -189,7 +212,10 @@ public:
   vtkBooleanMacro(ZAxisVisibility,int);
 
 protected:
-  vtkDataSet *Input;
+  vtkDataSet *Input;    //Define bounds from input data, or
+  vtkProp   *Prop;     //Define bounds from actor/assembly, or
+  float      Bounds[6]; //Define bounds explicitly
+
   vtkCamera *Camera;
   int FlyMode;
   

@@ -70,7 +70,7 @@ vtkCubeAxesActor2D axes
 ren1 AddProp axes 
 
 vtkCubeAxesActor2D axes2
-    axes2 SetInput [normals GetOutput]
+    axes2 SetProp foheActor
     axes2 SetCamera [ren2 GetActiveCamera]
     axes2 SetLabelFormat "%6.4g"
     axes2 ShadowOn
