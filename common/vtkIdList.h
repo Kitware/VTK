@@ -86,7 +86,7 @@ inline int vtkIdList::GetNumberOfIds()
 // Return the id at location i.
 inline int vtkIdList::GetId(const int i) 
 {
-  return this->Ia[i];
+  return this->Ia.GetValue(i);
 }
 
 // Description:
