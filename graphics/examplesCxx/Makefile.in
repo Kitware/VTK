@@ -80,7 +80,7 @@ EXAMPLES = VisQuad \
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
 	 -I${srcdir}/../../common -I${srcdir}/../../common/examplesCxx \
-	-I${srcdir}/.. \
+	-I${srcdir}/.. -I../../common \
 	-I${srcdir}/../../imaging
 
 VTKLIB = ${VTK_LIB_FILE}
