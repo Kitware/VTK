@@ -194,7 +194,7 @@ typedef unsigned int JDIMENSION;
 #endif
 
 /* a reference to a GLOBAL function: */
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(JPEGSTATIC)
 #ifdef JPEGDLL
 /* Win32, building a dll */
 #define EXTERN(type)	        __declspec(dllexport) type
@@ -203,7 +203,7 @@ typedef unsigned int JDIMENSION;
 #define EXTERN(type)	        __declspec(dllimport) type
 #endif
 #else
-/* not a Win32 system */
+/* not a Win32 system or building a static Win32 lib */
 #define EXTERN(type)		extern type
 #endif
 
