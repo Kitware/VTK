@@ -5,9 +5,11 @@
 #
 
 SHELL = /bin/sh
-.SUFFIXES: .cxx
+.SUFFIXES: .cxx .java .class
 
 #------------------------------------------------------------------------------
+
+CC_FLAGS = ${CPPFLAGS} ${CFLAGS} ${VTK_SHLIB_CFLAGS}
 
 CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
@@ -15,11 +17,18 @@ CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	 -I${srcdir}/../common -I${TK_INCLUDE} -I${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
-all: ${VTK_LIB_FILE} ${BUILD_TCL}
+all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 
+.c.o:
+	${CC} ${CC_FLAGS} -c $< -o $@
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
 
+targets: ../targets
+	../targets 1 1 $(CONCRETE)
+	../targets 0 1 $(ABSTRACT)
+	../targets 1 0 $(CONCRETE_H)
+	../targets 0 0 $(ABSTRACT_H)
 
 #------------------------------------------------------------------------------
 # rules for the normal library
@@ -51,17 +60,32 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT
 	$(SHLIB_LD) -o libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
 	   tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 
+#------------------------------------------------------------------------------
+# rules for the java library
+#
+build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_O} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
+
+.java.class:
+	${JAVAC} -d ${JAVA_CLASS_HOME} $< 
+
+libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O} ${JAVA_WRAP}
+	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION)
+	$(SHLIB_LD) -o libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
+	  ${KIT_OBJ} ${JAVA_O} ${JAVA_WRAP}
 
 #------------------------------------------------------------------------------
 depend: 
 	-$(MAKE_DEPEND_COMMAND)
 
 #------------------------------------------------------------------------------
-clean: ${CLEAN_TCL}
+clean: ${CLEAN_TCL} $(CLEAN_JAVA)
 	-rm -f *.o *.a *.so *.sl *~ *.make Makefile
 
 clean_tcl:
 	-cd tcl; rm -f *
+
+clean_java:
+	-cd java; rm -f *
 
 
 

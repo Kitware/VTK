@@ -1,29 +1,25 @@
 #
 # vtk library makefile
 #
-# NOTE !!! when adding a class, it must be added in four locations
-# It must be in the SRC_OBJ list, TCL_OBJ list and TCL_RULES
-# If it is a concrete class then it should be added to TCL_NEWS
-# as well. At the end of this file there are a number of makefile
-# rules to build the tcl wrappers. On the command line there is a 1 
-# if the class is concrete or a 0 if it is abstract.
+# NOTE !!! when adding a class, it must be added in one location.
+# Place it in the correct list based on whether it is only a .h file
+# and whether it is abstract or concrete.
 #
 ME = Contrib
 
-# put all vtkFoo.cxx files here as .o files
-SRC_OBJ = \
-vtkRIBExporter.o 
+ABSTRACT_H = 
 
+CONCRETE_H = 
 
-# put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o \ files
-TCL_OBJ = \
-tcl/vtkRIBExporterTcl.o 
+ABSTRACT =
 
+CONCRETE = \
+vtkRIBExporter
 
-# put all vtk classes that are concrete here as vtkFooTcl.h files
-TCL_NEWS = \
-vtkRIBExporter.h 
+#------------------------------------------------------------------------------
+# Include the generated targets
 
+@MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
 
 # add in any extra libraies here
 KIT_LIBS =
@@ -32,7 +28,7 @@ KIT_LIBS =
 KIT_OBJ = ${SRC_OBJ}
 KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
 KIT_NEWS = ${TCL_NEWS}
-KIT_FLAGS = -I${srcdir}/../graphics
+KIT_FLAGS = -I${srcdir}/../graphics -I${srcdir}/../imaging
 
 # The following is all boiler plate 
 #------------------------------------------------------------------------------
@@ -61,6 +57,8 @@ VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
 VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
 BUILD_TCL         = @BUILD_TCL@
 CLEAN_TCL         = @CLEAN_TCL@
+BUILD_JAVA        = @BUILD_JAVA@
+CLEAN_JAVA        = @CLEAN_JAVA@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
@@ -76,13 +74,4 @@ CLEAN_TCL         = @CLEAN_TCL@
 # Include the depend stuff here
 
 @MAKEINCLUDE@ @MAKEQUOTE@depend.make@MAKEQUOTE@
-
-
-#------------------------------------------------------------------------------
-# all Tcl wrapped classes need a line here
-#
-# concrete classes will pass the last argument of 1 abstract will be 0.
-#
-tcl/vtkRIBExporterTcl.cxx: vtkRIBExporter.h ../tcl/cpp_parse
-	 rm -f tcl/vtkRIBExporterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkRIBExporter.h ${srcdir}/../tcl/hints 1 > tcl/vtkRIBExporterTcl.cxx
 
