@@ -6,7 +6,7 @@ IF (HAVE_PNG)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
-      financialField2.tcl
+      financialField2
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
