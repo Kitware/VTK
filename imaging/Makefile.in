@@ -105,6 +105,7 @@ vtkImageMandelbrotSource \
 vtkImageMapper \
 vtkImageMapToColors \
 vtkImageMapToRGBA \
+vtkImageMapToWindowLevelColors \
 vtkImageMask \
 vtkImageMaskBits \
 vtkImageMathematics \
