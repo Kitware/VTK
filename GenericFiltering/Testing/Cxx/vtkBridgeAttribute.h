@@ -87,7 +87,7 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // NOT THREAD SAFE
   // \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
   // \post result_exists: result!=0
-  double *GetRange(int component=0);
+  double *GetRange(int component);
   
   // Description:
   // Range of the attribute component `component'.
