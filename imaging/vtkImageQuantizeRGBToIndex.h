@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageQuantizeRGBToIndex - Generalized histograms upto 4 dimensions.
 // .SECTION Description
-// vtkImageQuantizeRGBToIndex - This filter takes a three component RGB image as
+// vtkImageQuantizeRGBToIndex - This filter takes a 3 component RGB image as
 // input and produces a one component index image as output, along with
 // a lookup table that contains the color definitions for the index values.
 // This filter works on the entire input extent - it does not perform
