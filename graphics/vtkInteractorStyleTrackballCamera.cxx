@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleTrackballCamera *vtkInteractorStyleTrackballCamera::New() 
@@ -251,6 +252,11 @@ void vtkInteractorStyleTrackballCamera::SpinXY(int x, int y, int oldX, int oldY)
 void vtkInteractorStyleTrackballCamera::OnLeftButtonDown(int ctrl, int shift, 
 							 int x, int y) 
 {
+  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    return;
+    }
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -297,6 +303,11 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
 							   int vtkNotUsed(shift), 
 							   int x, int y) 
 {
+  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
+    return;
+    }
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
@@ -319,6 +330,11 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown(int vtkNotUsed(ctrl),
 							  int vtkNotUsed(shift), 
 							  int x, int y) 
 {
+  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
+    {
+    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+    return;
+    }
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
     {
