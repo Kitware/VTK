@@ -325,7 +325,9 @@ float *vtkOpenGLRenderer::GetCenter()
 				/2.0*(float)size[0]);
 	this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
 				/2.0*(float)size[1]);
+#ifndef sparc	
 	this->Center[1] = this->Center[1]*(491.0/1024.0);
+#endif
 	}
 	break;
       default:
