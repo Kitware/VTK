@@ -37,7 +37,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.35");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.36");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -1155,7 +1155,6 @@ void vtkBoxWidget::PlaceWidget(float bds[6])
 {
   int i;
   float bounds[6], center[3];
-  float *propcenter;
   
   this->AdjustBounds(bds,bounds,center);
   
@@ -1191,7 +1190,6 @@ void vtkBoxWidget::GetTransform(vtkTransform *t)
   double *p14 = pts + 3*14;
   double center[3], translate[3], scale[3], scaleVec[3][3];
   double InitialCenter[3];
-  float  position[3];
   int i;
 
   // The transformation is relative to the initial bounds.
