@@ -43,13 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-
 // These are the includes necessary for multithreaded rendering on an SGI
 // using the sproc() call
 #ifdef VTK_USE_SPROC
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <wait.h>
+#include <errno.h>
 #endif
 
 #ifdef VTK_USE_PTHREADS
@@ -89,6 +89,72 @@ int vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
   return vtkMultiThreaderGlobalMaximumNumberOfThreads;
 }
 
+// 0 => Not initialized.
+static int vtkMultiThreaderGlobalDefaultNumberOfThreads = 0;
+
+void vtkMultiThreader::SetGlobalDefaultNumberOfThreads(int val)
+{
+  if (val == vtkMultiThreaderGlobalDefaultNumberOfThreads)
+    {
+    return;
+    }
+  vtkMultiThreaderGlobalDefaultNumberOfThreads = val;
+}
+
+int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
+{
+  if (vtkMultiThreaderGlobalDefaultNumberOfThreads == 0)
+    {
+    int num;
+#ifdef VTK_USE_SPROC
+    // Default the number of threads to be the number of available
+    // processors if we are using sproc()
+    num = prctl( PR_MAXPPROCS );
+#endif
+
+#ifdef VTK_USE_PTHREADS
+    // Default the number of threads to be the number of available
+    // processors if we are using pthreads()
+#ifdef _SC_NPROCESSORS_ONLN
+    num = sysconf( _SC_NPROCESSORS_ONLN );
+#elif defined(_SC_NPROC_ONLN)
+    num = sysconf( _SC_NPROC_ONLN );
+#else
+    num = 1;
+#endif
+#endif
+
+#ifdef _WIN32
+    {
+      SYSTEM_INFO sysInfo;
+      GetSystemInfo(&sysInfo);
+      num = sysInfo.dwNumberOfProcessors;
+    }
+#endif
+
+#ifndef _WIN32
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
+    // If we are not multithreading, the number of threads should
+    // always be 1
+    num = 1;
+#endif  
+#endif  
+#endif
+  
+    // Lets limit the number of threads to 8
+    if (num > 8)
+      {
+      num = 8;
+      }
+
+    vtkMultiThreaderGlobalDefaultNumberOfThreads = num;
+    }
+
+
+  return vtkMultiThreaderGlobalDefaultNumberOfThreads;
+}
+
 // Constructor. Default all the methods to NULL. Since the
 // ThreadInfoArray is static, the ThreadIDs can be initialized here
 // and will not change.
@@ -108,48 +174,9 @@ vtkMultiThreader::vtkMultiThreader()
     }
 
   this->SingleMethod = NULL;
+  this->NumberOfThreads = 
+    vtkMultiThreader::GetGlobalDefaultNumberOfThreads();
 
-#ifdef VTK_USE_SPROC
-  // Default the number of threads to be the number of available
-  // processors if we are using sproc()
-  this->NumberOfThreads             = prctl( PR_MAXPPROCS );
-#endif
-
-#ifdef VTK_USE_PTHREADS
-  // Default the number of threads to be the number of available
-  // processors if we are using pthreads()
-#ifdef _SC_NPROCESSORS_ONLN
-  this->NumberOfThreads             = sysconf( _SC_NPROCESSORS_ONLN );
-#elif defined(_SC_NPROC_ONLN)
-  this->NumberOfThreads             = sysconf( _SC_NPROC_ONLN );
-#else
-  this->NumberOfThreads             = 1;
-#endif
-#endif
-
-#ifdef _WIN32
-  {
-    SYSTEM_INFO sysInfo;
-    GetSystemInfo(&sysInfo);
-    this->NumberOfThreads = sysInfo.dwNumberOfProcessors;
-  }
-#endif
-
-#ifndef _WIN32
-#ifndef VTK_USE_SPROC
-#ifndef VTK_USE_PTHREADS
-  // If we are not multithreading, the number of threads should
-  // always be 1
-  this->NumberOfThreads             = 1;
-#endif  
-#endif  
-#endif
-  
-  // Lets limit the number of threads to 8
-  if (this->NumberOfThreads > 8)
-    {
-    this->NumberOfThreads = 8;
-    }
 }
 
 // Destructor. Nothing allocated so nothing needs to be done here.
@@ -273,6 +300,7 @@ void vtkMultiThreader::SingleMethodExecute()
   //
   // First, start up the this->NumberOfThreads-1 processes.  Keep track
   // of their process ids for use later in the waitid call
+
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
@@ -280,6 +308,10 @@ void vtkMultiThreader::SingleMethodExecute()
     process_id[thread_loop] = 
       sproc( this->SingleMethod, PR_SADDR, 
 	     ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
+    if ( process_id[thread_loop] == -1)
+      {
+      vtkErrorMacro("sproc call failed. Code: " << errno << endl);
+      }
     }
   
   // Now, the parent thread calls this->SingleMethod() itself

@@ -136,10 +136,7 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 {
   // If some one is using multiple processes, 
   // limit the number of threads to 1
-  if (vtkMultiThreader::GetGlobalMaximumNumberOfThreads() == 0)
-    {
-    vtkMultiThreader::SetGlobalMaximumNumberOfThreads(1);
-    }
+  vtkMultiThreader::SetGlobalDefaultNumberOfThreads(1);
   
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessController");

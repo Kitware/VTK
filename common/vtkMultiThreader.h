@@ -165,6 +165,13 @@ public:
   static void SetGlobalMaximumNumberOfThreads(int val);
   static int  GetGlobalMaximumNumberOfThreads();
 
+  // Description:
+  // Set/Get the value which is used to initialize the NumberOfThreads
+  // in the constructor.  Initially this default is set to the number of 
+  // processors or 8 (which ever is less).
+  static void SetGlobalDefaultNumberOfThreads(int val);
+  static int  GetGlobalDefaultNumberOfThreads();
+
   // These methods are excluded from Tcl wrapping 1) because the
   // wrapper barfs on them and 2) because they really shouldn't be
   // called from a script anyway.
