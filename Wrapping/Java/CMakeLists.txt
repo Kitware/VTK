@@ -61,18 +61,11 @@ IF(JAVA_COMPILE)
                             vtk
                        TARGET VTKJavaJar
                        DEPENDS ${CLASS_FILES}
-                       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
+                       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar
+                       COMMENT "Java Archive")
     ADD_CUSTOM_COMMAND(SOURCE VTKJavaJar
                        TARGET VTKJavaJar
                        DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
-    ADD_CUSTOM_COMMAND( 
-      SOURCE    VTKJava
-      COMMAND   echo 
-      ARGS "Checking dependencies for VTK Java"
-      TARGET    VTKJava
-      DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
-    )   
-
     IF(BUILD_TESTING)
       FOREACH(jfile
               SimpleVTK
@@ -90,7 +83,8 @@ IF(JAVA_COMPILE)
                      ${VTK_SOURCE_DIR}/Wrapping/Java/${jfile}.java
              TARGET VTKJava
              DEPENDS ${LIBRARY_OUTPUT_PATH}/vtk.jar
-             OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
+             OUTPUTS ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class
+             COMMENT "Java Test")
         SET(JAVA_TESTS ${JAVA_TESTS} ${VTK_BINARY_DIR}/Wrapping/Java/${jfile}.class)
       ENDFOREACH(jfile)
       IF(WIN32)
@@ -105,9 +99,15 @@ IF(JAVA_COMPILE)
                           -V Baseline/Graphics/Cone.png)
     ENDIF(BUILD_TESTING)
 
+    ADD_CUSTOM_COMMAND( 
+      SOURCE    VTKJava
+      TARGET    VTKJava
+      DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
+    )   
+
   ELSE(VTK_JAVA_NEW_STYLE)
 
-    ADD_CUSTOM_TARGET(VTKJava ALL echo "Checking for Java library")
+    ADD_CUSTOM_TARGET(VTKJava ALL)
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/VTKJavaWrapped
                        COMMAND ${JAVA_COMPILE} 
                      ARGS ${VTK_JAVA_HOME}/vtk*.java
