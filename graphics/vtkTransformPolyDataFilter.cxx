@@ -150,14 +150,14 @@ void vtkTransformPolyDataFilter::Execute()
       newCellVectors = vtkVectors::New();
       newCellVectors->Allocate(numCells);
       ((vtkLinearTransform *)this->Transform)->
-	TransformNormals(inCellNormals,newCellNormals);
+	TransformVectors(inCellVectors,newCellVectors);
       }
     if ( inCellNormals ) 
       {
       newCellNormals = vtkNormals::New();
       newCellNormals->Allocate(numCells);
       ((vtkLinearTransform *)this->Transform)->
-       TransformVectors(inCellVectors,newCellVectors);
+       TransformNormals(inCellNormals,newCellNormals);
       }
     }
 
