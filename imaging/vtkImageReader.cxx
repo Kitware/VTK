@@ -116,6 +116,8 @@ vtkImageReader::~vtkImageReader()
 // This function sets the name of the file. 
 void vtkImageReader::SetFileName(char *name)
 {
+  if ( this->FileName && name && (!strcmp(this->FileName,name))) return; 
+  if (!name && !this->FileName) return;
   if (this->FileName)
     {
     delete [] this->FileName;
@@ -136,6 +138,8 @@ void vtkImageReader::SetFileName(char *name)
 // name of a series: image.1, image.2 ...
 void vtkImageReader::SetFilePrefix(char *prefix)
 {
+  if ( this->FilePrefix && prefix && (!strcmp(this->FilePrefix,prefix))) return; 
+  if (!prefix && !this->FilePrefix) return;
   if (this->FilePrefix)
     {
     delete [] this->FilePrefix;
@@ -157,6 +161,9 @@ void vtkImageReader::SetFilePrefix(char *prefix)
 // pattern of a series: image.001, image.002 ...
 void vtkImageReader::SetFilePattern(char *pattern)
 {
+  if ( this->FilePattern && pattern && 
+       (!strcmp(this->FilePattern,pattern))) return; 
+  if (!pattern && !this->FilePattern) return;
   if (this->FilePattern)
     {
     delete [] this->FilePattern;

@@ -106,10 +106,33 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
+// This function sets the name of the file. 
+void vtkImageWriter::SetFileName(char *name)
+{
+  if ( this->FileName && name && (!strcmp(this->FileName,name))) return; 
+  if (!name && !this->FileName) return;
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  if (this->FilePrefix)
+    {
+    delete [] this->FilePrefix;
+    this->FilePrefix = NULL;
+    }  
+  this->FileName = new char[strlen(name) + 1];
+  strcpy(this->FileName, name);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Description:
 // This function sets the prefix of the file name. "image" would be the
 // name of a series: image.1, image.2 ...
 void vtkImageWriter::SetFilePrefix(char *prefix)
 {
+  if ( this->FilePrefix && prefix && (!strcmp(this->FilePrefix,prefix))) return; 
+  if (!prefix && !this->FilePrefix) return;
   if (this->FilePrefix)
     {
     delete [] this->FilePrefix;
@@ -131,6 +154,9 @@ void vtkImageWriter::SetFilePrefix(char *prefix)
 // pattern of a series: image.001, image.002 ...
 void vtkImageWriter::SetFilePattern(char *pattern)
 {
+  if ( this->FilePattern && pattern && 
+       (!strcmp(this->FilePattern,pattern))) return; 
+  if (!pattern && !this->FilePattern) return;
   if (this->FilePattern)
     {
     delete [] this->FilePattern;
@@ -142,25 +168,6 @@ void vtkImageWriter::SetFilePattern(char *pattern)
     }
   this->FilePattern = new char[strlen(pattern) + 1];
   strcpy(this->FilePattern, pattern);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This function sets the name of the file. 
-void vtkImageWriter::SetFileName(char *name)
-{
-  if (this->FileName)
-    {
-    delete [] this->FileName;
-    }
-  if (this->FilePrefix)
-    {
-    delete [] this->FilePrefix;
-    this->FilePrefix = NULL;
-    }  
-  this->FileName = new char[strlen(name) + 1];
-  strcpy(this->FileName, name);
   this->Modified();
 }
 
