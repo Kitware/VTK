@@ -46,7 +46,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.109");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.110");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -894,6 +894,10 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
       }
     }
 
+  if (minNumCells == VTK_LARGE_INTEGER && numPts == 0) {
+    vtkErrorMacro("input point ids empty.");
+    minNumCells = 0;
+  }
   //Now for each cell, see if it contains all the points
   //in the ptIds list.
   for (i=0; i<minNumCells; i++)

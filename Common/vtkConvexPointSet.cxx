@@ -28,7 +28,7 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.17");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.18");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -207,6 +207,7 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
       pMin[0] = x[0];
       pMin[1] = x[1];
       pMin[2] = x[2];
+      minDist2 = dist2;
       }
     }
 
@@ -226,12 +227,14 @@ int vtkConvexPointSet::CellBoundary(int subId, float pcoords[3],
     this->Triangle->Points->SetPoint(2,this->Points->GetPoint(tpts[2]));
     status = this->Triangle->
       EvaluatePosition(pMin, closest, subId, pc, dist2, weights);
-    if ( status != -1 && dist2 < minDist2 )
+    if ( status != -1 && dist2 < minDist2 && dist2 > 0)
       {
       returnStatus = 1;
+      pts->SetNumberOfIds(3);
       pts->SetId(0,this->PointIds->GetId(tpts[0]));
       pts->SetId(1,this->PointIds->GetId(tpts[1]));
       pts->SetId(2,this->PointIds->GetId(tpts[2]));
+      minDist2 = dist2;
       }
     }
 
@@ -249,6 +252,7 @@ int vtkConvexPointSet::EvaluatePosition(float x[3],
   float closest[3];
   vtkIdType ptId;
   int numTets = this->TetraIds->GetNumberOfIds() / 4;
+
 
   for (minDist2=VTK_LARGE_FLOAT, i=0; i<numTets; i++)
     {
