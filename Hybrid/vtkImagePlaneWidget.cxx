@@ -24,7 +24,6 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellPicker.h"
-#include "vtkDataSetMapper.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageReslice.h"
@@ -44,7 +43,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.68");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.69");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -92,7 +91,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->ResliceAxes        = vtkMatrix4x4::New();
   this->Texture            = vtkTexture::New();
   this->TexturePlaneCoords = vtkTextureMapToPlane::New();
-  this->TexturePlaneMapper = vtkDataSetMapper::New();
+  this->TexturePlaneMapper = vtkPolyDataMapper::New();
   this->TexturePlaneActor  = vtkActor::New();
   this->Transform          = vtkTransform::New();
   this->ImageData          = 0;
@@ -152,6 +151,14 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CursorProperty        = 0;
   this->MarginProperty        = 0;
   this->CreateDefaultProperties();
+
+  // Set up actions
+
+  this->LeftButtonAction = vtkImagePlaneWidget::CURSOR_ACTION;
+  this->MiddleButtonAction = vtkImagePlaneWidget::SLICE_MOTION_ACTION;
+  this->RightButtonAction = vtkImagePlaneWidget::WINDOW_LEVEL_ACTION;
+
+  this->TextureVisibility = 1;
 }
 
 vtkImagePlaneWidget::~vtkImagePlaneWidget()
@@ -222,6 +229,31 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
   this->TextActor->Delete();
 }
 
+void vtkImagePlaneWidget::SetTextureVisibility(int vis)
+{
+  if (this->TextureVisibility == vis)
+    {
+    return;
+    }
+  
+  this->TextureVisibility = vis;
+  
+  if ( this->Enabled ) 
+    {
+    if (this->TextureVisibility)
+      {
+      this->CurrentRenderer->AddProp(this->TexturePlaneActor);
+      }
+    else
+      {
+      this->CurrentRenderer->RemoveProp(this->TexturePlaneActor);
+      }
+    }
+  
+  this->Modified();
+}
+
+
 void vtkImagePlaneWidget::SetEnabled(int enabling)
 {
 
@@ -265,9 +297,12 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     this->PlaneOutlineActor->SetProperty(this->PlaneProperty);
 
     //add the TexturePlaneActor
-    this->CurrentRenderer->AddProp(this->TexturePlaneActor);
+    if (this->TextureVisibility)
+      {
+      this->CurrentRenderer->AddProp(this->TexturePlaneActor);
+      }
     this->TexturePlaneActor->SetProperty(this->TexturePlaneProperty);
-
+    
     // Add the cross-hair cursor
     this->CurrentRenderer->AddProp(this->CursorActor);
     this->CursorActor->SetProperty(this->CursorProperty);
@@ -493,6 +528,8 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Reslice Interpolate: " << this->ResliceInterpolate << "\n";
   os << indent << "Texture Interpolate: "
      << (this->TextureInterpolate ? "On\n" : "Off\n") ;
+  os << indent << "Texture Visibility: "
+     << (this->TextureVisibility ? "On\n" : "Off\n") ;
   os << indent << "Restrict Plane To Volume: "
      << (this->RestrictPlaneToVolume ? "On\n" : "Off\n") ;
   os << indent << "Display Text: "
@@ -501,6 +538,9 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->Interaction ? "On\n" : "Off\n") ;
   os << indent << "User Controlled Lookup Table: "
      << (this->UserControlledLookupTable ? "On\n" : "Off\n") ;
+  os << indent << "LeftButtonAction: " << this->LeftButtonAction << endl;
+  os << indent << "MiddleButtonAction: " << this->MiddleButtonAction << endl;
+  os << indent << "RightButtonAction: " << this->RightButtonAction << endl;
 }
 
 void vtkImagePlaneWidget::BuildRepresentation()
@@ -539,6 +579,102 @@ void vtkImagePlaneWidget::HighlightPlane(int highlight)
 }
 
 void vtkImagePlaneWidget::OnLeftButtonDown()
+{
+  switch (this->LeftButtonAction)
+    {
+    case vtkImagePlaneWidget::CURSOR_ACTION:
+      this->StartCursor();
+      break;
+    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+      this->StartSliceMotion();
+      break;
+    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+      this->StartWindowLevel();
+      break;
+    }
+}
+
+void vtkImagePlaneWidget::OnLeftButtonUp()
+{
+  switch (this->LeftButtonAction)
+    {
+    case vtkImagePlaneWidget::CURSOR_ACTION:
+      this->StopCursor();
+      break;
+    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+      this->StopSliceMotion();
+      break;
+    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+      this->StopWindowLevel();
+      break;
+    }
+}
+
+void vtkImagePlaneWidget::OnMiddleButtonDown()
+{
+  switch (this->MiddleButtonAction)
+    {
+    case vtkImagePlaneWidget::CURSOR_ACTION:
+      this->StartCursor();
+      break;
+    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+      this->StartSliceMotion();
+      break;
+    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+      this->StartWindowLevel();
+      break;
+    }
+}
+
+void vtkImagePlaneWidget::OnMiddleButtonUp()
+{
+  switch (this->MiddleButtonAction)
+    {
+    case vtkImagePlaneWidget::CURSOR_ACTION:
+      this->StopCursor();
+      break;
+    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+      this->StopSliceMotion();
+      break;
+    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+      this->StopWindowLevel();
+      break;
+    }
+}
+
+void vtkImagePlaneWidget::OnRightButtonDown()
+{
+  switch (this->RightButtonAction)
+    {
+    case vtkImagePlaneWidget::CURSOR_ACTION:
+      this->StartCursor();
+      break;
+    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+      this->StartSliceMotion();
+      break;
+    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+      this->StartWindowLevel();
+      break;
+    }
+}
+
+void vtkImagePlaneWidget::OnRightButtonUp()
+{
+  switch (this->RightButtonAction)
+    {
+    case vtkImagePlaneWidget::CURSOR_ACTION:
+      this->StopCursor();
+      break;
+    case vtkImagePlaneWidget::SLICE_MOTION_ACTION:
+      this->StopSliceMotion();
+      break;
+    case vtkImagePlaneWidget::WINDOW_LEVEL_ACTION:
+      this->StopWindowLevel();
+      break;
+    }
+}
+
+void vtkImagePlaneWidget::StartCursor()
 {
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
@@ -598,7 +734,7 @@ void vtkImagePlaneWidget::OnLeftButtonDown()
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnLeftButtonUp()
+void vtkImagePlaneWidget::StopCursor()
 {
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
@@ -617,7 +753,7 @@ void vtkImagePlaneWidget::OnLeftButtonUp()
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnMiddleButtonDown()
+void vtkImagePlaneWidget::StartSliceMotion()
 {
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
@@ -675,7 +811,7 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnMiddleButtonUp()
+void vtkImagePlaneWidget::StopSliceMotion()
 {
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
@@ -693,7 +829,7 @@ void vtkImagePlaneWidget::OnMiddleButtonUp()
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnRightButtonDown()
+void vtkImagePlaneWidget::StartWindowLevel()
 {
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
@@ -751,7 +887,7 @@ void vtkImagePlaneWidget::OnRightButtonDown()
   this->Interactor->Render();
 }
 
-void vtkImagePlaneWidget::OnRightButtonUp()
+void vtkImagePlaneWidget::StopWindowLevel()
 {
   if ( this->State == vtkImagePlaneWidget::Outside ||
        this->State == vtkImagePlaneWidget::Start )
@@ -2273,7 +2409,8 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->TexturePlaneCoords->SetInput(this->PlaneSource->GetOutput());
   this->TexturePlaneCoords->AutomaticPlaneGenerationOff();
 
-  this->TexturePlaneMapper->SetInput(this->TexturePlaneCoords->GetOutput());
+  this->TexturePlaneMapper->SetInput(
+    vtkPolyData::SafeDownCast(this->TexturePlaneCoords->GetOutput()));
 
   this->Texture->SetQualityTo32Bit();
   this->Texture->MapColorScalarsThroughLookupTableOff();

@@ -245,7 +245,7 @@ public:
   // Description:
   // Control the visibility of the actual texture mapped reformatted plane.
   // in some cases you may only want the plane outline for example.
-  vtkSetMacro(TextureVisibility,int);
+  virtual void SetTextureVisibility(int);
   vtkGetMacro(TextureVisibility,int);
   vtkBooleanMacro(TextureVisibility,int);
   
@@ -363,12 +363,32 @@ public:
   vtkGetMacro(Interaction,int);
   vtkBooleanMacro(Interaction,int);
 
+  // Description:
+  // Set action associated to buttons.
+  //BTX
+  enum
+  {
+    CURSOR_ACTION       = 0,
+    SLICE_MOTION_ACTION = 1,
+    WINDOW_LEVEL_ACTION = 2
+  };
+  //ETX
+  vtkSetClampMacro(LeftButtonAction,int, CURSOR_ACTION, WINDOW_LEVEL_ACTION);
+  vtkGetMacro(LeftButtonAction, int);
+  vtkSetClampMacro(MiddleButtonAction,int, CURSOR_ACTION, WINDOW_LEVEL_ACTION);
+  vtkGetMacro(MiddleButtonAction, int);
+  vtkSetClampMacro(RightButtonAction,int, CURSOR_ACTION, WINDOW_LEVEL_ACTION);
+  vtkGetMacro(RightButtonAction, int);
+
 protected:
   vtkImagePlaneWidget();
   ~vtkImagePlaneWidget();
 
   int TextureVisibility;
   
+  int LeftButtonAction;
+  int MiddleButtonAction;
+  int RightButtonAction;
 
 //BTX - manage the state of the widget
   int State;
@@ -405,6 +425,13 @@ protected:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+
+  virtual void StartCursor();
+  virtual void StopCursor();
+  virtual void StartSliceMotion();
+  virtual void StopSliceMotion();
+  virtual void StartWindowLevel();
+  virtual void StopWindowLevel();
 
   // controlling ivars
   int   Interaction; // Is the widget responsive to mouse events  
@@ -447,7 +474,7 @@ protected:
   vtkMatrix4x4         *ResliceAxes;
   vtkTransform         *Transform;
   vtkTextureMapToPlane *TexturePlaneCoords;
-  vtkDataSetMapper     *TexturePlaneMapper;
+  vtkPolyDataMapper    *TexturePlaneMapper;
   vtkActor             *TexturePlaneActor;
   vtkImageMapToColors  *ColorMap;
   vtkTexture           *Texture;
