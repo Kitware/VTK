@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // and output caches are temporarily changed to "fool" the subclasses.  I
 // believe the correct solution is to pass the in and out cache to the
 // subclasses methods as arguments.  Now the data is passes.  Can the caches
-// be passed, and data retieved from the cache? 
+// be passed, and data retrieved from the cache? 
 
 #ifndef __vtkImageIterateFilter_h
 #define __vtkImageIterateFilter_h
@@ -99,7 +99,7 @@ protected:
   // Allows subclass to specify the number of iterations  
   virtual void SetNumberOfIterations(int num);
   
-  // for filteres that execute multiple times.
+  // for filters that execute multiple times.
   int NumberOfIterations;
   int Iteration;
   // A list of intermediate caches that is created when 

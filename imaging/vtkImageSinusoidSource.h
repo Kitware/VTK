@@ -80,7 +80,7 @@ public:
   vtkGetMacro(Phase, float);
 
   // Description:
-  // Set/Get the magnitude of the sinusiod.
+  // Set/Get the magnitude of the sinusoid.
   vtkSetMacro(Amplitude, float);
   vtkGetMacro(Amplitude, float);
 

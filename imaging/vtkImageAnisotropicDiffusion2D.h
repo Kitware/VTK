@@ -48,13 +48,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // are included, and if "Corners" is on, the 4 corner connected voxels
 // are included.  "DiffusionFactor" determines how far a pixel value
 // moves toward its neighbors, and is insensitive to the number of 
-// neighbors choosen.  The diffusion is anisotropic because it only occurs
-// when a gradient mesure is below "GradientThreshold".  Two gradient measures
+// neighbors chosen.  The diffusion is anisotropic because it only occurs
+// when a gradient measure is below "GradientThreshold".  Two gradient measures
 // exist and are toggled by the "GradientMagnitudeThreshold" flag.
 // When "GradientMagnitudeThreshold" is on, the magnitude of the gradient,
 // computed by central differences, above "DiffusionThreshold"
 // a voxel is not modified.  The alternative measure examines each
-// neighbor independantly.  The gradient between the voxel and the neighbor
+// neighbor independently.  The gradient between the voxel and the neighbor
 // must be below the "DiffusionThreshold" for diffusion to occur with
 // THAT neighbor.
 

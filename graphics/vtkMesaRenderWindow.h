@@ -148,7 +148,7 @@ public:
   // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
-  // overrrides the superclass method since this class can actually check
+  // overrides the superclass method since this class can actually check
   // whether the window has been realized yet.
   virtual void SetStereoCapableWindow(int capable);
 
@@ -184,7 +184,7 @@ public:
   void RegisterTextureResource (GLuint id);
   
   // Description:
-  // Override the default implementation so that we can activley switch between
+  // Override the default implementation so that we can actively switch between
   // on and off screen rendering.
   virtual void SetOffScreenRendering(int i);
   

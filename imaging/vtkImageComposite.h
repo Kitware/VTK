@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkRendererSource.  
 
 // .SECTION Notes
-// Although this fitlter processes structured points, future plans are to
+// Although this filter processes structured points, future plans are to
 // have it produce vtkImageData and have it render select pieces of the 
 // image. Also, this filter ignores alpha (for now).
 

@@ -187,7 +187,7 @@ public:
   // Description:
   // Turn on / off automatic selection of picking LOD. 
   // This is on by default. If it is off, then the SelectedLODID is 
-  // rendered regarless of rendering time or desired update rate. 
+  // rendered regardless of rendering time or desired update rate. 
   vtkSetClampMacro( AutomaticPickLODSelection, int, 0, 1 );
   vtkGetMacro( AutomaticPickLODSelection, int );
   vtkBooleanMacro( AutomaticPickLODSelection, int );

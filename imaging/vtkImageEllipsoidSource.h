@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageEllipsoidSource - Create a binary image of an ellipsoid.
 // .SECTION Description
-// vtkImageEllipsoidSource creates a binary image of a elipsoid.  It was created
+// vtkImageEllipsoidSource creates a binary image of a ellipsoid.  It was created
 // as an example of a simple source, and to test the mask filter.
 // It is also used internally in vtkImageDilateErode3D.
 
@@ -68,12 +68,12 @@ public:
   int *GetWholeExtent() {return this->WholeExtent;}
   
   // Description:
-  // Set/Get the center of the elipsoid.
+  // Set/Get the center of the ellipsoid.
   vtkSetVector3Macro(Center, float);
   vtkGetVector3Macro(Center, float);
   
   // Description:
-  // Set/Get the radius of the elipsoid.
+  // Set/Get the radius of the ellipsoid.
   vtkSetVector3Macro(Radius, float);
   vtkGetVector3Macro(Radius, float);
 

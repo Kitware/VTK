@@ -72,7 +72,7 @@ protected:
   int CacheSize;
   
   vtkImageData **Data;
-  // I do not have write acces to UpdateTime.
+  // I do not have write access to UpdateTime.
   unsigned long *Times;
 };
 

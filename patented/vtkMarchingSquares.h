@@ -119,7 +119,7 @@ public:
   void CreateDefaultLocator();
 
   // Description:
-  // Obsolete method for legacy compatability. Do not use.
+  // Obsolete method for legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   
 protected:

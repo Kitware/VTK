@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // The early implementation lacks many features that could be added in the future.
 // This includes the ability to "brush" data (choose regions along an axis and
-// highlight any points/lines passing through the regsion); efficiency is really
+// highlight any points/lines passing through the region); efficiency is really
 // bad; more control over the properties of the plot (separate properties for
 // each axes,title,etc.; and using the labels found in the field to label each
 // of the axes.

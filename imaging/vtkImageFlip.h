@@ -69,7 +69,7 @@ public:
 
   // Description:
   // Specify which axes will be flipped.
-  // For compatability with old scripts
+  // For compatibility with old scripts
   void SetFilteredAxes(int axis) {this->SetFilteredAxis(axis);}
   
   // Description:

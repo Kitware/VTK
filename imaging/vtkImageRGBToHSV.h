@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageRGBToHSV - Converts RGB components to HSV.
 // .SECTION Description
-// For each pixel with red, blue, and green compnents this
+// For each pixel with red, blue, and green components this
 // filter output the color coded as hue, saturation and value.
 // Output type must be the same as input type.
 

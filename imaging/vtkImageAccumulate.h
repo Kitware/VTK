@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageAccumulate - Generalized histograms upto 4 dimensions.
+// .NAME vtkImageAccumulate - Generalized histograms up to 4 dimensions.
 // .SECTION Description
 // vtkImageAccumulate - This filter divides component space into
 // discrete bins.  It then counts the number of pixels associated

@@ -38,7 +38,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageQuantizeRGBToIndex - generalized histograms upto 4 dimensions
+// .NAME vtkImageQuantizeRGBToIndex - generalized histograms up to 4 dimensions
 // .SECTION Description
 // vtkImageQuantizeRGBToIndex takes a 3 component RGB image as
 // input and produces a one component index image as output, along with

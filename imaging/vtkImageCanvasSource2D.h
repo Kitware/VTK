@@ -87,7 +87,7 @@ public:
   vtkGetObjectMacro(ImageData, vtkImageData);
   
   // Description:
-  // Set/Get DrawValue.  This is the value that is used when filling datas
+  // Set/Get DrawValue.  This is the value that is used when filling data
   // or drawing lines.
   void SetDrawColor(int dim, float *color);
   void GetDrawColor(int dim, float *color);

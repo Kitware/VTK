@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageHybridMedian2D - Median filter that preseverse lines and 
+// .NAME vtkImageHybridMedian2D - Median filter that preserves lines and 
 // corners.
 // .SECTION Description
 // vtkImageHybridMedian2D is a median filter that preserves thin lines and

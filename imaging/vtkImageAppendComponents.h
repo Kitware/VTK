@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkImageAppendComponents takes the components from two inputs and merges
 // them into one output. If Input1 has M components, and Input2 has N 
 // components, the output will have M+N components with input1
-// components comming first.
+// components coming first.
 
 
 #ifndef __vtkImageAppendComponents_h
@@ -61,7 +61,7 @@ public:
   vtkTypeMacro(vtkImageAppendComponents,vtkImageMultipleInputFilter);
 
   // Description:
-  // Do not use these: They are for legacy compatability back when this was a
+  // Do not use these: They are for legacy compatibility back when this was a
   // two input filter.
   virtual void SetInput1(vtkImageData *input){this->SetInput(0, input);}
   virtual void SetInput2(vtkImageData *input){this->SetInput(1, input);}

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageDataStreamer - Initiates streaming on image data.
 // .SECTION Description
-// To statisfy a request, this filter calls update on its input
+// To satisfy a request, this filter calls update on its input
 // many times with smaller update extents.  All processing up stream
 // streams smaller pieces.
 
@@ -102,7 +102,7 @@ public:
   // tries to break an extent up into cube blocks.  It always chooses
   // the largest axis to split.
   // Slab mode first breaks up the Z axis.  If it gets to one slice,
-  // then it starts bereaking up other axes.
+  // then it starts breaking up other axes.
   void SetSplitModeToBlock()
     {this->SplitMode = VTK_IMAGE_DATA_STREAMER_BLOCK_MODE;}
   void SetSplitModeToXSlab()

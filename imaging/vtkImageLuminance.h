@@ -38,7 +38,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageLuminance - Computes the luminace of the input
+// .NAME vtkImageLuminance - Computes the luminance of the input
 // .SECTION Description
 // vtkImageLuminance calculates luminance from an rgb input.
 

@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkScalarBarActor - Create a scalar bar with labels
 // .SECTION Description
 // vtkScalarBarActor creates a scalar bar with annotation text. A scalar
-// bar is a legend that indicates to the viewer the correspondance between
+// bar is a legend that indicates to the viewer the correspondence between
 // color value and data value. The legend consists of a rectangular bar 
 // made of rectangular pieces each colored a constant value. Since 
 // vtkScalarBarActor is a subclass of vtkActor2D, it is drawn in the image 
@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // of colors in the lookup table, in which case sampling of
 // the lookup table is performed. 
 //
-// Other optional capibilities include specifying the fraction of the
+// Other optional capabilities include specifying the fraction of the
 // viewport size (both x and y directions) which will control the size
 // of the scalar bar, the number of annotation labels, and the font
 // attributes of the annotation text. The actual position of the
@@ -132,7 +132,7 @@ public:
   float GetHeight();
   
   // Description:
-  // Set/Get the maximum number of scalar bar segements to show. This may
+  // Set/Get the maximum number of scalar bar segments to show. This may
   // differ from the number of colors in the lookup table, in which case
   // the colors are samples from the lookup table.
   vtkSetClampMacro(MaximumNumberOfColors, int, 2, VTK_LARGE_INTEGER);

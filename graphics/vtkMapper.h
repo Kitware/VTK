@@ -177,7 +177,7 @@ public:
   // tends to be slower but it can handle larger datasets.
   // The default value is immediate mode off. If you are 
   // having problems rendering a large dataset you might
-  // want to consider using imediate more rendering.
+  // want to consider using immediate more rendering.
   static void SetGlobalImmediateModeRendering(int val);
   static void GlobalImmediateModeRenderingOn() 
     {vtkMapper::SetGlobalImmediateModeRendering(1);};

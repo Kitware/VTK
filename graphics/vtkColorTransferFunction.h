@@ -150,7 +150,7 @@ public:
   // **********************************************************
   
   // Description:
-  // Depricated functions (after VTK 3.1.2) Don't use.
+  // Deprecated functions (after VTK 3.1.2) Don't use.
   // Get GetSize() instead;
   int  GetTotalSize();
   int  GetRedSize(); 
@@ -158,7 +158,7 @@ public:
   int  GetBlueSize();
 
   // Description:
-  // Depricated functions (after VTK 3.1.2) Don't use.
+  // Deprecated functions (after VTK 3.1.2) Don't use.
   // Use AddRGBPoint() or AddHSVPoint instead
   void AddRedPoint( float x, float r );
   void AddGreenPoint( float x, float g );

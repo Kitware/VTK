@@ -122,7 +122,7 @@ public:
   virtual void EraseWindow() {this->vtkImageWindow::EraseWindow();};
 
   // Description:
-  // Override the default implmentation so that we can activly switch between
+  // Override the default implementation so that we can actively switch between
   // on and offscreen rendering.
   virtual void SetOffScreenRendering(int i);
 

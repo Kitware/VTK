@@ -41,8 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageMathematics - Add, subtract, multiply, divide, invert, sin, cos, exp, log.
 // .SECTION Description
-// vtkImageMathematics implents basic mathematic operations SetOperation is
-// used to select the filteres behavior.  The filter can take two or one
+// vtkImageMathematics implements basic mathematic operations SetOperation is
+// used to select the filters behavior.  The filter can take two or one
 // input.
 
 

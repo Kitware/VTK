@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // display.
 // .SECTION Description
 // Is used for dispaying images in frequency space.  FFT converts spatial
-// images into ferequency space, but puts the zero frequency at the origin.
+// images into frequency space, but puts the zero frequency at the origin.
 // This filter shifts the zero frequency to the center of the image.
 // Input and output are assumed to be floats.
 

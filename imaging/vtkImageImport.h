@@ -80,7 +80,7 @@ public:
   
   // Description:
   // Set/Get the data type of pixels in the imported data.
-  // As a convienience, the OutputScalarType is set to the same value.
+  // As a convenience, the OutputScalarType is set to the same value.
   vtkSetMacro(DataScalarType,int);
   void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
   void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}

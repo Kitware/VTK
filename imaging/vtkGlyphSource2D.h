@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkGlyphSource2D - create 2D glyphs represented by vtkPolyData
 // .SECTION Description
 // vtkGlyphSource2D can generate a family of 2D glyphs each of which lies
-// in the x-y plane (i.e., the z-ccordinate is zero). The class is a helper 
+// in the x-y plane (i.e., the z-coordinate is zero). The class is a helper 
 // class to be used with vtkGlyph2D and vtkXYPlotActor.
 //
 // To use this class, specify the glyph type to use and its

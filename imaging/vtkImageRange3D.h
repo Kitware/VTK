@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageRange3D - Max - min of a circular neighborhood.
 // .SECTION Description
 // vtkImageRange3D replaces a pixel with the maximum minus minimum over
-// an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
+// an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
 // is done on that axis.
 
 
@@ -63,7 +63,7 @@ public:
   
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 
-  // default middle of the neighborhood and computes the eliptical foot print.
+  // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
   
 protected:

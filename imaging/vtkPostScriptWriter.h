@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkPostScriptWriter - Writes an image as a PostScript file.
 // .SECTION Description
 // vtkPostScriptWriter writes an image as a PostScript file using some
-// reasonable scalings and centerd on the page which is assumed to be
+// reasonable scalings and centered on the page which is assumed to be
 // about 8.5 by 11 inches. This is based loosely off of the code from
 // pnmtops.c. Right now there aren't any real options.
 

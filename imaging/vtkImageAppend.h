@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkImageAppend takes the components from multiple inputs and merges
 // them into one output. The output images are append along the "AppendAxis".
 // Except for the append axis, all inputs must have the same extent.  
-// All inputs must have the same number of scalar compnenets.  
+// All inputs must have the same number of scalar components.  
 // A future extension might be to pad or clip inputs to have the same extent.
 // The output has the same origin and spacing as the first input.
 // The origin and spacing of all other inputs are ignored.  All inputs

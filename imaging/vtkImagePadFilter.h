@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkImagePadFilter Changes the image extent of an image.  If the image
 // extent is larger than the input image extent, the extra pixels are
-// filled by an alogorithm detemined by the subclass.
+// filled by an algorithm determined by the subclass.
 // The image extent of the output has to be specified.
 
 
@@ -60,7 +60,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // The image extent of the output has to be set explicitely.
+  // The image extent of the output has to be set explicitly.
   void SetOutputWholeExtent(int extent[6]);
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
 			    int minZ, int maxZ);

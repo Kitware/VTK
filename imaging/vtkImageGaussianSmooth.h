@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Sets/Gets the Standard deviation of the gaussian in pixel units.
-  // These methods are provided for compatability with old scripts
+  // These methods are provided for compatibility with old scripts
   void SetStandardDeviation(float a,float b)
         {this->SetStandardDeviations(a,b,0.0);}
   void SetStandardDeviation(float a,float b,float c) 

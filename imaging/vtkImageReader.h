@@ -82,8 +82,8 @@ public:
   vtkGetStringMacro(FilePattern);
 
   // Description:
-  // Set the data type of pixles in the file.  
-  // As a convienience, the OutputScalarType is set to the same value.
+  // Set the data type of pixels in the file.  
+  // As a convenience, the OutputScalarType is set to the same value.
   // If you want the output scalar type to have a different value, set it
   // after this method is called.
   void SetDataScalarType(int type);
@@ -150,7 +150,7 @@ public:
   
   // Description:
   // Set/Get transformation matrix to transform the data from slice space
-  // into world space. This matirx must be a permutation matrix. To qualify,
+  // into world space. This matrix must be a permutation matrix. To qualify,
   // the sums of the rows must be + or - 1.
   vtkSetObjectMacro(Transform,vtkTransform);
   vtkGetObjectMacro(Transform,vtkTransform);
@@ -174,7 +174,7 @@ public:
   char *GetDataByteOrderAsString();
 
   // Description:
-  // Set/Get the byte swapping to explicitely swap the bytes of a file.
+  // Set/Get the byte swapping to explicitly swap the bytes of a file.
   vtkSetMacro(SwapBytes,int);
   int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);

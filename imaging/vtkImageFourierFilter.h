@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkImageFourierFilter is a class of filters that use complex numbers
 // this superclass is a container for methods that manipulate these structure
 // including fast Fourier transforms.  Complex numbers may become a class.
-// This should realy be a helper class.
-
-
+// This should really be a helper class.
 #ifndef __vtkImageFourierFilter_h
 #define __vtkImageFourierFilter_h
 

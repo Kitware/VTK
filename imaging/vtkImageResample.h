@@ -78,7 +78,7 @@ public:
   vtkBooleanMacro(Interpolate,int);
   
   // Description:
-  // Dimensionality is the number of axes which are considered durring
+  // Dimensionality is the number of axes which are considered during
   // execution. To process images dimensionality would be set to 2.
   // This has the same effect as setting the output spacing of the third
   // axis to 1.0

@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageLogic - And, or, xor, nand, nor, not.
 // .SECTION Description
-// vtkImageLogic implents basic logic operations.
+// vtkImageLogic implements basic logic operations.
 // SetOperation is used to select the filter's behavior.
 // The filter can take two or one input. Inputs must have the same type.
 

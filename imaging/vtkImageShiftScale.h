@@ -99,7 +99,7 @@ public:
   // Description:
   // When the ClampOverflow flag is on, the data is thresholded so that
   // the output value does not exceed the max or min of the data type.
-  // By defualt, ClampOverflow is off.
+  // By default, ClampOverflow is off.
   vtkSetMacro(ClampOverflow, int);
   vtkGetMacro(ClampOverflow, int);
   vtkBooleanMacro(ClampOverflow, int);

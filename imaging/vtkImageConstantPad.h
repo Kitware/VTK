@@ -39,7 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageConstantPad - Makes image larger by padding with contant.
+// .NAME vtkImageConstantPad - Makes image larger by padding with constant.
 // .SECTION Description
 // vtkImageConstantPad changes the image extent of its input.
 // Any pixels outside of the original image extent are filled with

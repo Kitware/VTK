@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // or some other object is referencing the input region.  
 
 // .SECTION See Also
-// vtkImageToImageFilter vtImageMultipleInputFilter vtkImageTwoInputFilter
+// vtkImageToImageFilter vtkImageMultipleInputFilter vtkImageTwoInputFilter
 // vtkImageTwoOutputFilter
 
 

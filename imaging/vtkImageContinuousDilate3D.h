@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageContinuousDilate3D - Dilate implemented as a maximum.
 // .SECTION Description
 // vtkImageContinuousDilate3D replaces a pixel with the maximum over
-// an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
+// an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
 // is done on that axis.
 
 
@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialFilter
 public:
 
   // Description:
-  // Construct an instance of vtkImageContinuousDilate3D fitler.
+  // Construct an instance of vtkImageContinuousDilate3D filter.
   // By default zero values are dilated.
   static vtkImageContinuousDilate3D *New();
   vtkTypeMacro(vtkImageContinuousDilate3D,vtkImageSpatialFilter);

@@ -95,7 +95,7 @@ public:
   unsigned long int GetMTime();
 
   // Description:
-  // Set/Get the computation of normals. Normal computation is failrly
+  // Set/Get the computation of normals. Normal computation is fairly
   // expensive in both time and storage. If the output data will be
   // processed by filters that modify topology or geometry, it may be
   // wise to turn Normals and Gradients off.
@@ -129,7 +129,7 @@ public:
   void CreateDefaultLocator();
 
   // Description:
-  // Obsolete method for legacy compatability. Do not use.
+  // Obsolete method for legacy compatibility. Do not use.
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);}
   
 protected:

@@ -175,7 +175,7 @@ public:
   void CreateLight(void);
 
   // Description:
-  // Compute the bounding box of all the visibile props
+  // Compute the bounding box of all the visible props
   // Used in ResetCamera() and ResetCameraClippingRange()
   void ComputeVisiblePropBounds( float bounds[6] );
 

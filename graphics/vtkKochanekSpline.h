@@ -80,7 +80,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct a KochanekSpline wth the following defaults: DefaultBias = 0,
+  // Construct a KochanekSpline with the following defaults: DefaultBias = 0,
   // DefaultTension = 0, DefaultContinuity = 0.
   static vtkKochanekSpline *New();
 

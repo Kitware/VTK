@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageDotProduct - Dot product of two vector images.
 // .SECTION Description
-// vtkImageDotProduct interpretes the scalar components of two images
+// vtkImageDotProduct interprets the scalar components of two images
 // as vectors and takes the dot product vector by vector (pixel by pixel).
 
 #ifndef __vtkImageDotProduct_h

@@ -61,7 +61,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the scale factor for the logarithmic funciton.
+  // Set/Get the scale factor for the logarithmic function.
   vtkSetMacro(Constant,float);
   vtkGetMacro(Constant,float);
   

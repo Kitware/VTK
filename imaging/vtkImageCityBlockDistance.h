@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // considered boundaries.  The output pixel is the minimum of the input pixel
 // and the distance to a boundary (or neighbor value + 1 unit).
 // distance values are calculated in pixels.
-// The filter works by taking 6 passes (for 3d distasnce map): 2 along each 
+// The filter works by taking 6 passes (for 3d distance map): 2 along each 
 // axis (forward and backward). Each pass keeps a running minimum distance.
 // For some reason, I preserve the sign if the distance.  If the input 
 // mask is initially negative, the output distances will be negative.

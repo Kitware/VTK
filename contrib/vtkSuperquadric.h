@@ -111,7 +111,7 @@ public:
 
   // Description:
   // Set/Get Superquadric east/west roundness.
-  // Values range from 0 (rectanglar) to 1 (circular) to higher orders.
+  // Values range from 0 (rectangular) to 1 (circular) to higher orders.
   vtkGetMacro(ThetaRoundness,float);
   void SetThetaRoundness(float e);
 

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageSpatialFilter - Filters that operate on pixel neighborhoods.
 // .SECTION Description
 // vtkImageSpatialFilter is a super class for filters that operate on an
-// input neighborhood for each output pixel. It handels even sized
+// input neighborhood for each output pixel. It handles even sized
 // neighborhoods, but their can be a half pixel shift associated with
 // processing.  This superclass has some logic for handling boundaries.  It
 // can split regions into boundary and non-boundary pieces and call different

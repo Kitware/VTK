@@ -83,7 +83,7 @@ public:
 
 
   // Description:
-  // Specify a threshold tolorance for pixel differences.
+  // Specify a threshold tolerance for pixel differences.
   vtkSetMacro(Threshold,int);
   vtkGetMacro(Threshold,int);
 

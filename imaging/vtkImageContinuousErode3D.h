@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageContinuousErode3D - Erosion implemented as a minimum.
 // .SECTION Description
 // vtkImageContinuousErode3D replaces a pixel with the minimum over
-// an elipsiodal neighborhood.  If KernelSize of an axis is 1, no processing
+// an ellipsoidal neighborhood.  If KernelSize of an axis is 1, no processing
 // is done on that axis.
 
 
@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageContinuousErode3D : public vtkImageSpatialFilter
 {
 public:
   // Description:
-  // Construct an instance of vtkImageContinuousErode3D fitler.
+  // Construct an instance of vtkImageContinuousErode3D filter.
   // By default zero values are eroded.
   static vtkImageContinuousErode3D *New();
   vtkTypeMacro(vtkImageContinuousErode3D,vtkImageSpatialFilter);
@@ -66,7 +66,7 @@ public:
   
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 
-  // default middle of the neighborhood and computes the eliptical foot print.
+  // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
 
   

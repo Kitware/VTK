@@ -155,7 +155,7 @@ public:
   // vtkGenericCell to avoid allocating and deallocating the cell.  This is
   // much faster than the version which does not take a *cell, especially when
   // this function is called many times in a row such as by a for loop, where
-  // the allocation and dellaoction can be done only once outside the for loop.
+  // the allocation and deallocation can be done only once outside the for loop.
   // If a closest point is found, "cell" contains the points and ptIds for the
   // cell "cellId" upon exit.
   int FindClosestPointWithinRadius(float x[3], float radius,
@@ -173,7 +173,7 @@ public:
   // vtkGenericCell to avoid allocating and deallocating the cell.  This is
   // much faster than the version which does not take a *cell, especially when
   // this function is called many times in a row such as by a for loop, where
-  // the allocation and dellaoction can be done only once outside the for loop.
+  // the allocation and dealloction can be done only once outside the for loop.
   // If a closest point is found, "cell" contains the points and ptIds for the
   // cell "cellId" upon exit.  If a closest point is found, inside returns the
   // return value of the EvaluatePosition call to the closest cell; inside(=1)

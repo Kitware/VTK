@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkHomogenousTransform provides a generic interface for homogeneous 
 // transformations, i.e. transformations which can be represented by 
-// multiplying a 4x4 matrix with a homogenous coordinate. 
+// multiplying a 4x4 matrix with a homogeneous coordinate. 
 // .SECTION see also
 // vtkPerspectiveTransform vtkLinearTransform vtkIdentityTransform
 

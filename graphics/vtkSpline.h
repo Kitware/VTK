@@ -100,7 +100,7 @@ public:
 
   // Description:
   // Control whether the spline is open or closed. A closed spline forms
-  // a continous loop: the first and last points are the same, and
+  // a continuous loop: the first and last points are the same, and
   // derivatives are continuous.
   vtkSetMacro(Closed,int);
   vtkGetMacro(Closed,int);

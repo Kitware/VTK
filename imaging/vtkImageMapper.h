@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .SECTION Description
 // vtkImageMapper provides 2D image display support for vtk.
 // It is a Mapper2D subclass that can be associated with an Actor2D
-// and placed withint a RenderWindow or ImageWindow.
+// and placed within a RenderWindow or ImageWindow.
 
 // .SECTION See Also
 // vtkMapper2D vtkActor2D
@@ -82,12 +82,12 @@ public:
 
   // Description:
   // Set/Get the current slice number. The axis Z in ZSlice does not
-  // neccessarily have any relation to the z axis of the data on disk.
+  // necessarily have any relation to the z axis of the data on disk.
   // It is simply the axis orthogonal to the x,y, display plane.
-  // GetWholeZMax and Min are convinience methods for obtaining
+  // GetWholeZMax and Min are convenience methods for obtaining
   // the number of slices that can be displayed. Again the number
   // of slices is in reference to the display z axis, which is not
-  // neccessarily the z axis on disk. (ue to reformating etc)
+  // necessarily the z axis on disk. (due to reformatting etc)
   vtkSetMacro(ZSlice,int);
   vtkGetMacro(ZSlice,int);
   int GetWholeZMin();

@@ -42,10 +42,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkImageDilateErode3D - Dilates one value and erodes another.
 // .SECTION Description
 // vtkImageDilateErode3D will dilate one value and erode another.
-// It uses an eliptical foot print, and only erodes/dilates on the
+// It uses an elliptical foot print, and only erodes/dilates on the
 // boundary of the two values.  The filter is restricted to the 
 // X, Y, and Z axes for now.  It can degenerate to a 2 or 1 dimensional
-// filter by setting the kernal size to 1 for a specific axis.
+// filter by setting the kernel size to 1 for a specific axis.
 
 
 #ifndef __vtkImageDilateErode3D_h
@@ -60,7 +60,7 @@ class VTK_EXPORT vtkImageDilateErode3D : public vtkImageSpatialFilter
 {
 public:
   // Description:
-  // Construct an instance of vtkImageDilateErode3D fitler.
+  // Construct an instance of vtkImageDilateErode3D filter.
   // By default zero values are dilated.
   static vtkImageDilateErode3D *New();
   vtkTypeMacro(vtkImageDilateErode3D,vtkImageSpatialFilter);
@@ -68,12 +68,12 @@ public:
   
   // Description:
   // This method sets the size of the neighborhood.  It also sets the 
-  // default middle of the neighborhood and computes the eliptical foot print.
+  // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
 
   
   // Description:
-  // Set/Get the Dilate and Erode values to bue used by this filter.
+  // Set/Get the Dilate and Erode values to be used by this filter.
   vtkSetMacro(DilateValue, float);
   vtkGetMacro(DilateValue, float);
   vtkSetMacro(ErodeValue, float);
