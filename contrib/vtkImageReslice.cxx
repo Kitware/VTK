@@ -97,7 +97,7 @@ void vtkImageReslice::ComputeIndexMatrix(vtkMatrix4x4 *matrix)
 
   if (this->GetResliceTransform())
     {
-    transform->SetMatrix(*(self->GetResliceTransform()->GetMatrixPointer()));
+    transform->SetMatrix(*(this->GetResliceTransform()->GetMatrixPointer()));
     }
   
   // the outMatrix takes OutputData indices to OutputData coordinates,
