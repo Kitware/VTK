@@ -29,6 +29,7 @@ IF (VTK_USE_RENDERING)
       coneResolution
       constrainedDelaunay
       contourCells
+      contourQuadraticCells
       contoursToSurface
       contour2DAll
       contour3DAll
