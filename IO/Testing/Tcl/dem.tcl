@@ -34,7 +34,7 @@ foreach lod $lods {
     shrink$lod SetInput [demModel GetOutput]
     shrink$lod AveragingOn
 
-  vtkStructuredPointsGeometryFilter geom$lod
+  vtkImageDataGeometryFilter geom$lod
     geom$lod SetInput [shrink$lod GetOutput]
     geom$lod ReleaseDataFlagOn
 

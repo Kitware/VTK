@@ -52,7 +52,7 @@ vtkPolyDataMapper outlineMapper
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 
-vtkStructuredPointsGeometryFilter plane
+vtkImageDataGeometryFilter plane
     plane SetInput [imp GetOutput]
     plane SetExtent 0 60 0 60 30 30
 vtkPolyDataMapper planeMapper

@@ -48,7 +48,7 @@ vtkActor s1Actor
 #
 # plane for context
 #
-vtkStructuredPointsGeometryFilter g
+vtkImageDataGeometryFilter g
     g SetInput [ptLoad GetOutput]
     g SetExtent 0 100 0 100 0 0
     g Update;#for scalar range

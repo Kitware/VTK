@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION See Also
 // vtkDividingCubes vtkMarchingCubes vtkMarchingSquares
-// vtkRecursiveDividingCubes vtkStructuredPointsGeometryFilter
+// vtkRecursiveDividingCubes vtkImageDataGeometryFilter
 
 #ifndef __vtkStructuredPointsToPolyDataFilter_h
 #define __vtkStructuredPointsToPolyDataFilter_h

@@ -18,11 +18,8 @@ vtkImageGaussianSmooth gaussian
     gaussian SetRadiusFactors 1 1
     gaussian SetInput [imageIn GetOutput]
 
-vtkImageToStructuredPoints toStructuredPoints
-    toStructuredPoints SetInput [gaussian GetOutput]
-
-vtkStructuredPointsGeometryFilter geometry
-  geometry SetInput [toStructuredPoints GetOutput]
+vtkImageDataGeometryFilter geometry
+  geometry SetInput [gaussian GetOutput]
 
 vtkClipPolyData aClipper
     aClipper SetInput [geometry GetOutput]

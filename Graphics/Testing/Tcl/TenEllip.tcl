@@ -21,7 +21,7 @@ vtkPointLoad ptLoad
     ptLoad SetModelBounds -10 10 -10 10 -10 10
 
 # extract plane of data
-vtkStructuredPointsGeometryFilter plane
+vtkImageDataGeometryFilter plane
     plane SetInput [ptLoad GetOutput]
     plane SetExtent 2 2 0 99 0 99
 

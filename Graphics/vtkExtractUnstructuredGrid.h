@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // values are merged.
 
 // .SECTION See Also
-// vtkStructuredPointsGeometryFilter vtkStructuredGridGeometryFilter
+// vtkImageDataGeometryFilter vtkStructuredGridGeometryFilter
 // vtkRectilinearGridGeometryFilter
 // vtkExtractGeometry vtkExtractVOI
 

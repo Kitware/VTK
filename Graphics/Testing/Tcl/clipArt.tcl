@@ -76,11 +76,8 @@ vtkImageShrink3D shrink
   shrink SetShrinkFactors 2 2 1
   shrink AveragingOn
 
-vtkImageToStructuredPoints toStructuredPoints
-  toStructuredPoints SetInput [shrink GetOutput]
-
-vtkStructuredPointsGeometryFilter geometry
-  geometry SetInput [toStructuredPoints GetOutput]
+vtkImageDataGeometryFilter geometry
+  geometry SetInput [shrink GetOutput]
 
 vtkTextureMapToPlane geometryTexture
   geometryTexture SetInput [geometry GetOutput]

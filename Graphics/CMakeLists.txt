@@ -57,6 +57,7 @@ vtkHedgeHog
 vtkHull
 vtkHyperStreamline
 vtkIdFilter
+vtkImageDataGeometryFilter
 vtkImplicitTextureCoords
 vtkInterpolateDataSetAttributes
 vtkInterpolatingSubdivisionFilter
