@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 #
 vtkSTLReader reader
     reader SetFileName ../../../vtkdata/42400-IDGH.stl
-vtkDicer dicer
+vtkOBBDicer dicer
     dicer SetInput [reader GetOutput]
     dicer SetNumberOfPointsPerPiece 1000
     dicer Update
