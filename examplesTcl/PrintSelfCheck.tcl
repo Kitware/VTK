@@ -27,10 +27,10 @@ set total_printself_miss_count 0
 set total_super_miss_count 0
 set total_ivar_miss_count 0
 
-# Fileid for the printself.results.html file
+# Fileid for the PrintSelfResults.html file
 set pr_id 0
 
-# Fileid for the printself.details.html file
+# Fileid for the PrintSelfDetails.html file
 set pd_id 0
 
 #
@@ -673,9 +673,9 @@ proc open_files { } {
   global pr_id
   global pd_id
 
-  set pr_id [open "printself.results.html" "w" ]
+  set pr_id [open "PrintSelfResults.html" "w" ]
 
-  set pd_id [open "printself.details.html" "w" ]
+  set pd_id [open "PrintSelfDetails.html" "w" ]
 
   puts $pr_id "<PRE>"
   puts $pd_id "<PRE>"
@@ -687,7 +687,7 @@ proc close_files { } {
   global pd_id
 
   puts $pr_id "</PRE>"
-  puts $pr_id "<A HREF=\"file:./printself.details.html\">Details</A>"
+  puts $pr_id "<A HREF=\"file:./PrintSelfDetails.html\">Details</A>"
 
   puts $pd_id "</PRE>"
 
