@@ -43,7 +43,7 @@ for { set i 0 } { $i < 2 } { incr i } {
 	volumeMapper_${i}_${j} SetVolumeRayCastFunction compositeFunction
 	volumeMapper_${i}_${j} SetSampleDistance 0.4
 	volumeMapper_${i}_${j} CroppingOn
-	volumeMapper_${i}_${j} SetCroppingBounds 17 33 17 33 17 33
+	volumeMapper_${i}_${j} SetCroppingRegionPlanes 17 33 17 33 17 33
 	
 	vtkVolume volume_${i}_${j}
 	volume_${i}_${j} SetMapper volumeMapper_${i}_${j}

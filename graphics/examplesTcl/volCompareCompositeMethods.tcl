@@ -66,7 +66,7 @@ volumeMapper1 SetInput [reader GetOutput]
 volumeMapper1 SetVolumeRayCastFunction CompositeFunction1
 volumeMapper1 SetGradientEstimator GradientEstimator
 volumeMapper1 SetSampleDistance 0.2
-volumeMapper1 SetCroppingBounds 0 49 20 49 0 49
+volumeMapper1 SetCroppingRegionPlanes 0 49 20 49 0 49
 volumeMapper1 CroppingOn
 
 vtkVolumeRayCastMapper volumeMapper2
@@ -74,7 +74,7 @@ volumeMapper2 SetInput [reader GetOutput]
 volumeMapper2 SetVolumeRayCastFunction CompositeFunction2
 volumeMapper2 SetGradientEstimator GradientEstimator
 volumeMapper2 SetSampleDistance 0.2
-volumeMapper2 SetCroppingBounds 0 49 20 49 0 49
+volumeMapper2 SetCroppingRegionPlanes 0 49 20 49 0 49
 volumeMapper2 CroppingOn
 
 vtkVolume volume1
