@@ -15,7 +15,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkFieldData.h"
 
-int DumpQualityStats( vtkMeshQuality* iq, char* arrayname )
+int DumpQualityStats( vtkMeshQuality* iq, const char *arrayname )
 {
   double avg = iq->GetOutput()->GetFieldData()->GetArray( arrayname )->GetComponent( 0, 1 );
 
