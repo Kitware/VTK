@@ -93,7 +93,6 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
 #else
   return vtkXRenderWindowInteractor::New();
 #endif  
-  return new vtkRenderWindowInteractor;
 }
 
 void vtkRenderWindowInteractor::SetRenderWindow(vtkRenderWindow *aren)
