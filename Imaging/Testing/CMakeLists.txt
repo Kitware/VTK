@@ -5,17 +5,8 @@ IF (VTK_WRAP_TCL)
 ENDIF (VTK_WRAP_TCL)
 
 IF(PYTHON_EXECUTABLE)
-  ADD_TEST(HeaderTesting-Rendering ${PYTHON_EXECUTABLE}
+  ADD_TEST(HeaderTesting-Imaging ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-	   "${VTK_SOURCE_DIR}/Rendering"
-           vtkTkRenderWidget.h
-           vtkTkImageViewerWidget.h
-           vtkCocoaGLView.h
-           vtkCocoaWindow.h
-           vtkFreeTypeFontCache.h
-           vtkgluPickMatrix.h
-           vtkOpenGLStateCache.h
-           vtkVolumeRayCastStructures.h
-           vtkOpenGLProjectedPolyDataRayBounder.h
+	   "${VTK_SOURCE_DIR}/Imaging"
            )
 ENDIF(PYTHON_EXECUTABLE)
