@@ -66,31 +66,31 @@ void Test(ostream& strm)
   xs->SetData(xdata); ys->SetData(ydata);  zs->SetData(zdata);
 
   rg3D->SetDimensions(20,20,20);
-  rg3D->SetXCoordinates(xs); xs->Delete();
-  rg3D->SetYCoordinates(ys); ys->Delete();
-  rg3D->SetZCoordinates(zs); zs->Delete();
+  rg3D->SetXCoordinates(xdata);
+  rg3D->SetYCoordinates(ydata);
+  rg3D->SetZCoordinates(zdata);
   
   rg2Dxy->SetDimensions(20,20,1);
-  rg2Dxy->SetXCoordinates(xs); xs->Delete();
-  rg2Dxy->SetYCoordinates(ys); ys->Delete();
+  rg2Dxy->SetXCoordinates(xdata);
+  rg2Dxy->SetYCoordinates(ydata);
   
   rg2Dxz->SetDimensions(20,1,20);
-  rg2Dxz->SetXCoordinates(xs); xs->Delete();
-  rg2Dxz->SetZCoordinates(zs); zs->Delete();
+  rg2Dxz->SetXCoordinates(xdata);
+  rg2Dxz->SetZCoordinates(zdata);
   
   rg2Dyz->SetDimensions(1,20,20);
-  rg2Dyz->SetYCoordinates(ys); ys->Delete();
-  rg2Dyz->SetZCoordinates(zs); zs->Delete();
+  rg2Dyz->SetYCoordinates(ydata);
+  rg2Dyz->SetZCoordinates(zdata);
   
   rg1Dx->SetDimensions(20,1,1);
-  rg1Dx->SetXCoordinates(xs); xs->Delete();
+  rg1Dx->SetXCoordinates(xdata);
   
   rg1Dy->SetDimensions(1,20,1);
-  rg1Dy->SetYCoordinates(ys); ys->Delete();
+  rg1Dy->SetYCoordinates(ydata);
   strm << *rg1Dy;
   
   rg1Dz->SetDimensions(1,1,20);
-  rg1Dz->SetZCoordinates(zs); zs->Delete();
+  rg1Dz->SetZCoordinates(zdata);
   
   rg0D->SetDimensions(1,1,1);
   
