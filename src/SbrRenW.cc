@@ -37,6 +37,23 @@ vtkSbrRenderWindow::vtkSbrRenderWindow()
   this->Buffer = 0;
 }
 
+vtkSbrRenderWindow::~vtkSbrRenderWindow()
+{
+  // close the starbase window 
+  if (this->Fd)
+    {
+    gclose(this->Fd);
+    }
+  this->Fd = -1;
+  
+  /* free the Xwindow we created no need to free the colormap */
+  if (this->OwnWindow)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
+  XSync(this->DisplayId,0);
+}
+
 
 // Description:
 // Create a starbase specific light.
@@ -1182,11 +1199,11 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     {
     if (front)
       {
-      double_buffer(this->Fd, TRUE | DFRONT | INIT, this->NumPlanes);
+      double_buffer(this->Fd, SUPPRESS_CLEAR | TRUE | DFRONT | INIT, this->NumPlanes);
       }
     else
       {
-      double_buffer(this->Fd, TRUE | INIT, this->NumPlanes);
+      double_buffer(this->Fd, SUPPRESS_CLEAR | TRUE | INIT, this->NumPlanes);
       }
     }
 
@@ -1339,8 +1356,6 @@ void vtkSbrRenderWindow::CopyResultFrame(void)
     size = this->GetSize();
 
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
-    delete [] this->ResultFrame;
-    this->ResultFrame = NULL;
     }
 
   this->Frame();
