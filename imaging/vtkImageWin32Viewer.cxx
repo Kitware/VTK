@@ -85,9 +85,7 @@ static void vtkImageWin32ViewerRenderGrey(vtkImageWin32Viewer *self,
   int inMin0, inMax0, inMin1, inMax1;
   int inInc0, inInc1;
   int idx0, idx1;
-  int colorsMax = 255;
   
-  colorsMax = self->GetNumberOfColors() - 1;
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
@@ -101,19 +99,22 @@ static void vtkImageWin32ViewerRenderGrey(vtkImageWin32Viewer *self,
 
       colorIdx = (int)(((float)(*inPtr0) + shift) * scale);
       if (colorIdx < 0)
-	{
-	colorIdx = 0;
-	}
-      if (colorIdx > colorsMax)
-	{
-	colorIdx = colorsMax;
-	}
+	      {
+	      colorIdx = 0;
+	      }
+      if (colorIdx > 255)
+	      {
+	      colorIdx = 255;
+	      }
 
       *outPtr++ = (unsigned char)(colorIdx);
       *outPtr++ = (unsigned char)(colorIdx);
       *outPtr++ = (unsigned char)(colorIdx);
       inPtr0 += inInc0;
       }
+    // rows must be a multiple of four bytes
+    // so pad it if neccessary
+    outPtr = outPtr + (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
     inPtr1 += inInc1;
     }
 }
@@ -170,13 +171,17 @@ static void vtkImageWin32ViewerRenderColor(vtkImageWin32Viewer *self,
       greenPtr0 += inInc0;
       bluePtr0 += inInc0;
       }
+    // rows must be a multiple of four bytes
+    // so pad it if neccessary
+    outPtr = outPtr + (4 - ((inMax0-inMin0 + 1)*3)%4)%4;
+
     redPtr1 += inInc1;
     greenPtr1 += inInc1;
     bluePtr1 += inInc1;
     }
 }
 
-void vtkWin32OglrRenderWindow::SetSize(int x, int y)
+void vtkImageWin32Viewer::SetSize(int x, int y)
 {
   static int resizing = 0;
 
@@ -203,7 +208,7 @@ void vtkWin32OglrRenderWindow::SetSize(int x, int y)
 
 // Description:
 // Get the current size of the window.
-int *vtkWin32OglrRenderWindow::GetSize(void)
+int *vtkImageWin32Viewer::GetSize(void)
 {
   RECT rect;
 
@@ -228,7 +233,7 @@ void vtkImageWin32Viewer::Render(void)
 {
   int extent[8];
   int *imageExtent;
-  int width, height;
+  int dataWidth, width, height;
   int size;
   unsigned char *dataOut;
   vtkImageRegion *region;
@@ -323,21 +328,15 @@ void vtkImageWin32Viewer::Render(void)
     }
   
   // Allocate output data
-  size = width * height * 3;
+  dataWidth = ((width*3+3)/4)*4;
+  size = dataWidth * height;
   dataOut = new unsigned char[size];
 
   shift = this->ColorWindow / 2.0 - this->ColorLevel;
-  scale = (float)(this->NumberOfColors - 1) / this->ColorWindow;
+  scale = 255.0 / this->ColorWindow;
 
   if (this->ColorFlag)
     {
-    // Handle color display
-    // We only support color with 24 bit True Color Visuals
-    if (this->VisualDepth != 24 || this->VisualClass != TrueColor)
-      {
-      vtkErrorMacro(<< "Color is only supported with 24 bit True Color");
-      return;
-      }
     ptr0 = region->GetScalarPointer(extent[0], extent[2], this->Red);
     ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
     ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
@@ -402,13 +401,15 @@ void vtkImageWin32Viewer::Render(void)
     }
   
   // Display the image.
-  dataHeader.bmiColors = NULL;
+  //dataHeader.bmiColors[0] = NULL;
+  dataHeader.bmiHeader.biSize = 40;
   dataHeader.bmiHeader.biWidth = width;
   dataHeader.bmiHeader.biHeight = height;
   dataHeader.bmiHeader.biPlanes = 1;
-  dataHeader.bmiHeader.biBitCount = 25;
+  dataHeader.bmiHeader.biBitCount = 24;
   dataHeader.bmiHeader.biCompression = BI_RGB;
   dataHeader.bmiHeader.biSizeImage = size;
+  dataHeader.bmiHeader.biClrUsed = 0;
   dataHeader.bmiHeader.biClrImportant = 0;
   
   SetDIBitsToDevice(this->DeviceContext,0,0,width,height,0,0,0,height,
@@ -416,13 +417,6 @@ void vtkImageWin32Viewer::Render(void)
   
   delete dataOut;	 
   region->Delete();
-}
-
-//----------------------------------------------------------------------------
-// Support for the templated function.
-XColor *vtkImageWin32Viewer::GetColors()
-{
-  return this->Colors + this->Offset;
 }
 
 void vtkImageWin32ViewerSetupPixelFormat(HDC hDC)
@@ -552,14 +546,14 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         return 0;
     case WM_SIZE:
         /* track window size changes */
-        if (me->ContextId) 
+        if (me->DeviceContext) 
           {
           me->SetSize((int) LOWORD(lParam),(int) HIWORD(lParam));
           return 0;
           }
     case WM_PALETTECHANGED:
         /* realize palette if this is *not* the current window */
-        if (me->Mapped && me->Palette && (HWND) wParam != hWnd) 
+        if (me->DeviceContext && me->Palette && (HWND) wParam != hWnd) 
           {
           UnrealizeObject(me->Palette);
           SelectPalette(me->DeviceContext, me->Palette, FALSE);
@@ -570,7 +564,7 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         break;
     case WM_QUERYNEWPALETTE:
         /* realize palette if this is the current window */
-        if (me->Mapped && me->Palette) 
+        if (me->DeviceContext && me->Palette) 
           {
           UnrealizeObject(me->Palette);
           SelectPalette(me->DeviceContext, me->Palette, FALSE);
@@ -583,7 +577,7 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         {
         PAINTSTRUCT ps;
         BeginPaint(hWnd, &ps);
-        if (me->Mapped) 
+        if (me->DeviceContext) 
           {
           me->Render();
           }
@@ -601,6 +595,8 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
 //----------------------------------------------------------------------------
 void vtkImageWin32Viewer::MakeDefaultWindow() 
 {
+  int count;
+
   // create our own window if not already set
   this->OwnWindow = 0;
 
@@ -651,7 +647,7 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
       this->WindowId = 
 	CreateWindow("vtkImage", this->WindowName,
 		     WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		     x, y, this->Size[0], this->Size[1],
+		     0, 0, this->Size[0], this->Size[1],
 		     this->ParentId, NULL, this->ApplicationInstance, NULL);
       }
     else
@@ -659,7 +655,7 @@ void vtkImageWin32Viewer::MakeDefaultWindow()
       this->WindowId = 
 	CreateWindow("vtkImage", this->WindowName,
 		     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		     x, y, this->Size[0], this->Size[1],
+		     0, 0, this->Size[0], this->Size[1],
 		     NULL, NULL, this->ApplicationInstance, NULL);
       }
     if (!this->WindowId)

@@ -56,6 +56,7 @@ vtkImageViewer::vtkImageViewer()
   this->Coordinate2 = 0;
   this->Coordinate3 = 0;
   this->Mapped = 0;
+  this->WindowName = NULL;
   
   this->ColorWindow = 255.0;
   this->ColorLevel = 127.0;

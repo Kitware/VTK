@@ -68,28 +68,9 @@ public:
 
   void Render(void);
   
-  void SetWindow(int win);
-  int GetWindow();
-  
-  // Description:
-  // Gets the number of colors in the pseudo color map.
-  vtkGetMacro(NumberOfColors,int);
-  
-  // Description:
-  // Gets the windows depth. For the templated function.
-  vtkGetMacro(VisualDepth,int);
-  
-  // Description:
-  // Gets the windows visual class. For the templated function.
-  vtkGetMacro(VisualClass,int);
-  
-  // Description:
-  // Window/level information used by templated function.
-  float GetColorShift();
-  float GetColorScale();
-
   //BTX
   HWND      GetWindowId();
+  void      SetDisplayId(void *foo) {};
   void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
   void      SetWindowId(HWND);
   void      SetParentId(void *foo) {this->SetParentId((HWND)foo);};
@@ -102,10 +83,7 @@ public:
 
 protected:
   int OwnWindow; // do we create this window ?
-  void MakeDefaultWindow();
-  
+  void MakeDefaultWindow();  
 };
 
 #endif
-
-
