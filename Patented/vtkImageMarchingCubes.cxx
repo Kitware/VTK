@@ -34,6 +34,7 @@
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMarchingCubesCases.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -41,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.56");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.57");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -50,6 +51,9 @@ vtkStandardNewMacro(vtkImageMarchingCubes);
 // of 0.0. ComputeNormal is on, ComputeGradients is off and ComputeScalars is on.
 vtkImageMarchingCubes::vtkImageMarchingCubes()
 {
+  this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
+
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -891,7 +895,18 @@ vtkImageData *vtkImageMarchingCubes::GetInput()
   return (vtkImageData *)(this->Inputs[0]);
 }
 
-  
+//----------------------------------------------------------------------------
+int vtkImageMarchingCubes::FillInputPortInformation(int port,
+                                                    vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 void vtkImageMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {

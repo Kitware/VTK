@@ -155,6 +155,8 @@ protected:
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();
   int *GetLocatorPointer(int cellX, int cellY, int edge);
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkImageMarchingCubes(const vtkImageMarchingCubes&);  // Not implemented.
   void operator=(const vtkImageMarchingCubes&);  // Not implemented.
