@@ -137,7 +137,7 @@ proc UpdateWindowLevelInteraction {widget x y} {
 
    # compute normalized delta
    set dx [expr 4.0 * ($x - $start_x) / $width]
-   set dy [expr 4.0 * ($y - $start_y) / $height]
+   set dy [expr 4.0 * ($start_y - $y) / $height]
 
    # scale by current values 
    set dx [expr $dx * $window]
