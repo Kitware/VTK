@@ -77,7 +77,7 @@ vtkActor2D::~vtkActor2D()
 
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkObject::PrintSelf(os,indent);
+  this->vtkReferenceCount::PrintSelf(os,indent);
   os << indent << "Orientation: " << this->Orientation << "\n";
   os << indent << "Scale: (" << this->Scale[0] << ", " << this->Scale[1] << ")\n";
   os << indent << "Layer Number: " << this->LayerNumber << "\n";
