@@ -40,14 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPixel.hh"
 #include "vtkQuad.hh"
-#include "vtkPolygon.hh"
+#include "vtkTriangle.hh"
 #include "vtkPlane.hh"
 #include "vtkMath.hh"
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
 #include "vtkPointLocator.hh"
-
-static vtkPlane vtkAPlane;
 
 // Description:
 // Deep copy of cell.
@@ -65,7 +63,6 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
   int i;
   float p[3], p21[3], p31[3];
   float l21, l31, n[3];
-  static vtkPolygon vtkAPoly;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -76,11 +73,11 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
 
-  vtkAPoly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
 // Project point to plane
 //
-  vtkAPlane.ProjectPoint(x,pt1,n,closestPoint);
+  vtkPlane::ProjectPoint(x,pt1,n,closestPoint);
 
   for (i=0; i<3; i++)
     {
@@ -321,7 +318,7 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 //
 // Intersect plane of pixel with line
 //
-  if ( ! vtkAPlane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
 //
 // Use evaluate position
 //

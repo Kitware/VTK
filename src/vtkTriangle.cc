@@ -46,9 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.hh"
 #include "vtkPointLocator.hh"
 
-static vtkPolygon poly;
-static vtkPlane plane;
-
 // Description:
 // Deep copy of cell.
 vtkTriangle::vtkTriangle(const vtkTriangle& t)
@@ -77,11 +74,11 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
   pt2 = this->Points.GetPoint(2);
   pt3 = this->Points.GetPoint(0);
 
-  poly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
 // Project point to plane
 //
-  plane.ProjectPoint(x,pt1,n,closestPoint);
+  vtkPlane::ProjectPoint(x,pt1,n,closestPoint);
 //
 // Construct matrices.  Since we have over determined system, need to find
 // which 2 out of 3 equations to use to develop equations. (Any 2 should 
@@ -128,7 +125,6 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
     }
   else
     {
-    static vtkLine line;
     float t;
 
     if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
@@ -148,15 +144,15 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
       }
     else if ( pcoords[0] < 0.0 )
       {
-      dist2 = line.DistanceToLine(x,pt2,pt3,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
       }
     else if ( pcoords[1] < 0.0 )
       {
-      dist2 = line.DistanceToLine(x,pt1,pt3,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint);
       }
     else if ( pcoords[2] < 0.0 )
       {
-      dist2 = line.DistanceToLine(x,pt1,pt2,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
       }
     return 0;
     }
@@ -323,11 +319,11 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   pt2 = this->Points.GetPoint(2);
   pt3 = this->Points.GetPoint(0);
 
-  poly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
 // Intersect plane of triangle with line
 //
-  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
 //
 // Evaluate position
 //
@@ -366,7 +362,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
   x0 = this->Points.GetPoint(0);
   x1 = this->Points.GetPoint(1);
   x2 = this->Points.GetPoint(2);
-  poly.ComputeNormal (x0, x1, x2, n);
+  vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 
     {
@@ -428,6 +424,21 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
     derivs[3*j + 1] = dBydx * v10[1] + dBydy * v20[1];
     derivs[3*j + 2] = dBydx * v10[2] + dBydy * v20[2];
     }
+}
+
+// Description:
+// Compute the triangle normal from a points list, and a list of point ids
+// that index into the points list.
+void vtkTriangle::ComputeNormal(vtkPoints *p, int vtkNotUsed(numPts), int *pts, 
+                                float n[3])
+{
+  float v1[3], v2[3], v3[3];
+
+  p->GetPoint(pts[0],v1);
+  p->GetPoint(pts[1],v2);
+  p->GetPoint(pts[2],v3);
+
+  vtkTriangle::ComputeNormal(v1,v2,v3,n);
 }
 
 // Special dot product definition for 2-vectors
@@ -546,7 +557,7 @@ int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
   float n[3], v21[3], v31[3], v[3], xLen;
 
   // Get normal for triangle
-  poly.ComputeNormal (x1, x2, x3, n);
+  vtkTriangle::ComputeNormal (x1, x2, x3, n);
 
   for (int i=0; i < 3; i++) 
     {

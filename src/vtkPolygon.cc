@@ -74,113 +74,77 @@ vtkPolygon::vtkPolygon(const vtkPolygon& p)
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, int *pts, float *n)
 {
   int i;
-  float v1[3], v2[3], v3[3];
-  float length;
-  float ax, ay, az;
-  float bx, by, bz;
-//
-//  Because some polygon vertices are colinear, need to make sure
-//  first non-zero normal is found.
-//
-  p->GetPoint(pts[0],v1);
-  p->GetPoint(pts[1],v2);
-  p->GetPoint(pts[2],v3);
-
-  for (i=0; i<numPts; i++) 
+  float v0[3], v1[3], v2[3];
+  float ax, ay, az, bx, by, bz;
+// 
+// Check for special triangle case. Saves extra work.
+// 
+  if ( numPts == 3 ) 
     {
-    // order is important!!! to maintain consistency with polygon vertex order 
-    ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
-    bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
-
-    n[0] = (ay * bz - az * by);
-    n[1] = (az * bx - ax * bz);
-    n[2] = (ax * by - ay * bx);
-
-    length = sqrt (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-    if (length != 0.0) 
-      {
-      n[0] /= length;
-      n[1] /= length;
-      n[2] /= length;
-      return;
-      } 
-    else 
-      {
-      v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
-      v2[0] = v3[0]; v2[1] = v3[1]; v2[2] = v3[2];
-      p->GetPoint(pts[(i+3)%numPts],v3);
-      }
+    p->GetPoint(pts[0],v0);
+    p->GetPoint(pts[1],v1);
+    p->GetPoint(pts[2],v2);
+    vtkTriangle::ComputeNormal(v0, v1, v2, n);
+    return;
     }
-}
+//
+//  Because polygon may be concave, need to accumulate cross products to 
+//  determine true normal.
+//
+  p->GetPoint(pts[0],v1); //set things up for loop
+  p->GetPoint(pts[1],v2);
+  n[0] = n[1] = n[2] = 0.0;
 
-// Description:
-// Compute the polygon normal from three points.
-void vtkPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
-{
-    float    length;
-    float    ax, ay, az;
-    float    bx, by, bz;
+  for (i=0; i < numPts; i++) 
+    {
+    v0[0] = v1[0]; v0[1] = v1[1]; v0[2] = v1[2];
+    v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
+    p->GetPoint(pts[(i+2)%numPts],v2);
 
     // order is important!!! to maintain consistency with polygon vertex order 
-    ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
-    bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
+    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
+    bx = v0[0] - v1[0]; by = v0[1] - v1[1]; bz = v0[2] - v1[2];
 
-    n[0] = (ay * bz - az * by);
-    n[1] = (az * bx - ax * bz);
-    n[2] = (ax * by - ay * bx);
+    n[0] += (ay * bz - az * by);
+    n[1] += (az * bx - ax * bz);
+    n[2] += (ax * by - ay * bx);
+    }
 
-    length = sqrt((double) (n[0]*n[0] + n[1]*n[1] + n[2]*n[2]));
-
-    if (length != 0.0) 
-      {
-      n[0] /= length;
-      n[1] /= length;
-      n[2] /= length;
-      }
+  vtkMath::Normalize(n);
 }
 
 // Description:
 // Compute the polygon normal from a list of floating points.
 void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 {
-  int     i, numPts;
-  float   *v1, *v2, *v3;
-  float    length;
-  float    ax, ay, az;
-  float    bx, by, bz;
+  int i, numPts;
+  float *v0, *v1, *v2;
+  float ax, ay, az, bx, by, bz;
 //
-//  Because some polygon vertices are colinear, need to make sure
-//  first non-zero normal is found.
+// Polygon is assumed non-convex -> need to accumulate cross products to 
+// find correct normal.
 //
   numPts = p->GetNumberOfPoints();
-  v1 = p->GetPoint(0);
+  v1 = p->GetPoint(0); //set things up for loop
   v2 = p->GetPoint(1);
-  v3 = p->GetPoint(2);
+  n[0] = n[1] = n[2] = 0.0;
 
-  for (i=0; i<numPts; i++) 
+  for (i=0; i < numPts; i++) 
     {
-    ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
-    bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
+    v0 = v1;
+    v1 = v2;
+    v2 = p->GetPoint((i+2)%numPts);
 
-    n[0] = (ay * bz - az * by);
-    n[1] = (az * bx - ax * bz);
-    n[2] = (ax * by - ay * bx);
+    // order is important!!! to maintain consistency with polygon vertex order 
+    ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
+    bx = v0[0] - v1[0]; by = v0[1] - v1[1]; bz = v0[2] - v1[2];
 
-    length = sqrt (n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-    if (length != 0.0) 
-      {
-      n[0] /= length;
-      n[1] /= length;
-      n[2] /= length;
-      return;
-      } 
-    else 
-      {
-      v1 = v2;
-      v2 = v3;
-      v3 = p->GetPoint((i+3)%numPts);
-      }
+    n[0] += (ay * bz - az * by);
+    n[1] += (az * bx - ax * bz);
+    n[2] += (ax * by - ay * bx);
     }
+
+  vtkMath::Normalize(n);
 }
 
 int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
@@ -190,11 +154,10 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
   float ray[3];
-  static vtkLine line;
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->ComputeWeights(x,weights);
-  plane.ProjectPoint(x,p0,n,closestPoint);
+  vtkPlane::ProjectPoint(x,p0,n,closestPoint);
 
   for (i=0; i<3; i++) ray[i] = closestPoint[i] - p0[i];
   pcoords[0] = vtkMath::Dot(ray,p10) / (l10*l10);
@@ -219,7 +182,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
     numPts = this->Points.GetNumberOfPoints();
     for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts - 1; i++)
       {
-      dist2 = line.DistanceToLine(x,this->Points.GetPoint(i),
+      dist2 = vtkLine::DistanceToLine(x,this->Points.GetPoint(i),
                                   this->Points.GetPoint(i+1),t,closest);
       if ( dist2 < minDist2 )
         {
@@ -249,7 +212,11 @@ void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 }
 
 // Description:
-//  Create a local s-t coordinate system for a polygon
+// Create a local s-t coordinate system for a polygon. The point p0 is
+// the origin of the local system, p10 is s-axis vector, and p20 is the 
+// t-axis vector. (These are expressed in the modelling coordinate system and
+// are vectors of dimension [3].) The values l20 and l20 are the lengths of
+// the vectors p10 and p20, and n is the polygon normal.
 int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10, 
                                    float *p20,float &l20, float *n)
 {
@@ -331,13 +298,12 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 {
   float *x1, *x2, xray[3], u, v;
-  float rayMag, mag, ray[3];
+  float rayMag, mag=1, ray[3];
   int testResult, rayOK, status, numInts, i;
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
   int numPts=this->Points.GetNumberOfPoints();
-  static vtkLine line;
 //
 //  Define a ray to fire.  The ray is a random ray normal to the
 //  normal of the face.  The length of the ray is a function of the
@@ -431,7 +397,7 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //   Fire the ray and compute the number of intersections.  Be careful of 
 //   degenerate cases (e.g., ray intersects at vertex).
 //
-        if ((status=line.Intersection(x,xray,x1,x2,u,v)) == INTERSECTION) 
+        if ((status=vtkLine::Intersection(x,xray,x1,x2,u,v)) == INTERSECTION) 
           {
           if ( (RAY_TOL < v) && (v < 1.0-RAY_TOL) )
             numInts++;
@@ -499,7 +465,9 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
 
   if ( !success ) // Use slower but always successful technique.
     {
-    vtkErrorMacro(<<"Couldn't triangulate");
+    float planeNormal[3];
+    this->ComputeNormal (&this->Points,planeNormal);
+    this->SlowTriangulate(numVerts, verts, planeNormal, Tris);
     }
   else // Copy the point id's into the supplied Id array
     {
@@ -514,7 +482,8 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
   return 1;
 }
 
-// Description: A fast triangulation method. Uses recursive divide and 
+// Description: 
+// A fast triangulation method. Uses recursive divide and 
 // conquer based on plane splitting  to reduce loop into triangles.  
 // The cell (e.g., triangle) is presumed properly initialized (i.e., 
 // Points and PointIds).
@@ -605,7 +574,7 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
 }
 
 // Description:
-//  Determine whether the loop can be split / build loops
+// Determine whether the loop can be split / build loops
 int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
                              int& n1, int *l1, int& n2, int *l2, float& ar)
 {
@@ -641,7 +610,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
     if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
       {
       x = this->Points.GetPoint(l1[i]);
-      val = plane.Evaluate(sN,sPt,x);
+      val = vtkPlane::Evaluate(sN,sPt,x);
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
@@ -657,7 +626,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
     if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
       {
       x = this->Points.GetPoint(l2[i]);
-      val = plane.Evaluate(sN,sPt,x);
+      val = vtkPlane::Evaluate(sN,sPt,x);
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
@@ -700,9 +669,155 @@ void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
   return;
 }
 
-int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList& pts)
+// Description: 
+// Polygon triangulation that will always work - although may be slow.
+// Uses explicit analysis technique to split triangles into loops, which are
+// recursively split until only triangles remain. Very similar to the 
+// FastTriangulate method, except that extra edge intersection and 
+// containment tests are used to insure a valid splitting edge.
+int vtkPolygon::SlowTriangulate (int numVerts, int *verts, 
+                                 float planeNormal[3], vtkIdList& Tris)
 {
-  return 0;
+  int i,j;
+  int n1, n2;
+  int fedges[2];
+  float max, ar;
+  int maxI, maxJ;
+
+  switch (numVerts) 
+    {
+    //
+    //  In loops of less than 3 vertices no elements are created
+    //
+    case 0: case 1: case 2:
+      return 1;
+      //
+      //  A loop of three vertices makes one triangle!  Replace an old
+      //  polygon with a newly created one.  
+      //
+    case 3:
+      //
+      //  Create a triangle
+      //
+      Tris.InsertNextId(verts[0]);
+      Tris.InsertNextId(verts[1]);
+      Tris.InsertNextId(verts[2]);
+      return 1;
+      //
+      //  Loops greater than three vertices must be subdivided.  This is
+      //  done by finding the best splitting edge and creating two loop and 
+      //  recursively triangulating.  To find the best splitting edge, try
+      //  all possible combinations, keeping track of the one that gives the
+      //  largest dihedral angle combination.
+      //
+    default:
+      {
+      int *l1 = new int[numVerts], *l2 = new int[numVerts];
+
+      max = 0.0;
+      maxI = maxJ = -1;
+      for (i=0; i<(numVerts-2); i++) 
+        {
+        for (j=i+2; j<numVerts; j++) 
+          {
+          if ( ((j+1) % numVerts) != i ) 
+            {
+            fedges[0] = verts[i];
+            fedges[1] = verts[j];
+
+            if ( this->CanSplitLoop(fedges, numVerts, verts, 
+            n1, l1, n2, l2, ar) && ar > max ) 
+              {
+              max = ar;
+              maxI = i;
+              maxJ = j;
+              }
+            }
+          }
+        }
+
+      if ( maxI > -1 ) 
+        {
+        fedges[0] = verts[maxI];
+        fedges[1] = verts[maxJ];
+
+        this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
+
+        this->FastTriangulate (n1, l1, Tris);
+        this->FastTriangulate (n2, l2, Tris);
+
+        return 1;
+
+        }
+  
+      SuccessfulTriangulation = 0;
+
+      delete [] l1;
+      delete [] l2;
+      return 0;
+      }
+    }
+}
+
+int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
+                             vtkIdList& pts)
+{
+  int i, numPts=this->PointIds.GetNumberOfIds();
+  float x[3], *weights, closest[3];
+  int closestPoint=0, previousPoint, nextPoint;
+  float largestWeight=0.0;
+  float p0[3], p10[3], l10, p20[3], l20, n[3];
+
+  pts.Reset();
+  weights = new float[numPts];
+
+  // determine global coordinates given parametric coordinates
+  this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
+  for (i=0; i<3; i++)
+    {
+    x[i] = p0[i] + pcoords[0]*p10[i] + pcoords[1]*p20[i];
+    }
+
+  //find edge with largest and next largest weight values. This will be
+  //the closest edge.
+  this->ComputeWeights(x,weights);
+  for ( i=0; i < numPts; i++ )
+    {
+    if ( weights[i] > largestWeight )
+      {
+      closestPoint = i;
+      largestWeight = weights[i];
+      }
+    }
+
+  pts.InsertId(0,this->PointIds.GetId(closestPoint));
+
+  previousPoint = closestPoint - 1;
+  nextPoint = closestPoint + 1;
+  if ( previousPoint < 0 ) previousPoint = numPts - 1;
+  if ( nextPoint >= numPts ) nextPoint = 0;
+
+  if ( weights[previousPoint] > weights[nextPoint] )
+    {
+    pts.InsertId(1,this->PointIds.GetId(previousPoint));
+    }
+  else
+    {
+    pts.InsertId(1,this->PointIds.GetId(nextPoint));
+    }
+  delete [] weights;
+
+  // determine whether point is inside of polygon
+  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
+  pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
+  this->PointInPolygon(this->GetBounds(),closest,n) == INSIDE )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
 }
 
 void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars, 
@@ -826,7 +941,7 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 //
 // Intersect plane of triangle with line
 //
-  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
 //
 // Evaluate position
 //
@@ -876,39 +991,72 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   return success;
 }
 
-// Sample at three points to compute derivatives in local r-s coordinate system.
-// Project vectors into 3D model coordinate system
+// Sample at three points to compute derivatives in local r-s coordinate 
+// system. The project vectors into 3D model coordinate system.
 #define VTK_SAMPLE_DISTANCE 0.01
-void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3], float *values, 
-                             int dim, float *derivs)
+void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3], 
+                             float *values, int dim, float *derivs)
 {
-  int i, j;
+  int i, j, k, idx;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
-  float x[3][3], value;
+  float x[3][3], l1, l2, v1[3], v2[3];
   int numVerts=this->PointIds.GetNumberOfIds();
   float *weights = new float[numVerts];
+  float *sample = new float[dim*3];
 
-  //setup parametric system
-  this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
+  //setup parametric system and check for degeneracy
+  if ( this->ParameterizePolygon(p0, p10, l10, p20, l20, n) == 0 )
+    {
+    for ( j=0; j < dim; j++ )
+      for ( i=0; i < 3; i++ )
+        derivs[j*dim + i] = 0.0;
+    return;
+    }
 
   //compute positions of three sample points
   for (i=0; i<3; i++)
     {
     x[0][i] = p0[i] + pcoords[0]*p10[i] + pcoords[1]*p20[i];
-    x[1][i] = p0[i] + (pcoords[0]+VTK_SAMPLE_DISTANCE)*p10[i] + pcoords[1]*p20[i];
-    x[2][i] = p0[i] + pcoords[0]*p10[i] + (pcoords[1]+VTK_SAMPLE_DISTANCE)*p20[i];
+    x[1][i] = p0[i] + (pcoords[0]+VTK_SAMPLE_DISTANCE)*p10[i] + 
+              pcoords[1]*p20[i];
+    x[2][i] = p0[i] + pcoords[0]*p10[i] + 
+              (pcoords[1]+VTK_SAMPLE_DISTANCE)*p20[i];
     }
 
-  //for each sample point, compute values and data values.
-
-  this->ComputeWeights(x[0],weights);
-  for ( j=0; j < dim; i++)
+  //for each sample point, sample data values
+  for ( idx=0, k=0; k < 3; k++ ) //loop over three sample points
     {
-    value = 0.0;
-    for ( i=0; i < numVerts; i++ )
+    this->ComputeWeights(x[k],weights);
+    for ( j=0; j < dim; i++, idx++) //over number of derivates requested
       {
-      value += weights[i] * values[numVerts*j + i];
+      sample[idx] = 0.0;
+      for ( i=0; i < numVerts; i++ )
+        {
+        sample[idx] += weights[i] * values[j + i*dim];
+        }
       }
     }
+
+  //compute differences along the two axes
+  for ( i=0; i < 3; i++ )
+    {
+    v1[i] = x[1][i] - x[0][i];
+    v2[i] = x[2][i] - x[0][i];
+    }
+  l1 = vtkMath::Normalize(v1);
+  l2 = vtkMath::Normalize(v2);
+
+  //compute derivatives along x-y-z axes
+  for ( j=0; j < dim; j++ )
+    {
+    l1 = (sample[dim+j] - sample[j]) / l1;
+    l2 = (sample[2*dim+j] - sample[j]) / l2;
+    derivs[3*j]     = l1 * v1[0] + l2 * v2[0];
+    derivs[3*j + 1] = l1 * v1[1] + l2 * v2[1];
+    derivs[3*j + 2] = l1 * v1[2] + l2 * v2[2];
+    }
+
+  delete [] weights;
+  delete [] sample;
 }
 

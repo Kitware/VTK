@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkSTLWriter.hh"
-#include "vtkPolygon.hh"
+#include "vtkTriangle.hh"
 #include "vtkByteSwap.hh"
 
 vtkSTLWriter::vtkSTLWriter()
@@ -85,7 +85,6 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
   FILE *fp;
   float n[3], *v1, *v2, *v3;
   int npts, *indx;
-  vtkPolygon poly;
 
   if ((fp = fopen(this->Filename, "w")) == NULL)
     {
@@ -107,7 +106,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
     v2 = pts->GetPoint(indx[1]);
     v3 = pts->GetPoint(indx[2]);
 
-    poly.ComputeNormal(pts, npts, indx, n);
+    vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
     fprintf (fp, " FACET NORMAL %.6g %.6g %.6g\n  OUTER LOOP\n",
             n[0], n[1], n[2]);
@@ -127,7 +126,6 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   FILE *fp;
   float n[3], *v1, *v2, *v3;
   int npts, *indx;
-  vtkPolygon poly;
   vtkByteSwap swap;
   unsigned long ulint;
   unsigned short ibuff2=0;
@@ -156,7 +154,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     v2 = pts->GetPoint(indx[1]);
     v3 = pts->GetPoint(indx[2]);
 
-    poly.ComputeNormal(pts, npts, indx, n);
+    vtkTriangle::ComputeNormal(pts, npts, indx, n);
     swap.Swap4LE(n); swap.Swap4LE(n+1); swap.Swap4LE(n+2);
     fwrite (n, 4, 3, fp);
 

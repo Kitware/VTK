@@ -47,6 +47,10 @@ vtkConnectivityFilter::vtkConnectivityFilter()
   this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
   this->MaxRecursionDepth = 10000;
+
+  this->ScalarConnectivity = 0;
+  this->ScalarRange[0] = 0.0;
+  this->ScalarRange[1] = 1.0;
 }
 
 static int NumExceededMaxDepth;
@@ -55,7 +59,8 @@ static vtkFloatScalars *NewScalars;
 static int RecursionDepth;
 static int RegionNumber, PointNumber;    
 static int NumCellsInRegion;
-static  vtkIdList *RecursionSeeds;
+static vtkIdList *RecursionSeeds;
+static vtkScalars *InScalars;
 
 void vtkConnectivityFilter::Execute()
 {
@@ -81,6 +86,17 @@ void vtkConnectivityFilter::Execute()
     return;
     }
   output->Allocate(numCells,numCells);
+  //
+  // See whether to consider scalar connectivity
+  //
+  InScalars = this->Input->GetPointData()->GetScalars();
+  if ( !this->ScalarConnectivity ) 
+    InScalars = NULL;
+  else
+    {
+    if ( this->ScalarRange[1] < this->ScalarRange[0] ) 
+      this->ScalarRange[1] = this->ScalarRange[0];
+    }
   //
   // Initialize.  Keep track of points and cells visited.
   //
@@ -275,8 +291,8 @@ void vtkConnectivityFilter::Execute()
 //
 void vtkConnectivityFilter::TraverseAndMark (int cellId)
 {
-  int j, k, ptId;
-  vtkIdList ptIds, cellIds;
+  int j, k, ptId, numPts, numCells;
+  vtkIdList ptIds(8,VTK_CELL_SIZE), cellIds(8,VTK_CELL_SIZE);
 
   Visited[cellId] = RegionNumber;
   NumCellsInRegion++;
@@ -290,7 +306,8 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
 
   this->Input->GetCellPoints(cellId, ptIds);
 
-  for (j=0; j < ptIds.GetNumberOfIds(); j++) 
+  numPts = ptIds.GetNumberOfIds();
+  for (j=0; j < numPts; j++) 
     {
     if ( PointMap[ptId=ptIds.GetId(j)] < 0 )
       {
@@ -300,9 +317,42 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
      
     this->Input->GetPointCells(ptId,cellIds);
 
-    for (k=0; k < cellIds.GetNumberOfIds(); k++)
-      if ( Visited[cellIds.GetId(k)] < 0 )
-         TraverseAndMark (cellIds.GetId(k));
+    // check connectivity criterion (geometric + scalar)
+    numCells = cellIds.GetNumberOfIds();
+    for (k=0; k < numCells; k++)
+      {
+      cellId = cellIds.GetId(k);
+      if ( Visited[cellId] < 0 )
+        {
+        if ( InScalars )
+          {
+          int numScalars, ii;
+          float s, range[2];
+          static vtkFloatScalars cellScalars(8,VTK_CELL_SIZE);
+          static vtkIdList neiCellPointIds(8,VTK_CELL_SIZE);
+
+          this->Input->GetCellPoints(cellId,neiCellPointIds);
+          InScalars->GetScalars(neiCellPointIds,cellScalars);
+          numScalars = cellScalars.GetNumberOfScalars();
+          range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
+          for (ii=0; ii < numScalars;  ii++)
+            {
+            s = cellScalars.GetScalar(ii);
+            if ( s < range[0] ) range[0] = s;
+            if ( s > range[1] ) range[1] = s;
+            }
+          if ( range[1] >= this->ScalarRange[0] && 
+          range[0] <= this->ScalarRange[1] )
+            {
+            TraverseAndMark (cellId);
+            }
+          }
+        else
+          {
+          TraverseAndMark (cellId);
+          }
+        }
+      }
 
     } // for all cells of this element
 
@@ -431,7 +481,13 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
       break;
     }
 
-    os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
-    os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
+  os << indent << "Color Regions: " << (this->ColorRegions ? "On\n" : "Off\n");
+  os << indent << "Maximum Recursion Depth: " << this->MaxRecursionDepth << "\n";
+
+  os << indent << "Scalar Connectivity: " 
+     << (this->ScalarConnectivity ? "On\n" : "Off\n");
+
+  float *range = this->GetScalarRange();
+  os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
 }
 

@@ -99,6 +99,7 @@ void vtkTextureMapToSphere::Execute()
       // watch for truncation problems
       if ( fabs((diff=x[2]-this->Center[2])) > rho )
         {
+        phi = 0.0;
         if ( diff > 0.0 ) tc[1] = 0.0;
         else tc[1] = 1.0;
         }
@@ -112,7 +113,6 @@ void vtkTextureMapToSphere::Execute()
       {
       tc[1] = 0.0;
       }
-
 
     r = rho * sin((double)phi);
     if ( r != 0.0 )

@@ -68,7 +68,6 @@ void vtkFeatureEdges::Execute()
   int numBEdges, numNonManifoldEdges, numFedges;
   float scalar, n[3], *x1, *x2;
   float cosAngle = 0;
-  vtkPolygon poly;
   int lineIds[2];
   int npts, *pts;
   vtkCellArray *inPolys;
@@ -117,7 +116,7 @@ void vtkFeatureEdges::Execute()
     for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
     cellId++)
       {
-      poly.ComputeNormal(inPts,npts,pts,n);
+      vtkPolygon::ComputeNormal(inPts,npts,pts,n);
       polyNormals->InsertNormal(cellId,n);
       }
 

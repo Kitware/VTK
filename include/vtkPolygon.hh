@@ -57,10 +57,6 @@ public:
   vtkPolygon(const vtkPolygon& p);
   char *GetClassName() {return "vtkPolygon";};
 
-  void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
-  void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
-  void ComputeNormal(vtkFloatPoints *p, float n[3]);
-
   // Cell interface
   vtkCell *MakeObject() {return new vtkPolygon(*this);};
   int GetCellType() {return VTK_POLYGON;};
@@ -86,6 +82,9 @@ public:
                    int dim, float *derivs);
 
   // Polygon specific
+  static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
+  static void ComputeNormal(vtkFloatPoints *p, float n[3]);
+
   void ComputeWeights(float x[3], float *weights);
 
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
@@ -95,6 +94,8 @@ public:
 
   int Triangulate(vtkIdList &outTris);
   int FastTriangulate(int numVerts, int *verts, vtkIdList& Tris);
+  int SlowTriangulate(int numVerts, int *verts, float planeNormal[3],
+                      vtkIdList& Tris);
   int CanSplitLoop(int fedges[2], int numVerts, int *verts, int& n1, int *l1,
                    int& n2, int *l2, float& ar);
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 

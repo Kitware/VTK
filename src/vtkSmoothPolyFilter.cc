@@ -125,6 +125,13 @@ void vtkSmoothPolyFilter::Execute()
                << "\tError Scalars " << (this->GenerateErrorScalars ? "On\n" : "Off\n")
                << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
 
+  if ( this->NumberOfIterations <= 0 ) //don't do anything!
+    {
+    this->Output->CopyStructure(this->Input);
+    this->Output->GetPointData()->PassData(this->Input->GetPointData());
+    vtkWarningMacro(<<"Number of iterations == 0: passing data through unchanged");
+    return;
+    }
 //
 // Peform topological analysis. What we're gonna do is build a connectivity
 // array of connected vertices. The outcome will be one of three
@@ -204,7 +211,6 @@ void vtkSmoothPolyFilter::Execute()
     int *neiPts, numNeiPts;
     float normal[3], neiNormal[3];
     vtkIdList neighbors(VTK_CELL_SIZE);
-    vtkPolygon poly;
 
     inMesh = new vtkPolyData;
     inMesh->SetPoints(inPts);
@@ -257,9 +263,9 @@ void vtkSmoothPolyFilter::Execute()
 
         else if ( numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
           {
-          poly.ComputeNormal(inPts,npts,pts,normal);
+          vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
           Mesh->GetCellPoints(nei,numNeiPts,neiPts);
-          poly.ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
+          vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
 
           if ( this->FeatureEdgeSmoothing &&
           vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle ) 

@@ -105,6 +105,8 @@ void vtkDataSetWriter::WriteData()
   writer->SetTensorsName(this->TensorsName);
   writer->SetTCoordsName(this->TCoordsName);
   writer->SetLookupTableName(this->LookupTableName);
+  writer->SetFileType(this->FileType);
+  writer->SetDebug(this->Debug);
   writer->Write();
 
 }

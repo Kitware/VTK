@@ -45,6 +45,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // connected region in the dataset; 2) extract specified region numbers;
 // 3) extract all regions sharing specified point ids; or 4) extract
 // all regions sharing specified cell ids.
+//
+// vtkConnectivityFilter is generalized to handle any type of input dataset.
+// It generates output data of type vtkUnstructuredGrid. If you know that your
+// input type is vtkPolyData, you may wish to use vtkPolyConnectivityFilter.
+//
+// The behavior of vtkConnectivityFilter can be modified by turning on the 
+// boolean ivar ScalarConnectivity. If this flag is on, the connectivity
+// algorithm is modified so that cells are considered connected only if 1) they 
+// are geometrically connected (share a vertex) and 2) the scalar values of one
+// of the cell's points falls in the scalar range specified. This use of
+// ScalarConnectivity is particularly useful for volume datasets: it can be used
+// as a simple "connected segmentation" algorithm. For example, by using a seed
+// voxel (i.e., cell) on a known anatomical structure, connectivity will pull
+// out all voxels "containing" the anatomical structure. These voxels can then
+// be contoured or processed by other visualization filters.
+
+// .SECTION See Also
+// vtkPolyConnectivityFilter
 
 #ifndef __vtkConnectivityFilter_h
 #define __vtkConnectivityFilter_h
@@ -62,6 +80,19 @@ public:
   vtkConnectivityFilter();
   char *GetClassName() {return "vtkConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Turn on/off connectivity based on scalar value. If on, cells are connected
+  // only if they share points AND one of the cells scalar values falls in the
+  // scalar range specified.
+  vtkSetMacro(ScalarConnectivity,int);
+  vtkGetMacro(ScalarConnectivity,int);
+  vtkBooleanMacro(ScalarConnectivity,int);
+
+  // Description:
+  // Set the scalar range to use to extract cells based on scalar connectivity.
+  vtkSetVectorMacro(ScalarRange,float,2);
+  vtkGetVectorMacro(ScalarRange,float,2);
 
   void ExtractPointSeededRegions();
   void ExtractCellSeededRegions();
@@ -102,6 +133,9 @@ protected:
   int MaxRecursionDepth; //prevent excessive recursion
   vtkIdList SpecifiedRegionIds; //regions specified for extraction
   vtkIntArray RegionSizes; //size (in cells) of each region extracted
+
+  int ScalarConnectivity;
+  float ScalarRange[2];
 
   void TraverseAndMark(int cellId);
 };

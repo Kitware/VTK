@@ -51,6 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrRenderer.hh"
 #include "vtkPolyData.hh"
 #include "vtkPolygon.hh"
+#include "vtkTriangle.hh"
 
 // Description:
 // Construct empty object.
@@ -101,7 +102,6 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   vtkColorScalars *c;
   vtkNormals *n;
   int *pts;
-  vtkPolygon polygon;
   vtkTCoords *t;
   int tDim, primType;
 
@@ -123,11 +123,11 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   // get the transparency 
   tran = prop->GetOpacity();
   
-  // if the polygons are invisable then get out of here 
+  // if the primitives are invisable then get out of here 
   if (tran <= 0.0) return;
   clr[3] = (short) ((float)tran*255);
 
-  // get the representation 
+  // get the representation (e.g., surface / wireframe / points)
   rep = prop->GetRepresentation();
 
   switch (rep) 
@@ -230,7 +230,10 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
       glBegin(aGlFunction);
       
       if ((primType > 1) && (!n))
-	polygon.ComputeNormal(p,npts,pts,polyNorm);
+        {
+        if ( primType == 3 ) vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
+	else vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
+        }
       
       for (j = 0; j < npts; j++) 
 	{
@@ -261,17 +264,17 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	      if (j % 2)
 		{
 		idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
-		polygon.ComputeNormal(p, 3, idx, polyNorm);
+		vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
 		}
 	      else
 		{
 		idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
-		polygon.ComputeNormal(p, 3, idx, polyNorm);
+		vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
 		}
 	      }
 	    else if ( j == 0 )
 	      {
-	      polygon.ComputeNormal(p, 3, pts, polyNorm);
+	      vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
 	      }
 	    glNormal3fv(polyNorm);
 	    }
@@ -302,9 +305,8 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	    {
 	    if ( j && j < (npts-1) )
 	      {
-	      polygon.ComputeNormal(p->GetPoint(pts[j - 1]), 
-				    p->GetPoint(pts[j]), 
-				    p->GetPoint(pts[j+1]), polyNorm); 
+              idx[0] = pts[j-1]; idx[1] = pts[j]; idx[2] = pts[j+1]; 
+              vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
 	      }
 	    glNormal3fv(polyNorm);
 	    }
@@ -335,9 +337,8 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	    {
 	    if (j < npts-1)
 	      {
-	      polygon.ComputeNormal(p->GetPoint(pts[j + 1]), 
-				    p->GetPoint(pts[j]), 
-				    p->GetPoint(pts[j - 1]), polyNorm); 
+              idx[0] = pts[j+1]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
+              vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
 	      }
 	    glNormal3fv(polyNorm);
 	    }

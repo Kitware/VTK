@@ -64,10 +64,9 @@ vtkDelaunay3D::vtkDelaunay3D()
 static int InSphere (float x[3], float x1[3], float x2[3], float x3[3],
                      float x4[3])
 {
-  static vtkTetra tetra;
   float radius2, center[3], dist2;
 
-  radius2 = tetra.Circumsphere(x1,x2,x3,x4,center);
+  radius2 = vtkTetra::Circumsphere(x1,x2,x3,x4,center);
 
   // check if inside/outside circumcircle
   dist2 = (x[0]-center[0]) * (x[0]-center[0]) + 
@@ -526,8 +525,6 @@ void vtkDelaunay3D::Execute()
     float x1[3], x2[3], x3[3], x4[3], v1[2], v2[2], v3[2];
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
     static vtkIdList boundaryPts(3), neiTetras(2);
-    static vtkTriangle tri;
-    static vtkTetra tetra;
 
     for (ptId=0; ptId < (numPoints+6); ptId++) pointUse[ptId] = 0;
 
@@ -544,7 +541,7 @@ void vtkDelaunay3D::Execute()
         points->GetPoint(tetraPts[3],x4);
 
         //check tetras
-        if ( tetra.Circumsphere(x1,x2,x3,x4,center) > alpha2 )
+        if ( vtkTetra::Circumsphere(x1,x2,x3,x4,center) > alpha2 )
           {
           tetraUse[i] = 0;
           }
@@ -589,8 +586,8 @@ void vtkDelaunay3D::Execute()
               points->GetPoint(p1,x1); 
               points->GetPoint(p2,x2);
               points->GetPoint(p3,x3);
-              tri.ProjectTo2D(x1,x2,x3,v1,v2,v3);
-              if ( tri.Circumcircle(v1,v2,v3,center) <= alpha2 )
+              vtkTriangle::ProjectTo2D(x1,x2,x3,v1,v2,v3);
+              if ( vtkTriangle::Circumcircle(v1,v2,v3,center) <= alpha2 )
                 {
                 pts[0] = p1;
                 pts[1] = p2;

@@ -53,7 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <xgl/xgl.h>
 
 class vtkXglrRenderer;
-class vtkPolygon;
 
 class vtkXglrPolyMapper : public vtkPolyMapperDevice
 {
@@ -68,7 +67,7 @@ public:
 protected:
   float *AddVertexComputeNormal(int npts, int pointSize, int *pts, 
 				vtkPoints *pt, vtkColorScalars *c, 
-				vtkTCoords *t, vtkPolygon *p, float *polyNorm);
+				vtkTCoords *t, float *polyNorm);
   float *AddVertexWithNormal(int npts, int pointSize, int *pts, 
 			     vtkPoints *p, vtkColorScalars *c, 
 			     vtkTCoords *t, vtkNormals *n, float *polyNorm);

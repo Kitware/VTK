@@ -58,10 +58,6 @@ public:
   char *GetClassName() {return "vtkPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // project point onto plane, returning coordinates
-  void ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3]);
-  float Evaluate(float normal[3], float origin[3], float x[3]);
-
   // ImplicitFunction interface
   float EvaluateFunction(float x[3]);
   void EvaluateGradient(float x[3], float g[3]);
@@ -77,10 +73,13 @@ public:
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
 
-  float DistanceToPlane(float x[3], float n[3], float p0[3]);
-
-  int IntersectWithLine(float p1[3], float p2[3], float n[3], float p0[3],
-                        float& t, float x[3]);
+  // plane specific stuff
+  static void ProjectPoint(float x[3], float origin[3], float normal[3], 
+                           float xproj[3]);
+  static float Evaluate(float normal[3], float origin[3], float x[3]);
+  static float DistanceToPlane(float x[3], float n[3], float p0[3]);
+  static int IntersectWithLine(float p1[3], float p2[3], float n[3], 
+                               float p0[3], float& t, float x[3]);
 
 protected:
   float Normal[3];

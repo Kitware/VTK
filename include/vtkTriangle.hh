@@ -82,14 +82,45 @@ public:
                    int dim, float *derivs);
 
   // triangle specific
-  void TriangleCenter(float p1[3], float p2[3], float p3[3], float center[3]);
-  float TriangleArea(float p1[3], float p2[3], float p3[3]);
-  float Circumcircle(float  p1[2], float p2[2], float p3[2], float center[2]);
-  int BarycentricCoords(float x[2], float  x1[2], float x2[2], float x3[2], 
-                        float bcoords[3]);
-  int ProjectTo2D(float x1[3], float x2[3], float x3[3],
-                  float v1[2], float v2[2], float v3[2]);
+  static void TriangleCenter(float p1[3], float p2[3], float p3[3], 
+                             float center[3]);
+  static float TriangleArea(float p1[3], float p2[3], float p3[3]);
+  static float Circumcircle(float  p1[2], float p2[2], float p3[2], 
+                            float center[2]);
+  static int BarycentricCoords(float x[2], float  x1[2], float x2[2], 
+                               float x3[2], float bcoords[3]);
+  static int ProjectTo2D(float x1[3], float x2[3], float x3[3],
+                         float v1[2], float v2[2], float v3[2]);
+  static void ComputeNormal(vtkPoints *p, int numPts, int *pts, float n[3]);
+  static void ComputeNormal(float v1[3], float v2[3], float v3[3], float n[3]);
 };
+
+// Description:
+// Compute the triangle normal from three points.
+inline void vtkTriangle::ComputeNormal(float v1[3], float v2[3], 
+                                       float v3[3], float n[3])
+{
+  float length, ax, ay, az, bx, by, bz;
+
+  // order is important!!! maintain consistency with triangle vertex order 
+  ax = v3[0] - v2[0]; ay = v3[1] - v2[1]; az = v3[2] - v2[2];
+  bx = v1[0] - v2[0]; by = v1[1] - v2[1]; bz = v1[2] - v2[2];
+
+  n[0] = (ay * bz - az * by);
+  n[1] = (az * bx - ax * bz);
+  n[2] = (ax * by - ay * bx);
+
+  if ( (length = sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2]))) != 0.0 )
+    {
+    n[0] /= length;
+    n[1] /= length;
+    n[2] /= length;
+    }
+  else
+    {
+    n[0] = 1.0;
+    }
+}
 
 // Description:
 // Compute the center of the triangle.

@@ -39,14 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkQuad.hh"
-#include "vtkPolygon.hh"
+#include "vtkTriangle.hh"
 #include "vtkPlane.hh"
 #include "vtkCellArray.hh"
 #include "vtkLine.hh"
 #include "vtkPointLocator.hh"
 #include "vtkMath.hh"
-
-static vtkPolygon vtkAPoly; //just used as hooks into methods
 
 // Description:
 // Deep copy of cell.
@@ -67,13 +65,11 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float *pt1, *pt2, *pt3, *pt, n[3];
   float det;
   float maxComponent;
-  int idx, indices[2];
+  int idx=0, indices[2];
   int iteration, converged;
   float  params[2];
   float  fcol[2], rcol[2], scol[2];
   float derivs[8];
-  static vtkLine line;
-  static vtkPlane plane;
 
   subId = 0;
   pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;
@@ -84,11 +80,11 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
 
-  vtkAPoly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
 // Project point to plane
 //
-  plane.ProjectPoint(x,pt1,n,closestPoint);
+  vtkPlane::ProjectPoint(x,pt1,n,closestPoint);
 //
 // Construct matrices.  Since we have over determined system, need to find
 // which 2 out of 3 equations to use to develop equations. (Any 2 should 
@@ -201,19 +197,19 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
       }
     else if ( pcoords[0] < 0.0 )
       {
-      dist2 = line.DistanceToLine(x,pt1,pt4,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt1,pt4,t,closestPoint);
       }
     else if ( pcoords[0] > 1.0 )
       {
-      dist2 = line.DistanceToLine(x,pt2,pt3,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
       }
     else if ( pcoords[1] < 0.0 )
       {
-      dist2 = line.DistanceToLine(x,pt1,pt2,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
       }
     else if ( pcoords[1] > 1.0 )
       {
-      dist2 = line.DistanceToLine(x,pt3,pt4,t,closestPoint);
+      dist2 = vtkLine::DistanceToLine(x,pt3,pt4,t,closestPoint);
       }
     return 0;
     }
@@ -411,7 +407,6 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[4];
-  static vtkPlane plane;
 
   subId = 0;
   pcoords[0] = pcoords[1] = 0.0;
@@ -422,11 +417,11 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   pt2 = this->Points.GetPoint(1);
   pt3 = this->Points.GetPoint(2);
 
-  vtkAPoly.ComputeNormal (pt1, pt2, pt3, n);
+  vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
 // Intersect plane of triangle with line
 //
-  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+  if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
 //
 // See whether point is in triangle by evaluating its position.
 //
@@ -487,7 +482,7 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   x1 = this->Points.GetPoint(1);
   x2 = this->Points.GetPoint(2);
   x3 = this->Points.GetPoint(3);
-  vtkAPoly.ComputeNormal (x0, x1, x2, n);
+  vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 
     {

@@ -60,10 +60,9 @@ vtkDelaunay2D::vtkDelaunay2D()
 // defined by points (x1, x2, x3). Returns non-zero if inside circle.
 static int InCircle (float x[3], float x1[3], float x2[3], float x3[3])
 {
-  static vtkTriangle triangle;
   float radius2, center[2], dist2;
 
-  radius2 = triangle.Circumcircle(x1,x2,x3,center);
+  radius2 = vtkTriangle::Circumcircle(x1,x2,x3,center);
 
   // check if inside/outside circumcircle
   dist2 = (x[0]-center[0]) * (x[0]-center[0]) + 
@@ -346,7 +345,6 @@ void vtkDelaunay2D::Execute()
 //
   if ( this->Alpha > 0.0 )
     {
-    vtkTriangle triangle;
     float alpha2 = this->Alpha * this->Alpha;
     float x1[3], x2[3], x3[3];
     int j, cellId, numNei, p1, p2, nei;
@@ -366,7 +364,7 @@ void vtkDelaunay2D::Execute()
         points->GetPoint(triPts[0],x1);
         points->GetPoint(triPts[1],x2);
         points->GetPoint(triPts[2],x3);
-        if ( triangle.Circumcircle(x1,x2,x3,center) > alpha2 )
+        if ( vtkTriangle::Circumcircle(x1,x2,x3,center) > alpha2 )
           {
           triUse[i] = 0;
           }

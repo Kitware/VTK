@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrRenderer.hh"
 #include "vtkXglrPolyMapper.hh"
 #include "vtkPolygon.hh"
+#include "vtkTriangle.hh"
 
 // Description:
 // Construct empty object.
@@ -137,7 +138,6 @@ float *vtkXglrPolyMapper::AddVertexComputeNormal(int npts, int pointSize,
 						 int *pts, vtkPoints *p, 
 						 vtkColorScalars *c,
 						 vtkTCoords *t, 
-						 vtkPolygon *polygon,
 						 float *polyNorm)
 {
   float *fTemp;
@@ -178,17 +178,17 @@ float *vtkXglrPolyMapper::AddVertexComputeNormal(int npts, int pointSize,
       if (j % 2)
 	{
 	idx[0] = pts[j-2]; idx[1] = pts[j]; idx[2] = pts[j-1]; 
-	polygon->ComputeNormal(p, 3, idx, polyNorm);
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
 	}
       else
 	{
 	idx[0] = pts[j-2]; idx[1] = pts[j-1]; idx[2] = pts[j]; 
-	polygon->ComputeNormal(p, 3, idx, polyNorm);
+	vtkTriangle::ComputeNormal(p, 3, idx, polyNorm);
 	}
       }
     else if ( j == 0 )
       {
-      polygon->ComputeNormal(p, 3, pts, polyNorm);
+      vtkTriangle::ComputeNormal(p, 3, pts, polyNorm);
       }
     pPtr = polyNorm;
 
@@ -283,7 +283,6 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
   float polyNorm[3];
   int i;
   int *pts;
-  vtkPolygon polygon;
   int tDim, pointSize, pointSize2;
   Xgl_pt_type ptType, ptType2;
   float *fTemp;
@@ -404,7 +403,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
       this->PL[i].pt_type = ptType;
       this->PL[i].num_data_values = numDataVals;
       
-      if (!n) polygon.ComputeNormal(p,npts,pts,polyNorm);
+      if (!n) vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
       
       this->PL[i].pts.data_f3d = 
 	(Xgl_pt_data_f3d *)this->AddVertexWithNormal(npts,pointSize,pts,
@@ -431,8 +430,7 @@ void vtkXglrPolyMapper::Build(vtkPolyData *data, vtkColorScalars *c)
 	{
 	this->PL[i].pts.data_f3d = 
 	  (Xgl_pt_data_f3d *)this->AddVertexComputeNormal(npts,pointSize,pts,
-							  p,c,t,
-							  &polygon ,polyNorm);
+							  p,c,t,polyNorm);
 	}
       }
     }

@@ -80,13 +80,13 @@ public:
                    int dim, float *derivs);
 
   // line specific methods
-  int Intersection(float x[3], float xray[3], float x1[3], float x2[3],
-               float& u, float& v);
+  static int Intersection(float x[3], float xray[3], float x1[3], float x2[3],
+                          float& u, float& v);
 
-  float DistanceToLine(float x[3], float p1[3], float p2[3], 
-                       float &t, float closestPoint[3]);
+  static float DistanceToLine(float x[3], float p1[3], float p2[3], 
+                              float &t, float closestPoint[3]);
 
-  float DistanceToLine(float x[3], float p1[3], float p2[3]);
+  static float DistanceToLine(float x[3], float p1[3], float p2[3]);
 };
 
 #endif

@@ -61,10 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 //  Static variables used by object
 //
-static vtkPlane plane; // eliminate constructor overhead
-static vtkLine line;
-static vtkTriangle triangle;
-
 static vtkPolyData *Mesh; // operate on this data structure
 static float Pt[3], Normal[3]; // least squares plane point & normal
 static float Angle, Distance; // current feature angle and distance 
@@ -187,14 +183,24 @@ void vtkDecimate::Execute()
 // Build cell data structure. Need to copy triangle connectivity data
 // so we can modify it.
 //
-  inPts = input->GetPoints();
-  inPolys = input->GetPolys();
-  Mesh = new vtkPolyData;
-  Mesh->SetPoints(inPts);
-  newPolys = new vtkCellArray(*(inPolys));
-  Mesh->SetPolys(newPolys);
-  newPolys->Delete(); //registered by Mesh and preserved
-  Mesh->BuildLinks();
+  if ( this->MaximumIterations > 0 )
+    {
+    inPts = input->GetPoints();
+    inPolys = input->GetPolys();
+    Mesh = new vtkPolyData;
+    Mesh->SetPoints(inPts);
+    newPolys = new vtkCellArray(*(inPolys));
+    Mesh->SetPolys(newPolys);
+    newPolys->Delete(); //registered by Mesh and preserved
+    Mesh->BuildLinks();
+    }
+  else
+    {
+    this->Output->CopyStructure(this->Input);
+    this->Output->GetPointData()->PassData(this->Input->GetPointData());
+    vtkWarningMacro(<<"Maximum iterations == 0: passing data through unchanged");
+    return;
+    }
 //
 // Create array of vertex errors (initially zero)
 //
@@ -256,7 +262,7 @@ void vtkDecimate::Execute()
 //
           if ( (vtype == VTK_SIMPLE_VERTEX || 
           ( (vtype == VTK_INTERIOR_EDGE_VERTEX || vtype == VTK_CORNER_VERTEX) && !this->PreserveEdges)) &&
-          plane.DistanceToPlane(X,Normal,Pt) <= Error)
+          vtkPlane::DistanceToPlane(X,Normal,Pt) <= Error)
             {
             this->Triangulate (numVerts, verts);
             this->Stats[VTK_ELIMINATED_DISTANCE_TO_PLANE]++;
@@ -268,7 +274,7 @@ void vtkDecimate::Execute()
             } 
           else if ((vtype == VTK_INTERIOR_EDGE_VERTEX || 
           vtype == VTK_BOUNDARY_VERTEX) && this->BoundaryVertexDeletion &&
-          line.DistanceToLine(X,fedges[0]->x,fedges[1]->x) <= (Error*Error) &&
+          vtkLine::DistanceToLine(X,fedges[0]->x,fedges[1]->x) <= (Error*Error) &&
           this->CanSplitLoop (fedges,numVerts,verts,n1,l1,n2,l2,ar) )
             {
             this->Triangulate (n1, l1);
@@ -350,7 +356,8 @@ void vtkDecimate::Execute()
 //
 //  Update output. This means renumbering points.
 //
-  this->CreateOutput(numPts, numTris, totalEliminated, input->GetPointData(), inPts);
+  this->CreateOutput(numPts, numTris, totalEliminated, input->GetPointData(), 
+                     inPts);
 }
 
 void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
@@ -691,8 +698,8 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
       v2[j] = x2[j] - X[j];
       }
 
-    T->Array[i].area = triangle.TriangleArea (X, x1, x2);
-    triangle.TriangleCenter (X, x1, x2, center);
+    T->Array[i].area = vtkTriangle::TriangleArea (X, x1, x2);
+    vtkTriangle::TriangleCenter (X, x1, x2, center);
     loopArea += T->Array[i].area;
 
     vtkMath::Cross (v1, v2, normal);
@@ -821,7 +828,7 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
     if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
       {
       x = l1[i]->x;
-      val = plane.Evaluate(sN,sPt,x);
+      val = vtkPlane::Evaluate(sN,sPt,x);
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
@@ -837,7 +844,7 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
     if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
       {
       x = l2[i]->x;
-      val = plane.Evaluate(sN,sPt,x);
+      val = vtkPlane::Evaluate(sN,sPt,x);
       absVal = (float) fabs((double)val);
       dist = (absVal < dist ? absVal : dist);
       if ( !sign )
@@ -976,7 +983,7 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
         this->Triangulate (n2, l2);
 
         // Compute minimum edge error
-        edgeError = line.DistanceToLine(X, fedges[0]->x, fedges[1]->x);
+        edgeError = vtkLine::DistanceToLine(X, fedges[0]->x, fedges[1]->x);
 
         if ( edgeError < MinEdgeError ) MinEdgeError = edgeError;
 

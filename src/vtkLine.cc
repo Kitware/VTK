@@ -96,7 +96,7 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 //  Intersect two 3D lines
 //
 int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
-                          float& u, float& v)
+                           float& u, float& v)
 {
   float a21[3], b21[3], b1a1[3];
   float sys[2][2], c[2], det;

@@ -103,7 +103,8 @@ void vtkImplicitModeller::Execute()
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
   newScalars = new vtkFloatScalars(numPts);
-  for (i=0; i<numPts; i++) newScalars->SetScalar(i,VTK_LARGE_FLOAT);
+  maxDistance = this->CapValue*this->CapValue;//sqrt taken later
+  for (i=0; i<numPts; i++) newScalars->SetScalar(i,maxDistance);
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
