@@ -113,11 +113,17 @@ void vtkWarpScalar::Execute()
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
-//
-// Loop over all points, adjusting locations
-//
+
+  // Loop over all points, adjusting locations
+  //
   for (ptId=0; ptId < numPts; ptId++)
     {
+    if ( ! (ptId % 10000) ) 
+      {
+      this->UpdateProgress ((float)ptId/numPts);
+      if (this->GetAbortExecute()) break;
+      }
+
     x = inPts->GetPoint(ptId);
     n = (this->*(PointNormal))(ptId,inNormals);
     if ( this->XYPlane ) s = x[2];
@@ -128,9 +134,9 @@ void vtkWarpScalar::Execute()
       }
     newPts->SetPoint(ptId, newX);
     }
-//
-// Update ourselves and release memory
-//
+
+  // Update ourselves and release memory
+  //
   output->GetPointData()->CopyNormalsOff(); // distorted geometry 
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->CopyNormalsOff(); // distorted geometry 

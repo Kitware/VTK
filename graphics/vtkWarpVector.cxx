@@ -66,11 +66,17 @@ void vtkWarpVector::Execute()
   numPts = inPts->GetNumberOfPoints();
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
-//
-// Loop over all points, adjusting locations
-//
+
+  // Loop over all points, adjusting locations
+  //
   for (ptId=0; ptId < numPts; ptId++)
     {
+    if ( ! (ptId % 10000) ) 
+      {
+      this->UpdateProgress ((float)ptId/numPts);
+      if (this->GetAbortExecute()) break;
+      }
+
     x = inPts->GetPoint(ptId);
     v = inVectors->GetVector(ptId);
     for (i=0; i<3; i++)
@@ -79,9 +85,9 @@ void vtkWarpVector::Execute()
       }
     newPts->SetPoint(ptId, newX);
     }
-//
-// Update ourselves and release memory
-//
+
+  // Update ourselves and release memory
+  //
   output->GetPointData()->CopyNormalsOff(); // distorted geometry
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
