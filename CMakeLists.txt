@@ -314,6 +314,9 @@ IF(BUILD_TESTING)
     IF (VTK_USE_HYBRID)
       SUBDIRS(Hybrid/Testing)
     ENDIF(VTK_USE_HYBRID)
+    IF (VTK_USE_PARALLEL)
+      SUBDIRS(Parallel/Testing)
+    ENDIF(VTK_USE_PARALLEL)
     IF (VTK_USE_PATENTED)
       SUBDIRS(Patented/Testing)
     ENDIF(VTK_USE_PATENTED)
@@ -331,13 +334,3 @@ INSTALL_FILES(/include/vtk .txt CMakeCache)
 
 INCLUDE (${VTK_BINARY_DIR}/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/LocalUserOptions.cmake OPTIONAL)
-
-
-
-
-
-
-
-
-
-
