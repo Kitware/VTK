@@ -14,6 +14,11 @@ LINK_LIBRARIES (
   vtkCommon 
 )
 
+IF (TCL_LIBRARY)
+  LINK_LIBRARIES (${TCL_LIBRARY})
+ELSE (TCL_LIBRARY)
+  MESSAGE("VTK_WRAP_TCL is ON, but the Tcl library was not found.  Please set TCL_LIBRARY." "Error")
+ENDIF (TCL_LIBRARY)
 
 
 IF (VTK_USE_RENDERING)
@@ -32,7 +37,8 @@ IF (VTK_USE_RENDERING)
   ENDIF (TK_INCLUDE_PATH)
   IF (TK_LIBRARY)
     LINK_LIBRARIES (${TK_LIBRARY})
-    LINK_LIBRARIES (${TCL_LIBRARY})
+  ELSE (TK_LIBRARY)
+    MESSAGE("VTK_WRAP_TCL and VTK_USE_RENDERING are ON, but the Tk library was not found.  Please set TK_LIBRARY." "Error")
   ENDIF (TK_LIBRARY)
 
   # add in xwindows stuff
