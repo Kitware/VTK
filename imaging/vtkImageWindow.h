@@ -132,6 +132,10 @@ public:
   void AddImager(vtkImager* im);
 
   // Description:
+  // Return the collection of imagers for this window.
+  vtkImagerCollection *GetImagers() {return this->Imagers;};
+
+  // Description:
   // Remove an imager from the window
   void RemoveImager(vtkImager* im);
   
