@@ -55,30 +55,30 @@ int MeshQuality( int argc, char* argv[] )
     cout << mr->GetFileName()
          << endl;
 
-    iq->SetTriangleQualityMeasureToRadiusRatio();
-    iq->Update();
-    cout << " Radius Ratio:"
-         << endl;
-    DumpQualityStats( iq, "Mesh Triangle Quality" );
-
-    iq->SetTriangleQualityMeasureToAspectRatio();
-    iq->Update();
-    cout << " Aspect Ratio:"
-         << endl;
-    DumpQualityStats( iq, "Mesh Triangle Quality" );
-    
-    iq->SetTriangleQualityMeasureToFrobeniusNorm();
-    iq->Update();
-    cout << " Frobenius Norm:"
-         << endl;
-    DumpQualityStats( iq, "Mesh Triangle Quality" );
-    
     iq->SetTriangleQualityMeasureToEdgeRatio();
     iq->Update();
     cout << " Edge Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Triangle Quality" );
  
+    iq->SetTriangleQualityMeasureToAspectRatio();
+    iq->Update();
+    cout << " Aspect Ratio:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Triangle Quality" );
+    
+    iq->SetTriangleQualityMeasureToRadiusRatio();
+    iq->Update();
+    cout << " Radius Ratio:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Triangle Quality" );
+
+    iq->SetTriangleQualityMeasureToFrobeniusNorm();
+    iq->Update();
+    cout << " Frobenius Norm:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Triangle Quality" );
+    
     iq->SetTriangleQualityMeasureToMinAngle();
     iq->Update();
     cout << " Minimal Angle:"
@@ -90,9 +90,9 @@ int MeshQuality( int argc, char* argv[] )
     cout << mr->GetFileName()
          << endl;
     
-    iq->SetQuadQualityMeasureToRadiusRatio();
+    iq->SetQuadQualityMeasureToEdgeRatio();
     iq->Update();
-    cout << " Radius Ratio:"
+    cout << " Edge Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
     
@@ -102,6 +102,12 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
 
+    iq->SetQuadQualityMeasureToRadiusRatio();
+    iq->Update();
+    cout << " Radius Ratio:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
+    
     iq->SetQuadQualityMeasureToMedFrobeniusNorm();
     iq->Update();
     cout << " Average Frobenius Norm:"
@@ -111,12 +117,6 @@ int MeshQuality( int argc, char* argv[] )
     iq->SetQuadQualityMeasureToMaxFrobeniusNorm();
     iq->Update();
     cout << " Maximal Frobenius Norm:"
-         << endl;
-    DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
-    
-    iq->SetQuadQualityMeasureToEdgeRatio();
-    iq->Update();
-    cout << " Edge Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
     
@@ -131,9 +131,9 @@ int MeshQuality( int argc, char* argv[] )
     cout << mr->GetFileName()
          << endl;
     
-    iq->SetTetQualityMeasureToRadiusRatio();
+    iq->SetTetQualityMeasureToEdgeRatio();
     iq->Update();
-    cout << " Radius Ratio:"
+    cout << " Edge Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     
@@ -143,15 +143,15 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     
-    iq->SetTetQualityMeasureToFrobeniusNorm();
+    iq->SetTetQualityMeasureToRadiusRatio();
     iq->Update();
-    cout << " Frobenius Norm:"
+    cout << " Radius Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     
-    iq->SetTetQualityMeasureToEdgeRatio();
+    iq->SetTetQualityMeasureToFrobeniusNorm();
     iq->Update();
-    cout << " Edge Ratio:"
+    cout << " Frobenius Norm:"
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     

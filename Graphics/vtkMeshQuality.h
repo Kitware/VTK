@@ -46,8 +46,12 @@
 // .SECTION Caveats
 // While more general than before, this class does not address many
 // cell types, including wedges and pyramids in 3D and triangle strips
-// and fans in 2D (among others).
-//
+// and fans in 2D (among others). 
+// Most quadrilateral quality measures are intended for planar quadrilaterals
+// only. 
+// The minimal angle is not, strictly speaking, a quality measure, but it is
+// provided because of its useage by many authors.
+
 #ifndef vtkMeshQuality_h
 #define vtkMeshQuality_h
 
@@ -55,10 +59,10 @@
 
 class vtkCell;
 
-#define VTK_QUALITY_RADIUS_RATIO 0
+#define VTK_QUALITY_EDGE_RATIO 0
 #define VTK_QUALITY_ASPECT_RATIO 1
-#define VTK_QUALITY_FROBENIUS_NORM 2
-#define VTK_QUALITY_EDGE_RATIO 3
+#define VTK_QUALITY_RADIUS_RATIO 2
+#define VTK_QUALITY_FROBENIUS_NORM 3
 #define VTK_QUALITY_MED_FROBENIUS_NORM 4
 #define VTK_QUALITY_MAX_FROBENIUS_NORM 5
 #define VTK_QUALITY_MIN_ANGLE 6
@@ -85,21 +89,21 @@ public:
   // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_FROBENIUS_NORM, and VTK_QUALITY_EDGE_RATIO.
   vtkSetMacro(TriangleQualityMeasure,int);
   vtkGetMacro(TriangleQualityMeasure,int);
-  void SetTriangleQualityMeasureToRadiusRatio()
+  void SetTriangleQualityMeasureToEdgeRatio()
     {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
   void SetTriangleQualityMeasureToAspectRatio()
     {
     this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
     }
+  void SetTriangleQualityMeasureToRadiusRatio()
+    {
+    this->SetTriangleQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    }
   void SetTriangleQualityMeasureToFrobeniusNorm()
     {
     this->SetTriangleQualityMeasure( VTK_QUALITY_FROBENIUS_NORM );
-    }
-  void SetTriangleQualityMeasureToEdgeRatio()
-    {
-    this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
   void SetTriangleQualityMeasureToMinAngle()
     {
@@ -115,13 +119,17 @@ public:
   // quadrilateral quality with those.
   vtkSetMacro(QuadQualityMeasure,int);
   vtkGetMacro(QuadQualityMeasure,int);
-  void SetQuadQualityMeasureToRadiusRatio()
+  void SetQuadQualityMeasureToEdgeRatio()
     {
-    this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
   void SetQuadQualityMeasureToAspectRatio()
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
+    }
+  void SetQuadQualityMeasureToRadiusRatio()
+    {
+    this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
     }
   void SetQuadQualityMeasureToMedFrobeniusNorm()
     {
@@ -130,10 +138,6 @@ public:
   void SetQuadQualityMeasureToMaxFrobeniusNorm()
     {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_FROBENIUS_NORM );
-    }
-  void SetQuadQualityMeasureToEdgeRatio()
-    {
-    this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
   void SetQuadQualityMeasureToMinAngle()
     {
@@ -146,21 +150,21 @@ public:
   // VTK_QUALITY_ASPECT_RATIO, VTK_QUALITY_FROBENIUS_NORM, and VTK_QUALITY_EDGE_RATIO.
   vtkSetMacro(TetQualityMeasure,int);
   vtkGetMacro(TetQualityMeasure,int);
-  void SetTetQualityMeasureToRadiusRatio()
+  void SetTetQualityMeasureToEdgeRatio()
     {
-    this->SetTetQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
   void SetTetQualityMeasureToAspectRatio()
     {
     this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
     }
+  void SetTetQualityMeasureToRadiusRatio()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
+    }
   void SetTetQualityMeasureToFrobeniusNorm()
     {
     this->SetTetQualityMeasure( VTK_QUALITY_FROBENIUS_NORM );
-    }
-  void SetTetQualityMeasureToEdgeRatio()
-    {
-    this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
   void SetTetQualityMeasureToMinAngle()
     {
@@ -179,15 +183,15 @@ public:
     }
 
   // Description:
-  // This is a static function used to calculate the radius ratio of a triangle.
+  // This is a static function used to calculate the edge ratio of a triangle.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The radius ratio of a triangle \f$t\f$ is: 
-  // \f$\frac{R}{2r}\f$,
-  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and 
-  // the inradius of \f$t\f$.
-  static double TriangleRadiusRatio( vtkCell* cell );
+  // The edge ratio of a triangle \f$t\f$ is: 
+  // \f$\frac{|t|_\infty}{|t|_0}\f$,
+  // where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
+  // the smallest edge lengths of \f$t\f$.
+  static double TriangleEdgeRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the aspect ratio of a triangle.
@@ -199,6 +203,17 @@ public:
   // where \f$|t|_\infty\f$ and \f$r\f$ respectively denote the greatest edge 
   // length and the inradius of \f$t\f$.
   static double TriangleAspectRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the radius ratio of a triangle.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  // The radius ratio of a triangle \f$t\f$ is: 
+  // \f$\frac{R}{2r}\f$,
+  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and 
+  // the inradius of \f$t\f$.
+  static double TriangleRadiusRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the Frobenius norm of a triangle
@@ -214,23 +229,35 @@ public:
   static double TriangleFrobeniusNorm( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the edge ratio of a triangle.
-  // It assumes that you pass the correct type of cell -- no type checking is
-  // performed because this method is called from the inner loop of the Execute()
-  // member function.
-  // The edge ratio of a triangle \f$t\f$ is: 
-  // \f$\frac{|t|_\infty}{|t|_0}\f$,
-  // where \f$|t|_\infty\f$ and \f$|t|_0\f$ respectively denote the greatest and
-  // the smallest edge lengths of \f$t\f$.
-  static double TriangleEdgeRatio( vtkCell* cell );
-
-  // Description:
   // This is a static function used to calculate the minimal (nonoriented) angle
   // of a triangle, expressed in degrees.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
   static double TriangleMinAngle( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the edge ratio of a quadrilateral.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  // The edge ratio of a quadrilateral \f$q\f$ is: 
+  // \f$\frac{|q|_\infty}{|q|_0}\f$,
+  // where \f$|q|_\infty\f$ and \f$|q|_0\f$ respectively denote the greatest and
+  // the smallest edge lengths of \f$q\f$.
+  static double QuadEdgeRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the aspect ratio of a planar 
+  // quadrilateral.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function. Use at your own risk with nonplanar quadrilaterals.
+  // The aspect ratio of a planar quadrilateral \f$q\f$ is: 
+  // \f$\frac{|q|_1|q|_\infty}{4{\cal A}}\f$,
+  // where \f$|q|_1\f$, $|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the 
+  // perimeter, the greatest edge length and the area of \f$q\f$.
+  static double QuadAspectRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the radius ratio of a planar 
@@ -246,18 +273,6 @@ public:
   // the sum of the squared edge lengths, the greatest amongst diagonal and edge 
   // lengths and the smallest area of the 4 triangles extractable from \f$q\f$.
   static double QuadRadiusRatio( vtkCell* cell );
-
-  // Description:
-  // This is a static function used to calculate the aspect ratio of a planar 
-  // quadrilateral.
-  // It assumes that you pass the correct type of cell -- no type checking is
-  // performed because this method is called from the inner loop of the Execute()
-  // member function. Use at your own risk with nonplanar quadrilaterals.
-  // The aspect ratio of a planar quadrilateral \f$q\f$ is: 
-  // \f$\frac{|q|_1|q|_\infty}{4{\cal A}}\f$,
-  // where \f$|q|_1\f$, $|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the 
-  // perimeter, the greatest edge length and the area of \f$q\f$.
-  static double QuadAspectRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the average Frobenius norm of the
@@ -288,17 +303,6 @@ public:
   static double QuadMaxFrobeniusNorm( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the edge ratio of a quadrilateral.
-  // It assumes that you pass the correct type of cell -- no type checking is
-  // performed because this method is called from the inner loop of the Execute()
-  // member function.
-  // The edge ratio of a quadrilateral \f$q\f$ is: 
-  // \f$\frac{|q|_\infty}{|q|_0}\f$,
-  // where \f$|q|_\infty\f$ and \f$|q|_0\f$ respectively denote the greatest and
-  // the smallest edge lengths of \f$q\f$.
-  static double QuadEdgeRatio( vtkCell* cell );
-
-  // Description:
   // This is a static function used to calculate the minimal (nonoriented) angle
   // of a quadrilateral, expressed in degrees.
   // It assumes that you pass the correct type of cell -- no type checking is
@@ -307,15 +311,15 @@ public:
   static double QuadMinAngle( vtkCell* cell );
 
   // Description:
-  // This is a static function used to calculate the radius ratio of a tetrahedron.
+  // This is a static function used to calculate the edge ratio of a tetrahedron.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function.
-  // The radius ratio of a tetrahedron \f$K\f$ is: 
-  // \f$\frac{R}{3r}\f$,
-  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and 
-  // the inradius of \f$K\f$.
-  static double TetRadiusRatio( vtkCell* cell );
+  // The edge ratio of a tetrahedron \f$K\f$ is: 
+  // \f$\frac{|K|_\infty}{|K|_0}\f$,
+  // where \f$|K|_\infty\f$ and \f$|K|_0\f$ respectively denote the greatest and
+  // the smallest edge lengths of \f$K\f$.
+  static double TetEdgeRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the aspect ratio of a tetrahedron.
@@ -327,6 +331,17 @@ public:
   // where \f$|K|_\infty\f$ and \f$r\f$ respectively denote the greatest edge 
   // length and the inradius of \f$K\f$.
   static double TetAspectRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the radius ratio of a tetrahedron.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  // The radius ratio of a tetrahedron \f$K\f$ is: 
+  // \f$\frac{R}{3r}\f$,
+  // where \f$R\f$ and \f$r\f$ respectively denote the circumradius and 
+  // the inradius of \f$K\f$.
+  static double TetRadiusRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the Frobenius norm of a tetrahedron
@@ -341,17 +356,6 @@ public:
   // where \f$T\f$ and \f$l_{ij}\f$ respectively denote the edge matrix of \f$K\f$
   // and the entries of \f$L=T^t\,T\f$.
   static double TetFrobeniusNorm( vtkCell* cell );
-
-  // Description:
-  // This is a static function used to calculate the edge ratio of a tetrahedron.
-  // It assumes that you pass the correct type of cell -- no type checking is
-  // performed because this method is called from the inner loop of the Execute()
-  // member function.
-  // The edge ratio of a tetrahedron \f$K\f$ is: 
-  // \f$\frac{|K|_\infty}{|K|_0}\f$,
-  // where \f$|K|_\infty\f$ and \f$|K|_0\f$ respectively denote the greatest and
-  // the smallest edge lengths of \f$K\f$.
-  static double TetEdgeRatio( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the minimal (nonoriented) dihedral
