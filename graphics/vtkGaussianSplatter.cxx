@@ -84,6 +84,8 @@ vtkGaussianSplatter::vtkGaussianSplatter()
 
   this->Capping = 1;
   this->CapValue = 0.0;
+
+  this->AccumulationMode = VTK_ACCUMULATION_MODE_MAX;
 }
 
 void vtkGaussianSplatter::Execute()
@@ -117,8 +119,8 @@ void vtkGaussianSplatter::Execute()
   //
   this->Eccentricity2 = this->Eccentricity * this->Eccentricity;
 
-  numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
-           * this->SampleDimensions[2];
+  numNewPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
+              this->SampleDimensions[2];
   this->NewScalars = vtkScalars::New(); 
   this->NewScalars->SetNumberOfScalars(numNewPts);
   for (i=0; i<numNewPts; i++)
@@ -302,7 +304,8 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
 {
   int dataDim, i;
 
-  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," 
+                << dim[1] << "," << dim[2] << ")");
 
   if (dim[0] != this->SampleDimensions[0] ||
       dim[1] != this->SampleDimensions[1] ||
@@ -343,7 +346,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
   int idx;
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
 
-// i-j planes
+  // i-j planes
   k = 0;
   for (j=0; j<this->SampleDimensions[1]; j++)
     {
@@ -361,7 +364,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
       s->SetScalar(idx+i+j*this->SampleDimensions[0], this->CapValue);
       }
     }
-// j-k planes
+  // j-k planes
   i = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
@@ -378,7 +381,7 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
       s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
       }
     }
-// i-k planes
+  // i-k planes
   j = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
@@ -410,15 +413,14 @@ void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
 
   if ( (dist2= (this->*Sample)(cx)) <= this->Radius2 ) 
     {
-
     idx = i + j*this->SampleDimensions[0] + 
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling on opposite cell vertex, cell walls that emanate
-//  from this vertex, and cell edges that emanate from this vertex.
-//
+
+    //  Continue sampling on opposite cell vertex, cell walls that emanate
+    //  from this vertex, and cell edges that emanate from this vertex.
+    //
     ip = i + idir;
     jp = j + jdir;
     kp = k + kdir;
@@ -429,9 +431,9 @@ void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
       {
       this->SplitIJK (ip, idir, jp, jdir, kp, kdir);
       }
-//
-//  Don't forget cell walls emanating from this vertex
-//
+
+    //  Don't forget cell walls emanating from this vertex
+    //
     if ( ip >= 0 && ip < this->SampleDimensions[0] && 
          jp >= 0 && jp < this->SampleDimensions[1] )
       {
@@ -449,9 +451,9 @@ void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
       {
       this->SplitIK (ip, idir, j, kp, kdir);
       }
-//
-//  Don't forget the cell edges emanating from this vertex
-//
+
+    //  Don't forget the cell edges emanating from this vertex
+    //
     if ( ip >= 0 && ip < this->SampleDimensions[0] )
       {
       this->SplitI (ip, idir, j, k);
@@ -483,10 +485,10 @@ void vtkGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling on opposite cell vertex and cell edges that
-//  emanate from this vertex. 
-//
+
+    //  Continue sampling on opposite cell vertex and cell edges that
+    //  emanate from this vertex. 
+    //
     ip = i + idir;
     jp = j + jdir;
 
@@ -495,9 +497,9 @@ void vtkGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
       {
       this->SplitIJ (ip, idir, jp, jdir, k);
       }
-//
-//  Don't forget the cell edges emanating from this vertex
-//
+
+    //  Don't forget the cell edges emanating from this vertex
+    //
     if ( ip >= 0 && ip < this->SampleDimensions[0] )
       {
       this->SplitI (ip, idir, j, k);
@@ -526,10 +528,10 @@ void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling on opposite cell vertex and cell edges that
-//  emanate from this vertex. 
-//
+
+    //  Continue sampling on opposite cell vertex and cell edges that
+    //  emanate from this vertex. 
+    //
     jp = j + jdir;
     kp = k + kdir;
 
@@ -538,9 +540,9 @@ void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
       {
       this->SplitJK (i, jp, jdir, kp, kdir);
       }
-//
-//  Don't forget the cell edges emanating from this vertex
-//
+
+    //  Don't forget the cell edges emanating from this vertex
+    //
     if ( jp >= 0 && jp < this->SampleDimensions[1] )
       {
      this->SplitJ (i, jp, jdir, k);
@@ -568,10 +570,10 @@ void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling on opposite cell vertex and cell edges that
-//  emanate from this vertex. 
-//
+
+    //  Continue sampling on opposite cell vertex and cell edges that
+    //  emanate from this vertex. 
+    //
     ip = i + idir;
     kp = k + kdir;
 
@@ -579,9 +581,9 @@ void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
       {
       this->SplitIK (ip,idir, j, kp,kdir);
       }
-//
-//  Don't forget the cell edges emanating from this vertex
-//
+
+    //  Don't forget the cell edges emanating from this vertex
+    //
     if ( ip >= 0 && ip < this->SampleDimensions[0] )
       {
       this->SplitI (ip,idir, j, k);
@@ -610,9 +612,9 @@ void vtkGaussianSplatter::SplitI (int i, int idir, int j, int k)
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling along this edge.
-//
+
+    //  Continue sampling along this edge.
+    //
     if ( (ip=i+idir) >= 0 && ip < this->SampleDimensions[0] )
       {
       this->SplitI (ip,idir, j, k);
@@ -635,9 +637,9 @@ void vtkGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling along this edge.
-//
+
+    //  Continue sampling along this edge.
+    //
     if ( (jp=j+jdir) >= 0 && jp < this->SampleDimensions[1] )
       {
       this->SplitJ (i, jp,jdir, k);
@@ -660,9 +662,9 @@ void vtkGaussianSplatter::SplitK (int i, int j, int k, int kdir)
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
     this->SetScalar(idx,dist2);
-//
-//  Continue sampling along this edge.
-//
+
+    //  Continue sampling along this edge.
+    //
     if ( (kp=k+kdir) >= 0 && kp < this->SampleDimensions[2] )
       {
       this->SplitK (i, j, kp,kdir);
@@ -717,15 +719,43 @@ void vtkGaussianSplatter::SetScalar(int idx, float dist2)
   float v = (this->*SampleFactor)(this->S) * exp((double)
             (this->ExponentFactor*(dist2)/(this->Radius2)));
 
-  if ( this->Visited[idx] )
-    {
-    float s = this->NewScalars->GetScalar(idx);
-    this->NewScalars->SetScalar(idx,( s > v ? s : v));
-    }
-  else 
+  if ( ! this->Visited[idx] )
     {
     this->Visited[idx] = 1;
     this->NewScalars->SetScalar(idx,v);
+    }
+  else
+    {
+    float s = this->NewScalars->GetScalar(idx);
+    switch (this->AccumulationMode)
+      {
+      case VTK_ACCUMULATION_MODE_MIN:
+        this->NewScalars->SetScalar(idx,(s < v ? s : v));
+        break;
+      case VTK_ACCUMULATION_MODE_MAX:
+        this->NewScalars->SetScalar(idx,(s > v ? s : v));
+        break;
+      case VTK_ACCUMULATION_MODE_SUM:
+        s += v;
+        this->NewScalars->SetScalar(idx,s);
+        break;
+      }
+    }//not first visit
+}
+
+const char *vtkGaussianSplatter::GetAccumulationModeAsString()
+{
+  if ( this->AccumulationMode == VTK_ACCUMULATION_MODE_MIN )
+    {
+    return "Minimum";
+    }
+  else if ( this->AccumulationMode == VTK_ACCUMULATION_MODE_MAX )
+    {
+    return "Maximum";
+    }
+  else //if ( this->AccumulationMode == VTK_ACCUMULATION_MODE_SUM )
+    {
+    return "Sum";
     }
 }
 
@@ -753,5 +783,7 @@ void vtkGaussianSplatter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
+
+  os << indent << "Accumulation Mode: " << this->GetAccumulationModeAsString() << "\n";
 }
 

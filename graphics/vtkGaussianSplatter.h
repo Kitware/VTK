@@ -53,6 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
+#define VTK_ACCUMULATION_MODE_MIN 0
+#define VTK_ACCUMULATION_MODE_MAX 1
+#define VTK_ACCUMULATION_MODE_SUM 2
+
 class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
@@ -130,6 +134,20 @@ public:
   vtkSetMacro(CapValue,float);
   vtkGetMacro(CapValue,float);
 
+  // Description:
+  // Specify the scalar accumulation mode. This mode expresses how scalar
+  // values are combined when splats are overlapped.
+  vtkSetClampMacro(AccumulationMode,int,
+                   VTK_ACCUMULATION_MODE_MIN,VTK_ACCUMULATION_MODE_SUM);
+  vtkGetMacro(AccumulationMode,int);
+  void SetAccumulationModeToMin()
+    {this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MIN);}
+  void SetAccumulationModeToMax()
+    {this->SetAccumulationMode(VTK_ACCUMULATION_MODE_MAX);}
+  void SetAccumulationModeToSum()
+    {this->SetAccumulationMode(VTK_ACCUMULATION_MODE_SUM);}
+  const char *GetAccumulationModeAsString();
+
 protected:
   vtkGaussianSplatter();
   ~vtkGaussianSplatter() {};
@@ -149,6 +167,7 @@ protected:
   float ScaleFactor; // splat size influenced by scale factor
   int Capping; // Cap side of volume to close surfaces
   float CapValue; // value to use for capping
+  int AccumulationMode; // how to combine scalar values
 
   // recursive propagation of splat
   void SplitIJK(int i, int idir, int j, int jdir, int k, int kdir);
