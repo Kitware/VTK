@@ -30,8 +30,6 @@ set IMAGE_MAG_Z 1
 
 
 
-
-
 # Create the GUI: two renderer widgets and a quit button
 #
 wm withdraw .
@@ -60,7 +58,8 @@ set sliceLabel [label $viewerControls.slice \
 		    -text "slice: [expr $CURSOR_Z * $IMAGE_MAG_Z]"]
 pack $downButton $upButton $sliceLabel -side left -expand t -fill both
 
-set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264]
+vtkRenderWindow renWin
+set renderWidget [vtkTkRenderWidget $rendererFrame.r -width 264 -height 264 -rw renWin]
 pack $renderWidget -side top
 
 
