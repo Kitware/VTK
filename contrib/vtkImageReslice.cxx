@@ -338,6 +338,9 @@ void vtkImageReslice::ExecuteInformation()
   double *mat1[4];
   double *mat2[4];
     
+  int tmpIntSpace[4];
+  double tmpDoubleSpace[4];
+
   for (i = 0; i < 4; i++)
     {
     mat1[i] = mat1data[i];
@@ -348,9 +351,9 @@ void vtkImageReslice::ExecuteInformation()
       }
     }
  
-  if (vtkMath::InvertMatrix(mat1,mat2,4) == 0)
+  if (vtkMath::InvertMatrix(mat1,mat2,4,tmpIntSpace,tmpDoubleSpace) == 0)
     {
-    vtkErrorMacro(<< "ExecuteImageInformation: ResliceTransform not \
+    vtkErrorMacro(<< "ExecuteImageInformation: reslicing transform not \
 invertible");
     }
 
