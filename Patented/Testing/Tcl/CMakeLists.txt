@@ -23,6 +23,7 @@ IF (VTK_USE_RENDERING)
       TestMarchingSquares
       TestSynchronizedTemplates2D
       TestSynchronizedTemplates3D
+      CompareContour
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
