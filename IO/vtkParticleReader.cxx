@@ -25,7 +25,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.15");
+vtkCxxRevisionMacro(vtkParticleReader, "1.16");
 vtkStandardNewMacro(vtkParticleReader);
 
 // These are copied right from vtkImageReader.
@@ -172,7 +172,7 @@ void vtkParticleReader::Execute()
 
   // Read the data.
   this->File->read((char *)data, length*4*sizeof(float));
-  if ( this->File->gcount() != (length*4*sizeof(float))
+  if ( this->File->gcount() != static_cast<int>(length*4*sizeof(float))
      // On apple read to eof returns fail
 #ifndef __APPLE_CC__     
      || this->File->fail()
