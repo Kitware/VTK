@@ -208,6 +208,7 @@ protected:
   int Size[2];
   int Position[2];
   int GrayScaleHint;
+  int OwnWindow;
 };
 
 #endif

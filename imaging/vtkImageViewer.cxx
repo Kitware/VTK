@@ -66,6 +66,7 @@ vtkImageViewer::vtkImageViewer()
   this->Position[0] = this->Position[1] = 0;
   this->Input = NULL;
   this->Mapped = 0;
+  this->OwnWindow = 0;
   this->WindowName = NULL;
   
   this->ColorWindow = 255.0;
