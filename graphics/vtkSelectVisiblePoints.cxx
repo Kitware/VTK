@@ -167,6 +167,10 @@ void vtkSelectVisiblePoints::Execute()
       {
 	decimal += 0.1;
 	this->UpdateProgress(decimal);
+	if (this->GetAbortExecute())
+	  {
+	    break; 
+	  }
       }
 
     // check whether visible and in selection window 
