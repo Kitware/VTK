@@ -36,7 +36,7 @@ vtkSweptSurface sweptSurfaceFilter
   sweptSurfaceFilter SetSampleDimensions 100 70 40
   sweptSurfaceFilter SetNumberOfInterpolationSteps 20
 
-vtkContourFilter iso
+vtkMarchingContourFilter iso
   iso SetInput [sweptSurfaceFilter GetOutput]
   iso SetValue 0 0.33
 

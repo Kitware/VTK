@@ -16,18 +16,21 @@ vtkRenderWindowInteractor iren
 vtkPolyDataReader cyber
     cyber SetFileName "../../../vtkdata/fran_cut.vtk"
 #7347 triangles remain
-vtkDecimate deci; 
-    deci SetInput [cyber GetOutput]
-    deci SetTargetReduction 0.9
-    deci SetAspectRatio 20
-    deci SetInitialError 0.0002
-    deci SetErrorIncrement 0.0005
-    deci SetMaximumIterations 6
-    deci SetInitialFeatureAngle 45
 vtkPolyDataNormals normals
-    normals SetInput [deci GetOutput]
+    normals SetInput [cyber GetOutput]
+    normals SplittingOff
+
+vtkDecimatePro deci
+    deci SetInput [normals GetOutput]
+    deci SetDegree 25
+    deci PreserveTopologyOff
+    deci SetTargetReduction .999
+
+vtkWindowedSincPolyDataFilter smooth
+  smooth SetInput [deci GetOutput]
+
 vtkPolyDataMapper cyberMapper
-    cyberMapper SetInput [normals GetOutput]
+    cyberMapper SetInput [smooth GetOutput]
 vtkActor cyberActor
     cyberActor SetMapper cyberMapper
     eval [cyberActor GetProperty] SetColor 1.0 0.49 0.25

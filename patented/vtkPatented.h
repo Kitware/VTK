@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageMarchingCubes.h"
 #include "vtkKitwareContourFilter.h"
+#include "vtkMarchingContourFilter.h"
 #include "vtkMarchingCubes.h"
 #include "vtkMarchingSquares.h"
 #include "vtkSliceCubes.h"

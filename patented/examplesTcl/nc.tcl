@@ -72,7 +72,7 @@ vtkSampleFunction sampleBoolean
   sampleBoolean SetModelBounds -2 2 -2 2 -2 2
   sampleBoolean SetSampleDimensions 64 64 64
 
-vtkContourFilter iso
+vtkMarchingContourFilter iso
   iso SetInput [sampleBoolean GetOutput]
   iso SetValue 0 -.05
 

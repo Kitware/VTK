@@ -46,7 +46,7 @@ vtkSweptSurface sweptSurfaceFilter
   sweptSurfaceFilter SetMaximumNumberOfInterpolationSteps 80
   sweptSurfaceFilter CappingOff
 
-vtkContourFilter iso
+vtkMarchingContourFilter iso
   iso SetInput [sweptSurfaceFilter GetOutput]
   iso SetValue 0 0.075
 

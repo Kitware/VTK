@@ -46,13 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkContourValues.h"
 #include "vtkScalarTree.h"
 
-#ifdef VTK_USE_PATENTED
-#include "vtkMarchingSquares.h"
-#include "vtkMarchingCubes.h"
-#include "vtkImageMarchingCubes.h"
-#include "vtkGridSynchronizedTemplates3D.h"
-#endif
-
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkContourFilter::vtkContourFilter()
@@ -135,53 +128,6 @@ void vtkContourFilter::Execute()
     return;
     }
 
-  // If structured points, use more efficient algorithms
-#ifdef VTK_USE_PATENTED
-  // Disable StructuredGrid until Information is computed by sources.
-  if ( (input->GetDataObjectType() == VTK_STRUCTURED_GRID) && 0)
-    {
-    if (inScalars->GetDataType() != VTK_BIT)
-      {
-      int dim = input->GetCell(0)->GetCellDimension();
-      
-      if ( input->GetCell(0)->GetCellDimension() > 2 ) 
-	{
-	this->StructuredGridContour(dim);
-	return;
-	}
-      }
-    }
-  
-  if ( (input->GetDataObjectType() == VTK_STRUCTURED_POINTS))
-    {
-    if (inScalars->GetDataType() != VTK_BIT)
-      {
-      int dim = input->GetCell(0)->GetCellDimension();
-      
-      if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
-	{
-	this->StructuredPointsContour(dim);
-	return;
-	}
-      }
-    }
-  
-  if ( (input->GetDataObjectType() == VTK_IMAGE_DATA)) 
-    {
-    if (inScalars->GetDataType() != VTK_BIT)
-      {
-      int dim = input->GetCell(0)->GetCellDimension();
-      
-      if ( input->GetCell(0)->GetCellDimension() >= 2 ) 
-	{
-	this->ImageContour(dim);
-	return;
-	}
-      }
-    }
-  
-#endif
-
   inScalars->GetRange(range);
 //
 // Create objects to hold output of contour operation. First estimate allocation size.
@@ -205,8 +151,7 @@ void vtkContourFilter::Execute()
   cellScalars = vtkScalars::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   
- 
-  // locator used to merge potentially duplicate points
+   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
     this->CreateDefaultLocator();
@@ -299,146 +244,6 @@ void vtkContourFilter::Execute()
   this->Locator->Initialize();//releases leftover memory
   output->Squeeze();
 }
-
-//
-// Special method handles structured points
-//
-#ifndef VTK_USE_PATENTED  
-void vtkContourFilter::StructuredGridContour(int vtkNotUsed(dim)) { }
-void vtkContourFilter::StructuredPointsContour(int vtkNotUsed(dim)) { }
-void vtkContourFilter::ImageContour(int vtkNotUsed(dim)) { }
-#else
-void vtkContourFilter::StructuredGridContour(int dim)
-{
-  vtkPolyData *output = this->GetOutput();
-  vtkPolyData *thisOutput = this->GetOutput();
-  int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
-  vtkGridSynchronizedTemplates3D *st;
-  int i;
-    
-  st = vtkGridSynchronizedTemplates3D::New();
-  st->SetInput((vtkStructuredGrid *)this->GetInput());
-  st->SetOutput(output);
-  st->SetComputeNormals (this->ComputeNormals);
-  st->SetComputeGradients (this->ComputeGradients);
-  st->SetComputeScalars (this->ComputeScalars);
-  st->SetDebug(this->Debug);
-  st->SetNumberOfContours(numContours);
-  for (i=0; i < numContours; i++)
-    {
-    st->SetValue(i,values[i]);
-    }
-  
-  st->Update();
-  this->SetOutput(output);
-  st->Delete();
-}
-void vtkContourFilter::StructuredPointsContour(int dim)
-{
-  vtkPolyData *output;
-  vtkPolyData *thisOutput = this->GetOutput();
-  int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
-
-  if ( dim == 2 ) //marching squares
-    {
-    vtkMarchingSquares *msquares;
-    int i;
-    
-    msquares = vtkMarchingSquares::New();
-    msquares->SetInput((vtkStructuredPoints *)this->GetInput());
-    msquares->SetDebug(this->Debug);
-    msquares->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
-      {
-      msquares->SetValue(i,values[i]);
-      }
-         
-    msquares->Update();
-    output = msquares->GetOutput();
-    output->Register(this);
-    msquares->Delete();
-    }
-
-  else //marching cubes
-    {
-    vtkMarchingCubes *mcubes;
-    int i;
-    
-    mcubes = vtkMarchingCubes::New();
-    mcubes->SetInput((vtkStructuredPoints *)this->GetInput());
-    mcubes->SetComputeNormals (this->ComputeNormals);
-    mcubes->SetComputeGradients (this->ComputeGradients);
-    mcubes->SetComputeScalars (this->ComputeScalars);
-    mcubes->SetDebug(this->Debug);
-    mcubes->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
-      {
-      mcubes->SetValue(i,values[i]);
-      }
-
-    mcubes->Update();
-    output = mcubes->GetOutput();
-    output->Register(this);
-    mcubes->Delete();
-    }
-  
-  thisOutput->CopyStructure(output);
-  thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
-  output->UnRegister(this);
-}
-void vtkContourFilter::ImageContour(int dim)
-{
-  vtkPolyData *output = this->GetOutput();
-  vtkPolyData *thisOutput = this->GetOutput();
-  int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
-
-  if ( dim == 2 ) //marching squares
-    {
-    vtkMarchingSquares *msquares;
-    int i;
-    
-    msquares = vtkMarchingSquares::New();
-    msquares->SetInput((vtkImageData *)this->GetInput());
-    msquares->SetOutput(output);
-    msquares->SetDebug(this->Debug);
-    msquares->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
-      {
-      msquares->SetValue(i,values[i]);
-      }
-         
-    msquares->Update();
-    this->SetOutput(output);
-    msquares->Delete();
-    }
-
-  else //image marching cubes
-    {
-    vtkImageMarchingCubes *mcubes;
-    int i;
-    
-    mcubes = vtkImageMarchingCubes::New();
-    mcubes->SetInput((vtkImageData *)this->GetInput());
-    mcubes->SetOutput(output);
-    mcubes->SetComputeNormals (this->ComputeNormals);
-    mcubes->SetComputeGradients (this->ComputeGradients);
-    mcubes->SetComputeScalars (this->ComputeScalars);
-    mcubes->SetDebug(this->Debug);
-    mcubes->SetNumberOfContours(numContours);
-    for (i=0; i < numContours; i++)
-      {
-      mcubes->SetValue(i,values[i]);
-      }
-
-    mcubes->Update();
-    this->SetOutput(output);
-    mcubes->Delete();
-    }
-}
-#endif
 
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.

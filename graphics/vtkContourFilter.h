@@ -48,12 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // or 0D cells will generate isopoints. Combinations of output type 
 // are possible if the input dimension is mixed.
 //
-// This filter will identify special dataset types (e.g., structured
-// points) and use the appropriate specialized filter to process the
-// data. For examples, if the input dataset type is a volume, this
-// filter will create an internal vtkMarchingCubes instance and use
-// it. This gives much better performance.
-// 
 // To use this filter you must specify one or more contour values.
 // You can either use the method SetValue() to specify each contour
 // value, or use GenerateValues() to generate a series of evenly
@@ -63,14 +57,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // contain a contour surface. This is especially effective if multiple
 // contours are being extracted. If you want to use a scalar tree,
 // invoke the method UseScalarTreeOn().
+//<P>
+// If the input data is structured, consider using a filter that is
+// optimized for structured data. These can be found in the patented
+// classes of vtk.
 
 // .SECTION Caveats
 // For unstructured data or structured grids, normals and gradients
-// are not computed.  This calculation will be implemented in the
-// future. In the mean time, use vtkPolyDataNormals to compute the surface
+// are not computed. Use vtkPolyDataNormals to compute the surface
 // normals.
 
 // .SECTION See Also
+// vtkMarchingContourFilter vtkKitwareContourFilter
 // vtkMarchingCubes vtkSliceCubes vtkDividingCubes vtkMarchingSquares
 // vtkImageMarchingCubes
 
