@@ -77,6 +77,16 @@ protected:
       return 1;
     };
 
+  // Description:
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual int SetUpdateBlocks(vtkInformation*,
+                              vtkInformationVector**,
+                              vtkInformationVector*)
+    {
+      return 1;
+    };
+
   // Create a default executive.
   virtual vtkExecutive* CreateDefaultExecutive();
 
