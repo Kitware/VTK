@@ -170,18 +170,16 @@ void vlLookupTable::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
 
-    os << indent << "Number colors: " << this->GetNumColors() << "\n";
+    os << indent << "Build Time: " <<this->BuildTime.GetMtime() << "\n";
     os << indent << "Hue Range: (" << this->HueRange[0] << ", "
        << this->HueRange[1] << ")\n";
+    os << indent << "Insert Time: " <<this->InsertTime.GetMtime() << "\n";
+    os << indent << "Num Colors: " << this->GetNumColors() << "\n";
     os << indent << "Saturation Range: (" << this->SaturationRange[0] << ", "
        << this->SaturationRange[1] << ")\n";
-    os << indent << "Value Range: (" << this->ValueRange[0] << ", "
-       << this->ValueRange[1] << ")\n";
-
     os << indent << "Table Range: (" << this->TableRange[0] << ", "
        << this->TableRange[1] << ")\n";
-
-    os << indent << "Build time: " <<this->BuildTime.GetMtime() << "\n";
-    os << indent << "Insert time: " <<this->InsertTime.GetMtime() << "\n";
+    os << indent << "Value Range: (" << this->ValueRange[0] << ", "
+       << this->ValueRange[1] << ")\n";
    }
 }

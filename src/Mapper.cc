@@ -75,6 +75,7 @@ void vlMapper::PrintSelf(ostream& os, vlIndent indent)
     {
     vlObject::PrintSelf(os,indent);
 
+    os << indent << "Build Time: " <<this->BuildTime.GetMtime() << "\n";
     if ( this->StartRender )
       {
       os << indent << "StartRender method defined.\n";
@@ -102,18 +103,10 @@ void vlMapper::PrintSelf(ostream& os, vlIndent indent)
       {
       os << indent << "LookupTable: (none)\n";
       }
-
-    if ( this->ScalarsVisible )
-      {
-      os << indent << "Scalar data is visible.\n";
-      }
-    else
-      {
-      os << indent << "Scalar data is not visible.\n";
-      }
+    os << indent << "ScalarsVisible: " 
+      << (this->ScalarsVisible ? "On\n" : "Off\n");
 
     float *range = this->GetScalarRange();
     os << indent << "Scalar range: (" << range[0] << ", " << range[1] << ")\n";
-    os << indent << "Build time: " <<this->BuildTime.GetMtime() << "\n";
    }
 }
