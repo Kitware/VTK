@@ -86,6 +86,9 @@ public:
   virtual Visual  *GetDesiredVisual()   = 0;
   virtual  int GetEventPending();
   
+  // useful for scripting languages
+  void     SetWindowInfo(char *info);
+
 protected:
   Window   ParentId;
   Window   WindowId;
