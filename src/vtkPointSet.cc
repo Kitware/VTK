@@ -194,7 +194,7 @@ void vtkPointSet::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSet::PrintSelf(os,indent);
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
-  os << indent << "Point Data: " << this->Points << "\n";
+  os << indent << "Point Coordinates: " << this->Points << "\n";
   os << indent << "Locator: " << this->Locator << "\n";
 }
 
