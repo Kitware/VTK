@@ -22,10 +22,6 @@ vtkXImageMapper::~vtkXImageMapper()
 /* 
  * This templated routine calculates effective lower and upper limits 
  * for a window of values of type T, lower and upper. 
- * It also returns in variable hit the flag with value 1, if the 
- * interval [f_lower, f_upper) is above the type range, -1,  if the 
- * interval [f_lower, f_upper) is below the type range, and 0, if 
- * there is intersection between this interval and the type range.
  */
 template <class T>
 static void vtkXImageMapperClamps ( vtkImageData *data, float w, 
