@@ -25,103 +25,124 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self,
 				       int *actorPos, int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
-  int width = tempExt[1] - tempExt[0] + 1;
-  int height = tempExt[3] - tempExt[2] + 1;
+  int inMin0 = tempExt[0];
+  int inMax0 = tempExt[1];
+  int inMin1 = tempExt[2];
+  int inMax1 = tempExt[3];
+
+  int width = inMax0 - inMin0 + 1;
+  int height = inMax1 - inMin1 + 1;
+
+  int* tempIncs = data->GetIncrements();
+  int inInc0 = tempIncs[0];
+  int inInc1 = tempIncs[1];
+
   int bpp = data->GetNumberOfScalarComponents();
   double range[2];
   data->GetPointData()->GetScalars()->GetDataTypeRange( range );
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
 		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
+  
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (scale == 255.0/range[1] && shift == 0.0 && 
       (bpp == 1 || bpp == 3))
     { // don't reformat data if no window/level was applied
-    glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+    if (inInc1 != width*bpp)
+      glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
     glDrawPixels(width, height, format, type, (void *)dataPtr);
     }
   else
     { // reformat data into unsigned char
-    T *oldPtr = (T *)dataPtr;
-    int i = width*height;
+
+    T *inPtr = (T *)dataPtr;
+    T *inPtr1 = inPtr;
+
+    int i = width;
+    int j = height;
 
     unsigned char *newPtr;
     if (format == GL_LUMINANCE)
-      newPtr = new unsigned char[i];
+      newPtr = new unsigned char[width*height + (width*height)%4];
     else
-      newPtr = new unsigned char[3*i];
+      newPtr = new unsigned char[3*width*height + (3*width*height)%4];
 
     unsigned char *ptr = newPtr;
     float val;
     unsigned char tmp;
 
-    switch (bpp)
+    while (--j >= 0)
       {
-      case 1:
-	while (--i >= 0)
-	  {
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  }
-	break;
+      inPtr = inPtr1;
+      i = width;
+      switch (bpp)
+	{
+	case 1:
+	  while (--i >= 0)
+	    {
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    }
+	  break;
 
-      case 2:
-	while (--i >= 0)
-	  {
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = tmp = (unsigned char)val;
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  *ptr++ = tmp;
-	  }
-	break;
+	case 2:
+	  while (--i >= 0)
+	    {
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = tmp = (unsigned char)val;
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    *ptr++ = tmp;
+	    }
+	  break;
 
-      case 3:
-	while (--i >= 0)
-	  {
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  }
-	break;
+	case 3:
+	  while (--i >= 0)
+	    {
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    }
+	  break;
 
-      default:
-	while (--i >= 0)
-	  {
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  val = ((*oldPtr++ + shift)*scale);
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;
-	  *ptr++ = (unsigned char)val;
-	  oldPtr += bpp-3;
-	  }
-	break;
-
+	default:
+	  while (--i >= 0)
+	    {
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    val = ((*inPtr++ + shift)*scale);
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;
+	    *ptr++ = (unsigned char)val;
+	    inPtr += bpp-3;
+	    }
+	  break;
+	}
+      inPtr1 += inInc1;
       }
 
-    glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
     glDrawPixels(width, height, format, GL_UNSIGNED_BYTE, newPtr);
 
     delete [] newPtr;    
@@ -143,8 +164,18 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 					    int *actorPos, int *vsize)
 {
   int* tempExt = self->GetInput()->GetUpdateExtent();
-  int width = tempExt[1] - tempExt[0] + 1;
-  int height = tempExt[3] - tempExt[2] + 1;
+  int inMin0 = tempExt[0];
+  int inMax0 = tempExt[1];
+  int inMin1 = tempExt[2];
+  int inMax1 = tempExt[3];
+
+  int width = inMax0 - inMin0 + 1;
+  int height = inMax1 - inMin1 + 1;
+
+  int* tempIncs = data->GetIncrements();
+  int inInc0 = tempIncs[0];
+  int inInc1 = tempIncs[1];
+
   int bpp = data->GetNumberOfScalarComponents();
 
   double range[2];
@@ -153,11 +184,13 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
 		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
 
+  glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (scale == 255.0/range[1] && shift == 0.0 &&
       (bpp == 1 || bpp == 3))
     { // don't reformat data if no window/level was applied
-    glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
+    if (inInc1 != width*bpp)
+      glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
     glDrawPixels(width, height, format, type, (void *)dataPtr);
     }
   else
@@ -175,84 +208,92 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
     long val;
     unsigned char tmp;
 
-    T *oldPtr = (T *)dataPtr;
-    int i = width*height;
+    T *inPtr = (T *)dataPtr;
+    T *inPtr1 = inPtr;
+
+    int i = width;
+    int j = height;
 
     unsigned char *newPtr;
     if (format == GL_LUMINANCE)
-      newPtr = new unsigned char[i];
+      newPtr = new unsigned char[width*height + (width*height)%4];
     else
-      newPtr = new unsigned char[3*i];
+      newPtr = new unsigned char[3*width*height + (3*width*height)%4];
 
     unsigned char *ptr = newPtr;
 
-    switch (bpp)
+    while (--j >= 0)
       {
-      case 1:
-	while (--i >= 0)
-	  {
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  }
-	break;
+      inPtr = inPtr1;
+      i = width;
 
-      case 2:
-	while (--i >= 0)
-	  {
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = tmp = (unsigned char)val;
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  *ptr++ = tmp;
-	  }
-	break;
+      switch (bpp)
+	{
+	case 1:
+	  while (--i >= 0)
+	    {
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    }
+	  break;
 
-      case 3:
-	while (--i >= 0)
-	  {
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  }
-	break;
+	case 2:
+	  while (--i >= 0)
+	    {
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = tmp = (unsigned char)val;
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    *ptr++ = tmp;
+	    }
+	  break;
 
-      default:
-	while (--i >= 0)
-	  {
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  val = (*oldPtr++ * sscale + sshift) >> fixedPoints;
-	  if (val < 0) val = 0;
-	  if (val > 255) val = 255;	
-	  *ptr++ = (unsigned char)val;
-	  oldPtr += bpp-3;
-	  }
-	break;
+	case 3:
+	  while (--i >= 0)
+	    {
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    }
+	  break;
 
+	default:
+	  while (--i >= 0)
+	    {
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    val = (*inPtr++ * sscale + sshift) >> fixedPoints;
+	    if (val < 0) val = 0;
+	    if (val > 255) val = 255;	
+	    *ptr++ = (unsigned char)val;
+	    inPtr += bpp-3;
+	    }
+	  break;
+	}
+      inPtr1 += inInc1;
       }
 
-    glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
     glDrawPixels(width, height, format, GL_UNSIGNED_BYTE, (void *)newPtr);
 
     delete [] newPtr;    
