@@ -93,6 +93,7 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
       testQuadricDecimation
+      TestStructuredGrid
       TransformConcatenation
       TransformCoverage
       TransformPolyData
