@@ -90,7 +90,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifndef __WIN32
+#ifndef _WIN32
 #include <values.h>
 #endif
 
