@@ -162,8 +162,9 @@ vtkImplicitTextureCoords \
 vtkImplicitVolume \
 vtkImplicitWindowFunction \
 vtkInteractorStyle \
-vtkInteractorStyleTrackball \
 vtkInteractorStyleFlight \
+vtkInteractorStyleSphere \
+vtkInteractorStyleTrackball \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \
