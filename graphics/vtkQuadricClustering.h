@@ -71,6 +71,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // To use this filter, specify the divisions defining the spatial subdivision
 // in the x, y, and z directions. You must also specify an input vtkPolyData.
+//
+// This filter can take multiple inputs.  The user can either specifiy them
+// in the same way as for other filters that take multiple inputs (i.e., calls
+// to SetInput and/or AddInput), or the user can explicity call StartAppend,
+// Append (once for each input), and EndAppend.  StartAppend sets up the data
+// structure to hold the quadric matrices.  Append processes each triangle in
+// the input poly data it was called on, hashes its vertices to the appropriate
+// bins, determines whether to keep this triangle, and updates the appropriate
+// quadric matrices.  EndAppend determines the spatial location of each of the
+// representative vertices for the visited bins.  The reason a user might want
+// to explicitly call StartAppend, Append, and EndAppend is to avoid having
+// all the input data sets in memory at once.
 
 // .SECTION Caveats
 // This filter can drastically affect topology, i.e., topology is not 
@@ -137,11 +149,12 @@ public:
   vtkDataSetCollection *GetInputList();
   
   // Description:
-  // keeps superclass's UpdateData from being called if input is NULL
+  // Keep superclass's UpdateData from being called if Input is NULL.
   virtual void UpdateData(vtkDataObject *output);
   
   // Description:
-  // method to be called before Append.
+  // This method must be called before Append.  It initializes the data
+  // structure that holds the quadic for each bin.
   void StartAppend();
   
   // Description:
@@ -150,7 +163,7 @@ public:
   
   // Description:
   // Determine the representative point for each bin that has been visited.
-  // Needs to be called after Append.
+  // This method must be called after the last call to Append.
   void EndAppend();
   
   // Description:
@@ -204,8 +217,8 @@ protected:
   vtkDataSetCollection *InputList;
   vtkTimerLog* Log;
   int NumberOfExpectedInputs;
-  int AbortExecute; // needs to be an ivar because if we abort execute during
-                    // Append, don't want EndAppend to execute either
+  int AbortExecute; // We need this ivar because if we abort execute during
+                    // Append, we don't want EndAppend to execute either.
 };
 
 #endif
