@@ -157,7 +157,7 @@ void vtkSliceCubes::Execute()
    return;
    }
 
-  this->Reader->GetDataDimensions(dims);  
+  this->Reader->GetDataDimensions((int *)dims);  
   this->Reader->GetDataOrigin(origin);  
   this->Reader->GetDataAspectRatio(aspectRatio);
   this->Reader->GetImageRange(imageRange);
@@ -175,11 +175,11 @@ void vtkSliceCubes::Execute()
   xmax[0]=xmax[1]=xmax[2] = -VTK_LARGE_FLOAT;
 
   slice1scalars = NULL;
-  slice2scalars = this->Reader->ReadImage(imageRange[0],dims);
+  slice2scalars = this->Reader->ReadImage(imageRange[0],(int *)dims);
   vtkDebugMacro(<<"slice# " << imageRange[0]);
   if ( slice2scalars == NULL ) return;
   slice1 = slice2 = slice2scalars->GetPtr(0);
-  slice3scalars = this->Reader->ReadImage(imageRange[0]+1,dims);
+  slice3scalars = this->Reader->ReadImage(imageRange[0]+1,(int *)dims);
   vtkDebugMacro(<<"slice# " << imageRange[0]+1);
   slice3 = slice3scalars->GetPtr(0);
 
@@ -204,7 +204,7 @@ void vtkSliceCubes::Execute()
     if ( k < (dims[2]-2) )
       {
       vtkDebugMacro(<<"slice# " << imageRange[0]+k+2);
-      slice3scalars = this->Reader->ReadImage(imageRange[0]+k+2, dims);
+      slice3scalars = this->Reader->ReadImage(imageRange[0]+k+2, (int *)dims);
       if ( slice3scalars == NULL )
         {
         vtkErrorMacro(<<"Can't read all the requested slices");
