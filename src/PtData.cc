@@ -264,29 +264,46 @@ void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
 };
 
 
-// statics avoid constructor/destructor calls
-static vlFloatScalars cellScalars(MAX_CELL_SIZE);
-static vlFloatVectors cellVectors(MAX_CELL_SIZE);
-static vlFloatNormals cellNormals(MAX_CELL_SIZE);
-static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
-static vlFloatTensors cellTensors(MAX_CELL_SIZE,3);
-static vlUserDefined cellUserDefined(MAX_CELL_SIZE);
-static vlAPixmap cellColors(MAX_CELL_SIZE);
+// do it this way because some compilers don't initialize file scope statics
+static vlFloatScalars *cellScalars;
+static vlFloatVectors *cellVectors;
+static vlFloatNormals *cellNormals;
+static vlFloatTCoords *cellTCoords;
+static vlFloatTensors *cellTensors;
+static vlUserDefined *cellUserDefined;
+static vlAPixmap *cellColors;
 
 // Description:
 // Initialize point interpolation.
 void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
 {
+  // statics avoid constructor/destructor calls
+  static vlFloatScalars cellScalars_s(MAX_CELL_SIZE);
+  static vlFloatVectors cellVectors_s(MAX_CELL_SIZE);
+  static vlFloatNormals cellNormals_s(MAX_CELL_SIZE);
+  static vlFloatTCoords cellTCoords_s(MAX_CELL_SIZE,3);
+  static vlFloatTensors cellTensors_s(MAX_CELL_SIZE,3);
+  static vlUserDefined cellUserDefined_s(MAX_CELL_SIZE);
+  static vlAPixmap cellColors_s(MAX_CELL_SIZE);
+
+  cellScalars = &cellScalars_s;
+  cellVectors = &cellVectors_s;
+  cellNormals = &cellNormals_s;
+  cellTCoords = &cellTCoords_s;
+  cellTensors = &cellTensors_s;
+  cellUserDefined = &cellUserDefined_s;
+  cellColors = &cellColors_s;
+
   this->CopyAllocate(pd, sze, ext);
 
   if ( pd->TCoords )
     {
-    cellTCoords.SetDimension(pd->TCoords->GetDimension());
+    cellTCoords->SetDimension(pd->TCoords->GetDimension());
     }
 
   if ( pd->Tensors )
     {
-    cellTensors.SetDimension(pd->Tensors->GetDimension());
+    cellTensors->SetDimension(pd->Tensors->GetDimension());
     }
 }
 
@@ -303,10 +320,10 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
     {
     if ( this->Scalars->GetNumberOfValuesPerScalar() == 1 ) //single-valued scalar
       {
-      fromPd->Scalars->GetScalars(*ptIds, cellScalars);
+      fromPd->Scalars->GetScalars(*ptIds, *cellScalars);
       for (s=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
         {
-        s += cellScalars.GetScalar(i) * weights[i];
+        s += cellScalars->GetScalar(i) * weights[i];
         }
       this->Scalars->InsertScalar(toId,s);
       }
@@ -316,10 +333,10 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
       vlColorScalars *to=(vlColorScalars *)this->Scalars;
       vlColorScalars *from=(vlColorScalars *)fromPd->Scalars;
 
-      from->GetColors(*ptIds, cellColors);
+      from->GetColors(*ptIds, *cellColors);
       for (rgb[0]=rgb[1]=rgb[2]=0, i=0; i < ptIds->GetNumberOfIds(); i++)
         {
-        prgb = cellColors.GetColor(i);
+        prgb = cellColors->GetColor(i);
         rgb[0] += (unsigned char) ((float)prgb[0]*weights[i]);
         rgb[1] += (unsigned char) ((float)prgb[1]*weights[i]);
         rgb[2] += (unsigned char) ((float)prgb[2]*weights[i]);
@@ -330,10 +347,10 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
 
   if ( fromPd->Vectors && this->Vectors && this->CopyVectors )
     {
-    fromPd->Vectors->GetVectors(*ptIds, cellVectors);
+    fromPd->Vectors->GetVectors(*ptIds, *cellVectors);
     for (v[0]=v[1]=v[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
       {
-      pv = cellVectors.GetVector(i);
+      pv = cellVectors->GetVector(i);
       v[0] += pv[0]*weights[i];
       v[1] += pv[1]*weights[i];
       v[2] += pv[2]*weights[i];
@@ -343,10 +360,10 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
 
   if ( fromPd->Normals && this->Normals && this->CopyNormals )
     {
-    fromPd->Normals->GetNormals(*ptIds, cellNormals);
+    fromPd->Normals->GetNormals(*ptIds, *cellNormals);
     for (n[0]=n[1]=n[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
       {
-      pn = cellNormals.GetNormal(i);
+      pn = cellNormals->GetNormal(i);
       n[0] += pn[0]*weights[i];
       n[1] += pn[1]*weights[i];
       n[2] += pn[2]*weights[i];
@@ -356,24 +373,24 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
 
   if ( fromPd->TCoords && this->TCoords && this->CopyTCoords )
     {
-    fromPd->TCoords->GetTCoords(*ptIds, cellTCoords);
+    fromPd->TCoords->GetTCoords(*ptIds, *cellTCoords);
     for (tc[0]=tc[1]=tc[2]=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
       {
-      ptc = cellTCoords.GetTCoord(i);
-      for (j=0; j<cellTCoords.GetDimension(); j++) tc[j] += ptc[0]*weights[i];
+      ptc = cellTCoords->GetTCoord(i);
+      for (j=0; j<cellTCoords->GetDimension(); j++) tc[j] += ptc[0]*weights[i];
       }
     this->TCoords->InsertTCoord(toId,tc);
     }
 
   if ( fromPd->Tensors && this->Tensors && this->CopyTensors )
     {
-    fromPd->Tensors->GetTensors(*ptIds, cellTensors);
+    fromPd->Tensors->GetTensors(*ptIds, *cellTensors);
     tensor.Initialize();
     for (i=0; i < ptIds->GetNumberOfIds(); i++)
       {
-      pt = cellTensors.GetTensor(i);
-      for (j=0; j<cellTensors.GetDimension(); j++) 
-        for (int k=0; k<cellTensors.GetDimension(); k++) 
+      pt = cellTensors->GetTensor(i);
+      for (j=0; j<cellTensors->GetDimension(); j++) 
+        for (int k=0; k<cellTensors->GetDimension(); k++) 
           tensor.AddComponent(j,k,pt.GetComponent(j,k)*weights[i]);
       }
     this->Tensors->InsertTensor(toId,tensor);
@@ -381,8 +398,8 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
 
   if ( fromPd->UserDefined && this->UserDefined && this->CopyUserDefined )
     {
-    fromPd->UserDefined->GetUserDefined(*ptIds, cellUserDefined);
-    ud = cellUserDefined.Interpolate(weights);
+    fromPd->UserDefined->GetUserDefined(*ptIds, *cellUserDefined);
+    ud = cellUserDefined->Interpolate(weights);
     this->UserDefined->InsertUserDefined(toId,ud);
     }
 }
