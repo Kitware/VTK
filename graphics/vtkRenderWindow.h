@@ -44,7 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // rendering window. A rendering window is a window in a graphical user
 // interface where renderers draw their images. Methods are provided to 
 // synchronize the rendering process, set window size, and control double
-// buffering. 
+// buffering.  The window also allows rendering in stereo.  The interlaced
+// render stereo type is for output to a VRex stero projector.  All of the
+// odd horizontal lines are from the left eye, and the even lines are from
+// the right eye.  The user has to make the render window alligned with the 
+// VRex projector, or the eye will be swapped.
 
 // .SECTION see also
 // vtkRenderer vtkRenderMaster vtkRenderWindowInteractor
