@@ -105,7 +105,7 @@ void vtkBlankStructuredGridWithImage::Execute()
   // Get the image, set it as the blanking array.
   unsigned char *data = (unsigned char *)image->GetScalarPointer();
   vtkUnsignedCharArray *dataArray = vtkUnsignedCharArray::New();
-  dataArray->SetArray(data, gridDims[0]*gridDims[1]*gridDims[2], 0);
+  dataArray->SetArray(data, gridDims[0]*gridDims[1]*gridDims[2], 1);
 
   output->CopyStructure(grid);
   output->GetPointData()->PassData(grid->GetPointData());
