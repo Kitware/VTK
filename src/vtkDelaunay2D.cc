@@ -349,7 +349,7 @@ void vtkDelaunay2D::Execute()
     for (ptId=0; ptId < (numPoints+8); ptId++) pointUse[ptId] = 0;
 
     //traverse all triangles; evaluating Delaunay criterion
-    for (i=0; i<numTriangles; i++)
+    for (i=0; i < numTriangles; i++)
       {
       if ( triUse[i] == 1 )
         {
@@ -372,44 +372,33 @@ void vtkDelaunay2D::Execute()
     for (cellId=0, triangles->InitTraversal(); 
     triangles->GetNextCell(npts,triPts); cellId++)
       {
-      thisType = triUse[cellId];
-
-      for (i=0; i < npts; i++) 
+      if ( ! triUse[cellId] )
         {
-        testEdge = 0;
-        p1 = triPts[i];
-        p2 = triPts[(i+1)%npts];
-
-        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
-        numNei = neighbors.GetNumberOfIds();
-
-        if ( numNei <= 0 )
+        for (i=0; i < npts; i++) 
           {
-          testEdge = 1;
-          }
-        else if ( numNei == 1 && (nei=neighbors.GetId(0)) > cellId )
-          {
-          neiType = triUse[nei];
-          if ( neiType == 0 && thisType == 0 )
-            {
-            testEdge = 1;
-            }
-          }
+          p1 = triPts[i];
+          p2 = triPts[(i+1)%npts];
 
-        if ( testEdge )
-          {//see whether edge is shorter than Alpha
-          points->GetPoint(p1,x1);
-          points->GetPoint(p2,x2);
-          if ( math.Distance2BetweenPoints(x1,x2) <= alpha2 )
+          if ( this->BoundingTriangulation || (p1 < numPoints && p2 < numPoints ) )
             {
-            pointUse[p1] = 1; pointUse[p2] = 1;
-            pts[0] = p1;
-            pts[1] = p2;
-            alphaLines->InsertNextCell(2,pts);
-            }//if passed test
-          }//test edge
+            Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
+            numNei = neighbors.GetNumberOfIds();
 
-        }//for all edges of this triangle
+            if ( numNei < 1 || ((nei=neighbors.GetId(0)) > cellId && !triUse[nei]) )
+              {//see whether edge is shorter than Alpha
+              points->GetPoint(p1,x1);
+              points->GetPoint(p2,x2);
+              if ( (math.Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
+                {
+                pointUse[p1] = 1; pointUse[p2] = 1;
+                pts[0] = p1;
+                pts[1] = p2;
+                alphaLines->InsertNextCell(2,pts);
+                }//if passed test
+              }//test edge
+            }//if valid edge
+          }//for all edges of this triangle
+        }//if triangle not output
       }//for all triangles
 
     //traverse all points, create vertices if none used

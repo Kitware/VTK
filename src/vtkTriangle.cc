@@ -465,3 +465,41 @@ int vtkTriangle::BarycentricCoords(float x[2], float  x1[2], float x2[2],
     return 0;
     }
 }
+
+// Description:
+// Project triangle defined in 3D to 2D coordinates. Returns 0 if degenerate triagnle;
+// non-zero value otherwise. Input points are x1->x3; output 2D points are v1->v3.
+int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
+                             float v1[2], float v2[2], float v3[2])
+{
+  float *pt1, *pt2, *pt3, n[3];
+  float v21[3], v31[3], v[3];
+//
+// Get normal for triangle
+//
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
+
+  poly.ComputeNormal (pt1, pt2, pt3, n);
+//
+// The first point is at (0,0); the next at (1,0); compute the other point relative 
+// to the first two.
+//
+  v1[0] = v1[2] = 0.0;
+  v2[0] = 1.0; v2[1] = 0.0;
+
+  for (int i=0; i < 3; i++) 
+    {
+    v21[i] = pt2[i] - pt1[i];
+    v31[i] = pt3[i] - pt1[i];
+    }
+
+  if ( math.Normalize(v21) <= 0.0 ) return 0;
+
+  math.Cross(n,v21,v);
+  v3[0] = math.Dot(v31,v21);
+  v3[1] = math.Dot(v31,v);
+
+  return 1;
+}

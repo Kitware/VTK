@@ -94,6 +94,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // the containing one. (In 2D, a "walk" towards the enclosing triangle is
 // performed.) If the triangulation is Delaunay, then an 
 
+// .SECTION Bugs
+// Current implementation (vtk1.1) can break down due to numerical degeneracy. Also is 
+// slower than it should be. 
+
 // .SECTION See Also
 // vtkDelaunay2D vtkGaussianSplatter vtkUnstructuredGrid
 
