@@ -123,14 +123,10 @@ void vtkImageExtractComponents::SetComponents(int c1)
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that only one component will remain.
-void vtkImageExtractComponents::ExecuteInformation()
+void vtkImageExtractComponents::ExecuteInformation(
+                   vtkImageData *vtkNotUsed(inData), vtkImageData *outData)
 {
-  this->GetOutput()->SetNumberOfScalarComponents(this->NumberOfComponents);
-
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  outData->SetNumberOfScalarComponents(this->NumberOfComponents);
 }
 
 //----------------------------------------------------------------------------

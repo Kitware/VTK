@@ -104,13 +104,17 @@ void vtkImageSpatialFilter::ExecuteInformation()
     input->GetWholeExtent(extent);
     this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
     output->SetWholeExtent(extent);
-    // Maybe the subclass is using the old style method.
-    this->ExecuteImageInformation();
+    this->ExecuteInformation(input, output);
     }
   else
     {
     output->SetWholeExtent(input->GetWholeExtent());
     }
+}
+//----------------------------------------------------------------------------
+void vtkImageSpatialFilter::ExecuteInformation(
+           vtkImageData *vtkNotUsed(inData), vtkImageData *vtkNotUsed(outData))
+{
 }
 
 //----------------------------------------------------------------------------

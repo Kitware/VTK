@@ -77,9 +77,7 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-// Intercepts the caches Update to make the region larger than requested.
-// The whole image is generated when any region is requested.
-void vtkImageIslandRemoval2D::InterceptCacheUpdate()
+void vtkImageIslandRemoval2D::ModifyOutputUpdateExtent()
 {
   int wholeExtent[6];
   int extent[6];

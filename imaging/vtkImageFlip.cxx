@@ -51,18 +51,19 @@ vtkImageFlip::vtkImageFlip()
 
 //----------------------------------------------------------------------------
 // Image extent is modified by this filter.
-void vtkImageFlip::ExecuteImageInformation()
+void vtkImageFlip::ExecuteInformation(vtkImageData *inData, 
+				      vtkImageData *outData)
 {
   int extent[6];
   int axis, temp;
 
   if ( ! this->PreserveImageExtent)
     {
-    this->GetInput()->GetWholeExtent(extent);
+    inData->GetWholeExtent(extent);
     axis = this->FilteredAxis;
     temp = extent[axis*2+1];
     extent[axis*2+1] = -temp;
-    this->GetOutput()->SetWholeExtent(extent);
+    outData->SetWholeExtent(extent);
     }
 }
 

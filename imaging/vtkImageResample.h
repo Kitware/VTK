@@ -90,11 +90,9 @@ protected:
   float OutputSpacing[3];
   int Interpolate;
   int Dimensionality;
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation();
   
-  void ExecuteImageInformation(vtkImageData *inData, vtkImageData *outData);
-
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
 };

@@ -99,8 +99,6 @@ public:
   vtkSetMacro(Dimensionality,int);
   vtkGetMacro(Dimensionality,int);
   
-  void InterceptCacheUpdate();
-
 private:
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;
@@ -110,6 +108,11 @@ private:
   int Dimensionality;
   
   void Execute(vtkImageData *inData, vtkImageData *outData);
+
+  // Description:
+  // Generate more than requested.  Called by the superclass before
+  // an execute, and before output memory is allocated.
+  void ModifyOutputUpdateExtent();
 };
 
 

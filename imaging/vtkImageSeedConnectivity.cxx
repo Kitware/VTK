@@ -117,9 +117,7 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 
 
 //----------------------------------------------------------------------------
-// Update the whole image in cache because we will be generating the whole
-// image anyway.
-void vtkImageSeedConnectivity::InterceptCacheUpdate()
+void vtkImageSeedConnectivity::ModifyOutputUpdateExtent()
 {
   // Filter superclass has no control of intercept cache update.
   // a work around

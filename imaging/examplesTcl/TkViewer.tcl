@@ -16,6 +16,7 @@ vtkImageViewer viewer
 viewer SetInput [reader GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
+[viewer GetImageWindow] DoubleBufferOn
 
 # Create the GUI: two renderer widgets and a quit button
 #

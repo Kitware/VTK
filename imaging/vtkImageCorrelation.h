@@ -69,7 +69,7 @@ public:
   
 protected:
   int Dimensionality;
-  void ExecuteInformation();
+  void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 						int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,

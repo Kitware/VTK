@@ -105,27 +105,23 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Just change the Image extent.
-void vtkImagePadFilter::ExecuteInformation()
+void vtkImagePadFilter::ExecuteInformation(vtkImageData *inData, 
+					   vtkImageData *outData)
 {
   if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
     {
     // invalid setting, it has not been set, so default to whole Extent
-    this->GetInput()->GetWholeExtent(this->OutputWholeExtent);
+    inData->GetWholeExtent(this->OutputWholeExtent);
     }
-  this->GetOutput()->SetWholeExtent(this->OutputWholeExtent);
+  outData->SetWholeExtent(this->OutputWholeExtent);
   
   if (this->OutputNumberOfScalarComponents < 0)
     {
     // invalid setting, it has not been set, so default to input.
     this->OutputNumberOfScalarComponents 
-      = this->GetInput()->GetNumberOfScalarComponents();
+      = inData->GetNumberOfScalarComponents();
     }
-  this->GetOutput()->SetNumberOfScalarComponents(
-			    this->OutputNumberOfScalarComponents);
-  // Set default values
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  outData->SetNumberOfScalarComponents(this->OutputNumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------

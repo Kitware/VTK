@@ -112,7 +112,7 @@ protected:
   int Threshold;
   int Averaging;
   
-  void ExecuteInformation(); 
+  void ExecuteInformation(vtkImageData **inputs, vtkImageData *output); 
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 					int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,

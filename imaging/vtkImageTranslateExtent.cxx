@@ -68,15 +68,17 @@ void vtkImageTranslateExtent::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageTranslateExtent::ExecuteInformation()
+void vtkImageTranslateExtent::ExecuteInformation(vtkImageData *inData, 
+						 vtkImageData *outData)
 {
   int idx, extent[6];
   float *spacing, origin[3];
   
-  this->GetInput()->GetWholeExtent(extent);
-  this->GetInput()->GetOrigin(origin);
-  spacing = this->GetInput()->GetSpacing();
+  inData->GetWholeExtent(extent);
+  inData->GetOrigin(origin);
+  spacing = inData->GetSpacing();
 
+  // Actually superclass handles bypass ...
   if ( ! this->Bypass)
     {
     // TranslateExtent the OutputWholeExtent with the input WholeExtent
@@ -90,15 +92,8 @@ void vtkImageTranslateExtent::ExecuteInformation()
       }
     }
   
-  this->GetOutput()->SetWholeExtent(extent);
-  this->GetOutput()->SetOrigin(origin);
-
-  // Set default values
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
-
+  outData->SetWholeExtent(extent);
+  outData->SetOrigin(origin);
 }
 
 

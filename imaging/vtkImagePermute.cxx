@@ -50,7 +50,8 @@ vtkImagePermute::vtkImagePermute()
 }
 
 //----------------------------------------------------------------------------
-void vtkImagePermute::ExecuteInformation() 
+void vtkImagePermute::ExecuteInformation(vtkImageData *inData, 
+					 vtkImageData *outData) 
 {
   int idx, axis;
   int ext[6];
@@ -60,9 +61,9 @@ void vtkImagePermute::ExecuteInformation()
   float *inSpacing;
   int *inExt;
   
-  inExt = this->GetInput()->GetWholeExtent();
-  inSpacing = this->GetInput()->GetSpacing();
-  inOrigin = this->GetInput()->GetOrigin();
+  inExt = inData->GetWholeExtent();
+  inSpacing = inData->GetSpacing();
+  inOrigin = inData->GetOrigin();
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -73,14 +74,9 @@ void vtkImagePermute::ExecuteInformation()
     ext[idx*2+1] = inExt[axis*2+1];
     }
   
-  this->GetOutput()->SetWholeExtent(ext);
-  this->GetOutput()->SetSpacing(spacing);
-  this->GetOutput()->SetOrigin(origin);
-
-  // Set default values
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
+  outData->SetWholeExtent(ext);
+  outData->SetSpacing(spacing);
+  outData->SetOrigin(origin);
 }
 
 

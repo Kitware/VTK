@@ -338,20 +338,21 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 //----------------------------------------------------------------------------
 // Make sure both the inputs are the same size. Doesn't really change 
 // the output. Just performs a sanity check
-void vtkImageDifference::ExecuteInformation()
+void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
+					    vtkImageData *vtkNotUsed(output))
 {
   int *in1Ext, *in2Ext;
   
   // Make sure the Input has been set.
   // we require that input 1 be set.
-  if ( ! this->Inputs[0] || ! this->Inputs[1])
+  if ( ! inputs[0] || ! inputs[1])
     {
     vtkErrorMacro(<< "ExecuteInformation: Input is not set.");
     return;
     }
   
-  in1Ext = this->GetInput(0)->GetWholeExtent();
-  in2Ext = this->GetInput(1)->GetWholeExtent();
+  in1Ext = inputs[0]->GetWholeExtent();
+  in2Ext = inputs[1]->GetWholeExtent();
 
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] || 
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] || 
@@ -360,13 +361,6 @@ void vtkImageDifference::ExecuteInformation()
     vtkErrorMacro("ExecuteInformation: Input are not the same size.");
     return;
     }
-
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 float vtkImageDifference::GetError()

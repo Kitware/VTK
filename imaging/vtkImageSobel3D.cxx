@@ -65,15 +65,11 @@ void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSobel3D::ExecuteInformation()
+void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
+					 vtkImageData *outData)
 {
-  this->GetOutput()->SetNumberOfScalarComponents(3);
-  this->GetOutput()->SetScalarType(VTK_FLOAT);
-
-  // Set default values
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
+  outData->SetNumberOfScalarComponents(3);
+  outData->SetScalarType(VTK_FLOAT);
 }
 
 

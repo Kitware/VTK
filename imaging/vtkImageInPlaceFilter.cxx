@@ -75,7 +75,7 @@ void vtkImageInPlaceFilter::InternalUpdate(vtkDataObject *data)
 
   // since cache no longer exists we must allocate the scalars here
   // This may be a bad place to allocate data (before input->update)
-  this->InterceptCacheUpdate();
+  this->ModifyOutputUpdateExtent();
   outData->SetExtent(outData->GetUpdateExtent());
   outData->AllocateScalars();  
   
@@ -162,7 +162,7 @@ void vtkImageInPlaceFilter::RecursiveStreamUpdate(vtkImageData *outData,
 					 this->GetOutput()->GetUpdateExtent());
   
   // determine the amount of memory that will be used by the input region.
-  memory = this->GetInput()->GetUpdateExtentMemorySize();
+  memory = this->GetInput()->GetEstimatedUpdateMemorySize();
   
   // Split the inRegion if we are streaming.
   if ((memory > this->GetInput()->GetMemoryLimit()))

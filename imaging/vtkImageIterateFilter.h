@@ -72,11 +72,12 @@ public:
 protected:
 
   // Superclass API. Sets defaults, then calls 
-  // ExecuteImageInformation(vtkImageData *inData, vtkImageData *outData)
+  // ExecuteInformation(vtkImageData *inData, vtkImageData *outData)
   // for each iteration
   void ExecuteInformation();
-  // called for each iteration (differs from superclass in arguments).
-  virtual void ExecuteImageInformation(vtkImageData *inData, vtkImageData *outData);
+  // Called for each iteration (differs from superclass in arguments).
+  // You should override this method if needed.
+  virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   
   // Ends up calling ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6])
   // for each iteration.

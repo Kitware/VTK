@@ -67,16 +67,15 @@ public:
     {return new vtkImageCityBlockDistance;};
   const char *GetClassName() {return "vtkImageCityBlockDistance";};
   
-  // Description:
-  // Intercepts the caches Update to make the region larger than requested.
-  // Create the whole output array.
-  void InterceptCacheUpdate();
-
-  
 protected:
 
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
+
+  // Description:
+  // Generate more than requested.  Called by the superclass before
+  // an execute, and before output memory is allocated.
+  void ModifyOutputUpdateExtent();
 };
 
 #endif

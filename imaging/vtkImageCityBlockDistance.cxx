@@ -47,9 +47,7 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 
 
 //----------------------------------------------------------------------------
-// Intercepts the caches Update to make the region larger than requested.
-// Create the whole output array.
-void vtkImageCityBlockDistance::InterceptCacheUpdate()
+void vtkImageCityBlockDistance::ModifyOutputUpdateExtent()
 {
   int *wholeExtent, updateExtent[6], idx;
   

@@ -75,7 +75,7 @@ protected:
   // Array holds the AppendAxisExtent shift for each input.
   int *Shifts;
 
-  void ExecuteInformation();
+  void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 					int whichInput);
   

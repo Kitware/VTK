@@ -76,7 +76,7 @@ protected:
   int NumberOfComponents;
   int Components[3];
 
-  void ExecuteInformation();
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 };

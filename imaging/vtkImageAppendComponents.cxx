@@ -45,23 +45,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
-void vtkImageAppendComponents::ExecuteInformation()
+void vtkImageAppendComponents::ExecuteInformation(vtkImageData **inputs, 
+						  vtkImageData *output)
 {
   int idx1, num;
 
   num = 0;
   for (idx1 = 0; idx1 < this->NumberOfInputs; ++idx1)
     {
-    if (this->Inputs[idx1] != NULL)
+    if (inputs[idx1] != NULL)
       {
-      num += this->GetInput(idx1)->GetNumberOfScalarComponents();
+      num += inputs[idx1]->GetNumberOfScalarComponents();
       }
     }
-  this->GetOutput()->SetNumberOfScalarComponents(num);
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
+  output->SetNumberOfScalarComponents(num);
 }
 
 

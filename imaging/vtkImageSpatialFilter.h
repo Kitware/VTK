@@ -76,7 +76,11 @@ protected:
   int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
+  // Called by the superclass
   void ExecuteInformation();
+  // Override this method if you have to.
+  virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
   void ComputeRequiredInputUpdateExtent(int extent[6], int wholeExtent[6]);
 

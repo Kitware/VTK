@@ -58,7 +58,8 @@ vtkImageMagnify::vtkImageMagnify()
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageMagnify::ExecuteInformation()
+void vtkImageMagnify::ExecuteInformation(vtkImageData *inData, 
+					 vtkImageData *outData)
 {
   float *spacing;
   int idx;
@@ -66,8 +67,8 @@ void vtkImageMagnify::ExecuteInformation()
   float outSpacing[3];
   int outExt[6];
   
-  inExt = this->GetInput()->GetWholeExtent();
-  spacing = this->GetInput()->GetSpacing();
+  inExt = inData->GetWholeExtent();
+  spacing = inData->GetSpacing();
   for (idx = 0; idx < 3; idx++)
     {
     // Scale the output extent
@@ -79,13 +80,9 @@ void vtkImageMagnify::ExecuteInformation()
     outSpacing[idx] = spacing[idx] / (float)(this->MagnificationFactors[idx]);
     }
   
-  this->GetOutput()->SetWholeExtent(outExt);
-  this->GetOutput()->SetSpacing(outSpacing);
+  outData->SetWholeExtent(outExt);
+  outData->SetSpacing(outSpacing);
 
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 //----------------------------------------------------------------------------

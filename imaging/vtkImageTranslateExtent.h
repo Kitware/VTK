@@ -69,7 +69,7 @@ public:
 protected:
   int Translation[3];
   
-  void ExecuteInformation();
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
 };
 
 

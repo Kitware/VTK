@@ -53,9 +53,10 @@ vtkImageCast::vtkImageCast()
 
 //----------------------------------------------------------------------------
 // Just change the Image type.
-void vtkImageCast::ExecuteImageInformation()
+void vtkImageCast::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
+				      vtkImageData *outData)
 {
-  this->GetOutput()->SetScalarType(this->OutputScalarType);
+  outData->SetScalarType(this->OutputScalarType);
 }
 
 //----------------------------------------------------------------------------

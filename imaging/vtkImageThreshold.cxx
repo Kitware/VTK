@@ -120,22 +120,17 @@ void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThreshold::ExecuteInformation()
+void vtkImageThreshold::ExecuteInformation(vtkImageData *inData, 
+					   vtkImageData *outData)
 {
   if (this->OutputScalarType != -1)
     {
-    this->GetOutput()->SetScalarType(this->OutputScalarType);
+    outData->SetScalarType(this->OutputScalarType);
     }
   else
     {
-    this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+    outData->SetScalarType(inData->GetScalarType());
     }
-  // Set default values
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 

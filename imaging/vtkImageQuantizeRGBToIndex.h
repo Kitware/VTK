@@ -66,10 +66,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Intercepts the caches Update() to make the extent larger than requested.
-  void InterceptCacheUpdate();
-
-  // Description:
   // Set / Get the number of color index values to produce - must be 
   // a number between 2 and 65536.
   vtkSetClampMacro( NumberOfColors, int, 2, 65536 );
@@ -105,9 +101,15 @@ protected:
   float           BuildTreeExecuteTime;
   float           LookupIndexExecuteTime;
 
-  void ExecuteInformation();
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
+
+  // Description:
+  // Generate more than requested.  Called by the superclass before
+  // an execute, and before output memory is allocated.
+  void ModifyOutputUpdateExtent();
+
 };
 
 #endif

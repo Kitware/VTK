@@ -105,7 +105,7 @@ public:
   virtual int SplitExtent(int splitExt[6], int startExt[6], 
 			  int num, int total);
   
-  // Legacy!!!!!!!!!!!!!!!
+  // Legacy !!!!!!!!!!!!!!! ---------------------------------
   
   // Description:
   // Legacy method.  May go away at any time. It should be called 
@@ -115,23 +115,37 @@ public:
     this->UpdateInformation();
     }
   
+  // Description:
+  // Legacy method.  May go away at any time. You should call ExecuteInformation
+  // which should call vtkImageToImageFilter::ExecuteInformation to set up defaults,
+  // and the change what needs to be changed.
+  virtual void ExecuteImageInformation() {this->LegacyHack = 0;}
+  int LegacyHack;
+  
   
 protected:
   vtkMultiThreader *Threader;
   int Bypass;
   int NumberOfThreads;
   
+  // This is called by the superclass.
   void ExecuteInformation();
-  virtual void ExecuteImageInformation() {};
+  // This is the method you should override.
+  virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
 
-  int GetNumberOfStreamDivisions();
-  
+  // This is called by the superclass.
+  void Execute();
+  // This is the method you should override.
+  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
+
+  // Overide this if your filter is not a pixel for pixel operation.
+  // Given outExt, tell me what you need for inExt.
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
+  // These replace ComputeRequiredInputUpdateExtent if your filter
+  // will initiate streaming.
+  int GetNumberOfStreamDivisions();  
   int ComputeDivisionExtents(vtkDataObject *output, 
 			     int division, int numDivisions);
-  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
-
-  void Execute();
-  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 
 };
 

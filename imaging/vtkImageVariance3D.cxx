@@ -125,10 +125,10 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
 
 //----------------------------------------------------------------------------
 // Output is always float
-void vtkImageVariance3D::ExecuteInformation()
+void vtkImageVariance3D::ExecuteInformation(vtkImageData *inData, 
+					    vtkImageData *outData)
 {
-  this->vtkImageSpatialFilter::ExecuteInformation();
-  this->GetOutput()->SetScalarType(VTK_FLOAT);
+  outData->SetScalarType(VTK_FLOAT);
 }
 
 

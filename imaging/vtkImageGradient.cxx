@@ -63,12 +63,13 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageGradient::ExecuteInformation()
+void vtkImageGradient::ExecuteInformation(vtkImageData *inData, 
+					  vtkImageData *outData)
 {
   int extent[6];
   int idx;
 
-  this->GetInput()->GetWholeExtent(extent);
+  inData->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -79,12 +80,8 @@ void vtkImageGradient::ExecuteInformation()
       }
     }
 
-  this->GetOutput()->SetWholeExtent(extent);
-  this->GetOutput()->SetNumberOfScalarComponents(this->Dimensionality);
-
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  outData->SetWholeExtent(extent);
+  outData->SetNumberOfScalarComponents(this->Dimensionality);
 }
 
 

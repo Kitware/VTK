@@ -84,7 +84,7 @@ protected:
   int FilteredAxis;
   int PreserveImageExtent;
   
-  void ExecuteImageInformation();
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);

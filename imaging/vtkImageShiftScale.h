@@ -97,7 +97,7 @@ protected:
   int OutputScalarType;
   int ClampOverflow;
   
-  void ExecuteImageInformation();
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
 };

@@ -106,17 +106,33 @@ vtkImageData *vtkImageMultipleInputFilter::GetInput(int idx)
 //----------------------------------------------------------------------------
 void vtkImageMultipleInputFilter::ExecuteInformation()
 {
+  vtkImageData *output = this->GetOutput();
+  vtkImageData *input = this->GetInput(0);
+  
+  if ( input == NULL || output == NULL)
+    {
+    return;
+    }
+  
   // Set the defaults from input1
-  this->GetOutput()->SetWholeExtent(this->GetInput(0)->GetWholeExtent());
-  this->GetOutput()->SetSpacing(this->GetInput(0)->GetSpacing());
-  this->GetOutput()->SetOrigin(this->GetInput(0)->GetOrigin());
-  this->GetOutput()->SetScalarType(this->GetInput(0)->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-			    this->GetInput(0)->GetNumberOfScalarComponents());
+  output->SetWholeExtent(input->GetWholeExtent());
+  output->SetSpacing(input->GetSpacing());
+  output->SetOrigin(input->GetOrigin());
+  output->SetScalarType(input->GetScalarType());
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+
   if ( ! this->Bypass)
     {
-    // Let the subclass modify the default.
+    this->LegacyHack = 1;
     this->ExecuteImageInformation();
+    if (this->LegacyHack)
+      {
+      vtkWarningMacro("ExecuteImageInformation should be changed to ExecuteInformation(vtkImageData*, vtkImageData*)");
+      return;
+      }
+    
+    // Let the subclass modify the default.
+    this->ExecuteInformation((vtkImageData**)(this->Inputs), output);
     }
 }
 

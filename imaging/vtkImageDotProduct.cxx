@@ -44,14 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Colapse the first axis
-void vtkImageDotProduct::ExecuteInformation()
+void vtkImageDotProduct::ExecuteInformation(vtkImageData **vtkNotUsed(inDatas),
+					    vtkImageData *outData)
 {
-  this->GetOutput()->SetNumberOfScalarComponents(1);
-
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
+  outData->SetNumberOfScalarComponents(1);
 }
 
 

@@ -76,18 +76,16 @@ unsigned long vtkImageMapToRGBA::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMapToRGBA::ExecuteInformation()
+void vtkImageMapToRGBA::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
+					   vtkImageData *outData)
 {
   if (this->LookupTable == 0)
     {
     vtkErrorMacro(<< "ExecuteInformation: No LookupTable was set!");
     }
-  this->GetOutput()->SetScalarType(VTK_UNSIGNED_CHAR);
-  this->GetOutput()->SetNumberOfScalarComponents(4);
+  outData->SetScalarType(VTK_UNSIGNED_CHAR);
+  outData->SetNumberOfScalarComponents(4);
 
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetWholeExtent(this->GetInput()->GetWholeExtent());
 }
 
 //----------------------------------------------------------------------------

@@ -167,15 +167,16 @@ void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6],
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::ExecuteInformation()
+void vtkImageShrink3D::ExecuteInformation(vtkImageData *inData, 
+					  vtkImageData *outData)
 {
   int idx;
   int wholeExtent[6];
   float spacing[3];
   
 
-  this->GetInput()->GetWholeExtent(wholeExtent);
-  this->GetInput()->GetSpacing(spacing);
+  inData->GetWholeExtent(wholeExtent);
+  inData->GetSpacing(spacing);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -190,14 +191,8 @@ void vtkImageShrink3D::ExecuteInformation()
     spacing[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  this->GetOutput()->SetWholeExtent(wholeExtent);
-  this->GetOutput()->SetSpacing(spacing);
-
-  // Set default values
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
+  outData->SetWholeExtent(wholeExtent);
+  outData->SetSpacing(spacing);
 }
 
 

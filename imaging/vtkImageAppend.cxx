@@ -62,13 +62,14 @@ vtkImageAppend::~vtkImageAppend()
 
 //----------------------------------------------------------------------------
 // This method tells the ouput it will have more components
-void vtkImageAppend::ExecuteInformation()
+void vtkImageAppend::ExecuteInformation(vtkImageData **inputs, 
+					vtkImageData *output)
 {
   int idx;
   int min, max, size, tmp;
   int *inExt, outExt[6];
 
-  if (this->Inputs[0] == NULL)
+  if (inputs[0] == NULL)
     {
     vtkErrorMacro("No input");
     return;
@@ -81,13 +82,13 @@ void vtkImageAppend::ExecuteInformation()
   this->Shifts = new int [this->NumberOfInputs];
   
   // Find the outMin/max of the appended axis for this input.
-  inExt = this->GetInput()->GetWholeExtent();
+  inExt = inputs[0]->GetWholeExtent();
   min = tmp = inExt[this->AppendAxis * 2];
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    if (this->GetInput(idx) != NULL)
+    if (inputs[idx] != NULL)
       {
-      inExt = this->GetInput(idx)->GetWholeExtent();
+      inExt = inputs[idx]->GetWholeExtent();
       this->Shifts[idx] = tmp - inExt[this->AppendAxis*2];
       size = inExt[this->AppendAxis*2 + 1] - inExt[this->AppendAxis*2] + 1;
       tmp += size;
@@ -95,16 +96,11 @@ void vtkImageAppend::ExecuteInformation()
     }
   max = tmp - 1;
   
-  this->GetInput()->GetWholeExtent(outExt);
+  inputs[0]->GetWholeExtent(outExt);
   outExt[this->AppendAxis*2] = min;
   outExt[this->AppendAxis*2 + 1] = max;
 
-  this->GetOutput()->SetWholeExtent(outExt);
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                        this->GetInput()->GetNumberOfScalarComponents());
+  output->SetWholeExtent(outExt);
 }
 
 

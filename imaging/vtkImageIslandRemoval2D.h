@@ -96,20 +96,19 @@ public:
   vtkSetMacro(ReplaceValue, float);
   vtkGetMacro(ReplaceValue, float);
   
-
-  // Description:
-  // Intercepts the caches Update to make the region larger than requested.
-  // The whole image is generated when any region is requested.
-  void InterceptCacheUpdate();
-
-  
 protected:
   int AreaThreshold;
   int SquareNeighborhood;
   float IslandValue;
   float ReplaceValue;
 
-  virtual void Execute(vtkImageData *inData, vtkImageData *outData);
+  void Execute(vtkImageData *inData, vtkImageData *outData);
+
+  // Description:
+  // Generate more than requested.  Called by the superclass before
+  // an execute, and before output memory is allocated.
+  void ModifyOutputUpdateExtent();
+
 };
 
 #endif

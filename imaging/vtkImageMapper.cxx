@@ -216,6 +216,14 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     displayExtent[3] = vSize[1] - pos[1];
     }
 
+  // check for the condition where no pixels are visible.
+  if (    displayExtent[0] > wholeExtent[1] || displayExtent[1] < wholeExtent[0]
+       || displayExtent[2] > wholeExtent[3] || displayExtent[3] < wholeExtent[2]
+       || displayExtent[4] > wholeExtent[5] || displayExtent[5] < wholeExtent[4])
+    {
+    return;
+    }
+  
   this->GetInput()->SetUpdateExtent(displayExtent);
 
   // set the position adjustment

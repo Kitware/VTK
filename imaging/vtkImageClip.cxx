@@ -47,6 +47,7 @@ vtkImageClip::vtkImageClip()
 {
   int idx;
 
+  this->ClipData = 0;
   this->Initialized = 0;
   for (idx = 0; idx < 3; ++idx)
     {
@@ -71,6 +72,14 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
        << "," << this->OutputWholeExtent[idx*2 + 1];
     }
   os << ")\n";
+  if (this->ClipData)
+    {
+    os << indent << "ClipDataOn\n";
+    }
+  else
+    {
+    os << indent << "ClipDataOff\n";
+    }
 }
   
 //----------------------------------------------------------------------------
@@ -121,11 +130,12 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageClip::ExecuteInformation()
+void vtkImageClip::ExecuteInformation(vtkImageData *inData, 
+				      vtkImageData *outData)
 {
   int idx, extent[6];
   
-  this->GetInput()->GetWholeExtent(extent);
+  inData->GetWholeExtent(extent);
   if ( ! this->Initialized)
     {
     this->SetOutputWholeExtent(extent);
@@ -153,13 +163,7 @@ void vtkImageClip::ExecuteInformation()
       }
     }
   
-  this->GetOutput()->SetWholeExtent(extent);
-  
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
+  outData->SetWholeExtent(extent);
 }
 
 
@@ -183,24 +187,37 @@ void vtkImageClip::ResetOutputWholeExtent()
 // This method simply copies by reference the input data to the output.
 void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
 {
+  int *inExt, *outExt;
   vtkImageData *outData = (vtkImageData *)(outObject);
-  vtkImageData *inData;
+  vtkImageData *inData = this->GetInput();
   
   // Make sure the Input has been set.
-  if ( ! this->GetInput())
+  if ( ! inData)
     {
     vtkErrorMacro(<< "Input is not set.");
     return;
     }
 
-  this->GetInput()->SetUpdateExtent(this->GetOutput()->GetUpdateExtent());
-  this->GetInput()->Update();
-  inData = this->GetInput();
-  // cliping will change the extent but since we are passing the data
-  // we need to reset it back to the original input size
-  outData->SetExtent(inData->GetExtent());
-  outData->GetPointData()->PassData(inData->GetPointData());
-  
+  outExt = outData->GetUpdateExtent();
+  inData->SetUpdateExtent(outExt);
+  inData->Update();
+  inExt = inData->GetExtent(); 
+
+  if (this->ClipData && 
+      (inExt[0]<outExt[0] || inExt[1]>outExt[1] || 
+       inExt[2]<outExt[2] || inExt[3]>outExt[3] ||
+       inExt[4]<outExt[4] || inExt[5]>outExt[5]    ))
+    {
+    outData->SetExtent(outExt);
+    outData->AllocateScalars();
+    this->CopyData(inData, outData, outExt);
+    }
+  else
+    {
+    outData->SetExtent(inExt);
+    outData->GetPointData()->PassData(inData->GetPointData());
+    }
+
   // release input data
   if (this->GetInput()->ShouldIReleaseData())
     {
@@ -208,3 +225,41 @@ void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
     }
 }
 
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageClip::CopyData(vtkImageData *inData, vtkImageData *outData,
+                            int *ext)
+{
+  int idxX, idxY, idxZ, maxY, maxZ;
+  int inIncX, inIncY, inIncZ, rowLength;
+  unsigned char *inPtr, *inPtr1, *outPtr;
+  
+  
+  inPtr = (unsigned char *) inData->GetScalarPointerForExtent(ext);
+  outPtr = (unsigned char *) outData->GetScalarPointer();
+  
+  // Get increments to march through inData 
+  inData->GetIncrements(inIncX, inIncY, inIncZ);
+  
+  // find the region to loop over
+  rowLength = (ext[1] - ext[0]+1)*inIncX*inData->GetScalarSize();
+  maxY = ext[3] - ext[2]; 
+  maxZ = ext[5] - ext[4];
+  
+  inIncY *= inData->GetScalarSize(); 
+  inIncZ *= inData->GetScalarSize();
+  
+  // Loop through outData pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+    {
+    inPtr1 = inPtr + idxZ*inIncZ;
+    for (idxY = 0; idxY <= maxY; idxY++)
+      {
+      memcpy(outPtr,inPtr1,rowLength);
+      inPtr1 += inIncY;
+      outPtr += rowLength;
+      }
+    }
+}

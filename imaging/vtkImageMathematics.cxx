@@ -56,11 +56,12 @@ vtkImageMathematics::vtkImageMathematics()
 
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
-void vtkImageMathematics::ExecuteInformation()
+void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas, 
+					     vtkImageData *outData)
 {
   int ext[6], *ext2, idx;
 
-  this->GetInput(0)->GetWholeExtent(ext);
+  inDatas[0]->GetWholeExtent(ext);
   // two input take intersection
   if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
       this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
@@ -80,14 +81,8 @@ void vtkImageMathematics::ExecuteInformation()
       }
     }
   
-  this->GetOutput()->SetWholeExtent(ext);
+  outData->SetWholeExtent(ext);
 
-  // Set default values
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
-  this->GetOutput()->SetScalarType(this->GetInput()->GetScalarType());
-  this->GetOutput()->SetNumberOfScalarComponents(
-                            this->GetInput()->GetNumberOfScalarComponents());
 }
 
 

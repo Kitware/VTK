@@ -52,19 +52,11 @@ vtkImageCorrelation::vtkImageCorrelation()
 
 //----------------------------------------------------------------------------
 // Grow the output image 
-void vtkImageCorrelation::ExecuteInformation()
+void vtkImageCorrelation::ExecuteInformation(
+                    vtkImageData **vtkNotUsed(inDatas), vtkImageData *outData)
 {
-  int extent1[6];
-  
-  this->GetInput()->GetWholeExtent(extent1);
-  
-  this->GetOutput()->SetNumberOfScalarComponents(1);
-  
-  this->GetOutput()->SetWholeExtent(extent1);
-  this->GetOutput()->SetScalarType(VTK_FLOAT);
-
-  this->GetOutput()->SetOrigin(this->GetInput()->GetOrigin());
-  this->GetOutput()->SetSpacing(this->GetInput()->GetSpacing());
+  outData->SetNumberOfScalarComponents(1);
+  outData->SetScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------

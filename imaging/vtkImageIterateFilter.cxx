@@ -178,7 +178,7 @@ void vtkImageIterateFilter::ExecuteInformation()
     if ( ! this->Bypass)
       {
       // Let the subclass modify the default.
-      this->ExecuteImageInformation(in, out);
+      this->ExecuteInformation(in, out);
       }
     }
 }
@@ -186,8 +186,8 @@ void vtkImageIterateFilter::ExecuteInformation()
 //----------------------------------------------------------------------------
 //  Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
-void vtkImageIterateFilter::ExecuteImageInformation(vtkImageData *inData,
-						    vtkImageData *outData)
+void vtkImageIterateFilter::ExecuteInformation(vtkImageData *inData,
+					       vtkImageData *outData)
 {
 }
 

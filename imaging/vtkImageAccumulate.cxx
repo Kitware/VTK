@@ -276,10 +276,9 @@ void vtkImageAccumulate::Execute(vtkImageData *inData,
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::ExecuteInformation()
+void vtkImageAccumulate::ExecuteInformation(vtkImageData *vtkNotUsed(input), 
+					    vtkImageData *output)
 {
-  vtkImageData *output = this->GetOutput();
-  
   output->SetWholeExtent(this->ComponentExtent);
   output->SetOrigin(this->ComponentOrigin);
   output->SetSpacing(this->ComponentSpacing);
@@ -300,8 +299,7 @@ void vtkImageAccumulate::ComputeRequiredInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-// Intercepts the caches Update to make the extent larger than requested.
-void vtkImageAccumulate::InterceptCacheUpdate()
+void vtkImageAccumulate:: ModifyOutputUpdateExtent()
 {
   int wholeExtent[8];
   

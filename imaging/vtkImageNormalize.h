@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImagePermute.h
+  Module:    vtkImageNormalize.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,41 +38,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImagePermute -  Permutes axes of input.
+// .NAME vtkImageNormalize - Normalizes that scalar components for each point.
 // .SECTION Description
-// vtkImagePermute reorders the axes of the input. Filtered axes specify
-// the input axes which become X, Y, Z.  The input has to have the
-// same scalar type of the output. The filter does copy the 
-// data when it executes. 
+// For each point, vtkImageNormalize normalizes the vector defined by the 
+// scalar components.  If the magnitude of this vector is zero, the output
+// vector is zero also.
 
-#ifndef __vtkImagePermute_h
-#define __vtkImagePermute_h
+
+#ifndef __vtkImageNormalize_h
+#define __vtkImageNormalize_h
 
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImagePermute : public vtkImageToImageFilter
+class VTK_EXPORT vtkImageNormalize : public vtkImageToImageFilter
 {
 public:
-  vtkImagePermute();
-  static vtkImagePermute *New() {return new vtkImagePermute;};
-  const char *GetClassName() {return "vtkImagePermute";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkImageNormalize *New() {return new vtkImageNormalize;};
+  const char *GetClassName() {return "vtkImageNormalize";};
 
-  // Description:
-  // The filtered axes are the input axes that get relabeled to X,Y,Z.
-  vtkSetVector3Macro(FilteredAxes, int);
-  vtkGetVector3Macro(FilteredAxes, int);
-  
 protected:
-  int  FilteredAxes[3];
+
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-		       int ext[6], int id);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

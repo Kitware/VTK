@@ -92,6 +92,7 @@ vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImageNoiseSource \
 vtkImageNonMaximumSuppression \
+vtkImageNormalize \
 vtkImageOpenClose3D \
 vtkImagePermute \
 vtkImageQuantizeRGBToIndex \
