@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.60");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.61");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -41,68 +41,63 @@ vtkTubeFilter::vtkTubeFilter()
   this->Capping = 0;
   this->OnRatio = 1;
   this->Offset = 0;
+
+  this->GenerateTCoords = VTK_TCOORDS_OFF;
+  this->TextureLength = 1.0;
 }
 
 void vtkTubeFilter::Execute()
 {
-  vtkIdType i;
-  int j, k;
-  vtkPoints *inPts;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *pd=input->GetPointData();
+  vtkPointData *outPD=output->GetPointData();
   vtkCellArray *inLines = NULL;
   vtkDataArray *inNormals;
   vtkDataArray *inScalars=NULL;
   vtkDataArray *inVectors=NULL;
+
+  vtkPoints *inPts;
   vtkIdType numPts = 0;
+  vtkIdType numLines;
   vtkIdType numNewPts;
   vtkPoints *newPts;
-  vtkFloatArray *newNormals;
-  vtkCellArray *newStrips;
-  int i1, i2, ptOffset=0;
-  vtkIdType *pts = 0;
-  vtkIdType npts = 0;
-  float p[3], pNext[3];
-  float maxSpeed = 0;
-  float *n, normal[3], nP[3];
-  float s[3], sNext[3], sPrev[3], w[3];
-  double BevelAngle;
-  float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
-  vtkIdType ptId;
   int deleteNormals=0;
-  float sFactor=1.0, range[2];
-  vtkPointData *pd, *outPD;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  // Keep caps separate (add later for simplicity).
-  vtkPoints *capPoints = vtkPoints::New();
-  vtkFloatArray *capNormals = vtkFloatArray::New();
-  float capNorm[3];
-  int capPointFlag;
+  vtkFloatArray *newNormals;
+  vtkIdType i;
+  float range[2], maxSpeed=0;
+  vtkCellArray *newStrips;
+  vtkIdType npts, *pts;
+  vtkIdType offset=0;
+  vtkFloatArray *newTCoords=NULL;
 
-  capNormals->SetNumberOfComponents(3);
-  // Initialize
+  // Check input and initialize
   //
   vtkDebugMacro(<<"Creating tube");
 
   if ( !(inPts=input->GetPoints()) || 
       (numPts = inPts->GetNumberOfPoints()) < 1 ||
-      !(inLines = input->GetLines()) || inLines->GetNumberOfCells() < 1 )
+      !(inLines = input->GetLines()) || 
+       (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    vtkDebugMacro(<< ": No input data!\n");
-    capPoints->Delete();
-    capNormals->Delete();
+    vtkWarningMacro(<< " No input data!");
     return;
     }
+
   numNewPts = numPts * this->NumberOfSides;
 
   // copy scalars, vectors, tcoords. Normals may be computed here.
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
   outPD->CopyNormalsOff();
+  if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+    {
+    newTCoords = vtkFloatArray::New();
+    newTCoords->SetNumberOfComponents(2);
+    newTCoords->Allocate(numNewPts);
+    outPD->CopyTCoordsOff();
+    }
   outPD->CopyAllocate(pd,numNewPts);
 
-  int generate_normals = 0;
-  vtkPolyLine *lineNormalGenerator;
-  
+  int generateNormals = 0;
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
     deleteNormals = 1;
@@ -122,9 +117,10 @@ void vtkTubeFilter::Execute()
       // Normal generation has been moved to lower in the function.
       // This allows each different polylines to share vertices, but have
       // their normals (and hence their tubes) calculated independently
-      generate_normals = 1;
+      generateNormals = 1;
       }      
     }
+
   // If varying width, get appropriate info.
   //
   if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR && 
@@ -145,332 +141,65 @@ void vtkTubeFilter::Execute()
   newNormals->Allocate(3*numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
+  vtkCellArray *singlePolyline = vtkCellArray::New();
 
-  //  Create points along the line that are later connected into a 
-  //  triangle strip.
+  //  Create points along each polyline that are connected into NumberOfSides
+  //  triangle strips. Texture coordinates are optionally generated.
   //
-  lineNormalGenerator = vtkPolyLine::New();
+  this->Theta = 2.0*vtkMath::Pi() / this->NumberOfSides;
+  vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
-    // if necessary calculate normals, each polyline calculates its
-    // normals independently, avoiding conflicts at shared vertices
-    vtkCellArray *singlePolyline = vtkCellArray::New();
-    if (generate_normals) 
+    if (npts < 2)
       {
-      singlePolyline->InsertNextCell( npts, pts );
-    
+      vtkWarningMacro(<< "Less than two points in line!");
+      continue; //skip tubing this polyline
+      }
+
+    // If necessary calculate normals, each polyline calculates its
+    // normals independently, avoiding conflicts at shared vertices.
+    if (generateNormals) 
+      {
+      singlePolyline->Reset(); //avoid instantiation
+      singlePolyline->InsertNextCell(npts,pts);
       if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
                                                         inNormals) )
         {
-        vtkErrorMacro(<< "No normals for line!\n");
-        if (deleteNormals)
-          {
-          inNormals->Delete();
-          }
-        newPts->Delete();
-        newNormals->Delete();
-        newStrips->Delete();
-        singlePolyline->Delete();
-        lineNormalGenerator->Delete();
-        capPoints->Delete();
-        capNormals->Delete();
-        return;
+        vtkWarningMacro(<< "No normals for line!");
+        continue; //skip tubing this polyline
         }
       }
 
-    // Use "averaged" segment to create beveled effect. 
-    // Watch out for first and last points.
+    // Generate the points around the polyline. The tube is not stripped
+    // if the polyline is bad.
     //
-    for (j=0; j < npts; j++)
+    if ( !this->GeneratePoints(offset,npts,pts,inPts,newPts,pd,outPD,
+                               newNormals,inScalars,range,inVectors,
+                               maxSpeed,inNormals) )
       {
-      if (npts < 2)
-        {
-        vtkErrorMacro(<< "less than two points");
-        }
-
-      if ( j == 0 ) //first point
-        {
-        inPts->GetPoint(pts[0],p);
-        inPts->GetPoint(pts[1],pNext);
-        for (i=0; i<3; i++) 
-          {
-          sNext[i] = pNext[i] - p[i];
-          sPrev[i] = sNext[i];
-          capNorm[i] = -sPrev[i];
-          }
-        capPointFlag = 1;
-        }
-      else if ( j == (npts-1) ) //last point
-        {
-        for (i=0; i<3; i++)
-          {
-          sPrev[i] = sNext[i];
-          p[i] = pNext[i];
-          capNorm[i] = sNext[i];
-          }
-        capPointFlag = 1;
-        }
-      else
-        {
-        for (i=0; i<3; i++)
-          {
-          p[i] = pNext[i];
-          }
-        inPts->GetPoint(pts[j+1],pNext);
-        for (i=0; i<3; i++)
-          {
-          sPrev[i] = sNext[i];
-          sNext[i] = pNext[i] - p[i];
-          }
-        capPointFlag = 0;
-        }
-
-      n = inNormals->GetTuple(pts[j]);
-
-      if ( vtkMath::Normalize(sNext) == 0.0 )
-        {
-        vtkErrorMacro(<<"Coincident points!");
-        if (deleteNormals)
-          {
-          inNormals->Delete();
-          }
-        newPts->Delete();
-        newNormals->Delete();
-        newStrips->Delete();
-        lineNormalGenerator->Delete();
-        capPoints->Delete();
-        capNormals->Delete();
-        singlePolyline->Delete();
-        return;
-        }
-
-      for (i=0; i<3; i++)
-        {
-        s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
-        }
-      // if s is zero then just use sPrev cross n
-      if (vtkMath::Normalize(s) == 0.0)
-        {
-        vtkWarningMacro(<< "using alternate bevel vector");
-        vtkMath::Cross(sPrev,n,s);
-        if (vtkMath::Normalize(s) == 0.0)
-          {
-          vtkErrorMacro(<< "using alternate bevel vector");
-          }
-        }
+      vtkWarningMacro(<< "Could not generate points!");
+      continue; //skip tubing this polyline
+      }
       
-      if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
-        {
-        BevelAngle = 1.0;
-        }
-      if ( BevelAngle < -1.0 )
-        {
-        BevelAngle = -1.0;
-        }
-      BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
-      if ( (BevelAngle = cos(BevelAngle)) == 0.0 )
-        {
-        BevelAngle = 1.0;
-        }
-
-      BevelAngle = this->Radius / BevelAngle; //keep tube constant radius
-
-      vtkMath::Cross(s,n,w);
-      if ( vtkMath::Normalize(w) == 0.0)
-        {
-        vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] 
-                      << " n = " << n[0] << " " << n[1] << " " << n[2]);
-        if (deleteNormals)
-          {
-          inNormals->Delete();
-          }
-        newPts->Delete();
-        newNormals->Delete();
-        newStrips->Delete();
-        lineNormalGenerator->Delete();
-        capPoints->Delete();
-        capNormals->Delete();
-        singlePolyline->Delete();
-        return;
-        }
-      
-      vtkMath::Cross(w,s,nP); //create orthogonal coordinate system
-      vtkMath::Normalize(nP);
-
-      if ( inScalars ) // varying by scalar values
-        {
-        sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
-                  (inScalars->GetComponent(pts[j],0) - range[0]) 
-                         / (range[1]-range[0]));
-        if ((range[1] - range[0]) == 0.0)
-          {
-          vtkErrorMacro(<< "Dividing by zero");
-          }
-        }
-      else if ( inVectors ) // use flux preserving relationship
-        {
-        sFactor = 
-          sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetTuple(pts[j])));
-        if ( sFactor > this->RadiusFactor )
-          {
-          sFactor = this->RadiusFactor;
-          }
-        }
-
-      //create points around line
-      if (this->SidesShareVertices)
-        {
-        for (k=0; k < this->NumberOfSides; k++)
-          {
-          for (i=0; i<3; i++) 
-            {
-            normal[i] = w[i]*cos((double)k*theta) + nP[i]*sin((double)k*theta);
-            s[i] = p[i] + this->Radius * sFactor * normal[i];
-            }
-          if (this->Capping && capPointFlag)
-            {
-            vtkMath::Normalize(capNorm);
-            capPoints->InsertNextPoint(s);
-            capNormals->InsertNextTuple(capNorm);
-            }
-          ptId = newPts->InsertNextPoint(s);
-          newNormals->InsertTuple(ptId,normal);
-          outPD->CopyData(pd,pts[j],ptId);
-          }
-        } 
-      else
-        {
-        float n_left[3], n_right[3];
-        for (k=0; k < this->NumberOfSides; k++)
-          {
-          for (i=0; i<3; i++)
-            {
-            // Create duplicate vertices at each point
-            // and adjust the associated normals so that they are
-            // oriented with the facets. This preserves the tube's
-            // polygonal appearance, as if by flat-shading around the tube,
-            // while still allowing smooth (gouraud) shading along the
-            // tube as it bends.
-            normal[i]  = w[i]*cos((double)(k+0.0)*theta) + nP[i]*sin((double)(k+0.0)*theta);
-            n_right[i] = w[i]*cos((double)(k-0.5)*theta) + nP[i]*sin((double)(k-0.5)*theta);
-            n_left[i]  = w[i]*cos((double)(k+0.5)*theta) + nP[i]*sin((double)(k+0.5)*theta);
-            s[i] = p[i] + this->Radius * sFactor * normal[i];
-            }
-          if (this->Capping && capPointFlag)
-            {
-            vtkMath::Normalize(capNorm);
-            capPoints->InsertNextPoint(s);
-            capNormals->InsertNextTuple(capNorm);
-            }
-          ptId = newPts->InsertNextPoint(s);
-          newNormals->InsertTuple(ptId,n_right);
-          outPD->CopyData(pd,pts[j],ptId);
-          ptId = newPts->InsertNextPoint(s);
-          newNormals->InsertTuple(ptId,n_left);
-          outPD->CopyData(pd,pts[j],ptId);
-          }
-        }
-      }//for all points in polyline
-
-    // Generate the strips
+    // Generate the strips for this polyline (including caps)
     //
-    if (this->SidesShareVertices)
+    this->GenerateStrips(offset,npts,pts,newStrips);
+
+    // Generate the texture coordinates for this polyline
+    //
+    if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
       {
-      for (k=this->Offset; k<(this->NumberOfSides+this->Offset); k+=this->OnRatio)
-        {
-        i1 = (k+1) % this->NumberOfSides;
-        newStrips->InsertNextCell(npts*2);
-        for (i=0; i < npts; i++) 
-          {
-          i2 = i*this->NumberOfSides;
-          newStrips->InsertCellPoint(ptOffset+i2+i1);
-          newStrips->InsertCellPoint(ptOffset+i2+k);
-          }
-        } //for each side of the tube
-      
-      ptOffset += this->NumberOfSides*npts;
-      singlePolyline->Delete();
-      }
-    else
-      {
-      for (k=this->Offset; k<(this->NumberOfSides+this->Offset); k+=this->OnRatio)
-        {
-        i1 = (k+1) % this->NumberOfSides;
-        newStrips->InsertNextCell(npts*2);
-        for (i=0; i < npts; i++) 
-          {
-          i2 = 2*i*this->NumberOfSides;
-          newStrips->InsertCellPoint(ptOffset+i2+i1*2);
-          newStrips->InsertCellPoint(ptOffset+i2+k*2+1);
-          }
-        } //for each side of the tube
-      
-      ptOffset += 2*this->NumberOfSides*npts;
-      singlePolyline->Delete();
+      this->GenerateTextureCoords(offset,npts,pts,inPts,inScalars,newTCoords);
+      outPD->SetTCoords(newTCoords);
+      newTCoords->Delete();
       }
 
-    }//for each polyline
+    // Compute the new offset for the next polyline
+    offset = this->ComputeOffset(offset,npts);
 
+    }//for all polylines
 
-  // Take care of capping
-  if (this->Capping)
-    {
-    vtkIdType offset = newPts->GetNumberOfPoints();
-    vtkIdType st, e;
-    // Insert new points (different normals)
-    vtkIdType num = capPoints->GetNumberOfPoints();
-    float *tmp;
-    
-    for (i = 0; i < num; ++i)
-      {
-      tmp = capPoints->GetPoint(i);
-      newPts->InsertNextPoint(tmp);
-      tmp = capNormals->GetTuple(i);
-      newNormals->InsertNextTuple(tmp);
-      }
-    // Now add the triangle strips.
-    num = num / this->NumberOfSides;
-    for (i = 0; i < num; )
-      {
-      newStrips->InsertNextCell(this->NumberOfSides);
-      newStrips->InsertCellPoint(offset);
-      newStrips->InsertCellPoint(offset+1);
-      st = offset+2;
-      e = offset + this->NumberOfSides - 1;
-      while (st <= e)
-        {
-        newStrips->InsertCellPoint(e);
-        if (e != st)
-          {
-          newStrips->InsertCellPoint(st);
-          }
-        ++st;
-        --e;
-        }
-      offset += this->NumberOfSides;
-      ++i;
-      // ends have to have a different order than starts.
-      newStrips->InsertNextCell(this->NumberOfSides);
-      newStrips->InsertCellPoint(offset+1);
-      newStrips->InsertCellPoint(offset);
-      st = offset+2;
-      e = offset + this->NumberOfSides - 1;
-      while (st <= e)
-        {
-        newStrips->InsertCellPoint(st);
-        if (e != st)
-          {
-          newStrips->InsertCellPoint(e);
-          }
-        ++st;
-        --e;
-        }
-      offset += this->NumberOfSides;
-      ++i;
-      }
-    }
-  capPoints->Delete();
-  capNormals->Delete();
+  singlePolyline->Delete();
 
   // Update ourselves
   //
@@ -492,6 +221,454 @@ void vtkTubeFilter::Execute()
   output->Squeeze();
 }
 
+int vtkTubeFilter::GeneratePoints(vtkIdType offset, 
+                                  vtkIdType npts, vtkIdType *pts,
+                                  vtkPoints *inPts, vtkPoints *newPts, 
+                                  vtkPointData *pd, vtkPointData *outPD,
+                                  vtkFloatArray *newNormals,
+                                  vtkDataArray *inScalars, float range[2],
+                                  vtkDataArray *inVectors, float maxSpeed,
+                                  vtkDataArray *inNormals)
+{
+  vtkIdType j;
+  int i, k;
+  float p[3];
+  float pNext[3];
+  float sNext[3];
+  float sPrev[3];
+  float startCapNorm[3], endCapNorm[3];
+  float *n;
+  float s[3];
+  double bevelAngle;
+  float w[3];
+  float nP[3];
+  float sFactor=1.0;
+  float normal[3];
+  vtkIdType ptId=offset;
+
+  // Use "averaged" segment to create beveled effect. 
+  // Watch out for first and last points.
+  //
+  for (j=0; j < npts; j++)
+    {
+    if ( j == 0 ) //first point
+      {
+      inPts->GetPoint(pts[0],p);
+      inPts->GetPoint(pts[1],pNext);
+      for (i=0; i<3; i++) 
+        {
+        sNext[i] = pNext[i] - p[i];
+        sPrev[i] = sNext[i];
+        startCapNorm[i] = -sPrev[i];
+        }
+      vtkMath::Normalize(startCapNorm);
+      }
+    else if ( j == (npts-1) ) //last point
+      {
+      for (i=0; i<3; i++)
+        {
+        sPrev[i] = sNext[i];
+        p[i] = pNext[i];
+        endCapNorm[i] = sNext[i];
+        }
+      vtkMath::Normalize(endCapNorm);
+      }
+    else
+      {
+      for (i=0; i<3; i++)
+        {
+        p[i] = pNext[i];
+        }
+      inPts->GetPoint(pts[j+1],pNext);
+      for (i=0; i<3; i++)
+        {
+        sPrev[i] = sNext[i];
+        sNext[i] = pNext[i] - p[i];
+        }
+      }
+
+    n = inNormals->GetTuple(pts[j]);
+
+    if ( vtkMath::Normalize(sNext) == 0.0 )
+      {
+      vtkWarningMacro(<<"Coincident points!");
+      return 0;
+      }
+
+    for (i=0; i<3; i++)
+      {
+      s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
+      }
+    // if s is zero then just use sPrev cross n
+    if (vtkMath::Normalize(s) == 0.0)
+      {
+      vtkWarningMacro(<< "Using alternate bevel vector");
+      vtkMath::Cross(sPrev,n,s);
+      if (vtkMath::Normalize(s) == 0.0)
+        {
+        vtkWarningMacro(<< "Using alternate bevel vector");
+        }
+      }
+
+    if ( (bevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
+      {
+      bevelAngle = 1.0;
+      }
+    if ( bevelAngle < -1.0 )
+      {
+      bevelAngle = -1.0;
+      }
+    bevelAngle = acos((double)bevelAngle) / 2.0; //(0->90 degrees)
+    if ( (bevelAngle = cos(bevelAngle)) == 0.0 )
+      {
+      bevelAngle = 1.0;
+      }
+
+    bevelAngle = this->Radius / bevelAngle; //keep tube constant radius
+
+    vtkMath::Cross(s,n,w);
+    if ( vtkMath::Normalize(w) == 0.0)
+      {
+      vtkWarningMacro(<<"Bad normal s = " <<s[0]<<" "<<s[1]<<" "<< s[2] 
+                      << " n = " << n[0] << " " << n[1] << " " << n[2]);
+      return 0;
+      }
+
+    vtkMath::Cross(w,s,nP); //create orthogonal coordinate system
+    vtkMath::Normalize(nP);
+
+    // Compute a scale factor based on scalars or vectors
+    if ( inScalars ) // varying by scalar values
+      {
+      if ((range[1] - range[0]) == 0.0)
+        {
+        vtkWarningMacro(<< "Scalar range is zero!");
+        }
+      sFactor = 1.0 + ((this->RadiusFactor - 1.0) * 
+                (inScalars->GetComponent(pts[j],0) - range[0]) 
+                       / (range[1]-range[0]));
+      }
+    else if ( inVectors ) // use flux preserving relationship
+      {
+      sFactor = 
+        sqrt((double)maxSpeed/vtkMath::Norm(inVectors->GetTuple(pts[j])));
+      if ( sFactor > this->RadiusFactor )
+        {
+        sFactor = this->RadiusFactor;
+        }
+      }
+
+    //create points around line
+    if (this->SidesShareVertices)
+      {
+      for (k=0; k < this->NumberOfSides; k++)
+        {
+        for (i=0; i<3; i++) 
+          {
+          normal[i] = w[i]*cos((double)k*this->Theta) + 
+            nP[i]*sin((double)k*this->Theta);
+          s[i] = p[i] + this->Radius * sFactor * normal[i];
+          }
+        newPts->InsertPoint(ptId,s);
+        newNormals->InsertTuple(ptId,normal);
+        outPD->CopyData(pd,pts[j],ptId);
+        ptId++;
+        }//for each side
+      } 
+    else
+      {
+      float n_left[3], n_right[3];
+      for (k=0; k < this->NumberOfSides; k++)
+        {
+        for (i=0; i<3; i++)
+          {
+          // Create duplicate vertices at each point
+          // and adjust the associated normals so that they are
+          // oriented with the facets. This preserves the tube's
+          // polygonal appearance, as if by flat-shading around the tube,
+          // while still allowing smooth (gouraud) shading along the
+          // tube as it bends.
+          normal[i]  = w[i]*cos((double)(k+0.0)*this->Theta) + 
+            nP[i]*sin((double)(k+0.0)*this->Theta);
+          n_right[i] = w[i]*cos((double)(k-0.5)*this->Theta) + 
+            nP[i]*sin((double)(k-0.5)*this->Theta);
+          n_left[i]  = w[i]*cos((double)(k+0.5)*this->Theta) + 
+            nP[i]*sin((double)(k+0.5)*this->Theta);
+          s[i] = p[i] + this->Radius * sFactor * normal[i];
+          }
+        newPts->InsertPoint(ptId,s);
+        newNormals->InsertTuple(ptId,n_right);
+        outPD->CopyData(pd,pts[j],ptId);
+        newPts->InsertPoint(ptId+1,s);
+        newNormals->InsertTuple(ptId+1,n_left);
+        outPD->CopyData(pd,pts[j],ptId+1);
+        ptId += 2;
+        }//for each side
+      }//else separate vertices
+    }//for all points in polyline
+  
+  //Produce end points for cap. They are placed at tail end of points.
+  if (this->Capping)
+    {
+    int numCapSides = this->NumberOfSides;
+    int capIncr = 1;
+    if ( ! this->SidesShareVertices )
+      {
+      numCapSides = 2 * this->NumberOfSides;
+      capIncr = 2;
+      }
+
+    //the start cap
+    for (k=0; k < numCapSides; k+=capIncr)
+      {
+      newPts->GetPoint(offset+k,s);
+      newPts->InsertPoint(ptId,s);
+      newNormals->InsertTuple(ptId,startCapNorm);
+      outPD->CopyData(pd,pts[0],ptId);
+      ptId++;
+      }
+    //the end cap
+    int endOffset = offset + (npts-1)*this->NumberOfSides;
+    if ( ! this->SidesShareVertices )
+      {
+      endOffset = offset + 2*(npts-1)*this->NumberOfSides;      
+      }
+    for (k=0; k < numCapSides; k+=capIncr)
+      {
+      newPts->GetPoint(endOffset+k,s);
+      newPts->InsertPoint(ptId,s);
+      newNormals->InsertTuple(ptId,endCapNorm);
+      outPD->CopyData(pd,pts[npts-1],ptId);
+      ptId++;
+      }
+    }//if capping
+  
+  return 1;
+}
+
+void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts, 
+                                   vtkIdType *pts, vtkCellArray *newStrips)
+{
+  vtkIdType i;
+  int k;
+  int i1, i2, i3;
+
+  if (this->SidesShareVertices)
+    {
+    for (k=this->Offset; k<(this->NumberOfSides+this->Offset); 
+         k+=this->OnRatio)
+      {
+      i1 = k % this->NumberOfSides;
+      i2 = (k+1) % this->NumberOfSides;
+      newStrips->InsertNextCell(npts*2);
+      for (i=0; i < npts; i++) 
+        {
+        i3 = i*this->NumberOfSides;
+        newStrips->InsertCellPoint(offset+i2+i3);
+        newStrips->InsertCellPoint(offset+i1+i3);
+        }
+      } //for each side of the tube
+    }
+  else
+    {
+    for (k=this->Offset; k<(this->NumberOfSides+this->Offset); 
+         k+=this->OnRatio)
+      {
+      i1 = 2*(k % this->NumberOfSides) + 1;
+      i2 = 2*((k+1) % this->NumberOfSides);
+      newStrips->InsertNextCell(npts*2);
+      for (i=0; i < npts; i++) 
+        {
+        i3 = i*2*this->NumberOfSides;
+        newStrips->InsertCellPoint(offset+i2+i3);
+        newStrips->InsertCellPoint(offset+i1+i3);
+        }
+      } //for each side of the tube
+    }
+
+  // Take care of capping. The caps are n-sided polygons that can be
+  // easily triangle stripped.
+  if (this->Capping)
+    {
+    vtkIdType startIdx = offset + npts*this->NumberOfSides;
+    vtkIdType idx;
+    
+    if ( ! this->SidesShareVertices )
+      {
+      startIdx = offset + 2*npts*this->NumberOfSides;
+      }
+
+    //The start cap
+    newStrips->InsertNextCell(this->NumberOfSides);
+    newStrips->InsertCellPoint(startIdx);
+    newStrips->InsertCellPoint(startIdx+1);
+    for (i1=this->NumberOfSides-1, i2=2, k=0; k<(this->NumberOfSides-2); k++)
+      {
+      if ( (k%2) )
+        {
+        idx = startIdx + i2;
+        newStrips->InsertCellPoint(idx);
+        i2++;
+        }
+      else
+        {
+        idx = startIdx + i1;
+        newStrips->InsertCellPoint(idx);
+        i1--;
+        }
+      }
+    
+    //The end cap - reversed order to be consistent with normal
+    startIdx += this->NumberOfSides;
+    newStrips->InsertNextCell(this->NumberOfSides);
+    newStrips->InsertCellPoint(startIdx);
+    newStrips->InsertCellPoint(startIdx+this->NumberOfSides-1);
+    for (i1=this->NumberOfSides-2, i2=1, k=0; k<(this->NumberOfSides-2); k++)
+      {
+      if ( (k%2) )
+        {
+        idx = startIdx + i1;
+        newStrips->InsertCellPoint(idx);
+        i1--;
+        }
+      else
+        {
+        idx = startIdx + i2;
+        newStrips->InsertCellPoint(idx);
+        i2++;
+        }
+      }
+    }
+}
+
+void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
+                                          vtkIdType npts, vtkIdType *pts, 
+                                          vtkPoints *inPts, 
+                                          vtkDataArray *inScalars,
+                                          vtkFloatArray *newTCoords)
+{
+  vtkIdType i;
+  int k;
+  float tc;
+
+  int numSides = this->NumberOfSides;
+  if ( ! this->SidesShareVertices )
+    {
+    numSides = 2 * this->NumberOfSides;
+    }
+
+  float s0, s;
+  //The first texture coordinate is always 0.
+  for ( k=0; k < numSides; k++)
+    {
+    newTCoords->InsertTuple2(offset+k,0.0,0.0);
+    }
+  if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
+    {
+    s0 = inScalars->GetTuple1(pts[0]);
+    for (i=1; i < npts; i++)
+      {
+      s = inScalars->GetTuple1(pts[i]);
+      tc = (s - s0) / this->TextureLength;
+      for ( k=0; k < numSides; k++)
+        {
+        newTCoords->InsertTuple2(offset+i*numSides+k,tc,0.0);
+        }
+      }
+    }
+  else //we know it's from line length
+    {
+    float xPrev[3], x[3], len=0.0;
+    inPts->GetPoint(pts[0],xPrev);
+    for (i=1; i < npts; i++)
+      {
+      inPts->GetPoint(pts[i],x);
+      len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      tc = len / this->TextureLength;
+      for ( k=0; k < numSides; k++)
+        {
+        newTCoords->InsertTuple2(offset+i*numSides+k,tc,0.0);
+        }
+      xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      }
+    }
+  
+  // Capping, set the endpoints as appropriate
+  if ( this->Capping )
+    {
+    int k;
+    vtkIdType startIdx = offset + npts*numSides;
+
+    //start cap
+    for (k=0; k < this->NumberOfSides; k++)
+      {
+      newTCoords->InsertTuple2(startIdx+k,0.0,0.0);
+      }
+
+    //end cap
+    for (k=0; k < this->NumberOfSides; k++)
+      {
+      newTCoords->InsertTuple2(startIdx+this->NumberOfSides+k,tc,0.0);
+      }
+    }
+}
+
+// Compute the number of points in this tube
+vtkIdType vtkTubeFilter::ComputeOffset(vtkIdType offset, vtkIdType npts)
+{
+  if ( this->SidesShareVertices )
+    {
+    offset += this->NumberOfSides * npts;
+    }
+  else
+    {
+    offset += 2 * this->NumberOfSides * npts; //points are duplicated
+    }
+    
+  if ( this->Capping )
+    {
+    offset += 2*this->NumberOfSides; //cap points are duplicated
+    }
+
+  return offset;
+}
+
+// Description:
+// Return the method of varying tube radius descriptive character string.
+const char *vtkTubeFilter::GetVaryRadiusAsString(void)
+{
+  if ( this->VaryRadius == VTK_VARY_RADIUS_OFF )
+    {
+    return "VaryRadiusOff";
+    }
+  else if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR ) 
+    {
+    return "VaryRadiusByScalar";
+    }
+  else 
+    {
+    return "VaryRadiusByVector";
+    }
+}
+
+// Description:
+// Return the method of generating the texture coordinates.
+const char *vtkTubeFilter::GetGenerateTCoordsAsString(void)
+{
+  if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
+    {
+    return "GenerateTCoordsOff";
+    }
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS ) 
+    {
+    return "GenerateTCoordsFromScalar";
+    }
+  else 
+    {
+    return "GenerateTCoordsFromLength";
+    }
+}
+
 void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -510,5 +687,8 @@ void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Default Normal: " << "( " << this->DefaultNormal[0] <<
      ", " << this->DefaultNormal[1] << ", " << this->DefaultNormal[2] <<
      " )\n";
-  os << indent << "Capping: " << this->Capping << endl;
+  os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
+  os << indent << "Generate TCoords: " 
+     << this->GetGenerateTCoordsAsString() << endl;
+  os << indent << "Texture Length: " << this->TextureLength << endl;
 }

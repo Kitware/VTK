@@ -25,7 +25,11 @@
 // is linearly adjusted. If the radius varies with vector value, a mass
 // flux preserving variation is used. The number of sides for the tube also 
 // can be specified. You can also specify which of the sides are visible. This
-// is useful for generating interesting striping effects.
+// is useful for generating interesting striping effects. Other options
+// include the ability to cap the tube and generate texture coordinates.
+// Texture coordinates can be used with an associated texture map to create
+// interesting effects such as marking the tube with stripes corresponding
+// to length or time.
 //
 // This filter is typically used to create thick or dramatic lines. Another
 // common use is to combine this filter with vtkStreamLine to generate
@@ -37,7 +41,8 @@
 //
 // The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
-// can be removed with vtkCleanPolyData.)
+// can be removed with vtkCleanPolyData.) If a line does not meet this
+// criteria, then that line is not tubed.
 
 // .SECTION See Also
 // vtkRibbonFilter vtkStreamLine
@@ -51,6 +56,10 @@
 #define VTK_VARY_RADIUS_BY_SCALAR 1
 #define VTK_VARY_RADIUS_BY_VECTOR 2
 
+#define VTK_TCOORDS_OFF 0
+#define VTK_TCOORDS_FROM_LENGTH 1
+#define VTK_TCOORDS_FROM_SCALARS 2
+
 class VTK_GRAPHICS_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -58,8 +67,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Construct object with radius 0.5, radius variation turned off, the number 
-  // of sides set to 3, and radius factor of 10.
+  // Construct object with radius 0.5, radius variation turned off, the
+  // number of sides set to 3, and radius factor of 10.
   static vtkTubeFilter *New();
 
   // Description:
@@ -104,7 +113,9 @@ public:
   vtkBooleanMacro(UseDefaultNormal,int);
 
   // Description:
-  // Set a boolean to control whether tube sides should share vertices
+  // Set a boolean to control whether tube sides should share vertices.
+  // This creates independent strips, with constant normals so the
+  // tube is always faceted in appearance.
   vtkSetMacro(SidesShareVertices, int);
   vtkGetMacro(SidesShareVertices, int);
   vtkBooleanMacro(SidesShareVertices, int);
@@ -129,9 +140,33 @@ public:
   vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(Offset,int);
 
+  // Description:
+  // Control whether and how texture coordinates are produced. This is
+  // useful for striping the tube with length textures, etc. If you
+  // use scalars to create the texture, the scalars are assumed to be
+  // monotonically increasing (or decreasing).
+  vtkSetClampMacro(GenerateTCoords,int,VTK_TCOORDS_OFF,
+                   VTK_TCOORDS_FROM_SCALARS);
+  vtkGetMacro(GenerateTCoords,int);
+  void SetGenerateTCoordsToOff()
+    {this->SetGenerateTCoords(VTK_TCOORDS_OFF);}
+  void SetGenerateTCoordsToUseLength()
+    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_LENGTH);}
+  void SetGenerateTCoordsToUseScalars()
+    {this->SetGenerateTCoords(VTK_TCOORDS_FROM_SCALARS);}
+  const char *GetGenerateTCoordsAsString();
+
+  // Description:
+  // Control the conversion of units during the texture coordinates
+  // calculation. The TextureLength indicates what length (whether 
+  // calculated from scalars or length) is mapped to the [0,1)
+  // texture space.
+  vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
+  vtkGetMacro(TextureLength,int);
+
 protected:
   vtkTubeFilter();
-  ~vtkTubeFilter() {};
+  ~vtkTubeFilter() {}
 
   // Usual data generation method
   void Execute();
@@ -143,32 +178,32 @@ protected:
   float DefaultNormal[3];
   int UseDefaultNormal;
   int SidesShareVertices;
-  int Capping;
+  int Capping; //control whether tubes are capped
   int OnRatio; //control the generation of the sides of the tube
   int Offset;  //control the generation of the sides
+  int GenerateTCoords; //control texture coordinate generation
+  float TextureLength; //this length is mapped to [0,1) texture space
   
+  // Helper methods
+  int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
+                     vtkPoints *inPts, vtkPoints *newPts, 
+                     vtkPointData *pd, vtkPointData *outPD,
+                     vtkFloatArray *newNormals, vtkDataArray *inScalars,
+                     float range[2], vtkDataArray *inVectors, float maxNorm, 
+                     vtkDataArray *inNormals);
+  void GenerateStrips(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
+                      vtkCellArray *newStrips);
+  void GenerateTextureCoords(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
+                             vtkPoints *inPts, vtkDataArray *inScalars,
+                            vtkFloatArray *newTCoords);
+  vtkIdType ComputeOffset(vtkIdType offset,vtkIdType npts);
+  
+  // Helper data members
+  float Theta;
+
 private:
   vtkTubeFilter(const vtkTubeFilter&);  // Not implemented.
   void operator=(const vtkTubeFilter&);  // Not implemented.
 };
-
-// Description:
-// Return the method of varying tube radius descriptive character string.
-inline const char *vtkTubeFilter::GetVaryRadiusAsString(void)
-{
-  if ( this->VaryRadius == VTK_VARY_RADIUS_OFF )
-    {
-    return "VaryRadiusOff";
-    }
-  else if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR ) 
-    {
-    return "VaryRadiusByScalar";
-    }
-  else 
-    {
-    return "VaryRadiusByVector";
-    }
-}
-
 
 #endif
