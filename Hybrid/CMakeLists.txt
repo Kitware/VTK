@@ -18,6 +18,7 @@ vtkLegendBoxActor.cxx
 vtkLineWidget.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPlaneWidget.cxx
+vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
