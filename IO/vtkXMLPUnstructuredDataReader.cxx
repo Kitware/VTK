@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.3");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -116,14 +116,10 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation()
   
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
-  if(this->PPointsElement &&
-     this->PPointsElement->GetNumberOfNestedElements())
-    {
-    vtkDataArray* array =
-      this->CreateDataArray(this->PPointsElement->GetNestedElement(0));
-    points->SetData(array);
-    array->Delete();
-    }
+  vtkXMLDataElement* ePoints = this->PPointsElement;
+  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
+  points->SetData(a);
+  a->Delete();
   output->SetPoints(points);
   points->Delete();
 }
@@ -198,10 +194,17 @@ vtkXMLPUnstructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   for(i=0;i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "PPoints") == 0)
+    if((strcmp(eNested->GetName(), "PPoints") == 0) &&
+       (eNested->GetNumberOfNestedElements() == 1))
       {
       this->PPointsElement = eNested;
       }
+    }
+  
+  if(!this->PPointsElement)
+    {
+    vtkErrorMacro("Could not find PPoints element with 1 array.");
+    return 0;
     }
   
   return 1;
