@@ -24,7 +24,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkPointSetAlgorithm, "1.3");
 vtkStandardNewMacro(vtkPointSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ int vtkPointSetAlgorithm::ProcessRequest(
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
     {
-    return this->CreateOutput(request, inputVector, outputVector);
+    return this->RequestDataObject(request, inputVector, outputVector);
     }
 
   // execute information
@@ -166,7 +166,7 @@ int vtkPointSetAlgorithm::ProcessRequest(
 }
 
 //----------------------------------------------------------------------------
-int vtkPointSetAlgorithm::CreateOutput(
+int vtkPointSetAlgorithm::RequestDataObject(
   vtkInformation*, 
   vtkInformationVector** inputVector , 
   vtkInformationVector* outputVector)
@@ -181,17 +181,21 @@ int vtkPointSetAlgorithm::CreateOutput(
   
   if (input)
     {
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    vtkPointSet *output = vtkPointSet::SafeDownCast(
-      info->Get(vtkDataObject::DATA_OBJECT()));
-    
-    if (!output || !output->IsA(input->GetClassName())) 
+    // for each output
+    for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
       {
-      output = input->NewInstance();
-      output->SetPipelineInformation(info);
-      output->Delete();
-      this->GetOutputPortInformation(0)->Set(
-        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkPointSet *output = vtkPointSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      
+      if (!output || !output->IsA(input->GetClassName())) 
+        {
+        output = input->NewInstance();
+        output->SetPipelineInformation(info);
+        output->Delete();
+        this->GetOutputPortInformation(i)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+        }
       }
     return 1;
     }

@@ -24,8 +24,9 @@
 // method that by default says that all inputs will be PointSet. If that
 // isn't the case then please override this method in your subclass. This
 // class breaks out the downstream requests into seperate functions such as
-// CreateOutput RequestData and ExecuteInformation. The default implementation
-// of CreateOutput will create an output data of the same type as the input. 
+// RequestDataObject RequestData and ExecuteInformation. The default 
+// implementation of RequestDataObject will create an output data of the 
+// same type as the input. 
 
 
 #ifndef __vtkPointSetAlgorithm_h
@@ -93,9 +94,9 @@ protected:
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int CreateOutput(vtkInformation* request, 
-                           vtkInformationVector** inputVector, 
-                           vtkInformationVector* outputVector);
+  virtual int RequestDataObject(vtkInformation* request, 
+                                vtkInformationVector** inputVector, 
+                                vtkInformationVector* outputVector);
   
   // Description:
   // This is called by the superclass.
