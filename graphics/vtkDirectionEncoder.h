@@ -94,9 +94,9 @@ public:
   virtual float *GetDecodedGradientTable( void )=0;
 
   // Description:
-  // Set / Get the ZeroNormalTolerance - this is the minimum magnitude 
+  // Set / Get the ZeroNormalTolerance - this defines the minimum magnitude 
   // of a gradient that is considered sufficient to define a 
-  // direction. Gradients with magnitudes less than this value are given
+  // direction. Gradients with magnitudes at or less than this value are given
   // a "zero normal" index. These are handled specially in the shader, 
   // and you can set the intensity of light for these zero normals in
   // the gradient shader.
