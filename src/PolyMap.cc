@@ -85,8 +85,8 @@ void vlPolyMapper::Render(vlRenderer *ren)
 //
 // Now send data down to primitives and draw it
 //
-  if ( forceBuild || this->Input->GetMtime() > this->BuildTime || 
-  this->LookupTable->GetMtime() > this->BuildTime )
+  if ( forceBuild || this->Input->GetMTime() > this->BuildTime || 
+  this->LookupTable->GetMTime() > this->BuildTime )
     {
 //
 // create colors
@@ -95,10 +95,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
     (scalars=pd->GetScalars()) )
       {
       colors = new vlRGBArray;
-      colors->Initialize (this->Input->NumPoints());
+      colors->Initialize (this->Input->NumberOfPoints());
 
       this->LookupTable->SetTableRange(this->ScalarRange);
-      for (i=0; i<this->Input->NumPoints(); i++)
+      for (i=0; i<this->Input->NumberOfPoints(); i++)
         {
         colors->SetColor(i,this->LookupTable->MapValue(scalars->GetScalar(i)));
         }
@@ -139,40 +139,10 @@ void vlPolyMapper::PrintSelf(ostream& os, vlIndent indent)
       os << indent << "Input: (none)\n";
       }
 
-    if ( this->VertsVisibility )
-      {
-      os << indent << "Verts are visible.\n";
-      }
-    else
-      {
-      os << indent << "Verts are not visible.\n";
-      }
+    os << indent << "Vertex Visibility: " << (this->VertsVisibility ? "On\n" : "Off\n");
+    os << indent << "Line Visibility: " << (this->LinesVisibility ? "On\n" : "Off\n");
+    os << indent << "Polygon Visibility: " << (this->PolysVisibility ? "On\n" : "Off\n");
+    os << indent << "Triangle Strip Visibility: " << (this->StripsVisibility ? "On\n" : "Off\n");
 
-    if ( this->LinesVisibility )
-      {
-      os << indent << "Lines are visible.\n";
-      }
-    else
-      {
-      os << indent << "Lines are not visible.\n";
-      }
-
-    if ( this->PolysVisibility )
-      {
-      os << indent << "Polygons are visible.\n";
-      }
-    else
-      {
-      os << indent << "Polygons are not visible.\n";
-      }
-
-    if ( this->StripsVisibility )
-      {
-      os << indent << "Triangle strips are visible.\n";
-      }
-    else
-      {
-      os << indent << "Triangle strips are not visible.\n";
-      }
    }
 }

@@ -34,8 +34,8 @@ public:
   char *GetClassName() {return "vlDataSet";};
   void PrintSelf(ostream& os, vlIndent indent);
   virtual vlDataSet *MakeObject() = 0;
-  virtual int NumCells() = 0;
-  virtual int NumPoints() = 0;
+  virtual int NumberOfCells() = 0;
+  virtual int NumberOfPoints() = 0;
   virtual int CellDimension(int cellId) = 0;
   virtual void CellPoints(int cellId, vlIdList& ptId) = 0;
   virtual void Initialize();
@@ -43,7 +43,7 @@ public:
   virtual void GetPoints(vlIdList& ptId, vlFloatPoints& fp) = 0;
   virtual void Update() {};
 
-  unsigned long int GetMtime();
+  unsigned long int GetMTime();
 
   virtual void ComputeBounds();
   float *GetBounds();

@@ -51,7 +51,7 @@ void vlShrinkPolyData::Execute()
 // Count the number of new points and other primitives that 
 // need to be created.
 //
-  numNewPts = this->Input->NumVerts();
+  numNewPts = this->Input->NumberOfVerts();
   numNewLines = 0;
   numNewPolys = 0;
   poly_alloc_size = 0;
@@ -77,7 +77,7 @@ void vlShrinkPolyData::Execute()
 //
   newPoints = new vlFloatPoints(numNewPts);
 
-  newVerts = new vlCellArray(this->Input->NumVerts());
+  newVerts = new vlCellArray(this->Input->NumberOfVerts());
 
   newLines = new vlCellArray;
   newLines->Initialize(numNewLines*3);
@@ -192,6 +192,6 @@ void vlShrinkPolyData::PrintSelf(ostream& os, vlIndent indent)
     {
     vlPolyToPolyFilter::PrintSelf(os,indent);
 
-    os << indent << "ShrinkFactor: " << this->ShrinkFactor << "\n";
+    os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
     }
 }

@@ -35,7 +35,7 @@ public:
   vlFloatNormals(const int sz, const int ext=1000):N(3*sz,3*ext){};
   ~vlFloatNormals() {};
   char *GetClassName() {return "vlFloatNormals";};
-  int NumNormals() {return (N.GetMaxId()+1)/3;};
+  int NumberOfNormals() {return (N.GetMaxId()+1)/3;};
   void Reset() {this->N.Reset();};
   vlFloatNormals &operator=(const vlFloatNormals& fn);
   void operator+=(const vlFloatNormals& fn);

@@ -42,11 +42,11 @@ void vlDataSet::ComputeBounds()
   int i, j;
   float *x;
 
-  if ( this->GetMtime() > this->ComputeTime )
+  if ( this->GetMTime() > this->ComputeTime )
     {
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  LARGE_FLOAT;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -LARGE_FLOAT;
-    for (i=0; i<this->NumPoints(); i++)
+    for (i=0; i<this->NumberOfPoints(); i++)
       {
       x = this->GetPoint(i);
       for (j=0; j<3; j++)
@@ -91,10 +91,10 @@ float vlDataSet::GetLength()
   return (float)sqrt(l);
 }
 
-unsigned long int vlDataSet::GetMtime()
+unsigned long int vlDataSet::GetMTime()
 {
-  if ( this->PointData.GetMtime() > this->Mtime ) return this->PointData.GetMtime();
-  else return this->Mtime;
+  if ( this->PointData.GetMTime() > this->MTime ) return this->PointData.GetMTime();
+  else return this->MTime;
 }
 
 void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
@@ -112,6 +112,6 @@ void vlDataSet::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "  Xmin,Xmax: (" <<bounds[0] << ", " << bounds[1] << ")\n";
     os << indent << "  Ymin,Ymax: (" <<bounds[2] << ", " << bounds[3] << ")\n";
     os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
-    os << indent << "Compute time: " <<this->ComputeTime.GetMtime() << "\n";
+    os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
     }
 }

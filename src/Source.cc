@@ -25,8 +25,8 @@ void vlSource::Execute()
 
 void vlSource::Update()
 {
-  // Make sure virtual getMtime method is called since subclasses will overload
-  if ( this->GetMtime() > this->ExecuteTime )
+  // Make sure virtual getMTime method is called since subclasses will overload
+  if ( this->GetMTime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)();
     this->Execute();
@@ -57,5 +57,5 @@ void vlSource::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);
 
-  os << indent << "Execute time: " << this->ExecuteTime.GetMtime() << "\n";
+  os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
 }

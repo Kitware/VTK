@@ -24,7 +24,7 @@ void vlPolyFilter::Update()
   this->Input->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMtime() > this->GetMtime() || this->GetMtime() > this->ExecuteTime )
+  if (this->Input->GetMTime() > this->GetMTime() || this->GetMTime() > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)();
     this->Execute();

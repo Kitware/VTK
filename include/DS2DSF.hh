@@ -31,8 +31,8 @@ public:
   char *GetClassName() {return "vlDataSetToDataSetFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
   vlDataSet *MakeObject() {return this->DataSet->MakeObject();};
-  int NumCells() {return this->DataSet->NumCells();}
-  int NumPoints() {return this->DataSet->NumPoints();}
+  int NumberOfCells() {return this->DataSet->NumberOfCells();}
+  int NumberOfPoints() {return this->DataSet->NumberOfPoints();}
   int CellDimension(int cellId) {return this->DataSet->CellDimension(cellId);}
   void CellPoints(int cellId, vlIdList& ptId) 
     {this->DataSet->CellPoints(cellId, ptId);}

@@ -12,7 +12,7 @@ public:
   ~vlIdList() {};
   int &operator[](const int id) {return this->Ia[id];};
   void Reset() {this->Ia.Reset();};
-  int NumIds() {return (this->Ia.GetMaxId() + 1);};
+  int NumberOfIds() {return (this->Ia.GetMaxId() + 1);};
   int InsertNextId(const int i) {return Ia.InsertNextValue(i);};
   void operator+=(vlIdList& ids) {this->Ia += ids.Ia;};
   void operator+=(const int i) {this->Ia += i;};

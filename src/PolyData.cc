@@ -179,34 +179,34 @@ void vlPolyData::Initialize()
   }
 };
 
-int vlPolyData::NumCells() 
+int vlPolyData::NumberOfCells() 
 {
-  return NumVerts() + NumLines() + NumPolys() + NumStrips();
+  return NumberOfVerts() + NumberOfLines() + NumberOfPolys() + NumberOfStrips();
 }
 
-int vlPolyData::NumPoints() 
+int vlPolyData::NumberOfPoints() 
 {
-  return (this->Points ? this->Points->NumPoints() : 0);
+  return (this->Points ? this->Points->NumberOfPoints() : 0);
 }
 
-int vlPolyData::NumVerts() 
+int vlPolyData::NumberOfVerts() 
 {
-  return (this->Verts ? this->Verts->GetNumCells() : 0);
+  return (this->Verts ? this->Verts->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::NumLines() 
+int vlPolyData::NumberOfLines() 
 {
-  return (this->Lines ? this->Lines->GetNumCells() : 0);
+  return (this->Lines ? this->Lines->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::NumPolys() 
+int vlPolyData::NumberOfPolys() 
 {
-  return (this->Polys ? this->Polys->GetNumCells() : 0);
+  return (this->Polys ? this->Polys->GetNumberOfCells() : 0);
 }
 
-int vlPolyData::NumStrips() 
+int vlPolyData::NumberOfStrips() 
 {
-  return (this->Strips ? this->Strips->GetNumCells() : 0);
+  return (this->Strips ? this->Strips->GetNumberOfCells() : 0);
 }
 
 vlMapper *vlPolyData::MakeMapper()
@@ -239,10 +239,10 @@ void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
     {
     vlDataSet::PrintSelf(os,indent);
     
-    os << indent << "Number Points: " << this->NumPoints() << "\n";
-    os << indent << "Number Verts: " << this->NumVerts() << "\n";
-    os << indent << "Number Lines: " << this->NumLines() << "\n";
-    os << indent << "Number Polygons: " << this->NumPolys() << "\n";
-    os << indent << "Number Triangle Strips: " << this->NumStrips() << "\n";
+    os << indent << "Number Of Points: " << this->NumberOfPoints() << "\n";
+    os << indent << "Number Of Verticess: " << this->NumberOfVerts() << "\n";
+    os << indent << "Number Of Lines: " << this->NumberOfLines() << "\n";
+    os << indent << "Number Of Polygons: " << this->NumberOfPolys() << "\n";
+    os << indent << "Number Of Triangle Strips: " << this->NumberOfStrips() << "\n";
     }
 }

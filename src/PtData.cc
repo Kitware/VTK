@@ -150,28 +150,28 @@ void vlPointData::CopyInitialize(vlPointData* pd, int sze, int ext)
   if ( (s = pd->GetScalars()) ) 
     {
     if ( sze > 0 ) newScalars = s->MakeObject(sze,ext);
-    else newScalars = s->MakeObject(s->NumScalars());
+    else newScalars = s->MakeObject(s->NumberOfScalars());
     this->SetScalars(newScalars);
     }
 
   if ( (v = pd->GetVectors()) ) 
     {
     if ( sze > 0 ) newVectors = v->MakeObject(sze,ext);
-    else newVectors = v->MakeObject(v->NumVectors());
+    else newVectors = v->MakeObject(v->NumberOfVectors());
     this->SetVectors(newVectors);
     }
 
   if ( (n = pd->GetNormals()) ) 
     {
     if ( sze > 0 ) newNormals = n->MakeObject(sze,ext);
-    else newNormals = n->MakeObject(n->NumNormals());
+    else newNormals = n->MakeObject(n->NumberOfNormals());
     this->SetNormals(newNormals);
     }
 
   if ( (t = pd->GetTCoords()) ) 
     {
     if ( sze > 0 ) newTCoords = t->MakeObject(sze,t->GetDimension(),ext);
-    else newTCoords = t->MakeObject(t->NumTCoords(),t->GetDimension());
+    else newTCoords = t->MakeObject(t->NumberOfTCoords(),t->GetDimension());
     this->SetTCoords(newTCoords);
     }
 };
@@ -184,42 +184,42 @@ void vlPointData::PrintSelf(ostream& os, vlIndent indent)
 
     if ( this->Scalars )
       {
-      os << indent << "Scalars data:\n";
+      os << indent << "Scalars:\n";
       this->Scalars->PrintSelf(os,indent.GetNextIndent());
       }
     else
       {
-      os << indent << "Scalar data: (none)\n";
+      os << indent << "Scalar: (none)\n";
       }
 
     if ( this->Vectors )
       {
-      os << indent << "Vectors data:\n";
+      os << indent << "Vectors:\n";
       this->Vectors->PrintSelf(os,indent.GetNextIndent());
       }
     else
       {
-      os << indent << "Vector data: (none)\n";
+      os << indent << "Vectors: (none)\n";
       }
 
     if ( this->Normals )
       {
-      os << indent << "Normals data:\n";
+      os << indent << "Normals:\n";
       this->Normals->PrintSelf(os,indent.GetNextIndent());
       }
     else
       {
-      os << indent << "Normal data: (none)\n";
+      os << indent << "Normals: (none)\n";
       }
 
     if ( this->TCoords )
       {
-      os << indent << "Texture data:\n";
+      os << indent << "Texture Coordinates:\n";
       this->TCoords->PrintSelf(os,indent.GetNextIndent());
       }
     else
       {
-      os << indent << "Texture data: (none)\n";
+      os << indent << "Texture Coordinates: (none)\n";
       }
     }
 }

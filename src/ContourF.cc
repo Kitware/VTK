@@ -35,13 +35,13 @@ void vlContourFilter::Execute()
 //
 // Loop over all cells
 //
-  for (cellId=0; cellId<Input->NumCells(); cellId++)
+  for (cellId=0; cellId<Input->NumberOfCells(); cellId++)
     {
     Input->CellPoints(cellId,cellPts);
     inScalars->GetScalars(cellPts,cellScalars);
 
     // Build the case table
-    for ( i=0, index = 0; i < cellPts.NumIds(); i++)
+    for ( i=0, index = 0; i < cellPts.NumberOfIds(); i++)
 	if (cellScalars.GetScalar(i) >= this->Value)
             index |= CASE_MASK[i];
 

@@ -35,7 +35,7 @@ public:
   vlFloatScalars(const int sz, const int ext=1000):S(sz,ext){};
   ~vlFloatScalars() {};
   char *GetClassName() {return "vlFloatScalars";};
-  int NumScalars() {return (this->S.GetMaxId()+1);};
+  int NumberOfScalars() {return (this->S.GetMaxId()+1);};
   void Reset() {this->S.Reset();};
   vlFloatScalars &operator=(const vlFloatScalars& fs);
   void operator+=(const vlFloatScalars& fs) {this->S += fs.S;};

@@ -28,8 +28,8 @@ public:
   char *GetClassName() {return "vlPointSource";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  vlSetClampMacro(NumPoints,int,1,LARGE_INTEGER);
-  vlGetMacro(NumPoints,int);
+  vlSetClampMacro(NumberOfPoints,int,1,LARGE_INTEGER);
+  vlGetMacro(NumberOfPoints,int);
 
   vlSetVector3Macro(Center,float);
   vlGetVectorMacro(Center,float);
@@ -39,7 +39,7 @@ public:
 
 protected:
   void Execute();
-  int NumPoints;
+  int NumberOfPoints;
   float Center[3];
   float Radius;
 };

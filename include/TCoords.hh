@@ -30,7 +30,7 @@ public:
   vlTCoords(int dim=2) {this->Dimension=dim;};
   virtual ~vlTCoords() {};
   virtual vlTCoords *MakeObject(int sze, int d=2, int ext=1000) = 0;
-  virtual int NumTCoords() = 0;
+  virtual int NumberOfTCoords() = 0;
   virtual float *GetTCoord(int i) = 0;
   virtual void SetTCoord(int i,float *x) = 0;          // fast insert
   virtual void InsertTCoord(int i, float *x) = 0;      // allocates memory as necessary

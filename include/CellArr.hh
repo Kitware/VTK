@@ -9,18 +9,18 @@
 class vlCellArray : public vlObject 
 {
 public:
-  vlCellArray() : NumCells(0), Loc(0) {};
+  vlCellArray() : NumberOfCells(0), Location(0) {};
   int Initialize(const int sz, const int ext=1000) 
     {return this->Ia.Initialize(sz,ext);};
-  vlCellArray (const int sz, const int ext=1000):NumCells(0),Loc(0),Ia(sz,ext){};
+  vlCellArray (const int sz, const int ext=1000):NumberOfCells(0),Location(0),Ia(sz,ext){};
   ~vlCellArray() {};
   int GetNextCell(int& npts, int* &pts)
   {
-    if ( this->Ia.GetMaxId() >= 0 && this->Loc <= this->Ia.GetMaxId() ) 
+    if ( this->Ia.GetMaxId() >= 0 && this->Location <= this->Ia.GetMaxId() ) 
       {
-      npts = this->Ia.GetValue(this->Loc++);
-      pts = this->Ia.GetPtr(this->Loc);
-      this->Loc += npts;
+      npts = this->Ia.GetValue(this->Location++);
+      pts = this->Ia.GetPtr(this->Location);
+      this->Location += npts;
       return 1;
       }
     else
@@ -34,17 +34,17 @@ public:
     this->Ia.InsertValue(id,pts[npts-1]);
     this->Ia[id-npts] = npts;
     for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts[i];
-    NumCells++;
+    NumberOfCells++;
   }
-  int GetNumCells() {return NumCells;};
-  void InitTraversal() {this->Loc=0;};
+  int GetNumberOfCells() {return NumberOfCells;};
+  void InitTraversal() {this->Location=0;};
   void Squeeze() {this->Ia.Squeeze();};
   int EstimateSize(int numCells, int maxPtsPerCell) 
     {return numCells*(1+maxPtsPerCell);};
   
 private:
-  int NumCells;
-  int Loc;
+  int NumberOfCells;
+  int Location;
   vlIntArray Ia;
 };
 

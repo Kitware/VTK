@@ -35,7 +35,7 @@ public:
   vlFloatVectors(const int sz, const int ext=1000):V(3*sz,3*ext){};
   ~vlFloatVectors() {};
   char *GetClassName() {return "vlFloatVectors";};
-  int NumVectors() {return (V.GetMaxId()+1)/3;};
+  int NumberOfVectors() {return (V.GetMaxId()+1)/3;};
   void Reset() {this->V.Reset();};
   vlFloatVectors &operator=(const vlFloatVectors& fv);
   void operator+=(const vlFloatVectors& fv){this->V += fv.V;};

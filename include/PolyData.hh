@@ -38,8 +38,8 @@ public:
   vlDataSet *MakeObject();
   char *GetClassName() {return "vlPolyData";};
   void PrintSelf(ostream& os, vlIndent indent);
-  int NumCells();
-  int NumPoints();
+  int NumberOfCells();
+  int NumberOfPoints();
   int CellDimension(int cellId);
   void CellPoints(int cellId, vlIdList& ptId);
   void Initialize();
@@ -65,10 +65,10 @@ public:
   void SetStrips (vlCellArray* s);
   vlCellArray *GetStrips();
 
-  int NumVerts();
-  int NumLines();
-  int NumPolys();
-  int NumStrips();
+  int NumberOfVerts();
+  int NumberOfLines();
+  int NumberOfPolys();
+  int NumberOfStrips();
 
 private:
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

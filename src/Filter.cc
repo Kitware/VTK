@@ -41,22 +41,22 @@ void vlFilter::PrintSelf(ostream& os, vlIndent indent)
 
     if ( this->StartMethod )
       {
-      os << indent << "StartMethod: (" << this->StartMethod << ")\n";
+      os << indent << "Start Method: (" << this->StartMethod << ")\n";
       }
     else
       {
-      os << indent << "StartMethod: (none)\n";
+      os << indent << "Start Method: (none)\n";
       }
 
     if ( this->EndMethod )
       {
-      os << indent << "EndMethod: (" << this->EndMethod << ")\n";
+      os << indent << "End Method: (" << this->EndMethod << ")\n";
       }
     else
       {
-      os << indent << "EndMethod: (none)\n";
+      os << indent << "End Method: (none)\n";
       }
 
-    os << indent << "Execute time: " <<this->ExecuteTime.GetMtime() << "\n";
+    os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
    }
 }

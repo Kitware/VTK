@@ -35,7 +35,7 @@ public:
   vlFloatPoints(const int sz, const int ext=1000):P(3*sz,3*ext){};
   ~vlFloatPoints() {};
   char *GetClassName() {return "vlFloatPoints";};
-  int NumPoints() {return (P.GetMaxId()+1)/3;};
+  int NumberOfPoints() {return (P.GetMaxId()+1)/3;};
   void Reset() {this->P.Reset();};
   vlFloatPoints &operator=(const vlFloatPoints& fp);
   void operator+=(const vlFloatPoints& fp) {this->P += fp.P;};
