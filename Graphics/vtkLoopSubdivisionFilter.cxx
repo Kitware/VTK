@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.20");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.21");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static double LoopWeights[4] =
@@ -318,7 +318,7 @@ void vtkLoopSubdivisionFilter::Execute()
   vtkPolyData *input = this->GetInput();
   vtkCellArray *polys = input->GetPolys();
   int hasTris = 0;
-  vtkIdType numPts, *pts;
+  vtkIdType numPts = 0, *pts = 0;
 
   input->BuildLinks();
   
