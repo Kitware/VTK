@@ -127,14 +127,14 @@ public:
   void UnBlankPoint(int ptId);
   
   // Description:
-  // Get the array that defines the blanking (visibility) of each point
+  // Get the array that defines the blanking (visibility) of each point.
   vtkUnsignedCharArray *GetPointVisibility() 
     {return this->PointVisibility;}
 
   // Description:
-  // Set an array that defines the visibility of the points in the mesh.
-  // Make sure that length of the visibility array matches the number of
-  // points in the grid.
+  // Set an array that defines the (blanking) visibility of the points 
+  // in the grid. Make sure that length of the visibility array matches 
+  // the number of points in the grid.
   void SetPointVisibility(vtkUnsignedCharArray *pointVisibility);
 
   // Description:
