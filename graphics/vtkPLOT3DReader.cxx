@@ -113,8 +113,10 @@ void vtkPLOT3DReader::Execute()
     return;
     }
   if ( this->GetFileType(xyzFp) == ASCII )
+    {
     vtkWarningMacro("reading ascii grid files currently not supported");
     // error = this->ReadASCIIGrid(xyzFp);
+    }
   else
     {
     fclose(xyzFp);
@@ -141,8 +143,10 @@ void vtkPLOT3DReader::Execute()
       }
 
     if ( this->GetFileType(QFp) == ASCII )
+      {
       vtkWarningMacro("reading ascii solution files currently not supported");
-    // error = this->ReadASCIISolution(QFp);
+      // error = this->ReadASCIISolution(QFp);
+      }
     else
       {
       fclose(QFp);
@@ -170,8 +174,10 @@ void vtkPLOT3DReader::Execute()
       }
 
     if ( this->GetFileType(funcFp) == ASCII )
+      {
       vtkWarningMacro("reading ASCII function files currently not supported");
-    // error = this->ReadASCIIFunctionFile(funcFp);
+      // error = this->ReadASCIIFunctionFile(funcFp);
+      }
     else
       {
       fclose(funcFp);
@@ -197,8 +203,10 @@ void vtkPLOT3DReader::Execute()
       }
 
     if ( this->GetFileType(funcFp) == ASCII )
+      {
       vtkWarningMacro("reading ASCII vector function files currently not supported");
-    // error = this->ReadASCIIFunctionFile(funcFp);
+      // error = this->ReadASCIIFunctionFile(funcFp);
+      }
     else
       {
       fclose(funcFp);
