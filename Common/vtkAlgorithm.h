@@ -194,6 +194,9 @@ protected:
   int InputPortIndexInRange(int index, const char* action);
   int OutputPortIndexInRange(int index, const char* action);
 
+  // Create a default executive.
+  virtual vtkExecutive* CreateDefaultExecutive();
+
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();

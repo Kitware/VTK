@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.5");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -203,7 +203,7 @@ vtkExecutive* vtkAlgorithm::GetExecutive()
   // Create the default executive if we do not have one already.
   if(!this->HasExecutive())
     {
-    vtkDistributedExecutive* e = vtkDistributedExecutive::New();
+    vtkExecutive* e = this->CreateDefaultExecutive();
     this->SetExecutive(e);
     e->Delete();
     }
@@ -569,6 +569,12 @@ int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
 void vtkAlgorithm::Update()
 {
   this->GetExecutive()->Update(this);
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
+{
+  return vtkDistributedExecutive::New();
 }
 
 //----------------------------------------------------------------------------
