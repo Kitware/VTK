@@ -65,8 +65,18 @@ vtkVertex* vtkVertex::New()
 // Construct the vertex with a single point.
 vtkVertex::vtkVertex()
 {
+  int i;
+  
   this->Points->SetNumberOfPoints(1);
   this->PointIds->SetNumberOfIds(1);
+  for (i = 0; i < 1; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
+  for (i = 0; i < 1; i++)
+    {
+    this->PointIds->SetId(i,0);
+    }
 }
 
 // Make a new vtkVertex object with the same information as this object.

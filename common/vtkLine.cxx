@@ -65,8 +65,18 @@ vtkLine* vtkLine::New()
 // Construct the line with two points.
 vtkLine::vtkLine()
 {
+  int i;
+  
   this->Points->SetNumberOfPoints(2);
   this->PointIds->SetNumberOfIds(2);
+  for (i = 0; i < 2; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
+  for (i = 0; i < 2; i++)
+    {
+    this->PointIds->SetId(i,0);
+    }
 }
 
 vtkCell *vtkLine::MakeObject()

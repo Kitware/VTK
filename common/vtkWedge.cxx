@@ -66,8 +66,18 @@ vtkWedge* vtkWedge::New()
 // Construct the wedge with six points.
 vtkWedge::vtkWedge()
 {
+  int i;
+  
   this->Points->SetNumberOfPoints(6);
   this->PointIds->SetNumberOfIds(6);
+  for (i = 0; i < 6; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
+  for (i = 0; i < 6; i++)
+    {
+    this->PointIds->SetId(i,0);
+    }
   this->Line = vtkLine::New();
   this->Triangle = vtkTriangle::New();
   this->Quad = vtkQuad::New();

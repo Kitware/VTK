@@ -66,8 +66,18 @@ vtkPyramid* vtkPyramid::New()
 // Construct the pyramid with five points.
 vtkPyramid::vtkPyramid()
 {
+  int i;
+  
   this->Points->SetNumberOfPoints(5);
   this->PointIds->SetNumberOfIds(5);
+  for (i = 0; i < 5; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
+  for (i = 0; i < 5; i++)
+    {
+    this->PointIds->SetId(i,0);
+    }
   this->Line = vtkLine::New();
   this->Triangle = vtkTriangle::New();
   this->Quad = vtkQuad::New();

@@ -68,8 +68,18 @@ vtkTriangle* vtkTriangle::New()
 // Construct the triangle with three points.
 vtkTriangle::vtkTriangle()
 {
+  int i;
+  
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
+  for (i = 0; i < 3; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
+  for (i = 0; i < 3; i++)
+    {
+    this->PointIds->SetId(i,0);
+    }
   this->Line = vtkLine::New();
 }
 

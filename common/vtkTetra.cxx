@@ -68,8 +68,18 @@ vtkTetra* vtkTetra::New()
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()
 {
+  int i;
+  
   this->Points->SetNumberOfPoints(4);
   this->PointIds->SetNumberOfIds(4);
+  for (i = 0; i < 4; i++)
+    {
+    this->Points->SetPoint(i, 0.0, 0.0, 0.0);
+    }
+  for (i = 0; i < 4; i++)
+    {
+    this->PointIds->SetId(i,0);
+    }
   this->Line = vtkLine::New();
   this->Triangle = vtkTriangle::New();
 }
