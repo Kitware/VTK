@@ -213,7 +213,10 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 	    index |= CASE_MASK[ii];
 	    }
 	  }
-        if ( index == 0 || index == 15 ) continue; //no lines
+        if ( index == 0 || index == 15 )
+	  {
+	  continue; //no lines
+	  }
 
         lineCase = lineCases + index;
         edge = lineCase->edges;
