@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.24");
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.25");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
@@ -53,10 +53,10 @@ static void vtkImageDotProductExecute(vtkImageDotProduct *self,
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
-    vtkImageIterator<T>::SpanIterator inSI1 = inIt1.BeginSpan();
-    vtkImageIterator<T>::SpanIterator inSI2 = inIt2.BeginSpan();
-    vtkImageIterator<T>::SpanIterator outSI = outIt.BeginSpan();
-    vtkImageIterator<T>::SpanIterator outSIEnd = outIt.EndSpan();
+    T* inSI1 = inIt1.BeginSpan();
+    T* inSI2 = inIt2.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
       {
       // now process the components

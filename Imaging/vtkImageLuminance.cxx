@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkImageLuminance.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.18");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.19");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
@@ -37,55 +38,31 @@ void vtkImageLuminance::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 static void vtkImageLuminanceExecute(vtkImageLuminance *self,
-                                             vtkImageData *inData, T *inPtr,
-                                             vtkImageData *outData, T *outPtr,
-                                             int outExt[6], int id)
+                                             vtkImageData *inData,
+                                             vtkImageData *outData,
+                                             int outExt[6], int id, T *)
 {
-  int idxX, idxY, idxZ;
-  int maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt(inData, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   float luminance;
-  
-  // find the region to loop over
-  maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    T* inSI = inIt.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
-        {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      for (idxX = 0; idxX <= maxX; idxX++)
-        {
-        luminance =  0.30 * *inPtr++;
-        luminance += 0.59 * *inPtr++;
-        luminance += 0.11 * *inPtr++;
-        *outPtr = (T)(luminance);
-        outPtr++;
-        }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      // now process the components
+      luminance =  0.30 * *inSI++;
+      luminance += 0.59 * *inSI++;
+      luminance += 0.11 * *inSI++;
+      *outSI = static_cast<T>(luminance);
+      ++outSI;
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -98,9 +75,6 @@ void vtkImageLuminance::ThreadedExecute(vtkImageData *inData,
                                         vtkImageData *outData,
                                         int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
@@ -121,9 +95,8 @@ void vtkImageLuminance::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageLuminanceExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
-                      outExt, id);
+    vtkTemplateMacro6(vtkImageLuminanceExecute, this, inData, outData, 
+                      outExt, id, static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
