@@ -191,6 +191,7 @@ void vlPolyReader::Execute()
         this->Reader.ReadCells(fp, size, verts->WritePtr(ncells,size));
         verts->WrotePtr();
         this->SetVerts(verts);
+        vlDebugMacro(<<"Read " << ncells << " vertices\n");
         }
 
       else if ( ! strncmp(line,"lines",5) )
@@ -205,6 +206,7 @@ void vlPolyReader::Execute()
         this->Reader.ReadCells(fp, size, lines->WritePtr(ncells,size));
         lines->WrotePtr();
         this->SetLines(lines);
+        vlDebugMacro(<<"Read " << ncells << " lines\n");
         }
 
       else if ( ! strncmp(line,"polygons",8) )
@@ -219,6 +221,7 @@ void vlPolyReader::Execute()
         this->Reader.ReadCells(fp, size, polys->WritePtr(ncells,size));
         polys->WrotePtr();
         this->SetPolys(polys);
+        vlDebugMacro(<<"Read " << ncells << " polygons\n");
         }
 
       else if ( ! strncmp(line,"triangle_strips",15) )
@@ -233,6 +236,7 @@ void vlPolyReader::Execute()
         this->Reader.ReadCells(fp, size, tris->WritePtr(ncells,size));
         tris->WrotePtr();
         this->SetStrips(tris);
+        vlDebugMacro(<<"Read " << ncells << " triangle strips\n");
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
