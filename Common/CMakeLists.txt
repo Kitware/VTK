@@ -6,6 +6,7 @@ vtkActor2DCollection.cxx
 vtkAssemblyNode.cxx
 vtkAssemblyPath.cxx
 vtkAssemblyPaths.cxx
+vtkBase64Utility.cxx
 vtkBitArray.cxx
 vtkByteSwap.cxx
 vtkCallbackCommand.cxx
