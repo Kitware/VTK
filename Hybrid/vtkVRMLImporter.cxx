@@ -4259,7 +4259,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.62");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.63");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -5505,8 +5505,6 @@ void vtkVRMLImporter::ImportEnd ()
   delete VrmlNodeType::currentField;
   VrmlNodeType::currentField = 0;
 
-  vtkVRMLAllocator::CleanUp();
-
   vtkDebugMacro(<<"Closing import file");
   if ( this->FileFD != NULL )
     {
@@ -5590,6 +5588,7 @@ vtkVRMLImporter::~vtkVRMLImporter()
   // deleted.
   delete VrmlNodeType::useList;
   VrmlNodeType::useList = 0;
+  vtkVRMLAllocator::CleanUp();
 }
 
 void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
