@@ -201,10 +201,13 @@ vtkFontCache::~vtkFontCache()
 #endif  
 
   int i;
-  for (i = 0; i < NumberOfEntries; i++)
+  for (i = 0; i < this->NumberOfEntries; i++)
     {
     delete this->Entries[i]->Font;
-    delete this->Entries[i];
+    if (this->Entries[i]->FaceFileName)
+      {
+      delete [] this->Entries[i]->FaceFileName;
+      }
     }
 
   this->NumberOfEntries = 0;
@@ -359,7 +362,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
     delete this->Entries[FONT_CACHE_CAPACITY - 1]->Font;
     if (this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName)
       {
-      delete this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName;
+      delete [] this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName;
       }
     this->NumberOfEntries = FONT_CACHE_CAPACITY - 1;
     }
@@ -424,7 +427,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 vtkFontCache FontCacheSingleton;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.9");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.10");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
