@@ -87,7 +87,7 @@ public:
   // Description:
   // Get name of rendering window
   vtkGetStringMacro(WindowName);
-  virtual void SetWindowName(char * );
+  virtual void SetWindowName(const char *);
 
   // Description:
   // Ask each viewport owned by this Window to render its image and 
@@ -105,7 +105,7 @@ public:
   // and from bottom to top.
   virtual unsigned char *GetPixelData(int, int, int, int, int) = 0;
   virtual int GetPixelData(int ,int ,int ,int , int,
-			   vtkUnsignedCharArray*) = 0;
+                           vtkUnsignedCharArray*) = 0;
 
   // Description:
   // Return a best estimate to the dots per inch of the display
