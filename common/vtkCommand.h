@@ -69,7 +69,7 @@ public:
     ProgressEvent,
     PickEvent,
     AbortCheckEvent,
-    UserEvent = 1000,
+    UserEvent = 1000
   };
     
   static unsigned long GetEventIdFromString(const char *event)
