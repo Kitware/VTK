@@ -7,13 +7,15 @@
 #include "vtkIdTypeArray.h"
 #include "vtkOutputPort.h"
 #include "vtkDebugLeaks.h"
-#include "vtkSphereSource.h"
 #include "vtkActor.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkInputPort.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkParallelFactory.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkContourFilter.h"
+#include "vtkRenderWindowInteractor.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
@@ -26,6 +28,17 @@ struct GenericCommunicatorArgs_tmp
   int argc;
   char** argv;
 };
+
+static void UpdateXFreq(void* arg)
+{
+  vtkRTAnalyticSource* id = reinterpret_cast<vtkRTAnalyticSource*>(arg);
+  id->SetXFreq(id->GetXFreq()+20);
+}
+
+static void DeleteAnArg(void*)
+{
+  return;
+}
 
 void Process1(vtkMultiProcessController *contr, void *arg)
 {
@@ -136,12 +149,26 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   op->SetController(contr);
   op->SetTag(45);
 
-  // send sphere source
-  vtkSphereSource* pd = vtkSphereSource::New();
+  float extent = 20;
+  vtkRTAnalyticSource* id = vtkRTAnalyticSource::New();
+  id->SetWholeExtent (-extent, extent, -extent, extent, -extent, extent); 
+  id->SetCenter(0, 0, 0);
+  id->SetStandardDeviation( 0.5 );
+  id->SetMaximum( 255.0 );
+  id->SetXFreq( 60 );
+  id->SetXMag( 10 );
+  id->SetYFreq( 30 );
+  id->SetYMag( 18 );
+  id->SetZFreq( 40 );
+  id->SetZMag( 5 );
+  id->GetOutput()->SetSpacing(2.0/extent,2.0/extent,2.0/extent);
 
-  op->SetInput(pd->GetOutput());
+  op->SetInput(id->GetOutput());
+  op->PipelineFlagOn();
+  op->SetParameterMethod(UpdateXFreq, id);
+  op->SetParameterMethodArgDelete(DeleteAnArg);
   op->WaitForUpdate();
-  pd->Delete();
+  id->Delete();
 
   op->Delete();
 }
@@ -255,10 +282,16 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   ip->SetRemoteProcessId(0);
 
   // Get polydata
-  ip->GetPolyDataOutput()->Update();
+  ip->GetImageDataOutput()->Update();
+
+  vtkContourFilter* cf = vtkContourFilter::New();
+  cf->SetInput(ip->GetImageDataOutput());
+  cf->SetNumberOfContours(1);
+  cf->SetValue(0, 220);
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  pmapper->SetInput(ip->GetPolyDataOutput());
+  pmapper->SetInput(cf->GetOutput());
+  cf->Delete();
 
   vtkActor* pactor = vtkActor::New();
   pactor->SetMapper(pmapper);
@@ -272,10 +305,21 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   renWin->AddRenderer(ren);
   ren->UnRegister(0);
 
+  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
+  iren->SetRenderWindow(renWin);
+  iren->Initialize();
+
+  renWin->Render();
   renWin->Render();
 
   *(args->retVal) = 
     vtkRegressionTestImage2(args->argc, args->argv, renWin, 10);
+
+  if ( *(args->retVal) == 3 )
+    {
+    iren->Start();
+    }
+  iren->Delete();
 
   contr->TriggerRMI(0, vtkMultiProcessController::BREAK_RMI_TAG);
 
