@@ -167,7 +167,6 @@ public:
     {return &(this->Element[i][0]);}
   const double *operator[](unsigned int i) const
     { return &(this->Element[i][0]); }  
-  void operator= (double element);
   void Adjoint(vtkMatrix4x4 &in,vtkMatrix4x4 &out)
     {this->Adjoint(&in,&out);}
   double Determinant(vtkMatrix4x4 &in) 

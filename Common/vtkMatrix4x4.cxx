@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMatrix4x4, "1.55");
+vtkCxxRevisionMacro(vtkMatrix4x4, "1.56");
 vtkStandardNewMacro(vtkMatrix4x4);
 
 // Useful for viewing a double[16] as a double[4][4]
@@ -334,21 +334,3 @@ void vtkMatrix4x4::PrintSelf(ostream& os, vtkIndent indent)
     os << "\n";
     }
 }
-
-//----------------------------------------------------------------------------
-// Set all the elements of the matrix to the given value.  
-// This is a legacy method -- do not use
-void vtkMatrix4x4::operator=(double element)
-{
-  int i,j;
-
-  for (i = 0; i < 4; i++)
-    {
-    for (j = 0; j < 4; j++)
-      {
-      this->Element[i][j] = element;
-      }
-    }
-  this->Modified ();
-}
-
