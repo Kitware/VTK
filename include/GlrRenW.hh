@@ -25,17 +25,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "RenderW.hh"
+#include "XRenWin.hh"
 
-class vlGlrRenderWindow : public vlRenderWindow
+class vlGlrRenderWindow : public vlXRenderWindow
 {
 protected:
   int Gid;
   int MultiSamples;
-  Window WindowId;
-  Window NextWindowId;
-  Display *DisplayId;
-  Colormap ColorMap;
   
 public:
   vlGlrRenderWindow();
@@ -57,15 +53,11 @@ public:
   virtual void SetFullScreen(int);
   void WindowRemap(void);
   void PrefFullScreen(void);
-  int *GetPosition();
-  int *GetSize();
   void SetSize(int,int);
 
-  // Xwindow get set functions
-  Display *GetDisplayId();
-  void     SetDisplayId(Display *);
-  Window   GetWindowId();
-  void     SetWindowId(Window);
+  virtual int      GetDesiredDepth();
+  virtual Colormap GetDesiredColormap();
+  virtual Visual  *GetDesiredVisual();
 
   vlSetMacro(MultiSamples,int);
   vlGetMacro(MultiSamples,int);

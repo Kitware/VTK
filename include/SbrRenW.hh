@@ -26,9 +26,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include "RenderW.hh"
+#include "XRenWin.hh"
 
-class vlSbrRenderWindow : public vlRenderWindow
+class vlSbrRenderWindow : public vlXRenderWindow
 {
 public:
   vlSbrRenderWindow();
@@ -48,18 +48,11 @@ public:
   virtual void SetFullScreen(int);
   void WindowRemap(void);
   void PrefFullScreen(void);
-  int *GetPosition();
-  int *GetSize();
-  int *GetScreenSize();
   void SetSize(int,int);
 
   vlGetMacro(Fd,int);
 
-  // Xwindow get set functions
-  Display *GetDisplayId();
-  void     SetDisplayId(Display *);
-  Window   GetWindowId();
-  void     SetWindowId(Window);
+  // Xwindow stuff
   int      GetDesiredDepth();
   Colormap GetDesiredColormap();
   Visual  *GetDesiredVisual();
@@ -67,14 +60,8 @@ public:
 			 char name[80]);
 
 protected:
-  Window   WindowId;
-  Window   NextWindowId;
-  Display *DisplayId;
-  Colormap ColorMap;
   int      Fd;
   int      Buffer;
-  int      ScreenSize[2];
-  int      OwnWindow;
 
 };
 

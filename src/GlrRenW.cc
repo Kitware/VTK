@@ -272,29 +272,36 @@ void vlGlrRenderWindow::WindowInitialize (void)
     exit(1);
     }
 
-  /*
-   * if both the position and size have been set, override the window
-   * manager
-   */
-  attr.override_redirect = False;
-  if (this->Borders == 0.0)
-    attr.override_redirect = True;
+  /* create our own window ? */
+  this->OwnWindow = 0;
+  if (!this->WindowId)
+    {
+    /*
+     * if both the position and size have been set, override the window
+     * manager
+     */
+    attr.override_redirect = False;
+    if (this->Borders == 0.0)
+      attr.override_redirect = True;
+    
+    v = extract_visual(GLX_NORMAL,conf,this->DisplayId,
+		       DefaultScreen(this->DisplayId));
+    
+    attr.colormap = extract_config_value(GLX_NORMAL, GLX_COLORMAP, conf);
+    this->ColorMap = attr.colormap;
 
-  v = extract_visual(GLX_NORMAL,conf,this->DisplayId,
-		     DefaultScreen(this->DisplayId));
+    attr.border_pixel = 0;
+    this->WindowId = 
+      XCreateWindow(this->DisplayId,
+		    RootWindow(this->DisplayId,
+			       DefaultScreen(this->DisplayId)), 
+		    x, y, width, height, 0, v->depth, InputOutput, v->visual,
+		    CWBorderPixel|CWColormap|CWOverrideRedirect, &attr);
+    XStoreName(this->DisplayId, this->WindowId, this->Name);
+    XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
+    this->OwnWindow = 1;
+    }
 
-  attr.colormap = extract_config_value(GLX_NORMAL, GLX_COLORMAP, conf);
-  this->ColorMap = attr.colormap;
-
-  attr.border_pixel = 0;
-  this->WindowId = 
-    XCreateWindow(this->DisplayId,
-		  RootWindow(this->DisplayId,
-			     DefaultScreen(this->DisplayId)), 
-		  x, y, width, height, 0, v->depth, InputOutput, v->visual,
-		  CWBorderPixel|CWColormap|CWOverrideRedirect, &attr);
-  XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
-  XStoreName(this->DisplayId, this->WindowId, this->Name);
   set_window(GLX_NORMAL, this->WindowId, conf);
   
   // Bind the GL to the created windows 
@@ -304,8 +311,6 @@ void vlGlrRenderWindow::WindowInitialize (void)
     exit(1);
     }
 
-  XSelectInput(this->DisplayId, this->WindowId, 
-	       KeyPressMask|ExposureMask|StructureNotifyMask);
   vlDebugMacro(" Mapping the xwindow\n");
   XMapWindow(this->DisplayId, this->WindowId);
   XSync(this->DisplayId,False);
@@ -511,54 +516,6 @@ void vlGlrRenderWindow::WindowRemap()
 }
 
 // Description:
-// Get the current size of the window.
-int *vlGlrRenderWindow::GetSize(void)
-{
-  XWindowAttributes attribs;
-
-  // if we aren't mapped then just return the ivar 
-  if (!this->Mapped)
-    {
-    return(this->Size);
-    }
-
-  //  Find the current window size 
-  XGetWindowAttributes(this->DisplayId, 
-		       this->WindowId, &attribs);
-
-  this->Size[0] = attribs.width;
-  this->Size[1] = attribs.height;
-  
-  return this->Size;
-}
-
-// Description:
-// Get the position in screen coordinates of the window.
-int *vlGlrRenderWindow::GetPosition(void)
-{
-  XWindowAttributes attribs;
-  int x,y;
-  Window child;
-  
-  // if we aren't mapped then just return the ivar 
-  if (!this->Mapped)
-    {
-    return(this->Position);
-    }
-
-  //  Find the current window size 
-  XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
-  x = attribs.x;
-  y = attribs.y;
-
-  XTranslateCoordinates(this->DisplayId,this->WindowId,
-		 RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
-			x,y,&this->Position[0],&this->Position[1],&child);
-
-  return this->Position;
-}
-
-// Description:
 // Specify the size of the rendering window.
 void vlGlrRenderWindow::SetSize(int x,int y)
 {
@@ -579,40 +536,77 @@ void vlGlrRenderWindow::SetSize(int x,int y)
 }
 
 
-// Description:
-// Get the window display id.
-Display *vlGlrRenderWindow::GetDisplayId()
-{
-  vlDebugMacro(<< "Returning DisplayId of " << (void *)this->DisplayId << "\n"); 
 
-  return this->DisplayId;
+int vlGlrRenderWindow::GetDesiredDepth()
+{
+  GLXconfig *conf;
+  XVisualInfo *v;
+
+  this->Connect();
+
+  if ((conf = GLXgetconfig(this->DisplayId, 
+			   DefaultScreen(this->DisplayId),
+			   the_config)) == 0) 
+    {
+    vlErrorMacro(<< "GL: getconfig failed\n");
+    exit(1);
+    }
+
+  /* get the default visual to use */
+  v = extract_visual(GLX_NORMAL,conf,this->DisplayId,
+		     DefaultScreen(this->DisplayId));
+
+  return v->depth;  
 }
 
 // Description:
-// Get the window id.
-Window vlGlrRenderWindow::GetWindowId()
+// Get a visual from the windowing system.
+Visual *vlGlrRenderWindow::GetDesiredVisual ()
 {
-  vlDebugMacro(<< "Returning WindowId of " << (void *)this->WindowId << "\n"); 
+  XVisualInfo  *v;
+  GLXconfig *conf;
 
-  return this->WindowId;
+  this->Connect();
+
+  if ((conf = GLXgetconfig(this->DisplayId, 
+			   DefaultScreen(this->DisplayId),
+			   the_config)) == 0) 
+    {
+    vlErrorMacro(<< "GL: getconfig failed\n");
+    exit(1);
+    }
+
+  /* get the default visual to use */
+  v = extract_visual(GLX_NORMAL,conf,this->DisplayId,
+		     DefaultScreen(this->DisplayId));
+
+  return v->visual;  
 }
 
-// Description:
-// Set the window id to a pre-existing window.
-void vlGlrRenderWindow::SetWindowId(Window arg)
-{
-  vlDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
-
-  this->WindowId = arg;
-}
 
 // Description:
-// Set the display id of the window to a pre-exisiting display id.
-void vlGlrRenderWindow::SetDisplayId(Display  *arg)
+// Get a colormap from the windowing system.
+Colormap vlGlrRenderWindow::GetDesiredColormap ()
 {
-  vlDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 
+  GLXconfig *conf;
+  XVisualInfo *v;
 
-  this->DisplayId = arg;
+  if (this->ColorMap) return this->ColorMap;
+
+  this->Connect();
+
+  if ((conf = GLXgetconfig(this->DisplayId, 
+			   DefaultScreen(this->DisplayId),
+			   the_config)) == 0) 
+    {
+    vlErrorMacro(<< "GL: getconfig failed\n");
+    exit(1);
+    }
+
+  /* get the default colormap to use */
+  this->ColorMap = extract_config_value(GLX_NORMAL, GLX_COLORMAP, conf);
+
+  return this->ColorMap;  
 }
 
 
@@ -620,13 +614,9 @@ void vlGlrRenderWindow::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlGlrRenderWindow::GetClassName()))
     {
-    this->vlRenderWindow::PrintSelf(os,indent);
+    this->vlXRenderWindow::PrintSelf(os,indent);
 
-    os << indent << "Color Map: " << this->ColorMap << "\n";
-    os << indent << "Display Id: " << this->GetDisplayId() << "\n";
     os << indent << "Gid: " << this->Gid << "\n";
     os << indent << "MultiSamples: " << this->MultiSamples << "\n";
-    os << indent << "Next Window Id: " << this->NextWindowId << "\n";
-    os << indent << "Window Id: " << this->GetWindowId() << "\n";
     }
 }
