@@ -153,6 +153,10 @@ public:
   static void GlobalWarningDisplayOff() 
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
+
+  // Description: 
+  // Return the version of vtk this object is a part of.
+  static const char *GetVTKVersion() {return "2.2";};
   
   // Description:
   // Increase the reference count (mark as used by another object).
