@@ -18,15 +18,8 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.53");
+vtkCxxRevisionMacro(vtkBitArray, "1.54");
 vtkStandardNewMacro(vtkBitArray);
-
-vtkDataArray *vtkBitArray::MakeObject()
-{
-  vtkDataArray *a = vtkBitArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkBitArray::vtkBitArray(vtkIdType numComp)

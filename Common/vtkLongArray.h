@@ -52,10 +52,6 @@ public:
   virtual void Resize(vtkIdType numTuples);
 
   // Description:
-  // Create the same type object as this (virtual constructor).
-  vtkDataArray *MakeObject();
-
-  // Description:
   // Get the data type.
   int GetDataType() {return VTK_LONG;};
   

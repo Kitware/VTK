@@ -18,15 +18,8 @@
 #include "vtkCharArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCharArray, "1.35");
+vtkCxxRevisionMacro(vtkCharArray, "1.36");
 vtkStandardNewMacro(vtkCharArray);
-
-vtkDataArray *vtkCharArray::MakeObject()
-{
-  vtkDataArray *a = vtkCharArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkCharArray::vtkCharArray(vtkIdType numComp)

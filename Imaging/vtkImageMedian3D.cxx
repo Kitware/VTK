@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.34");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.35");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -440,7 +440,7 @@ void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
     }
 
   // Now create the scalars array that will hold the output data.
-  outArray = inArray->MakeObject();
+  outArray = inArray->NewInstance();
   outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
   outArray->SetNumberOfTuples(output->GetNumberOfPoints());
   outArray->SetName(inArray->GetName());

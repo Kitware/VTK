@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.48");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.49");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -92,7 +92,8 @@ void vtkEdgePoints::Execute()
   newPts->Allocate(estimatedSize, estimatedSize/2);
   newVerts = vtkCellArray::New();
   newVerts->Allocate(estimatedSize, estimatedSize/2);
-  cellScalars = inScalars->MakeObject();
+  cellScalars = inScalars->NewInstance();
+  cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*inScalars->GetNumberOfComponents());
   
   this->Locator->InitPointInsertion (newPts, input->GetBounds());

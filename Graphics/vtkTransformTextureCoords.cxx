@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.30");
+vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.31");
 vtkStandardNewMacro(vtkTransformTextureCoords);
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
@@ -83,7 +83,8 @@ void vtkTransformTextureCoords::Execute()
 
   // create same type as input
   texDim = inTCoords->GetNumberOfComponents();
-  newTCoords = inTCoords->MakeObject();
+  newTCoords = inTCoords->NewInstance();
+  newTCoords->SetNumberOfComponents(inTCoords->GetNumberOfComponents());
   newTCoords->Allocate(numPts*texDim);
 
   // just pretend texture coordinate is 3D point and use transform object to

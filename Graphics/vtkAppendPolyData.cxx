@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.90");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.91");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -267,35 +267,40 @@ void vtkAppendPolyData::Execute()
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::SCALARS) > -1 )
     {
     outputPD->CopyScalarsOff();
-    newPtScalars = inPD->GetScalars()->MakeObject();
+    newPtScalars = inPD->GetScalars()->NewInstance();
+    newPtScalars->SetNumberOfComponents(inPD->GetScalars()->GetNumberOfComponents());
     newPtScalars->SetName(inPD->GetScalars()->GetName());
     newPtScalars->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::VECTORS) > -1 )
     {
     outputPD->CopyVectorsOff();
-    newPtVectors = inPD->GetVectors()->MakeObject();
+    newPtVectors = inPD->GetVectors()->NewInstance();
+    newPtVectors->SetNumberOfComponents(inPD->GetVectors()->GetNumberOfComponents());
     newPtVectors->SetName(inPD->GetVectors()->GetName());
     newPtVectors->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TENSORS) > -1 )
     {
     outputPD->CopyTensorsOff();
-    newPtTensors = inPD->GetTensors()->MakeObject();
+    newPtTensors = inPD->GetTensors()->NewInstance();
+    newPtTensors->SetNumberOfComponents(inPD->GetTensors()->GetNumberOfComponents());
     newPtTensors->SetName(inPD->GetTensors()->GetName());
     newPtTensors->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::NORMALS) > -1 )
     {
     outputPD->CopyNormalsOff();
-    newPtNormals = inPD->GetNormals()->MakeObject();
+    newPtNormals = inPD->GetNormals()->NewInstance();
+    newPtNormals->SetNumberOfComponents(inPD->GetNormals()->GetNumberOfComponents());
     newPtNormals->SetName(inPD->GetNormals()->GetName());
     newPtNormals->SetNumberOfTuples(numPts);
     }
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::TCOORDS) > -1 )
     {
     outputPD->CopyTCoordsOff();
-    newPtTCoords = inPD->GetTCoords()->MakeObject();
+    newPtTCoords = inPD->GetTCoords()->NewInstance();
+    newPtTCoords->SetNumberOfComponents(inPD->GetTCoords()->GetNumberOfComponents());
     newPtTCoords->SetName(inPD->GetTCoords()->GetName());
     newPtTCoords->SetNumberOfTuples(numPts);
     }

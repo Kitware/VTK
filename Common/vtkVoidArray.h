@@ -44,10 +44,6 @@ public:
   void Initialize();
 
   // Description:
-  // Create a similar type object
-  vtkDataArray *MakeObject() {return vtkVoidArray::New();};
-
-  // Description:
   // Get the data type.
   int GetDataType() {return VTK_VOID;};
   

@@ -18,7 +18,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.45");
+vtkCxxRevisionMacro(vtkFieldData, "1.46");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 
@@ -244,7 +244,8 @@ vtkFieldData *vtkFieldData::MakeObject()
 
   for ( i=0; i < this->GetNumberOfArrays(); i++ )
     {
-    data = this->Data[i]->MakeObject();
+    data = this->Data[i]->NewInstance();
+    data->SetNumberOfComponents(this->Data[i]->GetNumberOfComponents());
     data->SetName(this->Data[i]->GetName());
     f->SetArray(i, data);
     data->Delete();
@@ -383,7 +384,7 @@ void vtkFieldData::DeepCopy(vtkFieldData *f)
   for ( int i=0; i < f->GetNumberOfArrays(); i++ )
     {
     data = f->GetArray(i);
-    newData = data->MakeObject(); //instantiate same type of object
+    newData = data->NewInstance(); //instantiate same type of object
     newData->DeepCopy(data);
     newData->SetName(data->GetName());
     this->AddArray(newData);

@@ -18,15 +18,8 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnsignedShortArray, "1.35");
+vtkCxxRevisionMacro(vtkUnsignedShortArray, "1.36");
 vtkStandardNewMacro(vtkUnsignedShortArray);
-
-vtkDataArray *vtkUnsignedShortArray::MakeObject()
-{
-  vtkDataArray *a = vtkUnsignedShortArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkUnsignedShortArray::vtkUnsignedShortArray(vtkIdType numComp)

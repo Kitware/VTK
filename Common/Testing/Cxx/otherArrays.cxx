@@ -78,23 +78,6 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   ptr->SetVoidArray(array, size, 1); 
   strm << "OK" << endl;
 
-  strm << "\tMakeObject...";
-  if (ptr2 = ptr->SafeDownCast(ptr->MakeObject()))
-    {
-    if (ptr2->GetNumberOfComponents() == 10) strm << "OK" << endl;
-  else
-    {
-    errors++;
-    strm << "FAILED" << endl;
-    }
-    ptr2->Delete();
-    }
-  else
-    {
-    errors++;
-    strm << "FAILED" << endl;
-    }
-
   strm << "CreateDefaultLookupTable" << endl;
   ptr->CreateDefaultLookupTable();
   strm << *ptr;

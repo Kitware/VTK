@@ -42,10 +42,6 @@ public:
   // Description:
   // Release storage and reset array to initial state.
   void Initialize();
-
-  // Description:
-  // Create the same type object as this (virtual constructor).
-  vtkDataArray *MakeObject();
   
   // Description:
   // Get the data type.

@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.95");
+vtkCxxRevisionMacro(vtkContourFilter, "1.96");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -156,7 +156,8 @@ void vtkContourFilter::Execute()
     newLines->Allocate(estimatedSize,estimatedSize);
     newPolys = vtkCellArray::New();
     newPolys->Allocate(estimatedSize,estimatedSize);
-    cellScalars = inScalars->MakeObject();
+    cellScalars = inScalars->NewInstance();
+    cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     
     // locator used to merge potentially duplicate points

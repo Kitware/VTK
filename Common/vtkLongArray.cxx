@@ -18,15 +18,8 @@
 #include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLongArray, "1.33");
+vtkCxxRevisionMacro(vtkLongArray, "1.34");
 vtkStandardNewMacro(vtkLongArray);
-
-vtkDataArray *vtkLongArray::MakeObject()
-{
-  vtkDataArray *a = vtkLongArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkLongArray::vtkLongArray(vtkIdType numComp)

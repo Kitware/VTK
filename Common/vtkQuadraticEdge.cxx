@@ -23,7 +23,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.15");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.16");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -142,7 +142,8 @@ void vtkQuadraticEdge::Contour(float value, vtkDataArray *cellScalars,
                                vtkCellData *outCd)
 {
   int i;
-  vtkDataArray *lineScalars=cellScalars->MakeObject();
+  vtkDataArray *lineScalars=cellScalars->NewInstance();
+  lineScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
   lineScalars->SetNumberOfTuples(2);
 
   for ( i=0; i < 2; i++)

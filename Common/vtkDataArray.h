@@ -64,11 +64,11 @@ public:
   virtual int Allocate(const vtkIdType sz, const vtkIdType ext=1000) = 0;
   virtual void Initialize() = 0;
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
-  // Virtual constructor creates an object of the same type as this one.
-  // The created object also has the same number of components. You are 
-  // responsible for freeing the object.
-  virtual vtkDataArray *MakeObject() = 0;
+  // For legacy compatibility.  Do not use.
+  virtual vtkDataArray* MakeObject();
+#endif
 
   // Description:
   // Return the underlying data type. An integer indicating data type is 

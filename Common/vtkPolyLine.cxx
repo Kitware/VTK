@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.71");
+vtkCxxRevisionMacro(vtkPolyLine, "1.72");
 vtkStandardNewMacro(vtkPolyLine);
 
 vtkPolyLine::vtkPolyLine()
@@ -354,7 +354,8 @@ void vtkPolyLine::Contour(float value, vtkDataArray *cellScalars,
                           vtkCellData *outCd)
 {
   int i, numLines=this->Points->GetNumberOfPoints() - 1;
-  vtkDataArray *lineScalars=cellScalars->MakeObject();
+  vtkDataArray *lineScalars=cellScalars->NewInstance();
+  lineScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
   lineScalars->SetNumberOfTuples(2);
 
   for ( i=0; i < numLines; i++)

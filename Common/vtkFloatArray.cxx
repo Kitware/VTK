@@ -18,15 +18,8 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFloatArray, "1.55");
+vtkCxxRevisionMacro(vtkFloatArray, "1.56");
 vtkStandardNewMacro(vtkFloatArray);
-
-vtkDataArray *vtkFloatArray::MakeObject()
-{
-  vtkDataArray *a = vtkFloatArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object with 1 components.
 vtkFloatArray::vtkFloatArray(vtkIdType numComp)

@@ -18,15 +18,8 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkIdTypeArray, "1.5");
+vtkCxxRevisionMacro(vtkIdTypeArray, "1.6");
 vtkStandardNewMacro(vtkIdTypeArray);
-
-vtkDataArray *vtkIdTypeArray::MakeObject()
-{
-  vtkDataArray *a = vtkIdTypeArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkIdTypeArray::vtkIdTypeArray(vtkIdType numComp)

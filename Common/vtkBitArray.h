@@ -44,7 +44,6 @@ public:
   void Initialize();
 
   // satisfy vtkDataArray API
-  vtkDataArray *MakeObject();
   int GetDataType() {return VTK_BIT;};
   int GetDataTypeSize() { return 0; }
   

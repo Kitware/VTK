@@ -18,15 +18,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDoubleArray, "1.45");
+vtkCxxRevisionMacro(vtkDoubleArray, "1.46");
 vtkStandardNewMacro(vtkDoubleArray);
-
-vtkDataArray *vtkDoubleArray::MakeObject()
-{
-  vtkDataArray *a = vtkDoubleArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkDoubleArray::vtkDoubleArray(vtkIdType numComp)

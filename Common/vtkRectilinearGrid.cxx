@@ -24,7 +24,7 @@
 #include "vtkFloatArray.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.56");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.57");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -995,7 +995,8 @@ void vtkRectilinearGrid::Crop()
     // Create the coordinate arrays.
     // X
     coords = this->GetXCoordinates();
-    newCoords = coords->MakeObject();
+    newCoords = coords->NewInstance();
+    newCoords->SetNumberOfComponents(coords->GetNumberOfComponents());
     newCoords->SetNumberOfTuples(uExt[1] - uExt[0] + 1);
     for (idx = uExt[0]; idx <= uExt[1]; ++idx)
       {
@@ -1006,7 +1007,8 @@ void vtkRectilinearGrid::Crop()
     newCoords->Delete();
     // Y
     coords = this->GetYCoordinates();
-    newCoords = coords->MakeObject();
+    newCoords = coords->NewInstance();
+    newCoords->SetNumberOfComponents(coords->GetNumberOfComponents());
     newCoords->SetNumberOfTuples(uExt[3] - uExt[2] + 1);
     for (idx = uExt[2]; idx <= uExt[3]; ++idx)
       {
@@ -1017,7 +1019,8 @@ void vtkRectilinearGrid::Crop()
     newCoords->Delete();
     // Z
     coords = this->GetZCoordinates();
-    newCoords = coords->MakeObject();
+    newCoords = coords->NewInstance();
+    newCoords->SetNumberOfComponents(coords->GetNumberOfComponents());
     newCoords->SetNumberOfTuples(uExt[5] - uExt[4] + 1);
     for (idx = uExt[4]; idx <= uExt[5]; ++idx)
       {

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTriangleStrip, "1.68");
+vtkCxxRevisionMacro(vtkTriangleStrip, "1.69");
 vtkStandardNewMacro(vtkTriangleStrip);
 
 vtkTriangleStrip::vtkTriangleStrip()
@@ -135,7 +135,8 @@ void vtkTriangleStrip::Contour(float value, vtkDataArray *cellScalars,
                                vtkCellData *outCd)
 {
   int i, numTris=this->Points->GetNumberOfPoints()-2;
-  vtkDataArray *triScalars=cellScalars->MakeObject();
+  vtkDataArray *triScalars=cellScalars->NewInstance();
+  triScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
   triScalars->SetNumberOfTuples(3);
 
   for ( i=0; i < numTris; i++)
@@ -286,7 +287,8 @@ void vtkTriangleStrip::Clip(float value, vtkDataArray *cellScalars,
 {
   int i, numTris=this->Points->GetNumberOfPoints()-2;
   int id1, id2, id3;
-  vtkDataArray *triScalars=cellScalars->MakeObject();
+  vtkDataArray *triScalars=cellScalars->NewInstance();
+  triScalars->SetNumberOfComponents(cellScalars->GetNumberOfComponents());
   triScalars->SetNumberOfTuples(3);
 
   for ( i=0; i < numTris; i++)

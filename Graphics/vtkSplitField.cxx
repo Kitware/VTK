@@ -21,7 +21,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSplitField, "1.11");
+vtkCxxRevisionMacro(vtkSplitField, "1.12");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 
@@ -275,7 +275,7 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
     return 0;
     }
 
-  vtkDataArray* output = da->MakeObject();
+  vtkDataArray* output = da->NewInstance();
   output->SetNumberOfComponents(1);
   int numTuples = da->GetNumberOfTuples();
   output->SetNumberOfTuples(numTuples);

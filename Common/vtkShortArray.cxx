@@ -18,15 +18,8 @@
 #include "vtkShortArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkShortArray, "1.51");
+vtkCxxRevisionMacro(vtkShortArray, "1.52");
 vtkStandardNewMacro(vtkShortArray);
-
-vtkDataArray *vtkShortArray::MakeObject()
-{
-  vtkDataArray *a = vtkShortArray::New();
-  a->SetNumberOfComponents(this->NumberOfComponents);
-  return a;
-}
 
 // Instantiate object.
 vtkShortArray::vtkShortArray(vtkIdType numComp)
