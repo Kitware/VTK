@@ -37,6 +37,16 @@
 
 #define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
     
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#  define vtkGetWindowLong GetWindowLongPtr
+#  define vtkSetWindowLong SetWindowLongPtr
+#else // regular Visual studio 
+#  define vtkGetWindowLong GetWindowLong
+#  define vtkSetWindowLong SetWindowLong
+#endif // 
+
 // These are the options that can be set when the widget is created
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own ImageViewer window.
@@ -371,7 +381,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
 {
   LRESULT rval;
   struct vtkTkImageViewerWidget *self = 
-    (struct vtkTkImageViewerWidget *)GetWindowLong(hWnd,GWL_USERDATA);
+    (struct vtkTkImageViewerWidget *)vtkGetWindowLong(hWnd,GWL_USERDATA);
   
   if (!self)
     {
@@ -379,10 +389,10 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
     }
 
   // forward message to Tk handler
-  SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
+  vtkSetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
     {
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
     rval = TkWinChildProc(hWnd,message,wParam,lParam);
     }
   else
@@ -392,7 +402,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
 // well this will actually work in 8.0.
 //
 #if (TK_MAJOR_VERSION < 8)
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
     rval = TkWinTopLevelProc(hWnd,message,wParam,lParam);
 #else
     if (message == WM_WINDOWPOSCHANGED) 
@@ -439,7 +449,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
             Tcl_ServiceAll();
             return 0;
       }
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
     rval = TkWinChildProc(hWnd,message,wParam,lParam);
 #endif
     }
@@ -448,15 +458,16 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
       {
       if (self->ImageViewer)
         {
-        SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->ImageViewer->GetRenderWindow());
-        SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
+        vtkSetWindowLong(hWnd,GWL_USERDATA,
+                         (LONG)self->ImageViewer->GetRenderWindow());
+        vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
         CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
         }
       }
 
     // now reset to the original config
-    SetWindowLong(hWnd,GWL_USERDATA,(LONG)self);
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)vtkTkImageViewerWidgetProc);
+    vtkSetWindowLong(hWnd,GWL_USERDATA,(LONG)self);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)vtkTkImageViewerWidgetProc);
     return rval;
 }
 
@@ -567,9 +578,10 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   twdPtr->window.handle = (HWND)ImageWindow->GetGenericWindowId();
 #endif
   
-  self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
-  SetWindowLong(twdPtr->window.handle,GWL_USERDATA,(LONG)self);
-  SetWindowLong(twdPtr->window.handle,GWL_WNDPROC,(LONG)vtkTkImageViewerWidgetProc);
+  self->OldProc = (WNDPROC)vtkGetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
+  vtkSetWindowLong(twdPtr->window.handle,GWL_USERDATA,(LONG)self);
+  vtkSetWindowLong(twdPtr->window.handle,GWL_WNDPROC,
+                   (LONG)vtkTkImageViewerWidgetProc);
 
   winPtr->window = (Window)twdPtr;
   

@@ -35,12 +35,22 @@
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.83");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.84");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
 
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#  define vtkGetWindowLong GetWindowLongPtr
+#  define vtkSetWindowLong SetWindowLongPtr
+#else // regular Visual studio 
+#  define vtkGetWindowLong GetWindowLong
+#  define vtkSetWindowLong SetWindowLong
+#endif // 
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
@@ -77,7 +87,7 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
     this->DeviceContext = NULL;
     
     // clear the extra data before calling destroy
-    SetWindowLong(this->WindowId,4,(LONG)0);
+    vtkSetWindowLong(this->WindowId,4,(LONG)0);
     DestroyWindow(this->WindowId);
     }
 }
@@ -138,7 +148,7 @@ LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
                                                      LPARAM lParam)
 {
   vtkWin32OpenGLRenderWindow *me = 
-    (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,4);
+    (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,4);
 
   // forward to actual object
   if (me)
@@ -466,7 +476,7 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
     // if we have a parent window get the app instance from it
     if (this->ParentId)
       {
-      this->ApplicationInstance = (HINSTANCE)GetWindowLong(this->ParentId,GWL_HINSTANCE);
+      this->ApplicationInstance = (HINSTANCE)vtkGetWindowLong(this->ParentId,GWL_HINSTANCE);
       }
     else
       {
@@ -485,7 +495,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
     {
     WNDCLASS wndClass;
       
-    int len = strlen( "Visualization Toolkit - Win32OpenGL #") 
+    int len = vtkString::Length( "Visualization Toolkit - Win32OpenGL #") 
       + (int)ceil( (double) log10( (double)(count+1) ) )
       + 1; 
     windowName = new char [ len ];
@@ -549,7 +559,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
     ShowWindow(this->WindowId, SW_SHOW);
     //UpdateWindow(this->WindowId);
     this->OwnWindow = 1;
-    SetWindowLong(this->WindowId,4,(LONG)this);
+    vtkSetWindowLong(this->WindowId,4,(LONG)this);
     }
   this->DeviceContext = GetDC(this->WindowId);
   if (this->StereoCapableWindow)

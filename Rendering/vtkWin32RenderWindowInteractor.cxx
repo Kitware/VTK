@@ -37,9 +37,19 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#  define vtkGetWindowLong GetWindowLongPtr
+#  define vtkSetWindowLong SetWindowLongPtr
+#else // regular Visual studio 
+#  define vtkGetWindowLong GetWindowLong
+#  define vtkSetWindowLong SetWindowLong
+#endif // 
+
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.80");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.81");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -67,8 +77,8 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
   if (this->WindowId && this->Enabled && this->InstallMessageProc) 
     {
     vtkWin32OpenGLRenderWindow *ren;
-    ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,4);
+    ren = static_cast<vtkWin32OpenGLRenderWindow *>(this->RenderWindow);
+    tmp = (vtkWin32OpenGLRenderWindow *)(GetWindowLongPtr(this->WindowId,4));
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
@@ -81,7 +91,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
       }
     else 
       {
-      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
       }
     this->Enabled = 0;
     }
@@ -149,8 +159,8 @@ void vtkWin32RenderWindowInteractor::Enable()
     {
     // add our callback
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-    tmp=(vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,4);
+    this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId,GWL_WNDPROC);
+    tmp=(vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,4);
     // watch for odd conditions
     if (tmp != ren) 
       {
@@ -163,7 +173,7 @@ void vtkWin32RenderWindowInteractor::Enable()
       }
     else 
       {
-      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
+      vtkSetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
       }
     // in case the size of the window has changed while we were away
     int *size;
@@ -189,7 +199,7 @@ void vtkWin32RenderWindowInteractor::Disable()
     // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
-    tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,4);
+    tmp = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,4);
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL)) 
       {
@@ -202,7 +212,7 @@ void vtkWin32RenderWindowInteractor::Disable()
       }
     else 
       {
-      SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
+      vtkSetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)this->OldProc);
       }
     }
   this->Enabled = 0;
@@ -515,7 +525,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
   
-  ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,4);
+  ren = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,4);
   if (ren == NULL) 
     { 
     return 0; 

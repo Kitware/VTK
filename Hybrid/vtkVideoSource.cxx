@@ -61,8 +61,13 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.26");
+vtkCxxRevisionMacro(vtkVideoSource, "1.27");
 vtkStandardNewMacro(vtkVideoSource);
+
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#endif 
 
 //----------------------------------------------------------------------------
 // keep a list of all the existing vtkVideoSource objects, to ensure
@@ -492,6 +497,7 @@ void vtkVideoSource::InternalGrab()
   // copy 'noise' into the frame buffer
   ptr = reinterpret_cast<vtkUnsignedCharArray *>(this->FrameBuffer[index])->GetPointer(0);
 
+  // Somebody should check this:
   lptr = (int *)(((((long)ptr) + 3)/4)*4);
   i = totalSize/4;
 

@@ -22,7 +22,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.9");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.10");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkJPEGWriter::vtkJPEGWriter()
@@ -152,8 +152,8 @@ void vtkJPEGWriteToMemoryTerm(j_compress_ptr cinfo)
     {
     vtkUnsignedCharArray *uc = self->GetResult();
     // we must close the array
-    int oldSize = uc->GetSize();
-    uc->SetNumberOfTuples(oldSize - cinfo->dest->free_in_buffer);
+    vtkIdType oldSize = uc->GetSize();
+    uc->SetNumberOfTuples(oldSize - static_cast<vtkIdType>(cinfo->dest->free_in_buffer));
     }
 }
 

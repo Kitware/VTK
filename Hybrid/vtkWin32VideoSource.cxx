@@ -25,8 +25,18 @@
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.17");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.18");
 vtkStandardNewMacro(vtkWin32VideoSource);
+
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#  define vtkGetWindowLong GetWindowLongPtr
+#  define vtkSetWindowLong SetWindowLongPtr
+#else // regular Visual studio 
+#  define vtkGetWindowLong GetWindowLong
+#  define vtkSetWindowLong SetWindowLong
+#endif // 
 
 //----------------------------------------------------------------------------
 vtkWin32VideoSource::vtkWin32VideoSource()
@@ -77,7 +87,7 @@ vtkWin32VideoSourceWinProc(HWND hwnd, UINT message,
                            WPARAM wParam, LPARAM lParam)
 {
   vtkWin32VideoSource *self = (vtkWin32VideoSource *)\
-    (GetWindowLong(hwnd,GWL_USERDATA));
+    (vtkGetWindowLong(hwnd,GWL_USERDATA));
 
   switch(message) {
   
@@ -249,7 +259,7 @@ void vtkWin32VideoSource::Initialize()
     }
 
   // set the user data to 'this'
-  SetWindowLong(this->ParentWnd,GWL_USERDATA,(LONG)this);
+  vtkSetWindowLong(this->ParentWnd,GWL_USERDATA,(LONG)this);
 
   // Create the capture window
   this->CapWnd = capCreateCaptureWindow("Capture",

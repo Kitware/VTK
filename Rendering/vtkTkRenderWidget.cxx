@@ -39,6 +39,16 @@
 
 #define VTK_MAX(a,b)    (((a)>(b))?(a):(b))
 
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
+#pragma warning ( disable : 4311 )
+#pragma warning ( disable : 4312 )
+#  define vtkGetWindowLong GetWindowLongPtr
+#  define vtkSetWindowLong SetWindowLongPtr
+#else // regular Visual studio 
+#  define vtkGetWindowLong GetWindowLong
+#  define vtkSetWindowLong SetWindowLong
+#endif // 
+
 // These are the options that can be set when the widget is created
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own render window.
@@ -377,7 +387,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
 {
   LRESULT rval;
   struct vtkTkRenderWidget *self = 
-    (struct vtkTkRenderWidget *)GetWindowLong(hWnd,4);
+    (struct vtkTkRenderWidget *)vtkGetWindowLong(hWnd,4);
   
   if (!self)
     {
@@ -391,9 +401,9 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
     {
     WNDPROC tmp = (WNDPROC)lParam;
     // we need to tell it what the original vtk event handler was 
-    SetWindowLong(hWnd,4,(LONG)self->RenderWindow);
+    vtkSetWindowLong(hWnd,4,(LONG)self->RenderWindow);
     tmp(hWnd, WM_USER+13,26,(LONG)self->OldProc);
-    SetWindowLong(hWnd,4,(LONG)self);
+    vtkSetWindowLong(hWnd,4,(LONG)self);
     self->OldProc = tmp;
     return 1;
     }
@@ -405,16 +415,16 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
     }
 
   // forward message to Tk handler
-  SetWindowLong(hWnd,4,(LONG)((TkWindow *)self->TkWin)->window);
+  vtkSetWindowLong(hWnd,4,(LONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
     {
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
     rval = TkWinChildProc(hWnd,message,wParam,lParam);
     }
   else
     {
 #if(TK_MAJOR_VERSION < 8)
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinTopLevelProc);
     rval = TkWinTopLevelProc(hWnd,message,wParam,lParam);
 #else
     if (message == WM_WINDOWPOSCHANGED) 
@@ -461,7 +471,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
             Tcl_ServiceAll();
             return 0;
       }
-    SetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
+    vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)TkWinChildProc);
     rval = TkWinChildProc(hWnd,message,wParam,lParam);
 #endif
     }
@@ -470,15 +480,15 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
       {
       if (self->RenderWindow)
         {
-        SetWindowLong(hWnd,4,(LONG)self->RenderWindow);
-        SetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
+        vtkSetWindowLong(hWnd,4,(LONG)self->RenderWindow);
+        vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)self->OldProc);
         CallWindowProc(self->OldProc,hWnd,message,wParam,lParam);
         }
       }
 
   // now reset to the original config
-  SetWindowLong(hWnd,4,(LONG)self);
-  SetWindowLong(hWnd,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
+  vtkSetWindowLong(hWnd,4,(LONG)self);
+  vtkSetWindowLong(hWnd,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
   return rval;
 }
 
@@ -583,9 +593,10 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   twdPtr->window.handle = renderWindow->GetWindowId();
 #endif
 
-  self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
-  SetWindowLong(twdPtr->window.handle,4,(LONG)self);
-  SetWindowLong(twdPtr->window.handle,GWL_WNDPROC,(LONG)vtkTkRenderWidgetProc);
+  self->OldProc = (WNDPROC)vtkGetWindowLong(twdPtr->window.handle,GWL_WNDPROC);
+  vtkSetWindowLong(twdPtr->window.handle,4,(LONG)self);
+  vtkSetWindowLong(twdPtr->window.handle,GWL_WNDPROC,
+                   (LONG)vtkTkRenderWidgetProc);
 
   winPtr->window = (Window)twdPtr;
   
