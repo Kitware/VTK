@@ -9,7 +9,7 @@ IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
 # VTK version number.  An even minor number corresponds to releases.
 SET(VTK_MAJOR_VERSION 4)
 SET(VTK_MINOR_VERSION 4)
-SET(VTK_BUILD_VERSION 0)
+SET(VTK_BUILD_VERSION 1)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
@@ -599,11 +599,11 @@ IF(VTK_WRAP_TCL)
 
   # Hide useless settings provided by FindTCL.
   FOREACH(entry TCL_LIBRARY_DEBUG
-		TK_LIBRARY_DEBUG
-		TCL_STUB_LIBRARY
-		TCL_STUB_LIBRARY_DEBUG
-		TK_STUB_LIBRARY
-		TK_STUB_LIBRARY_DEBUG
+                TK_LIBRARY_DEBUG
+                TCL_STUB_LIBRARY
+                TCL_STUB_LIBRARY_DEBUG
+                TK_STUB_LIBRARY
+                TK_STUB_LIBRARY_DEBUG
                 TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)
@@ -629,7 +629,7 @@ IF(VTK_WRAP_TCL)
 
   IF(TCL_TK_STATIC AND WIN32)
      IF(TK_LIBRARY MATCHES tk84)
-	   SET(TRY_TK_RESOURCE_FILE_IN
+           SET(TRY_TK_RESOURCE_FILE_IN
            ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84/win/rc)
      ENDIF(TK_LIBRARY MATCHES tk84)
      FIND_FILE(TK_RESOURCE_FILE tk.rc ${TRY_TK_RESOURCE_FILE_IN} DOC "The resource file required to add the proper resources to a static Tk build")
