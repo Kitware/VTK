@@ -737,7 +737,7 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
   d = -(a*position[0] + b*position[1] + c*position[2]);
 
   // Set the max near clipping plane and the min far clipping plane
-  range[0] = 1e18;
+  range[0] = a*bounds[0] + b*bounds[2] + c*bounds[4] + d;
   range[1] = 1e-18;
 
   // Find the closest / farthest bounding box vertex

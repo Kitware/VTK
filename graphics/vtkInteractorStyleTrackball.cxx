@@ -146,6 +146,7 @@ void vtkInteractorStyleTrackball::TrackballRotateCamera(int x, int y)
     this->CurrentCamera->Azimuth(rxf);
     this->CurrentCamera->Elevation(ryf);
     this->CurrentCamera->OrthogonalizeViewUp();
+    this->CurrentRenderer->ResetCameraClippingRange();
     vtkRenderWindowInteractor *rwi = this->Interactor;
     if (rwi->GetLightFollowCamera())
       {
@@ -374,6 +375,7 @@ void vtkInteractorStyleTrackball::TrackballRotateActor(int x, int y)
       
       this->OldX = x;
       this->OldY = y;
+      this->CurrentRenderer->ResetCameraClippingRange();
       rwi->Render();
       }
     }
@@ -444,6 +446,7 @@ void vtkInteractorStyleTrackball::TrackballSpinActor(int x, int y)
     
     this->OldX = x;
     this->OldY = y;
+    this->CurrentRenderer->ResetCameraClippingRange();
     rwi->Render();
     }
 }
@@ -585,6 +588,7 @@ void vtkInteractorStyleTrackball::TrackballScaleActor(int x, int y)
 
     this->OldX = x;
     this->OldY = y;
+    this->CurrentRenderer->ResetCameraClippingRange();
     rwi->Render();
     }
 }
