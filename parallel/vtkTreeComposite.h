@@ -142,6 +142,18 @@ public:
   vtkSetMacro(UseChar, int);
   vtkGetMacro(UseChar, int);
   vtkBooleanMacro(UseChar, int);
+
+  // Description:
+  // This flag turns the compositer on or off.
+  vtkSetMacro(UseCompositing, int);
+  vtkGetMacro(UseCompositing, int);
+  vtkBooleanMacro(UseCompositing, int);
+  
+  // Description:
+  // Get the times to set/get/transmit the buffers.
+  vtkGetMacro(GetBuffersTime, double);
+  vtkGetMacro(SetBuffersTime, double);
+  vtkGetMacro(TransmitTime, double);
   
 //BTX
 
@@ -172,6 +184,7 @@ protected:
   unsigned long ResetCameraTag;
   unsigned long ResetCameraClippingRangeTag;
   int UseChar;
+  int UseCompositing;
   
   void Composite();
   void ReduceBuffer(float *localZdata, float *localPdata, 
@@ -199,16 +212,10 @@ protected:
   
   
   void SetWindowSize(int x, int y);
+  
+  double GetBuffersTime;
+  double SetBuffersTime;
+  double TransmitTime;
 };
 
-
 #endif
-
-
-
-
-
-
-
-
-

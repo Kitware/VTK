@@ -83,7 +83,9 @@ struct vtkCompositeRenderWindowInfo
 {
   int Size[2];
   int NumberOfRenderers;
+  float DesiredUpdateRate;
 };
+
 struct vtkCompositeRendererInfo 
 {
   float CameraPosition[3];
@@ -95,7 +97,7 @@ struct vtkCompositeRendererInfo
 };
 
 
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkTreeComposite* vtkTreeComposite::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -123,8 +125,13 @@ vtkTreeComposite::vtkTreeComposite()
   
   this->Lock = 0;
   this->UseChar = 0;
+  this->UseCompositing = 1;
   
   this->ReductionFactor = 1;
+  
+  this->GetBuffersTime = 0;
+  this->SetBuffersTime = 0;
+  this->TransmitTime = 0;
 }
 
   
@@ -158,6 +165,7 @@ void vtkTreeCompositeStartRender(vtkObject *caller,
 
   self->StartRender();
 }
+
 //-------------------------------------------------------------------------
 void vtkTreeCompositeEndRender(vtkObject *caller,
 			       unsigned long vtkNotUsed(event), 
@@ -173,6 +181,7 @@ void vtkTreeCompositeEndRender(vtkObject *caller,
 
   self->EndRender();
 }
+
 //-------------------------------------------------------------------------
 void vtkTreeCompositeStartInteractor(vtkObject *vtkNotUsed(o),
 				     unsigned long vtkNotUsed(event), 
@@ -190,6 +199,7 @@ void vtkTreeCompositeStartInteractor(vtkObject *vtkNotUsed(o),
 
   self->StartInteractor();
 }
+
 //-------------------------------------------------------------------------
 void vtkTreeCompositeExitInteractor(vtkObject *vtkNotUsed(o),
 				    unsigned long vtkNotUsed(event), 
@@ -218,6 +228,7 @@ void vtkTreeCompositeResetCamera(vtkObject *caller,
 
   self->ResetCamera(ren);
 }
+
 //-------------------------------------------------------------------------
 void vtkTreeCompositeResetCameraClippingRange(vtkObject *caller, 
                                               unsigned long vtkNotUsed(event), 
@@ -228,6 +239,7 @@ void vtkTreeCompositeResetCameraClippingRange(vtkObject *caller,
 
   self->ResetCameraClippingRange(ren);
 }
+
 //----------------------------------------------------------------------------
 void vtkTreeCompositeRenderRMI(void *arg, void *, int, int)
 {
@@ -400,6 +412,7 @@ void vtkTreeComposite::RenderRMI()
                       sizeof(struct vtkCompositeRenderWindowInfo), 0, 
                       vtkTreeComposite::WIN_INFO_TAG);
   renWin->SetSize(winInfo.Size);
+  renWin->SetDesiredUpdateRate(winInfo.DesiredUpdateRate);
 
   // Synchronize the renderers.
   rens = renWin->GetRenderers();
@@ -507,6 +520,11 @@ void vtkTreeComposite::StartRender()
   
   vtkDebugMacro("StartRender");
   
+  if (!this->UseCompositing)
+    {
+    return;
+    }
+  
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
 
@@ -523,9 +541,18 @@ void vtkTreeComposite::StartRender()
   numProcs = controller->GetNumberOfProcesses();
   size = this->RenderWindow->GetSize();
   // It would probably be better to reduce the viewport not the size.
-  winInfo.Size[0] = size[0] / this->ReductionFactor;
-  winInfo.Size[1] = size[1] / this->ReductionFactor;
+  if (this->ReductionFactor > 0)
+    {
+    winInfo.Size[0] = size[0] / this->ReductionFactor;
+    winInfo.Size[1] = size[1] / this->ReductionFactor;
+    }
+  else
+    {
+    winInfo.Size[0] = size[0];
+    winInfo.Size[1] = size[1];
+    }
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
+  winInfo.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
   for (id = 1; id < numProcs; ++id)
     {
     controller->TriggerRMI(id, NULL, 0, vtkTreeComposite::RENDER_RMI_TAG);
@@ -581,6 +608,11 @@ void vtkTreeComposite::EndRender()
     return;
     }
 
+  if (!this->UseCompositing)
+    {
+    return;
+    }
+  
   windowSize = renWin->GetSize();
   numProcs = controller->GetNumberOfProcesses();
 
@@ -984,7 +1016,8 @@ void vtkTreeComposite::Composite()
   int myId, numProcs;
   int i, id;
   
-
+  vtkTimerLog *timer = vtkTimerLog::New();
+  
   myId = this->Controller->GetLocalProcessId();
   numProcs = this->Controller->GetNumberOfProcesses();
 
@@ -994,6 +1027,7 @@ void vtkTreeComposite::Composite()
   total_pixels = windowSize[0] * windowSize[1];
 
   // Get the z buffer.
+  timer->StartTimer();
   localZdata = this->RenderWindow->GetZbufferData(0,0,windowSize[0]-1, windowSize[1]-1);
   zdata_size = total_pixels;
 
@@ -1011,7 +1045,10 @@ void vtkTreeComposite::Composite()
 						      windowSize[1]-1,0);
     pdata_size = 4*total_pixels;
     }
-
+  
+  timer->StopTimer();
+  this->GetBuffersTime = timer->GetElapsedTime();
+  
   // Handle reduction factor for process 0 here.
   if (this->ReductionFactor > 1)
     {
@@ -1034,19 +1071,21 @@ void vtkTreeComposite::Composite()
     logProcs++;
     }
 
+  timer->StartTimer();
+  
   for (i = 0; i < logProcs; i++) 
     {
     if ((myId % (int)vtkTCPow2(i)) == 0) 
       { // Find participants
       if ((myId % (int)vtkTCPow2(i+1)) < vtkTCPow2(i)) 
-        {
+	{
 	// receivers
 	id = myId+vtkTCPow2(i);
 	
 	// only send or receive if sender or receiver id is valid
 	// (handles non-power of 2 cases)
 	if (id < numProcs) 
-          {
+	  {
 	  this->Controller->Receive(this->ZData, zdata_size, id, 99);
 	  this->Controller->Receive(this->PData, pdata_size, id, 99);
 	  
@@ -1064,9 +1103,11 @@ void vtkTreeComposite::Composite()
 	  this->Controller->Send(localPdata, pdata_size, id, 99);
 	  }
 	}
-      }
+	}
     }
-
+  timer->StopTimer();
+  this->TransmitTime = timer->GetElapsedTime();
+  
   if (myId ==0) 
     {
     if (this->ReductionFactor > 1)
@@ -1075,7 +1116,8 @@ void vtkTreeComposite::Composite()
       this->MagnifyBuffer(localPdata, windowSize);
       }
   
-  if (this->UseChar) 
+    timer->StartTimer();
+    if (this->UseChar) 
       {
       this->RenderWindow->SetRGBACharPixelData(0,0, windowSize[0]-1, \
 			     windowSize[1]-1,(unsigned char*)localPdata,0);
@@ -1085,6 +1127,8 @@ void vtkTreeComposite::Composite()
       this->RenderWindow->SetRGBAPixelData(0,0,windowSize[0]-1, 
 			       windowSize[1]-1,localPdata,0);
       }
+    timer->StopTimer();
+    this->SetBuffersTime = timer->GetElapsedTime();
     }
   
   if (localPdata)
@@ -1096,6 +1140,8 @@ void vtkTreeComposite::Composite()
     delete localZdata;
     }
   
+  timer->Delete();
+  timer = NULL;
 }
 
 
@@ -1120,5 +1166,17 @@ void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "RenderWindow: (none)\n";
+    }
+  
+  os << indent << "SetBuffersTime: " << this->SetBuffersTime << "\n";
+  os << indent << "GetBuffersTime: " << this->GetBuffersTime << "\n";
+  os << indent << "TransmitTime: " << this->TransmitTime << "\n";
+  if (this->UseCompositing)
+    {
+    os << indent << "UseCompositing: On\n";
+    }
+  else
+    {
+    os << indent << "UseCompositing: Off\n";
     }
 }
