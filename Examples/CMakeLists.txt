@@ -1,17 +1,53 @@
+PROJECT(VTKExamples)
+
+# Tell the examples where to find VTK.
+IF(VTK_BINARY_DIR)
+  # Building inside the VTK tree.  Directly specify the location.
+  SET(VTK_DIR ${VTK_BINARY_DIR})
+
+  # Prevent the UseVTK.cmake file from duplicating build settings in
+  # this tree.
+  SET(VTK_USE_FILE_INCLUDED 1)
+ENDIF(VTK_BINARY_DIR)
+
+# Load the VTK configuration.
+FIND_PACKAGE(VTK)
+IF(NOT VTK_DIR)
+  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
+ENDIF(NOT VTK_DIR)
+INCLUDE(${VTK_USE_FILE})
+
+# Build most examples.
+SUBDIRS(
+  #AMR/Cxx
+  DataManipulation/Cxx
+  Medical/Cxx
+  Modelling/Cxx
+  #MultiBlock/Cxx
+  Rendering/Cxx
+  Tutorial/Step1/Cxx
+  Tutorial/Step2/Cxx
+  Tutorial/Step3/Cxx
+  Tutorial/Step4/Cxx
+  Tutorial/Step5/Cxx
+  Tutorial/Step6/Cxx
+  )
+
+# Build optional examples.
 IF (VTK_USE_PARALLEL)
-   SUBDIRS(ParallelProcessing)
+  SUBDIRS(ParallelProcessing)
 ENDIF (VTK_USE_PARALLEL)
 
 IF(VTK_USE_QVTK)
-   SUBDIRS(GUI/Qt)
+  SUBDIRS(GUI/Qt)
 ENDIF(VTK_USE_QVTK)
 
 IF(VTK_USE_MFC)
-   SUBDIRS(GUI/Win32/vtkMFC)
+  SUBDIRS(GUI/Win32/vtkMFC)
 ENDIF(VTK_USE_MFC)
 
-
-IF(BUILD_TESTING)
+# Test the build system examples.
+IF(VTK_BINARY_DIR AND BUILD_TESTING)
   IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.8)
     ADD_TEST(Example-vtkLocal ${CMAKE_CTEST_COMMAND}
       --build-and-test
@@ -38,4 +74,4 @@ IF(BUILD_TESTING)
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1
       )
   ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.8)
-ENDIF(BUILD_TESTING)
+ENDIF(VTK_BINARY_DIR AND BUILD_TESTING)
