@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   //
   vtkLight *light = vtkLight::New();
   light->SetFocalPoint(1.875,0.6125,0);
-  light->SetPosition(-0.875,1.6125,1);
+  light->SetPosition(0.875,1.6125,1);
   ren1->AddLight(light);
 
   // We want to eliminate perspective effects on the apparent lighting.
