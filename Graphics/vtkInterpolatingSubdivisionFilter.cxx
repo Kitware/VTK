@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.23");
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.24");
 
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
@@ -67,6 +67,32 @@ void vtkInterpolatingSubdivisionFilter::Execute()
   inputDS->GetPointData()->PassData(input->GetPointData());
   inputDS->GetCellData()->PassData(input->GetCellData());
 
+  // check for triangles in input; if none, stop execution
+  inputDS->BuildLinks();
+  vtkCellArray *polys = inputDS->GetPolys();
+  int hasTris = 0;
+  vtkIdType numCellPts = 0, *pts = 0;
+  polys->InitTraversal();
+  
+  while(polys->GetNextCell(numCellPts, pts))
+    {
+    if (numCellPts == 3)
+      {
+      if (inputDS->IsTriangle(pts[0], pts[1], pts[2]))
+        {
+        hasTris = 1;
+        break;
+        }
+      }
+    }
+  
+  if (!hasTris)
+    {
+    vtkWarningMacro( << this->GetClassName() << " only operates on triangles, but this data set has no triangles to operate on.");
+    inputDS->Delete();
+    return;
+    }
+  
   for (level = 0; level < this->NumberOfSubdivisions; level++)
     {
     // Generate topology  for the input dataset
