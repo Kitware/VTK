@@ -204,9 +204,6 @@ vtkRendererCollection \
 vtkRendererSource \
 vtkReverseSense \
 vtkRibbonFilter \
-vtkRIBExporter \
-vtkRIBLight \
-vtkRIBProperty \
 vtkRotationalExtrusionFilter \
 vtkSLCReader \
 vtkSTLReader \
@@ -251,7 +248,6 @@ vtkTexturedSphereSource \
 vtkThreshold \
 vtkThresholdPoints \
 vtkThresholdTextureCoords \
-vtkTIFFWriter \
 vtkTransformFilter \
 vtkTransformPolyDataFilter \
 vtkTransformTextureCoords \

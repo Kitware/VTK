@@ -88,12 +88,27 @@ public:
   vtkSetMacro(WidthFactor,float);
   vtkGetMacro(WidthFactor,float);
 
+  // Description:
+  // Set the default normal to use if no normals are supplied, and the
+  // DefaultNormalOn is set.
+  vtkSetVector3Macro(DefaultNormal,float);
+  vtkGetVectorMacro(DefaultNormal,float,3);
+
+  // Description:
+  // Set a boolean to control whether to use default normals.
+  // DefaultNormalOn is set.
+  vtkSetMacro(UseDefaultNormal,int);
+  vtkGetMacro(UseDefaultNormal,int);
+  vtkBooleanMacro(UseDefaultNormal,int);
+
 protected:
   void Execute();
   float Width;
   float Angle;
   int VaryWidth; //controls whether width varies with scalar data
   float WidthFactor;
+  float DefaultNormal[3];
+  int UseDefaultNormal;
 };
 
 #endif

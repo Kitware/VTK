@@ -90,6 +90,7 @@ vtkRenderer::~vtkRenderer()
     this->ActiveCamera->Delete();
   if ( this->SelfCreatedLight && this->CreatedLight != NULL) 
     this->CreatedLight->Delete();
+  this->RayCaster->Delete();
 }
 
 #ifdef VTK_USE_GLR

@@ -53,6 +53,11 @@ vtkRibbonFilter::vtkRibbonFilter()
   this->Angle = 0.0;
   this->VaryWidth = 0;
   this->WidthFactor = 2.0;
+
+  this->DefaultNormal[0] = this->DefaultNormal[1] = 0.0;
+  this->DefaultNormal[2] = 1.0;
+  
+  this->UseDefaultNormal = 0;
 }
 
 void vtkRibbonFilter::Execute()
@@ -62,6 +67,7 @@ void vtkRibbonFilter::Execute()
   vtkNormals *inNormals;
   vtkPointData *pd, *outPD;
   vtkCellArray *inLines;
+  int numPts = 0;
   int numNewPts = 0;
   vtkFloatPoints *newPts;
   vtkFloatNormals *newNormals;
@@ -93,6 +99,8 @@ void vtkRibbonFilter::Execute()
     return;
     }
 
+  numPts = inPts->GetNumberOfPoints();
+  
   // copy scalars, vectors, tcoords. Normals may be computed here.
   pd = input->GetPointData();
   outPD = output->GetPointData();
@@ -101,17 +109,28 @@ void vtkRibbonFilter::Execute()
 
   output->GetPointData()->CopyAllocate(pd,numNewPts);
 
-  if ( !(inNormals=pd->GetNormals()) )
+  if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
     vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
     inNormals = vtkFloatNormals::New();
-    ((vtkFloatNormals *)inNormals)->Allocate(numNewPts);
-    if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
+
+    ((vtkFloatNormals *)inNormals)->Allocate(numPts);
+    if ( this->UseDefaultNormal )
       {
-      vtkErrorMacro(<< "No normals for line!\n");
-      inNormals->Delete();
-      return;
+      for ( i=0; i < numPts; i++)
+	{
+	inNormals->SetNormal(i,this->DefaultNormal);
+	}
+      }
+    else
+      {
+      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
+	{
+	vtkErrorMacro(<< "No normals for line!\n");
+	inNormals->Delete();
+	return;
+	}
       }
     }
 //

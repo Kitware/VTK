@@ -83,6 +83,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
   if ( this->OutlineActor ) this->OutlineActor->Delete();
+  if ( this->OutlineMapper ) this->OutlineMapper->Delete();
   if ( this->SelfCreatedPicker && this->Picker) this->Picker->Delete();
 }
 
