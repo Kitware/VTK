@@ -96,7 +96,7 @@ vtkActor g6Actor
 # create pipeline - rectilinear grid
 #
 vtkRectilinearGridReader rgridReader
-    rgridReader SetFileName "$VTK_DATA_ROOT/Data/RectGrid.vtk"
+    rgridReader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
     rgridReader Update
 vtkGeometryFilter gf7
     gf7 SetInput [rgridReader GetOutput]
