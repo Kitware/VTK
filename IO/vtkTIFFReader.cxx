@@ -16,6 +16,7 @@
 
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkToolkits.h"
 
 #include <sys/stat.h>
 
@@ -25,7 +26,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.47");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.48");
 
 class vtkTIFFReaderInternal
 {
