@@ -59,6 +59,8 @@ class vtkCell;
 #define VTK_QUALITY_ASPECT_RATIO 1
 #define VTK_QUALITY_FROBENIUS_NORM 2
 #define VTK_QUALITY_EDGE_RATIO 3
+#define VTK_QUALITY_MED_FROBENIUS_NORM 4
+#define VTK_QUALITY_MAX_FROBENIUS_NORM 5
 
 class VTK_GRAPHICS_EXPORT vtkMeshQuality : public vtkDataSetToDataSetFilter
 {
@@ -98,7 +100,8 @@ public:
   vtkGetMacro(QuadQualityMeasure,int);
   void SetQuadQualityMeasureToRadiusRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO ); }
   void SetQuadQualityMeasureToAspectRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_ASPECT_RATIO ); }
-  void SetQuadQualityMeasureToFrobeniusNorm() { this->SetQuadQualityMeasure( VTK_QUALITY_FROBENIUS_NORM ); }
+  void SetQuadQualityMeasureToMedFrobeniusNorm() { this->SetQuadQualityMeasure( VTK_QUALITY_MED_FROBENIUS_NORM ); }
+  void SetQuadQualityMeasureToMaxFrobeniusNorm() { this->SetQuadQualityMeasure( VTK_QUALITY_MAX_FROBENIUS_NORM ); }
   void SetQuadQualityMeasureToEdgeRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO ); }
 
   // Description:
@@ -205,7 +208,21 @@ public:
   // \f$\frac{f^2+g^2}{4{\cal A}}\f$,
   // where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the 
   // squared lengths of the edges attached to \f$V\f$ and the area of \f$t\f$.
-  static double QuadFrobeniusNorm( vtkCell* cell );
+  static double QuadMedFrobeniusNorm( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the maximal Frobenius norm of the
+  // triangles that form a planar quadrilateral, when the reference triangle elements 
+  // are right isosceles at the quadrangle vertices.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function. Use at your own risk with nonplanar quadrilaterals.
+  // The Frobenius norm of a triangle \f$t\f$, when the reference element is 
+  // right isosceles at vertex \f$V\f$, is: 
+  // \f$\frac{f^2+g^2}{4{\cal A}}\f$,
+  // where \f$f^2+g^2\f$ and \f$\cal A\f$ respectively denote the sum of the 
+  // squared lengths of the edges attached to \f$V\f$ and the area of \f$t\f$.
+  static double QuadMaxFrobeniusNorm( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the edge ratio of a quadrilateral.

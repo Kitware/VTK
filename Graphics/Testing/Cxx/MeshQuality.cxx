@@ -97,9 +97,15 @@ int MeshQuality( int argc, char* argv[] )
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
 
-    iq->SetQuadQualityMeasureToFrobeniusNorm();
+    iq->SetQuadQualityMeasureToMedFrobeniusNorm();
     iq->Update();
-    cout << " Frobenius Norm:"
+    cout << " Average Frobenius Norm:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
+    
+    iq->SetQuadQualityMeasureToMaxFrobeniusNorm();
+    iq->Update();
+    cout << " Maximal Frobenius Norm:"
          << endl;
     DumpQualityStats( iq, "Mesh Quadrilateral Quality" );
     

@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.19");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.20");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -135,8 +135,11 @@ void vtkMeshQuality::Execute()
     case VTK_QUALITY_ASPECT_RATIO:
       QuadQuality = QuadAspectRatio;
       break;
-    case VTK_QUALITY_FROBENIUS_NORM:
-      QuadQuality = QuadFrobeniusNorm;
+    case VTK_QUALITY_MED_FROBENIUS_NORM:
+      QuadQuality = QuadMedFrobeniusNorm;
+      break;
+    case VTK_QUALITY_MAX_FROBENIUS_NORM:
+      QuadQuality = QuadMaxFrobeniusNorm;
       break;
     case VTK_QUALITY_EDGE_RATIO:
       QuadQuality = QuadEdgeRatio;
@@ -705,7 +708,7 @@ double vtkMeshQuality::QuadAspectRatio( vtkCell* cell )
   return .5 * hm * (a1 + b1 + c1 + d1) / (vtkMath::Norm(ab) + vtkMath::Norm(cd));
 }
 
-double vtkMeshQuality::QuadFrobeniusNorm( vtkCell* cell )
+double vtkMeshQuality::QuadMedFrobeniusNorm( vtkCell* cell )
 {
   vtkPoints* p;
   double p0[3],p1[3],p2[3],p3[3];
@@ -735,15 +738,15 @@ double vtkMeshQuality::QuadFrobeniusNorm( vtkCell* cell )
   d[1] = p0[1]-p3[1];
   d[2] = p0[2]-p3[2];
   
-  a2 = vtkMath::Dot(a,a);
-  b2 = vtkMath::Dot(b,b);
-  c2 = vtkMath::Dot(c,c);
-  d2 = vtkMath::Dot(d,d);
-
   vtkMath::Cross(a,b,ab);
   vtkMath::Cross(b,c,bc);
   vtkMath::Cross(c,d,cd);
   vtkMath::Cross(d,a,da);
+
+  a2 = vtkMath::Dot(a,a);
+  b2 = vtkMath::Dot(b,b);
+  c2 = vtkMath::Dot(c,c);
+  d2 = vtkMath::Dot(d,d);
 
   kappa2  = (a2 + b2) / vtkMath::Norm(ab);
   kappa2 += (b2 + c2) / vtkMath::Norm(bc);
@@ -751,6 +754,60 @@ double vtkMeshQuality::QuadFrobeniusNorm( vtkCell* cell )
   kappa2 += (d2 + a2) / vtkMath::Norm(da);
 
   return .125 * kappa2;
+}
+
+double vtkMeshQuality::QuadMaxFrobeniusNorm( vtkCell* cell )
+{
+  vtkPoints* p;
+  double p0[3],p1[3],p2[3],p3[3];
+  double a[3],b[3],c[3],d[3],ab[3],bc[3],cd[3],da[3];
+  double a2,b2,c2,d2;
+  double kmax,kcur;
+  
+  p = cell->GetPoints();
+  p->GetPoint(0, p0);
+  p->GetPoint(1, p1);
+  p->GetPoint(2, p2);
+  p->GetPoint(3, p3);
+
+  a[0] = p1[0]-p0[0];
+  a[1] = p1[1]-p0[1];
+  a[2] = p1[2]-p0[2];
+  
+  b[0] = p2[0]-p1[0];
+  b[1] = p2[1]-p1[1];
+  b[2] = p2[2]-p1[2];
+  
+  c[0] = p3[0]-p2[0];
+  c[1] = p3[1]-p2[1];
+  c[2] = p3[2]-p2[2];
+  
+  d[0] = p0[0]-p3[0];
+  d[1] = p0[1]-p3[1];
+  d[2] = p0[2]-p3[2];
+  
+  vtkMath::Cross(a,b,ab);
+  vtkMath::Cross(b,c,bc);
+  vtkMath::Cross(c,d,cd);
+  vtkMath::Cross(d,a,da);
+
+  a2 = vtkMath::Dot(a,a);
+  b2 = vtkMath::Dot(b,b);
+  c2 = vtkMath::Dot(c,c);
+  d2 = vtkMath::Dot(d,d);
+
+  kmax = (a2 + b2) / vtkMath::Norm(ab);
+
+  kcur = (b2 + c2) / vtkMath::Norm(bc);
+  kmax = kmax > kcur ? kmax : kcur;
+
+  kcur = (c2 + d2) / vtkMath::Norm(cd);
+  kmax = kmax > kcur ? kmax : kcur;
+
+  kcur = (d2 + a2) / vtkMath::Norm(da);
+  kmax = kmax > kcur ? kmax : kcur;
+
+  return .5 * kmax;
 }
 
 double vtkMeshQuality::QuadEdgeRatio( vtkCell* cell )
