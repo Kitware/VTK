@@ -37,8 +37,8 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
-=========================================================================*//
-// .NAME vtkPropertyDevice - abstract definition of a hardware dependent property
+=========================================================================*/
+// .NAME vtkPropertyDevice - abstract def of a hardware dependent property
 // .SECTION Description
 // vtkPropertyDevice is the superclass of the hardware dependent Propertys
 // such as vtkOglrProperty and vtkSbrProperty. This object is typically created
