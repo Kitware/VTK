@@ -85,9 +85,29 @@ public:
   char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void AddParts(vtkActor *);
-  void RemoveParts(vtkActor *);
+  void AddPart(vtkActor *);
+  void RemovePart(vtkActor *);
   vtkActorCollection *GetParts();
+
+  // Description:
+  // Enable/disable the recursive application of the assembly's
+  // transformation matrix to its component parts. Enabling this
+  // instance variable allows you to manipulate an assembly as if
+  // it were a single component. Note: the application of the
+  // transformation occurs during the rendering process.
+  vtkSetMacro(ApplyTransform,int);
+  vtkGetMacro(ApplyTransform,int);
+  vtkBooleanMacro(ApplyTransform,int);
+
+  // Description:
+  // Enable/disable the recursive application of the assembly's
+  // properties to its component parts. Enabling this instance 
+  // variable allows you to set the same properties to all its 
+  // component parts with a single command. Note: the application
+  // of the properties occurs during the rendering process.
+  vtkSetMacro(ApplyProperty,int);
+  vtkGetMacro(ApplyProperty,int);
+  vtkBooleanMacro(ApplyProperty,int);
 
   void Render(vtkRenderer *ren);
   virtual void ApplyTransformation();
@@ -95,7 +115,8 @@ public:
 
 protected:
   vtkActorCollection Parts;
-
+  int ApplyTransform;
+  int ApplyProperty;
 
 };
 
