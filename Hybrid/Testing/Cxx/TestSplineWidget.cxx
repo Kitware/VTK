@@ -209,7 +209,9 @@ int TestSplineWidget( int argc, char *argv[] )
   vtkImagePlaneWidget* ipw = vtkImagePlaneWidget::New();
     ipw->DisplayTextOn();
     ipw->TextureInterpolateOff();
+    ipw->UserControlledLookupTableOff();
     ipw->SetInput(v16->GetOutput());
+    ipw->KeyPressActivationOn();
     ipw->SetKeyPressActivationValue('x');
     ipw->SetResliceInterpolateToNearestNeighbour();
     ipw->SetInteractor(iren);
@@ -221,6 +223,7 @@ int TestSplineWidget( int argc, char *argv[] )
     spline->SetInteractor( iren);
     spline->SetInput(v16->GetOutput());
     spline->SetPriority(1.0);
+    spline->KeyPressActivationOff();
     spline->PlaceWidget();
     spline->ProjectToPlaneOn();
     spline->SetProjectionNormal(0);
@@ -324,6 +327,25 @@ int TestSplineWidget( int argc, char *argv[] )
   recorder->SetInteractor(iren);
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(TSWeventLog);
+
+  // Test On Off mechanism
+  ipw->SetEnabled(0);
+  spline->EnabledOff();
+  ipw->SetEnabled(1);
+  spline->EnabledOn();
+
+  // Test Set Get handle positions
+  float pos[3];
+  int i;
+  for(i=0;i<spline->GetNumberOfHandles();i++)
+    {
+    spline->GetHandlePosition(i,pos);
+    spline->SetHandlePosition(i,pos);
+    }
+
+  // Test Closed On Off  
+  spline->ClosedOn();
+  spline->ClosedOff();
 
   // Render the image
   iren->Initialize();
