@@ -27,6 +27,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkDataSetMapper.h"
 #include "vtkShrinkFilter.h"
+#include "vtkRegressionTestImage.h"
 
 //------------------------------------------------------------------------------
 double para_coord1[24] = {
@@ -65,7 +66,7 @@ static void isomorphism(double in[3], double out[3])
 }
 
 //------------------------------------------------------------------------------
-int TestOrderedTriangulator(int, char *[])
+int TestOrderedTriangulator(int argc, char *argv[])
 {
   int i;
   vtkOrderedTriangulator *triangulator1 = vtkOrderedTriangulator::New();
