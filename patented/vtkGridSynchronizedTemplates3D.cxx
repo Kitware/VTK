@@ -639,12 +639,14 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     {
     newNormals = vtkNormals::New();
     newNormals->Allocate(estimatedSize,estimatedSize/2);
+    newNormals->GetData()->SetName("Normals");
     o->GetPointData()->CopyNormalsOff();
     }
   if (this->ComputeGradients)
     {
     newGradients = vtkVectors::New();
     newGradients->Allocate(estimatedSize,estimatedSize/2);
+    newGradients->GetData()->SetName("Gradients");
     o->GetPointData()->CopyVectorsOff();
     }
   // It is more efficient to just create the scalar array 
@@ -654,6 +656,7 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(estimatedSize,estimatedSize/2);
+    newScalars->GetData()->SetName("Scalars");
     }
   o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
   					 estimatedSize,estimatedSize/2);  
