@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.55");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.56");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -389,6 +389,13 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
 // an imaging style Execute method.
 void vtkImageToImageFilter::ExecuteData(vtkDataObject *out)
 {
+  // Make sure the Input has been set.
+  if ( this->GetInput() == NULL )
+    {
+    vtkErrorMacro(<< "ExecuteData: Input is not set.");
+    return;
+    }
+    
   // Too many filters have floating point exceptions to execute
   // with empty input/ no request.
   if (this->UpdateExtentIsEmpty(out))

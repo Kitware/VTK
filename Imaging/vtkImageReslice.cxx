@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.34");
+vtkCxxRevisionMacro(vtkImageReslice, "1.35");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -317,6 +317,13 @@ void vtkImageReslice::ComputeInputUpdateExtents(vtkDataObject *output)
 void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
                                                int outExt[6])
 {
+    
+  if (this->GetInput() == NULL)
+    {
+    vtkErrorMacro(<< "ComputeInputUpdateExtent: Input is not set.");
+    return;        
+    }
+    
   if (this->Optimization)
     {
     this->OptimizedComputeInputUpdateExtent(inExt,outExt);
