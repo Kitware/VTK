@@ -35,7 +35,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.19");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.20");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty,vtkProperty);
@@ -315,6 +315,16 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Selected Plane Property: (none)\n";
     }
+  if ( this->LookupTable )
+    {
+    os << indent << "LookupTable: "
+       << this->LookupTable << "\n";
+    }
+  else
+    {
+    os << indent << "LookupTable: (none)\n";
+    }
+
 
   int res = this->PlaneSource->GetXResolution();
   float *o = this->PlaneSource->GetOrigin();
@@ -835,7 +845,16 @@ void vtkImagePlaneWidget::UpdateOrigin()
 
   if ( this->RestrictPlaneToVolume )
     {
+    if (! this->Reslice )
+      {
+      return;  
+      }
     this->ImageData = this->Reslice->GetInput();
+    if (! this->ImageData )
+      {
+      return;  
+      }
+
     this->ImageData->UpdateInformation();
     float origin[3];
     this->ImageData->GetOrigin(origin);
@@ -1195,6 +1214,10 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
       return;
     }
   this->ImageData = this->Reslice->GetInput();
+  if ( ! this->ImageData )
+    {
+    return;
+    } 
   this->ImageData->UpdateInformation();
   float origin[3];
   this->ImageData->GetOrigin(origin);
@@ -1246,6 +1269,10 @@ int vtkImagePlaneWidget::GetSliceIndex()
       return 0;
     }
   this->ImageData = this->Reslice->GetInput();
+  if ( ! this->ImageData )
+    {
+    return 0;
+    } 
   this->ImageData->UpdateInformation();
   float origin[3];
   this->ImageData->GetOrigin(origin);
