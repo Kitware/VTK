@@ -154,7 +154,7 @@ int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 // returns the dimension of the dataset (0-3D). If the extents are 
 // improperly specified a -1 is returned. If the dimensions are unchanged, a
 // value of 100 is returned.
-int vtkStructuredData::SetExtent(int inExt[3], int ext[3])
+int vtkStructuredData::SetExtent(int inExt[6], int ext[6])
 {
   int dataDim, i;
   int dataDescription;

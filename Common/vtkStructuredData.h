@@ -75,7 +75,7 @@ public:
   // improperly specified a -1 is returned. If the dimensions are unchanged, a
   // value of 100 is returned.
   static int SetDimensions(int inDim[3], int dim[3]);
-  static int SetExtent(int inExt[3], int ext[3]);
+  static int SetExtent(int inExt[6], int ext[6]);
 
   // Description:
   // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
