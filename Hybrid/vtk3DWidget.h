@@ -76,14 +76,14 @@ public:
   // Specify a vtkProp3D around which to place the widget. This 
   // is not required, but if supplied, it is used to initially 
   // position the widget.
-  vtkSetObjectMacro(Prop3D,vtkProp3D);
+  virtual void SetProp3D(vtkProp3D*);
   vtkGetObjectMacro(Prop3D,vtkProp3D);
   
   // Description:
   // Specify the input dataset. This is not required, but if supplied,
   // and no vtkProp3D is specified, it is used to initially position 
   // the widget.
-  vtkSetObjectMacro(Input,vtkDataSet);
+  virtual void SetInput(vtkDataSet*);
   vtkGetObjectMacro(Input,vtkDataSet);
   
   // Description:

@@ -19,8 +19,10 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.7");
+vtkCxxRevisionMacro(vtk3DWidget, "1.8");
 
+vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
+vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
 vtk3DWidget::vtk3DWidget()
 {
   this->Placed = 1;
