@@ -462,7 +462,7 @@ void vtkByteSwap::Swap2LERange(char *mem_ptr1, int num)
   
 }
 #else
-void vtkByteSwap::Swap2LERange(char *mem_ptr1,int num){}
+void vtkByteSwap::Swap2LERange(char *,int ){}
 #endif
 
 // Swap bunch of bytes. Num is the number of four byte words to swap.
