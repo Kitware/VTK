@@ -210,7 +210,7 @@ public:
   // equilateral, is: 
   // \f$\frac{|t|^2_2}{2\sqrt{3}{\cal A}}\f$,
   // where \f$|t|^2_2\f$ and \f$\cal A\f$ respectively denote the sum of the 
-  // edge lengths and the area of \f$t\f$.
+  // squared edge lengths and the area of \f$t\f$.
   static double TriangleFrobeniusNorm( vtkCell* cell );
 
   // Description:
@@ -240,10 +240,11 @@ public:
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
-  // The radius ratio aspect ratio of a planar quadrilateral \f$q\f$ is: 
-  // \f$\frac{|q|_1|q|_\infty}{4{\cal A}}\f$,
-  // where \f$|q|_1\f$, \f$|q|_\infty\f$ and \f${\cal A}\f$ respectively denote the 
-  // perimeter, the greatest edge length and the area of \f$q\f$.
+  // The radius ratio of a planar quadrilateral \f$q\f$ is: 
+  // \f$\frac{|q|_2h_\max}{\min_i{\cal A}_i}\f$,
+  // where \f$|q|_2\f$, \f$h_\max\f$ and \f$\min{\cal A}_i\f$ respectively denote 
+  // the sum of the squared edge lengths, the greatest amongst diagonal and edge 
+  // lengths and the smallest area of the 4 triangles extractable from \f$q\f$.
   static double QuadRadiusRatio( vtkCell* cell );
 
   // Description:
@@ -260,8 +261,8 @@ public:
 
   // Description:
   // This is a static function used to calculate the average Frobenius norm of the
-  // triangles that form a planar quadrilateral, when the reference triangle elements 
-  // are right isosceles at the quadrangle vertices.
+  // 4 triangles extractable from a planar quadrilateral, when the reference 
+  // triangle elements are right isosceles at the quadrangle vertices.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
@@ -274,8 +275,8 @@ public:
 
   // Description:
   // This is a static function used to calculate the maximal Frobenius norm of the
-  // triangles that form a planar quadrilateral, when the reference triangle elements 
-  // are right isosceles at the quadrangle vertices.
+  // 4 triangles extractable from a planar quadrilateral, when the reference 
+  // triangle elements are right isosceles at the quadrangle vertices.
   // It assumes that you pass the correct type of cell -- no type checking is
   // performed because this method is called from the inner loop of the Execute()
   // member function. Use at your own risk with nonplanar quadrilaterals.
