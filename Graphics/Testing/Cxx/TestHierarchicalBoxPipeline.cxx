@@ -42,7 +42,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 
-int TestHierarchicalBoxPipeline(int argc, char** argv)
+int TestHierarchicalBoxPipeline(int argc, char* argv[])
 {
   // Disable for testing
   vtkDebugLeaks::PromptUserOff();

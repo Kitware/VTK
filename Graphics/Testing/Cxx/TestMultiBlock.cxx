@@ -38,7 +38,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridReader.h"
 
-int TestMultiBlock(int argc, char** argv)
+int TestMultiBlock(int argc, char* argv[])
 {
   // Disable for testing
   vtkDebugLeaks::PromptUserOff();

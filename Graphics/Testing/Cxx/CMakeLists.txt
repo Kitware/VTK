@@ -11,15 +11,15 @@ IF (VTK_USE_RENDERING)
       PointLocator.cxx
       FrustumClip.cxx
       RGrid.cxx
-      TestHierarchicalBox.cxx
-      TestHierarchicalBoxPipeline.cxx
-      TestMultiBlock.cxx
       )
   ENDIF(VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}     
       volProt.cxx
+      TestHierarchicalBox.cxx
+      TestHierarchicalBoxPipeline.cxx
+      TestMultiBlock.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
