@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.59");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.60");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -38,72 +38,82 @@ vtkRibbonFilter::vtkRibbonFilter()
   this->DefaultNormal[2] = 1.0;
   
   this->UseDefaultNormal = 0;
+  
+  this->GenerateTCoords = 0;
+  this->TextureLength = 1.0;
 }
 
 void vtkRibbonFilter::Execute()
 {
-  vtkIdType i;
-  int j;
-  vtkPoints *inPts;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *pd=input->GetPointData();
+  vtkPointData *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData();
+  vtkCellData *outCD=output->GetCellData();
+  vtkCellArray *inLines = NULL;
   vtkDataArray *inNormals;
-  vtkPointData *pd, *outPD;
-  vtkCellData *cd, *outCD;
-  vtkCellArray *inLines;
-  vtkIdType numPts = 0;
-  vtkIdType numNewPts = 0;
-  vtkPoints *newPts;
-  vtkFloatArray *newNormals;
-  vtkCellArray *newStrips;
-  vtkIdType npts = 0;
-  vtkIdType *pts = 0;
-  float p[3], pNext[3];
-  float *n;
-  float s[3], sNext[3], sPrev[3], w[3];
-  double BevelAngle;
-  int deleteNormals=0;
-  vtkIdType ptId;
-  vtkPolyData *input= this->GetInput();
-  vtkPolyData *output= this->GetOutput();
   vtkDataArray *inScalars=NULL;
-  float sFactor=1.0, range[2];
-  vtkIdType ptOffset=0;
 
-  // Initialize
+  vtkPoints *inPts;
+  vtkIdType numPts = 0;
+  vtkIdType numLines;
+  vtkIdType numNewPts, numNewCells;
+  vtkPoints *newPts;
+  int deleteNormals=0;
+  vtkFloatArray *newNormals;
+  vtkIdType i;
+  float range[2], maxSpeed=0;
+  vtkCellArray *newStrips;
+  vtkIdType npts, *pts;
+  vtkIdType offset=0;
+  vtkFloatArray *newTCoords=NULL;
+  int abort=0;
+  vtkIdType inCellId;
+
+  // Check input and initialize
   //
   vtkDebugMacro(<<"Creating ribbon");
 
-  inPts=input->GetPoints();
-  inLines = input->GetLines();
-  if ( !inPts || 
-       (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||
-       !inLines || inLines->GetNumberOfCells() < 1 )
+  if ( !(inPts=input->GetPoints()) || 
+      (numPts = inPts->GetNumberOfPoints()) < 1 ||
+      !(inLines = input->GetLines()) || 
+       (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    vtkErrorMacro(<< "No input data!");
+    vtkWarningMacro(<< " No input data!");
     return;
     }
 
-  numPts = inPts->GetNumberOfPoints();
-  
-  // copy point scalars, vectors, tcoords. Normals may be computed here.
-  pd = input->GetPointData();
-  outPD = output->GetPointData();
+  // Create the geometry and topology
+  numNewPts = 2 * numPts;
+  newPts = vtkPoints::New();
+  newPts->Allocate(numNewPts);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numNewPts);
+  newStrips = vtkCellArray::New();
+  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
+  vtkCellArray *singlePolyline = vtkCellArray::New();
+
+  // Point data: copy scalars, vectors, tcoords. Normals may be computed here.
   outPD->CopyNormalsOff();
+  if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+    {
+    newTCoords = vtkFloatArray::New();
+    newTCoords->SetNumberOfComponents(2);
+    newTCoords->Allocate(numNewPts);
+    outPD->CopyTCoordsOff();
+    }
   outPD->CopyAllocate(pd,numNewPts);
 
-  // copy point scalars, vectors, tcoords.
-  cd = input->GetCellData();
-  outCD = output->GetCellData();
-  outCD->CopyNormalsOff();
-  outCD->CopyAllocate(cd, inLines->GetNumberOfCells());
-  int inCellId, outCellId;
-
+  int generateNormals = 0;
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
-    vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
     deleteNormals = 1;
     inNormals = vtkFloatArray::New();
     inNormals->SetNumberOfComponents(3);
-    inNormals->Allocate(3*numPts);
+    inNormals->SetNumberOfTuples(numPts);
+
     if ( this->UseDefaultNormal )
       {
       for ( i=0; i < numPts; i++)
@@ -113,17 +123,12 @@ void vtkRibbonFilter::Execute()
       }
     else
       {
-      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,inLines,
-                                                        inNormals) )
-        {
-        vtkErrorMacro(<< "No normals for line!\n");
-        inNormals->Delete();
-        return;
-        }
-      }
-    lineNormalGenerator->Delete();
+      // Normal generation has been moved to lower in the function.
+      // This allows each different polylines to share vertices, but have
+      // their normals (and hence their ribbons) calculated independently
+      generateNormals = 1;
+      }      
     }
-  this->UpdateProgress(0.10);
 
   // If varying width, get appropriate info.
   //
@@ -132,139 +137,72 @@ void vtkRibbonFilter::Execute()
     inScalars->GetRange(range,0);
     }
 
-  newPts = vtkPoints::New();
-  newPts->Allocate(numNewPts);
-  newNormals = vtkFloatArray::New();
-  newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3*numNewPts);
-  newNormals->SetName("Normals");
-  newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
-
-  //  Create pairs of points along the line that are later connected into a 
-  //  triangle strip.
+  // Copy selected parts of cell data; certainly don't want normals
   //
-  int abort=0;
-  int numLines=inLines->GetNumberOfCells();
+  numNewCells = inLines->GetNumberOfCells();
+  outCD->CopyNormalsOff();
+  outPD->CopyAllocate(pd,numNewCells);
 
+  //  Create points along each polyline that are connected into NumberOfSides
+  //  triangle strips. Texture coordinates are optionally generated.
+  //
+  this->Theta = this->Angle * vtkMath::DegreesToRadians();
+  vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
   for (inCellId=0, inLines->InitTraversal(); 
-       inLines->GetNextCell(npts,pts) && !abort; ++inCellId)
+       inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
     this->UpdateProgress((float)inCellId/numLines);
     abort = this->GetAbortExecute();
 
-    // Use "averaged" segment to create beveled effect. Watch out 
-    // for first and last points.
-    //
-    for (j=0; j < npts; j++)
+    if (npts < 2)
       {
-      if ( j == 0 ) //first point
-        {
-        inPts->GetPoint(pts[0],p);
-        inPts->GetPoint(pts[1],pNext);
-        for (i=0; i<3; i++) 
-          {
-          sNext[i] = pNext[i] - p[i];
-          sPrev[i] = sNext[i];
-          }
-        vtkMath::Normalize(sPrev);
-        }
-
-      else if ( j == (npts-1) ) //last point
-        {
-        for (i=0; i<3; i++) 
-          {
-          sPrev[i] = sNext[i];
-          p[i] = pNext[i];
-          }
-        }
-
-      else
-        {
-        for (i=0; i<3; i++)
-          {
-          p[i] = pNext[i];
-          }
-        inPts->GetPoint(pts[j+1],pNext);
-        for (i=0; i<3; i++)
-          {
-          sPrev[i] = sNext[i];
-          sNext[i] = pNext[i] - p[i];
-          }
-        }
-
-      n = inNormals->GetTuple(pts[j]);
-
-      if ( vtkMath::Normalize(sNext) == 0.0 )
-        {
-        vtkErrorMacro(<<"Coincident points!");
-        return;
-        }
-
-      for (i=0; i<3; i++)
-        {
-        s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
-        }
-      vtkMath::Normalize(s);
-      
-      if ( (BevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
-        {
-        BevelAngle = 1.0;
-        }
-      if ( BevelAngle < -1.0 )
-        {
-        BevelAngle = -1.0;
-        }
-      BevelAngle = acos((double)BevelAngle) / 2.0; //(0->90 degrees)
-      if ( (BevelAngle = cos(BevelAngle)) == 0.0 )
-        {
-        BevelAngle = 1.0;
-        }
-
-      BevelAngle = this->Width / BevelAngle;
-
-      vtkMath::Cross(s,n,w);
-      if ( vtkMath::Normalize(w) == 0.0)
-        {
-        vtkErrorMacro(<<"Bad normal!");
-        return;
-        }
-      
-      if ( inScalars )
-        {
-        sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
-              (inScalars->GetComponent(pts[j],0) - range[0]) / 
-                         (range[1]-range[0]));
-        }
-      for (i=0; i<3; i++)
-        {
-        s[i] = p[i] + w[i] * BevelAngle * sFactor;
-        }
-      ptId = newPts->InsertNextPoint(s);
-      newNormals->InsertTuple(ptId,n);
-      outPD->CopyData(pd,pts[j],ptId);
-
-      for (i=0; i<3; i++)
-        {
-        s[i] = p[i] - w[i] * BevelAngle * sFactor;
-        }
-      ptId = newPts->InsertNextPoint(s);
-      newNormals->InsertTuple(ptId,n);
-      outPD->CopyData(pd,pts[j],ptId);
+      vtkWarningMacro(<< "Less than two points in line!");
+      continue; //skip tubing this polyline
       }
 
-    // Generate the strip topology
+    // If necessary calculate normals, each polyline calculates its
+    // normals independently, avoiding conflicts at shared vertices.
+    if (generateNormals) 
+      {
+      singlePolyline->Reset(); //avoid instantiation
+      singlePolyline->InsertNextCell(npts,pts);
+      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
+                                                        inNormals) )
+        {
+        vtkWarningMacro(<< "No normals for line!");
+        continue; //skip tubing this polyline
+        }
+      }
+
+    // Generate the points around the polyline. The strip is not created
+    // if the polyline is bad.
     //
-    outCellId = newStrips->InsertNextCell(npts*2);
-    for (i=0; i < npts; i++) 
-      {//order important for consistent normals
-      newStrips->InsertCellPoint(ptOffset+2*i+1);
-      newStrips->InsertCellPoint(ptOffset+2*i);
+    if ( !this->GeneratePoints(offset,npts,pts,inPts,newPts,pd,outPD,
+                               newNormals,inScalars,range,inNormals) )
+      {
+      vtkWarningMacro(<< "Could not generate points!");
+      continue; //skip ribboning this polyline
       }
-    outCD->CopyData(cd,inCellId,outCellId);
+      
+    // Generate the strip for this polyline
+    //
+    this->GenerateStrip(offset,npts,pts,inCellId,cd,outCD,newStrips);
 
-    ptOffset += npts*2;
-    } //for this line
+    // Generate the texture coordinates for this polyline
+    //
+    if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
+      {
+      this->GenerateTextureCoords(offset,npts,pts,inPts,inScalars,newTCoords);
+      outPD->SetTCoords(newTCoords);
+      newTCoords->Delete();
+      }
+
+    // Compute the new offset for the next polyline
+    offset = this->ComputeOffset(offset,npts);
+
+    }//for all polylines
+
+  singlePolyline->Delete();
 
   // Update ourselves
   //
@@ -281,8 +219,239 @@ void vtkRibbonFilter::Execute()
 
   outPD->SetNormals(newNormals);
   newNormals->Delete();
+  lineNormalGenerator->Delete();
 
   output->Squeeze();
+}
+
+int vtkRibbonFilter::GeneratePoints(vtkIdType offset, 
+                                  vtkIdType npts, vtkIdType *pts,
+                                  vtkPoints *inPts, vtkPoints *newPts, 
+                                  vtkPointData *pd, vtkPointData *outPD,
+                                  vtkFloatArray *newNormals,
+                                  vtkDataArray *inScalars, float range[2],
+                                  vtkDataArray *inNormals)
+{
+  vtkIdType j;
+  int i;
+  float p[3];
+  float pNext[3];
+  float sNext[3];
+  float sPrev[3];
+  float *n;
+  float s[3], sp[3], sm[3], v[3];
+  double bevelAngle;
+  float w[3];
+  float nP[3];
+  float sFactor=1.0;
+  vtkIdType ptId=offset;
+
+  // Use "averaged" segment to create beveled effect. 
+  // Watch out for first and last points.
+  //
+  for (j=0; j < npts; j++)
+    {
+    if ( j == 0 ) //first point
+      {
+      inPts->GetPoint(pts[0],p);
+      inPts->GetPoint(pts[1],pNext);
+      for (i=0; i<3; i++) 
+        {
+        sNext[i] = pNext[i] - p[i];
+        sPrev[i] = sNext[i];
+        }
+      }
+    else if ( j == (npts-1) ) //last point
+      {
+      for (i=0; i<3; i++)
+        {
+        sPrev[i] = sNext[i];
+        p[i] = pNext[i];
+        }
+      }
+    else
+      {
+      for (i=0; i<3; i++)
+        {
+        p[i] = pNext[i];
+        }
+      inPts->GetPoint(pts[j+1],pNext);
+      for (i=0; i<3; i++)
+        {
+        sPrev[i] = sNext[i];
+        sNext[i] = pNext[i] - p[i];
+        }
+      }
+
+    n = inNormals->GetTuple(pts[j]);
+
+    if ( vtkMath::Normalize(sNext) == 0.0 )
+      {
+      vtkWarningMacro(<<"Coincident points!");
+      return 0;
+      }
+
+    for (i=0; i<3; i++)
+      {
+      s[i] = (sPrev[i] + sNext[i]) / 2.0; //average vector
+      }
+    // if s is zero then just use sPrev cross n
+    if (vtkMath::Normalize(s) == 0.0)
+      {
+      vtkWarningMacro(<< "Using alternate bevel vector");
+      vtkMath::Cross(sPrev,n,s);
+      if (vtkMath::Normalize(s) == 0.0)
+        {
+        vtkWarningMacro(<< "Using alternate bevel vector");
+        }
+      }
+
+    if ( (bevelAngle = vtkMath::Dot(sNext,sPrev)) > 1.0 )
+      {
+      bevelAngle = 1.0;
+      }
+    if ( bevelAngle < -1.0 )
+      {
+      bevelAngle = -1.0;
+      }
+    bevelAngle = acos((double)bevelAngle) / 2.0; //(0->90 degrees)
+    if ( (bevelAngle = cos(bevelAngle)) == 0.0 )
+      {
+      bevelAngle = 1.0;
+      }
+
+    bevelAngle = this->Width / bevelAngle; //keep ribbon constant width
+
+    vtkMath::Cross(s,n,w);
+    if ( vtkMath::Normalize(w) == 0.0)
+      {
+      vtkWarningMacro(<<"Bad normal s = " <<s[0]<<" "<<s[1]<<" "<< s[2] 
+                      << " n = " << n[0] << " " << n[1] << " " << n[2]);
+      return 0;
+      }
+
+    vtkMath::Cross(w,s,nP); //create orthogonal coordinate system
+    vtkMath::Normalize(nP);
+
+    // Compute a scale factor based on scalars or vectors
+    if ( inScalars ) // varying by scalar values
+      {
+      if ((range[1] - range[0]) == 0.0)
+        {
+        vtkWarningMacro(<< "Scalar range is zero!");
+        }
+      sFactor = 1.0 + ((this->WidthFactor - 1.0) * 
+                (inScalars->GetComponent(pts[j],0) - range[0]) 
+                       / (range[1]-range[0]));
+      }
+
+    for (i=0; i<3; i++) 
+      {
+      v[i] = (w[i]*cos(this->Theta) + nP[i]*sin(this->Theta));
+      sp[i] = p[i] + this->Width * sFactor * v[i];
+      sm[i] = p[i] - this->Width * sFactor * v[i];
+      }
+    newPts->InsertPoint(ptId,sm);
+    newNormals->InsertTuple(ptId,nP);
+    outPD->CopyData(pd,pts[j],ptId);
+    ptId++;
+    newPts->InsertPoint(ptId,sp);
+    newNormals->InsertTuple(ptId,nP);
+    outPD->CopyData(pd,pts[j],ptId);
+    ptId++;
+    }//for all points in polyline
+  
+  return 1;
+}
+
+void vtkRibbonFilter::GenerateStrip(vtkIdType offset, vtkIdType npts, 
+                                    vtkIdType *pts, vtkIdType inCellId,
+                                    vtkCellData *cd, vtkCellData *outCD,
+                                    vtkCellArray *newStrips)
+{
+  vtkIdType i, idx, outCellId;
+
+  outCellId = newStrips->InsertNextCell(npts*2);
+  outCD->CopyData(cd,inCellId,outCellId);
+  for (i=0; i < npts; i++) 
+    {
+    idx = 2*i;
+    newStrips->InsertCellPoint(offset+idx);
+    newStrips->InsertCellPoint(offset+idx+1);
+    }
+}
+
+void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
+                                            vtkIdType npts, vtkIdType *pts, 
+                                            vtkPoints *inPts, 
+                                            vtkDataArray *inScalars,
+                                            vtkFloatArray *newTCoords)
+{
+  vtkIdType i;
+  int k;
+  float tc;
+
+  float s0, s;
+  //The first texture coordinate is always 0.
+  for ( k=0; k < 2; k++)
+    {
+    newTCoords->InsertTuple2(offset+k,0.0,0.0);
+    }
+  if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS )
+    {
+    s0 = inScalars->GetTuple1(pts[0]);
+    for (i=1; i < npts; i++)
+      {
+      s = inScalars->GetTuple1(pts[i]);
+      tc = (s - s0) / this->TextureLength;
+      for ( k=0; k < 2; k++)
+        {
+        newTCoords->InsertTuple2(offset+i*2+k,tc,0.0);
+        }
+      }
+    }
+  else //we know it's from line length
+    {
+    float xPrev[3], x[3], len=0.0;
+    inPts->GetPoint(pts[0],xPrev);
+    for (i=1; i < npts; i++)
+      {
+      inPts->GetPoint(pts[i],x);
+      len += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
+      tc = len / this->TextureLength;
+      for ( k=0; k < 2; k++)
+        {
+        newTCoords->InsertTuple2(offset+i*2+k,tc,0.0);
+        }
+      xPrev[0]=x[0]; xPrev[1]=x[1]; xPrev[2]=x[2];
+      }
+    }
+  
+}
+
+// Compute the number of points in this ribbon
+vtkIdType vtkRibbonFilter::ComputeOffset(vtkIdType offset, vtkIdType npts)
+{
+  offset += 2 * npts;
+  return offset;
+}
+
+// Description:
+// Return the method of generating the texture coordinates.
+const char *vtkRibbonFilter::GetGenerateTCoordsAsString(void)
+{
+  if ( this->GenerateTCoords == VTK_TCOORDS_OFF )
+    {
+    return "GenerateTCoordsOff";
+    }
+  else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS ) 
+    {
+    return "GenerateTCoordsFromScalar";
+    }
+  else 
+    {
+    return "GenerateTCoordsFromLength";
+    }
 }
 
 void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -294,9 +463,13 @@ void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "VaryWidth: " << (this->VaryWidth ? "On\n" : "Off\n");
   os << indent << "Width Factor: " << this->WidthFactor << "\n";
   os << indent << "Use Default Normal: " << this->UseDefaultNormal << "\n";
-  os << indent << "Default Normal: " << "( " << 
-        this->DefaultNormal[0] << ", " <<
-        this->DefaultNormal[1] << ", " <<
-        this->DefaultNormal[2] << " )\n";
+  os << indent << "Default Normal: " << "( " 
+     << this->DefaultNormal[0] << ", " 
+     << this->DefaultNormal[1] << ", " 
+     << this->DefaultNormal[2] << " )\n";
+
+  os << indent << "Generate TCoords: " 
+     << this->GetGenerateTCoordsAsString() << endl;
+  os << indent << "Texture Length: " << this->TextureLength << endl;
 }
 
