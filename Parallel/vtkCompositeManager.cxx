@@ -35,7 +35,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.25");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.26");
 vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
@@ -695,6 +695,10 @@ void vtkCompositeManager::StartRender()
 //-------------------------------------------------------------------------
 void vtkCompositeManager::EndRender()
 {
+  if (!this->UseCompositing)
+    {
+    return;
+    }  
 
   if (this->FirstRender)
     {
