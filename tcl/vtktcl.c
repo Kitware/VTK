@@ -54,6 +54,7 @@ extern Vtktkrenderwidget_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_IMAGING
 extern Vtkimagingtcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
+extern Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
 extern Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
@@ -68,9 +69,6 @@ extern Vtkcontribtcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_WORKING
 extern Vtkworkingtcl_Init(Tcl_Interp *interp);
-#ifdef VTK_USE_TKWIDGET
-extern Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
-#endif
 #endif
 
 
@@ -117,6 +115,10 @@ int Vtktcl_Init(Tcl_Interp *interp)
     return TCL_ERROR;
     }
 #ifdef VTK_USE_TKWIDGET
+  if (Vtktkimagewindowwidget_Init(interp) == TCL_ERROR)
+    {
+    return TCL_ERROR;
+    }
   if (Vtktkimageviewerwidget_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
@@ -136,12 +138,6 @@ int Vtktcl_Init(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-#ifdef VTK_USE_TKWIDGET
-  if (Vtktkimagewindowwidget_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
 #endif
 
 #ifdef VTK_USE_CONTRIB
