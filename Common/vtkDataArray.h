@@ -154,11 +154,21 @@ public:
   virtual float GetComponent(const int i, const int j);
 
   // Description:
+  // Return the active data component at the ith tuple location
+  // by calling GetComponent(i, this->ActiveComponent).
+  virtual float GetComponent(const int i);
+
+  // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than
   //  NumberOfComponents. Make sure enough memory has been allocated 
   // (use SetNumberOfTuples() and SetNumberOfComponents()).
   virtual void SetComponent(const int i, const int j, const float c);
+
+  // Description:
+  // Set the active data component at the ith tuple location
+  // by calling SetComponent(i, this->ActiveComponent, c)
+  virtual void SetComponent(const int i, const float c);
 
   // Description:
   // Insert the data component at ith tuple and jth component location. 
@@ -242,6 +252,13 @@ public:
   void SetName(const char* name);
   const char* GetName();
 
+  // Description:
+  // The active component is used when treating an array which
+  // has nComponents > 1 as a scalar. Used together with 
+  // Set(Get)Component
+  void SetActiveComponent(int i);
+  vtkGetMacro(ActiveComponent, int);
+  
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);
@@ -254,6 +271,8 @@ protected:
   int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
+
+  int ActiveComponent;
 
   static unsigned long ArrayNamePostfix;
   char* Name;

@@ -64,8 +64,6 @@ vtkScalars::vtkScalars()
   this->Range[0] = this->Range[2] = this->Range[4] = this->Range[6] = 0.0;
   this->Range[1] = this->Range[3] = this->Range[5] = this->Range[7] = 1.0;
 
-  this->ActiveComponent = 0;
-  
   this->CurrentAlpha = 1.0;
   this->CurrentLookupTable = NULL;
   this->CurrentColorFunction = &vtkScalars::MapThroughLookupTable;
@@ -82,6 +80,32 @@ vtkScalars *vtkScalars::New(int dataType, int numComp)
 
 vtkScalars::~vtkScalars()
 {
+}
+
+int vtkScalars::GetActiveComponent()
+{
+  if (this->Data)
+    {
+    return this->Data->GetActiveComponent();
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+void vtkScalars::SetActiveComponent(int i)
+{
+  if ( i == this->GetActiveComponent() )
+    {
+    return;
+    }
+
+  if (this->Data)
+    {
+    this->Data->SetActiveComponent(i);
+    this->Modified();
+    }
 }
 
 //  // Copy all vtkScalars ivars (except ComputeTime, CurrentLookupTable
@@ -419,5 +443,4 @@ void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Range: (" << range[0] << ", " << range[1] << ")\n";
 
   os << indent << "Number Of Components: " << this->GetNumberOfComponents() << "\n";
-  os << indent << "Active Component: " << this->ActiveComponent << "\n";
 }
