@@ -132,7 +132,6 @@ vtkOpenGLRenderWindow
 vtkProp3D
 vtkVolumeMapper 
 vtkVolumeRayCastFunction 
-vtkVolumeReader 
 vtkVolumeTextureMapper 
 )
 

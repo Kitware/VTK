@@ -148,7 +148,6 @@ vtkXMLFileOutputWindow
 ABSTRACT_FILES(
 vtkAbstractMapper 
 vtkAbstractTransform 
-vtkAttributeData 
 vtkCallbackCommand 
 vtkCell 
 vtkCell3D

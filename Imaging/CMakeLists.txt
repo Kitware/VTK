@@ -107,12 +107,9 @@ vtkVoxelModeller
 
 ABSTRACT_FILES(
 vtkImageDecomposeFilter 
-vtkImageInPlaceFilter 
 vtkImageIterateFilter 
 vtkImagePadFilter 
 vtkImageSpatialFilter 
-vtkImageToImageFilter 
-vtkImageTwoInputFilter 
 vtkImageFourierFilter 
 )
 
