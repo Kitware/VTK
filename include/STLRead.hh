@@ -37,8 +37,8 @@ public:
 protected:
   char *Filename;
   void Execute();
-  void ReadBinarySTL(FILE *fp, vlFloatPoints*, vlCellArray*);
-  void ReadASCIISTL(FILE *fp, vlFloatPoints*, vlCellArray*);
+  int ReadBinarySTL(FILE *fp, vlFloatPoints*, vlCellArray*);
+  int ReadASCIISTL(FILE *fp, vlFloatPoints*, vlCellArray*);
   int GetSTLFileType(FILE *fp);
 };
 

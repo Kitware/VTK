@@ -44,11 +44,11 @@ void vlSTLReader::Execute()
 //
   if ( this->GetSTLFileType(fp) == ASCII )
     {
-    this->ReadASCIISTL(fp,newPts,newPolys);
+    if ( this->ReadASCIISTL(fp,newPts,newPolys) ) return;
     }
   else
     {
-    this->ReadBinarySTL(fp,newPts,newPolys);
+    if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
   vlDebugMacro(<< "Read " << newPts->NumberOfPoints() << " points\n");
@@ -66,9 +66,9 @@ void vlSTLReader::Execute()
   this->SetPolys(newPolys);
 }
 
-void vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
+int vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
 {
-  int i, no_tris, pts[3];
+  int i, numTris, pts[3];
   unsigned long   ulint;
   unsigned short  ibuff2;
   char    header[81];
@@ -83,9 +83,13 @@ void vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *ne
   fread (header, 1, 80, fp);
   fread (&ulint, 1, 4, fp);
   swap.Swap4 (&ulint);
-  no_tris = (int) ulint;
+  if ( (numTris = (int) ulint) <= 0 )
+    {
+    vlErrorMacro(<< "Bad binary STL file\n");
+    return 1;
+    }
 
-  for (i=0; fread(&facet,48,1,fp) && i<no_tris; i++)
+  for (i=0; fread(&facet,48,1,fp) && i<numTris; i++)
     {
     fread(&ibuff2,2,1,fp); /* read extra junk */
 
@@ -111,14 +115,13 @@ void vlSTLReader::ReadBinarySTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *ne
     newPolys->InsertNextCell(3,pts);
 
     if (this->Debug && (i % 5000) == 0 && i != 0 )
-      fprintf (stderr,"%s: triangle #%d\n", this->GetClassName(), newPolys->GetNumberOfCells());
-
+      fprintf (stderr,"%s: triangle #%d\n", this->GetClassName(), i);
     }
 
-  return;
+  return 0;
 }
 
-void vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
+int vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *newPolys)
 {
   char line[256];
   int i;
@@ -151,7 +154,7 @@ void vlSTLReader::ReadASCIISTL(FILE *fp, vlFloatPoints *newPts, vlCellArray *new
       fprintf (stderr,"%s: triangle #%d\n", this->GetClassName(), newPolys->GetNumberOfCells());
     }
 
-  return;
+  return 0;
 }
 
 int vlSTLReader::GetSTLFileType(FILE *fp)
