@@ -324,7 +324,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
           }
 
         info->CAPI->SourceFileSetName2(file, newName, cdir2, "cxx",0);
-        // reset this to the new value
+        /* reset this to the new value */
 
         /* add starting depends */
         info->CAPI->SourceFileAddDepend(file,hname);
@@ -339,11 +339,6 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
         free(cdir2);
         info->CAPI->Free(srcName);
         info->CAPI->Free(srcRelativePath);
-        }
-      else
-        {
-        // we should not be here because the source never exists until after the tcl wrapping
-        // has done its stuff (created it). If it does exist - do we do anything?
         }
       }
     /* add the init file */
