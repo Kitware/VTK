@@ -84,6 +84,7 @@ IF (VTK_USE_RENDERING)
       smoothCyl2
       socbal
       spatialRepAll
+      splitVectors
       stripF
       subdividePointData
       subDivideTetra
