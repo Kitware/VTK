@@ -100,7 +100,8 @@ protected:
   int DataDescription;
   int Blanking;
   vtkBitScalars *PointVisibility;
-
+  void AllocatePointVisibility();
+  
   vtkStructuredData StructuredData; //helper class
 };
 
