@@ -58,52 +58,33 @@ vtkOpenGLTexture::vtkOpenGLTexture()
 
 vtkOpenGLTexture::~vtkOpenGLTexture()
 {
-  if (this->RenderWindow)
-    {
-    // This renderwindow should be a valid pointer (even though we do not
-    // increase the renderwindow's reference count).  If the renderwindow
-    // had been deleted before the mapper,  then ReleaseGraphicsResources()
-    // would have been called on the mapper and these resources would
-    // have been released already.
-    this->RenderWindow->MakeCurrent();
-  
-    // free any textures
-    if (this->Index)
-      {
-      GLuint tempIndex;
-#ifdef GL_VERSION_1_1
-      tempIndex = this->Index;
-      // NOTE: Sun's OpenGL seems to require disabling of texture before delete
-      glDisable(GL_TEXTURE_2D);
-      glDeleteTextures(1, &tempIndex);
-#else
-      glDeleteLists(this->Index,1);
-#endif
-      this->Index = 0;
-      }
-    }
-
   this->RenderWindow = NULL;
 }
 
 // Release the graphics resources used by this texture.  
-void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(renWin))
+void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  // free any textures
-  if (this->Index)
+  if (this->Index && renWin)
     {
-    GLuint tempIndex;
+    ((vtkRenderWindow *) renWin)->MakeCurrent();
 #ifdef GL_VERSION_1_1
-    tempIndex = this->Index;
-    // NOTE: Sun's OpenGL seems to require disabling of texture before delete
-    glDisable(GL_TEXTURE_2D);
-    glDeleteTextures(1, &tempIndex);
+    // free any textures
+    if (glIsTexture(this->Index))
+      {
+      GLuint tempIndex;
+      tempIndex = this->Index;
+      // NOTE: Sun's OpenGL seems to require disabling of texture before delete
+      glDisable(GL_TEXTURE_2D);
+      glDeleteTextures(1, &tempIndex);
+      }
 #else
-    glDeleteLists(this->Index,1);
+    if (glIsList(this->Index))
+      {
+      glDeleteLists(this->Index,1);
+      }
 #endif
-    this->Index = 0;
     }
-  
+  this->Index = 0;
   this->RenderWindow = NULL;
   this->Modified();
 }
