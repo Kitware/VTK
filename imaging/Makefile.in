@@ -43,6 +43,8 @@ vtkImageGaussianSmooth1D \
 vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHarrWavelet2D \
+vtkImageHistogram \
+vtkImageHistogramEqualization \
 vtkImageIslandRemoval2D \
 vtkImageMagnify1D \
 vtkImageMagnify \
