@@ -22,7 +22,7 @@ set noTest {
    purifyExamples.tcl 
 
    genHead.tcl genPineRoot.tcl headBone.tcl pineRoot.tcl hawaii.tcl
-   mcubes.tcl LOx.tcl VolCutKnee.tcl
+   mcubes.tcl LOx.tcl VolCutKnee.tcl recursiveDC.tcl
 
    Close.tcl ContinuousClose.tcl EnhanceEdges.tcl Gradient2D.tcl 
    HighPassComparison.tcl HybridMedianComparison.tcl IdealHighPass.tcl 
