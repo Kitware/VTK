@@ -31,6 +31,7 @@ vtkGreedyTerrainDecimation.cxx
 vtkGridTransform.cxx
 vtkImagePlaneWidget.cxx
 vtkImageToPolyDataFilter.cxx
+vtkImageTracerWidget.cxx
 vtkImplicitModeller.cxx
 vtkImplicitPlaneWidget.cxx
 vtkIterativeClosestPointTransform.cxx
