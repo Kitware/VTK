@@ -360,17 +360,19 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
       }
     else //color scalar
       {
-      unsigned char rgb[3], *prgb;
+      unsigned char rgb[4], *prgb;
       vtkColorScalars *to=(vtkColorScalars *)this->Scalars;
       vtkColorScalars *from=(vtkColorScalars *)fromPd->Scalars;
 
       from->GetColors(*ptIds, *cellColors);
-      for (rgb[0]=rgb[1]=rgb[2]=0, i=0; i < ptIds->GetNumberOfIds(); i++)
+      for (rgb[0]=rgb[1]=rgb[2]=rgb[3]=0, i=0; 
+	   i < ptIds->GetNumberOfIds(); i++)
         {
         prgb = cellColors->GetColor(i);
         rgb[0] += (unsigned char) ((float)prgb[0]*weights[i]);
         rgb[1] += (unsigned char) ((float)prgb[1]*weights[i]);
         rgb[2] += (unsigned char) ((float)prgb[2]*weights[i]);
+        rgb[3] += (unsigned char) ((float)prgb[3]*weights[i]);
         }
       to->InsertColor(toId,rgb);
       }
@@ -438,7 +440,7 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
 void vtkPointData::NullPoint (int ptId)
 {
   static float null[3] = {0.0, 0.0, 0.0};
-  static unsigned char cnull[3] = {0, 0, 0};
+  static unsigned char cnull[4] = {0, 0, 0, 1};
   static vtkTensor nullTensor;
 
   if ( this->Scalars )
