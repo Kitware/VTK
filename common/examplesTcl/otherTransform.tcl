@@ -79,6 +79,8 @@ if {$argc == 0} {
     }
 }
 
+# to control the precision, use puts "%14f" $var
+
 Test $outid
 exit
 
