@@ -225,7 +225,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     if ( this->NumberOfLabels > this->NumberOfLabelsAllocated )
       {
       // delete old stuff
-      for (int i=0; i < this->NumberOfLabelsAllocated; i++)
+      for (i=0; i < this->NumberOfLabelsAllocated; i++)
 	{
 	this->TextMappers[i]->Delete();
 	}
