@@ -190,8 +190,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glDisable(GL_TEXTURE_2D);
   glDisable( GL_LIGHTING);
 
-  int xoff = actorPos[0] - size[0]*tileViewPort[0];
-  int yoff = actorPos[1] - size[1]*tileViewPort[1];
+  int xoff = static_cast<int>(actorPos[0] - size[0]*tileViewPort[0]);
+  int yoff = static_cast<int>(actorPos[1] - size[1]*tileViewPort[1]);
 
   if ( actor->GetProperty()->GetDisplayLocation() == 
        VTK_FOREGROUND_LOCATION )
