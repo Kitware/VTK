@@ -291,8 +291,8 @@ protected:
   // 0.
   int RootProcessId;
 
-  bool ObservingRenderWindow;
-  bool ObservingRenderer;
+  int ObservingRenderWindow;
+  int ObservingRenderer;
 
   unsigned long StartRenderTag;
   unsigned long EndRenderTag;
@@ -314,9 +314,9 @@ protected:
   vtkUnsignedCharArray *FullImage;
   vtkUnsignedCharArray *ReducedImage;
 
-  bool FullImageUpToDate;
-  bool ReducedImageUpToDate;
-  bool RenderWindowImageUpToDate;
+  int FullImageUpToDate;
+  int ReducedImageUpToDate;
+  int RenderWindowImageUpToDate;
 
   vtkFloatArray *Viewports;
 
