@@ -35,7 +35,7 @@ void vlTriangleFilter::Execute()
 
   newPolys = new vlCellArray();
   // approximation
-  numCells = this->GetNumberOfPolys() + this->GetNumberOfStrips();
+  numCells = this->Input->GetNumberOfPolys() + this->Input->GetNumberOfStrips();
   newPolys->Allocate(newPolys->EstimateSize(numCells,3),3*numCells);
 
   // pass through triangles; triangulate polygons if necessary

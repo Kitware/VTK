@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlTriangleFilter : public vlPolyToPolyFilter
 {
 public:
-  vlTriangleFilter() : PassVerts(0), PassLines(0) {};
+  vlTriangleFilter() : PassVerts(1), PassLines(1) {};
   ~vlTriangleFilter() {};
   char *GetClassName() {return "vlTriangleFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
