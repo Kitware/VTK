@@ -167,7 +167,7 @@ public:
   static vtkPythonCommand *New() { return new vtkPythonCommand; };
 
   void SetObject(PyObject *o);
-  void Execute(vtkObject *ptr, unsigned long eventtype, void *);
+  void Execute(vtkObject *ptr, unsigned long eventtype, void *CallData);
  
   PyObject *obj;
 protected:
