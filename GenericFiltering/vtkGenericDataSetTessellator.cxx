@@ -27,7 +27,7 @@
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericAdaptorCell.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.2");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.3");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -56,6 +56,7 @@ void vtkGenericDataSetTessellator::Execute()
   vtkGenericAdaptorCell *cell;
   vtkIdType numInserted=0, numNew, i;
   vtkIdType npts, *pts;
+  int abortExecute=0;
 
   // Copy original points and point data
   vtkPoints *newPts = vtkPoints::New();
@@ -70,8 +71,16 @@ void vtkGenericDataSetTessellator::Execute()
   conn->Allocate(numCells);
 
   vtkGenericCellIterator *cellIt = input->NewCellIterator();
-  for(cellIt->Begin(); !cellIt->IsAtEnd(); cellIt->Next())
+  vtkIdType updateTime = numCells/20 + 1;  // update roughly every 5%
+  vtkIdType count = 0;
+  for(cellIt->Begin(); !cellIt->IsAtEnd() && !abortExecute; cellIt->Next(), count++)
     {
+    if ( !(count % updateTime) )
+      {
+      this->UpdateProgress((double)count / numCells);
+      abortExecute = this->GetAbortExecute();
+      }
+
     cell = cellIt->GetCell();
     cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
                      newPts, conn, outputPD, outputCD);
