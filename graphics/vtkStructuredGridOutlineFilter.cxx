@@ -360,8 +360,7 @@ void vtkStructuredGridOutlineFilter::ConvertPiece(int piece, int numPieces,
     start = end = piece;
     return;
     }
-  start = piece *
-   / numPieces;
+  start = piece * 12 / numPieces;
   end = ((piece+1) * 12 / numPieces) - 1;
 }
 
