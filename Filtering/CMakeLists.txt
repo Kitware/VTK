@@ -101,8 +101,8 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkFilteringPython MODULE FilteringPython_SRCS)
   ELSE (APPLE)
     ADD_LIBRARY(vtkFilteringPython SHARED FilteringPython_SRCS)
+    TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkFilteringPython 
                            debug ${PYTHON_DEBUG_LIBRARY} 
