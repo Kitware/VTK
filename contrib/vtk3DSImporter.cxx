@@ -174,9 +174,9 @@ vtkPolyData *vtk3DSImporter::GeneratePolyData (Mesh *mesh)
   for (i = 0; i < mesh->faces; i++, face++)
     {
     triangles->InsertNextCell (3);
-    triangles->InsertCellPoint (face->c);
-    triangles->InsertCellPoint (face->b);
     triangles->InsertCellPoint (face->a);
+    triangles->InsertCellPoint (face->b);
+    triangles->InsertCellPoint (face->c);
     }
 
   vertices = vtkFloatPoints::New ();
