@@ -73,6 +73,10 @@ class vtkQtConnection : public QObject, public vtkCommand
     unsigned long VTKEvent;
     QString QtSlot;
 
+  private:
+    vtkQtConnection(const vtkQtConnection&);
+    void operator=(const vtkQtConnection&);
+
 };
 
 #include "moc_vtkEventQtSlotConnect.cxx"

@@ -67,6 +67,11 @@ class vtkEventQtSlotConnect : public vtkObject
   
     vtkEventQtSlotConnect();
     ~vtkEventQtSlotConnect();
+
+  private:
+    // unimplemented
+    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&);
+    void operator=(const vtkEventQtSlotConnect&);
 };
 
 #endif
