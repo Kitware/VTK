@@ -3,6 +3,7 @@
 #cmakedefine VTK_USE_HYBRID
 #cmakedefine VTK_USE_PARALLEL
 #cmakedefine VTK_USE_PATENTED
+#cmakedefine VTK_USE_RENDERING
 
 /* what rendering libraries to use */
 #cmakedefine OPENGL_LIBRARY
