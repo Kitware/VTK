@@ -32,7 +32,7 @@ reader SetAspectRatio 1 1 2 0;
 
 vtkImageAnisotropicDiffusion3d diffusion;
 diffusion SetInput [reader GetOutput];
-diffusion SetDiffusionFactor 0.06;
+diffusion SetDiffusionFactor 1.0;
 diffusion SetDiffusionThreshold 100.0;
 diffusion SetNumberOfIterations 5;
 diffusion ReleaseDataFlagOff;
