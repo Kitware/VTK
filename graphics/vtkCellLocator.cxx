@@ -431,7 +431,8 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
 {
   vtkFloatPoints *pts;
   vtkCellArray *polys;
-  int l, i, j, k, ii, inside, idx, Inside[3], boundary[3];
+  int l, i, j, k, ii, idx, boundary[3];
+  vtkIdList *inside, *Inside[3];
   int numDivs=1;
 
   if ( this->Tree == NULL )
@@ -466,19 +467,19 @@ void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
       for ( i=0; i < numDivs; i++)
         {
         this->GenerateIndex(parentIdx,numDivs,i,j,k,idx);
-        inside = (int) this->Tree[idx];
+        inside = this->Tree[idx];
 
         if ( !(boundary[0] = this->GenerateIndex(parentIdx,numDivs,i-1,j,k,idx)) )
           {
-          Inside[0] = (int) this->Tree[idx];
+          Inside[0] = this->Tree[idx];
           }
         if ( !(boundary[1] = this->GenerateIndex(parentIdx,numDivs,i,j-1,k,idx)) )
           {
-          Inside[1] = (int) this->Tree[idx];
+          Inside[1] = this->Tree[idx];
           }
         if ( !(boundary[2] = this->GenerateIndex(parentIdx,numDivs,i,j,k-1,idx)) )
           {
-          Inside[2] = (int) this->Tree[idx];
+          Inside[2] = this->Tree[idx];
           }
 
         for (ii=0; ii < 3; ii++)
