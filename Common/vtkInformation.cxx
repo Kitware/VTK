@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.9");
+vtkCxxRevisionMacro(vtkInformation, "1.10");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -164,6 +164,20 @@ const char* vtkInformation::Get(vtkInformationStringKey* key)
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationStringKey* key)
+{
+  this->SetAsObjectBase(key, 0);
+}
+
+//----------------------------------------------------------------------------
+int vtkInformation::Has(vtkInformationStringKey* key)
+{
+  vtkInformationStringValue* v =
+    vtkInformationStringValue::SafeDownCast(this->GetAsObjectBase(key));
+  return v?1:0;
+}
+
+//----------------------------------------------------------------------------
 #define VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(type)                        \
   void vtkInformation::Set(vtkInformation##type##Key* key,                  \
                            vtk##type* value)                                \
@@ -173,6 +187,14 @@ const char* vtkInformation::Get(vtkInformationStringKey* key)
   vtk##type* vtkInformation::Get(vtkInformation##type##Key* key)            \
     {                                                                       \
     return vtk##type::SafeDownCast(this->GetAsObjectBase(key));             \
+    }                                                                       \
+  void vtkInformation::Remove(vtkInformation##type##Key* key)               \
+    {                                                                       \
+    this->SetAsObjectBase(key, 0);                                          \
+    }                                                                       \
+  int vtkInformation::Has(vtkInformation##type##Key* key)                   \
+    {                                                                       \
+    return vtk##type::SafeDownCast(this->GetAsObjectBase(key))?1:0;         \
     }
 
 VTK_INFORMATION_DEFINE_OBJECT_PROPERTY(DataObject);
@@ -288,6 +310,17 @@ VTK_INFORMATION_DEFINE_KEY_METHOD(UPDATE_EXTENT, IntegerVector);
       vtkInformation##name##VectorValue::SafeDownCast(                      \
         this->GetAsObjectBase(key));                                        \
     return v?static_cast<int>(v->Value.size()):0;                           \
+    }                                                                       \
+  void vtkInformation::Remove(vtkInformation##name##VectorKey* key)         \
+    {                                                                       \
+    this->SetAsObjectBase(key, 0);                                          \
+    }                                                                       \
+  int vtkInformation::Has(vtkInformation##name##VectorKey* key)             \
+    {                                                                       \
+    vtkInformation##name##VectorValue* v =                                  \
+      vtkInformation##name##VectorValue::SafeDownCast(                      \
+        this->GetAsObjectBase(key));                                        \
+    return v?1:0;                                                           \
     }
 
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
@@ -345,6 +378,17 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
       vtkInformation##name##VectorValue::SafeDownCast(                      \
         this->GetAsObjectBase(key));                                        \
     return v?static_cast<int>(v->Value.size()):0;                           \
+    }                                                                       \
+  void vtkInformation::Remove(vtkInformation##name##VectorKey* key)         \
+    {                                                                       \
+    this->SetAsObjectBase(key, 0);                                          \
+    }                                                                       \
+  int vtkInformation::Has(vtkInformation##name##VectorKey* key)             \
+    {                                                                       \
+    vtkInformation##name##VectorValue* v =                                  \
+      vtkInformation##name##VectorValue::SafeDownCast(                      \
+        this->GetAsObjectBase(key));                                        \
+    return v?1:0;                                                           \
     }
 
 VTK_INFORMATION_DEFINE_OBJECT_VECTOR_PROPERTY(DataObject, DataObject);

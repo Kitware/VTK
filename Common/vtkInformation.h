@@ -70,6 +70,8 @@ public:
   int* Get(vtkInformationIntegerVectorKey* key);
   void Get(vtkInformationIntegerVectorKey* key, int* value);
   int Length(vtkInformationIntegerVectorKey* key);
+  void Remove(vtkInformationIntegerVectorKey* key);
+  int Has(vtkInformationIntegerVectorKey* key);
 
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
@@ -77,6 +79,8 @@ public:
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
   int Length(vtkInformationKeyVectorKey* key);
+  void Remove(vtkInformationKeyVectorKey* key);
+  int Has(vtkInformationKeyVectorKey* key);
 
   // Description:
   // Get/Set a DataObject-vector-valued entry.
@@ -84,26 +88,36 @@ public:
   vtkDataObject** Get(vtkInformationDataObjectVectorKey* key);
   void Get(vtkInformationDataObjectVectorKey* key, vtkDataObject** value);
   int Length(vtkInformationDataObjectVectorKey* key);
+  void Remove(vtkInformationDataObjectVectorKey* key);
+  int Has(vtkInformationDataObjectVectorKey* key);
 
   // Description:
   // Get/Set a string-valued entry.
   void Set(vtkInformationStringKey* key, const char*);
   const char* Get(vtkInformationStringKey* key);
+  void Remove(vtkInformationStringKey* key);
+  int Has(vtkInformationStringKey* key);
 
   // Description:
   // Get/Set an entry storing another vtkInformation instance.
   void Set(vtkInformationInformationKey* key, vtkInformation*);
   vtkInformation* Get(vtkInformationInformationKey* key);
+  void Remove(vtkInformationInformationKey* key);
+  int Has(vtkInformationInformationKey* key);
 
   // Description:
   // Get/Set an entry storing a vtkInformationVector instance.
   void Set(vtkInformationInformationVectorKey* key, vtkInformationVector*);
   vtkInformationVector* Get(vtkInformationInformationVectorKey* key);
+  void Remove(vtkInformationInformationVectorKey* key);
+  int Has(vtkInformationInformationVectorKey* key);
 
   // Description:
   // Get/Set an entry storing a vtkDataObject instance.
   void Set(vtkInformationDataObjectKey* key, vtkDataObject*);
   vtkDataObject* Get(vtkInformationDataObjectKey* key);
+  void Remove(vtkInformationDataObjectKey* key);
+  int Has(vtkInformationDataObjectKey* key);
 
   //BTX
   // Description:
