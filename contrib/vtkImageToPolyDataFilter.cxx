@@ -198,7 +198,7 @@ void vtkImageToPolyDataFilter::PixelizeImage(vtkUnsignedCharArray *pixels,
                                              float spacing[3], 
                                              vtkPolyData *output)
 {
-  int numPrevPts, numPts, numCells, pts[4], i, j, id;
+  int numPts, numCells, pts[4], i, j, id;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   float x[3];
@@ -269,7 +269,7 @@ void vtkImageToPolyDataFilter::RunLengthImage(vtkUnsignedCharArray *pixels,
                                              float spacing[3], 
                                              vtkPolyData *output)
 {
-  int numPts, numCells, pts[4], i, j, id;
+  int pts[4], i, j, id;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   float x[3], minX, maxX, minY, maxY;
@@ -373,7 +373,7 @@ void vtkImageToPolyDataFilter::PolygonalizeImage(vtkUnsignedCharArray *pixels,
                                int dims[3], float origin[3], float spacing[3], 
                                vtkPolyData *output)
 {
-  int numPolys, numXPieces, numYPieces;
+  int numPolys;
   int numPixels=dims[0]*dims[1];
 
   // Perform connected traversal on quantized points. This builds
@@ -529,7 +529,7 @@ vtkUnsignedCharArray *vtkImageToPolyDataFilter::QuantizeImage(
   return pixels;
 }
 
-void vtkImageToPolyDataFilter::BuildTable(unsigned char *inPixels)
+void vtkImageToPolyDataFilter::BuildTable(unsigned char *vtkNotUsed(inPixels))
 {
   int red, green, blue, idx=0; 
 
@@ -588,6 +588,17 @@ void vtkImageToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Error: " << this->Error << "\n";
   os << indent << "Sub-Image Size: " << this->SubImageSize << "\n";
+
+  if ( this->LookupTable )
+    {
+    os << indent << "LookupTable:\n";
+    this->LookupTable->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "LookupTable: (none)\n";
+    }
+
 }
 
 
@@ -769,14 +780,12 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
 
 // Create polygons and place into output
 void vtkImageToPolyDataFilter::GeneratePolygons(vtkPolyData *edges, 
-                               int numPolys, vtkPolyData *output, 
+                               int vtkNotUsed(numPolys), vtkPolyData *output, 
                                vtkUnsignedCharArray *polyColors,
                                vtkUnsignedCharArray *pointDescr)
 {
   vtkCellArray *newPolys, *inPolys;
   int i, npts, *pts, numPts;
-  vtkPoints *newPts;
-  int numPrevPts;
   
   // Copy the points via reference counting
   //
@@ -822,7 +831,6 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *pixels,
 {
   float x[3];
   int i, j, ptId, edgeCount, p0, p1, p2, p3;
-  unsigned char *c0, *c1;
   vtkCellArray *edgeConn = edges->GetLines();
   int pts[4], startId, attrId, id[8];
   vtkPoints *points = edges->GetPoints();
@@ -1145,7 +1153,7 @@ int vtkImageToPolyDataFilter::BuildEdges(vtkUnsignedCharArray *pixels,
   return 0;
 }
 
-void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *pointDescr, 
+void vtkImageToPolyDataFilter::BuildPolygons(vtkUnsignedCharArray *vtkNotUsed(pointDescr), 
                                              vtkPolyData *edges, int numPolys,
                                              vtkUnsignedCharArray *polyColors)
 {
