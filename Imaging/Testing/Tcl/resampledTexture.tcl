@@ -52,7 +52,7 @@ ren1 SetBackground 0.1 0.2 0.4
 iren Initialize
 
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

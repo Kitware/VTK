@@ -61,7 +61,7 @@ iren Initialize
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # loop over surfaces
 for {set i 0} {$i < 17} {incr i} {

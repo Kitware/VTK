@@ -102,7 +102,7 @@ renWin SetSize 400 400
 # render the image
 #
 iren Initialize
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 proc opened {} {
     global offset

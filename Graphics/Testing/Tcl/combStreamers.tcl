@@ -77,7 +77,7 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin Render
 

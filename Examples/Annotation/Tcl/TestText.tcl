@@ -53,7 +53,7 @@ renWin SetSize 250 125
 renWin Render
 
 # Set the user method (bound to key 'u')
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # Withdraw the tk window
 wm withdraw .

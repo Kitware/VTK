@@ -70,7 +70,7 @@ ren1 SetBackground .1 .2 .4
 
 renWin Render
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .

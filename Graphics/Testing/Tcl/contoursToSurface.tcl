@@ -117,7 +117,7 @@ ren1 ResetCameraClippingRange
 renWin SetSize 300 300
 renWin Render
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # prevent the tk window from showing up then start the event loop

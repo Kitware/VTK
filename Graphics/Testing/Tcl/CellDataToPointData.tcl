@@ -53,7 +53,7 @@ ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 256 256
 
 # render the image
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 wm withdraw .
 

@@ -59,7 +59,7 @@ $cam1 SetViewUp -0.436 -0.067 -0.897
 $cam1 Azimuth 90
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 if {[info commands rtExMath] != ""} { 

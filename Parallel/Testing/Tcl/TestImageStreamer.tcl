@@ -36,7 +36,7 @@ vtkImageMapToColors mapToRGBA
 mapToRGBA SetInput [reader GetOutput]
 mapToRGBA SetOutputFormatToRGBA
 mapToRGBA SetLookupTable LUT
-mapToRGBA SetEndMethod changeLUT
+mapToRGBA AddObserver EndEvent changeLUT
 
 vtkMemoryLimitImageDataStreamer streamer
 streamer SetInput [mapToRGBA GetOutput]

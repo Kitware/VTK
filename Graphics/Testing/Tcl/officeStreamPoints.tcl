@@ -272,7 +272,7 @@ vtkCamera aCamera
 ren1 SetActiveCamera aCamera
 
 renWin SetSize 500 300
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # interact with data

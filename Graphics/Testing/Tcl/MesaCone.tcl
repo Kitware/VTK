@@ -20,7 +20,7 @@ actor SetMapper mp
 ren AddActor actor
 
 renWin Render
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 iren Initialize
 

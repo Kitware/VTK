@@ -50,7 +50,7 @@ ren1 SetBackground 1 1 1
 ren1 AddActor clipActor
 ren1 AddActor outlineActor
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 

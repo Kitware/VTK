@@ -72,7 +72,7 @@ renWin SetSize 300 200
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 2.2
 renWin Render

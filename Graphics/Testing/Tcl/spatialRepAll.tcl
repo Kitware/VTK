@@ -43,7 +43,7 @@ renWin SetSize 400 160
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 vtkCamera camera
   camera SetPosition 148.579 136.352 214.961 
   camera SetFocalPoint 151.889 86.3178 223.333 

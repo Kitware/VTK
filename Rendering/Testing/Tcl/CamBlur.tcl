@@ -62,7 +62,7 @@ renWin Render
 renWin SetFDFrames 11
 renWin Render;
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 #renWin SetFileName CamBlur.tcl.ppm

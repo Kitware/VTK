@@ -144,7 +144,7 @@ ren1 AddActor CubeEdges
 ren1 AddActor CubeVertices
 ren1 AddActor Tets
 eval ren1 SetBackground $slate_grey
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 Grid Modified
 renWin SetSize 400 400

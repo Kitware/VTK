@@ -278,7 +278,7 @@ renWin Render
 #renWin SetFileName "quadricCut.tcl.ppm" 
 #renWin SaveImageAsPPM  
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # prevent the tk window from showing up then start the event loop

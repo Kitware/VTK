@@ -85,7 +85,7 @@ ren1 SetActiveCamera camera
 
 # Set the user method (bound to key 'u')
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # Withdraw the default tk window

@@ -69,7 +69,7 @@ $cam1 Azimuth -60
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin Render
 

@@ -196,7 +196,7 @@ $cam1 SetViewUp -0.0158865 0.293715 0.955761
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin Render
 renWin SetWindowName "Multidimensional Visualization Exercise"

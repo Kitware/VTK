@@ -78,7 +78,7 @@ demActor AddLODMapper demMapper$lod
 ren1 AddActor demActor
 ren1 SetBackground .4 .4 .4
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren SetDesiredUpdateRate 1
 
 wm withdraw .
@@ -86,7 +86,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
     if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 [ren1 GetActiveCamera] SetPosition -99900 -21354 131801

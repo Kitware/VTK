@@ -104,7 +104,7 @@ ren1 SetBackground 1 1 1
 renWin SetSize 375 200
 
 iren Initialize
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 if {[info commands rtExMath] != ""} { 
     file delete -force UGridField.vtk
 }

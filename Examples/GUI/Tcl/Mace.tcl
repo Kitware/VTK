@@ -115,20 +115,17 @@ vtkRenderWindowInteractor iren
 # vtkRenderWindowInteractor provides default key bindings.  The 'u'
 # key will trigger its "user method", provided that it has been
 # defined. Similarly the 'e' or 'q' key will trigger its "exit
-# method". The lines below set these methods through SetUserMethod and
-# SetExitMethod. The corresponding "user-method" Tcl code will bring
-# up the .vtkInteract widget and allow the user to evaluate any Tcl
-# code and get access to all previously-created VTK objects. The
+# method". The lines below set these methods through the AddObserver
+# method with the events "UserEvent" and "ExitEvent". The corresponding 
+# "user-method" Tcl code will bring up the .vtkInteract widget and 
+# allow the user to evaluate any Tcl code and get access to all 
+# previously-created VTK objects. The
 # "exit-method" Tcl code will exit (do not try to free up any objects
 # we created using 'vtkCommand DeleteAllObjects' because you are right
 # inside a VTK object.
 #
-iren SetUserMethod {
-    wm deiconify .vtkInteract
-}
-iren SetExitMethod {
-   exit
-}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
+iren AddObserver ExitEvent {exit}
 
 #
 # Render the image

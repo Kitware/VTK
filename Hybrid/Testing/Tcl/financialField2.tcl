@@ -219,7 +219,7 @@ ZActor SetCamera camera
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 renWin Render
 

@@ -94,10 +94,10 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .

@@ -45,7 +45,7 @@ ren1 SetBackground 1 1 1
 ren1 ResetCameraClippingRange
 
 renWin SetSize 320 320
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 
 # render the image

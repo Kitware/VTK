@@ -119,7 +119,7 @@ renWin SetSize 500 500
 # render the image
 #
 iren Initialize
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up
 wm withdraw .

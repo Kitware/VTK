@@ -63,7 +63,7 @@ if {[catch {set channel [open voxelModel.vtk w]}] == 0 } {
 
 # render the image
 #
-   iren SetUserMethod {wm deiconify .vtkInteract};
+   iren AddObserver UserEvent {wm deiconify .vtkInteract};
 
 
 # prevent the tk window from showing up then start the event loop

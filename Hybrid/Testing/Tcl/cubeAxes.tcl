@@ -81,7 +81,7 @@ renWin Render
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 iren Initialize
 
@@ -89,7 +89,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -61,7 +61,7 @@ ren1 SetBackground 1 1 1
 ren1 AddActor contActor
 ren1 AddActor outlineActor
 [ren1 GetActiveCamera] Zoom 1.4
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .

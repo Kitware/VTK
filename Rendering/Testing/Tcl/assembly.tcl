@@ -63,7 +63,7 @@ renWin SetSize 200 200
 
 # Get handles to some useful objects
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 vtkCamera camera
     camera SetClippingRange 21.9464 30.0179
     camera SetFocalPoint 3.49221 2.28844 -0.970866

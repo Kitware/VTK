@@ -50,7 +50,7 @@ renWin AddRenderer ren
 vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
 iren Initialize
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 wm withdraw .
 

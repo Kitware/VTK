@@ -72,7 +72,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 ren1 SetBackground 0.1 0.2 0.4
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin Render
 

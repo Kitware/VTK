@@ -105,7 +105,7 @@ renWin SetSize 300 150
 [ren1 GetActiveCamera] Zoom 2.5
 renWin Render
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

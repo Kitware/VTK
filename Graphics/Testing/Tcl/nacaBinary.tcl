@@ -47,5 +47,5 @@ $cam1 Zoom 70
 
 renWin SetSize 400 400
 iren Initialize
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 wm withdraw .

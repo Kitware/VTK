@@ -176,7 +176,7 @@ iren Initialize
 
 # Set the user method (bound to key 'u')
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # Withdraw the default tk window.
 wm withdraw .

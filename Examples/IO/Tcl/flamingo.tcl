@@ -47,7 +47,7 @@ $camera Dolly 1.4
 $ren ResetCameraClippingRange
 
 # Set the user method (bound to key 'u')
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # Withdraw the default tk window

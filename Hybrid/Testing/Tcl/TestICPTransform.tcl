@@ -110,7 +110,7 @@ renWin SetSize 400 100
 renWin Render
 
 catch {
-    iren SetUserMethod {wm deiconify .vtkInteract}
+    iren AddObserver UserEvent {wm deiconify .vtkInteract}
 }
 
 wm withdraw .

@@ -46,7 +46,7 @@ renWin SetSize 250 250
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 vtkCamera cam1
     cam1 SetClippingRange 0.0475572 2.37786

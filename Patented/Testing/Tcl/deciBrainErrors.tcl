@@ -40,7 +40,7 @@ renWin SetSize 300 300
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 iren Initialize
 

@@ -70,7 +70,7 @@ $cam1 SetViewUp -0.268328 0.00801595 0.963294
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # prevent the tk window from showing up then start the event loop

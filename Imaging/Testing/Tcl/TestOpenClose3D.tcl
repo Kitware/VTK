@@ -28,7 +28,7 @@ my_close DebugOff
 my_close GetOutput
 my_close GetCloseValue
 my_close GetOpenValue
-#my_close SetProgressMethod {set pro [my_close GetProgress]; puts "Completed $pro"; flush stdout}
+#my_close AddObserver ProgressEvent {set pro [my_close GetProgress]; puts "Completed $pro"; flush stdout}
 
 vtkImageViewer viewer
 viewer SetInput [my_close GetOutput]

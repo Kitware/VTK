@@ -92,7 +92,7 @@ ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 786 256
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Dolly 4.8
 ren1 ResetCameraClippingRange
@@ -102,7 +102,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 
 # prevent the tk window from showing up then start the event loop

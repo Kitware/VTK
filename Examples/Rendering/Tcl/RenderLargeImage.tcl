@@ -42,7 +42,7 @@ ren ResetCameraClippingRange
 
 # render the large image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 wm withdraw .
 
 # Here we request that the large image is four times bigger than the

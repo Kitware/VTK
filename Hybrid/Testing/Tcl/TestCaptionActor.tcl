@@ -64,7 +64,7 @@ renWin SetSize 250 250
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # prevent the tk window from showing up then start the event loop

@@ -114,7 +114,7 @@ set cam1 [ren1 GetActiveCamera]
     $cam1 SetPosition 0.0427 -0.0149608 4.63462
     $cam1 SetViewUp 0 1 0
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # prevent the tk window from showing up then start the event loop

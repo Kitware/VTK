@@ -450,6 +450,6 @@ for {set x 0} { $x <= 265} {incr x 6} {
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 wm withdraw .

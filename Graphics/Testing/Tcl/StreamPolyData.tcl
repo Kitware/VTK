@@ -20,7 +20,7 @@ vtkSphereSource sphere
     sphere SetRadius 3
     sphere SetPhiResolution 100
     sphere SetThetaResolution 150
-    # sphere SetStartMethod {tk_messageBox -message "Executing with piece [[sphere GetOutput] GetUpdatePiece]"}
+    # sphere AddObserver StartEvent {tk_messageBox -message "Executing with piece [[sphere GetOutput] GetUpdatePiece]"}
 
 # Just playing with an alternative that is not currently used.
 proc NotUsed {} {
@@ -85,7 +85,7 @@ iren Initialize
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

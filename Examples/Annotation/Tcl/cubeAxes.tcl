@@ -105,7 +105,7 @@ renWin Render
 
 # Set the user method (bound to key 'u')
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # Set up a check for aborting rendering.
@@ -113,7 +113,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 # Withdraw the default tk window.
 wm withdraw .

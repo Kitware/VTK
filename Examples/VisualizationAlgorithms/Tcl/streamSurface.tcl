@@ -78,7 +78,7 @@ ren SetBackground 1 1 1
 
 renWin SetSize 300 300
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # interact with data

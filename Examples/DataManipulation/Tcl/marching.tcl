@@ -186,7 +186,7 @@ ren1 AddActor Triangles
 eval ren1 SetBackground $slate_grey
 
 # Set the user method (bound to key 'u')
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # Set the scalar values for this case of marching cubes.
 case12 Scalars 0 1
@@ -203,7 +203,7 @@ ren1 ResetCameraClippingRange
 renWin Render
 
 # Set the user method (bound to key 'u')
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # Withdraw the default tk window.

@@ -142,7 +142,7 @@ ren1 ResetCameraClippingRange
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin Render
 

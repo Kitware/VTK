@@ -82,7 +82,7 @@ renWin Render
 
 # Get handles to some useful objects
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # prevent the tk window from showing up then start the event loop

@@ -31,7 +31,7 @@ renWin SetSize 200 200
 
 # Get handles to some useful objects
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 renWin Render
 

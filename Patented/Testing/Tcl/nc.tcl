@@ -97,7 +97,7 @@ ren1 SetBackground 1 1 1
 
 renWin SetSize 250 250
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 [ren1 GetActiveCamera] Zoom 1.5
 iren Initialize
 

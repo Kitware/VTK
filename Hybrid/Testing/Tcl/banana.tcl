@@ -91,7 +91,7 @@ renWin SetSize 300 300
 [ren1 GetActiveCamera] Dolly 1
 # Get handles to some useful objects
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
 # prevent the tk window from showing up then start the event loop

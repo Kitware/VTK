@@ -46,7 +46,7 @@ renWin SetSize 300 300
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
@@ -56,7 +56,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin SetAbortCheckMethod {TkCheckAbort}
+renWin AddObserver AbortCheckEvent {TkCheckAbort}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -69,7 +69,7 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 
 # Set the user method (bound to key 'u')
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 # Withdraw the default tk window

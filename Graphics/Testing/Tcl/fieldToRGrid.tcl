@@ -140,7 +140,7 @@ iren Initialize
 
 # render the image
 #
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 if {[info commands rtExMath] != ""} { 
     file delete -force RGridField.vtk
 }

@@ -38,7 +38,7 @@ vtkActor actor
 ren1 AddActor actor
 
 # enable user interface interactor
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 
 renWin Render

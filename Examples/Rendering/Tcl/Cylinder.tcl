@@ -52,7 +52,7 @@ renWin SetSize 200 200
 # in the rendering window. In this case the proc deiconifies the
 # .vtkInteract Tk form that was defined when we loaded
 # "package require vtkinteraction".
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # This starts the event loop and as a side effect causes an initial render.
 iren Initialize

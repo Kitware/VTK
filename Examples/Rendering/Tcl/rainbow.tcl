@@ -96,7 +96,7 @@ $cam1 SetFocalPoint 8.88908 0.595038 29.3342
 $cam1 SetPosition -12.3332 31.7479 41.2387
 $cam1 SetViewUp 0.060772 -0.319905 0.945498
 
-iren SetUserMethod {wm deiconify .vtkInteract}
+iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
