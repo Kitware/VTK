@@ -58,6 +58,7 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
 
   this->GenerateClippedOutput = 0;
   this->ClippedOutput = new vtkPolyData;
+  this->ClippedOutput->SetSource(this);
 }
 
 vtkClipPolyData::~vtkClipPolyData()
