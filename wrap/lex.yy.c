@@ -42,7 +42,7 @@ int yyleng; extern char yytext[];
 int yymorfg;
 extern char *yysptr, yysbuf[];
 int yytchar;
-FILE *yyin = {stdin}, *yyout = {stdout};
+FILE *yyin, *yyout;
 extern int yylineno;
 struct yysvf { 
 	struct yywork *yystoff;
