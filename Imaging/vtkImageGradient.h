@@ -50,6 +50,14 @@ public:
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
 
+  // Description:
+  // If you want to compute the gradient of an arbitrary point scalar array, 
+  // then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}  
+
 protected:
   vtkImageGradient();
   ~vtkImageGradient() {};

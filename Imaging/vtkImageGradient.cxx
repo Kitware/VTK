@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.39");
+vtkCxxRevisionMacro(vtkImageGradient, "1.40");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -41,6 +41,11 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
 }
 
 
@@ -118,6 +123,7 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   unsigned long count = 0;
   unsigned long target;
   int axesNum;
+  int *inExt = inData->GetExtent();
   int *wholeExtent, *inIncs;
   float r[3], d;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
@@ -147,6 +153,11 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   // get some other info we need
   inIncs = inData->GetIncrements(); 
   wholeExtent = inData->GetExtent(); 
+
+  // Move the pointer to the correct starting position.
+  inPtr += (outExt[0]-inExt[0])*inIncs[0] + 
+           (outExt[2]-inExt[2])*inIncs[1] + 
+           (outExt[4]-inExt[4])*inIncs[2]; 
 
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -211,9 +222,13 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  vtkDataArray *inArray;
+  void *inPtr;
   float *outPtr = (float *)(outData->GetScalarPointerForExtent(outExt));
   
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inPtr = inArray->GetVoidPointer(0);
+
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
 
@@ -230,13 +245,13 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
     return;
     }
   
-  if (inData->GetNumberOfScalarComponents() != 1)
+  if (inArray->GetNumberOfComponents() != 1)
     {
     vtkErrorMacro(<< "Execute: input has more than one components. The input to gradient should be a single component image. Think about it. If you insist on using a color image then run it though RGBToHSV then ExtractComponents to get the V components. That's probably what you want anyhow.");
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inArray->GetDataType())
     {
     vtkTemplateMacro7(vtkImageGradientExecute, this, inData, 
                       (VTK_TT *)(inPtr), outData, outPtr, 

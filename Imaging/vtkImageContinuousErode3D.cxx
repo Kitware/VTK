@@ -21,7 +21,7 @@
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.22");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.23");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -55,6 +55,11 @@ vtkImageContinuousErode3D::~vtkImageContinuousErode3D()
 void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -139,6 +144,10 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   T pixelMin;
   unsigned long count = 0;
   unsigned long target;
+  vtkDataArray *inArray;
+  int *inExt = inData->GetExtent();
+
+  inArray = inData->GetPointData()->GetScalars(self->GetInputScalarsSelection());
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -166,7 +175,9 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
+  inPtr = (T *)(inArray->GetVoidPointer((outMin0-inExt[0])*inInc0 +
+                                        (outMin1-inExt[2])*inInc1 +
+                                        (outMin2-inExt[4])*inInc2));
 
   target = (unsigned long)(numComps*(outMax2-outMin2+1)*
                            (outMax1-outMin1+1)/50.0);
@@ -271,9 +282,14 @@ void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData,
 {
   int inExt[6];
   this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
+  vtkDataArray *inArray;
+
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  // The inPtr is reset anyway, so just get the id 0 pointer.
+  inPtr = inArray->GetVoidPointer(0);
 
   // Error checking on mask
   this->Ellipse->GetOutput()->Update();
@@ -285,15 +301,15 @@ void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData,
     }
 
   // this filter expects the output type to be same as input
-  if (outData->GetScalarType() != inData->GetScalarType())
+  if (outData->GetScalarType() != inArray->GetDataType())
     {
     vtkErrorMacro(<< "Execute: output ScalarType, " 
       << vtkImageScalarTypeNameMacro(outData->GetScalarType())
-      << " must match input scalar type");
+      << " must match input array data type");
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inArray->GetDataType())
     {
     vtkTemplateMacro8(vtkImageContinuousErode3DExecute, this, mask, 
                       inData, (VTK_TT *)(inPtr), outData, outExt, 

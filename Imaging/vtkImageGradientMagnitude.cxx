@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.31");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.32");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -40,6 +40,11 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -123,7 +128,8 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   int *wholeExtent, *inIncs;
   float r[3], d, sum;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
-  
+  int *inExt = inData->GetExtent();
+
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
   maxX = outExt[1] - outExt[0];
@@ -148,6 +154,11 @@ void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   // get some other info we need
   inIncs = inData->GetIncrements(); 
   wholeExtent = inData->GetExtent(); 
+
+  // Move the starting pointer to the correct location.
+  inPtr += (outExt[0]-inExt[0])*inIncs[0] +
+           (outExt[2]-inExt[2])*inIncs[1] +
+           (outExt[4]-inExt[4])*inIncs[2];
 
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
@@ -212,21 +223,41 @@ void vtkImageGradientMagnitude::ThreadedExecute(vtkImageData *inData,
                                          vtkImageData *outData,
                                          int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  vtkDataArray *inArray;
   
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inPtr = inArray->GetVoidPointer(0);
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
   
-  // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (id == 0)
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    // Give the output arra a good name.
+    vtkDataArray *outArray = outData->GetPointData()->GetScalars();
+    if (inArray->GetName() == NULL)
+      {
+      outArray->SetName("Gradient Magnitude");
+      }
+    else
+      {
+      char *newName = new char[strlen(inArray->GetName()) + 24];
+      sprintf(newName, "%s Gradient Magnitude", inArray->GetName());
+      outArray->SetName(newName);
+      delete [] newName;
+      }
+    }
+
+  // this filter expects that input is the same type as output.
+  if (inArray->GetDataType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input data type, " << inData->GetScalarType()
+                << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inArray->GetDataType())
     {
     vtkTemplateMacro7(vtkImageGradientMagnitudeExecute, this, 
                       inData, (VTK_TT *)(inPtr), outData, 

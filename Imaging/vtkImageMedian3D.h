@@ -47,12 +47,13 @@ public:
   vtkGetMacro(NumberOfElements,int);
 
   // Description:
-  // If you want to warp by an arbitrary scalar array, then set its name here.
+  // If you want the neighborhood median of an arbitrary point 
+  // scalar array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-  
+    {this->SetInputScalarsSelection(fieldName);}  
+
 protected:
   vtkImageMedian3D();
   ~vtkImageMedian3D();
@@ -66,8 +67,7 @@ protected:
   // Called by the superclass
   void ExecuteInformation() { this->Superclass::ExecuteInformation(); }
 
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
+  void ExecuteData(vtkDataObject *out);
 
 private:
   vtkImageMedian3D(const vtkImageMedian3D&);  // Not implemented.

@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.31");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.32");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -30,13 +30,11 @@ vtkImageMedian3D::vtkImageMedian3D()
   this->NumberOfElements = 0;
   this->SetKernelSize(1,1,1);
   this->HandleBoundaries = 1;
-  this->InputScalarsSelection = NULL;
 }
 
 //-----------------------------------------------------------------------------
 vtkImageMedian3D::~vtkImageMedian3D()
 {
-  this->SetInputScalarsSelection(NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -381,6 +379,78 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   delete [] Sort;
   
 }
+
+//----------------------------------------------------------------------------
+// Copydata at the end of the execute
+void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
+{ 
+  vtkImageData *output = this->GetOutput();
+  vtkImageData *input = this->GetInput();
+  int inExt[6];
+  int outExt[6];
+  vtkDataArray *inArray;
+  vtkDataArray *outArray;
+
+
+  input->GetExtent(inExt);
+  output->SetExtent(output->GetUpdateExtent());
+  output->GetExtent(outExt);
+
+  // Do not copy the array we will be generating.
+  inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+  // Scalar copy flag trumps the array copy flag.
+  if (inArray == input->GetPointData()->GetScalars())
+    {
+    output->GetPointData()->CopyScalarsOff();
+    }
+  else
+    {
+    output->GetPointData()->CopyFieldOff(this->InputScalarsSelection);
+    }
+
+  // If the extents are the same, then pass the attribute data for efficiency.
+  if (inExt[0] == outExt[0] && inExt[1] == outExt[1] &&
+      inExt[2] == outExt[2] && inExt[3] == outExt[3] &&
+      inExt[4] == outExt[4] && inExt[5] == outExt[5])
+    {// Pass
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
+    }
+  else
+    {// Copy
+    // Copy the point data.
+    output->GetPointData()->CopyAllocate(input->GetPointData(), 
+                                         output->GetNumberOfPoints());
+    output->GetPointData()->CopyStructuredData(input->GetPointData(),
+                                               inExt, outExt);
+    // Now Copy The cell data.
+    output->GetCellData()->CopyAllocate(input->GetCellData(), 
+                                        output->GetNumberOfCells());
+    // Cell extent is one less than point extent.
+    // Conditional handle a colapsed axis (lower dimensional cells).
+    if (inExt[0] < inExt[1]) {--inExt[1];}
+    if (inExt[2] < inExt[3]) {--inExt[3];}
+    if (inExt[4] < inExt[5]) {--inExt[5];}
+    // Cell extent is one less than point extent.
+    if (outExt[0] < outExt[1]) {--outExt[1];}
+    if (outExt[2] < outExt[3]) {--outExt[3];}
+    if (outExt[4] < outExt[5]) {--outExt[5];}
+    output->GetCellData()->CopyStructuredData(input->GetCellData(),
+                                              inExt, outExt);
+    }
+
+  // Now create the scalars array that will hold the output data.
+  outArray = inArray->MakeObject();
+  outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
+  outArray->SetNumberOfTuples(output->GetNumberOfPoints());
+  outArray->SetName(inArray->GetName());
+  output->GetPointData()->SetScalars(outArray);
+
+
+  this->MultiThread(this->GetInput(),output);
+}
+         
+
 
 //-----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
