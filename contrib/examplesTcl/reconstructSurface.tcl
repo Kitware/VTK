@@ -33,8 +33,13 @@ vtkContourFilter cf
     cf SetInput [surf GetOutput]
     cf SetValue 0 0.0
 
+vtkReverseSense reverse
+  reverse SetInput [cf GetOutput]
+  reverse ReverseCellsOn
+  reverse ReverseNormalsOn
+
 vtkPolyDataMapper map
-    map SetInput [cf GetOutput]
+    map SetInput [reverse GetOutput]
     map ScalarVisibilityOff
 
 vtkActor surfaceActor
