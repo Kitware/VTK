@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.46");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.46.2.1");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -404,8 +404,6 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
     return 0;
     }
   
-  this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
-        
   geom = ((vtkPolyData*)this->GetOutput(this->NumberOfGeometryParts));
   geom->Allocate(this->NumberOfMeasuredPoints);
     
@@ -417,9 +415,7 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(char* fileName, int timeStep)
     this->ReadLine(line);
     vtkEnSight6ReaderRead1(line, " %8d %12e %12e %12e", &tempId, &coords[0], &coords[1],
            &coords[2]);
-    tempId--;
     id = tempId;
-    this->MeasuredNodeIds->InsertNextId(id);
     newPoints->InsertNextPoint(coords);
     geom->InsertNextCell(VTK_VERTEX, 1, &id);
     }

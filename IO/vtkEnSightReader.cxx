@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.49");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.49.2.1");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -82,7 +82,6 @@ vtkEnSightReader::vtkEnSightReader()
   this->NumberOfGeometryParts = 0;
 
   this->NumberOfMeasuredPoints = 0;
-  this->MeasuredNodeIds = vtkIdList::New();
   
   this->OutputsAreValid = 1;
   this->InitialRead = 1;
@@ -134,9 +133,6 @@ vtkEnSightReader::~vtkEnSightReader()
   this->UnstructuredPartIds->Delete();
   this->UnstructuredPartIds = NULL;  
     
-  this->MeasuredNodeIds->Delete();
-  this->MeasuredNodeIds = NULL;
-  
   this->VariableTimeSetIds->Delete();
   this->VariableTimeSetIds = NULL;
   this->ComplexVariableTimeSetIds->Delete();

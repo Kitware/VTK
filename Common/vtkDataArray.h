@@ -48,6 +48,8 @@ class vtkDoubleArray;
 class vtkLookupTable;
 class vtkIdList;
 
+#define VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES 11
+
 class VTK_COMMON_EXPORT vtkDataArray : public vtkObject 
 {
 public:
@@ -357,11 +359,15 @@ protected:
 private:
   double Range[2];
 
+  // We can have arbitrary number of components, but 11 should
+  // take care of 99.99% of the cases.  Components greater
+  // than 11 do not get cached.  The comment below assume max of 4 comps.  
   // 5 components since you can compute the range of components
   // less than 0 to get a magnitude range. ComponentRange[4] is 
   // this magnitude range
-  vtkTimeStamp ComponentRangeComputeTime[5];
-  double ComponentRange[5][2];
+  vtkTimeStamp 
+     ComponentRangeComputeTime[VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES];
+  double ComponentRange[VTK_MAXIMUM_NUMBER_OF_CACHED_COMPONENT_RANGES][2];
   
   double* GetTupleN(vtkIdType i, int n);
   

@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.22");
+vtkCxxRevisionMacro(vtkCommunicator, "1.22.6.1");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -483,7 +483,7 @@ int vtkCommunicator::WriteDataSet(vtkDataSet *data)
   copy->ShallowCopy(data);
 
   // There is a problem with binary files with no data.
-  if (copy->GetNumberOfCells() > 0)
+  if (copy->GetNumberOfCells() + copy->GetNumberOfPoints() > 0)
     {
     writer->SetFileTypeToBinary();
     }

@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.24");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.24.6.1");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -839,9 +839,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
     tempNames[i] = NULL;
     }
   delete [] tempValues;
-  tempValues = NULL;
   delete [] tempNames;
-  tempNames = NULL;
   
   this->ScalarVariableValues[i] = value;
   this->ScalarVariableNames[i] = new char [strlen(variableName) + 1];
@@ -970,9 +968,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
     tempValues[i] = NULL;
     }
   delete [] tempValues;
-  tempValues = NULL;
   delete [] tempNames;
-  tempNames = NULL;
   
   this->VectorVariableValues[i] = new double[3];
   this->VectorVariableValues[i][0] = xValue;
@@ -1274,7 +1270,7 @@ int vtkFunctionParser::BuildInternalFunctionStructure()
 void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
                                                         int endIndex)
 {
-  int mathFunctionNum, mathConstantNum, beginIndex2;
+  int mathFunctionNum, beginIndex2;
   int opNum, parenthesisCount, i;
   static const char* const elementaryMathOps = "+-.*/^";
   
@@ -1347,20 +1343,6 @@ void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
 
         this->BuildInternalSubstringStructure(beginIndex2+1, endIndex-1);
         this->AddInternalByte(mathFunctionNum);
-        return;
-        }
-      }
-    else
-      {
-      mathConstantNum = this->GetMathConstantNumber(beginIndex);
-      if(mathConstantNum > 0)
-        {
-        this->AddInternalByte(mathConstantNum);
-        this->StackPointer++;
-        if (this->StackPointer > this->StackSize)
-          {
-          this->StackSize++;
-          }
         return;
         }
       }
@@ -1717,6 +1699,19 @@ int vtkFunctionParser::GetOperandNumber(int currentIndex)
     this->ImmediatesSize++;
     delete [] tempImmediates;
     return VTK_PARSER_IMMEDIATE;
+    }
+
+  if (!strncmp(&this->Function[currentIndex], "iHat", 4))
+    {
+    return VTK_PARSER_IHAT;
+    }
+  if (!strncmp(&this->Function[currentIndex], "jHat", 4))
+    {
+    return VTK_PARSER_JHAT;
+    }
+  if (!strncmp(&this->Function[currentIndex], "kHat", 4))
+    {
+    return VTK_PARSER_KHAT;
     }
   
   for (i = 0; i < this->NumberOfScalarVariables; i++)
