@@ -3,4 +3,4 @@
 //
 #include "TimeSt.h"
 
-unsigned long TimeStamp::vlTime = 0;
+unsigned long vlTimeStamp::vlTime = 0;
