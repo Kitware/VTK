@@ -68,6 +68,8 @@ public:
   // Description:
   // Get the output of this reader.
   vtkStructuredGrid *GetOutput();
+  vtkStructuredGrid *GetOutput(int idx)
+    {return (vtkStructuredGrid *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkStructuredGrid *output);  
 
 protected:
