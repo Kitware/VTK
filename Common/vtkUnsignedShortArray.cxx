@@ -18,7 +18,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnsignedShortArray, "1.34");
+vtkCxxRevisionMacro(vtkUnsignedShortArray, "1.35");
 vtkStandardNewMacro(vtkUnsignedShortArray);
 
 vtkDataArray *vtkUnsignedShortArray::MakeObject()
@@ -382,16 +382,18 @@ float vtkUnsignedShortArray::GetComponent(const vtkIdType i, const int j)
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
 void vtkUnsignedShortArray::SetComponent(const vtkIdType i, const int j,
-                                         const float c)
+                                         float c)
 {
-  this->SetValue(i*this->NumberOfComponents + j, (short)c);
+  this->SetValue(i*this->NumberOfComponents + j, 
+                 static_cast<unsigned short>(c));
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
 void vtkUnsignedShortArray::InsertComponent(const vtkIdType i, const int j,
-                                            const float c)
+                                            float c)
 {
-  this->InsertValue(i*this->NumberOfComponents + j, (short)c);
+  this->InsertValue(i*this->NumberOfComponents + j, 
+                    static_cast<unsigned short>(c));
 }
 

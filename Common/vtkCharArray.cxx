@@ -18,7 +18,7 @@
 #include "vtkCharArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCharArray, "1.34");
+vtkCxxRevisionMacro(vtkCharArray, "1.35");
 vtkStandardNewMacro(vtkCharArray);
 
 vtkDataArray *vtkCharArray::MakeObject()
@@ -372,16 +372,16 @@ float vtkCharArray::GetComponent(const vtkIdType i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkCharArray::SetComponent(const vtkIdType i, const int j, const float c)
+void vtkCharArray::SetComponent(const vtkIdType i, const int j, float c)
 {
-  this->SetValue(i*this->NumberOfComponents + j, (char)c);
+  this->SetValue(i*this->NumberOfComponents + j, static_cast<char>(c));
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
 void vtkCharArray::InsertComponent(const vtkIdType i, const int j,
-                                   const float c)
+                                   float c)
 {
-  this->InsertValue(i*this->NumberOfComponents + j, (char)c);
+  this->InsertValue(i*this->NumberOfComponents + j, static_cast<char>(c));
 }
 

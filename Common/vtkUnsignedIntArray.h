@@ -120,12 +120,12 @@ public:
   // Note that i is less then NumberOfTuples and j is less then 
   // NumberOfComponents. Make sure enough memory has been allocated 
   // (use SetNumberOfTuples() and SetNumberOfComponents()).
-  void SetComponent(const vtkIdType i, const int j, const float c);
+  void SetComponent(const vtkIdType i, const int j, float c);
   
   // Description:
   // Insert the data component at ith tuple and jth component location. 
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertComponent(const vtkIdType i, const int j, const float c);
+  virtual void InsertComponent(const vtkIdType i, const int j, float c);
 
   // Description:
   // Get the address of a particular data index. Performs no checks

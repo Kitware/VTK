@@ -18,7 +18,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkUnsignedIntArray, "1.31");
+vtkCxxRevisionMacro(vtkUnsignedIntArray, "1.32");
 vtkStandardNewMacro(vtkUnsignedIntArray);
 
 vtkDataArray *vtkUnsignedIntArray::MakeObject()
@@ -381,14 +381,14 @@ float vtkUnsignedIntArray::GetComponent(const vtkIdType i, const int j)
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
 void vtkUnsignedIntArray::SetComponent(const vtkIdType i, const int j, 
-                                       const float c)
+                                       float c)
 {
-  this->SetValue(i*this->NumberOfComponents + j, static_cast<const unsigned int>(c));
+  this->SetValue(i*this->NumberOfComponents + j, static_cast<unsigned int>(c));
 }
 
 void vtkUnsignedIntArray::InsertComponent(const vtkIdType i, const int j, 
-                                          const float c)
+                                          float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
-                    static_cast<const unsigned int>(c));
+                    static_cast<unsigned int>(c));
 }

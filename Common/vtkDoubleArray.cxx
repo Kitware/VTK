@@ -18,7 +18,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDoubleArray, "1.44");
+vtkCxxRevisionMacro(vtkDoubleArray, "1.45");
 vtkStandardNewMacro(vtkDoubleArray);
 
 vtkDataArray *vtkDoubleArray::MakeObject()
@@ -374,14 +374,14 @@ float vtkDoubleArray::GetComponent(const vtkIdType i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkDoubleArray::SetComponent(const vtkIdType i, const int j, const float c)
+void vtkDoubleArray::SetComponent(const vtkIdType i, const int j, float c)
 {
-  this->SetValue(i*this->NumberOfComponents + j, static_cast<const double>(c));
+  this->SetValue(i*this->NumberOfComponents + j, static_cast<double>(c));
 }
 
 void vtkDoubleArray::InsertComponent(const vtkIdType i, const int j, 
-                                     const float c)
+                                     float c)
 {
   this->InsertValue(i*this->NumberOfComponents + j, 
-                    static_cast<const double>(c));
+                    static_cast<double>(c));
 }

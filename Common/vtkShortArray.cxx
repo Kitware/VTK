@@ -18,7 +18,7 @@
 #include "vtkShortArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkShortArray, "1.50");
+vtkCxxRevisionMacro(vtkShortArray, "1.51");
 vtkStandardNewMacro(vtkShortArray);
 
 vtkDataArray *vtkShortArray::MakeObject()
@@ -377,16 +377,15 @@ float vtkShortArray::GetComponent(const vtkIdType i, const int j)
 // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
 // memory has been allocated (use SetNumberOfTuples() and 
 // SetNumberOfComponents()).
-void vtkShortArray::SetComponent(const vtkIdType i, const int j, const float c)
+void vtkShortArray::SetComponent(const vtkIdType i, const int j, float c)
 {
-  this->SetValue(i*this->NumberOfComponents + j, static_cast<const short>(c));
+  this->SetValue(i*this->NumberOfComponents + j, static_cast<short>(c));
 }
 
 // Insert the data component at ith tuple and jth component location. 
 // Note that memory allocation is performed as necessary to hold the data.
-void vtkShortArray::InsertComponent(const vtkIdType i, const int j,
-                                    const float c)
+void vtkShortArray::InsertComponent(const vtkIdType i, const int j, float c)
 {
-  this->InsertValue(i*this->NumberOfComponents + j, static_cast<const short>(c));
+  this->InsertValue(i*this->NumberOfComponents + j, static_cast<short>(c));
 }
 
