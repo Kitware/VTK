@@ -24,7 +24,7 @@
 
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageFoo, "1.5");
+vtkCxxRevisionMacro(vtkImageFoo, "1.6");
 vtkStandardNewMacro(vtkImageFoo);
 
 //----------------------------------------------------------------------------
@@ -100,6 +100,14 @@ static void vtkImageFooExecute(vtkImageFoo *self,
     {
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
+      if (!id)
+        {
+        if (!(count%target))
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
       for (idxR = 0; idxR < rowLength; idxR++)
         {
         // Pixel operation. Add foo. Dumber would be impossible.
