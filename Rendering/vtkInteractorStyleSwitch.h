@@ -67,6 +67,12 @@ public:
   // Only care about the char event, which is used to switch between
   // different styles.
   virtual void OnChar();
+
+  // Description:
+  // Overridden from vtkInteractorObserver because the interactor styles
+  // used by this class must also be updated.
+  virtual void SetDefaultRenderer(vtkRenderer*);
+  virtual void SetCurrentRenderer(vtkRenderer*);
   
 protected:
   vtkInteractorStyleSwitch();

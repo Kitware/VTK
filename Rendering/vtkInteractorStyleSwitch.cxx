@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.23");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -143,6 +143,8 @@ void vtkInteractorStyleSwitch::OnChar()
 //----------------------------------------------------------------------------
 // this will do nothing if the CurrentStyle matchs
 // JoystickOrTrackball and CameraOrActor
+// It should! If the this->Interactor was changed (using SetInteractor()),
+// and the currentstyle should not change.
 void vtkInteractorStyleSwitch::SetCurrentStyle()
 {
   // if the currentstyle does not match JoystickOrTrackball 
@@ -161,7 +163,6 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
         this->CurrentStyle->SetInteractor(0);
         }
       this->CurrentStyle = this->JoystickCamera;
-      this->CurrentStyle->SetInteractor(this->Interactor);
       }
     }
   else if (this->JoystickOrTrackball == VTKIS_JOYSTICK &&
@@ -174,7 +175,6 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
         this->CurrentStyle->SetInteractor(0);
         }
       this->CurrentStyle = this->JoystickActor;
-      this->CurrentStyle->SetInteractor(this->Interactor);
       }
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
@@ -187,7 +187,6 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
         this->CurrentStyle->SetInteractor(0);
         }
       this->CurrentStyle = this->TrackballCamera;
-      this->CurrentStyle->SetInteractor(this->Interactor);
       }
     }
   else if (this->JoystickOrTrackball == VTKIS_TRACKBALL &&
@@ -200,8 +199,11 @@ void vtkInteractorStyleSwitch::SetCurrentStyle()
           this->CurrentStyle->SetInteractor(0);
           }
         this->CurrentStyle = this->TrackballActor;
-        this->CurrentStyle->SetInteractor(this->Interactor);
         }
+    }
+  if (this->CurrentStyle)
+    {
+    this->CurrentStyle->SetInteractor(this->Interactor);
     }
 }
 
@@ -245,3 +247,22 @@ void vtkInteractorStyleSwitch::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkInteractorStyleSwitch::SetDefaultRenderer(vtkRenderer* renderer)
+{
+  this->vtkInteractorStyle::SetDefaultRenderer(renderer);
+  this->JoystickActor->SetDefaultRenderer(renderer);
+  this->JoystickCamera->SetDefaultRenderer(renderer);
+  this->TrackballActor->SetDefaultRenderer(renderer);
+  this->TrackballCamera->SetDefaultRenderer(renderer);
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleSwitch::SetCurrentRenderer(vtkRenderer* renderer)
+{
+  this->vtkInteractorStyle::SetCurrentRenderer(renderer);
+  this->JoystickActor->SetCurrentRenderer(renderer);
+  this->JoystickCamera->SetCurrentRenderer(renderer);
+  this->TrackballActor->SetCurrentRenderer(renderer);
+  this->TrackballCamera->SetCurrentRenderer(renderer);
+}
