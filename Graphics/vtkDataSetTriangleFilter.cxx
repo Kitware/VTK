@@ -201,7 +201,6 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   float *xPtr;
 
   // Create an array of points
-  numPts = input->GetNumberOfPoints();
   output->Allocate(input->GetNumberOfCells()*5);
   
   // Points are passed through
