@@ -48,6 +48,7 @@ vtkScalarBarActor scalarBar
     scalarBar SetOrientationToVertical
     scalarBar SetWidth 0.8
     scalarBar SetHeight 0.9
+    scalarBar SetLabelFormat "%-#6.3f"
 
 # Test the Get/Set Position 
 eval scalarBar SetPosition  [scalarBar GetPosition]
