@@ -112,7 +112,7 @@ static void DivideBy(float* a,float f)
 static void FreeMatrix(float **m, long nrl, long nrh, long ncl, long nch);
 static float **Matrix(long nrl, long nrh, long ncl, long nch);
 static void FreeVector(float *v, long nl, long nh);
-static float *Vector(long nl, long nh);
+static float *SRVector(long nl, long nh);
 
 // set a matrix to zero
 static void MakeZero(float **m,long nrl, long nrh, long ncl, long nch) 
@@ -215,8 +215,8 @@ void vtkSurfaceReconstructionFilter::Execute()
   float *pointi;
   float **covar,*v3d,*eigenvalues,**eigenvectors;
   covar = Matrix(0,2,0,2);
-  v3d = Vector(0,2);
-  eigenvalues = Vector(0,2);
+  v3d = SRVector(0,2);
+  eigenvalues = SRVector(0,2);
   eigenvectors = Matrix(0,2,0,2);
   for(i=0;i<COUNT;i++)
     {
@@ -508,7 +508,7 @@ static void AddOuterProduct(float **m,float *v)
 #define VTK_FREE_ARG char*
 
 // allocate a float vector with subscript range v[nl..nh]
-static float *Vector(long nl, long nh)	
+static float *SRVector(long nl, long nh)	
 { 
   float *v;
 
@@ -559,7 +559,7 @@ static float **Matrix(long nrl, long nrh, long ncl, long nch)
   return m;
 }
 
-// free a float vector allocated with Vector()
+// free a float vector allocated with SRVector()
 static void FreeVector(float *v, long nl, long vtkNotUsed(nh))
 { 
   delete [] (v+nl-VTK_NR_END);
