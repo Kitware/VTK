@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.16");
+vtkCxxRevisionMacro(vtkTesting, "1.17");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -164,6 +164,11 @@ vtkTesting::~vtkTesting()
 void vtkTesting::AddArgument(const char *arg)
 {
   this->Args.push_back(arg);
+}
+
+void vtkTesting::CleanArguments()
+{
+  this->Args.erase( this->Args.begin(), this->Args.end() );
 }
 
 const char *vtkTesting::GetDataRoot()
@@ -331,11 +336,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
     {
     newFileName[marker] = counts[i];
     }
-  newFileName[marker++] = '.';
-  newFileName[marker++] = 'p';
-  newFileName[marker++] = 'n';
-  newFileName[marker++] = 'g';
-  newFileName[marker] = '\0';
+  strncpy( newFileName + marker, ".png", 4 );
   
   return newFileName;
 }
