@@ -265,9 +265,9 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
   int *wInExt = inData->GetWholeExtent();
 
   // find the starting sample locations
-  float xStart = (inExt[0] - wInExt[0])*magX;
-  float yStart = (inExt[2] - wInExt[2])*magY;
-  float zStart = (inExt[4] - wInExt[4])*magZ;
+  float xStart = outExt[0]/magX;
+  float yStart = outExt[2]/magY;
+  float zStart = outExt[4]/magZ;
   xStart = xStart - ((int)xStart);
   yStart = yStart - ((int)yStart);
   zStart = zStart - ((int)zStart);
@@ -372,8 +372,8 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
   int *wInExt = inData->GetWholeExtent();
 
   // find the starting sample locations
-  float xStart = (inExt[0] - wInExt[0])*magX;
-  float yStart = (inExt[2] - wInExt[2])*magY;
+  float xStart = outExt[0]/magX;
+  float yStart = outExt[2]/magY;
   xStart = xStart - ((int)xStart);
   yStart = yStart - ((int)yStart);
 
@@ -391,8 +391,8 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
   // that the same calculations are done. same
   // accumulated errors etc.
   xPos = xStart;
-  xMaxIdx = 0;
-  int itmp = 0;
+  xMaxIdx = maxX;
+  int itmp = inExt[0];
 
   // we create these arrays to store some value we'll
   // use when incrementing along the x axis
@@ -409,19 +409,19 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
       {
       xPos -= 1.0;
       itmp++;
-      if (itmp >= inMaxX && !xMaxIdx)
-        {
-        xMaxIdx = idxX - 1;
-        }
       *pXSteps = *pXSteps + 1;
+      }
+    if (itmp >= inMaxX && idxX <= xMaxIdx)
+      {
+      xMaxIdx = idxX - 1;
       }
     *pXRatios = xPos;
     pXRatios++;
     pXSteps++;
     }
   yPos = yStart;
-  yMaxIdx = -1;
-  itmp = 0;
+  yMaxIdx = maxY;
+  itmp = inExt[2];
   for (idxY = 0; idxY <= maxY; idxY++)
     {
     yPos += yFloatInc;
@@ -429,10 +429,10 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
       {
       yPos -= 1.0;
       itmp++;
-      if (itmp >= inMaxY && yMaxIdx == -1)
-        {
-        yMaxIdx = idxY - 1;
-        }
+      }
+    if (itmp >= inMaxY && idxY <= yMaxIdx)
+      {
+      yMaxIdx = idxY - 1;
       }
     }
   
@@ -553,9 +553,9 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
   int *wInExt = inData->GetWholeExtent();
 
   // find the starting sample locations
-  float xStart = (inExt[0] - wInExt[0])*magX;
-  float yStart = (inExt[2] - wInExt[2])*magY;
-  float zStart = (inExt[4] - wInExt[4])*magZ;
+  float xStart = outExt[0]/magX;
+  float yStart = outExt[2]/magY;
+  float zStart = outExt[4]/magZ;
   xStart = xStart - ((int)xStart);
   yStart = yStart - ((int)yStart);
   zStart = zStart - ((int)zStart);
@@ -577,7 +577,7 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
   // accumulated errors etc.
   xPos = xStart;
   xMaxIdx = maxX;
-  int itmp = 0;
+  int itmp = inExt[0];
   for (idxX = 0; idxX <= maxX; idxX++)
     {
     xPos += xFloatInc;
@@ -599,7 +599,7 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
 
   yPos = yStart;
   yMaxIdx = maxY;
-  itmp = 0;
+  itmp = inExt[2];
   for (idxY = 0; idxY <= maxY; idxY++)
     {
     yPos += yFloatInc;
@@ -616,7 +616,7 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
   
   zPos = zStart;
   zMaxIdx = maxZ;
-  itmp = 0;
+  itmp = inExt[4];
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
     zPos += zFloatInc;
