@@ -29,7 +29,7 @@
 #include "vtkRenderWindowInteractor.h"
 
 vtkStandardNewMacro(vtkOrientationMarkerWidget);
-vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.1");
+vtkCxxRevisionMacro(vtkOrientationMarkerWidget, "1.2");
 
 vtkCxxSetObjectMacro(vtkOrientationMarkerWidget, OrientationMarker, vtkProp);
 
@@ -647,8 +647,8 @@ void vtkOrientationMarkerWidget::ResizeTopLeft(int X, int Y)
     newPos[3] = newPos[1] + 0.01;
     }
 
-  this->StartPosition[0] = newPos[0]*size[0];
-  this->StartPosition[1] = newPos[3]*size[1];
+  this->StartPosition[0] = static_cast<int>( newPos[0]*size[0] );
+  this->StartPosition[1] = static_cast<int>( newPos[3]*size[1] );
 
   this->Renderer->SetViewport( newPos );
 }
@@ -685,8 +685,8 @@ void vtkOrientationMarkerWidget::ResizeTopRight(int X, int Y)
     newPos[3] = newPos[1] + 0.01;
     }
 
-  this->StartPosition[0] = newPos[2]*size[0];
-  this->StartPosition[1] = newPos[3]*size[1];
+  this->StartPosition[0] = static_cast<int>( newPos[2]*size[0] );
+  this->StartPosition[1] = static_cast<int>( newPos[3]*size[1] );
 
   this->Renderer->SetViewport( newPos );
 }
@@ -723,8 +723,8 @@ void vtkOrientationMarkerWidget::ResizeBottomRight(int X, int Y)
     newPos[1] = newPos[3] - 0.01;
     }
 
-  this->StartPosition[0] = newPos[2]*size[0];
-  this->StartPosition[1] = newPos[1]*size[1];
+  this->StartPosition[0] = static_cast<int>( newPos[2]*size[0] );
+  this->StartPosition[1] = static_cast<int>( newPos[1]*size[1] );
 
   this->Renderer->SetViewport( newPos );
 }
@@ -761,8 +761,8 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
     newPos[1] = newPos[3] - 0.01;
     }
 
-  this->StartPosition[0] = newPos[0]*size[0];
-  this->StartPosition[1] = newPos[1]*size[1];
+  this->StartPosition[0] = static_cast<int>( newPos[0]*size[0] );
+  this->StartPosition[1] = static_cast<int>( newPos[1]*size[1] );
 
   this->Renderer->SetViewport( newPos );
 }
