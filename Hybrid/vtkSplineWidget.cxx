@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.2");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.3");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -1207,6 +1207,11 @@ void vtkSplineWidget::SetResolution(int resolution)
   this->LineData->Update();
   this->LineMapper->Update();
   this->LineActor->Modified();
+}
+
+void vtkSplineWidget::GetPolyData(vtkPolyData *pd)
+{ 
+  pd->ShallowCopy(this->LineData); 
 }
 
 void vtkSplineWidget::SizeHandles()
