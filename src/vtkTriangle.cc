@@ -325,9 +325,12 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
 //
 // Evaluate position
 //
-  if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
+  if (this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights)
+      >= 0)
+    {
     if ( dist2 <= tol2 ) return 1;
-
+    }
+  
   return 0;
 }
 
