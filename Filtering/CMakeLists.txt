@@ -95,7 +95,6 @@ vtkImplicitSum.cxx
 vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
 vtkInformation.cxx
-vtkInformationDataObjectVectorKey.cxx
 vtkInformationDataObjectKey.cxx
 vtkInformationExecutiveKey.cxx
 vtkInformationInformationKey.cxx
@@ -227,7 +226,6 @@ vtkImageProgressIterator
 vtkImageSource
 vtkImageToImageFilter
 vtkImageTwoInputFilter
-vtkInformationDataObjectVectorKey
 vtkInformationDataObjectKey
 vtkInformationExecutiveKey
 vtkInformationInformationKey
