@@ -107,6 +107,7 @@ public:
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
+  virtual void *GetGenericDrawable()  {return (void *)this->WindowId;};
   virtual void SetDisplayId(void *) {};
 
   // Description:

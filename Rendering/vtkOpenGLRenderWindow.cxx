@@ -29,7 +29,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.59");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.60");
 #endif
 
 #define MAX_LIGHTS 8
@@ -702,8 +702,8 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     return VTK_ERROR;
     }
 
-  this->SetRGBAPixelData(x1, y1, x2, y2, data->GetPointer(0), front,
-			 blend);
+  return this->SetRGBAPixelData(x1, y1, x2, y2, data->GetPointer(0), front,
+				blend);
 }
 
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
