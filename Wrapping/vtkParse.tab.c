@@ -854,10 +854,12 @@ int main(int argc,char *argv[])
   if (argc == 5)
     {
     fout = fopen(argv[4],"w");
+    data.OutputFileName = argv[4];
     }
   else
     {
     fout = fopen(argv[3],"w");
+    data.OutputFileName = argv[3];
     }
   
   if (!fout)

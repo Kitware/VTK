@@ -45,6 +45,7 @@
     int   IsConcrete;
     char *ClassName;
     char *FileName;
+    char *OutputFileName;
     
     char *SuperClasses[10];
     int   NumberOfSuperClasses;
