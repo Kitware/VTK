@@ -58,7 +58,8 @@ unsigned long int vtkImplicitBoolean::GetMTime()
   unsigned long int mtime = this->vtkImplicitFunction::GetMTime();
   vtkImplicitFunction *f;
 
-  for (this->FunctionList.InitTraversal(); f=this->FunctionList.GetNextItem(); )
+  for (this->FunctionList.InitTraversal(); 
+       (f=this->FunctionList.GetNextItem()); )
     {
     fMtime = f->GetMTime();
     if ( fMtime > mtime ) mtime = fMtime;
@@ -98,7 +99,7 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
     for (value = VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) < value ) value = v;
       }
@@ -107,7 +108,7 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
   else if ( this->OperationType == VTK_INTERSECTION )
     { //take maximum value
     for (value=-VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) > value ) value = v;
       }
@@ -116,7 +117,7 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
   else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
     { //take minimum absolute value
     for (value = VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( (v=fabs(f->FunctionValue(x))) < value ) value = v;
       }
@@ -130,7 +131,7 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
       value = firstF->FunctionValue(x);
 
     for (this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( f != firstF )
         {
@@ -152,7 +153,7 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
     for (value = VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) < value )
         {
@@ -165,9 +166,22 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
   else if ( this->OperationType == VTK_INTERSECTION )
     { //take maximum value
     for (value=-VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) > value ) 
+        {
+        value = v;
+        f->FunctionGradient(x,g);
+        }
+      }
+    }
+
+  if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
+    { //take minimum value
+    for (value = VTK_LARGE_FLOAT, this->FunctionList.InitTraversal(); 
+	 (f=this->FunctionList.GetNextItem()); )
+      {
+      if ( (v=fabs(f->FunctionValue(x))) < value )
         {
         value = v;
         f->FunctionGradient(x,g);
@@ -188,7 +202,7 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
       }
 
     for (this->FunctionList.InitTraversal(); 
-    f=this->FunctionList.GetNextItem(); )
+	 (f=this->FunctionList.GetNextItem()); )
       {
       if ( f != firstF )
         {
