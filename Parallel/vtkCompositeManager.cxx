@@ -44,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.36");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.37");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -802,7 +802,7 @@ void vtkCompositeManager::EndRender()
     }
 
   vtkRenderWindow* renWin = this->RenderWindow;
-  vtkMultiProcessController *controller = this->Controller;
+  //vtkMultiProcessController *controller = this->Controller;
   int numProcs;
   
   // EndRender only happens on root.
