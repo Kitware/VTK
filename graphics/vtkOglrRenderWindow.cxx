@@ -839,15 +839,10 @@ void vtkOglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 float *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
-  long    xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-
   float   *data = NULL;
-
-  float   *p_data = NULL;
-  unsigned long   *buffer;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
@@ -899,9 +894,6 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     width, height;
-  int     xloop,yloop;
-  float   *buffer;
-  float   *p_data = NULL;
 
   // set the current window 
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
@@ -955,7 +947,6 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glPopMatrix();
 
   glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
-
 }
 
 float *vtkOglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
