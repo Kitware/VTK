@@ -82,6 +82,7 @@ void vtkExtractUnstructuredGridPiece::ExecuteInformation()
     vtkErrorMacro("Missing input");
     return;
     }
+  this->GetOutput()->SetMaximumNumberOfPieces(-1);
 }
   
 void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags, 

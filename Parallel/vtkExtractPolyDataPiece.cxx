@@ -83,6 +83,7 @@ void vtkExtractPolyDataPiece::ExecuteInformation()
     vtkErrorMacro("Missing input");
     return;
     }
+  this->GetOutput()->SetMaximumNumberOfPieces(-1);
 }
   
 void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags, 

@@ -303,16 +303,5 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkSphereSource::ExecuteInformation()
 {
-  int numTris, numPts;
-  unsigned long size;
-  
-  // ignore poles
-  numPts = this->ThetaResolution * (this->PhiResolution + 1);
-  numTris = this->ThetaResolution * this->PhiResolution * 2;
-  size = numPts * 3 * sizeof(float);
-  size += numTris * 4 * sizeof(int);
-  
-  // convert to kilobytes
-  size = (size / 1000) + 1;
-  
+  this->GetOutput()->SetMaximumNumberOfPieces(this->ThetaResolution);
 }
