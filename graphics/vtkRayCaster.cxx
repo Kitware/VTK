@@ -567,6 +567,8 @@ int vtkRayCaster::Render(vtkRenderer *ren)
 
   int   *rw_size = NULL;      // Size of render window
   float *vp_size = NULL;      // Size of viewport
+  float vp_ll_corner[2];
+
   int   img_size[2];          // Size of rendering in pixels
   int   full_img_size[2];
 
@@ -615,6 +617,9 @@ int vtkRayCaster::Render(vtkRenderer *ren)
   // Get the physical window dimensions
   rw_size = ren->GetRenderWindow()->GetSize();
   vp_size = ren->GetViewport();
+
+  vp_ll_corner[0] = (int)(rw_size[0]*(float)(vp_size[0]));
+  vp_ll_corner[1] = (int)(rw_size[1]*(float)(vp_size[1]));
 
   // Determine the full size of the image - this is the size in pixels
   // of the viewport
@@ -665,10 +670,14 @@ int vtkRayCaster::Render(vtkRenderer *ren)
           if( destroy_hw_buffer )
             {
             // Store the color and zbuffer data
-            prev_cdata = ren->GetRenderWindow()->GetRGBAPixelData( 0, 0,
-                                          img_size[0]-1, img_size[1]-1, 0 );
-            prev_zdata = ren->GetRenderWindow()->GetZbufferData( 0, 0,
-                                          img_size[0]-1, img_size[1]-1 );
+            prev_cdata = ren->GetRenderWindow()->GetRGBAPixelData( 
+		vp_ll_corner[0], vp_ll_corner[1],
+                vp_ll_corner[0] + img_size[0]-1, 
+	        vp_ll_corner[1] + img_size[1]-1, 0 );
+            prev_zdata = ren->GetRenderWindow()->GetZbufferData( 
+		vp_ll_corner[0], vp_ll_corner[1],
+                vp_ll_corner[0] + img_size[0]-1, 
+	        vp_ll_corner[1] + img_size[1]-1 );
   
             free_prev_data = TRUE;
             }
@@ -856,7 +865,7 @@ int vtkRayCaster::Render(vtkRenderer *ren)
       // Place final image into frame buffer if necessary - it is the
       // full resolution size so it doesn't need to be rescaled
       ren->GetRenderWindow()->SetRGBAPixelData( 
-	0, 0, img_size[0]-1, img_size[1]-1, curr_cdata, 0 );
+		0, 0, img_size[0]-1, img_size[1]-1, curr_cdata, 0 );
       }
     }
 
