@@ -13,19 +13,19 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "Point.hh"
+#include "Vertex.hh"
 #include "vlMath.hh"
 #include "CellArr.hh"
 
 // Description:
 // Deep copy of cell.
-vlPoint::vlPoint(const vlPoint& p)
+vlVertex::vlVertex(const vlVertex& p)
 {
   this->Points = p.Points;
   this->PointIds = p.PointIds;
 }
 
-int vlPoint::EvaluatePosition(float x[3], float closestPoint[3],
+int vlVertex::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -53,7 +53,7 @@ int vlPoint::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vlPoint::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vlVertex::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                float weights[MAX_CELL_SIZE])
 {
   float *X = this->Points.GetPoint(0);
@@ -64,7 +64,7 @@ void vlPoint::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[0] = 1.0;
 }
 
-void vlPoint::Contour(float value, vlFloatScalars *cellScalars, 
+void vlVertex::Contour(float value, vlFloatScalars *cellScalars, 
                       vlFloatPoints *points,                      
                       vlCellArray *verts, vlCellArray *lines, 
                       vlCellArray *polys, vlFloatScalars *scalars)

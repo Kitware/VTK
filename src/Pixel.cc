@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "Rect.hh"
+#include "Pixel.hh"
 #include "Quad.hh"
 #include "Polygon.hh"
 #include "Plane.hh"
@@ -23,13 +23,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Deep copy of cell.
-vlRectangle::vlRectangle(const vlRectangle& r)
+vlPixel::vlPixel(const vlPixel& p)
 {
-  this->Points = r.Points;
-  this->PointIds = r.PointIds;
+  this->Points = p.Points;
+  this->PointIds = p.PointIds;
 }
 
-int vlRectangle::EvaluatePosition(float x[3], float closestPoint[3],
+int vlPixel::EvaluatePosition(float x[3], float closestPoint[3],
                                   int& subId, float pcoords[3], 
                                   float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -44,7 +44,7 @@ int vlRectangle::EvaluatePosition(float x[3], float closestPoint[3],
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 //
-// Get normal for rectangle
+// Get normal for pixel
 //
   pt1 = this->Points.GetPoint(0);
   pt2 = this->Points.GetPoint(1);
@@ -89,7 +89,7 @@ int vlRectangle::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vlRectangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vlPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                    float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3;
@@ -108,7 +108,7 @@ void vlRectangle::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   this->ShapeFunctions(pcoords, weights);
 }
 
-void vlRectangle::Contour(float value, vlFloatScalars *cellScalars,
+void vlPixel::Contour(float value, vlFloatScalars *cellScalars,
                      vlFloatPoints *points, vlCellArray *verts,
                      vlCellArray *lines, vlCellArray *polys, 
                      vlFloatScalars *scalars)
@@ -127,7 +127,7 @@ void vlRectangle::Contour(float value, vlFloatScalars *cellScalars,
 
 static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
 
-vlCell *vlRectangle::GetEdge(int edgeId)
+vlCell *vlPixel::GetEdge(int edgeId)
 {
   static vlLine line;
   int *verts;
@@ -147,7 +147,7 @@ vlCell *vlRectangle::GetEdge(int edgeId)
 //
 // Compute shape functions (similar but different than Quad shape functions)
 //
-void vlRectangle::ShapeFunctions(float pcoords[3], float sf[4])
+void vlPixel::ShapeFunctions(float pcoords[3], float sf[4])
 {
   float rm, sm;
 

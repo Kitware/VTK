@@ -59,6 +59,10 @@ int vlStructuredData::GetDataDimension()
     case XY_PLANE: case YZ_PLANE: case XZ_PLANE: return 2;
 
     case XYZ_GRID: return 3;
+
+    default:
+      vlErrorMacro(<<"Bad data description!");
+      return -1;                       
     }
 }
 

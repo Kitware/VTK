@@ -16,10 +16,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "StrPts.hh"
-#include "Point.hh"
+#include "Vertex.hh"
 #include "Line.hh"
-#include "Rect.hh"
-#include "Brick.hh"
+#include "Pixel.hh"
+#include "Voxel.hh"
 
 vlStructuredPoints::vlStructuredPoints()
 {
@@ -50,10 +50,10 @@ vlStructuredPoints::~vlStructuredPoints()
 
 vlCell *vlStructuredPoints::GetCell(int cellId)
 {
-  static vlPoint point;
+  static vlVertex vertex;
   static vlLine line;
-  static vlRectangle rectangle;
-  static vlBrick brick;
+  static vlPixel pixel;
+  static vlVoxel voxel;
   static vlCell *cell;
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -65,7 +65,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
     {
     case SINGLE_POINT: // cellId can only be = 0
       iMin = iMax = jMin = jMax = kMin = kMax = 0;
-      cell = &point;
+      cell = &vertex;
       break;
 
     case X_LINE:
@@ -95,7 +95,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       iMax = iMin + 1;
       jMin = cellId / (this->Dimensions[0]-1);
       jMax = jMin + 1;
-      cell = &rectangle;
+      cell = &pixel;
       break;
 
     case YZ_PLANE:
@@ -104,7 +104,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       jMax = jMin + 1;
       kMin = cellId / (this->Dimensions[1]-1);
       kMax = kMin + 1;
-      cell = &rectangle;
+      cell = &pixel;
       break;
 
     case XZ_PLANE:
@@ -113,7 +113,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       iMax = iMin + 1;
       kMin = cellId / (this->Dimensions[0]-1);
       kMax = kMin + 1;
-      cell = &rectangle;
+      cell = &pixel;
       break;
 
     case XYZ_GRID:
@@ -123,7 +123,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       jMax = jMin + 1;
       kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
       kMax = kMin + 1;
-      cell = &brick;
+      cell = &voxel;
       break;
     }
 
@@ -204,21 +204,6 @@ float *vlStructuredPoints::GetPoint(int ptId)
   return x;
 }
 
-void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
-{
-  if (this->ShouldIPrint(vlStructuredPoints::GetClassName()))
-    {
-    vlStructuredData::PrintSelf(os,indent);
-    
-    os << indent << "Origin: (" << this->Origin[0] << ", "
-                                    << this->Origin[1] << ", "
-                                    << this->Origin[2] << ")\n";
-    os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", "
-                                    << this->AspectRatio[1] << ", "
-                                    << this->AspectRatio[2] << ")\n";
-    }
-}
-
 void vlStructuredPoints::Initialize()
 {
   vlStructuredData::Initialize();
@@ -262,15 +247,35 @@ int vlStructuredPoints::GetCellType(int cellId)
   switch (this->DataDescription)
     {
     case SINGLE_POINT: 
-      return vlPOINT;
+      return vlVERTEX;
 
     case X_LINE: case Y_LINE: case Z_LINE:
       return vlLINE;
 
     case XY_PLANE: case YZ_PLANE: case XZ_PLANE:
-      return vlRECTANGLE;
+      return vlPIXEL;
 
     case XYZ_GRID:
-      return vlBRICK;
+      return vlVOXEL;
+
+    default:
+      vlErrorMacro(<<"Bad data description!");
+      return vlNULL_ELEMENT;
     }
 }
+
+void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
+{
+  if (this->ShouldIPrint(vlStructuredPoints::GetClassName()))
+    {
+    vlStructuredData::PrintSelf(os,indent);
+    
+    os << indent << "Origin: (" << this->Origin[0] << ", "
+                                    << this->Origin[1] << ", "
+                                    << this->Origin[2] << ")\n";
+    os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", "
+                                    << this->AspectRatio[1] << ", "
+                                    << this->AspectRatio[2] << ")\n";
+    }
+}
+

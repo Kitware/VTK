@@ -15,13 +15,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vlTriangle - a cell that represents a triangle
 // .SECTION Description
-// vlTriangle is a concrete implementation of vlCell to represent a 2D 
-// triangle.
+// vlTriangle is a concrete implementation of vlCell to represent a triangle
+// located in 3-space.
 
 #ifndef __vlTriangle_h
 #define __vlTriangle_h
 
 #include "Cell.hh"
+#include "vlMath.hh"
 
 class vlTriangle : public vlCell
 {
@@ -48,7 +49,32 @@ public:
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float weights[MAX_CELL_SIZE]);
 
+  void TriangleCenter(float p1[3], float p2[3], float p3[3], float center[3]);
+  float TriangleArea(float p1[3], float p2[3], float p3[3]);
+
 };
+
+// Description:
+// Compute the center of the triangle.
+inline void vlTriangle::TriangleCenter(float p1[3], float p2[3], float p3[3],
+                                       float center[3])
+{
+  center[0] = (p1[0]+p2[0]+p3[0]) / 3.0;
+  center[1] = (p1[1]+p2[1]+p3[1]) / 3.0;
+  center[2] = (p1[2]+p2[2]+p3[2]) / 3.0;
+}
+
+// Description:
+// Compute the area of a triangle in 3D.
+inline float vlTriangle::TriangleArea(float p1[3], float p2[3], float p3[3])
+{
+  static vlMath math;
+  float a,b,c;
+  a = math.Distance2BetweenPoints(p1,p2);
+  b = math.Distance2BetweenPoints(p2,p3);
+  c = math.Distance2BetweenPoints(p3,p1);
+  return (0.25* sqrt(fabs((double)4.0*a*c - (a-b+c)*(a-b+c))));
+} 
 
 #endif
 

@@ -13,27 +13,27 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlBrick - a cell that represents a 3D orthogonal parallelepiped
+// .NAME vlVoxel - a cell that represents a 3D orthogonal parallelepiped
 // .SECTION Description
-// vlBrick is a concrete implementation of vlCell to represent a 3D
-// orthogonal parallelpiped. Unlike vlHexahedeon, vlBrick has corners
-// that are at 90 degrees. This results in large increases in computational
-// performance.
+// vlVoxel is a concrete implementation of vlCell to represent a 3D
+// orthogonal parallelpiped. Unlike vlHexahedeon, vlVoxel has interior angles
+// of 90 degrees, and sides are parallel to coordinate axes. This results 
+// in large increases in computational performance.
 
-#ifndef __vlBrick_h
-#define __vlBrick_h
+#ifndef __vlVoxel_h
+#define __vlVoxel_h
 
 #include "Cell.hh"
 
-class vlBrick : public vlCell
+class vlVoxel : public vlCell
 {
 public:
-  vlBrick() {};
-  vlBrick(const vlBrick& b);
-  char *GetClassName() {return "vlBrick";};
+  vlVoxel() {};
+  vlVoxel(const vlVoxel& b);
+  char *GetClassName() {return "vlVoxel";};
 
-  vlCell *MakeObject() {return new vlBrick(*this);};
-  int GetCellType() {return vlBRICK;};
+  vlCell *MakeObject() {return new vlVoxel(*this);};
+  int GetCellType() {return vlVOXEL;};
   int GetCellDimension() {return 3;};
   int GetNumberOfEdges() {return 12;};
   int GetNumberOfFaces() {return 6;};

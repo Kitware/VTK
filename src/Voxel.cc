@@ -13,21 +13,21 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include "Brick.hh"
+#include "Voxel.hh"
 #include "vlMath.hh"
 #include "Line.hh"
-#include "Rect.hh"
+#include "Pixel.hh"
 #include "CellArr.hh"
 
 // Description:
 // Deep copy of cell.
-vlBrick::vlBrick(const vlBrick& b)
+vlVoxel::vlVoxel(const vlVoxel& b)
 {
   this->Points = b.Points;
   this->PointIds = b.PointIds;
 }
 
-int vlBrick::EvaluatePosition(float x[3], float closestPoint[3],
+int vlVoxel::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
@@ -55,7 +55,7 @@ int vlBrick::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
     closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
-    dist2 = 0.0; // inside brick
+    dist2 = 0.0; // inside voxel
     this->ShapeFunctions(pcoords,weights);
     return 1;
     }
@@ -72,7 +72,7 @@ int vlBrick::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 
-void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3],
+void vlVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
@@ -96,7 +96,7 @@ void vlBrick::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 //
 // Compute shape functions
 //
-void vlBrick::ShapeFunctions(float pcoords[3], float sf[8])
+void vlVoxel::ShapeFunctions(float pcoords[3], float sf[8])
 {
   float rm, sm, tm;
 
@@ -127,7 +127,7 @@ static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
 //
 #include "MC_Cases.h"
 
-void vlBrick::Contour(float value, vlFloatScalars *cellScalars, 
+void vlVoxel::Contour(float value, vlFloatScalars *cellScalars, 
                       vlFloatPoints *points,
                       vlCellArray *verts, vlCellArray *lines, 
                       vlCellArray *polys, vlFloatScalars *scalars)
@@ -166,7 +166,7 @@ void vlBrick::Contour(float value, vlFloatScalars *cellScalars,
 }
 
 
-vlCell *vlBrick::GetEdge(int edgeId)
+vlCell *vlVoxel::GetEdge(int edgeId)
 {
   static vlLine line;
   int *verts;
@@ -184,18 +184,18 @@ vlCell *vlBrick::GetEdge(int edgeId)
   return &line;
 }
 
-vlCell *vlBrick::GetFace(int faceId)
+vlCell *vlVoxel::GetFace(int faceId)
 {
-  static vlRectangle rect;
+  static vlPixel pixel;
   int *verts, i;
 
   verts = faces[faceId];
 
   for (i=0; i<4; i++)
     {
-    rect.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
-    rect.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
+    pixel.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
+    pixel.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
     }
 
-  return &rect;
+  return &pixel;
 }

@@ -18,7 +18,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vlUnstructuredGrid is a data object that is a concrete implementation 
 // of vlDataSet. vlUnstructuredGrid represents any combinations of any cell
 // types. This includes 0D (e.g., points), 1D (e.g., lines, polylines), 2D 
-// (e.g., triangles, polygons), and 3D (e.g., bricks, tetrahedron).
+// (e.g., triangles, polygons), and 3D (e.g., hexahedron, tetrahedron).
 
 #ifndef __vlUnstructuredGrid_h
 #define __vlUnstructuredGrid_h

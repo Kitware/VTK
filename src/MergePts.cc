@@ -45,10 +45,10 @@ int *vlMergePoints::MergePoints()
 
   newPtId = 0; // renumbering points
 //
-//  Traverse each point, find cell that point is in, check the list of
-//  points in that cell for merging.  Also need to search all
-//  neighboring cells within the tolerance.  The number and level of
-//  neighbors to search depends upon the tolerance and the cell width.
+//  Traverse each point, find bucket that point is in, check the list of
+//  points in that bucket for merging.  Also need to search all
+//  neighboring buckets within the tolerance.  The number and level of
+//  neighbors to search depends upon the tolerance and the bucket width.
 //
   for ( i=0; i < numPts; i++ ) //loop over all points
     {
@@ -97,9 +97,9 @@ int vlMergePoints::InsertPoint(float x[3])
 {
   int i, ijk[3];
   int idx;
-  vlIdList *cell;
+  vlIdList *bucket;
 //
-//  Locate cell that point is in.
+//  Locate bucket that point is in.
 //
   for (i=0; i<3; i++) 
     {
@@ -109,30 +109,30 @@ int vlMergePoints::InsertPoint(float x[3])
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
         ijk[2]*this->Divisions[0]*this->Divisions[1];
 
-  cell = this->HashTable[idx];
+  bucket = this->HashTable[idx];
 
-  if ( ! cell )
+  if ( ! bucket )
     {
-    cell = new vlIdList(this->NumberOfPointsInCell/2);
-    this->HashTable[idx] = cell;
+    bucket = new vlIdList(this->NumberOfPointsInBucket/2);
+    this->HashTable[idx] = bucket;
     }
   else // see whether we've got duplicate point
     {
 //
-// Check the list of points in that cell.
+// Check the list of points in that bucket.
 //
     int ptId;
     float *pt;
 
-    for (i=0; i < cell->GetNumberOfIds(); i++) 
+    for (i=0; i < bucket->GetNumberOfIds(); i++) 
       {
-      ptId = cell->GetId(i);
+      ptId = bucket->GetId(i);
       pt = this->Points->GetPoint(ptId);
       if ( x[0] == pt[0] && x[1] == pt[1] && x[2] == pt[2] ) return ptId;
       }
     }
 
-  cell->InsertNextId(this->InsertionPointId);
+  bucket->InsertNextId(this->InsertionPointId);
   this->Points->InsertPoint(this->InsertionPointId,x);
 
   return this->InsertionPointId++;

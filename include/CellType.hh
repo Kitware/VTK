@@ -26,18 +26,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 class vlCell;
 
-#define vlPOINT 0
-#define vlPOLY_POINTS 1
-#define vlLINE 2
-#define vlPOLY_LINE 3
-#define vlTRIANGLE 4
-#define vlTRIANGLE_STRIP 5
-#define vlPOLYGON 6
-#define vlRECTANGLE 7
-#define vlQUAD 8
-#define vlTETRA 9
-#define vlBRICK 10
-#define vlHEXAHEDRON 11
+#define vlNULL_ELEMENT 0
+#define vlVERTEX 1
+#define vlPOLY_VERTEX 2
+#define vlLINE 3
+#define vlPOLY_LINE 4
+#define vlTRIANGLE 5
+#define vlTRIANGLE_STRIP 6
+#define vlPOLYGON 7
+#define vlPIXEL 8
+#define vlQUAD 9
+#define vlTETRA 10
+#define vlVOXEL 11
+#define vlHEXAHEDRON 12
 
 class vlCellTypes
 {

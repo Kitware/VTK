@@ -15,7 +15,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Hexa.hh"
 #include "vlMath.hh"
-#include "Brick.hh"
 #include "Line.hh"
 #include "Quad.hh"
 #include "CellArr.hh"

@@ -13,9 +13,13 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract class for specifying filter behaviour
-//
+// .NAME vlFilter - abstract class for specifying filter behaviour
+// .SECTION Description
+// vlFilter is an abstract class that specifies the interface for data 
+// filters. Each filter must have an Update() method that will cause the 
+// filter to execute if its input or the filter itself has been modified
+// since the last execution time.
+
 #ifndef __vlFilter_h
 #define __vlFilter_h
 
@@ -29,7 +33,7 @@ public:
   char *GetClassName() {return "vlFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Abstract Interface:
+  // Description:
   // All filters must provide a method to update the visualization 
   // pipeline.
   virtual void Update() = 0;

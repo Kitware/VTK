@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "SGrid.hh"
-#include "Point.hh"
+#include "Vertex.hh"
 #include "Line.hh"
 #include "Quad.hh"
 #include "Hexa.hh"
@@ -46,7 +46,7 @@ int vlStructuredGrid::GetCellType(int cellId)
   switch (this->DataDescription)
     {
     case SINGLE_POINT: 
-      return vlPOINT;
+      return vlVERTEX;
 
     case X_LINE: case Y_LINE: case Z_LINE:
       return vlLINE;
@@ -56,12 +56,16 @@ int vlStructuredGrid::GetCellType(int cellId)
 
     case XYZ_GRID:
       return vlHEXAHEDRON;
+
+    default:
+      vlErrorMacro(<<"Bad data description!");
+      return vlNULL_ELEMENT;
     }
 }
 
 vlCell *vlStructuredGrid::GetCell(int cellId)
 {
-  static vlPoint point;
+  static vlVertex vertex;
   static vlLine line;
   static vlQuad quad;
   static vlHexahedron hexa;
@@ -83,7 +87,7 @@ vlCell *vlStructuredGrid::GetCell(int cellId)
     {
     case SINGLE_POINT: // cellId can only be = 0
       iMin = iMax = jMin = jMax = kMin = kMax = 0;
-      cell = &point;
+      cell = &vertex;
       break;
 
     case X_LINE:

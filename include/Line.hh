@@ -47,8 +47,11 @@ public:
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float weights[MAX_CELL_SIZE]);
 
-  Intersection(float x[3], float xray[3], float x1[3], float x2[3],
+  int Intersection(float x[3], float xray[3], float x1[3], float x2[3],
                float& u, float& v);
+
+  float DistanceToLine (float x[3], float p1[3], float p2[3]);
+  
 };
 
 #endif

@@ -66,9 +66,7 @@ public:
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
                   int& n2, int* l2);
 
-
 };
 
 #endif
-
 

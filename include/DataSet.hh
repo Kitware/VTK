@@ -67,6 +67,11 @@ public:
   virtual float *GetPoint(int ptId) = 0;
 
   // Description:
+  // Copy point coordinates into user provided array x[3] for specified
+  // point id.
+  virtual void GetPoint(int id, float x[3]);
+
+  // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells
   virtual vlCell *GetCell(int cellId) = 0;
 
@@ -117,6 +122,12 @@ protected:
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
 };
+
+inline void vlDataSet::GetPoint(int id, float x[3])
+{
+  float *pt = this->GetPoint(id);
+  x[0] = pt[0]; x[1] = pt[1]; x[2] = pt[2]; 
+}
 
 #endif
 

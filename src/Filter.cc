@@ -15,6 +15,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Filter.hh"
 
+// Description:
+// Construct new filter without start or end methods.
 vlFilter::vlFilter()
 {
   this->StartMethod = NULL;
@@ -25,6 +27,9 @@ vlFilter::vlFilter()
   this->Updating = 0;
 }
 
+// Description:
+// Set the filter start method. The start method is invoked before the 
+// filter executes.
 void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->StartMethod || arg != this->StartMethodArg )
@@ -35,6 +40,9 @@ void vlFilter::SetStartMethod(void (*f)(void *), void *arg)
     }
 }
 
+// Description:
+// Set the filter end method. The end method is invoked after the 
+// filter executes.
 void vlFilter::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )

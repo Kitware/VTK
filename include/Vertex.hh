@@ -13,24 +13,24 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPoint - a cell that represents a point
+// .NAME vlVertex - a cell that represents a 3D point
 // .SECTION Description
-// vlPoint is a concrete implementation of vlCell to represent a 0D vertex.
+// vlVertex is a concrete implementation of vlCell to represent a 3D point.
 
-#ifndef __vlPoint_h
-#define __vlPoint_h
+#ifndef __vlVertex_h
+#define __vlVertex_h
 
 #include "Cell.hh"
 
-class vlPoint : public vlCell
+class vlVertex : public vlCell
 {
 public:
-  vlPoint() {};
-  vlPoint(const vlPoint& p);
-  char *GetClassName() {return "vlPoint";};
+  vlVertex() {};
+  vlVertex(const vlVertex& p);
+  char *GetClassName() {return "vlVertex";};
 
-  vlCell *MakeObject() {return new vlPoint(*this);};
-  int GetCellType() {return vlPOINT;};
+  vlCell *MakeObject() {return new vlVertex(*this);};
+  int GetCellType() {return vlVERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};

@@ -23,6 +23,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlPlane_h
 #define __vlPlane_h
 
+#include <math.h>
 #include "ImpFunc.hh"
 
 class vlPlane : public vlImplicitFunction
@@ -34,12 +35,9 @@ public:
   // project point onto plane, returning coordinates
   void ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3]);
 
-  float Evaluate(float normal[3], float origin[3], float x[3])
-    {return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
-            normal[2]*(x[2]-origin[2]);};
-
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
+  float Evaluate(float normal[3], float origin[3], float x[3]);
   void EvaluateNormal(float x, float y, float z, float n[3]);
 
   vlSetVector3Macro(Normal,float);
@@ -48,11 +46,30 @@ public:
   vlSetVector3Macro(Origin,float);
   vlGetVectorMacro(Origin,float,3);
 
+  float DistanceToPlane(float x[3], float n[3], float p0[3]);
+
 protected:
   float Normal[3];
   float Origin[3];
 
 };
+
+// Description:
+// Quick evaluation of plane equation n(x-origin)=0.
+inline float vlPlane::Evaluate(float normal[3], float origin[3], float x[3])
+{
+  return normal[0]*(x[0]-origin[0]) + normal[1]*(x[1]-origin[1]) + 
+         normal[2]*(x[2]-origin[2]);
+}
+
+// Description:
+// Return the distance of a point x to a plane defined by n(x-p0) = 0. The
+// normal n[3] must be magnitude=1.
+inline float vlPlane::DistanceToPlane(float x[3], float n[3], float p0[3])
+{
+  return ((float) fabs(n[0]*(x[0]-p0[0]) + n[1]*(x[1]-p0[1]) + 
+                       n[2]*(x[2]-p0[2])));
+}
 
 #endif
 

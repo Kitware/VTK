@@ -42,20 +42,20 @@ inline int vlNeighborPoints::InsertNextPoint(int *x)
   return id/3;
 }
 
-static vlNeighborPoints Cells(26,50);
+static vlNeighborPoints Buckets(26,50);
 
 // Description:
 // Construct with automatic computation of divisions, averaging
-// 25 points per cell.
+// 25 points per bucket.
 vlLocator::vlLocator()
 {
   this->Points = NULL;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->Automatic = 1;
-  this->NumberOfPointsInCell = 25;
+  this->NumberOfPointsInBucket = 25;
   this->Tolerance = 0.01;
   this->HashTable = NULL;
-  this->NumberOfCells = 0;
+  this->NumberOfBuckets = 0;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->InsertionPointId = 0;
   this->InsertionTol2 = 0.0001;
@@ -82,7 +82,7 @@ void vlLocator::FreeSearchStructure()
 
   if ( this->HashTable )
     {
-    for (i=0; i<this->NumberOfCells; i++)
+    for (i=0; i<this->NumberOfBuckets; i++)
       {
       if ( (ptIds = this->HashTable[i]) ) delete ptIds;
       }
@@ -113,7 +113,7 @@ int vlLocator::FindClosestPoint(float x[3])
     if ( x[i] < this->Bounds[2*i] || x[i] > this->Bounds[2*i+1] )
       return -1;
 //
-//  Find cell point is in.  
+//  Find bucket point is in.  
 //
   for (j=0; j<3; j++) 
     {
@@ -121,19 +121,19 @@ int vlLocator::FindClosestPoint(float x[3])
         (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
     }
 //
-//  Need to search this cell for closest point.  If there are no
-//  points in this cell, search 1st level neighbors, and so on,
+//  Need to search this bucket for closest point.  If there are no
+//  points in this bucket, search 1st level neighbors, and so on,
 //  until closest point found.
 //
   for (closest=0,minDist2=LARGE_FLOAT,level=0; (closest == 0) && 
   (level < this->Divisions[0] || level < this->Divisions[1] || 
   level < this->Divisions[2]); level++) 
     {
-    this->GetCellNeighbors (ijk, this->Divisions, level);
+    this->GetBucketNeighbors (ijk, this->Divisions, level);
 
-    for (i=0; i<Cells.GetNumberOfNeighbors(); i++) 
+    for (i=0; i<Buckets.GetNumberOfNeighbors(); i++) 
       {
-      nei = Cells.GetPoint(i);
+      nei = Buckets.GetPoint(i);
       cno = nei[0] + nei[1]*this->Divisions[0] + 
             nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -154,17 +154,17 @@ int vlLocator::FindClosestPoint(float x[3])
     }
 //
 //  Because of the relative location of the points in the spatial_hash, this
-//  may not be the closest point.  Have to search those cell
+//  may not be the closest point.  Have to search those bucket
 //  neighbors (one level further out) that might also contain point.
 //
-  this->GetCellNeighbors (ijk, this->Divisions, level);
+  this->GetBucketNeighbors (ijk, this->Divisions, level);
 //
 //  Don't want to search all the neighbors, only those that could
 //  possibly have points closer than the current closest.
 //
-  for (i=0; i<Cells.GetNumberOfNeighbors(); i++) 
+  for (i=0; i<Buckets.GetNumberOfNeighbors(); i++) 
     {
-    nei = Cells.GetPoint(i);
+    nei = Buckets.GetPoint(i);
 
     for (dist2=0,j=0; j<3; j++) 
       {
@@ -236,13 +236,13 @@ int *vlLocator::MergePoints()
     hmin = (this->H[i] < hmin ? this->H[i] : hmin);
     maxDivs = (maxDivs > this->Divisions[i] ? maxDivs : this->Divisions[i]);
     }
-  level = ceil ((double) this->Tolerance / hmin);
+  level = (int) (ceil ((double) this->Tolerance / hmin));
   level = (level > maxDivs ? maxDivs : level);
 //
-//  Traverse each point, find cell that point is in, check the list of
-//  points in that cell for merging.  Also need to search all
-//  neighboring cells within the tolerance.  The number and level of
-//  neighbors to search depends upon the tolerance and the cell width.
+//  Traverse each point, find bucket that point is in, check the list of
+//  points in that bucket for merging.  Also need to search all
+//  neighboring buckets within the tolerance.  The number and level of
+//  neighbors to search depends upon the tolerance and the bucket width.
 //
   for ( i=0; i < numPts; i++ ) //loop over all points
     {
@@ -259,11 +259,11 @@ int *vlLocator::MergePoints()
 
       for (lvl=0; lvl <= level; lvl++) 
         {
-        this->GetCellNeighbors (ijk, this->Divisions, lvl);
+        this->GetBucketNeighbors (ijk, this->Divisions, lvl);
 
-        for ( k=0; k < Cells.GetNumberOfNeighbors(); k++ ) 
+        for ( k=0; k < Buckets.GetNumberOfNeighbors(); k++ ) 
           {
-          nei = Cells.GetPoint(k);
+          nei = Buckets.GetPoint(k);
           cno = nei[0] + nei[1]*this->Divisions[0] + 
                 nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -291,20 +291,20 @@ int *vlLocator::MergePoints()
 
 //
 //  Method to form subdivision of space based on the points provided and
-//  subject to the constraints of levels and NumberOfPointsInCell.
+//  subject to the constraints of levels and NumberOfPointsInBucket.
 //  The result is directly addressable and of uniform subdivision.
 //
 void vlLocator::SubDivide()
 {
   float *bounds;
-  int numCells;
+  int numBuckets;
   float level;
-  int ndivs[3];
+  int ndivs[3], product;
   int i, j, ijk[3];
   int idx;
-  vlIdList *cell;
+  vlIdList *bucket;
   int numPts;
-  int numPtsInCell = this->NumberOfPointsInCell;
+  int numPtsInBucket = this->NumberOfPointsInBucket;
   float *x;
   typedef vlIdList *vlIdListPtr;
 
@@ -322,7 +322,7 @@ void vlLocator::SubDivide()
 //
   if ( this->HashTable ) this->FreeSearchStructure();
 //
-//  Size the root cell.  Initialize cell data structure, compute 
+//  Size the root bucket.  Initialize bucket data structure, compute 
 //  level and divisions.
 //
   bounds = this->Points->GetBounds();
@@ -330,7 +330,7 @@ void vlLocator::SubDivide()
 
   if ( this->Automatic ) 
     {
-    level = (float) numPts / numPtsInCell;
+    level = (float) numPts / numPtsInBucket;
     level = ceil( pow((double)level,(double)0.33333333) );
     for (i=0; i<3; i++) ndivs[i] = (int) level;
     } 
@@ -345,17 +345,18 @@ void vlLocator::SubDivide()
     this->Divisions[i] = ndivs[i];
     }
 
-  this->NumberOfCells = numCells = ndivs[0]*ndivs[1]*ndivs[2];
-  this->HashTable = new vlIdListPtr[numCells];
-  memset (this->HashTable, (int)NULL, numCells*sizeof(vlIdListPtr));
+  this->NumberOfBuckets = numBuckets = ndivs[0]*ndivs[1]*ndivs[2];
+  this->HashTable = new vlIdListPtr[numBuckets];
+  memset (this->HashTable, (int)NULL, numBuckets*sizeof(vlIdListPtr));
 //
-//  Compute width of cell in three directions
+//  Compute width of bucket in three directions
 //
   for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
 //
-//  Insert each point into the appropriate cell.  Make sure point
-//  falls within cell.
+//  Insert each point into the appropriate bucket.  Make sure point
+//  falls within bucket.
 //
+  product = ndivs[0]*ndivs[1];
   for (i=0; i<numPts; i++) 
     {
     x = this->Points->GetPoint(i);
@@ -364,14 +365,14 @@ void vlLocator::SubDivide()
       ijk[j] = (int) ((float) ((x[j] - bounds[2*j])*0.999 / 
                          (bounds[2*j+1] - bounds[2*j])) * ndivs[j]);
       }
-    idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*ndivs[0]*ndivs[1];
-    cell = this->HashTable[idx];
-    if ( ! cell )
+    idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*product;
+    bucket = this->HashTable[idx];
+    if ( ! bucket )
       {
-      cell = new vlIdList(numPtsInCell/2);
-      this->HashTable[idx] = cell;
+      bucket = new vlIdList(numPtsInBucket/2);
+      this->HashTable[idx] = bucket;
       }
-    cell->InsertNextId(i);
+    bucket->InsertNextId(i);
     }
 
   this->SubDivideTime.Modified();
@@ -379,27 +380,27 @@ void vlLocator::SubDivide()
 
 
 //
-//  Internal function to get cell neighbors at specified level
+//  Internal function to get bucket neighbors at specified level
 //
-void vlLocator::GetCellNeighbors(int ijk[3], int ndivs[3], int level)
+void vlLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 {
-    int i, j, k, min, max, minLevel[3], maxLevel[3];
-    int nei[3];
+  int i, j, k, min, max, minLevel[3], maxLevel[3];
+  int nei[3];
 //
 //  Initialize
 //
-    Cells.Reset();
+  Buckets.Reset();
 //
-//  If at this cell, just place into list
+//  If at this bucket, just place into list
 //
   if ( level == 0 ) 
     {
-    Cells.InsertNextPoint(ijk);
+    Buckets.InsertNextPoint(ijk);
     return;
     }
 //
 //  Create permutations of the ijk indices that are at the level
-//  required. If these are legal cells, add to list for searching.
+//  required. If these are legal buckets, add to list for searching.
 //
   for ( i=0; i<3; i++ ) 
     {
@@ -420,14 +421,14 @@ void vlLocator::GetCellNeighbors(int ijk[3], int ndivs[3], int level)
         k == (ijk[2] + level) || k == (ijk[2] - level) ) 
           {
           nei[0]=i; nei[1]=j; nei[2]=k;
-          Cells.InsertNextPoint(nei);
+          Buckets.InsertNextPoint(nei);
           }
         }
       }
     }
 
   return;
-  }
+}
 
 // specifically for point insertion
 static float InsertionLevel;
@@ -438,7 +439,7 @@ static float InsertionLevel;
 // that the points lie in.
 int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
 {
-  int i, ndivs[3];
+  int i;
   int maxDivs;
   typedef vlIdList *vlIdListPtr;
   float hmin;
@@ -450,16 +451,16 @@ int vlLocator::InitPointInsertion(vlPoints *newPts, float bounds[6])
 
   for (i=0; i<6; i++) this->Bounds[i] = bounds[i];
 
-  for (this->NumberOfCells=1, i=0; i<3; i++) 
-    this->NumberOfCells *= this->Divisions[i];
+  for (this->NumberOfBuckets=1, i=0; i<3; i++) 
+    this->NumberOfBuckets *= this->Divisions[i];
 
-  this->HashTable = new vlIdListPtr[this->NumberOfCells];
-  memset (this->HashTable, (int)NULL, this->NumberOfCells*sizeof(vlIdListPtr));
+  this->HashTable = new vlIdListPtr[this->NumberOfBuckets];
+  memset (this->HashTable, (int)NULL, this->NumberOfBuckets*sizeof(vlIdListPtr));
 //
-//  Compute width of cell in three directions
+//  Compute width of bucket in three directions
 //
   for (i=0; i<3; i++) 
-    this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
+    this->H[i] = (bounds[2*i+1] - bounds[2*i]) / this->Divisions[i] ;
 
   this->InsertionTol2 = this->Tolerance * this->Tolerance;
 
@@ -486,9 +487,9 @@ int vlLocator::InsertPoint(float x[3])
 {
   int i, j, ijk[3];
   int idx;
-  vlIdList *cell;
+  vlIdList *bucket;
 //
-//  Locate cell that point is in.
+//  Locate bucket that point is in.
 //
   for (i=0; i<3; i++) 
     {
@@ -498,19 +499,19 @@ int vlLocator::InsertPoint(float x[3])
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
         ijk[2]*this->Divisions[0]*this->Divisions[1];
 
-  cell = this->HashTable[idx];
-  if ( ! cell )
+  bucket = this->HashTable[idx];
+  if ( ! bucket )
     {
-    cell = new vlIdList(this->NumberOfPointsInCell/2);
-    this->HashTable[idx] = cell;
+    bucket = new vlIdList(this->NumberOfPointsInBucket/2);
+    this->HashTable[idx] = bucket;
     }
   else // see whether we've got duplicate point
     {
 //
-// Check the list of points in that cell for merging.  Also need to 
-// search all neighboring cells within the tolerance.  The number 
+// Check the list of points in that bucket for merging.  Also need to 
+// search all neighboring buckets within the tolerance.  The number 
 // and level of neighbors to search depends upon the tolerance and 
-// the cell width.
+// the bucket width.
 //
     int *nei, lvl, cno, ptId;
     vlIdList *ptIds;
@@ -519,11 +520,11 @@ int vlLocator::InsertPoint(float x[3])
 
     for (lvl=0; lvl <= InsertionLevel; lvl++)
       {
-      this->GetCellNeighbors (ijk, this->Divisions, lvl);
+      this->GetBucketNeighbors (ijk, this->Divisions, lvl);
 
-      for ( i=0; i < Cells.GetNumberOfNeighbors(); i++ ) 
+      for ( i=0; i < Buckets.GetNumberOfNeighbors(); i++ ) 
         {
-        nei = Cells.GetPoint(i);
+        nei = Buckets.GetPoint(i);
         cno = nei[0] + nei[1]*this->Divisions[0] + 
               nei[2]*this->Divisions[0]*this->Divisions[1];
 
@@ -539,12 +540,12 @@ int vlLocator::InsertPoint(float x[3])
               return ptId;
               }
             }
-          } //if points in cell
+          } //if points in bucket
         } //for each neighbor
       } //for neighbors at this level
     } // else check duplicate point
 
-  cell->InsertNextId(this->InsertionPointId);
+  bucket->InsertNextId(this->InsertionPointId);
   this->Points->InsertPoint(this->InsertionPointId,x);
   return this->InsertionPointId++;
 }

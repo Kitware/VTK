@@ -13,25 +13,25 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlPolyPoints - cell represents a set of 0D vertices
+// .NAME vlPolyVertex - cell represents a set of 0D vertices
 // .SECTION Description
-// vlPolyPoints is a concrete implementation of vlCell to represent a 
-// set of 0D vertices.
+// vlPolyVertex is a concrete implementation of vlCell to represent a 
+// set of 3D vertices.
 
-#ifndef __vlPolyPoints_h
-#define __vlPolyPoints_h
+#ifndef __vlPolyVertex_h
+#define __vlPolyVertex_h
 
 #include "Cell.hh"
 
-class vlPolyPoints : public vlCell
+class vlPolyVertex : public vlCell
 {
 public:
-  vlPolyPoints() {};
-  vlPolyPoints(const vlPolyPoints& pp);
-  char *GetClassName() {return "vlPolyPoints";};
+  vlPolyVertex() {};
+  vlPolyVertex(const vlPolyVertex& pp);
+  char *GetClassName() {return "vlPolyVertex";};
 
-  vlCell *MakeObject() {return new vlPolyPoints(*this);};
-  int GetCellType() {return vlPOLY_POINTS;};
+  vlCell *MakeObject() {return new vlPolyVertex(*this);};
+  int GetCellType() {return vlPOLY_VERTEX;};
   int GetCellDimension() {return 0;};
   int GetNumberOfEdges() {return 0;};
   int GetNumberOfFaces() {return 0;};

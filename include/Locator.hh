@@ -17,9 +17,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .SECTION Description
 // vlLocator is a spatial search object to quickly locate points in 3-D.
 // vlLocator works by dividing a specified region of space into a regular
-// array of cells, and then keeping a list of points that exist in each 
-// cell. Typical operation involves giving a position in 3-D and finding
-// the closest point.
+// array of "rectangular" buckets, and then keeping a list of points that 
+// lie in each bucket. Typical operation involves giving a position in 3-D 
+// and finding the closest point.
 // .SECTION Caveats
 // Many other types of spatial locators have been developed such as 
 // octrees and k-d trees. These are often more efficient for the 
@@ -53,15 +53,15 @@ public:
 
   // Description:
   // Boolean controls whether automatic subdivision size is computed
-  // from average number of points in cell.
+  // from average number of points in bucket.
   vlSetMacro(Automatic,int);
   vlGetMacro(Automatic,int);
   vlBooleanMacro(Automatic,int);
 
   // Description:
-  // Specify the average number of points in each "cell".
-  vlSetClampMacro(NumberOfPointsInCell,int,1,LARGE_INTEGER);
-  vlGetMacro(NumberOfPointsInCell,int);
+  // Specify the average number of points in each bucket.
+  vlSetClampMacro(NumberOfPointsInBucket,int,1,LARGE_INTEGER);
+  vlGetMacro(NumberOfPointsInBucket,int);
 
   // Description:
   // Specify absolute tolerance (in world coordinates) for performing
@@ -75,19 +75,19 @@ public:
   virtual int InsertPoint(float x[3]);
 
 protected:
-  // place points in appropriate cells
+  // place points in appropriate buckets
   void SubDivide();
-  void GetCellNeighbors(int ijk[3], int ndivs[3], int level);
+  void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);
 
   vlPoints *Points;
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
-  int NumberOfPointsInCell; // Used with previous boolean to control subdivide
+  int NumberOfPointsInBucket; //Used with previous boolean to control subdivide
   float Tolerance; // for performing merging
   float Bounds[6]; // bounds of points
-  vlIdList **HashTable; // lists of point ids in cells
-  int NumberOfCells; // total size of hash table
-  float H[3]; // width of each cell in x-y-z directions
+  vlIdList **HashTable; // lists of point ids in buckets
+  int NumberOfBuckets; // total size of hash table
+  float H[3]; // width of each bucket in x-y-z directions
   vlTimeStamp SubDivideTime;  
 
   float InsertionTol2;

@@ -14,18 +14,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "UGrid.hh"
-#include "Point.hh"
-#include "PolyPts.hh"
+#include "Vertex.hh"
+#include "PolyVert.hh"
 #include "Line.hh"
 #include "PolyLine.hh"
 #include "Triangle.hh"
 #include "TriStrip.hh"
 #include "Quad.hh"
-#include "Rect.hh"
+#include "Pixel.hh"
 #include "Polygon.hh"
 #include "Tetra.hh"
 #include "Hexa.hh"
-#include "Brick.hh"
+#include "Voxel.hh"
 
 vlUnstructuredGrid::vlUnstructuredGrid ()
 {
@@ -102,29 +102,29 @@ int vlUnstructuredGrid::GetCellType(int cellId)
 
 vlCell *vlUnstructuredGrid::GetCell(int cellId)
 {
-  static vlPoint point;
-  static vlPolyPoints ppoints;
+  static vlVertex vertex;
+  static vlPolyVertex pvertex;
   static vlLine line;
   static vlPolyLine pline;
   static vlTriangle triangle;
   static vlTriangleStrip strip;
   static vlPolygon poly;
-  static vlRectangle rect;
+  static vlPixel pixel;
   static vlQuad quad;
   static vlTetra tetra;
-  static vlBrick brick;
+  static vlVoxel voxel;
   static vlHexahedron hexa;
   int i, loc, numPts, *pts;
   vlCell *cell;
 
   switch (this->Cells->GetCellType(cellId))
     {
-    case vlPOINT:
-     cell = &point;
+    case vlVERTEX:
+     cell = &vertex;
      break;
 
-    case vlPOLY_POINTS:
-     cell = &ppoints;
+    case vlPOLY_VERTEX:
+     cell = &pvertex;
      break;
 
     case vlLINE: 
@@ -143,8 +143,8 @@ vlCell *vlUnstructuredGrid::GetCell(int cellId)
       cell = &strip;
       break;
 
-    case vlRECTANGLE:
-      cell = &rect;
+    case vlPIXEL:
+      cell = &pixel;
       break;
 
     case vlQUAD:
@@ -159,8 +159,8 @@ vlCell *vlUnstructuredGrid::GetCell(int cellId)
       cell = &tetra;
       break;
 
-    case vlBRICK:
-      cell = &brick;
+    case vlVOXEL:
+      cell = &voxel;
       break;
 
     case vlHEXAHEDRON:

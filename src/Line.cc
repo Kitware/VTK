@@ -215,3 +215,30 @@ void vlLine::Contour(float value, vlFloatScalars *cellScalars,
     scalars->InsertNextScalar(value);
     }
 }
+
+//
+//  Determine the distance of the current vertex to the edge defined by
+//  the vertices provided.  Returns distance squared.
+//
+float vlLine::DistanceToLine (float x[3], float p1[3], float p2[3])
+{
+  int i;
+  float np1[3], p1p2[3], proj, den;
+  static vlMath math;
+
+  for (i=0; i<3; i++) 
+    {
+    np1[i] = x[i] - p1[i];
+    p1p2[i] = p1[i] - p2[i];
+    }
+
+  if ( (den=math.Norm(p1p2)) != 0.0 )
+      for (i=0; i<3; i++)
+          p1p2[i] /= den;
+  else
+      return math.Dot(np1,np1);
+
+  proj = math.Dot(np1,p1p2);
+
+  return (math.Dot(np1,np1) - proj*proj);
+}

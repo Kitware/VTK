@@ -14,8 +14,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "PolyData.hh"
-#include "Point.hh"
-#include "PolyPts.hh"
+#include "Vertex.hh"
+#include "PolyVert.hh"
 #include "Line.hh"
 #include "PolyLine.hh"
 #include "Triangle.hh"
@@ -80,8 +80,8 @@ int vlPolyData::GetCellType(int cellId)
 
 vlCell *vlPolyData::GetCell(int cellId)
 {
-  static vlPoint point;
-  static vlPolyPoints ppoints;
+  static vlVertex vertex;
+  static vlPolyVertex pvertex;
   static vlLine line;
   static vlPolyLine pline;
   static vlTriangle triangle;
@@ -99,13 +99,13 @@ vlCell *vlPolyData::GetCell(int cellId)
 
   switch (type)
     {
-    case vlPOINT:
-     cell = &point;
+    case vlVERTEX:
+     cell = &vertex;
      this->Verts->GetCell(loc,numPts,pts);
      break;
 
-    case vlPOLY_POINTS:
-     cell = &ppoints;
+    case vlPOLY_VERTEX:
+     cell = &pvertex;
      this->Verts->GetCell(loc,numPts,pts);
      break;
 
@@ -341,9 +341,9 @@ void vlPolyData::BuildCells()
   for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
     if ( npts > 1 )
-      cells->InsertNextCell(vlPOLY_POINTS,inVerts->GetLocation(npts));
+      cells->InsertNextCell(vlPOLY_VERTEX,inVerts->GetLocation(npts));
     else
-      cells->InsertNextCell(vlPOINT,inVerts->GetLocation(npts));
+      cells->InsertNextCell(vlVERTEX,inVerts->GetLocation(npts));
     }
 
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
@@ -408,7 +408,7 @@ void vlPolyData::GetCellPoints(int cellId, int& npts, int* &pts)
 
   switch (type)
     {
-    case vlPOINT: case vlPOLY_POINTS:
+    case vlVERTEX: case vlPOLY_VERTEX:
      this->Verts->GetCell(loc,npts,pts);
      break;
 
@@ -458,7 +458,7 @@ void vlPolyData::Allocate(int numCells, int extSize)
 }
 
 // Description:
-// Insert a cell of type vlPOINT, vlPOLY_POINTS, vlLINE, vlPOLY_LINE,
+// Insert a cell of type vlVERTEX, vlPOLY_VERTEX, vlLINE, vlPOLY_LINE,
 // vlTRIANGLE, vlQUAD, vlPOLYGON, or vlTRIANGLE_STRIP.  Make sure that
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
@@ -469,7 +469,7 @@ int vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 
   switch (type)
     {
-    case vlPOINT: case vlPOLY_POINTS:
+    case vlVERTEX: case vlPOLY_VERTEX:
       id = this->Verts->InsertNextCell(npts,pts);
       break;
 
@@ -519,7 +519,7 @@ void vlPolyData::ReverseCell(int cellId)
 
   switch (type)
     {
-    case vlPOINT: case vlPOLY_POINTS:
+    case vlVERTEX: case vlPOLY_VERTEX:
      this->Verts->ReverseCell(loc);
      break;
 
@@ -539,7 +539,7 @@ void vlPolyData::ReverseCell(int cellId)
 
 // Description:
 // Replace the points defining cell "cellId" with a new set of points.
-void vlPolyData::ReplaceCell(int cellId, vlIdList& ptIds)
+void vlPolyData::ReplaceCell(int cellId, int npts, int *pts)
 {
   int loc, type;
 
@@ -549,21 +549,51 @@ void vlPolyData::ReplaceCell(int cellId, vlIdList& ptIds)
 
   switch (type)
     {
-    case vlPOINT: case vlPOLY_POINTS:
-     this->Verts->ReplaceCell(loc,ptIds);
+    case vlVERTEX: case vlPOLY_VERTEX:
+     this->Verts->ReplaceCell(loc,npts,pts);
      break;
 
     case vlLINE: case vlPOLY_LINE:
-      this->Lines->ReplaceCell(loc,ptIds);
+      this->Lines->ReplaceCell(loc,npts,pts);
       break;
 
     case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
-      this->Polys->ReplaceCell(loc,ptIds);
+      this->Polys->ReplaceCell(loc,npts,pts);
       break;
 
     case vlTRIANGLE_STRIP:
-      this->Strips->ReplaceCell(loc,ptIds);
+      this->Strips->ReplaceCell(loc,npts,pts);
       break;
+    }
+}
+
+void vlPolyData::ReplaceLinkedCell(int cellId, int npts, int *pts)
+{
+  int loc = this->Cells->GetCellLocation(cellId);
+  int type = this->Cells->GetCellType(cellId);
+
+  switch (type)
+    {
+    case vlVERTEX: case vlPOLY_VERTEX:
+     this->Verts->ReplaceCell(loc,npts,pts);
+     break;
+
+    case vlLINE: case vlPOLY_LINE:
+      this->Lines->ReplaceCell(loc,npts,pts);
+      break;
+
+    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+      this->Polys->ReplaceCell(loc,npts,pts);
+      break;
+
+    case vlTRIANGLE_STRIP:
+      this->Strips->ReplaceCell(loc,npts,pts);
+      break;
+    }
+
+  for (int i=0; i < npts; i++)
+    {
+    this->Links->InsertNextCellReference(pts[i],cellId);
     }
 }
 
