@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.8");
+vtkCxxRevisionMacro(vtkPNGReader, "1.9");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
@@ -334,7 +334,6 @@ int vtkPNGReader::CanReadFile(const char* fname)
   FILE* fp = fopen(fname, "rb");
   if(!fp)
     {
-    fclose(fp);
     return 0;
     }
   unsigned char header[8];
@@ -371,8 +370,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
     fclose(fp);
     return 0;
     }
-  png_destroy_read_struct(&png_ptr, &info_ptr,
-                          (png_infopp)NULL);
+  png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
   
   fclose(fp);
   return 1; 
