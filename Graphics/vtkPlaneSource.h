@@ -27,16 +27,17 @@
 // resolution of the plane (i.e., number of subdivisions) is
 // controlled by the ivars XResolution and YResolution.
 //
-// There are three convenience methods that allow you to easily move
-// the plane.  The first, SetNormal(), allows you to specify the plane
-// normal. The effect of this method is to rotate the plane around the
-// center of the plane, aligning the plane normal with the specified
-// normal. The second, SetCenter(), translates the center of the plane
-// to the specified center point. The third method, Push(), allows you
-// to translate the plane along the plane normal by the distance
-// specified. (Negative Push values translate the plane in the
-// negative normal direction.)  Note that the SetNormal(), SetCenter()
-// and Push() methods modify the Origin, Point1, and/or Point2 ivars.
+// There are three convenience methods that allow you to easily move the
+// plane.  The first, SetNormal(), allows you to specify the plane
+// normal. The effect of this method is to rotate the plane around the center
+// of the plane, aligning the plane normal with the specified normal. The
+// rotation is about the axis defined by the cross product of the current
+// normal with the new normal. The second, SetCenter(), translates the center
+// of the plane to the specified center point. The third method, Push(),
+// allows you to translate the plane along the plane normal by the distance
+// specified. (Negative Push values translate the plane in the negative
+// normal direction.)  Note that the SetNormal(), SetCenter() and Push()
+// methods modify the Origin, Point1, and/or Point2 instance variables.
 
 // .SECTION Caveats
 // The normal to the plane will point in the direction of the cross product

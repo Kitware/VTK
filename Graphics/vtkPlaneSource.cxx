@@ -22,11 +22,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.56");
+vtkCxxRevisionMacro(vtkPlaneSource, "1.57");
 vtkStandardNewMacro(vtkPlaneSource);
 
-// Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
-// and centered at the origin.
+// Construct plane perpendicular to z-axis, resolution 1x1, width and height
+// 1.0, and centered at the origin.
 vtkPlaneSource::vtkPlaneSource()
 {
   this->XResolution = 1;
@@ -88,7 +88,6 @@ void vtkPlaneSource::Execute()
     return;
     }
 
-  //
   // Set things up; allocate memory
   //
   numPts = (this->XResolution+1) * (this->YResolution+1);
@@ -105,9 +104,9 @@ void vtkPlaneSource::Execute()
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
-//
-// Generate points and point data
-//
+
+  // Generate points and point data
+  //
   for (numPts=0, i=0; i<(this->YResolution+1); i++)
     {
     tc[1] = (float) i / this->YResolution;
@@ -125,9 +124,9 @@ void vtkPlaneSource::Execute()
       newNormals->InsertTuple(numPts++,this->Normal);
       }
     }
-//
-// Generate polygon connectivity
-//
+
+  // Generate polygon connectivity
+  //
   for (i=0; i<this->YResolution; i++)
     {
     for (j=0; j<this->XResolution; j++)
@@ -139,9 +138,9 @@ void vtkPlaneSource::Execute()
       newPolys->InsertNextCell(4,pts);
       }
     }
-//
-// Update ourselves and release memory
-//
+
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -159,43 +158,41 @@ void vtkPlaneSource::Execute()
 // instance variables as necessary (i.e., rotate the plane around its center).
 void vtkPlaneSource::SetNormal(float N[3])
 {
-  float n[3], v1[3], v2[3];
-  float rotVector[3], theta;
-  int i;
-  vtkTransform *transform = vtkTransform::New();
-
-  // compute plane axes
-  for ( i=0; i < 3; i++)
-    {
-    n[i] = N[i];
-    v1[i] = this->Point1[i] - this->Origin[i];
-    v2[i] = this->Point2[i] - this->Origin[i];
-    }
+  float n[3], rotVector[3], theta;
 
   //make sure input is decent
+  n[0] = N[0];
+  n[1] = N[1];
+  n[2] = N[2];
   if ( vtkMath::Normalize(n) == 0.0 )
     {
     vtkErrorMacro(<<"Specified zero normal");
-    transform->Delete();
-    return;
-    }
-  if ( !this->UpdatePlane(v1,v2) )
-    {
-    transform->Delete();
     return;
     }
   
-  //compute rotation vector
-  vtkMath::Cross(this->Normal,n,rotVector);
-  if ( vtkMath::Normalize(rotVector) == 0.0 )
+  // Compute rotation vector using a transformation matrix.
+  // Note that if normals are parallel then the rotation is either
+  // 0 or 180 degrees.
+  float dp = vtkMath::Dot(this->Normal,n);
+  if ( dp >= 1.0 )
     {
-    transform->Delete();
-    return; //no rotation
+    return; //zero rotation
     }
-  theta = acos((double)vtkMath::Dot(this->Normal,n)) / 
-            vtkMath::DoubleDegreesToRadians();
+  else if ( dp <= -1.0 )
+    {
+    theta = 180.0;
+    rotVector[0] = this->Point1[0] - this->Origin[0];
+    rotVector[1] = this->Point1[1] - this->Origin[1];
+    rotVector[2] = this->Point1[2] - this->Origin[2];
+    }
+  else
+    {
+    vtkMath::Cross(this->Normal,n,rotVector);
+    theta = acos((double)dp) / vtkMath::DoubleDegreesToRadians();
+    }
 
   // create rotation matrix
+  vtkTransform *transform = vtkTransform::New();
   transform->PostMultiply();
 
   transform->Translate(-this->Center[0],-this->Center[1],-this->Center[2]);
