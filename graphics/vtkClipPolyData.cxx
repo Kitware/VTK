@@ -156,7 +156,7 @@ void vtkClipPolyData::Execute()
   //
   if ( numPts < 1 || inPts == NULL )
     {
-    vtkErrorMacro(<<"No data to clip");
+    //vtkErrorMacro(<<"No data to clip");
     return;
     }
 
