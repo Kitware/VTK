@@ -419,9 +419,10 @@ Colormap vtkXglrRenderWindow::GetDesiredColormap ()
 
   this->ColorMap = 
     XCreateColormap(this->DisplayId,
-		    RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,0)),
+		    RootWindowOfScreen(ScreenOfDisplay(this->DisplayId,
+						       DefaultScreen(this->DisplayId))),
 		    vis, AllocNone);
-
+		    
   if (!this->ColorMap) 
     {
     fprintf(stderr,"Could not create color map\n");

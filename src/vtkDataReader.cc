@@ -89,6 +89,26 @@ vtkDataReader::~vtkDataReader()
   if (this->InputString) delete [] this->InputString;
 }
 
+void vtkDataReader::SetInputString(char* _arg, int len)
+{ 
+  if (this->Debug)
+    {
+    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting InputString to " << _arg << "\n\n"; 
+    }
+
+  if (this->InputString) delete [] this->InputString; 
+  if (_arg) 
+    { 
+    this->InputString = new char[len]; 
+    memcpy(this->InputString,_arg,len); 
+    } 
+   else 
+    { 
+    this->InputString = NULL; 
+    } 
+  this->Modified(); 
+} 
+
 // Description:
 // Internal function used to consume whitespace when reading in
 // an InputString.

@@ -67,6 +67,18 @@ vtkRenderMaster::vtkRenderMaster()
 {
 }
 
+vtkRenderMaster::~vtkRenderMaster()
+{
+  vtkRenderWindow *aren;
+  
+  // we also free all of our renderWindows
+  for (this->RenderWindows.InitTraversal(); 
+       (aren = this->RenderWindows.GetNextItem()); )
+    {
+    delete aren;
+    }
+}
+
 // Description:
 // Create a vtkRenderWindow to match the type given. Current
 // values for type include sbr for starbasel; glr for SGI's gl;
@@ -78,6 +90,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkSbrRenderWindow *ren;
     ren = new vtkSbrRenderWindow;
+    this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
 #endif
@@ -87,6 +100,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkGlrRenderWindow *ren;
     ren = new vtkGlrRenderWindow;
+    this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
 #endif
@@ -96,6 +110,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkOglrRenderWindow *ren;
     ren = new vtkOglrRenderWindow;
+    this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
 #endif
@@ -105,6 +120,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkWin32OglrRenderWindow *ren;
     ren = new vtkWin32OglrRenderWindow;
+    this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
 #endif
@@ -114,6 +130,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkXglrRenderWindow *ren;
     ren = new vtkXglrRenderWindow;
+    this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
 #endif

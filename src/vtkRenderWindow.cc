@@ -79,6 +79,8 @@ vtkRenderWindow::vtkRenderWindow()
 
 vtkRenderWindow::~vtkRenderWindow()
 {
+  vtkRenderer *aren;
+
   if (this->AccumulationBuffer) 
     {
     delete [] this->AccumulationBuffer;
@@ -88,6 +90,13 @@ vtkRenderWindow::~vtkRenderWindow()
     {
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
+    }
+
+  // we also free all of our renderers
+  for (this->Renderers.InitTraversal(); 
+       (aren = this->Renderers.GetNextItem()); )
+    {
+    delete aren;
     }
 }
 
