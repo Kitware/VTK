@@ -18,6 +18,7 @@ reader SetDataMask 0x7fff
 vtkImageClip clip
 clip SetInput [reader GetOutput]
 clip SetOutputWholeExtent 0 255 50 150 1 93
+clip ClipDataOn
 clip ReleaseDataFlagOff
 
 vtkImageViewer viewer
