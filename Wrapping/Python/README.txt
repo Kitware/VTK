@@ -9,8 +9,8 @@ so your old code should work without any problems.  However, we
 recommend that you use the new package structure.
 
 
-Contents:
-^^^^^^^^^
+Contents
+^^^^^^^^
 
   Installation
 
@@ -22,20 +22,33 @@ Contents:
 
   Information for packagers
 
+  Common problems
+
   Reporting Bugs
 
 
-Installation:
-^^^^^^^^^^^^^
+Installation
+^^^^^^^^^^^^
 
-  There are primarily two ways of using the VTK-Python wrappers and
-  modules.  
+  There are primarily three ways of using the VTK-Python wrappers and
+  modules.
 
-    (1) Using the package from the source build without installing it
-    system wide.  This is most useful when you build VTK off a CVS
-    checkout and do not want to install it system wide.  This is also
-    useful if you are not the administrator of the machine you are
-    using/building VTK on.
+    (1) If you are building VTK from source and want to use the
+    VTK-Python packages alone, i.e. you dont want to use VTK via C++,
+    Tcl, etc., then simply use the "vtkpython" interpreter that is
+    built with VTK.  This is a Python interpreter that is linked to
+    the relavant VTK libraries and sets the PYTHONPATH internally to
+    the correct locations.  So, all you need to do is use "vtkpython"
+    instead of "python".  Naturally this will work only if you retain
+    your build tree and don't change the directories where VTK was
+    built.
+
+    (2) Using the package from the source build without installing it
+    system wide and without using vtkpython.  This is most useful when
+    you build VTK off a CVS checkout and do not want to install it
+    system wide and still want to use the usual Python interpreter.
+    This is also useful if you are not the administrator of the
+    machine you are using/building VTK on.
 
      *nix:
 
@@ -44,10 +57,10 @@ Installation:
       libraries.  You must also export your PYTHONPATH to _both_ the
       directory that contains all the libvtk*Python.so files _and_ the
       Wrapping/Python directory.  Under bash/sh something like so
-      needs to be done:
+      needs to be done::
     
-      $ export LD_LIBRARY_PATH=$VTK_ROOT/lib
-      $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:$VTK_ROOT/lib
+        $ export LD_LIBRARY_PATH=$VTK_ROOT/lib
+        $ export PYTHONPATH=$VTK_ROOT/Wrapping/Python:$VTK_ROOT/lib
 
       where VTK_ROOT is the directory where your VTK sources are the
       VTK_ROOT/lib directory is where the libraries are built.  Change
@@ -61,14 +74,14 @@ Installation:
       DLL's.
 
 
-    (2) Installation via distutils to a directory different from the
+    (3) Installation via distutils to a directory different from the
     build directory.  The file VTK_ROOT/Wrapping/Python/setup.py is a
     distutils script that should install VTK-Python correctly.  It
     should work under *nix, Win32 and possibly other platforms.
 
     Under *nix please note that you must first run 'make install' to
     install the libraries to system wide directories.  To install the
-    VTK-Python wrappers just do the following:
+    VTK-Python wrappers just do the following::
 
        # cd VTK_ROOT/Wrapping/Python
        # python setup.py install
@@ -82,8 +95,8 @@ Installation:
     <vtkusers@public.kitware.com>.
 
 
-Structure/Usage:
-^^^^^^^^^^^^^^^^
+Structure/Usage
+^^^^^^^^^^^^^^^
 
   Once the Python packages are installed properly (either system wide
   or by using environment variables) to use the new package structure
@@ -115,11 +128,11 @@ Structure/Usage:
   directory. 
 
 
- Valid Kit names:
- ^^^^^^^^^^^^^^^^
+ Valid Kit names
+ ^^^^^^^^^^^^^^^
 
-  Required Kits:
-  --------------
+  Required Kits
+  -------------
 
     common, filtering, io, imaging and graphics.
 
@@ -131,7 +144,7 @@ Structure/Usage:
     You should have all the required kits in your namespace.  If any
     of them is not importable you *will* get an ImportError.
 
-  Optional Kits:
+  Optional Kits
   -------------
 
     rendering, hybrid, patented and parallel:
@@ -154,8 +167,8 @@ http://public.kitware.com/pipermail/vtk-developers/2001-October/000828.html
     LinkError exception.
 
 
-Other VTK related modules:
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Other VTK related modules
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
   Apart from the basic VTK functionality there are other useful VTK
   related modules in the package.  There are various widgets for
@@ -190,8 +203,8 @@ Other VTK related modules:
   VTK-Python.
 
 
-Backwards compatibility:
-^^^^^^^^^^^^^^^^^^^^^^^^
+Backwards compatibility
+^^^^^^^^^^^^^^^^^^^^^^^
 
   All the older modules like vtkpython etc. are still available.  This
   means that all your old code should still run ok.  However, new
@@ -207,9 +220,8 @@ Backwards compatibility:
   modified to use the new structure.
 
 
-Information for packagers:
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+Information for packagers
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
   Sometimes while building RPMS or debs the provided distutils
   setup.py script might not do.  Here is some information for such
@@ -267,8 +279,60 @@ Information for packagers:
   This should give you a working VTK-Python setup.
 
 
-Reporting Bugs:
-^^^^^^^^^^^^^^~
+Common problems
+^^^^^^^^^^^^^^^
+
+ Most common problems are described in the VTK FAQ available here:
+
+   http://public.kitware.com/cgi-bin/vtkfaq?req=home
+
+ The following lists a few serious problems and their solution from
+ the above FAQ.
+
+  Q. Why do I get the Python error -- ValueError: method requires a
+  VTK object?
+ 
+  A.  You just built VTK with Python support and everything went
+  smoothly. After you install everything and try running a Python-VTK
+  script you get a traceback with this error:
+
+   ValueError: method requires a VTK object.
+
+  This error occurs if you have two copies of the VTK libraries on
+  your system. These copies need not be in your linkers path. The VTK
+  libraries are usually built with an rpath flag (under *nix). This is
+  necessary to be able to test the build in place. When you install
+  VTK into another directory in your linkers path and then run a
+  Python script the Python modules remember the old path and load the
+  libraries in the build directory as well. This triggers the above
+  error since the object you passed the method was instantiated from
+  the other copy.
+
+  So how do you fix it? The easiest solution is to simply delete the
+  copy of the libraries inside your build directory or move the build
+  directory to another place. For example, if you build the libraries
+  in VTK/bin then move VTK/bin to VTK/bin1 or remove all the
+  VTK/bin/*.so files. The error should no longer occur.
+
+  Another way to fix the error is to turn the CMAKE_SKIP_RPATH boolean
+  to ON in your CMakeCache.txt file and then rebuild VTK. You
+  shouldn't have to rebuild all of VTK, just delete the libraries
+  (*.so files) and then re-run cmake and make. The only trouble with
+  this approach is that you cannot have BUILD_TESTING to ON when you
+  do this.
+
+  Alternatively, starting with recent VTK CVS versions (post Dec. 6,
+  2002) and with VTK versions greater than 4.1 (i.e. 4.2 and beyond)
+  there is a special VTK-Python interpreter built as part of VTK
+  called 'vtkpython' that should eliminate this problem.  Simply use
+  'vtkpython' in place of the usual 'python' interpreter when you use
+  VTK-Python scripts and the problem should not occur.  This is
+  because vtkpython uses the libraries inside the build directory.
+
+
+
+Reporting Bugs
+^^^^^^^^^^^^^^
 
 If you have trouble or spot bugs please let us know at
 vtk-developers@public.kitware.com
