@@ -300,7 +300,9 @@ class VTK_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Get the plane equations that bound the view frustum.
-  // The plane normals point inward.
+  // The plane normals point inward. The planes array contains six
+  // plane equations of the form (Ax+By+Cz+D=0), the first four
+  // values are (A,B,C,D) which repeats for each of the planes.
   void GetFrustumPlanes( float planes[24] );
 
   // Description:
