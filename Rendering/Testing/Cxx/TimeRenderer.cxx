@@ -50,6 +50,8 @@ int main( int argc, char *argv[] )
   
   // create a rendering window and both renderers
   vtkRenderer *ren1 = vtkRenderer::New();
+  ren1->GetCullers()->InitTraversal();
+//  ren1->RemoveCuller(ren1->GetCullers()->GetNextItem());
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
   renWindow->AddRenderer(ren1);
 
@@ -90,7 +92,7 @@ int main( int argc, char *argv[] )
   vtkPolyDataMapper *mapper;
   vtkCellArray *cells;
   vtkActor *actor;
-  vtkGlyph3D *filter;
+  vtkGlyph3D *filter = NULL;
   vtkPolyData *data;
   vtkPoints *pnts = 0;
   vtkTriangleFilter *tfilter;
@@ -165,7 +167,7 @@ int main( int argc, char *argv[] )
     pnts->Modified();
     }
 
-
+  
   // set the size of our window
   renWindow->SetSize(500,500);
   
