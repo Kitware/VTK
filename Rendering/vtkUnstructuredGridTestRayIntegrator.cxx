@@ -20,11 +20,11 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridTestRayIntegrator, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridTestRayIntegrator);
 
 template<class T>
-static void TemplateIntegrateColor(
+void TemplateIntegrateColor(
                         vtkIdType numIntersections,
                         int numComponents,
                         const double *intersectionLengths,
@@ -361,7 +361,7 @@ void vtkUnstructuredGridTestRayIntegrator::Initialize(
 //-----------------------------------------------------------------------------
 
 template<class T>
-static void TemplateIntegrateColor(
+void TemplateIntegrateColor(
                         vtkIdType numIntersections,
                         int numComponents,
                         const double *intersectionLengths,
