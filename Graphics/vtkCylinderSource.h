@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Set the number of facets used to define cylinder.
-  vtkSetClampMacro(Resolution,int,0,VTK_CELL_SIZE)
+  vtkSetClampMacro(Resolution,int,2,VTK_CELL_SIZE)
   vtkGetMacro(Resolution,int);
 
   // Description:
