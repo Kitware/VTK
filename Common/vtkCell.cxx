@@ -46,12 +46,17 @@ vtkCell::vtkCell()
 {
   this->Points = vtkPoints::New();
   this->PointIds = vtkIdList::New();
+  // Consistent Register/Deletes (ShallowCopy uses Register.)
+  this->Points->Register(this);
+  this->Points->Delete();
+  this->PointIds->Register(this);
+  this->PointIds->Delete();
 }  
 
 vtkCell::~vtkCell()
 {
-  this->Points->Delete();
-  this->PointIds->Delete();
+  this->Points->UnRegister(this);
+  this->PointIds->UnRegister(this);
 }
 
 
@@ -75,7 +80,7 @@ void vtkCell::ShallowCopy(vtkCell *c)
   this->Points->ShallowCopy(c->Points);
   if ( this->PointIds )
     {
-    this->PointIds->Delete();
+    this->PointIds->UnRegister(this);
     this->PointIds = c->PointIds;
     this->PointIds->Register(this);
     }
