@@ -54,6 +54,7 @@ class VTK_EXPORT vtkImageInformation : public vtkStructuredInformation
 public:
   static vtkImageInformation *New() 
     {return new vtkImageInformation;};
+
   const char *GetClassName() {return "vtkImageInformation";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -95,9 +96,10 @@ public:
   void WriteSelf(ostream& os);
 
 protected:
-  
   vtkImageInformation();
   ~vtkImageInformation() {};
+  vtkImageInformation(vtkImageInformation&) {};
+  void operator=(vtkImageInformation&) {};
 
   float Origin[3];
   float Spacing[3];

@@ -321,7 +321,7 @@ public:
   long GetUpdateExtentMemorySize() 
     {
       vtkWarningMacro("Change GetUpdateExtentMemorySize to GetEstimatedUpdateMemorySize");
-      return GetEstimatedUpdateMemorySize();
+      return this->GetEstimatedUpdateMemorySize();
     }
 
   // Description:
