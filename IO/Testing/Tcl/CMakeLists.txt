@@ -10,6 +10,8 @@ IF (VTK_USE_RENDERING)
       TestPLYReadWrite
       TestPolygonWriters
       TestJPEGReader
+      Plot3DScalars
+      Plot3DVectors
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
