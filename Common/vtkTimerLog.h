@@ -140,7 +140,7 @@ public:
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
   // Avoid windows name mangling.
-# define GetTickCount() GetCurrentTime()
+# define GetTickCount GetCurrentTime
 #endif
 
   // Description:
