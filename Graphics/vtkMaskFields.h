@@ -119,9 +119,6 @@ public:
   //    If CopyAllOff is set, do not copy the array
   virtual void CopyAllOff();
 
-  vtkMaskFields();
-  virtual ~vtkMaskFields();
-
 //BTX
   enum FieldLocation
     {
@@ -132,6 +129,8 @@ public:
 //ETX
 
 protected:
+  vtkMaskFields();
+  virtual ~vtkMaskFields();
 
   void Execute();
 
