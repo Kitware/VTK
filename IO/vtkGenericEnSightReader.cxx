@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.2");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.3");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -170,7 +170,6 @@ void vtkGenericEnSightReader::Execute()
     return;
     }
 
-  vtkWarningMacro("In execute");
   // Set the real reader's data array selections from ours.
   this->SetReaderDataArraySelectionSetsFromSelf();
   
