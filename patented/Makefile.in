@@ -23,7 +23,6 @@ vtkImageMarchingCubes \
 vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
-vtkSmoothPolyDataFilter \
 vtkSweptSurface 
 
 #------------------------------------------------------------------------------
