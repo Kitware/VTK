@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.21");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.22");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -113,6 +113,7 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
   unsigned char *pixels, *outPtr;
   int x, y, row;
   int rowSize, rowStart, rowEnd, colStart, colEnd;
+  int doublebuffer, swapbuffers;
   
   if (this->GetOutput()->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
@@ -144,6 +145,15 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
                     * 360.0 / 3.1415926);
   cam->SetParallelScale(parallelScale/this->Magnification);
   
+  // are we double buffering?  If so, read from back buffer ....
+  doublebuffer = this->Input->GetRenderWindow()->GetDoubleBuffer();
+  if (doublebuffer) 
+    {
+    // save swap buffer state to restore later
+    swapbuffers = this->Input->GetRenderWindow()->GetSwapBuffers();
+    this->Input->GetRenderWindow()->SetSwapBuffers(0);
+    }
+
   // render each of the tiles required to fill this request
   for (y = inWindowExtent[2]; y <= inWindowExtent[3]; y++)
     {
@@ -153,7 +163,8 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
                            y*2 - this->Magnification*(1-windowCenter[1]) + 1);
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
-                                                            size[1] - 1, 1);
+                                                            size[1] - 1,
+                                                            !doublebuffer);
 
       // now stuff the pixels into the data row by row
       colStart = inExtent[0] - x*size[0];
@@ -194,9 +205,13 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
       }
     }
 
+  // restore the state of the SwapBuffers bit before we mucked with it.
+  if (doublebuffer && swapbuffers)
+    {
+    this->Input->GetRenderWindow()->SetSwapBuffers(swapbuffers);
+    }
+
   cam->SetViewAngle(viewAngle);
   cam->SetParallelScale(parallelScale);
   cam->SetWindowCenter(windowCenter[0],windowCenter[1]);
 }
-
-
