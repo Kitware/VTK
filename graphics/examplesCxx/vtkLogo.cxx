@@ -109,10 +109,10 @@ void main( int argc, char *argv[] )
 
   // position the letters
 
-  VTransform->Translate (-16,0,12.5);
+  VTransform->Translate (-16.0,0.0,12.5);
   VTransform->RotateY (40);
 
-  KTransform->Translate (14, 0, 0);
+  KTransform->Translate (14.0, 0.0, 0.0);
   KTransform->RotateY (-40);
 
   // move the polygonal letters to the front

@@ -34,7 +34,7 @@ void main( int argc, char *argv[] )
     plane->SetResolution (300,300);
 
   vtkTransform *transform = vtkTransform::New();
-     transform->Scale(10,10,1);
+     transform->Scale(10.0,10.0,1.0);
 
   vtkTransformPolyDataFilter *transF = vtkTransformPolyDataFilter::New();
      transF->SetInput(plane->GetOutput());
