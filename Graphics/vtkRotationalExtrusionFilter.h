@@ -82,18 +82,18 @@ public:
 
   // Description:
   // Set/Get angle of rotation.
-  vtkSetMacro(Angle,float);
-  vtkGetMacro(Angle,float);
+  vtkSetMacro(Angle,double);
+  vtkGetMacro(Angle,double);
 
   // Description:
   // Set/Get total amount of translation along the z-axis.
-  vtkSetMacro(Translation,float);
-  vtkGetMacro(Translation,float);
+  vtkSetMacro(Translation,double);
+  vtkGetMacro(Translation,double);
 
   // Description:
   // Set/Get change in radius during sweep process.
-  vtkSetMacro(DeltaRadius,float);
-  vtkGetMacro(DeltaRadius,float);
+  vtkSetMacro(DeltaRadius,double);
+  vtkGetMacro(DeltaRadius,double);
 
 protected:
   vtkRotationalExtrusionFilter();
@@ -102,9 +102,9 @@ protected:
   void Execute();
   int Resolution;
   int Capping;
-  float Angle;
-  float Translation;
-  float DeltaRadius;
+  double Angle;
+  double Translation;
+  double DeltaRadius;
 private:
   vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&);  // Not implemented.
   void operator=(const vtkRotationalExtrusionFilter&);  // Not implemented.

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.12");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.13");
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
@@ -127,7 +127,7 @@ void vtkSplineFilter::Execute()
   for (inCellId=0, inLines->InitTraversal(); 
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
-    this->UpdateProgress((float)inCellId/numLines);
+    this->UpdateProgress((double)inCellId/numLines);
     abort = this->GetAbortExecute();
 
     if (npts < 2)
@@ -194,7 +194,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   this->ZSpline->RemoveAllPoints();
     
   // Compute the length of the resulting spline
-  float xPrev[3], x[3], length=0.0, len, t, tc;
+  double xPrev[3], x[3], length=0.0, len, t, tc;
   inPts->GetPoint(pts[0],xPrev);
   for (i=1; i < npts; i++)
     {
@@ -246,16 +246,16 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts,
   // Now compute the new points
   numNewPts = numDivs + 1;
   vtkIdType idx;
-  float s, s0=0.0;
+  double s, s0=0.0;
   if ( genTCoords == VTK_TCOORDS_FROM_SCALARS )
     {
     s0=pd->GetScalars()->GetTuple1(pts[0]);
     }
-  float tLo = this->TCoordMap->GetValue(0);
-  float tHi = this->TCoordMap->GetValue(1);
+  double tLo = this->TCoordMap->GetValue(0);
+  double tHi = this->TCoordMap->GetValue(1);
   for (idx=0, i=0; i < numNewPts; i++)
     {
-    t = (float) i / numDivs;
+    t = (double) i / numDivs;
     x[0] = this->XSpline->Evaluate(t);
     x[1] = this->YSpline->Evaluate(t);
     x[2] = this->ZSpline->Evaluate(t);

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.11");
+vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.12");
 vtkStandardNewMacro(vtkGraphLayoutFilter);
 
 vtkGraphLayoutFilter::vtkGraphLayoutFilter()
@@ -37,8 +37,8 @@ vtkGraphLayoutFilter::vtkGraphLayoutFilter()
 // A vertex contains a position and a displacement.
 typedef struct _vtkLayoutVertex
 {
-  float x[3];
-  float d[3];
+  double x[3];
+  double d[3];
 } vtkLayoutVertex;
 
 // An edge consists of two vertices joined together.
@@ -50,17 +50,17 @@ typedef struct _vtkLayoutEdge
 } vtkLayoutEdge;
 
 // Cool-down function.
-static inline float CoolDown(float t, float r) 
+static inline double CoolDown(double t, double r) 
 { 
   return t-(t/r); 
 }
 
-static inline float forceAttract(float x, float k) 
+static inline double forceAttract(double x, double k) 
 { 
   return (x * x) / k; 
 }
 
-static inline float forceRepulse(float x, float k)
+static inline double forceRepulse(double x, double k)
 {
   if (x != 0.0)
     {
@@ -68,7 +68,7 @@ static inline float forceRepulse(float x, float k)
     }
   else
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
 }
 
@@ -80,11 +80,11 @@ void vtkGraphLayoutFilter::Execute()
   int numLines = lines->GetNumberOfCells();  //Number of lines/edges.
   vtkPolyData *output = (vtkPolyData *)this->GetOutput();
   int numPts = input->GetNumberOfPoints();  //Number of points/vertices.
-  float diff[3], len;  //The difference vector.
+  double diff[3], len;  //The difference vector.
   int i, j, l;  //Iteration variables.
   vtkIdType npts = 0;
   vtkIdType *cellPts = 0;
-  float fa, fr, minimum;
+  double fa, fr, minimum;
 
   vtkDebugMacro(<<"Drawing graph");
 
@@ -141,20 +141,20 @@ void vtkGraphLayoutFilter::Execute()
     }
 
   // More variable definitions:
-  float volume = (this->GraphBounds[1] - this->GraphBounds[0]) *
+  double volume = (this->GraphBounds[1] - this->GraphBounds[0]) *
     (this->GraphBounds[3] - this->GraphBounds[2]) *
     (this->GraphBounds[5] - this->GraphBounds[4]);
-  float temp = sqrt( (this->GraphBounds[1]-this->GraphBounds[0])*
+  double temp = sqrt( (this->GraphBounds[1]-this->GraphBounds[0])*
                      (this->GraphBounds[1]-this->GraphBounds[0]) +
                      (this->GraphBounds[3]-this->GraphBounds[2])*
                      (this->GraphBounds[3]-this->GraphBounds[2]) +
                      (this->GraphBounds[5]-this->GraphBounds[4])*
                      (this->GraphBounds[5]-this->GraphBounds[4]) );
   // The optimal distance between vertices.
-  float k = pow((double)volume/numPts,0.33333);
+  double k = pow((double)volume/numPts,0.33333);
 
   // Begin iterations.
-  float norm;
+  double norm;
   for(i=0; i<this->MaxNumberOfIterations; i++)
     {
     // Calculate the repulsive forces.
@@ -217,8 +217,8 @@ void vtkGraphLayoutFilter::Execute()
     {
     newPts->SetPoint(i,v[i].x);
     }
-  float bounds[6], sf[3], x[3], xNew[3];
-  float center[3], graphCenter[3];
+  double bounds[6], sf[3], x[3], xNew[3];
+  double center[3], graphCenter[3];
   newPts->GetBounds(bounds);
   for (i=0; i<3; i++)
     {
@@ -231,7 +231,7 @@ void vtkGraphLayoutFilter::Execute()
     graphCenter[i] = (this->GraphBounds[2*i+1] + this->GraphBounds[2*i])/2.0;
     }
 
-  float scale = sf[0];
+  double scale = sf[0];
   scale = (scale < sf[1] ? scale : sf[1]);
   scale = (scale < sf[2] ? scale : sf[2]);
 

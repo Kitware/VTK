@@ -30,7 +30,7 @@
 #include "vtkTensor.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.7");
+vtkCxxRevisionMacro(vtkCurvatures, "1.8");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -89,16 +89,16 @@ void vtkCurvatures::GetMeanCurvature()
     int v, v_l, v_r, v_o,  f, F, n, nv;// n short for neighbor
     
     //     create-allocate
-    float n_f[3]; // normal of facet (could be stored for later?)
-    float n_n[3]; // normal of edge
-    float t[3];   // to store the cross product of n_f n_n
-    float ore[3]; // origin of e
-    float end[3]; // end of e
-    float oth[3]; //     third vertex necessary for comp of n
-    float vn0[3];
-    float vn1[3]; // vertices for computation of neighbour's n
-    float vn2[3];
-    float e[3];   // edge (oriented)
+    double n_f[3]; // normal of facet (could be stored for later?)
+    double n_n[3]; // normal of edge
+    double t[3];   // to store the cross product of n_f n_n
+    double ore[3]; // origin of e
+    double end[3]; // end of e
+    double oth[3]; //     third vertex necessary for comp of n
+    double vn0[3];
+    double vn1[3]; // vertices for computation of neighbour's n
+    double vn2[3];
+    double e[3];   // edge (oriented)
 
     double cs, sn;    // cs: cos; sn sin
     double angle, length, Af, Hf;  // temporary store
@@ -250,7 +250,7 @@ void vtkCurvatures::GetGaussCurvature()
       dA[k] = 0.0;
       }
 
-    float v0[3], v1[3], v2[3], e0[3], e1[3], e2[3];
+    double v0[3], v1[3], v2[3], e0[3], e1[3], e2[3];
 
     double A, alpha0, alpha1, alpha2;
 

@@ -68,7 +68,14 @@ int FrustumClip( int argc, char *argv[] )
   camera->GetFrustumPlanes(aspect, planeequations);
 
   vtkPlanes *implictplanes = vtkPlanes::New();
-  implictplanes->SetFrustumPlanes(planeequations);
+  // TODO cleanup
+  double ped[24];
+  int i;
+  for (i = 0; i < 24; ++i)
+    {
+    ped[i] = planeequations[i];
+    }
+  implictplanes->SetFrustumPlanes(ped);
 
   vtkClipPolyData *clipper = vtkClipPolyData::New();
   clipper->SetInput(sphere->GetOutput());

@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.22");
+vtkCxxRevisionMacro(vtkContourGrid, "1.23");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -83,7 +83,7 @@ unsigned long vtkContourGrid::GetMTime()
 template <class T>
 void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
                            vtkDataArray *inScalars, T *scalarArrayPtr,
-                           int numContours, float *values, 
+                           int numContours, double *values, 
                            vtkPointLocator *locator, int computeScalars,
                            int useScalarTree,vtkScalarTree *&scalarTree)
 {
@@ -92,7 +92,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   vtkPolyData *output=self->GetOutput();
   vtkIdList *cellPts;
   vtkCell *cell;
-  float range[2];
+  double range[2];
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkIdType numCells, estimatedSize;
@@ -175,7 +175,7 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
       
       if ( ! (cellId % 5000) ) 
         {
-        self->UpdateProgress ((float)cellId/numCells);
+        self->UpdateProgress ((double)cellId/numCells);
         if (self->GetAbortExecute())
           {
           abortExecute = 1;
@@ -274,7 +274,7 @@ void vtkContourGrid::Execute()
   void *scalarArrayPtr;
   vtkIdType numCells;
   int numContours = this->ContourValues->GetNumberOfContours();
-  float *values = this->ContourValues->GetValues();
+  double *values = this->ContourValues->GetValues();
   int computeScalars = this->ComputeScalars;
   int useScalarTree = this->UseScalarTree;
   vtkScalarTree *&scalarTree = this->ScalarTree;

@@ -40,7 +40,7 @@ vtkLoopSubdivisionFilter su
 
 vtkPolyDataMapper s1Mapper
     s1Mapper SetInput [probe GetOutput]
-    s1Mapper SetInput [su GetOutput]
+#    s1Mapper SetInput [su GetOutput]
 
 vtkActor s1Actor
     s1Actor SetMapper s1Mapper

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMassProperties, "1.26");
+vtkCxxRevisionMacro(vtkMassProperties, "1.27");
 vtkStandardNewMacro(vtkMassProperties);
 
 #define  VTK_CUBE_ROOT(x) \
@@ -115,7 +115,7 @@ void vtkMassProperties::Execute()
   vtkIdList *ptIds;
   vtkPolyData *input = this->GetInput();
   vtkIdType cellId, numCells, numPts, numIds;
-  float p[3];
+  double p[3];
   
   numCells=input->GetNumberOfCells();
   numPts = input->GetNumberOfPoints();
@@ -134,10 +134,10 @@ void vtkMassProperties::Execute()
   double   munc[3],wxyz,wxy,wxz,wyz;
   double   area,surfacearea;
   double   a,b,c,s;
-  float    x[3],y[3],z[3];
-  float    i[3],j[3],k[3],u[3],absu[3],length;
-  float    ii[3],jj[3],kk[3];
-  float    xavg,yavg,zavg;
+  double    x[3],y[3],z[3];
+  double    i[3],j[3],k[3],u[3],absu[3],length;
+  double    ii[3],jj[3],kk[3];
+  double    xavg,yavg,zavg;
   vtkIdType      idx;
 
   // Initialize variables ...

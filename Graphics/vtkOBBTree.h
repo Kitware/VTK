@@ -62,8 +62,8 @@ public:
   vtkOBBNode();
   ~vtkOBBNode();
 
-  float Corner[3]; //center point of this node
-  float Axes[3][3]; //the axes defining the OBB - ordered from long->short
+  double Corner[3]; //center point of this node
+  double Axes[3][3]; //the axes defining the OBB - ordered from long->short
   vtkOBBNode *Parent; //parent node; NULL if root
   vtkOBBNode **Kids; //two children of this node; NULL if leaf
   vtkIdList *Cells; //list of cells in node
@@ -87,22 +87,22 @@ public:
   // Compute an OBB from the list of points given. Return the corner point
   // and the three axes defining the orientation of the OBB. Also return
   // a sorted list of relative "sizes" of axes for comparison purposes.
-  void ComputeOBB(vtkPoints *pts, float corner[3], float max[3], 
-                  float mid[3], float min[3], float size[3]);
+  void ComputeOBB(vtkPoints *pts, double corner[3], double max[3], 
+                  double mid[3], double min[3], double size[3]);
 
   // Description:
   // Compute an OBB for the input dataset using the cells in the data.
   // Return the corner point and the three axes defining the orientation
   // of the OBB. Also return a sorted list of relative "sizes" of axes for
   // comparison purposes.
-  void ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
-                  float mid[3], float min[3], float size[3]);
+  void ComputeOBB(vtkDataSet *input, double corner[3], double max[3],
+                  double mid[3], double min[3], double size[3]);
 
   // Description:
   // Determine whether a point is inside or outside the data used to build
   // this OBB tree.  The data must be a closed surface vtkPolyData data set.
   // The return value is +1 if outside, -1 if inside, and 0 if undecided.
-  int InsideOrOutside(const float point[3]);
+  int InsideOrOutside(const double point[3]);
 
   // Description:
   // Take the passed line segment and intersect it with the data set.
@@ -114,23 +114,23 @@ public:
   // lies outside the closed surface.
   // Either 'points' or 'cellIds' can be set to NULL if you don't want
   // to receive that information.
-  int IntersectWithLine(const float a0[3], const float a1[3],
+  int IntersectWithLine(const double a0[3], const double a1[3],
                         vtkPoints *points, vtkIdList *cellIds);
 
   // Description:
   // Return the first intersection of the specified line segment with
   // the OBB tree, as well as information about the cell which the
   // line segment intersected.
-  int IntersectWithLine(float a0[3], float a1[3], float tol,
-                        float& t, float x[3], float pcoords[3],
+  int IntersectWithLine(double a0[3], double a1[3], double tol,
+                        double& t, double x[3], double pcoords[3],
                         int &subId);
 
-  int IntersectWithLine(float a0[3], float a1[3], float tol,
-                        float& t, float x[3], float pcoords[3],
+  int IntersectWithLine(double a0[3], double a1[3], double tol,
+                        double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId);
   
-  int IntersectWithLine(float a0[3], float a1[3], float tol,
-                        float& t, float x[3], float pcoords[3],
+  int IntersectWithLine(double a0[3], double a1[3], double tol,
+                        double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId, vtkGenericCell *cell);
 
   //BTX
@@ -143,13 +143,13 @@ public:
 
   // Description:
   // Returns true if line intersects node.
-  int LineIntersectsNode( vtkOBBNode *pA, float b0[3], float b1[3] );
+  int LineIntersectsNode( vtkOBBNode *pA, double b0[3], double b1[3] );
 
   // Description:
   // Returns true if triangle (optionally transformed) intersects node.
   int TriangleIntersectsNode( vtkOBBNode *pA,
-                              float p0[3], float p1[3],
-                              float p2[3], vtkMatrix4x4 *XformBtoA );
+                              double p0[3], double p1[3],
+                              double p2[3], vtkMatrix4x4 *XformBtoA );
 
   // Description:
   // For each intersecting leaf node pair, call function.
@@ -185,8 +185,8 @@ protected:
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added
   // so that the functionality can be accessed.
-  void ComputeOBB(vtkIdList *cells, float corner[3], float max[3], 
-                       float mid[3], float min[3], float size[3]);
+  void ComputeOBB(vtkIdList *cells, double corner[3], double max[3], 
+                       double mid[3], double min[3], double size[3]);
 
   vtkOBBNode *Tree;
   void BuildTree(vtkIdList *cells, vtkOBBNode *parent, int level);

@@ -89,8 +89,8 @@ public:
   // Control the number of subdivisions that are created for the
   // polyline based on an absolute length. The length of the spline
   // is divided by this length to determine the number of subdivisions.
-  vtkSetClampMacro(Length,float,0.0000001,VTK_LARGE_FLOAT);
-  vtkGetMacro(Length,float);
+  vtkSetClampMacro(Length,double,0.0000001,VTK_DOUBLE_MAX);
+  vtkGetMacro(Length,double);
 
   // Description:
   // Specify an instance of vtkSpline to use to perform the interpolation.
@@ -121,8 +121,8 @@ public:
   // calculation. The TextureLength indicates what length (whether 
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space.
-  vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
-  vtkGetMacro(TextureLength,float);
+  vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
+  vtkGetMacro(TextureLength,double);
 
 protected:
   vtkSplineFilter();
@@ -134,13 +134,13 @@ protected:
   int       MaximumNumberOfSubdivisions;
   int       Subdivide;
   int       NumberOfSubdivisions;
-  float     Length;
+  double     Length;
   vtkSpline *Spline;
   vtkSpline *XSpline;
   vtkSpline *YSpline;
   vtkSpline *ZSpline;
   int       GenerateTCoords;
-  float     TextureLength; //this length is mapped to [0,1) texture space
+  double     TextureLength; //this length is mapped to [0,1) texture space
 
   //helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 

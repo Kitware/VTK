@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkSubdivideTetra, "1.25");
+vtkCxxRevisionMacro(vtkSubdivideTetra, "1.26");
 vtkStandardNewMacro(vtkSubdivideTetra);
 
 // Description:
@@ -45,7 +45,7 @@ void vtkSubdivideTetra::Execute()
   vtkPoints *newPts;
   vtkIdType ptId;
 
-  float weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
+  double weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
   int p0, p1, p2, p3;
   vtkIdType center, e01, e02, e03, e12, e13, e23;
   vtkMergePoints *locator;

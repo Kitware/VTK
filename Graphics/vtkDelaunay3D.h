@@ -107,21 +107,21 @@ public:
   // For a non-zero alpha value, only edges, faces, or tetra contained 
   // within the circumsphere (of radius alpha) will be output. Otherwise,
   // only tetrahedra will be output.
-  vtkSetClampMacro(Alpha,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Alpha,float);
+  vtkSetClampMacro(Alpha,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Alpha,double);
 
   // Description:
   // Specify a tolerance to control discarding of closely spaced points.
   // This tolerance is specified as a fraction of the diagonal length of
   // the bounding box of the points.
-  vtkSetClampMacro(Tolerance,float,0.0,1.0);
-  vtkGetMacro(Tolerance,float);
+  vtkSetClampMacro(Tolerance,double,0.0,1.0);
+  vtkGetMacro(Tolerance,double);
 
   // Description:
   // Specify a multiplier to control the size of the initial, bounding
   // Delaunay triangulation.
-  vtkSetClampMacro(Offset,float,2.5,VTK_LARGE_FLOAT);
-  vtkGetMacro(Offset,float);
+  vtkSetClampMacro(Offset,double,2.5,VTK_DOUBLE_MAX);
+  vtkGetMacro(Offset,double);
 
   // Description:
   // Boolean controls whether bounding triangulation points (and associated
@@ -154,7 +154,7 @@ public:
   // Note: This initialization method places points forming bounding octahedron
   // at the end of the Mesh's point list. That is, InsertPoint() assumes that
   // you will be inserting points between (0,numPtsToInsert-1).
-  vtkUnstructuredGrid *InitPointInsertion(float center[3], float length, 
+  vtkUnstructuredGrid *InitPointInsertion(double center[3], double length, 
                                           vtkIdType numPts, vtkPoints* &pts);
 
   // Description:
@@ -167,7 +167,7 @@ public:
   // tetrahedra (or tetra faces and edges).The holeTetras id list lists all the
   // tetrahedra that are deleted (invalid) in the mesh structure.
   void InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-                   vtkIdType id, float x[3], vtkIdList *holeTetras);
+                   vtkIdType id, double x[3], vtkIdList *holeTetras);
 
   // Description:
   // Invoke this method after all points have been inserted. The purpose of
@@ -191,10 +191,10 @@ protected:
 
   void Execute();
 
-  float Alpha;
-  float Tolerance;
+  double Alpha;
+  double Tolerance;
   int BoundingTriangulation;
-  float Offset;
+  double Offset;
 
   vtkPointLocator *Locator;  //help locate points faster
   
@@ -211,7 +211,7 @@ protected:
   // Keep track of number of references to points to avoid new/delete calls
   int *References;
 
-  vtkIdType FindEnclosingFaces(float x[3], vtkUnstructuredGrid *Mesh,
+  vtkIdType FindEnclosingFaces(double x[3], vtkUnstructuredGrid *Mesh,
                                vtkIdList *tetras, vtkIdList *faces, 
                                vtkPointLocator *Locator);
   

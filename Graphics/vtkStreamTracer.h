@@ -68,7 +68,7 @@
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
 class vtkDataArray;
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkGenericCell;
 class vtkIdList;
 class vtkIntArray;
@@ -91,8 +91,8 @@ public:
   // Specify the start of the streamline in the global coordinate
   // system. Search must be performed to find initial cell to start
   // integration from.
-  vtkSetVector3Macro(StartPosition, float);
-  vtkGetVector3Macro(StartPosition, float);
+  vtkSetVector3Macro(StartPosition, double);
+  vtkGetVector3Macro(StartPosition, double);
 
   // Description:
   // Specify the source object used to generate starting points.
@@ -154,11 +154,11 @@ public:
   // TIME_UNIT        = 0
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
-  void SetMaximumPropagation(int unit, float max);
-  void SetMaximumPropagation(float max);
+  void SetMaximumPropagation(int unit, double max);
+  void SetMaximumPropagation(double max);
   void SetMaximumPropagationUnit(int unit);
   int GetMaximumPropagationUnit();
-  float GetMaximumPropagation();
+  double GetMaximumPropagation();
   void SetMaximumPropagationUnitToTimeUnit()
     {this->SetMaximumPropagationUnit(TIME_UNIT);};
   void SetMaximumPropagationUnitToLengthUnit()
@@ -173,11 +173,11 @@ public:
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // Only valid when using adaptive integrators.
-  void SetMinimumIntegrationStep(int unit, float step);
+  void SetMinimumIntegrationStep(int unit, double step);
   void SetMinimumIntegrationStepUnit(int unit);
-  void SetMinimumIntegrationStep(float step);
+  void SetMinimumIntegrationStep(double step);
   int GetMinimumIntegrationStepUnit();
-  float GetMinimumIntegrationStep();
+  double GetMinimumIntegrationStep();
   void SetMinimumIntegrationStepUnitToTimeUnit()
     {this->SetMinimumIntegrationStepUnit(TIME_UNIT);};
   void SetMinimumIntegrationStepUnitToLengthUnit()
@@ -192,11 +192,11 @@ public:
   // LENGTH_UNIT      = 1
   // CELL_LENGTH_UNIT = 2
   // Only valid when using adaptive integrators.
-  void SetMaximumIntegrationStep(int unit, float step);
+  void SetMaximumIntegrationStep(int unit, double step);
   void SetMaximumIntegrationStepUnit(int unit);
-  void SetMaximumIntegrationStep(float step);
+  void SetMaximumIntegrationStep(double step);
   int GetMaximumIntegrationStepUnit();
-  float GetMaximumIntegrationStep();
+  double GetMaximumIntegrationStep();
   void SetMaximumIntegrationStepUnitToTimeUnit()
     {this->SetMaximumIntegrationStepUnit(TIME_UNIT);};
   void SetMaximumIntegrationStepUnitToLengthUnit()
@@ -212,11 +212,11 @@ public:
   // CELL_LENGTH_UNIT = 2
   // If the integrator is not adaptive, this is the actual
   // step used.
-  void SetInitialIntegrationStep(int unit, float step);
+  void SetInitialIntegrationStep(int unit, double step);
   void SetInitialIntegrationStepUnit(int unit);
-  void SetInitialIntegrationStep(float step);
+  void SetInitialIntegrationStep(double step);
   int GetInitialIntegrationStepUnit();
-  float GetInitialIntegrationStep();
+  double GetInitialIntegrationStep();
   void SetInitialIntegrationStepUnitToTimeUnit()
     {this->SetInitialIntegrationStepUnit(TIME_UNIT);};
   void SetInitialIntegrationStepUnitToLengthUnit()
@@ -228,8 +228,8 @@ public:
   // Specify the maximum error in the integration. This value
   // is passed to the integrator. Therefore, it's meaning depends
   // on the integrator used. 
-  vtkSetMacro(MaximumError, float);
-  vtkGetMacro(MaximumError, float);
+  vtkSetMacro(MaximumError, double);
+  vtkGetMacro(MaximumError, double);
 
   // Description
   // Specify the maximum number of steps used in the integration.
@@ -239,8 +239,8 @@ public:
   // Description
   // If at any point, the speed is below this value, the integration
   // is terminated.
-  vtkSetMacro(TerminalSpeed, float);
-  vtkGetMacro(TerminalSpeed, float);
+  vtkSetMacro(TerminalSpeed, double);
+  vtkGetMacro(TerminalSpeed, double);
 
 //BTX
   enum
@@ -274,8 +274,8 @@ public:
   // Description
   // This can be used to scale the rate with which the streamribbons
   // twist. The default is 1.
-  vtkSetMacro(RotationScale, float);
-  vtkGetMacro(RotationScale, float);
+  vtkSetMacro(RotationScale, double);
+  vtkGetMacro(RotationScale, double);
 
   // Description:
   // If you want to generate traces using an arbitrary vector array, 
@@ -299,22 +299,22 @@ protected:
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
   
   void Execute();
-  void CalculateVorticity( vtkGenericCell* cell, float pcoords[3],
-                           vtkFloatArray* cellVectors, float vorticity[3] );
+  void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
+                           vtkDoubleArray* cellVectors, double vorticity[3] );
   void Integrate(vtkPolyData* output,
                  vtkDataArray* seedSource, 
                  vtkIdList* seedIds,
                  vtkIntArray* integrationDirections,
-                 float lastPoint[3],
+                 double lastPoint[3],
                  vtkInterpolatedVelocityField* func,
                  int maxCellSize);
-  void SimpleIntegrate(float seed[3], 
-                       float lastPoint[3], 
-                       float delt,
+  void SimpleIntegrate(double seed[3], 
+                       double lastPoint[3], 
+                       double delt,
                        vtkInterpolatedVelocityField* func);
   int CheckInputs(vtkInterpolatedVelocityField*& func,
                   int* maxCellSize);
-  void GenerateNormals(vtkPolyData* output, float* firstNormal);
+  void GenerateNormals(vtkPolyData* output, double* firstNormal);
 
   int GenerateNormalsInIntegrate;
 
@@ -323,17 +323,17 @@ protected:
 
 
   // starting from global x-y-z position
-  float StartPosition[3];
+  double StartPosition[3];
 
-  static const float EPSILON;
-  float TerminalSpeed;
+  static const double EPSILON;
+  double TerminalSpeed;
 
-  float LastUsedTimeStep;
+  double LastUsedTimeStep;
 
 //BTX
   struct IntervalInformation
   {
-    float Interval;
+    double Interval;
     int Unit;
   };
 
@@ -342,19 +342,19 @@ protected:
   IntervalInformation MaximumIntegrationStep;
   IntervalInformation InitialIntegrationStep;
 
-  void SetIntervalInformation(int unit, float interval,
+  void SetIntervalInformation(int unit, double interval,
                               IntervalInformation& currentValues);
   void SetIntervalInformation(int unit,IntervalInformation& currentValues);
-  static float ConvertToTime(IntervalInformation& interval,
-                             float cellLength, float speed);
-  static float ConvertToLength(IntervalInformation& interval,
-                               float cellLength, float speed);
-  static float ConvertToCellLength(IntervalInformation& interval,
-                                   float cellLength, float speed);
-  static float ConvertToUnit(IntervalInformation& interval, int unit,
-                             float cellLength, float speed);
-  void ConvertIntervals(float& step, float& minStep, float& maxStep,
-                        int direction, float cellLength, float speed);
+  static double ConvertToTime(IntervalInformation& interval,
+                             double cellLength, double speed);
+  static double ConvertToLength(IntervalInformation& interval,
+                               double cellLength, double speed);
+  static double ConvertToCellLength(IntervalInformation& interval,
+                                   double cellLength, double speed);
+  static double ConvertToUnit(IntervalInformation& interval, int unit,
+                             double cellLength, double speed);
+  void ConvertIntervals(double& step, double& minStep, double& maxStep,
+                        int direction, double cellLength, double speed);
 //ETX
 
   void InitializeSeeds(vtkDataArray*& seeds,
@@ -366,11 +366,11 @@ protected:
   // Prototype showing the integrator type to be set by the user.
   vtkInitialValueProblemSolver* Integrator;
 
-  float MaximumError;
+  double MaximumError;
   vtkIdType MaximumNumberOfSteps;
 
   int ComputeVorticity;
-  float RotationScale;
+  double RotationScale;
 
 private:
   vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.

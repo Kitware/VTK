@@ -22,15 +22,15 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.18");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.19");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
-static float LoopWeights[4] =
+static double LoopWeights[4] =
   {.375, .375, .125, .125};
 
 void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
-  float *weights;
+  double *weights;
   vtkIdType *pts = 0;
   vtkIdType numPts, cellId, newId;
   int edgeId;
@@ -43,7 +43,7 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,v
   vtkPoints *inputPts=inputDS->GetPoints();
   vtkPointData *inputPD=inputDS->GetPointData();
 
-  weights = new float[256];
+  weights = new double[256];
 
   // Create an edge table to keep track of which edges we've processed
   edgeTable = vtkEdgeTable::New();
@@ -118,7 +118,7 @@ void vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,v
 void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
                                                     vtkPolyData *polys,
                                                     vtkIdList *stencilIds,
-                                                    float *weights)
+                                                    double *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkIdList *ptIds = vtkIdList::New();
@@ -130,7 +130,7 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
   vtkIdType p, p2;
   vtkIdType bp1, bp2;
   int K;
-  float beta, cosSQ;
+  double beta, cosSQ;
 
   // Get the cells that use this point
   polys->GetPointCells (p1, cellIds);
@@ -235,9 +235,9 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
       {
       // Generate weights
 #define VTK_PI 3.14159265358979
-      cosSQ = .375 + .25 * cos (2.0 * VTK_PI / (float) K);
+      cosSQ = .375 + .25 * cos (2.0 * VTK_PI / (double) K);
       cosSQ = cosSQ * cosSQ;
-      beta = (.625 -  cosSQ) / (float) K;
+      beta = (.625 -  cosSQ) / (double) K;
       }
     else
       {
@@ -257,7 +257,7 @@ void vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
 void vtkLoopSubdivisionFilter::GenerateOddStencil (vtkIdType p1, vtkIdType p2,
                                                    vtkPolyData *polys,
                                                    vtkIdList *stencilIds,
-                                                   float *weights)
+                                                   double *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkCell *cell;

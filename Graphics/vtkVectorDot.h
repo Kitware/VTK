@@ -37,18 +37,18 @@ public:
 
   // Description:
   // Specify range to map scalars into.
-  vtkSetVector2Macro(ScalarRange,float);
+  vtkSetVector2Macro(ScalarRange,double);
 
   // Description:
   // Get the range that scalars map into.
-  vtkGetVectorMacro(ScalarRange,float,2);
+  vtkGetVectorMacro(ScalarRange,double,2);
 
 protected:
   vtkVectorDot();
   ~vtkVectorDot() {};
 
   void Execute();
-  float ScalarRange[2];
+  double ScalarRange[2];
 private:
   vtkVectorDot(const vtkVectorDot&);  // Not implemented.
   void operator=(const vtkVectorDot&);  // Not implemented.

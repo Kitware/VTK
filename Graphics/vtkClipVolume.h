@@ -91,8 +91,8 @@ public:
   // Set the clipping value of the implicit function (if clipping with
   // implicit function) or scalar value (if clipping with scalars). The
   // default value is 0.0.
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
   
   // Description:
   // Set/Get the InsideOut flag. When off, a vertex is considered inside the
@@ -144,8 +144,8 @@ public:
   // Set the tolerance for merging clip intersection points that are near
   // the corners of voxels. This tolerance is used to prevent the generation
   // of degenerate tetrahedra.
-  vtkSetClampMacro(MergeTolerance,float,0.0001,0.25);
-  vtkGetMacro(MergeTolerance,float);
+  vtkSetClampMacro(MergeTolerance,double,0.0001,0.25);
+  vtkGetMacro(MergeTolerance,double);
   
   // Description:
   // Set / Get a spatial locator for merging points. By default, 
@@ -167,13 +167,13 @@ protected:
   ~vtkClipVolume();
 
   void Execute();
-  void ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
+  void ClipTets(double value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
                 vtkDataArray *cellScalars, vtkIdList *tetraIds, 
                 vtkPoints *tetraPts, vtkPointData *inPD, vtkPointData *outPD, 
                 vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
                 vtkCellData *clippedCD, int insideOut);
-  void ClipVoxel(float value, vtkDataArray *cellScalars, int flip,
-                 float origin[3], float spacing[3], vtkIdList *cellIds,
+  void ClipVoxel(double value, vtkDataArray *cellScalars, int flip,
+                 double origin[3], double spacing[3], vtkIdList *cellIds,
                  vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD, 
                  vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
                  vtkCellData *clippedCD);
@@ -181,9 +181,9 @@ protected:
   vtkImplicitFunction *ClipFunction;
   vtkPointLocator     *Locator;
   int                  InsideOut;
-  float                Value;
+  double                Value;
   int                  GenerateClipScalars;
-  float                MergeTolerance;
+  double                MergeTolerance;
   int                  Mixed3DCellGeneration;
   int                  GenerateClippedOutput;
   vtkUnstructuredGrid *ClippedOutput;

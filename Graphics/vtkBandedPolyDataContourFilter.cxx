@@ -25,7 +25,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.34");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.35");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -48,7 +48,7 @@ vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
   this->SetInputScalarsSelection(NULL);
 }
 
-int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
+int vtkBandedPolyDataContourFilter::ComputeScalarIndex(double val)
 {
 
   for (int i=0; i < (this->NumberOfClipValues-1); i++)
@@ -62,7 +62,7 @@ int vtkBandedPolyDataContourFilter::ComputeScalarIndex(float val)
 
 }
 
-int vtkBandedPolyDataContourFilter::IsContourValue(float val)
+int vtkBandedPolyDataContourFilter::IsContourValue(double val)
 {
   int i;
 
@@ -85,16 +85,16 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
                                              vtkPointData *inPD,
                                              vtkPointData *outPD)
 {
-  float x[3], t;
-  float x1[3], x2[3];
+  double x[3], t;
+  double x1[3], x2[3];
   int ptId;
   int reverse = (v1 < v2 ? 0 : 1);
 
   newPts->GetPoint(v1, x1);
   newPts->GetPoint(v2, x2);
 
-  float s1 = scalars->GetTuple1(v1);
-  float s2 = scalars->GetTuple1(v2);
+  double s1 = scalars->GetTuple1(v1);
+  double s2 = scalars->GetTuple1(v2);
   
   if ( s1 <= s2 )
     {
@@ -134,11 +134,11 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 extern "C" {
 int vtkCompareClipValues(const void *val1, const void *val2)
 {
-  if ( *((float*)val1) < *((float*)val2) ) 
+  if ( *((double*)val1) < *((double*)val2) ) 
     {
     return (-1);
     }
-  else if ( *((float*)val1) > *((float*)val2) ) 
+  else if ( *((double*)val1) > *((double*)val2) ) 
     {
     return (1);
     }
@@ -151,7 +151,7 @@ int vtkCompareClipValues(const void *val1, const void *val2)
 
 inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
                                                       int npts, vtkIdType *pts,
-                                                      int cellId, float s,
+                                                      int cellId, double s,
                                                       vtkFloatArray *newS)
 {
 
@@ -215,7 +215,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   // intersections. First we sort the contour values into an ascending
   // list of clip values including the extreme min/max values.
   this->NumberOfClipValues = this->ContourValues->GetNumberOfContours() + 2;
-  this->ClipValues = new float[this->NumberOfClipValues];
+  this->ClipValues = new double[this->NumberOfClipValues];
   double range[2];
   inScalars->GetRange(range);
 
@@ -237,7 +237,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     this->ClipValues[i] = this->ContourValues->GetValue(i-1);
     }
 
-  qsort((void *)this->ClipValues, this->NumberOfClipValues, sizeof(float), 
+  qsort((void *)this->ClipValues, this->NumberOfClipValues, sizeof(double), 
         vtkCompareClipValues);
 
   // toss out values which are too close together, currently within FLT_EPSILON%
@@ -440,7 +440,7 @@ void vtkBandedPolyDataContourFilter::Execute()
     maxCellSize *= (1 + this->NumberOfClipValues);
 
     vtkIdType *newPolygon = new vtkIdType [maxCellSize];
-    float *s = new float [maxCellSize]; //scalars at vertices
+    double *s = new double [maxCellSize]; //scalars at vertices
     int *isContourValue = new int [maxCellSize];
     int *isOriginalVertex = new int [maxCellSize];
     vtkIdType *fullPoly = new vtkIdType [maxCellSize];
@@ -476,7 +476,7 @@ void vtkBandedPolyDataContourFilter::Execute()
       {
       if  ( ! (++count % updateCount) )
         {
-        this->UpdateProgress(0.1 + 0.45*((float)count/numPolys));
+        this->UpdateProgress(0.1 + 0.45*((double)count/numPolys));
         }
 
       for (i=0; i<npts; i++)
@@ -525,7 +525,7 @@ void vtkBandedPolyDataContourFilter::Execute()
       {
       if  ( ! (++count % updateCount) )
         {
-        this->UpdateProgress(0.55 + 0.45*((float)count/numPolys));
+        this->UpdateProgress(0.55 + 0.45*((double)count/numPolys));
         }
 
       //Create a new polygon that includes all the points including the
@@ -577,7 +577,7 @@ void vtkBandedPolyDataContourFilter::Execute()
       //Very important: have to find the right starting vertex. The vertex
       //needs to be one where the contour values increase in both directions.
       //Really should check whether the vertex is convex.
-      float minValue=VTK_LARGE_FLOAT;
+      double minValue=VTK_DOUBLE_MAX;
       for ( i=0; i<numFullPts; i++)
         {
         if ( isOriginalVertex[i] )

@@ -49,16 +49,16 @@ public:
 
   // Description:
   // Specify the bounds of the box to be used in Axis Aligned mode.
-  vtkSetVector6Macro(Bounds,float);
-  vtkGetVectorMacro(Bounds,float,6);
+  vtkSetVector6Macro(Bounds,double);
+  vtkGetVectorMacro(Bounds,double,6);
 
   // Description:
   // Specify the corners of the outline when in Oriented mode, the
-  // values are supplied as 8*3 float values The correct corner
+  // values are supplied as 8*3 double values The correct corner
   // ordering is using {x,y,z} convention for the unit cube as follows:
   // {0,0,0},{1,0,0},{0,1,0},{1,1,0},{0,0,1},{1,0,1},{0,1,1},{1,1,1}.
-  vtkSetVectorMacro(Corners,float,24);
-  vtkGetVectorMacro(Corners,float,24);
+  vtkSetVectorMacro(Corners,double,24);
+  vtkGetVectorMacro(Corners,double,24);
 
 protected:
   vtkOutlineSource();
@@ -66,8 +66,8 @@ protected:
 
   void Execute();
   int   BoxType;
-  float Bounds[6];
-  float Corners[24];
+  double Bounds[6];
+  double Corners[24];
 
 private:
   vtkOutlineSource(const vtkOutlineSource&);  // Not implemented.

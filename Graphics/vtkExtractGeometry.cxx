@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.51");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.52");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 
@@ -67,8 +67,8 @@ void vtkExtractGeometry::Execute()
   vtkIdList *cellPts;
   vtkCell *cell;
   int numCellPts;
-  float x[3];
-  float multiplier;
+  double x[3];
+  double multiplier;
   vtkPoints *newPts;
   vtkIdList *newCellPts;
   vtkDataSet *input = this->GetInput();
@@ -136,7 +136,7 @@ void vtkExtractGeometry::Execute()
     // To extract boundary cells, we have to create supplemental information
     if ( this->ExtractBoundaryCells )
       {
-      float val;
+      double val;
       newScalars = vtkFloatArray::New();
       newScalars->SetNumberOfValues(numPts);
 

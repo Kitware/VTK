@@ -28,7 +28,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.27");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.28");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);
@@ -70,8 +70,8 @@ void vtkSelectPolyData::Execute()
   vtkIdType closest=0, numPolys, i, j;
   int k;
   vtkIdList *loopIds, *edgeIds, *neighbors;
-  float x[3], xLoop[3], closestDist2, dist2, t;
-  float x0[3], x1[3], vec[3], dir[3], neiX[3];
+  double x[3], xLoop[3], closestDist2, dist2, t;
+  double x0[3], x1[3], vec[3], dir[3], neiX[3];
   vtkCellArray *inPolys;
   vtkPoints *inPts;
   int numNei;
@@ -138,7 +138,7 @@ void vtkSelectPolyData::Execute()
     {
     this->Loop->GetPoint(i,xLoop);
     closest = -1;
-    closestDist2 = VTK_LARGE_FLOAT;
+    closestDist2 = VTK_DOUBLE_MAX;
 
     for ( j=0; j < numPts; j++)
       {
@@ -185,7 +185,7 @@ void vtkSelectPolyData::Execute()
       this->GetPointNeighbors(id,neighbors); //points connected by edge
       numNei = neighbors->GetNumberOfIds();
       closest = -1;
-      closestDist2 = VTK_LARGE_FLOAT;
+      closestDist2 = VTK_DOUBLE_MAX;
       for (j=0; j<numNei; j++)
         {
         neiId = neighbors->GetId(j);
@@ -311,7 +311,7 @@ void vtkSelectPolyData::Execute()
   // operation assumes that everthing is connected.
   if ( this->SelectionMode == VTK_INSIDE_CLOSEST_POINT_REGION )
     {// find closest point and use as a seed
-    for (closestDist2=VTK_LARGE_FLOAT, j=0; j < numPts; j++)
+    for (closestDist2=VTK_DOUBLE_MAX, j=0; j < numPts; j++)
       {
       inPts->GetPoint(j,x);
 
@@ -444,7 +444,7 @@ void vtkSelectPolyData::Execute()
       if ( pointMarks->GetValue(j) != 0 )
         {
         inPts->GetPoint(j,x);
-        for ( closestDist2=VTK_LARGE_FLOAT, i=0; i < numLoopPts; i++ )
+        for ( closestDist2=VTK_DOUBLE_MAX, i=0; i < numLoopPts; i++ )
           {
           this->Loop->GetPoint(i, x0);
           this->Loop->GetPoint((i+1)%numLoopPts, x1);
@@ -466,7 +466,7 @@ void vtkSelectPolyData::Execute()
       {
       id = edgeIds->GetId(j);
       inPts->GetPoint(id, x);
-      for ( closestDist2=VTK_LARGE_FLOAT, i=0; i < numLoopPts; i++ )
+      for ( closestDist2=VTK_DOUBLE_MAX, i=0; i < numLoopPts; i++ )
         {
         this->Loop->GetPoint(i, x0);
         this->Loop->GetPoint((i+1)%numLoopPts, x1);

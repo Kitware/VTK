@@ -152,7 +152,7 @@ public:
   // For a non-zero alpha value, only edges or triangles contained within
   // a sphere centered at mesh vertices will be output. Otherwise, only
   // triangles will be output.
-  vtkSetClampMacro(Alpha,double,0.0,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Alpha,double,0.0,VTK_DOUBLE_MAX);
   vtkGetMacro(Alpha,double);
 
   // Description:
@@ -165,7 +165,7 @@ public:
   // Description:
   // Specify a multiplier to control the size of the initial, bounding
   // Delaunay triangulation.
-  vtkSetClampMacro(Offset,double,0.75,VTK_LARGE_FLOAT);
+  vtkSetClampMacro(Offset,double,0.75,VTK_DOUBLE_MAX);
   vtkGetMacro(Offset,double);
 
   // Description:

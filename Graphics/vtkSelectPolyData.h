@@ -169,7 +169,7 @@ protected:
   int InsideOut;
   vtkPoints *Loop;
   int SelectionMode;
-  float ClosestPoint[3];
+  double ClosestPoint[3];
   int GenerateUnselectedOutput;
   vtkPolyData *UnselectedOutput;
   vtkPolyData *SelectionEdges;

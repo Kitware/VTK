@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.33");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.34");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -34,12 +34,12 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
   this->CellMinimum = 0;
   this->CellMaximum = VTK_LARGE_ID;
 
-  this->Extent[0] = -VTK_LARGE_FLOAT;
-  this->Extent[1] = VTK_LARGE_FLOAT;
-  this->Extent[2] = -VTK_LARGE_FLOAT;
-  this->Extent[3] = VTK_LARGE_FLOAT;
-  this->Extent[4] = -VTK_LARGE_FLOAT;
-  this->Extent[5] = VTK_LARGE_FLOAT;
+  this->Extent[0] = -VTK_DOUBLE_MAX;
+  this->Extent[1] = VTK_DOUBLE_MAX;
+  this->Extent[2] = -VTK_DOUBLE_MAX;
+  this->Extent[3] = VTK_DOUBLE_MAX;
+  this->Extent[4] = -VTK_DOUBLE_MAX;
+  this->Extent[5] = VTK_DOUBLE_MAX;
 
   this->PointClipping = 0;
   this->CellClipping = 0;
@@ -50,10 +50,10 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-void vtkExtractUnstructuredGrid::SetExtent(float xMin,float xMax, float yMin,
-                                           float yMax, float zMin, float zMax)
+void vtkExtractUnstructuredGrid::SetExtent(double xMin,double xMax, double yMin,
+                                           double yMax, double zMin, double zMax)
 {
-  float extent[6];
+  double extent[6];
 
   extent[0] = xMin;
   extent[1] = xMax;
@@ -66,7 +66,7 @@ void vtkExtractUnstructuredGrid::SetExtent(float xMin,float xMax, float yMin,
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-void vtkExtractUnstructuredGrid::SetExtent(float extent[6])
+void vtkExtractUnstructuredGrid::SetExtent(double extent[6])
 {
   int i;
 
@@ -99,7 +99,7 @@ void vtkExtractUnstructuredGrid::Execute()
   vtkPoints *inPts=input->GetPoints(), *newPts;
   char *cellVis;
   vtkCell *cell;
-  float x[3];
+  double x[3];
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdType ptId;

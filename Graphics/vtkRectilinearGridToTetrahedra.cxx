@@ -24,7 +24,7 @@
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.7");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.8");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -67,16 +67,16 @@ vtkRectilinearGrid *vtkRectilinearGridToTetrahedra::GetInput()
 
 //----------------------------------------------------------------------------
 
-void vtkRectilinearGridToTetrahedra::SetInput(const float ExtentX, 
-                                              const float ExtentY,
-                                              const float ExtentZ, 
-                                              const float SpacingX,
-                                              const float SpacingY,
-                                              const float SpacingZ,
-                                              const float tol)
+void vtkRectilinearGridToTetrahedra::SetInput(const double ExtentX, 
+                                              const double ExtentY,
+                                              const double ExtentZ, 
+                                              const double SpacingX,
+                                              const double SpacingY,
+                                              const double SpacingZ,
+                                              const double tol)
 {
-  float Extent[3];
-  float Spacing[3];
+  double Extent[3];
+  double Spacing[3];
   Extent[0]  = ExtentX;    Extent[1] = ExtentY;    Extent[2] = ExtentZ;
   Spacing[0] = SpacingX;  Spacing[1] = SpacingY;  Spacing[2] = SpacingZ;
   this->SetInput(Extent,Spacing,tol);
@@ -86,9 +86,9 @@ void vtkRectilinearGridToTetrahedra::SetInput(const float ExtentX,
 //----------------------------------------------------------------------------
 
 // Create an input for the filter
-void vtkRectilinearGridToTetrahedra::SetInput(const float Extent[3], 
-                                              const float Spacing[3], 
-                                              const float tol)
+void vtkRectilinearGridToTetrahedra::SetInput(const double Extent[3], 
+                                              const double Spacing[3], 
+                                              const double tol)
 {
   //
   // Determine the number of points in each direction, and the positions
@@ -101,7 +101,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const float Extent[3],
   vtkFloatArray *Coord[3];
   for(i = 0;i<3;i++)
     {
-    float NumRegion = Extent[i]/Spacing[i];
+    double NumRegion = Extent[i]/Spacing[i];
 
     // If we are really close to an integer number of elements, use the 
     // integer number
@@ -329,10 +329,10 @@ inline void vtkRectilinearGridToTetrahedra::TetrahedralizeAddCenterPoint(
                                                     vtkPoints *NodeList)
 {
   // Need to add a center point
-  float c1[3], c2[3];
+  double c1[3], c2[3];
   NodeList->GetPoint(VoxelCorners->GetId(0), c2);
   NodeList->GetPoint(VoxelCorners->GetId(7), c1);
-  float center[3];
+  double center[3];
   center[0] = (c1[0] + c2[0])/2.0;
   center[1] = (c1[1] + c2[1])/2.0;
   center[2] = (c1[2] + c2[2])/2.0;

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.12");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.13");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -37,7 +37,7 @@ vtkReflectionFilter::~vtkReflectionFilter()
 }
 
 //---------------------------------------------------------------------------
-void vtkReflectionFilter::FlipVector(float tuple[3], int mirrorDir[3])
+void vtkReflectionFilter::FlipVector(double tuple[3], int mirrorDir[3])
 {
   for(int j=0; j<3; j++)
     {
@@ -57,11 +57,11 @@ void vtkReflectionFilter::Execute()
   vtkCellData *outCD = output->GetCellData();  
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
-  float bounds[6];
-  float tuple[3];
+  double bounds[6];
+  double tuple[3];
   vtkPoints *outPoints;
-  float point[3];
-  float constant[3] = {0.0, 0.0, 0.0};
+  double point[3];
+  double constant[3] = {0.0, 0.0, 0.0};
   int mirrorDir[3] = { 1, 1, 1};
   int ptId, cellId, j;
   vtkGenericCell *cell = vtkGenericCell::New();

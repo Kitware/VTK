@@ -38,15 +38,15 @@ public:
 
   // Description:
   // Define one end of the line (small scalar values).
-  vtkSetVector3Macro(Vector,float);
-  vtkGetVectorMacro(Vector,float,3);
+  vtkSetVector3Macro(Vector,double);
+  vtkGetVectorMacro(Vector,double,3);
 
 protected:
   vtkSimpleElevationFilter();
   ~vtkSimpleElevationFilter() {};
 
   void Execute();
-  float Vector[3];
+  double Vector[3];
 private:
   vtkSimpleElevationFilter(const vtkSimpleElevationFilter&);  // Not implemented.
   void operator=(const vtkSimpleElevationFilter&);  // Not implemented.

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.10");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.11");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -47,7 +47,7 @@ void vtkImageDataGeometryFilter::Execute()
   vtkCellArray *newPolys=0;
   vtkIdType totPoints, pos;
   int offset[3], numPolys;
-  float x[3];
+  double x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
   vtkImageData *input = this->GetInput();

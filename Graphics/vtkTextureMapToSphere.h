@@ -56,8 +56,8 @@ public:
 
   // Description:
   // Specify a point defining the center of the sphere.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Turn on/off automatic sphere generation. This means it automatically
@@ -81,7 +81,7 @@ protected:
 
   void Execute();
 
-  float Center[3];
+  double Center[3];
   int AutomaticSphereGeneration;
   int PreventSeam;
 

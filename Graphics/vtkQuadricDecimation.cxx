@@ -43,7 +43,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkEdgeTable.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
@@ -53,7 +53,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.33");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.34");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -65,7 +65,7 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->EndPoint1List = vtkIdList::New();
   this->EndPoint2List = vtkIdList::New();
   this->ErrorQuadrics = NULL;
-  this->TargetPoints = vtkFloatArray::New();
+  this->TargetPoints = vtkDoubleArray::New();
   
   this->TargetReduction = 0.90f;
   this->NumberOfEdgeCollapses = 0;
@@ -177,7 +177,7 @@ void vtkQuadricDecimation::Execute()
   vtkIdType numTris = input->GetNumberOfPolys();
   vtkIdType edgeId, i;
   int j;
-  float cost;
+  double cost;
   double *x;
   vtkCellArray *polys;
   vtkDataArray *attrib;
@@ -298,7 +298,7 @@ void vtkQuadricDecimation::Execute()
   edgeId = this->EdgeCosts->Pop(0,cost);
 
   int abort = 0;
-  while ( !abort && edgeId >= 0 && cost < VTK_FLOAT_MAX &&
+  while ( !abort && edgeId >= 0 && cost < VTK_DOUBLE_MAX &&
          this->ActualReduction < this->TargetReduction ) 
     {
     if ( ! (this->NumberOfEdgeCollapses % 10000) ) 
@@ -318,7 +318,7 @@ void vtkQuadricDecimation::Execute()
       vtkDebugMacro(<<"Poor placement detected " << edgeId << " " <<  cost);
       // return the point to the queue but with the max cost so that 
       // when it is recomputed it will be reconsidered
-      this->EdgeCosts->Insert(VTK_FLOAT_MAX, edgeId);
+      this->EdgeCosts->Insert(VTK_DOUBLE_MAX, edgeId);
 
       edgeId = this->EdgeCosts->Pop(0, cost);
       continue;
@@ -338,7 +338,7 @@ void vtkQuadricDecimation::Execute()
     
     // Update the output triangles.
     numDeletedTris += this->CollapseEdge(endPtIds[0], endPtIds[1]);
-    this->ActualReduction = (float) numDeletedTris / numTris;
+    this->ActualReduction = (double) numDeletedTris / numTris;
     edgeId = this->EdgeCosts->Pop(0, cost);
     }
 
@@ -400,9 +400,9 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   int i, j;
   vtkCellArray *polys=NULL;
   vtkIdType npts, *pts=NULL;
-  float point0[3], point1[3], point2[3];
-  float n[3];
-  float tempP1[3], tempP2[3],  d, triArea2;
+  double point0[3], point1[3], point2[3];
+  double n[3];
+  double tempP1[3], tempP2[3],  d, triArea2;
   double data[16];
   double *A[4], x[4];
   int index[4];
@@ -559,8 +559,8 @@ void vtkQuadricDecimation::AddBoundaryConstraints(void)
   vtkIdType  cellId;
   int i, j;
   vtkIdType npts, *pts;
-  float t0[3], t1[3], t2[3];
-  float e0[3], e1[3], n[3], c, d, w;
+  double t0[3], t1[3], t2[3];
+  double e0[3], e1[3], n[3], c, d, w;
   vtkIdList *cellIds = vtkIdList::New();
   
   // allocate local QEM space matrix
@@ -979,8 +979,8 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
     double *v = new double [3+this->NumberOfComponents]; 
     double *temp = new double [3+this->NumberOfComponents];  
     double *temp2 = new double [3+this->NumberOfComponents];  
-    float d = 0;
-    float c = 0;
+    double d = 0;
+    double c = 0;
 
     this->GetPointAttributeArray(pointIds[0], pt1);
     this->GetPointAttributeArray(pointIds[1], pt2);
@@ -1124,12 +1124,12 @@ int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
 // triangle t0, t1, t2 and point x
 // determins if t0 and x are on the same side of the plane defined by 
 // t1 and t2, and parallel to the normal of the triangle
-int vtkQuadricDecimation::TrianglePlaneCheck(const float t0[3], 
-                                             const float t1[3], 
-                                             const float t2[3],  
+int vtkQuadricDecimation::TrianglePlaneCheck(const double t0[3], 
+                                             const double t1[3], 
+                                             const double t2[3],  
                                              const double *x) {
-  float e0[3], e1[3], n[3], e2[3];
-  float c;
+  double e0[3], e1[3], n[3], e2[3];
+  double c;
   int i;
 
   for (i = 0; i < 3; i++)
@@ -1170,7 +1170,7 @@ const double *x)
 {
   unsigned short ncells, i;
   vtkIdType npts, *pts,  ptId, *cells;
-  float pt1[3], pt2[3], pt3[3];
+  double pt1[3], pt2[3], pt3[3];
 
   this->Mesh->GetPointCells(pt0Id, ncells, cells);
   for (i = 0; i < ncells; i++) {

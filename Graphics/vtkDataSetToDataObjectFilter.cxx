@@ -26,7 +26,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.30");
+vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.31");
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ void vtkDataSetToDataObjectFilter::Execute()
 
       vtkFloatArray *origin=vtkFloatArray::New();
       origin->SetNumberOfValues(3);
-      float org[3];
+      double org[3];
       spts->GetOrigin(org);
       origin->SetValue(0, org[0]);
       origin->SetValue(1, org[1]);
@@ -86,7 +86,7 @@ void vtkDataSetToDataObjectFilter::Execute()
 
       vtkFloatArray *spacing=vtkFloatArray::New();
       spacing->SetNumberOfValues(3);
-      float sp[3];
+      double sp[3];
       spts->GetSpacing(sp);
       spacing->SetValue(0, sp[0]);
       spacing->SetValue(1, sp[1]);

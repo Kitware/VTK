@@ -64,8 +64,8 @@ public:
 
   // Description:
   // Specify the feature angle for extracting feature edges.
-  vtkSetClampMacro(FeatureAngle,float,0.0,180.0);
-  vtkGetMacro(FeatureAngle,float);
+  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
+  vtkGetMacro(FeatureAngle,double);
 
   // Description:
   // Turn on/off the extraction of non-manifold edges.
@@ -107,7 +107,7 @@ protected:
   void Execute();
   void ComputeInputUpdateExtents(vtkDataObject *output);
   
-  float FeatureAngle;
+  double FeatureAngle;
   int BoundaryEdges;
   int FeatureEdges;
   int NonManifoldEdges;

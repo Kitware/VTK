@@ -21,7 +21,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpScalar, "1.45");
+vtkCxxRevisionMacro(vtkWarpScalar, "1.46");
 vtkStandardNewMacro(vtkWarpScalar);
 
 vtkWarpScalar::vtkWarpScalar()
@@ -42,21 +42,21 @@ vtkWarpScalar::~vtkWarpScalar()
   this->SetInputScalarsSelection(NULL);
 }
 
-float *vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray *normals)
+double *vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray *normals)
 {
   return normals->GetTuple(id);
 }
 
-float *vtkWarpScalar::InstanceNormal(vtkIdType vtkNotUsed(id), 
+double *vtkWarpScalar::InstanceNormal(vtkIdType vtkNotUsed(id), 
                                      vtkDataArray *vtkNotUsed(normals))
 {
   return this->Normal;
 }
 
-float *vtkWarpScalar::ZNormal(vtkIdType vtkNotUsed(id), 
+double *vtkWarpScalar::ZNormal(vtkIdType vtkNotUsed(id), 
                               vtkDataArray *vtkNotUsed(normals))
 {
-  static float zNormal[3]={0.0,0.0,1.0};
+  static double zNormal[3]={0.0,0.0,1.0};
   return zNormal;
 }
 
@@ -69,7 +69,7 @@ void vtkWarpScalar::Execute()
   vtkPointData *pd;
   int i;
   vtkIdType ptId, numPts;
-  float x[3], *n, s, newX[3];
+  double x[3], *n, s, newX[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
   
@@ -116,7 +116,7 @@ void vtkWarpScalar::Execute()
     {
     if ( ! (ptId % 10000) ) 
       {
-      this->UpdateProgress ((float)ptId/numPts);
+      this->UpdateProgress ((double)ptId/numPts);
       if (this->GetAbortExecute())
         {
         break;

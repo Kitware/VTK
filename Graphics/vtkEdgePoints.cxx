@@ -18,14 +18,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.52");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.53");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.
@@ -53,8 +52,8 @@ void vtkEdgePoints::Execute()
   int above, below, i, numEdges;
   vtkCell *edge;
   double range[2];
-  float s0, s1, x0[3], x1[3], x[3], t;
-  float e0Scalar, deltaScalar;
+  double s0, s1, x0[3], x1[3], x[3], t;
+  double e0Scalar, deltaScalar;
   int e0, e1;
   vtkIdType p1, p2;
   vtkIdType pts[1];
@@ -117,7 +116,7 @@ void vtkEdgePoints::Execute()
     if ( ! (cellId % progressInterval) ) 
       {
       vtkDebugMacro(<<"Processing #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       abort = this->GetAbortExecute();
       }
 

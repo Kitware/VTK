@@ -58,7 +58,7 @@ protected:
   int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,
                 vtkIdType p2, vtkIntArray *edgeData, vtkIdList *cellIds);
   vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
-                                 vtkIdList *stencil, float *weights);
+                                 vtkIdList *stencil, double *weights);
   int NumberOfSubdivisions;
 
 private:

@@ -33,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.29");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.30");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -274,7 +274,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   int          pInc[3];
   int          qInc[3];
   int          cOutInc;
-  float        pt[3];
+  double        pt[3];
   vtkIdType    inStartPtId;
   vtkIdType    outStartPtId;
   vtkIdType    outPtId;
@@ -411,7 +411,7 @@ void vtkDataSetSurfaceFilter::ExecuteFaceQuads(vtkDataSet *input,
   int          pInc[3];
   int          qInc[3];
   int          cOutInc;
-  float        pt[3];
+  double        pt[3];
   vtkIdType    inStartPtId;
   vtkIdType    inStartCellId;
   vtkIdType    outStartPtId;
@@ -534,7 +534,7 @@ void vtkDataSetSurfaceFilter::DataSetExecute()
   vtkIdType numCells=input->GetNumberOfCells();
   vtkGenericCell *cell;
   vtkCell *face;
-  float x[3];
+  double x[3];
   vtkIdList *cellIds;
   vtkIdList *pts;
   vtkPoints *newPts;
@@ -578,7 +578,7 @@ void vtkDataSetSurfaceFilter::DataSetExecute()
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       abort = this->GetAbortExecute();
       }
     
@@ -767,7 +767,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
     if ( progressCount >= progressInterval )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       abort = this->GetAbortExecute();
       progressCount = 0;
       }

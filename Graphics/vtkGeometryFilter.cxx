@@ -30,7 +30,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.94");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.95");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -42,12 +42,12 @@ vtkGeometryFilter::vtkGeometryFilter()
   this->CellMinimum = 0;
   this->CellMaximum = VTK_LARGE_ID;
 
-  this->Extent[0] = -VTK_LARGE_FLOAT;
-  this->Extent[1] = VTK_LARGE_FLOAT;
-  this->Extent[2] = -VTK_LARGE_FLOAT;
-  this->Extent[3] = VTK_LARGE_FLOAT;
-  this->Extent[4] = -VTK_LARGE_FLOAT;
-  this->Extent[5] = VTK_LARGE_FLOAT;
+  this->Extent[0] = -VTK_DOUBLE_MAX;
+  this->Extent[1] = VTK_DOUBLE_MAX;
+  this->Extent[2] = -VTK_DOUBLE_MAX;
+  this->Extent[3] = VTK_DOUBLE_MAX;
+  this->Extent[4] = -VTK_DOUBLE_MAX;
+  this->Extent[5] = VTK_DOUBLE_MAX;
 
   this->PointClipping = 0;
   this->CellClipping = 0;
@@ -67,10 +67,10 @@ vtkGeometryFilter::~vtkGeometryFilter()
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-void vtkGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
-                                     float yMax, float zMin, float zMax)
+void vtkGeometryFilter::SetExtent(double xMin, double xMax, double yMin,
+                                     double yMax, double zMin, double zMax)
 {
-  float extent[6];
+  double extent[6];
 
   extent[0] = xMin;
   extent[1] = xMax;
@@ -83,7 +83,7 @@ void vtkGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
 }
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-void vtkGeometryFilter::SetExtent(float extent[6])
+void vtkGeometryFilter::SetExtent(double extent[6])
 {
   int i;
 
@@ -114,7 +114,7 @@ void vtkGeometryFilter::Execute()
   char *cellVis;
   vtkGenericCell *cell;
   vtkCell *face;
-  float x[3];
+  double x[3];
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdList *pts;
@@ -250,7 +250,7 @@ void vtkGeometryFilter::Execute()
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       abort = this->GetAbortExecute();
       }
 
@@ -440,7 +440,7 @@ void vtkGeometryFilter::PolyDataExecute()
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType newCellId, ptId;
   int visible, type;
-  float x[3];
+  double x[3];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
   unsigned char  *cellGhostLevels = 0;
@@ -497,7 +497,7 @@ void vtkGeometryFilter::PolyDataExecute()
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       }
 
     // Handle ghost cells here.  Another option was used cellVis array.
@@ -575,7 +575,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   char *cellVis;
   vtkIdType newCellId;
   int faceId, *faceVerts, numFacePts;
-  float x[3];
+  double x[3];
   int PixelConvert[4];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
@@ -684,7 +684,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       }
 
     // Handle ghost cells here.  Another option was used cellVis array.
@@ -963,7 +963,7 @@ void vtkGeometryFilter::StructuredGridExecute()
   vtkIdType numCells=input->GetNumberOfCells();
   char *cellVis;
   vtkGenericCell *cell;
-  float x[3];
+  double x[3];
   vtkIdList *ptIds;
   vtkIdList *cellIds;
   vtkIdList *pts;
@@ -1069,7 +1069,7 @@ void vtkGeometryFilter::StructuredGridExecute()
     if ( !(cellId % progressInterval) )
       {
       vtkDebugMacro(<<"Process cell #" << cellId);
-      this->UpdateProgress ((float)cellId/numCells);
+      this->UpdateProgress ((double)cellId/numCells);
       }
 
     // Handle ghost cells here.  Another option was used cellVis array.

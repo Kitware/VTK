@@ -74,8 +74,8 @@ public:
 
   // Description:
   // Set the scalar range to use to extract cells based on scalar connectivity.
-  vtkSetVectorMacro(ScalarRange,float,2);
-  vtkGetVectorMacro(ScalarRange,float,2);
+  vtkSetVectorMacro(ScalarRange,double,2);
+  vtkGetVectorMacro(ScalarRange,double,2);
 
   // Description:
   // Control the extraction of connected surfaces.
@@ -124,8 +124,8 @@ public:
   // Description:
   // Use to specify x-y-z point coordinates when extracting the region 
   // closest to a specified point.
-  vtkSetVector3Macro(ClosestPoint,float);
-  vtkGetVectorMacro(ClosestPoint,float,3);
+  vtkSetVector3Macro(ClosestPoint,double);
+  vtkGetVectorMacro(ClosestPoint,double,3);
 
   // Description:
   // Obtain the number of connected regions.
@@ -150,10 +150,10 @@ protected:
   vtkIdList *SpecifiedRegionIds; //regions specified for extraction
   vtkIdTypeArray *RegionSizes; //size (in cells) of each region extracted
 
-  float ClosestPoint[3];
+  double ClosestPoint[3];
 
   int ScalarConnectivity;
-  float ScalarRange[2];
+  double ScalarRange[2];
 
   void TraverseAndMark();
 

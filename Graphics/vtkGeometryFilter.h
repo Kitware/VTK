@@ -95,13 +95,13 @@ public:
 
   // Description:
   // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-  void SetExtent(float xMin, float xMax, float yMin, float yMax, 
-                 float zMin, float zMax);
+  void SetExtent(double xMin, double xMax, double yMin, double yMax, 
+                 double zMin, double zMax);
 
   // Description:
   // Set / get a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
-  void SetExtent(float extent[6]);
-  float *GetExtent() { return this->Extent;};
+  void SetExtent(double extent[6]);
+  double *GetExtent() { return this->Extent;};
 
   // Description:
   // Turn on/off merging of coincident points. Note that is merging is
@@ -140,7 +140,7 @@ protected:
   vtkIdType PointMinimum;
   vtkIdType CellMinimum;
   vtkIdType CellMaximum;
-  float Extent[6];
+  double Extent[6];
   int PointClipping;
   int CellClipping;
   int ExtentClipping;

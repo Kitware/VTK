@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.31");
+vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.32");
 vtkStandardNewMacro(vtkTextureMapToSphere);
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
@@ -41,7 +41,7 @@ void vtkTextureMapToSphere::Execute()
   vtkDataSet *output = this->GetOutput();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType ptId;
-  float x[3], rho, r, tc[2], phi=0.0, thetaX, thetaY;
+  double x[3], rho, r, tc[2], phi=0.0, thetaX, thetaY;
   double diff, PiOverTwo=vtkMath::Pi()/2.0;
 
   vtkDebugMacro(<<"Generating Spherical Texture Coordinates");

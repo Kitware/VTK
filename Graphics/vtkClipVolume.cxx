@@ -30,7 +30,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.63");
+vtkCxxRevisionMacro(vtkClipVolume, "1.64");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -128,7 +128,7 @@ void vtkClipVolume::Execute()
   vtkFloatArray *cellScalars; 
   vtkPoints *newPoints;
   vtkIdList *cellIds;
-  float value, s, x[3], origin[3], spacing[3];
+  double value, s, x[3], origin[3], spacing[3];
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
@@ -272,7 +272,7 @@ void vtkClipVolume::Execute()
   for ( k=0; k < numKCells && !abort; k++)
     {
     // Check for progress and abort on every z-slice
-    this->UpdateProgress((float)k / numKCells);
+    this->UpdateProgress((double)k / numKCells);
     abort = this->GetAbortExecute();
     for ( j=0; j < numJCells; j++)
       {
@@ -428,7 +428,7 @@ void vtkClipVolume::Execute()
 // alternating five tetrahedra template per voxel, and then using the
 // vtkTetra::Clip() method to produce the output.
 // 
-void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, 
+void vtkClipVolume::ClipTets(double value, vtkTetra *clipTetra, 
                              vtkDataArray *clipScalars,
                              vtkDataArray *cellScalars, vtkIdList *tetraIds, 
                              vtkPoints *tetraPts, vtkPointData *inPD, 
@@ -490,16 +490,16 @@ void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra,
 // of face diagonals). Then edge intersection points are injected into the
 // triangulation. The ordering controls the orientation of any face
 // diagonals.
-void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars, 
-                              int flip, float vtkNotUsed(origin)[3],
-                              float spacing[3], vtkIdList *cellIds, 
+void vtkClipVolume::ClipVoxel(double value, vtkDataArray *cellScalars, 
+                              int flip, double vtkNotUsed(origin)[3],
+                              double spacing[3], vtkIdList *cellIds, 
                               vtkPoints *cellPts, vtkPointData *inPD, 
                               vtkPointData *outPD, vtkCellData *inCD, 
                               vtkIdType cellId, vtkCellData *outCD, 
                               vtkCellData *clippedCD)
 {
-  float x[3], s1, s2, t, voxelOrigin[3];
-  float bounds[6], p1[3], p2[3];
+  double x[3], s1, s2, t, voxelOrigin[3];
+  double bounds[6], p1[3], p2[3];
   int i, k, edgeNum, numPts, numNew;
   vtkIdType id, ptId, npts, *pts;
   static int edges[12][2] = { {0,1}, {2,3}, {4,5}, {6,7},

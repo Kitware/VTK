@@ -19,7 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineSource, "1.33");
+vtkCxxRevisionMacro(vtkOutlineSource, "1.34");
 vtkStandardNewMacro(vtkOutlineSource);
 
 //----------------------------------------------------------------------------
@@ -62,8 +62,8 @@ vtkOutlineSource::vtkOutlineSource()
 //----------------------------------------------------------------------------
 void vtkOutlineSource::Execute()
 {
-  float *bounds;
-  float x[3];
+  double *bounds;
+  double x[3];
   vtkIdType pts[2];
   vtkPoints *newPts;
   vtkCellArray *newLines;

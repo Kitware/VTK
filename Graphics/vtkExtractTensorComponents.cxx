@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.26");
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.27");
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 // Construct object to extract nothing and to not pass tensor data
@@ -57,18 +57,18 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
 void vtkExtractTensorComponents::Execute()
 {
   vtkDataArray *inTensors;
-  float tensor[9];
+  double tensor[9];
   vtkDataSet *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
   vtkPointData *outPD = this->GetOutput()->GetPointData();
-  float s = 0.0;
-  float v[3];
+  double s = 0.0;
+  double v[3];
   vtkFloatArray *newScalars=NULL;
   vtkFloatArray *newVectors=NULL;
   vtkFloatArray *newNormals=NULL;
   vtkFloatArray *newTCoords=NULL;
   vtkIdType ptId, numPts;
-  float sx, sy, sz, txy, tyz, txz;
+  double sx, sy, sz, txy, tyz, txz;
 
   // Initialize
   //

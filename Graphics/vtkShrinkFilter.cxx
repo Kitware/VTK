@@ -21,10 +21,10 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkShrinkFilter, "1.61");
+vtkCxxRevisionMacro(vtkShrinkFilter, "1.62");
 vtkStandardNewMacro(vtkShrinkFilter);
 
-vtkShrinkFilter::vtkShrinkFilter(float sf)
+vtkShrinkFilter::vtkShrinkFilter(double sf)
 {
   sf = ( sf < 0.0 ? 0.0 : (sf > 1.0 ? 1.0 : sf));
   this->ShrinkFactor = sf;
@@ -36,13 +36,13 @@ void vtkShrinkFilter::Execute()
   int i, j, numIds, abort=0;
   vtkIdType cellId, numCells, numPts;
   vtkIdType oldId, newId;
-  float center[3], p[3], pt[3];
+  double center[3], p[3], pt[3];
   vtkPointData *pd, *outPD;;
   vtkIdList *ptIds, *newPtIds;
   vtkDataSet *input= this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkIdType tenth;
-  float decimal;
+  double decimal;
 
   vtkDebugMacro(<<"Shrinking cells");
 

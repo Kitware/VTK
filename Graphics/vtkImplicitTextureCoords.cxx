@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.46");
+vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.47");
 vtkStandardNewMacro(vtkImplicitTextureCoords);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords,SFunction,vtkImplicitFunction);
 vtkCxxSetObjectMacro(vtkImplicitTextureCoords,RFunction,vtkImplicitFunction);
@@ -50,8 +50,8 @@ void vtkImplicitTextureCoords::Execute()
   vtkIdType ptId, numPts;
   int tcoordDim;
   vtkFloatArray *newTCoords;
-  float min[3], max[3], scale[3];
-  float tCoord[3], tc[3], x[3];
+  double min[3], max[3], scale[3];
+  double tCoord[3], tc[3], x[3];
   int i;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
@@ -105,8 +105,8 @@ void vtkImplicitTextureCoords::Execute()
 //
   for (i=0; i<3; i++) //initialize min/max values array
     {
-    min[i] = VTK_LARGE_FLOAT;
-    max[i] = -VTK_LARGE_FLOAT;
+    min[i] = VTK_DOUBLE_MAX;
+    max[i] = -VTK_DOUBLE_MAX;
     }
   for (ptId=0; ptId<numPts; ptId++) //compute texture coordinates
     {

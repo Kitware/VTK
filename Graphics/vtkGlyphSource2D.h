@@ -59,25 +59,25 @@ public:
 
   // Description:
   // Set the center of the glyph. By default the center is (0,0,0).
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the scale of the glyph. Note that the glyphs are designed
   // to fit in the (1,1) rectangle.
-  vtkSetClampMacro(Scale,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Scale,float);
+  vtkSetClampMacro(Scale,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Scale,double);
 
   // Description:
   // Set the scale of optional portions of the glyph (e.g., the
   // dash and cross is DashOn() and CrossOn()).
-  vtkSetClampMacro(Scale2,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Scale2,float);
+  vtkSetClampMacro(Scale2,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Scale2,double);
 
   // Description:
   // Set the color of the glyph. The default color is white.
-  vtkSetVector3Macro(Color,float);
-  vtkGetVectorMacro(Color,float,3);
+  vtkSetVector3Macro(Color,double);
+  vtkGetVectorMacro(Color,double,3);
 
   // Description:
   // Specify whether the glyph is filled (a polygon) or not (a
@@ -107,8 +107,8 @@ public:
   // Specify an angle (in degrees) to rotate the glyph around
   // the z-axis. Using this ivar, it is possible to generate
   // rotated glyphs (e.g., crosses, arrows, etc.)
-  vtkSetMacro(RotationAngle,float);
-  vtkGetMacro(RotationAngle,float);
+  vtkSetMacro(RotationAngle,double);
+  vtkGetMacro(RotationAngle,double);
 
   // Description:
   // Specify the type of glyph to generate.
@@ -133,15 +133,15 @@ protected:
 
   void Execute();
 
-  float Center[3];
-  float Scale;
-  float Scale2;
-  float Color[3];
+  double Center[3];
+  double Scale;
+  double Scale2;
+  double Color[3];
   int   Filled;
   int   Dash;
   int   Cross;
   int   GlyphType;
-  float RotationAngle;
+  double RotationAngle;
   
   void TransformGlyph(vtkPoints *pts);
   void ConvertColor();
@@ -150,9 +150,9 @@ protected:
   void CreateVertex(vtkPoints *pts, vtkCellArray *verts, 
                     vtkUnsignedCharArray *colors);
   void CreateDash(vtkPoints *pts, vtkCellArray *lines, 
-                  vtkCellArray *polys, vtkUnsignedCharArray *colors, float scale);
+                  vtkCellArray *polys, vtkUnsignedCharArray *colors, double scale);
   void CreateCross(vtkPoints *pts, vtkCellArray *lines, 
-                   vtkCellArray *polys, vtkUnsignedCharArray *colors, float scale);
+                   vtkCellArray *polys, vtkUnsignedCharArray *colors, double scale);
   void CreateThickCross(vtkPoints *pts, vtkCellArray *lines, 
                         vtkCellArray *polys, vtkUnsignedCharArray *colors);
   void CreateTriangle(vtkPoints *pts, vtkCellArray *lines,

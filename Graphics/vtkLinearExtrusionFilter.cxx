@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.58");
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.59");
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
@@ -37,10 +37,10 @@ vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
   this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
-float *vtkLinearExtrusionFilter::ViaNormal(float x[3], vtkIdType id,
+double *vtkLinearExtrusionFilter::ViaNormal(double x[3], vtkIdType id,
                                            vtkDataArray *n)
 {
-  static float xNew[3], normal[3];
+  static double xNew[3], normal[3];
   int i;
 
   n->GetTuple(id, normal);
@@ -52,11 +52,11 @@ float *vtkLinearExtrusionFilter::ViaNormal(float x[3], vtkIdType id,
   return xNew;
 }
 
-float *vtkLinearExtrusionFilter::ViaVector(float x[3],
+double *vtkLinearExtrusionFilter::ViaVector(double x[3],
                                            vtkIdType vtkNotUsed(id), 
                                            vtkDataArray *vtkNotUsed(n))
 {
-  static float xNew[3];
+  static double xNew[3];
   int i;
 
   for (i=0; i<3; i++) 
@@ -67,10 +67,10 @@ float *vtkLinearExtrusionFilter::ViaVector(float x[3],
   return xNew;
 }
 
-float *vtkLinearExtrusionFilter::ViaPoint(float x[3], vtkIdType vtkNotUsed(id),
+double *vtkLinearExtrusionFilter::ViaPoint(double x[3], vtkIdType vtkNotUsed(id),
                                           vtkDataArray *vtkNotUsed(n))
 {
-  static float xNew[3];
+  static double xNew[3];
   int i;
 
   for (i=0; i<3; i++) 
@@ -96,7 +96,7 @@ void vtkLinearExtrusionFilter::Execute()
   vtkIdType npts = 0;
   vtkIdType ptId, ncells, p1, p2;
   int i, j;
-  float x[3];
+  double x[3];
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *edge;

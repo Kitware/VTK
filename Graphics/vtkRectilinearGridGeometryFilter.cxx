@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.27");
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.28");
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -49,7 +49,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
   vtkCellArray *newPolys=0;
   vtkIdType totPoints, pos;
   int offset[3], numPolys;
-  float x[3];
+  double x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
   vtkRectilinearGrid *input = this->GetInput();

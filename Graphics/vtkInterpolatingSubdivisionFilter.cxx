@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.22");
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.23");
 
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
@@ -158,9 +158,9 @@ int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
 
 vtkIdType vtkInterpolatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
-        vtkIdList *stencil, float *weights)
+        vtkIdList *stencil, double *weights)
 {
-  float xx[3], x[3];
+  double xx[3], x[3];
   int i, j;
 
   for (j = 0; j < 3; j++)
@@ -187,7 +187,7 @@ void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *i
   int id;
   vtkIdType npts;
   vtkIdType *pts;
-  float edgePts[3];
+  double edgePts[3];
   vtkIdType newCellPts[3];
   vtkCellData *inputCD = inputDS->GetCellData();
 

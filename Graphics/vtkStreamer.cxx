@@ -16,7 +16,7 @@
 
 #include "vtkCell.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.85");
+vtkCxxRevisionMacro(vtkStreamer, "1.86");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -122,7 +122,7 @@ vtkDataSet *vtkStreamer::GetSource()
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
 void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId,
-                                   float pcoords[3])
+                                   double pcoords[3])
 {
   if ( cellId != this->StartCell || subId != this->StartSubId ||
        pcoords[0] !=  this->StartPCoords[0] || 
@@ -142,10 +142,10 @@ void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId,
 
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
-void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId, float r,
-                                   float s, float t)
+void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId, double r,
+                                   double s, double t)
 {
-  float pcoords[3];
+  double pcoords[3];
   pcoords[0] = r;
   pcoords[1] = s;
   pcoords[2] = t;
@@ -154,7 +154,7 @@ void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId, float r,
 }
 
 // Get the starting location of the streamline in the cell coordinate system.
-vtkIdType vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
+vtkIdType vtkStreamer::GetStartLocation(int& subId, double pcoords[3])
 {
   subId = this->StartSubId;
   pcoords[0] = this->StartPCoords[0];
@@ -165,7 +165,7 @@ vtkIdType vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
 
 // Specify the start of the streamline in the global coordinate system. Search
 // must be performed to find initial cell to start integration from.
-void vtkStreamer::SetStartPosition(float x[3])
+void vtkStreamer::SetStartPosition(double x[3])
 {
   if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
        x[2] != this->StartPosition[2] )
@@ -181,9 +181,9 @@ void vtkStreamer::SetStartPosition(float x[3])
 
 // Specify the start of the streamline in the global coordinate system. Search
 // must be performed to find initial cell to start integration from.
-void vtkStreamer::SetStartPosition(float x, float y, float z)
+void vtkStreamer::SetStartPosition(double x, double y, double z)
 {
-  float pos[3];
+  double pos[3];
   pos[0] = x;
   pos[1] = y;
   pos[2] = z;
@@ -192,12 +192,12 @@ void vtkStreamer::SetStartPosition(float x, float y, float z)
 }
 
 // Get the start position in global x-y-z coordinates.
-float *vtkStreamer::GetStartPosition()
+double *vtkStreamer::GetStartPosition()
 {
   return this->StartPosition;
 }
 
-static const float VTK_EPSILON=1E-12;
+static const double VTK_EPSILON=1E-12;
 
 VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 {
@@ -209,19 +209,21 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkStreamer::StreamPoint pt1, pt2;
   int                      i;
   vtkIdType                idxNext, ptId;
-  float                    d, step, dir;
-  float                    xNext[3], vel[3], *cellVel, derivs[9];
-  float                    *w, pcoords[3];
-  float                    coords[4];
+  double                    d, step, dir;
+  double                    xNext[3], vel[3];
+  double                    *cellVel;
+  double                    derivs[9];
+  double                    *w, pcoords[3];
+  double                    coords[4];
   vtkDataSet               *input;
   vtkGenericCell           *cell;
   vtkPointData             *pd;
   vtkDataArray             *inScalars;
   vtkDataArray             *inVectors;
-  vtkFloatArray            *cellVectors;
+  vtkDoubleArray            *cellVectors;
   vtkDataArray             *cellScalars=0;
-  float tOffset, vort[3];
-  float err;
+  double tOffset, vort[3];
+  double err;
   int nSavePts = 0, counter=0;
 
   thread_id = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
@@ -234,7 +236,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   inVectors = pd->GetVectors();
 
   cell = vtkGenericCell::New();
-  cellVectors = vtkFloatArray::New();
+  cellVectors = vtkDoubleArray::New();
   cellVectors->SetNumberOfComponents(3);
   cellVectors->Allocate(3*VTK_CELL_SIZE);
   if (inScalars)
@@ -244,7 +246,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
     cellScalars->Allocate(inScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     }
 
-  w = new float[input->GetMaxCellSize()];
+  w = new double[input->GetMaxCellSize()];
 
   // Set the function set to be integrated
   vtkInterpolatedVelocityField* func = vtkInterpolatedVelocityField::New();
@@ -263,9 +265,9 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
   // Used to avoid calling these function many times during
   // the integration
-  float termspeed = self->GetTerminalSpeed();
-  float maxtime = self->GetMaximumPropagationTime();
-  float savePointInterval = self->GetSavePointInterval();
+  double termspeed = self->GetTerminalSpeed();
+  double maxtime = self->GetMaximumPropagationTime();
+  double savePointInterval = self->GetSavePointInterval();
 
   // For each streamer, integrate in appropriate direction
   // Do only the streamers that this thread should handle.
@@ -299,7 +301,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           {
           if (!thread_id)
             {
-            self->UpdateProgress((float)ptId/self->GetNumberOfStreamers()
+            self->UpdateProgress((double)ptId/self->GetNumberOfStreamers()
                                  +pt1.t/maxtime/self->GetNumberOfStreamers());
             }
           if (self->GetAbortExecute())
@@ -453,10 +455,10 @@ void vtkStreamer::Integrate()
   vtkIdType ptId, i;
   int j, offset;
   vtkCell *cell;
-  float v[3], *cellVel, derivs[9], xNext[3], vort[3];
-  float tol2;
-  float *w=new float[input->GetMaxCellSize()];
-  vtkFloatArray *cellVectors;
+  double v[3], *cellVel, derivs[9], xNext[3], vort[3];
+  double tol2;
+  double *w=new double[input->GetMaxCellSize()];
+  vtkDoubleArray *cellVectors;
   vtkDataArray *cellScalars=0;
 
   vtkDebugMacro(<<"Generating streamers");
@@ -473,7 +475,7 @@ void vtkStreamer::Integrate()
     return;
     }
 
-  cellVectors = vtkFloatArray::New();
+  cellVectors = vtkDoubleArray::New();
   cellVectors->SetNumberOfComponents(3);
   cellVectors->Allocate(3*VTK_CELL_SIZE);
 

@@ -54,7 +54,7 @@ vtkTriangleFilter boundaryTriangles
   boundaryTriangles SetInput boundaryPoly
 
 vtkPolyDataMapper boundaryMapper
-  boundaryMapper SetInput boundaryPoly
+boundaryMapper SetInput [boundaryTriangles GetOutput]
 
 vtkActor boundaryActor
   boundaryActor SetMapper boundaryMapper

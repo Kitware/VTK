@@ -111,8 +111,8 @@ public:
   // Description:
   // Specify a convergence criterion for the iteration
   // process. Smaller numbers result in more smoothing iterations.
-  vtkSetClampMacro(Convergence,float,0.0,1.0);
-  vtkGetMacro(Convergence,float);
+  vtkSetClampMacro(Convergence,double,0.0,1.0);
+  vtkGetMacro(Convergence,double);
 
   // Description:
   // Specify the number of iterations for Laplacian smoothing,
@@ -125,8 +125,8 @@ public:
   // this parameter. In general, small relaxation factors and large
   // numbers of iterations are more stable than larger relaxation
   // factors and smaller numbers of iterations.
-  vtkSetMacro(RelaxationFactor,float);
-  vtkGetMacro(RelaxationFactor,float);
+  vtkSetMacro(RelaxationFactor,double);
+  vtkGetMacro(RelaxationFactor,double);
 
   // Description:
   // Turn on/off smoothing along sharp interior edges.
@@ -136,14 +136,14 @@ public:
 
   // Description:
   // Specify the feature angle for sharp edge identification.
-  vtkSetClampMacro(FeatureAngle,float,0.0,180.0);
-  vtkGetMacro(FeatureAngle,float);
+  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
+  vtkGetMacro(FeatureAngle,double);
 
   // Description:
   // Specify the edge angle to control smoothing along edges (either interior
   // or boundary).
-  vtkSetClampMacro(EdgeAngle,float,0.0,180.0);
-  vtkGetMacro(EdgeAngle,float);
+  vtkSetClampMacro(EdgeAngle,double,0.0,180.0);
+  vtkGetMacro(EdgeAngle,double);
 
   // Description:
   // Turn on/off the smoothing of vertices on the boundary of the mesh.
@@ -176,12 +176,12 @@ protected:
 
   void Execute();
 
-  float Convergence;
+  double Convergence;
   int NumberOfIterations;
-  float RelaxationFactor;
+  double RelaxationFactor;
   int FeatureEdgeSmoothing;
-  float FeatureAngle;
-  float EdgeAngle;
+  double FeatureAngle;
+  double EdgeAngle;
   int BoundarySmoothing;
   int GenerateErrorScalars;
   int GenerateErrorVectors;

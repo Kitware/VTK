@@ -61,14 +61,14 @@ public:
   // Description:
   // Set the "half" width of the ribbon. If the width is allowed to vary, 
   // this is the minimum width.
-  vtkSetClampMacro(Width,float,0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Width,float);
+  vtkSetClampMacro(Width,double,0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Width,double);
 
   // Description:
   // Set the offset angle of the ribbon from the line normal. (The angle
   // is expressed in degrees.)
-  vtkSetClampMacro(Angle,float,0,360);
-  vtkGetMacro(Angle,float);
+  vtkSetClampMacro(Angle,double,0,360);
+  vtkGetMacro(Angle,double);
 
   // Description:
   // Turn on/off the variation of ribbon width with scalar value.
@@ -78,14 +78,14 @@ public:
 
   // Description:
   // Set the maximum ribbon width in terms of a multiple of the minimum width.
-  vtkSetMacro(WidthFactor,float);
-  vtkGetMacro(WidthFactor,float);
+  vtkSetMacro(WidthFactor,double);
+  vtkGetMacro(WidthFactor,double);
 
   // Description:
   // Set the default normal to use if no normals are supplied, and the
   // DefaultNormalOn is set.
-  vtkSetVector3Macro(DefaultNormal,float);
-  vtkGetVectorMacro(DefaultNormal,float,3);
+  vtkSetVector3Macro(DefaultNormal,double);
+  vtkGetVectorMacro(DefaultNormal,double,3);
 
   // Description:
   // Set a boolean to control whether to use default normals.
@@ -115,8 +115,8 @@ public:
   // calculation. The TextureLength indicates what length (whether 
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space.
-  vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
-  vtkGetMacro(TextureLength,float);
+  vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
+  vtkGetMacro(TextureLength,double);
 
   // Description:
   // If you want to use an arbitrary normals array, then set its name here.
@@ -130,14 +130,14 @@ protected:
   ~vtkRibbonFilter();
 
   void Execute();
-  float Width;
-  float Angle;
+  double Width;
+  double Angle;
   int VaryWidth; //controls whether width varies with scalar data
-  float WidthFactor;
-  float DefaultNormal[3];
+  double WidthFactor;
+  double DefaultNormal[3];
   int UseDefaultNormal;
   int GenerateTCoords; //control texture coordinate generation
-  float TextureLength; //this length is mapped to [0,1) texture space
+  double TextureLength; //this length is mapped to [0,1) texture space
 
   // Helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
@@ -154,7 +154,7 @@ protected:
   vtkIdType ComputeOffset(vtkIdType offset,vtkIdType npts);
   
   // Helper data members
-  float Theta;
+  double Theta;
 
   // We preferred input vectors over normals because we do
   // not want to shade the input line with these values.

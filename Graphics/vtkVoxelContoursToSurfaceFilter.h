@@ -57,8 +57,8 @@ public:
   vtkSetMacro( MemoryLimitInBytes, int );
   vtkGetMacro( MemoryLimitInBytes, int );
 
-  vtkSetVector3Macro( Spacing, float );
-  vtkGetVectorMacro( Spacing, float, 3 );
+  vtkSetVector3Macro( Spacing, double );
+  vtkGetVectorMacro( Spacing, double, 3 );
 
 protected:
   vtkVoxelContoursToSurfaceFilter();
@@ -68,26 +68,26 @@ protected:
 
   int     MemoryLimitInBytes;
 
-  float   Spacing[3];
+  double   Spacing[3];
 
-  float   *LineList;
+  double   *LineList;
   int     LineListLength;
   int     LineListSize;
 
-  float   *SortedXList;
-  float   *SortedYList;
+  double   *SortedXList;
+  double   *SortedYList;
   int     SortedListSize;
 
   int     *WorkingList;
   int     WorkingListLength;
 
-  float   *IntersectionList;
+  double   *IntersectionList;
   int     IntersectionListLength;
 
-  void    AddLineToLineList( float x1, float y1, float x2, float y2 );
+  void    AddLineToLineList( double x1, double y1, double x2, double y2 );
   void    SortLineList();
   
-  void    CastLines( float *slice, float gridOrigin[3], 
+  void    CastLines( float *slice, double gridOrigin[3], 
                      int gridSize[3], int type );
 
   void    PushDistances( float *ptr, int gridSize[3], int chunkSize );

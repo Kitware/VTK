@@ -104,8 +104,8 @@ public:
   // Description:
   // Specify scale factor to scale object by. (Scale factor always affects
   // output even if scaling is off.)
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Turn on/off drawing three glyphs
@@ -122,8 +122,8 @@ public:
   // Description:
   // Set/Get the distance, along x, from the origin to the end of the 
   // source glyph. It is used to draw the symmetric glyphs.
-  vtkSetMacro(Length,float);
-  vtkGetMacro(Length,float);
+  vtkSetMacro(Length,double);
+  vtkGetMacro(Length,double);
 
   // Description:
   // Turn on/off extraction of eigenvalues from tensor.
@@ -176,8 +176,8 @@ public:
   // combination of the scale factor times the eigenvalue. If less, the scale
   // factor is reset to the MaxScaleFactor. The boolean ClampScaling has to 
   // be "on" for this to work.
-  vtkSetMacro(MaxScaleFactor,float);
-  vtkGetMacro(MaxScaleFactor,float);
+  vtkSetMacro(MaxScaleFactor,double);
+  vtkGetMacro(MaxScaleFactor,double);
 
 protected:
   vtkTensorGlyph();
@@ -186,15 +186,15 @@ protected:
   void Execute();
 
   int Scaling; // Determine whether scaling of geometry is performed
-  float ScaleFactor; // Scale factor to use to scale geometry
+  double ScaleFactor; // Scale factor to use to scale geometry
   int ExtractEigenvalues; // Boolean controls eigenfunction extraction
   int ColorGlyphs; // Boolean controls coloring with input scalar data
   int ColorMode; // The coloring mode to use for the glyphs.
   int ClampScaling; // Boolean controls whether scaling is clamped.
-  float MaxScaleFactor; // Maximum scale factor (ScaleFactor*eigenvalue)
+  double MaxScaleFactor; // Maximum scale factor (ScaleFactor*eigenvalue)
   int ThreeGlyphs; // Boolean controls drawing 1 or 3 glyphs
   int Symmetric; // Boolean controls drawing a "mirror" of each glyph
-  float Length; // Distance, in x, from the origin to the end of the glyph
+  double Length; // Distance, in x, from the origin to the end of the glyph
 private:
   vtkTensorGlyph(const vtkTensorGlyph&);  // Not implemented.
   void operator=(const vtkTensorGlyph&);  // Not implemented.

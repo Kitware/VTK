@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.79");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.80");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -182,7 +182,7 @@ void vtkTubeFilter::Execute()
   for (inCellId=0, inLines->InitTraversal(); 
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
-    this->UpdateProgress((float)inCellId/numLines);
+    this->UpdateProgress((double)inCellId/numLines);
     abort = this->GetAbortExecute();
 
     if (npts < 2)
@@ -277,18 +277,18 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
 {
   vtkIdType j;
   int i, k;
-  float p[3];
-  float pNext[3];
-  float sNext[3];
-  float sPrev[3];
-  float startCapNorm[3], endCapNorm[3];
-  float n[3];
-  float s[3];
+  double p[3];
+  double pNext[3];
+  double sNext[3];
+  double sPrev[3];
+  double startCapNorm[3], endCapNorm[3];
+  double n[3];
+  double s[3];
   double bevelAngle;
-  float w[3];
-  float nP[3];
-  float sFactor=1.0;
-  float normal[3];
+  double w[3];
+  double nP[3];
+  double sFactor=1.0;
+  double normal[3];
   vtkIdType ptId=offset;
 
   // Use "averaged" segment to create beveled effect. 
@@ -428,7 +428,7 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
       } 
     else
       {
-      float n_left[3], n_right[3];
+      double n_left[3], n_right[3];
       for (k=0; k < this->NumberOfSides; k++)
         {
         for (i=0; i<3; i++)
@@ -607,7 +607,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
 {
   vtkIdType i;
   int k;
-  float tc=0.0;
+  double tc=0.0;
 
   int numSides = this->NumberOfSides;
   if ( ! this->SidesShareVertices )
@@ -615,7 +615,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
     numSides = 2 * this->NumberOfSides;
     }
 
-  float s0, s;
+  double s0, s;
   //The first texture coordinate is always 0.
   for ( k=0; k < numSides; k++)
     {
@@ -636,7 +636,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
     }
   else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH )
     {
-    float xPrev[3], x[3], len=0.0;
+    double xPrev[3], x[3], len=0.0;
     inPts->GetPoint(pts[0],xPrev);
     for (i=1; i < npts; i++)
       {
@@ -652,7 +652,7 @@ void vtkTubeFilter::GenerateTextureCoords(vtkIdType offset,
     }
   else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH )
     {
-    float xPrev[3], x[3], length=0.0, len=0.0;
+    double xPrev[3], x[3], length=0.0, len=0.0;
     inPts->GetPoint(pts[0],xPrev);
     for (i=1; i < npts; i++)
       {

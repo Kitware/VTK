@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTensorGlyph, "1.52");
+vtkCxxRevisionMacro(vtkTensorGlyph, "1.53");
 vtkStandardNewMacro(vtkTensorGlyph);
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
@@ -52,7 +52,7 @@ vtkTensorGlyph::~vtkTensorGlyph()
 void vtkTensorGlyph::Execute()
 {
   vtkDataArray *inTensors;
-  float tensor[9];
+  double tensor[9];
   vtkDataArray *inScalars;
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
   int j;
@@ -62,7 +62,7 @@ void vtkTensorGlyph::Execute()
   vtkPoints *newPts;
   vtkFloatArray *newScalars=NULL;
   vtkFloatArray *newNormals=NULL;
-  float x[3], s;
+  double x[3], s;
   vtkTransform *trans;
   vtkCell *cell;
   vtkIdList *cellPts;
@@ -72,11 +72,11 @@ void vtkTensorGlyph::Execute()
   vtkIdType subIncr;
   int numDirs, dir, eigen_dir, symmetric_dir;
   vtkMatrix4x4 *matrix;
-  float *m[3], w[3], *v[3];
-  float m0[3], m1[3], m2[3];
-  float v0[3], v1[3], v2[3];
-  float xv[3], yv[3], zv[3];
-  float maxScale;
+  double *m[3], w[3], *v[3];
+  double m0[3], m1[3], m2[3];
+  double v0[3], v1[3], v2[3];
+  double xv[3], yv[3], zv[3];
+  double maxScale;
   vtkPointData *pd, *outPD;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();

@@ -48,28 +48,28 @@ public:
   // Description:
   // Set/Get the position of the texture map. Setting the position translates
   // the texture map by the amount specified. 
-  vtkSetVector3Macro(Position,float);
-  vtkGetVectorMacro(Position,float,3);
+  vtkSetVector3Macro(Position,double);
+  vtkGetVectorMacro(Position,double,3);
 
   // Description:
   // Incrementally change the position of the texture map (i.e., does a
   // translate or shift of the texture coordinates).
-  void AddPosition(float deltaR, float deltaS, float deltaT);
-  void AddPosition(float deltaPosition[3]);
+  void AddPosition(double deltaR, double deltaS, double deltaT);
+  void AddPosition(double deltaPosition[3]);
   
   // Description:
   // Set/Get the scale of the texture map. Scaling in performed independently 
   // on the r, s and t axes.
-  vtkSetVector3Macro(Scale,float);
-  vtkGetVectorMacro(Scale,float,3);
+  vtkSetVector3Macro(Scale,double);
+  vtkGetVectorMacro(Scale,double,3);
 
   // Description:
   // Set/Get the origin of the texture map. This is the point about which the
   // texture map is flipped (e.g., rotated). Since a typical texture map ranges
   // from (0,1) in the r-s-t coordinates, the default origin is set at 
   // (0.5,0.5,0.5).
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVectorMacro(Origin,double,3);
 
   // Description:
   // Boolean indicates whether the texture map should be flipped around the 
@@ -98,9 +98,9 @@ protected:
 
   void Execute();
 
-  float Origin[3]; //point around which map rotates
-  float Position[3]; //controls translation of map
-  float Scale[3]; //scales the texture map
+  double Origin[3]; //point around which map rotates
+  double Position[3]; //controls translation of map
+  double Scale[3]; //scales the texture map
   int FlipR; //boolean indicates whether to flip texture around r-axis
   int FlipS; //boolean indicates whether to flip texture around s-axis
   int FlipT; //boolean indicates whether to flip texture around t-axis

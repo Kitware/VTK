@@ -68,33 +68,33 @@ public:
   // Description:
   // Specify the start of the streamline in the cell coordinate system. That
   // is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(vtkIdType cellId, int subId, float pcoords[3]);
+  void SetStartLocation(vtkIdType cellId, int subId, double pcoords[3]);
 
   // Description:
   // Specify the start of the streamline in the cell coordinate system. That
   // is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(vtkIdType cellId, int subId, float r, float s,
-                        float t);
+  void SetStartLocation(vtkIdType cellId, int subId, double r, double s,
+                        double t);
 
   // Description:
   // Get the starting location of the streamline in the cell coordinate system.
-  vtkIdType GetStartLocation(int& subId, float pcoords[3]);
+  vtkIdType GetStartLocation(int& subId, double pcoords[3]);
 
   // Description:
   // Specify the start of the streamline in the global coordinate
   // system. Search must be performed to find initial cell to start
   // integration from.
-  void SetStartPosition(float x[3]);
+  void SetStartPosition(double x[3]);
 
   // Description:
   // Specify the start of the streamline in the global coordinate
   // system. Search must be performed to find initial cell to start
   // integration from.
-  void SetStartPosition(float x, float y, float z);
+  void SetStartPosition(double x, double y, double z);
 
   // Description:
   // Get the start position in global x-y-z coordinates.
-  float *GetStartPosition();
+  double *GetStartPosition();
 
   // Description:
   // Specify the source object used to generate starting points.
@@ -103,8 +103,8 @@ public:
 
   // Description:
   // Specify the maximum length of the Streamer expressed in elapsed time.
-  vtkSetClampMacro(MaximumPropagationTime,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(MaximumPropagationTime,float);
+  vtkSetClampMacro(MaximumPropagationTime,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(MaximumPropagationTime,double);
 
   // Description:
   // Specify the direction in which to integrate the Streamer.
@@ -122,8 +122,8 @@ public:
   // Description:
   // Specify a nominal integration step size (expressed as a fraction of
   // the size of each cell). This value can be larger than 1.
-  vtkSetClampMacro(IntegrationStepLength,float,0.0000001,VTK_LARGE_FLOAT);
-  vtkGetMacro(IntegrationStepLength,float);
+  vtkSetClampMacro(IntegrationStepLength,double,0.0000001,VTK_DOUBLE_MAX);
+  vtkGetMacro(IntegrationStepLength,double);
 
   // Description:
   // Turn on/off the creation of scalar data from velocity magnitude. If off,
@@ -145,8 +145,8 @@ public:
   // Description:
   // Set/get terminal speed (i.e., speed is velocity magnitude).  Terminal 
   // speed is speed at which streamer will terminate propagation.
-  vtkSetClampMacro(TerminalSpeed,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(TerminalSpeed,float);
+  vtkSetClampMacro(TerminalSpeed,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(TerminalSpeed,double);
 
   // Description:
   // Turn on/off the computation of vorticity. Vorticity is an indication of
@@ -161,8 +161,8 @@ public:
   vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
 
-  vtkSetMacro( SavePointInterval, float );
-  vtkGetMacro( SavePointInterval, float );
+  vtkSetMacro( SavePointInterval, double );
+  vtkGetMacro( SavePointInterval, double );
 
   // Description:
   // Set/get the integrator type to be used in the stream line
@@ -193,10 +193,10 @@ protected:
   // Starting from cell location
   vtkIdType StartCell;
   int StartSubId;
-  float StartPCoords[3];
+  double StartPCoords[3];
 
   // starting from global x-y-z position
-  float StartPosition[3];
+  double StartPosition[3];
 
   //
   // Special classes for manipulating data
@@ -205,17 +205,17 @@ protected:
   //
   class StreamPoint {
   public:
-    float   x[3];    // position 
+    double   x[3];    // position 
     vtkIdType     cellId;  // cell
     int     subId;   // cell sub id
-    float   p[3];    // parametric coords in cell 
-    float   v[3];    // velocity 
-    float   speed;   // velocity norm 
-    float   s;       // scalar value 
-    float   t;       // time travelled so far 
-    float   d;       // distance travelled so far 
-    float   omega;   // stream vorticity, if computed
-    float   theta;    // rotation angle, if vorticity is computed
+    double   p[3];    // parametric coords in cell 
+    double   v[3];    // velocity 
+    double   speed;   // velocity norm 
+    double   s;       // scalar value 
+    double   t;       // time travelled so far 
+    double   d;       // distance travelled so far 
+    double   omega;   // stream vorticity, if computed
+    double   theta;    // rotation angle, if vorticity is computed
   };
 
   class StreamArray;
@@ -247,7 +247,7 @@ protected:
     vtkIdType MaxId;        // maximum index inserted thus far
     vtkIdType Size;         // allocated size of data
     vtkIdType Extend;       // grow array by this amount
-    float Direction;        // integration direction
+    double Direction;        // integration direction
   };
   //ETX
   //
@@ -257,19 +257,19 @@ protected:
   vtkIdType NumberOfStreamers;
 
   // length of Streamer is generated by time, or by MaximumSteps
-  float MaximumPropagationTime;
+  double MaximumPropagationTime;
 
   // integration direction
   int IntegrationDirection;
 
   // the length (fraction of cell size) of integration steps
-  float IntegrationStepLength;
+  double IntegrationStepLength;
 
   // boolean controls whether vorticity is computed
   int Vorticity;
 
   // terminal propagation speed
-  float TerminalSpeed;
+  double TerminalSpeed;
 
   // boolean controls whether data scalars or velocity magnitude are used
   int SpeedScalars;
@@ -283,7 +283,7 @@ protected:
   // Interval with which the stream points will be stored.
   // Useful in reducing the memory footprint. Since the initial
   // value is small, by default, it will store all/most points.
-  float SavePointInterval;
+  double SavePointInterval;
 
   static  VTK_THREAD_RETURN_TYPE ThreadedIntegrate( void *arg );
 

@@ -64,8 +64,8 @@ public:
   // Description:
   // If the reflection plane is set to X, Y or Z, this variable
   // is use to set the position of the plane.
-  vtkSetMacro(Center, float);
-  vtkGetMacro(Center, float);
+  vtkSetMacro(Center, double);
+  vtkGetMacro(Center, double);
 
 protected:
   vtkReflectionFilter();
@@ -74,9 +74,9 @@ protected:
   void Execute();
 
   int Plane;
-  float Center;
+  double Center;
 
-  void FlipVector(float tuple[3], int mirrorDir[3]);
+  void FlipVector(double tuple[3], int mirrorDir[3]);
   
 private:
   vtkReflectionFilter(const vtkReflectionFilter&);  // Not implemented

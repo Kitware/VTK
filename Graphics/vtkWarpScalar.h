@@ -49,8 +49,8 @@ public:
 
   // Description:
   // Specify value to scale displacement.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Turn on/off use of user specified normal. If on, data normals
@@ -62,8 +62,8 @@ public:
   // Description:
   // Normal (i.e., direction) along which to warp geometry. Only used
   // if UseNormal boolean set to true or no normals available in data.
-  vtkSetVector3Macro(Normal,float);
-  vtkGetVectorMacro(Normal,float,3);
+  vtkSetVector3Macro(Normal,double);
+  vtkGetVectorMacro(Normal,double,3);
 
   // Description:
   // Turn on/off flag specifying that input data is x-y plane. If x-y plane,
@@ -86,16 +86,16 @@ protected:
 
   void Execute();
 
-  float ScaleFactor;
+  double ScaleFactor;
   int UseNormal;
-  float Normal[3];
+  double Normal[3];
   int XYPlane;
 
   //BTX
-  float *(vtkWarpScalar::*PointNormal)(vtkIdType id, vtkDataArray *normals);
-  float *DataNormal(vtkIdType id, vtkDataArray *normals=NULL);
-  float *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
-  float *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
+  double *(vtkWarpScalar::*PointNormal)(vtkIdType id, vtkDataArray *normals);
+  double *DataNormal(vtkIdType id, vtkDataArray *normals=NULL);
+  double *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
+  double *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
   //ETX
 
   char *InputScalarsSelection;

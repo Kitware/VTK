@@ -27,7 +27,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.21");
+vtkCxxRevisionMacro(vtkDataSetTriangleFilter, "1.22");
 vtkStandardNewMacro(vtkDataSetTriangleFilter);
 
 vtkDataSetTriangleFilter::vtkDataSetTriangleFilter()
@@ -117,7 +117,7 @@ void vtkDataSetTriangleFilter::StructuredExecute()
   int abort=0;
   for (k = 0; k < dimensions[2] && !abort; k++)
     {
-    this->UpdateProgress((float)k / numSlices);
+    this->UpdateProgress((double)k / numSlices);
     abort = this->GetAbortExecute();
 
     for (j = 0; j < dimensions[1]; j++)
@@ -196,7 +196,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   int numPts, type;
   int numSimplices, dim;
   vtkIdType pts[4];
-  float x[3];
+  double x[3];
 
   if (numCells == 0)
     {
@@ -221,7 +221,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
     {
     if ( !(cellId % updateTime) )
       {
-      this->UpdateProgress((float)cellId / numCells);
+      this->UpdateProgress((double)cellId / numCells);
       abort = this->GetAbortExecute();
       }
 
@@ -231,7 +231,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
     if ( dim == 3 ) //use ordered triangulation
       {
       numPts = cell->GetNumberOfPoints();
-      float *p, *pPtr=cell->GetParametricCoords();
+      double *p, *pPtr=cell->GetParametricCoords();
       this->Triangulator->InitTriangulation(0.0,1.0, 0.0,1.0, 0.0,1.0, numPts);
       for (p=pPtr, j=0; j<numPts; j++, p+=3)
         {

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.15");
+vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.16");
 vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
 void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
@@ -36,7 +36,7 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
   vtkIdList *pointIds = vtkIdList::New();
   vtkPoints *inputPts=inputDS->GetPoints();
   vtkPointData *inputPD=inputDS->GetPointData();
-  static float weights[2] = {.5, .5};
+  static double weights[2] = {.5, .5};
 
   // Create an edge table to keep track of which edges we've processed
   edgeTable = vtkEdgeTable::New();
@@ -68,7 +68,8 @@ void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS
         // Compute Position andnew PointData using the same subdivision scheme
         pointIds->SetId(0,p1);
         pointIds->SetId(1,p2);
-        newId = this->InterpolatePosition (inputPts, outputPts, pointIds, weights);
+        newId = 
+          this->InterpolatePosition (inputPts, outputPts, pointIds, weights);
         outputPD->InterpolatePoint (inputPD, newId, pointIds, weights);
         }
       else // we have already created a point on this edge. find it

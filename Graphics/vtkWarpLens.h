@@ -32,40 +32,40 @@ public:
   // Description:
   // Specify second order symmetric radial lens distortion parameter.
   // This is obsoleted by newer instance variables.
-  void SetKappa(float kappa);
-  float GetKappa();
+  void SetKappa(double kappa);
+  double GetKappa();
 
   // Description:
   // Specify the center of radial distortion in pixels.
   // This is obsoleted by newer instance variables.
-  void SetCenter(float centerX, float centerY);
-  float *GetCenter();
+  void SetCenter(double centerX, double centerY);
+  double *GetCenter();
 
   // Description:
   // Specify the calibrated principal point of the camera/lens
-  vtkSetVector2Macro(PrincipalPoint,float);
-  vtkGetVectorMacro(PrincipalPoint,float,2);
+  vtkSetVector2Macro(PrincipalPoint,double);
+  vtkGetVectorMacro(PrincipalPoint,double,2);
 
   // Description:
   // Specify the symmetric radial distortion parameters for the lens
-  vtkSetMacro(K1,float);
-  vtkGetMacro(K1,float);
-  vtkSetMacro(K2,float);
-  vtkGetMacro(K2,float);
+  vtkSetMacro(K1,double);
+  vtkGetMacro(K1,double);
+  vtkSetMacro(K2,double);
+  vtkGetMacro(K2,double);
 
   // Description:
   // Specify the decentering distortion parameters for the lens
-  vtkSetMacro(P1,float);
-  vtkGetMacro(P1,float);
-  vtkSetMacro(P2,float);
-  vtkGetMacro(P2,float);
+  vtkSetMacro(P1,double);
+  vtkGetMacro(P1,double);
+  vtkSetMacro(P2,double);
+  vtkGetMacro(P2,double);
 
   // Description:
   // Specify the imager format width / height in mm
-  vtkSetMacro(FormatWidth,float);
-  vtkGetMacro(FormatWidth,float);
-  vtkSetMacro(FormatHeight,float);
-  vtkGetMacro(FormatHeight,float);
+  vtkSetMacro(FormatWidth,double);
+  vtkGetMacro(FormatWidth,double);
+  vtkSetMacro(FormatHeight,double);
+  vtkGetMacro(FormatHeight,double);
 
   // Description:
   // Specify the image width / height in pixels
@@ -81,13 +81,13 @@ protected:
 
   void Execute();
 
-  float PrincipalPoint[2];      // The calibrated principal point of camera/lens in mm
-  float K1;                     // Symmetric radial distortion parameters
-  float K2;
-  float P1;                     // Decentering distortion parameters
-  float P2;
-  float FormatWidth;            // imager format width in mm
-  float FormatHeight;           // imager format height in mm
+  double PrincipalPoint[2];      // The calibrated principal point of camera/lens in mm
+  double K1;                     // Symmetric radial distortion parameters
+  double K2;
+  double P1;                     // Decentering distortion parameters
+  double P2;
+  double FormatWidth;            // imager format width in mm
+  double FormatHeight;           // imager format height in mm
   int ImageWidth;               // image width in pixels
   int ImageHeight;              // image height in pixels
 private:

@@ -25,7 +25,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.57");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.58");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -304,7 +304,7 @@ void vtkDelaunay2D::Execute()
   vtkIdList *neighbors, *cells;
   double center[3], radius, tol, x[3];
   int *triUse = NULL;
-  float *bounds;
+  double *bounds;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 
@@ -502,7 +502,7 @@ void vtkDelaunay2D::Execute()
     if ( ! (ptId % 1000) ) 
       {
       vtkDebugMacro(<<"point #" << ptId);
-      this->UpdateProgress ((float)ptId/numPoints);
+      this->UpdateProgress ((double)ptId/numPoints);
       if (this->GetAbortExecute()) 
         {
         break;

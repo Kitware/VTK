@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.26");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.27");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()
@@ -72,7 +72,7 @@ void vtkApproximatingSubdivisionFilter::Execute()
   int abort=0;
   for (level = 0; level < this->NumberOfSubdivisions && !abort; level++)
     {
-    this->UpdateProgress((float)(level+1)/this->NumberOfSubdivisions);
+    this->UpdateProgress((double)(level+1)/this->NumberOfSubdivisions);
     abort = this->GetAbortExecute();
 
     // Generate topology  for the input dataset
@@ -188,9 +188,9 @@ int vtkApproximatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
 
 vtkIdType vtkApproximatingSubdivisionFilter::InterpolatePosition (
         vtkPoints *inputPts, vtkPoints *outputPts,
-        vtkIdList *stencil, float *weights)
+        vtkIdList *stencil, double *weights)
 {
-  float xx[3], x[3];
+  double xx[3], x[3];
   vtkIdType i;
   int j;
 
@@ -219,7 +219,7 @@ void vtkApproximatingSubdivisionFilter::GenerateSubdivisionCells (
   vtkIdType cellId, newId, id;
   vtkIdType npts;
   vtkIdType *pts;
-  float edgePts[3];
+  double edgePts[3];
   vtkIdType newCellPts[3];
   vtkCellData *inputCD = inputDS->GetCellData();
 

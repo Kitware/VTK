@@ -36,8 +36,8 @@ public:
 
   // Description:
   // Set scale factor to control size of oriented lines.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Specify whether to use vector or normal to perform vector operations.
@@ -52,7 +52,7 @@ protected:
   ~vtkHedgeHog() {};
 
   void Execute();
-  float ScaleFactor;
+  double ScaleFactor;
   int VectorMode; // Orient/scale via normal or via vector data
 
 private:

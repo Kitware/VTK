@@ -43,15 +43,15 @@ public:
 
   // Description:
   // Set/Get the position of the focus of the projector.
-  vtkSetVector3Macro(Position,float);
-  vtkGetVectorMacro(Position,float,3);
+  vtkSetVector3Macro(Position,double);
+  vtkGetVectorMacro(Position,double,3);
 
   // Description:
   // Set/Get the focal point of the projector (a point that lies along
   // the center axis of the projector's frustum).
-  void SetFocalPoint(float focalPoint[3]);
-  void SetFocalPoint(float x, float y, float z);
-  vtkGetVectorMacro(FocalPoint,float,3);
+  void SetFocalPoint(double focalPoint[3]);
+  void SetFocalPoint(double x, double y, double z);
+  vtkGetVectorMacro(FocalPoint,double,3);
 
   // Description:
   // Set/Get the camera mode of the projection -- pinhole projection or
@@ -63,34 +63,34 @@ public:
 
   // Description:
   // Set/Get the mirror separation for the two mirror system.
-  vtkSetMacro(MirrorSeparation, float);
-  vtkGetMacro(MirrorSeparation, float);
+  vtkSetMacro(MirrorSeparation, double);
+  vtkGetMacro(MirrorSeparation, double);
 
   // Description:
   // Get the normalized orientation vector of the projector.
-  vtkGetVectorMacro(Orientation,float,3);
+  vtkGetVectorMacro(Orientation,double,3);
   
   // Set/Get the up vector of the projector.
-  vtkSetVector3Macro(Up,float);
-  vtkGetVectorMacro(Up,float,3);
+  vtkSetVector3Macro(Up,double);
+  vtkGetVectorMacro(Up,double,3);
 
   // Set/Get the aspect ratio of a perpendicular cross-section of the
   // the projector's frustum.  The aspect ratio consists of three 
   // numbers:  (x, y, z), where x is the width of the 
   // frustum, y is the height, and z is the perpendicular
   // distance from the focus of the projector.
-  vtkSetVector3Macro(AspectRatio,float);
-  vtkGetVectorMacro(AspectRatio,float,3);
+  vtkSetVector3Macro(AspectRatio,double);
+  vtkGetVectorMacro(AspectRatio,double,3);
 
   // Description:
   // Specify s-coordinate range for texture s-t coordinate pair.
-  vtkSetVector2Macro(SRange,float);
-  vtkGetVectorMacro(SRange,float,2);
+  vtkSetVector2Macro(SRange,double);
+  vtkGetVectorMacro(SRange,double,2);
 
   // Description:
   // Specify t-coordinate range for texture s-t coordinate pair.
-  vtkSetVector2Macro(TRange,float);
-  vtkGetVectorMacro(TRange,float,2);
+  vtkSetVector2Macro(TRange,double);
+  vtkGetVectorMacro(TRange,double,2);
   
 protected:
   vtkProjectedTexture();
@@ -101,14 +101,14 @@ protected:
 
   int CameraMode;
 
-  float Position[3];
-  float Orientation[3];
-  float FocalPoint[3];
-  float Up[3];
-  float MirrorSeparation;
-  float AspectRatio[3];
-  float SRange[2];
-  float TRange[2];
+  double Position[3];
+  double Orientation[3];
+  double FocalPoint[3];
+  double Up[3];
+  double MirrorSeparation;
+  double AspectRatio[3];
+  double SRange[2];
+  double TRange[2];
 private:
   vtkProjectedTexture(const vtkProjectedTexture&);  // Not implemented.
   void operator=(const vtkProjectedTexture&);  // Not implemented.

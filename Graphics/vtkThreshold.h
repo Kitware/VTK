@@ -46,21 +46,21 @@ public:
 
   // Description:
   // Criterion is cells whose scalars are less or equal to lower threshold.
-  void ThresholdByLower(float lower);
+  void ThresholdByLower(double lower);
 
   // Description:
   // Criterion is cells whose scalars are greater or equal to upper threshold.
-  void ThresholdByUpper(float upper);
+  void ThresholdByUpper(double upper);
 
   // Description:
   // Criterion is cells whose scalars are between lower and upper thresholds
   // (inclusive of the end values).
-  void ThresholdBetween(float lower, float upper);
+  void ThresholdBetween(double lower, double upper);
 
   // Description:
   // Get the Upper and Lower thresholds.
-  vtkGetMacro(UpperThreshold,float);
-  vtkGetMacro(LowerThreshold,float);
+  vtkGetMacro(UpperThreshold,double);
+  vtkGetMacro(LowerThreshold,double);
 
   // Description:
   // Control how the filter works with scalar point data and cell attribute
@@ -102,17 +102,17 @@ protected:
   void Execute();
 
   int   AllScalars;
-  float LowerThreshold;
-  float UpperThreshold;
+  double LowerThreshold;
+  double UpperThreshold;
   int   AttributeMode;
 
   //BTX
-  int (vtkThreshold::*ThresholdFunction)(float s);
+  int (vtkThreshold::*ThresholdFunction)(double s);
   //ETX
 
-  int Lower(float s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
-  int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
-  int Between(float s) {return ( s >= this->LowerThreshold ? 
+  int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
+  int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
+  int Between(double s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 
   char *InputScalarsSelection;

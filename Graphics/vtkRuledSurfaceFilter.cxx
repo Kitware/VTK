@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.19");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.20");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()
@@ -117,7 +117,7 @@ void vtkRuledSurfaceFilter::Execute()
   for (i=0; i<numLines; i++)
     {
     //abort/progress methods
-    this->UpdateProgress ((float)i/numLines);
+    this->UpdateProgress ((double)i/numLines);
     if (this->GetAbortExecute())
       {
       break; //out of line loop
@@ -164,16 +164,16 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
 {
   vtkIdType offset, id;
   int i, j;
-  float length, length2;
+  double length, length2;
   vtkCellArray *newStrips;
   vtkPointData *inPD=this->GetInput()->GetPointData();
   vtkPointData *outPD=output->GetPointData();
-  float v = 0.0, uu, vv;
-  float s = 0.0, t = 0.0;
-  float deltaV;
-  float deltaS, deltaT;
-  float d0, d1, l0, l1;
-  float pt[3], pt0[3], pt1[3], pt00[3], pt01[3], pt10[3], pt11[3];
+  double v = 0.0, uu, vv;
+  double s = 0.0, t = 0.0;
+  double deltaV;
+  double deltaS, deltaT;
+  double d0, d1, l0, l1;
+  double pt[3], pt0[3], pt1[3], pt00[3], pt01[3], pt10[3], pt11[3];
   int i00, i01, i10, i11;
   
   if (this->Resolution[0] < 1)
@@ -231,11 +231,11 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
   // Now, compute all the points.
   //
   // parametric delta
-  deltaV = 1.0 / (float) (this->Resolution[1]);
+  deltaV = 1.0 / (double) (this->Resolution[1]);
 
   // arc-length deltas
-  deltaS = length / (float) (this->Resolution[0]);
-  deltaT = length2 / (float) (this->Resolution[0]);
+  deltaS = length / (double) (this->Resolution[0]);
+  deltaT = length2 / (double) (this->Resolution[0]);
 
   s = t = 0.0;
   d0 = d1 = 0.0;
@@ -263,7 +263,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
       inPts->GetPoint(pts[i00], pt00);
       inPts->GetPoint(pts[i01], pt01);
       d0 = sqrt(vtkMath::Distance2BetweenPoints(pt00, pt01));
-      // floating point discrepancy: sgi needs the following test to be
+      // doubleing point discrepancy: sgi needs the following test to be
       // s <= length while win32 needs it to be s < length.  We account
       // for this by using the <= test here and adjusting the maximum parameter
       // value below (see #1)
@@ -297,7 +297,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
       {
       uu = (s - l0) / d0;
       }
-    // #1: fix to address the win32/sgi floating point differences
+    // #1: fix to address the win32/sgi doubleing point differences
     if (s >= length)
       {
       uu = 1.0;
@@ -312,7 +312,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
       inPts->GetPoint(pts2[i10], pt10);
       inPts->GetPoint(pts2[i11], pt11);
       d1 = sqrt(vtkMath::Distance2BetweenPoints(pt10, pt11));
-      // floating point discrepancy: sgi needs the following test to be
+      // doubleing point discrepancy: sgi needs the following test to be
       // t <= length2 while win32 needs it to be t < length2.  We account
       // for this by using the <= test here and adjusting the maximum parameter
       // value below (see #1)
@@ -345,7 +345,7 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
       {
       vv = (t - l1) / d1;
       }
-    // #1: fix to address the win32/sgi floating point differences
+    // #1: fix to address the win32/sgi doubleing point differences
     if (t >= length2)
       {
       vv = 1.0;
@@ -379,7 +379,7 @@ void  vtkRuledSurfaceFilter::PointWalk(vtkPolyData *output, vtkPoints *inPts,
 {
   int loc, loc2;
   vtkCellArray *newPolys=output->GetPolys();
-  float x[3], y[3], a[3], b[3], xa, xb, ya, distance2;
+  double x[3], y[3], a[3], b[3], xa, xb, ya, distance2;
       
   // Compute distance factor based on first two points
   //

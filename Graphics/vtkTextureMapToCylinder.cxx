@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.30");
+vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.31");
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
@@ -52,8 +52,8 @@ void vtkTextureMapToCylinder::Execute()
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType ptId;
   int i;
-  float x[3], tc[2], thetaX, thetaY, closest[3], v[3];
-  float axis[3], vP[3], vec[3];
+  double x[3], tc[2], thetaX, thetaY, closest[3], v[3];
+  double axis[3], vP[3], vec[3];
 
   vtkDebugMacro(<<"Generating Cylindrical Texture Coordinates");
 
@@ -69,7 +69,7 @@ void vtkTextureMapToCylinder::Execute()
   if ( this->AutomaticCylinderGeneration )
     {
     vtkPoints *pts=vtkPoints::New(); pts->SetNumberOfPoints(numPts);
-    float corner[3], max[3], mid[3], min[3], size[3], l;
+    double corner[3], max[3], mid[3], min[3], size[3], l;
     vtkOBBTree *OBB = vtkOBBTree::New();
 
     for ( ptId=0; ptId < numPts; ptId++ )

@@ -65,14 +65,14 @@ public:
   // set with SetValue(). Multiple contour values can be set with
   // GenerateValues(). Note that GenerateValues() generates n values
   // inclusive of the start and end range values.
-  void SetValue(int i, float value);
-  float GetValue(int i);
-  float *GetValues();
-  void GetValues(float *contourValues);
+  void SetValue(int i, double value);
+  double GetValue(int i);
+  double *GetValues();
+  void GetValues(double *contourValues);
   void SetNumberOfContours(int number);
   int GetNumberOfContours();
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+  void GenerateValues(int numContours, double range[2]);
+  void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
   // Description:
   // Indicate whether to clip outside the range specified by the user.
@@ -127,12 +127,12 @@ protected:
 
   void Execute();
 
-  int ComputeScalarIndex(float);
-  int IsContourValue(float val);
+  int ComputeScalarIndex(double);
+  int IsContourValue(double val);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
                vtkPointData *inPD, vtkPointData *outPD);
   int InsertCell(vtkCellArray *cells, int npts, vtkIdType *pts,
-                 int cellId, float s, vtkFloatArray *newS);
+                 int cellId, double s, vtkFloatArray *newS);
 
   // data members
   vtkContourValues *ContourValues;
@@ -141,10 +141,10 @@ protected:
   int ScalarMode;
 
   // sorted and cleaned contour values
-  float *ClipValues;
+  double *ClipValues;
   int   NumberOfClipValues;
   int ClipIndex[2]; //indices outside of this range (inclusive) are clipped
-  float ClipTolerance; //used to clean up numerical problems
+  double ClipTolerance; //used to clean up numerical problems
   
   //the second output
   int GenerateContourEdges;
@@ -160,25 +160,25 @@ private:
 // Description:
 // Set a particular contour value at contour number i. The index i ranges 
 // between 0<=i<NumberOfContours.
-inline void vtkBandedPolyDataContourFilter::SetValue(int i, float value)
+inline void vtkBandedPolyDataContourFilter::SetValue(int i, double value)
   {this->ContourValues->SetValue(i,value);}
 
 // Description:
 // Get the ith contour value.
-inline float vtkBandedPolyDataContourFilter::GetValue(int i)
+inline double vtkBandedPolyDataContourFilter::GetValue(int i)
   {return this->ContourValues->GetValue(i);}
 
 // Description:
 // Get a pointer to an array of contour values. There will be
 // GetNumberOfContours() values in the list.
-inline float *vtkBandedPolyDataContourFilter::GetValues()
+inline double *vtkBandedPolyDataContourFilter::GetValues()
   {return this->ContourValues->GetValues();}
 
 // Description:
 // Fill a supplied list with contour values. There will be
 // GetNumberOfContours() values in the list. Make sure you allocate
 // enough memory to hold the list.
-inline void vtkBandedPolyDataContourFilter::GetValues(float *contourValues)
+inline void vtkBandedPolyDataContourFilter::GetValues(double *contourValues)
   {this->ContourValues->GetValues(contourValues);}
 
 // Description:
@@ -197,15 +197,15 @@ inline int vtkBandedPolyDataContourFilter::GetNumberOfContours()
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
 inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, 
-                                                           float range[2])
+                                                           double range[2])
   {this->ContourValues->GenerateValues(numContours, range);}
 
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
 inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, 
-                                                           float rangeStart, 
-                                                           float rangeEnd)
+                                                           double rangeStart, 
+                                                           double rangeEnd)
   {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 

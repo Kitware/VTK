@@ -45,8 +45,8 @@ public:
   // Set / get the region in space in which to place the final graph.
   // The GraphBounds only affects the results if AutomaticBoundsComputation
   // is off.
-  vtkSetVector6Macro(GraphBounds,float);
-  vtkGetVectorMacro(GraphBounds,float,6);
+  vtkSetVector6Macro(GraphBounds,double);
+  vtkGetVectorMacro(GraphBounds,double,6);
 
   // Description:
   // Turn on/off automatic graph bounds calculation. If this
@@ -67,8 +67,8 @@ public:
   // Set/Get the Cool-down rate.
   // The higher this number is, the longer it will take to "cool-down",
   // and thus, the more the graph will be modified.
-  vtkSetClampMacro(CoolDownRate, float, 0.01, VTK_LARGE_FLOAT);
-  vtkGetMacro(CoolDownRate, float);
+  vtkSetClampMacro(CoolDownRate, double, 0.01, VTK_DOUBLE_MAX);
+  vtkGetMacro(CoolDownRate, double);
 
   // Turn on/off layout of graph in three dimensions. If off, graph
   // layout occurs in two dimensions. By default, three dimensional
@@ -83,10 +83,10 @@ protected:
 
   void Execute();
 
-  float GraphBounds[6];
+  double GraphBounds[6];
   int   AutomaticBoundsComputation;  //Boolean controls automatic bounds calc.
   int   MaxNumberOfIterations;  //Maximum number of iterations.
-  float CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
+  double CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.
 private:
   vtkGraphLayoutFilter(const vtkGraphLayoutFilter&);  // Not implemented.

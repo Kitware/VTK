@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality, "1.4");
+vtkCxxRevisionMacro(vtkMeshQuality, "1.5");
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------
@@ -60,9 +60,9 @@ void vtkMeshQuality::Execute()
     }
   scalars->SetNumberOfTuples(numCells);
   
-  float p1[3],p2[3],p3[3],p4[3]; 
+  double p1[3],p2[3],p3[3],p4[3]; 
   double dp1[3],dp2[3],dp3[3],dp4[3];
-  float volume, ratio;
+  double volume, ratio;
   double incenter[3], circenter[3];
   
   for (j=0; j<numCells; j++)

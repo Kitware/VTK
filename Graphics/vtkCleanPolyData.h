@@ -78,13 +78,13 @@ public:
 
   // Description:
   // Specify tolerance in terms of fraction of bounding box length.
-  vtkSetClampMacro(Tolerance,float,0.0,1.0);
-  vtkGetMacro(Tolerance,float);
+  vtkSetClampMacro(Tolerance,double,0.0,1.0);
+  vtkGetMacro(Tolerance,double);
 
   // Description:
   // Specify tolerance in absolute terms
-  vtkSetClampMacro(AbsoluteTolerance,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(AbsoluteTolerance,float);
+  vtkSetClampMacro(AbsoluteTolerance,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(AbsoluteTolerance,double);
 
   // Description:
   // Turn on/off conversion of degenerate lines to points
@@ -133,11 +133,11 @@ public:
 
   // Description:
   // Perform operation on a point
-  virtual void OperateOnPoint(float in[3], float out[3]);
+  virtual void OperateOnPoint(double in[3], double out[3]);
 
   // Description:
   // Perform operation on bounds
-  virtual void OperateOnBounds(float in[6], float out[6]);
+  virtual void OperateOnBounds(double in[6], double out[6]);
 
   // This filter is difficult to stream.
   // To get invariant results, the whole input must be processed at once.
@@ -158,8 +158,8 @@ protected:
   virtual void ComputeInputUpdateExtents(vtkDataObject *output);
 
   int   PointMerging;
-  float Tolerance;
-  float AbsoluteTolerance;
+  double Tolerance;
+  double AbsoluteTolerance;
   int ConvertLinesToPoints;
   int ConvertPolysToLines;
   int ConvertStripsToPolys;

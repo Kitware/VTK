@@ -101,7 +101,7 @@
 // amount of smoothing increases.
 //
 // The second ivar is the specification of the PassBand for the windowed
-// sinc filter.  By design, the PassBand is specified as a floating point
+// sinc filter.  By design, the PassBand is specified as a doubleing point
 // number between 0 and 2.  Lower PassBand values produce more smoothing.
 // A good default value for the PassBand is 0.1 (for those interested, the
 // PassBand (and frequencies) for PolyData are based on the valence of the
@@ -152,8 +152,8 @@ public:
 
   // Description:
   // Set the passband value for the windowed sinc filter
-  vtkSetClampMacro(PassBand,float, 0.0, 2.0);
-  vtkGetMacro(PassBand,float);
+  vtkSetClampMacro(PassBand,double, 0.0, 2.0);
+  vtkGetMacro(PassBand,double);
   
   // Description:
   // Turn on/off smoothing along sharp interior edges.
@@ -163,14 +163,14 @@ public:
 
   // Description:
   // Specify the feature angle for sharp edge identification.
-  vtkSetClampMacro(FeatureAngle,float,0.0,180.0);
-  vtkGetMacro(FeatureAngle,float);
+  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
+  vtkGetMacro(FeatureAngle,double);
 
   // Description:
   // Specify the edge angle to control smoothing along edges (either interior
   // or boundary).
-  vtkSetClampMacro(EdgeAngle,float,0.0,180.0);
-  vtkGetMacro(EdgeAngle,float);
+  vtkSetClampMacro(EdgeAngle,double,0.0,180.0);
+  vtkGetMacro(EdgeAngle,double);
 
   // Description:
   // Turn on/off the smoothing of vertices on the boundary of the mesh.
@@ -203,10 +203,10 @@ public:
   void Execute();
 
   int NumberOfIterations;
-  float PassBand;
+  double PassBand;
   int FeatureEdgeSmoothing;
-  float FeatureAngle;
-  float EdgeAngle;
+  double FeatureAngle;
+  double EdgeAngle;
   int BoundarySmoothing;
   int NonManifoldSmoothing;
   int GenerateErrorScalars;

@@ -55,18 +55,18 @@ public:
 
   // Description:
   // Set/Get the width of the button (the x-ellipsoid axis length * 2).
-  vtkSetClampMacro(Width,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Width,float);
+  vtkSetClampMacro(Width,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Width,double);
 
   // Description:
   // Set/Get the height of the button (the y-ellipsoid axis length * 2).
-  vtkSetClampMacro(Height,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Height,float);
+  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Height,double);
 
   // Description:
   // Set/Get the depth of the button (the z-eliipsoid axis length).
-  vtkSetClampMacro(Depth,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Depth,float);
+  vtkSetClampMacro(Depth,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Depth,double);
 
   // Description:
   // Set/Get the radial ratio. This is the measure of the radius of the
@@ -76,8 +76,8 @@ public:
   // RadialRatio's cause the button to be more rounded (and the texture
   // region to be smaller); smaller ratios produce sharply curved shoulders
   // with a larger texture region.
-  vtkSetClampMacro(RadialRatio,float,1.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(RadialRatio,float);
+  vtkSetClampMacro(RadialRatio,double,1.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(RadialRatio,double);
 
   // Description:
   // Specify the resolution of the button in the circumferential direction.
@@ -98,8 +98,8 @@ public:
 
   // Description:
   // Specify a point defining the origin of the button.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVectorMacro(Origin,double,3);
 
   // Description:
   // Set/Get the style of the texture region: whether to size it
@@ -124,8 +124,8 @@ public:
 
   // Description:
   // Set/Get the default texture coordinate to set the shoulder region to.
-  vtkSetVector2Macro(ShoulderTextureCoordinate,float);
-  vtkGetVector2Macro(ShoulderTextureCoordinate,float);
+  vtkSetVector2Macro(ShoulderTextureCoordinate,double);
+  vtkGetVector2Macro(ShoulderTextureCoordinate,double);
 
   // Description:
   // Indicate whether the button is single or double sided. A double sided
@@ -142,18 +142,18 @@ protected:
 
   void Execute();
 
-  float Width;
-  float Height;
-  float Depth;
+  double Width;
+  double Height;
+  double Depth;
 
   int   CircumferentialResolution;
   int   TextureResolution;
   int   ShoulderResolution;
 
-  float Origin[3];
-  float ShoulderTextureCoordinate[2];
+  double Origin[3];
+  double ShoulderTextureCoordinate[2];
 
-  float RadialRatio;
+  double RadialRatio;
   int TextureStyle;
   int TextureDimensions[2];
   int TwoSided;
@@ -163,21 +163,21 @@ private:
   void operator=(const vtkButtonSource&);  // Not implemented.
 
   //internal variable related to axes of ellipsoid
-  float A;
-  float A2;
-  float B;
-  float B2;
-  float C;
-  float C2;
+  double A;
+  double A2;
+  double B;
+  double B2;
+  double C;
+  double C2;
   
-  float ComputeDepth(int inTextureRegion, float x, float y, float n[3]);
+  double ComputeDepth(int inTextureRegion, double x, double y, double n[3]);
   void InterpolateCurve(int inTextureRegion, vtkPoints *newPts, int numPts,
                         vtkFloatArray *normals, vtkFloatArray *tcoords, 
                         int res, int c1StartPoint,int c1Incr,
                         int c2StartPoint,int s2Incr, int startPoint,int incr);
   void CreatePolygons(vtkCellArray *newPolys, int num, int res, int startIdx);
-  void IntersectEllipseWithLine(float a2, float b2, float dX, float dY, 
-                                float& xe, float& ye);
+  void IntersectEllipseWithLine(double a2, double b2, double dX, double dY, 
+                                double& xe, double& ye);
   
     
 };

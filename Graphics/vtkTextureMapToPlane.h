@@ -52,35 +52,35 @@ public:
   // Description:
   // Specify a point defining the origin of the plane. Used in conjunction with
   // the Point1 and Point2 ivars to specify a map plane.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVectorMacro(Origin,double,3);
 
   // Description:
   // Specify a point defining the first axis of the plane.
-  vtkSetVector3Macro(Point1,float);
-  vtkGetVectorMacro(Point1,float,3);
+  vtkSetVector3Macro(Point1,double);
+  vtkGetVectorMacro(Point1,double,3);
 
   // Description:
   // Specify a point defining the second axis of the plane.
-  vtkSetVector3Macro(Point2,float);
-  vtkGetVectorMacro(Point2,float,3);
+  vtkSetVector3Macro(Point2,double);
+  vtkGetVectorMacro(Point2,double,3);
 
   // Description:
   // Specify plane normal. An alternative way to specify a map plane. Using
   // this method, the object will scale the resulting texture coordinate
   // between the SRange and TRange specified.
-  vtkSetVector3Macro(Normal,float);
-  vtkGetVectorMacro(Normal,float,3);
+  vtkSetVector3Macro(Normal,double);
+  vtkGetVectorMacro(Normal,double,3);
 
   // Description:
   // Specify s-coordinate range for texture s-t coordinate pair.
-  vtkSetVector2Macro(SRange,float);
-  vtkGetVectorMacro(SRange,float,2);
+  vtkSetVector2Macro(SRange,double);
+  vtkGetVectorMacro(SRange,double,2);
 
   // Description:
   // Specify t-coordinate range for texture s-t coordinate pair.
-  vtkSetVector2Macro(TRange,float);
-  vtkGetVectorMacro(TRange,float,2);
+  vtkSetVector2Macro(TRange,double);
+  vtkGetVectorMacro(TRange,double,2);
 
   // Description:
   // Turn on/off automatic plane generation.
@@ -95,12 +95,12 @@ protected:
   void Execute();
   void ComputeNormal();
 
-  float Origin[3];
-  float Point1[3];
-  float Point2[3];
-  float Normal[3];
-  float SRange[2];
-  float TRange[2];
+  double Origin[3];
+  double Point1[3];
+  double Point2[3];
+  double Normal[3];
+  double SRange[2];
+  double TRange[2];
   int AutomaticPlaneGeneration;
 
 private:

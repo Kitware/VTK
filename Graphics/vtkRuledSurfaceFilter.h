@@ -73,8 +73,8 @@ public:
 
   // Description:
   // Set/Get the factor that controls tearing of the surface.
-  vtkSetClampMacro(DistanceFactor,float,1.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(DistanceFactor,float);
+  vtkSetClampMacro(DistanceFactor,double,1.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(DistanceFactor,double);
 
   // Description:
   // Control the striping of the ruled surface. If OnRatio is greater 
@@ -138,7 +138,7 @@ protected:
   // Usual data generation method
   void Execute();
 
-  float DistanceFactor;
+  double DistanceFactor;
   int   OnRatio;
   int   Offset;
   int   CloseSurface;
@@ -148,7 +148,7 @@ protected:
   
 private:
   vtkIdList *Ids;
-  float     Weights[4];
+  double     Weights[4];
 
   void  Resample(vtkPolyData *output, vtkPoints *inPts, vtkPoints *newPts, 
                  int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);

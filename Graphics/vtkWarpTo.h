@@ -31,13 +31,13 @@ public:
 
   // Description:
   // Set/Get the value to scale displacement.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Set/Get the position to warp towards.
-  vtkGetVectorMacro(Position,float,3);
-  vtkSetVector3Macro(Position,float);
+  vtkGetVectorMacro(Position,double,3);
+  vtkSetVector3Macro(Position,double);
 
   // Description:
   // Set/Get the Absolute ivar. Turning Absolute on causes scale factor
@@ -51,8 +51,8 @@ protected:
   ~vtkWarpTo() {};
 
   void Execute();
-  float ScaleFactor;
-  float Position[3];
+  double ScaleFactor;
+  double Position[3];
   int   Absolute;
 private:
   vtkWarpTo(const vtkWarpTo&);  // Not implemented.

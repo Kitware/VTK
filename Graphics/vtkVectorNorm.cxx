@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVectorNorm, "1.41");
+vtkCxxRevisionMacro(vtkVectorNorm, "1.42");
 vtkStandardNewMacro(vtkVectorNorm);
 
 // Construct with normalize flag off.
@@ -37,7 +37,7 @@ void vtkVectorNorm::Execute()
   vtkIdType numVectors, i;
   int computePtScalars=1, computeCellScalars=1;
   vtkFloatArray *newScalars;
-  float v[3], s, maxScalar;
+  double v[3], s, maxScalar;
   vtkDataArray *ptVectors, *cellVectors;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();

@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.34");
+vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.35");
 vtkStandardNewMacro(vtkTransformTextureCoords);
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
@@ -38,9 +38,9 @@ vtkTransformTextureCoords::vtkTransformTextureCoords()
 
 // Incrementally change the position of the texture map (i.e., does a
 // translate or shift of the texture coordinates).
-void vtkTransformTextureCoords::AddPosition (float dPX, float dPY, float dPZ)
+void vtkTransformTextureCoords::AddPosition (double dPX, double dPY, double dPZ)
 {
-  float position[3];
+  double position[3];
 
   position[0] = this->Position[0] + dPX;
   position[1] = this->Position[1] + dPY;
@@ -49,7 +49,7 @@ void vtkTransformTextureCoords::AddPosition (float dPX, float dPY, float dPZ)
   this->SetPosition(position);
 }
 
-void vtkTransformTextureCoords::AddPosition(float deltaPosition[3])
+void vtkTransformTextureCoords::AddPosition(double deltaPosition[3])
 { 
   this->AddPosition (deltaPosition[0], deltaPosition[1], deltaPosition[2]);
 }
@@ -64,7 +64,7 @@ void vtkTransformTextureCoords::Execute()
   int i, j, texDim;
   vtkTransform *transform;
   vtkMatrix4x4 *matrix;
-  float TC[3], newTC[3];
+  double TC[3], newTC[3];
 
   vtkDebugMacro(<<"Transforming texture coordinates...");
 
@@ -125,7 +125,7 @@ void vtkTransformTextureCoords::Execute()
     {
     if ( !(ptId % progressInterval) )
       {
-      this->UpdateProgress((float)ptId/numPts);
+      this->UpdateProgress((double)ptId/numPts);
       abort = this->GetAbortExecute();
       }
 

@@ -20,7 +20,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHedgeHog, "1.41");
+vtkCxxRevisionMacro(vtkHedgeHog, "1.42");
 vtkStandardNewMacro(vtkHedgeHog);
 
 vtkHedgeHog::vtkHedgeHog()
@@ -41,8 +41,8 @@ void vtkHedgeHog::Execute()
   int i;
   vtkIdType pts[2];
   vtkCellArray *newLines;
-  float x[3], v[3];
-  float newX[3];
+  double x[3], v[3];
+  double newX[3];
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
@@ -80,7 +80,7 @@ void vtkHedgeHog::Execute()
     {
     if ( ! (ptId % 10000) ) //abort/progress
       {
-      this->UpdateProgress ((float)ptId/numPts);
+      this->UpdateProgress ((double)ptId/numPts);
       if (this->GetAbortExecute())
         {
         break;

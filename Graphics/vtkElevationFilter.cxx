@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkElevationFilter, "1.53");
+vtkCxxRevisionMacro(vtkElevationFilter, "1.54");
 vtkStandardNewMacro(vtkElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -49,8 +49,8 @@ void vtkElevationFilter::Execute()
   vtkIdType numPts, i;
   int j;
   vtkFloatArray *newScalars;
-  float l, x[3], s, v[3];
-  float diffVector[3], diffScalar;
+  double l, x[3], s, v[3];
+  double diffVector[3], diffScalar;
   vtkDataSet *input = this->GetInput();
   int abort=0;
 
@@ -93,7 +93,7 @@ void vtkElevationFilter::Execute()
     {
     if ( ! (i % tenth) ) 
       {
-      this->UpdateProgress ((float)i/numPts);
+      this->UpdateProgress ((double)i/numPts);
       abort = this->GetAbortExecute();
       }
 

@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.55");
+vtkCxxRevisionMacro(vtkStreamLine, "1.56");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.
@@ -50,8 +50,8 @@ void vtkStreamLine::Execute()
   vtkIdType ptId, i, id;
   int j;
   vtkIdList *pts;
-  float tOffset, x[3], v[3], s, r;
-  float theta;
+  double tOffset, x[3], v[3], s, r;
+  double theta;
   vtkPolyLine* lineNormalGenerator = NULL;
   vtkFloatArray* normals = NULL;
   vtkFloatArray* rotation = 0;
@@ -168,7 +168,7 @@ void vtkStreamLine::Execute()
     {
     // Rotate the normal vectors with stream vorticity
     int nPts=newPts->GetNumberOfPoints();
-    float normal[3], local1[3], local2[3], length, costheta, sintheta;
+    double normal[3], local1[3], local2[3], length, costheta, sintheta;
 
     lineNormalGenerator->GenerateSlidingNormals(newPts,newLines,normals);
     

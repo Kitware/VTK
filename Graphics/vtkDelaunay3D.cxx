@@ -24,7 +24,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.68");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.69");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
@@ -193,7 +193,7 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, vtkIdType tetraId,
 // neighbors are visited repeatedly until no more tetrahedron are found.
 // Enclosing tetras are returned in the tetras list; the enclosing faces 
 // are returned in the faces list.
-vtkIdType vtkDelaunay3D::FindEnclosingFaces(float x[3],
+vtkIdType vtkDelaunay3D::FindEnclosingFaces(double x[3],
                                             vtkUnstructuredGrid *Mesh,
                                             vtkIdList *tetras,
                                             vtkIdList *faces,
@@ -356,7 +356,7 @@ int vtkDelaunay3D::FindTetra(vtkUnstructuredGrid *Mesh, double x[3],
   vtkTetra::BarycentricCoords(x, p[0], p[1], p[2], p[3], b);
 
   // find the most negative face
-  for ( negValue=VTK_LARGE_FLOAT, numNeg=j=0; j<4; j++ )
+  for ( negValue=VTK_DOUBLE_MAX, numNeg=j=0; j<4; j++ )
     {
     if ( b[j] < 0.0 )
       {
@@ -429,11 +429,11 @@ void vtkDelaunay3D::Execute()
   vtkUnstructuredGrid *Mesh;
   vtkPointSet *input=this->GetInput();
   vtkUnstructuredGrid *output=this->GetOutput();
-  float x[3];
+  double x[3];
   vtkIdType npts;
   vtkIdType *tetraPts, pts[4];
   vtkIdList *cells, *holeTetras;
-  float center[3], tol;
+  double center[3], tol;
   char *tetraUse;
   
   vtkDebugMacro(<<"Generating 3D Delaunay triangulation");
@@ -473,7 +473,7 @@ void vtkDelaunay3D::Execute()
     if ( ! (ptId % 250) ) 
       {
       vtkDebugMacro(<<"point #" << ptId);
-      this->UpdateProgress ((float)ptId/numPoints);
+      this->UpdateProgress ((double)ptId/numPoints);
       if (this->GetAbortExecute()) 
         {
         break;
@@ -527,12 +527,12 @@ void vtkDelaunay3D::Execute()
   //
   if ( this->Alpha > 0.0 )
     {
-    float alpha2 = this->Alpha * this->Alpha;
+    double alpha2 = this->Alpha * this->Alpha;
     vtkEdgeTable *edges;
     char *pointUse = new char[numPoints+6];
     vtkIdType p1, p2, p3, nei;
     int hasNei, j, k;
-    float x1[3], x2[3], x3[3];
+    double x1[3], x2[3], x3[3];
     vtkDelaunayTetra *tetra;
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
 
@@ -718,10 +718,10 @@ void vtkDelaunay3D::Execute()
 // Note: This initialization method places points forming bounding octahedron
 // at the end of the Mesh's point list. That is, InsertPoint() assumes that
 // you will be inserting points between (0,numPtsToInsert-1).
-vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
-                    float length, vtkIdType numPtsToInsert, vtkPoints* &points)
+vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(double center[3],
+                    double length, vtkIdType numPtsToInsert, vtkPoints* &points)
 {
-  float x[3], bounds[6];
+  double x[3], bounds[6];
   vtkIdType tetraId;
   vtkIdType pts[4];
   vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
@@ -827,7 +827,7 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
 // tetrahedra (or tetra faces and edges). The holeTetras id list lists all the
 // tetrahedra that are deleted (invalid) in the mesh structure.
 void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
-                                vtkIdType ptId, float x[3],
+                                vtkIdType ptId, double x[3],
                                 vtkIdList *holeTetras)
 {
   vtkIdType tetraId, numFaces;

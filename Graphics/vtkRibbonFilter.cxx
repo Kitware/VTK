@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRibbonFilter, "1.72");
+vtkCxxRevisionMacro(vtkRibbonFilter, "1.73");
 vtkStandardNewMacro(vtkRibbonFilter);
 
 // Construct ribbon so that width is 0.1, the width does 
@@ -169,7 +169,7 @@ void vtkRibbonFilter::Execute()
   for (inCellId=0, inLines->InitTraversal(); 
        inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
-    this->UpdateProgress((float)inCellId/numLines);
+    this->UpdateProgress((double)inCellId/numLines);
     abort = this->GetAbortExecute();
 
     if (npts < 2)
@@ -256,16 +256,16 @@ int vtkRibbonFilter::GeneratePoints(vtkIdType offset,
 {
   vtkIdType j;
   int i;
-  float p[3];
-  float pNext[3];
-  float sNext[3];
-  float sPrev[3];
-  float n[3];
-  float s[3], sp[3], sm[3], v[3];
+  double p[3];
+  double pNext[3];
+  double sNext[3];
+  double sPrev[3];
+  double n[3];
+  double s[3], sp[3], sm[3], v[3];
   double bevelAngle;
-  float w[3];
-  float nP[3];
-  float sFactor=1.0;
+  double w[3];
+  double nP[3];
+  double sFactor=1.0;
   vtkIdType ptId=offset;
 
   // Use "averaged" segment to create beveled effect. 
@@ -408,9 +408,9 @@ void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
 {
   vtkIdType i;
   int k;
-  float tc;
+  double tc;
 
-  float s0, s;
+  double s0, s;
   //The first texture coordinate is always 0.
   for ( k=0; k < 2; k++)
     {
@@ -431,7 +431,7 @@ void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
     }
   else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH )
     {
-    float xPrev[3], x[3], len=0.0;
+    double xPrev[3], x[3], len=0.0;
     inPts->GetPoint(pts[0],xPrev);
     for (i=1; i < npts; i++)
       {
@@ -447,7 +447,7 @@ void vtkRibbonFilter::GenerateTextureCoords(vtkIdType offset,
     }
   else if ( this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH )
     {
-    float xPrev[3], x[3], length=0.0, len=0.0;
+    double xPrev[3], x[3], length=0.0, len=0.0;
     inPts->GetPoint(pts[0],xPrev);
     for (i=1; i < npts; i++)
       {

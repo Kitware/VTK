@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyphSource2D, "1.13");
+vtkCxxRevisionMacro(vtkGlyphSource2D, "1.14");
 vtkStandardNewMacro(vtkGlyphSource2D);
 
 //----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void vtkGlyphSource2D::ConvertColor()
 
 void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
 {
-  float x[3];
+  double x[3];
   int i;
   int numPts=pts->GetNumberOfPoints();
   
@@ -164,8 +164,8 @@ void vtkGlyphSource2D::TransformGlyph(vtkPoints *pts)
     }
   else
     {
-    float angle = this->RotationAngle * vtkMath::DegreesToRadians();
-    float xt;
+    double angle = this->RotationAngle * vtkMath::DegreesToRadians();
+    double xt;
     for (i=0; i<numPts; i++)
       {
       pts->GetPoint(i,x);
@@ -192,7 +192,7 @@ void vtkGlyphSource2D::CreateVertex(vtkPoints *pts, vtkCellArray *verts,
 
 void vtkGlyphSource2D::CreateCross(vtkPoints *pts, vtkCellArray *lines,
                                    vtkCellArray *polys, vtkUnsignedCharArray *colors, 
-                                   float scale)
+                                   double scale)
 {
   vtkIdType ptIds[4];
 
@@ -314,7 +314,7 @@ void vtkGlyphSource2D::CreateCircle(vtkPoints *pts, vtkCellArray *lines,
                                     vtkCellArray *polys, vtkUnsignedCharArray *colors)
 {
   vtkIdType ptIds[9];
-  float x[3], theta;
+  double x[3], theta;
 
   // generate eight points in a circle
   x[2] = 0.0;
@@ -471,7 +471,7 @@ void vtkGlyphSource2D::CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
 
 void vtkGlyphSource2D::CreateDash(vtkPoints *pts, vtkCellArray *lines,
                                   vtkCellArray *polys, vtkUnsignedCharArray *colors,
-                                                                  float scale)
+                                                                  double scale)
 {
   vtkIdType ptIds[5];
   ptIds[0] = pts->InsertNextPoint(-0.5, -0.1, 0.0);

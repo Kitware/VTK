@@ -25,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.33");
+vtkCxxRevisionMacro(vtkWindowedSincPolyDataFilter, "1.34");
 vtkStandardNewMacro(vtkWindowedSincPolyDataFilter);
 
 // Construct object with number of iterations 20; passband .1;
@@ -67,10 +67,10 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  float x[3], y[3], deltaX[3], xNew[3];
-  float x1[3], x2[3], x3[3], l1[3], l2[3];
-  float CosFeatureAngle; //Cosine of angle between adjacent polys
-  float CosEdgeAngle; // Cosine of angle between adjacent edges
+  double x[3], y[3], deltaX[3], xNew[3];
+  double x1[3], x2[3], x3[3], l1[3], l2[3];
+  double CosFeatureAngle; //Cosine of angle between adjacent polys
+  double CosEdgeAngle; // Cosine of angle between adjacent edges
   int iterationNumber, abortExecute;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh = NULL, *Mesh;
@@ -83,8 +83,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
   vtkPolyData *output = this->GetOutput();
 
   // variables specific to windowed sinc interpolation
-  float theta_pb, k_pb, sigma, p_x0[3], p_x1[3], p_x3[3];
-  float *w, *c, *cprime;
+  double theta_pb, k_pb, sigma, p_x0[3], p_x1[3], p_x3[3];
+  double *w, *c, *cprime;
   int zero, one, two, three;
   
 //
@@ -210,7 +210,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     int numNei, nei, edge;
     vtkIdType numNeiPts;
     vtkIdType *neiPts;
-    float normal[3], neiNormal[3];
+    double normal[3], neiNormal[3];
     vtkIdList *neighbors;
 
     inMesh = vtkPolyData::New();
@@ -452,11 +452,11 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   //vtkDebugMacro(<< "theta_pb = " << theta_pb);
 
-  w = new float[this->NumberOfIterations+1];
-  c = new float[this->NumberOfIterations+1];
-  cprime = new float[this->NumberOfIterations+1];
+  w = new double[this->NumberOfIterations+1];
+  c = new double[this->NumberOfIterations+1];
+  cprime = new double[this->NumberOfIterations+1];
 
-  float zerovector[3];
+  double zerovector[3];
   zerovector[0] = zerovector[1] = zerovector[2] = 0.0;    
 
   //
@@ -473,7 +473,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   // Calculate the optimal sigma (offset or fudge factor for the filter).
   // This is a Newton-Raphson Search.
-  float f_kpb = 0.0, fprime_kpb;
+  double f_kpb = 0.0, fprime_kpb;
   int done = 0;
   sigma = 0.0;
   

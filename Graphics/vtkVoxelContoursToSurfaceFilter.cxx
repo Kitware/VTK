@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.22");
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.23");
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
@@ -31,7 +31,7 @@ vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
   this->Spacing[0]         = 1.0;
   this->Spacing[1]         = 1.0;
   this->Spacing[2]         = 1.0;
-  this->LineList           = new float[4*1000];
+  this->LineList           = new double[4*1000];
   this->LineListLength     = 0;
   this->LineListSize       = 1000;
   this->SortedXList        = NULL;
@@ -65,15 +65,15 @@ vtkVoxelContoursToSurfaceFilter::~vtkVoxelContoursToSurfaceFilter()
     }
 } 
 
-void vtkVoxelContoursToSurfaceFilter::AddLineToLineList( float x1, float y1,
-                                                   float x2, float y2 )
+void vtkVoxelContoursToSurfaceFilter::AddLineToLineList( double x1, double y1,
+                                                   double x2, double y2 )
 {
   // Do we need to increase the size of our list?
   if ( this->LineListLength >= this->LineListSize )
     {
     // Double the space we had before
-    float *newList = new float[this->LineListSize*4*2];
-    memcpy( newList, this->LineList, 4*this->LineListSize*sizeof(float) );
+    double *newList = new double[this->LineListSize*4*2];
+    memcpy( newList, this->LineList, 4*this->LineListSize*sizeof(double) );
     delete [] this->LineList;
     this->LineList = newList;
     this->LineListSize *= 2;
@@ -90,8 +90,8 @@ void vtkVoxelContoursToSurfaceFilter::AddLineToLineList( float x1, float y1,
 void vtkVoxelContoursToSurfaceFilter::SortLineList()
 {
   int     i, j;
-  float   tmp[4];
-  float   tmpval;
+  double   tmp[4];
+  double   tmpval;
 
 
   // Make sure we have enough space in our sorted list
@@ -114,8 +114,8 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
       delete [] this->IntersectionList;
       }
 
-    this->SortedXList = new float[4*this->LineListLength];
-    this->SortedYList = new float[4*this->LineListLength];
+    this->SortedXList = new double[4*this->LineListLength];
+    this->SortedYList = new double[4*this->LineListLength];
     this->SortedListSize = this->LineListLength;
 
     // Create the space we'll need for our working list of indices
@@ -133,14 +133,14 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
     // not to have to worry about exceeding the bounds. This will be
     // used during the CastXLines and CastYLines methods, and is 
     // the same size as the number of lines.
-    this->IntersectionList = new float[this->LineListLength];    
+    this->IntersectionList = new double[this->LineListLength];    
     }
 
   // Copy the lines into the lists
   memcpy( this->SortedXList, this->LineList, 
-          4*this->LineListLength*sizeof(float) );
+          4*this->LineListLength*sizeof(double) );
   memcpy( this->SortedYList, this->LineList, 
-          4*this->LineListLength*sizeof(float) );
+          4*this->LineListLength*sizeof(double) );
 
   // Now sort on x and y
   // Use a simple bubble sort - will improve if necessary
@@ -173,10 +173,10 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
       {
       if ( this->SortedXList[j*4] < this->SortedXList[(j-1)*4] )
         {
-        memcpy( tmp, this->SortedXList + j*4, 4*sizeof(float) );
+        memcpy( tmp, this->SortedXList + j*4, 4*sizeof(double) );
         memcpy( this->SortedXList + j*4, 
-                this->SortedXList + (j-1)*4, 4*sizeof(float) );
-        memcpy( this->SortedXList + (j-1)*4, tmp, 4*sizeof(float) );
+                this->SortedXList + (j-1)*4, 4*sizeof(double) );
+        memcpy( this->SortedXList + (j-1)*4, tmp, 4*sizeof(double) );
         }
       else
         {
@@ -189,10 +189,10 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
       {
       if ( this->SortedYList[j*4+1] < this->SortedYList[(j-1)*4+1] )
         {
-        memcpy( tmp, this->SortedYList + j*4, 4*sizeof(float) );
+        memcpy( tmp, this->SortedYList + j*4, 4*sizeof(double) );
         memcpy( this->SortedYList + j*4, this->SortedYList + (j-1)*4, 
-                4*sizeof(float) );
-        memcpy( this->SortedYList + (j-1)*4, tmp, 4*sizeof(float) );
+                4*sizeof(double) );
+        memcpy( this->SortedYList + (j-1)*4, tmp, 4*sizeof(double) );
         }
       else
         {
@@ -204,22 +204,22 @@ void vtkVoxelContoursToSurfaceFilter::SortLineList()
 
 
 void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr, 
-                                                 float gridOrigin[3], 
+                                                 double gridOrigin[3], 
                                                  int gridSize[3],
                                                  int type )
 {
-  float   axis1, axis2;
-  float   d1, d2;
+  double   axis1, axis2;
+  double   d1, d2;
   int     index;
   int     i, j;
-  float   tmp;
-  float   *line;
+  double   tmp;
+  double   *line;
   float   *currSlicePtr;
   int     currSlice;
   int     currentIntersection;
-  float   sign;
-  float   *sortedList;
-  float   low1, low2, high1, high2;
+  double   sign;
+  double   *sortedList;
+  double   low1, low2, high1, high2;
   int     increment1, increment2;
   int     offset1, offset2, offset3, offset4;
 
@@ -227,9 +227,9 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
   if ( type == 0 )
     {
     low1 = gridOrigin[0];
-    high1 = gridOrigin[0] + (float)gridSize[0];
+    high1 = gridOrigin[0] + (double)gridSize[0];
     low2 = gridOrigin[1];
-    high2 = gridOrigin[1] + (float)gridSize[1];
+    high2 = gridOrigin[1] + (double)gridSize[1];
     increment1 = gridSize[0];
     increment2 = 1;
     sortedList = this->SortedXList;
@@ -242,9 +242,9 @@ void vtkVoxelContoursToSurfaceFilter::CastLines( float *slicePtr,
   else
     {
     low1 = gridOrigin[1];
-    high1 = gridOrigin[1] + (float)gridSize[1];
+    high1 = gridOrigin[1] + (double)gridSize[1];
     low2 = gridOrigin[0];
-    high2 = gridOrigin[0] + (float)gridSize[0];
+    high2 = gridOrigin[0] + (double)gridSize[0];
     increment1 = 1;
     increment2 = gridSize[0];
     sortedList = this->SortedYList;
@@ -478,8 +478,8 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   vtkPolyData          *input  = this->GetInput();
   vtkCellArray         *inputPolys = input->GetPolys();
   int                  gridSize[3];
-  float                gridOrigin[3];
-  float                contourBounds[6];
+  double                gridOrigin[3];
+  double                contourBounds[6];
   int                  chunkSize;
   int                  currentSlice, lastSlice, currentIndex;
   int                  i, j;
@@ -487,8 +487,8 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   int                  currentInputCellIndex;
   vtkIdType            npts = 0;
   vtkIdType            *pts = 0;
-  float                point1[3], point2[3];
-  float                currentZ;
+  double                point1[3], point2[3];
+  double                currentZ;
   vtkStructuredPoints  *volume;
   float                *volumePtr, *slicePtr;
   vtkContourFilter     *contourFilter;
@@ -529,7 +529,7 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   // How many slices in a chunk? This will later be decremented 
   // by one to account for the fact that the last slice in the 
   // previous chuck is copied to the first slice in the next chunk. 
-  // Stay within memory limit. There are 4 bytes per float.
+  // Stay within memory limit. There are 4 bytes per double.
   chunkSize = this->MemoryLimitInBytes / ( gridSize[0] * gridSize[1] * 4 );
   if ( chunkSize > gridSize[2] )
     {

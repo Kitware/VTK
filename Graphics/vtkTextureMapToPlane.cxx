@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.47");
+vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.48");
 vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -47,15 +47,15 @@ vtkTextureMapToPlane::vtkTextureMapToPlane()
 
 void vtkTextureMapToPlane::Execute()
 {
-  float tcoords[2];
+  double tcoords[2];
   vtkIdType numPts;
   vtkFloatArray *newTCoords;
   vtkIdType i;
   int j;
-  float *bounds;
-  float proj, minProj, axis[3], sAxis[3], tAxis[3];
+  double *bounds;
+  double proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir = 0;
-  float s, t, sSf, tSf, p[3];
+  double s, t, sSf, tSf, p[3];
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
   int abort=0;
@@ -143,7 +143,7 @@ void vtkTextureMapToPlane::Execute()
       {
       if ( !(i % progressInterval) )
         {
-        this->UpdateProgress((float)i/numPts);
+        this->UpdateProgress((double)i/numPts);
         abort = this->GetAbortExecute();
         }
 
@@ -162,7 +162,7 @@ void vtkTextureMapToPlane::Execute()
 
   else //use the axes specified
     {
-    float num, sDenom, tDenom;
+    double num, sDenom, tDenom;
 
     for ( i=0; i < 3; i++ ) //compute axes
       {
@@ -184,7 +184,7 @@ void vtkTextureMapToPlane::Execute()
       {
       if ( !(i % progressInterval) )
         {
-        this->UpdateProgress((float)i/numPts);
+        this->UpdateProgress((double)i/numPts);
         abort = this->GetAbortExecute();
         }
       output->GetPoint(i, p);
@@ -221,11 +221,11 @@ void vtkTextureMapToPlane::ComputeNormal()
 {
   vtkDataSet *output = this->GetOutput();
   vtkIdType numPts=output->GetNumberOfPoints();
-  float m[9], v[3], x[3];
+  double m[9], v[3], x[3];
   vtkIdType ptId;
   int dir = 0, i;
-  float length, w, *c1, *c2, *c3, det;
-  float *bounds;
+  double length, w, *c1, *c2, *c3, det;
+  double *bounds;
 
   //  First thing to do is to get an initial normal and point to define
   //  the plane.  Then, use this information to construct better

@@ -19,7 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.7");
+vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.8");
 vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //----------------------------------------------------------------------------
@@ -32,8 +32,8 @@ vtkOutlineCornerSource::vtkOutlineCornerSource()
 //----------------------------------------------------------------------------
 void vtkOutlineCornerSource::Execute()
 {
-  float *bounds;
-  float inner_bounds[6];
+  double *bounds;
+  double inner_bounds[6];
 
   int i, j, k;
 
@@ -41,7 +41,7 @@ void vtkOutlineCornerSource::Execute()
 
   // Initialize
 
-  float delta;
+  double delta;
 
   bounds = this->Bounds;
   for (i = 0; i < 3; i++)
@@ -62,7 +62,7 @@ void vtkOutlineCornerSource::Execute()
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(24,2));
 
-  float x[3];
+  double x[3];
   vtkIdType pts[2];
 
   int pid = 0;

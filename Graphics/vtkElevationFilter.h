@@ -38,27 +38,27 @@ public:
 
   // Description:
   // Define one end of the line (small scalar values).
-  vtkSetVector3Macro(LowPoint,float);
-  vtkGetVectorMacro(LowPoint,float,3);
+  vtkSetVector3Macro(LowPoint,double);
+  vtkGetVectorMacro(LowPoint,double,3);
 
   // Description:
   // Define other end of the line (large scalar values).
-  vtkSetVector3Macro(HighPoint,float);
-  vtkGetVectorMacro(HighPoint,float,3);
+  vtkSetVector3Macro(HighPoint,double);
+  vtkGetVectorMacro(HighPoint,double,3);
 
   // Description:
   // Specify range to map scalars into.
-  vtkSetVector2Macro(ScalarRange,float);
-  vtkGetVectorMacro(ScalarRange,float,2);
+  vtkSetVector2Macro(ScalarRange,double);
+  vtkGetVectorMacro(ScalarRange,double,2);
 
 protected:
   vtkElevationFilter();
   ~vtkElevationFilter() {};
 
   void Execute();
-  float LowPoint[3];
-  float HighPoint[3];
-  float ScalarRange[2];
+  double LowPoint[3];
+  double HighPoint[3];
+  double ScalarRange[2];
 private:
   vtkElevationFilter(const vtkElevationFilter&);  // Not implemented.
   void operator=(const vtkElevationFilter&);  // Not implemented.

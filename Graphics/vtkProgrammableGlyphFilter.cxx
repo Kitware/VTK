@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.27");
+vtkCxxRevisionMacro(vtkProgrammableGlyphFilter, "1.28");
 vtkStandardNewMacro(vtkProgrammableGlyphFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value, 
@@ -160,7 +160,7 @@ void vtkProgrammableGlyphFilter::Execute()
     {
     if ( ! (this->PointId % 10000) ) 
       {
-      this->UpdateProgress ((float)this->PointId/numPts);
+      this->UpdateProgress ((double)this->PointId/numPts);
       if (this->GetAbortExecute())
         {
         break;

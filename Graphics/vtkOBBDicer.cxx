@@ -24,7 +24,7 @@
 #include "vtkPoints.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkOBBDicer, "1.18");
+vtkCxxRevisionMacro(vtkOBBDicer, "1.19");
 vtkStandardNewMacro(vtkOBBDicer);
 
 void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
@@ -34,7 +34,7 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
   vtkOBBTree *OBB = vtkOBBTree::New();
   vtkDataSet *input= this->GetInput();
 
-  float size[3];
+  double size[3];
 
   // Gather all the points into a single list
   //
@@ -67,7 +67,7 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
     RHlist->Allocate(numPts/2);
     LHnode->Parent = OBBptr;
     RHnode->Parent = OBBptr;
-    float n[3], p[3], x[3], val;
+    double n[3], p[3], x[3], val;
 
     //split the longest axis down the middle
     for (i=0; i < 3; i++) //compute split point

@@ -59,16 +59,20 @@ int PointLocator( int argc, char *argv[] )
   pointLocator->BuildLocator();
 
   // 
-  float p1[] = {2.0, 1.0, 3.0};
+  double p1[] = {2.0, 1.0, 3.0};
 
   // Find closest point
   vtkIdType ptId;
-  float dist;
+  double dist;
   p1[0] = 0.1; p1[1] = -0.2; p1[2] = 0.2;
   ptId = pointLocator->FindClosestPoint(p1);
   vtkActor *closestPointActor = vtkActor::New();
     closestPointActor->SetMapper(spotMapper);
-    closestPointActor->SetPosition(sphere->GetOutput()->GetPoints()->GetPoint(ptId));
+    // TODO cleanupo
+    closestPointActor->SetPosition(
+      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[0],
+      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
+      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
     closestPointActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
 
   // Find closest point within radius
@@ -77,7 +81,11 @@ int PointLocator( int argc, char *argv[] )
   ptId = pointLocator->FindClosestPointWithinRadius(radius, p1, dist);
   vtkActor *closestPointActor2 = vtkActor::New();
     closestPointActor2->SetMapper(spotMapper);
-    closestPointActor2->SetPosition(sphere->GetOutput()->GetPoints()->GetPoint(ptId));
+    // TODO cleanup
+    closestPointActor2->SetPosition(
+      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[0],
+      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[1],
+      sphere->GetOutput()->GetPoints()->GetPoint(ptId)[2]);
     closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
   
   renderer->AddActor(sphereActor);

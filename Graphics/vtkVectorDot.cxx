@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.36");
+vtkCxxRevisionMacro(vtkVectorDot, "1.37");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).
@@ -40,7 +40,7 @@ void vtkVectorDot::Execute()
   vtkDataSet *input = this->GetInput();
   vtkDataArray *inNormals;
   vtkDataArray *inVectors;
-  float s, n[3], v[3], min, max, dR, dS;
+  double s, n[3], v[3], min, max, dR, dS;
   vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
 
@@ -76,12 +76,12 @@ void vtkVectorDot::Execute()
   //
   int abort=0;
   vtkIdType progressInterval=numPts/20 + 1;
-  for (min=VTK_LARGE_FLOAT,max=(-VTK_LARGE_FLOAT),ptId=0; 
+  for (min=VTK_DOUBLE_MAX,max=(-VTK_DOUBLE_MAX),ptId=0; 
        ptId < numPts && !abort; ptId++)
     {
     if ( ! (ptId % progressInterval) ) 
       {
-      this->UpdateProgress ((float)ptId/numPts);
+      this->UpdateProgress ((double)ptId/numPts);
       abort = this->GetAbortExecute();
       }
     inNormals->GetTuple(ptId, n);

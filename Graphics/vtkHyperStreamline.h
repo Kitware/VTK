@@ -74,40 +74,40 @@ public:
   // Description:
   // Specify the start of the hyperstreamline in the cell coordinate system. 
   // That is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(vtkIdType cellId, int subId, float pcoords[3]);
+  void SetStartLocation(vtkIdType cellId, int subId, double pcoords[3]);
 
   // Description:
   // Specify the start of the hyperstreamline in the cell coordinate system. 
   // That is, cellId and subId (if composite cell), and parametric coordinates.
-  void SetStartLocation(vtkIdType cellId, int subId, float r, float s,
-                        float t);
+  void SetStartLocation(vtkIdType cellId, int subId, double r, double s,
+                        double t);
 
   // Description:
   // Get the starting location of the hyperstreamline in the cell coordinate
   // system. Returns the cell that the starting point is in.
-  vtkIdType GetStartLocation(int& subId, float pcoords[3]);
+  vtkIdType GetStartLocation(int& subId, double pcoords[3]);
 
   // Description:
   // Specify the start of the hyperstreamline in the global coordinate system. 
   // Starting from position implies that a search must be performed to find 
   // initial cell to start integration from.
-  void SetStartPosition(float x[3]);
+  void SetStartPosition(double x[3]);
 
   // Description:
   // Specify the start of the hyperstreamline in the global coordinate system. 
   // Starting from position implies that a search must be performed to find 
   // initial cell to start integration from.
-  void SetStartPosition(float x, float y, float z);
+  void SetStartPosition(double x, double y, double z);
 
   // Description:
   // Get the start position of the hyperstreamline in global x-y-z coordinates.
-  float *GetStartPosition();
+  double *GetStartPosition();
 
   // Description:
   // Set / get the maximum length of the hyperstreamline expressed as absolute
   // distance (i.e., arc length) value.
-  vtkSetClampMacro(MaximumPropagationDistance,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(MaximumPropagationDistance,float);
+  vtkSetClampMacro(MaximumPropagationDistance,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(MaximumPropagationDistance,double);
 
   // Description:
   // Set / get the eigenvector field through which to ingrate. It is
@@ -154,15 +154,15 @@ public:
   // Description:
   // Set / get a nominal integration step size (expressed as a fraction of
   // the size of each cell).
-  vtkSetClampMacro(IntegrationStepLength,float,0.001,0.5);
-  vtkGetMacro(IntegrationStepLength,float);
+  vtkSetClampMacro(IntegrationStepLength,double,0.001,0.5);
+  vtkGetMacro(IntegrationStepLength,double);
 
   // Description:
   // Set / get the length of a tube segment composing the
   // hyperstreamline. The length is specified as a fraction of the
   // diagonal length of the input bounding box.
-  vtkSetClampMacro(StepLength,float,0.000001,1.0);
-  vtkGetMacro(StepLength,float);
+  vtkSetClampMacro(StepLength,double,0.000001,1.0);
+  vtkGetMacro(StepLength,double);
 
   // Description:
   // Specify the direction in which to integrate the hyperstreamline.
@@ -179,8 +179,8 @@ public:
   // Description:
   // Set/get terminal eigenvalue.  If major eigenvalue falls below this
   // value, hyperstreamline terminates propagation.
-  vtkSetClampMacro(TerminalEigenvalue,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(TerminalEigenvalue,float);
+  vtkSetClampMacro(TerminalEigenvalue,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(TerminalEigenvalue,double);
 
   // Description:
   // Set / get the number of sides for the hyperstreamlines. At a minimum,
@@ -193,8 +193,8 @@ public:
   // radius at the beginning of the tube. Radius varies based on ratio of
   // eigenvalues.  Note that tube section is actually elliptical and may
   // become a point or line in cross section in some cases.
-  vtkSetClampMacro(Radius,float,0.0001,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0001,VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Turn on/off logarithmic scaling. If scaling is on, the log base 10
@@ -217,35 +217,35 @@ protected:
   // Starting from cell location
   vtkIdType StartCell;
   int StartSubId;
-  float StartPCoords[3];
+  double StartPCoords[3];
 
   // starting from global x-y-z position
-  float StartPosition[3];
+  double StartPosition[3];
 
   //array of hyperstreamlines
   vtkHyperArray *Streamers;
   int NumberOfStreamers;
 
   // length of hyperstreamline in absolute distance
-  float MaximumPropagationDistance;
+  double MaximumPropagationDistance;
 
   // integration direction
   int IntegrationDirection;
 
   // the length (fraction of cell size) of integration steps
-  float IntegrationStepLength;
+  double IntegrationStepLength;
 
   // the length of the tube segments composing the hyperstreamline
-  float StepLength;
+  double StepLength;
 
   // terminal propagation speed
-  float TerminalEigenvalue;
+  double TerminalEigenvalue;
 
   // number of sides of tube
   int NumberOfSides;
 
   // maximum radius of tube
-  float Radius;
+  double Radius;
 
   // boolean controls whether scaling is clamped
   int LogScaling;

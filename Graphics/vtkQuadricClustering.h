@@ -115,14 +115,14 @@ public:
   // boundaries between pieces, then you should use these methods rather than
   // SetNumberOfDivisions. To use these methods, specify the origin and spacing
   // of the spatial binning.
-  void SetDivisionOrigin(float x, float y, float z);
-  void SetDivisionOrigin(float o[3]) 
+  void SetDivisionOrigin(double x, double y, double z);
+  void SetDivisionOrigin(double o[3]) 
     {this->SetDivisionOrigin(o[0],o[1],o[2]);}
-  vtkGetVector3Macro(DivisionOrigin, float);
-  void SetDivisionSpacing(float x, float y, float z);
-  void SetDivisionSpacing(float s[3]) 
+  vtkGetVector3Macro(DivisionOrigin, double);
+  void SetDivisionSpacing(double x, double y, double z);
+  void SetDivisionSpacing(double s[3]) 
     {this->SetDivisionSpacing(s[0],s[1],s[2]);}
-  vtkGetVector3Macro(DivisionSpacing, float);
+  vtkGetVector3Macro(DivisionSpacing, double);
 
   // Description:
   // Normally the point that minimizes the quadric error function is used as
@@ -158,8 +158,8 @@ public:
   // Description:
   // Set/Get the angle to use in determining whether a point on a boundary /
   // feature edge is a feature point.
-  vtkSetClampMacro(FeaturePointsAngle, float, 0.0, 180.0);
-  vtkGetMacro(FeaturePointsAngle, float);
+  vtkSetClampMacro(FeaturePointsAngle, double, 0.0, 180.0);
+  vtkGetMacro(FeaturePointsAngle, double);
   
   // Description:
   // When this flag is on (and it is on by default), then triangles that are 
@@ -175,9 +175,9 @@ public:
   // PolyData can be added to the result in pieces (append).
   // In this mode, the user must specify the bounds of the entire model
   // as an argument to the "StartAppend" method.
-  void StartAppend(float *bounds);
-  void StartAppend(float x0,float x1,float y0,float y1,float z0,float z1)
-    {float b[6]; b[0]=x0; b[1]=x1; b[2]=y0; b[3]=y1; b[4]=z0; b[5]=z1; 
+  void StartAppend(double *bounds);
+  void StartAppend(double x0,double x1,double y0,double y1,double z0,double z1)
+    {double b[6]; b[0]=x0; b[1]=x1; b[2]=y0; b[3]=y1; b[4]=z0; b[5]=z1; 
     this->StartAppend(b);}  
   void Append(vtkPolyData *piece);
   void EndAppend();
@@ -199,19 +199,19 @@ protected:
     
   // Description:
   // Given a point, determine what bin it falls into.
-  vtkIdType HashPoint(float point[3]);
+  vtkIdType HashPoint(double point[3]);
   
   // Description:
   // Determine the representative point for this bin.
-  void ComputeRepresentativePoint(float quadric[9], vtkIdType binId,
-                                  float point[3]);
+  void ComputeRepresentativePoint(double quadric[9], vtkIdType binId,
+                                  double point[3]);
 
   // Description:
   // Add triangles to the quadric array.  If geometry flag is on then
   // triangles are added to the output.
   void AddPolygons(vtkCellArray *polys, vtkPoints *points, int geometryFlag);
   void AddStrips(vtkCellArray *strips, vtkPoints *points, int geometryFlag);
-  void AddTriangle(vtkIdType *binIds, float *pt0, float *pt1, float *pt2,
+  void AddTriangle(vtkIdType *binIds, double *pt0, double *pt1, double *pt2,
                    int geometeryFlag);
 
   // Description:
@@ -219,28 +219,28 @@ protected:
   // edges are added to the output.
   void AddEdges(vtkCellArray *edges, vtkPoints *points,
                 int geometryFlag);
-  void AddEdge(vtkIdType *binIds, float *pt0, float *pt1, int geometeryFlag);
+  void AddEdge(vtkIdType *binIds, double *pt0, double *pt1, int geometeryFlag);
 
   // Description:
   // Add vertices to the quadric array.  If geometry flag is on then
   // vertices are added to the output.
   void AddVertices(vtkCellArray *verts, vtkPoints *points, int geometryFlag);
-  void AddVertex(vtkIdType binId, float *pt, int geometryFlag);
+  void AddVertex(vtkIdType binId, double *pt, int geometryFlag);
 
   // Description:
   // Initialize the quadric matrix to 0's.
-  void InitializeQuadric(float quadric[9]);
+  void InitializeQuadric(double quadric[9]);
   
   // Description:
   // Add this quadric to the quadric already associated with this bin.
-  void AddQuadric(vtkIdType binId, float quadric[9]);
+  void AddQuadric(vtkIdType binId, double quadric[9]);
 
   // Description:
   // Find the feature points of a given set of edges.
   // The points returned are (1) those used by only one edge, (2) those
   // used by > 2 edges, and (3) those where the angle between 2 edges
   // using this point is < angle.
-  void FindFeaturePoints(vtkCellArray *edges, vtkPoints *edgePts, float angle);
+  void FindFeaturePoints(vtkCellArray *edges, vtkPoints *edgePts, double angle);
   
   // Description:
   // This method will rep[lace the quadric  generated points with the
@@ -272,14 +272,14 @@ protected:
   // the bin sizes are computed from the DivisionOrigin and DivisionSpacing. 
   int ComputeNumberOfDivisions;
 
-  float DivisionOrigin[3];
-  float DivisionSpacing[3];
+  double DivisionOrigin[3];
+  double DivisionSpacing[3];
   int   AutoAdjustNumberOfDivisions;
 
-  float Bounds[6];
-  float XBinSize;
-  float YBinSize;
-  float ZBinSize;
+  double Bounds[6];
+  double XBinSize;
+  double YBinSize;
+  double ZBinSize;
   vtkIdType SliceSize; //eliminate one multiplication
 
   //BTX
@@ -292,7 +292,7 @@ protected:
     // cells contributing to the quadric.  Lines: 1, Triangles: 2 (and points
     // 0 in the future?)
     unsigned char Dimension;
-    float Quadric[9];
+    double Quadric[9];
   };
   //ETX
 
@@ -306,7 +306,7 @@ protected:
 
   vtkFeatureEdges *FeatureEdges;
   vtkPoints *FeaturePoints;
-  float FeaturePointsAngle;
+  double FeaturePointsAngle;
 
   int CopyCellData;
   int InCellCount;

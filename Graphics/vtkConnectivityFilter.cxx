@@ -27,7 +27,7 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkConnectivityFilter, "1.69");
+vtkCxxRevisionMacro(vtkConnectivityFilter, "1.70");
 vtkStandardNewMacro(vtkConnectivityFilter);
 
 // Construct with default extraction mode to extract largest regions.
@@ -201,9 +201,9 @@ void vtkConnectivityFilter::Execute()
       }
     else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
       {//loop over points, find closest one
-      float minDist2, dist2, x[3];
+      double minDist2, dist2, x[3];
       vtkIdType minId = 0;
-      for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
+      for (minDist2=VTK_DOUBLE_MAX, i=0; i<numPts; i++)
         {
         input->GetPoint(i,x);
         dist2 = vtkMath::Distance2BetweenPoints(x,this->ClosestPoint);
@@ -398,7 +398,7 @@ void vtkConnectivityFilter::TraverseAndMark ()
             if ( this->InScalars )
               {
               int numScalars, ii;
-              float s, range[2];
+              double s, range[2];
 
               input->GetCellPoints(cellId, this->NeighborCellPointIds);
               numScalars = this->NeighborCellPointIds->GetNumberOfIds();
@@ -406,7 +406,7 @@ void vtkConnectivityFilter::TraverseAndMark ()
               this->CellScalars->SetNumberOfTuples(numScalars);
               this->InScalars->GetTuples(this->NeighborCellPointIds,
                                          this->CellScalars);
-              range[0] = VTK_LARGE_FLOAT; range[1] = -VTK_LARGE_FLOAT;
+              range[0] = VTK_DOUBLE_MAX; range[1] = -VTK_DOUBLE_MAX;
               for (ii=0; ii < numScalars;  ii++)
                 {
                 s = this->CellScalars->GetComponent(ii,0);
@@ -506,7 +506,7 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Connectivity: " 
      << (this->ScalarConnectivity ? "On\n" : "Off\n");
 
-  float *range = this->GetScalarRange();
+  double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
 }
 

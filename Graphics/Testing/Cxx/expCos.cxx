@@ -38,7 +38,7 @@ int expCos( int argc, char *argv[] )
   vtkDebugLeaks::PromptUserOff();
 
   int i, numPts;
-  float x[3];
+  double x[3];
   double r, deriv;
 
   vtkRenderer *ren = vtkRenderer::New();

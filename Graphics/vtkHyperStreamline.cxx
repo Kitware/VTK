@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHyperStreamline, "1.55");
+vtkCxxRevisionMacro(vtkHyperStreamline, "1.56");
 vtkStandardNewMacro(vtkHyperStreamline);
 
 //
@@ -33,17 +33,17 @@ public:
     vtkHyperPoint(); // method sets up storage
     vtkHyperPoint &operator=(const vtkHyperPoint& hp); //for resizing
     
-    float   X[3];    // position 
+    double   X[3];    // position 
     vtkIdType     CellId;  // cell
     int     SubId; // cell sub id
-    float   P[3];    // parametric coords in cell 
-    float   W[3];    // eigenvalues (sorted in decreasing value)
-    float   *V[3];   // pointers to eigenvectors (also sorted)
-    float   V0[3];   // storage for eigenvectors
-    float   V1[3];
-    float   V2[3];
-    float   S;       // scalar value 
-    float   D;       // distance travelled so far 
+    double   P[3];    // parametric coords in cell 
+    double   W[3];    // eigenvalues (sorted in decreasing value)
+    double   *V[3];   // pointers to eigenvectors (also sorted)
+    double   V0[3];   // storage for eigenvectors
+    double   V1[3];
+    double   V2[3];
+    double   S;       // scalar value 
+    double   D;       // distance travelled so far 
 };
 //ETX
 
@@ -74,7 +74,7 @@ public:
   vtkIdType MaxId;             // maximum index inserted thus far
   vtkIdType Size;              // allocated size of data
   vtkIdType Extend;            // grow array by this amount
-  float Direction;       // integration direction
+  double Direction;       // integration direction
 };
 
 #define VTK_START_FROM_POSITION 0
@@ -183,7 +183,7 @@ vtkHyperStreamline::~vtkHyperStreamline()
 // Specify the start of the hyperstreamline in the cell coordinate system. 
 // That is, cellId and subId (if composite cell), and parametric coordinates.
 void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
-                                          float pcoords[3])
+                                          double pcoords[3])
 {
   if ( cellId != this->StartCell || subId != this->StartSubId ||
        pcoords[0] !=  this->StartPCoords[0] || 
@@ -204,9 +204,9 @@ void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
 // Specify the start of the hyperstreamline in the cell coordinate system. 
 // That is, cellId and subId (if composite cell), and parametric coordinates.
 void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
-                                          float r, float s, float t)
+                                          double r, double s, double t)
 {
-  float pcoords[3];
+  double pcoords[3];
   pcoords[0] = r;
   pcoords[1] = s;
   pcoords[2] = t;
@@ -216,7 +216,7 @@ void vtkHyperStreamline::SetStartLocation(vtkIdType cellId, int subId,
 
 // Get the starting location of the hyperstreamline in the cell coordinate
 // system. Returns the cell that the starting point is in.
-vtkIdType vtkHyperStreamline::GetStartLocation(int& subId, float pcoords[3])
+vtkIdType vtkHyperStreamline::GetStartLocation(int& subId, double pcoords[3])
 {
   subId = this->StartSubId;
   pcoords[0] = this->StartPCoords[0];
@@ -228,7 +228,7 @@ vtkIdType vtkHyperStreamline::GetStartLocation(int& subId, float pcoords[3])
 // Specify the start of the hyperstreamline in the global coordinate system. 
 // Starting from position implies that a search must be performed to find 
 // initial cell to start integration from.
-void vtkHyperStreamline::SetStartPosition(float x[3])
+void vtkHyperStreamline::SetStartPosition(double x[3])
 {
   if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
   x[2] != this->StartPosition[2] )
@@ -245,9 +245,9 @@ void vtkHyperStreamline::SetStartPosition(float x[3])
 // Specify the start of the hyperstreamline in the global coordinate system. 
 // Starting from position implies that a search must be performed to find 
 // initial cell to start integration from.
-void vtkHyperStreamline::SetStartPosition(float x, float y, float z)
+void vtkHyperStreamline::SetStartPosition(double x, double y, double z)
 {
-  float pos[3];
+  double pos[3];
   pos[0] = x;
   pos[1] = y;
   pos[2] = z;
@@ -256,17 +256,17 @@ void vtkHyperStreamline::SetStartPosition(float x, float y, float z)
 }
 
 // Get the start position of the hyperstreamline in global x-y-z coordinates.
-float *vtkHyperStreamline::GetStartPosition()
+double *vtkHyperStreamline::GetStartPosition()
 {
   return this->StartPosition;
 }
 
 // Make sure coordinate systems are consistent
-static void FixVectors(float **prev, float **current, int iv, int ix, int iy)
+static void FixVectors(double **prev, double **current, int iv, int ix, int iy)
 {
-  float p0[3], p1[3], p2[3];
-  float v0[3], v1[3], v2[3];
-  float temp[3];
+  double p0[3], p1[3], p2[3];
+  double v0[3], v1[3], v2[3];
+  double temp[3];
   int i;
 
   for (i=0; i<3; i++)
@@ -326,18 +326,18 @@ void vtkHyperStreamline::Execute()
   vtkPointData *pd=input->GetPointData();
   vtkDataArray *inScalars;
   vtkDataArray *inTensors;
-  float tensor[9];
+  double tensor[9];
   vtkHyperPoint *sNext, *sPtr;
   int i, j, k, ptId, subId, iv, ix, iy;
   vtkCell *cell;
-  float ev[3], xNext[3];
-  float d, step, dir, tol2, p[3];
-  float *w;
-  float dist2;
-  float closestPoint[3];
-  float *m[3], *v[3];
-  float m0[3], m1[3], m2[3];
-  float v0[3], v1[3], v2[3];
+  double ev[3], xNext[3];
+  double d, step, dir, tol2, p[3];
+  double *w;
+  double dist2;
+  double closestPoint[3];
+  double *m[3], *v[3];
+  double m0[3], m1[3], m2[3];
+  double v0[3], v1[3], v2[3];
   vtkDataArray *cellTensors;
   vtkDataArray *cellScalars;
   // set up working matrices
@@ -352,7 +352,7 @@ void vtkHyperStreamline::Execute()
     vtkErrorMacro(<<"No tensor data defined!");
     return;
     }
-  w = new float[input->GetMaxCellSize()];
+  w = new double[input->GetMaxCellSize()];
 
   inScalars = pd->GetScalars();
 
@@ -613,9 +613,9 @@ void vtkHyperStreamline::BuildTube()
   vtkCellArray *newStrips;
   vtkIdType i, npts, ptOffset=0;
   int ptId, j, id, k, i1, i2;
-  float dOffset, x[3], v[3], s, r, r1[3], r2[3], stepLength;
-  float xT[3], sFactor, normal[3], w[3];
-  float theta=2.0*vtkMath::Pi()/this->NumberOfSides;
+  double dOffset, x[3], v[3], s, r, r1[3], r2[3], stepLength;
+  double xT[3], sFactor, normal[3], w[3];
+  double theta=2.0*vtkMath::Pi()/this->NumberOfSides;
   vtkPointData *outPD;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();

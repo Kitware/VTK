@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTriangularTCoords, "1.27");
+vtkCxxRevisionMacro(vtkTriangularTCoords, "1.28");
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 void vtkTriangularTCoords::Execute()
@@ -41,8 +41,8 @@ void vtkTriangularTCoords::Execute()
   int errorLogging = 1;
   vtkPoints *newPoints;
   vtkCellArray *newPolys;
-  float p1[3], p2[3], p3[3];
-  float tCoords[6];
+  double p1[3], p2[3], p3[3];
+  double tCoords[6];
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pointData = output->GetPointData(); 
@@ -111,7 +111,7 @@ void vtkTriangularTCoords::Execute()
     {
     if ( !(cellId % progressInterval) )
       {
-      this->UpdateProgress((float)cellId/numCells);
+      this->UpdateProgress((double)cellId/numCells);
       abort = this->GetAbortExecute();
       }
     
@@ -140,7 +140,7 @@ void vtkTriangularTCoords::Execute()
     {
     if ( !(cellId % progressInterval) )
       {
-      this->UpdateProgress((float)cellId/numCells);
+      this->UpdateProgress((double)cellId/numCells);
       abort = this->GetAbortExecute();
       }
 

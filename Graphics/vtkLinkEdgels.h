@@ -49,7 +49,7 @@
 
 class vtkCellArray;
 class vtkDataArray;
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkPoints;
 
 class VTK_GRAPHICS_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
@@ -65,31 +65,31 @@ public:
 
   // Description:
   // Set/Get the threshold for Phi vs. Alpha link thresholding.
-  vtkSetMacro(LinkThreshold,float);
-  vtkGetMacro(LinkThreshold,float);
+  vtkSetMacro(LinkThreshold,double);
+  vtkGetMacro(LinkThreshold,double);
 
   // Description:
   // Set/get the threshold for Phi vs. Phi link thresholding.
-  vtkSetMacro(PhiThreshold,float);
-  vtkGetMacro(PhiThreshold,float);
+  vtkSetMacro(PhiThreshold,double);
+  vtkGetMacro(PhiThreshold,double);
 
   // Description:
   // Set/Get the threshold for image gradient thresholding.
-  vtkSetMacro(GradientThreshold,float);
-  vtkGetMacro(GradientThreshold,float);
+  vtkSetMacro(GradientThreshold,double);
+  vtkGetMacro(GradientThreshold,double);
 
 protected:
   vtkLinkEdgels();
   ~vtkLinkEdgels() {};
 
   void Execute();
-  void LinkEdgels(int xdim, int ydim,float *image, vtkDataArray *inVectors,
+  void LinkEdgels(int xdim, int ydim,double *image, vtkDataArray *inVectors,
                   vtkCellArray *newLines, vtkPoints *newPts,
-                  vtkFloatArray *outScalars, vtkFloatArray *outVectors,
+                  vtkDoubleArray *outScalars, vtkDoubleArray *outVectors,
                   int z);
-  float GradientThreshold;
-  float PhiThreshold;
-  float LinkThreshold;
+  double GradientThreshold;
+  double PhiThreshold;
+  double LinkThreshold;
 private:
   vtkLinkEdgels(const vtkLinkEdgels&);  // Not implemented.
   void operator=(const vtkLinkEdgels&);  // Not implemented.

@@ -59,7 +59,7 @@ class vtkEdgeTable;
 class vtkIdList;
 class vtkPointData;
 class vtkPriorityQueue;
-class vtkFloatArray;
+class vtkDoubleArray;
 
 class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
 {
@@ -72,8 +72,8 @@ public:
   // Set/Get the desired reduction (expressed as a fraction of the original
   // number of triangles). The actual reduction may be less depending on
   // triangulation and topological constraints.
-  vtkSetClampMacro(TargetReduction, float, 0.0, 1.0);
-  vtkGetMacro(TargetReduction, float);
+  vtkSetClampMacro(TargetReduction, double, 0.0, 1.0);
+  vtkGetMacro(TargetReduction, double);
 
   // Description:
   // Decide whether to include data attributes in the error metric. If off,
@@ -108,21 +108,21 @@ public:
   // Set/Get the scaling weight contribution of the attribute. These
   // values are used to weight the contribution of the attributes
   // towards the error metric.
-  vtkSetMacro(ScalarsWeight, float);
-  vtkSetMacro(VectorsWeight, float);
-  vtkSetMacro(NormalsWeight, float);
-  vtkSetMacro(TCoordsWeight, float);
-  vtkSetMacro(TensorsWeight, float);
-  vtkGetMacro(ScalarsWeight, float);
-  vtkGetMacro(VectorsWeight, float);
-  vtkGetMacro(NormalsWeight, float);
-  vtkGetMacro(TCoordsWeight, float);
-  vtkGetMacro(TensorsWeight, float);
+  vtkSetMacro(ScalarsWeight, double);
+  vtkSetMacro(VectorsWeight, double);
+  vtkSetMacro(NormalsWeight, double);
+  vtkSetMacro(TCoordsWeight, double);
+  vtkSetMacro(TensorsWeight, double);
+  vtkGetMacro(ScalarsWeight, double);
+  vtkGetMacro(VectorsWeight, double);
+  vtkGetMacro(NormalsWeight, double);
+  vtkGetMacro(TCoordsWeight, double);
+  vtkGetMacro(TensorsWeight, double);
   
   // Description:
   // Get the actual reduction. This value is only valid after the
   // filter has executed.
-  vtkGetMacro(ActualReduction, float);
+  vtkGetMacro(ActualReduction, double);
 
 protected:
   vtkQuadricDecimation();
@@ -169,8 +169,8 @@ protected:
   vtkIdType GetEdgeCellId(vtkIdType p1Id, vtkIdType p2Id);
 
   int IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double *x);
-  int TrianglePlaneCheck(const float t0[3], const float t1[3], 
-                         const float t2[3],  const double *x);
+  int TrianglePlaneCheck(const double t0[3], const double t1[3], 
+                         const double t2[3],  const double *x);
   void ComputeNumberOfComponents(void);
   void UpdateEdgeData(vtkIdType ptoId, vtkIdType pt1Id);
   
@@ -184,8 +184,8 @@ protected:
   // poly data.
   void GetAttributeComponents();
   
-  float TargetReduction;
-  float ActualReduction;
+  double TargetReduction;
+  double ActualReduction;
   int   AttributeErrorMetric;
   
   int ScalarsAttribute;
@@ -194,18 +194,18 @@ protected:
   int TCoordsAttribute;
   int TensorsAttribute;
 
-  float ScalarsWeight;
-  float VectorsWeight;
-  float NormalsWeight;
-  float TCoordsWeight;
-  float TensorsWeight;
+  double ScalarsWeight;
+  double VectorsWeight;
+  double NormalsWeight;
+  double TCoordsWeight;
+  double TensorsWeight;
 
   int               NumberOfEdgeCollapses;
   vtkEdgeTable     *Edges;
   vtkIdList        *EndPoint1List;
   vtkIdList        *EndPoint2List;
   vtkPriorityQueue *EdgeCosts;
-  vtkFloatArray    *TargetPoints;
+  vtkDoubleArray   *TargetPoints;
   int               NumberOfComponents;
   vtkPolyData      *Mesh;
 

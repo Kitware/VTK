@@ -86,20 +86,20 @@ public:
 
   // Description:
   // Set/Get extrusion scale factor,
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Set/Get extrusion vector. Only needs to be set if VectorExtrusion is
   // turned on.
-  vtkSetVector3Macro(Vector,float);
-  vtkGetVectorMacro(Vector,float,3);
+  vtkSetVector3Macro(Vector,double);
+  vtkGetVectorMacro(Vector,double,3);
 
   // Description:
   // Set/Get extrusion point. Only needs to be set if PointExtrusion is
   // turned on. This is the point towards which extrusion occurs.
-  vtkSetVector3Macro(ExtrusionPoint,float);
-  vtkGetVectorMacro(ExtrusionPoint,float,3);
+  vtkSetVector3Macro(ExtrusionPoint,double);
+  vtkGetVectorMacro(ExtrusionPoint,double,3);
 
 protected:
   vtkLinearExtrusionFilter();
@@ -108,16 +108,16 @@ protected:
   void Execute();
   int ExtrusionType;
   int Capping;
-  float ScaleFactor;
-  float Vector[3];
-  float ExtrusionPoint[3];
+  double ScaleFactor;
+  double Vector[3];
+  double ExtrusionPoint[3];
 
   //BTX
-  float *(vtkLinearExtrusionFilter::*ExtrudePoint)(float x[3], vtkIdType id, 
+  double *(vtkLinearExtrusionFilter::*ExtrudePoint)(double x[3], vtkIdType id, 
                                                    vtkDataArray *normals);
-  float *ViaNormal(float x[3], vtkIdType id, vtkDataArray *normals);
-  float *ViaVector(float x[3], vtkIdType id, vtkDataArray *normals=0);
-  float *ViaPoint(float x[3], vtkIdType id, vtkDataArray *normals=0);
+  double *ViaNormal(double x[3], vtkIdType id, vtkDataArray *normals);
+  double *ViaVector(double x[3], vtkIdType id, vtkDataArray *normals=0);
+  double *ViaPoint(double x[3], vtkIdType id, vtkDataArray *normals=0);
   //ETX
  
 private:

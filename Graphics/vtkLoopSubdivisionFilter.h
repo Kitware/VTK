@@ -66,9 +66,9 @@ protected:
                                   vtkPoints *outputPts,
                                   vtkPointData *outputPD);
   void GenerateEvenStencil (vtkIdType p1, vtkPolyData *polys,
-                            vtkIdList *stencilIds, float *weights);
+                            vtkIdList *stencilIds, double *weights);
   void GenerateOddStencil (vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                           vtkIdList *stencilIds, float *weights);
+                           vtkIdList *stencilIds, double *weights);
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 private:

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkDecimatePro.h"
 
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -26,12 +26,12 @@
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.75");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.76");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
 #define VTK_MAX_TRIS_PER_VERTEX VTK_CELL_SIZE
-#define VTK_RECYCLE_VERTEX VTK_LARGE_FLOAT
+#define VTK_RECYCLE_VERTEX VTK_DOUBLE_MAX
 
 #define VTK_SIMPLE_VERTEX 1
 #define VTK_BOUNDARY_VERTEX 2
@@ -48,16 +48,16 @@ vtkStandardNewMacro(vtkDecimatePro);
 #define VTK_STATE_SPLIT_ALL 2
 
 // Helper functions
-static float ComputeSimpleError(float x[3], float normal[3], float point[3]);
-static float ComputeEdgeError(float x[3], float x1[3], float x2[3]);
-static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3]);
+static double ComputeSimpleError(double x[3], double normal[3], double point[3]);
+static double ComputeEdgeError(double x[3], double x1[3], double x2[3]);
+static double ComputeSingleTriangleError(double x[3], double x1[3], double x2[3]);
 
 
 // Create object with specified reduction of 90% and feature angle of
 // 15 degrees. Edge splitting is on, defer splitting is on, and the
 // split angle is 75 degrees. Topology preservation is off, delete
 // boundary vertices is on, and the maximum error is set to
-// VTK_LARGE_FLOAT. The inflection point ratio is 10 and the vertex
+// VTK_DOUBLE_MAX. The inflection point ratio is 10 and the vertex
 // degree is 25. Error accumulation is turned off.
 vtkDecimatePro::vtkDecimatePro()
 {
@@ -68,12 +68,12 @@ vtkDecimatePro::vtkDecimatePro()
   this->EdgeLengths = vtkPriorityQueue::New();
   this->EdgeLengths->Allocate(VTK_MAX_TRIS_PER_VERTEX);
   
-  this->InflectionPoints = vtkFloatArray::New();
+  this->InflectionPoints = vtkDoubleArray::New();
   this->TargetReduction = 0.90;
   this->FeatureAngle = 15.0;
   this->PreserveTopology = 0;
-  this->MaximumError = VTK_LARGE_FLOAT;
-  this->AbsoluteError = VTK_LARGE_FLOAT;
+  this->MaximumError = VTK_DOUBLE_MAX;
+  this->AbsoluteError = VTK_DOUBLE_MAX;
   this->ErrorIsAbsolute = 0;
   this->AccumulateError = 0;
   this->SplitAngle = 75.0;
@@ -116,7 +116,7 @@ void vtkDecimatePro::Execute()
   vtkPoints *newPts;
   vtkCellArray *inPolys;
   vtkCellArray *newPolys;
-  float error, previousError=0.0, reduction;
+  double error, previousError=0.0, reduction;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   int type;
@@ -125,7 +125,7 @@ void vtkDecimatePro::Execute()
   vtkIdType pt1, pt2, cellId, fedges[2];
   vtkIdType *cells;
   vtkIdList *CollapseTris;
-  float max, *bounds;
+  double max, *bounds;
   if (!input)
     {
     vtkErrorMacro(<<"No input!");
@@ -158,13 +158,13 @@ void vtkDecimatePro::Execute()
     }
   if (!this->ErrorIsAbsolute)
     {
-    this->Error = (this->MaximumError >= VTK_LARGE_FLOAT ?
-                   VTK_LARGE_FLOAT : this->MaximumError * max);
+    this->Error = (this->MaximumError >= VTK_DOUBLE_MAX ?
+                   VTK_DOUBLE_MAX : this->MaximumError * max);
     }
   else
     {
-    this->Error = (this->AbsoluteError >= VTK_LARGE_FLOAT ?
-                   VTK_LARGE_FLOAT : this->AbsoluteError);
+    this->Error = (this->AbsoluteError >= VTK_DOUBLE_MAX ?
+                   VTK_DOUBLE_MAX : this->AbsoluteError);
     }
   this->Tolerance = VTK_TOLERANCE * input->GetLength();
   this->CosAngle = 
@@ -231,7 +231,7 @@ void vtkDecimatePro::Execute()
   
   if ( this->AccumulateError )
     {
-    this->VertexError = vtkFloatArray::New();
+    this->VertexError = vtkDoubleArray::New();
     this->VertexError->Allocate(numPts,((vtkIdType)0.25*numPts));
     for (i=0; i<numPts; i++)
       {
@@ -316,7 +316,7 @@ void vtkDecimatePro::Execute()
         totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2,
                                               CollapseTris);
         
-        reduction = (float) totalEliminated / numTris;
+        reduction = (double) totalEliminated / numTris;
         this->NumberOfRemainingTris = numTris - totalEliminated;
         
         //see whether we've found inflection
@@ -418,10 +418,10 @@ void vtkDecimatePro::Execute()
 //
 // Computes error to edge (distance squared)
 //
-static float ComputeEdgeError(float x[3], float x1[3], float x2[3])
+static double ComputeEdgeError(double x[3], double x1[3], double x2[3])
 {
-  float projDist = vtkLine::DistanceToLine(x, x1, x2);
-  float edgeLength = vtkMath::Distance2BetweenPoints(x1,x2);
+  double projDist = vtkLine::DistanceToLine(x, x1, x2);
+  double edgeLength = vtkMath::Distance2BetweenPoints(x1,x2);
 
   return (projDist < edgeLength ? projDist : edgeLength);
 }
@@ -429,7 +429,7 @@ static float ComputeEdgeError(float x[3], float x1[3], float x2[3])
 //
 // Computes triangle area
 //
-static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3])
+static double ComputeSingleTriangleError(double x[3], double x1[3], double x2[3])
 {
   return vtkTriangle::TriangleArea(x, x1, x2);
 }
@@ -438,9 +438,9 @@ static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3])
 // Computes error to a cycle of triangles...the average plane (normal and
 // point) have been already computed. (Returns distance squared.)
 //
-static float ComputeSimpleError(float x[3], float normal[3], float point[3])
+static double ComputeSimpleError(double x[3], double normal[3], double point[3])
 {
-  float dist = vtkPlane::DistanceToPlane(x, normal, point);
+  double dist = vtkPlane::DistanceToPlane(x, normal, point);
   return dist * dist;
 }
 
@@ -486,8 +486,8 @@ int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
   vtkIdType startVertex, nextVertex, numNormals;
   int i, j, vtype;
   vtkIdType *verts;
-  float *x1, *x2, *normal;
-  float v1[3], v2[3], center[3];
+  double *x1, *x2, *normal;
+  double v1[3], v2[3], center[3];
   //
   //  The first step is to evaluate topology.
   //
@@ -840,7 +840,7 @@ void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
   vtkIdType tri, veryFirst;
   int numSplitTris;
   vtkIdType *verts, nverts;
-  float error;
+  double error;
   vtkIdType startTri, p[2];
   int maxGroupSize;
   vtkPointData* meshPD = this->Mesh->GetPointData();
@@ -1087,7 +1087,7 @@ vtkIdType vtkDecimatePro::FindSplit (int type, vtkIdType fedges[2],
                                      vtkIdList *CollapseTris)
 {
   vtkIdType i, maxI;
-  float dist2, e2dist2;
+  double dist2, e2dist2;
   vtkIdType numVerts=this->V->MaxId+1;
 
   pt2 = -1;
@@ -1248,7 +1248,7 @@ int vtkDecimatePro::IsValidSplit(int index)
   vtkIdType fedges[2];
   int i, sign;
   vtkIdType nverts=this->V->MaxId+1, j;
-  float *x, val, sPt[3], v21[3], sN[3];
+  double *x, val, sPt[3], v21[3], sN[3];
   vtkIdType l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   vtkIdType n1, n2;
 
@@ -1280,7 +1280,7 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l1[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( ((float) fabs((double)val)) < this->Tolerance )
+        if ( ((double) fabs((double)val)) < this->Tolerance )
           {
           return 0;
           }
@@ -1303,7 +1303,7 @@ int vtkDecimatePro::IsValidSplit(int index)
         {
         x = this->V->Array[l2[i]].x;
         val = vtkPlane::Evaluate(sN,sPt,x);
-        if ( ((float) fabs((double)val)) < this->Tolerance )
+        if ( ((double) fabs((double)val)) < this->Tolerance )
           {
           return 0;
           }
@@ -1434,11 +1434,11 @@ int vtkDecimatePro::CollapseEdge(int type, vtkIdType ptId,
   return numDeleted;
 }
 
-// Get a list of inflection points. These are float values 0 < r <= 1.0 
+// Get a list of inflection points. These are double values 0 < r <= 1.0 
 // corresponding to reduction level, and there are a total of
 // NumberOfInflectionPoints() values. You must provide an array (of
 // the correct size) into which the inflection points are written.
-void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
+void vtkDecimatePro::GetInflectionPoints(double *inflectionPoints)
 {
   vtkIdType i;
 
@@ -1448,12 +1448,12 @@ void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
     }
 }
 
-// Get a list of inflection points. These are float values 0 < r <= 1.0 
+// Get a list of inflection points. These are double values 0 < r <= 1.0 
 // corresponding to reduction level, and there are a total of
 // NumberOfInflectionPoints() values. You must provide an array (of
 // the correct size) into which the inflection points are written.
 // This method returns a pointer to a list of inflection points.
-float *vtkDecimatePro::GetInflectionPoints()
+double *vtkDecimatePro::GetInflectionPoints()
 {
   return this->InflectionPoints->GetPointer(0);
 }
@@ -1474,14 +1474,14 @@ void vtkDecimatePro::InitializeQueue(vtkIdType numPts)
 {
   if ( !this->PreserveTopology && this->Splitting ) 
     {
-    numPts = (vtkIdType) ((float)numPts*1.25);
+    numPts = (vtkIdType) ((double)numPts*1.25);
     }
 
   this->Queue = vtkPriorityQueue::New();
-  this->Queue->Allocate(numPts, (vtkIdType)((float)0.25*numPts));
+  this->Queue->Allocate(numPts, (vtkIdType)((double)0.25*numPts));
 }
 
-int vtkDecimatePro::Pop(float &error)
+int vtkDecimatePro::Pop(double &error)
 {
   vtkIdType ptId;
 
@@ -1558,7 +1558,7 @@ int vtkDecimatePro::Pop(float &error)
 }
 
 // Computes error and inserts point into priority queue.
-void vtkDecimatePro::Insert(vtkIdType ptId, float error)
+void vtkDecimatePro::Insert(vtkIdType ptId, double error)
 {
   int type, simpleType;
   vtkIdType *cells;
@@ -1648,11 +1648,11 @@ void vtkDecimatePro::Insert(vtkIdType ptId, float error)
 }
 
 // Compute the error of the point to the new triangulated surface
-void vtkDecimatePro::DistributeError(float error)
+void vtkDecimatePro::DistributeError(double error)
 {
   vtkIdType i;
   vtkIdType nverts=this->V->MaxId+1;
-  float previousError;
+  double previousError;
 
   for (i=0; i < nverts; i++)
     {
@@ -1669,7 +1669,7 @@ void vtkDecimatePro::DeleteQueue()
   this->Queue=NULL;
 }
 
-float vtkDecimatePro::DeleteId(vtkIdType id) 
+double vtkDecimatePro::DeleteId(vtkIdType id) 
 {
   return this->Queue->DeleteId(id);
 }

@@ -20,7 +20,7 @@
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHull, "1.34");
+vtkCxxRevisionMacro(vtkHull, "1.35");
 vtkStandardNewMacro(vtkHull);
 
 // Construct an the hull object with no planes
@@ -58,7 +58,7 @@ void vtkHull::RemoveAllPlanes()
 // Add a plane. The vector (A,B,C) is the plane normal and is from the
 // plane equation Ax + By + Cz + D = 0. The normal should point outwards
 // away from the center of the hull.
-int vtkHull::AddPlane( float A, float B, float C )
+int vtkHull::AddPlane( double A, double B, double C )
 {
   double     *tmpPointer;
   int       i;
@@ -146,9 +146,9 @@ int vtkHull::AddPlane( float A, float B, float C )
   return i;
 }
 
-// Add a plane, passing the plane normal vector as a float array instead
-// of three floats.
-int vtkHull::AddPlane( float plane[3] )
+// Add a plane, passing the plane normal vector as a double array instead
+// of three doubles.
+int vtkHull::AddPlane( double plane[3] )
 {
   return this->AddPlane( plane[0], plane[1], plane[2] );
 }
@@ -156,7 +156,7 @@ int vtkHull::AddPlane( float plane[3] )
 // Set a specific plane - this plane should already have been added with
 // AddPlane, and the return value then used to modifiy the plane normal
 // with this method.
-void vtkHull::SetPlane( int i, float A, float B, float C )
+void vtkHull::SetPlane( int i, double A, double B, double C )
 {
   double norm;
 
@@ -189,13 +189,13 @@ void vtkHull::SetPlane( int i, float A, float B, float C )
 }
 
 // Set a specific plane (that has already been added) - passing the plane
-// normal as a float array
-void vtkHull::SetPlane( int i, float plane[3] )
+// normal as a double array
+void vtkHull::SetPlane( int i, double plane[3] )
 {
   this->SetPlane( i, plane[0], plane[1], plane[2] );
 }
 
-int vtkHull::AddPlane( float A, float B, float C, float D )
+int vtkHull::AddPlane( double A, double B, double C, double D )
 {
   int i, j;
 
@@ -212,7 +212,7 @@ int vtkHull::AddPlane( float A, float B, float C, float D )
   return i;
 }
 
-int vtkHull::AddPlane( float plane[3], float D )
+int vtkHull::AddPlane( double plane[3], double D )
 {
   int i, j;
 
@@ -229,7 +229,7 @@ int vtkHull::AddPlane( float plane[3], float D )
   return i;
 }
 
-void vtkHull::SetPlane( int i, float A, float B, float C, float D )
+void vtkHull::SetPlane( int i, double A, double B, double C, double D )
 {
   if ( i >= 0 && i < this->NumberOfPlanes )
     {
@@ -244,7 +244,7 @@ void vtkHull::SetPlane( int i, float A, float B, float C, float D )
     }
 }
 
-void vtkHull::SetPlane( int i, float plane[3], float D )
+void vtkHull::SetPlane( int i, double plane[3], double D )
 {
   this->SetPlane(i, plane[0], plane[1], plane[2], D);
 }
@@ -263,7 +263,7 @@ void  vtkHull::SetPlanes( vtkPlanes *planes )
       {
       for (i=0; i<planes->GetNumberOfPlanes(); i++)
         {
-        float point[3];
+        double point[3];
         points->GetPoint(i, point);
         if ( (idx=this->AddPlane(normals->GetTuple(i))) >= 0)
           { 
@@ -343,13 +343,13 @@ void vtkHull::AddCubeVertexPlanes()
 void vtkHull::AddRecursiveSpherePlanes( int level )
 {
   int   numTriangles;
-  float *points;
+  double *points;
   int   *triangles;
   int   *validPoint;
   int   triCount, pointCount;
   int   i, j, k, loop, limit;
-  float midpoint[3][3];
-  float midindex[3];
+  double midpoint[3][3];
+  double midindex[3];
   int   A, B, C;
   
   if ( level < 0 ) 
@@ -369,7 +369,7 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
   // Create room for the triangles and points
   // We will also need to keep track of which points are
   // duplicates so keep a validPoint array for this
-  points = new float[3*numTriangles];
+  points = new double[3*numTriangles];
   triangles = new int[3*numTriangles];
   validPoint = new int[3*numTriangles];
 
@@ -481,7 +481,7 @@ void vtkHull::Execute()
   vtkIdType      numPoints;
   vtkPoints      *outPoints;
   vtkCellArray   *outPolys;
-  float          *bounds      = input->GetBounds();
+  double          *bounds      = input->GetBounds();
 
   // Get the number of points in the input data
   numPoints = input->GetNumberOfPoints();
@@ -535,7 +535,7 @@ void vtkHull::ComputePlaneDistances()
   vtkPolyData    *input       = this->GetInput();
   vtkIdType      i;
   int            j;
-  float          coord[3];
+  double          coord[3];
   double         v;
 
   // Initialize all planes to the first vertex value
@@ -569,7 +569,7 @@ void vtkHull::ComputePlaneDistances()
 // other planes to clip this polygon.
 void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
                                       vtkCellArray *outPolys,
-                                      float *bounds)
+                                      double *bounds)
 {
   int            i, j, k, q;
   double         previousD, d, crosspoint;
@@ -683,7 +683,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
   delete [] pnts;
 }
 
-void vtkHull::CreateInitialPolygon( double *verts, int i, float *bounds)
+void vtkHull::CreateInitialPolygon( double *verts, int i, double *bounds)
 {
   double         center[3], d, planeCenter[3];
   double         v1[3], v2[3], norm, dotProduct;
@@ -771,10 +771,10 @@ void vtkHull::CreateInitialPolygon( double *verts, int i, float *bounds)
 
 }
 
-void vtkHull::GenerateHull(vtkPolyData *pd, float xmin, float xmax,
-                           float ymin, float ymax, float zmin, float zmax)
+void vtkHull::GenerateHull(vtkPolyData *pd, double xmin, double xmax,
+                           double ymin, double ymax, double zmin, double zmax)
 {
-  float bounds[6];
+  double bounds[6];
   bounds[0] = xmin; bounds[1] = xmax;
   bounds[2] = ymin; bounds[3] = ymax;
   bounds[4] = zmin; bounds[5] = zmax;
@@ -782,7 +782,7 @@ void vtkHull::GenerateHull(vtkPolyData *pd, float xmin, float xmax,
   this->GenerateHull(pd, bounds);
 }
 
-void vtkHull::GenerateHull(vtkPolyData *pd, float *bounds)
+void vtkHull::GenerateHull(vtkPolyData *pd, double *bounds)
 {
   vtkPoints      *newPoints;
   vtkCellArray   *newPolys;

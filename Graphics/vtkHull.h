@@ -66,8 +66,8 @@ public:
   // with a previously inserted plane, and |-i-1| is the index of the
   // plane that was previously inserted. If a value i < -NumberOfPlanes
   // is returned, then the plane normal is zero length.
-  int  AddPlane( float A, float B, float C );
-  int  AddPlane( float plane[3] );
+  int  AddPlane( double A, double B, double C );
+  int  AddPlane( double plane[3] );
 
   // Description:
   // Set the normal values for plane i. This is a plane that was already
@@ -76,16 +76,16 @@ public:
   // Ax + By + Cz + D = 0. This vector does not have to have unit length.
   // Note that D is set to zero, except in the case of the method taking
   // a vtkPlanes* argument, where it is set to the D value defined there.
-  void SetPlane( int i, float A, float B, float C );
-  void SetPlane( int i, float plane[3] );
+  void SetPlane( int i, double A, double B, double C );
+  void SetPlane( int i, double plane[3] );
 
   // Description:
   // Variations of AddPlane()/SetPlane() that allow D to be set. These 
   // methods are used when GenerateHull() is used.
-  int AddPlane( float A, float B, float C, float D );
-  int AddPlane( float plane[3], float D );
-  void SetPlane( int i, float A, float B, float C, float D );
-  void SetPlane( int i, float plane[3], float D );
+  int AddPlane( double A, double B, double C, double D );
+  int AddPlane( double plane[3], double D );
+  void SetPlane( int i, double A, double B, double C, double D );
+  void SetPlane( int i, double plane[3], double D );
 
   // Description:
   // Set all the planes at once using a vtkPlanes implicit function.
@@ -134,9 +134,9 @@ public:
   // where you expect the resulting polyhedron to lie. This can be
   // a very generous fit, it's only used to create the initial polygons
   // that are eventually clipped.
-  void GenerateHull(vtkPolyData *pd, float *bounds);
-  void GenerateHull(vtkPolyData *pd, float xmin, float xmax,
-                    float ymin, float ymax, float zmin, float zmax);
+  void GenerateHull(vtkPolyData *pd, double *bounds);
+  void GenerateHull(vtkPolyData *pd, double xmin, double xmax,
+                    double ymin, double ymax, double zmin, double zmax);
 
 protected:
   vtkHull();
@@ -145,7 +145,7 @@ protected:
   // The planes - 4 doubles per plane for A, B, C, D
   double     *Planes;
 
-  // This indicates the current size (in planes - 4*sizeof(float)) of 
+  // This indicates the current size (in planes - 4*sizeof(double)) of 
   // the this->Planes array. Planes are allocated in chunks so that the
   // array does not need to be reallocated every time a new plane is added
   int       PlanesStorageSize;
@@ -159,12 +159,12 @@ protected:
   // Internal method used to create the actual polygons from the set 
   // of planes
   void      ClipPolygonsFromPlanes( vtkPoints *points, vtkCellArray *polys,
-                                    float *bounds );
+                                    double *bounds );
 
   // Internal method used to create the initial "big" polygon from the
   // plane equation. This polygon is clipped by all other planes to form
   // the final polygon (or it may be clipped entirely)
-  void      CreateInitialPolygon( double *, int, float * );
+  void      CreateInitialPolygon( double *, int, double * );
 
   // The method that does it all...
   void      Execute();

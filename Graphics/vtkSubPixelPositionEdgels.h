@@ -57,8 +57,8 @@ public:
   vtkSetMacro(TargetFlag, int);
   vtkGetMacro(TargetFlag, int);
   vtkBooleanMacro(TargetFlag, int);
-  vtkSetMacro(TargetValue, float);
-  vtkGetMacro(TargetValue, float);
+  vtkSetMacro(TargetValue, double);
+  vtkGetMacro(TargetValue, double);
   
 protected:
   vtkSubPixelPositionEdgels();
@@ -68,10 +68,13 @@ protected:
   void Execute();
   void Move(int xdim, int ydim, int zdim, int x, int y,
             float *img, vtkDataArray *inVecs, 
-            float *result, int z, float *aspect, float *resultNormal);
+            double *result, int z, double *aspect, double *resultNormal);
+  void Move(int xdim, int ydim, int zdim, int x, int y,
+            double *img, vtkDataArray *inVecs, 
+            double *result, int z, double *aspect, double *resultNormal);
   // extension for target instead of maximum
   int TargetFlag;
-  float TargetValue;
+  double TargetValue;
 private:
   vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&);  // Not implemented.
   void operator=(const vtkSubPixelPositionEdgels&);  // Not implemented.

@@ -20,19 +20,19 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.27");
+vtkCxxRevisionMacro(vtkWarpLens, "1.28");
 vtkStandardNewMacro(vtkWarpLens);
 
 //
 // Preserve old Kappa instance variable. It appears to be the
 // second order symmetric radial lens distortion parameter
 //
-void vtkWarpLens::SetKappa(float kappa)
+void vtkWarpLens::SetKappa(double kappa)
 {
   this->SetK1(kappa);
 }
 
-float vtkWarpLens::GetKappa()
+double vtkWarpLens::GetKappa()
 {
   return this->GetK1();
 }
@@ -41,12 +41,12 @@ float vtkWarpLens::GetKappa()
 // Preserve old Center point instance variable.
 // It appears to be the center of radial distortion in pixel coordinates
 //
-void vtkWarpLens::SetCenter(float centerX, float centerY)
+void vtkWarpLens::SetCenter(double centerX, double centerY)
 {
   this->SetPrincipalPoint(centerX, centerY);
 }
 
-float *vtkWarpLens::GetCenter()
+double *vtkWarpLens::GetCenter()
 {
   return this->GetPrincipalPoint();
 }
@@ -70,14 +70,14 @@ void vtkWarpLens::Execute()
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkIdType ptId, numPts;
-  float pixel[3], newPixel[3];
+  double pixel[3], newPixel[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
-  float x;
-  float y;
-  float newX;
-  float newY;
-  float rSquared;
+  double x;
+  double y;
+  double newX;
+  double newY;
+  double rSquared;
   
   vtkDebugMacro(<<"Warping data to a point");
 

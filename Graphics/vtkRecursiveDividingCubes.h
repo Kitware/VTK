@@ -38,7 +38,8 @@
 
 class vtkVoxel;
 
-class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRecursiveDividingCubes : 
+  public vtkStructuredPointsToPolyDataFilter
 {
 public:
   static vtkRecursiveDividingCubes *New();
@@ -47,13 +48,13 @@ public:
 
   // Description:
   // Set isosurface value.
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
 
   // Description:
   // Specify sub-voxel size at which to generate point.
-  vtkSetClampMacro(Distance,float,1.0e-06,VTK_LARGE_FLOAT);
-  vtkGetMacro(Distance,float);
+  vtkSetClampMacro(Distance,double,1.0e-06,VTK_DOUBLE_MAX);
+  vtkGetMacro(Distance,double);
 
   // Description:
   // Every "Increment" point is added to the list of points. This parameter, if
@@ -67,10 +68,10 @@ protected:
   ~vtkRecursiveDividingCubes();
 
   void Execute();
-  void SubDivide(float origin[3], float h[3], float values[8]);
+  void SubDivide(double origin[3], double h[3], double values[8]);
 
-  float Value;
-  float Distance;
+  double Value;
+  double Distance;
   int Increment;
 
   // working variable
@@ -79,7 +80,8 @@ protected:
   // to replace a static
   vtkVoxel *Voxel;
 private:
-  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&);  // Not implemented.
+  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&);  
+  // Not implemented.
   void operator=(const vtkRecursiveDividingCubes&);  // Not implemented.
 };
 

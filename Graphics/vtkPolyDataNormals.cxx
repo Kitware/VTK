@@ -25,7 +25,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.62");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.63");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -55,8 +55,8 @@ void vtkPolyDataNormals::Execute()
   vtkIdType i;
   vtkIdType *pts = 0;
   vtkIdType numNewPts;
-  float polyNormal[3], vertNormal[3], length;
-  float flipDirection=1.0;
+  double polyNormal[3], vertNormal[3], length;
+  double flipDirection=1.0;
   vtkIdType numPolys, numStrips;
   vtkIdType cellId;
   vtkIdType numPts;
@@ -66,7 +66,7 @@ void vtkPolyDataNormals::Execute()
   vtkFloatArray *newNormals;
   vtkPointData *pd, *outPD;
   vtkCellData *outCD;
-  float n[3];
+  double n[3];
   vtkCellArray *newPolys;
   vtkIdType ptId, oldId;
   vtkPolyData *input = this->GetInput();
@@ -313,7 +313,7 @@ void vtkPolyDataNormals::Execute()
     {
     if ((cellId % 1000) == 0)
       {
-      this->UpdateProgress (0.333 + 0.333 * (float) cellId / (float) numPolys);
+      this->UpdateProgress (0.333 + 0.333 * (double) cellId / (double) numPolys);
       if (this->GetAbortExecute())
         {
         break; 
@@ -579,7 +579,7 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
   vtkIdType *pts;
   int numRegions = 0;
   vtkIdType spot, neiPt[2], nei, cellId, neiCellId;
-  float thisNormal[3], neiNormal[3];
+  double thisNormal[3], neiNormal[3];
   for (j=0; j<ncells; j++) //for all cells connected to point
     {
     if ( this->Visited[cells[j]] < 0 ) //for all unvisited cells

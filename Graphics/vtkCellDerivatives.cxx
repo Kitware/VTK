@@ -17,7 +17,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.24");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.25");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()
@@ -42,8 +42,8 @@ void vtkCellDerivatives::Execute()
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkDataArray *inScalars=pd->GetScalars();
   vtkDataArray *inVectors=pd->GetVectors();
-  vtkFloatArray *outVectors=NULL;
-  vtkFloatArray *outTensors=NULL;
+  vtkDoubleArray *outVectors=NULL;
+  vtkDoubleArray *outTensors=NULL;
   vtkIdType numCells=input->GetNumberOfCells();
   int computeScalarDerivs=1, computeVectorDerivs=1, subId;
 
@@ -71,7 +71,7 @@ void vtkCellDerivatives::Execute()
       {
       computeScalarDerivs = 0;
       }
-    outVectors = vtkFloatArray::New();
+    outVectors = vtkDoubleArray::New();
     outVectors->SetNumberOfComponents(3);
     outVectors->SetNumberOfTuples(numCells);
     outVectors->SetName("Vorticity");
@@ -87,7 +87,7 @@ void vtkCellDerivatives::Execute()
     }
   else
     {
-    outTensors = vtkFloatArray::New();
+    outTensors = vtkDoubleArray::New();
     outTensors->SetNumberOfComponents(9);
     outTensors->SetNumberOfTuples(numCells);
     outTensors->SetName("Tensors");
@@ -99,14 +99,14 @@ void vtkCellDerivatives::Execute()
   // If just passing data forget the loop
   if ( computeScalarDerivs || computeVectorDerivs )
     {
-    float pcoords[3], derivs[9], w[3], *scalars, *vectors;
+    double pcoords[3], derivs[9], w[3], *scalars, *vectors;
     vtkGenericCell *cell = vtkGenericCell::New();
     vtkIdType cellId;
-    vtkFloatArray *cellScalars=vtkFloatArray::New();
+    vtkDoubleArray *cellScalars=vtkDoubleArray::New();
     cellScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     cellScalars->SetName("Scalars");
-    vtkFloatArray *cellVectors=vtkFloatArray::New(); 
+    vtkDoubleArray *cellVectors=vtkDoubleArray::New(); 
     cellVectors->SetNumberOfComponents(3);
     cellVectors->Allocate(3*VTK_CELL_SIZE);
     cellVectors->SetName("Vectors");
@@ -119,7 +119,7 @@ void vtkCellDerivatives::Execute()
       if ( ! (cellId % progressInterval) ) 
         {
         vtkDebugMacro(<<"Computing cell #" << cellId);
-        this->UpdateProgress ((float)cellId/numCells);
+        this->UpdateProgress ((double)cellId/numCells);
         }
 
       input->GetCell(cellId, cell);

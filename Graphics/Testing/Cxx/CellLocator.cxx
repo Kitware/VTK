@@ -59,25 +59,25 @@ int CellLocator( int argc, char *argv[] )
   cellLocator->BuildLocator();
 
   // Intersect with line
-  float p1[] = {2.0, 1.0, 3.0};
-  float p2[] = {0.0, 0.0, 0.0};
-  float t, ptline[3], pcoords[3];
+  double p1[] = {2.0, 1.0, 3.0};
+  double p2[] = {0.0, 0.0, 0.0};
+  double t, ptline[3], pcoords[3];
   int subId;
   cellLocator->IntersectWithLine(p1, p2, 0.001, t, ptline, pcoords, subId);
 
   vtkActor *intersectLineActor = vtkActor::New();
     intersectLineActor->SetMapper(spotMapper);
-    intersectLineActor->SetPosition(ptline);
+    intersectLineActor->SetPosition(ptline[0],ptline[1],ptline[2]);
     intersectLineActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
 
   // Find closest point
   vtkIdType cellId;
-  float dist;
+  double dist;
   p1[0] = -2.4; p1[1] = -0.9;
   cellLocator->FindClosestPoint(p1, ptline, cellId, subId, dist);
   vtkActor *closestPointActor = vtkActor::New();
     closestPointActor->SetMapper(spotMapper);
-    closestPointActor->SetPosition(ptline);
+    closestPointActor->SetPosition(ptline[0],ptline[1],ptline[2]);
     closestPointActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
 
   // Find closest point within radius
@@ -86,7 +86,7 @@ int CellLocator( int argc, char *argv[] )
   cellLocator->FindClosestPointWithinRadius(p1, radius, ptline, cellId, subId, dist);
   vtkActor *closestPointActor2 = vtkActor::New();
     closestPointActor2->SetMapper(spotMapper);
-    closestPointActor2->SetPosition(ptline);
+    closestPointActor2->SetPosition(ptline[0],ptline[1],ptline[2]);
     closestPointActor2->GetProperty()->SetColor(0.0, 1.0, 0.0);
   
   renderer->AddActor(sphereActor);

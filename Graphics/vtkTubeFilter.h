@@ -82,8 +82,8 @@ public:
 
   // Description:
   // Set the minimum tube radius (minimum because the tube radius may vary).
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Turn on/off the variation of tube radius with scalar value.
@@ -107,14 +107,14 @@ public:
 
   // Description:
   // Set the maximum tube radius in terms of a multiple of the minimum radius.
-  vtkSetMacro(RadiusFactor,float);
-  vtkGetMacro(RadiusFactor,float);
+  vtkSetMacro(RadiusFactor,double);
+  vtkGetMacro(RadiusFactor,double);
 
   // Description:
   // Set the default normal to use if no normals are supplied, and the
   // DefaultNormalOn is set.
-  vtkSetVector3Macro(DefaultNormal,float);
-  vtkGetVectorMacro(DefaultNormal,float,3);
+  vtkSetVector3Macro(DefaultNormal,double);
+  vtkGetVectorMacro(DefaultNormal,double,3);
 
   // Description:
   // Set a boolean to control whether to use default normals.
@@ -174,8 +174,8 @@ public:
   // calculation. The TextureLength indicates what length (whether 
   // calculated from scalars or length) is mapped to the [0,1)
   // texture space.
-  vtkSetClampMacro(TextureLength,float,0.000001,VTK_LARGE_INTEGER);
-  vtkGetMacro(TextureLength,float);
+  vtkSetClampMacro(TextureLength,double,0.000001,VTK_LARGE_INTEGER);
+  vtkGetMacro(TextureLength,double);
 
 protected:
   vtkTubeFilter();
@@ -184,18 +184,18 @@ protected:
   // Usual data generation method
   void Execute();
 
-  float Radius; //minimum radius of tube
+  double Radius; //minimum radius of tube
   int VaryRadius; //controls radius variation
   int NumberOfSides; //number of sides to create tube
-  float RadiusFactor; //maxium allowablew radius
-  float DefaultNormal[3];
+  double RadiusFactor; //maxium allowablew radius
+  double DefaultNormal[3];
   int UseDefaultNormal;
   int SidesShareVertices;
   int Capping; //control whether tubes are capped
   int OnRatio; //control the generation of the sides of the tube
   int Offset;  //control the generation of the sides
   int GenerateTCoords; //control texture coordinate generation
-  float TextureLength; //this length is mapped to [0,1) texture space
+  double TextureLength; //this length is mapped to [0,1) texture space
   
   // Helper methods
   int GeneratePoints(vtkIdType offset, vtkIdType npts, vtkIdType *pts,
@@ -213,7 +213,7 @@ protected:
   vtkIdType ComputeOffset(vtkIdType offset,vtkIdType npts);
   
   // Helper data members
-  float Theta;
+  double Theta;
 
 private:
   vtkTubeFilter(const vtkTubeFilter&);  // Not implemented.

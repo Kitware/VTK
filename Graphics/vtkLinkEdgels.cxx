@@ -15,14 +15,14 @@
 #include "vtkLinkEdgels.h"
 
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinkEdgels, "1.34");
+vtkCxxRevisionMacro(vtkLinkEdgels, "1.35");
 vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 
@@ -39,13 +39,13 @@ void vtkLinkEdgels::Execute()
   vtkPointData *pd;
   vtkPoints *newPts=0;
   vtkCellArray *newLines=0;
-  vtkFloatArray *inScalars;
-  vtkFloatArray *outScalars;
+  vtkDoubleArray *inScalars;
+  vtkDoubleArray *outScalars;
   vtkImageData *input = this->GetInput();
-  vtkFloatArray *outVectors;
+  vtkDoubleArray *outVectors;
   vtkPolyData *output = this->GetOutput();
   int *dimensions;
-  float *CurrMap, *inDataPtr;
+  double *CurrMap, *inDataPtr;
   vtkDataArray *inVectors;
   int ptId;
   
@@ -53,7 +53,7 @@ void vtkLinkEdgels::Execute()
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
-  inScalars = vtkFloatArray::SafeDownCast(pd->GetScalars());
+  inScalars = vtkDoubleArray::SafeDownCast(pd->GetScalars());
   inVectors = pd->GetVectors();
   if ((input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {
@@ -67,8 +67,8 @@ void vtkLinkEdgels::Execute()
   // Finally do edge following to extract the edge data from the Thin image
   newPts = vtkPoints::New();
   newLines = vtkCellArray::New();
-  outScalars = vtkFloatArray::New();
-  outVectors = vtkFloatArray::New();
+  outScalars = vtkDoubleArray::New();
+  outVectors = vtkDoubleArray::New();
   outVectors->SetNumberOfComponents(3);
 
   vtkDebugMacro("doing edge linking\n");
@@ -98,12 +98,12 @@ void vtkLinkEdgels::Execute()
 }
 
 // This method links the edges for one image. 
-void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image, 
+void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, double *image, 
                                vtkDataArray *inVectors,
                                vtkCellArray *newLines, 
                                vtkPoints *newPts,
-                               vtkFloatArray *outScalars, 
-                               vtkFloatArray *outVectors,
+                               vtkDoubleArray *outScalars, 
+                               vtkDoubleArray *outVectors,
                                int z)
 {
   int **forward;
@@ -111,11 +111,11 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
   int x,y,ypos,zpos;
   int currX, currY, i;
   int newX, newY;
-  float vec[3], vec1[3], vec2[3];
-  float linkThresh, phiThresh;
+  double vec[3], vec1[3], vec2[3];
+  double linkThresh, phiThresh;
   // these direction vectors are rotated 90 degrees
   // to convert gradient direction into edgel direction
-  static float directions[8][2] = {
+  static double directions[8][2] = {
     {0,1},  {-0.707, 0.707},
     {-1,0}, {-0.707, -0.707},
     {0,-1}, {0.707, -0.707},
@@ -124,7 +124,7 @@ void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image,
   static int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
   int length, start;
   int bestDirection = 0;
-  float error, bestError;
+  double error, bestError;
 
   forward  = new int *[ydim];
   backward = new int *[ydim];

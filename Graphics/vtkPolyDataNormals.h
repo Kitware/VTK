@@ -57,8 +57,8 @@ public:
   // Specify the angle that defines a sharp edge. If the difference in
   // angle across neighboring polygons is greater than this value, the
   // shared edge is considered "sharp".
-  vtkSetClampMacro(FeatureAngle,float,0.0,180.0);
-  vtkGetMacro(FeatureAngle,float);
+  vtkSetClampMacro(FeatureAngle,double,0.0,180.0);
+  vtkGetMacro(FeatureAngle,double);
 
   // Description:
   // Turn on/off the splitting of sharp edges.
@@ -122,7 +122,7 @@ protected:
   // Usual data generation method
   void Execute();
 
-  float FeatureAngle;
+  double FeatureAngle;
   int Splitting;
   int Consistency;
   int FlipNormals;
@@ -141,7 +141,7 @@ private:
   vtkPolyData *NewMesh;
   int *Visited;
   vtkFloatArray *PolyNormals;
-  float CosAngle;
+  double CosAngle;
 
   // Uses the list of cell ids (this->Wave) to propagate a wave of
   // checked and properly ordered polygons.

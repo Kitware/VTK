@@ -21,17 +21,17 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.14");
+vtkCxxRevisionMacro(vtkButterflySubdivisionFilter, "1.15");
 vtkStandardNewMacro(vtkButterflySubdivisionFilter);
 
-static float butterflyWeights[8] =
+static double butterflyWeights[8] =
   {.5, .5, .125, .125, -.0625, -.0625, -.0625, -.0625};
 
 void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts,
   vtkPointData *outputPD)
 {
-  float *weights, *weights1, *weights2;
+  double *weights, *weights1, *weights2;
   vtkIdType *pts = 0;
   vtkIdType cellId, newId, i, j;
   int edgeId;
@@ -49,9 +49,9 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkPoints *inputPts=inputDS->GetPoints();
   vtkPointData *inputPD=inputDS->GetPointData();
 
-  weights = new float[256];
-  weights1 = new float[256];
-  weights2 = new float[256];
+  weights = new double[256];
+  weights1 = new double[256];
+  weights2 = new double[256];
 
   // Create an edge table to keep track of which edges we've processed
   edgeTable = vtkEdgeTable::New();
@@ -161,7 +161,7 @@ void vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
 
 void vtkButterflySubdivisionFilter::GenerateLoopStencil(
   vtkIdType p1, vtkIdType p2, vtkPolyData *polys, vtkIdList *stencilIds,
-  float *weights)
+  double *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkCell *cell;
@@ -223,13 +223,13 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
     {
     for (j = 0; j < K; j++)
       {
-      weights[j] = (.25 +  cos (2.0 * VTK_PI * (float) shift[j] / (float) K)
-                   + .5 * cos (4.0 * VTK_PI * (float) shift[j] / (float) K)) / (float) K;
+      weights[j] = (.25 +  cos (2.0 * VTK_PI * (double) shift[j] / (double) K)
+                   + .5 * cos (4.0 * VTK_PI * (double) shift[j] / (double) K)) / (double) K;
       }
     }
   else if (K == 4)
     {
-    static float weights4[4] = {3.0/8.0, 0.0, -1.0/8.0, 0.0};
+    static double weights4[4] = {3.0/8.0, 0.0, -1.0/8.0, 0.0};
     weights[0] = weights4[abs(shift[0])];
     weights[1] = weights4[abs(shift[1])];
     weights[2] = weights4[abs(shift[2])];
@@ -237,7 +237,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
     }
   else if (K == 3)
     {
-    static float weights3[3] = {5.0/12.0, -1.0/12.0, -1.0/12.0};
+    static double weights3[3] = {5.0/12.0, -1.0/12.0, -1.0/12.0};
     weights[0] = weights3[abs(shift[0])];
     weights[1] = weights3[abs(shift[1])];
     weights[2] = weights3[abs(shift[2])];
@@ -268,7 +268,7 @@ void vtkButterflySubdivisionFilter::GenerateLoopStencil(
 
 void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
   vtkIdType p1, vtkIdType p2, vtkPolyData *polys, vtkIdList *stencilIds,
-  float *weights)
+  double *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkIdType *cells;
@@ -333,7 +333,7 @@ void vtkButterflySubdivisionFilter::GenerateBoundaryStencil(
 
 void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
   vtkIdType p1, vtkIdType p2, vtkPolyData *polys, vtkIdList *stencilIds,
-  float *weights)
+  double *weights)
 {
   vtkIdList *cellIds = vtkIdList::New();
   vtkCell *cell;

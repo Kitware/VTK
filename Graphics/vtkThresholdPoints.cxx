@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkThresholdPoints, "1.36");
+vtkCxxRevisionMacro(vtkThresholdPoints, "1.37");
 vtkStandardNewMacro(vtkThresholdPoints);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -36,7 +36,7 @@ vtkThresholdPoints::vtkThresholdPoints()
 }
 
 // Criterion is cells whose scalars are less than lower threshold.
-void vtkThresholdPoints::ThresholdByLower(float lower) 
+void vtkThresholdPoints::ThresholdByLower(double lower) 
 {
   if ( this->LowerThreshold != lower )
     {
@@ -47,7 +47,7 @@ void vtkThresholdPoints::ThresholdByLower(float lower)
 }
                            
 // Criterion is cells whose scalars are less than upper threshold.
-void vtkThresholdPoints::ThresholdByUpper(float upper)
+void vtkThresholdPoints::ThresholdByUpper(double upper)
 {
   if ( this->UpperThreshold != upper )
     {
@@ -58,7 +58,7 @@ void vtkThresholdPoints::ThresholdByUpper(float upper)
 }
                            
 // Criterion is cells whose scalars are between lower and upper thresholds.
-void vtkThresholdPoints::ThresholdBetween(float lower, float upper)
+void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
 {
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
     {
@@ -76,7 +76,7 @@ void vtkThresholdPoints::Execute()
   vtkPointData *pd, *outPD;
   vtkCellArray *verts;
   vtkIdType ptId, numPts, pts[1];
-  float x[3];
+  double x[3];
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
 
@@ -105,7 +105,7 @@ void vtkThresholdPoints::Execute()
     {
     if ( !(ptId % progressInterval) )
       {
-      this->UpdateProgress((float)ptId/numPts);
+      this->UpdateProgress((double)ptId/numPts);
       abort = this->GetAbortExecute();
       }
 

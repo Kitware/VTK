@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.78");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.79");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -60,15 +60,15 @@ vtkDataSet *vtkProbeFilter::GetSource()
 void vtkProbeFilter::Execute()
 {
   vtkIdType ptId, numPts;
-  float x[3], tol2;
+  double x[3], tol2;
   vtkCell *cell;
   vtkPointData *pd, *outPD;
   int subId;
   vtkDataSet *source = this->GetSource();
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output= this->GetOutput();
-  float pcoords[3], *weights;
-  float fastweights[256];
+  double pcoords[3], *weights;
+  double fastweights[256];
 
   vtkDebugMacro(<<"Probing data");
 
@@ -89,7 +89,7 @@ void vtkProbeFilter::Execute()
     }
   else
     {
-    weights = new float[mcs];
+    weights = new double[mcs];
     }
 
   // First, copy the input to the output as a starting point
@@ -116,7 +116,7 @@ void vtkProbeFilter::Execute()
     {
     if ( !(ptId % progressInterval) )
       {
-      this->UpdateProgress((float)ptId/numPts);
+      this->UpdateProgress((double)ptId/numPts);
       abort = GetAbortExecute();
       }
 

@@ -26,7 +26,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.109");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.110");
 vtkStandardNewMacro(vtkGlyph3D);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -80,7 +80,7 @@ void vtkGlyph3D::Execute()
   vtkDataArray *newScalars=NULL;
   vtkDataArray *newVectors=NULL;
   vtkDataArray *newNormals=NULL;
-  float x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value;
+  double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
@@ -88,7 +88,7 @@ void vtkGlyph3D::Execute()
   vtkIdList *pts;
   vtkIdType ptIncr, cellId;
   int haveVectors, haveNormals;
-  float scalex,scaley,scalez, den;
+  double scalex,scaley,scalez, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkDataSet *input = this->GetInput();
@@ -307,7 +307,7 @@ void vtkGlyph3D::Execute()
     scalex = scaley = scalez = 1.0;
     if ( ! (inPtId % 10000) )
       {
-      this->UpdateProgress ((float)inPtId/numPts);
+      this->UpdateProgress ((double)inPtId/numPts);
       if (this->GetAbortExecute())
         {
         break;
@@ -378,7 +378,7 @@ void vtkGlyph3D::Execute()
         value = vMag;
         }
       
-      index = (int) ((float)(value - this->Range[0]) * numberOfSources / den);
+      index = (int) ((double)(value - this->Range[0]) * numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
       
@@ -452,7 +452,7 @@ void vtkGlyph3D::Execute()
           vNew[0] = (v[0]+vMag) / 2.0;
           vNew[1] = v[1] / 2.0;
           vNew[2] = v[2] / 2.0;
-          trans->RotateWXYZ((float)180.0,vNew[0],vNew[1],vNew[2]);
+          trans->RotateWXYZ((double)180.0,vNew[0],vNew[1],vNew[2]);
           }
         }
       }

@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCleanPolyData, "1.73");
+vtkCxxRevisionMacro(vtkCleanPolyData, "1.74");
 vtkStandardNewMacro(vtkCleanPolyData);
 
 //---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ vtkCleanPolyData::~vtkCleanPolyData()
 }
 
 //--------------------------------------------------------------------------
-void vtkCleanPolyData::OperateOnPoint(float in[3], float out[3])
+void vtkCleanPolyData::OperateOnPoint(double in[3], double out[3])
 {
   out[0] = in[0];
   out[1] = in[1];
@@ -54,7 +54,7 @@ void vtkCleanPolyData::OperateOnPoint(float in[3], float out[3])
 }
 
 //--------------------------------------------------------------------------
-void vtkCleanPolyData::OperateOnBounds(float in[6], float out[6])
+void vtkCleanPolyData::OperateOnBounds(double in[6], double out[6])
 {
   out[0] = in[0];
   out[1] = in[1];
@@ -140,8 +140,8 @@ void vtkCleanPolyData::Execute()
   vtkIdType ptId;
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
-  float x[3];
-  float newx[3];
+  double x[3];
+  double newx[3];
   vtkIdType *pointMap=0; //used if no merging
 
   vtkCellArray *inVerts  = input->GetVerts(),  *newVerts  = NULL;
@@ -165,7 +165,7 @@ void vtkCleanPolyData::Execute()
       {
       this->Locator->SetTolerance(this->Tolerance*input->GetLength());
       }
-    float originalbounds[6], mappedbounds[6];
+    double originalbounds[6], mappedbounds[6];
     input->GetBounds(originalbounds);
     this->OperateOnBounds(originalbounds,mappedbounds);
     this->Locator->InitPointInsertion(newPts, mappedbounds);
@@ -595,7 +595,7 @@ void vtkCleanPolyData::SetLocator(vtkPointLocator *locator)
 // change of tolerance (zero to non-zero).
 void vtkCleanPolyData::CreateDefaultLocator() 
 {
-  float tol = 0.0;
+  double tol = 0.0;
   if (this->ToleranceIsAbsolute) 
     {
     tol = this->AbsoluteTolerance;

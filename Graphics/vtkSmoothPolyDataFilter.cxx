@@ -25,7 +25,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleFilter.h"
 
-vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.38");
+vtkCxxRevisionMacro(vtkSmoothPolyDataFilter, "1.39");
 vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 
 // The following code defines a helper class for performing mesh smoothing
@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkSmoothPolyDataFilter);
 typedef struct _vtkSmoothPoint {
     vtkIdType     cellId;  // cell
     int     subId;   // cell sub id
-    float   p[3];    // parametric coords in cell 
+    double   p[3];    // parametric coords in cell 
 } vtkSmoothPoint;
 
 class vtkSmoothPoints { //;prevent man page generation
@@ -161,11 +161,11 @@ void vtkSmoothPolyDataFilter::Execute()
   vtkIdType npts = 0;
   vtkIdType *pts = 0;
   vtkIdType p1, p2;
-  float x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
-  float x1[3], x2[3], x3[3], l1[3], l2[3];
-  float CosFeatureAngle; //Cosine of angle between adjacent polys
-  float CosEdgeAngle; // Cosine of angle between adjacent edges
-  float closestPt[3], dist2, *w = NULL;
+  double x[3], y[3], deltaX[3], xNew[3], conv, maxDist, dist, factor;
+  double x1[3], x2[3], x3[3], l1[3], l2[3];
+  double CosFeatureAngle; //Cosine of angle between adjacent polys
+  double CosEdgeAngle; // Cosine of angle between adjacent edges
+  double closestPt[3], dist2, *w = NULL;
   int iterationNumber, abortExecute;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
@@ -293,7 +293,7 @@ void vtkSmoothPolyDataFilter::Execute()
     int numNei, nei, edge;
     vtkIdType numNeiPts;
     vtkIdType *neiPts;
-    float normal[3], neiNormal[3];
+    double normal[3], neiNormal[3];
     vtkIdList *neighbors;
 
     neighbors = vtkIdList::New();
@@ -504,7 +504,7 @@ void vtkSmoothPolyDataFilter::Execute()
     this->SmoothPoints = new vtkSmoothPoints;
     vtkSmoothPoint *sPtr;
     cellLocator = vtkCellLocator::New();
-    w = new float[input->GetMaxCellSize()];
+    w = new double[input->GetMaxCellSize()];
     
     cellLocator->SetDataSet(this->GetSource());
     cellLocator->BuildLocator();
@@ -526,7 +526,7 @@ void vtkSmoothPolyDataFilter::Execute()
     }
 
   factor = this->RelaxationFactor;
-  for ( maxDist=VTK_LARGE_FLOAT, iterationNumber=0, abortExecute=0; 
+  for ( maxDist=VTK_DOUBLE_MAX, iterationNumber=0, abortExecute=0; 
   maxDist > conv && iterationNumber < this->NumberOfIterations && !abortExecute;
   iterationNumber++ )
     {

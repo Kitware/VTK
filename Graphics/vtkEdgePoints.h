@@ -43,8 +43,8 @@ public:
 
   // Description:
   // Set/get the contour value.
-  vtkSetMacro(Value,float);
-  vtkGetMacro(Value,float);
+  vtkSetMacro(Value,double);
+  vtkGetMacro(Value,double);
 
 protected:
   vtkEdgePoints();
@@ -52,7 +52,7 @@ protected:
 
   void Execute();
 
-  float Value;
+  double Value;
   vtkMergePoints *Locator;
 private:
   vtkEdgePoints(const vtkEdgePoints&);  // Not implemented.

@@ -64,11 +64,11 @@ private:
   void GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
                                  vtkPoints *outputPts, vtkPointData *outputPD);
   void GenerateButterflyStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                                vtkIdList *stencilIds, float *weights);
+                                vtkIdList *stencilIds, double *weights);
   void GenerateLoopStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                           vtkIdList *stencilIds, float *weights);
+                           vtkIdList *stencilIds, double *weights);
   void GenerateBoundaryStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
-                               vtkIdList *stencilIds, float *weights);
+                               vtkIdList *stencilIds, double *weights);
 
 private:
   vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&);  // Not implemented.

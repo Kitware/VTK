@@ -214,14 +214,14 @@ public:
   // Decription:
   // Specify the origin to use if generating a dataset whose origin
   // can be set (i.e., a vtkStructuredPoints dataset).
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVectorMacro(Origin,double,3);
   
   // Decription:
   // Specify the spacing to use if generating a dataset whose spacing 
   // can be set (i.e., a vtkStructuredPoints dataset).
-  vtkSetVector3Macro(Spacing,float);
-  vtkGetVectorMacro(Spacing,float,3);
+  vtkSetVector3Macro(Spacing,double);
+  vtkGetVectorMacro(Spacing,double,3);
   
   // Decription:
   // Alternative methods to specify the dimensions, spacing, and origin for those
@@ -297,8 +297,8 @@ protected:
 
   // Couple of different ways to specify dimensions, spacing, and origin.
   int Dimensions[3];
-  float Origin[3];
-  float Spacing[3];
+  double Origin[3];
+  double Spacing[3];
   
   char *DimensionsArray; //the name of the array
   int DimensionsArrayComponent; //the component of the array used for dimensions

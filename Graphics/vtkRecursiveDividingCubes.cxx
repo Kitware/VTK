@@ -15,7 +15,7 @@
 #include "vtkRecursiveDividingCubes.h"
 
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.38");
+vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.39");
 vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
@@ -40,11 +40,11 @@ vtkRecursiveDividingCubes::~vtkRecursiveDividingCubes()
   this->Voxel->Delete();
 }
 
-static float X[3]; //origin of current voxel
-static float Spacing[3]; //spacing of current voxel
-static float Normals[8][3]; //voxel normals
+static double X[3]; //origin of current voxel
+static double Spacing[3]; //spacing of current voxel
+static double Normals[8][3]; //voxel normals
 static vtkPoints *NewPts; //points being generated
-static vtkFloatArray *NewNormals; //points being generated
+static vtkDoubleArray *NewNormals; //points being generated
 static vtkCellArray *NewVerts; //verts being generated
 
 void vtkRecursiveDividingCubes::Execute()
@@ -53,12 +53,12 @@ void vtkRecursiveDividingCubes::Execute()
   vtkIdType idx;
   vtkDataArray *inScalars;
   vtkIdList *voxelPts;
-  float origin[3];
+  double origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
   vtkImageData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
-  vtkFloatArray *voxelScalars;
+  vtkDoubleArray *voxelScalars;
 
   vtkDebugMacro(<< "Executing recursive dividing cubes...");
   //
@@ -86,7 +86,7 @@ void vtkRecursiveDividingCubes::Execute()
   // creating points
   NewPts = vtkPoints::New();
   NewPts->Allocate(50000,100000);
-  NewNormals = vtkFloatArray::New();
+  NewNormals = vtkDoubleArray::New();
   NewNormals->SetNumberOfComponents(3);
   NewNormals->Allocate(50000,100000);
   NewVerts = vtkCellArray::New();
@@ -97,7 +97,7 @@ void vtkRecursiveDividingCubes::Execute()
   voxelPts->Allocate(8); 
   voxelPts->SetNumberOfIds(8);
 
-  voxelScalars = vtkFloatArray::New();
+  voxelScalars = vtkDoubleArray::New();
   voxelScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
   voxelScalars->Allocate(8*inScalars->GetNumberOfComponents());
   
@@ -195,11 +195,11 @@ static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},
 
 #define VTK_POINTS_PER_POLY_VERTEX 10000
 
-void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3], 
-                                          float values[8])
+void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3], 
+                                          double values[8])
 {
   int i;
-  float hNew[3];
+  double hNew[3];
 
   for (i=0; i<3; i++)
     {
@@ -210,8 +210,8 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
     {
     vtkIdType id;
-    float x[3], n[3];
-    float p[3], w[8];
+    double x[3], n[3];
+    double p[3], w[8];
 
     for (i=0; i <3; i++)
       {
@@ -249,9 +249,9 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
   else
     {
     int j, k, idx, above, below, ii;
-    float x[3];
-    float newValues[8];
-    float s[27], scalar;
+    double x[3];
+    double newValues[8];
+    double s[27], scalar;
 
     for (i=0; i<8; i++)
       {

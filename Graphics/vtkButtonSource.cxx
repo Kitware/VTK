@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkButtonSource, "1.9");
+vtkCxxRevisionMacro(vtkButtonSource, "1.10");
 vtkStandardNewMacro(vtkButtonSource);
 
 // Construct 
@@ -89,7 +89,7 @@ void vtkButtonSource::Execute()
   // Create the texture region.  --------------------------------------------
   // Start by determining the resolution in the width and height directions.
   // Setup the ellipsoid.
-  float x[3], x0[3], x1[3], x2[3], x3[3], n[3];
+  double x[3], x0[3], x1[3], x2[3], x3[3], n[3];
   this->A = this->Width / 2.0;
   this->A2 = this->A * this->A;
   this->B = this->Height / 2.0;
@@ -97,11 +97,11 @@ void vtkButtonSource::Execute()
   this->C = this->Depth;
   this->C2 = this->C*this->C;
   
-  float xP[3], dX, dY;
+  double xP[3], dX, dY;
   if ( this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE )
     {
-    dX = (float)this->TextureDimensions[0];
-    dY = (float)this->TextureDimensions[1];
+    dX = (double)this->TextureDimensions[0];
+    dY = (double)this->TextureDimensions[1];
     }
   else
     {
@@ -122,9 +122,9 @@ void vtkButtonSource::Execute()
   int offset = 1 + (this->TextureResolution-1)*this->CircumferentialResolution;
 
   // Determine the lower-left corner of the texture region
-  float xe, ye;
-  float a = this->A/this->RadialRatio;
-  float b = this->B/this->RadialRatio;
+  double xe, ye;
+  double a = this->A/this->RadialRatio;
+  double b = this->B/this->RadialRatio;
   this->IntersectEllipseWithLine(a*a,b*b,dX,dY,xe,ye);
   
   x0[0] = this->Origin[0] - xe;
@@ -159,10 +159,10 @@ void vtkButtonSource::Execute()
   tcoords->SetTuple2(offset + 2*wRes + hRes, 0.0, 1.0);
   
   // Okay, now fill in the points along the edges
-  float t;
+  double t;
   for (i=1; i < wRes; i++) //x0 -> x1
     {
-    t = (float)i/wRes;
+    t = (double)i/wRes;
     x[0] = x0[0] + t * (x1[0]-x0[0]);
     x[1] = x0[1];
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -172,7 +172,7 @@ void vtkButtonSource::Execute()
     }
   for (i=1; i < hRes; i++) //x1 -> x2
     {
-    t = (float)i/hRes;
+    t = (double)i/hRes;
     x[0] = x1[0];
     x[1] = x1[1] + t * (x2[1]-x1[1]);
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -182,7 +182,7 @@ void vtkButtonSource::Execute()
     }
   for (i=1; i < wRes; i++) //x2 -> x3
     {
-    t = (float)i/wRes;
+    t = (double)i/wRes;
     x[0] = x2[0] + t * (x3[0]-x2[0]);
     x[1] = x2[1];
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -192,7 +192,7 @@ void vtkButtonSource::Execute()
     }
   for (i=1; i < hRes; i++) //x3 -> x0
     {
-    t = (float)i/hRes;
+    t = (double)i/hRes;
     x[0] = x3[0];
     x[1] = x3[1] + t * (x0[1]-x3[1]);
     x[2] = this->ComputeDepth(1,x[0],x[1],n);
@@ -318,7 +318,7 @@ void vtkButtonSource::InterpolateCurve(int inTextureRegion,
                                        int startPt, int incr)
 {
   int i, j, idx;
-  float x0[3], x1[3], tc0[3], tc1[3], t, x[3], tc[2], n[3];
+  double x0[3], x1[3], tc0[3], tc1[3], t, x[3], tc[2], n[3];
 
   //walk around the curves interpolating new points between them
   for ( i=0; i < numPts; 
@@ -333,7 +333,7 @@ void vtkButtonSource::InterpolateCurve(int inTextureRegion,
     for ( j=1; j < res; j++ )
       {
       idx = startPt+(j-1)*numPts;
-      t = (float)j / res;
+      t = (double)j / res;
       x[0] = x0[0] + t * (x1[0] - x0[0]);
       x[1] = x0[1] + t * (x1[1] - x0[1]);
       x[2] = this->ComputeDepth(inTextureRegion,x[0],x[1],n);
@@ -374,8 +374,8 @@ void vtkButtonSource::CreatePolygons(vtkCellArray *newPolys, int num, int res,
     }
 }
 
-void vtkButtonSource::IntersectEllipseWithLine(float a2, float b2, float dX, 
-                                               float dY, float& xe, float& ye)
+void vtkButtonSource::IntersectEllipseWithLine(double a2, double b2, double dX, 
+                                               double dY, double& xe, double& ye)
 {
   double m;
   
@@ -395,10 +395,10 @@ void vtkButtonSource::IntersectEllipseWithLine(float a2, float b2, float dX,
     }
 }
 
-float vtkButtonSource::ComputeDepth(int vtkNotUsed(inTextureRegion),
-                                    float x, float y, float n[3])
+double vtkButtonSource::ComputeDepth(int vtkNotUsed(inTextureRegion),
+                                    double x, double y, double n[3])
 {
-  float z;
+  double z;
 
   x -= this->Origin[0];
   y -= this->Origin[1];

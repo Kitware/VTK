@@ -59,13 +59,13 @@ public:
 
   // Description:
   // Specify the first point defining the cylinder axis,
-  vtkSetVector3Macro(Point1,float);
-  vtkGetVectorMacro(Point1,float,3);
+  vtkSetVector3Macro(Point1,double);
+  vtkGetVectorMacro(Point1,double,3);
 
   // Description:
   // Specify the second point defining the cylinder axis,
-  vtkSetVector3Macro(Point2,float);
-  vtkGetVectorMacro(Point2,float,3);
+  vtkSetVector3Macro(Point2,double);
+  vtkGetVectorMacro(Point2,double,3);
 
   // Description:
   // Turn on/off automatic cylinder generation. This means it automatically
@@ -89,8 +89,8 @@ protected:
 
   void Execute();
 
-  float Point1[3];
-  float Point2[3];
+  double Point1[3];
+  double Point2[3];
   int AutomaticCylinderGeneration;
   int PreventSeam;
 

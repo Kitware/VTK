@@ -18,7 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkContourValues.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImplicitFunction.h"
 #include "vtkMergePoints.h"
@@ -29,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.75");
+vtkCxxRevisionMacro(vtkCutter, "1.76");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -124,12 +124,12 @@ void vtkCutter::DataSetCutter()
   vtkIdType cellId, i;
   int iter;
   vtkPoints *cellPts;
-  vtkFloatArray *cellScalars;
+  vtkDoubleArray *cellScalars;
   vtkGenericCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPoints;
-  vtkFloatArray *cutScalars;
-  float value, s;
+  vtkDoubleArray *cutScalars;
+  double value, s;
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input=this->GetInput();
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
@@ -141,7 +141,7 @@ void vtkCutter::DataSetCutter()
   int numContours=this->ContourValues->GetNumberOfContours();
   int abortExecute=0;
   
-  cellScalars=vtkFloatArray::New();
+  cellScalars=vtkDoubleArray::New();
 
   // Create objects to hold output of contour operation
   //
@@ -160,7 +160,7 @@ void vtkCutter::DataSetCutter()
   newLines->Allocate(estimatedSize,estimatedSize/2);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize/2);
-  cutScalars = vtkFloatArray::New();
+  cutScalars = vtkDoubleArray::New();
   cutScalars->SetNumberOfTuples(numPts);
 
   // Interpolate data along edge. If generating cut scalars, do necessary setup
@@ -215,7 +215,7 @@ void vtkCutter::DataSetCutter()
         if ( !(++cut % progressInterval) )
           {
           vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress ((float)cut/numCuts);
+          this->UpdateProgress ((double)cut/numCuts);
           abortExecute = this->GetAbortExecute();
           }
 
@@ -265,7 +265,7 @@ void vtkCutter::DataSetCutter()
         if ( !(++cut % progressInterval) )
           {
           vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress ((float)cut/numCuts);
+          this->UpdateProgress ((double)cut/numCuts);
           abortExecute = this->GetAbortExecute();
           }
         value = this->ContourValues->GetValue(iter);
@@ -319,11 +319,11 @@ void vtkCutter::UnstructuredGridCutter()
 {
   vtkIdType cellId, i;
   int iter;
-  vtkFloatArray *cellScalars;
+  vtkDoubleArray *cellScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPoints;
-  vtkFloatArray *cutScalars;
-  float value, s;
+  vtkDoubleArray *cutScalars;
+  double value, s;
   vtkPolyData *output = this->GetOutput();
   vtkDataSet *input = this->GetInput();
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
@@ -336,7 +336,7 @@ void vtkCutter::UnstructuredGridCutter()
   int numContours = this->ContourValues->GetNumberOfContours();
   int abortExecute = 0;
 
-  float range[2];
+  double range[2];
 
   // Create objects to hold output of contour operation
   //
@@ -355,7 +355,7 @@ void vtkCutter::UnstructuredGridCutter()
   newLines->Allocate(estimatedSize,estimatedSize/2);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(estimatedSize,estimatedSize/2);
-  cutScalars = vtkFloatArray::New();
+  cutScalars = vtkDoubleArray::New();
   cutScalars->SetNumberOfTuples(numPts);
 
   // Interpolate data along edge. If generating cut scalars, do necessary setup
@@ -396,8 +396,8 @@ void vtkCutter::UnstructuredGridCutter()
 
   vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
   vtkIdType *cellArrayPtr = grid->GetCells()->GetPointer();
-  float *scalarArrayPtr = cutScalars->GetPointer(0);
-  float tempScalar;
+  double *scalarArrayPtr = cutScalars->GetPointer(0);
+  double tempScalar;
   cellScalars = cutScalars->NewInstance();
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*cutScalars->GetNumberOfComponents());
@@ -417,7 +417,7 @@ void vtkCutter::UnstructuredGridCutter()
         if ( !(++cut % progressInterval) )
           {
           vtkDebugMacro(<<"Cutting #" << cut);
-          this->UpdateProgress ((float)cut/numCuts);
+          this->UpdateProgress ((double)cut/numCuts);
           abortExecute = this->GetAbortExecute();
           }
 
@@ -444,7 +444,7 @@ void vtkCutter::UnstructuredGridCutter()
           } // for all points in this cell
         
         int needCell = 0;
-        float val = this->ContourValues->GetValue(iter);
+        double val = this->ContourValues->GetValue(iter);
         if (val >= range[0] && val <= range[1]) 
           {
           needCell = 1;
@@ -461,7 +461,7 @@ void vtkCutter::UnstructuredGridCutter()
             if ( !(++cut % progressInterval) )
               {
               vtkDebugMacro(<<"Cutting #" << cut);
-              this->UpdateProgress ((float)cut/numCuts);
+              this->UpdateProgress ((double)cut/numCuts);
               abortExecute = this->GetAbortExecute();
               }
             value = this->ContourValues->GetValue(iter);
@@ -508,7 +508,7 @@ void vtkCutter::UnstructuredGridCutter()
       int needCell = 0;
       for (int cont = 0; cont < numContours; ++cont) 
         {
-        float val = this->ContourValues->GetValue(cont);
+        double val = this->ContourValues->GetValue(cont);
         if (val >= range[0] && val <= range[1]) 
           {
           needCell = 1;
@@ -527,7 +527,7 @@ void vtkCutter::UnstructuredGridCutter()
           if ( !(++cut % progressInterval) )
             {
             vtkDebugMacro(<<"Cutting #" << cut);
-            this->UpdateProgress ((float)cut/numCuts);
+            this->UpdateProgress ((double)cut/numCuts);
             abortExecute = this->GetAbortExecute();
             }
           value = this->ContourValues->GetValue(iter);

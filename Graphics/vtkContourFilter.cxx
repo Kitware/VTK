@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.98");
+vtkCxxRevisionMacro(vtkContourFilter, "1.99");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -104,7 +104,7 @@ void vtkContourFilter::Execute()
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
-  float *values=this->ContourValues->GetValues();
+  double *values=this->ContourValues->GetValues();
   vtkDataArray *cellScalars;
 
   vtkDebugMacro(<< "Executing contour filter");
@@ -192,7 +192,7 @@ void vtkContourFilter::Execute()
         if ( ! (cellId % 5000) ) 
           {
           vtkDebugMacro(<<"Contouring #" << cellId);
-          this->UpdateProgress ((float)cellId/numCells);
+          this->UpdateProgress ((double)cellId/numCells);
           abortExecute = this->GetAbortExecute();
           }
         

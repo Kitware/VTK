@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.63");
+vtkCxxRevisionMacro(vtkThreshold, "1.64");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -43,7 +43,7 @@ vtkThreshold::~vtkThreshold()
 }
 
 // Criterion is cells whose scalars are less or equal to lower threshold.
-void vtkThreshold::ThresholdByLower(float lower) 
+void vtkThreshold::ThresholdByLower(double lower) 
 {
   if ( this->LowerThreshold != lower || 
        this->ThresholdFunction != &vtkThreshold::Lower)
@@ -55,7 +55,7 @@ void vtkThreshold::ThresholdByLower(float lower)
 }
                            
 // Criterion is cells whose scalars are greater or equal to upper threshold.
-void vtkThreshold::ThresholdByUpper(float upper)
+void vtkThreshold::ThresholdByUpper(double upper)
 {
   if ( this->UpperThreshold != upper ||
        this->ThresholdFunction != &vtkThreshold::Upper)
@@ -67,7 +67,7 @@ void vtkThreshold::ThresholdByUpper(float upper)
 }
                            
 // Criterion is cells whose scalars are between lower and upper thresholds.
-void vtkThreshold::ThresholdBetween(float lower, float upper)
+void vtkThreshold::ThresholdBetween(double lower, double upper)
 {
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper ||
        this->ThresholdFunction != &vtkThreshold::Between)
@@ -88,7 +88,7 @@ void vtkThreshold::Execute()
   vtkPoints *newPoints;
   int i, ptId, newId, numPts;
   int numCellPts;
-  float x[3];
+  double x[3];
   vtkDataSet *input = this->GetInput();
   
   if (!input)

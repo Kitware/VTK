@@ -15,7 +15,7 @@
 #include "vtkGlyph2D.h"
 
 #include "vtkCell.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -23,7 +23,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.20");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.21");
 vtkStandardNewMacro(vtkGlyph2D);
 
 void vtkGlyph2D::Execute()
@@ -40,7 +40,7 @@ void vtkGlyph2D::Execute()
   vtkDataArray *newScalars=NULL;
   vtkDataArray *newVectors=NULL;
   vtkDataArray *newNormals=NULL;
-  float x[3], v[3], s = 0.0, vMag = 0.0, value, theta;
+  double x[3], v[3], s = 0.0, vMag = 0.0, value, theta;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
@@ -48,7 +48,7 @@ void vtkGlyph2D::Execute()
   vtkIdList *pts;
   vtkIdType ptIncr, cellId;
   int haveVectors, haveNormals;
-  float scalex,scaley, den;
+  double scalex,scaley, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkDataSet *input = this->GetInput();
@@ -180,26 +180,26 @@ void vtkGlyph2D::Execute()
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_SCALE) && inScalars)
     {
-    newScalars = vtkFloatArray::New();
+    newScalars = vtkDoubleArray::New();
     newScalars->Allocate(numPts*numSourcePts);
     newScalars->SetName("GlyphScale");
     }
   else if ( (this->ColorMode == VTK_COLOR_BY_VECTOR) && haveVectors)
     {
-    newScalars = vtkFloatArray::New();
+    newScalars = vtkDoubleArray::New();
     newScalars->Allocate(numPts*numSourcePts);
     newScalars->SetName("VectorMagnitude");
     }
   if ( haveVectors )
     {
-    newVectors = vtkFloatArray::New();
+    newVectors = vtkDoubleArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->Allocate(3*numPts*numSourcePts);
     newVectors->SetName("GlyphVector");
     }
   if ( haveNormals )
     {
-    newNormals = vtkFloatArray::New();
+    newNormals = vtkDoubleArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->Allocate(3*numPts*numSourcePts);
     newNormals->SetName("Normals");
@@ -224,7 +224,7 @@ void vtkGlyph2D::Execute()
     scalex = scaley = 1.0;
     if ( ! (inPtId % 10000) )
       {
-      this->UpdateProgress ((float)inPtId/numPts);
+      this->UpdateProgress ((double)inPtId/numPts);
       if (this->GetAbortExecute())
         {
         break;
@@ -291,7 +291,7 @@ void vtkGlyph2D::Execute()
         value = vMag;
         }
       
-      index = (int) ((float)(value - this->Range[0]) * numberOfSources / den);
+      index = (int) ((double)(value - this->Range[0]) * numberOfSources / den);
       index = (index < 0 ? 0 :
               (index >= numberOfSources ? (numberOfSources-1) : index));
       

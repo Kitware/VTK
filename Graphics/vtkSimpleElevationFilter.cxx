@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.16");
+vtkCxxRevisionMacro(vtkSimpleElevationFilter, "1.17");
 vtkStandardNewMacro(vtkSimpleElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
@@ -40,7 +40,7 @@ void vtkSimpleElevationFilter::Execute()
 {
   vtkIdType i, numPts;
   vtkFloatArray *newScalars;
-  float s, x[3];
+  double s, x[3];
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
 
@@ -78,7 +78,7 @@ void vtkSimpleElevationFilter::Execute()
     {
     if ( ! (i % progressInterval) ) 
       {
-      this->UpdateProgress ((float)i/numPts);
+      this->UpdateProgress ((double)i/numPts);
       abort = this->GetAbortExecute();
       }
 

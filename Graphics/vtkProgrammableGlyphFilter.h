@@ -98,7 +98,7 @@ public:
   // Description:
   // Get the current point coordinates during processing. Value only valid during the
   // Execute() method of this filter. (Meant to be called by the GlyphMethod().)
-  vtkGetVector3Macro(Point,float);
+  vtkGetVector3Macro(Point,double);
 
   // Description:
   // Get the set of point data attributes for the input. A convenience to the
@@ -122,7 +122,7 @@ protected:
 
   void Execute();
 
-  float Point[3]; // Coordinates of point
+  double Point[3]; // Coordinates of point
   vtkIdType PointId; // Current point id during processing
   vtkPointData *PointData;
   int ColorMode;

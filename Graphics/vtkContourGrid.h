@@ -70,14 +70,14 @@ public:
 
   // Description:
   // Methods to set / get contour values.
-  void SetValue(int i, float value);
-  float GetValue(int i);
-  float *GetValues();
-  void GetValues(float *contourValues);
+  void SetValue(int i, double value);
+  double GetValue(int i);
+  double *GetValues();
+  void GetValues(double *contourValues);
   void SetNumberOfContours(int number);
   int GetNumberOfContours();
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+  void GenerateValues(int numContours, double range[2]);
+  void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
   // Description:
   // Modified GetMTime Because we delegate to vtkContourValues
@@ -159,25 +159,25 @@ private:
 // Description:
 // Set a particular contour value at contour number i. The index i ranges 
 // between 0<=i<NumberOfContours.
-inline void vtkContourGrid::SetValue(int i, float value)
+inline void vtkContourGrid::SetValue(int i, double value)
 {this->ContourValues->SetValue(i,value);}
 
 // Description:
 // Get the ith contour value.
-inline float vtkContourGrid::GetValue(int i)
+inline double vtkContourGrid::GetValue(int i)
 {return this->ContourValues->GetValue(i);}
 
 // Description:
 // Get a pointer to an array of contour values. There will be
 // GetNumberOfContours() values in the list.
-inline float *vtkContourGrid::GetValues()
+inline double *vtkContourGrid::GetValues()
 {return this->ContourValues->GetValues();}
 
 // Description:
 // Fill a supplied list with contour values. There will be
 // GetNumberOfContours() values in the list. Make sure you allocate
 // enough memory to hold the list.
-inline void vtkContourGrid::GetValues(float *contourValues)
+inline void vtkContourGrid::GetValues(double *contourValues)
 {this->ContourValues->GetValues(contourValues);}
 
 // Description:
@@ -195,14 +195,14 @@ inline int vtkContourGrid::GetNumberOfContours()
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-inline void vtkContourGrid::GenerateValues(int numContours, float range[2])
+inline void vtkContourGrid::GenerateValues(int numContours, double range[2])
 {this->ContourValues->GenerateValues(numContours, range);}
 
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-inline void vtkContourGrid::GenerateValues(int numContours, float
-                                             rangeStart, float rangeEnd)
+inline void vtkContourGrid::GenerateValues(int numContours, double
+                                             rangeStart, double rangeEnd)
 {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 

@@ -151,13 +151,13 @@ public:
 
   // Description:
   // Specify scale factor to scale object by.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Specify range to map scalar values into.
-  vtkSetVector2Macro(Range,float);
-  vtkGetVectorMacro(Range,float,2);
+  vtkSetVector2Macro(Range,double);
+  vtkGetVectorMacro(Range,double,2);
 
   // Description:
   // Turn on/off orienting of input geometry along vector/normal.
@@ -242,8 +242,8 @@ protected:
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude
   int ColorMode; // new scalars based on scale, scalar or vector
-  float ScaleFactor; // Scale factor to use to scale geometry
-  float Range[2]; // Range to use to perform scalar scaling
+  double ScaleFactor; // Scale factor to use to scale geometry
+  double Range[2]; // Range to use to perform scalar scaling
   int Orient; // boolean controls whether to "orient" data
   int VectorMode; // Orient/scale via normal or via vector data
   int Clamping; // whether to clamp scale factor

@@ -37,8 +37,8 @@ public:
   // Description:
   // Set/Get the factor that controls the relative size of the corners
   // to the length of the corresponding bounds
-  vtkSetClampMacro(CornerFactor, float, 0.001, 0.5);
-  vtkGetMacro(CornerFactor, float);
+  vtkSetClampMacro(CornerFactor, double, 0.001, 0.5);
+  vtkGetMacro(CornerFactor, double);
 
 protected:
   vtkOutlineCornerFilter();
@@ -48,7 +48,7 @@ protected:
   void Execute();
   void ExecuteInformation();
 
-  float CornerFactor;
+  double CornerFactor;
 private:
   vtkOutlineCornerFilter(const vtkOutlineCornerFilter&);  // Not implemented.
   void operator=(const vtkOutlineCornerFilter&);  // Not implemented.
