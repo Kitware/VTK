@@ -38,6 +38,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+// .NAME vtkVolumeRayCastMIPFunction - A maximum intensity projection ray caster for volumes
+//
+// .SECTION Description
+// vtkVolumeRayCastMIPFunction is a volume ray cast function that
+// computes the maximum value encountered along the ray. This is
+// either the maximum scalar value, or the maximum opacity, as
+// defined by the MaximizeMethod. The color and opacity returned
+// by this function is based on the color, scalar opacity, and
+// gradient opacity transfer functions defined in the vtkVolumeProperty
+// of the vtkVolume.
+//
+// .SECTION See Also
+// vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
+// vtkVolumeRayCastCompositeFunction vtkVolumeRayCastIsosurfaceFunction
+// vtkVolume vtkVolumeProperty
 
 #ifndef __vtkVolumeRayCastMIPFunction_h
 #define __vtkVolumeRayCastMIPFunction_h
