@@ -128,6 +128,9 @@ int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
     {
     if (closestPoint)
       {
+      closestPoint[0] = cp[0];
+      closestPoint[1] = cp[1];
+      closestPoint[2] = cp[2];
       dist2 = 
 	vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
       }
