@@ -222,41 +222,59 @@ void vtkWin32OpenGLImageWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
 						  int debug, int bpp, 
 						  int zbpp)
 {
-    PIXELFORMATDESCRIPTOR pfd = {
-        sizeof(PIXELFORMATDESCRIPTOR),  /* size */
-        1,                              /* version */
-        dwFlags         ,               /* support double-buffering */
-        PFD_TYPE_RGBA,                  /* color type */
-        bpp,                             /* prefered color depth */
-        0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
-        0,                              /* no alpha buffer */
-        0,                              /* alpha bits (ignored) */
-        0,                              /* no accumulation buffer */
-        0, 0, 0, 0,                     /* accum bits (ignored) */
-        0,                              /* depth buffer */
-        0,                              /* no stencil buffer */
-        0,                              /* no auxiliary buffers */
-        PFD_MAIN_PLANE,                 /* main layer */
-        0,                              /* reserved */
-        0, 0, 0,                        /* no layer, visible, damage masks */
-    };
-    int pixelFormat;
-
-    pixelFormat = ChoosePixelFormat(hDC, &pfd);
-    if (pixelFormat == 0) {
-        MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
-                MB_ICONERROR | MB_OK);
-        exit(1);
-    }
-
-    DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
-
-    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) 
+  PIXELFORMATDESCRIPTOR pfd = {
+    sizeof(PIXELFORMATDESCRIPTOR),  /* size */
+    1,                              /* version */
+    dwFlags         ,               /* support double-buffering */
+    PFD_TYPE_RGBA,                  /* color type */
+    bpp,                             /* prefered color depth */
+    0, 0, 0, 0, 0, 0,               /* color bits (ignored) */
+    0,                              /* no alpha buffer */
+    0,                              /* alpha bits (ignored) */
+    0,                              /* no accumulation buffer */
+    0, 0, 0, 0,                     /* accum bits (ignored) */
+    0,                              /* depth buffer */
+    0,                              /* no stencil buffer */
+    0,                              /* no auxiliary buffers */
+    PFD_MAIN_PLANE,                 /* main layer */
+    0,                              /* reserved */
+    0, 0, 0,                        /* no layer, visible, damage masks */
+  };
+  int pixelFormat;
+  int currentPixelFormat = GetPixelFormat(hDC);
+  // if there is a current pixel format, then make sure it
+  // supports OpenGL
+  if (currentPixelFormat != 0)
+    {
+    DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd), &pfd);
+    if (!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
       {
-      MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
-                 MB_ICONERROR | MB_OK);
+      MessageBox(WindowFromDC(hDC), 
+		 "Invalid pixel format, no OpenGL support",
+		 "Error",
+		 MB_ICONERROR | MB_OK);
+      exit(1);
+      }         
+    }
+  else
+    {
+    // hDC has no current PixelFormat, so 
+    pixelFormat = ChoosePixelFormat(hDC, &pfd);
+    if (pixelFormat == 0)
+      {
+      MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
+		 MB_ICONERROR | MB_OK);
       exit(1);
       }
+    DescribePixelFormat(hDC, pixelFormat,sizeof(pfd), &pfd); 
+    if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) 
+      {
+      int err = GetLastError();
+      MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
+		 MB_ICONERROR | MB_OK);
+      exit(1);
+      }
+    }
 }
 
 void vtkWin32OpenGLImageWindow::SetupPalette(HDC hDC)
