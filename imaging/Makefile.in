@@ -107,7 +107,8 @@ vtkImageViewer \
 vtkImageWrapPad \
 vtkImageWriter \
 vtkImageXViewer \
-vtkPNMReader 
+vtkPNMReader \
+vtkPNMWriter 
 
 
 #------------------------------------------------------------------------------

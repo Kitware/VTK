@@ -61,6 +61,7 @@ vtkImageWriter::vtkImageWriter()
   this->SetFilePattern("%s.%d");
   
   this->Input = NULL;
+  this->InputMemoryLimit = 100000;   // 100 MB
 }
 
 
@@ -94,8 +95,12 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input: (" << this->Input << ")\n";
 
-  os << indent << "FilePrefix: " << this->FilePrefix << "\n";
-  os << indent << "FilePattern: " << this->FilePattern << "\n";
+  os << indent << "FileName: " <<
+    (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "FilePrefix: " << 
+    (this->FilePrefix ? this->FilePrefix : "(none)") << "\n";
+  os << indent << "FilePattern: " << 
+    (this->FilePattern ? this->FilePattern : "(none)") << "\n";
 }
 
 //----------------------------------------------------------------------------
@@ -139,6 +144,24 @@ void vtkImageWriter::SetFilePattern(char *pattern)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// This function sets the name of the file. 
+void vtkImageWriter::SetFileName(char *name)
+{
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+  if (this->FilePrefix)
+    {
+    delete [] this->FilePrefix;
+    this->FilePrefix = NULL;
+    }  
+  this->FileName = new char[strlen(name) + 1];
+  strcpy(this->FileName, name);
+  this->Modified();
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -153,65 +176,207 @@ void vtkImageWriter::Write()
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
     }
-  if ( ! this->FilePrefix || ! this->FilePattern)
+  if ( ! this->FileName && (! this->FilePrefix || ! this->FilePattern))
     {
-    vtkErrorMacro(<<"Write:Please specify a file prefix and pattern");
+    vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     return;
     }
   
   // Make sure the file name is allocated
-  if ( ! this->FileName)
-    {
-    this->FileName = new char[strlen(this->FilePrefix) +
-			     strlen(this->FilePattern) + 50];
-    }  
+  this->InternalFileName = 
+    new char[(this->FileName ? strlen(this->FileName) : 1) +
+	    (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+	    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
   
   // Fill in image information.
-  this->Input->Update();
-  region = this->Input->GetScalarRegion();
+  this->Input->UpdateImageInformation();
+  this->Input->SetUpdateExtent(this->Input->GetWholeExtent());
   this->FileNumber = 1;
-  this->RecursiveWrite(4, region);
-  region->Delete();
+  this->RecursiveWrite(3, this->Input, NULL);
+  delete [] this->InternalFileName;
+  this->InternalFileName = NULL;
+}
+
+//----------------------------------------------------------------------------
+// Breaks region itto pieces with correct dimensionality.
+void vtkImageWriter::RecursiveWrite(int dim, vtkImageCache *cache,
+				    ofstream *file)
+{
+  int idx, min, max, mid;
+  vtkImageRegion *region;
+  
+  // if we need to open another slice, do it
+  if (!file && (dim +1) == this->FileDimensionality)
+    {
+    // determine the name
+    if (this->FilePrefix)
+      {
+      sprintf(this->InternalFileName, this->FilePattern, 
+	      this->FilePrefix, this->FileNumber);
+      }
+    else
+      {
+      sprintf(this->InternalFileName, "%s", this->FileName);
+      }
+    // Open the file
+    file = new ofstream(this->InternalFileName, ios::out);
+    if (! file)
+      {
+      vtkErrorMacro("RecursiveWrite: Could not open file " << 
+		    this->InternalFileName);
+      return;
+      }
+
+    // Subclasses can write a header with this method call.
+    this->WriteFileHeader(file, cache);
+    ++this->FileNumber;
+    }
+  
+  // will the current request fit into memory
+  // if so the just get the data and write it out
+  if (cache->GetUpdateExtentMemorySize() < this->InputMemoryLimit)
+    {
+    cache->Update();
+    region = cache->GetScalarRegion();
+    this->RecursiveWrite(dim,cache,region,file);
+    region->Delete();
+    return;
+    }
+
+  // if the current request did not fit into memory
+  // the we will split the current axis
+  this->Input->GetAxisUpdateExtent(dim, min, max);
+  if (min == max)
+    {
+    if (dim > 0)
+      {
+      this->RecursiveWrite(dim - 1,cache, file);
+      }
+    else
+      {
+      vtkWarningMacro("Cache to small to hold one row of pixels!!");
+      }
+    return;
+    }
+  
+  mid = (min + max) / 2;
+  vtkDebugMacro ("Split " << vtkImageAxisNameMacro(dim) << " ("
+		 << min << "->" << mid << ") and (" << mid+1 << "->"
+		 << max << ")");
+
+  // if it is the y axis then flip by default
+  if (dim == 1)
+    {
+    // first half
+    cache->SetAxisUpdateExtent(dim, mid+1, max);
+    this->RecursiveWrite(dim,cache,file);
+    
+    // second half
+    cache->SetAxisUpdateExtent(dim, min, mid);
+    this->RecursiveWrite(dim,cache,file);
+    }
+  else
+    {
+    // first half
+    cache->SetAxisUpdateExtent(dim, min, mid);
+    this->RecursiveWrite(dim,cache,file);
+    
+    // second half
+    cache->SetAxisUpdateExtent(dim, mid+1, max);
+    this->RecursiveWrite(dim,cache,file);
+    }
+    
+  // restore original extent
+  cache->SetAxisUpdateExtent(dim, min, max);
+
+  // if we opened the file here, then we need to close it up
+  if (file && dim == this->FileDimensionality)
+    {
+    file->close();
+    delete file;
+    }
 }
 
 
 //----------------------------------------------------------------------------
-// Breaks region itto pieces with correct dimensionality.
-void vtkImageWriter::RecursiveWrite(int dim, vtkImageRegion *region)
+// same idea as the previous method, but it knows that the data is ready
+void vtkImageWriter::RecursiveWrite(int dim, vtkImageCache *cache,
+				    vtkImageRegion *region, ofstream *file)
 {
   int idx, min, max;
   
-  if (dim < this->FileDimensionality)
+  // if we need to open another slice, do it
+  if (!file && (dim +1) == this->FileDimensionality)
     {
-    sprintf(this->FileName, this->FilePattern, 
-	    this->FilePrefix, this->FileNumber);
-    this->WriteFile(region);
+    // determine the name
+    if (this->FilePrefix)
+      {
+      sprintf(this->InternalFileName, this->FilePattern, 
+	      this->FilePrefix, this->FileNumber);
+      }
+    else
+      {
+      sprintf(this->InternalFileName, "%s", this->FileName);
+      }
+    // Open the file
+    file = new ofstream(this->InternalFileName, ios::out);
+    if (! file)
+      {
+      vtkErrorMacro("RecursiveWrite: Could not open file " << 
+		    this->InternalFileName);
+      return;
+      }
+
+    // Subclasses can write a header with this method call.
+    this->WriteFileHeader(file, cache);
+    this->WriteFile(file,region);
     ++this->FileNumber;
+    file->close();
+    delete file;
     return;
     }
   
-  // slice the last axis.
+  // if the current request did not fit into memory
+  // the we will split the current axis
   region->GetAxisExtent(dim, min, max);
-  for (idx = min; idx <= max; ++idx)
+  if (min == max)
     {
-    region->SetAxisExtent(dim, idx, idx);
-    this->RecursiveWrite(dim - 1, region);
+    this->RecursiveWrite(dim - 1, cache, region, file);
+    return;
     }
+  
+  // if it is the y axis then flip by default
+  if (dim == 1)
+    {
+    for(idx = max; idx >= min; idx--)
+      {
+      region->SetAxisExtent(dim, idx, idx);
+      this->RecursiveWrite(dim - 1, cache, region, file);
+      }
+    }
+  else
+    {
+    for(idx = min; idx <= max; idx++)
+      {
+      region->SetAxisExtent(dim, idx, idx);
+      this->RecursiveWrite(dim - 1, cache, region, file);
+      }
+    }
+  
+  // restore original extent
   region->SetAxisExtent(dim, min, max);
 }
-
   
 
 //----------------------------------------------------------------------------
 // Writes a region in a file.  Subclasses can override this method
 // to produce a header. This method only hanldes 3d data (plus components).
-void vtkImageWriter::WriteFile(vtkImageRegion *region)
+void vtkImageWriter::WriteFile(ofstream *file, vtkImageRegion *region)
 {
   int min0, max0, min1, max1, min2, max2, min3, max3, minC, maxC;
   int idx1, idx2, idx3;
   int rowLength; // in bytes
   void *ptr;
-  ofstream *file;
   
   // Make sure we actually have data.
   if ( ! region->AreScalarsAllocated())
@@ -220,17 +385,6 @@ void vtkImageWriter::WriteFile(vtkImageRegion *region)
     return;
     }
 
-  // Open the file
-  file = new ofstream(this->FileName, ios::out);
-  if (! file)
-    {
-    vtkErrorMacro("WriteFile: Could not open file " << this->FileName);
-    return;
-    }
-
-  // Subclasses can write a header with this method call.
-  this->WriteFileHeader(file, region);
-  
   // Find the length of the rows to write.
   region->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
   region->GetData()->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, minC, maxC);
@@ -265,7 +419,7 @@ void vtkImageWriter::WriteFile(vtkImageRegion *region)
     {
     for (idx2 = min2; idx2 <= max2; ++idx2)
       {
-      for (idx1 = min1; idx1 <= max1; ++idx1)
+      for (idx1 = max1; idx1 >= min1; idx1--)
 	{
 	ptr = region->GetScalarPointer(min0, idx1, idx2, idx3);
 	if ( ! file->write((char *)ptr, rowLength))
@@ -277,8 +431,6 @@ void vtkImageWriter::WriteFile(vtkImageRegion *region)
 	}
       }
     }
-  file->close();
-  delete file;
 }
   
 

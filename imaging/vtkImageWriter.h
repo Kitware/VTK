@@ -8,7 +8,7 @@
   Thanks:    Thanks to C. Charles Law who developed this class.
 
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -67,8 +67,24 @@ public:
   const char *GetClassName() {return "vtkImageWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
+  // Description:
+  // Specify file name for the image file. You should specify either
+  // a FileName or a FilePrefix. Use FilePrefix if the data is stored 
+  // in multiple files.
+  void SetFileName(char *);
+  vtkGetStringMacro(FileName);
+
+  // Description:
+  // Specify file prefix for the image file(s).You should specify either
+  // a FileName or FilePrefix. Use FilePrefix if the data is stored
+  // in multiple files.
   void SetFilePrefix(char *filePrefix);
+  vtkGetStringMacro(FilePrefix);
+
+  // Description:
+  // The sprintf format used to build filename from FilePrefix and number.
   void SetFilePattern(char *filePattern);
+  vtkGetStringMacro(FilePattern);
 
   vtkSetMacro(FileDimensionality, int);
   vtkGetMacro(FileDimensionality, int);
@@ -84,20 +100,29 @@ public:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
+  // Description:
+  // Set/Get input memory limit.  Make this smaller to stream.
+  vtkSetMacro(InputMemoryLimit,long);
+  vtkGetMacro(InputMemoryLimit,long);
+
   // Public for templated function
-  char *FileName;
+  char *InternalFileName;
 
 protected:
   vtkImageCache *Input;
   int FileDimensionality;
   char *FilePrefix;
   char *FilePattern;
+  char *FileName;
   int FileNumber;
+  long InputMemoryLimit;
 
-  void RecursiveWrite(int dim, vtkImageRegion *region);
-  virtual void WriteFile(vtkImageRegion *region);
-  virtual void WriteFileHeader(ofstream *file, vtkImageRegion *region)
-    {file = file; region = region;}
+  void RecursiveWrite(int dim, vtkImageCache *region, ofstream *file);
+  void RecursiveWrite(int dim, vtkImageCache *cache, 
+		      vtkImageRegion *region, ofstream *file);
+  virtual void WriteFile(ofstream *file, vtkImageRegion *region);
+  virtual void WriteFileHeader(ofstream *, vtkImageCache *) {};
+  
 };
 
 #endif
