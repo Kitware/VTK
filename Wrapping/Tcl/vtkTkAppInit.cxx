@@ -77,6 +77,14 @@ PURPOSE.  See the above copyright notice for more information.
 
 static void vtkTkAppInitEnableMSVCDebugHook();
 
+// I need those two Tcl functions. They usually are declared in tclIntDecls.h,
+// but Unix build do not have access to VTK's tkInternals include path.
+// Since the signature has not changed for years (at least since 8.2),
+// let's just prototype them.
+
+EXTERN Tcl_Obj* TclGetLibraryPath _ANSI_ARGS_((void));
+EXTERN void TclSetLibraryPath _ANSI_ARGS_((Tcl_Obj * pathPtr));
+
 /*
  *----------------------------------------------------------------------
  *
@@ -324,7 +332,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
       if (!exists)
         {
         sprintf(buffer, "%s/../lib/vtk/TclTk", dir_unix);
-        exists = vtkKWDirectoryUtilities::FileExists(buffer);
+        exists = vtkTkAppInitFileExists(buffer);
         }
       if (exists)
         {
@@ -362,6 +370,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
             // Setting TK_LIBRARY won't do the trick, it's too late
             Tcl_SetVar(interp, "tk_library", tk_library, 
                        TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+            Tcl_Obj *obj = Tcl_NewStringObj(tk_library, -1);
             if (obj)
               {
               Tcl_ListObjAppendElement(interp, new_libpath, obj);
