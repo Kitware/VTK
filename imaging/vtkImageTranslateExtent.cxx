@@ -150,6 +150,7 @@ void vtkImageTranslateExtent::InternalUpdate(vtkDataObject *data)
     }
   outData->SetExtent(extent);
   outData->GetPointData()->PassData(inData->GetPointData());
+  outData->DataHasBeenGenerated();
   
   // release input data
   if (this->GetInput()->ShouldIReleaseData())

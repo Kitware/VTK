@@ -124,7 +124,7 @@ protected:
 
   void Execute(vtkImageData *outData);
   void ExecuteInformation();
-  unsigned short EvaluateSet(double p[4]);
+  float EvaluateSet(double p[4]);
 };
 
 

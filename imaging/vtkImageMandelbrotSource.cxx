@@ -388,9 +388,10 @@ void vtkImageMandelbrotSource::SuperSample(vtkImageData *data)
 
 
 //----------------------------------------------------------------------------
-unsigned short vtkImageMandelbrotSource::EvaluateSet(double p[4])
+float vtkImageMandelbrotSource::EvaluateSet(double p[4])
 {
   unsigned short count = 0;
+  double v0, v1;
   double cReal, cImag, zReal, zImag;
   double zReal2, zImag2;
 
@@ -401,16 +402,25 @@ unsigned short vtkImageMandelbrotSource::EvaluateSet(double p[4])
 
   zReal2 = zReal * zReal;
   zImag2 = zImag * zImag;
-  while ((zReal2 + zImag2) < 4.0 && count < this->MaximumNumberOfIterations)
+  v0 = 0.0;
+  v1 = (zReal2 + zImag2);
+  while ( v1 < 4.0 && count < this->MaximumNumberOfIterations)
     {
     zImag = 2.0 * zReal * zImag + cImag;
     zReal = zReal2 - zImag2 + cReal;
     zReal2 = zReal * zReal;
     zImag2 = zImag * zImag;
     ++count;
+    v0 = v1;
+    v1 = (zReal2 + zImag2);
     }
 
-  return count;
+  if (count == this->MaximumNumberOfIterations)
+    {
+    return (float)count;
+    }
+
+  return (float)count + (4.0 - v0)/(v1 - v0);
 }
 
 
