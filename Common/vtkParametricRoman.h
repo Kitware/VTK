@@ -15,6 +15,11 @@
 // .NAME vtkParametricRoman - Generate Steiner's Roman Surface.
 // .SECTION Description
 // vtkParametricRoman generates Steiner's Roman Surface.
+//
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for 
 // creating and contributing the class.

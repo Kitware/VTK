@@ -16,6 +16,11 @@
 // .SECTION Description
 // vtkParametricConicSpiral generates conic spiral surfaces. These can resemble sea shells, or
 // may look like a torus "eating" its own tail.
+//
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
 // class.

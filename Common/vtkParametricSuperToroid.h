@@ -23,7 +23,11 @@
 // these powers which give rise to a family of 3D shapes that are all
 // basically toroidal in shape.
 //
-// For more information see: http://astronomy.swin.edu.au/~pbourke/surfaces/.
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
+// Also see: http://astronomy.swin.edu.au/~pbourke/surfaces/.
 //
 // .SECTION Caveats
 // Care needs to be taken specifying the bounds correctly. You may need to 

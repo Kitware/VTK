@@ -17,6 +17,11 @@
 // vtkParametricCrossCap generates a cross-cap which is a 
 // non-orientable self-intersecting single-sided surface.
 // This is one possible image of a projective plane in three-space.
+//
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for 
 // creating and contributing the class.

@@ -24,7 +24,11 @@
 // This representation of the immersion in \f$R^3\f$ is formed by taking two Mobius
 // strips and joining them along their boundaries, this is the so called
 // "Figure-8 Klein Bottle"
-
+//
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
 // class.

@@ -19,7 +19,11 @@
 // n2. As special cases it can represent a sphere, square box, and closed
 // cylindrical can.
 //
-// For more information see: http://astronomy.swin.edu.au/~pbourke/surfaces/
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
+// Also see: http://astronomy.swin.edu.au/~pbourke/surfaces/
 //
 // .SECTION Caveats
 // Care needs to be taken specifying the bounds correctly. You may need to 

@@ -17,6 +17,11 @@
 // vtkParametricBoy generates Boy's surface.
 // This is a Model of the projective plane without singularities.
 // It was found by Werner Boy on assignment from David Hilbert.
+//
+// For further information about this surface, please consult the 
+// technical description "Parametric surfaces" in http://www.vtk.org/documents.php 
+// in the "VTK Technical Documents" section in the VTk.org web pages.
+//
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for 
 // creating and contributing the class.
