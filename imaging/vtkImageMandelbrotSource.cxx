@@ -72,10 +72,10 @@ vtkImageMandelbrotSource::vtkImageMandelbrotSource()
   this->WholeExtent[4] = 0;
   this->WholeExtent[5] = 0;
   
-  this->SpacingCX[0] = 0.005;
-  this->SpacingCX[1] = 0.005;
-  this->SpacingCX[2] = 0.005;
-  this->SpacingCX[3] = 0.005;
+  this->SampleCX[0] = 0.005;
+  this->SampleCX[1] = 0.005;
+  this->SampleCX[2] = 0.005;
+  this->SampleCX[3] = 0.005;
   
   this->OriginCX[0] = -3.2;
   this->OriginCX[1] = -2.5;
@@ -102,10 +102,10 @@ void vtkImageMandelbrotSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OriginX: (" << this->OriginCX[2] << ", "
      << this->OriginCX[3] << ")\n";
 
-  os << indent << "SpacingC: (" << this->SpacingCX[0] << ", "
-     << this->SpacingCX[1] << ")\n";
-  os << indent << "SpacingX: (" << this->SpacingCX[2] << ", "
-     << this->SpacingCX[3] << ")\n";
+  os << indent << "SampleC: (" << this->SampleCX[0] << ", "
+     << this->SampleCX[1] << ")\n";
+  os << indent << "SampleX: (" << this->SampleCX[2] << ", "
+     << this->SampleCX[3] << ")\n";
 
   os << indent << "WholeExtent: (" << this->WholeExtent[0] << ", "
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
@@ -213,7 +213,9 @@ void vtkImageMandelbrotSource::ExecuteInformation()
     if (axis >= 0 && axis < 4)
       {
       origin[idx] = this->OriginCX[axis];
-      spacing[idx] = this->SpacingCX[axis];
+      spacing[idx] = this->SampleCX[axis];
+      // I want unevent sampling not Sample.
+      spacing[idx] = 1.0;
       }
     else
       {
@@ -251,10 +253,10 @@ void vtkImageMandelbrotSource::Zoom(double factor)
     return;
     }
   this->Modified();
-  this->SpacingCX[0] *= factor;
-  this->SpacingCX[1] *= factor;
-  this->SpacingCX[2] *= factor;
-  this->SpacingCX[3] *= factor;
+  this->SampleCX[0] *= factor;
+  this->SampleCX[1] *= factor;
+  this->SampleCX[2] *= factor;
+  this->SampleCX[3] *= factor;
 }
 
 //----------------------------------------------------------------------------
@@ -275,21 +277,21 @@ void vtkImageMandelbrotSource::Pan(double x, double y, double z)
     axis = this->ProjectionAxes[idx];
     if (axis >= 0 && axis < 4)
       {
-      this->OriginCX[axis] += this->SpacingCX[axis] * pan[idx];
+      this->OriginCX[axis] += this->SampleCX[axis] * pan[idx];
       }
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::CopyOriginAndSpacing(
-                                            vtkImageMandelbrotSource *source)
+void 
+vtkImageMandelbrotSource::CopyOriginAndSample(vtkImageMandelbrotSource *source)
 {
   int idx;
 
   for (idx = 0; idx < 4; ++idx)
     {
     this->OriginCX[idx] = source->OriginCX[idx];
-    this->SpacingCX[idx] = source->SpacingCX[idx];
+    this->SampleCX[idx] = source->SampleCX[idx];
     }
 
   this->Modified();
@@ -302,7 +304,7 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
   int min0, max0;
   int idx0, idx1, idx2;
   int inc0, inc1, inc2;
-  double *origin, *spacing;
+  double *origin, *sample;
   double p[4];
   unsigned long count = 0;
   unsigned long target;
@@ -331,7 +333,7 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
   a1 = this->ProjectionAxes[1];
   a2 = this->ProjectionAxes[2];
   origin = this->OriginCX;
-  spacing = this->SpacingCX;
+  sample = this->SampleCX;
 
   if (a0<0 || a1<0 || a2<0 || a0>3 || a1>3 || a2>3)
     {
@@ -340,7 +342,7 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
     }
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
-    p[a2] = (double)(origin[a2]) + (double)(idx2)*(spacing[a2]);
+    p[a2] = (double)(origin[a2]) + (double)(idx2)*(sample[a2]);
     for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!(count%target))
@@ -348,10 +350,10 @@ void vtkImageMandelbrotSource::Execute(vtkImageData *data)
         this->UpdateProgress(count/(50.0*target));
         }
       count++;
-      p[a1] = (double)(origin[a1]) + (double)(idx1)*(spacing[a1]);
+      p[a1] = (double)(origin[a1]) + (double)(idx1)*(sample[a1]);
       for (idx0 = min0; idx0 <= max0; ++idx0)
 	{
-        p[a0] = (double)(origin[a0]) + (double)(idx0)*(spacing[a0]);
+        p[a0] = (double)(origin[a0]) + (double)(idx0)*(sample[a0]);
 
         *ptr = (float)(this->EvaluateSet(p));
 

@@ -88,13 +88,13 @@ public:
   // Description:
   // Imaginary and real value for C (contant in equation) 
   // and X (initial value).
-  vtkSetVector4Macro(SpacingCX, double);
+  vtkSetVector4Macro(SampleCX, double);
   //void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
-  vtkGetVector4Macro(SpacingCX, double);
+  vtkGetVector4Macro(SampleCX, double);
 
   // Description:
   // Convienence/Legacy - set all the spacing values the same.
-  void SetSpacing(double v) {this->SetSpacingCX(v, v, v, v);}
+  void SetSample(double v) {this->SetSampleCX(v, v, v, v);}
 
   // Description:
   // The maximum number of cycles run to see if the value goes over 2
@@ -108,8 +108,9 @@ public:
   void Pan(double x, double y, double z);
 
   // Description:
-  // Convienence for Viewer.  Copy the OriginCX and the spacing.
-  void CopyOriginAndSpacing(vtkImageMandelbrotSource *source); 
+  // Convienence for Viewer.  Copy the OriginCX and the SpacingCX.
+  // What about other params ???
+  void CopyOriginAndSample(vtkImageMandelbrotSource *source); 
 
 
 protected:
@@ -126,7 +127,7 @@ protected:
   // Complex constant/initial-value at origin.
   double OriginCX[4];
   // Initial complex value at origin.
-  double SpacingCX[4];
+  double SampleCX[4];
   unsigned short MaximumNumberOfIterations;
 
   void Execute(vtkImageData *outData);

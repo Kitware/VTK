@@ -23,7 +23,7 @@ vtkImageMandelbrotSource mandelbrot1
   mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
   mandelbrot1 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
                             [expr -$YRAD] [expr $YRAD-1] 0 0
-  mandelbrot1 SetSpacing [expr 1.3 / $XRAD]
+  mandelbrot1 SetSample [expr 1.3 / $XRAD]
   mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
   mandelbrot1 SetProjectionAxes 0 1 2
 
@@ -50,7 +50,7 @@ vtkImageMandelbrotSource mandelbrot2
   mandelbrot2 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_2)]
   mandelbrot2 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
                             [expr -$YRAD] [expr $YRAD-1] 0 0
-  mandelbrot2 SetSpacing [expr 1.3 / $XRAD]
+  mandelbrot2 SetSample [expr 1.3 / $XRAD]
   mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
   mandelbrot2 SetProjectionAxes 2 3 1
 
@@ -153,10 +153,10 @@ proc Reset {} {
   set MAX_ITERATIONS_2 $RANGE
   set MAX_ITERATIONS_1 $RANGE
 
-  mandelbrot1 SetSpacing [expr 1.3 / $XRAD]
+  mandelbrot1 SetSample [expr 1.3 / $XRAD]
   mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
 
-  mandelbrot2 SetSpacing [expr 1.3 / $XRAD]
+  mandelbrot2 SetSample [expr 1.3 / $XRAD]
   mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
 
   MandelbrotUpdate
@@ -250,7 +250,7 @@ proc EndZoom {x y master slave} {
 
   mandelbrot$master Pan $xMid $yMid 0.0
   mandelbrot$master Zoom $scale
-  mandelbrot$slave CopyOriginAndSpacing mandelbrot$master
+  mandelbrot$slave CopyOriginAndSample mandelbrot$master
 
   MandelbrotUpdate
 }
@@ -267,7 +267,7 @@ proc Pan {x y master slave} {
   # Compute new origin.
 
   mandelbrot$master Pan $x $y 0.0
-  mandelbrot$slave CopyOriginAndSpacing mandelbrot$master
+  mandelbrot$slave CopyOriginAndSample mandelbrot$master
 
   MandelbrotUpdate
 }
@@ -285,7 +285,7 @@ proc ZoomOut {x y master slave} {
 
   mandelbrot$master Pan $x $y 0.0
   mandelbrot$master Zoom $scale
-  mandelbrot$slave CopyOriginAndSpacing mandelbrot$master
+  mandelbrot$slave CopyOriginAndSample mandelbrot$master
 
   MandelbrotUpdate
 }
