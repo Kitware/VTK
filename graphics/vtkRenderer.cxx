@@ -811,6 +811,10 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Allocated Render Time: " << this->AllocatedRenderTime
      << "\n";
+
+  os << indent << "Last Time To Render (Seconds): " 
+     << this->LastRenderTimeInSeconds << endl;
+
 }
 
 int vtkRenderer::VisibleActorCount()

@@ -231,6 +231,11 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
 
 void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkCuller::PrintSelf(os,indent);
+  this->vtkCuller::PrintSelf(os,indent);
 
+  os << indent << "Minimum Coverage: " 
+     << this->MinimumCoverage << endl;
+
+  os << indent << "Maximum Coverage: " 
+     << this->MaximumCoverage << endl;
 }

@@ -196,6 +196,8 @@ void vtkEncodedGradientEstimator::Update( )
 // Print the vtkEncodedGradientEstimator
 void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->vtkReferenceCount::PrintSelf(os, indent);
+
   if ( this->ScalarInput )
     {
     os << indent << "ScalarInput: (" << this->ScalarInput << ")\n";
@@ -214,5 +216,15 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "DirectionEncoder: (none)\n";
     }
 
-  os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
+  os << indent << "Build Time: " 
+     << this->BuildTime.GetMTime() << endl;
+
+  os << indent << "Gradient Magnitude Scale: " 
+     << this->GradientMagnitudeScale << endl;
+
+  os << indent << "Gradient Magnitude Bias: " 
+     << this->GradientMagnitudeBias << endl;
+
+  os << indent << "Number Of Threads: " 
+     << this->NumberOfThreads << endl;
 }

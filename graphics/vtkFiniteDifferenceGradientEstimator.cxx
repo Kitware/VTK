@@ -314,7 +314,7 @@ void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
 void vtkFiniteDifferenceGradientEstimator::PrintSelf(ostream& os, 
 						     vtkIndent indent)
 {
-  vtkEncodedGradientEstimator::PrintSelf(os, indent);
+  this->vtkEncodedGradientEstimator::PrintSelf(os, indent);
   
   os << indent << "Sample spacing in voxels: " << 
     this->SampleSpacingInVoxels << endl;
