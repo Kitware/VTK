@@ -407,7 +407,22 @@ void vtkCyberReader::Execute()
     {// for polys in x 
     for (lt=0; lt<(nlt-1); ++lt) 
       {// for polys in y 
-      CHECK_FOR_VOID(lt+vtx->ltmin,lg+vtx->lgmin,nlg,voidLoc);
+      if (vtx->pnt[lg+vtx->lgmin][lt+vtx->ltmin][voidLoc] == SMALL_VOID)
+	{
+	continue;
+	}
+      if (vtx->pnt[vtx->lgmin+((lg+1)%nlg)][lt+vtx->ltmin][voidLoc] == SMALL_VOID)
+	{
+	continue;
+	}
+      if (vtx->pnt[vtx->lgmin+((lg+1)%nlg)][lt+vtx->ltmin+1][voidLoc] == SMALL_VOID)
+	{
+	continue;
+	}
+      if (vtx->pnt[lg+vtx->lgmin][lt+vtx->ltmin+1][voidLoc] == SMALL_VOID)
+	{
+	continue;
+	}
       pts[0] = (lg  )*nlt + (lt  );
       pts[2] = ((lg+1)%nlg)*nlt + (lt  );
       pts[1] = ((lg+1)%nlg)*nlt + (lt+1);
