@@ -78,7 +78,7 @@ void vtkRectilinearGridWriter::WriteData()
   *fp << "DATASET RECTILINEAR_GRID\n"; 
 
   input->GetDimensions(dim);
-  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] < "\n";
+  *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 
   this->WriteCoordinates(fp, input->GetXCoordinates(), 0);
   this->WriteCoordinates(fp, input->GetYCoordinates(), 1);
