@@ -32,6 +32,13 @@ typedef float    FTGL_FLOAT;
 
 #else
 
+// Some sgi compilers do not define true, false and bool
+#ifndef false
+#define false 0
+#define true 1
+#define bool char
+#endif
+
     // Non windows platforms - don't require nonsense as seen above :-)    
     #ifndef __gl_h_
         #ifdef __APPLE_CC__
