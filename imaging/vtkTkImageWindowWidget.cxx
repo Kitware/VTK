@@ -24,14 +24,14 @@
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own ImageWindow window.
 static Tk_ConfigSpec vtkTkImageWindowWidgetConfigSpecs[] = {
-    {TK_CONFIG_PIXELS, "-height", "height", "Height",
-     "400", Tk_Offset(struct vtkTkImageWindowWidget, Height), 0, NULL},
+    {TK_CONFIG_PIXELS, (char *) "-height", (char *) "height", (char *) "Height",
+     (char *) "400", Tk_Offset(struct vtkTkImageWindowWidget, Height), 0, NULL},
   
-    {TK_CONFIG_PIXELS, "-width", "width", "Width",
-     "400", Tk_Offset(struct vtkTkImageWindowWidget, Width), 0, NULL},
+    {TK_CONFIG_PIXELS, (char *) "-width", (char *) "width", (char *) "Width",
+     (char *) "400", Tk_Offset(struct vtkTkImageWindowWidget, Width), 0, NULL},
   
-    {TK_CONFIG_STRING, "-iw", "iw", "IW",
-     "", Tk_Offset(struct vtkTkImageWindowWidget, IW), 0, NULL},
+    {TK_CONFIG_STRING, (char *) "-iw", (char *) "iw", (char *) "IW",
+     (char *) "", Tk_Offset(struct vtkTkImageWindowWidget, IW), 0, NULL},
 
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
      (char *) NULL, 0, 0, NULL}
@@ -192,7 +192,7 @@ static int vtkTkImageWindowWidget_Cmd(ClientData clientData,
     }
   
   // Tcl needs this for setting options and matching event bindings.
-  Tk_SetClass(tkwin, "vtkTkImageWindowWidget");
+  Tk_SetClass(tkwin, (char *) "vtkTkImageWindowWidget");
   
   // Create vtkTkImageWindowWidget data structure 
   self = (struct vtkTkImageWindowWidget *)
@@ -216,7 +216,7 @@ static int vtkTkImageWindowWidget_Cmd(ClientData clientData,
       == TCL_ERROR) 
     {
     Tk_DestroyWindow(tkwin);
-    Tcl_DeleteCommand(interp, "vtkTkImageWindowWidget");
+    Tcl_DeleteCommand(interp, (char *) "vtkTkImageWindowWidget");
     // Don't free it, if we do a crash occurs later...
     //free(self);  
     return TCL_ERROR;
@@ -314,12 +314,12 @@ static void vtkTkImageWindowWidget_EventProc(ClientData clientData,
 extern "C" {VTK_EXPORT int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}
 int Vtktkimagewindowwidget_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, "Vtktkimagewindowwidget", "1.2") != TCL_OK) 
+  if (Tcl_PkgProvide(interp, (char *) "Vtktkimagewindowwidget", (char *) "1.2") != TCL_OK) 
     {
     return TCL_ERROR;
     }
   
-  Tcl_CreateCommand(interp, "vtkTkImageWindowWidget", 
+  Tcl_CreateCommand(interp, (char *) "vtkTkImageWindowWidget", 
 		    vtkTkImageWindowWidget_Cmd, 
 		    Tk_MainWindow(interp), NULL);
   

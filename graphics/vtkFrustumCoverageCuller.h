@@ -101,7 +101,7 @@ public:
     {this->SetSortingStyle(VTK_CULLER_SORT_BACK_TO_FRONT);};
   void SetSortingStyleToFrontToBack()
     {this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK);};
-  char *GetSortingStyleAsString(void);
+  const char *GetSortingStyleAsString(void);
 
 //BTX
   // Description:

@@ -123,7 +123,7 @@ public:
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
   void SetDataByteOrder(int);
-  char *GetDataByteOrderAsString();
+  const char *GetDataByteOrderAsString();
 
   // Description:
   // Turn on/off byte swapping.

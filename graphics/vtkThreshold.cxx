@@ -253,7 +253,7 @@ void vtkThreshold::Execute()
 }
 
 // Return the method for manipulating scalar data as a string.
-char *vtkThreshold::GetAttributeModeAsString(void)
+const char *vtkThreshold::GetAttributeModeAsString(void)
 {
   if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
     {

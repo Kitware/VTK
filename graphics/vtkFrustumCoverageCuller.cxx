@@ -355,7 +355,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 
 // Description:
 // Return the sorting style as a descriptive character string.
-char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
+const char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
 {
   if( this->SortingStyle == VTK_CULLER_SORT_NONE )
     {

@@ -77,7 +77,7 @@ public:
   void SetInputString(char *in) {this->Reader->SetInputString(in);}
   void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}
   char *GetInputString() { return this->Reader->GetInputString();}
-  void SetBinaryInputString(unsigned char *in, int len) {
+  void SetBinaryInputString(char *in, int len) {
       this->Reader->SetBinaryInputString(in,len);};
 
   // Description:

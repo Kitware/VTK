@@ -171,7 +171,7 @@ public:
   void SetDataByteOrderToLittleEndian();
   int GetDataByteOrder();
   void SetDataByteOrder(int);
-  char *GetDataByteOrderAsString();
+  const char *GetDataByteOrderAsString();
 
   // Description:
   // Set/Get the byte swapping to explicitly swap the bytes of a file.

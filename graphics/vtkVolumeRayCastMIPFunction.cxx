@@ -560,7 +560,7 @@ void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize(
 
 // Description:
 // Return the maximize method as a descriptive character string.
-char *vtkVolumeRayCastMIPFunction::GetMaximizeMethodAsString(void)
+const char *vtkVolumeRayCastMIPFunction::GetMaximizeMethodAsString(void)
 {
   if( this->MaximizeMethod == VTK_MAXIMIZE_SCALAR_VALUE )
     {

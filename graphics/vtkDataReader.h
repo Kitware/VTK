@@ -90,11 +90,11 @@ public:
   // Description:
   // Specify the InputString for use when reading from a character array.
   // Optionally include the length for binary strings.
-  void SetInputString(char *in);
+  void SetInputString(const char *in);
   vtkGetStringMacro(InputString);
-  void SetInputString(char *in, int len);
+  void SetInputString(const char *in, int len);
   vtkGetMacro(InputStringLength, int);
-  void SetBinaryInputString(unsigned char *, int len);
+  void SetBinaryInputString(const char *, int len);
     
   // Description:
   // Get the header from the vtk data file.
@@ -205,7 +205,7 @@ public:
   // which coordinate axes (0,1,2) is being read.
   int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
 
-  vtkDataArray *ReadArray(char *dataType, int numTuples, int numComp);
+  vtkDataArray *ReadArray(const char *dataType, int numTuples, int numComp);
   vtkFieldData *ReadFieldData();
 
   // Description:

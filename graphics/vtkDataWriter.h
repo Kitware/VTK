@@ -182,7 +182,7 @@ public:
 
   // Description:
   // Write out the cells of the data set.
-  int WriteCells(ostream *fp, vtkCellArray *cells, char *label);
+  int WriteCells(ostream *fp, vtkCellArray *cells, const char *label);
 
   // Description:
   // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
@@ -234,7 +234,7 @@ protected:
   char *LookupTableName;
   char *FieldDataName;
 
-  int WriteArray(ostream *fp, int dataType, vtkDataArray *data, char *format, 
+  int WriteArray(ostream *fp, int dataType, vtkDataArray *data, const char *format, 
 		 int num, int numComp);
   int WriteScalarData(ostream *fp, vtkScalars *s, int num);
   int WriteVectorData(ostream *fp, vtkVectors *v, int num);

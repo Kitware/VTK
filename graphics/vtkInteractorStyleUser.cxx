@@ -94,7 +94,7 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
   this->Char = '\0';
-  this->KeySym = "";
+  this->KeySym = (char *) "";
   this->Button = 0;
 }
 

@@ -127,7 +127,7 @@ void vtkDataSetReader::SetFileName(const char *name)
   this->Reader->SetFileName(name);
 }
 
-char *vtkDataSetReader::GetFileName() 
+const char *vtkDataSetReader::GetFileName() 
 {
   return this->Reader->GetFileName();
 }
@@ -140,77 +140,77 @@ int vtkDataSetReader::GetFileType()
 
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
-void vtkDataSetReader::SetScalarsName(char *name) 
+void vtkDataSetReader::SetScalarsName(const char *name) 
 {
   this->Reader->SetScalarsName(name);
 }
-char *vtkDataSetReader::GetScalarsName() 
+const char *vtkDataSetReader::GetScalarsName() 
 {
   return this->Reader->GetScalarsName();
 }
 
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
-void vtkDataSetReader::SetVectorsName(char *name) 
+void vtkDataSetReader::SetVectorsName(const char *name) 
 {
   this->Reader->SetVectorsName(name);
 }
-char *vtkDataSetReader::GetVectorsName() 
+const char *vtkDataSetReader::GetVectorsName() 
 {
   return this->Reader->GetVectorsName();
 }
 
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
-void vtkDataSetReader::SetTensorsName(char *name) 
+void vtkDataSetReader::SetTensorsName(const char *name) 
 {
   this->Reader->SetTensorsName(name);
 }
-char *vtkDataSetReader::GetTensorsName() 
+const char *vtkDataSetReader::GetTensorsName() 
 {
   return this->Reader->GetTensorsName();
 }
 
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
-void vtkDataSetReader::SetNormalsName(char *name) 
+void vtkDataSetReader::SetNormalsName(const char *name) 
 {
   this->Reader->SetNormalsName(name);
 }
-char *vtkDataSetReader::GetNormalsName() 
+const char *vtkDataSetReader::GetNormalsName() 
 {
   return this->Reader->GetNormalsName();
 }
 
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
-void vtkDataSetReader::SetTCoordsName(char *name) 
+void vtkDataSetReader::SetTCoordsName(const char *name) 
 {
   this->Reader->SetTCoordsName(name);
 }
-char *vtkDataSetReader::GetTCoordsName() 
+const char *vtkDataSetReader::GetTCoordsName() 
 {
   return this->Reader->GetTCoordsName();
 }
 
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
-void vtkDataSetReader::SetLookupTableName(char *name) 
+void vtkDataSetReader::SetLookupTableName(const char *name) 
 {
   this->Reader->SetLookupTableName(name);
 }
-char *vtkDataSetReader::GetLookupTableName() 
+const char *vtkDataSetReader::GetLookupTableName() 
 {
   return this->Reader->GetLookupTableName();
 }
 
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
-void vtkDataSetReader::SetFieldDataName(char *name) 
+void vtkDataSetReader::SetFieldDataName(const char *name) 
 {
   this->Reader->SetFieldDataName(name);
 }
-char *vtkDataSetReader::GetFieldDataName() 
+const char *vtkDataSetReader::GetFieldDataName() 
 {
   return this->Reader->GetFieldDataName();
 }

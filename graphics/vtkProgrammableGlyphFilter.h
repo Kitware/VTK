@@ -139,7 +139,7 @@ public:
     {this->SetColorMode(VTK_COLOR_BY_INPUT);};
   void SetColorModeToColorBySource() 
     {this->SetColorMode(VTK_COLOR_BY_SOURCE);};
-  char *GetColorModeAsString();
+  const char *GetColorModeAsString();
 
 protected:
   vtkProgrammableGlyphFilter();

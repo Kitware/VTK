@@ -158,7 +158,7 @@ public:
 
   // Description:
   // Return the method of coloring scalar data.
-  char *GetColorModeAsString();
+  const char *GetColorModeAsString();
 
   // Description:
   // Turn on/off flag to control whether data is rendered using

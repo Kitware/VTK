@@ -171,7 +171,7 @@ void vtkDataReader::SetSource(vtkSource *source)
 }
 
 
-void vtkDataReader::SetInputString(char* in)
+void vtkDataReader::SetInputString(const char *in)
 { 
   if (in != NULL)
     {
@@ -187,12 +187,12 @@ void vtkDataReader::SetInputString(char* in)
     }
 }
 
-void vtkDataReader::SetBinaryInputString(unsigned char* in, int len)
+void vtkDataReader::SetBinaryInputString(const char *in, int len)
 {
-    this->SetInputString((char *)in,len);
+    this->SetInputString(in,len);
 }
 
-void vtkDataReader::SetInputString(char* in, int len)
+void vtkDataReader::SetInputString(const char *in, int len)
 { 
   if (this->Debug)
     {
@@ -842,9 +842,11 @@ static int ReadASCIIData(vtkDataReader *self, T *data, int numTuples, int numCom
 // object with initial count of one; proper protocol is for you to assign 
 // the data object and then invoke Delete() it to restore proper reference
 // count.
-vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numComp)
+vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int numComp)
 {
-  char *type=this->LowerCase(dataType);
+  char *type=strdup(dataType);
+  type=this->LowerCase(type);
+
   vtkDataArray *array;
 
   if ( ! strncmp(type, "bit", 3) )
@@ -860,6 +862,7 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
       if (this->IS->eof())
         {
         vtkErrorMacro(<<"Error reading binary bit array!");
+	free(type);
         return NULL;
         }
       }
@@ -873,7 +876,8 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
           if ( !this->Read(&b) )
             {
 	      vtkErrorMacro(<<"Error reading ascii bit array! tuple: " << i << ", component: " << j);
-            return NULL;
+	      free(type);
+	      return NULL;
             }
           else
             {
@@ -1046,9 +1050,11 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   else 
     {
     vtkErrorMacro(<< "Unsupported data type: " << type);
+    free(type);
     return NULL;
     }
 
+  free(type);
   return array;
 }
 

@@ -92,7 +92,7 @@ public:
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
   void SetAttributeModeToUseCellData() 
     {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
-  char *GetAttributeModeAsString();
+  const char *GetAttributeModeAsString();
 
 protected:
   vtkVectorNorm();

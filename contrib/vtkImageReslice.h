@@ -133,7 +133,7 @@ public:
     { this->SetInterpolationMode(VTK_RESLICE_LINEAR); };
   void SetInterpolationModeToCubic()
     { this->SetInterpolationMode(VTK_RESLICE_CUBIC); };
-  char *GetInterpolationModeAsString();
+  const char *GetInterpolationModeAsString();
 
   // Description:
   // Obsolete method, but still convenient for switching between 
@@ -223,7 +223,7 @@ protected:
 };
 
 //----------------------------------------------------------------------------
-inline char *vtkImageReslice::GetInterpolationModeAsString()
+inline const char *vtkImageReslice::GetInterpolationModeAsString()
 {
   switch (this->InterpolationMode)
     {

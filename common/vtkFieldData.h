@@ -114,19 +114,19 @@ public:
   // Description:
   // Add an array to the end of the array list, and set the name
   // return the new array index
-  int AddArray(vtkDataArray *array, char *name);
+  int AddArray(vtkDataArray *array, const char *name);
 
   // Description:
   // Add an array to the end of the array list, and set the name
   // return the new array index. if array with given name
   // already exists - overwrites it
-  int AddReplaceArray(vtkDataArray *array, char *name);
+  int AddReplaceArray(vtkDataArray *array, const char *name);
 
   // Description:
   // Add an array to the end of the array list, and set the name
   // return the new array index. returns -1 if array with given name
   // already exists and does not overwrite it
-  int AddNoReplaceArray(vtkDataArray *array, char *name);
+  int AddNoReplaceArray(vtkDataArray *array, const char *name);
 
   // Description:
   // Return the array containing the ith component of the field. The
@@ -138,16 +138,16 @@ public:
 
   // Description:
   // Return the array with the name given. Returns NULL is array not found.
-  vtkDataArray *GetArray(char *arrayName);
+  vtkDataArray *GetArray(const char *arrayName);
 
   // Description:
   // Return the array with the name given. Returns NULL is array not found.
   // Also returns index of array if found, -1 otherwise
-  vtkDataArray *GetArray(char *arrayName, int &index);
+  vtkDataArray *GetArray(const char *arrayName, int &index);
 
   // Description:
   // Set/Get the name for an array of data.
-  void SetArrayName(int i,char *name);
+  void SetArrayName(int i,const char *name);
   char *GetArrayName(int i);
 
   // Description:

@@ -173,7 +173,7 @@ int vtkPiecewiseFunction::GetSize()
 //    3 : Varied          (Contains both decreasing and increasing slopes)
 //    4 : Unknown         (Error condition)
 //
-char *vtkPiecewiseFunction::GetType()
+const char *vtkPiecewiseFunction::GetType()
 {
   int   i;
   float value;

@@ -85,7 +85,7 @@ public:
     {this->SetMaximizeMethod(VTK_MAXIMIZE_SCALAR_VALUE);}
   void SetMaximizeMethodToOpacity() 
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
-  char *GetMaximizeMethodAsString(void);
+  const char *GetMaximizeMethodAsString(void);
 
 //BTX
   void CastRay( VTKRayCastRayInfo *rayInfo,

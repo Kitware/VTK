@@ -61,14 +61,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own ImageViewer window.
 static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
-    {TK_CONFIG_PIXELS, "-height", "height", "Height",
-     "400", Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, NULL},
+    {TK_CONFIG_PIXELS, (char *) "-height", (char *) "height", (char *) "Height",
+     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, NULL},
   
-    {TK_CONFIG_PIXELS, "-width", "width", "Width",
-     "400", Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, NULL},
+    {TK_CONFIG_PIXELS, (char *) "-width", (char *) "width", (char *) "Width",
+     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, NULL},
   
-    {TK_CONFIG_STRING, "-iv", "iv", "IV",
-     "", Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, NULL},
+    {TK_CONFIG_STRING, (char *) "-iv", (char *) "iv", (char *) "IV",
+     (char *) "", Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, NULL},
 
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
      (char *) NULL, 0, 0, NULL}
@@ -229,7 +229,7 @@ static int vtkTkImageViewerWidget_Cmd(ClientData clientData,
     }
   
   // Tcl needs this for setting options and matching event bindings.
-  Tk_SetClass(tkwin, "vtkTkImageViewerWidget");
+  Tk_SetClass(tkwin, (char *) "vtkTkImageViewerWidget");
   
   // Create vtkTkImageViewerWidget data structure 
   self = (struct vtkTkImageViewerWidget *)
@@ -253,7 +253,7 @@ static int vtkTkImageViewerWidget_Cmd(ClientData clientData,
       == TCL_ERROR) 
     {
     Tk_DestroyWindow(tkwin);
-    Tcl_DeleteCommand(interp, "vtkTkImageViewerWidget");
+    Tcl_DeleteCommand(interp, (char *) "vtkTkImageViewerWidget");
     // Don't free it, if we do a crash occurs later...
     //free(self);  
     return TCL_ERROR;
@@ -357,12 +357,12 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
 extern "C" {VTK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 int Vtktkimageviewerwidget_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, "Vtktkimageviewerwidget", "1.2") != TCL_OK) 
+  if (Tcl_PkgProvide(interp, (char *) "Vtktkimageviewerwidget", (char *) "1.2") != TCL_OK) 
     {
     return TCL_ERROR;
     }
   
-  Tcl_CreateCommand(interp, "vtkTkImageViewerWidget", 
+  Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
 		    vtkTkImageViewerWidget_Cmd, 
 		    Tk_MainWindow(interp), NULL);
   

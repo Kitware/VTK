@@ -74,7 +74,7 @@ public:
     {this->SetCompositeMethod(VTK_COMPOSITE_INTERPOLATE_FIRST);}
   void SetCompositeMethodToClassifyFirst() 
     {this->SetCompositeMethod(VTK_COMPOSITE_CLASSIFY_FIRST);}
-  char *GetCompositeMethodAsString(void);
+  const char *GetCompositeMethodAsString(void);
 
 //BTX
   void CastRay( VTKRayCastRayInfo *rayInfo,

@@ -178,7 +178,7 @@ public:
   vtkGetMacro(ProcessMode, int);
   void SetProcessModeToPerVoxel() {this->SetProcessMode(VTK_VOXEL_MODE);}
   void SetProcessModeToPerCell()  {this->SetProcessMode(VTK_CELL_MODE);}
-  char *GetProcessModeAsString(void);
+  const char *GetProcessModeAsString(void);
 
   // Description:
   // Specify the level of the locator to use when using the per voxel

@@ -518,7 +518,7 @@ void vtkFieldData::GetField(vtkIdList *ptIds, vtkFieldData *f)
     }
 }
 
-void vtkFieldData::SetArrayName(int i, char *name)
+void vtkFieldData::SetArrayName(int i, const char *name)
 {
   if ( i < 0 )
     {
@@ -593,13 +593,13 @@ int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
   return -1;
 }
 
-vtkDataArray *vtkFieldData::GetArray(char *arrayName)
+vtkDataArray *vtkFieldData::GetArray(const char *arrayName)
 {
   int i;
   return this->GetArray(arrayName, i);
 }
 
-vtkDataArray *vtkFieldData::GetArray(char *arrayName, int &index)
+vtkDataArray *vtkFieldData::GetArray(const char *arrayName, int &index)
 {
   int i;
   char *name;
@@ -623,14 +623,14 @@ int vtkFieldData::AddArray(vtkDataArray *array)
   return n;
 }
 
-int vtkFieldData::AddArray(vtkDataArray *array, char *name)
+int vtkFieldData::AddArray(vtkDataArray *array, const char *name)
 {
   int n = this->AddArray(array);
   this->SetArrayName(n,name);
   return n;
 }
 
-int vtkFieldData::AddReplaceArray(vtkDataArray *array, char *name)
+int vtkFieldData::AddReplaceArray(vtkDataArray *array, const char *name)
 {
     int index;
     vtkDataArray *oldarray = this->GetArray(name, index);
@@ -646,7 +646,7 @@ int vtkFieldData::AddReplaceArray(vtkDataArray *array, char *name)
     return index;
 }
 
-int vtkFieldData::AddNoReplaceArray(vtkDataArray *array, char *name)
+int vtkFieldData::AddNoReplaceArray(vtkDataArray *array, const char *name)
 {
   // check an array with this name isn't already present
   if (this->GetArray(name))

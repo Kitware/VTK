@@ -98,7 +98,7 @@ public:
     { this->SetInterpolationMode(VTK_GRID_LINEAR); };
   void SetInterpolationModeToCubic()
     { this->SetInterpolationMode(VTK_GRID_CUBIC); };
-  char *GetInterpolationModeAsString();
+  const char *GetInterpolationModeAsString();
 
   // Description:
   // Make another transform of the same type.
@@ -155,7 +155,7 @@ protected:
 //BTX
 
 //----------------------------------------------------------------------------
-inline char *vtkGridTransform::GetInterpolationModeAsString()
+inline const char *vtkGridTransform::GetInterpolationModeAsString()
 {
   switch (this->InterpolationMode)
     {

@@ -186,7 +186,7 @@ void vtkVectorNorm::Execute()
 }
 
 // Return the method for generating scalar data as a string.
-char *vtkVectorNorm::GetAttributeModeAsString(void)
+const char *vtkVectorNorm::GetAttributeModeAsString(void)
 {
   if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
     {

@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)
 {
-  vtkTclInterpStruct *is = (vtkTclInterpStruct *)Tcl_GetAssocData(interp,"vtk",NULL);
+  vtkTclInterpStruct *is = (vtkTclInterpStruct *)Tcl_GetAssocData(interp,(char *) "vtk",NULL);
   if (!is)
     {
     vtkGenericWarningMacro("unable to find interp struct");
@@ -99,7 +99,7 @@ VTKTCL_EXPORT void vtkTclGenericDeleteObject(ClientData cd)
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
 
   /* set up the args */
-  args[1] = "Delete";
+  args[1] = (char *) "Delete";
 
   // lookup the objects name
   sprintf(temps,"%p",as->Pointer);
@@ -351,7 +351,7 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     }
 
   /* set up the args */
-  args[0] = "DoTypecasting";
+  args[0] = (char *) "DoTypecasting";
   args[1] = strdup(result_type);
   args[2] = NULL;
   vtkTclCommandArgStruct foo;
@@ -367,9 +367,9 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     Tcl_Interp *i;
     i = Tcl_CreateInterp();
     // provide more diagnostic info
-    args[0] = "Dummy";
+    args[0] = (char *) "Dummy";
     free (args[1]);
-    args[1] = "GetClassName";
+    args[1] = (char *) "GetClassName";
     args[2] = NULL;
     command((ClientData)&foo,i,2,args);
 
@@ -394,11 +394,11 @@ VTKTCL_EXPORT void vtkTclVoidFunc(void *arg)
 
   if (res == TCL_ERROR)
     {
-    if (Tcl_GetVar(arg2->interp,"errorInfo",0))
+    if (Tcl_GetVar(arg2->interp,(char *) "errorInfo",0))
       {
       vtkGenericWarningMacro("Error returned from vtk/tcl callback:\n" <<
 			     arg2->command << endl <<
-			     Tcl_GetVar(arg2->interp,"errorInfo",0) <<
+			     Tcl_GetVar(arg2->interp,(char *) "errorInfo",0) <<
 			     " at line number " << arg2->interp->errorLine);
       }
     else
@@ -468,7 +468,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
 
   if (argc != 2)
     {
-    Tcl_SetResult(interp, "vtk object creation requires one argument, a name.", TCL_VOLATILE);
+    Tcl_SetResult(interp, (char *) "vtk object creation requires one argument, a name.", TCL_VOLATILE);
     return TCL_ERROR;
     }
 

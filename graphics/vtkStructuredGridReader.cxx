@@ -79,11 +79,11 @@ unsigned long int vtkStructuredGridReader::GetMTime()
 }
 
 // Specify file name of vtk polygonal data file to read.
-void vtkStructuredGridReader::SetFileName(char *name) 
+void vtkStructuredGridReader::SetFileName(const char *name) 
 {
   this->Reader->SetFileName(name);
 }
-char *vtkStructuredGridReader::GetFileName() 
+const char *vtkStructuredGridReader::GetFileName() 
 {
   return this->Reader->GetFileName();
 }
@@ -96,77 +96,77 @@ int vtkStructuredGridReader::GetFileType()
 
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
-void vtkStructuredGridReader::SetScalarsName(char *name) 
+void vtkStructuredGridReader::SetScalarsName(const char *name) 
 {
   this->Reader->SetScalarsName(name);
 }
-char *vtkStructuredGridReader::GetScalarsName() 
+const char *vtkStructuredGridReader::GetScalarsName() 
 {
   return this->Reader->GetScalarsName();
 }
 
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
-void vtkStructuredGridReader::SetVectorsName(char *name) 
+void vtkStructuredGridReader::SetVectorsName(const char *name) 
 {
   this->Reader->SetVectorsName(name);
 }
-char *vtkStructuredGridReader::GetVectorsName() 
+const char *vtkStructuredGridReader::GetVectorsName() 
 {
   return this->Reader->GetVectorsName();
 }
 
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
-void vtkStructuredGridReader::SetTensorsName(char *name) 
+void vtkStructuredGridReader::SetTensorsName(const char *name) 
 {
   this->Reader->SetTensorsName(name);
 }
-char *vtkStructuredGridReader::GetTensorsName() 
+const char *vtkStructuredGridReader::GetTensorsName() 
 {
   return this->Reader->GetTensorsName();
 }
 
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
-void vtkStructuredGridReader::SetNormalsName(char *name) 
+void vtkStructuredGridReader::SetNormalsName(const char *name) 
 {
   this->Reader->SetNormalsName(name);
 }
-char *vtkStructuredGridReader::GetNormalsName() 
+const char *vtkStructuredGridReader::GetNormalsName() 
 {
   return this->Reader->GetNormalsName();
 }
 
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
-void vtkStructuredGridReader::SetTCoordsName(char *name) 
+void vtkStructuredGridReader::SetTCoordsName(const char *name) 
 {
   this->Reader->SetTCoordsName(name);
 }
-char *vtkStructuredGridReader::GetTCoordsName() 
+const char *vtkStructuredGridReader::GetTCoordsName() 
 {
   return this->Reader->GetTCoordsName();
 }
 
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
-void vtkStructuredGridReader::SetLookupTableName(char *name) 
+void vtkStructuredGridReader::SetLookupTableName(const char *name) 
 {
   this->Reader->SetLookupTableName(name);
 }
-char *vtkStructuredGridReader::GetLookupTableName() 
+const char *vtkStructuredGridReader::GetLookupTableName() 
 {
   return this->Reader->GetLookupTableName();
 }
 
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
-void vtkStructuredGridReader::SetFieldDataName(char *name) 
+void vtkStructuredGridReader::SetFieldDataName(const char *name) 
 {
   this->Reader->SetFieldDataName(name);
 }
-char *vtkStructuredGridReader::GetFieldDataName() 
+const char *vtkStructuredGridReader::GetFieldDataName() 
 {
   return this->Reader->GetFieldDataName();
 }

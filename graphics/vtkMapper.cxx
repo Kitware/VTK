@@ -304,7 +304,7 @@ void vtkMapper::Update()
 
 
 // Return the method of coloring scalar data.
-char *vtkMapper::GetColorModeAsString(void)
+const char *vtkMapper::GetColorModeAsString(void)
 {
   if ( this->ColorMode == VTK_COLOR_MODE_LUMINANCE )
     {

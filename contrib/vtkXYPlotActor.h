@@ -177,7 +177,7 @@ public:
   void SetXValuesToNormalizedArcLength()
     {this->SetXValues(VTK_XYPLOT_NORMALIZED_ARC_LENGTH);};
   void SetXValuesToValue() {this->SetXValues(VTK_XYPLOT_VALUE);};
-  char *GetXValuesAsString();
+  const char *GetXValuesAsString();
 
   //---Data Object Input------------------------------------------------------
   // The following methods are used to plot input data objects. Datasets will
@@ -207,7 +207,7 @@ public:
     {this->SetDataObjectPlotMode(VTK_XYPLOT_ROW);}
   void SetDataObjectPlotModeToColumns()
     {this->SetDataObjectPlotMode(VTK_XYPLOT_COLUMN);}
-  char *GetDataObjectPlotModeAsString();
+  const char *GetDataObjectPlotModeAsString();
 
   // Description:
   // Specify which component of the input data object to use as the
@@ -240,8 +240,8 @@ public:
   float *GetPlotColor(int i);
   void SetPlotSymbol(int i,vtkPolyData *input);
   vtkPolyData *GetPlotSymbol(int i);
-  void SetPlotLabel(int i, char *label);
-  char *GetPlotLabel(int i);
+  void SetPlotLabel(int i, const char *label);
+  const char *GetPlotLabel(int i);
   //---end Per Curve Properties-----------------------------------------------
 
   // Description:

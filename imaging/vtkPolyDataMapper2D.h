@@ -111,7 +111,7 @@ public:
     {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
   void SetColorModeToLuminance() 
     {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
-  char *GetColorModeAsString();
+  const char *GetColorModeAsString();
 
   // Description:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These

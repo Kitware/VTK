@@ -89,7 +89,7 @@ static MatProp DefaultMaterial =
 
 static void cleanup_name (char *);
 static void list_insert (List **root, List *new_node);
-static void *list_find (List **root, char *name);
+static void *list_find (List **root, const char *name);
 static void list_kill (List **root);
 static MatProp *create_mprop (void);
 static Mesh *create_mesh (char *name, int vertices, int faces);
@@ -116,7 +116,7 @@ static void parse_colour_24 (vtk3DSImporter *importer, Colour_24 *colour);
 static float parse_percentage (vtk3DSImporter *importer);
 static short parse_int_percentage (vtk3DSImporter *importer);
 static float parse_float_percentage (vtk3DSImporter *importer);
-static Material *update_materials (vtk3DSImporter *importer, char *new_material, int ext);
+static Material *update_materials (vtk3DSImporter *importer, const char *new_material, int ext);
 static void start_chunk (vtk3DSImporter *importer, Chunk *chunk);
 static void end_chunk (vtk3DSImporter *importer, Chunk *chunk);
 static byte read_byte (vtk3DSImporter *importer);
@@ -375,7 +375,7 @@ static void list_insert (List **root, List *new_node)
 
 
 /* Find the node with the specified name */
-static void *list_find (List **root, char *name)
+static void *list_find (List **root, const char *name)
 {
     List *p;
     for (p = *root; p != (List *) NULL; p = (List *) p->next)
@@ -401,7 +401,7 @@ static void list_kill (List **root)
 }
 
 /* Add a new material to the material list */
-static Material *update_materials (vtk3DSImporter *importer, char *new_material, int ext)
+static Material *update_materials (vtk3DSImporter *importer, const char *new_material, int ext)
 {
     Material *p;
 

@@ -255,7 +255,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
   return;
 }
 
-void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, char* string,
+void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, const char* string,
                                  float color[3])
 {
   if ( i >= 0 && i < this->NumberOfEntries )
@@ -289,7 +289,7 @@ void vtkLegendBoxActor::SetEntrySymbol(int i, vtkPolyData *symbol)
     }
 }
 
-void vtkLegendBoxActor::SetEntryString(int i, char* string)
+void vtkLegendBoxActor::SetEntryString(int i, const char* string)
 {
   if ( i >= 0 && i < this->NumberOfEntries )
     {
@@ -337,7 +337,7 @@ vtkPolyData *vtkLegendBoxActor::GetEntrySymbol(int i)
     }
 }
 
-char* vtkLegendBoxActor::GetEntryString(int i)
+const char* vtkLegendBoxActor::GetEntryString(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
     {

@@ -950,7 +950,7 @@ void vtkImplicitModeller::Cap(vtkScalars *s)
 }
 
 //----------------------------------------------------------------------------
-char *vtkImplicitModeller::GetProcessModeAsString()
+const char *vtkImplicitModeller::GetProcessModeAsString()
 {
   if (this->ProcessMode == VTK_CELL_MODE)
     {

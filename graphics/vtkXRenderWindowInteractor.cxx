@@ -77,16 +77,16 @@ OptionsRec	Options;
 
 XtResource resources[] =
 {
-	{"visual", "Visual", XtRVisual, sizeof (Visual *),
+	{(char *) "visual", (char *) "Visual", XtRVisual, sizeof (Visual *),
 	XtOffsetOf (OptionsRec, visual), XtRImmediate, NULL},
-	{"depth", "Depth", XtRInt, sizeof (int),
+	{(char *) "depth", (char *) "Depth", XtRInt, sizeof (int),
 	XtOffsetOf (OptionsRec, depth), XtRImmediate, NULL},
 };
 
 XrmOptionDescRec Desc[] =
 {
-	{"-visual", "*visual", XrmoptionSepArg, NULL},
-	{"-depth", "*depth", XrmoptionSepArg, NULL}
+	{(char *) "-visual", (char *) "*visual", XrmoptionSepArg, NULL},
+	{(char *) "-depth", (char *) "*depth", XrmoptionSepArg, NULL}
 };
 
 

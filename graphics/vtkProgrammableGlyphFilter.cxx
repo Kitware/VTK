@@ -320,7 +320,7 @@ void vtkProgrammableGlyphFilter::SetGlyphMethodArgDelete(void (*f)(void *))
 
 // Description:
 // Return the method of coloring as a descriptive character string.
-char *vtkProgrammableGlyphFilter::GetColorModeAsString(void)
+const char *vtkProgrammableGlyphFilter::GetColorModeAsString(void)
 {
   if ( this->ColorMode == VTK_COLOR_BY_INPUT )
     {

@@ -2576,7 +2576,7 @@ void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize(
 
 // Description:
 // Return the composite method as a descriptive character string.
-char *vtkVolumeRayCastCompositeFunction::GetCompositeMethodAsString(void)
+const char *vtkVolumeRayCastCompositeFunction::GetCompositeMethodAsString(void)
 {
   if( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
     {

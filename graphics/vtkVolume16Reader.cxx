@@ -131,7 +131,7 @@ int vtkVolume16Reader::GetDataByteOrder()
 #endif
 }
 
-char *vtkVolume16Reader::GetDataByteOrderAsString()
+const char *vtkVolume16Reader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )

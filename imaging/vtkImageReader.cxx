@@ -328,7 +328,7 @@ int vtkImageReader::GetDataByteOrder()
 #endif
 }
 
-char *vtkImageReader::GetDataByteOrderAsString()
+const char *vtkImageReader::GetDataByteOrderAsString()
 {
 #ifdef VTK_WORDS_BIGENDIAN
   if ( this->SwapBytes )

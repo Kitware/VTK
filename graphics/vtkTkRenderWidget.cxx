@@ -65,14 +65,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own render window.
 static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
-    {TK_CONFIG_PIXELS, "-height", "height", "Height",
-     "400", Tk_Offset(struct vtkTkRenderWidget, Height), 0, NULL},
+    {TK_CONFIG_PIXELS, (char *) "-height", (char *) "height", (char *) "Height",
+     (char *) "400", Tk_Offset(struct vtkTkRenderWidget, Height), 0, NULL},
   
-    {TK_CONFIG_PIXELS, "-width", "width", "Width",
-     "400", Tk_Offset(struct vtkTkRenderWidget, Width), 0, NULL},
+    {TK_CONFIG_PIXELS, (char *) "-width", (char *) "width", (char *) "Width",
+     (char *) "400", Tk_Offset(struct vtkTkRenderWidget, Width), 0, NULL},
   
-    {TK_CONFIG_STRING, "-rw", "rw", "RW",
-     "", Tk_Offset(struct vtkTkRenderWidget, RW), 0, NULL},
+    {TK_CONFIG_STRING, (char *) "-rw", (char *) "rw", (char *) "RW",
+     (char *) "", Tk_Offset(struct vtkTkRenderWidget, RW), 0, NULL},
 
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
      (char *) NULL, 0, 0, NULL}
@@ -229,7 +229,7 @@ static int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
     }
   
   // Tcl needs this for setting options and matching event bindings.
-  Tk_SetClass(tkwin, "vtkTkRenderWidget");
+  Tk_SetClass(tkwin, (char *) "vtkTkRenderWidget");
   
   // Create vtkTkRenderWidget data structure 
   self = (struct vtkTkRenderWidget *)malloc(sizeof(struct vtkTkRenderWidget));
@@ -252,7 +252,7 @@ static int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
       == TCL_ERROR) 
     {
     Tk_DestroyWindow(tkwin);
-    Tcl_DeleteCommand(interp, "vtkTkRenderWidget");
+    Tcl_DeleteCommand(interp, (char *) "vtkTkRenderWidget");
     // Don't free it, if we do a crash occurs later...
     //free(self);  
     return TCL_ERROR;
@@ -370,12 +370,12 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
 extern "C" {int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp);}
 int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
-  if (Tcl_PkgProvide(interp, "Vtktkrenderwidget", "1.2") != TCL_OK) 
+  if (Tcl_PkgProvide(interp, (char *) "Vtktkrenderwidget", (char *) "1.2") != TCL_OK) 
     {
     return TCL_ERROR;
     }
   
-  Tcl_CreateCommand(interp, "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
+  Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
 		    Tk_MainWindow(interp), NULL);
   
   return TCL_OK;
