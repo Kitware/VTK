@@ -83,6 +83,11 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
     this->Input->Delete();
     }
 
+  if ( this->Camera )
+    {
+    this->Camera->UnRegister(this);
+    }
+
   this->XAxis->Delete();
   this->YAxis->Delete();
   this->ZAxis->Delete();
