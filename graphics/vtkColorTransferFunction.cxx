@@ -363,9 +363,9 @@ vtkColorTransferFunctionMapDataToRGBA(vtkColorTransferFunction *self,
   while (--i >= 0) 
     {
     findx = *input;
-    *output++ = R->GetValue(findx);
-    *output++ = G->GetValue(findx);
-    *output++ = B->GetValue(findx);
+    *output++ = 255*R->GetValue(findx);
+    *output++ = 255*G->GetValue(findx);
+    *output++ = 255*B->GetValue(findx);
     *output++ = 255;
     input += incr;
     }
