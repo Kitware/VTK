@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkMCubesReader is a source object that reads binary marching cubes
 // files. (Marching cubes is an isosurfacing technique that generates 
-// many triangles.) The binary format is supported by B. Lorensen's
+// many triangles.) The binary format is supported by W. Lorensen's
 // marching cubes program (and the vtkSliceCubes object). The format 
 // repeats point coordinates, so this object will merge the points 
 // with a vtkLocator object. You can choose to supply the vtkLocator 
@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // Because points are merged when read, degenerate triangles may be removed.
 // Thus the number of triangles read may be fewer than the number of triangles
-// written.
+// actually created.
 // .SECTION See Also
 // vtkMarchingCubes vtkSliceCubes
 

@@ -110,7 +110,7 @@ public:
   // Description:
   // Insert color into next available slot. Returns point id of slot.
   virtual int InsertNextColor(unsigned char rgba[4]) = 0;
-  void InsertNextColor(float R, float G, float B, float A);
+  int InsertNextColor(float R, float G, float B, float A);
 
   // Description:
   // Allocate space for color data.
