@@ -183,9 +183,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
    */
   
 #if (((TK_MAJOR_VERSION == 4)&&(TK_MINOR_VERSION >= 1))||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION >= 0)))
-    Tcl_SetVar(interp, "tcl_rcFileName", "~/.wishrc", TCL_GLOBAL_ONLY);
+    Tcl_SetVar(interp, "tcl_rcFileName", "~/.vtkrc", TCL_GLOBAL_ONLY);
 #else
-    tcl_RcFileName = "~/.wishrc";
+    tcl_RcFileName = "~/.vtkrc";
 #endif
     return TCL_OK;
 }
