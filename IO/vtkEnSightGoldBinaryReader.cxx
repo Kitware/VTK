@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.25");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.26");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,6 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   char line[80], subLine[80];
   int partId;
   int lineRead, i;
-  int firstPart = 1;
   
   // Initialize
   //
