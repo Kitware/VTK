@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkDataSet - abstract class to specify dataset behavior
 // .SECTION Description
 // vtkDataSet is an abstract class that specifies an interface for 
-// data objects. (Data objects are synomous with datasets). vtkDataSet
+// data objects. (Data objects are synonymous with datasets). vtkDataSet
 // also provides methods to provide informations about the data such
 // as center, bounding box, and representative length.
 
