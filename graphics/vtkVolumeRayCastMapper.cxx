@@ -687,7 +687,7 @@ void vtkVolumeRayCastMapper::RenderParallelImage( vtkRenderer *ren )
   // Loop through all pixels and cast rays where necessary
   for ( j = 0; j < this->ViewRaysSize[1]; j++ )
     {
-    noAbort = !(renWin->GetAbortRender());
+    noAbort = !(renWin->CheckAbortStatus());
     if (noAbort)
       {
       ray_origin[0] = start_ray[0] + (float)j * this->YOriginIncrement[0];
@@ -956,7 +956,7 @@ void vtkVolumeRayCastMapper::RenderPerspectiveImage( vtkRenderer *ren )
   // Loop through all pixel    
   for ( j = 0; j < this->ViewRaysSize[1]; j++ )
     {
-    noAbort = !(renWin->GetAbortRender());
+    noAbort = !(renWin->CheckAbortStatus());
     if (noAbort)
       {
       for ( i = 0; i < this->ViewRaysSize[0]; i++ )
