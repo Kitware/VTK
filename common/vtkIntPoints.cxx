@@ -40,6 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkIntPoints.h"
 
+vtkIntPoints::vtkIntPoints()
+{
+  this->P = new vtkIntArray;
+}
+
+vtkIntPoints::vtkIntPoints(const vtkIntPoints& ss)
+{
+  this->P = new vtkIntArray;
+  *(this->P) = *(ss.P);
+}
+
+vtkIntPoints::vtkIntPoints(const int sz, const int ext)
+{
+  this->P = new vtkIntArray(sz*3,ext*3);
+}
+
+vtkIntPoints::~vtkIntPoints()
+{
+  this->P->Delete();
+}
+
 vtkPoints *vtkIntPoints::MakeObject(int sze, int ext)
 {
   return new vtkIntPoints(sze,ext);
@@ -49,14 +70,14 @@ vtkPoints *vtkIntPoints::MakeObject(int sze, int ext)
 // Deep copy of points.
 vtkIntPoints& vtkIntPoints::operator=(const vtkIntPoints& fp)
 {
-  this->P = fp.P;
+  *(this->P) = *(fp.P);
   return *this;
 }
 
 float *vtkIntPoints::GetPoint(int i)
 {
   static float x[3];
-  int *iptr = this->P.GetPtr(3*i);
+  int *iptr = this->P->GetPtr(3*i);
   x[0] = (float)iptr[0]; x[1] = (float)iptr[1]; x[2] = (float)iptr[2];
   return x;
 };
