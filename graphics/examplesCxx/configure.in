@@ -19,37 +19,102 @@ AC_ISC_POSIX
 AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h unistd.h)
 
-AC_CHECK_HEADERS(starbase.c.h, sbr_obj=$srcdir/../../Makefile.in.sbr)
-AC_SUBST_FILE(sbr_obj)
+##########################
+##			##
+##	Starbase	##
+##			##
+##########################
+use_sbr=no
+AC_CHECK_HEADERS(starbase.c.h, [use_sbr=yes])
 
-AC_CHECK_HEADERS(gl/gl.h, glr_obj=$srcdir/../../Makefile.in.glr)
-AC_SUBST_FILE(glr_obj)
+if test "$use_sbr" = "yes"; then
+	SBR_LIBS="-ldld -lXwindow -lsb -lXhp11"
+	SBR_FLAGS="-DUSE_SBR ${SBR_INCLUDE}"
+else
+	SBR_LIBS=""
+	SBR_FLAGS=""
+fi
+AC_SUBST(SBR_LIBS)
+AC_SUBST(SBR_FLAGS)
 
-#
-# should we use mesa
-#
+##########################
+##			##
+##	SGI GL		##
+##			##
+##########################
+use_glr=no
+AC_CHECK_HEADERS(gl/gl.h, [use_glr=yes])
+
+if test "$use_glr" = "yes"; then
+	GLR_LIBS="-lgl"
+	GLR_FLAGS="-DUSE_GLR ${GLR_INCLUDE}"
+else
+	GLR_LIBS=""
+	GLR_FLAGS=""
+fi
+AC_SUBST(GLR_LIBS)
+AC_SUBST(GLR_FLAGS)
+
+##########################
+##			##
+##	OpenGL		##
+##			##
+##########################
+use_oglr=no
+# check for mesa
+use_mesa_oglr=no
 AC_ARG_WITH(mesa,
          [  --with-mesa               use the mesa opengl package],
-    oglr_obj=$srcdir/../../Makefile.in.Mesaoglr)
+         [use_oglr=yes]
+	 [use_mesa_oglr=yes])
 
-AC_CHECK_HEADERS(GL/gl.h, oglr_obj=$srcdir/../../Makefile.in.oglr)
+OGLR_INCLUDE=""
+AC_CHECK_HEADERS(GL/gl.h, [use_oglr=yes])
 AC_CHECK_HEADERS(/usr/openwin/share/include/GL/gl.h, 
-		oglr_obj=$srcdir/../../Makefile.in.oglr
+		[use_oglr=yes]
 		OGLR_INCLUDE="-I/usr/openwin/share/include/")
-AC_SUBST_FILE(oglr_obj)
 
-#
-# has the user set up XGL_HOME
-#
-if test "X$XGL_HOME" = "X" ; then
-  XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
+if test "$use_oglr" = "yes"; then
+
+	if test "$use_mesa_oglr" = "yes"; then
+		OGLR_LIBS="\${MESA_LIB}"
+		OGLR_FLAGS="-I\${MESA_INCLUDE} -DUSE_OGLR"
+	else
+		OGLR_LIBS="-lGL"
+		OGLR_FLAGS="-DUSE_OGLR ${OGLR_INCLUDE}"
+	fi
+else
+	OGLR_LIBS=""
+	OGLR_FLAGS=""
 fi
-AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, xglr_obj=$srcdir/../../Makefile.in.xglr)
-#
-# also try /usr/openwin/include/xgl
-#
-AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, xglr_obj=$srcdir/../../Makefile.in.xglr)
-AC_SUBST_FILE(xglr_obj)
+AC_SUBST(OGLR_INCLUDE)
+AC_SUBST(OGLR_FLAGS)
+AC_SUBST(OGLR_LIBS)
+
+##########################
+##			##
+##	   XGL		##
+##			##
+##########################
+use_xglr=no
+# Check if the user set up XGL_HOME
+if test "X$XGL_HOME" = "X" ; then
+	XGL_HOME=/opt/SUNWits/Graphics-sw/xgl
+else
+	XGL_HOME=""
+fi
+
+AC_CHECK_HEADERS($XGL_HOME/include/xgl/xgl.h, [use_xglr=yes])
+AC_CHECK_HEADERS(/usr/openwin/include/xgl/xgl.h, [use_xglr=yes])
+if test "$use_xglr" = "yes"; then
+	XGLR_LIBS="-lxgl"
+	XGLR_FLAGS="-DUSE_XGLR ${XGLR_INCLUDE}"
+else
+	XGLR_LIBS=""
+	XGLR_FLAGS=""
+fi
+AC_SUBST(XGLR_LIBS)
+AC_SUBST(XGLR_FLAGS)
 AC_SUBST(XGL_HOME)
 
 # Checks for typedefs, structures, and compiler characteristics.
