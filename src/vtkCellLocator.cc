@@ -440,7 +440,7 @@ void vtkCellLocator::MarkParents(void* a, int idx)
     }
   
   offset = idx - parentIdx - 1;
-  parentIdx -= prod + 1;
+  parentIdx = parentIdx - prod + 1;
   
   parentIdx = parentIdx + (offset/8);
   
