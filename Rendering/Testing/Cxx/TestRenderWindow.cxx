@@ -66,6 +66,7 @@ int main( int argc, char *argv[] )
   renWin->Render();
   renWin->Render();
   renWin->EraseOff();
+  renWin->SwapBuffersOff();
   
   renWin->SetZbufferData(  0, 0,  169, 169, floatArray );
   
@@ -75,6 +76,7 @@ int main( int argc, char *argv[] )
 
   actor->GetProperty()->SetColor(0,1,0);
   actor->AddPosition( -0.1, -0.1, 0.0 );
+  renWin->SwapBuffersOn();
   renWin->Render();
   renWin->GetRGBAPixelData( 120, 120, 174, 174, 1, floatArray );
 
