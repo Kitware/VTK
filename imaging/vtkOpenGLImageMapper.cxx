@@ -239,7 +239,9 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
   // The "*2.0" and "*1.0" ensure that the comparison is done
   // with double-precision math.
   int bitShift = 0;
-  while (((long)(1 << bitShift)*scale)*USHRT_MAX*2.0 < INT_MAX*1.0)
+  double absScale = ((scale < 0) ? -scale : scale); 
+
+  while (((long)(1 << bitShift)*absScale)*2.0*USHRT_MAX < INT_MAX*1.0)
     {
     bitShift++;
     }
