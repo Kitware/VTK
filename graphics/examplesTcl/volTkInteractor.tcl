@@ -1,7 +1,7 @@
 ## Procedure should be called to set bindings and initialize variables
 #
 
-source vtkInt.tcl
+source ../../examplesTcl/vtkInt.tcl
 
 proc BindTkRenderWidget {widget} {
     bind $widget <Any-ButtonPress> {StartMotion %W %x %y}

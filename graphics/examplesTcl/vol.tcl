@@ -210,7 +210,7 @@ pack $ww.comp.rb6 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 
 vtkSLCReader reader
-    reader SetFileName "../../../data/poship.slc"
+    reader SetFileName "../../../vtkdata/poship.slc"
 
 reader Update
 
