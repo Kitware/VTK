@@ -880,7 +880,8 @@ void vtkImageReader::ComputeTransformedSpacing (float Spacing[4])
     {
     float transformedSpacing[4];
     memcpy (transformedSpacing, this->DataSpacing, 3 * sizeof (float));
-    transformedSpacing[3] = 1.0;
+    // this is zero to prevent translations !!!
+    transformedSpacing[3] = 0.0;
     this->Transform->MultiplyPoint (transformedSpacing, transformedSpacing);
 
     for (int i = 0; i < 3; i++) Spacing[i] = fabs(transformedSpacing[i]);
@@ -913,6 +914,7 @@ void vtkImageReader::ComputeTransformedExtent(int inExtent[8],
 {
   float transformedExtent[4];
   int temp;
+  int idx;
   
   if (!this->Transform)
     {
@@ -938,23 +940,19 @@ void vtkImageReader::ComputeTransformedExtent(int inExtent[8],
     outExtent[3] = (int) transformedExtent[1];
     outExtent[5] = (int) transformedExtent[2];
 
-    if (outExtent[0] > outExtent[1]) 
+    for (idx = 0; idx < 6; idx += 2)
       {
-      temp = outExtent[0];
-      outExtent[0] = outExtent[1];
-      outExtent[1] = temp;
-      }
-    if (outExtent[2] > outExtent[3]) 
-      {
-      temp = outExtent[2];
-      outExtent[2] = outExtent[3];
-      outExtent[3] = temp;
-      }
-    if (outExtent[4] > outExtent[5]) 
-      {
-      temp = outExtent[4];
-      outExtent[4] = outExtent[5];
-      outExtent[5] = temp;
+      if (outExtent[idx] > outExtent[idx+1]) 
+	{
+	temp = outExtent[idx];
+	outExtent[idx] = outExtent[idx+1];
+	outExtent[idx+1] = temp;
+	}
+      if (outExtent[idx] < 0)
+	{
+	outExtent[idx+1] -=  outExtent[idx];
+	outExtent[idx] = 0;
+	}
       }
     
     outExtent[6] = inExtent[6];
@@ -972,6 +970,7 @@ void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[8],
 {
   float transformedExtent[4];
   int temp;
+  int idx;
   
   if (!this->Transform)
     {
@@ -1001,23 +1000,19 @@ void vtkImageReader::ComputeInverseTransformedExtent(int inExtent[8],
     outExtent[3] = (int) transformedExtent[1];
     outExtent[5] = (int) transformedExtent[2];
 
-    if (outExtent[0] > outExtent[1]) 
+    for (idx = 0; idx < 6; idx += 2)
       {
-      temp = outExtent[0];
-      outExtent[0] = outExtent[1];
-      outExtent[1] = temp;
-      }
-    if (outExtent[2] > outExtent[3]) 
-      {
-      temp = outExtent[2];
-      outExtent[2] = outExtent[3];
-      outExtent[3] = temp;
-      }
-    if (outExtent[4] > outExtent[5]) 
-      {
-      temp = outExtent[4];
-      outExtent[4] = outExtent[5];
-      outExtent[5] = temp;
+      if (outExtent[idx] > outExtent[idx+1]) 
+	{
+	temp = outExtent[idx];
+	outExtent[idx] = outExtent[idx+1];
+	outExtent[idx+1] = temp;
+	}
+      if (outExtent[idx] < 0)
+	{
+	outExtent[idx+1] -=  outExtent[idx];
+	outExtent[idx] = 0;
+	}
       }
     
     outExtent[6] = inExtent[6];
@@ -1044,7 +1039,8 @@ void vtkImageReader::ComputeTransformedIncrements(int inIncr[4],
     transformedIncr[0] = inIncr[0];
     transformedIncr[1] = inIncr[1];
     transformedIncr[2] = inIncr[2];
-    transformedIncr[3] = 1.0;
+    // set to zero to prevent translations !!!
+    transformedIncr[3] = 0.0;
     this->Transform->MultiplyPoint (transformedIncr, transformedIncr);
     outIncr[0] = (int) transformedIncr[0];
     outIncr[1] = (int) transformedIncr[1];
@@ -1071,7 +1067,8 @@ void vtkImageReader::ComputeInverseTransformedIncrements(int inIncr[4],
     transformedIncr[0] = inIncr[0];
     transformedIncr[1] = inIncr[1];
     transformedIncr[2] = inIncr[2];
-    transformedIncr[3] = 1.0;
+    // set to zero to prevent translations !!!
+    transformedIncr[3] = 0.0;
     // since transform better be orthonormal we can just transpose
     // it will be the same as the inverse
     this->Transform->Transpose();
