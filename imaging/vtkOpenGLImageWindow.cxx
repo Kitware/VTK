@@ -115,7 +115,7 @@ vtkOpenGLImageWindow::vtkOpenGLImageWindow()
     delete [] this->WindowName;
   this->WindowName = new char[strlen("Visualization Toolkit - OpenGL")+1];
     strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
-  this->DoubleBuffer = 0;
+  this->DoubleBuffer = 1;
   this->Erase = 1;
 }
 
