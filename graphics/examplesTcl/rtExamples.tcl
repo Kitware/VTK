@@ -6,7 +6,7 @@ catch {load vtktcl}
 #vtkCommand DebugOn
 
 # first find all the examples
-set files [lsort [glob {[e-z]*.tcl}]]
+set files [lsort [glob {[A-z]*.tcl}]]
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "rt.tcl"]] != -1} {
