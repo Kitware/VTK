@@ -36,6 +36,10 @@
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
 
+#ifdef VTK_USE_MPI
+# include <mpi.h>
+#endif
+
 static const int scMsgLength = 10;
 
 struct GenericCommunicatorArgs_tmp
@@ -359,8 +363,17 @@ int main(int argc, char** argv)
 {
   vtkDebugLeaks::PromptUserOff();
 
+#ifdef VTK_USE_MPI
+  // This is here to avoid false leak messages from vtkDebugLeaks when
+  // using mpich. It appears that the root process which spawns all the
+  // main processes waits in MPI_Init() and calls exit() when
+  // the others are done, causing apparent memory leaks for any objects
+  // created before MPI_Init().
+  MPI_Init(&argc, &argv);
+#endif
+
   vtkMultiProcessController* contr = vtkMultiProcessController::New();
-  contr->Initialize(&argc, &argv);
+  contr->Initialize(&argc, &argv,1);
   contr->CreateOutputWindow();
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
