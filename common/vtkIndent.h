@@ -59,8 +59,6 @@ public:
   static vtkIndent *New();
 
   virtual const char *GetClassName() {return "vtkIndent";};
-  virtual int IsA(const char *name);
-  static vtkIndent *SafeDownCast(vtkIndent *o);
 
   // Description:
   // Determine the next indentation level. Keep indenting by two until the 

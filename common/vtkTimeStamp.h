@@ -59,8 +59,6 @@ public:
   void Delete() {delete this;};
 
   virtual const char *GetClassName() {return "vtkTimeStamp";};
-  virtual int IsA(const char *name);
-  static vtkTimeStamp *SafeDownCast(vtkTimeStamp *o);
 
   // Description:
   // Set this objects time to the current time. The current time is
