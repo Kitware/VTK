@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.10");
+vtkCxxRevisionMacro(vtkSource, "1.11");
 
 #ifndef NULL
 #define NULL 0
@@ -683,10 +683,7 @@ int vtkSource::ProcessRequest(vtkInformation* request,
         this->Outputs[i]->PrepareForNewData();
         }
       }
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-
+    
     // Pass the vtkDataObject's field data from the first input to all
     // outputs.
     if(this->NumberOfInputs > 0 && this->Inputs[0] &&
@@ -705,11 +702,6 @@ int vtkSource::ProcessRequest(vtkInformation* request,
     // Execute the filter.
     vtkDataObject* output = (outputPort >= 0)? this->Outputs[outputPort] : 0;
     this->ExecuteData(output);
-    if(!this->AbortExecute)
-      {
-      this->UpdateProgress(1.0);
-      }
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
     // Mark the data as up-to-date.
     this->MarkGeneratedOutputs(output);

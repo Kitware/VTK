@@ -39,7 +39,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.14");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.15");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
@@ -404,8 +404,12 @@ int vtkDemandDrivenPipeline::ExecuteDataObject()
   // Invoke the request on the algorithm.
   vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
   r->Set(REQUEST_DATA_OBJECT(), 1);
+  
+  // execute the algorithm
   int result = this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
 
+  
+  
   // Make sure a valid data object exists for all output ports.
   for(int i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
@@ -427,11 +431,25 @@ int vtkDemandDrivenPipeline::ExecuteInformation()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteData(int outputPort)
 {
+  // prepare for executing the algorithm
+  this->Algorithm->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->Algorithm->SetAbortExecute(0);
+  this->Algorithm->SetProgress(0.0);
+
   // Invoke the request on the algorithm.
   vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
   r->Set(REQUEST_DATA(), 1);
   r->Set(FROM_OUTPUT_PORT(), outputPort);
-  return this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
+  int result = this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
+
+  // and handle post execution issues
+  if(!this->Algorithm->GetAbortExecute())
+    {
+    this->Algorithm->UpdateProgress(1.0);
+    }
+  this->Algorithm->InvokeEvent(vtkCommand::EndEvent,NULL);
+
+  return result;
 }
 
 //----------------------------------------------------------------------------
