@@ -85,6 +85,8 @@ public:
   void TriangleCenter(float p1[3], float p2[3], float p3[3], float center[3]);
   float TriangleArea(float p1[3], float p2[3], float p3[3]);
   float Circumcircle(float  p1[2], float p2[2], float p3[2], float center[2]);
+  int BarycentricCoords(float x[2], float  x1[2], float x2[2], float x3[2], 
+                        float bcoords[3]);
 };
 
 // Description:
