@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.53");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.54");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -373,13 +373,13 @@ void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int comp
     if (input == ds)
       {
       if (arrayName == NULL && this->SelectedInputScalars[idx] == NULL &&
-          component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+          component == this->SelectedInputScalarsComponent->GetValue(idx))
         {
         found = idx;
         }
       if (arrayName != NULL && this->SelectedInputScalars[idx] != NULL &&
           strcmp(arrayName, this->SelectedInputScalars[idx]) == 0 &&
-          component == this->SelectedInputScalarsComponent->GetValue(idx-1))
+          component == this->SelectedInputScalarsComponent->GetValue(idx))
         {
         found = idx;
         }
@@ -393,7 +393,7 @@ void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int comp
   
   this->Modified();
   // Collections index their items starting at 1.
-  this->InputList->RemoveItem(found+1);
+  this->InputList->RemoveItem(found);
 
   // Do not bother reallocating the SelectedInputScalars 
   // string array to make it smaller.
