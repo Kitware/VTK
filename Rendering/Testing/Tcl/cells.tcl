@@ -1,4 +1,5 @@
 package require vtktcl
+package require vtktcl_interactor
 
 # Demonstrates all cell types
 #
@@ -6,8 +7,12 @@ package require vtktcl
 # It is not required in most applications.
 
 vtkRenderer ren1
+# turn off all cullers
+[ren1 GetCullers] RemoveAllItems 
+
 vtkRenderWindow renWin
   renWin AddRenderer ren1
+  renWin SetSize 300 150
 vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
@@ -496,13 +501,13 @@ if { [info command vtkRIBLight] != "" } {
     vtkLight aLight
 }
 aLight PositionalOn
-aLight SetConeAngle 5
+aLight SetConeAngle 15
 
 ren1 AddLight aLight
 
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
-[ren1 GetActiveCamera] Dolly 1.25
+[ren1 GetActiveCamera] Dolly 2.8
 ren1 ResetCameraClippingRange
 
 eval aLight SetFocalPoint [[ren1 GetActiveCamera] GetFocalPoint]
