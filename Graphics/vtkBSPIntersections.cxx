@@ -27,7 +27,7 @@
 
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkBSPIntersections, "1.1");
+vtkCxxRevisionMacro(vtkBSPIntersections, "1.2");
 
 vtkStandardNewMacro(vtkBSPIntersections);
 
@@ -59,7 +59,29 @@ if ((id < 0) || (id >= this->NumberOfRegions)) \
   return;                                      \
   }
 
+//----------------------------------------------------------------------------
+
 vtkCxxSetObjectMacro(vtkBSPIntersections, Cuts, vtkBSPCuts)
+
+//----------------------------------------------------------------------------
+
+// Don't use vtkSetMacro or vtkBooleanMacro on these.  They will
+// update the Mtime, which is incorrect.
+
+void vtkBSPIntersections::SetComputeIntersectionsUsingDataBounds(int c)
+{
+  this->ComputeIntersectionsUsingDataBounds = (c != 0);
+}
+
+void vtkBSPIntersections::ComputeIntersectionsUsingDataBoundsOn()
+{
+  this->ComputeIntersectionsUsingDataBounds = 1;
+}
+
+void vtkBSPIntersections::ComputeIntersectionsUsingDataBoundsOff()
+{
+  this->ComputeIntersectionsUsingDataBounds = 0;
+}
 
 //----------------------------------------------------------------------------
 vtkBSPIntersections::vtkBSPIntersections()

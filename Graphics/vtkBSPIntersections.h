@@ -130,9 +130,10 @@ public:
   //   object is optional.  If data bounds were not specified, this
   //   option has no meaning.)
 
-  vtkBooleanMacro(ComputeIntersectionsUsingDataBounds, int);
-  vtkSetMacro(ComputeIntersectionsUsingDataBounds, int);
   vtkGetMacro(ComputeIntersectionsUsingDataBounds, int);
+  void SetComputeIntersectionsUsingDataBounds(int c);
+  void ComputeIntersectionsUsingDataBoundsOn();
+  void ComputeIntersectionsUsingDataBoundsOff();
 
 protected:
 
