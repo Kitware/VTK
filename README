@@ -91,12 +91,11 @@ If you will be using tcl in addition to C++:
   6) ./configure --with-tcl 
   7) make
 
-If you do not have OpenGL, GL, Starbase or XGL the you will need to
-get and compile Mesa, a wonderful free version of OpenGL. You will 
-need to add --with-mesa to your configure line.
+If you do not have OpenGL, GL, Starbase or XGL the you will need to get and
+compile Mesa, a wonderful free version of OpenGL. You will need to add
+--with-mesa to your configure line. If you want to try building shared
+libraries you can use the --with-shared option also.
 
-If you want to try building shared libraries you can use the --with-shared
-option also.
 
 Now here is the slightly more detailed version.
 
@@ -115,7 +114,8 @@ visit http://www.ssec.wisc.edu/~brianp/Mesa.html.
 
 To build vtk in the distribution directory just type ./configure
 You can specify  --with-tcl  and/or  --with-mesa  on the command line
-if you would like to use those packages as well.
+if you would like to use those packages as well. Building vtk for multiple 
+architectures will be discussed later.
 
 To build the vtk library and the tcl bindings and use mesa you would specify
 
@@ -146,6 +146,22 @@ compile :-)
 In the src directory it will build libvtk.a.  In the examples/cc
 directory it will build one example, VisQuad. In the tclsrc directory it will
 build libvtktcl.a and the vtk executable. 
+
+If you are planning to build vtk for multiple architectures then you can
+either make a copy of the entire vtk tree for each architecture and then
+follow the instructions above. Or if you have gmake, you can have one copy of
+the vtk tree and compile it in a different manner. Instead of running
+configure from the vtk directory, create a new directory where you have some
+free disk space (not in the vtk tree), a possible name would be
+vtk-solaris. cd into this directory and then run configure similar to the
+following example:
+
+cd vtk-solaris
+/home/joe_user/vtk/configure --with-tcl 
+
+This will create makefiles in the vtk-solaris directory.  Then you can run
+gmake in vtk-solaris to compile vtk.  Repeate this process for each
+architecture you wish to build.
 
 There isn't an install target yet for vtk.  Once you have tried some of the
 examples discussed below you might want to do a hand installation.  Basically
