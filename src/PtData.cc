@@ -101,7 +101,7 @@ void vlPointData::CopyData(vlPointData* fromPd, int fromId, int toId)
 {
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
-    if ( this->Scalars->GetNumberOfValuesPerPoint() == 1 ) //single-valued scalar
+    if ( this->Scalars->GetNumberOfValuesPerScalar() == 1 ) //single-valued scalar
       {
       this->Scalars->InsertScalar(toId,fromPd->Scalars->GetScalar(fromId));
       }
@@ -301,7 +301,7 @@ void vlPointData::InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptId
 
   if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
     {
-    if ( this->Scalars->GetNumberOfValuesPerPoint() == 1 ) //single-valued scalar
+    if ( this->Scalars->GetNumberOfValuesPerScalar() == 1 ) //single-valued scalar
       {
       fromPd->Scalars->GetScalars(*ptIds, cellScalars);
       for (s=0.0, i=0; i < ptIds->GetNumberOfIds(); i++)
@@ -395,7 +395,7 @@ void vlPointData::NullPoint (int ptId)
 
   if ( this->Scalars )
     {
-    if ( this->Scalars->GetNumberOfValuesPerPoint() == 1 ) //single-valued scalar
+    if ( this->Scalars->GetNumberOfValuesPerScalar() == 1 ) //single-valued scalar
       {
       this->Scalars->InsertScalar(ptId, 0.0);
       }
