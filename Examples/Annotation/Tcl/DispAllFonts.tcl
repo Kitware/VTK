@@ -57,7 +57,7 @@ foreach family {
         $mapper SetItalic $italic
         $mapper SetShadow $shadow
 
-        set actor [vtkTextActor actor_${family}_${bold}_${italic}_${shadow}]
+        set actor [vtkActor2D actor_${family}_${bold}_${italic}_${shadow}]
         $actor SetMapper $mapper
         eval [$actor GetProperty] SetColor $text_color
         lappend text_actors $actor 
