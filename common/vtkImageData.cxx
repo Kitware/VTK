@@ -1722,9 +1722,15 @@ void vtkImageData::Crop()
   newScalars->SetNumberOfScalars((nExt[1] - nExt[0] + 1)*
 		                 (nExt[3] - nExt[2] + 1)*
 		                 (nExt[5] - nExt[4] + 1));
+  // Keep the array name the same.
+  newScalars->GetData()->SetName(
+    this->GetPointData()->GetScalars()->GetData()->GetName());
   
   inPtr = (unsigned char *) this->GetScalarPointerForExtent(nExt);
   outPtr = (unsigned char *) newScalars->GetVoidPointer(0);
+  
+  
+  
   
   // Get increments to march through inData 
   this->GetIncrements(inIncX, inIncY, inIncZ);
