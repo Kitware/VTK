@@ -375,7 +375,7 @@ case $system in
 	SHLIB_SUFFIX=".sl"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldld"
-	VTK_SHLIB_BUILD_FLAGS='-Wl,-E'
+	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-E -Wl,-b'
 	VTK_SHLIB_LINK_FLAGS='-Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
 	;;
     IRIX-5.*)
@@ -512,7 +512,8 @@ case $system in
 	SHLIB_SUFFIX=".so"
 	SHLIB_VERSION=""
 	DL_LIBS="-ldl"
-	VTK_SHLIB_LINK_FLAGS=""
+	VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-r -nostdlib'
+	VTK_SHLIB_LINK_FLAGS='-Wl,-L${LIB_RUNTIME_DIR}'
 	;;
     SunOS-5*)
 	SHLIB_CFLAGS="-KPIC"
@@ -692,6 +693,15 @@ if test $ac_cv_prog_gxx = no; then
 if test -z "`${CXX} -ptall -no_prelink -c conftest.cc 2>&1`"; then
   echo "$ac_t""yes" 1>&6
   VTK_TEMPLATE_FLAGS="-ptall -no_prelink"
+else
+  echo "$ac_t""no" 1>&6
+fi
+rm -f conftest*
+    echo $ac_n "checking whether ${CXX} accepts -instances=static""... $ac_c" 1>&6
+  echo 'void f(){}' > conftest.cc
+if test -z "`${CXX} -instances=static -c conftest.cc 2>&1`"; then
+  echo "$ac_t""yes" 1>&6
+  VTK_TEMPLATE_FLAGS="-instances=static"
 else
   echo "$ac_t""no" 1>&6
 fi
