@@ -131,6 +131,12 @@ public:
   // Determine whether point given by x[3] has been inserted into points list.
   // Return id of previously inserted point if this is true, otherwise return
   // -1.
+  int IsInsertedPoint(float x, float  y, float z)
+    {
+    float xyz[3];
+    xyz[0] = x; xyz[1] = y; xyz[1] = z;
+    return this->IsInsertedPoint (xyz);
+    }
   virtual int IsInsertedPoint(float x[3]);
 
   // Description:
