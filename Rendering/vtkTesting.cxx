@@ -25,11 +25,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
+#include "vtkSmartPointer.h"
 
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.13");
+vtkCxxRevisionMacro(vtkTesting, "1.14");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -439,13 +440,13 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     return FAILED;
     }
 
-  vtkPNGReader *rt_png = vtkPNGReader::New(); 
+  vtkSmartPointer<vtkPNGReader> rt_png = vtkSmartPointer<vtkPNGReader>::New();
   rt_png->SetFileName(this->ValidImageFileName); 
-  vtkImageDifference *rt_id = vtkImageDifference::New(); 
+  vtkSmartPointer<vtkImageDifference> rt_id =
+    vtkSmartPointer<vtkImageDifference>::New();
   rt_id->SetInput(image); 
   rt_id->SetImage(rt_png->GetOutput()); 
   rt_id->Update(); 
-  rt_png->Delete(); 
 
   double minError = rt_id->GetThresholdedError();
   this->ImageDifference = minError;
@@ -529,7 +530,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
 
   if (passed)
     {
-    rt_id->Delete(); 
     return PASSED; 
     }
   
@@ -553,7 +553,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   if(minError <= 0)
     {
     os << "Image differencing failed to produce an image." << endl;
-    rt_id->Delete();
     return FAILED;
     }
 
@@ -626,7 +625,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     }
 
   delete [] diff_small;
-  rt_id->Delete(); 
   return FAILED;
 }
 
