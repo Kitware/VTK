@@ -96,6 +96,24 @@ ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY IMMEDIATE)
 
+# Hack to give source tree access for a build tree configuration.
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  STRING(ASCII 35 VTK_STRING_POUND)
+  STRING(ASCII 64 VTK_STRING_AT)
+  WRITE_FILE(${VTK_BINARY_DIR}/VTKConfig.cmake
+    "\n"
+    "${VTK_STRING_POUND} For backward compatability.  DO NOT USE.\n"
+    "SET(VTK_SOURCE_DIR \"${VTK_SOURCE_DIR}\")\n"
+    "IF(NOT TCL_LIBRARY)\n"
+    "  SET(TCL_LIBRARY \"${TCL_LIBRARY}\" CACHE FILEPATH \"Location of Tcl library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
+    "ENDIF(NOT TCL_LIBRARY)\n"
+    "IF(NOT TK_LIBRARY)\n"
+    "  SET(TK_LIBRARY \"${TK_LIBRARY}\" CACHE FILEPATH \"Location of Tk library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
+    "ENDIF(NOT TK_LIBRARY)\n"
+    APPEND
+  )
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+
 #-----------------------------------------------------------------------------
 # Settings specific to the install tree.
 
