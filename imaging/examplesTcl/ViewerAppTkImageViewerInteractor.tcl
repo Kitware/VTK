@@ -210,7 +210,6 @@ proc ResetTkImageViewer {widget} {
    
    $viewer SetColorWindow [expr $high - $low]
    $viewer SetColorLevel [expr ($high + $low) * 0.5]
-puts "$high $low"
    SetWidgetVariableValue $widget WindowLevelString [format "W/L: %1.0f/%1.0f" [$viewer GetColorWindow] [$viewer GetColorLevel]]
 
    $widget Render

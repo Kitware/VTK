@@ -66,7 +66,8 @@ AddFilterMenuItem "Flip X" flipX
 
 # viewer frame
 frame .top.f1
-vtkTkImageViewerWidget .top.f1.v1 -width 512 -height 512
+vtkImageViewer viewer
+vtkTkImageViewerWidget .top.f1.v1 -width 512 -height 512 -iv viewer
 pack .top.f1.v1 -padx 3 -pady 3 -side left -fill both -expand t
 
 # annotation frames
