@@ -86,6 +86,8 @@ int vtkPNMReaderGetInt(FILE *fp)
     }
   while ((c >= '0')&&(c <= '9'));
 
+  // put the CR/LF or whitespace back.....
+  ungetc(c, fp);
   return result;
 }
   
@@ -110,7 +112,7 @@ void vtkPNMReader::UpdateImageInformation()
   this->ComputeInternalFileName(this->DataExtent[4]);
   
   // get the magic number by reading in a file
-  fp = fopen(this->InternalFileName,"r");
+  fp = fopen(this->InternalFileName,"rb");
   if (!fp)
     {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
@@ -132,6 +134,12 @@ void vtkPNMReader::UpdateImageInformation()
 
   // read max pixel value into comp for now
   comp = vtkPNMReaderGetInt(fp);
+  do
+    {
+    c = getc(fp);
+    }
+  while (c != 0x0a);
+  
   
   // Set the header size now that we have parsed it
   this->SetHeaderSize(ftell(fp));
