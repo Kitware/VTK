@@ -43,6 +43,15 @@ mapper2 SetColorModeToMapScalars
 mapper2 ColorByArrayComponent "vtkGhostLevels" 0
 mapper2 SetGhostLevel 4
 
+# check the pipeline size
+vtkPipelineSize psize
+if {[psize GetEstimatedSize [extract2 GetOutput]] > 100} {
+   puts stderr "ERROR: Pipeline Size increased"
+}
+if {[psize GetNumberOfSubPieces 10 mapper2] != 2} {
+   puts stderr "ERROR: Number of sub pieces changed"
+}
+
 vtkActor actor2
 actor2 SetMapper mapper2
 actor2 SetPosition 1.5 0 0
