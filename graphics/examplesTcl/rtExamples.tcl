@@ -22,9 +22,6 @@ if {[set pos [lsearch $files "rtExamples.tcl"]] != -1} {
 }
 # remove files that are not appropriate or include random sources
 # or just take way too long
-if {[set pos [lsearch $files "Mace.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
 # assembly 2 should be in there
 if {[set pos [lsearch $files "assembly2.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
