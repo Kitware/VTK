@@ -34,6 +34,8 @@ public:
   void SetInput(vtkUnstructuredGrid *input);
   vtkUnstructuredGrid *GetInput();
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 protected:
   vtkUnstructuredGridToUnstructuredGridFilter();
   ~vtkUnstructuredGridToUnstructuredGridFilter();

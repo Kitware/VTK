@@ -13,18 +13,21 @@
 
 =========================================================================*/
 #include "vtkDataSetToDataSetFilter.h"
+
+#include "vtkInformation.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.65");
+vtkCxxRevisionMacro(vtkDataSetToDataSetFilter, "1.66");
 
 // Construct object.
 vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()
@@ -46,7 +49,6 @@ void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
       this->SetOutput(NULL);
       }
     }
-  
   if (input != NULL && this->vtkSource::GetOutput(0) == NULL)
     {
     this->vtkSource::SetNthOutput(0, input->NewInstance());
@@ -74,7 +76,7 @@ vtkDataSet *vtkDataSetToDataSetFilter::GetOutput()
     return NULL;
     }
 
-  return (vtkDataSet *)this->Outputs[0];
+  return (vtkDataSet *)this->Superclass::GetOutput(0);
 }
 
 // Get the output as vtkPolyData.
@@ -196,6 +198,19 @@ void vtkDataSetToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *output)
 vtkDataSet *vtkDataSetToDataSetFilter::GetOutput(int idx)
 {
   return (vtkDataSet *) this->vtkDataSetSource::GetOutput(idx); 
+}
+
+//----------------------------------------------------------------------------
+int
+vtkDataSetToDataSetFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

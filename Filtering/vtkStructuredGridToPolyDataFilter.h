@@ -42,6 +42,8 @@ protected:
   vtkStructuredGridToPolyDataFilter();
   ~vtkStructuredGridToPolyDataFilter();
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkStructuredGridToPolyDataFilter(const vtkStructuredGridToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkStructuredGridToPolyDataFilter&);  // Not implemented.

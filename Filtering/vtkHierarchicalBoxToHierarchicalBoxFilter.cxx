@@ -15,13 +15,15 @@
 #include "vtkHierarchicalBoxToHierarchicalBoxFilter.h"
 
 #include "vtkHierarchicalBoxDataSet.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxToHierarchicalBoxFilter, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalBoxToHierarchicalBoxFilter, "1.4");
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxToHierarchicalBoxFilter::vtkHierarchicalBoxToHierarchicalBoxFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -47,6 +49,19 @@ vtkHierarchicalBoxDataSet *vtkHierarchicalBoxToHierarchicalBoxFilter::GetInput()
     }
   
   return (vtkHierarchicalBoxDataSet *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+int
+vtkHierarchicalBoxToHierarchicalBoxFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalBoxDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

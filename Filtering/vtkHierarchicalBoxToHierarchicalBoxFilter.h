@@ -40,7 +40,9 @@ public:
 protected:
   vtkHierarchicalBoxToHierarchicalBoxFilter();
   ~vtkHierarchicalBoxToHierarchicalBoxFilter();
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkHierarchicalBoxToHierarchicalBoxFilter(const vtkHierarchicalBoxToHierarchicalBoxFilter&);  // Not implemented.
   void operator=(const vtkHierarchicalBoxToHierarchicalBoxFilter&);  // Not implemented.

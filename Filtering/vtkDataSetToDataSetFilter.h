@@ -98,6 +98,8 @@ protected:
 
   void ExecuteInformation();
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&);  // Not implemented.
   void operator=(const vtkDataSetToDataSetFilter&);  // Not implemented.

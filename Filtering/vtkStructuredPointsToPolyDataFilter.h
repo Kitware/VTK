@@ -45,6 +45,8 @@ protected:
   ~vtkStructuredPointsToPolyDataFilter();
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkStructuredPointsToPolyDataFilter(const vtkStructuredPointsToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkStructuredPointsToPolyDataFilter&);  // Not implemented.

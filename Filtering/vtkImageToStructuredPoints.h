@@ -63,7 +63,9 @@ protected:
   void ExecuteInformation();
   void ComputeInputUpdateExtents(vtkDataObject *data);
 
-  
+  virtual int FillOutputPortInformation(int, vtkInformation*);
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkImageToStructuredPoints(const vtkImageToStructuredPoints&);  // Not implemented.
   void operator=(const vtkImageToStructuredPoints&);  // Not implemented.

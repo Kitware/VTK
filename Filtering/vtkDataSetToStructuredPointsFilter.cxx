@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkDataSetToStructuredPointsFilter.h"
 
+#include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.30");
+vtkCxxRevisionMacro(vtkDataSetToStructuredPointsFilter, "1.31");
 
 //----------------------------------------------------------------------------
 vtkDataSetToStructuredPointsFilter::vtkDataSetToStructuredPointsFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -73,6 +75,18 @@ void vtkDataSetToStructuredPointsFilter::ComputeInputUpdateExtents(
   input->RequestExactExtentOn();
 }
 
+//----------------------------------------------------------------------------
+int
+vtkDataSetToStructuredPointsFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkDataSetToStructuredPointsFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -16,13 +16,14 @@
 
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunctionToPiecewiseFunctionFilter, "1.3");
+vtkCxxRevisionMacro(vtkPiecewiseFunctionToPiecewiseFunctionFilter, "1.4");
 
 //----------------------------------------------------------------------------
 vtkPiecewiseFunctionToPiecewiseFunctionFilter::vtkPiecewiseFunctionToPiecewiseFunctionFilter() 
 {
-  this->vtkProcessObject::SetNumberOfInputs(1);
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
+  this->vtkProcessObject::SetNumberOfInputs(1);
 }
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

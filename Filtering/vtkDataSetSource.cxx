@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkDataSetSource.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkDataSetSource, "1.13");
+vtkCxxRevisionMacro(vtkDataSetSource, "1.14");
 
 vtkDataSetSource::vtkDataSetSource()
 {
-
+  // A source has no inputs by default.
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -44,6 +46,17 @@ void vtkDataSetSource::SetOutput(vtkDataSet *output)
 vtkDataSet *vtkDataSetSource::GetOutput(int idx)
 {
   return static_cast<vtkDataSet *>( this->vtkSource::GetOutput(idx) ); 
+}
+
+//----------------------------------------------------------------------------
+int vtkDataSetSource::FillOutputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

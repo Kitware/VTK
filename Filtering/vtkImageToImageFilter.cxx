@@ -17,16 +17,18 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.59");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.60");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->Bypass = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
@@ -411,7 +413,10 @@ void vtkImageToImageFilter::ExecuteData(vtkDataObject *out)
     }
 
   vtkImageData *outData = this->AllocateOutputData(out);
+  int debug = this->Debug;
+  this->Debug = 0;
   this->MultiThread(this->GetInput(),outData);
+  this->Debug = debug;
 }
 
 void vtkImageToImageFilter::MultiThread(vtkImageData *inData,
@@ -444,3 +449,14 @@ void vtkImageToImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData),
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkImageToImageFilter::FillInputPortInformation(int port,
+                                                    vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}

@@ -41,6 +41,9 @@ public:
 protected:
   vtkRectilinearGridToPolyDataFilter();
   ~vtkRectilinearGridToPolyDataFilter();
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkRectilinearGridToPolyDataFilter(const vtkRectilinearGridToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkRectilinearGridToPolyDataFilter&);  // Not implemented.

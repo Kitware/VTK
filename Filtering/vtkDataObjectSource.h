@@ -73,6 +73,7 @@ protected:
   vtkDataObjectSource();
   ~vtkDataObjectSource() {};
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkDataObjectSource(const vtkDataObjectSource&);  // Not implemented.
   void operator=(const vtkDataObjectSource&);  // Not implemented.

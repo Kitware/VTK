@@ -14,14 +14,17 @@
 =========================================================================*/
 #include "vtkPolyDataSource.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataSource, "1.8");
+vtkCxxRevisionMacro(vtkPolyDataSource, "1.9");
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
 {
+  // A source has no inputs by default.
+  this->SetNumberOfInputPorts(0);
   this->vtkSource::SetNthOutput(0, vtkPolyData::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
@@ -89,6 +92,18 @@ void vtkPolyDataSource::ComputeInputUpdateExtents(vtkDataObject *data)
   this->ExecuteNumberOfPieces = numPieces;
   
   this->ExecuteGhostLevel = ghostLevel;
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataSource::FillOutputPortInformation(int port,
+                                                 vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkPolyData");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

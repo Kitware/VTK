@@ -52,6 +52,7 @@ protected:
   // passed into it and returns it as an image data
   virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkImageSource(const vtkImageSource&);  // Not implemented.
   void operator=(const vtkImageSource&);  // Not implemented.

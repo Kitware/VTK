@@ -101,6 +101,8 @@ protected:
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkImageToImageFilter(const vtkImageToImageFilter&);  // Not implemented.
   void operator=(const vtkImageToImageFilter&);  // Not implemented.

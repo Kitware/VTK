@@ -15,13 +15,15 @@
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.28");
+vtkCxxRevisionMacro(vtkStructuredPointsToPolyDataFilter, "1.29");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToPolyDataFilter::vtkStructuredPointsToPolyDataFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -60,6 +62,18 @@ void vtkStructuredPointsToPolyDataFilter::ComputeInputUpdateExtents(
     }
   // assume that we cannot handle more than the requested extent.
   this->GetInput()->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+int vtkStructuredPointsToPolyDataFilter::FillInputPortInformation(int port,
+                                                                  vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

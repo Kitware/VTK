@@ -45,6 +45,8 @@ protected:
   // All the DataSetToImageFilters require all their input.
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDataSetToImageFilter(const vtkDataSetToImageFilter&);  // Not implemented.
   void operator=(const vtkDataSetToImageFilter&);  // Not implemented.

@@ -48,6 +48,7 @@ protected:
   // as a default behavior.
   void ComputeInputUpdateExtents(vtkDataObject *output);
   
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkUnstructuredGridSource(const vtkUnstructuredGridSource&);  // Not implemented.
   void operator=(const vtkUnstructuredGridSource&);  // Not implemented.

@@ -18,8 +18,9 @@
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
 #include "vtkCommand.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.37");
+vtkCxxRevisionMacro(vtkProcessObject, "1.38");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -67,6 +68,18 @@ vtkProcessObject::~vtkProcessObject()
     }
   delete [] this->ProgressText;
   this->ProgressText = NULL;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject** vtkProcessObject::GetInputs()
+{
+  return this->Inputs;
+}
+
+//----------------------------------------------------------------------------
+int vtkProcessObject::GetNumberOfInputs()
+{
+  return this->NumberOfInputs;
 }
 
 typedef vtkDataObject *vtkDataObjectPointer;
@@ -376,6 +389,34 @@ void vtkProcessObject::SortMerge(vtkDataObject **a1, int l1,
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkProcessObject::FillInputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkInformation::INPUT_IS_REPEATABLE(), 1);
+  if(this->NumberOfRequiredInputs == 0)
+    {
+    info->Set(vtkInformation::INPUT_IS_OPTIONAL(), 1);
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkProcessObject::FillOutputPortInformation(int, vtkInformation*)
+{
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+}
+
+//----------------------------------------------------------------------------
+void vtkProcessObject::RemoveReferences()
+{
+  this->Superclass::RemoveReferences();
+}
 
 void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkStructuredGridToStructuredGridFilter.h"
 
+#include "vtkInformation.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.20");
+vtkCxxRevisionMacro(vtkStructuredGridToStructuredGridFilter, "1.21");
 
 //----------------------------------------------------------------------------
 vtkStructuredGridToStructuredGridFilter::vtkStructuredGridToStructuredGridFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -48,6 +50,19 @@ vtkStructuredGrid *vtkStructuredGridToStructuredGridFilter::GetInput()
   return (vtkStructuredGrid *)(this->Inputs[0]);
 }
 
+//----------------------------------------------------------------------------
+int
+vtkStructuredGridToStructuredGridFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  //info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid"); HACK
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkStructuredGridToStructuredGridFilter::PrintSelf(ostream& os, vtkIndent indent)

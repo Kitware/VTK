@@ -90,10 +90,6 @@ public:
   vtkBooleanMacro(ReleaseDataFlag,int);
 
   // Description:
-  // Handle the source/data loop.
-  virtual void UnRegister(vtkObjectBase *o);
-  
-// Description:
   // Return an array with all the inputs of this process object.
   // This is useful for tracing back in the pipeline to construct
   // graphs etc.
@@ -154,8 +150,10 @@ protected:
 
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
-  virtual void GarbageCollectionStarting();
-  int GarbageCollecting;
+
+  // Output port information must match the current outputs.
+  int FillOutputPortInformation(int, vtkInformation*);
+
 private:
   vtkSource(const vtkSource&);  // Not implemented.
   void operator=(const vtkSource&);  // Not implemented.

@@ -15,14 +15,16 @@
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.30");
+vtkCxxRevisionMacro(vtkStructuredPointsToStructuredPointsFilter, "1.31");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToStructuredPointsFilter::vtkStructuredPointsToStructuredPointsFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -77,6 +79,19 @@ void vtkStructuredPointsToStructuredPointsFilter::ComputeInputUpdateExtents(
 
   // assume that we cannot handle more than the requested extent.
   this->GetInput()->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+int
+vtkStructuredPointsToStructuredPointsFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

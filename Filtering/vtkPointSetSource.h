@@ -39,6 +39,7 @@ protected:
   vtkPointSetSource();
   ~vtkPointSetSource() {};
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkPointSetSource(const vtkPointSetSource&);  // Not implemented.
   void operator=(const vtkPointSetSource&);  // Not implemented.

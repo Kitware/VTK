@@ -43,6 +43,7 @@ protected:
   vtkStructuredGridSource();
   ~vtkStructuredGridSource() {};
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkStructuredGridSource(const vtkStructuredGridSource&);  // Not implemented.
   void operator=(const vtkStructuredGridSource&);  // Not implemented.

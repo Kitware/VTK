@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkUnstructuredGridToUnstructuredGridFilter.h"
 
+#include "vtkInformation.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter, "1.13");
+vtkCxxRevisionMacro(vtkUnstructuredGridToUnstructuredGridFilter, "1.14");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridToUnstructuredGridFilter::vtkUnstructuredGridToUnstructuredGridFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -46,6 +48,19 @@ vtkUnstructuredGrid *vtkUnstructuredGridToUnstructuredGridFilter::GetInput()
     }
   
   return (vtkUnstructuredGrid *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+int
+vtkUnstructuredGridToUnstructuredGridFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -21,7 +21,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.109");
+vtkCxxRevisionMacro(vtkSource, "1.110");
 
 #ifndef NULL
 #define NULL 0
@@ -749,14 +749,9 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkSource::UnRegister(vtkObjectBase* o)
+int vtkSource::FillOutputPortInformation(int port, vtkInformation* info)
 {
-  int check = (this->GetReferenceCount() > 1);
-  this->Superclass::UnRegister(o);
-  if(check && !this->GarbageCollecting)
-    {
-    vtkGarbageCollector::Check(this);
-    }
+  return this->Superclass::FillOutputPortInformation(port, info);
 }
 
 //----------------------------------------------------------------------------
@@ -767,13 +762,6 @@ void vtkSource::ReportReferences(vtkGarbageCollector* collector)
     {
     collector->ReportReference(this->Outputs[i], "Outputs");
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkSource::GarbageCollectionStarting()
-{
-  this->GarbageCollecting = 1;
-  this->Superclass::GarbageCollectionStarting();
 }
 
 //----------------------------------------------------------------------------

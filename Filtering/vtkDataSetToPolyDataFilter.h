@@ -48,7 +48,9 @@ public:
 protected:
   vtkDataSetToPolyDataFilter();
   ~vtkDataSetToPolyDataFilter();
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDataSetToPolyDataFilter(const vtkDataSetToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkDataSetToPolyDataFilter&);  // Not implemented.

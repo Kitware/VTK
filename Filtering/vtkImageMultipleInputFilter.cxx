@@ -15,16 +15,18 @@
 #include "vtkImageMultipleInputFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.64");
+vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.65");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
 {
   this->NumberOfInputs = 0;
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->Bypass = 0;
 
   this->Threader = vtkMultiThreader::New();
@@ -299,15 +301,14 @@ int vtkImageMultipleInputFilter::SplitExtent(int splitExt[6], int startExt[6],
   return maxThreadIdUsed + 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
+//----------------------------------------------------------------------------
+int vtkImageMultipleInputFilter::FillInputPortInformation(int port,
+                                                          vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}

@@ -46,8 +46,9 @@ public:
 protected:
   vtkUnstructuredGridToPolyDataFilter();
   ~vtkUnstructuredGridToPolyDataFilter();
-  
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkUnstructuredGridToPolyDataFilter(const vtkUnstructuredGridToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkUnstructuredGridToPolyDataFilter&);  // Not implemented.

@@ -44,6 +44,8 @@ protected:
   vtkDataSetToUnstructuredGridFilter();
   ~vtkDataSetToUnstructuredGridFilter();
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDataSetToUnstructuredGridFilter(const vtkDataSetToUnstructuredGridFilter&);  // Not implemented.
   void operator=(const vtkDataSetToUnstructuredGridFilter&);  // Not implemented.

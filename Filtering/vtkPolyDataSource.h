@@ -57,6 +57,8 @@ protected:
   int ExecuteNumberOfPieces;
   
   int ExecuteGhostLevel;
+
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkPolyDataSource(const vtkPolyDataSource&);  // Not implemented.
   void operator=(const vtkPolyDataSource&);  // Not implemented.

@@ -16,13 +16,15 @@
 
 #include "vtkDataSet.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.4");
+vtkCxxRevisionMacro(vtkDataSetToImageFilter, "1.5");
 
 //----------------------------------------------------------------------------
 vtkDataSetToImageFilter::vtkDataSetToImageFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -71,6 +73,19 @@ void vtkDataSetToImageFilter::ComputeInputUpdateExtents(
     }
   
   input->SetUpdateExtent(0, 1, 0);
+}
+
+//----------------------------------------------------------------------------
+int
+vtkDataSetToImageFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

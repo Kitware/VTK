@@ -16,20 +16,22 @@
 
 #include "vtkCellData.h"
 #include "vtkFieldData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredPoints.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.55");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.56");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
-  this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
+  this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
   this->SetNthOutput(0,vtkStructuredPoints::New());
   this->Outputs[0]->Delete();
 }
@@ -336,6 +338,26 @@ void vtkImageToStructuredPoints::ComputeInputUpdateExtents(vtkDataObject *data)
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkImageToStructuredPoints::FillOutputPortInformation(int port,
+                                                          vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkStructuredPoints");
+  return 1;
+}
 
-
-
+//----------------------------------------------------------------------------
+int vtkImageToStructuredPoints::FillInputPortInformation(int port,
+                                                         vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}

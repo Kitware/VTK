@@ -17,12 +17,13 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageTwoInputFilter, "1.26");
+vtkCxxRevisionMacro(vtkImageTwoInputFilter, "1.27");
 
 //----------------------------------------------------------------------------
 vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 {
   this->NumberOfRequiredInputs = 2;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------

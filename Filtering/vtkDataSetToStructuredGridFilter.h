@@ -40,6 +40,8 @@ protected:
   vtkDataSetToStructuredGridFilter();
   ~vtkDataSetToStructuredGridFilter();
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDataSetToStructuredGridFilter(const vtkDataSetToStructuredGridFilter&);  // Not implemented.
   void operator=(const vtkDataSetToStructuredGridFilter&);  // Not implemented.

@@ -40,6 +40,9 @@ public:
 protected:
   vtkStructuredGridToStructuredGridFilter();
   ~vtkStructuredGridToStructuredGridFilter();
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkStructuredGridToStructuredGridFilter(const vtkStructuredGridToStructuredGridFilter&);  // Not implemented.
   void operator=(const vtkStructuredGridToStructuredGridFilter&);  // Not implemented.

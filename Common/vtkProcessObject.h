@@ -42,14 +42,14 @@
 #ifndef __vtkProcessObject_h
 #define __vtkProcessObject_h
 
-#include "vtkObject.h"
+#include "vtkAlgorithm.h"
 
 class vtkDataObject;
 
-class VTK_COMMON_EXPORT vtkProcessObject : public vtkObject
+class VTK_COMMON_EXPORT vtkProcessObject : public vtkAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkProcessObject,vtkObject);
+  vtkTypeRevisionMacro(vtkProcessObject,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -83,8 +83,8 @@ public:
   // Return an array with all the inputs of this process object.
   // This is useful for tracing back in the pipeline to construct
   // graphs etc.
-  vtkDataObject **GetInputs() {return this->Inputs;}
-  vtkGetMacro(NumberOfInputs,int);
+  vtkDataObject **GetInputs();
+  int GetNumberOfInputs();
 
   // Description:
   // This method will rearrange the input array so that all NULL entries 
@@ -130,7 +130,14 @@ protected:
   virtual void SetNthInput(int num, vtkDataObject *input);
   virtual void AddInput(vtkDataObject *input);
   virtual void RemoveInput(vtkDataObject *input);
-  
+
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+
+  // Implement methods required by vtkAlgorithm.
+  virtual int FillInputPortInformation(int, vtkInformation*);
+  virtual int FillOutputPortInformation(int, vtkInformation*);
+
   // Description:
   // The error code contains a possible error that occured while
   // reading or writing the file.

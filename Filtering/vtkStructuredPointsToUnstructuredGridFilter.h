@@ -44,6 +44,7 @@ protected:
   ~vtkStructuredPointsToUnstructuredGridFilter();
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
   vtkStructuredPointsToUnstructuredGridFilter(const vtkStructuredPointsToUnstructuredGridFilter&);  // Not implemented.

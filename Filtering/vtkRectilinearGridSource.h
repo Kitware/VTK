@@ -43,6 +43,7 @@ protected:
   vtkRectilinearGridSource();
   ~vtkRectilinearGridSource() {};
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkRectilinearGridSource(const vtkRectilinearGridSource&);  // Not implemented.
   void operator=(const vtkRectilinearGridSource&);  // Not implemented.

@@ -47,6 +47,7 @@ protected:
   // structured points sources compute information
   void ExecuteInformation();
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkStructuredPointsSource(const vtkStructuredPointsSource&);  // Not implemented.
   void operator=(const vtkStructuredPointsSource&);  // Not implemented.

@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkRectilinearGridToPolyDataFilter.h"
 
+#include "vtkInformation.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.15");
+vtkCxxRevisionMacro(vtkRectilinearGridToPolyDataFilter, "1.16");
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridToPolyDataFilter::vtkRectilinearGridToPolyDataFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -46,6 +48,19 @@ vtkRectilinearGrid *vtkRectilinearGridToPolyDataFilter::GetInput()
     }
   
   return (vtkRectilinearGrid *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
+int
+vtkRectilinearGridToPolyDataFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -40,7 +40,9 @@ public:
 protected:
   vtkHierarchicalBoxToPolyDataFilter();
   ~vtkHierarchicalBoxToPolyDataFilter();
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkHierarchicalBoxToPolyDataFilter(const vtkHierarchicalBoxToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkHierarchicalBoxToPolyDataFilter&);  // Not implemented.

@@ -14,14 +14,18 @@
 =========================================================================*/
 #include "vtkRectilinearGridSource.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.18");
+vtkCxxRevisionMacro(vtkRectilinearGridSource, "1.19");
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()
 {
+  // A source has no inputs by default.
+  this->SetNumberOfInputPorts(0);
+
   this->vtkSource::SetNthOutput(0,vtkRectilinearGrid::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
@@ -52,6 +56,17 @@ void vtkRectilinearGridSource::SetOutput(vtkRectilinearGrid *output)
   this->vtkSource::SetNthOutput(0, output);
 }
 
+//----------------------------------------------------------------------------
+int vtkRectilinearGridSource::FillOutputPortInformation(int port,
+                                                        vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkRectilinearGridSource::PrintSelf(ostream& os, vtkIndent indent)

@@ -17,13 +17,14 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.60");
+vtkCxxRevisionMacro(vtkPointSetToPointSetFilter, "1.61");
 
 //----------------------------------------------------------------------------
 // Construct object.
 vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------

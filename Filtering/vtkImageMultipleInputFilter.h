@@ -101,6 +101,8 @@ protected:
   // This is the one you should override.
   virtual void ExecuteInformation(vtkImageData **, vtkImageData *) {};
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)

@@ -15,13 +15,15 @@
 #include "vtkDataSetToPolyDataFilter.h"
 
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.16");
+vtkCxxRevisionMacro(vtkDataSetToPolyDataFilter, "1.17");
 
 //----------------------------------------------------------------------------
 vtkDataSetToPolyDataFilter::vtkDataSetToPolyDataFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -62,6 +64,19 @@ void vtkDataSetToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObject *output
   
   this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
   input->RequestExactExtentOn();
+}
+
+//----------------------------------------------------------------------------
+int
+vtkDataSetToPolyDataFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

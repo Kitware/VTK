@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkUnstructuredGridToPolyDataFilter.h"
 
+#include "vtkInformation.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.8");
+vtkCxxRevisionMacro(vtkUnstructuredGridToPolyDataFilter, "1.9");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridToPolyDataFilter::vtkUnstructuredGridToPolyDataFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -60,6 +62,19 @@ void vtkUnstructuredGridToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObjec
     this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
     input->RequestExactExtentOn();
     }
+}
+
+//----------------------------------------------------------------------------
+int
+vtkUnstructuredGridToPolyDataFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

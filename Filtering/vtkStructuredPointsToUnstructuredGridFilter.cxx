@@ -15,14 +15,16 @@
 #include "vtkStructuredPointsToUnstructuredGridFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsToUnstructuredGridFilter, "1.16");
+vtkCxxRevisionMacro(vtkStructuredPointsToUnstructuredGridFilter, "1.17");
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToUnstructuredGridFilter::vtkStructuredPointsToUnstructuredGridFilter()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -60,6 +62,19 @@ void vtkStructuredPointsToUnstructuredGridFilter::ComputeInputUpdateExtents(
     {
     this->GetInput()->RequestExactExtentOn();
     }
+}
+
+//----------------------------------------------------------------------------
+int
+vtkStructuredPointsToUnstructuredGridFilter
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -45,6 +45,9 @@ protected:
 
   // All the DataSetToStructuredPointsFilters require all their input.
   void ComputeInputUpdateExtents(vtkDataObject *output);
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDataSetToStructuredPointsFilter(const vtkDataSetToStructuredPointsFilter&);  // Not implemented.
   void operator=(const vtkDataSetToStructuredPointsFilter&);  // Not implemented.

@@ -49,6 +49,7 @@ protected:
   void ExecuteInformation();
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
   vtkStructuredPointsToStructuredPointsFilter(const vtkStructuredPointsToStructuredPointsFilter&);  // Not implemented.

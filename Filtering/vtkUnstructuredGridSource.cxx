@@ -14,14 +14,18 @@
 =========================================================================*/
 #include "vtkUnstructuredGridSource.h"
 
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.27");
+vtkCxxRevisionMacro(vtkUnstructuredGridSource, "1.28");
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {
+  // A source has no inputs by default.
+  this->SetNumberOfInputPorts(0);
+
   this->vtkSource::SetNthOutput(0, vtkUnstructuredGrid::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
@@ -75,6 +79,18 @@ void vtkUnstructuredGridSource::ComputeInputUpdateExtents(vtkDataObject *data)
 vtkUnstructuredGrid *vtkUnstructuredGridSource::GetOutput(int idx)
 {
   return static_cast<vtkUnstructuredGrid *>( this->vtkSource::GetOutput(idx) ); 
+}
+
+//----------------------------------------------------------------------------
+int vtkUnstructuredGridSource::FillOutputPortInformation(int port,
+                                                         vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::OUTPUT_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
