@@ -63,6 +63,7 @@ public:
   // Description:
   // This is the only method that the subclasses must supply.
   virtual void Load(vtkTexture *txt, vtkRenderer *ren) = 0;
+
 };
 
 #endif

@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkWarpTo - deform geometry by warping towards a point
 // .SECTION Description
-// vtkWarpTo is a filter that modifies point coordinates by moving
-// points towards a user specified point times the scale factor. 
+// vtkWarpTo is a filter that modifies point coordinates by moving the
+// points towards a user specified position.
 
 #ifndef __vtkWarpTo_h
 #define __vtkWarpTo_h
@@ -57,15 +57,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify value to scale displacement.
+  // Set/Get the value to scale displacement.
   vtkSetMacro(ScaleFactor,float);
   vtkGetMacro(ScaleFactor,float);
 
   // Description:
-  // Get the warp to position.
+  // Set/Get the position to warp towards.
   vtkGetVectorMacro(Position,float,3);
-  // Description:
-  // Sets the position to warp towards.
   vtkSetVector3Macro(Position,float);
 
 protected:

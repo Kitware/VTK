@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // scaling. It combines these instance variables into one matrix as 
 // follows: [x y z 1] = [x y z 1] Translate(-origin) Scale(scale) Rot(y) 
 // Rot(x) Rot (z) Trans(origin) Trans(position).
-//
+
 // .SECTION see also
 // vtkActor vtkVolumeCollection vtkVolumeRenderer
 

@@ -63,6 +63,7 @@ public:
   // Description:
   // This is the only method that the subclasses must supply.
   virtual void Render(vtkProperty *prp, vtkRenderer *ren) = 0;
+
 };
 
 #endif

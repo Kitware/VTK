@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkFollower - a subclass of actor that always faces the camera
 // .SECTION Description
-// vtkFollowr is a subclass of vtkActor that always follows its specified 
+// vtkFollower is a subclass of vtkActor that always follows its specified 
 // camera. More specifically it will not change its position or scale,
 // but it will continually update its orientation so that it is right side
 // up and facing the camera. This is typically used for text labels in a
@@ -69,7 +69,7 @@ class vtkFollower : public vtkActor
   virtual void GetMatrix(vtkMatrix4x4& m);
 
   // Description:
-  // Set/Get the Camera to follow. If this is not set then the follower
+  // Set/Get the Camera to follow. If this is not set, then the follower
   // won't know who to follow.
   vtkSetObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Camera,vtkCamera);

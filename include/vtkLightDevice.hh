@@ -63,6 +63,7 @@ public:
   // Description:
   // This is the only method that the subclasses must supply.
   virtual void Render(vtkLight *lgt, vtkRenderer *ren,int light_index) = 0;
+
 };
 
 #endif

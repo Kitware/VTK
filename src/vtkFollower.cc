@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCamera.hh"
 
 // Description:
-// Creates an follower with no camera set
+// Creates a follower with no camera set
 vtkFollower::vtkFollower()
 {
   this->Camera = NULL;
