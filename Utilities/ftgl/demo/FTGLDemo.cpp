@@ -515,7 +515,7 @@ void SetCamera(void)
 #ifndef FTGL_DO_NOT_USE_TEXTURE_FONT
     case FTGL_TEXTURE:
 #endif
-#if defined(FTGL_DO_NOT_USE_VECTORISER) || defined(FTGL_DO_NOT_USE_TEXTURE_FONT)
+#if !defined(FTGL_DO_NOT_USE_VECTORISER) || !defined(FTGL_DO_NOT_USE_TEXTURE_FONT)
       glMatrixMode (GL_PROJECTION);
       glLoadIdentity ();
       gluPerspective( 90, (float)w_win / (float)h_win, 1, 1000);
