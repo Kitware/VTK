@@ -42,20 +42,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageReader2Collection.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
-vtkImageReader2Collection* vtkImageReader2Collection::New()
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageReader2Collection");
-  if(ret)
-    {
-    return (vtkImageReader2Collection*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageReader2Collection;
-}
-
-
-
+vtkCxxRevisionMacro(vtkImageReader2Collection, "1.2");
+vtkStandardNewMacro(vtkImageReader2Collection);

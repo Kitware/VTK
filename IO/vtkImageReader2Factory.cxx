@@ -48,6 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageReader2Collection.h"
 #include "vtkObjectFactoryCollection.h"
 
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.2");
+vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
 {
@@ -68,22 +70,9 @@ static vtkCleanUpImageReader2Factory vtkCleanUpImageReader2FactoryGlobal;
 
 vtkImageReader2Collection* vtkImageReader2Factory::AvailiableReaders;
 
-vtkImageReader2Factory* vtkImageReader2Factory::New()
-{ 
-// First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageReader2Factory");
-  if(ret)
-    {
-    return (vtkImageReader2Factory*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new vtkImageReader2Factory;
-}
-
-
 void vtkImageReader2Factory::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os, indent);
+  this->Superclass::PrintSelf(os, indent);
   os << indent << "Availiable Readers : ";
   if(AvailiableReaders)
     {

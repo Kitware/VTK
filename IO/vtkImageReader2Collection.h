@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_IO_EXPORT vtkImageReader2Collection : public vtkCollection
 {
 public:
-  vtkTypeMacro(vtkImageReader2Collection,vtkCollection);
+  vtkTypeRevisionMacro(vtkImageReader2Collection,vtkCollection);
   static vtkImageReader2Collection *New();
 
   // Description:
