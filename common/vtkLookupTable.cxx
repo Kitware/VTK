@@ -114,6 +114,11 @@ void  vtkLookupTable
     return;
     }
 
+  if (this->TableRange[0] != min ||
+      this->TableRange[1] != max)
+    {
+    this->Modified();
+    }
   this->TableRange[0] = min;
   this->TableRange[1] = max;
 }
