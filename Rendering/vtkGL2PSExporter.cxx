@@ -170,7 +170,7 @@ void _Turn2DPropsOn(vtkRendererCollection *renCol, vtkIntArray *act2dVis)
     }
 }
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.10");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.11");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 static float vtkGL2PSExporterGlobalPointSizeFactor = 5.0/7.0;
@@ -181,6 +181,7 @@ vtkGL2PSExporter::vtkGL2PSExporter()
   this->FilePrefix = NULL;
   this->FileFormat = EPS_FILE;
   this->Sort = SIMPLE_SORT;
+  this->Compress = 1;
   this->DrawBackground = 1;
   this->SimpleLineOffset = 1;
   this->Silent = 0;
@@ -276,6 +277,10 @@ void vtkGL2PSExporter::WriteData()
     sort = GL2PS_NO_SORT;
     }
 
+  if (this->Compress == 1)
+    {
+    options = options | GL2PS_COMPRESS;
+    }  
   if (this->DrawBackground == 1)
     {
     options = options | GL2PS_DRAW_BACKGROUND;
@@ -332,7 +337,7 @@ void vtkGL2PSExporter::WriteData()
     format = GL2PS_TEX;
     }
   
-  fpObj = fopen(fName, "w");
+  fpObj = fopen(fName, "wb");
   if (!fpObj)
     {
     vtkErrorMacro(<< "unable to open file: " << fName);
@@ -446,6 +451,8 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
      << this->GetFileFormatAsString() << "\n";
   os << indent << "Sort: "
      << this->GetSortAsString() << "\n";
+  os << indent << "Compress: "
+     << (this->Compress ? "On\n" : "Off\n");
   os << indent << "DrawBackground: "
      << (this->DrawBackground ? "On\n" : "Off\n");
   os << indent << "SimpleLineOffset: "
