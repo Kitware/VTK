@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.36");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.37");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -452,6 +452,14 @@ void vtkImageMathematics::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Operation: " << this->Operation << "\n";
   os << indent << "ConstantK: " << this->ConstantK << "\n";
   os << indent << "ConstantC: " << this->ConstantC << "\n";
-
+  os << indent << "DivideByZeroToC: ";
+  if ( this->DivideByZeroToC )
+    {
+    os << "On\n";
+    }
+  else
+    {
+    os << "Off\n";
+    }
 }
 
