@@ -139,7 +139,7 @@ IF (VTK_USE_RENDERING)
       testDataSetTriangleFilter2
       TestGraphLayoutFilter
       TestMultiBlockStreamer
-      testQuadricDecimation
+      TestQuadricDecimation
       TestQuadricClustering
       testReflect
       TestRuledSurface
@@ -216,7 +216,7 @@ IF (VTK_USE_RENDERING)
       subdividePointData
       subDivideTetra
       TestGraphLayoutFilter
-      testQuadricDecimation
+      TestQuadricDecimation
       triangularTCoords
       triangularTexture
       warplens
