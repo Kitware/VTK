@@ -460,6 +460,17 @@ int vtkStructuredPoints::FindPoint(float x[3])
 }
 
 int vtkStructuredPoints::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+				  vtkGenericCell *vtkNotUsed(gencell),
+				  int vtkNotUsed(cellId), 
+				  float vtkNotUsed(tol2), 
+				  int& subId, float pcoords[3], 
+				  float *weights)
+{
+  return
+    this->FindCell( x, (vtkCell *)NULL, 0, 0.0, subId, pcoords, weights );
+}
+
+int vtkStructuredPoints::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
                          int vtkNotUsed(cellId), float vtkNotUsed(tol2), 
                          int& subId, float pcoords[3], float *weights)
 {

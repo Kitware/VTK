@@ -206,6 +206,16 @@ public:
                        int& subId, float pcoords[3], float *weights) = 0;
 
   // Description:
+  // This is a version of the above method that can be used with 
+  // multithreaded applications. A vtkGenericCell must be passes in
+  // to be used in internal calls that might be made to GetCell()
+  // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
+  // THE DATASET IS NOT MODIFIED
+  virtual int FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
+		       int cellId, float tol2, int& subId, float pcoords[3], 
+		       float *weights) = 0;
+  
+  // Description:
   // Locate the cell that contains a point and return the cell. Also returns
   // the subcell id, parametric coordinates and weights for subsequent
   // interpolation. This method combines the derived class methods

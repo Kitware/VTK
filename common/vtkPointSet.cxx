@@ -160,14 +160,14 @@ int vtkPointSet::FindPoint(float x[3])
 //the furthest the walk can be - prevents aimless wandering
 #define VTK_MAX_WALK 12
 
-int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
+int vtkPointSet::FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
+			  int cellId, float tol2, 
                           int& subId, float pcoords[3], float *weights)
 {
   int             ptId, walk;
   float           closestPoint[3];
   float           dist2;
   vtkIdList       *cellIds, *ptIds;
-  vtkGenericCell  *genericCell = NULL;
 
   // make sure everything is up to snuff
   if ( !this->Points )
@@ -205,18 +205,28 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
     this->GetPointCells(ptId, cellIds);
     if ( cellIds->GetNumberOfIds() > 0 )
       {
-      genericCell = vtkGenericCell::New();
       cellId = cellIds->GetId(0); //arbitrarily use first cell in list
-      this->GetCell(cellId, genericCell);
+      if ( gencell )
+	{
+	this->GetCell(cellId, gencell);
+	}
+      else
+	{
+	cell = this->GetCell(cellId);
+	}
 
       // See whether this randomly choosen cell contains the point      
-      if ( genericCell->EvaluatePosition(x,closestPoint,subId,pcoords,
-				  dist2,weights) == 1
-	   && dist2 <= tol2 )
+      if ( ( gencell && 
+	     gencell->EvaluatePosition(x,closestPoint,subId,
+				       pcoords, dist2,weights) == 1
+	     && dist2 <= tol2 )  ||
+	   ( !gencell && 
+	     cell->EvaluatePosition(x,closestPoint,subId,
+				       pcoords, dist2,weights) == 1
+	     && dist2 <= tol2 ) )
         {
 	cellIds->Delete();
 	ptIds->Delete();  
-	genericCell->Delete();
         return cellId;
         }
       }
@@ -226,46 +236,47 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   // previous chunk of code), then we use this to start our search. A
   // walking scheme is used, where we walk towards the point and eventually
   // locate the cell that contains the point.
-  if ( cell || genericCell) //we have a starting cell
+  if ( cell || cellIds->GetNumberOfIds() > 0 ) //we have a starting cell
     {
     for ( walk=0; walk < VTK_MAX_WALK; walk++ )
       {
-      if ( genericCell )
+      if ( cell )
 	{
-	genericCell->CellBoundary(subId, pcoords, ptIds);
+	cell->CellBoundary(subId, pcoords, ptIds);
 	}
       else
 	{
-	cell->CellBoundary(subId, pcoords, ptIds);
+	gencell->CellBoundary(subId, pcoords, ptIds);
 	}
       this->GetCellNeighbors(cellId, ptIds, cellIds);
       if ( cellIds->GetNumberOfIds() > 0 )
         {
-	if ( !genericCell )
-	  {
-	  genericCell = vtkGenericCell::New();
-	  }
         cellId = cellIds->GetId(0);
-        this->GetCell(cellId, genericCell);
+	if ( gencell )
+	  {
+	  cell = NULL;
+	  this->GetCell(cellId, gencell);
+	  }
+	else
+	  {
+	  cell = this->GetCell(cellId);
+	  }
         }
       else
         {
         break; //outside of data
         }
 
-      if ( ( (genericCell && 
-	      genericCell->EvaluatePosition(x,closestPoint,subId,pcoords,
-					    dist2,weights) == 1 ) ||
-	     (!genericCell && cell->EvaluatePosition(x,closestPoint,
-				     subId,pcoords,dist2,weights) == 1 ) )
+      if ( ( (!cell && 
+	      gencell->EvaluatePosition(x,closestPoint,subId,pcoords,
+					dist2,weights) == 1 ) ||
+	     (cell && cell->EvaluatePosition(x,closestPoint,
+						 subId,pcoords,
+						 dist2,weights) == 1 ) )
 	   && dist2 <= tol2 )
         {
 	cellIds->Delete();
 	ptIds->Delete();  
-	if ( genericCell )
-	  {
-	  genericCell->Delete();
-	  }
         return cellId;
         }
 
@@ -275,13 +286,16 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   cellIds->Delete();
   ptIds->Delete();
 
-  if ( genericCell )
-    {
-    genericCell->Delete();
-    }
-  
   return -1;
 }
+
+int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
+                          int& subId, float pcoords[3], float *weights)
+{
+  return
+    this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
+}
+
 #undef VTK_MAX_WALK
 
 

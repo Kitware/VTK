@@ -102,6 +102,9 @@ public:
   int FindPoint(float x[3]);
   int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, int& subId, 
                float pcoords[3], float *weights);
+  int FindCell(float x[3], vtkCell *cell, vtkGenericCell *gencell,
+	       int cellId, float tol2, int& subId, 
+               float pcoords[3], float *weights);
   vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, 
                float tol2, int& subId, float pcoords[3], float *weights);
   int GetCellType(int cellId);

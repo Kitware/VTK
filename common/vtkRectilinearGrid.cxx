@@ -591,6 +591,16 @@ int vtkRectilinearGrid::FindPoint(float x[3])
          loc[1]*this->Dimensions[0] + loc[0];
   
 }
+int vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
+				 vtkGenericCell *vtkNotUsed(gencell),
+				 int vtkNotUsed(cellId), 
+				 float vtkNotUsed(tol2), 
+				 int& subId, float pcoords[3], 
+				 float *weights)
+{
+  return
+    this->FindCell( x, (vtkCell *)NULL, 0, 0.0, subId, pcoords, weights );
+}
 
 int vtkRectilinearGrid::FindCell(float x[3], vtkCell *vtkNotUsed(cell), 
                          int vtkNotUsed(cellId), float vtkNotUsed(tol2), 
