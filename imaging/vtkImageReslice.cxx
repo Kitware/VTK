@@ -610,7 +610,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       for (j = 0; j < 3; j++)
 	{
 	c += imatrix[i][j]*(inCenter[j] - matrix[j][3]);
-	double tmp = fabs(matrix[j][i]);
+	double tmp = matrix[j][i]*matrix[j][i];
 	s += tmp*fabs(inSpacing[j]);
 	d += tmp*(inWholeExt[2*j+1] - inWholeExt[2*j])*fabs(inSpacing[j]);
 	e += tmp*inWholeExt[2*j];
