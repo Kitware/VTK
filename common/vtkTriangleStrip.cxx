@@ -82,7 +82,7 @@ vtkCell *vtkTriangleStrip::MakeObject()
   return cell;
 }
 
-int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkTriangleStrip::EvaluatePosition(float x[3], float* closestPoint,
                                       int& subId, float pcoords[3], 
                                       float& minDist2, float *weights)
 {
@@ -104,7 +104,12 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
-      closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2];
+      if (closestPoint)
+	{
+	closestPoint[0] = closest[0]; 
+	closestPoint[1] = closest[1]; 
+	closestPoint[2] = closest[2];
+	}
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];

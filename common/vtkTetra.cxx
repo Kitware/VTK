@@ -98,7 +98,7 @@ vtkCell *vtkTetra::MakeObject()
   return cell;
 }
 
-int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkTetra::EvaluatePosition(float x[3], float* closestPoint,
                               int& subId, float pcoords[3], 
                               float& minDist2, float *weights)
 {
@@ -142,10 +142,13 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
   pcoords[2] >= -0.001 && pcoords[2] <= 1.001 && p4 >= -0.001 && p4 <= 1.001 )
     {
-    closestPoint[0] = x[0]; 
-    closestPoint[1] = x[1]; 
-    closestPoint[2] = x[2];
-    minDist2 = 0.0; //inside tetra
+    if (closestPoint)
+      {
+      closestPoint[0] = x[0]; 
+      closestPoint[1] = x[1]; 
+      closestPoint[2] = x[2];
+      minDist2 = 0.0; //inside tetra
+      }
     return 1; 
     }
   else
@@ -154,18 +157,21 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     int sub;
     vtkTriangle *triangle;
 
-    for (minDist2=VTK_LARGE_FLOAT,i=0; i<4; i++)
+    if (closestPoint)
       {
-      triangle = (vtkTriangle *) this->GetFace (i);
-      triangle->EvaluatePosition(x,closest,sub,pc,dist2,(float *)w);
-
-      if ( dist2 < minDist2 )
-        {
-        closestPoint[0] = closest[0]; 
-        closestPoint[1] = closest[1]; 
-        closestPoint[2] = closest[2];
-        minDist2 = dist2;
-        }
+      for (minDist2=VTK_LARGE_FLOAT,i=0; i<4; i++)
+	{
+	triangle = (vtkTriangle *) this->GetFace (i);
+	triangle->EvaluatePosition(x,closest,sub,pc,dist2,(float *)w);
+	
+	if ( dist2 < minDist2 )
+	  {
+	  closestPoint[0] = closest[0]; 
+	  closestPoint[1] = closest[1]; 
+	  closestPoint[2] = closest[2];
+	  minDist2 = dist2;
+	  }
+	}
       }
     return 0;
     }

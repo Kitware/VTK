@@ -273,7 +273,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
   return 1;
 }
 
-int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPolyLine::EvaluatePosition(float x[3], float* closestPoint,
                                  int& subId, float pcoords[3], 
                                  float& minDist2, float *weights)
 {
@@ -295,12 +295,15 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
-      closestPoint[0] = closest[0]; 
-      closestPoint[1] = closest[1]; 
-      closestPoint[2] = closest[2]; 
+      if (closestPoint)
+	{
+	closestPoint[0] = closest[0]; 
+	closestPoint[1] = closest[1]; 
+	closestPoint[2] = closest[2]; 
+	}
+      minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
-      minDist2 = dist2;
       weights[i] = lineWeights[0];
       weights[i+1] = lineWeights[1];
       }

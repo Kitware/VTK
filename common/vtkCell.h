@@ -160,7 +160,9 @@ public:
   // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared of point x[3] to cell (in particular, the sub-cell 
-  // indicated), closest point on cell to x[3], and interpolation weights 
+  // indicated), closest point on cell to x[3] (unless closestPoint is
+  // null, in which case, the closest point and dist2 are not found), and 
+  // interpolation weights 
   // in cell. (The number of weights is equal to the number of points
   // defining the cell). Note: on rare occasions a -1 is returned from the 
   // method. This means that numerical error has occurred and all data 
@@ -170,7 +172,7 @@ public:
   // topological dimension 2 or less, since a point in 3D can project 
   // onto the cell within parametric limits but be "far" from the cell. 
   // Thus the value dist2 may be checked to determine true in/out.
-  virtual int EvaluatePosition(float x[3], float closestPoint[3], 
+  virtual int EvaluatePosition(float x[3], float* closestPoint, 
                                int& subId, float pcoords[3], 
                                float& dist2, float *weights) = 0;
 

@@ -96,10 +96,10 @@ vtkCell *vtkQuad::MakeObject()
   return cell;
 }
 
-#define VTK_QUAD_MAX_ITERATION 10
-#define VTK_QUAD_CONVERGED 1.e-03
+static const int VTK_QUAD_MAX_ITERATION=10;
+static const float VTK_QUAD_CONVERGED=1.e-03;
 
-int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkQuad::EvaluatePosition(float x[3], float* closestPoint,
                              int& subId, float pcoords[3], 
                              float& dist2, float *weights)
 {
@@ -110,7 +110,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   int idx=0, indices[2];
   int iteration, converged;
   float  params[2];
-  float  fcol[2], rcol[2], scol[2];
+  float  fcol[2], rcol[2], scol[2], cp[3];
   float derivs[8];
 
   subId = 0;
@@ -126,7 +126,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   //
   // Project point to plane
   //
-  vtkPlane::ProjectPoint(x,pt1,n,closestPoint);
+  vtkPlane::ProjectPoint(x,pt1,n,cp);
   //
   // Construct matrices.  Since we have over determined system, need to find
   // which 2 out of 3 equations to use to develop equations. (Any 2 should 
@@ -179,7 +179,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 
     for (j=0; j<2; j++)
       {
-      fcol[j] -= closestPoint[indices[j]];
+      fcol[j] -= cp[indices[j]];
       }
     //
     //  compute determinants and generate improvements
@@ -222,61 +222,73 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
+    if (closestPoint)
+      {
+      dist2 = 
+	vtkMath::Distance2BetweenPoints(cp,x); //projection distance
+      closestPoint[0] = cp[0];
+      closestPoint[1] = cp[1];
+      closestPoint[2] = cp[2];
+      }
     return 1;
     }
   else
     {
     float t;
-    float *pt4 = this->Points->GetPoint(3);
-
-    if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
+    float *pt4;
+    
+    if (closestPoint)
       {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt1);
-      for (i=0; i<3; i++)
+      pt4 = this->Points->GetPoint(3);
+      
+      if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
 	{
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt1);
+	for (i=0; i<3; i++)
+	  {
 	closestPoint[i] = pt1[i];
+	  }
 	}
-      }
-    else if ( pcoords[0] > 1.0 && pcoords[1] < 0.0 )
-      {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
-      for (i=0; i<3; i++)
+      else if ( pcoords[0] > 1.0 && pcoords[1] < 0.0 )
 	{
-	closestPoint[i] = pt2[i];
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt2);
+	for (i=0; i<3; i++)
+	  {
+	  closestPoint[i] = pt2[i];
+	  }
 	}
-      }
-    else if ( pcoords[0] > 1.0 && pcoords[1] > 1.0 )
-      {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
-      for (i=0; i<3; i++)
+      else if ( pcoords[0] > 1.0 && pcoords[1] > 1.0 )
 	{
-	closestPoint[i] = pt3[i];
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt3);
+	for (i=0; i<3; i++)
+	  {
+	  closestPoint[i] = pt3[i];
+	  }
 	}
-      }
-    else if ( pcoords[0] < 0.0 && pcoords[1] > 1.0 )
-      {
-      dist2 = vtkMath::Distance2BetweenPoints(x,pt4);
-      for (i=0; i<3; i++)
+      else if ( pcoords[0] < 0.0 && pcoords[1] > 1.0 )
 	{
-	closestPoint[i] = pt4[i];
+	dist2 = vtkMath::Distance2BetweenPoints(x,pt4);
+	for (i=0; i<3; i++)
+	  {
+	  closestPoint[i] = pt4[i];
+	  }
 	}
-      }
-    else if ( pcoords[0] < 0.0 )
-      {
-      dist2 = vtkLine::DistanceToLine(x,pt1,pt4,t,closestPoint);
-      }
-    else if ( pcoords[0] > 1.0 )
-      {
-      dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
-      }
-    else if ( pcoords[1] < 0.0 )
-      {
-      dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
-      }
-    else if ( pcoords[1] > 1.0 )
-      {
-      dist2 = vtkLine::DistanceToLine(x,pt3,pt4,t,closestPoint);
+      else if ( pcoords[0] < 0.0 )
+	{
+	dist2 = vtkLine::DistanceToLine(x,pt1,pt4,t,closestPoint);
+	}
+      else if ( pcoords[0] > 1.0 )
+	{
+	dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
+	}
+      else if ( pcoords[1] < 0.0 )
+	{
+	dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
+	}
+      else if ( pcoords[1] > 1.0 )
+	{
+	dist2 = vtkLine::DistanceToLine(x,pt3,pt4,t,closestPoint);
+	}
       }
     return 0;
     }

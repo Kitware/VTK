@@ -84,7 +84,7 @@ public:
             vtkPointLocator *locator, vtkCellArray *cells,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
-  int EvaluatePosition(float x[3], float closestPoint[3],
+  int EvaluatePosition(float x[3], float* closestPoint,
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],

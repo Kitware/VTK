@@ -88,7 +88,7 @@ vtkCell *vtkVertex::MakeObject()
   return cell;
 }
 
-int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkVertex::EvaluatePosition(float x[3], float* closestPoint,
                               int& subId, float pcoords[3], 
                               float& dist2, float *weights)
 {
@@ -98,7 +98,10 @@ int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] = pcoords[2] = 0.0;
 
   X = this->Points->GetPoint(0);
-  closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
+  if (closestPoint)
+    {
+    closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
+    }
 
   dist2 = vtkMath::Distance2BetweenPoints(X,x);
   weights[0] = 1.0;

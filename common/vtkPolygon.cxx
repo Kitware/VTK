@@ -230,33 +230,39 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
 }
 
 
-int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPolygon::EvaluatePosition(float x[3], float* closestPoint,
                                  int& vtkNotUsed(subId), float pcoords[3], 
                                  float& minDist2, float *weights)
 {
   int i;
-  float p0[3], p10[3], l10, p20[3], l20, n[3];
+  float p0[3], p10[3], l10, p20[3], l20, n[3], cp[3];
   float ray[3];
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->ComputeWeights(x,weights);
-  vtkPlane::ProjectPoint(x,p0,n,closestPoint);
+  vtkPlane::ProjectPoint(x,p0,n,cp);
 
   for (i=0; i<3; i++)
     {
-    ray[i] = closestPoint[i] - p0[i];
+    ray[i] = cp[i] - p0[i];
     }
   pcoords[0] = vtkMath::Dot(ray,p10) / (l10*l10);
   pcoords[1] = vtkMath::Dot(ray,p20) / (l20*l20);
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-       (this->PointInPolygon(closestPoint, this->Points->GetNumberOfPoints(), 
+       (this->PointInPolygon(cp, this->Points->GetNumberOfPoints(), 
 			     ((vtkFloatArray *)this->Points->GetData())
 			     ->GetPointer(0), this->GetBounds(),n)
 	== VTK_POLYGON_INSIDE) )
     {
-    minDist2 = vtkMath::Distance2BetweenPoints(x,closestPoint);
+    if (closestPoint)
+      {
+      closestPoint[0] = cp[0];
+      closestPoint[1] = cp[1];
+      closestPoint[2] = cp[2];
+      minDist2 = vtkMath::Distance2BetweenPoints(x,closestPoint);
+      }
     return 1;
     }
 //
@@ -268,18 +274,21 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
     int numPts;
     float closest[3];
 
-    numPts = this->Points->GetNumberOfPoints();
-    for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
+    if (closestPoint)
       {
-      dist2 = vtkLine::DistanceToLine(x,this->Points->GetPoint(i),
-                                  this->Points->GetPoint((i+1)%numPts),t,closest);
-      if ( dist2 < minDist2 )
-        {
-        closestPoint[0] = closest[0]; 
-        closestPoint[1] = closest[1]; 
-        closestPoint[2] = closest[2];
-        minDist2 = dist2;
-        }
+      numPts = this->Points->GetNumberOfPoints();
+      for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
+	{
+	dist2 = vtkLine::DistanceToLine(x,this->Points->GetPoint(i),
+					this->Points->GetPoint((i+1)%numPts),t,closest);
+	if ( dist2 < minDist2 )
+	  {
+	  closestPoint[0] = closest[0]; 
+	  closestPoint[1] = closest[1]; 
+	  closestPoint[2] = closest[2];
+	  minDist2 = dist2;
+	  }
+	}
       }
     return 0;
     }

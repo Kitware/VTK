@@ -75,7 +75,7 @@ public:
   vtkCell *GetEdge(int edgeId);
   vtkCell *GetFace(int faceId);
   int CellBoundary(int subId, float pcoords[3], vtkIdList *pts);
-  int EvaluatePosition(float x[3], float closestPoint[3], 
+  int EvaluatePosition(float x[3], float* closestPoint, 
 		       int& subId, float pcoords[3], 
 		       float& dist2, float *weights);
   void EvaluateLocation(int& subId, float pcoords[3], 

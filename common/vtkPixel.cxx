@@ -78,13 +78,13 @@ vtkCell *vtkPixel::MakeObject()
   return cell;
 }
 
-int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkPixel::EvaluatePosition(float x[3], float* closestPoint,
                                   int& subId, float pcoords[3], 
                                   float& dist2, float *weights)
 {
   float *pt1, *pt2, *pt3;
   int i;
-  float p[3], p21[3], p31[3];
+  float p[3], p21[3], p31[3], cp[3];
   float l21, l31, n[3];
 
   subId = 0;
@@ -100,7 +100,7 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Project point to plane
 //
-  vtkPlane::ProjectPoint(x,pt1,n,closestPoint);
+  vtkPlane::ProjectPoint(x,pt1,n,cp);
 
   for (i=0; i<3; i++)
     {
@@ -126,29 +126,36 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
-    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
+    if (closestPoint)
+      {
+      dist2 = 
+	vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
+      }
     return 1;
     }
   else
     {
     float pc[3], w[4];
-    for (i=0; i<2; i++)
+    if (closestPoint)
       {
-      if (pcoords[i] < 0.0)
+      for (i=0; i<2; i++)
+	{
+	if (pcoords[i] < 0.0)
 	{
 	pc[i] = 0.0;
 	}
-      else if (pcoords[i] > 1.0)
-	{
-	pc[i] = 1.0;
+	else if (pcoords[i] > 1.0)
+	  {
+	  pc[i] = 1.0;
+	  }
+	else
+	  {
+	  pc[i] = pcoords[i];
+	  }
 	}
-      else
-	{
-	pc[i] = pcoords[i];
-	}
+      this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
-    this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }

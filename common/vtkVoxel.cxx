@@ -78,7 +78,7 @@ vtkCell *vtkVoxel::MakeObject()
   return cell;
 }
 
-int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
+int vtkVoxel::EvaluatePosition(float x[3], float* closestPoint,
                               int& subId, float pcoords[3], 
                               float& dist2, float *weights)
 {
@@ -104,7 +104,10 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
   pcoords[2] >= 0.0 && pcoords[2] <= 1.0 )
     {
-    closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
+    if (closestPoint)
+      {
+      closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
+      }
     dist2 = 0.0; // inside voxel
     this->InterpolationFunctions(pcoords,weights);
     return 1;
@@ -112,23 +115,26 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
   else
     {
     float pc[3], w[8];
-    for (i=0; i<3; i++)
+    if (closestPoint)
       {
-      if (pcoords[i] < 0.0)
+      for (i=0; i<3; i++)
+	{
+	if (pcoords[i] < 0.0)
 	{
 	pc[i] = 0.0;
 	}
-      else if (pcoords[i] > 1.0)
-	{
-	pc[i] = 1.0;
+	else if (pcoords[i] > 1.0)
+	  {
+	  pc[i] = 1.0;
+	  }
+	else
+	  {
+	  pc[i] = pcoords[i];
+	  }
 	}
-      else
-	{
-	pc[i] = pcoords[i];
-	}
+      this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
-    this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }

@@ -98,9 +98,9 @@ vtkCell *vtkWedge::MakeObject()
   return cell;
 }
 
-#define VTK_MAX_ITERATION 10
-#define VTK_CONVERGED 1.e-03
-int vtkWedge::EvaluatePosition(float x[3], float closestPoint[3],
+static const int VTK_MAX_ITERATION=10;
+static const float VTK_CONVERGED=1.e-03;
+int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
                               int& subId, float pcoords[3], 
                               float& dist2, float *weights)
 {
@@ -186,30 +186,36 @@ int vtkWedge::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
   pcoords[2] >= -0.001 && pcoords[2] <= 1.001 )
     {
-    closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
-    dist2 = 0.0; //inside wedge
+    if (closestPoint)
+      {
+      closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
+      dist2 = 0.0; //inside wedge
+      }
     return 1;
     }
   else
     {
     float pc[3], w[6];
-    for (i=0; i<3; i++) //only approximate, not really true for warped hexa
+    if (closestPoint)
       {
-      if (pcoords[i] < 0.0) 
+      for (i=0; i<3; i++) //only approximate, not really true for warped hexa
 	{
-	pc[i] = 0.0;
+	if (pcoords[i] < 0.0) 
+	  {
+	  pc[i] = 0.0;
 	}
-      else if (pcoords[i] > 1.0) 
-	{
-	pc[i] = 1.0;
+	else if (pcoords[i] > 1.0) 
+	  {
+	  pc[i] = 1.0;
+	  }
+	else 
+	  {
+	  pc[i] = pcoords[i];
+	  }
 	}
-      else 
-	{
-	pc[i] = pcoords[i];
-	}
+      this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
       }
-    this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
-    dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
 }
