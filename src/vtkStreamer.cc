@@ -137,7 +137,7 @@ int vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
 
 // Description:
 // Specify the start of the streamline in the global coordinate system. Search
-// must be performed to find initial cell to strart integration from.
+// must be performed to find initial cell to start integration from.
 void vtkStreamer::SetStartPosition(float x[3])
 {
   if ( x[0] != this->StartPosition[0] || x[1] != this->StartPosition[1] || 
@@ -154,7 +154,7 @@ void vtkStreamer::SetStartPosition(float x[3])
 
 // Description:
 // Specify the start of the streamline in the global coordinate system. Search
-// must be performed to find initial cell to strart integration from.
+// must be performed to find initial cell to start integration from.
 void vtkStreamer::SetStartPosition(float x, float y, float z)
 {
   float pos[3];

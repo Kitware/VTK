@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkCameraDevice - abstract definition of a hardware dependent camera
 // .SECTION Description
-// vtkCamereaDevice is the superclass of the hardware dependent cameras
+// vtkCameraDevice is the superclass of the hardware dependent cameras
 // such as vtkOglrCamera and vtkSbrCamera. This object is typically created
 // automatically by a vtkCamera object when it renders. The user should
 // never see this class.

@@ -168,7 +168,7 @@ void vtkXRenderWindow::SetNextWindowId(Window arg)
 }
 
 // Description:
-// Set the X display id for this RenderWindow to use to a pre-exisiting 
+// Set the X display id for this RenderWindow to use to a pre-existing 
 // X display id.
 void vtkXRenderWindow::SetDisplayId(Display  *arg)
 {
