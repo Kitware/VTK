@@ -84,6 +84,10 @@ suppress umr vtkRenderWindow::DoAARender
 suppress umr RayCast_RenderImage
 suppress umr _bcmp; addTexTableUsage
 suppress umc memcpy; vtkRendererSource::Execute(void)
+suppress umc FinishSelectFeed
+suppress umr FinishSelectFeed
+suppress umr ResolveSelect
+suppress umc ResolveSelect
 
 suppress mlk _malloc; Tcl_CreateFileHandler
 suppress mlk _malloc; Tcl_DoWhenIdle
