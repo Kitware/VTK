@@ -29,25 +29,29 @@
 #include <vtkstd/vector>
 #include <vtkstd/stack>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.53");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.54");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
- #ifndef __PLACEMENT_NEW_INLINE
- #define __PLACEMENT_NEW_INLINE
-  inline void *__cdecl operator new(size_t, void *_P)
-        {return (_P); }
-  #if     _MSC_VER >= 1200
-   inline void __cdecl operator delete(void *, void *)
-   {return; }
-  #endif
- #endif
+# ifndef __PLACEMENT_NEW_INLINE
+#  define __PLACEMENT_NEW_INLINE
+   inline void *__cdecl operator new(size_t, void *_P) { return (_P); }
+#  if _MSC_VER >= 1200
+    inline void __cdecl operator delete(void *, void *) { return; }
+#  endif
+# endif
 #else
- #ifdef VTK_USE_ANSI_STDLIB
-  #include <new>
- #else
-  #include <new.h>
- #endif
+# ifdef VTK_USE_ANSI_STDLIB
+#  include <new>
+# else
+#  include <new.h>
+# endif
+#endif
+
+/* Old HP compiler does not support operator delete that is called
+   when a constructor called by operator new throws.  */
+#if defined(__HP_aCC) && (__HP_aCC <= 012100)
+# define VTK_NO_EXCEPTION_OPERATOR_DELETE
 #endif
 
 // Classes are used to represent points, faces, and tetras-------------------
@@ -94,7 +98,9 @@ struct vtkOTFace //used during tetra construction
 {
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
+#if !defined(VTK_NO_EXCEPTION_OPERATOR_DELETE)
   void operator delete(void*,vtkHeap*) {}
+#endif
 
   vtkOTPoint *Points[3]; //the three points of the face
   vtkOTTetra *Neighbor;
@@ -141,7 +147,9 @@ struct vtkOTTetra
 {
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
+#if !defined(VTK_NO_EXCEPTION_OPERATOR_DELETE)
   void operator delete(void*,vtkHeap*) {}
+#endif
 
   vtkOTTetra() : Radius2(0.0L), CurrentPointId(-1), Type(OutsideCavity)
     {
