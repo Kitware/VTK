@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.9");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.10");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -244,6 +244,13 @@ int vtkDemandDrivenPipeline::UpdateInformation()
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
+
+    // Tests should fail when this happens because there is a bug in
+    // the code.
+    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
+      {
+      abort();
+      }
     return 0;
     }
 
@@ -302,6 +309,13 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
                   "Returning failure to algorithm "
                   << this->Algorithm->GetClassName() << "("
                   << this->Algorithm << ").");
+
+    // Tests should fail when this happens because there is a bug in
+    // the code.
+    if(getenv("DASHBOARD_TEST_FROM_CTEST") || getenv("DART_TEST_FROM_DART"))
+      {
+      abort();
+      }
     return 0;
     }
 
