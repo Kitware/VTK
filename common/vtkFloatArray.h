@@ -105,14 +105,15 @@ public:
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
-  // Note that i<NumberOfTuples and j<NumberOfComponents.
+  // Note that i is less than NumberOfTuples and j is less than 
+  // NumberOfComponents.
   float GetComponent(const int i, const int j);
 
   // Description:
   // Set the data component at the ith tuple and jth component location.
-  // Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
-  // memory has been allocated (use SetNumberOfTuples() and 
-  // SetNumberOfComponents()).
+  // Note that i is less than NumberOfTuples and j is less than
+  // NumberOfComponents. Make sure enough memory has been allocated 
+  // (use SetNumberOfTuples() and SetNumberOfComponents()).
   void SetComponent(const int i, const int j, const float c);
 
   // Description:
