@@ -357,14 +357,23 @@ vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
 int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xsize, 
                                         int ysize, int skip, int swapBytes)
 {
+  unsigned short *shortPtr;
   int numShorts = xsize * ysize;
-  int status;
 
   if (skip) fseek (fp, skip, 0);
 
-  status = fread (pixels, sizeof (unsigned short), numShorts, fp);
+  shortPtr = pixels;
+  shortPtr = shortPtr + xsize*(ysize - 1);
+  for (int j=0; j<ysize; j++, shortPtr = shortPtr - xsize)
+    {
+    if ( ! fread(shortPtr,sizeof (unsigned short),xsize,fp) )
+      {
+      vtkErrorMacro(<<"Error reaading raw pgm data!");
+      return 0;
+      }
+    }
 
-  if (status && swapBytes) 
+  if (swapBytes) 
     {
     unsigned char *bytes = (unsigned char *) pixels;
     unsigned char tmp;
@@ -377,7 +386,7 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xs
       }
     }
 
-  if (status && this->DataMask != 0x0000 )
+  if (this->DataMask != 0x0000 )
     {
     unsigned short *dataPtr = pixels;
     int i;
@@ -387,7 +396,7 @@ int vtkVolume16Reader:: Read16BitImage (FILE *fp, unsigned short *pixels, int xs
       }
     }
 
-  return status;
+  return 1;
 }
 
 void vtkVolume16Reader::ComputeTransformedSpacing (float Spacing[3])
