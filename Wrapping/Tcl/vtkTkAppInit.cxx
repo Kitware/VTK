@@ -37,6 +37,12 @@
 #include "vtkToolkits.h"
 #include "Wrapping/Tcl/vtkTkAppInitConfigure.h"
 
+#if defined(CMAKE_INTDIR)
+# define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD "/" CMAKE_INTDIR
+#else
+# define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD
+#endif
+
 #ifdef VTK_USE_RENDERING
 # include "tk.h"
 #else

@@ -1,7 +1,7 @@
 #ifndef __vtkTkAppInitConfigure_h
 #define __vtkTkAppInitConfigure_h
 
-#define VTK_TCL_PACKAGE_DIR "@VTK_TCL_PACKAGE_DIR@"
+#define VTK_TCL_PACKAGE_DIR_BUILD "@VTK_TCL_PACKAGE_DIR@"
 #define VTK_TCL_INSTALL_DIR "@VTK_TCL_INSTALL_DIR@"
 
 #endif
