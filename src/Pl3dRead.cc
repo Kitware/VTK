@@ -292,7 +292,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp)
   vtkFloatVectors *newMomentum;
   int dim[3];
   int i, gridFound, offset, gridSize, maxGridSize;
-  float *temp, m[3], params[4];
+  float m[3], params[4];
   int numGrids, numPts;
 
   if ( this->FileFormat == WHOLE_MULTI_GRID_NO_IBLANKING )
@@ -543,7 +543,7 @@ void vtkPLOT3DReader::ComputeTemperature()
 
 void vtkPLOT3DReader::ComputePressure()
 {
-  float *m, e, u, v, w, v2, p, d, t, rr;
+  float *m, e, u, v, w, v2, p, d, rr;
   int i;
   vtkFloatScalars *pressure;
 //
