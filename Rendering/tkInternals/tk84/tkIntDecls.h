@@ -559,6 +559,9 @@ EXTERN void    TkStylePkgFree _ANSI_ARGS_((TkMainInfo * mainPtr));
 /* 148 */
 EXTERN Tk_Window  TkToplevelWindowForCommand _ANSI_ARGS_((
         Tcl_Interp * interp, CONST char * cmdName));
+/* 149 */
+EXTERN CONST Tk_OptionSpec * TkGetOptionSpec _ANSI_ARGS_((CONST char * name, 
+        Tk_OptionTable optionTable));
 
 typedef struct TkIntStubs {
     int magic;
@@ -834,6 +837,7 @@ typedef struct TkIntStubs {
     void (*tkStylePkgInit) _ANSI_ARGS_((TkMainInfo * mainPtr)); /* 146 */
     void (*tkStylePkgFree) _ANSI_ARGS_((TkMainInfo * mainPtr)); /* 147 */
     Tk_Window (*tkToplevelWindowForCommand) _ANSI_ARGS_((Tcl_Interp * interp, CONST char * cmdName)); /* 148 */
+    CONST Tk_OptionSpec * (*tkGetOptionSpec) _ANSI_ARGS_((CONST char * name, Tk_OptionTable optionTable)); /* 149 */
 } TkIntStubs;
 
 #ifdef __cplusplus
@@ -1542,6 +1546,10 @@ extern TkIntStubs *tkIntStubsPtr;
 #ifndef TkToplevelWindowForCommand
 #define TkToplevelWindowForCommand \
   (tkIntStubsPtr->tkToplevelWindowForCommand) /* 148 */
+#endif
+#ifndef TkGetOptionSpec
+#define TkGetOptionSpec \
+  (tkIntStubsPtr->tkGetOptionSpec) /* 149 */
 #endif
 
 #endif /* defined(USE_TK_STUBS) && !defined(USE_TK_STUB_PROCS) */
