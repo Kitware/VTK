@@ -19,7 +19,8 @@
 // and creates an output of the same type as the input but with Points 
 // containing "number of time steps" points; the point and PointData 
 // corresponding to the PointIndex are extracted at each time step and added to
-// the output.
+// the output.  A PointData array is added called "Time" (or "TimeData" if
+// there is already an array called "Time"), which is the time at each index.
 
 #ifndef __vtkExtractDataOverTime_h
 #define __vtkExtractDataOverTime_h

@@ -20,9 +20,10 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkDoubleArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.1");
+vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.2");
 vtkStandardNewMacro(vtkExtractDataOverTime);
 
 //----------------------------------------------------------------------------
@@ -115,7 +116,20 @@ int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
       input->GetPoints()->GetPoint(this->PointIndex) );
     output->GetPointData()->CopyData(input->GetPointData(), this->PointIndex,
       this->CurrentTimeIndex);
-    
+    if (input->GetPointData()->GetArray("Time"))
+      {
+      output->GetPointData()->GetArray("TimeData")->SetTuple1(
+        this->CurrentTimeIndex, 
+        input->GetInformation()->Get(vtkDataObject::DATA_TIME()) );
+      }
+    else
+      {
+      output->GetPointData()->GetArray("Time")->SetTuple1(
+        this->CurrentTimeIndex, 
+        input->GetInformation()->Get(vtkDataObject::DATA_TIME()) );
+      }
+
+
     // increment the time index
     this->CurrentTimeIndex++;
     if (this->CurrentTimeIndex == this->NumberOfTimeSteps)
@@ -153,6 +167,21 @@ int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet *input, vtkPointSet *
 
   // now the point data
   output->GetPointData()->CopyAllocate(input->GetPointData(), this->NumberOfTimeSteps);
+
+  // and finally add an array to hold the time at each step
+  vtkDoubleArray *timeArray = vtkDoubleArray::New();
+  timeArray->SetNumberOfComponents(1);
+  timeArray->SetNumberOfTuples(this->NumberOfTimeSteps);
+  if (input->GetPointData()->GetArray("Time"))
+    {
+    timeArray->SetName("TimeSteps");
+    }
+  else
+    {
+    timeArray->SetName("Time");
+    }
+  output->GetPointData()->AddArray(timeArray);
+  timeArray->Delete();
 
   return 1;
 }
