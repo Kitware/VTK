@@ -78,13 +78,13 @@ public:
   // Description:
   // Set the number of points in the longitude direction (ranging from
   // StartTheta to EndTheta).
-  vtkSetClampMacro(ThetaResolution,int,4,VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(ThetaResolution,int,3,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(ThetaResolution,int);
 
   // Description:
   // Set the number of points in the latitude direction (ranging
   // from StartPhi to EndPhi).
-  vtkSetClampMacro(PhiResolution,int,4,VTK_MAX_SPHERE_RESOLUTION);
+  vtkSetClampMacro(PhiResolution,int,2,VTK_MAX_SPHERE_RESOLUTION);
   vtkGetMacro(PhiResolution,int);
 
   // Description:
