@@ -754,6 +754,60 @@ void vtkArrayCalculator::RemoveAllVariables()
   this->NumberOfVectorArrays = 0;
 }
 
+char* vtkArrayCalculator::GetScalarArrayName(int i)
+{
+  if (i < this->NumberOfScalarArrays)
+    {
+    return this->ScalarArrayNames[i];
+    }
+  return NULL;
+}
+
+char* vtkArrayCalculator::GetVectorArrayName(int i)
+{
+  if (i < this->NumberOfVectorArrays)
+    {
+    return this->VectorArrayNames[i];
+    }
+  return NULL;
+}
+
+char* vtkArrayCalculator::GetScalarVariableName(int i)
+{
+  if (i < this->NumberOfScalarArrays)
+    {
+    return this->ScalarVariableNames[i];
+    }
+  return NULL;
+}
+
+char* vtkArrayCalculator::GetVectorVariableName(int i)
+{
+  if (i < this->NumberOfVectorArrays)
+    {
+    return this->VectorVariableNames[i];
+    }
+  return NULL;
+}
+
+int vtkArrayCalculator::GetSelectedScalarComponent(int i)
+{
+  if (i < this->NumberOfScalarArrays)
+    {
+    return this->SelectedScalarComponents[i];
+    }
+  return -1;
+}
+
+int* vtkArrayCalculator::GetSelectedVectorComponents(int i)
+{
+  if (i < this->NumberOfVectorArrays)
+    {
+    return this->SelectedVectorComponents[i];
+    }
+  return NULL;
+}
+
 void vtkArrayCalculator::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
