@@ -79,7 +79,7 @@ public:
   int  GetOutputScalarType();
   
   // Set/Get the coordinate system for this filter.
-  void SetAxes(int dim, int *axes);
+  virtual void SetAxes(int dim, int *axes);
   vtkImageSetMacro(Axes,int);
   void GetAxes(int dim, int *axes);
   vtkImageGetMacro(Axes,int);
@@ -90,6 +90,8 @@ protected:
   vtkImageCache *Output;
   int NumberOfAxes;               // execute method expects this number of axes
   int Axes[VTK_IMAGE_DIMENSIONS]; // reorder the axes
+  int ExecuteScalars;
+  int ExecuteVectors;
   
   virtual void UpdatePointData(vtkImageRegion *region); 
   virtual void CheckCache();

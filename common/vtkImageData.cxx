@@ -180,34 +180,38 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointData:\n";
   this->PointData.PrintSelf(os,nextIndent);
   // Adding this onto pointData (but in this class).
-  scalars = this->PointData.GetScalars();
-  if (scalars) 
+  if (this->PrintScalars)
     {
-    void *ptr = this->GetScalarPointer();
-    os << nextIndent << "Scalar Values:\n";
-    switch (this->GetScalarType())
+    scalars = this->PointData.GetScalars();
+    if (scalars) 
       {
-      case VTK_FLOAT:
-	vtkImageDataPrintScalars(this, (float *)(ptr), os, nextIndent);
-	break;
-      case VTK_INT:
-	vtkImageDataPrintScalars(this, (int *)(ptr), os, nextIndent);
-	break;
-      case VTK_SHORT:
-	vtkImageDataPrintScalars(this, (short *)(ptr), os, nextIndent);
-	break;
-      case VTK_UNSIGNED_SHORT:
-	vtkImageDataPrintScalars(this, (unsigned short *)(ptr), 
+      void *ptr = this->GetScalarPointer();
+      os << indent << "Scalar Values:\n";
+      switch (this->GetScalarType())
+	{
+	case VTK_FLOAT:
+	  vtkImageDataPrintScalars(this, (float *)(ptr), os, nextIndent);
+	  break;
+	case VTK_INT:
+	  vtkImageDataPrintScalars(this, (int *)(ptr), os, nextIndent);
+	  break;
+	case VTK_SHORT:
+	  vtkImageDataPrintScalars(this, (short *)(ptr), os, nextIndent);
+	  break;
+	case VTK_UNSIGNED_SHORT:
+	  vtkImageDataPrintScalars(this, (unsigned short *)(ptr), 
 				   os, nextIndent);
-	break;
-      case VTK_UNSIGNED_CHAR:
-	vtkImageDataPrintScalars(this, (unsigned char *)(ptr),
+	  break;
+	case VTK_UNSIGNED_CHAR:
+	  vtkImageDataPrintScalars(this, (unsigned char *)(ptr),
 				   os, nextIndent);
-	break;
-      default:
-	os << nextIndent << "Cannot handle ScalarType.\n";
-      }         
+	  break;
+	default:
+	  os << nextIndent << "Cannot handle ScalarType.\n";
+	}         
+      }
     }
+  
 }
 
 
