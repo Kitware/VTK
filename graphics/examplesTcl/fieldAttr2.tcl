@@ -79,7 +79,7 @@ iren Initialize
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 
-#renWin SetFileName "probe.tcl.ppm"
+renWin SetFileName "fieldAttr2.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
