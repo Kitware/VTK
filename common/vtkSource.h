@@ -139,6 +139,11 @@ public:
   void UnRegisterAllOutputs(void);
 
   // Description:
+  // Return what index output the passed in output is, return -1 if it
+  // does not match any of the outputs
+  int GetOutputIndex(vtkDataObject *out);
+  
+  // Description:
   // Legacy method.  This method was used by inmaging filters to change the 
   // UpdateExtent of their input so that the vtkImmageToImageFilter superclass
   // would allocate a larger volume.  Changing the UpdateExtent of your input is 
@@ -153,6 +158,14 @@ protected:
   vtkSource(const vtkSource&) {};
   void operator=(const vtkSource&) {};
 
+  // Description:
+  // This method is the one that should be used by subclasses, right now the 
+  // default implementation is to call the backwards compatibility method
+  virtual void ExecuteData(vtkDataObject *output) {
+    this->Execute(); };
+
+  // Description:
+  // This method is the old style execute method
   virtual void Execute();
 
   // By default, UpdateInformation calls this method to copy information
@@ -169,8 +182,6 @@ protected:
   virtual void SetNthOutput(int num, vtkDataObject *output);
   virtual void AddOutput(vtkDataObject *output);
   virtual void RemoveOutput(vtkDataObject *output);
-
-  
   
   vtkDataObject **Outputs;     // An Array of the outputs to the filter
   int NumberOfOutputs;

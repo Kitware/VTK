@@ -85,6 +85,21 @@ vtkSource::~vtkSource()
     }
 }
 
+int vtkSource::GetOutputIndex(vtkDataObject *out)
+{
+  int i;
+  
+  for (i = 0; i < this->NumberOfOutputs; i++)
+    {
+    if (this->Outputs[i] == out)
+      {
+      return i;
+      }
+    }
+  return -1;
+}
+
+
 //----------------------------------------------------------------------------
 vtkDataObject *vtkSource::GetOutput(int i)
 {
@@ -265,7 +280,7 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject *output)
 	<< " This method was used by inmaging filters to change the"
 	<< "UpdateExtent of their input so that the vtkImmageToImageFilter superclass"
 	<< " would allocate a larger volume.  Changing the UpdateExtent of your input is"
-	<< " no longer allowed.  The alternative method is to write your own 'Execute()'"
+	<< " no longer allowed.  The alternative method is to write your own 'ExecuteData(vtkDataObject *)'"
 	<< " method and allocate your own data.");  
     }
   
@@ -330,7 +345,7 @@ void vtkSource::TriggerAsynchronousUpdate()
 
 //----------------------------------------------------------------------------
 
-void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
+void vtkSource::UpdateData(vtkDataObject *output)
 {
   int idx;
 
@@ -389,7 +404,7 @@ void vtkSource::UpdateData(vtkDataObject *vtkNotUsed(output))
     }
   else
     {
-    this->Execute();
+    this->ExecuteData(output);
     }
 
   // If we ended due to aborting, push the progress up to 1.0 (since
@@ -597,7 +612,7 @@ void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
 //----------------------------------------------------------------------------
 void vtkSource::Execute()
 {
-  vtkErrorMacro(<< "Definition of Execute() method should be in subclass");
+  vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use ExecuteData(vtkDataObject *) instead");
 }
 
 //----------------------------------------------------------------------------
