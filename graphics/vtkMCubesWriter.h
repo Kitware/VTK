@@ -68,11 +68,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify file name of marching cubes file.
-  vtkSetStringMacro(FileName);
-  vtkGetStringMacro(FileName);
-
-  // Description:
   // Specify file name of marching cubes limits file.
   vtkSetStringMacro(LimitsFileName);
   vtkGetStringMacro(LimitsFileName);
@@ -80,7 +75,6 @@ public:
 protected:
   void WriteData();
 
-  char *FileName;
   char *LimitsFileName;
 };
 

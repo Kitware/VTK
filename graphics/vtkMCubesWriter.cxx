@@ -44,13 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {
-  this->FileName = NULL;
   this->LimitsFileName = NULL;
 }
 
 vtkMCubesWriter::~vtkMCubesWriter()
 {
-  if ( this->FileName ) delete [] this->FileName;
   if ( this->LimitsFileName ) delete [] this->LimitsFileName;
 }
 static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *polys);
@@ -137,9 +135,6 @@ void WriteLimits(FILE *fp, float *bounds)
 void vtkMCubesWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataWriter::PrintSelf(os,indent);
-
-  os << indent << "File Name: " 
-     << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << indent << "Limits File Name: " 
      << (this->LimitsFileName ? this->LimitsFileName : "(none)") << "\n";
