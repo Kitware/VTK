@@ -66,9 +66,15 @@
 // .SECTION Caveats
 // Note that handles can be picked even when they are "behind" other actors.
 // This is an intended feature and not a bug.
+//
+// The box widget can be oriented by specifying a transformation matrix.
+// This transformation is applied to the initial bounding box as defined by
+// the PlaceWidget() method. DO NOT ASSUME that the transformation is applied
+// to a unit box centered at the origin; this is wrong!
 
 // .SECTION See Also
-// vtk3DWidget vtkLineWidget
+// vtk3DWidget vtkPointWidget vtkLineWidget vtkPlaneWidget 
+// vtkImplicitPlaneWidget vtkImagePlaneWidget
 
 #ifndef __vtkBoxWidget_h
 #define __vtkBoxWidget_h
