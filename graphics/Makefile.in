@@ -52,11 +52,13 @@ vtkXGLRenderer \
 vtkXGLTexture 
 
 ABSTRACT_H = \
+vtkCuller \
 vtkRayBounder 
 
 CONCRETE_H = \
 vtkActorCollection \
 vtkAssemblyPaths \
+vtkCullerCollection \
 vtkDataSetCollection \
 vtkMapperCollection \
 vtkPolyDataCollection \
@@ -144,6 +146,7 @@ vtkFieldDataToDataSet \
 vtkFieldDataWriter \
 vtkFilter \
 vtkFollower \
+vtkFrustumCoverageCuller \
 vtkGaussianSplatter \
 vtkGeometryFilter \
 vtkGlyph3D \
