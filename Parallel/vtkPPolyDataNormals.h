@@ -41,8 +41,8 @@ protected:
   ~vtkPPolyDataNormals() {};
 
   // Usual data generation method
-  virtual void Execute();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int ComputeInputUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int PieceInvariant;
 private:

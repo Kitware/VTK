@@ -14,10 +14,13 @@
 =========================================================================*/
 #include "vtkPPolyDataNormals.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPPolyDataNormals, "1.10");
+vtkCxxRevisionMacro(vtkPPolyDataNormals, "1.11");
 vtkStandardNewMacro(vtkPPolyDataNormals);
 
 //----------------------------------------------------------------------------
@@ -27,43 +30,67 @@ vtkPPolyDataNormals::vtkPPolyDataNormals()
 }
 
 //----------------------------------------------------------------------------
-void vtkPPolyDataNormals::Execute()
+int vtkPPolyDataNormals::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *output = this->GetOutput();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  this->vtkPolyDataNormals::Execute();
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  if (!this->vtkPolyDataNormals::RequestData(request, inputVector, outputVector))
+    {
+    return 0;
+    }
   
   if (this->PieceInvariant)
     {
-    output->RemoveGhostCells(output->GetUpdateGhostLevel()+1);
+    output->RemoveGhostCells(
+      outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS())+1);
     }
-                                                                   
+
+  return 1;
 }
 
 //--------------------------------------------------------------------------
-void vtkPPolyDataNormals::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkPPolyDataNormals::ComputeInputUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  int piece = output->GetUpdatePiece();
-  int numPieces = output->GetUpdateNumberOfPieces();
-  int ghostLevel = output->GetUpdateGhostLevel();
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (input == NULL)
-    {
-    return;
-    }
+  int piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  int ghostLevel =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+
   if (this->PieceInvariant)
     {
-    input->SetUpdatePiece(piece);
-    input->SetUpdateNumberOfPieces(numPieces);
-    input->SetUpdateGhostLevel(ghostLevel + 1);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),piece);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                numPieces);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel + 1);
     }
   else
     {
-    input->SetUpdatePiece(piece);
-    input->SetUpdateNumberOfPieces(numPieces);
-    input->SetUpdateGhostLevel(ghostLevel);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),piece);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                numPieces);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+                ghostLevel);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------

@@ -18,6 +18,8 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,7 +27,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkPriorityQueue.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.64");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.65");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -48,8 +50,21 @@ vtkPolyDataNormals::vtkPolyDataNormals()
 #define VTK_CELL_VISITED         1
 
 // Generate normals for polygon meshes
-void vtkPolyDataNormals::Execute()
+int vtkPolyDataNormals::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int j;
   vtkIdType npts = 0;
   vtkIdType i;
@@ -69,22 +84,15 @@ void vtkPolyDataNormals::Execute()
   double n[3];
   vtkCellArray *newPolys;
   vtkIdType ptId, oldId;
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<<"Generating surface normals");
-
-  if ( input==NULL )
-    {
-    return;
-    }
 
   numPolys=input->GetNumberOfPolys();
   numStrips=input->GetNumberOfStrips();
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No data to generate normals for!");
-    return;
+    return 0;
     }
 
 
@@ -95,7 +103,7 @@ void vtkPolyDataNormals::Execute()
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-    return;
+    return 1;
     }
   output->GetCellData()->PassData(input->GetCellData());
   output->SetFieldData(input->GetFieldData());
@@ -469,6 +477,8 @@ void vtkPolyDataNormals::Execute()
                    
   this->OldMesh->Delete();
   this->NewMesh->Delete();
+
+  return 1;
 }
 
 //  Propagate wave of consistently ordered polygons.

@@ -35,16 +35,16 @@
 #ifndef __vtkPolyDataNormals_h
 #define __vtkPolyDataNormals_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkFloatArray;
 class vtkIdList;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkPolyDataNormals : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkPolyDataNormals,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkPolyDataNormals,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -120,7 +120,7 @@ protected:
   ~vtkPolyDataNormals() {};
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double FeatureAngle;
   int Splitting;
