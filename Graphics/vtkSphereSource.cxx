@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.66");
+vtkCxxRevisionMacro(vtkSphereSource, "1.67");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -98,7 +98,8 @@ void vtkSphereSource::Execute()
 
   // Set things up; allocate memory
   //
-  vtkDebugMacro("SphereSource Executing");
+  vtkDebugMacro("SphereSource Executing piece index " << piece
+                << " of " << numPieces << " pieces.");
 
   numPts = this->PhiResolution * localThetaResolution + 2;
   // creating triangles
