@@ -19,9 +19,10 @@
 #include "vtkPolyData.h"
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
+#include "vtkLine.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.1");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.2");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -40,14 +41,16 @@ vtkQuadraticEdge::vtkQuadraticEdge()
     this->PointIds->SetId(i,0);
     }
   
-  this->Tessellation = NULL;
+  this->Tesselation = NULL;
+  this->InternalDataSet = NULL;
 }
 
 vtkQuadraticEdge::~vtkQuadraticEdge()
 {
-  if ( this->Tessellation )
+  if ( this->Tesselation )
     {
-    this->Tessellation->Delete();
+    this->Tesselation->Delete();
+    this->InternalDataSet->Delete();
     }
 }
 
@@ -240,61 +243,91 @@ void vtkQuadraticEdge::Tesselate(vtkIdType cellId,
                                  vtkDataSet *input, vtkPolyData *output, 
                                  vtkPointLocator *locator)
 {
+  vtkPointData *inPD = input->GetPointData();
+  vtkCellData *inCD = input->GetCellData();
+  vtkPointData *outPD = output->GetPointData();
+  vtkCellData *outCD = output->GetCellData();
 
+  vtkCellArray *outputLines = output->GetLines();
+  vtkPoints *pts = output->GetPoints();
+
+  float *x0 = this->Points->GetPoint(0);
+  float *x1 = this->Points->GetPoint(1);
+  float *x2 = this->Points->GetPoint(2);
+  
+  float l2 = vtkMath::Distance2BetweenPoints(x0,x1);
+  float d2 = vtkLine::DistanceToLine(x2, x0,x1); //midnode to endpoints
+  float e2 = this->Error*this->Error;
+  
+  //the error divided by the maximum permissable error is an approximation to
+  //the number of subdivisions.
+  int numDivs = ceil( d2/(l2*e2) );
+  int numPts = numDivs + 1;
+  
+  //add new points to the output
+  vtkIdType newCellId;
+  vtkIdType p0 = this->InsertPoint(locator,pts,x0);
+  vtkIdType p1 = this->InsertPoint(locator,pts,x1);
+  vtkIdType p2 = this->InsertPoint(locator,pts,x2);
+  outPD->CopyData(inPD,this->PointIds->GetId(0),p0);
+  outPD->CopyData(inPD,this->PointIds->GetId(1),p1);
+  outPD->CopyData(inPD,this->PointIds->GetId(2),p2);
+  
+  //at a minimum the edge is subdivided into two polylines
+  if ( numPts <= 3 )
+    {//end points plus mid-node
+    newCellId = outputLines->InsertNextCell(3);
+    outputLines->InsertCellPoint(p0);
+    outputLines->InsertCellPoint(p1);
+    outputLines->InsertCellPoint(p2);
+    outCD->CopyData(inCD,cellId,newCellId);
+    }
+  else
+    {//have to interpolate points
+    float pcoords[3], weights[3], x[3];
+    vtkIdType p;
+
+    newCellId = outputLines->InsertNextCell(numDivs);
+    outputLines->InsertCellPoint(p0);
+    float delta = 1.0/numDivs;
+    for (int i=1; i<(numPts-1); i++)
+      {
+      pcoords[0] = i*delta;
+      this->InterpolationFunctions(pcoords,weights);
+      x[0] = x0[0]*weights[0] + x1[0]*weights[1] + x2[0]*weights[2];
+      x[1] = x0[1]*weights[0] + x1[1]*weights[1] + x2[1]*weights[2];
+      x[2] = x0[2]*weights[0] + x1[2]*weights[1] + x2[2]*weights[2];
+      p = this->InsertPoint(locator,pts,x);
+      outPD->InterpolatePoint(inPD,p,this->PointIds,weights);
+      outputLines->InsertCellPoint(p);
+      }
+    outputLines->InsertCellPoint(p1);
+    outCD->CopyData(inCD,cellId,newCellId);
+    }
 }
 
-void vtkQuadraticEdge::InternalTessellate()
+void vtkQuadraticEdge::InternalTesselate()
 {
   vtkPoints *pts;
   vtkCellArray *lines;
   
-  if ( this->Tessellation == NULL )
+  if ( this->Tesselation == NULL )
     {
-    this->Tessellation = vtkPolyData::New();
+    this->Tesselation = vtkPolyData::New();
     vtkPoints *pts = vtkPoints::New();
-    this->Tessellation->SetPoints(pts);
+    this->Tesselation->SetPoints(pts);
     pts->Delete();
     vtkCellArray *lines = vtkCellArray::New();
-    this->Tessellation->SetLines(lines);
+    this->Tesselation->SetLines(lines);
     lines->Delete();
+
+    this->InternalDataSet = vtkPolyData::New();
     }
   else
     {
-    pts = this->Tessellation->GetPoints();
+    pts = this->Tesselation->GetPoints();
     pts->Reset();
-    lines = this->Tessellation->GetLines();
+    lines = this->Tesselation->GetLines();
     lines->Reset();
     }
-  
-#if 0
-  int i, subId;
-  float pcoords[3], x[3], weights[3], incr;
-  
-  // Determine the number of points to generate
-  // Use a course approximation based on circle approximation.
-  int numPts = 2;
-  for (i=0; i<this->Resolution; i++)
-    {
-    numPts *= 2;
-    }
-  
-  // Create the points
-  incr = 1.0 / (float)numPts;
-  this->LinearPoints->SetNumberOfPoints(numPts+1);
-  this->LinearPoints->SetPoint(0,this->Points->GetPoint(0));
-  this->LinearCells->Reset();
-  this->LinearCells->InsertNextCell(numPts+1);
-  this->LinearCells->InsertCellPoint(0);
-
-  for (i=1; i<numPts; i++)
-    {
-    pcoords[0] = i*incr;
-    this->EvaluateLocation(subId,pcoords,x,weights);
-    this->LinearPoints->SetPoint(i,x);
-    this->LinearCells->InsertCellPoint(i);
-    }
-
-  this->LinearPoints->SetPoint(0,this->Points->GetPoint(1));
-  this->LinearCells->InsertCellPoint(numPts);
-#endif
 }

@@ -37,11 +37,12 @@
 #define __vtkNonLinearCell_h
 
 #include "vtkCell.h"
+#include "vtkPointLocator.h"
 
 class vtkPolyData;
 class vtkDataSet;
 class vtkUnstructuredGrid;
-class vtkPointLocator;
+
 
 class VTK_COMMON_EXPORT vtkNonLinearCell : public vtkCell
 {
@@ -97,6 +98,21 @@ protected:
 
   float Error;
 
+  // inline helper for tesselation- used by subclasses
+  vtkIdType InsertPoint(vtkPointLocator *locator, vtkPoints *pts, float *x)
+    {
+      if ( locator != NULL ) 
+        {
+        vtkIdType p;
+        locator->InsertUniquePoint(x,p);
+        return p;
+        }
+      else
+        {
+        return pts->InsertNextPoint(x);
+        }
+    }
+  
 private:
   vtkNonLinearCell(const vtkNonLinearCell&);  // Not implemented.
   void operator=(const vtkNonLinearCell&);  // Not implemented.

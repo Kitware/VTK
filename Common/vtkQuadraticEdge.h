@@ -80,7 +80,7 @@ public:
   // Description:
   // Method required by superclass vtkNonLinearCell. Produces vtkPolyData
   // as a function of the vtkNonLinearCell::Error instance variable.
-  // The second Tessellate() method is empty (intended only for 3D cells).
+  // The second Tesselate() method is empty (intended only for 3D cells).
   virtual void Tesselate(vtkIdType cellId, 
                          vtkDataSet *input, vtkPolyData *output, 
                          vtkPointLocator *locator=NULL);
@@ -98,8 +98,10 @@ protected:
   vtkQuadraticEdge();
   ~vtkQuadraticEdge();
 
-  vtkPolyData *Tessellation;
-  void InternalTessellate(); //used internally to tessellate this cell.
+  vtkPolyData *Tesselation;
+  vtkPolyData *InternalDataSet; //used for internal tesselation
+
+  void InternalTesselate(); //used internally to tessellate this cell.
 
 private:
   vtkQuadraticEdge(const vtkQuadraticEdge&);  // Not implemented.
