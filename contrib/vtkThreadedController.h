@@ -45,10 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // counting.
 
 // Unfortunately, as this is written, it is not thread safe.  All threads
-// use the same controller object, so opperations like adding an RMI could
+// use the same controller object, so operations like adding an RMI could
 // potentially conflict.  We need to have our own RegisterAndGetGlobalController
 // method to create different controllers for each thread.  This would also
-// simplifiy the GetLocalProcessId methods.
+// simplify the GetLocalProcessId methods.
 
 
 // .SECTION see also
@@ -151,7 +151,7 @@ protected:
   int WaitingForId;
 
   vtkMultiThreader *MultiThreader;
-  // Used internally to switch between mutliple and single method execution.
+  // Used internally to switch between multiple and single method execution.
   int MultipleMethodFlag;
   
   // It is not enough to block on the messages, we have to mutex 

@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // As you can see this implementation focuses on getting the geometry
 // translated.  The routes and scripting nodes are ignored since they deal
 // with directly accessing a nodes internal structure based on the VRML
-// spec. Since this is a translation the internal datastructures differ
+// spec. Since this is a translation the internal data structures differ
 // greatly from the VRML spec and the External Authoring Interface (see the
 // VRML spec). The DEF/USE mechanism does allow the Vtk user to extract
 // objects from the scene and directly manipulate them using the native

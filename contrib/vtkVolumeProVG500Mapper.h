@@ -94,7 +94,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //   http://www.3dvolumegraphics.com/3dvolumegraphics/product/index.htm
 //
-// If you encouter any problems with this class, please inform Kitware, Inc.
+// If you encounter any problems with this class, please inform Kitware, Inc.
 // at kitware@kitware.com.
 //
 //

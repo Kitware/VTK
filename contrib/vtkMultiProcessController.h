@@ -179,7 +179,7 @@ public:
   // By default, sending objects use shallow copy whenever possible.
   // This flag forces the controller to use deep copies instead.
   // This is necessary when asynchronous processing occurs 
-  // (i.e. pipeline paralellism). This is only important when using
+  // (i.e. pipeline parallelism). This is only important when using
   // vtkThreadedController.
   vtkSetMacro(ForceDeepCopy, int);
   vtkGetMacro(ForceDeepCopy, int);
