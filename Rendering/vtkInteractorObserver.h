@@ -109,6 +109,16 @@ public:
   vtkSetMacro(KeyPressActivationValue,char);
   vtkGetMacro(KeyPressActivationValue,char);
 
+  // Description:
+  // Specify the renderer to use when activiating the interactor observer.
+  // Normally when the widget is activated (SetEnabled(1) or when 
+  // keypress activation takes place), the renderer over which the mouse
+  // pointer is positioned is used. Alternatively, you can specify the
+  // renderer to bind the interactor to when the interactor observer is
+  // activated.
+  virtual void SetCurrentRenderer(vtkRenderer*);
+  vtkGetObjectMacro(CurrentRenderer,vtkRenderer);
+
   // Sets up the keypress-i event. 
   virtual void OnChar();
   

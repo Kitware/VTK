@@ -23,7 +23,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.20");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.21");
+
+vtkCxxSetObjectMacro(vtkInteractorObserver,CurrentRenderer,vtkRenderer);
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -227,6 +229,7 @@ void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
+  os << indent << "Current Renderer: " << this->CurrentRenderer << "\n";
   os << indent << "Enabled: " << this->Enabled << "\n";
   os << indent << "Priority: " << this->Priority << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
