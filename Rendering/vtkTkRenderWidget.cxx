@@ -1029,7 +1029,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     renderWindow = (vtkCarbonRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
-          vtkRenderWindowCommand);
+          "vtkRenderWindow");
 #endif
     self->RW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
@@ -1187,7 +1187,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     renderWindow = (vtkXOpenGLRenderWindow *)(self->RenderWindow);
 #ifndef VTK_PYTHON_BUILD
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
-          vtkRenderWindowCommand);
+          "vtkRenderWindow");
 #endif
     self->RW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
