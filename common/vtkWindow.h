@@ -112,6 +112,11 @@ public:
   virtual void SetWindowName(char * );
 
   // Description:
+  // Ask each viewport owned by this Window to render its image and 
+  // synchronize this process.
+  virtual void Render() = 0;
+
+  // Description:
   // Get the pixel data of an image, transmitted as RGBRGBRGB. The
   // front argument indicates if the front buffer should be used or the back 
   // buffer. It is the caller's responsibility to delete the resulting 
