@@ -67,7 +67,7 @@ void vtkPPolyDataNormals::Execute()
   output->GetPointData()->CopyNormalsOn();
 
   // Remove any ghost cells we inserted.
-  if (ghostLevel > 0)
+  if (ghostLevel > 0 && output->GetCellData()->GetArray("vtkGhostLevels"))
     {
     vtkRemoveGhostCells* rmGhostCells = vtkRemoveGhostCells::New();
     vtkPolyData* ghost = vtkPolyData::New();
