@@ -6,8 +6,8 @@ IF (VTK_USE_RENDERING)
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
       dcubes
-      deciFran
-      deciFranErrors
+      deciBrain
+      deciBrainErrors
       financialField
       headBone
       iceCream
