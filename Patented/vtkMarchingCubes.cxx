@@ -49,7 +49,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.81");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.82");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -177,7 +177,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
   float s[8], value;
   int i, j, k, sliceSize;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
-  VTK_TRIANGLE_CASES *triCase, *triCases;
+  vtkMarchingCubesTriangleCases *triCase, *triCases;
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, index, *vert;
   vtkIdType ptIds[3];
@@ -191,7 +191,7 @@ void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
 
-  triCases =  VTK_TRIANGLE_CASES::GetCases();
+  triCases =  vtkMarchingCubesTriangleCases::GetCases();
 
 //
 // Get min/max contour values

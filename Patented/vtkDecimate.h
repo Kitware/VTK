@@ -106,61 +106,6 @@
 
 class vtkIdList;
 
-//BTX - begin tcl exclude
-// Special structures for building loops
-typedef struct _vtkLocalVertex 
-  {
-  vtkIdType     id;
-  float   x[3];
-  float   FAngle;
-  int     deRefs; //monitor memory requirements; new only when necessary
-  int     newRefs;
-  } vtkLocalVertex, *vtkLocalVertexPtr;
-    
-typedef struct _vtkLocalTri
-  {
-  vtkIdType     id;
-  float   area;
-  float   n[3];
-  vtkIdType     verts[3];
-} vtkLocalTri, *vtkLocalTriPtr;
-
-//
-// Special classes for manipulating data
-//
-class vtkVertexArray { //;prevent man page generation
-public:
-  vtkVertexArray(const vtkIdType sz) 
-    {this->MaxId = -1; this->Array = new vtkLocalVertex[sz];};
-  ~vtkVertexArray() {if (this->Array) {delete [] this->Array;}};
-  vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
-  void InsertNextVertex(vtkLocalVertex& v) 
-    {this->MaxId++; this->Array[this->MaxId] = v;};
-  vtkLocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
-  void Reset() {this->MaxId = -1;};
-
-  vtkLocalVertex *Array;  // pointer to data
-  vtkIdType MaxId;             // maximum index inserted thus far
-};
-
-class vtkTriArray { //;prevent man page generation
-public:
-  vtkTriArray(const vtkIdType sz) 
-    {this->MaxId = -1; this->Array = new vtkLocalTri[sz];};
-  ~vtkTriArray() {if (this->Array) {delete [] this->Array;}};
-  vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
-  void InsertNextTriangle(vtkLocalTri& t) 
-    {this->MaxId++; this->Array[this->MaxId] = t;};
-  vtkLocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
-  void Reset() {this->MaxId = -1;};
-
-  vtkLocalTri *Array;  // pointer to data
-  vtkIdType MaxId;            // maximum index inserted thus far
-};
-//ETX - end tcl exclude
-//
-
-
 class VTK_PATENTED_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -264,6 +209,61 @@ public:
   vtkGetMacro(MaximumNumberOfSquawks,int);
   
 protected:
+
+  //BTX - begin tcl exclude
+  // Special structures for building loops
+  typedef struct LocalVertexStruct
+  {
+    vtkIdType     id;
+    float   x[3];
+    float   FAngle;
+    int     deRefs; //monitor memory requirements; new only when necessary
+    int     newRefs;
+  } LocalVertex, *LocalVertexPtr;
+    
+  typedef struct LocalTriStruct
+  {
+    vtkIdType     id;
+    float   area;
+    float   n[3];
+    vtkIdType     verts[3];
+  } LocalTri, *LocalTriPtr;
+
+  //
+  // Special classes for manipulating data
+  //
+  class VertexArray { //;prevent man page generation
+  public:
+    VertexArray(const vtkIdType sz) 
+      {this->MaxId = -1; this->Array = new LocalVertex[sz];};
+    ~VertexArray() {if (this->Array) {delete [] this->Array;}};
+    vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
+    void InsertNextVertex(LocalVertex& v) 
+      {this->MaxId++; this->Array[this->MaxId] = v;};
+    LocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
+    void Reset() {this->MaxId = -1;};
+
+    LocalVertex *Array;  // pointer to data
+    vtkIdType MaxId;             // maximum index inserted thus far
+  };
+
+  class TriArray { //;prevent man page generation
+  public:
+    TriArray(const vtkIdType sz) 
+      {this->MaxId = -1; this->Array = new LocalTri[sz];};
+    ~TriArray() {if (this->Array) {delete [] this->Array;}};
+    vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
+    void InsertNextTriangle(LocalTri& t) 
+      {this->MaxId++; this->Array[this->MaxId] = t;};
+    LocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
+    void Reset() {this->MaxId = -1;};
+
+    LocalTri *Array;  // pointer to data
+    vtkIdType MaxId;            // maximum index inserted thus far
+  };
+  //ETX - end tcl exclude
+  //
+
   vtkDecimate();
   ~vtkDecimate();
 
@@ -287,23 +287,23 @@ protected:
   int MaximumNumberOfSquawks; //control number of error messages
   int PreserveTopology; //control whether mesh topology is preserved
   vtkIdList *Neighbors; // to replace static
-  vtkVertexArray *V; //to replace static
-  vtkTriArray *T; //to replace static
+  VertexArray *V; //to replace static
+  TriArray *T; //to replace static
   
   void CreateOutput(vtkIdType numPts, vtkIdType numTris,
                     vtkIdType numEliminated, vtkPointData *pd,
                     vtkPoints *inPts);
   int BuildLoop(vtkIdType ptId, unsigned short int nTris, vtkIdType* tris);
   void EvaluateLoop(int& vtype, vtkIdType& numFEdges,
-                    vtkLocalVertexPtr fedges[]);
-  int CanSplitLoop(vtkLocalVertexPtr fedges[2], vtkIdType numVerts, 
-                   vtkLocalVertexPtr verts[], vtkIdType& n1,
-                   vtkLocalVertexPtr l1[], vtkIdType& n2,
-                   vtkLocalVertexPtr l2[], float& ar);
-  void SplitLoop(vtkLocalVertexPtr fedges[2], vtkIdType numVerts, 
-                 vtkLocalVertexPtr *verts, vtkIdType& n1,
-                 vtkLocalVertexPtr *l1, vtkIdType& n2, vtkLocalVertexPtr *l2);
-  void Triangulate(vtkIdType numVerts, vtkLocalVertexPtr verts[]);
+                    LocalVertexPtr fedges[]);
+  int CanSplitLoop(LocalVertexPtr fedges[2], vtkIdType numVerts, 
+                   LocalVertexPtr verts[], vtkIdType& n1,
+                   LocalVertexPtr l1[], vtkIdType& n2,
+                   LocalVertexPtr l2[], float& ar);
+  void SplitLoop(LocalVertexPtr fedges[2], vtkIdType numVerts, 
+                 LocalVertexPtr *verts, vtkIdType& n1,
+                 LocalVertexPtr *l1, vtkIdType& n2, LocalVertexPtr *l2);
+  void Triangulate(vtkIdType numVerts, LocalVertexPtr verts[]);
   int CheckError();
 private:
   vtkDecimate(const vtkDecimate&);  // Not implemented.

@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingSquares, "1.52");
+vtkCxxRevisionMacro(vtkMarchingSquares, "1.53");
 vtkStandardNewMacro(vtkMarchingSquares);
 
 // Description:
@@ -145,12 +145,12 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
   float pts[4][3], min, max;
   int contNum, jOffset, idx, ii, jj, index, *vert;
   static int CASE_MASK[4] = {1,2,8,4};  
-  VTK_LINE_CASES *lineCase, *lineCases;
+  vtkMarchingSquaresLineCases *lineCase, *lineCases;
   static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
   EDGE_LIST  *edge;
   float value, s[4];
 
-  lineCases = VTK_LINE_CASES::GetCases();
+  lineCases = vtkMarchingSquaresLineCases::GetCases();
 //
 // Get min/max contour values
 //

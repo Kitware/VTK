@@ -40,7 +40,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.70");
+vtkCxxRevisionMacro(vtkDecimate, "1.71");
 vtkStandardNewMacro(vtkDecimate);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -123,8 +123,8 @@ vtkDecimate::vtkDecimate()
   
   this->Neighbors = vtkIdList::New();
   this->Neighbors->Allocate(VTK_MAX_TRIS_PER_VERTEX);
-  this->V = new vtkVertexArray(VTK_MAX_TRIS_PER_VERTEX + 1);
-  this->T = new vtkTriArray(VTK_MAX_TRIS_PER_VERTEX + 1);
+  this->V = new vtkDecimate::VertexArray(VTK_MAX_TRIS_PER_VERTEX + 1);
+  this->T = new vtkDecimate::TriArray(VTK_MAX_TRIS_PER_VERTEX + 1);
 }
 
 vtkDecimate::~vtkDecimate()
@@ -153,10 +153,10 @@ void vtkDecimate::Execute()
   unsigned short int ncells;
   vtkIdType *cells;
   vtkIdType numFEdges;
-  vtkLocalVertexPtr fedges[2];
+  vtkDecimate::LocalVertexPtr fedges[2];
   int vtype;
-  vtkLocalVertexPtr verts[VTK_MAX_TRIS_PER_VERTEX];
-  vtkLocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
+  vtkDecimate::LocalVertexPtr verts[VTK_MAX_TRIS_PER_VERTEX];
+  vtkDecimate::LocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   vtkIdType n1, n2;
   float ar, error;
   vtkIdType totalEliminated=0;
@@ -555,8 +555,8 @@ int vtkDecimate::BuildLoop (vtkIdType ptId, unsigned short int numTris,
 {
   vtkIdType numVerts;
   vtkIdType numNei;
-  vtkLocalTri t;
-  vtkLocalVertex sn;
+  vtkDecimate::LocalTri t;
+  vtkDecimate::LocalVertex sn;
   vtkIdType i;
   int j;
   vtkIdType *verts;
@@ -785,7 +785,7 @@ int vtkDecimate::BuildLoop (vtkIdType ptId, unsigned short int numTris,
 //  loop.  Determine if there are any feature edges across the loop.
 //
 void vtkDecimate::EvaluateLoop (int& vtype, vtkIdType& numFEdges, 
-                               vtkLocalVertexPtr fedges[])
+                               vtkDecimate::LocalVertexPtr fedges[])
 {
   vtkIdType i, numNormals;
   int j;
@@ -917,10 +917,10 @@ void vtkDecimate::EvaluateLoop (int& vtype, vtkIdType& numFEdges,
 //
 //  Determine whether the loop can be split / build loops
 //
-int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], vtkIdType numVerts,
-                               vtkLocalVertexPtr verts[], vtkIdType& n1, 
-                               vtkLocalVertexPtr l1[], vtkIdType& n2, 
-                               vtkLocalVertexPtr l2[], float& ar)
+int vtkDecimate::CanSplitLoop (vtkDecimate::LocalVertexPtr fedges[2], vtkIdType numVerts,
+                               vtkDecimate::LocalVertexPtr verts[], vtkIdType& n1, 
+                               vtkDecimate::LocalVertexPtr l1[], vtkIdType& n2, 
+                               vtkDecimate::LocalVertexPtr l2[], float& ar)
 {
   vtkIdType i;
   int sign;
@@ -1013,13 +1013,13 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], vtkIdType numVerts,
 //
 //  Creates two loops from splitting plane provided
 //
-void vtkDecimate::SplitLoop(vtkLocalVertexPtr fedges[2], vtkIdType numVerts, 
-                            vtkLocalVertexPtr *verts, vtkIdType& n1, 
-                            vtkLocalVertexPtr *l1, vtkIdType& n2,
-                            vtkLocalVertexPtr *l2)
+void vtkDecimate::SplitLoop(vtkDecimate::LocalVertexPtr fedges[2], vtkIdType numVerts, 
+                            vtkDecimate::LocalVertexPtr *verts, vtkIdType& n1, 
+                            vtkDecimate::LocalVertexPtr *l1, vtkIdType& n2,
+                            vtkDecimate::LocalVertexPtr *l2)
 {
   vtkIdType i;
-  vtkLocalVertexPtr *loop;
+  vtkDecimate::LocalVertexPtr *loop;
   vtkIdType *count;
 
   n1 = n2 = 0;
@@ -1043,12 +1043,12 @@ void vtkDecimate::SplitLoop(vtkLocalVertexPtr fedges[2], vtkIdType numVerts,
 //  into triangles.  Ignore feature angles since we can preserve these 
 //  using the angle preserving capabilities of the algorithm.
 //
-void vtkDecimate::Triangulate(vtkIdType numVerts, vtkLocalVertexPtr verts[])
+void vtkDecimate::Triangulate(vtkIdType numVerts, vtkDecimate::LocalVertexPtr verts[])
 {
   vtkIdType i,j;
   vtkIdType n1, n2;
-  vtkLocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
-  vtkLocalVertexPtr fedges[2];
+  vtkDecimate::LocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
+  vtkDecimate::LocalVertexPtr fedges[2];
   float max, ar;
   vtkIdType maxI, maxJ;
 

@@ -49,7 +49,7 @@
 #include "vtkUnsignedShortArray.h"
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.58");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.59");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
@@ -171,7 +171,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
   float s[8];
   int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize=0;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
-  VTK_TRIANGLE_CASES *triCase, *triCases;
+  vtkMarchingCubesTriangleCases *triCase, *triCases;
   EDGE_LIST  *edge;
   float pts[8][3], grad[8][3];
   float t, *x1, *x2, *n1, *n2;
@@ -181,7 +181,7 @@ int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dims[3],
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
 
-  triCases =  VTK_TRIANGLE_CASES::GetCases();
+  triCases =  vtkMarchingCubesTriangleCases::GetCases();
 
   if ( slice == NULL ) //have to do conversion to float slice-by-slice
     {
