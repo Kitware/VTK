@@ -2,6 +2,7 @@
 
 from libVTKCommonPython import *
 from libVTKGraphicsPython import *
+from libVTKPatentedPython import *
 
 #catch  load vtktcl 
 # get the interactor ui
