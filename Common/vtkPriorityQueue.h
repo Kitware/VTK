@@ -97,13 +97,14 @@ public:
   // balances tree. The location == 0 is the root of the tree. If queue
   // is exhausted, then a value < 0 is returned. (Note: the location
   // is not the same as deleting an id; id is mapped to location.)
+//BTX
   vtkIdType Pop(float &priority, vtkIdType location=0);
-  
+
   // Description:
   // Same as above but simplified for easier wrapping into interpreted
   // languages.
   vtkIdType Pop(vtkIdType location=0);
-  
+
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
@@ -113,7 +114,7 @@ public:
   // Peek into the queue without actually removing anything. Returns the
   // id.
   vtkIdType Peek(vtkIdType location=0);
-  
+//ETX    
   // Description:
   // Delete entry in queue with specified id. Returns priority value
   // associated with that id; or VTK_LARGE_FLOAT if not in queue.
