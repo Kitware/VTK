@@ -44,7 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of constant scalar value (i.e., an iso-surface). Dense point clouds (i.e.,
 // at screen resolution) will appear as a surface. Less dense clouds can be 
 // used as a source to generate streamlines or to generate "transparent"
-// surfaces.
+// surfaces. This filter is based on the generate program written by
+// H. Cline, S. Ludke and W. Lorensen.
 
 #ifndef __vtkDividingCubes_h
 #define __vtkDividingCubes_h
