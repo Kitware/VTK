@@ -100,12 +100,16 @@ public:
   
   // Description:
   // Get the gray transfer function.
+  // If no transfer function has been set for this component, a default one
+  // is created and returned.
   vtkPiecewiseFunction *GetGrayTransferFunction( int index );
   vtkPiecewiseFunction *GetGrayTransferFunction()
     {return this->GetGrayTransferFunction(0);};
   
   // Description:
   // Get the RGB transfer function for the given component.
+  // If no transfer function has been set for this component, a default one
+  // is created and returned.
   vtkColorTransferFunction *GetRGBTransferFunction( int index );
   vtkColorTransferFunction *GetRGBTransferFunction()
     {return this->GetRGBTransferFunction(0);};
@@ -119,10 +123,11 @@ public:
   
   // Description:
   // Get the scalar opacity transfer function for the given component.
+  // If no transfer function has been set for this component, a default one
+  // is created and returned.
   vtkPiecewiseFunction *GetScalarOpacity( int index );
   vtkPiecewiseFunction *GetScalarOpacity()
     {return this->GetScalarOpacity(0);};
-  
       
   // Description:
   // Set the opacity of a volume to an opacity transfer function based
@@ -134,9 +139,37 @@ public:
   // Description:
   // Get the gradient magnitude opacity transfer function for
   // the given component.
+  // If no transfer function has been set for this component, a default one
+  // is created and returned.
+  // This default function is always returned if DisableGradientOpacity is On
+  // for that component.
   vtkPiecewiseFunction *GetGradientOpacity( int index );
   vtkPiecewiseFunction *GetGradientOpacity()
     {return this->GetGradientOpacity( 0 );}
+
+  // Description:
+  // Enable/Disable the gradient opacity function for the given component. 
+  // If set to true, any call to GetGradientOpacity() will return a default
+  // function for this component. Note that the gradient opacity function is 
+  // still stored, it is not set or reset and can be retrieved using 
+  // GetStoredGradientOpacity().
+  virtual void SetDisableGradientOpacity( int index, int value );
+  virtual void SetDisableGradientOpacity( int value )
+    { this->SetDisableGradientOpacity(0, value); }
+  virtual void DisableGradientOpacityOn( int index )
+    { this->SetDisableGradientOpacity(index, 1); }
+  virtual void DisableGradientOpacityOn()
+    { this->DisableGradientOpacityOn(0); }
+  virtual void DisableGradientOpacityOff( int index )
+    { this->SetDisableGradientOpacity(index, 0); }
+  virtual void DisableGradientOpacityOff()
+    { this->DisableGradientOpacityOff(0); }
+  virtual int GetDisableGradientOpacity( int index );
+  virtual int GetDisableGradientOpacity()
+    { return this->GetDisableGradientOpacity(0); }
+  vtkPiecewiseFunction *GetStoredGradientOpacity( int index );
+  vtkPiecewiseFunction *GetStoredGradientOpacity()
+    {return this->GetStoredGradientOpacity( 0 );}
   
   // Description:
   // Set/Get the shading of a volume. If shading is turned off, then
@@ -245,12 +278,16 @@ protected:
 
   vtkPiecewiseFunction          *GradientOpacity[VTK_MAX_VRCOMP];
   vtkTimeStamp                  GradientOpacityMTime[VTK_MAX_VRCOMP];
+  vtkPiecewiseFunction          *DefaultGradientOpacity[VTK_MAX_VRCOMP];
+  int                           DisableGradientOpacity[VTK_MAX_VRCOMP];
 
   int                           Shade[VTK_MAX_VRCOMP];
   float                         Ambient[VTK_MAX_VRCOMP];
   float                         Diffuse[VTK_MAX_VRCOMP];
   float                         Specular[VTK_MAX_VRCOMP];
   float                         SpecularPower[VTK_MAX_VRCOMP];
+
+  virtual void                  CreateDefaultGradientOpacity(int index);
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.

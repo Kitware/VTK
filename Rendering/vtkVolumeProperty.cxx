@@ -21,7 +21,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.32");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.33");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -37,6 +37,8 @@ vtkVolumeProperty::vtkVolumeProperty()
     this->RGBTransferFunction[i]             = NULL;
     this->ScalarOpacity[i]                   = NULL;
     this->GradientOpacity[i]                 = NULL;
+    this->DefaultGradientOpacity[i]          = NULL;
+    this->DisableGradientOpacity[i]          = 0;
     
     this->Shade[i]                           = 0;  
     this->Ambient[i]                         = 0.1;
@@ -69,6 +71,11 @@ vtkVolumeProperty::~vtkVolumeProperty()
     if (this->GradientOpacity[i] != NULL)
       {
       this->GradientOpacity[i]->UnRegister(this);
+      }
+
+    if (this->DefaultGradientOpacity[i] != NULL)
+      {
+      this->DefaultGradientOpacity[i]->UnRegister(this);
       }
     }
 }
@@ -138,10 +145,13 @@ unsigned long int vtkVolumeProperty::GetMTime()
       // time that Gradient opacity transfer function pointer was set
       time = this->GradientOpacityMTime[i];
       mTime = (mTime > time ? mTime : time);
-      
-      // time that Gradient opacity transfer function was last modified
-      time = this->GradientOpacity[i]->GetMTime();
-      mTime = (mTime > time ? mTime : time);
+
+      if (!this->DisableGradientOpacity[i])
+        {
+        // time that Gradient opacity transfer function was last modified
+        time = this->GradientOpacity[i]->GetMTime();
+        mTime = (mTime > time ? mTime : time);
+        }
       }
     }
   
@@ -296,8 +306,36 @@ void vtkVolumeProperty::SetGradientOpacity( int index, vtkPiecewiseFunction *fun
     }
 }
 
-// Get the gradient opacity transfer function. Create one if none set.
+void vtkVolumeProperty::CreateDefaultGradientOpacity( int index )
+{
+  if ( this->DefaultGradientOpacity[index] == NULL )
+    {
+    this->DefaultGradientOpacity[index] = vtkPiecewiseFunction::New();
+    this->DefaultGradientOpacity[index]->Register(this);
+    this->DefaultGradientOpacity[index]->Delete();
+    }
+
+  this->DefaultGradientOpacity[index]->RemoveAllPoints();
+  this->DefaultGradientOpacity[index]->AddPoint(   0, 1.0 );
+  this->DefaultGradientOpacity[index]->AddPoint( 255, 1.0 );
+}
+
 vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity( int index )
+{
+  if (this->DisableGradientOpacity[index])
+    {
+    if ( this->DefaultGradientOpacity[index] == NULL )
+      {
+      this->CreateDefaultGradientOpacity(index);
+      }
+    return this->DefaultGradientOpacity[index];
+    }
+
+  return this->GetStoredGradientOpacity(index);
+}
+
+// Get the gradient opacity transfer function. Create one if none set.
+vtkPiecewiseFunction *vtkVolumeProperty::GetStoredGradientOpacity( int index )
 {
   if ( this->GradientOpacity[index] == NULL )
     {
@@ -309,6 +347,37 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity( int index )
     }
 
   return this->GradientOpacity[index];
+}
+
+void vtkVolumeProperty::SetDisableGradientOpacity( int index, int value )
+{
+  if (this->DisableGradientOpacity[index] == value)
+    {
+    return;
+    }
+
+  this->DisableGradientOpacity[index] = value;
+
+  // Make sure the default function is up-to-date (since the user
+  // could have modified the default function)
+
+  if (value)
+    {
+    this->CreateDefaultGradientOpacity(index);
+    }
+
+  // Since this Ivar basically "sets" the gradient opacity function to be
+  // either a default one or the user-specified one, update the MTime
+  // accordingly
+
+  this->GradientOpacityMTime[index].Modified();
+
+  this->Modified();
+}
+
+int vtkVolumeProperty::GetDisableGradientOpacity( int index )
+{
+  return this->DisableGradientOpacity[index];
 }
 
 void vtkVolumeProperty::SetShade( int index, int value )
@@ -449,6 +518,10 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
     
     os << indent << "Gradient Opacity Transfer Function: "
        << this->GradientOpacity[i] << "\n";
+
+    os << indent << "DisableGradientOpacity: "
+       << (this->DisableGradientOpacity[i] ? "On" : "Off") << "\n";
+
     
     os << indent << "Shade: " << this->Shade[i] << "\n";
     os << indent << indent << "Ambient: " << this->Ambient[i] << "\n";
