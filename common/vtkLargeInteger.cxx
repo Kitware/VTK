@@ -520,22 +520,26 @@ vtkLargeInteger& vtkLargeInteger::operator>>=(int n)
 
   // first shift the data
   unsigned int i;
-  for (i = 0; i <= (this->Sig - n); i++) 
+  if (this->Sig >= (unsigned long)n)
     {
-    this->Number[i] = this->Number[i + n];
+    for (i = 0; i <= (this->Sig - n); i++) 
+      {
+      this->Number[i] = this->Number[i + n];
+      }
     }
+  
   // then clear the other values to be safe
-  for (i = (this->Sig - n + 1); i <= this->Sig; i++) 
+  int start = (this->Sig - n + 1);
+  if (start < 0)
+    {
+    start = 0;
+    }
+  for (i = start; i <= this->Sig; i++) 
     {
     this->Number[i] = 0;
     }
 
-  this->Sig = this->Sig - n; // shorten
-  if (this->Sig < 0)
-    {
-    this->Sig = 0;
-    this->Number[0] = 0;
-    }
+  this->Sig = start;
   if (this->IsZero())
     {
     this->Negative = 0;
@@ -570,7 +574,7 @@ vtkLargeInteger vtkLargeInteger::operator--(int)
 vtkLargeInteger& vtkLargeInteger::operator*=(const vtkLargeInteger& n)
 {
   vtkLargeInteger c;
-  int m = this->Sig + n.Sig;
+  int m = this->Sig + n.Sig + 1;
   this->Expand(m);
   if (n.IsSmaller(*this)) // loop through the smaller number
     {
