@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.35");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.36");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -62,11 +62,6 @@ void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
      << this->StandardDeviations[0] << ", "
      << this->StandardDeviations[1] << ", "
      << this->StandardDeviations[2] << " )\n";
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -136,12 +131,14 @@ template <class T>
 void 
 vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
                               double *kernel, int kernelSize,
-                              int inExt[6], int inIncs[3], T *inPtrC,
-                              int outExt[6], int outIncs[3], T *outPtrC,
-                              int *pcycle, int target, int *pcount, int total)
+                              vtkImageData *inData, T *inPtrC,
+                              vtkImageData *outData, int outExt[6], 
+                              T *outPtrC, int *pcycle, int target, 
+                              int *pcount, int total)
 {
   int maxC, max0, max1;
   int idxC, idx0, idx1, idxK;
+  int *inIncs, *outIncs;
   int inInc0, inInc1, inIncK, outInc0, outInc1;
   T *outPtr1, *outPtr0;
   T *inPtr1, *inPtr0, *inPtrK;
@@ -155,9 +152,10 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
   // is more important than cache misses from shuffled access.
 
   // Do the correct shuffling of the axes (increments, extents)
+  inIncs = inData->GetIncrements();
+  outIncs = outData->GetIncrements();
   inIncK = inIncs[axis];
-  // Here is a trick to get the number of components of the output.
-  maxC = outIncs[0];
+  maxC = outData->GetNumberOfScalarComponents();
   switch (axis)
     {
     case 0:
@@ -228,12 +226,13 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
 // This method convolves over one axis. It loops over the convolved axis,
 // and handles boundary conditions.
 void vtkImageGaussianSmooth::ExecuteAxis(int axis, 
-                                         vtkDataArray *inArray, int inExt[6],
-                                         vtkDataArray *outArray, int outExt[6],
+                                         vtkImageData *inData, int inExt[6],
+                                         vtkImageData *outData, int outExt[6],
                                          int *pcycle, int target, 
                                          int *pcount, int total)
 {
   int idxA, max;
+  int *wholeExtent, wholeMax, wholeMin;
   double *kernel;
   // previousClip and currentClip rembers that the previous was not clipped
   // keeps from recomputing kernels for center pixels.
@@ -241,33 +240,63 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   int kernelLeftClip, kernelRightClip;
   int previousClipped, currentClipped;
   int radius, size;
-  // Deal with data as uchar even though it may not be.
-  unsigned char *inPtr;
-  unsigned char *outPtr;
-  int coords[3], outIncA;
-  int inIncs[3];
-  int outIncs[3];
-  int dataSize;
-
-  // Compute the increments relative to data elements.
-  dataSize = inArray->GetDataTypeSize();
-  inIncs[0] = inArray->GetNumberOfComponents();
-  inIncs[1] = inIncs[0] * (inExt[1]-inExt[0]+1);
-  inIncs[2] = inIncs[1] * (inExt[3]-inExt[2]+1);
-  outIncs[0] = outArray->GetNumberOfComponents();
-  outIncs[1] = outIncs[0] * (outExt[1]-outExt[0]+1);
-  outIncs[2] = outIncs[1] * (outExt[3]-outExt[2]+1);
-
-  // Get a pointer of the output.
-  outPtr = (unsigned char*)(outArray->GetVoidPointer(0));
-  outIncA = outIncs[axis] * dataSize;
+  void *inPtr;
+  void *outPtr;
+  int coords[3], *outIncs, outIncA;
+  
+  // Get the correct starting pointer of the output
+  outPtr = outData->GetScalarPointerForExtent(outExt);
+  outIncs = outData->GetIncrements();
+  outIncA = outIncs[axis];
+  
+  // trick to account for the scalar type of the output(used to be only float)
+  switch (outData->GetScalarType())
+    {
+    case VTK_DOUBLE:
+      outIncA *= sizeof(double);
+      break;
+    case VTK_FLOAT:
+      outIncA *= sizeof(float);
+      break;
+    case VTK_LONG:
+      outIncA *= sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      outIncA *= sizeof(unsigned long);
+      break;
+    case VTK_INT:
+      outIncA *= sizeof(int);
+      break;
+    case VTK_UNSIGNED_INT:
+      outIncA *= sizeof(unsigned int);
+      break;
+    case VTK_SHORT:
+      outIncA *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      outIncA *= sizeof(unsigned short);
+      break;
+    case VTK_CHAR:
+      outIncA *= sizeof(char);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      outIncA *= sizeof(unsigned char);
+      break;
+    default:
+      vtkErrorMacro("Unknown scalar type");
+      return;
+    }
 
   // Determine default starting position of input
-  // Coords shift with loop.
   coords[0] = inExt[0];
   coords[1] = inExt[2];
   coords[2] = inExt[4];
   
+  // get whole extent for boundary checking ...
+  wholeExtent = this->GetInput()->GetWholeExtent();
+  wholeMin = wholeExtent[axis*2];
+  wholeMax = wholeExtent[axis*2+1];  
+
   // allocate memory for the kernel
   radius = (int)(this->StandardDeviations[axis] * this->RadiusFactors[axis]);
   size = 2*radius + 1;
@@ -279,8 +308,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   for (idxA = outExt[axis*2]; idxA <= max; ++idxA)
     {
     // left boundary condition
-    coords[axis] = idxA - radius; // What input min would be with no bounds.
-    kernelLeftClip = inExt[axis*2] - coords[axis];
+    coords[axis] = idxA - radius;
+    kernelLeftClip = wholeMin - coords[axis];
     if (kernelLeftClip > 0)
       { // front of kernel is cut off ("kernelStart" samples)
       coords[axis] += kernelLeftClip;
@@ -290,7 +319,7 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
       kernelLeftClip = 0;
       }
     // Right boundary condition
-    kernelRightClip = (idxA + radius) - inExt[2*axis + 1];
+    kernelRightClip = (idxA + radius) - wholeMax;
     if (kernelRightClip < 0)
       {
       kernelRightClip = 0;
@@ -309,82 +338,77 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
     previousClipped = currentClipped;
     
     /* now do the convolution on the rest of the axes */
-    inPtr = (unsigned char*)(inArray->GetVoidPointer(0));
-
-    inPtr += dataSize * ((coords[0]-inExt[0])*inIncs[0] +
-                         (coords[1]-inExt[2])*inIncs[1] +
-                         (coords[2]-inExt[4])*inIncs[2]);
-
-    switch (inArray->GetDataType())
+    inPtr = inData->GetScalarPointer(coords);
+    switch (inData->GetScalarType())
       {
       case VTK_DOUBLE:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (double *)(inPtr),
-                              outExt, outIncs, (double *)(outPtr),
-                              pcycle, target, pcount, total);
+                                      inData, (double *)(inPtr),
+                                      outData, outExt, (double *)(outPtr),
+                                      pcycle, target, pcount, total);
         break;
       case VTK_FLOAT:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (float *)(inPtr),
-                              outExt, outIncs, (float *)(outPtr),
-                              pcycle, target, pcount, total);
+                                      inData, (float *)(inPtr),
+                                      outData, outExt, (float *)(outPtr),
+                                      pcycle, target, pcount, total);
         break;
       case VTK_LONG:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (long *)(inPtr),
-                              outExt, outIncs, (long *)(outPtr),
-                              pcycle, target, pcount, total);
+                                      inData, (long *)(inPtr),
+                                      outData, outExt, (long *)(outPtr),
+                                      pcycle, target, pcount, total);
         break;
       case VTK_UNSIGNED_LONG:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (unsigned long *)(inPtr),
-                              outExt, outIncs, (unsigned long *)(outPtr),
+                              inData, (unsigned long *)(inPtr),
+                              outData, outExt, (unsigned long *)(outPtr),
                               pcycle, target, pcount, total);
                                       
         break;
       case VTK_INT:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (int *)(inPtr),
-                              outExt, outIncs, (int *)(outPtr),
-                              pcycle, target, pcount, total);
+                                      inData, (int *)(inPtr),
+                                      outData, outExt, (int *)(outPtr),
+                                      pcycle, target, pcount, total);
         break;
       case VTK_UNSIGNED_INT:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (unsigned int *)(inPtr),
-                              outExt, outIncs, (unsigned int *)(outPtr),
+                              inData, (unsigned int *)(inPtr),
+                              outData, outExt, (unsigned int *)(outPtr),
                               pcycle, target, pcount, total);
                                       
         break;
       case VTK_SHORT:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (short *)(inPtr),
-                              outExt, outIncs, (short *)(outPtr),
-                              pcycle, target, pcount, total);
+                                      inData, (short *)(inPtr),
+                                      outData, outExt, (short *)(outPtr),
+                                      pcycle, target, pcount, total);
         break;
       case VTK_UNSIGNED_SHORT:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (unsigned short *)(inPtr),
-                              outExt, outIncs, (unsigned short *)(outPtr),
+                              inData, (unsigned short *)(inPtr),
+                              outData, outExt, (unsigned short *)(outPtr),
                               pcycle, target, pcount, total);
                                       
         break;
       case VTK_CHAR:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (char *)(inPtr),
-                              outExt, outIncs, (char *)(outPtr),
-                              pcycle, target, pcount, total);
+                                      inData, (char *)(inPtr),
+                                      outData, outExt, (char *)(outPtr),
+                                      pcycle, target, pcount, total);
         break;
       case VTK_UNSIGNED_CHAR:
         vtkImageGaussianSmoothExecute(this, axis, kernel, kernelSize,
-                              inExt, inIncs, (unsigned char *)(inPtr),
-                              outExt, outIncs, (unsigned char *)(outPtr),
+                              inData, (unsigned char *)(inPtr),
+                              outData, outExt, (unsigned char *)(outPtr),
                               pcycle, target, pcount, total);
         break;
       default:
         vtkErrorMacro("Unknown scalar type");
         return;
       }
-    outPtr = outPtr + outIncA;
+    outPtr = (void *)((unsigned char *)outPtr + outIncA);
     }
   
   // get rid of temporary kernel
@@ -399,11 +423,6 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
 {
   int inExt[6];
   int target, count, total, cycle;
-  vtkDataArray *inArray;
-  vtkDataArray *outArray;
-
-  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
-  outArray = outData->GetPointData()->GetScalars();
   
   // for feed back, determine line target to get 50 progress update
   // update is called every target lines. Progress is computed from
@@ -414,18 +433,15 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
     // determine the number of pixels.
     total = this->Dimensionality * (outExt[1] - outExt[0] + 1) 
       * (outExt[3] - outExt[2] + 1) * (outExt[5] - outExt[4] + 1)
-      * inArray->GetNumberOfComponents();
+      * this->GetInput()->GetNumberOfScalarComponents();
     // pixels per update (50 updates)
     target = total / 50;
     }
   
   // this filter expects that input is the same type as output.
-  if (inArray->GetDataType() != outArray->GetDataType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input array DataType, " 
-                  << inArray->GetDataType()              
-                  << ", must match out array DataType " 
-                  << outArray->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()              << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
 
@@ -434,74 +450,62 @@ void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData,
   switch (this->Dimensionality)
     {
     case 1:
-      this->ExecuteAxis(0, inArray, inExt, outArray, outExt, 
-                        &cycle, target, &count, total);
+      this->ExecuteAxis(0, inData, inExt, outData, outExt, 
+                  &cycle, target, &count, total);
       break;
     case 2:
       int tempExt[6];
-      vtkDataArray *tempArray;
+      vtkImageData *tempData;
       // compute intermediate extent
       tempExt[0] = inExt[0];  tempExt[1] = inExt[1];
       tempExt[2] = outExt[2];  tempExt[3] = outExt[3];
       tempExt[4] = inExt[4];  tempExt[5] = inExt[5];
       // create a temp data for intermediate results
-      tempArray = inArray->MakeObject();
-      tempArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
-      tempArray->SetNumberOfTuples((tempExt[1]-tempExt[0]+1) *
-                                   (tempExt[3]-tempExt[2]+1) *
-                                   (tempExt[5]-tempExt[4]+1));
-      this->ExecuteAxis(1, inArray, inExt, tempArray, tempExt, 
-                        &cycle, target, &count, total);
-      this->ExecuteAxis(0, tempArray, tempExt, outArray, outExt, 
+      tempData = vtkImageData::New();
+      tempData->SetExtent(tempExt);
+      tempData->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+      tempData->SetScalarType(inData->GetScalarType());
+      this->ExecuteAxis(1, inData, inExt, tempData, tempExt, 
+                  &cycle, target, &count, total);
+      this->ExecuteAxis(0, tempData, tempExt, outData, outExt, 
                   &cycle, target, &count, total);
       // release temporary data
-      tempArray->Delete();
-      tempArray = NULL;
+      tempData->Delete();
+      tempData = NULL;
       break;
     case 3:
       // we do z first because it is most likely smallest
       int temp0Ext[6], temp1Ext[6];
-      vtkDataArray *temp0Array, *temp1Array;
-
+      vtkImageData *temp0Data, *temp1Data;
       // compute intermediate extents
       temp0Ext[0] = inExt[0];  temp0Ext[1] = inExt[1];
       temp0Ext[2] = inExt[2];  temp0Ext[3] = inExt[3];
       temp0Ext[4] = outExt[4];  temp0Ext[5] = outExt[5];
-      // create a temp data for intermediate results
-      temp0Array = inArray->MakeObject();
-      temp0Array->SetNumberOfComponents(inArray->GetNumberOfComponents());
-      temp0Array->SetNumberOfTuples((temp0Ext[1]-temp0Ext[0]+1) *
-                                    (temp0Ext[3]-temp0Ext[2]+1) *
-                                    (temp0Ext[5]-temp0Ext[4]+1));
-      this->ExecuteAxis(2, inArray, inExt, temp0Array, temp0Ext,
-                        &cycle, target, &count, total);
-      // We try to release the input her for better memory efficiency.
-      if (inData->GetReleaseDataFlag())
-        {
-        inData->ReleaseData();
-        inArray = NULL;
-        }
 
-      // Next intermediate extent.
       temp1Ext[0] = inExt[0];  temp1Ext[1] = inExt[1];
       temp1Ext[2] = outExt[2];  temp1Ext[3] = outExt[3];
-      temp1Ext[4] = outExt[4];  temp1Ext[5] = outExt[5];      
+      temp1Ext[4] = outExt[4];  temp1Ext[5] = outExt[5];
+      
       // create a temp data for intermediate results
-      temp1Array = inArray->MakeObject();
-      temp1Array->SetNumberOfComponents(inArray->GetNumberOfComponents());
-      temp1Array->SetNumberOfTuples((temp1Ext[1]-temp1Ext[0]+1) *
-                                    (temp1Ext[3]-temp1Ext[2]+1) *
-                                    (temp1Ext[5]-temp1Ext[4]+1));
-      this->ExecuteAxis(1, temp0Array, temp0Ext, temp1Array, temp1Ext,
-                        &cycle, target, &count, total);
-      temp0Array->Delete();
-      temp0Array = NULL;
+      temp0Data = vtkImageData::New();
+      temp0Data->SetExtent(temp0Ext);
+      temp0Data->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+      temp0Data->SetScalarType(inData->GetScalarType());
 
-      // Last pass into outArray
-      this->ExecuteAxis(0, temp1Array, temp1Ext, outArray, outExt,
-                        &cycle, target, &count, total);
-      temp1Array->Delete();
-      temp1Array = NULL;
+      temp1Data = vtkImageData::New();
+      temp1Data->SetExtent(temp1Ext);
+      temp1Data->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+      temp1Data->SetScalarType(inData->GetScalarType());
+      this->ExecuteAxis(2, inData, inExt, temp0Data, temp0Ext,
+                  &cycle, target, &count, total);
+      this->ExecuteAxis(1, temp0Data, temp0Ext, temp1Data, temp1Ext,
+                  &cycle, target, &count, total);
+      temp0Data->Delete();
+      temp0Data = NULL;
+      this->ExecuteAxis(0, temp1Data, temp1Ext, outData, outExt,
+                  &cycle, target, &count, total);
+      temp1Data->Delete();
+      temp1Data = NULL;
       break;
     }  
 }
