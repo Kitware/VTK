@@ -466,9 +466,6 @@ protected:
   void ActivateMargins(int);
   int MarginSelectMode;
 
-  // Keep track of last pick position
-  float LastPickPosition[3];
-
 private:
   vtkImagePlaneWidget(const vtkImagePlaneWidget&);  //Not implemented
   void operator=(const vtkImagePlaneWidget&);  //Not implemented

@@ -42,7 +42,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.46");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.47");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -772,10 +772,8 @@ void vtkImagePlaneWidget::OnMouseMove()
 
   // Compute the two points defining the motion vector
   //
-  camera->GetFocalPoint(focalPoint);
-
-  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
-                              focalPoint[2], focalPoint);
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+                              this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
 
   this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
