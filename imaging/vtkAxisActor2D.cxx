@@ -527,7 +527,7 @@ void vtkAxisActor2D::ComputeRange(float inRange[2], float outRange[2],
   for ( j=0; j < VTK_NUM_DIVS; j++ )
     {
     outRange[0] = ((int)floor(sRange[0]/(logFactor*divs[j]))) * logFactor*divs[j];
-    if ( (outRange[0] + (numTicks-1)*interval) > sRange[1] )
+    if ( (outRange[0] + (numTicks-1)*interval) >= sRange[1] )
       {
       break;
       }
