@@ -137,7 +137,7 @@ proc check_header_file { filename } {
 
       # Search for the class string
       # Extract the class name from the string
-      if { [string match "*class VTK_*_EXPORT*" $data] == 1 } {
+      if { [string match "*class VTK_*EXPORT*" $data] == 1 } {
         set class_found 1
 
         set class_ivar_count 0
