@@ -16,7 +16,7 @@
 #include "vtkDEMReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.33");
+vtkCxxRevisionMacro(vtkDEMReader, "1.34");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -355,8 +355,6 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     vtkErrorMacro(<< "A FileName must be specified.");
     return -1;
     }
-
-  this->UpdateInformation ();
 
   if ((fp = fopen(this->FileName, "rb")) == NULL)
     {
