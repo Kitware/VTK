@@ -41,19 +41,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkOBBTree - generate oriented bounding box (OBB) tree
 // .SECTION Description
 // vtkOBBTree is an object to generate oriented bounding box (OBB) trees.
+// An oriented bounding box is a bounding box that does not necessarily line 
+// up along coordinate axes. The OBB tree is a hierarchical tree structure 
+// of such boxes, where deeper levels of OBB confine smaller regions of space.
+//
+// To build the OBB, a recursive, top-down process is used. First, the root OBB
+// is constructed by finding the mean and covariance matrix of the cells (and
+// their points) that define the dataset. The eigenvectors of the covariance
+// matrix are extracted, giving a set of three orthogonal vectors that define 
+// the tightest-fitting OBB. To create the two children OBB's, a split plane 
+// is found that (approximately) divides the number cells in half. These are 
+// then assigned to the children OBB's. This process then continues until
+// the MaxLevel ivar limits the recursion, or no split plane can be found.
+
 // .SECTION Caveats
-// Since this algorithms works of a list of points, the OBB tree will only 
-// bound the "geometry" attached to the points if the convex hull of the 
-// points bounds the geometry.
+// Since this algorithms works from a list of cells, the OBB tree will only 
+// bound the "geometry" attached to the cells if the convex hull of the 
+// cells bounds the geometry.
+//
+// Long, skinny cells (i.e., cells with poor aspect ratio) may cause 
+// unsatisfactory results. This is due to the fact that this is a top-down
+// implementation of the OBB tree, requiring that one or more complete cells
+// are contained in each OBB. This requirement makes it hard to find good 
+// split planes during the recurion process. A bottom-up implementation would
+// go a long way to correcting this problem.
+
 // .SECTION See Also
-// vtkOBBSimplification vtkLocator vtkCellLocator 
+// vtkLocator vtkCellLocator vtkLocatorFilter
 
 #ifndef __vtkOBBTree_h
 #define __vtkOBBTree_h
 
-#include "vtkObject.hh"
-#include "vtkPolyData.hh"
-#include "vtkIdList.hh"
+#include "vtkCellLocator.hh"
 
 //
 // Special class defines node for the OBB tree
@@ -74,56 +93,12 @@ public:
 //ETX - end tcl exclude
 //
 
-class vtkOBBTree : public vtkObject
+class vtkOBBTree : public vtkCellLocator
 {
 public:
   vtkOBBTree();
-  virtual ~vtkOBBTree();
   char *GetClassName() {return "vtkOBBTree";};
-  void Initialize();
   void FreeSearchStructure();
-
-  // Description:
-  // Build the OBB from the points/cells defining this dataset.
-  vtkSetObjectMacro(DataSet,vtkDataSet);
-  vtkGetObjectMacro(DataSet,vtkDataSet);
-
-  // Description:
-  // Boolean controls whether automatic subdivision size is computed
-  // from average number of points in leaf bounding box.
-  vtkSetMacro(Automatic,int);
-  vtkGetMacro(Automatic,int);
-  vtkBooleanMacro(Automatic,int);
-
-  // Description:
-  // Specify the average number of points in each leaf bounding box.
-  // This is used to automatically generate the OBB.
-  vtkSetClampMacro(NumberOfCellsPerOBB,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(NumberOfCellsPerOBB,int);
-
-  // Description:
-  // Set the level of the OBB tree (set automatically if Automatic is true).
-  vtkSetClampMacro(Level,int,1,this->MaxLevel);
-  vtkGetMacro(Level,int);
-
-  // Description:
-  // Set the maximum allowable level for the OBB tree.
-  vtkSetClampMacro(MaxLevel,int,1,24);
-  vtkGetMacro(MaxLevel,int);
-
-  // Description:
-  // Specify absolute tolerance (in world coordinates) for performing
-  // intersection computations.
-  vtkSetClampMacro(Tolerance,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Tolerance,float);
-
-  // Description:
-  // Boolean controls whether to maintain list of cells in each leaf OBB 
-  // node. Normally this is the case, but if the OBB tree is being used
-  // as a geometry simplification technique, there is no need to keep them.
-  vtkSetMacro(RetainCellLists,int);
-  vtkGetMacro(RetainCellLists,int);
-  vtkBooleanMacro(RetainCellLists,int);
 
   void ComputeOBB(vtkFloatPoints *pts, float corner[3], float max[3], 
                   float mid[3], float min[3], float size[3]);
@@ -131,25 +106,13 @@ public:
   int IntersectWithLine(float a0[3], float a1[3], float& t, 
                         float x[3], float pcoords[3],int &subId);
 
-  void InitializeTreeIntersection(vtkOBBNode& tree);
-  int GetNextTreeIntersection(vtkOBBNode& n1, vtkOBBNode& n2);
-
-  void GenerateRepresentation(int level, float ar, float d, vtkPolyData *pd);
-
-  void Update();
+  // satisfy locator'a abstract interface
+  void GenerateRepresentation(int level, vtkPolyData *pd);
 
 protected:
-  void SubDivide();
+  void BuildLocator();
 
-  vtkDataSet *DataSet;
-  int Level;
-  int MaxLevel;
-  float Tolerance;
   vtkOBBNode *Tree;
-  int Automatic; // boolean controls automatic subdivision (or uses user spec.)
-  int NumberOfCellsPerOBB; //Used with previous boolean to control subdivide
-  int RetainCellLists;
-  vtkTimeStamp SubDivideTime;  
 
   // methods and variables for building OBB tree
   void BuildTree(vtkIdList *cells, vtkOBBNode *parent, int level);
@@ -158,8 +121,9 @@ protected:
   int OBBCount;
   int DeepestLevel;
 
-  void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel, float ar,
-                        float d, vtkFloatPoints* pts, vtkCellArray *polys);
+  void DeleteTree(vtkOBBNode *OBBptr);
+  void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel, 
+                        vtkFloatPoints* pts, vtkCellArray *polys);
 
 };
 

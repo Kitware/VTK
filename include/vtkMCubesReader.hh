@@ -94,9 +94,9 @@ public:
   vtkGetMacro(Normals,int);
   vtkBooleanMacro(Normals,int);
 
-  void SetLocator(vtkLocator *locator);
-  void SetLocator(vtkLocator& locator) {this->SetLocator(&locator);};
-  vtkGetObjectMacro(Locator,vtkLocator);
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -107,7 +107,7 @@ protected:
 
   char *Filename;
   char *LimitsFilename;
-  vtkLocator *Locator;
+  vtkPointLocator *Locator;
   int SelfCreatedLocator;
   int FlipNormals;
   int Normals;

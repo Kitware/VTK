@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkPointSet_h
 
 #include "vtkDataSet.hh"
-#include "vtkLocator.hh"
+#include "vtkPointLocator.hh"
 
 class vtkPointSet : public vtkDataSet
 {
@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkPoints *Points;
-  vtkLocator *Locator;
+  vtkPointLocator *Locator;
 };
 
 inline int vtkPointSet::GetNumberOfPoints()

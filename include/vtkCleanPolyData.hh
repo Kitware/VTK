@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // If tolerance is specified precisely=0.0, then this object will use
 // the vtkMergePoints object to merge points (very fast). Otherwise the 
-// slower vtkLocator is used.
+// slower vtkPointLocator is used.
 // .SECTION Caveats
 // Merging points can alter topology, including introducing non-manifold 
 // forms. Tolerance should be chosen carefully to avoid these problems.
@@ -71,9 +71,9 @@ public:
   vtkSetClampMacro(Tolerance,float,0.0,1.0);
   vtkGetMacro(Tolerance,float);
 
-  void SetLocator(vtkLocator *locator);
-  void SetLocator(vtkLocator& locator) {this->SetLocator(&locator);};
-  vtkGetObjectMacro(Locator,vtkLocator);
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -84,7 +84,7 @@ protected:
   void Execute();
 
   float Tolerance;
-  vtkLocator *Locator;
+  vtkPointLocator *Locator;
   int SelfCreatedLocator;
 };
 

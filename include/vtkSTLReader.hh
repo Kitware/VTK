@@ -81,9 +81,9 @@ public:
   vtkGetMacro(Merging,int);
   vtkBooleanMacro(Merging,int);
 
-  void SetLocator(vtkLocator *locator);
-  void SetLocator(vtkLocator& locator) {this->SetLocator(&locator);};
-  vtkGetObjectMacro(Locator,vtkLocator);
+  void SetLocator(vtkPointLocator *locator);
+  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  vtkGetObjectMacro(Locator,vtkPointLocator);
 
   // Description:
   // Create default locator. Used to create one when none is specified.
@@ -92,7 +92,7 @@ public:
 protected:
   char *Filename;
   int Merging;
-  vtkLocator *Locator;
+  vtkPointLocator *Locator;
   int SelfCreatedLocator;
 
   void Execute();

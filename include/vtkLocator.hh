@@ -38,24 +38,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkLocator - spatial search object to quickly locate points
+// .NAME vtkLocator - abstract base class for objects that accelerate spatial searches
 // .SECTION Description
-// vtkLocator is a spatial search object to quickly locate points in 3D.
-// vtkLocator works by dividing a specified region of space into a regular
-// array of "rectangular" buckets, and then keeping a list of points that 
-// lie in each bucket. Typical operation involves giving a position in 3D 
-// and finding the closest point.
-// .SECTION Caveats
-// Many other types of spatial locators have been developed such as 
-// octrees and kd-trees. These are often more efficient for the 
-// operations described here.
+// vtkLocator is an abstract base class for spatial search objects, or 
+// locators. The principle behind locators is that they divide 3-space into 
+// small pieces (or "buckets") that can be quickly found in response to 
+// queries like point location, line intersection, or object-object 
+// intersection.
+//
+// The purpose of this base class is to provide ivars and methods shared by 
+// all locators. The GenerateRepresentation() is one such interesting method.
+// This method works in conjunction with vtkLocatorFilter to create polygonal
+// representations for the locator. For example, if the locator is an OBB tree
+// (i.e., vtkOBBTree.hh), then the representation is a set of one or more 
+// oriented bounding boxes, depending upon the specified level.
+// 
+// Locators typically work as follows. One or more "entities", such as 
+// points or cells, are inserted into the tree. These entities are associated
+// with one or more buckets. Then, when preforming geometric operations, the
+// operations are performed first on the buckets, and then if the operation
+// tests positive, then on the entities in the bucket. For example, during
+// collision tests, the locators are collided first to identify intersecting
+// buckets. If an intersection is found, more expensive operations are then
+// carried out on the entities in the bucket.
+// 
+// To obtain good performance, locators are often organized in a tree structure.
+// In such a structure, there are frequently multiple "levels" corresponding
+// to different nodes in the tree. So the word level (in the context of the 
+// locator) can be used to specify a particular representation in the tree.
+// For example, in an octree (which is a tree with 8 children), level 0 is 
+// the bounding box, or root octant, and level 1 consists of its eight children.
+
+// .SECTION See Also
+// vtkPointLocator vtkCellLocator vtkOBBTree vtkLocatorFilter
 
 #ifndef __vtkLocator_h
 #define __vtkLocator_h
 
 #include "vtkObject.hh"
-#include "vtkPoints.hh"
-#include "vtkIdList.hh"
+#include "vtkDataSet.hh"
+class vtkPolyData;
 
 class vtkLocator : public vtkObject
 {
@@ -63,60 +85,74 @@ public:
   vtkLocator();
   virtual ~vtkLocator();
   char *GetClassName() {return "vtkLocator";};
-  void Initialize();
-  virtual void FreeSearchStructure();
 
   // Description:
-  // Set list of points to insert into locator.
-  vtkSetRefCountedObjectMacro(Points,vtkPoints);
-  vtkGetObjectMacro(Points,vtkPoints);
+  // Initialize locator. Frees memory and resets object as appropriate.
+  virtual void Initialize();
 
   // Description:
-  // Set the number of divisions in x-y-z directions.
-  vtkSetVector3Macro(Divisions,int);
-  vtkGetVectorMacro(Divisions,int,3);
+  // Build the locator from the points/cells defining this dataset.
+  vtkSetObjectMacro(DataSet,vtkDataSet);
+  vtkGetObjectMacro(DataSet,vtkDataSet);
 
   // Description:
-  // Boolean controls whether automatic subdivision size is computed
-  // from average number of points in bucket.
+  // Set the maximum allowable level for the tree. If the Automatic ivar is off,
+  // this will be the target depth of the locator.
+  vtkSetClampMacro(MaxLevel,int,0,VTK_LARGE_INTEGER);
+  vtkGetMacro(MaxLevel,int);
+
+  // Description:
+  // Get the level of the locator (determined automatically if Automatic is true).
+  // The value of this ivar may change each time the locator is built.
+  vtkGetMacro(Level,int);
+
+  // Description:
+  // Boolean controls whether locator depth/resolution of locator is computed
+  // automatically from average number of entities in bucket. If not set, 
+  // there will be an explicit method to control the construction of the
+  // locator (found in the subclass).
   vtkSetMacro(Automatic,int);
   vtkGetMacro(Automatic,int);
   vtkBooleanMacro(Automatic,int);
 
   // Description:
-  // Specify the average number of points in each bucket.
-  vtkSetClampMacro(NumberOfPointsInBucket,int,1,VTK_LARGE_INTEGER);
-  vtkGetMacro(NumberOfPointsInBucket,int);
-
-  // Description:
   // Specify absolute tolerance (in world coordinates) for performing
-  // merge operations.
+  // geometric operations.
   vtkSetClampMacro(Tolerance,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Tolerance,float);
 
-  virtual int FindClosestPoint(float x[3]);
-  virtual int *MergePoints();
-  virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6]);
-  virtual int InsertPoint(float x[3]);
+  // Description:
+  // Boolean controls whether to maintain list of entities in each bucket.
+  // Normally the lists are maintainined, but if the locator is being used
+  // as a geometry simplification technique, there is no need to keep them.
+  vtkSetMacro(RetainCellLists,int);
+  vtkGetMacro(RetainCellLists,int);
+  vtkBooleanMacro(RetainCellLists,int);
+
+  // Description:
+  // Method to build a representation at a particular level. Note that the 
+  // method GetLevel() returns the maximum number of levels available for
+  // the tree. You must provide a vtkPolyData object into which to place the 
+  // data.
+  virtual void GenerateRepresentation(int level, vtkPolyData *pd) = 0;
+
+  // Description:
+  // Cause the locator to rebuild itself if it or its input dataset has changed.
+  virtual void Update();
 
 protected:
-  // place points in appropriate buckets
-  void SubDivide();
-  void GetBucketNeighbors(int ijk[3], int ndivs[3], int level);
+  virtual void FreeSearchStructure() = 0; // free data
+  virtual void BuildLocator() = 0; // Build the locator from the input dataset.
 
-  vtkPoints *Points;
-  int Divisions[3]; // Number of sub-divisions in x-y-z directions
+  vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
-  int NumberOfPointsInBucket; //Used with previous boolean to control subdivide
   float Tolerance; // for performing merging
-  float Bounds[6]; // bounds of points
-  vtkIdList **HashTable; // lists of point ids in buckets
-  int NumberOfBuckets; // total size of hash table
-  float H[3]; // width of each bucket in x-y-z directions
-  vtkTimeStamp SubDivideTime;  
+  int MaxLevel;
+  int Level;
+  int RetainCellLists;
 
-  float InsertionTol2;
-  int InsertionPointId;
+  vtkTimeStamp BuildTime;  // time at which locator was built
+
 };
 
 #endif
