@@ -45,6 +45,14 @@ public:
   // default middle of the neighborhood and computes the elliptical foot print.
   void SetKernelSize(int size0, int size1, int size2);
 
+  // Description:
+  // If you want to erode by an arbitrary point scalar array, 
+  // then set its name here.
+  // By default this in NULL and the filter will use the active scalar array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}  
+  
 protected:
   vtkImageContinuousErode3D();
   ~vtkImageContinuousErode3D();

@@ -129,16 +129,6 @@ public:
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
-protected:
-  vtkContourGrid();
-  ~vtkContourGrid();
-
-//BTX
-
-  // This is temporary solution. The vtkContourFilter must be able
-  // to call SelectInputScalars().
-  friend class vtkContourFilter;
-
   // Description:
   // If you want to contour by an arbitrary array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
@@ -146,8 +136,10 @@ protected:
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
 
-//ETX
-  
+protected:
+  vtkContourGrid();
+  ~vtkContourGrid();
+
   void Execute();
 
   vtkContourValues *ContourValues;

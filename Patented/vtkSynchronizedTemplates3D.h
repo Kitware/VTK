@@ -154,17 +154,16 @@ public:
   void SetInputMemoryLimit(unsigned long limit);
   unsigned long GetInputMemoryLimit();  
 
-protected:
-  vtkSynchronizedTemplates3D();
-  ~vtkSynchronizedTemplates3D();
-
   // Description:
   // If you want to contour by an arbitrary array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
-  
+
+protected:
+  vtkSynchronizedTemplates3D();
+  ~vtkSynchronizedTemplates3D();
 
   int ComputeNormals;
   int ComputeGradients;

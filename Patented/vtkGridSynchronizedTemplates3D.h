@@ -144,10 +144,6 @@ public:
   // from the input will be larger than this value (KiloBytes).
   void SetInputMemoryLimit(long limit);
 
-protected:
-  vtkGridSynchronizedTemplates3D();
-  ~vtkGridSynchronizedTemplates3D();
-
   // Description:
   // If you want to contour by an arbitrary array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
@@ -155,6 +151,10 @@ protected:
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
   
+protected:
+  vtkGridSynchronizedTemplates3D();
+  ~vtkGridSynchronizedTemplates3D();
+
   void Execute();
   void ExecuteInformation();
 

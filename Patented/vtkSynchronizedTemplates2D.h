@@ -116,10 +116,6 @@ public:
   vtkGetMacro(ComputeScalars,int);
   vtkBooleanMacro(ComputeScalars,int);
 
-protected:
-  vtkSynchronizedTemplates2D();
-  ~vtkSynchronizedTemplates2D();
-
   // Description:
   // If you want to contour by an arbitrary array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
@@ -127,6 +123,10 @@ protected:
   void SelectInputScalars(const char *fieldName) 
     {this->SetInputScalarsSelection(fieldName);}
   
+protected:
+  vtkSynchronizedTemplates2D();
+  ~vtkSynchronizedTemplates2D();
+
   void Execute();
   vtkContourValues *ContourValues;
 
