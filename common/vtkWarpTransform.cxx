@@ -248,10 +248,6 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
       }
     }
 
-  output[0] = inverse[0];
-  output[1] = inverse[1];
-  output[2] = inverse[2];
-
   if (self->GetDebug())
     {
     vtkGenericWarningMacro(<<"Debug: In " __FILE__ ", line "<< __LINE__ <<"\n" 
@@ -270,6 +266,9 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 	 i << " iterations.");
     }
 
+  output[0] = inverse[0];
+  output[1] = inverse[1];
+  output[2] = inverse[2];
 }
 
 void vtkWarpTransform::InverseTransformPoint(const float point[3], 
