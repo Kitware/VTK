@@ -26,9 +26,6 @@ vtkImageSpatialFilter \
 vtkImageTwoInputFilter \
 vtkImageFourierFilter 
 
-#vtkImageCopy \
-#vtkImageTwoOutputFilter
-
 CONCRETE = \
 vtkBMPReader \
 vtkBMPWriter \
@@ -116,14 +113,6 @@ vtkXImageWindow \
 vtkXPolyDataMapper2D \
 vtkXTextMapper 
 
-
-
-#vtkImageFeatureAnd \
-#vtkImageHistogram \
-#vtkImageHistogramEqualization \
-
-#vtkImageMIPFilter \
-#vtkImageSubsample3D \
 
 
 #------------------------------------------------------------------------------
