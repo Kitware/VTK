@@ -53,10 +53,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.hh"
 
-#define SCALE_BY_SCALAR 0
-#define SCALE_BY_VECTOR 1
-#define USE_VECTOR 0
-#define USE_NORMAL 1
+#define VTK_SCALE_BY_SCALAR 0
+#define VTK_SCALE_BY_VECTOR 1
+#define VTK_USE_VECTOR 0
+#define VTK_USE_NORMAL 1
 
 class vtkGlyph3D : public vtkDataSetToPolyFilter
 {

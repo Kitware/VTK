@@ -52,12 +52,12 @@ vtkGlyph3D::vtkGlyph3D()
 {
   this->Source = NULL;
   this->Scaling = 1;
-  this->ScaleMode = SCALE_BY_SCALAR;
+  this->ScaleMode = VTK_SCALE_BY_SCALAR;
   this->ScaleFactor = 1.0;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
   this->Orient = 1;
-  this->VectorMode = USE_VECTOR;
+  this->VectorMode = VTK_USE_VECTOR;
 }
 
 vtkGlyph3D::~vtkGlyph3D()
@@ -167,15 +167,15 @@ void vtkGlyph3D::Execute()
 // Traverse all Input points, transforming Source points and copying 
 // point attributes.
 //
-  if ( (this->VectorMode == USE_VECTOR && inVectors != NULL) ||
-  (this->VectorMode == USE_NORMAL && inNormals != NULL) )
+  if ( (this->VectorMode == VTK_USE_VECTOR && inVectors != NULL) ||
+  (this->VectorMode == VTK_USE_NORMAL && inNormals != NULL) )
     orient = 1;
   else
     orient = 0;
     
   if ( this->Scaling && 
-  ((this->ScaleMode == SCALE_BY_SCALAR && inScalars != NULL) ||
-  (this->ScaleMode == SCALE_BY_VECTOR && (inVectors || inNormals))) )
+  ((this->ScaleMode == VTK_SCALE_BY_SCALAR && inScalars != NULL) ||
+  (this->ScaleMode == VTK_SCALE_BY_VECTOR && (inVectors || inNormals))) )
     scaleSource = 1;
   else
     scaleSource = 0;
@@ -192,7 +192,7 @@ void vtkGlyph3D::Execute()
 
     if ( orient )
       {
-      if ( this->VectorMode == USE_NORMAL )
+      if ( this->VectorMode == VTK_USE_NORMAL )
         v = inNormals->GetNormal(inPtId);
       else
         v = inVectors->GetVector(inPtId);
@@ -216,7 +216,7 @@ void vtkGlyph3D::Execute()
       {
       // Copy Input scalar
       scale = inScalars->GetScalar(inPtId);
-      if ( this->ScaleMode == SCALE_BY_SCALAR )
+      if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
         {
         if ( (den = this->Range[1] - this->Range[0]) == 0.0 ) den = 1.0;
 
@@ -316,11 +316,11 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Source: " << this->Source << "\n";
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
-  os << indent << "Scale Mode: " << (this->ScaleMode == SCALE_BY_SCALAR ? "Scale by scalar\n" : "Scale by vector\n");
+  os << indent << "Scale Mode: " << (this->ScaleMode == VTK_SCALE_BY_SCALAR ? "Scale by scalar\n" : "Scale by vector\n");
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Range: (" << this->Range[0] << ", " << this->Range[1] << ")\n";
   os << indent << "Orient: " << (this->Orient ? "On\n" : "Off\n");
 
-  os << indent << "Orient Mode: " << (this->VectorMode == USE_VECTOR ? "Orient by vector\n" : "Orient by normal\n");
+  os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ? "Orient by vector\n" : "Orient by normal\n");
 }
 
