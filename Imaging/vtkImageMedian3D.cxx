@@ -18,27 +18,39 @@
 #include "vtkImageMedian3D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.29");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.29.4.1");
 vtkStandardNewMacro(vtkImageMedian3D);
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Construct an instance of vtkImageMedian3D fitler.
 vtkImageMedian3D::vtkImageMedian3D()
 {
   this->NumberOfElements = 0;
   this->SetKernelSize(1,1,1);
   this->HandleBoundaries = 1;
+  this->InputScalarsSelection = NULL;
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+vtkImageMedian3D::~vtkImageMedian3D()
+{
+  this->SetInputScalarsSelection(NULL);
+}
+
+//-----------------------------------------------------------------------------
 void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfElements: " << this->NumberOfElements << endl;
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood 
 void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
@@ -71,7 +83,7 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   }
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Add a sample to the median computation
 double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
                                          int &UpMax, int &DownMax,
@@ -171,7 +183,22 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 }
 
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void vtkImageMedian3D::ExecuteInformation(vtkImageData *inData, 
+                                          vtkImageData *outData)
+{
+  vtkDataArray *inArray;
+
+  this->Superclass::ExecuteInformation(inData, outData);
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+
+  outData->SetScalarType(inArray->GetDataType());
+  outData->SetNumberOfScalarComponents(inArray->GetNumberOfComponents());
+}
+
+
+
+//-----------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 template <class T>
@@ -202,6 +229,9 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   int *inExt;
   unsigned long count = 0;
   unsigned long target;
+  vtkDataArray *inArray;
+
+  inArray = inData->GetPointData()->GetScalars(self->GetInputScalarsSelection());
   
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -209,7 +239,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   kernelMiddle = self->GetKernelMiddle();
   kernelSize = self->GetKernelSize();
   
-  numComp = inData->GetNumberOfScalarComponents();
+  numComp = inArray->GetNumberOfComponents();
 
   hoodMin0 = outExt[0] - kernelMiddle[0]; 
   hoodMin1 = outExt[2] - kernelMiddle[1]; 
@@ -246,7 +276,8 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   NumberOfElements = self->GetNumberOfElements();
 
   // loop through pixel of output
-  inPtr = (T *)inData->GetScalarPointer(hoodMin0,hoodMin1,hoodMin2);
+  inPtr = (T *)inArray->GetVoidPointer(hoodMin0*inInc0+hoodMin1*inInc1+
+                                       hoodMin2* inInc2);
   inPtr2 = inPtr;
   for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
     {
@@ -345,28 +376,41 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 
                                        vtkImageData *outData,
                                        int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  vtkDataArray *inArray;
+  void *inPtr;
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
+  int *inIncs;
+
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
-  // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (id == 0)
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    outData->GetPointData()->GetScalars()->SetName(inArray->GetName());
+    }
+
+  inIncs = inData->GetIncrements();
+  inPtr = inArray->GetVoidPointer(outExt[0]*inIncs[0] +
+                                  outExt[2]*inIncs[1] +
+                                  outExt[4]*inIncs[2]); 
+
+  // this filter expects that input is the same type as output.
+  if (inArray->GetDataType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input data type, " << inArray->GetDataType()
+                << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inArray->GetDataType())
     {
     vtkTemplateMacro7(vtkImageMedian3DExecute, this,inData, (VTK_TT *)(inPtr), 
                       outData, (VTK_TT *)(outPtr),outExt, id);
@@ -375,5 +419,24 @@ void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData,
       return;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
