@@ -176,13 +176,13 @@ void vtkImageButterworthHighPass::ThreadedExecute(vtkImageData *inData,
     // Convert location into normalized cycles/world unit
     temp2 = temp2 * norm2;
 
-    for (idx1 = ext[2]; !self->AbortExecute && idx1 <= ext[3]; ++idx1)
+    for (idx1 = ext[2]; !this->AbortExecute && idx1 <= ext[3]; ++idx1)
       {
       if (!id) 
 	{
 	if (!(count%target))
 	  {
-	  self->UpdateProgress(count/(50.0*target));
+	  this->UpdateProgress(count/(50.0*target));
 	  }
 	count++;
 	}
