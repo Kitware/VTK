@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "DICOMConfig.h"
 #include "DICOMFile.h"
 
 DICOMFile::DICOMFile() : InputStream()
@@ -70,9 +71,9 @@ void DICOMFile::operator=(const DICOMFile& in)
   // InputStream = in.InputStream;
 }
 
-bool DICOMFile::Open(const std::string& filename)
+bool DICOMFile::Open(const dicom_stl::string& filename)
 {
-  InputStream.open(filename.c_str(), std::ios::binary | std::ios::in);
+  InputStream.open(filename.c_str(), dicom_stream::ios::binary | dicom_stream::ios::in);
 
   if (InputStream.is_open())
     {
@@ -92,23 +93,23 @@ void DICOMFile::Close()
 long DICOMFile::Tell() 
 {
   long loc = InputStream.tellg();
-  // std::cout << "Tell: " << loc << std::endl;
+  // dicom_stream::cout << "Tell: " << loc << dicom_stream::endl;
   return loc;
 }
 
 void DICOMFile::SkipToPos(long increment) 
 {
-  InputStream.seekg(increment, std::ios::beg);
+  InputStream.seekg(increment, dicom_stream::ios::beg);
 }
 
 long DICOMFile::GetSize() 
 {
   long curpos = this->Tell();
 
-  InputStream.seekg(0,std::ios::end);
+  InputStream.seekg(0,dicom_stream::ios::end);
 
   long size = this->Tell();
-  // std::cout << "Tell says size is: " << size << std::endl;
+  // dicom_stream::cout << "Tell says size is: " << size << dicom_stream::endl;
   this->SkipToPos(curpos);
 
   return size;
@@ -116,18 +117,18 @@ long DICOMFile::GetSize()
 
 void DICOMFile::Skip(long increment) 
 {
-  InputStream.seekg(increment, std::ios::cur);
+  InputStream.seekg(increment, dicom_stream::ios::cur);
 }
 
 void DICOMFile::SkipToStart() 
 {
-  InputStream.seekg(0, std::ios::beg);
+  InputStream.seekg(0, dicom_stream::ios::beg);
 }
 
 void DICOMFile::Read(void* ptr, long nbytes) 
 {
   InputStream.read((char*)ptr, nbytes);
-  // std::cout << (char*) ptr << std::endl;
+  // dicom_stream::cout << (char*) ptr << dicom_stream::endl;
 }
 
 doublebyte DICOMFile::ReadDoubleByte() 
@@ -183,7 +184,7 @@ quadbyte DICOMFile::ReadNBytes(int len)
       ret = ReadQuadByte();
       break;
     default:
-      std::cerr << "Unable to read " << len << " bytes" << std::endl;
+      dicom_stream::cerr << "Unable to read " << len << " bytes" << dicom_stream::endl;
       break;
     }
   return (ret);
@@ -206,14 +207,14 @@ float DICOMFile::ReadAsciiFloat(int len)
   char* val2 = new char[len2];
   strncpy(val2, (char*) val, len2);
 
-  std::istrstream data(val2);
+  dicom_stream::istrstream data(val2);
   data >> ret;
   delete [] val2;
 #else
   sscanf(val,"%e",&ret);
 #endif
 
-  std::cout << "Read ASCII float: " << ret << std::endl;
+  dicom_stream::cout << "Read ASCII float: " << ret << dicom_stream::endl;
 
   delete [] val;
   return (ret);
@@ -235,14 +236,14 @@ int DICOMFile::ReadAsciiInt(int len)
   char* val2 = new char[len2];
   strncpy(val2, (char*) val, len2);
 
-  std::istrstream data(val2);
+  dicom_stream::istrstream data(val2);
   data >> ret;
   delete [] val2;
 #else
   sscanf(val,"%d",&ret);
 #endif
 
-  std::cout << "Read ASCII int: " << ret << std::endl;
+  dicom_stream::cout << "Read ASCII int: " << ret << dicom_stream::endl;
 
   delete [] val;
   return (ret);

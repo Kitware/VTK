@@ -14,13 +14,14 @@
 #include <string>
 
 #include "DICOMTypes.h"
+#include "DICOMConfig.h"
 
 //
 // Abstraction of a file used by the DICOMParser.
 // This should probably be cleaned up so that it
 // can be used to abstract a stream.
 //
-class DICOMFile 
+class DICOM_EXPORT DICOMFile 
 {
  public:
   DICOMFile();
@@ -31,7 +32,7 @@ class DICOMFile
   // that is true if the file is successfully
   // opened.
   //
-  bool Open(const std::string& filename);
+  bool Open(const dicom_stl::string& filename);
   
   //
   // Close a file.
@@ -219,7 +220,7 @@ class DICOMFile
   //
   // FILE* Fptr;
   
-  std::ifstream InputStream;
+  dicom_stream::ifstream InputStream;
   
   //
   // Flag for swaping bytes.
