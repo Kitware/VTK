@@ -457,10 +457,8 @@ void vtkViewport::ViewportToNormalizedViewport(float &u, float &v)
   upperRight[0]--;
   upperRight[1]--;
   
-  u = this->Viewport[0] + 
-    (u - lowerLeft[0])*(this->Viewport[2] - this->Viewport[0])/(upperRight[0] - lowerLeft[0]);
-  v = this->Viewport[1] + 
-    (v - lowerLeft[1])*(this->Viewport[3] - this->Viewport[1])/(upperRight[1] - lowerLeft[1]);
+  u = u /(upperRight[0] - lowerLeft[0]);
+  v = v/(upperRight[1] - lowerLeft[1]);
 }
 
 void vtkViewport::NormalizedViewportToView(float &x, float &y, float &vtkNotUsed(z))
@@ -532,10 +530,8 @@ void vtkViewport::NormalizedViewportToViewport(float &u, float &v)
   upperRight[0]--;
   upperRight[1]--;
   
-  u = (u - this->Viewport[0])*(upperRight[0] - lowerLeft[0])/
-    (this->Viewport[2] - this->Viewport[0]);
-  v = (v - this->Viewport[1])*(upperRight[1] - lowerLeft[1])/
-    (this->Viewport[3] - this->Viewport[1]);
+  u = u*(upperRight[0] - lowerLeft[0]);
+  v = v*(upperRight[1] - lowerLeft[1]);
 }
 
 void vtkViewport::ViewToNormalizedViewport(float &x, float &y, float &vtkNotUsed(z))
