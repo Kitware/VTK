@@ -36,7 +36,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.194");
+vtkCxxRevisionMacro(vtkRenderer, "1.195");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -433,6 +433,7 @@ int vtkRenderer::UpdateGeometry()
 
   if ( this->PropArrayCount == 0 ) 
     {
+    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     return 0;
     }
 
@@ -445,8 +446,7 @@ int vtkRenderer::UpdateGeometry()
   // loop through props and give them a chance to 
   // render themselves as opaque geometry
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {
-    
+    {    
     this->NumberOfPropsRendered += 
       this->PropArray[i]->RenderOpaqueGeometry(this);
     }
