@@ -272,7 +272,7 @@ void vtkQuartzRenderWindow::SetPosition(int x, int y)
 static void vtkQuartzSwapBuffers(void *hdc)
 {
   //modify this to deal only with the particular context!
-    glutSwapBuffers();
+  //  glutSwapBuffers(); - getting called in drawrect
 }
 
 // End the rendering process and display the image.
@@ -419,14 +419,14 @@ void vtkQuartzRenderWindow::WindowInitialize (void)
             vtkErrorMacro("Could not create window, serious error!");
             return;
         }
-        [(vtkQuartzWindowController *)this->WindowId setNibFileName:@"/tmp/vtkQuartzWindow.nib"];
+        [(vtkQuartzWindowController *)this->WindowId setNibFileName:@"/usr/local/lib/vtkQuartzWindow.nib"];
 	[(vtkQuartzWindowController *)this->WindowId init];
 	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindow:this];
 	[(vtkQuartzWindowController *)this->WindowId setVTKRenderWindowInteractor:0];
         [NSApp setMainMenu:[[NSMenu allocWithZone:[NSMenu menuZone]] initWithTitle:@"mainmenu"]];
         item = [[NSMenuItem allocWithZone:[NSMenu menuZone]] initWithTitle:@"RawApp" action:NULL keyEquivalent:@""];
         [[NSApp mainMenu] addItem:item];
-        cout<<"Setting main menu to "<<[(vtkQuartzWindowController *)this->WindowId getMyMenu]<<"\n";
+//        cout<<"Setting main menu to "<<[(vtkQuartzWindowController *)this->WindowId getMyMenu]<<"\n";
         [NSApp setMainMenu:[(vtkQuartzWindowController *)this->WindowId getMyMenu]];
 	
         this->OwnWindow = 1;

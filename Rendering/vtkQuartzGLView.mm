@@ -64,6 +64,7 @@
   glViewport((long int)visibleRect.origin.x, (long int)visibleRect.origin.y, 
 	     (long int)visibleRect.size.width, (long int)visibleRect.size.height);
   VBRedrawWindow([[self getvtkQuartzWindowController] getVTKRenderWindow]);
+  [[self openGLContext] flushBuffer];
 }
 
 - (BOOL)acceptsFirstResponder
