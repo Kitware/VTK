@@ -345,8 +345,8 @@ vtkContourFilter.o : Makefile
 @USE_GRAPHICS_PATENTED_PYTHON_TARGET@
 @USE_GRAPHICS_PATENTED_TCL_TARGET@
 
-../patented/libVTKPatented${VTK_LIB_EXT} :
-	cd ../patented ; ${MAKE} libVTKPatented${VTK_LIB_EXT}
+../patented/libVTKPatented${SHLIB_SUFFIX} :
+	cd ../patented ; ${MAKE} libVTKPatented${SHLIB_SUFFIX}
 
 #------------------------------------------------------------------------------
 # Include the generic stuff here
