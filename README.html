@@ -274,6 +274,10 @@ To run the cc examples just type their name.  To run the tcl examples,
       CMakeCache.txt to point to the correct location.
   <li>Link errors on Windows platforms. Make sure that the swap space is
       at least 300 MByte.
+  <li> Link error with borland: TCL82.LIB contains invalid OMF record, type 0x21 (possibly COFF).
+      You have to convert tcl libraires from coff to omf with the borland utilitiy coff2omf.
+      Once you have created OMF versions, re-run cmake to tell it where the borland
+      versions of tcl and tk are located.
   </ul>
 
 <HR>
