@@ -37,7 +37,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.5");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.6");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -63,6 +63,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->OutlineMapper->SetInput(this->Outline->GetOutput());
   this->OutlineActor = vtkActor::New();
   this->OutlineActor->SetMapper(this->OutlineMapper);
+  this->OutlineTranslation = 1;
   
   this->Cutter = vtkCutter::New();
   this->Cutter->SetInput(this->Box);
@@ -451,6 +452,8 @@ void vtkImplicitPlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
      << (this->NormalToZAxis ? "On" : "Off") << "\n";
 
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
+  os << indent << "Outline Translation: " 
+     << (this->OutlineTranslation ? "On" : "Off") << "\n";
 }
 
 
@@ -541,8 +544,11 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     }
   else
     {
-    this->HighlightOutline(1);
-    this->State = vtkImplicitPlaneWidget::MovingOutline;
+    if ( this->OutlineTranslation )
+      {
+      this->HighlightOutline(1);
+      this->State = vtkImplicitPlaneWidget::MovingOutline;
+      }
     }
   
   this->EventCallbackCommand->SetAbortFlag(1);
@@ -919,6 +925,7 @@ void vtkImplicitPlaneWidget::CreateDefaultProperties()
     this->SelectedPlaneProperty = vtkProperty::New();
     this->SelectedPlaneProperty->SetAmbient(1.0);
     this->SelectedPlaneProperty->SetAmbientColor(0.0,1.0,0.0);
+    this->SelectedPlaneProperty->SetOpacity(0.25);
     }
 
   if ( ! this->OutlineProperty )
