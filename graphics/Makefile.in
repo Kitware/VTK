@@ -25,6 +25,7 @@ vtkMesaVolumeTextureMapper2D
 OGLR_OBJ = \
 vtkOpenGLActor \
 vtkOpenGLCamera \
+vtkOpenGLImageActor \
 vtkOpenGLLight \
 vtkOpenGLPolyDataMapper \
 vtkOpenGLProjectedPolyDataRayBounder \
@@ -156,6 +157,7 @@ vtkHedgeHog \
 vtkHull \
 vtkHyperStreamline \
 vtkIdFilter \
+vtkImageActor \
 vtkImplicitBoolean \
 vtkImplicitDataSet \
 vtkImplicitModeller \
@@ -318,6 +320,7 @@ vtkOpenGLTexture \
 vtkOpenGLProperty \
 vtkOpenGLActor \
 vtkOpenGLCamera \
+vtkOpenGLImageActor \
 vtkOpenGLPolyDataMapper \
 vtkOpenGLProjectedPolyDataRayBounder \
 vtkOpenGLLight \

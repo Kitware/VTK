@@ -46,6 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLImageActor.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLPolyDataMapper.h"
@@ -72,6 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _WIN32
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLImageActor.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLPolyDataMapper.h"
@@ -192,6 +194,10 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     if(strcmp(vtkclassname, "vtkCamera") == 0)
       {
       return vtkOpenGLCamera::New();
+      }
+    if(strcmp(vtkclassname, "vtkImageActor") == 0)
+      {
+      return vtkOpenGLImageActor::New();
       }
     if(strcmp(vtkclassname, "vtkLight") == 0)
       {
