@@ -19,7 +19,7 @@
 #ifndef __FTOPTION_H__
 #define __FTOPTION_H__
 
-#if defined( _MSC_VER )      /* Visual C++ (and Intel C++) */
+#if ( _MSC_VER >= 1300 ) // Visual studio .NET
 
 #pragma warning( disable : 4244 ) // conversion [...] possible loss of data
 #pragma warning( disable : 4267 ) // same
