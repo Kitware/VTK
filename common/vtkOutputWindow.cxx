@@ -158,6 +158,10 @@ void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
     vtkOutputWindow::Instance->Delete();;
     }
   vtkOutputWindow::Instance = instance;
+  if (!instance)
+    {
+    return;
+    }
   // Should be safe to send a message now as instance is set
   if (instance->GetReferenceCount()!=1)
     {

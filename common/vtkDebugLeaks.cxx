@@ -54,6 +54,7 @@ public:
   ~vtkPrintLeaksAtExit()
     {
       vtkObjectFactory::UnRegisterAllFactories();
+      vtkOutputWindow::SetInstance(0);
       vtkDebugLeaks::PrintCurrentLeaks();
       vtkDebugLeaks::DeleteTable();
     }  
