@@ -40,8 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImplicitModeller - compute distance from input geometry on structured point dataset
 // .SECTION Description
-
-
 // vtkImplicitModeller is a filter that computes the distance from the input
 // geometry to the points of an output structured point set. This distance
 // function can then be "contoured" to generate new, offset surfaces from

@@ -425,6 +425,9 @@ void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
 
+  os << indent << "AdjustBounds: " << (this->AdjustBounds ? "On\n" : "Off\n");
+  os << indent << "Adjust Distance: " << this->AdjustDistance << "\n";
+
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
   os << indent << "Cap Value: " << this->CapValue << "\n";
 }
