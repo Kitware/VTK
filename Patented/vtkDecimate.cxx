@@ -30,11 +30,15 @@
 
 =========================================================================*/
 #include "vtkDecimate.h"
-#include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.67");
+#include "vtkFloatArray.h"
+#include "vtkLine.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkTriangle.h"
+
+vtkCxxRevisionMacro(vtkDecimate, "1.68");
 vtkStandardNewMacro(vtkDecimate);
 
 #define VTK_TOLERANCE 1.0e-05

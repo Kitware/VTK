@@ -44,7 +44,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.58");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.59");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -1086,3 +1086,4 @@ void vtkGridSynchronizedTemplates3D::Execute()
   
   output->Squeeze();
 }
+

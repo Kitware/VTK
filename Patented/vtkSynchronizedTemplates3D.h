@@ -43,10 +43,11 @@
 #define __vtkSynchronizedTemplates3D_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkImageData.h"
-#include "vtkContourValues.h"
-#include "vtkMultiThreader.h"
-#include "vtkKitwareContourFilter.h"
+#include "vtkContourValues.h" // Passes calls through
+#include "vtkMultiThreader.h" // For VTK_MAX_THREADS
+
+class vtkImageData;
+class vtkKitwareContourFilter;
 
 class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {

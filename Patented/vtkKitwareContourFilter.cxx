@@ -15,18 +15,21 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkKitwareContourFilter.h"
+
 #include "vtkCell.h"
-#include "vtkMergePoints.h"
 #include "vtkContourValues.h"
+#include "vtkGridSynchronizedTemplates3D.h"
+#include "vtkImageData.h"
+#include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
 #include "vtkScalarTree.h"
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
-#include "vtkGridSynchronizedTemplates3D.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.24");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.25");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value

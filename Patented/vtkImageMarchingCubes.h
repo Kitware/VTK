@@ -52,11 +52,11 @@
 #ifndef __vtkImageMarchingCubes_h
 #define __vtkImageMarchingCubes_h
 
-#include "vtkImageData.h"
 #include "vtkPolyDataSource.h"
 #include "vtkContourValues.h"
 
 class vtkFloatArray;
+class vtkImageData;
 
 class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {

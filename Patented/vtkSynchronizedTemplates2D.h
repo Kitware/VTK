@@ -42,9 +42,10 @@
 #define __vtkSynchronizedTemplates2D_h
 
 #include "vtkPolyDataSource.h"
-#include "vtkImageData.h"
 #include "vtkContourValues.h"
-#include "vtkKitwareContourFilter.h"
+
+class vtkImageData;
+class vtkKitwareContourFilter;
 
 class VTK_PATENTED_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataSource
 {
