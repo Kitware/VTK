@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.9");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.10");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -632,34 +632,28 @@ void vtkQuadraticPyramid::InterpolationFunctions(double pcoords[3],
   // VTK needs parametric coordinates to be between (0,1). Isoparametric
   // shape functions are formulated between (-1,1). Here we do a 
   // coordinate system conversion from (0,1) to (-1,1).
-  double r = (1.0 - 2.0*pcoords[0]);
-  double s = (1.0 - 2.0*pcoords[1]);
-  double t = (1.0 - 2.0*pcoords[2]);
+  double r = pcoords[0];
+  double s = pcoords[1];
+  double t = pcoords[2];
 
-  double rm, sm, tm;
-
-  rm = 1. - pcoords[0];
-  sm = 1. - pcoords[1];
-  tm = 1. - pcoords[2];
-
-  // corners + apex
-  weights[0] =  rm * sm * (4 * pcoords[0]*pcoords[1] + r*s ) * t * tm;
-  weights[1] =  pcoords[0] * sm * (4*rm * pcoords[1] - r*s) * t * tm;
-  weights[2] =  pcoords[0] * pcoords[1] * ( r*s + 4 * rm * sm ) * t * tm;
-  weights[3] =  rm * pcoords[1] * (4 * pcoords[0] * sm - s * r) * t * tm;
-  weights[4] =  -pcoords[2] * t;
+  // corners
+  weights[0] =  (2*r - 1.0)*(r - 1.0)*(2*s - 1.0)*(s - 1.0)*(2*t - 1.0)*(t - 1.0);
+  weights[1] = -(2*r - 1.0)*      -r *(2*s - 1.0)*(s - 1.0);
+  weights[2] =  (2*r - 1.0)*       r *(2*s - 1.0)*s;
+  weights[3] =  (2*r - 1.0)*(r - 1.0)*(2*s - 1.0)*s;
+  weights[4] =  t*(2*t - 1.0);
 
   // midsides of rectangles
-  weights[5] =  4 * rm * sm * pcoords[0] * s * t * tm;
-  weights[6] = -4 * pcoords[0] * sm * pcoords[1] * r * t * tm;
-  weights[7] = -4 * pcoords[0] * pcoords[1] * rm * s * t * tm;
-  weights[8] =  4 * rm * pcoords[1] * sm * r * t * tm;
+  weights[5] =  4*r * (r - 1.0)*(s - 1.0)*(1.0-2*t);
+  weights[6] = -4*r*  (1.0 - 2.0*r)*s*(1.0 - s);
+  weights[7] = -4*r * (r - 1.0)*s*(1-2.0*t);
+  weights[8] = -4*(2*r - 1.0)*(r - 1.0)*s*(s - 1.0)*(1-2.0*t);
   
   // midsides of triangles
-  weights[9]  =  16 * ( pcoords[0] - 0.75 )* ( pcoords[1] - 0.75 ) *  pcoords[2] * tm;
-  weights[10] = -16 * ( pcoords[0] - 0.25 )* ( pcoords[1] - 0.75 ) *  pcoords[2] * tm;
-  weights[11] =  16 * ( pcoords[0] - 0.25 )* ( pcoords[1] - 0.25 ) *  pcoords[2] * tm;
-  weights[12] = -16 * ( pcoords[0] - 0.75 )* ( pcoords[1] - 0.25 ) *  pcoords[2] * tm;
+  weights[9]  = -16*t * (t - 1.0)*(s - 0.5)*(r - 0.5);
+  weights[10] = -8*r*t * (s - 0.5);
+  weights[11] = 8*r*s*t;
+  weights[12] = -8*(r - 0.5)*s*t;
   
 }
 
