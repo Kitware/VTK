@@ -423,6 +423,12 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   int newCellId, faceId, *faceVerts, numFacePts;
   vtkPoints *newPts;
   float *x;
+  int PixelConvert[4];
+  
+  PixelConvert[0] = 0;
+  PixelConvert[1] = 1;
+  PixelConvert[2] = 3;
+  PixelConvert[3] = 2;
   
   vtkDebugMacro(<<"Executing geometry filter for unstructured grid input");
 
@@ -603,12 +609,12 @@ void vtkGeometryFilter::UnstructuredGridExecute()
                 
                 if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
                   {
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 else if (!this->Merging)
                   {
                   pt = newPts->InsertNextPoint(x);
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 Polys->InsertCellPoint(pt);
                 }
@@ -634,16 +640,16 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               newCellId = Polys->InsertNextCell(numFacePts);
               for ( i=0; i < numFacePts; i++)
                 {
-                x = input->GetPoint(pts[faceVerts[i]]);
+                x = input->GetPoint(pts[faceVerts[PixelConvert[i]]]);
                 
                 if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
                   {
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[PixelConvert[i]]],pt);
                   }
                 else if (!this->Merging)
                   {
                   pt = newPts->InsertNextPoint(x);
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[PixelConvert[i]]],pt);
                   }
                 Polys->InsertCellPoint(pt);
                 }
@@ -673,12 +679,12 @@ void vtkGeometryFilter::UnstructuredGridExecute()
                 
                 if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
                   {
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 else if (!this->Merging)
                   {
                   pt = newPts->InsertNextPoint(x);
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 Polys->InsertCellPoint(pt);
                 }
@@ -691,7 +697,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
           for (faceId = 0; faceId < 5; faceId++)
             {
             faceIds->Reset();
-            faceVerts = vtkPyramid::GetFaceArray(faceId);
+            faceVerts = vtkWedge::GetFaceArray(faceId);
             faceIds->InsertNextId(pts[faceVerts[0]]);
             faceIds->InsertNextId(pts[faceVerts[1]]);
             faceIds->InsertNextId(pts[faceVerts[2]]);
@@ -712,12 +718,12 @@ void vtkGeometryFilter::UnstructuredGridExecute()
                 
                 if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
                   {
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 else if (!this->Merging)
                   {
                   pt = newPts->InsertNextPoint(x);
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 Polys->InsertCellPoint(pt);
                 }
@@ -751,12 +757,12 @@ void vtkGeometryFilter::UnstructuredGridExecute()
                 
                 if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
                   {
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 else if (!this->Merging)
                   {
                   pt = newPts->InsertNextPoint(x);
-                  outputPD->CopyData(pd,pts[i],pt);
+                  outputPD->CopyData(pd,pts[faceVerts[i]],pt);
                   }
                 Polys->InsertCellPoint(pt);
                 }
