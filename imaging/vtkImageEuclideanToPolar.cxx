@@ -96,13 +96,21 @@ static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 	// Pixel operation
 	X = (float)(*inPtr);
 	Y = (float)(inPtr[1]);
-	
-	Theta = atan2(Y, X) * thetaMax / 6.2831853;
-	if (Theta < 0.0)
+
+	if ((X == 0.0) && (Y == 0.0))
 	  {
-	  Theta += thetaMax;
+	  Theta = 0.0;
+	  R = 0.0;
 	  }
-	R = sqrt(X*X + Y*Y);
+	else
+	  {
+	  Theta = atan2(Y, X) * thetaMax / 6.2831853;
+	  if (Theta < 0.0)
+	    {
+	    Theta += thetaMax;
+	    }
+	  R = sqrt(X*X + Y*Y);
+	  }
 	
 	*outPtr = (T)(Theta);
 	outPtr[1] = (T)(R);
