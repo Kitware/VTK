@@ -79,7 +79,7 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
     // watch for odd conditions
-    if (tmp != ren)
+    if ((tmp != ren) && (ren != NULL))
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
@@ -94,7 +94,6 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
       }
 
     this->Enabled = 0;
-    this->Modified();
     }
 }
 
@@ -199,7 +198,7 @@ void vtkWin32RenderWindowInteractor::Disable()
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
     // watch for odd conditions
-    if (tmp != ren)
+    if ((tmp != ren) && (ren != NULL))
       {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
