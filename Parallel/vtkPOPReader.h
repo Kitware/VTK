@@ -64,6 +64,11 @@ public:
   vtkSetVector6Macro(ClipExtent, int);
   vtkGetVector6Macro(ClipExtent, int);
 
+  // Description:
+  // Set the number of ghost levels to include in the data
+  vtkSetMacro(NumberOfGhostLevels, int);
+  vtkGetMacro(NumberOfGhostLevels, int);
+
 protected:
   vtkPOPReader();
   ~vtkPOPReader();
@@ -88,7 +93,8 @@ protected:
 
   float Radius;
   vtkFloatArray *DepthValues;
-  
+  int NumberOfGhostLevels;
+
   void DeleteArrays();
   void AddArray(char *arrayName, char *fileName, unsigned long offset);
   void AddArrayName(char *arrayName, char *fileName, unsigned long offset);
