@@ -82,7 +82,6 @@ typedef struct _plyVertex {
 } plyVertex;
 
 typedef struct _plyFace {
-  unsigned char intensity; /* this user attaches intensity to faces */
   unsigned char nverts;   // number of vertex indices in list
   int *verts;             // vertex index list
 } plyFace;
@@ -95,7 +94,6 @@ void vtkPLYReader::Execute()
     {"z", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[2]), 0, 0, 0, 0},
   };
   PlyProperty faceProps[] = {
-    {"intensity", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,intensity), 0, 0, 0, 0},
     {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
      1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
   };
@@ -119,6 +117,20 @@ void vtkPLYReader::Execute()
   
   ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist, 
                              &fileType, &version);
+
+  // Check to make sure that we can read geometry
+  PlyElement *elem;
+  int index;
+  if ( (elem = vtkPLY::find_element (ply, "vertex")) == NULL ||
+       vtkPLY::find_property (elem, "x", &index) == NULL ||
+       vtkPLY::find_property (elem, "y", &index) == NULL ||
+       vtkPLY::find_property (elem, "z", &index) == NULL ||
+       (elem = vtkPLY::find_element (ply, "face")) == NULL ||
+       vtkPLY::find_property (elem, "vertex_indices", &index) == NULL )
+    {
+    vtkErrorMacro(<<"Cannot read geometry");
+    vtkPLY::ply_close (ply);
+    }
 
   for (i = 0; i < nelems; i++) 
     {
@@ -161,7 +173,6 @@ void vtkPLYReader::Execute()
 
       // Get the face properties
       vtkPLY::ply_get_property (ply, elemName, &faceProps[0]);
-      vtkPLY::ply_get_property (ply, elemName, &faceProps[1]);
       
       // grab all the face elements
       for (j=0; j < numPolys; j++) 

@@ -78,7 +78,6 @@ typedef struct _plyVertex {
 } plyVertex;
 
 typedef struct _plyFace {
-  unsigned char intensity; // this user attaches intensity to faces
   unsigned char nverts;    // number of vertex indices in list
   int *verts;              // vertex index list
 } plyFace;
@@ -98,7 +97,6 @@ void vtkPLYWriter::WriteData()
     {"z", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[2]), 0, 0, 0, 0},
   };
   static PlyProperty faceProps[] = { // property information for a face
-    {"intensity", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,intensity), 0, 0, 0, 0},
     {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
      1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
   };
@@ -154,7 +152,6 @@ void vtkPLYWriter::WriteData()
   int numPolys = polys->GetNumberOfCells();
   vtkPLY::ply_element_count (ply, "face", numPolys);
   vtkPLY::ply_describe_property (ply, "face", &faceProps[0]);
-  vtkPLY::ply_describe_property (ply, "face", &faceProps[1]);
 
   // write a comment and an object information field
   vtkPLY::ply_put_comment (ply, "VTK generated PLY File");
@@ -175,7 +172,6 @@ void vtkPLYWriter::WriteData()
   // set up and write the face elements
   plyFace face;
   int verts[256];
-  face.intensity = 0;
   face.verts = verts;
   vtkPLY::ply_put_element_setup (ply, "face");
   vtkIdType npts, *pts;
