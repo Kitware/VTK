@@ -351,7 +351,7 @@ void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
   vtkOldStyleCallbackCommand *cbc = new vtkOldStyleCallbackCommand;
   cbc->Callback = f;
   cbc->ClientData = arg;
-  this->RemoveObserver(this->StartTag);
+  this->RemoveObserver(this->EndTag);
   this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
 }
 
