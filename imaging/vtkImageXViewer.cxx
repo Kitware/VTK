@@ -153,7 +153,7 @@ void vtkImageXViewer::SetPosition(int x, int y)
 // A templated function that handles gray scale images.
 template <class T>
 static void vtkImageXViewerRenderGray(vtkImageXViewer *self, 
-				      vtkImageRegion *region,
+				      vtkImageData *data,
 				      T *inPtr, unsigned char *outPtr)
 {
   int colorIdx;
@@ -167,15 +167,22 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   int visualDepth, visualClass;
   float lower, upper;
   unsigned char lowerPixel, upperPixel, temp;
-
+  int *ext;
+  
   visualClass = self->GetVisualClass();
   
   colors = self->GetColors();
   shift = self->GetColorShift();
   scale = self->GetColorScale();
   visualDepth = self->GetVisualDepth();
-  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  region->GetIncrements(inInc0, inInc1);
+
+  ext = data->GetExtent();
+  inMin0 = ext[0]; 
+  inMax0 = ext[1];
+  inMin1 = ext[2];
+  inMax1 = ext[3];
+  inInc0 = data->GetIncrements()[0];
+  inInc1 = data->GetIncrements()[1];
 
   // compute colorsMax, lower and upper pixels.
   if (visualClass == TrueColor)
@@ -206,10 +213,9 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
     upperPixel = temp;
     }
   
-    inInc1 = -inInc1;
-    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
+  inInc1 = -inInc1;
 
-  // Loop through in regions pixels
+  // Loop through in datas pixels
   inPtr1 = inPtr;
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
@@ -300,8 +306,8 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
 static void vtkImageXViewerRenderColor(vtkImageXViewer *self, 
-				       vtkImageRegion *region,
-				       T *redPtr, T *greenPtr, T *bluePtr,
+				       vtkImageData *data,
+				       T *redPtr, int bpp,
 				       unsigned char *outPtr)
 {
   int red, green, blue;
@@ -312,16 +318,29 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
   int inInc0, inInc1;
   int idx0, idx1;
   float shift, scale;
-  
-  
+  int *ext;
+  T *greenPtr; 
+  T *bluePtr;
+
+  ext = data->GetExtent();
+  inMin0 = ext[0]; 
+  inMax0 = ext[1];
+  inMin1 = ext[2];
+  inMax1 = ext[3];
+  inInc0 = data->GetIncrements()[0];
+  inInc1 = data->GetIncrements()[1];
+
+  if (bpp >= 2) greenPtr = redPtr + 1;
+  else greenPtr = redPtr;
+  if (bpp >= 3) bluePtr = redPtr + 2;
+  else bluePtr = redPtr;
+
   shift = self->GetColorShift();
   scale = self->GetColorScale();
-  region->GetExtent(inMin0, inMax0, inMin1, inMax1);
-  region->GetIncrements(inInc0, inInc1);
   
   inInc1 = -inInc1;
 
-  // Loop through in regions pixels
+  // Loop through in datas pixels
   redPtr1 = redPtr;
   greenPtr1 = greenPtr;
   bluePtr1 = bluePtr;
@@ -359,17 +378,17 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
 }
 
 //----------------------------------------------------------------------------
-// Expects region to be X, Y, components
-void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
+// Expects data to be X, Y, components
+void vtkImageXViewer::RenderData(vtkImageData *data)
 {
   int width, height;
   int size;
   unsigned char *dataOut;
-  void *ptr0, *ptr1, *ptr2;
+  void *ptr0;
   int extent[6];
   
 
-  if ( ! region)
+  if ( ! data)
     {
     // open the window anyhow if not yet open
     // use default size if not specified
@@ -379,7 +398,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
 	{
 	this->Size[0] = 256;
 	this->Size[1] = 256;
-	vtkDebugMacro("RenderRegion: Setting size to default 256x256");
+	vtkDebugMacro("RenderData: Setting size to default 256x256");
 	}
       this->SetWindow(this->MakeDefaultWindow(this->Size[0], this->Size[1]));
       }
@@ -387,7 +406,7 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
     }
 
   // Compute the displayed size
-  region->GetExtent(3, extent);
+  data->GetExtent(extent);
   width = (extent[1] - extent[0] + 1);
   height = (extent[3] - extent[2] + 1);
 
@@ -411,85 +430,58 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
     }
   dataOut = new unsigned char[size];
 
-  int min = 0;
-  int max = 0;
-  int dim = 0;
-
-  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  dim = max - min + 1;
+  int dim;
+  dim = data->GetNumberOfScalarComponents();
+  ptr0 = data->GetScalarPointer(extent[0], extent[3], extent[4]);
 
   if (dim > 1)
     { 
-    ptr0 = region->GetScalarPointer(extent[0], extent[3],0);
-    ptr1 = region->GetScalarPointer(extent[0], extent[3],1);
-    if (dim > 2)
-      {
-      ptr2 = region->GetScalarPointer(extent[0], extent[3],2);
-      }
-    else
-      {
-      ptr2 = ptr1;
-      }
-    
-    
-    if ( ! ptr0 ||! ptr1 || ! ptr2)
-      {
-      vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
-      return;
-      }
-    
     // Call the appropriate templated function
-    switch (region->GetScalarType())
+    switch (data->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageXViewerRenderColor(this, region, 
-			   (float *)(ptr0),(float *)(ptr1),(float *)(ptr2), 
-			   dataOut);
+	vtkImageXViewerRenderColor(this, data, 
+			   (float *)(ptr0), dim, dataOut);
 	break;
       case VTK_INT:
-	vtkImageXViewerRenderColor(this, region, 
-			   (int *)(ptr0), (int *)(ptr1), (int *)(ptr2), 
-			   dataOut);
+	vtkImageXViewerRenderColor(this, data, 
+			   (int *)(ptr0), dim, dataOut);
 	break;
       case VTK_SHORT:
-	vtkImageXViewerRenderColor(this, region, 
-			   (short *)(ptr0),(short *)(ptr1),(short *)(ptr2), 
-			   dataOut);
+	vtkImageXViewerRenderColor(this, data, 
+			   (short *)(ptr0),dim, dataOut);
 	break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageXViewerRenderColor(this, region, (unsigned short *)(ptr0),
-			   (unsigned short *)(ptr1),(unsigned short *)(ptr2), 
-			    dataOut);
+	vtkImageXViewerRenderColor(this, data, (unsigned short *)(ptr0),
+				   dim, dataOut);
 	break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageXViewerRenderColor(this, region, (unsigned char *)(ptr0), 
-			   (unsigned char *)(ptr1),(unsigned char *)(ptr2), 
-			    dataOut);
+	vtkImageXViewerRenderColor(this, data, (unsigned char *)(ptr0), 
+				   dim, dataOut);
 	break;
       }
     }
   else
     {
     // GrayScale images.
-    ptr0 = region->GetScalarPointer();
     // Call the appropriate templated function
-    switch (region->GetScalarType())
+    switch (data->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageXViewerRenderGray(this, region, (float *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, data, (float *)(ptr0), dataOut);
 	break;
       case VTK_INT:
-	vtkImageXViewerRenderGray(this, region, (int *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, data, (int *)(ptr0), dataOut);
 	break;
       case VTK_SHORT:
-	vtkImageXViewerRenderGray(this, region, (short *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, data, (short *)(ptr0), dataOut);
 	break;
       case VTK_UNSIGNED_SHORT:
-	vtkImageXViewerRenderGray(this, region, (unsigned short *)(ptr0), 
+	vtkImageXViewerRenderGray(this, data, (unsigned short *)(ptr0), 
 				  dataOut);
 	break;
       case VTK_UNSIGNED_CHAR:
-	vtkImageXViewerRenderGray(this, region, (unsigned char *)(ptr0), 
+	vtkImageXViewerRenderGray(this, data, (unsigned char *)(ptr0), 
 				  dataOut);
 	break;
       }   

@@ -15,20 +15,32 @@ ABSTRACT_H =
 CONCRETE_H = 
 
 ABSTRACT = \
+vtkImageFilter \
+vtkImagePadFilter \
+vtkImageSpatialFilter \
+
 #vtkImageCopy \
 #vtkImageDecomposedFilter \
-vtkImageFilter \
 #vtkImageFourierFilter \
 #vtkImageInPlaceFilter \
 #vtkImageMedianFilter \
 #vtkImageMultipleInputFilter \
-vtkImagePadFilter \
-#vtkImageSpatialFilter \
 #vtkImageTwoInputFilter \
 #vtkImageTwoOutputFilter
 
 CONCRETE = \
 vtkBMPWriter \
+vtkImageConstantPad \
+vtkImageReader \
+vtkImageShiftScale \
+vtkImageThreshold \
+vtkImageViewer \
+vtkImageWriter \
+vtkImageXViewer \
+vtkPNMReader \
+vtkPNMWriter \
+vtkTIFFWriter
+
 #vtkImageAccumulate \
 #vtkImageAnisotropicDiffusion2D \
 #vtkImageAnisotropicDiffusion3D \
@@ -41,7 +53,6 @@ vtkBMPWriter \
 #vtkImageCityBlockDistance1D \
 #vtkImageClip \
 #vtkImageConnector \
-vtkImageConstantPad \
 #vtkImageContinuousDilate3D \
 #vtkImageContinuousErode3D \
 #vtkImageConvolution1D \
@@ -90,11 +101,9 @@ vtkImageConstantPad \
 #vtkImageRFFT1D \
 #vtkImageRGBToHSV \
 #vtkImageRange3D \
-vtkImageReader \
 #vtkImageResample \
 #vtkImageResample1D \
 #vtkImageSeedConnectivity \
-vtkImageShiftScale \
 #vtkImageShortWriter \
 #vtkImageShrink3D \
 #vtkImageSinusoidSource \
@@ -102,15 +111,8 @@ vtkImageShiftScale \
 #vtkImageSobel2D \
 #vtkImageSobel3D \
 #vtkImageSubsample3D \
-vtkImageThreshold \
 #vtkImageVariance3D \
-vtkImageViewer \
 #vtkImageWrapPad \
-vtkImageWriter \
-vtkImageXViewer \
-vtkPNMReader \
-vtkPNMWriter \
-vtkTIFFWriter
 
 
 #------------------------------------------------------------------------------

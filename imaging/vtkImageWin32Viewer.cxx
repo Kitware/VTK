@@ -633,15 +633,10 @@ void vtkImageWin32Viewer::RenderData(vtkImageData *data)
    
   dim = data->GetNumberOfScalarComponents();
 
+  ptr0 = data->GetScalarPointer(extent[0], extent[2], extent[4]);
+
   if (dim > 1)    
     {
-    ptr0 = data->GetScalarPointer(extent[0], extent[2], extent[4]);
-    if (!ptr0)
-      {
-      vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
-      return;
-      }
-    
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {
@@ -673,7 +668,6 @@ void vtkImageWin32Viewer::RenderData(vtkImageData *data)
   else
     {
     // GrayScale images.
-    ptr0 = data->GetScalarPointer();
     // Call the appropriate templated function
     switch (data->GetScalarType())
       {

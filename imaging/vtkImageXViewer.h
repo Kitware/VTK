@@ -68,7 +68,7 @@ public:
   vtkImageXViewer *GetOutput(){return this;};
 
   XColor *GetColors();
-  void RenderRegion(vtkImageData *region);
+  void RenderData(vtkImageData *data);
   
   void SetWindow(int win);
   int GetWindow();

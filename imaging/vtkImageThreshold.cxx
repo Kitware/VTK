@@ -133,7 +133,7 @@ static void vtkImageThresholdExecute(vtkImageThreshold *self,
 				     int outExt[6])
 {
   int idxR, idxY, idxZ;
-  int maxX, maxY, maxZ;
+  int maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   int rowLength;

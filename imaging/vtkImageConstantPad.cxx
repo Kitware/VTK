@@ -81,7 +81,7 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   inMaxX = inExt[1];
   
   // Get increments to march through data 
-  inData->GetContinuousIncrements(inExt, inIncX, inIncY, inIncZ);
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   // Loop through ouput pixels

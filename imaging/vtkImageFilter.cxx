@@ -317,7 +317,6 @@ struct vtkImageThreadStruct
 VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 {
   vtkImageThreadStruct *str;
-  vtkImageFilter *filt;
   int ext[6];
   int threadId, threadCount;
   int axis;
@@ -362,10 +361,10 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
       // split up the range between threads
       float min = ext[axis*2] + (float)threadId*range/threadCount;
       float max = ext[axis*2] + (threadId+1.0)*range/threadCount;
-      int tmp = min + 1.5;
+      int tmp = (int)(min + 1.5);
       if (tmp == ext[axis*2] + 1) tmp = ext[axis*2];
       ext[axis*2] = tmp;
-      ext[axis*2+1] = max + 0.5;
+      ext[axis*2+1] = (int)(max + 0.5);
       str->Filter->ThreadedExecute(str->Input, str->Output, ext);
       }
     }
@@ -394,8 +393,8 @@ void vtkImageFilter::Execute(vtkImageData *inData,
 //----------------------------------------------------------------------------
 // Description:
 // The execute method created by the subclass.
-void vtkImageFilter::ThreadedExecute(vtkImageData *inData, 
-				     vtkImageData *outData,
+void vtkImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
+				     vtkImageData *vtkNotUsed(outData),
 				     int extent[6])
 {
   vtkErrorMacro("subclase should override this method!!!");

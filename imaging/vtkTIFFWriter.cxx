@@ -243,13 +243,12 @@ typedef	enum {
 
 void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
 {
-  int min0, max0, min1, max1, min2, max2, min3, max3;
+  int min0, max0, min1, max1, min2, max2;
   int bpp, i;
   TIFFHeader myHeader;
   TIFFDirEntry myDir;
   int longShift;
   int width, height;
-  int depthDataOffset;
   long nextIFDOffset;
   short numDirEntries;
   int offset;

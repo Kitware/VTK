@@ -50,7 +50,7 @@ vtkImageSpatialFilter::vtkImageSpatialFilter()
 {
   int idx;
   
-  for (idx = 0; idx < 4; ++idx)
+  for (idx = 0; idx < 3; ++idx)
     {
     this->KernelSize[idx] = 1;
     this->KernelMiddle[idx] = 0;
@@ -58,7 +58,6 @@ vtkImageSpatialFilter::vtkImageSpatialFilter()
     }
   
   this->HandleBoundaries = 1;
-  this->ExecuteType = VTK_IMAGE_SPATIAL_SUBCLASS;
 }
 
 
@@ -70,28 +69,26 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkImageFilter::PrintSelf(os, indent);
 
   os << indent << "KernelSize: (" << this->KernelSize[0];
-  for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
+  for (idx = 1; idx < 3; ++idx)
     {
     os << ", " << this->KernelSize[idx];
     }
   os << ").\n";
 
   os << indent << "KernelMiddle: (" << this->KernelMiddle[0];
-  for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
+  for (idx = 1; idx < 3; ++idx)
     {
     os << ", " << this->KernelMiddle[idx];
     }
   os << ").\n";
 
   os << indent << "Strides: (" << this->Strides[0];
-  for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
+  for (idx = 1; idx < 3; ++idx)
     {
     os << ", " << this->Strides[idx];
     }
   os << ").\n";
 
-  os << indent << "ExecuteType: " 
-     << vtkImageSpatialExecuteTypeMacro(this->ExecuteType) << "\n";
 }
 
 
@@ -103,8 +100,8 @@ void vtkImageSpatialFilter::PrintSelf(ostream& os, vtkIndent indent)
 // output.
 void vtkImageSpatialFilter::ExecuteImageInformation()
 {
-  int extent[8];
-  float spacing[4];
+  int extent[6];
+  float spacing[3];
   int idx, axis;
   
   this->Input->GetWholeExtent(extent);
@@ -113,11 +110,10 @@ void vtkImageSpatialFilter::ExecuteImageInformation()
   this->ComputeOutputWholeExtent(extent, this->HandleBoundaries);
   this->Output->SetWholeExtent(extent);
   
-  for(idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  for(idx = 0; idx < 3; ++idx)
     {
-    axis = this->FilteredAxes[idx];
     // Change the data spacing.
-    spacing[axis] *= (float)(this->Strides[idx]);
+    spacing[idx] *= (float)(this->Strides[idx]);
     }
   this->Output->SetSpacing(spacing);
 }
@@ -128,52 +124,19 @@ void vtkImageSpatialFilter::ExecuteImageInformation()
 void vtkImageSpatialFilter::ComputeOutputWholeExtent(int *extent, 
 						     int handleBoundaries)
 {
-  int idx, axis;
-
-  if ( ! handleBoundaries)
-    {
-    // Make extent a little smaller because of the kernel size.
-    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-      {
-      axis = this->FilteredAxes[idx];
-      extent[axis*2] += this->KernelMiddle[idx];
-      extent[axis*2+1] -= (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
-      }
-    }
-  
-  for(idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-    {
-    axis = this->FilteredAxes[idx];
-    // Scale the output extent because of strides
-    extent[axis*2] = 
-      (int)(ceil(((float)extent[axis*2]) /((float)this->Strides[idx])));
-    extent[axis*2+1] = 
-      (int)(floor((((float)extent[axis*2+1]+1.0) /
-		   ((float)this->Strides[idx]))-1.0));
-    // Change the data spacing.
-    }
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This is almost the same as ComputeOutputWholeExtent, but since
-// caches are always x,y,z,t, and regions can be any order ...
-void vtkImageSpatialFilter::ComputeRegionWholeExtent(int *extent, 
-						     int handleBoundaries)
-{
   int idx;
 
   if ( ! handleBoundaries)
     {
     // Make extent a little smaller because of the kernel size.
-    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+    for (idx = 0; idx < 3; ++idx)
       {
       extent[idx*2] += this->KernelMiddle[idx];
       extent[idx*2+1] -= (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
       }
     }
   
-  for(idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  for(idx = 0; idx < 3; ++idx)
     {
     // Scale the output extent because of strides
     extent[idx*2] = 
@@ -186,7 +149,6 @@ void vtkImageSpatialFilter::ComputeRegionWholeExtent(int *extent,
 }
 
 
-
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the extent of the input region necessary to generate
@@ -196,8 +158,8 @@ void vtkImageSpatialFilter::ComputeRegionWholeExtent(int *extent,
 void 
 vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent()
 {
-  int extent[8];
-  int wholeExtent[8];
+  int extent[6];
+  int wholeExtent[6];
   
   this->Output->GetUpdateExtent(extent);
   this->Input->GetWholeExtent(wholeExtent);
@@ -205,24 +167,19 @@ vtkImageSpatialFilter::ComputeRequiredInputUpdateExtent()
   this->Input->SetUpdateExtent(extent);
 }
 
+
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
 // have the extent of the required input region.
-void 
-vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(vtkImageRegion *out,
-							vtkImageRegion *in)
+void vtkImageSpatialFilter::ComputeRequiredInputExtent(int *extent, 
+						       int *wholeExtent)
 {
-  int extent[8];
-  int wholeExtent[8];
   int idx;
   
-  out->GetExtent(4, extent);
-  in->GetWholeExtent(4, wholeExtent);
-
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  for (idx = 0; idx < 3; ++idx)
     {
     // Magnify by strides
     extent[idx*2] *= this->Strides[idx];
@@ -258,294 +215,6 @@ vtkImageSpatialFilter::ComputeRequiredInputRegionExtent(vtkImageRegion *out,
 	}
       }
     }
-  
-  in->SetExtent(4, extent);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method computes the extent of the input region necessary to generate
-// an output region.  Before this method is called "region" should have the 
-// extent of the output region.  After this method finishes, "region" should 
-// have the extent of the required input region.
-void vtkImageSpatialFilter::ComputeRequiredInputExtent(int *extent, 
-						       int *wholeExtent)
-{
-  int idx, axis;
-  
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-    {
-    axis = this->FilteredAxes[idx];
-    // Magnify by strides
-    extent[axis*2] *= this->Strides[idx];
-    extent[axis*2+1] = (extent[axis*2+1]+1)*this->Strides[idx] - 1;
-    // Expand to get inRegion Extent
-    extent[axis*2] -= this->KernelMiddle[idx];
-    extent[axis*2+1] += (this->KernelSize[idx]-1) - this->KernelMiddle[idx];
-
-    // If the expanded region is out of the IMAGE Extent (grow min)
-    if (extent[axis*2] < wholeExtent[axis*2])
-      {
-      if (this->HandleBoundaries)
-	{
-	// shrink the required region extent
-	extent[axis*2] = wholeExtent[axis*2];
-	}
-      else
-	{
-	vtkWarningMacro(<< "Required region is out of the image extent.");
-	}
-      }
-    // If the expanded region is out of the IMAGE Extent (shrink max)      
-    if (extent[axis*2+1] > wholeExtent[axis*2+1])
-      {
-      if (this->HandleBoundaries)
-	{
-	// shrink the required region extent
-	extent[axis*2+1] = wholeExtent[axis*2+1];
-	}
-      else
-	{
-	vtkWarningMacro(<< "Required region is out of the image extent.");
-	}
-      }
-    }
 }
 
 
-//----------------------------------------------------------------------------
-// Description:
-// This Execute method breaks the regions into pieces that have boundaries
-// and a piece that does not need boundary handling.  It calls subclass
-// defined execute methods for these pieces.
-void vtkImageSpatialFilter::RecursiveLoopExecute(int dim, 
-						 vtkImageRegion *inRegion,
-						 vtkImageRegion *outRegion)
-{
-  int idx, idx2;
-  
-  // If a separate center method does not exist, just call subclass method.
-  if (this->ExecuteType == VTK_IMAGE_SPATIAL_SUBCLASS)
-    {
-    this->vtkImageFilter::RecursiveLoopExecute(dim, inRegion, outRegion);
-    return;
-    }
-
-  // Pixel execute calls a recursive function to break problem into pixels.
-  if (this->ExecuteType == VTK_IMAGE_SPATIAL_PIXEL)
-    {
-    this->ExecutePixel(dim, inRegion, outRegion);
-    return;
-    }
-  
-  if (this->ExecuteType == VTK_IMAGE_SPATIAL_CENTER)
-    {
-    int *extent = new int[dim*2];
-    int *outWholeExtent = new int[dim*2];
-    int *outCenterExtent = new int[dim*2];
-    int *inExtentSave = new int[dim*2];
-    int *outExtentSave = new int[dim*2];
-    // Save the extent of the two regions
-    inRegion->GetExtent(dim, inExtentSave);
-    outRegion->GetExtent(dim, outExtentSave);
-    
-    // Compute the image extent of the output region (no boundary handling)
-    inRegion->GetWholeExtent(dim, outWholeExtent);
-    this->ComputeRegionWholeExtent(outWholeExtent, 0);
-    
-    // Intersect with the actual output extent.
-    outRegion->GetExtent(dim, outCenterExtent);
-    for (idx = 0; idx < dim; ++idx)
-      {
-      // Intersection
-      if (outCenterExtent[idx*2] < outWholeExtent[idx*2])
-	{
-	outCenterExtent[idx*2] = outWholeExtent[idx*2];
-	}
-      if (outCenterExtent[idx*2+1] > outWholeExtent[idx*2+1])
-	{
-	outCenterExtent[idx*2+1] = outWholeExtent[idx*2+1];
-	}
-      }
-    // Call center execute
-    outRegion->SetExtent(dim, outCenterExtent);
-    this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
-    // Just in cass the image is so small there is no center.
-    if (! outRegion->IsEmpty())
-      {
-      this->ExecuteCenter(dim, inRegion, outRegion);
-      }
-    
-    // Do stuff for all boundary pieces
-    if (this->HandleBoundaries)
-      {
-      // start getting and executing boundary pieces.
-      for (idx = 0; idx < dim; ++idx)
-	{
-	// for piece left of min
-	if (outExtentSave[idx*2] < outCenterExtent[idx*2])
-	  {
-	  for (idx2 = 0; idx2 < dim*2; ++idx2)
-	    {
-	    extent[idx2] = outCenterExtent[idx2];
-	    }
-	  extent[idx*2] = outExtentSave[idx*2];
-	  extent[idx*2+1] = outCenterExtent[idx*2];
-	  outRegion->SetExtent(dim, extent);
-	  this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
-	  this->vtkImageFilter::RecursiveLoopExecute(dim, inRegion, outRegion);
-	  outCenterExtent[idx*2] = outExtentSave[idx*2];
-	  }
-	// for piece right of max
-	if (outExtentSave[idx*2+1] > outCenterExtent[idx*2+1])
-	  {
-	  for (idx2 = 0; idx2 < dim*2; ++idx2)
-	    {
-	    extent[idx2] = outCenterExtent[idx2];
-	    }
-	  extent[idx*2] = outCenterExtent[idx*2+1];
-	  extent[idx*2+1] = outExtentSave[idx*2+1];
-	  outRegion->SetExtent(dim, extent);
-	  this->ComputeRequiredInputRegionExtent(outRegion, inRegion);
-	  this->vtkImageFilter::RecursiveLoopExecute(dim, inRegion, outRegion);
-	  outCenterExtent[idx*2+1] = outExtentSave[idx*2+1];
-	  }
-	}
-      }
-    
-    // Restore original extent just in case
-    outRegion->SetExtent(dim, outExtentSave);
-    inRegion->SetExtent(dim, inExtentSave);
-    delete [] extent;
-    delete [] outWholeExtent;
-    delete [] outCenterExtent;
-    delete [] inExtentSave;
-    delete [] outExtentSave;    
-    return;
-    }
-  
-  vtkErrorMacro("Execute: Unknown ExecuteType " << this->ExecuteType);
-}
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-void vtkImageSpatialFilter::ExecuteCenter(int dim,
-					  vtkImageRegion *inRegion, 
-					  vtkImageRegion *outRegion)
-{
-  int coordinate, axis;
-  int inMin, inMax;
-  int outMin, outMax;
-
-  
-  // Terminate recursion?
-  if (dim <= this->NumberOfExecutionAxes)
-    {
-    this->ExecuteCenter(inRegion, outRegion);
-    return;
-    }
-  
-  // Get the extent of the dimension to be eliminated.
-  axis = this->ExecutionAxes[dim - 1];
-  inRegion->GetAxisExtent(axis, inMin, inMax);
-  outRegion->GetAxisExtent(axis, outMin, outMax);
-
-  // This method assumes that axis to be eliminated have the same extent.
-  if (inMin != outMin || inMax != outMax) 
-    {
-    vtkErrorMacro(<< "ExecuteCenter: Extent mismatch.");
-    return;
-    }
-  
-  // loop over extra axis
-  for (coordinate = inMin; coordinate <= inMax; ++coordinate)
-    {
-    // set up the lower dimensional regions.
-    inRegion->SetAxisExtent(axis, coordinate, coordinate);
-    outRegion->SetAxisExtent(axis, coordinate, coordinate);
-    this->vtkImageSpatialFilter::ExecuteCenter(dim - 1, inRegion, outRegion);
-    }
-  // restore the original extent
-  inRegion->SetAxisExtent(axis, inMin, inMax);
-  outRegion->SetAxisExtent(axis, outMin, outMax);
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Subclass must provide this function if ExecuteType is Center.
-void vtkImageSpatialFilter::ExecuteCenter(vtkImageRegion *inRegion, 
-					  vtkImageRegion *outRegion)
-{
-  inRegion = outRegion;
-  vtkErrorMacro(<< "Subclass does not have an ExecuteCenter method.");
-}
-  
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Recursive execute method that breaks the output region into pixels.
-// Of course, this will not be the most efficeint way to code a fitler.
-void vtkImageSpatialFilter::ExecutePixel(int dim, vtkImageRegion *inRegion,
-					 vtkImageRegion *outRegion)
-{
-  int min, max, idx;
-  int axis;
-  
-  if (dim == 0)
-    {
-    int extentSave[VTK_IMAGE_EXTENT_DIMENSIONS];
-    int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-    int temp;
-    inRegion->GetExtent(extentSave);
-    // Compute the input neighborhood
-    outRegion->GetExtent(extent);
-    for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-      {
-      temp = (extent[idx*2] * this->Strides[idx]) - this->KernelMiddle[idx];
-      extent[idx*2] = temp;
-      extent[idx*2+1] = temp + this->KernelSize[idx] - 1;
-      if (temp < extentSave[idx*2])
-	{
-	extent[idx*2] = extentSave[idx*2];
-	}
-      if (extent[idx*2+1] > extentSave[idx*2+1])
-	{
-	extent[idx*2+1] = extentSave[idx*2+1];
-	}
-      }
-    inRegion->SetExtent(extent);
-    this->ExecutePixel(inRegion, outRegion);
-    inRegion->SetExtent(extentSave);
-    return;
-    }
-  
-  // Loop over axis.
-  axis = this->ExecutionAxes[dim-1];
-  outRegion->GetAxisExtent(axis, min, max);
-  for (idx = min; idx <= max; ++idx)
-    {
-    outRegion->SetAxisExtent(axis, idx, idx);
-    this->ExecutePixel(dim-1, inRegion, outRegion);
-    }
-  outRegion->SetAxisExtent(axis, min, max);
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Subclass must provide this function if ExecuteType is Pixel.
-void vtkImageSpatialFilter::ExecutePixel(vtkImageRegion *inRegion, 
-					 vtkImageRegion *outRegion)
-{
-  inRegion = outRegion;
-  vtkErrorMacro(<< "Subclass does not have an ExecutePixel method.");
-}
-  

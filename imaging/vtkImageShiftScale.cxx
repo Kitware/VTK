@@ -65,7 +65,7 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
   float shift = self->GetShift();
   float scale = self->GetScale();
   int idxR, idxY, idxZ;
-  int maxX, maxY, maxZ;
+  int maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   int rowLength;
