@@ -19,7 +19,7 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkActor2D, "1.36");
+vtkCxxRevisionMacro(vtkActor2D, "1.37");
 vtkStandardNewMacro(vtkActor2D);
 
 vtkCxxSetObjectMacro(vtkActor2D,Property, vtkProperty2D);
@@ -195,30 +195,30 @@ void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
   this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
 }
 
-void vtkActor2D::SetWidth(float w)
+void vtkActor2D::SetWidth(double w)
 {
-  float *pos;
+  double *pos;
 
   pos = this->Position2Coordinate->GetValue();
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(w,pos[1]);
 }
 
-void vtkActor2D::SetHeight(float w)
+void vtkActor2D::SetHeight(double w)
 {
-  float *pos;
+  double *pos;
 
   pos = this->Position2Coordinate->GetValue();
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(pos[0],w);
 }
     
-float vtkActor2D::GetWidth()
+double vtkActor2D::GetWidth()
 {
   return this->Position2Coordinate->GetValue()[0];
 }
 
-float vtkActor2D::GetHeight()
+double vtkActor2D::GetHeight()
 {
   return this->Position2Coordinate->GetValue()[1];
 }

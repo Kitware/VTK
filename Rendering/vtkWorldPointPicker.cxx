@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkWorldPointPicker, "1.20");
+vtkCxxRevisionMacro(vtkWorldPointPicker, "1.21");
 vtkStandardNewMacro(vtkWorldPointPicker);
 
 vtkWorldPointPicker::vtkWorldPointPicker()
@@ -33,8 +33,8 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
 {
   vtkCamera *camera;
   double cameraFP[4];
-  float display[3], *world;
-  float *displayCoord;
+  double display[3], *world;
+  double *displayCoord;
   double z;
 
   // Initialize the picking process

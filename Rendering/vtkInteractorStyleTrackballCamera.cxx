@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.29");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.30");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ void vtkInteractorStyleTrackballCamera::Spin()
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   double newAngle = 
     atan2((double)rwi->GetEventPosition()[1] - (double)center[1],
@@ -255,7 +255,7 @@ void vtkInteractorStyleTrackballCamera::Pan()
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   double viewFocus[4], focalDepth, viewPoint[3];
-  float newPickPoint[4], oldPickPoint[4], motionVector[3];
+  double newPickPoint[4], oldPickPoint[4], motionVector[3];
   
   // Calculate the focal depth since we'll be using it a lot
 
@@ -312,7 +312,7 @@ void vtkInteractorStyleTrackballCamera::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);

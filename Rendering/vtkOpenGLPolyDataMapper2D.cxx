@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.48");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.49");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -103,13 +103,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   int size[2];
   size[0] = viewport->GetSize()[0];
   size[1] = viewport->GetSize()[1];
-  float *vport = viewport->GetViewport();
+  double *vport = viewport->GetViewport();
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
   // get window info
-  float *tileViewPort = viewport->GetVTKWindow()->GetTileViewport();
-  float visVP[4];
+  double *tileViewPort = viewport->GetVTKWindow()->GetTileViewport();
+  double visVP[4];
   visVP[0] = (vport[0] >= tileViewPort[0]) ? vport[0] : tileViewPort[0];
   visVP[1] = (vport[1] >= tileViewPort[1]) ? vport[1] : tileViewPort[1];
   visVP[2] = (vport[2] <= tileViewPort[2]) ? vport[2] : tileViewPort[2];

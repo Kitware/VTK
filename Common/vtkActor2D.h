@@ -90,10 +90,10 @@ public:
   // Set/Get the height and width of the Actor2D. The value is expressed
   // as a fraction of the viewport. This really is just another way of
   // setting the Position2 instance variable.
-  void SetWidth(float w);
-  float GetWidth();
-  void SetHeight(float h);
-  float GetHeight();
+  void SetWidth(double w);
+  double GetWidth();
+  void SetHeight(double h);
+  double GetHeight();
 
   // Description:
   // Return this objects MTime.

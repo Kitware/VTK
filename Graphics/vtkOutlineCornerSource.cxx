@@ -19,7 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.8");
+vtkCxxRevisionMacro(vtkOutlineCornerSource, "1.9");
 vtkStandardNewMacro(vtkOutlineCornerSource);
 
 //----------------------------------------------------------------------------
@@ -40,19 +40,17 @@ void vtkOutlineCornerSource::Execute()
   vtkDebugMacro(<< "Generating outline");
 
   // Initialize
-
   double delta;
 
   bounds = this->Bounds;
   for (i = 0; i < 3; i++)
-  {
-      delta = (bounds[2*i + 1] - bounds[2*i]) * this->CornerFactor;
-      inner_bounds[2*i] = bounds[2*i] + delta;
-      inner_bounds[2*i + 1] = bounds[2*i + 1] - delta;
-  }
-
+    {
+    delta = (bounds[2*i + 1] - bounds[2*i]) * this->CornerFactor;
+    inner_bounds[2*i] = bounds[2*i] + delta;
+    inner_bounds[2*i + 1] = bounds[2*i + 1] - delta;
+    }
+  
   // Allocate storage and create outline
-
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkPolyData *output = this->GetOutput();
@@ -68,37 +66,35 @@ void vtkOutlineCornerSource::Execute()
   int pid = 0;
 
   // 32 points and 24 lines
-
   for (i = 0; i <= 1; i++)
-  {
-      for (j = 2; j <= 3; j++)
+    {
+    for (j = 2; j <= 3; j++)
       {
-          for (k = 4; k <= 5; k++)
-          {
-              pts[0] = pid;
-              x[0] = bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
-              newPts->InsertPoint(pid++, x);
-
-              pts[1] = pid;
-              x[0] = inner_bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
-              newPts->InsertPoint(pid++, x);
-              newLines->InsertNextCell(2,pts);
-
-              pts[1] = pid;
-              x[0] = bounds[i]; x[1] = inner_bounds[j]; x[2] = bounds[k];
-              newPts->InsertPoint(pid++, x);
-              newLines->InsertNextCell(2,pts);
-
-              pts[1] = pid;
-              x[0] = bounds[i]; x[1] = bounds[j]; x[2] = inner_bounds[k];
-              newPts->InsertPoint(pid++, x);
-              newLines->InsertNextCell(2,pts);
-          }
+      for (k = 4; k <= 5; k++)
+        {
+        pts[0] = pid;
+        x[0] = bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
+        newPts->InsertPoint(pid++, x);
+        
+        pts[1] = pid;
+        x[0] = inner_bounds[i]; x[1] = bounds[j]; x[2] = bounds[k];
+        newPts->InsertPoint(pid++, x);
+        newLines->InsertNextCell(2,pts);
+        
+        pts[1] = pid;
+        x[0] = bounds[i]; x[1] = inner_bounds[j]; x[2] = bounds[k];
+        newPts->InsertPoint(pid++, x);
+        newLines->InsertNextCell(2,pts);
+        
+        pts[1] = pid;
+        x[0] = bounds[i]; x[1] = bounds[j]; x[2] = inner_bounds[k];
+        newPts->InsertPoint(pid++, x);
+        newLines->InsertNextCell(2,pts);
+        }
       }
-  }
-
+    }
+  
   // Update selves and release memory
-
   output->SetPoints(newPts);
   newPts->Delete();
 

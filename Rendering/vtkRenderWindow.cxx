@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.136");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.137");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -389,10 +389,10 @@ void vtkRenderWindow::DoAARender()
     float *p1;
     vtkRenderer *aren;
     vtkCamera *acam;
-    float *dpoint;
-    float offsets[2];
-    float origfocus[4];
-    float worldOffset[3];
+    double *dpoint;
+    double offsets[2];
+    double origfocus[4];
+    double worldOffset[3];
 
     // get the size
     size = this->GetSize();

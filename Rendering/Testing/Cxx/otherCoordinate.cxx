@@ -25,9 +25,9 @@
 #include "vtkDebugLeaks.h"
 
 void ToAll (ostream& strm, vtkCoordinate *c1, vtkViewport *ren1, 
-            float *from)
+            double *from)
 {
-  float *value;
+  double *value;
   int *ivalue;
   const char *whichCoord = c1->GetCoordinateSystemAsString();
 
@@ -61,7 +61,7 @@ int Test(ostream& strm)
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   vtkRenderer *ren1 = vtkRenderer::New();
   vtkCamera *camera = vtkCamera::New();
-  float from[3];
+  double from[3];
   
   ren1->SetActiveCamera (camera);
   renWin->AddRenderer (ren1);

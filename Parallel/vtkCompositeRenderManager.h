@@ -27,6 +27,7 @@
 #include "vtkParallelRenderManager.h"
 
 class vtkCompositer;
+class vtkFloatArray;
 
 class VTK_PARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallelRenderManager
 {

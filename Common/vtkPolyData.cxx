@@ -31,7 +31,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.156");
+vtkCxxRevisionMacro(vtkPolyData, "1.157");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -502,37 +502,30 @@ void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
       return;
     }
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
-
-  for (i=0; i < numPts; i++)
+  // carefully compute the bounds
+  if (numPts)
     {
-    this->Points->GetPoint( pts[i], x );
-
-    if (x[0] < bounds[0])
+    this->Points->GetPoint( pts[0], x );
+    bounds[0] = x[0];
+    bounds[2] = x[1];
+    bounds[4] = x[2];
+    bounds[1] = x[0];
+    bounds[3] = x[1];
+    bounds[5] = x[2];
+    for (i=1; i < numPts; i++)
       {
-      bounds[0] = x[0];
+      this->Points->GetPoint( pts[i], x );
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
       }
-    if (x[0] > bounds[1])
-      {
-      bounds[1] = x[0];
-      }
-    if (x[1] < bounds[2])
-      {
-      bounds[2] = x[1];
-      }
-    if (x[1] > bounds[3])
-      {
-      bounds[3] = x[1];
-      }
-    if (x[2] < bounds[4])
-      {
-      bounds[4] = x[2];
-      }
-    if (x[2] > bounds[5])
-      {
-      bounds[5] = x[2];
-      }
+    }
+  else
+    {
+    vtkMath::UninitializeBounds(bounds);
     }
 }
 
@@ -555,15 +548,17 @@ void vtkPolyData::ComputeBounds()
     vtkIdType npts = 0;
     double x[3];
 
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
-
     vtkCellArray *cella[4];
 
     cella[0] = this->GetVerts();
     cella[1] = this->GetLines();
     cella[2] = this->GetPolys();
     cella[3] = this->GetStrips();
+
+    // carefully compute the bounds
+    int doneOne = 0;
+    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
+    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 
     // Iterate over cells's points
     for (t = 0; t < 4; t++) 
@@ -573,35 +568,20 @@ void vtkPolyData::ComputeBounds()
         for (i = 0;  i < npts; i++)
           {
           this->Points->GetPoint( pts[i], x );
-
-          if (x[0] < this->Bounds[0])
-            {
-            this->Bounds[0] = x[0];
-            }
-          if (x[0] > this->Bounds[1])
-            {
-            this->Bounds[1] = x[0];
-            }
-          if (x[1] < this->Bounds[2])
-            {
-            this->Bounds[2] = x[1];
-            }
-          if (x[1] > this->Bounds[3])
-            {
-            this->Bounds[3] = x[1];
-            }
-          if (x[2] < this->Bounds[4])
-            {
-            this->Bounds[4] = x[2];
-            }
-          if (x[2] > this->Bounds[5])
-            {
-            this->Bounds[5] = x[2];
-            }
+          this->Bounds[0] = (x[0] < this->Bounds[0] ? x[0] : this->Bounds[0]);
+          this->Bounds[1] = (x[0] > this->Bounds[1] ? x[0] : this->Bounds[1]);
+          this->Bounds[2] = (x[1] < this->Bounds[2] ? x[1] : this->Bounds[2]);
+          this->Bounds[3] = (x[1] > this->Bounds[3] ? x[1] : this->Bounds[3]);
+          this->Bounds[4] = (x[2] < this->Bounds[4] ? x[2] : this->Bounds[4]);
+          this->Bounds[5] = (x[2] > this->Bounds[5] ? x[2] : this->Bounds[5]);
+          doneOne = 1;
           }
         }
       }
-
+    if (!doneOne)
+      {
+      vtkMath::UninitializeBounds(this->Bounds);
+      }
     this->ComputeTime.Modified();
     }
 }

@@ -35,7 +35,7 @@
 // ivar is defined, then the input dataset's bounds is used. If the Input is 
 // not defined, and the Prop (superclass of all actors) is defined, then the
 // Prop's bounds is used. If neither the Input or Prop is defined, then the
-// Bounds instance variable (an array of six floats) is used.
+// Bounds instance variable (an array of six doubles) is used.
 // 
 // .SECTION See Also
 // vtkActor2D vtkAxis2DActor vtkXYPlotActor vtkTextProperty
@@ -186,22 +186,22 @@ public:
   // Description:
   // Set/Get the factor that controls the overall size of the fonts used
   // to label and title the axes. 
-  vtkSetClampMacro(FontFactor, float, 0.1, 2.0);
-  vtkGetMacro(FontFactor, float);
+  vtkSetClampMacro(FontFactor, double, 0.1, 2.0);
+  vtkGetMacro(FontFactor, double);
 
   // Description:
   // Set/Get the inertial factor that controls how often (i.e, how
   // many renders) the axes can switch position (jump from one axes 
   // to another).
   vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
-  vtkGetMacro(Inertia, float);
+  vtkGetMacro(Inertia, double);
 
   // Description:
   // Specify an offset value to "pull back" the axes from the corner at
   // which they are joined to avoid overlap of axes labels. The 
   // "CornerOffset" is the fraction of the axis length to pull back.
-  vtkSetMacro(CornerOffset, float);
-  vtkGetMacro(CornerOffset, float);
+  vtkSetMacro(CornerOffset, double);
+  vtkGetMacro(CornerOffset, double);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -259,8 +259,8 @@ protected:
   int ZAxisVisibility;
 
   char  *LabelFormat;
-  float FontFactor;
-  float CornerOffset;
+  double FontFactor;
+  double CornerOffset;
   int   Inertia;
   int   RenderCount;
   int   InertiaAxes[8];
@@ -269,15 +269,15 @@ protected:
   
   // various helper methods
   void TransformBounds(vtkViewport *viewport, float bounds[6], 
-                       float pts[8][3]);
-  int ClipBounds(vtkViewport *viewport, float pts[8][3], float bounds[6]);
-  float EvaluatePoint(float planes[24], float x[3]);
-  float EvaluateBounds(float planes[24], float bounds[6]);
-  void AdjustAxes(float pts[8][3], float bounds[6], 
+                       double pts[8][3]);
+  int ClipBounds(vtkViewport *viewport, double pts[8][3], float bounds[6]);
+  double EvaluatePoint(float planes[24], double x[3]);
+  double EvaluateBounds(float planes[24], float bounds[6]);
+  void AdjustAxes(double pts[8][3], float bounds[6], 
                   int idx, int xIdx, int yIdx, int zIdx, int zIdx2, 
                   int xAxes, int yAxes, int zAxes,
-                  float xCoords[4], float yCoords[4], float zCoords[4],
-                  float xRange[2], float yRange[2], float zRange[2]);
+                  double xCoords[4], double yCoords[4], double zCoords[4],
+                  double xRange[2], double yRange[2], double zRange[2]);
 
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.

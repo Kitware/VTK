@@ -77,9 +77,9 @@ public:
   // Note: backward compatibility only, use vtkActor2D's Position instead.
   virtual vtkCoordinate *GetPoint1Coordinate() 
     { return this->GetPositionCoordinate(); };
-  virtual void SetPoint1(float x[2]) { this->SetPosition(x); };
-  virtual void SetPoint1(float x, float y) { this->SetPosition(x,y); };
-  virtual float *GetPoint1() { return this->GetPosition(); };
+  virtual void SetPoint1(double x[2]) { this->SetPosition(x); };
+  virtual void SetPoint1(double x, double y) { this->SetPosition(x,y); };
+  virtual double *GetPoint1() { return this->GetPosition(); };
 
   // Description:
   // Specify the position of the second point defining the axis. Note that
@@ -88,15 +88,15 @@ public:
   // Note: backward compatibility only, use vtkActor2D's Position2 instead.
   virtual vtkCoordinate *GetPoint2Coordinate() 
     { return this->GetPosition2Coordinate(); };
-  virtual void SetPoint2(float x[2]) { this->SetPosition2(x); };
-  virtual void SetPoint2(float x, float y) { this->SetPosition2(x,y); };
-  virtual float *GetPoint2() { return this->GetPosition2(); };
+  virtual void SetPoint2(double x[2]) { this->SetPosition2(x); };
+  virtual void SetPoint2(double x, double y) { this->SetPosition2(x,y); };
+  virtual double *GetPoint2() { return this->GetPosition2(); };
 
   // Description:
   // Specify the (min,max) axis range. This will be used in the generation
   // of labels, if labels are visible.
-  vtkSetVector2Macro(Range,float);
-  vtkGetVectorMacro(Range,float,2);
+  vtkSetVector2Macro(Range,double);
+  vtkGetVectorMacro(Range,double,2);
 
   // Description:
   // Set/Get the number of annotation labels to show.
@@ -118,18 +118,18 @@ public:
   vtkSetMacro(AdjustLabels, int);
   vtkGetMacro(AdjustLabels, int);
   vtkBooleanMacro(AdjustLabels, int);
-  virtual float *GetAdjustedRange()
+  virtual double *GetAdjustedRange()
     { 
       this->UpdateAdjustedRange();
       return this->AdjustedRange; 
     }
-  virtual void GetAdjustedRange(float &_arg1, float &_arg2)
+  virtual void GetAdjustedRange(double &_arg1, double &_arg2)
     { 
       this->UpdateAdjustedRange();
       _arg1 = this->AdjustedRange[0];
       _arg2 = this->AdjustedRange[1];
     }; 
-  virtual void GetAdjustedRange(float _arg[2]) 
+  virtual void GetAdjustedRange(double _arg[2]) 
     { 
       this->GetAdjustedRange(_arg[0], _arg[1]);
     } 
@@ -195,14 +195,14 @@ public:
   // Set/Get the factor that controls the overall size of the fonts used
   // to label and title the axes. This ivar used in conjunction with
   // the LabelFactor can be used to control font sizes.
-  vtkSetClampMacro(FontFactor, float, 0.1, 2.0);
-  vtkGetMacro(FontFactor, float);
+  vtkSetClampMacro(FontFactor, double, 0.1, 2.0);
+  vtkGetMacro(FontFactor, double);
 
   // Description:
   // Set/Get the factor that controls the relative size of the axis labels
   // to the axis title.
-  vtkSetClampMacro(LabelFactor, float, 0.1, 2.0);
-  vtkGetMacro(LabelFactor, float);
+  vtkSetClampMacro(LabelFactor, double, 0.1, 2.0);
+  vtkGetMacro(LabelFactor, double);
 
   // Description:
   // Draw the axis. 
@@ -225,11 +225,11 @@ public:
   // is (0.25,96.7) and the number of ticks requested is 10, the output range
   // will be (0,100) with the number of computed ticks to 11 to yield tick
   // values of (0,10,20,...,100).
-  static void ComputeRange(float inRange[2], 
-                           float outRange[2],
+  static void ComputeRange(double inRange[2], 
+                           double outRange[2],
                            int inNumTicks, 
                            int &outNumTicks, 
-                           float &interval);
+                           double &interval);
 
   // Description:
   // General method to computes font size from a representative size on the 
@@ -241,13 +241,13 @@ public:
   static int SetFontSize(vtkViewport *viewport, 
                          vtkTextMapper *textMapper, 
                          int *targetSize, 
-                         float factor, 
+                         double factor, 
                          int *stringSize);
   static int SetMultipleFontSize(vtkViewport *viewport, 
                                  vtkTextMapper **textMappers, 
                                  int nbOfMappers, 
                                  int *targetSize,
-                                 float factor, 
+                                 double factor, 
                                  int *stringSize);
 
   // Description:
@@ -262,16 +262,16 @@ protected:
   vtkTextProperty *LabelTextProperty;
 
   char  *Title;
-  float Range[2];
+  double Range[2];
   int   NumberOfLabels;
   char  *LabelFormat;
   int   AdjustLabels;
-  float FontFactor;
-  float LabelFactor;
+  double FontFactor;
+  double LabelFactor;
   int   TickLength;
   int   TickOffset;
 
-  float AdjustedRange[2];
+  double AdjustedRange[2];
   int   AdjustedNumberOfLabels;
   int   NumberOfLabelsBuilt;
 
@@ -287,11 +287,12 @@ protected:
   int   LastMaxLabelSize[2];
   
   virtual void BuildAxis(vtkViewport *viewport);
-  static float ComputeStringOffset(float width, float height, float theta);
-  static void SetOffsetPosition(double xTick[3], float theta, int stringHeight,
-                                int stringWidth, int offset, vtkActor2D *actor);
+  static double ComputeStringOffset(double width, double height, double theta);
+  static void SetOffsetPosition(double xTick[3], double theta, 
+                                int stringHeight, int stringWidth, 
+                                int offset, vtkActor2D *actor);
   virtual void UpdateAdjustedRange();
-
+  
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
 

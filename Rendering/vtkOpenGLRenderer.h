@@ -58,11 +58,11 @@ protected:
   virtual void UpdatePickId();
   virtual void DonePick();
   virtual unsigned int GetPickedId();
-  virtual float GetPickedZ();
+  virtual double GetPickedZ();
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
   //ETX
-  float PickedZ;
+  double PickedZ;
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
   void operator=(const vtkOpenGLRenderer&);  // Not implemented.

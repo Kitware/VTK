@@ -35,7 +35,7 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.31");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.32");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
@@ -114,7 +114,7 @@ void vtkInteractorStyleUnicam::OnTimer()
     }
 }
 
-void vtkInteractorStyleUnicam::SetWorldUpVector(float x, float y, float z) 
+void vtkInteractorStyleUnicam::SetWorldUpVector(double x, double y, double z) 
 {
   WorldUpVector[0] = x;
   WorldUpVector[1] = y;
@@ -137,7 +137,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   this->Dist     = 0;
 
   // cam manip init
-  float curpt[2];
+  double curpt[2];
   this->NormalizeMouseXY(x, y, &curpt[0], &curpt[1]);
   this->LastPos[0] = curpt[0];
   this->LastPos[1] = curpt[1];
@@ -156,9 +156,9 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
   // TODO: cleanup double
   double * ddp = this->InteractionPicker->GetPickPosition();
-  this->DownPt[0] = (float)ddp[0];
-  this->DownPt[1] = (float)ddp[1];
-  this->DownPt[2] = (float)ddp[2];
+  this->DownPt[0] = (double)ddp[0];
+  this->DownPt[1] = (double)ddp[1];
+  this->DownPt[2] = (double)ddp[2];
   
   // if someone has already clicked to make a dot and they're not clicking 
   // on it now, OR if the user is clicking on the perimeter of the screen, 
@@ -167,7 +167,12 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
     {
     if (this->IsDot)
       {
-      this->FocusSphere->GetPosition(this->Center);
+      // TODO cleanup
+      float centerTmp[3];
+      this->FocusSphere->GetPosition(centerTmp);
+      this->Center[0] = centerTmp[0];
+      this->Center[1] = centerTmp[1];
+      this->Center[2] = centerTmp[2];
       }
     state = VTK_UNICAM_CAM_INT_ROT;
     }
@@ -178,23 +183,23 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
 }
 
 //----------------------------------------------------------------------------
-float vtkInteractorStyleUnicam::WindowAspect()
+double vtkInteractorStyleUnicam::WindowAspect()
 {
-  float w = Interactor->GetRenderWindow()->GetSize()[0];
-  float h = Interactor->GetRenderWindow()->GetSize()[1];
+  double w = Interactor->GetRenderWindow()->GetSize()[0];
+  double h = Interactor->GetRenderWindow()->GetSize()[1];
 
   return w/h;
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::NormalizeMouseXY(int X, int Y,
-                                                float *NX, float *NY)
+                                                double *NX, double *NY)
 {
-  float w = Interactor->GetRenderWindow()->GetSize()[0];
-  float h = Interactor->GetRenderWindow()->GetSize()[1];
+  double w = Interactor->GetRenderWindow()->GetSize()[0];
+  double h = Interactor->GetRenderWindow()->GetSize()[1];
 
-  *NX = -1.0 + 2.0 * float(X) / w;
-  *NY = -1.0 + 2.0 * float(Y) / h;
+  *NX = -1.0 + 2.0 * double(X) / w;
+  *NY = -1.0 + 2.0 * double(Y) / h;
 }
 
 //----------------------------------------------------------------------------
@@ -247,19 +252,21 @@ void vtkInteractorStyleUnicam::OnLeftButtonUp()
       } 
     else 
       {
-      this->FocusSphere->SetPosition(this->DownPt);
+      this->FocusSphere->SetPosition(this->DownPt[0],
+                                     this->DownPt[1],
+                                     this->DownPt[2]);
 
-      float from[3];
+      double from[3];
       this->FindPokedRenderer(x, y);
       vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
       camera->GetPosition(from);
 
-      float vec[3];
+      double vec[3];
       vec[0] = this->DownPt[0] - from[0];
       vec[1] = this->DownPt[1] - from[1];
       vec[2] = this->DownPt[2] - from[2];
 
-      float at_v[4];
+      double at_v[4];
       camera->GetDirectionOfProjection(at_v);
       vtkMath::Normalize(at_v);
 
@@ -308,10 +315,10 @@ void vtkInteractorStyleUnicam::ChooseXY( int X, int Y )
   te[0] = X;
   te[1] = Y;
 
-  float curpt[2];
+  double curpt[2];
   this->NormalizeMouseXY(X, Y, &curpt[0], &curpt[1]);
   
-  float delta[2];
+  double delta[2];
   delta[0] = curpt[0] - this->LastPos[0];
   delta[1] = curpt[1] - this->LastPos[1];
   this->LastPos[0] = te[0];
@@ -321,7 +328,7 @@ void vtkInteractorStyleUnicam::ChooseXY( int X, int Y )
 
   this->Dist += sqrt(delta[0] * delta[0] + delta[1] * delta[1]);
 
-  float sdelt[2];
+  double sdelt[2];
   sdelt[0] = te[0] - this->StartPix[0];
   sdelt[1] = te[1] - this->StartPix[1];
 
@@ -333,7 +340,7 @@ void vtkInteractorStyleUnicam::ChooseXY( int X, int Y )
     ya = tmp;
     }
      
-  float len = sqrt(sdelt[0] * sdelt[0] + sdelt[1] * sdelt[1]);
+  double len = sqrt(sdelt[0] * sdelt[0] + sdelt[1] * sdelt[1]);
   if (fabs(sdelt[ya])/len > 0.9 && tdelt > 0.05) 
     {
     state = VTK_UNICAM_CAM_INT_DOLLY;
@@ -365,23 +372,24 @@ inline int  Sign (double a)     { return a > 0 ? 1 : a < 0 ? -1 : 0; }
 //----------------------------------------------------------------------------
 void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 {
-  float cpt[3];
+  double cpt[3];
+  // TODO convert to double
   float center[3];
   this->FocusSphere->GetPosition(center);
   this->ComputeWorldToDisplay(center[0], center[1], center[2], cpt);
   this->NormalizeMouseXY(static_cast<int>(cpt[0]), static_cast<int>(cpt[1]), 
                          &cpt[0], &cpt[1]);
 
-  double      radsq = pow(1.0+fabs(cpt[0]),2.0); // squared rad of virtual cylinder
+  double radsq = pow(1.0+fabs(cpt[0]),2.0); // squared rad of virtual cylinder
 
-  float tp[2], te[2];
+  double tp[2], te[2];
   this->NormalizeMouseXY(static_cast<int>(this->LastPix[0]), 
                          static_cast<int>(this->LastPix[1]), &tp[0], &tp[1]);
   this->NormalizeMouseXY(X, Y, &te[0], &te[1]);
   this->LastPix[0] = X;
   this->LastPix[1] = Y;
 
-  float op[3], oe[3];
+  double op[3], oe[3];
   op[0] = tp[0];
   op[1] = 0;
   op[2] = 0;
@@ -394,7 +402,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
   double lop  = opsq > radsq ? 0 : sqrt(radsq - opsq);
   double loe  = oesq > radsq ? 0 : sqrt(radsq - oesq);
 
-  float nop[3], noe[3];
+  double nop[3], noe[3];
   nop[0] = op[0];
   nop[1] = 0;
   nop[2] = lop;
@@ -412,7 +420,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 
     double angle = -2*acos(clamp(dot,-1.,1.)) * Sign(te[0]-tp[0]);
 
-    float UPvec[3];
+    double UPvec[3];
     UPvec[0] = WorldUpVector[0];
     UPvec[1] = WorldUpVector[1];
     UPvec[2] = WorldUpVector[2];
@@ -422,8 +430,8 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
                    UPvec[0], UPvec[1], UPvec[2],
                    angle);
 
-    float dvec[3];
-    float from[3];
+    double dvec[3];
+    double from[3];
     vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
     camera->GetPosition(from);
     for(int i=0; i<3; i++)
@@ -434,7 +442,7 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
     double rdist = te[1]-tp[1];
     vtkMath::Normalize(dvec);
 
-    float atV[4], upV[4], rightV[4];
+    double atV[4], upV[4], rightV[4];
     camera->GetViewPlaneNormal(atV);
     camera->GetViewUp(upV);
     vtkMath::Cross(upV, atV, rightV);
@@ -473,12 +481,12 @@ void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 {
   int i;
-  float cn[2], ln[2];
+  double cn[2], ln[2];
   this->NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
   this->NormalizeMouseXY(static_cast<int>(this->LastPix[0]), 
                          static_cast<int>(this->LastPix[1]), &ln[0], &ln[1]);
 
-  float delta[2];
+  double delta[2];
   delta[0] = cn[0] - ln[0];
   delta[1] = cn[1] - ln[1];
   this->LastPix[0] = X;
@@ -486,18 +494,18 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 
   // 1. handle dollying
   // XXX - assume perspective projection for now.
-  float from[3];
+  double from[3];
   this->FindPokedRenderer(X, Y);
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   camera->GetPosition(from);
   
-  float movec[3];
+  double movec[3];
   for(i=0; i<3; i++)
     {
     movec[i] = this->DownPt[i] - from[i];
     }
 
-  float offset1[3];
+  double offset1[3];
   for(i=0; i<3; i++)
     {
     offset1[i] = movec[i] * delta[1] * -4;
@@ -507,11 +515,11 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 
 
   // 2. now handle side-to-side panning
-  float rightV[3], upV[3];
+  double rightV[3], upV[3];
   this->GetRightVandUpV(this->DownPt, camera,
                         rightV, upV);
 
-  float offset2[3];
+  double offset2[3];
   for(i=0; i<3; i++)
     {
     offset2[i] = (-delta[0] * rightV[i]);
@@ -527,8 +535,8 @@ void vtkInteractorStyleUnicam::DollyXY( int X, int Y )
 // 
 void vtkInteractorStyleUnicam::PanXY( int X, int Y )
 {
-  float delta[2];
-  float cn[2], ln[2];
+  double delta[2];
+  double cn[2], ln[2];
   int i;
 
   this->NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
@@ -543,12 +551,12 @@ void vtkInteractorStyleUnicam::PanXY( int X, int Y )
 
   this->FindPokedRenderer(X, Y);
 
-  float rightV[3], upV[3];
+  double rightV[3], upV[3];
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   this->GetRightVandUpV(this->DownPt, camera,
                         rightV, upV);
 
-  float offset[3];
+  double offset[3];
   for(i=0; i<3; i++)
     {
     offset[i] = (-delta[0] * rightV[i] +
@@ -565,18 +573,18 @@ void vtkInteractorStyleUnicam::PanXY( int X, int Y )
 // containing the 3D point & with normal parallel to the camera's
 // projection plane.
 // 
-void vtkInteractorStyleUnicam::GetRightVandUpV(float *p, vtkCamera *cam,
-                                               float *rightV, float *upV)
+void vtkInteractorStyleUnicam::GetRightVandUpV(double *p, vtkCamera *cam,
+                                               double *rightV, double *upV)
 {
   int i;
 
   // Compute the horizontal & vertical scaling ('scalex' and 'scaley')
   // factors as function of the down point & camera params.
-  float from[3];
+  double from[3];
   cam->GetPosition(from);
 
   // construct a vector from the viewing position to the picked point
-  float vec[3];
+  double vec[3];
   for(i=0; i<3; i++)
     {
       vec[i] = p[i] - from[i];
@@ -584,14 +592,14 @@ void vtkInteractorStyleUnicam::GetRightVandUpV(float *p, vtkCamera *cam,
 
   // Get shortest distance 'l' between the viewing position and
   // plane parallel to the projection plane that contains the 'DownPt'.
-  float atV[4];
+  double atV[4];
   cam->GetViewPlaneNormal(atV);
   vtkMath::Normalize(atV);
   double l = -vtkMath::Dot(vec, atV);
 
   double view_angle = cam->GetViewAngle() * vtkMath::Pi() / 180.0;
-  float w = Interactor->GetRenderWindow()->GetSize()[0];
-  float h = Interactor->GetRenderWindow()->GetSize()[1];
+  double w = Interactor->GetRenderWindow()->GetSize()[0];
+  double h = Interactor->GetRenderWindow()->GetSize()[1];
   double scalex = w/h*((2*l*tan(view_angle/2))/2);
   double scaley =     ((2*l*tan(view_angle/2))/2);
 
@@ -615,13 +623,13 @@ void vtkInteractorStyleUnicam::GetRightVandUpV(float *p, vtkCamera *cam,
 // Rotate the camera by 'angle' degrees about the point <cx, cy, cz>
 // and around the vector/axis <ax, ay, az>.
 // 
-void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
-                                              float ax, float ay, float az,
-                                              float angle)
+void vtkInteractorStyleUnicam::MyRotateCamera(double cx, double cy, double cz,
+                                              double ax, double ay, double az,
+                                              double angle)
 {
   angle *= 180.0 / vtkMath::Pi();   // vtk uses degrees, not radians
 
-  float p[4], f[4], u[4];
+  double p[4], f[4], u[4];
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   camera->GetPosition  (p);
   camera->GetFocalPoint(f);
@@ -636,11 +644,11 @@ void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
   t->RotateWXYZ(angle, ax, ay, az);
   t->Translate( cx,  cy,  cz);
 
-  float new_p[4], new_f[4];
+  double new_p[4], new_f[4];
   t->MultiplyPoint(p, new_p);
   t->MultiplyPoint(f, new_f);
 
-  float new_u[4];
+  double new_u[4];
   t->Identity();
   t->RotateWXYZ(angle, ax, ay, az);
   t->MultiplyPoint(u, new_u);
@@ -659,14 +667,14 @@ void vtkInteractorStyleUnicam::MyRotateCamera(float cx, float cy, float cz,
 // Translate the camera by the offset <v[0], v[1], v[2]>.  Update
 // the camera clipping range.
 // 
-void vtkInteractorStyleUnicam::MyTranslateCamera(float v[3])
+void vtkInteractorStyleUnicam::MyTranslateCamera(double v[3])
 {
-  float p[3], f[3];
+  double p[3], f[3];
   vtkCamera* camera = this->CurrentRenderer->GetActiveCamera();
   camera->GetPosition  (p);
   camera->GetFocalPoint(f);
 
-  float newP[3], newF[3];
+  double newP[3], newF[3];
   for(int i=0;i<3;i++) 
     {
     newP[i] = p[i] + v[i];

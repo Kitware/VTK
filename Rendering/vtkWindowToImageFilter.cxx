@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.20");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.21");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -180,11 +180,11 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
     for (x = 0; x < this->Magnification; x++)
       {
       // setup the Window ivars
-      this->Input->SetTileViewport((float)x/this->Magnification,
-                                   (float)y/this->Magnification,
+      this->Input->SetTileViewport((double)x/this->Magnification,
+                                   (double)y/this->Magnification,
                                    (x+1.0)/this->Magnification,
                                    (y+1.0)/this->Magnification);
-      float *tvp = this->Input->GetTileViewport();
+      double *tvp = this->Input->GetTileViewport();
       
       // for each renderer, setup camera
       rc->InitTraversal();
@@ -192,8 +192,8 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         {
         aren = rc->GetNextItem();
         cam = aren->GetActiveCamera();
-        float *vp = aren->GetViewport();
-        float visVP[4];
+        double *vp = aren->GetViewport();
+        double visVP[4];
         visVP[0] = (vp[0] < tvp[0]) ? tvp[0] : vp[0];
         visVP[0] = (visVP[0] > tvp[2]) ? tvp[2] : visVP[0];
         visVP[1] = (vp[1] < tvp[1]) ? tvp[1] : vp[1];
@@ -204,10 +204,10 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         visVP[3] = (visVP[3] < tvp[1]) ? tvp[1] : visVP[3];
 
         // compute magnification
-        float mag = (visVP[3] - visVP[1])/(vp[3] - vp[1]);
+        double mag = (visVP[3] - visVP[1])/(vp[3] - vp[1]);
         // compute the delta
-        float deltax = (visVP[2] + visVP[0])/2.0 - (vp[2] + vp[0])/2.0;
-        float deltay = (visVP[3] + visVP[1])/2.0 - (vp[3] + vp[1])/2.0;
+        double deltax = (visVP[2] + visVP[0])/2.0 - (vp[2] + vp[0])/2.0;
+        double deltay = (visVP[3] + visVP[1])/2.0 - (vp[3] + vp[1])/2.0;
         // scale by original window size
         if (visVP[2] - visVP[0] > 0)
           {

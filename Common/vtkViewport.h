@@ -81,60 +81,47 @@ public:
   // Description:
   // Set the aspect ratio of the rendered image. This is computed 
   // automatically and should not be set by the user.
-  vtkSetVector2Macro(Aspect,float);
-  vtkGetVectorMacro(Aspect,float,2);
+  vtkSetVector2Macro(Aspect,double);
+  vtkGetVectorMacro(Aspect,double,2);
   virtual void ComputeAspect();
   
   // Description:
   // Set the aspect ratio of a pixel in the rendered image. 
   // This factor permits the image to rendered anisotropically
   // (i.e., stretched in one direction or the other).
-  vtkSetVector2Macro(PixelAspect,float);
-  vtkGetVectorMacro(PixelAspect,float,2);
+  vtkSetVector2Macro(PixelAspect,double);
+  vtkGetVectorMacro(PixelAspect,double,2);
 
   // Description:
   // Specify the viewport for the Viewport to draw in the rendering window. 
   // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
   // coordinate is 0 <= coordinate <= 1.0.
-  vtkSetVector4Macro(Viewport,float);
-  vtkGetVectorMacro(Viewport,float,4);
+  vtkSetVector4Macro(Viewport,double);
+  vtkGetVectorMacro(Viewport,double,4);
 
   // Description:
   // Set/get a point location in display (or screen) coordinates.
   // The lower left corner of the window is the origin and y increases
   // as you go up the screen.
-  vtkSetVector3Macro(DisplayPoint,float);
-  vtkGetVectorMacro(DisplayPoint,float,3);
-  void GetDisplayPoint(double a[3]) 
-    {
-      a[0] = this->DisplayPoint[0];
-      a[1] = this->DisplayPoint[1];
-      a[2] = this->DisplayPoint[2];
-    };
+  vtkSetVector3Macro(DisplayPoint,double);
+  vtkGetVectorMacro(DisplayPoint,double,3);
 
   // Description:
   // Specify a point location in view coordinates. The origin is in the 
   // middle of the viewport and it extends from -1 to 1 in all three
   // dimensions.
-  vtkSetVector3Macro(ViewPoint,float);
-  vtkGetVectorMacro(ViewPoint,float,3);
+  vtkSetVector3Macro(ViewPoint,double);
+  vtkGetVectorMacro(ViewPoint,double,3);
 
   // Description:
   // Specify a point location in world coordinates. This method takes 
   // homogeneous coordinates. 
-  vtkSetVector4Macro(WorldPoint,float);
-  vtkGetVectorMacro(WorldPoint,float,4);
-  void GetWorldPoint(double a[4]) 
-    {
-      a[0] = this->WorldPoint[0];
-      a[1] = this->WorldPoint[1];
-      a[2] = this->WorldPoint[2];
-      a[3] = this->WorldPoint[3];
-    };
+  vtkSetVector4Macro(WorldPoint,double);
+  vtkGetVectorMacro(WorldPoint,double,4);
    
   // Description:
   // Return the center of this viewport in display coordinates.
-  virtual float *GetCenter();
+  virtual double *GetCenter();
 
   // Description:
   // Is a given display point in this Viewport's viewport.
@@ -174,18 +161,18 @@ public:
   // are often strung together. These methods return valid information
   // only if the window has been realized (e.g., GetSize() returns
   // something other than (0,0)).
-  virtual void LocalDisplayToDisplay(float &x, float &y);
-  virtual void DisplayToNormalizedDisplay(float &u, float &v);
-  virtual void NormalizedDisplayToViewport(float &x, float &y);
-  virtual void ViewportToNormalizedViewport(float &u, float &v);
-  virtual void NormalizedViewportToView(float &x, float &y, float &z);
-  virtual void ViewToWorld(float &, float &, float &) {};
-  virtual void DisplayToLocalDisplay(float &x, float &y);
-  virtual void NormalizedDisplayToDisplay(float &u, float &v);
-  virtual void ViewportToNormalizedDisplay(float &x, float &y);
-  virtual void NormalizedViewportToViewport(float &u, float &v);
-  virtual void ViewToNormalizedViewport(float &x, float &y, float &z);
-  virtual void WorldToView(float &, float &, float &) {};
+  virtual void LocalDisplayToDisplay(double &x, double &y);
+  virtual void DisplayToNormalizedDisplay(double &u, double &v);
+  virtual void NormalizedDisplayToViewport(double &x, double &y);
+  virtual void ViewportToNormalizedViewport(double &u, double &v);
+  virtual void NormalizedViewportToView(double &x, double &y, double &z);
+  virtual void ViewToWorld(double &, double &, double &) {};
+  virtual void DisplayToLocalDisplay(double &x, double &y);
+  virtual void NormalizedDisplayToDisplay(double &u, double &v);
+  virtual void ViewportToNormalizedDisplay(double &x, double &y);
+  virtual void NormalizedViewportToViewport(double &u, double &v);
+  virtual void ViewToNormalizedViewport(double &x, double &y, double &z);
+  virtual void WorldToView(double &, double &, double &) {};
 
   // Description:
   // Get the size and origin of the viewport in display coordinates. Note:
@@ -203,25 +190,25 @@ public:
   // in the viewport.  Basically, the top most prop that renders the pixel at
   // selectionX, selectionY will be returned.  If no Props are there NULL is
   // returned.  This method selects from the Viewports Prop list.
-  virtual vtkAssemblyPath* PickProp(float selectionX, float selectionY) = 0;
+  virtual vtkAssemblyPath* PickProp(double selectionX, double selectionY) = 0;
 
   // Description:
   // Same as PickProp with two arguments, but selects from the given
   // collection of Props instead of the Renderers props.  Make sure
   // the Props in the collection are in this renderer.
-  vtkAssemblyPath* PickPropFrom(float selectionX, float selectionY, 
+  vtkAssemblyPath* PickPropFrom(double selectionX, double selectionY, 
                                 vtkPropCollection*);
   
   // Description:
   // Methods used to return the pick (x,y) in local display coordinates (i.e.,
   // it's that same as selectionX and selectionY).
-  vtkGetMacro(PickX, float);
-  vtkGetMacro(PickY, float);
+  vtkGetMacro(PickX, double);
+  vtkGetMacro(PickY, double);
   vtkGetMacro(IsPicking, int);
 
   // Description: 
   // Return the Z value for the last picked Prop.
-  virtual float GetPickedZ() = 0;
+  virtual double GetPickedZ() = 0;
   
 protected:
   // Create a vtkViewport with a black background, a white ambient light, 
@@ -251,24 +238,24 @@ protected:
   // Boolean flag to determine if picking is enabled for this render
   int IsPicking;
   unsigned int CurrentPickId;
-  float PickX;
-  float PickY;
+  double PickX;
+  double PickY;
   // End Ivars for picking
   
   vtkPropCollection *Props;
   vtkActor2DCollection *Actors2D;
   vtkWindow *VTKWindow;
-  float Background[3];  
-  float Viewport[4];
-  float Aspect[2];
-  float PixelAspect[2];
-  float Center[2];
+  float  Background[3];  
+  double Viewport[4];
+  double Aspect[2];
+  double PixelAspect[2];
+  double Center[2];
 
   int Size[2];
   int Origin[2];
-  float DisplayPoint[3];
-  float ViewPoint[3];
-  float WorldPoint[4];
+  double DisplayPoint[3];
+  double ViewPoint[3];
+  double WorldPoint[4];
 
 private:
   vtkViewport(const vtkViewport&);  // Not implemented.

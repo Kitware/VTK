@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.4");
+vtkCxxRevisionMacro(vtkInteractorStyleRubberBandZoom, "1.5");
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
 vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()
@@ -139,7 +139,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
   int min[2];
-  float rbcenter[3];
+  double rbcenter[3];
   min[0] = this->StartPosition[0] < this->EndPosition[0] ?
     this->StartPosition[0] : this->EndPosition[0];
   min[1] = this->StartPosition[1] < this->EndPosition[1] ?
@@ -153,15 +153,15 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   this->CurrentRenderer->DisplayToView();
   this->CurrentRenderer->ViewToWorld();
 
-  float invw;
-  float worldRBCenter[4];
+  double invw;
+  double worldRBCenter[4];
   this->CurrentRenderer->GetWorldPoint(worldRBCenter);
   invw = 1.0f/worldRBCenter[3];
   worldRBCenter[0] *= invw;
   worldRBCenter[1] *= invw;
   worldRBCenter[2] *= invw;
 
-  float winCenter[3];
+  double winCenter[3];
   winCenter[0] = origin[0] + 0.5f*size[0];
   winCenter[1] = origin[1] + 0.5f*size[1];
   winCenter[2] = 0;
@@ -170,19 +170,19 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
   this->CurrentRenderer->DisplayToView();
   this->CurrentRenderer->ViewToWorld();
 
-  float worldWinCenter[4];
+  double worldWinCenter[4];
   this->CurrentRenderer->GetWorldPoint(worldWinCenter);
   invw = 1.0f/worldWinCenter[3];
   worldWinCenter[0] *= invw;
   worldWinCenter[1] *= invw;
   worldWinCenter[2] *= invw;
 
-  float translation[3];
+  double translation[3];
   translation[0] = worldRBCenter[0] - worldWinCenter[0];
   translation[1] = worldRBCenter[1] - worldWinCenter[1];
   translation[2] = worldRBCenter[2] - worldWinCenter[2];
 
-  float pos[3], fp[3];
+  double pos[3], fp[3];
   cam->GetPosition(pos);
   cam->GetFocalPoint(fp);
 

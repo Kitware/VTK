@@ -35,7 +35,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.2");
+vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.3");
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 #endif
 
@@ -89,12 +89,13 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
 
   vtkCamera *cam = ren->GetActiveCamera();
   ren->ComputeAspect(); 
-  float *aspect = ren->GetAspect();
+  double *aspect = ren->GetAspect();
   
   vtkTransform *perspectiveTransform = vtkTransform::New();
   perspectiveTransform->Identity();
-  perspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 
-                                                                       0.0, 1.0 ));
+  perspectiveTransform->Concatenate(
+    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 
+                                       0.0, 1.0 ));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   
   // get the perspective transformation from the active camera 
@@ -179,7 +180,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
                 0, GL_RGBA, GL_UNSIGNED_BYTE, image );
   
   GLint params[1];
-  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, params ); 
+  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, 
+                             GL_TEXTURE_WIDTH, params ); 
 
   // if it does, we will render it later. define the texture here
   if ( params[0] != 0 )
@@ -198,7 +200,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
     newTextureSize[0] = imageMemorySize[0];
     newTextureSize[1] = imageMemorySize[1];
     
-    while ( params[0] == 0 && newTextureSize[0] >= 32 && newTextureSize[1] >= 32 )
+    while ( params[0] == 0 && newTextureSize[0] >= 32 && 
+            newTextureSize[1] >= 32 )
       {
       if ( newTextureSize[0] > newTextureSize[1] )
         {
@@ -212,7 +215,8 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
       glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8, 
                     newTextureSize[0], newTextureSize[1],
                     0, GL_RGBA, GL_UNSIGNED_BYTE, image );      
-      glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, params );
+      glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, 
+                                 GL_TEXTURE_WIDTH, params );
       }
     
     // If we got down to 32 by 32 and OpenGL still doesn't like it, something

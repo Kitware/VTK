@@ -40,7 +40,7 @@ public:
 };
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.47");
+vtkCxxRevisionMacro(vtkOpenGLRenderer, "1.48");
 vtkStandardNewMacro(vtkOpenGLRenderer);
 #endif
 
@@ -315,7 +315,7 @@ void vtkOpenGLRenderer::DonePick()
   this->RenderWindow->IsPickingOff();
 }
 
-float vtkOpenGLRenderer::GetPickedZ()
+double vtkOpenGLRenderer::GetPickedZ()
 {
   return this->PickedZ;
 }

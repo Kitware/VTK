@@ -19,6 +19,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
@@ -27,7 +28,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.61");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.62");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -324,8 +325,6 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   double x[3];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
-  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
   switch (this->DataDescription)
     {
@@ -381,24 +380,35 @@ void vtkRectilinearGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
       break;
     }
 
-  // Extract point coordinates
-  for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+  // carefully compute the bounds
+  if (kMax >= kMin && jMax >= jMin && iMax >= iMin)
     {
-    x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
-    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+  
+    // Extract point coordinates
+    for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+      {
+      x[2] = this->ZCoordinates->GetComponent(loc[2], 0);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      }
+    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+      {
+      x[1] = this->YCoordinates->GetComponent(loc[1], 0);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      }
+    for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
+      {
+      x[0] = this->XCoordinates->GetComponent(loc[0], 0);
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      }
     }
-  for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+  else
     {
-    x[1] = this->YCoordinates->GetComponent(loc[1], 0);
-    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    }
-  for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-    {
-    x[0] = this->XCoordinates->GetComponent(loc[0], 0);
-    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+    vtkMath::UninitializeBounds(bounds);
     }
 }
 
@@ -674,8 +684,7 @@ void vtkRectilinearGrid::ComputeBounds()
   if (this->XCoordinates == NULL || this->YCoordinates == NULL || 
       this->ZCoordinates == NULL)
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
+    vtkMath::UninitializeBounds(this->Bounds);
     return;
     }
 
@@ -683,8 +692,7 @@ void vtkRectilinearGrid::ComputeBounds()
        this->YCoordinates->GetNumberOfTuples() == 0 || 
        this->ZCoordinates->GetNumberOfTuples() == 0 )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
+    vtkMath::UninitializeBounds(this->Bounds);
     return;
     }
 

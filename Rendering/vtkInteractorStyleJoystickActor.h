@@ -78,12 +78,12 @@ protected:
                        double **rotate,
                        double *scale);
 
-  void Prop3DTransform(vtkProp3D *prop3D,
+  void Prop3DTransform(vtkProp3D *prop3D, 
                        float *boxCenter,
-                       int NumRotation,
+                       int numRotation, 
                        double **rotate,
                        double *scale);
-  
+
   float MotionFactor;
 
   vtkProp3D *InteractionProp;

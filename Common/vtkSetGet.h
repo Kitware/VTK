@@ -507,12 +507,12 @@ virtual vtkCoordinate *Get##name##Coordinate () \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name "Coordinate address " << this->name##Coordinate ); \
     return this->name##Coordinate; \
 } \
-virtual void Set##name(float x[3]) {this->Set##name(x[0],x[1],x[2]);}; \
-virtual void Set##name(float x, float y, float z) \
+virtual void Set##name(double x[3]) {this->Set##name(x[0],x[1],x[2]);}; \
+virtual void Set##name(double x, double y, double z) \
 { \
     this->name##Coordinate->SetValue(x,y,z); \
 } \
-virtual float *Get##name() \
+virtual double *Get##name() \
 { \
     return this->name##Coordinate->GetValue(); \
 }
@@ -523,12 +523,12 @@ virtual vtkCoordinate *Get##name##Coordinate () \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name "Coordinate address " << this->name##Coordinate ); \
     return this->name##Coordinate; \
 } \
-virtual void Set##name(float x[2]) {this->Set##name(x[0],x[1]);}; \
-virtual void Set##name(float x, float y) \
+virtual void Set##name(double x[2]) {this->Set##name(x[0],x[1]);}; \
+virtual void Set##name(double x, double y) \
 { \
     this->name##Coordinate->SetValue(x,y); \
 } \
-virtual float *Get##name() \
+virtual double *Get##name() \
 { \
     return this->name##Coordinate->GetValue(); \
 }

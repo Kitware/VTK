@@ -295,15 +295,15 @@ public:
   // Description:
   // Convert view point coordinates to world coordinates.
   void ViewToWorld();
-  virtual void ViewToWorld(float &wx, float &wy, float &wz);
+  virtual void ViewToWorld(double &wx, double &wy, double &wz);
 
   // Description:
   // Convert world point coordinates to view coordinates.
-  virtual void WorldToView(float &wx, float &wy, float &wz);
+  virtual void WorldToView(double &wx, double &wy, double &wz);
 
   // Description:
   // Given a pixel location, return the Z value
-  float GetZ (int x, int y);
+  double GetZ (int x, int y);
 
   // Description:
   // Return the MTime of the renderer also considering its ivars.
@@ -326,7 +326,7 @@ public:
   // prop that renders the pixel at selectionX, selectionY will be returned.
   // If nothing was picked then NULL is returned.  This method selects from 
   // the renderers Prop list.
-  vtkAssemblyPath* PickProp(float selectionX, float selectionY);
+  vtkAssemblyPath* PickProp(double selectionX, double selectionY);
 
 protected:
   vtkRenderer();

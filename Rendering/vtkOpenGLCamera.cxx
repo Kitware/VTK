@@ -30,7 +30,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.58");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.59");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -57,8 +57,8 @@ vtkStandardNewMacro(vtkOpenGLCamera);
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {
-  float aspect[2];
-  float *vport;
+  double aspect[2];
+  double *vport;
   int  lowerLeft[2];
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
@@ -66,11 +66,11 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   vport = ren->GetViewport();
 
-  float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
+  double *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
   //int scale = 
   ren->GetVTKWindow()->GetTileScale();
   
-  float vpu, vpv;
+  double vpu, vpv;
   // find the lower left corner of the viewport, taking into account the
   // lower left boundary of this tile
   vpu = (vport[0] - tileViewPort[0]);
@@ -80,7 +80,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
-  float vpu2, vpv2;
+  double vpu2, vpv2;
   // find the upper right corner of the viewport, taking into account the
   // lower left boundary of this tile
   vpu2 = (vport[2] - tileViewPort[0]);
@@ -156,10 +156,10 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   // reporting.
   ren->ComputeAspect();
   ren->GetAspect(aspect);
-  float aspect2[2];
+  double aspect2[2];
   ren->vtkViewport::ComputeAspect();
   ren->vtkViewport::GetAspect(aspect2);
-  float aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
+  double aspectModification = aspect[0]*aspect2[1]/(aspect[1]*aspect2[0]);
   
   glMatrixMode( GL_PROJECTION);
   if(usize && vsize)
@@ -215,23 +215,23 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 
 void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 {
-  float *vport;
+  double *vport;
   int  lowerLeft[2];
 
   vport = ren->GetViewport();
 
-  float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
+  double *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
   //int scale = 
   ren->GetVTKWindow()->GetTileScale();
   
-  float vpu, vpv;
+  double vpu, vpv;
   vpu = (vport[0] - tileViewPort[0]);
   vpv = (vport[1] - tileViewPort[1]);
   vtkOpenGLCameraBound(vpu,vpv);
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
-  float vpu2, vpv2;
+  double vpu2, vpv2;
   vpu2 = (vport[2] - tileViewPort[0]);
   vpv2 = (vport[3] - tileViewPort[1]);
   vtkOpenGLCameraBound(vpu2,vpv2);

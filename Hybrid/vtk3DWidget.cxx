@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.17");
+vtkCxxRevisionMacro(vtk3DWidget, "1.18");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -132,7 +132,7 @@ float vtk3DWidget::SizeHandles(float factor)
     {
     double radius, z;
     double windowLowerLeft[4], windowUpperRight[4];
-    float *viewport = renderer->GetViewport();
+    double *viewport = renderer->GetViewport();
     int *winSize = renderer->GetRenderWindow()->GetSize();
     double focalPoint[4];
 

@@ -17,7 +17,7 @@
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyph3D.h"
 #include "vtkMath.h"
@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.26");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.27");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -49,8 +49,8 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->PositionCoordinate->SetCoordinateSystemToDisplay();
   this->PositionCoordinate->SetReferenceCoordinate(
     this->AttachmentPointCoordinate);
-  this->PositionCoordinate->SetValue(static_cast<float>(10),
-                                     static_cast<float>(10));
+  this->PositionCoordinate->SetValue(static_cast<double>(10),
+                                     static_cast<double>(10));
   
   // This sets up the Position2Coordinate
   this->vtkActor2D::SetWidth(0.25);
@@ -110,7 +110,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   pts->SetNumberOfPoints(1);
   this->HeadPolyData->SetPoints(pts);
   pts->Delete();
-  vtkFloatArray *vecs = vtkFloatArray::New();
+  vtkDoubleArray *vecs = vtkDoubleArray::New();
   vecs->SetNumberOfComponents(3);
   vecs->SetNumberOfTuples(1);
   this->HeadPolyData->GetPointData()->SetVectors(vecs);
@@ -241,15 +241,15 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // compute coordinates and set point values
   //
-  float *w1, *w2;
+  double *w1, *w2;
   int *x1, *x2, *x3;
-  float p1[4], p2[4], p3[4];
+  double p1[4], p2[4], p3[4];
   x1 = this->AttachmentPointCoordinate->GetComputedDisplayValue(viewport);
   x2 = this->PositionCoordinate->GetComputedDisplayValue(viewport);
   x3 = this->Position2Coordinate->GetComputedDisplayValue(viewport);
-  p1[0] = (float)x1[0]; p1[1] = (float)x1[1]; p1[2] = 0.0;
-  p2[0] = (float)x2[0]; p2[1] = (float)x2[1]; p2[2] = p1[2];
-  p3[0] = (float)x3[0]; p3[1] = (float)x3[1]; p3[2] = p1[2];
+  p1[0] = (double)x1[0]; p1[1] = (double)x1[1]; p1[2] = 0.0;
+  p2[0] = (double)x2[0]; p2[1] = (double)x2[1]; p2[2] = p1[2];
+  p3[0] = (double)x3[0]; p3[1] = (double)x3[1]; p3[2] = p1[2];
 
   // Set up the scaled text - take into account the padding
   this->CaptionActor->SetTextProperty(this->CaptionTextProperty);
@@ -268,8 +268,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   // Define the leader. Have to find the closest point from the
   // border to the attachment point. We look at the four vertices
   // and four edge centers.
-  float d2, minD2, pt[3], minPt[3];
-  minD2 = VTK_LARGE_FLOAT;
+  double d2, minD2, pt[3], minPt[3];
+  minD2 = VTK_DOUBLE_MAX;
 
   pt[0] = p2[0]; pt[1] = p2[1]; pt[2] = minPt[2] = 0.0;
   if ( (d2 = vtkMath::Distance2BetweenPoints(p1,pt)) < minD2 )
@@ -345,7 +345,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     p2[2] = p1[2];
     viewport->SetViewPoint(p2);
     viewport->ViewToWorld();
-    float w3[4];
+    double w3[4];
     viewport->GetWorldPoint(w3);
     if ( w3[3] != 0.0 )
       {
@@ -367,10 +367,10 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     {
     // compute the scale
     this->LeaderGlyph->Update();
-    float length = this->LeaderGlyph->GetLength();
+    double length = this->LeaderGlyph->GetLength();
     int *sze = viewport->GetSize();
     int   numPixels = static_cast<int> (this->LeaderGlyphSize * 
-      sqrt(static_cast<float>(sze[0]*sze[0] + sze[1]*sze[1])));
+      sqrt(static_cast<double>(sze[0]*sze[0] + sze[1]*sze[1])));
     numPixels = (numPixels > this->MaximumLeaderGlyphSize ?
                  this->MaximumLeaderGlyphSize : numPixels );
 
@@ -387,8 +387,8 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
     // Arbitrary 1.5 factor makes up for the use of "diagonals" in length
     // calculations; otherwise the scale factor tends to be too small
-    float sf = 1.5 * numPixels * sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) /
-               length;
+    double sf = 1.5 * numPixels * 
+      sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) / length;
 
     vtkDebugMacro(<<"Scale factor: " << sf);
 

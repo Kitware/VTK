@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.14");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.15");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -376,13 +376,13 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
 {
   vtkRenderer *ren = this->Renderer;  
   ren->ComputeAspect();
-  float *aspect = ren->GetAspect();
+  double *aspect = ren->GetAspect();
 
   vtkTransform *perspectiveTransform = vtkTransform::New();
   vtkMatrix4x4 *perspectiveMatrix = vtkMatrix4x4::New();
   
-  // Get the view matrix in two steps -  there is a one step method in camera but it turns
-  // off stereo so we do not want to use that one
+  // Get the view matrix in two steps - there is a one step method in camera
+  // but it turns off stereo so we do not want to use that one
   vtkCamera *cam = ren->GetActiveCamera();
   perspectiveTransform->Identity();
   perspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));

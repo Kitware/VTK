@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.10");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.11");
 vtkStandardNewMacro(vtkScalarBarWidget);
 vtkCxxSetObjectMacro(vtkScalarBarWidget, ScalarBarActor, vtkScalarBarActor);
 
@@ -255,8 +255,8 @@ void vtkScalarBarWidget::OnLeftButtonDown()
     }
   
   // start a drag, store the normalized view coords
-  float X2 = X;
-  float Y2 = Y;
+  double X2 = X;
+  double Y2 = Y;
   // convert to normalized viewport coordinates
   this->CurrentRenderer->DisplayToNormalizedDisplay(X2,Y2);
   this->CurrentRenderer->NormalizedDisplayToViewport(X2,Y2);
@@ -319,18 +319,18 @@ void vtkScalarBarWidget::OnMouseMove()
       }
     }
   
-  float XF = X;
-  float YF = Y;
+  double XF = X;
+  double YF = Y;
   // convert to normalized viewport coordinates
   this->CurrentRenderer->DisplayToNormalizedDisplay(XF,YF);
   this->CurrentRenderer->NormalizedDisplayToViewport(XF,YF);
   this->CurrentRenderer->ViewportToNormalizedViewport(XF,YF);
   
   // there are four parameters that can be adjusted
-  float *fpos1 = this->ScalarBarActor->GetPositionCoordinate()->GetValue();
-  float *fpos2 = this->ScalarBarActor->GetPosition2Coordinate()->GetValue();
-  float par1[2];
-  float par2[2];
+  double *fpos1 = this->ScalarBarActor->GetPositionCoordinate()->GetValue();
+  double *fpos2 = this->ScalarBarActor->GetPosition2Coordinate()->GetValue();
+  double par1[2];
+  double par2[2];
   par1[0] = fpos1[0];
   par1[1] = fpos1[1];
   par2[0] = fpos1[0] + fpos2[0];  
@@ -376,8 +376,8 @@ void vtkScalarBarWidget::OnMouseMove()
       // then check for an orientation change if the scalar bar moves so that
       // its center is closer to a different edge that its current edge by
       // 0.2 then swap orientation
-      float centerX = (par1[0] + par2[0])/2.0;
-      float centerY = (par1[1] + par2[1])/2.0;
+      double centerX = (par1[0] + par2[0])/2.0;
+      double centerY = (par1[1] + par2[1])/2.0;
       // what edge is it closest to
       if (fabs(centerX - 0.5) > fabs(centerY - 0.5))
         {

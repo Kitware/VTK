@@ -311,11 +311,11 @@ public:
   // v1 == v2, then the range will be computed automatically. Note that
   // the x-range values should be consistent with the way the independent
   // variable is created (via INDEX, DISTANCE, or ARC_LENGTH).
-  vtkSetVector2Macro(XRange,float);
-  vtkGetVectorMacro(XRange,float,2);
-  vtkSetVector2Macro(YRange,float);
-  vtkGetVectorMacro(YRange,float,2);
-  void SetPlotRange(float xmin, float ymin, float xmax, float ymax)
+  vtkSetVector2Macro(XRange,double);
+  vtkGetVectorMacro(XRange,double,2);
+  vtkSetVector2Macro(YRange,double);
+  vtkGetVectorMacro(YRange,double,2);
+  void SetPlotRange(double xmin, double ymin, double xmax, double ymax)
     {this->SetXRange(xmin,xmax); this->SetYRange(ymin,ymax);}
   
   // Description:
@@ -345,10 +345,10 @@ public:
   // values with respect to the rectangle defined by PositionCoordinate and
   // Position2Coordinate. Note that LegendPosition2 is relative to
   // LegendPosition.
-  vtkSetVector2Macro(LegendPosition,float);
-  vtkGetVector2Macro(LegendPosition,float);
-  vtkSetVector2Macro(LegendPosition2,float);
-  vtkGetVector2Macro(LegendPosition2,float);
+  vtkSetVector2Macro(LegendPosition,double);
+  vtkGetVector2Macro(LegendPosition,double);
+  vtkSetVector2Macro(LegendPosition2,double);
+  vtkGetVector2Macro(LegendPosition2,double);
   
   // Description:
   // Set/Get the title text property.
@@ -404,25 +404,25 @@ public:
   // Set/Get the factor that controls how big glyphs are in the plot.
   // The number is expressed as a fraction of the length of the diagonal
   // of the plot bounding box.
-  vtkSetClampMacro(GlyphSize, float, 0.0, 0.2);
-  vtkGetMacro(GlyphSize, float);
+  vtkSetClampMacro(GlyphSize, double, 0.0, 0.2);
+  vtkGetMacro(GlyphSize, double);
 
   // Description:
   // Given a position within the viewport used by the plot, return the
   // the plot coordinates (XAxis value, YAxis value)
-  void ViewportToPlotCoordinate(vtkViewport *viewport, float &u, float &v);
+  void ViewportToPlotCoordinate(vtkViewport *viewport, double &u, double &v);
 
   // Description:
   // An alternate form of ViewportToPlotCoordinate() above. This method
   // inputs the viewport coordinate pair (defined by the ivar 
   // ViewportCoordinate)and then stores them in the ivar PlotCoordinate. 
   void ViewportToPlotCoordinate(vtkViewport *viewport);
-  vtkSetVector2Macro(PlotCoordinate,float);
-  vtkGetVector2Macro(PlotCoordinate,float);
+  vtkSetVector2Macro(PlotCoordinate,double);
+  vtkGetVector2Macro(PlotCoordinate,double);
 
   // Description:
   // Given a plot coordinate, return the viewpoint position
-  void PlotToViewportCoordinate(vtkViewport *viewport, float &u, float &v);
+  void PlotToViewportCoordinate(vtkViewport *viewport, double &u, double &v);
 
   // Description:
   // An alternate form of PlotToViewportCoordinate() above. This method
@@ -430,13 +430,13 @@ public:
   // and then stores them in the ivar ViewportCoordinate. (This method 
   // can be wrapped.)
   void PlotToViewportCoordinate(vtkViewport *viewport);
-  vtkSetVector2Macro(ViewportCoordinate,float);
-  vtkGetVector2Macro(ViewportCoordinate,float);
+  vtkSetVector2Macro(ViewportCoordinate,double);
+  vtkGetVector2Macro(ViewportCoordinate,double);
 
   // Description:
   // Is the specified viewport position within the plot area (as opposed to the
   // region used by the plot plus the labels)?
-  int IsInPlot(vtkViewport *viewport, float u, float v);
+  int IsInPlot(vtkViewport *viewport, double u, double v);
   
   // Description:
   // Take into account the modified time of internal helper classes.
@@ -474,10 +474,10 @@ protected:
   int   NumberOfYLabels;
   int   Logx;
   char  *LabelFormat;
-  float XRange[2];
-  float YRange[2];
-  float XComputedRange[2];  //range actually used by plot
-  float YComputedRange[2];  //range actually used by plot
+  double XRange[2];
+  double YRange[2];
+  double XComputedRange[2];  //range actually used by plot
+  double YComputedRange[2];  //range actually used by plot
   int Border;
   int PlotLines;
   int PlotPoints;
@@ -497,8 +497,8 @@ protected:
   vtkTextProperty *AxisTitleTextProperty;
   vtkTextProperty *AxisLabelTextProperty;
 
-  float ViewportCoordinate[2];
-  float PlotCoordinate[2];
+  double ViewportCoordinate[2];
+  double PlotCoordinate[2];
   
   //Handle data objects and datasets
   int DataObjectPlotMode;
@@ -521,29 +521,29 @@ protected:
   // Legends and plot symbols. The legend also keeps track of
   // the symbols and such.
   int Legend;
-  float LegendPosition[2];
-  float LegendPosition2[2];
+  double LegendPosition[2];
+  double LegendPosition2[2];
   vtkLegendBoxActor *LegendActor;
   vtkGlyphSource2D *GlyphSource;
   vtkPlanes *ClipPlanes;
-  float GlyphSize;
+  double GlyphSize;
 
   // Keep track of changes.
   int CachedSize[2];
   vtkTimeStamp  BuildTime;
 
-  void ComputeXRange(float range[2], float *lengths);
-  void ComputeYRange(float range[2]);
-  void ComputeDORange(float xrange[2], float yrange[2], float *lengths);
+  void ComputeXRange(double range[2], double *lengths);
+  void ComputeYRange(double range[2]);
+  void ComputeDORange(double xrange[2], double yrange[2], double *lengths);
 
-  virtual void CreatePlotData(int *pos, int *pos2, float xRange[2], 
-                              float yRange[2], float *norms, 
+  virtual void CreatePlotData(int *pos, int *pos2, double xRange[2], 
+                              double yRange[2], double *norms, 
                               int numDS, int numDO);
   void PlaceAxes(vtkViewport *viewport, int *size, int pos[2], int pos2[2]);
   void GenerateClipPlanes(int *pos, int *pos2);
-  float ComputeGlyphScale(int i, int *pos, int *pos2);
+  double ComputeGlyphScale(int i, int *pos, int *pos2);
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
-  float *TransformPoint(int pos[2], int pos2[2], float x[3], float xNew[3]);
+  double *TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3]);
   
 private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.

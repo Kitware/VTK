@@ -37,14 +37,14 @@
 #include "vtkTransformCollection.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkSweptSurface, "1.81");
+vtkCxxRevisionMacro(vtkSweptSurface, "1.82");
 vtkStandardNewMacro(vtkSweptSurface);
 
 vtkCxxSetObjectMacro(vtkSweptSurface,Transforms, vtkTransformCollection);
 
 // Description:
 // Construct object with SampleDimensions = (50,50,50), FillValue = 
-// VTK_DOUBLE_MAX, ModelBounds=(0,0,0,0,0,0) (i.e, bounds will be
+// VTK_FLOAT ModelBounds=(0,0,0,0,0,0) (i.e, bounds will be
 // computed automatically), and Capping turned on.
 vtkSweptSurface::vtkSweptSurface()
 {
@@ -61,7 +61,7 @@ vtkSweptSurface::vtkSweptSurface()
 
   this->NumberOfInterpolationSteps = 0;
   this->MaximumNumberOfInterpolationSteps = VTK_LARGE_INTEGER;
-  this->FillValue = VTK_DOUBLE_MAX;
+  this->FillValue = VTK_FLOAT_MAX;
   this->Transforms = NULL;
   this->Capping = 1;
 
@@ -478,9 +478,13 @@ void vtkSweptSurface::ComputeFootprint (vtkMatrix4x4 *m, int inDim[3],
     fptr += 3;
     }
 
-  // now calc the new bounds
-  workBounds[0] = workBounds[2] = workBounds[4] = VTK_DOUBLE_MAX;
-  workBounds[1] = workBounds[3] = workBounds[5] = -VTK_DOUBLE_MAX;
+  // now calc the new bounds carefully
+  workBounds[0] = bbox[0];
+  workBounds[1] = bbox[0];
+  workBounds[2] = bbox[1];
+  workBounds[3] = bbox[1];
+  workBounds[4] = bbox[2];
+  workBounds[5] = bbox[2];
   for (i = 0; i < 8; i++)
     {
     for (n = 0; n < 3; n++)
@@ -556,8 +560,8 @@ void vtkSweptSurface::ComputeBounds(double origin[3], double spacing[3],
 
   // if bounds are not specified, compute bounds from path
   if (this->ModelBounds[0] >= this->ModelBounds[1] ||
-  this->ModelBounds[2] >= this->ModelBounds[3] ||
-  this->ModelBounds[4] >= this->ModelBounds[5])
+      this->ModelBounds[2] >= this->ModelBounds[3] ||
+      this->ModelBounds[4] >= this->ModelBounds[5])
     {
     int numTransforms, transNum;
     double position[3], orientation[3], position1[3], orient1[3];
@@ -574,10 +578,16 @@ void vtkSweptSurface::ComputeBounds(double origin[3], double spacing[3],
     actorOrigin[0] = (bounds[0]+bounds[1])/2.0;
     actorOrigin[1] = (bounds[2]+bounds[3])/2.0;
     actorOrigin[2] = (bounds[4]+bounds[5])/2.0;
+    
+    double tmpBnds[6];
+    vtkMath::UninitializeBounds(tmpBnds);
+    xmin[0] = tmpBnds[0];
+    xmax[0] = tmpBnds[1];
+    xmin[1] = tmpBnds[2];
+    xmax[1] = tmpBnds[3];
+    xmin[2] = tmpBnds[4];
+    xmax[2] = tmpBnds[5];
 
-    xmin[0] = xmin[1] = xmin[2] = VTK_DOUBLE_MAX;
-    xmax[0] = xmax[1] = xmax[2] = -VTK_DOUBLE_MAX;
-        
     numTransforms = this->Transforms->GetNumberOfItems();
 
     // I don not know how to handle this "correctly"

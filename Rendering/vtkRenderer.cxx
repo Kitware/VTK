@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.196");
+vtkCxxRevisionMacro(vtkRenderer, "1.197");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -933,10 +933,10 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 }
 
 // Given a pixel location, return the Z value
-float vtkRenderer::GetZ (int x, int y)
+double vtkRenderer::GetZ (int x, int y)
 {
   float *zPtr;
-  float z;
+  double z;
 
   zPtr = this->RenderWindow->GetZbufferData (x, y, x, y);
   if (zPtr)
@@ -956,7 +956,7 @@ float vtkRenderer::GetZ (int x, int y)
 void vtkRenderer::ViewToWorld()
 {
   vtkMatrix4x4 *mat = vtkMatrix4x4::New();
-  float result[4];
+  double result[4];
 
   // get the perspective transformation from the active camera 
   mat->DeepCopy(
@@ -987,10 +987,10 @@ void vtkRenderer::ViewToWorld()
   mat->Delete();
 }
 
-void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
+void vtkRenderer::ViewToWorld(double &x, double &y, double &z)
 {
   vtkMatrix4x4 *mat = vtkMatrix4x4::New();
-  float result[4];
+  double result[4];
 
   // get the perspective transformation from the active camera 
   mat->DeepCopy(
@@ -1022,8 +1022,8 @@ void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
 void vtkRenderer::WorldToView()
 {
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  float     view[4];
-  float     *world;
+  double     view[4];
+  double     *world;
 
   // get the perspective transformation from the active camera 
   matrix->DeepCopy(
@@ -1049,10 +1049,10 @@ void vtkRenderer::WorldToView()
 }
 
 // Convert world point coordinates to view coordinates.
-void vtkRenderer::WorldToView(float &x, float &y, float &z)
+void vtkRenderer::WorldToView(double &x, double &y, double &z)
 {
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  float     view[4];
+  double     view[4];
 
   // get the perspective transformation from the active camera
   matrix->DeepCopy(
@@ -1174,7 +1174,7 @@ unsigned long int vtkRenderer::GetMTime()
 }
 
 
-vtkAssemblyPath* vtkRenderer::PickProp(float selectionX, float selectionY)
+vtkAssemblyPath* vtkRenderer::PickProp(double selectionX, double selectionY)
 {
   // initialize picking information
   this->CurrentPickId = 1; // start at 1, so 0 can be a no pick

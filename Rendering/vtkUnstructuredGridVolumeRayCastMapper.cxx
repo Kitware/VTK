@@ -40,7 +40,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 
@@ -305,7 +305,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
        ren->GetNumberOfPropsRendered() )
     {
     int x1, x2, y1, y2;
-    float *viewport   =  ren->GetViewport();
+    double *viewport   =  ren->GetViewport();
     int *renWinSize   =  ren->GetRenderWindow()->GetSize();
     
     // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
@@ -484,8 +484,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
     }
 }
 
-float vtkUnstructuredGridVolumeRayCastMapper::GetMinimumBoundsDepth( vtkRenderer *ren,
-                                                                     vtkVolume   *vol )
+float vtkUnstructuredGridVolumeRayCastMapper::
+GetMinimumBoundsDepth( vtkRenderer *ren, vtkVolume   *vol )
 {
   float bounds[6];
   vol->GetBounds( bounds );
@@ -494,13 +494,14 @@ float vtkUnstructuredGridVolumeRayCastMapper::GetMinimumBoundsDepth( vtkRenderer
   vtkMatrix4x4 *perspectiveMatrix = vtkMatrix4x4::New();
   
   ren->ComputeAspect();
-  float *aspect = ren->GetAspect();
+  double *aspect = ren->GetAspect();
 
-  // Get the view matrix in two steps -  there is a one step method in camera but it turns
-  // off stereo so we do not want to use that one
+  // Get the view matrix in two steps - there is a one step method in camera
+  // but it turns off stereo so we do not want to use that one
   vtkCamera *cam = ren->GetActiveCamera();
   perspectiveTransform->Identity();
-  perspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
+  perspectiveTransform->Concatenate(
+    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   perspectiveMatrix->DeepCopy(perspectiveTransform->GetMatrix());
   

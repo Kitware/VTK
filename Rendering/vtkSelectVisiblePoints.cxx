@@ -25,7 +25,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.29");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.30");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -57,7 +57,7 @@ void vtkSelectVisiblePoints::Execute()
   vtkPointData *outPD=output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
   float x[4];
-  float dx[3], z, diff;
+  double dx[3], z, diff;
   int selection[4];
   
   if ( this->Renderer == NULL )

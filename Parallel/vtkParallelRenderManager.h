@@ -48,7 +48,7 @@
 class vtkRenderWindow;
 class vtkRenderer;
 class vtkUnsignedCharArray;
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkTimerLog;
 class vtkMultiProcessController;
 
@@ -272,7 +272,7 @@ public:
     WIN_INFO_INT_TAG=87834,
     WIN_INFO_FLOAT_TAG=87835,
     REN_INFO_INT_TAG=87836,
-    REN_INFO_FLOAT_TAG=87837,
+    REN_INFO_DOUBLE_TAG=87837,
     LIGHT_INFO_FLOAT_TAG=87838,
     REN_ID_TAG=58794,
     BOUNDS_TAG=23543
@@ -325,7 +325,7 @@ protected:
   int ReducedImageUpToDate;
   int RenderWindowImageUpToDate;
 
-  vtkFloatArray *Viewports;
+  vtkDoubleArray *Viewports;
 
   int Lock;
   int ParallelRendering;

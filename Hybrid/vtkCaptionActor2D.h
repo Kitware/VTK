@@ -116,8 +116,8 @@ public:
   // head is automatically scaled so that window resize, zooming or other 
   // camera motion results in proportional changes in size to the leader
   // glyph.
-  vtkSetClampMacro(LeaderGlyphSize,float,0.0,0.1);
-  vtkGetMacro(LeaderGlyphSize,float);
+  vtkSetClampMacro(LeaderGlyphSize,double,0.0,0.1);
+  vtkGetMacro(LeaderGlyphSize,double);
 
   // Description:
   // Specify the maximum size of the leader head (if any) in pixels. This 
@@ -170,7 +170,7 @@ protected:
   int   Border;
   int   Leader;
   int   ThreeDimensionalLeader;
-  float LeaderGlyphSize;
+  double LeaderGlyphSize;
   int   MaximumLeaderGlyphSize;
 
   vtkPolyData *LeaderGlyph; //what to put on the end of the leader

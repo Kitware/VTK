@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.99");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.100");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -342,16 +342,16 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // Get the aspect ratio from the renderer. This is needed for the
   // computation of the perspective matrix
   ren->ComputeAspect();
-  float *aspect = ren->GetAspect();
+  double *aspect = ren->GetAspect();
 
-  // Keep track of the projection matrix - we'll need it in a couple of places
-  // Get the projection matrix. The method is called perspective, but
+  // Keep track of the projection matrix - we'll need it in a couple of
+  // places Get the projection matrix. The method is called perspective, but
   // the matrix is valid for perspective and parallel viewing transforms.
-  // Don't replace this with the GetCompositePerspectiveTransformMatrix because that
-  // turns off stereo rendering!!!
+  // Don't replace this with the GetCompositePerspectiveTransformMatrix
+  // because that turns off stereo rendering!!!
   this->PerspectiveTransform->Identity();
-  this->PerspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 
-                                                        0.0, 1.0 ));
+  this->PerspectiveTransform->Concatenate(
+    cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1],0.0, 1.0 ));
   this->PerspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
 
@@ -361,7 +361,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
 
   // How big is the viewport in pixels?
-  float *viewport   =  ren->GetViewport();
+  double *viewport   =  ren->GetViewport();
   int *renWinSize   =  ren->GetRenderWindow()->GetSize();
 
   // Save this so that we can restore it if the image is cancelled

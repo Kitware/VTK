@@ -44,7 +44,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.115");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.116");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -373,20 +373,32 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   loc = this->Locations->GetValue(cellId);
   this->Connectivity->GetCell(loc,numPts,pts);
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
-
-  for (i=0; i < numPts; i++)
+  // carefully compute the bounds
+  if (numPts)
     {
-    this->Points->GetPoint( pts[i], x );
-
-    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
-    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    this->Points->GetPoint( pts[0], x );
+    bounds[0] = x[0];
+    bounds[2] = x[1];
+    bounds[4] = x[2];
+    bounds[1] = x[0];
+    bounds[3] = x[1];
+    bounds[5] = x[2];
+    for (i=1; i < numPts; i++)
+      {
+      this->Points->GetPoint( pts[i], x );
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      }
     }
+  else
+    {
+    vtkMath::UninitializeBounds(bounds);
+    }
+  
 }
 
 int vtkUnstructuredGrid::GetMaxCellSize()

@@ -20,13 +20,14 @@
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkLine.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredVisibilityConstraint.h"
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.98");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.99");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -421,16 +422,15 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   int offset2 = 0;
   double x[3];
   
-  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
-  
   // Make sure data is defined
   if ( ! this->Points )
     {
     vtkErrorMacro (<<"No data");
     return;
     }
- 
+  
+  vtkMath::UninitializeBounds(bounds);
+  
   // Update dimensions
   this->GetDimensions();
 

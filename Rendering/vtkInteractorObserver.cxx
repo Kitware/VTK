@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.27");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.28");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -193,27 +193,6 @@ void vtkInteractorObserver::ComputeDisplayToWorld(double x,
     }
 }
 
-void vtkInteractorObserver::ComputeDisplayToWorld(double x, 
-                                                  double y,
-                                                  double z, 
-                                                  float worldPt[4])
-{
-  if ( !this->CurrentRenderer ) 
-    {
-    return;
-    }
-  
-  this->CurrentRenderer->SetDisplayPoint(x, y, z);
-  this->CurrentRenderer->DisplayToWorld();
-  this->CurrentRenderer->GetWorldPoint(worldPt);
-  if (worldPt[3])
-    {
-    worldPt[0] /= worldPt[3];
-    worldPt[1] /= worldPt[3];
-    worldPt[2] /= worldPt[3];
-    worldPt[3] = 1.0;
-    }
-}
 
 // Description:
 // Transform from world to display coordinates.
@@ -222,24 +201,6 @@ void vtkInteractorObserver::ComputeWorldToDisplay(double x,
                                                   double y,
                                                   double z, 
                                                   double displayPt[3])
-{
-  if ( !this->CurrentRenderer ) 
-    {
-    return;
-    }
-  
-  this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
-  this->CurrentRenderer->WorldToDisplay();
-  this->CurrentRenderer->GetDisplayPoint(displayPt);
-}
-
-// Description:
-// transform from world to display coordinates.
-// displayPt has to be allocated as 3 vector
-void vtkInteractorObserver::ComputeWorldToDisplay(double x, 
-                                                  double y,
-                                                  double z, 
-                                                  float displayPt[3])
 {
   if ( !this->CurrentRenderer ) 
     {

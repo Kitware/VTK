@@ -20,7 +20,7 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkIntArray.h"
@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.50");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.51");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -168,7 +168,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   pts->SetNumberOfPoints(4);
   this->ClipPlanes->SetPoints(pts);
   pts->Delete();
-  vtkFloatArray *n = vtkFloatArray::New();
+  vtkDoubleArray *n = vtkDoubleArray::New();
   n->SetNumberOfComponents(3);
   n->SetNumberOfTuples(4);
   this->ClipPlanes->SetNormals(n);
@@ -534,7 +534,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       (this->AxisTitleTextProperty &&
        this->AxisTitleTextProperty->GetMTime() > this->BuildTime))
     {
-    float range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=NULL;
+    double range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=NULL;
     int pos[2], pos2[2], numTicks;
     int stringSize[2];
     int num = ( numDS > 0 ? numDS : numDO );
@@ -622,7 +622,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->XAxis->SetNumberOfLabels(this->NumberOfXLabels);
     this->XAxis->SetProperty(this->GetProperty());
 
-    lengths = new float[num];
+    lengths = new double[num];
     if ( numDS > 0 ) //plotting data sets
       {
       this->ComputeXRange(range, lengths);
@@ -959,15 +959,15 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
+void vtkXYPlotActor::ComputeXRange(double range[2], double *lengths)
 {
   int dsNum;
   vtkIdType numPts, ptId, maxNum;
   double maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
-  range[0] = VTK_LARGE_FLOAT;
-  range[1] = -VTK_LARGE_FLOAT;
+  range[0] = VTK_DOUBLE_MAX;
+  range[1] = -VTK_DOUBLE_MAX;
   for ( dsNum=0, maxNum=0, this->InputList->InitTraversal(); 
         (ds = this->InputList->GetNextItem()); dsNum++)
     {
@@ -1041,7 +1041,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
       break;
     case VTK_XYPLOT_INDEX:
       range[0] = 0.0;
-      range[1] = (float)(maxNum - 1);
+      range[1] = (double)(maxNum - 1);
       break;
     case VTK_XYPLOT_VALUE:
       if (this->GetLogx() == 1)
@@ -1065,7 +1065,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::ComputeYRange(float range[2])
+void vtkXYPlotActor::ComputeYRange(double range[2])
 {
   vtkDataSet *ds;
   vtkDataArray *scalars;
@@ -1073,7 +1073,7 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
   int count;
   int component;
 
-  range[0]=VTK_LARGE_FLOAT, range[1]=(-VTK_LARGE_FLOAT);
+  range[0]=VTK_DOUBLE_MAX, range[1]=(-VTK_DOUBLE_MAX);
 
   for ( this->InputList->InitTraversal(), count = 0; 
         (ds = this->InputList->GetNextItem()); ++count)
@@ -1105,19 +1105,19 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2], 
-                                    float *lengths)
+void vtkXYPlotActor::ComputeDORange(double xrange[2], double yrange[2], 
+                                    double *lengths)
 {
   int i;
   vtkDataObject *dobj;
   vtkFieldData *field;
   int doNum, numColumns;
   vtkIdType numTuples, numRows, num, ptId, maxNum;
-  float maxLength=0.0, x, y, xPrev = 0.0;
+  double maxLength=0.0, x, y, xPrev = 0.0;
   vtkDataArray *array;
 
-  xrange[0] = yrange[0] = VTK_LARGE_FLOAT;
-  xrange[1] = yrange[1] = -VTK_LARGE_FLOAT;
+  xrange[0] = yrange[0] = VTK_DOUBLE_MAX;
+  xrange[1] = yrange[1] = -VTK_DOUBLE_MAX;
   for ( doNum=0, maxNum=0, this->DataObjectInputList->InitTraversal(); 
         (dobj = this->DataObjectInputList->GetNextItem()); doNum++)
     {
@@ -1235,7 +1235,7 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
       break;
     case VTK_XYPLOT_INDEX:
       xrange[0] = 0.0;
-      xrange[1] = (float)(maxNum - 1);
+      xrange[1] = (double)(maxNum - 1);
       break;
     case VTK_XYPLOT_VALUE:
       if (this->GetLogx() == 1)
@@ -1251,11 +1251,11 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2], 
-                                    float yRange[2], float *lengths,
+void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, double xRange[2], 
+                                    double yRange[2], double *lengths,
                                     int numDS, int numDO)
 {
-  float xyz[3]; xyz[2] = 0.0;
+  double xyz[3]; xyz[2] = 0.0;
   int i, numLinePts, dsNum, doNum, num;
   vtkIdType numPts, ptId, id;
   double length, x[3], xPrev[3];
@@ -1364,7 +1364,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
             xPrev[0] = x[0]; xPrev[1] = x[1]; xPrev[2] = x[2];
             break;
           case VTK_XYPLOT_INDEX:
-            xyz[0] = (float)ptId;
+            xyz[0] = (double)ptId;
             break;
           case VTK_XYPLOT_ARC_LENGTH:
             length += sqrt(vtkMath::Distance2BetweenPoints(x,xPrev));
@@ -1478,7 +1478,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
             xPrev[0] = x[0];
             break;
           case VTK_XYPLOT_INDEX:
-            xyz[0] = (float)ptId;
+            xyz[0] = (double)ptId;
             break;
           case VTK_XYPLOT_ARC_LENGTH:
             length += fabs(x[0]-xPrev[0]);
@@ -1590,10 +1590,10 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
                                int pos[2], int pos2[2])
 {
   int titleSizeX[2], titleSizeY[2], labelSizeX[2], labelSizeY[2];
-  float labelFactorX, labelFactorY;
-  float fontFactorX, fontFactorY;
-  float tickOffsetX, tickOffsetY;
-  float tickLengthX, tickLengthY;
+  double labelFactorX, labelFactorY;
+  double fontFactorX, fontFactorY;
+  double tickOffsetX, tickOffsetY;
+  double tickLengthX, tickLengthY;
 
   vtkAxisActor2D *axisX;
   vtkAxisActor2D *axisY;
@@ -1684,7 +1684,7 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
 }
 
 //----------------------------------------------------------------------------
-void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, float &v)
+void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, double &u, double &v)
 {
   int *p0, *p1, *p2;
 
@@ -1693,17 +1693,17 @@ void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, f
   p1 = this->XAxis->GetPosition2Coordinate()->GetComputedViewportValue(viewport);
   p2 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
-  u = ((u - p0[0]) / (float)(p1[0] - p0[0]))
+  u = ((u - p0[0]) / (double)(p1[0] - p0[0]))
     *(this->XComputedRange[1] - this->XComputedRange[0])
     + this->XComputedRange[0];
-  v = ((v - p0[1]) / (float)(p2[1] - p0[1]))
+  v = ((v - p0[1]) / (double)(p2[1] - p0[1]))
     *(this->YComputedRange[1] - this->YComputedRange[0])
     + this->YComputedRange[0];
 }
 
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
-                                              float &u, float &v)
+                                              double &u, double &v)
 {
   int *p0, *p1, *p2;
 
@@ -1714,10 +1714,10 @@ void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
 
   u = (((u - this->XComputedRange[0])
         / (this->XComputedRange[1] - this->XComputedRange[0]))
-       * (float)(p1[0] - p0[0])) + p0[0];
+       * (double)(p1[0] - p0[0])) + p0[0];
   v = (((v - this->YComputedRange[0])
         / (this->YComputedRange[1] - this->YComputedRange[0]))
-       * (float)(p2[1] - p0[1])) + p0[1];
+       * (double)(p2[1] - p0[1])) + p0[1];
 }
 
 //----------------------------------------------------------------------------
@@ -1737,7 +1737,7 @@ void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport)
 }
 
 //----------------------------------------------------------------------------
-int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
+int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, double u, double v)
 {
   int *p0, *p1, *p2;
 
@@ -1831,7 +1831,7 @@ const char *vtkXYPlotActor::GetPlotLabel(int i)
 //----------------------------------------------------------------------------
 void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
 {
-  float n[3], x[3];
+  double n[3], x[3];
   vtkPoints *pts=this->ClipPlanes->GetPoints();
   vtkDataArray *normals=this->ClipPlanes->GetNormals();
   
@@ -1841,42 +1841,42 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
   n[0] = 0.0;
   n[1] = -1.0;
   normals->SetTuple(0,n);
-  x[0] = (float)0.5*(pos[0]+pos2[0]);
-  x[1] = (float)pos[1];
+  x[0] = (double)0.5*(pos[0]+pos2[0]);
+  x[1] = (double)pos[1];
   pts->SetPoint(0,x);
   
   //second
   n[0] = 1.0;
   n[1] = 0.0;
   normals->SetTuple(1,n);
-  x[0] = (float)pos2[0];
-  x[1] = (float)0.5*(pos[1]+pos2[1]);
+  x[0] = (double)pos2[0];
+  x[1] = (double)0.5*(pos[1]+pos2[1]);
   pts->SetPoint(1,x);
   
   //third
   n[0] = 0.0;
   n[1] = 1.0;
   normals->SetTuple(2,n);
-  x[0] = (float)0.5*(pos[0]+pos2[0]);
-  x[1] = (float)pos2[1];
+  x[0] = (double)0.5*(pos[0]+pos2[0]);
+  x[1] = (double)pos2[1];
   pts->SetPoint(2,x);
   
   //fourth
   n[0] = -1.0;
   n[1] = 0.0;
   normals->SetTuple(3,n);
-  x[0] = (float)pos[0];
-  x[1] = (float)0.5*(pos[1]+pos2[1]);
+  x[0] = (double)pos[0];
+  x[1] = (double)0.5*(pos[1]+pos2[1]);
   pts->SetPoint(3,x);
 }
 
 //----------------------------------------------------------------------------
-float vtkXYPlotActor::ComputeGlyphScale(int i, int *pos, int *pos2)
+double vtkXYPlotActor::ComputeGlyphScale(int i, int *pos, int *pos2)
 {
   vtkPolyData *pd=this->LegendActor->GetEntrySymbol(i);
   pd->Update();
-  float length=pd->GetLength();
-  float sf = this->GlyphSize * sqrt((double)(pos[0]-pos2[0])*(pos[0]-pos2[0]) + 
+  double length=pd->GetLength();
+  double sf = this->GlyphSize * sqrt((double)(pos[0]-pos2[0])*(pos[0]-pos2[0]) + 
                                     (pos[1]-pos2[1])*(pos[1]-pos2[1])) / length;
 
   return sf;
@@ -1899,8 +1899,8 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   double x1[3], x2[3], px[3], n[3], xint[3], t;
   double p1[2], p2[2];
 
-  p1[0] = (float)pos[0]; p1[1] = (float)pos[1];
-  p2[0] = (float)pos2[0]; p2[1] = (float)pos2[1];
+  p1[0] = (double)pos[0]; p1[1] = (double)pos[1];
+  p2[0] = (double)pos2[0]; p2[1] = (double)pos2[1];
   
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
@@ -2048,13 +2048,13 @@ int vtkXYPlotActor::GetPointComponent(int i)
 }
 
 //----------------------------------------------------------------------------
-float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float xNew[3])
+double *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3])
 {
   // First worry about exchanging axes
   if ( this->ExchangeAxes )
     {
-    float sx = (x[0]-pos[0]) / (pos2[0]-pos[0]);
-    float sy = (x[1]-pos[1]) / (pos2[1]-pos[1]);
+    double sx = (x[0]-pos[0]) / (pos2[0]-pos[0]);
+    double sy = (x[1]-pos[1]) / (pos2[1]-pos[1]);
     xNew[0] = sy*(pos2[0]-pos[0]) + pos[0];
     xNew[1] = sx*(pos2[1]-pos[1]) + pos[1];
     xNew[2] = x[2];

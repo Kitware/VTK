@@ -20,7 +20,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.21");
+vtkCxxRevisionMacro(vtkTextActor, "1.22");
 vtkStandardNewMacro(vtkTextActor);
 
 vtkCxxSetObjectMacro(vtkTextActor,TextProperty,vtkTextProperty);
@@ -193,7 +193,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   int *point1, *point2;
-  float u, v;
+  double u, v;
 
   // we don't need to do anything additional, just pass the call
   // right through to the actor

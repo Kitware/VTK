@@ -25,7 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.30");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.31");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -206,15 +206,12 @@ void vtkInteractorStyleTrackballActor::Rotate()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
 
   // First get the origin of the assembly
-
   float *obj_center = this->InteractionProp->GetCenter();
   
   // GetLength gets the length of the diagonal of the bounding box
-
   double boundRadius = this->InteractionProp->GetLength() * 0.5;
 
   // Get the view up and view right vectors
-
   double view_up[3], view_look[3], view_right[3];
 
   cam->OrthogonalizeViewUp();
@@ -226,16 +223,14 @@ void vtkInteractorStyleTrackballActor::Rotate()
   vtkMath::Normalize(view_right);
   
   // Get the furtherest point from object position+origin
-
-  float outsidept[3];
+  double outsidept[3];
 
   outsidept[0] = obj_center[0] + view_right[0] * boundRadius;
   outsidept[1] = obj_center[1] + view_right[1] * boundRadius;
   outsidept[2] = obj_center[2] + view_right[2] * boundRadius;
   
   // Convert them to display coord
-
-  float disp_obj_center[3];
+  double disp_obj_center[3];
 
   this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
                               disp_obj_center);
@@ -337,7 +332,7 @@ void vtkInteractorStyleTrackballActor::Spin()
     vtkMath::Normalize(motion_vector);
     }
   
-  float disp_obj_center[3];
+  double disp_obj_center[3];
   
   this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
                               disp_obj_center);
@@ -395,7 +390,8 @@ void vtkInteractorStyleTrackballActor::Pan()
 
   float *obj_center = this->InteractionProp->GetCenter();
 
-  float disp_obj_center[3], new_pick_point[4], old_pick_point[4], motion_vector[3];
+  double disp_obj_center[3], new_pick_point[4];
+  double old_pick_point[4], motion_vector[3];
   
   this->ComputeWorldToDisplay(obj_center[0], obj_center[1], obj_center[2], 
                               disp_obj_center);
@@ -425,7 +421,9 @@ void vtkInteractorStyleTrackballActor::Pan()
     }
   else
     {
-    this->InteractionProp->AddPosition(motion_vector);
+    this->InteractionProp->AddPosition(motion_vector[0],
+                                       motion_vector[1],
+                                       motion_vector[2]);
     }
   
   if (this->AutoAdjustCameraClippingRange)
@@ -453,7 +451,7 @@ void vtkInteractorStyleTrackballActor::Dolly()
   cam->GetPosition(view_point);
   cam->GetFocalPoint(view_focus);
   
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   double yf = (double)dy / (double)center[1] * this->MotionFactor;
@@ -500,7 +498,7 @@ void vtkInteractorStyleTrackballActor::UniformScale()
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
  
   float *obj_center = this->InteractionProp->GetCenter();
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   double yf = (double)dy / (double)center[1] * this->MotionFactor;
   double scaleFactor = pow((double)1.1, yf);

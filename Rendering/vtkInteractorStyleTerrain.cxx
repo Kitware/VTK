@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.7");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.8");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------
@@ -287,7 +287,7 @@ void vtkInteractorStyleTerrain::Dolly()
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   double dyf = this->MotionFactor * (double)(dy) / (double)(center[1]);

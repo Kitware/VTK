@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.37");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.38");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -274,10 +274,10 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 {
   int i, *x, viewportSizeHasChanged, positionsHaveChanged;
   vtkIdType ptIds[2];
-  float p1[3], p2[3], offset;
-  float interval, deltaX, deltaY;
+  double p1[3], p2[3], offset;
+  double interval, deltaX, deltaY;
   double xTick[3];
-  float theta, val;
+  double theta, val;
   int *size, stringSize[2];
   char string[512];
 
@@ -348,15 +348,15 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   // location of the endpoints.
 
   x = this->PositionCoordinate->GetComputedViewportValue(viewport);
-  p1[0] = (float)x[0]; 
-  p1[1] = (float)x[1]; 
+  p1[0] = (double)x[0]; 
+  p1[1] = (double)x[1]; 
   p1[2] = 0.0;
   this->LastPosition[0] = x[0]; 
   this->LastPosition[1] = x[1];
 
   x = this->Position2Coordinate->GetComputedViewportValue(viewport);
-  p2[0] = (float)x[0]; 
-  p2[1] = (float)x[1]; 
+  p2[0] = (double)x[0]; 
+  p2[1] = (double)x[1]; 
   p2[2] = 0.0;
   this->LastPosition2[0] = x[0]; 
   this->LastPosition2[1] = x[1];
@@ -460,7 +460,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       {
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)
         {
-        val = this->AdjustedRange[0] + (float)i * interval;
+        val = this->AdjustedRange[0] + (double)i * interval;
         sprintf(string, this->LabelFormat, val);
         this->LabelMappers[i]->SetInput(string);
         
@@ -589,7 +589,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
 int vtkAxisActor2D::SetFontSize(vtkViewport *viewport, 
                                 vtkTextMapper *textMapper, 
                                 int *targetSize,
-                                float factor, 
+                                double factor, 
                                 int *stringSize)
 {
   int fontSize, targetWidth, targetHeight;
@@ -616,7 +616,7 @@ int vtkAxisActor2D::SetMultipleFontSize(vtkViewport *viewport,
                                         vtkTextMapper **textMappers, 
                                         int nbOfMappers, 
                                         int *targetSize,
-                                        float factor, 
+                                        double factor, 
                                         int *stringSize)
 {
   int fontSize, targetWidth, targetHeight;
@@ -659,7 +659,7 @@ void vtkAxisActor2D::UpdateAdjustedRange()
   
   if ( this->AdjustLabels )
     {
-    float interval;
+    double interval;
     this->ComputeRange(this->Range, 
                        this->AdjustedRange, 
                        this->NumberOfLabels, 
@@ -677,17 +677,17 @@ void vtkAxisActor2D::UpdateAdjustedRange()
 
 //----------------------------------------------------------------------------
 #define VTK_NUM_DIVS 11
-void vtkAxisActor2D::ComputeRange(float inRange[2], 
-                                  float outRange[2],
+void vtkAxisActor2D::ComputeRange(double inRange[2], 
+                                  double outRange[2],
                                   int inNumTicks, 
                                   int &numTicks, 
-                                  float &interval)
+                                  double &interval)
 {
-  static float divs[VTK_NUM_DIVS] = {10.0, 8.0, 5.0, 4.0, 2.0, 1.0,
+  static double divs[VTK_NUM_DIVS] = {10.0, 8.0, 5.0, 4.0, 2.0, 1.0,
                                      0.5, 0.25, 0.20, 0.125, 0.10};
-  float range = fabs(inRange[1]-inRange[0]), sRange[2];
-  float logFactor = (float)pow((double)(10.0), (double)(floor(log10(range))));
-  float lastInterval;
+  double range = fabs(inRange[1]-inRange[0]), sRange[2];
+  double logFactor = (double)pow((double)(10.0), (double)(floor(log10(range))));
+  double lastInterval;
   int j;
 
   // Handle the range
@@ -703,7 +703,7 @@ void vtkAxisActor2D::ComputeRange(float inRange[2],
     }
   else // they're equal, so perturb them by 1 percent
     {
-    float perturb = 100.;
+    double perturb = 100.;
     if (inRange[0] == 0.0)
       { // if they are both zero, then just perturb about zero
       sRange[0] = -1/perturb;
@@ -717,7 +717,7 @@ void vtkAxisActor2D::ComputeRange(float inRange[2],
     //recompute range
     range = fabs(sRange[1]-sRange[0]);
     //recompute logfactor
-    logFactor = (float)pow((double)(10.0), (double)(floor(log10(range))));
+    logFactor = (double)pow((double)(10.0), (double)(floor(log10(range))));
     //recompute inRange so things get flipped correctly at the end
     inRange[0] = sRange[0];
     inRange[1] = sRange[1];
@@ -768,11 +768,11 @@ void vtkAxisActor2D::ComputeRange(float inRange[2],
 // Position text with respect to a point (xTick) where the angle of the line
 // from the point to the center of the text is given by theta. The offset
 // is the spacing between ticks and labels.
-void vtkAxisActor2D::SetOffsetPosition(double xTick[3], float theta, 
+void vtkAxisActor2D::SetOffsetPosition(double xTick[3], double theta, 
                                        int stringWidth, int stringHeight, 
                                        int offset, vtkActor2D *actor)
 {
-  float x, y, center[2];
+  double x, y, center[2];
   int pos[2];
    
   x = stringWidth/2.0 + offset;
@@ -788,11 +788,11 @@ void vtkAxisActor2D::SetOffsetPosition(double xTick[3], float theta,
 }
 
 //----------------------------------------------------------------------------
-float vtkAxisActor2D::ComputeStringOffset(float width, float height,
-                                          float theta)
+double vtkAxisActor2D::ComputeStringOffset(double width, double height,
+                                           double theta)
 {
-  float f1 = height*cos(theta);
-  float f2 = width*sin(theta);
+  double f1 = height*cos(theta);
+  double f2 = width*sin(theta);
   return (1.2 * sqrt(f1*f1 + f2*f2));
 }
 

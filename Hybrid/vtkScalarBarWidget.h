@@ -73,7 +73,7 @@ protected:
   void OnMouseMove();
 
   // used to compute relative movements
-  float StartPosition[2];
+  double StartPosition[2];
   
 //BTX - manage the state of the widget
   int State;

@@ -21,7 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkXYPlotWidget, "1.5");
+vtkCxxRevisionMacro(vtkXYPlotWidget, "1.6");
 vtkStandardNewMacro(vtkXYPlotWidget);
 vtkCxxSetObjectMacro(vtkXYPlotWidget, XYPlotActor, vtkXYPlotActor);
 
@@ -246,8 +246,8 @@ void vtkXYPlotWidget::OnLeftButtonDown()
     }
   
   // start a drag, store the normalized view coords
-  float X2 = X;
-  float Y2 = Y;
+  double X2 = X;
+  double Y2 = Y;
   // convert to normalized viewport coordinates
   this->CurrentRenderer->DisplayToNormalizedDisplay(X2,Y2);
   this->CurrentRenderer->NormalizedDisplayToViewport(X2,Y2);
@@ -309,16 +309,16 @@ void vtkXYPlotWidget::OnMouseMove()
       }
     }
   
-  float XF = X;
-  float YF = Y;
+  double XF = X;
+  double YF = Y;
   // convert to normalized viewport coordinates
   this->CurrentRenderer->DisplayToNormalizedDisplay(XF,YF);
   this->CurrentRenderer->NormalizedDisplayToViewport(XF,YF);
   this->CurrentRenderer->ViewportToNormalizedViewport(XF,YF);
   
   // there are four parameters that can be adjusted
-  float *fpos1 = this->XYPlotActor->GetPositionCoordinate()->GetValue();
-  float *fpos2 = this->XYPlotActor->GetPosition2Coordinate()->GetValue();
+  double *fpos1 = this->XYPlotActor->GetPositionCoordinate()->GetValue();
+  double *fpos2 = this->XYPlotActor->GetPosition2Coordinate()->GetValue();
   float par1[2];
   float par2[2];
   par1[0] = fpos1[0];

@@ -89,13 +89,9 @@ public:
   // Description:
   // Set/get the value of this coordinate. This can be thought of as
   // the position of this coordinate in its coordinate system.
-  vtkSetVector3Macro(Value,float);
-  vtkGetVector3Macro(Value,float);
-  void SetValue(float a, float b) { this->SetValue(a,b,0.0);}
-  void SetValue(double a, double b) {
-    this->SetValue((float)a,(float)b); }
-  void SetValue(double *a) {
-    this->SetValue((float)a[0],(float)a[1],(float)a[2]); }
+  vtkSetVector3Macro(Value,double);
+  vtkGetVector3Macro(Value,double);
+  void SetValue(double a, double b) { this->SetValue(a,b,0.0);}
   
   // Description:
   // If this coordinate is relative to another coordinate,
@@ -113,20 +109,20 @@ public:
 
   // Description:
   // Return the computed value in a specified coordinate system.
-  float *GetComputedWorldValue(vtkViewport *);
+  double *GetComputedWorldValue(vtkViewport *);
   int *GetComputedViewportValue(vtkViewport *);
   int *GetComputedDisplayValue(vtkViewport *);
   int *GetComputedLocalDisplayValue(vtkViewport *);
 
-  float *GetComputedFloatViewportValue(vtkViewport *);
-  float *GetComputedFloatDisplayValue(vtkViewport *);
+  double *GetComputedDoubleViewportValue(vtkViewport *);
+  double *GetComputedDoubleDisplayValue(vtkViewport *);
 
   // Description:
   // GetComputedValue() will return either World, Viewport or
   // Display based on what has been set as the coordinate system.
   // This is good for objects like vtkLineSource, where the
   // user might want to use them as World or Viewport coordinates
-  float *GetComputedValue(vtkViewport *);
+  double *GetComputedValue(vtkViewport *);
 
   // Description:
   // GetComputedUserDefinedValue() is to be used only when
@@ -134,25 +130,25 @@ public:
   // must subclass vtkCoordinate and override this function,
   // when set as the TransformCoordinate in 2D-Mappers, the user
   // can customize display of 2D polygons
-  virtual float *GetComputedUserDefinedValue(vtkViewport *)
+  virtual double *GetComputedUserDefinedValue(vtkViewport *)
     { return this->Value; }
 
 protected:
   vtkCoordinate();
   ~vtkCoordinate();
 
-  float Value[3];
+  double Value[3];
   int   CoordinateSystem;
   vtkCoordinate *ReferenceCoordinate;
   vtkViewport *Viewport;
-  float ComputedWorldValue[3];
+  double ComputedWorldValue[3];
   int   ComputedDisplayValue[2];
   int   ComputedViewportValue[2];
   int   Computing;
 
-  float ComputedFloatDisplayValue[2];
-  float ComputedFloatViewportValue[2];
-  float ComputedUserDefinedValue[3];
+  double ComputedDoubleDisplayValue[2];
+  double ComputedDoubleViewportValue[2];
+  double ComputedUserDefinedValue[3];
 
 private:
   vtkCoordinate(const vtkCoordinate&);  // Not implemented.

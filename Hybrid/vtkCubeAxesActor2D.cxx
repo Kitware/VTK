@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.41");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.42");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -202,8 +202,9 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
 // with the boundary of the viewport (minus borders).
 int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  float bounds[6], slope = 0.0, minSlope, num, den;
-  float pts[8][3], d2, d2Min, min;
+  float bounds[6];
+  double slope = 0.0, minSlope, num, den;
+  double pts[8][3], d2, d2Min, min;
   int i, idx = 0;
   int xIdx, yIdx = 0, zIdx = 0, zIdx2, renderedSomething=0;
   int xAxes = 0, yAxes, zAxes;
@@ -240,7 +241,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     if ( this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
       {
       // Loop over points and find the closest point to the camera
-      min = VTK_LARGE_FLOAT;
+      min = VTK_DOUBLE_MAX;
       for (i=0; i < 8; i++)
         {
         if ( pts[i][2] < min )
@@ -261,10 +262,10 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
       }
     else
       {
-      float e1[2], e2[2], e3[2];
+      double e1[2], e2[2], e3[2];
 
       // Find distance to origin
-      d2Min = VTK_LARGE_FLOAT;
+      d2Min = VTK_DOUBLE_MAX;
       for (i=0; i < 8; i++)
         {
         d2 = pts[i][0]*pts[i][0] + pts[i][1]*pts[i][1];
@@ -277,7 +278,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
       // find minimum slope point connected to closest point and on 
       // right side (in projected coordinates). This is the first edge.
-      minSlope = VTK_LARGE_FLOAT;
+      minSlope = VTK_DOUBLE_MAX;
       for (xIdx=0, i=0; i<3; i++)
         {
         num = (pts[Conn[idx][i]][1] - pts[idx][1]);
@@ -354,7 +355,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     }
   
   // Setup the axes for plotting
-  float xCoords[4], yCoords[4], zCoords[4], xRange[2], yRange[2], zRange[2];
+  double xCoords[4], yCoords[4], zCoords[4], xRange[2], yRange[2], zRange[2];
   this->AdjustAxes(pts, bounds, idx, xIdx, yIdx, zIdx, zIdx2, 
                    xAxes, yAxes, zAxes, 
                    xCoords, yCoords, zCoords, xRange, yRange, zRange);
@@ -458,11 +459,11 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
 //----------------------------------------------------------------------------
 // Do final adjustment of axes to control offset, etc.
-void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
+void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], float bounds[6],
                       int idx, int xIdx, int yIdx, int zIdx, int zIdx2,
                       int xAxes, int yAxes, int zAxes,
-                      float xCoords[4], float yCoords[4], float zCoords[4],
-                      float xRange[2], float yRange[2], float zRange[2])
+                      double xCoords[4], double yCoords[4], double zCoords[4],
+                      double xRange[2], double yRange[2], double zRange[2])
 {
   float *internal_bounds;
   if ( this->UseRanges )
@@ -531,7 +532,7 @@ void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
   // Pull back the corners if specified
   if ( this->CornerOffset > 0.0 )
     {
-    float ave;
+    double ave;
 
     // x-axis
     ave = (xCoords[0] + xCoords[2]) / 2.0;
@@ -599,8 +600,8 @@ void vtkCubeAxesActor2D::GetRanges(float ranges[6])
 //----------------------------------------------------------------------------
 // Compute the ranges
 void vtkCubeAxesActor2D::GetRanges(float& xmin, float& xmax, 
-                                     float& ymin, float& ymax,
-                                     float& zmin, float& zmax)
+                                   float& ymin, float& ymax,
+                                   float& zmin, float& zmax)
 {
   float ranges[6];
   this->GetRanges(ranges);
@@ -631,10 +632,11 @@ void vtkCubeAxesActor2D::GetBounds(float bounds[6])
   if ( this->Input )
     {
     this->Input->Update();
+    // TODO clean
     double *dbounds = this->Input->GetBounds();
     for (i=0; i< 6; i++)
       {
-      bounds[i] = static_cast<float>(dbounds[i]);
+      bounds[i] = static_cast<double>(dbounds[i]);
       this->Bounds[i] = bounds[i];
       }
     }
@@ -781,20 +783,23 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-static int IsInBounds(float x[3], float bounds[6]);
+static int IsInBounds(double x[3], float bounds[6]);
 
 // Clip the axes to fit into the viewport. Do this clipping each of the three
 // axes to determine which part of the cube is in view. Returns 0 if
 // nothing should be drawn.
 #define VTK_DIVS 10
-int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3], 
+int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, double pts[8][3], 
                                    float bounds[6])
 {
   int i, j, k, numIters;
-  float planes[24], x[3];
-  float val, maxVal=0, anchor[3], scale;
-  float delX, delY, delZ, bounds2[6], scale2, newScale, origin[3];
-  float aspect[2];
+  float planes[24];
+  double x[3];
+  double val, maxVal=0, anchor[3], scale;
+  double delX, delY, delZ;
+  float bounds2[6];
+  double scale2, newScale, origin[3];
+  double aspect[2];
 
   // Only do this mojo if scaling is required
   if ( ! this->Scaling )
@@ -909,10 +914,10 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3],
 
 //----------------------------------------------------------------------------
 void vtkCubeAxesActor2D::TransformBounds(vtkViewport *viewport, 
-                                         float bounds[6], float pts[8][3])
+                                         float bounds[6], double pts[8][3])
 {
   int i, j, k, idx;
-  float x[3];
+  double x[3];
 
   //loop over verts of bounding box
   for (k=0; k<2; k++)
@@ -936,17 +941,17 @@ void vtkCubeAxesActor2D::TransformBounds(vtkViewport *viewport,
 //----------------------------------------------------------------------------
 // Return smallest value of point evaluated against frustum planes. Also
 // sets the closest point coordinates in xyz.
-float vtkCubeAxesActor2D::EvaluatePoint(float planes[24], float x[3])
+double vtkCubeAxesActor2D::EvaluatePoint(float planes[24], double x[3])
 {
   int kk;
-  float *plane, val, minPlanesValue;
+  float *plane;
+  double val, minPlanesValue;
 
-  for (minPlanesValue=VTK_LARGE_FLOAT, kk=0; kk<6 ; kk++)
+  for (minPlanesValue=VTK_DOUBLE_MAX, kk=0; kk<6 ; kk++)
     {
     plane = planes + kk*4;
-    val = plane[0]*x[0] + plane[1]*x[1] + plane[2]*x[2] + 
-      plane[3];
-
+    val = plane[0]*x[0] + plane[1]*x[1] + plane[2]*x[2] + plane[3];
+    
     if ( val < minPlanesValue )
       {
       minPlanesValue = val;
@@ -959,12 +964,12 @@ float vtkCubeAxesActor2D::EvaluatePoint(float planes[24], float x[3])
 //----------------------------------------------------------------------------
 // Return the smallest point of the bounding box evaluated against the
 // frustum planes.
-float vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
+double vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
 {
-  float val, minVal, x[3];
+  double val, minVal, x[3];
   int i, j, k;
 
-  for (minVal=VTK_LARGE_FLOAT, k=0; k<2; k++)
+  for (minVal=VTK_DOUBLE_MAX, k=0; k<2; k++)
     {
     x[2] = bounds[4+k];
     for (j=0; j<2; j++)
@@ -986,7 +991,7 @@ float vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
 }
 
 //----------------------------------------------------------------------------
-static int IsInBounds(float x[3], float bounds[6])
+static int IsInBounds(double x[3], float bounds[6])
 {
   if ( x[0] < bounds[0] || x[0] > bounds[1] ||
        x[1] < bounds[2] || x[1] > bounds[3] ||

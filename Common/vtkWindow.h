@@ -129,8 +129,8 @@ public:
   // must be available to the mappers and the coordinate calculations.
   vtkSetMacro(TileScale,int);
   vtkGetMacro(TileScale,int);
-  vtkSetVector4Macro(TileViewport,float);
-  vtkGetVector4Macro(TileViewport,float);
+  vtkSetVector4Macro(TileViewport,double);
+  vtkGetVector4Macro(TileViewport,double);
   
 
 protected:
@@ -146,9 +146,9 @@ protected:
   int DoubleBuffer;
   int DPI;
 
-  float TileViewport[4];
-  int   TileSize[2];
-  int   TileScale;
+  double TileViewport[4];
+  int    TileSize[2];
+  int    TileScale;
   
 private:
   vtkWindow(const vtkWindow&);  // Not implemented.

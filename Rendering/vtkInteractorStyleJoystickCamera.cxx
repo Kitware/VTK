@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.28");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.29");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -172,16 +172,16 @@ void vtkInteractorStyleJoystickCamera::Rotate()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
-  float dx = (float)rwi->GetEventPosition()[0] - center[0];
-  float dy = (float)rwi->GetEventPosition()[1] - center[1];
+  double dx = (double)rwi->GetEventPosition()[0] - center[0];
+  double dy = (double)rwi->GetEventPosition()[1] - center[1];
   
-  float *vp = this->CurrentRenderer->GetViewport();
+  double *vp = this->CurrentRenderer->GetViewport();
   int *size = rwi->GetSize();
 
-  float delta_elevation = -20.0/((vp[3] - vp[1])*size[1]);
-  float delta_azimuth = -20.0/((vp[2] - vp[0])*size[0]);
+  double delta_elevation = -20.0/((vp[3] - vp[1])*size[1]);
+  double delta_azimuth = -20.0/((vp[2] - vp[0])*size[0]);
   
   double rxf = (double)dx * delta_azimuth;
   double ryf = (double)dy * delta_elevation;
@@ -214,7 +214,7 @@ void vtkInteractorStyleJoystickCamera::Spin()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   // Spin is based on y value
 
@@ -260,8 +260,8 @@ void vtkInteractorStyleJoystickCamera::Pan()
                               ViewFocus);
   double focalDepth = ViewFocus[2];
 
-  this->ComputeDisplayToWorld((float)rwi->GetEventPosition()[0], 
-                              (float)rwi->GetEventPosition()[1],
+  this->ComputeDisplayToWorld((double)rwi->GetEventPosition()[0], 
+                              (double)rwi->GetEventPosition()[1],
                               focalDepth, 
                               NewPickPoint);
 
@@ -304,7 +304,7 @@ void vtkInteractorStyleJoystickCamera::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  float *center = this->CurrentRenderer->GetCenter();
+  double *center = this->CurrentRenderer->GetCenter();
 
   double dy = (double)rwi->GetEventPosition()[1] - (double)center[1];
   double dyf = 0.5 * dy / (double)center[1];

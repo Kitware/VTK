@@ -25,6 +25,7 @@
 #include "vtkLargeInteger.h"
 #include "vtkLine.h"
 #include "vtkLongArray.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
@@ -37,7 +38,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.146");
+vtkCxxRevisionMacro(vtkImageData, "1.147");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -499,27 +500,35 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, double bounds[6])
     }
 
 
-  bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
-  bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+  // carefully compute the bounds
+  if (kMax >= kMin && jMax >= jMin && iMax >= iMin)
+    {
+    bounds[0] = bounds[2] = bounds[4] =  VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
   
-  // Extract point coordinates
-  for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
-    {
-    x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
-    bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
-    bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+    // Extract point coordinates
+    for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
+      {
+      x[2] = origin[2] + (loc[2]+this->Extent[4]) * spacing[2]; 
+      bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
+      bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
+      }
+    for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+      {
+      x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
+      bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
+      bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
+      }
+    for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
+      {
+      x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
+      bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
+      bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+      }
     }
-  for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
+  else
     {
-    x[1] = origin[1] + (loc[1]+this->Extent[2]) * spacing[1]; 
-    bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
-    bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
-    }
-  for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
-    {
-    x[0] = origin[0] + (loc[0]+this->Extent[0]) * spacing[0]; 
-    bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
-    bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
+    vtkMath::UninitializeBounds(bounds);
     }
 }
 
@@ -819,8 +828,7 @@ void vtkImageData::ComputeBounds()
        this->Extent[2] > this->Extent[3] ||
        this->Extent[4] > this->Extent[5] )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_DOUBLE_MAX;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
+    vtkMath::UninitializeBounds(this->Bounds);
     return;
     }
   this->Bounds[0] = origin[0] + (this->Extent[0] * spacing[0]);

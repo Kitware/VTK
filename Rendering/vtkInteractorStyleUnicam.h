@@ -111,9 +111,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetWorldUpVector(double a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
-  void SetWorldUpVector(float  a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
-  void SetWorldUpVector(float x, float y, float z);
-  vtkGetVectorMacro(WorldUpVector, float, 3);
+  void SetWorldUpVector(double x, double y, double z);
+  vtkGetVectorMacro(WorldUpVector, double, 3);
 
   // Description:
   // Concrete implementation of event bindings
@@ -136,13 +135,13 @@ protected:
   int      ButtonDown;   // which button is down
   double   DTime;        // time mouse button was pressed
   double   Dist;         // distance the mouse has moved since button press
-  float    StartPix[2]; // pixel mouse movement started at
-  float    LastPos[2];  // normalized position of mouse last frame
-  float    LastPix[2];  // pixel position of mouse last frame
-  float    DownPt[3];   // 3D point under cursor when mouse button pressed
-  float    Center [3];   // center of camera rotation
+  double    StartPix[2]; // pixel mouse movement started at
+  double    LastPos[2];  // normalized position of mouse last frame
+  double    LastPix[2];  // pixel position of mouse last frame
+  double    DownPt[3];   // 3D point under cursor when mouse button pressed
+  double    Center [3];   // center of camera rotation
 
-  float    WorldUpVector[3]; // what the world thinks the 'up' vector is
+  double    WorldUpVector[3]; // what the world thinks the 'up' vector is
 
   vtkActor    *FocusSphere; // geometry for indicating center of rotation
   int          IsDot;       // flag-- is the FocusSphere being displayed?
@@ -156,24 +155,24 @@ protected:
   void PanXY( int X, int Y );  // method for panning
 
   // conveinence methods for translating & rotating the camera
-  void  MyTranslateCamera(float v[3]);
-  void  MyRotateCamera(float cx, float cy, float cz,
-                       float ax, float ay, float az,
-                       float angle);
+  void  MyTranslateCamera(double v[3]);
+  void  MyRotateCamera(double cx, double cy, double cz,
+                       double ax, double ay, double az,
+                       double angle);
 
   // Given a 3D point & a vtkCamera, compute the vectors that extend
   // from the projection of the center of projection to the center of
   // the right-edge and the center of the top-edge onto the plane
   // containing the 3D point & with normal parallel to the camera's
   // projection plane.
-  void  GetRightVandUpV(float *p, vtkCamera *cam,
-                        float *rightV, float *upV);
+  void  GetRightVandUpV(double *p, vtkCamera *cam,
+                        double *rightV, double *upV);
 
   // takes in pixels, returns normalized window coordinates
-  void  NormalizeMouseXY(int X, int Y, float *NX, float *NY);
+  void  NormalizeMouseXY(int X, int Y, double *NX, double *NY);
 
   // return the aspect ratio of the current window
-  float WindowAspect();
+  double WindowAspect();
 private:
   vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);  // Not implemented.
   void operator=(const vtkInteractorStyleUnicam&);  // Not implemented.
