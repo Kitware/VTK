@@ -116,7 +116,7 @@ public:
   // visualization pipeline, i.e. the mapper. This should be a subclass
   // of vtkMapper. Typically vtkPolyDataMapper and vtkDataSetMapper will
   // be used.
-  vtkSetObjectMacro(Mapper,vtkMapper);
+  virtual void SetMapper(vtkMapper *);
 
   // Description:
   // Returns the Mapper that this actor is getting its data from.

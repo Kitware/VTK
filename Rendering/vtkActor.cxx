@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkActor, "1.112");
+vtkCxxRevisionMacro(vtkActor, "1.113");
 
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
@@ -504,3 +504,23 @@ int vtkActor::GetNumberOfParts()
 }
 
 
+void vtkActor::SetMapper(vtkMapper *args)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this         
+  << "): setting Mapper to " << args );     
+  if (this->Mapper != args)                                       
+    {                                                           
+    if (this->Mapper != NULL) 
+      { 
+      this->Mapper->RemoveConsumer(this);
+      this->Mapper->UnRegister(this); 
+      }   
+    this->Mapper = args;                                          
+    if (this->Mapper != NULL) 
+      { 
+      this->Mapper->Register(this); 
+      this->Mapper->AddConsumer(this);
+      }     
+    this->Modified();                                           
+    }                                                           
+}

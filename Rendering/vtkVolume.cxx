@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.64");
+vtkCxxRevisionMacro(vtkVolume, "1.65");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -96,9 +96,17 @@ void vtkVolume::SetMapper(vtkVolumeMapper *mapper)
 {
   if (this->Mapper != mapper)
     {
-    if (this->Mapper != NULL) {this->Mapper->UnRegister(this);}
+    if (this->Mapper != NULL) 
+      { 
+      this->Mapper->RemoveConsumer(this);
+      this->Mapper->UnRegister(this); 
+      }   
     this->Mapper = mapper;
-    if (this->Mapper != NULL) {this->Mapper->Register(this);}
+    if (this->Mapper != NULL) 
+      { 
+      this->Mapper->Register(this); 
+      this->Mapper->AddConsumer(this);
+      }     
     this->Modified();
     }
 }
