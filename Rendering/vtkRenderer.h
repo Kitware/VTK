@@ -338,6 +338,12 @@ public:
   // the renderers Prop list.
   vtkAssemblyPath* PickProp(double selectionX, double selectionY);
 
+  // Description:
+  // Do anything necessary between rendering the left and right viewpoints
+  // in a stereo render. Doesn't do anything except in the derived
+  // vtkIceTRenderer in ParaView.
+  virtual void StereoMidpoint() { return; };
+
 protected:
   vtkRenderer();
   ~vtkRenderer();

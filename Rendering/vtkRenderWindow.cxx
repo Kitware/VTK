@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.139");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.140");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -750,6 +750,12 @@ void vtkRenderWindow::StereoUpdate(void)
 // of the left and right eye.
 void vtkRenderWindow::StereoMidpoint(void)
 {
+  vtkRenderer * aren;
+  /* For IceT stereo */
+  for (Renderers->InitTraversal() ; (aren = Renderers->GetNextItem()) ; ) 
+    {
+    aren->StereoMidpoint();
+    }
   if ((this->StereoType == VTK_STEREO_RED_BLUE) ||
       (this->StereoType == VTK_STEREO_INTERLACED) ||
           (this->StereoType == VTK_STEREO_DRESDEN) )
