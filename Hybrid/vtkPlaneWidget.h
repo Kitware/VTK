@@ -15,13 +15,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPlaneWidget - 3D widget for manipulating a plane
+// .NAME vtkPlaneWidget - 3D widget for manipulating a finite plane
 // .SECTION Description
-// This 3D widget defines a place that can be interactively placed in a
-// scene. The line has four handles (at its corner vertices), a normal
-// vector, and the plane itself. The handles are used to resize the plane;
-// the normal vector to rotate it, and the plane can be picked to translate
-// the widget. A nice feature of the object is that the vtkPlaneWidget, like
+// This 3D widget defines a finite (bounded) plane that can be interactively
+// placed in a scene. The plane has four handles (at its corner vertices), a
+// normal vector, and the plane itself. The handles are used to resize the
+// plane; the normal vector to rotate it, and the plane can be picked and
+// translated. A nice feature of the object is that the vtkPlaneWidget, like
 // any 3D widget, will work with the current interactor style. That is, if
 // vtkPlaneWidget does not handle an event, then all other registered
 // observers (including the interactor style) have an opportunity to process
@@ -48,11 +48,12 @@
 // obsevers (such as the interaction style).  Turn off the widget by pressing
 // the "i" key again (or invoke the Off() method).
 //
-// The vtkPlaneWidget has several methods that can be used in conjunction with
-// other VTK objects. The Set/GetResolution() methods control the number of
-// subdivisions of the plane; the GetPolyData() method can be used to get the
-// polygonal representation and can be used for things like seeding
-// stream lines. Typical usage of the widget is to make use of the
+// The vtkPlaneWidget has several methods that can be used in conjunction
+// with other VTK objects. The Set/GetResolution() methods control the number
+// of subdivisions of the plane; the GetPolyData() method can be used to get
+// the polygonal representation and can be used for things like seeding
+// stream lines. GetPlane() can be used to update a vtkPlane implicit
+// function. Typical usage of the widget is to make use of the
 // StartInteractionEvent, InteractionEvent, and EndInteractionEvent
 // events. The InteractionEvent is called on mouse motion; the other two
 // events are called on button down and button up (either left or right
@@ -62,7 +63,7 @@
 // properties of the widget. You can set the properties of the selected and
 // unselected representations of the plane. For example, you can set the
 // property for the handles and plane. In addition there are methods to
-// constrain the plane so that it is aligned along the x-y-z axes.
+// constrain the plane so that it is perpendicular to the x-y-z axes.
 
 // .SECTION Caveats
 // Note that handles and plane can be picked even when they are "behind" other
@@ -70,6 +71,7 @@
 
 // .SECTION See Also
 // vtk3DWidget vtkBoxWidget vtkLineWidget vtkSphereWidget
+// vtkImplicitPlaneWidget
 
 #ifndef __vtkPlaneWidget_h
 #define __vtkPlaneWidget_h
@@ -88,6 +90,7 @@ class vtkProp;
 class vtkProperty;
 class vtkSphereSource;
 class vtkTransform;
+class vtkPlane;
 
 #define VTK_PLANE_OFF 0
 #define VTK_PLANE_OUTLINE 1
@@ -192,6 +195,14 @@ public:
   // EndInteraction events are invoked. The user provides the vtkPolyData and
   // the points and polyplane are added to it.
   void GetPolyData(vtkPolyData *pd);
+
+  // Description:
+  // Get the planes describing the implicit function defined by the plane
+  // widget. The user must provide the instance of the class vtkPlane. Note
+  // that vtkPlane is a subclass of vtkImplicitFunction, meaning that it can
+  // be used by a variety of filters to perform clipping, cutting, and
+  // selection of data.
+  void GetPlane(vtkPlane *plane);
 
   // Description:
   // Satisfies superclass API.  This returns a pointer to the underlying
