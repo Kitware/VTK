@@ -136,7 +136,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   for ( i=0; i < numPts; i++ ) PointMap[i] = -1;
 
   NewScalars = vtkScalars::New();
-  NewScalars->Allocate(numPts);
+  NewScalars->SetNumberOfScalars(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   //
