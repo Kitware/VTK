@@ -267,7 +267,7 @@ void vtkStructuredGridReader::Execute()
           return;
           }
 
-        this->ReadCellData(output, npts);
+        this->ReadCellData(output, ncells);
         break; //out of this loop
         }
 
