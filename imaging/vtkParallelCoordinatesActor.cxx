@@ -172,6 +172,9 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
     }
 
+  this->PlotActor->SetProperty(this->GetProperty());
+  renderedSomething += this->PlotActor->RenderOverlay(viewport);
+
   for (int i=0; i<this->N; i++)
     {
     renderedSomething += this->Axes[i]->RenderOverlay(viewport);
