@@ -47,6 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkDataSetReader::vtkDataSetReader()
 {
+  this->Reader.SetSource(this);
 }
 
 // Description:
@@ -55,6 +56,7 @@ void vtkDataSetReader::SetFileName(char *name)
 {
   this->Reader.SetFileName(name);
 }
+
 char *vtkDataSetReader::GetFileName() 
 {
   return this->Reader.GetFileName();

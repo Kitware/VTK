@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
 {
+  this->Reader.SetSource(this);
 }
 
 unsigned long int vtkStructuredPointsReader::GetMTime()

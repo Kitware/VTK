@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include <fstream.h>
-#include "vtkObject.h"
+#include "vtkSource.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
@@ -126,6 +126,11 @@ public:
   vtkSetStringMacro(LookupTableName);
   vtkGetStringMacro(LookupTableName);
 
+  // Description:
+  // Set/Get the name of the source object that owns this helper instance.
+  vtkSetObjectMacro(Source,vtkSource);
+  vtkGetObjectMacro(Source,vtkSource);
+
   // Special methods
   char *LowerCase(char *);
   int OpenVTKFile();
@@ -166,6 +171,8 @@ protected:
 
   vtkSetStringMacro(ScalarLut);
   vtkGetStringMacro(ScalarLut);
+
+  vtkSource *Source;
 
   int ReadScalarData(vtkDataSet *ds, int numPts);
   int ReadVectorData(vtkDataSet *ds, int numPts);

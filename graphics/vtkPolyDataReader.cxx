@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkPolyDataReader::vtkPolyDataReader()
 {
+  this->Reader.SetSource(this);
 }
 
 unsigned long int vtkPolyDataReader::GetMTime()

@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkRectilinearGridReader::vtkRectilinearGridReader()
 {
+  this->Reader.SetSource(this);
 }
 
 unsigned long int vtkRectilinearGridReader::GetMTime()

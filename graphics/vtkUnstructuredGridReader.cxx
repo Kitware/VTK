@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
+  this->Reader.SetSource(this);
 }
 
 unsigned long int vtkUnstructuredGridReader::GetMTime()
