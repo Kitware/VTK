@@ -321,8 +321,9 @@ void vtkRenderer::ResetCamera(float bounds[6])
 
   // update the camera
   this->ActiveCamera->SetFocalPoint(center);
-  this->ActiveCamera->SetPosition(center[0],center[1],center[2]+distance);
-  this->ActiveCamera->SetViewPlaneNormal(vn);
+  this->ActiveCamera->SetPosition(center[0]+distance*vn[0],
+				  center[1]+distance*vn[1],
+				  center[2]+distance*vn[2]);
   this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
 }
   
@@ -388,7 +389,7 @@ void vtkRenderer::ViewToWorld()
   float result[4];
 
   // get the perspective transformation from the active camera 
-  mat = this->ActiveCamera->GetPerspectiveTransform();
+  mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
   
   // use the inverse matrix 
   mat.Invert();
@@ -424,7 +425,7 @@ void vtkRenderer::WorldToView()
   float     *world;
 
   // get the perspective transformation from the active camera 
-  matrix = this->ActiveCamera->GetPerspectiveTransform();
+  matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
 
   world = this->WorldPoint;
   view[0] = world[0]*matrix[0][0] + world[1]*matrix[0][1] +
