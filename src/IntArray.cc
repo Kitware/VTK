@@ -13,13 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  Dynamic, self adjusting integer array
-//
-//
 #include "IntArray.hh"
 
-vlIntArray::Allocate(const int sz, const int ext)
+// Description:
+// Allocate memory for this array. Delete old storage if present.
+int vlIntArray::Allocate(const int sz, const int ext)
 {
   if ( this->Array != NULL ) delete [] this->Array;
 
@@ -31,6 +29,8 @@ vlIntArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
+// Description:
+// Release storage and reset array to initial state.
 void vlIntArray::Initialize()
 {
   if ( this->Array != NULL )
@@ -42,6 +42,8 @@ void vlIntArray::Initialize()
   this->MaxId = -1;
 }
 
+// Description:
+// Construct with specified storage and extend value.
 vlIntArray::vlIntArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
@@ -55,6 +57,8 @@ vlIntArray::~vlIntArray()
   delete [] this->Array;
 }
 
+// Description:
+// Construct array from another array. Copy each element of other array.
 vlIntArray::vlIntArray(const vlIntArray& ia)
 {
   int i;
@@ -69,6 +73,8 @@ vlIntArray::vlIntArray(const vlIntArray& ia)
 
 }
 
+// Description:
+// Deep copy of another array.
 vlIntArray& vlIntArray::operator=(const vlIntArray& ia)
 {
   int i;
@@ -88,9 +94,8 @@ vlIntArray& vlIntArray::operator=(const vlIntArray& ia)
   return *this;
 }
 
-//
-// Copy on write if used by more than one object
-//
+// Description:
+// Append one array onto the end of this array.
 void vlIntArray::operator+=(const vlIntArray& ia)
 {
   int i, sz;
@@ -102,7 +107,6 @@ void vlIntArray::operator+=(const vlIntArray& ia)
     this->Array[this->MaxId+1+i] = ia.Array[i];
     }
   this->MaxId += ia.MaxId + 1;
-
 }
 
 void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
@@ -119,7 +123,7 @@ void vlIntArray::PrintSelf(ostream& os, vlIndent indent)
 }
 
 //
-// Private function does "reallocate"
+// Protected function does "reallocate"
 //
 int *vlIntArray::Resize(const int sz)
 {

@@ -17,6 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ByteSwap.hh"
 
+// Description:
+// Swap four byte word.
 void vlByteSwap::Swap4(char *mem_ptr1)
 {
   char one_byte;

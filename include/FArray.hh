@@ -44,7 +44,7 @@ public:
 
   // special operators
   vlFloatArray &operator=(const vlFloatArray& fa);
-  vlFloatArray &operator+=(const vlFloatArray& fa);
+  void operator+=(const vlFloatArray& fa);
   void operator+=(const float f) {this->InsertNextValue(f);};
   float& operator[](const int i);
 

@@ -43,7 +43,7 @@ void vlFloatArray::Initialize()
 }
 
 // Description:
-// 
+// Construct with specified storage and extend value.
 vlFloatArray::vlFloatArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
@@ -96,7 +96,7 @@ vlFloatArray& vlFloatArray::operator=(const vlFloatArray& fa)
 
 // Description:
 // Append one array onto the end of this array.
-vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
+void vlFloatArray::operator+=(const vlFloatArray& fa)
 {
   int i, sz;
 
@@ -107,8 +107,6 @@ vlFloatArray& vlFloatArray::operator+=(const vlFloatArray& fa)
     this->Array[this->MaxId+1+i] = fa.Array[i];
     }
   this->MaxId += fa.MaxId + 1;
-
-  return *this;
 }
 
 void vlFloatArray::PrintSelf(ostream& os, vlIndent indent)

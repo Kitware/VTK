@@ -15,9 +15,13 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Class for performing common math operations (e.g., dot, cross products)
-//
+// .NAME vlByteSwap - perform machine dependent byte swapping
+// .SECTION Description
+// vlByteSwap is used by other classes to perform machine dependent byte
+// swapping. Byte swapping is often used when reading or writing binary 
+// files.
+// .EXAMPLE STLRead.cc
+
 #ifndef __vlByteSwap_hh
 #define __vlByteSwap_hh
 
