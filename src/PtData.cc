@@ -149,7 +149,7 @@ void vlPointData::Initialize()
 // the input PointData to create (i.e., find initial size of) new objects; 
 // otherwise use the sze variable.
 //
-void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
+void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext)
 {
   vlScalars *s, *newScalars;
   vlVectors *v, *newVectors;
@@ -162,28 +162,28 @@ void vlPointData::CopyAllocate(vlPointData* pd, int sze, int ext, int sFlg, int 
 //
   if ( !pd ) return;
 
-  if ( (this->CopyScalars = sFlg) && (s = pd->GetScalars()) ) 
+  if ( this->CopyScalars && (s = pd->GetScalars()) ) 
     {
     if ( sze > 0 ) newScalars = s->MakeObject(sze,ext);
     else newScalars = s->MakeObject(s->GetNumberOfScalars());
     this->SetScalars(newScalars);
     }
 
-  if ( (this->CopyVectors = vFlg) && (v = pd->GetVectors()) ) 
+  if ( this->CopyVectors && (v = pd->GetVectors()) ) 
     {
     if ( sze > 0 ) newVectors = v->MakeObject(sze,ext);
     else newVectors = v->MakeObject(v->GetNumberOfVectors());
     this->SetVectors(newVectors);
     }
 
-  if ( (this->CopyNormals = nFlg) && (n = pd->GetNormals()) ) 
+  if ( this->CopyNormals && (n = pd->GetNormals()) ) 
     {
     if ( sze > 0 ) newNormals = n->MakeObject(sze,ext);
     else newNormals = n->MakeObject(n->GetNumberOfNormals());
     this->SetNormals(newNormals);
     }
 
-  if ( (this->CopyTCoords = tFlg) && (t = pd->GetTCoords()) ) 
+  if ( this->CopyTCoords && (t = pd->GetTCoords()) ) 
     {
     if ( sze > 0 ) newTCoords = t->MakeObject(sze,t->GetDimension(),ext);
     else newTCoords = t->MakeObject(t->GetNumberOfTCoords(),t->GetDimension());
@@ -252,9 +252,9 @@ static vlFloatVectors cellVectors(MAX_CELL_SIZE);
 static vlFloatNormals cellNormals(MAX_CELL_SIZE);
 static vlFloatTCoords cellTCoords(MAX_CELL_SIZE,3);
 
-void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext, int sFlg, int vFlg, int nFlg, int tFlg)
+void vlPointData::InterpolateAllocate(vlPointData* pd, int sze, int ext)
 {
-  this->CopyAllocate(pd, sze, ext, sFlg, vFlg, nFlg, tFlg);
+  this->CopyAllocate(pd, sze, ext);
 
   if ( pd->TCoords )
     {
@@ -351,3 +351,20 @@ void vlPointData::Squeeze()
   if ( this->Normals ) this->Normals->Squeeze();
   if ( this->TCoords ) this->TCoords->Squeeze();
 }
+
+void vlPointData::CopyAllOn()
+{
+  this->CopyScalarsOn();
+  this->CopyVectorsOn();
+  this->CopyNormalsOn();
+  this->CopyTCoordsOn();
+}
+
+void vlPointData::CopyAllOff()
+{
+  this->CopyScalarsOff();
+  this->CopyVectorsOff();
+  this->CopyNormalsOff();
+  this->CopyTCoordsOff();
+}
+

@@ -8,7 +8,7 @@
 
 class vlIdList {
 public:
-  vlIdList(const int sz, const int ext=100):Ia(sz,ext) {};
+  vlIdList(const int sz=128, const int ext=100):Ia(sz,ext) {};
   ~vlIdList() {};
 
   int GetNumberOfIds() {return (this->Ia.GetMaxId() + 1);};

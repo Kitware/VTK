@@ -38,11 +38,11 @@ public:
   virtual void Update() {};
 
   // use to copy data
-  void CopyAllocate(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
+  void CopyAllocate(vlPointData* pd, int sze=0, int ext=1000);
   void CopyData(vlPointData *fromPd, int fromId, int toId);
 
   // use to interpolate data
-  void InterpolateAllocate(vlPointData* pd, int sze=0, int ext=1000, int sFlg=1, int vFlg=1, int nFlg=1, int tFlg=1);
+  void InterpolateAllocate(vlPointData* pd, int sze=0, int ext=1000);
   void InterpolatePoint(vlPointData *fromPd, int toId, vlIdList *ptIds, float *weights);
 
   // Set point data to null values
@@ -62,6 +62,25 @@ public:
 
   vlSetObjectMacro (TCoords, vlTCoords);
   vlGetObjectMacro (TCoords, vlTCoords);
+
+  vlSetMacro(CopyScalars,int);
+  vlGetMacro(CopyScalars,int);
+  vlBooleanMacro(CopyScalars,int);
+
+  vlSetMacro(CopyVectors,int);
+  vlGetMacro(CopyVectors,int);
+  vlBooleanMacro(CopyVectors,int);
+
+  vlSetMacro(CopyNormals,int);
+  vlGetMacro(CopyNormals,int);
+  vlBooleanMacro(CopyNormals,int);
+
+  vlSetMacro(CopyTCoords,int);
+  vlGetMacro(CopyTCoords,int);
+  vlBooleanMacro(CopyTCoords,int);
+
+  void CopyAllOn();
+  void CopyAllOff();
 
 protected:
   vlScalars *Scalars;
