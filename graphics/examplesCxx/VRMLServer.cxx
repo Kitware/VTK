@@ -68,7 +68,7 @@ int main( int argc, char *argv[] )
   int inputLength = atoi(env);
   cin >> arg1;
   
-  isoval = atof(getCGIValue("isoval=",arg1));
+  isoval = atof(getCGIValue((char *) "isoval=",arg1));
   isoType = getCGIValue((char *) "iso=",arg1);
   probeLoc = atof(getCGIValue((char *) "probeloc=",arg1));
   probeCont = getCGIValue((char *) "probecont=",arg1);
