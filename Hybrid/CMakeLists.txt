@@ -65,7 +65,6 @@ INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
                       ${Hybrid_SRCS}
-                      ${VTK_USE_INSTANTIATOR_NEW}
                       EXPORT_MACRO VTK_HYBRID_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})

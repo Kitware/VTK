@@ -77,7 +77,6 @@ SET_SOURCE_FILES_PROPERTIES(vtkPLY WRAP_EXCLUDE)
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
                       ${IO_SRCS}
-                      ${VTK_USE_INSTANTIATOR_NEW}
                       EXPORT_MACRO VTK_IO_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})

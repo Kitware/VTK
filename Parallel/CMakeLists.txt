@@ -67,7 +67,6 @@ ENDIF (VTK_USE_MPI)
 # Setup vtkInstantiator registration for this library's classes.
 VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
                       ${Parallel_SRCS}
-                      ${VTK_USE_INSTANTIATOR_NEW}
                       EXPORT_MACRO VTK_PARALLEL_EXPORT
                       HEADER_LOCATION ${VTK_BINARY_DIR})
 ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
