@@ -29,10 +29,16 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.2");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.3");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
+
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_DATA_TYPE, String);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_OPTIONAL, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_REPEATABLE, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION_INFORMATION, InformationVector);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_FIELDS, InformationVector);
 
 //----------------------------------------------------------------------------
 class vtkAlgorithmInternals
@@ -763,17 +769,3 @@ void vtkAlgorithm::RemoveReferences()
     }
   this->Superclass::RemoveReferences();
 }
-
-//----------------------------------------------------------------------------
-// Define information keys for algorithms.
-#define VTK_ALGORITHM_DEFINE_KEY_METHOD(NAME, type)                         \
-  vtkInformation##type##Key* vtkAlgorithm::NAME()                           \
-    {                                                                       \
-    static vtkInformation##type##Key instance(#NAME, "vtkAlgorithm");       \
-    return &instance;                                                       \
-    }
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_REQUIRED_DATA_TYPE, String);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_IS_OPTIONAL, Integer);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_IS_REPEATABLE, Integer);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_CONNECTION_INFORMATION, InformationVector);
-VTK_ALGORITHM_DEFINE_KEY_METHOD(INPUT_REQUIRED_FIELDS, InformationVector);

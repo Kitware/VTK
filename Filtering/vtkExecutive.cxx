@@ -21,7 +21,10 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkExecutive, "1.1.2.1");
+vtkCxxRevisionMacro(vtkExecutive, "1.1.2.2");
+
+vtkInformationKeyMacro(vtkExecutive, EXECUTIVE, Executive);
+vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
 
 //----------------------------------------------------------------------------
 vtkExecutive::vtkExecutive()
@@ -38,20 +41,6 @@ vtkExecutive::~vtkExecutive()
 void vtkExecutive::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-}
-
-//----------------------------------------------------------------------------
-vtkInformationExecutiveKey* vtkExecutive::EXECUTIVE()
-{
-  static vtkInformationExecutiveKey instance("EXECUTIVE", "vtkExecutive");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkExecutive::PORT_NUMBER()
-{
-  static vtkInformationIntegerKey instance("PORT_NUMBER", "vtkExecutive");
-  return &instance;
 }
 
 //----------------------------------------------------------------------------
