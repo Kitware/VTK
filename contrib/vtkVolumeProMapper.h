@@ -269,13 +269,13 @@ protected:
 			      vtkVolume    *vol,
 			      VLIPixel     *basePlane,
 			      int          size[2],
-			      float        aspect[2],
 			      VLIVector3D  hexagon[6], 
 			      VLIVector2D  textureCoords[6] ) {};
 
   // Make the base plane size a power of 2 for OpenGL
   void CorrectBasePlaneSize( VLIPixel *inBase, int inSize[2],
-			     VLIPixel **outBase, int outSize[2] );
+			     VLIPixel **outBase, int outSize[2],
+			     VLIVector2D textureCoords[6] );
 
 
   // Make sure everything is OK for rendering

@@ -798,9 +798,10 @@ void vtkVolumeProMapper::UpdateVolume( vtkRenderer *ren, vtkVolume *vol )
        this->SubVolume[3] < dataSize[1] &&
        this->SubVolume[5] < dataSize[2] )
     {
-    status = this->Volume->SetActiveSubVolumeOrigin( (unsigned int) this->SubVolume[0],
-						     (unsigned int) this->SubVolume[2],
-						     (unsigned int) this->SubVolume[4] );
+    status = 
+      this->Volume->SetActiveSubVolumeOrigin( (unsigned int) this->SubVolume[0],
+					      (unsigned int) this->SubVolume[2],
+					      (unsigned int) this->SubVolume[4] );
     if ( status != kVLIOK )
       {
       vtkErrorMacro( << "Could not set the subvolume origin" );
@@ -820,31 +821,105 @@ void vtkVolumeProMapper::UpdateVolume( vtkRenderer *ren, vtkVolume *vol )
 void vtkVolumeProMapper::CorrectBasePlaneSize( VLIPixel *basePlane, 
 					       int size[2],
 					       VLIPixel **newBasePlane,
-					       int newSize[2] )
+					       int newSize[2],
+					       VLIVector2D textureCoords[6] )
 {
-  int i;
+  int    i;
+  double extent[4];
+  int    imageExtent[4];
+  double x, y;
+  int    requiredSize[2];
+  double newX, newY;
+  double aspect[2];
 
+  // look for the extent of the texture coordinates
+  extent[0] = extent[2] = 1.0;
+  extent[1] = extent[3] = 0.0;
+  for ( i = 0; i < 6; i++ )
+    {
+    x = textureCoords[i].X();
+    y = textureCoords[i].Y();
+    extent[0] = ( x < extent[0] ) ? ( x ) : ( extent[0] );
+    extent[1] = ( x > extent[1] ) ? ( x ) : ( extent[1] );
+    extent[2] = ( y < extent[2] ) ? ( y ) : ( extent[2] );
+    extent[3] = ( y > extent[3] ) ? ( y ) : ( extent[3] );
+    }
+
+  // Now compute what this 0-1 float extent means in pixels
+  imageExtent[0] = (int)(extent[0] * (float)size[0]);
+  imageExtent[1] = (int)(extent[1] * (float)size[0]);
+  imageExtent[2] = (int)(extent[2] * (float)size[1]);
+  imageExtent[3] = (int)(extent[3] * (float)size[1]);
+
+  // make sure our image extent is within the original extent
+  imageExtent[0] = (imageExtent[0]<0)?(0):(imageExtent[0]);
+  imageExtent[1] = (imageExtent[1]>(size[0]-1))?(size[0]-1):(imageExtent[1]);
+  imageExtent[2] = (imageExtent[2]<0)?(0):(imageExtent[2]);
+  imageExtent[3] = (imageExtent[3]>(size[1]-1))?(size[1]-1):(imageExtent[3]);
+
+  // Turn this image extent back into a floating point extent
+  extent[0] = (float) imageExtent[0] / (float) (size[0] - 1);
+  extent[1] = (float) imageExtent[1] / (float) (size[0] - 1);
+  extent[2] = (float) imageExtent[2] / (float) (size[1] - 1);
+  extent[3] = (float) imageExtent[3] / (float) (size[1] - 1);
+
+  // How big a texture do we need
+  requiredSize[0] = imageExtent[1] - imageExtent[0] + 1;
+  requiredSize[1] = imageExtent[3] - imageExtent[2] + 1;
+
+  // What power of two texture does this fit into
   for ( i = 0; i < 2; i++ )
     {
     newSize[i] = 2;
-    while ( size[i] > newSize[i] )
+    while ( requiredSize[i] > newSize[i] )
       {
       newSize[i] *= 2;
       }
     }
 
+  // Because of some problems with the memory returned from the
+  // volumePro board, keep the full texture if either of the axes has
+  // the same resolutions as the full texture
+  if ( newSize[0] == size[0] || newSize[1] == size[1] )
+    {
+    newSize[0] = size[0];
+    newSize[1] = size[1];
+    }
+
+  // If this is the size we came in with, do nothing
   if ( newSize[0] == size[0] && newSize[1] == size[1] )
     {
     *newBasePlane = basePlane;
     }
+  // Otherwise, create the new texture, copy the old into the new, and
+  // change the texture coordinates
   else
     {
     *newBasePlane = new VLIPixel[ newSize[0] * newSize[1] * 4 ];
 
-    for ( i = 0; i < size[1]; i++ )
+    // Copy the texture into the new (smaller or bigger) space
+    for ( i = 0; i < newSize[1]; i++ )
       {
-      memcpy( (*newBasePlane + i*newSize[0]), 
-	      (basePlane + i*size[0]), size[0]*4*sizeof(VLIPixel) );
+       memcpy( (*newBasePlane + i*newSize[0]), 
+	       (basePlane + (imageExtent[2]+i)*size[0] + imageExtent[0]), 
+	       requiredSize[0]*4*sizeof(VLIPixel) );
+      }
+
+    aspect[0] = (float)size[0] / (float)newSize[0];
+    aspect[1] = (float)size[1] / (float)newSize[1];
+
+    // Change the texture coordinates
+    for ( i = 0; i < 6; i++ )
+      {
+      newX = (textureCoords[i].X() - extent[0]) * aspect[0];
+      newX = (newX < 0.0)?(0.0):(newX);
+      newX = (newX > 1.0)?(1.0):(newX);
+
+      newY = (textureCoords[i].Y() - extent[2]) * aspect[1];
+      newY = (newY < 0.0)?(0.0):(newY);
+      newY = (newY > 1.0)?(1.0):(newY);
+
+      textureCoords[i].Assign(newX, newY);
       }
     }
 }
@@ -880,7 +955,6 @@ void vtkVolumeProMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   VLIVector3D               hexagon[6];
   VLIVector2D               textureCoords[6];
   int                       size[2], newSize[2];
-  float                     aspect[2];
   VLIStatus                 status;
 
   if ( !this->StatusOK() )
@@ -970,11 +1044,10 @@ void vtkVolumeProMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   size[0] = baseWidth;
   size[1] = baseHeight;
 
-  this->CorrectBasePlaneSize( basePlane, size, &newBasePlane, newSize );
-  aspect[0] = size[0] / newSize[0];
-  aspect[1] = size[1] / newSize[1];
+  this->CorrectBasePlaneSize( basePlane, size, 
+			      &newBasePlane, newSize, textureCoords );
   this->RenderHexagon( ren, vol, newBasePlane, 
-		       newSize, aspect, hexagon, textureCoords );
+		       newSize, hexagon, textureCoords );
 
   // Release the base plane for use next time
   this->Context->ReleaseBasePlane( 0 );
@@ -983,7 +1056,7 @@ void vtkVolumeProMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // we didn't create a new one since basePlane was already a power of 2
   if ( newBasePlane != basePlane )
     {
-    delete newBasePlane;
+    delete [] newBasePlane;
     }
 }
 

@@ -49,7 +49,6 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
 						    vtkVolume    *vol,
 						    VLIPixel     *basePlane,
 						    int          size[2],
-						    float        aspect[2],
 						    VLIVector3D  hexagon[6],
 						    VLIVector2D  textureCoords[6] )
 {
@@ -99,7 +98,7 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   // Specify the texture
   glColor3f(1.0,1.0,1.0);
   glTexImage2D( GL_TEXTURE_2D, 0, 4, size[0], size[1], 
-		0, GL_RGBA, GL_UNSIGNED_BYTE, basePlane );
+  		0, GL_RGBA, GL_UNSIGNED_BYTE, basePlane );
 
 
   // What is the center of the hexagon?
@@ -118,8 +117,7 @@ void vtkOpenGLVolumeProVG500Mapper::RenderHexagon(  vtkRenderer  *ren,
   glBegin( GL_POLYGON );
   for ( i = 0; i < 6; i++ )
     {
-    glTexCoord2d( textureCoords[i].X()*aspect[0], 
-		  textureCoords[i].Y()*aspect[1] );
+    glTexCoord2d( textureCoords[i].X(), textureCoords[i].Y() );
     in[0] = hexagon[i].X() - hexCenter.X() + volCenter[0];
     in[1] = hexagon[i].Y() - hexCenter.Y() + volCenter[1];
     in[2] = hexagon[i].Z() - hexCenter.Z() + volCenter[2];

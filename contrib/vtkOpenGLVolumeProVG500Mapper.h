@@ -109,7 +109,6 @@ protected:
 		      vtkVolume    *vol,
 		      VLIPixel     *basePlane,
 		      int          size[2],
-		      float        aspect[2],
 		      VLIVector3D  hexagon[6], 
 		      VLIVector2D  textureCoords[6] );
 };
