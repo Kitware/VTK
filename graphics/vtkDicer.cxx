@@ -81,20 +81,20 @@ void vtkDicer::UpdatePieceMeasures()
 
   if ( this->DiceMode == VTK_DICE_MODE_NUMBER_OF_POINTS )
     {
-    this->NumberOfPieces = ceil((double)numPts/this->NumberOfPointsPerPiece);
+    this->NumberOfPieces = (int) ceil((double)numPts/this->NumberOfPointsPerPiece);
     this->MemoryLimit = (unsigned long) ceil((double)memSize/this->NumberOfPieces);
     }
 
   else if ( this->DiceMode == VTK_DICE_MODE_SPECIFIED_NUMBER )
     {
-    this->NumberOfPointsPerPiece = ceil((double)numPts/this->NumberOfPieces);
+    this->NumberOfPointsPerPiece = (int) ceil((double)numPts/this->NumberOfPieces);
     this->MemoryLimit = (unsigned long) ceil((double)memSize/this->NumberOfPieces);
     }
 
   else //this->DiceMode == VTK_DICE_MODE_MEMORY_LIMIT
     {
-    this->NumberOfPieces = ceil((double)memSize/this->MemoryLimit);
-    this->NumberOfPointsPerPiece = ceil((double)numPts/this->NumberOfPieces);
+    this->NumberOfPieces = (int) ceil((double)memSize/this->MemoryLimit);
+    this->NumberOfPointsPerPiece = (int) ceil((double)numPts/this->NumberOfPieces);
     }
 }
 

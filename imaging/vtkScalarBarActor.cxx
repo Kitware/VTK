@@ -324,11 +324,11 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     int target;
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
-      target = size[1]*0.05 + 0.05*size[0];
+      target = (int)(size[1]*0.05 + 0.05*size[0]);
       }
     else
       {
-      target = size[1]*0.07 + size[0]*0.03;
+      target = (int)(size[1]*0.07 + size[0]*0.03);
       }
     if (this->Title == NULL || (strlen(this->Title) == 0))
       {
@@ -403,7 +403,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 	  }
 	}
       barWidth = size[0] - 4 - stringWidth;
-      barHeight = size[1] - stringHeight*2.2;
+      barHeight = (int)(size[1] - stringHeight*2.2);
       delta=(float)barHeight/numColors;
       for (i=0; i<numPts/2; i++)
 	{
@@ -417,7 +417,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     else
       {
       barWidth = size[0];
-      barHeight = size[1] - stringHeight*2.6;
+      barHeight = (int)(size[1] - stringHeight*2.6);
       delta=(float)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
 	{

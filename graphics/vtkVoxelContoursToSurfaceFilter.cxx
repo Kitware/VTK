@@ -553,9 +553,9 @@ void vtkVoxelContoursToSurfaceFilter::Execute()
   // want to sample exactly on the contours so we don't need to 
   // add the extra 1, but we have added two extra planes so we
   // need another 2.
-  gridSize[0] = contourBounds[1] - contourBounds[0] + 2;
-  gridSize[1] = contourBounds[3] - contourBounds[2] + 2;
-  gridSize[2] = contourBounds[5] - contourBounds[4] + 3;
+  gridSize[0] = (int) (contourBounds[1] - contourBounds[0] + 2);
+  gridSize[1] = (int) (contourBounds[3] - contourBounds[2] + 2);
+  gridSize[2] = (int) (contourBounds[5] - contourBounds[4] + 3);
 
   // How many slices in a chunk? This will later be decremented 
   // by one to account for the fact that the last slice in the 

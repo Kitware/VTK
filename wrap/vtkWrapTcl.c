@@ -595,7 +595,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   /* add the ListInstances method */
   fprintf(fp,"\n  if (!strcmp(\"ListInstances\",argv[1]))\n    {\n");
-  fprintf(fp,"    vtkTclListInstances(interp,%sCommand);\n",data->ClassName);
+  fprintf(fp,"    vtkTclListInstances(interp,(ClientData)%sCommand);\n",data->ClassName);
   fprintf(fp,"    return TCL_OK;\n    }\n");
   
   /* add the ListMethods method */

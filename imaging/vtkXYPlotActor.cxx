@@ -643,12 +643,12 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
                               labelWidth, labelHeight);
   
   // Okay, estimate the size
-  pos[0] = p1[0] + titleWidth + tickOffset + tickLength + labelWidth +
-                   this->Border;
-  pos2[0] = p2[0] - labelWidth/2 - tickOffset - this->Border;
-  pos[1] = p1[1] + titleHeight + tickOffset + tickLength + labelHeight +
-                   this->Border;
-  pos2[1] = p2[1] - labelHeight/2 - tickOffset - this->Border;
+  pos[0] = (int)(p1[0] + titleWidth + tickOffset + tickLength + labelWidth +
+		 this->Border);
+  pos2[0] = (int)(p2[0] - labelWidth/2 - tickOffset - this->Border);
+  pos[1] = (int)(p1[1] + titleHeight + tickOffset + tickLength + labelHeight +
+		 this->Border);
+  pos2[1] = (int)(p2[1] - labelHeight/2 - tickOffset - this->Border);
 
   // Now specify the location of the axes
   this->XAxis->GetPoint1Coordinate()->SetValue(pos[0], pos[1]);

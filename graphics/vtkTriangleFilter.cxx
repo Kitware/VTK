@@ -79,7 +79,7 @@ void vtkTriangleFilter::Execute()
   output->Allocate(numPoints, numPoints);
   outCD->CopyAllocate(inCD,numPoints);
 
-  updateInterval = numCells/100.0;
+  updateInterval = (int)(numCells/100.0);
   if (updateInterval < 1)
     {
     updateInterval = 1;

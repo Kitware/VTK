@@ -1133,7 +1133,7 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 	}
       else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
 	{
-	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	scalar_value = (int)(volumeInfo->Volume->GetArraySize() - 1);
 	}
       
       opacity = SOTF[scalar_value];
@@ -1274,7 +1274,7 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 	}
       else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
 	{
-	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	scalar_value = (int)(volumeInfo->Volume->GetArraySize() - 1);
 	}
       
       opacity = SOTF[scalar_value];

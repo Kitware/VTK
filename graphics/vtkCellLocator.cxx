@@ -846,9 +846,9 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     refinedRadius2 = maxDistance*maxDistance;
     }
   
-  radiusLevels[0] = refinedRadius/this->H[0];
-  radiusLevels[1] = refinedRadius/this->H[1];
-  radiusLevels[2] = refinedRadius/this->H[2];
+  radiusLevels[0] = (int)(refinedRadius/this->H[0]);
+  radiusLevels[1] = (int)(refinedRadius/this->H[1]);
+  radiusLevels[2] = (int)(refinedRadius/this->H[2]);
   
   radiusLevel = radiusLevels[0];
   radiusLevel = radiusLevels[1] > radiusLevel ? radiusLevels[1] : radiusLevel;
@@ -958,7 +958,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
     // ii appropriately
     if (refinedRadius < currentRadius && ii > 2) // always have to do check ii==1
       {
-      ii = ii * (refinedRadius / currentRadius) + 1;
+      ii = (int)((float)ii * (refinedRadius / currentRadius)) + 1;
       if (ii < 2)
         {
         ii = 2;

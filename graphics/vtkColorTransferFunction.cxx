@@ -228,7 +228,7 @@ unsigned char *vtkColorTransferFunction::MapValue( float x )
     (255.0*this->Green->GetValue( x ));
   this->ColorValue2[2] = (unsigned char)
     (255.0*this->Blue->GetValue( x ));
-  this->ColorValue2[3] = 1.0;
+  this->ColorValue2[3] = 1;
   return( this->ColorValue2 );
 }
 
@@ -397,11 +397,11 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
     // do red
     if( findx < RRange[0] ) 
       {
-      *output = 255*RFunc[0];
+      *output = (unsigned char)(255*RFunc[0]);
       }
     else if( findx > RRange[1] )
       {
-      *output = 255*RFunc[(RSize-1)*2];
+      *output = (unsigned char)(255*RFunc[(RSize-1)*2]);
       }
     else
       {
@@ -419,7 +419,7 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
       // Check if we have found the exact point
       if( x2 == findx )
         {
-        *output++ = 255*RFunc[(i2*2 + 1)];
+        *output++ = (unsigned char)(255*RFunc[(i2*2 + 1)]);
         }
       else
         {
@@ -429,18 +429,18 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
         slope = (y2-y1)/(x2-x1);
         value = y1 + slope*(findx-x1);
         
-        *output++ = 255*value;
+        *output++ = (unsigned char)(255*value);
         }
       }
     
     // do green
     if( findx < GRange[0] ) 
       {
-      *output = 255*GFunc[0];
+      *output = (unsigned char)(255*GFunc[0]);
       }
     else if( findx > GRange[1] )
       {
-      *output = 255*GFunc[(GSize-1)*2];
+      *output = (unsigned char)(255*GFunc[(GSize-1)*2]);
       }
     else
       {
@@ -458,7 +458,7 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
       // Check if we have found the exact point
       if( x2 == findx )
         {
-        *output++ = 255*GFunc[(i2*2 + 1)];
+        *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
         }
       else
         {
@@ -468,18 +468,18 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
         slope = (y2-y1)/(x2-x1);
         value = y1 + slope*(findx-x1);
         
-        *output++ = 255*value;
+        *output++ = (unsigned char)(255*value);
         }
       }
     
     // do blue
     if( findx < BRange[0] ) 
       {
-      *output = 255*BFunc[0];
+      *output = (unsigned char)(255*BFunc[0]);
       }
     else if( findx > BRange[1] )
       {
-      *output = 255*BFunc[(BSize-1)*2];
+      *output = (unsigned char)(255*BFunc[(BSize-1)*2]);
       }
     else
       {
@@ -497,7 +497,7 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
       // Check if we have found the exact point
       if( x2 == findx )
         {
-        *output++ = 255*BFunc[(i2*2 + 1)];
+        *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
         }
       else
         {
@@ -507,7 +507,7 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
         slope = (y2-y1)/(x2-x1);
         value = y1 + slope*(findx-x1);
         
-        *output++ = 255*value;
+        *output++ = (unsigned char)(255*value);
         }
       }
     
@@ -587,7 +587,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
       // Check if we have found the exact point
       if( x2 == findx )
         {
-        *output++ = 255*RFunc[(i2*2 + 1)];
+        *output++ = (unsigned char)(255*RFunc[(i2*2 + 1)]);
         }
       else
         {
@@ -597,7 +597,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
         slope = (y2-y1)/(x2-x1);
         value = y1 + slope*(findx-x1);
         
-        *output++ = 255*value;
+        *output++ = (unsigned char)(255*value);
         }
       }
     
@@ -626,7 +626,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
       // Check if we have found the exact point
       if( x2 == findx )
         {
-        *output++ = 255*GFunc[(i2*2 + 1)];
+        *output++ = (unsigned char)(255*GFunc[(i2*2 + 1)]);
         }
       else
         {
@@ -636,7 +636,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
         slope = (y2-y1)/(x2-x1);
         value = y1 + slope*(findx-x1);
         
-        *output++ = 255*value;
+        *output++ = (unsigned char)(255*value);
         }
       }
     
@@ -665,7 +665,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
       // Check if we have found the exact point
       if( x2 == findx )
         {
-        *output++ = 255*BFunc[(i2*2 + 1)];
+        *output++ = (unsigned char)(255*BFunc[(i2*2 + 1)]);
         }
       else
         {
@@ -675,7 +675,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
         slope = (y2-y1)/(x2-x1);
         value = y1 + slope*(findx-x1);
         
-        *output++ = 255*value;
+        *output++ = (unsigned char)(255*value);
         }
       }
 

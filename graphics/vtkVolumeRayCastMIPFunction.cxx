@@ -255,7 +255,7 @@ static void CastMaxScalarValueRay( T *data_ptr,
     }
   else if ( max > volumeInfo->Volume->GetArraySize() - 1 )
     {
-    max = volumeInfo->Volume->GetArraySize() - 1;
+    max = (int)(volumeInfo->Volume->GetArraySize() - 1);
     }
 
   max_opacity = scalarArray[max];
@@ -364,7 +364,7 @@ static void CastMaxOpacityRay( T *data_ptr,
       if ( opacity > max ) 
 	{
 	max = opacity;
-	max_value = value;
+	max_value = (int) value;
 	}
 
       // Increment our position and compute our voxel location
@@ -458,7 +458,7 @@ static void CastMaxOpacityRay( T *data_ptr,
       if ( opacity > max ) 
 	{
 	max = opacity;
-	max_value = value;
+	max_value = (int) value;
 	}
       
       // Increment our position and compute our voxel location

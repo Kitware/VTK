@@ -361,7 +361,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
       volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
       volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
       
-      rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
+      rayInfo->NumberOfStepsToTake = (int)((rayLength / incrementLength) + 1);
       
       for ( i = 0; i < 3; i++ )
 	{
@@ -489,7 +489,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	    volumeRayIncrement[1] = incrementLength * volumeRayDirection[1];
 	    volumeRayIncrement[2] = incrementLength * volumeRayDirection[2];
 
-	    rayInfo->NumberOfStepsToTake = (rayLength / incrementLength) + 1;
+	    rayInfo->NumberOfStepsToTake = (int)((rayLength/incrementLength)+1);
       
 	    for ( i = 0; i < 3; i++ )
 	      {

@@ -271,7 +271,7 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
   
   // add in the line spacing
   this->LineSize = size[1];
-  size[1] = this->NumberOfLines* this->LineSpacing * size[1];
+  size[1] = (int)(this->NumberOfLines* this->LineSpacing * size[1]);
 }
 
 void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport, 

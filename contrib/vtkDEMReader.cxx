@@ -401,7 +401,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     //
     ConvertDNotationToENotation (record);
 
-    sscanf(record, "%6d%6d%6d%6d%24g%24g%24g%24g%24g",
+    sscanf(record, "%24g%24g%24g%24g%24g",
 		   &planCoords[0],	/* 3 */
 		   &planCoords[1],	/* 3 */
 		   &localElevation,	/* 4 */

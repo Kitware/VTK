@@ -200,8 +200,8 @@ int vtkScaledTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     vtkTextMapper *tMapper = (vtkTextMapper *)this->TextActor->GetMapper();
     fontSize = tMapper->GetFontSize();
     tMapper->GetSize(viewport,tempi);
-    int lineMax = size[1]*this->MaximumLineHeight*
-      tMapper->GetNumberOfLines();
+    int lineMax = (int)(size[1]*this->MaximumLineHeight
+			* tMapper->GetNumberOfLines());
     
     // while the size is too small increase it
     while (tempi[1] < size[1] && 
