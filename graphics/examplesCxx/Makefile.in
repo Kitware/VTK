@@ -54,6 +54,10 @@ EXAMPLES = VisQuad \
 	bluntStr \
 	contQuad \
 	finance \
+	medical1 \
+	medical2 \
+	medical3 \
+	pickCells \
 	pickCells \
 	probe \
 	quadricCut \
@@ -63,6 +67,7 @@ EXAMPLES = VisQuad \
 	vol
   
 CXX_FLAGS = ${CPPFLAGS} ${CXXFLAGS} -I${srcdir}/../../common \
+	-I${srcdir}/../../graphics \
 	${GRAPHICS_API_FLAGS} -D_HP_NO_FAST_MACROS
 
 VTKLIB = ${VTK_LIB_FILE}
