@@ -277,6 +277,7 @@ protected:
   vtkTransform *Transform;
   
   // Methods to manipulate the plane
+  void ConstrainOrigin(float x[3]);
   void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
   void TranslatePlane(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);

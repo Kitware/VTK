@@ -37,7 +37,7 @@
 #include "vtkFeatureEdges.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.3");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.4");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -202,7 +202,6 @@ vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
   this->Transform->Delete();
 
   this->Picker->Delete();
-    this->SphereActor->SetProperty(this->SelectedNormalProperty);
 
   if ( this->NormalProperty )
     {
@@ -226,7 +225,11 @@ vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
     {
     this->OutlineProperty->Delete();
     }
-  
+  if ( this->SelectedOutlineProperty )
+    {
+    this->SelectedOutlineProperty->Delete();
+    }
+
   if ( this->EdgesProperty )
     {
     this->EdgesProperty->Delete();
@@ -727,6 +730,22 @@ void vtkImplicitPlaneWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
+void vtkImplicitPlaneWidget::ConstrainOrigin(float x[3])
+{
+  float *bounds = this->Outline->GetOutput()->GetBounds();
+  for (int i=0; i<3; i++)
+    {
+    if ( x[i] < bounds[2*i] )
+      {
+      x[i] = bounds[2*i];
+      }
+    else if ( x[i] > bounds[2*i+1] )
+      {
+      x[i] = bounds[2*i+1];
+      }
+    }
+}
+
 
 void vtkImplicitPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
 {
@@ -786,6 +805,22 @@ void vtkImplicitPlaneWidget::TranslateOutline(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
+  //Translate the bounding box
+  float *origin = this->Box->GetOrigin();
+  float oNew[3];
+  oNew[0] = origin[0] + v[0];
+  oNew[1] = origin[1] + v[1];
+  oNew[2] = origin[2] + v[2];
+  this->Box->SetOrigin(oNew);
+
+  //Translate the plane
+  origin = this->Plane->GetOrigin();
+  oNew[0] = origin[0] + v[0];
+  oNew[1] = origin[1] + v[1];
+  oNew[2] = origin[2] + v[2];
+  this->Plane->SetOrigin(oNew);
+
+  this->UpdateRepresentation();
 }
 
 // Loop through all points and translate them
@@ -806,6 +841,8 @@ void vtkImplicitPlaneWidget::TranslateOrigin(double *p1, double *p2)
   newOrigin[1] = o[1] + v[1];
   newOrigin[2] = o[2] + v[2];
   
+  this->ConstrainOrigin(newOrigin);
+
   vtkPlane::ProjectPoint(newOrigin,o,n,newOrigin);
   this->Plane->SetOrigin(newOrigin);
   this->UpdateRepresentation();
