@@ -1,5 +1,5 @@
 catch {load vtktcl}
-# Create blow molding image (data point 5)
+# Create blow molding image (data point 9)
 # get the interactor
 source ../../examplesTcl/vtkInt.tcl
 
