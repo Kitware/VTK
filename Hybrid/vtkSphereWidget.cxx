@@ -34,7 +34,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.22");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.23");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -146,12 +146,16 @@ void vtkSphereWidget::SetEnabled(int enabling)
       return;
       }
     
-    this->CurrentRenderer = 
-      this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],
-                                          this->Interactor->GetLastEventPosition()[1]);
-    if (this->CurrentRenderer == NULL)
+    if ( ! this->CurrentRenderer )
       {
-      return;
+      this->CurrentRenderer = 
+        this->Interactor->FindPokedRenderer(
+          this->Interactor->GetLastEventPosition()[0],
+          this->Interactor->GetLastEventPosition()[1]);
+      if (this->CurrentRenderer == NULL)
+        {
+        return;
+        }
       }
 
     this->Enabled = 1;
@@ -200,6 +204,7 @@ void vtkSphereWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->HandleActor);
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->CurrentRenderer = NULL;
     }
 
   this->Interactor->Render();
