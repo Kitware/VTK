@@ -95,46 +95,15 @@ vtkCyberReader::~vtkCyberReader()
 
 /* file constants, unpacked */
 
-#define MAXR		(0x00007fff<<gs->rshift)
-#define MAXRGS(gs) 	(0x00007fff<<(gs)->rshift)
-#define MINR		 0
 #define vtkCyVOID	(0xffff8000<<gs->rshift)
-#define VOIDGS(gs)	(0xffff8000<<(gs)->rshift)
 
 /* various constants of pi */
 
-#define RPI		3.141592654		/* floating point pi */
-#define PI		3141593			/* pi in urads */
-#define TWOPI	6283185			/* 2pi in urads */
-
-#ifndef NULL
-#define NULL	0				/* null address */
+#ifndef VTK_MIN
+#define VTK_MIN(a,b)	((a)<(b)?(a):(b))		/* return lesser of a and b */
 #endif
-
-/* math tools */
-
-#ifndef MAX
-#define MAX(a,b)	((a)>(b)?(a):(b))		/* return greater of a and b */
-#endif
-#ifndef MIN
-#define MIN(a,b)	((a)<(b)?(a):(b))		/* return lesser of a and b */
-#endif
-#define ABS(i)		((i)<0?-(i):(i))		/* integer absolute value */
-#define DELTA(a,b)	(ABS((a)-(b)))			/* int absolute difference */
-#define SCALE(n,s)	((((n)*(s))+50)/100)	/* int scale n by s percent */
-#define WRAPP(n,m)	(if((n)>=(m))(n)-=(m))	/* modulo positive wrap */
-#define WRAPN(n,m)	(if((n)<0)(n)+=(m))		/* modulo positive wrap */
 
 /* unit conversions */
-
-#define UMTOI(um)	((real)(um)*3.937e-5)	/* microns (um) to float inch */
-#define ITOUM(um)	((int)((um)*2.54e4))	/* inches to int microns */
-#define URTOD(ur)	((real)(ur)*5.7296e-5)	/* urads to float degrees */
-#define DTOUR(deg)	((int)((deg)*1.74533e4)	/* degrees to int urads */
-#define DTOR(deg)	((deg)*1.7453292e-2)	/* degrees to float radians */
-#define RTOD(rad)	((rad)*57.295779)		/* radians to float degrees */
-#define URTOR(ur)	((real)(ur)*1.e-6)		/* radians to urads */
-#define RTOUR(ur)	(int)((ur)*1.e6)		/* radians to urads */
 
 /* this structure defines 'grid file format'.  the file consists of
  * a parameter table followed immediatly by the data table.  the offset
@@ -168,8 +137,7 @@ vtkCyberReader::~vtkCyberReader()
  * See header.c for details.
  */
 
-#define NAMELEN		40
-#define CREATE_MODE	0644		/* create image files with this mode */
+#define VTK_NAMELEN		40
 
 typedef struct {
 
@@ -178,7 +146,7 @@ typedef struct {
 	long offset;				/* file offset to start of data, bytes */
 
 	/* file parameters */
-	char name[NAMELEN];			/* subject name */
+	char name[VTK_NAMELEN];			/* subject name */
 	long time;					/* original creation time */
 	short camera;				/* camera id number */
 	short setup;				/* camera setup code */
@@ -223,30 +191,29 @@ typedef struct {
  * PUTR and GETR are used to store and retrieve data from the image.
  */
 
-#define INDEX(gs, lt, lg)	((lg) * (gs)->nlt + (lt))
-#define ADDR(gs, lt, lg)	((gs)->base + INDEX(gs, lt, lg))
+#define VTK_INDEX(gs, lt, lg)	((lg) * (gs)->nlt + (lt))
+#define VTK_ADDR(gs, lt, lg)	((gs)->base + VTK_INDEX(gs, lt, lg))
 
 #ifdef HIGHC
-#	define GETR(gs, lt, lg) 	     getr(gs,lt,lg)
-#	define PUTR(gs, lt, lg, r)       putr(gs,lt,lg,r)
+#	define VTK_GETR(gs, lt, lg) 	     getr(gs,lt,lg)
+#	define VTK_PUTR(gs, lt, lg, r)       putr(gs,lt,lg,r)
 #else
-#	define PUTR(gs, lt, lg, r)	(*ADDR(gs, lt, lg) = (r) >> (gs)->rshift)
-#	define GETR(gs, lt, lg)	((int)*ADDR(gs, lt, lg) << (gs)->rshift)
+#	define VTK_PUTR(gs, lt, lg, r)	(*VTK_ADDR(gs, lt, lg) = (r) >> (gs)->rshift)
+#	define VTK_GETR(gs, lt, lg)	((int)*VTK_ADDR(gs, lt, lg) << (gs)->rshift)
 #endif
 
 /* flag bits for gs->flags */
 
-#define FLAG_RESERVED	0x000000ff	/* older files have ones here, ignore */
-#define FLAG_CARTESIAN	0x00000100	/* data is cartesian (vs. cyl) */
-#define FLAG_OLDHEADER	0x00000200	/* please write file with old header */
-#define FLAG_BILATERAL	0x00000400	/* bilateral image, ie: nus hands */
-#define FLAG_COLOR		0x00000800	/* image has associated color file */
-#define FLAG_THETARIGHT	0x00001000	/* theta is right hand rule */
-#define FLAG_INSIDE_OUT	0x00002000	/* inside surface is outside */
+#define VTK_FLAG_CARTESIAN 0x00000100	/* data is cartesian (vs. cyl) */
+#define VTK_FLAG_OLDHEADER 0x00000200	/* please write file with old header */
+#define VTK_FLAG_BILATERAL 0x00000400	/* bilateral image, ie: nus hands */
+#define VTK_FLAG_COLOR 0x00000800	/* image has associated color file */
+#define VTK_FLAG_THETARIGHT 0x00001000	/* theta is right hand rule */
+#define VTK_FLAG_INSIDE_OUT 0x00002000	/* inside surface is outside */
 
-#define VTXNLG		1024
-#define VTXNLT		1024
-#define NVAR		6
+#define VTK_VTXNLG 1024
+#define VTK_VTXNLT 1024
+#define VTK_NVAR 6
 
 struct Vertex {
 	GSPEC *gs;
@@ -256,7 +223,7 @@ struct Vertex {
 	int ltmin, ltmax;
 	int lgresol;
 	int ltresol;
-	float pnt[VTXNLG][VTXNLT][NVAR];
+	float pnt[VTK_VTXNLG][VTK_VTXNLT][VTK_NVAR];
 };
 
 static GSPEC *cyread(GSPEC *gs, int fd);
@@ -272,20 +239,11 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx);
 // end of cyfile.h-------------------------------------------------------------
 
 // subscripts for pnt[] below
-#define NX		0
-#define NY		1
-#define NZ		2
-#define LX		3
-#define LY		4
-#define LZ		5
+#define VTK_LX		3
+#define VTK_LY		4
+#define VTK_LZ		5
 
-#define SMALL_VOID 0.125
-
-#define CHECK_FOR_VOID(lt,lg,nlg,_i) \
-if (vtx->pnt[lg][lt][_i] == SMALL_VOID) { continue; }\
-if (vtx->pnt[(lg+1)%nlg][lt][_i] == SMALL_VOID) { continue; }\
-if (vtx->pnt[(lg+1)%nlg][lt+1][_i] == SMALL_VOID) { continue; }\
-if (vtx->pnt[lg][lt+1][_i] == SMALL_VOID) { continue; }
+#define VTK_SMALL_VOID 0.125
 
 void vtkCyberReader::Execute()
 {
@@ -352,9 +310,9 @@ void vtkCyberReader::Execute()
     {
     for (lt = vtx->ltmin; lt <= vtx->ltmax; lt += vtx->ltresol) 
       {
-      x[0] = vtx->pnt[lg][lt][LX];
-      x[1] = vtx->pnt[lg][lt][LY];
-      x[2] = vtx->pnt[lg][lt][LZ];
+      x[0] = vtx->pnt[lg][lt][VTK_LX];
+      x[1] = vtx->pnt[lg][lt][VTK_LY];
+      x[2] = vtx->pnt[lg][lt][VTK_LZ];
       newPoints->InsertNextPoint(x);
       }
     }
@@ -386,7 +344,7 @@ void vtkCyberReader::Execute()
   //
   //  Note: the seem is stitched together
   //
-  if ( (nlg != vtx->nlg) || (vtx->gs->flags & FLAG_CARTESIAN) )
+  if ( (nlg != vtx->nlg) || (vtx->gs->flags & VTK_FLAG_CARTESIAN) )
     {
     lgPolys = nlg - 1;
     }
@@ -395,32 +353,32 @@ void vtkCyberReader::Execute()
     lgPolys = nlg;
     }
 
-  if ( (vtx->gs->flags & FLAG_CARTESIAN) )
+  if ( (vtx->gs->flags & VTK_FLAG_CARTESIAN) )
     {
-    voidLoc = LZ;
+    voidLoc = VTK_LZ;
     }
   else
     {
-    voidLoc = LY;
+    voidLoc = VTK_LY;
     }
 
   for (lg=0; lg<lgPolys; ++lg) 
     {// for polys in x 
     for (lt=0; lt<(nlt-1); ++lt) 
       {// for polys in y 
-      if (vtx->pnt[lg+vtx->lgmin][lt+vtx->ltmin][voidLoc] == SMALL_VOID)
+      if (vtx->pnt[lg+vtx->lgmin][lt+vtx->ltmin][voidLoc] == VTK_SMALL_VOID)
 	{
 	continue;
 	}
-      if (vtx->pnt[vtx->lgmin+((lg+1)%nlg)][lt+vtx->ltmin][voidLoc] == SMALL_VOID)
+      if (vtx->pnt[vtx->lgmin+((lg+1)%nlg)][lt+vtx->ltmin][voidLoc] == VTK_SMALL_VOID)
 	{
 	continue;
 	}
-      if (vtx->pnt[vtx->lgmin+((lg+1)%nlg)][lt+vtx->ltmin+1][voidLoc] == SMALL_VOID)
+      if (vtx->pnt[vtx->lgmin+((lg+1)%nlg)][lt+vtx->ltmin+1][voidLoc] == VTK_SMALL_VOID)
 	{
 	continue;
 	}
-      if (vtx->pnt[lg+vtx->lgmin][lt+vtx->ltmin+1][voidLoc] == SMALL_VOID)
+      if (vtx->pnt[lg+vtx->lgmin][lt+vtx->ltmin+1][voidLoc] == VTK_SMALL_VOID)
 	{
 	continue;
 	}
@@ -515,7 +473,7 @@ char *STR112;
  *	Cyread() allocates a new set of buffers each time it is called. If
  *	this is not what you intend, be sure to call cyfree(gs) first.
  *	Opening and closing the file descriptors is up to the caller.
- *	GETR() and PUTR() are inline macros for getr() and putr(), they
+ *	VTK_GETR() and VTK_PUTR() are inline macros for getr() and putr(), they
  *	usually execute about twice as fast as the function versions.
  *
  * Use the header variables as follows:
@@ -531,11 +489,11 @@ char *STR112;
  *	short gs->nlg		Total number of longitudes.
  *	long gs->flags		Bit flags, as below.
  *
- *	FLAG_OLDHEADER		Force writing of old style header.
- *	FLAG_CARTESIAN		Indicates cartesian data, lgincr is
+ *	VTK_FLAG_OLDHEADER		Force writing of old style header.
+ *	VTK_FLAG_CARTESIAN		Indicates cartesian data, lgincr is
  *				in microns (x), radius becomes z. Think
  *				of getr() as  z = getr(gs, yi, xi).
- *	FLAG_BILATERAL		Cartesian and bilateral, ie: nus hands.
+ *	VTK_FLAG_BILATERAL		Cartesian and bilateral, ie: nus hands.
  *
  *	Use other header variable at own risk.
  */
@@ -570,7 +528,7 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx)
     vtx->lgmin = gs->lgmin;
     vtx->lgmax = gs->lgmax;
 
-    if (! (gs->flags & FLAG_CARTESIAN)) {
+    if (! (gs->flags & VTK_FLAG_CARTESIAN)) {
         theta_incr = (gs->lgincr * 1.e-6);		/* to radians */
         theta = 0.;
         y_incr = gs->ltincr * 1.e-6;			/* to meters */
@@ -579,16 +537,16 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx)
             sin_theta = sin(theta);
             cos_theta = cos(theta);
             for (lt = gs->ltmin; lt <= gs->ltmax; ++lt) {
-                radius = GETR(gs, lt, lg);		/* cyl radius */
+                radius = VTK_GETR(gs, lt, lg);		/* cyl radius */
                 if (radius != vtkCyVOID) {
                     r = radius * 1.e-6;			/* to meters */
-                    vtx->pnt[lg][lt][LX] = r * sin_theta;
-                    vtx->pnt[lg][lt][LY] = y;
-                    vtx->pnt[lg][lt][LZ] = r * -cos_theta;
+                    vtx->pnt[lg][lt][VTK_LX] = r * sin_theta;
+                    vtx->pnt[lg][lt][VTK_LY] = y;
+                    vtx->pnt[lg][lt][VTK_LZ] = r * -cos_theta;
                 } else {
-                    vtx->pnt[lg][lt][LX] = 0.0;
-                    vtx->pnt[lg][lt][LY] = SMALL_VOID;
-                    vtx->pnt[lg][lt][LZ] = 0.0;
+                    vtx->pnt[lg][lt][VTK_LX] = 0.0;
+                    vtx->pnt[lg][lt][VTK_LY] = VTK_SMALL_VOID;
+                    vtx->pnt[lg][lt][VTK_LZ] = 0.0;
                 }
                 y += y_incr;
             }
@@ -598,20 +556,20 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx)
         for (lg = 0; lg < vtx->nlg; ++lg) {
             x = (lg - vtx->nlg/2) * gs->lgincr * 1.e-6;
             for (lt = 0; lt < vtx->nlt; ++lt) {
-                if (gs->flags & FLAG_BILATERAL) {
+                if (gs->flags & VTK_FLAG_BILATERAL) {
                     y = (lt % (gs->nlt/2) - vtx->nlt) * gs->ltincr * 1.e-6;
                 } else {
                     y = (lt - vtx->nlt) * gs->ltincr * 1.e-6;
                 }
-                radius = GETR(gs, lt, lg);
+                radius = VTK_GETR(gs, lt, lg);
                 if (radius != vtkCyVOID) {
-                    vtx->pnt[lg][lt][LX] = x;
-                    vtx->pnt[lg][lt][LY] = y;
-                    vtx->pnt[lg][lt][LZ] = radius * 1.e-6;;
+                    vtx->pnt[lg][lt][VTK_LX] = x;
+                    vtx->pnt[lg][lt][VTK_LY] = y;
+                    vtx->pnt[lg][lt][VTK_LZ] = radius * 1.e-6;;
                 } else {
-                    vtx->pnt[lg][lt][LX] = x;
-                    vtx->pnt[lg][lt][LY] = y;
-                    vtx->pnt[lg][lt][LZ] = SMALL_VOID;
+                    vtx->pnt[lg][lt][VTK_LX] = x;
+                    vtx->pnt[lg][lt][VTK_LY] = y;
+                    vtx->pnt[lg][lt][VTK_LZ] = VTK_SMALL_VOID;
                 }
             }
         }
@@ -714,7 +672,7 @@ static int gsget(GSPEC* gs, int fd)
 
 	/* determine header type */
 	if (gs->offset != 122 && gs->offset != 114 && gs->offset != 128) {
-		gs->flags |= FLAG_OLDHEADER;
+		gs->flags |= VTK_FLAG_OLDHEADER;
 		if (*((char *)gs + 4) == 'r') {
 			/* reread header as portable type */
                   if ((gs->offset = getheader(fd)) == -1) {
@@ -766,7 +724,7 @@ static int gdget(GSPEC* gs, int fd)
   addr = (char *)gs->base;
   while (count > 0) 
     {
-    readsize = (unsigned int) MIN(size, count);
+    readsize = (unsigned int) VTK_MIN(size, count);
     if ((n = read(fd, addr, readsize)) == -1) 
       {
       perror(STR027);
@@ -813,12 +771,12 @@ static GSPEC *gsallo()
 
 
 #ifdef HIGHC
-#define MAXHEADER 340
+#define VTK_MAXHEADER 340
 #else
-#define MAXHEADER 4096		/* ??? might hang on very short files */
+#define VTK_MAXHEADER 4096		/* ??? might hang on very short files */
 #endif
 
-#define HEADEREND "DATA=\n"
+#define VTK_HEADEREND "DATA=\n"
 
 static char *header = 0;
 
@@ -827,20 +785,20 @@ static long getheader(int fd)
 	int count;
 	char *end;
 	char *h;
-	char *endstr = HEADEREND;
+	char *endstr = VTK_HEADEREND;
 	char *temp_header;
 	char *addr;
 	int n=0;
 
-	temp_header = (char *)malloc(MAXHEADER);
+	temp_header = (char *)malloc(VTK_MAXHEADER);
 
 	if (lseek(fd, (long)0, 0) == -1) {
 		perror(STR108);
 		return(-1);
 	}
 	addr = temp_header;
-	for (count = 0; count < MAXHEADER; count += n) {
-		if ((n = read(fd, addr, (unsigned)MAXHEADER)) == -1) {
+	for (count = 0; count < VTK_MAXHEADER; count += n) {
+		if ((n = read(fd, addr, (unsigned)VTK_MAXHEADER)) == -1) {
 			perror(STR109);
 			return(-1);
 		}
@@ -904,129 +862,129 @@ static int getvalue(char* name, char* dest, int length)
 
 
 
-#define STRINGLEN	24
+#define VTK_STRINGLEN	24
 static int makegsheader(GSPEC* gs)
 {
-	char string[STRINGLEN+1];
+	char string[VTK_STRINGLEN+1];
 	long i;
 
-	string[STRINGLEN] = 0;
+	string[VTK_STRINGLEN] = 0;
 
 	/* defaults */
 	gs->flags = 0;
 
 	/* mandatory items */
-	if (getvalue("NLT", string, STRINGLEN) == -1) {
+	if (getvalue("NLT", string, VTK_STRINGLEN) == -1) {
 		printf("%s: %s\n", STR111, "NLT");
 		return(-1);
 	}
 	gs->nlt = atoi(string);
-	if (getvalue("NLG", string, STRINGLEN) == -1) {
+	if (getvalue("NLG", string, VTK_STRINGLEN) == -1) {
 		printf("%s: %s\n", STR111, "NLG");
 		return(-1);
 	}
 	gs->nlg = atoi(string);
-	if (getvalue("LGSHIFT", string, STRINGLEN) == -1) {
+	if (getvalue("LGSHIFT", string, VTK_STRINGLEN) == -1) {
 		printf("%s: %s\n", STR111, "LGSHIFT");
 		return(-1);
 	}
 	gs->lgshift = atoi(string);
-	if (getvalue("LTINCR", string, STRINGLEN) == -1) {
+	if (getvalue("LTINCR", string, VTK_STRINGLEN) == -1) {
 		printf("%s: %s\n", STR111, "LTINCR");
 		return(-1);
 	}
 	gs->ltincr = atol(string);
-	if (getvalue("LGINCR", string, STRINGLEN) == -1) {
+	if (getvalue("LGINCR", string, VTK_STRINGLEN) == -1) {
 		printf("%s: %s\n", STR111, "LGINCR");
 		return(-1);
 	}
 	gs->lgincr = atol(string);
-	if (getvalue("RSHIFT", string, STRINGLEN) == -1) {
+	if (getvalue("RSHIFT", string, VTK_STRINGLEN) == -1) {
 		printf("%s: %s\n", STR111, "RSHIFT");
 		return(-1);
 	}
 	gs->rshift = atoi(string);
 
 	/* optional items */
-	if (getvalue("NAME", gs->name, NAMELEN) == -1) {
-	for (i = NAMELEN-1; i >= 0; --i)
+	if (getvalue("NAME", gs->name, VTK_NAMELEN) == -1) {
+	for (i = VTK_NAMELEN-1; i >= 0; --i)
 	  {
 	  gs->name[i] = 0;
 	  }
 	}
-	if (getvalue("LTMIN", string, STRINGLEN) == -1) {
+	if (getvalue("LTMIN", string, VTK_STRINGLEN) == -1) {
 		gs->ltmin = 0;
 	} else {
 		gs->ltmin = atoi(string);
 	}
-	if (getvalue("LTMAX", string, STRINGLEN) == -1) {
+	if (getvalue("LTMAX", string, VTK_STRINGLEN) == -1) {
 		gs->ltmax = gs->nlt - 1;
 	} else {
 		gs->ltmax = atoi(string);
 	}
-	if (getvalue("LGMIN", string, STRINGLEN) == -1) {
+	if (getvalue("LGMIN", string, VTK_STRINGLEN) == -1) {
 		gs->lgmin = 0;
 	} else {
 		gs->lgmin = atoi(string);
 	}
-	if (getvalue("LGMAX", string, STRINGLEN) == -1) {
+	if (getvalue("LGMAX", string, VTK_STRINGLEN) == -1) {
 		gs->lgmin = gs->nlg - 1;
 	} else {
 		gs->lgmax = atoi(string);
 	}
-	if (getvalue("RMIN", string, STRINGLEN) == -1) {
+	if (getvalue("RMIN", string, VTK_STRINGLEN) == -1) {
 		gs->rmin = 0;
 	} else {
 		gs->rmin = atol(string);
 	}
-	if (getvalue("RMAX", string, STRINGLEN) == -1) {
+	if (getvalue("RMAX", string, VTK_STRINGLEN) == -1) {
 		gs->rmax = 0;
 	} else {
 		gs->rmax = atol(string);
 	}
-	if (getvalue("SCALE", string, STRINGLEN) == -1) {
+	if (getvalue("SCALE", string, VTK_STRINGLEN) == -1) {
 		gs->scale = 100.0;
 	} else {
 		gs->scale = atof(string);
 	}
-	if (getvalue("RPROP", string, STRINGLEN) == -1) {
+	if (getvalue("RPROP", string, VTK_STRINGLEN) == -1) {
 		gs->rprop = 100.0;
 	} else {
 		gs->rprop = atof(string);
 	}
-	if (getvalue("FILLED", string, STRINGLEN) == -1) {
+	if (getvalue("FILLED", string, VTK_STRINGLEN) == -1) {
 		gs->filled = 0;
 	} else {
 		gs->filled = 1;
 	}
-	if (getvalue("SMOOTHED", string, STRINGLEN) == -1) {
+	if (getvalue("SMOOTHED", string, VTK_STRINGLEN) == -1) {
 		gs->smoothed = 0;
 	} else {
 		gs->smoothed = 1;
 	}
-	if (getvalue("SPACE", string, STRINGLEN) == -1) {
+	if (getvalue("SPACE", string, VTK_STRINGLEN) == -1) {
 		gs->flags = 0;
 	} else {
 		if (strcmp(string, "CARTESIAN") == 0) {
-			gs->flags |= FLAG_CARTESIAN;
+			gs->flags |= VTK_FLAG_CARTESIAN;
 		} else if (strcmp(string, "CYLINDRICAL") == 0) {
-			gs->flags &= ~FLAG_CARTESIAN;
+			gs->flags &= ~VTK_FLAG_CARTESIAN;
 		} else if (strcmp(string, "BILATERAL") == 0) {
-			gs->flags |= FLAG_CARTESIAN;
-			gs->flags |= FLAG_BILATERAL;
+			gs->flags |= VTK_FLAG_CARTESIAN;
+			gs->flags |= VTK_FLAG_BILATERAL;
 		} else {
 			printf("%s: SPACE\n", STR112);
 			return(-1);
 		}
 	}
-	if (getvalue("INSIDE_OUT", string, STRINGLEN) != -1) {
-		gs->flags |= FLAG_INSIDE_OUT;
+	if (getvalue("INSIDE_OUT", string, VTK_STRINGLEN) != -1) {
+		gs->flags |= VTK_FLAG_INSIDE_OUT;
 	}
-	if (getvalue("COLOR", string, STRINGLEN) != -1) {
-		gs->flags |= FLAG_COLOR;
+	if (getvalue("COLOR", string, VTK_STRINGLEN) != -1) {
+		gs->flags |= VTK_FLAG_COLOR;
 	}
-	if (getvalue("THETA_RIGHTHAND", string, STRINGLEN) != -1) {
-		gs->flags |= FLAG_THETARIGHT;
+	if (getvalue("THETA_RIGHTHAND", string, VTK_STRINGLEN) != -1) {
+		gs->flags |= VTK_FLAG_THETARIGHT;
 	}
 
 	/* forced value items */
