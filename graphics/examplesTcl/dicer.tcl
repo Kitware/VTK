@@ -21,7 +21,7 @@ vtkOBBDicer dicer
     dicer Update
 vtkDataSetMapper isoMapper
     isoMapper SetInput [dicer GetOutput]
-    isoMapper SetScalarRange 0 [dicer GetNumberOfPieces]
+    isoMapper SetScalarRange 0 [dicer GetNumberOfActualPieces]
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $raw_sienna
