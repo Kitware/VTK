@@ -490,7 +490,6 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n");
   fprintf(fp,"LINK32_OBJS= \\\n");
-  fprintf(fp,"    \"$(INTDIR)\\CommonInit.obj\" \\\n");
   fprintf(fp,"    \"$(INTDIR)\\vtkTclUtil.obj\" \\\n");
   fprintf(fp,"    \"$(INTDIR)\\vtktcl.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
@@ -566,7 +565,6 @@ void doMSTclHeader(FILE *fp, const char *vtkHome,
   fprintf(fp," /dll /incremental:no /pdb:\"$(OUTDIR)/vtkdll.pdb\" /debug /machine:I386\\\n");
   fprintf(fp," /out:\"$(OUTDIR)/vtktcl.dll\" /implib:\"$(OUTDIR)/vtktcl.lib\" \n");
   fprintf(fp,"LINK32_OBJS= \\\n");
-  fprintf(fp,"    \"$(INTDIR)\\CommonInit.obj\" \\\n");
   fprintf(fp,"    \"$(INTDIR)\\vtkTclUtil.obj\" \\\n");
   fprintf(fp,"    \"$(INTDIR)\\vtktcl.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
