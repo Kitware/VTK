@@ -39,6 +39,7 @@ protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 private:
   vtkImageSobel2D(const vtkImageSobel2D&);  // Not implemented.
   void operator=(const vtkImageSobel2D&);  // Not implemented.

@@ -17,13 +17,10 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.39.10.1");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.39.10.2");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -46,6 +43,11 @@ void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfElements: " << this->NumberOfElements << endl;
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -182,11 +184,30 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 
 
 //-----------------------------------------------------------------------------
+void vtkImageMedian3D::ExecuteInformation(vtkImageData *inData, 
+                                          vtkImageData *outData)
+{
+  vtkDataArray *inArray;
+
+  this->Superclass::ExecuteInformation(inData, outData);
+
+  // I would like to get rid of this type of information.
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (inArray)
+    {
+    outData->SetScalarType(inArray->GetDataType());
+    outData->SetNumberOfScalarComponents(inArray->GetNumberOfComponents());
+    }
+}
+
+
+
+//-----------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 template <class T>
 void vtkImageMedian3DExecute(vtkImageMedian3D *self,
-                             vtkImageData *inData, 
+                             vtkImageData *inData, T *inPtr, 
                              vtkImageData *outData, T *outPtr,
                              int outExt[6], int id,
                              const char* inputScalars)
@@ -197,7 +218,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
   int outIdxC, outIncX, outIncY, outIncZ;
-  T *inPtr, *inPtr0, *inPtr1, *inPtr2;
+  T *inPtr0, *inPtr1, *inPtr2;
   // For looping through hood pixels
   int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
   int hoodStartMin0, hoodStartMax0, hoodStartMin1, hoodStartMax1;
@@ -360,33 +381,121 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   
 }
 
+//----------------------------------------------------------------------------
+// Copydata at the end of the execute
+void vtkImageMedian3D::ExecuteData(vtkDataObject *out)
+{ 
+  vtkImageData *output = vtkImageData::SafeDownCast(out);
+  vtkImageData *input = this->GetInput();
+  int inExt[6];
+  int outExt[6];
+  vtkDataArray *inArray;
+  vtkDataArray *outArray;
+
+  // Avoid a floating point exception.
+  if (this->UpdateExtentIsEmpty(output))
+    {
+    return;
+    }
+
+  input->GetExtent(inExt);
+  output->SetExtent(output->GetUpdateExtent());
+  output->GetExtent(outExt);
+
+  // Do not copy the array we will be generating.
+  inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+  // Scalar copy flag trumps the array copy flag.
+  if (inArray == input->GetPointData()->GetScalars())
+    {
+    output->GetPointData()->CopyScalarsOff();
+    }
+  else
+    {
+    output->GetPointData()->CopyFieldOff(this->InputScalarsSelection);
+    }
+
+  // If the extents are the same, then pass the attribute data for efficiency.
+  if (inExt[0] == outExt[0] && inExt[1] == outExt[1] &&
+      inExt[2] == outExt[2] && inExt[3] == outExt[3] &&
+      inExt[4] == outExt[4] && inExt[5] == outExt[5])
+    {// Pass
+    output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
+    }
+  else
+    {// Copy
+    // Copy the point data.
+    output->GetPointData()->CopyAllocate(input->GetPointData(), 
+                                         output->GetNumberOfPoints());
+    output->GetPointData()->CopyStructuredData(input->GetPointData(),
+                                               inExt, outExt);
+    // Now Copy The cell data.
+    output->GetCellData()->CopyAllocate(input->GetCellData(), 
+                                        output->GetNumberOfCells());
+    // Cell extent is one less than point extent.
+    // Conditional handle a colapsed axis (lower dimensional cells).
+    if (inExt[0] < inExt[1]) {--inExt[1];}
+    if (inExt[2] < inExt[3]) {--inExt[3];}
+    if (inExt[4] < inExt[5]) {--inExt[5];}
+    // Cell extent is one less than point extent.
+    if (outExt[0] < outExt[1]) {--outExt[1];}
+    if (outExt[2] < outExt[3]) {--outExt[3];}
+    if (outExt[4] < outExt[5]) {--outExt[5];}
+    output->GetCellData()->CopyStructuredData(input->GetCellData(),
+                                              inExt, outExt);
+    }
+
+  // Now create the scalars array that will hold the output data.
+  outArray = inArray->NewInstance();
+  outArray->SetNumberOfComponents(inArray->GetNumberOfComponents());
+  outArray->SetNumberOfTuples(output->GetNumberOfPoints());
+  outArray->SetName(inArray->GetName());
+  output->GetPointData()->SetScalars(outArray);
+  outArray->Delete();
+
+  this->MultiThread(this->GetInput(),output);
+}
+         
+
 
 //-----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageMedian3D::ThreadedExecute (vtkImageData ***inData, 
-                                       vtkImageData **outData,
+void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 
+                                       vtkImageData *outData,
                                        int outExt[6], int id)
 {
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  vtkDataArray *inArray;
+  void *inPtr;
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  int *inIncs;
 
   vtkDebugMacro(<< "Execute: inData = " << inData 
   << ", outData = " << outData);
   
-  // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  if (id == 0)
     {
-    vtkErrorMacro(<< "Execute: input data type, " << 
-                  inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " << 
-                  outData[0]->GetScalarType());
+    outData->GetPointData()->GetScalars()->SetName(inArray->GetName());
+    }
+
+  inIncs = inData->GetIncrements();
+  inPtr = inArray->GetVoidPointer(outExt[0]*inIncs[0] +
+                                  outExt[2]*inIncs[1] +
+                                  outExt[4]*inIncs[2]); 
+
+  // this filter expects that input is the same type as output.
+  if (inArray->GetDataType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input data type, " << inArray->GetDataType()
+                << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inArray->GetDataType())
     {
-    vtkTemplateMacro7(vtkImageMedian3DExecute, this,inData[0][0], 
-                      outData[0], (VTK_TT *)(outPtr),outExt, id,
+    vtkTemplateMacro8(vtkImageMedian3DExecute, this,inData, (VTK_TT *)(inPtr), 
+                      outData, (VTK_TT *)(outPtr),outExt, id,
                       this->InputScalarsSelection);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");

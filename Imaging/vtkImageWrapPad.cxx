@@ -15,45 +15,33 @@
 #include "vtkImageWrapPad.h"
 
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.28.10.1");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.28.10.2");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageWrapPad::ComputeInputUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageWrapPad::ComputeInputUpdateExtent(int inExt[6],
+                                               int outExt[6])
 {
   int idx;
   int min, max, width, imageMin, imageMax, imageWidth;
-  int wholeExtent[6];
-  int outUExt[6];
-  int inUExt[6];
+  int *wholeExtent;
   
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExtent);
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),outUExt);
+  wholeExtent = this->GetInput()->GetWholeExtent();
 
   // Clip
   for (idx = 0; idx < 3; ++idx)
     {
-    min = outUExt[idx * 2];
-    max = outUExt[idx * 2 + 1];
+    min = outExt[idx * 2];
+    max = outExt[idx * 2 + 1];
     imageMin = wholeExtent[idx * 2];
     imageMax = wholeExtent[idx * 2 + 1];
     if (min > max || imageMin > imageMax)
       { // Empty output request.
-      inUExt[0] = inUExt[2] = inUExt[4] = 0;
-      inUExt[1] = inUExt[3] = inUExt[5] = -1;
+      inExt[0] = inExt[2] = inExt[4] = 0;
+      inExt[1] = inExt[3] = inExt[5] = -1;
       return;
       }
     width = max - min + 1;
@@ -75,11 +63,9 @@ void vtkImageWrapPad::ComputeInputUpdateExtent (
       min = imageMin;
       }
     
-    inUExt[idx * 2] = min;
-    inUExt[idx * 2 + 1] = max;
+    inExt[idx * 2] = min;
+    inExt[idx * 2 + 1] = max;
     }
-  
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt,6);
 }
 
 
@@ -108,7 +94,7 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   
   // Get information to march through data 
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  inData->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
+  self->GetInput()->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
                                    imageMin2, imageMax2);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
@@ -214,30 +200,32 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageWrapPad::ThreadedExecute (vtkImageData ***inData, 
-                                      vtkImageData **outData,
+void vtkImageWrapPad::ThreadedExecute(vtkImageData *inData, 
+                                      vtkImageData *outData,
                                       int outExt[6], int id)
 {
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  int inExt[6];
+  
+  this->ComputeInputUpdateExtent(inExt,outExt);
+
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << 
-                  inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " << 
-                  outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageWrapPadExecute, this, inData[0][0], 
-                      (VTK_TT *)0, 
-                      outData[0], (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro7(vtkImageWrapPadExecute, this, inData, (VTK_TT *)inPtr, 
+                      outData, (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

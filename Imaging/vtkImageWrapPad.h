@@ -36,9 +36,9 @@ protected:
   vtkImageWrapPad() {};
   ~vtkImageWrapPad() {};
 
-  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData, 
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
                        int ext[6], int id);
 private:
   vtkImageWrapPad(const vtkImageWrapPad&);  // Not implemented.

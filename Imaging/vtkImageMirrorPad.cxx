@@ -15,48 +15,34 @@
 #include "vtkImageMirrorPad.h"
 
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.31.10.1");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.31.10.2");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeInputUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6], 
+                                                 int outExt[6])
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
-
-  int wExtent[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wExtent);
+  int *wExtent = this->GetInput()->GetWholeExtent();
   int idx;
-  int inUExt[6], outUExt[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),outUExt);
   
   // initialize inExt
-  memcpy(inUExt,wExtent,6*sizeof(int));
+  memcpy(inExt,wExtent,6*sizeof(int));
 
   // a simple approximation to the required extent
   // basically get the whole extent for an axis unless a fully
   // contained subset is being requested. If so then use that.
   for (idx = 0; idx < 3; idx++)
     {
-    if (outUExt[idx*2] >= wExtent[idx*2] &&
-        outUExt[idx*2+1] <= wExtent[idx*2+1])
+    if (outExt[idx*2] >= wExtent[idx*2] &&
+        outExt[idx*2+1] <= wExtent[idx*2+1])
       {
-      inUExt[idx*2] = outUExt[idx*2];
-      inUExt[idx*2+1] = outUExt[idx*2+1];
+      inExt[idx*2] = outExt[idx*2];
+      inExt[idx*2+1] = outExt[idx*2+1];
       }
     }
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inUExt,6);
 }
 
 
@@ -75,7 +61,7 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int *wExtent = inData->GetWholeExtent();
+  int *wExtent = self->GetInput()->GetWholeExtent();
   int idx;
   int inIdxStart[3];
   int inIdx[3];
@@ -216,26 +202,26 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageMirrorPad::ThreadedExecute (vtkImageData ***inData, 
-                                        vtkImageData **outData,
+void vtkImageMirrorPad::ThreadedExecute(vtkImageData *inData, 
+                                        vtkImageData *outData,
                                         int outExt[6], int id)
 {
-  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  vtkDebugMacro(<< "Execute: inData = " << inData[0][0] 
-                << ", outData = " << outData[0]);
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+                << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
+  if (inData->GetScalarType() != outData->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData[0][0]->GetScalarType()
-                  << ", must match out ScalarType " << outData[0]->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+                  << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
-  switch (inData[0][0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageMirrorPadExecute, this, inData[0][0], outData[0], 
+    vtkTemplateMacro6(vtkImageMirrorPadExecute, this, inData, outData, 
                       (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

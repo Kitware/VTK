@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.24.10.3");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.24.10.4");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void vtkImageVariance3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 template <class T>
 void vtkImageVariance3DExecute(vtkImageVariance3D *self,
                                vtkImageData *mask,
-                               vtkImageData *inData, T *, 
+                               vtkImageData *inData, T *inPtr, 
                                vtkImageData *outData, int *outExt, 
                                float *outPtr, int id)
 {
@@ -129,7 +129,7 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  T *inPtr, *inPtr0, *inPtr1, *inPtr2;
+  T *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
   int numComps, outIdxC;
   // For looping through hood pixels
@@ -150,7 +150,7 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  inData->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
+  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
                                    inImageMax1, inImageMin2, inImageMax2);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
@@ -274,6 +274,9 @@ void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData,
                                          vtkImageData *outData, 
                                          int outExt[6], int id)
 {
+  int inExt[6];
+  this->ComputeInputUpdateExtent(inExt,outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
@@ -298,7 +301,7 @@ void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro8(vtkImageVariance3DExecute, this, mask, inData, 
-                      (VTK_TT *)(0), outData, outExt, 
+                      (VTK_TT *)(inPtr), outData, outExt, 
                       (float *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

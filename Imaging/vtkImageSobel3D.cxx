@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.31.10.1");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.31.10.2");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // out of extent.
 template <class T>
 void vtkImageSobel3DExecute(vtkImageSobel3D *self,
-                            vtkImageData *inData, T *, 
+                            vtkImageData *inData, T *inPtr, 
                             vtkImageData *outData, int *outExt, 
                             double *outPtr, int id)
 {
@@ -67,7 +67,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   int outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2, *outPtrV;
   int inInc0, inInc1, inInc2;
-  T *inPtr, *inPtr0, *inPtr1, *inPtr2;
+  T *inPtr0, *inPtr1, *inPtr2;
   // For sobel function convolution (Left Right incs for each axis)
   int inInc0L, inInc0R, inInc1L, inInc1R, inInc2L, inInc2R;
   T *inPtrL, *inPtrR;
@@ -79,9 +79,9 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   unsigned long target;
 
   // Get boundary information 
-  inData->GetWholeExtent(inWholeMin0,inWholeMax0, 
-                         inWholeMin1,inWholeMax1,
-                         inWholeMin2,inWholeMax2);
+  self->GetInput()->GetWholeExtent(inWholeMin0,inWholeMax0, 
+                           inWholeMin1,inWholeMax1,
+                           inWholeMin2,inWholeMax2);
   
   // Get information to march through data (skip component)
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -199,7 +199,12 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
                                       vtkImageData *outData,
                                       int outExt[6], int id)
 {
-  void *outPtr;
+  void *inPtr, *outPtr;
+  int inExt[6];
+  
+  this->ComputeInputUpdateExtent(inExt, outExt);  
+  
+  inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);
 
   // this filter cannot handle multi component input.
@@ -220,7 +225,7 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro7(vtkImageSobel3DExecute, this, inData, 
-                      (VTK_TT *)(0), outData, outExt, 
+                      (VTK_TT *)(inPtr), outData, outExt, 
                       (double *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

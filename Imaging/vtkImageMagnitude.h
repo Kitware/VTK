@@ -21,25 +21,22 @@
 #define __vtkImageMagnitude_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageMagnitude : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageMagnitude : public vtkImageToImageFilter
 {
 public:
   static vtkImageMagnitude *New();
-  vtkTypeRevisionMacro(vtkImageMagnitude,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageMagnitude,vtkImageToImageFilter);
 
 protected:
   vtkImageMagnitude() {};
   ~vtkImageMagnitude() {};
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
-                           vtkInformationVector *);
-
-  void ThreadedExecute (vtkImageData ***inData, 
-                        vtkImageData **outData,
-                        int outExt[6], int id);
-
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+                       int extent[6], int id);
 private:
   vtkImageMagnitude(const vtkImageMagnitude&);  // Not implemented.
   void operator=(const vtkImageMagnitude&);  // Not implemented.

@@ -15,12 +15,9 @@
 #include "vtkImagePadFilter.h"
 
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImagePadFilter, "1.28.10.1");
+vtkCxxRevisionMacro(vtkImagePadFilter, "1.28.10.2");
 vtkStandardNewMacro(vtkImagePadFilter);
 
 //----------------------------------------------------------------------------
@@ -86,61 +83,38 @@ void vtkImagePadFilter::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Just change the Image extent.
-void vtkImagePadFilter::ExecuteInformation(
-  vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector * inputVector, 
-  vtkInformationVector * outputVector)
+void vtkImagePadFilter::ExecuteInformation(vtkImageData *inData, 
+                                           vtkImageData *outData)
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
-
-  // we must set the extent on the input
   if (this->OutputWholeExtent[0] > this->OutputWholeExtent[1])
     {
     // invalid setting, it has not been set, so default to whole Extent
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
-                this->OutputWholeExtent);
+    inData->GetWholeExtent(this->OutputWholeExtent);
     }
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
-               this->OutputWholeExtent, 6);
-
+  outData->SetWholeExtent(this->OutputWholeExtent);
+  
   if (this->OutputNumberOfScalarComponents < 0)
     {
     // invalid setting, it has not been set, so default to input.
     this->OutputNumberOfScalarComponents 
-      = inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+      = inData->GetNumberOfScalarComponents();
     }
-  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
-               this->OutputNumberOfScalarComponents);
+  outData->SetNumberOfScalarComponents(this->OutputNumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImagePadFilter::ComputeInputUpdateExtent( 
-  vtkInformation       * vtkNotUsed( request ),
-  vtkInformationVector * inputVector, 
-  vtkInformationVector * outputVector)
+void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6], 
+                                                 int outExt[6])
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = 
-    this->GetInputConnectionInformation(inputVector,0,0);
-
-  // handle XYZ
-  int uExt[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt);
-  
-  int inExt[6];
-  memcpy(inExt,uExt,sizeof(int)*6);
-  
-  int wholeExtent[6];
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), 
-              wholeExtent);
-
-  // Clip
   int idx;
+  int *wholeExtent;
+  
+  // handle XYZ
+  memcpy(inExt,outExt,sizeof(int)*6);
+  
+  wholeExtent = this->GetInput()->GetWholeExtent();
+  // Clip
   for (idx = 0; idx < 3; ++idx)
     {
     if (inExt[idx*2] < wholeExtent[idx*2])
@@ -160,9 +134,6 @@ void vtkImagePadFilter::ComputeInputUpdateExtent(
       inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
-  
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
-              inExt, 6);
 }
 
 void vtkImagePadFilter::PrintSelf(ostream& os, vtkIndent indent)

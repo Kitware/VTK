@@ -20,25 +20,22 @@
 #define __vtkImageLuminance_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageLuminance : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageLuminance : public vtkImageToImageFilter
 {
 public:
   static vtkImageLuminance *New();
-  vtkTypeRevisionMacro(vtkImageLuminance,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageLuminance,vtkImageToImageFilter);
 
 protected:
   vtkImageLuminance() {};
   ~vtkImageLuminance() {};
   
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
-                           vtkInformationVector *);
-
-  void ThreadedExecute (vtkImageData ***inData, 
-                        vtkImageData **outData,
-                        int outExt[6], int id);
-
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+                       int ext[6], int id);
 private:
   vtkImageLuminance(const vtkImageLuminance&);  // Not implemented.
   void operator=(const vtkImageLuminance&);  // Not implemented.

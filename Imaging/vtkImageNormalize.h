@@ -23,21 +23,21 @@
 #define __vtkImageNormalize_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageNormalize : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageNormalize : public vtkImageToImageFilter
 {
 public:
   static vtkImageNormalize *New();
-  vtkTypeRevisionMacro(vtkImageNormalize,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageNormalize,vtkImageToImageFilter);
 
 protected:
   vtkImageNormalize() {};
   ~vtkImageNormalize() {};
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
-  
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:
   vtkImageNormalize(const vtkImageNormalize&);  // Not implemented.

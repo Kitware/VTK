@@ -24,13 +24,13 @@
 #define __vtkImageShiftScale_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageShiftScale : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageShiftScale : public vtkImageToImageFilter
 {
 public:
   static vtkImageShiftScale *New();
-  vtkTypeRevisionMacro(vtkImageShiftScale,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageShiftScale,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -86,9 +86,9 @@ protected:
   int OutputScalarType;
   int ClampOverflow;
   
-  void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
-  
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:
   vtkImageShiftScale(const vtkImageShiftScale&);  // Not implemented.

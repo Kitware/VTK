@@ -23,13 +23,13 @@
 #define __vtkImageRGBToHSV_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageRGBToHSV : public vtkImageToImageFilter
 {
 public:
   static vtkImageRGBToHSV *New();
-  vtkTypeRevisionMacro(vtkImageRGBToHSV,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageRGBToHSV,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -46,7 +46,7 @@ protected:
 
   double Maximum;
   
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
   vtkImageRGBToHSV(const vtkImageRGBToHSV&);  // Not implemented.

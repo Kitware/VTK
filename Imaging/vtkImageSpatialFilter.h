@@ -26,13 +26,13 @@
 #define __vtkImageSpatialFilter_h
 
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
-class VTK_IMAGING_EXPORT vtkImageSpatialFilter : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
   static vtkImageSpatialFilter *New();
-  vtkTypeRevisionMacro(vtkImageSpatialFilter,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageSpatialFilter,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -55,10 +55,10 @@ protected:
   // Called by the superclass
   void ExecuteInformation();
   // Override this method if you have to.
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
-  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, vtkInformationVector *);
+  void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
 
 private:
   vtkImageSpatialFilter(const vtkImageSpatialFilter&);  // Not implemented.

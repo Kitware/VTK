@@ -17,7 +17,7 @@
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.40.10.1");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.40.10.2");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
 template <class T>
 void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
                                   vtkImageData *mask,
-                                  vtkImageData *inData, 
+                                  vtkImageData *inData, T *inPtr, 
                                   vtkImageData *outData, int *outExt, 
                                   T *outPtr, int id)
 {
@@ -123,7 +123,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
   int outIdx0, outIdx1, outIdx2;
   int inInc0, inInc1, inInc2;
   int outInc0, outInc1, outInc2;
-  T *inPtr, *inPtr0, *inPtr1, *inPtr2;
+  T *inPtr0, *inPtr1, *inPtr2;
   T *outPtr0, *outPtr1, *outPtr2;
   int numComps, outIdxC;
   // For looping through hood pixels
@@ -143,8 +143,8 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  inData->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
-                         inImageMax1, inImageMin2, inImageMax2);
+  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
+                                   inImageMax1, inImageMin2, inImageMax2);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
@@ -272,6 +272,9 @@ void vtkImageDilateErode3D::ThreadedExecute(vtkImageData *inData,
                                             vtkImageData *outData, 
                                             int outExt[6], int id)
 {
+  int inExt[6];
+  this->ComputeInputUpdateExtent(inExt,outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
@@ -295,8 +298,8 @@ void vtkImageDilateErode3D::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageDilateErode3DExecute, this, mask, inData, 
-                      outData, outExt, 
+    vtkTemplateMacro8(vtkImageDilateErode3DExecute, this, mask, inData, 
+                      (VTK_TT *)(inPtr),outData, outExt, 
                       (VTK_TT *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

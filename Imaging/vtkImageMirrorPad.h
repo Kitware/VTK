@@ -34,9 +34,8 @@ protected:
   vtkImageMirrorPad() {};
   ~vtkImageMirrorPad() {};
 
-  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, 
-                                 vtkInformationVector *);
-  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData, 
+  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
                        int ext[6], int id);
 private:
   vtkImageMirrorPad(const vtkImageMirrorPad&);  // Not implemented.
