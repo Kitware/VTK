@@ -90,13 +90,13 @@ MACRO(VTK_MAKE_INSTANTIATOR3 className outSourceList SOURCES EXPORT_MACRO HEADER
 
 
   CONFIGURE_FILE(
-    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstatiator.h.in  
+    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.h.in  
     ${HEADER_LOCATION}/${className}.h
     COPY_ONLY
     IMMEDIATE
     )
   CONFIGURE_FILE(
-    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstatiator.cxx.in  
+    ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cxx.in  
     ${CMAKE_CURRENT_BINARY_DIR}/${className}.cxx
     COPY_ONLY
     IMMEDIATE
