@@ -27,6 +27,16 @@ vlCollection::vlCollection()
   this->Bottom = NULL;
 }
 
+vlCollection::~vlCollection()
+{
+  vlCollectionElement *p;  
+
+  for ( p=this->Top; p != NULL; p = p->Next )
+    {
+    delete p;
+    }
+}
+
 // Description:
 // Add an object to the list. Does not prevent duplicate entries.
 void vlCollection::AddItem(vlObject *a)
@@ -157,11 +167,3 @@ void vlCollection::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Number Of Items: " << this->NumberOfItems << "\n";
     }
 }
-
-
-
-
-
-
-
-

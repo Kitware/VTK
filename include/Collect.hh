@@ -33,18 +33,20 @@ class vlCollectionElement
 
 class vlCollection : public vlObject
 {
- public:
-  int NumberOfItems;
+public:
   vlCollection();
+  virtual ~vlCollection();
+  void PrintSelf(ostream& os, vlIndent indent);
+  char *GetClassName() {return "vlCollection";};
+
   void AddItem(vlObject *);
   void RemoveItem(vlObject *);
   int  IsItemPresent(vlObject *);
   int  GetNumberOfItems();
   vlObject *GetItem(int num);
-  void PrintSelf(ostream& os, vlIndent indent);
-  char *GetClassName() {return "vlCollection";};
 
- private:
+protected:
+  int NumberOfItems;
   vlCollectionElement *Top;
   vlCollectionElement *Bottom;
 
