@@ -2,6 +2,9 @@ catch {load vtktcl}
 if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
 if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
+# convert any non-unix style paths to unix style paths
+set VTK_DATA [file join $VTK_DATA]
+
 #
 #   Clip Actor with Spherical Lens
 #

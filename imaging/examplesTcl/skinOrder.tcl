@@ -40,9 +40,9 @@ set orders "ap pa si is lr rl"
 foreach order $orders {
   vtkImageReader reader$order
     eval reader$order SetDataExtent $VOI
-    eval reader$order SetFilePrefix $VTK_DATA/headsq/quarter
-    eval reader$order SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
-    eval reader$order SetDataOrigin $origin $origin 1.5
+    reader$order SetFilePrefix $VTK_DATA/headsq/quarter
+    reader$order SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
+    reader$order SetDataOrigin $origin $origin 1.5
     reader$order SetTransform $order
     reader$order SetHeaderSize 0
     reader$order SetDataMask 0x7fff;
