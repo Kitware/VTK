@@ -47,6 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // set of events and should not include UserEvent
 static const char *vtkCommandEventStrings[] = {
   "NoEvent", 
+  "AnyEvent",
   "DeleteEvent",
   "StartEvent",
   "EndEvent",
@@ -56,6 +57,20 @@ static const char *vtkCommandEventStrings[] = {
   "EndPickEvent",
   "AbortCheckEvent",
   "ExitEvent", 
+  "LeftButtonPressEvent",
+  "LeftButtonReleaseEvent",
+  "MiddleButtonPressEvent",
+  "MiddleButtonReleaseEvent",
+  "RightButtonPressEvent",
+  "RightButtonReleaseEvent",
+  "EnterEvent",
+  "LeaveEvent",
+  "KeyPressEvent",
+  "KeyReleaseEvent",
+  "CharEvent",
+  "ConfigureEvent",
+  "TimerEvent",
+  "MouseMoveEvent",
   NULL
 };
 

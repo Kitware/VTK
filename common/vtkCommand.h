@@ -73,6 +73,7 @@ public:
   // in vtkCommand.cxx to match.
   enum EventIds {
     NoEvent = 0,
+    AnyEvent,
     DeleteEvent,
     StartEvent,
     EndEvent,
@@ -82,6 +83,20 @@ public:
     EndPickEvent,
     AbortCheckEvent,
     ExitEvent,
+    LeftButtonPressEvent,
+    LeftButtonReleaseEvent,
+    MiddleButtonPressEvent,
+    MiddleButtonReleaseEvent,
+    RightButtonPressEvent,
+    RightButtonReleaseEvent,
+    EnterEvent,
+    LeaveEvent,
+    KeyPressEvent,
+    KeyReleaseEvent,
+    CharEvent,
+    ConfigureEvent,
+    TimerEvent,
+    MouseMoveEvent,
     UserEvent = 1000
   };
 //ETX
