@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkInterpolatedVelocityField - Interface for obtaining
 // interpolated velocity values
 // .SECTION Description
-// vtkInterpolatedVelocityField act as a continuous velocity field
+// vtkInterpolatedVelocityField acts as a continuous velocity field
 // by performing cell interpolation on the underlying vtkDataSet.
 // This is a concrete sub-class of vtkFunctionSet with 
 // NumberOfIndependentVariables = 4 (x,y,z,t) and 
@@ -50,10 +50,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // is performed, the cell which contains the point (x,y,z) has to
 // be found by calling FindCell. This is a computationally expansive 
 // operation. In certain cases, the cell search can be avoided or shortened 
-// by providing a guess for the cell id. For example, in stream line
+// by providing a guess for the cell id. For example, in streamline
 // integration, the next evaluation is usually in the same or a neighbour
-// cell. For this reason, vtkInterpolatedVelocityField stored the last
-// cell id. If caching is turned on, is uses this id as the starting point.
+// cell. For this reason, vtkInterpolatedVelocityField stores the last
+// cell id. If caching is turned on, it uses this id as the starting point.
 
 // .SECTION Caveats
 // vtkInterpolatedVelocityField is not thread safe. A new instance should
