@@ -78,9 +78,9 @@ protected:
   vlColorScalars *ReadImage(int dim[3]);
   vlColorScalars *ReadVolume(int dim[3]);
 
-  int ReadBinaryPBM(FILE *fp, vlBitmap *s, int n);
-  int ReadBinaryPGM(FILE *fp, vlGraymap *s, int n);
-  int ReadBinaryPPM(FILE *fp, vlPixmap *s, int n);
+  int ReadBinaryPBM(FILE *fp, vlBitmap *s, int n, int xsize, int ysize);
+  int ReadBinaryPGM(FILE *fp, vlGraymap *s, int n, int xsize, int ysize);
+  int ReadBinaryPPM(FILE *fp, vlPixmap *s, int n, int xsize, int ysize);
 };
 
 #endif

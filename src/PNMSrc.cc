@@ -89,7 +89,7 @@ vlColorScalars *vlPNMSource::ReadImage(int dim[3])
   else if ( ! strcmp(magic,"P5") ) //pgm file
     {
     graymap = new vlGraymap(numPts);
-    if ( this->ReadBinaryPGM(fp,graymap,numPts) )
+    if ( this->ReadBinaryPGM(fp,graymap,numPts,dim[0],dim[1]) )
       {
       s = (vlColorScalars *) graymap;
       }
@@ -102,7 +102,7 @@ vlColorScalars *vlPNMSource::ReadImage(int dim[3])
   else if ( ! strcmp(magic,"P6") ) //ppm file
     {
     pixmap = new vlPixmap(numPts);
-    if ( this->ReadBinaryPPM(fp,pixmap,numPts) )
+    if ( this->ReadBinaryPPM(fp,pixmap,numPts,dim[0],dim[1]) )
       {
       s = (vlColorScalars *) pixmap;
       }
@@ -128,38 +128,75 @@ vlColorScalars *vlPNMSource::ReadVolume(int dim[3])
 }
 
 
-int vlPNMSource::ReadBinaryPBM(FILE *fp, vlBitmap* bitmap, int numPts)
+int vlPNMSource::ReadBinaryPBM(FILE *fp, vlBitmap* bitmap, int numPts,
+                               int xsize, int ysize)
 {
-  return 1;
-}
-
-int vlPNMSource::ReadBinaryPGM(FILE *fp, vlGraymap* graymap, int numPts)
-{
-  int max;
+  int max, j, packedXSize=xsize/8;
   unsigned char *cptr;
 
   fscanf(fp, "%d", &max);
-  cptr = graymap->WriteInto(graymap->GetNumberOfColors(),numPts);
-  if ( ! fread(cptr,1,numPts,fp) )
+//
+// Since pnm coordinate system is at upper left of image, need to convert
+// to lower rh corner origin by reading a row at a time.
+//
+  for (j=0; j<ysize; j++)
     {
-    vlErrorMacro(<<"Error reaading raw pgm data!");
-    return 0;
+    cptr = graymap->WritePtr(numPts-(ysize-(j+1))*packedXSize,packedXSize);
+    if ( ! fread(cptr,1,packedXSize,fp) )
+      {
+      vlErrorMacro(<<"Error reaading raw pbm data!");
+      return 0;
+      }
     }
+
   return 1;
 }
 
-int vlPNMSource::ReadBinaryPPM(FILE *fp, vlPixmap* pixmap, int numPts)
+int vlPNMSource::ReadBinaryPGM(FILE *fp, vlGraymap* graymap, int numPts,
+                               int xsize, int ysize)
 {
-  int max;
+  int max, j;
   unsigned char *cptr;
 
   fscanf(fp, "%d", &max);
-  cptr = pixmap->WriteInto(pixmap->GetNumberOfColors(),numPts);
-  if ( ! fread(cptr,3,numPts,fp) )
+//
+// Since pnm coordinate system is at upper left of image, need to convert
+// to lower rh corner origin by reading a row at a time.
+//
+  for (j=0; j<ysize; j++)
     {
-    vlErrorMacro(<<"Error reaading raw ppm data!");
-    return 0;
+    cptr = graymap->WritePtr(numPts-(ysize-(j+1))*xsize,xsize);
+    if ( ! fread(cptr,1,xsize,fp) )
+      {
+      vlErrorMacro(<<"Error reaading raw pgm data!");
+      return 0;
+      }
     }
+
+  return 1;
+}
+
+int vlPNMSource::ReadBinaryPPM(FILE *fp, vlPixmap* pixmap, int numPts,
+                               int xsize, int ysize)
+{
+  int max, j;
+  unsigned char *cptr;
+
+  fscanf(fp, "%d", &max);
+//
+// Since pnm coordinate system is at upper left of image, need to convert
+// to lower rh corner origin by reading a row at a time.
+//
+  for (j=0; j<ysize; j++)
+    {
+    cptr = pixmap->WritePtr(numPts-(ysize-(j+1))*xsize,xsize);
+    if ( ! fread(cptr,3,xsize,fp) )
+      {
+      vlErrorMacro(<<"Error reaading raw ppm data!");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
