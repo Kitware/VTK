@@ -28,7 +28,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.50");
+vtkCxxRevisionMacro(vtkSTLWriter, "1.51");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()
@@ -61,6 +61,8 @@ void vtkSTLWriter::WriteData()
     this->WriteBinarySTL(pts,polys);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {
+      vtkErrorMacro("Ran out of disk space; deleting file: "
+                    << this->FileName);
       unlink(this->FileName);
       }
     }
@@ -69,6 +71,8 @@ void vtkSTLWriter::WriteData()
     this->WriteAsciiSTL(pts,polys);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {
+      vtkErrorMacro("Ran out of disk space; deleting file: "
+                    << this->FileName);
       unlink(this->FileName);
       }
     }
