@@ -100,8 +100,8 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
     
   // this filter expects that input is the same type as output.
   if (inData[0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
-      inData[0]->GetScalarType() != VTK_UNSIGNED_CHAR || 
-      inData[0]->GetScalarType() != VTK_UNSIGNED_CHAR)
+      inData[1]->GetScalarType() != VTK_UNSIGNED_CHAR || 
+      outData->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
       vtkErrorMacro(<< "Execute: All ScalarTypes must be unsigned char");
       this->Error = 1;
