@@ -19,7 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.32");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.32.10.1");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -326,6 +326,14 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
   unsigned long count = 0;
   unsigned long target;
   
+  // Name the array appropriately.
+  data->GetPointData()->GetScalars()->SetName("Iterations");
+
+  if (data->GetNumberOfPoints() <= 0)
+    {
+    return;
+    }
+
   // Copy origin into pixel
   for (idx0 = 0; idx0 < 4; ++idx0)
     {
@@ -382,8 +390,6 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
     ptr += inc2;
     }
   
-  // Name the array appropriately.
-  data->GetPointData()->GetScalars()->SetName("Iterations");
 }
 
 
