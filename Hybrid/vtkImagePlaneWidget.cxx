@@ -38,7 +38,7 @@
 
 #define ABS(x) ((x)<0 ? -(x) : (x))
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.16");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.17");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkImagePlaneWidget::vtkImagePlaneWidget()
@@ -111,6 +111,8 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->TexturePlaneMapper = vtkDataSetMapper::New();
   this->TexturePlaneActor = vtkActor::New();
   this->DummyTransform = vtkTransform::New();
+
+  this->ImageData = 0;
 }
 
 vtkImagePlaneWidget::~vtkImagePlaneWidget()
