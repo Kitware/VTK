@@ -13,6 +13,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 set scalarLabels  "Density Pressure Temperature Enthalpy Internal_Energy Kinetic_Energy Velocity_Magnitude Stagnation_Energy Entropy Swirl"
+set scalarComposite  "Black NotDest SrcAndDest SrcOrDest NotSrc SrcXorDest SrcAndNotDest Src White Black"
 set scalarFunctions  "100 110 120 130 140 144 153 163 170 184"
 vtkCamera camera
 
@@ -34,7 +35,7 @@ vtkActor actor$scalarFunction
     actor$scalarFunction SetMapper mapper$scalarFunction
 
 vtkRenderer ren$scalarFunction
-  ren$scalarFunction SetBackground 0.5 .5 .5
+  ren$scalarFunction SetBackground 0 0 .5
   ren$scalarFunction SetActiveCamera camera
   renWin AddRenderer ren$scalarFunction
 
@@ -46,7 +47,8 @@ vtkTextMapper textMapper$scalarFunction
   textMapper$scalarFunction SetFontFamilyToArial
 vtkActor2D text$scalarFunction
   text$scalarFunction SetMapper textMapper$scalarFunction
-  [text$scalarFunction GetProperty] SetColor .3 1 1
+  [text$scalarFunction GetProperty] SetColor 1 .6 1
+    [text$scalarFunction GetProperty] SetCompositingOperatorTo[lindex $scalarComposite $i]
 ren$scalarFunction AddActor2D text$scalarFunction
 incr i
 }
