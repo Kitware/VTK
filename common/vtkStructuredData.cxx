@@ -216,6 +216,10 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
     {
     ptDim[i] = dim[i];
     cellDim[i] = ptDim[i] - 1;
+    if (cellDim[i] == 0)
+      {
+      cellDim[i] = 1;
+      }
     }
   //
   //  Get the location of the point
