@@ -603,7 +603,6 @@ void vtkUnstructuredGrid::CopyInformation(vtkDataObject *data)
 //----------------------------------------------------------------------------
 unsigned long vtkUnstructuredGrid::GetEstimatedUpdateExtentMemorySize()
 {
-  int idx;
   unsigned long size;
   
   if (this->UpdateNumberOfPieces <= 0)

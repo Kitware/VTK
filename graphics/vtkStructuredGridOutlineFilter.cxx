@@ -317,7 +317,7 @@ void vtkStructuredGridOutlineFilter::UpdateInformation()
 {
   vtkStructuredGrid *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int *ext, nums[3];
+  int *ext;
   long t1, t2;
   long numPts, numLines;
   long sizePt, sizeLine;

@@ -67,7 +67,6 @@ static void CastMaxScalarValueRay( T *data_ptr,
   float     triMax, triValue;
   int       max;
   float     max_opacity;
-  float     value;
   int       loop;
   int       xinc, yinc, zinc;
   int       voxel[3], prev_voxel[3];

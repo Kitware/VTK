@@ -103,7 +103,7 @@ void vtkProgrammableGlyphFilter::Execute()
   int numPts = input->GetNumberOfPoints();
   vtkPointData *sourcePD;
   vtkCellData *sourceCD;
-  int numSourcePts, numSourceCells, ptOffset=0, scalarOffset;
+  int numSourcePts, numSourceCells, ptOffset=0;
   int cellId, ptId, id, i, idx, npts;
   vtkIdList *pts=vtkIdList::New();
   vtkIdList *cellPts;

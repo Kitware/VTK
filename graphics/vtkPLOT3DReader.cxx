@@ -307,7 +307,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
 {
   vtkPoints *newPts;
   int dim[3];
-  int i, gridFound, offset, gridSize, maxGridSize;
+  int i, gridFound, offset, gridSize;
   float x[3];
   
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
@@ -325,7 +325,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   //
   // Loop over grids, reading one that has been specified
   //
-  for (gridFound=0, offset=0, maxGridSize=0, i=0; i<this->NumGrids; i++) 
+  for (gridFound=0, offset=0, i=0; i<this->NumGrids; i++) 
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 )
@@ -395,10 +395,8 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
 int vtkPLOT3DReader::ReadBinaryGridDimensions(FILE *fp,
 					      vtkStructuredGrid *output)
 {
-  vtkPoints *newPts;
   int dim[3];
-  int i, gridFound, offset, gridSize, maxGridSize;
-  float x[3];
+  int i, offset, gridSize;
   
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
@@ -415,7 +413,7 @@ int vtkPLOT3DReader::ReadBinaryGridDimensions(FILE *fp,
   //
   // Loop over grids, reading one that has been specified
   //
-  for (gridFound=0, offset=0, maxGridSize=0, i=0; i<this->NumGrids; i++) 
+  for (offset=0, i=0; i<this->NumGrids; i++) 
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 )
@@ -432,7 +430,6 @@ int vtkPLOT3DReader::ReadBinaryGridDimensions(FILE *fp,
       }
     else if ( i == this->GridNumber ) 
       {
-      gridFound = 1;
       this->NumPts = gridSize;
       output->SetWholeExtent(0,dim[0]-1, 0,dim[1]-1, 0,dim[2]-1);
       return 0;
@@ -447,7 +444,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   vtkScalars *newDensity, *newEnergy;
   vtkVectors *newMomentum;
   int dim[3];
-  int i, gridFound, offset, gridSize, maxGridSize;
+  int i, gridFound, offset, gridSize;
   float m[3], params[4];
   int numGrids, numPts = 0;
 
@@ -472,7 +469,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   //
   // Loop over dimensions, reading grid dimensions that have been specified
   //
-  for (gridFound=0, offset=0, maxGridSize=0, i=0; i<numGrids; i++) 
+  for (gridFound=0, offset=0, i=0; i<numGrids; i++) 
     {
     //read dimensions
     if ( fread (dim, sizeof(int), 3, fp) < 3 )
@@ -896,7 +893,7 @@ void vtkPLOT3DReader::ComputeKineticEnergy(vtkPointData *outputPD)
 
 void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
 {
-  float *m, u, v, w, v2, d, rr, e;
+  float *m, u, v, w, v2, d, rr;
   int i;
   vtkScalars *velocityMag;
 //
@@ -919,7 +916,6 @@ void vtkPLOT3DReader::ComputeVelocityMagnitude(vtkPointData *outputPD)
     d = this->Density->GetScalar(i);
     d = (d != 0.0 ? d : 1.0);
     m = this->Momentum->GetVector(i);
-    e = this->Energy->GetScalar(i);
     rr = 1.0 / d;
     u = m[0] * rr;        
     v = m[1] * rr;        

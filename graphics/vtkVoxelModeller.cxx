@@ -290,10 +290,10 @@ void vtkVoxelModeller::Write(char *fname)
 {
   FILE *fp;
   int i, j, k;
-  float maxDistance, origin[3], spacing[3];
+  float origin[3], spacing[3];
   
   vtkScalars *newScalars;
-  int numPts, idx;
+  int idx;
   int bitcount;
   unsigned char uc;
   vtkStructuredPoints *output=this->GetOutput();
@@ -303,12 +303,10 @@ void vtkVoxelModeller::Write(char *fname)
   // update the data
   this->Update();
   
-  numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
-
   newScalars = output->GetPointData()->GetScalars();
 
   output->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds(origin,spacing);
+  this->ComputeModelBounds(origin,spacing);
 
   fp = fopen(fname,"w");
   if (!fp) 

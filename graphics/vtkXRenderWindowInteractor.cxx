@@ -983,10 +983,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 				     XtIntervalId *vtkNotUsed(id))
 {
   vtkXRenderWindowInteractor *me;
-  Window root,child;
-  int root_x,root_y;
   int x,y;
-  unsigned int keys;
 
   me = (vtkXRenderWindowInteractor *)client_data;
 

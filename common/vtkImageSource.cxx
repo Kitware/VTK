@@ -73,7 +73,6 @@ vtkImageData *vtkImageSource::GetOutput()
 void vtkImageSource::StreamExecuteStart()
 {
   vtkImageData *output = this->GetOutput();
-  int idx;
 
   this->InterceptCacheUpdate();
   // If we have multiple Outputs, they need to be allocate

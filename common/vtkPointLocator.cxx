@@ -618,7 +618,6 @@ void vtkPointLocator::FindPointsWithinRadius(float R, float x[3],
   int i, j;
   float dist2;
   float *pt;
-  int level;
   int ptId, cno;
   vtkIdList *ptIds;
   int ijk[3], *nei;

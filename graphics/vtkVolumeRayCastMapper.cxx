@@ -498,7 +498,7 @@ int vtkVolumeRayCastMapper::ClipRayAgainstVolume( VTKRayCastRayInfo *rayInfo,
 						  VTKRayCastVolumeInfo *volumeInfo,
 						  float bounds[6] )
 {
-  int    loop, i;
+  int    loop;
   float  diff;
   float  t;
   float  *rayStart, *rayEnd, *rayDirection;

@@ -405,13 +405,12 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
 {
   int i, j;
   int *nei;
-  int inside=0;
   int closestCell = -1;
   int closestSubCell = -1;
   int leafStart;
   int level;
-  int ijk[3], dn[3];
-  float minDist2, refinedRadius, refinedRadius2, distance2ToBucket;
+  int ijk[3];
+  float minDist2, refinedRadius2, distance2ToBucket;
   float distance2ToCellBounds, cellBounds[6];
   float pcoords[3], point[3], cachedPoint[3], weightsArray[6];
   float *weights = weightsArray;
@@ -433,7 +432,6 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
   
   // init
   dist2 = -1.0;
-  refinedRadius = VTK_LARGE_FLOAT;
   refinedRadius2 = VTK_LARGE_FLOAT;
   
   //
@@ -515,7 +513,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                   }
                 
                 // evaluate the position to find the closest point
-                inside = cell->EvaluatePosition(x, point, subId, pcoords,
+                cell->EvaluatePosition(x, point, subId, pcoords,
                   dist2, weights);
                 
                 if ( dist2 < minDist2 ) 
@@ -526,7 +524,6 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                   cachedPoint[0] = point[0];
                   cachedPoint[1] = point[1];
                   cachedPoint[2] = point[2];
-                  refinedRadius = sqrt(dist2);
                   refinedRadius2 = dist2;
                   }
                 }
@@ -619,7 +616,7 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                   }
                 
                 // evaluate the position to find the closest point
-                inside = cell->EvaluatePosition(x, point, subId, pcoords,
+                cell->EvaluatePosition(x, point, subId, pcoords,
                   dist2, weights);
                 
                 if ( dist2 < minDist2 ) 
@@ -630,7 +627,6 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
                   cachedPoint[0] = point[0];
                   cachedPoint[1] = point[1];
                   cachedPoint[2] = point[2];
-                  refinedRadius = sqrt(dist2);
                   refinedRadius2 = dist2;
                   }
                 }//if point close enough to cell bounds
@@ -680,11 +676,10 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
   {
   int i, j;
   int *nei;
-  int inside=0;
   int closestCell = -1;
   int closestSubCell = -1;
   int leafStart;
-  int ijk[3], dn[3];
+  int ijk[3];
   float minDist2;
   float pcoords[3], point[3], cachedPoint[3], weightsArray[6];
   float *weights = weightsArray;
@@ -783,7 +778,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
             }
           
           // evaluate the position to find the closest point
-          inside = cell->EvaluatePosition(x, point, subId, pcoords,
+          cell->EvaluatePosition(x, point, subId, pcoords,
             dist2, weights);
           if ( dist2 < minDist2 ) 
             {
@@ -916,7 +911,7 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
                   }
                 
                 // evaluate the position to find the closest point
-                inside = cell->EvaluatePosition(x, point, subId, pcoords,
+                cell->EvaluatePosition(x, point, subId, pcoords,
                   dist2, weights);
                 
                 if ( dist2 < minDist2 ) 
@@ -993,7 +988,7 @@ void vtkCellLocator::GetBucketNeighbors(int ijk[3], int ndivs, int level)
   {
   int i, j, k, min, max, minLevel[3], maxLevel[3];
   int nei[3];
-  int leafStart, idx;
+  int leafStart;
   int numberOfBucketsPerPlane;
   
   numberOfBucketsPerPlane = this->NumberOfDivisions*this->NumberOfDivisions;
@@ -1066,7 +1061,7 @@ void vtkCellLocator::GetOverlappingBuckets(float x[3], int ijk[3],
                                            int prevMaxLevel[3])
   {
   int i, j, k, nei[3], minLevel[3], maxLevel[3];
-  int leafStart, idx, kFactor, jFactor;
+  int leafStart, kFactor, jFactor;
   int numberOfBucketsPerPlane, jkSkipFlag, kSkipFlag;
   
   numberOfBucketsPerPlane = this->NumberOfDivisions*this->NumberOfDivisions;

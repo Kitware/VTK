@@ -138,7 +138,7 @@ void vtkSampleFunction::ExecuteInformation()
 
 void vtkSampleFunction::Execute()
 {
-  int ptId, i;
+  int ptId;
   vtkNormals *newNormals=NULL;
   int numPts;
   float *p, s;

@@ -1362,7 +1362,6 @@ void vtkPolyData::CopyInformation(vtkDataObject *data)
 //----------------------------------------------------------------------------
 unsigned long vtkPolyData::GetEstimatedUpdateExtentMemorySize()
 {
-  int idx;
   unsigned long size;
   
   if (this->UpdateNumberOfPieces <= 0)

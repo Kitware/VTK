@@ -163,7 +163,6 @@ void vtkMultiThreader::SetMultipleMethod( int index,
 void vtkMultiThreader::SingleMethodExecute()
 {
   int                thread_loop;
-  int                threadError;
 
 #ifdef _WIN32
   DWORD              threadId;
@@ -300,6 +299,7 @@ void vtkMultiThreader::SingleMethodExecute()
 		    attr, this->SingleMethod,  
 		    ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );
 #else
+    int                threadError;
     threadError =
       pthread_create( &(process_id[thread_loop]), &attr, this->SingleMethod,  
 		      ( (void *)(&this->ThreadInfoArray[thread_loop]) ) );

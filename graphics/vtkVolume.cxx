@@ -397,7 +397,6 @@ void vtkVolume::InitializeTextureMapping( vtkViewport *vp,
 	float sampleDistance )
 {
   vtkRenderer  *ren;
-  float        cameraPosition[3], *volumePosition;
 
   this->Update();
 

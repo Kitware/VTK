@@ -327,7 +327,6 @@ void vtkMergeFilter::Execute()
 // Just request al the input. Always generate all of the output (todo).
 int vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  vtkDataSet *output = (vtkDataSet*)data;
   vtkDataSet *input;
   int idx;
   
