@@ -52,9 +52,9 @@ ELSE (WINDOWS)
     ADD_CUSTOM_COMMAND(
       SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states
       COMMAND ${EXECUTABLE_OUTPUT_PATH}/mkg3states
-      ARGS -c const ${VTK_BINARY_DIR}/Utilities/tiff/tif_fax3sm.c 
+      ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c 
       TARGET vtktiff 
-      OUTPUTS ${VTK_BINARY_DIR}/Utilities/tiff/tif_fax3sm.c)
+      OUTPUTS ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c)
   ELSE(TIFF_RIGHT_VERSION)
       MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
   ENDIF(TIFF_RIGHT_VERSION)
