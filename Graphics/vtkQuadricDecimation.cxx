@@ -56,7 +56,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.27");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.28");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 
@@ -226,7 +226,7 @@ void vtkQuadricDecimation::Execute()
   this->Mesh->BuildLinks();
   
   this->ErrorQuadrics = 
-    new vtkQuadricDecimation::ErrorQuadric[input->GetNumberOfPoints()];
+    new vtkQuadricDecimation::ErrorQuadric[numPts];
   
   vtkDebugMacro(<<"Computing Edges");
   this->Edges->InitEdgeInsertion(numPts, 1); // storing edge id as attribute
@@ -250,6 +250,8 @@ void vtkQuadricDecimation::Execute()
       }
     }
   
+  this->UpdateProgress(0.1);
+
   this->NumberOfComponents = 0;  
   if (this->AttributeErrorMetric) 
     {
@@ -270,8 +272,9 @@ void vtkQuadricDecimation::Execute()
   this->TargetPoints->SetNumberOfComponents(3+this->NumberOfComponents);
   
   vtkDebugMacro(<<"Computing Quadrics");
-  this->InitializeQuadrics();
+  this->InitializeQuadrics(numPts);
   this->AddBoundaryConstraints();
+  this->UpdateProgress(0.15);
   
   vtkDebugMacro(<<"Computing Costs");
   // Compute the cost of and target point for collapsing each edge.
@@ -288,15 +291,24 @@ void vtkQuadricDecimation::Execute()
     this->EdgeCosts->Insert(cost, i);
     this->TargetPoints->InsertTuple(i, x);
     }
+  this->UpdateProgress(0.20);
 
   // Okay collapse edges until desired reduction is reached
   this->ActualReduction = 0.00f;
   this->NumberOfEdgeCollapses = 0;
   edgeId = this->EdgeCosts->Pop(0,cost);
 
-  while (edgeId >= 0 && cost < VTK_FLOAT_MAX &&
+  int abort = 0;
+  while ( !abort && edgeId >= 0 && cost < VTK_FLOAT_MAX &&
          this->ActualReduction < this->TargetReduction ) 
     {
+    if ( ! (this->NumberOfEdgeCollapses % 10000) ) 
+      {
+      vtkDebugMacro(<<"Collapsing edge#" << this->NumberOfEdgeCollapses);
+      this->UpdateProgress (0.20 + 0.80*this->NumberOfEdgeCollapses/numPts);
+      abort = this->GetAbortExecute();
+      }
+
     endPtIds[0] = this->EndPoint1List->GetId(edgeId);
     endPtIds[1] = this->EndPoint2List->GetId(edgeId);
     this->TargetPoints->GetTuple(edgeId, x);
@@ -335,7 +347,7 @@ void vtkQuadricDecimation::Execute()
                 << this->NumberOfEdgeCollapses << " Cost: " << cost);
 
   // clean up working data
-  for (i = 0; i < input->GetNumberOfPoints(); i++)
+  for (i = 0; i < numPts; i++)
     {
     delete [] this->ErrorQuadrics[i].Quadric;
     }
@@ -381,10 +393,9 @@ void vtkQuadricDecimation::Execute()
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricDecimation::InitializeQuadrics(void)
+void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
 {
   vtkPolyData *input = this->Mesh;
-  vtkIdType numPts = input->GetNumberOfPoints();
   double *QEM;
   vtkIdType ptId;
   int i, j;

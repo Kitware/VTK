@@ -140,7 +140,7 @@ protected:
 
   // Description:
   // Compute quadric for all vertices
-  void InitializeQuadrics(void);
+  void InitializeQuadrics(vtkIdType numPts);
   
   // Description:
   // Free boundary edges are weighted
