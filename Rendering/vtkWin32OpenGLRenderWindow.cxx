@@ -17,27 +17,28 @@
 =========================================================================*/
 
 #include "vtkWin32Header.h"
-#include <stdlib.h>
-#include <math.h>
-#include <stdio.h>
 #if defined(_MSC_VER) || defined (__BORLANDC__)
 #include <GL/glaux.h>
 #else
 #include <GL/gl.h>
 #endif
 #include "vtkWin32OpenGLRenderWindow.h"
-#include "vtkWin32RenderWindowInteractor.h"
-#include "vtkOpenGLRenderer.h"
-#include "vtkOpenGLProperty.h"
-#include "vtkOpenGLTexture.h"
-#include "vtkOpenGLCamera.h"
+
+#include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLPolyDataMapper.h"
-#include "vtkObjectFactory.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkRendererCollection.h"
 #include "vtkString.h"
+#include "vtkWin32RenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.85");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.86");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
