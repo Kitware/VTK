@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # create selected cones
 # get the interactor ui
 source vtkInt.tcl

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # this demonstrates assemblies hierarchies
 # include get the vtk interactor ui
 source vtkInt.tcl

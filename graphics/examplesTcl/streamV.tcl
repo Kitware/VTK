@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # create selected streamlines in arteries
 source colors.tcl
 source vtkInclude.tcl

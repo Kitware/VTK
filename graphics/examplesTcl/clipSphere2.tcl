@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 #
 # Demonstrate the use of clipping on polygonal data
 #

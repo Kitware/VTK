@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Example demonstrates use of vtkCastToConcrete
 #
 source vtkInt.tcl

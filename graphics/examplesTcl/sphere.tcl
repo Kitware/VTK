@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Generate implicit model of a sphere
 #
 source vtkInt.tcl

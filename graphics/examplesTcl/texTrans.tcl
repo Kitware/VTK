@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Test the texture transformation object
 
 # Get the interactor

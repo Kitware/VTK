@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Created oriented text
 source vtkInt.tcl
 

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # generate four hyperstreamlines
 
 # get the supporting scripts

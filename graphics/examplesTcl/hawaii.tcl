@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # this is a tcl version of hawaii coloration
 
 # get the interactor ui

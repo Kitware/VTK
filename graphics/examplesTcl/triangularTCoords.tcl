@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 #
 # create a triangular texture on a sphere
 #

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # a volume rendering example script
 #
 vtkRenderMaster rm

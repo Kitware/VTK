@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Test marching cubes speed
 #
 vtkVolume16Reader v16

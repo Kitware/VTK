@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # splat points to generate surface
 # get the interactor ui
 source vtkInt.tcl

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Generate texture coordinates on a "random" sphere.
 
 # get the interactor ui

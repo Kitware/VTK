@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # First create the render master
 vtkRenderMaster rm
 

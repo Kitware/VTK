@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # get the interactor ui and colors
 source vtkInt.tcl
 source "colors.tcl"

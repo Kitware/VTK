@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # this is a tcl version of old strip unstructured data
 # get the interactor ui
 source vtkInt.tcl

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Generate marching cubes head model (full resolution)
 
 # get the interactor ui and colors

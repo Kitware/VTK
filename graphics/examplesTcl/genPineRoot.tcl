@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Generate marching cubes pine root model (256^3 model)
 
 # get the interactor ui and colors

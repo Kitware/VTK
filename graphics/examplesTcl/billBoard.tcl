@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Create a rolling billboard - requires texture support
 
 # Get the interactor

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # decimate hawaii dataset
 #
 # get the interactor ui

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # this is a tcl version to decimtae fran's face
 # get the interactor ui
 source vtkInt.tcl

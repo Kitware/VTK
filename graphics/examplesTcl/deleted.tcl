@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # an example of deleting a rendering window
 vtkRenderMaster rm
 set renWin  [rm MakeRenderWindow]
