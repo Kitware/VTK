@@ -17,6 +17,10 @@ vtkDataWriter
 vtkDicer
 vtkFieldDataToAttributeDataFilter
 vtkGeometryFilter
+vtkImageInPlaceFilter
+vtkImageMultipleInputFilter
+vtkImageToImageFilter
+vtkImageTwoInputFilter
 vtkInterpolatingSubdivisionFilter
 vtkMaskPoints
 vtkMergePoints
