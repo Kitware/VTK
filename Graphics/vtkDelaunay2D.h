@@ -17,7 +17,6 @@
 =========================================================================*/
 // .NAME vtkDelaunay2D - create 2D Delaunay triangulation of input points
 // .SECTION Description
-
 // vtkDelaunay2D is a filter that constructs a 2D Delaunay triangulation from
 // a list of input points. These points may be represented by any dataset of
 // type vtkPointSet and subclasses. The output of the filter is a polygonal
@@ -69,12 +68,11 @@
 // add extra points to create a better point distribution.) If numerical
 // problems are present, you will see a warning message to this effect at
 // the end of the triangulation process.
-
 //
 // To create constrained meshes, you must define an additional
 // input. This input is an instance of vtkPolyData which contains
 // lines, polylines, and/or polygons that define constrained edges and
-// loops. Only the topology of (lines and polygones) from this second
+// loops. Only the topology of (lines and polygons) from this second
 // input are used.  The topology is assumed to reference points in the
 // input point set (the one to be triangulated). In other words, the
 // lines and polygons use point ids from the first input point
