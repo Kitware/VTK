@@ -234,9 +234,10 @@ public:
                                  double zmin, double zmax);
 
   // Description:
-  // Specify tolerance for near clipping plane distance to the camera
-  // as a percentage of the far clipping plane distance.
-  vtkSetMacro(NearClippingPlaneTolerance,double);
+  // Specify tolerance for near clipping plane distance to the camera as a
+  // percentage of the far clipping plane distance. By default this will be
+  // set to 0.01 for 16 bit zbuffers and 0.001 for higher depth z buffers
+  vtkSetClampMacro(NearClippingPlaneTolerance,double,0,0.99);
   vtkGetMacro(NearClippingPlaneTolerance,double);
 
   // Description:
@@ -369,6 +370,7 @@ protected:
   int                AutomaticLightCreation;
   int                BackingStore;
   unsigned char      *BackingImage;
+  int                BackingStoreSize[2];
   vtkTimeStamp       RenderTime;
 
   double              LastRenderTimeInSeconds;

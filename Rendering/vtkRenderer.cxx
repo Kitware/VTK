@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.205");
+vtkCxxRevisionMacro(vtkRenderer, "1.206");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -61,6 +61,8 @@ vtkRenderer::vtkRenderer()
   this->TwoSidedLighting        = 1;
   this->BackingStore            = 0;
   this->BackingImage            = NULL;
+  this->BackingStoreSize[0]     = -1;
+  this->BackingStoreSize[1]     = -1;  
   this->LastRenderTimeInSeconds = -1.0;
   
   this->RenderWindow = NULL;
@@ -80,7 +82,9 @@ vtkRenderer::vtkRenderer()
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   this->Cullers->AddItem(cull);
   cull->Delete();  
-  this->NearClippingPlaneTolerance = 0.01;
+  
+  // a value of 0 indicates it is uninitialized
+  this->NearClippingPlaneTolerance = 0;
 
   this->Erase = 1;
 }
@@ -130,16 +134,21 @@ void vtkRenderer::Render(void)
   double   t1, t2;
   int      i;
   vtkProp  *aProp;
+  int *size;
 
   t1 = vtkTimerLog::GetCurrentTime();
 
   this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
+  size = this->RenderWindow->GetSize();
+  
   // if backing store is on and we have a stored image
   if (this->BackingStore && this->BackingImage &&
       this->MTime < this->RenderTime &&
       this->ActiveCamera->GetMTime() < this->RenderTime &&
-      this->RenderWindow->GetMTime() < this->RenderTime)
+      this->RenderWindow->GetMTime() < this->RenderTime &&
+      this->BackingStoreSize[0] == size[0] &&
+      this->BackingStoreSize[1] == size[1])      
     {
     int mods = 0;
     vtkLight *light;
@@ -263,11 +272,13 @@ void vtkRenderer::Render(void)
     
     // backing store should be OK, lets use it
     // calc the pixel range for the renderer
-    rx1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
-    ry1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
-    rx2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
-    ry2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
+    rx1 = (int)(this->Viewport[0]*(size[0] - 1));
+    ry1 = (int)(this->Viewport[1]*(size[1] - 1));
+    rx2 = (int)(this->Viewport[2]*(size[0] - 1));
+    ry2 = (int)(this->Viewport[3]*(size[1] - 1));
     this->BackingImage = this->RenderWindow->GetPixelData(rx1,ry1,rx2,ry2,0);
+    this->BackingStoreSize[0] = size[0];
+    this->BackingStoreSize[1] = size[1];
     }
     
 
@@ -873,25 +884,28 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
   // Make sure near is at least some fraction of far - this prevents near
   // from being behind the camera or too close in front. How close is too
   // close depends on the resolution of the depth buffer
-  int ZBufferDepth = 16;
-  if (this->RenderWindow)
+  if (!this->NearClippingPlaneTolerance)
     {
+    this->NearClippingPlaneTolerance = 0.01;
+    if (this->RenderWindow)
+      {
+      int ZBufferDepth = 16;
       ZBufferDepth = this->RenderWindow->GetDepthBufferSize();
+      if ( ZBufferDepth > 16 )
+        {
+        this->NearClippingPlaneTolerance = 0.001;
+        }
+      }
     }
-  //
-  if ( ZBufferDepth <= 16 )
+  
+  // make sure the front clipping range is not too far from the far clippnig
+  // range, this is to make sure that the zbuffer resolution is effectively
+  // used
+  if (range[0] < this->NearClippingPlaneTolerance*range[1])
     {
-    range[0] = (range[0] < this->NearClippingPlaneTolerance*range[1])?(this->NearClippingPlaneTolerance*range[1]):(range[0]);
+    range[0] = this->NearClippingPlaneTolerance*range[1];
     }
-  else if ( ZBufferDepth <= 24 )
-    {
-    range[0] = (range[0] < this->NearClippingPlaneTolerance*range[1])?(this->NearClippingPlaneTolerance*range[1]):(range[0]);
-    }
-  else
-    {
-    range[0] = (range[0] < this->NearClippingPlaneTolerance*range[1])?(this->NearClippingPlaneTolerance*range[1]):(range[0]);
-    }
-
+  
   this->ActiveCamera->SetClippingRange( range );
 }
 
