@@ -1,38 +1,32 @@
 /*=========================================================================
 
-  Program:   OSCAR 
+  Program:   Visualization Library
   Module:    Render.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-This file is part of the vis library
+This file is part of the Visualization Library. No part of this file or its
+contents may be copied, reproduced or altered in any way without the express
+written consent of the authors.
 
-- Ken Martin
+Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #ifndef __Render_hh
 #define __Render_hh
 
-/*
- * shading models
- */
-#define FLAT    0
-#define GOURAUD 1
-#define PHONG   2
+// shading models
+#define VL_FLAT    0
+#define VL_GOURAUD 1
+#define VL_PHONG   2
 
-/*
- * representation models
- */
-#define POINTS    0
-#define WIREFRAME 1
-#define SURFACE   2
+// representation models
+#define VL_POINTS    0
+#define VL_WIREFRAME 1
+#define VL_SURFACE   2
 
-/*
- * some general macros
- */
+// some general macros
 #define RANGE_CLIP(a,x,b) ((x)<(a)?(a):((x)>(b)?(b):(x)))
 
 #endif
