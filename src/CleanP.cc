@@ -100,14 +100,48 @@ void vtkCleanPolyData::Execute()
 //
 // Begin to adjust topology.
 //
-  // Vertices are just renumbered.
+  // Vertices are renumbered and we remove duplicate vertices
   if ( inVerts->GetNumberOfCells() > 0 )
     {
-    newVerts = new vtkCellArray(inVerts->GetSize());
+    int resultingNumPoints;
+    int found;
+    int nnewpts, *newpts;
+    int k;
+
+    newVerts = new vtkCellArray;
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
-      for (j=0; j < npts; j++) updatedPts[j] = Index[pts[j]];
-      newVerts->InsertNextCell(npts, updatedPts);
+      resultingNumPoints = 0;
+      for (j=0; j < npts; j++) 
+	{
+	// is the vertex already there
+	found = 0;
+	for (newVerts->InitTraversal(); newVerts->GetNextCell(nnewpts,newpts);)
+	  {
+	  for (k = 0; k < nnewpts; k++)
+	    {
+	    if (newpts[k] == Index[pts[j]])
+	      {
+	      found = 1;
+	      }
+	    }
+	  }
+	for (k = 0; k < resultingNumPoints; k++)
+	  {
+	  if (updatedPts[k] == Index[pts[j]])
+	    {
+	    found = 1;
+	    }
+	  }
+	if (!found)
+	  {
+	  updatedPts[resultingNumPoints++] = Index[pts[j]];
+	  }
+	}
+      if (resultingNumPoints)
+	{
+	newVerts->InsertNextCell(resultingNumPoints, updatedPts);
+	}
       }
     newVerts->Squeeze();
     }
