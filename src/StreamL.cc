@@ -69,15 +69,28 @@ void vlStreamLine::Execute()
         continue;
         }
 //
-// For each streamer, create points "time increment" apart
+// For each streamer, create points approximately "time increment" apart
 //
       if ( (sPtr->t - tOffset) > this->DashTime )
         {
         r = (this->DashTime - (sPrev->t-tOffset)) / (sPtr->t - sPrev->t);
-        for (j=0; j<3; j++)
+        if ( r >= 0.0 )
           {
-          x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
-          v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
+          for (j=0; j<3; j++)
+            {
+            x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
+            v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
+            }
+            tOffset += this->DashTime;
+          }
+        else //more than one "dash time" apart
+          {
+          for (j=0; j<3; j++)
+            {
+            x[j] = sPtr->x[j];
+            v[j] = sPtr->v[j];
+            }
+            tOffset = sPtr->t;
           }
 
         pts[npts++] = newPts->InsertNextPoint(x);
@@ -88,8 +101,6 @@ void vlStreamLine::Execute()
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           newScalars->InsertScalar(pts[npts-1],s);
           }
-
-        tOffset += this->DashTime;
 
         if ( npts == MAX_CELL_SIZE )
           {
