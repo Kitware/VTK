@@ -28,6 +28,7 @@ ren.AddActor(coneActor)
 
 # enable user interface interactor
 renWin.Render()
+renWin.Render()
 
 w2if =  vtkWindowToImageFilter()
 w2if.SetInput(renWin)

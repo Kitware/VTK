@@ -28,6 +28,7 @@ void main( int vtkNotUsed(argc), char *vtkNotUsed(argv[]) )
 
   // draw the resulting scene
   renWindow->Render();
+  renWindow->Render();
 
   vtkWindowToImageFilter *w2if = vtkWindowToImageFilter::New();
     w2if->SetInput(renWindow);
