@@ -68,6 +68,11 @@ vtkImageWindow::vtkImageWindow()
 vtkImageWindow::~vtkImageWindow()
 {
   vtkDebugMacro(<<"~vtkImageWindow");
+  if (this->FileName)
+    {
+    delete []this->FileName;
+    this->FileName = (char *) NULL;
+    }
   this->Imagers->Delete();
   this->Imagers = NULL;
 }
