@@ -20,6 +20,8 @@
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
+#include "vtkInteractorEventRecorder.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -27,7 +29,6 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkInteractorEventRecorder.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

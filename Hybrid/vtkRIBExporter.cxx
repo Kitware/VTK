@@ -28,6 +28,7 @@
 #include "vtkMapper.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkRIBLight.h"
 #include "vtkRIBProperty.h"
@@ -37,7 +38,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.50");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.51");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];

@@ -18,9 +18,12 @@
 #include "vtkVideoSource.h"
 
 #include "vtkCriticalSection.h"
+#include "vtkDataArray.h"
+#include "vtkImageData.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <ctype.h>
 #include <time.h>
@@ -64,7 +67,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.32");
+vtkCxxRevisionMacro(vtkVideoSource, "1.33");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET

@@ -16,12 +16,17 @@
 
 =========================================================================*/
 #include "vtkWeightedTransformFilter.h"
-#include "vtkObjectFactory.h"
-#include "vtkLinearTransform.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.9");
+#include "vtkCellData.h"
+#include "vtkFieldData.h"
+#include "vtkFloatArray.h"
+#include "vtkLinearTransform.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPointSet.h"
+
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.10");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.

@@ -19,6 +19,7 @@
 
 #include "vtkAppendPolyData.h"
 #include "vtkAxisActor2D.h"
+#include "vtkCellArray.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
 #include "vtkFloatArray.h"
@@ -30,6 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
@@ -38,7 +40,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.40");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.41");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);

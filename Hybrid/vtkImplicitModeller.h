@@ -77,8 +77,9 @@
 #define VTK_VOXEL_MODE   0
 #define VTK_CELL_MODE    1
 
-class vtkMultiThreader;
+class vtkDataArray;
 class vtkExtractGeometry;
+class vtkMultiThreader;
 
 class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkDataSetToImageFilter 
 {

@@ -21,6 +21,7 @@
 #include "vtkArrayMap.txx"
 #include "vtkCommand.h"
 #include "vtkImageActor.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPushImageReader.h"
 #include "vtkRenderWindow.h"
@@ -105,7 +106,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.8");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.9");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()

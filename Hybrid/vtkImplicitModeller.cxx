@@ -21,6 +21,7 @@
 #include "vtkClipPolyData.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkMutexLock.h"
@@ -33,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.78");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.79");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo

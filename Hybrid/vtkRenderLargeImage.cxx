@@ -18,11 +18,12 @@
 #include "vtkRenderLargeImage.h"
 
 #include "vtkCamera.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.20");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.21");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);

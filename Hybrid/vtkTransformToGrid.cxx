@@ -19,9 +19,10 @@
 
 #include "vtkAbstractTransform.h"
 #include "vtkIdentityTransform.h"
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.10");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.11");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);

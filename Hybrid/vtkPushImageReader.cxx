@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPushImageReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkCommand.h"
+
 #include "vtkByteSwap.h"
+#include "vtkCommand.h"
+#include "vtkImageData.h"
+#include "vtkObjectFactory.h"
 #include "vtkPushPipeline.h"
 
 class vtkPIRIncrementSlice : public vtkCommand
@@ -53,7 +55,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageReader, "1.7");
+vtkCxxRevisionMacro(vtkPushImageReader, "1.8");
 vtkStandardNewMacro(vtkPushImageReader);
 
 vtkPushImageReader::vtkPushImageReader()
