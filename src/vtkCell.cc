@@ -53,6 +53,7 @@ Points(VTK_CELL_SIZE), PointIds(VTK_CELL_SIZE)
 //
 void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
 {
+  this->PointIds.Reset();
   for (int i=0; i<npts; i++)
     {
     this->PointIds.InsertId(i,pts[i]);
