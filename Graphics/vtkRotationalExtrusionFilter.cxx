@@ -23,7 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.53");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.54");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -220,7 +220,6 @@ void vtkRotationalExtrusionFilter::Execute()
   if ( this->Capping && (this->Angle != 360.0 || this->DeltaRadius != 0.0 
                          || this->Translation != 0.0) )
     {
-    vtkIdType newCellId=0;
     if ( inPolys->GetNumberOfCells() > 0 )
       {
       newPolys = vtkCellArray::New();
