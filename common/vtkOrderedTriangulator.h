@@ -181,7 +181,7 @@ public:
 protected:
   vtkOrderedTriangulator();
   ~vtkOrderedTriangulator();
-  vtkOrderedTriangulator(const vtkOrderedTriangulator&) {}
+  vtkOrderedTriangulator(const vtkOrderedTriangulator&);
   void operator=(const vtkOrderedTriangulator&);
 
 private:
