@@ -56,6 +56,11 @@ public:
   // It shows the type of the output.
   vtkGetMacro(DataType, int);
   
+  // Description:
+  // This method can be used to find out the type of output expected without
+  // needing to read the whole file.
+  virtual int ReadOutputType();
+
 protected:
   vtkPDataSetReader();
   ~vtkPDataSetReader();

@@ -77,7 +77,7 @@ public:
   // Description:
   // This method can be used to find out the type of output expected without
   // needing to read the whole file.
-  int ReadOutputType();
+  virtual int ReadOutputType();
 
 protected:
   vtkDataSetReader();

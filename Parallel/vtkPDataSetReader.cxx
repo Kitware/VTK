@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.12");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.13");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -1321,6 +1321,14 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
       cExt[i*2+1] = ext[i*2+1];
       }
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkPDataSetReader::ReadOutputType()
+{
+  this->ExecuteInformation();
+
+  return this->DataType;
 }
 
 //----------------------------------------------------------------------------
