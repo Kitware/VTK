@@ -978,7 +978,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
   fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
   
-  fprintf(fp,"extern \"C\" { PyObject *PyVTKClass_%sNew(char *); }\n",
+  fprintf(fp,"extern \"C\" { VTK_EXPORT PyObject *PyVTKClass_%sNew(char *); }\n",
 	  data->ClassName);
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
