@@ -46,6 +46,10 @@
 
 #define VTK_FTTM_CACHE_BY_SIZE 1
 
+// Reorder most recently used
+
+#define VTK_FTTM_REORDER 1
+
 //----------------------------------------------------------------------------
 // The embedded fonts
 // Create a lookup table between the text mapper attributes 
@@ -66,7 +70,8 @@ static EmbeddedFontStruct EmbeddedFonts[3][2][2] =
   {
     {
       { // VTK_ARIAL: Bold [ ] Italic [ ]
-        face_arial_buffer_length, face_arial_buffer
+        
+face_arial_buffer_length, face_arial_buffer
       },
       { // VTK_ARIAL: Bold [ ] Italic [x]
         face_arial_italic_buffer_length, face_arial_italic_buffer
@@ -146,7 +151,6 @@ public:
     int FontFamily;
     int Bold;
     int Italic;
-    char *FaceFileName;
     int AntiAliasing;
 #if VTK_FTTM_CACHE_BY_SIZE
     int FontSize;
@@ -158,6 +162,7 @@ public:
     unsigned char Alpha;
 #endif
     FTFont *Font;
+    char *FaceFileName;
   };
 
   // Create and destroy cache
@@ -175,6 +180,9 @@ public:
 
 private:
 
+  void ReleaseEntry(int i);
+  void PrintEntry(int i, char *msg = 0);
+
   Entry *Entries[FONT_CACHE_CAPACITY];
   int NumberOfEntries;
 };
@@ -188,8 +196,82 @@ vtkFontCache::vtkFontCache()
   int i;
   for (i = 0; i < FONT_CACHE_CAPACITY; i++)
     {
-    this->Entries[i] = NULL;
+    this->Entries[i] = 0;
     }
+}
+
+// Release entry
+
+void vtkFontCache::ReleaseEntry(int i) 
+{
+  if (!this->Entries[i])
+    {
+    return;
+    }
+
+#if VTK_FTTM_DEBUG
+  this->PrintEntry(this->NumberOfEntries, "Rl");
+#endif
+
+  if (this->Entries[i]->Font)
+    {
+    delete this->Entries[i]->Font;
+    this->Entries[i]->Font = 0;
+    }
+  
+  if (this->Entries[i]->FaceFileName)
+    {
+    delete [] this->Entries[i]->FaceFileName;
+    this->Entries[i]->FaceFileName = 0;
+    }
+
+  delete this->Entries[i];
+  this->Entries[i] = 0;
+}
+
+// Print entry
+
+void vtkFontCache::PrintEntry(int i, char *msg) 
+{
+  if (!this->Entries[i])
+    {
+    return;
+    }
+
+    printf("%s: [%2d] =", msg, i);
+
+#if VTK_FTTM_CACHE_BY_SIZE
+    printf(" [S: %2d]", this->Entries[i]->FontSize);
+#endif
+
+#if VTK_FTTM_CACHE_BY_RGBA
+    printf(" [RGBA: %2X/%2X/%2X (%2X)]", 
+           this->Entries[i]->Red, 
+           this->Entries[i]->Green, 
+           this->Entries[i]->Blue, 
+           this->Entries[i]->Alpha);
+#endif
+
+  if (this->Entries[i]->FaceFileName)
+    {
+    printf(" [F: %s]", this->Entries[i]->FaceFileName);
+    }
+  else
+    {
+    printf(" [F: %d] [I: %d] [B: %d]", 
+           this->Entries[i]->FontFamily, 
+           this->Entries[i]->Italic, 
+           this->Entries[i]->Bold);
+    }
+
+  if (this->Entries[i]->Font)
+    {
+    printf(" [F: %p]", this->Entries[i]->Font);
+    printf("\n                                                [f: %p]", *(this->Entries[i]->Font->Face()->Face()));
+    }
+  
+  printf("\n");
+  fflush(stdout);
 }
 
 // Destroy cache
@@ -203,11 +285,10 @@ vtkFontCache::~vtkFontCache()
   int i;
   for (i = 0; i < this->NumberOfEntries; i++)
     {
-    delete this->Entries[i]->Font;
-    if (this->Entries[i]->FaceFileName)
-      {
-      delete [] this->Entries[i]->FaceFileName;
-      }
+#if VTK_FTTM_DEBUG
+    this->PrintEntry(i, "Rl");
+#endif
+    this->ReleaseEntry(i);
     }
 
   this->NumberOfEntries = 0;
@@ -226,7 +307,10 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
                               unsigned char green,
                               unsigned char blue)
 {
-  int i, j;
+  int i;
+#if VTK_FTTM_REORDER
+  int j;
+#endif
 
   int antialiasing_requested = IsAntiAliasingRequestedByThisProperty(tprop);
 
@@ -276,6 +360,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 
       )
       {
+#if VTK_FTTM_REORDER
       // Make this the most recently used
       if (i != 0)
         {
@@ -287,29 +372,11 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
         this->Entries[0] = tmp;
         }
       return this->Entries[0]->Font;
+#else
+      return this->Entries[i]->Font;
+#endif
       }
     }
-
-#if VTK_FTTM_DEBUG
-  printf("Caching (%2d) [S: %2d] ", 
-         this->NumberOfEntries, tprop->GetFontSize());
-  if (tprop->GetFaceFileName())
-    {
-    printf("[F: %s] ", tprop->GetFaceFileName());
-    }
-  else
-    {
-    printf("[F: %d] [I: %d] [B: %d] ", 
-           tprop->GetFontFamily(), tprop->GetItalic(), tprop->GetBold());
-    }
-#if VTK_FTTM_CACHE_BY_RGBA
-  if (antialiasing_requested)
-    {
-    printf("[RGB(A): %3d/%3d/%3d (%3d)] ", red, green, blue, alpha);
-    }
-#endif
-  printf("\n");
-#endif
 
   // OK the font is not cached, try to create one
 
@@ -332,7 +399,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
       {
       vtkErrorWithObjectMacro(tprop,<< "Unable to load font " << tprop->GetFaceFileName());
       delete font;
-      return NULL;
+      return 0;
       }
     }
   else
@@ -344,7 +411,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
       {
       vtkErrorWithObjectMacro(tprop,<< "Unable to create font !");
       delete font;
-      return NULL;
+      return 0;
       }
     }
 
@@ -359,20 +426,16 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 #if VTK_FTTM_DEBUG
     printf("Cache is full, deleting last!\n");
 #endif
-    delete this->Entries[FONT_CACHE_CAPACITY - 1]->Font;
-    if (this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName)
-      {
-      delete [] this->Entries[FONT_CACHE_CAPACITY - 1]->FaceFileName;
-      }
-    this->NumberOfEntries = FONT_CACHE_CAPACITY - 1;
+    this->NumberOfEntries--;
     }
 
   // Add the new font
 
-  if (!this->Entries[this->NumberOfEntries])
+  if (this->Entries[this->NumberOfEntries])
     {
-    this->Entries[this->NumberOfEntries] = new vtkFontCache::Entry;
+    this->ReleaseEntry(this->NumberOfEntries);
     }
+  this->Entries[this->NumberOfEntries] = new vtkFontCache::Entry;
   
   // Set the other info
 
@@ -409,17 +472,24 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 
   this->Entries[this->NumberOfEntries]->Font          = font;
 
-  // Now resort the list
+#if VTK_FTTM_DEBUG
+  this->PrintEntry(this->NumberOfEntries, "Cr");
+#endif
 
   vtkFontCache::Entry *tmp = this->Entries[this->NumberOfEntries];
+
+#if VTK_FTTM_DO_NOT_REORDER
+  // Now resort the list
+
   for (i = this->NumberOfEntries - 1; i >= 0; i--)
     {
     this->Entries[i+1] = this->Entries[i];
     }
   this->Entries[0] = tmp;
+#endif
 
   this->NumberOfEntries++;
-  return this->Entries[0]->Font;
+  return tmp->Font;
 }
 
 // Now we need a cache singleton
@@ -427,7 +497,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 vtkFontCache FontCacheSingleton;
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.10");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.11");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -509,7 +579,7 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
   FTFont *font;
   font = FontCacheSingleton.GetFont(tprop);
 
-  if (font == NULL) 
+  if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
     size[0] = size[1] = 0;
@@ -613,7 +683,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   
   FTFont *font;
   font = FontCacheSingleton.GetFont(tprop, 1, red, green, blue);
-  if (font == NULL) 
+  if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
     return;
@@ -747,7 +817,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
       shadow_font = FontCacheSingleton.GetFont(
         tprop, 1, shadow_red, shadow_green, shadow_blue);
 
-      if (shadow_font == NULL) 
+      if (!shadow_font) 
         {
         vtkErrorMacro(<< "Render - No shadow font");
         shadow_font_is_ok = 0;
