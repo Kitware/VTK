@@ -20,7 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.2");
+vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.3");
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim=0, ydim=1, zdim=2;
@@ -220,6 +220,13 @@ int i,j;
   if ((this->Npts == 0) || (this->GetMTime() > this->PtsTime))
     {
     getPoints();
+    }
+
+  // I'm not sure what I'm doing here but the current code is clearly screwed
+  // up and doesn't handle some degenerate cases
+  if (this->Npts == 0)
+    {
+    return 0;
     }
 
   switch (dir)
