@@ -67,6 +67,8 @@ public:
   // can be used.
   vtkSetObjectMacro(Source,vtkDataSet);
   vtkGetObjectMacro(Source,vtkDataSet);
+  void SetSource(vtkImageCache *cache)
+    {this->SetSource(cache->GetImageToStructuredPoints()->GetOutput());}
 
 protected:
   void Execute();
