@@ -513,8 +513,6 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
       // using Sleep() instead of vtkTimerLog::Sleep() seemed
       // to fix.
       Sleep((int)(1000*remaining));
-#else
-      vtkTimerLog::Sleep((int)(1000*remaining));
 #endif
       }
     }
