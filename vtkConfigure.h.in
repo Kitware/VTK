@@ -33,12 +33,18 @@
 #cmakedefine VTK_USE_WIN32_THREADS
 
 /* Size of fundamental data types.  */
-#cmakedefine VTK_SIZEOF_CHAR   @VTK_SIZEOF_CHAR@
-#cmakedefine VTK_SIZEOF_DOUBLE @VTK_SIZEOF_DOUBLE@
-#cmakedefine VTK_SIZEOF_FLOAT  @VTK_SIZEOF_FLOAT@
-#cmakedefine VTK_SIZEOF_INT    @VTK_SIZEOF_INT@
-#cmakedefine VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
-#cmakedefine VTK_SIZEOF_SHORT  @VTK_SIZEOF_SHORT@
+#define VTK_SIZEOF_CHAR   @VTK_SIZEOF_CHAR@
+#define VTK_SIZEOF_DOUBLE @VTK_SIZEOF_DOUBLE@
+#define VTK_SIZEOF_FLOAT  @VTK_SIZEOF_FLOAT@
+#define VTK_SIZEOF_INT    @VTK_SIZEOF_INT@
+#define VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
+#define VTK_SIZEOF_SHORT  @VTK_SIZEOF_SHORT@
+
+/* Define size of "long long" only if the type exists.  */
+#cmakedefine VTK_SIZEOF_LONG_LONG @VTK_SIZEOF_LONG_LONG@
+
+/* Whether type "char" is signed (it may be signed or unsigned).  */
+#define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@
 
 /* Compiler features.  */
 #cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
