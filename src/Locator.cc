@@ -233,7 +233,7 @@ int vtkLocator::FindClosestPoint(float x[3])
 // that maps unmerged point ids into new point ids.
 int *vtkLocator::MergePoints()
 {
-  float *bounds, tol2;
+  float tol2;
   int ptId, i, j, k;
   int numPts;
   int *index;
