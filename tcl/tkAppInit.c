@@ -127,8 +127,12 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-`wAC_SUBST(USE_VOLUME_FLAG)
-AC_SUBST(USE_VOLUME_LIBS)
+#ifdef USE_VOLUME
+  if (Vtkvolumetcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
 
 #ifdef USE_BORESCOPE
   if (Vtkborescopetcl_Init(interp) == TCL_ERROR) 
