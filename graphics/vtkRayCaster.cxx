@@ -1225,6 +1225,7 @@ void vtkRayCaster::Render( vtkRenderer *ren,
   float                alpha;
   int                  i, j, k;
   float                renderTime;
+  int                  abort;
 
   // We need a timer to know how long the ray casting and software
   // buffer rendering takes. This will be used to determine what
@@ -1297,8 +1298,10 @@ void vtkRayCaster::Render( vtkRenderer *ren,
     delete [] this->RowBoundsSize;
     }
 
+  abort = ren->GetRenderWindow()->CheckAbortStatus();
+
   // If we have any volumes with software buffer mappers, render them
-  if ( this->SoftwareBufferPropCount )
+  if ( !abort && this->SoftwareBufferPropCount )
     {
     // For speed - treat the cast where we have no geometry, no ray cast
     // volumes, and only one software buffer volume as a special cast
@@ -1367,7 +1370,8 @@ void vtkRayCaster::Render( vtkRenderer *ren,
   // If we still haven't blended the background color into the
   // image yet, then we need to do it here. This could happen
   // if we have one software buffer volume.
-  if ( this->NeedBackgroundBlend )
+  abort = ren->GetRenderWindow()->CheckAbortStatus();
+  if ( !abort && this->NeedBackgroundBlend )
     {
     ptr1 = this->RGBAImage;
     for ( j = 0; j < this->ImageSize[1]; j++ )
@@ -1386,14 +1390,16 @@ void vtkRayCaster::Render( vtkRenderer *ren,
   // If the full image size and the volume rendered image size are not 
   // the same, then we are going to need to rescale the image before
   // writing it into the render window
-  if ( this->ImageSize[0] != this->FullImageSize[0] ||
-       this->ImageSize[1] != this->FullImageSize[1] )
+  abort = ren->GetRenderWindow()->CheckAbortStatus();
+  if ( !abort && 
+       ( this->ImageSize[0] != this->FullImageSize[0] ||
+	 this->ImageSize[1] != this->FullImageSize[1] ) )
     {
     // Rescale it.  This also writes it to the render window's 
     // output.
     this->RescaleImage();
     }
-  else
+  else if ( !abort )
     {
     // Place final image into frame buffer if necessary - it is the
     // full resolution size so it doesn't need to be rescaled
@@ -1418,33 +1424,44 @@ void vtkRayCaster::Render( vtkRenderer *ren,
   // how long it takes to do the full size image and how long it
   // took to do the last reduced size image that we rendered.
   timer->StopTimer();
-  this->TotalRenderTime = timer->GetElapsedTime();
-  if ( this->AutomaticScaleAdjustment )
+
+  abort = ren->GetRenderWindow()->CheckAbortStatus();
+  if ( !abort )
     {
-    if ( this->SelectedImageScaleIndex == 0 )
+    this->TotalRenderTime = timer->GetElapsedTime();
+    if ( this->AutomaticScaleAdjustment )
       {
-      this->ImageRenderTime[0] = this->TotalRenderTime;
+      if ( this->SelectedImageScaleIndex == 0 )
+	{
+	this->ImageRenderTime[0] = this->TotalRenderTime;
+	}
+      else
+	{
+	this->ImageRenderTime[1] = this->TotalRenderTime;
+	}
       }
-    else
+
+    // Fudge for now - divide the time among all the volumes rendered
+    // so that they can return an estimated render time.
+    renderTime = this->TotalRenderTime / ( softwareCount + raycastCount );
+    for ( i = 0; i < this->SoftwareBufferPropCount; i++ )
       {
-      this->ImageRenderTime[1] = this->TotalRenderTime;
-      }
+      this->SoftwareProps[i]->AddEstimatedRenderTime( renderTime );
+      }  
+    for ( i = 0; i < this->RayCastPropCount; i++ )
+      {
+      this->RayCastProps[i]->AddEstimatedRenderTime( renderTime );
+      }  
     }
-
-  // Fudge for now - divide the time among all the volumes rendered
-  // so that they can return an estimated render time.
-  renderTime = this->TotalRenderTime / ( softwareCount + raycastCount );
-  for ( i = 0; i < this->SoftwareBufferPropCount; i++ )
+  else 
     {
-    this->SoftwareProps[i]->AddEstimatedRenderTime( renderTime );
-    }  
-  for ( i = 0; i < this->RayCastPropCount; i++ )
-    {
-    this->RayCastProps[i]->AddEstimatedRenderTime( renderTime );
-    }  
-
+    for ( i = 0; i < this->RayCastPropCount; i++ )
+      {
+      this->RayCastProps[i]->AddEstimatedRenderTime( 5.0 );
+      }  
+    }
+  
   timer->Delete();
-
 }
 
 void vtkRayCaster::RescaleImage( )
