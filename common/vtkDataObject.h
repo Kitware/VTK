@@ -60,7 +60,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkFieldData.h"
-#include "vtkMutexLock.h"
 
 class vtkSource;
 
@@ -205,13 +204,6 @@ public:
   virtual void CopyInformation(vtkDataObject *data); 
 
   // Description:
-  // MutexLocks to keep multiple threads from stepping on each others toes.
-  // Here as a test for Multi-threaded execution. The alternative is temporary
-  // buffers.
-  vtkGetObjectMacro(PointLock, vtkMutexLock);
-  vtkGetObjectMacro(CellLock, vtkMutexLock);
-
-  // Description:
   // Part of data's "Information".
   // Are upstream filters local to the process?
   void SetLocality(int val) {this->Locality = val;}
@@ -247,9 +239,6 @@ protected:
   // part of the "Information".  
   // How many upstream filters are local to the process
   int Locality;
-
-  vtkMutexLock *PointLock;
-  vtkMutexLock *CellLock;
 };
 
 #endif

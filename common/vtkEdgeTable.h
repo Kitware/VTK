@@ -62,6 +62,7 @@ public:
   vtkEdgeTable();
   ~vtkEdgeTable();
   const char *GetClassName() {return "vtkEdgeTable";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Free memory and return to instantiated state.

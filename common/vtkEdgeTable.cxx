@@ -373,3 +373,9 @@ int vtkEdgeTable::InsertUniquePoint(int p1, int p2, float x[3], int &ptId)
     }
 }
 
+void vtkEdgeTable::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkObject::PrintSelf(os,indent);
+
+  os << indent << "NumberOfEdges: " << this->GetNumberOfEdges() << "\n";
+}
