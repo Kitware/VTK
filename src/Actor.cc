@@ -326,10 +326,11 @@ void vlActor::PrintSelf(ostream& os, vlIndent indent)
 
   // make sure our bounds are up to date
   this->GetBounds();
-  os << indent << "Bounds: (" << this->Bounds[0] << ", " 
-     << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
-     << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
-     << this->Bounds[5] << ")\n";
+  os << indent << "Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->Bounds[0] << ", " << this->Bounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->Bounds[2] << ", " << this->Bounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->Bounds[4] << ", " << this->Bounds[5] << ")\n";
+
   os << indent << "Dragable: " << (this->Dragable ? "On\n" : "Off\n");
   if ( this->Mapper )
     {
