@@ -28,7 +28,7 @@
 #include "vtkImageReader2Collection.h"
 #include "vtkObjectFactoryCollection.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.8");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.9");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
@@ -153,12 +153,13 @@ void vtkImageReader2Factory::InitializeReaders()
 
 void vtkImageReader2Factory::GetRegisteredReaders(vtkImageReader2Collection* collection)
 {
+  vtkImageReader2Factory::InitializeReaders();
   // get all dynamic readers
   vtkObjectFactory::CreateAllInstance("vtkImageReaderObject",
                                       collection);
   // get the current registered readers
   vtkImageReader2* ret;
-    for(vtkImageReader2Factory::AvailiableReaders->InitTraversal();
+  for(vtkImageReader2Factory::AvailiableReaders->InitTraversal();
       (ret = vtkImageReader2Factory::AvailiableReaders->GetNextItem());)
     {
     collection->AddItem(ret);
