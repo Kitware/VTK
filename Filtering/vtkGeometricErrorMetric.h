@@ -43,8 +43,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Specify the number of component to interpolate
-  // This is for internal use only
+  // Return the absolute geometric accuracy.
+  // \post positive_result: result>0
   vtkGetMacro(GeometricTolerance, double);
  
   // Description:
