@@ -17,6 +17,20 @@
 
 =========================================================================*/
 // .NAME vtkContainer - a base class for templated containers
+// .SECTION Description
+// vtkContainer is a superclass for all container classes. 
+// Since it does not provide any actuall data access methods, it
+// is not templated, but it provides a set of method that can 
+// be used on all containers. It also provide a simple reference 
+// counting scheme.
+
+// .SECTION Caveates
+// Since vtkContainer and vtkAbstractList provide some pure 
+// virtual methods, each object of type container will have
+// v-tabe.
+//
+// The reference counting scheme used in vtkContainer is not
+// used with debug leaks yet.
 
 #include "vtkObject.h"
 

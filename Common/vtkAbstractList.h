@@ -40,6 +40,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 // .NAME vtkAbstractList - a dynamic list data structure
+// .SECTION Description
+// vtkAbstractList is a an abstract templated superclass of all
+// containers that implement list data structure.
+//
+// List data structure is a one dimensional sequence of elements
+// with strict ordering. Every element has an index and each 
+// element except the first and the last one, have unique 
+// predecessor and successor. Examples of list data structure
+// are dynamic array (vector) and linked list.
+
+// .SECTION See also
+// vtkContainer
 
 #include "vtkContainer.h"
 
@@ -68,6 +80,17 @@ public:
   virtual int InsertItem(unsigned long loc, DType a) = 0;
   
   // Description:
+  // Sets the Item at the specific location in the list to a new value.
+  // It also checks if the item can be set.
+  // It returns VTK_OK if successfull.
+  virtual int SetItem(unsigned long loc, DType a) = 0;
+  
+  // Description:
+  // Sets the Item at the specific location in the list to a new value.
+  // This method does not perform any error checking.
+  virtual void SetItemNoCheck(unsigned long loc, DType a) = 0;
+
+  // Description:
   // Remove an Item from the list
   // It returns VTK_OK if successfull.
   virtual int RemoveItem(unsigned long id) = 0;
@@ -81,21 +104,18 @@ public:
   // Find an item in the list. Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
   // It returns VTK_OK if successfull.
-  virtual int Find(DType a, unsigned long &res) = 0;
+  virtual int FindItem(DType a, unsigned long &res) = 0;
 
   // Description:
   // Find an item in the list using a comparison routine. 
   // Return one if it was found, zero if it was
   // not found. The location of the item is returned in res.
   // It returns VTK_OK if successfull.
-  virtual int Find(DType a, CompareFunction compare, unsigned long &res) = 0;
+  virtual int FindItem(DType a, CompareFunction compare, 
+                       unsigned long &res) = 0;
 
   // Description:
   // Set the capacity of the list.
   // It returns VTK_OK if successfull.
   virtual int SetSize(unsigned long size) = 0;
-  
-protected:
-  vtkAbstractList() {}
-  ~vtkAbstractList() {}
 };
