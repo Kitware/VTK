@@ -362,6 +362,13 @@ public:
   static vtkInformationIntegerKey* FIELD_OPERATION();
   static vtkInformationStringKey* FIELD_NAME();
 
+  // Synchronize ivars with information for compatibility layer.  these
+  // should all be deleted once there is only one copy of the ivar
+  virtual void CopyUpstreamIVarsFromInformation(vtkInformation*);
+  virtual void CopyUpstreamIVarsToInformation(vtkInformation*);
+  virtual void CopyDownstreamIVarsFromInformation(vtkInformation*);
+  virtual void CopyDownstreamIVarsToInformation(vtkInformation*);
+
 protected:
 
   vtkDataObject();
@@ -450,11 +457,6 @@ protected:
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
 
-  // Synchronize ivars with information for compatibility layer.
-  virtual void CopyUpstreamIVarsFromInformation(vtkInformation*);
-  virtual void CopyUpstreamIVarsToInformation(vtkInformation*);
-  virtual void CopyDownstreamIVarsFromInformation(vtkInformation*);
-  virtual void CopyDownstreamIVarsToInformation(vtkInformation*);
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;

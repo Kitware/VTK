@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.115");
+vtkCxxRevisionMacro(vtkDataObject, "1.116");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -285,6 +285,8 @@ void vtkDataObject::UpdateInformation()
      vtkDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
     ddp->UpdateInformation();
+    int index = this->ProducerPort->GetIndex();
+    this->CopyDownstreamIVarsFromInformation(ddp->GetOutputInformation(index));
     }
   else
     {
