@@ -73,11 +73,21 @@ void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
   vtkStructuredGrid *output = this->GetOutput();
   int i, ext[6], voi[6];
   int *inWholeExt, *outWholeExt, *updateExt;
-  
+  int rate[3];
+
 
   inWholeExt = input->GetWholeExtent();
   outWholeExt = output->GetWholeExtent();
   updateExt = output->GetUpdateExtent();
+
+  for (i = 0; i < 3; ++i)
+    {
+    rate[i] = this->SampleRate[i];
+    if (rate[i] < 1)
+      {
+      rate[i] = 1;
+      }
+    }
 
   // Once again, clip the VOI with the input whole extent.
   for (i = 0; i < 3; ++i)
@@ -94,20 +104,20 @@ void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
       }
     }
 
-  ext[0] = voi[0] + (updateExt[0]-outWholeExt[0])*this->SampleRate[0];
-  ext[1] = voi[0] + (updateExt[1]-outWholeExt[0])*this->SampleRate[0];
+  ext[0] = voi[0] + (updateExt[0]-outWholeExt[0])*rate[0];
+  ext[1] = voi[0] + (updateExt[1]-outWholeExt[0])*rate[0];
   if (ext[1] > voi[1])
     { // This handles the IncludeBoundary condition.
     ext[1] = voi[1];
     }
-  ext[2] = voi[2] + (updateExt[2]-outWholeExt[2])*this->SampleRate[1];
-  ext[3] = voi[2] + (updateExt[3]-outWholeExt[2])*this->SampleRate[1];
+  ext[2] = voi[2] + (updateExt[2]-outWholeExt[2])*rate[1];
+  ext[3] = voi[2] + (updateExt[3]-outWholeExt[2])*rate[1];
   if (ext[3] > voi[3])
     { // This handles the IncludeBoundary condition.
     ext[3] = voi[3];
     }
-  ext[4] = voi[4] + (updateExt[4]-outWholeExt[4])*this->SampleRate[2];
-  ext[5] = voi[4] + (updateExt[5]-outWholeExt[4])*this->SampleRate[2];
+  ext[4] = voi[4] + (updateExt[4]-outWholeExt[4])*rate[2];
+  ext[5] = voi[4] + (updateExt[5]-outWholeExt[4])*rate[2];
   if (ext[5] > voi[5])
     { // This handles the IncludeBoundary condition.
     ext[5] = voi[5];
@@ -252,7 +262,7 @@ void vtkExtractGrid::Execute()
   int i, j, k, *uExt, voi[6];
   int *inExt, *outWholeExt;
   int iIn, jIn, kIn;
-  int outSize, jOffset, kOffset, *rate;
+  int outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
   vtkPoints *newPts, *inPts;
   int inInc1, inInc2;
@@ -263,10 +273,17 @@ void vtkExtractGrid::Execute()
 
   outWholeExt = output->GetWholeExtent();
   uExt = output->GetUpdateExtent();
-  rate = this->SampleRate;
   inExt = input->GetExtent();
   inInc1 = (inExt[1]-inExt[0]+1);
   inInc2 = inInc1*(inExt[3]-inExt[2]+1);
+
+  for (i = 0; i < 3; ++i)
+    {
+    if ( (rate[i] = this->SampleRate[i]) < 1 )
+      {
+      rate[i] = 1;
+      }
+    }
 
   // Clip the VOI by the input extent
   for (i = 0; i < 3; ++i)
