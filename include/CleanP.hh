@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Create default locator. Used to create one when none is specified.
-  virtual void CreateDefaultLocator();
+  void CreateDefaultLocator();
 
 protected:
   // Usual data generation method

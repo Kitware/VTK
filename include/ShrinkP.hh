@@ -46,7 +46,7 @@ public:
   vlGetMacro(ShrinkFactor,float);
 
 protected:
-  virtual void Execute();
+  void Execute();
   float ShrinkFactor;
 };
 
