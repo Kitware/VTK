@@ -32,17 +32,17 @@
 #define __vtkImageOpenClose3D_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkImageDilateErode3D;
 
-class VTK_IMAGING_EXPORT vtkImageOpenClose3D : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageOpenClose3D : public vtkImageAlgorithm
 {
 public:
   // Description:
   // Default open value is 0, and default close value is 255.
   static vtkImageOpenClose3D *New();
-  vtkTypeRevisionMacro(vtkImageOpenClose3D,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageOpenClose3D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,7 +66,7 @@ public:
   // It justs feeds the request to the sub filter.
   vtkImageData *GetOutput();
   vtkImageData *GetOutput(int idx)
-    {return (vtkImageData *) this->vtkImageSource::GetOutput(idx); };
+    {return this->Superclass::GetOutput(idx); };
 
 
   // Foward filter messages

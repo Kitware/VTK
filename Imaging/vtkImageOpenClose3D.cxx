@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.27");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.28");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -38,11 +38,11 @@ public:
   virtual void Execute(vtkObject *caller, 
                        unsigned long event, void* vtkNotUsed(v))
     {
-      vtkProcessObject *po = vtkProcessObject::SafeDownCast(caller);
-      if (event == vtkCommand::ProgressEvent && po)
+      vtkAlgorithm *alg = vtkAlgorithm::SafeDownCast(caller);
+      if (event == vtkCommand::ProgressEvent && alg)
         {
         this->Self->UpdateProgress(this->Offset + 0.5 * 
-                                   po->GetProgress());
+                                   alg->GetProgress());
         }
     }
   
@@ -74,7 +74,6 @@ vtkImageOpenClose3D::vtkImageOpenClose3D()
   // This dummy filter does not have an execute function.
 }
 
-
 //----------------------------------------------------------------------------
 // Destructor: Delete the sub filters.
 vtkImageOpenClose3D::~vtkImageOpenClose3D()
@@ -90,7 +89,6 @@ vtkImageOpenClose3D::~vtkImageOpenClose3D()
     }
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageOpenClose3D::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -100,8 +98,6 @@ void vtkImageOpenClose3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Filter1: \n";
   this->Filter1->PrintSelf(os, indent.GetNextIndent());
 }
-
-
 
 //----------------------------------------------------------------------------
 // Turn debugging output on. (in sub filters also)
@@ -117,6 +113,7 @@ void vtkImageOpenClose3D::DebugOn()
     this->Filter1->DebugOn();
     }
 }
+
 //----------------------------------------------------------------------------
 void vtkImageOpenClose3D::DebugOff()
 {
@@ -130,8 +127,6 @@ void vtkImageOpenClose3D::DebugOff()
     this->Filter1->DebugOff();
     }
 }
-
-
 
 //----------------------------------------------------------------------------
 // Pass modified message to sub filters.
@@ -148,9 +143,6 @@ void vtkImageOpenClose3D::Modified()
     this->Filter1->Modified();
     }
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // This method returns the cache to make a connection
@@ -171,7 +163,6 @@ vtkImageData *vtkImageOpenClose3D::GetOutput()
 
   return source;
 }
-  
 
 //----------------------------------------------------------------------------
 // This method considers the sub filters MTimes when computing this objects
@@ -180,7 +171,7 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
 {
   unsigned long int t1, t2;
   
-  t1 = this->vtkImageToImageFilter::GetMTime();
+  t1 = this->Superclass::GetMTime();
   if (this->Filter0)
     {
     t2 = this->Filter0->GetMTime();
@@ -201,18 +192,11 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
   return t1;
 }
 
-  
-
-
-
-
-
-
 //----------------------------------------------------------------------------
 // Set the Input of the filter.
 void vtkImageOpenClose3D::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  this->Superclass::SetInput(0, input);
 
   if ( ! this->Filter0 || ! this->Filter1)
     {
@@ -224,9 +208,6 @@ void vtkImageOpenClose3D::SetInput(vtkImageData *input)
   this->Filter0->SetInput(input);
   this->Filter1->SetInput(this->Filter0->GetOutput());
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // Selects the size of gaps or objects removed.
@@ -243,8 +224,6 @@ void vtkImageOpenClose3D::SetKernelSize(int size0, int size1, int size2)
   // Sub filters take care of modified.
 }
 
-  
-
 //----------------------------------------------------------------------------
 // Determines the value that will closed.
 // Close value is first dilated, and then eroded
@@ -258,7 +237,6 @@ void vtkImageOpenClose3D::SetCloseValue(double value)
   
   this->Filter0->SetDilateValue(value);
   this->Filter1->SetErodeValue(value);
-  
 }
 
 //----------------------------------------------------------------------------
@@ -272,9 +250,6 @@ double vtkImageOpenClose3D::GetCloseValue()
   
   return this->Filter0->GetDilateValue();
 }
-
-  
-
 
 //----------------------------------------------------------------------------
 // Determines the value that will opened.  
@@ -290,7 +265,6 @@ void vtkImageOpenClose3D::SetOpenValue(double value)
   this->Filter0->SetErodeValue(value);
   this->Filter1->SetDilateValue(value);
 }
-
 
 //----------------------------------------------------------------------------
 double vtkImageOpenClose3D::GetOpenValue()
