@@ -137,15 +137,12 @@ public:
   // Remember that when the state changes, a ModifiedEvent is invoked.
   // This can be used to snap the line to the axes if it is orginally
   // not aligned.
-  vtkSetMacro(AlignWithXAxis,int);
-  vtkGetMacro(AlignWithXAxis,int);
-  vtkBooleanMacro(AlignWithXAxis,int);
-  vtkSetMacro(AlignWithYAxis,int);
-  vtkGetMacro(AlignWithYAxis,int);
-  vtkBooleanMacro(AlignWithYAxis,int);
-  vtkSetMacro(AlignWithZAxis,int);
-  vtkGetMacro(AlignWithZAxis,int);
-  vtkBooleanMacro(AlignWithZAxis,int);
+  vtkSetClampMacro(Align, int, XAxis, None);
+  vtkGetMacro(Align, int);
+  void SetAlignToXAxis() { this->SetAlign(XAxis); }
+  void SetAlignToYAxis() { this->SetAlign(YAxis); }
+  void SetAlignToZAxis() { this->SetAlign(ZAxis); }
+  void SetAlignToNone()  { this->SetAlign(None); }
 
   // Description:
   // Grab the polydata (including points) that defines the line.  The
@@ -200,9 +197,16 @@ protected:
   void OnMouseMove();
 
   // controlling ivars
-  int AlignWithXAxis;
-  int AlignWithYAxis;
-  int AlignWithZAxis;
+  int Align;
+
+//BTX
+  enum AlignmentState {    
+    XAxis,
+    YAxis,
+    ZAxis,
+    None
+  };
+//ETX
 
   // the line
   vtkActor          *LineActor;

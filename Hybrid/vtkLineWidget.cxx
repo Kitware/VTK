@@ -33,7 +33,7 @@
 #include "vtkSphereSource.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.19");
+vtkCxxRevisionMacro(vtkLineWidget, "1.20");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -41,9 +41,7 @@ vtkLineWidget::vtkLineWidget()
   this->State = vtkLineWidget::Start;
   this->EventCallbackCommand->SetCallback(vtkLineWidget::ProcessEvents);
   
-  this->AlignWithXAxis = 0;
-  this->AlignWithYAxis = 0;
-  this->AlignWithZAxis = 0;
+  this->Align = vtkLineWidget::XAxis;
 
   //Build the representation of the widget
   int i;
@@ -307,13 +305,22 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Line Property: (none)\n";
     }
 
-  os << indent << "Align With X Axis: " 
-     << (this->AlignWithXAxis ? "On" : "Off") << "\n";
-  os << indent << "Align With Y Axis: " 
-     << (this->AlignWithYAxis ? "On" : "Off") << "\n";
-  os << indent << "Align With Z Axis: " 
-     << (this->AlignWithZAxis ? "On" : "Off") << "\n";
-
+  
+  os << indent << "Align with: ";
+  switch ( this->Align ) 
+    {
+    case XAxis:
+      os << "X Axis";
+      break;
+    case YAxis:
+      os << "Y Axis";
+      break;
+    case ZAxis:
+      os << "Z Axis";
+      break;
+    default:
+      os << "None";
+    }
   int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
@@ -451,8 +458,7 @@ void vtkLineWidget::OnMouseMove()
   if ( this->State == vtkLineWidget::Moving )
     {
     // Okay to process
-    if ( this->CurrentHandle && !this->AlignWithXAxis && 
-         !this->AlignWithYAxis && !this->AlignWithZAxis )
+    if ( this->CurrentHandle )
       {
       if ( this->CurrentHandle == this->Handle[0] )
         {
@@ -751,17 +757,17 @@ void vtkLineWidget::PlaceWidget(float bds[6])
 
   this->AdjustBounds(bds, bounds, center);
   
-  if ( this->AlignWithYAxis )
+  if ( this->Align == vtkLineWidget::YAxis )
     {
     this->LineSource->SetPoint1(center[0],bounds[2],center[2]);
     this->LineSource->SetPoint2(center[0],bounds[3],center[2]);
     }
-  else if ( this->AlignWithZAxis )
+  else if ( this->Align == vtkLineWidget::ZAxis )
     {
     this->LineSource->SetPoint1(center[0],center[1],bounds[4]);
     this->LineSource->SetPoint2(center[0],center[1],bounds[5]);
     }
-  else //default or x-aligned
+  else if ( this->Align == vtkLineWidget::XAxis )//default or x-aligned
     {
     this->LineSource->SetPoint1(bounds[0],center[1],center[2]);
     this->LineSource->SetPoint2(bounds[1],center[1],center[2]);
@@ -782,5 +788,6 @@ void vtkLineWidget::PlaceWidget(float bds[6])
     {
     this->HandleGeometry[i]->SetRadius(0.025*this->InitialLength);
     }
+  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);  
 }
 
