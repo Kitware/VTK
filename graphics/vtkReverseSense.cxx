@@ -82,7 +82,8 @@ void vtkReverseSense::Execute()
       }
     }
 
-  //If specified and normals available, reverse orientation of normals
+  //If specified and normals available, reverse orientation of normals.
+  // Using MakeObject() creates normals of the same data type.
   if ( this->ReverseNormals && normals )
     {
     int numPoints=input->GetNumberOfPoints();
@@ -98,6 +99,7 @@ void vtkReverseSense::Execute()
       }
 
     output->GetPointData()->SetNormals(outNormals);
+    outNormals->Delete();
     }
 }
 
