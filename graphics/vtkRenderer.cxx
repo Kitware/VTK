@@ -519,17 +519,17 @@ void vtkRenderer::UpdateViewRays()
 
   vr_ptr = this->ViewRays;
 
-  xinc = 2.0/(float)this->ViewRaysSize[0];
-  yinc = 2.0/(float)this->ViewRaysSize[1];
+  xinc = 2.0/(float)(this->ViewRaysSize[0]);
+  yinc = 2.0/(float)(this->ViewRaysSize[1]);
 
-  ypos = -1.0;
+  ypos = -1.0 + yinc/2.0;
   zpos =  1.0;
  
   nx = ny = nz = 0.0;
 
   for( y=0; y<this->ViewRaysSize[1]; y++ )
   {
-    xpos = -1.0;
+    xpos = -1.0 + xinc/2.0;
     for( x=0; x<this->ViewRaysSize[0]; x++ )
     {
       result[0] = xpos;
