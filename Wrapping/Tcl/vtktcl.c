@@ -44,31 +44,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tk.h"
 #include "vtkToolkits.h"
 
-extern Vtkcommontcl_Init(Tcl_Interp *interp);
-extern Vtkfilteringtcl_Init(Tcl_Interp *interp);
-extern Vtkgraphicstcl_Init(Tcl_Interp *interp);
-extern Vtkimagingtcl_Init(Tcl_Interp *interp);
-extern Vtkiotcl_Init(Tcl_Interp *interp);
+extern int Vtkcommontcl_Init(Tcl_Interp *interp);
+extern int Vtkfilteringtcl_Init(Tcl_Interp *interp);
+extern int Vtkgraphicstcl_Init(Tcl_Interp *interp);
+extern int Vtkimagingtcl_Init(Tcl_Interp *interp);
+extern int Vtkiotcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_RENDERING
-extern Vtkrenderingtcl_Init(Tcl_Interp *interp);
+extern int Vtkrenderingtcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
-extern Vtktkrenderwidget_Init(Tcl_Interp *interp);
-extern Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
-extern Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
+extern int Vtktkrenderwidget_Init(Tcl_Interp *interp);
+extern int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
+extern int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
 #endif
 
 #ifdef VTK_USE_PATENTED
-extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
+extern int Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_HYBRID
-extern Vtkhybridtcl_Init(Tcl_Interp *interp);
+extern int Vtkhybridtcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_PARALLEL
-extern Vtkparalleltcl_Init(Tcl_Interp *interp);
+extern int Vtkparalleltcl_Init(Tcl_Interp *interp);
 #endif
 
 int Vtktcl_Init(Tcl_Interp *interp)
