@@ -15,7 +15,7 @@ s1 FillTriangle 10 100  190 150  40 250
 vtkImageCanvasSource2D s2
 s2 SetScalarType $VTK_FLOAT
 s2 SetExtent 0 31 0 31 0 0
-s2 SetDrawColor 0
+s2 SetDrawColor 0.0
 s2 FillBox 0 31 0 31
 s2 SetDrawColor 2.0
 s2 FillTriangle 10 1  25 10  1 5
@@ -28,8 +28,8 @@ convolve SetInput2 [s2 GetOutput]
 
 vtkImageViewer viewer
 viewer SetInput [convolve GetOutput]
-viewer SetColorWindow 500
-viewer SetColorLevel 250
+viewer SetColorWindow 256
+viewer SetColorLevel 128
 
 
 # make interface

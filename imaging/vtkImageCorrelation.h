@@ -41,11 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageCorrelation - Correlation imageof the two inputs.
 // .SECTION Description
 // vtkImageCorrelation finds the correlation between two data sets. 
-// SetFilterAxes determines
-// whether the Correlation will be 3D, 2D or 1D.  4D Correlations are not
-// supported.  The default is a 2D Correlation.  Input and Output must be 
-// floats.
-
+// SetDimensionality determines
+// whether the Correlation will be 3D, 2D or 1D.  
+// The default is a 2D Correlation.  The Output type will be float.
+// The output size will match the size of the first input.
+// The second input is considered the correlation kernel.
 
 #ifndef __vtkImageCorrelation_h
 #define __vtkImageCorrelation_h
@@ -61,15 +61,18 @@ public:
   static vtkImageCorrelation *New() {return new vtkImageCorrelation;};
   const char *GetClassName() {return "vtkImageCorrelation";};
 
-  void SetFilteredAxes(int num, int *axes);
-  vtkImageSetMacro(FilteredAxes, int);
-  
+    // Description:
+  // Determines how the input is interpreted (set of 2d slices ...)
+  vtkSetClampMacro(Dimensionality,int,2,3);
+  vtkGetMacro(Dimensionality,int);
+
 protected:
+  int Dimensionality;
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent(int whichInput);
-  void Execute(vtkImageRegion *inRegion1, 
-	       vtkImageRegion *inRegion2, 
-	       vtkImageRegion *outRegion);
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+						int whichInput);
+  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif

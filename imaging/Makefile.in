@@ -44,6 +44,7 @@ vtkImageCityBlockDistance \
 vtkImageClip \
 vtkImageConnector \
 vtkImageConstantPad \
+vtkImageCorrelation \
 vtkImageCursor3D \
 vtkImageEllipsoidSource \
 vtkImageExtractComponents \
@@ -94,7 +95,6 @@ vtkXTextMapper
 #vtkImageContinuousDilate3D \
 #vtkImageContinuousErode3D \
 #vtkImageConvolution1D \
-#vtkImageCorrelation \
 #vtkImageDilateErode3D \
 #vtkImageDivergence3D \
 #vtkImageDotProduct \
