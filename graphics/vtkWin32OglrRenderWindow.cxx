@@ -198,13 +198,11 @@ void vtkWin32OglrRenderWindow::SetSize(int x, int y)
         {
         resizing = 1;
 
-        SetWindowPos(this->WindowId,HWND_TOP,0,0,x,y,SWP_NOMOVE | SWP_NOZORDER);
+        SetWindowPos(this->WindowId,HWND_TOP,0,0,
+          x+2*GetSystemMetrics(SM_CXBORDER),
+          y+2*GetSystemMetrics(SM_CYBORDER) +GetSystemMetrics(SM_CYMENUSIZE),
+          SWP_NOMOVE | SWP_NOZORDER);
         resizing = 0;
-        //HDC adc;
-
-        //adc = GetDC(this->WindowId);
-        //SetWindowExtEx(adc,x,y,NULL);
-        //ReleaseDC(this->WindowId,adc);
         }
       }
     }
