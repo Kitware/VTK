@@ -305,7 +305,6 @@ Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *vtkrenderwidget)
   
   if (winPtr->window != None) 
     {
-    printf("Destroy Old Window\n");
     XDestroyWindow(dpy, winPtr->window);
     }
 
