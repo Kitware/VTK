@@ -3,6 +3,7 @@ vtkBranchExtentTranslator.cxx
 vtkCommunicator.cxx
 vtkCompositeManager.cxx
 vtkCompositer.cxx
+vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
@@ -29,6 +30,7 @@ vtkThreadedController.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeComposite.cxx
+vtkTreeCompositer.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
 )

@@ -22,7 +22,8 @@
 #include "vtkToolkits.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkTreeComposite.h"
+#include "vtkTreeCompositer.h"
+#include "vtkCompressCompositer.h"
 #include "vtkObjectFactory.h"
 
 #ifdef _WIN32
@@ -35,7 +36,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.23");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.24");
 vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
@@ -62,7 +63,7 @@ struct vtkCompositeRendererInfo
 //-------------------------------------------------------------------------
 vtkCompositeManager::vtkCompositeManager()
 {
-  this->Compositer = vtkTreeComposite::New();
+  this->Compositer = vtkTreeCompositer::New();
   this->Compositer->Register(this);
   this->Compositer->Delete();
 
@@ -82,7 +83,7 @@ vtkCompositeManager::vtkCompositeManager()
 
   this->PData = this->ZData = NULL;
   this->LocalPData = this->LocalZData = NULL;
-  
+
   this->Lock = 0;
   this->UseChar = 1;
   this->UseRGB = 1;
@@ -985,7 +986,7 @@ void vtkCompositeManager::SetUseRGB(int useRGB)
 void vtkCompositeManager::ReallocPDataArrays()
 {
   int numComps = 4;
-  int size;
+  int numTuples = this->RendererSize[0] * this->RendererSize[1];
 
   if (this->UseRGB)
     {
@@ -994,41 +995,32 @@ void vtkCompositeManager::ReallocPDataArrays()
 
   if (this->PData)
     {
-    if (this->UseChar)
-      {
-      size = this->PData->GetNumberOfTuples();
-      vtkCompositeManager::DeleteArray(this->PData);
-      this->PData = vtkUnsignedCharArray::New();
-      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData),
-                                                   numComps, size);
-      }
-    else 
-      {
-      size = this->PData->GetNumberOfTuples();
-      vtkCompositeManager::DeleteArray(this->PData);
-      this->PData = vtkFloatArray::New();
-      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData),
-                                            numComps, size);
-      }
-    }
+    vtkCompositeManager::DeleteArray(this->PData);
+    this->PData = NULL;
+    } 
   if (this->LocalPData)
     {
-    if (this->UseChar)
-      {
-      size = this->LocalPData->GetNumberOfTuples();
-      vtkCompositeManager::DeleteArray(this->LocalPData);
-      this->LocalPData = vtkUnsignedCharArray::New();
-      vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData),
-                                                   numComps, size);
-      }
-    else
-      {
-      size = this->LocalPData->GetNumberOfTuples();
-      vtkCompositeManager::DeleteArray(this->LocalPData);
-      this->LocalPData = vtkFloatArray::New();
-      vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData),
-                                            numComps, size);
-      }
+    vtkCompositeManager::DeleteArray(this->LocalPData);
+    this->LocalPData = NULL;
+    } 
+
+  if (this->UseChar)
+    {
+    this->PData = vtkUnsignedCharArray::New();
+    vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->PData),
+                                                 numComps, numTuples);
+    this->LocalPData = vtkUnsignedCharArray::New();
+    vtkCompositeManager::ResizeUnsignedCharArray(static_cast<vtkUnsignedCharArray*>(this->LocalPData),
+                                                 numComps, numTuples);
+    }
+  else 
+    {
+    this->PData = vtkFloatArray::New();
+    vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->PData),
+                                          numComps, numTuples);
+    this->LocalPData = vtkFloatArray::New();
+    vtkCompositeManager::ResizeFloatArray(static_cast<vtkFloatArray*>(this->LocalPData),
+                                          numComps, numTuples);
     }
 }
 
