@@ -10,7 +10,9 @@ vtkCommon
 
 IF (HAVE_PNG)
   LINK_LIBRARIES( ${PNG_LIBRARY} )
-
+  IF (ZLIB_LIBRARY)
+    LINK_LIBRARIES(${ZLIB_LIBRARY})
+  ENDIF (ZLIB_LIBRARY)
   IF (VTK_USE_HYBRID)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso)
     TARGET_LINK_LIBRARIES(ParallelIsoTest vtkPatented vtkHybrid)
