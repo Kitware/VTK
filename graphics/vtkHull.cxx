@@ -90,14 +90,20 @@ int vtkHull::AddPlane( float A, float B, float C )
     // Copy the planes and delete the old storage space
     for ( i = 0; i < this->NumberOfPlanes*4; i++ )
       this->Planes[i] = tmp_pointer[i];
-    delete [] tmp_pointer;
+    if ( tmp_pointer )
+      {
+      delete [] tmp_pointer;
+      }
     }
 
   // Add the plane at the end of the array. 
+  // The fourth element doesn't actually need to be set, but it 
+  // eliminates a purify uninitialized memory copy error if it is set
   i = this->NumberOfPlanes;
   this->Planes[i*4 + 0] = A;
   this->Planes[i*4 + 1] = B;
   this->Planes[i*4 + 2] = C;
+  this->Planes[i*4 + 3] = 0;
   this->NumberOfPlanes++;
 
   this->Modified();
@@ -445,8 +451,19 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *out_points,
 
     // Clip this polygon by each plane.
     for ( j = 0; j < this->NumberOfPlanes; j++ )
+      {
+      // Stop if we have removed too many vertices and no longer have
+      // a polygon
+      if ( vert_count <= 2 ) break;
+      // Otherwise, if this is not the plane we are working on, clip
+      // it by this plane.
       if ( i != j )
 	{
+	// Test each pair of vertices to make sure this edge
+	// isn't clipped. If the d values are different, it is
+	// clipped - find the crossing point and add that as
+	// a new vertex. If the second vertex's d is greater than 0, 
+	// then keep this vertex.
 	new_vert_count = 0;
 	previous_d = 
 	    this->Planes[j*4 + 0] * verts[(vert_count-1)*3 + 0] +
@@ -494,6 +511,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *out_points,
 	verts = tmp_verts;
         vert_count = new_vert_count;
 	}
+      }
 
     if ( vert_count > 0 )
       {
