@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFieldDataToAttributeDataFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkFieldDataToAttributeDataFilter* vtkFieldDataToAttributeDataFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkFieldDataToAttributeDataFilter* vtkFieldDataToAttributeDataFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkFieldDataToAttributeDataFilter;
 }
-
-
-
 
 // Instantiate object with no input and no defined output.
 vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
@@ -228,9 +223,9 @@ void vtkFieldDataToAttributeDataFilter::Execute()
                          this->VectorArrayComponents, 
                          this->VectorNormalize);
   this->ConstructGhostLevels(num, fd, attr, this->GhostLevelComponentRange,
-			     this->GhostLevelArray,
-			     this->GhostLevelArrayComponent, 
-			     this->GhostLevelNormalize);
+                             this->GhostLevelArray,
+                             this->GhostLevelArrayComponent, 
+                             this->GhostLevelNormalize);
   this->ConstructTensors(num, fd, attr, this->TensorComponentRange,
                          this->TensorArrays, 
                          this->TensorArrayComponents, 
@@ -580,10 +575,10 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
 // Stuff related to ghost levels --------------------------------------------
 //
 void vtkFieldDataToAttributeDataFilter::SetGhostLevelComponent(char *arrayName,
-							       int arrayComp,
-							       int min,
-							       int max,
-							       int normalize)
+                                                               int arrayComp,
+                                                               int min,
+                                                               int max,
+                                                               int normalize)
 {
   this->SetArrayName(this, this->GhostLevelArray, arrayName);
   if ( this->GhostLevelArrayComponent != arrayComp )
@@ -634,14 +629,14 @@ int vtkFieldDataToAttributeDataFilter::GetGhostLevelComponentNormalizeFlag()
 }
 
 void vtkFieldDataToAttributeDataFilter::ConstructGhostLevels(int num,
-							     vtkFieldData *fd, 
-							     vtkDataSetAttributes *attr,
-							     int componentRange[2],
-							     char *array,
-							     int arrayComp,
-							     int normalize)
+                                                             vtkFieldData *fd, 
+                                                             vtkDataSetAttributes *attr,
+                                                             int componentRange[2],
+                                                             char *array,
+                                                             int arrayComp,
+                                                             int normalize)
 {
-  int i, updated;
+  int updated;
   vtkDataArray *fieldArray[1];
 
   if ( array == NULL )
@@ -679,8 +674,8 @@ void vtkFieldDataToAttributeDataFilter::ConstructGhostLevels(int num,
 
 
     if ( this->ConstructArray(newGhostLevels->GetData(), 0, fieldArray[0],
-			      arrayComp, componentRange[0], componentRange[1],
-			      normalize) == 0 )
+                              arrayComp, componentRange[0], componentRange[1],
+                              normalize) == 0 )
       {
       newGhostLevels->Delete();
       return;
@@ -1140,7 +1135,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
 //
 void
 vtkFieldDataToAttributeDataFilter::ConstructFieldData(int vtkNotUsed(num),
-				      vtkDataSetAttributes *vtkNotUsed(attr))
+                                      vtkDataSetAttributes *vtkNotUsed(attr))
 {
 }
 
