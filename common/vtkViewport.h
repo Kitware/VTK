@@ -57,9 +57,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkPropCollection.h"
+#include "vtkActor2DCollection.h"
 
 class vtkWindow;
-class vtkActor2DCollection;
 
 class VTK_EXPORT vtkViewport : public vtkObject
 {
@@ -93,7 +93,7 @@ public:
   // These methods are all synonyms to AddProp and RemoveProp.
   // They are here for convinience and backwards compatability.
   void AddActor2D(vtkProp* p) {this->AddProp(p);};
-  void RemoveActor2D(vtkProp* p) {this->RemoveProp(p);};
+  void RemoveActor2D(vtkProp* p) {this->Actors2D->RemoveItem(p);this->RemoveProp(p);};
   vtkActor2DCollection *GetActors2D();
 
   // Description:
