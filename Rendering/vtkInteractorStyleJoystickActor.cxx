@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.14");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.15");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -426,12 +426,6 @@ void vtkInteractorStyleJoystickActor::ScaleXY(int vtkNotUsed(x), int y)
 void vtkInteractorStyleJoystickActor::OnLeftButtonDown(int ctrl, int shift, 
                                                        int x, int y) 
 {
-  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
-    {
-      this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-      return;
-    }
-  
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   
@@ -484,12 +478,6 @@ void vtkInteractorStyleJoystickActor::OnLeftButtonUp(int vtkNotUsed(ctrl),
 void vtkInteractorStyleJoystickActor::OnMiddleButtonDown(int ctrl, int shift, 
                                                          int x, int y) 
 {
-  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
-    {
-      this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
-      return;
-    }
-  
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   
@@ -532,12 +520,6 @@ void vtkInteractorStyleJoystickActor::OnRightButtonDown(int vtkNotUsed(ctrl),
                                                         int vtkNotUsed(shift), 
                                                         int x, int y) 
 {
-  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
-    {
-      this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
-      return;
-    }
-
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   

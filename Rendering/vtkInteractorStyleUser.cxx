@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.22");
+vtkCxxRevisionMacro(vtkInteractorStyleUser, "1.23");
 vtkStandardNewMacro(vtkInteractorStyleUser);
 
 //----------------------------------------------------------------------------
@@ -37,7 +37,9 @@ vtkInteractorStyleUser::vtkInteractorStyleUser()
   this->ConfigureTag = 0;
   this->TimerTag = 0;
   this->UserTag = 0;
-
+  // Tell the parent class not to handle observers
+  // that has to be done here
+  this->HandleObserversOff();
   this->LastPos[0] = this->LastPos[1] = 0;
   this->OldPos[0] = this->OldPos[1] = 0;
   this->Char = '\0';

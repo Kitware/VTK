@@ -203,6 +203,10 @@ protected:
   vtkInteractorStyle();
   ~vtkInteractorStyle();
 
+  // does ProcessEvents handle observers on this class or not
+  vtkSetMacro(HandleObservers,int);
+  vtkGetMacro(HandleObservers,int);
+  vtkBooleanMacro(HandleObservers,int);
   // Will the clipping range be automatically adjust before each render?
   int AutoAdjustCameraClippingRange;
   void ResetCameraClippingRange();
@@ -280,6 +284,7 @@ protected:
   float              PickColor[3];        // support 2D picking
   vtkActor2D         *PickedActor2D;
   vtkCallbackCommand* EventCallbackCommand;
+  int                HandleObservers; // boolean: should observers be handled here
 
   unsigned long LeftButtonPressTag;
   unsigned long LeftButtonReleaseTag;

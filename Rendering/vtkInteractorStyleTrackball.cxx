@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackball, "1.23");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackball, "1.24");
 vtkStandardNewMacro(vtkInteractorStyleTrackball);
 
 vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
@@ -1212,37 +1212,30 @@ void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift,
 
   this->FindPokedCamera(X, Y);
   this->Preprocess = 1;
-  if (this->HasObserver(vtkCommand::LeftButtonPressEvent)) 
+  if (this->ActorMode)
     {
-    this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    this->FindPickedActor(X,Y);    
     }
+  if (this->ShiftKey) 
+    { // I haven't got a Middle button !
+    if (this->CtrlKey) 
+      {
+      this->StartDolly();
+      }
+    else      
+      {
+      this->StartPan();
+      }
+    } 
   else 
     {
-    if (this->ActorMode)
+    if (this->CtrlKey) 
       {
-      this->FindPickedActor(X,Y);    
+      this->StartSpin();
       }
-    if (this->ShiftKey) 
-      { // I haven't got a Middle button !
-      if (this->CtrlKey) 
-        {
-        this->StartDolly();
-        }
-      else      
-        {
-        this->StartPan();
-        }
-      } 
-    else 
+    else         
       {
-      if (this->CtrlKey) 
-        {
-        this->StartSpin();
-        }
-      else         
-        {
-        this->StartRotate();
-        }
+      this->StartRotate();
       }
     }
 }
@@ -1252,36 +1245,28 @@ void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int
 {
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
-  //
-  if (this->HasObserver(vtkCommand::LeftButtonReleaseEvent)) 
-    {
-    this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
-    }
-  else 
-    {
-    if (this->ShiftKey) 
-      {
-      if (this->CtrlKey) 
-        {
-        this->EndDolly();
-        }
-      else        
-        {
-        this->EndPan();
-        }
-      } 
-    else 
-      {
-      if (this->CtrlKey) 
-        {
-        this->EndSpin();
-        }
-      else
-        {
-        this->EndRotate();
-        }
-      }
-    }
+ if (this->ShiftKey) 
+   {
+   if (this->CtrlKey) 
+     {
+     this->EndDolly();
+     }
+   else        
+     {
+     this->EndPan();
+     }
+   } 
+ else 
+   {
+   if (this->CtrlKey) 
+     {
+     this->EndSpin();
+     }
+   else
+     {
+     this->EndRotate();
+     }
+   }
   this->OldX = 0.0;
   this->OldY = 0.0;
 }
@@ -1298,24 +1283,17 @@ void vtkInteractorStyleTrackball::OnMiddleButtonDown(int ctrl, int shift,
   this->Preprocess = 1;
   this->FindPokedCamera(X, Y);
   //
-  if (this->HasObserver(vtkCommand::MiddleButtonPressEvent)) 
+  if (this->ActorMode)
     {
-    this->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
+    this->FindPickedActor(X,Y);    
     }
-  else 
+  if (this->CtrlKey) 
     {
-    if (this->ActorMode)
-      {
-      this->FindPickedActor(X,Y);    
-      }
-    if (this->CtrlKey) 
-      {
-      this->StartDolly();
-      }
-    else
-      {
-      this->StartPan();
-      }
+    this->StartDolly();
+    }
+  else
+    {
+    this->StartPan();
     }
 }
 
@@ -1326,21 +1304,14 @@ void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift,
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->HasObserver(vtkCommand::MiddleButtonReleaseEvent)) 
-    {
-    this->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
-    }
-  else 
-    {
-    if (this->CtrlKey) 
-      {
-      this->EndDolly();
-      }
-    else   
-      {
-      this->EndPan();
-      }
-    }
+ if (this->CtrlKey) 
+   {
+   this->EndDolly();
+   }
+ else   
+   {
+   this->EndPan();
+   }
   this->OldX = 0.0;
   this->OldY = 0.0;
   if (this->ActorMode && this->PropPicked)
@@ -1363,21 +1334,14 @@ void vtkInteractorStyleTrackball::OnRightButtonDown(int ctrl, int shift,
   this->UpdateInternalState(ctrl, shift, X, Y);
   this->FindPokedCamera(X, Y);
   this->Preprocess = 1;
-  if (this->HasObserver(vtkCommand::RightButtonPressEvent)) 
+  if (this->ActorMode)
     {
-    this->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+    this->FindPickedActor(X,Y);    
+    this->StartUniformScale();
     }
-  else 
+  else
     {
-    if (this->ActorMode)
-      {
-      this->FindPickedActor(X,Y);    
-      this->StartUniformScale();
-      }
-    else
-      {
-      this->StartZoom();
-      }
+    this->StartZoom();
     }
 }
 //----------------------------------------------------------------------------
@@ -1387,21 +1351,14 @@ void vtkInteractorStyleTrackball::OnRightButtonUp(int ctrl, int shift,
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
   //
-  if (this->HasObserver(vtkCommand::RightButtonReleaseEvent)) 
-    {
-    this->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
-    }
-  else 
-    {
-    if (this->ActorMode)
-      {
-      this->EndUniformScale();
-      }
-    else
-      {
-      this->EndZoom();
-      }
-    }
+ if (this->ActorMode)
+   {
+   this->EndUniformScale();
+   }
+ else
+   {
+   this->EndZoom();
+   }
   this->OldX = 0.0;
   this->OldY = 0.0;
   if (this->ActorMode && this->PropPicked)
