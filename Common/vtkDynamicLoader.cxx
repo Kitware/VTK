@@ -116,7 +116,15 @@ const char* vtkDynamicLoader::LastError()
 
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 {
-  return LoadLibrary(libname);
+#ifdef UNICODE
+        wchar_t *libn = new wchar_t [mbstowcs(NULL, libname, 32000)];
+        mbstowcs(libn, libname, 32000);
+        vtkLibHandle ret = LoadLibrary(libn);
+        delete [] libn;
+        return ret;
+#else
+        return LoadLibrary(libname);
+#endif
 }
 
 int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
@@ -126,7 +134,15 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 { 
+#ifdef UNICODE
+        wchar_t *wsym = new wchar_t [mbstowcs(NULL, sym, 32000)];
+        mbstowcs(wsym, sym, 32000);
+        void *ret = GetProcAddress(lib, wsym);
+        delete [] wsym;
+        return ret;
+#else
   return GetProcAddress(lib, sym);
+#endif
 }
 
 const char* vtkDynamicLoader::LibPrefix()
