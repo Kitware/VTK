@@ -117,10 +117,15 @@ void vtkGaussianSplatter::Execute()
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
   NewScalars = vtkScalars::New(); NewScalars->SetNumberOfScalars(numPts);
-  for (i=0; i<numPts; i++) NewScalars->SetScalar(i,0.0);
-
+  for (i=0; i<numPts; i++)
+    {
+    NewScalars->SetScalar(i,0.0);
+    }
   Visited = new char[numPts];
-  for (i=0; i < numPts; i++) Visited[i] = 0;
+  for (i=0; i < numPts; i++)
+    {
+    Visited[i] = 0;
+    }
 
   output->SetDimensions(this->GetSampleDimensions());
   this->ComputeModelBounds();
@@ -129,14 +134,22 @@ void vtkGaussianSplatter::Execute()
 //
   pd = input->GetPointData();
   if ( this->NormalWarping && (inNormals=pd->GetNormals()) != NULL )
+    {
     Sample = &vtkGaussianSplatter::EccentricGaussian;
+    }
   else
+    {
     Sample = &vtkGaussianSplatter::Gaussian;
+    }
 
   if ( this->ScalarWarping && (inScalars=pd->GetScalars()) != NULL )
+    {
     SampleFactor = &vtkGaussianSplatter::ScalarSampling;
+    }
   else
+    {
     SampleFactor = &vtkGaussianSplatter::PositionSampling;
+    }
 //
 // Traverse all points - injecting into volume.
 // For each input point, determine which cell it is in.  Then start
@@ -145,14 +158,24 @@ void vtkGaussianSplatter::Execute()
   for (ptId=0; ptId < input->GetNumberOfPoints(); ptId++)
     {
     P = input->GetPoint(ptId);
-    if ( inNormals != NULL ) N = inNormals->GetNormal(ptId);
-    if ( inScalars != NULL ) S = inScalars->GetScalar(ptId);
+    if ( inNormals != NULL )
+      {
+      N = inNormals->GetNormal(ptId);
+      }
+    if ( inScalars != NULL )
+      {
+      S = inScalars->GetScalar(ptId);
+      }
 
     if ( ! (ptId % 5000) && ptId > 0 )
+      {
       vtkDebugMacro(<< "Vertex #" << ptId);
+      }
 
     for (i=0; i<3; i++)  
+      {
       loc[i] = (int) ((float)(P[i] - Origin[i]) / Spacing[i]);
+      }
 //
 //  For each of the eight corners of the cell, need to evaluate sample
 //  function and then begin recursive distribution
@@ -164,13 +187,13 @@ void vtkGaussianSplatter::Execute()
         for (k=0; k < 2; k++) 
           {
           if ( (ip=loc[0]+i) >= 0 && ip < this->SampleDimensions[0] &&
-          (jp=loc[1]+j) >= 0 && jp < this->SampleDimensions[1] &&
-          (kp=loc[2]+k) >= 0 && kp < this->SampleDimensions[2] ) 
+	       (jp=loc[1]+j) >= 0 && jp < this->SampleDimensions[1] &&
+	       (kp=loc[2]+k) >= 0 && kp < this->SampleDimensions[2] ) 
             {
             idir = (i==0 ? -1 : 1);
             jdir = (j==0 ? -1 : 1);
             kdir = (k==0 ? -1 : 1);
-            SplitIJK (ip, idir, jp, jdir, kp, kdir);
+            this->SplitIJK (ip, idir, jp, jdir, kp, kdir);
             }
           }
         }
@@ -206,8 +229,8 @@ void vtkGaussianSplatter::ComputeModelBounds()
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
-  this->ModelBounds[2] >= this->ModelBounds[3] ||
-  this->ModelBounds[4] >= this->ModelBounds[5] )
+       this->ModelBounds[2] >= this->ModelBounds[3] ||
+       this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
     bounds = input->GetBounds();
@@ -218,9 +241,12 @@ void vtkGaussianSplatter::ComputeModelBounds()
     }
 
   for (maxDist=0.0, i=0; i<3; i++)
+    {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
+      {
       maxDist = bounds[2*i+1] - bounds[2*i];
-
+      }
+    }
   maxDist *= this->Radius;
   Radius2 = maxDist * maxDist;
 
@@ -265,8 +291,9 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
 
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if (dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-      dim[2] != SampleDimensions[2] )
+  if (dim[0] != this->SampleDimensions[0] ||
+      dim[1] != this->SampleDimensions[1] ||
+      dim[2] != this->SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
@@ -274,7 +301,13 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
       return;
       }
     
-    for (dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
+    for (dataDim=0, i=0; i<3 ; i++)
+      {
+      if (dim[i] > 1)
+	{
+	dataDim++;
+	}
+      }
 
     if ( dataDim  < 3 )
       {
@@ -282,7 +315,10 @@ void vtkGaussianSplatter::SetSampleDimensions(int dim[3])
       return;
       }
 
-    for ( i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
+    for ( i=0; i<3; i++)
+      {
+      this->SampleDimensions[i] = dim[i];
+      }
     
     this->Modified();
     }
@@ -297,38 +333,56 @@ void vtkGaussianSplatter::Cap(vtkScalars *s)
 // i-j planes
   k = 0;
   for (j=0; j<this->SampleDimensions[1]; j++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(i+j*this->SampleDimensions[1], this->CapValue);
-
+      }
+    }
   k = this->SampleDimensions[2] - 1;
   idx = k*d01;
   for (j=0; j<this->SampleDimensions[1]; j++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(idx+i+j*this->SampleDimensions[1], this->CapValue);
-
+      }
+    }
 // j-k planes
   i = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (j=0; j<this->SampleDimensions[1]; j++)
+      {
       s->SetScalar(j*this->SampleDimensions[0]+k*d01, this->CapValue);
-
+      }
+    }
   i = this->SampleDimensions[0] - 1;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (j=0; j<this->SampleDimensions[1]; j++)
+      {
       s->SetScalar(i+j*this->SampleDimensions[0]+k*d01, this->CapValue);
-
+      }
+    }
 // i-k planes
   j = 0;
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(i+k*d01, this->CapValue);
-
+      }
+    }
   j = this->SampleDimensions[1] - 1;
   idx = j*this->SampleDimensions[0];
   for (k=0; k<this->SampleDimensions[2]; k++)
+    {
     for (i=0; i<this->SampleDimensions[0]; i++)
+      {
       s->SetScalar(idx+i+k*d01, this->CapValue);
-
+      }
+    }
 }
 
 void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir, 
@@ -357,35 +411,46 @@ void vtkGaussianSplatter::SplitIJK (int i, int idir, int j, int jdir,
     kp = k + kdir;
 
     if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-    jp >= 0 && jp < this->SampleDimensions[1] && 
-    kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitIJK (ip, idir, jp, jdir, kp, kdir);
+	 jp >= 0 && jp < this->SampleDimensions[1] && 
+	 kp >= 0 && kp < this->SampleDimensions[2] )
+      {
+      this->SplitIJK (ip, idir, jp, jdir, kp, kdir);
+      }
 //
 //  Don't forget cell walls emanating from this vertex
 //
     if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-    jp >= 0 && jp < this->SampleDimensions[1] )
-      SplitIJ (ip, idir, jp, jdir, k);
+	 jp >= 0 && jp < this->SampleDimensions[1] )
+      {
+      this->SplitIJ (ip, idir, jp, jdir, k);
+      }
 
     if ( jp >= 0 && jp < this->SampleDimensions[1] && 
-    kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitJK (i, jp, jdir, kp, kdir);
+	 kp >= 0 && kp < this->SampleDimensions[2] )
+      {
+      this->SplitJK (i, jp, jdir, kp, kdir);
+      }
 
     if ( ip >= 0 && ip < this->SampleDimensions[0] && 
-    kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitIK (ip, idir, j, kp, kdir);
+	 kp >= 0 && kp < this->SampleDimensions[2] )
+      {
+      this->SplitIK (ip, idir, j, kp, kdir);
+      }
 //
 //  Don't forget the cell edges emanating from this vertex
 //
     if ( ip >= 0 && ip < this->SampleDimensions[0] )
-      SplitI (ip, idir, j, k);
-
+      {
+      this->SplitI (ip, idir, j, k);
+      }
     if ( jp >= 0 && jp < this->SampleDimensions[1] )
-      SplitJ (i, jp, jdir, k);
-
+      {
+      this->SplitJ (i, jp, jdir, k);
+      }
     if ( kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitK (i, j, kp, kdir);
-
+      {
+      this->SplitK (i, j, kp, kdir);
+      }
     }
 }
 
@@ -414,15 +479,21 @@ void vtkGaussianSplatter::SplitIJ (int i, int idir, int j, int jdir, int k)
 
     if ( ip >= 0 && ip < this->SampleDimensions[0] && 
     jp >= 0 && jp < this->SampleDimensions[1] )
-      SplitIJ (ip, idir, jp, jdir, k);
+      {
+      this->SplitIJ (ip, idir, jp, jdir, k);
+      }
 //
 //  Don't forget the cell edges emanating from this vertex
 //
     if ( ip >= 0 && ip < this->SampleDimensions[0] )
-      SplitI (ip, idir, j, k);
+      {
+      this->SplitI (ip, idir, j, k);
+      }
 
     if ( jp >= 0 && jp < this->SampleDimensions[1] )
-      SplitJ (i, jp, jdir, k);
+      {
+      this->SplitJ (i, jp, jdir, k);
+      }
 
     }
 }
@@ -438,7 +509,6 @@ void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
 
   if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
-
     idx = i + j*this->SampleDimensions[0] + 
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
@@ -452,15 +522,21 @@ void vtkGaussianSplatter::SplitJK (int i, int j, int jdir, int k, int kdir)
 
     if ( jp >= 0 && jp < this->SampleDimensions[1] && 
     kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitJK (i, jp, jdir, kp, kdir);
+      {
+      this->SplitJK (i, jp, jdir, kp, kdir);
+      }
 //
 //  Don't forget the cell edges emanating from this vertex
 //
     if ( jp >= 0 && jp < this->SampleDimensions[1] )
-     SplitJ (i, jp, jdir, k);
+      {
+     this->SplitJ (i, jp, jdir, k);
+      }
 
     if ( kp >= 0 && kp < this->SampleDimensions[2] )
-     SplitK (i, j, kp, kdir);
+      {
+     this->SplitK (i, j, kp, kdir);
+      }
     }
 }
 
@@ -475,7 +551,6 @@ void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
 
   if ( (dist2= (this->*Sample)(cx)) <= Radius2 ) 
     {
-
     idx = i + j*this->SampleDimensions[0] + 
           k*this->SampleDimensions[0]*this->SampleDimensions[1];
 
@@ -488,15 +563,21 @@ void vtkGaussianSplatter::SplitIK (int i, int idir, int j, int k, int kdir)
     kp = k + kdir;
 
     if ( ip >= 0 && ip < this->SampleDimensions[0] && kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitIK (ip,idir, j, kp,kdir);
+      {
+      this->SplitIK (ip,idir, j, kp,kdir);
+      }
 //
 //  Don't forget the cell edges emanating from this vertex
 //
     if ( ip >= 0 && ip < this->SampleDimensions[0] )
-      SplitI (ip,idir, j, k);
+      {
+      this->SplitI (ip,idir, j, k);
+      }
 
     if ( kp >= 0 && kp < this->SampleDimensions[2] )
-      SplitK (i, j, kp,kdir);
+      {
+      this->SplitK (i, j, kp,kdir);
+      }
     }
 }
 
@@ -520,7 +601,9 @@ void vtkGaussianSplatter::SplitI (int i, int idir, int j, int k)
 //  Continue sampling along this edge.
 //
     if ( (ip=i+idir) >= 0 && ip < this->SampleDimensions[0] )
-       SplitI (ip,idir, j, k);
+      {
+      this->SplitI (ip,idir, j, k);
+      }
     }
 }
 
@@ -543,7 +626,9 @@ void vtkGaussianSplatter::SplitJ (int i, int j, int jdir, int k)
 //  Continue sampling along this edge.
 //
     if ( (jp=j+jdir) >= 0 && jp < this->SampleDimensions[1] )
-      SplitJ (i, jp,jdir, k);
+      {
+      this->SplitJ (i, jp,jdir, k);
+      }
     }
 }
 
@@ -566,7 +651,9 @@ void vtkGaussianSplatter::SplitK (int i, int j, int k, int kdir)
 //  Continue sampling along this edge.
 //
     if ( (kp=k+kdir) >= 0 && kp < this->SampleDimensions[2] )
-      SplitK (i, j, kp,kdir);
+      {
+      this->SplitK (i, j, kp,kdir);
+      }
     }
 }
 
@@ -594,8 +681,14 @@ float vtkGaussianSplatter::EccentricGaussian (float cx[3])
 
   if ( (mag=N[0]*N[0]+N[1]*N[1]+N[2]*N[2]) != 1.0  ) 
     {
-    if ( mag == 0.0 ) mag = 1.0;
-    else mag = sqrt((double)mag);
+    if ( mag == 0.0 )
+      {
+      mag = 1.0;
+      }
+    else
+      {
+      mag = sqrt((double)mag);
+      }
     }
 
   z2 = (v[0]*N[0] + v[1]*N[1] + v[2]*N[2])/mag;

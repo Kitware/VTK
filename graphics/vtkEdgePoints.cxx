@@ -95,7 +95,10 @@ void vtkEdgePoints::Execute()
 
   estimatedSize = (int) (input->GetNumberOfCells () * .75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
-  if (estimatedSize < 1024) estimatedSize = 1024;
+  if (estimatedSize < 1024)
+    {
+    estimatedSize = 1024;
+    }
 
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize/2);
@@ -124,9 +127,13 @@ void vtkEdgePoints::Execute()
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
       {
       if ( cellScalars->GetScalar(ptId) >= this->Value )
+	{
         above = 1;
+	}
       else if ( cellScalars->GetScalar(ptId) < this->Value )
+	{
         below = 1;
+	}
       }
 
     if ( above && below ) //contour passes through cell
@@ -169,7 +176,10 @@ void vtkEdgePoints::Execute()
             edge->Points->GetPoint(e0,x0);
             edge->Points->GetPoint(e1,x1);
 
-            for (i=0; i<3; i++) x[i] = x0[i] + t * (x1[i] - x0[i]);
+            for (i=0; i<3; i++)
+	      {
+	      x[i] = x0[i] + t * (x1[i] - x0[i]);
+	      }
             if ( (pts[0] = this->Locator->IsInsertedPoint(x)) < 0 )
               {
               pts[0] = this->Locator->InsertNextPoint(x);

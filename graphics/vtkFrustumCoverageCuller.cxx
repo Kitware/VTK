@@ -96,9 +96,13 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
       // is the first culler, it hasn't) then the previous time is set
       // to 0.0
       if ( !initialized )
+	{
 	previous_time = 1.0;
+	}
       else
+	{
 	previous_time = actor->GetAllocatedRenderTime();
+	}
       
       // Get the bounds of the actor and compute an enclosing sphere
       bounds = actor->GetBounds();
@@ -138,7 +142,9 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
 	// distance from the edge of the sphere to these planes is stored
 	// to compute coverage.
 	if ( i < 4 )
+	  {
 	  screen_bounds[i] = d - radius;
+	  }
 	}
 
       // If the actor wasn't culled during the plane tests...
@@ -157,14 +163,26 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
 	// plane, so there is a gap between the edge of the plane and
 	// the edge of the box.
 	part_w = full_w;
-	if ( screen_bounds[0] > 0.0 ) part_w -= screen_bounds[0];
-	if ( screen_bounds[1] > 0.0 ) part_w -= screen_bounds[1];
+	if ( screen_bounds[0] > 0.0 )
+	  {
+	  part_w -= screen_bounds[0];
+	  }
+	if ( screen_bounds[1] > 0.0 )
+	  {
+	  part_w -= screen_bounds[1];
+	  }
 
 	// Do the same thing for the height with the top and bottom 
 	// planes (2,3).
 	part_h = full_h;
-	if ( screen_bounds[2] > 0.0 ) part_h -= screen_bounds[2];
-	if ( screen_bounds[3] > 0.0 ) part_h -= screen_bounds[3];
+	if ( screen_bounds[2] > 0.0 )
+	  {
+	  part_h -= screen_bounds[2];
+	  }
+	if ( screen_bounds[3] > 0.0 )
+	  {
+	  part_h -= screen_bounds[3];
+	  }
 	
 	// Compute the fraction of coverage
 	coverage = (part_w * part_h) / (full_w * full_h);
@@ -173,11 +191,17 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
 	// the minumum result in 0.0 time, greater than the maximum result in
 	// 1.0 time, and in between a linear ramp is used
 	if ( coverage < this->MinimumCoverage ) 
+	  {
 	  coverage = 0;
+	  }
 	else if ( coverage > this->MaximumCoverage )
+	  {
 	  coverage = 1.0;
+	  }
 	else
+	  {
 	  coverage = (coverage-this->MinimumCoverage) / this->MaximumCoverage;
+	  }
 	}
 
       // Multiply the new allocated time by the previous allocated time
@@ -192,14 +216,18 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
       total_time += coverage;
       }
     else
+      {
       allocatedTimeList[actor_loop] = 0.0;
+      }
     }
 
   // Remove all actors that have no allocated render time or are not visible
   // from the list. First, find the last non-zero entry in the list
   last_non_zero = listLength - 1;
   while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
+    {
     last_non_zero--;
+    }
 
   // Now traverse the list from the beginning, swapping any zero entries with
   // the last non-zero entry and finding the new last non-zero
@@ -214,7 +242,9 @@ float vtkFrustumCoverageCuller::OuterCullMethod( vtkRenderer *ren,
       allocatedTimeList[last_non_zero] = 0.0;
 
       while ( last_non_zero >= 0 && allocatedTimeList[last_non_zero] == 0.0 )
+	{
 	last_non_zero--;
+	}
       }
     }
     

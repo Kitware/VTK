@@ -76,7 +76,7 @@ void vtkDiskSource::Execute()
 // Create disk
 //
   theta = 2.0 * vtkMath::Pi() / ((float)this->CircumferentialResolution);
-  deltaRadius = (this->OuterRadius - InnerRadius) / 
+  deltaRadius = (this->OuterRadius - this->InnerRadius) / 
                        ((float)this->RadialResolution);
 
   for (i=0; i<=this->CircumferentialResolution; i++) 

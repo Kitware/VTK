@@ -135,7 +135,10 @@ void vtkFeatureEdges::Execute()
 
   // Get our locator for merging points
   //
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // Loop over all polygons generating boundary, non-manifold, 
@@ -190,16 +193,22 @@ void vtkFeatureEdges::Execute()
         {
         // check to make sure that this edge hasn't been created before
         for (j=0; j < numNei; j++)
+	  {
           if ( neighbors->GetId(j) < cellId )
+	    {
             break;
+	    }
+	  }
         if ( j >= numNei )
           {
           numNonManifoldEdges++;
           scalar = 0.222222;
           }
-        else continue;
+        else
+	  {
+	  continue;
+	  }
         }
-
       else if ( this->FeatureEdges && 
                 numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
         {
@@ -209,15 +218,20 @@ void vtkFeatureEdges::Execute()
           numFedges++;
           scalar = 0.444444;
           }
-        else continue;
+        else
+	  {
+	  continue;
+	  }
         }
-
       else if ( this->ManifoldEdges )
         {
         numManifoldEdges++;
         scalar = 0.666667;
         }
-      else continue;
+      else
+	{
+	continue;
+	}
 
       // Add edge to output
       Mesh->GetPoint(p1, x1);
@@ -237,7 +251,10 @@ void vtkFeatureEdges::Execute()
 
       newId = newLines->InsertNextCell(2,lineIds);
       outCD->CopyData (cd,cellId,newId);
-      if ( this->Coloring ) newScalars->InsertScalar(newId, scalar);
+      if ( this->Coloring )
+	{
+	newScalars->InsertScalar(newId, scalar);
+	}
       }
     }
 
@@ -248,7 +265,10 @@ void vtkFeatureEdges::Execute()
 
   //  Update ourselves.
   //
-  if ( this->FeatureEdges ) polyNormals->Delete();
+  if ( this->FeatureEdges )
+    {
+    polyNormals->Delete();
+    }
 
   Mesh->Delete();
   

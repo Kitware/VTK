@@ -114,7 +114,9 @@ static void ComputeGradients(
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
+    {
     for ( y = 0; y < estimator->ScalarInputSize[1]; y++ )
+      {
       for ( x = 0; x < estimator->ScalarInputSize[0]; x++ )
 	{
 	// Use a central difference method if possible,
@@ -125,31 +127,49 @@ static void ComputeGradients(
 	if ( x >= estimator->SampleSpacingInVoxels && 
 	     x < estimator->ScalarInputSize[0] - 
 	         estimator->SampleSpacingInVoxels )
+	  {
 	  n[0] = (float)*(dptr-xstep) - (float)*(dptr+xstep); 
+	  }
 	else if ( x == 0 )
+	  {
 	  n[0] = -((float)*(dptr+xstep));
+	  }
 	else
+	  {
 	  n[0] =  ((float)*(dptr-xstep));
+	  }
 	
 	// Compute the Y component
 	if ( y >= estimator->SampleSpacingInVoxels && 
 	     y < estimator->ScalarInputSize[1] - 
 	         estimator->SampleSpacingInVoxels )
+	  {
 	  n[1] = (float)*(dptr-ystep) - (float)*(dptr+ystep); 
+	  }
 	else if ( y == 0 )
+	  {
 	  n[1] = -((float)*(dptr+ystep));
+	  }
 	else
+	  {
 	  n[1] =  ((float)*(dptr-ystep));
+	  }
 	
 	// Compute the Z component
 	if ( z >= estimator->SampleSpacingInVoxels && 
 	     z < estimator->ScalarInputSize[2] - 
 	         estimator->SampleSpacingInVoxels )
+	  {
 	  n[2] = (float)*(dptr-zstep) - (float)*(dptr+zstep); 
+	  }
 	else if ( z == 0 )
+	  {
 	  n[2] = -((float)*(dptr+zstep));
+	  }
 	else
+	  {
 	  n[2] =  ((float)*(dptr-zstep));
+	  }
 
 	// Take care of the aspect ratio of the data
 	// Scaling in the vtkVolume is isotropic, so this is the
@@ -171,11 +191,17 @@ static void ComputeGradients(
 	  estimator->GradientMagnitudeBias;
 	  
 	if ( gvalue < 0.0 )
+	  {
 	  *gptr = 0;
+	  }
 	else if ( gvalue > 255.0 )
+	  {
 	  *gptr = 255;
+	  }
 	else 
+	  {
 	  *gptr = (unsigned char) gvalue;
+	  }
 	
 	// Normalize the gradient direction
 	if ( t )
@@ -193,6 +219,8 @@ static void ComputeGradients(
 	dptr++;
 
 	}
+      }
+    }
 }
 
 // Construct a vtkFiniteDifferenceGradientEstimator 

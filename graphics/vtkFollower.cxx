@@ -180,7 +180,9 @@ void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
       // bump the view normal if it is parallel to the y-axis
       //
       if ((vn[0] == 0.0) && (vn[2] == 0.0))
+	{
 	vn[2] = 0.01*vn[1];
+	}
       
       // first project the view_up onto the view_plane
       //
@@ -202,12 +204,20 @@ void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
       if (mag != 0.0) 
 	{
 	cosang = dot / mag;
-	if (cosang < -1.0) cosang = -1.0;
-	if (cosang > 1.0) cosang = 1.0;
+	if (cosang < -1.0)
+	  {
+	  cosang = -1.0;
+	  }
+	if (cosang > 1.0)
+	  {
+	  cosang = 1.0;
+	  }
 	theta = acos(cosang);
 	}
       else
+	{
 	theta = 0.0;
+	}
       
       // now see if the angle is positive or negative
       //
@@ -216,7 +226,9 @@ void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
       
       twist = (theta);
       if (dot < 0.0)
+	{
 	twist = -twist;
+	}
       
       // now rotate z (twist) 
       matrix->Element[0][0] = cos(-twist);
@@ -295,7 +307,10 @@ void vtkFollower::Render(vtkRenderer *ren)
     }
 
   /* render the texture */
-  if (this->Texture) this->Texture->Render(ren);
+  if (this->Texture)
+    {
+    this->Texture->Render(ren);
+    }
     
   // make sure the device has the same matrix
   this->GetMatrix(matrix);

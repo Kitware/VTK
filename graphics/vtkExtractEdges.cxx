@@ -104,7 +104,10 @@ void vtkExtractEdges::Execute()
   
   // Get our locator for merging points
   //
-  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  if ( this->Locator == NULL )
+    {
+    this->CreateDefaultLocator();
+    }
   this->Locator->InitPointInsertion (newPts, input->GetBounds());
 
   // Loop over all cells, extracting non-visited edges. 

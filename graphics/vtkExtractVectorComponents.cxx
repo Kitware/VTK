@@ -68,8 +68,14 @@ vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
   if ( i < 0 || i > 2 )
     {
     vtkErrorMacro(<<"Vector component must be between (0,2)");
-    if ( i < 0 ) return (vtkDataSet *)this->Output;
-    if ( i > 2 ) return (vtkDataSet *)this->VzComponent;
+    if ( i < 0 )
+      {
+      return (vtkDataSet *)this->Output;
+      }
+    if ( i > 2 )
+      {
+      return (vtkDataSet *)this->VzComponent;
+      }
     }
 
   if ( this->Output == NULL )
@@ -77,9 +83,18 @@ vtkDataSet *vtkExtractVectorComponents::GetOutput(int i)
     vtkErrorMacro(<<"Abstract filters require input to be set before output can be retrieved");
     }
 
-  if ( i == 0 ) return (vtkDataSet *)this->Output;
-  else if ( i == 1 ) return (vtkDataSet *)this->VyComponent;
-  else return (vtkDataSet *)this->VzComponent;
+  if ( i == 0 )
+    {
+    return (vtkDataSet *)this->Output;
+    }
+  else if ( i == 1 )
+    {
+    return (vtkDataSet *)this->VyComponent;
+    }
+  else
+    {
+    return (vtkDataSet *)this->VzComponent;
+    }
 }
 
 // Get the output dataset representing velocity x-component. If output is NULL
@@ -129,13 +144,22 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
   if ( thisInput != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
-    if (this->Input) {this->Input->UnRegister(this);}
+    if (this->Input)
+      {
+      this->Input->UnRegister(this);
+      }
     this->Input = (vtkDataObject *)(input);
-    if (this->Input) {this->Input->Register(this);}
+    if (this->Input)
+      {
+      this->Input->Register(this);
+      }
     thisInput = input;
     this->Modified();
 
-    if ( thisInput == NULL ) return;
+    if ( thisInput == NULL )
+      {
+      return;
+      }
 
     if ( ! this->Output )
       {
@@ -187,7 +211,10 @@ void vtkExtractVectorComponents::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
@@ -201,7 +228,10 @@ void vtkExtractVectorComponents::Update()
       this->Input->ForceUpdate();
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     // clear just point data output because structure is copied from input
     ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
     this->VyComponent->CopyStructure((vtkDataSet *)this->Input);
@@ -211,12 +241,21 @@ void vtkExtractVectorComponents::Update()
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 
 void vtkExtractVectorComponents::Execute()

@@ -66,22 +66,46 @@ void vtkExtractGrid::Execute()
   inPts = input->GetPoints();
   input->GetDimensions(dims);
 
-  for ( i=0; i < 6; i++ ) voi[i] = this->VOI[i];
+  for ( i=0; i < 6; i++ )
+    {
+    voi[i] = this->VOI[i];
+    }
 
   for ( outSize=1, dim=0, i=0; i < 3; i++ )
     {
-    if ( voi[2*i+1] >= dims[i] ) voi[2*i+1] = dims[i] - 1;
-    else if ( voi[2*i+1] < 0 ) voi[2*i+1] = 0;
+    if ( voi[2*i+1] >= dims[i] )
+      {
+      voi[2*i+1] = dims[i] - 1;
+      }
+    else if ( voi[2*i+1] < 0 )
+      {
+      voi[2*i+1] = 0;
+      }
 
-    if ( voi[2*i] > voi[2*i+1] ) voi[2*i] = voi[2*i+1];
-    else if ( voi[2*i] < 0 ) voi[2*i] = 0;
+    if ( voi[2*i] > voi[2*i+1] )
+      {
+      voi[2*i] = voi[2*i+1];
+      }
+    else if ( voi[2*i] < 0 )
+      {
+      voi[2*i] = 0;
+      }
 
-    if ( (voi[2*i+1]-voi[2*i]) > 0 ) dim++;
+    if ( (voi[2*i+1]-voi[2*i]) > 0 )
+      {
+      dim++;
+      }
 
-    if ( (rate[i] = this->SampleRate[i]) < 1 ) rate[i] = 1;
+    if ( (rate[i] = this->SampleRate[i]) < 1 )
+      {
+      rate[i] = 1;
+      }
 
     outDims[i] = (voi[2*i+1] - voi[2*i]) / rate[i] + 1;
-    if ( outDims[i] < 1 ) outDims[i] = 1;
+    if ( outDims[i] < 1 )
+      {
+      outDims[i] = 1;
+      }
 
     outSize *= outDims[i];
     }

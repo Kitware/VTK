@@ -111,7 +111,10 @@ void vtkExtractTensorComponents::Execute()
     }
 
   outPD->CopyAllOn();
-  if ( !this->PassTensorsToOutput ) outPD->CopyTensorsOff();
+  if ( !this->PassTensorsToOutput )
+    {
+    outPD->CopyTensorsOff();
+    }
   if ( this->ExtractScalars )
     {
     outPD->CopyScalarsOff();
@@ -232,11 +235,17 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Extraction Mode: ";
 
   if ( this->ScalarMode == VTK_EXTRACT_COMPONENT )
+    {
     os << "VTK_EXTRACT_COMPONENT\n";
+    }
   else if ( this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS )
+    {
     os << "VTK_EXTRACT_EFFECTIVE_STRESS\n";
+    }
   else
+    {
     os << "VTK_EXTRACT_DETERMINANT\n";
+    }
 
   os << indent << "Scalar Components: \n";
   os << indent << "  (row,column): (" 

@@ -101,7 +101,10 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
       }
 
     // compute split normal
-    for (i=0 ; i < 3; i++) n[i] = OBBptr->Axes[0][i];
+    for (i=0 ; i < 3; i++)
+      {
+      n[i] = OBBptr->Axes[0][i];
+      }
     vtkMath::Normalize(n);
 
     //traverse cells, assigning to appropriate child list as necessary

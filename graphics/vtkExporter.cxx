@@ -78,9 +78,15 @@ void vtkExporter::Write()
     return;
     }
 
-  if ( this->StartWrite ) (*this->StartWrite)(this->StartWriteArg);
+  if ( this->StartWrite )
+    {
+    (*this->StartWrite)(this->StartWriteArg);
+    }
   this->WriteData();
-  if ( this->EndWrite ) (*this->EndWrite)(this->EndWriteArg);
+  if ( this->EndWrite )
+    {
+    (*this->EndWrite)(this->EndWriteArg);
+    }
 }
 
 // Convenient alias for Write() method.

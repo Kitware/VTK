@@ -93,7 +93,10 @@ void vtkExtractUnstructuredGrid::SetExtent(float *extent)
     this->Modified();
     for (i=0; i<3; i++)
       {
-      if ( extent[2*i+1] < extent[2*i] ) extent[2*i+1] = extent[2*i];
+      if ( extent[2*i+1] < extent[2*i] )
+	{
+	extent[2*i+1] = extent[2*i];
+	}
       this->Extent[2*i] = extent[2*i];
       this->Extent[2*i+1] = extent[2*i+1];
       }
@@ -173,7 +176,10 @@ void vtkExtractUnstructuredGrid::Execute()
             break;
             }
           }
-        if ( i >= numIds ) cellVis[cellId] = 1;
+        if ( i >= numIds )
+	  {
+	  cellVis[cellId] = 1;
+	  }
         }
       }
     }
@@ -185,7 +191,10 @@ void vtkExtractUnstructuredGrid::Execute()
   outputPD->CopyAllocate(pd,numPts,numPts/2);
   outputCD->CopyAllocate(cd,numCells,numCells/2);
   pointMap = new int[numPts];
-  for (i=0; i<numPts; i++) pointMap[i] = (-1); //initialize as unused
+  for (i=0; i<numPts; i++)
+    {
+    pointMap[i] = (-1); //initialize as unused
+    }
 
   // Traverse cells to extract geometry
   for(cellId=0; cellId < numCells; cellId++)
@@ -223,7 +232,10 @@ void vtkExtractUnstructuredGrid::Execute()
   output->Squeeze();
 
   delete [] pointMap;
-  if ( cellVis ) delete [] cellVis;
+  if ( cellVis )
+    {
+    delete [] cellVis;
+    }
   cellIds->Delete();
 }
 

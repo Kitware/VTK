@@ -68,7 +68,10 @@ vtkGlyph3D::~vtkGlyph3D()
 {
   // unregister all the sources
   this->SetNumberOfSources(0);
-  if ( this->Source ) delete [] this->Source;
+  if ( this->Source )
+    {
+    delete [] this->Source;
+    }
 }
 
 void vtkGlyph3D::Execute()
@@ -113,18 +116,24 @@ void vtkGlyph3D::Execute()
   //
   // Check input for consistency
   //
-  if ( (den = this->Range[1] - this->Range[0]) == 0.0 ) den = 1.0;
-    
+  if ( (den = this->Range[1] - this->Range[0]) == 0.0 )
+    {
+    den = 1.0;
+    }
   if ( (this->VectorMode == VTK_USE_VECTOR && inVectors != NULL) ||
-  (this->VectorMode == VTK_USE_NORMAL && inNormals != NULL) )
+       (this->VectorMode == VTK_USE_NORMAL && inNormals != NULL) )
+    {
     haveVectors = 1;
+    }
   else
+    {
     haveVectors = 0;
+    }
 
   if ( (this->IndexMode == VTK_INDEXING_BY_SCALAR && !inScalars) ||
-  (this->IndexMode == VTK_INDEXING_BY_VECTOR && 
-  ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
-  (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
+       (this->IndexMode == VTK_INDEXING_BY_VECTOR && 
+       ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
+	(!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
     {
     if ( this->Source[0] == NULL )
       {
@@ -156,7 +165,9 @@ void vtkGlyph3D::Execute()
         numSourcePts += this->Source[i]->GetNumberOfPoints();
         numSourceCells += this->Source[i]->GetNumberOfCells();
         if ( !(sourceNormals = this->Source[i]->GetPointData()->GetNormals()) )
+	  {
           haveNormals = 0;
+	  }
         }
       }
     }
@@ -167,8 +178,14 @@ void vtkGlyph3D::Execute()
     numSourceCells = this->Source[0]->GetNumberOfCells();
 
     sourceNormals = this->Source[0]->GetPointData()->GetNormals();
-    if ( sourceNormals ) haveNormals = 1;
-    else haveNormals = 0;
+    if ( sourceNormals )
+      {
+      haveNormals = 1;
+      }
+    else
+      {
+      haveNormals = 0;
+      }
 
     // Prepare to copy output.
     pd = this->Source[0]->GetPointData();
@@ -218,7 +235,10 @@ void vtkGlyph3D::Execute()
     if ( ! (inPtId % 10000) ) 
       {
       this->UpdateProgress ((float)inPtId/numPts);
-      if (this->GetAbortExecute()) break;
+      if (this->GetAbortExecute())
+	{
+	break;
+	}
       }
 
     // Get the scalar and vector data
@@ -231,10 +251,19 @@ void vtkGlyph3D::Execute()
 
     if ( haveVectors )
       {
-      if ( this->VectorMode == VTK_USE_NORMAL ) v = inNormals->GetNormal(inPtId);
-      else v = inVectors->GetVector(inPtId);
+      if ( this->VectorMode == VTK_USE_NORMAL )
+	{
+	v = inNormals->GetNormal(inPtId);
+	}
+      else
+	{
+	v = inVectors->GetVector(inPtId);
+	}
       vMag = vtkMath::Norm(v);
-      if ( this->ScaleMode == VTK_SCALE_BY_VECTOR ) scale = vMag;
+      if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
+	{
+	scale = vMag;
+	}
       }
 
     // Clamp data scale if enabled
@@ -252,8 +281,14 @@ void vtkGlyph3D::Execute()
       }
     else 
       {
-      if ( this->IndexMode == VTK_INDEXING_BY_SCALAR ) value = s;
-      else value = vMag;
+      if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
+	{
+	value = s;
+	}
+      else
+	{
+	value = vMag;
+	}
 
       index = (int) ((float)(value - this->Range[0]) * 
 		     (this->NumberOfSources-1) / den);
@@ -271,7 +306,10 @@ void vtkGlyph3D::Execute()
       }
 
     // Make sure we're not indexing into empty glyph
-    if ( this->Source[index] == NULL ) continue;
+    if ( this->Source[index] == NULL )
+      {
+      continue;
+      }
 
     // Now begin copying/transforming glyph
     trans->Identity();
@@ -297,8 +335,9 @@ void vtkGlyph3D::Execute()
       {
       // Copy Input vector
       for (i=0; i < numSourcePts; i++) 
+	{
         newVectors->InsertVector(i+ptIncr, v);
-          
+	}
       if (this->Orient && (vMag > 0.0)) 
         {
         // if there is no y or z component
@@ -326,7 +365,9 @@ void vtkGlyph3D::Execute()
       if (this->ColorMode == VTK_COLOR_BY_SCALE)
 	{
 	for (i=0; i < numSourcePts; i++) 
+	  {
 	  newScalars->InsertScalar(i+ptIncr, scale);
+	  }
 	}
       else if (this->ColorMode == VTK_COLOR_BY_SCALAR)
 	{
@@ -339,28 +380,44 @@ void vtkGlyph3D::Execute()
     if (haveVectors && this->ColorMode == VTK_COLOR_BY_VECTOR)
       {
       for (i=0; i < numSourcePts; i++) 
+	{
 	newScalars->InsertScalar(i+ptIncr, vMag);
+	}
       }
-    
 
     // scale data if appropriate
     if ( this->Scaling )
       {
-      if ( this->ScaleMode == VTK_DATA_SCALING_OFF ) scale = this->ScaleFactor;
-      else scale *= this->ScaleFactor;
+      if ( this->ScaleMode == VTK_DATA_SCALING_OFF )
+	{
+	scale = this->ScaleFactor;
+	}
+      else
+	{
+	scale *= this->ScaleFactor;
+	}
 
-      if ( scale == 0.0 ) scale = 1.0e-10;
+      if ( scale == 0.0 )
+	{
+	scale = 1.0e-10;
+	}
       trans->Scale(scale,scale,scale);
       }
 
     // multiply points and normals by resulting matrix
     trans->MultiplyPoints(sourcePts,newPts);
-    if ( haveNormals ) trans->MultiplyNormals(sourceNormals,newNormals);
+    if ( haveNormals )
+      {
+      trans->MultiplyNormals(sourceNormals,newNormals);
+      }
 
     // Copy point data from source (if possible)
     if ( pd ) 
       {
-      for (i=0; i < numSourcePts; i++) outputPD->CopyData(pd,i,ptIncr+i);
+      for (i=0; i < numSourcePts; i++)
+	{
+	outputPD->CopyData(pd,i,ptIncr+i);
+	}
       }
     }
 
@@ -403,24 +460,34 @@ void vtkGlyph3D::Update()
 
   // make sure input is available
   for (i=0; i<this->NumberOfSources; i++)
+    {
     if ( this->Source[i] != NULL ) 
+      {
       break;
-
-  if ( this->Input == NULL || (this->IndexMode == VTK_INDEXING_OFF && i != 0) ||
-  i >= this->NumberOfSources )
+      }
+    }
+  if ( this->Input == NULL ||
+       (this->IndexMode == VTK_INDEXING_OFF && i != 0) ||
+       i >= this->NumberOfSources )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
   for (i=0; i<this->NumberOfSources; i++)
     {
-    if ( this->Source[i] != NULL ) this->Source[i]->Update();
+    if ( this->Source[i] != NULL )
+      {
+      this->Source[i]->Update();
+      }
     }
   this->Updating = 0;
 
@@ -431,37 +498,58 @@ void vtkGlyph3D::Update()
     if ( this->Source[i] != NULL ) 
       {
       mtime = this->Source[i]->GetMTime();
-      if ( mtime > latest ) latest = mtime;
+      if ( mtime > latest )
+	{
+	latest = mtime;
+	}
       }
     }
 
-  if (this->Input->GetMTime() > this->ExecuteTime || latest > this->ExecuteTime || 
-  this->GetMTime() > this->ExecuteTime )
+  if (this->Input->GetMTime() > this->ExecuteTime ||
+      latest > this->ExecuteTime || 
+      this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
     for (i=0; i<this->NumberOfSources; i++)
       {
       if ( this->Source[i] != NULL && this->Source[i]->GetDataReleased() ) 
         this->Source[i]->ForceUpdate();
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
   for (i=0; i<this->NumberOfSources; i++)
     {
     if ( this->Source[i] != NULL && this->Source[i]->ShouldIReleaseData() ) 
+      {
         this->Source[i]->ReleaseData();
+      }
     }
 }
 
@@ -471,7 +559,10 @@ void vtkGlyph3D::SetNumberOfSources(int num)
 {
   int idx;
   
-  if ( num < 0 ) num = 0;
+  if ( num < 0 )
+    {
+    num = 0;
+    }
   if (this->NumberOfSources == num)
     {
     return;
@@ -544,8 +635,14 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->NumberOfSources < 2 )
     {
-    if ( this->Source[0] != NULL ) os << indent << "Source: (" << this->Source[0] << ")\n";
-    else os << indent << "Source: (none)\n";
+    if ( this->Source[0] != NULL )
+      {
+      os << indent << "Source: (" << this->Source[0] << ")\n";
+      }
+    else
+      {
+      os << indent << "Source: (none)\n";
+      }
     }
   else
     {
@@ -555,9 +652,18 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scaling: " << (this->Scaling ? "On\n" : "Off\n");
   
   os << indent << "Scale Mode: ";
-  if ( this->ScaleMode == VTK_SCALE_BY_SCALAR ) os << "Scale by scalar\n";
-  else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR ) os << "Scale by vector\n";
-  else os << "Data scaling is turned off\n";
+  if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
+    {
+    os << "Scale by scalar\n";
+    }
+  else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
+    {
+    os << "Scale by vector\n";
+    }
+  else
+    {
+    os << "Data scaling is turned off\n";
+    }
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Clamping: " << (this->Clamping ? "On\n" : "Off\n");
@@ -567,10 +673,16 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
                                        "Orient by vector\n" : "Orient by normal\n");
   os << indent << "Index Mode: ";
   if ( this->IndexMode == VTK_INDEXING_BY_SCALAR )
+    {
     os << "Index by scalar value\n";
+    }
   else if ( this->IndexMode == VTK_INDEXING_BY_VECTOR )
+    {
     os << "Index by vector value\n";
+    }
   else
+    {
     os << "Indexing off\n";
+    }
 }
 

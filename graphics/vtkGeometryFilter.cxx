@@ -96,13 +96,16 @@ void vtkGeometryFilter::SetExtent(float *extent)
   int i;
 
   if ( extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
-  extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
-  extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
+       extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
+       extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
     {
     this->Modified();
     for (i=0; i<3; i++)
       {
-      if ( extent[2*i+1] < extent[2*i] ) extent[2*i+1] = extent[2*i];
+      if ( extent[2*i+1] < extent[2*i] )
+	{
+	extent[2*i+1] = extent[2*i];
+	}
       this->Extent[2*i] = extent[2*i];
       this->Extent[2*i+1] = extent[2*i+1];
       }
@@ -176,7 +179,10 @@ void vtkGeometryFilter::Execute()
             break;
             }
           }
-        if ( i >= ptIds->GetNumberOfIds() ) cellVis[cellId] = 1;
+        if ( i >= ptIds->GetNumberOfIds() )
+	  {
+	  cellVis[cellId] = 1;
+	  }
         }
       }
     }
@@ -191,7 +197,10 @@ void vtkGeometryFilter::Execute()
 
   if ( this->Merging )
     {
-    if ( this->Locator == NULL ) this->CreateDefaultLocator();
+    if ( this->Locator == NULL )
+      {
+      this->CreateDefaultLocator();
+      }
     this->Locator->InitPointInsertion (newPts, input->GetBounds());
     }
 //
@@ -277,13 +286,18 @@ void vtkGeometryFilter::Execute()
   newPts->Delete();
 
   //free storage
-  if (!this->Merging && this->Locator) this->Locator->Initialize(); 
-
+  if (!this->Merging && this->Locator)
+    {
+    this->Locator->Initialize(); 
+    }
   output->Squeeze();
 
   cellIds->Delete();
   pts->Delete();
-  if ( cellVis ) delete [] cellVis;
+  if ( cellVis )
+    {
+    delete [] cellVis;
+    }
 }
 
 // Specify a spatial locator for merging points. By

@@ -59,7 +59,10 @@ vtkImplicitDataSet::vtkImplicitDataSet()
 vtkImplicitDataSet::~vtkImplicitDataSet()
 {
   this->SetDataSet(NULL);
-  if ( this->Weights ) delete [] this->Weights;
+  if ( this->Weights )
+    {
+    delete [] this->Weights;
+    }
 }
 
 // Evaluate the implicit function. This returns the interpolated scalar value
@@ -73,7 +76,10 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
-    if ( this->Weights ) delete [] this->Weights;
+    if ( this->Weights )
+      {
+      delete [] this->Weights;
+      }
     this->Weights = new float[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
     }
@@ -131,17 +137,23 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
-    if ( this->Weights ) delete [] this->Weights;
+    if ( this->Weights )
+      {
+      delete [] this->Weights;
+      }
     this->Weights = new float[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
     }
 
   // See if a dataset has been specified
   if ( !this->DataSet || 
-  !(scalars = this->DataSet->GetPointData()->GetScalars()) )
+       !(scalars = this->DataSet->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"Can't evaluate gradient!");
-    for ( i=0; i < 3; i++ ) n[i] = this->OutGradient[i];
+    for ( i=0; i < 3; i++ )
+      {
+      n[i] = this->OutGradient[i];
+      }
     return;
     }
 
@@ -162,7 +174,10 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
 
   else
     { // use outside value
-    for ( i=0; i < 3; i++ ) n[i] = this->OutGradient[i];
+    for ( i=0; i < 3; i++ )
+      {
+      n[i] = this->OutGradient[i];
+      }
     }
 }
 
