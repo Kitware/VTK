@@ -166,8 +166,12 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
   /* copy the file if different */
   info->CAPI->CopyFileIfDifferent(tempOutputFile, outFileName);
   info->CAPI->RemoveFile(tempOutputFile);
-  info->CAPI->FreeArguments(numCommands,capcommands);
-  info->CAPI->Free(tempOutputFile);
+  for ( i = 0; i < numCommands; i++ )
+    {
+    info->CAPI->Free(capcommands[i]);
+    }
+  free(capcommands);
+  free(tempOutputFile);
   info->CAPI->Free(kitName);
   free(outFileName);
 }
