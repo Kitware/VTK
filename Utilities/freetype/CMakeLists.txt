@@ -90,9 +90,6 @@ ENDIF (UNIX)
 #
 IF (APPLE)
   SET (VTKFREETYPE_USE_CARBON 1)
-#  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
-  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS 
-   "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -framework AppKit")
   SET( FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftmac.c)
 ENDIF (APPLE)
 
@@ -100,6 +97,9 @@ ENDIF (APPLE)
 # Define the library (and install it)
 #
 ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
+IF (APPLE)
+  TARGET_LINK_LIBRARIES(vtkfreetype "-framework AppKit")
+ENDIF (APPLE)
 INSTALL_TARGETS (/lib/vtk vtkfreetype)
 
 #
