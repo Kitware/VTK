@@ -43,25 +43,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // .SECTION Description
 // vtkImageActor is used to represent an imge entity in a rendering scene.
-// It inherits functions related to the image's position, orientation and
-// origin from vtkProp3D. 
 
 // .SECTION see also
-// vtkImageData vtkProp3D
+// vtkImageData vtkProp
 
 #ifndef __vtkImageActor_h
 #define __vtkImageActor_h
 
-#include "vtkProp3D.h"
+#include "vtkProp.h"
 #include "vtkImageData.h"
 
 class vtkPropCollection;
 class vtkRenderer;
 
-class VTK_EXPORT vtkImageActor : public vtkProp3D
+class VTK_EXPORT vtkImageActor : public vtkProp
 {
 public:
-  vtkTypeMacro(vtkImageActor,vtkProp3D);
+  vtkTypeMacro(vtkImageActor,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -93,7 +91,7 @@ public:
   // Get the bounds - either all six at once 
   // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
   float *GetBounds();
-  void GetBounds(float bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  void GetBounds(float bounds[6]);
 
 //BTX
   // Description:
@@ -118,6 +116,7 @@ protected:
   int   Interpolate;
   vtkImageData* Input;
   int DisplayExtent[6];
+  float         Bounds[6];
 };
 
 #endif

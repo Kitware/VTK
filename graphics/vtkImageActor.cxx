@@ -55,12 +55,15 @@ vtkImageActor::vtkImageActor()
 {
   this->Input = NULL;
   this->Interpolate = 1;
-  this->DisplayExtent[0] = 0;
+  this->DisplayExtent[0] = -1;
   this->DisplayExtent[1] = 0;
   this->DisplayExtent[2] = 0;
   this->DisplayExtent[3] = 0;
   this->DisplayExtent[4] = 0;
   this->DisplayExtent[5] = 0;  
+
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 }
 
 vtkImageActor::~vtkImageActor()
@@ -141,6 +144,18 @@ int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
   
   // make sure the data is available
   input->UpdateInformation();
+
+  // if the display extent has not been set, then compute one
+  int *wExtent = input->GetWholeExtent();
+  if (this->DisplayExtent[0] == -1)
+    {
+    this->DisplayExtent[0] = wExtent[0];
+    this->DisplayExtent[1] = wExtent[1];
+    this->DisplayExtent[2] = wExtent[2];
+    this->DisplayExtent[3] = wExtent[3];
+    this->DisplayExtent[4] = wExtent[4];
+    this->DisplayExtent[5] = wExtent[4];
+    }
   input->SetUpdateExtent(this->DisplayExtent);
   input->PropagateUpdateExtent();
   input->UpdateData();
@@ -160,6 +175,18 @@ float *vtkImageActor::GetBounds()
   this->Input->UpdateInformation();
   float *spacing = this->Input->GetSpacing();
   float *origin = this->Input->GetOrigin();
+
+  // if the display extent has not been set, then compute one
+  int *wExtent = this->Input->GetWholeExtent();
+  if (this->DisplayExtent[0] == -1)
+    {
+    this->DisplayExtent[0] = wExtent[0];
+    this->DisplayExtent[1] = wExtent[1];
+    this->DisplayExtent[2] = wExtent[2];
+    this->DisplayExtent[3] = wExtent[3];
+    this->DisplayExtent[4] = wExtent[4];
+    this->DisplayExtent[5] = wExtent[4];
+    }
   this->Bounds[0] = this->DisplayExtent[0]*spacing[0] + origin[0];
   this->Bounds[1] = this->DisplayExtent[1]*spacing[0] + origin[0];
   this->Bounds[2] = this->DisplayExtent[2]*spacing[1] + origin[1];
@@ -170,10 +197,28 @@ float *vtkImageActor::GetBounds()
   return this->Bounds;
 }
 
+// Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+void vtkImageActor::GetBounds(float bounds[6])
+{
+  this->GetBounds();
+  for (int i=0; i<6; i++)
+    {
+    bounds[i] = this->Bounds[i];
+    }
+}
+
 void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkProp3D::PrintSelf(os, indent);
+  this->vtkProp::PrintSelf(os, indent);
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
+
+  int idx;  
+  os << indent << "DisplayExtent: (" << this->DisplayExtent[0];
+  for (idx = 1; idx < 6; ++idx)
+    {
+    os << ", " << this->DisplayExtent[idx];
+    }
+  os << ")\n";
 }
