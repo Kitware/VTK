@@ -19,7 +19,7 @@
 
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkParametricRandomHills, "1.3");
+vtkCxxRevisionMacro(vtkParametricRandomHills, "1.4");
 vtkStandardNewMacro(vtkParametricRandomHills);
 
 vtkParametricRandomHills::vtkParametricRandomHills() :
@@ -92,8 +92,8 @@ void vtkParametricRandomHills::Evaluate(double uvw[3], double Pt[3], double Duvw
   for ( i = 0; i < NumberOfHills; ++i )
     {
     this->hillData->GetTuple(i,hillTuple);
-    const double x = (Pt[0] - hillTuple[0])/hillTuple[2];
-    const double y = (Pt[1] - hillTuple[1])/hillTuple[3];
+    double x = (u - hillTuple[0])/hillTuple[2];
+    double y = (v - hillTuple[1])/hillTuple[3];
     Pt[2] += hillTuple[4] * exp( -(x*x+y*y) / 2.0 );
     }
 }
