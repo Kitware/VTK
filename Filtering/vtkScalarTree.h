@@ -68,6 +68,7 @@ typedef struct _vtkScalarRange
   float max;
 } vtkScalarRange;
 
+class vtkFloatArray;
 
 class VTK_EXPORT vtkScalarTree : public vtkObject
 {
@@ -123,6 +124,8 @@ public:
   // exhausted. Make sure that InitTraversal() has been invoked first or
   // you'll get erratic behavior.
   vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
+                       vtkDataArray *cellScalars);
+  vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
                        vtkScalars *cellScalars);
 
 protected:
@@ -132,7 +135,7 @@ protected:
   void operator=(const vtkScalarTree&) {};
 
   vtkDataSet *DataSet;
-  vtkScalars *Scalars;
+  vtkDataArray *Scalars;
   int MaxLevel;
   int Level;
   int BranchingFactor; //number of children per node

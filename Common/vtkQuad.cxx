@@ -420,7 +420,7 @@ static LINE_CASES lineCases[] = {
   {{-1, -1, -1, -1, -1}}
 };
 
-void vtkQuad::Contour(float value, vtkScalars *cellScalars, 
+void vtkQuad::Contour(float value, vtkDataArray *cellScalars, 
 		      vtkPointLocator *locator, 
 		      vtkCellArray *vtkNotUsed(verts), 
 		      vtkCellArray *lines, 
@@ -440,7 +440,7 @@ void vtkQuad::Contour(float value, vtkScalars *cellScalars,
   // Build the case table
   for ( i=0, index = 0; i < 4; i++)
     {
-    if (cellScalars->GetScalar(i) >= value)
+    if (cellScalars->GetComponent(i,0) >= value)
       {
       index |= CASE_MASK[i];
       }
@@ -455,7 +455,8 @@ void vtkQuad::Contour(float value, vtkScalars *cellScalars,
       {
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      deltaScalar = (cellScalars->GetComponent(vert[1],0) 
+		     - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
         {
         e1 = vert[0]; e2 = vert[1];
@@ -473,7 +474,7 @@ void vtkQuad::Contour(float value, vtkScalars *cellScalars,
 	}
       else
 	{
-	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+	t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
 	}
 
       this->Points->GetPoint(e1, x1);
@@ -757,7 +758,7 @@ static QUAD_CASES quadCasesComplement[] = {
 
 // Clip this quad using scalar value provided. Like contouring, except
 // that it cuts the quad to produce other quads and/or triangles.
-void vtkQuad::Clip(float value, vtkScalars *cellScalars, 
+void vtkQuad::Clip(float value, vtkDataArray *cellScalars, 
                    vtkPointLocator *locator, vtkCellArray *polys,
                    vtkPointData *inPd, vtkPointData *outPd,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -779,7 +780,7 @@ void vtkQuad::Clip(float value, vtkScalars *cellScalars,
     {    
     for ( i=0, index = 0; i < 4; i++)
       {
-      if (cellScalars->GetScalar(i) <= value)
+      if (cellScalars->GetComponent(i,0) <= value)
 	{
         index |= CASE_MASK[i];
 	}
@@ -791,7 +792,7 @@ void vtkQuad::Clip(float value, vtkScalars *cellScalars,
     {
     for ( i=0, index = 0; i < 4; i++)
       {
-      if (cellScalars->GetScalar(i) > value)
+      if (cellScalars->GetComponent(i,0) > value)
 	{
         index |= CASE_MASK[i];
 	}
@@ -823,8 +824,8 @@ void vtkQuad::Clip(float value, vtkScalars *cellScalars,
         vert = edges[edge[i+1]];
 
         // calculate a preferred interpolation direction
-        scalar0 = cellScalars->GetScalar(vert[0]);
-        scalar1 = cellScalars->GetScalar(vert[1]);
+        scalar0 = cellScalars->GetComponent(vert[0],0);
+        scalar1 = cellScalars->GetComponent(vert[1],0);
         deltaScalar = scalar1 - scalar0;
 
         if (deltaScalar > 0)

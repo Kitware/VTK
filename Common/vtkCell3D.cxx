@@ -53,7 +53,7 @@ vtkCell3D::~vtkCell3D()
     }
 }
 
-void vtkCell3D::Clip(float value, vtkScalars *cellScalars, 
+void vtkCell3D::Clip(float value, vtkDataArray *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *tets,
                      vtkPointData *inPD, vtkPointData *outPD,
                      vtkCellData *vtkNotUsed(inCD),
@@ -89,7 +89,7 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
       
     // Currently all points are injected because of the possibility 
     // of intersection point merging.
-    s1 = cellScalars->GetScalar(i);
+    s1 = cellScalars->GetComponent(i,0);
     if ( (s1 >= value && !insideOut) || (s1 < value && insideOut) )
       {
       type = 0; //inside
@@ -113,8 +113,8 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
   for (int edgeNum=0; edgeNum < numEdges; edgeNum++)
     {
     cell3D->GetEdgePoints(edgeNum, edges);
-    s1 = cellScalars->GetScalar(edges[0]);
-    s2 = cellScalars->GetScalar(edges[1]);
+    s1 = cellScalars->GetComponent(edges[0],0);
+    s2 = cellScalars->GetComponent(edges[1],0);
     if ( (s1 < value && s2 >= value) || (s1 >= value && s2 < value) )
       {
       t = (value - s1) / (s2 - s1);

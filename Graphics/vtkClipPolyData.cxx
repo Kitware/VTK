@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLine.h"
 #include "vtkTriangle.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //--------------------------------------------------------------------------
 vtkClipPolyData* vtkClipPolyData::New()
@@ -129,8 +130,8 @@ void vtkClipPolyData::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkIdType cellId, i, updateTime;
   vtkPoints *cellPts;
-  vtkScalars *clipScalars;
-  vtkScalars *cellScalars; 
+  vtkDataArray *clipScalars;
+  vtkFloatArray *cellScalars; 
   vtkGenericCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys, *connList=NULL;
   vtkCellArray *clippedVerts=NULL, *clippedLines=NULL;
@@ -191,8 +192,8 @@ void vtkClipPolyData::Execute()
   // and to necessary setup.
   if ( this->ClipFunction )
     {
-    vtkScalars *tmpScalars = vtkScalars::New();
-    tmpScalars->SetNumberOfScalars(numPts);
+    vtkFloatArray *tmpScalars = vtkFloatArray::New();
+    tmpScalars->SetNumberOfTuples(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());//copies original
     if ( this->GenerateClipScalars )
@@ -202,13 +203,13 @@ void vtkClipPolyData::Execute()
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(inPts->GetPoint(i));
-      tmpScalars->SetScalar(i,s);
+      tmpScalars->SetComponent(i,0,s);
       }
-    clipScalars = (vtkScalars *)tmpScalars;
+    clipScalars = tmpScalars;
     }
   else //using input scalars
     {
-    clipScalars = inPD->GetScalars();
+    clipScalars = inPD->GetActiveScalars();
     if ( !clipScalars )
       {
       vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
@@ -241,7 +242,7 @@ void vtkClipPolyData::Execute()
     clippedPolys->Allocate(estimatedSize,estimatedSize/2);
     }
 
-  cellScalars = vtkScalars::New();
+  cellScalars = vtkFloatArray::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   
   // perform clipping on cells
@@ -258,8 +259,8 @@ void vtkClipPolyData::Execute()
     // evaluate implicit cutting function
     for ( i=0; i < numberOfPoints; i++ )
       {
-      s = clipScalars->GetScalar(cellIds->GetId(i));
-      cellScalars->InsertScalar(i, s);
+      s = clipScalars->GetComponent(cellIds->GetId(i),0);
+      cellScalars->InsertTuple(i, &s);
       }
 
     switch ( cell->GetCellDimension() )

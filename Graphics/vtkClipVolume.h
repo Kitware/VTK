@@ -168,7 +168,7 @@ protected:
   void operator=(const vtkClipVolume&) {};
 
   void Execute();
-  void ClipVoxel(float value, vtkScalars *cellScalars, int flip,
+  void ClipVoxel(float value, vtkDataArray *cellScalars, int flip,
                  float origin[3], float spacing[3], vtkIdList *cellIds,
 		 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD,
 		 vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 

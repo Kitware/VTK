@@ -234,7 +234,7 @@ static VERT_CASES vertCases[4]= {
   {{0,1}},
   {{-1,-1}}};
 
-void vtkLine::Contour(float value, vtkScalars *cellScalars, 
+void vtkLine::Contour(float value, vtkDataArray *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *verts, 
                       vtkCellArray *vtkNotUsed(lines), 
                       vtkCellArray *vtkNotUsed(polys), 
@@ -253,7 +253,7 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
   //
   for ( i=0, index = 0; i < 2; i++)
     {
-    if (cellScalars->GetScalar(i) >= value) 
+    if (cellScalars->GetComponent(i,0) >= value) 
       {
       index |= CASE_MASK[i];
       }
@@ -264,8 +264,8 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
 
   if ( vert[0] > -1 )
     {
-    t = (value - cellScalars->GetScalar(vert[0])) /
-        (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+    t = (value - cellScalars->GetComponent(vert[0],0)) /
+        (cellScalars->GetComponent(vert[1],0) - cellScalars->GetComponent(vert[0],0));
     x1 = this->Points->GetPoint(vert[0]);
     x2 = this->Points->GetPoint(vert[1]);
     for (i=0; i<3; i++)
@@ -525,7 +525,7 @@ static LINE_CASES lineCases[] = {
 
 // Clip this line using scalar value provided. Like contouring, except
 // that it cuts the line to produce other lines.
-void vtkLine::Clip(float value, vtkScalars *cellScalars, 
+void vtkLine::Clip(float value, vtkDataArray *cellScalars, 
                    vtkPointLocator *locator, vtkCellArray *lines,
                    vtkPointData *inPd, vtkPointData *outPd,
                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
@@ -543,7 +543,7 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
     {    
     for ( i=0, index = 0; i < 2; i++)
       {
-      if (cellScalars->GetScalar(i) <= value)
+      if (cellScalars->GetComponent(i,0) <= value)
         {
         index |= CASE_MASK[i];
         }
@@ -553,7 +553,7 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
     {
     for ( i=0, index = 0; i < 2; i++)
       {
-      if (cellScalars->GetScalar(i) > value)
+      if (cellScalars->GetComponent(i,0) > value)
         {
         index |= CASE_MASK[i];
         }
@@ -582,8 +582,8 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
 
       else //new vertex, interpolate
         {
-        t = (value - cellScalars->GetScalar(0)) /
-            (cellScalars->GetScalar(1) - cellScalars->GetScalar(0));
+        t = (value - cellScalars->GetComponent(0,0)) /
+            (cellScalars->GetComponent(1,0) - cellScalars->GetComponent(0,0));
 
         this->Points->GetPoint(0, x1);
         this->Points->GetPoint(1, x2);

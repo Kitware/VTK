@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 #include "vtkContourFilter.h"
-#include "vtkScalars.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
 #include "vtkContourValues.h"
@@ -125,8 +124,7 @@ void vtkContourFilter::Execute()
   vtkIdType cellId;
   int i, abortExecute=0;
   vtkIdList *cellPts;
-  vtkScalars *inScalars;
-  float range[2];
+  vtkDataArray *inScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkDataSet *input=this->GetInput();
@@ -136,7 +134,7 @@ void vtkContourFilter::Execute()
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
-  vtkScalars *cellScalars;
+  vtkDataArray *cellScalars;
 
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -161,14 +159,12 @@ void vtkContourFilter::Execute()
   else
     {
     numCells = input->GetNumberOfCells();
-    inScalars = input->GetPointData()->GetScalars();
+    inScalars = input->GetPointData()->GetActiveScalars();
     if ( ! inScalars || numCells < 1 )
       {
       vtkErrorMacro(<<"No data to contour");
       return;
       }
-
-    inScalars->GetRange(range);
 
     // Create objects to hold output of contour operation. First estimate
     // allocation size.
@@ -189,8 +185,8 @@ void vtkContourFilter::Execute()
     newLines->Allocate(estimatedSize,estimatedSize);
     newPolys = vtkCellArray::New();
     newPolys->Allocate(estimatedSize,estimatedSize);
-    cellScalars = vtkScalars::New();
-    cellScalars->Allocate(VTK_CELL_SIZE);
+    cellScalars = inScalars->MakeObject();
+    cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
     
     // locator used to merge potentially duplicate points
     if ( this->Locator == NULL )
@@ -218,7 +214,7 @@ void vtkContourFilter::Execute()
         {
         input->GetCell(cellId,cell);
         cellPts = cell->GetPointIds();
-        inScalars->GetScalars(cellPts,cellScalars);
+        inScalars->GetTuples(cellPts,cellScalars);
         
         if ( ! (cellId % 5000) ) 
           {

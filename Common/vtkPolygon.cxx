@@ -69,7 +69,7 @@ vtkPolygon::vtkPolygon()
   this->Tris->Allocate(VTK_CELL_SIZE);
   this->Triangle = vtkTriangle::New();
   this->Quad = vtkQuad::New();
-  this->TriScalars = vtkScalars::New();
+  this->TriScalars = vtkFloatArray::New();
   this->TriScalars->Allocate(3);
   this->Line = vtkLine::New();
 }
@@ -1001,7 +1001,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
 }
 
-void vtkPolygon::Contour(float value, vtkScalars *cellScalars, 
+void vtkPolygon::Contour(float value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator,
                          vtkCellArray *verts, vtkCellArray *lines, 
                          vtkCellArray *polys,
@@ -1013,7 +1013,7 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
   float *bounds, d;
   int p1, p2, p3;
 
-  this->TriScalars->SetNumberOfScalars(3);
+  this->TriScalars->SetNumberOfTuples(3);
 
   bounds = this->GetBounds();
   
@@ -1050,9 +1050,9 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
         this->Triangle->PointIds->SetId(2,this->PointIds->GetId(p3));
         }
 
-      this->TriScalars->SetScalar(0,cellScalars->GetScalar(p1));
-      this->TriScalars->SetScalar(1,cellScalars->GetScalar(p2));
-      this->TriScalars->SetScalar(2,cellScalars->GetScalar(p3));
+      this->TriScalars->SetTuple(0,cellScalars->GetTuple(p1));
+      this->TriScalars->SetTuple(1,cellScalars->GetTuple(p2));
+      this->TriScalars->SetTuple(2,cellScalars->GetTuple(p3));
 
       this->Triangle->Contour(value, this->TriScalars, locator, verts,
                    lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -1284,7 +1284,7 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   delete [] sample;
 }
 
-void vtkPolygon::Clip(float value, vtkScalars *cellScalars, 
+void vtkPolygon::Clip(float value, vtkDataArray *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *tris,
                       vtkPointData *inPD, vtkPointData *outPD,
                       vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD,
@@ -1294,7 +1294,7 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
   float *bounds, d;
   int p1, p2, p3;
 
-  this->TriScalars->SetNumberOfScalars(3);
+  this->TriScalars->SetNumberOfTuples(3);
 
   bounds = this->GetBounds();
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -1325,9 +1325,9 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
       this->Triangle->PointIds->SetId(1,this->PointIds->GetId(p2));
       this->Triangle->PointIds->SetId(2,this->PointIds->GetId(p3));
 
-      this->TriScalars->SetScalar(0,cellScalars->GetScalar(p1));
-      this->TriScalars->SetScalar(1,cellScalars->GetScalar(p2));
-      this->TriScalars->SetScalar(2,cellScalars->GetScalar(p3));
+      this->TriScalars->SetTuple(0,cellScalars->GetTuple(p1));
+      this->TriScalars->SetTuple(1,cellScalars->GetTuple(p2));
+      this->TriScalars->SetTuple(2,cellScalars->GetTuple(p3));
 
       this->Triangle->Clip(value, this->TriScalars, locator, tris, 
                           inPD, outPD, inCD, cellId, outCD, insideOut);

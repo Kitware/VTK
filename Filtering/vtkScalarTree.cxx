@@ -103,7 +103,7 @@ void vtkScalarTree::BuildTree()
   vtkIdList *cellPts;
   vtkScalarRange *tree, *parent;
   float *s;
-  vtkScalars *cellScalars;
+  vtkFloatArray *cellScalars;
 
   // Check input...see whether we have to rebuild
   //
@@ -121,7 +121,7 @@ void vtkScalarTree::BuildTree()
 
   vtkDebugMacro( << "Building scalar tree..." );
 
-  this->Scalars = this->DataSet->GetPointData()->GetScalars();
+  this->Scalars = this->DataSet->GetPointData()->GetActiveScalars();
   if ( ! this->Scalars )
     {
     vtkErrorMacro( << "No scalar data to build trees with");
@@ -129,7 +129,7 @@ void vtkScalarTree::BuildTree()
     }
 
   this->Initialize();
-  cellScalars = vtkScalars::New();
+  cellScalars = vtkFloatArray::New();
   cellScalars->Allocate(100);
   
   // Compute the number of levels in the tree
@@ -160,9 +160,10 @@ void vtkScalarTree::BuildTree()
       {
       cell = this->DataSet->GetCell(cellId);
       cellPts = cell->GetPointIds();
-      this->Scalars->GetScalars(cellPts, cellScalars);
-      s = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
-      numScalars = cellScalars->GetNumberOfScalars();
+      numScalars = cellPts->GetNumberOfIds();
+      cellScalars->SetNumberOfTuples(numScalars);
+      this->Scalars->GetTuples(cellPts, cellScalars);
+      s = cellScalars->GetPointer(0);
 
       for ( j=0; j < numScalars; j++ )
         {
@@ -317,8 +318,16 @@ int vtkScalarTree::FindNextLeaf(vtkIdType childIndex, int childLevel)
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior.
 vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
-                                    vtkScalars *cellScalars)
+                                    vtkDataArray *cellScalars)
 {
+  vtkFloatArray* array = vtkFloatArray::SafeDownCast(cellScalars);
+  if (!array)
+    {
+    vtkErrorMacro("Expected a float array in scalars, got an array of type:"
+		  << cellScalars->GetDataType());
+    return 0;
+    }
+
   float *s, min=VTK_LARGE_FLOAT, max=(-VTK_LARGE_FLOAT);
   vtkIdType i, numScalars;
   vtkCell *cell;
@@ -331,9 +340,10 @@ vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
       {
       cell = this->DataSet->GetCell(this->CellId);
       cellPts = cell->GetPointIds();
-      this->Scalars->GetScalars(cellPts, cellScalars);
-      s = ((vtkFloatArray *)cellScalars->GetData())->GetPointer(0);
-      numScalars = cellScalars->GetNumberOfScalars();
+      numScalars = cellPts->GetNumberOfIds();
+      array->SetNumberOfTuples(numScalars);
+      this->Scalars->GetTuples(cellPts, array);
+      s = array->GetPointer(0);
       for (i=0; i < numScalars; i++)
         {
         if ( s[i] < min )
@@ -359,6 +369,23 @@ vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
     } //while not all leafs visited
 
   return NULL;
+}
+vtkCell *vtkScalarTree::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
+                                    vtkScalars *cellScalars)
+{
+  VTK_LEGACY_METHOD("Clip", "4.0");
+  vtkFloatArray* array = vtkFloatArray::SafeDownCast(cellScalars->GetData());
+  if (array)
+    {
+    return this->GetNextCell(cellId, cellPts, array);
+    }
+  else
+    {
+    vtkErrorMacro("Expected a float array in scalars, got an array of type:"
+		  << cellScalars->GetDataType());
+    return 0;
+    }
+
 }
 
 

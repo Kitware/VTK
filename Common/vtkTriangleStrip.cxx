@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellArray.h"
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
   return this->Triangle->CellBoundary(0, pcoords, pts);
 }
 
-void vtkTriangleStrip::Contour(float value, vtkScalars *cellScalars, 
+void vtkTriangleStrip::Contour(float value, vtkDataArray *cellScalars, 
                                vtkPointLocator *locator, vtkCellArray *verts, 
                                vtkCellArray *lines, vtkCellArray *polys, 
                                vtkPointData *inPd, vtkPointData *outPd,
@@ -174,8 +174,8 @@ void vtkTriangleStrip::Contour(float value, vtkScalars *cellScalars,
                                vtkCellData *outCd)
 {
   int i, numTris=this->Points->GetNumberOfPoints()-2;
-  vtkScalars *triScalars=vtkScalars::New();
-  triScalars->SetNumberOfScalars(3);
+  vtkDataArray *triScalars=cellScalars->MakeObject();
+  triScalars->SetNumberOfTuples(3);
 
   for ( i=0; i < numTris; i++)
     {
@@ -190,9 +190,9 @@ void vtkTriangleStrip::Contour(float value, vtkScalars *cellScalars,
       this->Triangle->PointIds->SetId(2,this->PointIds->GetId(i+2));
       }
 
-    triScalars->SetScalar(0,cellScalars->GetScalar(i));
-    triScalars->SetScalar(1,cellScalars->GetScalar(i+1));
-    triScalars->SetScalar(2,cellScalars->GetScalar(i+2));
+    triScalars->SetTuple(0,cellScalars->GetTuple(i));
+    triScalars->SetTuple(1,cellScalars->GetTuple(i+1));
+    triScalars->SetTuple(2,cellScalars->GetTuple(i+2));
 
     this->Triangle->Contour(value, triScalars, locator, verts,
 			   lines, polys, inPd, outPd, inCd, cellId, outCd);
@@ -317,7 +317,7 @@ void vtkTriangleStrip::DecomposeStrip(int npts, vtkIdType *pts,
     }
 }
 
-void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars, 
+void vtkTriangleStrip::Clip(float value, vtkDataArray *cellScalars, 
                             vtkPointLocator *locator, vtkCellArray *tris,
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, vtkIdType cellId,
@@ -325,8 +325,8 @@ void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars,
 {
   int i, numTris=this->Points->GetNumberOfPoints()-2;
   int id1, id2, id3;
-  vtkScalars *triScalars=vtkScalars::New();
-  triScalars->SetNumberOfScalars(3);
+  vtkDataArray *triScalars=cellScalars->MakeObject();
+  triScalars->SetNumberOfTuples(3);
 
   for ( i=0; i < numTris; i++)
     {
@@ -347,9 +347,9 @@ void vtkTriangleStrip::Clip(float value, vtkScalars *cellScalars,
     this->Triangle->PointIds->SetId(1,this->PointIds->GetId(id2));
     this->Triangle->PointIds->SetId(2,this->PointIds->GetId(id3));
 
-    triScalars->SetScalar(0,cellScalars->GetScalar(id1));
-    triScalars->SetScalar(1,cellScalars->GetScalar(id2));
-    triScalars->SetScalar(2,cellScalars->GetScalar(id3));
+    triScalars->SetTuple(0,cellScalars->GetTuple(id1));
+    triScalars->SetTuple(1,cellScalars->GetTuple(id2));
+    triScalars->SetTuple(2,cellScalars->GetTuple(id3));
 
     this->Triangle->Clip(value, triScalars, locator, tris, inPd, outPd, 
 			inCd, cellId, outCd, insideOut);
