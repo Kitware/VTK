@@ -358,6 +358,16 @@ public:
   
 
   // Description:
+  // Different methods for setting the Origin.
+  void SetOrigin(float *origin, int dim);
+  vtkImageRegionSetMacro(Origin, float);
+  // Description:
+  // Different methods for getting the Origin.
+  void GetOrigin(float *origin, int dim);
+  vtkImageRegionGetMacro(Origin, float);
+  
+
+  // Description:
   // Different methods for setting the axes.
   void SetAxes(int *axes, int dim);
   vtkImageRegionSetMacro(Axes, int);
@@ -445,6 +455,7 @@ protected:
   // Possibly make a new object to hold global information like ImageBounds.
   int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
   float AspectRatio[VTK_IMAGE_DIMENSIONS];
+  float Origin[VTK_IMAGE_DIMENSIONS];
 
   // Helper methods.
   void ChangeBoundsCoordinateSystem(int *boundsIn, int *axesIn,

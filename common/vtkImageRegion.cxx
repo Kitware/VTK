@@ -60,6 +60,7 @@ vtkImageRegion::vtkImageRegion()
   this->SetImageBounds5d(0,0, 0,0, 0,0, 0,0, 0,0);
   this->ResetDefaultCoordinates(5);
   this->SetAspectRatio5d(0.0, 0.0, 0.0, 0.0, 0.0);
+  this->SetOrigin5d(0.0, 0.0, 0.0, 0.0, 0.0);
 }
 
 
@@ -108,6 +109,12 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   os << this->AspectRatio[1] << ", ";
   os << this->AspectRatio[2] << ", ";
   os << this->AspectRatio[3] << ")\n";
+
+  os << indent << "Origin: (";
+  os << this->Origin[0] << ", ";
+  os << this->Origin[1] << ", ";
+  os << this->Origin[2] << ", ";
+  os << this->Origin[3] << ")\n";
 
   os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
      << "\n";
@@ -236,6 +243,8 @@ void vtkImageRegion::UpdateImageInformation(vtkImageRegion *region)
   region->SetImageBounds(this->GetBounds());
   // Set the aspect Ratio
   region->SetAspectRatio(this->GetAspectRatio());
+  // Set the origin
+  region->SetOrigin(this->GetOrigin());
   // Restore coordinate system to the way it was.
   region->SetAxes(axesSave);
 }
@@ -684,6 +693,8 @@ void vtkImageRegion::SetAxes(int *axes, int dim)
 				     this->DefaultCoordinates, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->AspectRatio, this->Axes,
 					     this->AspectRatio, allAxes);
+  vtkImageRegionChangeVectorCoordinateSystem(this->Origin, this->Axes,
+					     this->Origin, allAxes);
   vtkImageRegionChangeVectorCoordinateSystem(this->Increments, this->Axes,
 					     this->Increments, allAxes);
   this->ChangeBoundsCoordinateSystem(this->Bounds, this->Axes,
@@ -818,6 +829,31 @@ void vtkImageRegion::GetAspectRatio(float *ratio, int dim)
   for (idx = 0; idx < dim; ++idx)
     {
     ratio[idx] = this->AspectRatio[idx];
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageRegion::SetOrigin(float *ratio, int dim)
+{
+  int idx;
+  
+  for (idx = 0; idx < dim; ++idx)
+    {
+    this->Origin[idx] = ratio[idx];
+    }
+  
+  this->Modified();
+}
+//----------------------------------------------------------------------------
+void vtkImageRegion::GetOrigin(float *ratio, int dim)
+{
+  int idx;
+  
+  for (idx = 0; idx < dim; ++idx)
+    {
+    ratio[idx] = this->Origin[idx];
     }
 }
 
