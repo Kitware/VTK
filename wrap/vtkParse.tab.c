@@ -856,6 +856,9 @@ int main(int argc,char *argv[])
   ret = yyparse();
   if (ret)
     {
+    fprintf(stdout,
+            "*** SYNTAX ERROR found in parsing the header file %s ***\n", 
+            argv[1]);
     return ret;
     }
   vtkParseOutput(stdout,&data);
