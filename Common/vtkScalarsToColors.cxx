@@ -69,7 +69,6 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
     newColors = vtkUnsignedCharArray::New();
     newColors->SetNumberOfComponents(4);
     newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
-    newColors->Register(this);
     this->
       MapScalarsThroughTable2(scalars->GetVoidPointer(comp), 
                               newColors->GetPointer(0),
