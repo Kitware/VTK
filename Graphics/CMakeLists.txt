@@ -128,7 +128,6 @@ vtkTriangularTCoords
 vtkTubeFilter
 vtkVectorDot
 vtkVectorNorm
-vtkVectorTopology
 vtkVoxelContoursToSurfaceFilter
 vtkWarpLens
 vtkWarpScalar
