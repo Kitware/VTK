@@ -23,7 +23,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkPolyDataWriter, "1.23");
+vtkCxxRevisionMacro(vtkPolyDataWriter, "1.24");
 vtkStandardNewMacro(vtkPolyDataWriter);
 
 //----------------------------------------------------------------------------
@@ -56,10 +56,18 @@ void vtkPolyDataWriter::WriteData()
     {
     if (fp)
       {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
+      if(this->FileName)
+        {
+        vtkErrorMacro("Ran out of disk space; deleting file: "
+                      << this->FileName);
+        this->CloseVTKFile(fp);
+        unlink(this->FileName);
+        }
+      else
+        {
+        this->CloseVTKFile(fp);
+        vtkErrorMacro("Could not read memory header. ");
+        }
       }
     return;
     }
@@ -70,82 +78,69 @@ void vtkPolyDataWriter::WriteData()
   
   //
   // Write data owned by the dataset
+  int errorOccured = 0;
   if (!this->WriteDataSetData(fp, input))
     {
-    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
-    this->CloseVTKFile(fp);
-    unlink(this->FileName);
-    return;
+    errorOccured = 1;
     }
-
-  if (!this->WritePoints(fp, input->GetPoints()))
+  if (!errorOccured && !this->WritePoints(fp, input->GetPoints()))
     {
-    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
-    this->CloseVTKFile(fp);
-    unlink(this->FileName);
-    return;
+    errorOccured = 1;
     }
 
-  if (input->GetVerts())
+  if (!errorOccured && input->GetVerts())
     {
     if (!this->WriteCells(fp, input->GetVerts(),"VERTICES"))
       {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
+      errorOccured = 1;
       }
     }
-  if (input->GetLines())
+  if (!errorOccured && input->GetLines())
     {
     if (!this->WriteCells(fp, input->GetLines(),"LINES"))
       {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
+      errorOccured = 1;
       }
     }
-  if (input->GetPolys())
+  if (!errorOccured && input->GetPolys())
     {
     if (!this->WriteCells(fp, input->GetPolys(),"POLYGONS"))
       {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
+      errorOccured = 1;
       }
     }
-  if (input->GetStrips())
+  if (!errorOccured && input->GetStrips())
     {
     if (!this->WriteCells(fp, input->GetStrips(),"TRIANGLE_STRIPS"))
       {
-      vtkErrorMacro("Ran out of disk space; deleting file: "
-                    << this->FileName);
-      this->CloseVTKFile(fp);
-      unlink(this->FileName);
-      return;
+      errorOccured = 1;
       }
     }
 
-  if (!this->WriteCellData(fp, input))
+  if (!errorOccured && !this->WriteCellData(fp, input))
     {
-    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
-    this->CloseVTKFile(fp);
-    unlink(this->FileName);
-    return;
+    errorOccured = 1;
     }
-  if (!this->WritePointData(fp, input))
+  if (!errorOccured && !this->WritePointData(fp, input))
     {
-    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
-    this->CloseVTKFile(fp);
-    unlink(this->FileName);
-    return;
+    errorOccured = 1;
     }
 
+  if(errorOccured)
+    {
+    if(this->FileName)
+      {
+      vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+      this->CloseVTKFile(fp);
+      unlink(this->FileName);
+      }
+    else
+      {
+      vtkErrorMacro("Error writting data set to memory");
+      this->CloseVTKFile(fp);
+      }
+    return;
+    }
   this->CloseVTKFile(fp);
 }
 
