@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.16");
+vtkCxxRevisionMacro(vtkImageActor, "1.17");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -37,6 +37,7 @@ vtkImageActor::vtkImageActor()
 {
   this->Input = NULL;
   this->Interpolate = 1;
+  this->Opacity = 1.0;
   this->DisplayExtent[0] = -1;
   this->DisplayExtent[1] = 0;
   this->DisplayExtent[2] = 0;
@@ -116,8 +117,30 @@ void vtkImageActor::GetDisplayExtent(int extent[6])
     }
 }
 
-
 // Renders an actor2D's property and then it's mapper.
+int vtkImageActor::RenderTranslucentGeometry(vtkViewport* viewport)
+{
+  vtkDebugMacro(<< "vtkImageActor::RenderTranslucentGeometry");
+
+  vtkImageData *input = this->GetInput();
+  if (!input)
+    {
+    return 0;
+    }
+
+  // render the texture map
+  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
+    {
+    if (!(this->Opacity >= 1.0 && input->GetNumberOfScalarComponents() % 2))
+      {
+      this->Load(vtkRenderer::SafeDownCast(viewport));
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
 int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkImageActor::RenderOpaqueGeometry");
@@ -148,14 +171,18 @@ int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
   // render the texture map
   if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
     {
-    this->Load(vtkRenderer::SafeDownCast(viewport));
-    return 1;
+    if (this->Opacity >= 1.0 && input->GetNumberOfScalarComponents() % 2)
+      {
+      this->Load(vtkRenderer::SafeDownCast(viewport));
+      return 1;
+      }
     }
   else
     {
     vtkErrorMacro(<<"This filter requires unsigned char scalars as input");
-    return 0;
     }
+
+  return 0;
 }
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -206,6 +233,7 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");
+  os << indent << "Opacity: " << this->Opacity << "\n";
 
   int idx;  
   os << indent << "DisplayExtent: (" << this->DisplayExtent[0];

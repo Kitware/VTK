@@ -30,7 +30,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.25");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.26");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -436,7 +436,7 @@ void vtkOpenGLImageActor::Load(vtkRenderer *ren)
   glDisable(GL_COLOR_MATERIAL);
   glDisable (GL_CULL_FACE);
   glDisable( GL_LIGHTING );
-  glColor3f( 1.0, 1.0, 1.0 );
+  glColor4f( 1.0, 1.0, 1.0, this->Opacity );
   glBegin( GL_QUADS );
   for (int i = 0; i < 4; i++ )
     {

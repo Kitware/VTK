@@ -60,6 +60,12 @@ public:
   vtkBooleanMacro(Interpolate,int);
 
   // Description:
+  // Set/Get the object's opacity. 1.0 is totally opaque and 0.0 is completely
+  // transparent.
+  vtkSetClampMacro(Opacity,double,0.0,1.0);
+  vtkGetMacro(Opacity,double);
+
+  // Description:
   // The image extent is generally set explicitly, but if not set
   // it will be determined from the input image data.
   void SetDisplayExtent(int extent[6]);
@@ -85,7 +91,7 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Support the standard render methods.
-  // int RenderTranslucentGeometry(vtkViewport *viewport);
+  int RenderTranslucentGeometry(vtkViewport *viewport);
   int RenderOpaqueGeometry(vtkViewport *viewport);
   virtual void Load(vtkRenderer *) {};
 //ETX
@@ -112,6 +118,7 @@ protected:
   ~vtkImageActor();
 
   int           Interpolate;
+  double        Opacity;
   vtkImageData* Input;
   int           DisplayExtent[6];
   double        Bounds[6];
