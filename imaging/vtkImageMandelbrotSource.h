@@ -86,9 +86,15 @@ public:
   vtkGetVector4Macro(OriginCX, double);
 
   // Description:
-  // Set/Get the spacing used to specify the scale of the image.
-  vtkSetMacro(Spacing, double);
-  vtkGetMacro(Spacing, double);
+  // Imaginary and real value for C (contant in equation) 
+  // and X (initial value).
+  vtkSetVector4Macro(SpacingCX, double);
+  //void SetOriginCX(double cReal, double cImag, double xReal, double xImag);
+  vtkGetVector4Macro(SpacingCX, double);
+
+  // Description:
+  // Convienence/Legacy - set all the spacing values the same.
+  void SetSpacing(double v) {this->SetSpacingCX(v, v, v, v);}
 
   // Description:
   // The maximum number of cycles run to see if the value goes over 2
@@ -120,7 +126,7 @@ protected:
   // Complex constant/initial-value at origin.
   double OriginCX[4];
   // Initial complex value at origin.
-  double Spacing;
+  double SpacingCX[4];
   unsigned short MaximumNumberOfIterations;
 
   void Execute(vtkImageData *outData);
