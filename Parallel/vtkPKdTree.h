@@ -285,7 +285,7 @@ protected:
   ~vtkPKdTree();
 
   void SingleProcessBuildLocator();
-  int MultiProcessBuildLocator();
+  int MultiProcessBuildLocator(double *bounds);
 
 private:
 

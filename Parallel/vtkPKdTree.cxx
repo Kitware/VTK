@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.9");
+vtkCxxRevisionMacro(vtkPKdTree, "1.10");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -364,13 +364,14 @@ void vtkPKdTree::BuildLocator()
     rebuildLocator = 1;
     } 
 
-  if (this->NumProcesses == 1){
+  if (this->NumProcesses == 1)
+    {
     if (rebuildLocator)
       {
       this->SingleProcessBuildLocator();
       }
     return;
-  }
+    }
 
   TIMER("Determine if we need to rebuild");
 
@@ -390,11 +391,33 @@ void vtkPKdTree::BuildLocator()
     {
     TIMER("Build k-d tree");
 
-    this->AllCheckParameters();
+    this->FreeSearchStructure();
+    this->ReleaseTables();
 
-    fail = this->MultiProcessBuildLocator();
+    this->AllCheckParameters();   // global operation to ensure same parameters
+
+    double *volBounds = this->VolumeBounds();  // global operation to get bounds
+
+    if (volBounds == NULL)
+      {
+      goto doneError;
+      }
+
+    if (this->UserDefinedCuts)
+      {
+      fail = this->ProcessUserDefinedCuts(volBounds);
+      }
+    else
+      {
+      fail = this->MultiProcessBuildLocator(volBounds);
+      }
+
+    FreeList(volBounds);
 
     if (fail) goto doneError;
+
+    this->SetActualLevel();
+    this->BuildRegionList();
 
     TIMERDONE("Build k-d tree");
     }
@@ -421,10 +444,9 @@ done:
 
   return;
 }
-int vtkPKdTree::MultiProcessBuildLocator()
+int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 {
   int retVal = 0;
-  double *volBounds = NULL;
 
   vtkDebugMacro( << "Creating Kdtree in parallel" );
 
@@ -432,10 +454,6 @@ int vtkPKdTree::MultiProcessBuildLocator()
     {
     if (this->TimerLog == NULL) this->TimerLog = vtkTimerLog::New();
     }
-
-  this->FreeSearchStructure();
-
-  this->ReleaseTables();   // they're not valid anymore
 
   // Locally, create a single list of the coordinates of the centers of the 
   //   cells of my data sets 
@@ -468,19 +486,6 @@ int vtkPKdTree::MultiProcessBuildLocator()
   TIMERDONE("Build index lists");
 
   if (fail)
-    {
-    goto doneError6;
-    }
-
-  // Get the bounds of the entire volume
-
-  TIMER("Compute volume bounds");
-
-  volBounds = this->VolumeBounds();
-
-  TIMERDONE("Compute volume bounds");
-
-  if (volBounds == NULL)
     {
     goto doneError6;
     }
@@ -540,10 +545,6 @@ done6:
 
   FreeObject(this->SubGroup);
 
-  if (volBounds)
-    {
-    FreeList(volBounds);
-    }
   this->FreeGlobalIndexLists();
 
   return retVal;
@@ -1598,10 +1599,6 @@ int vtkPKdTree::CompleteTree()
 #endif
 
   delete [] buf;
-
-  this->SetActualLevel();
-
-  this->BuildRegionList();
 
   return 0;
 }
