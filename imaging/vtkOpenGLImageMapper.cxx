@@ -148,7 +148,7 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
   width = inMax0 - inMin0 + 1;
   height = inMax1 - inMin1 + 1;
   
-  unsigned char *outLinePtr = new unsigned char [(3*width)*height];
+  unsigned char *outLinePtr = new unsigned char [(3*width)*height+3];
   unsigned char *outPtr = outLinePtr;
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
@@ -250,7 +250,7 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
 
   width = inMax0 - inMin0 + 1;
   height = inMax1 - inMin1 + 1;
-  unsigned char *outLinePtr = new unsigned char [(3*width)*height];
+  unsigned char *outLinePtr = new unsigned char [(3*width)*height+3];
   unsigned char *outPtr = outLinePtr;
 
   glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
@@ -366,7 +366,7 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
   width = inMax0 - inMin0 + 1;
   height = inMax1 - inMin1 + 1;
   
-  unsigned char *outLinePtr = new unsigned char [(3*width)*height];
+  unsigned char *outLinePtr = new unsigned char [(3*width)*height+3];
   unsigned char *outPtr = outLinePtr;
 
   inPtr1 = inPtr;
