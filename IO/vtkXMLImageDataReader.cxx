@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.6");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.7");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -103,6 +103,8 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 }
 
 //----------------------------------------------------------------------------
+// Note that any changes (add or removing information) made to this method
+// should be replicated in CopyOutputInformation
 void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
@@ -110,6 +112,23 @@ void vtkXMLImageDataReader::SetupOutputInformation(vtkInformation *outInfo)
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
   outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
 }
+
+
+//----------------------------------------------------------------------------
+void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
+  {
+  this->Superclass::CopyOutputInformation(outInfo, port);
+  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+
+  if ( localInfo->Has(vtkDataObject::ORIGIN()) )
+    {
+    outInfo->CopyEntry( localInfo, vtkDataObject::ORIGIN() );
+    }
+  if ( localInfo->Has(vtkDataObject::SPACING()) )
+    {
+    outInfo->CopyEntry( localInfo, vtkDataObject::SPACING() );
+    }
+  }
 
 
 //----------------------------------------------------------------------------

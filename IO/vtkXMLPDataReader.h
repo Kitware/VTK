@@ -40,6 +40,10 @@ public:
   // Get the number of pieces from the summary file being read.
   vtkGetMacro(NumberOfPieces, int);  
   
+  // For the specified port, copy the information this reader sets up in
+  // SetupOutputInformation to outInfo
+  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+
 protected:
   vtkXMLPDataReader();
   ~vtkXMLPDataReader();
@@ -47,6 +51,7 @@ protected:
   // Pipeline execute information driver.  Called by vtkXMLReader.
   int ReadXMLInformation();
   virtual void SetupOutputInformation(vtkInformation *outInfo);
+
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   
   vtkDataSet* GetPieceInputAsDataSet(int piece);

@@ -51,6 +51,10 @@ public:
   // actually reading data.
   void SetupUpdateExtent(int piece, int numberOfPieces, int ghostLevel);
   
+  // For the specified port, copy the information this reader sets up in
+  // SetupOutputInformation to outInfo
+  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+
 protected:
   vtkXMLUnstructuredDataReader();
   ~vtkXMLUnstructuredDataReader();
@@ -72,7 +76,9 @@ protected:
   void SetupPieces(int numPieces);
   void DestroyPieces();
   
+  // Setup the output's information.
   void SetupOutputInformation(vtkInformation *outInfo);
+
   void SetupOutputData();
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();

@@ -40,6 +40,10 @@ public:
   // Get the number of cells in the output.
   virtual vtkIdType GetNumberOfCells()=0;
   
+  // For the specified port, copy the information this reader sets up in
+  // SetupOutputInformation to outInfo
+  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
+
 protected:
   vtkXMLDataReader();
   ~vtkXMLDataReader();  
@@ -48,6 +52,7 @@ protected:
   virtual void CreateXMLParser();
   virtual void DestroyXMLParser();
   virtual void SetupOutputInformation(vtkInformation *outInfo);
+
   int ReadPrimaryElement(vtkXMLDataElement* ePrimary);
   void SetupOutputData();
   

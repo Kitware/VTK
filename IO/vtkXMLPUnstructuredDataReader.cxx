@@ -20,7 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.14");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -125,6 +125,8 @@ void vtkXMLPUnstructuredDataReader::SetupEmptyOutput()
 }
 
 //----------------------------------------------------------------------------
+// Note that any changes (add or removing information) made to this method
+// should be replicated in CopyOutputInformation
 void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
   this->Superclass::SetupOutputInformation(outInfo);
@@ -134,6 +136,18 @@ void vtkXMLPUnstructuredDataReader::SetupOutputInformation(vtkInformation *outIn
   outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), this->NumberOfPieces);
 }
 
+//----------------------------------------------------------------------------
+void vtkXMLPUnstructuredDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
+  {
+  this->Superclass::CopyOutputInformation(outInfo, port);
+  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+
+  if ( localInfo->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()) )
+    {
+    outInfo->CopyEntry( localInfo, 
+      vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES() );
+    }
+  }
 
 //----------------------------------------------------------------------------
 void vtkXMLPUnstructuredDataReader::SetupOutputData()

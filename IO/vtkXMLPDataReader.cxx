@@ -26,7 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.14");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -152,6 +152,8 @@ int vtkXMLPDataReader::ReadXMLInformation()
 
 
 //----------------------------------------------------------------------------
+// Note that any changes (add or removing information) made to this method
+// should be replicated in CopyOutputInformation
 void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
 {
   if (this->InformationError)
@@ -192,6 +194,21 @@ void vtkXMLPDataReader::SetupOutputInformation(vtkInformation *outInfo)
     }
 
 }
+
+
+//----------------------------------------------------------------------------
+void vtkXMLPDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
+  {
+  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
+  if ( localInfo->Has(vtkDataObject::POINT_DATA_VECTOR()) )
+    {
+    outInfo->CopyEntry( localInfo, vtkDataObject::POINT_DATA_VECTOR() );
+    }
+  if ( localInfo->Has(vtkDataObject::CELL_DATA_VECTOR()) )
+    {
+    outInfo->CopyEntry( localInfo, vtkDataObject::CELL_DATA_VECTOR() );
+    }
+  }
 
 
 //----------------------------------------------------------------------------
