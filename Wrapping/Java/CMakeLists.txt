@@ -1,19 +1,19 @@
 IF(JAVA_COMPILE)
   ADD_CUSTOM_TARGET(VTKJava ALL echo "Checking for Java library")
-  ADD_CUSTOM_COMMAND(SOURCE ${VTK_BINARY_DIR}/java/vtk/VTKJavaWrapped
+  ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/VTKJavaWrapped
                      COMMAND ${JAVA_COMPILE} 
-		     ARGS ${VTK_BINARY_DIR}/java/vtk/vtk*.java
+		     ARGS ${VTK_JAVA_HOME}/vtk*.java
                      TARGET VTKJava
-		     OUTPUTS ${VTK_BINARY_DIR}/java/vtk/vtkObject.class)
+		     OUTPUTS ${VTK_JAVA_HOME}/vtkObject.class)
   IF(JAVA_ARCHIVE)
-    ADD_CUSTOM_COMMAND(SOURCE ${VTK_BINARY_DIR}/java/vtk/vtkObject.class
+    ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
 	  	       COMMAND ${CMAKE_COMMAND}
                        ARGS -E chdir 
                             ${VTK_BINARY_DIR}/java ${JAVA_ARCHIVE}
                             -cvf ${LIBRARY_OUTPUT_PATH}/vtk.jar
                             vtk
 		       TARGET VTKJava
-                       DEPENDS ${VTK_BINARY_DIR}/java/vtk/vtkObject.class
+                       DEPENDS ${VTK_JAVA_HOME}/vtkObject.class
 		       OUTPUTS ${LIBRARY_OUTPUT_PATH}/vtk.jar)
 
     IF(BUILD_TESTING)
