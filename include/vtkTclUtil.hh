@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 extern int vtkTclDeleteObjectFromHash(ClientData cd);
 extern void vtkTclGenericDeleteObject(ClientData cd);
-extern vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
+extern void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]));
 extern void *vtkTclGetPointerFromObject(char *name,char *result_type);
 extern void vtkTclVoidFunc(void *);
