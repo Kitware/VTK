@@ -321,6 +321,11 @@ protected:
 
   vtkCharArray* InputArray;
 
+  // Description:
+  // Decode the name of array. This method is the inverse of 
+  // vtkWriter::EncodeName.
+  void DecodeArrayName(char *resname, const char* name);
+
 private:
   vtkDataReader(const vtkDataReader&);  // Not implemented.
   void operator=(const vtkDataReader&);  // Not implemented.

@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.120");
+vtkCxxRevisionMacro(vtkDataReader, "1.121");
 vtkStandardNewMacro(vtkDataReader);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -1714,7 +1714,9 @@ vtkFieldData *vtkDataReader::ReadFieldData()
   // Read the number of arrays specified
   for (i=0; i<numArrays; i++)
     {
-    this->ReadString(name);
+    char buffer[1024];
+    this->ReadString(buffer);    
+    this->DecodeArrayName(name, buffer);
     this->Read(&numComp);
     this->Read(&numTuples);
     this->ReadString(type);
@@ -2130,3 +2132,38 @@ int vtkDataReader::ReadDataSetData(vtkDataSet *vtkNotUsed(ds))
 }
 
 
+void vtkDataReader::DecodeArrayName(char *resname, const char* name)
+{
+  if ( !resname || !name )
+    {
+    return;
+    }
+  //strcpy(resname, name);
+  ostrstream str;
+  int cc = 0, ch;
+  int len = strlen(name);
+  char buffer[10] = "0x";
+  while(name[cc]) 
+    {
+    if ( name[cc] == '%' )
+      {
+      if ( cc < len - 3 )
+        {
+        buffer[2] = name[cc+1];
+        buffer[3] = name[cc+2];
+        buffer[4] = 0;
+        sscanf(buffer, "%x", &ch);
+        str << static_cast<char>(ch);
+        cc+=2;
+        }
+      }
+    else
+      {
+      str << name[cc];
+      }
+    cc ++;
+    }
+  str << ends;
+  strcpy(resname, str.str());
+  str.rdbuf()->freeze(0);
+}

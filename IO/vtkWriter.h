@@ -47,7 +47,7 @@ class VTK_IO_EXPORT vtkWriter : public vtkProcessObject
 public:
   vtkTypeRevisionMacro(vtkWriter,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Write data to output. Method executes subclasses WriteData() method, as 
   // well as StartMethod() and EndMethod() methods.
@@ -56,6 +56,12 @@ public:
   // Description:
   // Convenient alias for Write() method.
   void Update();
+
+  // Description:
+  // Encode the name so that the reader will not have problems.
+  // The resulting string is up to four time the size of the input 
+  // string.
+  void EncodeArrayName(char* resname, const char* name);
   
 //BTX
   vtkDataObject *GetInput();
@@ -63,7 +69,7 @@ public:
 protected:
   vtkWriter();
   ~vtkWriter();
-
+  
   virtual void WriteData() = 0; //internal method subclasses must respond to
   vtkTimeStamp WriteTime;
 private:

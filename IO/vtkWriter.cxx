@@ -18,7 +18,7 @@
 #include "vtkWriter.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkWriter, "1.33");
+vtkCxxRevisionMacro(vtkWriter, "1.34");
 
 // Construct with no start and end write methods or arguments.
 vtkWriter::vtkWriter()
@@ -83,4 +83,38 @@ void vtkWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+}
+
+void vtkWriter::EncodeArrayName(char* resname, const char* name)
+{
+  cout << "Encoding the name: [" << name << "]" << endl;
+  if ( !name || !resname )
+    {   
+    return;
+    }
+  int cc = 0;
+  ostrstream str;
+
+  char buffer[10];
+
+  while( name[cc] )
+    {
+    if ( name[cc] < '0' || 
+         name[cc] > '9' && name[cc] < 'A' ||
+         name[cc] > 'Z' && name[cc] < 'a' ||
+         name[cc] > 'z' )
+      {
+      sprintf(buffer, "%2X", name[cc]);
+      str << "%%" << buffer; // Two % because it goes through printf format
+      }
+    else
+      {
+      str << name[cc];
+      }
+    cc++;
+    }
+  str << ends;
+  strcpy(resname, str.str());
+  str.rdbuf()->freeze(0);
+  cout << "Produce: [" << resname << "]" << endl;
 }
