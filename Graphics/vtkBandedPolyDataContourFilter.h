@@ -119,7 +119,6 @@ protected:
 
   void Execute();
 
-  float ComputeScalar(int idx);
   int ComputeLowerScalarIndex(float);
   int ComputeUpperScalarIndex(float);
   int IsContourValue(float val);
