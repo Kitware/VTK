@@ -92,7 +92,7 @@ source ../../examplesTcl/frog/SliceOrder.tcl
 
 vtkVolume16Reader reader
   eval reader SetDataDimensions $RESOLUTION $RESOLUTION
-  eval reader SetFilePrefix ../../data/fullHead/headsq
+  eval reader SetFilePrefix ../../../vtkdata/fullHead/headsq
   eval reader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
   eval reader SetDataOrigin $origin $origin 1.5
   eval reader SetImageRange $START_SLICE $END_SLICE
@@ -263,9 +263,7 @@ proc PickAndPrint {} {
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-renWin SetFileName surfVol.tcl.ppm
-renWin SaveImageAsPPM
+#renWin SetFileName surfVol.tcl.ppm
+#renWin SaveImageAsPPM
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-exit
