@@ -27,7 +27,7 @@
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.1");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.2");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -447,7 +447,7 @@ Want right handed Tetrahedra...
 
   // Get the point Ids
   int numTet = 0; // =0 removes warning messages
-  int TetPts[4];
+  vtkIdType TetPts[4];
 
   switch (DivisionType)
     {
@@ -459,7 +459,7 @@ Want right handed Tetrahedra...
           {
           TetPts[j] = VoxelCorners->GetId(tet6[i][j]);
           }
-        TetList->InsertNextCell(4,TetPts);
+        TetList->InsertNextCell((vtkIdType)4,TetPts);
         }
     break; 
     case (VTK_TETRAHEDRALIZE_5) : 
@@ -470,7 +470,7 @@ Want right handed Tetrahedra...
           {
           TetPts[j] = VoxelCorners->GetId(tet5[i][j]);
           }
-        TetList->InsertNextCell(4,TetPts);
+        TetList->InsertNextCell((vtkIdType)4,TetPts);
         }
     break; 
     case (VTK_TETRAHEDRALIZE_5_FLIP) : 
@@ -481,7 +481,7 @@ Want right handed Tetrahedra...
             {
             TetPts[j] = VoxelCorners->GetId(tet5flip[i][j]);
             }
-          TetList->InsertNextCell(4,TetPts);
+          TetList->InsertNextCell((vtkIdType)4,TetPts);
         }
     break; 
     case (VTK_TETRAHEDRALIZE_12) :
@@ -493,7 +493,7 @@ Want right handed Tetrahedra...
           {
           TetPts[j] = VoxelCorners->GetId(tet12[i][j]);
           }
-        TetList->InsertNextCell(4,TetPts);
+        TetList->InsertNextCell((vtkIdType)4,TetPts);
         }
     break;
     case (VTK_TETRAHEDRALIZE_12_CONFORM) :
@@ -505,7 +505,7 @@ Want right handed Tetrahedra...
           {
           TetPts[j] = VoxelCorners->GetId(tet12_conform[i][j]);
           }
-        TetList->InsertNextCell(4,TetPts);
+        TetList->InsertNextCell((vtkIdType)4,TetPts);
         }
     break;
     case (VTK_TETRAHEDRALIZE_12_CONFORM_FLIP) :
@@ -517,7 +517,7 @@ Want right handed Tetrahedra...
           {
           TetPts[j] = VoxelCorners->GetId(tet12_conform_flip[i][j]);
           }
-        TetList->InsertNextCell(4,TetPts);
+        TetList->InsertNextCell((vtkIdType)4,TetPts);
         }
     break;
     }

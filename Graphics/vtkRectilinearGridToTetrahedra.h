@@ -114,13 +114,17 @@ public:
 
 protected:
   vtkRectilinearGridToTetrahedra();
-  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) {};
-  void operator=(const vtkRectilinearGridToTetrahedra&) {};
+  ~vtkRectilinearGridToTetrahedra() {};
 
   void Execute();
 
   int RememberVoxelId;
   int TetraPerCell;
+
+ private:
+  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&); // Not implemented.
+
+  void operator=(const vtkRectilinearGridToTetrahedra&); // Not implemented.
 
 //BTX
   // Description:
