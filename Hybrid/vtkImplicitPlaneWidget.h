@@ -22,7 +22,9 @@
 // plane is contained by a bounding box, and where the plane intersects the
 // bounding box the edges are shown (possibly tubed). The normal can be
 // selected and moved to rotate the plane; the plane itself can be selected
-// and translated in various directions.
+// and translated in various directions. As the plane is moved, the implicit
+// plane function and polygon (representing the plane cut against the bounding
+// box) is updated.
 //
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
@@ -30,17 +32,14 @@
 // "interactor") is pressed, the vtkImplicitPlaneWidget will appear. (See
 // superclass documentation for information about changing this behavior.)
 // If you select the normal vector, the plane can be arbitrarily rotated. The
-// plane can be translated within the bounding box by selecting it with the
-// left mouse button. Selecting any part of the widget with the middle mouse
-// button enables translation of the plane along its normal. (Once selected
-// using middle mouse, moving "up" in the middle moves the plane in the
-// direction of the normal; moving "down" moves it in the opposite
-// direction.) The right mouse button can be used to uniformly scale the
-// bounding box (moving "up" the box scales larger; moving "down" the box
-// scales smaller). Events that occur outside of the widget (i.e., no part of
-// the widget is picked) are propagated to any other registered obsevers
-// (such as the interaction style).  Turn off the widget by pressing the "i"
-// key again (or invoke the Off() method).
+// plane can be translated along the normal by selecting the plane and moving
+// it. The plane (the plane origin) can also be arbitrary moved by selecting
+// the plane with the middle mouse button. The right mouse button can be used
+// to uniformly scale the bounding box (moving "up" the box scales larger;
+// moving "down" the box scales smaller). Events that occur outside of the
+// widget (i.e., no part of the widget is picked) are propagated to any other
+// registered obsevers (such as the interaction style).  Turn off the widget
+// by pressing the "i" key again (or invoke the Off() method).
 //
 // The vtkImplicitPlaneWidget has several methods that can be used in
 // conjunction with other VTK objects.  The GetPolyData() method can be used
@@ -53,13 +52,13 @@
 // the widget is placed with PlaceWidget().)
 //
 // Some additional features of this class include the ability to control the
-// properties of the widget. You can set the properties of the selected and
-// unselected representations of the plane. For example, you can set the
-// property for the handles and plane. In addition there are methods to
-// constrain the plane so that it is aligned along the x-y-z axes.
+// properties of the widget. You do this by setting property values on the
+// normal vector (selected and unselected properties); the plane (selected
+// and unselected properties); the outline (selected and unselected
+// properties); and the edges. The edges may also be tubed or not.
 
 // .SECTION Caveats
-// Note that handles and the plane can be picked even when they are "behind"
+// Note that the widget can be picked even when it is "behind"
 // other actors.  This is an intended feature and not a bug.
 
 // .SECTION See Also
@@ -105,11 +104,11 @@ public:
     {this->Superclass::PlaceWidget();}
 
   // Description:
-  // Get the center of the plane.
-  void SetCenter(float x, float y, float z);
-  void SetCenter(float x[3]);
-  float* GetCenter();
-  void GetCenter(float xyz[3]);
+  // Get the origin of the plane.
+  void SetOrigin(float x, float y, float z);
+  void SetOrigin(float x[3]);
+  float* GetOrigin();
+  void GetOrigin(float xyz[3]);
 
   // Description:
   // Get the normal to the plane.
@@ -265,7 +264,7 @@ protected:
   vtkPolyDataMapper *LineMapper2;
   vtkActor          *LineActor2;
 
-  // The center positioning handle
+  // The origin positioning handle
   vtkSphereSource   *Sphere;
   vtkPolyDataMapper *SphereMapper;
   vtkActor          *SphereActor;
