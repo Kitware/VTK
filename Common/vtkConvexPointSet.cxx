@@ -22,9 +22,10 @@
 #include "vtkOrderedTriangulator.h"
 #include "vtkTetra.h"
 #include "vtkFloatArray.h"
+#include "vtkPointData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkConvexPointSet, "1.5");
+vtkCxxRevisionMacro(vtkConvexPointSet, "1.6");
 vtkStandardNewMacro(vtkConvexPointSet);
 
 // Construct the hexahedron with eight points.
@@ -84,6 +85,7 @@ int vtkConvexPointSet::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
     {
     ptId = this->PointIds->GetId(i);
     xPtr = this->Points->GetPoint(i);
+    this->Triangulator->InsertPoint(ptId, xPtr, 0);
     }//for all points
   
   // triangulate the points
