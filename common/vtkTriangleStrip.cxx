@@ -108,6 +108,7 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
+      pcoords[2] = 1.0 - pc[0] - pc[1];
       minDist2 = dist2;
       activeWeights[0] = tempWeights[0];
       activeWeights[1] = tempWeights[1];
@@ -129,19 +130,22 @@ void vtkTriangleStrip::EvaluateLocation(int& subId, float pcoords[3],
                                         float x[3], float *weights)
 {
   int i;
-  float *pt1 = this->Points->GetPoint(subId);
-  float *pt2 = this->Points->GetPoint(subId+1);
-  float *pt3 = this->Points->GetPoint(subId+2);
-  float u3 = 1.0 - pcoords[0] - pcoords[1];
+  static int idx[2][3]={{0,1,2},{1,0,2}};
+  int order = subId % 2;
 
-  for (i=0; i<3; i++)
-    {
-    x[i] = pt1[i]*pcoords[0] + pt2[i]*pcoords[1] + pt3[i]*u3;
-    }
+  float *pt1 = this->Points->GetPoint(subId+idx[order][0]);
+  float *pt2 = this->Points->GetPoint(subId+idx[order][1]);
+  float *pt3 = this->Points->GetPoint(subId+idx[order][2]);
+  float u3 = 1.0 - pcoords[0] - pcoords[1];
 
   weights[0] = u3;
   weights[1] = pcoords[0];
   weights[2] = pcoords[1];
+
+  for (i=0; i<3; i++)
+    {
+    x[i] = pt1[i]*weights[0] + pt2[i]*weights[1] + pt3[i]*weights[2];
+    }
 }
 
 int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
