@@ -11,6 +11,7 @@ SET(KIT_LIBS vtkGraphics vtkImaging vtkIO)
 
 SET( Kit_SRCS
 vtkDecimate.cxx
+vtkDiscreteMarchingCubes.cxx
 vtkDividingCubes.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkImageMarchingCubes.cxx
