@@ -14,7 +14,6 @@ vtkPointSource sphere
 vtkDelaunay3D del
   del SetInput [sphere GetOutput]
   del SetTolerance 0.01
-  del DebugOn
     
 # texture map the sphere (using cylindrical coordinate system)
 #
@@ -58,6 +57,8 @@ renWin Render
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 renWin Render
+renWin SetFileName "valid/cylMap.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

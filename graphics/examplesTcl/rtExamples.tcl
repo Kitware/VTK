@@ -6,7 +6,7 @@ catch {load vtktcl}
 #vtkCommand DebugOn
 
 # first find all the examples
-set files [lsort [glob {[a-z]*.tcl}]]
+set files [lsort [glob {[A-z]*.tcl}]]
 
 # remove support files that we know are not examples
 if {[set pos [lsearch $files "TkInteractor.tcl"]] != -1} {
@@ -39,9 +39,6 @@ if {[set pos [lsearch $files "connPineRoot.tcl"]] != -1} {
 if {[set pos [lsearch $files "aniIso.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
-if {[set pos [lsearch $files "cylMap.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
 if {[set pos [lsearch $files "deciHawa.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
@@ -66,22 +63,14 @@ if {[set pos [lsearch $files "volTkInteractor.tcl"]] != -1} {
 if {[set pos [lsearch $files "spikeColor.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
-if {[set pos [lsearch $files "streamV.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
 if {[set pos [lsearch $files "tkwin.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
-if {[set pos [lsearch $files "sphereMap.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-if {[set pos [lsearch $files "motor.tcl"]] != -1} {
-   set files [lreplace $files $pos $pos ]
-}
-
 
 # now do the tests
 foreach afile $files {
+   vtkMath rtExMath
+   rtExMath RandomSeed 6
    source "$afile"
 
    vtkRendererSource renSrc
@@ -113,3 +102,4 @@ foreach afile $files {
    vtkCommand DeleteAllObjects
 }
 
+exit

@@ -68,7 +68,7 @@ set spikeProp [spikeActor GetProperty]
 $cam1 Zoom 1.4
 $cam1 Azimuth 110
 renWin Render
-#renWin SetFileName "spikeF.tcl.ppm"
+renWin SetFileName "valid/spikeF.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop

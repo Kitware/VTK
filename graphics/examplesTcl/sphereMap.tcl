@@ -56,6 +56,8 @@ renWin SetSize 500 500
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
 renWin Render
+renWin SetFileName "valid/sphereMap.tcl.ppm"
+#renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

@@ -13,7 +13,6 @@ vtkRenderWindowInteractor iren
 # create some points
 #
 vtkMath math
-math RandomSeed 6;
 vtkFloatPoints points
 for {set i 0} {$i<1000} {incr i 1} {
     eval points InsertPoint $i [math Random 0 1] [math Random 0 1] 0.0
