@@ -30,7 +30,7 @@ vlImplicitModeller::vlImplicitModeller()
   this->ModelBounds[4] = 0.0;
   this->ModelBounds[5] = 0.0;
 
-  this->SetDimension(50,50,50);
+  this->SetDimensions(50,50,50);
 }
 
 void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
@@ -98,14 +98,14 @@ void vlImplicitModeller::Execute()
 //
   this->Initialize();
 
-  if ( this->Dimension[0] <= 1 || this->Dimension[1] <= 1 ||
-  this->Dimension[2] <= 1 )
+  if ( this->Dimensions[0] <= 1 || this->Dimensions[1] <= 1 ||
+  this->Dimensions[2] <= 1 )
     {
-    vlErrorMacro(<<"Bad dimensions, requires volume cells");
+    vlErrorMacro(<<"Bad Dimensions, requires volume cells");
     return;
     }
 
-  numPts = this->Dimension[0] * this->Dimension[1] * this->Dimension[2];
+  numPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
   newScalars = new vlFloatScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,LARGE_FLOAT);
 
@@ -129,10 +129,10 @@ void vlImplicitModeller::Execute()
       min[i] = (adjBounds[2*i] - this->Origin[i]) / this->AspectRatio[i];
       max[i] = (adjBounds[2*i+1] - this->Origin[i]) / this->AspectRatio[i];
       if (min[i] < 0) min[i] = 0;
-      if (max[i] >= this->Dimension[i]) max[i] = this->Dimension[i] - 1;
+      if (max[i] >= this->Dimensions[i]) max[i] = this->Dimensions[i] - 1;
       }
 
-    jkFactor = this->Dimension[0]*this->Dimension[1];
+    jkFactor = this->Dimensions[0]*this->Dimensions[1];
     for (k = min[2]; k <= max[k]; k++) 
       {
       x[2] = this->AspectRatio[2] * k + this->Origin[2];
@@ -142,7 +142,7 @@ void vlImplicitModeller::Execute()
         for (i = min[0]; i <= max[0]; i++) 
           {
           x[0] = this->AspectRatio[0] * i + this->Origin[0];
-          idx = jkFactor*k + this->Dimension[0]*j + i;
+          idx = jkFactor*k + this->Dimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
           cell->EvaluatePosition(x, subId, pcoords, distance2);
           if (distance2 < prevDistance2)
@@ -205,7 +205,7 @@ float vlImplicitModeller::ComputeModelBounds()
     {
     this->Origin[i] = this->ModelBounds[2*i];
     this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i]) / 
-                           (this->Dimension[i] - 1);
+                           (this->Dimensions[i] - 1);
     }
 
   return maxDist;  

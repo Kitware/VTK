@@ -23,11 +23,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlStructuredPoints::vlStructuredPoints()
 {
-  this->Dimension[0] = 1;
-  this->Dimension[1] = 1;
-  this->Dimension[2] = 1;
-  this->DataDescription = SINGLE_POINT;
-
   this->AspectRatio[0] = 1.0;
   this->AspectRatio[1] = 1.0;
   this->AspectRatio[2] = 1.0;
@@ -39,12 +34,7 @@ vlStructuredPoints::vlStructuredPoints()
 
 vlStructuredPoints::vlStructuredPoints(const vlStructuredPoints& v)
 {
-  this->Dimension[0] = v.Dimension[0];
-  this->Dimension[1] = v.Dimension[1];
-  this->Dimension[2] = v.Dimension[2];
-  this->DataDescription = v.DataDescription;
 
-  this->AspectRatio[0] = v.AspectRatio[0];
   this->AspectRatio[1] = v.AspectRatio[1];
   this->AspectRatio[2] = v.AspectRatio[2];
 
@@ -57,24 +47,6 @@ vlStructuredPoints::~vlStructuredPoints()
 {
 }
 
-int vlStructuredPoints::GetNumberOfCells()
-{
-  int nCells=1;
-  int i;
-
-  for (i=0; i<3; i++)
-    if (this->Dimension[i] > 1)
-      nCells *= (this->Dimension[1]-1);
-
-  return nCells;
-}
-
-int vlStructuredPoints::GetNumberOfPoints()
-{
-  return Dimension[0]*Dimension[1]*Dimension[2];
-}
-
-
 vlCell *vlStructuredPoints::GetCell(int cellId)
 {
   static vlPoint point;
@@ -84,7 +56,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
   static vlCell *cell;
   int i, j, k, idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  int d01 = this->Dimension[0]*this->Dimension[1];
+  int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
  
   // 
@@ -118,36 +90,36 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
 
     case XY_PLANE:
       kMin = kMax = 0;
-      iMin = cellId % (this->Dimension[0]-1);
+      iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
-      jMin = cellId / (this->Dimension[0]-1);
+      jMin = cellId / (this->Dimensions[0]-1);
       jMax = jMin + 1;
       cell = &rectangle;
       break;
 
     case YZ_PLANE:
       iMin = iMax = 0;
-      jMin = cellId % (this->Dimension[1]-1);
+      jMin = cellId % (this->Dimensions[1]-1);
       jMax = jMin + 1;
-      kMin = cellId / (this->Dimension[1]-1);
+      kMin = cellId / (this->Dimensions[1]-1);
       kMax = kMin + 1;
       cell = &rectangle;
       break;
 
     case XZ_PLANE:
       jMin = jMax = 0;
-      iMin = cellId % (this->Dimension[0]-1);
+      iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
-      kMin = cellId / (this->Dimension[0]-1);
+      kMin = cellId / (this->Dimensions[0]-1);
       kMax = kMin + 1;
       cell = &rectangle;
       break;
 
     case XYZ_GRID:
-      int cd01 = this->Dimension[0]*this->Dimension[1];
-      iMin = cellId % (this->Dimension[0]-1);
+      int cd01 = this->Dimensions[0]*this->Dimensions[1];
+      iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
-      jMin = (cellId % cd01) / (this->Dimension[0]-1);
+      jMin = (cellId % cd01) / (this->Dimensions[0]-1);
       jMax = jMin + 1;
       kMin = cellId / cd01;
       kMax = kMin + 1;
@@ -165,7 +137,7 @@ vlCell *vlStructuredPoints::GetCell(int cellId)
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
         x[0] = this->Origin[0] + loc[0] * this->AspectRatio[0]; 
-        idx = loc[0] + loc[1]*this->Dimension[0] + loc[2]*d01;
+        idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
         cell->PointIds.InsertId(npts,idx);
         cell->Points.InsertPoint(npts++,x);
         }
@@ -203,27 +175,27 @@ float *vlStructuredPoints::GetPoint(int ptId)
 
     case XY_PLANE:
       loc[2] = 0;
-      loc[0] = ptId % this->Dimension[0];
-      loc[1] = ptId / this->Dimension[0];
+      loc[0] = ptId % this->Dimensions[0];
+      loc[1] = ptId / this->Dimensions[0];
       break;
 
     case YZ_PLANE:
       loc[0] = 0;
-      loc[1] = ptId % this->Dimension[1];
-      loc[2] = ptId / this->Dimension[1];
+      loc[1] = ptId % this->Dimensions[1];
+      loc[2] = ptId / this->Dimensions[1];
       break;
 
     case XZ_PLANE:
       loc[1] = 0;
-      loc[0] = ptId % this->Dimension[0];
-      loc[2] = ptId / this->Dimension[0];
+      loc[0] = ptId % this->Dimensions[0];
+      loc[2] = ptId / this->Dimensions[0];
       break;
 
     case XYZ_GRID:
-      loc[0] = ptId % this->Dimension[0];
-      loc[1] = (ptId % (this->Dimension[0]*this->Dimension[1]))
-                    / this->Dimension[0];
-      loc[2] = ptId / (this->Dimension[0]*this->Dimension[1]);
+      loc[0] = ptId % this->Dimensions[0];
+      loc[1] = (ptId % (this->Dimensions[0]*this->Dimensions[1]))
+                    / this->Dimensions[0];
+      loc[2] = ptId / (this->Dimensions[0]*this->Dimensions[1]);
       break;
     }
 
@@ -233,70 +205,12 @@ float *vlStructuredPoints::GetPoint(int ptId)
   return x;
 }
 
-void vlStructuredPoints::SetDimension(int i, int j, int k)
-{
-  int dim[3];
-
-  dim[0] = i;
-  dim[1] = j;
-  dim[2] = k;
-
-  this->SetDimension(dim);
-}
-
-void vlStructuredPoints::SetDimension(int dim[3])
-{
-  int i;
-
-  if ( dim[0] != this->Dimension[0] || dim[1] != Dimension[1] ||
-  dim[2] != Dimension[2] )
-    {
-    if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
-      {
-      vlErrorMacro (<< "Bad dimensions, retaining previous values");
-      return;
-      }
-
-    for (int dataDim=0, i=0; i<3 ; i++)
-      {
-      this->Dimension[i] = dim[i];
-      if (dim[i] > 1) dataDim++;
-      }
-
-    if ( dataDim == 3 )
-      {
-      this->DataDescription = XYZ_GRID;
-      }
-    else if ( dataDim == 2)
-      {
-      if ( dim[0] == 1 ) this->DataDescription = YZ_PLANE;
-      else if ( dim[1] == 1 ) this->DataDescription = XZ_PLANE;
-      else this->DataDescription = XY_PLANE;
-      }
-    else if ( dataDim == 1 )
-      {
-      if ( dim[0] != 1 ) this->DataDescription = X_LINE;
-      else if ( dim[1] != 1 ) this->DataDescription = Y_LINE;
-      else this->DataDescription = Z_LINE;
-      }
-    else
-      {
-      this->DataDescription = SINGLE_POINT;
-      }
-
-    this->Modified();
-    }
-}
-
 void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlStructuredPoints::GetClassName()))
     {
-    vlDataSet::PrintSelf(os,indent);
+    vlStructuredDataSet::PrintSelf(os,indent);
     
-    os << indent << "Dimension: (" << this->Dimension[0] << ", "
-                                    << this->Dimension[1] << ", "
-                                    << this->Dimension[2] << ")\n";
     os << indent << "Origin: (" << this->Origin[0] << ", "
                                     << this->Origin[1] << ", "
                                     << this->Origin[2] << ")\n";

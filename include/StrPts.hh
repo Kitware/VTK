@@ -21,20 +21,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlStructuredPoints_h
 #define __vlStructuredPoints_h
 
-#include "DataSet.hh"
-#include "IdList.hh"
-#include "FPoints.hh"
+#include "StrData.hh"
 
-#define SINGLE_POINT 0
-#define X_LINE 1
-#define Y_LINE 2
-#define Z_LINE 3
-#define XY_PLANE 4
-#define YZ_PLANE 5
-#define XZ_PLANE 6
-#define XYZ_GRID 7
-
-class vlStructuredPoints : public vlDataSet {
+class vlStructuredPoints : public vlStructuredDataSet {
 public:
   vlStructuredPoints();
   vlStructuredPoints(const vlStructuredPoints& v);
@@ -44,15 +33,9 @@ public:
 
   // dataset interface
   vlDataSet *MakeObject() {return new vlStructuredPoints(*this);};
-  int GetNumberOfCells();
-  int GetNumberOfPoints(); 
   float *GetPoint(int ptId);
   vlCell *GetCell(int cellId);
   vlMapper *MakeMapper() {return (vlMapper *)0;};
-
-  void SetDimension(int i, int j, int k);
-  void SetDimension(int dim[3]);
-  vlGetVectorMacro(Dimension,int);
 
   vlSetVector3Macro(AspectRatio,float);
   vlGetVectorMacro(AspectRatio,float);
@@ -61,10 +44,8 @@ public:
   vlGetVectorMacro(Origin,float);
 
 protected:
-  int Dimension[3];
   float Origin[3];
   float AspectRatio[3];
-  int DataDescription;
 };
 
 #endif
