@@ -71,7 +71,7 @@
 class vtkUnstructuredGrid;
 class vtkOTMesh;
 class vtkCellArray;
-class vtkMemoryPool;
+class vtkHeap;
 class vtkIdList;
 class vtkPoints;
 
@@ -193,13 +193,13 @@ protected:
   ~vtkOrderedTriangulator();
 
 private:
-  vtkOTMesh  *Mesh;
-  int NumberOfPoints; //number of points inserted
-  int MaximumNumberOfPoints; //maximum possible number of points to be inserted
-  int PreSorted;
-  int UseTwoSortIds;
-  vtkMemoryPool* Pool;
-  double Quanta;
+  vtkOTMesh *Mesh;
+  int        NumberOfPoints; //number of points inserted
+  int        MaximumNumberOfPoints; //maximum possible number of points to be inserted
+  int        PreSorted;
+  int        UseTwoSortIds;
+  vtkHeap   *Heap;
+  double     Quanta;
   
 private:
   vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
