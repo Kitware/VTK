@@ -21,7 +21,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.1.2.1");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 //----------------------------------------------------------------------------
@@ -117,9 +117,10 @@ int vtkHierarchicalBoxDataSetIsInBoxes(vtkstd::vector<vtkAMRBox>& boxes,
 void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 {
   unsigned int numLevels = this->GetNumberOfLevels();
+
   for (unsigned int levelIdx=0; levelIdx<numLevels-1; levelIdx++)
     {
-
+   
     // Copy boxes of higher level and coarsen to this level
     vtkstd::vector<vtkAMRBox> boxes;
     vtkHierarchicalDataSetInternal::LevelDataSetsType& ldataSets = 
@@ -142,10 +143,12 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
       }
 
     unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
+
     for (unsigned int dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
       {
       vtkAMRBox box;
       vtkUniformGrid* grid = this->GetDataSet(levelIdx, dataSetIdx, box);
+
       if (grid)
         {
         int i;
@@ -161,21 +164,19 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           {
           vis->SetValue(i, 1);
           }
-
-        
-        for (int iz=0; iz<cellDims[2]; iz++)
+        for (int iz=box.LoCorner[2]; iz<=box.HiCorner[2]; iz++)
           {
-          for (int ix=0; ix<cellDims[0]; ix++)
+          for (int iy=box.LoCorner[1]; iy<=box.HiCorner[1]; iy++)
             {
-            for (int iy=0; iy<cellDims[1]; iy++)
+            for (int ix=box.LoCorner[0]; ix<=box.HiCorner[0]; ix++)
               {
               // Blank if cell is covered by a box of higher level
               if (vtkHierarchicalBoxDataSetIsInBoxes(boxes, ix, iy, iz))
                 {
                 vtkIdType id = 
-                  iz*cellDims[0]*cellDims[1] +
-                  iy*cellDims[0] +
-                  ix;
+                  (iz-box.LoCorner[2])*cellDims[0]*cellDims[1] +
+                  (iy-box.LoCorner[1])*cellDims[0] +
+                  (ix-box.LoCorner[0]);
                 vis->SetValue(id, 0);
                 }
               }
