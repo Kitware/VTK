@@ -69,9 +69,11 @@ AC_CHECK_HEADERS(/opt/graphics/OpenGL/include/GL/glxmd.h,
 		[use_oglr=yes]
 		OGLR_INCLUDE="-I/opt/graphics/OpenGL/include")
 # some linux OpenGL servers hide the includes in /usr/X11R6/include/GL
-AC_CHECK_HEADERS(/usr/X11R6/include/GL/glxmd.h, 
-		[use_oglr=yes]
-		OGLR_INCLUDE="-I/usr/X11R6/include")
+if test "$use_oglr" = "no"; then
+  AC_CHECK_HEADERS(/usr/X11R6/include/GL/gl.h, 
+		  [use_oglr=yes]
+		  OGLR_INCLUDE="-I/usr/X11R6/include")
+fi
 
 AC_MSG_CHECKING(for OpenGL library)
 OPENGLSW=""
