@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.31");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.32");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -235,7 +235,7 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
   max = inData->GetNumberOfScalarComponents();
   for (idx = 0; idx < this->NumberOfComponents; ++idx)
     {
-    if (this->Components[idx] > max)
+    if (this->Components[idx] >= max || this->Components[idx] < 0)
       {
       vtkErrorMacro("Execute: Component " << this->Components[idx]
                     << " is not in input.");
