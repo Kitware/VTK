@@ -33,8 +33,8 @@ vtkSocketController.cxx
 )
 
 ABSTRACT_FILES(
-vtkCommunicator.cxx
-vtkCompositeManager.cxx
+vtkCommunicator
+vtkCompositeManager
 )
 
 IF (VTK_USE_MPI)

@@ -106,11 +106,11 @@ vtkVoxelModeller.cxx
 )
 
 ABSTRACT_FILES(
-vtkImageDecomposeFilter.cxx
-vtkImageIterateFilter.cxx
-vtkImagePadFilter.cxx
-vtkImageSpatialFilter.cxx
-vtkImageFourierFilter.cxx
+vtkImageDecomposeFilter
+vtkImageIterateFilter
+vtkImagePadFilter
+vtkImageSpatialFilter
+vtkImageFourierFilter
 )
 
 IF(VTK_MAKE_INSTANTIATOR)

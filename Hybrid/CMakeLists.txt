@@ -33,7 +33,7 @@ vtkWeightedTransformFilter.cxx
 )
 
 ABSTRACT_FILES(
-vtk3DWidget.cxx
+vtk3DWidget
 )
 
 IF (WIN32)

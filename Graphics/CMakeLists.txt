@@ -152,9 +152,9 @@ vtkWindowedSincPolyDataFilter.cxx
 )
 
 ABSTRACT_FILES(
-vtkApproximatingSubdivisionFilter.cxx
-vtkDicer.cxx
-vtkInterpolatingSubdivisionFilter.cxx
+vtkApproximatingSubdivisionFilter
+vtkDicer
+vtkInterpolatingSubdivisionFilter
 )
 
 IF(VTK_MAKE_INSTANTIATOR)

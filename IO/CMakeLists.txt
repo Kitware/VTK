@@ -81,10 +81,10 @@ IF(NOT WINDOWS)
 ENDIF(NOT WINDOWS)
 
 ABSTRACT_FILES(
-vtkEnSightReader.cxx
-vtkVolumeReader.cxx
-vtkWriter.cxx
-vtkXMLParser.cxx
+vtkEnSightReader
+vtkVolumeReader
+vtkWriter
+vtkXMLParser
 )
 
 LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff vtkexpat )

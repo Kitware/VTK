@@ -120,22 +120,22 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
               )
 
 ABSTRACT_FILES(
-vtkAbstractMapper3D.cxx
-vtkAbstractPicker.cxx
-vtkAbstractPropPicker.cxx
-vtkCuller.cxx
-vtkDirectionEncoder.cxx
-vtkEncodedGradientEstimator.cxx
-vtkExporter.cxx
-vtkGraphicsFactory.cxx
-vtkInteractorObserver.cxx
-vtkImporter.cxx
-vtkMapper.cxx
-vtkOpenGLRenderWindow.cxx
-vtkProp3D.cxx
-vtkVolumeMapper.cxx
-vtkVolumeRayCastFunction.cxx
-vtkVolumeTextureMapper.cxx
+vtkAbstractMapper3D
+vtkAbstractPicker
+vtkAbstractPropPicker
+vtkCuller
+vtkDirectionEncoder
+vtkEncodedGradientEstimator
+vtkExporter
+vtkGraphicsFactory
+vtkInteractorObserver
+vtkImporter
+vtkMapper
+vtkOpenGLRenderWindow
+vtkProp3D
+vtkVolumeMapper
+vtkVolumeRayCastFunction
+vtkVolumeTextureMapper
 )
 
 
@@ -202,7 +202,7 @@ IF (VTK_MANGLE_MESA)
                  vtkXMesaRenderWindow.cxx
                  vtkXMesaTextMapper.cxx
                 )
-    ABSTRACT_FILES(vtkMesaRenderWindow.cxx)
+    ABSTRACT_FILES(vtkMesaRenderWindow)
     LINK_LIBRARIES (${MESA_LIBRARY})
     IF(MESA_OS_LIBRARY)
       LINK_LIBRARIES( ${MESA_OS_LIBRARY} )
