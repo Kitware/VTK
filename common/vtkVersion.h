@@ -56,10 +56,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 
 #define VTK_MAJOR_VERSION 3
-#define VTK_MINOR_VERSION 1
-#define VTK_BUILD_VERSION 2
-#define VTK_VERSION "3.1.2"
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.716 $, $Date: 2000-12-13 01:02:10 $ (GMT)"
+#define VTK_MINOR_VERSION 2
+#define VTK_BUILD_VERSION 0
+#define VTK_VERSION "3.2.0"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.717 $, $Date: 2000-12-13 16:56:19 $ (GMT)"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
@@ -71,11 +71,11 @@ public:
   // Return the version of vtk this object is a part of.
   // A variety of methods are included. GetVTKSourceVersion returns a string
   // with an identifier which timestamps a particular source tree. 
-  static const char *GetVTKVersion() { return VTK_VERSION; };
-  static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; };
-  static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; };
-  static int GetVTKBuildVersion() { return VTK_BUILD_VERSION; };
-  static const char *GetVTKSourceVersion() { return VTK_SOURCE_VERSION; };
+  static const char *GetVTKVersion() { return VTK_VERSION; }
+  static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; }
+  static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; }
+  static int GetVTKBuildVersion() { return VTK_BUILD_VERSION; }
+  static const char *GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
   
 protected:
   vtkVersion() {}; //insure constructor/destructor protected
