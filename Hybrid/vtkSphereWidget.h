@@ -87,6 +87,11 @@ public:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
   virtual void PlaceWidget(float bounds[6]);
+  void PlaceWidget()
+    {this->Superclass::PlaceWidget();}
+  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
+                   float zmin, float zmax)
+    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
   // Set the representation of the sphere. Different representations are
@@ -133,6 +138,35 @@ public:
     {this->SphereSource->GetCenter(xyz);}
 
   // Description:
+  // Enable translation and scaling of the widget. By default, the widget
+  // can be translated and rotated.
+  vtkSetMacro(Translation,int);
+  vtkGetMacro(Translation,int);
+  vtkBooleanMacro(Translation,int);
+  vtkSetMacro(Scale,int);
+  vtkGetMacro(Scale,int);
+  vtkBooleanMacro(Scale,int);
+
+  // Description:
+  // The handle sits on the surface of the sphere and may be moved around
+  // the surface by picking (left mouse) and then moving. The position
+  // of the handle can be retrieved, this is useful for positioning cameras
+  // and lights. By default, the handle is turned off.
+  vtkSetMacro(HandleVisibility,int);
+  vtkGetMacro(HandleVisibility,int);
+  vtkBooleanMacro(HandleVisibility,int);
+
+  // Description:
+  // Set/Get the direction vector of the handle relative to the center of
+  // the sphere.
+  vtkSetVector3Macro(HandleDirection,float);
+  vtkGetVector3Macro(HandleDirection,float);
+
+  // Description:
+  // Get the position of the handle.
+  vtkGetVector3Macro(HandlePosition,float);
+  
+  // Description:
   // Grab the polydata (including points) that defines the sphere.  The
   // polydata consists of n+1 points, where n is the resolution of the
   // sphere. These point values are guaranteed to be up-to-date when either the
@@ -151,8 +185,15 @@ public:
   // Description:
   // Get the sphere properties. The properties of the sphere when selected 
   // and unselected can be manipulated.
-  vtkSetObjectMacro(SphereProperty,vtkProperty);
   vtkGetObjectMacro(SphereProperty,vtkProperty);
+  vtkGetObjectMacro(SelectedSphereProperty,vtkProperty);
+  
+  // Description:
+  // Get the handle properties (the little ball on the sphere is the
+  // handle). The properties of the handle when selected and unselected
+  // can be  manipulated.
+  vtkGetObjectMacro(HandleProperty,vtkProperty);
+  vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);
   
 protected:
   vtkSphereWidget();
@@ -165,6 +206,7 @@ protected:
     Start=0,
     Moving,
     Scaling,
+    Positioning,
     Outside
   };
 //ETX
@@ -193,9 +235,13 @@ protected:
   // Do the picking
   vtkCellPicker *SpherePicker;
   
-  // Methods to manipulate the hexahedron.
+  // Methods to manipulate the sphere widget
+  int Translation;
+  int Scale;
   void Translate(double *p1, double *p2);
-  void Scale(double *p1, double *p2, int X, int Y);
+  void ScaleSphere(double *p1, double *p2, int X, int Y);
+  void MoveHandle(double *p1, double *p2, int X, int Y);
+  void PlaceHandle(float *center, float radius);
   
   // Initial bounds
   float InitialBounds[6];
@@ -205,10 +251,19 @@ protected:
   // the manipulator in general.
   vtkProperty *SphereProperty;
   vtkProperty *SelectedSphereProperty;
+  vtkProperty *HandleProperty;
+  vtkProperty *SelectedHandleProperty;
   void CreateDefaultProperties();
 
-  void GenerateSphere();
-  
+  // Managing the handle
+  vtkActor          *HandleActor;
+  vtkPolyDataMapper *HandleMapper;
+  vtkSphereSource   *HandleSource;
+  void HighlightHandle(int);
+  int HandleVisibility;
+  float HandleDirection[3];
+  float HandlePosition[3];
+
 private:
   vtkSphereWidget(const vtkSphereWidget&);  //Not implemented
   void operator=(const vtkSphereWidget&);  //Not implemented
