@@ -3,13 +3,6 @@
 #
 AC_INIT(vtkActor.cxx)
 
-#
-# check for some programs we use
-#
-AC_PROG_CC
-AC_PROG_CXX
-AC_PROG_RANLIB
-
 TKWIDGET=""
 AC_ARG_WITH(tkwidget,
          [  --with-tkwidget           build the vtkTkRenderWidget class],
@@ -22,62 +15,38 @@ then
     cp $srcdir/targets.make targets.make || exit 1
 fi
 
-# get the common settings
-. ../vtkConfig.sh
+#------------------------------------------------------------------------------
+#       Some make programs require includes to be 
+#         .include "file"
+#     others...
+#         include file
+#------------------------------------------------------------------------------
 
-BIGENDIAN=$TMP_BIGENDIAN
-USE_TOOLKIT_FLAGS=$TMP_USE_TOOLKIT_FLAGS
-AC_SUBST(USE_TOOLKIT_FLAGS)
+AC_MSG_CHECKING(how make handles includes)
+cat > confmakeinc <<EOF
 
-AC_SUBST(BIGENDIAN)
-BUILD_TCL=$TMP_BUILD_TCL
-AC_SUBST(BUILD_TCL)
-CLEAN_TCL=$TMP_CLEAN_TCL
-AC_SUBST(CLEAN_TCL)
-BUILD_JAVA=$TMP_BUILD_JAVA
-AC_SUBST(BUILD_JAVA)
-CLEAN_JAVA=$TMP_CLEAN_JAVA
-AC_SUBST(CLEAN_JAVA)
-MAKEINCLUDE=$TMP_MAKEINCLUDE
+EOF
+  cat > confmakefile <<EOF
+include confmakeinc
+
+all:
+EOF
+
+if make -f confmakefile >/dev/null 2>/dev/null; then
+    MAKEINCLUDE="include"
+    MAKEQUOTE=''
+    AC_MSG_RESULT(common make include syntax)
+else
+    MAKEINCLUDE=".include"
+    MAKEQUOTE='"'
+    AC_MSG_RESULT(BSD make include syntax)
+fi
+rm confmakefile confmakeinc
+
 AC_SUBST(MAKEINCLUDE)
-MAKEQUOTE=$TMP_MAKEQUOTE
 AC_SUBST(MAKEQUOTE)
-VTK_SHLIB_CFLAGS=$TMP_VTK_SHLIB_CFLAGS
-AC_SUBST(VTK_SHLIB_CFLAGS)
-VTK_LIB_EXT=$TMP_VTK_LIB_EXT
-AC_SUBST(VTK_LIB_EXT)
-SHLIB_LD=$TMP_SHLIB_LD
-AC_SUBST(SHLIB_LD)
-DL_LIBS=$TMP_DL_LIBS
-AC_SUBST(DL_LIBS)
-SHLIB_LD_LIBS=$TMP_SHLIB_LD_LIBS
-AC_SUBST(SHLIB_LD_LIBS)
-SHLIB_SUFFIX=$TMP_SHLIB_SUFFIX
-AC_SUBST(SHLIB_SUFFIX)
-SHLIB_VERSION=$TMP_SHLIB_VERSION
-AC_SUBST(SHLIB_VERSION)
-THREAD_FLAGS=$TMP_THREAD_FLAGS
-AC_SUBST(THREAD_FLAGS)
-THREAD_LIBS=$TMP_THREAD_LIBS
-AC_SUBST(THREAD_LIBS)
-VTK_INLINE_FLAGS=$TMP_VTK_INLINE_FLAGS
-AC_SUBST(VTK_INLINE_FLAGS)
-VTK_TEMPLATE_FLAGS=$TMP_VTK_TEMPLATE_FLAGS
-AC_SUBST(VTK_TEMPLATE_FLAGS)
-
-HAVE_SETMON=$TMP_HAVE_SETMON
-AC_SUBST(HAVE_SETMON)
-GRAPHICS_API_OBJ=$TMP_GRAPHICS_API_OBJ
-AC_SUBST(GRAPHICS_API_OBJ)
-GRAPHICS_API_FLAGS=$TMP_GRAPHICS_API_FLAGS
-AC_SUBST(GRAPHICS_API_FLAGS)
-GRAPHICS_API_LIBS=$TMP_GRAPHICS_API_LIBS
-AC_SUBST(GRAPHICS_API_LIBS)
 
 AC_CONFIG_SUBDIRS(tcl java examplesCxx)
-
-# Find the X include directories and libraries
-AC_PATH_XTRA
 
 dnl Checks for library functions.
 AC_OUTPUT(Makefile)

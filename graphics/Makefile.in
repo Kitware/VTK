@@ -7,6 +7,8 @@
 #
 ME = Graphics
 
+srcdir        = @srcdir@
+VPATH         = @srcdir@
 
 SBR_OBJ = \
 vtkStarbaseActor \
@@ -265,7 +267,7 @@ vtkVolume16Reader \
 vtkVoxelModeller \
 vtkWarpScalar \
 vtkWarpTo \
-vtkWarpVector  @GRAPHICS_API_OBJ@
+vtkWarpVector  ${GRAPHICS_API_OBJ}
 
 
 # The following is all boiler plate 
@@ -275,34 +277,12 @@ vtkWarpVector  @GRAPHICS_API_OBJ@
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
-# Autoconfig defines that can be overridden in Config.mk
+# Autoconfig defines that can be overridden in user.make
 
-CC            = @CC@
-CFLAGS        = @CFLAGS@
-CXX           = @CXX@
-CXXFLAGS      = @CXXFLAGS@
-XCFLAGS       = @X_CFLAGS@
-XLIBS         = @X_LIBS@
-RANLIB        = @RANLIB@
-srcdir        = @srcdir@
-VPATH         = @srcdir@
-prefix        = @prefix@
-exec_prefix   = @exec_prefix@
-HAVE_SETMON   = @HAVE_SETMON@
-WORDS_BIGENDIAN = @BIGENDIAN@
-VTK_SHLIB_CFLAGS = @VTK_SHLIB_CFLAGS@
-SHLIB_LD      = @SHLIB_LD@
-SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
-SHLIB_SUFFIX  = @SHLIB_SUFFIX@
-SHLIB_VERSION = @SHLIB_VERSION@
-VTK_LIB_FILE  = libVTK${ME}@VTK_LIB_EXT@
-TCL_LIB_FILE  = libVTK${ME}Tcl@VTK_LIB_EXT@
-VTK_TEMPLATE_FLAGS = @VTK_TEMPLATE_FLAGS@
-VTK_INLINE_FLAGS   = @VTK_INLINE_FLAGS@
-BUILD_TCL          = @BUILD_TCL@
-CLEAN_TCL          = @CLEAN_TCL@
-BUILD_JAVA         = @BUILD_JAVA@
-CLEAN_JAVA         = @CLEAN_JAVA@
+@MAKEINCLUDE@ @MAKEQUOTE@../system.make@MAKEQUOTE@
+
+VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
+TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
 
 # add in any extra libraies here
 KIT_LIBS = @TKWIDGET@ 
@@ -325,12 +305,12 @@ KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} ${SRC_OBJ}
 
 KIT_NEWS = ${TCL_NEWS} 
 
-KIT_FLAGS = @GRAPHICS_API_FLAGS@ @USE_TOOLKIT_FLAGS@ @THREAD_FLAGS@
+KIT_FLAGS = 
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
 
-@MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
+@MAKEINCLUDE@ @MAKEQUOTE@../user.make@MAKEQUOTE@
  
 #------------------------------------------------------------------------------
 # Include the generic stuff here

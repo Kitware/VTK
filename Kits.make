@@ -9,13 +9,11 @@ SHELL = /bin/sh
 
 #------------------------------------------------------------------------------
 
-CC_FLAGS = ${CPPFLAGS} ${CFLAGS} ${VTK_SHLIB_CFLAGS}
+CC_FLAGS = ${CPPFLAGS} ${CFLAGS} ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS}
 
-CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
-	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
-	${KIT_FLAGS} -I. \
-	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
-	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
+CXX_FLAGS = ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
+	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
+	 -I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} 
 
 all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 

@@ -11,48 +11,18 @@
 SHELL = /bin/sh
 .SUFFIXES: .cxx
 
-#------------------------------------------------------------------------------
-# Autoconfig defines that can be overridden in Config.mk
-
-CC            = @CC@
-CFLAGS        = @CFLAGS@
-CXX           = @CXX@
-CXXFLAGS      = @CXXFLAGS@
-XCFLAGS       = @X_CFLAGS@
-XLIBS         = @X_LIBS@
-RANLIB        = @RANLIB@
 srcdir        = @srcdir@
 VPATH         = @srcdir@
-prefix        = @prefix@
-exec_prefix   = @exec_prefix@
-WORDS_BIGENDIAN   = @BIGENDIAN@
-LEX 	      = @LEX@
-LEXLIB        = @LEXLIB@
-YACC          = @YACC@
-X_EXTRA_LIBS  = @X_EXTRA_LIBS@
-X_PRE_LIBS    = @X_PRE_LIBS@
-DL_LIBS       = @DL_LIBS@
-COMMON_DEPENDS = @COMMON_DEPENDS@
-VTK_INLINE_FLAGS  = @VTK_INLINE_FLAGS@
-USE_TOOLKIT_FLAGS = @USE_TOOLKIT_FLAGS@
-USE_GRAPHICS_LIBS = @USE_GRAPHICS_LIBS@
-USE_IMAGING_LIBS = @USE_IMAGING_LIBS@
-USE_PATENTED_LIBS = @USE_PATENTED_LIBS@
-USE_VOLUME_LIBS = @USE_VOLUME_LIBS@
-USE_CONTRIB_LIBS  = @USE_CONTRIB_LIBS@
-USE_TKWIDGET_FLAG  = @USE_TKWIDGET_FLAG@
-USE_GEAE_LIBS  = @USE_GEAE_LIBS@
-USE_GEMSIP_LIBS  = @USE_GEMSIP_LIBS@
-USE_GEMSIO_LIBS  = @USE_GEMSIO_LIBS@
-USE_GEMSVOLUME_LIBS  = @USE_GEMSVOLUME_LIBS@
-TOOLKIT_DEPENDS = @TOOLKIT_DEPENDS@
-GRAPHICS_API_LIBS = @GRAPHICS_API_LIBS@
-GRAPHICS_API_FLAGS = @GRAPHICS_API_FLAGS@
+
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in user.make
+
+@MAKEINCLUDE@ @MAKEQUOTE@../system.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
 
-@MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
+@MAKEINCLUDE@ @MAKEQUOTE@../user.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
 LDLIBS =  \
@@ -69,20 +39,17 @@ LDLIBS =  \
         -L../common -lVTKCommonTcl \
 	${XLIBS} ${GRAPHICS_API_LIBS} \
 	${TK_LIB} ${TCL_LIB} ${DL_LIBS} \
-	@THREAD_LIBS@
+	${THREAD_LIBS}
 
-CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
-	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
+
+CXX_FLAGS = ${CPPFLAGS} ${CXXFLAGS} -I${srcdir} \
 	-I${srcdir}/../common ${TK_INCLUDE} ${TCL_INCLUDE} \
-	${USE_TOOLKIT_FLAGS} ${USE_TKWIDGET_FLAG} \
-	${GRAPHICS_API_FLAGS} \
-	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
+	@USE_TKWIDGET_FLAG@ ${GRAPHICS_API_FLAGS} \
+	${USE_TOOLKIT_FLAGS}
 
-C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} \
-	${TK_INCLUDE} ${TCL_INCLUDE} \
-	${USE_TOOLKIT_FLAGS} ${VTK_SHLIB_CFLAGS} ${USE_TKWIDGET_FLAG} \
-	${GRAPHICS_API_FLAGS} \
-	-D_HP_NO_FAST_MACROS
+C_FLAGS = ${CPPFLAGS} ${CFLAGS} -I${srcdir} \
+	${TK_INCLUDE} ${TCL_INCLUDE} @USE_TKWIDGET_FLAG@ \
+	${GRAPHICS_API_FLAGS} ${USE_TOOLKIT_FLAGS}
 
 all:  kit_init cpp_parse
 
@@ -103,12 +70,12 @@ cpp_parse: $(srcdir)/y.tab.c $(srcdir)/lex.yy.c
 #
 vtk: 	Makefile tkAppInit.o ${TOOLKIT_DEPENDS} 
 	$(CXX) -o vtk tkAppInit.o \
-	-L. @VTK_SHLIB_LINK_FLAGS@ ${XLDFLAGS} ${LDLIBS} \
+	-L. ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 vtktcl: Makefile vtktcl.o ${COMMON_DEPENDS}
-	@SHLIB_LD@ -o libvtktcl$(SHLIB_SUFFIX)$(SHLIB_VERSION) vtktcl.o \
-	-L. @VTK_SHLIB_LINK_FLAGS@ ${XLDFLAGS} ${LDLIBS} \
+	${SHLIB_LD} -o libvtktcl$(SHLIB_SUFFIX)$(SHLIB_VERSION) vtktcl.o \
+	-L. ${VTK_SHLIB_LINK_FLAGS} ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm ${JAVA_CXX_LIB}
 
 #------------------------------------------------------------------------------

@@ -6,6 +6,7 @@ AC_INIT()
 #
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_RANLIB
 AC_PATH_XTRA
 
 # get byte swapping info
@@ -266,13 +267,13 @@ AC_SUBST(MAKEQUOTE)
 
 
 #------------------------------------------------------------------------------
-#       If Config.mk is not in the build directory, copy it local.
+#       If user.make is not in the build directory, copy it local.
 #------------------------------------------------------------------------------
 
-if test ! -r Config.mk
+if test ! -r user.make
 then
-    echo "Copying $srcdir/Config.mk to build directory"
-    cp $srcdir/Config.mk  Config.mk || exit 1
+    echo "Copying $srcdir/user.make to build directory"
+    cp $srcdir/user.make  user.make || exit 1
 fi
 
 
@@ -768,7 +769,7 @@ fi
 
 AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $patenteddir $volumedir $contribdir $geaedir $gemsipdir $gemsiodir $gemsvolumedir $javadir)
 
-AC_OUTPUT(Makefile vtkConfig.sh)
+AC_OUTPUT(Makefile system.make)
 
 
 

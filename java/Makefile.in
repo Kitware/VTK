@@ -11,46 +11,19 @@
 SHELL = /bin/sh
 .SUFFIXES: .cxx .java
 
-#------------------------------------------------------------------------------
-# Autoconfig defines that can be overridden in Config.mk
 
-CC            = @CC@
-CFLAGS        = @CFLAGS@
-CXX           = @CXX@
-CXXFLAGS      = @CXXFLAGS@
-XCFLAGS       = @X_CFLAGS@
-XLIBS         = @X_LIBS@
-RANLIB        = @RANLIB@
 srcdir        = @srcdir@
 VPATH         = @srcdir@
-prefix        = @prefix@
-exec_prefix   = @exec_prefix@
-WORDS_BIGENDIAN   = @BIGENDIAN@
-LEX 	      = @LEX@
-LEXLIB        = @LEXLIB@
-YACC          = @YACC@
-SHLIB_LD      = @SHLIB_LD@
-SHLIB_LD_LIBS = @SHLIB_LD_LIBS@
-SHLIB_SUFFIX  = @SHLIB_SUFFIX@
-SHLIB_VERSION = @SHLIB_VERSION@
-VTK_INLINE_FLAGS  = @VTK_INLINE_FLAGS@
-USE_TOOLKIT_FLAGS = @USE_TOOLKIT_FLAGS@
-USE_GRAPHICS_LIBS = @USE_GRAPHICS_LIBS@
-USE_IMAGING_LIBS = @USE_IMAGING_LIBS@
-USE_PATENTED_LIBS = @USE_PATENTED_LIBS@
-USE_VOLUME_LIBS = @USE_VOLUME_LIBS@
-USE_CONTRIB_LIBS  = @USE_CONTRIB_LIBS@
-USE_GEAE_LIBS  = @USE_GEAE_LIBS@
-USE_GEMSIP_LIBS  = @USE_GEMSIP_LIBS@
-USE_GEMSIO_LIBS  = @USE_GEMSIO_LIBS@
-USE_GEMSVOLUME_LIBS  = @USE_GEMSVOLUME_LIBS@
-GRAPHICS_API_LIBS    = @GRAPHICS_API_LIBS@
-GRAPHICS_API_FLAGS   = @GRAPHICS_API_FLAGS@
+
+#------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in user.make
+
+@MAKEINCLUDE@ @MAKEQUOTE@../system.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
 
-@MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
+@MAKEINCLUDE@ @MAKEQUOTE@../user.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
 LDLIBS = -L../common \
@@ -64,7 +37,7 @@ LDLIBS = -L../common \
 	${USE_IMAGING_LIBS}	\
 	${USE_GRAPHICS_LIBS}	\
         -lVTKCommonJava \
-        ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} @THREAD_LIBS@
+        ${XLIBS} ${GRAPHICS_API_LIBS} ${DL_LIBS} ${THREAD_LIBS}
 
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir} 
 

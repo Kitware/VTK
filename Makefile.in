@@ -7,28 +7,22 @@
 #
 SHELL=/bin/sh
 
-#------------------------------------------------------------------------------
-# Autoconfig defines that can be overridden in Config.mk
-
-CC                = @CC@
-CFLAGS            = @CFLAGS@
-srcdir            = @srcdir@
-VPATH             = @srcdir@
-prefix            = @prefix@
-exec_prefix       = @exec_prefix@
-BUILD_TCL         = @BUILD_TCL@
-CLEAN_TCL         = @CLEAN_TCL@
-BUILD_JAVA        = @BUILD_JAVA@
-CLEAN_JAVA        = @CLEAN_JAVA@
+srcdir        = @srcdir@
+VPATH         = @srcdir@
 
 BUILD_TOOLKITS    = @BUILD_TOOLKITS@
 DEPEND_TOOLKITS   = @DEPEND_TOOLKITS@
 CLEAN_TOOLKITS    = @CLEAN_TOOLKITS@
 
 #------------------------------------------------------------------------------
+# Autoconfig defines that can be overridden in user.make
+
+@MAKEINCLUDE@ @MAKEQUOTE@system.make@MAKEQUOTE@
+
+#------------------------------------------------------------------------------
 # Include user-editable defines.
 
-@MAKEINCLUDE@ @MAKEQUOTE@Config.mk@MAKEQUOTE@
+@MAKEINCLUDE@ @MAKEQUOTE@user.make@MAKEQUOTE@
 
 #------------------------------------------------------------------------------
 
