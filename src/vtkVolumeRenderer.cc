@@ -134,7 +134,7 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 	  }
 	}
       // composite the rays and write the result
-      yoffset = (size[1] - y - 1)*size[0];
+      yoffset = y*size[0];
       this->Composite(rays,steps,i,resultColor);
       this->Image[(yoffset+x)*3] = 
 	(unsigned char)(resultColor[0]*resultColor[3]/255.0 + 
@@ -192,33 +192,33 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
       bounds = aVolume->GetBounds();
       if ((bounds[0] - position[0])*VPN[0] < (bounds[1] - position[0])*VPN[0])
 	{
-	xmax = (bounds[0] - position[0])*VPN[0];
-	xmin = (bounds[1] - position[0])*VPN[0];
+	xmax = -1.0*(bounds[0] - position[0])*VPN[0];
+	xmin = -1.0*(bounds[1] - position[0])*VPN[0];
 	}
       else
 	{
-	xmin = (bounds[0] - position[0])*VPN[0];
-	xmax = (bounds[1] - position[0])*VPN[0];
+	xmin = -1.0*(bounds[0] - position[0])*VPN[0];
+	xmax = -1.0*(bounds[1] - position[0])*VPN[0];
 	}
       if ((bounds[2] - position[1])*VPN[1] < (bounds[3] - position[1])*VPN[1])
 	{
-	ymax = (bounds[2] - position[1])*VPN[1];
-	ymin = (bounds[3] - position[1])*VPN[1];
+	ymax = -1.0*(bounds[2] - position[1])*VPN[1];
+	ymin = -1.0*(bounds[3] - position[1])*VPN[1];
 	}
       else
 	{
-	ymin = (bounds[2] - position[1])*VPN[1];
-	ymax = (bounds[3] - position[1])*VPN[1];
+	ymin = -1.0*(bounds[2] - position[1])*VPN[1];
+	ymax = -1.0*(bounds[3] - position[1])*VPN[1];
 	}
       if ((bounds[4] - position[2])*VPN[2] < (bounds[5] - position[2])*VPN[2])
 	{
-	zmax = (bounds[4] - position[2])*VPN[2];
-	zmin = (bounds[5] - position[2])*VPN[2];
+	zmax = -1.0*(bounds[4] - position[2])*VPN[2];
+	zmin = -1.0*(bounds[5] - position[2])*VPN[2];
 	}
       else
 	{
-	zmin = (bounds[4] - position[2])*VPN[2];
-	zmax = (bounds[5] - position[2])*VPN[2];
+	zmin = -1.0*(bounds[4] - position[2])*VPN[2];
+	zmax = -1.0*(bounds[5] - position[2])*VPN[2];
 	}
       if ((xmax + ymax + zmax) > maxz)
 	{
@@ -257,7 +257,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
   // calc the z val for front clipping plane
   for (i = 0; i < 3; i++)
     {
-    cameraFP[i] = position[i] + minz*VPN[i];
+    cameraFP[i] = position[i] - minz*VPN[i];
     }
   cameraFP[3] = 1.0;
   ren->SetWorldPoint(cameraFP);
@@ -266,7 +266,7 @@ void vtkVolumeRenderer::CalcRayValues(vtkRenderer *ren, float Vecs[6][3],
 
   for (i = 0; i < 3; i++)
     {
-    cameraFP[i] = position[i] + maxz*VPN[i];
+    cameraFP[i] = position[i] - maxz*VPN[i];
     }
   cameraFP[3] = 1.0;
   ren->SetWorldPoint(cameraFP);
