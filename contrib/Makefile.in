@@ -18,6 +18,7 @@ ABSTRACT =
 
 CONCRETE = \
 vtkEarthSource \
+vtkImageReslice \
 vtkIVWriter \
 vtkMassProperties \
 vtkOBJReader \
