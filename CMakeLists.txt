@@ -442,6 +442,13 @@ IF(VTK_OPENGL_HAS_OSMESA)
   MARK_AS_ADVANCED(OSMESA_INCLUDE_DIR OSMESA_LIBRARY)
 ENDIF(VTK_OPENGL_HAS_OSMESA)
 
+# Off-Screen MESA cannot be used with Mangled MESA.
+IF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
+  MESSAGE(SEND_ERROR
+    "Off-Screen MESA cannot be used with Mangled MESA.  Turn off either "
+    "VTK_OPENGL_HAS_OSMESA or VTK_USE_MANGLED_MESA.")
+ENDIF(VTK_OPENGL_HAS_OSMESA AND VTK_USE_MANGLED_MESA)
+
 #-----------------------------------------------------------------------------
 # Configure VolumePro support.
 IF(VTK_USE_VOLUMEPRO)
