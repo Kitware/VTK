@@ -33,7 +33,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.61");
+vtkCxxRevisionMacro(vtkClipVolume, "1.62");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -501,7 +501,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
                               vtkIdType cellId, vtkCellData *outCD, 
                               vtkCellData *clippedCD)
 {
-  float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
+  float x[3], s1, s2, t, voxelOrigin[3];
   float bounds[6], p1[3], p2[3];
   int i, k, edgeNum, numPts, numNew;
   vtkIdType id, ptId, npts, *pts;
