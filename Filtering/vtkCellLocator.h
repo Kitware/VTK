@@ -215,6 +215,23 @@ protected:
 //BTX - begin tcl exclude
   float (*CellBounds)[6];
 //ETX - end tcl exclude
+
+  void ComputeOctantBounds(int i, int j, int k);
+  float OctantBounds[6]; //the bounds of the current octant
+  int IsInOctantBounds(float x[3])
+    {
+    if ( this->OctantBounds[0] <= x[0] && x[0] <= this->OctantBounds[1] &&
+         this->OctantBounds[2] <= x[1] && x[1] <= this->OctantBounds[3] &&
+         this->OctantBounds[4] <= x[2] && x[2] <= this->OctantBounds[5] )
+      {
+      return 1;
+      }
+    else
+      {
+      return 0;
+      }
+    }
+
 private:
   vtkCellLocator(const vtkCellLocator&);  // Not implemented.
   void operator=(const vtkCellLocator&);  // Not implemented.

@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.77");
+vtkCxxRevisionMacro(vtkCellLocator, "1.78");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -151,6 +151,16 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
                                   subId, cellId);
 }
 
+void vtkCellLocator::ComputeOctantBounds(int i, int j, int k)
+{
+  this->OctantBounds[0] = this->Bounds[0] + i*H[0];
+  this->OctantBounds[1] = this->OctantBounds[0] + H[0];
+  this->OctantBounds[2] = this->Bounds[2] + j*H[1];
+  this->OctantBounds[3] = this->OctantBounds[2] + H[1];
+  this->OctantBounds[4] = this->Bounds[4] + k*H[2];
+  this->OctantBounds[5] = this->OctantBounds[4] + H[2];
+}
+
 // Return intersection point (if any) AND the cell which was intersected by
 // finite line
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
@@ -192,21 +202,30 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   int pos[3];
   int bestDir;
   float stopDist, currDist;
+  float deltaT, pDistance, minPDistance=1.0e38;
+  float length, maxLength=0.0;
   
   // convert the line into i,j,k coordinates
   tMax = 0.0;
   for (i=0; i < 3; i++) 
     {
     direction1[i] = a1[i] - a0[i];
-    origin[i] = (a0[i] - this->Bounds[2*i]) /
-      (this->Bounds[2*i+1] - this->Bounds[2*i]);
-    direction2[i] = direction1[i]/(this->Bounds[2*i+1] - this->Bounds[2*i]);
-
+    length = this->Bounds[2*i+1] - this->Bounds[2*i];
+    if ( length > maxLength )
+      {
+      maxLength = length;
+      }
+    origin[i] = (a0[i] - this->Bounds[2*i]) / length;
+    direction2[i] = direction1[i]/length;
+    
     bounds2[2*i]   = 0.0;
     bounds2[2*i+1] = 1.0;
     tMax += direction2[i]*direction2[i];
     }
   
+  // create a parametric range around the tolerance
+  deltaT = tol/maxLength;
+
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
     {
@@ -262,6 +281,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
       {
       if (this->Tree[idx])
         {
+        this->ComputeOctantBounds(pos[0]-1,pos[1]-1,pos[2]-1);
         for (tMax = VTK_LARGE_FLOAT, cellId=0; 
         cellId < this->Tree[idx]->GetNumberOfIds(); cellId++) 
           {
@@ -291,15 +311,27 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
               // now, do the expensive GetCell call and the expensive
               // intersect with line call
               this->DataSet->GetCell(cId, cell);
-            
-              if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId))
+              if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId) )
                 {
-                if (t < tMax)
+                if ( ! this->IsInOctantBounds(x) ) 
                   {
-                  tMax = t;
-                  bestCellId = cId;
+                  this->CellHasBeenVisited[cId] = 0; //mark the cell non-visited
                   }
-                }
+                else
+                  {
+                  if ( t < (tMax+deltaT) ) //it might be close
+                    {
+                    pDistance = cell->GetParametricDistance(pcoords);
+                    if ( pDistance < minPDistance || 
+                         (pDistance == minPDistance && t < tMax) )
+                      {
+                      tMax = t;
+                      minPDistance = pDistance;
+                      bestCellId = cId;
+                      }
+                    } //intersection point is in current octant
+                  } //if within current parametric range
+                } // if intersection
               } // if (hitCellBounds)
             } // if (!this->CellHasBeenVisited[cId])
           }
@@ -1176,6 +1208,7 @@ void vtkCellLocator::BuildLocator()
   int numCellsPerBucket = this->NumberOfCellsPerBucket;
   typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
+  float hTol[3];
   
   if ( (this->Tree != NULL) && (this->BuildTime > this->MTime)
     && (this->BuildTime > this->DataSet->GetMTime()) )
@@ -1259,6 +1292,7 @@ void vtkCellLocator::BuildLocator()
   for (i=0; i<3; i++)
     {
     this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / ndivs;
+    hTol[i] = this->H[i]/100.0;
     }
 
   //  Insert each cell into the appropriate octant.  Make sure cell
@@ -1282,10 +1316,10 @@ void vtkCellLocator::BuildLocator()
     // find min/max locations of bounding box
     for (i=0; i<3; i++)
       {
-      ijkMin[i] = (int)(((boundsPtr[2*i] - this->Bounds[2*i]) 
-        / this->H[i]) * 0.999);
-      ijkMax[i] = (int)(((boundsPtr[2*i+1] - this->Bounds[2*i])*1.001
-        / this->H[i]));
+      ijkMin[i] = (int)((boundsPtr[2*i] - this->Bounds[2*i] - hTol[i]) 
+        / this->H[i]);
+      ijkMax[i] = (int)((boundsPtr[2*i+1] - this->Bounds[2*i] + hTol[i])
+        / this->H[i]);
       
       if (ijkMin[i] < 0)
         {
