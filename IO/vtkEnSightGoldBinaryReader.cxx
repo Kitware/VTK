@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.48");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.49");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -2660,8 +2660,16 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
   delete [] xCoords;
   delete [] yCoords;
   delete [] zCoords;
-  // reading next line to check for EOF
-  lineRead = this->ReadLine(line);
+
+  this->IFile->peek();
+  if (this->IFile->eof())
+    {
+    lineRead = 0;
+    }
+  else
+    {
+    lineRead = this->ReadLine(line);
+    }
   
   if (strncmp(line, "node_ids", 8) == 0)
     {
