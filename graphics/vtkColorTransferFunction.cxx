@@ -846,6 +846,8 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
   this->ColorSpace     = f->ColorSpace;
   this->FunctionSize   = f->FunctionSize;
   this->NumberOfPoints = f->NumberOfPoints;
+  this->Range[0]       = f->Range[0];
+  this->Range[1]       = f->Range[1];
   
   if ( this->FunctionSize > 0 )
     {
