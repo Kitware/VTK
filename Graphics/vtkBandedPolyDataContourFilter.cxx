@@ -18,6 +18,8 @@
 #include "vtkCellData.h"
 #include "vtkEdgeTable.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -26,7 +28,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.44");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.45");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -40,7 +42,8 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   this->ClipTolerance = FLT_EPSILON;
   this->GenerateContourEdges = 0;
   this->InputScalarsSelection = NULL;
-  
+
+  this->SetNumberOfOutputPorts(2);
 }
 
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
@@ -184,11 +187,22 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
 
 
 // Create filled contours for polydata
-void vtkBandedPolyDataContourFilter::Execute()
+int vtkBandedPolyDataContourFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd = input->GetPointData();
-  vtkPolyData *output = this->GetOutput();
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD = output->GetCellData();
   vtkPoints *inPts = input->GetPoints();
@@ -216,7 +230,7 @@ void vtkBandedPolyDataContourFilter::Execute()
        !inScalars || numCells < 1 )
     {
     vtkErrorMacro(<<"No input data!");
-    return;
+    return 0;
     }
 
   // Set up supplemental data structures for processing edge/generating
@@ -758,16 +772,24 @@ void vtkBandedPolyDataContourFilter::Execute()
   newScalars->Delete();
   
   output->Squeeze();
+
+  return 1;
 }
 
 vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
 {
-  return static_cast<vtkPolyData *>(this->Outputs[1]);
+  if (this->GetNumberOfOutputPorts() < 2)
+    {
+    return NULL;
+    }
+
+  return vtkPolyData::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 unsigned long int vtkBandedPolyDataContourFilter::GetMTime()
 {
-  unsigned long mTime=this-> vtkPolyDataToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   time = this->ContourValues->GetMTime();
@@ -798,5 +820,3 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "InputScalarsSelection: " 
      << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
 }
-
-
