@@ -102,3 +102,13 @@ void vlThreshold::Execute()
   this->SetPoints(newPoints);
 }
 
+void vlThreshold::PrintSelf()
+{
+  if (this->ShouldIPrint(vlThreshold::GetClassName()))
+    {
+    vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
+
+    os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
+    os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
+    }
+}
