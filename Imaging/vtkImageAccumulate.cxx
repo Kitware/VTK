@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.52");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.53");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -115,6 +115,10 @@ void vtkImageAccumulate::SetStencil(vtkImageStencilData *stencil)
 //----------------------------------------------------------------------------
 vtkImageStencilData *vtkImageAccumulate::GetStencil()
 {
+  if (this->GetNumberOfInputConnections(1) < 1)
+    {
+    return 0;
+    }
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetInputData(this,1,0));
 }
