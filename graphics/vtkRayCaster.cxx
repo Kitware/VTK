@@ -456,31 +456,28 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
   float                time_to_render;
   float                estimated_time;
   int                  selected_level;
-  int                  visible_volume;
-  vtkVolumeCollection  *volumes;
-  vtkVolume            *volume;
+  int                  requiresScaling;
+  vtkPropCollection    *props;
+  vtkProp              *prop;
   float                estimated_scale;
   float                scale_diff;
 
   // loop through volumes looking for a visible one of the right type
-  visible_volume = 0;
-  volumes = ren->GetVolumes();
+  requiresScaling = 0;
+  props = ren->GetProps();
 
-  for (volumes->InitTraversal(); (volume = volumes->GetNextVolume()); )
+  for (props->InitTraversal(); (prop = props->GetNextProp()); )
     {
-    if (volume->GetVisibility() &&
-	( volume->GetVolumeMapper()->GetMapperType() == 
-	  VTK_RAYCAST_VOLUME_MAPPER ||
-	  volume->GetVolumeMapper()->GetMapperType() == 
-	  VTK_SOFTWAREBUFFER_VOLUME_MAPPER) )
+    if (prop->GetVisibility() &&
+	( prop->RequiresRayCasting() || prop->RequiresRenderingIntoImage() ) )
       {
-      visible_volume = 1;
+      requiresScaling = 1;
       break;
       }
     }
 
   // There's no visible volume so we shouldn't scale the image
-  if ( !visible_volume )
+  if ( !requiresScaling )
     {
     this->SelectedImageScaleIndex = 0;
     return 1.0;
@@ -519,61 +516,54 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
     // Full res would take too long - use the adjustable level that is
     // stored in ImageScale[VTK_MAX_VIEW_RAYS_LEVEL]
     selected_level = VTK_MAX_VIEW_RAYS_LEVEL;
-    // Only allow the scale to be adjusted every 3 renders to avoid
-    // trashing
-    if ( this->StableImageScaleCounter > 3 )
+
+    // If we have no render time, estimate the scale from the full
+    // res render time. If there is no full res render time (this
+    // should not happen!) then just pick 0.1 as the scale as a
+    // first guess since we have nothing to base a guess on
+    if ( this->ImageRenderTime[1] == 0.0 )
       {
-	// If we have no render time, estimate the scale from the full
-	// res render time. If there is no full res render time (this
-	// should not happen!) then just pick 0.1 as the scale as a
-	// first guess since we have nothing to base a guess on
-	if ( this->ImageRenderTime[1] == 0.0 )
-	  {
-	  if ( this->ImageRenderTime[0] != 0.0 )
-	    {
-	    estimated_scale = 
-	      sqrt( (double)( time_to_render / this->ImageRenderTime[0] ) );
-	    }
-	  else
-	    {
-	    estimated_scale = 0.1;
-	    }
-	  }
-	// There is a time for this scale - figure out how far off we
-	// are from hitting our desired time
-	else
-	  {
-	  estimated_scale = this->ImageScale[selected_level] *
-	    sqrt( (double)( time_to_render / this->ImageRenderTime[1] ) );
-	  }
-	// Put some bounds on the scale
-	if ( estimated_scale < this->AutomaticScaleLowerLimit ) 
-	  {
-	  estimated_scale = this->AutomaticScaleLowerLimit;
-	  }
-	if ( estimated_scale > 1.0 )
-	  {
-	  estimated_scale = 1.0;
-	  }
-	// How different is this from what we previously used?
-	scale_diff = estimated_scale - this->ImageScale[selected_level];
-	if ( scale_diff < 0 )
-	  {
-	  scale_diff = -scale_diff;
-	  }
-	// Make sure the difference is significant to avoid trashing
-	if ( scale_diff > 0.02 )
-	  {
-	  this->ImageScale[selected_level] = estimated_scale;
-	  // Reset the counter to 0 so that we have to wait 3 frames
-	  // before we can adjust this scale again
-	  this->StableImageScaleCounter = 0;
-	  }
-	else 
-	  // Increment the counter since we didn't adjust the scale
-	  {
-	  this->StableImageScaleCounter++;
-	  }
+      if ( this->ImageRenderTime[0] != 0.0 )
+	{
+	estimated_scale = 
+	  sqrt( (double)( time_to_render / this->ImageRenderTime[0] ) );
+	}
+      else
+	{
+	estimated_scale = 0.1;
+	}
+      }
+    // There is a time for this scale - figure out how far off we
+    // are from hitting our desired time
+    else
+      {
+      estimated_scale = this->ImageScale[selected_level] *
+	sqrt( (double)( time_to_render / this->ImageRenderTime[1] ) );
+      }
+    // Put some bounds on the scale
+    if ( estimated_scale < this->AutomaticScaleLowerLimit ) 
+      {
+      estimated_scale = this->AutomaticScaleLowerLimit;
+      }
+    if ( estimated_scale > 1.0 )
+      {
+      estimated_scale = 1.0;
+      }
+    // How different is this from what we previously used?
+    scale_diff = estimated_scale - this->ImageScale[selected_level];
+    if ( scale_diff < 0 )
+      {
+      scale_diff = -scale_diff;
+      }
+    // Make sure the difference is significant to avoid trashing
+    if ( scale_diff > 0.02 && 
+	 ( this->StableImageScaleCounter > 0 ||
+	   this->ImageScale[selected_level] > estimated_scale ) )
+      {
+      this->ImageScale[selected_level] = estimated_scale;
+      // Reset the counter to 0 so that we have to wait 3 frames
+      // before we can adjust this scale again
+      this->StableImageScaleCounter = 0;
       }
     else 
       // Increment the counter since we didn't adjust the scale
@@ -590,7 +580,7 @@ float vtkRayCaster::GetViewportScaleFactor( vtkRenderer *ren )
     }
 
   this->SelectedImageScaleIndex = selected_level;
-
+  
   return this->ImageScale[ this->SelectedImageScaleIndex ];
 }
 
