@@ -23,6 +23,9 @@
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
+class vtkIdList;
+class vtkIntArray;
+
 class VTK_PARALLEL_EXPORT vtkExtractPolyDataPiece : public vtkPolyDataToPolyDataFilter
 {
 public:

@@ -23,6 +23,9 @@
 
 #include "vtkUnstructuredGridToUnstructuredGridFilter.h"
 
+class vtkIdList;
+class vtkIntArray;
+
 class VTK_PARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:

@@ -25,7 +25,9 @@
 
 #include "vtkStructuredGridSource.h"
 
+class vtkFloatArray;
 class vtkImageData;
+class vtkPoints;
 
 class VTK_PARALLEL_EXPORT vtkPOPReader : public vtkStructuredGridSource 
 {

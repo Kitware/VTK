@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkTransmitPolyDataPiece.h"
+
 #include "vtkExtractPolyDataPiece.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.10");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.11");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,

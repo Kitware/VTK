@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkExtractPolyDataPiece.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkOBBDicer.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.11");
+vtkCxxRevisionMacro(vtkExtractPolyDataPiece, "1.12");
 vtkStandardNewMacro(vtkExtractPolyDataPiece);
 
 vtkExtractPolyDataPiece::vtkExtractPolyDataPiece()

@@ -16,17 +16,19 @@
 
 =========================================================================*/
 #include "vtkPipelineSize.h"
-#include "vtkDataObject.h"
-#include "vtkSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkDataReader.h"
-#include "vtkConeSource.h"
-#include "vtkPlaneSource.h"
-#include "vtkLargeInteger.h"
-#include "vtkPSphereSource.h"
-#include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkPipelineSize, "1.11");
+#include "vtkConeSource.h"
+#include "vtkDataObject.h"
+#include "vtkDataReader.h"
+#include "vtkLargeInteger.h"
+#include "vtkObjectFactory.h"
+#include "vtkPSphereSource.h"
+#include "vtkPlaneSource.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkSource.h"
+
+vtkCxxRevisionMacro(vtkPipelineSize, "1.12");
 vtkStandardNewMacro(vtkPipelineSize);
 
 unsigned long 

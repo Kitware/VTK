@@ -15,15 +15,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkPSphereSource.h"
-#include "vtkPoints.h"
+
 #include "vtkFloatArray.h"
+#include "vtkLargeInteger.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkLargeInteger.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPSphereSource, "1.9");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkPSphereSource, "1.10");
 vtkStandardNewMacro(vtkPSphereSource);
 
 //----------------------------------------------------------------------------

@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkExtractUnstructuredGridPiece.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.9");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.10");
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()

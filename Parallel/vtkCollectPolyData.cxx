@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkCollectPolyData.h"
+
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.9");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.10");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 vtkCxxSetObjectMacro(vtkCollectPolyData,Controller, vtkMultiProcessController);

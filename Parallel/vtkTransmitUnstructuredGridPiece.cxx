@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkTransmitUnstructuredGridPiece.h"
+
 #include "vtkExtractUnstructuredGridPiece.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.10");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.11");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,

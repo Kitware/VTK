@@ -16,9 +16,13 @@
 
 =========================================================================*/
 #include "vtkRectilinearGridOutlineFilter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.4");
+#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+
+vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.5");
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
