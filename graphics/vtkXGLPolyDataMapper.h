@@ -77,6 +77,8 @@ protected:
   Xgl_3d_ctx Context;
   Xgl_pt_list *PL;
   Xgl_pt_list *PL2; // no normals
+  Xgl_facet_list FL;
+  int   FacetSize;
   int   NumPolys;
   int   NumStrips;
   int   NumLines;

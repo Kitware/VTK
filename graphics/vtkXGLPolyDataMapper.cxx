@@ -61,6 +61,34 @@ vtkXGLPolyDataMapper::~vtkXGLPolyDataMapper()
   float *fTemp;
   
   // free old memory 
+  switch (this->FL.facet_type)
+    {
+    case XGL_FACET_COLOR:
+      if (this->FL.facets.color_facets)
+	{
+	delete [] this->FL.facets.color_facets;
+	this->FL.facets.color_facets = NULL;
+	}
+      break;
+    case XGL_FACET_NORMAL:
+      if (this->FL.facets.normal_facets)
+	{
+	delete [] this->FL.facets.normal_facets;
+	this->FL.facets.normal_facets = NULL;
+	}
+      break;
+    case XGL_FACET_COLOR_NORMAL:
+      if (this->FL.facets.color_normal_facets)
+	{
+	delete [] this->FL.facets.color_normal_facets;
+	this->FL.facets.color_normal_facets = NULL;
+	}
+      break;
+    default: break;
+    }
+  this->FL.facet_type = XGL_FACET_NONE;
+  this->FL.num_facets = 0;
+  
   if (this->PL)
     {
     for (i = 0; i < (this->NumPolys + this->NumStrips); i++)
@@ -92,7 +120,6 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
-  vtkUnsignedCharArray *c=NULL;
 //
 // make sure that we've been properly initialized
 //
@@ -333,8 +360,41 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
   Xgl_pt_type ptType, ptType2;
   float *fTemp;
   int numDataVals;
+  int cellScalars = 0;
+  int cellNormals = 0;
+  unsigned char *rgb;
+  vtkScalars *vc;
+  
   
   // free old memory
+  switch (this->FL.facet_type)
+    {
+    case XGL_FACET_COLOR:
+      if (this->FL.facets.color_facets)
+	{
+	delete [] this->FL.facets.color_facets;
+	this->FL.facets.color_facets = NULL;
+	}
+      break;
+    case XGL_FACET_NORMAL:
+      if (this->FL.facets.normal_facets)
+	{
+	delete [] this->FL.facets.normal_facets;
+	this->FL.facets.normal_facets = NULL;
+	}
+      break;
+    case XGL_FACET_COLOR_NORMAL:
+      if (this->FL.facets.color_normal_facets)
+	{
+	delete [] this->FL.facets.color_normal_facets;
+	this->FL.facets.color_normal_facets = NULL;
+	}
+      break;
+    default: break;
+    }
+  this->FL.facet_type = XGL_FACET_NONE;
+  this->FL.num_facets = 0;
+
   if (this->PL)
     {
     for (i = 0; i < (this->NumPolys + this->NumStrips); i++)
@@ -371,12 +431,22 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
   
   p = data->GetPoints();
   n = data->GetPointData()->GetNormals();
-  t = data->GetPointData()->GetTCoords();
+  if (!n && data->GetCellData()->GetNormals())
+    {
+    n = data->GetCellData()->GetNormals();
+    cellNormals = 1;
+    }
+    
   if ( c )
     {
     c->InitColorTraversal(1.0, this->LookupTable, this->ColorMode);
+    if (!data->GetPointData()->GetScalars())
+      {
+      cellScalars = 1;
+      }
     }
 
+  t = data->GetPointData()->GetTCoords();
   if ( t ) 
     {
     tDim = t->GetNumberOfComponents();
@@ -388,6 +458,33 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
     }
 
   // get memory and copy the data
+  if ((cellScalars || cellNormals) && this->NumPolys)
+    {
+    this->FL.num_facets = this->NumPolys;
+    if (cellScalars)
+      {
+      if (cellNormals)
+	{
+	this->FL.facets.color_normal_facets = 
+	  new Xgl_color_normal_facet [this->NumPolys];
+	this->FL.facet_type = XGL_FACET_COLOR_NORMAL;
+	this->FacetSize = sizeof(Xgl_color_normal_facet);
+	}
+      else
+	{
+	this->FL.facets.color_facets = new Xgl_color_facet [this->NumPolys];
+	this->FL.facet_type = XGL_FACET_COLOR;
+	this->FacetSize = sizeof(Xgl_color_facet);
+	}
+      }
+    else
+      {
+      this->FL.facets.normal_facets = new Xgl_normal_facet [this->NumPolys];
+      this->FL.facet_type = XGL_FACET_NORMAL;
+      this->FacetSize = sizeof(Xgl_normal_facet);
+      }
+    }
+
   if (this->NumPolys + this->NumStrips)
     {
     this->PL = new Xgl_pt_list [this->NumPolys + this->NumStrips];
@@ -407,8 +504,16 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
       }
     }
   
-  pointSize = 6;
-  if (c)
+  if (cellNormals)
+    {
+    pointSize = 3;
+    }
+  else
+    {
+    pointSize = 6;
+    }
+  
+  if (c && !cellScalars)
     {
     pointSize += 3;
     }
@@ -416,32 +521,78 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
     {
     numDataVals = 2;
     pointSize += 2;
-    if (c) 
+    if (c && !cellScalars) 
       {
-      ptType = XGL_PT_COLOR_NORMAL_DATA_F3D;
+      if (n && cellNormals)
+	{
+	ptType = XGL_PT_COLOR_DATA_F3D;
+	}
+      else
+	{
+	ptType = XGL_PT_COLOR_NORMAL_DATA_F3D;
+	}
       ptType2 = XGL_PT_COLOR_DATA_F3D;
       }
     else   
       {
-      ptType = XGL_PT_NORMAL_DATA_F3D;
+      if (n && cellNormals)
+	{
+	ptType = XGL_PT_DATA_F3D;
+	}
+      else
+	{
+	ptType = XGL_PT_NORMAL_DATA_F3D;
+	}
       ptType2 = XGL_PT_DATA_F3D;
       }
     }
   else
     {
     numDataVals = 0;
-    if (c) 
+    if (c && !cellScalars) 
       {
-      ptType = XGL_PT_COLOR_NORMAL_F3D;
+      if (n && cellNormals)
+	{
+	ptType = XGL_PT_COLOR_F3D;
+	}
+      else
+	{
+	ptType = XGL_PT_COLOR_NORMAL_F3D;
+	}
       ptType2 = XGL_PT_COLOR_F3D;
       }
     else
       {
-      ptType = XGL_PT_NORMAL_F3D;
+      if (n && cellNormals)
+	{
+	ptType = XGL_PT_F3D;
+	}
+      else
+	{
+	ptType = XGL_PT_NORMAL_F3D;
+	}
       ptType2 = XGL_PT_F3D;
       }
     }
-  pointSize2 = pointSize - 3;
+  if (n && cellNormals)
+    {
+    pointSize2 = pointSize;
+    }
+  else
+    {
+    pointSize2 = pointSize - 3;
+    }
+  
+
+  // vertex colors in vc if any
+  if (cellScalars)
+    {
+    vc = NULL;
+    }
+  else
+    {
+    vc = c;
+    }
   
   // DON'T MESS WITH i past this point
   i = 0;
@@ -449,6 +600,29 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
     {
     for (polys->InitTraversal(); (polys->GetNextCell(npts,pts)); i++)
       { 
+      switch (this->FL.facet_type)
+	{
+	case XGL_FACET_COLOR: 
+	  rgb = c->GetColor(i);
+	  this->FL.facets.color_facets[i].color.rgb.r = rgb[0]/255.0;
+	  this->FL.facets.color_facets[i].color.rgb.g = rgb[1]/255.0;
+	  this->FL.facets.color_facets[i].color.rgb.b = rgb[2]/255.0;
+	  break;
+	case XGL_FACET_NORMAL: 
+	  memcpy(&(this->FL.facets.normal_facets[i].normal),
+		 n->GetNormal(i), sizeof(float)*3);
+	  break;
+	case XGL_FACET_COLOR_NORMAL: 
+	  rgb = c->GetColor(i);
+	  this->FL.facets.color_normal_facets[i].color.rgb.r = rgb[0]/255.0;
+	  this->FL.facets.color_normal_facets[i].color.rgb.g = rgb[1]/255.0;
+	  this->FL.facets.color_normal_facets[i].color.rgb.b = rgb[2]/255.0;
+	  memcpy(&(this->FL.facets.color_normal_facets[i].normal),
+		 n->GetNormal(i), sizeof(float)*3);
+	  break;
+	default: break;
+	}
+      
       this->PL[i].num_pts = npts;
       this->PL[i].bbox = NULL;
       this->PL[i].pt_type = ptType;
@@ -456,9 +630,17 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
       
       if (!n) vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
       
-      this->PL[i].pts.data_f3d = 
-	(Xgl_pt_data_f3d *)this->AddVertexWithNormal(npts,pointSize,pts,
-						     p,c,t,n,polyNorm);
+      if (cellNormals)
+	{
+	this->PL[i].pts.data_f3d = 
+	  (Xgl_pt_data_f3d *)this->AddVertex(npts,pointSize,pts,p,vc,t);
+	}
+      else
+	{
+	this->PL[i].pts.data_f3d = 
+	  (Xgl_pt_data_f3d *)this->AddVertexWithNormal(npts,pointSize,pts,
+						       p,vc,t,n,polyNorm);
+	}
       }
     }
 
@@ -524,8 +706,8 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
 void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {
   vtkXGLRenderer *ren = (vtkXGLRenderer *)aren;
-  vtkProperty *prop;
   int polygonsToRender, i;
+  Xgl_color_facet *temp;
   
   if ((!this->PL) && (!this->PL2)) return;
 
@@ -535,20 +717,27 @@ void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   if ( act->GetProperty()->GetOpacity() <= 0.0 ) return;
   
   polygonsToRender = this->NumPolys;
+  temp = this->FL.facets.color_facets;
+  
   while (polygonsToRender > 0)
     {
     if (polygonsToRender > 100)
       {
-      xgl_multi_simple_polygon(this->Context, 0, NULL, NULL,100,
+      xgl_multi_simple_polygon(this->Context, 0, &this->FL, NULL, 100,
 			       &(this->PL[this->NumPolys-polygonsToRender]));
       }
     else
       {
-      xgl_multi_simple_polygon(this->Context, 0, NULL, NULL,polygonsToRender,
+      xgl_multi_simple_polygon(this->Context, 0, &this->FL,
+			       NULL, polygonsToRender,
 			       &(this->PL[this->NumPolys-polygonsToRender]));
       }
     polygonsToRender -= 100;
+    this->FL.facets.color_facets = 
+      this->FL.facets.color_facets + this->FacetSize/sizeof(Xgl_color_facet);
     }
+  this->FL.facets.color_facets = temp;
+
   
   if (this->NumStrips)
     {

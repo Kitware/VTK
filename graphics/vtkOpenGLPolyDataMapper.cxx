@@ -245,6 +245,39 @@ void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
     }
 }
 
+void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
+			int &cellNum, vtkPoints *p, vtkNormals *n, 
+			vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    glNormal3fv(n->GetNormal(cellNum));
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
 void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
 		      int &, vtkPoints *p, vtkNormals *n, 
 		      vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
@@ -295,6 +328,40 @@ void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
       {
       glColor4ubv(c->GetColor(pts[j]));
       glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
+			 int &cellNum, vtkPoints *p, vtkNormals *n, 
+			 vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			 int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    glNormal3fv(n->GetNormal(cellNum));
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -362,6 +429,39 @@ void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
       {
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
+			 int &cellNum, vtkPoints *p, vtkNormals *n, 
+			 vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			 int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    glNormal3fv(n->GetNormal(cellNum));
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -446,6 +546,41 @@ void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
     }
 }
 
+void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
+			  int &cellNum, vtkPoints *p, vtkNormals *n, 
+			  vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			  int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    glNormal3fv(n->GetNormal(cellNum));
+    
+    for (j = 0; j < npts; j++) 
+      {
+      glColor4ubv(c->GetColor(pts[j]));
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
 void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
 		       int &cellNum, vtkPoints *p, vtkNormals *n, 
 		       vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
@@ -492,11 +627,45 @@ void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
        count++, cellNum++)
     { 
     glBegin(aGlFunction);
+    glColor4ubv(c->GetColor(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
-      glColor4ubv(c->GetColor(cellNum));
       glNormal3fv(n->GetNormal(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
+
+void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
+			  int &cellNum, vtkPoints *p, vtkNormals *n, 
+			  vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			  int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    glColor4ubv(c->GetColor(cellNum));
+    glNormal3fv(n->GetNormal(cellNum));
+    
+    for (j = 0; j < npts; j++) 
+      {
       glVertex3fv(p->GetPoint(pts[j]));
       }
     glEnd();
@@ -582,6 +751,40 @@ void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
     }
 }
 
+void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
+			   int &cellNum, vtkPoints *p, vtkNormals *n, 
+			   vtkScalars *c, vtkTCoords *t, vtkOpenGLRenderer *ren,
+			   int &noAbort)
+{
+  int j, npts, *pts;
+  int idx[3];
+  int count = 0;
+  
+  for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+       count++, cellNum++)
+    { 
+    glBegin(aGlFunction);
+    glColor4ubv(c->GetColor(cellNum));
+    glNormal3fv(n->GetNormal(cellNum));
+      
+    for (j = 0; j < npts; j++) 
+      {
+      glTexCoord2fv(t->GetTCoord(pts[j]));
+      glVertex3fv(p->GetPoint(pts[j]));
+      }
+    glEnd();
+    
+    // check for abort condition
+    if (count == 100)
+      {
+      count = 0;
+      if (ren->GetRenderWindow()->CheckAbortStatus())
+	{
+	noAbort = 0;
+	}
+      }
+    }
+}
 
 
 void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
@@ -1575,6 +1778,8 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   float diff;
   int cellScalars = 0;
   int cellNum = 0;
+  int cellNormals = 0;
+  
   
   // get the property 
   prop = act->GetProperty();
@@ -1653,6 +1858,13 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 
   n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT) n = 0;
+  
+  if (!n && input->GetCellData()->GetNormals())
+    {
+    cellNormals = 1;
+    n = input->GetCellData()->GetNormals();
+    }
+  
 
   // if we are doing vertex colors then set lmcolor to adjust 
   // the current materials ambient and diffuse values using   
@@ -1673,6 +1885,8 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   if (c) idx += 2;
   if (t) idx += 4;
   if (cellScalars) idx += 8;
+  if (cellNormals) idx += 16;
+  
   switch (idx) 
     {
     case 0: draw0 = vtkOpenGLDraw01; break;
@@ -1687,6 +1901,13 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw0 = vtkOpenGLDrawNCS013; break;
     case 14: draw0 = vtkOpenGLDrawCST01; break;
     case 15: draw0 = vtkOpenGLDrawNCST013; break;
+
+    case 17: draw0 = vtkOpenGLDrawCN013; break;
+    case 19: draw0 = vtkOpenGLDrawCNS013; break;
+    case 21: draw0 = vtkOpenGLDrawCNT013; break;
+    case 23: draw0 = vtkOpenGLDrawCNST013; break;
+    case 27: draw0 = vtkOpenGLDrawCNCS013; break;
+    case 31: draw0 = vtkOpenGLDrawCNCST013; break;
     }
   
   // how do we draw lines
@@ -1706,6 +1927,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw1 = vtkOpenGLDrawNCS013; break;
     case 14: draw1 = vtkOpenGLDrawCST01; break;
     case 15: draw1 = vtkOpenGLDrawNCST013; break;
+    case 17: draw1 = vtkOpenGLDrawCN013; break;
+    case 19: draw1 = vtkOpenGLDrawCNS013; break;
+    case 21: draw1 = vtkOpenGLDrawCNT013; break;
+    case 23: draw1 = vtkOpenGLDrawCNST013; break;
+    case 27: draw1 = vtkOpenGLDrawCNCS013; break;
+    case 31: draw1 = vtkOpenGLDrawCNCST013; break;
     }
 
   // how do we draw tstrips
@@ -1727,6 +1954,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw2 = vtkOpenGLDrawNCS013; break;
     case 14: draw2 = vtkOpenGLDrawCST2; break;
     case 15: draw2 = vtkOpenGLDrawNCST013; break;
+    case 17: draw2 = vtkOpenGLDraw2; break;
+    case 19: draw2 = vtkOpenGLDrawS2; break;
+    case 21: draw2 = vtkOpenGLDrawT2; break;
+    case 23: draw2 = vtkOpenGLDrawST2; break;
+    case 27: draw2 = vtkOpenGLDrawCS2; break;
+    case 31: draw2 = vtkOpenGLDrawCST2; break;
     }
   switch (idx)
     {
@@ -1742,6 +1975,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw2W = vtkOpenGLDrawNW; break;
     case 14: draw2W = vtkOpenGLDrawTW; break;
     case 15: draw2W = vtkOpenGLDrawNTW; break;
+    case 17: draw2W = vtkOpenGLDrawW; break;
+    case 19: draw2W = vtkOpenGLDrawSW; break;
+    case 21: draw2W = vtkOpenGLDrawTW; break;
+    case 23: draw2W = vtkOpenGLDrawSTW; break;
+    case 27: draw2W = vtkOpenGLDrawW; break;
+    case 31: draw2W = vtkOpenGLDrawTW; break;
     }
   
   // how do we draw polys
@@ -1761,6 +2000,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     case 11: draw3 = vtkOpenGLDrawNCS013; break;
     case 14: draw3 = vtkOpenGLDrawCST3; break;
     case 15: draw3 = vtkOpenGLDrawNCST013; break;
+    case 17: draw3 = vtkOpenGLDrawCN013; break;
+    case 19: draw3 = vtkOpenGLDrawCNS013; break;
+    case 21: draw3 = vtkOpenGLDrawCNT013; break;
+    case 23: draw3 = vtkOpenGLDrawCNST013; break;
+    case 27: draw3 = vtkOpenGLDrawCNCS013; break;
+    case 31: draw3 = vtkOpenGLDrawCNCST013; break;
     }
 
   // do verts
