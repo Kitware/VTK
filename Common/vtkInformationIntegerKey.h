@@ -31,6 +31,13 @@ public:
   vtkInformationIntegerKey(const char* name, const char* location);
   ~vtkInformationIntegerKey();
 
+  // Description:
+  // Get/Set the value associated with this key in the given
+  // information object.
+  void Set(vtkInformation* info, int);
+  int Get(vtkInformation* info);
+  int Has(vtkInformation* info);
+
 private:
   vtkInformationIntegerKey(const vtkInformationIntegerKey&);  // Not implemented.
   void operator=(const vtkInformationIntegerKey&);  // Not implemented.

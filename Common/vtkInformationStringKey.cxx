@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkInformationStringKey, "1.2");
+#include <vtkstd/string>
+
+vtkCxxRevisionMacro(vtkInformationStringKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location):
@@ -31,4 +33,45 @@ vtkInformationStringKey::~vtkInformationStringKey()
 void vtkInformationStringKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+class vtkInformationStringValue: public vtkObjectBase
+{
+public:
+  vtkTypeMacro(vtkInformationStringValue, vtkObjectBase);
+  vtkstd::string Value;
+};
+
+//----------------------------------------------------------------------------
+void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
+{
+  if(value)
+    {
+    vtkInformationStringValue* v = new vtkInformationStringValue;
+    this->ConstructClass("vtkInformationStringValue");
+    v->Value = value;
+    this->SetAsObjectBase(info, v);
+    v->Delete();
+    }
+  else
+    {
+    this->SetAsObjectBase(info, 0);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkInformationStringKey::Get(vtkInformation* info)
+{
+  vtkInformationStringValue* v =
+    vtkInformationStringValue::SafeDownCast(this->GetAsObjectBase(info));
+  return v?v->Value.c_str():0;
+}
+
+//----------------------------------------------------------------------------
+int vtkInformationStringKey::Has(vtkInformation* info)
+{
+  vtkInformationStringValue* v =
+    vtkInformationStringValue::SafeDownCast(this->GetAsObjectBase(info));
+  return v?1:0;
 }

@@ -22,6 +22,8 @@
 
 #include "vtkInformationKey.h"
 
+class vtkDataObject;
+
 class VTK_COMMON_EXPORT vtkInformationDataObjectKey : public vtkInformationKey
 {
 public:
@@ -30,6 +32,13 @@ public:
 
   vtkInformationDataObjectKey(const char* name, const char* location);
   ~vtkInformationDataObjectKey();
+
+  // Description:
+  // Get/Set the value associated with this key in the given
+  // information object.
+  void Set(vtkInformation* info, vtkDataObject*);
+  vtkDataObject* Get(vtkInformation* info);
+  int Has(vtkInformation* info);
 
 private:
   vtkInformationDataObjectKey(const vtkInformationDataObjectKey&);  // Not implemented.

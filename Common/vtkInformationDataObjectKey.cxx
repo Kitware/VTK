@@ -14,7 +14,9 @@
 =========================================================================*/
 #include "vtkInformationDataObjectKey.h"
 
-vtkCxxRevisionMacro(vtkInformationDataObjectKey, "1.2");
+#include "vtkDataObject.h"
+
+vtkCxxRevisionMacro(vtkInformationDataObjectKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationDataObjectKey::vtkInformationDataObjectKey(const char* name, const char* location):
@@ -31,4 +33,23 @@ vtkInformationDataObjectKey::~vtkInformationDataObjectKey()
 void vtkInformationDataObjectKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationDataObjectKey::Set(vtkInformation* info,
+                                      vtkDataObject* value)
+{
+  this->SetAsObjectBase(info, value);
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkInformationDataObjectKey::Get(vtkInformation* info)
+{
+  return vtkDataObject::SafeDownCast(this->GetAsObjectBase(info));
+}
+
+//----------------------------------------------------------------------------
+int vtkInformationDataObjectKey::Has(vtkInformation* info)
+{
+  return vtkDataObject::SafeDownCast(this->GetAsObjectBase(info))?1:0;
 }

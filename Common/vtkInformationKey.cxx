@@ -14,7 +14,25 @@
 =========================================================================*/
 #include "vtkInformationKey.h"
 
-vtkCxxRevisionMacro(vtkInformationKey, "1.2");
+#include "vtkDebugLeaks.h"
+#include "vtkInformation.h"
+
+vtkCxxRevisionMacro(vtkInformationKey, "1.3");
+
+class vtkInformationKeyToInformationFriendship
+{
+public:
+  static void SetAsObjectBase(vtkInformation* info, vtkInformationKey* key,
+                              vtkObjectBase* value)
+    {
+    info->SetAsObjectBase(key, value);
+    }
+  static vtkObjectBase* GetAsObjectBase(vtkInformation* info,
+                                        vtkInformationKey* key)
+    {
+    return info->GetAsObjectBase(key);
+    }
+};
 
 //----------------------------------------------------------------------------
 vtkInformationKey::vtkInformationKey(const char* name, const char* location)
@@ -56,3 +74,33 @@ const char* vtkInformationKey::GetLocation()
 {
   return this->Location;
 }
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::SetAsObjectBase(vtkInformation* info,
+                                        vtkObjectBase* value)
+{
+  vtkInformationKeyToInformationFriendship::SetAsObjectBase(info, this, value);
+}
+
+//----------------------------------------------------------------------------
+vtkObjectBase* vtkInformationKey::GetAsObjectBase(vtkInformation* info)
+{
+  return vtkInformationKeyToInformationFriendship::GetAsObjectBase(info, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationKey::Remove(vtkInformation* info)
+{
+  this->SetAsObjectBase(info, 0);
+}
+
+#ifdef VTK_DEBUG_LEAKS
+void vtkInformationKey::ConstructClass(const char* name)
+{
+  vtkDebugLeaks::ConstructClass(name);
+}
+#else
+void vtkInformationKey::ConstructClass(const char*)
+{
+}
+#endif

@@ -31,6 +31,15 @@ public:
   vtkInformationKeyVectorKey(const char* name, const char* location);
   ~vtkInformationKeyVectorKey();
 
+  // Description:
+  // Get/Set the value associated with this key in the given
+  // information object.
+  void Set(vtkInformation* info, vtkInformationKey** value, int length);
+  vtkInformationKey** Get(vtkInformation* info);
+  void Get(vtkInformation* info, vtkInformationKey** value);
+  int Length(vtkInformation* info);
+  int Has(vtkInformation* info);
+
 private:
   vtkInformationKeyVectorKey(const vtkInformationKeyVectorKey&);  // Not implemented.
   void operator=(const vtkInformationKeyVectorKey&);  // Not implemented.

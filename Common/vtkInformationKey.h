@@ -29,6 +29,8 @@
 #include "vtkObjectBase.h"
 #include "vtkObject.h" // Need vtkTypeRevisionMacro
 
+class vtkInformation;
+
 class VTK_COMMON_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
@@ -62,9 +64,22 @@ public:
   vtkInformationKey(const char* name, const char* location);
   ~vtkInformationKey();
 
+  // Description:
+  // Remove this key from the given information object.
+  void Remove(vtkInformation* info);
+
 protected:
   const char* Name;
   const char* Location;
+
+  // Set/Get the value associated with this key instance in the given
+  // information object.
+  void SetAsObjectBase(vtkInformation* info, vtkObjectBase* value);
+  vtkObjectBase* GetAsObjectBase(vtkInformation* info);
+
+  // Helper for debug leaks support.
+  void ConstructClass(const char*);
+
 private:
   vtkInformationKey(const vtkInformationKey&);  // Not implemented.
   void operator=(const vtkInformationKey&);  // Not implemented.

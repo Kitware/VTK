@@ -37,6 +37,7 @@ class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationInternals;
 class vtkInformationKey;
+class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
 class vtkInformationStringKey;
 class vtkInformationVector;
@@ -141,6 +142,10 @@ protected:
   // Internal implementation details.
   vtkInformationInternals* Internal;
 
+private:
+  //BTX
+  friend class vtkInformationKeyToInformationFriendship;
+  //ETX
 private:
   vtkInformation(const vtkInformation&);  // Not implemented.
   void operator=(const vtkInformation&);  // Not implemented.

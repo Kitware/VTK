@@ -23,6 +23,8 @@
 
 #include "vtkInformationKey.h"
 
+class vtkDataObject;
+
 class VTK_COMMON_EXPORT vtkInformationDataObjectVectorKey : public vtkInformationKey
 {
 public:
@@ -31,6 +33,15 @@ public:
 
   vtkInformationDataObjectVectorKey(const char* name, const char* location);
   ~vtkInformationDataObjectVectorKey();
+
+  // Description:
+  // Get/Set the value associated with this key in the given
+  // information object.
+  void Set(vtkInformation* info, vtkDataObject** value, int length);
+  vtkDataObject** Get(vtkInformation* info);
+  void Get(vtkInformation* info, vtkDataObject** value);
+  int Length(vtkInformation* info);
+  int Has(vtkInformation* info);
 
 private:
   vtkInformationDataObjectVectorKey(const vtkInformationDataObjectVectorKey&);  // Not implemented.

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkInformationIntegerKey.h"
 
-vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.2");
+vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.3");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char* location):
@@ -31,4 +31,40 @@ vtkInformationIntegerKey::~vtkInformationIntegerKey()
 void vtkInformationIntegerKey::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+class vtkInformationIntegerValue: public vtkObjectBase
+{
+public:
+  vtkTypeMacro(vtkInformationIntegerValue, vtkObjectBase);
+  int Value;
+};
+
+//----------------------------------------------------------------------------
+void vtkInformationIntegerKey::Set(vtkInformation* info, int value)
+{
+  vtkInformationIntegerValue* v = new vtkInformationIntegerValue;
+  this->ConstructClass("vtkInformationIntegerValue");
+  v->Value = value;
+  this->SetAsObjectBase(info, v);
+  v->Delete();
+}
+
+//----------------------------------------------------------------------------
+int vtkInformationIntegerKey::Get(vtkInformation* info)
+{
+  vtkInformationIntegerValue* v =
+    vtkInformationIntegerValue::SafeDownCast(
+      this->GetAsObjectBase(info));
+  return v?v->Value:0;
+}
+
+//----------------------------------------------------------------------------
+int vtkInformationIntegerKey::Has(vtkInformation* info)
+{
+  vtkInformationIntegerValue* v =
+    vtkInformationIntegerValue::SafeDownCast(
+      this->GetAsObjectBase(info));
+  return v?1:0;
 }
