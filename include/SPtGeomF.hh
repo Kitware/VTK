@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .SECTION Description
 // vlStructuredPointsGeometryFilter is a filter that extracts geometry from a
 // structured points dataset. By specifying appropriate i-j-k indices (via the 
-// "Extent instance variable, it is possible to extract a point, a line, a 
+// "Extent" instance variable), it is possible to extract a point, a line, a 
 // plane (i.e., image), or a "volume" from dataset. (Since the output is 
 // of type polydata, the volume is actually a (n x m x o) region of points).
 //    The extent specification is zero-offset. That is, the first k-plane in
