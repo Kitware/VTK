@@ -190,31 +190,60 @@ virtual type Get##name##MaxValue () \
   }
 
 //
-// Set pointer to object; uses vtkObject reference counting methodology.
-// Creates method Set"name"() (e.g., SetPoints()).
+// This macro defines a body of set object macro. It can be used either in 
+// the header file vtkSetObjectMacro or in the implementation one
+// vtkSetObjectMacro. It sets the pointer to object; uses vtkObject 
+// reference counting methodology. Creates method 
+// Set"name"() (e.g., SetPoints()).
 //
-#define vtkSetObjectMacro(name,type) \
-virtual void Set##name (type* _arg) \
-  { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
-  if (this->name != _arg) \
-    { \
-    if (this->name != NULL) { this->name->UnRegister(this); }\
-    this->name = _arg; \
-    if (this->name != NULL) { this->name->Register(this); } \
-    this->Modified(); \
-    } \
+#define vtkSetObjectMacroBody(name,type,args)                   \
+  {                                                             \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this         \
+                << "): setting " << #name " to " << args );     \
+  if (this->name != args)                                       \
+    {                                                           \
+    if (this->name != NULL) { this->name->UnRegister(this); }   \
+    this->name = args;                                          \
+    if (this->name != NULL) { this->name->Register(this); }     \
+    this->Modified();                                           \
+    }                                                           \
+  }
+
+//
+// Set pointer to object; uses vtkObject reference counting methodology.
+// Creates method Set"name"() (e.g., SetPoints()). This macro should
+// be used in the header file.
+//
+#define vtkSetObjectMacro(name,type)            \
+virtual void Set##name (type* _arg)             \
+  {                                             \
+  vtkSetObjectMacroBody(name,type,_arg);        \
+  }
+
+//
+// Set pointer to object; uses vtkObject reference counting methodology.
+// Creates method Set"name"() (e.g., SetPoints()). This macro should
+// be used in the implementation file. You will also have to write
+// prototype in the header file. The prototype should look like this:
+// virtual void Set"name"("type" *);
+//
+#define vtkSetObjectMacroImplementation(class,name,type)        \
+void class::Set##name (type* _arg)                              \
+  {                                                             \
+  vtkSetObjectMacroBody(name,type,_arg);                        \
   }
 
 //
 // Get pointer to object.  Creates member Get"name" (e.g., GetPoints()).
+// This macro should be used in the header file.
 //
-#define vtkGetObjectMacro(name,type) \
-virtual type *Get##name () \
-  { \
-      vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " #name " address " << this->name ); \
-  return this->name; \
-  } 
+#define vtkGetObjectMacro(name,type)                                    \
+virtual type *Get##name ()                                              \
+  {                                                                     \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this                 \
+                << "): returning " #name " address " << this->name );   \
+  return this->name;                                                    \
+  }
 
 //
 // Create members "name"On() and "name"Off() (e.g., DebugOn() DebugOff()).
