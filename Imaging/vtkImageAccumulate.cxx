@@ -229,7 +229,7 @@ void vtkImageAccumulate::ExecuteData(vtkDataObject *vtkNotUsed(out))
   outData->SetExtent(outData->GetWholeExtent());
   outData->AllocateScalars();
   
-  inPtr = inData->GetScalarPointer();
+  inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
   outPtr = outData->GetScalarPointer();
   
   // Components turned into x, y and z
