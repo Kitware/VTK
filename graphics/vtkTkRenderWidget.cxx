@@ -511,7 +511,7 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     {
     // Make the Render window.
     self->RenderWindow = vtkRenderWindow::New();
-    self->RenderWindow->Register(this);
+    self->RenderWindow->Register(NULL);
     self->RenderWindow->Delete();
     renderWindow = (vtkWin32OpenGLRenderWindow *)(self->RenderWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
@@ -526,9 +526,9 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 				 new_flag);
     if (renderWindow != self->RenderWindow)
       {
-      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(this);}
+      if (self->RenderWindow != NULL) {self->RenderWindow->UnRegister(NULL);}
       self->RenderWindow = (vtkRenderWindow *)(renderWindow);
-      if (self->RenderWindow != NULL) {self->RenderWindow->Register(this);}
+      if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
       }
     }
   
