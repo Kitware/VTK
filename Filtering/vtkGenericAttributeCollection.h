@@ -217,7 +217,6 @@ protected:
   // STL vector for storing index of point centered attributes
   vtkIntInternalVector *AttributeIndices;
   
-  
   int ActiveAttribute;
   int ActiveComponent;
   int NumberOfAttributesToInterpolate;

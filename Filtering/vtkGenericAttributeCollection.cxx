@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.4");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.5");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -377,7 +377,6 @@ void vtkGenericAttributeCollection::ComputeNumbers()
     unsigned long memory=0;
     int firstComponentIndex=0;
     
-    
     int c = this->GetNumberOfAttributes();
     
     for(int i = 0; i < c; ++i)
@@ -396,7 +395,6 @@ void vtkGenericAttributeCollection::ComputeNumbers()
         firstComponentIndex=firstComponentIndex+count;
         }
       }
-    
     this->NumberOfComponents = nb;
     this->NumberOfPointCenteredComponents = pnb;
     this->MaxNumberOfComponents = maxNb;
