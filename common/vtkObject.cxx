@@ -40,6 +40,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkObject.h"
 
+// Initialize static member that controls warning display
+static int vtkObjectGlobalWarningDisplay = 1;
+
+void vtkObject::SetGlobalWarningDisplay(int val)
+{
+  vtkObjectGlobalWarningDisplay = val;
+}
+
+int vtkObject::GetGlobalWarningDisplay()
+{
+  return vtkObjectGlobalWarningDisplay;
+}
+
 // Description:
 // This operator allows all subclasses of vtkObject to be printed via <<.
 // It in turn invokes the Print method, which in turn will invoke the

@@ -82,6 +82,14 @@ public:
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
   static void BreakOnError();
+
+  // Description:
+  // This is a global flag that controls whether any debug, warning
+  // or error messages are displayed.
+  static void SetGlobalWarningDisplay(int val);
+  static void GlobalWarningDisplayOn() {vtkObject::SetGlobalWarningDisplay(1);};
+  static void GlobalWarningDisplayOff() {vtkObject::SetGlobalWarningDisplay(0);};
+  static int  GetGlobalWarningDisplay();
   
 protected:
   unsigned char Debug;         // Enable debug messages
