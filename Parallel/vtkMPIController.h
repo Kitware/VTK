@@ -45,6 +45,10 @@
 
 #include "mpi.h"
 #include "vtkMultiProcessController.h"
+// Do not remove this header file. This class contains methods
+// which take arguments defined in  vtkMPICommunicator.h by
+// reference.
+#include "vtkMPICommunicator.h"
 
 class vtkMPICommunicator;
 
