@@ -754,7 +754,7 @@ int vtkFunctionParser::CheckSyntax()
   char* ptr;
   int functionNumber;
   
-  while (true)
+  while (1)
     {
     currentChar = this->Function[index];
     
