@@ -66,6 +66,7 @@ void vtkRotationalExtrusionFilter::Execute()
   int npts, *pts, numEdges, cellId, dim;
   int ptId, ncells;
   float *x, newX[3], radius, angleIncr, radIncr, transIncr;
+  float psi, theta;
   vtkFloatPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *cell, *edge;
@@ -126,17 +127,28 @@ void vtkRotationalExtrusionFilter::Execute()
     outPD->CopyData(pd,ptId,ptId);
     }
 
+  // loop assumes rotation around z-axis
   radIncr = this->DeltaRadius / this->Resolution;
   transIncr = this->Translation / this->Resolution;
-  angleIncr = this->Angle / this->Resolution;
+  angleIncr = this->Angle / this->Resolution * math.DegreesToRadians();
   for ( i = 1; i <= this->Resolution; i++ )
     {
     for (ptId=0; ptId < numPts; ptId++)
       {
       x = inPts->GetPoint(ptId);
-      radius = sqrt(x[0]*x[0] + x[1]*x[1]) + i * radIncr;
-      newX[0] = radius * cos (i*angleIncr*math.DegreesToRadians());
-      newX[1] = radius * sin (i*angleIncr*math.DegreesToRadians());
+      //convert to cylindrical
+      radius = sqrt(x[0]*x[0] + x[1]*x[1]);
+      theta = acos((double)x[0]/radius);
+      if ( (psi=asin((double)x[1]/radius)) < 0.0 ) 
+        {
+        if ( theta > 0.0 ) theta = 2.0*math.Pi() + psi;
+        else theta = math.Pi() - psi;
+        }
+
+      //increment angle
+      radius += i*radIncr;
+      newX[0] = radius * cos (i*angleIncr + theta);
+      newX[1] = radius * sin (i*angleIncr + theta);
       newX[2] = x[2] + i * transIncr;
 
       newPts->SetPoint(ptId+i*numPts,newX);
