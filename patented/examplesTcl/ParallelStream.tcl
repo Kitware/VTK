@@ -4,8 +4,6 @@
 # parameters
 set NUMBER_OF_PIECES 13
 
-
-
 catch {load vtktcl}
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
@@ -80,9 +78,7 @@ ren1 SetBackground 0.9 .9 .9
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] ComputeViewPlaneNormal
-
 ren1 ResetCameraClippingRange
-
 
 renWin SetSize 450 450
 iren Initialize
@@ -90,7 +86,7 @@ iren Initialize
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-renWin SetFileName "contour3DAll.tcl.ppm"
+renWin SetFileName "ParallelStream.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
