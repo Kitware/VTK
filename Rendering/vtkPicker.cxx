@@ -36,8 +36,9 @@
 #include "vtkVertex.h"
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
+#include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.78");
+vtkCxxRevisionMacro(vtkPicker, "1.79");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -349,7 +350,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         bounds[0] -= tol; bounds[1] += tol; 
         bounds[2] -= tol; bounds[3] += tol; 
         bounds[4] -= tol; bounds[5] += tol; 
-        if ( vtkCell::HitBBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
+        if ( vtkBox::IntersectBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
           {
           t = this->IntersectWithLine((float *)p1Mapper, 
                                       (float *)p2Mapper, tol, path, 

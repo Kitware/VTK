@@ -26,8 +26,9 @@
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
+#include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.78");
+vtkCxxRevisionMacro(vtkVoxel, "1.79");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.
@@ -413,7 +414,7 @@ int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol),
     bounds[2*i+1] = maxPt[i];
     }
 
-  if ( ! vtkCell::HitBBox(bounds, p1, p21, x, t) )
+  if ( ! vtkBox::IntersectBox(bounds, p1, p21, x, t) )
     {
     return 0;
     }
