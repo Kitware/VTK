@@ -734,20 +734,10 @@ IF(VTK_WRAP_TCL)
   # Tcl package location.
   SET(VTK_TCL_HOME ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 
-  OPTION(TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
-  MARK_AS_ADVANCED(TCL_TK_STATIC)
+  OPTION(VTK_TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
+  MARK_AS_ADVANCED(VTK_TCL_TK_STATIC)
 
 ENDIF(VTK_WRAP_TCL)
-
-# If TCL_TK_STATIC is meant to be used in C++, then we have to create a
-# variable with a VTK_ prefix (it will be configured in vtkToolkits.h.in)
-VTK_PREPARE_CMAKEDEFINE("" TCL_TK_STATIC VTK_TCL_TK_STATIC)
-
-# If TCL_TK_COPY_SUPPORT_LIBRARY is meant to be used in C++, then we
-# have to create a variable with a VTK_ prefix (it will be configured
-# in vtkToolkits.h.in)
-VTK_PREPARE_CMAKEDEFINE(
-   "" TCL_TK_COPY_SUPPORT_LIBRARY VTK_TCL_TK_COPY_SUPPORT_LIBRARY)
 
 INSTALL_FILES(/lib/vtk/CMake FILES
               ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
