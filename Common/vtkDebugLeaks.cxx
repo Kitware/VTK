@@ -47,6 +47,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int vtkDebugLeaks::PromptUser = 1;
 
+void vtkDebugLeaks::PromptUserOn()
+{
+  PromptUser = 1;
+}
+void vtkDebugLeaks::PromptUserOff()
+{
+  PromptUser = 0;
+}
+
 // A singleton that prints out the table, and deletes the table.
 class vtkPrintLeaksAtExit
 {
