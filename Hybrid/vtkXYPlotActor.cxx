@@ -38,7 +38,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.39");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.40");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -106,13 +106,13 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
   this->XAxis = vtkAxisActor2D::New();
-  this->XAxis->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
-  this->XAxis->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
+  this->XAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
+  this->XAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->XAxis->SetProperty(this->GetProperty());
 
   this->YAxis = vtkAxisActor2D::New();
-  this->YAxis->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
-  this->YAxis->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
+  this->YAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
+  this->YAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->YAxis->SetProperty(this->GetProperty());
   
   this->NumberOfInputs = 0;
@@ -1669,10 +1669,10 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
 
   // Now specify the location of the axes
 
-  axisX->GetPoint1Coordinate()->SetValue(pos[0], pos[1]);
-  axisX->GetPoint2Coordinate()->SetValue(pos2[0], pos[1]);
-  axisY->GetPoint1Coordinate()->SetValue(pos[0], pos2[1]);
-  axisY->GetPoint2Coordinate()->SetValue(pos[0], pos[1]);
+  axisX->GetPositionCoordinate()->SetValue(pos[0], pos[1]);
+  axisX->GetPosition2Coordinate()->SetValue(pos2[0], pos[1]);
+  axisY->GetPositionCoordinate()->SetValue(pos[0], pos2[1]);
+  axisY->GetPosition2Coordinate()->SetValue(pos[0], pos[1]);
 
   textMapper->Delete();
 }
@@ -1683,9 +1683,9 @@ void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, f
   int *p0, *p1, *p2;
 
   // XAxis, YAxis are in viewport coordinates already
-  p0 = this->XAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
-  p1 = this->XAxis->GetPoint2Coordinate()->GetComputedViewportValue(viewport);
-  p2 = this->YAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  p0 = this->XAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+  p1 = this->XAxis->GetPosition2Coordinate()->GetComputedViewportValue(viewport);
+  p2 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
   u = ((u - p0[0]) / (float)(p1[0] - p0[0]))
     *(this->XComputedRange[1] - this->XComputedRange[0])
@@ -1702,9 +1702,9 @@ void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
   int *p0, *p1, *p2;
 
   // XAxis, YAxis are in viewport coordinates already
-  p0 = this->XAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
-  p1 = this->XAxis->GetPoint2Coordinate()->GetComputedViewportValue(viewport);
-  p2 = this->YAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  p0 = this->XAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+  p1 = this->XAxis->GetPosition2Coordinate()->GetComputedViewportValue(viewport);
+  p2 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
 
   u = (((u - this->XComputedRange[0])
         / (this->XComputedRange[1] - this->XComputedRange[0]))
@@ -1736,9 +1736,9 @@ int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
   int *p0, *p1, *p2;
 
   // Bounds of the plot are based on the axes...
-  p0 = this->XAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
-  p1 = this->XAxis->GetPoint2Coordinate()->GetComputedViewportValue(viewport);
-  p2 = this->YAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  p0 = this->XAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
+  p1 = this->XAxis->GetPosition2Coordinate()->GetComputedViewportValue(viewport);
+  p2 = this->YAxis->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   
   if (u >= p0[0] && u <= p1[0] && v >= p0[1] && v <= p2[1])
     {
