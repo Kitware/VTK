@@ -91,14 +91,25 @@ void vtkImagePadFilter::RequiredRegion(int *outOffset, int *outSize,
 {
   int idx;
   int boundaryOffset[3], boundarySize[3];
+  int tmp1, tmp2;
 
   // get the Boundary of the input
   this->Input->GetBoundary(boundaryOffset, boundarySize);  
 
-  for (idx = 0; idx < 3; ++idx){
-    inOffset[idx] = outOffset[idx];
-    inSize[idx] = outSize[idx];
-  }
+  for (idx = 0; idx < 3; ++idx)
+    {
+    // Max of left size
+    tmp1 = outOffset[idx];
+    tmp2 = boundaryOffset[idx];
+    inOffset[idx] = (tmp1 > tmp2) ? tmp1 : tmp2;
+    // compute the right hand side
+    tmp1 = outOffset[idx] + outSize[idx];
+    tmp2 = boundaryOffset[idx] + boundarySize[idx];
+    tmp1 = (tmp1 < tmp2) ? tmp1 : tmp2;
+    inSize[idx] = tmp1 - inOffset[idx];
+    if (inSize[idx] < 0)
+      inSize[idx] = 0;
+    }
 }
 
 
@@ -204,6 +215,7 @@ void vtkImagePadFilter::Pad(vtkImageRegion *inRegion,
       this->PadRegion(outRegion, padOffset, padSize);
       // leave pad equal to filled
       padSize[idx] = filledSize[idx] += padSize[idx];
+      padOffset[idx] = filledOffset[idx];
       }
     }
 }
@@ -220,6 +232,9 @@ void vtkImagePadFilter::PadRegion(vtkImageRegion *region,
   int inc0, inc1, inc2;
   float *ptr0, *ptr1, *ptr2;
 
+  // if the region is empty return imediately
+  if (size[0] <= 0 || size[1] <= 0 || size[1] <= 0)
+    return;
   
   vtkDebugMacro(<< "PadRegion: region = (" << region << "), offset = ("
      << offset[0] << ", " << offset[1] << ", " << offset[2]

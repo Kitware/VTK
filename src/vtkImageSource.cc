@@ -42,7 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Description:
-// This method should a region filled with the requested data.
+// This method should return a region filled with the requested data, or
+// return NULL if the request could not be fulfilled.  This class implements
+// a dummy method that MUST be overwritten (pure virtual).
 vtkImageRegion *vtkImageSource::RequestRegion(int outOffset[3], int outSize[3])
 {
   vtkDebugMacro(<< "RequestRegion: offset = ("
@@ -63,6 +65,9 @@ vtkImageRegion *vtkImageSource::RequestRegion(int outOffset[3], int outSize[3])
 // Description:
 // This method returns an object which will satisfy requests.
 // For non cached sources, it returns the source itself.
+// The convention for connection elements in an image pipeline is
+// "requestor->SetInput(source->GetOutput)".  It is primarily
+// designed to allows sources with multple outputs.
 vtkImageSource *vtkImageSource::GetOutput()
 {
   return this;
@@ -73,8 +78,10 @@ vtkImageSource *vtkImageSource::GetOutput()
 // Description:
 // This method returns in "offset" and "size" the boundary of data
 // in the image. Requests for regions of the image out side of these
-// bounds will have unpridictable effects.
-// i.e. no error checking is performed.
+// bounds will have unpredictable effects
+// (i.e. no error checking is performed).  In the future the boundary 
+// information may be encapsulated in the vtkImageRegion objects.
+// Every subclass has to supply this method.
 void vtkImageSource::GetBoundary(int *offset, int *size)
 {
   int idx;
@@ -93,6 +100,9 @@ void vtkImageSource::GetBoundary(int *offset, int *size)
 // Description:
 // This method returns the maximum MTime of this source and all the objects
 // that come before this source (that can change this sources output).
+// Elegagent MTime propagation is very difficult, and is still unresolved.
+// The current impelentation works, but other mechanisms are being considered.
+// See the vtkImageFilter class for more information.
 unsigned long vtkImageSource::GetPipelineMTime()
 {
   return this->GetMTime();

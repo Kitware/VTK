@@ -39,21 +39,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageCachedSource - Source of data for pipeline.
 // .SECTION Description
-// vtkImageCachedSource objects are sources with caches as output objects.
+// vtkImageCachedSource objects are sources with vtkImageCache
+// as output objects.
+// There is a one to one relationship between caches and cached sources.
+// If a cache is not explicitely set, a default cache object will be created.
+// The default cache releases its data after every request.
 // Consumers of the source's data are connected to its cache object with
-// a statment similar to consumer->SetInput(source->GetOuput());
-// This convention was chosen to allow sources to have multiple outputs.
+// a statment similar to: 
+//  "consumer->SetInput(source->GetOuput());"
+//  This convention was chosen to allow sources to have multiple outputs.
 // Caches are resposible for collecting regions generated when the source
 // splits the generation into pieces, and can also save data in between
 // multiple requests for regions.
 // The chain of events is: 
-// 1: Consummer calls caches RequestRegion method,
-// 2: Cache can satisfy request or can call sources GenerateRegion method.
-// 3: Source asks cache for the region to fill (all at once or in pieces)
-//    by calling the caches GetRegion method. 
-// 4: Source fills the region/regions and returns. 
-// It is set up this way to keep all of the data managment in the cache.
-
+//  1: Consummer calls caches RequestRegion method,
+//  2: Cache can satisfy request or can call sources GenerateRegion method.
+//  3: Source asks cache for the region to fill (all at once or in pieces)
+//     by calling the caches GetRegion method. 
+//  4: Source fills the region/regions and returns. 
+//  It is set up this way to keep all of the data managment in the cache.
+// See vtkImageMagnifyFilter class for an example of deviation from this
+// chain of events.
 
 
 #ifndef __vtkImageCachedSource_h

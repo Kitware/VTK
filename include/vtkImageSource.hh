@@ -37,13 +37,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageSource - Source of data for pipeline.
+// .NAME vtkImageSource - Source of vtkImageRegion in an image pipeline.
 // .SECTION Description
-// vtkImageSource objects can be used as Input to a consumer in a pipeline.
-// If for some reason you want to make a source that does not have a cache,
-// it can be a subclass of vtkImageSource.
-// The only requirement for a source is that it have a RequestRegion method.
-// It will be compatible in any vtkImage pipline (splitting and all).
+// vtkImageSource objects can be used as Input to a consumer in an
+// image pipeline.  Right now, the class structure is arranged for maximum
+// flexability.  The subclass vtkImageCachedSource primarily used 
+// for pipeline objects and is a more structured class.  If for some reason
+// the application designer wants to create a uniqued tailored pipeline
+// object, it can be created as a subclass vtkImageSource.  The new
+// filter/source is interchangable with any other vtkImageCachedSource,
+// but must handle its own data management.
 
 
 #ifndef __vtkImageSource_h
@@ -64,8 +67,12 @@ public:
   virtual unsigned long GetPipelineMTime();
 
   // Description:
-  // After a failing request, "SplitFactor" suggests that the request should
-  // be broken into "SplitFactor" number of pieces for the request to suceed.
+  // If RequestRegion fails, "SplitFactor" has to be set.
+  // If the failure was due to a memory limitation, SplitFactor 
+  // suggests that the request should be broken into "SplitFactor" 
+  // number of pieces for the request to suceed.  
+  // If the failure is not memory related, and splitting the request
+  // will not help, split factor should be set to zero.
   vtkGetMacro(SplitFactor,int);
 protected:
   int SplitFactor;

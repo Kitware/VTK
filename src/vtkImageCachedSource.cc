@@ -41,8 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSimpleCache.hh"
 
 //----------------------------------------------------------------------------
-// Description:
-// Construct an instance of vtkImageSink fitler.
 vtkImageCachedSource::vtkImageCachedSource()
 {
   this->Cache = NULL;
@@ -51,7 +49,7 @@ vtkImageCachedSource::vtkImageCachedSource()
 
 //----------------------------------------------------------------------------
 // Description:
-// Destructor: Delete the cache as well. (should caches by reference counted?}
+// Destructor: Delete the cache as well. (should caches by reference counted?)
 vtkImageCachedSource::~vtkImageCachedSource()
 {
   if (this->Cache)
@@ -64,9 +62,10 @@ vtkImageCachedSource::~vtkImageCachedSource()
 
 //----------------------------------------------------------------------------
 // Description:
-// Since this is a CachedSource this method should not be called 
+// Since this is a vtkCachedSource this method should not be called 
 // (for consistencey).  All requests for regions should be made through
-// this sources cache object (use the GetOutput method)
+// this sources cache object (use the GetOutput method).  The only subclass
+// which viloates this rule is vtkImageMagnifyFilter.
 vtkImageRegion *vtkImageCachedSource::RequestRegion(int offset[3], int size[3])
 {
   vtkWarningMacro(<< "RequestRegion: This is a CachedSource. "
@@ -82,8 +81,8 @@ vtkImageRegion *vtkImageCachedSource::RequestRegion(int offset[3], int size[3])
 
 //----------------------------------------------------------------------------
 // Description:
-// Returns the cache object of the source.  
-// All requests for data are made through this object.
+// Returns the cache object of the source.  If one does not exist, a default
+// is created.
 vtkImageCache *vtkImageCachedSource::GetCache()
 {
   this->CheckCache();
@@ -96,6 +95,9 @@ vtkImageCache *vtkImageCachedSource::GetCache()
 //----------------------------------------------------------------------------
 // Description:
 // Returns an object which will satisfy requests for Regions.
+// All requests for data are made through this object.  It allows the 
+// vtkImageCache object to check its local data before 
+// calling the sources GenerateRegion method.
 vtkImageSource *vtkImageCachedSource::GetOutput()
 {
   return this->GetCache();
@@ -145,8 +147,8 @@ void vtkImageCachedSource::SetRequestMemoryLimit(long limit)
 // Description:
 // Use this method to specify a cache object for the filter.  
 // If a cache is not explicitly set, a default cache will be created.
-// Cache objects can not be changed, so this method must be called before
-// any connections are made.
+// Cache objects can not be changed (yet), so this method must be called 
+// before any connections are made.
 void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 {
   if (this->Cache)
@@ -169,8 +171,9 @@ void vtkImageCachedSource::SetCache(vtkImageCache *cache)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method should get the output tile from the cache and fill the
-// data in the region of interest (offset, size).
+// This is a dummy (pure virtual) method that MUST be supplied by a subclass.
+// It should get the output tile from the cache and fill the
+// data in the requested region (offset, size).
 void vtkImageCachedSource::GenerateRegion(int outOffset[3], int outSize[3])
 {
   vtkDebugMacro(<< "GenerateRegion: offset = ("
@@ -188,6 +191,8 @@ void vtkImageCachedSource::GenerateRegion(int outOffset[3], int outSize[3])
 //----------------------------------------------------------------------------
 // Description:
 // This method turns debugging on for both the source and its cache.
+// This may not be the best setup.  Debug statements are begining to get
+// a little bit too numerous.
 void vtkImageCachedSource::DebugOn()
 {
   this->vtkObject::DebugOn();
@@ -213,7 +218,9 @@ void vtkImageCachedSource::DebugOff()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the value of the caches ReleaseDataFlag
+// This method sets the value of the caches ReleaseDataFlag.  When this flag
+// is set, the cache releases its data after every request.  When a default
+// cache is created, this flag is automatically set.
 void vtkImageCachedSource::SetReleaseDataFlag(int value)
 {
   this->CheckCache();
@@ -226,7 +233,7 @@ void vtkImageCachedSource::SetReleaseDataFlag(int value)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method creates a cache if one has not been set.
+// This private method creates a cache if one has not been set.
 // ReleaseDataFlag is turned on.
 void vtkImageCachedSource::CheckCache()
 {

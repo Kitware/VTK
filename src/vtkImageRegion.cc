@@ -54,6 +54,10 @@ vtkImageRegion::vtkImageRegion()
 
 
 //----------------------------------------------------------------------------
+// Description:
+// Destructor: Deleting a vtkImageRegion automatically deletes the associated
+// vtkImageData.  However, since the data is reference counted, it may not 
+// actually be deleted.
 vtkImageRegion::~vtkImageRegion()
 {
   if (this->Data)
@@ -63,8 +67,11 @@ vtkImageRegion::~vtkImageRegion()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method allocates memory for the tile data.  
-// Returns 1 if sucessful, 0 if not.
+// This method allocates memory for the region.  "Offset" and "Size"
+// should be set before this method is called.  Any old "Data" associated 
+// with this region is released by this call, and a new vtkImageData 
+// object is created.
+// The method returns 1 if it was successful, 0 if not.
 int vtkImageRegion::Allocate()
 {
   // delete previous data
@@ -94,7 +101,9 @@ int vtkImageRegion::Allocate()
 
 //----------------------------------------------------------------------------
 // Description:
-// You can set the data object explicitly
+// You can set the data object explicitly, instead of using the Allocate
+// method.  Old data is released, and the region automatically registers
+// the new data.
 void vtkImageRegion::SetData(vtkImageData *data)
 {
   // do nothing if the data objects are the same.
@@ -118,8 +127,10 @@ void vtkImageRegion::SetData(vtkImageData *data)
 
 //----------------------------------------------------------------------------
 // Description:
-// This Method returns a pointer at a location in the tile.
-// It just passes the request to its data object.
+// This Method returns a pointer at a location in the tile.  The coordinates
+// of the location are in pixel units and are relative to the absolute
+// origin of the whole image. The region just forwards the pointer request
+// to its vtkImageData object.
 float *vtkImageRegion::GetPointer(int coordinates[3])
 {
   if ( ! this->Data){
@@ -135,8 +146,12 @@ float *vtkImageRegion::GetPointer(int coordinates[3])
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the increments between pixels, rows, and images.
-// This lets the caller march through the data memory quickly using 
-// pointer arithmatic.
+// These values are determined by the actual dimensions of the data stored
+// in the vtkImageData object.  this method allows the user to efficiently 
+// march through the memory using pointer arithmatic, while keeping the
+// actual dimensions of the memory array transparent.  
+// It also keeps the order (row order, image order ...) of the memory
+// transparent, but this feature has not been used yet.
 void vtkImageRegion::GetInc(int &inc0, int &inc1, int &inc2)
 {
   if ( ! this->Data){
@@ -147,11 +162,6 @@ void vtkImageRegion::GetInc(int &inc0, int &inc1, int &inc2)
 }
 
 
-//----------------------------------------------------------------------------
-// Description:
-// This method returns an array containing the increments between pixels, 
-// rows, and images.  This lets the caller march through the data memory 
-// quickly using pointer arithmatic.
 int *vtkImageRegion::GetInc()
 {
   if ( ! this->Data){

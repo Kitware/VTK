@@ -50,7 +50,7 @@ vtkImageVolumeShortReader::vtkImageVolumeShortReader()
   this->File = NULL;
 
   this->Signed = 0;
-  this->SwapBytes = 1;  
+  this->SwapBytes = 0;  
   this->First = 1;
   
   this->Size[0] = 512;
@@ -117,7 +117,7 @@ void vtkImageVolumeShortReader::SetFileRoot(char *fileRoot)
   fileLength = this->File->tellg();
 
   this->HeaderSize = fileLength
-    - sizeof(unsigned short int) * this->Inc[2] * this->Size[2];
+    - sizeof(unsigned short int) * this->Inc[2];
   
   vtkDebugMacro(<< "SetFileName: Header " << this->HeaderSize 
                 << " bytes, fileLength = " << fileLength << " bytes.");
@@ -140,6 +140,7 @@ void vtkImageVolumeShortReader::GenerateSlice(vtkImageRegion *region,
   long streamRowSkip;
   long streamRowRead;
   unsigned char *buf, *pbuf;
+  unsigned char swap[2];
   unsigned short *pshort;
   int idx0, idx1;
   
@@ -183,24 +184,34 @@ void vtkImageVolumeShortReader::GenerateSlice(vtkImageRegion *region,
       return;
       }
     
-    // Swap the bytes if necessary
-    //if (this->SwapBytes)
-    //  this->Swap(buf, size0);
-    
     // copy the bytes into the float region
     pf0 = pf1;
     pbuf = buf;
     for (idx0 = 0; idx0 < size0; ++idx0)
       {
+      // handle byte swapping
+      if (this->SwapBytes)
+	{
+	*swap = pbuf[1];
+	swap[1] = *pbuf;
+	}
+      else
+	{
+	*swap = *pbuf;
+	swap[1] = pbuf[1];
+	}
+    
       // mask the data
-      pshort = (unsigned short *)(pbuf);
+      pshort = (unsigned short *)(swap);
       *pshort = *pshort & this->PixelMask;
+
       // Convert to float
       if (this->Signed)
-	*pf0 = (float)(*((short int *)pbuf));
+	*pf0 = (float)(*((short int *)swap));
       else
-	*pf0 = (float)(*((unsigned short int *)pbuf));
+	*pf0 = (float)(*((unsigned short int *)swap));
 
+      // move to next pixel
       pbuf += 2;
       pf0 += inc0;
       }

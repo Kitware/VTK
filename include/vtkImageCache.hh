@@ -37,9 +37,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCache - Cache tiles.
+// .NAME vtkImageCache - Caches are used by vtkImageCachedSource.
 // .SECTION Description
 // vtkImageCache is the super class of all filter caches.  
+// If the source descides to generate a request in pieces, the caches 
+// collects all of the pieces into a single vtkImageRegion object.
+// The cache can also save vtkImageData objects between RequestRegion
+// messages, to avoid regeneration of data.  Since requests for regions
+// of an image can be any size or location, caching strategies can be
+// numerous and complex.  Some predefined generic subclasses have been 
+// defined, but specific applications may need to implement subclasses
+// with their own stratgies tailored to the pattern of requests which
+// will be made.
 
 
 #ifndef __vtkImageCache_h
@@ -73,7 +82,10 @@ public:
   vtkBooleanMacro(ReleaseDataFlag,int);
   
   // Description:
-  // Set/Get the MemoryLimit for RegionRequests
+  // Set/Get the MemoryLimit for region requests.  If a request is made that
+  // exceeds this limit (number of pixels), the RequestRegion method
+  // will return NULL.  I assume that a memory manager will query the memory
+  // resources of a system, and set this value when the program starts.
   vtkSetMacro(RequestMemoryLimit,long);
   vtkGetMacro(RequestMemoryLimit,long);
 

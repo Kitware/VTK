@@ -40,7 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 //----------------------------------------------------------------------------
 // Description:
-// Constructor.
+// Constructor:  By default caches ReleaseDataFlags are turned off. However,
+// the vtkImageCachedSource method CheckCache, which create a default cache, 
+// turns this flag on.  If a cache is created and set explicitely, by 
+// default it saves its data between requests.  But if the cache is created
+// automatically by the vtkImageCachedSource, it does not.
 vtkImageCache::vtkImageCache()
 {
   this->Source = NULL;
@@ -54,8 +58,6 @@ vtkImageCache::vtkImageCache()
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Constructor.
 vtkImageCache::~vtkImageCache()
 {
   if (this->Region)
@@ -76,7 +78,7 @@ vtkImageCache::~vtkImageCache()
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline before this cache.
-// It propagates the message back.
+// It considers both the source and the cache.
 unsigned long int vtkImageCache::GetPipelineMTime()
 {
   unsigned long int time1, time2;
@@ -162,8 +164,8 @@ void vtkImageCache::SetReleaseDataFlag(int value)
 //----------------------------------------------------------------------------
 // Description:
 // This Method handles external requests for data.
-// It returns a region contianing the ROI requested,
-// or NULL if the memory could not be allocated (with SplitFactor set).
+// It returns a region contianing the region requested,
+// or NULL if the memory could not be allocated (SplitFactor is set).
 vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
 {
   long requestMemory;
@@ -210,9 +212,13 @@ vtkImageRegion *vtkImageCache::RequestRegion(int offset[3], int size[3])
 
 //----------------------------------------------------------------------------
 // Description:
-// This method uses the source to generate a whole region.  It returns
+// This method uses the source to generate a whole region.  
+// It is called by RequestRegion when ReleaseDataFlag is on, or
+// the Requested region is not in cache.  The method returns
 // the region (or NULL if a something failed).  If "Data" is set the
-// method first frees it.  "Data" is set the NULL before method returns.
+// method first frees it.  "Data" is set to NULL before method returns.
+// The subclass method which calls this function is resposible for
+// getting the data from the tile and saving it if it want to.
 vtkImageRegion *vtkImageCache::RequestUnCachedRegion(int offset[3],int size[3])
 {
   vtkImageRegion *region;
@@ -269,9 +275,9 @@ vtkImageRegion *vtkImageCache::RequestUnCachedRegion(int offset[3],int size[3])
 
 //----------------------------------------------------------------------------
 // Description:
-// This method can be used by a subclass to first look to cached 
+// This pure virtual method is used by a subclass to first look to cached 
 // data to fill requests.  It can also return null if the request 
-// is too large for any reason.
+// fails for any reason.
 vtkImageRegion *vtkImageCache::RequestCachedRegion(int offset[3], int size[3])
 {
   // Avoid compiler warning messages
@@ -289,7 +295,7 @@ vtkImageRegion *vtkImageCache::RequestCachedRegion(int offset[3], int size[3])
 //----------------------------------------------------------------------------
 // Description:
 // The caches source calls this method to obtain a region to fill in.
-// The data may not be allocated before the method is called,
+// The data may or may not be allocated before the method is called,
 // but must be allocated before the method returns.
 vtkImageRegion *vtkImageCache::GetRegion(int offset[3], int size[3])
 {

@@ -74,6 +74,11 @@ public:
   vtkSetMacro(WholeImageFlag,int);
   vtkGetMacro(WholeImageFlag,int);
   vtkBooleanMacro(WholeImageFlag,int);
+  // Description:
+  // Set/Get the flag that flips the Y axis (origin upper left?)
+  vtkSetMacro(FlipYFlag,int);
+  vtkGetMacro(FlipYFlag,int);
+  vtkBooleanMacro(FlipYFlag,int);
 
   void Update();
   
@@ -83,6 +88,7 @@ protected:
   int Offset[3];
   int Size[3];
   int WholeImageFlag;
+  int FlipYFlag;
 
   void Execute();
   void Generate(vtkImageRegion *region, vtkGraymap *scalars);

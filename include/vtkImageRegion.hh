@@ -37,12 +37,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageRegion - Generic piece of an image used in image pipeline.
+// .NAME vtkImageRegion - Generic piece of an image used in pipeline.
 // .SECTION Description
-// vtkImageRegion holds a 3d piece of an image.
-// It can represent a sub tile of a outImageData object.
-// It might be a good idea to subclass off of vtkImageData. 
-// (but what about RefCount and Data?)
+// vtkImageRegion holds a 3d piece of an image and is the object filters
+// deal with directly.  The actual data for the image is stored in the
+// vtkImageData object.  The vtkImageRegion can represent only a portion 
+// of its vtkImageData, hiding the actual dimensions of the vtkImageData.
 
 #ifndef __vtkImageRegion_h
 #define __vtkImageRegion_h
@@ -59,29 +59,28 @@ public:
   char *GetClassName() {return "vtkImageRegion";};
 
   // Description:
-  // Set/Get the size (width, height, depth, ...) of the tile data.
+  // Set/Get the portion, offset and size, of the vtkImageRegion represented
+  // by this object.  The portion must be contained the vtkImageData.
+  // No error checking is performed!
   vtkSetVector3Macro(Size,int);
   vtkGetVector3Macro(Size,int);
-
-  // Description:
-  // Set/Get the offset of the tile data. (Relative to image origin)
   vtkSetVector3Macro(Offset,int);
   vtkGetVector3Macro(Offset,int);
 
   int Allocate();
   void SetData(vtkImageData *data);
   // Description:
-  // You can Get the data object to share with another tile.
+  // You can get the data object to share with another vtkImageRegion.
   vtkGetObjectMacro(Data,vtkImageData);
 
+  float *GetPointer(int coordinates[3]);
   void GetInc(int &inc0, int &inc1, int &inc2);
   int *GetInc();
-  float *GetPointer(int coordinates[3]);
 
 protected:
   vtkImageData *Data;   // Data is stored in this object.
-  int Size[3];         // The size of the tile (can be smaller than data)
-  int Offset[3];       // The offset relative to image origin.
+  int Size[3];          // The size of the tile (can be smaller than data)
+  int Offset[3];        // The offset relative to image origin.
 };
 
 #endif

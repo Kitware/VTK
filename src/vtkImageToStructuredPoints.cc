@@ -46,6 +46,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   this->Input = NULL;
   this->WholeImageFlag = 1;
+  this->FlipYFlag = 1;
 }
 
 
@@ -130,7 +131,8 @@ void vtkImageToStructuredPoints::Execute()
 
 
 // Copy the region data to scalar data
-void vtkImageToStructuredPoints::Generate(vtkImageRegion *region, vtkGraymap *scalars)
+void vtkImageToStructuredPoints::Generate(vtkImageRegion *region, 
+					  vtkGraymap *scalars)
 {
   float max, min;
   int idx0, idx1, idx2;
@@ -146,14 +148,19 @@ void vtkImageToStructuredPoints::Generate(vtkImageRegion *region, vtkGraymap *sc
   inPtr2 = region->GetPointer(region->GetOffset());
   region->GetSize(size0, size1, size2);
   region->GetInc(inInc0, inInc1, inInc2);
+  vtkDebugMacro(<< "Generate: size = (" 
+                << size0 << ", " << size1 << ", " << size2 << ")");
   // output scalar data stuff
   outPtr2 = scalars->WritePtr(0,size0*size1*size2);
-  // move the initial position to the lower left corner of the image.
-  outPtr2 = outPtr2 + size0*(size1 - 1);
   outInc0 = 1;
-  outInc1 = -size0;
+  outInc1 = size0;
   outInc2 = size0 * size1;
-  
+  // move the initial position to the lower left corner of the image.
+  if (this->FlipYFlag)
+    {
+    outPtr2 = outPtr2 + size0*(size1 - 1);
+    outInc1 = -size0;
+    }
   max = min = *inPtr2;
   for (idx2 = 0; idx2 < size2; ++idx2)
     {
@@ -166,13 +173,19 @@ void vtkImageToStructuredPoints::Generate(vtkImageRegion *region, vtkGraymap *sc
       for (idx0 = 0; idx0 < size0; ++idx0)
 	{
 	
-	// Copy the pixel
-	*outPtr0 = (unsigned char)(*inPtr0);
 	// Compute the Max and Min for debugging purposes
-	if (*outPtr0 > max)
-	  max = *outPtr0;
-	if (*outPtr0 < min)
-	  min = *outPtr0;
+	if (*inPtr0 > max)
+	  max = *inPtr0;
+	if (*inPtr0 < min)
+	  min = *inPtr0;
+
+	// Copy the pixel (dont wrap)
+	if (*inPtr0 < 0.0)
+	  *outPtr0 = 0;
+	else if (*inPtr0 < 256.0)
+	  *outPtr0 = (unsigned char)(*inPtr0);
+	else
+	  *outPtr0 = 255;
 
 	
 	inPtr0 += inInc0;

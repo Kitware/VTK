@@ -71,9 +71,8 @@ public:
 
   // Description:
   // Set/Get the pixel mask
-  vtkSetMacro(PixelMask,unsigned short);
   vtkGetMacro(PixelMask,unsigned short);
-  void SetPixelMask(int val) {this->SetPixelMask((unsigned short)(val));};
+  void SetPixelMask(int val) {this->PixelMask = ((unsigned short)(val)); this->Modified();};
   
   // Description:
   // Set/Get the Signed flag
@@ -83,9 +82,9 @@ public:
 
   // Description:
   // Set/Get the byte swapping
-  vtkBooleanMacro(SwapBytes,int);
   vtkSetMacro(SwapBytes,int);
   vtkGetMacro(SwapBytes,int);
+  vtkBooleanMacro(SwapBytes,int);
 
 protected:
   char FileRoot[100];

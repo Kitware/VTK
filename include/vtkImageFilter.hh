@@ -37,10 +37,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFilter - Generic filter that handles its own input requests.
+// .NAME vtkImageFilter - Generic filter that has one input..
 // .SECTION Description
-// vtkImageFilter is a filter class the main interface is the function
-// RequestRegion which is passed a Region and returns a tile.
+// vtkImageFilter is a filter class that can dynamically split up a task
+// if a request for input is too large.  This functionality is hidden
+// in this superclass so filter writers never need to worry about this
+// feature.  The filter designer must supply two functions:
+//   1: RequiredRegion:  Returns the offset and size of the input
+// region required to generate the given output region.
+//   2: Execute: Given an input region and an output region, this method
+// fills in the output using the input.
+//   If this structure does not suit the filter designer, the
+// GenerateRegion method can be overwritten, and the subclass can make
+// requests for input on its own.  If an input request fails,  the filter
+// can split the task its self, or simple fail the whole request leaving
+// the task of splitting the problem to  the requestor.
+
 
 
 #ifndef __vtkImageFilter_h

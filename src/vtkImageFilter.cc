@@ -42,8 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Constructor.
 vtkImageFilter::vtkImageFilter()
 {
   this->Input = NULL;
@@ -53,8 +51,14 @@ vtkImageFilter::vtkImageFilter()
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline upto and including this filter
-// It propagates the message back. 
-// (Note: current implementation may create a cascade of MTime requests.)
+// Note: current implementation may create a cascade of MTime requests.
+// Each GetPipelineMTime call propagates the call all the way to the original
+// source.  This works, but is not elegant.  I am considering two alternatives.
+//    1: Each source will keep a list of the objects that have made connections
+// to it.  This creates a doubley linked list that allows forward propagation
+// of PipelineModified messages.  The PipelineMTime will always be upto date.
+//    2: After a RequestRegion call returns, the PipelineMTime will be correct.
+// This is similar to the way the Update message works in VTK.  
 unsigned long int vtkImageFilter::GetPipelineMTime()
 {
   unsigned long int time1, time2;
@@ -113,6 +117,10 @@ void vtkImageFilter::GenerateRegion(int *outOffset, int *outSize)
                 << outSize[0] << ", " << outSize[1] << ", " << outSize[2] 
                 << ")");
 
+  // if the region is empty return imediately
+  if (outSize[0] <= 0 || outSize[1] <= 0 || outSize[1] <= 0)
+    return;
+  
   // make sure the Input has been set 
   if ( ! this->Input)
     {
