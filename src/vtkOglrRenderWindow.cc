@@ -194,7 +194,6 @@ vtkOglrRenderWindow::vtkOglrRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
-  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
 
   strcpy(this->Name,"Visualization Toolkit - OpenGL");
 }
@@ -470,11 +469,11 @@ void vtkOglrRenderWindow::WindowInitialize (void)
   // initialize blending for transparency
   vtkDebugMacro(<< " blend func stuff\n");
   glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable( GL_BLEND );
 
   glEnable( GL_NORMALIZE );
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
-
+  glAlphaFunc(GL_GREATER,0);
+  
   this->Mapped = 1;
 }
 
