@@ -296,10 +296,6 @@ protected:
   int YAxisVisibility;
   int ZAxisVisibility;
 
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
   char  *LabelFormat;
   float FontFactor;
   float CornerOffset;
