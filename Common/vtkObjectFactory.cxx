@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.36");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.37");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -108,50 +108,6 @@ void vtkObjectFactory::RegisterDefaults()
 
 void vtkObjectFactory::LoadDynamicFactories()
 {
-  // follow PATH convensions
-#ifdef _WIN32
-  char PathSeparator = ';';
-#else
-  char PathSeparator = ':';
-#endif
-
-  char* LoadPath = 0;
-
-#ifndef _WIN32_WCE
-  LoadPath = getenv("VTK_AUTOLOAD_PATH");
-#endif
-  if(LoadPath == 0)
-    {
-    return;
-    }
-  
-  char* CurrentPath = new char[strlen(LoadPath)+1];
-  char* SeparatorPosition = LoadPath; // initialize to env variable
-  while(SeparatorPosition)
-    {
-    int PathLength =0;
-    // find PathSeparator in LoadPath
-    SeparatorPosition = strchr(LoadPath, PathSeparator);
-    // if not found then use the whole string
-    if(SeparatorPosition == 0)
-      {
-      PathLength = static_cast<int>(strlen(LoadPath));
-      }
-    else
-      {
-      PathLength = SeparatorPosition - LoadPath;
-      }
-    // copy the path out of LoadPath into CurrentPath
-    strncpy(CurrentPath, LoadPath, PathLength);
-    // add a null terminator
-    CurrentPath[PathLength] = 0;
-    // Get ready for the next path 
-    LoadPath = SeparatorPosition+1;
-    // Load the libraries in the current path
-    vtkObjectFactory::LoadLibrariesInPath(CurrentPath);
-    }
-  // clean up memory
-  delete [] CurrentPath;
 }
 
 // A file scope helper function to concat path and file into

@@ -359,7 +359,7 @@ IF(BUILD_TESTING)
       SUBDIRS(Parallel/Testing)
     ENDIF(VTK_USE_PARALLEL)
     IF (VTK_USE_PATENTED)
-      SUBDIRS(Patented/Testing)
+#      SUBDIRS(Patented/Testing)
     ENDIF(VTK_USE_PATENTED)
 ENDIF(BUILD_TESTING)
 

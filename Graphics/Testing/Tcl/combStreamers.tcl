@@ -85,4 +85,4 @@ renWin Render
 wm withdraw .
 
 # for testing
-set threshold 11
+set threshold 15

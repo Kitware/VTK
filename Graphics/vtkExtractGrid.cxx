@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGrid, "1.38");
+vtkCxxRevisionMacro(vtkExtractGrid, "1.39");
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -229,12 +229,14 @@ void vtkExtractGrid::Execute()
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int i, j, k, uExt[6], voi[6];
-  int *inExt, *outWholeExt;
+  int *inExt, *outWholeExt, *inWholeExt;
   int iIn, jIn, kIn;
   int outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
   vtkPoints *newPts, *inPts;
   int inInc1, inInc2;
+  // Function to convert output index to input index f(i) = Rate*I + shift
+  int shift[3];
 
   vtkDebugMacro(<< "Extracting Grid");
 
@@ -254,20 +256,35 @@ void vtkExtractGrid::Execute()
       }
     }
 
-  // Clip the VOI by the input extent
+  // Clip the VOI by the input whole extent
+  inWholeExt = input->GetWholeExtent();
   for (i = 0; i < 3; ++i)
     {
     voi[i*2] = this->VOI[2*i];
-    if (voi[2*i] < inExt[2*i])
+    if (voi[2*i] < inWholeExt[2*i])
       {
-      voi[2*i] = inExt[2*i];
+      voi[2*i] = inWholeExt[2*i];
       }
     voi[i*2+1] = this->VOI[2*i+1];
-    if (voi[2*i+1] > inExt[2*i+1])
+    if (voi[2*i+1] > inWholeExt[2*i+1])
       {
-      voi[2*i+1] = inExt[2*i+1];
+      voi[2*i+1] = inWholeExt[2*i+1];
       }
     }
+
+  // Compute the shift.
+  // The shift is necessary because the starting VOI may not be on stride boundary.
+  // We need to duplicate the computation done in 
+  // ExecuteInformtation for the output whole extent.
+  // Use shift as temporary variable (output mins).
+  shift[0] = (int)(floor( (float)(voi[0])/(float)(rate[0]) ));
+  shift[1] = (int)(floor( (float)(voi[2])/(float)(rate[1]) ));
+  shift[2] = (int)(floor( (float)(voi[4])/(float)(rate[2]) ));
+  // Take the different between the output and input mins (in input coordinates).
+  shift[0] = voi[0] - (shift[0]*rate[0]);
+  shift[1] = voi[2] - (shift[1]*rate[1]);
+  shift[2] = voi[4] - (shift[2]*rate[2]);
+
 
   output->SetExtent(uExt);
 
@@ -297,7 +314,7 @@ void vtkExtractGrid::Execute()
   newIdx = 0;
   for ( k=uExt[4]; k <= uExt[5]; ++k)
     { // Convert out coords to in coords.
-    kIn = voi[4] + ((k-outWholeExt[4])*rate[2]);
+    kIn = shift[2] + (k*rate[2]);
     if (kIn > voi[5])
       { // This handles the IncludeBoundaryOn condition.
       kIn = voi[5];
@@ -305,7 +322,7 @@ void vtkExtractGrid::Execute()
     kOffset = (kIn-inExt[4]) * inInc2;
     for ( j=uExt[2]; j <= uExt[3]; ++j)
       { // Convert out coords to in coords.
-      jIn = voi[2] + ((j-outWholeExt[2])*rate[1]);
+      jIn = shift[1] + (j*rate[1]);
       if (jIn > voi[3])
         { // This handles the IncludeBoundaryOn condition.
         jIn = voi[3];
@@ -313,7 +330,7 @@ void vtkExtractGrid::Execute()
       jOffset = (jIn-inExt[2]) * inInc1;
       for ( i=uExt[0]; i <= uExt[1]; ++i)
         { // Convert out coords to in coords.
-        iIn = voi[0] + ((i-outWholeExt[0])*rate[0]);
+        iIn = shift[0] + (i*rate[0]);
         if (iIn > voi[1])
           { // This handles the IncludeBoundaryOn condition.
           iIn = voi[1];
@@ -348,15 +365,15 @@ void vtkExtractGrid::Execute()
   // No need to consider IncludeBoundary for cell data.
   for ( k=uExt[4]; k < uExt[5]; ++k )
     { // Convert out coords to in coords.
-    kIn = voi[4] + ((k-outWholeExt[4])*rate[2]);
+    kIn = shift[2] + (k*rate[2]);
     kOffset = (kIn-inExt[4]) * inInc2;
     for ( j=uExt[2]; j < uExt[3]; ++j )
       { // Convert out coords to in coords.
-      jIn = voi[2] + ((j-outWholeExt[2])*rate[1]);
+      jIn = shift[1] + (j*rate[1]);
       jOffset = (jIn-inExt[2]) * inInc1;
       for ( i=uExt[0]; i < uExt[1]; ++i )
         {
-        iIn = voi[0] + ((i-outWholeExt[0])*rate[0]);
+        iIn = shift[0] + (i*rate[0]);
         idx = (iIn-inExt[0]) + jOffset + kOffset;
         outCD->CopyData(cd, idx, newCellId++);
         }
