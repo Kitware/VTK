@@ -40,17 +40,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkRenderWindowInteractor - provide event driven interface to rendering window
 // .SECTION Description
-// vtkRenderWindowInteractor is a convenience object that provides event 
-// bindings to common graphics functions. For example, camera 
-// zoom-in/zoom-out, pan, rotate, and reset view; picking of actors, points, 
-// or cells; in/out of stereo mode; property changes such as wireframe 
-// and surface; and a toggle to force the light to be placed at camera 
-// viewpoint (pointing in view direction).
+
+// vtkRenderWindowInteractor is a convenience object that provides event
+// bindings to common graphics functions. For example, camera
+// zoom-in/zoom-out, pan, rotate, resetting; picking of actors, points,
+// or cells; switching in/out of stereo mode; property changes such as
+// wireframe and surface; and a toggle to force the light to be placed at
+// camera viewpoint (pointing in view direction).
 
 // .SECTION Event Bindings
 // Specific devices have different camera bindings. The bindings are on both
 // mouse events as well as keyboard presses. See vtkXInteractor and 
-// vtkWindowsInteractor for specific information.
+// vtkWin32Interactor for specific information.
+
+// .SECTION see also
+// vtkXRenderWindowInteractor vtkPicker
 
 #ifndef __vtkRenderWindowInteractor_h
 #define __vtkRenderWindowInteractor_h
@@ -74,7 +78,7 @@ public:
   virtual void Start() = 0;
 
   // Description:
-  // Get the rendering window being controlled by this object.
+  // Set/Get the rendering window being controlled by this object.
   vtkSetObjectMacro(RenderWindow,vtkRenderWindow);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
 
@@ -85,13 +89,17 @@ public:
   vtkBooleanMacro(LightFollowCamera,int);
 
   // Description:
-  // Set/Get the desired update rate.
+  // Set/Get the desired update rate. This is use dby vtkLODActors to tell 
+  // them how quickly they need to render.  This update is in effect only
+  // when the camera is being rotated, or zoomed.  When the interactor is
+  // still the StillUpdateRate is used instead. A value of zero indicates
+  // that the update rate is unimportant. (i.e. take as long as you want)
   vtkSetMacro(DesiredUpdateRate,float);
   vtkGetMacro(DesiredUpdateRate,float);
 
   // Description:
   // Set/Get the desired update rate when movement has stopped.
-  // A value of zero indicates full resolution.
+  // See the SetDesiredUpdateRate method. 
   vtkSetMacro(StillUpdateRate,float);
   vtkGetMacro(StillUpdateRate,float);
 
@@ -99,6 +107,11 @@ public:
   // See whether interactor has been initialized yet.
   vtkGetMacro(Initialized,int);
 
+  // Description:
+  // When an event occurs we must determine which Renderer the event
+  // occured within since one RenderWindow may contain multiple 
+  // renderers. We also need to know what camera to operate on.
+  // This is just the ActiveCamera of the poked renderer. 
   void FindPokedCamera(int,int);
   void FindPokedRenderer(int,int);
 
