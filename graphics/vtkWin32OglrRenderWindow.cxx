@@ -156,16 +156,31 @@ void vtkWin32OglrRenderWindow::Start(void)
     }
 
   // set the current window 
-	if (!this->MFChandledWindow) // hsr
-		wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
-    else wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
+  this->MakeCurrent();
 }
 
 void vtkWin32OglrRenderWindow::MakeCurrent()
 {
-	if (!this->MFChandledWindow) // hsr
-		wglMakeCurrent(GetDC(this->WindowId), this->ContextId);  
-    else wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
+  static HDC vtkCurrentDC = NULL;
+  static HWND vtkCurrentWindow = NULL;
+
+  // free the old context if any
+  if (vtkCurrentDC)
+    {
+    ReleaseDC(vtkCurrentWindow, vtkCurrentDC);
+    vtkCurrentDC = NULL;
+    }
+
+  if (!this->MFChandledWindow)
+    {
+    vtkCurrentWindow = this->WindowId;
+    vtkCurrentDC = GetDC(this->WindowId);
+		wglMakeCurrent(vtkCurrentDC, this->ContextId);
+    }
+  else 
+    {
+    wglMakeCurrent(this->DeviceContext, this->ContextId);
+    }
 }
 
 static void vtkWin32OglrSwapBuffers(HDC hdc)
@@ -470,7 +485,7 @@ unsigned char *vtkWin32OglrRenderWindow::GetPixelData(int x1, int y1, int x2, in
   unsigned char   *p_data = NULL;
 
   // set the current window 
-  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+  this->MakeCurrent();
 
   buffer = new unsigned long[abs(x2 - x1)+1];
   data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
@@ -532,8 +547,8 @@ void vtkWin32OglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   unsigned long   *buffer;
   unsigned char   *p_data = NULL;
 
-  // set the current window 
-  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+  // set the current window
+  this->MakeCurrent();
 
   if (front)
     {
