@@ -15,14 +15,18 @@ vtkRenderWindowInteractor iren
 
 vtkPNMReader image
   image SetFileName "../../vtkdata/B.pgm"
+  image SetFileName "vtks.pgm"
+  image SetDataOrigin -.5 [expr -(160.0/320.00) / 2.0] 0
+#  image SetDataSpacing [expr 1.0 / 141.0] [expr 1.0 / 141.0] 1
+  image SetDataSpacing [expr 1.0 / 320.00] [ expr 1.0 / 320.00] 1
   image Update
 
 vtkImageGaussianSmooth gaussian
-    eval gaussian SetStandardDeviations 4 4
+    gaussian SetInput [image GetOutput]
+    eval gaussian SetStandardDeviations 5 5
     gaussian SetDimensionality 2
     gaussian SetStrides 2 2
     gaussian SetRadiusFactors 2 2
-    gaussian SetInput [image GetOutput]
 
 vtkImageToStructuredPoints toStructuredPoints
     toStructuredPoints SetInput [gaussian GetOutput]
@@ -30,8 +34,7 @@ vtkImageToStructuredPoints toStructuredPoints
 
 vtkTransform transform
   transform Identity
-  transform Scale .005 .005 .005
-  transform Translate -50 -50 0
+  transform Scale .75 .75 .75
   transform Inverse
   transform Scale 1 1 0
 
@@ -41,8 +44,8 @@ vtkImplicitVolume aVolume
   aVolume SetOutValue 256
 
 vtkSphereSource aSphere
-  aSphere SetPhiResolution 100
-  aSphere SetThetaResolution 100
+  aSphere SetPhiResolution 200
+  aSphere SetThetaResolution 200
 
 vtkClipPolyData aClipper
     aClipper SetInput [aSphere GetOutput]
@@ -56,12 +59,12 @@ vtkPolyDataMapper mapper
   mapper ScalarVisibilityOff
 
 vtkProperty backProp
-eval  backProp SetDiffuseColor $tomato
+  eval  backProp SetDiffuseColor $tomato
 
 vtkActor sphereActor
   sphereActor SetMapper mapper
   sphereActor SetBackfaceProperty backProp
-
+eval [sphereActor GetProperty] SetDiffuseColor $banana
 ren1 AddActor sphereActor
 
 [ren1 GetActiveCamera] Azimuth -20
