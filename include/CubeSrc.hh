@@ -31,12 +31,18 @@ public:
   char *GetClassName() {return "vlCubeSource";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Set the length of the cube in the x-direction.
   vlSetClampMacro(XLength,float,0.0,LARGE_FLOAT);
   vlGetMacro(XLength,float);
 
+  // Description:
+  // Set the length of the cube in the y-direction.
   vlSetClampMacro(YLength,float,0.0,LARGE_FLOAT);
   vlGetMacro(YLength,float);
 
+  // Description:
+  // Set the length of the cube in the z-direction.
   vlSetClampMacro(ZLength,float,0.0,LARGE_FLOAT);
   vlGetMacro(ZLength,float);
 

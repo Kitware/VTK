@@ -33,12 +33,18 @@ public:
   char *GetClassName() {return "vlLineSource";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Set position of first end point.
   vlSetVector3Macro(Pt1,float);
   vlGetVectorMacro(Pt1,float);
 
+  // Description:
+  // Set position of other end point.
   vlSetVector3Macro(Pt2,float);
   vlGetVectorMacro(Pt2,float);
 
+  // Description:
+  // Divide line into resolution number of pieces.
   vlSetClampMacro(Resolution,int,1,LARGE_INTEGER);
   vlGetMacro(Resolution,int);
 

@@ -35,18 +35,28 @@ public:
   char *GetClassName() {return "vlSphereSource";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Set radius of sphere.
   vlSetClampMacro(Radius,float,0.0,LARGE_FLOAT);
   vlGetMacro(Radius,float);
 
+  // Description:
+  // Set the number of points in the longitude direction.
   vlSetClampMacro(ThetaResolution,int,4,MAX_RESOLUTION);
   vlGetMacro(ThetaResolution,int);
 
+  // Description:
+  // Set the number of points in the latitude direction.
   vlSetClampMacro(PhiResolution,int,4,MAX_RESOLUTION);
   vlGetMacro(PhiResolution,int);
 
+  // Description:
+  // Set the maximum longitude angle.
   vlSetClampMacro(Theta,float,0.0,360.0);
   vlGetMacro(Theta,float);
 
+  // Description:
+  // Set the maximum latitude angle (0 is at north pole).
   vlSetClampMacro(Phi,float,0.0,180.0);
   vlGetMacro(Phi,float);
 

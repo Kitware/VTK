@@ -13,9 +13,10 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract class for specifying behavior of data sources
-//
+// .NAME vlPolySource - abstract class whose subclasses generate polygonal data
+// .SECTION Description
+// vlPolySource is an abstract class whose subclasses generate polygonal data.
+
 #ifndef __vlPolySource_h
 #define __vlPolySource_h
 
