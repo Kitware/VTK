@@ -164,7 +164,8 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   // Initialize
   vtkDebugMacro(<<"Plotting parallel coordinates");
 
-  // Make sure input is up to date.
+  // Make sure input is up to date, and that the data is the correct shape to
+  // plot.
   if ( !this->Input  )
     {
     vtkErrorMacro(<< "Nothing to plot!");
@@ -179,13 +180,13 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
        viewport->GetMTime() > this->BuildTime ||
        this->GetMTime() > this->BuildTime )
     {
-    float range[2], xRange[2], yRange[2], interval, *lengths=NULL;
-    int pos[2], pos2[2], numTicks, *size=viewport->GetSize();
+    int pos[2], pos2[2];
+    int *size=viewport->GetSize();
     int stringWidth, stringHeight;
 
     vtkDebugMacro(<<"Rebuilding plot");
 
-//    this->PlaceAxes(viewport, size, pos, pos2);
+    this->PlaceAxes(viewport, size);
     
     // manage title
     if ( this->Title != NULL )
@@ -216,6 +217,11 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   return renderedSomething;
 }
+
+void vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
+{
+}
+
 
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic

@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkParallelCoordinatesActor_h
 
 #include "vtkAxisActor2D.h"
-class vtkDataSetCollection;
+#include "vtkDataObject.h"
 
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW    1
@@ -144,12 +144,12 @@ public:
   int RenderTranslucentGeometry(vtkViewport *) {return 0;}
 
   // Description:
-  // Set the input to the actor.
-  void SetInput(vtkDataObject *in);
+  // Set the input to the parallel coordinates actor.
+  vtkSetObjectMacro(Input,vtkDataObject);
 
   // Description:
   // Remove a dataset from the list of data to append.
-  vtkDataObject *GetInput();
+  vtkGetObjectMacro(Input,vtkDataObject);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
@@ -184,6 +184,7 @@ protected:
 
   vtkTimeStamp  BuildTime;
 
+  void PlaceAxes(vtkViewport *viewport, int *size);
 };
 
 
