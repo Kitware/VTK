@@ -126,8 +126,6 @@ public:
   vtkSetMacro(CompoundThreshold,float);
   vtkGetMacro(CompoundThreshold,float);
 
-  virtual void UpdateData(vtkDataObject *output);
-  
 protected:
   vtkImageBlend();
   ~vtkImageBlend();
@@ -142,10 +140,13 @@ protected:
 		       int extent[6], 
                        int id);
 
+  void ExecuteData(vtkDataObject *output);
+  
   double *Opacity;
   int OpacityArrayLength;
   int BlendMode;
   float CompoundThreshold;
+  int DataWasPassed;  
 };
 
 // Description:
