@@ -76,6 +76,11 @@ public:
   vtkDataSet *GetNextItem() { 
     return (vtkDataSet *)(this->GetNextItemAsObject());};
 
+  // Description:
+  // Get the ith dataset in the list.
+  vtkDataSet *GetItem(int i) { 
+    return (vtkDataSet *)(this->GetItemAsObject(i));};
+
 };
 
 
