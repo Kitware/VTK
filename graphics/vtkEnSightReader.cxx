@@ -270,68 +270,71 @@ void vtkEnSightReader::Execute()
     if (this->UseTimeSets)
       {
       timeSet = this->TimeSets->IsId(this->GeometryTimeSet);
-      times = (vtkFloatArray*)this->TimeSetTimeValuesCollection->
-	GetItemAsObject(timeSet);
-      this->GeometryTimeValue = times->GetComponent(0, 0);
-      for (i = 1; i < times->GetNumberOfTuples(); i++)
-	{
-	newTime = times->GetComponent(i, 0);
-	if (newTime <= this->TimeValue && newTime > this->GeometryTimeValue)
-	  {
-	  this->GeometryTimeValue = newTime;
-	  timeStep++;
-	  timeStepInFile++;
-	  }
-	}
-      if (this->TimeSetFilenameNumbersCollection->GetNumberOfItems() > 0)
-	{
-	int collectionNum = this->TimeSetsWithFilenameNumbers->
-	  IsId(this->GeometryTimeSet);
-	if (collectionNum > -1)
-	  {
-	  filenameNumbers =
-	    (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	    GetItemAsObject(collectionNum);
-	  filenameNum = filenameNumbers->GetId(timeStep-1);
-	  this->ReplaceWildcards(fileName, filenameNum);
-	  }
-	}
+      if (timeSet > 0)
+        {
+        times = (vtkFloatArray*)this->TimeSetTimeValuesCollection->
+          GetItemAsObject(timeSet);
+        this->GeometryTimeValue = times->GetComponent(0, 0);
+        for (i = 1; i < times->GetNumberOfTuples(); i++)
+          {
+          newTime = times->GetComponent(i, 0);
+          if (newTime <= this->TimeValue && newTime > this->GeometryTimeValue)
+            {
+            this->GeometryTimeValue = newTime;
+            timeStep++;
+            timeStepInFile++;
+            }
+          }
+        if (this->TimeSetFilenameNumbersCollection->GetNumberOfItems() > 0)
+          {
+          int collectionNum = this->TimeSetsWithFilenameNumbers->
+            IsId(this->GeometryTimeSet);
+          if (collectionNum > -1)
+            {
+            filenameNumbers =
+              (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+              GetItemAsObject(collectionNum);
+            filenameNum = filenameNumbers->GetId(timeStep-1);
+            this->ReplaceWildcards(fileName, filenameNum);
+            }
+          }
       
-      // There can only be file sets if there are also time sets.
-      if (this->UseFileSets)
-	{
-	fileSet = this->FileSets->IsId(this->GeometryFileSet);
-	numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
-	  GetItemAsObject(fileSet);
-
-	if (timeStep > numStepsList->GetId(0))
-	  {
-	  numSteps = numStepsList->GetId(0);
-	  timeStepInFile -= numSteps;
-	  for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
-	    {
-	    numSteps += numStepsList->GetId(i);
-	    if (timeStep > numSteps)
-	      {
-	      fileNum++;
-	      timeStepInFile -= numStepsList->GetId(i);
-	      }
-	    }
-	  }
-	if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0)
-	  {
-	  int collectionNum = this->FileSetsWithFilenameNumbers->
-	    IsId(this->GeometryFileSet);
-	  if (collectionNum > -1)
-	    {
-	    filenameNumbers = 
-	      (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	      GetItemAsObject(collectionNum);
-	    filenameNum = filenameNumbers->GetId(fileNum-1);
-	    this->ReplaceWildcards(fileName, filenameNum);
-	    }
-	  }
-	}
+        // There can only be file sets if there are also time sets.
+        if (this->UseFileSets)
+          {
+          fileSet = this->FileSets->IsId(this->GeometryFileSet);
+          numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
+            GetItemAsObject(fileSet);
+          
+          if (timeStep > numStepsList->GetId(0))
+            {
+            numSteps = numStepsList->GetId(0);
+            timeStepInFile -= numSteps;
+            for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
+              {
+              numSteps += numStepsList->GetId(i);
+              if (timeStep > numSteps)
+                {
+                fileNum++;
+                timeStepInFile -= numStepsList->GetId(i);
+                }
+              }
+            }
+          if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0)
+            {
+            int collectionNum = this->FileSetsWithFilenameNumbers->
+              IsId(this->GeometryFileSet);
+            if (collectionNum > -1)
+              {
+              filenameNumbers = 
+                (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+                GetItemAsObject(collectionNum);
+              filenameNum = filenameNumbers->GetId(fileNum-1);
+              this->ReplaceWildcards(fileName, filenameNum);
+              }
+            }
+          }
+        }
       }
     if (!this->ReadGeometryFile(fileName, timeStepInFile))
       {
@@ -351,68 +354,71 @@ void vtkEnSightReader::Execute()
     if (this->UseTimeSets)
       {
       timeSet = this->TimeSets->IsId(this->MeasuredTimeSet);
-      times = (vtkFloatArray*)this->TimeSetTimeValuesCollection->
-	GetItemAsObject(timeSet);
-      this->MeasuredTimeValue = times->GetComponent(0, 0);
-      for (i = 1; i < times->GetNumberOfTuples(); i++)
-	{
-	newTime = times->GetComponent(i, 0);
-	if (newTime <= this->TimeValue && newTime > this->MeasuredTimeValue)
-	  {
-	  this->MeasuredTimeValue = newTime;
-	  timeStep++;
-	  timeStepInFile++;
-	  }
-	}
-      if (this->TimeSetFilenameNumbersCollection->GetNumberOfItems() > 0)
-	{
-	int collectionNum = this->TimeSetsWithFilenameNumbers->
-	  IsId(this->MeasuredTimeSet);
-	if (collectionNum > -1)
-	  {
-	  filenameNumbers =
-	    (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	    GetItemAsObject(collectionNum);
-	  filenameNum = filenameNumbers->GetId(timeStep-1);
-	  this->ReplaceWildcards(fileName, filenameNum);
-	  }
-	}
-      
-      // There can only be file sets if there are also time sets.
-      if (this->UseFileSets)
-	{
-	fileSet = this->FileSets->IsId(this->MeasuredFileSet);
-	numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
-	  GetItemAsObject(fileSet);
-
-	if (timeStep > numStepsList->GetId(0))
-	  {
-	  numSteps = numStepsList->GetId(0);
-	  timeStepInFile -= numSteps;
-	  for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
-	    {
-	    numSteps += numStepsList->GetId(i);
-	    if (timeStep > numSteps)
-	      {
-	      fileNum++;
-	      timeStepInFile -= numStepsList->GetId(i);
-	      }
-	    }
-	  }
-	if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0)
-	  {
-	  int collectionNum = this->FileSetsWithFilenameNumbers->
-	    IsId(this->MeasuredFileSet);
-	  if (collectionNum > -1)
-	    {
-	    filenameNumbers =
-	      (vtkIdList*)this->TimeSetFilenameNumbersCollection->
-	      GetItemAsObject(fileSet);
-	    filenameNum = filenameNumbers->GetId(fileNum-1);
-	    this->ReplaceWildcards(fileName, filenameNum);
-	    }
-	  }
-	}
+      if (timeSet > 0)
+        {
+        times = (vtkFloatArray*)this->TimeSetTimeValuesCollection->
+          GetItemAsObject(timeSet);
+        this->MeasuredTimeValue = times->GetComponent(0, 0);
+        for (i = 1; i < times->GetNumberOfTuples(); i++)
+          {
+          newTime = times->GetComponent(i, 0);
+          if (newTime <= this->TimeValue && newTime > this->MeasuredTimeValue)
+            {
+            this->MeasuredTimeValue = newTime;
+            timeStep++;
+            timeStepInFile++;
+            }
+          }
+        if (this->TimeSetFilenameNumbersCollection->GetNumberOfItems() > 0)
+          {
+          int collectionNum = this->TimeSetsWithFilenameNumbers->
+            IsId(this->MeasuredTimeSet);
+          if (collectionNum > -1)
+            {
+            filenameNumbers =
+              (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+              GetItemAsObject(collectionNum);
+            filenameNum = filenameNumbers->GetId(timeStep-1);
+            this->ReplaceWildcards(fileName, filenameNum);
+            }
+          }
+        
+        // There can only be file sets if there are also time sets.
+        if (this->UseFileSets)
+          {
+          fileSet = this->FileSets->IsId(this->MeasuredFileSet);
+          numStepsList = (vtkIdList*)this->FileSetNumberOfStepsCollection->
+            GetItemAsObject(fileSet);
+          
+          if (timeStep > numStepsList->GetId(0))
+            {
+            numSteps = numStepsList->GetId(0);
+            timeStepInFile -= numSteps;
+            for (i = 1; i < numStepsList->GetNumberOfIds(); i++)
+              {
+              numSteps += numStepsList->GetId(i);
+              if (timeStep > numSteps)
+                {
+                fileNum++;
+                timeStepInFile -= numStepsList->GetId(i);
+                }
+              }
+            }
+          if (this->FileSetFilenameNumbersCollection->GetNumberOfItems() > 0)
+            {
+            int collectionNum = this->FileSetsWithFilenameNumbers->
+              IsId(this->MeasuredFileSet);
+            if (collectionNum > -1)
+              {
+              filenameNumbers =
+                (vtkIdList*)this->TimeSetFilenameNumbersCollection->
+                GetItemAsObject(fileSet);
+              filenameNum = filenameNumbers->GetId(fileNum-1);
+              this->ReplaceWildcards(fileName, filenameNum);
+              }
+            }
+          }
+        }
       }
     if (!this->ReadMeasuredGeometryFile(fileName, timeStepInFile))
       {

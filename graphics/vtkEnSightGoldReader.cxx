@@ -313,6 +313,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
   int partId, numPts, i, j, numLines, moreScalars;
   vtkFloatArray *scalars;
   float scalarsRead[6];
+  vtkDataSet *output;
   
   // Initialize
   //
@@ -363,7 +364,8 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
   
   if (measured)
     {
-    numPts = this->GetOutput(this->NumberOfGeometryParts)->GetNumberOfPoints();
+    output = this->GetOutput(this->NumberOfGeometryParts);
+    numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
     moreScalars = numPts % 6;
     
@@ -396,8 +398,11 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
       strcpy(formatLine, tempLine);
       }    
     scalars->SetName(description);
-    this->GetOutput(this->NumberOfGeometryParts)->GetPointData()->
-      AddArray(scalars);
+    output->GetPointData()->AddArray(scalars);
+    if (!output->GetPointData()->GetScalars())
+      {
+      output->GetPointData()-> SetScalars(scalars);
+      }
     scalars->Delete();
     delete this->IS;
     this->IS = NULL;
@@ -409,8 +414,9 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    output = this->GetOutput(partId);
     this->ReadNextDataLine(line); // "coordinates" or "block"
-    numPts = this->GetOutput(partId)->GetNumberOfPoints();
+    numPts = output->GetNumberOfPoints();
     if (component == 0)
       {
       scalars = vtkFloatArray::New();
@@ -420,7 +426,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->
+      scalars = (vtkFloatArray*)(output->GetPointData()->
 				 GetArray(description));
       }
 
@@ -432,12 +438,16 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(char* fileName, char* description,
     if (component == 0)
       {
       scalars->SetName(description);
-      this->GetOutput(partId)->GetPointData()->AddArray(scalars);
+      output->GetPointData()->AddArray(scalars);
+      if (!output->GetPointData()->GetScalars())
+        {
+        output->GetPointData()->SetScalars(scalars);
+        }
       scalars->Delete();
       }
     else
       {
-      this->GetOutput(partId)->GetPointData()->AddArray(scalars);
+      output->GetPointData()->AddArray(scalars);
       }
     }
   
@@ -454,6 +464,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
   int partId, numPts, i, j, numLines, moreVectors;
   vtkFloatArray *vectors;
   float vector1[3], vector2[3];
+  vtkDataSet *output;
   
   // Initialize
   //
@@ -504,8 +515,9 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
 
   if (measured)
     {
+    output = this->GetOutput(this->NumberOfGeometryParts);
     this->ReadNextDataLine(line);
-    numPts = this->GetOutput(this->NumberOfGeometryParts)->GetNumberOfPoints();
+    numPts = output->GetNumberOfPoints();
     numLines = numPts / 2;
     moreVectors = ((numPts * 3) % 6) / 3;
     vectors = vtkFloatArray::New();
@@ -531,8 +543,11 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
       strcpy(formatLine, tempLine);
       }
     vectors->SetName(description);
-    this->GetOutput(this->NumberOfGeometryParts)->GetPointData()->
-      AddArray(vectors);
+    output->GetPointData()->AddArray(vectors);
+    if (!output->GetPointData()->GetVectors())
+      {
+      output->GetPointData()->SetVectors(vectors);
+      }
     vectors->Delete();
     delete this->IS;
     this->IS = NULL;
@@ -545,8 +560,9 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
     vectors = vtkFloatArray::New();
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    output = this->GetOutput(partId);
     this->ReadNextDataLine(line); // "coordinates" or "block"
-    numPts = this->GetOutput(partId)->GetNumberOfPoints();
+    numPts = output->GetNumberOfPoints();
     vectors->SetNumberOfTuples(numPts);
     vectors->SetNumberOfComponents(3);
     vectors->Allocate(numPts*3);
@@ -559,7 +575,11 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(char* fileName, char* description,
         }
       }
     vectors->SetName(description);
-    this->GetOutput(partId)->GetPointData()->AddArray(vectors);
+    output->GetPointData()->AddArray(vectors);
+    if (!output->GetPointData()->GetVectors())
+      {
+      output->GetPointData()->SetVectors(vectors);
+      }
     vectors->Delete();
     }
 
@@ -575,6 +595,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
   char line[256];
   int partId, numPts, i, j;
   vtkFloatArray *tensors;
+  vtkDataSet *output;
   
   // Initialize
   //
@@ -629,8 +650,9 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
     tensors = vtkFloatArray::New();
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
+    output = this->GetOutput(partId);
     this->ReadNextDataLine(line); // "coordinates" or "block"
-    numPts = this->GetOutput(partId)->GetNumberOfPoints();
+    numPts = output->GetNumberOfPoints();
     tensors->SetNumberOfTuples(numPts);
     tensors->SetNumberOfComponents(6);
     tensors->Allocate(numPts*6);
@@ -643,7 +665,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(char* fileName, char* description,
         }
       }
     tensors->SetName(description);
-    this->GetOutput(partId)->GetPointData()->AddArray(tensors);
+    output->GetPointData()->AddArray(tensors);
     tensors->Delete();
     }
 
@@ -664,6 +686,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
   vtkFloatArray *scalars;
   int lineRead, elementType;
   float scalar;
+  vtkDataSet *output;
   
   // Initialize
   //
@@ -717,7 +740,8 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
     {
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    numCells = this->GetOutput(partId)->GetNumberOfCells();
+    output = this->GetOutput(partId);
+    numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     if (component == 0)
       {
@@ -728,8 +752,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
       }
     else
       {
-      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->
-	GetArray(description));
+      scalars = (vtkFloatArray*)(output->GetCellData()->GetArray(description));
       }
     
     // need to find out from CellIds how many cells we have of this element
@@ -771,12 +794,16 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(char* fileName,
     if (component == 0)
       {
       scalars->SetName(description);
-      this->GetOutput(partId)->GetCellData()->AddArray(scalars);
+      output->GetCellData()->AddArray(scalars);
+      if (!output->GetCellData()->GetScalars())
+        {
+        output->GetCellData()->SetScalars(scalars);
+        }
       scalars->Delete();
       }
     else
       {
-      this->GetOutput(partId)->GetCellData()->AddArray(scalars);
+      output->GetCellData()->AddArray(scalars);
       }
     }
   
@@ -795,6 +822,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
   vtkFloatArray *vectors;
   int lineRead, elementType;
   float value;
+  vtkDataSet *output;
   
   // Initialize
   //
@@ -849,7 +877,8 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
     vectors = vtkFloatArray::New();
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    numCells = this->GetOutput(partId)->GetNumberOfCells();
+    output = this->GetOutput(partId);
+    numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     vectors->SetNumberOfTuples(numCells);
     vectors->SetNumberOfComponents(3);
@@ -898,7 +927,11 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(char* fileName,
         } // end while
       } // end else
     vectors->SetName(description);
-    this->GetOutput(partId)->GetCellData()->AddArray(vectors);
+    output->GetCellData()->AddArray(vectors);
+    if (!output->GetCellData()->GetVectors())
+      {
+      output->GetCellData()->SetVectors(vectors);
+      }
     vectors->Delete();
     }
   
@@ -917,6 +950,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
   vtkFloatArray *tensors;
   int lineRead, elementType;
   float value;
+  vtkDataSet *output;
   
   // Initialize
   //
@@ -971,7 +1005,8 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
     tensors = vtkFloatArray::New();
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
-    numCells = this->GetOutput(partId)->GetNumberOfCells();
+    output = this->GetOutput(partId);
+    numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     tensors->SetNumberOfTuples(numCells);
     tensors->SetNumberOfComponents(6);
@@ -1020,7 +1055,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
         } // end while
       } // end else
     tensors->SetName(description);
-    this->GetOutput(partId)->GetCellData()->AddArray(tensors);
+    output->GetCellData()->AddArray(tensors);
     tensors->Delete();
     }
   
@@ -1625,7 +1660,6 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
     if (strcmp(subLine, "iblanked") == 0)
       {
       iblanked = 1;
-      ((vtkStructuredGrid*)this->GetOutput(partId))->BlankingOn();
       }
     }
 
@@ -1654,8 +1688,10 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
     points->GetPoint(i, point);
     points->SetPoint(i, point[0], point[1], atof(line));
     }
+  ((vtkStructuredGrid*)this->GetOutput(partId))->SetPoints(points);
   if (iblanked)
     {
+    ((vtkStructuredGrid*)this->GetOutput(partId))->BlankingOn();
     for (i = 0; i < numPts; i++)
       {
       this->ReadNextDataLine(line);
@@ -1666,7 +1702,6 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
       }
     }
   
-  ((vtkStructuredGrid*)this->GetOutput(partId))->SetPoints(points);
   points->Delete();
   // reading next line to check for EOF
   lineRead = this->ReadNextDataLine(line);
