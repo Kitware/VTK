@@ -160,6 +160,10 @@ void vtkXRenderWindowInteractor::SetTopLevelShell(Widget topLevel)
 // application is exited.
 void vtkXRenderWindowInteractor::Start()
 {
+  if (!this->Initialized)
+    {
+    this->Initialize();
+    }
   XtAppMainLoop(this->App);
 }
 
@@ -180,16 +184,12 @@ void vtkXRenderWindowInteractor::Initialize()
   static int any_initialized = 0;
   static XtAppContext app;
   vtkXRenderWindow *ren;
-  int needs_render;
   int depth;
   Colormap cmap;
   Visual  *vis;
   int *size;
   int *position;
   int argc = 0;
-
-  // set if the window hasn't rendered yet
-  needs_render = !this->Initialized;
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
@@ -286,11 +286,6 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-  if (needs_render) 
-    {
-    ren->Render();
-    }
-
 }
 
 void vtkXRenderWindowInteractor::Enable()
@@ -440,17 +435,10 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	// just getting the last configure event
 	event = &result;
 	}
-      if ((((XConfigureEvent *)event)->width != me->Size[0]) ||
-	  (((XConfigureEvent *)event)->height != me->Size[1]))
-	{
-	me->UpdateSize(((XConfigureEvent *)event)->width,
-		       ((XConfigureEvent *)event)->height); 
-	
 	// only render if we are currently accepting events
-	if (me->GetEnabled())
-	  {
-	  me->GetRenderWindow()->Render();
-	  }
+      if (me->GetEnabled())
+	{
+	me->GetRenderWindow()->Render();
 	}
       }
       break;
