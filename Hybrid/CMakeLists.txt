@@ -152,3 +152,4 @@ TARGET_LINK_LIBRARIES(vtk${KIT} ${KIT_LIBS})
 
 INSTALL_TARGETS(/lib/vtk vtk${KIT})
 INSTALL_FILES(/include/vtk .h ${Kit_SRCS})
+INSTALL_FILES(/include/vtk .h vtk3DS)
