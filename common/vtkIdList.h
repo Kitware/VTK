@@ -60,7 +60,7 @@ class VTK_EXPORT vtkIdList : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkIdList &operator=(const vtkIdList& ids) {*(this->Ia) = *(ids.Ia); return *this;};
-  static vtkIdList *New() {return new vtkIdList;};
+  static vtkIdList *New() {return new vtkIdList(8);};
   void Squeeze() {this->Ia->Squeeze();};
 
   int GetNumberOfIds();
