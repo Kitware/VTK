@@ -621,9 +621,10 @@ void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars,
   TRIANGLE_CASES *triangleCase;
   TRIANGLE_EDGE_LIST  *edge;
   int i, j, index, *vert;
+  int e1, e2;
   int pts[3];
   int vertexId;
-  float t, x1[3], x2[3], x[3];
+  float t, x1[3], x2[3], x[3], deltaScalar;
 
   // Build the case table
   if ( insideOut )
@@ -664,18 +665,34 @@ void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars,
         {
         vert = edges[edge[i]];
 
-        t = (value - cellScalars->GetScalar(vert[0])) /
-            (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+        // calculate a preferred interpolation direction
+        deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+        t = (value - cellScalars->GetScalar(vert[0])) / deltaScalar;
 
-        this->Points.GetPoint(vert[0], x1);
-        this->Points.GetPoint(vert[1], x2);
+        if (deltaScalar > 0)
+          {
+	  e1 = vert[0]; e2 = vert[1];
+          }
+        else
+          {
+	   e1 = vert[1]; e2 = vert[0];
+           deltaScalar = -deltaScalar;
+          }
+
+	// linear interpolation
+        if (deltaScalar == 0.0) t = 0.0;
+        else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+
+        this->Points.GetPoint(e1, x1);
+        this->Points.GetPoint(e2, x2);
+
         for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
 
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds.GetId(e1);
+          int p2 = this->PointIds.GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
