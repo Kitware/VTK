@@ -188,9 +188,9 @@ void vtkWindowedSincPolyDataFilter::Execute()
         else //is edge vertex (unless already edge vertex!)
           {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
-//          Verts[pts[j]].edges = vtkIdList::New();
-//          Verts[pts[j]].edges->SetNumberOfIds(2);
-          Verts[pts[j]].edges = new vtkIdList(2,2);
+          Verts[pts[j]].edges = vtkIdList::New();
+          Verts[pts[j]].edges->SetNumberOfIds(2);
+          //Verts[pts[j]].edges = new vtkIdList(2,2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
           Verts[pts[j]].edges->SetId(1,pts[j+1]);
           }
@@ -199,7 +199,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
       else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
         { //multiply connected, becomes fixed!
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
-        delete Verts[pts[j]].edges;
+        Verts[pts[j]].edges->Delete();
+        Verts[pts[j]].edges = NULL;
         }
 
       } //for all points in this line
@@ -247,15 +248,15 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
         if ( Verts[p1].edges == NULL )
           {
-//          Verts[p1].edges = vtkIdList::New();
-//          Verts[p1].edges->Allocate(6,6);
-          Verts[p1].edges = new vtkIdList(6,6);
+          Verts[p1].edges = vtkIdList::New();
+          Verts[p1].edges->Allocate(6,6);
+          // Verts[p1].edges = new vtkIdList(6,6);
           }
         if ( Verts[p2].edges == NULL )
           {
-//          Verts[p2].edges = vtkIdList::New();
-//          Verts[p2].edges->Allocate(6,6);
-          Verts[p2].edges = new vtkIdList(6,6);
+          Verts[p2].edges = vtkIdList::New();
+          Verts[p2].edges->Allocate(6,6);
+          // Verts[p2].edges = new vtkIdList(6,6);
           }
 
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
@@ -329,7 +330,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
       }
 
     //    delete inMesh; // delete this later, windowed sinc smoothing needs it
-    if (toTris) delete toTris;
+    if (toTris) toTris->Delete();;
 
     }//if strips or polys
 
@@ -659,12 +660,12 @@ void vtkWindowedSincPolyDataFilter::Execute()
   output->SetStrips(input->GetStrips());
 
   // finally delete the constructed (local) mesh
-  delete inMesh;
+  inMesh->Delete();
   
   //free up connectivity storage
   for (i=0; i<numPts; i++)
     {
-    if ( Verts[i].edges != NULL ) delete Verts[i].edges;
+    if ( Verts[i].edges != NULL ) Verts[i].edges->Delete();
     }
   delete [] Verts;
 }
