@@ -17,7 +17,9 @@ IF(JAVA_COMPILE)
     IF(BUILD_TESTING)
       FOREACH(jfile
               SimpleVTK
-              Regression)
+              Regression
+              TestVTKCanvas
+              AxesActor)
         ADD_CUSTOM_COMMAND(SOURCE VTKJava
                          COMMAND ${JAVA_COMPILE}
                          ARGS -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar
