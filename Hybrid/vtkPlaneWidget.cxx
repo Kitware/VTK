@@ -19,8 +19,10 @@
 
 #include "vtkActor.h"
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
 #include "vtkCellPicker.h"
 #include "vtkConeSource.h"
 #include "vtkDoubleArray.h"
@@ -39,7 +41,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.30");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.31");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);

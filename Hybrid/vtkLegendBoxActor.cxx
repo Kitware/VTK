@@ -18,6 +18,7 @@
 #include "vtkLegendBoxActor.h"
 
 #include "vtkActor.h"
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -30,7 +31,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.24");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.25");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);

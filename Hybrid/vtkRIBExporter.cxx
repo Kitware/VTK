@@ -19,6 +19,8 @@
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFieldData.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageAppendComponents.h"
@@ -27,7 +29,9 @@
 #include "vtkLightCollection.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkRIBLight.h"
@@ -38,7 +42,7 @@
 #include "vtkTIFFWriter.h"
 #include "vtkTexture.h"
 
-vtkCxxRevisionMacro(vtkRIBExporter, "1.51");
+vtkCxxRevisionMacro(vtkRIBExporter, "1.52");
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef float RtColor[3];

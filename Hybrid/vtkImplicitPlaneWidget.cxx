@@ -19,28 +19,29 @@
 
 #include "vtkActor.h"
 #include "vtkAssemblyNode.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
-#include "vtkSphereSource.h"
 #include "vtkConeSource.h"
+#include "vtkCutter.h"
+#include "vtkFeatureEdges.h"
+#include "vtkImageData.h"
 #include "vtkLineSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutlineFilter.h"
-#include "vtkTubeFilter.h"
-#include "vtkCutter.h"
+#include "vtkPlane.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPlane.h"
-#include "vtkFeatureEdges.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
 #include "vtkTransform.h"
-#include "vtkImageData.h"
+#include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.15");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.16");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()

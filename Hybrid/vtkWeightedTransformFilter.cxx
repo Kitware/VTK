@@ -22,11 +22,12 @@
 #include "vtkFloatArray.h"
 #include "vtkLinearTransform.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.10");
+vtkCxxRevisionMacro(vtkWeightedTransformFilter, "1.11");
 vtkStandardNewMacro(vtkWeightedTransformFilter);
 
 // helper functions.  Can't easily get to these in Matrix4x4 as written.

@@ -20,6 +20,7 @@
 #include "vtkActor.h"
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
 #include "vtkLight.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -29,7 +30,7 @@
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.33");
+vtkCxxRevisionMacro(vtk3DSImporter, "1.34");
 vtkStandardNewMacro(vtk3DSImporter);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib

@@ -17,16 +17,19 @@
 =========================================================================*/
 #include "vtkImplicitModeller.h"
 
+#include "vtkCell.h"
 #include "vtkCellLocator.h"
 #include "vtkClipPolyData.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkStructuredGrid.h"
@@ -34,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.81");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.82");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo

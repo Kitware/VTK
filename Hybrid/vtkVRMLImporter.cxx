@@ -32,22 +32,21 @@
                         citrit@rpi.edu
 
 =======================================================================*/
-#ifdef WIN32
-#pragma warning( disable : 4005 )
-#endif
-
 #include "vtkVRMLImporter.h"
 
 #include "vtkActor.h"
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
 #include "vtkConeSource.h"
 #include "vtkCubeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkFloatArray.h"
+#include "vtkIdTypeArray.h"
 #include "vtkLight.h"
 #include "vtkLookupTable.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -59,6 +58,10 @@
 #include "vtkSystemIncludes.h"
 #include "vtkTransform.h"
 #include "vtkVRML.h"
+
+#ifdef WIN32
+#pragma warning( disable : 4005 )
+#endif
 
 class vtkVRMLImporterInternal {
 public:
@@ -4253,7 +4256,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.56");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.57");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()

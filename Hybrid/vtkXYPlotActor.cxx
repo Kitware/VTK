@@ -22,6 +22,7 @@
 #include "vtkCellArray.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGlyph2D.h"
 #include "vtkGlyphSource2D.h"
@@ -31,6 +32,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
@@ -40,7 +42,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.43");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.44");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);

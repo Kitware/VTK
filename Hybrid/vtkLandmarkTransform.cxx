@@ -15,12 +15,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkLandmarkTransform.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLandmarkTransform, "1.20");
+#include "vtkMath.h"
+#include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+
+vtkCxxRevisionMacro(vtkLandmarkTransform, "1.21");
 vtkStandardNewMacro(vtkLandmarkTransform);
 
 //----------------------------------------------------------------------------
