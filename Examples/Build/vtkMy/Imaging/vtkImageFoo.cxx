@@ -101,7 +101,7 @@ static void vtkImageFooExecute(vtkImageFoo *self,
       {
       for (idxR = 0; idxR < rowLength; idxR++)
         {
-        // Pixel operation
+        // Pixel operation. Add foo. Dumber would be impossible.
         *outPtr = (OT)((float)(*inPtr) + foo);
         outPtr++;
         inPtr++;
