@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFieldDataFilter.h"
 
-// Description:
 // Specify the input data or filter.
 void vtkFieldDataFilter::SetInput(vtkDataObject *input)
 {

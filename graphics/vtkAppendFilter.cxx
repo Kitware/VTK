@@ -44,7 +44,6 @@ vtkAppendFilter::vtkAppendFilter()
 {
 }
 
-// Description:
 // Add a dataset to the list of data to append.
 void vtkAppendFilter::AddInput(vtkDataSet *ds)
 {
@@ -55,7 +54,6 @@ void vtkAppendFilter::AddInput(vtkDataSet *ds)
     }
 }
 
-// Description:
 // Remove a dataset from the list of data to append.
 void vtkAppendFilter::RemoveInput(vtkDataSet *ds)
 {

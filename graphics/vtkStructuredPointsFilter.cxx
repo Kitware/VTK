@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsFilter.h"
 
 
-// Description:
 // Specify the input data or filter.
 void vtkStructuredPointsFilter::SetInput(vtkStructuredPoints *input)
 {

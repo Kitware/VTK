@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
-// Description:
 // Construct with feature angle=30, splitting and consistency turned on, 
 // flipNormals turned off, and non-manifold traversal turned on.
 vtkPolyDataNormals::vtkPolyDataNormals()

@@ -279,7 +279,6 @@ void trilin_line_intersection( float start[3], float vec[3],
     }
 }
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the pixel_value for isosurface-ray intersection.  It is valid for
 // unsigned char, unsigned short, short, int and float data.
@@ -540,7 +539,6 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   pixel_value[5] = steps_this_ray;
 
 }
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the pixel_value for isosurface-ray intersection.  It is valid for
 // unsigned char, unsigned short, short, int and float data.
@@ -1040,7 +1038,6 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   pixel_value[5] = steps_this_ray;
 }
 
-// Description:
 // Construct a new vtkVolumeRayCastIsosurfaceFunction with a default ramp.
 // This ramp is best suited for unsigned char data and should
 // probably be modified before rendering any other data type.
@@ -1051,13 +1048,11 @@ vtkVolumeRayCastIsosurfaceFunction::vtkVolumeRayCastIsosurfaceFunction()
   this->IsoValue		= 0;
 }
 
-// Description:
 // Destruct the vtkVolumeRayCastIsosurfaceFunction
 vtkVolumeRayCastIsosurfaceFunction::~vtkVolumeRayCastIsosurfaceFunction()
 {
 }
 
-// Description:
 // This is called from RenderAnImage (in vtkDepthPARCMapper.cxx)
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
@@ -1149,7 +1144,6 @@ void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize(
     }
 }
 
-// Description:
 // Print method for vtkVolumeRayCastIsosurfaceFunction
 void vtkVolumeRayCastIsosurfaceFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

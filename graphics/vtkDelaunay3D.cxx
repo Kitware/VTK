@@ -127,7 +127,6 @@ vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
 // vtkDelaunay3D methods
 //
 
-// Description:
 // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
 // BoundingTriangulation turned off.
 vtkDelaunay3D::vtkDelaunay3D()
@@ -634,7 +633,6 @@ void vtkDelaunay3D::Execute()
   output->Squeeze();
 }
 
-// Description:
 // This is a helper method used with InsertPoint() to create 
 // tetrahedronalizations of points. Its purpose is construct an initial
 // Delaunay triangulation into which to inject other points. You must
@@ -732,7 +730,6 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
   return Mesh;
 }
 
-// Description:
 // This is a helper method used with InsertPoint() to create 
 // tetrahedronalizations of points. Its purpose is construct an initial
 // Delaunay triangulation into which to inject other points. You must
@@ -784,7 +781,6 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,
   return Mesh;
 }
   
-// Description:
 // This is a helper method used with InitPointInsertion() to create
 // tetrahedronalizations of points. Its purpose is to inject point at
 // coordinates specified into tetrahedronalization. The point id is an index
@@ -854,7 +850,6 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
 }
 
 
-// Description:
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
 void vtkDelaunay3D::SetLocator(vtkPointLocator *locator)

@@ -54,7 +54,6 @@ vtkXGLRenderer::vtkXGLRenderer()
   this->NumberOfLightsBound = 0;
 }
 
-// Description:
 // Ask lights to load themselves into graphics pipeline.
 int vtkXGLRenderer::UpdateLights ()
 {
@@ -136,7 +135,6 @@ int vtkXGLRenderer::UpdateLights ()
   return count;
 }
  
-// Description:
 // Concrete XGL render method.
 void vtkXGLRenderer::DeviceRender(void)
 {

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkRecursiveSphereDirectionEncoder.h"
 
-// Description:
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
 // the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
 // indicate that the IndexTable has not yet been initialized. The
@@ -60,7 +59,6 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
 }
 
-// Description:
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
@@ -142,7 +140,6 @@ unsigned char *vtkEncodedGradientEstimator::GetGradientMagnitudes()
   return this->GradientMagnitudes;
 }
 
-// Description:
 void vtkEncodedGradientEstimator::Update( )
 {
   int                scalar_input_size[3];
@@ -196,7 +193,6 @@ void vtkEncodedGradientEstimator::Update( )
     }
 }
 
-// Description:
 // Print the vtkEncodedGradientEstimator
 void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 {

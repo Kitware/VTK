@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkVectorTopology.h"
 
-// Description:
 // Construct object with distance 0.1.
 vtkVectorTopology::vtkVectorTopology()
 {

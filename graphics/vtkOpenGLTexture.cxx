@@ -45,14 +45,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLTexture.h"
 #include <GL/gl.h>
 
-// Description:
 // Initializes an instance, generates a unique index.
 vtkOpenGLTexture::vtkOpenGLTexture()
 {
   this->Index = 0;
 }
 
-// Description:
 // Implement base class method.
 void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
 {

@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRectilinearGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-// Description:
 // Instantiate object with no input and no defined output.
 vtkFieldDataToDataSet::vtkFieldDataToDataSet()
 {
@@ -74,7 +73,6 @@ vtkFieldDataToDataSet::~vtkFieldDataToDataSet()
   this->RectilinearGrid->Delete();
 }
 
-// Description:
 // Specify the input data or filter.
 void vtkFieldDataToDataSet::SetInput(vtkDataObject *input)
 {

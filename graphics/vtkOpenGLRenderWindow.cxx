@@ -179,7 +179,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
     strcpy( this->WindowName, "Visualization Toolkit - OpenGL" );
 }
 
-// Description:
 // free up memory & close the window
 vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 {
@@ -203,7 +202,6 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
     }
 }
 
-// Description:
 // Begin the rendering process.
 void vtkOpenGLRenderWindow::Start(void)
 {
@@ -217,7 +215,6 @@ void vtkOpenGLRenderWindow::Start(void)
   glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
 }
 
-// Description:
 // End the rendering process and display the image.
 void vtkOpenGLRenderWindow::Frame(void)
 {
@@ -230,7 +227,6 @@ void vtkOpenGLRenderWindow::Frame(void)
 }
  
 
-// Description:
 // Update system if needed due to stereo rendering.
 void vtkOpenGLRenderWindow::StereoUpdate(void)
 {
@@ -282,7 +278,6 @@ void vtkOpenGLRenderWindow::StereoUpdate(void)
     }
 }
 
-// Description:
 // Specify various window parameters.
 void vtkOpenGLRenderWindow::WindowConfigure()
 {
@@ -290,7 +285,6 @@ void vtkOpenGLRenderWindow::WindowConfigure()
 }
 
 
-// Description:
 // Initialize the window for rendering.
 void vtkOpenGLRenderWindow::WindowInitialize (void)
 {
@@ -425,7 +419,6 @@ void vtkOpenGLRenderWindow::WindowInitialize (void)
     }
 }
 
-// Description:
 // Initialize the rendering window.
 void vtkOpenGLRenderWindow::Initialize (void)
 {
@@ -437,7 +430,6 @@ void vtkOpenGLRenderWindow::Initialize (void)
   this->WindowInitialize();
 }
 
-// Description:
 // Change the window to fill the entire screen.
 void vtkOpenGLRenderWindow::SetFullScreen(int arg)
 {
@@ -496,7 +488,6 @@ void vtkOpenGLRenderWindow::SetFullScreen(int arg)
   this->Modified();
 }
 
-// Description:
 // Set the preferred window size to full screen.
 void vtkOpenGLRenderWindow::PrefFullScreen()
 {
@@ -514,7 +505,6 @@ void vtkOpenGLRenderWindow::PrefFullScreen()
   this->Borders = 0;
 }
 
-// Description:
 // Resize the window.
 void vtkOpenGLRenderWindow::WindowRemap()
 {
@@ -564,7 +554,6 @@ void vtkOpenGLRenderWindow::SetPosition(int x,int y)
 */
 
 
-// Description:
 // Specify the size of the rendering window.
 void vtkOpenGLRenderWindow::SetSize(int x,int y)
 {
@@ -604,7 +593,6 @@ int vtkOpenGLRenderWindow::GetDesiredDepth()
   return depth;
 }
 
-// Description:
 // Get a visual from the windowing system.
 Visual *vtkOpenGLRenderWindow::GetDesiredVisual ()
 {
@@ -624,7 +612,6 @@ Visual *vtkOpenGLRenderWindow::GetDesiredVisual ()
 }
 
 
-// Description:
 // Get a colormap from the windowing system.
 Colormap vtkOpenGLRenderWindow::GetDesiredColormap ()
 {

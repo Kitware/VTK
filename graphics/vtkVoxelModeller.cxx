@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkVoxelModeller.h"
 
-// Description:
 // Construct an instance of vtkVoxelModeller with its sample dimensions
 // set to (50,50,50), and so that the model bounds are
 // automatically computed from its input. The maximum distance is set to 
@@ -64,7 +63,6 @@ vtkVoxelModeller::vtkVoxelModeller()
   this->SampleDimensions[2] = 50;
 }
 
-// Description:
 // Specify the position in space to perform the voxelization.
 void vtkVoxelModeller::SetModelBounds(float *bounds)
 {
@@ -177,7 +175,6 @@ void vtkVoxelModeller::Execute()
   newScalars->Delete();
 }
 
-// Description:
 // Compute the ModelBounds based on the input geometry.
 float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
 {
@@ -224,7 +221,6 @@ float vtkVoxelModeller::ComputeModelBounds(float origin[3], float spacing[3])
   return maxDist;  
 }
 
-// Description:
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkVoxelModeller::SetSampleDimensions(int i, int j, int k)
 {

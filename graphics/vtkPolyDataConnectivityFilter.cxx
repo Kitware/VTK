@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyDataConnectivityFilter.h"
 
-// Description:
 // Construct with default extraction mode to extract largest regions.
 vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
 {
@@ -443,14 +442,12 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark (int cellId)
   return;
 }
 
-// Description:
 // Obtain the number of connected regions.
 int vtkPolyDataConnectivityFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes->GetMaxId() + 1;
 }
 
-// Description:
 // Initialize list of point ids/cell ids used to seed regions.
 void vtkPolyDataConnectivityFilter::InitializeSeedList()
 {
@@ -458,7 +455,6 @@ void vtkPolyDataConnectivityFilter::InitializeSeedList()
   this->Seeds.Reset();
 }
 
-// Description:
 // Add a seed id (point or cell id). Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::AddSeed(int id)
 {
@@ -466,7 +462,6 @@ void vtkPolyDataConnectivityFilter::AddSeed(int id)
   this->Seeds.InsertNextId(id);
 }
 
-// Description:
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::DeleteSeed(int id)
 {
@@ -474,7 +469,6 @@ void vtkPolyDataConnectivityFilter::DeleteSeed(int id)
   this->Seeds.DeleteId(id);
 }
 
-// Description:
 // Initialize list of region ids to extract.
 void vtkPolyDataConnectivityFilter::InitializeSpecifiedRegionList()
 {
@@ -482,7 +476,6 @@ void vtkPolyDataConnectivityFilter::InitializeSpecifiedRegionList()
   this->SpecifiedRegionIds.Reset();
 }
 
-// Description:
 // Add a region id to extract. Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::AddSpecifiedRegion(int id)
 {
@@ -490,7 +483,6 @@ void vtkPolyDataConnectivityFilter::AddSpecifiedRegion(int id)
   this->SpecifiedRegionIds.InsertNextId(id);
 }
 
-// Description:
 // Delete a region id to extract. Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::DeleteSpecifiedRegion(int id)
 {

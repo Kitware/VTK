@@ -93,7 +93,6 @@ static void vtkXTclTimerProc(ClientData clientData)
 #define VTKXI_ZOOM   2
 #define VTKXI_PAN    3
 
-// Description:
 // Construct object so that light follows camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
@@ -121,7 +120,6 @@ void  vtkXRenderWindowInteractor::Start()
   Tk_MainLoop();
 }
 
-// Description:
 // Initializes the event handlers
 void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 {
@@ -130,7 +128,6 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
   this->Initialize();
 }
 
-// Description:
 // Begin processing keyboard strokes.
 void vtkXRenderWindowInteractor::Initialize()
 {
@@ -606,7 +603,6 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 }  
 
 
-// Description:
 // Setup a new window before a WindowRemap
 void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
 {
@@ -642,7 +638,6 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
     }
 }
 
-// Description:
 // Finish setting up a new window after the WindowRemap.
 void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
 {

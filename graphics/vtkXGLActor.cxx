@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLRenderer.h"
 #include "vtkXGLActor.h"
 
-// Description:
 // Implement base class method.
 void vtkXGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {

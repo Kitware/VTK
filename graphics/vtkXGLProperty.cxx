@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLRenderer.h"
 #include "vtkXGLProperty.h"
 
-// Description:
 // Implement base class method.
 void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
 			     vtkRenderer *aren)
@@ -177,7 +176,6 @@ void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
 		 NULL);
 }
 
-// Description:
 // Implement base class method.
 
 

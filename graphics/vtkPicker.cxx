@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVertex.h"
 #include "vtkRenderWindow.h"
 
-// Description:
 
 // Construct object with initial tolerance of 1/40th of window. There are no
 // pick methods and picking is performed from the renderer's actors.
@@ -141,7 +140,6 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
   if ( this->PickMethod ) (*this->PickMethod)(this->PickMethodArg);
 }
 
-// Description:
 // Perform pick operation with selection point provided. Normally the 
 // first two values for the selection point are x-y pixel coordinate, and
 // the third value is =0. Return non-zero if something was successfully picked.
@@ -389,7 +387,6 @@ void vtkPicker::Initialize()
   this->GlobalTMin = VTK_LARGE_FLOAT;
 }
 
-// Description:
 // Specify function to be called as picking operation begins.
 void vtkPicker::SetStartPickMethod(void (*f)(void *), void *arg)
 {
@@ -406,7 +403,6 @@ void vtkPicker::SetStartPickMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Specify function to be called when something is picked.
 void vtkPicker::SetPickMethod(void (*f)(void *), void *arg)
 {
@@ -423,7 +419,6 @@ void vtkPicker::SetPickMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Specify function to be called after all picking operations have been
 // performed.
 void vtkPicker::SetEndPickMethod(void (*f)(void *), void *arg)
@@ -442,7 +437,6 @@ void vtkPicker::SetEndPickMethod(void (*f)(void *), void *arg)
 }
 
 
-// Description:
 // Set a method to delete user arguments for StartPickMethod.
 void vtkPicker::SetStartPickMethodArgDelete(void (*f)(void *))
 {
@@ -453,7 +447,6 @@ void vtkPicker::SetStartPickMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set a method to delete user arguments for PickMethod.
 void vtkPicker::SetPickMethodArgDelete(void (*f)(void *))
 {
@@ -464,7 +457,6 @@ void vtkPicker::SetPickMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set a method to delete user arguments for EndPickMethod.
 void vtkPicker::SetEndPickMethodArgDelete(void (*f)(void *))
 {
@@ -475,7 +467,6 @@ void vtkPicker::SetEndPickMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Initialize list of actors in pick list.
 void vtkPicker::InitializePickList()
 {
@@ -483,7 +474,6 @@ void vtkPicker::InitializePickList()
   this->PickList->RemoveAllItems();
 }
 
-// Description:
 // Add an actor to the pick list.
 void vtkPicker::AddPickList(vtkActor *a)
 {
@@ -491,7 +481,6 @@ void vtkPicker::AddPickList(vtkActor *a)
   this->PickList->AddItem(a);
 }
 
-// Description:
 // Delete an actor from the pick list.
 void vtkPicker::DeletePickList(vtkActor *a)
 {

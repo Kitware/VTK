@@ -88,7 +88,6 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
   return PeekMessage(&msg,this->WindowId,WM_LBUTTONDOWN,WM_MBUTTONDOWN,PM_NOREMOVE);
 }
 
-// Description:
 // Begin the rendering process.
 void vtkWin32OpenGLRenderWindow::Start(void)
 {
@@ -170,7 +169,6 @@ static void vtkWin32OpenGLSwapBuffers(HDC hdc)
   SwapBuffers(hdc);
 }
 
-// Description:
 // End the rendering process and display the image.
 void vtkWin32OpenGLRenderWindow::Frame(void)
 {
@@ -183,7 +181,6 @@ void vtkWin32OpenGLRenderWindow::Frame(void)
 }
  
 
-// Description:
 // Update system if needed due to stereo rendering.
 void vtkWin32OpenGLRenderWindow::StereoUpdate(void)
 {
@@ -220,7 +217,6 @@ void vtkWin32OpenGLRenderWindow::StereoUpdate(void)
     }
 }
 
-// Description:
 // Specify various window parameters.
 void vtkWin32OpenGLRenderWindow::WindowConfigure()
 {
@@ -423,7 +419,6 @@ LRESULT APIENTRY vtkWin32OpenGLWndProc(HWND hWnd, UINT message, WPARAM wParam, L
 
 
 
-// Description:
 // Initialize the window for rendering.
 void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
 {
@@ -543,7 +538,6 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
 
 }
 
-// Description:
 // Initialize the rendering window.
 void vtkWin32OpenGLRenderWindow::Initialize (void)
 {
@@ -556,7 +550,6 @@ void vtkWin32OpenGLRenderWindow::Initialize (void)
 }
 
 
-// Description:
 // Get the current size of the window.
 int *vtkWin32OpenGLRenderWindow::GetSize(void)
 {
@@ -597,7 +590,6 @@ int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
   return this->Size;
 }
 
-// Description:
 // Get the position in screen coordinates of the window.
 int *vtkWin32OpenGLRenderWindow::GetPosition(void)
 {
@@ -613,7 +605,6 @@ int *vtkWin32OpenGLRenderWindow::GetPosition(void)
   return this->Position;
 }
 
-// Description:
 // Change the window to fill the entire screen.
 void vtkWin32OpenGLRenderWindow::SetFullScreen(int arg)
 {
@@ -664,7 +655,6 @@ void vtkWin32OpenGLRenderWindow::SetFullScreen(int arg)
   this->Modified();
 }
 
-// Description:
 // Set the preferred window size to full screen.
 void vtkWin32OpenGLRenderWindow::PrefFullScreen()
 {
@@ -682,7 +672,6 @@ void vtkWin32OpenGLRenderWindow::PrefFullScreen()
   this->Borders = 0;
 }
 
-// Description:
 // Remap the window.
 void vtkWin32OpenGLRenderWindow::WindowRemap()
 {
@@ -832,7 +821,6 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glEnable(GL_BLEND);
 }
 
-// Description:
 // Get the window id.
 HWND vtkWin32OpenGLRenderWindow::GetWindowId()
 {
@@ -841,7 +829,6 @@ HWND vtkWin32OpenGLRenderWindow::GetWindowId()
   return this->WindowId;
 }
 
-// Description:
 // Set the window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
 {
@@ -850,7 +837,6 @@ void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
   this->WindowId = arg;
 }
 
-// Description:
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetWindowInfo(char *info)
 {
@@ -862,7 +848,6 @@ void vtkWin32OpenGLRenderWindow::SetWindowInfo(char *info)
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n"); 
 }
 
-// Description:
 // Set the window id to a pre-existing window.
 void vtkWin32OpenGLRenderWindow::SetParentId(HWND arg)
 {
@@ -871,7 +856,6 @@ void vtkWin32OpenGLRenderWindow::SetParentId(HWND arg)
   this->ParentId = arg;
 }
 
-// Description:
 // Set the window id of the new window once a WindowRemap is done.
 void vtkWin32OpenGLRenderWindow::SetNextWindowId(HWND arg)
 {

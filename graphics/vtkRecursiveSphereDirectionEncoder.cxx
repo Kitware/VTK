@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRecursiveSphereDirectionEncoder.h"
 
 
-// Description:
 // Construct the object. Initialize the index table which will be
 // used to map the normal into a patch on the recursively subdivided
 // sphere.
@@ -54,7 +53,6 @@ vtkRecursiveSphereDirectionEncoder::vtkRecursiveSphereDirectionEncoder()
   this->InitializeIndexTable();
 }
 
-// Description:
 // Destruct a vtkRecursiveSphereDirectionEncoder - free up any memory used
 vtkRecursiveSphereDirectionEncoder::~vtkRecursiveSphereDirectionEncoder()
 {
@@ -153,7 +151,6 @@ float *vtkRecursiveSphereDirectionEncoder::GetDecodedGradientTable( void )
   return this->DecodedNormal;
 }
 
-// Description:
 // Initialize the index table.  This is a 2*NORM_SQR_SIZE - 1 by
 // 2*NORM_SQR_SIZE - 1 entry table that maps (x,y) grid position to
 // encoded normal index.  The grid position is obtained by starting
@@ -316,7 +313,6 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable( void )
 }
 
 
-// Description:
 // Print the vtkRecursiveSphereDirectionEncoder
 void vtkRecursiveSphereDirectionEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 #include "vtkCellPicker.h"
 
-// Description:
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 {
@@ -237,7 +236,6 @@ void  vtkRenderWindowInteractor::FindPokedCamera(int x,int y)
   this->CurrentLight = lc->GetNextItem();
 }
 
-// Description:
 // When pick action successfully selects actor, this method highlights the 
 // actor appropriately. Currently this is done by placing a bounding box
 // around the actor.
@@ -272,7 +270,6 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
   this->RenderWindow->Render();
 }
 
-// Description:
 // Specify a method to be executed prior to the pick operation.
 void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
 {
@@ -289,7 +286,6 @@ void vtkRenderWindowInteractor::SetStartPickMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Specify a method to be executed after the pick operation.
 void vtkRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
 {
@@ -306,7 +302,6 @@ void vtkRenderWindowInteractor::SetEndPickMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Set the object used to perform pick operations. You can use this to 
 // control what type of data is picked.
 void vtkRenderWindowInteractor::SetPicker(vtkPicker *picker)
@@ -327,7 +322,6 @@ vtkPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
   return vtkCellPicker::New();
 }
 
-// Description:
 // Set the user method. This method is invoked on a <u> keypress.
 void vtkRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
 {
@@ -344,7 +338,6 @@ void vtkRenderWindowInteractor::SetUserMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
 {
@@ -355,7 +348,6 @@ void vtkRenderWindowInteractor::SetUserMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkRenderWindowInteractor::SetExitMethod(void (*f)(void *), void *arg)
 {
@@ -372,7 +364,6 @@ void vtkRenderWindowInteractor::SetExitMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetExitMethodArgDelete(void (*f)(void *))
 {
@@ -383,7 +374,6 @@ void vtkRenderWindowInteractor::SetExitMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked during rotate/zoom/pan
 void vtkRenderWindowInteractor::SetTimerMethod(void (*f)(void *), void *arg)
 {
@@ -400,7 +390,6 @@ void vtkRenderWindowInteractor::SetTimerMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetTimerMethodArgDelete(void (*f)(void *))
 {
@@ -411,7 +400,6 @@ void vtkRenderWindowInteractor::SetTimerMethodArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkRenderWindowInteractor::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
 {
@@ -428,7 +416,6 @@ void vtkRenderWindowInteractor::SetLeftButtonPressMethod(void (*f)(void *), void
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetLeftButtonPressMethodArgDelete(void (*f)(void *))
 {
@@ -439,7 +426,6 @@ void vtkRenderWindowInteractor::SetLeftButtonPressMethodArgDelete(void (*f)(void
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keyrelease.
 void vtkRenderWindowInteractor::SetLeftButtonReleaseMethod(void (*f)(void *), void *arg)
 {
@@ -456,7 +442,6 @@ void vtkRenderWindowInteractor::SetLeftButtonReleaseMethod(void (*f)(void *), vo
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetLeftButtonReleaseMethodArgDelete(void (*f)(void *))
 {
@@ -467,7 +452,6 @@ void vtkRenderWindowInteractor::SetLeftButtonReleaseMethodArgDelete(void (*f)(vo
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkRenderWindowInteractor::SetMiddleButtonPressMethod(void (*f)(void *), void *arg)
 {
@@ -484,7 +468,6 @@ void vtkRenderWindowInteractor::SetMiddleButtonPressMethod(void (*f)(void *), vo
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetMiddleButtonPressMethodArgDelete(void (*f)(void *))
 {
@@ -495,7 +478,6 @@ void vtkRenderWindowInteractor::SetMiddleButtonPressMethodArgDelete(void (*f)(vo
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keyrelease.
 void vtkRenderWindowInteractor::SetMiddleButtonReleaseMethod(void (*f)(void *), void *arg)
 {
@@ -512,7 +494,6 @@ void vtkRenderWindowInteractor::SetMiddleButtonReleaseMethod(void (*f)(void *), 
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetMiddleButtonReleaseMethodArgDelete(void (*f)(void *))
 {
@@ -523,7 +504,6 @@ void vtkRenderWindowInteractor::SetMiddleButtonReleaseMethodArgDelete(void (*f)(
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keypress.
 void vtkRenderWindowInteractor::SetRightButtonPressMethod(void (*f)(void *), void *arg)
 {
@@ -540,7 +520,6 @@ void vtkRenderWindowInteractor::SetRightButtonPressMethod(void (*f)(void *), voi
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetRightButtonPressMethodArgDelete(void (*f)(void *))
 {
@@ -551,7 +530,6 @@ void vtkRenderWindowInteractor::SetRightButtonPressMethodArgDelete(void (*f)(voi
     }
 }
 
-// Description:
 // Set the exit method. This method is invoked on a <e> keyrelease.
 void vtkRenderWindowInteractor::SetRightButtonReleaseMethod(void (*f)(void *), void *arg)
 {
@@ -568,7 +546,6 @@ void vtkRenderWindowInteractor::SetRightButtonReleaseMethod(void (*f)(void *), v
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetRightButtonReleaseMethodArgDelete(void (*f)(void *))
 {
@@ -579,7 +556,6 @@ void vtkRenderWindowInteractor::SetRightButtonReleaseMethodArgDelete(void (*f)(v
     }
 }
 
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
 {
@@ -589,7 +565,6 @@ void vtkRenderWindowInteractor::SetStartPickMethodArgDelete(void (*f)(void *))
     this->Modified();
     }
 }
-// Description:
 // Called when a void* argument is being discarded.  Lets the user free it.
 void vtkRenderWindowInteractor::SetEndPickMethodArgDelete(void (*f)(void *))
 {

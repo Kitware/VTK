@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-// Description:
 // Construct programmable filter with empty execute method.
 vtkProgrammableSource::vtkProgrammableSource()
 {
@@ -89,7 +88,6 @@ vtkProgrammableSource::~vtkProgrammableSource()
     }
 }
 
-// Description:
 // Specify the function to use to generate the source data. Note
 // that the function takes a single (void *) argument.
 void vtkProgrammableSource::SetExecuteMethod(void (*f)(void *), void *arg)
@@ -107,7 +105,6 @@ void vtkProgrammableSource::SetExecuteMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkProgrammableSource::SetExecuteMethodArgDelete(void (*f)(void *))
 {
@@ -119,7 +116,6 @@ void vtkProgrammableSource::SetExecuteMethodArgDelete(void (*f)(void *))
 }
 
 
-// Description:
 // Get the output as a concrete type. This method is typically used by the
 // writer of the source function to get the output as a particular type (i.e.,
 // it essentially does type casting). It is the users responsibility to know
@@ -129,28 +125,24 @@ vtkPolyData *vtkProgrammableSource::GetPolyDataOutput()
   return this->PolyData;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkStructuredPoints *vtkProgrammableSource::GetStructuredPointsOutput()
 {
   return this->StructuredPoints;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkStructuredGrid *vtkProgrammableSource::GetStructuredGridOutput()
 {
   return this->StructuredGrid;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkUnstructuredGrid *vtkProgrammableSource::GetUnstructuredGridOutput()
 {
   return this->UnstructuredGrid;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkRectilinearGrid *vtkProgrammableSource::GetRectilinearGridOutput()
 {

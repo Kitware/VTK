@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // shared increasing counter
 long vtkStarbaseTexture::GlobalIndex = 0;
 
-// Description:
 // Initializes an instance, generates a unique index.
 vtkStarbaseTexture::vtkStarbaseTexture()
 {
@@ -53,7 +52,6 @@ vtkStarbaseTexture::vtkStarbaseTexture()
   this->Index = this->GlobalIndex;
 }
 
-// Description:
 // Actual Texture load method.
 void vtkStarbaseTexture::Load(vtkRenderer *vtkNotUsed(ren))
 {

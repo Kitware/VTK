@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImplicitBoolean.h"
 
-// Description:
 // 
 vtkImplicitBoolean::vtkImplicitBoolean()
 {
@@ -67,7 +66,6 @@ unsigned long int vtkImplicitBoolean::GetMTime()
   return mtime;
 }
 
-// Description:
 // Add another implicit function to the list of functions.
 void vtkImplicitBoolean::AddFunction(vtkImplicitFunction *f)
 {
@@ -78,7 +76,6 @@ void vtkImplicitBoolean::AddFunction(vtkImplicitFunction *f)
     }
 }
 
-// Description:
 // Remove a function from the list of implicit functions to boolean.
 void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction *f)
 {
@@ -89,7 +86,6 @@ void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction *f)
     }
 }
 
-// Description
 // Evaluate boolean combinations of implicit function using current operator.
 float vtkImplicitBoolean::EvaluateFunction(float x[3])
 {
@@ -144,7 +140,6 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
   return value;
 }
 
-// Description
 // Evaluate gradient of boolean combination.
 void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 {

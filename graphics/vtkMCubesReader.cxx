@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkByteSwap.h"
 
-// Description:
 // Construct object with FlipNormals turned off and Normals set to true.
 vtkMCubesReader::vtkMCubesReader()
 {
@@ -221,7 +220,6 @@ void vtkMCubesReader::Execute()
   if (this->Locator) this->Locator->Initialize(); //free storage
 }
 
-// Description:
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
 void vtkMCubesReader::SetLocator(vtkPointLocator *locator)

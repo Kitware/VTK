@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
 
-// Description:
 // Instantiate object with XSize and YSize = 64; the texture pattern =1
 // (opaque at centroid); and the scale factor set to 1.0.
 

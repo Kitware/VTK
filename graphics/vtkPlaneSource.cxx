@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 
 
-// Description:
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
 // and centered at the origin.
 vtkPlaneSource::vtkPlaneSource()
@@ -71,7 +70,6 @@ vtkPlaneSource::vtkPlaneSource()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 }
 
-// Description:
 // Set the number of x-y subdivisions in the plane.
 void vtkPlaneSource::SetResolution(const int xR, const int yR)
 {
@@ -173,7 +171,6 @@ void vtkPlaneSource::Execute()
   newPolys->Delete();
 }
 
-// Description:
 // Set the normal to the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., rotate the plane around its center).
 void vtkPlaneSource::SetNormal(float N[3])
@@ -228,7 +225,6 @@ void vtkPlaneSource::SetNormal(float N[3])
   this->Modified();
 }
 
-// Description:
 // Set the normal to the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., rotate the plane around its center).
 void vtkPlaneSource::SetNormal(float nx, float ny, float nz)
@@ -239,7 +235,6 @@ void vtkPlaneSource::SetNormal(float nx, float ny, float nz)
   this->SetNormal(n);
 }
 
-// Description:
 // Set the center of the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., translate the plane).
 void vtkPlaneSource::SetCenter(float center[3])
@@ -271,7 +266,6 @@ void vtkPlaneSource::SetCenter(float center[3])
     }
 }
 
-// Description:
 // Set the center of the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., translate the plane).
 void vtkPlaneSource::SetCenter(float x, float y, float z)
@@ -349,7 +343,6 @@ void vtkPlaneSource::SetPoint2(float x, float y, float z)
   this->SetPoint2(pnt);
 }
 
-// Description:
 // Translate the plane in the direction of the normal by the distance specified.
 // Negative values move the plane in the opposite direction.
 void vtkPlaneSource::Push(float distance)

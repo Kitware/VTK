@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStreamLine.h"
 
-// Description:
 // Construct object with step size set to 1.0.
 vtkStreamLine::vtkStreamLine()
 {

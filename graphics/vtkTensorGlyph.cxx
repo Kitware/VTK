@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 
-// Description
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
 // extracted, glyphs are colored with input scalar data, and logarithmic
 // scaling is turned off.
@@ -302,7 +301,6 @@ void vtkTensorGlyph::Execute()
   output->Squeeze();
 }
 
-// Description:
 // Override update method because execution can branch two ways (via Input 
 // and Source objects).
 void vtkTensorGlyph::Update()

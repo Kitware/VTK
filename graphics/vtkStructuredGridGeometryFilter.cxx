@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridGeometryFilter.h"
 
-// Description:
 // Construct with initial extent of all the data
 vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
 {
@@ -300,7 +299,6 @@ void vtkStructuredGridGeometryFilter::Execute()
     }
 }
 
-// Description:
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
 void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMax, 
                                    int kMin, int kMax)
@@ -317,7 +315,6 @@ void vtkStructuredGridGeometryFilter::SetExtent(int iMin, int iMax, int jMin, in
   this->SetExtent(extent);
 }
 
-// Description:
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices in array form.
 void vtkStructuredGridGeometryFilter::SetExtent(int *extent)
 {

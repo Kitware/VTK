@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkVolumeProperty.h"
 
-// Description:
 // Construct a new vtkVolumeProperty with default values
 vtkVolumeProperty::vtkVolumeProperty()
 {
@@ -69,7 +68,6 @@ vtkVolumeProperty::vtkVolumeProperty()
   this->GradientOpacityBias		= 0.0;
 }
 
-// Description:
 // Destruct a vtkVolumeProperty
 vtkVolumeProperty::~vtkVolumeProperty()
 {
@@ -148,7 +146,6 @@ unsigned long int vtkVolumeProperty::GetMTime()
 }
 
 
-// Description:
 // Set the color of a volume to a gray transfer function
 void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
 {
@@ -170,7 +167,6 @@ void vtkVolumeProperty::SetColor( vtkPiecewiseFunction *function )
     }
 }
 
-// Description:
 // Get the currently set gray transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction()
 {
@@ -185,7 +181,6 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction()
   return this->GrayTransferFunction;
 }
 
-// Description:
 // Set the color of a volume to an RGB transfer function
 void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
 {
@@ -207,7 +202,6 @@ void vtkVolumeProperty::SetColor( vtkColorTransferFunction *function )
     }
 }
 
-// Description:
 // Get the currently set RGB transfer function. Create one if none set.
 vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction()
 {
@@ -226,7 +220,6 @@ vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction()
   return this->RGBTransferFunction;
 }
 
-// Description:
 // Set the scalar opacity of a volume to a transfer function
 void vtkVolumeProperty::SetScalarOpacity( vtkPiecewiseFunction *function )
 {
@@ -243,7 +236,6 @@ void vtkVolumeProperty::SetScalarOpacity( vtkPiecewiseFunction *function )
     }
 }
 
-// Description:
 // Get the scalar opacity transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity()
 {
@@ -258,7 +250,6 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetScalarOpacity()
   return this->ScalarOpacity;
 }
 
-// Description:
 // Set the gradient opacity transfer function 
 void vtkVolumeProperty::SetGradientOpacity( vtkPiecewiseFunction *function )
 {
@@ -275,7 +266,6 @@ void vtkVolumeProperty::SetGradientOpacity( vtkPiecewiseFunction *function )
     }
 }
 
-// Description:
 // Get the gradient opacity transfer function. Create one if none set.
 vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity()
 {
@@ -290,7 +280,6 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGradientOpacity()
   return this->GradientOpacity;
 }
 
-// Description:
 // Print the state of the volume property.
 void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 {

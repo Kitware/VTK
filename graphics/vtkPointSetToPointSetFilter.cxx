@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-// Description:
 // Construct object.
 vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
 {
@@ -67,7 +66,6 @@ vtkPointSetToPointSetFilter::~vtkPointSetToPointSetFilter()
   this->Output = NULL;
 }
 
-// Description:
 // Specify the input data or filter.
 void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
 {
@@ -102,7 +100,6 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
 }
 
 
-// Description:
 // Update input to this filter and the filter itself. Note that we are 
 // overloading this method because the output is an abstract dataset type.
 // This requires special treatment.
@@ -154,7 +151,6 @@ void vtkPointSetToPointSetFilter::Update()
 }
 
   
-// Description:
 // Get the output of this filter. If output is NULL, then input hasn't been
 // set, which is necessary for abstract filter objects.
 vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
@@ -166,21 +162,18 @@ vtkPointSet *vtkPointSetToPointSetFilter::GetOutput()
   return (vtkPointSet *)this->Output;
 }
 
-// Description:
 // Get the output as vtkPolyData. Performs run-time checking.
 vtkPolyData *vtkPointSetToPointSetFilter::GetPolyDataOutput() 
 {
   return this->PolyData;
 }
 
-// Description:
 // Get the output as vtkStructuredGrid. Performs run-time checking.
 vtkStructuredGrid *vtkPointSetToPointSetFilter::GetStructuredGridOutput()
 {
   return this->StructuredGrid;
 }
 
-// Description:
 // Get the output as vtkUnstructuredGrid. Performs run-time checking.
 vtkUnstructuredGrid *vtkPointSetToPointSetFilter::GetUnstructuredGridOutput()
 {

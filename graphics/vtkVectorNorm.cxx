@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkVectorNorm.h"
 
-// Description:
 // Construct with normalize flag off.
 vtkVectorNorm::vtkVectorNorm()
 {
@@ -157,7 +156,6 @@ void vtkVectorNorm::Execute()
   outCD->PassNoReplaceData(cd);
 }
 
-// Description:
 // Return the method for generating scalar data as a string.
 char *vtkVectorNorm::GetAttributeModeAsString(void)
 {

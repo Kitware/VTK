@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 
-// Description:
 // This is the templated function that actually computes the EncodedNormal
 // and the GradientMagnitude
 template <class T>
@@ -221,7 +220,6 @@ static void ComputeGradients( vtkNormalEncoder *encoder, T *data_ptr,
 	}
 }
 
-// Description:
 // Construct a vtkNormalEncoder with initial values of NULL for
 // the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
 // indicate that the IndexTable has not yet been initialized. The
@@ -241,7 +239,6 @@ vtkNormalEncoder::vtkNormalEncoder()
 
 }
 
-// Description:
 // Destruct a vtkNormalEncoder - free up any memory used
 vtkNormalEncoder::~vtkNormalEncoder()
 {
@@ -253,7 +250,6 @@ vtkNormalEncoder::~vtkNormalEncoder()
 }
 
 
-// Description:
 // Initialize the index table.  This is a 2*NORM_SQR_SIZE - 1 by
 // 2*NORM_SQR_SIZE - 1 entry table that maps (x,y) grid position to
 // encoded normal index.  The grid position is obtained by starting
@@ -397,7 +393,6 @@ void vtkNormalEncoder::InitializeIndexTable( void )
   this->IndexTableInitialized = 1;
 }
 
-// Description:
 // This method is used to compute the encoded normal and the
 // magnitude of the gradient for each voxel location in the 
 // ScalarInput.
@@ -539,7 +534,6 @@ VTK_THREAD_RETURN_TYPE SwitchOnDataType( void *arg )
   return VTK_THREAD_RETURN_VALUE;
 }
 
-// Description:
 // Build a shading table for a light with the given direction and
 // color, for a material of the given type. material[0] = ambient,
 // material[1] = diffuse, material[2] = specular, material[3] = 
@@ -671,7 +665,6 @@ void vtkNormalEncoder::BuildShadingTable( float light_direction[3],
     }
 }
 
-// Description:
 // I still need to fill this in...
 int vtkNormalEncoder::GetEncodedNormalIndex( int x_index, int y_index,
 					     int z_index )
@@ -686,7 +679,6 @@ int vtkNormalEncoder::GetEncodedNormalIndex( int x_index, int y_index,
 }
 
 
-// Description:
 // Print the vtkNormalEncoder
 void vtkNormalEncoder::PrintSelf(ostream& os, vtkIndent indent)
 {

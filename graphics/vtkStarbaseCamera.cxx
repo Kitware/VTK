@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseRenderer.h"
 
 
-// Description:
 // Implement base class method.
 void vtkStarbaseCamera::Render(vtkRenderer *ren)
 {

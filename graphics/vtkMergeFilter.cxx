@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-// Description:
 // Create object with no input or output.
 vtkMergeFilter::vtkMergeFilter()
 {
@@ -320,35 +319,30 @@ void vtkMergeFilter::Execute()
     outputPD->SetFieldData(f);
 }
 
-// Description:
 // Get the output as vtkPolyData.
 vtkPolyData *vtkMergeFilter::GetPolyDataOutput() 
 {
   return this->PolyData;
 }
 
-// Description:
 // Get the output as vtkStructuredPoints.
 vtkStructuredPoints *vtkMergeFilter::GetStructuredPointsOutput() 
 {
   return this->StructuredPoints;
 }
 
-// Description:
 // Get the output as vtkStructuredGrid.
 vtkStructuredGrid *vtkMergeFilter::GetStructuredGridOutput()
 {
   return this->StructuredGrid;
 }
 
-// Description:
 // Get the output as vtkUnstructuredGrid.
 vtkUnstructuredGrid *vtkMergeFilter::GetUnstructuredGridOutput()
 {
   return this->UnstructuredGrid;
 }
 
-// Description:
 // Get the output as vtkRectilinearGrid. 
 vtkRectilinearGrid *vtkMergeFilter::GetRectilinearGridOutput()
 {

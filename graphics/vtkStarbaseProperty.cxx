@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseRenderer.h"
 #include "starbase.c.h"
 
-// Description:
 // Implement base class method.
 void vtkStarbaseProperty::Render(vtkActor *vtkNotUsed(anAct), vtkRenderer *aren)
 {

@@ -52,7 +52,6 @@ vtkStarbaseRenderer::vtkStarbaseRenderer()
 {
 }
 
-// Description:
 // Ask volumes to render themselves.
 int vtkStarbaseRenderer::UpdateVolumes()
 {
@@ -61,7 +60,6 @@ int vtkStarbaseRenderer::UpdateVolumes()
   return count;
 }
 
-// Description:
 // Internal method temporarily removes lights before reloading them
 // into graphics pipeline.
 void vtkStarbaseRenderer::ClearLights (void)
@@ -80,7 +78,6 @@ void vtkStarbaseRenderer::ClearLights (void)
   this->NumberOfLightsBound = 1;
 }
 
-// Description:
 // Ask lights to load themselves into graphics pipeline.
 int vtkStarbaseRenderer::UpdateLights ()
 {
@@ -134,7 +131,6 @@ int vtkStarbaseRenderer::UpdateLights ()
   return count;
 }
  
-// Description:
 // Concrete starbase render method.
 void vtkStarbaseRenderer::DeviceRender(void)
 {
@@ -171,7 +167,6 @@ void vtkStarbaseRenderer::DeviceRender(void)
     }
 }
 
-// Description:
 // Return center of renderer in display coordinates.
 float *vtkStarbaseRenderer::GetCenter()
 {
@@ -215,7 +210,6 @@ float *vtkStarbaseRenderer::GetCenter()
 }
 
 
-// Description:
 // Convert display coordinates to view coordinates.
 void vtkStarbaseRenderer::DisplayToView()
 {
@@ -264,7 +258,6 @@ void vtkStarbaseRenderer::DisplayToView()
   this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
 }
 
-// Description:
 // Convert view coordinates to display coordinates.
 void vtkStarbaseRenderer::ViewToDisplay()
 {
@@ -317,7 +310,6 @@ void vtkStarbaseRenderer::ViewToDisplay()
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
 }
 
-// Description:
 // Is a given display point in this renderer's viewport.
 int vtkStarbaseRenderer::IsInViewport(int x,int y)
 {

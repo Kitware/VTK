@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGaussianSplatter.h"
 #include "vtkScalars.h"
 
-// Description:
 // Construct object with dimensions=(50,50,50); automatic computation of 
 // bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
 // scalar warping turned on.
@@ -196,7 +195,6 @@ void vtkGaussianSplatter::Execute()
   NewScalars->Delete();
 }
 
-// Description:
 // Compute the size of the sample bounding box automatically from the
 // input data.
 void vtkGaussianSplatter::ComputeModelBounds()
@@ -249,7 +247,6 @@ void vtkGaussianSplatter::ComputeModelBounds()
   output->SetSpacing(Spacing);
 }
 
-// Description:
 // Set the dimensions of the sampling structured point set.
 void vtkGaussianSplatter::SetSampleDimensions(int i, int j, int k)
 {

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkExtractGrid.h"
 
-// Description:
 // Construct object to extract all of the input data.
 vtkExtractGrid::vtkExtractGrid()
 {

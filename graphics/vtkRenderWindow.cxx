@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
 // buffering turned on.
@@ -101,7 +100,6 @@ vtkRenderWindow::~vtkRenderWindow()
     }
 }
 
-// Description:
 // Specify a function to be called to check and see if an abort
 // of the rendering in progress is desired.
 void vtkRenderWindow::SetAbortCheckMethod(void (*f)(void *), void *arg)
@@ -119,7 +117,6 @@ void vtkRenderWindow::SetAbortCheckMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkRenderWindow::SetAbortCheckMethodArgDelete(void (*f)(void *))
 {
@@ -205,7 +202,6 @@ vtkRenderWindow *vtkRenderWindow::New()
   return NULL;
 }
 
-// Description:
 // Create an interactor that will work with this renderer.
 vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
 {
@@ -214,7 +210,6 @@ vtkRenderWindowInteractor *vtkRenderWindow::MakeRenderWindowInteractor()
   return this->Interactor;
 }
 
-// Description:
 // Set the interactor that will work with this renderer.
 void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
 {
@@ -243,7 +238,6 @@ void vtkRenderWindow::SetDesiredUpdateRate(float rate)
 }
 
 
-// Description:
 // Ask each renderer owned by this RenderWindow to render its image and 
 // synchronize this process.
 void vtkRenderWindow::Render()
@@ -393,7 +387,6 @@ void vtkRenderWindow::Render()
 
 }
 
-// Description:
 // Handle rendering any antialiased frames.
 void vtkRenderWindow::DoAARender()
 {
@@ -523,7 +516,6 @@ void vtkRenderWindow::DoAARender()
 }
 
 
-// Description:
 // Handle rendering any focal depth frames.
 void vtkRenderWindow::DoFDRender()
 {
@@ -633,7 +625,6 @@ void vtkRenderWindow::DoFDRender()
 }
 
 
-// Description:
 // Handle rendering the two different views for stereo rendering.
 void vtkRenderWindow::DoStereoRender()
 {
@@ -655,7 +646,6 @@ void vtkRenderWindow::DoStereoRender()
     }
 }
 
-// Description:
 // Add a renderer to the list of renderers.
 void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 {
@@ -664,7 +654,6 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
   this->Renderers.AddItem(ren);
 }
 
-// Description:
 // Remove a renderer from the list of renderers.
 void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
@@ -785,7 +774,6 @@ void vtkRenderWindow::WritePPMImageFile()
 
 
 
-// Description:
 // Update the system, if needed, due to stereo rendering. For some stereo 
 // methods, subclasses might need to switch some hardware settings here.
 void vtkRenderWindow::StereoUpdate(void)
@@ -816,7 +804,6 @@ void vtkRenderWindow::StereoUpdate(void)
     }
 }
 
-// Description:
 // Intermediate method performs operations required between the rendering
 // of the left and right eye.
 void vtkRenderWindow::StereoMidpoint(void)
@@ -832,7 +819,6 @@ void vtkRenderWindow::StereoMidpoint(void)
     }
 }
 
-// Description:
 // Handles work required once both views have been rendered when using
 // stereo rendering.
 void vtkRenderWindow::StereoRenderComplete(void)
@@ -964,7 +950,6 @@ void vtkRenderWindow::CopyResultFrame(void)
   this->Frame();
 }
 
-// Description:
 // This method indicates if a StereoOn/Off will require the window to 
 // be remapped. Some types of stereo rendering require a new window
 // to be created.

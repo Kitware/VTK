@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkCursor3D.h"
 
-// Description:
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
 // all parts of cursor visible, and wrapping off.
 vtkCursor3D::vtkCursor3D()
@@ -407,7 +406,6 @@ void vtkCursor3D::Execute()
   newLines->Delete();
 }
 
-// Description:
 // Set the boundary of the 3D cursor.
 void vtkCursor3D::SetModelBounds(float xmin, float xmax, float ymin, float ymax,
                                 float zmin, float zmax)
@@ -438,7 +436,6 @@ void vtkCursor3D::SetModelBounds(float *bounds)
                        bounds[5]);
 }
 
-// Description:
 // Turn every part of the 3D cursor on.
 void vtkCursor3D::AllOn()
 {
@@ -449,7 +446,6 @@ void vtkCursor3D::AllOn()
   this->ZShadowsOn();
 }
 
-// Description:
 // Turn every part of the 3D cursor off.
 void vtkCursor3D::AllOff()
 {

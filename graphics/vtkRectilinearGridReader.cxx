@@ -52,7 +52,6 @@ unsigned long int vtkRectilinearGridReader::GetMTime()
   return (dtime > rtime ? dtime : rtime);
 }
 
-// Description:
 // Specify file name of vtk polygonal data file to read.
 void vtkRectilinearGridReader::SetFileName(char *name) 
 {
@@ -63,14 +62,12 @@ char *vtkRectilinearGridReader::GetFileName()
   return this->Reader.GetFileName();
 }
 
-// Description:
 // Get the type of file (VTK_ASCII or VTK_BINARY)
 int vtkRectilinearGridReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
 
-// Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkRectilinearGridReader::SetScalarsName(char *name) 
@@ -82,7 +79,6 @@ char *vtkRectilinearGridReader::GetScalarsName()
   return this->Reader.GetScalarsName();
 }
 
-// Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkRectilinearGridReader::SetVectorsName(char *name) 
@@ -94,7 +90,6 @@ char *vtkRectilinearGridReader::GetVectorsName()
   return this->Reader.GetVectorsName();
 }
 
-// Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkRectilinearGridReader::SetTensorsName(char *name) 
@@ -106,7 +101,6 @@ char *vtkRectilinearGridReader::GetTensorsName()
   return this->Reader.GetTensorsName();
 }
 
-// Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkRectilinearGridReader::SetNormalsName(char *name) 
@@ -118,7 +112,6 @@ char *vtkRectilinearGridReader::GetNormalsName()
   return this->Reader.GetNormalsName();
 }
 
-// Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkRectilinearGridReader::SetTCoordsName(char *name) 
@@ -130,7 +123,6 @@ char *vtkRectilinearGridReader::GetTCoordsName()
   return this->Reader.GetTCoordsName();
 }
 
-// Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkRectilinearGridReader::SetLookupTableName(char *name) 
@@ -142,7 +134,6 @@ char *vtkRectilinearGridReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
-// Description:
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkRectilinearGridReader::SetFieldDataName(char *name) 

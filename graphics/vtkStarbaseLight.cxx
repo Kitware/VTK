@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseLight.h"
 #include "vtkLight.h"
 
-// Description:
 // Implement base class method.
 void vtkStarbaseLight::Render(vtkRenderer *aren,int light_index)
 {

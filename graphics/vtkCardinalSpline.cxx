@@ -41,13 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCardinalSpline.h"
 
-// Description:
 // Construct a Cardinal Spline.
 vtkCardinalSpline::vtkCardinalSpline ()
 {
 }
 
-// Description
 // Evaluate a 1D Spline
 float vtkCardinalSpline::Evaluate (float t)
 {
@@ -100,7 +98,6 @@ float vtkCardinalSpline::Evaluate (float t)
                       + *(coefficients + index * 4));
 }
 
-// Description
 // Compute Cardinal Splines for each dependent variable
 void vtkCardinalSpline::Compute ()
 {
@@ -205,7 +202,6 @@ void vtkCardinalSpline::Compute ()
 }
 
 
-// Description
 // Compute the coefficients for a 1D spline. The spline is open.
 void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
 			float *work, float coefficients[][4],
@@ -332,7 +328,6 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
 
 }
 
-// Description
 // Compute the coefficients for a 1D spline. The spline is closed
 // (i.e., the first and last point are assumed the same) and the
 // spline is continous in value and derivatives.

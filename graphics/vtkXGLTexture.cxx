@@ -49,7 +49,6 @@ long vtkXGLTexture::GlobalIndex = 0;
 // the system state for XGL
 extern Xgl_sys_state xglr_sys_state;
 
-// Description:
 // Initializes an instance, generates a unique index.
 vtkXGLTexture::vtkXGLTexture()
 {
@@ -72,7 +71,6 @@ vtkXGLTexture::~vtkXGLTexture()
     }
 }
 
-// Description:
 // Implement base class method.
 void vtkXGLTexture::Load(vtkRenderer *aren)
 {

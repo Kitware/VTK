@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitModeller.h"
 #include "vtkScalars.h"
 
-// Description:
 // Construct with sample dimensions=(50,50,50), and so that model bounds are
 // automatically computed from the input. Capping is turned on with CapValue
 // equal to a large positive number.
@@ -69,7 +68,6 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->AdjustDistance = 0.0125;
 }
 
-// Description:
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a
 // good idea to manually specify the model bounds; otherwise the input
@@ -95,7 +93,6 @@ void vtkImplicitModeller::StartAppend()
   newScalars->Delete();
 }
 
-// Description:
 // Append a data set to the existing output. To use this function,
 // you'll have to invoke the StartAppend() method before doing
 // successive appends. It's also a good idea to specify the model
@@ -177,7 +174,6 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
   delete [] weights;
 }
 
-// Description:
 // Method completes the append process.
 void vtkImplicitModeller::EndAppend()
 {
@@ -219,7 +215,6 @@ void vtkImplicitModeller::Execute()
   this->EndAppend();
 }
 
-// Description:
 // Special update methods handles possibility of appending data.
 void vtkImplicitModeller::Update()
 {
@@ -265,7 +260,6 @@ void vtkImplicitModeller::Update()
     }
 }
 
-// Description:
 // Compute ModelBounds from input geometry.
 float vtkImplicitModeller::ComputeModelBounds()
 {
@@ -316,7 +310,6 @@ float vtkImplicitModeller::ComputeModelBounds()
   return maxDist;  
 }
 
-// Description:
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkImplicitModeller::SetSampleDimensions(int i, int j, int k)
 {

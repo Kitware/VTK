@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVolumeMapper.h"
 
-// Description:
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {
@@ -56,7 +55,6 @@ void vtkVolumeMapper::Update()
     }
 }
 
-// Description:
 // Get the bounds of the ScalarInput
 float *vtkVolumeMapper::GetBounds()
 {
@@ -71,7 +69,6 @@ float *vtkVolumeMapper::GetBounds()
     }
 }
 
-// Description:
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {

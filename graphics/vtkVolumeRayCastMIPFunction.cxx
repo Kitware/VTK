@@ -57,7 +57,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
         t1  = t10 + (y)*(t11-t10);  \
         v   =  t0 + (z)*(t1-t0);
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
@@ -243,7 +242,6 @@ static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function, T
 }
 
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
@@ -447,20 +445,17 @@ static void CastMaxOpacityRay( vtkVolumeRayCastMIPFunction *cast_function, T *da
   pixel_value[5] = steps_this_ray;
 }
 
-// Description:
 // Construct a new vtkVolumeRayCastMIPFunction 
 vtkVolumeRayCastMIPFunction::vtkVolumeRayCastMIPFunction()
 {
   this->MaximizeMethod = VTK_MAXIMIZE_SCALAR_VALUE;
 }
 
-// Description:
 // Destruct the vtkVolumeRayCastMIPFunction
 vtkVolumeRayCastMIPFunction::~vtkVolumeRayCastMIPFunction()
 {
 }
 
-// Description:
 // This is called from RenderAnImage (in vtkDepthPARCMapper.cxx)
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
@@ -499,13 +494,11 @@ void vtkVolumeRayCastMIPFunction::CastARay( int ray_type, void *data_ptr,
     }
 }
 
-// Description:
 float vtkVolumeRayCastMIPFunction::GetZeroOpacityThreshold( vtkVolume *vol )
 {
   return ( 1.0 );
 }
 
-// Description:
 // This is an update method that is called from Render (in
 // vtkDepthPARCMapper.cxx).  It allows the specific mapper type to
 // update any local caster variables.  In this case, nothing needs
@@ -517,7 +510,6 @@ void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize(
 {
 }
 
-// Description:
 // Print method for vtkVolumeRayCastMIPFunction
 void vtkVolumeRayCastMIPFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

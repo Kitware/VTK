@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLProperty.h"
 #include <GL/gl.h>
 
-// Description:
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
 			     vtkRenderer *vtkNotUsed(ren))
@@ -118,7 +117,6 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   glShadeModel(method);
 }
 
-// Description:
 // Implement base class method.
 void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor),
 			     vtkRenderer *vtkNotUsed(ren))

@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include "vtkRendererCollection.h"
 
-// Description:
 // Forward the Render() method to each renderer in the list.
 void vtkRendererCollection::Render()
 {

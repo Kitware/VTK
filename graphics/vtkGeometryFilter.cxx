@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGeometryFilter.h"
 #include "vtkMergePoints.h"
 
-// Description:
 // Construct with all types of clipping turned off.
 vtkGeometryFilter::vtkGeometryFilter()
 {
@@ -75,7 +74,6 @@ vtkGeometryFilter::~vtkGeometryFilter()
     }
 }
 
-// Description:
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
                                      float yMax, float zMin, float zMax)
@@ -92,7 +90,6 @@ void vtkGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
   this->SetExtent(extent);
 }
 
-// Description:
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkGeometryFilter::SetExtent(float *extent)
 {
@@ -288,7 +285,6 @@ void vtkGeometryFilter::Execute()
   if ( cellVis ) delete [] cellVis;
 }
 
-// Description:
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkGeometryFilter::SetLocator(vtkPointLocator *locator)

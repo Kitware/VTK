@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLRenderer.h"
 #include "vtkXGLLight.h"
 
-// Description:
 // Implement base class method.
 void vtkXGLLight::Render(vtkRenderer *aren,int light_index)
 {

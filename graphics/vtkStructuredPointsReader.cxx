@@ -52,7 +52,6 @@ unsigned long int vtkStructuredPointsReader::GetMTime()
   return (dtime > rtime ? dtime : rtime);
 }
 
-// Description:
 // Specify file name of vtk structured points data file to read.
 void vtkStructuredPointsReader::SetFileName(char *name) 
 {
@@ -63,14 +62,12 @@ char *vtkStructuredPointsReader::GetFileName()
   return this->Reader.GetFileName();
 }
 
-// Description:
 // Get the type of file (VTK_ASCII or VTK_BINARY).
 int vtkStructuredPointsReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
 
-// Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkStructuredPointsReader::SetScalarsName(char *name) 
@@ -82,7 +79,6 @@ char *vtkStructuredPointsReader::GetScalarsName()
   return this->Reader.GetScalarsName();
 }
 
-// Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkStructuredPointsReader::SetVectorsName(char *name) 
@@ -94,7 +90,6 @@ char *vtkStructuredPointsReader::GetVectorsName()
   return this->Reader.GetVectorsName();
 }
 
-// Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkStructuredPointsReader::SetTensorsName(char *name) 
@@ -106,7 +101,6 @@ char *vtkStructuredPointsReader::GetTensorsName()
   return this->Reader.GetTensorsName();
 }
 
-// Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkStructuredPointsReader::SetNormalsName(char *name) 
@@ -118,7 +112,6 @@ char *vtkStructuredPointsReader::GetNormalsName()
   return this->Reader.GetNormalsName();
 }
 
-// Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkStructuredPointsReader::SetTCoordsName(char *name) 
@@ -130,7 +123,6 @@ char *vtkStructuredPointsReader::GetTCoordsName()
   return this->Reader.GetTCoordsName();
 }
 
-// Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkStructuredPointsReader::SetLookupTableName(char *name) 
@@ -142,7 +134,6 @@ char *vtkStructuredPointsReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
-// Description:
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkStructuredPointsReader::SetFieldDataName(char *name) 

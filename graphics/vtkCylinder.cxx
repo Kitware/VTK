@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCylinder.h"
 
-// Description
 // Construct cylinder radius of 0.5.
 vtkCylinder::vtkCylinder()
 {
@@ -48,7 +47,6 @@ vtkCylinder::vtkCylinder()
   this->Radius = 0.5;
 }
 
-// Description
 // Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.
 float vtkCylinder::EvaluateFunction(float xyz[3])
 {
@@ -58,7 +56,6 @@ float vtkCylinder::EvaluateFunction(float xyz[3])
   return ( x * x + z * z - this->Radius*this->Radius );
 }
 
-// Description
 // Evaluate cylinder function gradient.
 void vtkCylinder::EvaluateGradient(float xyz[3], float g[3])
 {

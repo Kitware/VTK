@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolume16Reader.h"
 #include "vtkUnsignedShortArray.h"
 
-// Description:
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
 // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
 // header size 0; and byte swapping turned off.
@@ -224,7 +223,6 @@ vtkStructuredPoints *vtkVolume16Reader::GetImage(int ImageNumber)
   return result;
 }
 
-// Description:
 // Read a slice of volume data.
 vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
 {
@@ -275,7 +273,6 @@ vtkScalars *vtkVolume16Reader::ReadImage(int sliceNumber)
     return scalars;
 }
 
-// Description:
 // Read a volume of data.
 vtkScalars *vtkVolume16Reader::ReadVolume(int first, int last)
 {

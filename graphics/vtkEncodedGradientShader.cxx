@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkEncodedGradientEstimator.h"
 
-// Description:
 vtkEncodedGradientShader::vtkEncodedGradientShader()
 {
   int i;
@@ -55,7 +54,6 @@ vtkEncodedGradientShader::vtkEncodedGradientShader()
   this->ShadingTableSize = 0;
 }
 
-// Description:
 vtkEncodedGradientShader::~vtkEncodedGradientShader()
 {
   int i;
@@ -172,7 +170,6 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 }
 
 
-// Description:
 // Build a shading table for a light with the given direction and
 // color, for a material of the given type. material[0] = ambient,
 // material[1] = diffuse, material[2] = specular, material[3] = 
@@ -318,7 +315,6 @@ void vtkEncodedGradientShader::BuildShadingTable( float light_direction[3],
 }
 
 
-// Description:
 // Print the vtkEncodedGradientShader
 void vtkEncodedGradientShader::PrintSelf(ostream& os, vtkIndent indent)
 {

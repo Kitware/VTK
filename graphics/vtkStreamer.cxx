@@ -74,7 +74,6 @@ vtkStreamPoint *vtkStreamArray::Resize(int sz)
   return this->Array;
 }
 
-// Description:
 // Construct object to start from position (0,0,0); integrate forward; terminal
 // speed 0.0; vorticity computation off; integrations step length 0.2; and
 // maximum propagation time 100.0.
@@ -102,7 +101,6 @@ vtkStreamer::~vtkStreamer()
 }
 
 
-// Description:
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
 void vtkStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
@@ -123,7 +121,6 @@ void vtkStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
     }
 }
 
-// Description:
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
 void vtkStreamer::SetStartLocation(int cellId, int subId, float r, float s, float t)
@@ -136,7 +133,6 @@ void vtkStreamer::SetStartLocation(int cellId, int subId, float r, float s, floa
   this->SetStartLocation(cellId, subId, pcoords);
 }
 
-// Description:
 // Get the starting location of the streamline in the cell coordinate system.
 int vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
 {
@@ -147,7 +143,6 @@ int vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
   return this->StartCell;
 }
 
-// Description:
 // Specify the start of the streamline in the global coordinate system. Search
 // must be performed to find initial cell to start integration from.
 void vtkStreamer::SetStartPosition(float x[3])
@@ -164,7 +159,6 @@ void vtkStreamer::SetStartPosition(float x[3])
     }
 }
 
-// Description:
 // Specify the start of the streamline in the global coordinate system. Search
 // must be performed to find initial cell to start integration from.
 void vtkStreamer::SetStartPosition(float x, float y, float z)
@@ -177,14 +171,12 @@ void vtkStreamer::SetStartPosition(float x, float y, float z)
   this->SetStartPosition(pos);
 }
 
-// Description:
 // Get the start position in global x-y-z coordinates.
 float *vtkStreamer::GetStartPosition()
 {
   return this->StartPosition;
 }
 
-// Description:
 // Override update method because execution can branch two ways (via Input 
 // and Source).
 void vtkStreamer::Update()

@@ -56,7 +56,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->NumberOfLightsBound = 0;
 }
 
-// Description:
 // Internal method temporarily removes lights before reloading them
 // into graphics pipeline.
 void vtkOpenGLRenderer::ClearLights (void)
@@ -92,7 +91,6 @@ void vtkOpenGLRenderer::ClearLights (void)
   this->NumberOfLightsBound = 0;
 }
 
-// Description:
 // Ask lights to load themselves into graphics pipeline.
 int vtkOpenGLRenderer::UpdateLights ()
 {
@@ -154,7 +152,6 @@ int vtkOpenGLRenderer::UpdateLights ()
   return count;
 }
 
-// Description:
 // Concrete open gl render method.
 void vtkOpenGLRenderer::DeviceRender(void)
 {
@@ -247,7 +244,6 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-// Description:
 // Return center of renderer in display coordinates.
 float *vtkOpenGLRenderer::GetCenter()
 {
@@ -293,7 +289,6 @@ float *vtkOpenGLRenderer::GetCenter()
 }
 
 
-// Description:
 // Convert display coordinates to view coordinates.
 void vtkOpenGLRenderer::DisplayToView()
 {
@@ -343,7 +338,6 @@ void vtkOpenGLRenderer::DisplayToView()
   this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
 }
 
-// Description:
 // Convert view coordinates to display coordinates.
 void vtkOpenGLRenderer::ViewToDisplay()
 {
@@ -397,7 +391,6 @@ void vtkOpenGLRenderer::ViewToDisplay()
 }
 
 
-// Description:
 // Is a given display point in this renderer's viewport.
 int vtkOpenGLRenderer::IsInViewport(int x,int y)
 {

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMCubesWriter.h"
 #include "vtkByteSwap.h"
 
-// Description:
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {
@@ -54,7 +53,6 @@ vtkMCubesWriter::~vtkMCubesWriter()
 static void WriteMCubes(FILE *fp, vtkPoints *pts, vtkNormals *normals, vtkCellArray *polys);
 static void WriteLimits(FILE *fp, float *bounds);
 
-// Description:
 // Write out data in MOVIE.BYU format.
 void vtkMCubesWriter::WriteData()
 {

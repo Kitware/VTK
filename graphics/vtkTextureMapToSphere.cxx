@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTextureMapToSphere.h"
 #include "vtkMath.h"
 
-// Description:
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
 // sphere center is automatically computed.
 vtkTextureMapToSphere::vtkTextureMapToSphere()

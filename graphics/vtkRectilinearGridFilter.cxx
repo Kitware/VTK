@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRectilinearGridFilter.h"
 
-// Description:
 // Specify the input Grid or filter.
 void vtkRectilinearGridFilter::SetInput(vtkRectilinearGrid *input)
 {

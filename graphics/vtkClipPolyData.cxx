@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkTriangle.h"
 
-// Description:
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off.
 vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
@@ -70,7 +69,6 @@ vtkClipPolyData::~vtkClipPolyData()
     }
 }
 
-// Description:
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
 unsigned long vtkClipPolyData::GetMTime()
@@ -335,7 +333,6 @@ void vtkClipPolyData::Execute()
 }
 
 
-// Description:
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
 void vtkClipPolyData::SetLocator(vtkPointLocator *locator)

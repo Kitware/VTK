@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseRenderer.h"
 #include "vtkPolyData.h"
 
-// Description:
 // Construct empty object.
 vtkStarbasePolyDataMapper::vtkStarbasePolyDataMapper()
 {
@@ -109,7 +108,6 @@ void vtkStarbasePolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   this->Draw(ren,act);
 }
 
-// Description:
 // Build the data structure for the starbase polygon PolyDataMapper.
 void vtkStarbasePolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
 {
@@ -157,7 +155,6 @@ void vtkStarbasePolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
   return;
 }
 
-// Description:
 // Load polydata into starbase graphics library.
 void vtkStarbasePolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {

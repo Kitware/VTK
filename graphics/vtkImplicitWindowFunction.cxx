@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImplicitWindowFunction.h"
 
-// Description:
 // Construct object with window range (0,1) and window values (0,1).
 vtkImplicitWindowFunction::vtkImplicitWindowFunction()
 {
@@ -57,7 +56,6 @@ vtkImplicitWindowFunction::~vtkImplicitWindowFunction()
 {
 }
 
-// Description
 // Evaluate window function.
 float vtkImplicitWindowFunction::EvaluateFunction(float x[3])
 {
@@ -104,7 +102,6 @@ float vtkImplicitWindowFunction::EvaluateFunction(float x[3])
   return value;
 }
 
-// Description
 // Evaluate window function gradient. Just return implicit function gradient.
 void vtkImplicitWindowFunction::EvaluateGradient(float x[3], float n[3])
 {

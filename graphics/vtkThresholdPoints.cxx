@@ -50,7 +50,6 @@ vtkThresholdPoints::vtkThresholdPoints()
   this->ThresholdFunction = &vtkThresholdPoints::Upper;
 }
 
-// Description:
 // Criterion is cells whose scalars are less than lower threshold.
 void vtkThresholdPoints::ThresholdByLower(float lower) 
 {
@@ -62,7 +61,6 @@ void vtkThresholdPoints::ThresholdByLower(float lower)
     }
 }
                            
-// Description:
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdPoints::ThresholdByUpper(float upper)
 {
@@ -74,7 +72,6 @@ void vtkThresholdPoints::ThresholdByUpper(float upper)
     }
 }
                            
-// Description:
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdPoints::ThresholdBetween(float lower, float upper)
 {

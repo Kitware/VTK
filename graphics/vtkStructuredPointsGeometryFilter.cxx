@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredPointsGeometryFilter.h"
 
-// Description:
 // Construct with initial extent of all the data
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
 {
@@ -291,7 +290,6 @@ void vtkStructuredPointsGeometryFilter::SetExtent(int iMin, int iMax,
   this->SetExtent(extent);
 }
 
-// Description:
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
 void vtkStructuredPointsGeometryFilter::SetExtent(int *extent)
 {

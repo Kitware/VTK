@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkExporter.h"
 
-// Description:
 // Construct with no start and end write methods or arguments.
 vtkExporter::vtkExporter()
 {
@@ -53,7 +52,6 @@ vtkExporter::vtkExporter()
   this->EndWriteArg = NULL;
 }
 
-// Description:
 // Write data to output. Method executes subclasses WriteData() method, as 
 // well as StartWrite() and EndWrite() methods.
 void vtkExporter::Write()
@@ -70,14 +68,12 @@ void vtkExporter::Write()
   if ( this->EndWrite ) (*this->EndWrite)(this->EndWriteArg);
 }
 
-// Description:
 // Convenient alias for Write() method.
 void vtkExporter::Update()
 {
   this->Write();
 }
 
-// Description:
 // Specify a function to be called before data is written.
 // Function will be called with argument provided.
 void vtkExporter::SetStartWrite(void (*f)(void *), void *arg)
@@ -96,7 +92,6 @@ void vtkExporter::SetStartWrite(void (*f)(void *), void *arg)
 }
 
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkExporter::SetStartWriteArgDelete(void (*f)(void *))
 {
@@ -107,7 +102,6 @@ void vtkExporter::SetStartWriteArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkExporter::SetEndWriteArgDelete(void (*f)(void *))
 {
@@ -118,7 +112,6 @@ void vtkExporter::SetEndWriteArgDelete(void (*f)(void *))
     }
 }
 
-// Description:
 // Specify a function to be called after data is written.
 // Function will be called with argument provided.
 void vtkExporter::SetEndWrite(void (*f)(void *), void *arg)

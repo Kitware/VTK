@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkOBBTree.h"
 
-// Description:
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
 // and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
 // automatically generated.

@@ -55,7 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 
-// Description:
 // Created object with default header, ASCII format, and default names for 
 // scalars, vectors, tensors, normals, and texture coordinates.
 vtkDataWriter::vtkDataWriter()
@@ -101,7 +100,6 @@ vtkDataWriter::~vtkDataWriter()
   if ( this->FieldDataName ) delete [] this->FieldDataName;
 }
 
-// Description:
 // Open a vtk data file. Returns NULL if error.
 FILE *vtkDataWriter::OpenVTKFile()
 {
@@ -124,7 +122,6 @@ FILE *vtkDataWriter::OpenVTKFile()
   return fptr;
 }
 
-// Description:
 // Write the header of a vtk data file. Returns 0 if error.
 int vtkDataWriter::WriteHeader(FILE *fp)
 {
@@ -141,7 +138,6 @@ int vtkDataWriter::WriteHeader(FILE *fp)
   return 1;
 }
 
-// Description:
 // Write the cell data (e.g., scalars, vectors, ...) of a vtk dataset.
 // Returns 0 if error.
 int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
@@ -218,7 +214,6 @@ int vtkDataWriter::WriteCellData(FILE *fp, vtkDataSet *ds)
   return 1;
 }
 
-// Description:
 // Write the point data (e.g., scalars, vectors, ...) of a vtk dataset.
 // Returns 0 if error.
 int vtkDataWriter::WritePointData(FILE *fp, vtkDataSet *ds)
@@ -466,7 +461,6 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
   return this->WriteArray(fp, points->GetDataType(), points->GetData(), "%s\n", numPts, 3);
 }
 
-// Description:
 // Write out coordinates for rectilinear grids.
 int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
 {
@@ -479,7 +473,6 @@ int vtkDataWriter::WriteCoordinates(FILE *fp, vtkScalars *coords, int axes)
   return this->WriteArray(fp, coords->GetDataType(), coords->GetData(), "%s\n", ncoords, 1);
 }
 
-// Description:
 // Write out scalar data.
 int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
 {
@@ -656,7 +649,6 @@ void vtkDataWriter::WriteData()
   vtkErrorMacro(<<"WriteData() should be implemented in concrete subclass");
 }
 
-// Description:
 // Close a vtk file.
 void vtkDataWriter::CloseVTKFile(FILE *fp)
 {

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPiecewiseFunction.h"
 
-// Description:
 // Construct a new vtkPiecewiseFunction with default values
 vtkPiecewiseFunction::vtkPiecewiseFunction()
 {
@@ -52,7 +51,6 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
   this->FunctionRange[1] = 0;
 }
 
-// Description:
 // Destruct a vtkPiecewiseFunction
 vtkPiecewiseFunction::~vtkPiecewiseFunction()
 {
@@ -60,14 +58,12 @@ vtkPiecewiseFunction::~vtkPiecewiseFunction()
     delete [] this->Function;
 }
 
-// Description:
 // Return the number of points which specify this function
 int vtkPiecewiseFunction::GetSize()
 {
   return( this->FunctionSize );
 }
 
-// Description:
 // Return the type of function stored in object:
 // Function Types:
 //    0 : Constant        (No change in slope between end points)
@@ -146,7 +142,6 @@ char *vtkPiecewiseFunction::GetType()
 }
 
 
-// Description:
 // Returns the first point location which starts a non-zero segment of the
 // function. Note that the value at this point may be zero.
 float vtkPiecewiseFunction::GetFirstNonZeroValue()
@@ -186,7 +181,6 @@ float vtkPiecewiseFunction::GetFirstNonZeroValue()
   return( x );
 }
 
-// Description:
 // Adds a point to the function. If a duplicate point is inserted
 // then the function value at that location is set to the new value.
 void vtkPiecewiseFunction::AddPoint( float x, float val )
@@ -194,7 +188,6 @@ void vtkPiecewiseFunction::AddPoint( float x, float val )
   this->InsertPoint( x, val );
 }
 
-// Description:
 // Adds a point to the function and returns the array index of the point.
 int vtkPiecewiseFunction::InsertPoint( float x, float val )
 {
@@ -263,7 +256,6 @@ int vtkPiecewiseFunction::InsertPoint( float x, float val )
     return( point_index );
 }
 
-// Description:
 // Moves all points to the right of index down or up by one index value
 // depending on the down flag. Assumes that memory for move is already 
 // allocated.
@@ -313,7 +305,6 @@ void vtkPiecewiseFunction::MovePoints( int index, int down )
     }
 }
 
-// Description:
 // Removes a point from the function. If no point is found then function
 // remains the same.
 void vtkPiecewiseFunction::RemovePoint( float x )
@@ -346,7 +337,6 @@ void vtkPiecewiseFunction::RemovePoint( float x )
     }
 }
 
-// Description:
 // Removes all points from the function.
 void vtkPiecewiseFunction::RemoveAllPoints()
 {
@@ -356,7 +346,6 @@ void vtkPiecewiseFunction::RemoveAllPoints()
   this->Modified();
 }
 
-// Description:
 // Add in end points of line and remove any points between them
 void vtkPiecewiseFunction::AddSegment( float x1, float val1, 
   float x2, float val2 )
@@ -394,7 +383,6 @@ void vtkPiecewiseFunction::AddSegment( float x1, float val1,
   this->FunctionSize = this->FunctionSize - distance;
 }
 
-// Description:
 // Return the value of the function at a position 
 float vtkPiecewiseFunction::GetValue( float x )
 {
@@ -456,14 +444,12 @@ float vtkPiecewiseFunction::GetValue( float x )
   return( value );
 }
 
-// Description:
 // Return the smallest and largest position stored in function
 float *vtkPiecewiseFunction::GetRange()
 {
   return( this->FunctionRange );
 }
 
-// Description:
 // Returns a table of function values evaluated at regular intervals
 void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table )
 {
@@ -487,7 +473,6 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table 
     }
 }
 
-// Description:
 // Increase the size of the array used to store the function
 void vtkPiecewiseFunction::IncreaseArraySize()
 {
@@ -513,7 +498,6 @@ void vtkPiecewiseFunction::IncreaseArraySize()
   delete [] old_function;
 }
 
-// Description:
 // Print method for tkPiecewiseFunction
 void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkRayCaster.h"
 
-// Description:
 // Construct a new vtkOpenGLProjectedPolyDataRayBounder.  The depth range
 // buffer is initially NULL and no display list has been created
 vtkOpenGLProjectedPolyDataRayBounder::vtkOpenGLProjectedPolyDataRayBounder()
@@ -51,7 +50,6 @@ vtkOpenGLProjectedPolyDataRayBounder::vtkOpenGLProjectedPolyDataRayBounder()
   this->DepthRangeBuffer    = NULL;
 }
 
-// Description:
 // Destruct the vtkOpenGLProjectedPolyDataRayBounder.  Free the 
 // DepthRangeBuffer if necessary
 vtkOpenGLProjectedPolyDataRayBounder::~vtkOpenGLProjectedPolyDataRayBounder()
@@ -60,7 +58,6 @@ vtkOpenGLProjectedPolyDataRayBounder::~vtkOpenGLProjectedPolyDataRayBounder()
     delete this->DepthRangeBuffer;
 }
 
-// Description:
 // Create a display list from the polygons contained in pdata.
 // Lines and vertices are ignored, polys and strips are used.
 void vtkOpenGLProjectedPolyDataRayBounder::Build( vtkPolyData *pdata )
@@ -124,7 +121,6 @@ void vtkOpenGLProjectedPolyDataRayBounder::Build( vtkPolyData *pdata )
   glEndList();
 }
 
-// Description:
 // Draw the display list and create the depth range buffer.
 //
 // Known problem:
@@ -358,7 +354,6 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   return ( this->DepthRangeBuffer );
 }
 
-// Description:
 // Print the vtkOpenGLProjectedPolyDataRayBounder
 void vtkOpenGLProjectedPolyDataRayBounder::PrintSelf(ostream& os, 
 						     vtkIndent indent)

@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLinkEdgels.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 
 // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
 vtkLinkEdgels::vtkLinkEdgels()
@@ -114,7 +113,6 @@ void vtkLinkEdgels::Execute()
   outVectors->Delete();
 }
 
-// Description:
 // This method links the edges for one image. 
 void vtkLinkEdgels::LinkEdgels(int xdim, int ydim, float *image, 
 				    vtkVectors *inVectors,

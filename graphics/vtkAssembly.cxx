@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAssembly.h"
 
-// Description:
 // Construct object with no children.
 vtkAssembly::vtkAssembly()
 {
@@ -52,7 +51,6 @@ vtkAssembly::~vtkAssembly()
   this->DeletePaths();
 }
 
-// Description:
 // Add a part to the list of parts.
 void vtkAssembly::AddPart(vtkActor *actor)
 {
@@ -63,7 +61,6 @@ void vtkAssembly::AddPart(vtkActor *actor)
     } 
 }
 
-// Description:
 // Remove a part from the list of parts,
 void vtkAssembly::RemovePart(vtkActor *actor)
 {
@@ -74,7 +71,6 @@ void vtkAssembly::RemovePart(vtkActor *actor)
     } 
 }
 
-// Description:
 // Copy another assembly.
 vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
 {
@@ -84,7 +80,6 @@ vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
   return *this;
 }
 
-// Description:
 // Render this assembly and all its parts. The rendering process is recursive.
 // Note that a mapper need not be defined. If not defined, then no geometry 
 // will be drawn for this assembly. This allows you to create "logical"
@@ -114,7 +109,6 @@ void vtkAssembly::InitPartTraversal()
   this->Paths->InitTraversal();
 }
 
-// Description:
 // Return the next part in the hierarchy of assembly parts.  This method 
 // returns a properly transformed and updated actor.
 vtkActor *vtkAssembly::GetNextPart()
@@ -256,7 +250,6 @@ void vtkAssembly::ApplyProperties()
     }
 }
 
-// Description:
 // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkAssembly::GetBounds()
 {

@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkConeSource.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct with default resolution 6, height 1.0, radius 0.5, and capping
 // on.
 vtkConeSource::vtkConeSource(int res)

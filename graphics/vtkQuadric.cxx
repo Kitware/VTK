@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkQuadric.h"
 
-// Description
 // Construct quadric with all coefficients = 1.
 vtkQuadric::vtkQuadric()
 {
@@ -57,7 +56,6 @@ vtkQuadric::vtkQuadric()
   this->Coefficients[9] = 1.0;
 }
 
-// Description
 // Set the 10 coefficients of the quadric equation.
 void vtkQuadric::SetCoefficients(float a[10])
 {
@@ -75,7 +73,6 @@ void vtkQuadric::SetCoefficients(float a[10])
     }
 }
 
-// Description
 // Evaluate quadric equation.
 float vtkQuadric::EvaluateFunction(float x[3])
 {
@@ -85,7 +82,6 @@ float vtkQuadric::EvaluateFunction(float x[3])
            a[6]*x[0] + a[7]*x[1] + a[8]*x[2] + a[9] );
 }
 
-// Description
 // Evaluate the gradient to the quadric equation.
 void vtkQuadric::EvaluateGradient(float x[3], float n[3])
 {
@@ -97,7 +93,6 @@ void vtkQuadric::EvaluateGradient(float x[3], float n[3])
 }
 
 
-// Description
 // Set the 10 coefficients of the quadric equation.
 void vtkQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4, 
                                 float a5,float a6,float a7,float a8, float a9)

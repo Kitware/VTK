@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 
-// Description:
 // Construct object.
 vtkDataReader::vtkDataReader()
 {
@@ -117,7 +116,6 @@ void vtkDataReader::SetInputString(char* _arg, int len)
   this->Modified(); 
 } 
 
-// Description:
 // Internal function used to consume whitespace when reading in
 // an InputString.
 void vtkDataReader::EatWhiteSpace()
@@ -133,7 +131,6 @@ void vtkDataReader::EatWhiteSpace()
     }
 }
 
-// Description:
 // Internal function to read in a line up to 256 characters.
 // Returns zero if there was an error.
 int vtkDataReader::ReadLine(char result[256])
@@ -143,7 +140,6 @@ int vtkDataReader::ReadLine(char result[256])
   return 1;
 }
 
-// Description:
 // Internal function to read in a string up to 256 characters.
 // Returns zero if there was an error.
 int vtkDataReader::ReadString(char result[256])
@@ -153,7 +149,6 @@ int vtkDataReader::ReadString(char result[256])
   return 1;
 }
 
-// Description:
 // Internal function to read in an integer value.
 // Returns zero if there was an error.
 int vtkDataReader::Read(char *result)
@@ -233,7 +228,6 @@ int vtkDataReader::Read(double *result)
 }
 
 
-// Description:
 // Open a vtk data file. Returns zero if error.
 int vtkDataReader::OpenVTKFile()
 {
@@ -269,7 +263,6 @@ int vtkDataReader::OpenVTKFile()
   return 0;
 }
 
-// Description:
 // Read the header of a vtk data file. Returns 0 if error.
 int vtkDataReader::ReadHeader()
 {
@@ -354,7 +347,6 @@ int vtkDataReader::ReadHeader()
   return 1;
 }
 
-// Description:
 // Read the cell data of a vtk data file. The number of cells (from the 
 // dataset) must match the number of cells defined in cell attributes (unless
 // no geometry was defined).
@@ -456,7 +448,6 @@ int vtkDataReader::ReadCellData(vtkDataSet *ds, int numCells)
 }
 
 
-// Description:
 // Read the point data of a vtk data file. The number of points (from the 
 // dataset) must match the number of points defined in point attributes (unless
 // no geometry was defined).
@@ -801,7 +792,6 @@ vtkDataArray *vtkDataReader::ReadArray(char *dataType, int numTuples, int numCom
   return array;
 }
 
-// Description:
 // Read point coordinates. Return 0 if error.
 int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
 {
@@ -838,7 +828,6 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
   return 1;
 }
 
-// Description:
 // Read the coordinates for a rectilinear grid. The axes parameter specifies
 // which coordinate axes (0,1,2) is being read.
 int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes, 
@@ -884,7 +873,6 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
   return 1;
 }
 
-// Description:
 // Read scalar point attributes. Return 0 if error.
 int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
 {
@@ -940,7 +928,6 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Description:
 // Read vector point attributes. Return 0 if error.
 int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
 {
@@ -986,7 +973,6 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Description:
 // Read normal point attributes. Return 0 if error.
 int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
 {
@@ -1033,7 +1019,6 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Description:
 // Read tensor point attributes. Return 0 if error.
 int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
 {
@@ -1078,7 +1063,6 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Description:
 // Read color scalar point attributes. Return 0 if error.
 int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
 {
@@ -1168,7 +1152,6 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Description:
 // Read texture coordinates point attributes. Return 0 if error.
 int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
 {
@@ -1224,7 +1207,6 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-// Description:
 // Read lookup table. Return 0 if error.
 int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 {
@@ -1294,7 +1276,6 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
 }
 
 
-// Description:
 // Read lookup table. Return 0 if error.
 int vtkDataReader::ReadCells(int size, int *data)
 {
@@ -1398,7 +1379,6 @@ char *vtkDataReader::LowerCase(char *str)
   return str;
 }
 
-// Description:
 // Close a vtk file.
 void vtkDataReader::CloseVTKFile()
 {

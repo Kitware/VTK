@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkPolyLine.h"
 
-// Description:
 // Construct ribbon so that width is 0.1, the width does 
 // not vary with scalar values, and the width factor is 2.0.
 vtkRibbonFilter::vtkRibbonFilter()

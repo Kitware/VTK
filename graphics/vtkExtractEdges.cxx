@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkEdgeTable.h"
 #include "vtkMergePoints.h"
 
-// Description:
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()
 {
@@ -150,7 +149,6 @@ void vtkExtractEdges::Execute()
   output->Squeeze();
 }
 
-// Description:
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
 void vtkExtractEdges::SetLocator(vtkPointLocator *locator)

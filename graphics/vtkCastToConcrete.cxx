@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCastToConcrete.h"
 
-// Description:
 // Construct object.
 vtkCastToConcrete::vtkCastToConcrete()
 {
@@ -66,7 +65,6 @@ vtkCastToConcrete::~vtkCastToConcrete()
   this->Output = NULL;
 }
 
-// Description:
 // Special method just passes Update through pipeline.
 void vtkCastToConcrete::Update()
 {
@@ -152,7 +150,6 @@ void vtkCastToConcrete::Execute()
     }
 }
 
-// Description:
 // Get the output of this filter. If output is NULL then input hasn't been set
 // which is necessary for abstract objects.
 vtkDataSet *vtkCastToConcrete::GetOutput()
@@ -164,7 +161,6 @@ vtkDataSet *vtkCastToConcrete::GetOutput()
   return (vtkDataSet *)this->Input;
 }
 
-// Description:
 // Get the output of this filter as type vtkPolyData. Performs run-time
 // checking on type. Returns NULL if wrong type.
 vtkPolyData *vtkCastToConcrete::GetPolyDataOutput()
@@ -185,7 +181,6 @@ vtkPolyData *vtkCastToConcrete::GetPolyDataOutput()
   return this->PolyData;
 }
 
-// Description:
 // Get the output of this filter as type vtkStructuredPoints. Performs run-time
 // checking on type. Returns NULL if wrong type.
 vtkStructuredPoints *vtkCastToConcrete::GetStructuredPointsOutput()
@@ -206,7 +201,6 @@ vtkStructuredPoints *vtkCastToConcrete::GetStructuredPointsOutput()
   return this->StructuredPoints;
 }
 
-// Description:
 // Get the output of this filter as type vtkStructuredGrid. Performs run-time
 // checking on type. Returns NULL if wrong type.
 vtkStructuredGrid *vtkCastToConcrete::GetStructuredGridOutput()
@@ -227,7 +221,6 @@ vtkStructuredGrid *vtkCastToConcrete::GetStructuredGridOutput()
   return this->StructuredGrid;
 }
 
-// Description:
 // Get the output of this filter as type vtkUnstructuredGrid. Performs run-time
 // checking on type. Returns NULL if wrong type.
 vtkUnstructuredGrid *vtkCastToConcrete::GetUnstructuredGridOutput()
@@ -248,7 +241,6 @@ vtkUnstructuredGrid *vtkCastToConcrete::GetUnstructuredGridOutput()
   return this->UnstructuredGrid;
 }
 
-// Description:
 // Get the output of this filter as type vtkUnstructuredGrid. Performs run-time
 // checking on type. Returns NULL if wrong type.
 vtkRectilinearGrid *vtkCastToConcrete::GetRectilinearGridOutput()

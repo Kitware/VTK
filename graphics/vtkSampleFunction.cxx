@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkNormals.h"
 
-// Description:
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // Capping turned off, and normal generation on.
 vtkSampleFunction::vtkSampleFunction()
@@ -76,7 +75,6 @@ vtkSampleFunction::~vtkSampleFunction()
     }
   }
 
-// Description:
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
 {
@@ -89,7 +87,6 @@ void vtkSampleFunction::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-// Description:
 // Specify the dimensions of the data on which to sample.
 void vtkSampleFunction::SetSampleDimensions(int dim[3])
 {

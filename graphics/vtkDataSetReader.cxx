@@ -65,7 +65,6 @@ unsigned long int vtkDataSetReader::GetMTime()
   return t1;
 }
 
-// Description:
 // Specify file name of vtk data file to read.
 void vtkDataSetReader::SetFileName(char *name) 
 {
@@ -77,14 +76,12 @@ char *vtkDataSetReader::GetFileName()
   return this->Reader.GetFileName();
 }
 
-// Description:
 // Get the type of file (VTK_ASCII or VTK_BINARY).
 int vtkDataSetReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
 
-// Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkDataSetReader::SetScalarsName(char *name) 
@@ -96,7 +93,6 @@ char *vtkDataSetReader::GetScalarsName()
   return this->Reader.GetScalarsName();
 }
 
-// Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkDataSetReader::SetVectorsName(char *name) 
@@ -108,7 +104,6 @@ char *vtkDataSetReader::GetVectorsName()
   return this->Reader.GetVectorsName();
 }
 
-// Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkDataSetReader::SetTensorsName(char *name) 
@@ -120,7 +115,6 @@ char *vtkDataSetReader::GetTensorsName()
   return this->Reader.GetTensorsName();
 }
 
-// Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkDataSetReader::SetNormalsName(char *name) 
@@ -132,7 +126,6 @@ char *vtkDataSetReader::GetNormalsName()
   return this->Reader.GetNormalsName();
 }
 
-// Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkDataSetReader::SetTCoordsName(char *name) 
@@ -144,7 +137,6 @@ char *vtkDataSetReader::GetTCoordsName()
   return this->Reader.GetTCoordsName();
 }
 
-// Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkDataSetReader::SetLookupTableName(char *name) 
@@ -156,7 +148,6 @@ char *vtkDataSetReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
-// Description:
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkDataSetReader::SetFieldDataName(char *name) 

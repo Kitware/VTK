@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStripper.h"
 
-// Description:
 // Construct object with MaximumLength set to 1000.
 vtkStripper::vtkStripper()
 {

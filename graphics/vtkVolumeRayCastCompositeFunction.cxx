@@ -47,7 +47,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_REMAINING_OPACITY		0.02
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // The composite value. This version uses nearest neighbor interpolation
 // and does not perform shading.
@@ -258,7 +257,6 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 }
 
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the composite value. This version uses nearest neighbor and does
 // perform shading.
@@ -525,7 +523,6 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   
 }
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
@@ -852,7 +849,6 @@ static void CastRay_TrilinSample_Unshaded(
 
 }
 
-// Description:
 // This is the templated function that actually casts a ray and computes
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
@@ -1281,19 +1277,16 @@ static void CastRay_TrilinSample_Shaded(
 
 }
 
-// Description:
 // Constructor for the vtkVolumeRayCastCompositeFunction class
 vtkVolumeRayCastCompositeFunction::vtkVolumeRayCastCompositeFunction()
 {
 }
 
-// Description:
 // Destruct the vtkVolumeRayCastCompositeFunction
 vtkVolumeRayCastCompositeFunction::~vtkVolumeRayCastCompositeFunction()
 {
 }
 
-// Description:
 // This is called from RenderAnImage (in vtkDepthPARCMapper.cxx)
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
@@ -1383,7 +1376,6 @@ void vtkVolumeRayCastCompositeFunction::CastARay( int ray_type, void *data_ptr,
     }
 }
 
-// Description:
 // Bogus routine right now until I figure out how to get to the
 // volume's properties from here....
 float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume 
@@ -1392,7 +1384,6 @@ float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume
   return vol->GetVolumeProperty()->GetScalarOpacity()->GetFirstNonZeroValue();
 }
 
-// Description:
 // We don't need to do any specific initialization here...
 void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize( 
 				vtkRenderer *vtkNotUsed(ren), 
@@ -1402,7 +1393,6 @@ void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize(
 }
 
 
-// Description:
 // Print method for vtkVolumeRayCastCompositeFunction
 // Since there is nothing local to print, just print the object stuff.
 void vtkVolumeRayCastCompositeFunction::PrintSelf(ostream& os, vtkIndent indent)

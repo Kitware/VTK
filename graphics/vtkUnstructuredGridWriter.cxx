@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGridWriter.h"
 #include "vtkByteSwap.h"
 
-// Description:
 // Specify the input data or filter.
 void vtkUnstructuredGridWriter::SetInput(vtkUnstructuredGrid *input)
 {

@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeRayCastFunction.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 
-// Description:
 // Construct a new vtkVolumeRayCastMapper with default values
 vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 {
@@ -74,7 +73,6 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->GradientShader                = vtkEncodedGradientShader::New();
 }
 
-// Description:
 // Destruct a vtkVolumeRayCastMapper - clean up any memory used
 vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 {
@@ -442,7 +440,6 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     }
 }
 
-// Description:
 // Initialize casting of parallel rays. This includes setting up the
 // matrix for transforming rays from camera space to volume space. It
 // also includes setting up all additional information (such as near and
@@ -560,7 +557,6 @@ void vtkVolumeRayCastMapper::InitializeParallelImage( vtkRenderer *ren )
 
 }
 
-// Description:
 // Cast a ray for each pixel in the image plane using a parallel viewing
 // transform.  The rays are obtained from the vtkRenderer and they define 
 // the size of the image to be computed. At the end of this, we have an 
@@ -813,7 +809,6 @@ void vtkVolumeRayCastMapper::RenderParallelImage( vtkRenderer *ren )
 
 }
 
-// Description:
 // Cast a ray for each pixel in the image plane.  The rays are obtained
 // from the vtkRenderer and they define the size of the image to be
 // computed.  At the end of this, we have an RGBAImage and a ZImage.
@@ -879,7 +874,6 @@ void vtkVolumeRayCastMapper::InitializePerspectiveImage( vtkRenderer *ren )
 
 }
 
-// Description:
 // Cast a ray for each pixel in the image plane.  The rays are obtained
 // from the vtkRenderer and they define the size of the image to be
 // computed.  At the end of this, we have an RGBAImage and a ZImage.
@@ -1354,7 +1348,6 @@ void vtkVolumeRayCastMapper::UpdateTransferFunctions( vtkRenderer *ren, vtkVolum
 }
 
 
-// Description:
 // This method computes the corrected alpha blending for a given
 // step size.  The ScalarOpacityTFArray reflects step size 1.
 // The CorrectedScalarOpacityTFArray reflects step size CorrectedStepSize.
@@ -1413,13 +1406,11 @@ void vtkVolumeRayCastMapper::UpdateScalarOpacityTFforSampleSize(
     }
 }
 
-// Description:
 float vtkVolumeRayCastMapper::GetZeroOpacityThreshold( vtkVolume *vol )
 {
   return( this->VolumeRayCastFunction->GetZeroOpacityThreshold( vol ) );
 }
 
-// Description:
 // Print method for vtkVolumeRayCastMapper
 void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {

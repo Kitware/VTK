@@ -46,7 +46,6 @@ vtkAppendPolyData::vtkAppendPolyData()
   this->Output->SetSource(this);
 }
 
-// Description:
 // Add a dataset to the list of data to append.
 void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 {
@@ -57,7 +56,6 @@ void vtkAppendPolyData::AddInput(vtkPolyData *ds)
     }
 }
 
-// Description:
 // Remove a dataset from the list of data to append.
 void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 {

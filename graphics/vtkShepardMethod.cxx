@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkShepardMethod.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computed from input. Null value for each unvisited output 
 // point is 0.0. Maximum distance is 0.25.
@@ -64,7 +63,6 @@ vtkShepardMethod::vtkShepardMethod()
   this->NullValue = 0.0;
 }
 
-// Description:
 // Compute ModelBounds from input geometry.
 float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
 {
@@ -241,7 +239,6 @@ void vtkShepardMethod::Execute()
   newScalars->Delete();
 }
 
-// Description:
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
 {
@@ -254,7 +251,6 @@ void vtkShepardMethod::SetSampleDimensions(int i, int j, int k)
   this->SetSampleDimensions(dim);
 }
 
-// Description:
 // Set the i-j-k dimensions on which to sample the distance function.
 void vtkShepardMethod::SetSampleDimensions(int dim[3])
 {

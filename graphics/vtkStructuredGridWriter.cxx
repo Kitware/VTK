@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridWriter.h"
 
-// Description:
 // Specify the input data or filter.
 void vtkStructuredGridWriter::SetInput(vtkStructuredGrid *input)
 {

@@ -42,14 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkSLCReader.h"
 
-// Description:
 // Constructor for a vtkSLCReader.
 vtkSLCReader::vtkSLCReader()
 {
   this->FileName = NULL;
 }
 
-// Description:
 // Decodes an array of eight bit run-length encoded data.
 unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr, 
 					       int size )
@@ -88,7 +86,6 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
   return return_ptr;
 }
 
-// Description:
 // Reads an SLC file and creates a vtkStructuredPoints dataset.
 void vtkSLCReader::Execute()
 {

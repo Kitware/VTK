@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStreamPoints.h"
 
-// Description:
 // Construct object with time increment set to 1.0.
 vtkStreamPoints::vtkStreamPoints()
 {

@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 
-// Description
 // Construct object with scaling on, scaling mode is by scalar value, 
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and
 // orientation is by vector. Clamping and indexing are turned off. No
@@ -376,7 +375,6 @@ void vtkGlyph3D::Execute()
 }
 
 
-// Description:
 // Override update method because execution can branch two ways (via Input 
 // and Source).
 void vtkGlyph3D::Update()
@@ -448,7 +446,6 @@ void vtkGlyph3D::Update()
     }
 }
 
-// Description:
 // Set the number of source objects in the glyph table. This should be
 // done prior to specifying more than one source.
 void vtkGlyph3D::SetNumberOfSources(int num)
@@ -465,7 +462,6 @@ void vtkGlyph3D::SetNumberOfSources(int num)
   this->NumberOfSources = num;
 }
 
-// Description:
 // Specify a source object at a specified table location.
 void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
 {
@@ -484,7 +480,6 @@ void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
   this->Source[id] = pd;
 }
 
-// Description:
 // Get a pointer to a source object at a specified table location.
 vtkPolyData *vtkGlyph3D::GetSource(int id)
 {

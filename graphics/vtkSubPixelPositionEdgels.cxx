@@ -335,7 +335,6 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 }
 
 
-// Description:
 // Override update method because execution can branch two ways 
 // (Input and GradMaps)
 void vtkSubPixelPositionEdgels::Update()
@@ -375,7 +374,6 @@ void vtkSubPixelPositionEdgels::Update()
   if ( this->GradMaps->ShouldIReleaseData() ) this->GradMaps->ReleaseData();
 }
 
-// Description:
 // Print the state of the class.
 void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
 {

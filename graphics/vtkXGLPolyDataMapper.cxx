@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-// Description:
 // Construct empty object.
 vtkXGLPolyDataMapper::vtkXGLPolyDataMapper()
 {
@@ -350,7 +349,6 @@ float *vtkXGLPolyDataMapper::AddVertexWithNormal(int npts, int pointSize,
   return fTemp;
 }
 
-// Description:
 // Build the data structure for the XGL PolyDataMapper.
 void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
 {
@@ -708,7 +706,6 @@ void vtkXGLPolyDataMapper::Build(vtkPolyData *data, vtkScalars *c)
   return;
 }
 
-// Description:
 // Catch vtkGeometry PolyDataMapper draw method and call actual method.
 void vtkXGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
 {

@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 #include "vtkRenderWindow.h"
 
-// Description:
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0). No user defined matrix and no texture map.
@@ -87,7 +86,6 @@ vtkActor::~vtkActor()
   
 }
 
-// Description:
 // Shallow copy of an actor.
 vtkActor& vtkActor::operator=(const vtkActor& actor)
 {
@@ -164,7 +162,6 @@ vtkActor *vtkActor::New()
   return new vtkActor;
 }
 
-// Description:
 // This causes the actor to be rendered. It in turn will render the actor's
 // property, texture map and then mapper. If a property hasn't been 
 // assigned, then the actor will create one automatically. Note that a 
@@ -253,7 +250,6 @@ vtkProperty *vtkActor::GetBackfaceProperty()
   return this->BackfaceProperty;
 }
 
-// Description:
 // Copy the actor's composite 4x4 matrix into the matrix provided.
 void vtkActor::GetMatrix(vtkMatrix4x4& result)
 {
@@ -299,7 +295,6 @@ void vtkActor::GetMatrix(vtkMatrix4x4& result)
   result = this->Matrix;
 } 
 
-// Description:
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkActor::GetBounds()
 {
@@ -431,7 +426,6 @@ unsigned long int vtkActor::GetMTime()
   return mTime;
 }
 
-// Description:
 // Update visualization pipeline and any other parts of actor that are
 // necessary.
 void vtkActor::Update()

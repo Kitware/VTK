@@ -51,7 +51,6 @@ vtkThreshold::vtkThreshold()
   this->ThresholdFunction = &vtkThreshold::Upper;
 }
 
-// Description:
 // Criterion is cells whose scalars are less or equal to lower threshold.
 void vtkThreshold::ThresholdByLower(float lower) 
 {
@@ -64,7 +63,6 @@ void vtkThreshold::ThresholdByLower(float lower)
     }
 }
                            
-// Description:
 // Criterion is cells whose scalars are greater or equal to upper threshold.
 void vtkThreshold::ThresholdByUpper(float upper)
 {
@@ -77,7 +75,6 @@ void vtkThreshold::ThresholdByUpper(float upper)
     }
 }
                            
-// Description:
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThreshold::ThresholdBetween(float lower, float upper)
 {
@@ -222,7 +219,6 @@ void vtkThreshold::Execute()
   output->Squeeze();
 }
 
-// Description:
 // Return the method for manipulating scalar data as a string.
 char *vtkThreshold::GetAttributeModeAsString(void)
 {

@@ -68,7 +68,6 @@ vtkXGLRenderWindow::vtkXGLRenderWindow()
     strcpy( this->WindowName, "Visualization Toolkit - XGL" );
 }
 
-// Description:
 // free the memory
 vtkXGLRenderWindow::~vtkXGLRenderWindow()
 {
@@ -102,7 +101,6 @@ vtkXGLRenderWindow::~vtkXGLRenderWindow()
     }
 }
 
-// Description:
 // Begin the rendering process.
 void vtkXGLRenderWindow::Start(void)
 {
@@ -110,7 +108,6 @@ void vtkXGLRenderWindow::Start(void)
   if (!this->Context) this->Initialize();
 }
 
-// Description:
 // Update system if needed due to stereo rendering.
 void vtkXGLRenderWindow::StereoUpdate(void)
 {
@@ -141,7 +138,6 @@ void vtkXGLRenderWindow::StereoUpdate(void)
     }
 }
 
-// Description:
 // End the rendering process and display the image.
 void vtkXGLRenderWindow::Frame(void)
 {
@@ -320,7 +316,6 @@ int vtkXGLRenderWindow::GetDesiredDepth ()
   return depth;  
 }
 
-// Description:
 // Obtain a colormap from windowing system.
 Colormap vtkXGLRenderWindow::GetDesiredColormap ()
 {
@@ -361,7 +356,6 @@ Colormap vtkXGLRenderWindow::GetDesiredColormap ()
 }
 
 
-// Description:
 // Get a visual from the windowing system.
 Visual *vtkXGLRenderWindow::GetDesiredVisual ()
 {
@@ -428,7 +422,6 @@ XlibWindowCreate(Display *display, Window parent,
   return win;
 }
  
-// Description:
 // Initialize the rendering window.
 void vtkXGLRenderWindow::WindowInitialize (void)
 {
@@ -627,7 +620,6 @@ void vtkXGLRenderWindow::WindowInitialize (void)
     }
 }
 
-// Description:
 // Initialize the rendering window.
 void vtkXGLRenderWindow::Initialize (void)
 {
@@ -638,7 +630,6 @@ void vtkXGLRenderWindow::Initialize (void)
   this->WindowInitialize();
 }
 
-// Description:
 // Change the window to fill the entire screen.
 void vtkXGLRenderWindow::SetFullScreen(int arg)
 {
@@ -697,7 +688,6 @@ void vtkXGLRenderWindow::SetFullScreen(int arg)
   this->Modified();
 }
 
-// Description:
 // Set the preferred window size to full screen.
 void vtkXGLRenderWindow::PrefFullScreen()
 {
@@ -715,7 +705,6 @@ void vtkXGLRenderWindow::PrefFullScreen()
   this->Borders = 0;
 }
 
-// Description:
 // Resize the window.
 void vtkXGLRenderWindow::WindowRemap()
 {
@@ -742,7 +731,6 @@ void vtkXGLRenderWindow::WindowRemap()
 }
 
 
-// Description:
 // Specify the size of the rendering window.
 void vtkXGLRenderWindow::SetSize(int x,int y)
 {
@@ -1209,7 +1197,6 @@ void vtkXGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
-// Description:
 // Indicates if a StereoOn will require the window to be remapped.
 int vtkXGLRenderWindow::GetRemapWindow(void)
 {

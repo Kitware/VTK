@@ -78,7 +78,6 @@ XrmOptionDescRec Desc[] =
 #define VTKXI_PAN    3
 
 
-// Description:
 // Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
@@ -91,7 +90,6 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
 {
 }
 
-// Description:
 // Specify the Xt widget to use for interaction. This method is
 // one of a couple steps that are required for setting up a
 // vtkRenderWindowInteractor as a widget inside of another user 
@@ -111,7 +109,6 @@ void  vtkXRenderWindowInteractor::SetWidget(Widget foo)
   this->top = foo;
 } 
   
-// Description:
 // This will start up the X event loop and never return. If you
 // call this method it will loop processing X events until the
 // application is exited.
@@ -120,7 +117,6 @@ void vtkXRenderWindowInteractor::Start()
   XtAppMainLoop(this->App);
 }
 
-// Description: 
 // Initializes the event handlers using an XtAppContext that you have
 // provided.  This assumes that you want to own the event loop.
 void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
@@ -130,7 +126,6 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
   this->Initialize();
 }
 
-// Description:
 // Initializes the event handlers without an XtAppContext.  This is
 // good for when you don't have a user interface, but you still
 // want to have mouse interaction.
@@ -674,7 +669,6 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 
 
 
-// Description:
 // Setup a new window before a WindowRemap
 void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
 {
@@ -732,7 +726,6 @@ void vtkXRenderWindowInteractor::SetupNewWindow(int Stereo)
   this->WindowId = XtWindow(this->top);
 }
 
-// Description:
 // Finish setting up a new window after the WindowRemap.
 void vtkXRenderWindowInteractor::FinishSettingUpNewWindow()
 {

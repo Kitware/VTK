@@ -52,7 +52,6 @@ unsigned long int vtkFieldDataReader::GetMTime()
   return (dtime > rtime ? dtime : rtime);
 }
 
-// Description:
 // Specify file name of vtk field data file to read.
 void vtkFieldDataReader::SetFileName(char *name) 
 {
@@ -63,7 +62,6 @@ char *vtkFieldDataReader::GetFileName()
   return this->Reader.GetFileName();
 }
 
-// Description:
 // Get the type of file (ASCII or BINARY)
 int vtkFieldDataReader::GetFileType() 
 {
@@ -111,7 +109,6 @@ void vtkFieldDataReader::Execute()
   this->Reader.CloseVTKFile();
 }
 
-// Description:
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkFieldDataReader::SetFieldDataName(char *name) 

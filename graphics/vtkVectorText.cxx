@@ -1559,7 +1559,6 @@ char *VTK_VECTOR_TEXT_126 = "25 0.971429 "
 ;
 
 
-// Description:
 // Construct object with no string set and backing enabled.
 vtkVectorText::vtkVectorText()
 {

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkVolume.h"
 
-// Description:
 // Creates a Volume with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
 // orientation=(0,0,0).
@@ -56,7 +55,6 @@ vtkVolume::vtkVolume()
   this->SelfCreatedProperty = 0;
 }
 
-// Description:
 // Destruct a volume
 vtkVolume::~vtkVolume()
 {
@@ -64,7 +62,6 @@ vtkVolume::~vtkVolume()
     this->VolumeProperty->Delete();
 }
 
-// Description:
 // Shallow copy of an volume.
 vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 {
@@ -82,7 +79,6 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
   return *this;
 }
 
-// Description:
 // Copy the volume's composite 4x4 matrix into the matrix provided.
 void vtkVolume::GetMatrix(vtkMatrix4x4& result)
 {
@@ -132,7 +128,6 @@ void vtkVolume::GetMatrix(vtkMatrix4x4& result)
   result = this->Matrix;
 } 
 
-// Description:
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkVolume::GetBounds()
 {
@@ -198,7 +193,6 @@ float *vtkVolume::GetBounds()
   return this->Bounds;
 }
 
-// Description:
 // Get the minimum X bound
 float vtkVolume::GetMinXBound( )
 {
@@ -206,7 +200,6 @@ float vtkVolume::GetMinXBound( )
   return this->Bounds[0];
 }
 
-// Description:
 // Get the maximum X bound
 float vtkVolume::GetMaxXBound( )
 {
@@ -214,7 +207,6 @@ float vtkVolume::GetMaxXBound( )
   return this->Bounds[1];
 }
 
-// Description:
 // Get the minimum Y bound
 float vtkVolume::GetMinYBound( )
 {
@@ -222,7 +214,6 @@ float vtkVolume::GetMinYBound( )
   return this->Bounds[2];
 }
 
-// Description:
 // Get the maximum Y bound
 float vtkVolume::GetMaxYBound( )
 {
@@ -230,7 +221,6 @@ float vtkVolume::GetMaxYBound( )
   return this->Bounds[3];
 }
 
-// Description:
 // Get the minimum Z bound
 float vtkVolume::GetMinZBound( )
 {
@@ -238,7 +228,6 @@ float vtkVolume::GetMinZBound( )
   return this->Bounds[4];
 }
 
-// Description:
 // Get the maximum Z bound
 float vtkVolume::GetMaxZBound( )
 {

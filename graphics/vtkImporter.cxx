@@ -102,7 +102,6 @@ void vtkImporter::Read ()
     }
 }
 
-// Description:
 // Open an import file. Returns zero if error.
 int vtkImporter::OpenImportFile ()
 {
@@ -122,7 +121,6 @@ int vtkImporter::OpenImportFile ()
   return 1;
 }
 
-// Description:
 // Close an import file.
 void vtkImporter::CloseImportFile()
 {

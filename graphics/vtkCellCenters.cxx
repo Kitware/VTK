@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCellCenters.h"
 
-// Description:
 // Construct object with vertex cell generation turned off.
 vtkCellCenters::vtkCellCenters()
 {

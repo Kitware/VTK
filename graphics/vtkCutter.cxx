@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitFunction.h"
 #include "vtkContourValues.h"
 
-// Description:
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
@@ -66,7 +65,6 @@ vtkCutter::~vtkCutter()
     }
 }
 
-// Description:
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
 unsigned long vtkCutter::GetMTime()
@@ -292,7 +290,6 @@ void vtkCutter::Execute()
   output->Squeeze();
 }
 
-// Description:
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
 void vtkCutter::SetLocator(vtkPointLocator *locator)

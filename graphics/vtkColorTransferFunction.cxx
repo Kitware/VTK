@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkColorTransferFunction.h"
 
-// Description:
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()
 {
@@ -53,13 +52,11 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->Range[1] = 0;
 }
 
-// Description:
 // Destruct a vtkColorTransferFunction
 vtkColorTransferFunction::~vtkColorTransferFunction()
 {
 }
 
-// Description:
 // Returns the sum of the number of function points used to specify 
 // the three independent functions (R,G,B)
 int vtkColorTransferFunction::GetTotalSize()
@@ -74,7 +71,6 @@ int vtkColorTransferFunction::GetTotalSize()
   return( size );
 }
 
-// Description:
 // Add a point to the red function
 void vtkColorTransferFunction::AddRedPoint( float x, float r )
 {
@@ -83,7 +79,6 @@ void vtkColorTransferFunction::AddRedPoint( float x, float r )
   this->UpdateRange();
 }
 
-// Description:
 // Add a point to the green function
 void vtkColorTransferFunction::AddGreenPoint( float x, float g )
 {
@@ -92,7 +87,6 @@ void vtkColorTransferFunction::AddGreenPoint( float x, float g )
   this->UpdateRange();
 }
 
-// Description:
 // Add a point to the blue function
 void vtkColorTransferFunction::AddBluePoint( float x, float b )
 {
@@ -101,7 +95,6 @@ void vtkColorTransferFunction::AddBluePoint( float x, float b )
   this->UpdateRange();
 }
 
-// Description:
 // Add a point to all three functions (RGB)
 void vtkColorTransferFunction::AddRGBPoint( float x, float r,
      float g, float b )
@@ -113,7 +106,6 @@ void vtkColorTransferFunction::AddRGBPoint( float x, float r,
   this->UpdateRange();
 }
 
-// Description:
 // Remove a point from the red function
 void vtkColorTransferFunction::RemoveRedPoint( float x )
 {
@@ -122,7 +114,6 @@ void vtkColorTransferFunction::RemoveRedPoint( float x )
   this->UpdateRange();
 }
 
-// Description:
 // Remove a point from the green function
 void vtkColorTransferFunction::RemoveGreenPoint( float x )
 {
@@ -131,7 +122,6 @@ void vtkColorTransferFunction::RemoveGreenPoint( float x )
   this->UpdateRange();
 }
 
-// Description:
 // Remove a point from the blue function
 void vtkColorTransferFunction::RemoveBluePoint( float x )
 {
@@ -140,7 +130,6 @@ void vtkColorTransferFunction::RemoveBluePoint( float x )
   this->UpdateRange();
 }
 
-// Description:
 // Remove a point from all three functions (RGB)
 void vtkColorTransferFunction::RemoveRGBPoint( float x )
 {
@@ -151,7 +140,6 @@ void vtkColorTransferFunction::RemoveRGBPoint( float x )
   this->UpdateRange();
 }
 
-// Description:
 // Remove all points from all three functions (RGB)
 void vtkColorTransferFunction::RemoveAllPoints()
 {
@@ -162,7 +150,6 @@ void vtkColorTransferFunction::RemoveAllPoints()
   this->UpdateRange();
 }
 
-// Description:
 // Add a line to the red function
 void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
      float x2, float r2 )
@@ -172,7 +159,6 @@ void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
   this->UpdateRange();
 }
 
-// Description:
 // Add a line to the green function
 void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
      float x2, float g2 )
@@ -182,7 +168,6 @@ void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
   this->UpdateRange();
 }
 
-// Description:
 // Add a line to the blue function
 void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
      float x2, float b2 )
@@ -192,7 +177,6 @@ void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
   this->UpdateRange();
 }
 
-// Description:
 // Add a line to all three functions (RGB)
 void vtkColorTransferFunction::AddRGBSegment( float x1, float r1, 
         float g1, float b1, float x2, float r2, float g2, float b2 )
@@ -204,7 +188,6 @@ void vtkColorTransferFunction::AddRGBSegment( float x1, float r1,
   this->UpdateRange();
 }
 
-// Description:
 // Returns the RGB color evaluated at the specified location
 float *vtkColorTransferFunction::GetValue( float x )
 {
@@ -215,7 +198,6 @@ float *vtkColorTransferFunction::GetValue( float x )
   return( this->ColorValue );
 }
 
-// Description:
 // Updates the min/max range for all three functions (RGB)
 void vtkColorTransferFunction::UpdateRange()
 {
@@ -258,14 +240,12 @@ void vtkColorTransferFunction::UpdateRange()
   this->Modified();
 }
 
-// Description:
 // Returns the min/max range for all three functions
 float *vtkColorTransferFunction::GetRange()
 {
   return( this->Range );
 }
 
-// Description:
 // Returns a table of RGB colors at regular intervals along the function
 void vtkColorTransferFunction::GetTable( float x1, float x2, 
 						   int size, float* table )
@@ -298,7 +278,6 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
     }
 }
 
-// Description:
 // Print method for vtkColorTransferFunction
 void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -317,7 +296,6 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
-// Description:
 // Sets the clamping for each of the R,G,B transfer functions
 void vtkColorTransferFunction::SetClamping(int val) {
 	this->Clamping = val;
@@ -326,7 +304,6 @@ void vtkColorTransferFunction::SetClamping(int val) {
 	this->Blue.SetClamping(this->Clamping);
 }
 
-// Description:
 // Gets the clamping value
 int vtkColorTransferFunction::GetClamping() {
   return this->Clamping;

@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindow.h"
 #include "vtkTimeStamp.h"
 
-// Description:
 // Construct camera instance with its focal point at the origin, 
 // and position=(0,0,1). The view up is along the y-axis, 
 // view angle is 30 degrees, and the clipping range is (.1,1000).
@@ -285,7 +284,6 @@ void vtkCamera::SetClippingRange(float a[2])
   this->SetClippingRange(a[0],a[1]);
 }
 
-// Description:
 // Set the distance between clipping planes. A side effect of this method is
 // to adjust the back clipping plane to be equal to the front clipping plane 
 // plus the thickness.
@@ -314,7 +312,6 @@ void vtkCamera::SetThickness(float X)
   this->Modified();
 }  
 
-// Description:
 // Set the distance of the focal point from the camera. The focal point is 
 // modified accordingly. This should be positive.
 void vtkCamera::SetDistance(float X)
@@ -346,7 +343,6 @@ void vtkCamera::SetDistance(float X)
   this->Modified();
 }  
 
-// Description:
 // Compute the view plane normal from the position and focal point.
 void vtkCamera::ComputeViewPlaneNormal()
 {
@@ -373,7 +369,6 @@ void vtkCamera::ComputeViewPlaneNormal()
 }
 
 
-// Description:
 // Set the roll angle of the camera about the view plane normal.
 void vtkCamera::SetRoll(float roll)
 {
@@ -415,7 +410,6 @@ void vtkCamera::SetRoll(float roll)
   this->Transform.Pop();
 }
 
-// Description:
 // Returns the roll of the camera.
 float vtkCamera::GetRoll()
 {
@@ -429,7 +423,6 @@ float vtkCamera::GetRoll()
   return orient[2];
 }
 
-// Description:
 // Compute the camera distance, which is the distance between the 
 // focal point and position.
 void vtkCamera::ComputeDistance ()
@@ -472,7 +465,6 @@ void vtkCamera::ComputeDistance ()
   this->Modified();
 } 
 
-// Description:
 // Returns the orientation of the camera. This is a vector of X,Y and Z 
 // rotations that when performed in the order RotateZ, RotateX, and finally
 // RotateY, will yield the same 3x3 rotation matrix for the camera.
@@ -491,7 +483,6 @@ float *vtkCamera::GetOrientation ()
   return this->Orientation;
 }
 
-// Description:
 // Returns the WXYZ orientation of the camera. 
 float *vtkCamera::GetOrientationWXYZ()
 {
@@ -522,7 +513,6 @@ float *vtkCamera::GetOrientationWXYZ()
   return this->PerspectiveTransform.GetOrientationWXYZ();
 }
 
-// Description:
 // Compute the view transform matrix. This is used in converting 
 // between view and world coordinates. It does not include any 
 // perspective effects but it does include shearing and scaling.
@@ -589,7 +579,6 @@ void vtkCamera::ComputeViewTransform()
   this->PerspectiveTransform.Translate(-PRP[0],-PRP[1],-PRP[2]);
 }
 
-// Description:
 // Compute the perspective transform matrix. This is used in converting 
 // between view and world coordinates.
 void vtkCamera::ComputePerspectiveTransform(float aspect, 
@@ -737,7 +726,6 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
 }
 
 
-// Description:
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform(float aspect,
 						 float nearz, float farz)
@@ -751,7 +739,6 @@ vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform(float aspect,
   return this->PerspectiveTransform.GetMatrix();
 }
 
-// Description:
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 &vtkCamera::GetViewTransform()
 {
@@ -762,7 +749,6 @@ vtkMatrix4x4 &vtkCamera::GetViewTransform()
   return this->PerspectiveTransform.GetMatrix();
 }
 
-// Description:
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
 vtkMatrix4x4 &vtkCamera::GetCompositePerspectiveTransform(float aspect,
 							  float nearz,
@@ -778,7 +764,6 @@ vtkMatrix4x4 &vtkCamera::GetCompositePerspectiveTransform(float aspect,
 
 #define VTK_SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
 
-// Description:
 // Recompute the view up vector so that it is perpendicular to the
 // view plane normal.
 void vtkCamera::OrthogonalizeViewUp()
@@ -797,7 +782,6 @@ void vtkCamera::OrthogonalizeViewUp()
   this->SetViewUp(new_up[0]*ratio,new_up[1]*ratio,new_up[2]*ratio);
 }
 
-// Description:
 // Move the position of the camera along the view plane normal. Moving
 // towards the focal point (e.g., > 1) is a dolly-in, moving away 
 // from the focal point (e.g., < 1) is a dolly-out.
@@ -818,7 +802,6 @@ void vtkCamera::Dolly(float amount)
 		    this->FocalPoint[2] + distance * this->ViewPlaneNormal[2]);
 }
 
-// Description:
 // Change the ViewAngle of the camera so that more or less of a scene 
 // occupies the viewport. A value > 1 is a zoom-in. A value < 1 is a zoom-out.
 void vtkCamera::Zoom(float amount)
@@ -834,7 +817,6 @@ void vtkCamera::Zoom(float amount)
 }
 
 
-// Description:
 // Rotate the camera about the view up vector centered at the focal point.
 void vtkCamera::Azimuth (float angle)
 {
@@ -876,7 +858,6 @@ void vtkCamera::Azimuth (float angle)
   this->Transform.Pop();
 }
 
-// Description:
 // Rotate the camera about the cross product of the view plane normal and 
 // the view up vector centered on the focal point.
 void vtkCamera::Elevation (float angle)
@@ -928,7 +909,6 @@ void vtkCamera::Elevation (float angle)
   this->Transform.Pop();
 }
 
-// Description:
 // Rotate the focal point about the view up vector centered at the camera's 
 // position. 
 void vtkCamera::Yaw (float angle)
@@ -970,7 +950,6 @@ void vtkCamera::Yaw (float angle)
   this->Transform.Pop();
 }
 
-// Description:
 // Rotate the focal point about the cross product of the view up vector 
 // and the view plane normal, centered at the camera's position.
 void vtkCamera::Pitch (float angle)
@@ -1022,7 +1001,6 @@ void vtkCamera::Pitch (float angle)
   this->Transform.Pop();
 }
 
-// Description:
 // Rotate the camera around the view plane normal.
 void vtkCamera::Roll (float angle)
 {
@@ -1047,7 +1025,6 @@ void vtkCamera::Roll (float angle)
   this->Transform.Pop();
 }
 
-// Description:
 // Set the direction that the camera points.
 // Adjusts position to be consistent with the view plane normal.
 void vtkCamera::SetViewPlaneNormal(float X,float Y,float Z)
@@ -1115,7 +1092,6 @@ void vtkCamera::SetViewPlaneNormal(float a[3])
   this->SetViewPlaneNormal(a[0],a[1],a[2]);
 }
 
-// Description:
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
 // the view frustum. 
 void vtkCamera::GetFrustumPlanes( float planes[24] )

@@ -61,7 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define TIMEROFFSETT 0x100
 static BOOL bAuto = FALSE;
 
-// Description:
 // Construct object so that light follows camera motion.
 vtkWin32MappedInteractor::vtkWin32MappedInteractor()
 {
@@ -127,7 +126,6 @@ void vtkWin32MappedInteractor::PrintSelf(ostream& os, vtkIndent indent)
   vtkRenderWindowInteractor::PrintSelf(os,indent);
 }
 
-// Description:
 // Begin processing keyboard strokes.
 void vtkWin32MappedInteractor::Initialize()
 {

@@ -53,7 +53,6 @@ unsigned long int vtkUnstructuredGridReader::GetMTime()
   return (dtime > rtime ? dtime : rtime);
 }
 
-// Description:
 // Specify file name of vtk polygonal data file to read.
 void vtkUnstructuredGridReader::SetFileName(char *name) 
 {
@@ -64,14 +63,12 @@ char *vtkUnstructuredGridReader::GetFileName()
   return this->Reader.GetFileName();
 }
 
-// Description:
 // Get the type of file (ASCII or BINARY)
 int vtkUnstructuredGridReader::GetFileType() 
 {
   return this->Reader.GetFileType();
 }
 
-// Description:
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkUnstructuredGridReader::SetScalarsName(char *name) 
@@ -83,7 +80,6 @@ char *vtkUnstructuredGridReader::GetScalarsName()
   return this->Reader.GetScalarsName();
 }
 
-// Description:
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkUnstructuredGridReader::SetVectorsName(char *name) 
@@ -95,7 +91,6 @@ char *vtkUnstructuredGridReader::GetVectorsName()
   return this->Reader.GetVectorsName();
 }
 
-// Description:
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkUnstructuredGridReader::SetTensorsName(char *name) 
@@ -107,7 +102,6 @@ char *vtkUnstructuredGridReader::GetTensorsName()
   return this->Reader.GetTensorsName();
 }
 
-// Description:
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkUnstructuredGridReader::SetNormalsName(char *name) 
@@ -119,7 +113,6 @@ char *vtkUnstructuredGridReader::GetNormalsName()
   return this->Reader.GetNormalsName();
 }
 
-// Description:
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkUnstructuredGridReader::SetTCoordsName(char *name) 
@@ -131,7 +124,6 @@ char *vtkUnstructuredGridReader::GetTCoordsName()
   return this->Reader.GetTCoordsName();
 }
 
-// Description:
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkUnstructuredGridReader::SetLookupTableName(char *name) 
@@ -143,7 +135,6 @@ char *vtkUnstructuredGridReader::GetLookupTableName()
   return this->Reader.GetLookupTableName();
 }
 
-// Description:
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkUnstructuredGridReader::SetFieldDataName(char *name) 

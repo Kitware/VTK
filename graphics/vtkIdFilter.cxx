@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkIdFilter.h"
 
-// Description:
 // Construct object with PointIds and CellIds on; and ids being generated
 // as scalars.
 vtkIdFilter::vtkIdFilter()

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 #include "vtkRenderer.h"
 
-// Description:
 // Create a frustum coverage culler with default values
 vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 {
@@ -51,7 +50,6 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
   this->MaximumCoverage = 1.0;
 }
 
-// Description:
 // The out cull method is where the culling occurs in this class.
 // The coverage is computed for each actor, and a resulting allocated
 // render time is computed. This is multiplied by the current allocated

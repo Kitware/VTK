@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStarbaseRenderer.h"
 #include "vtkStarbaseActor.h"
 
-// Description:
 // Implement base class method.
 void vtkStarbaseActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {

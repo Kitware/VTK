@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectorDot.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct object with scalar range is (-1,1).
 vtkVectorDot::vtkVectorDot()
 {

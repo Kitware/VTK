@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImplicitTextureCoords.h"
 
-// Description:
 // Create object with texture dimension=2 and no r-s-t implicit functions
 // defined and FlipTexture turned off.
 vtkImplicitTextureCoords::vtkImplicitTextureCoords()
@@ -190,7 +189,6 @@ void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-// Description:
 // Update input to this filter and the filter itself. Note that we are 
 // overloading this method because the output is an abstract dataset type.
 // This requires special treatment.

@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions. Theta ranges from (0,360) and phi (0,180) degrees.
 vtkSphereSource::vtkSphereSource(int res)

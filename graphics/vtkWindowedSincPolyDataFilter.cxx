@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-// Description:
 // Construct object with number of iterations 20; passband .1;
 // feature edge smoothing turned off; feature 
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 

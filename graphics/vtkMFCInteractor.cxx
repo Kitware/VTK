@@ -63,7 +63,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 static BOOL bAuto = FALSE;
 //static HANDLE Mutex = CreateMutex(NULL,FALSE,NULL);
 
-// Description:
 // Construct object so that light follows camera motion.
 vtkMFCInteractor::vtkMFCInteractor()
 {
@@ -130,7 +129,6 @@ void vtkMFCInteractor::PrintSelf(ostream& os, vtkIndent indent)
   vtkRenderWindowInteractor::PrintSelf(os,indent);
 }
 
-// Description:
 // Begin processing keyboard strokes.
 void vtkMFCInteractor::Initialize()
 {

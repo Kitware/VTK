@@ -57,7 +57,6 @@ vtkOBBNode::~vtkOBBNode()
 }
 
 
-// Description:
 // Construct with automatic computation of divisions, averaging
 // 25 cells per octant.
 vtkOBBTree::vtkOBBTree()
@@ -96,7 +95,6 @@ void vtkOBBTree::DeleteTree(vtkOBBNode *OBBptr)
     }
 }
 
-// Description:
 // Compute an OBB from the list of points given. Return the corner point
 // and the three axes defining the orientation of the OBB. Also return
 // a sorted list of relative "sizes" of axes for comparison purposes.
@@ -188,7 +186,6 @@ void vtkOBBTree::ComputeOBB(vtkPoints *pts, float corner[3], float max[3],
     }
 }
 
-// Description:
 // Return intersection point of line defined by two points (a0,a1) in dataset
 // coordinate system; returning cellId (or -1 if no intersection). The 
 // argument list returns the intersection parametric coordinate, t, along 
@@ -416,7 +413,6 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     }
 }
 
-// Description:
 // Create polygonal representation for OBB tree at specified level. If 
 // level < 0, then the leaf OBB nodes will be gathered. The aspect ratio (ar)
 // and line diameter (d) are used to control the building of the 

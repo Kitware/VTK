@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangleFilter.h"
 #include "vtkPolygon.h"
 
-// Description:
 // Construct object with number of iterations 20; relaxation factor .01;
 // feature edge smoothing turned off; feature 
 // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 

@@ -100,7 +100,6 @@ vtkHyperPoint *vtkHyperArray::Resize(int sz)
   return this->Array;
 }
 
-// Description:
 // Construct object with initial starting position (0,0,0); integration step 
 // length 0.2; step length 0.01; forward integration; terminal eigenvalue 0.0;
 // number of sides 6; radius 0.5; and logarithmic scaling off.
@@ -131,7 +130,6 @@ vtkHyperStreamline::~vtkHyperStreamline()
   if ( this->Streamers ) delete [] this->Streamers;
 }
 
-// Description:
 // Specify the start of the hyperstreamline in the cell coordinate system. 
 // That is, cellId and subId (if composite cell), and parametric coordinates.
 void vtkHyperStreamline::SetStartLocation(int cellId, int subId, float pcoords[3])
@@ -152,7 +150,6 @@ void vtkHyperStreamline::SetStartLocation(int cellId, int subId, float pcoords[3
     }
 }
 
-// Description:
 // Specify the start of the hyperstreamline in the cell coordinate system. 
 // That is, cellId and subId (if composite cell), and parametric coordinates.
 void vtkHyperStreamline::SetStartLocation(int cellId, int subId, float r, float s, float t)
@@ -165,7 +162,6 @@ void vtkHyperStreamline::SetStartLocation(int cellId, int subId, float r, float 
   this->SetStartLocation(cellId, subId, pcoords);
 }
 
-// Description:
 // Get the starting location of the hyperstreamline in the cell coordinate
 // system. Returns the cell that the starting point is in.
 int vtkHyperStreamline::GetStartLocation(int& subId, float pcoords[3])
@@ -177,7 +173,6 @@ int vtkHyperStreamline::GetStartLocation(int& subId, float pcoords[3])
   return this->StartCell;
 }
 
-// Description:
 // Specify the start of the hyperstreamline in the global coordinate system. 
 // Starting from position implies that a search must be performed to find 
 // initial cell to start integration from.
@@ -195,7 +190,6 @@ void vtkHyperStreamline::SetStartPosition(float x[3])
     }
 }
 
-// Description:
 // Specify the start of the hyperstreamline in the global coordinate system. 
 // Starting from position implies that a search must be performed to find 
 // initial cell to start integration from.
@@ -209,14 +203,12 @@ void vtkHyperStreamline::SetStartPosition(float x, float y, float z)
   this->SetStartPosition(pos);
 }
 
-// Description:
 // Get the start position of the hyperstreamline in global x-y-z coordinates.
 float *vtkHyperStreamline::GetStartPosition()
 {
   return this->StartPosition;
 }
 
-// Description:
 // Use the major eigenvector field as the vector field through which to 
 // integrate. The major eigenvector is the eigenvector whose corresponding
 // eigenvalue is closest to positive infinity.
@@ -229,7 +221,6 @@ void vtkHyperStreamline::IntegrateMajorEigenvector()
   }
 }
 
-// Description:
 // Use the major eigenvector field as the vector field through which to 
 // integrate. The major eigenvector is the eigenvector whose corresponding
 // eigenvalue is between the major and minor eigenvalues.
@@ -242,7 +233,6 @@ void vtkHyperStreamline::IntegrateMediumEigenvector()
   }
 }
 
-// Description:
 // Use the major eigenvector field as the vector field through which to 
 // integrate. The major eigenvector is the eigenvector whose corresponding
 // eigenvalue is closest to negative infinity.

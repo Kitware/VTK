@@ -166,7 +166,6 @@ void vtkCubeSource::Execute()
   newPolys->Delete();
 }
 
-// Description:
 // Convenience method allows creation of cube by specifying bounding box.
 void vtkCubeSource::SetBounds(float xMin, float xMax,
 	                      float yMin, float yMax,

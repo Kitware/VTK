@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 #include "vtkCuller.h"
 
-// Description:
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
 // turned off.
@@ -125,7 +124,6 @@ vtkRenderer *vtkRenderer::New()
   return new vtkRenderer;
 }
 
-// Description:
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
@@ -220,7 +218,6 @@ void vtkRenderer::Render2D()
   this->Actors2D->Render(this);
 }
 
-// Description:
 // Ask volumes to render themselves.
 int vtkRenderer::UpdateVolumes()
 {
@@ -239,7 +236,6 @@ int vtkRenderer::UpdateVolumes()
   return volume_count;
 }
 
-// Description:
 // Ask active camera to load its view matrix.
 int vtkRenderer::UpdateCameras ()
 {
@@ -257,7 +253,6 @@ int vtkRenderer::UpdateCameras ()
   return 1;
 }
 
-// Description:
 // Ask actors to render themselves. As a side effect will cause 
 // visualization network to update.
 int vtkRenderer::UpdateActors()
@@ -404,7 +399,6 @@ vtkWindow *vtkRenderer::GetVTKWindow()
   return this->RenderWindow;
 }
 
-// Description:
 // Specify the camera to use for this renderer.
 void vtkRenderer::SetActiveCamera(vtkCamera *cam)
 {
@@ -427,7 +421,6 @@ void vtkRenderer::SetActiveCamera(vtkCamera *cam)
   this->Modified();
 }
 
-// Description:
 // Get the current camera.
 vtkCamera *vtkRenderer::GetActiveCamera()
 {
@@ -440,56 +433,48 @@ vtkCamera *vtkRenderer::GetActiveCamera()
   return this->ActiveCamera;
 }
 
-// Description:
 // Add a light to the list of lights.
 void vtkRenderer::AddLight(vtkLight *light)
 {
   this->Lights.AddItem(light);
 }
 
-// Description:
 // Add an actor to the list of actors.
 void vtkRenderer::AddActor(vtkActor *actor)
 {
   this->Actors.AddItem(actor);
 }
 
-// Description:
 // Add a volume to the list of volumes.
 void vtkRenderer::AddVolume(vtkVolume *volume)
 {
   this->Volumes.AddItem(volume);
 }
 
-// Description:
 // Remove a light from the list of lights.
 void vtkRenderer::RemoveLight(vtkLight *light)
 {
   this->Lights.RemoveItem(light);
 }
 
-// Description:
 // Remove an actor from the list of actors.
 void vtkRenderer::RemoveActor(vtkActor *actor)
 {
   this->Actors.RemoveItem(actor);
 }
 
-// Description:
 // Remove a volume from the list of volumes.
 void vtkRenderer::RemoveVolume(vtkVolume *volume)
 {
   this->Volumes.RemoveItem(volume);
 }
 
-// Description:
 // Add an culler to the list of cullers.
 void vtkRenderer::AddCuller(vtkCuller *culler)
 {
   this->Cullers.AddItem(culler);
 }
 
-// Description:
 // Remove an actor from the list of cullers.
 void vtkRenderer::RemoveCuller(vtkCuller *culler)
 {
@@ -510,7 +495,6 @@ void vtkRenderer::CreateLight(void)
   this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
 }
 
-// Description:
 // Automatically set up the camera based on the visible actors.
 // The camera will reposition itself to view the center point of the actors,
 // and move along its initial view plane normal (i.e., vector defined from 
@@ -579,7 +563,6 @@ void vtkRenderer::ResetCamera()
   this->ResetCamera(allBounds);
 }
 
-// Description:
 // Automatically set up the camera based on a specified bounding box
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
 // that its focal point is the center of the bounding box, and adjust its
@@ -633,7 +616,6 @@ void vtkRenderer::ResetCamera(float bounds[6])
   this->ActiveCamera->SetClippingRange(distance/10.0,distance*5.0);
 }
   
-// Description:
 // Alternative version of ResetCamera(bounds[6]);
 void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax, 
 			      float zmin, float zmax)
@@ -650,7 +632,6 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
   this->ResetCamera(bounds);
 }
 
-// Description:
 // Specify the rendering window in which to draw. This is automatically set
 // when the renderer is created by MakeRenderer.  The user probably
 // shouldn't ever need to call this method.
@@ -660,7 +641,6 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
   this->RenderWindow = renwin;
 }
 
-// Description:
 // Given a pixel location, return the Z value
 float vtkRenderer::GetZ (int x, int y)
 {
@@ -681,7 +661,6 @@ float vtkRenderer::GetZ (int x, int y)
 }
 
 
-// Description:
 // Convert view point coordinates to world coordinates.
 void vtkRenderer::ViewToWorld()
 {
@@ -746,7 +725,6 @@ void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
     }
 }
 
-// Description:
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView()
 {
@@ -775,7 +753,6 @@ void vtkRenderer::WorldToView()
     }
 }
 
-// Description:
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView(float &x, float &y, float &z)
 {

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-// Description:
 // Construct object and initialize.
 vtkTexture::vtkTexture()
 {

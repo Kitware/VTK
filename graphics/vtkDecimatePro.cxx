@@ -87,7 +87,6 @@ static float ComputeEdgeError(float x[3], float x1[3], float x2[3]);
 static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3]);
 
 
-// Description:
 // Create object with specified reduction of 90% and feature angle of
 // 15 degrees. Edge splitting is on, defer splitting is on, and the
 // split angle is 75 degrees. Topology preservation is off, delete
@@ -1225,7 +1224,6 @@ int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1,
   return numDeleted;
 }
 
-// Description:
 // Get a list of inflection points. These are float values 0 < r <= 1.0 
 // corresponding to reduction level, and there are a total of
 // NumberOfInflectionPoints() values. You must provide an array (of
@@ -1240,7 +1238,6 @@ void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
     }
 }
 
-// Description:
 // Get a list of inflection points. These are float values 0 < r <= 1.0 
 // corresponding to reduction level, and there are a total of
 // NumberOfInflectionPoints() values. You must provide an array (of
@@ -1251,7 +1248,6 @@ float *vtkDecimatePro::GetInflectionPoints()
   return this->InflectionPoints->GetPointer(0);
 }
 
-// Description:
 // Get the number of inflection points. Only returns a valid value
 // after the filter has executed.
 int vtkDecimatePro::GetNumberOfInflectionPoints()

@@ -44,7 +44,6 @@ vtkPointSetFilter::~vtkPointSetFilter()
 {
 }
 
-// Description:
 // Specify the input data or filter.
 void vtkPointSetFilter::SetInput(vtkPointSet *input)
 {

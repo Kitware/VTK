@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredGridFilter.h"
 
-// Description:
 // Specify the input data or filter.
 void vtkUnstructuredGridFilter::SetInput(vtkUnstructuredGrid *input)
 {

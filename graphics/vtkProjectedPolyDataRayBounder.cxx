@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 
 
-// Description:
 // The constructor for the class. Initialize everything to NULL.
 vtkProjectedPolyDataRayBounder::vtkProjectedPolyDataRayBounder()
 {
@@ -58,12 +57,10 @@ vtkProjectedPolyDataRayBounder::vtkProjectedPolyDataRayBounder()
   this->PolyData           = NULL;
 }
 
-// Description:
 // Destructor for the class. Nothing needs to be done.
 vtkProjectedPolyDataRayBounder::~vtkProjectedPolyDataRayBounder()
 {
 }
-// Description:
 // New method for the class which will return the correct type of 
 // ProjectPolyDataRayBounder
 vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
@@ -86,7 +83,6 @@ vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
   return new vtkProjectedPolyDataRayBounder;
 }
 
-// Description:
 // Set the matrix source to be an actor. The PolyData will be transformed
 // by this actor's matrix before being projected
 void vtkProjectedPolyDataRayBounder::SetMatrixSource( vtkActor *actor )
@@ -95,7 +91,6 @@ void vtkProjectedPolyDataRayBounder::SetMatrixSource( vtkActor *actor )
   this->VolumeMatrixSource = NULL;
 }
 
-// Description:
 // Set the matrix source to be a volume. The PolyData will be transformed
 // by this volume's matrix before being projected
 void vtkProjectedPolyDataRayBounder::SetMatrixSource( vtkVolume *volume )
@@ -104,7 +99,6 @@ void vtkProjectedPolyDataRayBounder::SetMatrixSource( vtkVolume *volume )
   this->VolumeMatrixSource = volume;
 }
 
-// Description:
 // Get the ray bounds by 1) making sure the PolyData is up-to-date,
 // 2) building the PolyData if necessary by calling this->Build(),
 // 3) obtaining the correct matrix to transform the PolyData, and 
@@ -152,7 +146,6 @@ float *vtkProjectedPolyDataRayBounder::GetRayBounds( vtkRenderer *ren )
   return (return_bounds);
 }
 
-// Description:
 // This is a bogus method that will only be called if a
 // vtkProjectedPolyDataRayBounder was created with a render type other
 // than OpenGL. 
@@ -160,7 +153,6 @@ void vtkProjectedPolyDataRayBounder::Build( vtkPolyData *vtkNotUsed(pdata) )
 {
 }
 
-// Description:
 // This is a bogus method that will only be called if a
 // vtkProjectedPolyDataRayBounder was created with a render type other
 // than OpenGL. 
@@ -171,7 +163,6 @@ float *vtkProjectedPolyDataRayBounder::Draw( vtkRenderer *vtkNotUsed(ren),
   return (float *)NULL;
 }
 
-// Description:
 // Print the object including the PolyData, the matrix source, and the
 // build time.
 void vtkProjectedPolyDataRayBounder::PrintSelf(ostream& os, vtkIndent indent)

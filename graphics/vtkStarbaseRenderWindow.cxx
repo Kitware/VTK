@@ -80,7 +80,6 @@ vtkStarbaseRenderWindow::~vtkStarbaseRenderWindow()
 }
 
 
-// Description:
 // Begin the rendering process.
 void vtkStarbaseRenderWindow::Start(void)
 {
@@ -91,7 +90,6 @@ void vtkStarbaseRenderWindow::Start(void)
   flush_matrices(this->Fd);
 }
 
-// Description:
 // Update system if needed due to stereo rendering.
 void vtkStarbaseRenderWindow::StereoUpdate(void)
 {
@@ -138,7 +136,6 @@ void vtkStarbaseRenderWindow::StereoUpdate(void)
     }
 }
 
-// Description:
 // End the rendering process and display the image.
 void vtkStarbaseRenderWindow::Frame(void)
 {
@@ -326,7 +323,6 @@ int vtkStarbaseRenderWindow::GetDesiredDepth ()
   return depth;  
 }
 
-// Description:
 // Obtain a colormap from windowing system.
 Colormap vtkStarbaseRenderWindow::GetDesiredColormap ()
 {
@@ -409,7 +405,6 @@ Colormap vtkStarbaseRenderWindow::GetDesiredColormap ()
 }
 
 
-// Description:
 // Get a visual from the windowing system.
 Visual *vtkStarbaseRenderWindow::GetDesiredVisual ()
 {
@@ -432,7 +427,6 @@ Visual *vtkStarbaseRenderWindow::GetDesiredVisual ()
 }
 
 
-// Description:
 // Create a window for starbase output.
 int vtkStarbaseRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos, 
 				      int width,int vtkNotUsed(height),
@@ -581,7 +575,6 @@ int vtkStarbaseRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
   return 1;
 }
  
-// Description:
 // Initialize the rendering window.
 void vtkStarbaseRenderWindow::WindowInitialize (void)
 {
@@ -778,7 +771,6 @@ void vtkStarbaseRenderWindow::WindowInitialize (void)
   this->Mapped = 1;
 }
 
-// Description:
 // Initialize the rendering window.
 void vtkStarbaseRenderWindow::Initialize (void)
 {
@@ -790,7 +782,6 @@ void vtkStarbaseRenderWindow::Initialize (void)
 }
 
 
-// Description:
 // Change the window to fill the entire screen.
 void vtkStarbaseRenderWindow::SetFullScreen(int arg)
 {
@@ -849,7 +840,6 @@ void vtkStarbaseRenderWindow::SetFullScreen(int arg)
   this->Modified();
 }
 
-// Description:
 // Set the preferred window size to full screen.
 void vtkStarbaseRenderWindow::PrefFullScreen()
 {
@@ -868,7 +858,6 @@ void vtkStarbaseRenderWindow::PrefFullScreen()
 }
 
 
-// Description:
 // Resize the window.
 void vtkStarbaseRenderWindow::WindowRemap()
 {
@@ -893,7 +882,6 @@ void vtkStarbaseRenderWindow::WindowRemap()
 }
 
 
-// Description:
 // Specify the size of the rendering window.
 void vtkStarbaseRenderWindow::SetSize(int x,int y)
 {

@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkTCoords.h"
 
-// Description:
 // Construct object to extract nothing and to not pass tensor data
 // through the pipeline.
 vtkExtractTensorComponents::vtkExtractTensorComponents()

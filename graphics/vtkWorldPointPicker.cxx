@@ -51,7 +51,6 @@ void vtkWorldPointPicker::Initialize()
   this->vtkPicker::Initialize();
 }
 
-// Description:
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
 int vtkWorldPointPicker::Pick(float selectionX, float selectionY, float selectionZ,

@@ -93,7 +93,6 @@ void vtkProbeFilter::Execute()
   delete [] weights;
 }
 
-// Description:
 // Overload update method because execution can branch two ways (Input 
 // and Source). Also input and output are abstract.
 void vtkProbeFilter::Update()

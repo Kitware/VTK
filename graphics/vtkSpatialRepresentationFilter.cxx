@@ -111,7 +111,6 @@ void vtkSpatialRepresentationFilter::ResetOutput()
 }
 
     
-// Description:
 // Update input to this filter and the filter itself.
 void vtkSpatialRepresentationFilter::Update()
 {

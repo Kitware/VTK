@@ -107,7 +107,6 @@ int vtkXRenderWindow::GetEventPending()
 }
 
 
-// Description:
 // Get the size of the screen in pixels
 int *vtkXRenderWindow::GetScreenSize()
 {
@@ -133,7 +132,6 @@ int *vtkXRenderWindow::GetScreenSize()
   return this->ScreenSize;
 }
 
-// Description:
 // Get the current size of the window in pixels.
 int *vtkXRenderWindow::GetSize(void)
 {
@@ -155,7 +153,6 @@ int *vtkXRenderWindow::GetSize(void)
   return this->Size;
 }
 
-// Description:
 // Get the position in screen coordinates (pixels) of the window.
 int *vtkXRenderWindow::GetPosition(void)
 {
@@ -181,7 +178,6 @@ int *vtkXRenderWindow::GetPosition(void)
   return this->Position;
 }
 
-// Description:
 // Get this RenderWindow's X display id.
 Display *vtkXRenderWindow::GetDisplayId()
 {
@@ -190,7 +186,6 @@ Display *vtkXRenderWindow::GetDisplayId()
   return this->DisplayId;
 }
 
-// Description:
 // Get this RenderWindow's parent X window id.
 Window vtkXRenderWindow::GetParentId()
 {
@@ -198,7 +193,6 @@ Window vtkXRenderWindow::GetParentId()
   return this->ParentId;
 }
 
-// Description:
 // Get this RenderWindow's X window id.
 Window vtkXRenderWindow::GetWindowId()
 {
@@ -206,7 +200,6 @@ Window vtkXRenderWindow::GetWindowId()
   return this->WindowId;
 }
 
-// Description:
 // Move the window to a new position on the display.
 void vtkXRenderWindow::SetPosition(int x, int y)
 {
@@ -227,7 +220,6 @@ void vtkXRenderWindow::SetPosition(int x, int y)
   XSync(this->DisplayId,False);
 }
 
-// Description:
 // Sets the parent of the window that WILL BE created.
 void vtkXRenderWindow::SetParentId(Window arg)
 {
@@ -242,7 +234,6 @@ void vtkXRenderWindow::SetParentId(Window arg)
   this->ParentId = arg;
 }
 
-// Description:
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkXRenderWindow::SetWindowId(Window arg)
 {
@@ -251,7 +242,6 @@ void vtkXRenderWindow::SetWindowId(Window arg)
   this->WindowId = arg;
 }
 
-// Description:
 // Set this RenderWindow's X window id to a pre-existing window.
 void vtkXRenderWindow::SetWindowInfo(char *info)
 {
@@ -307,7 +297,6 @@ void vtkXRenderWindow::SetWindowName(char * name)
 }
 
 
-// Description:
 // Specify the X window id to use if a WindowRemap is done.
 void vtkXRenderWindow::SetNextWindowId(Window arg)
 {
@@ -316,7 +305,6 @@ void vtkXRenderWindow::SetNextWindowId(Window arg)
   this->NextWindowId = arg;
 }
 
-// Description:
 // Set the X display id for this RenderWindow to use to a pre-existing 
 // X display id.
 void vtkXRenderWindow::SetDisplayId(Display  *arg)

@@ -57,7 +57,6 @@ vtkPlanes::~vtkPlanes()
     this->Normals->UnRegister(this);
 }
 
-// Description
 // Evaluate plane equations. Return smallest absolute value.
 float vtkPlanes::EvaluateFunction(float x[3])
 {
@@ -87,7 +86,6 @@ float vtkPlanes::EvaluateFunction(float x[3])
   return maxVal;
 }
 
-// Description
 // Evaluate planes gradient.
 void vtkPlanes::EvaluateGradient(float x[3], float n[3])
 {

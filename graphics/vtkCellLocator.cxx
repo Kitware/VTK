@@ -48,7 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 typedef vtkIdList *vtkIdListPtr;
 
-// Description:
 // Construct with automatic computation of divisions, averaging
 // 25 cells per bucket.
 vtkCellLocator::vtkCellLocator()
@@ -105,7 +104,6 @@ int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, int k,
   return 0;
 }
 
-// Description:
 // Return intersection point (if any) of finite line with cells contained
 // in cell locator.
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
@@ -287,7 +285,6 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   return 0;
 }
 
-// Description:
 // Get the cells in a bucket.
 vtkIdList* vtkCellLocator::GetCells(int octantId)
 {
@@ -295,7 +292,6 @@ vtkIdList* vtkCellLocator::GetCells(int octantId)
   return this->Tree[octantId];
 }
 
-// Description:
 // Intersect against another vtkCellLocator returning cells that lie in 
 // intersecting octants. Not implimented yet.
 void vtkCellLocator::InitializeIntersection(vtkCellLocator& )

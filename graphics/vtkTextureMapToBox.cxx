@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTextureMapToBox.h"
 #include "vtkTCoords.h"
 
-// Description:
 // Construct with r-s-t range=(0,1) and automatic box generation turned on.
 vtkTextureMapToBox::vtkTextureMapToBox()
 {
@@ -119,7 +118,6 @@ void vtkTextureMapToBox::Execute()
   newTCoords->Delete();
 }
 
-// Description:
 // Specify the bounding box to map into.
 void vtkTextureMapToBox::SetBox(float xmin, float xmax, float ymin, float ymax,
                                 float zmin, float zmax)

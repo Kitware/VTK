@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkNormals.h"
 
-// Description:
 // Construct object with feature angle = 30; all types of edges extracted
 // and colored.
 vtkFeatureEdges::vtkFeatureEdges()

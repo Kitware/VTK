@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 extern Xgl_sys_state xglr_sys_state;
 
-// Description:
 // Implement base class method.
 void vtkXGLCamera::Render(vtkRenderer *aren)
 {

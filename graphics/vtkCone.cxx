@@ -41,14 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCone.h"
 #include "vtkMath.h"
 
-// Description
 // Construct cone with angle of 45 degrees.
 vtkCone::vtkCone()
 {
   this->Angle = 45.0;
 }
 
-// Description
 // Evaluate cone equation.
 float vtkCone::EvaluateFunction(float x[3])
 {
@@ -57,7 +55,6 @@ float vtkCone::EvaluateFunction(float x[3])
   return x[1]*x[1] + x[2]*x[2] - x[0]*x[0]*tanTheta*tanTheta;
 }
 
-// Description
 // Evaluate cone normal.
 void vtkCone::EvaluateGradient(float x[3], float g[3])
 {

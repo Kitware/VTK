@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkEdgePoints.h"
 
-// Description:
 // Construct object with contour value of 0.0.
 vtkEdgePoints::vtkEdgePoints()
 {

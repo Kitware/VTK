@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
 // range is (0,1).
 vtkElevationFilter::vtkElevationFilter()

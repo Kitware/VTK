@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkIdList.h"
 
-// Description:
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.
 // vector (0,0,1), and point (0,0,0).

@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkReverseSense.h"
 
-// Description:
 // Construct object so that behavior is to reverse cell ordering and
 // leave normal orientation as is.
 vtkReverseSense::vtkReverseSense()

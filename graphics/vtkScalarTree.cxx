@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkScalarTree.h"
 
-// Description:
 // Instantiate scalar tree with maximum level of 20 and branching
 // factor of 5.
 vtkScalarTree::vtkScalarTree()
@@ -58,7 +57,6 @@ vtkScalarTree::~vtkScalarTree()
   if ( this->Tree ) delete [] this->Tree;
 }
 
-// Description:
 // Initialize locator. Frees memory and resets object as appropriate.
 void vtkScalarTree::Initialize()
 {
@@ -66,7 +64,6 @@ void vtkScalarTree::Initialize()
   this->Tree = NULL;
 }
 
-// Description:
 // Construct the scalar tree from the dataset provided. Checks build times
 // and modified time from input and reconstructs the tree if necessaery.
 void vtkScalarTree::BuildTree()
@@ -169,7 +166,6 @@ void vtkScalarTree::BuildTree()
   this->BuildTime.Modified();
 }
 
-// Description:
 // Begin to traverse the cells based on a scalar value. Returned cells
 // will have scalar values that span the scalar value specified.
 void vtkScalarTree::InitTraversal(float scalarValue)
@@ -269,7 +265,6 @@ int vtkScalarTree::FindNextLeaf(int childIndex, int childLevel)
 }
 
 
-// Description:
 // Return the next cell that may contain scalar value specified to
 // initialize traversal. The value NULL is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or

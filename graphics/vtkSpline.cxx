@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkSpline.h"
 
-// Description
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
 vtkSpline::vtkSpline ()
@@ -65,28 +64,24 @@ vtkSpline::~vtkSpline ()
   if (this->Intervals) delete [] this->Intervals;
 }
 
-// Description
 // Add a point to the Piecewise Functions containing the data
 void vtkSpline::AddPoint (float t, float x)
 {
   this->PiecewiseFunction->AddPoint (t, x);
 }
 
-// Description
 // Remove a point from the Piecewise Functions.
 void vtkSpline::RemovePoint (float t)
 {
   this->PiecewiseFunction->RemovePoint (t);
 }
 
-// Description
 // Remove all points from the Piecewise Functions.
 void vtkSpline::RemoveAllPoints ()
 {
   this->PiecewiseFunction->RemoveAllPoints ();
 }
 
-// Description:
 // Overload standard modified time function. If data is modified,
 // then this object is modified as well.
 unsigned long vtkSpline::GetMTime()

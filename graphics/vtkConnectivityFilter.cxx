@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkConnectivityFilter.h"
 
-// Description:
 // Construct with default extraction mode to extract largest regions.
 vtkConnectivityFilter::vtkConnectivityFilter()
 {
@@ -427,14 +426,12 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
   return;
 }
 
-// Description:
 // Obtain the number of connected regions.
 int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes->GetMaxId() + 1;
 }
 
-// Description:
 // Initialize list of point ids/cell ids used to seed regions.
 void vtkConnectivityFilter::InitializeSeedList()
 {
@@ -442,7 +439,6 @@ void vtkConnectivityFilter::InitializeSeedList()
   this->Seeds.Reset();
 }
 
-// Description:
 // Add a seed id (point or cell id). Note: ids are 0-offset.
 void vtkConnectivityFilter::AddSeed(int id)
 {
@@ -450,7 +446,6 @@ void vtkConnectivityFilter::AddSeed(int id)
   this->Seeds.InsertNextId(id);
 }
 
-// Description:
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
 void vtkConnectivityFilter::DeleteSeed(int id)
 {
@@ -458,7 +453,6 @@ void vtkConnectivityFilter::DeleteSeed(int id)
   this->Seeds.DeleteId(id);
 }
 
-// Description:
 // Initialize list of region ids to extract.
 void vtkConnectivityFilter::InitializeSpecifiedRegionList()
 {
@@ -466,7 +460,6 @@ void vtkConnectivityFilter::InitializeSpecifiedRegionList()
   this->SpecifiedRegionIds.Reset();
 }
 
-// Description:
 // Add a region id to extract. Note: ids are 0-offset.
 void vtkConnectivityFilter::AddSpecifiedRegion(int id)
 {
@@ -474,7 +467,6 @@ void vtkConnectivityFilter::AddSpecifiedRegion(int id)
   this->SpecifiedRegionIds.InsertNextId(id);
 }
 
-// Description:
 // Delete a region id to extract. Note: ids are 0-offset.
 void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
 {

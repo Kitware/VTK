@@ -183,7 +183,6 @@ void vtkRayCaster::BilinearZoom(float *smallImage,
     }
 }
 
-// Description:
 // Constructor for vtkRayCaster
 vtkRayCaster::vtkRayCaster()
 {
@@ -214,13 +213,11 @@ vtkRayCaster::vtkRayCaster()
 
 }
 
-// Description:
 // Destructor for vtkRayCaster
 vtkRayCaster::~vtkRayCaster()
 {
 }
 
-// Description:
 // Set the scale factor for a given level. This is used during multi-
 // resolution interactive rendering
 void vtkRayCaster::SetImageScale( int level, float scale )
@@ -252,7 +249,6 @@ void vtkRayCaster::SetImageScale( int level, float scale )
     this->ImageScale[level] = scale;
 }
 
-// Description:
 // Get the scale factor for a given level. This is used during multi-
 // resolution interactive rendering
 float vtkRayCaster::GetImageScale( int level )
@@ -269,14 +265,12 @@ float vtkRayCaster::GetImageScale( int level )
     return this->ImageScale[level]; 
 }
 
-// Description:
 // Turn the automatic scale adjustment on
 void vtkRayCaster::AutomaticScaleAdjustmentOn( void )
 {
   this->AutomaticScaleAdjustment = 1;
 }
 
-// Description:
 // Turn the automatic scale adjustment off
 void vtkRayCaster::AutomaticScaleAdjustmentOff( void )
 {
@@ -317,7 +311,6 @@ float vtkRayCaster::GetViewRaysStepSize( int level )
     return this->ViewRaysStepSize[level]; 
 }
 
-// Description:
 // Get the size in pixels of the view rays for the selected scale indexl
 void vtkRayCaster::GetViewRaysSize(int size[2])
 {
@@ -412,7 +405,6 @@ float *vtkRayCaster::GetParallelIncrements(void)
     this->ViewRays[this->SelectedImageScaleIndex].GetParallelIncrements();
 }
 
-// Description:
 // This method returns the scale that should be applied to the viewport
 // for geometric rendering, and for the image in volume rendering. It 
 // is either explicitly set (if AutomaticScaleAdjustment is off) or
@@ -552,7 +544,6 @@ float vtkRayCaster::GetViewportStepSize()
 #define VR_HARDWARE     1
 #define VR_SOFTWARE     2
 
-// Description:
 // Main routine to do the volume rendering.
 int vtkRayCaster::Render(vtkRenderer *ren)
 {

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkMath.h"
 
-// Description:
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi
 // and Theta directions.
 vtkTexturedSphereSource::vtkTexturedSphereSource(int res)

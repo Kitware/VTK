@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkViewRays.h"
 #include <math.h>
 
-// Description:
 // Constructor for vtkViewRays. Default everything to NULL or 0
 vtkViewRays::vtkViewRays(void)
 {
@@ -64,7 +63,6 @@ vtkViewRays::vtkViewRays(void)
   this->ViewRays        	= NULL;
 }
 
-// Description:
 // Destructor for vtkViewRays. Free up the memory used by the view rays
 vtkViewRays::~vtkViewRays(void)
   {
@@ -74,7 +72,6 @@ vtkViewRays::~vtkViewRays(void)
     }
   }
 
-// Description:
 // Return the view rays. This is an array of this->Size[0] by
 // this->Size[1] by 3 floats per element. The elements are ray directions
 // in camera space given the current camera instance variables.
@@ -137,7 +134,6 @@ float *vtkViewRays::GetPerspectiveViewRays(void)
   return( this->ViewRays );
 }
 
-// Description:
 // Private method to create the view rays into vr_ptr or a given size
 void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
 {
@@ -231,7 +227,6 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
     }
 }
 
-// Description:
 // Return the distance to move to the next ray starting point along the 
 // X and Y direction.
 float *vtkViewRays::GetParallelIncrements( void )
@@ -285,7 +280,6 @@ float *vtkViewRays::GetParallelIncrements( void )
   return( this->Increments );
 }
 
-// Description:
 // Return the Starting position of the bottom left most ray.
 float *vtkViewRays::GetParallelStartPosition( void )
 {
@@ -338,7 +332,6 @@ float *vtkViewRays::GetParallelStartPosition( void )
   return( this->StartPosition );
 }
 
-// Description:
 // Calculate the information for stepping from ray to ray when using a parallel
 // projection.
 void vtkViewRays::ComputeParallelInfo( int size[2] )
@@ -368,7 +361,6 @@ void vtkViewRays::ComputeParallelInfo( int size[2] )
 
 }
 
-// Description:
 // Print the class
 void vtkViewRays::PrintSelf(ostream& os, vtkIndent indent)
 {

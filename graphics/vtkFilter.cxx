@@ -40,7 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkFilter.h"
 
-// Description:
 // Construct new filter without start or end methods.
 vtkFilter::vtkFilter()
 {
@@ -48,7 +47,6 @@ vtkFilter::vtkFilter()
   this->Updating = 0;
 }
 
-// Description:
 // Update input to this filter and the filter itself.
 void vtkFilter::Update()
 {

@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFollower.h"
 #include "vtkCamera.h"
 
-// Description:
 // Creates a follower with no camera set
 vtkFollower::vtkFollower()
 {
@@ -62,7 +61,6 @@ vtkFollower::~vtkFollower()
   this->Device->Delete();
 }
 
-// Description:
 // Copy the follower's composite 4x4 matrix into the matrix provided.
 void vtkFollower::GetMatrix(vtkMatrix4x4& result)
 {
@@ -275,7 +273,6 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-// Description:
 // This causes the actor to be rendered. It, in turn, will render the actor's
 // property and then mapper.  
 void vtkFollower::Render(vtkRenderer *ren)

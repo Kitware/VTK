@@ -60,7 +60,6 @@ vtkThresholdTextureCoords::vtkThresholdTextureCoords()
   this->InTextureCoord[2] = 0.0;
 }
 
-// Description:
 // Criterion is cells whose scalars are less than lower threshold.
 void vtkThresholdTextureCoords::ThresholdByLower(float lower) 
 {
@@ -72,7 +71,6 @@ void vtkThresholdTextureCoords::ThresholdByLower(float lower)
     }
 }
                            
-// Description:
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdTextureCoords::ThresholdByUpper(float upper)
 {
@@ -84,7 +82,6 @@ void vtkThresholdTextureCoords::ThresholdByUpper(float upper)
     }
 }
                            
-// Description:
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdTextureCoords::ThresholdBetween(float lower, float upper)
 {

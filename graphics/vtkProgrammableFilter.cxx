@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
 
-// Description:
 // Construct programmable filter with empty execute method.
 vtkProgrammableFilter::vtkProgrammableFilter()
 {
@@ -88,7 +87,6 @@ vtkProgrammableFilter::~vtkProgrammableFilter()
     }
 }
 
-// Description:
 // Specify the input data or filter.
 void vtkProgrammableFilter::SetInput(vtkDataSet *input)
 {
@@ -100,7 +98,6 @@ void vtkProgrammableFilter::SetInput(vtkDataSet *input)
     }
 }
 
-// Description:
 // Get the input as a concrete type. This method is typically used by the
 // writer of the filter function to get the input as a particular type (i.e.,
 // it essentially does type casting). It is the users responsibility to know
@@ -110,35 +107,30 @@ vtkPolyData *vtkProgrammableFilter::GetPolyDataInput()
   return (vtkPolyData *)this->Input;
 }
 
-// Description:
 // Get the input as a concrete type.
 vtkStructuredPoints *vtkProgrammableFilter::GetStructuredPointsInput()
 {
   return (vtkStructuredPoints *)this->Input;
 }
 
-// Description:
 // Get the input as a concrete type.
 vtkStructuredGrid *vtkProgrammableFilter::GetStructuredGridInput()
 {
   return (vtkStructuredGrid *)this->Input;
 }
 
-// Description:
 // Get the input as a concrete type.
 vtkUnstructuredGrid *vtkProgrammableFilter::GetUnstructuredGridInput()
 {
   return (vtkUnstructuredGrid *)this->Input;
 }
 
-// Description:
 // Get the input as a concrete type.
 vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridInput()
 {
   return (vtkRectilinearGrid *)this->Input;
 }
 
-// Description:
 // Specify the function to use to operate on the point attribute data. Note
 // that the function takes a single (void *) argument.
 void vtkProgrammableFilter::SetExecuteMethod(void (*f)(void *), void *arg)
@@ -156,7 +148,6 @@ void vtkProgrammableFilter::SetExecuteMethod(void (*f)(void *), void *arg)
     }
 }
 
-// Description:
 // Set the arg delete method. This is used to free user memory.
 void vtkProgrammableFilter::SetExecuteMethodArgDelete(void (*f)(void *))
 {
@@ -168,7 +159,6 @@ void vtkProgrammableFilter::SetExecuteMethodArgDelete(void (*f)(void *))
 }
 
 
-// Description:
 // Get the output as a concrete type. This method is typically used by the
 // writer of the filter function to get the output as a particular type (i.e.,
 // it essentially does type casting). It is the users responsibility to know
@@ -178,28 +168,24 @@ vtkPolyData *vtkProgrammableFilter::GetPolyDataOutput()
   return this->OutputPolyData;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkStructuredPoints *vtkProgrammableFilter::GetStructuredPointsOutput()
 {
   return this->OutputStructuredPoints;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkStructuredGrid *vtkProgrammableFilter::GetStructuredGridOutput()
 {
   return this->OutputStructuredGrid;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkUnstructuredGrid *vtkProgrammableFilter::GetUnstructuredGridOutput()
 {
   return this->OutputUnstructuredGrid;
 }
 
-// Description:
 // Get the output as a concrete type.
 vtkRectilinearGrid *vtkProgrammableFilter::GetRectilinearGridOutput()
 {

@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GL/gl.h>
 
 
-// Description:
 // Implement base class method.
 void vtkOpenGLCamera::Render(vtkRenderer *ren)
 {

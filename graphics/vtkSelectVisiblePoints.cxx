@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSelectVisiblePoints.h"
 #include "vtkRenderer.h"
 
-// Description:
 // Instantiate object with no renderer; window selection turned off; 
 // tolerance set to 0.01; and select invisible off.
 vtkSelectVisiblePoints::vtkSelectVisiblePoints()
