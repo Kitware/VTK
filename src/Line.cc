@@ -17,6 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "CellArr.hh"
 
+static vlMath math;
+
 // Description:
 // Deep copy of cell.
 vlLine::vlLine(const vlLine& l)
@@ -35,7 +37,6 @@ int vlLine::EvaluatePosition(float x[3], float closestPoint[3],
 {
   float *a1, *a2, a21[3], denom, num;
   int i, return_status;
-  vlMath math;
   float *closest;
 
   subId = 0;
@@ -115,7 +116,6 @@ int vlLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   float a21[3], b21[3], b1a1[3];
   float sys[2][2], c[2], det;
   int i;
-  vlMath math;
 //
 //  Initialize 
 //
@@ -224,7 +224,6 @@ float vlLine::DistanceToLine (float x[3], float p1[3], float p2[3])
 {
   int i;
   float np1[3], p1p2[3], proj, den;
-  static vlMath math;
 
   for (i=0; i<3; i++) 
     {
@@ -241,4 +240,39 @@ float vlLine::DistanceToLine (float x[3], float p1[3], float p2[3])
   proj = math.Dot(np1,p1p2);
 
   return (math.Dot(np1,np1) - proj*proj);
+}
+
+//
+// Line-line intersection. Intersection has to occur within [0,1] parametric
+// coordinates and with specified tolerance.
+//
+int vlLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                              float x[3], float pcoords[3], int& subId)
+{
+  float *a1, *a2;
+  float projXYZ[3];
+  int i;
+
+  subId = 0;
+  pcoords[1] = pcoords[2] = 0.0;
+
+  a1 = this->Points.GetPoint(0);
+  a2 = this->Points.GetPoint(1);
+
+  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == NO_INTERSECTION )
+    {
+    return 0;
+    }
+  else //check to make sure lies within tolerance
+    {
+    for (i=0; i<3; i++)
+      {
+      x[i] = a1[i] + pcoords[i]*(a2[i]-a1[i]);
+      projXYZ[i] = p1[i] + t*(p2[i]-p1[i]);
+      }
+    if ( math.Distance2BetweenPoints(x,projXYZ) <= tol*tol )
+      return 1;
+    else
+      return 0;
+    }
 }

@@ -52,6 +52,9 @@ public:
                        float& dist2, float weights[MAX_CELL_SIZE]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float weights[MAX_CELL_SIZE]);
+  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                        float x[3], float pcoords[3], int& subId);
+
   void ComputeWeights(float x[3], float weights[MAX_CELL_SIZE]);
 
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 

@@ -21,6 +21,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Triangle.hh"
 #include "CellArr.hh"
 
+static vlPlane plane;
+static vlMath math;
+static vlLine line;
+
 // Description:
 // Deep copy of cell.
 vlPolygon::vlPolygon(const vlPolygon& p)
@@ -158,8 +162,6 @@ int vlPolygon::EvaluatePosition(float x[3], float closestPoint[3],
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
   float ray[3];
-  vlPlane plane;
-  vlMath math;
 
   this->ParameterizePolygon(p0, p10, l10, p20, l20, n);
   this->ComputeWeights(x,weights);
@@ -179,7 +181,6 @@ int vlPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // If here, point is outside of polygon, so need to find distance to boundary
 //
-  vlLine line;
   float pc[3], dist2;
   int ignoreId, numPts;
   float closest[3];
@@ -225,7 +226,6 @@ int vlPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
   float s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
   int numPts=this->Points.GetNumberOfPoints();
   float *x1, *x2;
-  vlMath math;
 //
 //  This is a two pass process: first create a p' coordinate system
 //  that is then adjusted to insure that the polygon points are all in
@@ -303,8 +303,6 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
   int iterNumber;
   int maxComp, comps[2];
   int deltaVotes;
-  vlMath math;
-  vlLine line;
   int numPts=this->Points.GetNumberOfPoints();
 //
 //  Define a ray to fire.  The ray is a random ray normal to the
@@ -574,8 +572,6 @@ int vlPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
   float *x, val, absVal, *sPt, *s2Pt, v21[3], sN[3];
   float den, dist=LARGE_FLOAT;
   void SplitLoop();
-  vlMath math;
-  vlPlane plane;
 //
 //  Create two loops from the one using the splitting vertices provided.
 //
@@ -713,7 +709,6 @@ void vlPolygon::Contour(float value, vlFloatScalars *cellScalars,
 
 vlCell *vlPolygon::GetEdge(int edgeId)
 {
-  static vlLine line;
   int numPts=this->Points.GetNumberOfPoints();
 
   // load point id's
@@ -734,7 +729,6 @@ void vlPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
 {
   int i;
   int numPts=this->Points.GetNumberOfPoints();
-  static vlMath math;
   float maxDist2, sum, *pt;
 
   for (maxDist2=0.0, i=0; i<numPts; i++)
@@ -747,4 +741,39 @@ void vlPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
   for (sum=0.0, i=0; i<numPts; i++) sum += 1.0 / (1.0 - weights[i]/maxDist2);
 
   for (i=0; i<numPts; i++) weights[i] /= sum;
+}
+
+// 
+// Intersect plane; see whether point is inside.
+//
+int vlPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
+                                 float x[3], float pcoords[3], int& subId)
+{
+  float *pt1, *pt2, *pt3, n[3];
+  float tol2 = tol*tol;
+  float closestPoint[3];
+  float dist2, weights[MAX_CELL_SIZE];
+
+  subId = 0;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+//
+// Get normal for triangle
+//
+  pt1 = this->Points.GetPoint(1);
+  pt2 = this->Points.GetPoint(2);
+  pt3 = this->Points.GetPoint(0);
+
+  this->ComputeNormal (&this->Points,n);
+//
+// Intersect plane of triangle with line
+//
+  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+//
+// Evaluate position
+//
+  if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
+    if ( dist2 <= tol2 ) return 1;
+
+  return 0;
+
 }

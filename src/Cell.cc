@@ -29,12 +29,16 @@ void vlCell::Initialize(int npts, int *pts, vlPoints *p)
 // Description:
 // Bounding box intersection modified from Graphics Gems Vol I.
 // Note: the intersection ray is assumed normalized such that
-// valid intersections can only occur between [0,1].
+// valid intersections can only occur between [0,1]. Method returns non-zero
+// value if bounding box is hit. Origin[3] starts the ray, dir[3] is the 
+// components of the ray in the x-y-z directions, coord[3] is the location 
+// of hit, and t is the parametric coordinate along line.
 #define RIGHT 0
 #define LEFT 1
 #define MIDDLE 2
 
-char vlCell::HitBBox (float bounds[6], float origin[3], float dir[3], float coord[3])
+char vlCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
+                      float coord[3], float& t)
 {
   char    inside=1;
   char    quadrant[3];
@@ -91,6 +95,8 @@ char vlCell::HitBBox (float bounds[6], float origin[3], float dir[3], float coor
 //
   if ( maxT[whichPlane] > 1.0 || maxT[whichPlane] < 0.0 )
     return 0;
+  else
+    t = maxT[whichPlane];
 //
 //  Intersection point along line is okay.  Check bbox.
 //

@@ -17,6 +17,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "CellArr.hh"
 
+static vlMath math;
+
 // Description:
 // Deep copy of cell.
 vlVertex::vlVertex(const vlVertex& p)
@@ -30,7 +32,6 @@ int vlVertex::EvaluatePosition(float x[3], float closestPoint[3],
                               float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *X;
-  vlMath math;
 
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
@@ -76,4 +77,45 @@ void vlVertex::Contour(float value, vlFloatScalars *cellScalars,
     pts[0] = points->InsertNextPoint(this->Points.GetPoint(0));
     verts->InsertNextCell(1,pts);
     }
+}
+
+// Project point on line. If it lies between 0<=t<=1 and distance off line
+// is less than tolerance, intersection detected.
+int vlVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                                float x[3], float pcoords[3], int& subId)
+{
+  int i;
+  float *X, ray[3], rayFactor, projXYZ[3];
+
+  subId = 0;
+  pcoords[1] = pcoords[2] = 0.0;
+
+  X = this->Points.GetPoint(0);
+
+  for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
+  if (( rayFactor = math.Dot(ray,ray)) == 0.0 ) return 0;
+//
+//  Project each point onto ray. Determine whether point is within tolerance.
+//
+  t = (ray[0]*(X[0]-p1[0]) + ray[1]*(X[1]-p1[1]) + ray[2]*(X[2]-p1[2]))
+      / rayFactor;
+
+  if ( t >= 0.0 && t <= 1.0 )
+    {
+    for (i=0; i<3; i++) 
+      {
+      projXYZ[i] = p1[i] + t*ray[i];
+      if ( fabs(X[i]-projXYZ[i]) > tol ) break;
+      }
+
+    if ( i > 2 ) // within tolerance 
+      {
+      pcoords[0] = 0.0;
+      x[0] = X[0]; x[1] = X[1]; x[2] = X[2]; 
+      return 1;
+      }
+    }
+
+  pcoords[0] = -10.0;
+  return 0;
 }

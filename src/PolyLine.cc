@@ -18,6 +18,13 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Line.hh"
 #include "CellArr.hh"
 
+//
+// eliminate constructor / destructor calls
+//
+static vlLine line;
+static vlMath math;
+
+
 // Description:
 // Deep copy of cell.
 vlPolyLine::vlPolyLine(const vlPolyLine& pl)
@@ -33,7 +40,6 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
   float *p1, *p2;
   float s_norm, n_norm, q_norm;
   int i, j;
-  vlMath math;
 //
 //  Loop over all lines
 // 
@@ -91,11 +97,6 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
     }
   return 1;
 }
-
-//
-// eliminate constructor / destructor calls
-//
-static vlLine line;
 
 int vlPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
                                  int& subId, float pcoords[3], 
@@ -167,4 +168,22 @@ void vlPolyLine::Contour(float value, vlFloatScalars *cellScalars,
                  lines, polys, scalars);
     }
 
+}
+
+//
+// Intersect with sub-lines
+//
+int vlPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
+                                  float x[3], float pcoords[3], int& subId)
+{
+  for (subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)
+    {
+    line.Points.SetPoint(0,this->Points.GetPoint(subId));
+    line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+
+    if ( line.IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) )
+      return 1;
+    }
+
+  return 0;
 }

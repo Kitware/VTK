@@ -19,6 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Triangle.hh"
 #include "CellArr.hh"
 
+static vlMath math;
+static vlTriangle tri;
+
 // Description:
 // Deep copy of cell.
 vlTetra::vlTetra(const vlTetra& t)
@@ -35,7 +38,6 @@ int vlTetra::EvaluatePosition(float x[3], float closestPoint[3],
   int i;
   float rhs[3], c1[3], c2[3], c3[3];
   float det, p4;
-  vlMath math;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -122,7 +124,7 @@ void vlTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 }
 
 //
-// Marching (convex) quadrilaterals
+// Marching (convex) tetrahedron
 //
 static int edges[6][2] = { {0,1}, {1,2}, {2,0}, 
                            {0,3}, {1,3}, {2,3} };
@@ -210,7 +212,6 @@ vlCell *vlTetra::GetEdge(int edgeId)
 
 vlCell *vlTetra::GetFace(int faceId)
 {
-  static vlTriangle tri;
   int *verts;
 
   verts = faces[faceId];
@@ -226,4 +227,58 @@ vlCell *vlTetra::GetFace(int faceId)
   tri.Points.SetPoint(2,this->Points.GetPoint(verts[2]));
 
   return &tri;
+}
+
+// 
+// Intersect triangle faces against line.
+//
+int vlTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                               float x[3], float pcoords[3], int& subId)
+{
+  int intersection=0;
+  float *pt1, *pt2, *pt3;
+  float tTemp;
+  float pc[3], xTemp[3];
+  int faceNum;
+
+  t = LARGE_FLOAT;
+  for (faceNum=0; faceNum<4; faceNum++)
+    {
+    pt1 = this->Points.GetPoint(faces[faceNum][0]);
+    pt2 = this->Points.GetPoint(faces[faceNum][1]);
+    pt3 = this->Points.GetPoint(faces[faceNum][2]);
+
+    tri.Points.SetPoint(0,pt1);
+    tri.Points.SetPoint(1,pt2);
+    tri.Points.SetPoint(2,pt3);
+
+    if ( tri.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
+      {
+      intersection = 1;
+      if ( tTemp < t )
+        {
+        t = tTemp;
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        switch (faceNum)
+          {
+          case 0:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 0.0;
+            break;
+
+          case 1:
+            pcoords[0] = 0.0; pcoords[1] = pc[1]; pcoords[2] = 0.0;
+            break;
+
+          case 2:
+            pcoords[0] = pc[0]; pcoords[1] = 0.0; pcoords[2] = 0.0;
+            break;
+
+          case 3:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = pc[2];
+            break;
+          }
+        }
+      }
+    }
+  return intersection;
 }

@@ -19,6 +19,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Pixel.hh"
 #include "CellArr.hh"
 
+static vlMath math;  
+static vlLine line;
+static vlPixel pixel;
+
 // Description:
 // Deep copy of cell.
 vlVoxel::vlVoxel(const vlVoxel& b)
@@ -33,7 +37,6 @@ int vlVoxel::EvaluatePosition(float x[3], float closestPoint[3],
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
-  vlMath math;  
 
   subId = 0;
 //
@@ -168,7 +171,6 @@ void vlVoxel::Contour(float value, vlFloatScalars *cellScalars,
 
 vlCell *vlVoxel::GetEdge(int edgeId)
 {
-  static vlLine line;
   int *verts;
 
   verts = edges[edgeId];
@@ -186,7 +188,6 @@ vlCell *vlVoxel::GetEdge(int edgeId)
 
 vlCell *vlVoxel::GetFace(int faceId)
 {
-  static vlPixel pixel;
   int *verts, i;
 
   verts = faces[faceId];
@@ -198,4 +199,37 @@ vlCell *vlVoxel::GetFace(int faceId)
     }
 
   return &pixel;
+}
+
+// 
+// Intersect voxel with line using "bounding box" intersection.
+//
+int vlVoxel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                               float x[3], float pcoords[3], int& subId)
+{
+  float *minPt, *maxPt;
+  float bounds[6], p21[3];
+  int i;
+
+  subId = 0;
+
+  minPt = this->Points.GetPoint(0);
+  maxPt = this->Points.GetPoint(7);
+
+  for (i=0; i<3; i++)
+    {
+    p21[i] = p2[i] - p1[i];
+    bounds[2*i] = minPt[i];
+    bounds[2*i+1] = maxPt[i];
+    }
+
+  if ( ! this->HitBBox(bounds, p1, p21, x, t) )
+    return 0;
+//
+// Evaluate intersection
+//
+  for (i=0; i<3; i++)
+    pcoords[i] = (x[i] - minPt[i]) / (maxPt[i] - minPt[i]);
+
+  return 1;
 }

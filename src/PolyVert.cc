@@ -16,6 +16,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PolyVert.hh"
 #include "vlMath.hh"
 #include "CellArr.hh"
+#include "Vertex.hh"
+
+static vlVertex vertex;
+static vlMath math;
 
 // Description:
 // Deep copy of cell.
@@ -33,7 +37,6 @@ int vlPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
   float *X;
   float dist2;
   int i;
-  vlMath math;
 
   for (minDist2=LARGE_FLOAT, i=0; i<numPts; i++)
     {
@@ -92,4 +95,22 @@ void vlPolyVertex::Contour(float value, vlFloatScalars *cellScalars,
       verts->InsertNextCell(1,pts);
       }
     }
+}
+
+//
+// Intersect with sub-vertices
+//
+int vlPolyVertex::IntersectWithLine(float p1[3], float p2[3], 
+                                    float tol, float& t, float x[3], 
+                                    float pcoords[3], int& subId)
+{
+  for (subId=0; subId<this->Points.GetNumberOfPoints(); subId++)
+    {
+    vertex.Points.SetPoint(0,this->Points.GetPoint(subId));
+
+    if ( vertex.IntersectWithLine(p1, p2, tol, t, x, pcoords, subId) )
+      return 1;
+    }
+
+  return 0;
 }

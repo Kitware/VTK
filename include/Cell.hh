@@ -102,17 +102,25 @@ public:
                                 float x[3], float weights[MAX_CELL_SIZE]) = 0;
 
   // Description:
-  // Generate contouring primitives
+  // Generate contouring primitives.
   virtual void Contour(float value, vlFloatScalars *cellScalars, 
                        vlFloatPoints *points, vlCellArray *verts, 
                        vlCellArray *lines, vlCellArray *polys, 
                        vlFloatScalars *scalars) = 0;
 
+  // Description:
+  // Intersect with a ray. Return parametric coordinates (both line and cell)
+  // and global intersection coordinates given ray definition and tolerance. 
+  // The method returns non-zero value if intersection occurs.
+  virtual int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                                float x[3], float pcoords[3], int& subId) = 0;
+
   float *GetBounds();
   float GetLength2();
 
   // Quick intersection of cell bounding box.  Returns != 0 for hit.
-  char HitBBox(float bounds[6], float origin[3], float dir[3], float coord[3]);
+  char HitBBox(float bounds[6], float origin[3], float dir[3], 
+               float coord[3], float& t);
 
   // left public for quick computational access
   vlFloatPoints Points;

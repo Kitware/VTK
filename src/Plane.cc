@@ -16,6 +16,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Plane.hh"
 #include "vlMath.hh"
 
+static vlMath math;
+
 // Description
 // Construct plane passing through origin and normal to z-axis.
 vlPlane::vlPlane()
@@ -36,7 +38,6 @@ vlPlane::vlPlane()
 void vlPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
 {
   int i;
-  vlMath math;
   float t, xo[3];
 
   for (i=0; i<3; i++) xo[i] = x[i] - origin[i];
@@ -60,3 +61,38 @@ void vlPlane::EvaluateNormal(float x, float y, float z, float n[3])
   for (int i=0; i<3; i++) n[i] = this->Normal[i];
 }
 
+// Description:
+// Given a line defined by the two points p1,p2; and a plane defined by the
+// normal n and point p0, compute an intersection. The parametric
+// coordinate along the line is returned in t, and the coordinates of 
+// intersection are returned in x. A 0 is returned is the plane and line
+// are parallel.
+//
+#define TOL 1.0e-06
+
+int vlPlane::IntersectWithLine(float p1[3], float p2[3], float n[3], 
+                               float p0[3], float& t, float x[3])
+{
+  float num, den, p21[3];
+  int i;
+//
+// Compute line vector
+// 
+  for (i=0; i<3; i++) p21[i] = p2[i] - p1[i];
+//
+// Compute denominator.  If ~0, line and plane are parallel.
+// 
+  num = math.Dot(n,p0) - ( n[0]*p1[0] + n[1]*p1[1] + n[2]*p1[2] ) ;
+  den = n[0]*p21[0] + n[1]*p21[1] + n[2]*p21[2];
+//
+// If denominator with respect to numerator is "zero", then the line and
+// plane are considered parallel. 
+//
+  if ( fabs(den) <= fabs(TOL*num)) return 0;
+
+  t = num / den;
+  for (i=0; i<3; i++) x[i] = p1[i] + t*p21[i];
+
+  if ( t >= 0.0 && t <= 1.0 ) return 1;
+  else return 0;
+}

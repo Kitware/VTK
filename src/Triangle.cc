@@ -20,6 +20,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Line.hh"
 
+static vlPolygon poly;
+static vlMath math;
+static vlPlane plane;
+
 // Description:
 // Deep copy of cell.
 vlTriangle::vlTriangle(const vlTriangle& t)
@@ -33,12 +37,9 @@ int vlTriangle::EvaluatePosition(float x[3], float closestPoint[3],
                                  float& dist2, float weights[MAX_CELL_SIZE])
 {
   int i, j;
-  vlPolygon poly;
   float *pt1, *pt2, *pt3, n[3];
   float rhs[2], c1[2], c2[2];
   float det;
-  vlPlane plane;
-  vlMath math;
   float maxComponent;
   int idx, indices[2];
 
@@ -214,4 +215,38 @@ vlCell *vlTriangle::GetEdge(int edgeId)
   return &line;
 }
 
+//
+// Plane intersection plus in/out test on triangle.
+//
+int vlTriangle::IntersectWithLine(float p1[3], float p2[3], float tol, 
+                                  float& t, float x[3], float pcoords[3], 
+                                  int& subId)
+{
+  float *pt1, *pt2, *pt3, n[3];
+  float tol2 = tol*tol;
+  float closestPoint[3];
+  float dist2, weights[MAX_CELL_SIZE];
+
+  subId = 0;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+//
+// Get normal for triangle
+//
+  pt1 = this->Points.GetPoint(1);
+  pt2 = this->Points.GetPoint(2);
+  pt3 = this->Points.GetPoint(0);
+
+  poly.ComputeNormal (pt1, pt2, pt3, n);
+//
+// Intersect plane of triangle with line
+//
+  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+//
+// Evaluate position
+//
+  if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
+    if ( dist2 <= tol2 ) return 1;
+
+  return 0;
+}
 

@@ -48,6 +48,9 @@ public:
 
   float DistanceToPlane(float x[3], float n[3], float p0[3]);
 
+  int IntersectWithLine(float p1[3], float p2[3], float n[3], float p0[3],
+                        float& t, float x[3]);
+
 protected:
   float Normal[3];
   float Origin[3];

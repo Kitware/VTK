@@ -46,6 +46,8 @@ public:
                        float& dist2, float weights[MAX_CELL_SIZE]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
                         float weights[MAX_CELL_SIZE]);
+  int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                        float x[3], float pcoords[3], int& subId);
 
   void ShapeFunctions(float pcoords[3], float sf[8]);
   void ShapeDerivs(float pcoords[3], float derivs[24]);

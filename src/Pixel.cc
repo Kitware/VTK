@@ -21,6 +21,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "CellArr.hh"
 #include "Line.hh"
 
+static vlMath math;
+static vlPlane plane;
+static vlPolygon poly;
+
 // Description:
 // Deep copy of cell.
 vlPixel::vlPixel(const vlPixel& p)
@@ -34,12 +38,9 @@ int vlPixel::EvaluatePosition(float x[3], float closestPoint[3],
                                   float& dist2, float weights[MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3;
-  static vlPolygon poly;
-  static vlPlane plane;
   int i;
   float p[3], p21[3], p31[3];
   float l21, l31, n[3];
-  vlMath math;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -158,4 +159,48 @@ void vlPixel::ShapeFunctions(float pcoords[3], float sf[4])
   sf[1] = pcoords[0] * sm;
   sf[2] = rm * pcoords[1];
   sf[3] = pcoords[0] * pcoords[1];
+}
+
+// 
+// Intersect plane; see whether point is inside.
+//
+int vlPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
+                               float x[3], float pcoords[3], int& subId)
+{
+  float *pt1, *pt2, *pt3, *pt4, n[3];
+  float tol2 = tol*tol;
+  float closestPoint[3];
+  float dist2, weights[MAX_CELL_SIZE];
+  int i;
+
+  subId = 0;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
+//
+// Get normal for triangle
+//
+  pt1 = this->Points.GetPoint(0);
+  pt2 = this->Points.GetPoint(1);
+  pt3 = this->Points.GetPoint(2);
+  pt4 = this->Points.GetPoint(3);
+
+  n[0] = n[1] = n[2] = 0.0;
+  for (i=0; i<3; i++)
+    {
+    if ( (pt4[i] - pt1[i]) <= 0.0 )
+      {
+      n[i] = 1.0;
+      break;
+      }
+    }
+//
+// Intersect plane of pixel with line
+//
+  if ( ! plane.IntersectWithLine(p1,p2,n,pt1,t,x) ) return 0;
+//
+// Use evaluate position
+//
+  if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
+    if ( dist2 <= tol2 ) return 1;
+
+  return 0;
 }
