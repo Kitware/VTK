@@ -58,6 +58,7 @@ CONCRETE_H = \
 vtkActorCollection \
 vtkAssemblyPaths \
 vtkDataSetCollection \
+vtkMapperCollection \
 vtkPolyDataCollection \
 vtkRenderWindowCollection \
 vtkStructuredPointsCollection \
