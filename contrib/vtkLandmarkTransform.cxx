@@ -243,31 +243,73 @@ void vtkLandmarkTransform::InternalUpdate()
 
   // the eigenvector with the largest eigenvalue is the quaternion we want
   // (they are sorted in decreasing order for us by JacobiN)
-  float quat[4]; 
+  double w,x,y,z;
 
-  // first: if eigenvalues are equal, then choose the one with the
-  // largest w component (otherwise, just use the first eigenvector)
-  if (eigenvalues[0] == eigenvalues[1] &&
-      fabs(eigenvectors[0][0]) > fabs(eigenvectors[0][1]))
+  // first: if points are collinear, choose the quaternion that 
+  // results in the smallest rotation.
+  if (eigenvalues[0] == eigenvalues[1] || N_PTS == 2)
     {
-    quat[0] = eigenvectors[0][1];
-    quat[1] = eigenvectors[1][1];
-    quat[2] = eigenvectors[2][1];
-    quat[3] = eigenvectors[3][1];
+    double s0[3],t0[3],s1[3],t1[3];
+    this->SourceLandmarks->GetPoint(0,s0);
+    this->TargetLandmarks->GetPoint(0,t0);
+    this->SourceLandmarks->GetPoint(1,s1);
+    this->TargetLandmarks->GetPoint(1,t1);
+
+    double ds[3],dt[3],as[3],at[3];
+    double rs = 0, rt = 0;
+    for (i = 0; i < 3; i++)
+      {
+      as[i] = (s0[i] + s1[i])/2;  // average of endpoints
+      ds[i] = s1[i] - s0[i];      // vector between points
+      rs += ds[i]*ds[i];
+      at[i] = (t0[i] + t1[i])/2;
+      dt[i] = t1[i] - t0[i];
+      rt += dt[i]*dt[i];
+      }
+
+    // normalize the two vectors
+    rs = sqrt(rs);
+    ds[0] /= rs; ds[1] /= rs; ds[2] /= rs; 
+    rt = sqrt(rt);
+    dt[0] /= rt; dt[1] /= rt; dt[2] /= rt; 
+
+    // take dot & cross product
+    w = ds[0]*dt[0] + ds[1]*dt[1] + ds[2]*dt[2];
+    x = ds[1]*dt[2] - ds[2]*dt[1];
+    y = ds[2]*dt[0] - ds[0]*dt[2];
+    z = ds[0]*dt[1] - ds[1]*dt[0];
+    
+    double r = sqrt(x*x + y*y + z*z);
+    double theta = atan2(r,w);
+
+    // construct quaternion
+    w = cos(theta/2);
+    if (r != 0)
+      {
+      r = sin(theta/2)/r;
+      x = x*r;
+      y = y*r;
+      z = z*r;
+      }
+    else // rotation by 180 degrees: special case
+      {
+      // rotate around a vector perpendicular to ds
+      vtkMath::Perpendiculars(ds,dt,0,0);
+      r = sin(theta/2);
+      x = dt[0]*r;
+      y = dt[1]*r;
+      z = dt[2]*r;
+      }
     }
-  else
+  else // points are not collinear
     {
-    quat[0] = eigenvectors[0][0];
-    quat[1] = eigenvectors[1][0];
-    quat[2] = eigenvectors[2][0];
-    quat[3] = eigenvectors[3][0];
+    w = eigenvectors[0][0];
+    x = eigenvectors[1][0];
+    y = eigenvectors[2][0];
+    z = eigenvectors[3][0];
     }
 
-  // convert it to a rotation matrix
-  double w = quat[0];
-  double x = quat[1];
-  double y = quat[2];
-  double z = quat[3];
+  // convert quaternion to a rotation matrix
 
   double ww = w*w;
   double wx = w*x;
