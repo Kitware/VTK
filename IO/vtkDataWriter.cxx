@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.96");
+vtkCxxRevisionMacro(vtkDataWriter, "1.97");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -651,33 +651,34 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     name = this->LookupTableName;
     }
 
+  char* scalarsName = 0;
+  // Buffer size is size of array name times four because 
+  // in theory there could be array name consisting of only
+  // weird symbols.
+  if (!this->ScalarsName)
+    {
+    if (scalars->GetName())
+      {
+      scalarsName = new char[ strlen(scalars->GetName()) * 4 + 1];
+      this->EncodeArrayName(scalarsName, scalars->GetName());
+      }
+    else
+      {
+      scalarsName = new char[ strlen("scalars") + 1];
+      strcpy(scalarsName, "scalars");
+      }
+    }
+  else
+    {
+    scalarsName = new char[ strlen(this->ScalarsName) * 4 + 1];
+    this->EncodeArrayName(scalarsName, this->ScalarsName);
+    }
+  
   if ( dataType != VTK_UNSIGNED_CHAR )
     {
     char format[1024];
     *fp << "SCALARS ";
 
-    char* scalarsName = 0;
-    // Buffer size is size of array name times four because 
-    // in theory there could be array name consisting of only
-    // weird symbols.
-    if (!this->ScalarsName)
-      {
-      if (scalars->GetName())
-        {
-        scalarsName = new char[ strlen(scalars->GetName()) * 4 + 1];
-        this->EncodeArrayName(scalarsName, scalars->GetName());
-        }
-      else
-        {
-        scalarsName = new char[ strlen("scalars") + 1];
-        strcpy(scalarsName, "scalars");
-        }
-      }
-    else
-      {
-      scalarsName = new char[ strlen(this->ScalarsName) * 4 + 1];
-      this->EncodeArrayName(scalarsName, this->ScalarsName);
-      }
 
     if (numComp == 1) 
       {
@@ -700,7 +701,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     {
     int nvs = scalars->GetNumberOfComponents();
     unsigned char *data=((vtkUnsignedCharArray *)scalars)->GetPointer(0);
-    *fp << "COLOR_SCALARS " << this->ScalarsName << " " << nvs << "\n";
+    *fp << "COLOR_SCALARS " << scalarsName << " " << nvs << "\n";
 
     if ( this->FileType == VTK_ASCII )
       {
