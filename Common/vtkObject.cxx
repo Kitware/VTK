@@ -21,6 +21,8 @@
 #include "vtkCommand.h"
 #include "vtkTimeStamp.h"
 
+vtkCxxRevisionMacro(vtkObject, "1.82");
+
 // Initialize static member that controls warning display
 static int vtkObjectGlobalWarningDisplay = 1;
 
@@ -261,11 +263,6 @@ int vtkObject::IsA(const char *type)
 vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 {
   return (vtkObject *)o;
-}
-
-void vtkObject::CollectRevisions(ostream& os)
-{
-  os << "vtkObject 1.81\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
