@@ -215,6 +215,7 @@ IF (VTK_USE_RENDERING)
       smoothCyl2
       subdividePointData
       subDivideTetra
+      TestBoxFunction
       TestGraphLayoutFilter
       TestQuadricDecimation
       triangularTCoords
