@@ -148,6 +148,11 @@ public:
   vtkSetMacro(TimeValue, float);
   vtkGetMacro(TimeValue, float);
   
+  // Description:
+  // Get the minimum or maximum time value in this data set.
+  vtkGetMacro(MinimumTimeValue, float);
+  vtkGetMacro(MaximumTimeValue, float);
+  
 protected:
   vtkEnSightReader();
   ~vtkEnSightReader();
@@ -331,6 +336,9 @@ protected:
   float TimeValue;
   float GeometryTimeValue;
   float MeasuredTimeValue;
+  
+  float MinimumTimeValue;
+  float MaximumTimeValue;
   
   // number of file names / descriptions per type
   int NumberOfScalarsPerNode;

@@ -1035,6 +1035,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
   char subLine[256];
   int i, j;
   vtkIdType *nodeIds;
+  int *intIds;
   int numElements;
   int idx, cellType;
   vtkIdType cellId;
@@ -1158,10 +1159,12 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       vtkDebugMacro("bar2");
       
       nodeIds = new vtkIdType[2];
+      intIds = new int[2];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d", &nodeIds[0], &nodeIds[1]) != 2)
+      if (sscanf(line, " %d %d", &intIds[0], &intIds[1]) != 2)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1171,26 +1174,31 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d", &nodeIds[0], &nodeIds[1]);
-        nodeIds[0]--;
-        nodeIds[1]--;
+        sscanf(line, " %d %d", &intIds[0], &intIds[1]);
+        for (j = 0; j < 2; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
         this->CellIds[idx][VTK_ENSIGHT_BAR2]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
-      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "bar3", 4) == 0)
       {
       vtkDebugMacro("bar3");
       vtkWarningMacro("Only vertex nodes of this element will be read.");
       nodeIds = new vtkIdType[2];
+      intIds = new int[2];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %*d %d", &nodeIds[0], &nodeIds[1]) != 2)
+      if (sscanf(line, " %d %*d %d", &intIds[0], &intIds[1]) != 2)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1200,16 +1208,19 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %*d %d", &nodeIds[0], &nodeIds[1]);
-        nodeIds[0]--;
-        nodeIds[1]--;
+        sscanf(line, " %d %*d %d", &intIds[0], &intIds[1]);
+        for (j = 0; j < 2; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_LINE, 2, nodeIds);
         this->CellIds[idx][VTK_ENSIGHT_BAR3]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
-        }
-      
+        }      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "nsided", 6) == 0)
       {
@@ -1237,20 +1248,25 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           {
           numNodes = atoi(newLines[numElements+i]);
           nodeIds = new vtkIdType[numNodes];
+          intIds = new int[numNodes];
+          
           strcpy(formatLine, "");
           strcpy(tempLine, "");
           for (j = 0; j < numNodes; j++)
             {
-            strcat(formatLine, " %s");
-            sscanf(line, formatLine, nodeIds[numNodes-j]);
-            strcat(tempLine, " %*s");
+            strcat(formatLine, " %d");
+            sscanf(line, formatLine, intIds[numNodes-j-1]);
+            strcat(tempLine, " %*d");
             strcpy(formatLine, tempLine);
+            intIds[numNodes-j-1]--;
+            nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
             }
           cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
             InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
           this->CellIds[idx][VTK_ENSIGHT_NSIDED]->InsertNextId(cellId);
           lineRead = this->ReadNextDataLine(line);
           delete [] nodeIds;
+          delete [] intIds;
           }
         }
       else
@@ -1260,14 +1276,17 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           {
           numNodes = atoi(newLines[i]);
           nodeIds = new vtkIdType[numNodes];
+          intIds = new int[numNodes];
+          
           strcpy(formatLine, "");
           strcpy(tempLine, "");
           for (j = 0; j < numNodes; j++)
             {
             strcat(formatLine, " %d");
             sscanf(newLines[numElements+i], formatLine,
-                   &nodeIds[numNodes-j-1]);
-            nodeIds[numNodes-j-1]--;
+                   &intIds[numNodes-j-1]);
+            intIds[numNodes-j-1]--;
+            nodeIds[numNodes-j-1] = intIds[numNodes-j-1];
             strcat(tempLine, " %*d");
             strcpy(formatLine, tempLine);
             }
@@ -1275,6 +1294,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
             InsertNextCell(VTK_POLYGON, numNodes, nodeIds);
           this->CellIds[idx][VTK_ENSIGHT_NSIDED]->InsertNextId(cellId);
           delete [] nodeIds;
+          delete [] intIds;
           }
         }
       for (i = 0; i < numElements*2; i++)
@@ -1301,11 +1321,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       nodeIds = new vtkIdType[3];
+      intIds = new int[3];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d %d", &nodeIds[0], &nodeIds[1],
-                 &nodeIds[2]) != 3)
+      if (sscanf(line, " %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2]) != 3)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1315,17 +1337,19 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d %d", &nodeIds[0], &nodeIds[1], &nodeIds[2]);
-        nodeIds[0]--;
-        nodeIds[1]--;
-        nodeIds[2]--;
+        sscanf(line, " %d %d %d", &intIds[0], &intIds[1], &intIds[2]);
+        for (j = 0; j < 3; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TRIANGLE, 3, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
-        }
-      
+        }      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "quad4", 5) == 0 ||
              strncmp(line, "quad8", 5) == 0)
@@ -1343,11 +1367,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       nodeIds = new vtkIdType[4];
+      intIds = new int[4];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d %d %d", &nodeIds[0], &nodeIds[1],
-                 &nodeIds[2], &nodeIds[3]) != 4)
+      if (sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+                 &intIds[3]) != 4)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1357,19 +1383,20 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d %d %d", &nodeIds[0], &nodeIds[1], &nodeIds[2],
+        sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
                &nodeIds[3]);
-        nodeIds[0]--;
-        nodeIds[1]--;
-        nodeIds[2]--;
-        nodeIds[3]--;
+        for (j = 0; j < 4; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_QUAD, 4, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
-        }
-      
+        }      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "tetra4", 6) == 0 ||
              strncmp(line, "tetra10", 7) == 0)
@@ -1387,11 +1414,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       nodeIds = new vtkIdType[4];
+      intIds = new int[4];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d %d %d", &nodeIds[0], &nodeIds[1],
-                 &nodeIds[2], &nodeIds[3]) != 4)
+      if (sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3]) != 4)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1401,19 +1430,20 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d %d %d", &nodeIds[0], &nodeIds[1], &nodeIds[2],
-               &nodeIds[3]);
-        nodeIds[0]--;
-        nodeIds[1]--;
-        nodeIds[2]--;
-        nodeIds[3]--;
+        sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+               &intIds[3]);
+        for (j = 0; j < 4; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_TETRA, 4, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
         }
-      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "pyramid5", 8) == 0 ||
              strncmp(line, "pyramid13", 9) == 0)
@@ -1431,11 +1461,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       nodeIds = new vtkIdType[5];
+      intIds = new int[5];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d %d %d %d", &nodeIds[0], &nodeIds[1],
-                 &nodeIds[2], &nodeIds[3], &nodeIds[4]) != 5)
+      if (sscanf(line, " %d %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+                 &intIds[3], &intIds[4]) != 5)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1445,20 +1477,20 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d %d %d %d", &nodeIds[0], &nodeIds[1],
-               &nodeIds[2], &nodeIds[3], &nodeIds[4]);
-        nodeIds[0]--;
-        nodeIds[1]--;
-        nodeIds[2]--;
-        nodeIds[3]--;
-        nodeIds[4]--;
+        sscanf(line, " %d %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+               &intIds[3], &intIds[4]);
+        for (j = 0; j < 5; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_PYRAMID, 5, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
-        }
-          
+        }          
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "hexa8", 5) == 0 ||
              strncmp(line, "hexa20", 6) == 0)
@@ -1476,12 +1508,14 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       nodeIds = new vtkIdType[8];
+      intIds = new int[8];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d %d %d %d %d %d %d", &nodeIds[0],
-                 &nodeIds[1], &nodeIds[2], &nodeIds[3], &nodeIds[4],
-                 &nodeIds[5], &nodeIds[6], &nodeIds[7]) != 8)
+      if (sscanf(line, " %d %d %d %d %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3], &intIds[4], &intIds[5], &intIds[6],
+                 &intIds[7]) != 8)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1491,24 +1525,21 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d %d %d %d %d %d %d", &nodeIds[0], &nodeIds[1],
-               &nodeIds[2], &nodeIds[3], &nodeIds[4], &nodeIds[5],
-               &nodeIds[6], &nodeIds[7]);
-        nodeIds[0]--;
-        nodeIds[1]--;
-        nodeIds[2]--;
-        nodeIds[3]--;
-        nodeIds[4]--;
-        nodeIds[5]--;
-        nodeIds[6]--;
-        nodeIds[7]--;          
+        sscanf(line, " %d %d %d %d %d %d %d %d", &intIds[0], &intIds[1],
+               &intIds[2], &intIds[3], &intIds[4], &intIds[5], &intIds[6],
+               &intIds[7]);
+        for (j = 0; j < 8; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_HEXAHEDRON, 8, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
-        }
-      
+        }      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else if (strncmp(line, "penta6", 6) == 0 ||
              strncmp(line, "penta15", 7) == 0)
@@ -1526,11 +1557,13 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       
       nodeIds = new vtkIdType[6];
+      intIds = new int[6];
+      
       this->ReadNextDataLine(line);
       numElements = atoi(line);
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %d %d %d %d %d %d", &nodeIds[0], &nodeIds[1],
-                 &nodeIds[2], &nodeIds[3], &nodeIds[4], &nodeIds[5]) != 6)
+      if (sscanf(line, " %d %d %d %d %d %d", &intIds[0], &intIds[1],
+                 &intIds[2], &intIds[3], &intIds[4], &intIds[5]) != 6)
         {
         for (i = 0; i < numElements; i++)
           {
@@ -1540,21 +1573,20 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         }
       for (i = 0; i < numElements; i++)
         {
-        sscanf(line, " %d %d %d %d %d %d", &nodeIds[0], &nodeIds[1],
-               &nodeIds[2], &nodeIds[3], &nodeIds[4], &nodeIds[5]);
-        nodeIds[0]--;
-        nodeIds[1]--;
-        nodeIds[2]--;
-        nodeIds[3]--;
-        nodeIds[4]--;
-        nodeIds[5]--;
+        sscanf(line, " %d %d %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
+               &intIds[3], &intIds[4], &intIds[5]);
+        for (j = 0; j < 6; j++)
+          {
+          intIds[j]--;
+          nodeIds[j] = intIds[j];
+          }
         cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->
           InsertNextCell(VTK_WEDGE, 6, nodeIds);
         this->CellIds[idx][cellType]->InsertNextId(cellId);
         lineRead = this->ReadNextDataLine(line);
-        }
-      
+        }      
       delete [] nodeIds;
+      delete [] intIds;
       }
     else
       {

@@ -185,7 +185,9 @@ void vtkGenericEnSightReader::Execute()
   this->Reader->SetFilePath(this->GetFilePath());
   this->Reader->SetTimeValue(this->GetTimeValue());
   this->Reader->Update();
-  
+
+  this->MinimumTimeValue = this->Reader->GetMinimumTimeValue();
+  this->MaximumTimeValue = this->Reader->GetMaximumTimeValue();
   this->NumberOfScalarsPerNode = this->Reader->GetNumberOfScalarsPerNode();
   this->NumberOfVectorsPerNode = this->Reader->GetNumberOfVectorsPerNode();
   this->NumberOfTensorsSymmPerNode = this->Reader->GetNumberOfTensorsSymmPerNode();
