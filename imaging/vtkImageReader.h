@@ -133,11 +133,6 @@ public:
   vtkGetVector3Macro(DataOrigin,float);
 
   // Description:
-  // This method returns the largest data that can be generated.
-  void UpdateInformation();
-
-  
-  // Description:
   // Get the size of the header computed by this object.
   int GetHeaderSize();
   int GetHeaderSize(int slice);
@@ -251,6 +246,7 @@ protected:
   float DataOrigin[3];
   int DataVOI[6];
   
+  void ExecuteInformation();
   void Execute(vtkImageData *data);
   virtual void ComputeDataIncrements();
 };

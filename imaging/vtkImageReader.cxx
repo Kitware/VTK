@@ -424,7 +424,7 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkImageReader::UpdateInformation()
+void vtkImageReader::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
   unsigned long mem;

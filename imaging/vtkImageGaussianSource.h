@@ -76,8 +76,6 @@ public:
   vtkSetMacro(StandardDeviation, float);
   vtkGetMacro(StandardDeviation, float);
 
-  void UpdateInformation();
-
 protected:
   vtkImageGaussianSource();
   ~vtkImageGaussianSource() {};
@@ -89,6 +87,7 @@ protected:
   float Center[3];
   float Maximum;
 
+  void ExecuteInformation();
   void Execute(vtkImageData *data);
 };
 

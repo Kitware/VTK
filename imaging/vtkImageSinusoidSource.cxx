@@ -157,7 +157,7 @@ void vtkImageSinusoidSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSinusoidSource::UpdateInformation()
+void vtkImageSinusoidSource::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
   unsigned long mem;

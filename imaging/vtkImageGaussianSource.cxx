@@ -119,7 +119,7 @@ void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSource::UpdateInformation()
+void vtkImageGaussianSource::ExecuteInformation()
 {
   vtkImageData *output = this->GetOutput();
   unsigned long mem;

@@ -83,8 +83,6 @@ public:
   vtkSetMacro(Amplitude, float);
   vtkGetMacro(Amplitude, float);
 
-  void UpdateInformation();
-
 protected:
   vtkImageSinusoidSource();
   ~vtkImageSinusoidSource() {};
@@ -97,8 +95,12 @@ protected:
   float Phase;
   float Amplitude;
 
+  void ExecuteInformation();
   void Execute(vtkImageData *data);
 };
 
 
 #endif
+
+
+

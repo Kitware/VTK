@@ -81,7 +81,7 @@ protected:
   vtkTIFFReader(const vtkTIFFReader&) {};
   void operator=(const vtkTIFFReader&) {};
 
-  virtual void UpdateInformation();
+  virtual void ExecuteInformation();
   void Swap4(int *stmp);
   void Swap4(long *stmp);
   void Swap2(short *stmp);

@@ -73,7 +73,7 @@ protected:
   ~vtkPNMReader() {};
   vtkPNMReader(const vtkPNMReader&) {};
   void operator=(const vtkPNMReader&) {};
-  void UpdateInformation();
+  void ExecuteInformation();
 };
 
 #endif

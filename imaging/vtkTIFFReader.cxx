@@ -170,7 +170,7 @@ long vtkTIFFReader::ReadTagLong(_vtkTifTag *tag, FILE *fp)
   return result;
 }
 
-void vtkTIFFReader::UpdateInformation()
+void vtkTIFFReader::ExecuteInformation()
 {
   int xsize, ysize;
   FILE *fp;

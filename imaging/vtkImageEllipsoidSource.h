@@ -86,8 +86,6 @@ public:
   vtkSetMacro(OutValue,float);
   vtkGetMacro(OutValue,float);
   
-  void UpdateInformation();
-
   // Description:
   // Set what type of scalar data this source should generate.
   vtkSetMacro(OutputScalarType,int);
@@ -113,6 +111,7 @@ protected:
   float OutValue;
   int OutputScalarType;
   
+  void ExecuteInformation();
   void Execute(vtkImageData *outData);
 };
 

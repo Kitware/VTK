@@ -111,7 +111,7 @@ int vtkPNMReaderGetInt(FILE *fp)
 }
   
 
-void vtkPNMReader::UpdateInformation()
+void vtkPNMReader::ExecuteInformation()
 {
   int xsize, ysize, comp;
   char magic[80];

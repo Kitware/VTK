@@ -74,10 +74,6 @@ public:
   void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax,
 		      int zMin, int zMax);
 
-  // Description:
-  // updates the inage information, (Extent, Scalar type, etc).
-  void UpdateInformation();
-
 protected:
   vtkImageNoiseSource();
   ~vtkImageNoiseSource() {};
@@ -88,6 +84,7 @@ protected:
   float Maximum;
   int WholeExtent[6];
 
+  void ExecuteInformation();
   void Execute(vtkImageData *data);
 };
 

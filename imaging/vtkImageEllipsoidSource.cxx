@@ -146,7 +146,7 @@ void vtkImageEllipsoidSource::GetWholeExtent(int extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::UpdateInformation()
+void vtkImageEllipsoidSource::ExecuteInformation()
 {
   vtkImageData *data = this->GetOutput();
   unsigned long mem;
