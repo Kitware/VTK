@@ -15,11 +15,12 @@
 #include "vtkStructuredGridReader.h"
 
 #include "vtkFieldData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridReader, "1.57");
+vtkCxxRevisionMacro(vtkStructuredGridReader, "1.57.10.1");
 vtkStandardNewMacro(vtkStructuredGridReader);
 
 vtkStructuredGridReader::vtkStructuredGridReader()
@@ -332,6 +333,19 @@ void vtkStructuredGridReader::Execute()
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
     this->CloseVTKFile ();
+}
+
+//----------------------------------------------------------------------------
+int vtkStructuredGridReader::FillOutputPortInformation(int port,
+                                                       vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
+  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  return 1;
 }
 
 void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)

@@ -53,6 +53,7 @@ protected:
   void ExecuteInformation();
   void Execute();
 
+  virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
   vtkStructuredGridReader(const vtkStructuredGridReader&);  // Not implemented.
   void operator=(const vtkStructuredGridReader&);  // Not implemented.

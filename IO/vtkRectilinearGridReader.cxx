@@ -16,10 +16,11 @@
 
 #include "vtkDataArray.h"
 #include "vtkFieldData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.30");
+vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.30.10.1");
 vtkStandardNewMacro(vtkRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -343,6 +344,19 @@ void vtkRectilinearGridReader::Execute()
     }
 
   this->CloseVTKFile ();
+}
+
+//----------------------------------------------------------------------------
+int vtkRectilinearGridReader::FillOutputPortInformation(int port,
+                                                        vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
+  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  return 1;
 }
 
 //----------------------------------------------------------------------------

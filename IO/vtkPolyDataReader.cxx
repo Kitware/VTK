@@ -16,10 +16,11 @@
 
 #include "vtkCellArray.h"
 #include "vtkFieldData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataReader, "1.25");
+vtkCxxRevisionMacro(vtkPolyDataReader, "1.25.10.1");
 vtkStandardNewMacro(vtkPolyDataReader);
 
 vtkPolyDataReader::vtkPolyDataReader()
@@ -342,6 +343,19 @@ void vtkPolyDataReader::Execute()
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
   this->CloseVTKFile ();
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyDataReader::FillOutputPortInformation(int port,
+                                                 vtkInformation* info)
+{
+  if(!this->Superclass::FillOutputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPolyData");
+  info->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_PIECES_EXTENT);
+  return 1;
 }
 
 void vtkPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
