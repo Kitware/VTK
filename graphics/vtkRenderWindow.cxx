@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTransform.h"
 #include "vtkMath.h"
 #include "vtkGraphicsFactory.h"
-
+#include "vtkCommand.h"
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -253,6 +253,7 @@ void vtkRenderWindow::Render()
     }
 
   vtkDebugMacro(<< "Starting Render Method.\n");
+  this->InvokeEvent(vtkCommand::StartEvent,NULL);
 
   // if we are in the middle of an abort check the return now
   if (this->InAbortCheck)
@@ -408,6 +409,7 @@ void vtkRenderWindow::Render()
     }
 
   this->InRender = 0;
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);  
 }
 
 // Handle rendering any antialiased frames.
