@@ -168,7 +168,7 @@ void vtkContourFilter::Execute()
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
-  this->Locator->InitPointInsertion (newPts, input->GetBounds());
+  this->Locator->InitPointInsertion (newPts, input->GetBounds(), estimatedSize);
 
   // interpolate data along edge
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
