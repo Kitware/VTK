@@ -16,4 +16,9 @@ FTGlyph::FTGlyph()
 
 
 FTGlyph::~FTGlyph()
-{}
+{ 
+  if(this->glyph)
+    {
+    FT_Done_Glyph( glyph );
+    }
+}
