@@ -39,6 +39,7 @@ vtkImageConnector \
 vtkImageConstantPad \
 vtkImageCursor3D \
 vtkImageExtractComponents \
+vtkImageFFT \
 vtkImageFFT1D \
 vtkImageFlip \
 vtkImageGaussianSmooth \
@@ -84,7 +85,6 @@ vtkTIFFWriter
 #vtkImageDotProduct \
 #vtkImageElipsoidSource \
 #vtkImageEuclideanToPolar \
-#vtkImageFFT \
 #vtkImageFeatureAnd \
 #vtkImageFourierCenter \
 #vtkImageFourierCenter1D \

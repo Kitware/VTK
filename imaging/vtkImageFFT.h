@@ -38,31 +38,49 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFFT -  Fast Fourier Transform
+// .NAME vtkImageFFT -  Fast Fourier Transform.
 // .SECTION Description
-// vtkImageFFT implements a forward Fast Fourier Transform.
-// It can operate on images of any dimensionality,
-// and really consists of multiple 1d FFTs
+// vtkImageFFT implements a 1d, 2d, or 3d  fast Fourier transform.
 
 
 #ifndef __vtkImageFFT_h
 #define __vtkImageFFT_h
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageFFT1D.h"
+#include "vtkImageFourierFilter.h"
 
-class VTK_EXPORT vtkImageFFT : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageFFT : public vtkImageFourierFilter
 {
 public:
   vtkImageFFT();
   static vtkImageFFT *New() {return new vtkImageFFT;};
   const char *GetClassName() {return "vtkImageFFT";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
+  vtkSetMacro(Dimensionality, int);
+  vtkGetMacro(Dimensionality, int);
+  
 protected:
+  int Dimensionality;
+
+  void ComputeIterationInputExtent(int interation, 
+				   int inExt[6], int outExt[6]);
+  void ExecuteIteration(int iteration, vtkImageData *inData, int inExt[6],
+			vtkImageData *outData, int outExt[6]);
+  
+  void ExecuteImageInformation();
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 
