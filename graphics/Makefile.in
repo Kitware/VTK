@@ -131,6 +131,7 @@ vtkElevationFilter \
 vtkEncodedGradientShader \
 vtkExtractEdges \
 vtkExtractGeometry \
+vtkExtractPolyDataGeometry \
 vtkExtractGrid \
 vtkExtractTensorComponents \
 vtkExtractUnstructuredGrid \
