@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.5");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.6");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -479,6 +479,7 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
+  os << indent << "Orientation: " << this->Orientation << "\n";
   
   if ( this->Locator )
     {
@@ -1995,7 +1996,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
             if ((edges_inter > 6) || (edges_inter < 1)) 
               {
               vtkErrorMacro( << "Intersection not found: Num_inter = "
-              << num_inter << " Edges_inter = " << edges_inter );
+                             << num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                                         
             if (((v_tetra[tab1[2*edges_inter-1][2]][ind[1]] < value) && ((planes % 2) == 0)) ||   
@@ -2375,8 +2376,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                 i0 = 3;
                 break;
               default:
-                vtkErrorMacro( "Intersection not found: Num_inter = " <<
-                num_inter << " Edges_inter = " << edges_inter );
+                vtkErrorMacro( << "Intersection not found: Num_inter = " <<
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                     
 
@@ -2442,8 +2443,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                 i0 = 11; i1 = 3;
                 break;
               default:
-                vtkErrorMacro( "Intersection not found: Num_inter = " <<
-                num_inter << " Edges_inter = " << edges_inter );
+                vtkErrorMacro( << "Intersection not found: Num_inter = " <<
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               } 
             if (((p[i1] > 0) && ((planes % 2) == 0)) ||
@@ -2470,8 +2471,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
           case 1:              // We have two tetrahedron.
             if ((edges_inter > 6) || (edges_inter < 1)) 
               {
-              vtkErrorMacro( "Intersection not found: Num_inter = " <<
-              num_inter << " Edges_inter = " << edges_inter );
+              vtkErrorMacro( << "Intersection not found: Num_inter = " <<
+                             num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                        
             if (((p[tab1[2*edges_inter-1][2]] > 0) && ((planes % 2) == 0)) ||
@@ -2838,7 +2839,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                 break;
               default:
                 vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                num_inter << " Edges_inter = " << edges_inter );
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                        
             if (((v_tetra[3][ind[0]] < value) && ((planes % 2) == 0)) || 
@@ -2900,7 +2901,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                 break;
               default:
                 vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                num_inter << " Edges_inter = " << edges_inter );
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                              
             if (((v_tetra[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
@@ -3019,7 +3020,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
             if ((edges_inter > 6) || (edges_inter < 1)) 
               {
               vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-              num_inter << " Edges_inter = " << edges_inter );
+                             num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                                         
             if (((v_tetra[tab1[2*edges_inter-1][2]][ind[1]] < value) && ((planes % 2) == 0)) ||   
@@ -3415,8 +3416,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
                 i0 = 4;
                 break;
               default:
-                printf(
-                "Intersection not found: Num_inter = %5d  Edges_inter = %8d\n",num_inter,edges_inter);
+                vtkErrorMacro( << "Intersection not found: Num_inter = " <<
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                              
             if (((p[3] > 0) && ((planes % 2) == 0)) ||   
@@ -3596,7 +3597,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
             if ((edges_inter > 6) || (edges_inter < 1)) 
               {
               vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-              num_inter << " Edges_inter = " << edges_inter );
+                             num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                        
             if (((p[tab1[2*edges_inter-1][2]] > 0) && ((planes % 2) == 0)) ||
@@ -3926,8 +3927,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
                 i0 = 0;
                 break;
               default:
-                printf(
-                "Intersection not found: Num_inter = %5d  Edges_inter = %8d\n",num_inter,edges_inter);
+                vtkErrorMacro( << "Intersection not found: Num_inter = " <<
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                         
             if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
@@ -4297,7 +4298,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
                 break;
               default:
                 vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                num_inter << " Edges_inter = " << edges_inter );
+                               num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }
             if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) || 
@@ -5014,7 +5015,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                   break;
                 default:
                   vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                  num_inter << " Edges_inter = " << edges_inter );
+                                 num_inter << " Edges_inter = " << edges_inter );
                   continue;
                 }                                                    
 
@@ -5070,7 +5071,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                   break;
                 default:
                   vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                  num_inter << " Edges_inter = " << edges_inter );
+                                 num_inter << " Edges_inter = " << edges_inter );
                   continue;
                 }                                                     
               if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // Isolate vertex is outside box, so
