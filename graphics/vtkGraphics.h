@@ -101,6 +101,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageToStructuredPoints.h"
 #include "vtkImplicitBoolean.h"
 #include "vtkImplicitDataSet.h"
+#include "vtkImplicitSelectionLoop.h"
 #include "vtkImplicitModeller.h"
 #include "vtkImplicitTextureCoords.h"
 #include "vtkImplicitVolume.h"

@@ -112,3 +112,4 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoidArray.h"
 #include "vtkVoxel.h"
 #include "vtkWindowLevelLookupTable.h"
+#include "vtkWindowToImageFilter.h"
