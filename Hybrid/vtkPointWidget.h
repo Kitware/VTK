@@ -188,7 +188,6 @@ public:
       this->ZShadowsOff();
     }
 
-
   // Description:
   // Get the handle properties (the little balls are the handles). The 
   // properties of the handles when selected and normal can be 

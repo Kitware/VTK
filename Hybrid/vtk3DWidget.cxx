@@ -22,18 +22,20 @@
 #include "vtkProp3D.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.11");
+vtkCxxRevisionMacro(vtk3DWidget, "1.12");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
 vtk3DWidget::vtk3DWidget()
 {
-  this->Placed = 1;
+  this->Placed = 0;
   this->Prop3D = NULL;
   this->Input = NULL;
   this->PlaceFactor = 0.5;
 
   this->Priority = 0.5;
+  
+  this->HandleSize = 0.01;
 }
 
 vtk3DWidget::~vtk3DWidget()
@@ -76,6 +78,7 @@ void vtk3DWidget::PlaceWidget()
   
   this->PlaceWidget(bounds);
   this->InvokeEvent(vtkCommand::PlaceWidgetEvent,NULL);  
+  this->Placed = 1;
 }
 
 void vtk3DWidget::PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
@@ -114,7 +117,9 @@ void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Prop3D: " << this->Prop3D << "\n";
   os << indent << "Input: " << this->Input << "\n";
+  os << indent << "Handle Size: " << this->HandleSize << "\n";
   os << indent << "Place Factor: " << this->PlaceFactor << "\n";
+
 }
 
 
