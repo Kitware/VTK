@@ -298,10 +298,10 @@ void vtkCyberReader::Execute()
   float	dlt, dlg; 
   vtkPoints *newPoints;
   vtkTCoords *newTCoords;
-  vtkCellArray *newTris;
+  vtkCellArray *newQuads;
   float x[3], tc[2];
   int voidLoc;
-  int pts[3];
+  int pts[4];
   vtkPolyData *output = this->GetOutput();
   
 
@@ -377,8 +377,8 @@ void vtkCyberReader::Execute()
   //  Build polygons.  Have no more than number of vertex polygons.
   //
   vtkDebugMacro(<<"Creating triangles...");
-  newTris = vtkCellArray::New();
-  newTris->Allocate(newTris->EstimateSize(2*nvertex,3));
+  newQuads = vtkCellArray::New();
+  newQuads->Allocate(newQuads->EstimateSize(2*nvertex,4));
 
   nlt = (vtx->ltmax - vtx->ltmin + 1) / vtx->ltresol;// verticies in y 
   nlg = (vtx->lgmax - vtx->lgmin + 1) / vtx->lgresol;// verticies in x 
@@ -424,17 +424,13 @@ void vtkCyberReader::Execute()
 	continue;
 	}
       pts[0] = (lg  )*nlt + (lt  );
-      pts[2] = ((lg+1)%nlg)*nlt + (lt  );
-      pts[1] = ((lg+1)%nlg)*nlt + (lt+1);
-      newTris->InsertNextCell(3,pts);
-
-      pts[0] = (lg  )*nlt + (lt  );
-      pts[2] = ((lg+1)%nlg)*nlt + (lt+1);
       pts[1] = (lg  )*nlt + (lt+1);
-      newTris->InsertNextCell(3,pts);
+      pts[2] = ((lg+1)%nlg)*nlt + (lt+1);
+      pts[3] = ((lg+1)%nlg)*nlt + (lt  );
+      newQuads->InsertNextCell(4,pts);
       }
     }
-  npolygon = newTris->GetNumberOfCells();
+  npolygon = newQuads->GetNumberOfCells();
   vtkDebugMacro(<<"Read "<<nvertex<<" vertices, "<<npolygon<<" polygons");
 //
 //  Update output and release memory
@@ -442,8 +438,8 @@ void vtkCyberReader::Execute()
   output->SetPoints(newPoints);
   newPoints->Delete();
 
-  output->SetPolys(newTris);
-  newTris->Delete();
+  output->SetPolys(newQuads);
+  newQuads->Delete();
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
