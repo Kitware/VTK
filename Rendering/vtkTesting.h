@@ -68,7 +68,7 @@ public:
 
   // Description:
   // Perform the test and return result. At the same time the output will be
-  // written cout and also placed into LastResultText
+  // written cout
   virtual int RegressionTest(double thresh);
 
   // Description:
@@ -88,12 +88,6 @@ public:
   // Description:
   // Get the image difference.
   vtkGetMacro(ImageDifference, double);
-
-  // Description:
-  // Get the text output for the last RegressionTest invocation. This is
-  // useful for scripting languages
-  vtkGetStringMacro(LastResultText);
-  vtkSetStringMacro(LastResultText);
 
   // Description:
   // Pass the command line arguments into this class to be processed. Many of
@@ -133,7 +127,6 @@ protected:
   vtkRenderWindow* RenderWindow;
   char* ValidImageFileName;
   double ImageDifference;
-  char *LastResultText;
   char *TempDirectory;
   
 //BTX

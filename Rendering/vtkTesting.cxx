@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.11");
+vtkCxxRevisionMacro(vtkTesting, "1.12");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 // Function returning either a command line argument, an environment variable
@@ -142,7 +142,6 @@ vtkTesting::vtkTesting()
   this->RenderWindow = 0;
   this->ValidImageFileName = 0;
   this->ImageDifference = 0;
-  this->LastResultText = 0;
   this->DataRoot = 0;
   this->TempDirectory = 0;
   
@@ -155,7 +154,6 @@ vtkTesting::~vtkTesting()
 {
   this->SetRenderWindow(0);
   this->SetValidImageFileName(0);
-  this->SetLastResultText(0);
   this->SetDataRoot(0);
   this->SetTempDirectory(0);
 }
@@ -372,31 +370,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh)
 
 int vtkTesting::RegressionTest(double thresh)
 {
-#if 0
-  // clear the last result
-  this->SetLastResultText(0);
-  ostrstream buf_with_warning_C4701;
-  int result = this->RegressionTest(thresh, buf_with_warning_C4701);
-
-  buf_with_warning_C4701 <<  
-    "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  buf_with_warning_C4701 << 
-    vtkTimerLog::GetCurrentTime() - this->StartWallTime;
-  buf_with_warning_C4701 << "</DartMeasurement>\n";
-  buf_with_warning_C4701 <<  
-    "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  buf_with_warning_C4701 << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  buf_with_warning_C4701 << "</DartMeasurement>\n";
-  
-  buf_with_warning_C4701.put('\0');
-  this->SetLastResultText(buf_with_warning_C4701.str());
-  buf_with_warning_C4701.rdbuf()->freeze(0);
-  if (this->LastResultText)
-    {
-    cout << this->LastResultText << "\n";
-    }
-#endif
-  
   int result = this->RegressionTest(thresh, cout);
 
   cout << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
@@ -539,9 +512,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     }
   
   os << "Failed Image Test : " << minError << endl;
-  char *rt_diffName = new char [strlen(this->ValidImageFileName) + 12];
-  sprintf(rt_diffName,"%s.diff.png",this->ValidImageFileName);
-  FILE *rt_dout = fopen(rt_diffName,"wb"); 
   if (errIndex >= 0)
     {
     newFileName = IncrementFileName(this->ValidImageFileName, errIndex);
@@ -556,16 +526,14 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
   rt_png->Update();
   rt_id->Update();
 
+  // test the directory for writing
+  char* diff_small = new char[strlen(tmpDir) + validName.size() + 30];
+  sprintf(diff_small, "%s/%s.diff.small.jpg", tmpDir, validName.c_str());
+  FILE *rt_dout = fopen(diff_small,"wb"); 
   if (rt_dout) 
     { 
     fclose(rt_dout);
     
-    vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
-    rt_pngw->SetFileName(rt_diffName);
-    rt_pngw->SetInput(rt_id->GetOutput());
-    rt_pngw->Write();
-    rt_pngw->Delete();
-
     // write out the difference image scaled and gamma adjusted
     // for the dashboard
     int* rt_size = rt_png->GetOutput()->GetDimensions();
@@ -585,8 +553,6 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     rt_gamma->SetScale(10);
 
     vtkJPEGWriter* rt_jpegw_dashboard = vtkJPEGWriter::New();
-    char* diff_small = new char[strlen(tmpDir) + validName.size() + 30];
-    sprintf(diff_small, "%s/%s.diff.small.jpg", tmpDir, validName.c_str());
     rt_jpegw_dashboard->SetFileName( diff_small );
     rt_jpegw_dashboard->SetInput(rt_gamma->GetOutput());
     rt_jpegw_dashboard->SetQuality(85);
@@ -623,13 +589,12 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     os <<  "</DartMeasurementFile>";
 
     delete [] valid;
-    delete [] diff_small;
 
     rt_shrink->Delete();
     rt_gamma->Delete();
     }
 
-  delete [] rt_diffName;
+  delete [] diff_small;
   rt_id->Delete(); 
   return FAILED;
 }
@@ -678,7 +643,6 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ValidImageFileName: " << (this->ValidImageFileName?this->ValidImageFileName:"(none)") << endl;
   os << indent << "FrontBuffer: " << (this->FrontBuffer?"On":"Off") << endl;
   os << indent << "ImageDifference: " << this->ImageDifference << endl;
-  // dont print the this->LastResultText, it could be a bit long
   os << indent << "DataRoot: " << this->GetDataRoot() << endl;
   os << indent << "Temp Directory: " << this->GetTempDirectory() << endl;
 }
