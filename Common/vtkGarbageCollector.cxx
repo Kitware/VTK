@@ -17,7 +17,7 @@
 #include <vtkstd/set>
 #include <vtkstd/queue>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.1");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.2");
 
 //----------------------------------------------------------------------------
 class vtkGarbageCollectorQueue: public vtkstd::queue<vtkObjectBase*> {};
@@ -35,6 +35,7 @@ vtkGarbageCollector::vtkGarbageCollector(vtkGarbageCollectorQueue* q,
 //----------------------------------------------------------------------------
 vtkGarbageCollector::~vtkGarbageCollector()
 {
+  this->SetReferenceCount(0);
 }
 
 //----------------------------------------------------------------------------
