@@ -38,16 +38,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageRegion - Piece of image. Pixel type defaults to float.
+// .NAME vtkImageRegion - Piece of image.
 // .SECTION Description
 // vtkImageRegion holds a piece of an image. 
 // The actual data for the image is stored in the
-// vtkImageData object.  The vtkImageRegion can represent only a portion 
-// of its vtkImageData, hiding the actual dimensions of the vtkImageData.
+// vtkImageData object.  The vtkImageRegion can represent a portion
+// of its vtkImageData, hiding the actual extent of the vtkImageData.
 // It can also transparently reorder the axes of the data with out
-// coping the data.
-//   A region can now be used as an input to a filter, but the relative
-// coordinates of the region are ignored.
+// coping the data.  The Increments are used to march around the data using
+// pointer arithmetic, without knowing the actual dimensions of the
+// underlying data.  Both the increments and extent of the region
+// are relative to the regions axes.  They get reshuffled when the 
+// axes are changed.
+//   A region is usually manipulated by the image pipeline behind
+// the scenes, but it can also be used as an input to a filter for more
+// explicit operaation.
 
 
 #ifndef __vtkImageRegion_h
@@ -68,91 +73,58 @@ public:
   char *GetClassName() {return "vtkImageRegion";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void CopyRegionData(vtkImageRegion *region);
 
   // Description:
-  // This function sets all the pixels in a region to the specified value.
-  void Fill(float value);
-  
-  // Stuff to use region as a source.
-  void UpdateRegion(vtkImageRegion *region); 
-  void UpdateImageInformation(vtkImageRegion *region);
-  unsigned long GetPipelineMTime();
-
+  // Different methods for setting the axes.  Other instance variables
+  // like Extent, and Increments are relative to the Axes of the region.
+  // This allows the coordinate system of the region to be supperficially
+  // changed.
+  void SetAxes(int dim, int *axes);
+  vtkImageSetMacro(Axes, int);
   // Description:
-  // Set/Get the data object to share with other vtkImageRegions.
-  void SetData(vtkImageData *data);
-  vtkImageData *GetData();
-  // Description:
-  // Get the data type of this region.
-  vtkSetMacro(ScalarType,int);
-  vtkGetMacro(ScalarType,int);
-  
-  // Description:
-  // Returns pointer increments that can be used to step around the data.
-  // Increments do not include size of data type, so should be used after
-  // pointers have been converted to their actual type.
-  void GetIncrements(int dim, int *increments);
-  vtkImageGetMacro(Increments, int);
-  int *GetIncrements() {return this->Increments;};
+  // Different methods for getting the axes.
+  void GetAxes(int dim, int *axes);  
+  vtkImageGetMacro(Axes, int);
+  int *GetAxes() {return this->Axes;};
 
   // Description:
   // Different methods for setting the extent.
   // The 2d and 1d functions do not modify extent of the higher dimensions.
   void SetExtent(int dim, int *extent);
   vtkImageSetExtentMacro(Extent);
-
   // Description:
   // Different methods for getting the extent.
   void GetExtent(int dim, int *extent);
   vtkImageGetExtentMacro(Extent);
   
   // Description:
-  // Different methods for setting the ImageExtent.
-  // The 2d and 1d functions do not modify ImageExtent of the higher
-  // dimensions.
-  void SetImageExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(ImageExtent);
-  // Description:
-  // Different methods for getting the ImageExtent.
-  void GetImageExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(ImageExtent);
+  // Get the data type of this region.
+  vtkSetMacro(ScalarType,int);
+  vtkGetMacro(ScalarType,int);
+  
+  // Stuff to use region as an vtkImageSource.
+  void UpdateRegion(vtkImageRegion *region); 
+  void UpdateImageInformation(vtkImageRegion *region);
+  unsigned long GetPipelineMTime();
 
   
-  // Description:
-  // Different methods for setting the AspectRatio.
-  // The 2d and 1d functions do not modify aspect ratio of the higher
-  // dimensions.
-  void SetAspectRatio(int dim, float *ratio);
-  vtkImageSetMacro(AspectRatio, float);
-  // Description:
-  // Different methods for getting the Aspect Ratio.
-  void GetAspectRatio(int dim, float *ratio);
-  vtkImageGetMacro(AspectRatio, float);
-  float *GetAspectRatio() {return this->AspectRatio;};
+  //--------------------------------------------------------------------------
+  // Used by caches
+  void SetData(vtkImageData *data);
+  vtkImageData *GetData();
+  void ReleaseData();
+
+
+  //--------------------------------------------------------------------------
+  // Used by filters.
   
-
   // Description:
-  // Different methods for setting the Origin.
-  void SetOrigin(int dim, float *origin);
-  vtkImageSetMacro(Origin, float);
-  // Description:
-  // Different methods for getting the Origin.
-  void GetOrigin(int dim, float *origin);
-  vtkImageGetMacro(Origin, float);
-  float *GetOrigin() {return this->Origin;};
-  
-
-  // Description:
-  // Different methods for setting the axes.
-  void SetAxes(int dim, int *axes);
-  vtkImageSetMacro(Axes, int);
-
-  // Description:
-  // Different methods for getting the axes.
-  void GetAxes(int dim, int *axes);  
-  vtkImageGetMacro(Axes, int);
-  int *GetAxes() {return this->Axes;};
+  // Returns pointer increments that can be used to step around the data.
+  // Increments do not include size of data type, so should be used after
+  // pointers have been casted to their actual type.
+  void GetIncrements(int dim, int *increments);
+  vtkImageGetMacro(Increments, int);
+  int *GetIncrements() {return this->Increments;};
 
   // Description:
   // Returns a pointer for reading the scalar point data.
@@ -169,20 +141,47 @@ public:
   {this->MakeScalarsWritable();return this->GetScalarPointer(dim,coordinates);}
   vtkImageGetPointerMacro(ScalarWrite, void);
 
-  // Description:
-  // Returns a pointer for reading the vector point data.
-  // Coordinates are relative to image origin.
-  // Extent mins are used for unspecified coordinates.
-  float *GetVectorPointer(int dim, int *coordinates);
-  vtkImageGetPointerMacro(Vector, float);
+  
+  //--------------------------------------------------------------------------
+  // Image information
   
   // Description:
-  // Returns a pointer for writing into the vector point data.
-  // Coordinates are relative to image origin.
-  // Extent mins are used for unspecified coordinates.
-  float *GetVectorWritePointer(int dim, int *coordinates)
-  {this->MakeVectorsWritable();return this->GetVectorPointer(dim,coordinates);}
-  vtkImageGetPointerMacro(VectorWrite, float);
+  // Different methods for setting the ImageExtent.
+  // The 2d and 1d functions do not modify ImageExtent of the higher
+  // dimensions.  The image extent is the largest region that can be 
+  // requested from the pipeline.
+  void SetImageExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(ImageExtent);
+  // Description:
+  // Different methods for getting the ImageExtent.
+  void GetImageExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(ImageExtent);
+  // Description:
+  // Different methods for setting the AspectRatio.
+  // The 2d and 1d functions do not modify aspect ratio of the higher
+  // dimensions.
+  void SetAspectRatio(int dim, float *ratio);
+  vtkImageSetMacro(AspectRatio, float);
+  // Description:
+  // Different methods for getting the Aspect Ratio.
+  void GetAspectRatio(int dim, float *ratio);
+  vtkImageGetMacro(AspectRatio, float);
+  float *GetAspectRatio() {return this->AspectRatio;};
+  // Description:
+  // Different methods for setting the Origin.
+  void SetOrigin(int dim, float *origin);
+  vtkImageSetMacro(Origin, float);
+  // Description:
+  // Different methods for getting the Origin.
+  void GetOrigin(int dim, float *origin);
+  vtkImageGetMacro(Origin, float);
+  float *GetOrigin() {return this->Origin;};
+  
+
+  //--------------------------------------------------------------------------
+  // Convenience methods
+  void CopyRegionData(vtkImageRegion *region);
+  void Fill(float value);
   
   // Description:
   // This method returns the number of pixels enclosed in this bounding box.
@@ -192,7 +191,7 @@ public:
 			  * (Extent[7]-Extent[6]+1)
 			  * (Extent[9]-Extent[8]+1));};
   
-    // Description:
+  // Description:
   // This method returns 1 if this bounding box has zero volume.
   int IsEmpty() {return (Extent[1] < Extent[0] 
 			 || Extent[3] < Extent[2] 
@@ -205,19 +204,7 @@ public:
   int AreScalarsAllocated()
   {return this->Data && this->Data->AreScalarsAllocated();};
 
-  // Description:
-  // If the image pipeline will be used with another image
-  // data structure, these functions will act as the glue.
-  // Import will take a chunk of memory with its type and dimensions,
-  // so you can use it as a region.  Export will give you a pointer to 
-  // the data to manipulate.  Warning! when this region is deleted,
-  // the data memory may be deleted also.
-  void ImportMemory(void *ptr);
-  void *ExportMemory();
-  
   void AllocateScalars();
-  void AllocateVectors();
-  void ReleaseData();
   
   //------------------------------------------------------------------
   // This should really be handled by one of the macros, 
@@ -260,8 +247,6 @@ protected:
   void MakeDataWritable();
   void MakeScalarsWritable()
   {this->MakeDataWritable(); this->Data->MakeScalarsWritable();};
-  void MakeVectorsWritable()
-  {this->MakeDataWritable(); this->Data->MakeVectorsWritable();};
   void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 				    int *extentOut, int *axesOut);
 };

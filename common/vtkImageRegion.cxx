@@ -116,8 +116,8 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
-  os << indent << "ScalarType: " << vtkImageScalarTypeNameMacro(this->ScalarType) 
-     << "\n";
+  os << indent << "ScalarType: " 
+     << vtkImageScalarTypeNameMacro(this->ScalarType) << "\n";
   
   if ( ! this->Data)
     {
@@ -208,7 +208,7 @@ void vtkImageRegion::MakeDataWritable()
     this->Data->SetExtent(extent);
     // Compute the increments.
     vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					       this->Data->GetAxes(),
+					       this->Data->GetAxes(), 
 					       this->Increments, this->Axes);
     }
 
@@ -216,81 +216,20 @@ void vtkImageRegion::MakeDataWritable()
   if (this->Data->GetRefCount() > 1)
     {
     vtkImageData *newData;
-    vtkVectors *vectors = this->Data->GetPointData()->GetVectors();
     vtkScalars *scalars = this->Data->GetPointData()->GetScalars();
     // Data has more than one reference. Make a new data object.
     this->Modified();
     newData = new vtkImageData;
     newData->SetAxes(this->Data->GetAxes());
     newData->SetExtent(this->Data->GetExtent());
+    // But what if the scalars have more than one reference?
     newData->GetPointData()->SetScalars(scalars);
-    newData->GetPointData()->SetVectors(vectors);
     this->Data->UnRegister(this);
     this->Data = newData;
     }
 }
 
 
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Copies data from a region into this region (converting data type).
-// It is a simple cast, and will not deal with float to unsigned char
-// inteligently.  The the regions do not have the same extent,
-// the intersection is copied.
-void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
-{
-  int thisAxesSave[VTK_IMAGE_DIMENSIONS];
-  int regionAxesSave[VTK_IMAGE_DIMENSIONS];  
-  int overlap[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int *inExtent, *outExtent;
-  int inTemp, outTemp;
-  int idx;
-
-  // If the data type is not set, default to same as input.
-  if (this->GetScalarType() == VTK_VOID)
-    {
-    this->SetScalarType(region->GetScalarType());
-    }
-  
-  // Make sure this region is allocated
-  if ( ! this->AreScalarsAllocated())
-    {
-    this->AllocateScalars();
-    }
-  if ( ! this->AreScalarsAllocated())
-    {
-    vtkErrorMacro(<< "Could not allocate region.");
-    return;
-    }
-
-  // Convert to common coordinate system of data.
-  this->GetAxes(thisAxesSave);
-  region->GetAxes(regionAxesSave);
-  this->SetAxes(this->Data->GetAxes());
-  region->SetAxes(this->Data->GetAxes());
-  
-  // Compute intersection of extent
-  inExtent = region->GetExtent();
-  outExtent = this->GetExtent();
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    inTemp = inExtent[2*idx];
-    outTemp = outExtent[2*idx];
-    overlap[2*idx] = (inTemp > outTemp) ? inTemp : outTemp;  // Max
-    inTemp = inExtent[2*idx + 1];
-    outTemp = outExtent[2*idx + 1];
-    overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
-    }
-  
-  // Copy data
-  this->Data->CopyData(region->GetData(), overlap);
-
-  // restore the original coordinate system of the regions.
-  this->SetAxes(thisAxesSave);
-  region->SetAxes(regionAxesSave);
-}
 
 
 /*****************************************************************************
@@ -360,35 +299,6 @@ void vtkImageRegion::AllocateScalars()
 
 //----------------------------------------------------------------------------
 // Description:
-// When dealing with Regions directly (no caches), they can be allocated
-// with this method.  It keeps you from having to create a vtkImageData
-// object and setting it explicitley.
-void vtkImageRegion::AllocateVectors()
-{
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  
-  this->Modified();
-
-  if ( ! this->Data)
-    {
-    this->Data = new vtkImageData;
-    this->Data->SetScalarType(this->ScalarType);
-    this->GetExtent(extent);
-    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
-				       extent, this->Data->GetAxes());
-    this->Data->SetExtent(extent);
-    // Compute the increments.
-    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					       this->Data->GetAxes(),
-					       this->Increments, this->Axes);
-    }
-  
-  this->Data->AllocateVectors();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
 // Release any data in the region
 void vtkImageRegion::ReleaseData()
 {
@@ -409,7 +319,8 @@ void vtkImageRegion::ReleaseData()
 // You can set the data object explicitly, instead of using the Allocate
 // method.  Old data is released, and the region automatically registers
 // the new data.  This assumes that the Data has already been allocated,
-// and the increments will not change.
+// and the increments will not change.  This method is used mainly by
+// vtkImageCache.
 void vtkImageRegion::SetData(vtkImageData *data)
 {
   this->Modified();
@@ -428,7 +339,7 @@ void vtkImageRegion::SetData(vtkImageData *data)
   // Compute the increments.
   // Note that this implies that the extent of the data is fixed.
   vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					     this->Data->GetAxes(),
+					     this->Data->GetAxes(), 
 					     this->Increments, this->Axes);
 }
 
@@ -449,7 +360,7 @@ vtkImageData *vtkImageRegion::GetData()
     this->Data->SetExtent(extent);
     // Compute the increments.
     vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					       this->Data->GetAxes(),
+					       this->Data->GetAxes(), 
 					       this->Increments, this->Axes);
     }
   return this->Data;
@@ -489,6 +400,8 @@ void *vtkImageRegion::GetScalarPointer(int dim, int *coordinates)
   if ( ! this->Data)
     {
     // Create the data object
+    // Note: This is only call if the data does not exists.
+    // There are no reference counting issues.
     this->MakeDataWritable();
     }
 
@@ -513,36 +426,6 @@ void *vtkImageRegion::GetScalarPointer(int dim, int *coordinates)
 }
 
 
-//----------------------------------------------------------------------------
-float *vtkImageRegion::GetVectorPointer(int dim, int *coordinates)
-{
-  int idx, temp[VTK_IMAGE_DIMENSIONS];
-  
-  if ( ! this->Data)
-    {
-    // Create the data object
-    this->MakeDataWritable();
-    }
-
-  // Copy coordinates.
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    if (idx < dim)
-      {
-      temp[idx] = coordinates[idx];
-      }
-    else
-      {
-      temp[idx] = this->Extent[idx * 2];
-      }
-    }
-  
-  // Convert into data coordinates
-  vtkImageRegionChangeVectorCoordinateSystem(temp, this->Axes,
-					     temp, this->Data->GetAxes());
-  
-  return this->Data->GetVectorPointer(temp);
-}
 
 //----------------------------------------------------------------------------
 void vtkImageRegion::SetAxes(int dim, int *axes)
@@ -629,11 +512,17 @@ void vtkImageRegion::SetAxes(int dim, int *axes)
     }
 }
 //----------------------------------------------------------------------------
-void vtkImageRegion::GetAxes(int dim, int *axes)
+void vtkImageRegion::GetAxes(int num, int *axes)
 {
   int idx;
   
-  for (idx = 0; idx < dim; ++idx)
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetAxes: Too many axes requested");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
     {
     axes[idx] = this->Axes[idx];
     }
@@ -807,6 +696,178 @@ void vtkImageRegion::Translate(int dim, int *vector)
 
 
 
+/*****************************************************************************
+  Stuff for copying data (double templated).
+  Convenience Methods.
+*****************************************************************************/
+
+  
+//----------------------------------------------------------------------------
+// Second templated function for copying.
+// This should be a recursive call to avoid many nested loops, and
+// make the code independant of VTK_IMAGE_DIMENSIONS. (In my dreams...)
+template <class IT, class OT>
+static void vtkImageRegionCopyData2(vtkImageRegion *self, OT *outPtr,
+				    vtkImageRegion *in, IT *inPtr)
+{
+  IT *inPtr0, *inPtr1, *inPtr2, *inPtr3, *inPtr4;
+  OT *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtr4;
+  int inInc0, inInc1, inInc2, inInc3, inInc4;
+  int outInc0, outInc1, outInc2, outInc3, outInc4;
+  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
+  int idx0, idx1, idx2, idx3, idx4;
+
+  // Get information to loop through data.
+  self->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3, min4, max4);
+  self->GetIncrements(outInc0, outInc1, outInc2, outInc3, outInc4);
+  in->GetIncrements(inInc0, inInc1, inInc2, inInc3, inInc4);
+  
+  inPtr4 = inPtr;
+  outPtr4 = outPtr;
+  for (idx4 = min4; idx4 <= max4; ++idx4)
+    {
+    inPtr3 = inPtr4;
+    outPtr3 = outPtr4;
+    for (idx3 = min3; idx3 <= max3; ++idx3)
+      {
+      inPtr2 = inPtr3;
+      outPtr2 = outPtr3;
+      for (idx2 = min2; idx2 <= max2; ++idx2)
+	{
+	inPtr1 = inPtr2;
+	outPtr1 = outPtr2;
+	for (idx1 = min1; idx1 <= max1; ++idx1)
+	  {
+	  inPtr0 = inPtr1;
+	  outPtr0 = outPtr1;
+	  for (idx0 = min0; idx0 <= max0; ++idx0)
+	    {
+	    *outPtr0 = (OT)(*inPtr0);
+	    inPtr0 += inInc0;
+	    outPtr0 += outInc0;
+	    }
+	  inPtr1 += inInc1;
+	  outPtr1 += outInc1;
+	  }
+	inPtr2 += inInc2;
+	outPtr2 += outInc2;
+	}
+      inPtr3 += inInc3;
+      outPtr3 += outInc3;
+      }
+    inPtr4 += inInc4;
+    outPtr4 += outInc4;
+    }
+}
+  
+  
+
+//----------------------------------------------------------------------------
+// First templated function for copying.
+template <class T>
+static void vtkImageRegionCopyData(vtkImageRegion *self, vtkImageRegion *in,
+				   T * inPtr)
+{
+  void *outPtr = self->GetScalarPointer();
+  
+  switch (self->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageRegionCopyData2(self, (float *)(outPtr), in, inPtr);
+      break;
+    case VTK_INT:
+      vtkImageRegionCopyData2(self, (int *)(outPtr), in, inPtr);
+      break;
+    case VTK_SHORT:
+      vtkImageRegionCopyData2(self, (short *)(outPtr), in, inPtr);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageRegionCopyData2(self, (unsigned short *)(outPtr), in, inPtr);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageRegionCopyData2(self, (unsigned char *)(outPtr), in, inPtr);
+      break;
+    default:
+      vtkGenericWarningMacro(
+       "vtkImageRegionCopyData2: Cannot handle ScalarType.");
+    }   
+}
+
+  
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Copies data from a region into this region (converting data type).
+// It is a simple cast, and will not deal with float to unsigned char
+// inteligently.  If regions do not have the same extent,
+// the intersection is copied.  The coordinate systems (Axes) of the 
+// two regions are important.  This method can be used to switch the 
+// labeling of the axes (rather inefficiently).
+void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
+{
+  int thisExtentSave[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int regionExtentSave[VTK_IMAGE_EXTENT_DIMENSIONS];  
+  int overlap[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int idx, inTemp, outTemp;
+  void *inPtr;
+
+  // If the data type is not set, default to same as input.
+  if (this->GetScalarType() == VTK_VOID)
+    {
+    this->SetScalarType(region->GetScalarType());
+    }
+  
+  // Compute intersection of extent
+  this->GetExtent(VTK_IMAGE_DIMENSIONS, thisExtentSave);
+  region->GetExtent(VTK_IMAGE_DIMENSIONS, regionExtentSave);
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    inTemp = regionExtentSave[2*idx];
+    outTemp = thisExtentSave[2*idx];
+    overlap[2*idx] = (inTemp > outTemp) ? inTemp : outTemp;  // Max
+    inTemp = regionExtentSave[2*idx + 1];
+    outTemp = thisExtentSave[2*idx + 1];
+    overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
+    }
+  
+  // Copy data
+  this->SetExtent(VTK_IMAGE_DIMENSIONS, overlap);
+  region->SetExtent(VTK_IMAGE_DIMENSIONS, overlap);
+  inPtr = region->GetScalarPointer();
+  switch (region->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageRegionCopyData(this, region, (float *)(inPtr));
+      break;
+    case VTK_INT:
+      vtkImageRegionCopyData(this, region ,(int *)(inPtr));
+      break;
+    case VTK_SHORT:
+      vtkImageRegionCopyData(this, region, (short *)(inPtr));
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageRegionCopyData(this, region, (unsigned short *)(inPtr));
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageRegionCopyData(this, region, (unsigned char *)(inPtr));
+      break;
+    default:
+      vtkErrorMacro(<< "CopyRegionData: Cannot Handle Input Type.");
+    }
+
+  // restore the original extents of the regions
+  this->SetExtent(VTK_IMAGE_DIMENSIONS, thisExtentSave);
+  region->SetExtent(VTK_IMAGE_DIMENSIONS, regionExtentSave);
+}
+
+
+//****************************************************************************
+// Stuff for filling a region with a constant value.
+// Convenience method.
+//****************************************************************************
+
 //----------------------------------------------------------------------------
 template <class T>
 static void vtkImageRegionFill(vtkImageRegion *self, T value)
@@ -878,96 +939,5 @@ void vtkImageRegion::Fill(float value)
       vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
     }   
 }
-
-
-
-
-//----------------------------------------------------------------------------
-// since data in region has same extent as region, 5 nested loops are not
-// actually necessary.  But to keep this method tolerent to future changes ...
-template <class T>
-static void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
-{
-  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
-  int inc0, inc1, inc2, inc3, inc4;
-  int idx0, idx1, idx2, idx3, idx4;
-  T *ptr0, *ptr1, *ptr2, *ptr3, *ptr4;
-  
-  self->GetIncrements(inc0, inc1, inc2, inc3, inc4);
-  self->GetExtent(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
-  
-  // loop over 5d space.
-  ptr4 = (T *)(self->GetScalarPointer());
-  for (idx4 = min4; idx4 <= max4; ++idx4)
-    {
-    ptr3 = ptr4;
-    for (idx3 = min3; idx3 <= max3; ++idx3)
-      {
-      ptr2 = ptr3;
-      for (idx2 = min2; idx2 <= max2; ++idx2)
-	{
-	ptr1 = ptr2;
-	for (idx1 = min1; idx1 <= max1; ++idx1)
-	  {
-	  ptr0 = ptr1;
-	  for (idx0 = min0; idx0 <= max0; ++idx0)
-	    {
-	    *ptr0 = *memPtr++;
-	    ptr0 += inc0;
-	    }
-	  ptr1 += inc1;
-	  }
-	ptr2 += inc2;
-	}
-      ptr3 += inc3;
-      }
-    ptr4 += inc4;
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method will copy your memory into the region.  It is important that
-// you SetExtent and SetScalarType of this region before this method is called.
-void vtkImageRegion::ImportMemory(void *ptr)
-{
-  // Get rid of old data, and allocate new
-  this->AllocateScalars();
-  this->Modified();
-  
-  switch (this->GetScalarType())
-    {
-    case VTK_FLOAT:
-      vtkImageRegionImportMemory(this, (float *)(ptr));
-      break;
-    case VTK_INT:
-      vtkImageRegionImportMemory(this, (int *)(ptr));
-      break;
-    case VTK_SHORT:
-      vtkImageRegionImportMemory(this, (short *)(ptr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageRegionImportMemory(this, (unsigned short *)(ptr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageRegionImportMemory(this, (unsigned char *)(ptr));
-      break;
-    default:
-      vtkErrorMacro(<< "ImportMemory: Cannot handle ScalarType.");
-    }   
-}
-
-
-//----------------------------------------------------------------------------
-// This should probably copy the data.
-void *vtkImageRegion::ExportMemory()
-{
-  return (void *)(this->Data->GetScalarPointer());
-}
-
-
-
 
 

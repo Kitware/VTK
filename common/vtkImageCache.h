@@ -91,13 +91,25 @@ public:
   virtual void CacheRegion(vtkImageRegion *region) = 0;
   
   // Description:
-  // Set the data scalar type of the regions created by this cache.
+  // Set/Get the data scalar type of the regions created by this cache.
   vtkSetMacro(ScalarType,int);
   vtkGetMacro(ScalarType,int);
+
+  // Description:
+  // Set/Get the data order of regions stored and returned by this cache.
+  // The data along the first axis is colocated in memory.
+  void SetDataOrder(int num, int *axes);
+  vtkImageSetMacro(DataOrder, int);
+  void GetDataOrder(int num, int *axes);
+  vtkImageGetMacro(DataOrder, int);
 
 protected:
   vtkImageCachedSource *Source;
 
+  // Needed for stupid macros (we need to change that)
+  // Not actually used.
+  int Axes[VTK_IMAGE_DIMENSIONS];
+  
   //  to tell the cache to save data or not.
   int ReleaseDataFlag;
 
@@ -109,6 +121,9 @@ protected:
 
   // The cache manipulates (and returns) regions with this data type.
   int ScalarType;
+
+  // The cache returns Regions with this underlying data order.
+  int DataOrder[VTK_IMAGE_DIMENSIONS];
   
   void GenerateUnCachedRegionData(vtkImageRegion *region);
   // Description:

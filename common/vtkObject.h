@@ -68,8 +68,8 @@ public:
   // debugging
   virtual void DebugOn();
   virtual void DebugOff();
-  int GetDebug();
-  void SetDebug(int debugFlag);
+  unsigned char GetDebug();
+  void SetDebug(unsigned char debugFlag);
 
   // modified time
   virtual unsigned long int GetMTime();
@@ -84,7 +84,7 @@ public:
   static void BreakOnError();
   
 protected:
-  int Debug;         // Enable debug messages
+  unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time
 
 private:

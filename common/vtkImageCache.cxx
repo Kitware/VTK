@@ -52,6 +52,7 @@ vtkImageCache::vtkImageCache()
   
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
+    this->DataOrder[idx] = idx;
     this->AspectRatio[idx] = 1.0;
     this->Origin[idx] = 0.0;
     this->ImageExtent[idx*2] = this->ImageExtent[idx*2+1] = 0;
@@ -89,6 +90,27 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 }
   
     
+
+
+//----------------------------------------------------------------------------
+// Dummy
+void vtkImageCache::GetDataOrder(int num, int *axes)
+{
+  axes = axes;
+  num = num;
+}
+
+
+//----------------------------------------------------------------------------
+// Dummy
+void vtkImageCache::SetDataOrder(int num, int *axes)
+{
+  axes = axes;
+  num = num;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -218,7 +240,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   saveScalarType = region->GetScalarType();
 
   // We do not support writting into regions that already have data.
-  // All that would be needed is a check that the data contains the extent.
+  // What if the cache already had the region? we would have to copy.
   region->ReleaseData();
   
   // If the extent has no "volume", just return.
@@ -277,20 +299,21 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   // If the scalar type is different, we must copy the data.
   if ((saveScalarType != VTK_VOID) && (saveScalarType != this->ScalarType))
     {
-    vtkImageData *newData = new vtkImageData;
-    vtkImageData *oldData = region->GetData();
-    newData->SetExtent(VTK_IMAGE_DIMENSIONS, oldData->GetExtent());
-    newData->SetScalarType(saveScalarType);
+    vtkImageRegion *tempRegion = vtkImageRegion::New();
+    tempRegion->SetAxes(VTK_IMAGE_DIMENSIONS, region->GetAxes());
+    tempRegion->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
+    tempRegion->SetScalarType(saveScalarType);
     vtkWarningMacro(<< "UpdateRegion: Have to copy data from type "
         << vtkImageScalarTypeNameMacro(this->ScalarType) << " to type "
         << vtkImageScalarTypeNameMacro(saveScalarType));
-    newData->CopyData(oldData);
+    
+    tempRegion->CopyRegionData(region);
     // Put the new data in the region.
     region->ReleaseData();
     region->SetScalarType(saveScalarType);
-    region->SetData(newData);
+    region->SetData(tempRegion->GetData());
     // we must delete the data because it is reference counted.
-    newData->Delete();
+    tempRegion->Delete();
     }
 }
 
