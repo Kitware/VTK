@@ -95,7 +95,7 @@ void  vtkLookupTable::SetTableRange(float min, float max)
 {
   if ( min >= max )
     {
-    vtkErrorMacro (<<"Bad table range");
+    vtkErrorMacro (<<"Bad table range: " << min << " >= " << max);
     return;
     }
 
