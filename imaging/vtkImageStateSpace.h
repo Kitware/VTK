@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMean.h
+  Module:    vtkImageStateSpace.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,49 +37,88 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMean - smooths on a 3D plane.
+// .NAME vtkImageStateSpace - ImageStateSpace for CLAW to search.
 // .SECTION Description
-// vtkImageMean averages over a neighborhood.  The stride can be set 
-// to shrink the image in integer multiples.
-// It is a decomposed filter so it really consists of
-// multiple 1D filters.
+// vtkImageStateSpace has topological and collision methods that defines
+// a space. For now, the maximum dimensionality of state space is three.
 
 
-#ifndef __vtkImageMean_h
-#define __vtkImageMean_h
+#ifndef __vtkImageStateSpace_h
+#define __vtkImageStateSpace_h
+
+#include "vtkStateSpace.h"
+#include "vtkImageRegion.h"
+#include "vtkClaw.h"
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageMean1D.h"
-
-class vtkImageMean : public vtkImageDecomposedFilter
+class vtkImageStateSpace : public vtkStateSpace
 {
 public:
-  vtkImageMean();
-  char *GetClassName() {return "vtkImageMean";};
-
-  void SetDimensionality(int num);
-
-  // Description:
-  // Set/Get the size of the neighborhood to apply mean.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize, int);
-  void GetKernelSize(int num, int *size);
-  vtkImageGetMacro(KernelSize, int);
+  vtkImageStateSpace();
+  ~vtkImageStateSpace();
+  char *GetClassName() {return "vtkImageStateSpace";};
 
   // Description:
-  // Set/Get the stride which shrinks the images.
-  void SetStrides(int num, int *size);
-  vtkImageSetMacro(Strides, int);
-  void GetStrides(int num, int *size);
-  vtkImageGetMacro(Strides, int);
+  // This function make sure the circular parameter is in range -rad -> rad.
+  // Same point, smaller(smallest) absolute parameter values.
+  void Wrap(float *state);
 
+  // Description:
+  // Returns  0.0 if state is out of bounds
+  float BoundsTest(float *state);
+
+  // Description:
+  // This function computes max distance between two points.
+  // Manhatten distance. 
+  float Distance(float *s0, float *s1);
+
+  // Description:
+  // This function determines collision space from free space
+  int Collide(float *state);
+
+  void GetMiddleState(float *s0, float *s1, float *middle);
+  
+  void GetChildState(float *state, int axis, float distance, float *child);
+  
+  // Description:
+  // Set/Get the image which defines the space.
+  vtkSetObjectMacro(Region,vtkImageRegion);
+  vtkGetObjectMacro(Region,vtkImageRegion);
+  
+  // Description:
+  // Set/Get the number of dimensions to use.
+  vtkSetMacro(NumberOfDimensions,int);
+  vtkGetMacro(NumberOfDimensions,int);
+  
+  // Description:
+  // Set/Get the threhold which defines collision space.
+  vtkSetMacro(Threshold,float);
+  vtkGetMacro(Threshold,float);
+
+  // For debugging.
+  void DrawPath(vtkClaw *claw, float value);
+  
+  
 protected:
-  int KernelSize[VTK_IMAGE_DIMENSIONS];
-  int Strides[VTK_IMAGE_DIMENSIONS];
+  int NumberOfDimensions;
+  vtkImageRegion *Region;
+  float Threshold;
+
 };
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

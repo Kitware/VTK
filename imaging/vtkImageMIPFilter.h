@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageMIPFilter - Maximum Intensity Projections of pixel values
 // .SECTION Description
 // vtkImageMIPFilter is a filter that takes the maximum or minimum intensity 
-// projecttions along any orthogonal plane (x-y, x-z, or y-z).
+// projections along any orthogonal plane (x-y, x-z, or y-z).
 
 
 #ifndef __vtkImageMIPFilter_h

@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMean.h
+  Module:    vtkStateSpace.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,49 +37,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMean - smooths on a 3D plane.
-// .SECTION Description
-// vtkImageMean averages over a neighborhood.  The stride can be set 
-// to shrink the image in integer multiples.
-// It is a decomposed filter so it really consists of
-// multiple 1D filters.
 
+#include "vtkStateSpace.h"
 
-#ifndef __vtkImageMean_h
-#define __vtkImageMean_h
-
-
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageMean1D.h"
-
-class vtkImageMean : public vtkImageDecomposedFilter
+//----------------------------------------------------------------------------
+vtkStateSpace::vtkStateSpace()
 {
-public:
-  vtkImageMean();
-  char *GetClassName() {return "vtkImageMean";};
+}
 
-  void SetDimensionality(int num);
 
-  // Description:
-  // Set/Get the size of the neighborhood to apply mean.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize, int);
-  void GetKernelSize(int num, int *size);
-  vtkImageGetMacro(KernelSize, int);
+//----------------------------------------------------------------------------
+vtkStateSpace::~vtkStateSpace()
+{
+}
 
-  // Description:
-  // Set/Get the stride which shrinks the images.
-  void SetStrides(int num, int *size);
-  vtkImageSetMacro(Strides, int);
-  void GetStrides(int num, int *size);
-  vtkImageGetMacro(Strides, int);
 
-protected:
-  int KernelSize[VTK_IMAGE_DIMENSIONS];
-  int Strides[VTK_IMAGE_DIMENSIONS];
-};
 
-#endif
+
+
+
+
+
+
+
+
 
 
 

@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMean.h
+  Module:    vtkStateSpace.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
 
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -38,49 +37,74 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMean - smooths on a 3D plane.
+// .NAME vtkStateSpace - StateSpace for CLAW to search.
 // .SECTION Description
-// vtkImageMean averages over a neighborhood.  The stride can be set 
-// to shrink the image in integer multiples.
-// It is a decomposed filter so it really consists of
-// multiple 1D filters.
+// vtkStateSpace has topological and collision methods that defines
+// a space. For now, the maximum dimensionality of state space is three.
 
 
-#ifndef __vtkImageMean_h
-#define __vtkImageMean_h
+#ifndef __vtkStateSpace_h
+#define __vtkStateSpace_h
 
+#include "vtkObject.h"
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageMean1D.h"
-
-class vtkImageMean : public vtkImageDecomposedFilter
+class vtkStateSpace : public vtkObject
 {
 public:
-  vtkImageMean();
-  char *GetClassName() {return "vtkImageMean";};
-
-  void SetDimensionality(int num);
-
-  // Description:
-  // Set/Get the size of the neighborhood to apply mean.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize, int);
-  void GetKernelSize(int num, int *size);
-  vtkImageGetMacro(KernelSize, int);
+  vtkStateSpace();
+  ~vtkStateSpace();
+  char *GetClassName() {return "vtkStateSpace";};
 
   // Description:
-  // Set/Get the stride which shrinks the images.
-  void SetStrides(int num, int *size);
-  vtkImageSetMacro(Strides, int);
-  void GetStrides(int num, int *size);
-  vtkImageGetMacro(Strides, int);
+  // This method takes care of any redundancy in the state
+  // representation.  For example, if one dimensions represents
+  // rotation in degrees, then 370 would be changed to 10.
+  virtual void Wrap(float *state) = 0;
 
+  // Description:
+  // Returns  a floating point value form 0 to 1 that represents
+  // the pseudo probablility that a state will be in the final path.
+  // It is used to implement guide paths.
+  virtual float BoundsTest(float *state) = 0;
+
+  // Description:
+  // This method computes max distance between two points.
+  virtual float Distance(float *s0, float *s1) = 0;
+
+  // Description:
+  // This method determines collision space from free space.
+  // It is assumed that this is an expensive operation.
+  virtual int Collide(float *state) = 0;
+
+  // Description:
+  // This method should return the state half way between two states.
+  // It is used to break a link into smaller steps.
+  virtual void GetMiddleState(float *s0, float *s1, float *middle) = 0;
+  
+  // Description:
+  // This method should return a new (child) state from a parent state.
+  // The child state should be "distance" along "axis".
+  virtual void GetChildState(float *state, int axis, float distance, 
+			     float *child) = 0;
+  
+  
 protected:
-  int KernelSize[VTK_IMAGE_DIMENSIONS];
-  int Strides[VTK_IMAGE_DIMENSIONS];
+
 };
 
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

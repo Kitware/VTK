@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMean.h
+  Module:    vtkImageDraw.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,49 +38,45 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMean - smooths on a 3D plane.
+// .NAME vtkImageDraw - A region that can be drawn into.
 // .SECTION Description
-// vtkImageMean averages over a neighborhood.  The stride can be set 
-// to shrink the image in integer multiples.
-// It is a decomposed filter so it really consists of
-// multiple 1D filters.
+// vtkImageDraw is a region object with methods to draw boxs, lines ...
+// over the data.  
 
 
-#ifndef __vtkImageMean_h
-#define __vtkImageMean_h
+#ifndef __vtkImageDraw_h
+#define __vtkImageDraw_h
+
+#include <math.h>
+#include "vtkImageRegion.h"
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageMean1D.h"
-
-class vtkImageMean : public vtkImageDecomposedFilter
+class vtkImageDraw : public vtkImageRegion
 {
 public:
-  vtkImageMean();
-  char *GetClassName() {return "vtkImageMean";};
-
-  void SetDimensionality(int num);
-
+  vtkImageDraw();
+  char *GetClassName() {return "vtkImageDraw";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
   // Description:
-  // Set/Get the size of the neighborhood to apply mean.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize, int);
-  void GetKernelSize(int num, int *size);
-  vtkImageGetMacro(KernelSize, int);
-
-  // Description:
-  // Set/Get the stride which shrinks the images.
-  void SetStrides(int num, int *size);
-  vtkImageSetMacro(Strides, int);
-  void GetStrides(int num, int *size);
-  vtkImageGetMacro(Strides, int);
+  // Set/Get DrawValue.  This is the value that is used when filling regions
+  // or drawing lines.
+  vtkSetMacro(DrawValue,float);
+  vtkGetMacro(DrawValue,float);
+  
+  void FillBox(int min0, int max0, int min1, int max1);
+  void FillTube(int x0, int y0, int x1, int y1, float radius);
+  void DrawSegment(int x0, int y0, int x1, int y1);
+  void DrawSegment3D(float *p0, float *p1);
 
 protected:
-  int KernelSize[VTK_IMAGE_DIMENSIONS];
-  int Strides[VTK_IMAGE_DIMENSIONS];
+  float DrawValue;
+  
+  int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 };
 
-#endif
 
+
+#endif
 
 

@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageDistance1D::vtkImageDistance1D()
 {
-  this->SetOutputScalarType(VTK_UNSIGNED_CHAR);
+  this->SetOutputScalarType(VTK_SHORT);
 }
 
 
@@ -90,22 +90,22 @@ void vtkImageDistance1D::ComputeRequiredInputRegionExtent(
 void vtkImageDistance1D::Execute(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
-  unsigned char *inPtr, *outPtr;
+  short *inPtr, *outPtr;
   int inInc, outInc;
   int min, max;
   int idx;
-  unsigned char dist;
+  short dist;
 
   vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
 		<< ", outRegion = " << outRegion);
   
-  // this filter expects that inputand output are unsigned char.
-  if (inRegion->GetScalarType() != VTK_UNSIGNED_CHAR ||
-      outRegion->GetScalarType() != VTK_UNSIGNED_CHAR)
+  // this filter expects that inputand output are short
+  if (inRegion->GetScalarType() != VTK_SHORT ||
+      outRegion->GetScalarType() != VTK_SHORT)
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
                   << ", and out ScalarType " << outRegion->GetScalarType()
-                  << " must by unsigned chars.");
+                  << " must be short.");
     return;
     }
 
@@ -116,8 +116,8 @@ void vtkImageDistance1D::Execute(vtkImageRegion *inRegion,
   
   // Forward pass
   dist = 255;
-  inPtr = (unsigned char *)(inRegion->GetScalarPointer());
-  outPtr = (unsigned char *)(outRegion->GetScalarPointer());
+  inPtr = (short *)(inRegion->GetScalarPointer());
+  outPtr = (short *)(outRegion->GetScalarPointer());
   for (idx = min; idx <= max; ++idx)
     {
     if (dist > *inPtr)

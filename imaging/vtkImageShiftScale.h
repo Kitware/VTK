@@ -40,9 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageShiftScale - Upper threshold on pixel values
 // .SECTION Description
-// vtkImageShiftScale is a pixel filter class that implements a 
-// nonlinear upper threshold.  If a pixel is above Threshold, it is replaced
-// with Replace.
+// vtkImageShiftScale Pixels are shifted and then scaled.
+
 
 
 #ifndef __vtkImageShiftScale_h

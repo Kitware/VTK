@@ -13,9 +13,17 @@ CONCRETE_H =
 
 ABSTRACT = \
 vtkImageDecomposedFilter \
-vtkImageMultipleInputFilter 
+vtkImageDyadicFilter \
+vtkImageFilter \
+vtkImageFourierFilter \
+vtkImageMultipleInputFilter \
+vtkImageInPlaceFilter \
+vtkImageSpatialFilter \
+vtkStateSpace 
 
 CONCRETE = \
+vtkClaw \
+vtkImage2DRobotSpace \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageArithmetic \
@@ -24,19 +32,16 @@ vtkImageDilate1D \
 vtkImageDilateErode \
 vtkImageDistance1D \
 vtkImageDistance \
-vtkImageDyadicFilter \
+vtkImageDraw \
 vtkImageFFT \
 vtkImageFFT1D \
-vtkImageFilter \
 vtkImageFourierBandPass \
-vtkImageFourierFilter \
 vtkImageFourierWavelet2D \
 vtkImageGaussianSmooth \
 vtkImageGaussianSmooth1D \
 vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHarrWavelet2D \
-vtkImageInPlaceFilter \
 vtkImageIslandRemoval2D \
 vtkImageMagnify1D \
 vtkImageMagnify \
@@ -55,7 +60,7 @@ vtkImageShiftScale \
 vtkImageShortReader \
 vtkImageShortWriter \
 vtkImageShrink3D \
-vtkImageSpatialFilter \
+vtkImageStateSpace \
 vtkImageThreshold \
 vtkImageXViewer 
 
