@@ -53,13 +53,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 template <class T>
 static void 
-VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
-				       int size[3],
-				       int directionFlag,
-				       vtkVolumeTextureMapper2D *me )
+VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
+                                      int size[3],
+                                      int axis,
+                                      int directionFlag,
+                                      vtkVolumeTextureMapper2D *me )
 {
   int              i, j, k;
-  int              istart, iend, iinc;
+  int              kstart, kend, kinc;
   unsigned char    *tptr;
   T                *dptr;
   unsigned short   *nptr;
@@ -85,921 +86,84 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   float            spacing[3], origin[3];
   unsigned char    zero[4];
   unsigned char    *texture;
-  int              targetSize[2];
   int              textureSize[2];
   int              xTile, yTile, xTotal, yTotal, tile, numTiles;
+  int              *zAxis, *yAxis, *xAxis;
+  int              loc, inc;
+  int              saveTextures = me->GetSaveTextures();
+  int              textureOffset;
   
+  int a0, a1, a2;
   
-  // How big should the texture be?
-  // Start with the target size
-  me->GetTargetTextureSize( targetSize );
-  
-  // Increase the x dimension of the texture if the y dimension of the data
-  // is bigger than it (because these are y by z textures)
-  if ( size[1] > targetSize[0] )
+  switch ( axis )
     {
-    targetSize[0] = size[1];
-    }
-
-  // Increase the y dimension of the texture if the z dimension of the data
-  // is bigger than it (because these are y by z textures)
-  if ( size[2] > targetSize[1] )
-    {
-    targetSize[1] = size[2];
-    }
-
-  // Make sure the x dimension of the texture is a power of 2
-  textureSize[0] = 32;
-  while( textureSize[0] < targetSize[0] ) 
-    {
-    textureSize[0] *= 2;
-    }
-  
-  // Make sure the y dimension of the texture is a power of 2
-  textureSize[1] = 32;
-  while( textureSize[1] < targetSize[1] )
-    {
-    textureSize[1] *= 2;
-    }
-
-  // Our texture might be too big - shrink it carefully making
-  // sure that it is still big enough in the right dimensions to
-  // handle oddly shaped volumes
-  int volSize = size[0]*size[1]*size[2];
-  int done = volSize > textureSize[0]*textureSize[1];
-  int minSize[2];
-  // What is the minumum size the texture could be in X (along the Y
-  // axis of the volume)?
-  minSize[0] = 32;
-  while ( minSize[0] < size[1] )
-    {
-    minSize[0] *= 2;
-    }
-  // What is the minumum size the texture could be in Y (along the Z
-  // axis of the volume)?
-  minSize[1] = 32;
-  while ( minSize[1] < size[2] )
-    {
-    minSize[1] *= 2;
-    }
-  // Keep reducing the texture size until it is just big enough
-  while (!done)
-    {
-    // Set done to 1. Reset to 0 if we make any changes.
-    done = 1;
-
-    // If the texture is bigger in some dimension that it needs to be
-    // and chopping that dimension in half would still fit the whole
-    // volume, then chop it in half.
-    if ( textureSize[0] > minSize[0] &&
-         ( ((textureSize[0]/2)/size[1]) * 
-           (textureSize[1] / size[2]) >= size[0] ) )
-      {
-      textureSize[0] /= 2;
-      done = 0;
-      }
-    if ( textureSize[1] > minSize[1] &&
-         ( (textureSize[0] / size[1]) * 
-           ((textureSize[1]/2) / size[2]) >= size[0] ) )
-      {
-      textureSize[1] /= 2;
-      done = 0;
-      }    
-    }
-  
-  
-  // Create space for the texture
-  texture = new unsigned char[4*textureSize[0]*textureSize[1]];
-
-  // How many tiles are there in X? in Y? total?
-  xTotal = textureSize[0] / size[1];
-  yTotal = textureSize[1] / size[2];
-  numTiles = xTotal * yTotal;
-  
-  // Create space for the vertices and texture coordinates. You need four vertices with
-  // three components each for each tile, and four texture coordinates with three
-  // components each for each texture coordinate
-  v = new float [12*numTiles];
-  t = new float [ 8*numTiles];
-  
-  // Convenient for filling in the empty regions (due to clipping)
-  zero[0] = 0;
-  zero[1] = 0;
-  zero[2] = 0;
-  zero[3] = 0;
-
-  // We need to know the spacing and origin of the data to set up the coordinates
-  // correctly
-  me->GetDataSpacing( spacing );
-  me->GetDataOrigin( origin );
-
-  // What is the first plane, the increment to move to the next plane, and the plane 
-  // that is just past the end?
-  if ( directionFlag )
-    {
-    istart  = 0;
-    iend    = ((int)( (size[0]-1) / 
-                      me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
-    
-    // Offset the slices so that if we take just one it is in the middle
-    istart += (size[0]-1-iend+me->GetInternalSkipFactor())/2;
-    iend   += (size[0]-1-iend+me->GetInternalSkipFactor())/2;
-    
-    iinc    = me->GetInternalSkipFactor();
-    }
-  else 
-    {
-    istart  = (int)((size[0]-1) / 
-                    me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
-    iend    = -me->GetInternalSkipFactor();
-
-    // Offset the slices so that if we take just one it is in the middle
-    iend   += (size[0]-1-istart)/2;
-    istart += (size[0]-1-istart)/2;
-
-    iinc    = -me->GetInternalSkipFactor();
-    }
-
-  // Fill in the texture coordinates and most of the vertex information in advance
-  float offset[2];
-  offset[0] = 0.5 / (float)textureSize[0];
-  offset[1] = 0.5 / (float)textureSize[1];
-  
-  for ( i = 0; i < numTiles; i++ )
-    {
-    yTile = i / xTotal;
-    xTile = i % xTotal;
-    
-    t[i*8 + 0] = (float)((size[1]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 1] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    t[i*8 + 2] = (float)((size[1]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 3] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
-    t[i*8 + 4] = (float)((size[1]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
-    t[i*8 + 5] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
-    t[i*8 + 6] = (float)((size[1]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
-    t[i*8 + 7] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    
-    v[i*12 + 1] = origin[1];
-    v[i*12 + 2] = origin[2];
-    
-    v[i*12 + 4] = origin[1];
-    v[i*12 + 5] = spacing[2] * (float)(size[2]-1) + origin[2];
-    
-    v[i*12 + 7] = spacing[1] * (float)(size[1]-1) + origin[1];
-    v[i*12 + 8] = spacing[2] * (float)(size[2]-1) + origin[2];
-    
-    v[i*12 + 10] = spacing[1] * (float)(size[1]-1) + origin[1];
-    v[i*12 + 11] = origin[2];
-    }
-  
-  cropping       = me->GetCropping();
-  croppingFlags  = me->GetCroppingRegionFlags();
-  croppingBounds = me->GetCroppingRegionPlanes();
-
-  if ( !cropping )
-    {
-    clipLow    = 0;
-    clipHigh   = size[1];
-    flag[0]    = 1;
-    flag[1]    = 1;
-    flag[2]    = 1;
-    }
-
-  shade = me->GetShade();
-  if ( shade )
-    {
-    encodedNormals = me->GetEncodedNormals();
-    
-    redDiffuseShadingTable    = me->GetRedDiffuseShadingTable();
-    greenDiffuseShadingTable  = me->GetGreenDiffuseShadingTable();
-    blueDiffuseShadingTable   = me->GetBlueDiffuseShadingTable();
-    
-    redSpecularShadingTable   = me->GetRedSpecularShadingTable();
-    greenSpecularShadingTable = me->GetGreenSpecularShadingTable();
-    blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
-    }
-
-  gradientMagnitudes = me->GetGradientMagnitudes();
-  gradientOpacityArray = me->GetGradientOpacityArray();
-
-  renWin = me->GetRenderWindow();
-
-  tile = 0;
-  
-  for ( i = istart; i != iend; i+=iinc )
-    {
-    yTile = tile / xTotal;
-    xTile = tile % xTotal;
-    
-    for ( k = 0; k < size[2]; k++ )
-      {
-      tptr = texture + 4 * ( yTile*size[2]*textureSize[0]+
-                             k*textureSize[0] +
-                             xTile*size[1] );
-                         
-      dptr = data_ptr + k*size[0]*size[1] + i;
-
-      // Given an X and Z value, what are the cropping bounds
-      // on Y.
-      if ( cropping )
-	{
-	clipLow  = (int) croppingBounds[2];
-	clipHigh = (int) croppingBounds[3];
-	tmpFlag =    (i<croppingBounds[0])?(0):(1+(i>=croppingBounds[1]));
-	tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
-	flag[0]  = croppingFlags&(1<<(tmpFlag));
-	flag[1]  = croppingFlags&(1<<(tmpFlag+3));
-	flag[2]  = croppingFlags&(1<<(tmpFlag+6));
-	}
-
-      if ( shade )
-	{
-	nptr = encodedNormals + k*size[0]*size[1] + i;
-	if ( gradientMagnitudes )
-	  {
-	  gptr = gradientMagnitudes + k*size[0]*size[1] + i;
-	  }
-	for ( j = 0; j < size[1]; j++ )
-	  {
-	  index = 0;
-	  index += ( j >= clipLow );
-	  index += ( j >= clipHigh );
-	  if ( flag[index] )
-	    {
-	    tmpval = rgbaArray[(*dptr)*4];
-	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
-	      redSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-
-	    tmpval = rgbaArray[(*dptr)*4 + 1];
-	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
-	      greenSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    
-	    tmpval = rgbaArray[(*dptr)*4 + 2];
-	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
-	      blueSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    
-	    tmpval = rgbaArray[(*dptr)*4 + 3];
-	    if ( gradientMagnitudes )
-	      {
-	      tmpval *= gradientOpacityArray[*gptr];
-	      gptr += size[0];
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    }
-	  else
-	    {
-	    memcpy( tptr, zero, 4 );
-	    tptr += 4;
-	    if ( gradientMagnitudes )
-	      {
-	      gptr += size[0];
-	      }
-	    }
-	  dptr += size[0];
-	  nptr += size[0];
-	  }
-	}
-      else
-	{
-	if ( gradientMagnitudes )
-	  {
-	  gptr = gradientMagnitudes + k*size[0]*size[1] + i;
-	  }
-
-	if ( cropping )
-	  {
-	  for ( j = 0; j < size[1]; j++ )
-	    {
-	    index = 0;
-	    index += ( j >= clipLow );
-	    index += ( j >= clipHigh );
-	    if ( flag[index] )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      if ( gradientMagnitudes )
-		{
-		*(tptr+3) = (unsigned char)
-		  ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-		gptr += size[0];
-		}
-	      }	  
-	    else
-	      {
-	      memcpy( tptr, zero, 4 );
-	      if ( gradientMagnitudes )
-		{
-		gptr += size[0];
-		}	      
-	      }
-	    tptr += 4;
-	    dptr += size[0];
-	    }
-	  }
-	else
-	  {
-	  if ( gradientMagnitudes )
-	    {
-	    for ( j = 0; j < size[1]; j++ )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      *(tptr+3) = (unsigned char)
-		((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-	      gptr += size[0];
-	      tptr += 4;
-	      dptr += size[0];
-	      }
-	    }
-	  else
-	    {
-	    for ( j = 0; j < size[1]; j++ )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      tptr += 4;
-	      dptr += size[0];
-	      }
-	    }
-	  }
-	}
-      }
-
-    if ( renWin->CheckAbortStatus() )
-      {
+    case 0:
+      a0 = 1;
+      a1 = 2;
+      a2 = 0;
+      xAxis = &k;
+      yAxis = &i;
+      zAxis = &j;
+      inc = size[0];
       break;
-      }
-
-    v[12*tile + 0] = 
-      v[12*tile + 3] = 
-      v[12*tile + 6] = 
-      v[12*tile + 9] = (float)i * spacing[0] + origin[0];
-    
-    tile++;
-    
-    if ( tile == numTiles  || (i+iinc == iend) )
-      { 
-      me->RenderQuads( tile, v, t, texture, textureSize);
-      tile = 0;
-      }
-    
-    }
-  
-  delete [] texture;
-  delete [] v;
-  delete [] t;
-}
-
-template <class T>
-static void 
-VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
-				       int size[3],
-				       int directionFlag,
-				       vtkVolumeTextureMapper2D *me )
-{
-  int            i, j, k;
-  int            jstart, jend, jinc;
-  unsigned char  *tptr;
-  T              *dptr;
-  unsigned short *nptr;
-  unsigned char  *gptr = NULL;
-  float          *v, *t;
-  unsigned char  *rgbaArray = me->GetRGBAArray();
-  unsigned short *encodedNormals = NULL;
-  float          *gradientOpacityArray;
-  unsigned char  *gradientMagnitudes;
-  float          *redDiffuseShadingTable = NULL;
-  float          *greenDiffuseShadingTable = NULL;
-  float          *blueDiffuseShadingTable = NULL;
-  float          *redSpecularShadingTable = NULL;
-  float          *greenSpecularShadingTable = NULL;
-  float          *blueSpecularShadingTable = NULL;
-  int            shade;
-  float          tmpval;
-  int            cropping, croppingFlags;
-  float          *croppingBounds;
-  int            flag[3], tmpFlag, index;
-  int            clipLow = 0, clipHigh = 0;
-  vtkRenderWindow  *renWin = me->GetRenderWindow();
-  float            spacing[3], origin[3];
-  unsigned char    zero[4];
-  unsigned char    *texture;
-  int              targetSize[2];
-  int              textureSize[2];
-  int              xTile, yTile, xTotal, yTotal, tile, numTiles;
-
-  // How big should the texture be?
-  // Start with the target size
-  me->GetTargetTextureSize( targetSize );
-  
-  // Increase the x dimension of the texture if the x dimension of the data
-  // is bigger than it (because these are x by z textures)
-  if ( size[0] > targetSize[0] )
-    {
-    targetSize[0] = size[0];
-    }
-
-  // Increase the y dimension of the texture if the z dimension of the data
-  // is bigger than it (because these are x by z textures)
-  if ( size[2] > targetSize[1] )
-    {
-    targetSize[1] = size[2];
-    }
-
-  // Make sure the x dimension of the texture is a power of 2
-  textureSize[0] = 32;
-  while( textureSize[0] < targetSize[0] ) 
-    {
-    textureSize[0] *= 2;
-    }
-  
-  // Make sure the y dimension of the texture is a power of 2
-  textureSize[1] = 32;
-  while( textureSize[1] < targetSize[1] )
-    {
-    textureSize[1] *= 2;
-    }
-
-  // Our texture might be too big - shrink it carefully making
-  // sure that it is still big enough in the right dimensions to
-  // handle oddly shaped volumes
-  int volSize = size[0]*size[1]*size[2];
-  int done = (volSize > textureSize[0]*textureSize[1]);
-  int minSize[2];
-  // What is the minumum size the texture could be in X (along the X
-  // axis of the volume)?
-  minSize[0] = 32;
-  while ( minSize[0] < size[0] )
-    {
-    minSize[0] *= 2;
-    }
-  
-  // What is the minumum size the texture could be in Y (along the Z
-  // axis of the volume)?
-  minSize[1] = 32;
-  while ( minSize[1] < size[2] )
-    {
-    minSize[1] *= 2;
-    }
-
-  // Keep reducing the texture size until it is just big enough
-  while (!done)
-    {
-    // Set done to 1. Reset to 0 if we make any changes.
-    done = 1;
-
-    // If the texture is bigger in some dimension that it needs to be
-    // and chopping that dimension in half would still fit the whole
-    // volume, then chop it in half.
-    if ( textureSize[0] > minSize[0] &&
-         ( ((textureSize[0]/2) / size[0]) * 
-           (textureSize[1] / size[2]) >= size[1] ) )
-      {
-      textureSize[0] /= 2;
-      done = 0;
-      }
-    if ( textureSize[1] > minSize[1] &&
-         ( (textureSize[0] / size[0]) * 
-           ((textureSize[1]/2) / size[2]) >= size[1] ) )
-      {
-      textureSize[1] /= 2;
-      done = 0;
-      }    
-    }
-
-  // Create space for the texture
-  texture = new unsigned char[4*textureSize[0]*textureSize[1]];
-
-  // How many tiles are there in X? in Y? total?
-  xTotal = textureSize[0] / size[0];
-  yTotal = textureSize[1] / size[2];
-  numTiles = xTotal * yTotal;
-  
-  // Create space for the vertices and texture coordinates. You need four vertices with
-  // three components each for each tile, and four texture coordinates with three
-  // components each for each texture coordinate
-  v = new float [12*numTiles];
-  t = new float [ 8*numTiles];
-  
-  // Convenient for filling in the empty regions (due to clipping)
-  zero[0] = 0;
-  zero[1] = 0;
-  zero[2] = 0;
-  zero[3] = 0;
-
-  // We need to know the spacing and origin of the data to set up the coordinates
-  // correctly
-  me->GetDataSpacing( spacing );
-  me->GetDataOrigin( origin );
-
-  // What is the first plane, the increment to move to the next plane, and the plane 
-  // that is just past the end?
-  if ( directionFlag )
-    {
-    jstart  = 0;
-    jend    = ((int)( (size[1]-1) / 
-                      me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
-    
-    // Offset the slices so that if we take just one it is in the middle
-    jstart += (size[1]-1-jend+me->GetInternalSkipFactor())/2;
-    jend   += (size[1]-1-jend+me->GetInternalSkipFactor())/2;
-
-    jinc    = me->GetInternalSkipFactor();
-    }
-  else 
-    {
-    jstart  = (int)((size[1]-1) /
-                    me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
-    jend    = -me->GetInternalSkipFactor();
-
-    // Offset the slices so that if we take just one it is in the middle
-    jend   += (size[1]-1-jstart)/2;
-    jstart += (size[1]-1-jstart)/2;
-
-    jinc    = -me->GetInternalSkipFactor();
-    }
-
-  // Fill in the texture coordinates and most of the vertex information in advance
-  float offset[2];
-  offset[0] = 0.5 / (float)textureSize[0];
-  offset[1] = 0.5 / (float)textureSize[1];
-  
-  for ( i = 0; i < numTiles; i++ )
-    {
-    yTile = i / xTotal;
-    xTile = i % xTotal;
-    
-    t[i*8 + 0] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 1] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    t[i*8 + 2] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 3] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
-    t[i*8 + 4] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
-    t[i*8 + 5] = (float)((size[2]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
-    t[i*8 + 6] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
-    t[i*8 + 7] = (float)((size[2]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    
-    v[i*12 + 0] = origin[0];
-    v[i*12 + 2] = origin[2];
-    
-    v[i*12 + 3] = origin[0];
-    v[i*12 + 5] = spacing[2] * (float)(size[2]-1) + origin[2];
-    
-    v[i*12 + 6] = spacing[0] * (float)(size[0]-1) + origin[0];
-    v[i*12 + 8] = spacing[2] * (float)(size[2]-1) + origin[2];
-    
-    v[i*12 +  9] = spacing[0] * (float)(size[0]-1) + origin[0];
-    v[i*12 + 11] = origin[2];
-    }
-  
-  cropping       = me->GetCropping();
-  croppingFlags  = me->GetCroppingRegionFlags();
-  croppingBounds = me->GetCroppingRegionPlanes();
-
-  if ( !cropping )
-    {
-    clipLow    = 0;
-    clipHigh   = size[0];
-    flag[0]    = 1;
-    flag[1]    = 1;
-    flag[2]    = 1;
-    }
-
-  shade = me->GetShade();
-  if ( shade )
-    {
-    encodedNormals = me->GetEncodedNormals();
-    
-    redDiffuseShadingTable    = me->GetRedDiffuseShadingTable();
-    greenDiffuseShadingTable  = me->GetGreenDiffuseShadingTable();
-    blueDiffuseShadingTable   = me->GetBlueDiffuseShadingTable();
-    
-    redSpecularShadingTable   = me->GetRedSpecularShadingTable();
-    greenSpecularShadingTable = me->GetGreenSpecularShadingTable();
-    blueSpecularShadingTable =  me->GetBlueSpecularShadingTable(); 
-    }
-
-  gradientMagnitudes = me->GetGradientMagnitudes();
-  gradientOpacityArray = me->GetGradientOpacityArray();
-  
-  tile = 0;
-  
-  for ( j = jstart; j != jend; j+=jinc )
-    {
-    yTile = tile / xTotal;
-    xTile = tile % xTotal;
-
-    for ( k = 0; k < size[2]; k++ )
-      {
-      tptr = texture + 4 * ( yTile*size[2]*textureSize[0]+
-                             k*textureSize[0] +
-                             xTile*size[0] );
-      
-      dptr = data_ptr + k*size[0]*size[1] + j*size[0];
-
-      // Given a Y and Z value, what are the cropping bounds
-      // on X.
-      if ( cropping )
-	{
-	clipLow  = (int)croppingBounds[0];
-	clipHigh = (int)croppingBounds[1];
-	tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
-	tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
-	flag[0]  = croppingFlags&(1<<(tmpFlag));
-	flag[1]  = croppingFlags&(1<<(tmpFlag+1));
-	flag[2]  = croppingFlags&(1<<(tmpFlag+2));
-	}
-
-      if ( shade )
-	{
-	nptr = encodedNormals + k*size[0]*size[1] + j*size[0];
-	if ( gradientMagnitudes )
-	  {
-	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
-	  }
-	for ( i = 0; i < size[0]; i++ )
-	  {
-	  index = 0;
-	  index += ( i >= clipLow );
-	  index += ( i >= clipHigh );
-	  if ( flag[index] )
-	    {
-	    tmpval = rgbaArray[(*dptr)*4];
-	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
-	      redSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-
-	    tmpval = rgbaArray[(*dptr)*4 + 1];
-	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
-	      greenSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-
-	    tmpval = rgbaArray[(*dptr)*4 + 2];
-	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
-	      blueSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    
-	    tmpval = rgbaArray[(*dptr)*4 + 3];
-	    if ( gradientMagnitudes )
-	      {
-	      tmpval *= gradientOpacityArray[*gptr];
-	      gptr++;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    }
-	  else
-	    {
-	    memcpy( tptr, zero, 4 );
-	    tptr += 4;
-	    if ( gradientMagnitudes )
-	      {
-	      gptr++;
-	      }
-	    }
-	  dptr++;
-	  nptr++;
-	  }
-	}
-      else
-	{
-	if ( gradientMagnitudes )
-	  {
-	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
-	  }
-
-	if ( cropping )
-	  {
-	  for ( i = 0; i < size[0]; i++ )
-	    {
-	    index = 0;
-	    index += ( i >= clipLow );
-	    index += ( i >= clipHigh );
-	    if ( flag[index] )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      if ( gradientMagnitudes )
-		{
-		*(tptr+3) = (unsigned char)
-		  ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-		gptr++;
-		}
-	      }
-	    else
-	      {
-	      memcpy( tptr, zero, 4 );
-	      if ( gradientMagnitudes )
-		{
-		gptr++;
-		}	      
-	      }
-	    tptr += 4;
-	    dptr++;
-	    }
-	  }
-	else
-	  {
-	  if ( gradientMagnitudes )
-	    {
-	    for ( i = 0; i < size[0]; i++ )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      *(tptr+3) = (unsigned char)
-		((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-	      gptr++;
-	      tptr += 4;
-	      dptr++;
-	      }
-	    }
-	  else
-	    {
-	    for ( i = 0; i < size[0]; i++ )
-	      {
-	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
-	      tptr += 4;
-	      dptr++;
-	      }
-	    }
-	  }
-	}
-      }
-    
-    if ( renWin->CheckAbortStatus() )
-      {
+    case 1:
+      a0 = 0;
+      a1 = 2;
+      a2 = 1;
+      xAxis = &i;
+      yAxis = &k;
+      zAxis = &j;
+      inc = 1;
       break;
-      }
-
-    v[12*tile + 1] = 
-      v[12*tile +4] = 
-      v[12*tile +7] = 
-      v[12*tile +10] = spacing[1] * (float)j + origin[1];
-
-    tile++;
-    
-    if ( tile == numTiles  || (j+jinc == jend) )
-      { 
-      me->RenderQuads( tile, v, t, texture, textureSize);
-      tile = 0;
-      }
-    
-    }
-  
-  delete [] texture;
-  delete [] v;
-  delete [] t;
-}
-
-template <class T>
-static void 
-VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
-				       int size[3],
-				       int directionFlag,
-				       vtkVolumeTextureMapper2D *me )
-{
-  int            i, j, k;
-  int            kstart, kend, kinc;
-  unsigned char  *tptr;
-  T              *dptr;
-  unsigned short *nptr;
-  unsigned char  *gptr = NULL;
-  float          *v, *t;
-  unsigned char  *rgbaArray = me->GetRGBAArray();
-  unsigned short *encodedNormals = NULL;
-  float          *gradientOpacityArray;
-  unsigned char  *gradientMagnitudes;
-  float          *redDiffuseShadingTable = NULL;
-  float          *greenDiffuseShadingTable = NULL;
-  float          *blueDiffuseShadingTable = NULL;
-  float          *redSpecularShadingTable = NULL;
-  float          *greenSpecularShadingTable = NULL;
-  float          *blueSpecularShadingTable = NULL;
-  int            shade;
-  float          tmpval;
-  int            cropping, croppingFlags;
-  float          *croppingBounds;
-  int            flag[3], tmpFlag, index;
-  int            clipLow = 0, clipHigh = 0;
-  vtkRenderWindow  *renWin = me->GetRenderWindow();
-  float            spacing[3], origin[3];
-  unsigned char    zero[4];
-  unsigned char    *texture;
-  int              targetSize[2];
-  int              textureSize[2];
-  int              xTile, yTile, xTotal, yTotal, tile, numTiles;
-  
-  
-  // How big should the texture be?
-  // Start with the target size
-  me->GetTargetTextureSize( targetSize );
-  
-  // Increase the x dimension of the texture if the x dimension of the data
-  // is bigger than it (because these are x by y textures)
-  if ( size[0] > targetSize[0] )
-    {
-    targetSize[0] = size[0];
+    case 2:
+      a0 = 0;
+      a1 = 1;
+      a2 = 2;
+      xAxis = &i;
+      yAxis = &j;
+      zAxis = &k;
+      inc = 1;
+      break;
     }
 
-  // Increase the y dimension of the texture if the y dimension of the data
-  // is bigger than it (because these are x by y textures)
-  if ( size[1] > targetSize[1] )
-    {
-    targetSize[1] = size[1];
-    }
+  int *axisTextureSize = me->GetAxisTextureSize();
+  textureSize[0] = axisTextureSize[a2*3+0];
+  textureSize[1] = axisTextureSize[a2*3+1];
 
-  // Make sure the x dimension of the texture is a power of 2
-  textureSize[0] = 32;
-  while( textureSize[0] < targetSize[0] ) 
+  if ( saveTextures )
     {
-    textureSize[0] *= 2;
-    }
-  
-  // Make sure the y dimension of the texture is a power of 2
-  textureSize[1] = 32;
-  while( textureSize[1] < targetSize[1] )
-    {
-    textureSize[1] *= 2;
-    }
-
-  // Our texture might be too big - shrink it carefully making
-  // sure that it is still big enough in the right dimensions to
-  // handle oddly shaped volumes
-  int volSize = size[0]*size[1]*size[2];
-  int done = (volSize > textureSize[0]*textureSize[1]);
-  int minSize[2];
-  // What is the minumum size the texture could be in X (along the X
-  // axis of the volume)?
-  minSize[0] = 32;
-  while ( minSize[0] < size[0] )
-    {
-    minSize[0] *= 2;
-    }
-  
-  // What is the minumum size the texture could be in Y (along the Y
-  // axis of the volume)?
-  minSize[1] = 32;
-  while ( minSize[1] < size[1] )
-    {
-    minSize[1] *= 2;
-    }
-
-  // Keep reducing the texture size until it is just big enough
-  while (!done)
-    {
-    // Set done to 1. Reset to 0 if we make any changes.
-    done = 1;
-
-    // If the texture is bigger in some dimension that it needs to be
-    // and chopping that dimension in half would still fit the whole
-    // volume, then chop it in half.
-    if ( textureSize[0] > minSize[0] &&
-         ( ((textureSize[0]/2) / size[0]) * 
-           (textureSize[1] / size[1]) >= size[2] ) )
+    texture = me->GetTexture();
+    switch ( axis )
       {
-      textureSize[0] /= 2;
-      done = 0;
+      case 0:
+        textureOffset = 0;
+        break;
+      case 1:
+        textureOffset =
+          4*axisTextureSize[0]*axisTextureSize[1]*axisTextureSize[2];
+        break;
+      case 2:
+        textureOffset =
+          4*axisTextureSize[0]*axisTextureSize[1]*axisTextureSize[2] +
+          4*axisTextureSize[3]*axisTextureSize[4]*axisTextureSize[5];
+        break;
       }
-    if ( textureSize[1] > minSize[1] &&
-         ( (textureSize[0] / size[0]) * 
-           ((textureSize[1]/2) / size[1]) >= size[2] ) )
-      {
-      textureSize[1] /= 2;
-      done = 0;
-      }    
     }
-
-  // Create space for the texture
-  texture = new unsigned char[4*textureSize[0]*textureSize[1]];
-
+  else
+    {
+    // Create space for the texture
+    texture = new unsigned char[4*textureSize[0]*textureSize[1]];
+    textureOffset = 0;
+    }
+  
   // How many tiles are there in X? in Y? total?
-  xTotal = textureSize[0] / size[0];
-  yTotal = textureSize[1] / size[1];
+  xTotal = textureSize[0] / size[a0];
+  yTotal = textureSize[1] / size[a1];
   numTiles = xTotal * yTotal;
-  
-  // Create space for the vertices and texture coordinates. You need four vertices with
-  // three components each for each tile, and four texture coordinates with three
-  // components each for each texture coordinate
+
+  // Create space for the vertices and texture coordinates. You need four vertices 
+  // with three components each for each tile, and four texture coordinates with 
+  // three components each for each texture coordinate
   v = new float [12*numTiles];
   t = new float [ 8*numTiles];
   
@@ -1019,24 +183,24 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   if ( directionFlag )
     {
     kstart  = 0;
-    kend    = ((int)( (size[2]-1) / 
+    kend    = ((int)( (size[a2]-1) / 
                       me->GetInternalSkipFactor())+1)*me->GetInternalSkipFactor();
     
     // Offset the slices so that if we take just one it is in the middle
-    kstart += (size[2]-1-kend+me->GetInternalSkipFactor())/2;
-    kend   += (size[2]-1-kend+me->GetInternalSkipFactor())/2;
+    kstart += (size[a2]-1-kend+me->GetInternalSkipFactor())/2;
+    kend   += (size[a2]-1-kend+me->GetInternalSkipFactor())/2;
     
     kinc    = me->GetInternalSkipFactor();
     }
   else 
     {
-    kstart  = (int)((size[2]-1) /
+    kstart  = (int)((size[a2]-1) /
                     me->GetInternalSkipFactor()) * me->GetInternalSkipFactor();
     kend    = -me->GetInternalSkipFactor();
     
     // Offset the slices so that if we take just one it is in the middle
-    kend   += (size[2]-1-kstart)/2;
-    kstart += (size[2]-1-kstart)/2;
+    kend   += (size[a2]-1-kstart)/2;
+    kstart += (size[a2]-1-kstart)/2;
     
     kinc    = -me->GetInternalSkipFactor();
     }
@@ -1051,26 +215,26 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
     yTile = i / xTotal;
     xTile = i % xTotal;
     
-    t[i*8 + 0] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 1] = (float)((size[1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
-    t[i*8 + 2] = (float)((size[0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
-    t[i*8 + 3] = (float)((size[1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
-    t[i*8 + 4] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
-    t[i*8 + 5] = (float)((size[1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
-    t[i*8 + 6] = (float)((size[0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
-    t[i*8 + 7] = (float)((size[1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 0] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 1] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 2] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 3] = (float)((size[a1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 4] = (float)((size[a0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 5] = (float)((size[a1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 6] = (float)((size[a0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 7] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
     
-    v[i*12 + 0] = origin[0];
-    v[i*12 + 1] = origin[1];
+    v[i*12 + a0] = origin[a0];
+    v[i*12 + a1] = origin[a1];
     
-    v[i*12 + 3] = origin[0];
-    v[i*12 + 4] = spacing[1] * (float)(size[1]-1) + origin[1];
+    v[i*12 + 3+a0] = origin[a0];
+    v[i*12 + 3+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
     
-    v[i*12 + 6] = spacing[0] * (float)(size[0]-1) + origin[0];
-    v[i*12 + 7] = spacing[1] * (float)(size[1]-1) + origin[1];
+    v[i*12 + 6+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
+    v[i*12 + 6+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
     
-    v[i*12 +  9] = spacing[0] * (float)(size[0]-1) + origin[0];
-    v[i*12 + 10] = origin[1];
+    v[i*12 + 9+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
+    v[i*12 + 9+a1] = origin[a1];
     }
 
   cropping       = me->GetCropping();
@@ -1080,7 +244,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   if ( !cropping )
     {
     clipLow    = 0;
-    clipHigh   = size[0];
+    clipHigh   = size[a0];
     flag[0]    = 1;
     flag[1]    = 1;
     flag[2]    = 1;
@@ -1104,105 +268,133 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   gradientOpacityArray = me->GetGradientOpacityArray();
 
   tile = 0; 
-  
   for ( k = kstart; k != kend; k+=kinc )
     {
     yTile = tile / xTotal;
     xTile = tile % xTotal;
 
-    for ( j = 0; j < size[1]; j++ )
+    for ( j = 0; j < size[a1]; j++ )
       {
-      tptr = texture + 4 * ( yTile*size[1]*textureSize[0]+
-                             j*textureSize[0] +
-                             xTile*size[0] );
-
-      dptr = data_ptr + k*size[0]*size[1] + j*size[0];
+      i = 0;
+      
+      tptr = texture + textureOffset + 
+        4 * ( yTile*size[a1]*textureSize[0]+
+              j*textureSize[0] +
+              xTile*size[a0] );
+      
+      loc = (*zAxis)*size[0]*size[1] + (*yAxis)*size[0] + (*xAxis);
+      dptr = data_ptr + loc;
 
       // Given a Y and Z value, what are the cropping bounds
       // on X.
       if ( cropping )
 	{
-	clipLow  = (int)croppingBounds[0];
-	clipHigh = (int)croppingBounds[1];
-	tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
-	tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
-	flag[0]  = croppingFlags&(1<<(tmpFlag));
-	flag[1]  = croppingFlags&(1<<(tmpFlag+1));
-	flag[2]  = croppingFlags&(1<<(tmpFlag+2));
-	}
-
+        switch ( axis )
+          {
+          case 0:
+            clipLow  = (int) croppingBounds[2];
+            clipHigh = (int) croppingBounds[3];
+            tmpFlag =    (i<croppingBounds[0])?(0):(1+(i>=croppingBounds[1]));
+            tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+            flag[0]  = croppingFlags&(1<<(tmpFlag));
+            flag[1]  = croppingFlags&(1<<(tmpFlag+3));
+            flag[2]  = croppingFlags&(1<<(tmpFlag+6));
+            break;
+          case 1:
+            clipLow  = (int)croppingBounds[0];
+            clipHigh = (int)croppingBounds[1];
+            tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
+            tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+            flag[0]  = croppingFlags&(1<<(tmpFlag));
+            flag[1]  = croppingFlags&(1<<(tmpFlag+1));
+            flag[2]  = croppingFlags&(1<<(tmpFlag+2));
+            break;
+          case 2:
+            clipLow  = (int)croppingBounds[0];
+            clipHigh = (int)croppingBounds[1];
+            tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
+            tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+            flag[0]  = croppingFlags&(1<<(tmpFlag));
+            flag[1]  = croppingFlags&(1<<(tmpFlag+1));
+            flag[2]  = croppingFlags&(1<<(tmpFlag+2));
+            break;
+          }
+        }
+      
       if ( shade )
 	{
-	nptr = encodedNormals + k*size[0]*size[1] + j*size[0];
+	nptr = encodedNormals + loc;
+        
 	if ( gradientMagnitudes )
 	  {
-	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
+	  gptr = gradientMagnitudes + loc;
 	  }
-	for ( i = 0; i < size[0]; i++ )
+	for ( i = 0; i < size[a0]; i++ )
 	  {
 	  index = 0;
 	  index += ( i >= clipLow );
 	  index += ( i >= clipHigh );
 	  if ( flag[index] )
 	    {
-	    tmpval = rgbaArray[(*dptr)*4];
-	    tmpval = tmpval * redDiffuseShadingTable[*nptr] +
-	      redSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    
-	    tmpval = rgbaArray[(*dptr)*4 + 1];
-	    tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
-	      greenSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    
-	    tmpval = rgbaArray[(*dptr)*4 + 2];
-	    tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
-	      blueSpecularShadingTable[*nptr]*255.0;
-	    if ( tmpval > 255.0 )
-	      {
-	      tmpval = 255.0;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    
-	    tmpval = rgbaArray[(*dptr)*4 + 3];
-	    if ( gradientMagnitudes )
-	      {
-	      tmpval *= gradientOpacityArray[*gptr];
-	      gptr++;
-	      }
-	    *(tptr++) = (unsigned char) tmpval;
-	    }
+            tmpval = rgbaArray[(*dptr)*4];
+            tmpval = tmpval * redDiffuseShadingTable[*nptr] +
+              redSpecularShadingTable[*nptr]*255.0;
+            if ( tmpval > 255.0 )
+              {
+              tmpval = 255.0;
+              }
+            *(tptr++) = (unsigned char) tmpval;
+            
+            tmpval = rgbaArray[(*dptr)*4 + 1];
+            tmpval = tmpval * greenDiffuseShadingTable[*nptr] +
+              greenSpecularShadingTable[*nptr]*255.0;
+            if ( tmpval > 255.0 )
+              {
+              tmpval = 255.0;
+              }
+            *(tptr++) = (unsigned char) tmpval;
+            
+            tmpval = rgbaArray[(*dptr)*4 + 2];
+            tmpval = tmpval * blueDiffuseShadingTable[*nptr] +
+              blueSpecularShadingTable[*nptr]*255.0;
+            if ( tmpval > 255.0 )
+              {
+              tmpval = 255.0;
+              }
+            *(tptr++) = (unsigned char) tmpval;
+            
+            tmpval = rgbaArray[(*dptr)*4 + 3];
+            if ( gradientMagnitudes )
+              {
+              tmpval *= gradientOpacityArray[*gptr];
+              gptr += inc;
+              }
+            *(tptr++) = (unsigned char) tmpval;
+            
+            }
 	  else
 	    {
 	    memcpy( tptr, zero, 4 );
 	    tptr += 4;
 	    if ( gradientMagnitudes )
 	      {
-	      gptr++;
+	      gptr += inc;
 	      }
 	    }
-	  nptr++;
-	  dptr++;
+	  nptr += inc;
+	  dptr += inc;
 	  }
 	}
       else
 	{
 	if ( gradientMagnitudes )
 	  {
-	  gptr = gradientMagnitudes + k*size[0]*size[1] + j*size[0];
+	  gptr = gradientMagnitudes + loc;
 	  }
 
 	if ( cropping )
 	  {
-	  for ( i = 0; i < size[0]; i++ )
+	  for ( i = 0; i < size[a0]; i++ )
 	    {
 	    index = 0;
 	    index += ( i >= clipLow );
@@ -1214,7 +406,7 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 		{
 		*(tptr+3) = (unsigned char)
 		  ((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-		gptr++;
+		gptr += inc;
 		}
 	      }
 	    else
@@ -1222,34 +414,34 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
 	      memcpy( tptr, zero, 4 );
 	      if ( gradientMagnitudes )
 		{
-		gptr++;
+		gptr += inc;
 		}	      
 	      }
 	    tptr += 4;
-	    dptr++;
+	    dptr += inc;
 	    }
 	  }
 	else
 	  {
 	  if ( gradientMagnitudes )
 	    {
-	    for ( i = 0; i < size[0]; i++ )
+	    for ( i = 0; i < size[a0]; i++ )
 	      {
 	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
 	      *(tptr+3) = (unsigned char)
 		((float)(*(tptr+3)) * gradientOpacityArray[*gptr]);
-	      gptr++;
+	      gptr += inc;
+	      dptr += inc;
 	      tptr += 4;
-	      dptr++;
 	      }
 	    }
 	  else
 	    {
-	    for ( i = 0; i < size[0]; i++ )
+	    for ( i = 0; i < size[a0]; i++ )
 	      {
 	      memcpy( tptr, rgbaArray + (*dptr)*4, 4 );
 	      tptr += 4;
-	      dptr++;
+	      dptr += inc;
 	      }
 	    }
 	  }
@@ -1261,22 +453,34 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
       break;
       }
 
-    v[12*tile + 2] = 
-      v[12*tile +5] = 
-      v[12*tile +8] = 
-      v[12*tile +11] = spacing[2] * (float)k + origin[2];
+    v[12*tile + a2] = 
+      v[12*tile + 3+a2] = 
+      v[12*tile + 6+a2] = 
+      v[12*tile + 9+a2] = spacing[a2] * (float)k + origin[a2];
 
     tile++;
     
     if ( tile == numTiles  || (k+kinc == kend) )
       { 
-      me->RenderQuads( tile, v, t, texture, textureSize);
+      if ( saveTextures )
+        {
+        textureOffset += 4*axisTextureSize[a2*3] * axisTextureSize[a2*3+1];
+        }
+      else
+        {
+        me->RenderQuads( tile, v, t, texture, textureSize, 0);
+        }      
       tile = 0;
       }
     
     }
   
-  delete [] texture;
+  
+  if ( !saveTextures )
+    {
+    delete [] texture;
+    }
+  
   delete [] v;
   delete [] t;
 
@@ -1287,10 +491,17 @@ vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
   this->TargetTextureSize[0]  = 512;
   this->TargetTextureSize[1]  = 512;
   this->MaximumNumberOfPlanes =   0;
+  this->MaximumStorageSize    =   0;
+  this->Texture               = NULL;
+  this->TextureSize           = 0;
 }
 
 vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
 {
+  if ( this->Texture )
+    {
+    delete [] this->Texture;
+    }
 }
 
 
@@ -1302,6 +513,243 @@ vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
   return (vtkVolumeTextureMapper2D*)ret;
 }
 
+void vtkVolumeTextureMapper2D::RenderSavedTexture()
+{
+  int              i, k;
+  int              kstart, kend, kinc;
+  unsigned char    *tptr;
+  float            *v, *t;
+  vtkRenderWindow  *renWin = this->GetRenderWindow();
+  float            spacing[3], origin[3];
+  unsigned char    *texture;
+  int              textureSize[2];
+  int              xTile, yTile, xTotal, yTotal, tile, numTiles;
+  int              textureOffset;
+  int              axis, directionFlag;
+  int              size[3];
+  
+  int a0, a1, a2;
+
+  this->GetInput()->GetDimensions( size );
+
+  switch ( this->MajorDirection )
+    {    
+    case VTK_PLUS_X_MAJOR_DIRECTION:
+      axis = 0;
+      directionFlag = 1;
+      break;
+    case VTK_MINUS_X_MAJOR_DIRECTION:
+      axis = 0;
+      directionFlag = 0;
+      break;
+    case VTK_PLUS_Y_MAJOR_DIRECTION:
+      axis = 1;
+      directionFlag = 1;
+      break;
+    case VTK_MINUS_Y_MAJOR_DIRECTION:
+      axis = 1;
+      directionFlag = 0;
+      break;
+    case VTK_PLUS_Z_MAJOR_DIRECTION:
+      axis = 2;
+      directionFlag = 1;
+      break;
+    case VTK_MINUS_Z_MAJOR_DIRECTION:
+      axis = 2;
+      directionFlag = 0;
+      break;
+    }
+  
+  switch ( axis )
+    {
+    case 0:
+      a0 = 1;
+      a1 = 2;
+      a2 = 0;
+      break;
+    case 1:
+      a0 = 0;
+      a1 = 2;
+      a2 = 1;
+      break;
+    case 2:
+      a0 = 0;
+      a1 = 1;
+      a2 = 2;
+      break;
+    }
+
+  textureSize[0] = this->AxisTextureSize[a2][0];
+  textureSize[1] = this->AxisTextureSize[a2][1];
+
+  texture = this->Texture;
+  switch ( axis )
+    {
+    case 0:
+      textureOffset = 0;
+      break;
+    case 1:
+      textureOffset =
+        4*(this->AxisTextureSize[0][0]*
+           this->AxisTextureSize[0][1]*
+           this->AxisTextureSize[0][2]);
+      break;
+    case 2:
+      textureOffset =
+        4*(this->AxisTextureSize[0][0]*
+           this->AxisTextureSize[0][1]*
+           this->AxisTextureSize[0][2]) +
+        4*(this->AxisTextureSize[1][0]*
+           this->AxisTextureSize[1][1]*
+           this->AxisTextureSize[1][2]);
+      break;
+    }
+
+  if ( directionFlag == 0 )
+    {
+    textureOffset +=
+      4*(this->AxisTextureSize[a2][0]*
+         this->AxisTextureSize[a2][1]*
+         (this->AxisTextureSize[a2][2]-1));
+    }
+
+  // How many tiles are there in X? in Y? total?
+  xTotal = textureSize[0] / size[a0];
+  yTotal = textureSize[1] / size[a1];
+  numTiles = xTotal * yTotal;
+  
+  // Create space for the vertices and texture coordinates. You need four vertices 
+  // with three components each for each tile, and four texture coordinates with 
+  // three components each for each texture coordinate
+  v = new float [12*numTiles];
+  t = new float [ 8*numTiles];
+  
+  // We need to know the spacing and origin of the data to set up the coordinates
+  // correctly
+  this->GetDataSpacing( spacing );
+  this->GetDataOrigin( origin );
+
+  // What is the first plane, the increment to move to the next plane, and the plane 
+  // that is just past the end?
+  if ( directionFlag )
+    {
+    kstart  = 0;
+    kend    = ((int)( (size[a2]-1) / 
+                      this->InternalSkipFactor)+1)*this->InternalSkipFactor;
+    
+    // Offset the slices so that if we take just one it is in the middle
+    kstart += (size[a2]-1-kend+this->InternalSkipFactor)/2;
+    kend   += (size[a2]-1-kend+this->InternalSkipFactor)/2;
+    
+    kinc    = this->InternalSkipFactor;
+    }
+  else 
+    {
+    kstart  = (int)((size[a2]-1) /
+                    this->InternalSkipFactor) * this->InternalSkipFactor;
+    kend    = -this->InternalSkipFactor;
+    
+    // Offset the slices so that if we take just one it is in the middle
+    kend   += (size[a2]-1-kstart)/2;
+    kstart += (size[a2]-1-kstart)/2;
+    
+    kinc    = -this->InternalSkipFactor;
+    }
+
+  // Fill in the texture coordinates and most of the vertex information in advance
+  float offset[2];
+  offset[0] = 0.5 / (float)textureSize[0];
+  offset[1] = 0.5 / (float)textureSize[1];
+  
+  int idx;
+  for ( idx = 0; idx < numTiles; idx++ )
+    {
+    i = ( directionFlag == 1 )?(idx):(numTiles-idx-1);
+    
+    yTile = i / xTotal;
+    xTile = i % xTotal;
+    
+    t[i*8 + 0] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 1] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    t[i*8 + 2] = (float)((size[a0]*(xTile  ))  )/(float)textureSize[0] + offset[0];
+    t[i*8 + 3] = (float)((size[a1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 4] = (float)((size[a0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 5] = (float)((size[a1]*(yTile+1))-1)/(float)textureSize[1] - offset[1];
+    t[i*8 + 6] = (float)((size[a0]*(xTile+1))-1)/(float)textureSize[0] - offset[0];
+    t[i*8 + 7] = (float)((size[a1]*(yTile  ))  )/(float)textureSize[1] + offset[1];
+    
+    v[i*12 + a0] = origin[a0];
+    v[i*12 + a1] = origin[a1];
+    
+    v[i*12 + 3+a0] = origin[a0];
+    v[i*12 + 3+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
+    
+    v[i*12 + 6+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
+    v[i*12 + 6+a1] = spacing[a1] * (float)(size[a1]-1) + origin[a1];
+    
+    v[i*12 + 9+a0] = spacing[a0] * (float)(size[a0]-1) + origin[a0];
+    v[i*12 + 9+a1] = origin[a1];
+    }
+
+  if ( directionFlag == 1 )
+    {
+    tile = 0;
+    }
+  else
+    {
+    tile = (((kend - kstart)/kinc)-1)%numTiles;
+    }
+
+  int tileCount = 0;
+  
+  for ( k = kstart; k != kend; k+=kinc )
+    {
+    if ( renWin->CheckAbortStatus() )
+      {
+      break;
+      }
+
+    v[12*tile + a2] = 
+      v[12*tile + 3+a2] = 
+      v[12*tile + 6+a2] = 
+      v[12*tile + 9+a2] = spacing[a2] * (float)k + origin[a2];
+
+    tileCount++;
+    
+    if ( directionFlag == 1 )
+      {
+      tile++;
+      }
+    else
+      {
+      tile--;
+      }
+    
+    if ( (directionFlag == 1 && tile == numTiles ) ||
+         (directionFlag == 0 && tile == -1) || (k+kinc == kend) )
+      { 
+      tptr = texture + textureOffset;
+      if ( directionFlag == 1 )
+        {
+        textureOffset += 
+          4*this->AxisTextureSize[a2][0] * this->AxisTextureSize[a2][1];
+        }
+      else
+        {
+        textureOffset -= 
+          4*this->AxisTextureSize[a2][0] * this->AxisTextureSize[a2][1];
+        }
+      
+      this->RenderQuads( tileCount, v, t, tptr, textureSize, !directionFlag );
+      tile = (directionFlag == 1)?(0):(numTiles-1); 
+      tileCount = 0;
+      }
+    }
+  
+  delete [] v;
+  delete [] t;
+
+}
 
 void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 {
@@ -1309,7 +757,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
   int                    size[3];
   void                   *inputPointer;
   int                    inputType;
-
+  
   inputPointer = 
     input->GetPointData()->GetScalars()->GetVoidPointer(0);
   inputType = 
@@ -1317,83 +765,149 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 
   input->GetDimensions( size );
 
-
-  switch ( inputType )
+  // Do we have a texture already, and nothing has changed? If so
+  // just render it.
+  if ( this->Texture )
     {
-    case VTK_UNSIGNED_CHAR:
-      switch ( this->MajorDirection )
-	{
-	case VTK_PLUS_X_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned char *)inputPointer, size, 1, this );
-	  break;
-
-	case VTK_MINUS_X_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned char *)inputPointer, size, 0, this );
-	  break;
-
-	case VTK_PLUS_Y_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned char *)inputPointer, size, 1, this );
-	  break;
-
-	case VTK_MINUS_Y_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned char *)inputPointer, size, 0, this );
-	  break;
-
-	case VTK_PLUS_Z_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned char *)inputPointer, size, 1, this );
-	  break;
-
-	case VTK_MINUS_Z_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned char *)inputPointer, size, 0, this );
-	  break;
-	}
-      break;
-    case VTK_UNSIGNED_SHORT:
-      switch ( this->MajorDirection )
-	{
-	case VTK_PLUS_X_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned short *)inputPointer, size, 1, this );
-	  break;
-
-	case VTK_MINUS_X_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_XMajorDirection
-	    ( (unsigned short *)inputPointer, size, 0, this );
-	  break;
-
-	case VTK_PLUS_Y_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned short *)inputPointer, size, 1, this );
-	  break;
-
-	case VTK_MINUS_Y_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_YMajorDirection
-	    ( (unsigned short *)inputPointer, size, 0, this );
-	  break;
-
-	case VTK_PLUS_Z_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned short *)inputPointer, size, 1, this );
-	  break;
-
-	case VTK_MINUS_Z_MAJOR_DIRECTION:
-	  VolumeTextureMapper2D_ZMajorDirection
-	    ( (unsigned short *)inputPointer, size, 0, this );
-	  break;
-	}
-      break;
-    default:
-      vtkErrorMacro(
-        "vtkVolumeTextureMapper2D only works with short or char data.\n" << 
-        "Input type: " << inputType << " given.");
+    this->RenderSavedTexture();
+    return;
     }
 
+  // Otherwise, we need to generate textures. We can throw away any
+  // saved textures
+  if ( this->Texture )
+    {
+    delete [] this->Texture;
+    }
+  this->TextureSize = 0;
+  
+  // Will all the textures fit in the allotted storage?
+  this->ComputeAxisTextureSize( 0, this->AxisTextureSize[0] );
+  this->ComputeAxisTextureSize( 1, this->AxisTextureSize[1] );
+  this->ComputeAxisTextureSize( 2, this->AxisTextureSize[2] );
+
+  int neededSize = 4 *
+    (( this->AxisTextureSize[0][0] *
+      this->AxisTextureSize[0][1] *
+      this->AxisTextureSize[0][2] ) +
+    ( this->AxisTextureSize[1][0] *
+      this->AxisTextureSize[1][1] *
+      this->AxisTextureSize[1][2] ) +
+    ( this->AxisTextureSize[2][0] *
+      this->AxisTextureSize[2][1] *
+      this->AxisTextureSize[2][2] ));
+  
+  this->SaveTextures = ( neededSize <= this->MaximumStorageSize );
+  
+  // Functionality is not working perfectly yet....
+  this->SaveTextures = 0;
+  
+  if ( this->SaveTextures )
+    {
+    this->Texture = new unsigned char [neededSize];
+    this->TextureSize = neededSize;
+    
+    switch ( inputType )
+      {
+      case VTK_UNSIGNED_CHAR:
+        VolumeTextureMapper2D_TraverseVolume
+          ( (unsigned char *)inputPointer, size, 0, 1, this );
+        VolumeTextureMapper2D_TraverseVolume
+          ( (unsigned char *)inputPointer, size, 1, 1, this );
+        VolumeTextureMapper2D_TraverseVolume
+          ( (unsigned char *)inputPointer, size, 2, 1, this );
+        break;
+      case VTK_UNSIGNED_SHORT:
+        VolumeTextureMapper2D_TraverseVolume
+          ( (unsigned short *)inputPointer, size, 0, 1, this );
+        VolumeTextureMapper2D_TraverseVolume
+          ( (unsigned short *)inputPointer, size, 1, 1, this );
+        VolumeTextureMapper2D_TraverseVolume
+          ( (unsigned short *)inputPointer, size, 2, 1, this );
+        break;
+      }
+    
+    this->RenderSavedTexture();
+    }
+  else
+    {
+    
+    switch ( inputType )
+      {
+      case VTK_UNSIGNED_CHAR:
+        switch ( this->MajorDirection )
+          {
+          case VTK_PLUS_X_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned char *)inputPointer, size, 0, 1, this );
+            break;
+            
+          case VTK_MINUS_X_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned char *)inputPointer, size, 0, 0, this );
+            break;
+            
+          case VTK_PLUS_Y_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned char *)inputPointer, size, 1, 1, this );
+            break;
+            
+          case VTK_MINUS_Y_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned char *)inputPointer, size, 1, 0, this );
+            break;
+            
+          case VTK_PLUS_Z_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned char *)inputPointer, size, 2, 1, this );
+            break;
+            
+          case VTK_MINUS_Z_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned char *)inputPointer, size, 2, 0, this );
+            break;
+          }
+        break;
+      case VTK_UNSIGNED_SHORT:
+        switch ( this->MajorDirection )
+          {
+          case VTK_PLUS_X_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned short *)inputPointer, size, 0, 1, this );
+            break;
+            
+          case VTK_MINUS_X_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned short *)inputPointer, size, 0, 0, this );
+            break;
+            
+          case VTK_PLUS_Y_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned short *)inputPointer, size, 1, 1, this );
+            break;
+            
+          case VTK_MINUS_Y_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned short *)inputPointer, size, 1, 0, this );
+            break;
+            
+          case VTK_PLUS_Z_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned short *)inputPointer, size, 2, 1, this );
+            break;
+            
+          case VTK_MINUS_Z_MAJOR_DIRECTION:
+            VolumeTextureMapper2D_TraverseVolume
+              ( (unsigned short *)inputPointer, size, 2, 0, this );
+            break;
+          }
+        break;
+      default:
+        vtkErrorMacro(
+          "vtkVolumeTextureMapper2D only works with short or char data.\n" << 
+          "Input type: " << inputType << " given.");
+      }
+    }
 }
 
 void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
@@ -1443,6 +957,131 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
   this->SampleDistance = 
     this->DataSpacing[this->MajorDirection/2]*this->InternalSkipFactor*1.2071;
   this->vtkVolumeTextureMapper::InitializeRender( ren, vol );
+}
+
+void vtkVolumeTextureMapper2D::ComputeAxisTextureSize( int axis, int *textureSize )
+{ 
+  int targetSize[2];
+  int a0, a1, a2;
+  
+  switch ( axis )
+    {
+    case 0:
+      a0 = 1;
+      a1 = 2;
+      a2 = 0;
+      break;
+    case 1:
+      a0 = 0;
+      a1 = 2;
+      a2 = 1;
+      break;
+    case 2:
+      a0 = 0;
+      a1 = 1;
+      a2 = 2;
+      break;
+    }
+  
+  
+  // How big should the texture be?
+  // Start with the target size
+  targetSize[0] = this->TargetTextureSize[0];
+  targetSize[1] = this->TargetTextureSize[1];
+  
+  int size[3];
+  this->GetInput()->GetDimensions( size );
+
+  // Increase the x dimension of the texture if the x dimension of the data
+  // is bigger than it (because these are x by y textures)
+  if ( size[a0] > targetSize[0] )
+    {
+    targetSize[0] = size[a0];
+    }
+
+  // Increase the y dimension of the texture if the y dimension of the data
+  // is bigger than it (because these are x by y textures)
+  if ( size[a1] > targetSize[1] )
+    {
+    targetSize[1] = size[a1];
+    }
+
+  // Make sure the x dimension of the texture is a power of 2
+  textureSize[0] = 32;
+  while( textureSize[0] < targetSize[0] ) 
+    {
+    textureSize[0] *= 2;
+    }
+  
+  // Make sure the y dimension of the texture is a power of 2
+  textureSize[1] = 32;
+  while( textureSize[1] < targetSize[1] )
+    {
+    textureSize[1] *= 2;
+    }
+
+  // Our texture might be too big - shrink it carefully making
+  // sure that it is still big enough in the right dimensions to
+  // handle oddly shaped volumes
+  int volSize = size[0]*size[1]*size[2];
+  int done = (volSize > textureSize[0]*textureSize[1]);
+  int minSize[2];
+  
+  // What is the minumum size the texture could be in X (along the X
+  // axis of the volume)?
+  minSize[0] = 32;
+  while ( minSize[0] < size[a0] )
+    {
+    minSize[0] *= 2;
+    }
+  
+  // What is the minumum size the texture could be in Y (along the Y
+  // axis of the volume)?
+  minSize[1] = 32;
+  while ( minSize[1] < size[a1] )
+    {
+    minSize[1] *= 2;
+    }
+
+  // Keep reducing the texture size until it is just big enough
+  while (!done)
+    {
+    // Set done to 1. Reset to 0 if we make any changes.
+    done = 1;
+
+    // If the texture is bigger in some dimension that it needs to be
+    // and chopping that dimension in half would still fit the whole
+    // volume, then chop it in half.
+    if ( textureSize[0] > minSize[0] &&
+         ( ((textureSize[0]/2) / size[a0]) * 
+           (textureSize[1] / size[a1]) >= size[a2] ) )
+      {
+      textureSize[0] /= 2;
+      done = 0;
+      }
+    if ( textureSize[1] > minSize[1] &&
+         ( (textureSize[0] / size[a0]) * 
+           ((textureSize[1]/2) / size[a1]) >= size[a2] ) )
+      {
+      textureSize[1] /= 2;
+      done = 0;
+      }    
+    }
+
+  // This is how many texture planes would be necessary if one slice fit on a 
+  // texture (taking into account the user defined maximum)
+  textureSize[2] = 
+    (size[a2]<this->MaximumNumberOfPlanes||this->MaximumNumberOfPlanes<=0) ?
+    (size[a2]) : (this->MaximumNumberOfPlanes);
+  
+  // How many slices can fit on a texture in X and Y?
+  int xTotal = textureSize[0] / size[a0];
+  int yTotal = textureSize[1] / size[a1];
+
+  // The number of textures we need is the number computed above divided by
+  // how many fit on a texture (plus one if they don't fit evenly)
+  textureSize[2] = (textureSize[2] / (xTotal*yTotal)) + 
+    ((textureSize[2] % (xTotal*yTotal))!=0);
 }
 
 

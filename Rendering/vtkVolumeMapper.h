@@ -59,10 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkRenderer;
 class vtkVolume;
 
-#define VTK_RAYCAST_VOLUME_MAPPER        0
-#define VTK_FRAMEBUFFER_VOLUME_MAPPER    1
-#define VTK_SOFTWAREBUFFER_VOLUME_MAPPER 2
-
 #define VTK_CROP_SUBVOLUME              0x0002000
 #define VTK_CROP_FENCE                  0x2ebfeba
 #define VTK_CROP_INVERTED_FENCE         0x5140145
@@ -153,19 +149,6 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // If this is a render into image mapper, then we need to be
-  // able to get the image
-  virtual float *GetRGBAPixelData() {return NULL;};
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // Return the type of this mapper. This helps the volume
-  // determine which rendering methods the mapper will respond to.
-  virtual int GetMapperType()=0;
-
 //ETX
 
 

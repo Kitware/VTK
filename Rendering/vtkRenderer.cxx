@@ -46,7 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderWindow.h"
 #include "vtkMath.h"
 #include "vtkVolume.h"
-#include "vtkRayCaster.h"
 #include "vtkTimerLog.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
@@ -55,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyNode.h"
 #include "vtkPicker.h"
 #include "vtkCommand.h"
+#include "vtkRayCaster.h"
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -67,9 +67,6 @@ vtkRenderer::vtkRenderer()
   this->Ambient[0] = 1;
   this->Ambient[1] = 1;
   this->Ambient[2] = 1;
-
-  this->RayCaster = vtkRayCaster::New();
-  this->RayCaster->SetRenderer( this );
 
   this->AllocatedRenderTime = 100;
   this->TimeFactor = 1.0;
@@ -101,6 +98,8 @@ vtkRenderer::vtkRenderer()
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   this->Cullers->AddItem(cull);
   cull->Delete();
+  
+  this->RayCaster = vtkRayCaster::New();
 }
 
 vtkRenderer::~vtkRenderer()
@@ -119,11 +118,6 @@ vtkRenderer::~vtkRenderer()
     this->CreatedLight = NULL;
     }
 
-  // unregister actually should take care of rayCaster
-  if (this->RayCaster)
-    {
-    this->RayCaster->Delete();
-    }
   if (this->BackingImage)
     {
     delete [] this->BackingImage;
@@ -137,6 +131,8 @@ vtkRenderer::~vtkRenderer()
   this->Lights = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
+  
+  this->RayCaster->Delete();
 }
 
 // return the correct type of Renderer 
@@ -458,26 +454,6 @@ void vtkRenderer::AllocateTime()
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
                              this->AllocatedRenderTime, 
 			     this );  
-    }
-
-  // Since we now have allocated render times, we can select an LOD
-  // (if this is an LODProp3D). We can now count up how many props need
-  // ray casting or need to be rendered into an image and create
-  // an array of them for fast traversal in the ray caster
-  this->NumberOfPropsToRayCast = 0;
-  this->NumberOfPropsToRenderIntoImage = 0;
-  for ( i = 0; i < this->PropArrayCount; i++ )
-    {    
-    aProp = this->PropArray[i];
-    if ( aProp->RequiresRayCasting() )
-      {
-      this->RayCastPropArray[this->NumberOfPropsToRayCast++] = aProp; 
-      }
-    
-    if ( aProp->RequiresRenderingIntoImage() )
-      {
-      this->RenderIntoImagePropArray[this->NumberOfPropsToRenderIntoImage++] = aProp; 
-      }
     }
 }
 
@@ -1113,15 +1089,6 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interactive = " << (this->Interactive ? "On" : "Off") 
      << "\n";
 
-  if ( this->RayCaster )
-    {
-    os << indent << "Ray Caster: " << this->RayCaster << "\n";
-    }
-  else
-    {
-    os << indent << "Ray Caster: (none)\n";
-    }
-
   os << indent << "Allocated Render Time: " << this->AllocatedRenderTime
      << "\n";
 
@@ -1168,35 +1135,11 @@ int vtkRenderer::VisibleVolumeCount()
   return count;
 }
 
-// We need to override the unregister method because the raycaster
-// is registered by the renderer and the renderer is registered by
-// raycaster. If we are down to just two references on the renderer
-// (from itself and the raycaster) then delete it, and the raycaster.
-void vtkRenderer::UnRegister(vtkObject *o)
-{
-  if (this->RayCaster != NULL && this->RayCaster->GetRenderer() == this &&
-      this->GetReferenceCount() == 2 )
-    {
-    vtkRayCaster *temp = this->RayCaster;
-    this->RayCaster = NULL;    
-    temp->Delete();
-    }
-
-  this->vtkObject::UnRegister(o);
-}
-
-
-
 unsigned long int vtkRenderer::GetMTime()
 {
   unsigned long mTime=this-> vtkViewport::GetMTime();
   unsigned long time;
 
-  if ( this-> RayCaster != NULL )
-    {
-    time = this->RayCaster ->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
   if ( this->ActiveCamera != NULL )
     {
     time = this->ActiveCamera ->GetMTime();

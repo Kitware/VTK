@@ -181,57 +181,6 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
   return renderedSomething;
 }
 
-// Render this assembly and all its parts. The rendering process is recursive.
-int vtkPropAssembly::InitializeRayCasting(vtkViewport *ren)
-{
-  vtkProp *part;
-  int needsToCast=0;
-
-  // render the Paths
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
-    {
-    if ( part->GetVisibility() )
-      {
-      needsToCast |= part->InitializeRayCasting(ren);
-      }
-    }
-
-  return needsToCast;
-}
-
-int vtkPropAssembly::CastViewRay(VTKRayCastRayInfo *ray)
-{
-  vtkProp *part;
-  int rayHit=0;
-
-  // render the Paths
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
-    {
-    if ( part->GetVisibility() )
-      {
-      rayHit |= part->CastViewRay(ray);
-      }
-    }
-
-  return rayHit;
-}
-
-int vtkPropAssembly::RenderIntoImage(vtkViewport *ren)
-{
-  vtkProp *part;
-  int success=0;
-
-  // render the Paths
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
-    {
-    if ( part->GetVisibility() )
-      {
-      success |= part->RenderIntoImage(ren);
-      }
-    }
-
-  return success;
-}
 
 void vtkPropAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 {

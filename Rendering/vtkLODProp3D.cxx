@@ -757,51 +757,6 @@ void vtkLODProp3D::ReleaseGraphicsResources(vtkWindow *w)
     }
 }
 
-// Does the selected LOD need ray casting?
-int vtkLODProp3D::RequiresRayCasting( )
-{
-  // Check if the selected index is in range
-  if ( this->SelectedLODIndex < 0 ||
-       this->SelectedLODIndex >= this->NumberOfEntries )
-    {
-    vtkErrorMacro( << "Index out of range!" );
-    return 0;
-    }
-
-  // Check if the selected index is valid
-  if ( this->LODs[this->SelectedLODIndex].ID == VTK_INDEX_NOT_IN_USE )
-    {
-    vtkErrorMacro( << "Index not valid!" );
-    return 0;
-    }
-
-  // Actually ask the question
-  return this->LODs[this->SelectedLODIndex].Prop3D->RequiresRayCasting();
-}
-
-// Does the selected LOD need to be rendered into an image?
-int vtkLODProp3D::RequiresRenderingIntoImage( )
-{
-  // Check if the selected index is in range
-  if ( this->SelectedLODIndex < 0 ||
-       this->SelectedLODIndex >= this->NumberOfEntries )
-    {
-    vtkErrorMacro( << "Index out of range!" );
-    return 0;
-    }
-
-  // Check if the selected index is valid
-  if ( this->LODs[this->SelectedLODIndex].ID == VTK_INDEX_NOT_IN_USE )
-    {
-    vtkErrorMacro( << "Index not valid!" );
-    return 0;
-    }
-
-  // Actually ask the question
-  return 
-    this->LODs[this->SelectedLODIndex].Prop3D->RequiresRenderingIntoImage();
-}
-
 // Standard render method - render any opaque geometry in the selected LOD
 int vtkLODProp3D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
@@ -862,45 +817,6 @@ int vtkLODProp3D::RenderTranslucentGeometry(vtkViewport *viewport)
   return retval;
 } 
 
-
-// Standard render method - render the selected LOD into an image
-int vtkLODProp3D::RenderIntoImage(vtkViewport *viewport)
-{
-  // Check if the selected index is in range
-  if ( this->SelectedLODIndex < 0 ||
-       this->SelectedLODIndex >= this->NumberOfEntries )
-    {
-    vtkErrorMacro( << "Index out of range!" );
-    return 0;
-    }
-
-  // Check if the selected index is valid
-  if ( this->LODs[this->SelectedLODIndex].ID == VTK_INDEX_NOT_IN_USE )
-    {
-    vtkErrorMacro( << "Index not valid!" );
-    return 0;
-    }
-
-  // Actually do the rendering
-  return this->LODs[this->SelectedLODIndex].Prop3D->RenderIntoImage(viewport);
-}
-
-// Standard render method - cast a view ray for the selected LOD
-int vtkLODProp3D::CastViewRay( VTKRayCastRayInfo *rayInfo )
-{
-  // Don't do any error checking - assume this won't be called unless
-  // RequiresRayCasting() return 1 - error checking was performed there
-  return this->LODs[this->SelectedLODIndex].Prop3D->CastViewRay(rayInfo);
-}
-
-// Standard render method - initialize ray casting for the selected LOD
-int vtkLODProp3D::InitializeRayCasting( vtkViewport *viewport)
-{
-  // Don't do any error checking - assume this won't be called unless
-  // RequiresRayCasting() return 1 - error checking was performed there
-  return 
-    this->LODs[this->SelectedLODIndex].Prop3D->InitializeRayCasting(viewport);
-}
 
 // Override the method from vtkProp - add to both this prop and the prop of
 // the selected LOD

@@ -56,8 +56,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkVolumeRayCastFunction_h
 
 #include "vtkObject.h"
-#include "vtkRayCastStructures.h"
-#include "vtkVolumeRayCastStructures.h"
 
 class vtkRenderer;
 class vtkVolume;

@@ -78,6 +78,14 @@ public:
   // is satisfied.
   vtkSetMacro( MaximumNumberOfPlanes, int );
   vtkGetMacro( MaximumNumberOfPlanes, int );
+
+  // Description:
+  // This is the maximum size of saved textures in bytes. If this size is large
+  // enough to hold the RGBA textures for all three directions (XxYxZx3x4 is
+  // the approximate value - it is actually a bit larger due to wasted space in
+  // the textures) then the textures will be saved.
+  vtkSetMacro( MaximumStorageSize, int );
+  vtkGetMacro( MaximumStorageSize, int );
   
 //BTX
 
@@ -90,12 +98,19 @@ public:
   virtual void RenderQuads( int vtkNotUsed(count),
                             float *vtkNotUsed(v), float *vtkNotUsed(t),
                             unsigned char *vtkNotUsed(texture),
-                            int vtkNotUsed(size)[2]) {};
+                            int vtkNotUsed(size)[2],
+                            int vtkNotUsed(reverseFlag)) {};
 
   // Description:
   // Made public only for access from the templated method. Not a vtkGetMacro
   // to avoid the PrintSelf defect.
   int GetInternalSkipFactor() {return this->InternalSkipFactor;};
+  
+  int *GetAxisTextureSize() {return &(this->AxisTextureSize[0][0]);};
+
+  int GetSaveTextures() {return this->SaveTextures;};
+
+  unsigned char *GetTexture() {return this->Texture;};
   
 //ETX
 
@@ -115,6 +130,17 @@ protected:
 
   int  MaximumNumberOfPlanes;
   int  InternalSkipFactor;
+  int  MaximumStorageSize;
+  
+  unsigned char  *Texture;
+  int             TextureSize;
+  int             SaveTextures;
+  
+  int             AxisTextureSize[3][3];
+  void            ComputeAxisTextureSize( int axis, int *size );
+  
+  void           RenderSavedTexture();
+  
 };
 
 

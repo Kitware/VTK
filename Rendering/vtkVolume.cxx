@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
 #include "vtkRenderer.h"
-#include "vtkRayCaster.h"
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkObjectFactory.h"
 
@@ -79,10 +78,6 @@ vtkVolume::vtkVolume()
   this->GrayArray                   = NULL;
   this->CorrectedScalarOpacityArray = NULL;
   this->CorrectedStepSize           = -1;
-
-  this->VolumeInfo         = new VTKRayCastVolumeInfo;
-  this->VolumeInfo->Volume = this;
-
 }
 
 // Destruct a volume
@@ -114,12 +109,6 @@ vtkVolume::~vtkVolume()
     {
     delete [] this->CorrectedScalarOpacityArray;
     }
-
-  if ( this->VolumeInfo )
-    {
-    delete this->VolumeInfo;
-    }
-
 }
 
 void vtkVolume::GetVolumes(vtkPropCollection *vc)
@@ -207,73 +196,6 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
   
   return coverage;
 }
-
-void vtkVolume::AddEstimatedRenderTime( float t, vtkViewport *vp )
-{
-  if ( this->Mapper && this->Mapper->IsARayCastMapper() )
-    {
-    float coverage = this->ComputeScreenCoverage(vp);
-  
-    if ( coverage )
-      {
-      this->EstimatedRenderTime += t / coverage;
-      }
-    else
-      {
-      this->EstimatedRenderTime += t;
-      }
-    }
-  else
-    {
-    this->EstimatedRenderTime += t;
-    }
-}
-
-
-float vtkVolume::GetEstimatedRenderTime( vtkViewport *vp )
-{
-  if ( this->Mapper && this->Mapper->IsARayCastMapper() )
-    {
-    float coverage = this->ComputeScreenCoverage( vp );    
-    return this->EstimatedRenderTime * coverage;
-    }
-  else
-    {
-    return this->EstimatedRenderTime;
-    }
-  
-}
-
-int vtkVolume::RequiresRayCasting()
-{
-  int               retval;
-
-  retval = 0;
-
-  // We must have a mapper, and the mapper must have input. If so,
-  // ask the mapper if it needs ray casting
-  if ( this->Mapper && this->Mapper->GetInput() )
-    {
-    retval = this->Mapper->IsARayCastMapper();
-    }
-
-  return retval;
-}
-
-int vtkVolume::RequiresRenderingIntoImage()
-{
-  int               retval;
-
-  retval = 0;
-
-  if ( this->Mapper )
-    {
-    retval = this->Mapper->IsARenderIntoImageMapper();
-    }
-
-  return retval;
-}
-
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkVolume::GetBounds()
@@ -376,53 +298,10 @@ float vtkVolume::GetMaxZBound( )
   return this->Bounds[5];
 }
 
-int vtkVolume::RenderIntoImage( vtkViewport *vp )
-{
-  int renderedSomething = 0;
-
-  if ( !this->Mapper )
-    {
-    vtkErrorMacro( << "You must specify a mapper!\n" );
-    return 0;
-    }
-
-  // Force the creation of a property
-  if( !this->Property )
-    {
-    this->GetProperty();
-    }
-
-  if( !this->Property )
-    {
-    vtkErrorMacro( << "Error generating a property!\n" );
-    return 0;
-    }
-
-  if ( this->Mapper->GetMapperType() == VTK_SOFTWAREBUFFER_VOLUME_MAPPER )
-    {
-    renderedSomething = 1;
-    this->Mapper->Render( (vtkRenderer *)vp, this );
-    }
-
-  return renderedSomething;
-}
-
-float *vtkVolume::GetRGBAImage()
-{
-  return this->Mapper->GetRGBAPixelData();
-}
-
-float *vtkVolume::GetZImage()
-{
-  return NULL;
-}
-
 // If the volume mapper is of type VTK_FRAMEBUFFER_VOLUME_MAPPER, then
 // this is its opportunity to render
 int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
 {
-  int renderedSomething = 0;
-
   this->Update();
 
   if ( !this->Mapper )
@@ -449,57 +328,12 @@ int vtkVolume::RenderTranslucentGeometry( vtkViewport *vp )
     return 0;
     }
 
-  if ( this->Mapper->GetMapperType() == VTK_FRAMEBUFFER_VOLUME_MAPPER )
-    {
-    renderedSomething = 1;
-    this->Mapper->Render( (vtkRenderer *)vp, this );
-    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
-    }
-
-  return renderedSomething;
-}
-
-int vtkVolume::InitializeRayCasting( vtkViewport *vp )
-{
-  float        interactionScale;
-  float        sampleDistance;
-  vtkRenderer  *ren;
-
-  this->Update();
-
-  ren = (vtkRenderer *)vp;
-
-  this->UpdateTransferFunctions( ren );
-
-  interactionScale = ren->GetRayCaster()->GetViewportStepSize();
-  sampleDistance =  
-    ((vtkVolumeRayCastMapper *)this->Mapper)->
-    GetSampleDistance() * interactionScale;
-  this->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
-
+  this->Mapper->Render( (vtkRenderer *)vp, this );
+  this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
 
   return 1;
 }
 
-void vtkVolume::InitializeTextureMapping( vtkViewport *vp, 
-	float sampleDistance )
-{
-  vtkRenderer  *ren;
-
-  this->Update();
-
-  ren = (vtkRenderer *)vp;
-
-  this->UpdateTransferFunctions( ren );
-
-  this->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
-}
-
-int vtkVolume::CastViewRay( VTKRayCastRayInfo *rayInfo )
-{
-
-  return 1;
-}
 
 void vtkVolume::ReleaseGraphicsResources(vtkWindow *win)
 {

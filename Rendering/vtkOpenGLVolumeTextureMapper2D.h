@@ -70,7 +70,7 @@ public:
   virtual void Render(vtkRenderer *ren, vtkVolume *vol);
 
   void RenderQuads( int count, float *v, float *t,
-                    unsigned char *texture, int size[2]);
+                    unsigned char *texture, int size[2], int reverseFlag);
 
 //ETX
 

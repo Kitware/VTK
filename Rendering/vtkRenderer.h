@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // rendering features such as two-sided lighting can also be controlled.
 
 // .SECTION See Also
-// vtkRenderWindow vtkActor vtkCamera vtkLight vtkVolume vtkRayCaster
+// vtkRenderWindow vtkActor vtkCamera vtkLight vtkVolume
 
 #ifndef __vtkRenderer_h
 #define __vtkRenderer_h
@@ -66,10 +66,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkViewport.h"
 #include "vtkActorCollection.h"
 
+class vtkRayCaster;
 class vtkRenderWindow;
-class vtkRayCaster;
 class vtkVolume;
-class vtkRayCaster;
 class vtkCuller;
 
 class VTK_EXPORT vtkRenderer : public vtkViewport
@@ -276,10 +275,6 @@ public:
   virtual void WorldToView(float &wx, float &wy, float &wz);
 
   // Description:
-  // Return the RayCaster being used by this renderer.
-  vtkGetObjectMacro(RayCaster,vtkRayCaster);
-
-  // Description:
   // Given a pixel location, return the Z value
   float GetZ (int x, int y);
 
@@ -296,10 +291,6 @@ public:
   // Description:
   // Get the time required, in seconds, for the last Render call.
   vtkGetMacro( LastRenderTimeInSeconds, float );
-
-  // Description:
-  // Detects reference loop renderer<->rayCaster
-  void UnRegister(vtkObject *o);
 
   // Description:
   // Should be used internally only during a render
@@ -334,6 +325,10 @@ public:
   vtkGetMacro(LightFollowCamera,int);
   vtkBooleanMacro(LightFollowCamera,int);
 
+  vtkRayCaster *GetRayCaster() 
+    {VTK_LEGACY_METHOD(GetRayCaster,"4.0");return this->RayCaster;};
+  
+  
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -344,8 +339,6 @@ protected:
   virtual void PickRender(vtkPropCollection *props);
   virtual void PickGeometry();
   
-  vtkRayCaster *RayCaster;
-
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
 
@@ -420,6 +413,8 @@ protected:
   // Ask all lights to load themselves into rendering pipeline.
   // This method will return the actual number of lights that were on.
   virtual int UpdateLights(void) {return 0;};
+  
+  vtkRayCaster *RayCaster;
 };
 
 // Description:

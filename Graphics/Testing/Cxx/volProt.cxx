@@ -251,7 +251,7 @@ int main( int argc, char *argv[] )
   // Interact with the data at 3 frames per second
   iren->SetDesiredUpdateRate(3.0);
   iren->SetStillUpdateRate(0.001);
-
+  
   // Clean up
   reader->Delete();
   oTFun->Delete();
@@ -288,7 +288,6 @@ int main( int argc, char *argv[] )
   ren->Delete();
   iren->Delete();
   renWin->Delete();
-  
   
   return !retVal;
 }

@@ -79,11 +79,6 @@ public:
   vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
 
 //BTX
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual int GetMapperType() {return VTK_FRAMEBUFFER_VOLUME_MAPPER;};
-
   // Description:
   // Allow access to the arrays / variables from the templated functions in the
   // subclasses.

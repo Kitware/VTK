@@ -11,7 +11,6 @@ proc rtOtherTest { fileid } {
 #actual test
     set all [lsort [info command vtk*]]
     foreach a $all {
-        puts "Testing -- $a"
 	if {$a == "vtkIndent"} {
 	    continue
 	}

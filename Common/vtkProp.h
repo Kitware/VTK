@@ -52,7 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkProp_h
 
 #include "vtkObject.h"
-#include "vtkRayCastStructures.h"
 #include "vtkAssemblyPaths.h"
 
 class vtkViewport;
@@ -155,53 +154,18 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
-  // Do we need to ray cast this prop?
-  // For certain types of props (vtkLODProp3D for example) this
-  // method is not guaranteed to work outside of the rendering
-  // process, since a level of detail must be selected before this
-  // question can be answered.
-  virtual int RequiresRayCasting() { return 0; }
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
-  // Does this prop render into an image?
-  // For certain types of props (vtkLODProp3D for example) this
-  // method is not guaranteed to work outside of the rendering
-  // process, since a level of detail must be selected before this
-  // question can be answered.
-  virtual int RequiresRenderingIntoImage() { return 0; }
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
   // All concrete subclasses must be able to render themselves.
-  // There are five key render methods in vtk and they correspond
-  // to five different points in the rendering cycle. Any given
-  // prop may implement one or more of these methods. The first two 
-  // methods are designed to render 3D geometry such as polygons
-  // lines, triangles. We render the opaque first then the transparent.
-  // Ray casting is different from the other methods in that the
-  // rendering process is driven not by the mapper but by the ray caster.
-  // Two methods are required to support ray casting - one for 
-  // initialization, and the other to cast a ray (in viewing coordinates.)
-  // The next three methods are primarily intended for volume rendering
-  // and supports any technique that returns an image to be composited.  
-  // The RenderIntoImage() method causes the rendering to occur, and the
-  // GetRGBAImage() and GetZImage() methods are used to gather results.
+  // There are three key render methods in vtk and they correspond
+  // to three different points in the rendering cycle. Any given
+  // prop may implement one or more of these methods. 
+  // The first method is intended for rendering all opaque geometry. The
+  // second method is intended for rendering all translucent geometry. Most
+  // volume rendering mappers draw their results during this second method.
   // The last method is to render any 2D annotation or overlays.
-  // Except for the ray casting methods, these methods return an integer value 
-  // indicating whether or not this render method was applied to this 
-  // data. For the ray cast initialization, the integer indicated whether or
-  // not the initialization was successful. For ray casting, the integer 
-  // return value indicates whether or not the ray intersected something.
+  // Each of these methods return an integer value indicating
+  // whether or not this render method was applied to this data. 
   virtual int RenderOpaqueGeometry(      vtkViewport *) { return 0; }
   virtual int RenderTranslucentGeometry( vtkViewport *) { return 0; }
-  virtual int InitializeRayCasting(      vtkViewport *) { return 0; }
-  virtual int CastViewRay(         VTKRayCastRayInfo *) { return 0; }
-  virtual int RenderIntoImage(           vtkViewport *) { return 0; }
-  virtual float *GetRGBAImage()                         { return NULL; }
-  virtual float *GetZImage()                            { return NULL; }
   virtual int RenderOverlay(             vtkViewport *) { return 0; }
 
   // Description:

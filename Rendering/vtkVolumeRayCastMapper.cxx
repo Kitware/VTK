@@ -45,7 +45,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderer.h"
 #include "vtkMath.h"
 #include "vtkRenderWindow.h"
-#include "vtkRayCaster.h"
 #include "vtkVolumeRayCastFunction.h"
 #include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkPlaneCollection.h"
@@ -133,7 +132,6 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 
   this->GradientShader->Delete();
 
-  this->SetRayBounder(NULL);
   this->SetVolumeRayCastFunction(NULL);
   
   this->PerspectiveMatrix->Delete();
@@ -293,11 +291,6 @@ float vtkVolumeRayCastMapper::GetGradientMagnitudeBias()
 
 void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  // pass this information onto the ray bounder
-  if (this->RayBounder)
-    {
-    this->RayBounder->ReleaseGraphicsResources(renWin);
-    }
 }
 
 void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
@@ -328,15 +321,6 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   
   this->UpdateShadingTables( ren, vol );
 
-  if ( this->RayBounder )
-    {
-    this->DepthRangeBufferPointer = this->RayBounder->GetRayBounds( ren );
-    }
-  else
-    {
-    this->DepthRangeBufferPointer = NULL;
-    }
-  
   // This is the input of this mapper
   vtkImageData *input = this->GetInput();
   
@@ -1922,15 +1906,6 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Auto Adjust Sample Distances: " 
      << this->AutoAdjustSampleDistances << "\n";
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
-
-  if ( this->RayBounder )
-    {
-    os << indent << "Ray Bounder: " << this->RayBounder << "\n";
-    }
-  else
-    {
-    os << indent << "Ray Bounder: (none)\n";
-    }
 
   if ( this->VolumeRayCastFunction )
     {

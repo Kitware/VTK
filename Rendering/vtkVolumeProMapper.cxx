@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkVolumeProMapper.h"
 #include "vtkRenderer.h"
-#include "vtkRayCaster.h"
 #include "vtkToolkits.h"
 
 #ifdef VTK_USE_VOLUMEPRO

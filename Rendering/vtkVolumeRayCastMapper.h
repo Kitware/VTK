@@ -107,7 +107,20 @@ public:
   // Description:
   // Get / Set the ray bounder. This is used to clip the rays during
   // ray casting.
-  vtkSetObjectMacro( RayBounder, vtkRayBounder );
+  void SetRayBounder( vtkRayBounder *bounder )
+    {
+      VTK_LEGACY_METHOD(SetRayBounder,"4.0");
+      if (bounder!=this->RayBounder)
+        {
+        if ( this->RayBounder )
+          {
+          this->RayBounder->UnRegister(this);
+          }
+        this->RayBounder = bounder;
+        bounder->Register(this);
+        }
+    };
+  
   vtkGetObjectMacro( RayBounder, vtkRayBounder );
 
   // Description:
@@ -186,10 +199,6 @@ public:
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual int GetMapperType() {return VTK_FRAMEBUFFER_VOLUME_MAPPER;};
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Values needed by the volume
   virtual float GetGradientMagnitudeScale();
   virtual float GetGradientMagnitudeBias();
@@ -216,7 +225,6 @@ protected:
   float                        WorldSampleDistance;
   int                          ScalarDataType;
   void                         *ScalarDataPointer;
-  float                        *DepthRangeBufferPointer;
 
   void                         UpdateShadingTables( vtkRenderer *ren, 
 						    vtkVolume *vol );

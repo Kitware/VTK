@@ -46,7 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
-#include "vtkRayCaster.h"
 #include "vtkObjectFactory.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"

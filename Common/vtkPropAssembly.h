@@ -98,9 +98,6 @@ public:
   // visibility for the prop is turned on.
   int RenderOpaqueGeometry(vtkViewport *ren);
   int RenderTranslucentGeometry(vtkViewport *ren);
-  int InitializeRayCasting(vtkViewport *);
-  int CastViewRay(VTKRayCastRayInfo *);
-  int RenderIntoImage(vtkViewport *);
   int RenderOverlay(vtkViewport *);
 
   // Description:

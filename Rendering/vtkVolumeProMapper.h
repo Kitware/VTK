@@ -107,11 +107,6 @@ public:
   virtual void Render( vtkRenderer *, vtkVolume * ) {}
   
   // Description:
-  // The Renderer and RayCaster rely on the information to compose
-  // images from various volume renderers
-  int GetMapperType() { return VTK_FRAMEBUFFER_VOLUME_MAPPER; };
-
-  // Description:
   // Set the blend mode
   vtkSetClampMacro( BlendMode, int,
 	VTK_BLEND_MODE_COMPOSITE, VTK_BLEND_MODE_MIN_INTENSITY );

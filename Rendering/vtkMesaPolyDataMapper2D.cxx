@@ -49,7 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaProperty.h"
 #include "vtkMesaCamera.h"
 #include "vtkMesaLight.h"
-#include "vtkRayCaster.h"
 #include "vtkCuller.h"
 
 
