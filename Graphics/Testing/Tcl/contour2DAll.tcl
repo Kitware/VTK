@@ -13,15 +13,15 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkSLCReader slc
-  slc SetFileName "$VTK_DATA_ROOT/Data/vm_foot.slc"
+  slc SetFileName "$VTK_DATA_ROOT/Data/nut.slc"
 
 set types  "Char UnsignedChar Short UnsignedShort Int UnsignedInt Long UnsignedLong Float Double"
-set i 1
+set i 3
 foreach vtkType $types {
   vtkImageClip clip$vtkType
     clip$vtkType SetInput [slc GetOutput]
     clip$vtkType SetOutputWholeExtent -1000 1000 -1000 1000 $i $i
-  incr i 22
+  incr i 2
   vtkImageCast castTo$vtkType
     castTo$vtkType SetOutputScalarTypeTo$vtkType
     castTo$vtkType SetInput [clip$vtkType GetOutput]
@@ -51,10 +51,10 @@ vtkActor outlineActor
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor outlineActor
-[ren1 GetActiveCamera] SetFocalPoint 80 130 106
-[ren1 GetActiveCamera] SetPosition -170 -305 -131
-[ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] SetViewAngle 30
+[ren1 GetActiveCamera] Elevation 20
+[ren1 GetActiveCamera] Azimuth 20
+[ren1 GetActiveCamera] Zoom 1.5
 ren1 ResetCameraClippingRange
 
 ren1 SetBackground 0.9 .9 .9
