@@ -21,7 +21,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.33");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.34");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -29,6 +29,7 @@ vtkEdgeTable::vtkEdgeTable()
 {
   this->Table = NULL;
   this->Attributes = NULL;
+  this->PointerAttributes = NULL;
   this->Points = NULL;
 
   this->TableMaxId = -1;
@@ -91,7 +92,6 @@ void vtkEdgeTable::Initialize()
     
   this->TableSize = 0;
   this->NumberOfEdges = 0;
-  this->StoreAttributes = 0;
 }
 
 // Free memory and return to instantiated state.
@@ -109,7 +109,7 @@ void vtkEdgeTable::Reset()
         }
       }
 
-    if ( this->StoreAttributes == 1 )
+    if ( this->StoreAttributes == 1 && this->Attributes )
       {
       for (i=0; i < this->TableSize; i++)
         {
@@ -119,7 +119,7 @@ void vtkEdgeTable::Reset()
           }
         }
       }
-    else if ( this->StoreAttributes == 2 )
+    else if ( this->StoreAttributes == 2 && this->PointerAttributes )
       {
       for (i=0; i < this->TableSize; i++)
         {
@@ -454,6 +454,7 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
 {
   vtkIdList **newTableArray;
   vtkIdList **newAttributeArray;
+  vtkVoidArray **newPointerAttributeArray;
   vtkIdType newSize, i;
   vtkIdType extend=this->TableSize/2 + 1;
 
@@ -478,7 +479,7 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
   delete [] this->Table;
   this->Table = newTableArray;
 
-  if ( this->StoreAttributes )
+  if ( this->StoreAttributes == 1 )
     {
     newAttributeArray = new vtkIdList *[newSize];
     memcpy(newAttributeArray, this->Attributes, sz * sizeof(vtkIdList *));
@@ -491,6 +492,20 @@ vtkIdList **vtkEdgeTable::Resize(vtkIdType sz)
       delete [] this->Attributes;
       }
     this->Attributes = newAttributeArray;
+    }
+  else if ( this->StoreAttributes == 2 )
+    {
+    newPointerAttributeArray = new vtkVoidArray *[newSize];
+    memcpy(newPointerAttributeArray, this->Attributes, sz * sizeof(vtkVoidArray *));
+    for (i=sz; i < newSize; i++)
+      {
+      newPointerAttributeArray[i] = NULL;
+      }
+    if ( this->PointerAttributes )
+      {
+      delete [] this->PointerAttributes;
+      }
+    this->PointerAttributes = newPointerAttributeArray;
     }
 
   return this->Table;
