@@ -461,8 +461,8 @@ void get_python_signature()
 }
 
 /* convert special characters in a string into their escape codes,
-   so that the string can be quoted in a source file (the maximum
-   converted length is around 1000 chars) */
+   so that the string can be quoted in a source file (the specified
+   maxlen must be at least 32 chars)*/
 static const char *quote_string(const char *comment, int maxlen)
 {
   static char result[4096];
@@ -508,10 +508,10 @@ static const char *quote_string(const char *comment, int maxlen)
       sprintf(&result[j],"\\%3.3o",comment[i]);
       j += 4;
       }
-    if (j >= maxlen - 30)
-      {
-      sprintf(&result[j],"...\\n [Truncated]\\n");
-      j += strlen("...\\n [Truncated]\\n");
+    if (j >= maxlen - 5)
+      {      
+      sprintf(&result[j-strlen(" ...\\n [Truncated]\\n")],
+	      " ...\\n [Truncated]\\n");
       break;
       }
     }
@@ -595,7 +595,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  /* declare the variables */
 	  if (!is_static)
 	    {
-	    fprintf(fp,"    %s *op;\n\n",data->ClassName);
+	    fprintf(fp,"  %s *op;\n\n",data->ClassName);
 	    }
 
 	  currentFunction = wrappedFunctions[occ];

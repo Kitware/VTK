@@ -89,7 +89,7 @@ static int PyVTKObject_PyPrint(PyObject *self, FILE *fp, int)
 }
 
 //--------------------------------------------------------------------
-static PyObject *PyVTKObject_PyRepr(PyObject *self)
+static PyObject *PyVTKObject_PyString(PyObject *self)
 {
   vtkObject *op;
   PyObject *tempH;
@@ -101,6 +101,18 @@ static PyObject *PyVTKObject_PyRepr(PyObject *self)
   tempH = PyString_FromString(buf.str());
   delete buf.str();
   return tempH;
+}
+
+//--------------------------------------------------------------------
+static PyObject *PyVTKObject_PyRepr(PyObject *self)
+{
+  char buf[255];
+  sprintf(buf,"<%s.%s %s at %p>",
+	  ((PyVTKObject *)self)->vtk_class->vtk_module,
+	  ((PyVTKObject *)self)->vtk_class->vtk_name,
+	  self->ob_type->tp_name,self);
+  
+  return PyString_FromString(buf);
 }
 
 //--------------------------------------------------------------------
@@ -122,7 +134,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
 	  char buf[256];
 	  sprintf(buf,"%s_p",((PyVTKObject *)self)->vtk_ptr->GetClassName());
 	  return PyString_FromString(
-				     vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
+	         vtkPythonManglePointer(((PyVTKObject *)self)->vtk_ptr,buf));
 	}
       
       if (strcmp(name,"__doc__") == 0)
@@ -244,7 +256,7 @@ static PyTypeObject PyVTKObjectType = {
   0,                                     // tp_as_mapping
   (hashfunc)0,                           // tp_hash
   (ternaryfunc)0,                        // tp_call
-  (reprfunc)0,                           // tp_string
+  (reprfunc)PyVTKObject_PyString,        // tp_string
   (getattrofunc)0,                       // tp_getattro
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
@@ -301,6 +313,16 @@ static int PyVTKClass_PyPrint(PyObject *self, FILE *fp, int)
 }
 
 //--------------------------------------------------------------------
+static PyObject *PyVTKClass_PyString(PyObject *self)
+{
+  char buf[255];
+  sprintf(buf,"%s.%s",((PyVTKClass *)self)->vtk_module,
+	              ((PyVTKClass *)self)->vtk_name);
+
+  return PyString_FromString(buf);
+}
+
+//--------------------------------------------------------------------
 static PyObject *PyVTKClass_PyRepr(PyObject *self)
 {
   char buf[255];
@@ -324,7 +346,15 @@ static PyObject *PyVTKClass_PyCall(PyObject *self, PyObject *arg, PyObject *kw)
     {
       return PyVTKObject_New(self,NULL);
     }
-  
+  PyErr_Clear();
+  if (PyArg_ParseTuple(arg,"O",&arg))
+    {
+      return vtkPythonGetObjectFromObject(arg, ((PyVTKClass *)self)->vtk_name);
+    }
+  PyErr_Clear();
+  PyErr_SetString(PyExc_TypeError,
+		  "function requires 0 or 1 arguments");
+
   return NULL;
 }
 
@@ -439,7 +469,7 @@ static PyTypeObject PyVTKClassType = {
   0,                                     // tp_as_mapping
   (hashfunc)0,                           // tp_hash
   (ternaryfunc)PyVTKClass_PyCall,        // tp_call
-  (reprfunc)0,                           // tp_string
+  (reprfunc)PyVTKClass_PyString,         // tp_string
   (getattrofunc)0,                       // tp_getattro
   (setattrofunc)0,                       // tp_setattro
   0,                                     // tp_as_buffer
@@ -695,6 +725,8 @@ static PyObject *vtkFindNearestBase(vtkObject *ptr)
 //--------------------------------------------------------------------
 vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
 { 
+  vtkObject *ptr;
+
   // convert Py_None to NULL every time
   if (obj == Py_None)
     {
@@ -704,14 +736,42 @@ vtkObject *vtkPythonGetPointerFromObject(PyObject *obj, char *result_type)
   // check to ensure it is a vtk object
   if (obj->ob_type != &PyVTKObjectType)
     {
+    obj = PyObject_GetAttrString(obj,"__vtk__");
+    if (obj)
+      {
+      PyObject *arglist = Py_BuildValue("()");
+      PyObject *result = PyEval_CallObject(obj, arglist);
+      Py_DECREF(arglist);
+      Py_DECREF(obj);
+      if (result == NULL)
+	{
+	return NULL;
+	}
+      if (result->ob_type != &PyVTKObjectType)
+	{
+	PyErr_SetString(PyExc_ValueError,"__vtk__() doesn't return a VTK object");
+	Py_DECREF(result);
+	return NULL;
+	}
+      else
+	{
+	ptr = ((PyVTKObject *)result)->vtk_ptr;
+	Py_DECREF(result);
+	}
+      }
+    else
+      {
 #ifdef VTKPYTHONDEBUG
-      vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
+	vtkGenericWarningMacro("Object " << obj << " is not a VTK object!!");
 #endif  
-      PyErr_SetString(PyExc_ValueError,"method requires a VTK object");
-      return NULL;
-    }   
-
-  vtkObject *ptr = ((PyVTKObject *)obj)->vtk_ptr;
+	PyErr_SetString(PyExc_ValueError,"method requires a VTK object");
+	return NULL;
+      }
+    }
+  else
+    {
+    ptr = ((PyVTKObject *)obj)->vtk_ptr;
+    }
   
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Checking into obj " << obj << " ptr = " << ptr);
@@ -766,14 +826,14 @@ PyObject *vtkPythonGetObjectFromObject(PyObject *arg, const char *type)
 	  char error_string[256];
 	  sprintf(error_string,"method requires a %s address, a %s address was provided.",
 		  type,((vtkObject *)ptr)->GetClassName());
-	  PyErr_SetString(PyExc_ValueError,error_string);
+	  PyErr_SetString(PyExc_TypeError,error_string);
 	  return NULL;
 	}
       
       return vtkPythonGetObjectFromPointer(ptr);
     }
   
-  PyErr_SetString(PyExc_ValueError,"method requires a string argument");
+  PyErr_SetString(PyExc_TypeError,"method requires a string argument");
   return NULL;
 }
 
