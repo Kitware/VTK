@@ -147,7 +147,7 @@ public:
 
   // Description:
   // Make this transform into an identity transformation.
-  virtual void Identity() = 0;
+  virtual void Identity() {};
 
   // Description:
   // Copy this transform from another of the same type.
