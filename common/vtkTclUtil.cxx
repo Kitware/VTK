@@ -282,7 +282,7 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,
     }
   if (tstr)
     {
-    delete [] tstr;
+    free(tstr);
     }
 
   entry = Tcl_CreateHashEntry(&vtkInstanceLookup,name,&is_new);
