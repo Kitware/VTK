@@ -421,6 +421,13 @@ protected:
   vtkCellTypes *Cells;
   vtkCellLinks *Links;
 
+  // This method is called during an update.  
+  // If the CropFilter is set, the user reqquested a piece which the 
+  // source cannot generate, then it will break up the
+  // data set in order to satisfy the request.
+  virtual void Crop();
+
+
 private:
   // Hide these from the user and the compiler.
   

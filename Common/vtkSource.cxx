@@ -659,6 +659,20 @@ void vtkSource::ExecuteInformation()
         }  
       }
     }
+  else
+    {
+    for (int idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      output = this->GetOutput(idx);
+      if (output)
+        {
+        // Since most unstructured filters in VTK generate all their data once,
+        // make it the default.
+        // protected: if ( output->GetExtentType() == VTK_PIECES_EXTENT )
+        output->SetMaximumNumberOfPieces(1);
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -1733,6 +1733,10 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
   this->vtkPointSet::DeepCopy(dataObject);
 }
 
+void vtkPolyData::Crop()
+{
+}
+
 
 void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {

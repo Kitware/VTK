@@ -278,10 +278,20 @@ public:
   vtkBooleanMacro(RequestExactExtent, int);
   
   // Description:
-  // Set/Get the whole extent of this data object
+  // Set/Get the whole extent of this data object.  
+  // The whole extent is meta data for structured data sets.
+  // It gets set by the source during the update information call.
   vtkSetVector6Macro( WholeExtent, int );
   vtkGetVector6Macro( WholeExtent, int );
   
+  // Description:
+  // Set/Get the maximum number of pieces that can be requested.  
+  // The maximum number of pieces is meta data for unstructured data sets.
+  // It gets set by the source during the update information call.
+  // A value of -1 indicates that there is no maximum.  A value of
+  vtkSetMacro( MaximumNumberOfPieces, int );
+  vtkGetMacro( MaximumNumberOfPieces, int );
+
   // Description:
   // This method is called by the source when it executes to generate data.
   // It is sort of the opposite of ReleaseData.
@@ -322,6 +332,7 @@ public:
   void RemoveConsumer(vtkProcessObject *c);
   vtkProcessObject *GetConsumer(int i);
   int IsConsumer(vtkProcessObject *c);
+
   
 protected:
 
@@ -385,6 +396,7 @@ protected:
   // Unstructured request stuff
   int NumberOfPieces;
   int Piece;
+  int MaximumNumberOfPieces;
   int UpdateNumberOfPieces;
   int UpdatePiece;
   
@@ -396,7 +408,7 @@ protected:
   // ImageToStructuredPoints.
   int RequestExactExtent;
 
-  // This method cops the data object (if necesary) so that the extent
+  // This method crops the data object (if necesary) so that the extent
   // matches the update extent.
   virtual void Crop();
   
