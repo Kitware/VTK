@@ -623,8 +623,15 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data, cha
 
 int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
 {
-  int numPts=points->GetNumberOfPoints();
+  int numPts;
   
+  if (points == NULL)
+    {
+    *fp << "POINTS 0 ";
+    return 1;
+    }
+
+  numPts=points->GetNumberOfPoints();
   *fp << "POINTS " << numPts << " ";
   return this->WriteArray(fp, points->GetDataType(), points->GetData(), "%s\n", numPts, 3);
 }
