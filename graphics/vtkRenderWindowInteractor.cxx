@@ -372,7 +372,7 @@ void  vtkRenderWindowInteractor::FindPokedCamera(int x,int y)
   vp = this->CurrentRenderer->GetViewport();
 
   this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();  
-  memcpy(this->Center,this->CurrentRenderer->GetCenter(),sizeof(float)*2);
+  memcpy(this->Center,this->CurrentRenderer->GetCenter(),sizeof(double)*2);
   this->DeltaElevation = -20.0/((vp[3] - vp[1])*this->Size[1]);
   this->DeltaAzimuth = -20.0/((vp[2] - vp[0])*this->Size[0]);
 
@@ -988,13 +988,31 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 
 
 
+// Description:
+// transform from display to world coordinates.
+// WorldPt has to be allocated as 4 vector
+void vtkRenderWindowInteractor::ComputeDisplayToWorld(double x, double y,
+                                                      double z,
+                                                      float *worldPt)
+{
+  this->CurrentRenderer->SetDisplayPoint(x, y, z);
+  this->CurrentRenderer->DisplayToWorld();
+  this->CurrentRenderer->GetWorldPoint(worldPt);
+  if (worldPt[3])
+    {
+    worldPt[0] /= worldPt[3];
+    worldPt[1] /= worldPt[3];
+    worldPt[2] /= worldPt[3];
+    worldPt[3] = 1.0;
+    }
+}
 
 // Description:
 // transform from display to world coordinates.
 // WorldPt has to be allocated as 4 vector
-void vtkRenderWindowInteractor::ComputeDisplayToWorld(float x, float y,
-                                                      float z,
-                                                      float *worldPt)
+void vtkRenderWindowInteractor::ComputeDisplayToWorld(double x, double y,
+                                                      double z,
+                                                      double *worldPt)
 {
   this->CurrentRenderer->SetDisplayPoint(x, y, z);
   this->CurrentRenderer->DisplayToWorld();
@@ -1012,15 +1030,26 @@ void vtkRenderWindowInteractor::ComputeDisplayToWorld(float x, float y,
 // Description:
 // transform from world to display coordinates.
 // displayPt has to be allocated as 3 vector
-void vtkRenderWindowInteractor::ComputeWorldToDisplay(float x, float y,
-                                                      float z,
-                                                      float *displayPt)
+void vtkRenderWindowInteractor::ComputeWorldToDisplay(double x, double y,
+                                                      double z,
+                                                      double *displayPt)
 {
   this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
   this->CurrentRenderer->WorldToDisplay();
   this->CurrentRenderer->GetDisplayPoint(displayPt);
 }
 
+// Description:
+// transform from world to display coordinates.
+// displayPt has to be allocated as 3 vector
+void vtkRenderWindowInteractor::ComputeWorldToDisplay(double x, double y,
+                                                      double z,
+                                                      float *displayPt)
+{
+  this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
+  this->CurrentRenderer->WorldToDisplay();
+  this->CurrentRenderer->GetDisplayPoint(displayPt);
+}
 
 // Description:
 // rotate the camera in joystick (position sensitive) style
@@ -1031,8 +1060,8 @@ void vtkRenderWindowInteractor::JoystickRotateCamera(int x, int y)
     this->Preprocess = 0;
     }
   
-  float rxf = (float)(x - this->Center[0]) * this->DeltaAzimuth;
-  float ryf = (float)((this->Size[1] - y) -
+  double rxf = (double)(x - this->Center[0]) * this->DeltaAzimuth;
+  double ryf = (double)((this->Size[1] - y) -
                       this->Center[1]) * this->DeltaElevation;
   
   this->CurrentCamera->Azimuth(rxf);
@@ -1058,8 +1087,8 @@ void vtkRenderWindowInteractor::JoystickSpinCamera(int x, int y)
     }
 
   // spin is based on y value
-  float yf = (float)(this->Size[1] - y -
-                     this->Center[1]) / (float)(this->Center[1]);
+  double yf = (double)(this->Size[1] - y -
+                     this->Center[1]) / (double)(this->Center[1]);
   if (yf > 1)
     {
     yf = 1;
@@ -1069,7 +1098,7 @@ void vtkRenderWindowInteractor::JoystickSpinCamera(int x, int y)
     yf = -1;
     }
 
-  float newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
+  double newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
 
   this->CurrentCamera->Roll(newAngle);
   this->CurrentCamera->OrthogonalizeViewUp();
@@ -1142,9 +1171,9 @@ void vtkRenderWindowInteractor::JoystickDollyCamera(int x, int y)
     this->Preprocess = 0;
     }
   
-  float dyf = 0.5 * (float)((this->Size[1] - y) - this->Center[1]) /
-    (float)(this->Center[1]);
-  float zoomFactor = pow((float)1.1, dyf);
+  double dyf = 0.5 * (double)((this->Size[1] - y) - this->Center[1]) /
+    (double)(this->Center[1]);
+  double zoomFactor = pow((double)1.1, dyf);
   if (this->CurrentCamera->GetParallelProjection())
     {
     this->CurrentCamera->
@@ -1152,8 +1181,8 @@ void vtkRenderWindowInteractor::JoystickDollyCamera(int x, int y)
     }
   else
     {
-    float *clippingRange = this->CurrentCamera->GetClippingRange();
-    float dist = clippingRange[1] - clippingRange[0];
+    double *clippingRange = this->CurrentCamera->GetClippingRange();
+    double dist = clippingRange[1] - clippingRange[0];
     this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
                                           clippingRange[0]/zoomFactor +
                                           dist);
@@ -1182,9 +1211,9 @@ void vtkRenderWindowInteractor::TrackballRotateCamera(int x, int y)
       this->Preprocess = 0;
       }
 
-    float rxf = (float)(x - this->OldX) * this->DeltaAzimuth *
+    double rxf = (double)(x - this->OldX) * this->DeltaAzimuth *
       this->TrackballFactor;
-    float ryf = (float)(this->OldY - y) * this->DeltaElevation *
+    double ryf = (double)(this->OldY - y) * this->DeltaElevation *
       this->TrackballFactor;
     
     this->CurrentCamera->Azimuth(rxf);
@@ -1213,11 +1242,11 @@ void vtkRenderWindowInteractor::TrackballSpinCamera(int x, int y)
       this->Preprocess = 0;
       }
 
-    float newAngle = atan2((float)(this->Size[1] - y - this->Center[1]),
-                           (float)(x - this->Center[0]));
-    float oldAngle = atan2((float)(this->Size[1] - this->OldY -
+    double newAngle = atan2((double)(this->Size[1] - y - this->Center[1]),
+                           (double)(x - this->Center[0]));
+    double oldAngle = atan2((double)(this->Size[1] - this->OldY -
                                    this->Center[1]),
-                           (float)(this->OldX - this->Center[0]));
+                           (double)(this->OldX - this->Center[0]));
   
     newAngle *= this->RadianToDegree;
     oldAngle *= this->RadianToDegree;
@@ -1249,14 +1278,14 @@ void vtkRenderWindowInteractor::TrackballPanCamera(int x, int y)
       this->Preprocess = 0;
       }
 
-    this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
+    this->ComputeDisplayToWorld(double(x), double(this->Size[1] - y),
                                 this->FocalDepth,
                                 this->NewPickPoint);
     
     // has to recalc old mouse point since the viewport has moved,
     // so can't move it outside the loop
-    this->ComputeDisplayToWorld(float(this->OldX),
-                                float(this->Size[1] - this->OldY),
+    this->ComputeDisplayToWorld(double(this->OldX),
+                                double(this->Size[1] - this->OldY),
                                 this->FocalDepth, this->OldPickPoint);
 
     // camera motion is reversed
@@ -1305,9 +1334,9 @@ void vtkRenderWindowInteractor::TrackballDollyCamera(int x, int y)
       this->Preprocess = 0;
       }
     
-    float dyf = this->TrackballFactor * (float)(this->OldY - y) /
-      (float)(this->Center[1]);
-    float zoomFactor = pow((float)1.1, dyf);
+    double dyf = this->TrackballFactor * (double)(this->OldY - y) /
+      (double)(this->Center[1]);
+    double zoomFactor = pow((double)1.1, dyf);
           
     if (this->CurrentCamera->GetParallelProjection())
       {
@@ -1316,7 +1345,7 @@ void vtkRenderWindowInteractor::TrackballDollyCamera(int x, int y)
       }
     else
       {
-      float *clippingRange = this->CurrentCamera->GetClippingRange();
+      double *clippingRange = this->CurrentCamera->GetClippingRange();
       this->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
                                             clippingRange[1]/zoomFactor);
       this->CurrentCamera->Dolly(zoomFactor);
@@ -1344,10 +1373,10 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y)
     {
     // first get the origin of the assembly
     memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(float));
+            this->InteractionActor->GetCenter(), 3 * sizeof(double));
 
     // GetLength gets the length of the diagonal of the bounding box
-    float boundRadius = this->InteractionActor->GetLength() * 0.5;
+    double boundRadius = this->InteractionActor->GetLength() * 0.5;
 
     // get the view up and view right vectors
     this->CurrentCamera->OrthogonalizeViewUp();
@@ -1378,8 +1407,8 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y)
     }
 
     
-  float nxf = (float)(x - this->DispObjCenter[0]) / this->Radius;
-  float nyf = (float)(this->Size[1] - y - this->DispObjCenter[1]) /
+  double nxf = (double)(x - this->DispObjCenter[0]) / this->Radius;
+  double nyf = (double)(this->Size[1] - y - this->DispObjCenter[1]) /
     this->Radius;
 
   if (nxf > 1.0)
@@ -1400,14 +1429,14 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y)
     nyf = -1.0;
     }
   
-  float newXAngle = asin(nxf) * this->RadianToDegree / this->TrackballFactor;
-  float newYAngle = asin(nyf) * this->RadianToDegree / this->TrackballFactor;
+  double newXAngle = asin(nxf) * this->RadianToDegree / this->TrackballFactor;
+  double newYAngle = asin(nyf) * this->RadianToDegree / this->TrackballFactor;
 
-  float scale[3];
+  double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
-  float **rotate = new float*[2];
-  rotate[0] = new float[4];
-  rotate[1] = new float[4];
+  double **rotate = new double*[2];
+  rotate[0] = new double[4];
+  rotate[1] = new double[4];
 
   rotate[0][0] = newXAngle;
   rotate[0][1] = this->ViewUp[0];
@@ -1442,7 +1471,7 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y)
     {
 
     memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-            3 * sizeof(float));
+            3 * sizeof(double));
 
     if (this->CurrentCamera->GetParallelProjection())
       {
@@ -1467,8 +1496,8 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y)
     this->Preprocess = 0;
     }
   
-  float yf = (float)(this->Size[1] - y -
-                     this->DispObjCenter[1]) / (float)(this->Center[1]);
+  double yf = (double)(this->Size[1] - y -
+                     this->DispObjCenter[1]) / (double)(this->Center[1]);
   if (yf > 1.0)
     {
     yf = 1.0;
@@ -1478,12 +1507,12 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y)
     yf = -1.0;
     }
 
-  float newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
+  double newAngle = asin(yf) * this->RadianToDegree / this->TrackballFactor;
 
-  float scale[3];
+  double scale[3];
   scale[0] = scale[1] = scale[2] = 1.0;
-  float **rotate = new float*[1];
-  rotate[0] = new float[4];
+  double **rotate = new double*[1];
+  rotate[0] = new double[4];
 
   rotate[0][0] = newAngle;
   rotate[0][1] = this->MotionVector[0];
@@ -1509,7 +1538,7 @@ void vtkRenderWindowInteractor::JoystickPanActor(int x, int y)
     {
     // use initial center as the origin from which to pan
     memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(float));
+            this->InteractionActor->GetCenter(), 3 * sizeof(double));
 
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
@@ -1519,7 +1548,7 @@ void vtkRenderWindowInteractor::JoystickPanActor(int x, int y)
     this->Preprocess = 0;
     }
   
-  this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
+  this->ComputeDisplayToWorld(double(x), double(this->Size[1] - y),
                               this->FocalDepth,
                               this->NewPickPoint);
   
@@ -1566,7 +1595,7 @@ void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y)
 
     // use initial center as the origin from which to pan
     memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(float));
+            this->InteractionActor->GetCenter(), 3 * sizeof(double));
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
 
@@ -1574,9 +1603,9 @@ void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y)
     this->Preprocess = 0;
     }
   
-  float yf = (float)((this->Size[1] - y) - this->DispObjCenter[1]) /
-    (float)(this->Center[1]);
-  float dollyFactor = pow((float)1.1, yf);
+  double yf = (double)((this->Size[1] - y) - this->DispObjCenter[1]) /
+    (double)(this->Center[1]);
+  double dollyFactor = pow((double)1.1, yf);
   
   dollyFactor -= 1.0;
   this->MotionVector[0] = (this->ViewPoint[0] -
@@ -1617,7 +1646,7 @@ void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y)
     {
     // use bounding box center as the origin from which to pan
     memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(float));
+            this->InteractionActor->GetCenter(), 3 * sizeof(double));
 
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
@@ -1626,13 +1655,13 @@ void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y)
     this->Preprocess = 0;
     }
   
-  float yf = (float)(this->Size[1] - y - this->DispObjCenter[1]) /
-    (float)(this->Center[1]);
-  float scaleFactor = pow((float)1.1, yf);          
+  double yf = (double)(this->Size[1] - y - this->DispObjCenter[1]) /
+    (double)(this->Center[1]);
+  double scaleFactor = pow((double)1.1, yf);          
 
-  float **rotate = NULL;
+  double **rotate = NULL;
   
-  float scale[3];
+  double scale[3];
   scale[0] = scale[1] = scale[2] = scaleFactor;
 
   this->ActorTransform(this->InteractionActor,
@@ -1654,10 +1683,10 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y)
     if (this->Preprocess)
       {
       memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-              3 * sizeof(float));
+              3 * sizeof(double));
 
       // GetLength gets the length of the diagonal of the bounding box
-      float boundRadius = this->InteractionActor->GetLength() * 0.5;
+      double boundRadius = this->InteractionActor->GetLength() * 0.5;
       
       // get the view up and view right vectors
       this->CurrentCamera->OrthogonalizeViewUp();
@@ -1669,7 +1698,7 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y)
       vtkMath::Normalize(this->ViewRight);
 
       // get the furtherest point from object position+origin
-      float outsidept[3];
+      double outsidept[3];
       outsidept[0] = this->ObjCenter[0] + this->ViewRight[0] * boundRadius;
       outsidept[1] = this->ObjCenter[1] + this->ViewRight[1] * boundRadius;
       outsidept[2] = this->ObjCenter[2] + this->ViewRight[2] * boundRadius;
@@ -1681,34 +1710,39 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y)
                                   outsidept[2], outsidept);
 
       // get the radius in display coord
-      this->Radius = sqrt(vtkMath::Distance2BetweenPoints(this->DispObjCenter,
-                                                          outsidept));
+      double ftmp[3];
+      ftmp[0] = this->DispObjCenter[0];
+      ftmp[1] = this->DispObjCenter[1];
+      ftmp[2] = this->DispObjCenter[2];
+      
+      this->Radius = 
+	sqrt(vtkMath::Distance2BetweenPoints(ftmp, outsidept));
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
       }
 
-    float nxf = (float)(x - this->DispObjCenter[0]) / this->Radius;
-    float nyf = (float)(this->Size[1] - y -
+    double nxf = (double)(x - this->DispObjCenter[0]) / this->Radius;
+    double nyf = (double)(this->Size[1] - y -
                         this->DispObjCenter[1]) / this->Radius;
-    float oxf = (float)(this->OldX - this->DispObjCenter[0]) / this->Radius;
-    float oyf = (float)(this->Size[1] - this->OldY -
+    double oxf = (double)(this->OldX - this->DispObjCenter[0]) / this->Radius;
+    double oyf = (double)(this->Size[1] - this->OldY -
                         this->DispObjCenter[1]) / this->Radius;
 
     if (((nxf * nxf + nyf * nyf) <= 1.0) &&
         ((oxf * oxf + oyf * oyf) <= 1.0))
       {
 	    
-      float newXAngle = asin(nxf) * this->RadianToDegree;
-      float newYAngle = asin(nyf) * this->RadianToDegree;
-      float oldXAngle = asin(oxf) * this->RadianToDegree;
-      float oldYAngle = asin(oyf) * this->RadianToDegree;
+      double newXAngle = asin(nxf) * this->RadianToDegree;
+      double newYAngle = asin(nyf) * this->RadianToDegree;
+      double oldXAngle = asin(oxf) * this->RadianToDegree;
+      double oldYAngle = asin(oyf) * this->RadianToDegree;
 
-      float scale[3];
+      double scale[3];
       scale[0] = scale[1] = scale[2] = 1.0;
-      float **rotate = new float*[2];
-      rotate[0] = new float[4];
-      rotate[1] = new float[4];
+      double **rotate = new double*[2];
+      rotate[0] = new double[4];
+      rotate[1] = new double[4];
 
       rotate[0][0] = newXAngle - oldXAngle;
       rotate[0][1] = this->ViewUp[0];
@@ -1746,7 +1780,7 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y)
       {
       // get the position plus origin of the object
       memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-              3 * sizeof(float));
+              3 * sizeof(double));
   
       // get the axis to rotate around = vector from eye to origin
       if (this->CurrentCamera->GetParallelProjection())
@@ -1771,19 +1805,19 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y)
       }
     
     // this has to be in the loop
-    float newAngle = atan2((float)(this->Size[1] - y - this->DispObjCenter[1]),
-                           (float)(x - this->DispObjCenter[0]));
-    float oldAngle = atan2((float)(this->Size[1] - this->OldY -
+    double newAngle = atan2((double)(this->Size[1] - y - this->DispObjCenter[1]),
+                           (double)(x - this->DispObjCenter[0]));
+    double oldAngle = atan2((double)(this->Size[1] - this->OldY -
                                    this->DispObjCenter[1]),
-                           (float)(this->OldX - this->DispObjCenter[0]));
+                           (double)(this->OldX - this->DispObjCenter[0]));
     
     newAngle *= this->RadianToDegree;
     oldAngle *= this->RadianToDegree;
 
-    float scale[3];
+    double scale[3];
     scale[0] = scale[1] = scale[2] = 1.0;
-    float **rotate = new float*[1];
-    rotate[0] = new float[4];
+    double **rotate = new double*[1];
+    rotate[0] = new double[4];
 
     rotate[0][0] = newAngle - oldAngle;
     rotate[0][1] = this->MotionVector[0];
@@ -1813,7 +1847,7 @@ void vtkRenderWindowInteractor::TrackballPanActor(int x, int y)
       {
       // use initial center as the origin from which to pan
       memmove(this->ObjCenter,
-              this->InteractionActor->GetCenter(), 3 * sizeof(float));
+              this->InteractionActor->GetCenter(), 3 * sizeof(double));
       this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                   this->ObjCenter[2], this->DispObjCenter);
       this->FocalDepth = this->DispObjCenter[2];
@@ -1822,12 +1856,12 @@ void vtkRenderWindowInteractor::TrackballPanActor(int x, int y)
       this->Preprocess = 0;
       }
   
-    this->ComputeDisplayToWorld(float(x), float(this->Size[1] - y),
+    this->ComputeDisplayToWorld(double(x), double(this->Size[1] - y),
                                 this->FocalDepth,
                                 this->NewPickPoint);
 
-    this->ComputeDisplayToWorld(float(this->OldX),
-                                float(this->Size[1] - this->OldY),
+    this->ComputeDisplayToWorld(double(this->OldX),
+                                double(this->Size[1] - this->OldY),
                                 this->FocalDepth, this->OldPickPoint);
     
     this->MotionVector[0] = this->NewPickPoint[0] - this->OldPickPoint[0];
@@ -1871,9 +1905,9 @@ void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y)
       this->Preprocess = 0;
       }
     
-    float yf = (float)(this->OldY - y) / (float)(this->Center[1]) *
+    double yf = (double)(this->OldY - y) / (double)(this->Center[1]) *
       this->TrackballFactor;
-    float dollyFactor = pow((float)1.1, yf);
+    double dollyFactor = pow((double)1.1, yf);
 
     dollyFactor -= 1.0;
     this->MotionVector[0] = (this->ViewPoint[0] -
@@ -1913,19 +1947,19 @@ void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y)
     if (this->Preprocess)
       {
       memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-              3 * sizeof(float));
+              3 * sizeof(double));
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
       }
     
-    float yf = (float)(this->OldY - y) / (float)(this->Center[1]) *
+    double yf = (double)(this->OldY - y) / (double)(this->Center[1]) *
       this->TrackballFactor;
-    float scaleFactor = pow((float)1.1, yf);          
+    double scaleFactor = pow((double)1.1, yf);          
 
-    float **rotate = NULL;
+    double **rotate = NULL;
     
-    float scale[3];
+    double scale[3];
     scale[0] = scale[1] = scale[2] = scaleFactor;
     
     this->ActorTransform(this->InteractionActor,
@@ -1942,8 +1976,21 @@ void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y)
 void vtkRenderWindowInteractor::ActorTransform(vtkActor *actor,
                                                float *boxCenter,
                                                int numRotation,
-                                               float **rotate,
-                                               float *scale)
+                                               double **rotate,
+                                               double *scale)
+{
+  double boxCenter2[3];
+  boxCenter2[0] = boxCenter[0];
+  boxCenter2[1] = boxCenter[1];
+  boxCenter2[2] = boxCenter[2];
+  this->ActorTransform(actor,boxCenter2,numRotation,rotate,scale);
+}
+
+void vtkRenderWindowInteractor::ActorTransform(vtkActor *actor,
+                                               double *boxCenter,
+                                               int numRotation,
+                                               double **rotate,
+                                               double *scale)
 {
   vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
   actor->GetMatrix(oldMatrix);

@@ -489,11 +489,11 @@ protected:
   float OldY;
   
   // this really belong in camera
-  float ViewLook[3];
-  float ViewPoint[3];
-  float ViewFocus[3];
-  float ViewUp[3];
-  float ViewRight[3];
+  double ViewLook[3];
+  double ViewPoint[3];
+  double ViewFocus[3];
+  double ViewUp[3];
+  double ViewRight[3];
 
   // actor stuff
   float Origin[3];
@@ -561,17 +561,26 @@ protected:
   void *RightButtonReleaseMethodArg;
 
   // convenience methods for converting between coordinate systems
-  virtual void ComputeDisplayToWorld(float x, float y, float z,
+  virtual void ComputeDisplayToWorld(double x, double y, double z,
+                                     double *worldPt);
+  virtual void ComputeWorldToDisplay(double x, double y, double z,
+                                     double *displayPt);
+  virtual void ComputeDisplayToWorld(double x, double y, double z,
                                      float *worldPt);
-  virtual void ComputeWorldToDisplay(float x, float y, float z,
+  virtual void ComputeWorldToDisplay(double x, double y, double z,
                                      float *displayPt);
 
   // perform actor mode scale and rotate transformations
   virtual void ActorTransform(vtkActor *actor,
                               float *boxCenter,
                               int NumRotation,
-                              float **rotate,
-                              float *scale);
+                              double **rotate,
+                              double *scale);
+  virtual void ActorTransform(vtkActor *actor,
+                              double *boxCenter,
+                              int NumRotation,
+                              double **rotate,
+                              double *scale);
   
   // methods for the different interactions in different modes
   virtual void JoystickRotateCamera(int x, int y);
