@@ -616,7 +616,6 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       {
       // currently writing vtkIdType as int.
       int size = data->GetSize();
-      int i;
       int *intArray = new int[size];
       sprintf (str, format, "int"); *fp << str; 
       vtkIdType *s=((vtkIdTypeArray *)data)->GetPointer(0);

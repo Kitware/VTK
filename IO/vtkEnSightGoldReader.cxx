@@ -199,6 +199,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
   char line[256], subLine[256];
   vtkPoints *newPoints;
   int i;
+  int tempId;
   vtkIdType id;
   float coords[3];
   vtkPolyData *geom;
@@ -285,9 +286,10 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(char* fileName,
   for (i = 0; i < this->NumberOfMeasuredPoints; i++)
     {
     this->ReadLine(line);
-    sscanf(line, " %8d %12e %12e %12e", &id, &coords[0], &coords[1],
+    sscanf(line, " %8d %12e %12e %12e", &tempId, &coords[0], &coords[1],
            &coords[2]);
-    id--;
+    tempId--;
+    id = tempId;
     this->MeasuredNodeIds->InsertNextId(id);
     newPoints->InsertNextPoint(coords);
     geom->InsertNextCell(VTK_VERTEX, 1, &id);
@@ -1384,7 +1386,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       for (i = 0; i < numElements; i++)
         {
         sscanf(line, " %d %d %d %d", &intIds[0], &intIds[1], &intIds[2],
-               &nodeIds[3]);
+               &intIds[3]);
         for (j = 0; j < 4; j++)
           {
           intIds[j]--;
