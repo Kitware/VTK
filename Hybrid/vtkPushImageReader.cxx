@@ -53,7 +53,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageReader, "1.6");
+vtkCxxRevisionMacro(vtkPushImageReader, "1.7");
 vtkStandardNewMacro(vtkPushImageReader);
 
 vtkPushImageReader::vtkPushImageReader()
@@ -69,7 +69,7 @@ vtkPushImageReader::~vtkPushImageReader()
 {
   if (this->PushPipeline)
     {
-    this->PushPipeline->Delete();
+    this->PushPipeline = NULL;
     }
 }
 
@@ -205,7 +205,12 @@ void vtkPushImageReader::ExecuteData(vtkDataObject *output)
     }   
 }
 
-vtkCxxSetObjectMacro(vtkPushImageReader,PushPipeline,vtkPushPipeline)
+void vtkPushImageReader::SetPushPipeline(vtkPushPipeline *pp)
+{
+  // not ref counted to avoid loops
+  this->PushPipeline = pp;
+}
+
   
 void vtkPushImageReader::Push()
 {
