@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
+  this->NumberOfLightsBound = 0;
 }
 
 // Description:
