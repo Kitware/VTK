@@ -8,7 +8,6 @@ IF (VTK_USE_RENDERING)
       closedSplines
       CSpline
       KSpline
-      squadViewer
       SelectionLoop
       ImplicitSum
       PerlinNoise
@@ -20,6 +19,14 @@ IF (VTK_USE_RENDERING)
         -V Baseline/Filtering/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
+    IF(NOT VTK_USE_COCOA)
+      ADD_TEST(squadViewer-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/squadViewer.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/Filtering/squadViewer.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDIF(NOT VTK_USE_COCOA)
   #
   # If we do not have the data, still run the tests that we can
   #
