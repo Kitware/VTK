@@ -19,8 +19,10 @@
 #include "vtkViewport.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCoordinate, "1.27");
+vtkCxxRevisionMacro(vtkCoordinate, "1.28");
 vtkStandardNewMacro(vtkCoordinate);
+
+vtkCxxSetObjectMacro(vtkCoordinate,ReferenceCoordinate,vtkCoordinate);
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 

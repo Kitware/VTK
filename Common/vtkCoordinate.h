@@ -100,7 +100,7 @@ public:
   // If this coordinate is relative to another coordinate,
   // then specify that coordinate as the ReferenceCoordinate.
   // If this is NULL the coordinate is assumed to be absolute.
-  vtkSetObjectMacro(ReferenceCoordinate,vtkCoordinate);
+  virtual void SetReferenceCoordinate(vtkCoordinate*);
   vtkGetObjectMacro(ReferenceCoordinate,vtkCoordinate);
 
   // Description:
