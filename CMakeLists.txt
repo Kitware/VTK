@@ -4,26 +4,49 @@ OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
 SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
 
+SUBDIR_DEPENDS(Common Wrapping Utilities)
+SUBDIR_DEPENDS(Filtering Common)
+SUBDIR_DEPENDS(Imaging Filtering)
+SUBDIR_DEPENDS(Graphics Filtering)
+SUBDIR_DEPENDS(IO Filtering)
+
 INCLUDE (${VTK_SOURCE_DIR}/vtkCMakeOptions.cmake)
 
 IF (VTK_USE_RENDERING)
   SUBDIRS(Rendering)
+  SUBDIR_DEPENDS(Rendering Imaging Graphics IO)
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_HYBRID)
   SUBDIRS(Hybrid)
+  SUBDIR_DEPENDS(Hybrid Rendering)
 ENDIF (VTK_USE_HYBRID)
 
 IF (VTK_USE_PATENTED)
   SUBDIRS(Patented)
+  SUBDIR_DEPENDS(Patented Rendering)
 ENDIF (VTK_USE_PATENTED)
 
 IF (VTK_USE_PARALLEL)
-    SUBDIRS(Parallel)
+  SUBDIRS(Parallel)
+  SUBDIR_DEPENDS(Parallel Rendering)
 ENDIF (VTK_USE_PARALLEL)
 
 IF (VTK_WRAP_TCL)
   SUBDIRS(Wrapping/Tcl)
+  SUBDIR_DEPENDS(Wrapping/Tcl Imaging Graphics IO)
+  IF (VTK_USE_RENDERING)
+    SUBDIR_DEPENDS(Wrapping/Tcl Rendering)
+  ENDIF (VTK_USE_RENDERING)
+  IF (VTK_USE_HYBRID)
+    SUBDIR_DEPENDS(Wrapping/Tcl Hybrid)
+  ENDIF (VTK_USE_HYBRID)  
+  IF (VTK_USE_PATENTED)
+    SUBDIR_DEPENDS(Wrapping/Tcl Patented)
+  ENDIF (VTK_USE_PATENTED)
+  IF (VTK_USE_PARALLEL)
+    SUBDIR_DEPENDS(Wrapping/Tcl Parallel)
+  ENDIF (VTK_USE_PARALLEL)
 ENDIF (VTK_WRAP_TCL)
 
 CONFIGURE_FILE(
@@ -37,29 +60,52 @@ ${VTK_BINARY_DIR}/vtkToolkits.h)
 # Include the standard Dart testing module
 INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 
-# add some testing dependencies
+# Add the testing directories
 IF(BUILD_TESTING)
   IF (DART_ROOT)
-    SUBDIRS(Common/Testing )
-    SUBDIRS(Filtering/Testing )
-    SUBDIRS(Graphics/Testing )
-    SUBDIRS(Imaging/Testing )
+    SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing Imaging/Testing)
+
+    SUBDIR_DEPENDS(Common/Testing Common)
+    SUBDIR_DEPENDS(Filtering/Testing Filtering)
+    SUBDIR_DEPENDS(Graphics/Testing Graphics)
+    SUBDIR_DEPENDS(Imaging/Testing Imaging)
+
     IF (VTK_USE_RENDERING)
-      SUBDIRS(Rendering/Testing )
+      SUBDIRS(Rendering/Testing)
+      SUBDIR_DEPENDS(Rendering/Testing Rendering)
+      SUBDIR_DEPENDS(Graphics/Testing Rendering)
     ENDIF(VTK_USE_RENDERING)
     IF (VTK_USE_HYBRID)
-      SUBDIRS(Hybrid/Testing )
+      SUBDIRS(Hybrid/Testing)
+      SUBDIR_DEPENDS(Hybrid/Testing Hybrid)
     ENDIF(VTK_USE_HYBRID)
     IF (VTK_USE_PARALLEL)
-      SUBDIRS(Parallel/Testing )
+      SUBDIRS(Parallel/Testing)
+      SUBDIR_DEPENDS(Parallel/Testing Parallel)
     ENDIF(VTK_USE_PARALLEL)
+  ELSE (DART_ROOT)
+    MESSAGE("BUILD_TESTING requires DART_ROOT to be set!" "Error")
   ENDIF (DART_ROOT)
 ENDIF(BUILD_TESTING)
 
-# add the examples
+# Add the examples
 IF (BUILD_EXAMPLES)
- SUBDIRS(Examples)
+  SUBDIRS(Examples)
+  SUBDIR_DEPENDS(Examples Imaging Graphics IO)
+  IF (VTK_USE_RENDERING)
+    SUBDIR_DEPENDS(Examples Rendering)
+  ENDIF (VTK_USE_RENDERING)
+  IF (VTK_USE_HYBRID)
+    SUBDIR_DEPENDS(Examples Hybrid)
+  ENDIF (VTK_USE_HYBRID)  
+  IF (VTK_USE_PATENTED)
+    SUBDIR_DEPENDS(Examples Patented)
+  ENDIF (VTK_USE_PATENTED)
+  IF (VTK_USE_PARALLEL)
+    SUBDIR_DEPENDS(Examples Parallel)
+  ENDIF (VTK_USE_PARALLEL)
 ENDIF (BUILD_EXAMPLES)
+
 
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 
