@@ -96,29 +96,17 @@ char*  vtkImageCache::GetScalarTypeAsString()
 {
   switch (this->ScalarType) {
   case VTK_VOID: return "void";
-    break;
   case VTK_BIT: return  "bit";            
-    break;
   case VTK_CHAR: return "char";            
-    break;
   case VTK_UNSIGNED_CHAR: return "unsigned char"; 
-    break;
   case VTK_SHORT: return "short";          
-    break;
   case VTK_UNSIGNED_SHORT: return "unsigned short"; 
-    break;
   case VTK_INT: return "int";            
-    break;
   case VTK_UNSIGNED_INT: return "unsigned int";   
-    break;
   case VTK_LONG: return "long";            
-    break;
   case VTK_UNSIGNED_LONG: return "unsigned long";   
-    break;
   case VTK_FLOAT: return "float";          
-    break;
   case VTK_DOUBLE: return "double";
-    break;
   default: return "";
   }
  }
