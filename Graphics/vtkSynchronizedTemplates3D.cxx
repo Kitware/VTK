@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.1");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.2");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -779,7 +779,7 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
   outInfo = str->OutputVector->GetInformationObject(0);
 
   // we need to breakup the ExecuteExtent based on the threadId/Count
-  tmp = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  tmp = self->GetExecuteExtent();
   ext[0] = tmp[0];
   ext[1] = tmp[1];
   ext[2] = tmp[2];
@@ -814,7 +814,7 @@ VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
 
 //----------------------------------------------------------------------------
 int vtkSynchronizedTemplates3D::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -838,13 +838,14 @@ int vtkSynchronizedTemplates3D::RequestData(
   vtkCellData *threadCD;
   vtkCellArray *threadTris;
 
-  int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  // to be safe recompute the 
+  this->RequestUpdateExtent(request,inputVector,outputVector);
 
   // Just in case some one changed the maximum number of threads.
   if (this->NumberOfThreads <= 1)
     {
     // Just call the threaded execute directly.
-    this->ThreadedExecute(input, inInfo, outInfo, uExt, 0);
+    this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, 0);
     }
   else
     {
