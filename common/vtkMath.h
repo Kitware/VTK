@@ -106,6 +106,17 @@ public:
   static double Normalize(double x[3]);
 
   // Description:
+  // Given a unit vector x, find two unit vectors y and z such that 
+  // x cross y = z (i.e. the vectors are perpendicular to each other).
+  // There is an infinite number of such vectors, specify an angle theta 
+  // to choose one set.  If you want only one perpendicular vector, 
+  // specify NULL for z.
+  static void Perpendiculars(const double x[3], double y[3], double z[3], 
+			     double theta);
+  static void Perpendiculars(const float x[3], float y[3], float z[3],
+			     double theta);
+
+  // Description:
   // Compute distance squared between two points.
   static float Distance2BetweenPoints(float x[3], float y[3]);
 

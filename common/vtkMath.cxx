@@ -129,6 +129,141 @@ void vtkMath::Cross(double x[3], double y[3], double z[3])
   z[0] = Zx; z[1] = Zy; z[2] = Zz; 
 }
 
+// Find unit vectors which is perpendicular to this on and to
+// each other.
+void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
+			     double theta)
+{
+  int dx,dy,dz;
+  double x2 = x[0]*x[0];
+  double y2 = x[1]*x[1];
+  double z2 = x[2]*x[2];
+  double r = sqrt(x2 + y2 + z2);
+
+  // transpose the vector to avoid divide-by-zero error
+  if (x2 > y2 && x2 > z2)
+  {
+    dx = 0; dy = 1; dz = 2;
+  }
+  else if (y2 > z2) 
+  {
+    dx = 1; dy = 2; dz = 0;
+  }
+  else 
+  {
+    dx = 2; dy = 0; dz = 1;
+  }
+
+  double a = x[dx]/r;
+  double b = x[dy]/r;
+  double c = x[dz]/r;
+
+  double tmp = sqrt(a*a+c*c);
+
+  if (theta != 0)
+    {
+    double sintheta = sin(theta);
+    double costheta = cos(theta);
+
+    if (y)
+    {
+      y[dx] = (c*costheta - a*b*sintheta)/tmp;
+      y[dy] = sintheta*tmp;
+      y[dz] = (-a*costheta - b*c*sintheta)/tmp;
+    }
+
+    if (z)
+      {
+      z[dx] = (-c*sintheta - a*b*costheta)/tmp;
+      z[dy] = costheta*tmp;
+      z[dz] = (a*sintheta - b*c*costheta)/tmp;
+      }
+    }
+  else
+    {
+    if (y)
+    {
+      y[dx] = c/tmp;
+      y[dy] = 0;
+      y[dz] = -a/tmp;
+    }
+
+    if (z)
+      {
+      z[dx] = -a*b/tmp;
+      z[dy] = tmp;
+      z[dz] = -b*c/tmp;
+      }
+    }      
+}
+
+// Find unit vectors which are perpendicular to this one and to
+// each other.
+void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
+			     double theta)
+{
+  int dx,dy,dz;
+  double x2 = x[0]*x[0];
+  double y2 = x[1]*x[1];
+  double z2 = x[2]*x[2];
+  double r = sqrt(x2 + y2 + z2);
+
+  // transpose the vector to avoid divide-by-zero error
+  if (x2 > y2 && x2 > z2)
+  {
+    dx = 0; dy = 1; dz = 2;
+  }
+  else if (y2 > z2) 
+  {
+    dx = 1; dy = 2; dz = 0;
+  }
+  else 
+  {
+    dx = 2; dy = 0; dz = 1;
+  }
+
+  double a = x[dx]/r;
+  double b = x[dy]/r;
+  double c = x[dz]/r;
+
+  double tmp = sqrt(a*a+c*c);
+
+  if (theta != 0)
+    {
+    double sintheta = sin(theta);
+    double costheta = cos(theta);
+
+    if (y)
+    {
+      y[dx] = (c*costheta - a*b*sintheta)/tmp;
+      y[dy] = sintheta*tmp;
+      y[dz] = (-a*costheta - b*c*sintheta)/tmp;
+    }
+
+    if (z)
+      {
+      z[dx] = (-c*sintheta - a*b*costheta)/tmp;
+      z[dy] = costheta*tmp;
+      z[dz] = (a*sintheta - b*c*costheta)/tmp;
+      }
+    }
+  else
+    {
+    if (y)
+    {
+      y[dx] = c/tmp;
+      y[dy] = 0;
+      y[dz] = -a/tmp;
+    }
+
+    if (z)
+      {
+      z[dx] = -a*b/tmp;
+      z[dy] = tmp;
+      z[dz] = -b*c/tmp;
+      }
+    }      
+}
 
 #define VTK_SMALL_NUMBER 1.0e-12
 
