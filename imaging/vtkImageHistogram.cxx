@@ -286,6 +286,13 @@ void vtkImageHistogram::InterceptCacheUpdate()
 {
   int wholeExtent[8];
   
+  // Filter superclass has no control of intercept cache update.
+  // a work around
+  if (this->Bypass)
+    {
+    return;
+    }
+  
   this->Output->GetWholeExtent(wholeExtent);
   this->Output->SetUpdateExtent(wholeExtent);
 }

@@ -78,6 +78,13 @@ void vtkImageFeatureAnd::InterceptCacheUpdate()
   int idx, axis;
   int min, max;
 
+  // Filter superclass has no control of intercept cache update.
+  // a work around
+  if (this->Bypass)
+    {
+    return;
+    }
+  
   for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
     axis = this->FilteredAxes[idx];

@@ -273,6 +273,13 @@ void vtkImageHistogramEqualization::InterceptCacheUpdate(vtkImageCache *cache)
 {
   int wholeExtent[8];
   
+  // Filter superclass has no control of intercept cache update.
+  // a work around
+  if (this->Bypass)
+    {
+    return;
+    }
+  
   cache->GetWholeExtent(wholeExtent);
   cache->SetUpdateExtent(wholeExtent);
 }

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDistance1D.h
+  Module:    vtkImageCityBlockDistance1D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,24 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDistance1D - One step of creating a distance map.
+// .NAME vtkImageCityBlockDistance1D - One step of creating a distance map.
 // .SECTION Description
-// vtkImageDistance1D is one step of creating a manhatten distance
+// vtkImageCityBlockDistance1D is one step of creating a manhatten distance
 // map.  This filter only operates on unsigned chars.
 
 
-#ifndef __vtkImageDistance1D_h
-#define __vtkImageDistance1D_h
+#ifndef __vtkImageCityBlockDistance1D_h
+#define __vtkImageCityBlockDistance1D_h
 
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageDistance1D : public vtkImageFilter
+class VTK_EXPORT vtkImageCityBlockDistance1D : public vtkImageFilter
 {
 public:
-  vtkImageDistance1D();
-  static vtkImageDistance1D *New() {return new vtkImageDistance1D;};
-  const char *GetClassName() {return "vtkImageDistance1D";};
+  vtkImageCityBlockDistance1D();
+  static vtkImageCityBlockDistance1D *New() 
+    {return new vtkImageCityBlockDistance1D;};
+  const char *GetClassName() {return "vtkImageCityBlockDistance1D";};
   
   void SetFilteredAxis(int axis);
   void InterceptCacheUpdate();

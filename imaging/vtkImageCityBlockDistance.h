@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDistance.h
+  Module:    vtkImageCityBlockDistance.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,27 +38,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDistance - 2d image distance map.
+// .NAME vtkImageCityBlockDistance - 2d image distance map.
 // .SECTION Description
-// vtkImageDistance creates a Manhatten distance map from
+// vtkImageCityBlockDistance creates a Manhatten distance map from
 // a mask.  It used two 1d distance filters along each axis.
 
 
-#ifndef __vtkImageDistance_h
-#define __vtkImageDistance_h
+#ifndef __vtkImageCityBlockDistance_h
+#define __vtkImageCityBlockDistance_h
 
 
 #include "vtkImageDecomposedFilter.h"
-#include "vtkImageDistance1D.h"
+#include "vtkImageCityBlockDistance1D.h"
 
-class VTK_EXPORT vtkImageDistance : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposedFilter
 {
 public:
-  vtkImageDistance();
-  static vtkImageDistance *New() {return new vtkImageDistance;};
-  const char *GetClassName() {return "vtkImageDistance";};
-  
-  void SetDimensionality(int num);
+  vtkImageCityBlockDistance();
+  static vtkImageCityBlockDistance *New() 
+    {return new vtkImageCityBlockDistance;};
+  const char *GetClassName() {return "vtkImageCityBlockDistance";};
   
 protected:
 };

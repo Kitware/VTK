@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDistance.cxx
+  Module:    vtkImageCityBlockDistance.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,48 +38,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDistance.h"
+#include "vtkImageCityBlockDistance.h"
 
 //----------------------------------------------------------------------------
-vtkImageDistance::vtkImageDistance()
-{
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up multiple 1d Distance filters
-void vtkImageDistance::SetDimensionality(int num)
+vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 {
   int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
+  vtkImageCityBlockDistance1D *filter;
+
+  for (idx = 0; idx < 4; ++idx)
     {
-    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
-    return;
+    filter = vtkImageCityBlockDistance1D::New();
+    this->Filters[idx] = filter;
+    filter->SetFilteredAxis(idx);
     }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    // Free old filters
-    if (this->Filters[idx])
-      {
-      this->Filters[idx]->Delete();
-      }
-    // Create new filters
-    this->Filters[idx] = vtkImageDistance1D::New();
-    this->Filters[idx]->SetAxes(this->Axes[idx]);
-    }
-  
-  this->Modified();
-  this->Dimensionality = num;
-  
-  // If the input has already been set, set the pipelines input.
-  if (this->Input)
-    {
-    this->SetInternalInput(this->Input);
-    }
+  // Let the superclass set some superclass variables of the filters.
+  this->InitializeFilters();
 }
 
 

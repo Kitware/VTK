@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDistance1D.cxx
+  Module:    vtkImageCityBlockDistance1D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,19 +40,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageRegion.h"
 #include "vtkImageCache.h"
-#include "vtkImageDistance1D.h"
+#include "vtkImageCityBlockDistance1D.h"
 
 //----------------------------------------------------------------------------
-vtkImageDistance1D::vtkImageDistance1D()
+vtkImageCityBlockDistance1D::vtkImageCityBlockDistance1D()
 {
   this->SetOutputScalarType(VTK_SHORT);
   
-  this->NumberOfExecutionAxes = 1;
+  this->SetFilteredAxis(VTK_IMAGE_X_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageDistance1D::SetFilteredAxis(int axis)
+void vtkImageCityBlockDistance1D::SetFilteredAxis(int axis)
 {
   this->SetFilteredAxes(1, &axis);
 }
@@ -62,9 +62,16 @@ void vtkImageDistance1D::SetFilteredAxis(int axis)
 // Description:
 // Intercepts the caches Update to make the region larger than requested.
 // Create the whole output array.
-void vtkImageDistance1D::InterceptCacheUpdate()
+void vtkImageCityBlockDistance1D::InterceptCacheUpdate()
 {
   int min, max;
+  
+  // Filter superclass has no control of intercept cache update.
+  // a work around
+  if (this->Bypass)
+    {
+    return;
+    }
   
   if ( ! this->Input)
     {
@@ -80,7 +87,7 @@ void vtkImageDistance1D::InterceptCacheUpdate()
 // Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageDistance1D::ComputeRequiredInputUpdateExtent()
+void vtkImageCityBlockDistance1D::ComputeRequiredInputUpdateExtent()
 {
   int min, max;
 
@@ -93,7 +100,7 @@ void vtkImageDistance1D::ComputeRequiredInputUpdateExtent()
 // Description:
 // This method is passed a input and output region, and executes the
 // distance algorithm.
-void vtkImageDistance1D::Execute(vtkImageRegion *inRegion, 
+void vtkImageCityBlockDistance1D::Execute(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
   short *inPtr, *outPtr;

@@ -102,6 +102,13 @@ void vtkImageIslandRemoval2D::InterceptCacheUpdate()
 {
   int min, max;
 
+  // Filter superclass has no control of intercept cache update.
+  // a work around
+  if (this->Bypass)
+    {
+    return;
+    }
+  
   this->Output->GetAxisWholeExtent(this->FilteredAxes[0], min ,max);
   this->Output->SetAxisUpdateExtent(this->FilteredAxes[0], min ,max);
   this->Output->GetAxisWholeExtent(this->FilteredAxes[1], min ,max);

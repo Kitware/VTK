@@ -153,8 +153,9 @@ void vtkImageMarchingCubes::Execute()
   this->NumberOfSlicesPerChunk = this->InputMemoryLimit * 1000 / (temp + 1);
   if (this->NumberOfSlicesPerChunk < minSlicesPerChunk)
     {
-    vtkWarningMacro("Execute: Need " << (temp/1000) << " KB to load " 
-		    << minSlicesPerChunk << " minimum.\n");
+    vtkWarningMacro("Execute: Need " 
+      <<  minSlicesPerChunk*(temp/1000) << " KB to load " 
+      << minSlicesPerChunk << " slices.\n");
     this->NumberOfSlicesPerChunk = minSlicesPerChunk;
     }
   vtkDebugMacro("Execute: NumberOfSlicesPerChunk = " 
