@@ -37,13 +37,15 @@
  #endif
 #endif
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
+#include "vtkCommand.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkRendererCollection.h"
 #include "vtkString.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/cursorfont.h>
 
 class vtkXOpenGLRenderWindow;
 class vtkRenderWindow;
@@ -86,7 +88,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.30");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.31");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1339,9 +1341,12 @@ void *vtkXOpenGLRenderWindow::GetGenericWindowId()
   return (void *)this->WindowId;
 }
 
-#include <X11/cursorfont.h>
 void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
 {
+  if ( this->InvokeEvent(vtkCommand::CursorChangedEvent,&shape) )
+    {
+    return;
+    }
   this->Superclass::SetCurrentCursor(shape);
   if (!this->DisplayId || !this->WindowId)
     {

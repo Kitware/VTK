@@ -38,7 +38,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.94");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.95");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1141,6 +1141,10 @@ void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y)
 
 void vtkWin32OpenGLRenderWindow::SetCurrentCursor(int shape)
 {
+  if ( this->InvokeEvent(vtkCommand::CursorChangedEvent,&shape) )
+    {
+    return;
+    }
   this->Superclass::SetCurrentCursor(shape);
   LPCTSTR cursorName = 0;
   switch (shape)
