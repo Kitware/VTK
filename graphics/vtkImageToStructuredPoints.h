@@ -86,6 +86,7 @@ public:
   vtkImageSetMacro(Axes,int);
   void GetAxes(int dim, int *axes);
   vtkImageGetMacro(Axes,int);
+  int *GetAxes() {return this->Axes;};  
 
   // Description:
   // Set/Get the order of the axes to split while streaming.
@@ -93,7 +94,8 @@ public:
   vtkImageSetMacro(SplitOrder,int);
   void GetSplitOrder(int dim, int *axes);
   vtkImageGetMacro(SplitOrder,int);
-  
+  int *GetSplitOrder() {return this->SplitOrder;};  
+
   // Description:
   // This object will stream to keep the input regions below this limit.
   vtkSetMacro(InputMemoryLimit,int);
