@@ -39,7 +39,7 @@
 // vtkParametricFunctionSource - tessellates a parametric function
 //
 // Implementations of derived classes implementing non-orentable surfaces:
-// vtkParametricBoy vtkParametricCrossCap vtkParametricFig8Klein
+// vtkParametricBoy vtkParametricCrossCap vtkParametricFigure8Klein
 // vtkParametricKlein vtkParametricMobius vtkParametricRoman
 //
 // Implementations of derived classes implementing orientable surfaces:

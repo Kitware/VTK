@@ -19,9 +19,9 @@
 // surface.  It is unrealisable in 3 dimensions without intersecting
 // surfaces.  It can be realised in 4 dimensions by considering the map
 // G:R^2->R^4 given by:
-// <pre>
+//
 // - G(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))
-// </pre>
+//
 // The classical representation of the immersion in R^3 is returned by this function.
 //
 // .SECTION Thanks

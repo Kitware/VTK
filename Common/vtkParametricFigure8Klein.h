@@ -22,7 +22,7 @@
 // - G(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))
 //
 // This representation of the immersion in R^3 is formed by taking two Mobius
-// strips and joining them along their boundaries, this the so called
+// strips and joining them along their boundaries, this is the so called
 // "Figure-8 Klein Bottle"
 
 // .SECTION Thanks

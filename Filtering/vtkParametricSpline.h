@@ -30,7 +30,7 @@
 // vtkParametricFunctionSource.
 //
 // .SECTION See Also
-// vtkSpline vtkKochankeSpline vtkCardinalSpline
+// vtkSpline vtkKochanekSpline vtkCardinalSpline
 
 #ifndef __vtkParametricSpline_h
 #define __vtkParametricSpline_h
