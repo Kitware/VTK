@@ -49,6 +49,8 @@ vtkFieldData::vtkFieldData()
   
   this->TupleSize = 0;
   this->Tuple = NULL;
+
+  this->ArrayNames = NULL;
 }
 
 vtkFieldData::~vtkFieldData()
@@ -67,12 +69,26 @@ void vtkFieldData::Initialize()
     {
     for ( i=0; i<NumberOfArrays; i++ )
       {
-      if ( this->Data[i] != NULL ) this->Data[i]->Delete();
+      if ( this->Data[i] != NULL ) 
+	{
+	this->Data[i]->Delete();
+	}
       }
     
     delete [] this->Data;
     this->Data = NULL;
     this->NumberOfArrays = 0;
+    }
+
+  if (this->ArrayNames)
+    {
+    for ( i=0; i<NumberOfArrays; i++ )
+      {
+      if (this->ArrayNames[i] != NULL) delete [] this->ArrayNames[i];
+      }
+
+    delete [] this->ArrayNames;
+    this->ArrayNames = NULL;
     }
 }
 
@@ -109,6 +125,7 @@ vtkFieldData *vtkFieldData::MakeObject()
       {
       data = this->Data[i]->MakeObject();
       f->SetArray(i,data);
+      f->SetArrayName(i,this->GetArrayName(i));
       }
     }
 
@@ -168,22 +185,17 @@ void vtkFieldData::SetArray(int i, vtkDataArray *data)
     {
     i = 0;
     }
-  
   else if (i >= this->NumberOfArrays) 
     {
     this->SetNumberOfArrays(i+1);
-    this->SetArray(i,data);
     }
   
-  else
+  if ( this->Data[i] != data )
     {
-    if ( this->Data[i] != data )
-      {
-      this->Modified();
-      if ( this->Data[i] != NULL ) this->Data[i]->UnRegister(this);
-      this->Data[i] = data;
-      if ( this->Data[i] != NULL ) this->Data[i]->Register(this);
-      }
+    this->Modified();
+    if ( this->Data[i] != NULL ) this->Data[i]->UnRegister(this);
+    this->Data[i] = data;
+    if ( this->Data[i] != NULL ) this->Data[i]->Register(this);
     }
   
   // adjust scratch tuple array
@@ -436,6 +448,55 @@ void vtkFieldData::GetField(vtkIdList& ptIds, vtkFieldData& f)
     f.InsertTuple(i, this->GetTuple(ptIds.GetId(i)));
     }
 }
+
+void vtkFieldData::SetArrayName(int i, char *name)
+{
+  if ( i < 0 ) 
+    {
+    i = 0;
+    }
+  else if (i >= this->NumberOfArrays) 
+    {
+    this->SetNumberOfArrays(i+1);
+    }
+  
+  if (this->ArrayNames == NULL)
+    {
+    this->ArrayNames = new char *[this->NumberOfArrays+1];
+    for (int j=0; j<this->NumberOfArrays; j++)
+      {
+      this->ArrayNames[j] = NULL;
+      }
+    }
+  
+  if ( this->ArrayNames[i] != NULL ) delete [] this->ArrayNames[i];
+  
+  if (name != NULL)
+    {
+    this->ArrayNames[i] = new char[strlen(name)+1];
+    strcpy(this->ArrayNames[i],name);
+    }
+  else 
+    {
+    this->ArrayNames[i] = NULL;
+    }
+}
+
+char *vtkFieldData::GetArrayName(int i)
+{
+  static char name[256];
+
+  if ( this->ArrayNames == NULL || this->ArrayNames[i] == NULL )
+    {
+    sprintf(name, "%s_%d", "Array", i);
+    return name;
+    }
+  else
+    {
+    return this->ArrayNames[i];
+    }
+}
+
 
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {

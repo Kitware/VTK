@@ -87,6 +87,8 @@ public:
   void SetArray(int i, vtkDataArray *);
   int GetNumberOfArrays();
   vtkDataArray *GetArray(int i);
+  void SetArrayName(int i,char *name);
+  char *GetArrayName(int i);
 
   // managing components/tuples in the field
   int GetNumberOfComponents();
@@ -115,6 +117,7 @@ public:
 protected:
   int NumberOfArrays;
   vtkDataArray **Data;
+  char **ArrayNames;
 
   int TupleSize; //used for type conversion
   float *Tuple;
