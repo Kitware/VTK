@@ -452,7 +452,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     output_temp(fp, MAX_ARGS,currentFunction->ReturnType,
                 currentFunction->ReturnClass, 0);
     handle_return_prototype(fp);
-    // only use the error variable if we have arguments to parse
+    /* only use the error variable if we have arguments to parse */
     if (currentFunction->NumberOfArguments)
       {
       fprintf(fp,"    error = 0;\n\n");
@@ -504,7 +504,7 @@ void outputFunction(FILE *fp, FileInfo *data)
     return_result(fp);
     fprintf(fp,"    return TCL_OK;\n");
     
-    // close the if error
+    /* close the if error */
     if (currentFunction->NumberOfArguments)
       {
       fprintf(fp,"    }\n");
