@@ -378,13 +378,13 @@ void vtkImageBlockReader::ModifyOutputUpdateExtent()
   num = this->Divisions[0];
   for (i = 0; i < num; ++i)
     {
-    if (XExtents[2*i] <= updateExtent[0])
+    if (this->XExtents[2*i] <= updateExtent[0])
       {
-      min = XExtents[2*i];
+      min = this->XExtents[2*i];
       }
-    if (XExtents[(num-i)*2 - 1] >= updateExtent[1])
+    if (this->XExtents[(num-i)*2 - 1] >= updateExtent[1])
       {
-      max = XExtents[(num-i)*2 - 1];
+      max = this->XExtents[(num-i)*2 - 1];
       }
     }
   updateExtent[0] = min;
@@ -393,13 +393,13 @@ void vtkImageBlockReader::ModifyOutputUpdateExtent()
   num = this->Divisions[1];
   for (i = 0; i < num; ++i)
     {
-    if (YExtents[2*i] <= updateExtent[2])
+    if (this->YExtents[2*i] <= updateExtent[2])
       {
-      min = YExtents[2*i];
+      min = this->YExtents[2*i];
       }
-    if (YExtents[(num-i)*2 - 1] >= updateExtent[3])
+    if (this->YExtents[(num-i)*2 - 1] >= updateExtent[3])
       {
-      max = YExtents[(num-i)*2 - 1];
+      max = this->YExtents[(num-i)*2 - 1];
       }
     }
   updateExtent[2] = min;
@@ -408,13 +408,13 @@ void vtkImageBlockReader::ModifyOutputUpdateExtent()
   num = this->Divisions[2];
   for (i = 0; i < num; ++i)
     {
-    if (ZExtents[2*i] <= updateExtent[4])
+    if (this->ZExtents[2*i] <= updateExtent[4])
       {
-      min = ZExtents[2*i];
+      min = this->ZExtents[2*i];
       }
-    if (ZExtents[(num-i)*2 - 1] >= updateExtent[5])
+    if (this->ZExtents[(num-i)*2 - 1] >= updateExtent[5])
       {
-      max = ZExtents[(num-i)*2 - 1];
+      max = this->ZExtents[(num-i)*2 - 1];
       }
     }
   updateExtent[4] = min;
