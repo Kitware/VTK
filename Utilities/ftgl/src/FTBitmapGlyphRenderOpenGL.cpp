@@ -9,7 +9,7 @@
 #endif
 
 void FTBitmapGlyph::RenderFunctionName(const FT_Vector& pen,
-                                       const FTGLRenderContext *context)
+                                       const FTGLRenderContext *)
 {
   // Move the glyph origin
   glBitmap( 0, 0, 0.0, 0.0, (float)(pen.x + pos.x), (float)(pen.y - pos.y), (const GLubyte *)0 );

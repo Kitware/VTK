@@ -9,7 +9,7 @@
 #endif
 
 void FTPixmapGlyph::GetCurrentColorFunctionName(float colour[4],
-                                                const FTGLRenderContext *context)
+                                                const FTGLRenderContext *)
 {
   glGetFloatv( GL_CURRENT_COLOR, colour);
 }
@@ -19,7 +19,7 @@ void FTPixmapGlyph::GetCurrentColorFunctionName(float colour[4],
 #endif
 
 void FTPixmapGlyph::RenderFunctionName(const FT_Vector& pen,
-                                       const FTGLRenderContext *context)
+                                       const FTGLRenderContext *)
 {
   // Move the glyph origin
   glBitmap( 0, 0, 0.0, 0.0, (float)(pen.x + pos.x), (float)(pen.y - pos.y), (const GLubyte *)0);
