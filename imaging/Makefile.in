@@ -50,7 +50,6 @@ vtkImageCanvasSource2D \
 vtkImageCast \
 vtkImageCityBlockDistance \
 vtkImageClip \
-vtkImageComposite \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageContinuousDilate3D \
