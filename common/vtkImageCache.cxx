@@ -638,6 +638,7 @@ void vtkImageCache::SetGlobalReleaseDataFlag(int val)
 int  vtkImageCache::GetGlobalReleaseDataFlag()
 {
   // not implemented yet ...
+  return 0;
 }
 
 

@@ -51,20 +51,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
-  int idx;
-  
   this->ScalarInput = NULL;
   this->VectorInput = NULL;
   this->WholeImage = 1;
   this->InputMemoryLimit = 500000;  // A very big image indeed (in kB).
   this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
 		      VTK_IMAGE_Y_AXIS, VTK_IMAGE_X_AXIS);
-  this->Coordinate3 = 0;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->Axes[idx] = idx;
-    }
+  this->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
+		VTK_IMAGE_Z_AXIS);
 }
 
 
@@ -83,10 +77,10 @@ void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScalarInput: (" << this->ScalarInput << ")\n";
   os << indent << "VectorInput: (" << this->VectorInput << ")\n";
   os << indent << "WholeImage: " << this->WholeImage << "\n";
-  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
   os << indent << "Extent: (" << this->Extent[0] << ", " << this->Extent[1] 
-     << ", " << this->Extent[2] << ", " << this->Extent[3] << ", " 
-     << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+     << ", " << this->Extent[2] << ", " << this->Extent[3] 
+     << ", " << this->Extent[4] << ", " << this->Extent[5] 
+     << ", " << this->Extent[6] << ", " << this->Extent[7] << ")\n";
   os << indent << "InputMemoryLimit: " << this->InputMemoryLimit << "\n";
   os << indent << "SplitOrder: (";
   os << vtkImageAxisNameMacro(this->SplitOrder[0]) << ", ";
@@ -246,9 +240,10 @@ void vtkImageToStructuredPoints::Execute()
   vtkImageRegion *region = vtkImageRegion::New();
   vtkScalars *scalars = NULL;
   vtkVectors *vectors = NULL;
-  int regionExtent[8], *extent, dim[3];
-  float Spacing[3] = {1.0, 1.0, 1.0};
-  float origin[3];
+  int regionExtent[10];
+  int *extent, dim[5];
+  float spacing[4] = {0.0, 1.0, 1.0, 1.0};
+  float origin[4];
   vtkStructuredPoints *output = this->GetOutput();
   
   
@@ -274,23 +269,21 @@ void vtkImageToStructuredPoints::Execute()
   // Whole image or region of image?
   if (this->WholeImage)
     {
-    region->GetImageExtent(4, regionExtent);
-    if (this->Coordinate3<regionExtent[6]||this->Coordinate3>regionExtent[7])
+    region->GetImageExtent(5, regionExtent);
+    // Take the lowest time sample.
+    regionExtent[8] = regionExtent[9];
+    // Components can olny have up to four values. (APixmap)
+    if (regionExtent[1] - regionExtent[0] + 1 > 4)
       {
-      vtkWarningMacro(<< "Coordinate3 = " << this->Coordinate3 
-      << ", is not in extent [" << regionExtent[6] << ", "
-      << regionExtent[7] << "]. Using value "<< regionExtent[6]);
-      this->Coordinate3 = regionExtent[6];
+      regionExtent[1] = regionExtent[0] + 3;
       }
-    regionExtent[6] = regionExtent[7] = this->Coordinate3;
     region->SetExtent(4, regionExtent);    
     }
   else
     {
     // Copy extent from local ivar.
-    this->Extent[6] = this->Extent[7] = this->Coordinate3;
-    region->SetExtent(4, this->Extent);
-    region->GetExtent(4, regionExtent);
+    region->SetExtent(5, this->Extent);
+    region->GetExtent(5, regionExtent);
     }
 
   // Get scalars and vectors
@@ -307,16 +300,16 @@ void vtkImageToStructuredPoints::Execute()
   // setup the structured points
   region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
   extent = region->GetExtent();
-  region->GetSpacing(3, Spacing);
+  region->GetSpacing(3, spacing);
   region->GetOrigin(3, origin);
-  origin[0] += (float)(extent[0]) * Spacing[0]; 
-  origin[1] += (float)(extent[2]) * Spacing[1]; 
-  origin[2] += (float)(extent[4]) * Spacing[2];
+  origin[0] += (float)(extent[0]) * spacing[0]; 
+  origin[1] += (float)(extent[2]) * spacing[1]; 
+  origin[2] += (float)(extent[4]) * spacing[2];
   dim[0] = extent[1] - extent[0] + 1;
   dim[1] = extent[3] - extent[2] + 1;
   dim[2] = extent[5] - extent[4] + 1;
   output->SetDimensions(dim);
-  output->SetSpacing(Spacing);
+  output->SetSpacing(spacing);
   output->SetOrigin(origin);
   output->GetPointData()->SetScalars(scalars);
   output->GetPointData()->SetVectors(vectors);
@@ -349,6 +342,7 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
   vtkScalars *scalars;
   long volumeLimit;
   int dim, min, max;
+  int colorScalarsFlag = 0;
   
   // Convert memory limit to volume limit.
   volumeLimit = 1000 * this->InputMemoryLimit;
@@ -396,17 +390,23 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
       }
     }
   
+  // If we have more than one component then we want color
+  // scalars. Also if we have one component and it is 
+  // unsigned char then use color scalars.
+  // The first axis is components.
+  region->GetExtent(min, max);
+  dim = max - min + 1;
+  if ((dim > 1)|| (region->GetScalarType() == VTK_UNSIGNED_CHAR))
+    {
+    colorScalarsFlag = 1;
+    }
+  
   // If data is not the same size as the region, we need to reformat.
   // This may involve a copy.
   scalars = this->ReformatRegionData(region);
 
-  // If we have more than one component then we want color
-  // scalars. Also if we have one component and it is 
-  // unsigned char then use color scalars.
-  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  dim = max - min + 1;
-  if ((dim > 1)||
-      (this->ScalarInput->GetScalarType() == VTK_UNSIGNED_CHAR))
+  // If required convert to color scalars with no copy
+  if (colorScalarsFlag)
     {
     scalars = this->CreateColorScalars(scalars, dim);
     }
@@ -725,8 +725,19 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   int reformat = 0;
   vtkImageRegion *temp = NULL;
   vtkScalars *scalars;
-  int min, max;
-  int colorScalars;
+  int min, max, dim;
+  int colorScalarsFlag;
+  
+  // If we have more than one component then we want color
+  // scalars. Also if we have one component and it is 
+  // unsigned char then use color scalars.
+  // The first axis is components.
+  region->GetExtent(min, max);
+  dim = max - min + 1;
+  if ((dim > 1)|| (region->GetScalarType() == VTK_UNSIGNED_CHAR))
+    {
+    colorScalarsFlag = 1;
+    }
   
   dataAxes = region->GetMemoryOrder();
   region->SetAxes(VTK_IMAGE_DIMENSIONS, dataAxes);
@@ -734,14 +745,13 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   regionExtent = region->GetExtent();
   
   // Determine if we need to copy the data
-  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (((max - min + 1) > 1)||
-      (region->GetScalarType() == VTK_UNSIGNED_CHAR))
+  if (colorScalarsFlag)
     {
-    // Color scalars need to be unsigned char
-    colorScalars = 1;
-    if (region->GetScalarType() != VTK_UNSIGNED_CHAR)
+    // Color scalars need to be unsigned char  
+    if ((region->GetScalarType() != VTK_UNSIGNED_CHAR))
       {
+      vtkDebugMacro("ReformatRegion: Wrong ScalarType " 
+		    << vtkImageScalarTypeNameMacro(region->GetScalarType()));
       reformat = 1;
       }
     
@@ -752,6 +762,11 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
 	dataAxes[1] != VTK_IMAGE_X_AXIS || dataAxes[2] != VTK_IMAGE_Y_AXIS ||
 	dataAxes[3] != VTK_IMAGE_Z_AXIS)
       {
+      vtkDebugMacro("ReformatRegion: Wrong MemoryOrder " 
+		    << vtkImageAxisNameMacro(dataAxes[0]) << ", "
+		    << vtkImageAxisNameMacro(dataAxes[1]) << ", "
+		    << vtkImageAxisNameMacro(dataAxes[2]) << ", "
+		    << vtkImageAxisNameMacro(dataAxes[3]));
       reformat = 1;
       }
     }
@@ -763,7 +778,23 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
     if (dataAxes[0] != VTK_IMAGE_X_AXIS || dataAxes[1] != VTK_IMAGE_Y_AXIS ||
 	dataAxes[2] != VTK_IMAGE_Z_AXIS)
       {
-      reformat = 1;
+      // Put a special conditional for the most common condition
+      if ((dataAxes[0] == VTK_IMAGE_COMPONENT_AXIS || 
+	   dataAxes[1] == VTK_IMAGE_X_AXIS || 
+	   dataAxes[2] != VTK_IMAGE_Y_AXIS ||
+	   dataAxes[3] == VTK_IMAGE_Z_AXIS) && 
+	  (dataExtent[0] == dataExtent[1]))
+	{
+	// reformat does not change
+	}
+      else
+	{
+	vtkDebugMacro("ReformatRegion: Wrong MemoryOrder " 
+		      << vtkImageAxisNameMacro(dataAxes[0]) << ", "
+		      << vtkImageAxisNameMacro(dataAxes[1]) << ", "
+		      << vtkImageAxisNameMacro(dataAxes[2]));
+	reformat = 1;
+	}
       }
     }
   
@@ -772,13 +803,18 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
       dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
       dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
     {
+    vtkDebugMacro("ReformatRegion: Wrong data Extent (" 
+		  << dataExtent[0] << ", " << dataExtent[1] << ", "
+		  << dataExtent[2] << ", " << dataExtent[3] << ", "
+		  << dataExtent[4] << ", " << dataExtent[5] << ", "
+		  << dataExtent[6] << ", " << dataExtent[7] << ")");
     reformat = 1;
     }
   
   if (reformat)
     {
     vtkDebugMacro("Reformatting region");
-    if (colorScalars)
+    if (colorScalarsFlag)
       {
       temp = vtkImageRegion::New();
       temp->SetScalarType(VTK_UNSIGNED_CHAR);
@@ -814,3 +850,6 @@ vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
   
   return scalars;
 }
+
+
+

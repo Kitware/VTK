@@ -65,11 +65,6 @@ public:
   virtual void UpdatePointData(int dim, vtkImageRegion *region); 
   virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
 
-  void SetStartMethod(void (*f)(void *), void *arg);
-  void SetEndMethod(void (*f)(void *), void *arg);
-  void SetStartMethodArgDelete(void (*f)(void *));
-  void SetEndMethodArgDelete(void (*f)(void *));
-  
   virtual unsigned long GetPipelineMTime();
   vtkImageCache *GetOutput();
 
@@ -115,6 +110,11 @@ public:
   void Update();
   
   void UpdateImageInformation();
+  
+  void SetStartMethod(void (*f)(void *), void *arg);
+  void SetEndMethod(void (*f)(void *), void *arg);
+  void SetStartMethodArgDelete(void (*f)(void *));
+  void SetEndMethodArgDelete(void (*f)(void *));
   
 protected:
   vtkImageCache *Output;
