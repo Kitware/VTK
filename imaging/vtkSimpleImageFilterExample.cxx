@@ -55,6 +55,10 @@ vtkSimpleImageFilterExample* vtkSimpleImageFilterExample::New()
   return new vtkSimpleImageFilterExample;
 }
 
+// The switch statement in Execute will call this method with
+// the appropriate input type (IT). Note that this example assumes
+// that the output data type is the same as the input data type.
+// This is not always the case.
 template <class IT>
 static void vtkSimpleImageFilterExampleExecute(vtkImageData* input,
 					       vtkImageData* output,
@@ -79,6 +83,8 @@ void vtkSimpleImageFilterExample::Execute(vtkImageData* input,
 
   switch(output->GetScalarType())
     {
+    // This is simple a #define for a big case list. It handles
+    // all data types vtk can handle.
     vtkTemplateMacro4(vtkSimpleImageFilterExampleExecute, input, output,
                       (VTK_TT *)(inPtr), (VTK_TT *)(outPtr));
     default:

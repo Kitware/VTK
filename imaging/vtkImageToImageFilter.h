@@ -41,12 +41,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageToImageFilter - Generic filter that has one input..
 // .SECTION Description
-// vtkImageToImageFilter is a filter superclass that hides much of the pipeline 
-// complexity. It handles breaking the pipeline execution into smaller
-// extents so that the vtkImageData memory limits are observed. It 
-// also provides support for multithreading.
-
-
+// vtkImageToImageFilter is a filter superclass that hides much of the 
+// pipeline  complexity. It handles breaking the pipeline execution 
+// into smaller extents so that the vtkImageData limits are observed. It 
+// also provides support for multithreading. If you don't need any of this
+// functionality, consider using vtkSimpleImageToImageFilter instead.
+// .SECTION See also
+// vtkSimpleImageToImageFilter
 
 #ifndef __vtkImageToImageFilter_h
 #define __vtkImageToImageFilter_h
