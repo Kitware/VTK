@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkSmoothPolyDataFilter - adjust point positions using Laplacian smoothing
+// .NAME vtkSmoothPolyDataFilter.h - adjust point positions using Laplacian smoothing
 // .SECTION Description
-// vtkSmoothPolyDataFilter is a filter that adjusts point coordinates using 
+// vtkSmoothPolyDataFilter.h is a filter that adjusts point coordinates using 
 // Laplacian smoothing. The effect is to "relax" the mesh, making the cells 
 // better shaped and the vertices more evenly distributed. Note that this
 // filter operates on the lines, polygons, and triangle strips composing an
@@ -97,19 +97,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // ivar GenerateErrorVectors is on, then a vector representing change in 
 // position is computed.
 //
+// Optionally you can further control the smoothing process by defining a
+// second input: the Source. If defined, the input mesh is constrained to
+// lie on the surface defined by the Source ivar.
+//
 // .SECTION Caveats
-// The Laplacian operation reduces high frequency information in the
-// geometry of the mesh. With excessive smoothing important details may be
-// lost. Enabling FeatureEdgeSmoothing helps reduce this effect, but cannot
-// entirely eliminate it.
+// 
+// The Laplacian operation reduces high frequency information in the geometry
+// of the mesh. With excessive smoothing important details may be lost, and
+// the surface may shrink towards the centroid. Enabling FeatureEdgeSmoothing
+// helps reduce this effect, but cannot entirely eliminate it. You may also
+// wish to try vtkWindowedSincPolyDataFilter. It does a better job of 
+// minimizing shrinkage.
 //
 // .SECTION See Also
-// vtkDecimate vtkDecimatePro
+// vtkWindowedSincPolyDataFilter vtkDecimate vtkDecimatePro
 
 #ifndef __vtkSmoothPolyDataFilter_h
 #define __vtkSmoothPolyDataFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
+
+class vtkSmoothPoints;
 
 class VTK_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataToPolyDataFilter
 {
@@ -181,6 +190,13 @@ public:
   vtkGetMacro(GenerateErrorVectors,int);
   vtkBooleanMacro(GenerateErrorVectors,int);
 
+  // Description:
+  // Specify the source object which is used to constrain smoothing. The 
+  // source defines a surface that the input (as it is smoothed) is 
+  // constrained to lie upon.
+  void SetSource(vtkPolyData *source);
+  vtkPolyData *GetSource();
+  
 protected:
   void Execute();
 
@@ -193,6 +209,8 @@ protected:
   int BoundarySmoothing;
   int GenerateErrorScalars;
   int GenerateErrorVectors;
+
+  vtkSmoothPoints *SmoothPoints;
 
 };
 
