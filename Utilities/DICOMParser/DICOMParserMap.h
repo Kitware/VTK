@@ -14,6 +14,7 @@
 #include <map>
 #include <utility>
 
+#include "DICOMConfig.h"
 
 class DICOMCallback;
 
@@ -24,7 +25,7 @@ class DICOMCallback;
 //
 struct group_element_compare 
 {
-  bool operator() (const std::pair<doublebyte, doublebyte> p1, const std::pair<doublebyte, doublebyte> p2) const
+  bool operator() (const dicom_stl::pair<doublebyte, doublebyte> p1, const dicom_stl::pair<doublebyte, doublebyte> p2) const
   {
     if (p1.first < p2.first)
       {
@@ -51,17 +52,18 @@ struct group_element_compare
 //
 // Typedef a pair of doublebytes
 //
-typedef std::pair<doublebyte, doublebyte> DICOMMapKeyOverride;
+typedef dicom_stl::pair<doublebyte, doublebyte> DICOMMapKeyOverride;
 
+// DICOM_EXPIMP_TEMPLATE template struct DICOM_MAP_EXPORT dicom_stream::pair<doublebyte, doublebyte>;
 //
 // Subclass of a pair of doublebytes to make
 // type names shorter in the code.
 //
-class DICOMMapKey : public DICOMMapKeyOverride
+class  DICOMMapKey : public DICOMMapKeyOverride
 {
  public:
   DICOMMapKey(doublebyte v1, doublebyte v2) :
-    std::pair<doublebyte, doublebyte> (v1, v2)
+    dicom_stl::pair<doublebyte, doublebyte> (v1, v2)
   {
 
   }
@@ -71,36 +73,46 @@ class DICOMMapKey : public DICOMMapKeyOverride
 //
 // Typedef of a pair of doublebyte, vector.
 //
-typedef std::pair<doublebyte, std::vector<DICOMCallback*>*> DICOMMapValueOverride;
+typedef dicom_stl::pair<doublebyte, dicom_stl::vector<DICOMCallback*>*> DICOMMapValueOverride;
+
+
+// DICOM_EXPIMP_TEMPLATE template struct DICOM_MAP_EXPORT dicom_stream::pair<doublebyte, dicom_stream::vector<DICOMCallback*>*>;
 
 //
 // Subclass of pair doublebyte, vector<DICOMCallback*>.
 // Makes types shorter in the code.
 //
-class DICOMMapValue : public DICOMMapValueOverride
+class  DICOMMapValue : public DICOMMapValueOverride
 {
  public:
-  DICOMMapValue(doublebyte v1, std::vector<DICOMCallback*> * v2) :
-    std::pair<doublebyte, std::vector<DICOMCallback*>*>(v1, v2)
+   DICOMMapValue() : dicom_stl::pair<doublebyte, dicom_stl::vector<DICOMCallback*>*>() {};
+
+  DICOMMapValue(doublebyte v1, dicom_stl::vector<DICOMCallback*> * v2) :
+    dicom_stl::pair<doublebyte, dicom_stl::vector<DICOMCallback*>*>(v1, v2)
   {
 
   }
 };
 
+
+// DICOM_EXPIMP_TEMPLATE template class DICOM_MAP_EXPORT dicom_stream::map<DICOMMapKey, DICOMMapValue, group_element_compare>;
+
 //
 // Subclass of the particular map we're using.  Again,
 // makes type specifiers shorter in the code.
 //
-class DICOMParserMap : 
-  public  std::map<DICOMMapKey, DICOMMapValue, group_element_compare> 
+class  DICOMParserMap : 
+  public  dicom_stl::map<DICOMMapKey, DICOMMapValue, group_element_compare> 
 {
 
 };
 
 typedef doublebyte DICOMTypeValue;
 
-class DICOMImplicitTypeMap : 
-  public std::map<DICOMMapKey, DICOMTypeValue, group_element_compare>
+// DICOM_EXPIMP_TEMPLATE template class  dicom_stream::map<DICOMMapKey, DICOMTypeValue, group_element_compare>;
+
+class  DICOMImplicitTypeMap : 
+  public dicom_stl::map<DICOMMapKey, DICOMTypeValue, group_element_compare>
 {
 
 };
