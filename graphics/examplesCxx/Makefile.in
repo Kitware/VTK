@@ -56,6 +56,7 @@ EXAMPLES = VisQuad \
 	bluntStr \
 	contQuad \
 	expCos \
+	fly \
 	finance \
 	medical1 \
 	medical2 \
@@ -72,7 +73,8 @@ EXAMPLES = VisQuad \
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
-	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented
+	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented \
+	-I${srcdir}/../../imaging
 
 VTKLIB = ${VTK_LIB_FILE}
 
