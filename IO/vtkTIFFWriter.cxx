@@ -23,7 +23,7 @@
 #include "vtkErrorCode.h"
 #include <tiffio.h>
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.28");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.29");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -69,7 +69,7 @@ public:
     }
 
   // File will be closed by the superclass
-  static int TIFFClose(thandle_t) { return true; }
+  static int TIFFClose(thandle_t) { return 1; }
 
   static toff_t TIFFSize(thandle_t fd) 
     {
@@ -215,7 +215,7 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
     return;
     }
 
-  TIFF* tif = static_cast<TIFF*>(this->TIFFPtr);
+  TIFF* tif = reinterpret_cast<TIFF*>(this->TIFFPtr);
   if ( !tif )
     {
     vtkErrorMacro("Problem writting trailer.");
@@ -257,7 +257,7 @@ void vtkTIFFWriter::WriteFile(ofstream *, vtkImageData *data,
 //----------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFileTrailer(ofstream *, vtkImageData *)
 {
-  TIFF* tif = static_cast<TIFF*>(this->TIFFPtr);
+  TIFF* tif = reinterpret_cast<TIFF*>(this->TIFFPtr);
   if ( !tif )
     {
     vtkErrorMacro("Problem writting trailer.");
