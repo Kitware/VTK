@@ -7,7 +7,7 @@
   Version:   $Revision$
   Thanks:    Thanks to David G Gobbi who developed this class.
 
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1999 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -322,9 +322,9 @@ void vtkImageReslice::ExecuteImageInformation()
 // the background color 'background'.  
 // The number of scalar components in the data is 'numscalars'
 template <class T>
-static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
-			       T *background, int numscalars, 
-			       int inExt[6], int inInc[3])
+static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
+				     T *background, int numscalars, 
+				     int inExt[6], int inInc[3])
 {
   int i;
   float x,y,z,fx,fy,fz,rx,ry,rz,ryrz,ryfz,fyrz,fyfz;
@@ -347,8 +347,10 @@ static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
       || inIdY < 0 || inIdY+doInterpY > inExt[3]-inExt[2]
       || inIdZ < 0 || inIdZ+doInterpZ > inExt[5]-inExt[4] )
     {// out of bounds: clear to background color 
-    for (i = 0; i < numscalars; i++) 
-      *outPtr++ = *background++;
+    if (background)
+      for (i = 0; i < numscalars; i++) 
+	*outPtr++ = *background++;
+    return 0;
     }
   else 
     {// do trilinear interpolation
@@ -387,7 +389,8 @@ static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
 	T(rx*(ryrz*v000+ryfz*v001+fyrz*v010+fyfz*v011)
 	  + fx*(ryrz*v100+ryfz*v101+fyrz*v110+fyfz*v111)); 
       inPtr++;
-      } 
+      }
+    return 1;
     }
 }			  
 
@@ -397,9 +400,9 @@ static void TrilinearWithCheck(float *point, T *inPtr, T *outPtr,
 // the background color 'background'.  
 // The number of scalar components in the data is 'numscalars'
 template <class T>
-static void NearestNeighborWithCheck(float *point, T *inPtr, T *outPtr,
-				     T *background, int numscalars, 
-				     int inExt[6], int inInc[3])
+static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
+					   T *background, int numscalars, 
+					   int inExt[6], int inInc[3])
 {
   int i;
   int inIdX = int(point[0]+0.5)-inExt[0];
@@ -410,14 +413,17 @@ static void NearestNeighborWithCheck(float *point, T *inPtr, T *outPtr,
       || inIdY < 0 || inIdY > inExt[3]-inExt[2]
       || inIdZ < 0 || inIdZ > inExt[5]-inExt[4] )
     {
-    for (i = 0; i < numscalars; i++)
-      *outPtr++ = *background++;
+    if (background)
+      for (i = 0; i < numscalars; i++)
+	*outPtr++ = *background++;
+    return 0;
     }
   else 
     {
     for (i = 0; i < numscalars; i++)
       *outPtr++ = *(inPtr+inIdX*inInc[0]+inIdY*inInc[1]
 		    +inIdZ*inInc[2]);
+    return 1;
     }
 } 
 
@@ -427,31 +433,79 @@ static void NearestNeighborWithCheck(float *point, T *inPtr, T *outPtr,
 // trilinear interpolant.
 // The number of scalar components in the data is 'numscalars'
 
-static double CubicInterpolation(double v[4], float f[4])
-{
-  return v[0] + 
-    f[1]*(v[1]-v[0] + 
-	   f[2]*(v[0]-2*v[1]+v[2] +
-		f[3]*(3*(v[1]-v[2])-v[0]+v[3])));
+// set up the lookup indices and the interpolation coefficients
+
+static void SetInterpCoeffs(float F[4],int *l, int *m, float f, 
+		     int doInterp, int linInterp)
+{   
+  float fp1,fm1,fm2;
+
+  if (!doInterp)      // no interpolation
+    { 
+    *l = 1; *m = 2; 
+    F[1] = 1;
+    }
+  else if (linInterp) // linear interpolation
+    { 
+    *l = 1; *m = 3;
+    F[1] = 1-f;
+    F[2] = f;
+    }
+  else               // cubic interpolation
+    { 
+    *l = 0; *m = 4; 
+    fp1 = f+1; fm1 = f-1; fm2 = fm1-1;
+    F[0] = -f*fm1*fm2/6;
+    F[1] = fp1*fm1*fm2/2;
+    F[2] = -fp1*f*fm2/2;
+    F[3] = fp1*f*fm1/6;
+    }
 }
 
-static double LinearInterpolation(double v[4], float f[4])
+// clamping functions for each type
+
+static inline void vtkResliceClamp(double val, unsigned char& clamp)
 {
-  return v[1] + f[0]*(v[2]-v[1]); 
+  if (val < VTK_UNSIGNED_CHAR_MIN) val = VTK_UNSIGNED_CHAR_MIN;
+  if (val > VTK_UNSIGNED_CHAR_MAX) val = VTK_UNSIGNED_CHAR_MAX;
+  clamp = (unsigned char)(val);
 }
 
-static double NoInterpolation(double v[4], float f[4])
+static inline void vtkResliceClamp(double val, short& clamp)
 {
-  return v[1]; 
+  if (val < VTK_SHORT_MIN) val = VTK_SHORT_MIN;
+  if (val > VTK_SHORT_MAX) val = VTK_SHORT_MAX;
+  clamp = short(val);
+}
+
+static inline void vtkResliceClamp(double val, unsigned short& clamp)
+{
+  if (val < VTK_UNSIGNED_SHORT_MIN) val = VTK_UNSIGNED_SHORT_MIN;
+  if (val > VTK_UNSIGNED_SHORT_MAX) val = VTK_UNSIGNED_SHORT_MAX;
+  clamp = (unsigned short)(val);
+}
+
+static inline void vtkResliceClamp(double val, int& clamp)
+{
+  if (val < VTK_INT_MIN) val = VTK_INT_MIN;
+  if (val > VTK_INT_MAX) val = VTK_INT_MAX;
+  clamp = int(val);
+}
+
+static inline void vtkResliceClamp(double val, float& clamp)
+{
+  if (val < VTK_FLOAT_MIN) val = VTK_FLOAT_MIN;
+  if (val > VTK_FLOAT_MAX) val = VTK_FLOAT_MAX;
+  clamp = float(val);
 }
 
 template <class T>
-static void TricubicWithCheck(float *point, T *inPtr, T *outPtr,
-			      T *background, int numscalars, 
-			      int inExt[6], int inInc[3])
+static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
+				    T *background, int numscalars, 
+				    int inExt[6], int inInc[3])
 {
   int i;
-  float x,y,z,fX[4],fY[4],fZ[4];
+  float x,y,z,fx,fy,fz;
   int factX[4],factY[4],factZ[4];
   int linInterpX, linInterpY, linInterpZ;   
 
@@ -464,22 +518,9 @@ static void TricubicWithCheck(float *point, T *inPtr, T *outPtr,
   // i.e. if the x, y or z lookup indices have no fractional
   // component. 
   
-  int doInterpX = ((fX[0] = x-(inIdX+inExt[0])) != 0);
-  int doInterpY = ((fY[0] = y-(inIdY+inExt[2])) != 0);
-  int doInterpZ = ((fZ[0] = z-(inIdZ+inExt[4])) != 0);
-
-  // work out the coefficents for the interpolation in advance
-  fX[1] = fX[0]+1;
-  fX[2] = fX[0]/2;
-  fX[3] = (fX[0]-1)/3;
-
-  fY[1] = fY[0]+1;
-  fY[2] = fY[0]/2;
-  fY[3] = (fY[0]-1)/3;
-
-  fZ[1] = fZ[0]+1;
-  fZ[2] = fZ[0]/2;
-  fZ[3] = (fZ[0]-1)/3;
+  int doInterpX = ((fx = x-(inIdX+inExt[0])) != 0);
+  int doInterpY = ((fy = y-(inIdY+inExt[2])) != 0);
+  int doInterpZ = ((fz = z-(inIdZ+inExt[4])) != 0);
 
   int OutOfBounds = 0;
 
@@ -502,16 +543,17 @@ static void TricubicWithCheck(float *point, T *inPtr, T *outPtr,
 
   if (OutOfBounds)
     {// out of bounds: clear to background color
-    for (i = 0; i < numscalars; i++) 
-      *outPtr++ = *background++;
+    if (background)
+      for (i = 0; i < numscalars; i++) 
+	*outPtr++ = *background++;
+    return 0;
     }
   else 
     {// do tricubic interpolation
-    double vX[4],vY[4],vZ[4];
+    float fX[4],fY[4],fZ[4];
+    double vX,vY,vZ,val;
+    T *inPtr1, *inPtr2;
     int j,k,l,jl,jm,kl,km,ll,lm;
-    double (*interpolantX)(double v[4], float f[4]);
-    double (*interpolantY)(double v[4], float f[4]);
-    double (*interpolantZ)(double v[4], float f[4]);
     
     for (i = 0; i < 4; i++)
     {
@@ -520,45 +562,34 @@ static void TricubicWithCheck(float *point, T *inPtr, T *outPtr,
       factZ[i] = (inIdZ-1+i)*inInc[2];
     }
 
-    // set up the lookup indices and the interpolation function
-    if (!doInterpZ)
-      { jl = 1; jm = 2; interpolantZ = &NoInterpolation; }
-    else if (linInterpZ)
-      { jl = 1; jm = 3; interpolantZ = &LinearInterpolation; }
-    else
-      { jl = 0; jm = 4; interpolantZ = &CubicInterpolation; }
-
-    if (!doInterpY)
-      { kl = 1; km = 2; interpolantY = &NoInterpolation; }
-    else if (linInterpY)
-      { kl = 1; km = 3; interpolantY = &LinearInterpolation; }
-    else
-      { kl = 0; km = 4; interpolantY = &CubicInterpolation; }
-
-    if (!doInterpX)
-      { ll = 1; lm = 2; interpolantX = &NoInterpolation; }
-    else if (linInterpX)
-      { ll = 1; lm = 3; interpolantX = &LinearInterpolation; }
-    else
-      { ll = 0; lm = 4; interpolantX = &CubicInterpolation; }
+    SetInterpCoeffs(fX,&ll,&lm,fx,doInterpX,linInterpX);
+    SetInterpCoeffs(fY,&kl,&km,fy,doInterpY,linInterpY);
+    SetInterpCoeffs(fZ,&jl,&jm,fz,doInterpZ,linInterpZ);
 
     // Finally, here is the tricubic interpolation
+    // (or cubic-cubic-linear, or cubic-nearest-cubic, etc)
     for (i = 0; i < numscalars; i++)
       {
+      val = 0;
       for (j = jl; j < jm; j++)
 	{
+	inPtr1 = inPtr + factZ[j];
+	vZ = 0;
 	for (k = kl; k < km; k++)
 	  {
+	  inPtr2 = inPtr1 + factY[k];
+	  vY = 0;
 	  for (l = ll; l < lm; l++) 
-	    vX[l] = *(inPtr+factX[l]+factY[k]+factZ[j]);
-	  
-	  vY[k] = interpolantX(vX,fX);
+	    vY += *(inPtr2+factX[l]) * fX[l]; 
+    
+	  vZ += vY*fY[k]; 
 	  }
-	vZ[j] = interpolantY(vY,fY);
+	val += vZ*fZ[j];
 	}
-      *outPtr++ = T(interpolantZ(vZ,fZ));
+      vtkResliceClamp(val,*outPtr++); // clamp to limits of type
       inPtr++;
       }
+    return 1;
     }
 }		  
 
@@ -582,9 +613,9 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   float inPoint[4],outPoint[4];
   T *background;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  void (*interpolate)(float *point, T *inPtr, T *outPtr,
-		      T *background, int numscalars, 
-		      int inExt[6], int inInc[3]);
+  int (*interpolate)(float *point, T *inPtr, T *outPtr,
+		     T *background, int numscalars, 
+		     int inExt[6], int inInc[3]);
   
   // find maximum input range
   inData->GetExtent(inExt);
@@ -612,13 +643,13 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
       self->GetInterpolationMode() != VTK_RESLICE_NEAREST)
     {
     if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
-      interpolate = &TricubicWithCheck;
+      interpolate = &vtkTricubicInterpolation;
     else 
-      interpolate = &TrilinearWithCheck;
+      interpolate = &vtkTrilinearInterpolation;
     }
   else
     {
-    interpolate = &NearestNeighborWithCheck;
+    interpolate = &vtkNearestNeighborInterpolation;
     }
 
   // Loop through ouput pixels
@@ -1068,14 +1099,14 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   T *background;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   double w;
-  void (*interpolate)(float *point, T *inPtr, T *outPtr,
-		      T *background, int numscalars, 
-		      int inExt[6], int inInc[3]);
+  int (*interpolate)(float *point, T *inPtr, T *outPtr,
+		     T *background, int numscalars, 
+		     int inExt[6], int inInc[3]);
 
   if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
-    interpolate = &TricubicWithCheck;
+    interpolate = &vtkTricubicInterpolation;
   else
-    interpolate = &TrilinearWithCheck;
+    interpolate = &vtkTrilinearInterpolation;
 
   // find maximum input range
   inData->GetExtent(inExt);
