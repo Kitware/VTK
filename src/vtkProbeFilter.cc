@@ -47,7 +47,7 @@ vtkProbeFilter::vtkProbeFilter()
 
 void vtkProbeFilter::Execute()
 {
-  int cellId, ptId;
+  int ptId;
   float *x, tol2;
   vtkCell *cell;
   vtkPointData *pd, *outPD;
@@ -75,11 +75,14 @@ void vtkProbeFilter::Execute()
 //
   for (ptId=0; ptId < numPts; ptId++)
     {
+    // Get the xyz coordinate of the point in the input dataset
     x = input->GetPoint(ptId);
-    cellId = source->FindCell(x,NULL,tol2,subId,pcoords,weights);
-    if ( cellId >= 0 )
+
+    // Find the cell that contains xyz and get it
+    cell = source->FindAndGetCell(x,NULL,tol2,subId,pcoords,weights);
+    if (cell)
       {
-      cell = source->GetCell(cellId);
+      // Interpolate the point data
       outPD->InterpolatePoint(pd,ptId,&(cell->PointIds),weights);
       }
     else
