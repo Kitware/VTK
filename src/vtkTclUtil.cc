@@ -17,6 +17,11 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <stdlib.h>
 #include "vtkTclUtil.hh"
 
+int vtkRendererCommand(ClientData cd, Tcl_Interp *interp,
+		       int argc, char *argv[]);
+int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,
+			      int argc, char *argv[]);
+
 extern Tcl_HashTable vtkInstanceLookup;
 extern Tcl_HashTable vtkPointerLookup;
 extern Tcl_HashTable vtkCommandLookup;
@@ -44,8 +49,20 @@ void vtkTclGenericDeleteObject(ClientData cd)
   // get the command function and invoke the delete operation
   entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
   command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
-  command(cd,(Tcl_Interp *)NULL,1,args);
 
+  // if it isn't a temp object (i.e. we created it) then delete it 
+  if (strncmp(temp,"vtkTemp",7))
+    {
+    command(cd,(Tcl_Interp *)NULL,1,args);
+    }
+  
+  // the two exceptions are RenderingWindows and Renderers
+  if ((command == vtkRenderWindowCommand)||
+      (command == vtkRendererCommand))
+    {
+    command(cd,(Tcl_Interp *)NULL,1,args);
+    }
+  
   // now delete the three hash entries
   Tcl_DeleteHashEntry(entry);
   entry = Tcl_FindHashEntry(&vtkPointerLookup,temps); 
@@ -56,7 +73,25 @@ void vtkTclGenericDeleteObject(ClientData cd)
   // it was created using strdup
   free (temp);
 }
+
+int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
+{
+  Tcl_HashEntry *entry;
+  Tcl_HashSearch search;
+
+  if (argc < 2) return TCL_OK;
   
+  if (!strcmp(argv[1],"DeleteAllObjects"))
+    {
+    for (entry = Tcl_FirstHashEntry(&vtkPointerLookup,&search); 
+	 entry != NULL;
+	 entry = Tcl_NextHashEntry(&search))
+      {
+      Tcl_DeleteCommand(interp,(char *)Tcl_GetHashValue(entry));
+      }
+    }
+}
+
 vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
 			  int command(ClientData, Tcl_Interp *,int, char *[]))
 {
@@ -84,7 +119,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
     Tcl_SetHashValue(entry,(ClientData)(strdup(name)));
     Tcl_CreateCommand(interp,name,command,
                       (ClientData)(temp),
-                      (Tcl_CmdDeleteProc *)NULL);
+                      (Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
     entry = Tcl_CreateHashEntry(&vtkCommandLookup,name,&is_new);
     Tcl_SetHashValue(entry,(ClientData)command);
     sprintf(interp->result,"%s",name); 
@@ -103,7 +138,12 @@ void *vtkTclGetPointerFromObject(char *name,char *result_type)
   args[0] = "DoTypecasting";
   args[1] = result_type;
   args[2] = NULL;
-
+  
+  // object names cannot start with a number
+  if ((name[0] >= '0')&&(name[0] <= '9'))
+    {
+    return NULL;
+    }
   if (entry = Tcl_FindHashEntry(&vtkInstanceLookup,name))
     {
     temp = (ClientData)Tcl_GetHashValue(entry);

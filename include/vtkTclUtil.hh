@@ -15,6 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 
 #include <tcl.h>
+#include <tk.h>
 #include <string.h>
 
 extern void vtkTclGenericDeleteObject(ClientData cd);
