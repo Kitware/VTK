@@ -321,9 +321,9 @@ void do_return(FILE *fp)
 
 void handle_vtkobj_return(FILE *fp)
 {
-  fprintf(fp,"extern void *%s_Typecast(void *,char *);\n",
+  fprintf(fp,"extern JNIEXPORT void *%s_Typecast(void *,char *);\n",
 	  currentFunction->ReturnClass);
-  fprintf(fp,"extern void vtk_%s_NoCPP();\n",currentFunction->ReturnClass);
+  fprintf(fp,"extern JNIEXPORT void vtk_%s_NoCPP();\n",currentFunction->ReturnClass);
 }
 
 /* have we done one of these yet */
@@ -560,11 +560,11 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   for (i = 0; i < data->NumberOfSuperClasses; i++)
     {
-    fprintf(fp,"extern void *%s_Typecast(void *op,char *dType);\n",
+    fprintf(fp,"extern JNIEXPORT void *%s_Typecast(void *op,char *dType);\n",
 	    data->SuperClasses[i]);
     }
   
-  fprintf(fp,"\nvoid *%s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
+  fprintf(fp,"\nJNIEXPORT void *%s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
   fprintf(fp,"  if (!strcmp(\"%s\",dType))\n    {\n", data->ClassName);
   fprintf(fp,"    return me;\n    }\n  else\n    {\n");
   
@@ -603,7 +603,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       strcmp(data->ClassName,"vtkDataSetSource"))
     {
     fprintf(fp,"static int vtk_%s_NoCreate = 0;\n",data->ClassName);
-    fprintf(fp,"void vtk_%s_NoCPP()\n",data->ClassName);
+    fprintf(fp,"JNIEXPORT void vtk_%s_NoCPP()\n",data->ClassName);
     fprintf(fp,"{\n  vtk_%s_NoCreate = 1;\n}\n\n",data->ClassName);
     fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
 	    data->ClassName);
@@ -617,8 +617,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     if (data->NumberOfSuperClasses)
       {
-      fprintf(fp,"extern void vtk_%s_NoCPP();\n",data->SuperClasses[0]);
-      fprintf(fp,"void vtk_%s_NoCPP()\n",data->ClassName);
+      fprintf(fp,"extern JNIEXPORT void vtk_%s_NoCPP();\n",data->SuperClasses[0]);
+      fprintf(fp,"JNIEXPORT void vtk_%s_NoCPP()\n",data->ClassName);
       fprintf(fp,"{\n  vtk_%s_NoCPP();\n}\n\n",data->SuperClasses[0]);
       }
     }
