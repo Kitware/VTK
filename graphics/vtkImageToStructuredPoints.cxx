@@ -225,7 +225,10 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   splitBounds[splitAxisIdx * 2 + 1] = (min + max) / 2;
   inRegion->SetBounds(splitBounds);
   outRegion->SetBounds(splitBounds);
-  this->Input->UpdateRegion(inRegion);
+  if ( inRegion->GetVolume() < this->InputMemoryLimit)
+    {
+    this->Input->UpdateRegion(inRegion);
+    }
   if (inRegion->IsAllocated())
     {
     outRegion->CopyRegionData(inRegion);
@@ -244,7 +247,10 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   splitBounds[splitAxisIdx * 2 + 1] = max;
   inRegion->SetBounds(splitBounds);
   outRegion->SetBounds(splitBounds);
-  this->Input->UpdateRegion(inRegion);
+  if ( inRegion->GetVolume() < this->InputMemoryLimit)
+    {
+    this->Input->UpdateRegion(inRegion);
+    }
   if (inRegion->IsAllocated())
     {
     outRegion->CopyRegionData(inRegion);
