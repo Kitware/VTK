@@ -30,12 +30,12 @@
 #ifndef __vtkPLYReader_h
 #define __vtkPLYReader_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_IO_EXPORT vtkPLYReader : public vtkPolyDataSource 
+class VTK_IO_EXPORT vtkPLYReader : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkPLYReader,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkPLYReader,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -53,12 +53,10 @@ protected:
 
   char *FileName;
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkPLYReader(const vtkPLYReader&);  // Not implemented.
   void operator=(const vtkPLYReader&);  // Not implemented.
 };
 
 #endif
-
-

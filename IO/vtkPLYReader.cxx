@@ -18,6 +18,8 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLY.h"
 #include "vtkPolyData.h"
@@ -25,7 +27,7 @@
 #include <ctype.h>
 #include <stddef.h>
 
-vtkCxxRevisionMacro(vtkPLYReader, "1.18");
+vtkCxxRevisionMacro(vtkPLYReader, "1.19");
 vtkStandardNewMacro(vtkPLYReader);
 
 #ifndef true
@@ -40,6 +42,8 @@ vtkStandardNewMacro(vtkPLYReader);
 vtkPLYReader::vtkPLYReader()
 {
   this->FileName = NULL;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkPLYReader::~vtkPLYReader()
@@ -66,8 +70,18 @@ typedef struct _plyFace {
   int *verts;             // vertex index list
 } plyFace;
 
-void vtkPLYReader::Execute()
+int vtkPLYReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   PlyProperty vertProps[] = {
     {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)),
      0, 0, 0, 0},
@@ -92,12 +106,11 @@ void vtkPLYReader::Execute()
 
   int i, j, k;
   int numPts=0, numPolys=0;
-  vtkPolyData *output = (vtkPolyData *)this->GetOutput();
 
   if (!this->FileName)
     {
     vtkErrorMacro(<<"A File Name must be specified.");
-    return;
+    return 0;
     }
 
   // open a PLY file for reading
@@ -110,7 +123,7 @@ void vtkPLYReader::Execute()
                                             &fileType, &version)) )
     {
     vtkErrorMacro(<<"Could not open PLY file");
-    return;
+    return 0;
     }
 
   // Check to make sure that we can read geometry
@@ -276,6 +289,7 @@ void vtkPLYReader::Execute()
   // close the PLY file 
   vtkPLY::ply_close (ply);
 
+  return 1;
 }
 
 void vtkPLYReader::PrintSelf(ostream& os, vtkIndent indent)
