@@ -51,13 +51,13 @@ public:
 
   // Description:
   // Concrete implementation of Mouse event bindings for flight
-  virtual   void OnRightButtonDown (int ctrl, int shift, int X, int Y);
-  virtual   void OnRightButtonUp   (int ctrl, int shift, int X, int Y);
-  virtual   void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
-  virtual   void OnMiddleButtonUp  (int ctrl, int shift, int X, int Y);
-  virtual   void OnLeftButtonDown  (int ctrl, int shift, int X, int Y);
-  virtual   void OnLeftButtonUp    (int ctrl, int shift, int X, int Y);
-  virtual   void OnMouseMove       (int ctrl, int shift, int X, int Y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMouseMove       (int ctrl, int shift, int x, int y);
 
   // Description:
   // Concrete implementation of Keyboard event bindings for flight
