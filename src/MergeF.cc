@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -22,6 +20,13 @@ vlMergeFilter::vlMergeFilter()
 {
   // prevents dangling reference to DataSet
   this->Geometry = new vlPolyData;
+
+  this->Scalars = NULL;
+  this->Vectors = NULL;
+  this->Normals = NULL;
+  this->TCoords = NULL;
+  this->Tensors = NULL;
+  this->UserDefined = NULL;
 }
 
 vlMergeFilter::~vlMergeFilter()
@@ -35,6 +40,8 @@ void vlMergeFilter::Update()
   if ( this->Vectors ) this->Vectors->Update();
   if ( this->Normals ) this->Normals->Update();
   if ( this->TCoords ) this->TCoords->Update();
+  if ( this->Tensors ) this->Tensors->Update();
+  if ( this->UserDefined ) this->UserDefined->Update();
 }
 
 void vlMergeFilter::Initialize()
@@ -78,17 +85,30 @@ void vlMergeFilter::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "TCoords: (" << this->TCoords << ")\n";
   else
     os << indent << "TCoords: (none)\n";
+
+  if ( this->Tensors )
+    os << indent << "Tensors: (" << this->Tensors << ")\n";
+  else
+    os << indent << "Tensors: (none)\n";
+
+  if ( this->UserDefined )
+    os << indent << "UserDefined: (" << this->UserDefined << ")\n";
+  else
+    os << indent << "UserDefined: (none)\n";
 }
 
 // Merge it all together
 void vlMergeFilter::Execute()
 {
   int numPts, numScalars=0, numVectors=0, numNormals=0, numTCoords=0;
+  int numTensors=0, numUserDefined=0;
   vlPointData *pd;
   vlScalars *scalars;
   vlVectors *vectors;
   vlNormals *normals;
   vlTCoords *tcoords;
+  vlTensors *tensors;
+  vlUserDefined *ud;
 
   vlDebugMacro(<<"Merging data!");
 
@@ -129,6 +149,20 @@ void vlMergeFilter::Execute()
     if ( tcoords != NULL ) numTCoords= tcoords->GetNumberOfTCoords();
     }
 
+  if ( this->Tensors ) 
+    {
+    pd = this->Tensors->GetPointData();
+    tensors = pd->GetTensors();
+    if ( tensors != NULL ) numTensors = tensors->GetNumberOfTensors();
+    }
+
+  if ( this->UserDefined ) 
+    {
+    pd = this->UserDefined->GetPointData();
+    ud = pd->GetUserDefined();
+    if ( ud != NULL ) numUserDefined = ud->GetNumberOfUserDefined();
+    }
+
   // merge data only if it is consistent
   if ( numPts == numScalars )
     this->PointData.SetScalars(scalars);
@@ -141,4 +175,10 @@ void vlMergeFilter::Execute()
 
   if ( numPts == numTCoords )
     this->PointData.SetTCoords(tcoords);
+
+  if ( numPts == numTensors )
+    this->PointData.SetTensors(tensors);
+
+  if ( numPts == numUserDefined )
+    this->PointData.SetUserDefined(ud);
 }

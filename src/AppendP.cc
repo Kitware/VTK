@@ -82,6 +82,7 @@ void vlAppendPolyData::Update()
 void vlAppendPolyData::Execute()
 {
   int scalarsPresent, vectorsPresent, normalsPresent, tcoordsPresent;
+  int tensorsPresent, userDefinedPresent;
   vlPolyData *ds;
   vlPoints  *inPts;
   vlFloatPoints *newPts;
@@ -104,6 +105,8 @@ void vlAppendPolyData::Execute()
   vectorsPresent = 1;
   normalsPresent = 1;
   tcoordsPresent = 1;
+  tensorsPresent = 1;
+  userDefinedPresent = 1;
 
   for ( this->InputList.InitTraversal(); ds = this->InputList.GetNextItem(); )
     {
@@ -114,6 +117,8 @@ void vlAppendPolyData::Execute()
     if ( pd->GetVectors() == NULL ) vectorsPresent &= 0;
     if ( pd->GetNormals() == NULL ) normalsPresent &= 0;
     if ( pd->GetTCoords() == NULL ) tcoordsPresent &= 0;
+    if ( pd->GetTensors() == NULL ) tensorsPresent &= 0;
+    if ( pd->GetUserDefined() == NULL ) userDefinedPresent &= 0;
     }
 
   if ( numPts < 1 || numCells < 1 )
@@ -127,6 +132,8 @@ void vlAppendPolyData::Execute()
   if ( !vectorsPresent ) this->PointData.CopyVectorsOff();
   if ( !normalsPresent ) this->PointData.CopyNormalsOff();
   if ( !tcoordsPresent ) this->PointData.CopyTCoordsOff();
+  if ( !tensorsPresent ) this->PointData.CopyTensorsOff();
+  if ( !userDefinedPresent ) this->PointData.CopyUserDefinedOff();
   this->PointData.CopyAllocate(pd,numPts);
 
   newPts = new vlFloatPoints(numPts);
