@@ -96,9 +96,10 @@ vtkMergePoints2D \
 vtkMultiThreader \
 vtkMutexLock \
 vtkNormals \
-vtkOverrideInformationCollection \
 vtkObject \
+vtkOrderedTriangulator \
 vtkOutputWindow \
+vtkOverrideInformationCollection \
 vtkPerspectiveTransform \
 vtkPixel \
 vtkPlane \
