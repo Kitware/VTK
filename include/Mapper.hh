@@ -77,6 +77,8 @@ public:
   // proper initial configuration.
   virtual float *GetBounds() = 0;
 
+  float *GetCenter();
+
 protected:
   void (*StartRender)(void *);
   void *StartRenderArg;

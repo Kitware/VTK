@@ -112,6 +112,16 @@ void vlMapper::CreateDefaultLookupTable()
   this->SelfCreatedLookupTable = 1;
 }
 
+float *vlMapper::GetCenter()
+{
+  static float center[3];
+  float *bounds;
+
+  bounds = this->GetBounds();
+  for (int i=0; i<3; i++) center[i] = (bounds[2*i+1] + bounds[2*i]) / 2.0;
+  return center;
+}
+
 void vlMapper::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlMapper::GetClassName()))
