@@ -152,7 +152,7 @@ template<class DType>
 DType vtkContainerDefaultCreate(DType k2) { return k2; }
 
 static inline vtkObject* vtkContainerCreateMethod(vtkObject* d1)
-{ d1->Register(0); return d1; }
+{ if ( d1) { d1->Register(0); } return d1; }
 static inline char vtkContainerCreateMethod(char d1) 
 { return vtkContainerDefaultCreate(d1); }
 static inline short vtkContainerCreateMethod(short d1)
@@ -181,7 +181,7 @@ static inline void* vtkContainerCreateMethod(void* d1)
 { return vtkContainerDefaultCreate(d1); }
 
 static inline void vtkContainerDeleteMethod(vtkObject* d1) 
-{ d1->UnRegister(0); /* cout << "UR(d1)" << endl; */ }
+{ if ( d1 ) { d1->UnRegister(0); } /* cout << "UR(d1)" << endl; */ }
 static inline void vtkContainerDeleteMethod(char) {}
 static inline void vtkContainerDeleteMethod(short) {}
 static inline void vtkContainerDeleteMethod(int) {}
