@@ -140,6 +140,12 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LocalProcessId: " << this->LocalProcessId << endl;
   os << indent << "MarshalStringLength: " << this->MarshalStringLength << endl;
   os << indent << "MarshalDataLength: " << this->MarshalDataLength << endl;
+  os << indent << "ReceiveWaitTime: " << this->ReceiveWaitTime << endl;
+  os << indent << "ReceiveTime: " << this->ReceiveTime << endl;
+  os << indent << "SendWaitTime: " << this->SendWaitTime << endl;
+  os << indent << "SendTime: " << this->SendTime << endl;
+  os << indent << "ReadTime: " << this->ReadTime << endl;
+  os << indent << "WriteTime: " << this->WriteTime << endl;
   os << indent << "RMIs: \n";
   
   this->RMIs->InitTraversal();
