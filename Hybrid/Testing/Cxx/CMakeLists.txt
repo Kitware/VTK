@@ -10,6 +10,7 @@ IF (VTK_DATA_ROOT)
   SET(MyTests ${MyTests}     
     PushTest.cxx
     ImagePlaneWidget.cxx
+    TestScalarBarWidget.cxx
     TestLineWidget.cxx
     TestPlaneWidget.cxx
     TestPointWidget.cxx
