@@ -41,19 +41,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkImageReslice - Reslices a volume along the axes specified.
 // .SECTION Description
-// vtkImageReslice will regrid a volume along the axes specified by
-// the reslicing matrix.  The extent, origin, and sampling
-// density of the output data can also be set.  This class is the
-// swiss-army-knife of image geometry filters:  It can permute, flip,
-// rotate, scale, resample, and pad image data in any combination. 
-// It does the permute and resample operations at close to the 
-// efficency of vtkImagePermute and vtkImageResample.  It can also
-// extract oblique slices from image volumes, which no other VTK
-// imaging filter can do.
+// vtkImageReslice will re-grid a volume along the axes specified by
+// a matrix.  The extent, origin, and sample spacing of the output data 
+// can also be set.  
+// <p>The primary uses of this class are to extract either oblique or
+// orthogonal slices from a volume, or to apply either a linear, 
+// perspective, or warp transformation to a volume.
+// <p>This class is the swiss-army-knife of image geometry filters:  
+// It can permute, flip, rotate, scale, resample, and pad image data 
+// in any combination at close to the efficiency of the specialized
+// image filters that do the same things.
 // .SECTION Caveats
 // This filter is very inefficient if the output X dimension is 1.
 // .SECTION see also
-// vtkImageToImageFilter, vtkTransform
+// vtkGeneralTransform vtkMatrix4x4
 
 
 #ifndef __vtkImageReslice_h
@@ -79,23 +80,28 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set the axes of the mesh along which the volume will be resliced. 
-  // The axes are extracted from the 4x4 matrix:  The x-axis is the 
-  // first column, the y-axis is the second column, the z-axis is the  
-  // third column, and the origin is the final column.  The bottom 
-  // row of the matrix should always be (0,0,0,1). 
-  // If you don't set the axes, the axes will default to 
-  // (1,0,0), (0,1,0), (0,0,1) and their origin will be (0,0,0). 
-  // Generally, this is a permutation matrix (though it need not be). 
+  // Use this method, in conjunction with SetResliceOrigin(), 
+  // SetResliceSpacing() and SetResliceExtent(), to set up a
+  // grid of points at which to resample the input.  
+  // <p>The Axes specify the axes of the resampling grid, 
+  // the ResliceSpacing specifies the grid spacing,
+  // the ResliceOrigin() specifies the location of the origin of 
+  // the grid (i.e the coordinates of voxel index (0,0,0) 
+  // in the coordinate system specified by
+  // the Axes), and the ResliceExtent() specifies the size of
+  // resampling grid i.e. the ranges of the (i,j,k) indices.
+  // <p>The matrix can specify a perspective transformation, but
+  // the matrix must be invertible.
   vtkSetObjectMacro(ResliceAxes,vtkMatrix4x4);
   vtkGetObjectMacro(ResliceAxes,vtkMatrix4x4);
 
   // Description:
-  // Set a transform to be applied to the reslicing axes.
-  // If you don't set this, it will be treated as the identity transform.
-  // This is often used to obtain oblique slices from the original data,
-  // or to regrid one data set to match another given a linear
-  // registration transformation.
+  // Set a transform to be applied to the resampling grid that was
+  // specified in SetResliceAxes(). 
+  // <p>Note that applying a transform to the resampling grid is
+  // equivalent to applying the inverse of the same transform to
+  // the image before resampling it.  Nonlinear transforms can be
+  // used here.
   vtkSetObjectMacro(ResliceTransform,vtkGeneralTransform);
   vtkGetObjectMacro(ResliceTransform,vtkGeneralTransform);
 
@@ -135,27 +141,27 @@ public:
     return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
 
   // Description:
-  // Turn on and off optimizations (default on, turn them off only if
-  // they are not stable on your architecture). 
+  // Turn on and off optimizations (default on, they should only be
+  // turned off for testing purposes). 
   vtkSetMacro(Optimization,int);
   vtkGetMacro(Optimization,int);
   vtkBooleanMacro(Optimization,int);
 
   // Description:
-  // Set the background color (for multi-component images)
+  // Set the background color (for multi-component imagesa.)
   vtkSetVector4Macro(BackgroundColor, float);
   vtkGetVector4Macro(BackgroundColor, float);
 
   // Description:
-  // Set background grey level (for single-component images)
+  // Set background grey level (for single-component images).
   void SetBackgroundLevel(float v) {this->SetBackgroundColor(v,v,v,v);};
   float GetBackgroundLevel() { return this->GetBackgroundColor()[0]; };
 
   // Description:
   // Spacing, origin, and extent of output data. 
-  // The OutputSpacing default is (1,1,1). 
-  // The OutputOrigin and OutputExtent are set to cover the entire
-  // transformed input extent by default.
+  // The OutputSpacing default is (1,1,1), and the 
+  // default OutputOrigin and OutputExtent are set to cover the entire
+  // transformed input extent.
   vtkSetVector3Macro(OutputSpacing, float);
   vtkGetVector3Macro(OutputSpacing, float);
   vtkSetVector3Macro(OutputOrigin, float);
@@ -165,12 +171,12 @@ public:
 
   // Description:
   // When determining the modified time of the filter, 
-  // check the modified time of the transform.
+  // this check the modified time of the transform and matrix.
   unsigned long int GetMTime();
 
+//BTX
   // Description:
   // Helper functions not meant to be used outside this class. 
-//BTX
   vtkMatrix4x4 *GetIndexMatrix();
   int FindExtent(int& r1, int& r2, double *point, double *xAxis,
 		      int *inMin, int *inMax, int *outExt);
