@@ -455,11 +455,6 @@ protected:
   // Reset internal structures.
   void Reset();
 
-//BTX
-  vtkGetMacro(CurrentCellDimension, int);
-  enum { MVertex, MEdge, MFace, MRegion } CurrentCellDimension;
-//ETX
-
   //Internal tetra used for the contouring/clipping algoirthm
   vtkTetra       *Tetra;
   vtkTriangle    *Triangle;
