@@ -313,7 +313,7 @@ static void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self,
 	while (--i >= 0)
 	  {
 	  vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
-	  *ptr++;
+	  *ptr++ = tmp;
 	  vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
 	  *ptr++ = tmp;
 	  }
