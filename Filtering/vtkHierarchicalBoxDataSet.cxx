@@ -24,7 +24,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.6");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.7");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
@@ -105,6 +105,16 @@ void vtkHierarchicalBoxDataSet::SetRefinementRatio(unsigned int level,
 }
 
 //----------------------------------------------------------------------------
+int vtkHierarchicalBoxDataSet::GetRefinementRatio(unsigned int level)
+{
+  if (level >= this->BoxInternal->RefinementRatios.size())
+    {
+    return 0;
+    }
+  return this->BoxInternal->RefinementRatios[level];
+}
+
+//----------------------------------------------------------------------------
 int vtkHierarchicalBoxDataSetIsInBoxes(vtkstd::vector<vtkAMRBox>& boxes,
                                        int i, int j, int k)
 {
@@ -124,25 +134,28 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
 {
   unsigned int numLevels = this->GetNumberOfLevels();
 
-  for (unsigned int levelIdx=0; levelIdx<numLevels-1; levelIdx++)
+  for (unsigned int levelIdx=0; levelIdx<numLevels; levelIdx++)
     {
-   
     // Copy boxes of higher level and coarsen to this level
     vtkstd::vector<vtkAMRBox> boxes;
     unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx+1);
     unsigned int dataSetIdx;
-    for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
+    if (levelIdx < numLevels - 1)
       {
-      vtkInformation* info = 
-        this->HierarchicalDataInformation->GetInformation(levelIdx+1,dataSetIdx);
-      int* boxVec = info->Get(BOX());
-      vtkAMRBox coarsebox(3, boxVec, boxVec+3);
-      if (this->BoxInternal->RefinementRatios.size() <= levelIdx)
+      for (dataSetIdx=0; dataSetIdx<numDataSets; dataSetIdx++)
         {
-        continue;
+        vtkInformation* info = 
+          this->HierarchicalDataInformation->GetInformation(
+            levelIdx+1,dataSetIdx);
+        int* boxVec = info->Get(BOX());
+        vtkAMRBox coarsebox(3, boxVec, boxVec+3);
+        if (this->BoxInternal->RefinementRatios.size() <= levelIdx)
+          {
+          continue;
+          }
+        coarsebox.Coarsen(this->BoxInternal->RefinementRatios[levelIdx]);
+        boxes.push_back(coarsebox);
         }
-      coarsebox.Coarsen(this->BoxInternal->RefinementRatios[levelIdx]);
-      boxes.push_back(coarsebox);
       }
 
     numDataSets = this->GetNumberOfDataSets(levelIdx);

@@ -75,6 +75,10 @@ public:
   void SetRefinementRatio(unsigned int level, int refRatio);
 
   // Description:
+  // Returns the refinement of a given level.
+  int GetRefinementRatio(unsigned int level);
+
+  // Description:
   // Blank lower level cells if they are overlapped by higher
   // level ones.
   void GenerateVisibilityArrays();
