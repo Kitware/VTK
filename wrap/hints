@@ -22,6 +22,8 @@ vtkFloatVectors		GetVector	301 3
 vtkGeometryFilter	GetExtent	301 6
 vtkGraymap		GetColor	313 4
 vtkImageCache           GetBounds       301 6
+vtkImageCache           GetCenter       301 3
+vtkImageCache		GetDimensions	304 3
 vtkImageCache           GetUpdateExtent 304 6
 vtkImageCache           GetWholeExtent  304 6
 vtkImageCache		GetScalarRange	301 2
