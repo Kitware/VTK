@@ -934,7 +934,7 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 
     // make sure using unsigned char data of color scalars type
     if (aTexture->GetMapColorScalarsThroughLookupTable () ||
-        (strcmp(scalars->GetDataType(),"unsigned char") ||
+        (scalars->GetDataType() != VTK_UNSIGNED_CHAR ||
         strcmp(scalars->GetScalarType(),"ColorScalar")) )
       {
       mappedScalars = aTexture->GetMappedScalars ();
