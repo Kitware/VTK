@@ -55,6 +55,7 @@ vtkDataObject \
 vtkDataObjectCollection \
 vtkDataSetAttributes \
 vtkDataSetCollection \
+vtkDebugLeaks \
 vtkDirectory \
 vtkDynamicLoader \
 vtkDoubleArray \
@@ -149,7 +150,8 @@ vtkVoidArray \
 vtkVoxel \
 vtkWedge \
 vtkWindowLevelLookupTable \
-vtkWindowToImageFilter
+vtkWindowToImageFilter 
+
 
 WIN32_OBJ = \
 vtkWin32OutputWindow
