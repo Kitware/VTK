@@ -433,10 +433,10 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       int legPos[2], legPos2[2];
       int *p1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
       int *p2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-      legPos[0] = (int)p1[0] + this->LegendPosition[0]*(p2[0]-p1[0]);
-      legPos2[0] = (int)legPos[0] + this->LegendPosition2[0]*(p2[0]-p1[0]);
-      legPos[1] = (int)p1[1] + this->LegendPosition[1]*(p2[1]-p1[1]);
-      legPos2[1] = (int)legPos[1] + this->LegendPosition2[1]*(p2[1]-p1[1]);
+      legPos[0] = (int)(p1[0] + this->LegendPosition[0]*(p2[0]-p1[0]));
+      legPos2[0] = (int)(legPos[0] + this->LegendPosition2[0]*(p2[0]-p1[0]));
+      legPos[1] = (int)(p1[1] + this->LegendPosition[1]*(p2[1]-p1[1]));
+      legPos2[1] = (int)(legPos[1] + this->LegendPosition2[1]*(p2[1]-p1[1]));
       
       this->LegendActor->GetPositionCoordinate()->SetValue(legPos[0], legPos[1]);
       this->LegendActor->GetPosition2Coordinate()->SetValue(legPos2[0], legPos2[1]);
