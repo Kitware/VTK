@@ -177,7 +177,7 @@ vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
   else if ( ! strcmp(magic,"P5") ) //pgm file
     {
     graymap = new vtkGraymap(numPts);
-    if ( this->ReadBinaryPGM(fp,graymap,numPts,dim[0],dim[1]) )
+    if ( this->ReadBinaryPGM(fp,graymap,dim[0],dim[1]) )
       {
       s = (vtkColorScalars *) graymap;
       }
@@ -190,7 +190,7 @@ vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
   else if ( ! strcmp(magic,"P6") ) //ppm file
     {
     pixmap = new vtkPixmap(numPts);
-    if ( this->ReadBinaryPPM(fp,pixmap,numPts,dim[0],dim[1]) )
+    if ( this->ReadBinaryPPM(fp,pixmap,dim[0],dim[1]) )
       {
       s = (vtkColorScalars *) pixmap;
       }
@@ -216,7 +216,7 @@ vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
 }
 
 
-int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
+int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap,
                                int xsize, int ysize)
 {
   int max, j, packedXSize=xsize/8;
@@ -241,7 +241,7 @@ int vtkPNMReader::ReadBinaryPBM(FILE *fp, vtkBitmap* bitmap, int numPts,
   return 1;
 }
 
-int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
+int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap,
                                int xsize, int ysize)
 {
   int max, j;
@@ -265,7 +265,7 @@ int vtkPNMReader::ReadBinaryPGM(FILE *fp, vtkGraymap* graymap, int numPts,
   return 1;
 }
 
-int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap, int numPts,
+int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap,
                                int xsize, int ysize)
 {
   int max, j;
