@@ -149,7 +149,7 @@ vtkGlrRenderWindow::~vtkGlrRenderWindow()
     }
 
   // then close the old window 
-  if (this->OwnWindow)
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }
@@ -635,7 +635,7 @@ void vtkGlrRenderWindow::WindowRemap()
     }
 
   // then close the old window 
-  if (this->OwnWindow)
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }

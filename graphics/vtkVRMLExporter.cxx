@@ -58,7 +58,7 @@ void vtkVRMLExporter::WriteData()
   vtkRenderer *ren;
   FILE *fp;
   vtkActorCollection *ac;
-  vtkActor *anActor;
+  vtkActor *anActor, *aPart;
   vtkLightCollection *lc;
   vtkLight *aLight;
   
@@ -117,7 +117,10 @@ void vtkVRMLExporter::WriteData()
   ac = ren->GetActors();
   for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
     {
-    this->WriteAnActor(anActor, fp);
+    for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
+      {
+      this->WriteAnActor(aPart, fp);
+      }
     }
 
   fprintf(fp,"  ]\n}\n");
@@ -194,19 +197,22 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   vtkColorScalars *colors;
   float *p;
   unsigned char *c;
+  vtkTransform *trans;
   
   // first stuff out the transform
+  trans = new vtkTransform;
+  trans->SetMatrix(anActor->GetMatrix());
+  
   fprintf(fp,"    Transform {\n");
-  tempf = anActor->GetPosition();
+  tempf = trans->GetPosition();
   fprintf(fp,"      translation %g %g %g\n", tempf[0], tempf[1], tempf[2]);
-  tempf = anActor->GetOrigin();
-  fprintf(fp,"      center %g %g %g\n", tempf[0], tempf[1], tempf[2]);
-  tempf = anActor->GetOrientationWXYZ();
+  tempf = trans->GetOrientationWXYZ();
   fprintf(fp,"      rotation %g %g %g %g\n", tempf[1], tempf[2], 
 	  tempf[3], tempf[0]*3.1415926/180.0);
-  tempf = anActor->GetScale();
+  tempf = trans->GetScale();
   fprintf(fp,"      scale %g %g %g\n", tempf[0], tempf[1], tempf[2]);
   fprintf(fp,"      children [\n");
+  trans->Delete();
   
   // get the mappers input and matrix
   ds = anActor->GetMapper()->GetInput();

@@ -88,7 +88,7 @@ vtkXglrRenderWindow::~vtkXglrRenderWindow()
     }
   
   /* free the Xwindow we created no need to free the colormap */
-  if (this->OwnWindow)
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }
@@ -783,7 +783,7 @@ void vtkXglrRenderWindow::WindowRemap()
     }
 
   /* free the Xwindow we created no need to free the colormap */
-  if (this->OwnWindow)
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }

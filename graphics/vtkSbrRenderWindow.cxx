@@ -69,7 +69,7 @@ vtkSbrRenderWindow::~vtkSbrRenderWindow()
   this->Fd = -1;
   
   /* free the Xwindow we created no need to free the colormap */
-  if (this->OwnWindow)
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }
@@ -947,7 +947,7 @@ void vtkSbrRenderWindow::WindowRemap()
   this->Fd = -1;
   
   /* free the Xwindow we created no need to free the colormap */
-  if (this->OwnWindow)
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
     }

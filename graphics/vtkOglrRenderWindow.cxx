@@ -217,7 +217,7 @@ vtkOglrRenderWindow::~vtkOglrRenderWindow()
     glXDestroyContext( this->DisplayId, this->ContextId);
   
     // then close the old window 
-    if (this->OwnWindow)
+    if (this->OwnWindow && this->DisplayId && this->WindowId)
       {
       XDestroyWindow(this->DisplayId,this->WindowId);
       }

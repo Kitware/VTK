@@ -56,7 +56,7 @@ void vtkOBJExporter::WriteData()
   vtkRenderer *ren;
   FILE *fpObj, *fpMtl;
   vtkActorCollection *ac;
-  vtkActor *anActor;
+  vtkActor *anActor, *aPart;
   char nameObj[80];
   char nameMtl[80];
   int idStart = 1;
@@ -110,7 +110,10 @@ void vtkOBJExporter::WriteData()
   ac = ren->GetActors();
   for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
     {
-    this->WriteAnActor(anActor, fpObj, fpMtl, idStart);
+    for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
+      {
+      this->WriteAnActor(aPart, fpObj, fpMtl, idStart);
+      }
     }
   
   fclose(fpObj);
