@@ -51,6 +51,13 @@ vtkImporter::vtkImporter ()
   this->ComputeNormals = 0;
 }
 
+vtkImporter::~vtkImporter ()
+{
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
+}
 
 void vtkImporter::Read ()
 {
