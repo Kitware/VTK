@@ -81,7 +81,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFunctionSet.h"
 #include "vtkGeneralTransform.h"
 #include "vtkGenericCell.h"
-#include "vtkGhostLevels.h"
 #include "vtkHexahedron.h"
 #include "vtkHomogeneousTransform.h"
 #include "vtkIdList.h"
