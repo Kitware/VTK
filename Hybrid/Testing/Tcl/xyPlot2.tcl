@@ -200,7 +200,7 @@ ren2 SetViewport 0.5 0.0 1.0 1.0
 ren2 AddActor2D xyplot
 ren2 AddActor2D xyplot2
 ren2 AddActor2D xyplot3
-renWin SetSize 500 250
+renWin SetSize 790 400
 
 set cam1 [ren1 GetActiveCamera]
     $cam1 SetClippingRange 3.95297 100

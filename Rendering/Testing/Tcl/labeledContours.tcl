@@ -48,7 +48,7 @@ vtkLabeledDataMapper ldm
     ldm SetLabelModeToLabelScalars
 set tprop [ldm GetLabelTextProperty]
     $tprop SetFontFamilyToArial
-    $tprop SetFontSize 8
+    $tprop SetFontSize 10
     $tprop SetColor 1 0 0
 vtkActor2D contourLabels
     contourLabels SetMapper ldm
@@ -59,7 +59,7 @@ ren1 AddActor2D isoActor
 ren1 AddActor2D contourLabels
 
 ren1 SetBackground 1 1 1
-renWin SetSize 300 300
+renWin SetSize 500 500
 renWin Render
 [ren1 GetActiveCamera] Zoom 1.5
 
