@@ -42,17 +42,17 @@ public:
   // Description:
   // Set the color of the light.
   vlSetVector3Macro(Color,float);
-  vlGetVectorMacro(Color,float);
+  vlGetVectorMacro(Color,float,3);
 
   // Description:
   // Set the position of the light.
   vlSetVector3Macro(Position,float);
-  vlGetVectorMacro(Position,float);
+  vlGetVectorMacro(Position,float,3);
 
   // Description:
   // Set the point at which the light is shining.
   vlSetVector3Macro(FocalPoint,float);
-  vlGetVectorMacro(FocalPoint,float);
+  vlGetVectorMacro(FocalPoint,float,3);
 
   // Description:
   // Set the brightness of the light.

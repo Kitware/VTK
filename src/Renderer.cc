@@ -105,7 +105,7 @@ void vlRenderer::DoLights()
 
   if (!this->UpdateLights())
     {
-    vlErrorMacro(<<"No lights are on, creating one.");
+    vlWarningMacro(<<"No lights are on, creating one.");
     light1 = this->RenderWindow->MakeLight();
     this->AddLights(light1);
     light1->SetPosition(this->ActiveCamera->GetPosition());
@@ -122,7 +122,7 @@ void vlRenderer::DoCameras()
 
   if (!this->UpdateCameras())
     {
-    vlErrorMacro(<< "No cameras are on, creating one.");
+    vlWarningMacro(<< "No cameras are on, creating one.");
     cam1 = this->RenderWindow->MakeCamera();
     this->SetActiveCamera(cam1);
     this->ResetCamera();
@@ -137,7 +137,7 @@ void vlRenderer::DoActors()
 
   if (!this->UpdateActors())
     {
-    vlErrorMacro(<< "No actors are on.");
+    vlWarningMacro(<< "No actors are on.");
     }
 }
 
@@ -198,12 +198,11 @@ void vlRenderer::ResetCamera(float bounds[6])
   float distance;
   float width;
   vlMath math;
-  float *vpn, vn[3];
+  float vn[3];
 
   if ( this->ActiveCamera != NULL )
     {
-    vpn = this->ActiveCamera->GetViewPlaneNormal();
-    for (int i=0; i<3; i++ ) vn[i] = vpn[i];
+    this->ActiveCamera->GetViewPlaneNormal(vn);
     }
   else
     {

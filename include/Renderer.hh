@@ -55,17 +55,17 @@ public:
   // Set the background color of the rendering screen using an rgb color
   // specification.
   vlSetVector3Macro(Background,float);
-  vlGetVectorMacro(Background,float);
+  vlGetVectorMacro(Background,float,3);
 
   // Description:
   // Set the aspect ratio of the rendered image.
   vlSetVector2Macro(Aspect,float);
-  vlGetVectorMacro(Aspect,float);
+  vlGetVectorMacro(Aspect,float,2);
 
   // Description:
   // Set the level of ambient lighting.
   vlSetVector3Macro(Ambient,float);
-  vlGetVectorMacro(Ambient,float);
+  vlGetVectorMacro(Ambient,float,3);
 
   // Description:
   // Turn on/off whether objects are light from behind with another light.
@@ -114,24 +114,24 @@ public:
   // Description:
   // Specify a point location in display (or screen) coordinates.
   vlSetVector3Macro(DisplayPoint,float);
-  vlGetVectorMacro(DisplayPoint,float);
+  vlGetVectorMacro(DisplayPoint,float,3);
 
   // Description:
   // Specify a point location in view coordinates.
   vlSetVector3Macro(ViewPoint,float);
-  vlGetVectorMacro(ViewPoint,float);
+  vlGetVectorMacro(ViewPoint,float,3);
 
   // Description:
   // Specify a point location in world coordinates.
   vlSetVector4Macro(WorldPoint,float);
-  vlGetVectorMacro(WorldPoint,float);
+  vlGetVectorMacro(WorldPoint,float,4);
 
   // Description:
   // Specify the area for the renderer to draw in the rendering window. 
   // Coordinates are expressed as (xmin,ymin,xmax,ymax) where each
   // coordinate is 0 <= coordinate <= 1.0.
   vlSetVector4Macro(Viewport,float);
-  vlGetVectorMacro(Viewport,float);
+  vlGetVectorMacro(Viewport,float,4);
 
   void DisplayToView();
   void ViewToDisplay();

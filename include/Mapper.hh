@@ -68,8 +68,8 @@ public:
   // Description:
   // Specify range in terms of (smin,smax) through which to map scalars
   // into lookup table.
-  vlSetVector2Macro(ScalarRange,float)
-  vlGetVectorMacro(ScalarRange,float)
+  vlSetVector2Macro(ScalarRange,float);
+  vlGetVectorMacro(ScalarRange,float,2);
 
   // Description:
   // Return bounding box of data in terms of (xmin,xmax, ymin,ymax, zmin,zmax).

@@ -62,7 +62,7 @@ public:
 
   void SetColor(float r,float g,float b);
   void SetColor(float a[3]) { this->SetColor(a[0], a[1], a[2]); };
-  vlGetVectorMacro(Color,float);
+  vlGetVectorMacro(Color,float,3);
 
   // Description:
   // Set ambient coefficient.
@@ -107,22 +107,22 @@ public:
   // Description:
   // Set the ambient light color.
   vlSetVector3Macro(AmbientColor,float);
-  vlGetVectorMacro(AmbientColor,float);
+  vlGetVectorMacro(AmbientColor,float,3);
 
   // Description:
   // Set the diffuse light color.
   vlSetVector3Macro(DiffuseColor,float);
-  vlGetVectorMacro(DiffuseColor,float);
+  vlGetVectorMacro(DiffuseColor,float,3);
 
   // Description:
   // Set the specular color.
   vlSetVector3Macro(SpecularColor,float);
-  vlGetVectorMacro(SpecularColor,float);
+  vlGetVectorMacro(SpecularColor,float,3);
 
   // Description:
   // Set the color of edges (if edge visibility enabled).
   vlSetVector3Macro(EdgeColor,float);
-  vlGetVectorMacro(EdgeColor,float);
+  vlGetVectorMacro(EdgeColor,float,3);
 
 protected:
   float Color[3];
