@@ -1,6 +1,7 @@
 #import "vtkCocoaGLView.h"
 #import <OpenGL/gl.h>
 #import <OpenGL/glu.h>
+#include "vtkCommand.h"
 
 @implementation vtkCocoaGLView
 
