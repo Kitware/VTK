@@ -137,7 +137,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 						       -1,1));
   matrix->Transpose();
   // insert camera view transformation 
-  glLoadMatrixf(matrix->Element[0]);
+  glLoadMatrixd(matrix->Element[0]);
 
   // since lookat modifies the model view matrix do a push 
   // first and set the mmode.  This will be undone in the  
@@ -149,7 +149,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   matrix->Transpose();
   
   // insert camera view transformation 
-  glMultMatrixf(matrix->Element[0]);
+  glMultMatrixd(matrix->Element[0]);
 
   if ((ren->GetRenderWindow())->GetErase()) 
     {

@@ -357,8 +357,8 @@ void vtkCamera::SetDistance(float X)
 // Compute the view plane normal from the position and focal point.
 void vtkCamera::ComputeViewPlaneNormal()
 {
-  float dx,dy,dz;
-  float distance;
+  double dx,dy,dz;
+  double distance;
   float *vpn = this->ViewPlaneNormal;
 
   // view plane normal is calculated from position and focal point
@@ -439,7 +439,7 @@ float vtkCamera::GetRoll()
 void vtkCamera::ComputeDistance ()
 {
   float   *distance;
-  float   dx, dy, dz;
+  double   dx, dy, dz;
   
   // pickup pointer to distance
   distance = &this->Distance;
@@ -598,10 +598,10 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
 					 float nearz, float farz)
 {
   vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
-  float DOP[3];
-  float ftemp;
+  double DOP[3];
+  double ftemp;
   float *Rz, Rx[3], Ry[3];
-  float p1[4],PRP[4];
+  double p1[4],PRP[4];
   
   this->PerspectiveTransform->Push();  
   this->PerspectiveTransform->PostMultiply();  
@@ -665,9 +665,9 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   
   // now do the shear to get the z axis to go through the
   // center of the window
-  ftemp = PRP[2]*aspect*tan(this->ViewAngle*3.1415926/360.0);
+  ftemp = PRP[2]*aspect*tan((double)this->ViewAngle*3.1415926/360.0);
   DOP[0] = ftemp*this->WindowCenter[0] - PRP[0];
-  ftemp = PRP[2]*tan(this->ViewAngle*3.1415926/360.0);
+  ftemp = PRP[2]*tan((double)this->ViewAngle*3.1415926/360.0);
   DOP[1] = ftemp*this->WindowCenter[1] - PRP[1];
   DOP[2] = - PRP[2];
   
@@ -701,11 +701,12 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   else
     {
     // now scale according to page 269 Foley & VanDam 2nd Edition
-    this->PerspectiveTransform->Scale(1.0/(tan(this->ViewAngle*3.1415926/360.0)*
-					  this->ClippingRange[1]*aspect),
-				     1.0/(tan(this->ViewAngle*3.1415926/360.0)*
-					  this->ClippingRange[1]),
-				     1.0/this->ClippingRange[1]);
+    this->PerspectiveTransform->
+      Scale(1.0/(tan((double)this->ViewAngle*3.1415926/360.0)*
+		 this->ClippingRange[1]*aspect),
+	    1.0/(tan((double)this->ViewAngle*3.1415926/360.0)*
+		 this->ClippingRange[1]),
+	    (double)1.0/this->ClippingRange[1]);
     }
   
   // now set the orientation
@@ -726,11 +727,11 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
     }
   else
     {
-    ftemp = this->ClippingRange[0]/this->ClippingRange[1];
+    ftemp = (double)this->ClippingRange[0]/this->ClippingRange[1];
     matrix->Element[0][2] = 0;
     matrix->Element[1][2] = 0;
-    matrix->Element[2][2] = (nearz - farz)/(1 - ftemp) - nearz;
-    matrix->Element[2][3] = (nearz - farz)*ftemp/(1 - ftemp);
+    matrix->Element[2][2] = (double)(nearz - farz)/(1.0 - ftemp) - nearz;
+    matrix->Element[2][3] = (double)(nearz - farz)*ftemp/(1 - ftemp);
     matrix->Element[3][2] = -1;
     matrix->Element[3][3] = 0;
     }

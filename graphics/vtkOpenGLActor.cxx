@@ -69,7 +69,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
   // insert model transformation 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
-  glMultMatrixf(matrix->Element[0]);
+  glMultMatrixd(matrix->Element[0]);
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren,this);
