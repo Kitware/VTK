@@ -98,11 +98,12 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   int *pts;
   float *ftmp;
   POINT *points = new POINT [1024];
-  currSize = 1024;
+  int currSize = 1024;
   HBRUSH brush, nbrush, oldBrush;
   int cellScalars = 0;
   int cellNum = 0;
-  
+  float tran;
+
   vtkDebugMacro (<< "vtkWin32PolyDataMapper2D::Render");
 
   if ( input == NULL ) 
@@ -131,7 +132,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime || 
        this->LookupTable->GetMTime() > this->BuildTime ||
-       act->GetProperty()->GetMTime() > this->BuildTime)
+       actor->GetProperty()->GetMTime() > this->BuildTime)
     {
     // sets this->Colors as side effect
     this->GetColors();
@@ -156,6 +157,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   red = (unsigned char) (actorColor[0] * 255.0);
   green = (unsigned char) (actorColor[1] * 255.0);
   blue = (unsigned char) (actorColor[2] * 255.0);
+  tran = actor->GetProperty()->GetOpacity();
 
   // Set the compositing operator
   int compositeMode = this->GetCompositingMode(actor);
@@ -182,7 +184,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
 
   // set the colors for the foreground
   brush = CreateSolidBrush(RGB(red,green,blue));
-  oldBrush = SelectObject(hdc,brush);   
+  oldBrush = (HBRUSH)SelectObject(hdc,brush);   
   
   aPrim = input->GetPolys();
   
@@ -198,8 +200,8 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
 	{
 	rgba = c->GetColor(pts[j]);
 	}
-      nbrush = CreateSolidBrush(RGB(rgba[0],rgba[1],rgba[2]));
-      brush = SelectObject(hdc,nbrush);   
+      nbrush = (HBRUSH)CreateSolidBrush(RGB(rgba[0],rgba[1],rgba[2]));
+      brush = (HBRUSH)SelectObject(hdc,nbrush);   
       DeleteObject(brush);
       brush = nbrush;
       }
@@ -211,7 +213,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
       }
     for (j = 0; j < npts; j++) 
       {
-      ftmp = p->GetPoints(pts[j]);
+      ftmp = p->GetPoint(pts[j]);
       points[j].x = actorPos[0] + ftmp[0];
       points[j].y = actorPos[1] - ftmp[1];
       }
