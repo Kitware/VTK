@@ -15,7 +15,7 @@ CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	 -I${srcdir}/../common -I${TK_INCLUDE} -I${TCL_INCLUDE} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
-all:  ${VTK_LIB_FILE} ${BUILD_TCL}
+all: depend.make ${VTK_LIB_FILE} ${BUILD_TCL}
 
 .cxx.o:
 	${CXX} ${CXX_FLAGS} -c $< -o $@
@@ -53,8 +53,9 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT
 
 
 #------------------------------------------------------------------------------
-depend: 
+depend.make: 
 	$(CXX) -MM $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make
+	echo "Created depend.make - please run gmake again - maybe twice"
 
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL}

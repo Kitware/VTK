@@ -28,7 +28,8 @@ CLEAN_IMAGING     = @CLEAN_IMAGING@
 
 #------------------------------------------------------------------------------
 
-all: ${BUILD_TCL} build_common ${BUILD_GRAPHICS} ${BUILD_IMAGING} \
+all: ${BUILD_TCL} build_common \
+	${BUILD_GRAPHICS} ${BUILD_IMAGING} \
 	${BUILD_TCL}${BUILD_TCL}
 
 build_common:
@@ -62,5 +63,4 @@ clean_graphics:
 
 clean_imaging:
 	cd imaging;   ${MAKE} -${MAKEFLAGS} clean
-
 

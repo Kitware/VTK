@@ -492,11 +492,5 @@ fi
 # should use someday
 #AC_SUBST(VTK_LD_SEARCH_FLAGS)
 
-if test ! -r depend.make
-then
-    echo "Copying $srcdir/depend.make to build directory"
-    cp $srcdir/depend.make depend.make || exit 1
-fi
-
 dnl Checks for library functions.
 AC_OUTPUT(Makefile)
