@@ -2,9 +2,11 @@ catch {load vtkdll}
 
 foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt UnsignedLong UnsignedShort" {
   vtk${array}Array a${array}Array
+   a${array}Array Allocate 1 1
    a${array}Array SetNumberOfComponents 3
    a${array}Array SetNumberOfTuples 4
 
+# InsertComponent
   set k 0
   for {set i 0} {$i < [a${array}Array GetNumberOfTuples]} {incr i} {
       for {set j 0} {$j < [a${array}Array GetNumberOfComponents]} {incr j} {
@@ -12,8 +14,20 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
           incr k
       }     
   }
+# SetComponent
+  set k 0
+  for {set i 0} {$i < [a${array}Array GetNumberOfTuples]} {incr i} {
+      for {set j 0} {$j < [a${array}Array GetNumberOfComponents]} {incr j} {
+          a${array}Array SetComponent $i $j 1
+          incr k
+      }     
+  }
 
+# DeepCopy
   vtk${array}Array b${array}Array
+    b${array}Array Allocate 1000 100
+# force a resize
+    b${array}Array InsertComponent 2001 1 1
     b${array}Array DeepCopy a${array}Array
 
 # confirm the deep copy
@@ -25,6 +39,8 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
           incr k
       }
   }
+  a${array}Array Squeeze
+  a${array}Array Initialize
 }
 vtkCommand DeleteAllObjects
 exit
