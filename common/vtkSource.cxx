@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSource* vtkSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -345,17 +345,6 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
           {
 	  this->Updating = 1;
           this->Inputs[idx]->InternalUpdate();
-	  // Special case for pipeline parallelism:
-	  // If any inputs did not generate data, do not execute.
-	  // In the futured we may want to include a check to see if the input
-	  // has actually changed (mtime comparison).
-	  if (this->Inputs[idx]->GetDataReleased())
-	    {
-	    vtkDebugMacro("Filter not executing because input (" 
-			  << this->Inputs[idx] << ") is released");
-	    this->Updating = 0;
-	    return;
-	    }
 	  this->Updating = 0;	  
           }
         }

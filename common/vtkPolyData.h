@@ -353,6 +353,11 @@ public:
     {return (vtkUnstructuredExtent*)(this->UpdateExtent);}
   
   // Description:
+  // Contains the extent actually in the data object.
+  vtkUnstructuredExtent *GetUnstructuredExtent() 
+    {return (vtkUnstructuredExtent*)(this->Extent);}
+  
+  // Description:
   // Return the amount of memory for the update piece.
   unsigned long GetEstimatedUpdateMemorySize();
 
