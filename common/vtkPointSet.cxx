@@ -309,6 +309,7 @@ int vtkPointSet::GetNetReferenceCount()
     {    
     return this->ReferenceCount - 1;
     }
+  return this->ReferenceCount;
 }
 
 
