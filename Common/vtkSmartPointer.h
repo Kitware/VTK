@@ -78,6 +78,15 @@ public:
     {
     return static_cast<T*>(this->Object);
     }
+
+  // Description:
+  // Create an instance of a VTK object.
+  static vtkSmartPointer<T> New()
+    {
+    return vtkSmartPointer<T>(T::New(), NoReference());
+    }
+protected:
+  vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
 };
 
 #endif

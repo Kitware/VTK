@@ -29,6 +29,12 @@ vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r):
 }
 
 //----------------------------------------------------------------------------
+vtkSmartPointerBase::vtkSmartPointerBase(vtkObjectBase* r, const NoReference&):
+  Object(r)
+{
+}
+
+//----------------------------------------------------------------------------
 vtkSmartPointerBase::vtkSmartPointerBase(const vtkSmartPointerBase& r):
   Object(r.Object)
 {
