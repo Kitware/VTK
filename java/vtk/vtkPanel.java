@@ -211,6 +211,7 @@ public void mouseDragged(MouseEvent e)
       cam.Azimuth(lastX - x);
       cam.Elevation(y - lastY);
       cam.OrthogonalizeViewUp();
+      ren.ResetCameraClippingRange();
       if (this.LightFollowCamera == 1)
 	{
 	lgt.SetPosition(cam.GetPosition());
@@ -260,6 +261,7 @@ public void mouseDragged(MouseEvent e)
 		      (FPoint[0]-RPoint[0])/2.0 + PPoint[0],
 		      (FPoint[1]-RPoint[1])/2.0 + PPoint[1],
 		      (FPoint[2]-RPoint[2])/2.0 + PPoint[2]);
+      ren.ResetCameraClippingRange();
       }
     // zoom
     if (this.InteractionMode == 3)
@@ -274,10 +276,8 @@ public void mouseDragged(MouseEvent e)
 	}
       else
 	{
-	clippingRange = cam.GetClippingRange();
-	cam.SetClippingRange(clippingRange[0]/zoomFactor,
-			     clippingRange[1]/zoomFactor);
 	cam.Dolly(zoomFactor);
+        ren.ResetCameraClippingRange();
 	}
       }
     lastX = x;
