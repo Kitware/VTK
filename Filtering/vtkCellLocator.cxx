@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellLocator, "1.73");
+vtkCxxRevisionMacro(vtkCellLocator, "1.74");
 vtkStandardNewMacro(vtkCellLocator);
 
 #define VTK_CELL_OUTSIDE 0
@@ -181,7 +181,6 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   float hitCellBoundsPosition[3], cellBounds[6];
   int hitCellBounds;
   float result;
-  float *bounds;
   float bounds2[6];
   int i, leafStart, prod, loop;
   vtkIdType bestCellId = -1, cId;
@@ -192,30 +191,19 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   int bestDir;
   float stopDist, currDist;
   
-  // get the bounds
-  bounds = this->DataSet->GetBounds();
-  
   // convert the line into i,j,k coordinates
   tMax = 0.0;
   for (i=0; i < 3; i++) 
     {
     direction1[i] = a1[i] - a0[i];
-    if ( (bounds[2*i+1] - bounds[2*i]) != 0.0)
-      {
-      origin[i] = (a0[i] - bounds[2*i])/(bounds[2*i+1] - bounds[2*i]);
-      direction2[i] = (a1[i] - a0[i])/(bounds[2*i+1] - bounds[2*i]);
-      }
-    else 
-      {
-      origin[i] = 0.0;
-      direction2[i] = 0.0;
-      }
+    origin[i] = (a0[i] - this->Bounds[2*i]) /
+      (this->Bounds[2*i+1] - this->Bounds[2*i]);
+    direction2[i] = direction1[i]/(this->Bounds[2*i+1] - this->Bounds[2*i]);
+
     bounds2[2*i]   = 0.0;
     bounds2[2*i+1] = 1.0;
     tMax += direction2[i]*direction2[i];
     }
-  
-  tMax = (tMax > 0.0 ? sqrt(tMax) : 1.0);
   
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
@@ -316,7 +304,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
         }
       
       // move to the next octant
-      tMax = 10;
+      tMax = 1000;
       bestDir = 0;
       for (loop = 0; loop < 3; loop++)
         {
