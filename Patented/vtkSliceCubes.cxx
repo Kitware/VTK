@@ -46,8 +46,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkSliceCubes, "1.54");
+vtkCxxRevisionMacro(vtkSliceCubes, "1.55");
 vtkStandardNewMacro(vtkSliceCubes);
 
 vtkCxxSetObjectMacro(vtkSliceCubes,Reader,vtkVolumeReader);
