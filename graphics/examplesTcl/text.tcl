@@ -17,8 +17,8 @@ vtkActor text0Actor
 
 vtkTextSource text1Source
     text1Source SetText "Text Source with Scalars"
-    text1Source SetForegroundColor 1 0 0 1
-    text1Source SetBackgroundColor 1 1 1 1
+    text1Source SetForegroundColor 1 0 0
+    text1Source SetBackgroundColor 1 1 1
 
 vtkPolyDataMapper text1Mapper
     text1Mapper SetInput [text1Source GetOutput]
