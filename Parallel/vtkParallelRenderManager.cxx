@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.16");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.16.2.1");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -634,6 +634,7 @@ void vtkParallelRenderManager::StartRender()
     vtkLight *light;
     for (lc->InitTraversal(); (light = lc->GetNextItem()); )
       {
+      lightInfoDouble.Type = (double)(light->GetLightType());
       light->GetPosition(lightInfoDouble.Position);
       light->GetFocalPoint(lightInfoDouble.FocalPoint);
       
@@ -1690,6 +1691,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
                                   vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE,
                                   this->RootProcessId,
                                   vtkParallelRenderManager::LIGHT_INFO_DOUBLE_TAG);
+        light->SetLightType((int)(lightInfoDouble.Type));
         light->SetPosition(lightInfoDouble.Position);
         light->SetFocalPoint(lightInfoDouble.FocalPoint);
         }
