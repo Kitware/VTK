@@ -62,7 +62,7 @@ void vtkImageDivergence3D::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 void vtkImageDivergence3D::ComputeRequiredInputUpdateExtent()
 {
-  int extent[4];
+  int extent[8];
   int *wholeExtent;
   int idx;
 

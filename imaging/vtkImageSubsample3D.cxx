@@ -83,7 +83,7 @@ void vtkImageSubsample3D::SetFilteredAxes(int axis0, int axis1, int axis2)
 // This method computes the Region of input necessary to generate outRegion.
 void vtkImageSubsample3D::ComputeRequiredInputUpdateExtent()
 {
-  int extent[4];
+  int extent[8];
   int idx, axis;
   
   this->Output->GetUpdateExtent(extent);
