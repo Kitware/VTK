@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.8");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.9");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -42,7 +42,7 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
     }
 
   this->Edge = vtkQuadraticEdge::New();
-  this->Quad = vtkQuadraticQuad::New();
+  this->Face = vtkQuadraticQuad::New();
   this->Hex = vtkHexahedron::New();
 
   this->PointData = vtkPointData::New();
@@ -54,7 +54,7 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
 vtkQuadraticHexahedron::~vtkQuadraticHexahedron()
 {
   this->Edge->Delete();
-  this->Quad->Delete();
+  this->Face->Delete();
   this->Hex->Delete();
 
   this->PointData->Delete();
@@ -115,11 +115,11 @@ vtkCell *vtkQuadraticHexahedron::GetFace(int faceId)
 
   for (int i=0; i<8; i++)
     {
-    this->Quad->PointIds->SetId(i,this->PointIds->GetId(HexFaces[faceId][i]));
-    this->Quad->Points->SetPoint(i,this->Points->GetPoint(HexFaces[faceId][i]));
+    this->Face->PointIds->SetId(i,this->PointIds->GetId(HexFaces[faceId][i]));
+    this->Face->Points->SetPoint(i,this->Points->GetPoint(HexFaces[faceId][i]));
     }
 
-  return this->Quad;
+  return this->Face;
 }
 
 void vtkQuadraticHexahedron::Subdivide(vtkPointData *inPd, vtkCellData *inCd, 
@@ -349,21 +349,65 @@ void vtkQuadraticHexahedron::Contour(float value,
     }
 }
 
-// Line-line intersection. Intersection has to occur within [0,1] parametric
+// Line-hex intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-
-// The following arguments were modified to avoid warnings:
-// float p1[3], float p2[3], float x[3], float pcoords[3], 
-
-int vtkQuadraticHexahedron::IntersectWithLine(float* vtkNotUsed(p1), 
-                                              float* vtkNotUsed(p2), 
-                                              float vtkNotUsed(tol), 
-                                              float& vtkNotUsed(t),
-                                              float* vtkNotUsed(x), 
-                                              float* vtkNotUsed(pcoords), 
-                                              int& vtkNotUsed(subId))
+int vtkQuadraticHexahedron::IntersectWithLine(float* p1, float* p2, 
+                                              float tol, float& t,
+                                              float* x, float* pcoords, 
+                                              int& subId)
 {
-  return 0;
+  int intersection=0;
+  float tTemp;
+  float pc[3], xTemp[3];
+  int faceNum;
+
+  t = VTK_LARGE_FLOAT;
+  for (faceNum=0; faceNum<6; faceNum++)
+    {
+    for (int i=0; i<8; i++)
+      {
+      this->Face->Points->SetPoint(i,
+            this->Points->GetPoint(HexFaces[faceNum][i]));
+      }
+
+    if ( this->Face->IntersectWithLine(p1, p2, tol, tTemp, 
+                                       xTemp, pc, subId) )
+      {
+      intersection = 1;
+      if ( tTemp < t )
+        {
+        t = tTemp;
+        x[0] = xTemp[0]; x[1] = xTemp[1]; x[2] = xTemp[2]; 
+        switch (faceNum)
+          {
+          case 0:
+            pcoords[0] = 0.0; pcoords[1] = pc[1]; pcoords[2] = pc[0];
+            break;
+
+          case 1:
+            pcoords[0] = 1.0; pcoords[1] = pc[0]; pcoords[2] = pc[1];
+            break;
+
+          case 2:
+            pcoords[0] = pc[0]; pcoords[1] = 0.0; pcoords[2] = pc[1];
+            break;
+
+          case 3:
+            pcoords[0] = pc[1]; pcoords[1] = 1.0; pcoords[2] = pc[0];
+            break;
+
+          case 4:
+            pcoords[0] = pc[1]; pcoords[1] = pc[0]; pcoords[2] = 0.0;
+            break;
+
+          case 5:
+            pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = 1.0;
+            break;
+          }
+        }
+      }
+    }
+  return intersection;
 }
 
 int vtkQuadraticHexahedron::Triangulate(int vtkNotUsed(index), 

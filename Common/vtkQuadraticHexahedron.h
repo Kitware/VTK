@@ -106,7 +106,7 @@ protected:
   ~vtkQuadraticHexahedron();
 
   vtkQuadraticEdge *Edge;
-  vtkQuadraticQuad *Quad;
+  vtkQuadraticQuad *Face;
   vtkHexahedron    *Hex;
   vtkPointData     *PointData;
   vtkCellData      *CellData;
