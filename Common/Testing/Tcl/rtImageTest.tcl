@@ -86,7 +86,7 @@ if {$validImageFound != 0} {
       rt_w2if SetInput renWin
       set threshold 10
    } else {
-      set threshold 0
+      set threshold 5
       if {[info commands viewer] == "viewer"} {
          rt_w2if SetInput [viewer GetImageWindow]
          viewer Render
@@ -123,7 +123,6 @@ if {$validImageFound != 0} {
    rt_png SetFileName $validImage
    vtkImageDifference rt_id
    
-   if {$threshold == 5} {rt_id AllowShiftOff; rt_id SetThreshold 1}
    rt_id SetInput [rt_w2if GetOutput]
    rt_id SetImage [rt_png GetOutput]
    rt_id Update
