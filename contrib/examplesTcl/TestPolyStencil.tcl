@@ -17,21 +17,22 @@ reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
 reader SetDataMask 0x7fff
 
 vtkSphereSource sphere
-sphere SetPhiResolution 12
-sphere SetThetaResolution 12
+sphere SetPhiResolution 30
+sphere SetThetaResolution 30
 sphere SetCenter 128 128 46
 sphere SetRadius 80 
 
-vtkImagePolyDataClippingExtents extents
-extents SetClippingObject [sphere GetOutput]
+vtkPolyDataToImageStencil dataToStencil
+dataToStencil SetInput [sphere GetOutput]
 
 vtkImageStencil stencil
 stencil SetInput [reader GetOutput]
-stencil SetClippingExtents extents
-stencil SetDefaultValue 500
+stencil SetStencil [dataToStencil GetOutput]
+stencil SetBackgroundValue 500
 
 vtkImageViewer viewer
 viewer SetInput [stencil GetOutput]
+[viewer GetImageWindow] DoubleBufferOn
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

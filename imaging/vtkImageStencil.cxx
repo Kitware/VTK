@@ -59,108 +59,67 @@ vtkImageStencil* vtkImageStencil::New()
 //----------------------------------------------------------------------------
 vtkImageStencil::vtkImageStencil()
 {
-  this->SetNumberOfInputs(2);
-  this->Inputs[0] = NULL;
-  this->Inputs[1] = NULL;
-
-  this->StencilFunction = NULL;
-  this->ClippingExtents = NULL;
-  
   this->ReverseStencil = 0;
 
-  this->DefaultColor[0] = 1;
-  this->DefaultColor[1] = 1;
-  this->DefaultColor[2] = 1;
-  this->DefaultColor[3] = 1;
+  this->BackgroundColor[0] = 1;
+  this->BackgroundColor[1] = 1;
+  this->BackgroundColor[2] = 1;
+  this->BackgroundColor[3] = 1;
 }
 
 //----------------------------------------------------------------------------
 vtkImageStencil::~vtkImageStencil()
 {
-  this->SetStencilFunction(NULL);
-  this->SetClippingExtents(NULL);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::SetInput(vtkImageData *input)
-{ 
-  this->vtkImageMultipleInputFilter::SetInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencil::SetInput(int n, vtkImageData *input)
+void vtkImageStencil::SetStencil(vtkImageStencilData *stencil)
 {
-  this->vtkImageMultipleInputFilter::SetInput(n, input);
+  this->vtkProcessObject::SetNthInput(2, stencil); 
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::SetInput2(vtkImageData *input)
-{ 
-  this->vtkImageMultipleInputFilter::SetInput(1, input);
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencil::ComputeInputUpdateExtent(int inExt[6],
-                                               int outExt[6],
-                                               int whichInput)
+vtkImageStencilData *vtkImageStencil::GetStencil()
 {
-  int i;
-
-  for (i = 0; i < 6; i++)
-    {
-    inExt[i] = outExt[i];
-    }
-
-  if (whichInput != 0)
-    {
-    // Clip, just to make sure we hit _some_ of the input extent,
-    // otherwise an error will occur even though we don't need
-    // any part of that input's data
-    int *wholeExtent = this->GetInput(whichInput)->GetWholeExtent();
-    for (i = 0; i < 3; i++)
-      {
-      if (inExt[2*i] < wholeExtent[2*i])
-        {
-        inExt[2*i] = wholeExtent[2*i];
-        }
-      if (inExt[2*i+1] > wholeExtent[2*i+1])
-        {
-        inExt[2*i+1] = wholeExtent[2*i+1];
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencil::ExecuteInformation(vtkImageData **inputs, 
-                                         vtkImageData *output)
-{
-  vtkImageData *input = inputs[0];
-  vtkImageData *input2 = inputs[1];
-
-  if (input2)
-    {
-    if (input2->GetScalarType() != input->GetScalarType())
-      {
-      vtkErrorMacro("ExecuteInformation: inputs must have same scalar type");
-      }
-    }
-
-  if (this->StencilFunction)
-    {
-    if (!this->ClippingExtents)
-      {
-      this->ClippingExtents = vtkImageClippingExtents::New();
-      }
-    this->ClippingExtents->SetClippingObject(this->StencilFunction);
-    }
-  if (this->ClippingExtents)
-    {
-    this->ClippingExtents->BuildExtents(output);
+  if (this->NumberOfInputs < 3) 
+    { 
+    return NULL;
     }
   else
     {
-    vtkErrorMacro("ExecuteInformation: no StencilFunction or ClippingExtents");
+    return (vtkImageStencilData *)(this->Inputs[2]); 
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencil::SetBackgroundInput(vtkImageData *data)
+{
+  this->vtkProcessObject::SetNthInput(1, data); 
+}
+
+//----------------------------------------------------------------------------
+vtkImageData *vtkImageStencil::GetBackgroundInput()
+{
+  if (this->NumberOfInputs < 2) 
+    { 
+    return NULL;
+    }
+  else
+    {
+    return (vtkImageData *)(this->Inputs[1]); 
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageStencil::ExecuteInformation(vtkImageData *input, 
+                                         vtkImageData *output)
+{
+  // need to set the spacing and origin of the stencil to match the output
+  vtkImageStencilData *stencil = this->GetStencil();
+  if (stencil)
+    {
+    stencil->SetSpacing(input->GetSpacing());
+    stencil->SetOrigin(input->GetOrigin());
     }
 }
 
@@ -199,11 +158,11 @@ static void vtkAllocBackground(vtkImageStencil *self,
       {
       if (scalarType == VTK_FLOAT || scalarType == VTK_DOUBLE)
         {
-        background[i] = (T)self->GetDefaultColor()[i];
+        background[i] = (T)self->GetBackgroundColor()[i];
         }
       else
         { // round float to nearest int
-        background[i] = (T)floor(self->GetDefaultColor()[i] + 0.5);
+        background[i] = (T)floor(self->GetBackgroundColor()[i] + 0.5);
         }
       }
     else
@@ -226,11 +185,11 @@ static void vtkFreeBackground(vtkImageStencil *vtkNotUsed(self),
 template <class T>
 static void vtkImageStencilExecute(vtkImageStencil *self,
                                    vtkImageData *inData, T *inPtr,
-                                   vtkImageData *in2Data,T *vtkNotUsed(in2Ptr),
+                                   vtkImageData *in2Data,T *in2Ptr,
                                    vtkImageData *outData, T *outPtr,
                                    int outExt[6], int id)
 {
-  int numscalars;
+  int numscalars, inIncX;
   int idX, idY, idZ;
   int r1, r2, cr1, cr2, iter, rval;
   int outIncX, outIncY, outIncZ;
@@ -241,7 +200,7 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
   T *background, *tempPtr;
 
   // get the clipping extents
-  vtkImageClippingExtents *clippingExtents = self->GetClippingExtents();
+  vtkImageStencilData *stencil = self->GetStencil();
 
   // find maximum input range
   inData->GetExtent(inExt);
@@ -277,76 +236,72 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
         count++;
         }
 
-      if (clippingExtents == NULL)
-        {
-        tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-                           inInc[1]*(idY - inExt[2]) +
-                           numscalars*(outExt[0] - inExt[0]));
-        for (idX = outExt[0]; idX <= outExt[1]; idX++)
-          {
+      iter = 0;
+      cr1 = outExt[0];
+      for (;;)
+	{
+	rval = 0;
+	r1 = outExt[1] + 1;
+	r2 = outExt[1];
+	if (stencil)
+	  {
+	  rval = stencil->GetNextExtent(r1, r2, outExt[0], outExt[1],
+					idY, idZ, iter);
+	  }
+
+	tempPtr = background;
+	inIncX = 0; 
+	if (self->GetReverseStencil())
+	  {
+	  tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
+			     inInc[1]*(idY - inExt[2]) +
+			     numscalars*(cr1 - inExt[0]));
+	  inIncX = numscalars;
+	  }
+	else if (in2Ptr)
+	  {
+	  tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
+			      in2Inc[1]*(idY - in2Ext[2]) +
+			      numscalars*(cr1 - in2Ext[0]));
+	  inIncX = numscalars;
+	  }	    
+
+	cr2 = r1 - 1;
+	for (idX = cr1; idX <= cr2; idX++)
+	  {
           vtkCopyPixel(outPtr, tempPtr, numscalars);
-          tempPtr += numscalars;
-          }          
-        }
-      else
-        {
-        iter = 0;
-        cr1 = outExt[0];
-        for (;;)
-          {
-          rval = clippingExtents->GetNextExtent(r1, r2, outExt[0], outExt[1],
-                                                idY, idZ, iter);
+	  tempPtr += inIncX;
+	  }
+	cr1 = r2 + 1; // for next time 'round
 
-          cr2 = r1 - 1;
-          if (self->GetReverseStencil())
-            {
-            // do stencil portion
-            for (idX = cr1; idX <= cr2; idX++)
-              {
-              vtkCopyPixel(outPtr, background, numscalars);
-              }
-            }
-          else
-            {
-            // do unchanged portion
-            tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-                               inInc[1]*(idY - inExt[2]) +
-                               numscalars*(cr1 - inExt[0]));
-            for (idX = cr1; idX <= cr2; idX++)
-              {
-              vtkCopyPixel(outPtr, tempPtr, numscalars);
-              tempPtr += numscalars;
-              }
-            }
-          cr1 = r2 + 1;
+	// break if no foreground extents left
+	if (rval == 0)
+	  {
+          break;
+	  }
 
-          // break if no foreground extents left
-          if (rval == 0)
-            {
-            break;
-            }
+	tempPtr = background;
+	inIncX = 0;
+	if (!self->GetReverseStencil())
+	  {
+	  tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
+			     inInc[1]*(idY - inExt[2]) +
+			     numscalars*(r1 - inExt[0]));
+	  inIncX = numscalars;
+	  }
+	else if (in2Ptr)
+	  {
+	  tempPtr = in2Ptr + (in2Inc[2]*(idZ - in2Ext[4]) +
+			      in2Inc[1]*(idY - in2Ext[2]) +
+			      numscalars*(r1 - in2Ext[0]));
+	  inIncX = numscalars;
+	  }	    
 
-          if (self->GetReverseStencil())
-            {
-            // do unchanged portion
-            tempPtr = inPtr + (inInc[2]*(idZ - inExt[4]) +
-                               inInc[1]*(idY - inExt[2]) +
-                               numscalars*(r1 - inExt[0]));
-            for (idX = r1; idX <= r2; idX++)
-              {
-              vtkCopyPixel(outPtr, tempPtr, numscalars);
-              tempPtr += numscalars;
-              }
-            }
-          else
-            {
-            // do stencil portion
-            for (idX = r1; idX <= r2; idX++)
-              {
-              vtkCopyPixel(outPtr, background, numscalars);
-              }
-            }
-          }
+	for (idX = r1; idX <= r2; idX++)
+	  {
+          vtkCopyPixel(outPtr, tempPtr, numscalars);
+	  tempPtr += inIncX;
+	  }
         }
       outPtr += outIncY;
       }
@@ -358,50 +313,66 @@ static void vtkImageStencilExecute(vtkImageStencil *self,
 
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::ThreadedExecute(vtkImageData **inData, 
+void vtkImageStencil::ThreadedExecute(vtkImageData *inData, 
                                       vtkImageData *outData,
                                       int outExt[6], int id)
 {
-  void *in1Ptr, *in2Ptr;
+  void *inPtr, *inPtr2;
   void *outPtr;
+  vtkImageData *inData2 = this->GetBackgroundInput();
   
   vtkDebugMacro("Execute: inData = " << inData << ", outData = " << outData);
   
-  if (inData[0] == NULL)
-    {
-    vtkErrorMacro("Input " << 0 << " must be specified.");
-    return;
-    }
-  in1Ptr = inData[0]->GetScalarPointer();
+  inPtr = inData->GetScalarPointer();
   outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  // this filter expects that input is the same type as output.
-  if (inData[0]->GetScalarType() != outData->GetScalarType())
+
+  inPtr2 = NULL;
+  if (inData2)
     {
-    vtkErrorMacro("Execute: Input ScalarType, " << inData[0]->GetScalarType()
-             << ", must match Output ScalarType " << outData->GetScalarType());
-    return;
-    }
-    
-  if (inData[1] == NULL)
-    {
-    in2Ptr = NULL;
-    }
-  else
-    {
-    in2Ptr = inData[1]->GetScalarPointer();
-    if (inData[1]->GetScalarType() != inData[0]->GetScalarType())
+    inPtr2 = inData2->GetScalarPointer();
+    if (inData2->GetScalarType() != inData->GetScalarType())
       {
-      vtkErrorMacro("Execute: Input2 ScalarType, " <<inData[1]->GetScalarType()
-            << ", must match Input ScalarType " << inData[0]->GetScalarType());
+      if (id == 0)
+	{
+	vtkErrorMacro("Execute: BackgroundInput ScalarType " 
+		      << inData2->GetScalarType()
+		      << ", must match Input ScalarType "
+		      << inData->GetScalarType());
+	}
       return;
+      }
+    else if (inData2->GetNumberOfScalarComponents() 
+	     != inData->GetNumberOfScalarComponents())
+      {
+      if (id == 0)
+	{
+        vtkErrorMacro("Execute: BackgroundInput NumberOfScalarComponents " 
+		      << inData2->GetNumberOfScalarComponents()
+		      << ", must match Input NumberOfScalarComponents "
+		      << inData->GetNumberOfScalarComponents());
+	}
+      return;
+      }
+    int *wholeExt1 = inData->GetWholeExtent();
+    int *wholeExt2 = inData2->GetWholeExtent();
+    for (int i = 0; i < 6; i++)
+      {
+      if (wholeExt1[i] != wholeExt2[i])
+	{
+	if (id == 0)
+	  {
+	  vtkErrorMacro("Execute: BackgroundInput must have the same "
+			"WholeExtent as the Input");
+	  }
+	return;
+	}
       }
     }
   
-  switch (inData[0]->GetScalarType())
+  switch (inData->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageStencilExecute, this, inData[0], 
-                      (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
+    vtkTemplateMacro9(vtkImageStencilExecute, this, inData, 
+                      (VTK_TT *)(inPtr), inData2, (VTK_TT *)(inPtr2), 
                       outData, (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
@@ -411,19 +382,18 @@ void vtkImageStencil::ThreadedExecute(vtkImageData **inData,
 
 void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageMultipleInputFilter::PrintSelf(os, indent);
+  this->vtkImageToImageFilter::PrintSelf(os, indent);
 
-  os << indent << "StencilFunction: " << this->StencilFunction << "\n";
+  os << indent << "Stencil: " << this->GetStencil() << "\n";
   os << indent << "ReverseStencil: " << (this->ReverseStencil ?
 		                         "On\n" : "Off\n");
 
-  os << indent << "ClippingExtents: " << this->ClippingExtents << "\n";
+  os << indent << "BackgroundInput: " << this->GetBackgroundInput() << "\n";
+  os << indent << "BackgroundValue: " << this->BackgroundColor[0] << "\n";
 
-  os << indent << "DefaultValue: " << this->DefaultColor[0] << "\n";
-
-  os << indent << "DefaultColor: (" << this->DefaultColor[0] << ", "
-                                    << this->DefaultColor[1] << ", "
-                                    << this->DefaultColor[2] << ", "
-                                    << this->DefaultColor[3] << ")\n";
+  os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", "
+                                    << this->BackgroundColor[1] << ", "
+                                    << this->BackgroundColor[2] << ", "
+                                    << this->BackgroundColor[3] << ")\n";
 }
 

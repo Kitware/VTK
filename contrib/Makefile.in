@@ -36,6 +36,7 @@ vtkMassProperties \
 vtkOBJReader \
 vtkOutlineCornerFilter \
 vtkOutlineCornerSource \
+vtkPolyDataToImageStencil \
 vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \

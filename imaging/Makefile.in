@@ -136,6 +136,8 @@ vtkImageSkeleton2D \
 vtkImageSobel2D \
 vtkImageSobel3D \
 vtkImageStencil \
+vtkImageStencilData \
+vtkImageStencilSource \
 vtkImageThreshold \
 vtkImageTranslateExtent \
 vtkImageVariance3D \
@@ -144,6 +146,7 @@ vtkImageViewer \
 vtkImageWindow \
 vtkImageWrapPad \
 vtkImageWriter \
+vtkImplicitFunctionToImageStencil \
 vtkLabeledDataMapper \
 vtkParallelCoordinatesActor \
 vtkPNMReader \

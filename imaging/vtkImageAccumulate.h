@@ -56,8 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "vtkImageToImageFilter.h"
-#include "vtkImplicitFunction.h"
-#include "vtkImageClippingExtents.h"
+#include "vtkImageStencilData.h"
 
 class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
@@ -85,18 +84,10 @@ public:
   int *GetComponentExtent() {return this->ComponentExtent;}
 
 
-   // Description:
-  // Set the implicit function to use as a stencil.
-  vtkSetObjectMacro(StencilFunction, vtkImplicitFunction);
-  vtkGetObjectMacro(StencilFunction, vtkImplicitFunction);
-
   // Description:
-  // Specify a vtkImageClippingExtents object to use instead of 
-  // setting a StencilFunction.  The vtkImageClippingExtents
-  // is a class for efficiently specifying an image stencil
-  // for large images.
-  vtkSetObjectMacro(ClippingExtents, vtkImageClippingExtents);
-  vtkGetObjectMacro(ClippingExtents, vtkImageClippingExtents);
+  // Use a stencil to specify which voxels to accumulate.
+  void SetStencil(vtkImageStencilData *stencil);
+  vtkImageStencilData *GetStencil();
 
   // Description:
   // Reverse the stencil.
@@ -109,7 +100,7 @@ public:
   vtkGetVector3Macro(Min, double);
   vtkGetVector3Macro(Max, double);
   vtkGetVector3Macro(Mean, double);
-  vtkGetMacro(PixelCount, long int);
+  vtkGetMacro(VoxelCount, long int);
  
   
 protected:
@@ -130,10 +121,8 @@ protected:
   double Min[3];
   double Max[3];
   double Mean[3];
-  long int PixelCount;
+  long int VoxelCount;
 
-  vtkImplicitFunction *StencilFunction;
-  vtkImageClippingExtents *ClippingExtents;
   int ReverseStencil;
 
 };

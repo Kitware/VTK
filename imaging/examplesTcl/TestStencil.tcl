@@ -20,11 +20,18 @@ vtkSphere sphere
 sphere SetCenter 128 128 46
 sphere SetRadius 80
 
+vtkImplicitFunctionToImageStencil functionToStencil
+functionToStencil SetInput sphere
+
+vtkImageShiftScale shiftScale
+shiftScale SetInput [reader GetOutput]
+shiftScale SetScale 0.2
+
 vtkImageStencil stencil
 stencil SetInput [reader GetOutput]
-stencil SetStencilFunction sphere
-stencil ReverseStencilOn
-stencil SetDefaultValue 500
+stencil SetBackgroundInput [shiftScale GetOutput]
+#stencil ReverseStencilOn
+stencil SetStencil [functionToStencil GetOutput]
 
 vtkImageViewer viewer
 viewer SetInput [stencil GetOutput]
