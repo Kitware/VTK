@@ -600,12 +600,14 @@ proc print_results_header { } {
   global pr_id
   global class_list
 
-  puts $pr_id " "
-  puts $pr_id " "
-  puts $pr_id "\t\t\t***********************"
-  puts $pr_id "\t\t\t* VTK MEASURE RESULTS *"
-  puts $pr_id "\t\t\t***********************"
-  puts $pr_id " "
+  puts $pr_id "<H2>Complete Summary of VTK Data Query Coverage</H2>"
+
+#  puts $pr_id " "
+#  puts $pr_id " "
+#  puts $pr_id "\t\t\t***********************"
+#  puts $pr_id "\t\t\t* VTK MEASURE RESULTS *"
+#  puts $pr_id "\t\t\t***********************"
+#  puts $pr_id " "
 
   puts $pr_id " "
   puts $pr_id "		Classes	PS Opp	S Miss	PS Miss	Ivars	I Miss"
@@ -687,7 +689,7 @@ proc close_files { } {
   global pd_id
 
   puts $pr_id "</PRE>"
-  puts $pr_id "<A HREF=\"file:./PrintSelfDetails.html\">Details</A>"
+  puts $pr_id "<H2><A HREF=\"PrintSelfDetails.html\">Details</A></H2>"
 
   puts $pd_id "</PRE>"
 
