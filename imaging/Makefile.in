@@ -38,6 +38,8 @@ vtkImageInPlaceFilter.o \
 vtkImageIslandRemoval2D.o \
 vtkImageMagnify1D.o \
 vtkImageMagnify.o \
+vtkImageMarkBoundary.o \
+vtkImageMatte4D.o \
 vtkImageMatte.o \
 vtkImageMedian.o \
 vtkImageMIPFilter.o \
@@ -83,6 +85,8 @@ tcl/vtkImageInPlaceFilterTcl.o \
 tcl/vtkImageIslandRemoval2DTcl.o \
 tcl/vtkImageMagnify1DTcl.o \
 tcl/vtkImageMagnifyTcl.o \
+tcl/vtkImageMarkBoundaryTcl.o \
+tcl/vtkImageMatte4DTcl.o \
 tcl/vtkImageMatteTcl.o \
 tcl/vtkImageMedianTcl.o \
 tcl/vtkImageMIPFilterTcl.o \
@@ -126,6 +130,8 @@ vtkImageInPlaceFilter.h \
 vtkImageIslandRemoval2D.h \
 vtkImageMagnify1D.h \
 vtkImageMagnify.h \
+vtkImageMarkBoundary.h \
+vtkImageMatte4D.h \
 vtkImageMatte.h \
 vtkImageMedian.h \
 vtkImageMIPFilter.h \
@@ -276,6 +282,12 @@ tcl/vtkImageMagnify1DTcl.cxx: vtkImageMagnify1D.h ../tcl/cpp_parse
 
 tcl/vtkImageMagnifyTcl.cxx: vtkImageMagnify.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMagnifyTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMagnify.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMagnifyTcl.cxx
+
+tcl/vtkImageMarkBoundaryTcl.cxx: vtkImageMarkBoundary.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMarkBoundaryTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMarkBoundary.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMarkBoundaryTcl.cxx
+
+tcl/vtkImageMatte4DTcl.cxx: vtkImageMatte4D.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageMatte4DTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte4D.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatte4DTcl.cxx
 
 tcl/vtkImageMatteTcl.cxx: vtkImageMatte.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImageMatteTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageMatte.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageMatteTcl.cxx
