@@ -202,7 +202,7 @@ void vtkClipTriangles::Clip(vtkCell *aCell, float value,
   int e1, e2;
   int pts[3];
   int vertexId;
-  float t, *x1, *x2, x[3], deltaScalar;
+  float t, x1[3], x2[3], x[3], deltaScalar, newValue;
 
   // Build the case table
   if (insideOut)
@@ -231,8 +231,8 @@ void vtkClipTriangles::Clip(vtkCell *aCell, float value,
       if (edge[i] >= 100)
         {
 	vertexId = edge[i] - 100;
-        x1 = aCell->Points.GetPoint(vertexId);
-	for (j=0; j < 3; j++) x[j] = x1[j];
+        aCell->Points.GetPoint(vertexId, x);
+	newValue = cellScalars->GetScalar (vertexId);
 	}
       // new vertex, interpolate
       else
@@ -255,15 +255,16 @@ void vtkClipTriangles::Clip(vtkCell *aCell, float value,
         if (deltaScalar == 0.0) t = 0.0;
         else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
 
-        x1 = aCell->Points.GetPoint(e1);
-        x2 = aCell->Points.GetPoint(e2);
+        aCell->Points.GetPoint(e1, x1);
+        aCell->Points.GetPoint(e2, x2);
         for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+	newValue = value;
         }
 
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
-        scalars->InsertScalar(pts[i],value);
+        scalars->InsertScalar(pts[i],newValue);
         }
       }
     // check for degenerate tri's
