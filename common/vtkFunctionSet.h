@@ -62,18 +62,23 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Evaluate functions at x_j
+  // Evaluate functions at x_j.
   // x and f have to point to valid float arrays of appropriate 
   // sizes obtained with GetNumberOfFunctions() and
-  // GetNumberOfIndependentVariables
+  // GetNumberOfIndependentVariables.
   virtual int FunctionValues(float* x, float* f) = 0;
 
   // Description:
-  // Return the number of functions and number of independent
-  // variables. Note that these are fixed for a given type
-  // of set of functions and can not be changed at run time.
+  // Return the number of functions. Note that this is constant for 
+  // a given type of set of functions and can not be changed at 
+  // run time.
   virtual int GetNumberOfFunctions() { 
     return this->NumFuncs; }
+
+  // Description:
+  // Return the number of independent variables. Note that this is 
+  // constant for a given type of set of functions and can not be changed  
+  // at run time.
   virtual int GetNumberOfIndependentVariables() {
     return this->NumIndepVars; }
 
