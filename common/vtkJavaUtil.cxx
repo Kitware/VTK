@@ -531,7 +531,10 @@ JNIEXPORT void vtkJavaVoidFunc(void* f)
   // make sure we have a valid method ID
   if (iprm->mid)
     {
-    iprm->uenv->CallVoidMethod(iprm->uobj,iprm->mid); 
+    JNIEnv *e;
+	// it should already be atached
+	iprm->vm->AttachCurrentThread((void **)(&e),NULL);
+	e->CallVoidMethod(iprm->uobj,iprm->mid,NULL); 
     }
 }
 
@@ -541,8 +544,11 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
   
   arg2 = (vtkJavaVoidFuncArg *)arg;
   
+  JNIEnv *e;
+  // it should already be atached
+  arg2->vm->AttachCurrentThread((void **)(&e),NULL);
   // free the structure
-  arg2->uenv->DeleteGlobalRef(arg2->uobj);
+  e->DeleteGlobalRef(arg2->uobj);
   
   delete arg2;
 }

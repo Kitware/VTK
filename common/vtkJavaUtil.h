@@ -74,7 +74,7 @@ extern JNIEXPORT jobject vtkJavaCreateNewJavaStub(JNIEnv *env,
 // behalf of the Java interface for callbacks.
 struct vtkJavaVoidFuncArg 
 {
-  JNIEnv * uenv;
+  JavaVM *vm;
   jobject  uobj;
   jmethodID mid;
 } ;
