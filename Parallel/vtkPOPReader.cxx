@@ -942,10 +942,34 @@ void vtkPOPReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStructuredGridSource::PrintSelf(os,indent);
 
+  if (this->FileName)
+    {
+    os << indent << "FileName: " << this->FileName << endl;
+    }
+  if (this->GridFileName)
+    {
+    os << indent << "GridFileName: " << this->GridFileName << endl;
+    }
+
+  if (this->UFlowFileName)
+    {
+    os << indent << "UFlowFileName: " << this->UFlowFileName << endl;
+    }
+  if (this->VFlowFileName)
+    {
+    os << indent << "VFlowFileName: " << this->VFlowFileName << endl;
+    }
+
+  os << indent << "Dimensions: " << this->Dimensions[0] << ", "
+     << this->Dimensions[1] << endl;
+
+  os << indent << "Radius: " << this->Radius << endl;
+
   os << indent << "ClipExtent: " << this->ClipExtent[0] << ", "
      << this->ClipExtent[1] << ", " << this->ClipExtent[2] << ", "
      << this->ClipExtent[3] << ", " << this->ClipExtent[4] << ", "
      << this->ClipExtent[5] << endl;
+
 
 }
 

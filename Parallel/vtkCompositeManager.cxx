@@ -1081,6 +1081,8 @@ void vtkCompositeManager::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "UseCompositing: Off\n";
     }
+
+  os << indent << "Controller: (" << this->Controller << ")\n"; 
 }
 
 

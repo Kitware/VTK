@@ -279,3 +279,18 @@ void vtkPVGeometryFilter::UnstructuredGridExecute(vtkUnstructuredGrid *input)
   surface->Delete();
   edges->Delete();
 }
+
+//----------------------------------------------------------------------------
+void vtkPVGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkDataSetSurfaceFilter::PrintSelf(os,indent);
+
+  if (this->OutlineFlag)
+    {
+    os << indent << "OutlineFlag: On\n";
+    }
+  else
+    {
+    os << indent << "OutlineFlag: Off\n";
+    }
+}

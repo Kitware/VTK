@@ -58,6 +58,7 @@ class VTK_PARALLEL_EXPORT vtkPVGeometryFilter : public vtkDataSetSurfaceFilter
 public:
   static vtkPVGeometryFilter *New();
   vtkTypeMacro(vtkPVGeometryFilter,vtkDataSetSurfaceFilter);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // This flag is set during the execute method.  It indicates

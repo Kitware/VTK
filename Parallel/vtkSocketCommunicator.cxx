@@ -110,6 +110,7 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "SwapBytesInReceivedData: " << this->SwapBytesInReceivedData
      << endl;
+  os << indent << "IsConnected: " << this->IsConnected << endl;
 }
 
 static inline int checkForError(int id, int maxId)

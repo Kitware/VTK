@@ -225,6 +225,11 @@ void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "YMag: " << this->YMag << endl;
   os << indent << "ZMag: " << this->ZMag << endl;
 
+  os << indent << "WholeExtent: " << this->WholeExtent[0]
+     << ", " << this->WholeExtent[1] << ", " << this->WholeExtent[2]
+     << ", " << this->WholeExtent[3] << ", " << this->WholeExtent[4]
+     << ", " << this->WholeExtent[5] << endl;
+
 }
 
 

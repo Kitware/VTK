@@ -97,4 +97,6 @@ void vtkCutPlane::PrintSelf(ostream& os,
      << this->Origin[1] << ", " << this->Origin[2] << endl;
   os << indent << "Normal: " << this->Normal[0] << ", "
      << this->Normal[1] << ", " << this->Normal[2] << endl;
+
+  os << indent << "Offset: " << this->Offset << endl;
 }
