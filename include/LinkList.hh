@@ -143,7 +143,6 @@ inline void vlLinkList::ResizeCellList(int ptId, int size)
   memcpy(cells, this->Array[ptId].cells, this->Array[ptId].ncells*sizeof(int));
   delete [] this->Array[ptId].cells;
   this->Array[ptId].cells = cells;
-  this->Array[ptId].ncells = newSize;
 }
 
 #endif

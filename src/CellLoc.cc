@@ -19,45 +19,23 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 #include "IntArray.hh"
 
-// supporting class
-class vlNeighborCells
-{
-public:
-  vlNeighborCells(const int sz, const int ext=1000):P(3*sz,3*ext){};
-  int GetNumberOfNeighbors() {return (P.GetMaxId()+1)/3;};
-  void Reset() {this->P.Reset();};
+#define OUTSIDE 0
+#define INSIDE 1
 
-  int *GetCell(int i) {return this->P.GetPtr(3*i);};
-  int InsertNextCell(int *x);
-
-protected:
-  vlIntArray P;
-};
-
-inline int vlNeighborCells::InsertNextCell(int *x) 
-{
-  int id = this->P.GetMaxId() + 3;
-  this->P.InsertValue(id,x[2]);
-  this->P[id-2] = x[0];
-  this->P[id-1] = x[1];
-  return id/3;
-}
-
-static vlNeighborCells Cells(26,50);
+typedef vlIdList *vlIdListPtr;
 
 // Description:
 // Construct with automatic computation of divisions, averaging
-// 25 cells per bucket.
+// 25 cells per octant.
 vlCellLocator::vlCellLocator()
 {
-  this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
+  this->DataSet = NULL;
+  this->Level = 4;
+  this->MaxLevel = 5;
   this->Automatic = 1;
-  this->NumberOfCellsInBucket = 25;
+  this->NumberOfCellsInOctant = 25;
   this->Tolerance = 0.01;
-  this->HashTable = NULL;
-  this->NumberOfCells = 0;
-  this->H[0] = this->H[1] = this->H[2] = 0.0;
-  this->InsertionTol2 = 0.0001;
+  this->Tree = NULL;
 }
 
 vlCellLocator::~vlCellLocator()
@@ -67,22 +45,22 @@ vlCellLocator::~vlCellLocator()
 
 void vlCellLocator::Initialize()
 {
-  // free up hash table
+  // free up octants
   this->FreeSearchStructure();
 }
 
 void vlCellLocator::FreeSearchStructure()
 {
-  vlIdList *ptIds;
+  vlIdList *cellIds;
   int i;
 
-  if ( this->HashTable )
+  if ( this->Tree )
     {
-    for (i=0; i<this->NumberOfCells; i++)
+    for (i=0; i<this->NumberOfOctants; i++)
       {
-      if ( (ptIds = this->HashTable[i]) ) delete ptIds;
+      if ( (cellIds = this->Tree[i]) ) delete cellIds;
       }
-    this->HashTable = NULL;
+    this->Tree = NULL;
     }
 }
 
@@ -99,15 +77,24 @@ int vlCellLocator::FindClosestCell(float x[3], float dist2,
 }
 
 // Description:
-// Intersect with line returning cells that lie in buckets intersected by line.
+// Return list of octants that are intersected by line. The octants
+// are ordered along the line and are represented by octant number. To obtain
+// the cells in the octant, use the method GetOctantCells().
 int vlCellLocator::IntersectWithLine(float a0[3], float a1[3], vlIdList& cells)
 {
   return 0;
 }
 
 // Description:
+// Get the cells in an octant.
+vlIdList* vlCellLocator::GetOctantCells(int octantId)
+{
+  return NULL;
+}
+
+// Description:
 // Intersect against another vlCellLocator returning cells that lie in 
-// intersecting buckets.
+// intersecting octants.
 int vlCellLocator::IntersectWithCellLocator(vlCellLocator& locator, vlIdList cells)
 {
   return 0;
@@ -115,7 +102,7 @@ int vlCellLocator::IntersectWithCellLocator(vlCellLocator& locator, vlIdList cel
 
 //
 //  Method to form subdivision of space based on the cells provided and
-//  subject to the constraints of levels and NumberOfCellsInBucket.
+//  subject to the constraints of levels and NumberOfCellsInOctant.
 //  The result is directly addressable and of uniform subdivision.
 //
 void vlCellLocator::SubDivide()
@@ -127,13 +114,13 @@ void vlCellLocator::SubDivide()
   int ndivs[3], product;
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
   int idx;
-  vlIdList *bucket;
-  int numCellsInBucket = this->NumberOfCellsInBucket;
+  vlIdList *octant;
+  int numCellsInOctant = this->NumberOfCellsInOctant;
   typedef vlIdList *vlIdListPtr;
 
-  if ( this->HashTable != NULL && this->SubDivideTime > this->MTime ) return;
+  if ( this->Tree != NULL && this->SubDivideTime > this->MTime ) return;
 
-  vlDebugMacro( << "Subdividing cells..." );
+  vlDebugMacro( << "Subdividing octree..." );
 
   if ( !this->DataSet || (numCells = this->DataSet->GetNumberOfCells()) < 1 )
     {
@@ -143,7 +130,7 @@ void vlCellLocator::SubDivide()
 //
 //  Make sure the appropriate data is available
 //
-  if ( this->HashTable ) this->FreeSearchStructure();
+  if ( this->Tree ) this->FreeSearchStructure();
 //
 //  Size the root cell.  Initialize cell data structure, compute 
 //  level and divisions.
@@ -153,31 +140,31 @@ void vlCellLocator::SubDivide()
 
   if ( this->Automatic ) 
     {
-    level = (float) numCells / numCellsInBucket;
+    level = (float) numCells / numCellsInOctant;
     level = ceil( pow((double)level,(double)0.33333333) );
     for (i=0; i<3; i++) ndivs[i] = (int) level;
     } 
   else 
     {
-    for (i=0; i<3; i++) ndivs[i] = (int) this->Divisions[i];
+//    this->Divisions[i] = ndivs[i]; 
     }
 
   for (i=0; i<3; i++) 
     {
     ndivs[i] = (ndivs[i] > 0 ? ndivs[i] : 1);
-    this->Divisions[i] = ndivs[i];
+//    this->Divisions[i] = ndivs[i];
     }
 
-  this->NumberOfCells = numCells = ndivs[0]*ndivs[1]*ndivs[2];
-  this->HashTable = new vlIdListPtr[numCells];
-  memset (this->HashTable, (int)NULL, numCells*sizeof(vlIdListPtr));
+//  this->NumberOfCells = numCells = ndivs[0]*ndivs[1]*ndivs[2];
+  this->Tree = new vlIdListPtr[numCells];
+//  memset (this->HashTable, (int)NULL, numCells*sizeof(vlIdListPtr));
 //
-//  Compute width of bucket in three directions
+//  Compute width of octant in three directions
 //
-  for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
+//  for (i=0; i<3; i++) this->H[i] = (bounds[2*i+1] - bounds[2*i]) / ndivs[i] ;
 //
-//  Insert each cell into the appropriate bucket.  Make sure cell
-//  falls within bucket.
+//  Insert each cell into the appropriate octant.  Make sure cell
+//  falls within octant.
 //
   product = ndivs[0]*ndivs[1];
   for (cellId=0; cellId<numCells; cellId++) 
@@ -194,7 +181,7 @@ void vlCellLocator::SubDivide()
                          (bounds[2*i+1] - bounds[2*i])) * ndivs[i]);
       }
     
-    // each bucket inbetween min/max point may have cell in it
+    // each octant inbetween min/max point may have cell in it
     for ( k = ijkMin[2]; k <= ijkMin[2]; k++ )
       {
       for ( j = ijkMin[1]; j <= ijkMax[1]; j++ )
@@ -202,13 +189,13 @@ void vlCellLocator::SubDivide()
         for ( i = ijkMin[0]; i <= ijkMin[0]; i++ )
           {
           idx = i + j*ndivs[0] + k*product;
-          bucket = this->HashTable[idx];
-          if ( ! bucket )
+          octant = this->Tree[idx];
+          if ( ! octant )
             {
-            bucket = new vlIdList(numCellsInBucket/2);
-            this->HashTable[idx] = bucket;
+            octant = new vlIdList(numCellsInOctant/2);
+            this->Tree[idx] = octant;
             }
-          bucket->InsertNextId(cellId);
+          octant->InsertNextId(cellId);
           }
         }
       }
@@ -218,55 +205,4 @@ void vlCellLocator::SubDivide()
   this->SubDivideTime.Modified();
 }
 
-
-//
-//  Internal function to get cell neighbors at specified level
-//
-void vlCellLocator::GetCellNeighbors(int ijk[3], int ndivs[3], int level)
-{
-    int i, j, k, min, max, minLevel[3], maxLevel[3];
-    int nei[3];
-//
-//  Initialize
-//
-    Cells.Reset();
-//
-//  If at this cell, just place into list
-//
-  if ( level == 0 ) 
-    {
-    Cells.InsertNextCell(ijk);
-    return;
-    }
-//
-//  Create permutations of the ijk indices that are at the level
-//  required. If these are legal cells, add to list for searching.
-//
-  for ( i=0; i<3; i++ ) 
-    {
-    min = ijk[i] - level;
-    max = ijk[i] + level;
-    minLevel[i] = ( min > 0 ? min : 0);
-    maxLevel[i] = ( max < (ndivs[i]-1) ? max : (ndivs[i]-1));
-    }
-
-  for ( i= minLevel[0]; i <= maxLevel[0]; i++ ) 
-    {
-    for ( j= minLevel[1]; j <= maxLevel[1]; j++ ) 
-      {
-      for ( k= minLevel[2]; k <= maxLevel[2]; k++ ) 
-      {
-        if (i == (ijk[0] + level) || i == (ijk[0] - level) ||
-        j == (ijk[1] + level) || j == (ijk[1] - level) ||
-        k == (ijk[2] + level) || k == (ijk[2] - level) ) 
-          {
-          nei[0]=i; nei[1]=j; nei[2]=k;
-          Cells.InsertNextCell(nei);
-          }
-        }
-      }
-    }
-
-  return;
-  }
 
