@@ -839,6 +839,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
   else if (!strcmp("vtkObjectBase",data->ClassName))
     {
     fprintf(fp,"  {\"GetAddressAsString\",  (PyCFunction)Py%s_GetAddressAsString, 1,\n   \"V.GetAddressAsString(string) -> string\\n\\n Get address of C++ object in format 'Addr=%%p' after casting to\\n the specified type.  You can get the same information from V.__this__.\"},\n", data->ClassName);
+    fprintf(fp,"  {\"PrintRevisions\",  (PyCFunction)Py%s_PrintRevisions, 1,\n   \"V.PrintRevisions() -> string\\n\\n Prints the .cxx file CVS revisions of the classes in the\\n object's inheritance chain.\"},\n", data->ClassName);
     }
   
   fprintf(fp,"  {NULL,                       NULL, 0, NULL}\n};\n\n");
@@ -1034,6 +1035,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   
   if (!strcmp("vtkObject",data->ClassName))
     {
+    /* Add the AddObserver method to vtkObject. */
     fprintf(fp,"static PyObject *PyvtkObject_AddObserver(PyObject *self, PyObject *args)\n");
     fprintf(fp,"{\n");
     fprintf(fp,"  vtkObject *op;\n");
@@ -1075,6 +1077,22 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    return PyString_FromString(temp20);\n");
     fprintf(fp,"    }\n");
     fprintf(fp,"  return NULL;\n}\n\n");
+
+    /* Add the PrintRevisions method to vtkObjectBase. */
+    fprintf(fp,"PyObject *PyvtkObjectBase_PrintRevisions(PyObject *self, PyObject *args)\n");
+    fprintf(fp,"{\n");
+    fprintf(fp,"  %s *op;\n",data->ClassName);
+    fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"\")))\n",data->ClassName);
+    fprintf(fp,"    {\n");
+    fprintf(fp,"    ostrstream buf;\n");
+    fprintf(fp,"    op->PrintRevisions(buf);\n");
+    fprintf(fp,"    buf.put('\\0');\n");
+    fprintf(fp,"    PyObject *result = PyString_FromString(buf.str());\n");
+    fprintf(fp,"    delete buf.str();\n");
+    fprintf(fp,"    return result;\n");
+    fprintf(fp,"    }\n");
+    fprintf(fp,"  return NULL;\n}\n\n");
+
     }
   
   /* insert function handling code here */
