@@ -1,3 +1,17 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkRotationFilter.h
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+=========================================================================*/
 // .NAME vtkRotationFilter - Duplicates a data set by rotation about an axis
 // .SECTION Description
 // The vtkRotationFilter duplicates a data set by rotation about one of the
@@ -12,13 +26,13 @@
 #ifndef __vtkRotationFilter_h
 #define __vtkRotationFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkRotationFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkRotationFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkRotationFilter *New(); 
-  vtkTypeRevisionMacro(vtkRotationFilter, vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkRotationFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
   
 //BTX
@@ -69,7 +83,8 @@ protected:
   vtkRotationFilter();
   ~vtkRotationFilter();
   
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int Axis;
   double Angle;
