@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.4");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.5");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -37,7 +37,6 @@ vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
 vtkInformationKeyMacro(vtkDataObject, DATA_TYPE_NAME, String);
 vtkInformationKeyMacro(vtkDataObject, DATA_OBJECT, DataObject);
 vtkInformationKeyMacro(vtkDataObject, DATA_EXTENT_TYPE, Integer);
-vtkInformationKeyMacro(vtkDataObject, DATA_EXTENT, IntegerVector);
 vtkInformationKeyMacro(vtkDataObject, DATA_PIECE_NUMBER, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkDataObject, DATA_NUMBER_OF_GHOST_LEVELS, Integer);
@@ -50,6 +49,7 @@ vtkInformationKeyMacro(vtkDataObject, FIELD_NAME, String);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_COMPONENTS, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_TUPLES, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_OPERATION, Integer);
+vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerVector, 6);
 
 // Initialize static member that controls global data release 
 // after use by filter
