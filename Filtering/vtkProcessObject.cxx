@@ -26,7 +26,7 @@
 
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.2");
+vtkCxxRevisionMacro(vtkProcessObject, "1.3");
 
 //----------------------------------------------------------------------------
 
@@ -164,7 +164,9 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject* input)
     }
   else if(!input && num == this->GetNumberOfInputConnections(0)-1)
     {
-    this->RemoveInputInternal(input);
+    // need to get the current algorithm input if there is one
+    vtkAlgorithmOutput *inputToBeRemoved = this->GetInputConnection(0,num);
+    this->RemoveInputConnection(0, inputToBeRemoved);
     }
   else if(input && num < this->GetNumberOfInputConnections(0))
     {
@@ -255,7 +257,7 @@ void vtkProcessObject::RemoveInputInternal(vtkDataObject* input)
   if(input)
     {
     this->RemoveInputConnection(0, input->GetProducerPort());
-      }
+    }
 }
 
 //----------------------------------------------------------------------------
