@@ -171,6 +171,10 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
     this->LookupTable->Build ();
     this->SelfAdjustingTableRange = 1;
     }
+  else
+    {
+    this->SelfAdjustingTableRange = 0;
+    }
   // if there is no pixmap, create one
   if (!this->MappedScalars)
     {
@@ -179,7 +183,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   
   // if the texture created its own lookup table, set the Table Range
   // to the range of the scalar data.
-  if (this->SelfAdjustingTableRange) 
+  if (this->SelfAdjustingTableRange)
     {
     this->LookupTable->SetTableRange (scalars->GetRange());
     }
