@@ -77,7 +77,23 @@ foreach afile $files {
     set validImage $validPath/${afile}${VTK_PLATFORM}.ppm
     
     #
-    # first see if there is an alternate image for this architecture
+    # first see if vtk has been built --with-patented
+    if { [info command vtkMarchingCubes] == "" } {
+	set validImage $validPath/$afile${VTK_PLATFORM}.withoutpatented.ppm
+	if {[catch {set channel [open ${validImage}]}] != 0 } {
+            set validImage $validPath/$afile.withoutpatented.ppm
+            if {[catch {set channel [open ${validImage}]}] != 0 } {
+                set validImage $validPath/$afile${VTK_PLATFORM}.ppm
+            } else {
+                close $channel
+            }
+        } else {
+            close $channel
+        }
+    }
+
+    #
+    # now see if there is an alternate image for this architecture
     if {[catch {set channel [open ${validImage}]}] != 0 } {
 	set validImage $validPath/$afile.ppm
 	if {[catch {set channel [open ${validImage}]}] != 0 } {
