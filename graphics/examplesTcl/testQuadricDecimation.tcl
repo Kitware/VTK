@@ -60,5 +60,3 @@ wm withdraw .
 
 
 renWin Render
-vtkCommand DeleteAllObjects
-exit
