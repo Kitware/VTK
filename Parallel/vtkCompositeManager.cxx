@@ -79,6 +79,8 @@ vtkCompositeManager::vtkCompositeManager()
   this->RenderWindowInteractor = NULL;
   this->Controller = vtkMultiProcessController::GetGlobalController();
 
+  this->RendererSize[0] = this->RendererSize[1] = 0;
+
   this->StartTag = this->EndTag = 0;
   this->StartInteractorTag = 0;
   this->EndInteractorTag = 0;
