@@ -60,7 +60,16 @@ vtkImageDecomposedFilter::vtkImageDecomposedFilter()
 // Destructor: Delete the sub filters.
 vtkImageDecomposedFilter::~vtkImageDecomposedFilter()
 {
-  this->DeleteFilters();
+  int idx;
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      this->Filters[idx] = NULL;
+      }
+    }
 }
 
 
@@ -81,24 +90,6 @@ void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent) {
     else
       {
       os << indent << "Filter" << idx << ": NULL\n";
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageDecomposedFilter::DeleteFilters()
-{
-  int idx;
-  
-  // The last filter has the same cache as this object.
-  this->Filters[3]->SetCache(NULL);
-    
-  for (idx = 0; idx < 4; ++idx)
-    {
-    if (this->Filters[idx])
-      {
-      this->Filters[idx]->Delete();
-      this->Filters[idx] = NULL;
       }
     }
 }
@@ -204,17 +195,24 @@ void vtkImageDecomposedFilter::InitializeFilters()
       return;
       }
     this->Filters[idx]->SetInputMemoryLimit(this->GetInputMemoryLimit());
-    }
-  
-  // set the output of the last filter. 
-  if (this->GetOutput())
-    {
-    this->Filters[3]->SetCache(this->GetOutput());
-    this->GetOutput()->SetSource(this->Filters[3]);
-    }
+    }  
 }
 
   
+  
+//----------------------------------------------------------------------------
+// Actually return output of sub pipeline.
+vtkImageCache *vtkImageDecomposedFilter::GetOutput()
+{
+  if ( ! this->Filters[3])
+    {
+    vtkErrorMacro("GetOutput: Filter3 not created!");
+    return NULL;
+    }
+  
+  return this->Filters[3]->GetOutput();
+}
+
   
 //----------------------------------------------------------------------------
 // Description:
@@ -237,6 +235,7 @@ void vtkImageDecomposedFilter::SetInternalInput(vtkImageCache *input)
   // Connect all the filters
   // This is conditional on having the input because
   // the OutputScalarTypes are computed when the pipeline is connected.
+  // (This is not true any more!!!)
   for (idx = 1; idx < 4; ++idx)
     {
     if ( ! this->Filters[idx])
@@ -265,49 +264,6 @@ void vtkImageDecomposedFilter::SetInputMemoryLimit(long limit)
     }
   
   this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets the cache object of the filter.
-// It justs feeds the request to the sub filter.
-void vtkImageDecomposedFilter::SetCache(vtkImageCache *cache)
-{
-  vtkDebugMacro(<< "SetCache: (" << cache << ")");
-  
-  if (this->Filters[this->NumberOfFilteredAxes - 1])
-    {
-    this->Filters[this->NumberOfFilteredAxes - 1]->SetCache(cache);
-    }
-  this->vtkImageFilter::SetCache(cache);
-}
-  
-//----------------------------------------------------------------------------
-// Description:
-// Causes the filter to execute, and put its results in cache.
-void vtkImageDecomposedFilter::Update()
-{
-  vtkImageCache *cache;
-  
-  if (this->NumberOfFilteredAxes == 0)
-    {
-    vtkErrorMacro("Update: NumberOfFilteredAxes not set.");
-    return;
-    }
-  if (this->Filters[this->NumberOfFilteredAxes - 1] == NULL)
-    {
-    vtkErrorMacro("Update: Last filter not created");
-    return;
-    }
-  
-  cache = this->GetOutput();
-  if (cache == NULL)
-    {
-    vtkErrorMacro("Update: NumberOfFilteredAxes not set.");
-    return;
-    }
-  
-  cache->Update();
 }
 
 

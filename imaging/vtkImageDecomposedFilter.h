@@ -61,12 +61,12 @@ public:
 
   void DebugOn();
   void Modified();
-  void SetCache(vtkImageCache *cache);
   void SetInput(vtkImageCache *Input);
-  //  void SetInput(vtkStructuredPoints *spts)
+  // void SetInput(vtkStructuredPoints *spts)
   //    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   // Input memory limit causes streaming
   void SetInputMemoryLimit(long limit);
+  vtkImageCache *GetOutput();
 
   void SetFilteredAxes(int num, int *axes);
   vtkImageSetMacro(FilteredAxes, int);
@@ -76,7 +76,6 @@ public:
   void SetDimensionality(int dim) 
     {this->SetFilteredAxes(dim, this->FilteredAxes);}
   
-  void Update();
   void SetStartMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
   
@@ -85,7 +84,6 @@ protected:
   
   void InitializeFilters();
   void SetInternalInput(vtkImageCache *Input);
-  void DeleteFilters();
 };
 
 
