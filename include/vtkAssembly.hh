@@ -40,10 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkAssembly - create hierarchies of actors
 // .SECTION Description
-// vtkAssembly is a convienence object that groups actors together. The 
-// group can be used to transform multiple actors simultaneously; or to 
-// assign properties or other actor attributes such as visibility or a 
-// texture map. Groups can be nested to form hierarchies.
+// vtkAssembly is an object that groups actors and other assemblies into
+// a tree-like hierarchy. The actors and assemblies can then be transformed
+// together by transforming just the root assembly of the hierarchy.
 //
 // A vtkAssembly object can be used in place of an vtkActor since it is a 
 // subclass of vtkActor. The difference is that vtkAssembly maintains a list
@@ -56,11 +55,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // a renderer's list of actors, as long as the parent assembly is in the
 // list of actors. This is because they are automatically renderered 
 // during the hierarchical traversal process.
+//
+// Since a vtkAssembly object is a derived class of vtkActor, it has properties
+// and possibly a mapper. During the rendering process, if a mapper is associated
+// with the assembly, it is rendered with these properties. Otherwise, the 
+// properties have no effect (i.e., on the children of the assembly).
 
 // .SECTION Caveats
 // Collections of assemblies are slower to render than an equivalent list
 // of actors. This is because to support arbitrary nesting of assemblies, 
-// the state of the assemblies (i.e., transformations and properties) must
+// the state of the assemblies (i.e., transformation matrices) must
 // be propagated through the assembly hierarchy. 
 //
 // Assemblies can consist of hierarchies of assemblies, where one actor or
@@ -86,105 +90,47 @@ public:
   char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  vtkAssembly &operator=(const vtkAssembly& assembly);
+
   void AddPart(vtkActor *);
   void RemovePart(vtkActor *);
   vtkActorCollection *GetParts();
 
-  // Description:
-  // Enable/disable the recursive application of the assembly's
-  // transformation matrix to its component parts. Enabling this
-  // instance variable allows you to manipulate an assembly as if
-  // it were a single component. Note: the application of the
-  // transformation occurs during the rendering process.
-  vtkSetMacro(ApplyTransform,int);
-  vtkGetMacro(ApplyTransform,int);
-  vtkBooleanMacro(ApplyTransform,int);
-
-  // Description:
-  // Enable/disable the recursive application of the assembly's
-  // properties to its component parts. Enabling this instance 
-  // variable allows you to set the same properties to all its 
-  // component parts with a single command. Note: the application
-  // of the properties occurs during the rendering process.
-  vtkSetMacro(ApplyProperty,int);
-  vtkGetMacro(ApplyProperty,int);
-  vtkBooleanMacro(ApplyProperty,int);
-
   void Render(vtkRenderer *ren);
 
+  // Description:
+  // Methods to traverse the parts of an assembly. Each part (starting from
+  // the root) will appear properly transformed and with the correct
+  // properties (depending upon the ApplyProperty and ApplyTransform ivars).
+  // Note that the part appears as an actor. These methods should be contrasted
+  // to those that traverse the list of parts using GetParts(). GetParts() returns
+  // a list of children of this assembly, not necessarily with the correct
+  // transformation or properties. To use these methods - first invoke 
+  // InitPartTraversal() followed by repeated calls to GetNextPart(). 
+  // GetNextPart() returns a NULL pointer when the list is exhausted.
   void InitPartTraversal();
   vtkActor *GetNextPart();
+
+  void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
 
   float *GetBounds();
   unsigned long int GetMTime();
 
 protected:
   vtkActorCollection Parts;
-  int ApplyTransform;
-  int ApplyProperty;
 
-  vtkActor CurrentActor; //used to propagate state
-  vtkProperty CurrentProperty;
-  vtkMatrix4x4 CurrentMatrix;
-
+  // stuff that follows is used to build the assembly hierarchy
   vtkAssemblyPaths *Paths;
-  void ApplyTransformation();
-  void ApplyProperties();
-  void BuildPath(vtkActorCollection *path);
-  vtkActor *ApplyTransformation(vtkActorCollection *path);
-  vtkActor *ApplyProperties(vtkActorCollection *path);
+  vtkTimeStamp PathTime;
+
+  void UpdatePaths(); //apply transformations and properties recursively
+  void DeletePaths(); //delete the paths
 
 };
 
 // Description:
 // Get the list of parts for this assembly.
 inline vtkActorCollection *vtkAssembly::GetParts() {return &(this->Parts);};
-
-
-//BTX - begin tcl exclude
-// class is a list of lists of actors; each list of actors represents a
-// a sequence of actors in an assembly. The list of actors is represented 
-// as an actor collection.
-class vtkAssemblyPaths : public vtkCollection
-{
- public:
-  char *GetClassName() {return "vtkAssemblyPaths";};
-
-  void AddItem(vtkActorCollection *a);
-  void RemoveItem(vtkActorCollection *a);
-  int IsItemPresent(vtkActorCollection *a);
-  vtkActorCollection *GetNextItem();
-};
-
-// Description:
-// Add an actor to the list.
-inline void vtkAssemblyPaths::AddItem(vtkActorCollection *a) 
-{
-  this->vtkCollection::AddItem((vtkObject *)a);
-}
-
-// Description:
-// Remove an actor from the list.
-inline void vtkAssemblyPaths::RemoveItem(vtkActorCollection *a) 
-{
-  this->vtkCollection::RemoveItem((vtkObject *)a);
-}
-
-// Description:
-// Determine whether a particular actor is present. Returns its position
-// in the list.
-inline int vtkAssemblyPaths::IsItemPresent(vtkActorCollection *a) 
-{
-  return this->vtkCollection::IsItemPresent((vtkObject *)a);
-}
-
-// Description:
-// Get the next actor in the list.
-inline vtkActorCollection *vtkAssemblyPaths::GetNextItem() 
-{ 
-  return (vtkActorCollection *)(this->GetNextItemAsObject());
-}
-//ETX end tcl exclude
 
 #endif
 

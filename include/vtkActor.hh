@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTexture.hh"
 #include "vtkMapper.hh"
 #include "vtkTransform.hh"
-#include "vtkActorCollection.hh"
+#include "vtkAssemblyPaths.hh"
 
 class vtkRenderer;
 class vtkActorDevice;
@@ -194,6 +194,10 @@ class vtkActor : public vtkObject
   // a list of the parts that are first level children of the assembly.)
   virtual void InitPartTraversal() {this->TraversalLocation = 0;};
   virtual vtkActor *GetNextPart();
+
+  // Description:
+  // Used to construct assembly paths and perform part traversal.
+  virtual void BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path);
 
   // Description:
   // Update visualization pipeline and any other parts of actor that are

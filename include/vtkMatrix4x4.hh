@@ -63,7 +63,7 @@ class vtkMatrix4x4 : public vtkObject
   void PrintSelf (ostream& os, vtkIndent indent);
 
   void operator= (float element);
-  void operator= (vtkMatrix4x4& source);
+  vtkMatrix4x4& operator= (const vtkMatrix4x4& source);
   float *operator[](const unsigned int i) {return &(Element[i][0]);};
 
   void Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out);

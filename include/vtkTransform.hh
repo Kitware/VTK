@@ -75,6 +75,8 @@ class vtkTransform : public vtkObject
   ~vtkTransform ();
   char *GetClassName () {return "vtkTransform";};
   void PrintSelf (ostream& os, vtkIndent indent);
+  vtkTransform &operator=(const vtkTransform &t);
+
   void Identity ();
   void Pop ();
   void PostMultiply ();
