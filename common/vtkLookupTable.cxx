@@ -216,7 +216,7 @@ unsigned char *vtkLookupTable::MapValue(float v)
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template<class T>
-void vtkLookupTableMapDataToRGBA(vtkLookupTable *self, T *input, 
+static void vtkLookupTableMapDataToRGBA(vtkLookupTable *self, T *input, 
 				 unsigned char *output, int length, int incr)
 {
   float findx;

@@ -126,7 +126,7 @@ unsigned char *vtkLogLookupTable::MapValue(float v)
 }
 
 template <class T>
-void vtkLogLookupTableMapDataToRGBA(vtkLogLookupTable *self,
+static void vtkLogLookupTableMapDataToRGBA(vtkLogLookupTable *self,
 				    T *input, unsigned char *output,
 				    int i, int incr) 
 {
