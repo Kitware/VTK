@@ -22,7 +22,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlGlrProperty_hh
 
 #include "Property.hh"
-#include "gl.h"
 
 class vlGlrRenderer;
 
