@@ -109,6 +109,17 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
       temp = NULL;
       }
     }
+
+  // if the environment variable is set to openGL and the user
+  //  does not have opengl but they do have mesa, then use it
+#ifndef VTK_USE_OGLR
+#ifdef VTK_USE_MESA
+  if (!strcmp("OpenGL",temp))
+    {
+    temp = "Mesa";
+    }
+#endif
+#endif
   
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
