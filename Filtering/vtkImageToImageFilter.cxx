@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.47");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.48");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -281,6 +281,9 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
   output->SetExtent(output->GetUpdateExtent());
   output->GetExtent(outExt);
 
+  // Do not copy the array we will be generating.
+  inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+
   // Conditionally copy point and cell data.
   // Only copy if corresponding indexes refer to identical points.
   float *oIn = input->GetOrigin();
@@ -292,8 +295,6 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
     {
     output->GetPointData()->CopyAllOn();
     output->GetCellData()->CopyAllOn();
-    // Do not copy the array we will be generating.
-    inArray = input->GetPointData()->GetScalars(this->InputScalarsSelection);
     // Scalar copy flag trumps the array copy flag.
     if (inArray == input->GetPointData()->GetScalars())
       {
