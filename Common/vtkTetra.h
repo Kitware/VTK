@@ -95,6 +95,13 @@ public:
                              double p4[3], double center[3]);
 
   // Description:
+  // Compute the center (center[3]) and radius (method return value) of
+  // a sphere that just fits inside the faces of a tetrahedron defined
+  // by the four points x1, x2, x3, and x4.
+  static double Insphere(double  p1[3], double p2[3], double p3[3], 
+                         double p4[3], double center[3]);
+
+  // Description:
   // Given a 3D point x[3], determine the barycentric coordinates of the point.
   // Barycentric coordinates are a natural coordinate system for simplices that
   // express a position as a linear combination of the vertices. For a 

@@ -62,8 +62,6 @@ protected:
   vtkMeshQuality();
   ~vtkMeshQuality();
   void Execute();
-  double Insphere(double p1[3], double p2[3], double p3[3],
-                  double p4[3], double center[3]);
 
   int Volume;
   int Ratio;

@@ -22,7 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality, "1.1");
+vtkCxxRevisionMacro(vtkMeshQuality, "1.2");
 vtkStandardNewMacro(vtkMeshQuality);
 
 //----------------------------------------------------------------------------
@@ -43,75 +43,6 @@ vtkMeshQuality::vtkMeshQuality()
 //destructor
 vtkMeshQuality::~vtkMeshQuality() 
 { 
-}
-
-//----------------------------------------------------------------------------
-// Compute the incenter (center[3]) and radius (method return value) of
-// a tetrahedron defined by the four points p1, p2, p3, and p4.
-double vtkMeshQuality::Insphere(double  p1[3], double p2[3], double p3[3], 
-                             double p4[3], double center[3])
-{
-  double u[3], v[3], w[3];
-  double p[3], q[3], r[3];
-  double O1[3],O2[3];
-  double y[3], s[3], t;
-  
-  u[0] = p2[0]-p1[0];
-  u[1] = p2[1]-p1[1];
-  u[2] = p2[2]-p1[2];
-  
-  v[0] = p3[0]-p1[0];
-  v[1] = p3[1]-p1[1];
-  v[2] = p3[2]-p1[2];
-  
-  w[0] = p4[0]-p1[0];
-  w[1] = p4[1]-p1[1];
-  w[2] = p4[2]-p1[2];
-  
-  vtkMath::Cross(u,v,p);
-  vtkMath::Normalize(p);
-  
-  vtkMath::Cross(v,w,q);
-  vtkMath::Normalize(q);
-  
-  vtkMath::Cross(w,u,r);
-  vtkMath::Normalize(r);
-
-  O1[0] = p[0]-q[0];
-  O1[1] = p[1]-q[1];
-  O1[2] = p[2]-q[2];
-
-  O2[0] = q[0]-r[0];
-  O2[1] = q[1]-r[1];
-  O2[2] = q[2]-r[2];
-
-  vtkMath::Cross(O1,O2,y);
-  
-  O1[0] = u[0]-w[0];
-  O1[1] = u[1]-w[1];
-  O1[2] = u[2]-w[2];
-
-  O2[0] = v[0]-w[0];
-  O2[1] = v[1]-w[1];
-  O2[2] = v[2]-w[2];
-  
-  vtkMath::Cross(O1,O2,s);
-  vtkMath::Normalize(s);
-  
-  s[0] = -1 * s[0];
-  s[1] = -1 * s[1];
-  s[2] = -1 * s[2];
-  
-  O1[0] = s[0]-p[0];
-  O1[1] = s[1]-p[1];
-  O1[2] = s[2]-p[2];
-  
-  t = vtkMath::Dot(w,s)/vtkMath::Dot(y,O1);
-  center[0] = p1[0] + (t * y[0]);
-  center[1] = p1[1] + (t * y[1]);
-  center[2] = p1[2] + (t * y[2]);
-
-  return (fabs(t* vtkMath::Dot(y,p)));
 }
 
 //----------------------------------------------------------------------------
@@ -150,7 +81,7 @@ void vtkMeshQuality::Execute()
       {
       volume = fabs(vtkTetra::ComputeVolume(dp1,dp2,dp3,dp4));
       ratio = sqrt(vtkTetra::Circumsphere(dp1,dp2,dp3,dp4, circenter))/\
-        vtkMeshQuality::Insphere(dp1,dp2,dp3,dp4,incenter);
+        vtkTetra::Insphere(dp1,dp2,dp3,dp4,incenter);
       
       ratio = ratio/3;
       
@@ -159,7 +90,7 @@ void vtkMeshQuality::Execute()
     else if (this->Ratio)
       {
       ratio = sqrt(vtkTetra::Circumsphere(dp1,dp2,dp3,dp4, circenter))/\
-        vtkMeshQuality::Insphere(dp1,dp2,dp3,dp4,incenter);
+        vtkTetra::Insphere(dp1,dp2,dp3,dp4,incenter);
       ratio = ratio/3;
       scalars->SetTuple1(j,ratio);
       }
