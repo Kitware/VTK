@@ -54,16 +54,16 @@ void vtkWarpVector::Execute()
   vtkDebugMacro(<<"Warping data with vectors");
 
   inPts = input->GetPoints();
-  numPts = inPts->GetNumberOfPoints();
   pd = input->GetPointData();
-  inVectors = pd->GetVectors();
 
-  if ( !inVectors || !inPts )
+  if ( !pd->GetVectors() || !inPts )
     {
     vtkErrorMacro(<<"No input data");
     return;
     }
 
+  inVectors = pd->GetVectors();
+  numPts = inPts->GetNumberOfPoints();
   newPts = vtkFloatPoints::New();
   newPts->SetNumberOfPoints(numPts);
 //

@@ -56,7 +56,11 @@ vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 
 vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
 {
-  if ( this->Output ) delete this->Output;
+  if ( this->Output ) 
+    {
+	delete this->Output;
+	this->Output = NULL;
+    }
   for (int i=0; i <= Level; i++) //superclass deletes OutputList[0]
     {
     if ( this->OutputList[i] != NULL ) delete this->OutputList[i];
