@@ -1751,6 +1751,8 @@ vtkDataSetAttributes::FieldList::FieldList(int numInputs)
 vtkDataSetAttributes::FieldList::~FieldList()
 {
   this->ClearFields();
+  delete [] this->DSAIndices;
+  this->DSAIndices = 0;
 }
 
 void vtkDataSetAttributes::FieldList::ClearFields()
@@ -1767,11 +1769,10 @@ void vtkDataSetAttributes::FieldList::ClearFields()
     {
     for (int i=0; i<this->NumberOfDSAIndices; i++)
       {
-      delete this->DSAIndices[i];
+      delete[] this->DSAIndices[i];
+      this->DSAIndices[i] = 0;
       }
     }
-  delete [] this->DSAIndices;
-  this->DSAIndices = 0;
   delete [] this->LUT;
   this->LUT = 0;
   delete [] this->Fields;
