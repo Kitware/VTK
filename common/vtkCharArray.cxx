@@ -48,24 +48,57 @@ vtkCharArray::vtkCharArray(int numComp)
   this->Array = NULL;
   this->TupleSize = 3;
   this->Tuple = new float[this->TupleSize]; //used for conversion
+  this->SaveUserArray = 0;
 }
 
 vtkCharArray::~vtkCharArray()
 {
-  if (this->Array) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
   delete [] this->Tuple;
 }
+
+// Description:
+// This method lets the user specify data to be held by the array.  The 
+// array argument is a pointer to the data.  size is the size of 
+// the array supplied by the user.  Set save to 1 to keep the class
+// from deleting the array when it cleans up or reallocates memory.
+// The class uses the actual array provided; it does not copy the data 
+// from the suppled array.
+void vtkCharArray::SetArray(char* array, int size, int save)
+{
+  
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+    vtkDebugMacro (<< "Deleting the array...");
+    delete [] this->Array;
+    }
+  else 
+    {
+    vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
+    }
+
+  vtkDebugMacro(<<"Setting array to: " << array);
+
+  this->Array = array;
+  this->Size = size;
+  this->MaxId = size-1;
+  this->SaveUserArray = save;
+}
+
 
 // Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkCharArray::Allocate(const int sz, const int ext)
 {
-  if ( sz > this->Size || this->Array == NULL )
+  if ( sz > this->Size )
     {
-    delete [] this->Array;
-
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+	delete [] this->Array;
+      }
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new char[this->Size]) == NULL ) return 0;
+    this->SaveUserArray = 0;
     }
 
   this->Extend = ( ext > 0 ? ext : 1);
@@ -78,36 +111,37 @@ int vtkCharArray::Allocate(const int sz, const int ext)
 // Release storage and reset array to initial state.
 void vtkCharArray::Initialize()
 {
-  if ( this->Array != NULL )
+  if (( this->Array != NULL ) && (!this->SaveUserArray))
     {
     delete [] this->Array;
-    this->Array = NULL;
     }
+  this->Array = NULL;
   this->Size = 0;
   this->MaxId = -1;
+  this->SaveUserArray = 0;
 }
 
 // Description:
 // Deep copy of another char array.
 void vtkCharArray::DeepCopy(vtkDataArray& ia)
 {
-  if ( ia.GetDataType() != VTK_CHAR )
-    {
-    vtkDataArray::DeepCopy(ia);
-    return;
-    }
+  int i;
 
   if ( this != &ia )
     {
-    if (this->Array) delete [] this->Array;
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+	delete [] this->Array;
+      }
 
     this->NumberOfComponents = ia.GetNumberOfComponents();
     this->MaxId = ia.GetMaxId();
     this->Size = ia.GetSize();
     this->Extend = ia.GetExtend();
-
+    this->SaveUserArray = 0;
     this->Array = new char[this->Size];
-    memcpy(this->Array, (char *)ia.GetVoidPointer(0), this->Size*sizeof(char));
+    memcpy(this->Array, (char*) ia.GetVoidPointer(0), this->Size*sizeof(char));
+
     }
 }
 
@@ -126,11 +160,18 @@ char *vtkCharArray::Resize(const int sz)
   char *newArray;
   int newSize;
 
-  if ( sz > this->Size ) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  if ( sz > this->Size ) 
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
   else if (sz == this->Size)
+    {
     return this->Array;
-  else newSize = sz;
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   if ( (newArray = new char[newSize]) == NULL )
     {
@@ -143,11 +184,15 @@ char *vtkCharArray::Resize(const int sz)
     {
     memcpy(newArray, this->Array, 
 	   (sz < this->Size ? sz : this->Size) * sizeof(char));
-    delete [] this->Array;
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
     }
 
   this->Size = newSize;
   this->Array = newArray;
+  this->SaveUserArray = 0;
 
   return this->Array;
 }

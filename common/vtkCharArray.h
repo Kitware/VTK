@@ -86,7 +86,9 @@ public:
 
   char *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkDataArray &da);
+  void DeepCopy(vtkDataArray& ia);
+
+  void SetArray(char* array, int size, int save);
 
 private:
   char *Array;    // pointer to data
@@ -94,6 +96,8 @@ private:
 
   int TupleSize; //used for data conversion
   float *Tuple;
+
+  int SaveUserArray;
 };
 
 // Description:
