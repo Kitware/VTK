@@ -12,8 +12,8 @@ vtkRenderWindowInteractor iren
 
 # create pipeline
 #
-vtkSLCReader slc
-  slc SetFileName "$VTK_DATA_ROOT/Data/vm_foot.slc"
+vtkStructuredPointsReader slc
+  slc SetFileName "$VTK_DATA_ROOT/Data/ironProt.vtk"
 
 set colors "$flesh $banana $grey $pink $carrot $gainsboro $tomato $gold $thistle $chocolate"
 set types  "UnsignedChar Char Short UnsignedShort Int UnsignedInt Long UnsignedLong Float Double"
@@ -22,8 +22,8 @@ set c 0
 foreach vtkType $types {
   vtkImageClip clip$vtkType
     clip$vtkType SetInput [slc GetOutput]
-    clip$vtkType SetOutputWholeExtent -1000 1000 -1000 1000 $i [expr $i + 22]
-  incr i 22
+    clip$vtkType SetOutputWholeExtent -1000 1000 -1000 1000 $i [expr $i + 5]
+  incr i 5
   vtkImageCast castTo$vtkType
     castTo$vtkType SetOutputScalarTypeTo$vtkType
     castTo$vtkType SetInput [clip$vtkType GetOutput]
@@ -59,10 +59,10 @@ vtkActor outlineActor
 #
 ren1 AddActor outlineActor
 ren1 SetBackground 0.9 .9 .9
-[ren1 GetActiveCamera] SetFocalPoint 80 130 106
-[ren1 GetActiveCamera] SetPosition -170 -305 -131
-[ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] SetViewAngle 30
+[ren1 GetActiveCamera] Elevation 20
+[ren1 GetActiveCamera] Azimuth 20
+[ren1 GetActiveCamera] Zoom 1.5
 ren1 ResetCameraClippingRange
 
 renWin SetSize 400 400
