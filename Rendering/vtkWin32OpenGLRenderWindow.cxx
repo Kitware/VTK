@@ -36,7 +36,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.81");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.82");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -62,6 +62,11 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
   if (this->CursorHidden)
     {
     this->ShowCursor();
+    }
+
+  if (this->OffScreenRendering)
+    {
+    this->CleanUpOffScreenRendering();
     }
 
   if (this->WindowId && this->OwnWindow)
