@@ -3,5 +3,6 @@
 *.bat           -crlf
 *.dsp           -crlf
 *.dsw           -crlf
+MakeDLL          crlf=input
 configure        crlf=input
 install-sh       crlf=input

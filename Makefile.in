@@ -64,7 +64,7 @@ build_parallel: build_graphics build_imaging
 	cd parallel;     ${MAKE} -${MAKEFLAGS} all
 
 build_tcl: build_common ${BUILD_TOOLKITS} 
-	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
+	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk$(EXEEXT) $(VTK_TCL_SHLIB_TARGET)
 
 build_python: build_common ${BUILD_TOOLKITS}
 	cd python;     ${MAKE} -${MAKEFLAGS} all
@@ -183,5 +183,3 @@ install-dirs:
 		else true; \
 		fi; \
 	    done;
-
-

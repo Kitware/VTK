@@ -14,7 +14,6 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 AC_PROG_INSTALL
-AC_PATH_XTRA
 
 # get byte swapping info
 AC_C_BIGENDIAN
@@ -52,6 +51,52 @@ else
     fi
 fi
 
+AC_CACHE_VAL(vtk_cv_system_name, [vtk_cv_system_name=$system])
+
+
+##########################
+##			##
+##	X11		##
+##			##
+##########################
+case $system in
+    CYGWIN* | MINGW*) no_x="yes" ;;
+esac
+
+AC_PATH_XTRA
+AC_SUBST(XEXT_LIB)
+AC_SUBST(XT_LIB)
+AC_SUBST(X11_LIB)
+XEXT_LIB=
+XT_LIB=
+X11_LIB=
+case $system in
+    CYGWIN* | MINGW*)
+      ;;
+    *)
+      if test "$no_x" = "yes"; then
+        true
+      else
+	XEXT_LIB=-lXext
+	XT_LIB=-lXt
+	X11_LIB=-lX11
+      fi
+      ;;
+esac
+
+##########################
+##			##
+##	Math lib	##
+##			##
+##########################
+# Most Unix systems need -lm, but Win32 based systems don't necessarily
+# need it, and in some cases, will cause link errors.
+
+AC_SUBST(MATH_LIB)
+case $system in
+    CYGWIN* | MINGW*) MATH_LIB= ;;
+    *) MATH_LIB="-lm" ;;
+esac
 
 ##########################
 ##			##
@@ -74,6 +119,14 @@ if test "$use_oglr" = "no"; then
 		  [use_oglr=yes]
 		  OGLR_INCLUDE="-I/usr/X11R6/include")
 fi
+
+# Avoid incorrect definition of use_oglr. Must do it after all the tests
+# because we may be cross-compiling and the host system may indeed
+# satisfy one of the tests above and use_olgr will be incorrectly set.
+case $system in
+    CYGWIN* | MINGW*) use_oglr=no ;;
+    *) ;;
+esac
 
 AC_MSG_CHECKING(for OpenGL library)
 OPENGLSW=""
@@ -98,6 +151,26 @@ if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} ${OGLR_INCLUDE}"
 fi
 
+# We use VTK_PLATFORM_* variable in Makefiles to select platform
+# specific files needed by Unix vs Win32.
+case $system in
+    CYGWIN* | MINGW*) 
+	VTK_PLATFORM_ABSTRACT="\${WIN32_ABSTRACT}"
+	VTK_PLATFORM_CONCRETE="\${WIN32_CONCRETE}"
+	VTK_PLATFORM_OBJ="\${WIN32_OBJ}"
+	VTK_PLATFORM=WIN32
+	;;
+    *)
+	VTK_PLATFORM_ABSTRACT="\${UNIX_ABSTRACT}"
+	VTK_PLATFORM_CONCRETE="\${UNIX_CONCRETE}"
+	VTK_PLATFORM_OBJ="\${UNIX_OBJ}"
+	VTK_PLATFORM=UNIX
+        ;;
+esac
+AC_SUBST(VTK_PLATFORM)
+AC_SUBST(VTK_PLATFORM_ABSTRACT)
+AC_SUBST(VTK_PLATFORM_CONCRETE)
+AC_SUBST(VTK_PLATFORM_OBJ)
 
 ##########################
 ##			##
@@ -156,7 +229,7 @@ fi
 case $system in
        CYGWIN_NT*)
         GRAPHICS_API_OBJ="\${WIN32_OBJ}"
-	GRAPHICS_API_LIBS=" -lopengl32"
+	GRAPHICS_API_LIBS=" -lopengl32 -mwindows"
 	GRAPHICS_API_FLAGS=
 esac
 
@@ -395,7 +468,6 @@ AC_ARG_WITH(bsdmake,
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 
-
 #------------------------------------------------------------------------------
 #       If user.make is not in the build directory, copy it local.
 #------------------------------------------------------------------------------
@@ -446,6 +518,35 @@ AC_CHECK_LIB(dl, dlopen, have_dl=yes, have_dl=no)
 # Step 4: set configuration options based on system name and version.
 
 fullSrcDir=`cd $srcdir; pwd`
+# SHLIB_LD may not be the same as the C++ compiler for all platforms.
+SHLIB_LD=${CXX}
+AC_SUBST(SHLIB_LD)
+# Autoconf can detect this, but you need to use config.guess/config.sub
+# to detect host instead of the VTK approach inherited from Tcl.
+EXEEXT=""
+AC_SUBST(EXEEXT)
+# Building DLLs under Windows require all symbols be resolved at link
+# time.
+SHLIB_VTK_GRAPHICS_DEP_LIBS=
+SHLIB_VTK_IMAGING_DEP_LIBS=
+SHLIB_VTK_CONTRIB_DEP_LIBS=
+SHLIB_VTK_PATENTED_DEP_LIBS=
+SHLIB_VTK_LOCAL_DEP_LIBS=
+SHLIB_VTK_GRAPHICS_TCL_DEP_LIBS=
+SHLIB_VTK_IMAGING_TCL_DEP_LIBS=
+SHLIB_VTK_CONTRIB_TCL_DEP_LIBS=
+SHLIB_VTK_PATENTED_TCL_DEP_LIBS=
+SHLIB_VTK_LOCAL_TCL_DEP_LIBS=
+AC_SUBST(SHLIB_VTK_GRAPHICS_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_IMAGING_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_CONTRIB_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_PATENTED_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_LOCAL_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_GRAPHICS_TCL_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_IMAGING_TCL_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_CONTRIB_TCL_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_PATENTED_TCL_DEP_LIBS)
+AC_SUBST(SHLIB_VTK_LOCAL_TCL_DEP_LIBS)
 case $system in
     AIX-*)
 	# AIX: can't link shared library extensions unless Tcl and Tk are
@@ -618,6 +719,32 @@ case $system in
 	DL_LIBS="-ldl"
 	VTK_SHLIB_LINK_FLAGS="-Wl,-Bexport"
 	;;
+     CYGWIN* | MINGW*)
+	EXEEXT=".exe"
+        # Cygwin/Mingw build use a separate script, MakeDLL, to
+        # build the DLLs to avoid running out of VM when building
+        # the large DLLs. See comments in MakeDLL for more
+        # info.
+        DLLTOOL="${DLLTOOL-dlltool}"
+        SHLIB_LD="CXX=\$(CXX) DLLTOOL=$DLLTOOL $fullSrcDir/MakeDLL"
+        VTK_SHLIB_BUILD_FLAGS="-shared -s"
+        SHLIB_CFLAGS="-DVTKSTATIC"
+ 	SHLIB_LD_LIBS="-mwindows"
+ 	SHLIB_SUFFIX=".dll"
+
+	# Win32 DLLs, unlike Unix shared libraries, need to resolve all 
+	# symbols at link time.
+	SHLIB_VTK_GRAPHICS_DEP_LIBS="-L../common -lVTKCommon \${GRAPHICS_API_LIBS}"
+	SHLIB_VTK_IMAGING_DEP_LIBS="$SHLIB_VTK_GRAPHICS_DEP_LIBS"
+	SHLIB_VTK_CONTRIB_DEP_LIBS="-L../graphics -lVTKGraphics -L../imaging -lVTKImaging $SHLIB_VTK_GRAPHICS_DEP_LIBS"
+	SHLIB_VTK_PATENTED_DEP_LIBS="$SHLIB_VTK_CONTRIB_DEP_LIBS"
+	SHLIB_VTK_LOCAL_DEP_LIBS="$SHLIB_VTK_CONTRIB_DEP_LIBS"
+	SHLIB_VTK_GRAPHICS_TCL_DEP_LIBS="-L../common -lVTKCommonTcl"
+	SHLIB_VTK_IMAGING_TCL_DEP_LIBS="$SHLIB_VTK_GRAPHICS_TCL_DEP_LIBS"
+	SHLIB_VTK_CONTRIB_TCL_DEP_LIBS="-L../graphics -lVTKGraphicsTcl -L../imaging -lVTKImagingTcl $SHLIB_VTK_GRAPHICS_TCL_DEP_LIBS"
+	SHLIB_VTK_PATENTED_TCL_DEP_LIBS="$SHLIB_VTK_CONTRIB_TCL_DEP_LIBS"
+	SHLIB_VTK_LOCAL_TCL_DEP_LIBS="$SHLIB_VTK_CONTRIB_TCL_DEP_LIBS"
+ 	;;
 esac
 export SHLIB_SUFFIX
 
@@ -625,20 +752,29 @@ export SHLIB_SUFFIX
 # libraries to the right flags for gcc, instead of those for the
 # standard manufacturer compiler.
 if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
-  SHLIB_CFLAGS="-fPIC"
+  case $system in
+  CYGWIN* | MINGW*) ;;
+  *) SHLIB_CFLAGS="-fPIC" ;;
+  esac
 fi
 
 if test "$vtk_shared_ok" = "yes"; then
     VTK_SHLIB_CFLAGS="${SHLIB_CFLAGS}"
     VTK_LD_SEARCH_FLAGS="${LD_SEARCH_FLAGS}"
-    VTK_TCL_SHLIB_TARGET="vtktcl"
+    case $system in
+      CYGWIN* | MINGW*) VTK_TCL_SHLIB_TARGET="vtktcl.dll" ;;
+      *) VTK_TCL_SHLIB_TARGET="" ;;
+    esac
     RANLIB=":"
     TOOLKIT_DEPENDS=""
     VTK_LIB_EXT="${SHLIB_SUFFIX}"
 else
     VTK_LIB_EXT=".a"
     SHLIB_LD_LIBS=""
-    VTK_SHLIB_CFLAGS=""
+    case $system in
+      CYGWIN* | MINGW*) VTK_SHLIB_CFLAGS=-DVTKSTATIC ;;
+      *) VTK_SHLIB_CFLAGS="" ;;
+    esac
     VTK_LD_SEARCH_FLAGS=""
     TOOLKIT_DEPENDS="\${VTK_OBJ}/common/libVTKCommonTcl.a"
     if test "X$graphicsdir" != "X"; then

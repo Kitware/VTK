@@ -77,6 +77,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkSystemIncludes.h"
 
+// Provide isatty prototype for Cygwin. 
+#ifdef __CYGWIN__
+#include <unistd.h>
+#endif
+
 // Used later to get the current VRMLImporter
 static vtkVRMLImporter *CurrentImporter;
 

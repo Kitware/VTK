@@ -39,6 +39,16 @@ AC_ARG_WITH(bsdmake,
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 
+case "$vtk_cv_system_name" in
+  CYGWIN*)
+    TCL_INTERACTOR_OBJ=""
+    ;;
+  *)
+    TCL_INTERACTOR_OBJ="vtkXRenderWindowTclInteractor.o"
+    ;;
+esac
+AC_SUBST(TCL_INTERACTOR_OBJ)
+ 
 AC_CONFIG_SUBDIRS(python tcl java examplesCxx)
 
 dnl Checks for library functions.

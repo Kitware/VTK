@@ -48,9 +48,9 @@ libVTK${ME}.a: ${SRC_OBJ} ${KIT_OBJ}
 
 libVTK$(ME)$(SHLIB_SUFFIX): ${KIT_OBJ}
 	rm -f libVTK$(ME)$(SHLIB_SUFFIX)
-	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
+	$(SHLIB_LD) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
 	libVTK$(ME)$(SHLIB_SUFFIX) \
-	   ${KIT_OBJ} ${KIT_EXTERNAL_LIBS} ${SHLIB_LD_LIBS}
+	   ${KIT_OBJ} ${KIT_EXTERNAL_LIBS} ${SHLIB_VTK_LIBS} ${SHLIB_LD_LIBS}
 
 #------------------------------------------------------------------------------
 # rules for the tcl library
@@ -67,10 +67,12 @@ libVTK${ME}Tcl.a: tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ}
 libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} \
 	libVTK$(ME)$(SHLIB_SUFFIX)
 	rm -f libVTK$(ME)Tcl$(SHLIB_SUFFIX)
-	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
+	$(SHLIB_LD) \
+	${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} -o \
 	libVTK$(ME)Tcl$(SHLIB_SUFFIX) \
 	tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} \
-	-L. -lVTK$(ME)
+	-L. -lVTK$(ME) ${SHLIB_VTK_TCL_LIBS} ${SHLIB_VTK_LIBS} \
+	${SHLIB_LD_LIBS} ${TK_LIB} ${TCL_LIB}
 
 #------------------------------------------------------------------------------
 # rules for the java library

@@ -83,7 +83,7 @@ vtkVolumeRayCastFunction \
 vtkVolumeReader \
 vtkVolumeTextureMapper \
 vtkWriter \
-${UNIX_ABSTRACT}
+${VTK_PLATFORM_ABSTRACT}
 
 
 # put all concrete classes here
@@ -330,7 +330,7 @@ vtkWindowedSincPolyDataFilter \
 vtkWorldPointPicker \
 vtkWarpVector \
 ${GRAPHICS_API_OBJ} \
-${UNIX_CONCRETE}
+${VTK_PLATFORM_CONCRETE}
 
 WIN32_OBJ = \
 vtkOpenGLRenderer \
@@ -363,6 +363,10 @@ vtkWin32RenderWindowInteractor
 
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
 
+# On some systems, building VTK components as shared libraries or DLLs
+# may require linking with other VTK libraries.
+SHLIB_VTK_LIBS = $(SHLIB_VTK_GRAPHICS_DEP_LIBS)
+SHLIB_VTK_TCL_LIBS = $(SHLIB_VTK_GRAPHICS_TCL_DEP_LIBS)
 
 VTK_LIB_FILE  = libVTK${ME}${VTK_LIB_EXT}
 TCL_LIB_FILE  = libVTK${ME}Tcl${VTK_LIB_EXT}
@@ -385,7 +389,7 @@ vtkJavaPanel.o: java/vtk_vtkPanel.h java/vtk_vtkPanel.c
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ} 
 
-KIT_TCL_OBJ = vtkXRenderWindowTclInteractor.o ${TCL_OBJ}
+KIT_TCL_OBJ =  @TCL_INTERACTOR_OBJ@ ${TCL_OBJ}
 
 KIT_NEWS = ${TCL_NEWS} 
 

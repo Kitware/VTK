@@ -42,7 +42,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#ifdef _MSC_VER
 #include <GL/glaux.h>
+#else
+#include <GL/gl.h>
+#endif
 #include "vtkWin32OpenGLImageWindow.h"
 #include "vtkObjectFactory.h"
 

@@ -49,8 +49,8 @@ vtkTransformToGrid \
 vtkVideoSource \
 vtkVolumeProMapper \
 vtkVRMLImporter \
-vtkXYPlotActor 
-
+vtkXYPlotActor \
+${VTK_PLATFORM_OBJ}
 
 WIN32_OBJ = \
 vtkWin32OffscreenRenderWindow
@@ -69,6 +69,11 @@ vtkWin32OffscreenRenderWindow
 # Include the generated targets
 
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
+
+# On some systems, building VTK components as shared libraries or DLLs
+# may require linking with other VTK libraries.
+SHLIB_VTK_LIBS = $(SHLIB_VTK_CONTRIB_DEP_LIBS)
+SHLIB_VTK_TCL_LIBS = $(SHLIB_VTK_CONTRIB_TCL_DEP_LIBS)
 
 # add in any extra libraries here
 KIT_EXTERNAL_LIBS = 

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkWin32OffscreenRenderWindow.h"
-#include <gl/gl.h>
+#include <GL/gl.h>
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------

@@ -161,7 +161,8 @@ vtkWindowToImageFilter \
 vtkInterpolatedVelocityField \
 vtkRungeKutta2 \
 vtkRungeKutta4 \
-vtkXMLFileOutputWindow
+vtkXMLFileOutputWindow \
+$(VTK_PLATFORM_OBJ)
 
 WIN32_OBJ = \
 vtkWin32OutputWindow
