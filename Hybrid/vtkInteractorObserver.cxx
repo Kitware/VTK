@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.1");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.2");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -159,6 +159,7 @@ void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Enabled: " << this->Enabled << "\n";
+  os << indent << "Priority: " << this->Priority << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Key Press Activation: " 
      << (this->KeyPressActivation ? "On" : "Off") << "\n";
