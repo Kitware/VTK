@@ -45,6 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // discrete bins.  It then counts the number of pixels associated
 // with each bin.  The output is this "scatter plot".
 // The input can be any type, but the output is always int.
+// The SetStencilFunction, SetClippingExtents and ReverseStencil
+// functions allow the statistics to be computed on an arbitrary
+// portion of the input data.
+// See the documentation for vtkImageStencil for more information.
 
 
 #ifndef __vtkImageAccumulate_h
@@ -52,6 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "vtkImageToImageFilter.h"
+#include "vtkImplicitFunction.h"
+#include "vtkImageClippingExtents.h"
 
 class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
@@ -77,10 +83,38 @@ public:
 			  int minZ, int maxZ);
   void GetComponentExtent(int extent[6]);
   int *GetComponentExtent() {return this->ComponentExtent;}
+
+
+   // Description:
+  // Set the implicit function to use as a stencil.
+  vtkSetObjectMacro(StencilFunction, vtkImplicitFunction);
+  vtkGetObjectMacro(StencilFunction, vtkImplicitFunction);
+
+  // Description:
+  // Specify a vtkImageClippingExtents object to use instead of 
+  // setting a StencilFunction.  The vtkImageClippingExtents
+  // is a class for efficiently specifying an image stencil
+  // for large images.
+  vtkSetObjectMacro(ClippingExtents, vtkImageClippingExtents);
+  vtkGetObjectMacro(ClippingExtents, vtkImageClippingExtents);
+
+  // Description:
+  // Reverse the stencil.
+  vtkSetMacro(ReverseStencil, int);
+  vtkBooleanMacro(ReverseStencil, int);
+  vtkGetMacro(ReverseStencil, int);
+
+  // Description:
+  // Get the statistics information for the data.
+  vtkGetVector3Macro(Min, double);
+  vtkGetVector3Macro(Max, double);
+  vtkGetVector3Macro(Mean, double);
+  vtkGetMacro(PixelCount, long int);
+ 
   
 protected:
   vtkImageAccumulate();
-  ~vtkImageAccumulate() {};
+  ~vtkImageAccumulate();
   vtkImageAccumulate(const vtkImageAccumulate&) {};
   void operator=(const vtkImageAccumulate&) {};
 
@@ -92,6 +126,16 @@ protected:
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ExecuteData(vtkDataObject *out);
+
+  double Min[3];
+  double Max[3];
+  double Mean[3];
+  long int PixelCount;
+
+  vtkImplicitFunction *StencilFunction;
+  vtkImageClippingExtents *ClippingExtents;
+  int ReverseStencil;
+
 };
 
 #endif
