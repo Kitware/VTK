@@ -156,6 +156,13 @@ public:
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
+  // Description:
+  // Set/Get the maximum number of threads to use when multithreading.
+  // This limits and overrides any other settings for multithreading.
+  // A value of zero indicates no limit.
+  static void SetGlobalMaximumNumberOfThreads(int val);
+  static int  GetGlobalMaximumNumberOfThreads();
+
   // These methods are excluded from Tcl wrapping 1) because the
   // wrapper barfs on them and 2) because they really shouldn't be
   // called from a tcl script anyway.
@@ -196,12 +203,6 @@ public:
   // Terminate the thread that was created with a SpawnThreadExecute()
   void TerminateThread( int thread_id );
 
-  // Description:
-  // Set/Get the maximum number of threads to use when multithreading.
-  // This limits and overrides any other settings for multithreading.
-  // A value of zero indicates no limit.
-  static void SetGlobalMaximumNumberOfThreads(int val);
-  static int  GetGlobalMaximumNumberOfThreads();
 
 protected:
   // The number of threads to use
