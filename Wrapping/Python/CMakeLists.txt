@@ -29,15 +29,11 @@ IF(UTIL_LIBRARY)
 ENDIF(UTIL_LIBRARY)
 
 
-# Link against all the kit wrappers.
 IF (APPLE)
   SET_TARGET_PROPERTIES(vtkpython PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress")
-  OPTION(VTK_HAVE_FRAMEWORK_PYTHON "The system has Python installed by default (Mac OSX 10.2)" OFF)
-  IF (VTK_HAVE_FRAMEWORK_PYTHON)
-    SET(PYTHON_LIBRARY "-framework Python")
-  ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
 ENDIF (APPLE)
 
+# Link against all the kit wrappers.
 TARGET_LINK_LIBRARIES(vtkpython 
   ${PYTHON_LIBRARY} 
   vtkCommon 
