@@ -527,18 +527,18 @@ int BoxWidget( int argc, char *argv[] )
     }
 
   // Clean up
-  renderer->Delete();
-  renWin->Delete();
-  iren->Delete();
+  t->Delete();
+  myCallback->Delete();
+  boxWidget->Delete();
   sphere->Delete();
   cone->Delete();
   glyph->Delete();
   append->Delete();
   maceMapper->Delete();
   maceActor->Delete();
-  boxWidget->Delete();
-  t->Delete();
-  myCallback->Delete();
+  renderer->Delete();
+  renWin->Delete();
+  iren->Delete();
 
   return !retVal;
 }
