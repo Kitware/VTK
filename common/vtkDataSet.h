@@ -184,9 +184,10 @@ public:
   // Description:
   // Turn on/off flag to control whether every object releases its data
   // after being used by a filter.
-  vtkSetMacro(GlobalReleaseDataFlag,int);
-  vtkGetMacro(GlobalReleaseDataFlag,int);
-  vtkBooleanMacro(GlobalReleaseDataFlag,int);
+  void SetGlobalReleaseDataFlag(int val);
+  void GlobalReleaseDataFlagOn() {this->SetGlobalReleaseDataFlag(1);};
+  void GlobalReleaseDataFlagOff() {this->SetGlobalReleaseDataFlag(0);};
+  int  GetGlobalReleaseDataFlag();
 
   // return pointer to this dataset's point data
   vtkPointData *GetPointData() {return &this->PointData;};
@@ -228,7 +229,6 @@ protected:
 
   int DataReleased; //keep track of data release during network execution
   int ReleaseDataFlag; //data will release after use by a filter
-  static int GlobalReleaseDataFlag; //all data will release after use by a filter
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])

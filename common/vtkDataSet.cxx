@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 
 // Initialize static member that controls global data release after use by filter
-int vtkDataSet::GlobalReleaseDataFlag = 0;
+static int vtkDataSetGlobalReleaseDataFlag = 0;
 
 // Description:
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -83,6 +83,22 @@ void vtkDataSet::Initialize()
   this->PointData.Initialize();
 };
 
+void vtkDataSet::SetGlobalReleaseDataFlag(int val)
+{
+  if (val == vtkDataSetGlobalReleaseDataFlag) return;
+  vtkDataSetGlobalReleaseDataFlag = val;
+  if (this->Debug)   
+    {
+    cerr << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): setting GlobalReleaseDataFlag to " << val << "\n\n"; 
+    }
+  this->Modified(); 
+}
+
+int vtkDataSet::GetGlobalReleaseDataFlag()
+{
+  return vtkDataSetGlobalReleaseDataFlag;
+}
+
 void vtkDataSet::ReleaseData()
 {
   this->Initialize();
@@ -91,7 +107,7 @@ void vtkDataSet::ReleaseData()
 
 int vtkDataSet::ShouldIReleaseData()
 {
-  if ( this->GlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
+  if ( vtkDataSetGlobalReleaseDataFlag || this->ReleaseDataFlag ) return 1;
   else return 0;
 }
 
@@ -279,6 +295,6 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Zmin,Zmax: (" <<bounds[4] << ", " << bounds[5] << ")\n";
   os << indent << "Compute Time: " <<this->ComputeTime.GetMTime() << "\n";
   os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
-  os << indent << "Global Release Data: " << (this->GlobalReleaseDataFlag ? "On\n" : "Off\n");
+  os << indent << "Global Release Data: " << (vtkDataSetGlobalReleaseDataFlag ? "On\n" : "Off\n");
 }
 
