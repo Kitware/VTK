@@ -17,6 +17,7 @@ IF (VTK_USE_RENDERING)
       rendererSource
       rotations
       ScalarBar
+      TestBunykRayCastFunction
       TestFlyTo
       TestLODProp3D
       TestOnePoint
