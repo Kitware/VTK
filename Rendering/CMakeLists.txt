@@ -162,10 +162,10 @@ ELSE (WIN32)
     SET(HAVE_OPENGL_SRCS ON)
     SOURCE_FILES(RenderingOpenGL_SRCS
                  vtkQuartzTextMapper.cxx
-                 vtkQuartzRenderWindowInteractor.cxx
-                 vtkQuartzRenderWindow.cxx
-                 vtkQuartzWindow.cxx
-                 vtkQuartzGLView.cxx)
+                 vtkQuartzRenderWindowInteractor.mm
+                 vtkQuartzRenderWindow.mm
+                 vtkQuartzWindow.mm
+                 vtkQuartzGLView.mm)
     WRAP_EXCLUDE_FILES(vtkQuartzGLView
 		       vtkQuartzWindow)
     LINK_LIBRARIES (${OPENGL_LIBRARY} )
