@@ -61,7 +61,7 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 // default implementation outputs to cerr only
 void vtkOutputWindow::DisplayText(const char* text)
 {
-  cerr << text <<endl;
+  cerr << text;
 }
 
 
