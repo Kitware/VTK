@@ -1233,10 +1233,10 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
 				   vtkImageData *outData, T *outPtr,
 				   int outExt[6], int id, vtkMatrix4x4 *matrix)
 {
-  int i, numscalars;
+  int numscalars;
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
-  int inExt[6], inWholeExt[6], inInc[3], inDim[3];
+  int inExt[6], inInc[3];
   unsigned long count = 0;
   unsigned long target;
   float inPoint[4],outPoint[4];
@@ -1841,8 +1841,8 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   int idX, idY, idZ;
   int outIncX, outIncY, outIncZ;
   int inIdX, inIdY, inIdZ;
-  int inExt[6],inWholeExt[6];
-  int inMax[3], inMin[3], inDim[3];
+  int inExt[6];
+  int inMax[3], inMin[3];
   int inInc[3];
   unsigned long count = 0;
   unsigned long target;
