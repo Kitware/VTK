@@ -131,12 +131,9 @@ void vtkSampleFunction::ExecuteInformation()
   
   output->SetScalarType(VTK_FLOAT);
   output->SetNumberOfScalarComponents(1);
-  
   output->SetWholeExtent(0, this->SampleDimensions[0]-1,
 			 0, this->SampleDimensions[1]-1,
 			 0, this->SampleDimensions[2]-1);
-
-  output->SetDimensions(this->GetSampleDimensions());
 
   for (i=0; i < 3; i++)
     {
@@ -163,6 +160,8 @@ void vtkSampleFunction::Execute()
   int numPts;
   float *p, s;
   vtkStructuredPoints *output = this->GetOutput();
+
+  output->SetDimensions(this->GetSampleDimensions());
 
   vtkDebugMacro(<< "Sampling implicit function");
   //
