@@ -39,16 +39,16 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkDebugLeaks - cell represents a 1D line
+// .NAME vtkDebugLeaks - identify memory leaks at program termination
 // .SECTION Description
 // vtkDebugLeaks is used to report memory leaks at the exit of the program.
-// It uses the vtkObjectFactory to intercept the construction of all vtk
-// objects.   It uses the UnRegister method of vtkObject to intercept
-// the destruction of all objects.   A table of object name to 
-// number of instances is kept.   At the exit of the program if there
-// are still vtk objects around it will print them out.  To enable this
-// class add the flag -DVTK_DEBUG_LEAKS to the compile line, and rebuild
-// vtkObject and vtkObjectFactory.
+// It uses the vtkObjectFactory to intercept the construction of all VTK
+// objects. It uses the UnRegister method of vtkObject to intercept the
+// destruction of all objects. A table of object name to number of instances
+// is kept. At the exit of the program if there are still VTK objects around
+// it will print them out.  To enable this class add the flag
+// -DVTK_DEBUG_LEAKS to the compile line, and rebuild vtkObject and
+// vtkObjectFactory.
 
 #ifndef _vtkDebugLeaks_h
 #define _vtkDebugLeaks_h
@@ -62,22 +62,31 @@ class VTK_EXPORT vtkDebugLeaks : public vtkObject
 public: 
   static vtkDebugLeaks *New();
   vtkTypeMacro(vtkDebugLeaks,vtkObject);
+
   // Description:
-  // Call this when creating a class of a given name
+  // Call this when creating a class of a given name.
   static void ConstructClass(const char* classname);
-  // Call this when deleting a class of a given name
+
+  // Description:
+  // Call this when deleting a class of a given name.
   static void DestructClass(const char* classname);
+
+  // Description:
   // Print all the values in the table.
   static void PrintCurrentLeaks();
-  // Clean up the table memory
+
+  // Description:
+  // Clean up the table memory.
   static void DeleteTable();
+
 protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
   vtkDebugLeaks(const vtkDebugLeaks&) {};
   void operator=(const vtkDebugLeaks&) {};
+
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
 };
 
-#endif // _DebugMem_h
+#endif // _vtkDebugLeaks_h
