@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkProperty2D.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkProperty2D* vtkProperty2D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkProperty2D* vtkProperty2D::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkProperty2D;
 }
-
-
-
 
 // Creates a vtkProperty2D with the following default values:
 // Opacity 1, Color (1,0,0), CompositingOperator VTK_SRC
@@ -76,7 +71,19 @@ vtkProperty2D::vtkProperty2D()
 
 vtkProperty2D::~vtkProperty2D()
 {
+}
 
+// Assign one property to another. 
+void vtkProperty2D::DeepCopy(vtkProperty2D *p)
+{
+  if ( p != NULL )
+    {
+    this->SetColor(p->GetColor());
+    this->SetOpacity(p->GetOpacity());
+    this->SetPointSize(p->GetPointSize());
+    this->SetLineWidth(p->GetLineWidth());
+    this->SetDisplayLocation(p->GetDisplayLocation());
+    }
 }
 
 void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)

@@ -69,6 +69,10 @@ public:
   static vtkProperty2D *New();
 
   // Description:
+  // Assign one property to another. 
+  void DeepCopy(vtkProperty2D *p);
+
+  // Description:
   // Set/Get the RGB color of this property.
   vtkSetVector3Macro(Color, float);
   vtkGetVectorMacro(Color, float, 3);
