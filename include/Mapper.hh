@@ -45,6 +45,8 @@ public:
 
   void SetStartRender(void (*f)(void *), void *arg);
   void SetEndRender(void (*f)(void *), void *arg);
+  void SetStartRenderArgDelete(void (*f)(void *));
+  void SetEndRenderArgDelete(void (*f)(void *));
 
   // Description:
   // Method initiates the mapping process. Generally sent by the actor 
@@ -53,7 +55,7 @@ public:
 
   void SetLookupTable(vlLookupTable *lut);
   void SetLookupTable(vlLookupTable& lut) {this->SetLookupTable(&lut);};
-  vlGetObjectMacro(LookupTable,vlLookupTable);
+  vlLookupTable *GetLookupTable();
 
   // Description:
   // Create default lookup table. Generally used to create one when none
@@ -85,8 +87,10 @@ protected:
   vlDataSet *Input;
 
   void (*StartRender)(void *);
+  void (*StartRenderArgDelete)(void *);
   void *StartRenderArg;
   void (*EndRender)(void *);
+  void (*EndRenderArgDelete)(void *);
   void *EndRenderArg;
   vlLookupTable *LookupTable;
   int ScalarsVisible;
