@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPNMWriter.cxx
+  Module:    vtkBMPWriter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,41 +38,74 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPNMWriter.h"
+#include "vtkBMPWriter.h"
 
-void vtkPNMWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
+vtkBMPWriter::vtkBMPWriter()
+{
+  this->FileLowerLeft = 1;
+}
+
+void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageCache *cache)
 {
   int min0, max0, min1, max1, min2, max2, min3, max3;
   int bpp;
+  long temp;
+  int width, height, dataWidth;
+  int row;
   
   // Find the length of the rows to write.
   cache->GetUpdateExtent(min0, max0, min1, max1, min2, max2, min3, max3);
   bpp = cache->GetNumberOfScalarComponents();
+  width = (max0 - min0 + 1);
+  height = (max1 - min1 + 1);
   
-  // spit out the pnm header
-  if (bpp == 1)
-    {
-    *file << "P5\n";
-    *file << "# pgm file written by the visualization toolkit\n";
-    *file << (max0 - min0 + 1) << " " << (max1 - min1 + 1) << "\n255\n";
-    }
-  else 
-    {
-    *file << "P6\n";
-    *file << "# ppm file written by the visualization toolkit\n";
-    *file << (max0 - min0 + 1) << " " << (max1 - min1 + 1) << "\n255\n";
-    }
+  dataWidth = ((width*3+3)/4)*4;
+
+  // spit out the BMP header
+  file->put(66);
+  file->put(77);
+  temp = (long)(dataWidth*height) + 54L;
+  file->put((char)(temp%256));
+  file->put((char)((temp%65536L)/256));
+  file->put((char)(temp/65536L));
+  for (row = 0; row < 5; row++) file->put(0);
+  file->put(54);
+  file->put(0);
+  file->put(0);
+  file->put(0);
+  
+  // info header
+  file->put(40);
+  file->put(0);
+  file->put(0);
+  file->put(0);
+  
+  file->put(width%256);
+  file->put(width/256);
+  file->put(0);
+  file->put(0);
+  
+  file->put(height%256);
+  file->put(height/256);
+  file->put(0);
+  file->put(0);
+  
+  file->put(1);
+  file->put(0);
+  file->put(24);
+  for (row = 0; row < 25; row++) file->put(0);
 }
 
 
-void vtkPNMWriter::WriteFile(ofstream *file, vtkImageRegion *region)
+void vtkBMPWriter::WriteFile(ofstream *file, vtkImageRegion *region)
 {
   int min0, max0, min1, max1, min2, max2, min3, max3, minC, maxC;
   int idx1, idx2, idx3;
   int rowLength; // in bytes
-  void *ptr;
+  char *ptr;
   int bpp;
   vtkImageRegion *data;
+  int i, rowAdder;
   
   // Make sure we actually have data.
   if ( ! region->AreScalarsAllocated())
@@ -108,20 +141,53 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageRegion *region)
     }
   // Always write all the components
   // Row length of x axis
-  rowLength = bpp*(max0 - min0 + 1);
+  rowLength = max0 - min0 + 1;
+  rowAdder = (4 - ((max0-min0 + 1)*3)%4)%4;
 
   for (idx3 = min3; idx3 <= max3; ++idx3)
     {
     for (idx2 = min2; idx2 <= max2; ++idx2)
       {
-      for (idx1 = max1; idx1 >= min1; idx1--)
+      for (idx1 = min1; idx1 <= max1; idx1++)
 	{
-	ptr = data->GetScalarPointer(min0, idx1, idx2, idx3);
-	if ( ! file->write((char *)ptr, rowLength))
+	ptr = (char *)data->GetScalarPointer(min0, idx1, idx2, idx3);
+	if (bpp == 1)
 	  {
-	  vtkErrorMacro("WriteFile: write failed");
-	  return;
+	  for (i = 0; i < rowLength; i++)
+	    {
+	    file->put(ptr[i]);
+	    file->put(ptr[i]);
+	    file->put(ptr[i]);
+	    }
 	  }
+	if (bpp == 2)
+	  {
+	  for (i = 0; i < rowLength; i++)
+	    {
+	    file->put(ptr[i*2]);
+	    file->put(ptr[i*2]);
+	    file->put(ptr[i*2]);
+	    }
+	  }
+	if (bpp == 3)
+	  {
+	  for (i = 0; i < rowLength; i++)
+	    {
+	    file->put(ptr[i*3 + 2]);
+	    file->put(ptr[i*3 + 1]);
+	    file->put(ptr[i*3]);
+	    }
+	  }
+	if (bpp == 4)
+	  {
+	  for (i = 0; i < rowLength; i++)
+	    {
+	    file->put(ptr[i*4 + 2]);
+	    file->put(ptr[i*4 + 1]);
+	    file->put(ptr[i*4]);
+	    }
+	  }
+	for (i = 0; i < rowAdder; i++) file->put(0);
 	}
       }
     }

@@ -116,7 +116,8 @@ protected:
   char *FileName;
   int FileNumber;
   long InputMemoryLimit;
-
+  int FileLowerLeft;
+  
   void RecursiveWrite(int dim, vtkImageCache *region, ofstream *file);
   void RecursiveWrite(int dim, vtkImageCache *cache, 
 		      vtkImageRegion *region, ofstream *file);

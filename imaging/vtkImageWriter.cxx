@@ -62,6 +62,7 @@ vtkImageWriter::vtkImageWriter()
   
   this->Input = NULL;
   this->InputMemoryLimit = 100000;   // 100 MB
+  this->FileLowerLeft = 0;
 }
 
 
@@ -265,7 +266,7 @@ void vtkImageWriter::RecursiveWrite(int dim, vtkImageCache *cache,
 		 << max << ")");
 
   // if it is the y axis then flip by default
-  if (dim == 1)
+  if (dim == 1 && !this->FileLowerLeft)
     {
     // first half
     cache->SetAxisUpdateExtent(dim, mid+1, max);
@@ -349,7 +350,7 @@ void vtkImageWriter::RecursiveWrite(int dim, vtkImageCache *cache,
   region->GetAxisExtent(dim, min, max);
   
   // if it is the y axis then flip by default
-  if (dim == 1)
+  if (dim == 1 && !this->FileLowerLeft)
     {
     for(idx = max; idx >= min; idx--)
       {

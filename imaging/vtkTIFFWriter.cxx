@@ -491,8 +491,7 @@ void vtkTIFFWriter::WriteFile(ofstream *file, vtkImageRegion *region)
 	if ( ! file->write((char *)ptr, rowLength))
 	  {
 	  vtkErrorMacro("WriteFile: write failed");
-	  file->close();
-	  delete file;
+	  return;
 	  }
 	}
       }

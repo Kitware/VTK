@@ -28,6 +28,7 @@ vtkImageTwoInputFilter \
 vtkImageTwoOutputFilter
 
 CONCRETE = \
+vtkBMPWriter \
 vtkImageAccumulate \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
