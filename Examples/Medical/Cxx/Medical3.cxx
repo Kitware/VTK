@@ -36,7 +36,6 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkContourFilter.h"
 #include "vtkImageData.h"
-#include "vtkImageClip.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageActor.h"
 
@@ -153,19 +152,16 @@ int main (int argc, char **argv)
     satLut->SetSaturationRange (0, 1);
     satLut->SetValueRange (1, 1);
 
-  // Create the first of the three planes. We want to avoid duplicating
-  // data, so we clip the extent of the data to the plane that we want.
-  // Then just this plane is mapped through a lookup table. The
-  // vtkImageActor is a type of vtkProp that conveniently displays an
-  // image on a single quadrilateral plane. It does this using texture
-  // mapping and as a result is quite fast. (Note: the input image has
-  // to be unsigned char values, which the vtkImageMapToColors
-  // produces.)
-  vtkImageClip *saggitalSection = vtkImageClip::New();
-    saggitalSection->SetInput (v16->GetOutput());
-    saggitalSection->SetOutputWholeExtent(32,32, 0,63, 0, 92);
+  // Create the first of the three planes. The filter vtkImageMapToColors
+  // maps the data through the corresponding lookup table created above.  The
+  // vtkImageActor is a type of vtkProp and conveniently displays an image on
+  // a single quadrilateral plane. It does this using texture mapping and as
+  // a result is quite fast. (Note: the input image has to be unsigned char
+  // values, which the vtkImageMapToColors produces.) Note also that by
+  // specifying the DisplayExtent, the pipeline requests data of this extent
+  // and the vtkImageMapToColors only processes a slice of data.
   vtkImageMapToColors *saggitalColors = vtkImageMapToColors::New();
-    saggitalColors->SetInput(saggitalSection->GetOutput());
+    saggitalColors->SetInput(v16->GetOutput());
     saggitalColors->SetLookupTable(bwLut);
   vtkImageActor *saggital = vtkImageActor::New();
     saggital->SetInput(saggitalColors->GetOutput());
@@ -173,11 +169,8 @@ int main (int argc, char **argv)
 
   // Create the second (axial) plane of the three planes. We use the
   // same approach as before except that the extent differs.
-  vtkImageClip *axialSection = vtkImageClip::New();
-    axialSection->SetInput (v16->GetOutput());
-    axialSection->SetOutputWholeExtent(0,63, 0,63, 46,46);
   vtkImageMapToColors *axialColors = vtkImageMapToColors::New();
-    axialColors->SetInput(axialSection->GetOutput());
+    axialColors->SetInput(v16->GetOutput());
     axialColors->SetLookupTable(hueLut);
   vtkImageActor *axial = vtkImageActor::New();
     axial->SetInput(axialColors->GetOutput());
@@ -185,11 +178,8 @@ int main (int argc, char **argv)
 
   // Create the third (coronal) plane of the three planes. We use 
   // the same approach as before except that the extent differs.
-  vtkImageClip *coronalSection = vtkImageClip::New();
-    coronalSection->SetInput (v16->GetOutput());
-    coronalSection->SetOutputWholeExtent(0,63, 32,32, 0, 92);
   vtkImageMapToColors *coronalColors = vtkImageMapToColors::New();
-    coronalColors->SetInput(coronalSection->GetOutput());
+    coronalColors->SetInput(v16->GetOutput());
     coronalColors->SetLookupTable(satLut);
   vtkImageActor *coronal = vtkImageActor::New();
     coronal->SetInput(coronalColors->GetOutput());
@@ -243,6 +233,38 @@ int main (int argc, char **argv)
   // interact with data
   iren->Initialize();
   iren->Start(); 
+
+  // It is important to delete all objects created previously to prevent
+  // memory leaks. In this case, since the program is on its way to
+  // exiting, it is not so important. But in applications it is
+  // essential.
+  v16->Delete();
+  skinExtractor->Delete();
+  skinNormals->Delete();
+  skinStripper->Delete();
+  skinMapper->Delete();
+  skin->Delete();
+  boneExtractor->Delete();
+  boneNormals->Delete();
+  boneStripper->Delete();
+  boneMapper->Delete();
+  bone->Delete();
+  outlineData->Delete();
+  mapOutline->Delete();
+  outline->Delete();
+  bwLut->Delete();
+  hueLut->Delete();
+  satLut->Delete();
+  saggitalColors->Delete();
+  saggital->Delete();
+  axialColors->Delete();
+  axial->Delete();
+  coronalColors->Delete();
+  coronal->Delete();
+  aCamera->Delete();
+  aRenderer->Delete();
+  renWin->Delete();
+  iren->Delete();
 
   return 0;
 }
