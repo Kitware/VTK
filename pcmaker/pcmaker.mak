@@ -1,4 +1,4 @@
-# Microsoft Developer Studio Generated NMAKE File, Format Version 4.20
+# Microsoft Developer Studio Generated NMAKE File, Format Version 40001
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
@@ -57,13 +57,13 @@ ALL : "cpp_parse - Win32 Release" "$(OUTDIR)\pcmaker.exe"\
  "$(OUTDIR)\pcmaker.pch"
 
 CLEAN : 
-	-@erase "$(INTDIR)\getclasses.obj"
-	-@erase "$(INTDIR)\pcmaker.obj"
-	-@erase "$(INTDIR)\pcmaker.pch"
-	-@erase "$(INTDIR)\pcmaker.res"
-	-@erase "$(INTDIR)\pcmakerDlg.obj"
-	-@erase "$(INTDIR)\StdAfx.obj"
-	-@erase "$(OUTDIR)\pcmaker.exe"
+	-@erase ".\Release\pcmaker.pch"
+	-@erase ".\Release\pcmaker.exe"
+	-@erase ".\Release\StdAfx.obj"
+	-@erase ".\Release\pcmaker.obj"
+	-@erase ".\Release\getclasses.obj"
+	-@erase ".\Release\pcmakerDlg.obj"
+	-@erase ".\Release\pcmaker.res"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -75,7 +75,7 @@ CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D\
  "_AFXDLL" /D "_MBCS" /Fo"$(INTDIR)/" /c 
 CPP_OBJS=.\Release/
-CPP_SBRS=.\.
+CPP_SBRS=
 
 .c{$(CPP_OBJS)}.obj:
    $(CPP) $(CPP_PROJ) $<  
@@ -107,19 +107,18 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 BSC32_FLAGS=/nologo /o"$(OUTDIR)/pcmaker.bsc" 
-BSC32_SBRS= \
-	
+BSC32_SBRS=
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
 # ADD LINK32 /nologo /subsystem:windows /machine:I386
 LINK32_FLAGS=/nologo /subsystem:windows /incremental:no\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
-	"$(INTDIR)\getclasses.obj" \
-	"$(INTDIR)\pcmaker.obj" \
-	"$(INTDIR)\pcmaker.res" \
-	"$(INTDIR)\pcmakerDlg.obj" \
-	"$(INTDIR)\StdAfx.obj"
+	"$(INTDIR)/StdAfx.obj" \
+	"$(INTDIR)/pcmaker.obj" \
+	"$(INTDIR)/getclasses.obj" \
+	"$(INTDIR)/pcmakerDlg.obj" \
+	"$(INTDIR)/pcmaker.res"
 
 "$(OUTDIR)\pcmaker.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -144,17 +143,17 @@ INTDIR=.\Debug
 ALL : "cpp_parse - Win32 Debug" "$(OUTDIR)\pcmaker.exe" "$(OUTDIR)\pcmaker.pch"
 
 CLEAN : 
-	-@erase "$(INTDIR)\getclasses.obj"
-	-@erase "$(INTDIR)\pcmaker.obj"
-	-@erase "$(INTDIR)\pcmaker.pch"
-	-@erase "$(INTDIR)\pcmaker.res"
-	-@erase "$(INTDIR)\pcmakerDlg.obj"
-	-@erase "$(INTDIR)\StdAfx.obj"
-	-@erase "$(INTDIR)\vc40.idb"
-	-@erase "$(INTDIR)\vc40.pdb"
-	-@erase "$(OUTDIR)\pcmaker.exe"
-	-@erase "$(OUTDIR)\pcmaker.ilk"
-	-@erase "$(OUTDIR)\pcmaker.pdb"
+	-@erase ".\Debug\vc40.pdb"
+	-@erase ".\Debug\vc40.idb"
+	-@erase ".\Debug\pcmaker.pch"
+	-@erase ".\Debug\pcmaker.exe"
+	-@erase ".\Debug\pcmakerDlg.obj"
+	-@erase ".\Debug\getclasses.obj"
+	-@erase ".\Debug\pcmaker.obj"
+	-@erase ".\Debug\StdAfx.obj"
+	-@erase ".\Debug\pcmaker.res"
+	-@erase ".\Debug\pcmaker.ilk"
+	-@erase ".\Debug\pcmaker.pdb"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -166,7 +165,7 @@ CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS"\
  /D "_AFXDLL" /D "_MBCS" /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
 CPP_OBJS=.\Debug/
-CPP_SBRS=.\.
+CPP_SBRS=
 
 .c{$(CPP_OBJS)}.obj:
    $(CPP) $(CPP_PROJ) $<  
@@ -198,19 +197,18 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 BSC32_FLAGS=/nologo /o"$(OUTDIR)/pcmaker.bsc" 
-BSC32_SBRS= \
-	
+BSC32_SBRS=
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386
 # ADD LINK32 /nologo /subsystem:windows /debug /machine:I386
 LINK32_FLAGS=/nologo /subsystem:windows /incremental:yes\
  /pdb:"$(OUTDIR)/pcmaker.pdb" /debug /machine:I386 /out:"$(OUTDIR)/pcmaker.exe" 
 LINK32_OBJS= \
-	"$(INTDIR)\getclasses.obj" \
-	"$(INTDIR)\pcmaker.obj" \
-	"$(INTDIR)\pcmaker.res" \
-	"$(INTDIR)\pcmakerDlg.obj" \
-	"$(INTDIR)\StdAfx.obj"
+	"$(INTDIR)/pcmakerDlg.obj" \
+	"$(INTDIR)/getclasses.obj" \
+	"$(INTDIR)/pcmaker.obj" \
+	"$(INTDIR)/StdAfx.obj" \
+	"$(INTDIR)/pcmaker.res"
 
 "$(OUTDIR)\pcmaker.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -235,8 +233,8 @@ INTDIR=.\cpp_parse\Release
 ALL : "$(OUTDIR)\cpp_parse.exe"
 
 CLEAN : 
-	-@erase "$(INTDIR)\y.tab.obj"
-	-@erase "$(OUTDIR)\cpp_parse.exe"
+	-@erase ".\cpp_parse\Release\cpp_parse.exe"
+	-@erase ".\cpp_parse\Release\y.tab.obj"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -247,7 +245,7 @@ CPP=cl.exe
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
  /Fp"$(INTDIR)/cpp_parse.pch" /YX /Fo"$(INTDIR)/" /c 
 CPP_OBJS=.\cpp_parse\Release/
-CPP_SBRS=.\.
+CPP_SBRS=
 
 .c{$(CPP_OBJS)}.obj:
    $(CPP) $(CPP_PROJ) $<  
@@ -274,8 +272,7 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 BSC32_FLAGS=/nologo /o"$(OUTDIR)/cpp_parse.bsc" 
-BSC32_SBRS= \
-	
+BSC32_SBRS=
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
@@ -284,7 +281,7 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  odbccp32.lib /nologo /subsystem:console /incremental:no\
  /pdb:"$(OUTDIR)/cpp_parse.pdb" /machine:I386 /out:"$(OUTDIR)/cpp_parse.exe" 
 LINK32_OBJS= \
-	"$(INTDIR)\y.tab.obj"
+	"$(INTDIR)/y.tab.obj"
 
 "$(OUTDIR)\cpp_parse.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -309,12 +306,12 @@ INTDIR=.\cpp_parse\Debug
 ALL : "$(OUTDIR)\cpp_parse.exe"
 
 CLEAN : 
-	-@erase "$(INTDIR)\vc40.idb"
-	-@erase "$(INTDIR)\vc40.pdb"
-	-@erase "$(INTDIR)\y.tab.obj"
-	-@erase "$(OUTDIR)\cpp_parse.exe"
-	-@erase "$(OUTDIR)\cpp_parse.ilk"
-	-@erase "$(OUTDIR)\cpp_parse.pdb"
+	-@erase ".\cpp_parse\Debug\vc40.pdb"
+	-@erase ".\cpp_parse\Debug\vc40.idb"
+	-@erase ".\cpp_parse\Debug\cpp_parse.exe"
+	-@erase ".\cpp_parse\Debug\y.tab.obj"
+	-@erase ".\cpp_parse\Debug\cpp_parse.ilk"
+	-@erase ".\cpp_parse\Debug\cpp_parse.pdb"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -325,7 +322,7 @@ CPP=cl.exe
 CPP_PROJ=/nologo /MLd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE"\
  /Fp"$(INTDIR)/cpp_parse.pch" /YX /Fo"$(INTDIR)/" /Fd"$(INTDIR)/" /c 
 CPP_OBJS=.\cpp_parse\Debug/
-CPP_SBRS=.\.
+CPP_SBRS=
 
 .c{$(CPP_OBJS)}.obj:
    $(CPP) $(CPP_PROJ) $<  
@@ -352,8 +349,7 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 BSC32_FLAGS=/nologo /o"$(OUTDIR)/cpp_parse.bsc" 
-BSC32_SBRS= \
-	
+BSC32_SBRS=
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386
@@ -363,7 +359,7 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  /pdb:"$(OUTDIR)/cpp_parse.pdb" /debug /machine:I386\
  /out:"$(OUTDIR)/cpp_parse.exe" 
 LINK32_OBJS= \
-	"$(INTDIR)\y.tab.obj"
+	"$(INTDIR)/y.tab.obj"
 
 "$(OUTDIR)\cpp_parse.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -418,8 +414,8 @@ DEP_CPP_PCMAKE=\
 	".\pcmaker.h"\
 	".\pcmakerDlg.h"\
 	".\StdAfx.h"\
-	{$(INCLUDE)}"\sys\stat.h"\
-	{$(INCLUDE)}"\sys\types.h"\
+	{$(INCLUDE)}"\sys\Stat.h"\
+	{$(INCLUDE)}"\sys\Types.h"\
 	
 
 "$(INTDIR)\pcmakerDlg.obj" : $(SOURCE) $(DEP_CPP_PCMAKE) "$(INTDIR)"
@@ -487,8 +483,13 @@ DEP_RSC_PCMAKER=\
 # Begin Source File
 
 SOURCE=.\getclasses.cxx
+DEP_CPP_GETCL=\
+	".\StdAfx.h"\
+	".\pcmaker.h"\
+	".\pcmakerDlg.h"\
+	
 
-"$(INTDIR)\getclasses.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\getclasses.obj" : $(SOURCE) $(DEP_CPP_GETCL) "$(INTDIR)"
 
 
 # End Source File
@@ -497,15 +498,15 @@ SOURCE=.\getclasses.cxx
 
 # Project_Dep_Name "cpp_parse"
 
-!IF  "$(CFG)" == "pcmaker - Win32 Debug"
-
-"cpp_parse - Win32 Debug" : 
-   $(MAKE) /$(MAKEFLAGS) /F ".\pcmaker.mak" CFG="cpp_parse - Win32 Debug" 
-
-!ELSEIF  "$(CFG)" == "pcmaker - Win32 Release"
+!IF  "$(CFG)" == "pcmaker - Win32 Release"
 
 "cpp_parse - Win32 Release" : 
-   $(MAKE) /$(MAKEFLAGS) /F ".\pcmaker.mak" CFG="cpp_parse - Win32 Release" 
+   $(MAKE) /$(MAKEFLAGS) /F .\pcmaker.mak CFG="cpp_parse - Win32 Release" 
+
+!ELSEIF  "$(CFG)" == "pcmaker - Win32 Debug"
+
+"cpp_parse - Win32 Debug" : 
+   $(MAKE) /$(MAKEFLAGS) /F .\pcmaker.mak CFG="cpp_parse - Win32 Debug" 
 
 !ENDIF 
 
@@ -527,14 +528,28 @@ SOURCE=.\getclasses.cxx
 # Begin Source File
 
 SOURCE=..\tcl\y.tab.c
+
+!IF  "$(CFG)" == "cpp_parse - Win32 Release"
+
 DEP_CPP_Y_TAB=\
-	"..\tcl\lex.yy.c"\
+	".\..\tcl\lex.yy.c"\
 	
 
-"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"\
- "..\tcl\lex.yy.c"
+"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
 
+
+!ELSEIF  "$(CFG)" == "cpp_parse - Win32 Debug"
+
+DEP_CPP_Y_TAB=\
+	".\..\tcl\lex.yy.c"\
+	
+
+"$(INTDIR)\y.tab.obj" : $(SOURCE) $(DEP_CPP_Y_TAB) "$(INTDIR)"
+   $(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+!ENDIF 
 
 # End Source File
 # End Target
