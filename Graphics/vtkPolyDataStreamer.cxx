@@ -18,11 +18,12 @@
 #include "vtkPolyDataStreamer.h"
 
 #include "vtkAppendPolyData.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.13");
+vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.14");
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //----------------------------------------------------------------------------

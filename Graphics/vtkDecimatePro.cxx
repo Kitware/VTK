@@ -25,8 +25,11 @@
 #include "vtkPolyData.h"
 #include "vtkPriorityQueue.h"
 #include "vtkTriangle.h"
+#include "vtkCellArray.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.72");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.73");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05

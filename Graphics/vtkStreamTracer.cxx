@@ -17,12 +17,17 @@
 =========================================================================*/
 #include "vtkStreamTracer.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
@@ -30,7 +35,7 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.15");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.16");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 

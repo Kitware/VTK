@@ -20,13 +20,14 @@
 #include "vtkEdgeTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointLocator.h"
 #include "vtkPolyData.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.63");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.64");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------

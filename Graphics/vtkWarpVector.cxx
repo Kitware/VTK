@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkWarpVector.h"
 
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpVector, "1.40");
+vtkCxxRevisionMacro(vtkWarpVector, "1.41");
 vtkStandardNewMacro(vtkWarpVector);
 
 vtkWarpVector::vtkWarpVector()

@@ -17,12 +17,15 @@
 =========================================================================*/
 #include "vtkTriangleFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTriangleFilter, "1.49");
+vtkCxxRevisionMacro(vtkTriangleFilter, "1.50");
 vtkStandardNewMacro(vtkTriangleFilter);
 
 void vtkTriangleFilter::Execute()

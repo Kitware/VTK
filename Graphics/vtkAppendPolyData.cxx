@@ -17,10 +17,14 @@
 =========================================================================*/
 #include "vtkAppendPolyData.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.91");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.92");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------

@@ -21,10 +21,11 @@
 #include "vtkCellArray.h"
 #include "vtkContourFilter.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.20");
+vtkCxxRevisionMacro(vtkVoxelContoursToSurfaceFilter, "1.21");
 vtkStandardNewMacro(vtkVoxelContoursToSurfaceFilter);
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()

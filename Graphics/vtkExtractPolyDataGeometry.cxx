@@ -17,12 +17,15 @@
 =========================================================================*/
 #include "vtkExtractPolyDataGeometry.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.19");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.20");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
 vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
                      ImplicitFunction,vtkImplicitFunction);

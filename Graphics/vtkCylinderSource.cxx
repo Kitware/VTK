@@ -17,14 +17,16 @@
 =========================================================================*/
 #include "vtkCylinderSource.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCylinderSource, "1.49");
+vtkCxxRevisionMacro(vtkCylinderSource, "1.50");
 vtkStandardNewMacro(vtkCylinderSource);
 
 vtkCylinderSource::vtkCylinderSource (int res)

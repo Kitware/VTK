@@ -19,10 +19,11 @@
 
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpLens, "1.24");
+vtkCxxRevisionMacro(vtkWarpLens, "1.25");
 vtkStandardNewMacro(vtkWarpLens);
 
 //

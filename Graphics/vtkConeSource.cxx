@@ -22,10 +22,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
+#include "vtkCellArray.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.61");
+vtkCxxRevisionMacro(vtkConeSource, "1.62");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------

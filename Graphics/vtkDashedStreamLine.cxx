@@ -21,9 +21,10 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDashedStreamLine, "1.39");
+vtkCxxRevisionMacro(vtkDashedStreamLine, "1.40");
 vtkStandardNewMacro(vtkDashedStreamLine);
 
 vtkDashedStreamLine::vtkDashedStreamLine()

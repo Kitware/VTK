@@ -17,10 +17,13 @@
 =========================================================================*/
 #include "vtkStripper.h"
 
+#include "vtkCellArray.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.62");
+vtkCxxRevisionMacro(vtkStripper, "1.63");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.

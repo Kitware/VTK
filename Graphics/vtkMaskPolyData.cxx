@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkMaskPolyData.h"
 
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMaskPolyData, "1.39");
+vtkCxxRevisionMacro(vtkMaskPolyData, "1.40");
 vtkStandardNewMacro(vtkMaskPolyData);
 
 vtkMaskPolyData::vtkMaskPolyData()

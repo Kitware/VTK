@@ -17,15 +17,18 @@
 =========================================================================*/
 #include "vtkBandedPolyDataContourFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkEdgeTable.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTriangleStrip.h"
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.29");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.30");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.

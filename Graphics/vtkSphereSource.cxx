@@ -17,15 +17,17 @@
 =========================================================================*/
 #include "vtkSphereSource.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.61");
+vtkCxxRevisionMacro(vtkSphereSource, "1.62");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------

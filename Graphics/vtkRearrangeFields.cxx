@@ -17,11 +17,15 @@
 =========================================================================*/
 #include "vtkRearrangeFields.h"
 
+#include "vtkCellData.h"
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkRearrangeFields, "1.10");
+vtkCxxRevisionMacro(vtkRearrangeFields, "1.11");
 vtkStandardNewMacro(vtkRearrangeFields);
 
 typedef vtkRearrangeFields::Operation Operation;

@@ -17,12 +17,14 @@
 =========================================================================*/
 #include "vtkRuledSurfaceFilter.h"
 
+#include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.17");
+vtkCxxRevisionMacro(vtkRuledSurfaceFilter, "1.18");
 vtkStandardNewMacro(vtkRuledSurfaceFilter);
 
 vtkRuledSurfaceFilter::vtkRuledSurfaceFilter()

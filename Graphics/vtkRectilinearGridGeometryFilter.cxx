@@ -17,12 +17,15 @@
 =========================================================================*/
 #include "vtkRectilinearGridGeometryFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.24");
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.25");
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).

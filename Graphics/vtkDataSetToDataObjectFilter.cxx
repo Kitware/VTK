@@ -16,15 +16,20 @@
 
 =========================================================================*/
 #include "vtkDataSetToDataObjectFilter.h"
-#include "vtkPolyData.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkUnstructuredGrid.h"
+
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.28");
+vtkCxxRevisionMacro(vtkDataSetToDataObjectFilter, "1.29");
 vtkStandardNewMacro(vtkDataSetToDataObjectFilter);
 
 //----------------------------------------------------------------------------

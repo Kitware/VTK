@@ -17,9 +17,13 @@
 =========================================================================*/
 #include "vtkDataSetSurfaceFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkRectilinearGrid.h"
@@ -32,7 +36,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.22");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.23");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------

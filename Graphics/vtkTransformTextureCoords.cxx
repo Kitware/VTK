@@ -20,9 +20,10 @@
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.31");
+vtkCxxRevisionMacro(vtkTransformTextureCoords, "1.32");
 vtkStandardNewMacro(vtkTransformTextureCoords);
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale

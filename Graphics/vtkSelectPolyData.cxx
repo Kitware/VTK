@@ -17,17 +17,21 @@
 =========================================================================*/
 #include "vtkSelectPolyData.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
+#include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkPolygon.h"
 #include "vtkPolyData.h"
+#include "vtkPolygon.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkSelectPolyData, "1.25");
+vtkCxxRevisionMacro(vtkSelectPolyData, "1.26");
 vtkStandardNewMacro(vtkSelectPolyData);
 
 vtkCxxSetObjectMacro(vtkSelectPolyData,Loop,vtkPoints);

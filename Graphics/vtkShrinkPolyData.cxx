@@ -17,10 +17,13 @@
 =========================================================================*/
 #include "vtkShrinkPolyData.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.63");
+vtkCxxRevisionMacro(vtkShrinkPolyData, "1.64");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(float sf)

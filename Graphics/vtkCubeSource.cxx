@@ -17,14 +17,16 @@
 =========================================================================*/
 #include "vtkCubeSource.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCubeSource, "1.47");
+vtkCxxRevisionMacro(vtkCubeSource, "1.48");
 vtkStandardNewMacro(vtkCubeSource);
 
 vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)

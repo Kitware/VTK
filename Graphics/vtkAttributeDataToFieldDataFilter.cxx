@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkAttributeDataToFieldDataFilter.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAttributeDataToFieldDataFilter, "1.15");
+vtkCxxRevisionMacro(vtkAttributeDataToFieldDataFilter, "1.16");
 vtkStandardNewMacro(vtkAttributeDataToFieldDataFilter);
 
 // Instantiate object.

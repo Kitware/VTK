@@ -21,6 +21,7 @@
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
@@ -28,7 +29,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.9");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.10");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------

@@ -17,12 +17,14 @@
 =========================================================================*/
 #include "vtkElevationFilter.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkElevationFilter, "1.50");
+vtkCxxRevisionMacro(vtkElevationFilter, "1.51");
 vtkStandardNewMacro(vtkElevationFilter);
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar

@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkGraphLayoutFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.8");
+vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.9");
 vtkStandardNewMacro(vtkGraphLayoutFilter);
 
 vtkGraphLayoutFilter::vtkGraphLayoutFilter()

@@ -17,12 +17,14 @@
 =========================================================================*/
 #include "vtkTextureMapToSphere.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.28");
+vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.29");
 vtkStandardNewMacro(vtkTextureMapToSphere);
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 

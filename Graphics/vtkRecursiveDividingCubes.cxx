@@ -22,10 +22,11 @@
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.36");
+vtkCxxRevisionMacro(vtkRecursiveDividingCubes, "1.37");
 vtkStandardNewMacro(vtkRecursiveDividingCubes);
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()

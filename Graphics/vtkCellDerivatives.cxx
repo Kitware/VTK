@@ -17,14 +17,18 @@
 =========================================================================*/
 #include "vtkCellDerivatives.h"
 
+#include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkTensor.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCellDerivatives, "1.22");
+vtkCxxRevisionMacro(vtkCellDerivatives, "1.23");
 vtkStandardNewMacro(vtkCellDerivatives);
 
 vtkCellDerivatives::vtkCellDerivatives()

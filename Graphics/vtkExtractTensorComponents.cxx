@@ -21,8 +21,9 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.23");
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.24");
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
 // Construct object to extract nothing and to not pass tensor data

@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkSplitField.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSplitField, "1.13");
+vtkCxxRevisionMacro(vtkSplitField, "1.14");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 

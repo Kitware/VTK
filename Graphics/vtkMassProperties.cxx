@@ -17,12 +17,14 @@
 =========================================================================*/
 #include "vtkMassProperties.h"
 
+#include "vtkCell.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMassProperties, "1.23");
+vtkCxxRevisionMacro(vtkMassProperties, "1.24");
 vtkStandardNewMacro(vtkMassProperties);
 
 #define  VTK_CUBE_ROOT(x) \

@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkLinearSubdivisionFilter.h"
 
+#include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.13");
+vtkCxxRevisionMacro(vtkLinearSubdivisionFilter, "1.14");
 vtkStandardNewMacro(vtkLinearSubdivisionFilter);
 
 void vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)

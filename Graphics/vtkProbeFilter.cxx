@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkProbeFilter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkImageData.h"
+#include "vtkCell.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.75");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.76");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------

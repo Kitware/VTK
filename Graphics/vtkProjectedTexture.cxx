@@ -21,8 +21,9 @@
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProjectedTexture, "1.24");
+vtkCxxRevisionMacro(vtkProjectedTexture, "1.25");
 vtkStandardNewMacro(vtkProjectedTexture);
 
 // Description:

@@ -17,15 +17,17 @@
 =========================================================================*/
 #include "vtkStreamLine.h"
 
+#include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamLine, "1.53");
+vtkCxxRevisionMacro(vtkStreamLine, "1.54");
 vtkStandardNewMacro(vtkStreamLine);
 
 // Construct object with step size set to 1.0.

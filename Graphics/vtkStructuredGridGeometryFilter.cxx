@@ -17,12 +17,15 @@
 =========================================================================*/
 #include "vtkStructuredGridGeometryFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
-#include "vtkStructuredGrid.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.55");
+vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.56");
 vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data

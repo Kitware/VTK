@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkBlankStructuredGridWithImage.h"
 
+#include "vtkCellData.h"
+#include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.6");
+vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.7");
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //----------------------------------------------------------------------------

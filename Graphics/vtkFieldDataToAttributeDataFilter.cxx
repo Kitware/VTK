@@ -20,8 +20,10 @@
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkCellData.h"
 
-vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.35");
+vtkCxxRevisionMacro(vtkFieldDataToAttributeDataFilter, "1.36");
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
 // Instantiate object with no input and no defined output.

@@ -17,13 +17,16 @@
 =========================================================================*/
 #include "vtkTubeFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.69");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.70");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 

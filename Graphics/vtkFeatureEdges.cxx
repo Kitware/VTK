@@ -25,8 +25,11 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.61");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.62");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 

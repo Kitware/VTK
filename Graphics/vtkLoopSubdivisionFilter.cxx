@@ -17,11 +17,15 @@
 =========================================================================*/
 #include "vtkLoopSubdivisionFilter.h"
 
+#include "vtkCell.h"
+#include "vtkCellArray.h"
 #include "vtkEdgeTable.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.16");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.17");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static float LoopWeights[4] =

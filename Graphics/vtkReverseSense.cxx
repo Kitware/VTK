@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkReverseSense.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkReverseSense, "1.27");
+vtkCxxRevisionMacro(vtkReverseSense, "1.28");
 vtkStandardNewMacro(vtkReverseSense);
 
 // Construct object so that behavior is to reverse cell ordering and

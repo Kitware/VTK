@@ -17,12 +17,14 @@
 =========================================================================*/
 #include "vtkTextureMapToPlane.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.44");
+vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.45");
 vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.

@@ -17,15 +17,18 @@
 =========================================================================*/
 #include "vtkDelaunay2D.h"
 
+#include "vtkAbstractTransform.h"
+#include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.55");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.56");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 

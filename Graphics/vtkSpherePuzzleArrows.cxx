@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkSpherePuzzleArrows.h"
 
+#include "vtkCellArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -24,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.9");
+vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.10");
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
 //----------------------------------------------------------------------------

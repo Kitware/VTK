@@ -22,10 +22,11 @@
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStreamPoints, "1.37");
+vtkCxxRevisionMacro(vtkStreamPoints, "1.38");
 vtkStandardNewMacro(vtkStreamPoints);
 
 // Construct object with time increment set to 1.0.

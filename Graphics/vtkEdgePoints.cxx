@@ -17,13 +17,18 @@
 =========================================================================*/
 #include "vtkEdgePoints.h"
 
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkEdgePoints, "1.49");
+vtkCxxRevisionMacro(vtkEdgePoints, "1.50");
 vtkStandardNewMacro(vtkEdgePoints);
 
 // Construct object with contour value of 0.0.

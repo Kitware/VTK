@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkProgrammableAttributeDataFilter.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.17");
+vtkCxxRevisionMacro(vtkProgrammableAttributeDataFilter, "1.18");
 vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()

@@ -17,11 +17,16 @@
 =========================================================================*/
 #include "vtkApproximatingSubdivisionFilter.h"
 
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkEdgeTable.h"
+#include "vtkIdList.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.23");
+vtkCxxRevisionMacro(vtkApproximatingSubdivisionFilter, "1.24");
 
 // Construct object with number of subdivisions set to 1.
 vtkApproximatingSubdivisionFilter::vtkApproximatingSubdivisionFilter()

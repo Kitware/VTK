@@ -17,11 +17,14 @@
 =========================================================================*/
 #include "vtkExtractVectorComponents.h"
 
+#include "vtkCellData.h"
+#include "vtkDataArray.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.44");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.45");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()

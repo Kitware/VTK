@@ -17,6 +17,7 @@
 =========================================================================*/
 #include "vtkExtractEdges.h"
 
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkEdgeTable.h"
@@ -26,7 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractEdges, "1.43");
+vtkCxxRevisionMacro(vtkExtractEdges, "1.44");
 vtkStandardNewMacro(vtkExtractEdges);
 
 // Construct object.

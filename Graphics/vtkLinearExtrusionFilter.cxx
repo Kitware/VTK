@@ -17,10 +17,16 @@
 =========================================================================*/
 #include "vtkLinearExtrusionFilter.h"
 
+#include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkGenericCell.h"
+#include "vtkIdList.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.55");
+vtkCxxRevisionMacro(vtkLinearExtrusionFilter, "1.56");
 vtkStandardNewMacro(vtkLinearExtrusionFilter);
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,

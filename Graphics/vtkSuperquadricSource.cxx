@@ -23,15 +23,17 @@
 */
 #include "vtkSuperquadricSource.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadricSource, "1.19");
+vtkCxxRevisionMacro(vtkSuperquadricSource, "1.20");
 vtkStandardNewMacro(vtkSuperquadricSource);
 
 static void evalSuperquadric(float u, float v, 

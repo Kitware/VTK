@@ -17,12 +17,13 @@
 =========================================================================*/
 #include "vtkCursor3D.h"
 
+#include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.40");
+vtkCxxRevisionMacro(vtkCursor3D, "1.41");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),

@@ -17,15 +17,18 @@
 =========================================================================*/
 #include "vtkStreamer.h"
 
+#include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkGenericCell.h"
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.82");
+vtkCxxRevisionMacro(vtkStreamer, "1.83");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0

@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkAssignAttribute.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkAssignAttribute, "1.7");
+vtkCxxRevisionMacro(vtkAssignAttribute, "1.8");
 vtkStandardNewMacro(vtkAssignAttribute);
 
 char vtkAssignAttribute::AttributeLocationNames[2][12] 

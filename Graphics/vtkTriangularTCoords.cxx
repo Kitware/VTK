@@ -17,13 +17,15 @@
 =========================================================================*/
 #include "vtkTriangularTCoords.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkTriangularTCoords, "1.24");
+vtkCxxRevisionMacro(vtkTriangularTCoords, "1.25");
 vtkStandardNewMacro(vtkTriangularTCoords);
 
 void vtkTriangularTCoords::Execute()

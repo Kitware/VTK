@@ -17,11 +17,13 @@
 =========================================================================*/
 #include "vtkAxes.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkAxes, "1.40");
+vtkCxxRevisionMacro(vtkAxes, "1.41");
 vtkStandardNewMacro(vtkAxes);
 
 // Construct with origin=(0,0,0) and scale factor=1.

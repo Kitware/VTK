@@ -18,10 +18,14 @@
 #include "vtkContourFilter.h"
 
 #include "vtkCell.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkContourGrid.h"
 #include "vtkContourValues.h"
+#include "vtkGenericCell.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSimpleScalarTree.h"
 #include "vtkTimerLog.h"
@@ -29,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.96");
+vtkCxxRevisionMacro(vtkContourFilter, "1.97");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 

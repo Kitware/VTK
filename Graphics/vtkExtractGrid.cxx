@@ -17,10 +17,12 @@
 =========================================================================*/
 #include "vtkExtractGrid.h"
 
+#include "vtkCellData.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGrid, "1.41");
+vtkCxxRevisionMacro(vtkExtractGrid, "1.42");
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.

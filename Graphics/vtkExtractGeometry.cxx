@@ -17,12 +17,16 @@
 =========================================================================*/
 #include "vtkExtractGeometry.h"
 
+#include "vtkCell.h"
+#include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkIdList.h"
 #include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGeometry, "1.48");
+vtkCxxRevisionMacro(vtkExtractGeometry, "1.49");
 vtkStandardNewMacro(vtkExtractGeometry);
 vtkCxxSetObjectMacro(vtkExtractGeometry,ImplicitFunction,vtkImplicitFunction);
 

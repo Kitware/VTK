@@ -17,13 +17,15 @@
 =========================================================================*/
 #include "vtkLinkEdgels.h"
 
+#include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLinkEdgels, "1.32");
+vtkCxxRevisionMacro(vtkLinkEdgels, "1.33");
 vtkStandardNewMacro(vtkLinkEdgels);
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 

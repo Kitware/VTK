@@ -17,9 +17,13 @@
 =========================================================================*/
 #include "vtkGeometryFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPyramid.h"
 #include "vtkStructuredGrid.h"
@@ -29,7 +33,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.90");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.91");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.

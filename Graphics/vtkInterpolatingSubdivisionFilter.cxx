@@ -17,10 +17,13 @@
 =========================================================================*/
 #include "vtkInterpolatingSubdivisionFilter.h"
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkEdgeTable.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.19");
+vtkCxxRevisionMacro(vtkInterpolatingSubdivisionFilter, "1.20");
 
 // Construct object with number of subdivisions set to 1.
 vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()

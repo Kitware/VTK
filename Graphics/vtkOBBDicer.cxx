@@ -17,14 +17,17 @@
 =========================================================================*/
 #include "vtkOBBDicer.h"
 
+#include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkOBBTree.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkShortArray.h"
 
-vtkCxxRevisionMacro(vtkOBBDicer, "1.15");
+vtkCxxRevisionMacro(vtkOBBDicer, "1.16");
 vtkStandardNewMacro(vtkOBBDicer);
 
 void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)

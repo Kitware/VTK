@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkProgrammableDataObjectSource.h"
+
+#include "vtkDataObject.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkProgrammableDataObjectSource, "1.14");
+vtkCxxRevisionMacro(vtkProgrammableDataObjectSource, "1.15");
 vtkStandardNewMacro(vtkProgrammableDataObjectSource);
 
 // Construct programmable filter with empty execute method.

@@ -83,6 +83,7 @@
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
+class vtkFloatArray;
 class vtkPriorityQueue;
 
 class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
