@@ -17,7 +17,7 @@ struct Vtkrenderwidget
   Tcl_Interp *Interp;		/* Tcl interpreter */
   int Width;
   int Height;
-  vtkXRenderWindow *RenderWindow;
+  vtkRenderWindow *RenderWindow;
   char *RW;
 };
 
