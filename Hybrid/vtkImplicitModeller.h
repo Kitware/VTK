@@ -72,7 +72,7 @@
 #ifndef __vtkImplicitModeller_h
 #define __vtkImplicitModeller_h
 
-#include "vtkDataSetToStructuredPointsFilter.h"
+#include "vtkDataSetToImageFilter.h"
 
 #define VTK_VOXEL_MODE   0
 #define VTK_CELL_MODE    1
@@ -80,10 +80,10 @@
 class vtkMultiThreader;
 class vtkExtractGeometry;
 
-class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
+class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkDataSetToImageFilter 
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitModeller,vtkDataSetToStructuredPointsFilter);
+  vtkTypeRevisionMacro(vtkImplicitModeller,vtkDataSetToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -93,8 +93,8 @@ public:
   static vtkImplicitModeller *New();
 
   // Description:
-  // Compute ModelBounds from input geometry. If input is not specified, the input
-  // of the filter will be used.
+  // Compute ModelBounds from input geometry. If input is not specified, the
+  // input of the filter will be used.
   float ComputeModelBounds(vtkDataSet *input = NULL);
 
   // Description:
@@ -193,7 +193,7 @@ protected:
   vtkImplicitModeller();
   ~vtkImplicitModeller();
 
-  void Execute();
+  void ExecuteData(vtkDataObject *);
   void ExecuteInformation();
   
   void Cap(vtkDataArray *s);

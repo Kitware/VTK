@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.75");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.76");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -95,7 +95,7 @@ void vtkImplicitModeller::UpdateData(vtkDataObject *output)
     return;
     }
 
-  this->vtkDataSetToStructuredPointsFilter::UpdateData( output );
+  this->vtkDataSetToImageFilter::UpdateData( output );
 }
 
 //----------------------------------------------------------------------------
@@ -106,26 +106,28 @@ void vtkImplicitModeller::UpdateData(vtkDataObject *output)
 void vtkImplicitModeller::StartAppend()
 {
   vtkIdType numPts;
-  vtkFloatArray *newScalars;
   vtkIdType i;
   float maxDistance;
 
+  // we must call execute information because we can't be sure that 
+  // it has been called.
+  this->ExecuteInformation();
+  this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
+  
   vtkDebugMacro(<< "Initializing data");
+  this->AllocateOutputData(this->GetOutput());
+  vtkFloatArray *newScalars = vtkFloatArray::SafeDownCast(
+    this->GetOutput()->GetPointData()->GetScalars());
   this->UpdateProgress(0.0);
   this->DataAppended = 1;
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = vtkFloatArray::New(); 
-  newScalars->SetNumberOfTuples(numPts);
   maxDistance = this->CapValue * this->CapValue;//sqrt taken later
   for (i=0; i<numPts; i++)
     {
     newScalars->SetComponent(i, 0, maxDistance);
     }
-
-  this->GetOutput()->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -137,7 +139,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   int                      thread_count;
   int                      thread_id;
   vtkImplicitModellerAppendInfo *userData;
-  vtkStructuredPoints *output;
+  vtkImageData *output;
   float maxDistance;
   int i, j, k;
   float *bounds, adjBounds[6];
@@ -354,7 +356,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
   vtkDebugMacro(<< "Appending data");
 
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
 
   if ( !this->BoundsComputed )
     {
@@ -363,9 +365,6 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
   Spacing = output->GetSpacing();
   origin = output->GetOrigin();
-
-  // setup the output if necessary
-  output->SetDimensions(this->GetSampleDimensions());
 
   if (this->ProcessMode == VTK_CELL_MODE)
     {
@@ -494,8 +493,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
             case VTK_STRUCTURED_GRID:
               info.Input[i] = vtkStructuredGrid::New();
               break;
-            case VTK_STRUCTURED_POINTS:
-              info.Input[i] = vtkStructuredPoints::New();
+            case VTK_IMAGE_DATA:
+              info.Input[i] = vtkImageData::New();
               break;
             case VTK_UNSTRUCTURED_GRID:
               info.Input[i] = vtkUnstructuredGrid::New();
@@ -686,7 +685,7 @@ void vtkImplicitModeller::ExecuteInformation()
 {
   int i;
   float ar[3], origin[3];
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->GetOutput();
   
   output->SetScalarType(VTK_FLOAT);
   output->SetNumberOfScalarComponents(1);
@@ -714,7 +713,7 @@ void vtkImplicitModeller::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::Execute()
+void vtkImplicitModeller::ExecuteData(vtkDataObject *outp)
 {
   vtkDebugMacro(<< "Executing implicit model");
 
@@ -735,7 +734,7 @@ float vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
 {
   float *bounds, maxDist;
   int i;
-  vtkStructuredPoints *output=this->GetOutput();
+  vtkImageData *output=this->GetOutput();
   float tempf[3];
   
   // compute model bounds if not set previously
