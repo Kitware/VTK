@@ -21,18 +21,8 @@
 #define __vtkAbstractList_txx
 
 #include "vtkAbstractList.h"
-#include "vtkDebugLeaks.h"
 
-template<class DType>
-vtkAbstractList<DType>* vtkAbstractList<DType>::New()
-{
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass("vtkAbstractList");
-#endif
-  return new vtkAbstractList<DType>;
-}
-
-template<class DType>
-vtkAbstractList<DType>::vtkAbstractList() {}
+template<class DataType>
+vtkAbstractList<DataType>::vtkAbstractList() {}
 
 #endif

@@ -67,8 +67,7 @@ template<class DType>
 class vtkAbstractList : public vtkContainer
 {
 public:
-  static vtkAbstractList<DType>* New();
-  virtual const char* GetClassName() const { return "vtkAbstractList"; }
+  vtkContainerTypeMacro(vtkAbstractList<DType>, vtkContainer);
 
   // Just to avoid typing over and over, let us define some typedefs.
   // They will not work in subclasses, but this header file will 
