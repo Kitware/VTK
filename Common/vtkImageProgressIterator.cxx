@@ -22,6 +22,7 @@
 #pragma warning ( disable : 4275 )
 #endif
 
+#include "vtkImageIterator.txx"
 #include "vtkImageProgressIterator.txx"
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
