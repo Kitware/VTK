@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.35.2.1");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.35.2.2");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ vtkEnSightGoldBinaryReader::~vtkEnSightGoldBinaryReader()
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
 }
@@ -200,7 +200,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
 
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing at 1.
     
     this->ReadLine(line); // part description line
@@ -242,7 +242,7 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
         if (this->IFile)
           {
           this->IFile->close();
-          delete [] this->IFile;
+          delete this->IFile;
           this->IFile = NULL;
           }
         return 0;
@@ -254,11 +254,12 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(char* fileName, int timeStep)
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
   return 1;
 }
+
 
 //----------------------------------------------------------------------------
 void vtkEnSightGoldBinaryReader::SkipTimeStep()
@@ -353,7 +354,7 @@ void vtkEnSightGoldBinaryReader::SkipTimeStep()
         if (this->IFile)
           {
           this->IFile->close();
-          delete [] this->IFile;
+          delete this->IFile;
           this->IFile = NULL;
           }
         }
@@ -895,7 +896,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
   return 1;
@@ -963,7 +964,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
       while (this->ReadLine(line) &&
              strcmp(line, "part") == 0)
         {
-        this->ReadInt(&partId);
+        this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         this->ReadLine(line); // "coordinates" or "block"
@@ -1007,7 +1008,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
     if (this->IFile)
       {
       this->IFile->close();
-      delete [] this->IFile;
+      delete this->IFile;
       this->IFile = NULL;
       }
     return 1;
@@ -1016,7 +1017,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   while (this->ReadLine(line) &&
          strcmp(line, "part") == 0)
     {
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     this->ReadLine(line); // "coordinates" or "block"
@@ -1061,7 +1062,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
   return 1;
@@ -1129,7 +1130,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
       while (this->ReadLine(line) &&
              strcmp(line, "part") == 0)
         {
-        this->ReadInt(&partId);
+        this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         this->ReadLine(line); // "coordinates" or "block"
         output = this->GetOutput(partId);
@@ -1167,7 +1168,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
     if (this->IFile)
       {
       this->IFile->close();
-      delete [] this->IFile;
+      delete this->IFile;
       this->IFile = NULL;
       }
     return 1;
@@ -1177,7 +1178,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
          strcmp(line, "part") == 0)
     {
     vectors = vtkFloatArray::New();
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     this->ReadLine(line); // "coordinates" or "block"
     output = this->GetOutput(partId);
@@ -1212,7 +1213,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
 
@@ -1270,7 +1271,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
       while (this->ReadLine(line) &&
              strcmp(line, "part") == 0)
         {
-        this->ReadInt(&partId);
+        this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         this->ReadLine(line); // "coordinates" or "block"
         output = this->GetOutput(partId);
@@ -1292,7 +1293,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
          strcmp(line, "part") == 0)
     {
     tensors = vtkFloatArray::New();
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     this->ReadLine(line); // "coordinates" or "block"
     output = this->GetOutput(partId);
@@ -1336,7 +1337,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
 
@@ -1397,7 +1398,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
       
       while (lineRead && strcmp(line, "part") == 0)
         {
-        this->ReadInt(&partId);
+        this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         numCells = output->GetNumberOfCells();
@@ -1423,7 +1424,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
               if (this->IFile)
                 {
                 this->IFile->close();
-                delete [] this->IFile;
+                delete this->IFile;
                 this->IFile = NULL;
                 }
               return 0;
@@ -1452,7 +1453,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
   
   while (lineRead && strcmp(line, "part") == 0)
     {
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
@@ -1493,7 +1494,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
           if (this->IFile)
             {
             this->IFile->close();
-            delete [] this->IFile;
+            delete this->IFile;
             this->IFile = NULL;
             }
           if (component == 0)
@@ -1534,7 +1535,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
   return 1;
@@ -1593,7 +1594,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
       
       while (lineRead && strcmp(line, "part") == 0)
         {
-        this->ReadInt(&partId);
+        this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         numCells = output->GetNumberOfCells();
@@ -1643,7 +1644,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
   while (lineRead && strcmp(line, "part") == 0)
     {
     vectors = vtkFloatArray::New();
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
@@ -1720,7 +1721,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
   return 1;
@@ -1779,7 +1780,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
       
       while (lineRead && strcmp(line, "part") == 0)
         {
-        this->ReadInt(&partId);
+        this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         output = this->GetOutput(partId);
         numCells = output->GetNumberOfCells();
@@ -1802,7 +1803,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
             if (elementType == -1)
               {
               vtkErrorMacro("Unknown element type \"" << line << "\"");
-              delete [] this->IS;
+              delete this->IS;
               this->IS = NULL;
               return 0;
               }
@@ -1829,7 +1830,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
   while (lineRead && strcmp(line, "part") == 0)
     {
     tensors = vtkFloatArray::New();
-    this->ReadInt(&partId);
+    this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     output = this->GetOutput(partId);
     numCells = output->GetNumberOfCells();
@@ -1881,7 +1882,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
         if (elementType == -1)
           {
           vtkErrorMacro("Unknown element type \"" << line << "\"");
-          delete [] this->IS;
+          delete this->IS;
           this->IS = NULL;
           tensors->Delete();
           return 0;
@@ -1928,7 +1929,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(char* fileName,
   if (this->IFile)
     {
     this->IFile->close();
-    delete [] this->IFile;
+    delete this->IFile;
     this->IFile = NULL;
     }
   return 1;
@@ -2796,6 +2797,45 @@ int vtkEnSightGoldBinaryReader::ReadLine(char result[80])
     return 0;
     }
   
+  return 1;
+}
+
+// This is half the precision of an int.
+#define MAXIMUM_PART_ID 65536
+
+// Internal function to read a single integer.
+// Returns zero if there was an error.
+// Sets byte order so that part id is reasonable.
+int vtkEnSightGoldBinaryReader::ReadPartId(int *result)
+{
+  // first swap like normal.
+  if (this->ReadInt(result) == 0)
+    {
+    return 0;
+    }
+  
+  // second: try an experimental byte swap.
+  int tmp = *result;
+  vtkByteSwap::SwapVoidRange(&tmp, 1, 4);
+  // Assume we do not have negative part ids or part ids over 65536.
+  if (tmp >= 0 && tmp < MAXIMUM_PART_ID)
+    {
+    if (*result < 0 || *result >= MAXIMUM_PART_ID)
+      {
+      if (this->ByteOrder == FILE_LITTLE_ENDIAN)
+        {
+        //vtkWarningMacro("Changing EnSight reader byte order to big endian");
+        this->ByteOrder = FILE_BIG_ENDIAN;
+        }
+      else
+        {
+        //vtkWarningMacro("Changing EnSight byte order to little endian");
+        this->ByteOrder = FILE_LITTLE_ENDIAN;
+        }
+      *result = tmp;
+      }
+    }
+    
   return 1;
 }
 
