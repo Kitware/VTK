@@ -50,6 +50,8 @@ vtkAbstractTransform::vtkAbstractTransform()
   this->MyInverse = NULL;
   this->DependsOnInverse = 0;
   this->InUnRegister = 0;
+  this->UpdateMutex = vtkSimpleMutexLock::New();
+  this->InverseMutex = vtkSimpleMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
@@ -59,6 +61,14 @@ vtkAbstractTransform::~vtkAbstractTransform()
     { 
     this->MyInverse->Delete(); 
     } 
+  if (this->UpdateMutex)
+    {
+    this->UpdateMutex->Delete();
+    }
+  if (this->InverseMutex)
+    {
+    this->InverseMutex->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -136,14 +146,14 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 //----------------------------------------------------------------------------
 vtkAbstractTransform *vtkAbstractTransform::GetInverse()
 {
-  this->InverseMutex.Lock();
+  this->InverseMutex->Unlock();
   if (this->MyInverse == NULL)
     {
     // we create a circular reference here, it is dealt with in UnRegister
     this->MyInverse = this->MakeTransform();
     this->MyInverse->SetInverse(this);
     }
-  this->InverseMutex.Unlock();
+  this->InverseMutex->Unlock();
   return this->MyInverse;
 }
 
@@ -216,7 +226,7 @@ void vtkAbstractTransform::DeepCopy(vtkAbstractTransform *transform)
 void vtkAbstractTransform::Update()
 {
   // locking is require to ensure that the class is thread-safe
-  this->UpdateMutex.Lock();
+  this->UpdateMutex->Unlock();
 
   // check to see if we are a special 'inverse' transform
   if (this->DependsOnInverse && 
@@ -237,7 +247,7 @@ void vtkAbstractTransform::Update()
     }
 
   this->UpdateTime.Modified();
-  this->UpdateMutex.Unlock();
+  this->UpdateMutex->Unlock();
 }
 
 //----------------------------------------------------------------------------

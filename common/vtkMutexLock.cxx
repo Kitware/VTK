@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkMutexLock* vtkMutexLock::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,7 +58,11 @@ vtkMutexLock* vtkMutexLock::New()
 }
 
 
-
+// New for the SimpleMutex
+vtkSimpleMutexLock *vtkSimpleMutexLock::New()
+{
+  return new vtkSimpleMutexLock;
+}
 
 // Construct a new vtkMutexLock 
 vtkSimpleMutexLock::vtkSimpleMutexLock()

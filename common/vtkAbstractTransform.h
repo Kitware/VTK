@@ -235,8 +235,8 @@ private:
   // if necessary.
 //ETX
   vtkTimeStamp UpdateTime;
-  vtkSimpleMutexLock UpdateMutex;
-  vtkSimpleMutexLock InverseMutex;
+  vtkSimpleMutexLock *UpdateMutex;
+  vtkSimpleMutexLock *InverseMutex;
   int DependsOnInverse;
 
 //BTX
