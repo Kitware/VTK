@@ -247,7 +247,7 @@ void vtkDecimatePro::Execute()
   if ( this->AccumulateError )
     {
     this->VertexError = vtkFloatArray::New();
-    this->VertexError->Allocate(numPts,(vtkIdType) ((float)0.25*numPts));
+    this->VertexError->Allocate(numPts,((vtkIdType)0.25*numPts));
     for (i=0; i<numPts; i++)
       {
       this->VertexError->SetValue(i, 0.0);
