@@ -181,7 +181,8 @@ void ContourVolume(T *scalars, int dims[3], float origin[3], float aspectRatio[3
                    vtkFloatNormals *newNormals, vtkFloatPoints *newPts,
                    vtkCellArray *newPolys, float *values, int numValues)
 {
-  T s[8], value;
+  float s[8], value;
+
   static vtkMath math;
   int i, j, k, sliceSize;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
@@ -298,7 +299,7 @@ void ContourVolume(T *scalars, int dims[3], float origin[3], float aspectRatio[3
             for (ii=0; ii<3; ii++) //insert triangle
               {
               vert = edges[edge[ii]];
-              t = (float)(value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
+              t = (value - s[vert[0]]) / (s[vert[1]] - s[vert[0]]);
               x1 = pts[vert[0]];
               x2 = pts[vert[1]];
               n1 = gradients[vert[0]];
