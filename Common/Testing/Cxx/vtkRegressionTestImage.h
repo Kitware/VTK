@@ -37,7 +37,7 @@
 class vtkRegressionTester
 {
 public:
-  static int Test(int argc, char *argv[], vtkRenderWindow *rw, float thresh );
+  static inline int Test(int argc, char *argv[], vtkRenderWindow *rw, float thresh );
 
   enum ReturnValue {
     FAILED = 0,
@@ -47,8 +47,8 @@ public:
   };
   
 private:
-  static char* IncrementFileName(const char* fname, int count);
-  static int LookForFile(const char* newFileName);
+  static inline char* IncrementFileName(const char* fname, int count);
+  static inline int LookForFile(const char* newFileName);
 };
 
 #define vtkRegressionTestImage(rw) \
