@@ -124,7 +124,9 @@ ENDIF (UNIX)
 # Apple flags
 #
 IF (APPLE)
-  SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
+  IF(CMAKE_COMPILER_IS_GNUCXX)
+    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -fpascal-strings")
+  ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 ENDIF (APPLE)
 
 #
