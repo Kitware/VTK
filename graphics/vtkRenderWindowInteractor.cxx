@@ -89,6 +89,10 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 
 vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
 {
+  if (this->InteractorStyle != NULL)
+    {
+    this->InteractorStyle->UnRegister(this);
+    }
   if ( this->Picker)
     {
     this->Picker->UnRegister(this);
