@@ -143,6 +143,7 @@ vtkEdgePoints \
 vtkElevationFilter \
 vtkEncodedGradientShader \
 vtkEnSightGoldReader \
+vtkEnSight6Reader \
 vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractPolyDataGeometry \
