@@ -96,8 +96,8 @@ void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 void vtkImageThresholdExecute(vtkImageThreshold *self,
-				      vtkImageRegion *inRegion, IT *inPtr,
-				      vtkImageRegion *outRegion, OT *outPtr)
+			      vtkImageRegion *inRegion, IT *inPtr,
+			      vtkImageRegion *outRegion, OT *outPtr)
 {
   float temp;
   int min0, max0, min1, max1;
@@ -168,8 +168,8 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
 //----------------------------------------------------------------------------
 template <class T>
 void vtkImageThresholdExecute(vtkImageThreshold *self,
-				      vtkImageRegion *inRegion, T *inPtr,
-				      vtkImageRegion *outRegion)
+			      vtkImageRegion *inRegion, T *inPtr,
+			      vtkImageRegion *outRegion)
 {
   void *outPtr = outRegion->GetScalarPointer();
   
@@ -213,7 +213,7 @@ void vtkImageThresholdExecute(vtkImageThreshold *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageThreshold::Execute(vtkImageRegion *inRegion, 
-					vtkImageRegion *outRegion)
+				vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   

@@ -59,8 +59,8 @@ public:
 
 protected:
   void Execute(vtkImageRegion *inRegion1, 
-		 vtkImageRegion *inRegion2, 
-		 vtkImageRegion *outRegion);
+	       vtkImageRegion *inRegion2, 
+	       vtkImageRegion *outRegion);
 };
 
 #endif

@@ -281,7 +281,7 @@ vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 // the boundary of the largest region that can be generated. 
 void vtkImageDyadicFilter::UpdateImageInformation(vtkImageRegion *outRegion)
 {
-  vtkImageRegion *inRegion1, *inRegion2;
+  vtkImageRegion *inRegion2;
   
   // Make sure the Input has been set.
   if ( ! this->Input1 || ! this->Input2)
@@ -290,14 +290,12 @@ void vtkImageDyadicFilter::UpdateImageInformation(vtkImageRegion *outRegion)
     return;
     }
 
-  inRegion1 = new vtkImageRegion;
   inRegion2 = new vtkImageRegion;
   
-  this->Input1->UpdateImageInformation(inRegion1);
+  this->Input1->UpdateImageInformation(outRegion);
   this->Input2->UpdateImageInformation(inRegion2);
-  this->ComputeOutputImageInformation(inRegion1, inRegion2, outRegion);
+  this->ComputeOutputImageInformation(outRegion, inRegion2, outRegion);
 
-  inRegion1->Delete();
   inRegion2->Delete();
 }
 
@@ -349,8 +347,8 @@ void vtkImageDyadicFilter::ComputeRequiredInputRegionExtent(
 // This execute method recursively loops over extra dimensions and
 // calls the subclasses Execute method with lower dimensional regions.
 void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
-				     vtkImageRegion *inRegion2,
-				     vtkImageRegion *outRegion)
+				   vtkImageRegion *inRegion2,
+				   vtkImageRegion *outRegion)
 {
   int coordinate, axis;
   int inMin, inMax;
@@ -396,8 +394,8 @@ void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
 // Description:
 // The execute method created by the subclass.
 void vtkImageDyadicFilter::Execute(vtkImageRegion *inRegion1, 
-				    vtkImageRegion *inRegion2, 
-				    vtkImageRegion *outRegion)
+				   vtkImageRegion *inRegion2, 
+				   vtkImageRegion *outRegion)
 {
   inRegion1 = inRegion2 = outRegion;
   vtkErrorMacro(<< "Subclass needs to suply an execute function.");
