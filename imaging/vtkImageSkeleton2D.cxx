@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageSkeleton2D* vtkImageSkeleton2D::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -66,6 +66,7 @@ vtkImageSkeleton2D* vtkImageSkeleton2D::New()
 vtkImageSkeleton2D::vtkImageSkeleton2D()
 {
   this->Prune = 0;
+  this->SetNumberOfThreads(1); // temporary fix
 }
 
 //----------------------------------------------------------------------------
