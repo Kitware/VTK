@@ -13,6 +13,7 @@
 #
 
 from vtkpython import *
+import time
 
 #
 # define the callback
@@ -51,6 +52,8 @@ renWin.SetSize( 300, 300 )
 # now we loop over 360 degreeees and render the cone each time
 #
 for i in range(0,360):
+    time.sleep(0.03)
+
     renWin.Render()
     ren1.GetActiveCamera().Azimuth( 1 )
   
