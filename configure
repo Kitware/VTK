@@ -18,7 +18,9 @@ ac_help="$ac_help
 ac_help="$ac_help
   --with-tcl              build vtk the tcl based interpreter"
 ac_help="$ac_help
-  --with-graphics         include the graphics classes"
+  --without-graphics      do not include the graphics classes"
+ac_help="$ac_help
+  --without-imaging       do not include the imaging classes"
 
 # Initialize some variables set by options.
 # The variables have the same names as the options, with
@@ -553,9 +555,25 @@ fi
 # Check whether --with-graphics or --without-graphics was given.
 if test "${with_graphics+set}" = set; then
   withval="$with_graphics"
+  :
+else
   graphicsdir=graphics
          BUILD_GRAPHICS=build_graphics
          CLEAN_GRAPHICS=clean_graphics
+fi
+
+
+
+
+
+# Check whether --with-imaging or --without-imaging was given.
+if test "${with_imaging+set}" = set; then
+  withval="$with_imaging"
+  :
+else
+  imagingdir=imaging
+         BUILD_IMAGING=build_imaging
+         CLEAN_IMAGING=clean_imaging
 fi
 
 
@@ -581,7 +599,7 @@ ac_config_guess=$ac_aux_dir/config.guess
 ac_config_sub=$ac_aux_dir/config.sub
 ac_configure=$ac_aux_dir/configure # This should be Cygnus configure.
 
-subdirs="common $tcldir $graphicsdir"
+subdirs="common $tcldir $graphicsdir $imagingdir"
 
 
 #------------------------------------------------------------------------------
@@ -764,6 +782,8 @@ s%@BUILD_TCL@%$BUILD_TCL%g
 s%@CLEAN_TCL@%$CLEAN_TCL%g
 s%@BUILD_GRAPHICS@%$BUILD_GRAPHICS%g
 s%@CLEAN_GRAPHICS@%$CLEAN_GRAPHICS%g
+s%@BUILD_IMAGING@%$BUILD_IMAGING%g
+s%@CLEAN_IMAGING@%$CLEAN_IMAGING%g
 s%@subdirs@%$subdirs%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g
 s%@MAKEQUOTE@%$MAKEQUOTE%g
@@ -856,7 +876,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in common $tcldir $graphicsdir; do
+  for ac_config_dir in common $tcldir $graphicsdir $imagingdir; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.

@@ -36,7 +36,7 @@ AC_SUBST(BIGENDIAN)
 
 # what toolkits should we use
 AC_ARG_WITH(graphics,
-         [  --with-graphics         include the graphics classes],
+         [  --without-graphics      do not include the graphics classes],,
          graphicsdir=graphics
          USE_GRAPHICS_LIBS="vtkXRenderWindowInteractor.o -L../graphics -lVTKGraphicsTcl"
          USE_GRAPHICS_DEPENDS="vtkXRenderWindowInteractor.o"
@@ -45,6 +45,17 @@ AC_ARG_WITH(graphics,
 AC_SUBST(USE_GRAPHICS_FLAG)
 AC_SUBST(USE_GRAPHICS_LIBS)
 AC_SUBST(USE_GRAPHICS_DEPENDS)
+
+AC_ARG_WITH(imaging,
+         [  --without-imaging       do not include the imaging classes],,
+         imagingdir=imaging
+         USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
+         USE_IMAGING_DEPENDS=""
+         USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
+
+AC_SUBST(USE_IMAGING_FLAG)
+AC_SUBST(USE_IMAGING_LIBS)
+AC_SUBST(USE_IMAGING_DEPENDS)
 
 #
 # figure out what graphics we should compile in based on header files

@@ -20,7 +20,7 @@ AC_SUBST(BUILD_TCL)
 AC_SUBST(CLEAN_TCL)
 
 AC_ARG_WITH(graphics,
-         [  --with-graphics         include the graphics classes],
+         [  --without-graphics      do not include the graphics classes],,
          graphicsdir=graphics
          BUILD_GRAPHICS=build_graphics
          CLEAN_GRAPHICS=clean_graphics)
@@ -28,7 +28,16 @@ AC_ARG_WITH(graphics,
 AC_SUBST(BUILD_GRAPHICS)
 AC_SUBST(CLEAN_GRAPHICS)
 
-AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir)
+AC_ARG_WITH(imaging,
+         [  --without-imaging       do not include the imaging classes],,
+         imagingdir=imaging
+         BUILD_IMAGING=build_imaging
+         CLEAN_IMAGING=clean_imaging)
+
+AC_SUBST(BUILD_IMAGING)
+AC_SUBST(CLEAN_IMAGING)
+
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 
