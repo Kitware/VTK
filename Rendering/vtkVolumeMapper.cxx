@@ -18,7 +18,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkImageClip.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.39");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.40");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -123,6 +123,23 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Independent Components: " << 
+    (this->IndependentComponents ? "On\n" : "Off\n");
+  
+  os << indent << "Component Blend Mode: ";
+  switch ( this->ComponentBlendMode )
+    {
+    case vtkVolumeMapper::ComponentBlendAdd: 
+      os << "Add\n"; 
+      break;
+    case vtkVolumeMapper::ComponentBlendMaxOpacity:
+      os << "Maximum Opacity\n";
+      break;
+    default:
+      os << "Unknown\n";
+      break;
+    }
+  
   os << indent << "Cropping: " << (this->Cropping ? "On\n" : "Off\n");
 
   os << indent << "Cropping Region Planes: " << endl 
