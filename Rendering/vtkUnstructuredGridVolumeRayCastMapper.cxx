@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.24");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.25");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -484,7 +484,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetSingleMethod( UnstructuredGridVolumeRayCastMapper_CastRays, 
+  this->Threader->SetSingleMethod( UnstructuredGridVolumeRayCastMapper_CastRays,
                                    (void *)this);
   this->Threader->SingleMethodExecute();
  
@@ -533,6 +533,8 @@ void vtkUnstructuredGridVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume
     delete [] this->ZBuffer;
     this->ZBuffer = NULL;
     }
+
+  this->UpdateProgress(1.0);
 }
 
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg )
@@ -604,6 +606,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
 
     if ( !threadID )
       {
+      this->UpdateProgress((double)j/this->ImageInUseSize[1]);
       if ( renWin->CheckAbortStatus() )
         {
         break;
