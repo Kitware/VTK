@@ -23,7 +23,6 @@ vtkImageGaussianSmooth gaussian
     gaussian SetInput [image GetOutput]
     eval gaussian SetStandardDeviations 5 5
     gaussian SetDimensionality 2
-    gaussian SetStrides 2 2
     gaussian SetRadiusFactors 2 2
 
 vtkImageToStructuredPoints toStructuredPoints
