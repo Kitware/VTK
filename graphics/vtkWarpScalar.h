@@ -112,13 +112,11 @@ protected:
   int XYPlane;
 
   //BTX
-  float *(vtkWarpScalar::*PointNormal)(int id, vtkNormals *normals);
-  float *DataNormal(int id, vtkNormals *normals=NULL);
-  float *InstanceNormal(int id, vtkNormals *normals=NULL);
-  float *ZNormal(int id, vtkNormals *normals=NULL);
+  float *(vtkWarpScalar::*PointNormal)(vtkIdType id, vtkNormals *normals);
+  float *DataNormal(vtkIdType id, vtkNormals *normals=NULL);
+  float *InstanceNormal(vtkIdType id, vtkNormals *normals=NULL);
+  float *ZNormal(vtkIdType id, vtkNormals *normals=NULL);
   //ETX
 };
 
 #endif
-
-

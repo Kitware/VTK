@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkTriangle.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWindowedSincPolyDataFilter* vtkWindowedSincPolyDataFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,11 +58,6 @@ vtkWindowedSincPolyDataFilter* vtkWindowedSincPolyDataFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkWindowedSincPolyDataFilter;
 }
-
-
-
-
-
 
 // Construct object with number of iterations 20; passband .1;
 // feature edge smoothing turned off; feature 
@@ -95,21 +88,21 @@ typedef struct _vtkMeshVertex
   {
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
-  } vtkMeshVertex, *vtkMeshVertexPtr;
+} vtkMeshVertex, *vtkMeshVertexPtr;
     
 void vtkWindowedSincPolyDataFilter::Execute()
 {
-  int numPts, numCells;
-  int i, j, k, numPolys, numStrips;
+  vtkIdType numPts, numCells, numPolys, numStrips, i;
+  int j, k;
   vtkIdType npts;
   vtkIdType *pts;
-  int p1, p2;
+  vtkIdType p1, p2;
   float *x, *y, deltaX[3], xNew[3];
   float x1[3], x2[3], x3[3], l1[3], l2[3];
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
   int iterationNumber, abortExecute;
-  int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
+  vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh = NULL, *Mesh;
   vtkPoints *inPts;
   vtkTriangleFilter *toTris=NULL;
@@ -241,7 +234,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
   if ( numPolys > 0 || numStrips > 0 )
     { //build cell structure
     vtkCellArray *polys;
-    int numNei, cellId, nei, edge;
+    vtkIdType cellId;
+    int numNei, nei, edge;
     vtkIdType numNeiPts;
     vtkIdType *neiPts;
     float normal[3], neiNormal[3];
@@ -267,7 +261,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     polys = Mesh->GetPolys();
 
     for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts); 
-    cellId++)
+         cellId++)
       {
       for (i=0; i < npts; i++) 
         {
@@ -464,7 +458,6 @@ void vtkWindowedSincPolyDataFilter::Execute()
     newPts[zero]->SetPoint(i,inPts->GetPoint(i));
     }
 
-
   // Smooth with a low pass filter defined as a windowed sinc function.
   // Taubin describes this methodology is the IBM tech report RC-20404
   // (#90237, dated 3/12/96) "Optimal Surface Smoothing as Filter Design"
@@ -485,8 +478,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   cprime = new float[this->NumberOfIterations+1];
 
   float zerovector[3];
-  zerovector[0] = zerovector[1] = zerovector[2] = 0.0;
-    
+  zerovector[0] = zerovector[1] = zerovector[2] = 0.0;    
 
   //
   // Calculate the weights and the Chebychev coefficients c.
@@ -494,24 +486,28 @@ void vtkWindowedSincPolyDataFilter::Execute()
 
   // Windowed sinc function weights. This is for a Hamming window. Other
   // windowing function could be implemented here.
-  for (i=0; i <= (this->NumberOfIterations); i++) {
+  for (i=0; i <= (this->NumberOfIterations); i++)
+    {
     w[i] = 0.54 + 0.46*cos(((double)i)*vtkMath::Pi()
 			   /(double)(this->NumberOfIterations+1));
-  }
+    }
 
   // Calculate the optimal sigma (offset or fudge factor for the filter).
   // This is a Newton-Raphson Search.
   float f_kpb = 0.0, fprime_kpb;
   int done = 0;
   sigma = 0.0;
-
-  for (j=0; !done && (j<500); j++) {
+  
+  for (j=0; !done && (j<500); j++)
+    {
     // Chebyshev coefficients
     c[0] = w[0]*(theta_pb + sigma)/vtkMath::Pi();
-    for (i=1; i <= this->NumberOfIterations; i++) {
-      c[i] = 2.0*w[i]*sin(((double)i)*(theta_pb+sigma))/(((double)i)*vtkMath::Pi());
-    }
-
+    for (i=1; i <= this->NumberOfIterations; i++)
+      {
+      c[i] = 2.0*w[i]*sin(((double)i)*(theta_pb+sigma))/
+        (((double)i)*vtkMath::Pi());
+      }
+    
     // calculate the Chebyshev coefficients for the derivative of the filter
     cprime[this->NumberOfIterations] = 0.0;
     cprime[this->NumberOfIterations-1] = 0.0;
@@ -563,38 +559,38 @@ void vtkWindowedSincPolyDataFilter::Execute()
       done = 1;
       sigma = 0.0;
       }
-  }
+    }
   if (fabs(f_kpb - 1.0) >= 1e-3)
     {
     vtkErrorMacro(<< "An optimal offset for the smoothing filter could not be found.  Unpredictable smoothing/shrinkage may result.");
     }
-
-    
+  
   // first iteration
   for (i=0; i<numPts; i++) 
-  {
+    {
     if ( Verts[i].edges != NULL &&
 	 (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
-    {
+      {
       // point is allowed to move
       x = newPts[zero]->GetPoint(i); //use current points
       deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
       
       // calculate the negative of the laplacian
       for (j=0; j<npts; j++) //for all connected points
-      {
+        {
 	y = newPts[zero]->GetPoint(Verts[i].edges->GetId(j));
-	for (k=0; k<3; k++) {
+	for (k=0; k<3; k++)
+          {
 	  deltaX[k] += (x[k] - y[k]) / npts;
-	}
-      }
+          }
+        }
       // newPts[one] = newPts[zero] - 0.5 newPts[one]
       for (k=0; k<3; k++)
 	{
 	deltaX[k] = x[k] - 0.5*deltaX[k];
 	}
       newPts[one]->SetPoint(i, deltaX);
-
+      
       // calculate newPts[three] = c0 newPts[zero] + c1 newPts[one]
       for (k=0; k < 3; k++)
 	{
@@ -608,21 +604,21 @@ void vtkWindowedSincPolyDataFilter::Execute()
 	{
 	newPts[three]->SetPoint(i, deltaX);
 	}
-    }//if can move point
-    else {
+      }//if can move point
+    else
+      {
       // point is not allowed to move, just use the old point...
       // (zero out the Laplacian)
       newPts[one]->SetPoint(i, zerovector);
       newPts[three]->SetPoint(i, newPts[zero]->GetPoint(i));
-    }
-    
-  }//for all points
-    
+      }
+    }//for all points
+  
   // for the rest of the iterations
   for ( iterationNumber=2, abortExecute=0;
 	iterationNumber <= this->NumberOfIterations && !abortExecute;
 	iterationNumber++ )
-  {
+    {
     if ( iterationNumber && !(iterationNumber % 5) )
       {
       this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
@@ -632,12 +628,12 @@ void vtkWindowedSincPolyDataFilter::Execute()
 	break;
 	}
       }
-
+    
     for (i=0; i<numPts; i++) 
-    {
+      {
       if ( Verts[i].edges != NULL &&
 	   (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
-      {
+        {
 	// point is allowed to move
 	p_x0 = newPts[zero]->GetPoint(i); //use current points
 	p_x1 = newPts[one]->GetPoint(i);
@@ -646,12 +642,13 @@ void vtkWindowedSincPolyDataFilter::Execute()
 	
 	// calculate the negative laplacian of x1
 	for (j=0; j<npts; j++)
-	{
+          {
 	  y = newPts[one]->GetPoint(Verts[i].edges->GetId(j));
-	  for (k=0; k<3; k++) {
-	    deltaX[k] += (p_x1[k] - y[k]) / npts;
-	  }
-	}//for all connected points
+	  for (k=0; k<3; k++)
+            {
+            deltaX[k] += (p_x1[k] - y[k]) / npts;
+            }
+          }//for all connected points
 	
 	// Taubin:  x2 = (x1 - x0) + (x1 - x2)
 	for (k=0; k<3; k++)
@@ -670,15 +667,15 @@ void vtkWindowedSincPolyDataFilter::Execute()
 	  {
 	  newPts[three]->SetPoint(i,xNew);
 	  }
-
-      }//if can move point
-      else  {
+        }//if can move point
+      else
+        {
 	// point is not allowed to move, just use the old point...
 	// (zero out the Laplacian)
 	newPts[one]->SetPoint(i, zerovector);
 	newPts[two]->SetPoint(i, zerovector);
-      }
-    }//for all points
+        }
+      }//for all points
 
     // update the pointers. three is always three. all other pointers
     // shift by one and wrap.
@@ -686,22 +683,21 @@ void vtkWindowedSincPolyDataFilter::Execute()
     one = (++one)%3;
     two = (++two)%3;
     
-  }//for all iterations or until converge
-
+    }//for all iterations or until converge
+  
   // move the iteration count back down so that it matches the
   // actual number of iterations executed
   --iterationNumber;
   
   // set zero to three so the correct set of positions is outputted
   zero = three;
-
+  
   delete [] w;
   delete [] c;
   delete [] cprime;
-
+  
   vtkDebugMacro(<<"Performed " << iterationNumber << " smoothing passes");
-
-
+  
 //
 // Update output. Only point coordinates have changed.
 //
@@ -721,7 +717,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     }
-
+  
   if ( this->GenerateErrorVectors )
     {
     vtkVectors *newVectors = vtkVectors::New();
@@ -739,7 +735,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
     output->GetPointData()->SetVectors(newVectors);
     newVectors->Delete();
     }
-
+  
   output->SetPoints(newPts[zero]);
   newPts[0]->Delete();
   newPts[1]->Delete();
@@ -774,5 +770,4 @@ void vtkWindowedSincPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Boundary Smoothing: " << (this->BoundarySmoothing ? "On\n" : "Off\n");
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
   os << indent << "Generate Error Vectors: " << (this->GenerateErrorVectors ? "On\n" : "Off\n");
-
 }

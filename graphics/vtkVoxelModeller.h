@@ -110,5 +110,3 @@ protected:
 };
 
 #endif
-
-

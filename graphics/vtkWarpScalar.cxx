@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWarpScalar.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWarpScalar* vtkWarpScalar::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkWarpScalar* vtkWarpScalar::New()
   return new vtkWarpScalar;
 }
 
-
-
-
 vtkWarpScalar::vtkWarpScalar()
 {
   this->ScaleFactor = 1.0;
@@ -70,18 +65,18 @@ vtkWarpScalar::vtkWarpScalar()
   this->XYPlane = 0;
 }
 
-float *vtkWarpScalar::DataNormal(int id, vtkNormals *normals)
+float *vtkWarpScalar::DataNormal(vtkIdType id, vtkNormals *normals)
 {
   return normals->GetNormal(id);
 }
 
-float *vtkWarpScalar::InstanceNormal(int vtkNotUsed(id), 
+float *vtkWarpScalar::InstanceNormal(vtkIdType vtkNotUsed(id), 
 				     vtkNormals *vtkNotUsed(normals))
 {
   return this->Normal;
 }
 
-float *vtkWarpScalar::ZNormal(int vtkNotUsed(id), 
+float *vtkWarpScalar::ZNormal(vtkIdType vtkNotUsed(id), 
 			      vtkNormals *vtkNotUsed(normals))
 {
   static float zNormal[3]={0.0,0.0,1.0};
@@ -95,7 +90,8 @@ void vtkWarpScalar::Execute()
   vtkScalars *inScalars;
   vtkPoints *newPts;
   vtkPointData *pd;
-  int i, ptId, numPts;
+  int i;
+  vtkIdType ptId, numPts;
   float *x, *n, s, newX[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();

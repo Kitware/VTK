@@ -59,14 +59,14 @@ vtkTriangularTCoords* vtkTriangularTCoords::New()
 
 void vtkTriangularTCoords::Execute()
 {
-  int tmp;
+  vtkIdType tmp;
   int j;
   vtkPoints *inPts;
   vtkPointData *pd;
   vtkCellArray *inPolys,*inStrips;
-  int numNewPts, numNewPolys, polyAllocSize;
+  vtkIdType numNewPts, numNewPolys, polyAllocSize;
   vtkTCoords *newTCoords;
-  int newId, numCells, cellId;
+  vtkIdType newId, numCells, cellId;
   vtkIdType *pts, newIds[3], npts;
   int errorLogging = 1;
   vtkPoints *newPoints;
@@ -134,7 +134,7 @@ void vtkTriangularTCoords::Execute()
   tCoords[5]= sqrt(3.0)/2.0;
 
   int abort=0;
-  int progressInterval=numCells/20 + 1;
+  vtkIdType progressInterval=numCells/20 + 1;
   for (cellId=0, inPolys->InitTraversal(); 
        inPolys->GetNextCell(npts,pts) && !abort; cellId++)
     {
@@ -213,7 +213,6 @@ void vtkTriangularTCoords::Execute()
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
-
 
 void vtkTriangularTCoords::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWarpVector.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWarpVector* vtkWarpVector::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -61,15 +59,16 @@ vtkWarpVector::vtkWarpVector()
 {
   this->ScaleFactor = 1.0;
 }
+
 vtkWarpVector::~vtkWarpVector()
 {
 }
 
 template <class T1, class T2>
 static void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts, 
-                                  T1 *outPts, T2 *inVec, int max)
+                                  T1 *outPts, T2 *inVec, vtkIdType max)
 {
-  int ptId;
+  vtkIdType ptId;
   T1 scaleFactor = (T1)self->GetScaleFactor();
   
   // Loop over all points, adjusting locations
@@ -95,7 +94,7 @@ static void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
           
 template <class T>
 static void vtkWarpVectorExecute(vtkWarpVector *self,
-                                 T *inPts, T *outPts, int max)
+                                 T *inPts, T *outPts, vtkIdType max)
 {
   void *inVec = self->GetInput()->GetPointData()->
     GetVectors()->GetVoidPointer(0);
@@ -107,8 +106,7 @@ static void vtkWarpVectorExecute(vtkWarpVector *self,
                       (VTK_TT *)(inVec), max);
     default:
       break;
-    }
-  
+    }  
 }
 
 //----------------------------------------------------------------------------
@@ -117,7 +115,7 @@ void vtkWarpVector::Execute()
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
   vtkPoints *points;
-  int numPts;
+  vtkIdType numPts;
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
@@ -158,7 +156,6 @@ void vtkWarpVector::Execute()
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
 }
-
 
 void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {

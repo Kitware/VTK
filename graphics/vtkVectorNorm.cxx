@@ -65,7 +65,8 @@ vtkVectorNorm::vtkVectorNorm()
 
 void vtkVectorNorm::Execute()
 {
-  int i, numVectors, computePtScalars=1, computeCellScalars=1;
+  vtkIdType numVectors, i;
+  int computePtScalars=1, computeCellScalars=1;
   vtkScalars *newScalars;
   float *v, s, maxScalar;
   vtkVectors *ptVectors, *cellVectors;
@@ -100,7 +101,7 @@ void vtkVectorNorm::Execute()
 
   // Allocate / operate on point data
   int abort=0;
-  int progressInterval;
+  vtkIdType progressInterval;
   if ( computePtScalars )
     {
     numVectors = ptVectors->GetNumberOfVectors();
@@ -211,4 +212,3 @@ void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() 
      << endl;
 }
-

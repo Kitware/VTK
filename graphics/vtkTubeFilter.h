@@ -188,5 +188,3 @@ inline const char *vtkTubeFilter::GetVaryRadiusAsString(void)
 
 
 #endif
-
-

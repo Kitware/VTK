@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWarpLens* vtkWarpLens::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -86,7 +84,6 @@ float *vtkWarpLens::GetCenter()
   return this->GetPrincipalPoint();
 }
 
-
 vtkWarpLens::vtkWarpLens()
 {
   this->PrincipalPoint[0] = 0.0;
@@ -105,7 +102,7 @@ void vtkWarpLens::Execute()
 {
   vtkPoints *inPts;
   vtkPoints *newPts;
-  int ptId, numPts;
+  vtkIdType ptId, numPts;
   float *pixel, newPixel[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
@@ -141,13 +138,15 @@ void vtkWarpLens::Execute()
     //
     // Convert to working in mm from pixels and make the Principal Point (0,0)
     //
-    x = pixel[0] / this->ImageWidth * this->FormatWidth - this->PrincipalPoint[0];
-    y = (- pixel[1]) / this->ImageHeight * this->FormatHeight + this->PrincipalPoint[1];
+    x = pixel[0] / this->ImageWidth * this->FormatWidth -
+      this->PrincipalPoint[0];
+    y = (- pixel[1]) / this->ImageHeight * this->FormatHeight +
+      this->PrincipalPoint[1];
 
     //
     // Lens distortion causes a point's image on the imaging surface to
-    // shifted from its true position as if it had been imaged by an ideal pin-hole 
-    // camera.
+    // shifted from its true position as if it had been imaged by an ideal pin-
+    // hole camera.
     //
     // The corrected location adds the correction for radial len distortion
     // and for the decentering lens distortion
@@ -163,7 +162,8 @@ void vtkWarpLens::Execute()
     //
     // Convert back to pixels
     //
-    newPixel[0] = (newX + this->PrincipalPoint[0]) / this->FormatWidth * this->ImageWidth; 
+    newPixel[0] = (newX + this->PrincipalPoint[0]) / this->FormatWidth *
+      this->ImageWidth; 
     newPixel[1] = (newY - this->PrincipalPoint[1]) / 
       this->FormatHeight * this->ImageHeight * -1; 
 

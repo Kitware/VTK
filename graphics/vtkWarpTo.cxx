@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkWarpTo* vtkWarpTo::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkWarpTo* vtkWarpTo::New()
   return new vtkWarpTo;
 }
 
-
-
-
 vtkWarpTo::vtkWarpTo() 
 {
   this->ScaleFactor = 0.5; 
@@ -72,7 +67,8 @@ void vtkWarpTo::Execute()
 {
   vtkPoints *inPts;
   vtkPoints *newPts;
-  int i, ptId, numPts;
+  vtkIdType ptId, numPts;
+  int i;
   float *x, newX[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();

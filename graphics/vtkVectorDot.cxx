@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-
 //--------------------------------------------------------------------------
 vtkVectorDot* vtkVectorDot::New()
 {
@@ -69,7 +68,7 @@ vtkVectorDot::vtkVectorDot()
 //
 void vtkVectorDot::Execute()
 {
-  int ptId, numPts;
+  vtkIdType ptId, numPts;
   vtkScalars *newScalars;
   vtkDataSet *input = this->GetInput();
   vtkNormals *inNormals;
@@ -109,7 +108,7 @@ void vtkVectorDot::Execute()
   // Compute initial scalars
   //
   int abort=0;
-  int progressInterval=numPts/20 + 1;
+  vtkIdType progressInterval=numPts/20 + 1;
   for (min=VTK_LARGE_FLOAT,max=(-VTK_LARGE_FLOAT),ptId=0; 
        ptId < numPts && !abort; ptId++)
     {
