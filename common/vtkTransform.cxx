@@ -792,24 +792,24 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
   int ptId, i;
   int numVectors = inVectors->GetNumberOfVectors();
 
-  this->Push();
-  this->Inverse();
-  this->Transpose();
+  vtkMatrix4x4 aMatrix = **this->Stack;
+  
+  aMatrix.Invert ();
+  aMatrix.Transpose ();
 
   for (ptId=0; ptId < numVectors; ptId++)
     {
     v = inVectors->GetVector(ptId);
     for (i=0; i<3; i++)
       {
-      newV[i] = (**this->Stack).Element[i][0] * v[0] +
-                (**this->Stack).Element[i][1] * v[1] +
-                (**this->Stack).Element[i][2] * v[2];
+      newV[i] = aMatrix.Element[i][0] * v[0] +
+                aMatrix.Element[i][1] * v[1] +
+                aMatrix.Element[i][2] * v[2];
       }
 
     vtkMath::Normalize(newV);
     outVectors->InsertNextVector(newV);
     }
-  this->Pop();
 }
 
 // Description:
@@ -827,22 +827,22 @@ void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals
   int ptId, i;
   int numNormals = inNormals->GetNumberOfNormals();
 
-  this->Push();
-  this->Inverse();
-  this->Transpose();
-
+  vtkMatrix4x4 aMatrix = **this->Stack;
+  
+  aMatrix.Invert ();
+  aMatrix.Transpose ();
+  
   for (ptId=0; ptId < numNormals; ptId++)
     {
     n = inNormals->GetNormal(ptId);
     for (i=0; i<3; i++)
       {
-      newN[i] = (**this->Stack).Element[i][0] * n[0] +
-                (**this->Stack).Element[i][1] * n[1] +
-                (**this->Stack).Element[i][2] * n[2];
+      newN[i] = aMatrix.Element[i][0] * n[0] +
+                aMatrix.Element[i][1] * n[1] +
+                aMatrix.Element[i][2] * n[2];
       }
 
     vtkMath::Normalize(newN);
     outNormals->InsertNextNormal(newN);
     }
-  this->Pop();
 }
