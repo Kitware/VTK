@@ -42,7 +42,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 
 // vtkRIBExporter is a concrete subclass of vtkExporter that writes a
-// Renderman .RIB files.
+// Renderman .RIB files. The input specifies a vtkRenderWindow. All visible
+// actors and lights will be included in the rib file. The following file
+// naming conventions apply:
+// rib file - FilePrefix.rib
+// image file created by RenderMan - FilePrefix.tif
+// texture files - TexturePrefix_0xADDR_MTIME.tif
+// This object does NOT generate an image file. The user must run either RenderMan
+// or a RenderMan emulator like Blue Moon Ray Tracer (BMRT).
 //
 // .SECTION See Also
 // vtkExporter
@@ -53,6 +60,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkExporter.h"
+#include "vtkRenderer.h"
+#include "vtkTexture.h"
+#include "vtkPolyData.h"
 
 class vtkRIBExporter : public vtkExporter
 {
@@ -62,16 +72,44 @@ public:
   char *GetClassName() {return "vtkRIBExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description
+  // Sepcify the size of the image for RenderMan. If none is specified, the size of
+  // the render window will be used.
+  vtkSetVector2Macro(Size,int);
+  vtkGetVectorMacro(Size,int,2);
+
   // Description:
   // Specify the prefix of the files to write out. The resulting filenames
   // will have .RIB appended to them.
   vtkSetStringMacro(FilePrefix);
   vtkGetStringMacro(FilePrefix);
 
+  // Description:
+  // Specify the prefix of any generated texture files.
+  vtkSetStringMacro(TexturePrefix);
+  vtkGetStringMacro(TexturePrefix);
+
 protected:
+  int Size[2];
+  // Description:
+  // Write the RIB header.
+  void WriteHeader (vtkRenderer *aRen);
+  void WriteTrailer ();
+  void WriteTexture (vtkTexture *aTexture);
+  void WriteViewport (vtkRenderer *aRenderer, int size[2]);
+  void WriteCamera (vtkCamera *aCamera);
+  void WriteLight (vtkLight *aLight, int count);
+  void WriteProperty (vtkProperty *aProperty, vtkTexture *aTexture);
+  void WritePolygons (vtkPolyData *pd, vtkColorScalars *colors, vtkProperty *aProperty);
+  void WriteStrips (vtkPolyData *pd, vtkColorScalars *colors, vtkProperty *aProperty);
+
   void WriteData();
-  void WriteAnActor(vtkActor *anActor, FILE *fpRIB, FILE *fpMat, int &id);
+  void WriteActor(vtkActor *anActor);
+  char *GetTextureName (vtkTexture *aTexture);
+  char *GetTIFFName (vtkTexture *aTexture);
   char *FilePrefix;
+  FILE *FilePtr;
+  char *TexturePrefix;
 };
 
 #endif
