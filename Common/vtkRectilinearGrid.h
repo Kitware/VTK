@@ -186,6 +186,10 @@ public:
   // a request is made as pieces.
   virtual void UpdateData();
 
+  // Description:
+  // Structured extent. The extent type is a 3D extent
+  int GetExtentType() { return VTK_3D_EXTENT; };
+
 protected:
   vtkRectilinearGrid();
   ~vtkRectilinearGrid();
@@ -196,9 +200,6 @@ protected:
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
   
-  // The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; };
-
   // Description:
   // Reallocates and copies to set the Extent to the UpdateExtent.
   // This is used internally when the exact extent is requested, 

@@ -319,6 +319,10 @@ public:
   // conditions) and place it in intExt
   void ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds);
   
+  // Description:
+  // The extent type is a 3D extent
+  int GetExtentType() { return VTK_3D_EXTENT; };
+
 protected:
   vtkImageData();
   ~vtkImageData();
@@ -328,9 +332,6 @@ protected:
   vtkLine *Line;
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
-
-  // The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; };
 
   // The extent of what is currently in the structured grid.
   // Dimensions is just an array to return a value.
