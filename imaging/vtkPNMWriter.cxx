@@ -127,8 +127,6 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageRegion *region)
 	}
       }
     }
-  file->close();
-  delete file;
 }
 
 
