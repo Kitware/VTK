@@ -754,12 +754,13 @@ set ERROR_STRING_RESET ""
 
 viewer GlobalWarningDisplayOff
 
-#TestObject graphics vtkBrownianPoints
+#TestObject graphics vtkExtractVectorComponents
+#TestObject graphics vtkGlyph3D
 
-#TestKit graphics
-#TestKit imaging
-#TestKit patented
-#TestKit common
+TestKit graphics
+TestKit imaging
+TestKit patented
+TestKit common
 
 if {$ERROR_STRING_CHANGE != ""} {
    mapper SetInput "$LABEL_STRING_CHANGE $ERROR_STRING_CHANGE"
@@ -774,7 +775,7 @@ viewer Render
 
 viewer GlobalWarningDisplayOn
 
-
+exit
 
 
 

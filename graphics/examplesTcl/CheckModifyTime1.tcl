@@ -18,7 +18,7 @@ source ../../examplesTcl/vtkInt.tcl
 # When this is set to 1, the method calls will be echoed, and
 # the mtime results displayed.  When an error is encountered,
 # an interactor will popup.
-set DEBUG 1
+set DEBUG 0
 
 
 
@@ -710,13 +710,14 @@ set ERROR_STRING ""
 
 viewer GlobalWarningDisplayOff
 
-#TestObject common vtkFloatScalars
 
-
+# Still Reference counting problems in graphics. (seg faults)
+# next: Exporter has pointer to deleted window (GetMTime)
+#TestObject graphics vtkIVExporter
 #TestKit graphics
-#TestKit imaging
-#TestKit patented
-#TestKit common
+TestKit imaging
+TestKit patented
+TestKit common
 
 
 if {$ERROR_STRING != ""} {
