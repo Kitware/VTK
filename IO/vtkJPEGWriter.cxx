@@ -27,7 +27,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.16");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.17");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -200,6 +200,10 @@ METHODDEF(void)
   longjmp(jpegErr->setjmp_buffer, 1);
 }
 
+// we disable this warning because even though this is a C++ file, between
+// the setjmp and resulting longjmp there should not be any C++ constructors
+// or destructors.
+#pragma warning ( disable : 4611 )
 void vtkJPEGWriter::WriteSlice(vtkImageData *data)
 {
   // Call the correct templated function for the output
