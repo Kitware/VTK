@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Makes an empty similar type object.
-  virtual vtkImageInformation *MakeObject() 
+  vtkDataInformation *MakeObject() 
     {return vtkImageInformation::New();}
   
   // Description:

@@ -69,7 +69,7 @@ public:
   
   // Description:
   // Makes an empty similar type object.
-  virtual vtkDataInformation *MakeObject() 
+  vtkDataInformation *MakeObject() 
     {return vtkStructuredInformation::New();}
   
   // Description:
