@@ -21,7 +21,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.8");
+vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.9");
 
 //----------------------------------------------------------------------------
 vtkHomogeneousTransform::vtkHomogeneousTransform()
@@ -51,7 +51,7 @@ void vtkHomogeneousTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
-static inline double vtkHomogeneousTransformPoint(T1 M[4][4],
+inline double vtkHomogeneousTransformPoint(T1 M[4][4],
                                                   T2 in[3], T3 out[3])
 {
   double x = M[0][0]*in[0] + M[0][1]*in[1] + M[0][2]*in[2] + M[0][3];
@@ -70,7 +70,7 @@ static inline double vtkHomogeneousTransformPoint(T1 M[4][4],
 //------------------------------------------------------------------------
 // computes a coordinate transformation and also returns the Jacobian matrix
 template <class T1, class T2, class T3, class T4>
-static inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
+inline void vtkHomogeneousTransformDerivative(T1 M[4][4],
                                                      T2 in[3], T3 out[3],
                                                      T4 derivative[3][3])
 {

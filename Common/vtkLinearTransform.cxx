@@ -22,7 +22,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkLinearTransform, "1.32");
+vtkCxxRevisionMacro(vtkLinearTransform, "1.33");
 
 //------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
@@ -32,7 +32,7 @@ void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
-static inline void vtkLinearTransformPoint(T1 matrix[4][4], 
+inline void vtkLinearTransformPoint(T1 matrix[4][4], 
                                            T2 in[3], T3 out[3])
 {
   T3 x = matrix[0][0]*in[0]+matrix[0][1]*in[1]+matrix[0][2]*in[2]+matrix[0][3];
@@ -46,7 +46,7 @@ static inline void vtkLinearTransformPoint(T1 matrix[4][4],
 
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3, class T4>
-static inline void vtkLinearTransformDerivative(T1 matrix[4][4], 
+inline void vtkLinearTransformDerivative(T1 matrix[4][4], 
                                                 T2 in[3], T3 out[3], 
                                                 T4 derivative[3][3])
 {
@@ -62,7 +62,7 @@ static inline void vtkLinearTransformDerivative(T1 matrix[4][4],
 
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
-static inline void vtkLinearTransformVector(T1 matrix[4][4],
+inline void vtkLinearTransformVector(T1 matrix[4][4],
                                             T2 in[3], T3 out[3]) 
 {
   T3 x = matrix[0][0]*in[0] + matrix[0][1]*in[1] + matrix[0][2]*in[2];
@@ -76,7 +76,7 @@ static inline void vtkLinearTransformVector(T1 matrix[4][4],
 
 //------------------------------------------------------------------------
 template <class T1, class T2, class T3>
-static inline void vtkLinearTransformNormal(T1 mat[4][4], 
+inline void vtkLinearTransformNormal(T1 mat[4][4], 
                                             T2 in[3], T3 out[3]) 
 {
   // to transform the normal, multiply by the transposed inverse matrix

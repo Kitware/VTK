@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.74");
+vtkCxxRevisionMacro(vtkMath, "1.75");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -1247,7 +1247,7 @@ int vtkMath::LUFactorLinearSystem(double **A, int *index, int size,
 //----------------------------------------------------------------------------
 // helper function, swap two 3-vectors
 template<class T>
-static inline void vtkSwapVectors3(T v1[3], T v2[3])
+inline void vtkSwapVectors3(T v1[3], T v2[3])
 {
   for (int i = 0; i < 3; i++)
     {
@@ -1263,7 +1263,7 @@ static inline void vtkSwapVectors3(T v1[3], T v2[3])
 // elements are inverted, to convert a division to a multiplication
 // in the backsubstitution.
 template<class T>
-static inline void vtkLUFactor3x3(T A[3][3], int index[3])
+inline void vtkLUFactor3x3(T A[3][3], int index[3])
 {
   int i,maxI;
   T tmp,largest;
@@ -1347,7 +1347,7 @@ void vtkMath::LUFactor3x3(double A[3][3], int index[3])
 // Backsubsitution with an LU-decomposed matrix.  This is the standard
 // LU decomposition, except that the diagonals elements have been inverted.
 template<class T1, class T2>
-static inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
+inline void vtkLUSolve3x3(const T1 A[3][3], const int index[3], T2 x[3])
 {
   T2 sum;
 
@@ -1387,7 +1387,7 @@ void vtkMath::LUSolve3x3(const double A[3][3],
 //----------------------------------------------------------------------------
 // this method solves Ay = x for y
 template<class T1, class T2, class T3>
-static inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
+inline void vtkLinearSolve3x3(const T1 A[3][3], const T2 x[3], T3 y[3])
 {
   int index[3];
   T3 B[3][3];
@@ -1417,7 +1417,7 @@ void vtkMath::LinearSolve3x3(const double A[3][3],
 
 //----------------------------------------------------------------------------
 template<class T1, class T2, class T3>
-static inline void vtkMultiply3x3(const T1 A[3][3], const T2 v[3], T3 u[3])
+inline void vtkMultiply3x3(const T1 A[3][3], const T2 v[3], T3 u[3])
 {
   T3 x = A[0][0]*v[0] + A[0][1]*v[1] + A[0][2]*v[2];
   T3 y = A[1][0]*v[0] + A[1][1]*v[1] + A[1][2]*v[2];
@@ -1440,7 +1440,7 @@ void vtkMath::Multiply3x3(const double A[3][3], const double v[3], double u[3])
 
 //----------------------------------------------------------------------------
 template<class T, class T2, class T3>
-static inline void vtkMultiplyMatrix3x3(const T A[3][3], const T2 B[3][3],
+inline void vtkMultiplyMatrix3x3(const T A[3][3], const T2 B[3][3],
                                         T3 C[3][3])
 {
   T3 D[3][3];
@@ -1474,7 +1474,7 @@ void vtkMath::Multiply3x3(const double A[3][3],
 
 //----------------------------------------------------------------------------
 template<class T1, class T2>
-static inline void vtkTranspose3x3(const T1 A[3][3], T2 AT[3][3])
+inline void vtkTranspose3x3(const T1 A[3][3], T2 AT[3][3])
 {
   T2 tmp;
   tmp = A[1][0];
@@ -1504,7 +1504,7 @@ void vtkMath::Transpose3x3(const double A[3][3], double AT[3][3])
 
 //----------------------------------------------------------------------------
 template<class T1, class T2>
-static inline void vtkInvert3x3(const T1 A[3][3], T2 AI[3][3])
+inline void vtkInvert3x3(const T1 A[3][3], T2 AI[3][3])
 {
   int index[3];
   T2 tmp[3][3];
@@ -1545,7 +1545,7 @@ void vtkMath::Invert3x3(const double A[3][3], double AI[3][3])
 
 //----------------------------------------------------------------------------
 template<class T>
-static inline void vtkIdentity3x3(T A[3][3])
+ inline void vtkIdentity3x3(T A[3][3])
 {
   for (int i = 0; i < 3; i++)
     {
@@ -1566,7 +1566,7 @@ void vtkMath::Identity3x3(double A[3][3])
 
 //----------------------------------------------------------------------------
 template<class T1, class T2>
-static inline void vtkQuaternionToMatrix3x3(T1 quat[4], T2 A[3][3])
+ inline void vtkQuaternionToMatrix3x3(T1 quat[4], T2 A[3][3])
 {
   T2 ww = quat[0]*quat[0];
   T2 wx = quat[0]*quat[1];
@@ -1616,7 +1616,7 @@ void vtkMath::QuaternionToMatrix3x3(const double quat[4], double A[3][3])
 //  "Closed-form solution of absolute orientation using unit quaternions,"
 //  Journal of the Optical Society of America A, 4:629-642
 template<class T1, class T2>
-static inline void vtkMatrix3x3ToQuaternion(const T1 A[3][3], T2 quat[4])
+inline void vtkMatrix3x3ToQuaternion(const T1 A[3][3], T2 quat[4])
 {
   T2 N[4][4];
 
@@ -1668,7 +1668,7 @@ void vtkMath::Matrix3x3ToQuaternion(const double A[3][3], double quat[4])
 //  The orthogonalization is done via quaternions in order to avoid
 //  having to use a singular value decomposition algorithm.  
 template <class T1, class T2>
-static inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
+inline void vtkOrthogonalize3x3(const T1 A[3][3], T2 B[3][3])
 {
   int i;
 
@@ -1801,7 +1801,7 @@ float vtkMath::Norm(const float* x, int n)
 // The eigenvectors are aligned optimally with the x, y, and z
 // axes respectively.
 template <class T1, class T2>
-static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
+inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
 {
   int i,j,k,maxI;
   T2 tmp, maxVal;
@@ -1963,7 +1963,7 @@ void vtkMath::Diagonalize3x3(const double A[3][3],double w[3],double V[3][3])
 //
 // Contributed by David Gobbi (dgobbi@irus.rri.on.ca)
 template <class T1, class T2>
-static inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], 
+inline void vtkSingularValueDecomposition3x3(const T1 A[3][3], 
                                                     T2 U[3][3], T2 w[3],
                                                     T2 VT[3][3])
 {
