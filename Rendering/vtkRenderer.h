@@ -305,6 +305,16 @@ public:
   // This is used to know if something is in the frame buffer.
   vtkGetMacro( NumberOfPropsRendered, int );
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // FOR LEGACY COMPATIBILITY ONLY, DO NOT USE.
+  virtual int GetNumberOfPropsRenderedAsGeometry()
+    {
+      VTK_LEGACY_METHOD(GetNumberOfPropsRenderedAsGeometry,"4.0");
+      return this->GetNumberOfPropsRendered();
+    }
+#endif
+
   // Description:
   // Return the prop (via a vtkAssemblyPath) that has the highest z value 
   // at the given x, y position in the viewport.  Basically, the top most 
