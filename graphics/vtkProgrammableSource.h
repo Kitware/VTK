@@ -110,6 +110,10 @@ public:
   // Get the output as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridOutput();
 
+  // Description:
+  // Handle the source/data loop.
+  void UnRegister(vtkObject *o);
+
 protected:
   void Execute();
 

@@ -128,6 +128,10 @@ public:
   // For legacy compatibility. Do not use.
   void SetGeometry(vtkDataSet &input) {this->SetGeometry(&input);}
 
+  // Description:
+  // Handle the source/data loop.
+  void UnRegister(vtkObject *o);
+
 protected:
   // Usual data generation method
   void Execute();

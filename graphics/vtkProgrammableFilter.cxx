@@ -222,3 +222,25 @@ void vtkProgrammableFilter::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+
+void vtkProgrammableFilter::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 6 &&
+      this->OutputPolyData->GetReferenceCount() == 1 &&
+      this->OutputStructuredGrid->GetReferenceCount() == 1 &&
+      this->OutputUnstructuredGrid->GetReferenceCount() == 1 &&
+      this->OutputStructuredPoints->GetReferenceCount() == 1 &&
+      this->OutputRectilinearGrid->GetReferenceCount() == 1)
+    {
+    this->OutputPolyData->SetSource(NULL);
+    this->OutputStructuredGrid->SetSource(NULL);
+    this->OutputUnstructuredGrid->SetSource(NULL);
+    this->OutputStructuredPoints->SetSource(NULL);
+    this->OutputRectilinearGrid->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}
