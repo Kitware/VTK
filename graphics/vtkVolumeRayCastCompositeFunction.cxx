@@ -60,7 +60,6 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
-  float           accum_intensity;
   float           remaining_opacity;
   float           opacity;
   float           gradient_opacity;
@@ -109,7 +108,6 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   voxel[2] = vtkRoundFuncMacro( ray_position[2] );
 
   // So far we haven't accumulated anything
-  accum_intensity         = 0.0;
   accum_red_intensity     = 0.0;
   accum_green_intensity   = 0.0;
   accum_blue_intensity    = 0.0;
@@ -122,7 +120,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
     }
 
   // Set up the data values for the first pass through the loop
-  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0] * xinc;
   value = *(data_ptr + offset);
   opacity = SOTF[value];
   if ( grad_op_is_constant )
@@ -156,7 +154,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 	   prev_voxel[1] != voxel[1] ||
 	   prev_voxel[2] != voxel[2] )
 	{
-	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0] * xinc;
 	value = *(data_ptr + offset);
 	opacity = SOTF[value];
 
@@ -209,7 +207,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 	   prev_voxel[1] != voxel[1] ||
 	   prev_voxel[2] != voxel[2] )
 	{
-	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0] * xinc;
 	value = *(data_ptr + offset);
 	opacity = SOTF[value];
 
@@ -412,7 +410,7 @@ static void CastRay_NN_Shaded( T *data_ptr,
 	   prev_voxel[1] != voxel[1] ||
 	   prev_voxel[2] != voxel[2] )
 	{
-	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0] * xinc;
 	value = *(data_ptr + offset);
       
 	// Get the opacity contributed by the scalar opacity transfer function
@@ -484,7 +482,7 @@ static void CastRay_NN_Shaded( T *data_ptr,
 	   prev_voxel[1] != voxel[1] ||
 	   prev_voxel[2] != voxel[2] )
 	{
-	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0];
+	offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0] * xinc;
 	value = *(data_ptr + offset);
       
 	// Get the opacity contributed by the scalar opacity transfer function
@@ -596,7 +594,6 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
-  float           accum_intensity;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -667,7 +664,6 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
   voxel[2] = (int)( ray_position[2] );
 
   // So far we have not accumulated anything
-  accum_intensity         = 0.0;
   accum_red_intensity     = 0.0;
   accum_green_intensity   = 0.0;
   accum_blue_intensity    = 0.0;
@@ -1422,7 +1418,6 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
-  float           accum_intensity;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -1494,7 +1489,6 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
   voxel[2] = (int)( ray_position[2] );
 
   // So far we have not accumulated anything
-  accum_intensity         = 0.0;
   accum_red_intensity     = 0.0;
   accum_green_intensity   = 0.0;
   accum_blue_intensity    = 0.0;
