@@ -107,6 +107,7 @@ public:
   // is invoked, the header file is opened and part of the header 
   // is read.
   int GetNumberOfOutputs();
+  int GetNumberOfGrids() { return this->GetNumberOfOutputs(); }
 
   // Description:
   // Replace an output.
