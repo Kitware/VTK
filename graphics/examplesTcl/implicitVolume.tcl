@@ -35,7 +35,7 @@ set origin [expr ( $RESOLUTION / 2.0 ) * $PIXEL_SIZE * -1.0]
 set SLICE_ORDER si
 vtkVolume16Reader reader;
   eval reader SetDataDimensions $RESOLUTION $RESOLUTION
-  eval reader SetFilePrefix $VTK_DATA/fullHead/headsq
+  reader SetFilePrefix $VTK_DATA/fullHead/headsq
   eval reader SetDataSpacing $PIXEL_SIZE $PIXEL_SIZE 1.5
   eval reader SetDataOrigin $origin $origin 1.5
   eval reader SetImageRange $START_SLICE $END_SLICE
