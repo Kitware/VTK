@@ -34,7 +34,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.186");
+vtkCxxRevisionMacro(vtkRenderer, "1.187");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -328,8 +328,8 @@ int vtkRenderer::UpdateLightsGeometryToFollowCamera()
     {
     if (light->LightTypeIsSceneLight())
       {
-      // nothing needs to be done.
-      ;
+      // reset any transformation matrix that may have been set before
+      light->SetTransformMatrix(NULL);
       }
     else if (light->LightTypeIsHeadlight())
       {
