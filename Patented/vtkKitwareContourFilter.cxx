@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.37");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.38");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -84,7 +84,7 @@ int vtkKitwareContourFilter::ComputeInputUpdateExtent(
         }
       }
      
-    if ((dim == 2) && (dims[2] == 0))
+    if (dim == 2)
       {
       vtkSynchronizedTemplates2D *syncTemp2D = 
         vtkSynchronizedTemplates2D::New();
