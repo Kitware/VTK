@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBase64Utility.h
+  Module:    vtkBase64Utilities.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,20 +15,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkBase64Utility - base64 encode and decode utilities.
+// .NAME vtkBase64Utilities - base64 encode and decode utilities.
 // .SECTION Description
-// vtkBase64Utility implements base64 encoding and decoding.
+// vtkBase64Utilities implements base64 encoding and decoding.
 
-#ifndef __vtkBase64Utility_h
-#define __vtkBase64Utility_h
+#ifndef __vtkBase64Utilities_h
+#define __vtkBase64Utilities_h
 
 #include "vtkObject.h"
 
-class VTK_COMMON_EXPORT vtkBase64Utility : public vtkObject
+class VTK_IO_EXPORT vtkBase64Utilities : public vtkObject
 {
 public:
-  static vtkBase64Utility *New();
-  vtkTypeRevisionMacro(vtkBase64Utility,vtkObject);
+  static vtkBase64Utilities *New();
+  vtkTypeRevisionMacro(vtkBase64Utilities,vtkObject);
 
   // Description:  
   // Encode 3 bytes into 4 bytes
@@ -101,12 +101,12 @@ public:
                               unsigned long max_input_length = 0);
 
 protected:
-  vtkBase64Utility() {};
-  ~vtkBase64Utility() {};  
+  vtkBase64Utilities() {};
+  ~vtkBase64Utilities() {};  
   
 private:
-  vtkBase64Utility(const vtkBase64Utility&);  // Not implemented.
-  void operator=(const vtkBase64Utility&);  // Not implemented.
+  vtkBase64Utilities(const vtkBase64Utilities&);  // Not implemented.
+  void operator=(const vtkBase64Utilities&);  // Not implemented.
 };
 
 #endif

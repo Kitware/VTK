@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkBase64Utility.cxx
+  Module:    vtkBase64Utilities.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,72 +15,72 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkBase64Utility.h"
+#include "vtkBase64Utilities.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64Utility, "1.3");
-vtkStandardNewMacro(vtkBase64Utility);
+vtkCxxRevisionMacro(vtkBase64Utilities, "1.1");
+vtkStandardNewMacro(vtkBase64Utilities);
 
 //----------------------------------------------------------------------------
-static const unsigned char vtkBase64UtilityEncodeTable[65] =
+static const unsigned char vtkBase64UtilitiesEncodeTable[65] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 "abcdefghijklmnopqrstuvwxyz"
 "0123456789+/";
 
 //----------------------------------------------------------------------------
-inline static unsigned char vtkBase64UtilityEncodeChar(unsigned char c)
+inline static unsigned char vtkBase64UtilitiesEncodeChar(unsigned char c)
 {
-  return vtkBase64UtilityEncodeTable[c];
+  return vtkBase64UtilitiesEncodeTable[c];
 }
 
 //----------------------------------------------------------------------------
-void vtkBase64Utility::EncodeTriplet(unsigned char i0,
-                                     unsigned char i1,
-                                     unsigned char i2,
-                                     unsigned char *o0,
-                                     unsigned char *o1,
-                                     unsigned char *o2,
-                                     unsigned char *o3)
+void vtkBase64Utilities::EncodeTriplet(unsigned char i0,
+                                       unsigned char i1,
+                                       unsigned char i2,
+                                       unsigned char *o0,
+                                       unsigned char *o1,
+                                       unsigned char *o2,
+                                       unsigned char *o3)
 {
-  *o0 = vtkBase64UtilityEncodeChar((i0 >> 2) & 0x3F);
-  *o1 = vtkBase64UtilityEncodeChar(((i0 << 4) & 0x30)|((i1 >> 4) & 0x0F));
-  *o2 = vtkBase64UtilityEncodeChar(((i1 << 2) & 0x3C)|((i2 >> 6) & 0x03));
-  *o3 = vtkBase64UtilityEncodeChar(i2 & 0x3F);
+  *o0 = vtkBase64UtilitiesEncodeChar((i0 >> 2) & 0x3F);
+  *o1 = vtkBase64UtilitiesEncodeChar(((i0 << 4) & 0x30)|((i1 >> 4) & 0x0F));
+  *o2 = vtkBase64UtilitiesEncodeChar(((i1 << 2) & 0x3C)|((i2 >> 6) & 0x03));
+  *o3 = vtkBase64UtilitiesEncodeChar(i2 & 0x3F);
 }
 
 //----------------------------------------------------------------------------
-void vtkBase64Utility::EncodePair(unsigned char i0,
-                                  unsigned char i1,
-                                  unsigned char *o0,
-                                  unsigned char *o1,
-                                  unsigned char *o2,
-                                  unsigned char *o3)
-{
-  *o0 = vtkBase64UtilityEncodeChar((i0 >> 2) & 0x3F);
-  *o1 = vtkBase64UtilityEncodeChar(((i0 << 4) & 0x30)|((i1 >> 4) & 0x0F));
-  *o2 = vtkBase64UtilityEncodeChar(((i1 << 2) & 0x3C));
-  *o3 = '=';
-}
-
-//----------------------------------------------------------------------------
-void vtkBase64Utility::EncodeSingle(unsigned char i0,
+void vtkBase64Utilities::EncodePair(unsigned char i0,
+                                    unsigned char i1,
                                     unsigned char *o0,
                                     unsigned char *o1,
                                     unsigned char *o2,
                                     unsigned char *o3)
 {
-  *o0 = vtkBase64UtilityEncodeChar((i0 >> 2) & 0x3F);
-  *o1 = vtkBase64UtilityEncodeChar(((i0 << 4) & 0x30));
+  *o0 = vtkBase64UtilitiesEncodeChar((i0 >> 2) & 0x3F);
+  *o1 = vtkBase64UtilitiesEncodeChar(((i0 << 4) & 0x30)|((i1 >> 4) & 0x0F));
+  *o2 = vtkBase64UtilitiesEncodeChar(((i1 << 2) & 0x3C));
+  *o3 = '=';
+}
+
+//----------------------------------------------------------------------------
+void vtkBase64Utilities::EncodeSingle(unsigned char i0,
+                                      unsigned char *o0,
+                                      unsigned char *o1,
+                                      unsigned char *o2,
+                                      unsigned char *o3)
+{
+  *o0 = vtkBase64UtilitiesEncodeChar((i0 >> 2) & 0x3F);
+  *o1 = vtkBase64UtilitiesEncodeChar(((i0 << 4) & 0x30));
   *o2 = '=';
   *o3 = '=';
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkBase64Utility::Encode(const unsigned char *input, 
-                                       unsigned long length, 
-                                       unsigned char *output,
-                                       int mark_end)
+unsigned long vtkBase64Utilities::Encode(const unsigned char *input, 
+                                         unsigned long length, 
+                                         unsigned char *output,
+                                         int mark_end)
 {
   
   const unsigned char *ptr = input;
@@ -91,8 +91,8 @@ unsigned long vtkBase64Utility::Encode(const unsigned char *input,
 
   while ((end - ptr) >= 3)
     {
-    vtkBase64Utility::EncodeTriplet(ptr[0], ptr[1], ptr[2], 
-                                    &optr[0], &optr[1], &optr[2], &optr[3]);
+    vtkBase64Utilities::EncodeTriplet(ptr[0], ptr[1], ptr[2], 
+                                      &optr[0], &optr[1], &optr[2], &optr[3]);
     ptr += 3;
     optr += 4;
     }
@@ -101,8 +101,8 @@ unsigned long vtkBase64Utility::Encode(const unsigned char *input,
 
   if (end - ptr == 2)
     {
-    vtkBase64Utility::EncodePair(ptr[0], ptr[1],
-                                 &optr[0], &optr[1], &optr[2], &optr[3]);
+    vtkBase64Utilities::EncodePair(ptr[0], ptr[1],
+                                   &optr[0], &optr[1], &optr[2], &optr[3]);
     optr += 4;
     }
 
@@ -110,8 +110,8 @@ unsigned long vtkBase64Utility::Encode(const unsigned char *input,
   
   else if (end - ptr == 1)
     {
-    vtkBase64Utility::EncodeSingle(ptr[0],
-                                   &optr[0], &optr[1], &optr[2], &optr[3]);
+    vtkBase64Utilities::EncodeSingle(ptr[0],
+                                     &optr[0], &optr[1], &optr[2], &optr[3]);
     optr += 4;
     }
 
@@ -127,7 +127,7 @@ unsigned long vtkBase64Utility::Encode(const unsigned char *input,
 }
 
 //----------------------------------------------------------------------------
-static const unsigned char vtkBase64UtilityDecodeTable[256] =
+static const unsigned char vtkBase64UtilitiesDecodeTable[256] =
 {
   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
@@ -165,26 +165,26 @@ static const unsigned char vtkBase64UtilityDecodeTable[256] =
 };
 
 //----------------------------------------------------------------------------
-inline static unsigned char vtkBase64UtilityDecodeChar(unsigned char c)
+inline static unsigned char vtkBase64UtilitiesDecodeChar(unsigned char c)
 {
-  return vtkBase64UtilityDecodeTable[c];
+  return vtkBase64UtilitiesDecodeTable[c];
 }
 
 //----------------------------------------------------------------------------
-int vtkBase64Utility::DecodeTriplet(unsigned char i0,
-                                    unsigned char i1,
-                                    unsigned char i2,
-                                    unsigned char i3,
-                                    unsigned char *o0,
-                                    unsigned char *o1,
-                                    unsigned char *o2)
+int vtkBase64Utilities::DecodeTriplet(unsigned char i0,
+                                      unsigned char i1,
+                                      unsigned char i2,
+                                      unsigned char i3,
+                                      unsigned char *o0,
+                                      unsigned char *o1,
+                                      unsigned char *o2)
 {
   unsigned char d0, d1, d2, d3;
 
-  d0 = vtkBase64UtilityDecodeChar(i0);
-  d1 = vtkBase64UtilityDecodeChar(i1);
-  d2 = vtkBase64UtilityDecodeChar(i2);
-  d3 = vtkBase64UtilityDecodeChar(i3);
+  d0 = vtkBase64UtilitiesDecodeChar(i0);
+  d1 = vtkBase64UtilitiesDecodeChar(i1);
+  d2 = vtkBase64UtilitiesDecodeChar(i2);
+  d3 = vtkBase64UtilitiesDecodeChar(i3);
   
   // Make sure all characters were valid
 
@@ -213,10 +213,10 @@ int vtkBase64Utility::DecodeTriplet(unsigned char i0,
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkBase64Utility::Decode(const unsigned char *input, 
-                                       unsigned long length, 
-                                       unsigned char *output,
-                                       unsigned long max_input_length)
+unsigned long vtkBase64Utilities::Decode(const unsigned char *input, 
+                                         unsigned long length, 
+                                         unsigned char *output,
+                                         unsigned long max_input_length)
 {
   const unsigned char *ptr = input;
   unsigned char *optr = output;
@@ -229,8 +229,8 @@ unsigned long vtkBase64Utility::Decode(const unsigned char *input,
     while (ptr < end)
       {
       int len = 
-        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                        &optr[0], &optr[1], &optr[2]);
+        vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                          &optr[0], &optr[1], &optr[2]);
       optr += len;
       if(len < 3)
         {
@@ -245,8 +245,8 @@ unsigned long vtkBase64Utility::Decode(const unsigned char *input,
     while ((oend - optr) >= 3)
       {
       int len = 
-        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                        &optr[0], &optr[1], &optr[2]);
+        vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                          &optr[0], &optr[1], &optr[2]);
       optr += len;
       if(len < 3)
         {
@@ -261,16 +261,16 @@ unsigned long vtkBase64Utility::Decode(const unsigned char *input,
     if (oend - optr == 2)
       {
       int len = 
-        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                        &optr[0], &optr[1], &temp);
+        vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                          &optr[0], &optr[1], &temp);
       optr += (len > 2 ? 2 : len); 
       }
     else if (oend - optr == 1)
       {
       unsigned char temp2;
       int len = 
-        vtkBase64Utility::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
-                                        &optr[0], &temp, &temp2);
+        vtkBase64Utilities::DecodeTriplet(ptr[0], ptr[1], ptr[2], ptr[3], 
+                                          &optr[0], &temp, &temp2);
       optr += (len > 2 ? 2 : len); 
       }
     }

@@ -17,10 +17,10 @@
 =========================================================================*/
 #include "vtkBase64InputStream.h"
 #include "vtkObjectFactory.h"
-#include "vtkBase64Utility.h"
+#include "vtkBase64Utilities.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64InputStream, "1.2");
+vtkCxxRevisionMacro(vtkBase64InputStream, "1.3");
 vtkStandardNewMacro(vtkBase64InputStream);
 
 //----------------------------------------------------------------------------
@@ -51,8 +51,8 @@ inline int vtkBase64InputStream::DecodeTriplet(unsigned char& c0,
   this->Stream->read(reinterpret_cast<char*>(in), 4);
   if(this->Stream->gcount() < 4) { return 0; }
 
-  return vtkBase64Utility::DecodeTriplet(in[0], in[1], in[2], in[3],
-                                         &c0, &c1, &c2);
+  return vtkBase64Utilities::DecodeTriplet(in[0], in[1], in[2], in[3],
+                                           &c0, &c1, &c2);
 }
 
 //----------------------------------------------------------------------------
