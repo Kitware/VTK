@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkCyberReader - read Cyberware laser digitizer files
 // .SECTION Description
 // vtkCyberReader is a source object that reads a Cyberware laser digitizer
-// file. (Original source code provided coutesy of Cyberware, Inc.)
+// file. (Original source code provided courtesy of Cyberware, Inc.)
 
 #ifndef __vtkCyberReader_h
 #define __vtkCyberReader_h
