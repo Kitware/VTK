@@ -1434,10 +1434,21 @@ int kwsysProcessCreate(kwsysProcess* cp, int index, STARTUPINFO* si,
       {
       /* Wait for the forwarding executable to report an error or
          close the error pipe to report success.  */
-      DWORD nRead = 0;
-      if(ReadFile(errorReadEnd, cp->ErrorMessage,
-                  KWSYSPE_PIPE_BUFFER_SIZE, &nRead, 0) ||
-         GetLastError() != ERROR_BROKEN_PIPE)
+      DWORD total = 0;
+      DWORD n = 1;
+      while(total < KWSYSPE_PIPE_BUFFER_SIZE && n > 0)
+        {
+        if(ReadFile(errorReadEnd, cp->ErrorMessage+total,
+                    KWSYSPE_PIPE_BUFFER_SIZE-total, &n, 0))
+          {
+          total += n;
+          }
+        else
+          {
+          n = 0;
+          }
+        }
+      if(total > 0 || GetLastError() != ERROR_BROKEN_PIPE)
         {
         /* The forwarding executable could not run the process, or
            there was an error reading from its error pipe.  Preserve
