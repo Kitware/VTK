@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.8");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.9");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -212,8 +212,6 @@ int vtkXMLStructuredDataWriter::WriteHeader()
     int i;
     for(i=0; i < this->NumberOfPieces; ++i)
       {
-      vtkDataSet* input = this->GetInputAsDataSet();
-      
       // Update the piece's extent.
       this->ExtentTranslator->SetPiece(i);
       this->ExtentTranslator->PieceToExtent();
