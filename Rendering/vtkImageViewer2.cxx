@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageViewer2.h"
 #include "vtkObjectFactory.h"
 #include "vtkInteractorStyleImage.h"
-
+#include "vtkCommand.h"
 
 //----------------------------------------------------------------------------
 vtkImageViewer2* vtkImageViewer2::New()

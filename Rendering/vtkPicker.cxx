@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolume.h"
 #include "vtkObjectFactory.h"
 #include "vtkLODProp3D.h"
+#include "vtkCommand.h"
 
 //-----------------------------------------------------------------------------
 vtkPicker* vtkPicker::New()

@@ -509,3 +509,9 @@ int vtkObject::HasObserver(const char *event)
   return this->HasObserver(vtkCommand::GetEventIdFromString(event));
 }
 
+void vtkObject::Modified()
+{
+  this->MTime.Modified();
+  this->InvokeEvent(vtkCommand::ModifiedEvent,NULL);
+}
+

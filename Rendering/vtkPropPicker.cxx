@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWorldPointPicker.h"
 #include "vtkAssemblyNode.h"
 #include "vtkObjectFactory.h"
+#include "vtkCommand.h"
 
 
 vtkPropPicker* vtkPropPicker::New()

@@ -67,7 +67,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIndent.h"
 #include "vtkTimeStamp.h"
 #include "vtkSetGet.h"
-#include "vtkCommand.h"
 
 class vtkSubjectHelper;
 class vtkCommand;
@@ -227,12 +226,6 @@ private:
   vtkObject(const vtkObject&);  // Not implemented.
   void operator=(const vtkObject&);  // Not implemented.
 };
-
-inline void vtkObject::Modified()
-{
-  this->MTime.Modified();
-  this->InvokeEvent(vtkCommand::ModifiedEvent,NULL);
-}
 
 #endif
 
