@@ -44,14 +44,14 @@
 #ifndef __vtkBooleanTexture_h
 #define __vtkBooleanTexture_h
 
-#include "vtkStructuredPointsSource.h"
+#include "vtkImageSource.h"
 
-class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
+class VTK_IMAGING_EXPORT vtkBooleanTexture : public vtkImageSource
 {
 public:
   static vtkBooleanTexture *New();
 
-  vtkTypeRevisionMacro(vtkBooleanTexture,vtkStructuredPointsSource);
+  vtkTypeRevisionMacro(vtkBooleanTexture,vtkImageSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -118,7 +118,8 @@ protected:
   vtkBooleanTexture();
   ~vtkBooleanTexture() {};
 
-  void Execute();
+  virtual void ExecuteInformation();
+  virtual void ExecuteData(vtkDataObject *data);
 
   int XSize;
   int YSize;

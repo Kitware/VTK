@@ -19,7 +19,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBooleanTexture, "1.30");
+vtkCxxRevisionMacro(vtkBooleanTexture, "1.31");
 vtkStandardNewMacro(vtkBooleanTexture);
 
 vtkBooleanTexture::vtkBooleanTexture()
@@ -39,23 +39,30 @@ vtkBooleanTexture::vtkBooleanTexture()
   this->OutOn[0] = this->OutOn[1] = 255;
 }
 
-void vtkBooleanTexture::Execute()
+//----------------------------------------------------------------------------
+void vtkBooleanTexture::ExecuteInformation()
+{
+  vtkImageData *output = this->GetOutput();
+  
+  output->SetWholeExtent(0,this->XSize -1, 0, this->YSize - 1, 0,0);
+  output->SetScalarType(VTK_UNSIGNED_CHAR);
+  output->SetNumberOfScalarComponents(2);
+}
+
+void vtkBooleanTexture::ExecuteData(vtkDataObject *outp)
 {
   int numPts, i, j;
-  vtkUnsignedCharArray *newScalars;
   int midILower, midJLower, midIUpper, midJUpper;
-  vtkStructuredPoints *output = this->GetOutput();
+  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkUnsignedCharArray *newScalars = 
+    vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
   
-  if ( (numPts = this->XSize * this->YSize) < 1 )
+  if (!newScalars || (numPts = this->XSize * this->YSize) < 1 )
     {
     vtkErrorMacro(<<"Bad texture (xsize,ysize) specification!");
     return;
     }
 
-  output->SetDimensions(this->XSize,this->YSize,1);
-  newScalars = vtkUnsignedCharArray::New();
-  newScalars->SetNumberOfComponents(2);
-  newScalars->Allocate(numPts);
 //
 // Compute size of various regions
 //
@@ -66,63 +73,69 @@ void vtkBooleanTexture::Execute()
 //
 // Create texture map
 //
+  int count = 0;
   for (j = 0; j < this->YSize; j++) 
     {
     for (i = 0; i < this->XSize; i++) 
       {
       if (i < midILower && j < midJLower) 
         {
-        newScalars->InsertNextValue(this->InIn[0]);
-        newScalars->InsertNextValue(this->InIn[1]);
+        newScalars->SetValue(count,this->InIn[0]);
+        count++;
+        newScalars->SetValue(count,this->InIn[1]);
         }
       else if (i > midIUpper && j < midJLower) 
         {
-        newScalars->InsertNextValue(this->OutIn[0]);
-        newScalars->InsertNextValue(this->OutIn[1]);
+        newScalars->SetValue(count,this->OutIn[0]);
+        count++;
+        newScalars->SetValue(count,this->OutIn[1]);
         }
       else if (i < midILower && j > midJUpper)
         {
-        newScalars->InsertNextValue(this->InOut[0]);
-        newScalars->InsertNextValue(this->InOut[1]);
+        newScalars->SetValue(count,this->InOut[0]);
+        count++;
+        newScalars->SetValue(count,this->InOut[1]);
         }
       else if (i > midIUpper && j > midJUpper)
         {
-        newScalars->InsertNextValue(this->OutOut[0]);
-        newScalars->InsertNextValue(this->OutOut[1]);
+        newScalars->SetValue(count,this->OutOut[0]);
+        count++;
+        newScalars->SetValue(count,this->OutOut[1]);
         }
       else if ((i >= midILower && i <= midIUpper) && (j >= midJLower && j <= midJUpper))
         {
-        newScalars->InsertNextValue(this->OnOn[0]);
-        newScalars->InsertNextValue(this->OnOn[1]);
+        newScalars->SetValue(count,this->OnOn[0]);
+        count++;
+        newScalars->SetValue(count,this->OnOn[1]);
         }
       else if ((i >= midILower && i <= midIUpper) && j < midJLower)
         {
-        newScalars->InsertNextValue(this->OnIn[0]);
-        newScalars->InsertNextValue(this->OnIn[1]);
+        newScalars->SetValue(count,this->OnIn[0]);
+        count++;
+        newScalars->SetValue(count,this->OnIn[1]);
         }
       else if ((i >= midILower && i <= midIUpper) && j > midJUpper)
         {
-        newScalars->InsertNextValue(this->OnOut[0]);
-        newScalars->InsertNextValue(this->OnOut[1]);
+        newScalars->SetValue(count,this->OnOut[0]);
+        count++;
+        newScalars->SetValue(count,this->OnOut[1]);
         }
       else if (i < midILower && (j >= midJLower && j <= midJUpper))
         {
-        newScalars->InsertNextValue(this->InOn[0]);
-        newScalars->InsertNextValue(this->InOn[1]);
+        newScalars->SetValue(count,this->InOn[0]);
+        count++;
+        newScalars->SetValue(count,this->InOn[1]);
         }
       else if (i > midIUpper && (j >= midJLower && j <= midJUpper))
         {
-        newScalars->InsertNextValue(this->OutOn[0]);
-        newScalars->InsertNextValue(this->OutOn[1]);
+        newScalars->SetValue(count,this->OutOn[0]);
+        count++;
+        newScalars->SetValue(count,this->OutOn[1]);
         }
+      count++;
       }
     }
 
-//
-// Update ourselves
-//
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
 }
 
 void vtkBooleanTexture::PrintSelf(ostream& os, vtkIndent indent)
