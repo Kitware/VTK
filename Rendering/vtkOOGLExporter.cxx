@@ -289,46 +289,6 @@ void vtkOOGLExporter::WriteALight(vtkLight *aLight, FILE *fp)
    fprintf(fp, "%s}\n", indent);
 
    return;
-   
-  if (aLight->GetPositional())
-    {
-    float *attn;
-    
-    if (aLight->GetConeAngle() >= 180.0)
-      {
-      fprintf(fp,"%sPointLight {\n", indent);
-      VTK_INDENT_MORE;
-      }
-    else
-      { 
-      fprintf(fp,"%sSpotLight {\n", indent);
-      VTK_INDENT_MORE;
-      fprintf(fp,"%sdirection %f %f %f\n", indent, dir[0], dir[1], dir[2]);
-      fprintf(fp,"%scutOffAngle %f\n", indent, aLight->GetConeAngle());
-      // the following ignores linear and quadratic attenuation values
-      attn = aLight->GetAttenuationValues();
-      fprintf(fp,"%sdropOffRate %f\n", indent, attn[0]);
-      }
-    fprintf(fp,"%slocation %f %f %f\n", indent, pos[0], pos[1], pos[2]);
-    }
-  else
-    {
-    fprintf(fp,"%sDirectionalLight {\n", indent);
-    VTK_INDENT_MORE;
-    fprintf(fp,"%sdirection %f %f %f\n", indent, dir[0], dir[1], dir[2]);
-    }
-
-  fprintf(fp,"%scolor %f %f %f\n", indent, color[0], color[1], color[2]);
-  fprintf(fp,"%sintensity %f\n", indent, aLight->GetIntensity());
-  VTK_INDENT_LESS;
-  if (aLight->GetSwitch())
-    {
-    fprintf(fp,"%son TRUE\n%s}\n", indent, indent);
-    }
-  else
-    {
-    fprintf(fp,"%son FALSE\n%s}\n", indent, indent);
-    }
 }
 
 void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
