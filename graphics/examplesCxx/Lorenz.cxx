@@ -3,7 +3,7 @@
 //
 
 #include "vtkMath.h"
-#include "vtkShortScalars.h"
+#include "vtkShortArray.h"
 #include "vtkStructuredPoints.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -30,10 +30,10 @@ int randomMode = 1;
 float xIncr, yIncr, zIncr;
 short	*slice;
 
-main (int argc, char **argv)
+main ( )
 {
-  int	i, j, k;	
-  float	xx, yy, zz, length;
+  int	i, j;
+  float	xx, yy, zz;
   short	xxx, yyy, zzz;
   int	sliceSize;
 
@@ -112,7 +112,6 @@ main (int argc, char **argv)
   vtkContourFilter *contour = vtkContourFilter::New();
     contour->SetInput(volume);
     contour->SetValue(0,50);
-    contour->DebugOn();
 
   // create mapper
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();

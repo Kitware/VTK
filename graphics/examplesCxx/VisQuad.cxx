@@ -55,7 +55,7 @@ main ()
   renWin->Render();
 
   // interact with data
-  iren->Start();
+  iren->Initialize();
 
   // Clean up
   ren1->Delete();
