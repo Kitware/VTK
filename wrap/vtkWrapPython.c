@@ -463,8 +463,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
 	  fprintf(fp,"      }\n    }\n  }\n");
 	  }
 	}
-      fprintf(fp,"  return NULL;
-\n}\n\n");
+      fprintf(fp,"  return NULL;\n}\n\n");
 
       /* clear all occurances of this method from further consideration */
       for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
