@@ -68,20 +68,39 @@ public:
   vtkGetVector3Macro(Shift,int);
 
   // Description:
-  // Choose Averaging or sub sampling. The averaging neighborhood
-  // currently implemented is not centered on the sampled pixel.
+  // Choose Mean, Minimum, Maximum, Median or sub sampling.
+  // The neighborhood operations are not centered on the sampled pixel.
   // This may cause a half pixel shift in your output image.
-  // You can changed "Shift to get arround this, or use
+  // You can changed "Shift" to get around this.
   // vtkImageGaussianSmooth or vtkImageMean with strides.
-  vtkSetMacro(Averaging,int);
-  vtkGetMacro(Averaging,int);
+  void SetAveraging(int);
+  int GetAveraging() {return this->GetMean();};
   vtkBooleanMacro(Averaging,int);
+  
+  void SetMean(int);
+  vtkGetMacro(Mean,int);
+  vtkBooleanMacro(Mean,int);
+  
+  void SetMinimum(int);
+  vtkGetMacro(Minimum,int);
+  vtkBooleanMacro(Minimum,int);
+  
+  void SetMaximum(int);
+  vtkGetMacro(Maximum,int);
+  vtkBooleanMacro(Maximum,int);
+  
+  void SetMedian(int);
+  vtkGetMacro(Median,int);
+  vtkBooleanMacro(Median,int);
   
   
 protected:
   int ShrinkFactors[3];
   int Shift[3];
-  int Averaging;
+  int Mean;
+  int Minimum;
+  int Maximum;
+  int Median;
 
   void ExecuteInformation();
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
