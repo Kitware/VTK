@@ -36,17 +36,12 @@ void vlPlaneSource::Execute()
   numPts = (this->XRes+1) * (this->YRes+1);
   numPolys = this->XRes * this->YRes;
 
-  newPoints = new vlFloatPoints;
-  newPoints->Initialize(numPts);
-
-  newNormals = new vlFloatNormals;
-  newNormals->Initialize(numPts);
-
-  newTCoords = new vlFloatTCoords;
-  newTCoords->Initialize(numPts,2);
+  newPoints = new vlFloatPoints(numPts);
+  newNormals = new vlFloatNormals(numPts);
+  newTCoords = new vlFloatTCoords(numPts,2);
 
   newPolys = new vlCellArray;
-  newPolys->Initialize(5*numPolys);
+  newPolys->Initialize(newPolys->EstimateSize(numPolys,4));
 //
 // Generate points and point data
 //

@@ -32,16 +32,13 @@ void vlLineSource::Execute()
 //
   this->Initialize();
 
-  newPoints = new vlFloatPoints;
-  newPoints->Initialize(numPts);
-
-  newTCoords = new vlFloatTCoords;
-  newTCoords->Initialize(numPts,2);
+  newPoints = new vlFloatPoints(numPts);
+  newTCoords = new vlFloatTCoords(numPts,2);
 
   newLines = new vlCellArray;
   newLines->Initialize(newLines->EstimateSize(numLines,2));
 //
-// Generate lines
+// Generate points and texture coordinates
 //
   for (i=0; i<3; i++) v[i] = this->Pt2[i] - this->Pt1[i];
 
@@ -54,7 +51,7 @@ void vlLineSource::Execute()
     newTCoords->InsertTCoord(i,tc);
     }
 //
-//  Generate line
+//  Generate lines
 //
   for (i=0; i < numLines; i++) 
     {

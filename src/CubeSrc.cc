@@ -25,11 +25,8 @@ void vlCubeSource::Execute()
 //
   this->Initialize();
 
-  newPoints = new vlFloatPoints;
-  newPoints->Initialize(numPts);
-
-  newNormals = new vlFloatNormals;
-  newNormals->Initialize(numPts);
+  newPoints = new vlFloatPoints(numPts);
+  newNormals = new vlFloatNormals(numPts);
 
   newPolys = new vlCellArray;
   newPolys->Initialize(newPolys->EstimateSize(numPolys,4));
