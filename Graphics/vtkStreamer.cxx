@@ -22,7 +22,7 @@
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.73");
+vtkCxxRevisionMacro(vtkStreamer, "1.74");
 vtkStandardNewMacro(vtkStreamer);
 
 #define VTK_START_FROM_POSITION 0
@@ -218,6 +218,7 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkFloatArray            *cellVectors;
   vtkDataArray             *cellScalars=0;
   float tOffset, vort[3];
+  float err;
   int nSavePts = 0, counter=0;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
@@ -310,8 +311,8 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
           * sqrt((double)cell->GetLength2())/pt1.speed;
 
         // Calculate the next step using the integrator provided
-        if (integrator->ComputeNextStep(pt1.x, pt1.v, xNext, 0, step)
-            == -1)
+        if (integrator->ComputeNextStep(pt1.x, pt1.v, xNext, 0, step, 0, err)
+            != 0)
           {
           break;
           }
