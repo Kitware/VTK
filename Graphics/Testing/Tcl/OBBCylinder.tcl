@@ -34,6 +34,7 @@ vtkSpatialRepresentationFilter boxes
   boxes SetSpatialRepresentation obb
 vtkPolyDataMapper boxMapper
   boxMapper SetInput [boxes GetOutput]
+  boxMapper SetResolveCoincidentTopology 1
 vtkActor boxActor
   boxActor SetMapper boxMapper
   [boxActor GetProperty] SetAmbient 1
