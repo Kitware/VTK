@@ -231,7 +231,9 @@ JNIEXPORT void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
   env->SetIntField(obj,id,jNewVal);
 }
 
-JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *env, jobject obj, int id, void *tcFunc) 
+JNIEXPORT void vtkJavaRegisterCastFunction(JNIEnv *vtkNotUsed(env), 
+					   jobject vtkNotUsed(obj), 
+					   int id, void *tcFunc) 
 {
   VTK_GET_MUTEX();
 #ifdef VTKJAVADEBUG

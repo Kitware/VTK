@@ -557,7 +557,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     }
   
   fprintf(fp,"\nextern \"C\" JNIEXPORT void* %s_Typecast(void *me,char *dType)\n{\n",data->ClassName);
-  fprintf(fp,"  void* res;\n");
+  if (data->NumberOfSuperClasses > 0)
+    {
+    fprintf(fp,"  void* res;\n");
+    }
   fprintf(fp,"  if (!strcmp(\"%s\",dType)) { return me; }\n", data->ClassName);
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
