@@ -69,6 +69,7 @@ protected:
   virtual void Execute(vtkImageData* input, vtkImageData* output);
  private:
   void Execute () {this->vtkSimpleImageToImageFilter::Execute();}
+  void Execute(vtkImageData* outData){this->vtkSimpleImageToImageFilter::Execute(outData);}
 };
 
 #endif
