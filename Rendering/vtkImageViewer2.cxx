@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.24");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.25");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -69,10 +69,18 @@ vtkImageViewer2::~vtkImageViewer2()
 void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << *this->RenderWindow << endl;
-  os << indent << *this->Renderer << endl;
-  os << indent << *this->ImageActor << endl;
-  os << indent << *this->WindowLevel << endl;
+
+  os << indent << "RenderWindow:\n";
+  this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Renderer:\n";
+  this->Renderer->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "ImageActor:\n";
+  this->ImageActor->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "WindowLevel:\n" << endl;
+  this->WindowLevel->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "AutoResetCameraClippingRange: "
+     << (this->AutoResetCameraClippingRange ? "On\n" : "Off\n");
+
 }
 
 
