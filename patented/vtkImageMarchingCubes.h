@@ -75,6 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageCache.h"
 #include "vtkPolyDataSource.h"
+#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 #include "vtkContourValues.h"
 

@@ -95,7 +95,7 @@ void vtkImageMarchingCubes::Execute()
 {
   vtkImageRegion *inRegion;
   vtkPolyData *output = this->GetOutput();
-  int extent[6], estimatedSize;
+  int extent[8], estimatedSize;
   int temp, zMin, zMax, chunkMin, chunkMax;
   int minSlicesPerChunk, chunkOverlap;
   int numContours=this->ContourValues->GetNumberOfContours();
@@ -121,8 +121,7 @@ void vtkImageMarchingCubes::Execute()
     minSlicesPerChunk = 2;
     chunkOverlap = 1;
     }
-  inRegion = vtkImageRegion::New();
-  this->Input->UpdateImageInformation(inRegion);
+  this->Input->UpdateImageInformation();
   // Each data type requires a different amount of memory.
   switch (this->Input->GetScalarType())
     {
@@ -145,7 +144,7 @@ void vtkImageMarchingCubes::Execute()
       vtkErrorMacro(<< "Could not determine input scalar type.");
       return;
     }
-  inRegion->GetImageExtent(3, extent);
+  this->Input->GetWholeExtent(extent);
   // multiply by the area of each slice
   temp *= extent[1] - extent[0] + 1;
   temp *= extent[3] - extent[2] + 1;
@@ -226,7 +225,8 @@ void vtkImageMarchingCubes::Execute()
       }
     inRegion->SetExtent(3, extent);
     // Get the chunk from the input
-    this->Input->Update(inRegion);
+    this->Input->Update();
+    inRegion = this->Input->GetScalarRegion();
     
     this->March(inRegion, chunkMin, chunkMax, numContours, values);
     }
@@ -532,7 +532,7 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 	    {
 	    float *spacing = inRegion->GetSpacing();
 	    float *origin = inRegion->GetOrigin();
-	    int *extent = inRegion->GetImageExtent();
+	    int *extent = inRegion->GetWholeExtent();
 	    
 	    pointIds[ii] = vtkImageMarchingCubesMakeNewPoint(self,
 					      cellX, cellY, cellZ,
