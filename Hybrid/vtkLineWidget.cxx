@@ -35,7 +35,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.27");
+vtkCxxRevisionMacro(vtkLineWidget, "1.28");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -639,9 +639,11 @@ void vtkLineWidget::OnMiddleButtonDown()
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
     {
-    this->HighlightLine(1);
-    this->HighlightHandles(1);
     this->State = vtkLineWidget::MovingLine;
+    this->HighlightHandles(1);
+    this->HighlightLine(1);
+    this->EnablePointWidget();
+    this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
     }
   else
     {
@@ -653,6 +655,8 @@ void vtkLineWidget::OnMiddleButtonDown()
       this->HighlightHandles(1);
       this->HighlightLine(1);
       this->State = vtkLineWidget::MovingLine;
+      this->EnablePointWidget();
+      this->ForwardEvent(vtkCommand::LeftButtonPressEvent);
       }
     else
       {
@@ -674,6 +678,9 @@ void vtkLineWidget::OnMiddleButtonUp()
     {
     return;
     }
+
+  this->ForwardEvent(vtkCommand::LeftButtonReleaseEvent);
+  this->DisablePointWidget();
 
   this->State = vtkLineWidget::Start;
   this->HighlightLine(0);
