@@ -60,6 +60,7 @@ struct vtkTestUtilities
                                                    int slash = 0);
 };
 
+inline
 char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
 {
   return vtkTestUtilities::GetArgOrEnvOrDefault(
@@ -68,6 +69,7 @@ char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
     "../../../../VTKData");
 }
 
+inline
 char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
                                            const char* fname,
                                            int slash)
@@ -80,6 +82,7 @@ char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[],
     slash);
 }
 
+inline
 char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg, 
                                              int argc, char* argv[], 
                                              const char* env, 
@@ -120,6 +123,7 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
   return value;
 } 
 
+inline
 char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
                                                             int argc, 
                                                             char* argv[], 
