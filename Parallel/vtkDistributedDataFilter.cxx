@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.16.2.1")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.16.2.2")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -994,8 +994,9 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles()
     int numTransferCells = 0;
 
     int sanityCheck=0;
+    int nprocsSquared = nprocs * nprocs;
   
-    while (sanityCheck++ < nprocs)
+    while (sanityCheck++ < nprocsSquared)
       {
       int c = nextConsumer->procId;
 
@@ -1046,7 +1047,7 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles()
 
     delete [] procInfo;
 
-    if (sanityCheck > nprocs)
+    if (sanityCheck > nprocsSquared)
       {
       vtkErrorMacro(<< "TestFixTooFewInputFiles error");
       for (i=0; i<nprocs; i++)
