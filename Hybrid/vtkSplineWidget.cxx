@@ -32,9 +32,10 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSphereSource.h"
+#include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.5");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.6");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -49,12 +50,21 @@ vtkSplineWidget::vtkSplineWidget()
   this->SplinePositions = NULL;
 
   // Build the representation of the widget
-  this->XSpline = vtkCardinalSpline::New();
-  this->YSpline = vtkCardinalSpline::New();
-  this->ZSpline = vtkCardinalSpline::New();
+
+  this->XSpline = this->CreateDefaultSpline();
+  this->XSpline->Register(this);
+  this->XSpline->Delete();
+  this->YSpline = this->CreateDefaultSpline();
+  this->YSpline->Register(this);
+  this->YSpline->Delete();
+  this->ZSpline = this->CreateDefaultSpline();
+  this->ZSpline->Register(this);
+  this->ZSpline->Delete();
+
   this->XSpline->ClosedOff();
   this->YSpline->ClosedOff();
   this->ZSpline->ClosedOff();
+
 
   // Default bounds to get started
   float bounds[6];
@@ -185,9 +195,19 @@ vtkSplineWidget::~vtkSplineWidget()
 {
   delete [] this->HandlePositions;
   delete [] this->SplinePositions;
-  this->XSpline->Delete();
-  this->YSpline->Delete();
-  this->ZSpline->Delete();
+
+  if ( this->XSpline)
+    {
+    this->XSpline->UnRegister(this);
+    }
+  if ( this->YSpline)
+    {
+    this->YSpline->UnRegister(this);
+    }
+  if ( this->ZSpline)
+    {
+    this->ZSpline->UnRegister(this);
+    }
 
   this->LineActor->Delete();
   this->LineMapper->Delete();
@@ -224,6 +244,109 @@ vtkSplineWidget::~vtkSplineWidget()
     }
 
   this->Transform->Delete();
+}
+
+// Creates an instance of a vtkCardinalSpline by default
+vtkSpline* vtkSplineWidget::CreateDefaultSpline()
+{
+  return vtkCardinalSpline::New();
+}
+
+void vtkSplineWidget::SetXSpline(vtkSpline* spline)
+{
+  if (this->XSpline != spline)
+    {
+    // to avoid destructor recursion
+    vtkSpline *temp = this->XSpline;
+    this->XSpline = spline;
+    if (temp != NULL)
+      {
+      temp->UnRegister(this);
+      }
+    if (this->XSpline != NULL)
+      {
+      this->XSpline->Register(this);
+      }
+    }
+}
+
+void vtkSplineWidget::SetYSpline(vtkSpline* spline)
+{
+  if (this->YSpline != spline)
+    {
+    // to avoid destructor recursion
+    vtkSpline *temp = this->YSpline;
+    this->YSpline = spline;
+    if (temp != NULL)
+      {
+      temp->UnRegister(this);
+      }
+    if (this->YSpline != NULL)
+      {
+      this->YSpline->Register(this);
+      }
+    }
+}
+
+void vtkSplineWidget::SetZSpline(vtkSpline* spline)
+{
+  if (this->XSpline != spline)
+    {
+    // to avoid destructor recursion
+    vtkSpline *temp = this->ZSpline;
+    this->ZSpline = spline;
+    if (temp != NULL)
+      {
+      temp->UnRegister(this);
+      }
+    if (this->ZSpline != NULL)
+      {
+      this->ZSpline->Register(this);
+      }
+    }
+}
+
+void vtkSplineWidget::SetHandlePosition(int handle, float x, float y, float z)
+{
+  if(handle < 0 || handle >= this->NumberOfHandles)
+    {
+    vtkErrorMacro(<<"vtkSplineWidget: handle index out of range.");
+    return;
+    }
+  this->HandleGeometry[handle]->SetCenter(x,y,z);
+  this->HandleGeometry[handle]->Update();
+  if ( this->ProjectToPlane )
+    {
+    this->ProjectPointsToPlane();
+    }
+  this->BuildRepresentation();
+}
+
+void vtkSplineWidget::SetHandlePosition(int handle, float xyz[3])
+{
+  this->SetHandlePosition(handle,xyz[0],xyz[1],xyz[2]);
+}
+
+void vtkSplineWidget::GetHandlePosition(int handle, float xyz[3])
+{
+  if(handle < 0 || handle >= this->NumberOfHandles)
+    {
+    vtkErrorMacro(<<"vtkSplineWidget: handle index out of range.");
+    return;
+    }
+
+  this->HandleGeometry[handle]->GetCenter(xyz);
+}
+
+float* vtkSplineWidget::GetHandlePosition(int handle)
+{
+  if(handle < 0 || handle >= this->NumberOfHandles)
+    {
+    vtkErrorMacro(<<"vtkSplineWidget: handle index out of range.");
+    return NULL;
+    }
+
+  return this->HandleGeometry[handle]->GetCenter();
 }
 
 void vtkSplineWidget::SetEnabled(int enabling)
@@ -834,8 +957,6 @@ void vtkSplineWidget::Translate(double *p1, double *p2)
 
 void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 {
-  int i;
-
   // Get the motion vector
   double v[3];
   v[0] = p2[0] - p1[0];
@@ -851,6 +972,7 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   center[1] += prevctr[1];
   center[2] += prevctr[2];
 
+  int i;
   for (i = 1; i<this->NumberOfHandles; i++)
     {
     ctr = this->HandleGeometry[i]->GetCenter();
@@ -1075,13 +1197,18 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     {
     return;
     }
+  if (npts < 2)
+    {
+    vtkGenericWarningMacro(<<"vtkSplineWidget: minimum of 2 points required.");
+    return;
+    }
 
   if (npts > this->NumberOfHandles)
     {
     delete [] this->HandlePositions;
     if ( (this->HandlePositions = new float[npts]) == NULL )
       {
-      vtkErrorMacro(<<"error: failed to reallocate HandlePositions.");
+      vtkErrorMacro(<<"vtkSplineWidget: failed to reallocate HandlePositions.");
       return;
       }
     }
@@ -1189,7 +1316,7 @@ void vtkSplineWidget::SetResolution(int resolution)
     delete [] this->SplinePositions;
     if ( (this->SplinePositions = new float[this->NumberOfSplinePoints]) == NULL )
       {
-      vtkErrorMacro(<<"error: failed to reallocate SplinePositions.");
+      vtkErrorMacro(<<"vtkSplineWidget: failed to reallocate SplinePositions.");
       return;
       }
     }
@@ -1218,7 +1345,6 @@ void vtkSplineWidget::SetResolution(int resolution)
     lines->InsertCellPoint(i);
     }
 
-  this->LineData->Initialize();
   this->LineData->SetPoints(points);
   this->LineData->SetLines(lines);
   this->LineMapper->Update();
@@ -1228,7 +1354,7 @@ void vtkSplineWidget::SetResolution(int resolution)
     {
     this->CurrentRenderer->AddActor(this->LineActor);
     }
-}
+}    
 
 void vtkSplineWidget::GetPolyData(vtkPolyData *pd)
 { 
