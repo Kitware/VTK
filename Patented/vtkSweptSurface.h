@@ -152,6 +152,8 @@ protected:
 
   virtual void ExecuteData(vtkDataObject *);
   virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){
+    this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 
   void ComputeBounds(float origin[3], float ar[3], float bbox[24]);
