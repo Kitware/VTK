@@ -225,9 +225,18 @@ void vtkDataReader::SetInputString(const char *in, int len)
 int vtkDataReader::ReadLine(char result[256])
 {
   this->IS->getline(result,256);
-  if (this->IS->eof()) 
+  if (this->IS->fail())
     {
-    return 0;
+    if (this->IS->eof()) 
+      {
+      return 0;
+      }
+    if (this->IS->gcount() == 255)
+      {
+      // Read 256 chars; ignoring the rest of the line.
+      this->IS->clear();
+      this->IS->ignore(VTK_INT_MAX, '\n');
+      }
     }
   return 1;
 }
