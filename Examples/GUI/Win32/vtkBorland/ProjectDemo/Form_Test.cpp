@@ -49,18 +49,21 @@ void __fastcall TVTK_Form::FormDestroy(TObject *Sender)
   // by a vtkProp's mapper, will cause the internal vtkWin32OpenGLRenderWindow
   // to fail during MakeCurrent.
 
-  vtkPropCollection *pc;
-  vtkProp *aProp, *aPart;
-  vtkAssemblyPath *path;
   vtkRenderer* ren1 = vtkWindow1->GetRenderer();
-  vtkRenderWindow* renwin = vtkWindow1->GetRenderWindow();
-  pc = ren1->GetProps();
-  for (pc->InitTraversal(); (aProp = pc->GetNextProp()); )
+  vtkRenderWindow* renwin1 = vtkWindow1->GetRenderWindow();
+
+  vtkPropCollection* collection = ren1->GetProps();
+  if(collection)
     {
-    for (aProp->InitPathTraversal(); (path=aProp->GetNextPath()); )
+    collection->InitTraversal();
+    for (int i = 0; i < collection->GetNumberOfItems(); i++)
       {
-      aPart=(vtkProp *)path->GetLastNode()->GetProp();
-      aPart->ReleaseGraphicsResources(renwin);
+      vtkActor *actor = vtkActor::SafeDownCast(collection->GetNextProp());
+      if(actor)
+        {
+        actor->ReleaseGraphicsResources(renwin1);
+        ren1->RemoveProp(actor);
+        }
       }
     }
 }
@@ -105,7 +108,7 @@ void __fastcall TVTK_Form::BackgroundColour1Click(TObject *Sender)
     return;
     }
   DWORD  L = ColorToRGB(backgroundcolor->Color);
-  float rgb[3] = { GetRValue(L)/255.0, GetGValue(L)/255.0, GetBValue(L)/255.0 };
+  double rgb[3] = { GetRValue(L)/255.0, GetGValue(L)/255.0, GetBValue(L)/255.0 };
   vtkWindow1->GetRenderer()->SetBackground(rgb);
   vtkWindow1->Invalidate();
 }
