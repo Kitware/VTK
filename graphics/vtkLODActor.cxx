@@ -204,8 +204,49 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
   this->Device->Render(ren,bestMapper);
+  this->EstimatedRenderTime = bestMapper->GetTimeToDraw();
 }
 
+int vtkLODActor::RenderOpaqueGeometry(vtkViewport *vp)
+{
+  int          renderedSomething = 0; 
+  vtkRenderer  *ren = (vtkRenderer *)vp;
+
+  if ( ! this->Mapper )
+    {
+    return 0;
+    }
+
+  // make sure we have a property
+  if (!this->Property)
+    {
+    // force creation of a property
+    this->GetProperty();
+    }
+
+  // is this actor opaque ?
+  if (this->GetIsOpaque())
+    {
+    this->Property->Render(this, ren);
+
+    // render the backface property
+    if (this->BackfaceProperty)
+      {
+      this->BackfaceProperty->BackfaceRender(this, ren);
+      }
+    
+    // render the texture 
+    if (this->Texture)
+      {
+      this->Texture->Render(ren);
+      }
+    this->Render(ren,this->Mapper);
+
+    renderedSomething = 1;
+    }
+
+  return renderedSomething;
+}
 
 void vtkLODActor::ReleaseGraphicsResources(vtkWindow *renWin)
 {
