@@ -331,6 +331,18 @@ void vtkProgrammableGlyphFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Source: " << (void *)this->Source << "\n";
 
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
+  os << indent << "Point Id: " << this->PointId << "\n";
+  os << indent << "Point: " << this->Point[0]
+                    << ", " << this->Point[1]
+                    << ", " << this->Point[2] << "\n";
+  if (this->PointData)
+    {
+    os << indent << "PointData: " << this->PointData << "\n";
+    }
+  else
+    {
+    os << indent << "PointData: (not defined)\n";
+    }
 
   if ( this->GlyphMethod )
     {
