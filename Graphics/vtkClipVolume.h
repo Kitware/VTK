@@ -41,6 +41,13 @@
 // This filter can be configured to compute a second output. The
 // second output is the portion of the volume that is clipped away. Set the
 // GenerateClippedData boolean on if you wish to access this output data.
+//
+// The filter will produce an unstructured grid of entirely tetrahedra or a
+// mixed grid of tetrahedra and other 3D cell types (e.g., wedges). Control
+// this behavior by setting the Mixed3DCellGeneration. By default the
+// Mixed3DCellGeneration is on and a combination of cell types will be
+// produced. Note that producing mixed cell types is a faster than producing
+// strictly tetrahedra.
 
 // .SECTION Caveats
 // This filter is designed to function with 3D structured points. Clipping
@@ -65,6 +72,11 @@ class vtkPointData;
 class vtkPointLocator;
 class vtkPoints;
 class vtkUnstructuredGrid;
+class vtkCell;
+class vtkTetra;
+class vtkCellArray;
+class vtkIntArray;
+class vtkUnsignedCharArray;
 
 class VTK_GRAPHICS_EXPORT vtkClipVolume : public vtkStructuredPointsToUnstructuredGridFilter
 {
@@ -130,6 +142,15 @@ public:
   vtkGetMacro(MergeTolerance,float);
   
   // Description:
+  // Control whether the filter produces a mix of 3D cell types on output, or
+  // whether the output cells are all tetrahedra. By default, a mixed set
+  // of cells (e.g., tetrahedra and wedges) is produced. (Note: mixed type generation
+  // is faster and less overall data is generated.)
+  vtkSetMacro(Mixed3DCellGeneration,int);
+  vtkGetMacro(Mixed3DCellGeneration,int);
+  vtkBooleanMacro(Mixed3DCellGeneration,int);
+
+  // Description:
   // Set / Get a spatial locator for merging points. By default, 
   // an instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
@@ -149,25 +170,41 @@ protected:
   ~vtkClipVolume();
 
   void Execute();
+  void ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *clipScalars, 
+                vtkDataArray *cellScalars, vtkIdList *tetraIds, vtkPoints *tetraPts, 
+                vtkPointData *inPD, vtkPointData *outPD, vtkCellData *inCD, vtkIdType cellId, 
+                vtkCellData *outCD, vtkCellData *clippedCD, int insideOut);
   void ClipVoxel(float value, vtkDataArray *cellScalars, int flip,
                  float origin[3], float spacing[3], vtkIdList *cellIds,
-                 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD,
+                 vtkPoints *cellPts, vtkPointData *inPD, vtkPointData *outPD, 
                  vtkCellData *inCD, vtkIdType cellId, vtkCellData *outCD, 
                  vtkCellData *clippedCD);
-  vtkImplicitFunction *ClipFunction;
-  vtkPointLocator *Locator;
-  int InsideOut;
-  float Value;
-  int GenerateClipScalars;
-  float MergeTolerance;
 
-  int GenerateClippedOutput;
+  vtkImplicitFunction *ClipFunction;
+  vtkPointLocator     *Locator;
+  int                  InsideOut;
+  float                Value;
+  int                  GenerateClipScalars;
+  float                MergeTolerance;
+  int                  Mixed3DCellGeneration;
+  
+  int                  GenerateClippedOutput;
   vtkUnstructuredGrid *ClippedOutput;
   
 private:
   vtkUnstructuredGrid    *Mesh;
   vtkOrderedTriangulator *Triangulator;
   
+  // Used temporarily to pass data around
+  vtkIdType             NumberOfCells;
+  vtkCellArray          *Connectivity;
+  vtkUnsignedCharArray  *Types;
+  vtkIntArray           *Locations;
+  vtkIdType             NumberOfClippedCells;
+  vtkCellArray          *ClippedConnectivity;
+  vtkUnsignedCharArray  *ClippedTypes;
+  vtkIntArray           *ClippedLocations;
+
 private:
   vtkClipVolume(const vtkClipVolume&);  // Not implemented.
   void operator=(const vtkClipVolume&);  // Not implemented.
