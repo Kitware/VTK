@@ -55,7 +55,7 @@ void vtkXglrProperty::Render(vtkProperty *prop, vtkRenderer *ren)
 // Actual property render method.
 void vtkXglrProperty::Render(vtkProperty *prop, vtkXglrRenderer *ren)
 {
-  int i, method, line_method;
+  int method, line_method;
   Xgl_ctx *context;
   Xgl_color_rgb diffuseColor;
   Xgl_color_rgb specularColor;
