@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.18.2.1");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.18.2.2");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -108,15 +108,10 @@ void vtkDICOMImageReader::ExecuteInformation()
   if (this->FileName)
     {
     this->DICOMFileNames->clear();
-
-    //this->AppHelper->ClearSeriesUIDMap();
-    //this->AppHelper->ClearSliceNumberMap();
     this->AppHelper->Clear();
-
     this->Parser->ClearAllDICOMTagCallbacks();
  
     this->Parser->OpenFile(this->FileName);
-    // this->AppHelper->SetFileName(this->FileName);
     this->AppHelper->RegisterCallbacks(this->Parser);
 
     this->Parser->ReadHeader();
@@ -137,8 +132,6 @@ void vtkDICOMImageReader::ExecuteInformation()
     vtkDebugMacro( << "There are " << numFiles << " files in the directory.");
 
     this->DICOMFileNames->clear();
-    //this->AppHelper->ClearSeriesUIDMap();
-    //this->AppHelper->ClearSliceNumberMap();
     this->AppHelper->Clear();
 
     for (int i = 0; i < numFiles; i++)
@@ -182,11 +175,10 @@ void vtkDICOMImageReader::ExecuteInformation()
         return;
         }
 
-      //HERE
+      //
       this->Parser->ClearAllDICOMTagCallbacks();
       this->AppHelper->RegisterCallbacks(this->Parser);
 
-      // this->AppHelper->SetFileName(fn);
       this->Parser->ReadHeader();
 
       vtkDebugMacro( << "File name : " << fn );
@@ -196,16 +188,6 @@ void vtkDICOMImageReader::ExecuteInformation()
     vtkstd::vector<vtkstd::pair<float, vtkstd::string> > sortedFiles;
     
     this->AppHelper->GetImagePositionPatientFilenamePairs(sortedFiles);
-
-    // this->AppHelper->SortFilenamesBySlice();
-    // unsigned int num_files = this->AppHelper->GetNumberOfSortedFilenames();
-    // for (unsigned int k = 0; k < num_files; k++)
-    //  {
-    //  sortedFiles.push_back(std::pair<int,std::string>(k, this->AppHelper->GetFilenameForSlice(k)));
-    //  }
-
-    //this->AppHelper->GetSliceNumberFilenamePairs(sortedFiles);
-
     this->SetupOutputInformation(static_cast<int>(sortedFiles.size()));
 
     //this->AppHelper->OutputSeries();
@@ -235,17 +217,27 @@ void vtkDICOMImageReader::ExecuteInformation()
 void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
+
+  if (!this->FileName && this->DICOMFileNames->size() == 0)
+    {
+    vtkErrorMacro( << "Either a filename was not specified or the specified directory does not contain any DICOM images.");
+    return;
+    }
+
   data->GetPointData()->GetScalars()->SetName("DICOMImage");
+
+  this->ComputeDataIncrements();
+
+  // Get the pointer to the output pixel data
+  void *outPtr;
+  outPtr = data->GetScalarPointer();
 
   if (this->FileName)
     {
     vtkDebugMacro( << "Single file : " << this->FileName);
     this->Parser->ClearAllDICOMTagCallbacks();
     this->Parser->OpenFile(this->FileName);
-    // this->AppHelper->ClearSeriesUIDMap();
-    // this->AppHelper->ClearSliceNumberMap();
     this->AppHelper->Clear();
-    //this->AppHelper->SetFileName(this->FileName);
     this->AppHelper->RegisterCallbacks(this->Parser);
     this->AppHelper->RegisterPixelDataCallback(this->Parser);
 
@@ -263,14 +255,25 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       vtkErrorMacro(<< "No memory allocated for image data!");
       return;
       }
-    memcpy(buffer, imgData, imageDataLength);
+    // DICOM stores the upper left pixel as the first pixel in an
+    // image. VTK stores the lower left pixel as the first pixel in
+    // an image.  Need to flip the data.
+    unsigned long rowLength;
+    rowLength = this->DataIncrements[1];
+    unsigned char *b = (unsigned char *)buffer;
+    unsigned char *iData = (unsigned char *)imgData;
+    iData += (imageDataLength - rowLength); // beginning of last row
+    for (int i=0; i < this->AppHelper->GetHeight(); ++i)
+      {
+      memcpy(b, iData, rowLength);
+      b += rowLength;
+      iData -= rowLength;
+      }
     }
   else if (this->DICOMFileNames->size() > 0)
     {
     vtkDebugMacro( << "Multiple files (" << static_cast<int>(this->DICOMFileNames->size()) << ")");
     this->Parser->ClearAllDICOMTagCallbacks();
-    // this->AppHelper->ClearSeriesUIDMap();
-    // this->AppHelper->ClearSliceNumberMap();
     this->AppHelper->Clear();
     this->AppHelper->RegisterCallbacks(this->Parser);
     this->AppHelper->RegisterPixelDataCallback(this->Parser);
@@ -294,8 +297,6 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       count++;
       vtkDebugMacro( << "File : " << (*fiter).c_str());
       this->Parser->OpenFile((char*)(*fiter).c_str());
-      // this->AppHelper->SetFileName((char*)(*fiter).c_str());
-
       this->Parser->ReadHeader();
 
       void* imgData = NULL;
@@ -304,7 +305,20 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
 
       this->AppHelper->GetImageData(imgData, dataType, imageDataLengthInBytes);
 
-      memcpy(buffer, imgData, imageDataLengthInBytes);
+      // DICOM stores the upper left pixel as the first pixel in an
+      // image. VTK stores the lower left pixel as the first pixel in
+      // an image.  Need to flip the data.
+      unsigned long rowLength;
+      rowLength = this->DataIncrements[1];
+      unsigned char *b = (unsigned char *)buffer;
+      unsigned char *iData = (unsigned char *)imgData;
+      iData += (imageDataLengthInBytes - rowLength); // beginning of last row
+      for (int i=0; i < this->AppHelper->GetHeight(); ++i)
+        {
+        memcpy(b, iData, rowLength);
+        b += rowLength;
+        iData -= rowLength;
+        }
       buffer = ((char*) buffer) + imageDataLengthInBytes;
 
       this->UpdateProgress(float(count)/float(numFiles));
@@ -314,10 +328,6 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       this->SetProgressText(filename);
 
       }
-    }
-  else
-    {
-    vtkDebugMacro( << "Execute data -- no files!");
     }
 }
 
