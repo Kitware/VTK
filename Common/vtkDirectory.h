@@ -50,12 +50,18 @@ public:
   // in that directory. 0 is returned if the directory can not be 
   // opened, 1 if it is opened.   
   int Open(const char* dir);
+
   // Description:
   // Return the number of files in the current directory.
   int GetNumberOfFiles() { return this->NumberOfFiles; }
+
   // Description:
   // Return the file at the given index, the indexing is 0 based
   const char* GetFile(int index);
+
+  // Description:
+  static const char* GetCurrentWorkingDirectory(char* buf, unsigned int len);
+
 protected:
   vtkDirectory();
   ~vtkDirectory() ;
