@@ -131,7 +131,6 @@ vtkExtractUnstructuredGrid \
 vtkExtractVOI \
 vtkExtractVectorComponents \
 vtkFeatureEdges \
-vtkFeatureVertices \
 vtkFieldDataFilter \
 vtkFieldDataReader \
 vtkFieldDataSource \
