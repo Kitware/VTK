@@ -38,64 +38,67 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageGaussianSmooth - smooths on a 3D plane.
+// .NAME vtkImageGaussianSmooth - Performs a 1 dimensional convilution.
 // .SECTION Description
-// vtkImageGaussianSmooth implements Gaussian smoothing over any number of 
-// axes. It really consists of multiple decomposed 1D filters.
+// vtkImageGaussianSmooth implements a 1d convolution along any axis.  
+// It is used in higher level filter which decompose their convolution 
+// (i.e. 2d Gaussian smoothing)
 
 
 #ifndef __vtkImageGaussianSmooth_h
 #define __vtkImageGaussianSmooth_h
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageGaussianSmooth1D.h"
+#include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageFilter
 {
 public:
   vtkImageGaussianSmooth();
+  ~vtkImageGaussianSmooth();
   static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
-  void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkImageGaussianSmooth";};
-
-  void SetFilteredAxes(int num, int *axes);
-
-  // Description:
-  // Each axis can have a separate radius factor which determines
-  // the cuttoff of the kernel.  The Kernel will have radius =
-  // (RadiusFactor * StanardDeviation) pixels.
-  void SetRadiusFactors(int num, float *factors);
-  vtkImageSetMacro(RadiusFactors, float);
-  void SetRadiusFactor(float f) {this->SetRadiusFactors(f, f, f, f);}
-
-  // Description:
-  // Each axis can have a separate standard deviation.
-  void SetStandardDeviations(int num, float *stds);
-  vtkImageSetMacro(StandardDeviations, float);
-
-  // Description:
-  // For legacy compatability.
-  // Repeats the deviations.
-  void SetStandardDeviation(int num, float *stds);
-  vtkImageSetMacro(StandardDeviation, float);
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Each axis can have a stride to shrink the image.
-  void SetStrides(int num, int *strides);
-  vtkImageSetMacro(Strides, int);
-  void SetStride(int s) {this->SetStrides(s, s, s, s);}
+  vtkSetVector3Macro(StandardDeviations, float);
+  void SetStandardDeviation(float std) {SetStandardDeviations(std,std,std);}
+  void SetStandardDeviations(float a,float b) {SetStandardDeviations(a,b,0.0);}
+  vtkGetVector3Macro(StandardDeviations, float);
 
-  
+  vtkSetVector3Macro(RadiusFactors, float);
+  void SetRadiusFactors(float f);
+  void SetRadiusFactor(float f) {SetRadiusFactors(f, f, f);}
+  vtkGetVector3Macro(RadiusFactors, float);
+
+  vtkSetMacro(Dimensionality, int);
+  vtkGetMacro(Dimensionality, int);
+
 protected:
-  int Strides[4];
-  float RadiusFactors[4];
-  float StandardDeviations[4];
-
-  void InitializeParameters();
+  int Dimensionality;
+  float StandardDeviations[3];
+  float RadiusFactors[3];
+  int Radius;
+  float *Kernel;
+  float *TempKernel;
+  
+  void ComputeKernel(float std, float factor);
+  void ExecuteImageInformation();
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteAxis(int axis, vtkImageData *inData, int inExt[6],
+		   vtkImageData *outData, int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, 
+		       vtkImageData *outData, int outExt[6], int id);
+  
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 
