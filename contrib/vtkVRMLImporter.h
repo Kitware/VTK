@@ -183,7 +183,15 @@ private:
 
 //BTX
 
+#ifdef WIN32
+#pragma warning( disable : 4251 )
+#endif
+
   VectorType<vtkObject*> Heap;
+
+#ifdef WIN32
+#pragma warning( default : 4251 )
+#endif
 
 //ETX
 

@@ -94,6 +94,85 @@ static char *curDEFName;
 static void memyyInput(char *buf, int &result, int max_size);
 static void defyyInput(char *buf, int &result, int max_size);
 
+void vrmlPointerList::Add(vrmlPointerNode* node)
+{
+  node->Next = 0;
+  if (!this->Last)
+    {
+    this->Last = node;
+    this->First = node;
+    return;
+    }
+  this->Last->Next = node;
+  this->Last = node;
+}
+
+void vrmlPointerList::CleanAll()
+{
+  this->Current = this->First;
+  if (!this->Current) { return; }
+  while (this->DeleteAndNext());
+}
+
+vrmlPointerNode* vrmlPointerList::DeleteAndNext()
+{
+  if (this->Current)
+    {
+    vrmlPointerNode* tmp = this->Current;
+    this->Current = this->Current->Next;
+    if (tmp->Ptr)
+      {
+      free(tmp->Ptr);
+      }
+    delete tmp;
+    return this->Current;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+vrmlPointerList::vrmlPointerList()
+{
+  this->First = 0;
+  this->Last = 0;
+  this->Current = 0;
+}
+vrmlPointerList::~vrmlPointerList()
+{
+  this->CleanAll();
+}
+
+void vrmlPointerList::Initialize()
+{
+  if (!Heap)
+    {
+    Heap = new vrmlPointerList;
+    }
+}
+void vrmlPointerList::CleanUp()
+{
+  delete Heap;
+  Heap = 0;
+}
+
+void* vrmlPointerList::AllocateMemory(size_t n)
+{
+  vrmlPointerNode* node = new vrmlPointerNode;
+  node->Ptr = malloc(n);
+  vrmlPointerList::Heap->Add(node);
+  return node->Ptr;
+}
+
+char* vrmlPointerList::StrDup(const char* str)
+{
+  vrmlPointerNode* node = new vrmlPointerNode;
+  node->Ptr = strdup(str);
+  vrmlPointerList::Heap->Add(node);
+  return static_cast<char*>(node->Ptr);
+}
+
 // for the VRMLNodeType data structure
 
 
