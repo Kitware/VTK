@@ -135,14 +135,14 @@ public:
   // was initially called. This method modifies the transform provided. The
   // transform can be used to control the position of vtkProp3D's, as well as
   // other transformation operations (e.g., vtkTranformPolyData).
-  void GetTransform(vtkTransform *t);
+  virtual void GetTransform(vtkTransform *t);
 
   // Description:
   // Set the position, scale and orientation of the box widget using the
   // transform specified. Note that the transformation is relative to 
   // where PlaceWidget was initially called (i.e., the original bounding
   // box). 
-  void SetTransform(vtkTransform* t);
+  virtual void SetTransform(vtkTransform* t);
 
   // Description:
   // Grab the polydata (including points) that define the box widget. The
@@ -226,13 +226,13 @@ protected:
                             void* calldata);
 
   // ProcessEvents() dispatches to these methods.
-  void OnMouseMove();
-  void OnLeftButtonDown();
-  void OnLeftButtonUp();
-  void OnMiddleButtonDown();
-  void OnMiddleButtonUp();
-  void OnRightButtonDown();
-  void OnRightButtonUp();
+  virtual void OnMouseMove();
+  virtual void OnLeftButtonDown();
+  virtual void OnLeftButtonUp();
+  virtual void OnMiddleButtonDown();
+  virtual void OnMiddleButtonUp();
+  virtual void OnRightButtonDown();
+  virtual void OnRightButtonUp();
   
   // the hexahedron (6 faces)
   vtkActor          *HexActor;
@@ -250,7 +250,7 @@ protected:
   vtkActor          **Handle;
   vtkPolyDataMapper **HandleMapper;
   vtkSphereSource   **HandleGeometry;
-  void PositionHandles();
+  virtual void PositionHandles();
   void HandlesOn(double length);
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
@@ -271,9 +271,9 @@ protected:
   int      CurrentHexFace;
   
   // Methods to manipulate the hexahedron.
-  void Translate(double *p1, double *p2);
-  void Scale(double *p1, double *p2, int X, int Y);
-  void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
+  virtual void Translate(double *p1, double *p2);
+  virtual void Scale(double *p1, double *p2, int X, int Y);
+  virtual void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
   void MovePlusXFace(double *p1, double *p2);
   void MoveMinusXFace(double *p1, double *p2);
   void MovePlusYFace(double *p1, double *p2);
@@ -308,6 +308,15 @@ protected:
   int TranslationEnabled;
   int ScalingEnabled;
   int RotationEnabled;
+
+  // This is to store the PropCenter at the same time as the InitialBounds.
+  // We need this to correctly handle off-centre PolyData.  Remember that
+  // GetTransform() yields a transform relative to first BoxWidget placement:
+  // this is also the reason that we need to store the Prop3D center at
+  // placement as Prop3D->GetCenter() can yield a transformed center if
+  // SetUserTransform() has been called, a popular use-case for the
+  // vtkBoxWidget.
+  float InitialPropCenter[6];
 
 private:
   vtkBoxWidget(const vtkBoxWidget&);  //Not implemented
