@@ -25,8 +25,12 @@ all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA} ${BUILD_PYTHON}
 	${CXX} ${CXX_FLAGS} -c $< -o $@
 
 #------------------------------------------------------------------------------
+../targets:	
+	cd ..; ${MAKE} targets
+
 depend: ../targets
 	../targets ${srcdir}/.. extra ${srcdir} ${KIT_EXTRA_DEPENDS} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
+
 
 targets.make: ../targets Makefile
 	../targets ${srcdir}/.. extra ${srcdir} ${KIT_EXTRA_DEPENDS} concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
