@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // must specify a function that creates the output.  
 //
 // Example use of this filter includes reading tabular data and encoding it
-// as vtkFieldData. You can then use filters like vtkDataObjectToDataSet to
-// convert the data object to a dataset and then visualize it.  Another
+// as vtkFieldData. You can then use filters like vtkDataObjectToDataSetFilter
+// to convert the data object to a dataset and then visualize it.  Another
 // important use of this class is that it allows users of interpreters (e.g.,
 // Tcl or Java) the ability to write source objects without having to
 // recompile C++ code or generate new libraries.

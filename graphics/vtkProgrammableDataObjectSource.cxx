@@ -104,5 +104,14 @@ void vtkProgrammableDataObjectSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
 
+  if ( this->ExecuteMethod )
+    {
+    os << indent << "An ExecuteMethod has been defined\n";
+    }
+  else
+    {
+    os << indent << "An ExecuteMethod has NOT been defined\n";
+    }
+
 }
 
