@@ -207,18 +207,22 @@ vtkOglrRenderWindow::~vtkOglrRenderWindow()
   short cur_light;
 
   /* first delete all the old lights */
-  for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+  // make sure we have been initialized 
+  if (this->ContextId)
     {
-    glDisable((GLenum)cur_light);
-    }
+    for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+      {
+      glDisable((GLenum)cur_light);
+      }
+    glXDestroyContext( this->DisplayId, this->ContextId);
   
-  glXDestroyContext( this->DisplayId, this->ContextId);
-  // then close the old window 
-  if (this->OwnWindow)
-    {
-    XDestroyWindow(this->DisplayId,this->WindowId);
+    // then close the old window 
+    if (this->OwnWindow)
+      {
+      XDestroyWindow(this->DisplayId,this->WindowId);
+      }
+    XSync(this->DisplayId,0);
     }
-  XSync(this->DisplayId,0);
 }
 
 // Description:
