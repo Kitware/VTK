@@ -63,12 +63,14 @@ INCLUDE (${CMAKE_ROOT}/Modules/Dart.cmake)
 # Add the testing directories
 IF(BUILD_TESTING)
   IF (DART_ROOT)
-    SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing Imaging/Testing)
+    SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing 
+            Imaging/Testing IO/Testing)
 
     SUBDIR_DEPENDS(Common/Testing Common)
     SUBDIR_DEPENDS(Filtering/Testing Filtering)
     SUBDIR_DEPENDS(Graphics/Testing Graphics)
     SUBDIR_DEPENDS(Imaging/Testing Imaging)
+    SUBDIR_DEPENDS(IO/Testing I))
 
     IF (VTK_USE_RENDERING)
       SUBDIRS(Rendering/Testing)
