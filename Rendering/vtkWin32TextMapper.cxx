@@ -131,8 +131,12 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
           family = FF_SWISS;
           break;
     }
+#ifdef _WIN32_WCE
+  fontStruct.lfHeight = this->FontSize * window->GetDPI() / 72;  
+#else
   fontStruct.lfHeight = MulDiv(this->FontSize, 
                                window->GetDPI(), 72);  
+#endif
   // height in logical units
   fontStruct.lfWidth = 0;  // default width
   fontStruct.lfEscapement = 0;
@@ -153,7 +157,11 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   fontStruct.lfClipPrecision = CLIP_DEFAULT_PRECIS;
   fontStruct.lfQuality = DEFAULT_QUALITY;
   fontStruct.lfPitchAndFamily = DEFAULT_PITCH | family;
+#ifdef _WIN32_WCE
+  mbstowcs(fontStruct.lfFaceName, fontname, strlen(fontname));
+#else
   strcpy(fontStruct.lfFaceName, fontname);
+#endif
    
   if (this->Font)
     {
@@ -170,8 +178,16 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
   rect.right = 0;
 
   // Calculate the size of the bounding rectangle
+#ifdef UNICODE
+        wchar_t *wtxt = new wchar_t [mbstowcs(NULL, this->Input, 32000)];
+        mbstowcs(wtxt, this->Input, 32000);
+  size[1] = DrawText(hdc, wtxt, -1, &rect, 
+                     DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
+        delete [] wtxt;
+#else
   size[1] = DrawText(hdc, this->Input, strlen(this->Input), &rect, 
                      DT_CALCRECT|DT_LEFT|DT_NOPREFIX);
+#endif
   size[0] = rect.right - rect.left + 1;
   this->LastSize[0] = size[0];
   this->LastSize[1] = size[1];
