@@ -86,7 +86,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.28");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.29");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -1340,7 +1340,11 @@ void *vtkXOpenGLRenderWindow::GetGenericWindowId()
 void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
 {
   this->Superclass::SetCurrentCursor(shape);
-
+  if (!this->DisplayId || !this->WindowId)
+    {
+    return;
+    }
+  
   if (shape == VTK_CURSOR_DEFAULT)
     {
     XUndefineCursor(this->DisplayId,this->WindowId);
