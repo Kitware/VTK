@@ -24,11 +24,8 @@ vtkPlane plane
 vtkCutter planeCut
     planeCut SetInput [pl3d GetOutput]
     planeCut SetCutFunction plane
-vtkProbeFilter probe
-    probe SetInput [planeCut GetOutput]
-    probe SetSource [pl3d GetOutput]
 vtkDataSetMapper cutMapper
-    cutMapper SetInput [probe GetOutput]
+    cutMapper SetInput [planeCut GetOutput]
     eval cutMapper SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cutActor
