@@ -42,13 +42,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMedian3D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.25");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.26");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageMedian3D fitler.
 vtkImageMedian3D::vtkImageMedian3D()
 {
+  this->NumberOfElements = 0;
   this->SetKernelSize(1,1,1);
   this->HandleBoundaries = 1;
 }

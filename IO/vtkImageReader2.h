@@ -222,9 +222,7 @@ protected:
   unsigned long HeaderSize;
   int DataScalarType;
   unsigned long ManualHeaderSize;
-  int Initialized;
 
-  int DataDimensions[3];
   float DataSpacing[3];
   float DataOrigin[3];
 

@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.28");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.29");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -569,6 +569,7 @@ vtkImageQuantizeRGBToIndex::vtkImageQuantizeRGBToIndex()
 {
   this->LookupTable = vtkLookupTable::New();
   this->NumberOfColors = 256;
+  this->InputType = VTK_UNSIGNED_SHORT;
   
   this->InitializeExecuteTime = 0.0;
   this->BuildTreeExecuteTime = 0.0;

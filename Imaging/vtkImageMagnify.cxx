@@ -42,20 +42,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageMagnify.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.37");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.38");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify::vtkImageMagnify()
 {
-  int idx;
-  
   this->Interpolate = 0;
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->MagnificationFactors[idx] = 1;
-    }
+  this->SetMagnificationFactors(1, 1, 1);
 }
 
 

@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.40");
+vtkCxxRevisionMacro(vtkImageWriter, "1.41");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -65,6 +65,8 @@ vtkImageWriter::vtkImageWriter()
   this->FilePrefix = NULL;
   this->FilePattern = NULL;
   this->FileName = NULL;
+  this->InternalFileName = NULL;
+  this->FileNumber = 0;
   this->FileDimensionality = 2;
 
   this->SetFilePattern("%s.%d");

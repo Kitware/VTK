@@ -43,21 +43,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.42");
+vtkCxxRevisionMacro(vtkImageClip, "1.43");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
 vtkImageClip::vtkImageClip()
 {
-  int idx;
-
   this->ClipData = 0;
   this->Initialized = 0;
-  for (idx = 0; idx < 3; ++idx)
-    {
-    this->OutputWholeExtent[idx*2]  = -VTK_LARGE_INTEGER;
-    this->OutputWholeExtent[idx*2+1] = VTK_LARGE_INTEGER;
-    }
+  this->SetOutputWholeExtent(-VTK_LARGE_INTEGER, VTK_LARGE_INTEGER,
+                             -VTK_LARGE_INTEGER, VTK_LARGE_INTEGER,
+                             -VTK_LARGE_INTEGER, VTK_LARGE_INTEGER);
 }
 
 
