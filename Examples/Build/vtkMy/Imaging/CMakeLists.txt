@@ -5,7 +5,7 @@
 #
 
 SOURCE_FILES (Imaging_SRCS
-  vtkImageFoo
+  vtkImageFoo.cxx
 )
 
 # --------------------------------------------------------------------------

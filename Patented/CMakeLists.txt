@@ -1,16 +1,16 @@
 SOURCE_FILES ( Patented_SRCS
-vtkDecimate 
-vtkDividingCubes 
-vtkGridSynchronizedTemplates3D 
-vtkImageMarchingCubes 
-vtkKitwareContourFilter 
-vtkMarchingContourFilter 
-vtkMarchingCubes 
-vtkMarchingSquares 
-vtkSliceCubes 
-vtkSweptSurface 
-vtkSynchronizedTemplates2D 
-vtkSynchronizedTemplates3D
+vtkDecimate.cxx
+vtkDividingCubes.cxx
+vtkGridSynchronizedTemplates3D.cxx
+vtkImageMarchingCubes.cxx
+vtkKitwareContourFilter.cxx
+vtkMarchingContourFilter.cxx
+vtkMarchingCubes.cxx
+vtkMarchingSquares.cxx
+vtkSliceCubes.cxx
+vtkSweptSurface.cxx
+vtkSynchronizedTemplates2D.cxx
+vtkSynchronizedTemplates3D.cxx
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
@@ -37,14 +37,14 @@ IF (VTK_WRAP_TCL)
   ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedTCL PatentedTCL_SRCS)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL 
-                         vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL 
+  TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL
+                         vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL
                          vtkCommonTCL
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkPatentedTCL)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
@@ -53,15 +53,15 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkPatentedPython MODULE PatentedPython_SRCS)
   ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedPython SHARED PatentedPython_SRCS)
-    TARGET_LINK_LIBRARIES (vtkPatentedPython 
+    TARGET_LINK_LIBRARIES (vtkPatentedPython
                            vtkGraphicsPython
                            vtkImagingPython
                            vtkFilteringPython
                            vtkCommonPython)
   ENDIF (APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkPatentedPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkPatentedPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkPatentedPython ${PYTHON_LIBRARY})
@@ -70,7 +70,7 @@ IF (VTK_WRAP_PYTHON)
   INSTALL_TARGETS(/lib/vtk vtkPatentedPython)
 ENDIF (VTK_WRAP_PYTHON)
 
-# if we are wrapping into Java then add the library and extra 
+# if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
@@ -82,8 +82,8 @@ IF (VTK_WRAP_JAVA)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering 
+vtkCommon
+vtkFiltering
 vtkImaging
 vtkGraphics
 vtkIO

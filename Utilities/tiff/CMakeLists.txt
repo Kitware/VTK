@@ -5,14 +5,14 @@ INCLUDE_DIRECTORIES(${VTKTIFF_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${VTKTIFF_BINARY_DIR})
 
 # library object files common to compression and decompression
-SOURCE_FILES(common_SRCS 
-tif_aux.c tif_close.c 
-tif_codec.c tif_compress.c tif_dir.c tif_dirinfo.c tif_dirread.c 
-tif_dirwrite.c tif_dumpmode.c tif_error.c tif_fax3.c tif_flush.c 
-tif_getimage.c tif_jpeg.c tif_luv.c tif_lzw.c tif_next.c 
-tif_ojpeg.c tif_open.c tif_packbits.c tif_pixarlog.c tif_predict.c 
-tif_print.c tif_read.c tif_strip.c tif_swab.c tif_thunder.c tif_tile.c 
-tif_version.c tif_warning.c 
+SOURCE_FILES(common_SRCS
+tif_aux.c tif_close.c
+tif_codec.c tif_compress.c tif_dir.c tif_dirinfo.c tif_dirread.c
+tif_dirwrite.c tif_dumpmode.c tif_error.c tif_fax3.c tif_flush.c
+tif_getimage.c tif_jpeg.c tif_luv.c tif_lzw.c tif_next.c
+tif_ojpeg.c tif_open.c tif_packbits.c tif_pixarlog.c tif_predict.c
+tif_print.c tif_read.c tif_strip.c tif_swab.c tif_thunder.c tif_tile.c
+tif_version.c tif_warning.c
 tif_write.c tif_zip.c)
 
 ADD_DEFINITIONS( -DJPEG_SUPPORT -DZIP_SUPPORT -D_HPUX_SOURCE)
@@ -32,7 +32,7 @@ IF (WIN32)
     SET(WINDOWS 1)
   ENDIF (NOT UNIX)
 ENDIF (WIN32)
- 
+
 IF(WINDOWS)
   ADD_DEFINITIONS( -DTIF_PLATFORM_CONSOLE )
   SOURCE_FILES(common_SRCS tif_win32.c fax3sm_winnt.c)
@@ -48,21 +48,21 @@ ELSE (WINDOWS)
 
   IF(TIFF_RIGHT_VERSION)
     SOURCE_FILES(common_SRCS tif_unix.c GENERATED tif_fax3sm.c)
-    ADD_EXECUTABLE(mkg3states mkg3states)     
+    ADD_EXECUTABLE(mkg3states mkg3states)    
     ADD_CUSTOM_COMMAND(
       SOURCE ${EXECUTABLE_OUTPUT_PATH}/mkg3states
       COMMAND ${EXECUTABLE_OUTPUT_PATH}/mkg3states
-      ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c 
-      TARGET vtktiff 
+      ARGS -c const ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c
+      TARGET vtktiff
       OUTPUTS ${VTKTIFF_BINARY_DIR}/tif_fax3sm.c)
   ELSE(TIFF_RIGHT_VERSION)
       MESSAGE("The new TIFF reader requires CMake 1.2 or newer. Please get the new version of CMake from www.cmake.org.")
   ENDIF(TIFF_RIGHT_VERSION)
 ENDIF (WINDOWS)
 
-CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/.NoDartCoverage 
+CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/.NoDartCoverage
                ${VTKTIFF_BINARY_DIR}/.NoDartCoverage)
-CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/tiffDllConfig.h.in 
+CONFIGURE_FILE(${VTKTIFF_SOURCE_DIR}/tiffDllConfig.h.in
                ${VTKTIFF_BINARY_DIR}/tiffDllConfig.h)
 
 TARGET_LINK_LIBRARIES( vtktiff vtkzlib vtkjpeg )

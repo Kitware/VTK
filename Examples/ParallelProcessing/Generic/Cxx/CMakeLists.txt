@@ -53,23 +53,23 @@ IF (VTK_USE_MPI)
 ENDIF (VTK_USE_MPI)
 
 SOURCE_FILES( TaskPara_SRCS
-TaskParallelism
-task1
-task2)
+TaskParallelism.cxx
+task1.cxx
+task2.cxx)
 
 SOURCE_FILES( TaskParaPorts_SRCS
-TaskParallelismWithPorts
-task3
-task4)
+TaskParallelismWithPorts.cxx
+task3.cxx
+task4.cxx)
 
 ADD_EXECUTABLE(TaskParallelism TaskPara_SRCS)
 
 ADD_EXECUTABLE(TaskParallelismWithPorts TaskParaPorts_SRCS)
 
 SOURCE_FILES( PipePara_SRCS
-PipelineParallelism
-pipe1
-pipe2)
+PipelineParallelism.cxx
+pipe1.cxx
+pipe2.cxx)
 
 ADD_EXECUTABLE(PipelineParallelism PipePara_SRCS)
 

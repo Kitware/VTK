@@ -1,9 +1,9 @@
 PROJECT(VTKEXPAT)
 INCLUDE_REGULAR_EXPRESSION("^(expat|xml|ascii|utf|name|iascii|latin).*$")
 
-SOURCE_FILES(expat_SRCS 
-  xmlparse.c 
-  xmltok.c 
+SOURCE_FILES(expat_SRCS
+  xmlparse.c
+  xmltok.c
   xmlrole.c
 )
 
@@ -24,7 +24,7 @@ CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/expatConfig.h.in
                ${VTKEXPAT_BINARY_DIR}/expatConfig.h)
 CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/expatDllConfig.h.in
                ${VTKEXPAT_BINARY_DIR}/expatDllConfig.h)
-CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/.NoDartCoverage 
+CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/.NoDartCoverage
                ${VTKEXPAT_BINARY_DIR}/.NoDartCoverage)
 
 ADD_LIBRARY(vtkexpat expat_SRCS)

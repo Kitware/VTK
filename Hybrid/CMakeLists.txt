@@ -1,48 +1,48 @@
 SOURCE_FILES ( Hybrid_SRCS
-vtk3DSImporter
-vtk3DWidget
-vtkArcPlotter 
-vtkBoxWidget
-vtkCaptionActor2D
-vtkCubeAxesActor2D 
-vtkDepthSortPolyData 
-vtkEarthSource 
-vtkGridTransform 
-vtkImplicitModeller
-vtkImageToPolyDataFilter 
-vtkIterativeClosestPointTransform
-vtkLandmarkTransform 
-vtkLegendBoxActor 
-vtkLineWidget
-vtkPCAAnalysisFilter
-vtkPlaneWidget
-vtkPolyDataToImageStencil
-vtkProcrustesAlignmentFilter
-vtkRenderLargeImage 
-vtkRIBExporter 
-vtkRIBLight 
-vtkRIBProperty 
-vtkSphereWidget
-vtkThinPlateSplineTransform 
-vtkTransformToGrid 
-vtkVectorText
-vtkVideoSource 
-vtkVRMLImporter 
-vtkXYPlotActor 
-vtkWeightedTransformFilter 
+vtk3DSImporter.cxx
+vtk3DWidget.cxx
+vtkArcPlotter.cxx
+vtkBoxWidget.cxx
+vtkCaptionActor2D.cxx
+vtkCubeAxesActor2D.cxx
+vtkDepthSortPolyData.cxx
+vtkEarthSource.cxx
+vtkGridTransform.cxx
+vtkImplicitModeller.cxx
+vtkImageToPolyDataFilter.cxx
+vtkIterativeClosestPointTransform.cxx
+vtkLandmarkTransform.cxx
+vtkLegendBoxActor.cxx
+vtkLineWidget.cxx
+vtkPCAAnalysisFilter.cxx
+vtkPlaneWidget.cxx
+vtkPolyDataToImageStencil.cxx
+vtkProcrustesAlignmentFilter.cxx
+vtkRenderLargeImage.cxx
+vtkRIBExporter.cxx
+vtkRIBLight.cxx
+vtkRIBProperty.cxx
+vtkSphereWidget.cxx
+vtkThinPlateSplineTransform.cxx
+vtkTransformToGrid.cxx
+vtkVectorText.cxx
+vtkVideoSource.cxx
+vtkVRMLImporter.cxx
+vtkXYPlotActor.cxx
+vtkWeightedTransformFilter.cxx
 )
 
 ABSTRACT_FILES(
-vtk3DWidget
+vtk3DWidget.cxx
 )
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
-    SOURCE_FILES (Hybrid_SRCS vtkWin32VideoSource)
+    SOURCE_FILES (Hybrid_SRCS vtkWin32VideoSource.cxx)
   ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
 
   IF (VTK_USE_MATROX_IMAGING)
-    SOURCE_FILES (Hybrid_SRCS vtkMILVideoSource)
+    SOURCE_FILES (Hybrid_SRCS vtkMILVideoSource.cxx)
     INCLUDE_DIRECTORIES (${MIL_INCLUDE_PATH})
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
@@ -75,12 +75,12 @@ IF (VTK_WRAP_TCL)
   ELSE (APPLE)
     ADD_LIBRARY(vtkHybridTCL HybridTCL_SRCS)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkHybridTCL 
-                         vtkRenderingTCL 
-                         vtkIOTCL 
-                         vtkGraphicsTCL 
-                         vtkImagingTCL 
-                         vtkFilteringTCL 
+  TARGET_LINK_LIBRARIES (vtkHybridTCL
+                         vtkRenderingTCL
+                         vtkIOTCL
+                         vtkGraphicsTCL
+                         vtkImagingTCL
+                         vtkFilteringTCL
                          vtkCommonTCL
                          ${TCL_LIBRARY})
   IF (WIN32)
@@ -95,7 +95,7 @@ IF (VTK_WRAP_TCL)
   INSTALL_TARGETS(/lib/vtk vtkHybridTCL)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
@@ -104,7 +104,7 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkHybridPython MODULE HybridPython_SRCS)
   ELSE (APPLE)
     ADD_LIBRARY(vtkHybridPython SHARED HybridPython_SRCS)
-    TARGET_LINK_LIBRARIES (vtkHybridPython 
+    TARGET_LINK_LIBRARIES (vtkHybridPython
                            vtkRenderingPython
                            vtkIOPython
                            vtkGraphicsPython
@@ -112,11 +112,11 @@ IF (VTK_WRAP_PYTHON)
                            vtkFilteringPython
                            vtkCommonPython)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkHybridPython 
+  TARGET_LINK_LIBRARIES (vtkHybridPython
 			 ${OPENGL_LIBRARY})
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkHybridPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkHybridPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkHybridPython ${PYTHON_LIBRARY})
@@ -136,11 +136,11 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkHybridJava HybridJava_SRCS Hybrid_SRCS)
   ADD_LIBRARY(vtkHybridJava SHARED HybridJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkHybridJava 
-                         vtkCommonJava 
+  TARGET_LINK_LIBRARIES (vtkHybridJava
+                         vtkCommonJava
                          vtkFilteringJava
-                         vtkImagingJava 
-                         vtkGraphicsJava 
+                         vtkImagingJava
+                         vtkGraphicsJava
                          vtkRenderingJava
                          vtkIOJava
 			 ${OPENGL_LIBRARY})
@@ -157,8 +157,8 @@ IF (VTK_WRAP_JAVA)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering 
+vtkCommon
+vtkFiltering
 vtkImaging
 vtkGraphics
 vtkIO

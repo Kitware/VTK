@@ -1,48 +1,48 @@
 SOURCE_FILES ( Parallel_SRCS
-vtkBranchExtentTranslator 
-vtkCommunicator 
-vtkCompositeManager 
-vtkCutMaterial 
-vtkExtractPolyDataPiece 
-vtkExtractUnstructuredGridPiece 
-vtkInputPort 
-vtkMemoryLimitImageDataStreamer 
-vtkMultiProcessController 
-vtkOutputPort 
-vtkParallelFactory 
-vtkPDataSetReader
-vtkPDataSetWriter
-vtkPieceScalars 
-vtkPipelineSize 
-vtkPImageWriter 
-vtkPCellDataToPointData
-vtkPLinearExtrusionFilter
-vtkPPolyDataNormals 
-vtkPOPReader 
-vtkPSphereSource 
-vtkPVGeometryFilter
-vtkRectilinearGridOutlineFilter
-vtkRTAnalyticSource 
-vtkSharedMemoryCommunicator 
-vtkThreadedController 
-vtkTransmitPolyDataPiece
-vtkTransmitUnstructuredGridPiece
-vtkTreeComposite 
-vtkSocketCommunicator
-vtkSocketController 
+vtkBranchExtentTranslator.cxx
+vtkCommunicator.cxx
+vtkCompositeManager.cxx
+vtkCutMaterial.cxx
+vtkExtractPolyDataPiece.cxx
+vtkExtractUnstructuredGridPiece.cxx
+vtkInputPort.cxx
+vtkMemoryLimitImageDataStreamer.cxx
+vtkMultiProcessController.cxx
+vtkOutputPort.cxx
+vtkParallelFactory.cxx
+vtkPDataSetReader.cxx
+vtkPDataSetWriter.cxx
+vtkPieceScalars.cxx
+vtkPipelineSize.cxx
+vtkPImageWriter.cxx
+vtkPCellDataToPointData.cxx
+vtkPLinearExtrusionFilter.cxx
+vtkPPolyDataNormals.cxx
+vtkPOPReader.cxx
+vtkPSphereSource.cxx
+vtkPVGeometryFilter.cxx
+vtkRectilinearGridOutlineFilter.cxx
+vtkRTAnalyticSource.cxx
+vtkSharedMemoryCommunicator.cxx
+vtkThreadedController.cxx
+vtkTransmitPolyDataPiece.cxx
+vtkTransmitUnstructuredGridPiece.cxx
+vtkTreeComposite.cxx
+vtkSocketCommunicator.cxx
+vtkSocketController.cxx
 )
 
-ABSTRACT_FILES( 
-vtkCommunicator 
-vtkCompositeManager 
+ABSTRACT_FILES(
+vtkCommunicator.cxx
+vtkCompositeManager.cxx
 )
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
   SOURCE_FILES ( Parallel_SRCS
-    vtkMPICommunicator 
-    vtkMPIController  
-    vtkMPIGroup)
+    vtkMPICommunicator.cxx
+    vtkMPIController.cxx 
+    vtkMPIGroup.cxx)
 
   IF (MPI_LIBRARY)
     LINK_LIBRARIES (${MPI_LIBRARY})
@@ -77,12 +77,12 @@ ENDIF (WIN32)
 IF (VTK_WRAP_TCL)
   VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS Parallel_SRCS)
   ADD_LIBRARY(vtkParallelTCL ParallelTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelTCL 
-                         vtkIOTCL 
+  TARGET_LINK_LIBRARIES (vtkParallelTCL
+                         vtkIOTCL
                          vtkRenderingTCL
-                         vtkGraphicsTCL 
-                         vtkImagingTCL 
-                         vtkFilteringTCL 
+                         vtkGraphicsTCL
+                         vtkImagingTCL
+                         vtkFilteringTCL
                          vtkCommonTCL
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
@@ -93,10 +93,10 @@ IF (VTK_WRAP_TCL)
     TARGET_LINK_LIBRARIES (pvtk
 			 vtkParallelTCL
                          vtkRenderingTCL
-                         vtkIOTCL 
-                         vtkGraphicsTCL 
-                         vtkImagingTCL 
-                         vtkFilteringTCL 
+                         vtkIOTCL
+                         vtkGraphicsTCL
+                         vtkImagingTCL
+                         vtkFilteringTCL
                          vtkCommonTCL
 			 ${TCL_LIBRARY}
 			 ${TK_LIBRARY})
@@ -143,29 +143,29 @@ IF (VTK_WRAP_TCL)
   ENDIF (VTK_USE_MPI)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS Parallel_SRCS)
-  IF (APPLE)  
+  IF (APPLE) 
     ADD_LIBRARY(vtkParallelPython MODULE ParallelPython_SRCS)
   ELSE (APPLE)
     ADD_LIBRARY(vtkParallelPython SHARED ParallelPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelPython 
+  TARGET_LINK_LIBRARIES (vtkParallelPython
                          vtkIOPython
                          vtkRenderingPython
                          vtkGraphicsPython
                          vtkImagingPython
                          vtkFilteringPython
                          vtkCommonPython)
-  TARGET_LINK_LIBRARIES (vtkParallelPython 
+  TARGET_LINK_LIBRARIES (vtkParallelPython
 			 ${OPENGL_LIBRARY})
   ENDIF (APPLE)
 
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkParallelPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkParallelPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkParallelPython ${PYTHON_LIBRARY})
@@ -177,11 +177,11 @@ ENDIF (VTK_WRAP_PYTHON)
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS Parallel_SRCS)
   ADD_LIBRARY(vtkParallelJava SHARED ParallelJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelJava 
-                         vtkCommonJava 
+  TARGET_LINK_LIBRARIES (vtkParallelJava
+                         vtkCommonJava
                          vtkFilteringJava
-                         vtkImagingJava 
-                         vtkGraphicsJava 
+                         vtkImagingJava
+                         vtkGraphicsJava
                          vtkRenderingJava
                          vtkIOJava)
   INSTALL_TARGETS(/lib/vtk vtkParallelJava)
@@ -193,8 +193,8 @@ vtkRendering
 vtkImaging
 vtkGraphics
 vtkIO
-vtkFiltering 
-vtkCommon 
+vtkFiltering
+vtkCommon
 )
 
 INSTALL_TARGETS(/lib/vtk vtkParallel)

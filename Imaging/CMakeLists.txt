@@ -1,116 +1,116 @@
 SOURCE_FILES( Imaging_SRCS
-vtkBooleanTexture
-vtkExtractVOI
-vtkGaussianSplatter
-vtkImageAccumulate
-vtkImageAnisotropicDiffusion2D
-vtkImageAnisotropicDiffusion3D
-vtkImageAppend
-vtkImageAppendComponents
-vtkImageBlend
-vtkImageButterworthHighPass
-vtkImageButterworthLowPass
-vtkImageCacheFilter
-vtkImageCanvasSource2D
-vtkImageCast
-vtkImageCheckerboard
-vtkImageChangeInformation
-vtkImageCityBlockDistance
-vtkImageClip
-vtkImageConnector
-vtkImageConstantPad
-vtkImageContinuousDilate3D
-vtkImageContinuousErode3D
-vtkImageConvolve
-vtkImageCorrelation
-vtkImageCursor3D
-vtkImageDataStreamer
-vtkImageDecomposeFilter
-vtkImageDifference
-vtkImageDilateErode3D
-vtkImageDivergence
-vtkImageDotProduct
-vtkImageEllipsoidSource
-vtkImageEuclideanDistance
-vtkImageEuclideanToPolar
-vtkImageExport
-vtkImageExtractComponents
-vtkImageFFT
-vtkImageFlip
-vtkImageFourierCenter
-vtkImageFourierFilter
-vtkImageGaussianSmooth
-vtkImageGaussianSource
-vtkImageGradient
-vtkImageGradientMagnitude
-vtkImageGridSource
-vtkImageHSVToRGB
-vtkImageHybridMedian2D
-vtkImageIdealHighPass
-vtkImageIdealLowPass
-vtkImageToImageStencil
-vtkImageImport
-vtkImageIslandRemoval2D
-vtkImageIterateFilter
-vtkImageLaplacian
-vtkImageLogarithmicScale
-vtkImageLogic
-vtkImageLuminance
-vtkImageMagnify
-vtkImageMagnitude
-vtkImageMandelbrotSource
-vtkImageMapToColors
-vtkImageMapToRGBA
-vtkImageMapToWindowLevelColors
-vtkImageMask
-vtkImageMaskBits
-vtkImageMathematics
-vtkImageMedian3D
-vtkImageMirrorPad
-vtkImageNoiseSource
-vtkImageNonMaximumSuppression
-vtkImageNormalize
-vtkImageOpenClose3D
-vtkImagePadFilter
-vtkImagePermute
-vtkImageQuantizeRGBToIndex
-vtkImageReslice
-vtkImageRFFT
-vtkImageRGBToHSV
-vtkImageRange3D
-vtkImageResample
-vtkImageSeedConnectivity
-vtkImageSeparableConvolution
-vtkImageShiftScale
-vtkImageShrink3D
-vtkImageSinusoidSource
-vtkImageSkeleton2D
-vtkImageSobel2D
-vtkImageSobel3D
-vtkImageSpatialFilter
-vtkImageStencil
-vtkImageStencilData
-vtkImageStencilSource 
-vtkImageThreshold
-vtkImageTranslateExtent
-vtkImageVariance3D
-vtkImageWrapPad
-vtkImplicitFunctionToImageStencil
-vtkPointLoad
-vtkSampleFunction
-vtkShepardMethod
-vtkSimpleImageFilterExample
-vtkSurfaceReconstructionFilter 
-vtkTriangularTexture
-vtkVoxelModeller
+vtkBooleanTexture.cxx
+vtkExtractVOI.cxx
+vtkGaussianSplatter.cxx
+vtkImageAccumulate.cxx
+vtkImageAnisotropicDiffusion2D.cxx
+vtkImageAnisotropicDiffusion3D.cxx
+vtkImageAppend.cxx
+vtkImageAppendComponents.cxx
+vtkImageBlend.cxx
+vtkImageButterworthHighPass.cxx
+vtkImageButterworthLowPass.cxx
+vtkImageCacheFilter.cxx
+vtkImageCanvasSource2D.cxx
+vtkImageCast.cxx
+vtkImageCheckerboard.cxx
+vtkImageChangeInformation.cxx
+vtkImageCityBlockDistance.cxx
+vtkImageClip.cxx
+vtkImageConnector.cxx
+vtkImageConstantPad.cxx
+vtkImageContinuousDilate3D.cxx
+vtkImageContinuousErode3D.cxx
+vtkImageConvolve.cxx
+vtkImageCorrelation.cxx
+vtkImageCursor3D.cxx
+vtkImageDataStreamer.cxx
+vtkImageDecomposeFilter.cxx
+vtkImageDifference.cxx
+vtkImageDilateErode3D.cxx
+vtkImageDivergence.cxx
+vtkImageDotProduct.cxx
+vtkImageEllipsoidSource.cxx
+vtkImageEuclideanDistance.cxx
+vtkImageEuclideanToPolar.cxx
+vtkImageExport.cxx
+vtkImageExtractComponents.cxx
+vtkImageFFT.cxx
+vtkImageFlip.cxx
+vtkImageFourierCenter.cxx
+vtkImageFourierFilter.cxx
+vtkImageGaussianSmooth.cxx
+vtkImageGaussianSource.cxx
+vtkImageGradient.cxx
+vtkImageGradientMagnitude.cxx
+vtkImageGridSource.cxx
+vtkImageHSVToRGB.cxx
+vtkImageHybridMedian2D.cxx
+vtkImageIdealHighPass.cxx
+vtkImageIdealLowPass.cxx
+vtkImageToImageStencil.cxx
+vtkImageImport.cxx
+vtkImageIslandRemoval2D.cxx
+vtkImageIterateFilter.cxx
+vtkImageLaplacian.cxx
+vtkImageLogarithmicScale.cxx
+vtkImageLogic.cxx
+vtkImageLuminance.cxx
+vtkImageMagnify.cxx
+vtkImageMagnitude.cxx
+vtkImageMandelbrotSource.cxx
+vtkImageMapToColors.cxx
+vtkImageMapToRGBA.cxx
+vtkImageMapToWindowLevelColors.cxx
+vtkImageMask.cxx
+vtkImageMaskBits.cxx
+vtkImageMathematics.cxx
+vtkImageMedian3D.cxx
+vtkImageMirrorPad.cxx
+vtkImageNoiseSource.cxx
+vtkImageNonMaximumSuppression.cxx
+vtkImageNormalize.cxx
+vtkImageOpenClose3D.cxx
+vtkImagePadFilter.cxx
+vtkImagePermute.cxx
+vtkImageQuantizeRGBToIndex.cxx
+vtkImageReslice.cxx
+vtkImageRFFT.cxx
+vtkImageRGBToHSV.cxx
+vtkImageRange3D.cxx
+vtkImageResample.cxx
+vtkImageSeedConnectivity.cxx
+vtkImageSeparableConvolution.cxx
+vtkImageShiftScale.cxx
+vtkImageShrink3D.cxx
+vtkImageSinusoidSource.cxx
+vtkImageSkeleton2D.cxx
+vtkImageSobel2D.cxx
+vtkImageSobel3D.cxx
+vtkImageSpatialFilter.cxx
+vtkImageStencil.cxx
+vtkImageStencilData.cxx
+vtkImageStencilSource.cxx
+vtkImageThreshold.cxx
+vtkImageTranslateExtent.cxx
+vtkImageVariance3D.cxx
+vtkImageWrapPad.cxx
+vtkImplicitFunctionToImageStencil.cxx
+vtkPointLoad.cxx
+vtkSampleFunction.cxx
+vtkShepardMethod.cxx
+vtkSimpleImageFilterExample.cxx
+vtkSurfaceReconstructionFilter.cxx
+vtkTriangularTexture.cxx
+vtkVoxelModeller.cxx
 )
 
 ABSTRACT_FILES(
-vtkImageDecomposeFilter 
-vtkImageIterateFilter 
-vtkImagePadFilter 
-vtkImageSpatialFilter 
-vtkImageFourierFilter 
+vtkImageDecomposeFilter.cxx
+vtkImageIterateFilter.cxx
+vtkImagePadFilter.cxx
+vtkImageSpatialFilter.cxx
+vtkImageFourierFilter.cxx
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
@@ -130,7 +130,7 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Imaging/LocalUserOptions.cmake OPTIONAL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
@@ -140,14 +140,14 @@ IF (VTK_WRAP_TCL)
   ELSE (APPLE)
     ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkImagingTCL 
-                         vtkFilteringTCL 
-                         vtkCommonTCL 
+  TARGET_LINK_LIBRARIES (vtkImagingTCL
+                         vtkFilteringTCL
+                         vtkCommonTCL
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkImagingTCL)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
@@ -156,14 +156,14 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkImagingPython MODULE ImagingPython_SRCS)
   ELSE (APPLE)
     ADD_LIBRARY(vtkImagingPython SHARED ImagingPython_SRCS)
-    TARGET_LINK_LIBRARIES (vtkImagingPython 
-                           vtkFilteringPython 
+    TARGET_LINK_LIBRARIES (vtkImagingPython
+                           vtkFilteringPython
                            vtkCommonPython)
   ENDIF (APPLE)
 
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkImagingPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkImagingPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkImagingPython ${PYTHON_LIBRARY})
@@ -172,22 +172,22 @@ IF (VTK_WRAP_PYTHON)
   INSTALL_TARGETS(/lib/vtk vtkImagingPython)
 ENDIF (VTK_WRAP_PYTHON)
 
-# if we are wrapping into Java then add the library and extra 
+# if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkImagingJava ImagingJava_SRCS Imaging_SRCS)
   ADD_LIBRARY(vtkImagingJava SHARED ImagingJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkImagingJava 
-                         vtkCommonJava 
+  TARGET_LINK_LIBRARIES (vtkImagingJava
+                         vtkCommonJava
                          vtkFilteringJava)
   INSTALL_TARGETS(/lib/vtk vtkImagingJava)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
-vtkCommon 
+vtkCommon
 vtkFiltering
-vtkImaging 
+vtkImaging
 )
 
 INSTALL_TARGETS(/lib/vtk vtkImaging)

@@ -1,84 +1,84 @@
 SOURCE_FILES( Filtering_SRCS
-vtkCardinalSpline
-vtkCastToConcrete
-vtkCellLocator
-vtkColorTransferFunction
-vtkCone
-vtkCylinder
-vtkDataObjectSource
-vtkDataSetSource
-vtkDataSetToDataSetFilter
-vtkDataSetToPolyDataFilter
-vtkDataSetToStructuredGridFilter
-vtkDataSetToStructuredPointsFilter
-vtkDataSetToUnstructuredGridFilter
-vtkImageInPlaceFilter
-vtkImageMultipleInputFilter
-vtkImageMultipleInputOutputFilter 
-vtkImageSource 
-vtkImageToImageFilter
-vtkImageToStructuredPoints 
-vtkImageTwoInputFilter
-vtkImplicitBoolean
-vtkImplicitDataSet
-vtkImplicitSelectionLoop
-vtkImplicitSum
-vtkImplicitVolume
-vtkImplicitWindowFunction
-vtkKochanekSpline
-vtkMergePoints
-vtkMergePoints2D 
-vtkPerlinNoise
-vtkPiecewiseFunction
-vtkPiecewiseFunctionSource
-vtkPiecewiseFunctionShiftScale
-vtkPiecewiseFunctionToPiecewiseFunctionFilter
-vtkPointSetSource
-vtkPointSetToPointSetFilter
-vtkPolyDataCollection
-vtkPolyDataSource 
-vtkPolyDataToPolyDataFilter
-vtkRectilinearGridSource
-vtkRectilinearGridToPolyDataFilter
-vtkScalarTree
-vtkSimpleScalarTree
-vtkSimpleImageToImageFilter 
-vtkSphere
-vtkSpline
-vtkStructuredGridSource
-vtkStructuredGridToPolyDataFilter
-vtkStructuredGridToStructuredGridFilter
-vtkStructuredPointsCollection
-vtkStructuredPointsSource
-vtkStructuredPointsToPolyDataFilter
-vtkStructuredPointsToStructuredPointsFilter
-vtkStructuredPointsToUnstructuredGridFilter
-vtkSuperquadric 
-vtkUnstructuredGridSource
-vtkUnstructuredGridToPolyDataFilter
-vtkUnstructuredGridToUnstructuredGridFilter
+vtkCardinalSpline.cxx
+vtkCastToConcrete.cxx
+vtkCellLocator.cxx
+vtkColorTransferFunction.cxx
+vtkCone.cxx
+vtkCylinder.cxx
+vtkDataObjectSource.cxx
+vtkDataSetSource.cxx
+vtkDataSetToDataSetFilter.cxx
+vtkDataSetToPolyDataFilter.cxx
+vtkDataSetToStructuredGridFilter.cxx
+vtkDataSetToStructuredPointsFilter.cxx
+vtkDataSetToUnstructuredGridFilter.cxx
+vtkImageInPlaceFilter.cxx
+vtkImageMultipleInputFilter.cxx
+vtkImageMultipleInputOutputFilter.cxx
+vtkImageSource.cxx
+vtkImageToImageFilter.cxx
+vtkImageToStructuredPoints.cxx
+vtkImageTwoInputFilter.cxx
+vtkImplicitBoolean.cxx
+vtkImplicitDataSet.cxx
+vtkImplicitSelectionLoop.cxx
+vtkImplicitSum.cxx
+vtkImplicitVolume.cxx
+vtkImplicitWindowFunction.cxx
+vtkKochanekSpline.cxx
+vtkMergePoints.cxx
+vtkMergePoints2D.cxx
+vtkPerlinNoise.cxx
+vtkPiecewiseFunction.cxx
+vtkPiecewiseFunctionSource.cxx
+vtkPiecewiseFunctionShiftScale.cxx
+vtkPiecewiseFunctionToPiecewiseFunctionFilter.cxx
+vtkPointSetSource.cxx
+vtkPointSetToPointSetFilter.cxx
+vtkPolyDataCollection.cxx
+vtkPolyDataSource.cxx
+vtkPolyDataToPolyDataFilter.cxx
+vtkRectilinearGridSource.cxx
+vtkRectilinearGridToPolyDataFilter.cxx
+vtkScalarTree.cxx
+vtkSimpleScalarTree.cxx
+vtkSimpleImageToImageFilter.cxx
+vtkSphere.cxx
+vtkSpline.cxx
+vtkStructuredGridSource.cxx
+vtkStructuredGridToPolyDataFilter.cxx
+vtkStructuredGridToStructuredGridFilter.cxx
+vtkStructuredPointsCollection.cxx
+vtkStructuredPointsSource.cxx
+vtkStructuredPointsToPolyDataFilter.cxx
+vtkStructuredPointsToStructuredPointsFilter.cxx
+vtkStructuredPointsToUnstructuredGridFilter.cxx
+vtkSuperquadric.cxx
+vtkUnstructuredGridSource.cxx
+vtkUnstructuredGridToPolyDataFilter.cxx
+vtkUnstructuredGridToUnstructuredGridFilter.cxx
 )
 
 ABSTRACT_FILES(
-vtkDataSetToDataSetFilter
-vtkDataSetToPolyDataFilter
-vtkDataSetToStructuredGridFilter
-vtkDataSetToStructuredPointsFilter
-vtkDataSetToUnstructuredGridFilter
-vtkPiecewiseFunctionToPiecewiseFunctionFilter
-vtkPointSetToPointSetFilter
-vtkPolyDataToPolyDataFilter
-vtkRectilinearGridToPolyDataFilter
-vtkScalarTree
-vtkSimpleImageToImageFilter 
-vtkSpline
-vtkStructuredGridToPolyDataFilter
-vtkStructuredGridToStructuredGridFilter
-vtkStructuredPointsToPolyDataFilter
-vtkStructuredPointsToStructuredPointsFilter
-vtkStructuredPointsToUnstructuredGridFilter
-vtkUnstructuredGridToPolyDataFilter
-vtkUnstructuredGridToUnstructuredGridFilter
+vtkDataSetToDataSetFilter.cxx
+vtkDataSetToPolyDataFilter.cxx
+vtkDataSetToStructuredGridFilter.cxx
+vtkDataSetToStructuredPointsFilter.cxx
+vtkDataSetToUnstructuredGridFilter.cxx
+vtkPiecewiseFunctionToPiecewiseFunctionFilter.cxx
+vtkPointSetToPointSetFilter.cxx
+vtkPolyDataToPolyDataFilter.cxx
+vtkRectilinearGridToPolyDataFilter.cxx
+vtkScalarTree.cxx
+vtkSimpleImageToImageFilter.cxx
+vtkSpline.cxx
+vtkStructuredGridToPolyDataFilter.cxx
+vtkStructuredGridToStructuredGridFilter.cxx
+vtkStructuredPointsToPolyDataFilter.cxx
+vtkStructuredPointsToStructuredPointsFilter.cxx
+vtkStructuredPointsToUnstructuredGridFilter.cxx
+vtkUnstructuredGridToPolyDataFilter.cxx
+vtkUnstructuredGridToUnstructuredGridFilter.cxx
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
@@ -98,7 +98,7 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Filtering/LocalUserOptions.cmake OPTIONAL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
@@ -112,7 +112,7 @@ IF (VTK_WRAP_TCL)
   INSTALL_TARGETS(/lib/vtk vtkFilteringTCL)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
@@ -124,8 +124,8 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkFilteringPython vtkCommonPython )
   ENDIF (APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkFilteringPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkFilteringPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkFilteringPython ${PYTHON_LIBRARY})
@@ -133,7 +133,7 @@ IF (VTK_WRAP_PYTHON)
   INSTALL_TARGETS(/lib/vtk vtkFilteringPython)
 ENDIF (VTK_WRAP_PYTHON)
 
-# if we are wrapping into Java then add the library and extra 
+# if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
@@ -144,8 +144,8 @@ IF (VTK_WRAP_JAVA)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
-vtkCommon 
-vtkFiltering 
+vtkCommon
+vtkFiltering
 )
 
 INSTALL_TARGETS(/lib/vtk vtkFiltering)

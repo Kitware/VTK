@@ -8,9 +8,9 @@ INCLUDE_DIRECTORIES(${VTKZLIB_BINARY_DIR})
 SOURCE_FILES(ZLIB_SRCS
 adler32.c   gzio.c      inftrees.c  uncompr.c
 compress.c  infblock.c  infutil.c   zutil.c
-crc32.c     infcodes.c  
-deflate.c   inffast.c   
-inflate.c   trees.c 
+crc32.c     infcodes.c 
+deflate.c   inffast.c  
+inflate.c   trees.c
 )
 
 # for windows add the .def and .rc files to the source list
@@ -21,13 +21,13 @@ IF(WIN32)
   IF(NOT UNIX)
     IF(NOT BORLAND)
        SOURCE_FILES(ZLIB_SRCS zlib.def zlib.rc  )
-    ENDIF(NOT BORLAND)  
-  ENDIF(NOT UNIX)    
+    ENDIF(NOT BORLAND) 
+  ENDIF(NOT UNIX)   
 ENDIF(WIN32)
 
-CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage 
+CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/.NoDartCoverage
                ${VTKZLIB_BINARY_DIR}/.NoDartCoverage)
-CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in 
+CONFIGURE_FILE(${VTKZLIB_SOURCE_DIR}/zlibDllConfig.h.in
                ${VTKZLIB_BINARY_DIR}/zlibDllConfig.h)
 
 

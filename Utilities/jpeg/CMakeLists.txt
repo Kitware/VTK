@@ -11,23 +11,23 @@ INCLUDE_DIRECTORIES(${VTKJPEG_BINARY_DIR})
 SOURCE_FILES(systemdependent_SRCS jmemnobs.c)
 
 # library object files common to compression and decompression
-SOURCE_FILES(common_SRCS 
+SOURCE_FILES(common_SRCS
 jcomapi.c jutils.c jerror.c jmemmgr.c
 )
 
 # compression library object files
 SOURCE_FILES(compression_SRCS
-jcapimin.c jcapistd.c jctrans.c jcparam.c jdatadst.c jcinit.c 
+jcapimin.c jcapistd.c jctrans.c jcparam.c jdatadst.c jcinit.c
 jcmaster.c jcmarker.c jcmainct.c jcprepct.c jccoefct.c jccolor.c
-jcsample.c jchuff.c jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c 
+jcsample.c jchuff.c jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c
 jfdctint.c
 )
 
 # decompression library object files
 SOURCE_FILES(decompression_SRCS
-jdapimin.c jdapistd.c jdtrans.c jdatasrc.c jdmaster.c 
-jdinput.c jdmarker.c jdhuff.c jdphuff.c jdmainct.c jdcoefct.c 
-jdpostct.c jddctmgr.c jidctfst.c jidctflt.c jidctint.c jidctred.c 
+jdapimin.c jdapistd.c jdtrans.c jdatasrc.c jdmaster.c
+jdinput.c jdmarker.c jdhuff.c jdphuff.c jdmainct.c jdcoefct.c
+jdpostct.c jddctmgr.c jidctfst.c jidctflt.c jidctint.c jidctred.c
 jdsample.c jdcolor.c jquant1.c jquant2.c jdmerge.c
 )
 
@@ -41,9 +41,9 @@ IF (WIN32)
 ENDIF (WIN32)
 
 
-CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/.NoDartCoverage 
+CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/.NoDartCoverage
                ${VTKJPEG_BINARY_DIR}/.NoDartCoverage)
-CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in 
+CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in
                ${VTKJPEG_BINARY_DIR}/jpegDllConfig.h)
 
 ADD_LIBRARY(vtkjpeg systemdependent_SRCS common_SRCS compression_SRCS decompression_SRCS)

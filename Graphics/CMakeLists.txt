@@ -1,160 +1,160 @@
 
 SOURCE_FILES( Graphics_SRCS
-vtkAppendFilter
-vtkAppendPolyData
-vtkApproximatingSubdivisionFilter
-vtkArrayCalculator
-vtkArrowSource
-vtkAssignAttribute
-vtkAttributeDataToFieldDataFilter
-vtkAxes
-vtkBandedPolyDataContourFilter
-vtkBlankStructuredGrid
-vtkBlankStructuredGridWithImage
-vtkBrownianPoints
-vtkButterflySubdivisionFilter
-vtkButtonSource
-vtkCellCenters
-vtkCellDataToPointData
-vtkCellDerivatives 
-vtkCleanPolyData
-vtkClipDataSet
-vtkClipPolyData
-vtkClipVolume
-vtkConeSource
-vtkConnectivityFilter
-vtkContourFilter
-vtkContourGrid
-vtkCubeSource
-vtkCursor3D
-vtkCutter
-vtkCylinderSource
-vtkDashedStreamLine
-vtkDataObjectToDataSetFilter
-vtkDataSetSurfaceFilter
-vtkDataSetToDataObjectFilter
-vtkDataSetTriangleFilter
-vtkDecimatePro
-vtkDelaunay2D
-vtkDelaunay3D
-vtkDicer
-vtkDiskSource
-vtkEdgePoints
-vtkElevationFilter
-vtkExtractEdges
-vtkExtractGeometry
-vtkExtractGrid
-vtkExtractPolyDataGeometry
-vtkExtractRectilinearGrid
-vtkExtractTensorComponents
-vtkExtractUnstructuredGrid
-vtkExtractVectorComponents
-vtkFeatureEdges
-vtkFieldDataToAttributeDataFilter
-vtkGeometryFilter
-vtkGlyph2D
-vtkGlyph3D
-vtkGlyphSource2D
-vtkGraphLayoutFilter
-vtkHedgeHog
-vtkHull
-vtkHyperStreamline
-vtkIdFilter
-vtkImageDataGeometryFilter
-vtkImplicitTextureCoords
-vtkInterpolateDataSetAttributes
-vtkInterpolatingSubdivisionFilter
-vtkLineSource
-vtkLinearExtrusionFilter
-vtkLinearSubdivisionFilter
-vtkLinkEdgels
-vtkLoopSubdivisionFilter
-vtkMaskFields
-vtkMaskPoints
-vtkMaskPolyData
-vtkMassProperties 
-vtkMergeDataObjectFilter
-vtkMergeFields
-vtkMergeFilter
-vtkOBBDicer
-vtkOBBTree
-vtkOutlineCornerFilter 
-vtkOutlineCornerSource 
-vtkOutlineFilter
-vtkOutlineSource
-vtkPlaneSource
-vtkPointDataToCellData
-vtkPointSource
-vtkPolyDataConnectivityFilter
-vtkPolyDataNormals
-vtkPolyDataStreamer
-vtkProbeFilter
-vtkProgrammableAttributeDataFilter
-vtkProgrammableDataObjectSource
-vtkProgrammableFilter
-vtkProgrammableGlyphFilter
-vtkProgrammableSource
-vtkProjectedTexture 
-vtkQuadricClustering
-vtkQuadricDecimation
-vtkQuantizePolyDataPoints
-vtkRearrangeFields
-vtkRectilinearGridGeometryFilter
-vtkRecursiveDividingCubes
-vtkReflectionFilter
-vtkReverseSense
-vtkRibbonFilter
-vtkRotationalExtrusionFilter
-vtkRuledSurfaceFilter
-vtkSelectPolyData
-vtkShrinkFilter
-vtkShrinkPolyData
-vtkSimpleElevationFilter
-vtkSmoothPolyDataFilter
-vtkSpatialRepresentationFilter
-vtkSpherePuzzle
-vtkSpherePuzzleArrows
-vtkSphereSource
-vtkSplitField
-vtkStreamLine
-vtkStreamPoints
-vtkStreamer
-vtkStripper
-vtkStructuredGridGeometryFilter
-vtkStructuredGridOutlineFilter
-vtkStructuredPointsGeometryFilter
-vtkSubPixelPositionEdgels
-vtkSubdivideTetra 
-vtkSuperquadricSource 
-vtkTensorGlyph
-vtkTextSource
-vtkTextureMapToCylinder
-vtkTextureMapToPlane
-vtkTextureMapToSphere
-vtkTexturedSphereSource
-vtkThreshold
-vtkThresholdPoints
-vtkThresholdTextureCoords
-vtkTransformFilter
-vtkTransformPolyDataFilter
-vtkTransformTextureCoords
-vtkTriangleFilter
-vtkTriangularTCoords
-vtkTubeFilter
-vtkVectorDot
-vtkVectorNorm
-vtkVoxelContoursToSurfaceFilter
-vtkWarpLens
-vtkWarpScalar
-vtkWarpTo
-vtkWarpVector
-vtkWindowedSincPolyDataFilter
+vtkAppendFilter.cxx
+vtkAppendPolyData.cxx
+vtkApproximatingSubdivisionFilter.cxx
+vtkArrayCalculator.cxx
+vtkArrowSource.cxx
+vtkAssignAttribute.cxx
+vtkAttributeDataToFieldDataFilter.cxx
+vtkAxes.cxx
+vtkBandedPolyDataContourFilter.cxx
+vtkBlankStructuredGrid.cxx
+vtkBlankStructuredGridWithImage.cxx
+vtkBrownianPoints.cxx
+vtkButterflySubdivisionFilter.cxx
+vtkButtonSource.cxx
+vtkCellCenters.cxx
+vtkCellDataToPointData.cxx
+vtkCellDerivatives.cxx
+vtkCleanPolyData.cxx
+vtkClipDataSet.cxx
+vtkClipPolyData.cxx
+vtkClipVolume.cxx
+vtkConeSource.cxx
+vtkConnectivityFilter.cxx
+vtkContourFilter.cxx
+vtkContourGrid.cxx
+vtkCubeSource.cxx
+vtkCursor3D.cxx
+vtkCutter.cxx
+vtkCylinderSource.cxx
+vtkDashedStreamLine.cxx
+vtkDataObjectToDataSetFilter.cxx
+vtkDataSetSurfaceFilter.cxx
+vtkDataSetToDataObjectFilter.cxx
+vtkDataSetTriangleFilter.cxx
+vtkDecimatePro.cxx
+vtkDelaunay2D.cxx
+vtkDelaunay3D.cxx
+vtkDicer.cxx
+vtkDiskSource.cxx
+vtkEdgePoints.cxx
+vtkElevationFilter.cxx
+vtkExtractEdges.cxx
+vtkExtractGeometry.cxx
+vtkExtractGrid.cxx
+vtkExtractPolyDataGeometry.cxx
+vtkExtractRectilinearGrid.cxx
+vtkExtractTensorComponents.cxx
+vtkExtractUnstructuredGrid.cxx
+vtkExtractVectorComponents.cxx
+vtkFeatureEdges.cxx
+vtkFieldDataToAttributeDataFilter.cxx
+vtkGeometryFilter.cxx
+vtkGlyph2D.cxx
+vtkGlyph3D.cxx
+vtkGlyphSource2D.cxx
+vtkGraphLayoutFilter.cxx
+vtkHedgeHog.cxx
+vtkHull.cxx
+vtkHyperStreamline.cxx
+vtkIdFilter.cxx
+vtkImageDataGeometryFilter.cxx
+vtkImplicitTextureCoords.cxx
+vtkInterpolateDataSetAttributes.cxx
+vtkInterpolatingSubdivisionFilter.cxx
+vtkLineSource.cxx
+vtkLinearExtrusionFilter.cxx
+vtkLinearSubdivisionFilter.cxx
+vtkLinkEdgels.cxx
+vtkLoopSubdivisionFilter.cxx
+vtkMaskFields.cxx
+vtkMaskPoints.cxx
+vtkMaskPolyData.cxx
+vtkMassProperties.cxx
+vtkMergeDataObjectFilter.cxx
+vtkMergeFields.cxx
+vtkMergeFilter.cxx
+vtkOBBDicer.cxx
+vtkOBBTree.cxx
+vtkOutlineCornerFilter.cxx
+vtkOutlineCornerSource.cxx
+vtkOutlineFilter.cxx
+vtkOutlineSource.cxx
+vtkPlaneSource.cxx
+vtkPointDataToCellData.cxx
+vtkPointSource.cxx
+vtkPolyDataConnectivityFilter.cxx
+vtkPolyDataNormals.cxx
+vtkPolyDataStreamer.cxx
+vtkProbeFilter.cxx
+vtkProgrammableAttributeDataFilter.cxx
+vtkProgrammableDataObjectSource.cxx
+vtkProgrammableFilter.cxx
+vtkProgrammableGlyphFilter.cxx
+vtkProgrammableSource.cxx
+vtkProjectedTexture.cxx
+vtkQuadricClustering.cxx
+vtkQuadricDecimation.cxx
+vtkQuantizePolyDataPoints.cxx
+vtkRearrangeFields.cxx
+vtkRectilinearGridGeometryFilter.cxx
+vtkRecursiveDividingCubes.cxx
+vtkReflectionFilter.cxx
+vtkReverseSense.cxx
+vtkRibbonFilter.cxx
+vtkRotationalExtrusionFilter.cxx
+vtkRuledSurfaceFilter.cxx
+vtkSelectPolyData.cxx
+vtkShrinkFilter.cxx
+vtkShrinkPolyData.cxx
+vtkSimpleElevationFilter.cxx
+vtkSmoothPolyDataFilter.cxx
+vtkSpatialRepresentationFilter.cxx
+vtkSpherePuzzle.cxx
+vtkSpherePuzzleArrows.cxx
+vtkSphereSource.cxx
+vtkSplitField.cxx
+vtkStreamLine.cxx
+vtkStreamPoints.cxx
+vtkStreamer.cxx
+vtkStripper.cxx
+vtkStructuredGridGeometryFilter.cxx
+vtkStructuredGridOutlineFilter.cxx
+vtkStructuredPointsGeometryFilter.cxx
+vtkSubPixelPositionEdgels.cxx
+vtkSubdivideTetra.cxx
+vtkSuperquadricSource.cxx
+vtkTensorGlyph.cxx
+vtkTextSource.cxx
+vtkTextureMapToCylinder.cxx
+vtkTextureMapToPlane.cxx
+vtkTextureMapToSphere.cxx
+vtkTexturedSphereSource.cxx
+vtkThreshold.cxx
+vtkThresholdPoints.cxx
+vtkThresholdTextureCoords.cxx
+vtkTransformFilter.cxx
+vtkTransformPolyDataFilter.cxx
+vtkTransformTextureCoords.cxx
+vtkTriangleFilter.cxx
+vtkTriangularTCoords.cxx
+vtkTubeFilter.cxx
+vtkVectorDot.cxx
+vtkVectorNorm.cxx
+vtkVoxelContoursToSurfaceFilter.cxx
+vtkWarpLens.cxx
+vtkWarpScalar.cxx
+vtkWarpTo.cxx
+vtkWarpVector.cxx
+vtkWindowedSincPolyDataFilter.cxx
 )
 
 ABSTRACT_FILES(
-vtkApproximatingSubdivisionFilter
-vtkDicer
-vtkInterpolatingSubdivisionFilter
+vtkApproximatingSubdivisionFilter.cxx
+vtkDicer.cxx
+vtkInterpolatingSubdivisionFilter.cxx
 )
 
 IF(VTK_MAKE_INSTANTIATOR)
@@ -174,7 +174,7 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Graphics/LocalUserOptions.cmake OPTIONAL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
@@ -184,12 +184,12 @@ IF (VTK_WRAP_TCL)
   ELSE (APPLE)
     ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL 
+  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL
                          ${TCL_LIBRARY})
   INSTALL_TARGETS(/lib/vtk vtkGraphicsTCL)
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
@@ -201,8 +201,8 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
   ENDIF (APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkGraphicsPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkGraphicsPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkGraphicsPython ${PYTHON_LIBRARY})
@@ -210,7 +210,7 @@ IF (VTK_WRAP_PYTHON)
   INSTALL_TARGETS(/lib/vtk vtkGraphicsPython)
 ENDIF (VTK_WRAP_PYTHON)
 
-# if we are wrapping into Java then add the library and extra 
+# if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
@@ -221,9 +221,9 @@ IF (VTK_WRAP_JAVA)
 ENDIF (VTK_WRAP_JAVA)
 
 LINK_LIBRARIES (
-vtkCommon 
+vtkCommon
 vtkFiltering
-vtkGraphics 
+vtkGraphics
 )
 
 

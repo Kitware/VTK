@@ -1,193 +1,193 @@
 SOURCE_FILES( Common_SRCS
-vtkAbstractMapper 
-vtkAbstractTransform 
-vtkActor2D 
-vtkActor2DCollection 
-vtkAssemblyNode 
-vtkAssemblyPath 
-vtkAssemblyPaths 
-vtkBitArray 
-vtkByteSwap 
-vtkCallbackCommand 
-vtkCell 
-vtkCell3D
-vtkCellArray 
-vtkCellData 
-vtkCellLinks 
-vtkCellTypes 
-vtkCharArray 
-vtkCollection 
-vtkCommand 
-vtkContainer
-vtkContourValues 
-vtkCoordinate 
-vtkCriticalSection 
-vtkCylindricalTransform
-vtkDataArray 
-vtkDataObject 
-vtkDataObjectCollection 
-vtkDataSet 
-vtkDataSetAttributes 
-vtkDataSetCollection 
-vtkDebugLeaks 
-vtkDirectory 
-vtkDoubleArray 
-vtkDynamicLoader 
-vtkEdgeTable 
-vtkEmptyCell 
-vtkErrorCode
-vtkExplicitCell
-vtkExtentTranslator 
-vtkFieldData 
-vtkFileOutputWindow 
-vtkFloatArray 
-vtkFunctionParser
-vtkFunctionSet 
-vtkGeneralTransform 
-vtkGenericCell 
-vtkHeap
-vtkHexahedron 
-vtkHomogeneousTransform 
-vtkIdList 
-vtkIdTypeArray
-vtkIdentityTransform 
-vtkImageData 
-vtkImageIterator
-vtkImageProgressIterator
-vtkImplicitFunction 
-vtkImplicitFunctionCollection 
-vtkIndent 
-vtkInitialValueProblemSolver
-vtkInstantiator
-vtkIntArray 
-vtkInterpolatedVelocityField 
-vtkLargeInteger
-vtkLine 
-vtkLinearTransform 
-vtkLocator 
-vtkLogLookupTable 
-vtkLongArray 
-vtkLookupTable 
-vtkMapper2D 
-vtkMath 
-vtkMatrix4x4 
-vtkMatrixToHomogeneousTransform 
-vtkMatrixToLinearTransform 
-vtkMultiThreader 
-vtkMutexLock 
-vtkNonLinearCell
-vtkObject 
-vtkObjectFactory 
-vtkObjectFactoryCollection
-vtkOldStyleCallbackCommand 
+vtkAbstractMapper.cxx
+vtkAbstractTransform.cxx
+vtkActor2D.cxx
+vtkActor2DCollection.cxx
+vtkAssemblyNode.cxx
+vtkAssemblyPath.cxx
+vtkAssemblyPaths.cxx
+vtkBitArray.cxx
+vtkByteSwap.cxx
+vtkCallbackCommand.cxx
+vtkCell.cxx
+vtkCell3D.cxx
+vtkCellArray.cxx
+vtkCellData.cxx
+vtkCellLinks.cxx
+vtkCellTypes.cxx
+vtkCharArray.cxx
+vtkCollection.cxx
+vtkCommand.cxx
+vtkContainer.cxx
+vtkContourValues.cxx
+vtkCoordinate.cxx
+vtkCriticalSection.cxx
+vtkCylindricalTransform.cxx
+vtkDataArray.cxx
+vtkDataObject.cxx
+vtkDataObjectCollection.cxx
+vtkDataSet.cxx
+vtkDataSetAttributes.cxx
+vtkDataSetCollection.cxx
+vtkDebugLeaks.cxx
+vtkDirectory.cxx
+vtkDoubleArray.cxx
+vtkDynamicLoader.cxx
+vtkEdgeTable.cxx
+vtkEmptyCell.cxx
+vtkErrorCode.cxx
+vtkExplicitCell.cxx
+vtkExtentTranslator.cxx
+vtkFieldData.cxx
+vtkFileOutputWindow.cxx
+vtkFloatArray.cxx
+vtkFunctionParser.cxx
+vtkFunctionSet.cxx
+vtkGeneralTransform.cxx
+vtkGenericCell.cxx
+vtkHeap.cxx
+vtkHexahedron.cxx
+vtkHomogeneousTransform.cxx
+vtkIdList.cxx
+vtkIdTypeArray.cxx
+vtkIdentityTransform.cxx
+vtkImageData.cxx
+vtkImageIterator.cxx
+vtkImageProgressIterator.cxx
+vtkImplicitFunction.cxx
+vtkImplicitFunctionCollection.cxx
+vtkIndent.cxx
+vtkInitialValueProblemSolver.cxx
+vtkInstantiator.cxx
+vtkIntArray.cxx
+vtkInterpolatedVelocityField.cxx
+vtkLargeInteger.cxx
+vtkLine.cxx
+vtkLinearTransform.cxx
+vtkLocator.cxx
+vtkLogLookupTable.cxx
+vtkLongArray.cxx
+vtkLookupTable.cxx
+vtkMapper2D.cxx
+vtkMath.cxx
+vtkMatrix4x4.cxx
+vtkMatrixToHomogeneousTransform.cxx
+vtkMatrixToLinearTransform.cxx
+vtkMultiThreader.cxx
+vtkMutexLock.cxx
+vtkNonLinearCell.cxx
+vtkObject.cxx
+vtkObjectFactory.cxx
+vtkObjectFactoryCollection.cxx
+vtkOldStyleCallbackCommand.cxx
 vtkOrderedTriangulator
-vtkOutputWindow 
-vtkOverrideInformation 
-vtkOverrideInformationCollection 
-vtkPerspectiveTransform 
-vtkPixel 
-vtkPlane 
-vtkPlaneCollection 
-vtkPlanes
-vtkPointData 
-vtkPointLocator 
-vtkPointLocator2D 
-vtkPointSet 
-vtkPoints 
-vtkPolyData 
-vtkPolyLine 
-vtkPolyVertex 
-vtkPolygon 
-vtkPriorityQueue 
-vtkProcessObject 
-vtkProp 
-vtkPropAssembly 
-vtkPropCollection 
-vtkProperty2D 
-vtkPyramid 
-vtkQuad 
-vtkQuadraticEdge
-vtkQuadric 
-vtkRectilinearGrid 
-vtkReferenceCount 
-vtkRungeKutta2 
-vtkRungeKutta4 
-vtkRungeKutta45
-vtkScalarsToColors 
-vtkShortArray 
-vtkSource 
-vtkSphericalTransform
-vtkString
-vtkStructuredData 
-vtkStructuredGrid 
-vtkStructuredPoints 
-vtkTensor 
-vtkTetra 
-vtkTimeStamp 
-vtkTimerLog 
-vtkTransform 
-vtkTransformCollection 
-vtkTriangle 
-vtkTriangleStrip 
-vtkUnsignedCharArray 
-vtkUnsignedIntArray 
-vtkUnsignedLongArray 
-vtkUnsignedShortArray 
-vtkUnstructuredGrid 
-vtkVersion 
-vtkVertex 
-vtkViewport 
-vtkVoidArray 
-vtkVoxel 
-vtkWarpTransform 
-vtkWedge 
-vtkWindow 
-vtkWindowLevelLookupTable 
-vtkXMLFileOutputWindow 
+vtkOutputWindow.cxx
+vtkOverrideInformation.cxx
+vtkOverrideInformationCollection.cxx
+vtkPerspectiveTransform.cxx
+vtkPixel.cxx
+vtkPlane.cxx
+vtkPlaneCollection.cxx
+vtkPlanes.cxx
+vtkPointData.cxx
+vtkPointLocator.cxx
+vtkPointLocator2D.cxx
+vtkPointSet.cxx
+vtkPoints.cxx
+vtkPolyData.cxx
+vtkPolyLine.cxx
+vtkPolyVertex.cxx
+vtkPolygon.cxx
+vtkPriorityQueue.cxx
+vtkProcessObject.cxx
+vtkProp.cxx
+vtkPropAssembly.cxx
+vtkPropCollection.cxx
+vtkProperty2D.cxx
+vtkPyramid.cxx
+vtkQuad.cxx
+vtkQuadraticEdge.cxx
+vtkQuadric.cxx
+vtkRectilinearGrid.cxx
+vtkReferenceCount.cxx
+vtkRungeKutta2.cxx
+vtkRungeKutta4.cxx
+vtkRungeKutta45.cxx
+vtkScalarsToColors.cxx
+vtkShortArray.cxx
+vtkSource.cxx
+vtkSphericalTransform.cxx
+vtkString.cxx
+vtkStructuredData.cxx
+vtkStructuredGrid.cxx
+vtkStructuredPoints.cxx
+vtkTensor.cxx
+vtkTetra.cxx
+vtkTimeStamp.cxx
+vtkTimerLog.cxx
+vtkTransform.cxx
+vtkTransformCollection.cxx
+vtkTriangle.cxx
+vtkTriangleStrip.cxx
+vtkUnsignedCharArray.cxx
+vtkUnsignedIntArray.cxx
+vtkUnsignedLongArray.cxx
+vtkUnsignedShortArray.cxx
+vtkUnstructuredGrid.cxx
+vtkVersion.cxx
+vtkVertex.cxx
+vtkViewport.cxx
+vtkVoidArray.cxx
+vtkVoxel.cxx
+vtkWarpTransform.cxx
+vtkWedge.cxx
+vtkWindow.cxx
+vtkWindowLevelLookupTable.cxx
+vtkXMLFileOutputWindow.cxx
 )
 
 ABSTRACT_FILES(
-vtkAbstractMapper 
-vtkAbstractTransform 
-vtkCallbackCommand 
-vtkCell 
-vtkCell3D
-vtkCommand 
-vtkContainer
-vtkDataArray 
-vtkDataSet 
-vtkExplicitCell
-vtkFunctionSet 
-vtkHomogeneousTransform 
-vtkImplicitFunction 
-vtkInitialValueProblemSolver
-vtkLinearTransform 
-vtkLocator 
-vtkNonLinearCell
-vtkObjectFactory 
-vtkOldStyleCallbackCommand 
-vtkOverrideInformation 
-vtkOverrideInformationCollection 
-vtkPointSet 
-vtkScalarsToColors 
-vtkSource 
-vtkViewport 
-vtkWarpTransform 
-vtkWindow 
+vtkAbstractMapper.cxx
+vtkAbstractTransform.cxx
+vtkCallbackCommand.cxx
+vtkCell.cxx
+vtkCell3D.cxx
+vtkCommand.cxx
+vtkContainer.cxx
+vtkDataArray.cxx
+vtkDataSet.cxx
+vtkExplicitCell.cxx
+vtkFunctionSet.cxx
+vtkHomogeneousTransform.cxx
+vtkImplicitFunction.cxx
+vtkInitialValueProblemSolver.cxx
+vtkLinearTransform.cxx
+vtkLocator.cxx
+vtkNonLinearCell.cxx
+vtkObjectFactory.cxx
+vtkOldStyleCallbackCommand.cxx
+vtkOverrideInformation.cxx
+vtkOverrideInformationCollection.cxx
+vtkPointSet.cxx
+vtkScalarsToColors.cxx
+vtkSource.cxx
+vtkViewport.cxx
+vtkWarpTransform.cxx
+vtkWindow.cxx
 )
 
 IF (WIN32)
-  SOURCE_FILES(Common_SRCS vtkWin32OutputWindow)
+  SOURCE_FILES(Common_SRCS vtkWin32OutputWindow.cxx)
 ENDIF (WIN32)
 
 WRAP_EXCLUDE_FILES(
-  vtkCallbackCommand 
-  vtkCommand 
+  vtkCallbackCommand
+  vtkCommand
   vtkContainer
   vtkErrorCode
   vtkImageIterator
   vtkImageProgressIterator
-  vtkLargeInteger 
+  vtkLargeInteger
   vtkOldStyleCallbackCommand
   vtkString
 )
@@ -209,7 +209,7 @@ ENDIF(VTK_MAKE_INSTANTIATOR)
 INCLUDE (${VTK_BINARY_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Common/LocalUserOptions.cmake OPTIONAL)
 
-# if we are wrapping into Tcl then add the library and extra 
+# if we are wrapping into Tcl then add the library and extra
 # source files
 #
 IF (VTK_WRAP_TCL)
@@ -226,7 +226,7 @@ IF (VTK_WRAP_TCL)
   )
 ENDIF (VTK_WRAP_TCL)
 
-# if we are wrapping into Python then add the library and extra 
+# if we are wrapping into Python then add the library and extra
 # source files
 #
 IF (VTK_WRAP_PYTHON)
@@ -237,8 +237,8 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkCommonPython SHARED CommonPython_SRCS vtkPythonUtil)
   ENDIF(APPLE)
   IF(WIN32)
-    TARGET_LINK_LIBRARIES (vtkCommonPython 
-                           debug ${PYTHON_DEBUG_LIBRARY} 
+    TARGET_LINK_LIBRARIES (vtkCommonPython
+                           debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkCommonPython ${PYTHON_LIBRARY})
@@ -249,7 +249,7 @@ IF (VTK_WRAP_PYTHON)
   )
 ENDIF (VTK_WRAP_PYTHON)
 
-# if we are wrapping into Java then add the library and extra 
+# if we are wrapping into Java then add the library and extra
 # source files
 #
 IF (VTK_WRAP_JAVA)
@@ -264,10 +264,10 @@ ENDIF (VTK_WRAP_JAVA)
 LINK_LIBRARIES (vtkCommon )
 
 INSTALL_TARGETS(/lib/vtk vtkCommon)
-INSTALL_FILES(/include/vtk .h Common_SRCS 
+INSTALL_FILES(/include/vtk .h Common_SRCS
   vtkCellType
-  vtkSetGet 
+  vtkSetGet
   vtkSystemIncludes
-  vtkWin32Header 
+  vtkWin32Header
   )
 
