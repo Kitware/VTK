@@ -6,10 +6,10 @@ package require vtk
 
 vtkImageCanvasSource2D imageCanvas
 imageCanvas SetScalarTypeToFloat
-imageCanvas SetExtent 0 255 0 255 0 0
+imageCanvas SetExtent 1 256 1 256 0 0
 # back ground zero
 imageCanvas SetDrawColor 0
-imageCanvas FillBox 0 255 0 255
+imageCanvas FillBox 1 256 1 256
 
 imageCanvas SetDrawColor 255
 imageCanvas FillBox 30 225 30 225
@@ -38,7 +38,7 @@ imageCanvas DrawSegment 80 130 130 80
 
 set shotNoiseAmplitude 255.0
 set shotNoiseFraction 0.1
-set shotNoiseExtent "0 255 0 255 0 0"
+set shotNoiseExtent "1 256 1 256 0 0"
 
 vtkImageNoiseSource shotNoiseSource
 eval shotNoiseSource SetWholeExtent $shotNoiseExtent
