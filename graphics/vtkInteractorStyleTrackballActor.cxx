@@ -137,7 +137,7 @@ void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
 
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -228,7 +228,7 @@ void vtkInteractorStyleTrackballActor::RotateXY(int x, int y, int oldX,
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::PanXY(int x, int y, int oldX, int oldY)
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -280,7 +280,7 @@ void vtkInteractorStyleTrackballActor::DollyXY(int vtkNotUsed(dx), int dy)
 {
   vtkCamera *cam;
   
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -330,7 +330,7 @@ void vtkInteractorStyleTrackballActor::SpinXY(int x, int y, int oldX, int oldY)
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
 
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
@@ -399,7 +399,7 @@ void vtkInteractorStyleTrackballActor::ScaleXY(int vtkNotUsed(x), int y,
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
     {
     return;
     }
