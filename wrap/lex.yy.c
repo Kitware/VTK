@@ -4223,7 +4223,7 @@ char yyextra[] = {
 0,0,0,0,0,0,1,0,
 0,0,0,0,0,0,0,0,
 0};
-#ident	"$Revision$"
+//#ident	"$Revision: 1.13 $"
 
 int yylineno =1;
 # define YYU(x) x

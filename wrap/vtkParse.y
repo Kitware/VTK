@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkParse.h"
     
   FileInfo data;
-  static FunctionInfo *currentFunction;
+  FunctionInfo *currentFunction;
 
   FILE *fhint;
   char temps[2048];

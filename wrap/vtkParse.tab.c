@@ -18,7 +18,7 @@ static char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #include "vtkParse.h"
     
   FileInfo data;
-  static FunctionInfo *currentFunction;
+  FunctionInfo *currentFunction;
 
   FILE *fhint;
   char temps[2048];
