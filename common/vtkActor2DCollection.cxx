@@ -51,6 +51,11 @@ void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
   vtkCollection::DeleteElement(e);
 }
 
+vtkActor2DCollection::~vtkActor2DCollection()
+{
+  this->RemoveAllItems();
+}
+
 // Description:
 // Sort and then render the collection of 2D actors.  
 void vtkActor2DCollection::Render(vtkViewport* viewport)
