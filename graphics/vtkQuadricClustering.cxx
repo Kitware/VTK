@@ -98,6 +98,9 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->FeatureEdges->FeatureEdgesOff();
   this->FeatureEdges->BoundaryEdgesOn();
   this->FeaturePoints = vtkPoints::New();
+
+  this->InCellCount = this->OutCellCount = 0;
+  this->CopyCellData = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -239,6 +242,14 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     this->QuadricArray[i].VertexId = -1;
     this->QuadricArray[i].Dimension = 255;
     }
+
+  // Allocate CellData here.
+  if (this->CopyCellData && this->GetInput())
+    {
+    this->GetOutput()->GetCellData()->CopyAllocate(
+            this->GetInput()->GetCellData(), this->NumberOfBinsUsed);
+    this->InCellCount = this->OutCellCount = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -311,6 +322,7 @@ void vtkQuadricClustering::AddTriangles(vtkCellArray *tris, vtkPoints *points,
       // Toggle odd.
       odd = odd ? 0 : 1;
       }
+    ++this->InCellCount;
     }
 }
 
@@ -339,6 +351,7 @@ void vtkQuadricClustering::AddPolygons(vtkCellArray *polys, vtkPoints *points,
       binIds[2] = this->HashPoint(pts[j+2]);
       this->AddTriangle(binIds, pts[0], pts[j+1], pts[j+2], geometryFlag);
       }
+    ++this->InCellCount;
     delete [] pts;
     }
 }
@@ -410,9 +423,15 @@ void vtkQuadricClustering::AddTriangle(int *binIds, float *pt0, float *pt1,
       }
     // This comparison could just as well be on triPtIds.
     if (binIds[0] != binIds[1] && binIds[0] != binIds[2] &&
-    	  binIds[1] != binIds[2])
+    	binIds[1] != binIds[2])
       {
       this->OutputTriangleArray->InsertNextCell(3, triPtIds);
+      if (this->CopyCellData && this->GetInput())
+        {
+        this->GetOutput()->GetCellData()->CopyData(this->GetInput()->GetCellData(),
+                                      this->InCellCount,
+                                      this->OutCellCount++);
+        }
       }
     }
 }
@@ -440,6 +459,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
       pt1 = points->GetPoint(ptIds[j]);
       binIds[1] = this->HashPoint(pt1);
       this->AddEdge(binIds, pt0, pt1, geometryFlag);
+      ++this->InCellCount;
       pt0 = pt1;
       binIds[0] = binIds[1];
       }
@@ -541,6 +561,12 @@ void vtkQuadricClustering::AddEdge(int *binIds, float *pt0, float *pt1,
     if (binIds[0] != binIds[1])
       {
       this->OutputLines->InsertNextCell(2, edgePtIds);
+      if (this->CopyCellData && this->GetInput())
+        {
+        this->GetOutput()->GetCellData()->CopyData(this->GetInput()->GetCellData(),
+                                      this->InCellCount,
+                                      this->OutCellCount++);
+        }
       }
     }
 }
@@ -566,6 +592,7 @@ void vtkQuadricClustering::AddVertices(vtkCellArray *verts, vtkPoints *points,
       pt = points->GetPoint(ptIds[j]);
       binId = this->HashPoint(pt);
       this->AddVertex(binId, pt, geometryFlag);
+      ++this->InCellCount;
       }
     }
 }
@@ -634,6 +661,12 @@ void vtkQuadricClustering::AddVertex(int binId, float *pt,
     if (flag)
       {
       this->OutputVerts->InsertNextCell(1, &vertPtId);
+      if (this->CopyCellData && this->GetInput())
+        {
+        this->GetOutput()->GetCellData()->CopyData(this->GetInput()->GetCellData(),
+                                      this->InCellCount,
+                                      this->OutCellCount++);
+        }
       }
     }
 }

@@ -190,6 +190,15 @@ public:
   void Append(vtkPolyData *piece);
   void EndAppend();
 
+  // Description:
+  // This flag makes the filter copy cell data from input to output 
+  // (the best it can).  It uses input cells that trigger the addition
+  // of output cells (no averaging).  This is off by default, and does
+  // not work when append is being called explicitely (non pipeline usage).
+  vtkSetMacro(CopyCellData, int); 
+  vtkGetMacro(CopyCellData, int); 
+  vtkBooleanMacro(CopyCellData, int); 
+
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
@@ -286,6 +295,10 @@ protected:
   vtkFeatureEdges *FeatureEdges;
   vtkPoints *FeaturePoints;
   float FeaturePointsAngle;
+
+  int CopyCellData;
+  int InCellCount;
+  int OutCellCount;
 };
 
 #endif
