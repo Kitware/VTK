@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkImageToStructuredPoints.h"
 
 
@@ -51,7 +52,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
   this->ScalarInput = NULL;
   this->VectorInput = NULL;
   this->WholeImage = 1;
-  this->InputMemoryLimit = 50000000;  // A very big image indeed.
+  this->InputMemoryLimit = 500000;  // A very big image indeed (in kB).
   this->SetSplitOrder(VTK_IMAGE_TIME_AXIS, VTK_IMAGE_Z_AXIS,
 		      VTK_IMAGE_Y_AXIS, VTK_IMAGE_X_AXIS);
   this->Coordinate3 = 0;
@@ -349,9 +350,34 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
   int *regionExtent;
   int *dataExtent;
   vtkScalars *scalars;
+  long volumeLimit;
+  
+  // Convert memory limit to volume limit.
+  volumeLimit = 1000 * this->InputMemoryLimit;
+  switch ( this->ScalarInput->GetScalarType())
+    {
+    case VTK_FLOAT:
+      volumeLimit *= sizeof(float);
+      break;
+    case VTK_INT:
+      volumeLimit *= sizeof(int);
+      break;
+    case VTK_SHORT:
+      volumeLimit *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      volumeLimit *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      volumeLimit *= sizeof(unsigned char);
+      break;
+    default:
+      vtkErrorMacro(<< "ScalarExecute: Unknown scalar type.");
+      return NULL;
+    }
   
   // Update the data for the region.
-  if ( region->GetMemorySize() < this->InputMemoryLimit)
+  if ( region->GetVolume() < volumeLimit)
     {
     this->ScalarInput->UpdateRegion(region);
     }
@@ -365,7 +391,7 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
       vtkErrorMacro(<< "Execute: Could not allocate region.");
       return NULL;
       }
-    if ( ! this->ScalarSplitExecute(region))
+    if ( ! this->ScalarSplitExecute(region, volumeLimit))
       {
       vtkErrorMacro(<< "Execute: Streaming Failed.");
       return NULL;
@@ -400,7 +426,8 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
 // An executes each one.  SplitOrder is used to determine which axis
 // to split first.  The default values are:
 // the TIME axis is tried first then ZYX and COMPONENT axes are tried.
-int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion)
+int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion,
+						   long volumeLimit)
 {
   int saveAxes[VTK_IMAGE_DIMENSIONS];
   int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
@@ -440,7 +467,7 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion)
   splitExtent[splitAxisIdx * 2 + 1] = (min + max) / 2;
   inRegion->SetExtent(splitExtent);
   outRegion->SetExtent(splitExtent);
-  if ( inRegion->GetMemorySize() < this->InputMemoryLimit)
+  if ( inRegion->GetVolume() < volumeLimit)
     {
     vtkDebugMacro (<<"Updating Split Region: extent: " <<
          splitExtent[0] << ", " <<
@@ -458,7 +485,7 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion)
     }
   else
     {
-    if ( ! this->ScalarSplitExecute(outRegion))
+    if ( ! this->ScalarSplitExecute(outRegion, volumeLimit))
       {
       vtkErrorMacro(<< "ScalarSplitExecute: Split failed.");
       inRegion->Delete();
@@ -472,7 +499,7 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion)
   splitExtent[splitAxisIdx * 2 + 1] = max;
   inRegion->SetExtent(splitExtent);
   outRegion->SetExtent(splitExtent);
-  if ( inRegion->GetMemorySize() < this->InputMemoryLimit)
+  if ( inRegion->GetVolume() < volumeLimit)
     {
     vtkDebugMacro (<<"Updating Split Region: extent are: " <<
          splitExtent[0] << ", " <<
@@ -490,7 +517,7 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion)
     }
   else
     {
-    if ( ! this->ScalarSplitExecute(outRegion))
+    if ( ! this->ScalarSplitExecute(outRegion, volumeLimit))
       {
       vtkErrorMacro(<< "ScalarSplitExecute: Split failed.");
       inRegion->Delete();

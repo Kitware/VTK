@@ -125,7 +125,7 @@ protected:
 
   void Execute();
   vtkScalars *ScalarExecute(vtkImageRegion *region);
-  int ScalarSplitExecute(vtkImageRegion *outRegion);
+  int ScalarSplitExecute(vtkImageRegion *outRegion, long volumeLimit);
   vtkVectors *VectorExecute(vtkImageRegion *region);
 };
 
