@@ -162,7 +162,6 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::DestructClass(vtkclassname);
 #endif
-  const char *rl = vtkImagingFactoryGetRenderLibrary();
 
 #ifdef VTK_USE_OGLR
 #ifdef VTK_USE_NATIVE_IMAGING
@@ -187,6 +186,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       return vtkXPolyDataMapper2D::New();
       }
 #else
+  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("OpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -232,6 +232,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     return vtkWin32PolyDataMapper2D::New();
     }
 #else
+  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("Win32OpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -277,6 +278,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
     return vtkQuartzPolyDataMapper2D::New();
     }
 #else
+  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("QuartzOpenGL",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
@@ -323,6 +325,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
       return vtkXPolyDataMapper2D::New();
       }
 #else
+  const char *rl = vtkImagingFactoryGetRenderLibrary();
   if (!strcmp("Mesa",rl))
     {
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)

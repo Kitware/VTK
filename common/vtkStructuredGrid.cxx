@@ -945,13 +945,13 @@ void vtkStructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
   // If blanking, remove blanked cells.
   if ( this->Blanking )
     {
-    int cellId;
+    int xcellId;
     for (int i=0; i<cellIds->GetNumberOfIds(); i++)
       {
-      cellId = cellIds->GetId(i);
-      if ( !this->IsCellVisible(cellId) )
+      xcellId = cellIds->GetId(i);
+      if ( !this->IsCellVisible(xcellId) )
         {
-        cellIds->DeleteId(cellId);
+        cellIds->DeleteId(xcellId);
         }
       }
     }

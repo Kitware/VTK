@@ -67,7 +67,7 @@ vtkExtractGrid::vtkExtractGrid()
 }
 
 
-void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *out)
+void vtkExtractGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
 {
   vtkStructuredGrid *input = this->GetInput();
   vtkStructuredGrid *output = this->GetOutput();

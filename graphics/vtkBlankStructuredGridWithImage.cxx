@@ -95,9 +95,6 @@ void vtkBlankStructuredGridWithImage::Execute()
     return;
     }
   
-  int type = image->GetScalarType();
-  int numComp= image->GetNumberOfScalarComponents();
-  
   if ( image->GetScalarType() != VTK_UNSIGNED_CHAR ||
        image->GetNumberOfScalarComponents() != 1 )
     {

@@ -384,8 +384,6 @@ void vtkInteractorStyleUnicam::Rotate( int X, int Y )
      
     double rdist = te[1]-tp[1];
     vtkMath::Normalize(dvec);
-    double tdist = acos(clamp((float)vtkMath::Dot(UPvec, dvec),
-			      (float)-1., (float)1.));
 
     float atV[4], upV[4], rightV[4];
     this->CurrentCamera->GetViewPlaneNormal(atV);

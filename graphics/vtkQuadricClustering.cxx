@@ -1099,7 +1099,7 @@ void vtkQuadricClustering::AppendFeatureQuadrics(vtkPolyData *pd)
 // using this point is < angle.
 void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
                                              vtkPoints *edgePts,
-                                             float angle)
+                                             float vtkNotUsed(angle))
 {
   int i, j, pointIds[2], numCellPts, *cellPts;
   vtkIdList *pointIdList = vtkIdList::New();
@@ -1111,7 +1111,6 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
   float featureEdges[2][3];
   float point1[3], point2[3];
   int *cellPointIds;
-  int pointId[1];
   float radAngle = vtkMath::DegreesToRadians() * this->FeaturePointsAngle;
   
   this->FeaturePoints->Allocate(numPts);
@@ -1144,12 +1143,10 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
     if (pointTable[i][1] == 1)
       {
       edgePts->GetPoint(pointTable[i][0], featurePoint);
-      pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
       }
     else if (pointTable[i][1] > 2)
       {
       edgePts->GetPoint(pointTable[i][0], featurePoint);
-      pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
       }
     else if (pointTable[i][1] == 2)
       {
@@ -1174,7 +1171,6 @@ void vtkQuadricClustering::FindFeaturePoints(vtkCellArray *edges,
       if (acos(vtkMath::Dot(featureEdges[0], featureEdges[1])) < radAngle)
         {
         edgePts->GetPoint(pointTable[i][0], featurePoint);
-        pointId[0] = this->FeaturePoints->InsertNextPoint(featurePoint);
         }
       }
     }
