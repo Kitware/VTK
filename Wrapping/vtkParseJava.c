@@ -387,6 +387,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       {
       fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->ClassName);
       }
+    else
+      {
+      fprintf(fp,"\n  public %s() { super();};\n",data->ClassName);
+      }
     fprintf(fp,"\n  protected %s(int dmy) { super(); };\n",data->ClassName);
     fprintf(fp,"  protected int vtkId = 0;\n");
 
