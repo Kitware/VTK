@@ -24,9 +24,14 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 
 #-----------------------------------------------------------------------------
 
-EXAMPLES = TestController TestPolyDataPort TestStructuredPointsPort \
-           TestImagePort TestStructuredGridPort \
-	   ParallelIso TimeIso StreamPort
+EXAMPLES = TestController \
+	TestPolyDataPort \
+	TestStructuredPointsPort \
+        TestImagePort \
+	TestStructuredGridPort \
+	ParallelIso \
+	TimeIso \
+	StreamPort
 
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
