@@ -91,7 +91,7 @@ void vtkEmptyCell::Contour(float vtkNotUsed(value),
 			   vtkPointData *vtkNotUsed(inPd),
 			   vtkPointData *vtkNotUsed(outPd),
 			   vtkCellData *vtkNotUsed(inCd),
-			   int vtkNotUsed(cellId), 
+			   vtkIdType vtkNotUsed(cellId), 
 			   vtkCellData *vtkNotUsed(outCd))
 {
 }
@@ -131,9 +131,10 @@ void vtkEmptyCell::Clip(float vtkNotUsed(value),
 			vtkScalars *vtkNotUsed(cellScalars), 
 			vtkPointLocator *vtkNotUsed(locator), 
 			vtkCellArray *vtkNotUsed(verts),    
-			vtkPointData *vtkNotUsed(inPD), vtkPointData *vtkNotUsed(outPD),
+			vtkPointData *vtkNotUsed(inPD),
+                        vtkPointData *vtkNotUsed(outPD),
 			vtkCellData *vtkNotUsed(inCD), 
-			int vtkNotUsed(cellId),
+			vtkIdType vtkNotUsed(cellId),
 			vtkCellData *vtkNotUsed(outCD),
 			int vtkNotUsed(insideOut))
 {

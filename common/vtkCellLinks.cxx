@@ -96,9 +96,9 @@ vtkCellLinks::~vtkCellLinks()
 }
 
 // Allocate memory for the list of lists of cell ids.
-void vtkCellLinks::AllocateLinks(int n)
+void vtkCellLinks::AllocateLinks(vtkIdType n)
 {
-  for (int i=0; i < n; i++)
+  for (vtkIdType i=0; i < n; i++)
     {
     this->Array[i].cells = new vtkIdType[this->Array[i].ncells];
     }

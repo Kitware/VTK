@@ -437,8 +437,8 @@ void vtkDataSetAttributes::PassData(vtkDataSetAttributes* pd)
 // Allocates point data for point-by-point (or cell-by-cell) copy operation.  
 // If sze=0, then use the input DataSetAttributes to create (i.e., find 
 // initial size of) new objects; otherwise use the sze variable.
-void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, 
-                                        int ext)
+void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
+                                        vtkIdType ext)
 {
   vtkDataArray* newDA;
   int i;
@@ -546,8 +546,8 @@ void vtkDataSetAttributes::RemoveArray(int index)
 
 // Copy the attribute data from one id to another. Make sure CopyAllocate() has
 // been invoked before using this method.
-void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, 
-                                    int toId)
+void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd,
+                                    vtkIdType fromId, vtkIdType toId)
 {
   int i;
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
@@ -559,7 +559,8 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId,
 }
 
 // Initialize point interpolation method.
-void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd, int sze, int ext)
+void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd,
+                                               vtkIdType sze, vtkIdType ext)
 {
   this->CopyAllocate(pd, sze, ext);
 }
@@ -567,7 +568,7 @@ void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd, int sze
 // Interpolate data from points and interpolation weights. Make sure that the 
 // method InterpolateAllocate() has been invoked before using this method.
 void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, 
-                                            int toId, vtkIdList *ptIds, 
+                                            vtkIdType toId, vtkIdList *ptIds, 
                                             float *weights)
 {
   int i;
@@ -585,7 +586,8 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
 // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
 // has been invoked before using this method.
 void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, 
-                                           int toId, int p1, int p2, float t)
+                                           vtkIdType toId, vtkIdType p1,
+                                           vtkIdType p2, float t)
 {
   int i;
   for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End(); 
@@ -603,7 +605,7 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd,
 // has been invoked before using this method.
 void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
                                            vtkDataSetAttributes *from2,
-                                           int id, float t)
+                                           vtkIdType id, float t)
 {
   for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
@@ -621,8 +623,9 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
 // following ones) assume that the fromData and toData objects are of the
 // same type, and have the same number of components. This is true if you
 // invoke CopyAllocate() or InterpolateAllocate().
-void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, 
-                                     int fromId, int toId)
+void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData,
+                                     vtkDataArray *toData, vtkIdType fromId,
+                                     vtkIdType toId)
 {
   int i;
   int numComp=fromData->GetNumberOfComponents();
@@ -757,13 +760,13 @@ void vtkDataSetAttributes::CopyTuple(vtkDataArray *fromData, vtkDataArray *toDat
 
 void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData, 
                                             vtkDataArray *toData, 
-                                            int toId, vtkIdList *ptIds, 
+                                            vtkIdType toId, vtkIdList *ptIds, 
                                             float *weights)
 {
-  int numComp=fromData->GetNumberOfComponents();
-  int i, j, numIds=ptIds->GetNumberOfIds();
+  int numComp=fromData->GetNumberOfComponents(), i;
+  vtkIdType j, numIds=ptIds->GetNumberOfIds();
   vtkIdType *ids=ptIds->GetPointer(0);
-  int idx=toId*numComp;
+  vtkIdType idx=toId*numComp;
   double c;
   
   switch (fromData->GetDataType())
@@ -939,12 +942,13 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
 }
 
 void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData, 
-                                            vtkDataArray *toData, 
-                                            int toId, int id1, int id2, float t)
+                                            vtkDataArray *toData,
+                                            vtkIdType toId, vtkIdType id1,
+                                            vtkIdType id2, float t)
 {
-  int numComp=fromData->GetNumberOfComponents();
-  int i, idx=toId*numComp;
-  int idx1=id1*numComp, idx2=id2*numComp;
+  int i, numComp=fromData->GetNumberOfComponents();
+  vtkIdType idx=toId*numComp;
+  vtkIdType idx1=id1*numComp, idx2=id2*numComp;
   float c;
   
   switch (fromData->GetDataType())
@@ -1088,11 +1092,11 @@ void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData,
 
 void vtkDataSetAttributes::InterpolateTuple(vtkDataArray *fromData1,
                                             vtkDataArray *fromData2, 
-                                            vtkDataArray *toData, int id,
+                                            vtkDataArray *toData, vtkIdType id,
                                             float t)
 {
-  int numComp=fromData1->GetNumberOfComponents();
-  int i, idx=id*numComp, ii;
+  int i, numComp=fromData1->GetNumberOfComponents();
+  vtkIdType idx=id*numComp, ii;
   float c;
   
   switch (fromData1->GetDataType())
@@ -1623,7 +1627,7 @@ int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
 }
 
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list, 
-                                        int sze, int ext)
+                                        vtkIdType sze, vtkIdType ext)
 {
   vtkDataArray* newDA=0;
   int i;
@@ -1725,7 +1729,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list,
 // called the special form of CopyAllocate that accepts FieldLists.
 void vtkDataSetAttributes::CopyData(vtkDataSetAttributes::FieldList& list, 
                                     vtkDataSetAttributes* fromDSA,
-                                    int idx, int fromId, int toId)
+                                    int idx, vtkIdType fromId, vtkIdType toId)
 {
   vtkDataArray *fromDA;
   vtkDataArray *toDA;

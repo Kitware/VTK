@@ -364,10 +364,11 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList *pts)
 }
 
 void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
-                         vtkPointLocator *locator, vtkCellArray *verts, 
-                         vtkCellArray *lines, vtkCellArray *polys, 
-                         vtkPointData *inPd, vtkPointData *outPd,
-                         vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                          vtkPointLocator *locator, vtkCellArray *verts, 
+                          vtkCellArray *lines, vtkCellArray *polys, 
+                          vtkPointData *inPd, vtkPointData *outPd,
+                          vtkCellData *inCd, vtkIdType cellId,
+                          vtkCellData *outCd)
 {
   int i, numLines=this->Points->GetNumberOfPoints() - 1;
   vtkScalars *lineScalars=vtkScalars::New();
@@ -447,7 +448,7 @@ void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values,
 void vtkPolyLine::Clip(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *lines,
                        vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, int cellId, vtkCellData *outCd,
+                       vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
                        int insideOut)
 {
   int i, numLines=this->Points->GetNumberOfPoints() - 1;

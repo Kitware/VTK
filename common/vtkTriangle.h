@@ -80,7 +80,7 @@ public:
                vtkPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys, 
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, int cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
   int EvaluatePosition(float x[3], float* closestPoint,
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
@@ -96,7 +96,8 @@ public:
   void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
-            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
+            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
+            int insideOut);
 
   // Description:
   // Plane intersection plus in/out test on triangle. The in/out test is 

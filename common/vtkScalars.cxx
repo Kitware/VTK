@@ -111,10 +111,10 @@ void vtkScalars::SetData(vtkDataArray *data)
 // Given a list of point ids, return an array of scalar values.
 void vtkScalars::GetScalars(vtkIdList *ptIds, vtkScalars *s)
 {
-  int num=ptIds->GetNumberOfIds();
+  vtkIdType num=ptIds->GetNumberOfIds();
 
   s->SetNumberOfScalars(num);
-  for (int i=0; i<num; i++)
+  for (vtkIdType i=0; i<num; i++)
     {
     s->SetScalar(i,this->GetScalar(ptIds->GetId(i)));
     }
@@ -123,9 +123,9 @@ void vtkScalars::GetScalars(vtkIdList *ptIds, vtkScalars *s)
 // Given a range of point ids [p1,p2], return an array of scalar values.
 // Make sure enough space has been allocated in the vtkScalars object
 // to hold all the values.
-void vtkScalars::GetScalars(int p1, int p2, vtkScalars *fs)
+void vtkScalars::GetScalars(vtkIdType p1, vtkIdType p2, vtkScalars *fs)
 {
-  int i, id;
+  vtkIdType i, id;
 
   for (i=0, id=p1; id <= p2; id++, i++)
     {
@@ -136,7 +136,7 @@ void vtkScalars::GetScalars(int p1, int p2, vtkScalars *fs)
 // Determine (rmin,rmax) range of scalar values.
 void vtkScalars::ComputeRange()
 {
-  int i, numScalars=this->GetNumberOfScalars();
+  vtkIdType i, numScalars=this->GetNumberOfScalars();
   float s;
 
   if ( this->GetMTime() > this->ComputeTime )
@@ -325,12 +325,12 @@ int vtkScalars::InitColorTraversal(float alpha, vtkScalarsToColors *lut,
   return blend;
 }
 
-unsigned char *vtkScalars::PassRGBA(int id)
+unsigned char *vtkScalars::PassRGBA(vtkIdType id)
 {
   return this->Colors->GetPointer(4*id);
 }
 
-unsigned char *vtkScalars::PassRGB(int id)
+unsigned char *vtkScalars::PassRGB(vtkIdType id)
 {
   unsigned char *rgba=this->Colors->GetPointer(3*id);
   this->RGBA[0] = *rgba++;
@@ -339,7 +339,7 @@ unsigned char *vtkScalars::PassRGB(int id)
   return this->RGBA;
 }
 
-unsigned char *vtkScalars::PassIA(int id)
+unsigned char *vtkScalars::PassIA(vtkIdType id)
 {
   unsigned char *rgba=this->Colors->GetPointer(2*id);
   this->RGBA[0] = *rgba;
@@ -349,7 +349,7 @@ unsigned char *vtkScalars::PassIA(int id)
   return this->RGBA;
 }
 
-unsigned char *vtkScalars::PassI(int id)
+unsigned char *vtkScalars::PassI(vtkIdType id)
 {
   unsigned char *rgba=this->Colors->GetPointer(id);
   this->RGBA[0] = *rgba;
@@ -358,7 +358,7 @@ unsigned char *vtkScalars::PassI(int id)
   return this->RGBA;
 }
 
-unsigned char *vtkScalars::CompositeRGBA(int id)
+unsigned char *vtkScalars::CompositeRGBA(vtkIdType id)
 {
   unsigned char *rgba=this->Colors->GetPointer(4*id);
   this->RGBA[0] = *rgba++;
@@ -368,7 +368,7 @@ unsigned char *vtkScalars::CompositeRGBA(int id)
   return this->RGBA;
 }
 
-unsigned char *vtkScalars::CompositeIA(int id)
+unsigned char *vtkScalars::CompositeIA(vtkIdType id)
 {
   unsigned char *rgba=this->Colors->GetPointer(2*id);
   this->RGBA[0] = *rgba;
@@ -378,7 +378,7 @@ unsigned char *vtkScalars::CompositeIA(int id)
   return this->RGBA;
 }
 
-unsigned char *vtkScalars::CompositeMapThroughLookupTable(int id)
+unsigned char *vtkScalars::CompositeMapThroughLookupTable(vtkIdType id)
 {
   unsigned char *rgba = this->CurrentLookupTable->MapValue(this->GetScalar(id));
   this->RGBA[0] = *rgba++;
@@ -388,12 +388,12 @@ unsigned char *vtkScalars::CompositeMapThroughLookupTable(int id)
   return this->RGBA;
 }
 
-unsigned char *vtkScalars::MapThroughLookupTable(int id)
+unsigned char *vtkScalars::MapThroughLookupTable(vtkIdType id)
 {
   return this->CurrentLookupTable->MapValue(this->GetScalar(id));
 }
 
-unsigned char *vtkScalars::Luminance(int id)
+unsigned char *vtkScalars::Luminance(vtkIdType id)
 {
   unsigned char *rgba = this->CompositeMapThroughLookupTable(id);
   this->RGBA[0] = (unsigned char)(0.30*rgba[0] + 0.59*rgba[1] + 0.11*rgba[2]);

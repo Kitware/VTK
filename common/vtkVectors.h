@@ -68,48 +68,48 @@ public:
 
   // Description:
   // Return number of vectors in array.
-  int GetNumberOfVectors() {return this->Data->GetNumberOfTuples();};
+  vtkIdType GetNumberOfVectors() {return this->Data->GetNumberOfTuples();};
 
   // Description:
   // Return a pointer to a float vector v[3] for a specific id.
-  float *GetVector(int id) { return this->Data->GetTuple(id);};
+  float *GetVector(vtkIdType id) { return this->Data->GetTuple(id);};
 
   // Description:
   // Copy vector components into user provided array v[3] for specified
   // id.
-  void GetVector(int id, float v[3]) { this->Data->GetTuple(id,v);};
-  void GetVector(int id, double v[3]) { this->Data->GetTuple(id,v);};
+  void GetVector(vtkIdType id, float v[3]) { this->Data->GetTuple(id,v);};
+  void GetVector(vtkIdType id, double v[3]) { this->Data->GetTuple(id,v);};
 
   // Description:
   // Insert vector into object. No range checking performed (fast!).
   // Make sure you use SetNumberOfVectors() to allocate memory prior
   // to using SetVector().
-  void SetVector(int id, const float v[3]) {this->Data->SetTuple(id,v);};
-  void SetVector(int id, const double v[3]) {this->Data->SetTuple(id,v);};
-  void SetVector(int id, double vx, double vy, double vz);
+  void SetVector(vtkIdType id, const float v[3]) {this->Data->SetTuple(id,v);};
+  void SetVector(vtkIdType id, const double v[3]) {this->Data->SetTuple(id,v);};
+  void SetVector(vtkIdType id, double vx, double vy, double vz);
 
   // Description:
   // Insert vector into object. Range checking performed and memory
   // allocated as necessary.
-  void InsertVector(int id, const float v[3])
+  void InsertVector(vtkIdType id, const float v[3])
     {this->Data->InsertTuple(id,v);};
-  void InsertVector(int id, const double v[3]) 
+  void InsertVector(vtkIdType id, const double v[3]) 
     {this->Data->InsertTuple(id,v);};
-  void InsertVector(int id, double vx, double vy, double vz);
+  void InsertVector(vtkIdType id, double vx, double vy, double vz);
 
   // Description:
   // Insert vector into next available slot. Returns id of slot.
-  int InsertNextVector(const float v[3]) 
+  vtkIdType InsertNextVector(const float v[3]) 
     {return this->Data->InsertNextTuple(v);};
-  int InsertNextVector(const double v[3]) 
+  vtkIdType InsertNextVector(const double v[3]) 
     {return this->Data->InsertNextTuple(v);};
-  int InsertNextVector(double vx, double vy, double vz);
+  vtkIdType InsertNextVector(double vx, double vy, double vz);
 
   // Description:
   // Specify the number of vectors for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetVector() method for fast insertion.
-  void SetNumberOfVectors(int number);
+  void SetNumberOfVectors(vtkIdType number);
 
   // Description:
   // Compute the largest norm for these vectors.
@@ -136,13 +136,13 @@ protected:
 };
 
 
-inline void vtkVectors::SetNumberOfVectors(int number)
+inline void vtkVectors::SetNumberOfVectors(vtkIdType number)
 {
   this->Data->SetNumberOfComponents(3);
   this->Data->SetNumberOfTuples(number);
 }
 
-inline void vtkVectors::SetVector(int id, double vx, double vy, double vz)
+inline void vtkVectors::SetVector(vtkIdType id, double vx, double vy, double vz)
 {
   double v[3];
   v[0] = vx;
@@ -151,7 +151,8 @@ inline void vtkVectors::SetVector(int id, double vx, double vy, double vz)
   this->Data->SetTuple(id,v);
 }
 
-inline void vtkVectors::InsertVector(int id, double vx, double vy, double vz)
+inline void vtkVectors::InsertVector(vtkIdType id, double vx, double vy,
+                                     double vz)
 {
   double v[3];
 
@@ -161,7 +162,7 @@ inline void vtkVectors::InsertVector(int id, double vx, double vy, double vz)
   this->Data->InsertTuple(id,v);
 }
 
-inline int vtkVectors::InsertNextVector(double vx, double vy, double vz)
+inline vtkIdType vtkVectors::InsertNextVector(double vx, double vy, double vz)
 {
   double v[3];
 

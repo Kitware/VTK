@@ -77,7 +77,7 @@ public:
   // edge.  This method is used in conjunction with one of the two
   // InsertEdge() methods described below (don't mix the InsertEdge()
   // methods). 
-  int InitEdgeInsertion(int numPoints, int storeAttributes=0);
+  int InitEdgeInsertion(vtkIdType numPoints, int storeAttributes=0);
 
   // Description:
   // Insert the edge (p1,p2) into the table. It is the user's
@@ -87,7 +87,7 @@ public:
   // the edge id) that can be used to set and get edge
   // attributes. Otherwise, the method will return 1. Do not mix this
   // method with the InsertEdge() method that follows.
-  int InsertEdge(int p1, int p2);
+  vtkIdType InsertEdge(vtkIdType p1, vtkIdType p2);
 
   // Description:
   // Insert the edge (p1,p2) into the table with the attribute id
@@ -97,7 +97,7 @@ public:
   // responsibility to check if the edge has already been inserted
   // (use IsEdge()). Do not mix this method with the previous
   // InsertEdge() method.
-  void InsertEdge(int p1, int p2, int attributeId);
+  void InsertEdge(vtkIdType p1, vtkIdType p2, int attributeId);
 
   // Description: 
   // Return an integer id for the edge, or an attributeId of the edge
@@ -105,23 +105,24 @@ public:
   // which version of InsertEdge() is being used); otherwise -1. The
   // unique integer id can be used to set and retrieve attributes to
   // the edge.
-  int IsEdge(int p1, int p2);
+  int IsEdge(vtkIdType p1, vtkIdType p2);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
   // representing point coordinates into which incremental insertion methods
   // place their data. The points are associated with the edge.
-  int InitPointInsertion(vtkPoints *newPts, int estSize);
+  int InitPointInsertion(vtkPoints *newPts, vtkIdType estSize);
 
   // Description:
   // Insert a unique point on the specified edge. Invoke this method only
   // after InitPointInsertion() has been called. Return 0 if point was 
   // already in the list, otherwise return 1.
-  int InsertUniquePoint(int p1, int p2, float x[3], int &ptId);
+  int InsertUniquePoint(vtkIdType p1, vtkIdType p2, float x[3],
+                        vtkIdType &ptId);
 
   // Description:
   // Return the number of edges that have been inserted thus far.
-  vtkGetMacro(NumberOfEdges, int);
+  vtkGetMacro(NumberOfEdges, vtkIdType);
 
   // Description:
   // Intialize traversal of edges in table.
@@ -131,7 +132,7 @@ public:
   // Traverse list of edges in table. Return the edge as (p1,p2), where p1
   // and p2 are point id's. Method return value is zero if list is exhausted;
   // non-zero otherwise. The value of p1 is guaranteed to be <= p2.
-  int GetNextEdge(int &p1, int &p2);
+  int GetNextEdge(vtkIdType &p1, vtkIdType &p2);
 
   // Description:
   // Reset the object and prepare for reinsertion of edges. Does not delete
@@ -147,14 +148,14 @@ protected:
   vtkIdList **Table;
   vtkIdList **Attributes;
   int StoreAttributes;
-  int TableMaxId; //maximum point id inserted
-  int TableSize;  //allocated size of table
+  vtkIdType TableMaxId; //maximum point id inserted
+  vtkIdType TableSize;  //allocated size of table
   int Position[2];
   int Extend;
-  int NumberOfEdges;
+  vtkIdType NumberOfEdges;
   vtkPoints *Points; //support point insertion
 
-  vtkIdList **Resize(int size);
+  vtkIdList **Resize(vtkIdType size);
 };
 
 #endif

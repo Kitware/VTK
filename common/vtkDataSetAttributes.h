@@ -95,24 +95,26 @@ public:
   // will later be used with CopyData. If this is not the case,
   // consider using the alternative forms of CopyAllocate and CopyData.
   // ext is no longer used.
-  void CopyAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
+  void CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
+                    vtkIdType ext=1000);
 
   // Description:
   // Copy the attribute data from one id to another. Make sure CopyAllocate()
   // has been invoked before using this method.
-  void CopyData(vtkDataSetAttributes *fromPd, int fromId, int toId);
+  void CopyData(vtkDataSetAttributes *fromPd, vtkIdType fromId, vtkIdType toId);
 
   // Description:
   // Initialize point interpolation method.
   // Note that pd HAS to be the vtkDataSetAttributes object which
   // will later be used with InterpolatePoint or InterpolateEdge.
   // ext is no longer used.
-  void InterpolateAllocate(vtkDataSetAttributes* pd, int sze=0, int ext=1000);
+  void InterpolateAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
+                           vtkIdType ext=1000);
   
   // Description:
   // Interpolate data set attributes from other data set attributes
   // given cell or point ids and associated interpolation weights.
-  void InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 
+  void InterpolatePoint(vtkDataSetAttributes *fromPd, vtkIdType toId, 
                         vtkIdList *ids, float *weights);
   
   // Description:
@@ -120,8 +122,8 @@ public:
   // interpolation factor, t, along the edge. The weight ranges from (0,1), 
   // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
   // has been invoked before using this method.
-  void InterpolateEdge(vtkDataSetAttributes *fromPd, int toId, int p1, int p2,
-                       float t);
+  void InterpolateEdge(vtkDataSetAttributes *fromPd, vtkIdType toId,
+                       vtkIdType p1, vtkIdType p2, float t);
 
   // Description:
   // Interpolate data from the same id (point or cell) at different points
@@ -133,7 +135,7 @@ public:
   // using this method.
   void InterpolateTime(vtkDataSetAttributes *from1, 
 		       vtkDataSetAttributes *from2,
-                       int id, float t);
+                       vtkIdType id, float t);
 
   // Description:
   // Deep copy of data (i.e., create new data arrays and
@@ -279,8 +281,8 @@ public:
   // following ones) assume that the fromData and toData objects are of the
   // same type, and have the same number of components. This is true if you
   // invoke CopyAllocate() or InterpolateAllocate().
-  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, int fromId, 
-                 int toId);
+  void CopyTuple(vtkDataArray *fromData, vtkDataArray *toData, vtkIdType fromId,
+                 vtkIdType toId);
 
   // Description:
   // Get the field data array indices corresponding to scalars, 
@@ -359,7 +361,7 @@ public:
     int *FieldIndices; //output data array index 
                        // (first five are named attributes)
     vtkLookupTable **LUT; //luts associated with each array
-    int NumberOfTuples; //a running total of values
+    vtkIdType NumberOfTuples; //a running total of values
     int NumberOfFields; //the number of fields
     
     //For every vtkDataSetAttributes that are processed, keep track of the 
@@ -375,8 +377,8 @@ public:
   // Description:
   // A special form of CopyAllocate() to be used with FieldLists. Use it 
   // when you are copying data from a set of vtkDataSetAttributes.
-  void CopyAllocate(vtkDataSetAttributes::FieldList& list, int sze=0, 
-                    int ext=1000);
+  void CopyAllocate(vtkDataSetAttributes::FieldList& list, vtkIdType sze=0, 
+                    vtkIdType ext=1000);
 
   // Description:
   // A special form of CopyData() to be used with FieldLists. Use it when 
@@ -384,7 +386,8 @@ public:
   // that you have called the special form of CopyAllocate that accepts 
   // FieldLists.
   void CopyData(vtkDataSetAttributes::FieldList& list, 
-		vtkDataSetAttributes* dsa, int idx, int fromId, int toId);
+		vtkDataSetAttributes* dsa, int idx, vtkIdType fromId,
+                vtkIdType toId);
 
   friend class vtkDataSetAttributes::FieldList;
 //ETX
@@ -396,12 +399,12 @@ protected:
   void operator=(const vtkDataSetAttributes&) {}
 
   // special methods to support managing data
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,
-                        vtkIdList *ptIds, float *weights);
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData, int toId,
-                        int id1, int id2, float t);
+  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
+                        vtkIdType toId, vtkIdList *ptIds, float *weights);
+  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
+                        vtkIdType toId, vtkIdType id1, vtkIdType id2, float t);
   void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
-                        vtkDataArray *toData, int id, float t);
+                        vtkDataArray *toData, vtkIdType id, float t);
 
   // Manage data arrays as the  attributes scalars, vectors, tensors, etc...
   vtkAttributeData* Attributes[NUM_ATTRIBUTES]; //pointer to attributes arrays

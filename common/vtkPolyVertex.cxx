@@ -160,7 +160,8 @@ void vtkPolyVertex::Contour(float value, vtkScalars *cellScalars,
 			    vtkCellArray *vtkNotUsed(lines), 
 			    vtkCellArray *vtkNotUsed(polys), 
                             vtkPointData *inPd, vtkPointData *outPd,
-                            vtkCellData *inCd, int cellId, vtkCellData *outCd)
+                            vtkCellData *inCd, vtkIdType cellId,
+                            vtkCellData *outCd)
 {
   int i, numPts=this->Points->GetNumberOfPoints(), newCellId;
   vtkIdType pts[1];
@@ -236,8 +237,8 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
 void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars, 
                          vtkPointLocator *locator, vtkCellArray *verts,
                          vtkPointData *inPd, vtkPointData *outPd,
-                         vtkCellData *inCd, int cellId, vtkCellData *outCd,
-                         int insideOut)
+                         vtkCellData *inCd, vtkIdType cellId,
+                         vtkCellData *outCd, int insideOut)
 {
   float s, x[3];
   int i, newCellId, numPts=this->Points->GetNumberOfPoints();

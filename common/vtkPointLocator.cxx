@@ -165,7 +165,7 @@ void vtkPointLocator::Initialize()
 void vtkPointLocator::FreeSearchStructure()
 {
   vtkIdList *ptIds;
-  int i;
+  vtkIdType i;
 
   if ( this->HashTable )
     {
@@ -182,7 +182,7 @@ void vtkPointLocator::FreeSearchStructure()
 }
 
 // Given a position x-y-z, return the id of the point closest to it.
-int vtkPointLocator::FindClosestPoint(float x, float y, float z)
+vtkIdType vtkPointLocator::FindClosestPoint(float x, float y, float z)
 {
   float xyz[3];
 
@@ -191,14 +191,14 @@ int vtkPointLocator::FindClosestPoint(float x, float y, float z)
 }
 
 // Given a position x, return the id of the point closest to it.
-int vtkPointLocator::FindClosestPoint(const float x[3])
+vtkIdType vtkPointLocator::FindClosestPoint(const float x[3])
 {
   int i, j;
   float minDist2;
   float dist2 = VTK_LARGE_FLOAT;
   float *pt;
   int closest, level;
-  int ptId, cno;
+  vtkIdType ptId, cno;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   vtkNeighborPoints buckets;
@@ -289,22 +289,23 @@ int vtkPointLocator::FindClosestPoint(const float x[3])
 
 
 
-int vtkPointLocator::FindClosestPointWithinRadius(float radius, 
-						  const float x[3],
-						  float& dist2)
+vtkIdType vtkPointLocator::FindClosestPointWithinRadius(float radius, 
+                                                        const float x[3],
+                                                        float& dist2)
   {
-  return FindClosestPointWithinRadius(radius, x, this->DataSet->GetLength(), dist2);
+  return FindClosestPointWithinRadius(radius, x, this->DataSet->GetLength(),
+                                      dist2);
   }
 
 
-int vtkPointLocator::FindClosestPointWithinRadius(float radius,
-						  const float x[3], 
-                                                  float inputDataLength,
-                                                  float& dist2)
+vtkIdType vtkPointLocator::FindClosestPointWithinRadius(float radius,
+                                                        const float x[3], 
+                                                        float inputDataLength,
+                                                        float& dist2)
 {
-  int i, j, closest = -1;
+  int i, j;
   float *pt;
-  int ptId;
+  vtkIdType ptId, closest = -1;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   float minDist2;
@@ -491,7 +492,7 @@ int vtkPointLocator::FindClosestPointWithinRadius(float radius,
 
 struct idsort
 {
-  int id;
+  vtkIdType id;
   float dist;
 };
 
@@ -583,7 +584,7 @@ void vtkPointLocator::FindDistributedPoints(int N, const float x[3],
   float dist2;
   float *pt;
   int level;
-  int ptId, cno;
+  vtkIdType ptId, cno;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   int oct;
@@ -742,7 +743,7 @@ void vtkPointLocator::FindClosestNPoints(int N, const float x[3],
   float dist2;
   float *pt;
   int level;
-  int ptId, cno;
+  vtkIdType ptId, cno;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   vtkNeighborPoints buckets;
@@ -882,7 +883,7 @@ void vtkPointLocator::FindPointsWithinRadius(float R, const float x[3],
   int i, j;
   float dist2;
   float *pt;
-  int ptId, cno;
+  vtkIdType ptId, cno;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   float R2 = R*R;
@@ -946,13 +947,13 @@ void vtkPointLocator::FindPointsWithinRadius(float R, const float x[3],
 void vtkPointLocator::BuildLocator()
 {
   float *bounds;
-  int numBuckets;
+  vtkIdType numBuckets;
   float level;
   int ndivs[3], product;
   int i, j, ijk[3];
-  int idx;
+  vtkIdType idx;
   vtkIdList *bucket;
-  int numPts;
+  vtkIdType numPts;
   float *x;
   typedef vtkIdList *vtkIdListPtr;
 
@@ -1362,10 +1363,10 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 // Before using this method you must make sure that newPts have been
 // supplied, the bounds has been set properly, and that divs are 
 // properly set. (See InitPointInsertion().)
-int vtkPointLocator::InsertNextPoint(const float x[3])
+vtkIdType vtkPointLocator::InsertNextPoint(const float x[3])
 {
   int i, ijk[3];
-  int idx;
+  vtkIdType idx;
   vtkIdList *bucket;
   //
   //  Locate bucket that point is in.
@@ -1398,10 +1399,10 @@ int vtkPointLocator::InsertNextPoint(const float x[3])
 // dulicate points). Before using this method you must make sure that 
 // newPts have been supplied, the bounds has been set properly, and that 
 // divs are properly set. (See InitPointInsertion().)
-void vtkPointLocator::InsertPoint(int ptId, const float x[3])
+void vtkPointLocator::InsertPoint(vtkIdType ptId, const float x[3])
 {
   int i, ijk[3];
-  int idx;
+  vtkIdType idx;
   vtkIdList *bucket;
   //
   //  Locate bucket that point is in.
@@ -1430,7 +1431,7 @@ void vtkPointLocator::InsertPoint(int ptId, const float x[3])
 // Determine whether point given by x[3] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return
 // -1.
-int vtkPointLocator::IsInsertedPoint(const float x[3])
+vtkIdType vtkPointLocator::IsInsertedPoint(const float x[3])
 {
   int i, j, ijk[3];
   vtkNeighborPoints buckets;
@@ -1448,7 +1449,8 @@ int vtkPointLocator::IsInsertedPoint(const float x[3])
   // and level of neighbors to search depends upon the tolerance and 
   // the bucket width.
   //
-  int *nei, lvtk, cno, ptId;
+  int *nei, lvtk;
+  vtkIdType ptId, cno;
   vtkIdList *ptIds;
   float *pt;
 
@@ -1484,7 +1486,7 @@ int vtkPointLocator::IsInsertedPoint(const float x[3])
 
 int vtkPointLocator::InsertUniquePoint(const float x[3], vtkIdType &id)
 {
-  int ptId;
+  vtkIdType ptId;
 
   ptId = this->IsInsertedPoint(x);
   
@@ -1503,13 +1505,14 @@ int vtkPointLocator::InsertUniquePoint(const float x[3], vtkIdType &id)
 
 // Given a position x, return the id of the point closest to it. This method
 // is used when performing incremental point insertion.
-int vtkPointLocator::FindClosestInsertedPoint(const float x[3])
+vtkIdType vtkPointLocator::FindClosestInsertedPoint(const float x[3])
 {
-  int i, j;
+  int i;
   float minDist2, dist2;
   float *pt;
-  int closest, level;
-  int ptId, cno;
+  int level;
+  vtkIdType closest, j;
+  vtkIdType ptId, cno;
   vtkIdList *ptIds;
   int ijk[3], *nei;
   int MULTIPLES;

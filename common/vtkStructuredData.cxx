@@ -225,10 +225,11 @@ int vtkStructuredData::SetExtent(int inExt[3], int ext[3])
 }
 
 // Get the points defining a cell. (See vtkDataSet for more info.)
-void vtkStructuredData::GetCellPoints(int cellId, vtkIdList *ptIds,
+void vtkStructuredData::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds,
                                       int dataDescription, int dim[3])
 {
-  int idx, loc[3], npts;
+  int loc[3];
+  vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = dim[0]*dim[1];
  
@@ -301,11 +302,13 @@ void vtkStructuredData::GetCellPoints(int cellId, vtkIdList *ptIds,
 }
 
 // Get the cells using a point. (See vtkDataSet for more info.)
-void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
+void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
+                                      int dim[3])
 {
   int cellDim[3];
   int ptLoc[3], cellLoc[3];
-  int i, j, cellId;
+  int i, j;
+  vtkIdType cellId;
   static int offset[8][3] = {{-1,0,0}, {-1,-1,0}, {-1,-1,-1}, {-1,0,-1},
                              {0,0,0},  {0,-1,0},  {0,-1,-1},  {0,0,-1}};
 
@@ -350,12 +353,12 @@ void vtkStructuredData::GetPointCells(int ptId, vtkIdList *cellIds, int dim[3])
   return;
 }
 
-void vtkStructuredData::GetCellNeigbors(int cellId, vtkIdList *ptIds, 
+void vtkStructuredData::GetCellNeigbors(vtkIdType cellId, vtkIdList *ptIds, 
                                         vtkIdList *cellIds, int dim[3])
 {
-  int i, j, id, seedLoc[3], ptLoc[3], cellLoc[3], cellDim[3];
+  int j, seedLoc[3], ptLoc[3], cellLoc[3], cellDim[3];
   int offset[8][3];
-  int numPts=ptIds->GetNumberOfIds();
+  vtkIdType numPts=ptIds->GetNumberOfIds(), id, i;
   
   cellIds->Reset();
   

@@ -86,7 +86,7 @@ public:
   // Description:
   // Initialize cell from outside with point ids and point
   // coordinates specified.
-  void Initialize(int npts, int *pts, vtkPoints *p);
+  void Initialize(int npts, vtkIdType *pts, vtkPoints *p);
 
   // Description:
   // Create concrete copy of this cell. Initially, the copy is made by
@@ -199,7 +199,8 @@ public:
                        vtkPointLocator *locator, vtkCellArray *verts, 
                        vtkCellArray *lines, vtkCellArray *polys, 
                        vtkPointData *inPd, vtkPointData *outPd,
-                       vtkCellData *inCd, int cellId, vtkCellData *outCd) = 0;
+                       vtkCellData *inCd, vtkIdType cellId,
+                       vtkCellData *outCd) = 0;
 
   // Description:
   // Cut (or clip) the cell based on the input cellScalars and the
@@ -215,7 +216,7 @@ public:
   virtual void Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, int cellId, vtkCellData *outCd, 
+                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd, 
                     int insideOut) = 0;
 
   // Description:
