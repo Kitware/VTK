@@ -141,13 +141,15 @@ proc UpdateWindowLevelInteraction {widget x y} {
 
    # scale by current values 
    set dx [expr $dx * $window]
-   set dy [expr $dy * $level]
+   set dy [expr $dy * $window]
 
    #puts "   update: ($x, $y), dx = $dx, dy = $dy"
 
    # abs so that direction does not flip
-   if {$window < 0.0} {set dx [expr -$dx]}
-   if {$level < 0.0} {set dy [expr -$dy]}
+   if {$window < 0.0} {
+      set dx [expr -$dx]
+      set dy [expr -$dy]
+   }
 
    # compute new window level
    set new_window [expr $dx + $window]
