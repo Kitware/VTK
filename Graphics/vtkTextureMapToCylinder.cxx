@@ -17,6 +17,8 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkOBBTree.h"
@@ -24,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.31");
+vtkCxxRevisionMacro(vtkTextureMapToCylinder, "1.32");
 vtkStandardNewMacro(vtkTextureMapToCylinder);
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
@@ -44,11 +46,22 @@ vtkTextureMapToCylinder::vtkTextureMapToCylinder()
   this->PreventSeam = 1;
 }
 
-void vtkTextureMapToCylinder::Execute()
+int vtkTextureMapToCylinder::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkFloatArray *newTCoords;
-  vtkDataSet *input= this->GetInput();
-  vtkDataSet *output= this->GetOutput();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType ptId;
   int i;
@@ -63,7 +76,7 @@ void vtkTextureMapToCylinder::Execute()
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"Can't generate texture coordinates without points");
-    return;
+    return 1;
     }
 
   if ( this->AutomaticCylinderGeneration )
@@ -104,7 +117,7 @@ void vtkTextureMapToCylinder::Execute()
   if ( vtkMath::Norm(axis) == 0.0 )
     {
     vtkErrorMacro(<<"Bad cylinder axis");
-    return;
+    return 1;
     }
 
   v[0] = 1.0; v[1] = v[2] = 0.0;
@@ -118,7 +131,7 @@ void vtkTextureMapToCylinder::Execute()
   if ( vtkMath::Normalize(vec) == 0.0 )
     {
     vtkErrorMacro(<<"Bad cylinder axis");
-    return;
+    return 1;
     }
   newTCoords = vtkFloatArray::New();
   newTCoords->SetNumberOfComponents(2);
@@ -162,6 +175,8 @@ void vtkTextureMapToCylinder::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+
+  return 1;
 }
 
 void vtkTextureMapToCylinder::PrintSelf(ostream& os, vtkIndent indent)

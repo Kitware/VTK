@@ -16,11 +16,13 @@
 
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkVectorDot, "1.38");
+vtkCxxRevisionMacro(vtkVectorDot, "1.39");
 vtkStandardNewMacro(vtkVectorDot);
 
 // Construct object with scalar range is (-1,1).
@@ -33,15 +35,26 @@ vtkVectorDot::vtkVectorDot()
 //
 // Compute dot product.
 //
-void vtkVectorDot::Execute()
+int vtkVectorDot::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType ptId, numPts;
   vtkFloatArray *newScalars;
-  vtkDataSet *input = this->GetInput();
   vtkDataArray *inNormals;
   vtkDataArray *inVectors;
   double s, n[3], v[3], min, max, dR, dS;
-  vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
 
   // Initialize
@@ -54,17 +67,17 @@ void vtkVectorDot::Execute()
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<< "No points!");
-    return;
+    return 1;
     }
   if ( (inVectors=pd->GetVectors()) == NULL )
     {
     vtkErrorMacro(<< "No vectors defined!");
-    return;
+    return 1;
     }
   if ( (inNormals=pd->GetNormals()) == NULL )
     {
     vtkErrorMacro(<< "No normals defined!");
-    return;
+    return 1;
     }
 
   // Allocate
@@ -123,6 +136,8 @@ void vtkVectorDot::Execute()
   int idx = outPD->AddArray(newScalars);
   outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
   newScalars->Delete();
+
+  return 1;
 }
 
 void vtkVectorDot::PrintSelf(ostream& os, vtkIndent indent)

@@ -17,12 +17,14 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVectorNorm, "1.43");
+vtkCxxRevisionMacro(vtkVectorNorm, "1.44");
 vtkStandardNewMacro(vtkVectorNorm);
 
 // Construct with normalize flag off.
@@ -32,15 +34,26 @@ vtkVectorNorm::vtkVectorNorm()
   this->AttributeMode = VTK_ATTRIBUTE_MODE_DEFAULT;
 }
 
-void vtkVectorNorm::Execute()
+int vtkVectorNorm::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numVectors, i;
   int computePtScalars=1, computeCellScalars=1;
   vtkFloatArray *newScalars;
   double v[3], s, maxScalar;
   vtkDataArray *ptVectors, *cellVectors;
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
 
@@ -65,7 +78,7 @@ void vtkVectorNorm::Execute()
   if ( !computeCellScalars && !computePtScalars )
     {
     vtkErrorMacro(<< "No vector norm to compute!");
-    return;
+    return 1;
     }
 
   // Allocate / operate on point data
@@ -156,6 +169,8 @@ void vtkVectorNorm::Execute()
   // Pass appropriate data through to output
   outPD->PassData(pd);
   outCD->PassData(cd);
+
+  return 1;
 }
 
 // Return the method for generating scalar data as a string.

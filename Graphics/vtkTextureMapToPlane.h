@@ -37,12 +37,12 @@
 #ifndef __vtkTextureMapToPlane_h
 #define __vtkTextureMapToPlane_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextureMapToPlane : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkTextureMapToPlane : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTextureMapToPlane,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkTextureMapToPlane,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -92,8 +92,8 @@ protected:
   vtkTextureMapToPlane();
   ~vtkTextureMapToPlane() {};
 
-  void Execute();
-  void ComputeNormal();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void ComputeNormal(vtkDataSet *output);
 
   double Origin[3];
   double Point1[3];

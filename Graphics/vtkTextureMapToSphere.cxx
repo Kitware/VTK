@@ -17,11 +17,13 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.32");
+vtkCxxRevisionMacro(vtkTextureMapToSphere, "1.33");
 vtkStandardNewMacro(vtkTextureMapToSphere);
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
@@ -34,11 +36,22 @@ vtkTextureMapToSphere::vtkTextureMapToSphere()
   this->PreventSeam = 1;
 }
 
-void vtkTextureMapToSphere::Execute()
+int vtkTextureMapToSphere::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkFloatArray *newTCoords;
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType ptId;
   double x[3], rho, r, tc[2], phi=0.0, thetaX, thetaY;
@@ -52,7 +65,7 @@ void vtkTextureMapToSphere::Execute()
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"Can't generate texture coordinates without points");
-    return;
+    return 1;
     }
 
   if ( this->AutomaticSphereGeneration )
@@ -172,6 +185,8 @@ void vtkTextureMapToSphere::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+
+  return 1;
 }
 
 void vtkTextureMapToSphere::PrintSelf(ostream& os, vtkIndent indent)

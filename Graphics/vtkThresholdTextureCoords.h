@@ -35,13 +35,13 @@
 #ifndef __vtkThresholdTextureCoords_h
 #define __vtkThresholdTextureCoords_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkThresholdTextureCoords : public vtkDataSetAlgorithm
 {
 public:
   static vtkThresholdTextureCoords *New();
-  vtkTypeRevisionMacro(vtkThresholdTextureCoords,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkThresholdTextureCoords,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -82,7 +82,7 @@ protected:
   ~vtkThresholdTextureCoords() {};
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double LowerThreshold;
   double UpperThreshold;

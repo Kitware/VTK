@@ -31,12 +31,12 @@
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkVectorNorm,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkVectorNorm,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -71,7 +71,7 @@ protected:
   vtkVectorNorm();
   ~vtkVectorNorm() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int Normalize;  // normalize 0<=n<=1 if true.
   int AttributeMode; //control whether to use point or cell data, or both

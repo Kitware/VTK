@@ -41,12 +41,12 @@
 #ifndef __vtkTextureMapToSphere_h
 #define __vtkTextureMapToSphere_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextureMapToSphere : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkTextureMapToSphere : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTextureMapToSphere,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkTextureMapToSphere,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -79,7 +79,7 @@ protected:
   vtkTextureMapToSphere();
   ~vtkTextureMapToSphere() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Center[3];
   int AutomaticSphereGeneration;

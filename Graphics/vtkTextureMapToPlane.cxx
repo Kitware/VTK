@@ -17,11 +17,13 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.48");
+vtkCxxRevisionMacro(vtkTextureMapToPlane, "1.49");
 vtkStandardNewMacro(vtkTextureMapToPlane);
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
@@ -45,8 +47,21 @@ vtkTextureMapToPlane::vtkTextureMapToPlane()
   this->AutomaticPlaneGeneration = 1;
 }
 
-void vtkTextureMapToPlane::Execute()
+int vtkTextureMapToPlane::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double tcoords[2];
   vtkIdType numPts;
   vtkFloatArray *newTCoords;
@@ -56,8 +71,6 @@ void vtkTextureMapToPlane::Execute()
   double proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir = 0;
   double s, t, sSf, tSf, p[3];
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
   int abort=0;
   vtkIdType progressInterval;
 
@@ -70,7 +83,7 @@ void vtkTextureMapToPlane::Execute()
   this->AutomaticPlaneGeneration )
     {
     vtkErrorMacro(<< "Not enough points for automatic plane mapping\n");
-    return;
+    return 1;
     }
 
   //  Allocate texture data
@@ -90,7 +103,7 @@ void vtkTextureMapToPlane::Execute()
     {
     if ( this->AutomaticPlaneGeneration )
       {
-      this->ComputeNormal();
+      this->ComputeNormal(output);
       }
 
     vtkMath::Normalize (this->Normal);
@@ -213,13 +226,14 @@ void vtkTextureMapToPlane::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+
+  return 1;
 }
 
 #define VTK_TOLERANCE 1.0e-03
 
-void vtkTextureMapToPlane::ComputeNormal()
+void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
 {
-  vtkDataSet *output = this->GetOutput();
   vtkIdType numPts=output->GetNumberOfPoints();
   double m[9], v[3], x[3];
   vtkIdType ptId;

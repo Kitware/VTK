@@ -23,12 +23,12 @@
 #ifndef __vtkVectorDot_h
 #define __vtkVectorDot_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkVectorDot : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkVectorDot,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkVectorDot,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -47,7 +47,7 @@ protected:
   vtkVectorDot();
   ~vtkVectorDot() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double ScalarRange[2];
 private:
   vtkVectorDot(const vtkVectorDot&);  // Not implemented.

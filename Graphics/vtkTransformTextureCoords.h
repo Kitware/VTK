@@ -32,12 +32,12 @@
 #ifndef __vtkTransformTextureCoords_h
 #define __vtkTransformTextureCoords_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkTransformTextureCoords : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTransformTextureCoords,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkTransformTextureCoords,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -96,7 +96,7 @@ protected:
   vtkTransformTextureCoords();
   ~vtkTransformTextureCoords() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Origin[3]; //point around which map rotates
   double Position[3]; //controls translation of map

@@ -16,10 +16,12 @@
 
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkThresholdTextureCoords, "1.38");
+vtkCxxRevisionMacro(vtkThresholdTextureCoords, "1.39");
 vtkStandardNewMacro(vtkThresholdTextureCoords);
 
 // Construct with lower threshold=0, upper threshold=1, threshold 
@@ -76,14 +78,25 @@ void vtkThresholdTextureCoords::ThresholdBetween(double lower, double upper)
     }
 }
   
-void vtkThresholdTextureCoords::Execute()
+int vtkThresholdTextureCoords::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts;
   vtkFloatArray *newTCoords;
   vtkIdType ptId;
   vtkDataArray *inScalars;
-  vtkDataSet *input = this->GetInput();
-  vtkDataSet *output = this->GetOutput();
 
   vtkDebugMacro(<< "Executing texture threshold filter");
 
@@ -93,7 +106,7 @@ void vtkThresholdTextureCoords::Execute()
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
     vtkErrorMacro(<<"No scalar data to texture threshold");
-    return;
+    return 1;
     }
      
   numPts = input->GetNumberOfPoints();
@@ -120,6 +133,8 @@ void vtkThresholdTextureCoords::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+
+  return 1;
 }
 
 void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)

@@ -43,12 +43,12 @@
 #ifndef __vtkTextureMapToCylinder_h
 #define __vtkTextureMapToCylinder_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
+class VTK_GRAPHICS_EXPORT vtkTextureMapToCylinder : public vtkDataSetAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkTextureMapToCylinder,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkTextureMapToCylinder,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -87,7 +87,7 @@ protected:
   vtkTextureMapToCylinder();
   ~vtkTextureMapToCylinder() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Point1[3];
   double Point2[3];
