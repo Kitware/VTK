@@ -55,25 +55,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // there are no edges radiating from the vertex that have a dihedral angle
 // greater than a user-specified edge angle (i.e., feature angle), and
 // topology is not altered, then that vertex is deleted. The resulting
-// hole is then patched by re-triangulation. The process creates over
+// hole is then patched by re-triangulation. The process continues over
 // the entire vertex list (this constitutes an iteration). Iterations
 // proceed until a target reduction is reached or a maximum iteration
 // count is exceeded.
-//
-// There are a number of additional parameters you can set to control the 
-// decimation algorithm. The error may be increased over each iteration 
-// with the error increment. Edge preservation may be disabled or enabled.
-// You can turn on/off edge vertex deletion. (Edge vertices are vertices that
-// lie along boundaries of meshes.) Sub iterations are iterations that are 
-// performed without changing the decimation criterion. The aspect ratio
-// controls the shape of the triangles that are created, and is the ratio 
-// of maximum edge length to minimum edge length. The degree is the number 
-// of triangles using a single vertex. Vertices of high degree are considered
-// "complex" and are never deleted.
+// 
+// There are a number of additional parameters you can set to control
+// the decimation algorithm. The Error ivar may be increased over each
+// iteration with the ErrorIncrement. (These two variables have the
+// largest effect.) Edge preservation (i.e., PreserveEdges ivar) may
+// be disabled or enabled. You can turn on/off edge vertex deletion
+// (i.e., BoundaryVertexDeletion ivar). (Edge vertices are vertices
+// that lie along boundaries of meshes.) Sub iterations are iterations
+// that are performed without changing the decimation criterion. The
+// AspectRatio ivar controls the shape of the triangles that are
+// created, and is the ratio of maximum edge length to minimum edge
+// length. The Degree is the number of triangles using a single
+// vertex. Vertices of high degree are considered "complex" and are
+// never deleted.
 //
 // This implementation has been adapted for a global error bound decimation
 // criterion. That is, the error is a global bound on distance to original
-// surface.
+// surface. This is an improvement over the original Siggraph paper ("Decimation
+// of Triangle Meshes", Proc Siggraph `92.)
 
 #ifndef __vtkDecimate_h
 #define __vtkDecimate_h
@@ -225,6 +229,13 @@ public:
   vtkSetClampMacro(Degree,int,25,VTK_CELL_SIZE);
   vtkGetMacro(Degree,int);
   
+  // Description:
+  // Control the printout of warnings. This flag limits the number of warnings
+  // regarding non-manifold geometry and complex vertices. If set to zero, no
+  // warnings will appear.
+  vtkSetClampMacro(MaximumNumberOfSquawks,int,0,VTK_LARGE_INTEGER);
+  vtkGetMacro(MaximumNumberOfSquawks,int);
+  
 protected:
   void Execute();
 
@@ -243,6 +254,7 @@ protected:
   int Degree; // maximum number of triangles incident on vertex
   int Stats[VTK_NUMBER_STATISTICS]; // keep track of interesting statistics
   int GenerateErrorScalars; // turn on/off vertex error scalar generation
+  int MaximumNumberOfSquawks; //control number of error messages
 
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vtkPointData *pd, vtkPoints *inPts);
