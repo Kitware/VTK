@@ -42,11 +42,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkPlanes computes the implicit function and function gradient for a set
 // of planes. The planes must define a convex space.
-//    The function value is the closest distance of a point to any of the 
+//
+// The function value is the closest distance of a point to any of the 
 // planes. The function gradient is the plane normal at the function value.
 // Note that the normals must point outside of the convex region. Thus a 
 // negative function value means that a point is inside the convex region.
-//    To define the planes you must create two objects: a subclass of 
+//
+// To define the planes you must create two objects: a subclass of 
 // vtkPoints (e.g., vtkFloatPoints) and a subclass of vtkNormals (e.g., 
 // vtkFloatNormals). The points define a point on the plane, and the normals
 // specify plane normals.
