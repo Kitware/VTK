@@ -26,6 +26,9 @@ class vtkCallbackCommand;
 class vtkDataArrayCollection;
 class vtkDataArraySelection;
 class vtkIdListCollection;
+//BTX
+class TranslationTableType;
+//ETX
 
 class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 {
@@ -300,7 +303,15 @@ protected:
   // Whether the SelectionModified callback should invoke Modified.
   // This is used when we are copying to/from the internal reader.
   int SelectionModifiedDoNotCallModified;
-  
+
+  // Insert a partId and return the 'realId' that should be used.
+  int InsertNewPartId(int partId);
+
+//BTX
+  // Wrapper around an stl map
+  TranslationTableType *TranslationTable;
+//ETX
+
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.
   void operator=(const vtkGenericEnSightReader&);  // Not implemented.
