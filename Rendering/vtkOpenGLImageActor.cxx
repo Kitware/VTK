@@ -26,8 +26,12 @@
 
 #include "vtkOpenGL.h"
 
+#ifndef GL_MAX_TEXTURE_SIZE
+#define GL_MAX_TEXTURE_SIZE 1024
+#endif
+
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.29");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.30");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -462,12 +466,19 @@ int vtkOpenGLImageActor::TextureSizeOK( int size[2] )
   // the texture is too big
 #ifdef GL_VERSION_1_1
   
+  // Do a quick test to see if we are too large
+  if ( size[0] > GL_MAX_TEXTURE_SIZE ||
+       size[1] > GL_MAX_TEXTURE_SIZE )
+    {
+    return 0;
+    }
+  
   // Test the texture to see if it fits in memory
   glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8, 
                 size[0], size[1],
                 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char *)NULL );
   
-  GLint params[1];
+  GLint params[1];  
   glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, params ); 
 
   // if it does, we will render it later. define the texture here
