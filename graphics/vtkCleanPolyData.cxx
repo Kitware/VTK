@@ -211,7 +211,7 @@ void vtkCleanPolyData::Execute()
                   vtkErrorMacro(<<"Line ID fault in line test");
               }
               lineIDcounter++;
-          } else if ( (numNewPts==1) && ConvertLinesToPoints ) {
+          } else if ( (numNewPts==1) && this->ConvertLinesToPoints ) {
               if (!newVerts) {
                   newVerts = vtkCellArray::New();
                   newVerts->Allocate(5);
@@ -258,7 +258,7 @@ void vtkCleanPolyData::Execute()
                   vtkErrorMacro(<<"Poly ID fault in poly test");
               }
               polyIDcounter++;
-          } else if ( (numNewPts==2) && ConvertPolysToLines ) {
+          } else if ( (numNewPts==2) && this->ConvertPolysToLines ) {
               if (!newLines) {
                   newLines = vtkCellArray::New();
                   newLines->Allocate(5);
@@ -271,7 +271,9 @@ void vtkCleanPolyData::Execute()
                   vtkErrorMacro(<<"Line ID fault in poly test");
               }
               lineIDcounter++;
-          } else if ( (numNewPts==1) && ConvertPolysToLines && ConvertLinesToPoints) {
+          } else if ( (numNewPts==1) &&
+		      this->ConvertPolysToLines &&
+		      this->ConvertLinesToPoints) {
               if (!newVerts) {
                   newVerts = vtkCellArray::New();
                   newVerts->Allocate(5);
@@ -313,7 +315,7 @@ void vtkCleanPolyData::Execute()
                   vtkErrorMacro(<<"Strip ID fault in strip test");
               }
               strpIDcounter++;
-          } else if ( (numNewPts==3) && ConvertStripsToPolys ) {
+          } else if ( (numNewPts==3) && this->ConvertStripsToPolys ) {
               if (!newPolys) {
                   newPolys = vtkCellArray::New();
                   newPolys->Allocate(5);
@@ -326,7 +328,7 @@ void vtkCleanPolyData::Execute()
                   vtkErrorMacro(<<"Poly ID fault in strip test");
               }
               polyIDcounter++;
-          } else if ( (numNewPts==2) && ConvertPolysToLines ) {
+          } else if ( (numNewPts==2) && this->ConvertPolysToLines ) {
               if (!newLines) {
                   newLines = vtkCellArray::New();
                   newLines->Allocate(5);
@@ -339,7 +341,9 @@ void vtkCleanPolyData::Execute()
                   vtkErrorMacro(<<"Line ID fault in strip test");
               }
               lineIDcounter++;
-          } else if ( (numNewPts==1) && ConvertPolysToLines && ConvertLinesToPoints) {
+          } else if ( (numNewPts==1) &&
+		      this->ConvertPolysToLines &&
+		      this->ConvertLinesToPoints) {
               if (!newVerts) {
                   newVerts = vtkCellArray::New();
                   newVerts->Allocate(5);
@@ -447,7 +451,7 @@ void vtkCleanPolyData::CreateDefaultLocator() {
     } else {
         // lets check the tolerance wasn't changed from zero to non zero
         if ((tol>0.0) && (this->GetLocator()->GetTolerance()==0.0)) {
-            ReleaseLocator();
+            this->ReleaseLocator();
             this->Locator = vtkPointLocator::New();
         }
     }
