@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // output of this object is written to a marching cubes triangle file. That
 // way output triangles do not need to be held in memory.
 // 
-// To use vtkSliceCubes you must specify an instance of vtkVolume16Source to
+// To use vtkSliceCubes you must specify an instance of vtkVolume16Reader to
 // read the data. Set this object up with the proper file prefix, image range,
 // data origin, data dimensions, header size, and swap bytes flag. The
 // vtkSliceCubes object will then take over and read slices as necessary. You
@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSliceCubes_h
 
 #include "vtkObject.hh"
-#include "vtkVolume16Source.hh"
+#include "vtkVolume16Reader.hh"
 #include "vtkMCubesReader.hh"
 
 class vtkSliceCubes : public vtkObject
@@ -87,8 +87,8 @@ public:
 
   // Description:
   // Set/get object to read slices.
-  vtkSetObjectMacro(Reader,vtkVolume16Source);
-  vtkGetObjectMacro(Reader,vtkVolume16Source);
+  vtkSetObjectMacro(Reader,vtkVolume16Reader);
+  vtkGetObjectMacro(Reader,vtkVolume16Reader);
 
   // Description:
   // Specify file name of marching cubes output file.
@@ -109,7 +109,7 @@ public:
 protected:
   void Execute();
 
-  vtkVolume16Source *Reader;
+  vtkVolume16Reader *Reader;
   char *Filename;  
   short Value;
   char *LimitsFilename;
