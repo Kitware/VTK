@@ -47,10 +47,8 @@ void stuffit()
 int main(int argc,char *argv[])
 {
   int i,j;
-#ifdef VTK_REMOVE_LEGACY_CODE
   char tmp[128];
   FILE *file;
-#endif  
 
   if (argc < 3)
     {
@@ -63,7 +61,6 @@ int main(int argc,char *argv[])
   /* fill in the correct arrays */
   for (i = 2, j = 0; i < argc; i++)
     {
-#ifdef VTK_REMOVE_LEGACY_CODE
     strcpy(tmp,"./python/");
     strcpy(tmp+strlen(tmp),argv[i]);
     strcpy(tmp+strlen(tmp)-2,"Python.cxx");
@@ -77,7 +74,6 @@ int main(int argc,char *argv[])
       {
       continue;
       }
-#endif
     /* remove the .h and store */
     names[j] = strdup(argv[i]);
     names[j++][strlen(argv[i])-2] = '\0';
