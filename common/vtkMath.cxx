@@ -568,8 +568,8 @@ void vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
 		   theta = acos( R / (sqrt(Q_cubed) ) );
 
 		   *r1 = -2.0*sqrt(Q)*cos( theta/3.0 ) - c1/3.0;
-		   *r2 = -2.0*sqrt(Q)*cos( (theta + 2.0*M_PI)/3.0 ) - c1/3.0;
-		   *r3 = -2.0*sqrt(Q)*cos( (theta - 2.0*M_PI)/3.0 ) - c1/3.0;
+       *r2 = -2.0*sqrt(Q)*cos( (theta + 2.0*3.141592653589)/3.0 ) - c1/3.0;
+		   *r3 = -2.0*sqrt(Q)*cos( (theta - 2.0*3.141592653589)/3.0 ) - c1/3.0;
 
 		   *num_roots = 3;
 
@@ -602,7 +602,7 @@ void vtkMath::SolveCubic( double c0, double c1, double c2, double c3,
 	   }
 	   else 
 	   {
-		A = -Sign(R) * cbrt(fabs(R) + sqrt(R_squared - Q_cubed));
+		A = -Sign(R) * pow(fabs(R) + sqrt(R_squared - Q_cubed),0.33333333);
 
 		if( A == 0.0 )
 			B = 0.0;
