@@ -40,6 +40,7 @@ public:
   int GetNumberOfTCoords() {return (this->TC.GetMaxId()+1)/this->Dimension;};
   void Squeeze() {this->TC.Squeeze();};
   float *GetTCoord(int i) {return this->TC.GetPtr(this->Dimension*i);};
+  void GetTCoord(int i,float tc[3]) {this->vlTCoords::GetTCoord(i,tc);};
   void SetTCoord(int i, float *tc);
   void InsertTCoord(int i, float *tc);
   int InsertNextTCoord(float *tc);

@@ -40,6 +40,7 @@ public:
   int GetNumberOfVectors() {return (V.GetMaxId()+1)/3;};
   void Squeeze() {this->V.Squeeze();};
   float *GetVector(int i) {return this->V.GetPtr(3*i);};
+  void GetVector(int i,float v[3]) {this->vlVectors::GetVector(i,v);};
   void SetVector(int i, float v[3]);
   void InsertVector(int i, float *v);
   int InsertNextVector(float *v);

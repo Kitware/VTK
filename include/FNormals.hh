@@ -40,6 +40,7 @@ public:
   int GetNumberOfNormals() {return (N.GetMaxId()+1)/3;};
   void Squeeze() {this->N.Squeeze();};
   float *GetNormal(int i) {return this->N.GetPtr(3*i);};
+  void GetNormal(int i,float n[3]) {this->vlNormals::GetNormal(i,n);};
   void SetNormal(int i, float n[3]);
   void InsertNormal(int i, float *n);
   int InsertNextNormal(float *n);
