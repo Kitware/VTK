@@ -33,7 +33,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkUnstructuredGridVolumeRayCastIterator.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.32");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.33");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -96,7 +96,7 @@ private:
   void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
 };
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.32");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastIterator, "1.33");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
@@ -1008,11 +1008,14 @@ vtkIdType TemplateCastRay(
       {
       // Far intersection is the nearest intersectation that is farther
       // than nearZ.
-      double tmpZ = 
-        -( fx*candidate[i]->A + 
-           fy*candidate[i]->B + 
-           candidate[i]->D) / candidate[i]->C;
-
+      double tmpZ = 1.0;
+      if (candidate[i]->C != 0.0)
+        {
+        tmpZ = 
+          -( fx*candidate[i]->A + 
+             fy*candidate[i]->B + 
+             candidate[i]->D) / candidate[i]->C;
+        }
       if (tmpZ > nearZ && tmpZ < farZ)
         {
         farZ = tmpZ;
