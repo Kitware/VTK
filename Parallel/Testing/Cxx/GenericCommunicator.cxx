@@ -149,7 +149,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   op->SetController(contr);
   op->SetTag(45);
 
-  float extent = 20;
+  int extent = 20;
   vtkRTAnalyticSource* id = vtkRTAnalyticSource::New();
   id->SetWholeExtent (-extent, extent, -extent, extent, -extent, extent); 
   id->SetCenter(0, 0, 0);
@@ -289,6 +289,8 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   cf->SetNumberOfContours(1);
   cf->SetValue(0, 220);
 
+  cf->Update();
+  cf->Update();
   cf->Update();
   cf->Update();
   cf->Update();
