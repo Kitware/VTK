@@ -4,6 +4,14 @@ IF (VTK_USE_RENDERING)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
+
+    ADD_TEST(MesaCone-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/MesaCone.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     FOREACH ( tfile
       Canny
       clipArt
@@ -44,11 +52,16 @@ IF (VTK_USE_RENDERING)
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
+    ADD_TEST(MesaCone ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     FOREACH ( tfile
       Delaunay2D
       schwarz
       )
-      ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
+      ADD_TEST(${tfile} ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/${tfile}.tcl
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
