@@ -29,7 +29,7 @@ void vlStructuredGridFilter::SetInput(vlStructuredGrid *input)
 {
   if ( this->Input != input )
     {
-    vl_DebugMacro(<<" setting Input to " << (void *)input);
+    vlDebugMacro(<<" setting Input to " << (void *)input);
     this->Input = (vlDataSet *) input;
     this->_Modified();
     }
