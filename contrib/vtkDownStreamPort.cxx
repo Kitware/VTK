@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkPortDown.cxx
+  Module:    vtkDownStreamPort.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,15 +37,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPortDown.h"
-#include "vtkPortUp.h"
+#include "vtkDownStreamPort.h"
+#include "vtkUpStreamPort.h"
 #include "vtkMPIController.h"
 #include "vtkPolyData.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkPortDown::vtkPortDown()
+vtkDownStreamPort::vtkDownStreamPort()
 {
   this->UpStreamProcessId = 0;
   this->Tag = 0;
@@ -60,7 +60,7 @@ vtkPortDown::vtkPortDown()
 
 //----------------------------------------------------------------------------
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
-vtkPortDown::~vtkPortDown()
+vtkDownStreamPort::~vtkDownStreamPort()
 {
   vtkMPIController *tmp;
   
@@ -71,7 +71,7 @@ vtkPortDown::~vtkPortDown()
 }
 
 //----------------------------------------------------------------------------
-void vtkPortDown::PrintSelf(ostream& os, vtkIndent indent)
+void vtkDownStreamPort::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkSource::PrintSelf(os,indent);
   os << indent << "UpStreamProcessId: " << this->UpStreamProcessId << endl;
@@ -84,7 +84,7 @@ void vtkPortDown::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Maybe we can come up with a way to check the type of the upstream port's
 // input here.  While we are at it, we could automatically generate a tag.
-vtkPolyData *vtkPortDown::GetPolyDataOutput()
+vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
 {
   vtkDataObject *output = NULL;
   
@@ -101,7 +101,7 @@ vtkPolyData *vtkPortDown::GetPolyDataOutput()
       }
     else
       {
-      vtkWarningMacro("vtkPortDown: Changing data type of output.");
+      vtkWarningMacro("vtkDownStreamPort: Changing data type of output.");
       }
     }
   
@@ -112,7 +112,7 @@ vtkPolyData *vtkPortDown::GetPolyDataOutput()
 
 
 //----------------------------------------------------------------------------
-void vtkPortDown::UpdateInformation()
+void vtkDownStreamPort::UpdateInformation()
 {
   // This should be cleared by this point.
   if (this->TransferNeeded)
@@ -156,7 +156,7 @@ void vtkPortDown::UpdateInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkPortDown::InternalUpdate(vtkDataObject *output)
+void vtkDownStreamPort::InternalUpdate(vtkDataObject *output)
 {
   // It is important to deal with UpdateExtent.  Ignore for now!
   

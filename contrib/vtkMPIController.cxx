@@ -123,7 +123,7 @@ vtkMPIController *vtkMPIController::RegisterAndGetGlobalController(
 
 
 //----------------------------------------------------------------------------
-int vtkMPIController::Send(vtkDataObject *data, int remoteProcessId, int tag)
+int vtkMPIController::Send(vtkObject *data, int remoteProcessId, int tag)
 {
   if (tag == VTK_MPI_CONTROLLER_RMI_TAG)
     {
@@ -174,7 +174,7 @@ int vtkMPIController::Send(unsigned long *data, int length,
 
 
 //----------------------------------------------------------------------------
-int vtkMPIController::Receive(vtkDataObject *data, 
+int vtkMPIController::Receive(vtkObject *data, 
 			      int remoteProcessId, int tag)
 {
   MPI_Status status;
@@ -302,33 +302,36 @@ void vtkMPIController::ProcessRMIs()
 
   
 //----------------------------------------------------------------------------
-int vtkMPIController::WriteObject(vtkDataObject *data)
+int vtkMPIController::WriteObject(vtkObject *data)
 {
-  switch (data->GetDataObjectType())
+  if (strcmp(data->GetClassName(), "vtkPolyData"))
     {
-    case VTK_POLY_DATA:
-      return this->WritePolyData((vtkPolyData*)data);
-      break;
-    default:
-      vtkErrorMacro("Cannot marshal data object of type "
-		    << data->GetClassName());
-      return 0;
+    return this->WritePolyData((vtkPolyData*)data);
+    }  
+  if (strcmp(data->GetClassName(), "vtkUnstructuredExtent"))
+    {
+    return this->WriteUnstructuredExtent((vtkUnstructuredExtent*)data);
     }
+  
+  vtkErrorMacro("Cannot marshal object of type "
+		<< data->GetClassName());
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-int vtkMPIController::ReadObject(vtkDataObject *data)
+int vtkMPIController::ReadObject(vtkObject *data)
 {
-  switch (data->GetDataObjectType())
+  if (strcmp(data->GetClassName(), "vtkPolyData"))
     {
-    case VTK_POLY_DATA:
-      return this->ReadPolyData((vtkPolyData*)data);
-      break;
-    default:
-      vtkErrorMacro("Cannot marshal data object of type "
-		    << data->GetClassName());
-      return 0;
+    return this->ReadPolyData((vtkPolyData*)data);
     }
+  if (strcmp(data->GetClassName(), "vtkUnstructuredExtent"))
+    {
+    return this->ReadUnstructuredExtent((vtkUnstructuredExtent*)data);
+    }
+  
+  vtkErrorMacro("Cannot marshal object of type "
+		<< data->GetClassName());
 }
 
 
@@ -345,7 +348,7 @@ int vtkMPIController::WritePolyData(vtkPolyData *data)
   writer->SetInput(data);
   
   // Guess the size from information.
-  size = data->GetEstimatedUpdateExtentMemorySize();
+  size = data->GetEstimatedUpdateMemorySize();
   // In case it was not set, use default.
   if (size <= 0)
     {
@@ -414,6 +417,67 @@ void vtkMPIController::CopyPolyData(vtkPolyData *src, vtkPolyData *dest)
   dest->GetPointData()->ShallowCopy(src->GetPointData());  
   dest->GetCellData()->ShallowCopy(src->GetCellData());  
 }
+
+
+
+
+
+
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+int vtkMPIController::WriteUnstructuredExtent(vtkUnstructuredExtent *ext)
+{
+  ostrstream *fptr = new ostrstream();
+  
+  *fptr << ext->GetClassName() << endl;
+  *fptr << ext->GetExtentType() << endl;
+  *fptr << ext->GetPiece() << " ";
+  *fptr << ext->GetNumberOfPieces() << endl;
+  
+  // I am responsible for deleting this string.
+  this->DeleteAndSetMarshalString(fptr->str(), fptr->pcount());
+  delete fptr;
+  
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkMPIController::ReadUnstructuredExtent(vtkUnstructuredExtent *object)
+{
+  istrstream *fptr;
+  char name[100];
+  int t1, t2;
+  
+  if (this->MarshalString == NULL || this->MarshalStringLength == 0)
+    {
+    return;
+    }
+  
+  fptr = new istrstream(this->MarshalSrting, this->MarshalStringLength);
+  
+  *fptr >> name;
+  if (strcmp(name, "vtkUnstructuredExtent") != 0)
+    {
+    vtkErrorMacro("Expecting vtkUnstructuredExtent: got " << name);
+    delete fptr;
+    return 0;
+    }
+  
+  *fptr >> t1;
+  object->SetExtentType(t1);
+  *fptr >> t1 >> t2;
+  object->SetExtent(t1, t2);
+  
+  delete fptr;
+  
+  return 1;
+}
+
 
 
 

@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkPortUp.h
+  Module:    vtkDownStreamPort.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,67 +37,69 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPortUp - First pass at new ports
+// .NAME vtkDownStreamPort - First pass at new ports: DownStreamPort.
 // .SECTION Description
-// UpStreamPort  any number of ports in any number of processes can connect
-// to this port to get data.  They just use the tag (and ProcessId) to 
-// specify which port they want.
+// 
 
 // .SECTION see also
-// vtkPortDown vtkMPIController
+// vtkUpStreamPort vtkMPIController
 
-#ifndef __vtkPortUp_h
-#define __vtkPortUp_h
+#ifndef __vtkDownStreamPort_h
+#define __vtkDownStreamPort_h
 
-#include "vtkProcessObject.h"
+#include "vtkSource.h"
 #include "vtkMPIController.h"
 class vtkPolyData;
 
+// Arbitrary tags used by the ports for communication.
+#define VTK_PORT_DOWN_DATA_TIME_TAG  989877
+#define VTK_PORT_TRANSFER_NEEDED_TAG 564441
+#define VTK_PORT_DATA_TRANSFER_TAG   666665
+#define VTK_PORT_NEW_DATA_TIME_TAG   100110
 
-class VTK_EXPORT vtkPortUp : public vtkProcessObject
+
+class VTK_EXPORT vtkDownStreamPort : public vtkSource
 {
  public:
-  vtkPortUp();
-  ~vtkPortUp();  
-  static vtkPortUp *New() {return new vtkPortUp;};
-  const char *GetClassName() {return "vtkPortUp";};
+  vtkDownStreamPort();
+  ~vtkDownStreamPort();  
+  static vtkDownStreamPort *New() {return new vtkDownStreamPort;};
+  const char *GetClassName() {return "vtkDownStreamPort";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Should accept vtkDataObjects in the future.
-  void SetInput(vtkPolyData *input);
-  vtkDataObject *GetInput();
+  // Note: You have to ask for the right type, and it has to match
+  // the type of the up stream port input, or you will get an error.
+  // We have to live with the fact that the error will not occur until
+  // an update is called.
+  vtkPolyData *GetPolyDataOutput();
   
   // Description:
   // Output is specified by the process the output port is in,
   // and a tag so there can be more than one output port per process.
-  // Tag must be set before this port can be used.
-  void SetTag(int tag);
+  vtkSetMacro(UpStreamProcessId, int);
+  vtkGetMacro(UpStreamProcessId, int);
+  vtkSetMacro(Tag, int);
   vtkGetMacro(Tag, int);
   
   // Description:
-  // This just forwards the wait onto the controller, which will wait
-  // for a message for any of its ports (or any RMI).
-  // For now, this method does not return.  I need to find an elegant
-  // way to break this loop. (maybe a message between controllers)
-  void WaitForUpdate() {this->Controller->ProcessRMIs();}
+  // We need special UpdateInformation and Update methods to 
+  // communicate with the up-stream process.
+  void InternalUpdate(vtkDataObject *output);
+  void UpdateInformation();
   
   // Description:
   // Access to the global controller.
   vtkMPIController *GetController() {return this->Controller;}
 
-  // Description:
-  // RMI function needs to call this.  Should make it a friend.
-  // No one else should call it.
-  void Trigger(int remoteProcessId);
-  
 protected:
   
-  int Tag;
-  
   vtkMPIController *Controller;
-  vtkTimeStamp UpdateTime;
+  int UpStreamProcessId;
+  int Tag;
 
+  unsigned long DataTime;
+  int TransferNeeded;
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkPortUp.cxx
+  Module:    vtkUpStreamPort.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,14 +37,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPortUp.h"
-#include "vtkPortDown.h"
+#include "vtkUpStreamPort.h"
+#include "vtkDownStreamPort.h"
 #include "vtkMPIController.h"
 #include "vtkPolyData.h"
 
 
 //----------------------------------------------------------------------------
-vtkPortUp::vtkPortUp()
+vtkUpStreamPort::vtkUpStreamPort()
 {
   this->Tag = -1;
   
@@ -54,7 +54,7 @@ vtkPortUp::vtkPortUp()
 
 //----------------------------------------------------------------------------
 // We need to have a "GetNetReferenceCount" to avoid memory leaks.
-vtkPortUp::~vtkPortUp()
+vtkUpStreamPort::~vtkUpStreamPort()
 {
   vtkMPIController *tmp;
   
@@ -65,7 +65,7 @@ vtkPortUp::~vtkPortUp()
 }
 
 //----------------------------------------------------------------------------
-void vtkPortUp::PrintSelf(ostream& os, vtkIndent indent)
+void vtkUpStreamPort::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
   os << indent << "Tag: " << this->Tag << endl;
@@ -76,9 +76,9 @@ void vtkPortUp::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Remote method call to start an update.
 // Actually call by UpdateInformation.
-void vtkPortUpUpdateCallBack(void *arg, int remoteProcessId)  
+void vtkUpStreamPortUpdateCallBack(void *arg, int remoteProcessId)  
 {
-  vtkPortUp *self = (vtkPortUp*)arg;
+  vtkUpStreamPort *self = (vtkUpStreamPort*)arg;
   
   // Just call a method
   self->Trigger(remoteProcessId);
@@ -86,7 +86,7 @@ void vtkPortUpUpdateCallBack(void *arg, int remoteProcessId)
 
   
 //----------------------------------------------------------------------------
-void vtkPortUp::Trigger(int remoteProcessId)
+void vtkUpStreamPort::Trigger(int remoteProcessId)
 {
   vtkDataObject *input = this->GetInput();
   unsigned long pmt, downDataTime;
@@ -150,13 +150,13 @@ void vtkPortUp::Trigger(int remoteProcessId)
 
 
 //----------------------------------------------------------------------------
-void vtkPortUp::SetInput(vtkPolyData *input)
+void vtkUpStreamPort::SetInput(vtkPolyData *input)
 {
   this->vtkProcessObject::SetInput(0, input);
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject *vtkPortUp::GetInput()
+vtkDataObject *vtkUpStreamPort::GetInput()
 {
   if (this->Inputs == NULL)
     {
@@ -168,7 +168,7 @@ vtkDataObject *vtkPortUp::GetInput()
 
 //----------------------------------------------------------------------------
 // We need to create an RMI when the tag is set.
-void vtkPortUp::SetTag(int tag)
+void vtkUpStreamPort::SetTag(int tag)
 {
   if (this->Tag == tag)
     {
@@ -180,11 +180,11 @@ void vtkPortUp::SetTag(int tag)
   // remove old RMI.
   if (this->Tag != -1)
     {
-    this->Controller->RemoveRMI(vtkPortUpUpdateCallBack, (void *)this, this->Tag);
+    this->Controller->RemoveRMI(vtkUpStreamPortUpdateCallBack, (void *)this, this->Tag);
     }
   
   this->Tag = tag;
-  this->Controller->AddRMI(vtkPortUpUpdateCallBack, (void *)this, tag);
+  this->Controller->AddRMI(vtkUpStreamPortUpdateCallBack, (void *)this, tag);
 }
 
 

@@ -56,7 +56,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "mpi.h"
 class vtkPolyData;
-class vtkDataObject;
 class vtkCollection;
 
 class VTK_EXPORT vtkMPIController : public vtkObject
@@ -75,7 +74,7 @@ class VTK_EXPORT vtkMPIController : public vtkObject
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
   // when multiple sends ar receives exist in the same process.
-  int Send(vtkDataObject *data, int remoteProcessId, int tag);
+  int Send(vtkObject *data, int remoteProcessId, int tag);
   int Send(int *data, int length, int remoteProcessId, int tag);
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
 
@@ -83,7 +82,7 @@ class VTK_EXPORT vtkMPIController : public vtkObject
   // This method receives data from a corresponding send. It blocks
   // until the receive is finished.  It calls methods in "data"
   // to communicate the sending data.
-  int Receive(vtkDataObject *data, int remoteProcessId, int tag);
+  int Receive(vtkObject *data, int remoteProcessId, int tag);
   int Receive(int *data, int length, int remoteProcessId, int tag);
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
   
@@ -123,13 +122,15 @@ protected:
   
   // Write and read from marshal string
   // return 1 success, 0 fail
-  int WriteObject(vtkDataObject *object);
-  int ReadObject(vtkDataObject *object);
+  int WriteObject(vtkObject *object);
+  int ReadObject(vtkObject *object);
   
   int WritePolyData(vtkPolyData *object);
   int ReadPolyData(vtkPolyData *object);
   void CopyPolyData(vtkPolyData *src, vtkPolyData *dest);
-  
+
+  int WriteUnstructuredExtent(vtkUnstructuredExtent *object);
+  int ReadUnstructuredExtent(vtkUnstructuredExtent *object);
 };
 
 
