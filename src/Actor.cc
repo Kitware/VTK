@@ -23,11 +23,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Description:
 // Creates an actor with the following defaults: origin(0,0,0) 
 // position(0,0,0) scale(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation= (0,0,0)
+// orientation= (0,0,0). IMPORTANT NOTE: Usually the vlRenderWindow
+// method MakeActor() is used to create a device specific actor. This
+// has the added benefit that a default device-specific proprty is 
+// automatically created.
 vlActor::vlActor()
 {
-  this->Mapper = 0;
-  this->Property = 0;
+  this->Mapper = NULL;
+  this->Property = NULL;
 
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
@@ -66,27 +69,6 @@ void vlActor::Render(vlRenderer *ren)
   /* send a render to the modeller */
   this->Mapper->Render(ren);
 
-}
-
-// Description:
-// This is the method that is used to connect an actor to the end of a
-// visualization pipeline, i.e. the Mapper.  
-void vlActor::SetMapper(vlMapper *m)
-{
-  if ( this->Mapper != m )
-    {
-    if ( this->Mapper ) this->Mapper->UnRegister(this);
-    this->Mapper = m;
-    this->Mapper->Register(this);
-    this->Modified();
-    }
-}
-
-// Description:
-// Returns the Mapper that this actor is getting it's data from.
-vlMapper *vlActor::GetMapper()
-{
-  return this->Mapper;
 }
 
 void vlActor::PrintSelf(ostream& os, vlIndent indent)

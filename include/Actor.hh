@@ -13,8 +13,7 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
-// .NAME vlActor - an entity in a rendering scene
-//
+// .NAME vlActor - an entity in a rendered image
 // .SECTION Description
 // vlActor is used to represent an entity in a rendering scene.  It handles
 // functions related to the actors position, orientation and scaling. It
@@ -22,7 +21,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // = [x y z 1] Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) 
 // Trans(origin) Trans(position).
 //
-// The actor also maintains the front and back facing properties.  
+// The actor also maintains a reference to the defining geometry (i.e., the 
+// mapper), and rendering properties. 
 
 #ifndef __vlActor_hh
 #define __vlActor_hh
@@ -39,9 +39,25 @@ class vlActor : public vlObject
  public:
   vlActor();
   ~vlActor();
+  char *GetClassName() {return "vlActor";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   void Render(vlRenderer *ren);
 
+  // Description:
+  // Specify the property object to control rendering surface properties.
+  vlSetObjectMacro(Property,vlProperty);
+  // Description:
+  // Get the property object that controls rendering surface properties.
+  vlGetObjectMacro(Property,vlProperty);
+
+  // Description:
+  // This is the method that is used to connect an actor to the end of a
+  // visualization pipeline, i.e. the Mapper.  
+  vlSetObjectMacro(Mapper,vlMapper);
+  // Description:
+  // Returns the Mapper that this actor is getting it's data from.
+  vlGetObjectMacro(Mapper,vlMapper);
 
   // Description:
   // Get the position of the actor.
@@ -114,11 +130,6 @@ class vlActor : public vlObject
   vlBooleanMacro(Dragable,int);
 
   vlMatrix4x4 GetMatrix();
-  void SetMapper(vlMapper *m);
-  vlMapper *GetMapper();
-  vlProperty *Property; 
-  char *GetClassName() {return "vlActor";};
-  void PrintSelf(ostream& os, vlIndent indent);
 
   float *GetBounds();
   float *GetXRange();
@@ -137,6 +148,7 @@ class vlActor : public vlObject
   void AddOrientation(float a[3]);
 
 protected:
+  vlProperty *Property; 
   vlMapper *Mapper;
   float Origin[3];
   float Position[3];

@@ -117,7 +117,7 @@ vlActor *vlGlrRenderWindow::MakeActor()
   actor = new vlActor;
   prop  = new vlGlrProperty;
 
-  actor->Property = (vlProperty *)prop;
+  actor->SetProperty((vlProperty *)prop);
   return (vlActor *)actor;
 }
 

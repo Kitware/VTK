@@ -48,7 +48,7 @@ vlActor *vlSbrRenderWindow::MakeActor()
   actor = new vlActor;
   prop  = new vlSbrProperty;
 
-  actor->Property = (vlProperty *)prop;
+  actor->SetProperty((vlProperty *)prop);
   return (vlActor *)actor;
 }
 
