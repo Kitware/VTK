@@ -24,6 +24,7 @@ lineWidget SetInput [pl3d GetOutput]
 lineWidget SetAlignToYAxis
 lineWidget PlaceWidget
 lineWidget GetPolyData seeds
+lineWidget ClampToBoundsOn
 
 vtkRungeKutta4 rk4
 vtkStreamLine streamer
