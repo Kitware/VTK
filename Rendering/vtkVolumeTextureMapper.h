@@ -28,12 +28,12 @@
 #define __vtkVolumeTextureMapper_h
 
 #include "vtkVolumeMapper.h"
-#include "vtkEncodedGradientShader.h"
-#include "vtkEncodedGradientEstimator.h"
 
-class vtkVolume;
-class vtkRenderer;
+class vtkEncodedGradientEstimator;
+class vtkEncodedGradientShader;
 class vtkRenderWindow;
+class vtkRenderer;
+class vtkVolume;
 
 class VTK_RENDERING_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
@@ -47,7 +47,7 @@ public:
 
   // Description:
   // Set / Get the gradient estimator used to estimate normals
-  void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
+  virtual void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
   vtkGetObjectMacro( GradientEstimator, vtkEncodedGradientEstimator );
 
   // Description:
