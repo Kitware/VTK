@@ -600,7 +600,7 @@ ENDIF(VTK_USE_MATROX_IMAGING)
 # Configure MPI testing support.
 IF(VTK_USE_MPI AND BUILD_TESTING)
   FIND_PROGRAM(VTK_MPIRUN_EXE NAMES mpirun lamexec)
-  SET(VTK_MPI_PREFLAGS "-np 2" CACHE STRING "Flags used by MPI start program.")
+  SET(VTK_MPI_PREFLAGS "-np;2" CACHE STRING "Flags used by MPI start program.")
   SET(VTK_MPI_POSTFLAGS "" CACHE STRING "Flags used by MPI start program.")
   SET(VTK_MPI_MAX_NUMPROCS "2" CACHE STRING "Maximum number of processors available to run parallel applications.")
   MARK_AS_ADVANCED(VTK_MPIRUN_EXE VTK_MPI_PREFLAGS VTK_MPI_POSTFLAGS VTK_MPI_MAX_NUMPROCS)
