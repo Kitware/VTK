@@ -127,7 +127,7 @@ main ()
   // create a camera with the correct view up
   vtkCamera *aCamera = vtkCamera::New();
     aCamera->SetViewUp (0, 0, -1);
-    aCamera->SetPosition (0, -1, 0);
+    aCamera->SetPosition (0, 1, 0);
     aCamera->SetFocalPoint (0, 0, 0);
     aCamera->ComputeViewPlaneNormal();
 
