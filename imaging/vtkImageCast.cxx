@@ -191,56 +191,9 @@ static void vtkImageCastExecute(vtkImageCast *self,
 
   switch (outData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (double *)(outPtr),outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (float *)(outPtr),outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (long *)(outPtr),outExt, id); 
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (unsigned long *)(outPtr),outExt, id); 
-      break;
-    case VTK_INT:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (int *)(outPtr),outExt, id); 
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (unsigned int *)(outPtr),outExt, id); 
-      break;
-    case VTK_SHORT:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (short *)(outPtr),outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (unsigned short *)(outPtr),outExt, id); 
-      break;
-    case VTK_CHAR:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (char *)(outPtr),outExt, id); 
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageCastExecute(self, 
-			  inData, (T *)(inPtr), 
-			  outData, (unsigned char *)(outPtr),outExt, id); 
-      break;
+    vtkTemplateMacro7(vtkImageCastExecute, self, 
+                      inData, (T *)(inPtr), 
+                      outData, (VTK_TT *)(outPtr),outExt, id);
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
@@ -266,46 +219,8 @@ void vtkImageCast::ThreadedExecute(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageCastExecute(this, inData, (double *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_FLOAT:
-      vtkImageCastExecute(this, inData, (float *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_LONG:
-      vtkImageCastExecute(this, inData, (long *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageCastExecute(this, inData, (unsigned long *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_INT:
-      vtkImageCastExecute(this, inData, (int *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageCastExecute(this, inData, (unsigned int *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_SHORT:
-      vtkImageCastExecute(this, inData, (short *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageCastExecute(this, inData, (unsigned short *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_CHAR:
-      vtkImageCastExecute(this, inData, (char *)(inPtr), 
-			  outData, outExt, id);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageCastExecute(this, inData, (unsigned char *)(inPtr), 
-			  outData, outExt, id);
-      break;
+    vtkTemplateMacro6(vtkImageCastExecute, this, inData, (VTK_TT *)(inPtr), 
+                      outData, outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
