@@ -109,7 +109,7 @@ VTK_PREPARE_CMAKEDEFINE(NOT VTK_EXPLICIT_TEMPLATES
 
 #-----------------------------------------------------------------------------
 # Include file dependency tracking regular expression.
-SET(VTK_REGEX "vtk[^.]*\\.([^t]|t[^x]|tx[^x])")
+SET(VTK_REGEX "vtk[^.]*\\.([^t]|t[^x]|tx[^x]|cxx)")
 IF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies.
   SET(VTK_REGEX_TXX "vtk[^.]*\\.txx")
@@ -728,13 +728,16 @@ VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 
 #-----------------------------------------------------------------------------
 # Configure the Tk library for vtkRendering.
-IF(VTK_USE_RENDERING)
-  IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
+IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
+  IF(VTK_USE_RENDERING OR VTK_WRAP_TCL)
+    SET(VTK_INCLUDE_NEED_TCL 1)
+  ENDIF(VTK_USE_RENDERING OR VTK_WRAP_TCL)
+  IF(VTK_USE_RENDERING)
     SET(VTK_INCLUDE_NEED_TK 1)
     SET(VTK_DISABLE_TK_INIT ${VTK_USE_COCOA} CACHE INTERNAL
-        "Disables the automatic initialization of Tk widgets when loading the rendering library.")
-  ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
-ENDIF(VTK_USE_RENDERING)
+      "Disables the automatic initialization of Tk widgets when loading the rendering library.")
+  ENDIF(VTK_USE_RENDERING)
+ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 
 IF(VTK_INCLUDE_NEED_TK)
   # Need Tk sources on windows
