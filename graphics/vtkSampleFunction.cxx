@@ -65,7 +65,15 @@ vtkSampleFunction::vtkSampleFunction()
   this->ImplicitFunction = NULL;
 
   this->ComputeNormals = 1;
+  this->Scalars = NULL;
 }
+vtkSampleFunction::~vtkSampleFunction() 
+  {
+  if (this->Scalars != NULL) 
+    {
+    this->Scalars->Delete();
+    }
+  }
 
 // Description:
 // Specify the dimensions of the data on which to sample.
@@ -115,10 +123,13 @@ void vtkSampleFunction::SetModelBounds(float xmin, float xmax, float ymin,
 void vtkSampleFunction::Execute()
 {
   int ptId, i;
-  vtkFloatScalars *newScalars;
   vtkFloatNormals *newNormals=NULL;
   int numPts;
-  float *p, s, spacing[3], origin[3];
+  float *p, s, ar[3], origin[3];
+  if (this->Scalars == NULL) 
+    {
+    this->Scalars = new vtkFloatScalars;
+    }
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Sampling implicit function");
@@ -134,25 +145,25 @@ void vtkSampleFunction::Execute()
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
-  newScalars = vtkFloatScalars::New(); newScalars->SetNumberOfScalars(numPts);
+  this->Scalars->SetNumberOfScalars(numPts);
 
-  // Compute origin and data spacing
+  // Compute origin and aspect ratio
   output->SetDimensions(this->GetSampleDimensions());
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
     if ( this->SampleDimensions[i] <= 1 )
       {
-      spacing[i] = 1;
+      ar[i] = 1;
       }
     else
       {
-      spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
               / (this->SampleDimensions[i] - 1);
       }
     }
   output->SetOrigin(origin);
-  output->SetSpacing(spacing);
+  output->SetSpacing(ar);
 //
 // Traverse all points evaluating implicit function at each point
 //
@@ -160,7 +171,7 @@ void vtkSampleFunction::Execute()
     {
     p = output->GetPoint(ptId);
     s = this->ImplicitFunction->FunctionValue(p);
-    newScalars->SetScalar(ptId,s);
+    this->Scalars->SetScalar(ptId,s);
     }
 //
 // If normal computation turned on, compute them
@@ -168,7 +179,7 @@ void vtkSampleFunction::Execute()
   if ( this->ComputeNormals )
     {
     float n[3];
-    newNormals = vtkFloatNormals::New();
+    newNormals = new vtkFloatNormals(numPts); 
     newNormals->SetNumberOfNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {
@@ -187,13 +198,12 @@ void vtkSampleFunction::Execute()
 //
   if ( this->Capping )
     {
-    this->Cap(newScalars);
+    this->Cap(this->Scalars);
     }
 //
 // Update self
 //
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
+  output->GetPointData()->SetScalars(this->Scalars);
 
   if (newNormals)
     {
@@ -217,7 +227,7 @@ unsigned long vtkSampleFunction::GetMTime()
   return mTime;
 }
 
-void vtkSampleFunction::Cap(vtkFloatScalars *s)
+void vtkSampleFunction::Cap(vtkScalars *s)
 {
   int i,j,k;
   int idx;
