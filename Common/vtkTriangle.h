@@ -96,10 +96,10 @@ public:
   static float TriangleArea(float p1[3], float p2[3], float p3[3]);
   
   // Description:
-  // Compute the circumcenter (center[3]) and radius (method return value) of
-  // a triangle defined by the three points x1, x2, and x3. (Note that the
-  // coordinates are 2D. 3D points can be used but the z-component will be
-  // ignored.)
+  // Compute the circumcenter (center[3]) and radius squared (method
+  // return value) of a triangle defined by the three points x1, x2,
+  // and x3. (Note that the coordinates are 2D. 3D points can be used
+  // but the z-component will be ignored.)
   static double Circumcircle(double  p1[2], double p2[2], double p3[2], 
                             double center[2]);
 

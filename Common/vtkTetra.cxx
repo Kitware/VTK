@@ -27,7 +27,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.76");
+vtkCxxRevisionMacro(vtkTetra, "1.77");
 vtkStandardNewMacro(vtkTetra);
 
 // Construct the tetra with four points.
@@ -486,8 +486,9 @@ double vtkTetra::ComputeVolume(double  p1[3], double p2[3], double p3[3],
                                   p2[2]-p1[2], p3[2]-p1[2], p4[2]-p1[2])/6.0);
 }
                                
-// Compute the circumcenter (center[3]) and radius (method return value) of
-// a tetrahedron defined by the four points x1, x2, x3, and x4.
+// Compute the circumcenter (center[3]) and radius squared (method
+// return value) of a tetrahedron defined by the four points x1, x2,
+// x3, and x4.
 double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3], 
                              double x4[3], double center[3])
 {

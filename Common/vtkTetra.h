@@ -89,8 +89,9 @@ public:
                           float center[3]);
 
   // Description:
-  // Compute the circumcenter (center[3]) and radius (method return value) of
-  // a tetrahedron defined by the four points x1, x2, x3, and x4.
+  // Compute the circumcenter (center[3]) and radius squared (method
+  // return value) of a tetrahedron defined by the four points x1, x2,
+  // x3, and x4.
   static double Circumsphere(double  p1[3], double p2[3], double p3[3], 
                              double p4[3], double center[3]);
 
