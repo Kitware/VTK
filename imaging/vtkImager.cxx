@@ -49,8 +49,8 @@ vtkImager::vtkImager()
   vtkDebugMacro(<< "vtkImager::vtkImager");
 
   this->Viewport[0] = 0.0; // min x
-  this->Viewport[1] = 1.0; // max x
-  this->Viewport[2] = 0.0; // min y
+  this->Viewport[1] = 0.0; // min y
+  this->Viewport[2] = 1.0; // max x
   this->Viewport[3] = 1.0; // max y
 
 }
