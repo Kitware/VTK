@@ -32,9 +32,8 @@
 #define __vtkWin32VideoSource_h
 
 #include "vtkVideoSource.h"
-#include <windows.h>
-#include <winuser.h>
-#include <vfw.h>
+
+class vtkWin32VideoSourceInternal;
 
 class VTK_HYBRID_EXPORT vtkWin32VideoSource : public vtkVideoSource
 {
@@ -97,7 +96,7 @@ public:
 
   // Description:
   // For internal use only
-  void InternalGrab(LPVIDEOHDR VideoHdrPtr);
+  void InternalGrab(void*);
   void OnParentWndDestroy();
 
 protected:
@@ -105,15 +104,10 @@ protected:
   ~vtkWin32VideoSource();
 
   char WndClassName[16];
-  HWND CapWnd;
-  HWND ParentWnd;
-  CAPSTATUS CapStatus;
-  CAPDRIVERCAPS CapDriverCaps;
-  CAPTUREPARMS CaptureParms;
-  LPBITMAPINFO BitMapPtr;
   int BitMapSize;
-
   int Preview;
+
+  vtkWin32VideoSourceInternal *Internal;
 
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr, 
