@@ -20,8 +20,11 @@ public:
 	BOOL	m_Contrib;
 	BOOL	m_Graphics;
 	BOOL	m_Imaging;
-	BOOL	m_GenericComp;
 	CString	m_WhereCompiler;
+	BOOL	m_Debug;
+	BOOL	m_GEMSIO;
+	BOOL	m_GEMSIP;
+	BOOL	m_GEMSVOLUME;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

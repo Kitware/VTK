@@ -28,8 +28,11 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_Contrib = TRUE;
 	m_Graphics = TRUE;
 	m_Imaging = TRUE;
-	m_GenericComp = TRUE;
 	m_WhereCompiler = _T("");
+	m_Debug = FALSE;
+	m_GEMSIO = FALSE;
+	m_GEMSIP = FALSE;
+	m_GEMSVOLUME = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -48,9 +51,12 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_Contrib, m_Contrib);
 	DDX_Check(pDX, IDC_Graphics, m_Graphics);
 	DDX_Check(pDX, IDC_Imaging, m_Imaging);
-	DDX_Check(pDX, IDC_GenericComp, m_GenericComp);
 	DDX_Text(pDX, IDC_WHERECOMPILER, m_WhereCompiler);
 	DDV_MaxChars(pDX, m_WhereCompiler, 40);
+	DDX_Check(pDX, IDC_Debug, m_Debug);
+	DDX_Check(pDX, IDC_GEMSIO, m_GEMSIO);
+	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
+	DDX_Check(pDX, IDC_GEMSVOLUME, m_GEMSVOLUME);
 	//}}AFX_DATA_MAP
 }
 
@@ -117,10 +123,7 @@ HCURSOR CPcmakerDlg::OnQueryDragIcon()
 	return (HCURSOR) m_hIcon;
 }
 
-extern void makeMakefile(const char *vtkHome, 
-			 const char *vtkBuild, const char *vtkCompiler, 
-       int useMS, int useGeneric,
-			 int useGraphics, int useImaging, int useContrib);
+extern void makeMakefile(CPcmakerDlg *vals);
 
 void CPcmakerDlg::OnOK() 
 {
@@ -167,12 +170,12 @@ void CPcmakerDlg::OnOK()
   fclose(fp);
 
   // make sure only one compile is specified
-  if ((this->m_MSComp + this->m_BorlandComp + this->m_GenericComp) > 1)
+  if ((this->m_MSComp + this->m_BorlandComp) > 1)
     {
     AfxMessageBox("Please specify only one compiler.");
     return;
     }
-  if (!this->m_MSComp && !this->m_BorlandComp && !this->m_GenericComp)
+  if (!this->m_MSComp && !this->m_BorlandComp)
     {
     AfxMessageBox("Please specify a compiler.");
     return;
@@ -202,9 +205,6 @@ void CPcmakerDlg::OnOK()
   sprintf(fname,"%s\\vtktcl\\src",this->m_WhereBuild);
   if (_stat(fname,&statBuff) == -1) _mkdir(fname);
   
-  makeMakefile(this->m_WhereVTK, this->m_WhereBuild, this->m_WhereCompiler, 
-               this->m_MSComp, this->m_GenericComp,
-	       this->m_Graphics, this->m_Imaging, this->m_Contrib);
-
+  makeMakefile(this);
   CDialog::OnOK();
 }

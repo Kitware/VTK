@@ -72,35 +72,42 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\pcmaker.ico"
 // Dialog
 //
 
-IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 204
+IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 214
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,31,183,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,97,183,50,14
-    GROUPBOX        "What Compiler",IDC_COMPILER,7,146,171,30,WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,31,193,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,97,193,50,14
+    GROUPBOX        "What Compiler",IDC_COMPILER,7,92,74,44,WS_TABSTOP
     EDITTEXT        IDC_WHEREVTK,16,15,155,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
     LTEXT           "Where do you want to build the vtk libraries",
                     IDC_STATIC,7,33,139,8
     EDITTEXT        IDC_WHEREBUILD,16,45,154,14,ES_AUTOHSCROLL
     CONTROL         "Microsoft",IDC_MSCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,72,159,43,10
+                    WS_TABSTOP,15,104,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,128,159,40,10
-    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,113,171,30
+                    WS_TABSTOP,15,120,40,10
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,140,171,46
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,126,56,10
+                    WS_TABSTOP,15,153,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,75,126,41,10
+                    WS_TABSTOP,68,153,41,10
     CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,129,126,38,10
-    CONTROL         "Generic",IDC_GenericComp,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,19,159,43,11
+                    WS_TABSTOP,117,153,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,63,148,13
     EDITTEXT        IDC_WHERECOMPILER,16,75,153,13,ES_AUTOHSCROLL
+    GROUPBOX        "Debug",IDC_STATIC,103,93,75,31
+    CONTROL         "Debug Build",IDC_Debug,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,114,106,55,10
+    CONTROL         "GemsIO",IDC_GEMSIO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,170,41,10
+    CONTROL         "GemsIP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,68,170,41,10
+    CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,117,170,57,10
 END
 
 
@@ -160,7 +167,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 178
         TOPMARGIN, 7
-        BOTTOMMARGIN, 197
+        BOTTOMMARGIN, 207
     END
 END
 #endif    // APSTUDIO_INVOKED

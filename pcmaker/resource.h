@@ -16,6 +16,11 @@
 #define IDC_Imaging                     1013
 #define IDC_Contrib                     1014
 #define IDC_GenericComp                 1015
+#define IDC_Debug                       1017
+#define IDC_GEMSIO                      1018
+#define IDC_GEMSIP                      1019
+#define IDC_GEMSVOLUME                  1020
+#define IDC_CHECK5                      1021
 
 // Next default values for new objects
 // 
@@ -23,7 +28,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        129
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_CONTROL_VALUE         1022
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
