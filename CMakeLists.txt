@@ -592,15 +592,17 @@ ENDIF(VTK_USE_PARALLEL)
 # Configure Tcl wrapping support.
 IF(VTK_WRAP_TCL)
   INCLUDE(${CMAKE_ROOT}/Modules/FindTCL.cmake)
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
 
   # Hide useless settings provided by FindTCL.
-  FOREACH(entry TCL_LIBRARY_DEBUG
-		TK_LIBRARY_DEBUG
-		TCL_STUB_LIBRARY
-		TCL_STUB_LIBRARY_DEBUG
-		TK_STUB_LIBRARY
-		TK_STUB_LIBRARY_DEBUG
-                TK_WISH)
+  FOREACH(entry 
+          TCL_LIBRARY_DEBUG
+          TK_LIBRARY_DEBUG
+		  TCL_STUB_LIBRARY
+		  TCL_STUB_LIBRARY_DEBUG
+		  TK_STUB_LIBRARY
+		  TK_STUB_LIBRARY_DEBUG
+          TK_WISH)
     SET(${entry} "${${entry}}" CACHE INTERNAL "This value is not used by VTK.")
   ENDFOREACH(entry)
 
@@ -623,18 +625,20 @@ IF(VTK_WRAP_TCL)
   OPTION(TCL_TK_STATIC "Build with static Tcl/Tk support. TCL_LIBRARY and TK_LIBRARY must point to the corresponding Tcl/Tk static libraries (example, tcl84sx.lib, tk84sx.lib)." OFF)
   MARK_AS_ADVANCED(TCL_TK_STATIC)
 
-  IF(TCL_TK_STATIC AND WIN32)
-     IF(TK_LIBRARY MATCHES tk84)
-	   SET(TRY_TK_RESOURCE_FILE_IN
-           ${VTK_SOURCE_DIR}/Rendering/tkInternals/tk84/win/rc)
-     ENDIF(TK_LIBRARY MATCHES tk84)
-     FIND_FILE(TK_RESOURCE_FILE tk.rc ${TRY_TK_RESOURCE_FILE_IN} DOC "The resource file required to add the proper resources to a static Tk build")
-     MARK_AS_ADVANCED(TK_RESOURCE_FILE)
-  ENDIF (TCL_TK_STATIC AND WIN32)
-
 ENDIF(VTK_WRAP_TCL)
 
+# If TCL_TK_STATIC is meant to be used in C++, then we have to create a
+# variable with a VTK_ prefix (it will be configured in vtkToolkits.h.in)
 VTK_PREPARE_CMAKEDEFINE("" TCL_TK_STATIC VTK_TCL_TK_STATIC)
+
+# If TCL_TK_COPY_SUPPORT_LIBRARY is meant to be used in C++, then we
+# have to create a variable with a VTK_ prefix (it will be configured
+# in vtkToolkits.h.in)
+VTK_PREPARE_CMAKEDEFINE(
+   "" TCL_TK_COPY_SUPPORT_LIBRARY VTK_TCL_TK_COPY_SUPPORT_LIBRARY)
+
+INSTALL_FILES(/lib/vtk/CMake FILES
+              ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
 
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support.
@@ -785,7 +789,7 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/UseVTK.cmake.in
                ${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY IMMEDIATE)
 
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkToolkits.h.in
-               ${VTK_BINARY_DIR}/vtkToolkits.h @ONLY IMMEDIATE)
+               ${VTK_BINARY_DIR}/vtkToolkits.h @ONLY)
 
 #-----------------------------------------------------------------------------
 # The entire VTK tree should use the same include path.

@@ -48,6 +48,9 @@
 /* Whether we are linking to Tcl/Tk statically.  */
 #cmakedefine VTK_TCL_TK_STATIC
 
+/* Wheter the Tcl/Tk support files are copied to the build dir */
+#cmakedefine VTK_TCL_TK_COPY_SUPPORT_LIBRARY
+
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 

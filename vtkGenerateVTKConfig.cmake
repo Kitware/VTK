@@ -85,6 +85,8 @@ ENDIF(VTK_RENDERING_NEED_TK_INTERNAL)
 # CMake extension module directory.
 SET(VTK_LOAD_CMAKE_EXTENSIONS_MACRO_CONFIG
     "${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake")
+SET(VTK_TCL_TK_MACROS_CONFIG
+    "${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake")
 SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_BINARY_DIR}/CMake)
 
 # Library dependencies file.
@@ -198,6 +200,8 @@ SET(VTK_TK_INTERNAL_ROOT_CONFIG ${CMAKE_INSTALL_PREFIX}/include/vtk)
 # CMake extension module directory and macro file.
 SET(VTK_LOAD_CMAKE_EXTENSIONS_MACRO_CONFIG
     "${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake/vtkLoadCMakeExtensions.cmake")
+SET(VTK_TCL_TK_MACROS_CONFIG
+    "${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake/vtkTclTkMacros.cmake")
 SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake)
 
 # Library dependencies file.
