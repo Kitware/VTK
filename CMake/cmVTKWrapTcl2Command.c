@@ -9,14 +9,14 @@ typedef struct
 {
   char *LibraryName;
   int NumberWrapped;
-  void **SourceFiles;
+  char **SourceFiles;
 } cmVTKWrapTclData;
 
 /* this roputine creates the init file */
-void CreateInitFile(cmLoadedCommandInfo *info,
-                    void *mf, const char *libName, 
-                    int numConcrete, const char **concrete, 
-                    int numCommands, const char **commands) 
+static void CreateInitFile(cmLoadedCommandInfo *info,
+                           void *mf, const char *libName, 
+                           int numConcrete, const char **concrete, 
+                           int numCommands, const char **commands) 
 {
   /* we have to make sure that the name is the correct case */
   char *kitName = info->CAPI->Capitalized(libName);
@@ -157,7 +157,7 @@ void CreateInitFile(cmLoadedCommandInfo *info,
 }
 
 /* do almost everything in the initial pass */
-int InitialPass(void *inf, void *mf, int argc, char *argv[])
+static int InitialPass(void *inf, void *mf, int argc, char *argv[])
 {
   cmLoadedCommandInfo *info = (cmLoadedCommandInfo *)inf;
   int i;
@@ -176,6 +176,7 @@ int InitialPass(void *inf, void *mf, int argc, char *argv[])
   
   if(argc < 3 )
     {
+    info->CAPI->SetError(info, "called with incorrect number of arguments");
     return 0;
     }
   
@@ -202,7 +203,7 @@ int InitialPass(void *inf, void *mf, int argc, char *argv[])
   sources = (char **)malloc(sizeof(char *)*newArgc);
   commands = (char **)malloc(sizeof(char *)*newArgc);
   concrete = (char **)malloc(sizeof(char *)*newArgc);
-  cdata->SourceFiles = (void **)malloc(sizeof(void *)*newArgc);
+  cdata->SourceFiles = (char **)malloc(sizeof(char *)*newArgc);
   
   for(i = 1; i < newArgc; ++i)
     {   
@@ -326,7 +327,7 @@ int InitialPass(void *inf, void *mf, int argc, char *argv[])
 }
 
 
-void FinalPass(void *inf, void *mf) 
+static void FinalPass(void *inf, void *mf) 
 {
   cmLoadedCommandInfo *info = (cmLoadedCommandInfo *)inf;
   /* get our client data from initial pass */
@@ -395,12 +396,25 @@ static void Destructor(void *inf)
     }
 }
 
-void CM_PLUGIN_EXPORT cmInitializeCommand(cmLoadedCommandInfo *info)
+static const char* GetTerseDocumentation() 
+{
+  return "Create Tcl Wrappers for VTK classes.";
+}
+
+static const char* GetFullDocumentation()
+{
+  return
+    "VTK_WRAP_TCL(resultingLibraryName [SOURCES] SourceListName SourceLists ... [COMMANDS CommandName1 CommandName2 ...])";
+}
+
+void CM_PLUGIN_EXPORT VTK_WRAP_TCL2Init(cmLoadedCommandInfo *info)
 {
   info->InitialPass = InitialPass;
   info->FinalPass = FinalPass;
   info->Destructor = Destructor;
   info->m_Inherited = 0;
+  info->GetTerseDocumentation = GetTerseDocumentation;
+  info->GetFullDocumentation = GetFullDocumentation;  
   info->Name = "VTK_WRAP_TCL2";
 }
 
