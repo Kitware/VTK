@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkImplicitFunction.h"
+#include "vtkMath.h"
 
 vtkImplicitFunction::vtkImplicitFunction()
 {
@@ -59,12 +60,24 @@ float vtkImplicitFunction::FunctionValue(const float x[3])
     {
     return this->EvaluateFunction((float *)x);
     }
-
   else //pass point through transform
     {
     float pt[3];
-    this->Transform->TransformPoint(x,pt);
-    return this->EvaluateFunction((float *)pt);
+    float A[3][3];
+    this->Transform->Update();
+    this->Transform->InternalTransformDerivative(x,pt,A);
+    float val = this->EvaluateFunction((float *)pt);
+
+    // return negative if determinant of Jacobian matrix is negative,
+    // i.e. if the transformation has a flip
+    if (vtkMath::Determinant3x3(A) < 0)
+      {
+      return -val;
+      }
+    else
+      {
+      return +val;
+      }
     }
 }
 
@@ -76,7 +89,6 @@ void vtkImplicitFunction::FunctionGradient(const float x[3], float g[3])
     {
     this->EvaluateGradient((float *)x,g);
     }
-
   else //pass point through transform
     {
     float pt[3];
@@ -86,12 +98,10 @@ void vtkImplicitFunction::FunctionGradient(const float x[3], float g[3])
     this->EvaluateGradient((float *)pt,g);
 
     // the gradient must be multiplied by the inverse of the
-    // transposed inverse of the derivative of the transform,
-    // which is (of course) just the transpose of the derivative.
-    float dx = g[0], dy = g[1], dz = g[2];
-    g[0] = dx*A[0][0] + dy*A[1][0] + dz*A[2][0];
-    g[1] = dx*A[0][1] + dy*A[1][1] + dz*A[2][1];
-    g[2] = dx*A[0][2] + dy*A[1][2] + dz*A[2][2];
+    // transposed inverse of the Jacobian matrix of the transform,
+    // which is (of course) just the transpose of the Jacobian.
+    vtkMath::Transpose3x3(A,A);
+    vtkMath::Multiply3x3(A,g,g);
     }
 }
 
