@@ -105,7 +105,6 @@ void vtkCellDerivatives::Execute()
   if ( computeScalarDerivs || computeVectorDerivs )
     {
     float pcoords[3], derivs[9], w[3], *scalars, *vectors;
-    float a00, a01, a02, a10, a11, a12, a20, a21, a22;
     vtkGenericCell *cell = vtkGenericCell::New();
     int cellId;
     vtkScalars *cellScalars=vtkScalars::New(); 

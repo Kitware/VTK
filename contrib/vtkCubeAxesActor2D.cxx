@@ -171,11 +171,11 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
 // with the boundary of the viewport (minus borders).
 int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  float bounds[6], x[3], slope, minSlope, num, den;
-  float pts[8][3], lleft[2], d2, d2Min, min, max;
-  int needsRebuild=0, *p;
-  int i, j, k, idx, idx2;
-  int xIdx, yIdx, zIdx, zIdx2, corners[4], renderedSomething=0;
+  float bounds[6], slope, minSlope, num, den;
+  float pts[8][3], d2, d2Min, min;
+  int *p;
+  int i, idx;
+  int xIdx, yIdx, zIdx, zIdx2, renderedSomething=0;
   int xAxes, yAxes, zAxes;
   int *size = viewport->GetSize();
 
@@ -631,9 +631,9 @@ static int IsInBounds(float x[3], float bounds[6]);
 int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3], 
                                    float bounds[6])
 {
-  int i, j, k, kk, idx, subId, numIters;
-  float planes[24], x[3], xyz[3], pcoords[3], weights[8];
-  float val, maxVal, anchor[3], scale, *world, xWorld[3];
+  int i, j, k, numIters;
+  float planes[24], x[3];
+  float val, maxVal, anchor[3], scale;
   float delX, delY, delZ, bounds2[6], scale2, newScale, origin[3];
 
   // Get the 6 planes defining the view frustrum

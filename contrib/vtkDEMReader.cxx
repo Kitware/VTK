@@ -121,7 +121,6 @@ void vtkDEMReader::Execute(vtkImageData *data)
 int vtkDEMReader::ReadTypeARecord ()
 {
   char record[1025];
-  int count;
   float elevationConversion;
   FILE *fp;
 
@@ -153,16 +152,16 @@ int vtkDEMReader::ReadTypeARecord ()
   char *current = record;
 
   this->MapLabel[144] = '\0';
-  count = sscanf(current, "%144c", this->MapLabel);
+  sscanf(current, "%144c", this->MapLabel);
   current += 144;
 
-  count = sscanf(current, "%6d%6d%6d%6d",
+  sscanf(current, "%6d%6d%6d%6d",
 		 &this->DEMLevel,
 		 &this->ElevationPattern,
 		 &this->GroundSystem,
 		 &this->GroundZone);
   current += 24;
-  count = sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g",
+  sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g",
    &this->ProjectionParameters[0],
    &this->ProjectionParameters[1],
    &this->ProjectionParameters[2],
@@ -179,18 +178,18 @@ int vtkDEMReader::ReadTypeARecord ()
    &this->ProjectionParameters[13],
    &this->ProjectionParameters[14]);
   current += 360;
-  count = sscanf(current, "%6d%6d%6d",
+  sscanf(current, "%6d%6d%6d",
    &this->PlaneUnitOfMeasure,
    &this->ElevationUnitOfMeasure,
    &this->PolygonSize);
   current += 18;
-  count = sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g",
+  sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g",
    &this->GroundCoords[0][0], &this->GroundCoords[0][1],
    &this->GroundCoords[1][0], &this->GroundCoords[1][1],
    &this->GroundCoords[2][0], &this->GroundCoords[2][1],
    &this->GroundCoords[3][0], &this->GroundCoords[3][1]);
   current += 192;
-  count = sscanf(current, "%24g%24g",
+  sscanf(current, "%24g%24g",
    &this->ElevationBounds[0], &this->ElevationBounds[1]);
   elevationConversion = 1.0;
   if (this->ElevationUnitOfMeasure == 1) // feet
@@ -204,18 +203,18 @@ int vtkDEMReader::ReadTypeARecord ()
   this->ElevationBounds[0] *= elevationConversion;
   this->ElevationBounds[1] *= elevationConversion;
   current += 48;
-  count = sscanf(current, "%24g",
+  sscanf(current, "%24g",
    &this->LocalRotation);
   current += 24;
-  count = sscanf(current, "%6d",
+  sscanf(current, "%6d",
    &this->AccuracyCode);
   current += 6;
-  count = sscanf(current, "%12g%12g%12g",
+  sscanf(current, "%12g%12g%12g",
    &this->SpatialResolution[0],
    &this->SpatialResolution[1],
    &this->SpatialResolution[2]);
   current += 36;
-  count = sscanf(current, "%6d%6d",
+  sscanf(current, "%6d%6d",
    &this->ProfileDimension[0],
    &this->ProfileDimension[1]);
 
@@ -311,7 +310,6 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   float lowPoint;
   int column, row;
   int columnCount;
-  int count;
   int elevation;
   int lastRow;
   int numberOfColumns;
@@ -384,7 +382,7 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
     //
     ConvertDNotationToENotation (record);
 
-    count = sscanf(record, "%6d%6d%6d%6d%24g%24g%24g%24g%24g",
+    sscanf(record, "%6d%6d%6d%6d%24g%24g%24g%24g%24g",
 		   &planCoords[0],	/* 3 */
 		   &planCoords[1],	/* 3 */
 		   &localElevation,	/* 4 */

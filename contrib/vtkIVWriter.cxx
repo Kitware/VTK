@@ -78,8 +78,6 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
 {
   vtkPointData *pntData;
   vtkPoints *points = NULL;
-  vtkNormals *normals = NULL;
-  vtkTCoords *tcoords = NULL;
   int i;
   vtkCellArray *cells;
   int npts, *indx;
@@ -91,8 +89,6 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   
   points = pd->GetPoints();
   pntData = pd->GetPointData();
-  normals = pntData->GetNormals();
-  tcoords = pntData->GetTCoords();
   colors  = pm->GetColors();
   
   fprintf(fp,"Separator {\n");

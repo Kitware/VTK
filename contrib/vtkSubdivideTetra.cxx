@@ -61,24 +61,22 @@ void vtkSubdivideTetra::Execute()
   vtkPoints *newPts;
   int ptId;
   vtkCellTypes *types=vtkCellTypes::New();
-  vtkCellArray *connections;
   float weights[4], x0[3], x1[3], x2[3], x3[3], x[3];
   int p0, p1, p2, p3, center;
   int e01, e02, e03, e12, e13, e23;
-  unsigned char type;
   vtkMergePoints *locator;
   
   vtkDebugMacro(<<"Executing mesh subdivide");
 
   input->GetCellTypes(types);
   if ( types->GetNumberOfTypes() != 1 || 
-  (type=types->GetCellType(0)) != VTK_TETRA )
+  types->GetCellType(0) != VTK_TETRA )
     {
     vtkErrorMacro(<<"Must be tetrahedra");
     types->Delete();
     return;
     }
-  connections = input->GetCells();
+  input->GetCells();
   
   // Copy original points and point data
   newPts = vtkPoints::New();
