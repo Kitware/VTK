@@ -95,13 +95,13 @@ void vtkVolumeProperty::UpdateMTimes()
 
 void vtkVolumeProperty::SetGradientOpacityScale( float v )
 {
-  vtkErrorMacro( << "This is an obsolete method.\n" <<
+  vtkWarningMacro( << "This is an obsolete method.\n" <<
     "Set the opacity scale in the vtkEncodedGradientEstimator" );
 }
 
 float vtkVolumeProperty::GetGradientOpacityScale( )
 {
-  vtkErrorMacro( << "This is an obsolete method.\n" <<
+  vtkWarningMacro( << "This is an obsolete method.\n" <<
     "Get the opacity scale from the vtkEncodedGradientEstimator" );
 
   return 0;
@@ -115,7 +115,7 @@ void vtkVolumeProperty::SetGradientOpacityBias( float v )
 
 float vtkVolumeProperty::GetGradientOpacityBias( )
 {
-  vtkErrorMacro( << "This is an obsolete method.\n" <<
+  vtkWarningMacro( << "This is an obsolete method.\n" <<
     "Get the opacity bias from the vtkEncodedGradientEstimator" );
   return 0.0;
 }
