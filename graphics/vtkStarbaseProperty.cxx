@@ -56,10 +56,15 @@ void vtkStarbaseProperty::Render(vtkActor *vtkNotUsed(anAct), vtkRenderer *aren)
   gescape_arg esc_arg1,esc_arg2;
   int l;
   fd = ren->GetFd();
+  float *edgeColor;
   
   if (!this->EdgeVisibility) 
     {
-    EdgeColor = DiffuseColor;
+      edgeColor = this->DiffuseColor;
+    }
+  else
+    {
+      edgeColor = this->EdgeColor;
     }
 
   // turn on z buffering and disable/enable backface culling 
@@ -76,8 +81,8 @@ void vtkStarbaseProperty::Render(vtkActor *vtkNotUsed(anAct), vtkRenderer *aren)
 	     this->DiffuseColor[2]);
   fill_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
 	     this->DiffuseColor[2]);
-  perimeter_color(fd, this->EdgeColor[0], this->EdgeColor[1], 
-		  this->EdgeColor[2]);
+  perimeter_color(fd, edgeColor[0], edgeColor[1], 
+		  edgeColor[2]);
   text_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
 	     this->DiffuseColor[2]);
   marker_color(fd,this->DiffuseColor[0], this->DiffuseColor[1], 
@@ -85,8 +90,8 @@ void vtkStarbaseProperty::Render(vtkActor *vtkNotUsed(anAct), vtkRenderer *aren)
 
   bf_fill_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
 		this->DiffuseColor[2]);
-  bf_perimeter_color(fd, this->EdgeColor[0], this->EdgeColor[1], 
-		     this->EdgeColor[2]);
+  bf_perimeter_color(fd, edgeColor[0], edgeColor[1], 
+		     edgeColor[2]);
 
   switch (this->Representation) 
     {
