@@ -18,7 +18,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.38");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.39");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -439,7 +439,6 @@ vtkIdType vtkEdgeTable::GetNextEdge(vtkIdType &p1, vtkIdType &p2)
     ++this->Position[1] < this->Table[this->Position[0]]->GetNumberOfIds() )
       {
       p1 = this->Position[0];
-      cout << this->Position[1] << endl;
       p2 = this->Table[this->Position[0]]->GetId(this->Position[1]);
       if ( this->StoreAttributes == 1 )
         {
