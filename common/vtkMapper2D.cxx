@@ -1,6 +1,10 @@
 
 #include "vtkMapper2D.h"
 
+void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
+{
+	this->vtkReferenceCount::PrintSelf(os, indent);
+}
 
 void vtkMapper2D::GetViewportClipSize(vtkViewport* viewport, int* clipWidth, int* clipHeight)
 {
