@@ -43,6 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // It the implements sends and receives using shared memory and reference 
 // counting.
 
+// Unfortunately, as this is written, it is not thread safe.  All threads
+// use the same controller object, so opperations like adding an RMI could
+// potentially conflict.  We need to have our own RegisterAndGetGlobalController
+// method to create different controllers for each thread.  This would also
+// simplifiy the GetLocalProcessId methods.
+
+
 // .SECTION see also
 // vtkDownStreamPort vtkUpStreamPort vtkMultiThreader vtkMultiProcessController
 

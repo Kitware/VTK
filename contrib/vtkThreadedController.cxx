@@ -107,6 +107,10 @@ public:
 vtkThreadedController::vtkThreadedController()
 {
   int idx;
+
+  // This may no longer be neede now that superclass sets 
+  // GlobalDefaultNumberOfThreads.
+  vtkMultiThreader::SetGlobalMaximumNumberOfThreads(0);
   
   this->MultiThreader = vtkMultiThreader::New();
   this->MultipleMethodFlag = 0;
@@ -117,8 +121,8 @@ vtkThreadedController::vtkThreadedController()
     }  
   
   // Here for debugging intermitent problems
-  //this->LogFile = fopen("ThreadedController.log", "w");
   this->LogFile = NULL;
+  //this->LogFile = fopen("ThreadedController.log", "w");
   
   this->MessageLock = vtkMutexLock::New();
 }
@@ -721,6 +725,11 @@ int vtkThreadedController::Receive(float *data, int length,
 int vtkThreadedController::Send(vtkObject *data, int remoteProcessId, 
 				int tag)
 {
+  if (this->ForceDeepCopy)
+    {
+    return this->vtkMultiProcessController::Send(data, remoteProcessId, tag);
+    }
+  
   if (strcmp(data->GetClassName(), "vtkPolyData") == 0  ||
       strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
       strcmp(data->GetClassName(), "vtkStructuredGrid") == 0  ||
@@ -728,12 +737,10 @@ int vtkThreadedController::Send(vtkObject *data, int remoteProcessId,
       strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0)
     {
     return this->Send(data, NULL, 0, remoteProcessId, tag);
-    return 1;
     }
   if (strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->Send(data, NULL, 0, remoteProcessId, tag);
-    return 1;
     }
   
   // By default, just use the normal marshaling from the superclass. 
@@ -744,6 +751,12 @@ int vtkThreadedController::Send(vtkObject *data, int remoteProcessId,
 int vtkThreadedController::Receive(vtkObject *data, 
 				   int remoteProcessId, int tag)
 {
+  // If we want to disable copy by reference.
+  if (this->ForceDeepCopy)
+    {
+    return this->vtkMultiProcessController::Receive(data,remoteProcessId,tag);
+    }
+  
   if (strcmp(data->GetClassName(), "vtkPolyData") == 0  ||
       strcmp(data->GetClassName(), "vtkUnstructuredGrid") == 0  ||
       strcmp(data->GetClassName(), "vtkStructuredGrid") == 0  ||
