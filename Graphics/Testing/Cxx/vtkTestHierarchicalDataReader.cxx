@@ -25,7 +25,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 
-vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.2");
+vtkCxxRevisionMacro(vtkTestHierarchicalDataReader, "1.3");
 vtkStandardNewMacro(vtkTestHierarchicalDataReader);
 
 vtkTestHierarchicalDataReader::vtkTestHierarchicalDataReader()
@@ -40,13 +40,12 @@ vtkTestHierarchicalDataReader::~vtkTestHierarchicalDataReader()
   this->SetFileName(0);
 }
 
-int vtkTestHierarchicalDataReader::RequestCompositeInformation(
+int vtkTestHierarchicalDataReader::RequestInformation(
   vtkInformation* request, 
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  if (!this->Superclass::RequestCompositeInformation(
-        request, inputVector, outputVector))
+  if (!this->Superclass::RequestInformation(request, inputVector, outputVector))
     {
     return 0;
     }
@@ -79,13 +78,52 @@ int vtkTestHierarchicalDataReader::RequestCompositeInformation(
   return 1;
 }
 
-int vtkTestHierarchicalDataReader::RequestCompositeData(
+int vtkTestHierarchicalDataReader::RequestUpdateExtent(
+  vtkInformation*, 
+  vtkInformationVector**, 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  vtkHierarchicalDataInformation* compInfo = 
+    vtkHierarchicalDataInformation::SafeDownCast(info->Get(
+      vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+
+  if (!compInfo || 
+      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
+      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+    {
+    vtkErrorMacro("Expected information not found. "
+                  "Cannot provide update extent.");
+    return 0;
+    }
+
+  int updatePiece = 
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
+  unsigned int numLevels = compInfo->GetNumberOfLevels();
+  for (unsigned int j=0; j<numLevels; j++)
+    {
+    unsigned int numBlocks = compInfo->GetNumberOfDataSets(j);
+    for (unsigned int i=0; i<numBlocks; i++)
+      {
+      if (updatePiece == 0)
+        {
+        vtkInformation* info = compInfo->GetInformation(j, i);
+        info->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
+        }
+      }
+    }
+  return 1;
+}
+
+int vtkTestHierarchicalDataReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
 
   vtkDataObject* doOutput = 
-    info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_SET());
+    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
   vtkHierarchicalBoxDataSet* hb = 
     vtkHierarchicalBoxDataSet::SafeDownCast(doOutput);
   if (!hb)

@@ -20,13 +20,13 @@
 #ifndef __vtkTestMultiBlockDataReader_h
 #define __vtkTestMultiBlockDataReader_h
 
-#include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkHierarchicalDataSetAlgorithm.h"
 
-class vtkTestMultiBlockDataReader : public vtkMultiBlockDataSetAlgorithm 
+class vtkTestMultiBlockDataReader : public vtkHierarchicalDataSetAlgorithm 
 {
 public:
   static vtkTestMultiBlockDataReader *New();
-  vtkTypeRevisionMacro(vtkTestMultiBlockDataReader,vtkMultiBlockDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkTestMultiBlockDataReader,vtkHierarchicalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -38,12 +38,15 @@ protected:
   vtkTestMultiBlockDataReader();
   ~vtkTestMultiBlockDataReader();
 
-  virtual int RequestCompositeData(vtkInformation*, 
-                                   vtkInformationVector**, 
-                                   vtkInformationVector*);
-  virtual int RequestCompositeInformation(vtkInformation*, 
-                                          vtkInformationVector**, 
-                                          vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*);
+  virtual int RequestInformation(vtkInformation*, 
+                                 vtkInformationVector**, 
+                                 vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, 
+                                  vtkInformationVector**, 
+                                  vtkInformationVector*);
 
   char* FileName;
 

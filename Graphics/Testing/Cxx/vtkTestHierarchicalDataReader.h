@@ -38,12 +38,15 @@ protected:
   vtkTestHierarchicalDataReader();
   ~vtkTestHierarchicalDataReader();
 
-  virtual int RequestCompositeData(vtkInformation*, 
-                                   vtkInformationVector**, 
-                                   vtkInformationVector*);
-  virtual int RequestCompositeInformation(vtkInformation*, 
-                                          vtkInformationVector**, 
-                                          vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*);
+  virtual int RequestInformation(vtkInformation*, 
+                                 vtkInformationVector**, 
+                                 vtkInformationVector*);
+  virtual int RequestUpdateExtent(vtkInformation*, 
+                                  vtkInformationVector**, 
+                                  vtkInformationVector*);
 
   char* FileName;
 

@@ -23,7 +23,7 @@
 #include "vtkCellDataToPointData.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
-#include "vtkMultiBlockDataSetGeometryFilter.h"
+#include "vtkHierarchicalDataSetGeometryFilter.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -55,8 +55,8 @@ int TestMultiBlock(int argc, char* argv[])
   delete[] cfname;
 
   // geometry filter
-  vtkMultiBlockDataSetGeometryFilter* geom = 
-    vtkMultiBlockDataSetGeometryFilter::New();
+  vtkHierarchicalDataSetGeometryFilter* geom = 
+    vtkHierarchicalDataSetGeometryFilter::New();
   geom->SetInputConnection(0, reader->GetOutputPort(0));
 
   vtkShrinkPolyData* shrink = vtkShrinkPolyData::New();
@@ -76,8 +76,8 @@ int TestMultiBlock(int argc, char* argv[])
   ocf->SetInputConnection(0, reader->GetOutputPort(0));
 
   // geometry filter
-  vtkMultiBlockDataSetGeometryFilter* geom2 = 
-    vtkMultiBlockDataSetGeometryFilter::New();
+  vtkHierarchicalDataSetGeometryFilter* geom2 = 
+    vtkHierarchicalDataSetGeometryFilter::New();
   geom2->SetInputConnection(0, ocf->GetOutputPort(0));
 
   // Rendering objects
@@ -97,8 +97,8 @@ int TestMultiBlock(int argc, char* argv[])
   contour->SetValue(0, 0.45);
 
   // geometry filter
-  vtkMultiBlockDataSetGeometryFilter* geom3 = 
-    vtkMultiBlockDataSetGeometryFilter::New();
+  vtkHierarchicalDataSetGeometryFilter* geom3 = 
+    vtkHierarchicalDataSetGeometryFilter::New();
   geom3->SetInputConnection(0, contour->GetOutputPort(0));
 
   // Rendering objects

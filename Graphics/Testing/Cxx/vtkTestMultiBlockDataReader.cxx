@@ -16,14 +16,14 @@
 
 #include "vtkCompositeDataPipeline.h"
 #include "vtkHierarchicalDataInformation.h"
+#include "vtkHierarchicalDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkTestMultiBlockDataReader, "1.1");
+vtkCxxRevisionMacro(vtkTestMultiBlockDataReader, "1.2");
 vtkStandardNewMacro(vtkTestMultiBlockDataReader);
 
 vtkTestMultiBlockDataReader::vtkTestMultiBlockDataReader()
@@ -38,13 +38,12 @@ vtkTestMultiBlockDataReader::~vtkTestMultiBlockDataReader()
   this->SetFileName(0);
 }
 
-int vtkTestMultiBlockDataReader::RequestCompositeInformation(
+int vtkTestMultiBlockDataReader::RequestInformation(
   vtkInformation* request, 
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
-  if (!this->Superclass::RequestCompositeInformation(
-        request, inputVector, outputVector))
+  if (!this->Superclass::RequestInformation(request, inputVector, outputVector))
     {
     return 0;
     }
@@ -77,15 +76,51 @@ int vtkTestMultiBlockDataReader::RequestCompositeInformation(
   return 1;
 }
 
-int vtkTestMultiBlockDataReader::RequestCompositeData(
+int vtkTestMultiBlockDataReader::RequestUpdateExtent(
+  vtkInformation*, 
+  vtkInformationVector**, 
+  vtkInformationVector* outputVector)
+{
+  vtkInformation* info = outputVector->GetInformationObject(0);
+
+  vtkHierarchicalDataInformation* compInfo = 
+    vtkHierarchicalDataInformation::SafeDownCast(info->Get(
+      vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+
+  if (!compInfo || 
+      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) ||
+      !info->Has(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()))
+    {
+    vtkErrorMacro("Expected information not found. "
+                  "Cannot provide update extent.");
+    //return 0;
+    }
+
+  //int updatePiece = 
+  //info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+
+  unsigned int numBlocks = compInfo->GetNumberOfDataSets(0);
+  for (unsigned int i=0; i<numBlocks; i++)
+    {
+    //if (updatePiece == 0)
+      {
+      vtkInformation* info = compInfo->GetInformation(0, i);
+      info->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
+      }
+    }
+
+  return 1;
+}
+
+int vtkTestMultiBlockDataReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
   vtkInformation* info = outputVector->GetInformationObject(0);
 
   vtkDataObject* doOutput = 
-    info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_SET());
-  vtkMultiBlockDataSet* mb = 
-    vtkMultiBlockDataSet::SafeDownCast(doOutput);
+    info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+  vtkHierarchicalDataSet* mb = 
+    vtkHierarchicalDataSet::SafeDownCast(doOutput);
   if (!mb)
     {
     return 0;
@@ -124,7 +159,7 @@ int vtkTestMultiBlockDataReader::RequestCompositeData(
     sg->ShallowCopy(reader->GetOutput());
 
     // Add the structured grid to the multi-block dataset
-    mb->AddDataSet(sg);
+    mb->SetDataSet(0, i, sg);
     sg->Delete();
     }
   reader->Delete();
