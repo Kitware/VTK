@@ -67,9 +67,9 @@ protected:
 
   int SpatialMatch;
 
-  void Execute();
+  virtual void Execute();
   void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual void ComputeInputUpdateExtents(vtkDataObject *output);
 
   vtkIdTypeArray *ValidPoints;
 private:
