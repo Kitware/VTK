@@ -16,7 +16,7 @@
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.38");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.39");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -110,7 +110,6 @@ void vtkPiecewiseFunction::Initialize()
 // Return the number of points which specify this function
 int vtkPiecewiseFunction::GetSize()
 {
-  this->Update();
   return this->FunctionSize;
 }
 
@@ -128,8 +127,6 @@ const char *vtkPiecewiseFunction::GetType()
   double value;
   double prev_value = 0.0;
   int   function_type;
-
-  this->Update();
 
   function_type = 0;
 
@@ -227,8 +224,6 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
   int   i;
   int   all_zero = 1;
   double x = 0.0;
-
-  this->Update();
 
   // Check if no points specified
   if( this->FunctionSize == 0 )
@@ -508,8 +503,6 @@ double vtkPiecewiseFunction::GetValue( double x )
   double slope;
   double value;
 
-  this->Update();
-
   if( this->FunctionSize == 0 )
     {
     return 0.0;
@@ -584,8 +577,6 @@ void vtkPiecewiseFunction::GetTable( double x1, double x2, int size,
   double x, xi1, xi2, yi1, yi2, tx;
   double inc, value, slope, *tbl;
   int   i, i1, i2;
-
-  this->Update();
 
   if( x1 == x2 )
     {
@@ -679,8 +670,6 @@ void vtkPiecewiseFunction::GetTable( double x1, double x2, int size,
   double inc, value, slope;
   float *tbl;
   int   i, i1, i2;
-
-  this->Update();
 
   if( x1 == x2 )
     {

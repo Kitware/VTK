@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.26");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.27");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 // Construct a Cardinal Spline.
@@ -29,22 +29,21 @@ vtkCardinalSpline::vtkCardinalSpline ()
 double vtkCardinalSpline::Evaluate (double t)
 {
   int index;
-  int size = this->PiecewiseFunction->GetSize ();
   double *intervals;
   double *coefficients;
-
-  // make sure we have at least 2 points
-  if (size < 2)
-    {
-    vtkErrorMacro("Cannot evaluate a spline with less than 2 points. # of points is: " << size);
-    return 0.0;
-    }
 
   // check to see if we need to recompute the spline
   if (this->ComputeTime < this->GetMTime ())
     {
     this->Compute ();
-    }   
+    }
+
+  // make sure we have at least 2 points
+  int size = this->PiecewiseFunction->GetSize ();
+  if (size < 2)
+    {
+    return 0.0;
+    }
 
   intervals = this->Intervals;
   coefficients = this->Coefficients;
@@ -87,8 +86,17 @@ void vtkCardinalSpline::Compute ()
   int size;
   int i;
 
+  // Make sure the function is up to date.
+  this->PiecewiseFunction->Update();
+
   // get the size of the independent variables
   size = this->PiecewiseFunction->GetSize ();
+
+  if(size < 2)
+    {
+    vtkErrorMacro("Cannot compute a spline with less than 2 points. # of points is: " << size);
+    return;
+    }
 
   // copy the independent variables. Note that if the spline
   // is closed the first and last point are assumed repeated -
@@ -178,6 +186,9 @@ void vtkCardinalSpline::Compute ()
   // free the work array and dependent variable storage
   delete [] work;
   delete [] dependent;
+
+  // update compute time
+  this->ComputeTime = this->GetMTime();
 }
 
 
