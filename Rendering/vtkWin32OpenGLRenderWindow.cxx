@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.101");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.102");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -499,6 +499,7 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
     case WM_ERASEBKGND:
       return TRUE;
     default:
+      this->InvokeEvent(vtkCommand::RenderWindowMessageEvent, &message);
       break;
     }
   return DefWindowProc(hWnd, message, wParam, lParam);
