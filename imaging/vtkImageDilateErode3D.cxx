@@ -120,6 +120,11 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
 			     (float)(this->KernelSize[1])*0.5,
 			     (float)(this->KernelSize[2])*0.5);
+    // make sure scalars have been allocated (needed if multithreaded is used)
+    this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
+						0, this->KernelSize[1]-1, 
+						0, this->KernelSize[2]-1);
+    this->Ellipse->GetOutput()->UpdateAndReturnData();
     }
 }
 
@@ -276,8 +281,10 @@ void vtkImageDilateErode3D::ThreadedExecute(vtkImageData *inData,
 				      vtkImageData *outData, 
 				      int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointer();
-  void *outPtr = outData->GetScalarPointer();
+  int inExt[6];
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
   id = id;

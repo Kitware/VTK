@@ -51,9 +51,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageContinuousDilate3D::vtkImageContinuousDilate3D()
 {
   this->HandleBoundaries = 1;
-  this->KernelSize[0] = 1;
-  this->KernelSize[1] = 1;
-  this->KernelSize[2] = 1;
+  this->KernelSize[0] = 0;
+  this->KernelSize[1] = 0;
+  this->KernelSize[2] = 0;
 
   this->Ellipse = vtkImageEllipsoidSource::New();
   // Setup the Ellipse to default size
@@ -81,7 +81,7 @@ void vtkImageContinuousDilate3D::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This method sets the size of the neighborhood.  It also sets the 
-// default middle of the neighborhood and computes the eliptical foot print.
+// default middle of the neighborhood and computes the elliptical foot print.
 void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
@@ -117,6 +117,12 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
 			     (float)(this->KernelSize[1])*0.5,
 			     (float)(this->KernelSize[2])*0.5);
+
+    // make sure scalars have been allocated (needed if multithreaded is used)
+    this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
+						0, this->KernelSize[1]-1, 
+						0, this->KernelSize[2]-1);
+    this->Ellipse->GetOutput()->UpdateAndReturnData();
     }
 }
 
@@ -156,7 +162,7 @@ static void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
+  self->GetInput()->GetUpdateExtent(inImageMin0, inImageMax0, inImageMin1,
 				   inImageMax1, inImageMin2, inImageMax2);
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
@@ -267,13 +273,15 @@ static void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
 // Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
-// It hanldes image boundaries, so the image does not shrink.
+// It handles image boundaries, so the image does not shrink.
 void vtkImageContinuousDilate3D::ThreadedExecute(vtkImageData *inData, 
 				      vtkImageData *outData, 
 				      int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointer();
-  void *outPtr = outData->GetScalarPointer();
+  int inExt[6];
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
   id = id;
