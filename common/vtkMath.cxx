@@ -109,6 +109,43 @@ void vtkMath::Cross(float x[3], float y[3], float z[3])
 int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 {
   static int *index = NULL, maxSize=0;
+
+  // if we solving something simple, just solve it
+  //
+  if (size == 2)
+    {
+    double det, y[2];
+
+    det = vtkMath::Determinant2x2(A[0][0], A[0][1], A[1][0], A[1][1]);
+
+    if (det == 0.0)
+      {
+      return 0;
+      }
+
+    y[0] = (A[1][1]*x[0] - A[0][1]*x[1]) / det;
+    y[1] = (-A[1][0]*x[0] + A[0][0]*x[1]) / det;
+
+    x[0] = y[0];
+    x[1] = y[1];
+    return 1;
+    }
+  else if (size == 1)
+    {
+    if (A[0][0] == 0.0)
+      {
+      return 0;
+      }
+    
+    x[0] /= A[0][0];
+    return 1;
+    }
+
+  //
+  // System of equations is not trivial, use Crout's method
+  //
+  
+  
   //
   // Check on allocation of working vectors
   //

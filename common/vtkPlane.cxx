@@ -59,18 +59,17 @@ vtkPlane::vtkPlane()
 // have magnitude 1.
 void vtkPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3])
 {
-  int i;
   float t, xo[3];
 
-  for (i=0; i<3; i++)
-    {
-    xo[i] = x[i] - origin[i];
-    }
+  xo[0] = x[0] - origin[0];
+  xo[1] = x[1] - origin[1];
+  xo[2] = x[2] - origin[2];
+
   t = vtkMath::Dot(normal,xo);
-  for (i=0; i<3; i++)
-    {
-    xproj[i] = x[i] - t * normal[i];
-    }
+
+  xproj[0] = x[0] - t * normal[0];
+  xproj[1] = x[1] - t * normal[1];
+  xproj[2] = x[2] - t * normal[2];
 }
 
 // Evaluate plane equation for point x[3].
@@ -102,13 +101,14 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
 {
   float num, den, p21[3];
   int i;
+  float fabsden, fabstolerance;
   //
   // Compute line vector
   // 
-  for (i=0; i<3; i++)
-    {
-    p21[i] = p2[i] - p1[i];
-    }
+  p21[0] = p2[0] - p1[0];
+  p21[1] = p2[1] - p1[1];
+  p21[2] = p2[2] - p1[2];
+
   //
   // Compute denominator.  If ~0, line and plane are parallel.
   // 
@@ -118,16 +118,34 @@ int vtkPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
   // If denominator with respect to numerator is "zero", then the line and
   // plane are considered parallel. 
   //
-  if ( fabs(den) <= fabs(VTK_PLANE_TOL*num))
+
+  // trying to avoid an expensive call to fabs()
+  if (den < 0.0)
+    {
+    fabsden = -den;
+    }
+  else
+    {
+    fabsden = den;
+    }
+  if (num < 0.0)
+    {
+    fabstolerance = -num*VTK_PLANE_TOL;
+    }
+  else
+    {
+    fabstolerance = num*VTK_PLANE_TOL;
+    }
+  if ( fabsden <= fabstolerance )
     {
     return 0;
     }
 
   t = num / den;
-  for (i=0; i<3; i++)
-    {
-    x[i] = p1[i] + t*p21[i];
-    }
+
+  x[0] = p1[0] + t*p21[0];
+  x[1] = p1[1] + t*p21[1];
+  x[2] = p1[2] + t*p21[2];
 
   if ( t >= 0.0 && t <= 1.0 )
     {

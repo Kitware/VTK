@@ -74,7 +74,7 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
                                  float& dist2, float *weights)
 {
   int i, j;
-  float *pt1, *pt2, *pt3, n[3];
+  float *pt1, *pt2, *pt3, n[3], fabsn;
   float rhs[2], c1[2], c2[2];
   float det;
   float maxComponent;
@@ -103,9 +103,18 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 //
   for (maxComponent=0.0, i=0; i<3; i++)
     {
-    if (fabs(n[i]) > maxComponent)
+    // trying to avoid an expensive call to fabs()
+    if (n[i] < 0)
       {
-      maxComponent = fabs(n[i]);
+      fabsn = -n[i];
+      }
+    else
+      {
+      fabsn = n[i];
+      }
+    if (fabsn > maxComponent)
+      {
+      maxComponent = fabsn;
       idx = i;
       }
     }
@@ -472,27 +481,37 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   // so the easy test failed. The line is not intersecting the triangle.
   // Let's now do the 3d case check to see how close the line comes.
   // basically we just need to test against the three lines of the triangle
-  this->Line->Points->InsertPoint(0,pt1);
-  this->Line->Points->InsertPoint(1,pt2);
   this->Line->PointIds->InsertId(0,0);
   this->Line->PointIds->InsertId(1,1);
-  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+
+  if (pcoords[2] < 0.0)
     {
-    return 1;
+    this->Line->Points->InsertPoint(0,pt1);
+    this->Line->Points->InsertPoint(1,pt2);
+    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+      {
+      return 1;
+      }
     }
-  
-  this->Line->Points->InsertPoint(0,pt2);
-  this->Line->Points->InsertPoint(1,pt3);
-  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+
+  if (pcoords[0] < 0.0)
     {
-    return 1;
+    this->Line->Points->InsertPoint(0,pt2);
+    this->Line->Points->InsertPoint(1,pt3);
+    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+      {
+      return 1;
+      }
     }
-  
-  this->Line->Points->InsertPoint(0,pt3);
-  this->Line->Points->InsertPoint(1,pt1);
-  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+
+  if (pcoords[1] < 0.0)
     {
-    return 1;
+    this->Line->Points->InsertPoint(0,pt3);
+    this->Line->Points->InsertPoint(1,pt1);
+    if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+      {
+      return 1;
+      }
     }
   
   

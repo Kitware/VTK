@@ -122,12 +122,9 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   u = v = 0.0;
 
   //   Determine line vectors.
-  for (i=0; i<3; i++) 
-    {
-    a21[i] = a2[i] - a1[i];
-    b21[i] = b2[i] - b1[i];
-    b1a1[i] = b1[i] - a1[i];
-    }
+  a21[0] = a2[0] - a1[0];   b21[0] = b2[0] - b1[0];   b1a1[0] = b1[0] - a1[0];
+  a21[1] = a2[1] - a1[1];   b21[1] = b2[1] - b1[1];   b1a1[1] = b1[1] - a1[1];
+  a21[2] = a2[2] - a1[2];   b21[2] = b2[2] - b1[2];   b1a1[2] = b1[2] - a1[2];
 
   //   Compute the system (least squares) matrix.
   A[0] = row1;
@@ -141,6 +138,7 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   c[0] = vtkMath::Dot ( a21, b1a1 );
   c[1] = -vtkMath::Dot ( b21, b1a1 );
 
+  
   //  Solve the system of equations
   if ( vtkMath::SolveLinearSystem(A,c,2) == 0 )
     {
@@ -267,22 +265,29 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
 float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3], 
                               float &t, float closestPoint[3])
 {
-  int i;
   float p21[3], denom, num;
   float *closest;
+  float tolerance;
   //
   //   Determine appropriate vectors
   // 
-  for (i=0; i<3; i++)
-    {
-    p21[i] = p2[i] - p1[i];
-    }
+  p21[0] = p2[0]- p1[0];
+  p21[1] = p2[1]- p1[1];
+  p21[2] = p2[2]- p1[2];
+
   //
   //   Get parametric location
   //
   num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
+  denom = vtkMath::Dot(p21,p21);
 
-  if ( (denom = vtkMath::Dot(p21,p21)) < fabs(VTK_TOL*num) ) //numerically bad!
+  // trying to avoid an expensive fabs
+  tolerance = VTK_TOL*num;
+  if (tolerance < 0.0)
+    {
+    tolerance = -tolerance;
+    }
+  if ( -tolerance < denom && denom < tolerance ) //numerically bad!
     {
     closest = p1; //arbitrary, point is (numerically) far away
     }
@@ -301,10 +306,9 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
   else
     {
     closest = p21;
-    for (i=0; i<3; i++)
-      {
-      p21[i] = p1[i] + t*p21[i];
-      }
+    p21[0] = p1[0] + t*p21[0];
+    p21[1] = p1[1] + t*p21[1];
+    p21[2] = p1[2] + t*p21[2];
     }
 
   closestPoint[0] = closest[0]; 

@@ -194,7 +194,7 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
 float *vtkCell::GetBounds ()
 {
   float *x;
-  int i, j, numPts=this->Points->GetNumberOfPoints();
+  int i, numPts=this->Points->GetNumberOfPoints();
 
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
@@ -202,17 +202,14 @@ float *vtkCell::GetBounds ()
   for (i=0; i<numPts; i++)
     {
     x = this->Points->GetPoint(i);
-    for (j=0; j<3; j++)
-      {
-      if ( x[j] < this->Bounds[2*j] )
-	{
-	this->Bounds[2*j] = x[j];
-	}
-      if ( x[j] > this->Bounds[2*j+1] )
-	{
-	this->Bounds[2*j+1] = x[j];
-	}
-      }
+
+    this->Bounds[0] = (x[0] < this->Bounds[0] ? x[0] : this->Bounds[0]);
+    this->Bounds[1] = (x[0] > this->Bounds[1] ? x[0] : this->Bounds[1]);
+    this->Bounds[2] = (x[1] < this->Bounds[2] ? x[1] : this->Bounds[2]);
+    this->Bounds[3] = (x[1] > this->Bounds[3] ? x[1] : this->Bounds[3]);
+    this->Bounds[4] = (x[2] < this->Bounds[4] ? x[2] : this->Bounds[4]);
+    this->Bounds[5] = (x[2] > this->Bounds[5] ? x[2] : this->Bounds[5]);
+    
     }
   return this->Bounds;
 }
