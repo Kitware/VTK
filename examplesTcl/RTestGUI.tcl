@@ -448,25 +448,25 @@ proc AddDirectory {path} {
 
 proc AddContrib {} {
    global env ContribAdded
-   AddDirectory $env(VTK_ROOT)/vtk/contrib/examplesTcl
+   AddDirectory $env(VTK_ROOT)/$env(VTK_DIR)/contrib/examplesTcl
    set ContribAdded 1
 }
 
 proc AddGraphics {} {
    global env GraphicsAdded
-   AddDirectory $env(VTK_ROOT)/vtk/graphics/examplesTcl
+   AddDirectory $env(VTK_ROOT)/$env(VTK_DIR)/graphics/examplesTcl
    set GraphicsAdded 1
 }
 
 proc AddImaging {} {
    global env ImagingAdded
-   AddDirectory $env(VTK_ROOT)/vtk/imaging/examplesTcl
+   AddDirectory $env(VTK_ROOT)/$env(VTK_DIR)/imaging/examplesTcl
    set ImagingAdded 1
 }
 
 proc AddPatented {} {
    global env PatentedAdded
-   AddDirectory $env(VTK_ROOT)/vtk/patented/examplesTcl
+   AddDirectory $env(VTK_ROOT)/$env(VTK_DIR)/patented/examplesTcl
    set PatentedAdded 1
 }
 
@@ -509,25 +509,25 @@ proc RemoveDirectory {path} {
 
 proc RemoveContrib {} {
    global env ContribAdded
-   RemoveDirectory $env(VTK_ROOT)/vtk/contrib/examplesTcl
+   RemoveDirectory $env(VTK_ROOT)/$env(VTK_DIR)/contrib/examplesTcl
    set ContribAdded 0
 }
 
 proc RemoveGraphics {} {
    global env GraphicsAdded
-   RemoveDirectory $env(VTK_ROOT)/vtk/graphics/examplesTcl
+   RemoveDirectory $env(VTK_ROOT)/$env(VTK_DIR)/graphics/examplesTcl
    set GraphicsAdded 0
 }
 
 proc RemoveImaging {} {
    global env ImagingAdded
-   RemoveDirectory $env(VTK_ROOT)/vtk/imaging/examplesTcl
+   RemoveDirectory $env(VTK_ROOT)/$env(VTK_DIR)/imaging/examplesTcl
    set ImagingAdded 0
 }
 
 proc RemovePatented {} {
    global env PatentedAdded
-   RemoveDirectory $env(VTK_ROOT)/vtk/patented/examplesTcl
+   RemoveDirectory $env(VTK_ROOT)/$env(VTK_DIR)/patented/examplesTcl
    set PatentedAdded 0
 }
 
@@ -640,7 +640,7 @@ proc RunRegressionTest {dir test} {
    set errorCode "NONE"
    cd $dir
    catch {exec $env(TCL_EXECUTABLE) \
-         $env(VTK_ROOT)/vtk/graphics/examplesTcl/rtImageTclExamples.tcl $test}
+         $env(VTK_ROOT)/$env(VTK_DIR)/graphics/examplesTcl/rtImageTclExamples.tcl $test}
 
    if { $errorCode == "NONE" } {
       return 0

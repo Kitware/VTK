@@ -62,11 +62,14 @@ if { [file exists $env(BIN_DIR)/RTest.gif] } {
 # VTK_ROOT is "d:\foo")
 if { [catch {set tmp $env(VTK_ROOT) }] != 0} {
    # See whether we can figure it out
-   set idx [string first "/vtk/" $currentDirectory]
+   set idx [string last "/vtk" $currentDirectory]
    if { $idx >= 0 } {
       set env(VTK_ROOT) [string range $currentDirectory 0 $idx]
+      set idx2 [string last "/" $currentDirectory]
+      set env(VTK_DIR) [string range $currentDirectory $idx $idx2]
    } else {
       set env(VTK_ROOT) $currentDirectory
+      set env(VTK_DIR)  $currentDirectory/vtk
    }
 }
 
@@ -75,7 +78,7 @@ if { [catch {set tmp $env(VTK_VALID_IMAGE_PATH) }] != 0} {
    # Create default
    set env(VTK_VALID_IMAGE_PATH) $env(VTK_ROOT)/vtkbaseline/images
    if { [file isdir $env(VTK_VALID_IMAGE_PATH)] == 0 } {
-      set dirname [tk_getSaveFile -initialdir "$env(VTK_ROOT)" \
+      set dirname [tk_getOpenFile -initialdir "$env(VTK_ROOT)" \
               -title "Location of vtkbaseline/images" ]
       if { $dirname != "" && [file isdir $env(VTK_VALID_IMAGE_PATH)] != 0 } {
          set $env(VTK_VALID_IMAGE_PATH) $dirname
@@ -90,7 +93,7 @@ if { [catch {set tmp $env(VTK_DATA) }] != 0} {
    # Create default
    set env(VTK_DATA) $env(VTK_ROOT)/vtkdata
    if { [file isdir $env(VTK_DATA)] == 0 } {
-      set dirname [tk_getSaveFile -initialdir "$env(VTK_ROOT)" \
+      set dirname [tk_getOpenFile -initialdir "$env(VTK_ROOT)" \
               -title "Location of vtkdata/" ]
       if { $dirname != "" && [file isdir $env(VTK_DATA)] != 0 } {
          set $env(VTK_DATA) $dirname
@@ -103,9 +106,9 @@ if { [catch {set tmp $env(VTK_DATA) }] != 0} {
 # Set the Tcl auxiliary files location
 if { [catch {set tmp $env(VTK_TCL) }] != 0} {
    # Create default
-   set env(VTK_TCL) $env(VTK_ROOT)/vtk/examplesTcl
+   set env(VTK_TCL) $env(VTK_ROOT)/$env(VTK_DIR)/examplesTcl
    if { [file isdir $env(VTK_TCL)] == 0 } {
-      set dirname [tk_getSaveFile -initialdir "$env(VTK_TCL)" \
+      set dirname [tk_getOpenFile -initialdir "$env(VTK_TCL)" \
               -title "Location of vtk/examplesTcl/" ]
       if { $dirname != "" && [file isdir $env(VTK_TCL)] != 0 } {
          set $env(VTK_TCL) $dirname
