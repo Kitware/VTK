@@ -74,7 +74,6 @@ public:
 
   void Start(void);
   void Frame(void);
-  void Connect(void);
   void WindowConfigure(void);
   void WindowInitialize(void);
   void Initialize(void);
