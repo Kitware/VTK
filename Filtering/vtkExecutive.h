@@ -30,14 +30,15 @@ class vtkAlgorithm;
 class vtkAlgorithmOutput;
 class vtkAlgorithmToExecutiveFriendship;
 class vtkDataObject;
+class vtkExecutiveInternals;
 class vtkInformation;
 class vtkInformationExecutiveKey;
 class vtkInformationIntegerKey;
+class vtkInformationVector;
 
 class VTK_FILTERING_EXPORT vtkExecutive : public vtkObject
 {
 public:
-  static vtkExecutive* New();
   vtkTypeRevisionMacro(vtkExecutive,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -57,13 +58,12 @@ public:
 
   // Description:
   // Get/Set the data object for an output port of the algorithm.
-  virtual vtkDataObject* GetOutputData(int port);
-  virtual void SetOutputData(int port, vtkDataObject*);
+  virtual vtkDataObject* GetOutputData(int port)=0;
+  virtual void SetOutputData(int port, vtkDataObject*)=0;
 
   // Description:
   // Get the data object for an output port of the algorithm.
-  virtual vtkDataObject* GetInputData(int port, int connection);
-
+  virtual vtkDataObject* GetInputData(int port, int connection)=0;
 
   // Description:
   // Get the output port that produces the given data object.
@@ -91,6 +91,15 @@ protected:
   int InputPortIndexInRange(int port, const char* action);
   int OutputPortIndexInRange(int port, const char* action);
 
+  // Access methods to arguments passed to vtkAlgorithm::ProcessRequest.
+  vtkInformation* GetRequestInformation();
+  vtkInformationVector* GetInputInformation();
+  vtkInformationVector* GetOutputInformation();
+
+  // Put default information in output information objects.
+  virtual void FillDefaultOutputInformation(int port, vtkInformation*)=0;
+  vtkInformation* GetInputInformation(int port);
+
   // Garbage collection support.
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
@@ -101,6 +110,9 @@ protected:
 
   // The algorithm managed by this executive.
   vtkAlgorithm* Algorithm;
+
+private:
+  vtkExecutiveInternals* ExecutiveInternal;
 
   //BTX
   friend class vtkAlgorithmToExecutiveFriendship;

@@ -44,10 +44,6 @@ public:
   virtual int Update(int port);
 
   // Description:
-  // Get the information object for an output port of the algorithm.
-  virtual vtkInformation* GetOutputInformation(int port);
-
-  // Description:
   // Get the PipelineMTime for this exective.
   vtkGetMacro(PipelineMTime, unsigned long);
 
@@ -97,12 +93,6 @@ protected:
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
-
-  vtkInformation* GetRequestInformation();
-  vtkInformationVector* GetInputInformation();
-  vtkInformation* GetInputInformation(int port);
-  vtkInformationVector* GetOutputInformation();
-
   void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
   void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
   virtual void CopyDefaultDownstreamInformation();
@@ -129,10 +119,6 @@ protected:
 
   vtkDataObject* NewDataObject(const char* type);
 
-  // Support garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector*);
-  virtual void RemoveReferences();
-
   // Decide whether the output data need to be generated.
   virtual int NeedToExecuteData(int outputPort);
 
@@ -148,8 +134,6 @@ protected:
   int InProcessRequest;
 
 private:
-  vtkDemandDrivenPipelineInternals* DemandDrivenInternal;
-
   vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkDemandDrivenPipeline&);  // Not implemented.
 };

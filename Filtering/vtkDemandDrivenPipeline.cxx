@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.5");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.6");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -49,31 +49,14 @@ vtkInformationKeyMacro(vtkDemandDrivenPipeline, FROM_OUTPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
 
 //----------------------------------------------------------------------------
-class vtkDemandDrivenPipelineInternals
-{
-public:
-  vtkSmartPointer<vtkInformationVector> OutputInformation;
-  vtkSmartPointer<vtkInformationVector> InputInformation;
-  vtkSmartPointer<vtkInformation> RequestInformation;
-
-  vtkDemandDrivenPipelineInternals()
-    {
-    this->OutputInformation = vtkSmartPointer<vtkInformationVector>::New();
-    this->InputInformation = vtkSmartPointer<vtkInformationVector>::New();
-    }
-};
-
-//----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
-  this->DemandDrivenInternal = new vtkDemandDrivenPipelineInternals;
   this->InProcessRequest = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::~vtkDemandDrivenPipeline()
 {
-  delete this->DemandDrivenInternal;
 }
 
 //----------------------------------------------------------------------------
@@ -127,36 +110,6 @@ vtkDemandDrivenPipeline::GetConnectedInputInformation(int port, int index)
 }
 
 //----------------------------------------------------------------------------
-vtkInformation* vtkDemandDrivenPipeline::GetRequestInformation()
-{
-  if(!this->DemandDrivenInternal->RequestInformation)
-    {
-    this->DemandDrivenInternal->RequestInformation =
-      vtkSmartPointer<vtkInformation>::New();
-    }
-  return this->DemandDrivenInternal->RequestInformation.GetPointer();
-}
-
-//----------------------------------------------------------------------------
-vtkInformationVector* vtkDemandDrivenPipeline::GetInputInformation()
-{
-  if(!this->DemandDrivenInternal->InputInformation)
-    {
-    this->DemandDrivenInternal->InputInformation =
-      vtkSmartPointer<vtkInformationVector>::New();
-    }
-  this->DemandDrivenInternal->InputInformation
-    ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfInputPorts());
-  return this->DemandDrivenInternal->InputInformation.GetPointer();
-}
-
-//----------------------------------------------------------------------------
-vtkInformation* vtkDemandDrivenPipeline::GetInputInformation(int port)
-{
-  return this->GetInputInformation()->GetInformationObject(port);
-}
-
-//----------------------------------------------------------------------------
 void vtkDemandDrivenPipeline::FillDefaultOutputInformation(int port,
                                                            vtkInformation* info)
 {
@@ -177,37 +130,6 @@ void vtkDemandDrivenPipeline::ResetPipelineInformation(int,
                                                        vtkInformation* info)
 {
   info->Remove(RELEASE_DATA());
-}
-
-//----------------------------------------------------------------------------
-vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
-{
-  if(!this->DemandDrivenInternal->OutputInformation)
-    {
-    this->DemandDrivenInternal->OutputInformation =
-      vtkSmartPointer<vtkInformationVector>::New();
-    }
-  int numberOfInfoObjs = 
-    this->DemandDrivenInternal->OutputInformation
-    ->GetNumberOfInformationObjects();
-  this->DemandDrivenInternal->OutputInformation
-    ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfOutputPorts());
-
-  // For any new information obects, fill in default information values.
-  for (int i = numberOfInfoObjs; 
-       i < this->Algorithm->GetNumberOfOutputPorts();++i)
-    {
-    this->FillDefaultOutputInformation(i,
-      this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
-    }
-
-  return this->DemandDrivenInternal->OutputInformation.GetPointer();
-}
-
-//----------------------------------------------------------------------------
-vtkInformation* vtkDemandDrivenPipeline::GetOutputInformation(int port)
-{
-  return this->GetOutputInformation()->GetInformationObject(port);
 }
 
 //----------------------------------------------------------------------------
@@ -1062,23 +984,6 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
     {
     return 0;
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  collector->ReportReference(this->DemandDrivenInternal->InputInformation.GetPointer(),
-                             "Input Information Vector");
-  collector->ReportReference(this->DemandDrivenInternal->OutputInformation.GetPointer(),
-                             "Output Information Vector");
-}
-
-//----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::RemoveReferences()
-{
-  this->DemandDrivenInternal->OutputInformation = 0;
-  this->Superclass::RemoveReferences();
 }
 
 //----------------------------------------------------------------------------
