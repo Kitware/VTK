@@ -28,6 +28,7 @@
 #define __vtkExplicitCell_h
 
 #include "vtkNonLinearCell.h"
+#include "vtkDataSet.h"
 
 class VTK_COMMON_EXPORT vtkExplicitCell : public vtkNonLinearCell
 {
@@ -42,11 +43,28 @@ public:
   // virtual function is overloaded to reflect this requirement.
   virtual int IsExplicitCell() {return 1;}
 
+  // Description:
+  // Set/Get the cell id. This is necessary for explicit cells because they
+  // often need to keep extra information (typically contained in the
+  // cell data of a point set). This information might be things like
+  // knot points/weights, boundaries, etc.
+  vtkSetMacro(CellId,vtkIdType);
+  vtkGetMacro(CellId,vtkIdType);
+
+  // Description:
+  // Set/Get the mesh that owns this cell. This is necessary for explicit
+  // cells because they often need to keep extra information (typically
+  // contained in the cell data of a point set). This information might be
+  // things like knot points/weights, boundaries, etc.
+  vtkSetObjectMacro(DataSet,vtkDataSet);
+  vtkGetObjectMacro(DataSet,vtkDataSet);
+
 protected:
   vtkExplicitCell();
   ~vtkExplicitCell() {}
 
-  vtkIdType CellId; //used to index into other arrays
+  vtkIdType  CellId; //used to index into other arrays
+  vtkDataSet *DataSet; //dataset from which this cell came
   
 private:
   vtkExplicitCell(const vtkExplicitCell&);  // Not implemented.

@@ -19,11 +19,12 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExplicitCell, "1.1");
+vtkCxxRevisionMacro(vtkExplicitCell, "1.2");
 
 vtkExplicitCell::vtkExplicitCell()
 {
   this->CellId = -1;
+  this->DataSet = NULL;
 }
 
 void vtkExplicitCell::PrintSelf(ostream& os, vtkIndent indent)
@@ -31,4 +32,5 @@ void vtkExplicitCell::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Cell Id: " << this->CellId << "\n";
+  os << indent << "Data Set: " << this->DataSet << "\n";
 }
