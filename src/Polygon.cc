@@ -397,7 +397,7 @@ int vlPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //   Fire the ray and compute the number of intersections.  Be careful of 
 //   degenerate cases (e.g., ray intersects at vertex).
 //
-        if (line.Intersection(x,xray,x1,x2,u,v) == INTERSECTION) 
+        if ((status=line.Intersection(x,xray,x1,x2,u,v)) == INTERSECTION) 
           {
           if ( (RAY_TOL < v) && (v < 1.0-RAY_TOL) )
             numInts++;
