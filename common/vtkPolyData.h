@@ -408,6 +408,15 @@ protected:
   // Returns 0 if upstream filter cannot generate the UpdateExtent.
   // This also releases the data if a different piece is requested.
   int ClipUpdateExtentWithWholeExtent();
+
+private:
+  // Hide these from the user and the compiler.
+  
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
+
 };
 
 inline void vtkPolyData::GetPointCells(int ptId, unsigned short& ncells, 
