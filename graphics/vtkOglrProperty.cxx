@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrRenderer.h"
 #include "vtkOglrProperty.h"
 #ifdef _WIN32
-#include <windows.h>
+#include <afxwin.h>
 #endif
 #include <GL/gl.h>
 

@@ -39,14 +39,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
+
 
 #include "vtkOglrRenderer.h"
 #include "vtkOglrActor.h"
 #include "vtkActor.h"
+#include <GL/gl.h>
 
 // Description:
 // Actual actor render method.

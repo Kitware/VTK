@@ -40,14 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
-
 #include "vtkRenderWindow.h"
 #include "vtkOglrRenderer.h"
 #include "vtkOglrCamera.h"
+#include <GL/gl.h>
+
 
 // Description:
 // Implement base class method.

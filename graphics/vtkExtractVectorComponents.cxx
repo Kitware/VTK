@@ -135,7 +135,7 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
       }
 
     // since the input has changed we might need to create a new output
-    if (!strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
       {
       this->Output->Delete();
       this->VyComponent->Delete();

@@ -384,7 +384,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       			float *clippingRange;
       			yf = ((me->Size[1] - HIWORD(lastPos)) - me->Center[1])/
       				(float)me->Center[1];
-      			zoomFactor = pow(1.1,yf);
+      			zoomFactor = pow((double)1.1,(double)yf);
       if (me->CurrentCamera->GetParallelProjection())
 	{
 	me->CurrentCamera->

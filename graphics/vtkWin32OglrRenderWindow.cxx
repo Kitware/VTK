@@ -5,9 +5,9 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+  Thanks:    to Horst Schreiber for developing this MFC code
 
-
-Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
+Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,10 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#include <windows.h>
+#include <afxwin.h>				// hsr
 #include <GL/glaux.h>
 #include "vtkWin32OglrRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
@@ -51,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrCamera.h"
 #include "vtkOglrActor.h"
 #include "vtkOglrLight.h"
+#include "vtkOglrPolyMapper.h"
 
 #define MAX_LIGHTS 8
 
@@ -60,6 +62,8 @@ vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
   this->MultiSamples = 8;
   this->WindowId = 0;
   this->NextWindowId = 0;
+  this->DeviceContext = (HDC)0;		// hsr
+  this->MFChandledWindow = FALSE;	// hsr
 
   strcpy(this->Name,"Visualization Toolkit - Win32OpenGL");
 }
@@ -120,6 +124,16 @@ vtkPropertyDevice *vtkWin32OglrRenderWindow::MakeProperty()
 }
 
 // Description:
+// Create a OpenGL specific PolyMapper.
+vtkPolyMapperDevice *vtkWin32OglrRenderWindow::MakePolyMapper()
+{
+  vtkOglrPolyMapper *PolyMapper;
+
+  PolyMapper = new vtkOglrPolyMapper;
+  return (vtkPolyMapperDevice *)PolyMapper;
+}
+
+// Description:
 // Create a OpenGL specific texture.
 vtkTextureDevice *vtkWin32OglrRenderWindow::MakeTexture()
 {
@@ -140,12 +154,16 @@ void vtkWin32OglrRenderWindow::Start(void)
     }
 
   // set the current window 
-  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+	if (!this->MFChandledWindow) // hsr
+		wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+    else wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
 }
 
 void vtkWin32OglrRenderWindow::MakeCurrent()
 {
-  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+	if (!this->MFChandledWindow) // hsr
+		wglMakeCurrent(GetDC(this->WindowId), this->ContextId);  
+    else wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
 }
 
 static void vtkWin32OglrSwapBuffers(HDC hdc)
@@ -195,25 +213,27 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
 
   // create our own window if not already set
   this->OwnWindow = 0;
-  if (!this->WindowId)
-    {
-    sprintf(this->Name,"Visualization Toolkit - Win32OpenGL #%i",count++);
+  if (!this->MFChandledWindow) {  // hsr 
+	  if (!this->WindowId)
+		{
+		sprintf(this->Name,"Visualization Toolkit - Win32OpenGL #%i",count++);
 
-    auxInitPosition(x, y, width, height);
-    type = AUX_DEPTH16 | AUX_RGB | AUX_DOUBLE;
-    auxInitDisplayMode(type);
+		auxInitPosition(x, y, width, height);
+		type = AUX_DEPTH16 | AUX_RGB | AUX_DOUBLE;
+		auxInitDisplayMode(type);
 
-    if (auxInitWindow(this->Name) == GL_FALSE) 
-      {
-      auxQuit();
-      }
+	    if (auxInitWindow(this->Name) == GL_FALSE) 
+        {
+		  auxQuit();
+		}
 
-    this->WindowId = auxGetHWND();
-    this->ContextId = auxGetHGLRC();
-    this->OwnWindow = 1;
-    }
+		this->WindowId = auxGetHWND();
+		this->ContextId = auxGetHGLRC();
+		this->OwnWindow = 1;
+		}
 
-  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+	  wglMakeCurrent(GetDC(this->WindowId), this->ContextId);
+  }	else wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
 
   vtkDebugMacro(<< " glMatrixMode ModelView\n");
   glMatrixMode( GL_MODELVIEW );
@@ -232,7 +252,7 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
   glEnable( GL_NORMALIZE );
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 
-  this->Mapped = 1;
+	if(!this->MFChandledWindow) this->Mapped = 1;
 }
 
 // Description:
@@ -598,6 +618,17 @@ void vtkWin32OglrRenderWindow::SetNextWindowId(HWND arg)
   this->NextWindowId = arg;
 }
 
+void vtkWin32OglrRenderWindow::SetContextId(HGLRC arg) // hsr
+{													   // hsr	
+  this->ContextId = arg;							   // hsr
+}													   // hsr
+
+void vtkWin32OglrRenderWindow::SetDeviceContext(HDC arg) // hsr
+{														 // hsr
+  this->DeviceContext = arg;							 // hsr
+  this->MFChandledWindow = TRUE;						 // hsr
+}														 // hsr
+
 // Description:
 // Create named interactor type
 vtkRenderWindowInteractor *
@@ -610,7 +641,7 @@ vtkWin32OglrRenderWindow::MakeRenderWindowInteractor()
 }
 
 
-float *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
+float *vtkWin32OglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
   long    xloop,yloop;
   int     y_low, y_hi;
@@ -623,7 +654,7 @@ float *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int
   unsigned long   *buffer;
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   if (y1 < y2)
     {
@@ -666,8 +697,9 @@ float *vtkOglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int
   return data;
 }
 
-void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-				       float *data, int front)
+void vtkWin32OglrRenderWindow::SetRGBAPixelData(int x1, int y1, 
+						int x2, int y2,
+						float *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -677,7 +709,7 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   float   *p_data = NULL;
 
   // set the current window 
-  glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
+  this->MakeCurrent();
 
   if (front)
     {
@@ -731,7 +763,8 @@ void vtkOglrRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
 
 }
 
-float *vtkOglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
+float *vtkWin32OglrRenderWindow::GetZbufferData( int x1, int y1, 
+						 int x2, int y2  )
 {
   int             y_low, y_hi;
   int             x_low, x_hi;
@@ -776,8 +809,8 @@ float *vtkOglrRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
   return z_data;
 }
 
-void vtkOglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					  float *buffer )
+void vtkWin32OglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+					       float *buffer )
 {
   int             y_low, y_hi;
   int             x_low, x_hi;
@@ -827,3 +860,4 @@ void vtkOglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
 }
+

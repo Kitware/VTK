@@ -90,6 +90,7 @@ vtkLight.o \
 vtkLineSource.o \
 vtkLinearExtrusionFilter.o \
 vtkLinkEdgels.o \
+vtkLinkSurfels.o \
 vtkMCubesReader.o \
 vtkMCubesWriter.o \
 vtkMapper.o \
@@ -293,6 +294,7 @@ tcl/vtkLightDeviceTcl.o \
 tcl/vtkLineSourceTcl.o \
 tcl/vtkLinearExtrusionFilterTcl.o \
 tcl/vtkLinkEdgelsTcl.o \
+tcl/vtkLinkSurfelsTcl.o \
 tcl/vtkMCubesReaderTcl.o \
 tcl/vtkMCubesWriterTcl.o \
 tcl/vtkMapperTcl.o \
@@ -498,6 +500,7 @@ vtkLightCollection.h \
 vtkLineSource.h \
 vtkLinearExtrusionFilter.h \
 vtkLinkEdgels.h \
+vtkLinkSurfels.h \
 vtkMCubesReader.h \
 vtkMCubesWriter.h \
 vtkMarchingCubes.h \
@@ -962,6 +965,9 @@ tcl/vtkLinearExtrusionFilterTcl.cxx: vtkLinearExtrusionFilter.h ../tcl/cpp_parse
 
 tcl/vtkLinkEdgelsTcl.cxx: vtkLinkEdgels.h ../tcl/cpp_parse 
 	rm -f tcl/vtkLinkEdgelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinkEdgels.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinkEdgelsTcl.cxx
+
+tcl/vtkLinkSurfelsTcl.cxx: vtkLinkSurfels.h ../tcl/cpp_parse 
+	rm -f tcl/vtkLinkSurfelsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkLinkSurfels.h $(srcdir)/../tcl/hints 1 > tcl/vtkLinkSurfelsTcl.cxx
 
 tcl/vtkMCubesReaderTcl.cxx: vtkMCubesReader.h ../tcl/cpp_parse 
 	rm -f tcl/vtkMCubesReaderTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkMCubesReader.h $(srcdir)/../tcl/hints 1 > tcl/vtkMCubesReaderTcl.cxx

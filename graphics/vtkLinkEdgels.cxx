@@ -57,7 +57,7 @@ vtkLinkEdgels::vtkLinkEdgels()
 // Description:
 // This filter executes if it or a previous filter has been modified or
 // if its data has been released and it is forced to update.
-void vtkLinkEdgels::ConditionalUpdate(int forced)
+void vtkLinkEdgels::Update()
 {
   int execute;
   
@@ -70,15 +70,15 @@ void vtkLinkEdgels::ConditionalUpdate(int forced)
 
   execute = this->Input->GetPipelineMTime() > this->ExecuteTime
     || this->GetMTime() > this->ExecuteTime 
-    || (forced && this->Output->GetDataReleased());
+    || this->Output->GetDataReleased();
   
   if (execute)
     {
-    vtkDebugMacro(<< "ConditionalUpdate: Condition satisfied, forced = "
-                  << forced << ", executeTime = " << this->ExecuteTime
-                  << ", modifiedTime = " << this->GetMTime() 
-                  << ", input MTime = " << this->Input->GetPipelineMTime()
-                  << ", released = " << this->Output->GetDataReleased());
+    vtkDebugMacro(<< "ConditionalUpdate: Condition satisfied, executeTime = " 
+    << this->ExecuteTime
+    << ", modifiedTime = " << this->GetMTime() 
+    << ", input MTime = " << this->Input->GetPipelineMTime()
+    << ", released = " << this->Output->GetDataReleased());
     
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output
@@ -88,15 +88,6 @@ void vtkLinkEdgels::ConditionalUpdate(int forced)
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }
-
-//----------------------------------------------------------------------------
-// Description:
-// To keep the old update method working.
-void vtkLinkEdgels::Update()
-{
-  this->ConditionalUpdate(0);
-}
-
 
 void vtkLinkEdgels::Execute()
 {

@@ -81,7 +81,7 @@ public:
   vtkImplicitTextureCoords();
   char *GetClassName() {return "vtkImplicitTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
+  
   // Description:
   // Specify an implicit function to compute the r texture coordinate.
   vtkSetObjectMacro(RFunction,vtkImplicitFunction);
@@ -103,7 +103,9 @@ public:
   vtkSetMacro(FlipTexture,int);
   vtkGetMacro(FlipTexture,int);
   vtkBooleanMacro(FlipTexture,int);
-
+  
+  void Update();
+  
 protected:
   void Execute();
 

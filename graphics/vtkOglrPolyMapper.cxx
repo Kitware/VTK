@@ -110,7 +110,7 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
     return;
     }
   
-  // make sure our window is current
+// make sure our window is current
 #ifdef _WIN32
   ((vtkWin32OglrRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
 #else

@@ -93,8 +93,8 @@ vtkCyberReader::~vtkCyberReader()
 
 #define MAXR		(0x00007fff<<gs->rshift)
 #define MAXRGS(gs) 	(0x00007fff<<(gs)->rshift)
-#define MINR		0
-#define VOID		(0xffff8000<<gs->rshift)
+#define MINR		 0
+#define vtkCyVOID	(0xffff8000<<gs->rshift)
 #define VOIDGS(gs)	(0xffff8000<<(gs)->rshift)
 
 /* various constants of pi */
@@ -551,7 +551,7 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx)
             cos_theta = cos(theta);
             for (lt = gs->ltmin; lt <= gs->ltmax; ++lt) {
                 radius = GETR(gs, lt, lg);		/* cyl radius */
-                if (radius != VOID) {
+                if (radius != vtkCyVOID) {
                     r = radius * 1.e-6;			/* to meters */
                     vtx->pnt[lg][lt][LX] = r * sin_theta;
                     vtx->pnt[lg][lt][LY] = y;
@@ -575,7 +575,7 @@ static void gstovtx (GSPEC* gs, struct Vertex *vtx)
                     y = (lt - vtx->nlt) * gs->ltincr * 1.e-6;
                 }
                 radius = GETR(gs, lt, lg);
-                if (radius != VOID) {
+                if (radius != vtkCyVOID) {
                     vtx->pnt[lg][lt][LX] = x;
                     vtx->pnt[lg][lt][LY] = y;
                     vtx->pnt[lg][lt][LZ] = radius * 1.e-6;;

@@ -128,7 +128,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     return (vtkRenderWindow *)ren;
     }
 #endif
-
+  
 #ifdef USE_XGLR
   if (!strncmp("xglr",type,4))
     {

@@ -48,13 +48,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkWin32OglrRenderWindow_h
 
 #include <stdlib.h>
-#include <windows.h>
+#include <afxwin.h>
 #include "vtkRenderWindow.h"
 
 class vtkWin32OglrRenderWindow : public vtkRenderWindow
 {
 protected:
   HGLRC  ContextId;
+  HDC	 DeviceContext;			//	hsr	
+  BOOL   MFChandledWindow;		//  hsr
   HWND   WindowId;
   HWND   NextWindowId;
   int    OwnWindow;
@@ -87,10 +89,12 @@ public:
   int *GetSize();
   int *GetScreenSize();
   int *GetPosition();
-  HWND     GetWindowId();
-  // void     SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
-  void     SetWindowId(HWND);
-  void     SetNextWindowId(HWND);
+  HWND      GetWindowId();
+  void      SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
+  void		SetWindowId(HWND);
+  void		SetContextId(HGLRC);	// hsr
+  void		SetDeviceContext(HDC);	// hsr
+  void      SetNextWindowId(HWND);
 
   // supply base class virtual function
   vtkRenderWindowInteractor *MakeRenderWindowInteractor();

@@ -41,13 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <string.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
-
 #include "vtkOglrRenderer.h"
 #include "vtkOglrTexture.h"
+#include <GL/gl.h>
 
 // shared increasing counter
 long vtkOglrTexture::GlobalIndex = 0;

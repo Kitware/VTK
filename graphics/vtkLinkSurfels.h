@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLinkEdgels.h
+  Module:    vtkLinkSurfels.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,19 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkLinkeEdgles - takes a gradient image and links edgels
+// .NAME vtkLinkeEdgles - takes a gradient image and links Surfels
 
-#ifndef __vtkLinkEdgels_h
-#define __vtkLinkEdgels_h
+#ifndef __vtkLinkSurfels_h
+#define __vtkLinkSurfels_h
 
 #include "vtkPolySource.h"
 #include "vtkImageSource.h"
 #include "vtkImageRegion.h"
 
-class vtkLinkEdgels : public vtkPolySource
+class vtkLinkSurfels : public vtkPolySource
 {
 public:
-  vtkLinkEdgels();
+  vtkLinkSurfels();
   char *GetClassName() {return "vtkImageToStructurePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -81,11 +81,10 @@ protected:
   float GradientThreshold;
   float PhiThreshold;
   float LinkThreshold;
-  void  LinkEdgels(vtkImageRegion *region,
-		   vtkCellArray *newLines, vtkFloatPoints *newPts,
-		   vtkFloatScalars *outScalars, 
-		   vtkFloatVectors *outVectors, int z);
-
+  void  LinkSurfels(vtkImageRegion *region,
+		    vtkCellArray *newLines, vtkFloatPoints *newPts,
+		    vtkFloatScalars *outScalars, 
+		    vtkFloatVectors *outVectors);
   void Execute();
 };
 

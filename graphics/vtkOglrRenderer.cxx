@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #ifdef _WIN32
-#include <windows.h>
+#include <afxwin.h>
 #endif
 #include <GL/gl.h>
 

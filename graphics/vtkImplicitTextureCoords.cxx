@@ -180,3 +180,70 @@ void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "R Function defined\n";
     }
 }
+
+// Description:
+// Update input to this filter and the filter itself. Note that we are 
+// overloading this method because the output is an abstract dataset type.
+// This requires special treatment.
+void vtkImplicitTextureCoords::Update()
+{
+  int doit = 0;
+  
+  // make sure output has been created
+  if ( !this->Output )
+    {
+    vtkErrorMacro(<< "No output has been created...need to set input");
+    return;
+    }
+
+  // make sure input is available
+  if ( !this->Input )
+    {
+    vtkErrorMacro(<< "No input...can't execute!");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating) return;
+
+  this->Updating = 1;
+  this->Input->Update();
+  this->Updating = 0;
+
+  if ( this->Input->GetMTime() > this->ExecuteTime ||
+       this->GetMTime() > this->ExecuteTime )
+    {
+    doit = 1;
+    }
+  if (this->RFunction && this->RFunction->GetMTime() > this->ExecuteTime)
+    {
+    doit = 1;
+    }
+  if (this->SFunction && this->SFunction->GetMTime() > this->ExecuteTime)
+    {
+    doit = 1;
+    }
+  if (this->TFunction && this->TFunction->GetMTime() > this->ExecuteTime)
+    {
+    doit = 1;
+    }
+  
+  if (doit)
+    {
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
+
+    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    // copy topological/geometric structure from input
+    this->Output->CopyStructure(this->Input);
+    this->Execute();
+    this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
+    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    }
+
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+}
+
