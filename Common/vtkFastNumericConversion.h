@@ -68,362 +68,363 @@
 
 
 class VTK_COMMON_EXPORT vtkFastNumericConversion : public vtkObject
-  {
-  public:
-    static vtkFastNumericConversion *New();
-    vtkTypeRevisionMacro(vtkFastNumericConversion, vtkObject);
-    void PrintSelf(ostream& os, vtkIndent indent);
+{
+public:
+  static vtkFastNumericConversion *New();
+  vtkTypeRevisionMacro(vtkFastNumericConversion, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-    // Description:
-    // Wrappable method for script-testing of correct cross-platform functionality
-    int TestQuickFloor(double val);
+  // Description:
+  // Wrappable method for script-testing of correct cross-platform functionality
+  int TestQuickFloor(double val);
 
-    // Description:
-    // Wrappable method for script-testing of correct cross-platform functionality
-    int TestSafeFloor(double val);
+  // Description:
+  // Wrappable method for script-testing of correct cross-platform functionality
+  int TestSafeFloor(double val);
 
-    // Description:
-    // Wrappable method for script-testing of correct cross-platform functionality
-    int TestRound(double val);
+  // Description:
+  // Wrappable method for script-testing of correct cross-platform functionality
+  int TestRound(double val);
 
-    // Description:
-    // Wrappable method for script-testing of correct cross-platform functionality
-    int TestConvertFixedPointIntPart(double val);
+  // Description:
+  // Wrappable method for script-testing of correct cross-platform functionality
+  int TestConvertFixedPointIntPart(double val);
 
-    // Description:
-    // Wrappable method for script-testing of correct cross-platform functionality
-    int TestConvertFixedPointFracPart(double val);
-    
-  protected:
-//BTX
-    // Description:
-    // Internal use: multiply the denormalizer value by 1.5 to ensure that it
-    // has a "1" bit, other than the implicit initial "1" bit, from which to borrow
-    // when adding (flooring) a negative number, so that we don't borrow from
-    // the implicit "1" bit, which would cause partial re-normalization, resulting
-    // in a shift of our integer bits.
-    static inline double BorrowBit() { return 1.5;};
-    
-    // Description: 
-    // Represent 2^30 as a double precision float. Use as a stepping
-    // stone for computing 2^52 as a double, since we can't represent 2^52 as an
-    // int before converting to double.
-    static inline double two30() { return (double)(((unsigned long)1) << 30); };
-    
-    // Description: 
-    // Represent 2^52 as a double precision float. This value is 
-    // significant because doubles have 52 bits of precision in the mantissa
-    static inline double two52() { return (((unsigned long)1) << (52-30)) * two30(); };
+  // Description:
+  // Wrappable method for script-testing of correct cross-platform functionality
+  int TestConvertFixedPointFracPart(double val);
 
-    // Description: 
-    // Represent 2^51 as a double precision float. This value is 
-    // significant because doubles have 52 (explicit) bits of precision in the mantissa,
-    // but we're going to pretend we only have 51 to play with when using
-    // safe floor, since the default round-to-even on an X86 mucks with 
-    // the LSB during the denormalizing shift.
-    static inline double two51() { return (((unsigned long)1) << (51-30)) * two30(); }; 
+protected:
+  //BTX
+  // Description:
+  // Internal use: multiply the denormalizer value by 1.5 to ensure that it
+  // has a "1" bit, other than the implicit initial "1" bit, from which to borrow
+  // when adding (flooring) a negative number, so that we don't borrow from
+  // the implicit "1" bit, which would cause partial re-normalization, resulting
+  // in a shift of our integer bits.
+  static inline double BorrowBit() { return 1.5;};
 
-    // Description:
-    // Represent 2^63 as a double precision float. We need this value to shift
-    // unwanted fractional bits off the end of an extended precision value
-    static inline double two63() { return (((unsigned long)1) << (63-60)) * two30() * two30();};
+  // Description: 
+  // Represent 2^30 as a double precision float. Use as a stepping
+  // stone for computing 2^52 as a double, since we can't represent 2^52 as an
+  // int before converting to double.
+  static inline double two30() { return (double)(((unsigned long)1) << 30); };
 
-    // Description:
-    // Represent 2^62 as a double precision float. We need this value to shift
-    // unwanted fractional bits off the end of an extended precision value. Use
-    // when we're doing a SafeFloor.
-    static inline double two62() { return (((unsigned long)1) << (62-60)) * two30() * two30();};
+  // Description: 
+  // Represent 2^52 as a double precision float. This value is 
+  // significant because doubles have 52 bits of precision in the mantissa
+  static inline double two52() { return (((unsigned long)1) << (52-30)) * two30(); };
 
-    // Define number of bits of precision for various data types.
-    // Note: INT_BITS is really 31, (rather than 32, since one of the bits is just used for
-    // the two's-complement sign), but we say 30 because we don't need to be able to 
-    // handle 31-bit magnitudes correctly. I say that because this is used for the
-    // QuickFloor code, and the SafeFloor code retains an extra bit of fixed point precision
-    // which it shifts-out at the end, thus reducing the magnitude of integers that it
-    // can handle. That's an inherent limitation of using SafeFloor to prevent
-    // round-ups under any circumstances, and there's no need to make QuickFloor handle
-    // a wider range of numbers than SafeFloor.
+  // Description: 
+  // Represent 2^51 as a double precision float. This value is 
+  // significant because doubles have 52 (explicit) bits of precision in the mantissa,
+  // but we're going to pretend we only have 51 to play with when using
+  // safe floor, since the default round-to-even on an X86 mucks with 
+  // the LSB during the denormalizing shift.
+  static inline double two51() { return (((unsigned long)1) << (51-30)) * two30(); }; 
+
+  // Description:
+  // Represent 2^63 as a double precision float. We need this value to shift
+  // unwanted fractional bits off the end of an extended precision value
+  static inline double two63() { return (((unsigned long)1) << (63-60)) * two30() * two30();};
+
+  // Description:
+  // Represent 2^62 as a double precision float. We need this value to shift
+  // unwanted fractional bits off the end of an extended precision value. Use
+  // when we're doing a SafeFloor.
+  static inline double two62() { return (((unsigned long)1) << (62-60)) * two30() * two30();};
+
+  // Define number of bits of precision for various data types.
+  // Note: INT_BITS is really 31, (rather than 32, since one of the bits is just used for
+  // the two's-complement sign), but we say 30 because we don't need to be able to 
+  // handle 31-bit magnitudes correctly. I say that because this is used for the
+  // QuickFloor code, and the SafeFloor code retains an extra bit of fixed point precision
+  // which it shifts-out at the end, thus reducing the magnitude of integers that it
+  // can handle. That's an inherent limitation of using SafeFloor to prevent
+  // round-ups under any circumstances, and there's no need to make QuickFloor handle
+  // a wider range of numbers than SafeFloor.
 #define INT_BITS 30 
 #define EXT_BITS 64
 #define DBL_BITS 53
 
-    // Description:
-    // Small amount to use as a rounding tie-breaker to prevent round-to-nearest-and-even
-    // mode from flooring-down odd numbered integers. But number to nudge by depends on number of
-    // bits mantissa in our floating point representation minus number of mantissa bits in
-    // the range of signed ints we need to handle. In order to ensure that flooring-down 
-    // doesn't happen even for very large odd-integer values, the number of bits used to 
-    // represent the tie-breaker (i.e. to the right of the binary-point), plus the number 
-    // of bits needed to represent the integer (to the left of the binary point),
-    // can not exceeds the number of bits in the current precision mode. Thus, in selecting
-    // the tie-breaker value, we select the largest number of bits to the right of the 
-    // binary point as possible while still maintining that inequality. Thus, extended
-    // precision mode allows a larger number of bits to the right of the binary point.
-    // This, in turn, implies a smaller value of the tie-breaker. And a smaller tie-breaker
-    // will impose a tighter window on the range of values that are erroneously rounded-up
-    // by a floor operation. Under double precision, a QuickFloor of 0.9999998 (six 9's and
-    // an 8) correctly yields 0. A value must be very close to 1.0, in fact, at least as
-    // close as 0.9999999 (seven 9's)in order for the tie-breaker to bump it up to 1.
-    // Under extended precision, an even smaller tie-breaker can be used. In this mode,
-    // a QuickFloor of 0.9999999999 (ten 9's) correctly yields 0. A QuickFloor of 0.99999999999 
-    // (eleven 9's) gets rounded up to 1. Since these spurious round-ups occur only when
-    // the given value is virtually indistinguishable from the next higher integer, the results
-    // should be acceptable in most situations where performance is of the essence.
-    public: // Make this public so that clients can account for the RoundingTieBreaker if necessary
+  // Description:
+  // Small amount to use as a rounding tie-breaker to prevent round-to-nearest-and-even
+  // mode from flooring-down odd numbered integers. But number to nudge by depends on number of
+  // bits mantissa in our floating point representation minus number of mantissa bits in
+  // the range of signed ints we need to handle. In order to ensure that flooring-down 
+  // doesn't happen even for very large odd-integer values, the number of bits used to 
+  // represent the tie-breaker (i.e. to the right of the binary-point), plus the number 
+  // of bits needed to represent the integer (to the left of the binary point),
+  // can not exceeds the number of bits in the current precision mode. Thus, in selecting
+  // the tie-breaker value, we select the largest number of bits to the right of the 
+  // binary point as possible while still maintining that inequality. Thus, extended
+  // precision mode allows a larger number of bits to the right of the binary point.
+  // This, in turn, implies a smaller value of the tie-breaker. And a smaller tie-breaker
+  // will impose a tighter window on the range of values that are erroneously rounded-up
+  // by a floor operation. Under double precision, a QuickFloor of 0.9999998 (six 9's and
+  // an 8) correctly yields 0. A value must be very close to 1.0, in fact, at least as
+  // close as 0.9999999 (seven 9's)in order for the tie-breaker to bump it up to 1.
+  // Under extended precision, an even smaller tie-breaker can be used. In this mode,
+  // a QuickFloor of 0.9999999999 (ten 9's) correctly yields 0. A QuickFloor of 0.99999999999 
+  // (eleven 9's) gets rounded up to 1. Since these spurious round-ups occur only when
+  // the given value is virtually indistinguishable from the next higher integer, the results
+  // should be acceptable in most situations where performance is of the essence.
+public: // Make this public so that clients can account for the RoundingTieBreaker if necessary
 #ifdef EXT_PREC
-    // Compute (0.5 ^ (EXT_BITS-INT_BITS)) as a compile-time constant
-    static inline double RoundingTieBreaker() { return 1.0 / (two30() * (((unsigned long)1) << (EXT_BITS - INT_BITS - 30))); };
+  // Compute (0.5 ^ (EXT_BITS-INT_BITS)) as a compile-time constant
+  static inline double RoundingTieBreaker() { return 1.0 / (two30() * (((unsigned long)1) << (EXT_BITS - INT_BITS - 30))); };
 #else
-    // Compute (0.5 ^ (DBL_BITS-INT_BITS)) as a compile-time constant
-    static inline double RoundingTieBreaker() { return 1.0 / (((unsigned long)1) << (DBL_BITS - INT_BITS)); };
+  // Compute (0.5 ^ (DBL_BITS-INT_BITS)) as a compile-time constant
+  static inline double RoundingTieBreaker() { return 1.0 / (((unsigned long)1) << (DBL_BITS - INT_BITS)); };
 #endif
 
-    protected:
-    // Description:
-    // This is the magic floating point value which when added to any other 
-    // floating point value, causes the rounded integer portion of that 
-    // floating point value to appear in the least significant bits of the
-    // mantissa, which is what we want.
-    static inline double QuickFloorDenormalizer() {return two52() * BorrowBit(); };
+protected:
+  // Description:
+  // This is the magic floating point value which when added to any other 
+  // floating point value, causes the rounded integer portion of that 
+  // floating point value to appear in the least significant bits of the
+  // mantissa, which is what we want.
+  static inline double QuickFloorDenormalizer() {return two52() * BorrowBit(); };
 
-    // Description:
-    // This is the magic floating point value which when added to any other 
-    // floating point value, causes the rounded integer portion of that 
-    // floating point value to appear in the NEXT TO least significant bits of the
-    // mantissa, which is what we want. This allows the CPU rounding mode to
-    // muck with the LSB which we can then discard in SafeFloor
-    static inline double SafeFloorDenormalizer() { return two51() * BorrowBit(); };
+  // Description:
+  // This is the magic floating point value which when added to any other 
+  // floating point value, causes the rounded integer portion of that 
+  // floating point value to appear in the NEXT TO least significant bits of the
+  // mantissa, which is what we want. This allows the CPU rounding mode to
+  // muck with the LSB which we can then discard in SafeFloor
+  static inline double SafeFloorDenormalizer() { return two51() * BorrowBit(); };
 
-    // Description:
-    // This value is added to and then subtracted from an extended precision value 
-    // in order to clear the fractional bits so that they do not adversely affect the
-    // final double-precision result.
-    static inline double QuickExtPrecTempDenormalizer() {return two63() * BorrowBit(); };
+  // Description:
+  // This value is added to and then subtracted from an extended precision value 
+  // in order to clear the fractional bits so that they do not adversely affect the
+  // final double-precision result.
+  static inline double QuickExtPrecTempDenormalizer() {return two63() * BorrowBit(); };
 
-    // Description:
-    // Just like QuickExtPrecTempDenormalizer(), but preserves one extra bit of 
-    // fixed point precision to guard against the CPU mucking with the LSB
-    static inline double SafeExtPrecTempDenormalizer() {return two62() * BorrowBit(); };
+  // Description:
+  // Just like QuickExtPrecTempDenormalizer(), but preserves one extra bit of 
+  // fixed point precision to guard against the CPU mucking with the LSB
+  static inline double SafeExtPrecTempDenormalizer() {return two62() * BorrowBit(); };
 
-    static inline double QuickRoundAdjust() {return 0.5;};
-    static inline double SafeRoundAdjust() {return 0.25;};
-    static inline int SafeFinalShift() {return 1;};
- 
-    
+  static inline double QuickRoundAdjust() {return 0.5;};
+  static inline double SafeRoundAdjust() {return 0.25;};
+  static inline int SafeFinalShift() {return 1;};
+
+
 #ifdef VTK_WORDS_BIGENDIAN
   enum {exponent_pos = 0, mantissa_pos = 1};
 #else
   enum {exponent_pos = 1, mantissa_pos = 0};
 #endif 
-//ETX
+  //ETX
 
-  public:
-    
-    // Description:
-    // Set the number of bits reserved for fractional precision that are 
-    // maintained as part of the flooring process. This number affects the
-    // flooring arithmetic. It may be useful if the factional part is to be
-    // used to index into a lookup table of some sort. However, if you are only
-    // interested in knowing the fractional remainder after flooring, there doesn't
-    // appear to be any advantage to using these bits, either in terms of a 
-    // lookup table, or by directly multiplying by some unit fraction, over simply
-    // subtracting the floored value from the original value. Note that 
-    // since only 32 bits are used for the entire fixed point representation,
-    // increasing the number of reserved fractional bits reduces the range of 
-    // integer values that can be floored to. 
-    void SetReservedFracBits(int bits)
-      {
-      // Add one to the requested number of fractional bits, to make
-      // the conversion safe with respect to rounding mode. This is the
-      // same as the difference between QuickFloor and SafeFloor.
-      bits++;
-      unsigned long mtime = this->GetMTime();
-      this->SetinternalReservedFracBits(bits);
-      if (mtime != this->GetMTime())
-        {
-        this->InternalRebuild();
-        }
-      };
+public:
 
-    // Description:
-    // Conduct timing tests so that the usefulness of this class can be ascertained 
-    // on whatever platform it is being used. Output can be retrieved via Print method.
-    void PerformanceTests(void);    
-    
-//BTX
-    // Description:
-    // Perform a quick flooring of the double-precision floating point
-    // value. The result is sometimes incorrect, but in a way that makes it 
-    // acceptable for most uses. The naive way to implement floor(), given that
-    // the x86 FPU does round() by default, is to define floor(x) as round(x-.5).
-    // This would work fine except for the fact that the x86 FPU breaks rounding ties
-    // by selecting the even number. Thus, floor(4.0) = round(3.5) = 4, but
-    // floor(3.0) = round(2.5) = 2. As a result, subtracting .5 gives the wrong answer
-    // for odd integers. So, let's subtract just a TEENSY bit less than .5, to swing the
-    // odd-integer results up to their corect value. How teensy? Well, if it's too teensy,
-    // it will be insignificant compared to 0.5, and will become equivalent to 0.5. 
-    // And if it's not teensy enough, we'll overshoot, causing results like
-    // floor(N-epsilon)==N, for some epsilon. Furthermore, the "too teensy" problem
-    // is exacerbated when trying to floor larger numbers, due to limitations of
-    // the representation's dynamic range. See the definition of RoundingTieBreaker()
-    // for details. 
-    inline static int QuickFloor(const double &val)
+  // Description:
+  // Set the number of bits reserved for fractional precision that are 
+  // maintained as part of the flooring process. This number affects the
+  // flooring arithmetic. It may be useful if the factional part is to be
+  // used to index into a lookup table of some sort. However, if you are only
+  // interested in knowing the fractional remainder after flooring, there doesn't
+  // appear to be any advantage to using these bits, either in terms of a 
+  // lookup table, or by directly multiplying by some unit fraction, over simply
+  // subtracting the floored value from the original value. Note that 
+  // since only 32 bits are used for the entire fixed point representation,
+  // increasing the number of reserved fractional bits reduces the range of 
+  // integer values that can be floored to. 
+  void SetReservedFracBits(int bits)
+    {
+    // Add one to the requested number of fractional bits, to make
+    // the conversion safe with respect to rounding mode. This is the
+    // same as the difference between QuickFloor and SafeFloor.
+    bits++;
+    unsigned long mtime = this->GetMTime();
+    this->SetinternalReservedFracBits(bits);
+    if (mtime != this->GetMTime())
       {
+      this->InternalRebuild();
+      }
+    };
+
+  // Description:
+  // Conduct timing tests so that the usefulness of this class can be ascertained 
+  // on whatever platform it is being used. Output can be retrieved via Print method.
+  void PerformanceTests(void);    
+
+  //BTX
+  // Description:
+  // Perform a quick flooring of the double-precision floating point
+  // value. The result is sometimes incorrect, but in a way that makes it 
+  // acceptable for most uses. The naive way to implement floor(), given that
+  // the x86 FPU does round() by default, is to define floor(x) as round(x-.5).
+  // This would work fine except for the fact that the x86 FPU breaks rounding ties
+  // by selecting the even number. Thus, floor(4.0) = round(3.5) = 4, but
+  // floor(3.0) = round(2.5) = 2. As a result, subtracting .5 gives the wrong answer
+  // for odd integers. So, let's subtract just a TEENSY bit less than .5, to swing the
+  // odd-integer results up to their corect value. How teensy? Well, if it's too teensy,
+  // it will be insignificant compared to 0.5, and will become equivalent to 0.5. 
+  // And if it's not teensy enough, we'll overshoot, causing results like
+  // floor(N-epsilon)==N, for some epsilon. Furthermore, the "too teensy" problem
+  // is exacerbated when trying to floor larger numbers, due to limitations of
+  // the representation's dynamic range. See the definition of RoundingTieBreaker()
+  // for details. 
+  inline static int QuickFloor(const double &val)
+    {
 #ifdef USE_TRICK
-      double tempval;
+    double tempval;
 #ifdef EXT_PREC
-      tempval = (((val - (QuickRoundAdjust() - RoundingTieBreaker())) 
-                  + QuickExtPrecTempDenormalizer()) // Push off those extended precision bits
-                  - QuickExtPrecTempDenormalizer()) // Pull back the wanted bits into double range
-                  + QuickFloorDenormalizer();
+    tempval = (((val - (QuickRoundAdjust() - RoundingTieBreaker())) 
+        + QuickExtPrecTempDenormalizer()) // Push off those extended precision bits
+      - QuickExtPrecTempDenormalizer()) // Pull back the wanted bits into double range
+      + QuickFloorDenormalizer();
 #else // ! EXT_PREC
-      tempval = (val - (QuickRoundAdjust() - RoundingTieBreaker())) 
-                  + QuickFloorDenormalizer();
+    tempval = (val - (QuickRoundAdjust() - RoundingTieBreaker())) 
+      + QuickFloorDenormalizer();
 #endif // EXT_PREC
-      return ((int*)&tempval)[mantissa_pos];
+    return ((int*)&tempval)[mantissa_pos];
 #else // ! USE_TRICK
-      return (int) val;
+    return (int) val;
 #endif // USE_TRICK
-      }
+    }
 
-    // Description:
-    // Perform a SAFE flooring. Similar to QuickFloor, but modified to
-    // return the correct result always. Use this when it absolutely positively
-    // needs to be the correct answer all the time, and considering 0.9999999 as 
-    // being equal to 1.0 is simply not acceptable. 
-    // It works similarly to QuickFloor, but it retains one extra bit of fixed point
-    // precision in the conversion process, so that the problem with QuickFloor
-    // affects only an unneeded bit, and then it ditches that bit from the 
-    // resulting integer with a right-shift. In other words, it rounds to the
-    // nearest one-half, choosing the EVEN one-half (i.e. the integer) as a tie-breaker, and
-    // then shifting off that half-integer bit. As a result of maintaining one
-    // extra bit of fixed point precision in the intermediate calculation, the
-    // range of integers supported is reduced by one bit. Plus, it takes a little
-    // longer to execute, due to the final bit shift.
-    inline static int SafeFloor(const double &val)
-      {
+  // Description:
+  // Perform a SAFE flooring. Similar to QuickFloor, but modified to
+  // return the correct result always. Use this when it absolutely positively
+  // needs to be the correct answer all the time, and considering 0.9999999 as 
+  // being equal to 1.0 is simply not acceptable. 
+  // It works similarly to QuickFloor, but it retains one extra bit of fixed point
+  // precision in the conversion process, so that the problem with QuickFloor
+  // affects only an unneeded bit, and then it ditches that bit from the 
+  // resulting integer with a right-shift. In other words, it rounds to the
+  // nearest one-half, choosing the EVEN one-half (i.e. the integer) as a tie-breaker, and
+  // then shifting off that half-integer bit. As a result of maintaining one
+  // extra bit of fixed point precision in the intermediate calculation, the
+  // range of integers supported is reduced by one bit. Plus, it takes a little
+  // longer to execute, due to the final bit shift.
+  inline static int SafeFloor(const double &val)
+    {
 #ifdef USE_TRICK
-      double tempval;
+    double tempval;
 #ifdef EXT_PREC
-      tempval = (((val - SafeRoundAdjust())
-                  + SafeExtPrecTempDenormalizer())
-                  - SafeExtPrecTempDenormalizer())
-                  + SafeFloorDenormalizer();
+    tempval = (((val - SafeRoundAdjust())
+        + SafeExtPrecTempDenormalizer())
+      - SafeExtPrecTempDenormalizer())
+      + SafeFloorDenormalizer();
 #else // ! EXT_PREC
-      tempval = (val - SafeRoundAdjust()) 
-                  + SafeFloorDenormalizer();
+    tempval = (val - SafeRoundAdjust()) 
+      + SafeFloorDenormalizer();
 #endif // EXT_PREC
-      return ((int*)&tempval)[mantissa_pos] >> SafeFinalShift();
+    return ((int*)&tempval)[mantissa_pos] >> SafeFinalShift();
 #else // ! USE_TRICK
-      return (int) val;
+    return (int) val;
 #endif // USE_TRICK
-      }
-      
-    // Description: 
-    // Round to nearest int.
-    // This is pretty sweet in the default round-to-nearest FPU mode, since it is
-    // generally immaterial how ties are broken when rounding. I.e., either "2" or "3"
-    // are acceptable results for "Round(2.5)", but only one of them (the one naively 
-    // not chosen without jumping through the hoops in QuickFloor and SafeFloor) is the 
-    // acceptable result for the analogous "Floor(3)". Therefore, we don't need to worry 
-    // at all about adding a teensy but not too teensy tie breaker, or shifting off a
-    // half-integer bit. This makes it exceptionally fast. 
-    inline static int Round(const double &val)
-      {
+    }
+
+  // Description: 
+  // Round to nearest int.
+  // This is pretty sweet in the default round-to-nearest FPU mode, since it is
+  // generally immaterial how ties are broken when rounding. I.e., either "2" or "3"
+  // are acceptable results for "Round(2.5)", but only one of them (the one naively 
+  // not chosen without jumping through the hoops in QuickFloor and SafeFloor) is the 
+  // acceptable result for the analogous "Floor(3)". Therefore, we don't need to worry 
+  // at all about adding a teensy but not too teensy tie breaker, or shifting off a
+  // half-integer bit. This makes it exceptionally fast. 
+  inline static int Round(const double &val)
+    {
 #ifdef USE_TRICK
-      double tempval;
+    double tempval;
 #ifdef EXT_PREC
-      tempval = ((val 
-                  + QuickExtPrecTempDenormalizer()) 
-                  - QuickExtPrecTempDenormalizer())
-                  + QuickFloorDenormalizer();
+    tempval = ((val 
+        + QuickExtPrecTempDenormalizer()) 
+      - QuickExtPrecTempDenormalizer())
+      + QuickFloorDenormalizer();
 #else // ! EXT_PREC
-      tempval =    val  
-                  + QuickFloorDenormalizer();
+    tempval =    val  
+      + QuickFloorDenormalizer();
 #endif // EXT_PREC
-      return ((int*)&tempval)[mantissa_pos];
+    return ((int*)&tempval)[mantissa_pos];
 #else // ! USE_TRICK
-      if (val>=0)
-        {
-        return (int) (val + 0.5);
-        }
-      else
-        {
-        return (int) (val - 0.5);
-        }
+    if (val>=0)
+      {
+      return (int) (val + 0.5);
+      }
+    else
+      {
+      return (int) (val - 0.5);
+      }
 #endif // USE_TRICK
-      }
+    }
 
-    // Description:
-    // Convert the value to a fixed point representation, returning the
-    // integer portion as function value, and returning the fractional
-    // part in the second parameter. 
-    inline int ConvertFixedPoint(const double &val, int &fracPart)
-      {
-      double tempval;
+  // Description:
+  // Convert the value to a fixed point representation, returning the
+  // integer portion as function value, and returning the fractional
+  // part in the second parameter. 
+  inline int ConvertFixedPoint(const double &val, int &fracPart)
+    {
+    double tempval;
 #ifdef EXT_PREC
-      tempval = (((val - fixRound)
-                  + this->epTempDenormalizer)
-                  - this->epTempDenormalizer)
-                  + this->fpDenormalizer;
+    tempval = (((val - fixRound)
+        + this->epTempDenormalizer)
+      - this->epTempDenormalizer)
+      + this->fpDenormalizer;
 #else // ! EXT_PREC
-      tempval = (val - fixRound) 
-                  + this->fpDenormalizer;
+    tempval = (val - fixRound) 
+      + this->fpDenormalizer;
 #endif // EXT_PREC
-      fracPart = (((int*)&tempval)[mantissa_pos] & fracMask) >> 1;
-      return ((int*)&tempval)[mantissa_pos] >> this->internalReservedFracBits;
-      }
-//ETX
+    fracPart = (((int*)&tempval)[mantissa_pos] & fracMask) >> 1;
+    return ((int*)&tempval)[mantissa_pos] >> this->internalReservedFracBits;
+    }
+  //ETX
 
 
-  protected:
-//BTX
-    vtkFastNumericConversion()
-      {
+protected:
+  //BTX
+  vtkFastNumericConversion()
+    {
 #ifdef TEST_HACK_TO_EMULATE_LINUX_UNDER_WINDOWS
-      _controlfp( _PC_64, MCW_PC );
+    _controlfp( _PC_64, MCW_PC );
 #endif
 
-      this->fixRound = 0;
-      this->internalReservedFracBits = 0;
-      this->fracMask = 0;
-      this->fpDenormalizer = 0;
-      this->bare_time = 0;
-      this->cast_time = 0;
-      this->convert_time = 0;
-      this->quickfloor_time = 0;
-      this->safefloor_time = 0;
-      this->round_time = 0;
-      this->InternalRebuild();
-      };
-    ~vtkFastNumericConversion() {};
-    vtkFastNumericConversion(const vtkFastNumericConversion&) {};
-    void operator=(const vtkFastNumericConversion&) {};
-    void InternalRebuild(void);
-    
-  private:
-    vtkSetMacro(internalReservedFracBits, int);
-    vtkGetMacro(internalReservedFracBits, int);
-    int internalReservedFracBits;
-    int fracMask;
-    
-    // Used when doing fixed point conversions with a certain number of bits remaining
-    // for the fractional part, as opposed to the pure integer flooring
-    double fpDenormalizer;
+    this->fixRound = 0;
+    this->internalReservedFracBits = 0;
+    this->fracMask = 0;
+    this->fpDenormalizer = 0;
+    this->bare_time = 0;
+    this->cast_time = 0;
+    this->convert_time = 0;
+    this->quickfloor_time = 0;
+    this->safefloor_time = 0;
+    this->round_time = 0;
+    this->InternalRebuild();
+    };
+  ~vtkFastNumericConversion() {};
+  void InternalRebuild(void);
 
-    // Used when doing fixed point conversions in extended precision mode
-    double epTempDenormalizer;
+private:
+  vtkSetMacro(internalReservedFracBits, int);
+  vtkGetMacro(internalReservedFracBits, int);
+  int internalReservedFracBits;
+  int fracMask;
 
-    // Adjustment for rounding based on the number of bits reserved for fractional representation
-    double fixRound;
+  // Used when doing fixed point conversions with a certain number of bits remaining
+  // for the fractional part, as opposed to the pure integer flooring
+  double fpDenormalizer;
 
-    double bare_time;
-    double cast_time;
-    double convert_time;
-    double quickfloor_time;
-    double safefloor_time;
-    double round_time;
-//ETX
-  };
-    
+  // Used when doing fixed point conversions in extended precision mode
+  double epTempDenormalizer;
+
+  // Adjustment for rounding based on the number of bits reserved for fractional representation
+  double fixRound;
+
+  double bare_time;
+  double cast_time;
+  double convert_time;
+  double quickfloor_time;
+  double safefloor_time;
+  double round_time;
+  //ETX
+  
+  vtkFastNumericConversion(const vtkFastNumericConversion&); // Not implemented
+  void operator=(const vtkFastNumericConversion&); // Not implemented
+};
+
 #endif
