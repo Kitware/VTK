@@ -25,6 +25,9 @@ TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
 IF (VTK_USE_MPI)
   ADD_EXECUTABLE(MPIGroups MPIGroups.cxx)
   TARGET_LINK_LIBRARIES(MPIGroups vtkParallel)
+
+  ADD_EXECUTABLE(DistributedData DistributedData.cxx)
+  TARGET_LINK_LIBRARIES(DistributedData vtkParallel)
 ENDIF (VTK_USE_MPI)
 
 #
@@ -93,6 +96,21 @@ IF (VTK_DATA_ROOT)
       ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
+
+  IF (VTK_USE_MPI)
+    IF (VTK_MPIRUN_EXE)
+      IF(VTK_MPI_MAX_NUMPROCS GREATER 3)
+        ADD_TEST(DistributedData-image
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 4 ${VTK_MPI_PREFLAGS}
+                 ${CXX_TEST_PATH}/DistributedData
+                 -D ${VTK_DATA_ROOT}
+                 -T ${VTK_BINARY_DIR}/Testing/Temporary
+                 -V Baseline/Parallel/DistributedData.cxx.png
+                 ${VTK_MPI_POSTFLAGS})
+      ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 3)
+    ENDIF (VTK_MPIRUN_EXE)
+  ENDIF (VTK_USE_MPI)
+
 #
 # If we do not have the data, still run the tests that we can
 #
