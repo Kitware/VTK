@@ -503,4 +503,11 @@ void vtkIterativeClosestPointTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumMeanDistance: " << this->MaximumMeanDistance << "\n";
   os << indent << "MaximumNumberOfLandmarks: " << this->MaximumNumberOfLandmarks << "\n";
   os << indent << "StartByMatchingCentroids: " << this->StartByMatchingCentroids << "\n";
+  os << indent << "NumberOfIterations: " << this->NumberOfIterations << "\n";
+  os << indent << "MeanDistance: " << this->MeanDistance << "\n";
+  if(this->LandmarkTransform)
+    {
+    os << indent << "LandmarkTransform:\n";
+    this->LandmarkTransform->PrintSelf(os, indent.GetNextIndent());
+    }
 }
