@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.5");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.6");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -277,7 +277,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
     vtkErrorMacro("A case file name must be specified.");
     return -1;
     }
-  vtkstd::string sfilename;
+  vtkstd::string sfilename = "";
   if (this->FilePath)
     {
     sfilename = this->FilePath;
@@ -311,9 +311,9 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
     if (stringRead == 1)
       {
       stringRead = sscanf(line, " %*s %s %s", subLine1, subLine2);
-      if (strcmp(subLine1, "ensight") == 0)
+      if (strncmp(subLine1,"ensight",7) == 0)
         {
-        if (strcmp(subLine2, "gold") == 0)
+        if (strncmp(subLine2,"gold",4) == 0)
           {
           this->ReadNextDataLine(line);
           if (strncmp(line, "GEOMETRY", 8) == 0)
@@ -357,7 +357,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
               // file set and fill in wildcards from there.
               this->ReplaceWildcards(fileName, timeSet, fileSet);
               }
-            vtkstd::string sfilename;
+            sfilename = "";
             if (this->FilePath)
               {
               sfilename = this->FilePath;
@@ -376,9 +376,10 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             if (this->IFile == NULL)
               {
               vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+              vtkWarningMacro("Assuming binary file.");
               this->IFile = NULL;
               delete [] fileName;
-              return 0;
+              return vtkGenericEnSightReader::ENSIGHT_GOLD_BINARY;
               } // end if IFile == NULL
           
             this->ReadBinaryLine(binaryLine);
@@ -386,8 +387,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             sscanf(binaryLine, " %*s %s", subLine);
             // If the file is ascii, there might not be a null
             // terminator. This leads to a UMR in sscanf
-            if (strcmp(subLine, "Binary") == 0 ||
-                strcmp(subLine, "binary") == 0)
+            if (strncmp(subLine,"Binary",6) == 0 ||
+                strncmp(subLine,"binary",6) == 0)
               {
               fclose(this->IFile);
               this->IFile = NULL;
@@ -411,7 +412,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           vtkErrorMacro("token found: " << subLine2);
           }
         } // if regular ensight file (not master_server)
-      else if (strcmp(subLine1, "master_server") == 0)
+      else if (strncmp(subLine1,"master_server",13) == 0)
         {
         return vtkGenericEnSightReader::ENSIGHT_MASTER_SERVER;
         }
@@ -464,7 +465,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           // wildcards from there.
           this->ReplaceWildcards(fileName, timeSet, fileSet);
           }
-        vtkstd::string sfilename;
+        sfilename = "";
         if (this->FilePath)
           {
           sfilename = this->FilePath;
@@ -483,10 +484,11 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         if (this->IFile == NULL)
           {
           vtkErrorMacro("Unable to open file: " << sfilename.c_str());
+          vtkWarningMacro("Assuming binary file.");
           fclose(this->IFile);
           this->IFile = NULL;
           delete [] fileName;
-          return 0;
+          return vtkGenericEnSightReader::ENSIGHT_6_BINARY;
           } // end if IFile == NULL
         
         this->ReadBinaryLine(binaryLine);
@@ -494,7 +496,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         // terminator. This leads to a UMR in sscanf
         binaryLine[80] = '\0';
         sscanf(binaryLine, " %*s %s", subLine);
-        if (strcmp(subLine, "Binary") == 0)
+        if (strncmp(subLine,"Binary",6) == 0)
           {
           fclose(this->IFile);
           this->IFile = NULL;
@@ -1251,7 +1253,7 @@ void vtkGenericEnSightReader::DestroyStringArray(int numStrings,
       delete [] strings[i];
       }
     }
-  delete strings;
+  delete[] strings;
 }
 
 //----------------------------------------------------------------------------
