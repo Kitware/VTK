@@ -35,6 +35,7 @@ vtkRenderWindowInteractor iren
 # These events come from user interaction in the render window.
 vtkBoxWidget boxWidget
     boxWidget SetInteractor iren
+    boxWidget SetPlaceFactor 1.25
 
 # Add the actors to the renderer, set the background and window size.
 #

@@ -1,11 +1,12 @@
 package require vtk
 package require vtkinteraction
 
-# Demonstrate how to use the vtkBoxWidget to control volume rendering within the 
-# interior of the widget.
+# Demonstrate how to use the vtkBoxWidget to control volume rendering within
+# the interior of the widget.
 
-# Load a volume, use the widget to control what's volume rendered. Basically the
-# idea is that the vtkBoxWidget provides a box which clips the volume rendering.
+# Load a volume, use the widget to control what's volume rendered. Basically
+# the idea is that the vtkBoxWidget provides a box which clips the volume
+# rendering.  
 vtkVolume16Reader v16
   v16 SetDataDimensions 64 64
   [v16 GetOutput] SetOrigin 0.0 0.0 0.0
@@ -47,8 +48,6 @@ vtkVolume newvol
   newvol SetMapper volumeMapper
   newvol SetProperty volumeProperty
 
-# Create an outline around the volume.
-#
 vtkOutlineFilter outline
     outline SetInput [v16 GetOutput]
 vtkPolyDataMapper outlineMapper
@@ -69,6 +68,7 @@ vtkRenderWindowInteractor iren
 # using the Command/Observer mechanism (AddObserver()).
 vtkBoxWidget boxWidget
     boxWidget SetInteractor iren
+    boxWidget SetPlaceFactor 1.0
 
 # Add the actors to the renderer, set the background and size
 #
