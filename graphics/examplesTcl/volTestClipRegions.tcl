@@ -42,8 +42,8 @@ for { set i 0 } { $i < 2 } { incr i } {
 	volumeMapper_${i}_${j} SetInput [reader GetOutput]
 	volumeMapper_${i}_${j} SetVolumeRayCastFunction compositeFunction
 	volumeMapper_${i}_${j} SetSampleDistance 0.4
-	volumeMapper_${i}_${j} ClippingOn
-	volumeMapper_${i}_${j} SetClippingPlanes 17 33 17 33 17 33
+	volumeMapper_${i}_${j} CroppingOn
+	volumeMapper_${i}_${j} SetCroppingBounds 17 33 17 33 17 33
 	
 	vtkVolume volume_${i}_${j}
 	volume_${i}_${j} SetMapper volumeMapper_${i}_${j}
@@ -56,15 +56,15 @@ for { set i 0 } { $i < 2 } { incr i } {
     }
 }
 
-volumeMapper_0_0 SetClippingRegionFlagsToSubVolume
-volumeMapper_0_1 SetClippingRegionFlagsToCross
-volumeMapper_0_2 SetClippingRegionFlagsToInvertedCross
-volumeMapper_0_3 SetClippingRegionFlags 24600
+volumeMapper_0_0 SetCroppingRegionFlagsToSubVolume
+volumeMapper_0_1 SetCroppingRegionFlagsToCross
+volumeMapper_0_2 SetCroppingRegionFlagsToInvertedCross
+volumeMapper_0_3 SetCroppingRegionFlags 24600
 
-volumeMapper_1_0 SetClippingRegionFlagsToFence
-volumeMapper_1_1 SetClippingRegionFlagsToInvertedFence
-volumeMapper_1_2 SetClippingRegionFlags 1
-volumeMapper_1_3 SetClippingRegionFlags 67117057
+volumeMapper_1_0 SetCroppingRegionFlagsToFence
+volumeMapper_1_1 SetCroppingRegionFlagsToInvertedFence
+volumeMapper_1_2 SetCroppingRegionFlags 1
+volumeMapper_1_3 SetCroppingRegionFlags 67117057
 
 ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 3.0
