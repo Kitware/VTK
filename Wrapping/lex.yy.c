@@ -786,6 +786,7 @@ char *yytext;
 #define YY_NO_UNPUT 1
 #ifdef _WIN32
 #pragma warning ( disable : 4127 )
+#pragma warning ( disable : 4131 )
 #pragma warning ( disable : 4244 )
 #pragma warning ( disable : 4251 )
 #pragma warning ( disable : 4267 )
