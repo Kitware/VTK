@@ -263,6 +263,10 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
   // I apologize for explicitely diffusing each neighbor, but it is the easiest
   // way to deal with the boundary conditions.  Besides it is fast.
   // (Are you sure every one is correct?!!!)
+  min2 = inMin2;
+  max2 = inMax2;
+  
+  
   inPtr2 = (float *)(inData->GetScalarPointer(min0, min1, min2));
   outPtr2 = (float *)(outData->GetScalarPointer(min0, min1, min2));
 
