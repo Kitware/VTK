@@ -57,12 +57,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkAbstractMapper3D_h
 
 #include "vtkAbstractMapper.h"
-#include "vtkPlaneCollection.h"
-#include "vtkPlane.h"
 
 class vtkWindow;
 class vtkDataSet;
-class vtkPlanes;
 
 class VTK_EXPORT vtkAbstractMapper3D : public vtkAbstractMapper
 {
@@ -101,34 +98,14 @@ public:
   // Update the network connected to this mapper.
   virtual void Update()=0;
 
-  // Description:
-  // Specify clipping planes to be applied when the data is mapped
-  // (at most 6 clipping planes can be specified).
-  void AddClippingPlane(vtkPlane *plane);
-  void RemoveClippingPlane(vtkPlane *plane);
-  void RemoveAllClippingPlanes();
-
-  // Description:
-  // Get/Set the vtkPlaneCollection which specifies the 
-  // clipping planes.
-  vtkSetObjectMacro(ClippingPlanes,vtkPlaneCollection);
-  vtkGetObjectMacro(ClippingPlanes,vtkPlaneCollection);
-
-  // Description:
-  // An alternative way to set clipping planes: use up to six planes found 
-  // in the supplied instance of the implicit function vtkPlanes.
-  void SetClippingPlanes(vtkPlanes *planes);
-
 protected:
-  vtkAbstractMapper3D();
-  ~vtkAbstractMapper3D();
+   vtkAbstractMapper3D();
+  ~vtkAbstractMapper3D() {};
   vtkAbstractMapper3D(const vtkAbstractMapper3D&) {};
   void operator=(const vtkAbstractMapper3D&) {};
 
   float Bounds[6];
   float Center[3];
-
-  vtkPlaneCollection *ClippingPlanes;
 
 };
 
