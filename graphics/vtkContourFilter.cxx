@@ -146,7 +146,7 @@ void vtkContourFilter::Execute()
     {
     int dim = this->Input->GetCell(0)->GetCellDimension();
 
-#if USE_PATENTED
+#ifdef USE_PATENTED
     if ( this->Input->GetCell(0)->GetCellDimension() >= 2 ) 
       {
       this->StructuredPointsContour(dim);
@@ -230,7 +230,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
   vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
   int i;
 
-#if USE_PATENTED  
+#ifdef USE_PATENTED  
   if ( dim == 2 ) //marching squares
     {
     static vtkMarchingSquares msquares;
