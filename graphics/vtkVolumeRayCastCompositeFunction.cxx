@@ -75,13 +75,13 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 				 VTKRayCastRayInfo *rayInfo,
 				 VTKRayCastVolumeInfo *volumeInfo )
 {
-  int             value;
+  int             value=0;
   unsigned char   *grad_mag_ptr = NULL;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
   float           remaining_opacity;
-  float           opacity;
+  float           opacity=0.0;
   float           gradient_opacity;
   int             loop;
   int             xinc, yinc, zinc;
@@ -92,7 +92,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   float           *CTF;
   float           *GTF;
   float           *GOTF;
-  int             offset;
+  int             offset=0;
   int             steps_this_ray = 0;
   int             grad_op_is_constant;
   float           gradient_opacity_constant;
@@ -139,23 +139,13 @@ static void CastRay_NN_Unshaded( T *data_ptr,
     grad_mag_ptr = volumeInfo->GradientMagnitudes;
     }
 
-  // Set up the data values for the first pass through the loop
-  offset = voxel[2] * zinc + voxel[1] * yinc + voxel[0] * xinc;
-  value = *(data_ptr + offset);
-  opacity = SOTF[value];
-  if ( grad_op_is_constant )
-    {
-    gradient_opacity = gradient_opacity_constant;
-    }
-  else 
-    {
-    gradient_opacity = GOTF[*(grad_mag_ptr + offset)];
-    }
   
   // Keep track of previous voxel to know when we step into a new one
-  prev_voxel[0] = voxel[0];
-  prev_voxel[1] = voxel[1];
-  prev_voxel[2] = voxel[2];
+  // set it to something invalid to start with so that everything is
+  // computed first time through
+  prev_voxel[0] = voxel[0]-1;
+  prev_voxel[1] = voxel[1]-1;
+  prev_voxel[2] = voxel[2]-1;
   
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
@@ -419,7 +409,8 @@ static void CastRay_NN_Shaded( T *data_ptr,
     {
     // For each step along the ray
     for ( loop = 0; 
-	  loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; loop++ )
+	  loop < num_steps && remaining_opacity > VTK_REMAINING_OPACITY; 
+          loop++ )
       {	    
       // We've taken another step
       steps_this_ray++;
