@@ -65,6 +65,10 @@ public:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
   void TransformPoint(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision coordinate.  
+  // You can use the same array to store both the input and output point.
   void TransformPoint(const double in[3], double out[3]);
 
   // Description:
@@ -132,8 +136,6 @@ protected:
   ~vtkIdentityTransform();
   vtkIdentityTransform(const vtkIdentityTransform&) {};
   void operator=(const vtkIdentityTransform&) {};
-
-  static vtkIdentityTransform *TheIdentityTransform;
 };
 
 #endif

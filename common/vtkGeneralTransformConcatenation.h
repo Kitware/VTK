@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // are not actually concatenated, but this is simulated by passing each
 // input point through each transform in turn.
 // .SECTION see also
-// vtkGeneralTransform
+// vtkPerspectiveTransformConcatenation vtkLinearTransformConcatenation
 
 
 #ifndef __vtkGeneralTransformConcatenation_h
@@ -68,10 +68,16 @@ public:
   void Concatenate(vtkGeneralTransform *transform);
 
   // Description:
-  // Set the order in which subsequent concatenations will be
-  // applied.
-  void PreMultiply();
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.  The default is PreMultiply.
   void PostMultiply();
+
+  // Description:
+  // Sets the internal state of the transform to pre multiply. All subsequent
+  // matrix operations will occur before those already represented in the
+  // current transformation matrix.  The default is PreMultiply.
+  void PreMultiply();
 
   // Description:
   // Invert the transformation. 

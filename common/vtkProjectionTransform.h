@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // a 4x4 matrix.  This class is useful for describing a camera-view
 // of a scene.
 // .SECTION See Also
-// vtkTransform vtkMatrix4x4 vtkCamera
+// vtkPerspectiveTransformConcatenation vtkTransform vtkMatrix4x4 vtkCamera
 
 #ifndef __vtkProjectionTransform_h
 #define __vtkProjectionTransform_h
@@ -76,13 +76,13 @@ class VTK_EXPORT vtkProjectionTransform : public vtkPerspectiveTransform
   // Description:
   // Sets the internal state of the transform to post multiply. All
   // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.
+  // in the current transformation matrix.  The default is PreMultiply.
   void PostMultiply();
 
   // Description:
   // Sets the internal state of the transform to pre multiply. All subsequent
   // matrix operations will occur before those already represented in the
-  // current transformation matrix.
+  // current transformation matrix.  The default is PreMultiply.
   void PreMultiply();
 
   // Description:

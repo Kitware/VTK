@@ -173,7 +173,17 @@ void vtkPerspectiveTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     {
     inPts->GetPoint(i,inPnt);
 
-    vtkPerspectiveTransformPoint(inPnt,outPnt,M);
+    // do the linear homogenous transformation
+    outPnt[0] = M[0][0]*inPnt[0]+M[0][1]*inPnt[1]+M[0][2]*inPnt[2]+M[0][3];
+    outPnt[1] = M[1][0]*inPnt[0]+M[1][1]*inPnt[1]+M[1][2]*inPnt[2]+M[1][3];
+    outPnt[2] = M[2][0]*inPnt[0]+M[2][1]*inPnt[1]+M[2][2]*inPnt[2]+M[2][3];
+    w =         M[3][0]*inPnt[0]+M[3][1]*inPnt[1]+M[3][2]*inPnt[2]+M[3][3];
+
+    // apply perspective correction
+    f = 1.0/w;
+    outPnt[0] *= f;
+    outPnt[1] *= f;
+    outPnt[2] *= f;
 
     outPts->InsertNextPoint(outPnt);
 

@@ -67,10 +67,6 @@ vtkTransform* vtkTransform::New()
 // creates an identity matrix as the top matrix on the stack.
 vtkTransform::vtkTransform ()
 {
-  // we call this a matrix4x3 transform because the bottom
-  // row of the 4x4 matrix is ignored
-  this->TransformType = VTK_MATRIX4X3_TRANSFORM;
-
   this->PreMultiplyFlag = 1;
   this->StackSize = 10;
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
@@ -112,16 +108,17 @@ vtkGeneralTransform *vtkTransform::MakeTransform()
 // support for the vtkGeneralTransform superclass
 void vtkTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkLinearTransformInverse",transform->GetClassName()) == 0)
+    {
+    transform = ((vtkLinearTransformInverse *)transform)->GetTransform();     
+    }
+  if (strcmp("vtkTransform",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkLinearTransformInverse *)transform)->GetTransform(); 
-    }	
-  vtkTransform *t = (vtkTransform *)transform;  
+
+  vtkTransform *t = (vtkTransform *)transform;
 
   if (t == this)
     {
@@ -934,30 +931,4 @@ void vtkTransform::GetPoint(float p[4])
     }
 }
 
-// Multiplies a list of points (inPts) by the current transformation matrix.
-// Transformed points are appended to the output list (outPts).
-void vtkTransform::MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts)
-{
-  this->TransformPoints(inPts, outPts);
-}
-
-// Multiplies a list of vectors (inVectors) by the current transformation 
-// matrix. The transformed vectors are appended to the output list 
-// (outVectors). The translational component of the matrix is ignored. 
-void vtkTransform::MultiplyVectors(vtkVectors *inVectors, 
-				   vtkVectors *outVectors)
-{
-  this->TransformVectors(inVectors, outVectors);
-}
-
-// Multiplies a list of normals (inNormals) by the current
-// transformation matrix.  The transformed normals are then appended
-// to the output list (outNormals).  This is a special multiplication,
-// since these are normals. It multiplies the normals by the
-// transposed inverse of the matrix, ignoring the translational
-// components.
-void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals)
-{
-  this->TransformNormals(inNormals, outNormals);
-}
 

@@ -56,8 +56,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // By default the initial matrix is the identity matrix.
 
 // .SECTION See Also
-// vtkMatrix4x4 vtkTransformCollection vtkTransformFilter
-// vtkTransformPolyDataFilter vtkProjectionTransform
+// vtkLinearTransformConcatenation vtkMatrix4x4 vtkTransformCollection 
+// vtkTransformFilter vtkTransformPolyDataFilter vtkProjectionTransform
 
 #ifndef __vtkTransform_h
 #define __vtkTransform_h
@@ -93,13 +93,13 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Description:
   // Sets the internal state of the transform to post multiply. All
   // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.
+  // in the current transformation matrix.  The default is PreMultiply.
   void PostMultiply ();
 
   // Description:
   // Sets the internal state of the transform to pre multiply. All subsequent
   // matrix operations will occur before those already represented in the
-  // current transformation matrix.
+  // current transformation matrix.  The default is PreMultiply.
   void PreMultiply ();
 
   // Description:
@@ -220,36 +220,34 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   void Concatenate(double Elements[16]);
 
   // Description:
-  // Multiply a xyzw point by the transform and store the result in out.
+  // Multiply a (x,y,z,w) point by the transform and store the result in out.
+  // If you want to transform an (x,y,z) point, use TransformPoint instead. 
   void MultiplyPoint (float in[4],float out[4]) {
     this->Matrix->MultiplyPoint(in,out);};
   void MultiplyPoint (double in[4],double out[4]) {      
     this->Matrix->MultiplyPoint(in,out);};
 
   // Description:
-  // Multiplies a list of points (inPts) by the current transformation matrix.
-  // Transformed points are appended to the output list (outPts).
-  void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts);
+  // This method is deprecated.  Use TransformPoints instead.
+  void MultiplyPoints(vtkPoints *inPts, vtkPoints *outPts) {
+    this->TransformPoints(inPts,outPts); };
   
   // Description:
-  // Multiplies a list of vectors (inVectors) by the current transformation 
-  // matrix. The transformed vectors are appended to the output list 
-  // (outVectors). This is a special multiplication, since these are vectors. 
-  // It multiplies vectors by the transposed inverse of the matrix, ignoring 
-  // the translational components.
-  void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors);
+  // This method is deprecated.  Use TransformVectors instead.
+  void MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors) {
+    this->TransformVectors(inVectors,outVectors); };
 
   // Description:
-  // Multiplies a list of normals (inNormals) by the current transformation 
-  // matrix. The transformed normals are appended to the output list 
-  // (outNormals). This is a special multiplication, since these are normals.
-  void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals);
+  // This method is deprecated.  Use TransformNormals instead.
+  void MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals) {
+    this->TransformNormals(inNormals,outNormals); };
 
   // Description:
   // Returns the result of multiplying the currently set Point by the current 
   // transformation matrix. Point is expressed in homogeneous coordinates.
   // The setting of the PreMultiplyFlag will determine if the Point is
-  // Pre or Post multiplied.
+  // Pre or Post multiplied.  In most cases, you should use 
+  // TransformFloatPoint or TransformDoublePoint instead.
   float *GetPoint();
   double *GetDoublePoint();
   void GetPoint(float p[4]);

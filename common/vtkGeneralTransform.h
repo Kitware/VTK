@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkGeneralTransform provides a generic interface for linear, 
 // perspective, and nonlinear warp transformations.
 // .SECTION see also
-// vtkPerspectiveTransform vtkLinearTransform vtkWarpTransform 
+// vtkWarpTransform vtkPerspectiveTransform vtkLinearTransform 
 // vtkIdentityTransform vtkGeneralTransformConcatenation 
 // vtkTransformPolyDataFilter vtkImageReslice
 
@@ -57,23 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 
-#define VTK_PERSPECTIVE_TRANSFORM         0x00000001
-#define VTK_LINEAR_TRANSFORM              0x00000003
-#define VTK_SIMILARITY_TRANSFORM          0x00000007
-#define VTK_RIGIDBODY_TRANSFORM           0x0000000f
-#define VTK_IDENTITY_TRANSFORM            0x000000ff
-
-#define VTK_MATRIX4X4_TRANSFORM           0x00000101
-#define VTK_MATRIX4X3_TRANSFORM           0x00000203
-#define VTK_QUATERNION_TRANSFORM          0x00000407
-
-#define VTK_GRID_TRANSFORM                0x00010000
-#define VTK_THINPLATESPLINE_TRANSFORM     0x00020000
-#define VTK_CUSTOM_TRANSFORM              0x00040000
-
-#define VTK_INVERSE_TRANSFORM             0x01000000
-#define VTK_CONCATENATION_TRANSFORM       0x02000000
-
 class VTK_EXPORT vtkGeneralTransform : public vtkObject
 {
 public:
@@ -82,19 +65,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the type of this transform.
-  vtkGetMacro(TransformType,int);
-
-  // Description:
   // Apply the transformation to an (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
   float *TransformFloatPoint(float x, float y, float z);
+
+  // Description:
+  // Apply the transformation to a double-precision (x,y,z) coordinate.
+  // Use this if you are programming in python, tcl or Java.
   double *TransformDoublePoint(double x, double y, double z);
 
   // Description:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
   virtual void TransformPoint(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision coordinate.  
+  // You can use the same array to store both the input and output point.
   virtual void TransformPoint(const double in[3], double out[3]);
 
   // Description:
@@ -162,9 +149,7 @@ protected:
   vtkGeneralTransform(const vtkGeneralTransform&) {};
   void operator=(const vtkGeneralTransform&) {};
 
-  int TransformType;
   vtkGeneralTransform *MyInverse;
-  int InverseFlag;
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];

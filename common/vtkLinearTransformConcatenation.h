@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkLinearTransformConcatenation is a special LinearTransform which
 // allows concatenation of linear transformations in a pipelined manner.
 // .SECTION see also
-// vtkLinearTransform
+// vtkPerspectiveTransformConcatenation vtkGeneralTransformConcatenation
 
 
 #ifndef __vtkLinearTransformConcatenation_h
@@ -67,10 +67,16 @@ public:
   void Concatenate(vtkLinearTransform *transform);
 
   // Description:
-  // Set the order in which subsequent concatenations will be
-  // applied.
-  void PreMultiply();
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.  The default is PreMultiply.
   void PostMultiply();
+
+  // Description:
+  // Sets the internal state of the transform to pre multiply. All subsequent
+  // matrix operations will occur before those already represented in the
+  // current transformation matrix.  The default is PreMultiply.
+  void PreMultiply();
 
   // Description:
   // Invert the transformation. 

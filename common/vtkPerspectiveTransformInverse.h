@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The vtkPerspectiveTransformInverse is a helper class for 
 // vtkPerspectiveTransform, you should avoid using it directly.   
 // .SECTION see also
-// vtkGeneralTransform
+// vtkGeneralTransformInverse vtkLinearTransformInverse
 
 
 #ifndef __vtkPerspectiveTransformInverse_h

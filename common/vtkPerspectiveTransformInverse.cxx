@@ -58,8 +58,6 @@ vtkPerspectiveTransformInverse* vtkPerspectiveTransformInverse::New()
 //----------------------------------------------------------------------------
 vtkPerspectiveTransformInverse::vtkPerspectiveTransformInverse()
 {
-  this->TransformType = VTK_INVERSE_TRANSFORM | VTK_PERSPECTIVE_TRANSFORM;
-
   this->Transform = NULL;
   this->UpdateRequired = 0;
 }

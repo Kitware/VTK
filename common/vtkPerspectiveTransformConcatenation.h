@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkPerspectiveTransformConcatenation is a special PerspectiveTransform 
 // which allows concatenation of 4x4 matrices in a pipelined manner.
 // .SECTION see also
-// vtkPerspectiveTransform
+// vtkGeneralTransformConcatenation vtkLinearTransformConcatenation
 
 
 #ifndef __vtkPerspectiveTransformConcatenation_h
@@ -69,10 +69,16 @@ public:
   void Concatenate(vtkPerspectiveTransform *transform);
 
   // Description:
-  // Set the order in which subsequent concatenations will be
-  // applied.
-  void PreMultiply();
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.  The default is PreMultiply.
   void PostMultiply();
+
+  // Description:
+  // Sets the internal state of the transform to pre multiply. All subsequent
+  // matrix operations will occur before those already represented in the
+  // current transformation matrix.  The default is PreMultiply.
+  void PreMultiply();
 
   // Description:
   // Invert the transformation. 

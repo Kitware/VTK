@@ -45,7 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // transformations, i.e. transformations which can be represented by 
 // multiplying a 4x4 matrix with a homogenous coordinate. 
 // .SECTION see also
-// vtkGeneralTransform vtkPerspectiveTransformConcatenation vtkLinearTransform
+// vtkProjectionTransform vtkPerspectiveTransformConcatenation 
+// vtkLinearTransform vtkCamera
 
 
 #ifndef __vtkPerspectiveTransform_h
@@ -65,6 +66,10 @@ public:
   // Apply the transformation to a coordinate.  You can use the same 
   // array to store both the input and output point.
   void TransformPoint(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision coordinate.
+  // You can use the same array to store both the input and output point.
   void TransformPoint(const double in[3], double out[3]);
 
   // Description:
@@ -98,6 +103,9 @@ public:
   // Get the inverse of this transform.  If you modify this transform,
   // the returned inverse transform will automatically update.
   vtkGeneralTransform *GetInverse();
+
+  // Description:
+  // Get the inverse of this transform typecast to a vtkPerspectiveTransform.
   vtkPerspectiveTransform *GetPerspectiveInverse() {
     return (vtkPerspectiveTransform *)this->GetInverse(); };
 

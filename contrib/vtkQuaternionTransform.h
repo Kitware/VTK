@@ -108,6 +108,8 @@ public:
   // When using Translate, Scale, Rotate*, or Concatenate the
   // PreMultiply flag determines whether the specified transformation
   // should be applied before or after the current transformation.
+  // The default is PreMultiply, i.e. apply the specified transformation
+  // before the current transformation.
   void PreMultiply();
   void PostMultiply();
 

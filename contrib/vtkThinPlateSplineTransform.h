@@ -44,14 +44,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkThinPlateSplineTransform - a nonlinear warp transformation
 // .SECTION Description
 // vtkThinPlateSplineTransform describes a nonlinear warp transform defined
-// by two sets of landmarks (vtkPoints). Any point on the mesh close to a
+// by a set of source and target landmarks. Any point on the mesh close to a
 // source landmark will be moved to a place close to the corresponding target
 // landmark. The points in between are interpolated smoothly using
 // Bookstein's Thin Plate Spline algorithm.
 // The inverse grid transform is calculated using an iterative method,
 // and is several times more expensive than the forward transform.
 // .SECTION see also
-// vtkGeneralTransform
+// vtkGridTransform vtkGeneralTransformConcatenation
 
 
 #ifndef __vtkThinPlateSplineTransform_h
@@ -68,14 +68,10 @@ class VTK_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 public:
   vtkTypeMacro(vtkThinPlateSplineTransform,vtkGeneralTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Construct with Sigma=1.0
   static vtkThinPlateSplineTransform *New();
 
   // Description: 
-  // Specify the 'stiffness' of the spline. The default of 1.0
-  // should usually be fine.
+  // Specify the 'stiffness' of the spline. The default is 1.0.
   vtkGetMacro(Sigma,float);
   vtkSetMacro(Sigma,float);
 
@@ -130,11 +126,6 @@ protected:
   vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) {};
   void operator=(const vtkThinPlateSplineTransform&) {};
 
-  // Description:
-  // The inverse of a warp transformation is calculated using
-  // Newton's method.  The InverseFlag specifies whether we should 
-  // calculate the inverse transformation instead of providing the 
-  // forward transformation.
   void ForwardTransformPoint(const float in[3], float out[3]);
   void ForwardTransformDerivative(const float in[3], float out[3],
 					  float derivative[3][3]);

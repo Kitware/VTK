@@ -60,8 +60,6 @@ vtkGeneralTransformInverse* vtkGeneralTransformInverse::New()
 //----------------------------------------------------------------------------
 vtkGeneralTransformInverse::vtkGeneralTransformInverse()
 {
-  this->TransformType = VTK_INVERSE_TRANSFORM;
-
   this->Transform = NULL;
   this->UpdateRequired = 0;
 }

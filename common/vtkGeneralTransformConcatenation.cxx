@@ -60,8 +60,6 @@ vtkGeneralTransformConcatenation *vtkGeneralTransformConcatenation::New()
 //----------------------------------------------------------------------------
 vtkGeneralTransformConcatenation::vtkGeneralTransformConcatenation()
 {
-  this->TransformType = VTK_CONCATENATION_TRANSFORM;
-
   this->InverseFlag = 0;
 
   this->PreMultiplyFlag = 1;
@@ -269,15 +267,17 @@ vtkGeneralTransform *vtkGeneralTransformConcatenation::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkGeneralTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkGeneralTransformInverse",transform->GetClassName()) == 0)
+    {
+    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform();
+    }
+  if (strcmp("vtkGeneralTransformConcatenation",transform->GetClassName()) 
+      != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform(); 
-    }	
+
   vtkGeneralTransformConcatenation *t = 
     (vtkGeneralTransformConcatenation *)transform;
 

@@ -44,9 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-// the one-and-only identity transform
-vtkIdentityTransform *vtkIdentityTransform::TheIdentityTransform = NULL;
-
 //----------------------------------------------------------------------------
 vtkIdentityTransform *vtkIdentityTransform::New()
 {
@@ -57,51 +54,39 @@ vtkIdentityTransform *vtkIdentityTransform::New()
     return (vtkIdentityTransform*)ret;
     }
 
-  // the usual behaviour is that the IdentityTransform is unique: only
-  // one identity transform actually exists.
-  if (vtkIdentityTransform::TheIdentityTransform)
-    {
-    vtkIdentityTransform::TheIdentityTransform->Register(NULL);
-    return vtkIdentityTransform::TheIdentityTransform;
-    }
-
   return new vtkIdentityTransform;
 }
 
 //----------------------------------------------------------------------------
 vtkIdentityTransform::vtkIdentityTransform()
 {
-  this->TransformType = VTK_IDENTITY_TRANSFORM;
-
-  vtkIdentityTransform::TheIdentityTransform = this;
 }
 
 //----------------------------------------------------------------------------
 vtkIdentityTransform::~vtkIdentityTransform()
 {
-  vtkIdentityTransform::TheIdentityTransform = NULL;
 }
 
 //----------------------------------------------------------------------------
 void vtkIdentityTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os, indent);
+  vtkLinearTransform::PrintSelf(os, indent);
 }
 
 //------------------------------------------------------------------------
 void vtkIdentityTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkIdentityTransform",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
 }
 
 //----------------------------------------------------------------------------
 vtkGeneralTransform *vtkIdentityTransform::MakeTransform()
 {
-  return this;
+  return vtkIdentityTransform::New();
 }
 
 //------------------------------------------------------------------------

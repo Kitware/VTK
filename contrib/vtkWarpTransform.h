@@ -61,7 +61,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Invert the transformation. 
+  // Invert the transformation.  Warp transformations are usually
+  // inverted using an iterative technique such as Newton's method,
+  // and the inverse transform is far more computationally expensive
+  // than the forward transform.
   void Inverse();
 
   // Description:
@@ -83,14 +86,21 @@ protected:
   void operator=(const vtkWarpTransform&) {};
 
   // Description:
-  // The inverse of a warp transformation is usually calculated using
-  // an interative technique such as Newton's method.  The InverseFlag
-  // specifies whether we should calculate the inverse transformation
-  // instead of providing the forward transformation.
+  // If the InverseFlag is set to 0, then a call to InternalTransformPoint
+  // results in a call to ForwardTransformPoint. 
   virtual void ForwardTransformPoint(const float in[3], float out[3]) = 0;
+
+  // Description:
+  // If the InverseFlag is set to 1, then a call to InternalTransformPoint
+  // results in a call to InverseTransformPoint.
+  virtual void InverseTransformPoint(const float in[3], float out[3]) = 0;
+
+  // Description:
+  // Calculate the forward transform as well as the derivative.  The
+  // derivative of the inverse transform can be computed as the inverse
+  // of the derivative of the forward transform.
   virtual void ForwardTransformDerivative(const float in[3], float out[3],
 					  float derivative[3][3]) = 0;
-  virtual void InverseTransformPoint(const float in[3], float out[3]) = 0;
 
   int InverseFlag;
 };

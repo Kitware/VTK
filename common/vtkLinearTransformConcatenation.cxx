@@ -60,8 +60,6 @@ vtkLinearTransformConcatenation *vtkLinearTransformConcatenation::New()
 //----------------------------------------------------------------------------
 vtkLinearTransformConcatenation::vtkLinearTransformConcatenation()
 {
-  this->TransformType = VTK_CONCATENATION_TRANSFORM | VTK_LINEAR_TRANSFORM;
-
   this->InverseFlag = 0;
 
   this->PreMultiplyFlag = 1;
@@ -214,15 +212,16 @@ vtkGeneralTransform *vtkLinearTransformConcatenation::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkLinearTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkLinearTransformInverse",transform->GetClassName()) == 0)
+    {
+    transform = ((vtkLinearTransformInverse *)transform)->GetTransform();
+    }
+  if (strcmp("vtkLinearTransformConcatenation",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkLinearTransformInverse *)transform)->GetTransform(); 
-    }	
+
   vtkLinearTransformConcatenation *t = 
     (vtkLinearTransformConcatenation *)transform;
 

@@ -58,8 +58,6 @@ vtkQuaternionTransform* vtkQuaternionTransform::New()
 //----------------------------------------------------------------------------
 vtkQuaternionTransform::vtkQuaternionTransform()
 {
-  this->TransformType = VTK_QUATERNION_TRANSFORM;
-
   this->Quaternion[0] = 1.0;
   this->Quaternion[1] = 0.0;
   this->Quaternion[2] = 0.0;
@@ -118,15 +116,16 @@ vtkGeneralTransform *vtkQuaternionTransform::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkQuaternionTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkLinearTransformInverse",transform->GetClassName()) == 0)
+    {
+    transform = ((vtkLinearTransformInverse *)transform)->GetTransform();
+    }
+  if (strcmp("vtkQuaternionTransform",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkLinearTransformInverse *)transform)->GetTransform(); 
-    }	
+
   vtkQuaternionTransform *t = (vtkQuaternionTransform *)transform;
 
   if (t == this)

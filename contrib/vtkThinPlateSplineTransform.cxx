@@ -134,8 +134,6 @@ static void PrintMatrix(double **m, int x, int y)
 //------------------------------------------------------------------------
 vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
 {
-  this->TransformType = VTK_THINPLATESPLINE_TRANSFORM;
-
   this->SourceLandmarks=NULL;
   this->TargetLandmarks=NULL;
   this->Sigma = 1.0;
@@ -619,15 +617,16 @@ vtkGeneralTransform *vtkThinPlateSplineTransform::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkGeneralTransformInverse",transform->GetClassName()) == 0)
+    {
+    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform();
+    }
+  if (strcmp("vtkThinPlateSplineTransform",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkGeneralTransformInverse *)transform)->GetTransform(); 
-    }	
+
   vtkThinPlateSplineTransform *t = (vtkThinPlateSplineTransform *)transform;
 
   if (t == this)

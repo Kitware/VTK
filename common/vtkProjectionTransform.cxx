@@ -65,7 +65,6 @@ vtkProjectionTransform* vtkProjectionTransform::New()
 //----------------------------------------------------------------------------
 vtkProjectionTransform::vtkProjectionTransform()
 {
-  this->TransformType = VTK_MATRIX4X4_TRANSFORM;
   this->PreMultiplyFlag = 1;
 }
 
@@ -90,15 +89,16 @@ vtkGeneralTransform *vtkProjectionTransform::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkProjectionTransform::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkPerspectiveTransformInverse",transform->GetClassName())==0)
+    {
+    transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform();
+    }
+  if (strcmp("vtkProjectionTransform",transform->GetClassName()) != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform(); 
-    }	
+
   vtkProjectionTransform *t = (vtkProjectionTransform *)transform;  
 
   if (t == this)

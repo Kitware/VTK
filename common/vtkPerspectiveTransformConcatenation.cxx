@@ -60,9 +60,6 @@ vtkPerspectiveTransformConcatenation *vtkPerspectiveTransformConcatenation::New(
 //----------------------------------------------------------------------------
 vtkPerspectiveTransformConcatenation::vtkPerspectiveTransformConcatenation()
 {
-  this->TransformType = VTK_CONCATENATION_TRANSFORM | 
-                        VTK_PERSPECTIVE_TRANSFORM;
-
   this->InverseFlag = 0;
 
   this->PreMultiplyFlag = 1;
@@ -215,15 +212,17 @@ vtkGeneralTransform *vtkPerspectiveTransformConcatenation::MakeTransform()
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransformConcatenation::DeepCopy(vtkGeneralTransform *transform)
 {
-  if (this->TransformType != transform->GetTransformType() &&
-      this->TransformType != transform->GetInverse()->GetTransformType())
+  if (strcmp("vtkPerspectiveTransformInverse",transform->GetClassName()) == 0)
+    {
+    transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform();
+    }
+  if (strcmp("vtkPerspectiveTransformConcatenation",transform->GetClassName())
+      != 0)
     {
     vtkErrorMacro(<< "DeepCopy: trying to copy a transform of different type");
+    return;
     }
-  if (transform->GetTransformType() & VTK_INVERSE_TRANSFORM)
-    {
-    transform = ((vtkPerspectiveTransformInverse *)transform)->GetTransform(); 
-    }	
+
   vtkPerspectiveTransformConcatenation *t = 
     (vtkPerspectiveTransformConcatenation *)transform;
 

@@ -48,13 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void vtkGeneralTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
-
-  os << indent << "TransformType: " << this->TransformType << "\n";
 }
 
 //------------------------------------------------------------------------
-// Default TransformPoint:  Call Update(), then call the appropriate
-// 
+// Update() and perform the transformation.
 void vtkGeneralTransform::TransformPoint(const float input[3],
 					 float output[3])
 {

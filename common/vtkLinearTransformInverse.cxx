@@ -58,8 +58,6 @@ vtkLinearTransformInverse* vtkLinearTransformInverse::New()
 //----------------------------------------------------------------------------
 vtkLinearTransformInverse::vtkLinearTransformInverse()
 {
-  this->TransformType = VTK_INVERSE_TRANSFORM | VTK_LINEAR_TRANSFORM;
-
   this->Transform = NULL;
   this->UpdateRequired = 0;
 }

@@ -67,8 +67,8 @@ void vtkWarpTransform::InternalTransformPoint(const float input[3],
 }
 
 //------------------------------------------------------------------------
-// Default TransformPoint:  Call Update(), then call the appropriate
-// 
+// Check the InverseFlag, and set the output point and derivative as
+// appropriate.
 void vtkWarpTransform::InternalTransformDerivative(const float input[3],
 						   float output[3],
 						   float derivative[3][3])
