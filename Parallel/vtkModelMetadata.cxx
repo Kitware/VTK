@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.7");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.8");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -175,7 +175,7 @@ void vtkModelMetadata::InitializeAllIvars()
 
   this->AllVariablesDefinedInAllBlocks = 0;
 
-  this->BlockIdIndex = NULL;
+  this->BlockIdIndex = new vtkModelMetadataSTLCloak;
 }
 void vtkModelMetadata::FreeAllGlobalData()
 {
@@ -198,7 +198,6 @@ void vtkModelMetadata::FreeAllGlobalData()
   if (this->BlockIdIndex)
     {
     delete this->BlockIdIndex;
-    this->BlockIdIndex = NULL;
     }
 
   this->SetNodeSetIds(NULL);
@@ -476,11 +475,6 @@ void vtkModelMetadata::SetCoordinateNames(int dimension, char **n)
 //-------------------------------------------------
 int vtkModelMetadata::GetBlockLocalIndex(int id)
 {
-  if (this->BlockIdIndex == NULL)
-    {
-    this->BlockIdIndex = new vtkModelMetadataSTLCloak;
-    }
-
   vtkstd::map<int, int> blockIdIndex = this->BlockIdIndex->IntMap;
 
   if (blockIdIndex.size() == 0)
