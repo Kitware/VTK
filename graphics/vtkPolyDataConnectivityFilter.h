@@ -73,6 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
 #define VTK_EXTRACT_SPECIFIED_REGIONS 3
 #define VTK_EXTRACT_LARGEST_REGION 4
+#define VTK_EXTRACT_ALL_REGIONS 5
 
 class VTK_EXPORT vtkPolyDataConnectivityFilter : public vtkPolyDataToPolyDataFilter
 {
@@ -99,7 +100,7 @@ public:
   // Description:
   // Control the extraction of connected surfaces.
   vtkSetClampMacro(ExtractionMode,int,
-                  VTK_EXTRACT_POINT_SEEDED_REGIONS,VTK_EXTRACT_LARGEST_REGION);
+                  VTK_EXTRACT_POINT_SEEDED_REGIONS,VTK_EXTRACT_ALL_REGIONS);
   vtkGetMacro(ExtractionMode,int);
   void SetExtractionModeToPointSeededRegions()
     {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_REGIONS);};
@@ -109,6 +110,8 @@ public:
     {this->SetExtractionMode(VTK_EXTRACT_LARGEST_REGION);};
   void SetExtractionModeToSpecifiedRegions()
     {this->SetExtractionMode(VTK_EXTRACT_SPECIFIED_REGIONS);};
+  void SetExtractionModeToAllRegions()
+    {this->SetExtractionMode(VTK_EXTRACT_ALL_REGIONS);};
   char *GetExtractionModeAsString();
 
   // Use with point or cell seeded extraction methods
@@ -173,6 +176,10 @@ inline char *vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void)
   else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS ) 
     {
     return "ExtractSpecifiedRegions";
+    }
+  else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS ) 
+    {
+    return "ExtractAllRegions";
     }
   else 
     {

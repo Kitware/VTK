@@ -287,7 +287,8 @@ void vtkPolyDataConnectivityFilter::Execute()
   
 
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
-  this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
+  this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
+  this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS)
     { // extract any cell that's been visited
     for (cellId=0; cellId < numCells; cellId++)
       {
