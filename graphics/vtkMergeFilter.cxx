@@ -97,7 +97,7 @@ vtkDataSet *vtkMergeFilter::GetVectors()
     {
     return NULL;
     }
-  return (vtkDataSet *)(this->Inputs[3]);
+  return (vtkDataSet *)(this->Inputs[2]);
 }
 
 void vtkMergeFilter::SetNormals(vtkDataSet *input)
