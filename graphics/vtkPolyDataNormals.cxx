@@ -256,6 +256,7 @@ void vtkPolyDataNormals::Execute()
   //
   PolyNormals = vtkNormals::New();
   PolyNormals->Allocate(numPolys);
+  PolyNormals->SetNumberOfNormals(numPolys);
 
   for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
   cellId++ )
