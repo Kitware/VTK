@@ -47,6 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // graphics model including view up vector, clipping planes, and 
 // camera perspective.
 
+// .SECTION see also
+// vtkCameraDevice
+
 #ifndef __vtkCamera_hh
 #define __vtkCamera_hh
 
@@ -64,50 +67,60 @@ class vtkCamera : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
   char *GetClassName() {return "vtkCamera";};
 
+  // Description:
+  // Set/Get the position of the camera in world coordinates.
   void SetPosition(float x, float y, float z);
   void SetPosition(float a[3]);
   vtkGetVectorMacro(Position,float,3);
 
+  // Description:
+  // Set/Get the focal point of the camera in world coordinates
   void SetFocalPoint(float x, float y, float z);
   void SetFocalPoint(float a[3]);
   vtkGetVectorMacro(FocalPoint,float,3);
 
+  // Description:
+  // Set/Get the view-up direction for the camera.
   void SetViewUp(float vx, float vy, float vz);
   void SetViewUp(float a[3]);
   vtkGetVectorMacro(ViewUp,float,3);
 
+  // Description:
+  // Set/Get the location of the front and back clipping planes along the
+  // direction of projection. These are positive distances along the 
+  // direction of projection. How these values are set can have a large
+  // impact on how well z-buffering works. In particular the front clipping
+  // plane can make a very big difference. Setting it to 0.01 when it
+  // really could be 1.0 can have a big impact on your z-buffer resolution
+  // farther away.
   void SetClippingRange(float front, float back);
   void SetClippingRange(float a[2]);
   vtkGetVectorMacro(ClippingRange,float,2);
 
   // Description:
-  // Abstract interface to renderer. Each concrete subclass of vtkCamera
-  // will load its data into graphics system in response to this method
-  // invocation.
+  // This method causes the camera to set up whatever is required for
+  // viewing the scene. This is actually handled by an instance of
+  // vtkCameraDevice which is created automatically. 
   virtual void Render(vtkRenderer *ren);
 
   // Description:
-  // Set the camera view angle (i.e., the width of view in degrees). Larger
-  // values yield greater perspective distortion.
+  // Set/Get the camera view angle (i.e., the width of view in degrees). 
+  // Larger values yield greater perspective distortion.
   vtkSetClampMacro(ViewAngle,float,1.0,179.0);
-  // Description:
-  // Get the camera view angle (i.e., the width of view in degrees).
   vtkGetMacro(ViewAngle,float);
 
   // Description:
-  // Set the seperation between eyes (in degrees). Used to generate stereo
-  // images.
+  // Set/Get the seperation between eyes (in degrees). This is used to 
+  // when generating stereo images.
   vtkSetMacro(EyeAngle,float);
-  // Description:
-  // Get the seperation between eyes (in degrees). Used to generate stereo
-  // images.
   vtkGetMacro(EyeAngle,float);
 
   // Description:
-  // Set the size of the cameras lense in world coordinates.
+  // Set the size of the cameras lense in world coordinates. This is only 
+  // used when the renderer is doing focal depth rendering. When that is 
+  // being done the size of the focal disk will effect how significant the
+  // depth effects will be.
   vtkSetMacro(FocalDisk,float);
-  // Description:
-  // Get the size of the cameras lense in world coordinates.
   vtkGetMacro(FocalDisk,float);
 
   vtkSetMacro(LeftEye,int);
@@ -120,14 +133,10 @@ class vtkCamera : public vtkObject
   vtkGetMacro(Distance,float);
 
   // Description:
-  // Turn the camera on/off.
-  vtkSetMacro(Switch,int);
-  // Description:
-  // Get the value of the Switch instance variable. This indicates if the 
+  // Set/Get the value of the Switch instance variable. This indicates if the 
   // camera is on or off.
+  vtkSetMacro(Switch,int);
   vtkGetMacro(Switch,int);
-  // Description:
-  // Turn the camera on/off.
   vtkBooleanMacro(Switch,int);
 
   float GetTwist();
