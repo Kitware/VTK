@@ -1,13 +1,13 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMFCInteractor.cxx
+  Module:    %M%
   Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
-  Thanks:    to Horst Schreiber for developing this MFC code
+  Date:      %G%
+  Version:   %I%
 
-Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
+
+Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
 The following terms apply to all files associated with the software unless
@@ -38,7 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
+ 
+ 
 #include "vtkWin32OglrRenderWindow.h"
 #include "vtkMFCInteractor.h"
 #include "vtkActor.h" 
@@ -49,8 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTKXI_ROTATE 1
 #define VTKXI_ZOOM   2
 #define VTKXI_PAN    3
-#define VTKXI_REDRAW 4
-
 
 // Description:
 // Construct object so that light follows camera motion.
@@ -203,6 +202,7 @@ void vtkMFCInteractor::MakeDirectRenderer(CDC* pDC, CRect *rcBounds,vtkRenderWin
 		renWindow->SetSize(m_width,m_height);
 		renWindow->DoubleBufferOn();
 		renWindow->SwapBuffersOff();		// we do swapbuffers by ourselfs
+    glEnable(GL_DEPTH_TEST);
 		if(!this->Initialized) this->Initialize();
 	}
 }
@@ -243,7 +243,8 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
 	// create new memory device context
 	dcMem = new CDC;
 	dcMem->CreateCompatibleDC(NULL);		  // we need no master
-	if (dcMem != NULL) {
+	if (dcMem != NULL) 
+    {
 		// make a bitmap to draw to
 		m_bitmap = CreateDIBSection(dcMem->GetSafeHdc(),
 				(BITMAPINFO *) &bitmapheader, // ok!!, possible, because there is no palette
@@ -253,15 +254,16 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
 		DescribePixelFormat(dcMem->GetSafeHdc(),	PFD_DRAW_TO_BITMAP | PFD_SUPPORT_GDI | PFD_SUPPORT_OPENGL,bitsperpixel);
 		m_hrc = wglCreateContext(dcMem->m_hDC);
 		bResult = wglMakeCurrent(dcMem->m_hDC, m_hrc);
+    glEnable(GL_DEPTH_TEST);
 		if (!bResult) return;			  // shouldn't happen
 	
 		m_hwnd = NULL;				 // there is no coresspoding window
 		m_hDC = dcMem->GetSafeHdc(); //
 
-		if (m_bitmap != NULL) {
-
-			if (pOldBitmap != NULL) {	// everything alright ?
-	
+		if (m_bitmap != NULL) 
+      {
+			if (pOldBitmap != NULL) 
+        {	// everything alright ?
 				m_top		= 0;
 				m_left		= 0;
 				m_width		= bitmap_width;
@@ -277,9 +279,9 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
 				renWindow->SetSize(m_width,m_height);
 				Size[0] = m_width;
 				Size[1] = m_height;
-			}
-		}
-	}
+			  }
+		  }
+	  }
 }
 
 void vtkMFCInteractor::OnMouseMove(CWnd *wnd,UINT nFlags, CPoint point) 
@@ -294,6 +296,8 @@ void vtkMFCInteractor::OnRButtonDown(CWnd *wnd,UINT nFlags, CPoint point)
 {
 	if(this==NULL) return;					//	not existent
 
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
 	wglMakeCurrent(m_hDC,m_hrc);
 
 	FindPokedCamera(point.x,Size[1] - point.y);
@@ -307,6 +311,8 @@ void vtkMFCInteractor::OnRButtonUp(CWnd *wnd,UINT nFlags, CPoint point)
 {
 	if(this==NULL) return;					//	not existent
 
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
 	wglMakeCurrent(m_hDC,m_hrc);
 
 	if (State == VTKXI_ZOOM) {
@@ -319,6 +325,8 @@ void vtkMFCInteractor::OnLButtonDown(CWnd *wnd,UINT nFlags, CPoint point)
 {
 	if(this==NULL) return;					//	not existent
 
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
 	wglMakeCurrent(m_hDC,m_hrc);
 
 	FindPokedCamera(point.x,Size[1] - point.y);
@@ -349,6 +357,8 @@ void vtkMFCInteractor::OnLButtonUp(CWnd *wnd,UINT nFlags, CPoint point)
 {
 	if(this==NULL) return;					//	not existent
 
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
 	wglMakeCurrent(m_hDC,m_hrc);
 
 	if (State == VTKXI_ROTATE) {
@@ -365,110 +375,114 @@ void vtkMFCInteractor::OnLButtonUp(CWnd *wnd,UINT nFlags, CPoint point)
 
 void vtkMFCInteractor::OnSize(CWnd *wnd,UINT nType, int cx, int cy) 
 {
-  if(this==NULL) return; //	not existent
-  
-  // if the size changed send iren on to the RenderWindow
-  if ((cx != Size[0])||(cy != Size[1]))
-    {
-    Size[0] = cx;
-    Size[1] = cy;
-    RenderWindow->SetSize(cx,cy);
-    glViewport(0,0,cx,cy);
-    }
-  
-  Update();
+	if(this==NULL) return;					//	not existent
+
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
+	wglMakeCurrent(m_hDC,m_hrc);
+	// if the size changed send iren on to the RenderWindow
+	if ((cx != Size[0])||(cy != Size[1]))
+	{
+		Size[0] = cx;
+		Size[1] = cy;
+		RenderWindow->SetSize(cx,cy);
+		glViewport(0,0,cx,cy);
+	}
+
+	Update();
 }
 
 void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent) 
 {
-  if(this==NULL) return;	//	not existent
-  static BOOL working = FALSE;
-  
-  if (working == TRUE) return;
-  working = TRUE;
-  float xf,yf;
-  
-  wglMakeCurrent(m_hDC,m_hrc);
-  
-  switch (State) 
-    {
-    case VTKXI_ROTATE :
-      xf = (lastPos.x - Center[0]) * DeltaAzimuth;
-      yf = ((Size[1] - lastPos.y) - Center[1]) * DeltaElevation;
-      CurrentCamera->Azimuth(xf);
-      CurrentCamera->Elevation(yf);
-      CurrentCamera->OrthogonalizeViewUp();
-      if (LightFollowCamera) {
-      /* get the first light */
-      CurrentLight->SetPosition(CurrentCamera->GetPosition());
-      CurrentLight->SetFocalPoint(CurrentCamera->GetFocalPoint());
-      }
-      Update();
-      break;
-    case VTKXI_PAN :
-      {
-      float  FPoint[3];
-      float *PPoint;
-      float  APoint[3];
-      float  RPoint[4];
+	if(this==NULL) return;					//	not existent
+
+	float xf,yf;
+
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
+	wglMakeCurrent(m_hDC,m_hrc);
+
+	switch (State) {
+		case VTKXI_ROTATE :
+   			xf = (lastPos.x - Center[0]) * DeltaAzimuth;
+   			yf = ((Size[1] - lastPos.y) - Center[1]) * DeltaElevation;
+   			CurrentCamera->Azimuth(xf);
+   			CurrentCamera->Elevation(yf);
+   		 	CurrentCamera->OrthogonalizeViewUp();
+   			if (LightFollowCamera) {
+				/* get the first light */
+				CurrentLight->SetPosition(CurrentCamera->GetPosition());
+				CurrentLight->SetFocalPoint(CurrentCamera->GetFocalPoint());
+			}
+			Update();
+      		break;
+    	case VTKXI_PAN :
+	  	    {
+			    float  FPoint[3];
+				float *PPoint;
+				float  APoint[3];
+				float  RPoint[4];
+
+				// get the current focal point and position
+				memcpy(FPoint,CurrentCamera->GetFocalPoint(),sizeof(float)*3);
+				PPoint = CurrentCamera->GetPosition();
+
+      			xf = lastPos.x;
+      			yf = Size[1] - lastPos.y;
+				APoint[0] = xf;
+				APoint[1] = yf;
+				APoint[2] = FocalDepth;
+				CurrentRenderer->SetDisplayPoint(APoint);
+				CurrentRenderer->DisplayToWorld();
+				memcpy(RPoint,CurrentRenderer->GetWorldPoint(),sizeof(float)*4);
+				if (RPoint[3]) {
+					RPoint[0] /= RPoint[3];
+					RPoint[1] /= RPoint[3];
+					RPoint[2] /= RPoint[3];
+				}
+  	    		/*
+   	    		* Compute a translation vector, moving everything 1/10 
+   	    		* the distance to the cursor. (Arbitrary scale factor)
+   	    		*/		
+    	  		CurrentCamera->SetFocalPoint(
+				(FPoint[0]-RPoint[0])/10.0 + FPoint[0],
+				(FPoint[1]-RPoint[1])/10.0 + FPoint[1],
+				(FPoint[2]-RPoint[2])/10.0 + FPoint[2]);
+      			CurrentCamera->SetPosition(
+				(FPoint[0]-RPoint[0])/10.0 + PPoint[0],
+				(FPoint[1]-RPoint[1])/10.0 + PPoint[1],
+				(FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
       
-      // get the current focal point and position
-      memcpy(FPoint,CurrentCamera->GetFocalPoint(),sizeof(float)*3);
-      PPoint = CurrentCamera->GetPosition();
-      
-      xf = lastPos.x;
-      yf = Size[1] - lastPos.y;
-      APoint[0] = xf;
-      APoint[1] = yf;
-      APoint[2] = FocalDepth;
-      CurrentRenderer->SetDisplayPoint(APoint);
-      CurrentRenderer->DisplayToWorld();
-      memcpy(RPoint,CurrentRenderer->GetWorldPoint(),sizeof(float)*4);
-      if (RPoint[3]) {
-      RPoint[0] /= RPoint[3];
-      RPoint[1] /= RPoint[3];
-      RPoint[2] /= RPoint[3];
-      }
-      /*
-       * Compute a translation vector, moving everything 1/10 
-       * the distance to the cursor. (Arbitrary scale factor)
-       */		
-      CurrentCamera->SetFocalPoint(
-				   (FPoint[0]-RPoint[0])/10.0 + FPoint[0],
-				   (FPoint[1]-RPoint[1])/10.0 + FPoint[1],
-				   (FPoint[2]-RPoint[2])/10.0 + FPoint[2]);
-      CurrentCamera->SetPosition(
-				 (FPoint[0]-RPoint[0])/10.0 + PPoint[0],
-				 (FPoint[1]-RPoint[1])/10.0 + PPoint[1],
-				 (FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
-      
-      if (LightFollowCamera) {
-      /* get the first light */
-      CurrentLight->SetPosition(CurrentCamera->GetPosition());
-      CurrentLight->SetFocalPoint(CurrentCamera->GetFocalPoint());
-      }
-      Update();
-      }
-      break;
-    case VTKXI_ZOOM :
-      {
-      float zoomFactor;
-      float *clippingRange;
-      yf = ((Size[1] - lastPos.y) - Center[1])/(float)Center[1];
-      zoomFactor = pow((double)1.1,(double)yf);
-      clippingRange = CurrentCamera->GetClippingRange();
-      CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,			  clippingRange[1]/zoomFactor);
-      CurrentCamera->Zoom(zoomFactor);
-      Update();
-      }
-      break;
-    }	
-  working = FALSE;
+      			if (LightFollowCamera) {
+					/* get the first light */
+					CurrentLight->SetPosition(CurrentCamera->GetPosition());
+					CurrentLight->SetFocalPoint(CurrentCamera->GetFocalPoint());
+				}
+				Update();
+            }
+      		break;
+   		case VTKXI_ZOOM :
+		   	{
+      			float zoomFactor;
+      			float *clippingRange;
+      			yf = ((Size[1] - lastPos.y) - Center[1])/(float)Center[1];
+      			zoomFactor = pow((double)1.1,(double)yf);
+      			clippingRange = CurrentCamera->GetClippingRange();
+      			CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,			  clippingRange[1]/zoomFactor);
+      			CurrentCamera->Zoom(zoomFactor);
+				Update();
+      		}
+   			break;
+	}	
 }
 
 void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
 	if(this==NULL) return;					//	not existent
+
+	m_hwnd = wnd->GetSafeHwnd();
+	m_hDC =::GetDC(m_hwnd);
+	wglMakeCurrent(m_hDC,m_hrc);
 
     switch (nChar)	{
         // case 'e': exit(1); break;
@@ -556,6 +570,7 @@ void vtkMFCInteractor::DescribePixelFormat(HDC hDC,DWORD flags,int bitsperpixel)
 	pfd.dwFlags = flags;
 	pfd.iPixelType = PFD_TYPE_RGBA;
 	pfd.cColorBits = (BYTE) bitsperpixel;
+//	pfd.cDepthBits = 32;
 	pfd.cDepthBits = 16;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 
@@ -566,21 +581,20 @@ void vtkMFCInteractor::DescribePixelFormat(HDC hDC,DWORD flags,int bitsperpixel)
 	int iResult = ::DescribePixelFormat(hDC, nPixelFormat, sizeof(pfd), &pfd);
 	ASSERT(iResult != 0);
 
-	if (pfd.dwFlags & PFD_NEED_PALETTE && !m_hPalette) {
-		SetupLogicalPalette();
+	if (bitsperpixel == 8) {
+		if(!m_hPalette) SetupLogicalPalette();
 	}
-
 	DoPalette(hDC);
 }
 
 void vtkMFCInteractor::DoPalette(HDC hDC)
 {
 	if(this==NULL) return;					//	not existent
-
-	if (m_hPalette && hDC) {
-		SelectPalette(hDC, m_hPalette, FALSE);
-		RealizePalette(hDC);
-	}
+	if(!hDC) return;
+	
+	if (m_hPalette) SelectPalette(hDC, m_hPalette, FALSE);
+	else SelectPalette(hDC,(HPALETTE) GetStockObject(DEFAULT_PALETTE), FALSE);
+	RealizePalette(hDC);
 }
 
 void vtkMFCInteractor::SetupLogicalPalette(void)
@@ -606,3 +620,93 @@ void vtkMFCInteractor::SetupLogicalPalette(void)
 
 	m_hPalette = CreatePalette((LOGPALETTE*) &palstruct);
 }
+
+void vtkMFCInteractor::GetBitmapInfo(LPBITMAPINFOHEADER lpbi)
+{
+ 	if(this==NULL) return;			//	not existent
+
+	BITMAP              bm;         // bitmap structure
+
+    // fill in BITMAP structure, return NULL if it didn't work
+
+	if(!m_bitmap) return;
+    if (!GetObject(m_bitmap, sizeof(bm), (LPSTR)&bm))  return;
+
+    lpbi->biSize = sizeof(BITMAPINFOHEADER);
+    lpbi->biWidth = bm.bmWidth;
+    lpbi->biHeight = bm.bmHeight;
+    lpbi->biPlanes = 1;
+    lpbi->biBitCount = bm.bmPlanes * bm.bmBitsPixel;
+    lpbi->biCompression = BI_RGB;
+    lpbi->biXPelsPerMeter = 0;
+    lpbi->biYPelsPerMeter = 0;
+    lpbi->biClrUsed = 0;
+    lpbi->biClrImportant = 0;
+	lpbi->biSizeImage = bm.bmWidth * bm.bmPlanes * bm.bmBitsPixel * bm.bmHeight;
+}
+
+HDIB vtkMFCInteractor::GetDIB()
+{
+	if(this==NULL) return NULL;			//	not existent
+
+    BITMAPINFOHEADER    bi;         // bitmap header
+    LPBITMAPINFOHEADER  lpbi;       // pointer to BITMAPINFOHEADER
+    DWORD               dwLen;      // size of memory block
+    HANDLE              hDIB;       // handle to DIB, temp handle
+	int palsize = 0;
+
+	lpbi = &bi;
+
+	GetBitmapInfo(lpbi);
+
+	// if we need a palette
+	if(lpbi->biBitCount<15) palsize = (1L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
+ 
+    dwLen = bi.biSize + palsize + bi.biSizeImage;
+
+    hDIB = ::GlobalAlloc(GHND, dwLen);
+	if (hDIB) {
+	    lpbi = (LPBITMAPINFOHEADER) ::GlobalLock(hDIB);
+        lpbi->biSize = sizeof(BITMAPINFOHEADER);
+		::GetDIBits(dcMem->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+				NULL,	(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
+		::GetDIBits(dcMem->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+				(LPSTR)lpbi + (WORD)lpbi->biSize + palsize,
+				(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
+		::GlobalUnlock(hDIB);
+	}
+	return hDIB;
+}
+
+void vtkMFCInteractor::StretchDIB(CDC *pDC,int x_position,int y_position, int x_width,int y_width)
+{
+	if(this==NULL) return;			//	not existent
+
+  BITMAPINFOHEADER   bi;         // bitmap header
+  BITMAPINFOHEADER  *lpbi;       // pointer to BITMAPINFOHEADER
+  DWORD              dwLen;      // size of memory block
+	int palsize = 0;
+
+	lpbi = &bi;
+ 
+	GetBitmapInfo(lpbi);
+
+	// if we need a palette
+	if(lpbi->biBitCount<15) palsize = (1L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
+    
+	dwLen = bi.biSize + palsize + bi.biSizeImage;
+   
+	lpbi = (BITMAPINFOHEADER *)malloc(dwLen);
+  lpbi->biSize = sizeof(BITMAPINFOHEADER);
+//	::GetDIBits(pDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+//				NULL,	(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
+	::GetDIBits(pDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+				(LPSTR)lpbi + (WORD)lpbi->biSize + palsize,
+				(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
+	StretchDIBits(pDC->GetSafeHdc(),x_position, y_position, x_width, y_width, 0, 0, 
+				        lpbi->biWidth, lpbi->biHeight,
+				        ((BYTE *)lpbi) + lpbi->biSize + palsize,	
+				        lpbi,DIB_RGB_COLORS,SRCCOPY);
+	free(lpbi);
+}
+

@@ -66,6 +66,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWin32Header.h"
 #include "vtkRenderWindowInteractor.h"
 
+#define HDIB HANDLE
+
 class vtkMFCInteractor : public vtkRenderWindowInteractor
 {
 public:
@@ -90,8 +92,11 @@ public:
 	void Update();
 	void Update2(HDC hDC);
 	void BitBlt(CDC *pDC,int x_position,int y_position);
+	void StretchDIB(CDC *pDC,int x_position,int y_position, int x_width, int y_width);
 	void DescribePixelFormat(HDC hDC,DWORD,int);
 	HBITMAP GetBitmap();
+	HDIB GetDIB();
+	void GetBitmapInfo(LPBITMAPINFOHEADER);
 	void SetupLogicalPalette(void);
 	void DoPalette(HDC hDC);
 
