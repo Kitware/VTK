@@ -147,17 +147,17 @@ void vtkAttributeData::SetDataType(int dataType)
 
     case VTK_UNSIGNED_INT:
       this->Data->Delete();
-      this->Data = vtkUnsignedShortArray::New();
+      this->Data = vtkUnsignedIntArray::New();
       break;
 
     case VTK_LONG:
       this->Data->Delete();
-      this->Data = vtkIntArray::New();
+      this->Data = vtkLongArray::New();
       break;
 
     case VTK_UNSIGNED_LONG:
       this->Data->Delete();
-      this->Data = vtkUnsignedShortArray::New();
+      this->Data = vtkUnsignedLongArray::New();
       break;
 
     case VTK_FLOAT:
