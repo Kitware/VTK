@@ -116,6 +116,7 @@ vtkDataSetToStructuredPointsFilter \
 vtkDataSetToUnstructuredGridFilter \
 vtkDataSetWriter \
 vtkDecimate \
+vtkDecimatePro \
 vtkDelaunay2D \
 vtkDelaunay3D \
 vtkDicer \
