@@ -369,7 +369,6 @@ static void FinalPass(void *inf, void *mf)
     {
     char *res;
     const char *srcName = info->CAPI->SourceFileGetSourceName(cdata->SourceFiles[i]);
-    const char *srcDir  = info->CAPI->SourceFileGetFullPath (cdata->SourceFiles[i]);
     char *hname = (char *)malloc(strlen(cdir) + strlen(srcName) + 4);
     sprintf(hname,"%s/%s",cdir,srcName);
     hname[strlen(hname)-3]= '\0';
