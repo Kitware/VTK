@@ -8,7 +8,7 @@
 
 catch {load vtktcl}
 
-set rtSelector "grep -v vtkTransform | grep -v Modified"
+set rtSelector "grep -v 0x | grep -v Modified"
 set rtComparator "diff"
 
 proc rtOtherTest { fileid } {
