@@ -29,7 +29,7 @@
 #include "vtkCellData.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkFeatureEdges, "1.62");
+vtkCxxRevisionMacro(vtkFeatureEdges, "1.63");
 vtkStandardNewMacro(vtkFeatureEdges);
 
 // Construct object with feature angle = 30; all types of edges, except 
@@ -80,6 +80,7 @@ void vtkFeatureEdges::Execute()
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   unsigned char* ghostLevels=0;
+  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
   
   vtkDebugMacro(<<"Executing feature edges");
 
@@ -216,7 +217,7 @@ void vtkFeatureEdges::Execute()
 
       if ( this->BoundaryEdges && numNei < 1 )
         {
-        if (ghostLevels && ghostLevels[cellId] > 0)
+        if (ghostLevels && ghostLevels[cellId] > updateLevel)
           {
           continue;
           }
@@ -239,7 +240,7 @@ void vtkFeatureEdges::Execute()
           }
         if ( j >= numNei )
           {
-          if (ghostLevels && ghostLevels[cellId] > 0)
+          if (ghostLevels && ghostLevels[cellId] > updateLevel)
             {
             continue;
             }
@@ -260,7 +261,7 @@ void vtkFeatureEdges::Execute()
         if ( vtkMath::Dot(polyNormals->GetTuple(nei),
                           polyNormals->GetTuple(cellId)) <= cosAngle ) 
           {
-          if (ghostLevels && ghostLevels[cellId] > 0)
+          if (ghostLevels && ghostLevels[cellId] > updateLevel)
             {
             continue;
             }
@@ -277,7 +278,7 @@ void vtkFeatureEdges::Execute()
         }
       else if ( this->ManifoldEdges )
         {
-        if (ghostLevels && ghostLevels[cellId] > 0)
+        if (ghostLevels && ghostLevels[cellId] > updateLevel)
           {
           continue;
           }
