@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkCutMaterial.h"
 #include "vtkCutter.h"
-#include "vtkFieldDataToAttributeDataFilter.h"
 #include "vtkThreshold.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -98,7 +97,6 @@ vtkCutMaterial::~vtkCutMaterial()
 void vtkCutMaterial::Execute()
 {
   vtkDataSet *input = this->GetInput();
-  vtkFieldDataToAttributeDataFilter *f2a;
   vtkThreshold *thresh;
   vtkCutter *cutter;
   float *bds;
@@ -110,29 +108,21 @@ void vtkCutMaterial::Execute()
     return;
     }
   
-  if (input->GetCellData()->GetFieldData())
+  if (input->GetCellData()->GetArray(this->MaterialArrayName) == NULL)
     {
-    if (input->GetCellData()->GetFieldData()->GetArray(this->MaterialArrayName) == NULL)
-      {
-      vtkErrorMacro("Could not find cell array " << this->MaterialArrayName);
-      return;
-      }
-    if (input->GetCellData()->GetFieldData()->GetArray(this->ArrayName) == NULL)
-      {
-      vtkErrorMacro("Could not find cell array " << this->ArrayName);
-      return;
-      }
+    vtkErrorMacro("Could not find cell array " << this->MaterialArrayName);
+    return;
+    }
+  if (input->GetCellData()->GetArray(this->ArrayName) == NULL)
+    {
+    vtkErrorMacro("Could not find cell array " << this->ArrayName);
+    return;
     }
   
   // It would be nice to get rid of this in the future.
-  f2a = vtkFieldDataToAttributeDataFilter::New();
-  f2a->SetInput(input);
-  f2a->SetInputFieldToCellDataField();
-  f2a->SetOutputAttributeDataToCellData();
-  f2a->SetScalarComponent(0, this->MaterialArrayName, 0);
-  
   thresh = vtkThreshold::New();
-  thresh->SetInput(f2a->GetOutput());
+  thresh->SetInput(input);
+  thresh->SetArrayName(this->MaterialArrayName);
   thresh->SetAttributeModeToUseCellData();
   thresh->ThresholdBetween(this->Material-0.5, this->Material+0.5);
   thresh->Update();
@@ -163,7 +153,6 @@ void vtkCutMaterial::Execute()
 
   cutter->Delete();
   thresh->Delete();
-  f2a->Delete();
 }
 
 void vtkCutMaterial::ComputeNormal()
@@ -202,7 +191,7 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
   float *bds;
   
   // Find the maximum value.
-  data = input->GetCellData()->GetFieldData()->GetArray(this->ArrayName);
+  data = input->GetCellData()->GetArray(this->ArrayName);
   if (data == NULL)
     {
     vtkErrorMacro("What happened to the array " << this->ArrayName);
