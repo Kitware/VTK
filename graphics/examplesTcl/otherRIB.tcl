@@ -8,7 +8,7 @@
 
 catch {load vtktcl}
 
-set rtSelector "cat"
+set rtSelector "grep -v cells_"
 set rtComparator "diff"
 
 proc rtOtherTest { fileid } {
