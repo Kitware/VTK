@@ -63,10 +63,10 @@ struct vtkMeshQualitySummaryRec
   double valuesExpected[4];
   int significantDigits;
 } summaryTests[] = {
-    { "Mesh Triangle Quality",      1.00000, 1.22609, 1.60536, 1.57610,   5 },
-    { "Mesh Quadrilateral Quality", 1.00000, 2.06214, 3.14245, 4.82697,   5 },
-    { "Mesh Tetrahedron Quality",   1.00000, 1.29600, 1.74416, 1.78348,   5 },
-    { "Mesh Hexahedron Quality",    1.00000, 1.00000, 1.00000, 1.00000,   5 }
+    { "Mesh Triangle Quality",      {1.00000, 1.22609, 1.60536, 1.57610},   5 },
+    { "Mesh Quadrilateral Quality", {1.00000, 2.06214, 3.14245, 4.82697},   5 },
+    { "Mesh Tetrahedron Quality",   {1.00000, 1.29600, 1.74416, 1.78348},   5 },
+    { "Mesh Hexahedron Quality",    {1.00000, 1.00000, 1.00000, 1.00000},   5 }
 };
 
 // A utility routine that returns -1 if the numbers are identical to
