@@ -22,6 +22,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkErrorCode.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -32,7 +33,7 @@
 # include <unistd.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.24");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.25");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -259,6 +260,8 @@ int vtkXMLWriter::Write()
   // If writing failed, delete the file.
   if(!result)
     {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    
     this->DeleteFile();
     }
   
@@ -336,7 +339,7 @@ vtkDataSet* vtkXMLWriter::GetInputAsDataSet()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::StartFile()
+int vtkXMLWriter::StartFile()
 {
   ostream& os = *(this->Stream);
   
@@ -352,6 +355,15 @@ void vtkXMLWriter::StartFile()
   os << "<VTKFile";
   this->WriteFileAttributes();
   os << ">\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+  
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -387,12 +399,21 @@ void vtkXMLWriter::WriteFileAttributes()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLWriter::EndFile()
+int vtkXMLWriter::EndFile()
 {
   ostream& os = *(this->Stream);
   
   // Close the document-level element.
   os << "</VTKFile>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -433,6 +454,12 @@ void vtkXMLWriter::StartAppendedData()
     this->SetDataStream(raw);
     raw->Delete();
     }
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -441,6 +468,12 @@ void vtkXMLWriter::EndAppendedData()
   ostream& os = *(this->Stream);
   os << "\n";
   os << "  </AppendedData>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -455,6 +488,12 @@ unsigned long vtkXMLWriter::ReserveAttributeSpace(const char* attr)
   unsigned long startPosition = os.tellp();
   if(attr) { os << " " << attr; }
   os << "               ";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   return startPosition;
 }
 
@@ -482,6 +521,13 @@ unsigned long vtkXMLWriter::WriteAppendedDataOffset(unsigned long streamPos,
   os << "\"" << offset << "\"";
   unsigned long endPos = os.tellp();
   os.seekp(returnPos);
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
+  
   return endPos;
 }
 
@@ -542,7 +588,14 @@ int vtkXMLWriter::WriteBinaryData(void* data, int numWords, int wordType)
       }
     
     // Write the header consisting only of the data length.
-    if(!this->DataStream->Write(p, sizeof(HeaderType)))
+    int writeRes = this->DataStream->Write(p, sizeof(HeaderType));
+    this->Stream->flush();
+    if (this->Stream->fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return 0;
+      }
+    if(!writeRes)
       {
       return 0;
       }
@@ -702,11 +755,25 @@ int vtkXMLWriter::WriteBinaryDataBlock(unsigned char* in_data, int numWords,
   // Now pass the data to the next write phase.
   if(this->Compressor)
     {
-    return this->WriteCompressionBlock(data, numWords*wordSize);
+    int res = this->WriteCompressionBlock(data, numWords*wordSize);
+    this->Stream->flush();
+    if (this->Stream->fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return 0;
+      }
+    return res;
     }
   else
     {
-    return this->DataStream->Write(data, numWords*wordSize);
+    int res = this->DataStream->Write(data, numWords*wordSize);
+    this->Stream->flush();
+    if (this->Stream->fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return 0;
+      }
+    return res;
     }
 }
 
@@ -793,6 +860,13 @@ int vtkXMLWriter::CreateCompressionHeader(unsigned long size)
                 this->DataStream->Write(ch, chSize) &&
                 this->DataStream->EndWriting());
   
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+  
   // Fill in known header data now.
   this->CompressionHeader[0] = numBlocks;
   this->CompressionHeader[1] = this->BlockSize;
@@ -817,6 +891,11 @@ int vtkXMLWriter::WriteCompressionBlock(unsigned char* data,
   
   // Write the compressed data.
   int result = this->DataStream->Write(outputPointer, outputSize);
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   
   // Store the resulting compressed size in the compression header.
   this->CompressionHeader[3+this->CompressionBlockNumber++] = outputSize;
@@ -843,6 +922,13 @@ int vtkXMLWriter::WriteCompressionHeader()
   int result = (this->DataStream->StartWriting() &&
                 this->DataStream->Write(ch, chSize) &&
                 this->DataStream->EndWriting());
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+  
   if(!this->Stream->seekp(returnPosition)) { return 0; }
   return result;
 }
@@ -975,14 +1061,28 @@ int vtkXMLWriter::WriteScalarAttribute(const char* name, vtkIdType data)
 int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
                                        int* data)
 {
-  return vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
+  return res;
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
                                        float* data)
 {
-  return vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  int res = vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
+  return res;
 }
 
 //----------------------------------------------------------------------------
@@ -990,7 +1090,15 @@ int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
 int vtkXMLWriter::WriteVectorAttribute(const char* name, int length,
                                        vtkIdType* data)
 {
-  return vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  int res =
+    vtkXMLWriterWriteVectorAttribute(*(this->Stream), name, length, data);
+  
+  this->Stream->flush();
+  if (this->Stream->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
+  return res;
 }
 #endif
 
@@ -1012,6 +1120,12 @@ int vtkXMLWriter::WriteDataModeAttribute(const char* name)
     os << "ascii";
     }
   os << "\"";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   return (os? 1:0);
 }
 
@@ -1025,6 +1139,11 @@ int vtkXMLWriter::WriteWordTypeAttribute(const char* name, int dataType)
     return 0;
     }
   os << " " << name << "=\"" << value << "\"";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   return (os? 1:0);
 }
 
@@ -1033,6 +1152,12 @@ int vtkXMLWriter::WriteStringAttribute(const char* name, const char* value)
 {
   ostream& os = *(this->Stream);
   os << " " << name << "=\"" << value << "\"";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   return (os? 1:0);
 }
 
@@ -1190,6 +1315,11 @@ unsigned long vtkXMLWriter::WriteDataArrayAppended(vtkDataArray* a,
   this->WriteDataModeAttribute("format");
   unsigned long pos = this->ReserveAttributeSpace("offset");
   os << "/>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   return pos;
 }
 
@@ -1198,6 +1328,10 @@ void vtkXMLWriter::WriteDataArrayAppendedData(vtkDataArray* a,
                                               unsigned long pos)
 {
   this->WriteAppendedDataOffset(pos, "offset");
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->WriteBinaryData(a->GetVoidPointer(0),
                         a->GetNumberOfTuples()*a->GetNumberOfComponents(),
                         a->GetDataType());
@@ -1230,6 +1364,12 @@ void vtkXMLWriter::WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
                         a->GetNumberOfTuples()*a->GetNumberOfComponents(),
                         a->GetDataType(), indent.GetNextIndent());
   os << indent << "</DataArray>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1257,6 +1397,13 @@ void vtkXMLWriter::WritePointDataInline(vtkPointData* pd, vtkIndent indent)
   
   os << indent << "<PointData";
   this->WriteAttributeIndices(pd, names);
+  
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+    return;
+    }
+  
   os << ">\n";
   
   float progressRange[2] = {0,0};
@@ -1268,9 +1415,21 @@ void vtkXMLWriter::WritePointDataInline(vtkPointData* pd, vtkIndent indent)
     vtkDataArray* a = this->CreateArrayForPoints(pd->GetArray(i));
     this->WriteDataArrayInline(a, indent.GetNextIndent(), names[i]);
     a->Delete();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+      return;
+      }
     }
   
   os << indent << "</PointData>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+    return;
+    }
   
   this->DestroyStringArray(pd->GetNumberOfArrays(), names);
 }
@@ -1283,6 +1442,13 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
   
   os << indent << "<CellData";
   this->WriteAttributeIndices(cd, names);
+  
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    this->DestroyStringArray(cd->GetNumberOfArrays(), names);
+    return;
+    }
+  
   os << ">\n";
   
   float progressRange[2] = {0,0};
@@ -1294,9 +1460,21 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
     vtkDataArray* a = this->CreateArrayForCells(cd->GetArray(i));
     this->WriteDataArrayInline(a, indent.GetNextIndent(), names[i]);
     a->Delete();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DestroyStringArray(cd->GetNumberOfArrays(), names);
+      return;
+      }
     }
   
   os << indent << "</CellData>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    this->DestroyStringArray(cd->GetNumberOfArrays(), names);
+    return;
+    }
   
   this->DestroyStringArray(cd->GetNumberOfArrays(), names);
 }
@@ -1311,6 +1489,13 @@ unsigned long* vtkXMLWriter::WritePointDataAppended(vtkPointData* pd,
   
   os << indent << "<PointData";
   this->WriteAttributeIndices(pd, names);
+  
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] pdPositions;
+    return NULL;
+    }
+  
   os << ">\n";
   
   int i;
@@ -1319,10 +1504,24 @@ unsigned long* vtkXMLWriter::WritePointDataAppended(vtkPointData* pd,
     pdPositions[i] = this->WriteDataArrayAppended(pd->GetArray(i),
                                                   indent.GetNextIndent(),
                                                   names[i]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] pdPositions;
+      this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+      return NULL;
+      }
     }
   
   os << indent << "</PointData>\n";
   
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    delete [] pdPositions;
+    this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+    return NULL;
+    }
   this->DestroyStringArray(pd->GetNumberOfArrays(), names);
   
   return pdPositions;
@@ -1341,6 +1540,11 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd,
     vtkDataArray* a = this->CreateArrayForPoints(pd->GetArray(i));
     this->WriteDataArrayAppendedData(a, pdPositions[i]);
     a->Delete();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] pdPositions;
+      return;
+      }
     }
   delete [] pdPositions;
 }
@@ -1355,6 +1559,14 @@ unsigned long* vtkXMLWriter::WriteCellDataAppended(vtkCellData* cd,
   
   os << indent << "<CellData";
   this->WriteAttributeIndices(cd, names);
+  
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] cdPositions;
+    this->DestroyStringArray(cd->GetNumberOfArrays(), names);
+    return NULL;
+    }
+  
   os << ">\n";
   
   int i;
@@ -1363,10 +1575,24 @@ unsigned long* vtkXMLWriter::WriteCellDataAppended(vtkCellData* cd,
     cdPositions[i] = this->WriteDataArrayAppended(cd->GetArray(i),
                                                   indent.GetNextIndent(),
                                                   names[i]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cdPositions;
+      this->DestroyStringArray(cd->GetNumberOfArrays(), names);
+      return NULL;
+      }
     }
   
-  os << indent << "</CellData>\n";
+  os << indent << "</CellData>\n";  
   
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    delete [] cdPositions;
+    this->DestroyStringArray(cd->GetNumberOfArrays(), names);
+    return NULL;
+    }
   this->DestroyStringArray(cd->GetNumberOfArrays(), names);
   
   return cdPositions;
@@ -1385,6 +1611,11 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd,
     vtkDataArray* a = this->CreateArrayForCells(cd->GetArray(i));
     this->WriteDataArrayAppendedData(a, cdPositions[i]);
     a->Delete();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cdPositions;
+      return;
+      }
     }
   delete [] cdPositions;
 }
@@ -1412,6 +1643,10 @@ void vtkXMLWriter::WriteAttributeIndices(vtkDataSetAttributes* dsa,
         arrayName = names[attributeIndices[i]];
         }
       this->WriteStringAttribute(attrName, arrayName);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        return;
+        }
       }
     }  
 }
@@ -1431,6 +1666,13 @@ vtkXMLWriter::WritePointsAppended(vtkPoints* points, vtkIndent indent)
       this->WriteDataArrayAppended(points->GetData(), indent.GetNextIndent());
     }
   os << indent << "</Points>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
   
   return pointsPosition;
 }
@@ -1461,6 +1703,12 @@ void vtkXMLWriter::WritePointsInline(vtkPoints* points, vtkIndent indent)
     outPoints->Delete();
     }
   os << indent << "</Points>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1497,18 +1745,46 @@ void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
     
     this->SetProgressRange(progressRange, 0, fractions);
     this->WriteDataArrayInline(oxc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      oxc->Delete();
+      oyc->Delete();
+      ozc->Delete();
+      return;
+      }
     
     this->SetProgressRange(progressRange, 1, fractions);
     this->WriteDataArrayInline(oyc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      oxc->Delete();
+      oyc->Delete();
+      ozc->Delete();
+      return;
+      }
     
     this->SetProgressRange(progressRange, 2, fractions);
     this->WriteDataArrayInline(ozc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      oxc->Delete();
+      oyc->Delete();
+      ozc->Delete();
+      return;
+      }
     
     oxc->Delete();
     oyc->Delete();
     ozc->Delete();
     }
   os << indent << "</Coordinates>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1524,10 +1800,32 @@ vtkXMLWriter::WriteCoordinatesAppended(vtkDataArray* xc, vtkDataArray* yc,
   if(xc && yc && zc)
     {
     cPositions[0] = this->WriteDataArrayAppended(xc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cPositions;
+      return NULL;
+      }
     cPositions[1] = this->WriteDataArrayAppended(yc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cPositions;
+      return NULL;
+      }
     cPositions[2] = this->WriteDataArrayAppended(zc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cPositions;
+      return NULL;
+      }
     }
   os << indent << "</Coordinates>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    delete [] cPositions;
+    return NULL;
+    }
   
   return cPositions;
 }
@@ -1565,12 +1863,36 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc,
     
     this->SetProgressRange(progressRange, 0, fractions);
     this->WriteDataArrayAppendedData(oxc, cPositions[0]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cPositions;
+      oxc->Delete();
+      oyc->Delete();
+      ozc->Delete();
+      return;
+      }
     
     this->SetProgressRange(progressRange, 1, fractions);
     this->WriteDataArrayAppendedData(oyc, cPositions[1]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cPositions;
+      oxc->Delete();
+      oyc->Delete();
+      ozc->Delete();
+      return;
+      }
     
     this->SetProgressRange(progressRange, 2, fractions);
     this->WriteDataArrayAppendedData(ozc, cPositions[2]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] cPositions;
+      oxc->Delete();
+      oyc->Delete();
+      ozc->Delete();
+      return;
+      }
     
     oxc->Delete();
     oyc->Delete();
@@ -1619,15 +1941,30 @@ void vtkXMLWriter::WritePPointData(vtkPointData* pd, vtkIndent indent)
   
   os << indent << "<PPointData";
   this->WriteAttributeIndices(pd, names);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+    return;
+    }
   os << ">\n";
   
   int i;
   for(i=0; i < pd->GetNumberOfArrays(); ++i)
     {
     this->WritePDataArray(pd->GetArray(i), indent.GetNextIndent(), names[i]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DestroyStringArray(pd->GetNumberOfArrays(), names);
+      return;
+      }
     }  
   
   os << indent << "</PPointData>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   
   this->DestroyStringArray(pd->GetNumberOfArrays(), names);
 }
@@ -1668,6 +2005,11 @@ void vtkXMLWriter::WritePPoints(vtkPoints* points, vtkIndent indent)
     this->WritePDataArray(points->GetData(), indent.GetNextIndent());
     }
   os << indent << "</PPoints>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1692,6 +2034,12 @@ void vtkXMLWriter::WritePDataArray(vtkDataArray* a, vtkIndent indent,
                                a->GetNumberOfComponents());
     }
   os << "/>\n";
+  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1705,10 +2053,27 @@ void vtkXMLWriter::WritePCoordinates(vtkDataArray* xc, vtkDataArray* yc,
   if(xc && yc && zc)
     {
     this->WritePDataArray(xc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
     this->WritePDataArray(yc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
     this->WritePDataArray(zc, indent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
     }
   os << indent << "</PCoordinates>\n";  
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------

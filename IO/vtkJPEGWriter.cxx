@@ -17,15 +17,17 @@
 =========================================================================*/
 #include "vtkJPEGWriter.h"
 
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
 extern "C" {
 #include <jpeglib.h>
+#include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.14");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.15");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -77,11 +79,14 @@ void vtkJPEGWriter::Write()
   int *wExtent;
   wExtent = this->GetInput()->GetWholeExtent();
   this->FileNumber = this->GetInput()->GetWholeExtent()[4];
+  this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
+  this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
   // loop over the z axis and write the slices
   for (this->FileNumber = wExtent[4]; this->FileNumber <= wExtent[5]; 
        ++this->FileNumber)
     {
+    this->MaximumFileNumber = this->FileNumber;
     this->GetInput()->SetUpdateExtent(wExtent[0], wExtent[1],
                                       wExtent[2], wExtent[3],
                                       this->FileNumber, 
@@ -105,6 +110,12 @@ void vtkJPEGWriter::Write()
       }
     this->GetInput()->UpdateData();
     this->WriteSlice(this->GetInput());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+      this->DeleteFiles();
+      return;
+      }
     this->UpdateProgress((this->FileNumber - wExtent[4])/
                          (wExtent[5] - wExtent[4] + 1.0));
     }
@@ -171,6 +182,21 @@ extern "C"
   }
 }
 
+struct VTK_JPEG_ERROR_MANAGER
+{
+  struct jpeg_error_mgr pub;
+  jmp_buf setjmp_buffer;
+};
+
+typedef struct VTK_JPEG_ERROR_MANAGER* VTK_JPEG_ERROR_PTR;
+
+METHODDEF(void)
+  VTK_JPEG_ERROR_EXIT (j_common_ptr cinfo)
+{
+  VTK_JPEG_ERROR_PTR jpegErr = (VTK_JPEG_ERROR_PTR) cinfo->err;
+  longjmp(jpegErr->setjmp_buffer, 1);
+}
+
 void vtkJPEGWriter::WriteSlice(vtkImageData *data)
 {
   // Call the correct templated function for the output
@@ -192,17 +218,31 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     vtkErrorMacro("Exceed JPEG limits for number of components (" << data->GetNumberOfScalarComponents() << " > " << MAX_COMPONENTS << ")" );
     return;
     }
+
+  // overriding jpeg_error_mgr so we don't exit when an error happens
   
   // Create the jpeg compression object and error handler
   struct jpeg_compress_struct cinfo;
-  struct jpeg_error_mgr jerr;
+  struct VTK_JPEG_ERROR_MANAGER jerr;
+  FILE *fp = 0;
 
-  cinfo.err = jpeg_std_error(&jerr);
+  cinfo.err = jpeg_std_error(&jerr.pub);
+  jerr.pub.error_exit = VTK_JPEG_ERROR_EXIT;
+  if (setjmp(jerr.setjmp_buffer))
+    {
+    jpeg_destroy_compress(&cinfo);
+    if (!this->WriteToMemory)
+      {
+      fclose(fp);
+      }
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
+  
   jpeg_create_compress(&cinfo);
 
   // set the destination file
   struct jpeg_destination_mgr compressionDestination;
-  FILE *fp = 0;
   if (this->WriteToMemory)
     {
     // setup the compress structure to write to memory
@@ -264,10 +304,20 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
     outPtr = (unsigned char *)outPtr + rowInc;
     }
   jpeg_write_scanlines(&cinfo, row_pointers, height);
-
+  
+  if (!this->WriteToMemory)
+    {
+    if (fflush(fp) == EOF)
+      {
+      this->ErrorCode = vtkErrorCode::OutOfDiskSpaceError;
+      fclose(fp);
+      return;
+      }
+    }
+  
   // finish the compression
   jpeg_finish_compress(&cinfo);
-
+  
   // clean up and close the file
   delete [] row_pointers;
   jpeg_destroy_compress(&cinfo);

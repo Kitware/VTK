@@ -18,12 +18,13 @@
 #include "vtkXMLStructuredGridWriter.h"
 
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.4");
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -93,6 +94,10 @@ void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index,
                                                     vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->PointsPosition[index] =
     this->WritePointsAppended(this->GetInput()->GetPoints(), indent);
 }
@@ -112,6 +117,10 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
   
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -136,6 +145,10 @@ void vtkXMLStructuredGridWriter::WriteInlinePiece(int index, vtkIndent indent)
   
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(index, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);

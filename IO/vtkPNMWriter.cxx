@@ -17,11 +17,12 @@
 =========================================================================*/
 #include "vtkPNMWriter.h"
 
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPNMWriter, "1.21");
+vtkCxxRevisionMacro(vtkPNMWriter, "1.22");
 vtkStandardNewMacro(vtkPNMWriter);
 
 #ifdef write
@@ -112,9 +113,8 @@ void vtkPNMWriter::WriteFile(ofstream *file, vtkImageData *data,
         ptr = data->GetScalarPointer(idx0, idx1, idx2);
         if ( ! file->write((char *)ptr, rowLength))
           {
-          vtkErrorMacro("WriteFile: write failed");
-          file->close();
-          delete file;
+          this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+          return;
           }
         }
       }

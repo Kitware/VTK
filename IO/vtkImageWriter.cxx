@@ -17,11 +17,12 @@
 =========================================================================*/
 #include "vtkImageWriter.h"
 
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.45");
+vtkCxxRevisionMacro(vtkImageWriter, "1.46");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -47,6 +48,9 @@ vtkImageWriter::vtkImageWriter()
   strcpy(this->FilePattern, "%s.%d");
   
   this->FileLowerLeft = 0;
+  
+  this->MinimumFileNumber = this->MaximumFileNumber = 0;
+  this->FilesDeleted = 0;
 }
 
 
@@ -216,8 +220,14 @@ void vtkImageWriter::Write()
   this->GetInput()->UpdateInformation();
   this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
   this->FileNumber = this->GetInput()->GetWholeExtent()[4];
+  this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
+  this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
   this->RecursiveWrite(2, this->GetInput(), NULL);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    this->DeleteFiles();
+    }
   delete [] this->InternalFileName;
   this->InternalFileName = NULL;
 }
@@ -250,6 +260,14 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
         {
         sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
         }
+      if (this->FileNumber < this->MinimumFileNumber)
+        {
+        this->MinimumFileNumber = this->FileNumber;
+        }
+      else if (this->FileNumber > this->MaximumFileNumber)
+        {
+        this->MaximumFileNumber = this->FileNumber;
+        }
       }
     // Open the file
 #ifdef _WIN32
@@ -268,6 +286,14 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 
     // Subclasses can write a header with this method call.
     this->WriteFileHeader(file, cache);
+    file->flush();
+    if (file->fail())
+      {
+      file->close();
+      delete file;
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     ++this->FileNumber;
     }
   
@@ -282,9 +308,18 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   cache->Update();
   data = cache;
   this->RecursiveWrite(axis,cache,data,file);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    this->DeleteFiles();
+    }
   if (file && fileOpenedHere)
     {
     this->WriteFileTrailer(file,cache);
+    file->flush();
+    if (file->fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      }
     file->close();
     delete file;
     file = NULL;
@@ -304,6 +339,13 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   if (file)
     {
     this->WriteFile(file,data,cache->GetUpdateExtent());
+    file->flush();
+    if (file->fail())
+      {
+      file->close();
+      delete file;
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      }
     return;
     }
   
@@ -326,6 +368,14 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
         {
         sprintf(this->InternalFileName, this->FilePattern,this->FileNumber);
         }
+      if (this->FileNumber < this->MinimumFileNumber)
+        {
+        this->MinimumFileNumber = this->FileNumber;
+        }
+      else if (this->FileNumber > this->MaximumFileNumber)
+        {
+        this->MaximumFileNumber = this->FileNumber;
+        }
       }
     // Open the file
 #ifdef _WIN32
@@ -343,9 +393,30 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
 
     // Subclasses can write a header with this method call.
     this->WriteFileHeader(file, cache);
+    file->flush();
+    if (file->fail())
+      {
+      file->close();
+      delete file;
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     this->WriteFile(file,data,cache->GetUpdateExtent());
+    file->flush();
+    if (file->fail())
+      {
+      file->close();
+      delete file;
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     ++this->FileNumber;
     this->WriteFileTrailer(file,cache);
+    file->flush();
+    if (file->fail())
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      }
     file->close();
     delete file;
     return;
@@ -361,7 +432,14 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     for(idx = max; idx >= min; idx--)
       {
       cache->SetAxisUpdateExtent(axis, idx, idx);
-      this->RecursiveWrite(axis - 1, cache, data, file);
+      if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
+        {
+        this->RecursiveWrite(axis - 1, cache, data, file);
+        }
+      else
+        {
+        this->DeleteFiles();
+        }
       }
     }
   else
@@ -369,7 +447,14 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
     for(idx = min; idx <= max; idx++)
       {
       cache->SetAxisUpdateExtent(axis, idx, idx);
-      this->RecursiveWrite(axis - 1, cache, data, file);
+      if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
+        {
+        this->RecursiveWrite(axis - 1, cache, data, file);
+        }
+      else
+        {
+        this->DeleteFiles();
+        }
       }
     }
   
@@ -477,9 +562,53 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
         vtkErrorMacro("WriteFile: write failed");
         file->close();
         delete file;
+        this->DeleteFiles();
+        return;
         }
       }
     }
 }
 
-
+void vtkImageWriter::DeleteFiles()
+{
+  if (this->FilesDeleted)
+    {
+    return;
+    }
+  int i;
+  char *fileName;
+  
+  vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+  
+  if (this->FileName)
+    {
+    unlink(this->FileName);
+    }
+  else
+    {
+    if (this->FilePrefix)
+      {
+      fileName =
+        new char[strlen(this->FilePrefix) + strlen(this->FilePattern) + 10];
+      
+      for (i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
+        {
+        sprintf(fileName, this->FilePattern, this->FilePrefix, i);
+        unlink(fileName);
+        }
+      delete [] fileName;
+      }
+    else
+      {
+      fileName = new char[strlen(this->FilePattern) + 10];
+      
+      for (i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
+        {
+        sprintf(fileName, this->FilePattern, i);
+        unlink(fileName);
+        }
+      delete [] fileName;
+      }
+    }
+  this->FilesDeleted = 1;
+}

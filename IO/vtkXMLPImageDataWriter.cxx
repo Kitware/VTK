@@ -18,9 +18,10 @@
 #include "vtkXMLPImageDataWriter.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLImageDataWriter.h"
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.2");
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------
@@ -72,8 +73,18 @@ const char* vtkXMLPImageDataWriter::GetDefaultFileExtension()
 void vtkXMLPImageDataWriter::WritePrimaryElementAttributes()
 {
   this->Superclass::WritePrimaryElementAttributes();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   vtkImageData* input = this->GetInput();
   this->WriteVectorAttribute("Origin", 3, input->GetOrigin());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());
 }
 

@@ -19,8 +19,9 @@
 
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
+#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLPDataWriter, "1.8");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataWriter::vtkXMLPDataWriter()
@@ -89,6 +90,10 @@ int vtkXMLPDataWriter::WriteInternal()
   
   // Write the pieces now so the data are up to date.
   int result = this->WritePieces();
+  if (!result)
+    {
+    return result;
+    }
   
   // Decide whether to write the summary file.
   int writeSummary = 0;
@@ -104,7 +109,19 @@ int vtkXMLPDataWriter::WriteInternal()
   // Write the summary file if requested.
   if(result && writeSummary)
     {
-    if(!this->Superclass::WriteInternal()) { return 0; }
+    if(!this->Superclass::WriteInternal())
+      {
+      int i;
+      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+      
+      for (i = this->StartPiece; i < this->EndPiece; i++)
+        {
+        char* fileName = this->CreatePieceFileName(i, this->PathName);
+        this->DeleteFile(fileName);
+        delete [] fileName;
+        }
+      return 0;
+      }
     }
   
   return result;
@@ -125,14 +142,26 @@ int vtkXMLPDataWriter::WriteData()
   vtkIndent nextIndent = indent.GetNextIndent();
   
   this->StartFile();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
   
   os << indent << "<" << this->GetDataSetName();
   this->WritePrimaryElementAttributes();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
   os << ">\n";
   
   // Write the information needed for a reader to produce the output's
   // information during UpdateInformation without reading a piece.
   this->WritePData(indent.GetNextIndent());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
   
   // Write the elements referencing each piece and its file.
   int i;
@@ -140,12 +169,20 @@ int vtkXMLPDataWriter::WriteData()
     {
     os << nextIndent << "<Piece";
     this->WritePPieceAttributes(i);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return 0;
+      }
     os << "/>\n";
     }
   
   os << indent << "</" << this->GetDataSetName() << ">\n";
-  
+
   this->EndFile();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
   
   return 1;
 }
@@ -155,6 +192,10 @@ void vtkXMLPDataWriter::WritePData(vtkIndent indent)
 {
   vtkDataSet* input = this->GetInputAsDataSet();  
   this->WritePPointData(input->GetPointData(), indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->WritePCellData(input->GetCellData(), indent);
 }
 
@@ -254,6 +295,8 @@ int vtkXMLPDataWriter::WritePieces()
       {
       // Writing a piece failed.  Delete files for previous pieces and
       // abort.
+      vtkErrorMacro("Ran out of disk space; deleting file(s) already written");
+      
       for(int j=this->StartPiece; j < i; ++j)
         {
         char* fileName = this->CreatePieceFileName(j, this->PathName);
@@ -294,6 +337,7 @@ int vtkXMLPDataWriter::WritePiece(int index)
   
   // Write the piece.
   int result = pWriter->Write();
+  this->SetErrorCode(pWriter->GetErrorCode());
   
   // Cleanup.
   pWriter->RemoveObserver(this->ProgressObserver);

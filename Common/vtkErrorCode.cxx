@@ -30,6 +30,7 @@ static const char *vtkErrorCodeErrorStrings[] = {
   "PrematureEndOfFileError",
   "FileFormatError",
   "NoFileNameError",
+  "OutOfDiskSpaceError",
   "UnknownError",
   "UserError",
   NULL

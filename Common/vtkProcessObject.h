@@ -126,6 +126,11 @@ public:
   // Remove all the input data.
   void RemoveAllInputs();
 
+  // Description:
+  // The error code contains a possible error that occured while
+  // reading or writing the file.
+  vtkGetMacro( ErrorCode, unsigned long );
+
 protected:
   vtkProcessObject();
   ~vtkProcessObject();
@@ -159,6 +164,12 @@ protected:
   virtual void SetNthInput(int num, vtkDataObject *input);
   virtual void AddInput(vtkDataObject *input);
   virtual void RemoveInput(vtkDataObject *input);
+  
+  // Description:
+  // The error code contains a possible error that occured while
+  // reading or writing the file.
+  vtkSetMacro( ErrorCode, unsigned long );
+  unsigned long ErrorCode;
   
 private:
   vtkProcessObject(const vtkProcessObject&);  // Not implemented.

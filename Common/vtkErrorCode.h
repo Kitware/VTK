@@ -44,6 +44,7 @@ public:
     PrematureEndOfFileError,
     FileFormatError,
     NoFileNameError,
+    OutOfDiskSpaceError,
     UnknownError,
     UserError = 1000
   };

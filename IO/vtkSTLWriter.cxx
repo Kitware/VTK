@@ -19,11 +19,12 @@
 
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
+#include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.47");
+vtkCxxRevisionMacro(vtkSTLWriter, "1.48");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()
@@ -54,10 +55,18 @@ void vtkSTLWriter::WriteData()
   if ( this->FileType == VTK_BINARY )
     {
     this->WriteBinarySTL(pts,polys);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      unlink(this->FileName);
+      }
     }
   else
     {
     this->WriteAsciiSTL(pts,polys);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      unlink(this->FileName);
+      }
     }
 }
 
@@ -79,7 +88,12 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 //  Write header
 //
   vtkDebugMacro("Writing ASCII sla file");
-  fprintf (fp, "solid ascii\n");
+  if (fprintf (fp, "solid ascii\n") < 0)
+    {
+    fclose(fp);
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
 //
 //  Write out triangle polygons.  In not a triangle polygon, only first 
 //  three vertices are written.
@@ -92,16 +106,44 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-    fprintf (fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
-            n[0], n[1], n[2]);
+    if (fprintf (fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
+                 n[0], n[1], n[2]) < 0)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
 
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+    if (fprintf (fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]) < 0)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
+    if (fprintf (fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]) < 0)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
+    if (fprintf (fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]) < 0)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
 
-    fprintf (fp, "  endloop\n endfacet\n");
+    if (fprintf (fp, "  endloop\n endfacet\n") < 0)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     }
-  fprintf (fp, "endsolid\n");
+  if (fprintf (fp, "endsolid\n") < 0)
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
   fclose (fp);
 }
 
@@ -123,11 +165,21 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   //  Write header
   //
   vtkDebugMacro("Writing Binary STL file");
-  fwrite (header, 1, 80, fp);
+  if (fwrite (header, 1, 80, fp) < 80)
+    {
+    fclose(fp);
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
 
   ulint = (unsigned long int) polys->GetNumberOfCells();
   vtkByteSwap::Swap4LE(&ulint);
-  fwrite (&ulint, 1, 4, fp);
+  if (fwrite (&ulint, 1, 4, fp) < 4)
+    {
+    fclose(fp);
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
 
   //  Write out triangle polygons.  In not a triangle polygon, only first 
   //  three vertices are written.
@@ -142,27 +194,52 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     vtkByteSwap::Swap4LE(n); 
     vtkByteSwap::Swap4LE(n+1); 
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    if (fwrite (n, 4, 3, fp) < 3)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
 
     n[0] = v1[0];  n[1] = v1[1];  n[2] = v1[2]; 
     vtkByteSwap::Swap4LE(n); 
     vtkByteSwap::Swap4LE(n+1); 
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    if (fwrite (n, 4, 3, fp) < 3)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
 
     n[0] = v2[0];  n[1] = v2[1];  n[2] = v2[2]; 
     vtkByteSwap::Swap4LE(n); 
     vtkByteSwap::Swap4LE(n+1); 
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    if (fwrite (n, 4, 3, fp) < 3)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
 
     n[0] = v3[0];  n[1] = v3[1];  n[2] = v3[2]; 
     vtkByteSwap::Swap4LE(n); 
     vtkByteSwap::Swap4LE(n+1); 
     vtkByteSwap::Swap4LE(n+2);
-    fwrite (n, 4, 3, fp);
+    if (fwrite (n, 4, 3, fp) < 3)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
 
-    fwrite (&ibuff2, 2, 1, fp);
+    if (fwrite (&ibuff2, 2, 1, fp) < 1)
+      {
+      fclose(fp);
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     }
   fclose (fp);
 }

@@ -20,8 +20,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkDataObject.h"
+#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.31");
+vtkCxxRevisionMacro(vtkProcessObject, "1.32");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()
@@ -37,6 +38,7 @@ vtkProcessObject::vtkProcessObject()
   this->Inputs = NULL;
   this->SortedInputs = NULL;
   this->SortedInputs2 = NULL;
+  this->ErrorCode = 0;
 }
 
 // Destructor for the vtkProcessObject class
@@ -496,5 +498,5 @@ void vtkProcessObject::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Progress Text: (None)\n";
     }
 
-  
+  os << indent << "ErrorCode: " << vtkErrorCode::GetStringFromErrorCode(this->ErrorCode) << endl;
 }

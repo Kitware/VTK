@@ -18,9 +18,10 @@
 #include "vtkXMLPStructuredDataWriter.h"
 #include "vtkXMLStructuredDataWriter.h"
 #include "vtkExtentTranslator.h"
+#include "vtkErrorCode.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataWriter, "1.2");
 vtkCxxSetObjectMacro(vtkXMLPStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -68,6 +69,10 @@ void vtkXMLPStructuredDataWriter::WritePPieceAttributes(int index)
   this->ExtentTranslator->GetExtent(extent);
   
   this->WriteVectorAttribute("Extent", 6, extent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->Superclass::WritePPieceAttributes(index);
 }
 

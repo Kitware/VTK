@@ -60,7 +60,7 @@ protected:
   void WriteInlinePieceAttributes();
   void WriteInlinePiece(vtkIndent indent);
   
-  void WriteAppendedMode(vtkIndent indent);
+  int WriteAppendedMode(vtkIndent indent);
   void WriteAppendedPieceAttributes(int index);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);

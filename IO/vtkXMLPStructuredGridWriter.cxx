@@ -18,9 +18,10 @@
 #include "vtkXMLPStructuredGridWriter.h"
 #include "vtkObjectFactory.h"
 #include "vtkXMLStructuredGridWriter.h"
+#include "vtkErrorCode.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridWriter, "1.3");
 vtkStandardNewMacro(vtkXMLPStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -82,6 +83,10 @@ vtkXMLPStructuredGridWriter::CreateStructuredPieceWriter()
 void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
 {
   this->Superclass::WritePData(indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   vtkStructuredGrid* input = this->GetInput();  
   this->WritePPoints(input->GetPoints(), indent);
 }

@@ -20,8 +20,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
+#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.23");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.24");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 #if (_MIPS_SZLONG == 64)
@@ -473,9 +474,8 @@ void vtkTIFFWriter::WriteFile(ofstream *file, vtkImageData *data,
       ptr = data->GetScalarPointer(extent[0], idx1, idx2);
       if ( ! file->write((char *)ptr, rowLength))
         {
-        vtkErrorMacro("WriteFile: write failed");
-        file->close();
-        delete file;
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        return;
         }
       }
     }

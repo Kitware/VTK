@@ -18,11 +18,12 @@
 #include "vtkBYUWriter.h"
 
 #include "vtkCellArray.h"
+#include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkBYUWriter, "1.46");
+vtkCxxRevisionMacro(vtkBYUWriter, "1.47");
 vtkStandardNewMacro(vtkBYUWriter);
 
 // Create object so that it writes displacement, scalar, and texture files
@@ -86,11 +87,50 @@ void vtkBYUWriter::WriteData()
   else
     {
     this->WriteGeometryFile(geomFp,numPts);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      fclose(geomFp);
+      unlink(this->GeometryFileName);
+      return;
+      }
     }
 
   this->WriteDisplacementFile(numPts);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    fclose(geomFp);
+    unlink(this->GeometryFileName);
+    unlink(this->DisplacementFileName);
+    return;
+    }
   this->WriteScalarFile(numPts);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    fclose(geomFp);
+    unlink(this->GeometryFileName);
+    if (this->DisplacementFileName)
+      {
+      unlink(this->DisplacementFileName);
+      }
+    unlink(this->ScalarFileName);
+    return;
+    }
   this->WriteTextureFile(numPts);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    fclose(geomFp);
+    unlink(this->GeometryFileName);
+    if (this->DisplacementFileName)
+      {
+      unlink(this->DisplacementFileName);
+      }
+    if (this->ScalarFileName)
+      {
+      unlink(this->ScalarFileName);
+      }
+    unlink(this->TextureFileName);
+    return;
+    }
 
   // Close the file
   fclose (geomFp);
@@ -124,8 +164,17 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
     numEdges += npts;
     }
 
-  fprintf (geomFile, "%d %d %d %d\n", 1, numPts, numPolys, numEdges);
-  fprintf (geomFile, "%d %d\n", 1, numPolys);
+  if (fprintf (geomFile, "%d %d %d %d\n", 1, numPts, numPolys, numEdges) < 0)
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
+  if (fprintf (geomFile, "%d %d\n", 1, numPolys) < 0)
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return;
+    }
+  
 //
 // Write data
 //
@@ -133,15 +182,27 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   for (i=0; i < numPts; i++)
     {
     x = inPts->GetPoint(i);
-    fprintf(geomFile, "%e %e %e ", x[0], x[1], x[2]);
+    if (fprintf(geomFile, "%e %e %e ", x[0], x[1], x[2]) < 0)
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     if ( (i % 2) )
       {
-      fprintf(geomFile, "\n");
+      if (fprintf(geomFile, "\n") < 0)
+        {
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        return;
+        }
       }
     }
   if ( (numPts % 2) )
     {
-    fprintf(geomFile, "\n");
+    if (fprintf(geomFile, "\n") < 0)
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     }
 
   // write poly data. Remember 1-offset.
@@ -151,9 +212,17 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
     // treating vtkIdType as int
     for (i=0; i < (npts-1); i++)
       {
-      fprintf (geomFile, "%d ", (int)(pts[i]+1));
+      if (fprintf (geomFile, "%d ", (int)(pts[i]+1)) < 0)
+        {
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        return;
+        }
       }
-    fprintf (geomFile, "%d\n", (int)(-(pts[npts-1]+1)));
+    if (fprintf (geomFile, "%d\n", (int)(-(pts[npts-1]+1))) < 0)
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      return;
+      }
     }
 
   vtkDebugMacro(<<"Wrote " << numPts << " points, " << numPolys << " polygons");
@@ -186,10 +255,20 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   for (i=0; i < numPts; i++)
     {
     v = inVectors->GetTuple(i);
-    fprintf(dispFp, "%e %e %e", v[0], v[1], v[2]);
+    if (fprintf(dispFp, "%e %e %e", v[0], v[1], v[2]) < 0)
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      fclose(dispFp);
+      return;
+      }
     if ( (i % 2) )
       {
-      fprintf (dispFp, "\n");
+      if (fprintf (dispFp, "\n") < 0)
+        {
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        fclose(dispFp);
+        return;
+        }
       }
     }
 
@@ -224,10 +303,20 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   for (i=0; i < numPts; i++)
     {
     s = inScalars->GetComponent(i,0);
-    fprintf(scalarFp, "%e ", s);
+    if (fprintf(scalarFp, "%e ", s) < 0)
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      fclose(scalarFp);
+      return;
+      }
     if ( i != 0 && !(i % 6) )
       {
-      fprintf (scalarFp, "\n");
+      if (fprintf (scalarFp, "\n") < 0)
+        {
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        fclose(scalarFp);
+        return;
+        }
       }
     }
 
@@ -263,10 +352,20 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
     {
     if ( i != 0 && !(i % 3) )
       {
-      fprintf (textureFp, "\n");
+      if (fprintf (textureFp, "\n") < 0)
+        {
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        fclose(textureFp);
+        return;
+        }
       }
     t = inTCoords->GetTuple(i);
-    fprintf(textureFp, "%e %e", t[0], t[1]);
+    if (fprintf(textureFp, "%e %e", t[0], t[1]) < 0)
+      {
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      fclose(textureFp);
+      return;
+      }
     }
 
   fclose (textureFp);

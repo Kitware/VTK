@@ -22,6 +22,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkErrorCode.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -29,7 +30,7 @@
 #include "vtkPoints.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.5");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -90,16 +91,29 @@ int vtkXMLUnstructuredDataWriter::WriteData()
     }
   
   // Write the file.
-  this->StartFile();
+  if (!this->StartFile())
+    {
+    return 0;
+    }
+  
   if(this->DataMode == vtkXMLWriter::Appended)
     {
-    this->WriteAppendedMode(indent);
+    if (!this->WriteAppendedMode(indent))
+      {
+      return 0;
+      }
     }
   else
     {
-    this->WriteInlineMode(indent);
+    if (!this->WriteInlineMode(indent))
+      {
+      return 0;
+      }
     }
-  this->EndFile();
+  if (!this->EndFile())
+    {
+    return 0;
+    }
   
   // Restore the user's number of pieces.
   this->NumberOfPieces = numPieces;
@@ -108,7 +122,7 @@ int vtkXMLUnstructuredDataWriter::WriteData()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
+int vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
   vtkIndent nextIndent = indent.GetNextIndent();
@@ -135,9 +149,17 @@ void vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
       // Open the piece's element.
       os << nextIndent << "<Piece";
       this->WriteInlinePieceAttributes();
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        return 0;
+        }
       os << ">\n";
       
       this->WriteInlinePiece(nextIndent.GetNextIndent());
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        return 0;
+        }
       
       // Close the piece's element.
       os << nextIndent << "</Piece>\n";
@@ -153,16 +175,30 @@ void vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
     // Open the piece's element.
     os << nextIndent << "<Piece";
     this->WriteInlinePieceAttributes();
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return 0;
+      }
     os << ">\n";
     
     this->WriteInlinePiece(nextIndent.GetNextIndent());
-    
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return 0;
+      }
     // Close the piece's element.
     os << nextIndent << "</Piece>\n";
     }
   
   // Close the primary element.
   os << indent << "</" << this->GetDataSetName() << ">\n";
+  os.flush();
+  if (os.fail())
+    {
+    return 0;
+    }
+  
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -189,12 +225,20 @@ void vtkXMLUnstructuredDataWriter::WriteInlinePiece(vtkIndent indent)
   
   // Write the point data arrays.
   this->WritePointDataInline(input->GetPointData(), indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the cell data arrays.
   this->SetProgressRange(progressRange, 1, fractions);
   
   // Write the cell data arrays.
   this->WriteCellDataInline(input->GetCellData(), indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the point specification array.
   this->SetProgressRange(progressRange, 2, fractions);
@@ -204,7 +248,7 @@ void vtkXMLUnstructuredDataWriter::WriteInlinePiece(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
+int vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
 {
   ostream& os = *(this->Stream);
   vtkIndent nextIndent = indent.GetNextIndent();
@@ -233,10 +277,26 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
       // Open the piece's element.
       os << nextIndent << "<Piece";
       this->WriteAppendedPieceAttributes(i);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        delete [] this->NumberOfPointsPositions;
+        delete [] this->PointsPositions;
+        delete [] this->PointDataPositions;
+        delete [] this->CellDataPositions;
+        return 0;
+        }
       os << ">\n";
       
       this->WriteAppendedPiece(i, nextIndent.GetNextIndent());
-      
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        delete [] this->NumberOfPointsPositions;
+        delete [] this->PointsPositions;
+        delete [] this->PointDataPositions;
+        delete [] this->CellDataPositions;
+        return 0;
+        }
+        
       // Close the piece's element.
       os << nextIndent << "</Piece>\n";
       }
@@ -247,9 +307,25 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     // Open the piece's element.
     os << nextIndent << "<Piece";
     this->WriteAppendedPieceAttributes(this->WritePiece);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] this->NumberOfPointsPositions;
+      delete [] this->PointsPositions;
+      delete [] this->PointDataPositions;
+      delete [] this->CellDataPositions;
+      return 0;
+      }
     os << ">\n";
     
     this->WriteAppendedPiece(this->WritePiece, nextIndent.GetNextIndent());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] this->NumberOfPointsPositions;
+      delete [] this->PointsPositions;
+      delete [] this->PointDataPositions;
+      delete [] this->CellDataPositions;
+      return 0;
+      }
     
     // Close the piece's element.
     os << nextIndent << "</Piece>\n";
@@ -257,8 +333,26 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
   
   // Close the primary element.
   os << indent << "</" << this->GetDataSetName() << ">\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    delete [] this->NumberOfPointsPositions;
+    delete [] this->PointsPositions;
+    delete [] this->PointDataPositions;
+    delete [] this->CellDataPositions;
+    return 0;
+    }
   
   this->StartAppendedData();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] this->NumberOfPointsPositions;
+    delete [] this->PointsPositions;
+    delete [] this->PointDataPositions;
+    delete [] this->CellDataPositions;
+    return 0;
+    }
   
   if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
     {
@@ -275,6 +369,14 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
       input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
       input->Update();
       this->WriteAppendedPieceData(i);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        delete [] this->NumberOfPointsPositions;
+        delete [] this->PointsPositions;
+        delete [] this->PointDataPositions;
+        delete [] this->CellDataPositions;
+        return 0;
+        }
       }
     }
   else
@@ -284,14 +386,32 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedMode(vtkIndent indent)
                            this->GhostLevel);
     input->Update();
     this->WriteAppendedPieceData(this->WritePiece);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] this->NumberOfPointsPositions;
+      delete [] this->PointsPositions;
+      delete [] this->PointDataPositions;
+      delete [] this->CellDataPositions;
+      return 0;
+      }
     }
   
   this->EndAppendedData();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] this->NumberOfPointsPositions;
+    delete [] this->PointsPositions;
+    delete [] this->PointDataPositions;
+    delete [] this->CellDataPositions;
+    return 0;
+    }
   
   delete [] this->NumberOfPointsPositions;
   delete [] this->PointsPositions;
   delete [] this->PointDataPositions;
   delete [] this->CellDataPositions;
+  
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -309,9 +429,17 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPiece(int index,
   
   this->PointDataPositions[index] =
     this->WritePointDataAppended(input->GetPointData(), indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   this->CellDataPositions[index] =
     this->WriteCellDataAppended(input->GetCellData(), indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   this->PointsPositions[index] =
     this->WritePointsAppended(input->GetPoints(), indent);
@@ -328,6 +456,10 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   vtkPoints* points = input->GetPoints();
   this->WriteScalarAttribute("NumberOfPoints",
                              (points?points->GetNumberOfPoints():0));
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   os.seekp(returnPosition);
   
   // Split progress among point data, cell data, and point arrays.
@@ -342,6 +474,10 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   // Write the point data arrays.
   this->WritePointDataAppendedData(input->GetPointData(),
                                    this->PointDataPositions[index]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the cell data arrays.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -349,6 +485,10 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   // Write the cell data arrays.  
   this->WriteCellDataAppendedData(input->GetCellData(),
                                   this->CellDataPositions[index]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the point specification array.
   this->SetProgressRange(progressRange, 2, fractions);
@@ -380,12 +520,21 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
   
   // Write the connectivity array.
   this->WriteDataArrayInline(this->CellPoints, indent.GetNextIndent());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the offsets array.
   this->SetProgressRange(progressRange, 1, fractions);
   
   // Write the offsets array.
   this->WriteDataArrayInline(this->CellOffsets, indent.GetNextIndent());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   if(types)
     {
     // Set the range of progress for the types array.
@@ -393,8 +542,17 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
     
     // Write the types array.
     this->WriteDataArrayInline(types, indent.GetNextIndent(), "types");
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      return;
+      }
     }
   os << indent << "</" << name << ">\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -408,14 +566,39 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
   os << indent << "<" << name << ">\n";
   positions[0] = this->WriteDataArrayAppended(this->CellPoints,
                                               indent.GetNextIndent());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] positions;
+    return NULL;
+    }
+  
   positions[1] = this->WriteDataArrayAppended(this->CellOffsets,
                                               indent.GetNextIndent());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] positions;
+    return NULL;
+    }
+  
   if(types)
     {
     positions[2] = this->WriteDataArrayAppended(types, indent.GetNextIndent(),
                                                 "types");
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] positions;
+      return NULL;
+      }
     }
   os << indent << "</" << name << ">\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    delete [] positions;
+    return NULL;
+    }
+  
   return positions;
 }
 
@@ -438,12 +621,22 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
   
   // Write the connectivity array.
   this->WriteDataArrayAppendedData(this->CellPoints, positions[0]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] positions;
+    return;
+    }
   
   // Set the range of progress for the offsets array.
   this->SetProgressRange(progressRange, 1, fractions);
   
   // Write the offsets array.
   this->WriteDataArrayAppendedData(this->CellOffsets, positions[1]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] positions;
+    return;
+    }
   
   if(types)
     {
@@ -452,6 +645,11 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
     
     // Write the types array.
     this->WriteDataArrayAppendedData(types, positions[2]);
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] positions;
+      return;
+      }
     }
   delete [] positions;
 }

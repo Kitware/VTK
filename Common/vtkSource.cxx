@@ -23,7 +23,7 @@
 #include "vtkFieldData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.103");
+vtkCxxRevisionMacro(vtkSource, "1.104");
 
 #ifndef NULL
 #define NULL 0
@@ -35,7 +35,6 @@ vtkSource::vtkSource()
   this->NumberOfOutputs = 0;
   this->Outputs = NULL;
   this->Updating = 0;
-  this->ErrorCode = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -721,8 +720,6 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent <<"No Outputs\n";
     }
-
-  os << indent << "ErrorCode: " << vtkErrorCode::GetStringFromErrorCode(this->ErrorCode) << endl;
 }
 
 int vtkSource::InRegisterLoop(vtkObject *o)

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.32");
+vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.33");
 vtkStandardNewMacro(vtkStructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,14 @@ void vtkStructuredGridWriter::WriteData()
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
     {
-      return;
+    if (fp)
+      {
+      vtkErrorMacro("Ran out of disk space; deleting file: "
+                    << this->FileName);
+      this->CloseVTKFile(fp);
+      unlink(this->FileName);
+      }
+    return;
     }
 
   // Write structured grid specific stuff
@@ -60,32 +67,63 @@ void vtkStructuredGridWriter::WriteData()
   *fp << "DATASET STRUCTURED_GRID\n";
 
   // Write data owned by the dataset
-  this->WriteDataSetData(fp, input);
+  if (!this->WriteDataSetData(fp, input))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
 
   input->GetDimensions(dim);
   *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 
-  this->WritePoints(fp, input->GetPoints());
+  if (!this->WritePoints(fp, input->GetPoints()))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
   
   // If blanking, write that information out
   if ( input->GetBlanking() )
     {
-    this->WriteBlanking(fp, input);
+    if (!this->WriteBlanking(fp, input))
+      {
+      vtkErrorMacro("Ran out of disk space; deleting file: "
+                    << this->FileName);
+      this->CloseVTKFile(fp);
+      unlink(this->FileName);
+      return;
+      }
     }
 
-  this->WriteCellData(fp, input);
-  this->WritePointData(fp, input);
+  if (!this->WriteCellData(fp, input))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
+  if (!this->WritePointData(fp, input))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
 
   this->CloseVTKFile(fp);
 }
 
-void vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
+int vtkStructuredGridWriter::WriteBlanking(ostream *fp, vtkStructuredGrid *grid)
 {
   vtkUnsignedCharArray *blanking=grid->GetPointVisibility();
   
   int numPts = grid->GetNumberOfPoints();
   *fp << "BLANKING " << numPts;
-  WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, " %s\n", numPts, 1);
+  return this->WriteArray(fp, VTK_UNSIGNED_CHAR, blanking, " %s\n", numPts, 1);
 }
 
 

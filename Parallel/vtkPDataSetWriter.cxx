@@ -23,8 +23,9 @@
 #include "vtkImageData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.9");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.10");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -153,13 +154,16 @@ void vtkPDataSetWriter::Write()
       }
     // Write a tag so that we know this file type.
     *fptr << "<File version=\"pvtk-1.0\"\n";
+    fptr->flush();
     if (fptr->fail())
       {
       vtkErrorMacro(<< "Unable to write to file: "<< this->FileName);
+      this->CloseVTKFile(fptr);
+      remove(this->FileName);
       delete [] fileRoot;
       delete [] fileName;
-      //fptr->close();
       delete fptr;
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
       }
 
@@ -168,19 +172,56 @@ void vtkPDataSetWriter::Write()
       {
       case VTK_POLY_DATA:
       case VTK_UNSTRUCTURED_GRID:
-        this->WriteUnstructuredMetaData(input, fileRoot, fileName, fptr);
+        if (!this->WriteUnstructuredMetaData(input, fileRoot, fileName, fptr))
+          {
+          this->CloseVTKFile(fptr);
+          remove(this->FileName);
+          delete [] fileRoot;
+          delete [] fileName;
+          delete fptr;
+          this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+          return;
+          }
         break;
       case VTK_IMAGE_DATA:
       case VTK_STRUCTURED_POINTS:
-        this->WriteImageMetaData((vtkImageData*)input, fileRoot, fileName, fptr);
+        if (!this->WriteImageMetaData((vtkImageData*)input, fileRoot,
+                                      fileName, fptr))
+          {
+          this->CloseVTKFile(fptr);
+          remove(this->FileName);
+          delete [] fileRoot;
+          delete [] fileName;
+          delete fptr;
+          this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+          return;
+          }
         break;
       case VTK_RECTILINEAR_GRID:
-        this->WriteRectilinearGridMetaData((vtkRectilinearGrid*)input, 
-                                           fileRoot, fileName, fptr);
+        if (!this->WriteRectilinearGridMetaData((vtkRectilinearGrid*)input, 
+                                                fileRoot, fileName, fptr))
+          {
+          this->CloseVTKFile(fptr);
+          remove(this->FileName);
+          delete [] fileRoot;
+          delete [] fileName;
+          delete fptr;
+          this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+          return;
+          }
         break;
       case VTK_STRUCTURED_GRID:
-        this->WriteStructuredGridMetaData((vtkStructuredGrid*)input, 
-                                          fileRoot, fileName, fptr);
+        if (!this->WriteStructuredGridMetaData((vtkStructuredGrid*)input, 
+                                               fileRoot, fileName, fptr))
+          {
+          this->CloseVTKFile(fptr);
+          remove(this->FileName);
+          delete [] fileRoot;
+          delete [] fileName;
+          delete fptr;
+          this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+          return;
+          }
         break;
       }
   
@@ -222,6 +263,12 @@ void vtkPDataSetWriter::Write()
     writer->Write();
     copy->Delete();
     copy = NULL;
+    if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DeleteFiles();
+      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      break;
+      }
     }
   writer->Delete();
   writer = NULL;
@@ -231,7 +278,7 @@ void vtkPDataSetWriter::Write()
 
 
 //----------------------------------------------------------------------------
-void vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
+int vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
                                          char *root, char *str, ostream *fptr)
 {
   int i;
@@ -247,12 +294,18 @@ void vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
     *fptr << "  <Piece fileName=\"" << str << "\" />" << endl;
     }
   *fptr << "</File>" << endl;
+  fptr->flush();
+  if (fptr->fail())
+    {
+    return 0;
+    }
+  return 1;
 }
 
 
 //----------------------------------------------------------------------------
-void vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input, 
-                                         char *root, char *str, ostream *fptr)
+int vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input, 
+                                          char *root, char *str, ostream *fptr)
 {
   int i;
   int *pi;
@@ -284,10 +337,16 @@ void vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input,
           << pi[3] << " " << pi[4] << " " << pi[5] << "\" />" << endl;
     }
   *fptr << "</File>" << endl;
+  fptr->flush();
+  if (fptr->fail())
+    {
+    return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
+int vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
                                          char *root, char *str, ostream *fptr)
 {
   int i;
@@ -314,10 +373,17 @@ void vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
           << pi[3] << " " << pi[4] << " " << pi[5] << "\" />" << endl;
     }
   *fptr << "</File>" << endl;
+  
+  fptr->flush();
+  if (fptr->fail())
+    {
+    return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
+int vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
                                          char *root, char *str, ostream *fptr)
 {
   int i;
@@ -344,6 +410,13 @@ void vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
           << pi[3] << " " << pi[4] << " " << pi[5] << "\" />" << endl;
     }
   *fptr << "</File>" << endl;
+  
+  fptr->flush();
+  if (fptr->fail())
+    {
+    return 0;
+    }
+  return 1;
 }
 
 
@@ -365,6 +438,64 @@ ostream *vtkPDataSetWriter::OpenFile()
   return fptr;
 }
 
+void vtkPDataSetWriter::DeleteFiles()
+{
+  int i;
+  int length = static_cast<int>(strlen(this->FileName));
+  char *fileRoot = new char[length+1];
+  char *fileName = new char[length+strlen(this->FilePattern)+20];
+  
+  strncpy(fileRoot, this->FileName, length);
+  fileRoot[length] = '\0';
+  // Trim off the pvtk extension.
+  if (strncmp(fileRoot+length-5, ".pvtk", 5) == 0)
+    {
+    fileRoot[length-5] = '\0';
+    }
+  if (strncmp(fileRoot+length-4, ".vtk", 4) == 0)
+    {
+    fileRoot[length-4] = '\0';
+    }
+  // If we are using relative file names, trim off the directory path.
+  if (this->UseRelativeFileNames)
+    {
+    char *tmp, *slash;
+    // Find the last / or \ in the file name.
+    slash = NULL;
+    tmp = fileRoot;
+    while (*tmp != '\0')
+      {
+      if (*tmp == '/' || *tmp == '\\')
+        {
+        slash = tmp;
+        }
+      ++tmp;
+      }
+    // Copy just the filename into root.
+    if (slash)
+      {
+      ++slash;
+      tmp = fileRoot;
+      while (*slash != '\0')
+        {
+        *tmp++ = *slash++;
+        }
+      *tmp = '\0';         
+      }
+    }
+  
+  for (i = this->StartPiece; i <= this->EndPiece; i++)
+    {
+    sprintf(fileName, this->FilePattern, fileRoot, i);
+    remove(fileName);
+    }
+
+  remove(this->FileName);
+  
+  delete [] fileName;
+  delete [] fileRoot;
+}
+
 //----------------------------------------------------------------------------
 void vtkPDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -378,10 +509,3 @@ void vtkPDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FilePattern: " << this->FilePattern << endl;
   os << indent << "UseRelativeFileNames: " << this->UseRelativeFileNames << endl;
 }
-
-
-
-
-
-
-

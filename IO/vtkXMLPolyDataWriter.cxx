@@ -19,11 +19,12 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.4");
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
 //----------------------------------------------------------------------------
@@ -82,20 +83,37 @@ void vtkXMLPolyDataWriter::SetInputUpdateExtent(int piece, int numPieces,
 void vtkXMLPolyDataWriter::WriteInlinePieceAttributes()
 {
   this->Superclass::WriteInlinePieceAttributes();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   vtkPolyData* input = this->GetInput();
   this->WriteScalarAttribute("NumberOfVerts",
                              input->GetVerts()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }  
   this->WriteScalarAttribute("NumberOfLines",
                              input->GetLines()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }  
   this->WriteScalarAttribute("NumberOfStrips",
                              input->GetStrips()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }  
   this->WriteScalarAttribute("NumberOfPolys",
                              input->GetPolys()->GetNumberOfCells());
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
-{  
+{
   // Split progress range by the approximate fraction of data written
   // by each step in this method.
   float progressRange[2] = {0,0};
@@ -108,6 +126,10 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   
   // Let the superclass write its data.  
   this->Superclass::WriteInlinePiece(indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   vtkPolyData* input = this->GetInput();
   
@@ -116,18 +138,30 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
   
   // Write the Verts.
   this->WriteCellsInline("Verts", input->GetVerts(), 0, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Lines.
   this->SetProgressRange(progressRange, 2, fractions);
   
   // Write the Lines.
   this->WriteCellsInline("Lines", input->GetLines(), 0, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Strips.
   this->SetProgressRange(progressRange, 3, fractions);
   
   // Write the Strips.
   this->WriteCellsInline("Strips", input->GetStrips(), 0, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Polys.
   this->SetProgressRange(progressRange, 4, fractions);
@@ -137,8 +171,8 @@ void vtkXMLPolyDataWriter::WriteInlinePiece(vtkIndent indent)
 }  
 
 //----------------------------------------------------------------------------
-void vtkXMLPolyDataWriter::WriteAppendedMode(vtkIndent indent)
-{  
+int vtkXMLPolyDataWriter::WriteAppendedMode(vtkIndent indent)
+{
   this->NumberOfVertsPositions = new unsigned long[this->NumberOfPieces];
   this->NumberOfLinesPositions = new unsigned long[this->NumberOfPieces];
   this->NumberOfStripsPositions = new unsigned long[this->NumberOfPieces];
@@ -149,7 +183,7 @@ void vtkXMLPolyDataWriter::WriteAppendedMode(vtkIndent indent)
   this->StripsPositions = new unsigned long*[this->NumberOfPieces];
   this->PolysPositions = new unsigned long*[this->NumberOfPieces];
   
-  this->Superclass::WriteAppendedMode(indent);
+  int res = this->Superclass::WriteAppendedMode(indent);
   
   delete [] this->PolysPositions;
   delete [] this->StripsPositions;
@@ -159,18 +193,36 @@ void vtkXMLPolyDataWriter::WriteAppendedMode(vtkIndent indent)
   delete [] this->NumberOfStripsPositions;
   delete [] this->NumberOfLinesPositions;
   delete [] this->NumberOfVertsPositions;
+  
+  return res;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)
 {
   this->Superclass::WriteAppendedPieceAttributes(index);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->NumberOfVertsPositions[index] =
     this->ReserveAttributeSpace("NumberOfVerts");
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->NumberOfLinesPositions[index] =
     this->ReserveAttributeSpace("NumberOfLines");
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->NumberOfStripsPositions[index] =
     this->ReserveAttributeSpace("NumberOfStrips");
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   this->NumberOfPolysPositions[index] =
     this->ReserveAttributeSpace("NumberOfPolys");
 }
@@ -179,15 +231,31 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceAttributes(int index)
 void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
   this->Superclass::WriteAppendedPiece(index, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   this->VertsPositions[index] =
     this->WriteCellsAppended("Verts", 0, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   this->LinesPositions[index] =
     this->WriteCellsAppended("Lines", 0, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   this->StripsPositions[index] =
     this->WriteCellsAppended("Strips", 0, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   this->PolysPositions[index] =
     this->WriteCellsAppended("Polys", 0, indent);
@@ -203,15 +271,31 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   os.seekp(this->NumberOfVertsPositions[index]);
   this->WriteScalarAttribute("NumberOfVerts",
                              input->GetVerts()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   os.seekp(this->NumberOfLinesPositions[index]);
   this->WriteScalarAttribute("NumberOfLines",
                              input->GetLines()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   os.seekp(this->NumberOfStripsPositions[index]);
   this->WriteScalarAttribute("NumberOfStrips",
                              input->GetStrips()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   os.seekp(this->NumberOfPolysPositions[index]);
   this->WriteScalarAttribute("NumberOfPolys",
                              input->GetPolys()->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   os.seekp(returnPosition);
   
   // Split progress range by the approximate fraction of data written
@@ -226,6 +310,10 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   
   // Let the superclass write its data.  
   this->Superclass::WriteAppendedPieceData(index);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Verts.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -233,6 +321,10 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   // Write the Verts.
   this->WriteCellsAppendedData(input->GetVerts(), 0,
                                this->VertsPositions[index]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Lines.
   this->SetProgressRange(progressRange, 2, fractions);
@@ -240,6 +332,10 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   // Write the Lines.
   this->WriteCellsAppendedData(input->GetLines(), 0,
                                this->LinesPositions[index]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Strips.
   this->SetProgressRange(progressRange, 3, fractions);
@@ -247,6 +343,10 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   // Write the Strips.
   this->WriteCellsAppendedData(input->GetStrips(), 0,
                                this->StripsPositions[index]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for Polys.
   this->SetProgressRange(progressRange, 4, fractions);

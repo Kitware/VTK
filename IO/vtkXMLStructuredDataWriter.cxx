@@ -21,10 +21,11 @@
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
+#include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.4");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -75,18 +76,33 @@ int vtkXMLStructuredDataWriter::WriteData()
   // Prepare the extent translator to create the set of pieces.
   this->SetupExtentTranslator();
   
-  // Write the file.
   int result = 0;
-  this->StartFile();
+
+  // Write the file.
+  if (!this->StartFile())
+    {
+    return 0;
+    }
   if(this->DataMode == vtkXMLWriter::Appended)
     {
     result = this->WriteAppendedMode(indent);
+    if (!result)
+      {
+      return 0;
+      }
     }
   else
     {
     result = this->WriteInlineMode(indent);
+    if (!result)
+      {
+      return 0;
+      }
     }
-  this->EndFile();
+  if (!this->EndFile())
+    {
+    return 0;
+    }
   
   return result;
 }
@@ -114,8 +130,16 @@ int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
   // Open the primary element.
   os << indent << "<" << this->GetDataSetName();
   this->WritePrimaryElementAttributes();
-  os << ">\n";
+
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] this->PointDataOffsets;
+    delete [] this->CellDataOffsets;
+    return 0;
+    }
   
+  os << ">\n";
+
   // Write each piece's XML.
   for(i=0;i < this->NumberOfPieces;++i)
     {
@@ -128,13 +152,36 @@ int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     this->WriteVectorAttribute("Extent", 6, extent);
     os << ">\n";
     
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] this->PointDataOffsets;
+      delete [] this->CellDataOffsets;
+      return 0;
+      }
+    
     this->WriteAppendedPiece(i, nextIndent.GetNextIndent());
+    
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      delete [] this->PointDataOffsets;
+      delete [] this->CellDataOffsets;
+      return 0;
+      }
     
     os << nextIndent << "</Piece>\n";
     }
   
   // Close the primary element.
   os << indent << "</" << this->GetDataSetName() << ">\n";
+
+  os.flush();
+  if (os.fail())
+    {
+    delete [] this->PointDataOffsets;
+    delete [] this->CellDataOffsets;
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
   
   // Split progress of the data write by the fraction contributed by
   // each piece.
@@ -145,6 +192,14 @@ int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
   
   // Write each piece's data.
   this->StartAppendedData();
+  
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] fractions;
+    delete [] this->PointDataOffsets;
+    delete [] this->CellDataOffsets;
+    return 0;
+    }
   
   int result = 1;
   for(i=0; (i < this->NumberOfPieces) && result; ++i)
@@ -162,6 +217,14 @@ int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     if(input->CheckAttributes() == 0)
       {
       this->WriteAppendedPieceData(i);
+    
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        delete [] fractions;
+        delete [] this->PointDataOffsets;
+        delete [] this->CellDataOffsets;
+        return 0;
+        }
       }
     else
       {
@@ -171,6 +234,13 @@ int vtkXMLStructuredDataWriter::WriteAppendedMode(vtkIndent indent)
     }
   
   this->EndAppendedData();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    delete [] fractions;
+    delete [] this->PointDataOffsets;
+    delete [] this->CellDataOffsets;
+    return 0;
+    }
   
   // Cleanup.
   delete [] fractions;
@@ -191,6 +261,12 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   // Open the primary element.
   os << indent << "<" << this->GetDataSetName();
   this->WritePrimaryElementAttributes();
+  
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
+  
   os << ">\n";
   
   // Split progress of the data write by the fraction contributed by
@@ -219,10 +295,20 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
       {
       os << indent << "<Piece";
       this->WriteVectorAttribute("Extent", 6, extent);
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        delete [] fractions;
+        return 0;
+        }
+      
       os << ">\n";
       
       this->WriteInlinePiece(i, indent.GetNextIndent());
-      
+      if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+        {
+        delete [] fractions;
+        return 0;
+        }
       os << indent << "</Piece>\n";
       }
     else
@@ -235,7 +321,15 @@ int vtkXMLStructuredDataWriter::WriteInlineMode(vtkIndent indent)
   // Close the primary element.
   os << indent << "</" << this->GetDataSetName() << ">\n";
   
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    result = 0;
+    }
+  
   delete [] fractions;
+
   return result;
 }
 
@@ -365,8 +459,16 @@ void vtkXMLStructuredDataWriter::WriteAppendedPiece(int index,
   vtkDataSet* input = this->GetInputAsDataSet();
   this->PointDataOffsets[index] =
     this->WritePointDataAppended(input->GetPointData(), indent);
+  if (!this->PointDataOffsets[index])
+    {
+    return;
+    }
   this->CellDataOffsets[index] =
     this->WriteCellDataAppended(input->GetCellData(), indent);
+  if (!this->CellDataOffsets[index])
+    {
+    return;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -392,6 +494,10 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 0, fractions);
   this->WritePointDataAppendedData(input->GetPointData(),
                                    this->PointDataOffsets[index]);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the cell data arrays.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -421,6 +527,10 @@ void vtkXMLStructuredDataWriter::WriteInlinePiece(int, vtkIndent indent)
   // Set the range of progress for the point data arrays.
   this->SetProgressRange(progressRange, 0, fractions);
   this->WritePointDataInline(input->GetPointData(), indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the cell data arrays.
   this->SetProgressRange(progressRange, 1, fractions);

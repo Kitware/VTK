@@ -24,6 +24,7 @@
 #include "vtkCharArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
@@ -38,7 +39,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.99");
+vtkCxxRevisionMacro(vtkDataWriter, "1.100");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -206,6 +207,13 @@ int vtkDataWriter::WriteHeader(ostream *fp)
     *fp << "BINARY\n";
     }
 
+  fp->flush();
+  if (fp->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+  
   return 1;
 }
 
@@ -596,6 +604,12 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkDataArray *data,
       }
     }
 
+  fp->flush();
+  if (fp->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
   return 1;
 }
 
@@ -751,6 +765,13 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     *fp << "\n";
     }
 
+  fp->flush();
+  if (fp->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+  
   return 1;
 }
 
@@ -967,6 +988,11 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
         }
       }
     }
+
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return 0;
+    }
   
   return 1;
 }
@@ -1019,6 +1045,14 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
     }
 
   *fp << "\n";
+  
+  fp->flush();
+  if (fp->fail())
+    {
+    this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+    return 0;
+    }
+  
   return 1;
 }
 

@@ -47,7 +47,7 @@ protected:
   ~vtkStructuredGridWriter() {};
 
   void WriteData();
-  void WriteBlanking(ostream *fp, vtkStructuredGrid *ds);
+  int WriteBlanking(ostream *fp, vtkStructuredGrid *ds);
 
 private:
   vtkStructuredGridWriter(const vtkStructuredGridWriter&);  // Not implemented.

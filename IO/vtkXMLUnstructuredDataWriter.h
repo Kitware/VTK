@@ -65,11 +65,11 @@ protected:
   // The actual writing driver required by vtkXMLWriter.
   int WriteData();
   
-  virtual void WriteInlineMode(vtkIndent indent);
+  virtual int WriteInlineMode(vtkIndent indent);
   virtual void WriteInlinePieceAttributes();
   virtual void WriteInlinePiece(vtkIndent indent);
   
-  virtual void WriteAppendedMode(vtkIndent indent);
+  virtual int WriteAppendedMode(vtkIndent indent);
   virtual void WriteAppendedPieceAttributes(int index);
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);  

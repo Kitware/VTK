@@ -19,12 +19,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.5");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -84,6 +85,11 @@ void vtkXMLUnstructuredGridWriter::SetInputUpdateExtent(int piece,
 void vtkXMLUnstructuredGridWriter::WriteInlinePieceAttributes()
 {
   this->Superclass::WriteInlinePieceAttributes();
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   vtkUnstructuredGrid* input = this->GetInput();
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
 }
@@ -105,6 +111,10 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -115,19 +125,26 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLUnstructuredGridWriter::WriteAppendedMode(vtkIndent indent)
+int vtkXMLUnstructuredGridWriter::WriteAppendedMode(vtkIndent indent)
 {
   this->NumberOfCellsPositions = new unsigned long[this->NumberOfPieces];
   this->CellsPositions = new unsigned long*[this->NumberOfPieces];
-  this->Superclass::WriteAppendedMode(indent);
+  int ret = this->Superclass::WriteAppendedMode(indent);
   delete [] this->CellsPositions;
   delete [] this->NumberOfCellsPositions;
+  
+  return ret;
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredGridWriter::WriteAppendedPieceAttributes(int index)
 {
   this->Superclass::WriteAppendedPieceAttributes(index);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   this->NumberOfCellsPositions[index] =
     this->ReserveAttributeSpace("NumberOfCells");
 }
@@ -138,6 +155,11 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
 {
   vtkUnstructuredGrid* input = this->GetInput();
   this->Superclass::WriteAppendedPiece(index, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   this->CellsPositions[index] =
     this->WriteCellsAppended("Cells", input->GetCellTypesArray(), indent);  
 }
@@ -150,6 +172,10 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   unsigned long returnPosition = os.tellp();
   os.seekp(this->NumberOfCellsPositions[index]);
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   os.seekp(returnPosition);
   
   // Split progress range by the approximate fraction of data written
@@ -164,6 +190,10 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);

@@ -18,13 +18,14 @@
 #include "vtkXMLRectilinearGridWriter.h"
 
 #include "vtkCellData.h"
+#include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.4");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.5");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -134,6 +135,7 @@ int vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
       }
     }
   delete [] this->CoordinatePositions;
+
   return result;
 }
 
@@ -141,7 +143,12 @@ int vtkXMLRectilinearGridWriter::WriteAppendedMode(vtkIndent indent)
 void vtkXMLRectilinearGridWriter::WriteAppendedPiece(int index,
                                                      vtkIndent indent)
 {
-  this->Superclass::WriteAppendedPiece(index, indent);  
+  this->Superclass::WriteAppendedPiece(index, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
+  
   this->CoordinatePositions[index] =
     this->WriteCoordinatesAppended(this->GetInput()->GetXCoordinates(),
                                    this->GetInput()->GetYCoordinates(),
@@ -165,6 +172,10 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPieceData(int index)
   
   // Let the superclass write its data.
   this->Superclass::WriteAppendedPieceData(index);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the coordinates arrays.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -192,6 +203,10 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(int index, vtkIndent indent)
   
   // Let the superclass write its data.
   this->Superclass::WriteInlinePiece(index, indent);
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    {
+    return;
+    }
   
   // Set the range of progress for the coordinates arrays.
   this->SetProgressRange(progressRange, 1, fractions);

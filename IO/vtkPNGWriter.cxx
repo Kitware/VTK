@@ -17,13 +17,14 @@
 =========================================================================*/
 #include "vtkPNGWriter.h"
 
+#include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.14");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.15");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -72,11 +73,14 @@ void vtkPNGWriter::Write()
   int *wExtent;
   wExtent = this->GetInput()->GetWholeExtent();
   this->FileNumber = this->GetInput()->GetWholeExtent()[4];
+  this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
+  this->FilesDeleted = 0;
   this->UpdateProgress(0.0);
   // loop over the z axis and write the slices
   for (this->FileNumber = wExtent[4]; this->FileNumber <= wExtent[5]; 
        ++this->FileNumber)
     {
+    this->MaximumFileNumber = this->FileNumber;
     this->GetInput()->SetUpdateExtent(wExtent[0], wExtent[1],
                                       wExtent[2], wExtent[3],
                                       this->FileNumber, 
@@ -100,6 +104,11 @@ void vtkPNGWriter::Write()
       }
     this->GetInput()->UpdateData();
     this->WriteSlice(this->GetInput());
+    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+      {
+      this->DeleteFiles();
+      break;
+      }
     this->UpdateProgress((this->FileNumber - wExtent[4])/
                          (wExtent[5] - wExtent[4] + 1.0));
     }
@@ -132,6 +141,22 @@ extern "C"
   }
 }
 
+extern "C"
+{
+  void vtkPNGWriteErrorFunction(png_structp png_ptr,
+                                png_const_charp vtkNotUsed(error_msg))
+  {
+    longjmp(png_ptr->jmpbuf, 1);
+  }
+}
+
+extern "C"
+{
+  void vtkPNGWriteWarningFunction(png_structp vtkNotUsed(png_ptr),
+                                  png_const_charp vtkNotUsed(warning_msg))
+  {
+  }
+}
 
 void vtkPNGWriter::WriteSlice(vtkImageData *data)
 {
@@ -188,9 +213,18 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
       if (!fp)
         {
         vtkErrorMacro("Unable to open file " << this->InternalFileName);
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;
         }
       png_init_io(png_ptr, fp);
+      png_set_error_fn(png_ptr, png_ptr,
+                       vtkPNGWriteErrorFunction, vtkPNGWriteWarningFunction);
+      if (setjmp(png_ptr->jmpbuf))
+        {
+        fclose(fp);
+        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        return;
+        }
     }
 
   
@@ -244,7 +278,7 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
 
   delete [] row_pointers;
   png_destroy_write_struct(&png_ptr, &info_ptr);
-
+  
   if (fp)
     {
     fclose(fp);

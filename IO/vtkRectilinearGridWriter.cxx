@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridWriter, "1.19");
+vtkCxxRevisionMacro(vtkRectilinearGridWriter, "1.20");
 vtkStandardNewMacro(vtkRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -53,6 +53,13 @@ void vtkRectilinearGridWriter::WriteData()
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
     {
+    if (fp)
+      {
+      vtkErrorMacro("Ran out of disk space; deleting file: "
+                    << this->FileName);
+      this->CloseVTKFile(fp);
+      unlink(this->FileName);
+      }
     return;
     }
   //
@@ -61,17 +68,53 @@ void vtkRectilinearGridWriter::WriteData()
   *fp << "DATASET RECTILINEAR_GRID\n"; 
 
   // Write data owned by the dataset
-  this->WriteDataSetData(fp, input);
+  if (!this->WriteDataSetData(fp, input))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
 
   input->GetDimensions(dim);
   *fp << "DIMENSIONS " << dim[0] << " " << dim[1] << " " << dim[2] << "\n";
 
-  this->WriteCoordinates(fp, input->GetXCoordinates(), 0);
-  this->WriteCoordinates(fp, input->GetYCoordinates(), 1);
-  this->WriteCoordinates(fp, input->GetZCoordinates(), 2);
+  if (!this->WriteCoordinates(fp, input->GetXCoordinates(), 0))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
+  if (!this->WriteCoordinates(fp, input->GetYCoordinates(), 1))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
+  if (!this->WriteCoordinates(fp, input->GetZCoordinates(), 2))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
 
-  this->WriteCellData(fp, input);
-  this->WritePointData(fp, input);
+  if (!this->WriteCellData(fp, input))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
+  if (!this->WritePointData(fp, input))
+    {
+    vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
+    this->CloseVTKFile(fp);
+    unlink(this->FileName);
+    return;
+    }
 
   this->CloseVTKFile(fp);
 }
