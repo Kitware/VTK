@@ -1,12 +1,16 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 10:20:57 barre>
+# Time-stamp: <2001-10-17 16:41:20 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
 #
+# 0.72 (barre) :
+#   - add --project name : project name, used to uniquify
+#   - add slightly changed the way --link are created
+#
 # 0.71 (barre) :
-#   - add .cpp extension to the C++ parser regexp
+#   - add .cpp and .cc extension to the C++ parser regexp
 #
 # 0.7 (barre) :
 #   - update to match the new VTK 4.0 tree
@@ -71,7 +75,7 @@ use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.71, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.72, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -84,10 +88,11 @@ my %default =
    dirs => ["../.."],
    label => "Examples",
    limit => 20,
-   store => "doc_class2examples.dox",
+   project => "VTK",
+   store => "doc_VTK_class2examples.dox",
    title => "Class To Examples",
-   unique => "e",
    to => "../../../VTK-doxygen",
+   unique => "e",
    weight => 90000
   );
 
@@ -110,7 +115,7 @@ my $eliminate_matcher = '^vtkCommand$';
 
 my %parsers = (
                "Tcl" => ['\.tcl$', \&parse],
-               "C++" => ['\.c(xx|pp)$', \&parse],
+               "C++" => ['\.c(xx|pp|c)$', \&parse],
                "Java" => ['\.java$', \&parse],
                "Python" => ['\.py$', \&parse]
               );
@@ -132,7 +137,7 @@ sub parse {
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "dirmatch=s", "label=s", "limit=i", "link=s", "parser=s@", "store=s", "title=s", "to=s", "unique=s", "weight=i");
+GetOptions (\%args, "help", "verbose|v", "dirmatch=s", "label=s", "limit=i", "link=s", "parser=s@", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i");
 
 my $available_parser = join(", ", keys %parsers);
 
@@ -148,9 +153,10 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--dirmatch string] [--label string] [
   --link path    : link to example files (and prepend path)
   --title str    : use string as title in "Related Pages" (default: $default{title})
   --parser name  : use specific parser only (available : $available_parser)
+  --project name : project name, used to uniquify (default: $default{project})
   --store file   : use 'file' to store xrefs (default: $default{store})
   --to path      : use 'path' as destination directory (default : $default{to})
-  --unique str   : use string as a unique page identifier (otherwise MD5) (default : $default{unique})
+  --unique str   : use string as a unique page identifier among "Class To..." pages (otherwise MD5) (default : $default{unique})
   --weight n     : use 'n' as an approximation of the maximum page weight (default : $default{weight})
 
 Example:
@@ -166,6 +172,7 @@ $args{"label"} = $default{"label"} if ! exists $args{"label"};
 $args{"limit"} = $default{"limit"} if ! exists $args{"limit"};
 $args{"link"} = $default{"link"} if ! exists $args{"link"} && exists $default{"link"};
 $args{"link"} =~ s/[\\\/]*$// if exists $args{"link"};
+$args{"project"} = $default{"project"} if ! exists $args{"project"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"title"} = $default{"title"} if ! exists $args{"title"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
@@ -409,14 +416,15 @@ my (%sections_classes, %sections_weight, @sections);
 
 my $navbar;
 
-# $prefix is a unique prefix that should be append to each link
+# $prefix is a unique prefix that should be appended to each link
 
-my $prefix = "c2_";
+my $prefix = "c2_" . $args{"project"} . "_";
 if (exists $args{"unique"}) {
     $prefix .= $args{"unique"};
 } else {
     $prefix .= md5_hex($args{"label"} . $args{"title"});
 }
+$prefix = lc($prefix);
 
 # Browse each class
 
@@ -439,8 +447,8 @@ foreach my $class (@classes) {
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
                 push @temp, 
-                '    - @htmlonly <TT><A href="' . $args{"link"} . '/' . 
-                  $file . '">@endhtmlonly ' . $shorter_filename{$file} . 
+                '    - @htmlonly <TT><A href="' . $args{"link"} .  
+                  $shorter_filename{$file} . '">@endhtmlonly ' . $shorter_filename{$file} . 
                     '@htmlonly</A></TT> @endhtmlonly';
             } else {
                 push @temp, "    - \@c $shorter_filename{$file}";
@@ -583,7 +591,7 @@ foreach my $groupid (sort {$a <=> $b} keys %groups) {
       if scalar @{$groups{$groupid}} > 1;
 
     print DEST_FILE 
-     "/*! \@page page_${prefix}_$groupid " . $args{"title"} . " ($fromto)\n\n$header"; 
+     "/*! \@page ${prefix}_$groupid " . $args{"title"} . " ($fromto)\n\n$header"; 
 
     foreach my $section (@{$groups{$groupid}}) {
         print DEST_FILE 

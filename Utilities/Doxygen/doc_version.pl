@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 12:21:09 barre>
+# Time-stamp: <2001-10-17 16:30:58 barre>
 #
 # Extract VTK version and add it to documentation
 #
@@ -58,7 +58,7 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 my %default = 
   (
    header => "../../Common/vtkVersion.h",
-   store => "doc_version.dox",
+   store => "doc_VTK_version.dox",
    to => "../../../VTK-doxygen"
   );
 

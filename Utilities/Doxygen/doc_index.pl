@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-09-26 14:31:32 barre>
+# Time-stamp: <2001-10-17 16:42:49 barre>
 #
 # Build full-text index 
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.21 (barre) :
+#   - add --project name : project name, used to uniquify
 #
 # 0.2 (barre) :
 #   - update to match the new VTK 4.0 tree
@@ -45,7 +48,7 @@ use Fcntl;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.2, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.21, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -64,8 +67,9 @@ my %default =
             "../../Parallel", 
             "../../Patented", 
             "../../Rendering"],
+   project => "VTK",
    stop => "doc_index.stop",
-   store => "doc_index.dox",
+   store => "doc_VTK_index.dox",
    to => "../../../VTK-doxygen",
    weight => 90000
   );
@@ -75,18 +79,19 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "debug", "limit=i", "stop=s", "store=s", "to=s", "weight=i");
+GetOptions (\%args, "help", "verbose|v", "debug", "limit=i", "project=s", "stop=s", "store=s", "to=s", "weight=i");
 
 if (exists $args{"help"}) {
     print <<"EOT";
 Usage : $PROGNAME [--help] [--verbose|-v] [--limit n] [--stop file] [--store file] [--to path] [--weight n] [files|directories...]
-  --help       : this message
-  --verbose|-v : verbose (display filenames while processing)
-  --limit n    : limit the number of xrefs per word (default: $default{limit})
-  --stop file  : use 'file' to read stop-words (default: $default{stop})
-  --store file : use 'file' to store index (default: $default{store})
-  --to path    : use 'path' as destination directory (default : $default{to})
-  --weight n   : use 'n' as an approximation of the maximum page weight (default : $default{weight})
+  --help         : this message
+  --verbose|-v   : verbose (display filenames while processing)
+  --limit n      : limit the number of xrefs per word (default: $default{limit})
+  --project name : project name, used to uniquify (default: $default{project})
+  --stop file    : use 'file' to read stop-words (default: $default{stop})
+  --store file   : use 'file' to store index (default: $default{store})
+  --to path      : use 'path' as destination directory (default : $default{to})
+  --weight n     : use 'n' as an approximation of the maximum page weight (default : $default{weight})
 
 Example:
   $PROGNAME
@@ -97,6 +102,7 @@ EOT
 $args{"debug"} = $default{"debug"} if exists $default{"debug"};
 $args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"limit"} = $default{"limit"} if ! exists $args{"limit"};
+$args{"project"} = $default{"project"} if ! exists $args{"project"};
 $args{"stop"} = $default{"stop"} if ! exists $args{"stop"};
 $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
@@ -434,6 +440,11 @@ my (%sections_words, %sections_weight, @sections);
 
 my $navbar;
 
+# $prefix is a unique prefix that should be appended to each link
+
+my $prefix = "idx_" . $args{"project"};
+$prefix = lc($prefix);
+
 # Browse each word
 
 foreach my $word (@words) {
@@ -483,7 +494,7 @@ print " => ", scalar @words, " words(s) documented in ", time() - $intermediate_
 
 my @temp;
 foreach my $section (@sections) {
-    push @temp, "\@ref idx_section_$section \"$section\"";
+    push @temp, "\@ref ${prefix}_section_$section \"$section\"";
 }
 $navbar = "$indent\@par Navigation: \n$indent\[" . join(" | ", @temp) . "]\n";
 
@@ -590,11 +601,11 @@ foreach my $groupid (sort {$a <=> $b} keys %groups) {
       if scalar @{$groups{$groupid}} > 1;
 
     print DEST_FILE 
-      "/*! \@page page_idx_$groupid Full-text Index ($fromto)\n\n$header"; 
+      "/*! \@page ${prefix}_$groupid Full-text Index ($fromto)\n\n$header"; 
 
     foreach my $section (@{$groups{$groupid}}) {
         print DEST_FILE 
-          "\n$indent\@section idx_section_$section $section\n\n$navbar\n";
+          "\n$indent\@section ${prefix}_section_$section $section\n\n$navbar\n";
 
         foreach my $word (@{$sections_words{$section}}) {
             print DEST_FILE $words_doc{$word}, "\n";

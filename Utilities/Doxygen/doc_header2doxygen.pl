@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 09:50:47 barre>
+# Time-stamp: <2001-10-17 16:29:58 barre>
 #
 # Convert VTK headers to doxygen format
 #
@@ -497,7 +497,6 @@ foreach my $source (@files) {
                  $dest, 
                  O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
         my $dir = dirname($dest);
-        print $dest, " : ", $dir, "\n";
         mkpath($dir);
         sysopen(DEST_FILE, 
                 $dest, 
