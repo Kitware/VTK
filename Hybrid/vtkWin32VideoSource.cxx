@@ -21,9 +21,18 @@
 
 #include <ctype.h>
 
+// because of warnings in windows header push and pop the warning level
+#ifdef _MSC_VER
+#pragma warning (push, 3)
+#endif
+
 #include "vtkWindows.h"
 #include <winuser.h>
 #include <vfw.h>
+
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
 
 class vtkWin32VideoSourceInternal
 {
@@ -40,7 +49,7 @@ public:
 // VFW compressed formats are listed at http://www.webartz.com/fourcc/
 #define VTK_BI_UYVY 0x59565955
 
-vtkCxxRevisionMacro(vtkWin32VideoSource, "1.25");
+vtkCxxRevisionMacro(vtkWin32VideoSource, "1.26");
 vtkStandardNewMacro(vtkWin32VideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
