@@ -65,6 +65,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_DIRECTION_FRONT_TO_BACK 1
 #define VTK_DIRECTION_SPECIFIED_VECTOR 2
 
+#define VTK_SORT_FIRST_POINT 0
+#define VTK_SORT_BOUNDS_CENTER 1
+#define VTK_SORT_PARAMETRIC_CENTER 2
+
 class VTK_EXPORT vtkDepthSortPolyData : public vtkPolyDataToPolyDataFilter 
 {
 public:
@@ -76,15 +80,30 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the sort method for the polygonal primitives.
+  // Specify the sort method for the polygonal primitives. By default, the
+  // poly data is sorted from back to front.
   vtkSetMacro(Direction,int);
   vtkGetMacro(Direction,int);
-  void SetDirectionToFrontToBack() {
-    this->SetDirection(VTK_DIRECTION_FRONT_TO_BACK);};
-  void SetDirectionToBackToFront() {
-    this->SetDirection(VTK_DIRECTION_BACK_TO_FRONT);};
-  void SetDirectionToSpecifiedVector() {
-    this->SetDirection(VTK_DIRECTION_SPECIFIED_VECTOR);};
+  void SetDirectionToFrontToBack() 
+    {this->SetDirection(VTK_DIRECTION_FRONT_TO_BACK);}
+  void SetDirectionToBackToFront() 
+    {this->SetDirection(VTK_DIRECTION_BACK_TO_FRONT);}
+  void SetDirectionToSpecifiedVector() 
+    {this->SetDirection(VTK_DIRECTION_SPECIFIED_VECTOR);}
+
+  // Description:
+  // Specify the point to use when sorting. The fastest is to just
+  // take the first cell point. Other options are to take the bounding
+  // box center or the parametric center of the cell. By default, the
+  // first cell point is used.
+  vtkSetMacro(DepthSortMode,int);
+  vtkGetMacro(DepthSortMode,int);
+  void SetDepthSortModeToFirstPoint() 
+    {this->SetDepthSortMode(VTK_SORT_FIRST_POINT);}
+  void SetDepthSortModeToBoundsCenter() 
+    {this->SetDepthSortMode(VTK_SORT_BOUNDS_CENTER);}
+  void SetDepthSortModeToParametricCenter() 
+    {this->SetDepthSortMode(VTK_SORT_PARAMETRIC_CENTER);}
 
   // Description:
   // Specify a camera that is used to define a view direction along which
@@ -140,6 +159,7 @@ protected:
   void ComputeProjectionVector(double vector[3], double origin[3]);
 
   int Direction;
+  int DepthSortMode;
   vtkCamera *Camera;
   vtkProp3D *Prop3D;
   vtkTransform *Transform;
