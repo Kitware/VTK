@@ -135,7 +135,7 @@ void vtkImageImport::UpdateImageInformation()
 
 // A templated function to import the data and copy it into the output.
 template<class T>
-void vtkImageImportExecute(vtkImageImport *self, vtkImageData *data, T *inPtr)
+static void vtkImageImportExecute(vtkImageImport *self, vtkImageData *data, T *inPtr)
 {
   int i,j;
 
