@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMaskBits, "1.13");
+vtkCxxRevisionMacro(vtkImageMaskBits, "1.14");
 vtkStandardNewMacro(vtkImageMaskBits);
 
 vtkImageMaskBits::vtkImageMaskBits()
@@ -40,10 +40,10 @@ vtkImageMaskBits::vtkImageMaskBits()
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-static void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
-                                    vtkImageData *inData,
-                                    vtkImageData *outData,
-                                    int outExt[6], int id, T *)
+void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
+                             vtkImageData *inData,
+                             vtkImageData *outData,
+                             int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);

@@ -18,7 +18,7 @@
 #include "vtkImageMask.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.29");
+vtkCxxRevisionMacro(vtkImageMask, "1.30");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -75,10 +75,10 @@ void vtkImageMask::SetMaskedOutputValue(int num, float *v)
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
-                                vtkImageData *in1Data, T *in1Ptr,
-                                vtkImageData *in2Data, unsigned char *in2Ptr,
-                                vtkImageData *outData, T *outPtr, int id)
+void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
+                         vtkImageData *in1Data, T *in1Ptr,
+                         vtkImageData *in2Data, unsigned char *in2Ptr,
+                         vtkImageData *outData, T *outPtr, int id)
 {
   int num0, num1, num2, numC, pixSize;
   int idx0, idx1, idx2, idxC;

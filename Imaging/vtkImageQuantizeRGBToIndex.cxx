@@ -22,7 +22,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.31");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.32");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -132,12 +132,9 @@ protected:
 };
 
 template <class T>
-static void vtkImageQuantizeRGBToIndexHistogram( T *inPtr,
-                                                 int extent[6],
-                                                 int inIncrement[3],
-                                                 int type,
-                                                 int bounds[6],
-                                                 int *histogram[3] )
+void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
+                                          int inIncrement[3], int type,
+                                          int bounds[6], int *histogram[3] )
 {
   T      *rgbPtr, v[3];
   int    x, y, z, c;
@@ -210,10 +207,10 @@ static void vtkImageQuantizeRGBToIndexHistogram( T *inPtr,
 
 // This templated function executes the filter for supported types of data.
 template <class T>
-static void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
-                                              vtkImageData *inData, T *inPtr,
-                                              vtkImageData *outData, 
-                                              unsigned short *outPtr)
+void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
+                                       vtkImageData *inData, T *inPtr,
+                                       vtkImageData *outData, 
+                                       unsigned short *outPtr)
 {
   int                  extent[6];
   int                  inIncrement[3], outIncrement[3];

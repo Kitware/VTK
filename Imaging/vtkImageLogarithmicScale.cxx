@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.20");
+vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.21");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------
@@ -34,10 +34,10 @@ vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 //----------------------------------------------------------------------------
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
-                                            vtkImageData *inData,
-                                            vtkImageData *outData, 
-                                            int outExt[6], int id, T *)
+void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
+                                     vtkImageData *inData,
+                                     vtkImageData *outData, 
+                                     int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);

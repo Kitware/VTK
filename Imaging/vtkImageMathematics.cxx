@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.41");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.42");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkImageMathematics::ExecuteInformation(vtkImageData **inDatas,
 }
 
 template <class TValue, class TIvar>
-static void vtkImageMathematicsClamp(TValue &value, TIvar ivar, vtkImageData *data)
+void vtkImageMathematicsClamp(TValue &value, TIvar ivar, vtkImageData *data)
 {
   if (ivar < (TIvar) data->GetScalarTypeMin())
     {
@@ -88,10 +88,10 @@ static void vtkImageMathematicsClamp(TValue &value, TIvar ivar, vtkImageData *da
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
-static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
-                                        vtkImageData *in1Data, T *in1Ptr,
-                                        vtkImageData *outData, T *outPtr,
-                                        int outExt[6], int id)
+void vtkImageMathematicsExecute1(vtkImageMathematics *self,
+                                 vtkImageData *in1Data, T *in1Ptr,
+                                 vtkImageData *outData, T *outPtr,
+                                 int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
@@ -219,11 +219,11 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
-                                        vtkImageData *in1Data, T *in1Ptr,
-                                        vtkImageData *in2Data, T *in2Ptr,
-                                        vtkImageData *outData, T *outPtr,
-                                        int outExt[6], int id)
+void vtkImageMathematicsExecute2(vtkImageMathematics *self,
+                                 vtkImageData *in1Data, T *in1Ptr,
+                                 vtkImageData *in2Data, T *in2Ptr,
+                                 vtkImageData *outData, T *outPtr,
+                                 int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;

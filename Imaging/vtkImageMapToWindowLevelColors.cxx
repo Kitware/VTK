@@ -18,7 +18,7 @@
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.11");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.12");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -125,10 +125,10 @@ void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData,
  * for a window of values of type T, lower and upper. 
  */
 template <class T>
-static void vtkImageMapToWindowLevelClamps ( vtkImageData *data, float w, 
-                                             float l, T& lower, T& upper, 
-                                             unsigned char &lower_val, 
-                                             unsigned char &upper_val)
+void vtkImageMapToWindowLevelClamps ( vtkImageData *data, float w, 
+                                      float l, T& lower, T& upper, 
+                                      unsigned char &lower_val, 
+                                      unsigned char &upper_val)
 {
   double f_lower, f_upper, f_lower_val, f_upper_val;
   double adjustedLower, adjustedUpper;
@@ -222,11 +222,12 @@ static void vtkImageMapToWindowLevelClamps ( vtkImageData *data, float w,
 //----------------------------------------------------------------------------
 // This non-templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageMapToWindowLevelColorsExecute(vtkImageMapToWindowLevelColors *self,
-                                       vtkImageData *inData, T *inPtr,
-                                       vtkImageData *outData, 
-                                       unsigned char *outPtr,
-                                       int outExt[6], int id)
+void vtkImageMapToWindowLevelColorsExecute(
+  vtkImageMapToWindowLevelColors *self, 
+  vtkImageData *inData, T *inPtr,
+  vtkImageData *outData, 
+  unsigned char *outPtr,
+  int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
   int extX, extY, extZ;

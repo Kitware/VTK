@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.19");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.20");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
@@ -37,10 +37,9 @@ void vtkImageLuminance::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
 template <class T>
-static void vtkImageLuminanceExecute(vtkImageLuminance *self,
-                                             vtkImageData *inData,
-                                             vtkImageData *outData,
-                                             int outExt[6], int id, T *)
+void vtkImageLuminanceExecute(vtkImageLuminance *self, vtkImageData *inData,
+                              vtkImageData *outData,
+                              int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);

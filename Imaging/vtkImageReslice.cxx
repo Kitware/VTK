@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.22");
+vtkCxxRevisionMacro(vtkImageReslice, "1.23");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -725,7 +725,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
 //--------------------------------------------------------------------------
 // The 'floor' function on x86 and mips is many times slower than these
 // and is used a lot in this code, optimize for different CPU architectures
-static inline int vtkResliceFloor(double x)
+inline int vtkResliceFloor(double x)
 {
 #if defined mips || defined sparc
   return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
@@ -738,33 +738,33 @@ static inline int vtkResliceFloor(double x)
 #endif
 }
 
-static inline int vtkResliceCeil(double x)
+inline int vtkResliceCeil(double x)
 {
   return -vtkResliceFloor(-x - 1.0) - 1;
 }
 
-static inline int vtkResliceRound(double x)
+inline int vtkResliceRound(double x)
 {
   return vtkResliceFloor(x + 0.5);
 }
 
-static inline int vtkResliceFloor(float x)
+inline int vtkResliceFloor(float x)
 {
   return vtkResliceFloor((double)x);
 }
 
-static inline int vtkResliceCeil(float x)
+inline int vtkResliceCeil(float x)
 {
   return vtkResliceCeil((double)x);
 }
 
-static inline int vtkResliceRound(float x)
+inline int vtkResliceRound(float x)
 {
   return vtkResliceRound((double)x);
 }
 
 // convert a float into an integer plus a fraction  
-static inline int vtkResliceFloor(float x, float &f)
+inline int vtkResliceFloor(float x, float &f)
 {
   int ix = vtkResliceFloor(x);
   f = x - ix;
@@ -776,23 +776,23 @@ static inline int vtkResliceFloor(float x, float &f)
 // the use of the 'floor' function which is too slow on x86
 
 template<class T>
-static inline void vtkResliceRound(float val, T& rnd)
+inline void vtkResliceRound(float val, T& rnd)
 {
   rnd = vtkResliceRound(val);
 }
 
 template<class T>
-static inline void vtkResliceRound(double val, T& rnd)
+inline void vtkResliceRound(double val, T& rnd)
 {
   rnd = vtkResliceRound(val);
 }
 
-static inline void vtkResliceRound(float val, float& rnd)
+inline void vtkResliceRound(float val, float& rnd)
 {
   rnd = val;
 }
 
-static inline void vtkResliceRound(float val, double& rnd)
+inline void vtkResliceRound(float val, double& rnd)
 {
   rnd = val;
 }
@@ -801,7 +801,7 @@ static inline void vtkResliceRound(float val, double& rnd)
 // clamping functions for each type
 
 template <class F>
-static inline void vtkResliceClamp(F val, char& clamp)
+inline void vtkResliceClamp(F val, char& clamp)
 {
   if (val < VTK_CHAR_MIN)
     { 
@@ -815,7 +815,7 @@ static inline void vtkResliceClamp(F val, char& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, unsigned char& clamp)
+inline void vtkResliceClamp(F val, unsigned char& clamp)
 {
   if (val < VTK_UNSIGNED_CHAR_MIN)
     { 
@@ -829,7 +829,7 @@ static inline void vtkResliceClamp(F val, unsigned char& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, short& clamp)
+inline void vtkResliceClamp(F val, short& clamp)
 {
   if (val < VTK_SHORT_MIN)
     { 
@@ -843,7 +843,7 @@ static inline void vtkResliceClamp(F val, short& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, unsigned short& clamp)
+inline void vtkResliceClamp(F val, unsigned short& clamp)
 {
   if (val < VTK_UNSIGNED_SHORT_MIN)
     { 
@@ -857,7 +857,7 @@ static inline void vtkResliceClamp(F val, unsigned short& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, int& clamp)
+inline void vtkResliceClamp(F val, int& clamp)
 {
   if (val < VTK_INT_MIN) 
     {
@@ -871,7 +871,7 @@ static inline void vtkResliceClamp(F val, int& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, unsigned int& clamp)
+inline void vtkResliceClamp(F val, unsigned int& clamp)
 {
   if (val < VTK_UNSIGNED_INT_MIN)
     { 
@@ -885,7 +885,7 @@ static inline void vtkResliceClamp(F val, unsigned int& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, long& clamp)
+inline void vtkResliceClamp(F val, long& clamp)
 {
   if (val < VTK_LONG_MIN) 
     {
@@ -899,7 +899,7 @@ static inline void vtkResliceClamp(F val, long& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, unsigned long& clamp)
+inline void vtkResliceClamp(F val, unsigned long& clamp)
 {
   if (val < VTK_UNSIGNED_LONG_MIN)
     { 
@@ -913,13 +913,13 @@ static inline void vtkResliceClamp(F val, unsigned long& clamp)
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, float& clamp)
+inline void vtkResliceClamp(F val, float& clamp)
 {
   clamp = val;
 }
 
 template <class F>
-static inline void vtkResliceClamp(F val, double& clamp)
+inline void vtkResliceClamp(F val, double& clamp)
 {
   clamp = val;
 }
@@ -928,7 +928,7 @@ static inline void vtkResliceClamp(F val, double& clamp)
 // Perform a wrap to limit an index to [0,range).
 // Ensures correct behaviour when the index is negative.
  
-static inline int vtkInterpolateWrap(int num, int range)
+inline int vtkInterpolateWrap(int num, int range)
 {
   if ((num %= range) < 0)
     {
@@ -940,7 +940,7 @@ static inline int vtkInterpolateWrap(int num, int range)
 //----------------------------------------------------------------------------
 // Perform a mirror to limit an index to [0,range).
  
-static inline int vtkInterpolateMirror(int num, int range)
+inline int vtkInterpolateMirror(int num, int range)
 {
   if (num < 0)
     {
@@ -962,7 +962,6 @@ static inline int vtkInterpolateMirror(int num, int range)
 // the background color 'background'.  
 // The number of scalar components in the data is 'numscalars'
 template <class F, class T>
-static
 int vtkNearestNeighborInterpolation(T *&outPtr, const T *inPtr,
                                     const int inExt[6], const int inInc[3],
                                     int numscalars, const F point[3],
@@ -1024,7 +1023,6 @@ int vtkNearestNeighborInterpolation(T *&outPtr, const T *inPtr,
 // the background color 'background'.  
 // The number of scalar components in the data is 'numscalars'
 template <class F, class T>
-static
 int vtkTrilinearInterpolation(T *&outPtr, const T *inPtr,
                               const int inExt[6], const int inInc[3],
                               int numscalars, const F point[3],
@@ -1140,7 +1138,6 @@ int vtkTrilinearInterpolation(T *&outPtr, const T *inPtr,
 // coefficients
 
 template <class T>
-static
 void vtkTricubicInterpCoeffs(T F[4], int l, int h, T f)
 {
   static const T half = T(0.5);
@@ -1200,7 +1197,6 @@ void vtkTricubicInterpCoeffs(T F[4], int l, int h, T f)
 
 // tricubic interpolation
 template <class F, class T>
-static
 int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
                              const int inExt[6], const int inInc[3],
                              int numscalars, const F point[3],
@@ -1372,7 +1368,6 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
 // get appropriate interpolation function according to interpolation mode
 // and scalar type
 template<class F>
-static
 void vtkGetResliceInterpFunc(vtkImageReslice *self,
                              int (**interpolate)(void *&outPtr,
                                                  const void *inPtr,
@@ -1440,7 +1435,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
 //--------------------------------------------------------------------------
 // pixel copy function, templated for different scalar types
 template<class T>
-static void vtkSetPixels(T *&outPtr, const T *inPtr, int numscalars, int n)
+void vtkSetPixels(T *&outPtr, const T *inPtr, int numscalars, int n)
 {
   for (int i = 0; i < n; i++)
     {
@@ -1456,7 +1451,7 @@ static void vtkSetPixels(T *&outPtr, const T *inPtr, int numscalars, int n)
 
 // optimized for 1 scalar components
 template<class T>
-static void vtkSetPixels1(T *&outPtr, const T *inPtr,
+void vtkSetPixels1(T *&outPtr, const T *inPtr,
                           int vtkNotUsed(numscalars), int n)
 {
   T val = *inPtr;
@@ -1500,7 +1495,6 @@ void vtkGetSetPixelsFunc(vtkImageReslice *self,
 //----------------------------------------------------------------------------
 // Convert background color from float to appropriate type
 template <class T>
-static
 void vtkAllocBackgroundPixelT(vtkImageReslice *self,
                               T **background_ptr, int numComponents)
 {
@@ -1587,7 +1581,6 @@ int vtkResliceGetNextExtent(vtkImageStencilData *stencil,
 //----------------------------------------------------------------------------
 // This function executes the filter for any type of data.  It is much simpler
 // in structure than vtkImageResliceOptimizedExecute.
-static
 void vtkImageResliceExecute(vtkImageReslice *self,
                             vtkImageData *inData, void *inPtr,
                             vtkImageData *outData, void *outPtr,
@@ -1759,7 +1752,6 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
 
 //----------------------------------------------------------------------------
 template <class F>
-static
 void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
                                                  int inExt[6],
                                                  int outExt[6],
@@ -1903,7 +1895,7 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6],
 }
 
 template<class F>
-static inline
+inline
 int intersectionHelper(F *point, F *axis, int *limit, int ai, int *outExt)
 {
   F rd = (limit[ai]*point[3]-point[ai])
@@ -1924,7 +1916,6 @@ int intersectionHelper(F *point, F *axis, int *limit, int ai, int *outExt)
 }
 
 template <class F>
-static
 int intersectionLow(F *point, F *axis, int *sign,
                     int *limit, int ai, int *outExt)
 {
@@ -1976,7 +1967,6 @@ int intersectionLow(F *point, F *axis, int *sign,
 
 // same as above, but for x = x_max
 template <class F>
-static
 int intersectionHigh(F *point, F *axis, int *sign, 
                      int *limit, int ai, int *outExt)
 {
@@ -2026,7 +2016,6 @@ int intersectionHigh(F *point, F *axis, int *sign,
 }
 
 template <class F>
-static
 int isBounded(F *point, F *xAxis, int *inMin, int *inMax, int ai, int r)
 {
   int bi = ai+1; 
@@ -2081,7 +2070,6 @@ void vtkResliceFindExtentHelper(int &r1, int &r2, int sign, int *outExt)
 }  
 
 template <class F>
-static
 void vtkResliceFindExtent(int& r1, int& r2, F *point, F *xAxis, 
                           int *inMin, int *inMax, int *outExt)
 {
@@ -2339,7 +2327,7 @@ void vtkResliceFindExtent(int& r1, int& r2, F *point, F *xAxis,
 // application of the transform has different forms for fixed-point
 // vs. floating-point
 template<class F>
-static inline
+inline
 void vtkResliceApplyTransform(vtkAbstractTransform *newtrans,
                               F inPoint[3], F inOrigin[3],
                               F inInvSpacing[3])
@@ -2371,7 +2359,6 @@ void vtkResliceApplyTransform(vtkAbstractTransform *newtrans,
 // tightened relative to the un-uptimized version. 
 
 template <class F>
-static 
 void vtkOptimizedExecute(vtkImageReslice *self,
                          vtkImageData *inData, void *inPtr,
                          vtkImageData *outData, void *outPtr,
@@ -2586,7 +2573,6 @@ void vtkOptimizedExecute(vtkImageReslice *self,
 //----------------------------------------------------------------------------
 // helper function for nearest neighbor interpolation
 template<class F, class T>
-static 
 void vtkPermuteNearestSummation(T *&outPtr, const T *inPtr,
                                 int numscalars, int n,
                                 const int *iX, const F *,
@@ -2611,7 +2597,6 @@ void vtkPermuteNearestSummation(T *&outPtr, const T *inPtr,
 
 // ditto, but optimized for numscalars = 1
 template<class F, class T>
-static 
 void vtkPermuteNearestSummation1(T *&outPtr, const T *inPtr,
                                  int, int n,
                                  const int *iX, const F *,
@@ -2631,7 +2616,6 @@ void vtkPermuteNearestSummation1(T *&outPtr, const T *inPtr,
 //----------------------------------------------------------------------------
 // helper function for linear interpolation
 template<class F, class T>
-static 
 void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
                                   int numscalars, int n,
                                   const int *iX, const F *fX,
@@ -2749,7 +2733,6 @@ void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
 //--------------------------------------------------------------------------
 // helper function for tricubic interpolation
 template<class F, class T>
-static
 void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
                                  int numscalars, int n,
                                  const int *iX, const F *fX,
@@ -2821,7 +2804,6 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
 // get approprate summation function for different interpolation modes
 // and different scalar types
 template<class F>
-static
 void vtkGetResliceSummationFunc(vtkImageReslice *self,
                                 void (**summation)(void *&out, const void *in,
                                                    int numscalars, int n,
@@ -2884,7 +2866,6 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
 
 //----------------------------------------------------------------------------
 template <class F>
-static 
 void vtkPermuteNearestTable(vtkImageReslice *self, const int outExt[6],
                             const int inExt[6], const int inInc[3],
                             int clipExt[6], int **traversal, F **vtkNotUsed(constants),
@@ -2952,7 +2933,6 @@ void vtkPermuteNearestTable(vtkImageReslice *self, const int outExt[6],
   
 //----------------------------------------------------------------------------
 template <class F>
-static 
 void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
                            const int inExt[6], const int inInc[3],
                            int clipExt[6], int **traversal, F **constants,
@@ -3029,7 +3009,6 @@ void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
 
 //----------------------------------------------------------------------------
 template <class F>
-static 
 void vtkPermuteCubicTable(vtkImageReslice *self, const int outExt[6],
                           const int inExt[6], const int inInc[3],
                           int clipExt[6], int **traversal, F **constants,
@@ -3129,7 +3108,7 @@ void vtkPermuteCubicTable(vtkImageReslice *self, const int outExt[6],
 // Check to see if we can do nearest-neighbor instead of linear or cubic.  
 // This check only works on permutation+scale+translation matrices.
 template <class F>
-static inline int vtkCanUseNearestNeighbor(F matrix[4][4], int outExt[6])
+inline int vtkCanUseNearestNeighbor(F matrix[4][4], int outExt[6])
 {
   // loop through dimensions
   for (int i = 0; i < 3; i++)
@@ -3161,7 +3140,7 @@ static inline int vtkCanUseNearestNeighbor(F matrix[4][4], int outExt[6])
 // the ReslicePermuteExecute path is taken when the output slices are
 // orthogonal to the input slices
 template <class F>
-static void vtkReslicePermuteExecute(vtkImageReslice *self,
+void vtkReslicePermuteExecute(vtkImageReslice *self,
                                      vtkImageData *inData, void *inPtr,
                                      vtkImageData *outData, void *outPtr,
                                      int outExt[6], int id, F newmat[4][4])
@@ -3330,7 +3309,7 @@ static void vtkReslicePermuteExecute(vtkImageReslice *self,
 // matrix
 
 template <class F>
-static int vtkIsPermutationMatrix(F matrix[4][4])
+int vtkIsPermutationMatrix(F matrix[4][4])
 {
   for (int i = 0; i < 3; i++)
     {
@@ -3364,7 +3343,7 @@ static int vtkIsPermutationMatrix(F matrix[4][4])
 //----------------------------------------------------------------------------
 // check a matrix to see whether it is the identity matrix
 
-static int vtkIsIdentityMatrix(vtkMatrix4x4 *matrix)
+int vtkIsIdentityMatrix(vtkMatrix4x4 *matrix)
 {
   static double identity[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
   int i,j;

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.26");
+vtkCxxRevisionMacro(vtkImageLogic, "1.27");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -36,10 +36,8 @@ vtkImageLogic::vtkImageLogic()
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
-static void vtkImageLogicExecute1(vtkImageLogic *self,
-                                  vtkImageData *inData, 
-                                  vtkImageData *outData, 
-                                  int outExt[6], int id, T *)
+void vtkImageLogicExecute1(vtkImageLogic *self, vtkImageData *inData, 
+                           vtkImageData *outData, int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
@@ -96,11 +94,9 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
-static void vtkImageLogicExecute2(vtkImageLogic *self,
-                                  vtkImageData *in1Data,
-                                  vtkImageData *in2Data,
-                                  vtkImageData *outData, 
-                                  int outExt[6], int id, T *)
+void vtkImageLogicExecute2(vtkImageLogic *self, vtkImageData *in1Data,
+                           vtkImageData *in2Data, vtkImageData *outData, 
+                           int outExt[6], int id, T *)
 {
   vtkImageIterator<T> inIt1(in1Data, outExt);
   vtkImageIterator<T> inIt2(in2Data, outExt);

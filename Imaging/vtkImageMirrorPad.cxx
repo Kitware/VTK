@@ -18,7 +18,7 @@
 #include "vtkImageMirrorPad.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.28");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.29");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
@@ -49,10 +49,10 @@ void vtkImageMirrorPad::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
-                                     vtkImageData *inData,
-                                     vtkImageData *outData, T *outPtr,
-                                     int outExt[6], int id)
+void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
+                              vtkImageData *inData,
+                              vtkImageData *outData, T *outPtr,
+                              int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxX, maxY, maxZ;

@@ -18,7 +18,7 @@
 #include "vtkImageIslandRemoval2D.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.39");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.40");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -64,10 +64,10 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 // neighborhoods is to check neighbors one by one directly.  Also, I did
 // not want to break the templated function into pieces.
 template <class T>
-static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
-                                          vtkImageData *inData, T *inPtr,
-                                          vtkImageData *outData, T *outPtr,
-                                           int outExt[6])
+void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
+                                    vtkImageData *inData, T *inPtr,
+                                    vtkImageData *outData, T *outPtr,
+                                    int outExt[6])
 {
   int outIdx0, outIdx1, outIdx2;
   int outInc0, outInc1, outInc2;
