@@ -30,13 +30,13 @@
 #ifndef __vtkBlankStructuredGrid_h
 #define __vtkBlankStructuredGrid_h
 
-#include "vtkStructuredGridToStructuredGridFilter.h"
+#include "vtkStructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkBlankStructuredGrid : public vtkStructuredGridToStructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkBlankStructuredGrid : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkBlankStructuredGrid *New();
-  vtkTypeRevisionMacro(vtkBlankStructuredGrid,vtkStructuredGridToStructuredGridFilter);
+  vtkTypeRevisionMacro(vtkBlankStructuredGrid,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -75,7 +75,7 @@ protected:
   vtkBlankStructuredGrid();
   ~vtkBlankStructuredGrid();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   double MinBlankingValue;
   double MaxBlankingValue;
@@ -89,5 +89,3 @@ private:
 };
 
 #endif
-
-

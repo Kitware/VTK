@@ -15,12 +15,14 @@
 #include "vtkBlankStructuredGrid.h"
 
 #include "vtkCellData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.11");
+vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.12");
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.
@@ -67,12 +69,23 @@ void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid *vtkNotUsed(self),
 }
 
 
-void vtkBlankStructuredGrid::Execute()
+int vtkBlankStructuredGrid::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkStructuredGrid *input= this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
-  vtkStructuredGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int numPts = input->GetNumberOfPoints();
@@ -102,7 +115,7 @@ void vtkBlankStructuredGrid::Execute()
        (numComp=dataArray->GetNumberOfComponents()) <= this->Component )
     {
     vtkWarningMacro(<<"Data array not found");
-    return;
+    return 1;
     }
   void *dptr = dataArray->GetVoidPointer(0);
   
@@ -125,6 +138,8 @@ void vtkBlankStructuredGrid::Execute()
   // Clean up and get out
   output->SetPointVisibilityArray(blanking);
   blanking->Delete();
+
+  return 1;
 }
 
 
@@ -144,8 +159,5 @@ void vtkBlankStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
   os << indent << "Array ID: " << this->ArrayId << "\n";
-  os << indent << "Component: " << this->Component << "\n";
-  
+  os << indent << "Component: " << this->Component << "\n";  
 }
-
-

@@ -15,20 +15,23 @@
 #include "vtkBlankStructuredGridWithImage.h"
 
 #include "vtkCellData.h"
+#include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.11");
+vtkCxxRevisionMacro(vtkBlankStructuredGridWithImage, "1.12");
 vtkStandardNewMacro(vtkBlankStructuredGridWithImage);
 
 //----------------------------------------------------------------------------
 vtkBlankStructuredGridWithImage::vtkBlankStructuredGridWithImage()
 {
-  this->NumberOfRequiredInputs = 2;
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -40,26 +43,40 @@ vtkBlankStructuredGridWithImage::~vtkBlankStructuredGridWithImage()
 // Specify the input data or filter.
 void vtkBlankStructuredGridWithImage::SetBlankingInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetNthInput(1, input);
+  this->SetInput(1, input);
 }
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.
 vtkImageData *vtkBlankStructuredGridWithImage::GetBlankingInput()
 {
-  if (this->NumberOfInputs < 2)
+  if (this->GetNumberOfInputConnections(1) < 1)
     {
     return NULL;
     }
   
-  return (vtkImageData *)(this->Inputs[1]);
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
-void vtkBlankStructuredGridWithImage::Execute()
+int vtkBlankStructuredGridWithImage::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkStructuredGrid *grid = this->GetInput();
-  vtkStructuredGrid *output = this->GetOutput();
-  vtkImageData *image = this->GetBlankingInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *imageInfo = inputVector[1]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *image = vtkImageData::SafeDownCast(
+    imageInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkStructuredGrid *output = vtkStructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int gridDims[3], imageDims[3];
 
   vtkDebugMacro(<< "Adding image blanking");
@@ -75,14 +92,14 @@ void vtkBlankStructuredGridWithImage::Execute()
                   << imageDims[1] << " " << imageDims[2]
                   << ". Grid dimensions are " << gridDims[0] << " "
                   << gridDims[1] << " " << gridDims[2] << ".");
-    return;
+    return 1;
     }
   
   if ( image->GetScalarType() != VTK_UNSIGNED_CHAR ||
        image->GetNumberOfScalarComponents() != 1 )
     {
     vtkErrorMacro(<<"This filter requires unsigned char images with one component");
-    return;
+    return 1;
     }
   
   // Get the image, set it as the blanking array.
@@ -96,8 +113,21 @@ void vtkBlankStructuredGridWithImage::Execute()
   output->SetPointVisibilityArray(dataArray);
   
   dataArray->Delete();
+
+  return 1;
 }
 
+//----------------------------------------------------------------------------
+int vtkBlankStructuredGridWithImage::FillInputPortInformation(
+  int port, vtkInformation *info)
+{
+  if (port == 0)
+    {
+    return this->Superclass::FillInputPortInformation(port, info);
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkBlankStructuredGridWithImage::PrintSelf(ostream& os, vtkIndent indent)

@@ -29,15 +29,15 @@
 #ifndef __vtkBlankStructuredGridWithImage_h
 #define __vtkBlankStructuredGridWithImage_h
 
-#include "vtkStructuredGridToStructuredGridFilter.h"
+#include "vtkStructuredGridAlgorithm.h"
 
 class vtkImageData;
 
-class VTK_GRAPHICS_EXPORT vtkBlankStructuredGridWithImage : public vtkStructuredGridToStructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkBlankStructuredGridWithImage : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkBlankStructuredGridWithImage *New();
-  vtkTypeRevisionMacro(vtkBlankStructuredGridWithImage,vtkStructuredGridToStructuredGridFilter);
+  vtkTypeRevisionMacro(vtkBlankStructuredGridWithImage,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,12 +49,12 @@ protected:
   vtkBlankStructuredGridWithImage();
   ~vtkBlankStructuredGridWithImage();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
+
 private:
   vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&);  // Not implemented.
   void operator=(const vtkBlankStructuredGridWithImage&);  // Not implemented.
 };
 
 #endif
-
-
