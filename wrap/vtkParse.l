@@ -37,28 +37,28 @@
 ^[\t ]*"// .SECTION Description".* 
      { 
      CommentState = 1;
-     data.Description = malloc(100000);
+     data.Description = (char*)malloc(100000);
      data.Description[0] = '\0';
      };
 
 ^[\t ]*"// .SECTION See Also".* 
      { 
      CommentState = 3;
-     data.SeeAlso = malloc(100000);
+     data.SeeAlso = (char*)malloc(100000);
      data.SeeAlso[0] = '\0';
      };
 
 ^[\t ]*"// .SECTION see also".* 
      { 
      CommentState = 3;
-     data.SeeAlso = malloc(100000);
+     data.SeeAlso = (char*)malloc(100000);
      data.SeeAlso[0] = '\0';
      };
 
 ^[\t ]*"// .SECTION Caveats".* 
      { 
      CommentState = 4;
-     data.Caveats = malloc(100000);
+     data.Caveats = (char*)malloc(100000);
      data.Caveats[0] = '\0';
      };
 

@@ -79,7 +79,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     {
     if (!currentFunction->Signature)
       {
-      currentFunction->Signature = malloc(2048);
+      currentFunction->Signature = (char*)malloc(2048);
       sigAllocatedLength = 2048; 
       sprintf(currentFunction->Signature,"%s",arg);
       }    
@@ -96,7 +96,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     {
     if (!currentFunction->Signature)
       {
-      currentFunction->Signature = malloc(2048);
+      currentFunction->Signature = (char*)malloc(2048);
       sigAllocatedLength = 2048; 
       sprintf(currentFunction->Signature,"%s",arg);
       }    
