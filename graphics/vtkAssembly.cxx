@@ -193,7 +193,13 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 
 void vtkAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 {
-  this->vtkProp3D::ReleaseGraphicsResources(renWin);
+  vtkProp3D *prop3D;
+
+  for ( this->Parts->InitTraversal(); 
+        (prop3D = this->Parts->GetNextProp3D()); )
+    {
+    prop3D->ReleaseGraphicsResources(renWin);
+    }
 }
 
 void vtkAssembly::GetActors(vtkPropCollection *ac)
