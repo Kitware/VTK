@@ -54,13 +54,54 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define MAX_LIGHTS 8
 
-XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
+XVisualInfo *vtkOpenGLRenderWindowTryForVisual(Display *DisplayId,
+					       int doublebuff, int stereo,
+					       int multisamples)
 {
   int           index;
   static int	attributes[50];
-  XVisualInfo   *v;
-  int           ms;
 
+  // setup the default stuff we ask for
+  index = 0;
+  attributes[index++] = GLX_RGBA;
+  attributes[index++] = GLX_RED_SIZE;
+  attributes[index++] = 1;
+  attributes[index++] = GLX_GREEN_SIZE;
+  attributes[index++] = 1;
+  attributes[index++] = GLX_BLUE_SIZE;
+  attributes[index++] = 1;
+  attributes[index++] = GLX_DEPTH_SIZE;
+  attributes[index++] = 1;
+  if (doublebuff)
+    {
+    attributes[index++] = GLX_DOUBLEBUFFER;
+    }
+  if (stereo)
+    {
+    // also try for STEREO
+    attributes[index++] = GLX_STEREO;
+    }
+  if (multisamples)
+    {
+#ifdef GLX_SAMPLE_BUFFERS_SGIS
+    attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
+    attributes[index++] = 1;
+    attributes[index++] = GLX_SAMPLES_SGIS;
+    attributes[index++] = multisamples;
+#endif
+    }
+    
+  attributes[index++] = None;
+
+  return glXChooseVisual(DisplayId, DefaultScreen(DisplayId), attributes );
+}
+
+XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
+{
+  XVisualInfo   *v = NULL;
+  int           multi;
+  int           stereo = 0;
+  
   // get the default display connection 
   if (!this->DisplayId)
     {
@@ -71,93 +112,27 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
       }
     }
 
-  // try getting exactly what we want
-  index = 0;
-  ms = this->MultiSamples;
-  attributes[index++] = GLX_RGBA;
-  attributes[index++] = GLX_RED_SIZE;
-  attributes[index++] = 1;
-  attributes[index++] = GLX_GREEN_SIZE;
-  attributes[index++] = 1;
-  attributes[index++] = GLX_BLUE_SIZE;
-  attributes[index++] = 1;
-  attributes[index++] = GLX_DEPTH_SIZE;
-  attributes[index++] = 1;
-  if (this->DoubleBuffer)
-    {
-    attributes[index++] = GLX_DOUBLEBUFFER;
-    }
+  // try every possibility stoping when we find one that works
 #ifdef sparc
-  // also try for STEREO
-  attributes[index++] = GLX_STEREO;
+  for (stereo = 1; !v && stereo >= 0; stereo--)
 #endif
-  
-  // not all OpenGL implementations support MultiSamples
-#ifdef GLX_SAMPLE_BUFFERS_SGIS
-  if (this->MultiSamples > 1 )
-    {
-    attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
-    attributes[index++] = 1;
-    attributes[index++] = GLX_SAMPLES_SGIS;
-    attributes[index++] = ms;
-    }
+    for (multi = this->MultiSamples; !v && multi >= 0; multi--)
+      {
+      v = vtkOpenGLRenderWindowTryForVisual(this->DisplayId,
+					    this->DoubleBuffer, 
+					    stereo, multi);
+      }
+#ifdef sparc
+  for (stereo = 1; !v && stereo >= 0; stereo--)
 #endif
-  attributes[index++] = None;
-
-  v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), attributes );
-
-  // if that failed, ditch the multi samples and try again
-  if ((!v) && (this->MultiSamples > 1))
-    {
-#ifdef GLX_SAMPLE_BUFFERS_SGIS
-    while ((ms > 1)&&(!v))
+    for (multi = this->MultiSamples; !v && multi >= 0; multi--)
       {
-      ms--;
-      index = 9;
-      if ( this->DoubleBuffer)
-	{
-	attributes[index++] = GLX_DOUBLEBUFFER;
-	}
-      attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
-      attributes[index++] = 1;
-      attributes[index++] = GLX_SAMPLES_SGIS;
-      attributes[index++] = ms;
-      attributes[index++] = None;
-    
-      v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
-			  attributes);
+      v = vtkOpenGLRenderWindowTryForVisual(this->DisplayId,
+					    !this->DoubleBuffer, 
+					    stereo, multi);
+      if (v) this->DoubleBuffer = !this->DoubleBuffer;
       }
-#endif
-    if (v)
-      {
-      vtkDebugMacro(<< "managed to get " << ms << " multisamples\n");
-      }
-    else
-      {
-      index = 9;
-      if ( this->DoubleBuffer)
-	{
-	attributes[index++] = GLX_DOUBLEBUFFER;
-	}
-      attributes[index++] = None;
-    
-      v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
-			  attributes);
-      vtkDebugMacro(<< "unable to get any multisamples\n");
-      }
-    }
 
-  // is we still don't have a visual lets ditch the double buffering
-  if ((!v) && (this->DoubleBuffer))
-    {
-    index = 9;
-    attributes[index++] = None;
-    
-    v = glXChooseVisual(this->DisplayId, DefaultScreen(this->DisplayId), 
-			attributes);
-    }
-
-  // if we still don't have a visual then screw them
   if (!v) 
     {
     vtkErrorMacro(<< "Could not find a decent visual\n");
