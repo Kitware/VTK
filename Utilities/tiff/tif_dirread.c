@@ -1144,7 +1144,7 @@ TIFFFetchPerSampleShorts(TIFF* tif, TIFFDirEntry* dir, int* pl)
                 uint16 buf[10];
                 uint16* v = buf;
 
-                if (samples > NITEMS(buf))
+                if (samples > (int)NITEMS(buf))
                         v = (uint16*) _TIFFmalloc(samples * sizeof (uint16));
                 if (TIFFFetchShortArray(tif, dir, v)) {
                         int i;
@@ -1180,7 +1180,7 @@ TIFFFetchPerSampleAnys(TIFF* tif, TIFFDirEntry* dir, double* pl)
                 double buf[10];
                 double* v = buf;
 
-                if (samples > NITEMS(buf))
+                if (samples > (int)NITEMS(buf))
                         v = (double*) _TIFFmalloc(samples * sizeof (double));
                 if (TIFFFetchAnyArray(tif, dir, v)) {
                         int i;

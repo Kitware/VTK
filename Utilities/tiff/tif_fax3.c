@@ -789,7 +789,7 @@ find0span(u_char* bp, int32 bs, int32 be)
                 bp++;
         } else
                 span = 0;
-        if (bits >= 2*8*sizeof (long)) {
+        if (bits >= (int32)(2*8*sizeof (long))) {
                 long* lp;
                 /*
                  * Align to longword boundary and check longwords.
@@ -801,7 +801,7 @@ find0span(u_char* bp, int32 bs, int32 be)
                         bp++;
                 }
                 lp = (long*) bp;
-                while (bits >= 8*sizeof (long) && *lp == 0) {
+                while (bits >= (int32)(8*sizeof (long)) && *lp == 0) {
                         span += 8*sizeof (long), bits -= 8*sizeof (long);
                         lp++;
                 }
@@ -848,7 +848,7 @@ find1span(u_char* bp, int32 bs, int32 be)
                 bp++;
         } else
                 span = 0;
-        if (bits >= 2*8*sizeof (long)) {
+        if (bits >= (int32)(2*8*sizeof (long))) {
                 long* lp;
                 /*
                  * Align to longword boundary and check longwords.
@@ -860,7 +860,7 @@ find1span(u_char* bp, int32 bs, int32 be)
                         bp++;
                 }
                 lp = (long*) bp;
-                while (bits >= 8*sizeof (long) && *lp == ~0) {
+                while (bits >= (int32)(8*sizeof (long)) && *lp == ~0) {
                         span += 8*sizeof (long), bits -= 8*sizeof (long);
                         lp++;
                 }
@@ -1329,6 +1329,7 @@ InitCCITTFax3(TIFF* tif)
 int
 TIFFInitCCITTFax3(TIFF* tif, int scheme)
 {
+        scheme = 0;
         if (InitCCITTFax3(tif)) {
                 _TIFFMergeFieldInfo(tif, fax3FieldInfo, N(fax3FieldInfo));
 
@@ -1432,6 +1433,7 @@ Fax4PostEncode(TIFF* tif)
 int
 TIFFInitCCITTFax4(TIFF* tif, int scheme)
 {
+        scheme = 0;
         if (InitCCITTFax3(tif)) {               /* reuse G3 support */
                 _TIFFMergeFieldInfo(tif, fax4FieldInfo, N(fax4FieldInfo));
 
@@ -1507,6 +1509,7 @@ Fax3DecodeRLE(TIFF* tif, tidata_t buf, tsize_t occ, tsample_t s)
 int
 TIFFInitCCITTRLE(TIFF* tif, int scheme)
 {
+        scheme = 0;
         if (InitCCITTFax3(tif)) {               /* reuse G3 support */
                 tif->tif_decoderow = Fax3DecodeRLE;
                 tif->tif_decodestrip = Fax3DecodeRLE;
@@ -1523,6 +1526,7 @@ TIFFInitCCITTRLE(TIFF* tif, int scheme)
 int
 TIFFInitCCITTRLEW(TIFF* tif, int scheme)
 {
+        scheme = 0;
         if (InitCCITTFax3(tif)) {               /* reuse G3 support */
                 tif->tif_decoderow = Fax3DecodeRLE;
                 tif->tif_decodestrip = Fax3DecodeRLE;

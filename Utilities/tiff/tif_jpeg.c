@@ -744,7 +744,7 @@ JPEGDecode(TIFF* tif, tidata_t buf, tsize_t cc, tsample_t s)
 {
         JPEGState *sp = JState(tif);
         tsize_t nrows;
-
+        s = 0;
         /* data is expected to be read in multiples of a scanline */
         if ((nrows = sp->cinfo.d.image_height))
                 do {
@@ -770,7 +770,7 @@ JPEGDecodeRaw(TIFF* tif, tidata_t buf, tsize_t cc, tsample_t s)
 {
         JPEGState *sp = JState(tif);
         tsize_t nrows;
-
+        s = 0;
         /* data is expected to be read in multiples of a scanline */
         if ((nrows = sp->cinfo.d.image_height)) {
                 /* Cb,Cr both have sampling factors 1, so this is correct */
@@ -1321,9 +1321,9 @@ JPEGVSetField(TIFF* tif, ttag_t tag, va_list ap)
                       sp->jpegcolormode == JPEGCOLORMODE_RGB) {
                         tif->tif_flags |= TIFF_UPSAMPLED;
                     } else {
-                        if (td->td_ycbcrsubsampling[0] != 1 ||
+                    /*if (td->td_ycbcrsubsampling[0] != 1 ||
                             td->td_ycbcrsubsampling[1] != 1)
-                            ; /* XXX what about up-sampling? */
+                            ;*/ /* XXX what about up-sampling? */
                     }
                 }
                 /*

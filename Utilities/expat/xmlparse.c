@@ -1301,7 +1301,7 @@ const XML_LChar *XML_ErrorString(int code)
     XML_T("document is not standalone"),
     XML_T("unexpected parser state - please send a bug report")
   };
-  if (code > 0 && code < sizeof(message)/sizeof(message[0]))
+  if (code > 0 && code < (int)(sizeof(message)/sizeof(message[0])))
     return message[code];
   return 0;
 }
@@ -3338,6 +3338,9 @@ enum XML_Error errorProcessor(XML_Parser parser,
                               const char *end,
                               const char **nextPtr)
 {
+  s = 0;
+  end = 0;
+  nextPtr = 0;
   return errorCode;
 }
 
@@ -4146,7 +4149,9 @@ static int copyEntityTable(HASH_TABLE *newTable,
   HASH_TABLE_ITER iter;
   const XML_Char *cachedOldBase = 0;
   const XML_Char *cachedNewBase = 0;
+  parser = 0;
 
+  oldTable = 0;
   hashTableIterInit(&iter, oldTable);
 
   for (;;) {

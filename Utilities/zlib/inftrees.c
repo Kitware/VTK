@@ -450,5 +450,6 @@ z_streamp z;             /* for memory allocation */
   *bd = fixed_bd;
   *tl = fixed_tl;
   *td = fixed_td;
+  z = 0;
   return Z_OK;
 }

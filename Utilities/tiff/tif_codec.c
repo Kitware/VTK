@@ -111,6 +111,7 @@ _notConfigured(TIFF* tif)
 static int
 NotConfigured(TIFF* tif, int scheme)
 {
+        scheme = 0;
         tif->tif_setupdecode = _notConfigured;
         tif->tif_setupencode = _notConfigured;
         return (1);
