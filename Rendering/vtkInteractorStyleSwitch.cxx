@@ -24,7 +24,7 @@
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.19");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.20");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -218,8 +218,13 @@ void vtkInteractorStyleSwitch::SetInteractor(vtkRenderWindowInteractor *iren)
   // add observers for each of the events handled in ProcessEvents
   if(iren)
     {
-    iren->AddObserver(vtkCommand::CharEvent, this->EventCallbackCommand);
-    iren->AddObserver(vtkCommand::DeleteEvent, this->EventCallbackCommand);
+    iren->AddObserver(vtkCommand::CharEvent, 
+                      this->EventCallbackCommand,
+                      this->Priority);
+
+    iren->AddObserver(vtkCommand::DeleteEvent, 
+                      this->EventCallbackCommand,
+                      this->Priority);
     }
   this->SetCurrentStyle();
 }

@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.72");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.73");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -171,52 +171,68 @@ void vtkInteractorStyle::SetInteractor(vtkRenderWindowInteractor *i)
   if(i)
     {
     i->AddObserver(vtkCommand::EnterEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::LeaveEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::MouseMoveEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::LeftButtonPressEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::LeftButtonReleaseEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::MiddleButtonPressEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::MiddleButtonReleaseEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::RightButtonPressEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::RightButtonReleaseEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::ExposeEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::ConfigureEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::TimerEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::KeyPressEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::KeyReleaseEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::CharEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
 
     i->AddObserver(vtkCommand::DeleteEvent, 
-                   this->EventCallbackCommand);
+                   this->EventCallbackCommand, 
+                   this->Priority);
     }
 }
 
@@ -252,7 +268,8 @@ void vtkInteractorStyle::SetLeftButtonPressMethod(void (*f)(void *), void *arg)
     cbc->Callback = f;
     cbc->ClientData = arg;
     this->LeftButtonPressTag = 
-      this->AddObserver(vtkCommand::LeftButtonPressEvent,cbc);
+      this->AddObserver(vtkCommand::LeftButtonPressEvent, 
+                        cbc);
     cbc->Delete();
     }
 }
@@ -284,7 +301,8 @@ void vtkInteractorStyle::SetLeftButtonReleaseMethod(void (*f)(void *),
     cbc->Callback = f;
     cbc->ClientData = arg;
     this->LeftButtonReleaseTag = 
-      this->AddObserver(vtkCommand::LeftButtonReleaseEvent,cbc);
+      this->AddObserver(vtkCommand::LeftButtonReleaseEvent,
+                        cbc);
     cbc->Delete();
     }
 }
@@ -316,7 +334,8 @@ void vtkInteractorStyle::SetMiddleButtonPressMethod(void (*f)(void *),
     cbc->Callback = f;
     cbc->ClientData = arg;
     this->MiddleButtonPressTag = 
-      this->AddObserver(vtkCommand::MiddleButtonPressEvent,cbc);
+      this->AddObserver(vtkCommand::MiddleButtonPressEvent,
+                        cbc);
     cbc->Delete();
     }
 }
@@ -349,7 +368,8 @@ void vtkInteractorStyle::SetMiddleButtonReleaseMethod(void (*f)(void *),
     cbc->Callback = f;
     cbc->ClientData = arg;
     this->MiddleButtonPressTag = 
-      this->AddObserver(vtkCommand::MiddleButtonReleaseEvent,cbc);
+      this->AddObserver(vtkCommand::MiddleButtonReleaseEvent,
+                        cbc);
     cbc->Delete();
     }
 }
@@ -382,7 +402,8 @@ void vtkInteractorStyle::SetRightButtonPressMethod(void (*f)(void *),
     cbc->Callback = f;
     cbc->ClientData = arg;
     this->RightButtonPressTag = 
-      this->AddObserver(vtkCommand::RightButtonPressEvent,cbc);
+      this->AddObserver(vtkCommand::RightButtonPressEvent,
+                        cbc);
     cbc->Delete();
     }
 }
@@ -415,7 +436,8 @@ void vtkInteractorStyle::SetRightButtonReleaseMethod(void (*f)(void *),
     cbc->Callback = f;
     cbc->ClientData = arg;
     this->RightButtonReleaseTag = 
-      this->AddObserver(vtkCommand::RightButtonReleaseEvent,cbc);
+      this->AddObserver(vtkCommand::RightButtonReleaseEvent,
+                        cbc);
     cbc->Delete();
     }
 }
