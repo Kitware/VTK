@@ -221,7 +221,7 @@ void vlDataSetReader::Execute()
 //
   if ( this->DataSet ) delete this->DataSet;
   this->DataSet = reader;
-  *(this->DataSet->GetPointData()) = *(reader->GetPointData());
+  this->PointData = *(reader->GetPointData());
 
   return;
 }
