@@ -73,7 +73,7 @@ public:
   //vtkContainerTypeMacro((vtkHashMap<KeyType,DataType>), vtkContainer);
 
   virtual const char* GetClassName() const {return "vtkHashMap";} 
-  
+  void PrintSelf(ostream& os, vtkIndent indent);
   static vtkHashMap<KeyType,DataType>* New(); 
   
   // Description:
@@ -118,12 +118,7 @@ public:
   // Setting the number of buckets will automatically set the
   // MaximumLoadFactor to 0 to prevent resizing.
   void SetNumberOfBuckets(vtkIdType n);
-  vtkIdType GetNumberOfBuckets() const;
-  
-  // Description:
-  // Print information about the status of the hash table.  This can
-  // be used to help test a hash function.
-  void PrintHashingStatus(ostream& os, vtkIndent indent) const;
+  vtkIdType GetNumberOfBuckets() const;  
   
 protected:
   vtkHashMap();

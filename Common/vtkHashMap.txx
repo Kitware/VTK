@@ -163,9 +163,9 @@ vtkIdType vtkHashMap<KeyType,DataType>::GetNumberOfBuckets() const
 
 //----------------------------------------------------------------------------
 template<class KeyType, class DataType>
-void vtkHashMap<KeyType,DataType>::PrintHashingStatus(ostream& os,
-                                                      vtkIndent indent) const
+void vtkHashMap<KeyType,DataType>::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Superclass::PrintSelf(os, indent);
   vtkIdType i;
   vtkIdType min = this->NumberOfItems;
   vtkIdType max = 0;
@@ -177,13 +177,12 @@ void vtkHashMap<KeyType,DataType>::PrintHashingStatus(ostream& os,
     }
   float loadFactor = float(this->NumberOfItems) / float(this->NumberOfBuckets);
   
-  os << indent << "vtkHashMap status:\n";
-  os << indent << "  NumberOfItems: " << this->NumberOfItems << "\n";
-  os << indent << "  NumberOfBuckets: " << this->NumberOfBuckets << "\n";
-  os << indent << "  MaximumLoadFactor: " << this->MaximumLoadFactor << "\n";
-  os << indent << "  Load Factor: " << loadFactor << "\n";
-  os << indent << "  Min in Bucket: " << min << "\n";
-  os << indent << "  Max in Bucket: " << max << "\n";
+  os << indent << "NumberOfItems: " << this->NumberOfItems << "\n";
+  os << indent << "NumberOfBuckets: " << this->NumberOfBuckets << "\n";
+  os << indent << "MaximumLoadFactor: " << this->MaximumLoadFactor << "\n";
+  os << indent << "Current Load Factor: " << loadFactor << "\n";
+  os << indent << "Min in Bucket: " << min << "\n";
+  os << indent << "Max in Bucket: " << max << "\n";
 }
 
 //----------------------------------------------------------------------------
