@@ -294,7 +294,7 @@ void vtkOglrRenderWindow::Start(void)
 void vtkOglrRenderWindow::Frame(void)
 {
   glFlush();
-  if (this->DoubleBuffer)
+  if (this->DoubleBuffer&&this->SwapBuffers)
     {
     glXSwapBuffers(this->DisplayId, this->WindowId);
     vtkDebugMacro(<< " glXSwapBuffers\n");

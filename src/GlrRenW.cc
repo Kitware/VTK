@@ -227,7 +227,7 @@ void vtkGlrRenderWindow::Start(void)
 // End the rendering process and display the image.
 void vtkGlrRenderWindow::Frame(void)
 {
-  if (this->DoubleBuffer)
+  if (this->DoubleBuffer&&this->SwapBuffers)
     {
     swapbuffers();
     vtkDebugMacro(<< " GL swapbuffers\n");

@@ -181,7 +181,7 @@ void vtkXglrRenderWindow::StereoUpdate(void)
 void vtkXglrRenderWindow::Frame(void)
 {
   // flush and display the buffer
-  if (this->DoubleBuffer) 
+  if (this->DoubleBuffer&&this->SwapBuffers) 
     {
     xgl_object_set(this->Context,
 		   XGL_CTX_NEW_FRAME_ACTION,
@@ -983,22 +983,5 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
       xgl_context_set_pixel(this->Context,&pos,&col);
       }
     }
-}
-
-// Description:
-// Handles work required at end of render cycle
-void vtkXglrRenderWindow::CopyResultFrame(void)
-{
-  if (this->ResultFrame)
-    {
-    int *size;
-
-    // get the size
-    size = this->GetSize();
-
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
-    }
-
-  this->Frame();
 }
 

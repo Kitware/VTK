@@ -194,7 +194,7 @@ void vtkSbrRenderWindow::StereoUpdate(void)
 void vtkSbrRenderWindow::Frame(void)
 {
   // flush and display the buffer
-  if (this->DoubleBuffer) 
+  if (this->DoubleBuffer&&this->SwapBuffers) 
     {
     dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
     }
@@ -1333,20 +1333,3 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 }
  
 
-
-// Description:
-// Handles work required at end of render cycle
-void vtkSbrRenderWindow::CopyResultFrame(void)
-{
-  if (this->ResultFrame)
-    {
-    int *size;
-
-    // get the size
-    size = this->GetSize();
-
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
-    }
-
-  this->Frame();
-}
