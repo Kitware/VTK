@@ -794,7 +794,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
   float                        *zptr;
   int                          thread_id;
   int                          thread_count;
-  float                        nearclip, farclip, far;
+  float                        nearclip, farclip, farplane;
   int                          noAbort = 1;
   vtkRenderWindow              *renWin;
   vtkRayCaster                 *raycaster;
@@ -888,7 +888,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	// cast the ray all the way until the far clipping plane
 	if ( raycaster->FirstBlend )
 	  {
-	  far = farclip;
+	  farplane = farclip;
 	  red[k]   = 0.0;
 	  green[k] = 0.0;
 	  blue[k]  = 0.0;
@@ -901,9 +901,9 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	else
 	  {
 	  if ( raycaster->ParallelProjection )
-	    far = -(((*zptr)*2.0 -1.0)*zm22 + zm23);
+	    farplane = -(((*zptr)*2.0 -1.0)*zm22 + zm23);
 	  else
-	    far = -zm23 / (((*zptr)*2.0 -1.0)*zm32 + zm33 );
+	    farplane = -zm23 / (((*zptr)*2.0 -1.0)*zm32 + zm33 );
 
 	  red[k]   = *iptr;
 	  green[k] = *(iptr+1);
@@ -912,7 +912,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	  }
 
 	// This far sample is at the far plane
-	depth[k] = far;
+	depth[k] = farplane;
 
 	// If we have an orthographic projection, the origin must be computed.
 	if ( raycaster->ParallelProjection )
@@ -942,7 +942,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	  if ( raycaster->ParallelProjection )
 	    {
 	    rayInfo.RayNearClip = nearclip;
-	    rayInfo.RayFarClip  = far;
+	    rayInfo.RayFarClip  = farplane;
 	    }
 	  // In a perspective projection we must divide near and far by the
 	  // z component of the view ray to account for the fact that this
@@ -951,7 +951,7 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
 	  else
 	    {
 	    rayInfo.RayNearClip = nearclip / -ray_ptr[2];
-	    rayInfo.RayFarClip  = far / -ray_ptr[2];
+	    rayInfo.RayFarClip  = farplane / -ray_ptr[2];
 	    }
 
 	  // Cast the ray and gather the resulting values.
