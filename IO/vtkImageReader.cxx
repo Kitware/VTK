@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageReader, "1.96");
+vtkCxxRevisionMacro(vtkImageReader, "1.97");
 vtkStandardNewMacro(vtkImageReader);
 
 #ifdef read
@@ -256,6 +256,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
     {
     if ( !self->OpenAndSeekFile(dataExtent,0) )
       {
+      delete [] buf;
       return;
       }
     }
@@ -265,6 +266,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
       {
       if ( !self->OpenAndSeekFile(dataExtent,idx2) )
         {
+        delete [] buf;
         return;
         }
       }
