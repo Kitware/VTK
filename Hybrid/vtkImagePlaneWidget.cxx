@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.35");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.36");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -125,7 +125,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget()
   this->TexturePlaneCoords = vtkTextureMapToPlane::New();
   this->TexturePlaneMapper = vtkDataSetMapper::New();
   this->TexturePlaneActor = vtkActor::New();
-  this->DummyTransform = vtkTransform::New();
+  this->Transform = vtkTransform::New();
   this->ImageData = 0;
 
   this->CursorPoints = vtkPoints::New(VTK_DOUBLE);
@@ -173,7 +173,7 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
     }
 
   this->ResliceAxes->Delete();
-  this->DummyTransform->Delete();
+  this->Transform->Delete();
   this->Reslice->Delete();
 
   if ( !this->UserLookupTableEnabled )
@@ -524,9 +524,9 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
   int Y = this->Interactor->GetEventPosition()[1];
 
   // Okay, we can process this. If anything is picked, then we
-  // can start pushing the plane.
+  // can start pushing.
+
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
 
@@ -537,22 +537,24 @@ void vtkImagePlaneWidget::OnMiddleButtonDown()
 // Deal with the possibility that we may be using a shared picker
     path->InitTraversal();
     vtkAssemblyNode *node;
-    for ( i = 0; i < path->GetNumberOfItems() && !found ; i++ )
+    for(i = 0; i< path->GetNumberOfItems() && !found ;i++)
       {
       node = path->GetNextNode();
-      if ( node->GetProp() == vtkProp::SafeDownCast(this->PlaneActor) )
+      if(node->GetProp() == vtkProp::SafeDownCast(this->PlaneActor) )
         {
         found = 1;
         }
       }
     }
 
-  if( ! found || path == 0 )
+  if ( !found || path == 0 )
     {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
     return;
     }
+
+  this->AdjustState(X,Y);
 
   this->HighlightPlane(1);
 
@@ -659,7 +661,7 @@ void vtkImagePlaneWidget::OnMouseMove()
   // Do different things depending on state
   // Calculations everybody does
   double focalPoint[4], pickPoint[4], prevPickPoint[4];
-  double z;
+  double z, vpn[3];
 
   vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
   vtkCamera *camera = renderer->GetActiveCamera();
@@ -673,6 +675,7 @@ void vtkImagePlaneWidget::OnMouseMove()
   this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
                               focalPoint[2], focalPoint);
   z = focalPoint[2];
+
   this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
                               double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
@@ -680,12 +683,26 @@ void vtkImagePlaneWidget::OnMouseMove()
 
   if ( this->State == vtkImagePlaneWidget::WindowLevelling )
     {
-    this->WindowLevel(X, Y);
+    this->WindowLevel(X,Y);
     this->ManageTextDisplay();
     }
   else if ( this->State == vtkImagePlaneWidget::Pushing )
     {
     this->Push(prevPickPoint, pickPoint);
+    this->UpdateNormal();
+    this->UpdateOrigin();
+    }
+  else if ( this->State == vtkImagePlaneWidget::Spinning )
+    {
+    this->Spin(prevPickPoint, pickPoint);
+    this->UpdateNormal();
+    this->UpdateOrigin();
+    }
+  else if ( this->State == vtkImagePlaneWidget::Rotating )
+    {
+    camera->GetViewPlaneNormal(vpn);
+    this->Rotate(prevPickPoint, pickPoint, vpn);
+    this->UpdateNormal();
     this->UpdateOrigin();
     }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
@@ -694,10 +711,10 @@ void vtkImagePlaneWidget::OnMouseMove()
     this->ManageTextDisplay();
     }
 
-
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,0);
+
   this->Interactor->Render();
 }
 
@@ -1008,14 +1025,13 @@ void vtkImagePlaneWidget::UpdateOrigin()
     {
     if (! this->Reslice )
       {
-      return;  
+      return;
       }
     this->ImageData = this->Reslice->GetInput();
     if (! this->ImageData )
       {
-      return;  
+      return;
       }
-
     this->ImageData->UpdateInformation();
     float origin[3];
     this->ImageData->GetOrigin(origin);
@@ -1023,11 +1039,11 @@ void vtkImagePlaneWidget::UpdateOrigin()
     this->ImageData->GetSpacing(spacing);
     int extent[6];
     this->ImageData->GetWholeExtent(extent);
-    float bounds[] = {origin[0] + spacing[0]*extent[0], 
+    float bounds[] = {origin[0] + spacing[0]*extent[0],
                       origin[0] + spacing[0]*extent[1],
-                      origin[1] + spacing[1]*extent[2], 
+                      origin[1] + spacing[1]*extent[2],
                       origin[1] + spacing[1]*extent[3],
-                      origin[2] + spacing[2]*extent[4], 
+                      origin[2] + spacing[2]*extent[4],
                       origin[2] + spacing[2]*extent[5]};
 
     for ( i = 0; i <= 4; i += 2 ) // reverse bounds if necessary
@@ -1049,13 +1065,14 @@ void vtkImagePlaneWidget::UpdateOrigin()
     for ( i = 0; i < 3; i++ )
       {
       abs_normal[i] = fabs(abs_normal[i]);
-      if ( abs_normal[i] > nmax )
+      if ( abs_normal[i]>nmax )
         {
         nmax = abs_normal[i];
         k = i;
         }
       }
-
+  // Force the plane to lie within the true image bounds along its normal
+  //
     if ( planeCenter[k] > bounds[2*k+1] )
       {
       planeCenter[k] = bounds[2*k+1];
@@ -1072,52 +1089,57 @@ void vtkImagePlaneWidget::UpdateOrigin()
       }
     }
 
-  this->Reslice->SetResliceAxesOrigin(0.0,0.0,0.0);
   this->ResliceAxes->DeepCopy(this->Reslice->GetResliceAxes());
+  this->ResliceAxes->SetElement(0,3,0);
+  this->ResliceAxes->SetElement(1,3,0);
+  this->ResliceAxes->SetElement(2,3,0);
 
-  // transpose in an exact way to invert a rotation matrix
+  // Transpose is an exact way to invert a pure rotation matrix
+  //
   this->ResliceAxes->Transpose();
 
-  this->DummyTransform->SetMatrix(this->ResliceAxes);
-  float planeOrigin[3];
+  float planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
-  double* out = this->DummyTransform->TransformDoublePoint(
-    planeOrigin[0],planeOrigin[1],planeOrigin[2]);
+  planeOrigin[3] = 1.0;
+  float originXYZW[4];
+  this->ResliceAxes->MultiplyPoint(planeOrigin,originXYZW);
 
   this->ResliceAxes->Transpose();
-  this->DummyTransform->SetMatrix(this->ResliceAxes);
-  double* newOrigin = this->DummyTransform->TransformDoublePoint(
-    0.0,0.0,out[2]);
+  float neworiginXYZW[4];
+  float point[] =  {0.0,0.0,originXYZW[2],1.0};
+  this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
+
+  this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
+  this->ResliceAxes->SetElement(1,3,neworiginXYZW[1]);
+  this->ResliceAxes->SetElement(2,3,neworiginXYZW[2]);
 
   this->Reslice->SetResliceAxes(this->ResliceAxes);
-  this->Reslice->SetResliceAxesOrigin(newOrigin);
+
+  float spacingXYZ[3];
+  this->Reslice->GetOutputSpacing(spacingXYZ);
+  this->Reslice->SetOutputOrigin(0.5*spacingXYZ[0] + originXYZW[0],
+                                 0.5*spacingXYZ[1] + originXYZW[1],
+                                 0.0);
 }
 
 void vtkImagePlaneWidget::UpdateNormal()
 {
-  float planeOrigin[3];
-  this->PlaneSource->GetOrigin(planeOrigin);
-  float planePoint1[3];
-  this->PlaneSource->GetPoint1(planePoint1);
-  float planePoint2[3];
-  this->PlaneSource->GetPoint2(planePoint2);
-  this->PlaneSource->GetNormal(this->Normal);
-
   float planeAxis1[3];
   float planeAxis2[3];
 
-  int i;
-  for( i = 0 ; i < 3 ; i++ )
-    {
-    planeAxis1[i] = planePoint1[i]-planeOrigin[i];
-    planeAxis2[i] = planePoint2[i]-planeOrigin[i];
-    }
+  this->GetVector1(planeAxis1);
+  this->GetVector2(planeAxis2);
 
-  // the x,y dimensions of the plane
+  // The x,y dimensions of the plane
+  //
   float planeSizeX = vtkMath::Normalize(planeAxis1);
   float planeSizeY = vtkMath::Normalize(planeAxis2);
 
-  // generate the slicing matrix
+  this->PlaneSource->GetNormal(this->Normal);
+
+  // Generate the slicing matrix
+  //
+  int i;
   this->ResliceAxes->Identity();
   for ( i = 0; i < 3; i++ )
      {
@@ -1126,57 +1148,75 @@ void vtkImagePlaneWidget::UpdateNormal()
      this->ResliceAxes->SetElement(i,2,this->Normal[i]);
      }
 
-  // transpose in an exact way to invert a rotation matrix
+  // Transpose is an exact way to invert a pure rotation matrix
+  //
   this->ResliceAxes->Transpose();
-  this->DummyTransform->SetMatrix(this->ResliceAxes);
-  double *out = this->DummyTransform->TransformDoublePoint(
-    planeOrigin[0],planeOrigin[1],planeOrigin[2]);
+
+  float planeOrigin[4];
+  this->PlaneSource->GetOrigin(planeOrigin);
+  planeOrigin[3] = 1.0;
+  float originXYZW[4];
+  this->ResliceAxes->MultiplyPoint(planeOrigin,originXYZW);
+
   this->ResliceAxes->Transpose();
-  this->DummyTransform->SetMatrix(this->ResliceAxes);
-  double *newOrigin = this->DummyTransform->TransformDoublePoint(
-    0.0, 0.0, out[2]);
+  float neworiginXYZW[4];
+  float point[] =  {0.0,0.0,originXYZW[2],1.0};
+  this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
+
+  this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
+  this->ResliceAxes->SetElement(1,3,neworiginXYZW[1]);
+  this->ResliceAxes->SetElement(2,3,neworiginXYZW[2]);
 
   this->Reslice->SetResliceAxes(this->ResliceAxes);
-  this->Reslice->SetResliceAxesOrigin(newOrigin);
 
   this->ImageData = this->Reslice->GetInput();
-  // calculate appropriate pixel spacing for the reslicing
 
+  // Calculate appropriate pixel spacing for the reslicing
+  //
   this->ImageData->UpdateInformation();
   float spacing[3];
   this->ImageData->GetSpacing(spacing);
 
-  float spacingX = fabs(planeAxis1[0]*spacing[0]) + \
-                   fabs(planeAxis1[1]*spacing[1]) + \
+  float spacingX = fabs(planeAxis1[0]*spacing[0])+\
+                   fabs(planeAxis1[1]*spacing[1])+\
                    fabs(planeAxis1[2]*spacing[2]);
 
-  float spacingY = fabs(planeAxis2[0]*spacing[0]) + \
-                   fabs(planeAxis2[1]*spacing[1]) + \
+  float spacingY = fabs(planeAxis2[0]*spacing[0])+\
+                   fabs(planeAxis2[1]*spacing[1])+\
                    fabs(planeAxis2[2]*spacing[2]);
 
-  // pad extent up to a power of two for efficient texture mapping
+
+  // Pad extent up to a power of two for efficient texture mapping
+  //
   int extentX = 1;
-  int exMax = vtkMath::Round(planeSizeX/spacingX);
-  while ( extentX < exMax )
+  while (extentX < planeSizeX/spacingX)
+    {
     extentX = extentX << 1;
+    }
 
   int extentY = 1;
-  int eyMax = vtkMath::Round(planeSizeY/spacingY);
-  while ( extentY < eyMax )
+  while (extentY < planeSizeY/spacingY)
+    {
     extentY = extentY << 1;
+    }
 
-  this->Reslice->SetOutputSpacing(spacingX, spacingY, 1.0);
-  this->Reslice->SetOutputOrigin(out[0], out[1], 0.0);
-  this->Reslice->SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0);
+  this->Reslice->SetOutputSpacing(spacingX,spacingY,1);
+  this->Reslice->SetOutputOrigin(0.5*spacingX + originXYZW[0],
+                                 0.5*spacingY + originXYZW[1],
+                                 0.0);
 
+  this->Reslice->SetOutputExtent(0,extentX-1,0,extentY-1,0,0);
 
-  // find expansion factor to account for increasing the extent
+  // Find expansion factor to account for increasing the extent
   // to a power of two
+  //
   float expand1 = extentX*spacingX;
   float expand2 = extentY*spacingY;
 
-  // set the texture coordinates to map the image to the plane
-  this->TexturePlaneCoords->SetOrigin(planeOrigin[0], planeOrigin[1], planeOrigin[2]);
+  // Set the texture coordinates to map the image to the plane
+  //
+  this->TexturePlaneCoords->SetOrigin(planeOrigin[0],
+                                      planeOrigin[1],planeOrigin[2]);
   this->TexturePlaneCoords->SetPoint1(planeOrigin[0] + planeAxis1[0]*expand1,
                                       planeOrigin[1] + planeAxis1[1]*expand1,
                                       planeOrigin[2] + planeAxis1[2]*expand1);
@@ -1545,6 +1585,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   if ( path != 0 )
     {
   // Deal with the possibility that we may be using a shared picker
+  //
     path->InitTraversal();
     vtkAssemblyNode *node;
     for ( i = 0; i< path->GetNumberOfItems() && !found ; i++ )
@@ -1570,13 +1611,66 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   float q[3];
   this->PlanePicker->GetPickPosition(q);
 
-  // make the cross-hairs appear to 'snap' to pixel centers
-  int iq[3];
-  float qq[3];
-  this->ComputeWorldToImageCoords(q,iq,qq);
-  this->ComputeImageToWorldCoords(qq,q);
+  float o[3];
+  this->PlaneSource->GetOrigin(o);
 
-  //check that the snap is on target and in range
+  float spacingXYZ[3];
+  this->Reslice->GetOutputSpacing(spacingXYZ);
+  float originXYZ[3];
+  this->Reslice->GetOutputOrigin(originXYZ);
+
+  // q relative to the plane origin
+  //
+  float qro[4];
+  qro[0]= q[0] - o[0];
+  qro[1]= q[1] - o[1];
+  qro[2]= q[2] - o[2];
+  qro[3]= 1.0;
+
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  matrix->DeepCopy(this->Reslice->GetResliceAxes());
+  matrix->SetElement(0,3,0);
+  matrix->SetElement(1,3,0);
+  matrix->SetElement(2,3,0);
+  matrix->SetElement(3,3,1);
+
+  matrix->Transpose();
+
+  float qr[4];
+  matrix->MultiplyPoint(qro,qr);
+
+  // qr is now in reslice basis space:
+  // convert it to nearest resliced pixel center
+  //
+  int qopi[3];
+  for (i=0; i<3; i++)
+    {
+    qopi[i] = vtkMath::Round((qr[i] - originXYZ[i])/spacingXYZ[i]);
+    }
+
+  // Convert it back and snap
+  //
+  for (i=0; i<3; i++)
+    {
+    qr[i] = (qopi[i] + 0.5)*spacingXYZ[i] + originXYZ[i];
+    }
+
+  matrix->Transpose();
+  matrix->MultiplyPoint(qr,qro);
+  q[0] = qro[0] + o[0];
+  q[1] = qro[1] + o[1];
+  q[2] = qro[2] + o[2];
+
+  // Now query the original unsliced data
+  //
+  float qi[3];
+  this->ComputeWorldToImageCoords(q,qi);
+  int iq[3];
+
+  iq[0] = vtkMath::Round(qi[0]);
+  iq[1] = vtkMath::Round(qi[1]);
+  iq[2] = vtkMath::Round(qi[2]);
+
   int extent[6];
   this->ImageData->GetExtent(extent);
 
@@ -1592,24 +1686,19 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     this->CurrentImageValue = 0.0;
     }
 
-  float o[3];
-  this->PlaneSource->GetOrigin(o);
+  float p1o[3];
+  float p2o[3];
+
+  this->GetVector1(p1o);
+  this->GetVector2(p2o);
+
+  float Lp1 = vtkMath::Dot(qro,p1o)/vtkMath::Dot(p1o,p1o);
+  float Lp2 = vtkMath::Dot(qro,p2o)/vtkMath::Dot(p2o,p2o);
+
   float p1[3];
   this->PlaneSource->GetPoint1(p1);
   float p2[3];
   this->PlaneSource->GetPoint2(p2);
-
-  float p1o[3];
-  float p2o[3];
-
-  for ( i = 0; i < 3; i++ )
-    {
-    p1o[i] = p1[i] - o[i];
-    p2o[i] = p2[i] - o[i];
-    }
-
-  float Lp1 = vtkMath::Dot(q,p1o)/vtkMath::Dot(p1o,p1o);
-  float Lp2 = vtkMath::Dot(q,p2o)/vtkMath::Dot(p2o,p2o);
 
   float a[3];
   float b[3];
@@ -1630,9 +1719,11 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   this->CursorPoints->SetPoint(3,d);
 
   this->CursorMapper->Modified();
+
+  matrix->Delete();
 }
 
-void vtkImagePlaneWidget::ComputeWorldToImageCoords(float* in, int* out, float* out2)
+void vtkImagePlaneWidget::ComputeWorldToImageCoords(float* in, float* out)
 {
   this->ImageData = this->Reslice->GetInput();
   if( !this->ImageData )
@@ -1647,22 +1738,9 @@ void vtkImagePlaneWidget::ComputeWorldToImageCoords(float* in, int* out, float* 
   int extent[6];
   this->ImageData->GetExtent(extent);
 
-// unrounded coords
-  out2[0] = (in[0]-origin[0])/spacing[0];
-  out2[1] = (in[1]-origin[1])/spacing[1];
-  out2[2] = (in[2]-origin[2])/spacing[2];
-
-// coords in terms of extents
-  out[0] = vtkMath::Round(out2[0]);
-  out[1] = vtkMath::Round(out2[1]);
-  out[2] = vtkMath::Round(out2[2]);
-
-// snap to pixel center
-  switch( this->PlaneOrientation )
+  for (int i = 0; i< 3; i++)
     {
-    case 0: out2[1] = out[1] + 0.5; out2[2] = out[2] + 0.5; break;
-    case 1: out2[0] = out[0] + 0.5; out2[2] = out[2] + 0.5; break;
-    case 2: out2[0] = out[0] + 0.5; out2[1] = out[1] + 0.5; break;
+    out[i] = (in[i]-origin[i])/spacing[i];
     }
 }
 
@@ -1803,3 +1881,239 @@ vtkTextProperty* vtkImagePlaneWidget::GetTextProperty()
   return this->TextActor->GetTextProperty();
 }
 
+
+void vtkImagePlaneWidget::GetVector1(float v1[3])
+{
+  float* p1 = this->PlaneSource->GetPoint1();
+  float* o =  this->PlaneSource->GetOrigin();
+  v1[0] = p1[0] - o[0];
+  v1[1] = p1[1] - o[1];
+  v1[2] = p1[2] - o[2];
+}
+
+void vtkImagePlaneWidget::GetVector2(float v2[3])
+{
+  float* p2 = this->PlaneSource->GetPoint2();
+  float* o =  this->PlaneSource->GetOrigin();
+  v2[0] = p2[0] - o[0];
+  v2[1] = p2[1] - o[1];
+  v2[2] = p2[2] - o[2];
+}
+
+void vtkImagePlaneWidget::AdjustState(int X, int Y)
+{
+  vtkRenderer *renderer = this->Interactor->FindPokedRenderer(X,Y);
+  vtkCamera *camera = renderer->GetActiveCamera();
+  if ( ! camera )
+    {
+    return;
+    }
+
+  double focalPoint[4], pickPoint[4];
+  double z;
+
+  // Compute the two points defining the motion vector
+  //
+  camera->GetFocalPoint(focalPoint);
+  this->ComputeWorldToDisplay(focalPoint[0], focalPoint[1],
+                              focalPoint[2], focalPoint);
+  z = focalPoint[2];
+
+  this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
+
+  float v1[3];
+  this->GetVector1(v1);
+  float v2[3];
+  this->GetVector2(v2);
+  float planeSize1 = vtkMath::Normalize(v1);
+  float planeSize2 = vtkMath::Normalize(v2);
+  float* planeOrigin = this->PlaneSource->GetOrigin();
+
+  float ppo[3] = {pickPoint[0] - planeOrigin[0],
+                  pickPoint[1] - planeOrigin[1],
+                  pickPoint[2] - planeOrigin[2] };
+
+  float x2D = vtkMath::Dot(ppo,v1);
+  float y2D = vtkMath::Dot(ppo,v2);
+
+  // Divide plane into three zones for different user interactions:
+  // four corners -- spin around the plane's normal at its center
+  // four edges   -- rotate around one of the plane's axes at its center
+  // center area  -- push
+  //
+  float marginX = planeSize1 * 0.05;
+  float marginY = planeSize2 * 0.05;
+
+  float x0 = marginX;
+  float y0 = marginY;
+  float x1 = planeSize1 - marginX;
+  float y1 = planeSize2 - marginY;
+
+  float *raPtr;
+  float *rvPtr;
+  float rvfac = 1.0;
+
+  if ( x2D < x0  )    //left margin
+    {
+    if ((y2D < y0) || (y2D > y1))  // corners
+      {
+      this->State = vtkImagePlaneWidget::Spinning;
+      }
+    else
+      {                                             // left edge
+      this->State = vtkImagePlaneWidget::Rotating;
+      raPtr = v2;
+      rvPtr = v1;
+      rvfac = -1.0;
+      }
+    }
+  else if ( x2D > x1 )                         // right margin
+    {
+    if ((y2D < y0) || (y2D > y1))  // corners
+      {
+      this->State = vtkImagePlaneWidget::Spinning;
+      }
+    else                                             // right edge
+      {
+      this->State = vtkImagePlaneWidget::Rotating;
+      raPtr = v2;
+      rvPtr = v1;
+      }
+    }
+  else                                              //  middle
+    {
+    if (y2D < y0)                          // bottom edge
+      {
+      this->State = vtkImagePlaneWidget::Rotating;
+      raPtr = v1;
+      rvPtr = v2;
+      rvfac = -1.0;
+      }
+    else if (y2D > y1)                         // top edge
+      {
+      this->State = vtkImagePlaneWidget::Rotating;
+      raPtr = v1;
+      rvPtr = v2;
+      }
+    else                                             // central area
+      {
+      this->State = vtkImagePlaneWidget::Pushing;
+      }
+    }
+
+  if ( this->State == vtkImagePlaneWidget::Rotating )
+    {
+    for (int i = 0; i < 3; i++)
+      {
+      this->RotateAxis[i] = *raPtr++;
+      this->RadiusVector[i] = *rvPtr++ * rvfac;
+      }
+    }
+}
+
+
+void vtkImagePlaneWidget::Spin(double *p1, double *p2)
+{
+  // Disable cursor snap
+  //
+  this->PlaneOrientation = 3;
+  
+  // Get the motion vector, in world coords
+  //
+  float v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+
+  // Plane center and normal before transform
+  //
+  float* wc = this->PlaneSource->GetCenter();
+  float* wn = this->Normal;
+
+  // Radius vector from center to cursor position
+  //
+  float rv[3] = {p2[0]-wc[0], p2[1]-wc[1], p2[2]-wc[2]};
+
+  // Distance between center and cursor location
+  //
+  float rs = vtkMath::Normalize(rv);
+
+  // Spin direction
+  //
+  float wn_cross_rv[3];
+  vtkMath::Cross(wn,rv,wn_cross_rv);
+
+  // Spin angle
+  //
+  float dw = 57.2957804904 * vtkMath::Dot(v,wn_cross_rv) / rs;
+
+  this->Transform->Identity();
+  this->Transform->Translate(wc[0],wc[1],wc[2]);
+  this->Transform->RotateWXYZ(dw,wn);
+  this->Transform->Translate(-wc[0],-wc[1],-wc[2]);
+
+  float newpt[3];
+  this->Transform->TransformPoint(this->PlaneSource->GetPoint1(),newpt);
+  this->PlaneSource->SetPoint1(newpt);
+  this->Transform->TransformPoint(this->PlaneSource->GetPoint2(),newpt);
+  this->PlaneSource->SetPoint2(newpt);
+  this->Transform->TransformPoint(this->PlaneSource->GetOrigin(),newpt);
+  this->PlaneSource->SetOrigin(newpt);
+
+  this->PlaneSource->Update();
+  this->PositionHandles();
+}
+
+void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
+{
+  // Disable cursor snap
+  //
+  this->PlaneOrientation = 3;
+
+  // Get the motion vector, in world coords
+  //
+  float v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+
+  // Plane center and normal
+  //
+  float* wc = this->PlaneSource->GetCenter();
+
+  // Radius of the rotating circle of the picked point
+  //
+  float radius = fabs( this->RadiusVector[0]*(p2[0]-wc[0]) +
+                       this->RadiusVector[1]*(p2[1]-wc[1]) +
+                       this->RadiusVector[2]*(p2[2]-wc[2]) );
+
+  // Rotate direction ra_cross_rv
+  //
+  float rd[3];
+  vtkMath::Cross(this->RotateAxis,this->RadiusVector,rd);
+
+  // Direction cosin between rotating direction and view normal
+  //
+  float rd_dot_vpn = rd[0]*vpn[0] + rd[1]*vpn[1] + rd[2]*vpn[2];
+
+  // 'push' plane edge when mouse movee away from plane center
+  // 'pull' plane edge when mouse movee toward plane center
+  //
+  float dw = 57.28578 * (vtkMath::Dot(this->RadiusVector,v))/radius * (-rd_dot_vpn);
+
+  this->Transform->Identity();
+  this->Transform->Translate(wc[0],wc[1],wc[2]);
+  this->Transform->RotateWXYZ(dw,this->RotateAxis);
+  this->Transform->Translate(-wc[0],-wc[1],-wc[2]);
+
+  float newpt[3];
+  this->Transform->TransformPoint(this->PlaneSource->GetPoint1(),newpt);
+  this->PlaneSource->SetPoint1(newpt);
+  this->Transform->TransformPoint(this->PlaneSource->GetPoint2(),newpt);
+  this->PlaneSource->SetPoint2(newpt);
+  this->Transform->TransformPoint(this->PlaneSource->GetOrigin(),newpt);
+  this->PlaneSource->SetOrigin(newpt);
+
+  this->PlaneSource->Update();
+  this->PositionHandles();
+}
