@@ -159,7 +159,7 @@ void vtkSurfaceReconstructionFilter::Execute()
   };
 
   const vtkIdType COUNT = input->GetNumberOfPoints();
-  SurfacePoint *surfacePoints = new SurfacePoint[COUNT];
+  SurfacePoint *surfacePoints;
 
   vtkIdType i, j;
   int k;
@@ -169,6 +169,7 @@ void vtkSurfaceReconstructionFilter::Execute()
     vtkErrorMacro(<<"No points to reconstruct");
     return;
     }
+  surfacePoints = new SurfacePoint[COUNT];
   
   vtkDebugMacro(<<"Reconstructing " << COUNT << " points");
 

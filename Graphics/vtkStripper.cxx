@@ -99,7 +99,8 @@ void vtkStripper::Execute()
   // check input
   if ( (numCells=Mesh->GetNumberOfCells()) < 1 )
     {
-    vtkErrorMacro(<<"No data to strip!");
+    Mesh->Delete();
+    vtkDebugMacro(<<"No data to strip!");
     return;
     }
 

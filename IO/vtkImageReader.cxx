@@ -761,6 +761,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
                                << ", Skip0 = " << streamSkip0
                                << ", Skip1 = " << streamSkip1
                                << ", FilePos = " << self->GetFile()->tellg());
+        delete [] buf;
         return;
         }
 

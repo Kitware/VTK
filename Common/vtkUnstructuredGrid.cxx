@@ -930,7 +930,7 @@ void vtkUnstructuredGrid::GetListOfUniqueCellTypes(vtkUnsignedCharArray *uniqueT
 int vtkUnstructuredGrid::IsHomogeneous() 
 {
   unsigned char type;
-  if (this->Types)
+  if (this->Types && this->Types->GetMaxId() >= 0)
     {
     type = Types->GetValue(0);
     for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)

@@ -403,7 +403,8 @@ void vtkHyperStreamline::Execute()
   vtkCell *cell;
   float ev[3], xNext[3];
   float d, step, dir, tol2, p[3];
-  float *w=new float[input->GetMaxCellSize()], dist2;
+  float *w;
+  float dist2;
   float closestPoint[3];
   float *m[3], *v[3];
   float m0[3], m1[3], m2[3];
@@ -422,7 +423,7 @@ void vtkHyperStreamline::Execute()
     vtkErrorMacro(<<"No tensor data defined!");
     return;
     }
-
+  w = new float[input->GetMaxCellSize()];
 
   inScalars = pd->GetScalars();
 

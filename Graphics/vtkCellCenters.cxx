@@ -78,12 +78,13 @@ void vtkCellCenters::Execute()
   vtkPoints *newPts;
   vtkCell *cell;
   float x[3], pcoords[3];
+  float *weights = NULL;
+
   if (input == NULL)
     {
     vtkErrorMacro(<<"Input is NULL");
     return;
     }
-  float *weights = new float [input->GetMaxCellSize()];
 
   vtkDebugMacro(<<"Generating cell center points");
 
@@ -92,16 +93,13 @@ void vtkCellCenters::Execute()
 
   if ( (numCells = input->GetNumberOfCells()) < 1 )
     {
-    vtkErrorMacro(<<"No cells to generate center points for");
-    if (weights)
-      {
-      delete [] weights;
-      }
+    vtkWarningMacro(<<"No cells to generate center points for");
     return;
     }
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numCells);
+  weights = new float [input->GetMaxCellSize()];
 
   int abort=0;
   vtkIdType progressInterval = numCells/10 + 1;

@@ -177,6 +177,7 @@ void vtkDataSetToDataObjectFilter::Execute()
     else
       {
       vtkErrorMacro(<<"Unsupported dataset type!");
+      fd->Delete();
       return;
       }
     }
@@ -279,6 +280,7 @@ void vtkDataSetToDataObjectFilter::Execute()
     else
       {
       vtkErrorMacro(<<"Unsupported dataset type!");
+      fd->Delete();
       return;
       }
     }

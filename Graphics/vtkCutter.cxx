@@ -115,7 +115,7 @@ void vtkCutter::Execute()
   vtkIdType cellId, i;
   int iter;
   vtkPoints *cellPts;
-  vtkFloatArray *cellScalars=vtkFloatArray::New();
+  vtkFloatArray *cellScalars;
   vtkGenericCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPoints;
@@ -147,6 +147,9 @@ void vtkCutter::Execute()
     vtkErrorMacro(<<"No data to cut");
     return;
     }
+
+
+  cellScalars=vtkFloatArray::New();
 
   // Create objects to hold output of contour operation
   //

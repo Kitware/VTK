@@ -141,7 +141,7 @@ void vtkDepthSortPolyData::Execute()
   vtkIdType cellId, id;
   vtkPolyData *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
-  vtkGenericCell *cell=vtkGenericCell::New();
+  vtkGenericCell *cell;
   vtkIdType numCells=input->GetNumberOfCells();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
@@ -178,6 +178,7 @@ void vtkDepthSortPolyData::Execute()
   
     this->ComputeProjectionVector(vector, origin);
     }
+  cell=vtkGenericCell::New();
 
   if ( this->DepthSortMode == VTK_SORT_PARAMETRIC_CENTER )
     {

@@ -96,8 +96,8 @@ void vtkTransformTextureCoords::Execute()
   vtkDataArray *newTCoords;
   vtkIdType numPts=input->GetNumberOfPoints(), ptId;
   int i, j, texDim;
-  vtkTransform *transform = vtkTransform::New();
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  vtkTransform *transform;
+  vtkMatrix4x4 *matrix;
   float *TC, newTC[3];
 
   vtkDebugMacro(<<"Transforming texture coordinates...");
@@ -110,6 +110,8 @@ void vtkTransformTextureCoords::Execute()
     vtkErrorMacro(<<"No texture coordinates to transform");
     return;
     }
+  transform = vtkTransform::New();
+  matrix = vtkMatrix4x4::New();
 
   // create same type as input
   texDim = inTCoords->GetNumberOfComponents();

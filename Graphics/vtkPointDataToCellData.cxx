@@ -71,7 +71,8 @@ void vtkPointDataToCellData::Execute()
   vtkCellData *outCD=output->GetCellData();
   int maxCellSize=input->GetMaxCellSize();
   vtkIdList *cellPts;
-  float weight, *weights=new float[maxCellSize];
+  float weight;
+  float *weights;
 
   vtkDebugMacro(<<"Mapping point data to cell data");
 
@@ -80,9 +81,10 @@ void vtkPointDataToCellData::Execute()
 
   if ( (numCells=input->GetNumberOfCells()) < 1 )
     {
-    vtkErrorMacro(<<"No input cells!");
+    vtkDebugMacro(<<"No input cells!");
     return;
     }
+  weights=new float[maxCellSize];
   
   cellPts = vtkIdList::New();
   cellPts->Allocate(maxCellSize);

@@ -118,9 +118,8 @@ void vtkProgrammableGlyphFilter::Execute()
   vtkCellData *sourceCD;
   vtkIdType numSourcePts, numSourceCells, ptOffset=0, cellId, ptId, id, idx;
   int i, npts;
-  vtkIdList *pts=vtkIdList::New();
+  vtkIdList *pts;
   vtkIdList *cellPts;
-  pts->Allocate(VTK_CELL_SIZE);
   vtkCell *cell;
 
   // Initialize
@@ -137,6 +136,8 @@ void vtkProgrammableGlyphFilter::Execute()
     return;
     }
 
+  pts=vtkIdList::New();
+  pts->Allocate(VTK_CELL_SIZE);
   sourcePD = this->GetSource()->GetPointData();
   sourceCD = this->GetSource()->GetCellData();
   numSourcePts = this->GetSource()->GetNumberOfPoints();

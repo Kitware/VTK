@@ -501,6 +501,7 @@ void vtkStreamer::Integrate()
 
   if ( ! (inVectors=pd->GetVectors()) )
     {
+    delete [] w;
     vtkErrorMacro(<<"No vector data defined!");
     return;
     }

@@ -113,13 +113,14 @@ void vtkThreshold::Execute()
 {
   vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
-  vtkIdList *newCellPts = vtkIdList::New();
+  vtkIdList *newCellPts;
   vtkCell *cell;
   vtkPoints *newPoints;
   int i, ptId, newId, numPts;
   int numCellPts;
   float *x;
   vtkDataSet *input = this->GetInput();
+  
   if (!input)
     {
     vtkErrorMacro(<<"No input, Can't Execute");
@@ -152,7 +153,7 @@ void vtkThreshold::Execute()
     vtkErrorMacro(<<"No scalar data to threshold");
     return;
     }
-     
+
   numPts = input->GetNumberOfPoints();
   output->Allocate(input->GetNumberOfCells());
   newPoints = vtkPoints::New();
@@ -197,6 +198,8 @@ void vtkThreshold::Execute()
     vtkErrorMacro(<<"Can't use cell scalars because there are none");
     return;
     }
+
+  newCellPts = vtkIdList::New();     
 
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
