@@ -67,6 +67,7 @@ vtkCleanPolyData::vtkCleanPolyData()
   this->ConvertLinesToPoints = 1;
   this->ConvertStripsToPolys = 1;
   this->Locator = NULL;
+  this->PieceInvariant = 1;
 }
 
 //--------------------------------------------------------------------------
@@ -95,6 +96,51 @@ void vtkCleanPolyData::OperateOnBounds(float in[6], float out[6])
 }
 
 //--------------------------------------------------------------------------
+void vtkCleanPolyData::ExecuteInformation()
+{
+  if (this->PieceInvariant)
+    {
+    this->GetOutput()->SetMaximumNumberOfPieces(1);
+    }
+  else
+    {
+    this->GetOutput()->SetMaximumNumberOfPieces(-1);
+    }
+}
+
+
+//--------------------------------------------------------------------------
+void vtkCleanPolyData::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  vtkPolyData *input = this->GetInput();
+
+  if (input == NULL)
+    {
+    return;
+    }
+  if (this->PieceInvariant)
+    {
+    // Although piece > 1 is handled by superclass, we should be thorough.
+    if (output->GetUpdatePiece() == 0)
+      {
+      input->SetUpdatePiece(0);
+      input->SetUpdateNumberOfPieces(1);
+      }
+    else
+      {
+      input->SetUpdatePiece(-1);
+      input->SetUpdateNumberOfPieces(0);
+      }
+    }
+  else
+    {
+    input->SetUpdateNumberOfPieces(output->GetUpdateNumberOfPieces());
+    input->SetUpdatePiece(output->GetUpdatePiece());
+    input->SetUpdateGhostLevel(output->GetUpdateGhostLevel());
+    }
+}
+
+//--------------------------------------------------------------------------
 void vtkCleanPolyData::Execute()
 {
   vtkPolyData  *input = this->GetInput();
@@ -109,7 +155,7 @@ void vtkCleanPolyData::Execute()
   vtkDebugMacro(<<"Beginning PolyData clean");
   if ( (numPts<1) || (inPts == NULL ) )
     {
-    vtkErrorMacro(<<"No data to Operate On!");
+    vtkDebugMacro(<<"No data to Operate On!");
     return;
     }
   vtkIdType *updatedPts = new vtkIdType[input->GetMaxCellSize()];
@@ -595,6 +641,8 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+  os << indent << "PieceInvariant: "
+     << this->PieceInvariant << "\n";
 }
 
 //--------------------------------------------------------------------------
