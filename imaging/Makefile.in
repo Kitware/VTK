@@ -59,6 +59,7 @@ vtkImageGaussianSource \
 vtkImageGradient \
 vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
+vtkImageHybridMedian2D \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
 vtkImageLogic \
@@ -102,12 +103,10 @@ vtkXTextMapper
 
 #vtkImageContinuousDilate3D \
 #vtkImageContinuousErode3D \
-#vtkImageConvolution1D \
 #vtkImageDilateErode3D \
 #vtkImageFeatureAnd \
 #vtkImageHistogram \
 #vtkImageHistogramEqualization \
-#vtkImageHybridMedian2D \
 #vtkImageIdealHighPass \
 #vtkImageIdealLowPass \
 #vtkImageLogarithmicScale \
