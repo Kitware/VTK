@@ -64,30 +64,43 @@ vtkPLYWriter::vtkPLYWriter()
 {
   this->FileType = VTK_BINARY;
   this->DataByteOrder = VTK_LITTLE_ENDIAN;
- 
-  this->WritePointScalars = 0;
-  this->PointLookupTable = NULL;
-  
-  this->WriteCellScalars = 0;
-  this->CellLookupTable = NULL;
-  
+  this->ArrayName = NULL;
+  this->Component = 0;
+  this->ColorMode = VTK_COLOR_MODE_DEFAULT;
+  this->LookupTable = NULL;
+  this->Color[0] = this->Color[1] = this->Color[2] = 255;
+}
+
+vtkPLYWriter::~vtkPLYWriter()
+{
+  if ( this->LookupTable )
+    {
+    this->LookupTable->Delete();
+    }
 }
 
 typedef struct _plyVertex {
   float x[3];             // the usual 3-space position of a vertex
+  unsigned char red;
+  unsigned char green;
+  unsigned char blue;
 } plyVertex;
 
 typedef struct _plyFace {
   unsigned char nverts;    // number of vertex indices in list
   int *verts;              // vertex index list
+  unsigned char red;
+  unsigned char green;
+  unsigned char blue;
 } plyFace;
 
 void vtkPLYWriter::WriteData()
 {
-  int i, j;
+  vtkIdType i, j, idx;
   vtkPoints *inPts;
   vtkCellArray *polys;
   vtkPolyData *input = this->GetInput();
+  unsigned char *cellColors, *pointColors;
   PlyFile *ply;
   float version;
   static char *elemNames[] = { "vertex", "face" };
@@ -95,10 +108,16 @@ void vtkPLYWriter::WriteData()
     {"x", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[0]), 0, 0, 0, 0},
     {"y", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[1]), 0, 0, 0, 0},
     {"z", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[2]), 0, 0, 0, 0},
+    {"red", PLY_UCHAR, PLY_UCHAR, offsetof(plyVertex,red), 0, 0, 0, 0},
+    {"green", PLY_UCHAR, PLY_UCHAR, offsetof(plyVertex,green), 0, 0, 0, 0},
+    {"blue", PLY_UCHAR, PLY_UCHAR, offsetof(plyVertex,blue), 0, 0, 0, 0},
   };
   static PlyProperty faceProps[] = { // property information for a face
     {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
      1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
+    {"red", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,red), 0, 0, 0, 0},
+    {"green", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,green), 0, 0, 0, 0},
+    {"blue", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,blue), 0, 0, 0, 0},
   };
 
   // Get input and check data
@@ -142,16 +161,32 @@ void vtkPLYWriter::WriteData()
     return;
     }
   
+  // compute colors, if any
+  vtkIdType numPts = inPts->GetNumberOfPoints();
+  vtkIdType numPolys = polys->GetNumberOfCells();
+  pointColors = this->GetColors(numPts,input->GetPointData());
+  cellColors = this->GetColors(numPolys,input->GetCellData());
+
   // describe what properties go into the vertex and face elements
-  int numPts = inPts->GetNumberOfPoints();
   vtkPLY::ply_element_count (ply, "vertex", numPts);
   vtkPLY::ply_describe_property (ply, "vertex", &vertProps[0]);
   vtkPLY::ply_describe_property (ply, "vertex", &vertProps[1]);
   vtkPLY::ply_describe_property (ply, "vertex", &vertProps[2]);
+  if ( pointColors )
+    {
+    vtkPLY::ply_describe_property (ply, "vertex", &vertProps[3]);
+    vtkPLY::ply_describe_property (ply, "vertex", &vertProps[4]);
+    vtkPLY::ply_describe_property (ply, "vertex", &vertProps[5]);
+    }
 
-  int numPolys = polys->GetNumberOfCells();
   vtkPLY::ply_element_count (ply, "face", numPolys);
   vtkPLY::ply_describe_property (ply, "face", &faceProps[0]);
+  if ( cellColors )
+    {
+    vtkPLY::ply_describe_property (ply, "face", &faceProps[1]);
+    vtkPLY::ply_describe_property (ply, "face", &faceProps[2]);
+    vtkPLY::ply_describe_property (ply, "face", &faceProps[3]);
+    }
 
   // write a comment and an object information field
   vtkPLY::ply_put_comment (ply, "VTK generated PLY File");
@@ -166,6 +201,13 @@ void vtkPLYWriter::WriteData()
   for (i = 0; i < numPts; i++)
     {
     inPts->GetPoint(i,vert.x);
+    if ( pointColors )
+      {
+      idx = 3*i;
+      vert.red = *(pointColors + idx);
+      vert.green = *(pointColors + idx + 1);
+      vert.blue = *(pointColors + idx + 2);
+      }
     vtkPLY::ply_put_element (ply, (void *) &vert);
     }
 
@@ -175,7 +217,7 @@ void vtkPLYWriter::WriteData()
   face.verts = verts;
   vtkPLY::ply_put_element_setup (ply, "face");
   vtkIdType npts, *pts;
-  for (i = 0; i < numPolys; i++)
+  for (polys->InitTraversal(), i = 0; i < numPolys; i++)
     {
     polys->GetNextCell(npts,pts);
     if ( npts > 256 )
@@ -189,14 +231,93 @@ void vtkPLYWriter::WriteData()
         face.nverts = npts;
         verts[j] = (int)pts[j];
         }
+      if ( cellColors )
+        {
+        idx = 3*i;
+        face.red = *(cellColors + idx);
+        face.green = *(cellColors + idx + 1);
+        face.blue = *(cellColors + idx + 2);
+        }
       vtkPLY::ply_put_element (ply, (void *) &face);
       }
     }//for all polygons
 
+  if ( pointColors ) {delete [] pointColors;}
+  if ( cellColors ) {delete [] cellColors;}
+
   // close the PLY file
   vtkPLY::ply_close (ply);
+}
   
-  }
-  
+unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
+                                       vtkDataSetAttributes *dsa)
+{
+  unsigned char *colors, *c;
+  vtkIdType i;
+  int numComp;
 
+  if ( this->ColorMode == VTK_COLOR_MODE_OFF ||
+       (this->ColorMode == VTK_COLOR_MODE_UNIFORM_CELL_COLOR &&
+        vtkPointData::SafeDownCast(dsa) != NULL) ||
+       (this->ColorMode == VTK_COLOR_MODE_UNIFORM_POINT_COLOR &&
+        vtkCellData::SafeDownCast(dsa) != NULL) )
+    {
+    return NULL;
+    }
+  else if ( this->ColorMode == VTK_COLOR_MODE_UNIFORM_COLOR ||
+    this->ColorMode == VTK_COLOR_MODE_UNIFORM_POINT_COLOR ||
+    this->ColorMode == VTK_COLOR_MODE_UNIFORM_CELL_COLOR )
+    {
+    colors = c = new unsigned char[3*num];
+    for (i=0; i<num; i++)
+      {
+      *c++ = this->Color[0];
+      *c++ = this->Color[1];
+      *c++ = this->Color[2];
+      }
+    return colors;
+    }
+  else //we will color based on data
+    {
+    float *tuple;
+    vtkDataArray *da;
+    unsigned char *rgb;
+    vtkUnsignedCharArray *rgbArray;
 
+    if ( !this->ArrayName || (da=dsa->GetArray(this->ArrayName)) == NULL ||
+         this->Component >= (numComp=da->GetNumberOfComponents()) )
+      {
+      return NULL;
+      }
+    else if ( (rgbArray=vtkUnsignedCharArray::SafeDownCast(da)) != NULL &&
+              numComp == 3 )
+      {//have unsigned char array of three components, copy it
+      colors = c = new unsigned char[3*num];
+      rgb = rgbArray->GetPointer(0);
+      for (i=0; i<num; i++)
+        {
+        *c++ = *rgb++;
+        *c++ = *rgb++;
+        *c++ = *rgb++;
+        }
+      return colors;
+      }
+    else if ( this->LookupTable != NULL )
+      {//use the data array mapped through lookup table
+      colors = c = new unsigned char[3*num];
+      for (i=0; i<num; i++)
+        {
+        tuple = da->GetTuple(i);
+        rgb = this->LookupTable->MapValue(tuple[this->Component]);
+        *c++ = rgb[0];
+        *c++ = rgb[1];
+        *c++ = rgb[2];
+        }
+      return colors;
+      }
+    else //no lookup table
+      {
+      return NULL;
+      }
+    }
+}

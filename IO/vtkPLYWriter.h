@@ -67,6 +67,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_LITTLE_ENDIAN 0
 #define VTK_BIG_ENDIAN    1
 
+#define VTK_COLOR_MODE_DEFAULT 0
+#define VTK_COLOR_MODE_UNIFORM_CELL_COLOR 1
+#define VTK_COLOR_MODE_UNIFORM_POINT_COLOR 2
+#define VTK_COLOR_MODE_UNIFORM_COLOR 3
+#define VTK_COLOR_MODE_OFF 4
+
+
 class VTK_EXPORT vtkPLYWriter : public vtkPolyDataWriter
 {
 public:
@@ -83,61 +90,72 @@ public:
   void SetDataByteOrderToLittleEndian()
     {this->SetDataByteOrder(VTK_LITTLE_ENDIAN);}
 
-  // ---Writing point data-----------
-
   // Description:
-  // Enable the writing of point scalars as the vertex property "scalars".
-  // By default, WritePointScalars is off.
-  vtkSetMacro(WritePointScalars,int);
-  vtkGetMacro(WritePointScalars,int);
-  vtkBooleanMacro(WritePointScalars,int);
+  // These methods enable the user to control how to add color into the PLY
+  // output file. The default behavior is as follows. The user provides the
+  // name of an array and a component number. If the type of the array is
+  // three components, unsigned char, then the data is written as three
+  // separate "red", "green" and "blue" properties. If the type is not
+  // unsigned char, and a lookup table is provided, then the array/component
+  // are mapped through the table to generate three separate "red", "green"
+  // and "blue" properties in the PLY file. The user can also set the
+  // ColorMode to specify a uniform color for the whole part (on a vertex
+  // colors, face colors, or both. (Note: vertex colors or cell colors may be
+  // written, depending on where the named array is found. If points and
+  // cells have the arrays with the same name, then both colors will be
+  // written.)
+  vtkSetMacro(ColorMode,int);
+  vtkGetMacro(ColorMode,int);
+  void SetColorModeToDefault() 
+    {this->SetColorMode(VTK_COLOR_MODE_DEFAULT);}
+  void SetColorModeToUniformCellColor() 
+    {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_CELL_COLOR);}
+  void SetColorModeToUniformPointColor() 
+    {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_POINT_COLOR);}
+  void SetColorModeToUniformColor() //both cells and points are colored
+    {this->SetColorMode(VTK_COLOR_MODE_UNIFORM_COLOR);}
+  void SetColorModeToOff() //No color information is written
+    {this->SetColorMode(VTK_COLOR_MODE_OFF);}
   
   // Description:
-  // A lookup table can be specified in order to convert point scalars to
-  // RGBA colors. Normally the scalars are written as a vertex separate
-  // property called "scalars". However, if the scalars are unsigned char
-  // and three or more components, then the PLY properties "red", "green",
-  // and "blue" are written; or, if the scalars have an associated lookup
-  // table, then the red, green, blue properties are also written. (Note that
-  // data arrays (like scalars) can have an associated lookup table as well.)
-  vtkSetObjectMacro(PointLookupTable,vtkScalarsToColors);
-  vtkGetObjectMacro(PointLookupTable,vtkScalarsToColors);
-
-  // ---Writing cell data-----------
-
-  // Description:
-  // Enable the writing of cell scalars as the vertex property "scalars".
-  // By default, WriteCellScalars is off.
-  vtkSetMacro(WriteCellScalars,int);
-  vtkGetMacro(WriteCellScalars,int);
-  vtkBooleanMacro(WriteCellScalars,int);
+  // Specify the array name to use to color the data.
+  vtkSetStringMacro(ArrayName);
+  vtkGetStringMacro(ArrayName);
   
   // Description:
-  // A lookup table can be specified in order to convert cell scalars to
-  // RGBA colors. Normally the scalars are written as a vertex separate
-  // property called "scalars". However, if the scalars are unsigned char
-  // and three or more components, then the PLY properties "red", "green",
-  // and "blue" are written; or, if the scalars have an associated lookup
-  // table, then the red, green, blue properties are also written. (Note that
-  // data arrays (like scalars) can have an associated lookup table as well.)
-  vtkSetObjectMacro(CellLookupTable,vtkScalarsToColors);
-  vtkGetObjectMacro(CellLookupTable,vtkScalarsToColors);
+  // Specify the array component to use to color the data.
+  vtkSetClampMacro(Component,int,0,VTK_LARGE_INTEGER);
+  vtkGetMacro(Component,int);
+
+  // Description:
+  // A lookup table can be specified in order to convert data arrays to
+  // RGBA colors.
+  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  
+  // Description:
+  // Set the color to use when using a uniform color (either point or cells,
+  // or both). The color is specified as a triplet of three unsigned chars
+  // between (0,255). This only takes effect when the ColorMode is set to
+  // uniform point, uniform cell, or uniform color.
+  vtkSetVector3Macro(Color,unsigned char);
+  vtkGetVector3Macro(Color,unsigned char);
 
 protected:
   vtkPLYWriter();
-  ~vtkPLYWriter() {};
+  ~vtkPLYWriter();
   vtkPLYWriter(const vtkPLYWriter&);
   void operator=(const vtkPLYWriter&);
 
   void WriteData();
+  unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
   
   int DataByteOrder;
-  
-  int WritePointScalars;
-  vtkScalarsToColors *PointLookupTable;
-  
-  int WriteCellScalars;
-  vtkScalarsToColors *CellLookupTable;
+  char *ArrayName;
+  int Component;
+  int ColorMode;
+  vtkScalarsToColors *LookupTable;
+  unsigned char Color[3];
 
 };
 
