@@ -1,0 +1,127 @@
+SOURCE_FILES( Imaging_SRCS
+vtkGlyphSource2D
+vtkImageAccumulate
+vtkImageAnisotropicDiffusion2D
+vtkImageAnisotropicDiffusion3D
+vtkImageAppend
+vtkImageAppendComponents
+vtkImageBlend
+vtkImageButterworthHighPass
+vtkImageButterworthLowPass
+vtkImageCacheFilter
+vtkImageCanvasSource2D
+vtkImageCast
+vtkImageCityBlockDistance
+vtkImageClip
+vtkImageConnector
+vtkImageConstantPad
+vtkImageContinuousDilate3D
+vtkImageContinuousErode3D
+vtkImageCorrelation
+vtkImageCursor3D
+vtkImageDataStreamer
+vtkImageDecomposeFilter
+vtkImageDifference
+vtkImageDilateErode3D
+vtkImageDivergence
+vtkImageDotProduct
+vtkImageEllipsoidSource
+vtkImageEuclideanToPolar
+vtkImageExport
+vtkImageExtractComponents
+vtkImageFFT
+vtkImageFlip
+vtkImageFourierCenter
+vtkImageFourierFilter
+vtkImageGaussianSmooth
+vtkImageGaussianSource
+vtkImageGradient
+vtkImageGradientMagnitude
+vtkImageGridSource
+vtkImageHSVToRGB
+vtkImageHybridMedian2D
+vtkImageIdealHighPass
+vtkImageIdealLowPass
+vtkImageImport
+vtkImageIslandRemoval2D
+vtkImageIterateFilter
+vtkImageLaplacian
+vtkImageLogarithmicScale
+vtkImageLogic
+vtkImageLuminance
+vtkImageMagnify
+vtkImageMagnitude
+vtkImageMandelbrotSource
+vtkImageMapToColors
+vtkImageMapToRGBA
+vtkImageMapToWindowLevelColors
+vtkImageMask
+vtkImageMaskBits
+vtkImageMathematics
+vtkImageMedian3D
+vtkImageMirrorPad
+vtkImageNoiseSource
+vtkImageNonMaximumSuppression
+vtkImageNormalize
+vtkImageOpenClose3D
+vtkImagePadFilter
+vtkImagePermute
+vtkImageQuantizeRGBToIndex
+vtkImageRFFT
+vtkImageRGBToHSV
+vtkImageRange3D
+vtkImageResample
+vtkImageSeedConnectivity
+vtkImageShiftScale
+vtkImageShrink3D
+vtkImageSinusoidSource
+vtkImageSkeleton2D
+vtkImageSobel2D
+vtkImageSobel3D
+vtkImageSpatialFilter
+vtkImageThreshold
+vtkImageTranslateExtent
+vtkImageVariance3D
+vtkImageWrapPad
+)
+
+ABSTRACT_FILES(
+vtkImageDecomposeFilter 
+vtkImageInPlaceFilter 
+vtkImageIterateFilter 
+vtkImageMultipleInputFilter 
+vtkImageMultipleInputOutputFilter 
+vtkImagePadFilter 
+vtkImageSpatialFilter 
+vtkImageToImageFilter 
+vtkImageTwoInputFilter 
+vtkImageFourierFilter 
+vtkSimpleImageToImageFilter 
+)
+
+ADD_LIBRARY(vtkImaging Imaging_SRCS)
+
+# if we are wrapping into Tcl then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_TCL)
+  VTK_WRAP_TCL(vtkImagingTCL ImagingTCL_SRCS Imaging_SRCS)
+  ADD_LIBRARY(vtkImagingTCL ImagingTCL_SRCS)
+  TARGET_LINK_LIBRARIES (vtkImagingTCL vtkFilteringTCL vtkCommonTCL )
+ENDIF (VTK_WRAP_TCL)
+
+# if we are wrapping into Tcl then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_PYTHON)
+  VTK_WRAP_PYTHON(vtkImagingPython ImagingPython_SRCS Imaging_SRCS)
+  ADD_LIBRARY(vtkImagingPython ImagingPython_SRCS)
+  TARGET_LINK_LIBRARIES (vtkImagingPython vtkFilteringPython vtkCommonPython )
+ENDIF (VTK_WRAP_PYTHON)
+
+LINK_LIBRARIES (
+vtkCommon 
+vtkFiltering
+vtkImaging 
+)
+

@@ -120,9 +120,30 @@ vtkWindowedSincPolyDataFilter
 )
 
 
+ADD_LIBRARY(vtkGraphics Graphics_SRCS)
+
+# if we are wrapping into Tcl then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_TCL)
+  VTK_WRAP_TCL(vtkGraphicsTCL GraphicsTCL_SRCS Graphics_SRCS)
+  ADD_LIBRARY(vtkGraphicsTCL GraphicsTCL_SRCS)
+  TARGET_LINK_LIBRARIES (vtkGraphicsTCL vtkFilteringTCL vtkCommonTCL )
+ENDIF (VTK_WRAP_TCL)
+
+# if we are wrapping into Tcl then add the library and extra 
+# source files
+#
+IF (VTK_WRAP_PYTHON)
+  VTK_WRAP_PYTHON(vtkGraphicsPython GraphicsPython_SRCS Graphics_SRCS)
+  ADD_LIBRARY(vtkGraphicsPython GraphicsPython_SRCS)
+  TARGET_LINK_LIBRARIES (vtkGraphicsPython vtkFilteringPython vtkCommonPython )
+ENDIF (VTK_WRAP_PYTHON)
+
 LINK_LIBRARIES (
 vtkCommon 
 vtkFiltering
-vtkGraphics
+vtkGraphics 
 )
+
 

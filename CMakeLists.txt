@@ -1,6 +1,6 @@
 PROJECT(VTK)
 
-SUBDIRS(Wrapping Common Filtering Imaging)
+SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
 
 BUILD_SHARED_LIBRARIES()
 
@@ -53,20 +53,20 @@ ${VTK_BINARY_DIR}
 ${VTK_SOURCE_DIR}/Common
 ${VTK_SOURCE_DIR}/Filtering
 ${VTK_SOURCE_DIR}/Imaging
+${VTK_SOURCE_DIR}/Graphics
+${VTK_SOURCE_DIR}/IO
 ${VTK_SOURCE_DIR}/rendering 
-${VTK_SOURCE_DIR}/io
 ${VTK_SOURCE_DIR}/implicit
-${VTK_SOURCE_DIR}/graphics
 )
 
 LINK_DIRECTORIES(
 ${VTK_BINARY_DIR}/Common 
 ${VTK_BINARY_DIR}/Filtering
 ${VTK_BINARY_DIR}/Imaging
+${VTK_BINARY_DIR}/Graphics
+${VTK_BINARY_DIR}/IO
 ${VTK_BINARY_DIR}/rendering
-${VTK_BINARY_DIR}/io
 ${VTK_BINARY_DIR}/implicit
-${VTK_BINARY_DIR}/graphics
 ${PY_LIB_PATH}
 ${PY_LIB_PATH2}
 )
