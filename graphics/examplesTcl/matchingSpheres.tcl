@@ -39,7 +39,12 @@ ren1 AddActor actor1
 ren1 AddActor actor2
 
 ren1 SetBackground 1 1 1
-[ren1 GetActiveCamera] Elevation 90
+[ren1 GetActiveCamera] SetPosition 0.125 3.08564 6.8515e-16 
+[ren1 GetActiveCamera] SetFocalPoint 0.125 -1.49012e-08 0 
+[ren1 GetActiveCamera] SetViewAngle 30
+[ren1 GetActiveCamera] SetViewUp 0 1 0 
+[ren1 GetActiveCamera] SetClippingRange 2.05978 4.38443 
+
 
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
