@@ -103,9 +103,11 @@ protected:
   vtkIdList *EndPoint2List;
   vtkPriorityQueue *EdgeCosts;
 
+  //BTX
   typedef struct {
     float *Quadric;
   } ErrorQuadricStruct;
+  //ETX
   ErrorQuadricStruct *ErrorQuadrics;
 
   int AttributeComponents[6];

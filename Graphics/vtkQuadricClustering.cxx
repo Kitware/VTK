@@ -25,7 +25,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.48");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.49");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -237,9 +237,10 @@ void vtkQuadricClustering::StartAppend(float *bounds)
     delete [] this->QuadricArray;
     this->QuadricArray = NULL;
     }
-  this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfDivisions[0] *
-                                             this->NumberOfDivisions[1] *
-                                             this->NumberOfDivisions[2]];
+  this->QuadricArray = 
+    new vtkQuadricClustering::PointQuadricStruct[this->NumberOfDivisions[0] *
+                                                this->NumberOfDivisions[1] *
+                                                this->NumberOfDivisions[2]];
   if (this->QuadricArray == NULL)
     {
     vtkErrorMacro("Could not allocate quadric grid.");

@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDecimatePro, "1.70");
+vtkCxxRevisionMacro(vtkDecimatePro, "1.71");
 vtkStandardNewMacro(vtkDecimatePro);
 
 #define VTK_TOLERANCE 1.0e-05
@@ -62,8 +62,8 @@ vtkDecimatePro::vtkDecimatePro()
 {
   this->Neighbors = vtkIdList::New();
   this->Neighbors->Allocate(VTK_MAX_TRIS_PER_VERTEX);
-  this->V = new vtkProVertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
-  this->T = new vtkProTriArray(VTK_MAX_TRIS_PER_VERTEX+1);
+  this->V = new vtkDecimatePro::VertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
+  this->T = new vtkDecimatePro::TriArray(VTK_MAX_TRIS_PER_VERTEX+1);
   this->EdgeLengths = vtkPriorityQueue::New();
   this->EdgeLengths->Allocate(VTK_MAX_TRIS_PER_VERTEX);
   
@@ -480,8 +480,8 @@ int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
 {
   vtkIdType numNei, numFEdges;
   vtkIdType numVerts;
-  vtkProLocalTri t;
-  vtkProLocalVertex sn;
+  vtkDecimatePro::LocalTri t;
+  vtkDecimatePro::LocalVertex sn;
   vtkIdType startVertex, nextVertex, numNormals;
   int i, j, vtype;
   vtkIdType *verts;

@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkDashedStreamLine, "1.38");
+vtkCxxRevisionMacro(vtkDashedStreamLine, "1.39");
 vtkStandardNewMacro(vtkDashedStreamLine);
 
 vtkDashedStreamLine::vtkDashedStreamLine()
@@ -39,7 +39,7 @@ void vtkDashedStreamLine::Execute()
     return;
     }
 
-  vtkStreamPoint *sPrev, *sPtr;
+  vtkStreamer::StreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
   vtkFloatArray *newVectors;
   vtkFloatArray *newScalars=NULL;

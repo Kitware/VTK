@@ -23,23 +23,23 @@
 #include "vtkInterpolatedVelocityField.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.76");
+vtkCxxRevisionMacro(vtkStreamer, "1.77");
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1
 
-vtkStreamArray::vtkStreamArray()
+vtkStreamer::StreamArray::StreamArray()
 {
   this->MaxId = -1; 
-  this->Array = new vtkStreamPoint[1000];
+  this->Array = new vtkStreamer::StreamPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
   this->Direction = VTK_INTEGRATE_FORWARD;
 }
 
-vtkStreamPoint *vtkStreamArray::Resize(vtkIdType sz)
+vtkStreamer::StreamPoint *vtkStreamer::StreamArray::Resize(vtkIdType sz)
 {
-  vtkStreamPoint *newArray;
+  vtkStreamer::StreamPoint *newArray;
   vtkIdType newSize;
 
   if (sz >= this->Size)
@@ -52,10 +52,10 @@ vtkStreamPoint *vtkStreamArray::Resize(vtkIdType sz)
     newSize = sz;
     }
 
-  newArray = new vtkStreamPoint[newSize];
+  newArray = new vtkStreamer::StreamPoint[newSize];
 
   memcpy(newArray, this->Array,
-         (sz < this->Size ? sz : this->Size) * sizeof(vtkStreamPoint));
+         (sz < this->Size ? sz : this->Size) * sizeof(vtkStreamer::StreamPoint));
 
   this->Size = newSize;
   delete [] this->Array;
@@ -201,9 +201,9 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkStreamer              *self;
   int                      thread_count;
   int                      thread_id;
-  vtkStreamArray           *streamer;
-  vtkStreamPoint           *sNext = 0, *sPtr;
-  vtkStreamPoint           pt1, pt2;
+  vtkStreamer::StreamArray           *streamer;
+  vtkStreamer::StreamPoint *sNext = 0, *sPtr;
+  vtkStreamer::StreamPoint pt1, pt2;
   int                      i;
   vtkIdType                idxNext, ptId;
   float                    d, step, dir;
@@ -445,7 +445,7 @@ void vtkStreamer::Integrate()
   vtkDataArray *inScalars;
   vtkDataArray *inVectors;
   vtkIdType numSourcePts, idx, idxNext;
-  vtkStreamPoint *sNext, *sPtr;
+  vtkStreamer::StreamPoint *sNext, *sPtr;
   vtkIdType ptId, i;
   int j, offset;
   vtkCell *cell;
@@ -499,7 +499,7 @@ void vtkStreamer::Integrate()
     this->NumberOfStreamers *= 2;
     }
 
-  this->Streamers = new vtkStreamArray[this->NumberOfStreamers];
+  this->Streamers = new vtkStreamer::StreamArray[this->NumberOfStreamers];
 
   if ( this->StartFrom == VTK_START_FROM_POSITION && !this->GetSource() )
     {

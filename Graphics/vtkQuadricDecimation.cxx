@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkQuadricDecimation, "1.19");
+vtkCxxRevisionMacro(vtkQuadricDecimation, "1.20");
 vtkStandardNewMacro(vtkQuadricDecimation);
 
 //----------------------------------------------------------------------------
@@ -91,7 +91,8 @@ void vtkQuadricDecimation::Execute()
     return;
     }
 
-  this->ErrorQuadrics = new VTK_ERROR_QUADRIC[input->GetNumberOfPoints()];
+  this->ErrorQuadrics = 
+    new vtkQuadricDecimation::ErrorQuadricStruct[input->GetNumberOfPoints()];
   this->Mesh->DeepCopy(input);
   input->BuildLinks();
   this->Mesh->BuildLinks();

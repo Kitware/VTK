@@ -84,72 +84,6 @@
 #include "vtkPriorityQueue.h"
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
-// Special structures for building loops
-typedef struct _vtkProLocalVertex 
-  {
-  vtkIdType     id;
-  float   x[3];
-  float   FAngle;
-  } vtkProLocalVertex, *vtkProLocalVertexPtr;
-    
-typedef struct _vtkProLocalTri
-  {
-  vtkIdType     id;
-  float   area;
-  float   n[3];
-  vtkIdType     verts[3];
-  } vtkProLocalTri, *vtkProLocalTriPtr;
-
-//
-// Special classes for manipulating data
-//
-//BTX - begin tcl exclude
-//
-class vtkProVertexArray { //;prevent man page generation
-public:
-  vtkProVertexArray(const vtkIdType sz) 
-    {this->MaxId = -1; this->Array = new vtkProLocalVertex[sz];};
-  ~vtkProVertexArray()
-    {
-    if (this->Array)
-      {
-      delete [] this->Array;
-      }
-    };
-  vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
-  void InsertNextVertex(vtkProLocalVertex& v) 
-    {this->MaxId++; this->Array[this->MaxId] = v;};
-  vtkProLocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
-  void Reset() {this->MaxId = -1;};
-
-  vtkProLocalVertex *Array; // pointer to data
-  vtkIdType MaxId;             // maximum index inserted thus far
-};
-
-class vtkProTriArray { //;prevent man page generation
-public:
-  vtkProTriArray(const vtkIdType sz) 
-    {this->MaxId = -1; this->Array = new vtkProLocalTri[sz];};
-  ~vtkProTriArray()
-    {
-      if (this->Array)
-        {
-        delete [] this->Array;
-        }
-    };
-  vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
-  void InsertNextTriangle(vtkProLocalTri& t) 
-    {this->MaxId++; this->Array[this->MaxId] = t;};
-  vtkProLocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
-  void Reset() {this->MaxId = -1;};
-
-  vtkProLocalTri *Array;  // pointer to data
-  vtkIdType MaxId;           // maximum index inserted thus far
-};
-//ETX - end tcl exclude
-//
-
-
 class VTK_GRAPHICS_EXPORT vtkDecimatePro : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -333,6 +267,71 @@ protected:
                    vtkIdType pt1, vtkIdType pt2, vtkIdList *CollapseTris);
   void DistributeError(float error);
 
+  //
+  // Special classes for manipulating data
+  //
+  //BTX - begin tcl exclude
+  //
+  // Special structures for building loops
+  typedef struct LocalVertexStruct
+  {
+    vtkIdType     id;
+    float   x[3];
+    float   FAngle;
+  } LocalVertex, *LocalVertexPtr;
+    
+  typedef struct LocalTriStruct
+  {
+    vtkIdType     id;
+    float   area;
+    float   n[3];
+    vtkIdType     verts[3];
+  } LocalTri, *LocalTriPtr;
+
+  class VertexArray { //;prevent man page generation
+  public:
+    VertexArray(const vtkIdType sz) 
+      {this->MaxId = -1; this->Array = new LocalVertex[sz];};
+    ~VertexArray()
+      {
+        if (this->Array)
+          {
+          delete [] this->Array;
+          }
+      };
+    vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
+    void InsertNextVertex(LocalVertex& v) 
+      {this->MaxId++; this->Array[this->MaxId] = v;};
+    LocalVertex& GetVertex(vtkIdType i) {return this->Array[i];};
+    void Reset() {this->MaxId = -1;};
+
+    LocalVertex *Array; // pointer to data
+    vtkIdType MaxId;             // maximum index inserted thus far
+  };
+
+  class TriArray { //;prevent man page generation
+  public:
+    TriArray(const vtkIdType sz) 
+      {this->MaxId = -1; this->Array = new LocalTri[sz];};
+    ~TriArray()
+      {
+        if (this->Array)
+          {
+          delete [] this->Array;
+          }
+      };
+    vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
+    void InsertNextTriangle(LocalTri& t) 
+      {this->MaxId++; this->Array[this->MaxId] = t;};
+    LocalTri& GetTriangle(vtkIdType i) {return this->Array[i];};
+    void Reset() {this->MaxId = -1;};
+
+    LocalTri *Array;  // pointer to data
+    vtkIdType MaxId;           // maximum index inserted thus far
+  };
+  //ETX - end tcl exclude
+  //
+
 private:
   void InitializeQueue(vtkIdType numPts);
   void DeleteQueue()
@@ -350,8 +349,8 @@ private:
   vtkPriorityQueue *Queue;
   vtkFloatArray *VertexError;
 
-  vtkProVertexArray *V;
-  vtkProTriArray *T;
+  VertexArray *V;
+  TriArray *T;
 
   // Use to be static variables used by object
   vtkPolyData *Mesh; //operate on this data structure
