@@ -258,10 +258,7 @@ void vlSTLReader::CreateDefaultLocator()
 
 void vlSTLReader::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlSTLReader::GetClassName()))
-    {
-    vlPolySource::PrintSelf(os,indent);
+  vlPolySource::PrintSelf(os,indent);
 
-    os << indent << "Filename: " << this->Filename << "\n";
-    }
+  os << indent << "Filename: " << this->Filename << "\n";
 }
