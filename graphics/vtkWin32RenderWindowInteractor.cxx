@@ -396,7 +396,12 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
   vtkWin32RenderWindowInteractor *me;
   
   ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
-  me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
+  if (ren == NULL) 
+    { 
+    return 0; 
+		}
+ 
+	me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
   
   if (me == NULL) 
     { 
