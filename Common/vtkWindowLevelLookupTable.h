@@ -50,21 +50,21 @@ public:
   // Description:
   // Set the window for the lookup table.  The window is the difference
   // between TableRange[0] and TableRange[1].
-  void SetWindow(float window) {
+  void SetWindow(double window) {
     if (window < 1e-5f) { window = 1e-5f; }
     this->Window = window;
     this->SetTableRange(this->Level - this->Window/2.0f,
                         this->Level + this->Window/2.0f); };
-  vtkGetMacro(Window,float);
+  vtkGetMacro(Window,double);
 
   // Description:
   // Set the Level for the lookup table.  The level is the average of
   // TableRange[0] and TableRange[1].
-  void SetLevel(float level) {
+  void SetLevel(double level) {
     this->Level = level;
     this->SetTableRange(this->Level - this->Window/2.0f,
                         this->Level + this->Window/2.0f); };
-  vtkGetMacro(Level,float);
+  vtkGetMacro(Level,double);
 
   // Description:
   // Set inverse video on or off.  You can achieve the same effect by
@@ -77,15 +77,15 @@ public:
   // Set the minimum table value.  All lookup table entries below the
   // start of the ramp will be set to this color.  After you change
   // this value, you must re-build the lookup table.
-  vtkSetVector4Macro(MinimumTableValue,float);
-  vtkGetVector4Macro(MinimumTableValue,float);
+  vtkSetVector4Macro(MinimumTableValue,double);
+  vtkGetVector4Macro(MinimumTableValue,double);
 
   // Description:
   // Set the maximum table value. All lookup table entries above the
   // end of the ramp will be set to this color.  After you change
   // this value, you must re-build the lookup table.
-  vtkSetVector4Macro(MaximumTableValue,float);
-  vtkGetVector4Macro(MaximumTableValue,float);
+  vtkSetVector4Macro(MaximumTableValue,double);
+  vtkGetVector4Macro(MaximumTableValue,double);
 
   // Description:
   // For backwards compatibility: specify the color using integers
@@ -125,11 +125,11 @@ protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
   ~vtkWindowLevelLookupTable() {};
 
-  float Window;
-  float Level;
+  double Window;
+  double Level;
   int InverseVideo;
-  float MaximumTableValue[4];
-  float MinimumTableValue[4];
+  double MaximumTableValue[4];
+  double MinimumTableValue[4];
   unsigned char MinimumColor[4];
   unsigned char MaximumColor[4];
 private:

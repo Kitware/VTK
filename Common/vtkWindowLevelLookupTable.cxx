@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.19");
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.20");
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
@@ -28,15 +28,15 @@ vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
 
   this->InverseVideo = 0;
   
-  this->MinimumTableValue[0] = 0.0f;
-  this->MinimumTableValue[1] = 0.0f;
-  this->MinimumTableValue[2] = 0.0f;
-  this->MinimumTableValue[3] = 1.0f;
+  this->MinimumTableValue[0] = 0.0;
+  this->MinimumTableValue[1] = 0.0;
+  this->MinimumTableValue[2] = 0.0;
+  this->MinimumTableValue[3] = 1.0;
 
-  this->MaximumTableValue[0] = 1.0f;
-  this->MaximumTableValue[1] = 1.0f;
-  this->MaximumTableValue[2] = 1.0f;
-  this->MaximumTableValue[3] = 1.0f;
+  this->MaximumTableValue[0] = 1.0;
+  this->MaximumTableValue[1] = 1.0;
+  this->MaximumTableValue[2] = 1.0;
+  this->MaximumTableValue[3] = 1.0;
 
   this->MinimumColor[0] = 0;
   this->MinimumColor[1] = 0;
@@ -59,7 +59,7 @@ void vtkWindowLevelLookupTable::Build()
     {
     int i, j;
     unsigned char *rgba;
-    float start[4], incr[4];
+    double start[4], incr[4];
 
     for (j = 0; j < 4; j++)
       {
