@@ -81,7 +81,7 @@ class VTK_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
   vtkTextMapper();
-  virtual ~vtkTextMapper();
+  ~vtkTextMapper();
   const char *GetClassName() {return "vtkTextMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
