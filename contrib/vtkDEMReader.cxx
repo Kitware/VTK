@@ -92,6 +92,12 @@ void vtkDEMReader::ExecuteInformation()
   float spacing[3], origin[3];
   int extent[6];
 
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<< "A FileName must be specified.");
+    return;
+    }
+
   // read the header of the file to determine dimensions, origin and spacing
   this->ReadTypeARecord ();
 
@@ -119,6 +125,12 @@ void vtkDEMReader::EnlargeOutputUpdateExtents(vtkDataObject *vtkNotUsed(data))
 
 void vtkDEMReader::Execute(vtkImageData *data)
 {
+  if (!this->FileName)
+    {
+    vtkErrorMacro(<< "A FileName must be specified.");
+    return;
+    }
+
   if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs ints");
