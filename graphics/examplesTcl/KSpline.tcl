@@ -20,9 +20,7 @@ vtkKochanekSpline aSplineY
 vtkKochanekSpline aSplineZ
 
 # generate random points
-
 vtkPoints inputPoints
-
 for {set i 0} {$i<$numberOfInputPoints} {incr i 1} {
     set x  [math Random 0 1]
     set y  [math Random 0 1]
@@ -42,11 +40,11 @@ vtkSphereSource balls
   balls SetThetaResolution 10
 
 vtkGlyph3D glyphPoints
-glyphPoints SetInput inputData
-glyphPoints SetSource [balls GetOutput]
+  glyphPoints SetInput inputData
+  glyphPoints SetSource [balls GetOutput]
 
 vtkPolyDataMapper glyphMapper
-glyphMapper SetInput [glyphPoints GetOutput]
+  glyphMapper SetInput [glyphPoints GetOutput]
 
 vtkActor glyph
   glyph SetMapper glyphMapper
@@ -74,11 +72,12 @@ set continuity 0
 
 vtkPolyData profileData
 set numberOfOutputPoints 300
+set offset 1.0
 proc fit {} {
-  global numberOfInputPoints numberOfOutputPoints
+  global numberOfInputPoints numberOfOutputPoints offset
   points Reset
   for {set i 0} {$i< $numberOfOutputPoints} {incr i 1} {
-      set t [expr ( $numberOfInputPoints - 1.0 ) / $numberOfOutputPoints * $i]
+      set t [expr ( $numberOfInputPoints - $offset ) / ($numberOfOutputPoints - 1) * $i]
       points InsertPoint $i [aSplineX Evaluate $t] [aSplineY Evaluate $t] [aSplineZ Evaluate $t]
   }
   profileData Modified
@@ -166,5 +165,28 @@ proc varyContinuity {} {
     }
 }
 
+proc closed {} {
+    global offset
+
+    set offset 0.0
+    aSplineX ClosedOn
+    aSplineY ClosedOn
+    aSplineZ ClosedOn
+    fit
+    renWin Render
+}
+
+proc opened {} {
+    global offset
+
+    set offset 1.0
+    aSplineX ClosedOff
+    aSplineY ClosedOff
+    aSplineZ ClosedOff
+    fit
+    renWin Render
+}
+
 renWin SetFileName KSpline.tcl.ppm
 #renWin SaveImageAsPPM
+

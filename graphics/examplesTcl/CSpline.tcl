@@ -22,8 +22,7 @@ vtkCardinalSpline aSplineZ
 # generate random points
 
 vtkPoints inputPoints
-
-for {set i 0} {$i<$numberOfInputPoints} {incr i 1} {
+for {set i 0} {$i < $numberOfInputPoints} {incr i 1} {
     set x  [math Random 0 1]
     set y  [math Random 0 1]
     set z  [math Random 0 1]
@@ -42,31 +41,31 @@ vtkSphereSource balls
   balls SetThetaResolution 10
 
 vtkGlyph3D glyphPoints
-glyphPoints SetInput inputData
-glyphPoints SetSource [balls GetOutput]
+  glyphPoints SetInput inputData
+  glyphPoints SetSource [balls GetOutput]
 
 vtkPolyDataMapper glyphMapper
-glyphMapper SetInput [glyphPoints GetOutput]
+  glyphMapper SetInput [glyphPoints GetOutput]
 
 vtkActor glyph
   glyph SetMapper glyphMapper
-eval   [glyph GetProperty] SetDiffuseColor $tomato
+  eval   [glyph GetProperty] SetDiffuseColor $tomato
   [glyph GetProperty] SetSpecular .3
   [glyph GetProperty] SetSpecularPower 30
 
 ren1 AddActor glyph
 
-
+# create a polyline
 vtkPoints points
-# create a line
 vtkPolyData profileData
 
 set numberOfOutputPoints 400
+set offset 1.0
 proc fit {} {
-  global numberOfInputPoints numberOfOutputPoints
+  global numberOfInputPoints numberOfOutputPoints offset
   points Reset
   for {set i 0} {$i< $numberOfOutputPoints} {incr i 1} {
-      set t [expr ( $numberOfInputPoints - 1.0 ) / ( $numberOfOutputPoints - 1) * $i]
+      set t [expr ( $numberOfInputPoints - $offset ) / ( $numberOfOutputPoints - 1) * $i]
       points InsertPoint $i [aSplineX Evaluate $t] [aSplineY Evaluate $t] [aSplineZ Evaluate $t]
   }
   profileData Modified
@@ -76,14 +75,11 @@ fit
 vtkCellArray lines
   lines InsertNextCell $numberOfOutputPoints
 
-for {set i 0} {$i< $numberOfOutputPoints} {incr i 1} {
+for {set i 0} {$i < $numberOfOutputPoints} {incr i 1} {
   lines InsertCellPoint $i
 }
-
-
-    profileData SetPoints points
-    profileData SetLines lines
-
+profileData SetPoints points
+profileData SetLines lines
 
 vtkTubeFilter profileTubes
   profileTubes SetNumberOfSides 8
@@ -91,11 +87,11 @@ vtkTubeFilter profileTubes
   profileTubes SetRadius .005
 
 vtkPolyDataMapper profileMapper
-profileMapper SetInput [profileTubes GetOutput]
+  profileMapper SetInput [profileTubes GetOutput]
 
 vtkActor profile
   profile SetMapper profileMapper
-eval  [profile GetProperty] SetDiffuseColor $banana
+  eval  [profile GetProperty] SetDiffuseColor $banana
   [profile GetProperty] SetSpecular .3
   [profile GetProperty] SetSpecularPower 30
 
@@ -108,6 +104,17 @@ renWin SetSize 500 500
 #
 iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
+
+proc opened {} {
+    global offset
+
+    set offset 1.0
+    aSplineX ClosedOff
+    aSplineY ClosedOff
+    aSplineZ ClosedOff
+    fit
+    renWin Render
+}
 
 proc varyLeft {} {
     for {set left -1} { $left <= 1 } {set left [expr $left + .05]} {
@@ -138,9 +145,20 @@ proc constraint {value } {
   aSplineZ SetRightConstraint $value
 }
 
+proc closed {} {
+    global offset
+
+    set offset 0.0
+    aSplineX ClosedOn
+    aSplineY ClosedOn
+    aSplineZ ClosedOn
+    fit
+    renWin Render
+}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
 renWin SetFileName CSpline.tcl.ppm
 #renWin SaveImageAsPPM
+
