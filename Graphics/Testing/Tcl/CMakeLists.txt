@@ -20,7 +20,9 @@ IF (HAVE_PNG)
       PolyDataMapperAllPolygons
       PolyDataMapperAllWireframe
       probeComb
+      reconstructSurface
       quadricCut
+      scalarConn
       schwarz
       shepards
       socbal
