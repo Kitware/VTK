@@ -104,7 +104,7 @@ int *vtkImageXViewer::GetPosition(void)
   Window child;
   
   // if we aren't mapped then just return the ivar 
-  if (!this->Mapped)
+  if ( ! this->Mapped)
     {
     return(this->Position);
     }

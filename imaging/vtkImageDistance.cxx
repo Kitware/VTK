@@ -62,16 +62,24 @@ void vtkImageDistance::SetDimensionality(int num)
   
   for (idx = 0; idx < num; ++idx)
     {
+    // Free old filters
     if (this->Filters[idx])
       {
       this->Filters[idx]->Delete();
       }
+    // Create new filters
     this->Filters[idx] = vtkImageDistance1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     }
   
-  this->Dimensionality = num;
   this->Modified();
+  this->Dimensionality = num;
+  
+  // If the input has already been set, set the pipelines input.
+  if (this->Input)
+    {
+    this->SetInternalInput(this->Input);
+    }
 }
 
 

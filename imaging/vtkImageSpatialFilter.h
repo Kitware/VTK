@@ -55,6 +55,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 #include "vtkImageRegion.h"
 
+// Different execute behavior
+#define VTK_IMAGE_SPATIAL_CENTER 0
+#define VTK_IMAGE_SPATIAL_PIXEL 1
+#define VTK_IMAGE_SPATIAL_SUBCLASS 1
+
+// A macro to get the name of a type
+#define vtkImageSpatialExecuteTypeMacro(type) \
+(((type) == VTK_IMAGE_SPATIAL_SUBCLASS) ? "subclass" : \
+(((type) == VTK_IMAGE_SPATIAL_CENTER) ? "center" : \
+(((type) == VTK_IMAGE_SPATIAL_PIXEL) ? "pixel" : \
+"Undefined")))
+
 class VTK_EXPORT vtkImageSpatialFilter : public vtkImageFilter
 {
 public:
@@ -83,17 +95,27 @@ public:
   vtkBooleanMacro(HandleBoundaries,int);
   
   // Description:
-  // Set/Get whether a special method exists for non boundary condition.
-  vtkSetMacro(UseExecuteCenter,int);
-  vtkGetMacro(UseExecuteCenter,int);
-  vtkBooleanMacro(UseExecuteCenter,int);
+  // There are three types of execute methods that can be used by the subclass.
+  // "Subclass" is the usual execute method for non spatial filters,
+  // "Center" breaks the regions into two types: those that need boundary
+  // handling, and those that do not.  Different execute methods are called
+  // for the two types of regions. "Pixel" is an execute method called
+  // for each pixel of the output.
+  vtkSetMacro(ExecuteType, int);
+  vtkGetMacro(ExecuteType, int);
+  void SetExecuteTypeToSubclass()
+    {this->SetExecuteType(VTK_IMAGE_SPATIAL_SUBCLASS);}
+  void SetExecuteTypeToCenter()
+    {this->SetExecuteType(VTK_IMAGE_SPATIAL_CENTER);}
+  void SetExecuteTypeToPixel()
+    {this->SetExecuteType(VTK_IMAGE_SPATIAL_PIXEL);}
   
   // users shouldn't access these directly but templated functions need to
   int   KernelSize[VTK_IMAGE_DIMENSIONS];
   int   KernelMiddle[VTK_IMAGE_DIMENSIONS];      // Index of kernel origin
   int   Strides[VTK_IMAGE_DIMENSIONS];      // Shrink factor
-  int   HandleBoundaries;     // Shrink kernel at boundaries?
-  int   UseExecuteCenter;     // Will the subclass have special execute method.
+  int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
+  int   ExecuteType;   // Subclasses can use special execute methods.
 
 protected:
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
@@ -102,12 +124,19 @@ protected:
 					vtkImageRegion *inRegion);
   
   void Execute(int dim, vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  // For breaking up into center and boundary ...
   void ExecuteCenter(int dim, vtkImageRegion *inRegion,
 		     vtkImageRegion *outRegion);  
-  
   virtual void ExecuteCenter(vtkImageRegion *inRegion, 
 			     vtkImageRegion *outRegion);  
+  // For processing pixel by pixel.
+  void ExecutePixel(int dim, vtkImageRegion *inRegion,
+		    vtkImageRegion *outRegion);  
+  virtual void ExecutePixel(vtkImageRegion *inRegion, 
+			    vtkImageRegion *outRegion);  
+  
   void ComputeOutputImageExtent(int *extent, int handleBoundaries);
+
 };
 
 #endif

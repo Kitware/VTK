@@ -47,6 +47,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify::vtkImageMagnify()
 {
+  int idx;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->MagnificationFactors[idx] = 1;
+    
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -64,19 +71,30 @@ void vtkImageMagnify::SetDimensionality(int num)
   
   for (idx = 0; idx < num; ++idx)
     {
+    // Get rid of old filters
     if (this->Filters[idx])
       {
       this->Filters[idx]->Delete();
       }
+    // Create new filters
     this->Filters[idx] = vtkImageMagnify1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
-    // Get the default values for the MagnificationFactors.
-    this->MagnificationFactors[idx] 
-      = ((vtkImageMagnify1D *)this->Filters[idx])->GetMagnificationFactor();
+    // Set ivars
+    ((vtkImageMagnify1D *)
+     this->Filters[idx])->SetMagnificationFactor(
+			    this->MagnificationFactors[idx]);
+    ((vtkImageMagnify1D *)
+     this->Filters[idx])->SetInterpolate(this->Interpolate);
     }
   
   this->Dimensionality = num;
   this->Modified();
+  
+  // If the input has already been set, set the pipelines input.
+  if (this->Input)
+    {
+    this->SetInternalInput(this->Input);
+    }
 }
 
 
@@ -86,21 +104,23 @@ void vtkImageMagnify::SetMagnificationFactors(int num, int *factors)
 {
   int idx;
   
+  // If dimensionality has already been set
+  if (this->Dimensionality != num && this->Dimensionality != 0)
+    {
+    vtkWarningMacro(<< "SetMagnificationFactors: number of axes " << num 
+        << " does not match dimensionality " << this->Dimensionality);
+    }
+  
   for (idx = 0; idx < num; ++idx)
     {
-    // Having my own copy simplifies the Get methods.
     this->MagnificationFactors[idx] = factors[idx];
     if (this->Filters[idx])
       {
       ((vtkImageMagnify1D *)
        (this->Filters[idx]))->SetMagnificationFactor(factors[idx]);
       }
-    else
-      {
-      vtkErrorMacro(<< "SetMagnificationFactors: No filter. " 
-                    << "Did you SetDimensionality correctly?");
-      }
     }
+
   this->Modified();
 }
 
@@ -129,25 +149,16 @@ void vtkImageMagnify::SetInterpolate(int interpolate)
 {
   int idx;
   
-  if (this->Dimensionality == 0)
-    {
-    vtkWarningMacro(<< "SetInterpolate: No Filters. "
-                    << "Try SetDimensionality first.");
-    }
-  
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    if ( ! this->Filters[idx])
-      {
-      vtkWarningMacro(<< "SetStandardDeviation: Filter " << idx << " not set");
-      }
-    else
+    if (this->Filters[idx])
       {
       ((vtkImageMagnify1D *)
        (this->Filters[idx]))->SetInterpolate(interpolate);
       }
     }
-
+  
+  this->Interpolate = interpolate;
   this->Modified();
 }
 
@@ -156,13 +167,7 @@ void vtkImageMagnify::SetInterpolate(int interpolate)
 //----------------------------------------------------------------------------
 int vtkImageMagnify::GetInterpolate()
 {
-  if ( ! this->Filters[0])
-    {
-    vtkErrorMacro(<< "GetInterpolate: Filter not set.");
-    return 0;
-    }
-  
-  return ((vtkImageMagnify1D *)(this->Filters[0]))->GetInterpolate();
+  return this->Interpolate;
 }
 
 

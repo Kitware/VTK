@@ -62,10 +62,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
   
   // Description:
-  // The output is an image source that can be hooked to image filters.
-  vtkImageSource *GetOutput(){return this->Region->GetOutput();};
-  
-  // Description:
   // Set/Get the data type of the imported memory.
   void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);}
   void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);}
@@ -91,9 +87,17 @@ public:
   vtkImageGetExtentMacro(Extent);
   
   // Description:
-  // This passes the pipeline the data.  It must be called after "SetAxes",
-  // "SetExtent" and "SetScalarType".
+  // This method should be used when a single chunk of 
+  // memory is being imported.  It is the users responsibility to delete 
+  // the memory, but the memory cannot be delete before the first update.
   void SetPointer(void *ptr);
+  
+  // Description:
+  // This method should be used when the imported data is stored in
+  // a series of images which are not necessarily in contiguous memory
+  // It is the users responsibility to ultimately delete 
+  // the memory, but the memory cannot be delete before the first update.
+  void SetPointers(void **ptrs);
   
   // Description:
   // This method is used for testing the import/export fitlers.
@@ -111,10 +115,13 @@ protected:
   int Axes[VTK_IMAGE_DIMENSIONS];
   int Extent[VTK_IMAGE_EXTENT_DIMENSIONS];
   int ScalarType;
-  
-  // Dummy methods
-  void UpdateRegion(vtkImageRegion *){};
-  void UpdateImageInformation(vtkImageRegion *){};
+  void *Pointer;
+  void **Pointers;
+  int Initialized;
+
+  void InitializeRegion();
+  void UpdateRegion(vtkImageRegion *region);
+  void UpdateImageInformation(vtkImageRegion *region);
 };
 
 

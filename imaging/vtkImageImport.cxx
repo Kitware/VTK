@@ -43,6 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageImport::vtkImageImport()
 {
   this->Region = vtkImageRegion::New();
+  this->Pointer = NULL;
+  this->Pointers = NULL;
+  this->Initialized = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -59,7 +62,9 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
      << vtkImageScalarTypeNameMacro(this->ScalarType) << "\n";
   os << indent << "Region: (" << this->Region << ")\n";
   this->Region->PrintSelf(os,indent.GetNextIndent());
-  
+  os << indent << "Pointer: (" << this->Pointer << ")\n";
+  os << indent << "Pointers: (" << this->Pointers << ")\n";
+  os << indent << "Initialized: " << this->Initialized << "\n";
 }
 
 
@@ -85,55 +90,95 @@ void vtkImageImport::SetExtent(int dim, int *extent)
 //----------------------------------------------------------------------------
 void vtkImageImport::SetPointer(void *ptr)
 {
+  this->Initialized = 0;
+  this->Pointers = NULL;
+  this->Pointer = ptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageImport::SetPointers(void **ptrs)
+{
+  this->Initialized = 0;
+  this->Pointers = ptrs;
+  this->Pointer = NULL;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageImport::InitializeRegion()
+{
   int length;
   void *regionPtr;
   vtkImageData *data;
   
-  
-  this->Region->ReleaseData();
-  // Compute the length of the memory segment.
-  switch (this->ScalarType)
+  if ( this->Initialized)
     {
-    case VTK_FLOAT:
-      length = sizeof(float);
-      break;
-    case VTK_INT:
-      length = sizeof(int);
-      break;
-    case VTK_SHORT:
-      length = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      length = sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      length = sizeof(unsigned char);
-      break;
-    default:
-      vtkErrorMacro("Cannot determine ScalarType");
-      return;
+    return;
     }
-  length *= this->Region->GetVolume();
+  if (this->Pointer)
+    {
+    this->Region->ReleaseData();
+    // Compute the length of the memory segment.
+    switch (this->ScalarType)
+      {
+      case VTK_FLOAT:
+	length = sizeof(float);
+	break;
+      case VTK_INT:
+	length = sizeof(int);
+	break;
+      case VTK_SHORT:
+	length = sizeof(short);
+	break;
+      case VTK_UNSIGNED_SHORT:
+	length = sizeof(unsigned short);
+	break;
+      case VTK_UNSIGNED_CHAR:
+	length = sizeof(unsigned char);
+	break;
+      default:
+	vtkErrorMacro("Cannot determine ScalarType");
+	return;
+      }
+    length *= this->Region->GetVolume();
+    
+    
+    // make sure the underlying data object is set correctly
+    data = vtkImageData::New();
+    data->SetScalarType(this->ScalarType);
+    data->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
+    data->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+    
+    this->Region->SetScalarType(this->ScalarType);
+    this->Region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
+    this->Region->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+    this->Region->SetData(data);
+    
+    // copy the memory
+    vtkDebugMacro("SetPointer: Copying " << length << " bytes");
+    regionPtr = this->Region->GetScalarPointer();
+    memcpy(regionPtr, this->Pointer, length);
+    
+    this->Pointer = NULL;
+    this->Initialized = 1;
+    }
   
-  
-  // make sure the underlying data object is set correctly
-  data = vtkImageData::New();
-  data->SetScalarType(this->ScalarType);
-  data->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-  data->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+  vtkErrorMacro("Initialize: Cannot initialize");
+}
 
-  this->Region->SetScalarType(this->ScalarType);
-  this->Region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-  this->Region->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
-  this->Region->SetData(data);
-  
-  // copy the memory
-  vtkDebugMacro("SetPointer: Copying " << length << " bytes");
-  regionPtr = this->Region->GetScalarPointer();
-  memcpy(regionPtr, ptr, length);
-  
-  // data is reference counted
-  //data->Delete();
-  
+//----------------------------------------------------------------------------
+// Initialize and pass the request to the region/
+void vtkImageImport::UpdateRegion(vtkImageRegion *region)
+{
+  this->InitializeRegion();
+  this->Region->UpdateRegion(region);
+}
+
+
+//----------------------------------------------------------------------------
+// Just pass the request for information to the region.
+void vtkImageImport::UpdateImageInformation(vtkImageRegion *region)
+{
+  this->Region->UpdateImageInformation(region);
 }
 

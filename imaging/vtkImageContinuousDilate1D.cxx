@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilate1D.cxx
+  Module:    vtkImageContinuousDilate1D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,17 +38,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageDilate1D.h"
+#include "vtkImageContinuousDilate1D.h"
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImageDilate1D fitler.
+// Construct an instance of vtkImageContinuousDilate1D fitler.
 // By default zero values are dilated.
-vtkImageDilate1D::vtkImageDilate1D()
+vtkImageContinuousDilate1D::vtkImageContinuousDilate1D()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS);
-  this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
 
   // Poor performance, but simple implementation.
@@ -63,7 +62,7 @@ vtkImageDilate1D::vtkImageDilate1D()
 //----------------------------------------------------------------------------
 // Description:
 // This method sets the size of the neighborhood.
-void vtkImageDilate1D::SetKernelSize(int size)
+void vtkImageContinuousDilate1D::SetKernelSize(int size)
 {
   this->KernelSize[0] = size;
   this->KernelMiddle[0] = size / 2;
@@ -73,7 +72,7 @@ void vtkImageDilate1D::SetKernelSize(int size)
 //----------------------------------------------------------------------------
 // Description:
 // This method Does nothing for now.
-void vtkImageDilate1D::SetStride(int stride)
+void vtkImageContinuousDilate1D::SetStride(int stride)
 {
   this->Strides[0] = stride;
 }
@@ -86,7 +85,7 @@ void vtkImageDilate1D::SetStride(int stride)
 // Note that input pixel is offset from output pixel.
 // It also handles ImageExtent by truncating the kernel.  
 template <class T>
-static void vtkImageDilate1DExecute(vtkImageDilate1D *self,
+static void vtkImageContinuousDilate1DExecute(vtkImageContinuousDilate1D *self,
 			     vtkImageRegion *inRegion, T *inPtr,
 			     vtkImageRegion *outRegion, T *outPtr)
 {
@@ -115,7 +114,8 @@ static void vtkImageDilate1DExecute(vtkImageDilate1D *self,
     // just some error checking
     if (outMin < outImageExtentMin || outMax > outImageExtentMax)
       {
-      vtkGenericWarningMacro("vtkImageDilate1DExecute: Boundaries not handled.");
+      vtkGenericWarningMacro(
+            "vtkImageContinuousDilate1DExecute: Boundaries not handled.");
       return;
       }
     }
@@ -197,8 +197,8 @@ static void vtkImageDilate1DExecute(vtkImageDilate1D *self,
 // Description:
 // This method is passed a input and output region, and executes the Conv1d
 // algorithm to fill the output from the input.
-void vtkImageDilate1D::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+void vtkImageContinuousDilate1D::Execute(vtkImageRegion *inRegion, 
+					 vtkImageRegion *outRegion)
 {
   void *inPtr, *outPtr;
 
@@ -220,7 +220,7 @@ void vtkImageDilate1D::Execute(vtkImageRegion *inRegion,
   if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-                  << ", must match out ScalarType " << outRegion->GetScalarType());
+            << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
 
@@ -228,24 +228,24 @@ void vtkImageDilate1D::Execute(vtkImageRegion *inRegion,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageDilate1DExecute(this, inRegion, (float *)(inPtr), 
+      vtkImageContinuousDilate1DExecute(this, inRegion, (float *)(inPtr), 
 				 outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageDilate1DExecute(this, inRegion, (int *)(inPtr),
+      vtkImageContinuousDilate1DExecute(this, inRegion, (int *)(inPtr),
 				 outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageDilate1DExecute(this, inRegion, (short *)(inPtr),
+      vtkImageContinuousDilate1DExecute(this, inRegion, (short *)(inPtr),
 				 outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageDilate1DExecute(this,
+      vtkImageContinuousDilate1DExecute(this,
 				 inRegion, (unsigned short *)(inPtr), 
 				 outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageDilate1DExecute(this,
+      vtkImageContinuousDilate1DExecute(this,
 				 inRegion, (unsigned char *)(inPtr),
 				 outRegion, (unsigned char *)(outPtr));
       break;
@@ -254,6 +254,9 @@ void vtkImageDilate1D::Execute(vtkImageRegion *inRegion,
       return;
     }
 }
+
+
+
 
 
 

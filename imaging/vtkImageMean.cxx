@@ -68,12 +68,15 @@ void vtkImageMean::SetDimensionality(int num)
   
   for (idx = 0; idx < num; ++idx)
     {
+    // Remove old filters
     if (this->Filters[idx])
       {
       this->Filters[idx]->Delete();
       }
+    // Create new filters.
     this->Filters[idx] = vtkImageMean1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
+    // Set instance variables
     ((vtkImageMean1D *)
      (this->Filters[idx]))->SetKernelSize(this->KernelSize[idx]);
     ((vtkImageMean1D *)(this->Filters[idx]))->SetStride(this->Strides[idx]);
@@ -81,6 +84,12 @@ void vtkImageMean::SetDimensionality(int num)
   
   this->Dimensionality = num;
   this->Modified();
+  
+  // If the input has already been set, set the pipelines input.
+  if (this->Input)
+    {
+    this->SetInternalInput(this->Input);
+    }
 }
 
 
@@ -93,6 +102,13 @@ void vtkImageMean::SetStrides(int num, int *Strides)
     {
     vtkErrorMacro(<< "SetStrides: not that many dimensions.");
     num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  // If dimensionality has already been set
+  if (this->Dimensionality != num && this->Dimensionality != 0)
+    {
+    vtkWarningMacro(<< "SetMagnificationFactors: number of axes " << num 
+        << " does not match dimensionality " << this->Dimensionality);
     }
   
   for (idx = 0; idx < num; ++idx)
@@ -131,6 +147,13 @@ void vtkImageMean::GetStrides(int num, int *Strides)
 void vtkImageMean::SetKernelSize(int num, int *size)
 {
   int idx;
+  
+  // If dimensionality has already been set
+  if (this->Dimensionality != num && this->Dimensionality != 0)
+    {
+    vtkWarningMacro(<< "SetMagnificationFactors: number of axes " << num 
+        << " does not match dimensionality " << this->Dimensionality);
+    }
   
   if (num > VTK_IMAGE_DIMENSIONS)
     {

@@ -49,7 +49,6 @@ vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
   
-  this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
   this->SetNumberOfIterations(4);
   this->DiffusionThreshold = 5.0;

@@ -84,6 +84,12 @@ void vtkImageRFFT::SetDimensionality(int num)
   
   this->Dimensionality = num;
   this->Modified();
+
+  // If the input has already been set, set the pipelines input.
+  if (this->Input)
+    {
+    this->SetInternalInput(this->Input);
+    }
 }
 
 

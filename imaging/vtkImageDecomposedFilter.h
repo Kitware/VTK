@@ -42,7 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageDecomposedFilter is a super class for filters that break
 // their Nd processing into three 1d steps.  They contain a sub pipeline
-// that contains multiple 1d filters in series.
+// that contains multiple 1d filters in series.  It is important to 
+// "SetDimensionality" before the method "GetOutput" is called.
 
 
 #ifndef __vtkImageDecomposedFilter_h
@@ -88,6 +89,8 @@ public:
   
 protected:
   vtkImageFilter *Filters[VTK_IMAGE_DIMENSIONS];
+
+  void SetInternalInput(vtkImageSource *Input);
 };
 
 

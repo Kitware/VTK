@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkImageReader.h"
 #include "vtkImageCache.h"
+#include "vtkByteSwap.h"
 
 //----------------------------------------------------------------------------
 vtkImageReader::vtkImageReader()
@@ -70,6 +71,9 @@ vtkImageReader::vtkImageReader()
     this->Flips[idx] = 0;
     }
 
+  // origin is lower left, so flip y axis by default.
+  this->Flips[1] = 1;
+  
   this->FileName = NULL;
   
   this->HeaderSize = 0;
@@ -592,7 +596,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 	// handle swapping (legacy)
 	if (self->SwapBytes)
 	  {
-	  self->Swap(buf, pixelRead, self->PixelSize);
+	  vtkByteSwap::SwapVoidRange(buf, pixelRead, self->PixelSize);
 	  }
 	
 	// copy the bytes into the typed region
@@ -735,36 +739,6 @@ vtkImageSource *vtkImageReader::GetOutput()
 
 
 
-//----------------------------------------------------------------------------
-// Description:
-// Swaps the bytes of a buffer.  
-// Assumes the pixel size is divisible by two.
-// This should really be in vtkSwapBytes.
-void vtkImageReader::Swap(unsigned char *buffer, int numPixels, int pixelSize)
-{
-  unsigned char temp, *out;
-  int idx1, idx2, inc, half;
-  
-  half = pixelSize / 2;
-  inc = pixelSize - 1;
-  
-  for (idx1 = 0; idx1 < numPixels; ++idx1)
-    {
-    out = buffer + inc;
-    for (idx2 = 0; idx2 < half; ++idx2)
-      {
-      temp = *out;
-      *out = *buffer;
-      *buffer = temp;
-      ++buffer;
-      --out;
-      }
-    buffer += half;
-    }
-}
-
-  
-    
     
   
 

@@ -66,16 +66,26 @@ public:
   vtkSetMacro(First,int);
   vtkGetMacro(First,int);
   
-  // Description:
-  // Sets the range of the file image extensions.
   void SetImageRange(int start, int end);
 
+  // Description:
+  // This variable indicates how many dimensions are stored in a single file.
+  // In most cases, 2D images are stored in a file, but color can add
+  // a third dimension.
+  vtkSetMacro(FileDimensionality, int);
+  vtkGetMacro(FileDimensionality, int);
+  
 protected:
   
   char *FilePrefix;
   char *FilePattern;
   // The first image file has this index
   int First;
+
+  // How are the dimensions split between file and series.
+  // Number of dimensions within a single file.
+  // The rest are split up in the series.
+  int FileDimensionality;
 
   void Initialize();
   void UpdatePointData(vtkImageRegion *outRegion);    

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGaussianSmooth.h
+  Module:    vtkImageResample1D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,42 +38,41 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageGaussianSmooth - smooths on a 3D plane.
+// .NAME vtkImageResample1D - Resamples an image using linear interpolation.
 // .SECTION Description
-// vtkImageGaussianSmooth implements Gaussian smoothing over any number of 
-// axes. It really consists of multiple decomposed 1D filters.
+// vtkImageResample1D 
 
 
-#ifndef __vtkImageGaussianSmooth_h
-#define __vtkImageGaussianSmooth_h
+#ifndef __vtkImageResample1D_h
+#define __vtkImageResample1D_h
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageGaussianSmooth1D.h"
+#include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageResample1D : public vtkImageFilter
 {
 public:
-  vtkImageGaussianSmooth();
-  static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  char *GetClassName() {return "vtkImageGaussianSmooth";};
-
-  void SetDimensionality(int num);
-  void SetRadiusFactor(float factor);
-
-  void SetStandardDeviation(int num, float *std);
-  vtkImageSetMacro(StandardDeviation, float);
+  vtkImageResample1D();
+  static vtkImageResample1D *New() {return new vtkImageResample1D;};
+  char *GetClassName() {return "vtkImageResample1D";};
 
   // Description:
-  // Each axis can have a stride to srink the image.
-  void SetStrides(int num, int *strides);
-  vtkImageSetMacro(Strides, int);
+  // Set/Get the convolution axis.
+  vtkSetMacro(MagnificationFactor,float);
+  vtkGetMacro(MagnificationFactor,float);
+
+  // Description:
+  // Set the desired Spacing
+  void SetSpacing(float spacing);
   
 protected:
-  int Strides[VTK_IMAGE_DIMENSIONS];
-  float StandardDeviation[VTK_IMAGE_DIMENSIONS];
-  float RadiusFactor;
+  float MagnificationFactor;
+
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
+					vtkImageRegion *inRegion);
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 
 #endif

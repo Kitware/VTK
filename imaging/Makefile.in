@@ -30,9 +30,9 @@ vtkImageArithmetic \
 vtkImageCast \
 vtkImageClip \
 vtkImageConstantPad \
+vtkImageContinuousDilate \
+vtkImageContinuousDilate1D \
 vtkImageConvolution1D \
-vtkImageDilate \
-vtkImageDilate1D \
 vtkImageDilateErode \
 vtkImageDistance1D \
 vtkImageDistance \
@@ -69,6 +69,7 @@ vtkImageMirrorPad \
 vtkImageNonMaximumSuppression \
 vtkImageOpenClose \
 vtkImagePaint \
+vtkImageResample1D \
 vtkImageRDuotone \
 vtkImageRFFT \
 vtkImageRFFT1D \

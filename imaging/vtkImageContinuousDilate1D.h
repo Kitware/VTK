@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilate1D.h
+  Module:    vtkImageContinuousDilate1D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,25 +38,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDilate1D - Continous dilation (Max of neighborhood)
+// .NAME vtkImageContinuousDilate1D - Continous dilation (Max of neighborhood)
 // .SECTION Description
-// vtkImageDilate1D implements a 1d continous dilation by replacing
+// vtkImageContinuousDilate1D implements a 1d continous dilation by replacing
 // a pixel with the maximum of its neighborhood.
 // It is meant to decompose 2 or 3d dilation so they will be faster.
 
 
-#ifndef __vtkImageDilate1D_h
-#define __vtkImageDilate1D_h
+#ifndef __vtkImageContinuousDilate1D_h
+#define __vtkImageContinuousDilate1D_h
 
 
 #include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageDilate1D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageContinuousDilate1D : public vtkImageSpatialFilter
 {
 public:
-  vtkImageDilate1D();
-  static vtkImageDilate1D *New() {return new vtkImageDilate1D;};
-  char *GetClassName() {return "vtkImageDilate1D";};
+  vtkImageContinuousDilate1D();
+  static vtkImageContinuousDilate1D *New()
+    {return new vtkImageContinuousDilate1D;};
+  char *GetClassName() {return "vtkImageContinuousDilate1D";};
   void SetKernelSize(int size);
   void SetStride(int stride);
   

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilate.h
+  Module:    vtkImageContinuousDilate.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,25 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDilate - Continous dilation (Max of neighborhood)
+// .NAME vtkImageContinuousDilate - Maximum of neighborhood.
 // .SECTION Description
-// vtkImageDilate implements a continous dilation by replacing
+// vtkImageContinuousDilate implements a continous dilation by replacing
 // a pixel with the maximum of its neighborhood.
 
 
-#ifndef __vtkImageDilate_h
-#define __vtkImageDilate_h
+#ifndef __vtkImageContinuousDilate_h
+#define __vtkImageContinuousDilate_h
 
 
 #include "vtkImageDecomposedFilter.h"
-#include "vtkImageDilate1D.h"
+#include "vtkImageContinuousDilate1D.h"
 
-class VTK_EXPORT vtkImageDilate : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageContinuousDilate : public vtkImageDecomposedFilter
 {
 public:
-  vtkImageDilate();
-  static vtkImageDilate *New() {return new vtkImageDilate;};
-  char *GetClassName() {return "vtkImageDilate";};
+  vtkImageContinuousDilate();
+  static vtkImageContinuousDilate *New(){return new vtkImageContinuousDilate;};
+  char *GetClassName() {return "vtkImageContinuousDilate";};
 
   void SetDimensionality(int num);
 

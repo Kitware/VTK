@@ -60,16 +60,18 @@ void vtkImageFFT::SetDimensionality(int num)
   
   if (num > VTK_IMAGE_DIMENSIONS)
     {
-    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
+    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many filters.");
     return;
     }
   
   for (idx = 0; idx < num; ++idx)
     {
+    // GetRid of old filters
     if (this->Filters[idx])
       {
       this->Filters[idx]->Delete();
       }
+    // Create new filters
     this->Filters[idx] = vtkImageFFT1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     // Splitting the principle axis will do no good (reverse order).
@@ -83,6 +85,12 @@ void vtkImageFFT::SetDimensionality(int num)
   
   this->Dimensionality = num;
   this->Modified();
+  
+  // If the input has already been set, set the pipelines input.
+  if (this->Input)
+    {
+    this->SetInternalInput(this->Input);
+    }
 }
 
 

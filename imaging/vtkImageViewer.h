@@ -42,7 +42,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageViewer - Display a 2d image.
 // .SECTION Description
 // vtkImageViewer  is a generic viewer superclass.  The "New" method
-// creates a viewer of the correct type.
+// creates a viewer of the correct type.  Viewer have a coordinate system
+// measured in pixels, and does not consider "Spacing" when displaying 
+// an image.
 
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
@@ -55,6 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include 	"vtkImageSource.h"
 #include 	"vtkImageRegion.h"
 #include  "vtkStructuredPointsToImage.h"
+
+// For placement of origin in the viewer.
+#define VTK_IMAGE_VIEWER_UPPER_LEFT 0
+#define VTK_IMAGE_VIEWER_LOWER_LEFT 1
 
 class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:
@@ -74,6 +80,15 @@ public:
   // Description:
   // Subclass must define this method.
   virtual void Render(void) {};
+  
+  // Description:
+  // Set/Get the position of the origin in the viewer.
+  vtkSetMacro(OriginLocation, int);
+  vtkGetMacro(OriginLocation, int);
+  void SetOriginLocationToUpperLeft()
+    {this->SetOriginLocation(VTK_IMAGE_VIEWER_UPPER_LEFT);}
+  void SetOriginLocationToLowerLeft()
+    {this->SetOriginLocation(VTK_IMAGE_VIEWER_LOWER_LEFT);}
   
   // Description:
   // Set/Get the input to the viewer.
@@ -177,6 +192,8 @@ public:
   virtual void SetSize(int a[2]);
 
 protected:
+  // Placement of origin that determines orientation of image in viewer.
+  int OriginLocation;
   // location of upper left corner in window.
   int                  XOffset;
   int                  YOffset;

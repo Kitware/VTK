@@ -145,20 +145,40 @@ void vtkImageDecomposedFilter::SetInput(vtkImageSource *input)
   this->Modified();
   vtkDebugMacro(<< "SetInput: " << input->GetClassName()
 		<< " (" << input << ")");
+
+  if (this->Filters[0])
+    {
+    this->SetInternalInput(input);
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Set the Input of the sub pipeline.
+void vtkImageDecomposedFilter::SetInternalInput(vtkImageSource *input)
+{
+  int idx;
+  
+  vtkDebugMacro(<< "SetInternalInput: " << input->GetClassName()
+		<< " (" << input << ")");
+
   if ( ! this->Filters[0])
     {
-    vtkErrorMacro(<< "SetInput: Sub filters not created yet. "
-		  << " SetDimensionality first");
+    vtkDebugMacro("SetInternalInput: sub filters do not exists.");
     return;
     }
+  
   this->Filters[0]->SetInput(input);
   
   // Connect all the filters
+  // This is conditional on having the input because
+  // the OutputScalarTypes are computed when the pipeline is connected.
   for (idx = 1; idx < this->Dimensionality; ++idx)
     {
-    if ( ! this->Filters[1])
+    if ( ! this->Filters[idx])
       {
-      vtkErrorMacro(<< "SetInput: Sub filter not created yet.");
+      vtkErrorMacro(<< "SetInput: cannot find filter " << idx);
       return;
       }
     this->Filters[idx]->SetInput(this->Filters[idx-1]->GetOutput());

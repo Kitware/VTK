@@ -48,7 +48,24 @@ vtkImageGaussianSmooth::vtkImageGaussianSmooth()
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     this->Strides[idx] = 1;
+    this->StandardDeviation[idx] = 1;
     }
+  this->RadiusFactor = 2.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageGaussianSmooth::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int idx;
+  
+  this->vtkImageDecomposedFilter::PrintSelf(os, indent);
+  
+  os << indent << "StandardDeviation: ";
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << this->StandardDeviation[idx] << " ";
+    }
+  os << "\n";
 }
 
 
@@ -67,18 +84,31 @@ void vtkImageGaussianSmooth::SetDimensionality(int num)
   
   for (idx = 0; idx < num; ++idx)
     {
+    // Get rid of old filters.
     if (this->Filters[idx])
       {
       this->Filters[idx]->Delete();
       }
+    // Create new filters.
     this->Filters[idx] = vtkImageGaussianSmooth1D::New();
+    // Set instance variables (set before dimensionality)
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     ((vtkImageGaussianSmooth1D *)
      (this->Filters[idx]))->SetStride(this->Strides[idx]);
+    ((vtkImageGaussianSmooth1D *)
+     (this->Filters[idx]))->SetStandardDeviation(this->StandardDeviation[idx]);
+    ((vtkImageGaussianSmooth1D *)
+     (this->Filters[idx]))->SetRadiusFactor(this->RadiusFactor);
     }
   
   this->Dimensionality = num;
   this->Modified();
+
+  // If we have an input, set the input of the first fitler.
+  if (this->Input)
+    {
+    this->SetInternalInput(this->Input);
+    }
 }
 
 
@@ -89,23 +119,22 @@ void vtkImageGaussianSmooth::SetStandardDeviation(int num, float *std)
 {
   int idx;
   
-  if (this->Dimensionality != num)
+  // If dimensionality has already been set
+  if (this->Dimensionality != num && this->Dimensionality != 0)
     {
-    vtkWarningMacro(<< "SetStandardDeviation: number of axes " << num << " does not match dimensionality " << this->Dimensionality);
+    vtkWarningMacro(<< "SetStandardDeviation: number of axes " << num 
+        << " does not match dimensionality " << this->Dimensionality);
     }
   
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    if ( ! this->Filters[idx])
-      {
-      vtkErrorMacro(<< "SetStandardDeviation: Filter " << idx << " not set");
-      return;
-      }
-    else
+    // the %num is for backward compatability: (setting one sets them all)
+    this->StandardDeviation[idx] = std[idx%num];
+    // If the filters have been created, set their standard deviation.
+    if (this->Filters[idx])
       {
       ((vtkImageGaussianSmooth1D *)
        (this->Filters[idx]))->SetStandardDeviation(std[idx%num]);
-      this->StandardDeviation[idx] = std[idx%num];
       }
     }
 
@@ -118,26 +147,18 @@ void vtkImageGaussianSmooth::SetStandardDeviation(int num, float *std)
 void vtkImageGaussianSmooth::SetRadiusFactor(float factor)
 {
   int idx;
-  
-  if (this->Dimensionality == 0)
-    {
-    vtkWarningMacro(<< "SetRadiusFactor: No Filters. "
-                    << "Try SetDimensionality first.");
-    }
-  
+
+  // If the filters have been created, set their RadiusFactors
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    if ( ! this->Filters[idx])
-      {
-      vtkWarningMacro(<< "SetRadiusFactor: Filter " << idx << " not set");
-      }
-    else
+    if (this->Filters[idx])
       {
       ((vtkImageGaussianSmooth1D *)
        (this->Filters[idx]))->SetRadiusFactor(factor);
       }
     }
 
+  this->RadiusFactor = factor;
   this->Modified();
 }
 
@@ -146,6 +167,13 @@ void vtkImageGaussianSmooth::SetRadiusFactor(float factor)
 void vtkImageGaussianSmooth::SetStrides(int num, int *strides)
 {
   int idx;
+  
+  // If dimensionality has already been set
+  if (this->Dimensionality != num && this->Dimensionality != 0)
+    {
+    vtkWarningMacro(<< "SetStrides: number of axes " << num 
+        << " does not match dimensionality " << this->Dimensionality);
+    }
   
   for (idx = 0; idx < num; ++idx)
     {
@@ -159,3 +187,5 @@ void vtkImageGaussianSmooth::SetStrides(int num, int *strides)
   
   this->Modified();
 }
+
+

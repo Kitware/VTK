@@ -80,6 +80,7 @@ public:
   
 protected:
   int MagnificationFactors[VTK_IMAGE_DIMENSIONS];
+  int Interpolate;
 };
 
 #endif

@@ -52,6 +52,7 @@ vtkImageSeriesReader::vtkImageSeriesReader()
   
   this->SetFilePattern("%s.%d");
   this->First = 1;
+  this->FileDimensionality = 2;
 }
 
 //----------------------------------------------------------------------------
@@ -86,6 +87,7 @@ void vtkImageSeriesReader::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "First: " << this->First << "\n";
+  os << indent << "FileDimensionality: " << this->FileDimensionality << "\n";
 }
 
 
@@ -122,16 +124,17 @@ void vtkImageSeriesReader::Initialize()
   // call the superclass initialize.
   this->vtkImageReader::Initialize();
 
-  // Set two axes of FileExtent here since they are constant.
-  for (idx = 0; idx < 4; ++idx)
+  // Set FileExtent here since it is constant.
+  for (idx = 0; idx < 2 * this->FileDimensionality; ++idx)
     {
     this->FileExtent[idx] = this->DataExtent[idx];
     }  
   
   // some increments are invalid because files are 2D images.
-  for (idx = 3; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = this->FileDimensionality+1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->FileIncrements[idx] = this->FileIncrements[2];
+    this->FileIncrements[idx] = this->FileIncrements[this->FileDimensionality];
+    cerr << idx << ": increment " << this->FileIncrements[idx] << "\n";
     }
   
   // Recompute the header size.
@@ -145,6 +148,10 @@ void vtkImageSeriesReader::Initialize()
 }
 
 //----------------------------------------------------------------------------
+// Description:
+// Sets the range (extent) of the third axis.
+// This is for compatability with the old V16 reader.
+// In most cases this will be the range/extent of the series.
 void vtkImageSeriesReader::SetImageRange(int start, int end)
 {
   this->First = start;
@@ -187,17 +194,18 @@ void vtkImageSeriesReader::SetFilePattern(char *pattern)
 //----------------------------------------------------------------------------
 // Description:
 // This function is called by the cache to update a region.
-// It splits up the request into 2D images, and then reads the images 
-// from the files.  The axis[2] file numbers loop before the axis[3].
-// At the moment, it can only handle 4d data sets.
+// It loops over the last dimension that has data
+// It splits up the request into "images", and then reads the images 
+// from the files.  It assumes that the series contains at most
+// 2 dimensions.
 void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
 {
-  int idx2, idx3;
-  int dataIdx2, dataIdx3;
-  int outMin2, outMax2,  outMin3, outMax3;
+  int idx0, idx1, temp;
+  int dataIdx0, dataIdx1;
+  int outMin0, outMax0,  outMin1, outMax1;
   int *axis;
   int saveExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int fileInc3;  // how to increment the file numbers
+  int fileInc1;  // how to increment the file numbers
   int fileNumber;
   
   if ( ! this->Initialized)
@@ -208,45 +216,52 @@ void vtkImageSeriesReader::UpdatePointData(vtkImageRegion *region)
   // Save the extent of the original region.
   region->GetExtent(saveExtent);
   
-  // Increments used to compute file number. the dimensions of axis2.
-  fileInc3 = this->DataExtent[5] - this->DataExtent[4] + 1;
+  // Increments used to compute file number. (If more than one axis in series)
+  temp = this->FileDimensionality * 2;
+  fileInc1 = this->DataExtent[temp+1] - this->DataExtent[temp] + 1;
 
   // Get the extent of the extra axes. (Needed to loop over images.)
   axis = region->GetAxes();
-  region->GetAxisExtent(axis[2], outMin2, outMax2);
-  region->GetAxisExtent(axis[3], outMin3, outMax3);
+  region->GetAxisExtent(axis[this->FileDimensionality], outMin0, outMax0);
+  region->GetAxisExtent(axis[this->FileDimensionality+1], outMin1, outMax1);
   
   // loop over images
-  for (idx3 = outMin3; idx3 <= outMax3; ++idx3)
+  for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
     {
     // Convert extent from out coordinates to data coordinates.
-    if ( this->Flips[3])
+    if ( this->Flips[this->FileDimensionality+1])
       {
-      dataIdx3 = -idx3 + this->DataExtent[6] + this->DataExtent[7];
+      temp = (this->FileDimensionality+1) * 2;
+      dataIdx1 = -idx1 + this->DataExtent[temp] + this->DataExtent[temp+1];
       }
     else
       {
-      dataIdx3 = idx3;
+      dataIdx1 = idx1;
       }
-    region->SetAxisExtent(axis[3], idx3, idx3);
-    this->FileExtent[6] = this->FileExtent[7] = idx3;
-    for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
+    temp = this->FileDimensionality+1;
+    region->SetAxisExtent(axis[temp], idx1, idx1);
+    temp = temp * 2;
+    this->FileExtent[temp] = this->FileExtent[temp+1] = idx1;
+    for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
       {
       // Convert extent from out coordinates to data coordinates.
-      if ( this->Flips[2])
+      if ( this->Flips[this->FileDimensionality])
 	{
-	dataIdx2 = -idx2 + this->DataExtent[4] + this->DataExtent[5];
+	dataIdx0 = -idx0 + this->DataExtent[this->FileDimensionality*2] 
+	  + this->DataExtent[this->FileDimensionality*2+1];
 	}  
       else
 	{
-	dataIdx2 = idx2;
+	dataIdx0 = idx0;
 	}
-      region->SetAxisExtent(axis[2], idx2, idx2);
-      this->FileExtent[4] = this->FileExtent[5] = idx2;
+      region->SetAxisExtent(axis[this->FileDimensionality], idx0, idx0);
+      this->FileExtent[this->FileDimensionality*2] 
+	= this->FileExtent[this->FileDimensionality*2+1] = idx0;
     
       // compute the file number (I do not like this. Too messy)
-      fileNumber = this->First + (dataIdx2 - this->DataExtent[4])
-  	            + fileInc3 * (dataIdx3 - this->DataExtent[6]);
+      fileNumber = this->First 
+	+ (dataIdx0 - this->DataExtent[this->FileDimensionality*2])
+	+ fileInc1*(dataIdx1-this->DataExtent[(this->FileDimensionality+1)*2]);
       
       // Compute the file name.
       sprintf(this->FileName, this->FilePattern, this->FilePrefix, fileNumber);
