@@ -96,7 +96,6 @@ public:
   //ETX
 
   // supply base class virtual function
-  vtkRenderWindowInteractor *MakeRenderWindowInteractor();
   void SetDisplayId(void *) {};
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
