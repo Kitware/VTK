@@ -53,7 +53,7 @@ except ImportError:
     
 
 import sys, os.path
-
+from vtkGetDataRoot import vtkGetDataRoot
     
 def vtkRegressionTestImage( renWin ):
     
