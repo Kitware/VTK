@@ -21,7 +21,7 @@
 
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageFoo, "1.7");
+vtkCxxRevisionMacro(vtkImageFoo, "1.8");
 vtkStandardNewMacro(vtkImageFoo);
 
 //----------------------------------------------------------------------------
@@ -62,10 +62,10 @@ void vtkImageFoo::ExecuteInformation(vtkImageData *inData,
 // This templated function executes the filter for any type of data.
 
 template <class IT, class OT>
-static void vtkImageFooExecute(vtkImageFoo *self,
-                               vtkImageData *inData, IT *inPtr,
-                               vtkImageData *outData, OT *outPtr,
-                               int outExt[6], int id)
+void vtkImageFooExecute(vtkImageFoo *self,
+                        vtkImageData *inData, IT *inPtr,
+                        vtkImageData *outData, OT *outPtr,
+                        int outExt[6], int id)
 {
   float foo = self->GetFoo();
 
@@ -124,10 +124,10 @@ static void vtkImageFooExecute(vtkImageFoo *self,
 //----------------------------------------------------------------------------
 
 template <class T>
-static void vtkImageFooExecute1(vtkImageFoo *self,
-                                vtkImageData *inData, T *inPtr,
-                                vtkImageData *outData,
-                                int outExt[6], int id)
+void vtkImageFooExecute1(vtkImageFoo *self,
+                         vtkImageData *inData, T *inPtr,
+                         vtkImageData *outData,
+                         int outExt[6], int id)
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
