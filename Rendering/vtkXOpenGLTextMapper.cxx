@@ -189,6 +189,8 @@ void vtkXOpenGLTextMapper::ReleaseGraphicsResources(vtkWindow *win)
       }
     }
   this->LastWindow = NULL;
+  // forces CurrentFont to be reset if the Mapper is used again.
+  this->Modified();
 }
 
 vtkXOpenGLTextMapper::vtkXOpenGLTextMapper()
