@@ -39,9 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkOglrPrimitive.hh"
 #include "vtkOglrRenderer.hh"
 #include "vtkOglrProperty.hh"
-#include "vtkOglrPrimitive.hh"
 
 // Description:
 // Implement base class method.
