@@ -25,7 +25,11 @@ def vtkLoadPythonTkWidgets(interp):
     # create an extensive list of paths to search
     pathlist = sys.path
     # add tcl paths, ensure that {} is handled properly
-    for path in string.split(interp.getvar('auto_path')):
+    try:
+        auto_paths = string.split(interp.getvar('auto_path'))
+    except AttributeError:
+        auto_paths = interp.getvar('auto_path')
+    for path in auto_paths:
         prev = pathlist[-1]
         try:            
             # try block needed when one uses Gordon McMillan's Python
