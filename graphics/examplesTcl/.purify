@@ -294,3 +294,4 @@ suppress miu _malloc; NewVar; TclLookupVar; Tcl_ObjSetVar2; TclExecuteByteCode; 
 suppress miu _malloc; TclCompileString; SetByteCodeFromAny; TclObjInterpProc; TclExecuteByteCode; Tcl_EvalObj; Tcl_Eval; Tcl_EvalFile; Tcl_SourceObjCmd; TclExecuteByteCode
 suppress miu _malloc; _calloc; CreateContext; glXCreateContext; vtkOpenGLRenderWindow::WindowInitialize(void)
 suppress miu _malloc; _calloc; _XInternAtom; XInternAtom; _XSGIFastInternAtom; XkbUseExtension; XOpenDisplay
+suppress umc yylex(void); yyparse(void); vtkVRMLImporter::ImportBegin(void)
