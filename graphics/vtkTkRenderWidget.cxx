@@ -52,21 +52,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXRenderWindow.h"
 #endif
 
+#define VTK_ALL_EVENTS_MASK \
+    KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|	\
+    EnterWindowMask|LeaveWindowMask|PointerMotionMask|ExposureMask|	\
+    VisibilityChangeMask|FocusChangeMask|PropertyChangeMask|ColormapChangeMask
+
+#ifndef MAX
+#define MAX(a,b)	(((a)>(b))?(a):(b))
+#endif
+    
 // This is for creating the render window associated with the widget.
-static vtkRenderMaster vtkRenderWidgetMaster;
+static vtkRenderMaster vtkTkRenderWidgetMaster;
 
 // These are the options that can be set when the widget is created
 // or with the command configure.  The only new one is "-rw" which allows
 // the uses to set their own render window.
-static Tk_ConfigSpec vtkRenderWidgetConfigSpecs[] = {
+static Tk_ConfigSpec vtkTkRenderWidgetConfigSpecs[] = {
     {TK_CONFIG_PIXELS, "-height", "height", "Height",
-     "400", Tk_Offset(struct Vtkrenderwidget, Height), 0, NULL},
+     "400", Tk_Offset(struct vtkTkRenderWidget, Height), 0, NULL},
   
     {TK_CONFIG_PIXELS, "-width", "width", "Width",
-     "400", Tk_Offset(struct Vtkrenderwidget, Width), 0, NULL},
+     "400", Tk_Offset(struct vtkTkRenderWidget, Width), 0, NULL},
   
     {TK_CONFIG_STRING, "-rw", "rw", "RW",
-     "", Tk_Offset(struct Vtkrenderwidget, RW), 0, NULL},
+     "", Tk_Offset(struct vtkTkRenderWidget, RW), 0, NULL},
 
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
      (char *) NULL, 0, 0, NULL}
@@ -74,8 +83,9 @@ static Tk_ConfigSpec vtkRenderWidgetConfigSpecs[] = {
 
 
 // Foward prototypes
-static void Vtkrenderwidget_EventProc(ClientData clientData, XEvent *eventPtr);
-static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self);
+static void vtkTkRenderWidget_EventProc(ClientData clientData, 
+					XEvent *eventPtr);
+static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self);
 extern int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,
 				  int argc, char *argv[]);
 
@@ -83,11 +93,12 @@ extern int vtkRenderWindowCommand(ClientData cd, Tcl_Interp *interp,
 //----------------------------------------------------------------------------
 // It's possible to change with this function or in a script some
 // options like width, hieght or the render widget.
-int Vtkrenderwidget_Configure(Tcl_Interp *interp, struct Vtkrenderwidget *self,
-			      int argc, char *argv[], int flags) 
+int vtkTkRenderWidget_Configure(Tcl_Interp *interp, 
+				struct vtkTkRenderWidget *self,
+				int argc, char *argv[], int flags) 
 {
   // Let Tk handle generic configure options.
-  if (Tk_ConfigureWidget(interp, self->TkWin, vtkRenderWidgetConfigSpecs,
+  if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkRenderWidgetConfigSpecs,
 			 argc, argv, (char *)self, flags) 
       == TCL_ERROR) 
     {
@@ -98,7 +109,7 @@ int Vtkrenderwidget_Configure(Tcl_Interp *interp, struct Vtkrenderwidget *self,
   Tk_GeometryRequest(self->TkWin, self->Width, self->Height);
 		     
   // Make sure the render window has been set.  If not, create one.
-  if (Vtkrenderwidget_MakeRenderWindow(self) == TCL_ERROR) 
+  if (vtkTkRenderWidget_MakeRenderWindow(self) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
@@ -110,10 +121,10 @@ int Vtkrenderwidget_Configure(Tcl_Interp *interp, struct Vtkrenderwidget *self,
 // This function is called when the render widget name is 
 // evaluated in a Tcl script.  It will compare string parameters
 // to choose the appropriate method to invoke.
-int Vtkrenderwidget_Widget(ClientData clientData, Tcl_Interp *interp,
+int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp *interp,
 			   int argc, char *argv[]) 
 {
-  struct Vtkrenderwidget *self = (struct Vtkrenderwidget *)clientData;
+  struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
   int result = TCL_OK;
 
   // Check to see if the command has enough arguments.
@@ -134,27 +145,27 @@ int Vtkrenderwidget_Widget(ClientData clientData, Tcl_Interp *interp,
       {
       /* Return list of all configuration parameters */
       result = Tk_ConfigureInfo(interp, self->TkWin, 
-				vtkRenderWidgetConfigSpecs,
+				vtkTkRenderWidgetConfigSpecs,
 				(char *)self, (char *)NULL, 0);
       }
     else if (argc == 3) 
       {
       /* Return a specific configuration parameter */
       result = Tk_ConfigureInfo(interp, self->TkWin, 
-				vtkRenderWidgetConfigSpecs,
+				vtkTkRenderWidgetConfigSpecs,
 				(char *)self, argv[2], 0);
       }
     else 
       {
       /* Execute a configuration change */
-      result = Vtkrenderwidget_Configure(interp, self, argc-2, 
+      result = vtkTkRenderWidget_Configure(interp, self, argc-2, 
 					 argv+2, TK_CONFIG_ARGV_ONLY);
       }
     }
   else if (!strcmp(argv[1], "GetRenderWindow"))
     { // Get RenderWindow is my own method
     // Create a RenderWidget if one has not been set yet.
-    result = Vtkrenderwidget_MakeRenderWindow(self);
+    result = vtkTkRenderWidget_MakeRenderWindow(self);
     if (result != TCL_ERROR)
       {
       // Return the name (Make Tcl copy the string)
@@ -164,7 +175,7 @@ int Vtkrenderwidget_Widget(ClientData clientData, Tcl_Interp *interp,
   else 
     {
     // Unknown method name.
-    Tcl_AppendResult(interp, "vtkRenderWidget: Unknown option: ", argv[1], 
+    Tcl_AppendResult(interp, "vtkTkRenderWidget: Unknown option: ", argv[1], 
 		     "\n", "Try: configure or GetRenderWindow\n", NULL);
     result = TCL_ERROR;
     }
@@ -175,21 +186,21 @@ int Vtkrenderwidget_Widget(ClientData clientData, Tcl_Interp *interp,
 }
 
 //----------------------------------------------------------------------------
-// Vtkrenderwidget_Cmd
-// Called when vtkRenderWidget is executed 
-// - creation of a Vtkrenderwidget widget.
+// vtkTkRenderWidget_Cmd
+// Called when vtkTkRenderWidget is executed 
+// - creation of a vtkTkRenderWidget widget.
 //     * Creates a new window
-//     * Creates an 'Vtkrenderwidget' data structure
+//     * Creates an 'vtkTkRenderWidget' data structure
 //     * Creates an event handler for this window
 //     * Creates a command that handles this object
-//     * Configures this Vtkrenderwidget for the given arguments
-static int Vtkrenderwidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
+//     * Configures this vtkTkRenderWidget for the given arguments
+static int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
                                int argc, char **argv)
 {
   char *name;
   Tk_Window main = (Tk_Window)clientData;
   Tk_Window tkwin;
-  struct Vtkrenderwidget *self;
+  struct vtkTkRenderWidget *self;
   
   // Make sure we have an instance name.
   if (argc <= 1) 
@@ -211,10 +222,10 @@ static int Vtkrenderwidget_Cmd(ClientData clientData, Tcl_Interp *interp,
     }
   
   // Tcl needs this for setting options and matching event bindings.
-  Tk_SetClass(tkwin, "Vtkrenderwidget");
+  Tk_SetClass(tkwin, "vtkTkRenderWidget");
   
-  // Create Vtkrenderwidget data structure 
-  self = (struct Vtkrenderwidget *)malloc(sizeof(struct Vtkrenderwidget));
+  // Create vtkTkRenderWidget data structure 
+  self = (struct vtkTkRenderWidget *)malloc(sizeof(struct vtkTkRenderWidget));
   self->TkWin = tkwin;
   self->Interp = interp;
   self->Width = 0;
@@ -224,19 +235,19 @@ static int Vtkrenderwidget_Cmd(ClientData clientData, Tcl_Interp *interp,
   
   // ...
   // Create command event handler
-  Tcl_CreateCommand(interp, Tk_PathName(tkwin), Vtkrenderwidget_Widget, 
+  Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkRenderWidget_Widget, 
 		    (ClientData)self, (void (*)(ClientData)) NULL);
   Tk_CreateEventHandler(tkwin, 
 			ExposureMask | StructureNotifyMask,
-			Vtkrenderwidget_EventProc, 
+			vtkTkRenderWidget_EventProc, 
 			(ClientData)self);
   
-  // Configure Vtkrenderwidget widget
-  if (Vtkrenderwidget_Configure(interp, self, argc-2, argv+2, 0) 
+  // Configure vtkTkRenderWidget widget
+  if (vtkTkRenderWidget_Configure(interp, self, argc-2, argv+2, 0) 
       == TCL_ERROR) 
     {
     Tk_DestroyWindow(tkwin);
-    Tcl_DeleteCommand(interp, "vtkrenderwidget");
+    Tcl_DeleteCommand(interp, "vtkTkRenderWidget");
     // Don't free it, if we do a crash occurs later...
     //free(self);  
     return TCL_ERROR;
@@ -248,31 +259,31 @@ static int Vtkrenderwidget_Cmd(ClientData clientData, Tcl_Interp *interp,
 
 
 //----------------------------------------------------------------------------
-char *Vtkrenderwidget_RW(const struct Vtkrenderwidget *self)
+char *vtkTkRenderWidget_RW(const struct vtkTkRenderWidget *self)
 {
   return self->RW;
 }
 
 
 //----------------------------------------------------------------------------
-int Vtkrenderwidget_Width( const struct Vtkrenderwidget *self)
+int vtkTkRenderWidget_Width( const struct vtkTkRenderWidget *self)
 {
    return self->Width;
 }
 
 
 //----------------------------------------------------------------------------
-int Vtkrenderwidget_Height( const struct Vtkrenderwidget *self)
+int vtkTkRenderWidget_Height( const struct vtkTkRenderWidget *self)
 {
    return self->Height;
 }
 
 //----------------------------------------------------------------------------
-// This gets called to handle Vtkrenderwidget window configuration events
+// This gets called to handle vtkTkRenderWidget window configuration events
 // Possibly X dependent
-static void Vtkrenderwidget_EventProc(ClientData clientData, XEvent *eventPtr) 
+static void vtkTkRenderWidget_EventProc(ClientData clientData, XEvent *eventPtr) 
 {
-   struct Vtkrenderwidget *self = (struct Vtkrenderwidget *)clientData;
+   struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
 
    switch (eventPtr->type) 
      {
@@ -294,13 +305,13 @@ static void Vtkrenderwidget_EventProc(ClientData clientData, XEvent *eventPtr)
 	   {
 	   self->RenderWindow->SetSize(self->Width, self->Height);
 	   }
-	 //Vtkrenderwidget_PostRedisplay(self);
+	 //vtkTkRenderWidget_PostRedisplay(self);
          }
        break;
      case MapNotify:
        break;
      case DestroyNotify:
-       // Tcl_EventuallyFree( (ClientData) self, Vtkrenderwidget_Destroy );
+       // Tcl_EventuallyFree( (ClientData) self, vtkTkRenderWidget_Destroy );
        break;
      default:
        // nothing
@@ -311,8 +322,8 @@ static void Vtkrenderwidget_EventProc(ClientData clientData, XEvent *eventPtr)
 
 
 //----------------------------------------------------------------------------
-// Vtkrenderwidget_Init
-// Called upon system startup to create Vtkrenderwidget command.
+// vtkTkRenderWidget_Init
+// Called upon system startup to create vtkTkRenderWidget command.
 extern "C" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
 int Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
@@ -321,7 +332,7 @@ int Vtktkrenderwidget_Init(Tcl_Interp *interp)
     return TCL_ERROR;
     }
   
-  Tcl_CreateCommand(interp, "vtkTkRenderWidget", Vtkrenderwidget_Cmd, 
+  Tcl_CreateCommand(interp, "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
 		    Tk_MainWindow(interp), NULL);
   
   return TCL_OK;
@@ -341,8 +352,8 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
                                        WPARAM wParam, LPARAM lParam)
 {
   LRESULT rval;
-  struct Vtkrenderwidget *self = 
-    (struct Vtkrenderwidget *)GetWindowLong(hWnd,GWL_USERDATA);
+  struct vtkTkRenderWidget *self = 
+    (struct vtkTkRenderWidget *)GetWindowLong(hWnd,GWL_USERDATA);
 
   // forward message to Tk handler
   SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
@@ -377,7 +388,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
 
 //-----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
-static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self) 
+static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *) self->TkWin;
@@ -401,7 +412,7 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   if (self->RW[0] == '\0')
     {
     // Make the Render window.
-    self->RenderWindow = vtkRenderWidgetMaster.MakeRenderWindow();
+    self->RenderWindow = vtkTkRenderWidgetMaster.MakeRenderWindow();
     renderWindow = (vtkWin32OglrRenderWindow *)(self->RenderWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
 			       vtkRenderWindowCommand);
@@ -543,7 +554,7 @@ static int Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
 //----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int
-Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self) 
+vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
   TkWindow *winPtr = (TkWindow *) self->TkWin;
@@ -567,7 +578,7 @@ Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   if (self->RW[0] == '\0')
     {
     // Make the Render window.
-    self->RenderWindow = vtkRenderWidgetMaster.MakeRenderWindow();
+    self->RenderWindow = vtkTkRenderWidgetMaster.MakeRenderWindow();
     renderWindow = (vtkXRenderWindow *)(self->RenderWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->RenderWindow,
 			       vtkRenderWindowCommand);
@@ -576,8 +587,8 @@ Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
     }
   else
     {
-    renderWindow = (vtkXRenderWindow *)vtkTclGetPointerFromObject(self->RW, 
-							  "vtkXRenderWindow");
+    renderWindow = (vtkXRenderWindow *)
+      vtkTclGetPointerFromObject(self->RW,"vtkXRenderWindow",self->Interp);
     self->RenderWindow = (vtkRenderWindow *)(renderWindow);
     }
   
@@ -611,7 +622,7 @@ Vtkrenderwidget_MakeRenderWindow(struct Vtkrenderwidget *self)
   
   self->RenderWindow->Render();  
   winPtr->window = renderWindow->GetWindowId();
-  XSelectInput(dpy, winPtr->window, ALL_EVENTS_MASK);
+  XSelectInput(dpy, winPtr->window, VTK_ALL_EVENTS_MASK);
   
   hPtr = Tcl_CreateHashEntry(&winPtr->dispPtr->winTable,
 			     (char *) winPtr->window, &new_flag);

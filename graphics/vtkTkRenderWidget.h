@@ -39,20 +39,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#ifndef VTK_TK_RENDER_WIDGET_DEFINED
-#define VTK_TK_RENDER_WIDGET_DEFINED
+// .NAME vtkTkRenderWidget - a Tk Widget for vtk renderering
 
+// .SECTION Description
+// vtkTkRenderWidget is a Tk widget that you can render into. It has a 
+// GetRenderWindow method that returns a vtkRenderWindow. This can then
+// be used to create a vtkRenderer and etc. You can also specify a 
+// vtkRenderWindow to be used when creating the widget by using
+// the -rw option. It also takes -width and -height options.
+
+
+// .SECTION Event Bindings
+// Events can be bound on this widget just liek any other Tk widget.
+
+// .SECTION See Also
+// vtkRenderWindow vtkRenderer
+
+
+#ifndef __vtkTkRenderWidget_h
+#define __vtkTkRenderWidget_h
 
 #include "vtkTclUtil.h"
 #include "vtkRenderWindow.h"
 
-#define ALL_EVENTS_MASK \
-    KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|	\
-    EnterWindowMask|LeaveWindowMask|PointerMotionMask|ExposureMask|	\
-    VisibilityChangeMask|FocusChangeMask|PropertyChangeMask|ColormapChangeMask
-#define MAX(a,b)	(((a)>(b))?(a):(b))
-    
-struct Vtkrenderwidget
+struct vtkTkRenderWidget
 {
   Tk_Window  TkWin;		/* Tk window structure */
   Tcl_Interp *Interp;		/* Tcl interpreter */
@@ -65,12 +75,23 @@ struct Vtkrenderwidget
 #endif
 };
 
+// This widget requires access to structures that are normally 
+// not visible to Tcl/Tk applications. For this reason you must
+// have access to tkInt.h
 #include "tkInt.h"
 
 #ifdef _WIN32
 extern "C" {
-#include "tkWinInt.h"
-  }
+#include "tkWinInt.h" 
+}
 #endif
 
 #endif
+
+
+
+
+
+
+
+
