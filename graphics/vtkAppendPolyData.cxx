@@ -69,6 +69,7 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 
 
 //----------------------------------------------------------------------------
+// This method is much too long, and has to be broken up!
 // Append data sets into single unstructured grid
 void vtkAppendPolyData::Execute()
 {
@@ -128,14 +129,8 @@ void vtkAppendPolyData::Execute()
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkPolyData *)(this->Inputs[idx]);
-    if (ds != NULL && ds->GetNumberOfCells() > 0)
+    if (ds != NULL)
       {
-      ds = (vtkPolyData *)(this->Inputs[idx]);
-      if ( ds->GetNumberOfPoints() <= 0 && ds->GetNumberOfCells() <= 0 )
-        {
-        continue; //no input, just skip
-        }
-      
       // keep track of the size of the poly cell array
       if (ds->GetPolys())
 	{
@@ -145,157 +140,163 @@ void vtkAppendPolyData::Execute()
       
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
-      pd = ds->GetPointData();
-      
-      // complicated test to make sure all inputs that have points also
-      // have scalars, and point scalars of all inputs are of the same type
-      // with the same number of components.  Otherwise do not copy.
-      if (pd->GetScalars() == NULL )
-        {
-	scalarsPresentInPD = 0;
-        }
-      if (scalarsPresentInPD && newPtScalars == NULL)
+
+      if (ds->GetNumberOfPoints() > 0)
 	{
-	newPtScalars = (vtkScalars*)(pd->GetScalars()->MakeObject());
-	}
-      if (newPtScalars)
-	{
-	if (pd->GetScalars() == NULL ||
-	    newPtScalars->GetDataType() != pd->GetScalars()->GetDataType() ||
-	    newPtScalars->GetNumberOfComponents() 
-	                != pd->GetScalars()->GetNumberOfComponents())
+	pd = ds->GetPointData();
+	  
+	// complicated test to make sure all inputs that have points also
+	// have scalars, and point scalars of all inputs are of the same type
+	// with the same number of components.  Otherwise do not copy.
+	if (pd->GetScalars() == NULL )
 	  {
 	  scalarsPresentInPD = 0;
-	  newPtScalars->Delete();
-	  newPtScalars = NULL;
 	  }
-	}
-      // now for normals
-      if (pd->GetNormals() == NULL )
-        {
-	normalsPresentInPD = 0;
-        }
-      if (normalsPresentInPD && newPtNormals == NULL)
-	{
-	newPtNormals = (vtkNormals*)(pd->GetNormals()->MakeObject());
-	}
-      if (newPtNormals)
-	{
-	if (pd->GetNormals() == NULL ||
-	    newPtNormals->GetDataType() != pd->GetNormals()->GetDataType())
+	if (scalarsPresentInPD && newPtScalars == NULL)
+	  {
+	  newPtScalars = (vtkScalars*)(pd->GetScalars()->MakeObject());
+	  }
+	if (newPtScalars)
+	  {
+	  if (pd->GetScalars() == NULL ||
+	      newPtScalars->GetDataType() != pd->GetScalars()->GetDataType() ||
+	      newPtScalars->GetNumberOfComponents() 
+	      != pd->GetScalars()->GetNumberOfComponents())
+	    {
+	    scalarsPresentInPD = 0;
+	    newPtScalars->Delete();
+	    newPtScalars = NULL;
+	    }
+	  }
+	// now for normals
+	if (pd->GetNormals() == NULL )
 	  {
 	  normalsPresentInPD = 0;
-	  newPtNormals->Delete();
-	  newPtNormals = NULL;
 	  }
-	}
-      // now for vectors
-      if (pd->GetVectors() == NULL )
-        {
-	vectorsPresentInPD = 0;
-        }
-      if (vectorsPresentInPD && newPtVectors == NULL)
-	{
-	newPtVectors = (vtkVectors*)(pd->GetVectors()->MakeObject());
-	}
-      if (newPtVectors)
-	{
-	if (pd->GetVectors() == NULL ||
-	    newPtVectors->GetDataType() != pd->GetVectors()->GetDataType())
+	if (normalsPresentInPD && newPtNormals == NULL)
+	  {
+	  newPtNormals = (vtkNormals*)(pd->GetNormals()->MakeObject());
+	  }
+	if (newPtNormals)
+	  {
+	  if (pd->GetNormals() == NULL ||
+	      newPtNormals->GetDataType() != pd->GetNormals()->GetDataType())
+	    {
+	    normalsPresentInPD = 0;
+	    newPtNormals->Delete();
+	    newPtNormals = NULL;
+	    }
+	  }
+	// now for vectors
+	if (pd->GetVectors() == NULL )
 	  {
 	  vectorsPresentInPD = 0;
-	  newPtVectors->Delete();
-	  newPtVectors = NULL;
 	  }
-	}
-      // now for TCoords
-      if (pd->GetTCoords() == NULL )
-        {
-	tcoordsPresentInPD = 0;
-        }
-      if (tcoordsPresentInPD && newPtTCoords == NULL)
-	{
-	newPtTCoords = (vtkTCoords*)(pd->GetTCoords()->MakeObject());
-	}
-      if (newPtTCoords)
-	{
-	if (pd->GetTCoords() == NULL ||
-	    newPtTCoords->GetDataType() != pd->GetTCoords()->GetDataType())
+	if (vectorsPresentInPD && newPtVectors == NULL)
+	  {
+	  newPtVectors = (vtkVectors*)(pd->GetVectors()->MakeObject());
+	  }
+	if (newPtVectors)
+	  {
+	  if (pd->GetVectors() == NULL ||
+	      newPtVectors->GetDataType() != pd->GetVectors()->GetDataType())
+	    {
+	    vectorsPresentInPD = 0;
+	    newPtVectors->Delete();
+	    newPtVectors = NULL;
+	    }
+	  }
+	// now for TCoords
+	if (pd->GetTCoords() == NULL )
 	  {
 	  tcoordsPresentInPD = 0;
-	  newPtTCoords->Delete();
-	  newPtTCoords = NULL;
 	  }
-	}
-      // now for tensors
-      if (pd->GetTensors() == NULL )
-        {
-	tensorsPresentInPD = 0;
-        }
-      if (tensorsPresentInPD && newPtTensors == NULL)
-	{
-	newPtTensors = (vtkTensors*)(pd->GetTensors()->MakeObject());
-	}
-      if (newPtTensors)
-	{
-	if (pd->GetTensors() == NULL ||
-	    newPtTensors->GetDataType() != pd->GetTensors()->GetDataType())
+	if (tcoordsPresentInPD && newPtTCoords == NULL)
+	  {
+	  newPtTCoords = (vtkTCoords*)(pd->GetTCoords()->MakeObject());
+	  }
+	if (newPtTCoords)
+	  {
+	  if (pd->GetTCoords() == NULL ||
+	      newPtTCoords->GetDataType() != pd->GetTCoords()->GetDataType())
+	    {
+	    tcoordsPresentInPD = 0;
+	    newPtTCoords->Delete();
+	    newPtTCoords = NULL;
+	    }
+	  }
+	// now for tensors
+	if (pd->GetTensors() == NULL )
 	  {
 	  tensorsPresentInPD = 0;
-	  newPtTensors->Delete();
-	  newPtTensors = NULL;
 	  }
-	}
-      // now for field data
-      if (pd->GetFieldData() == NULL )
-        {
-	fieldPresentInPD = 0;
-        }
-      if (fieldPresentInPD && newPtField == NULL)
-	{
-	newPtField = (vtkFieldData*)(pd->GetFieldData()->MakeObject());
-	}
-      if (newPtField)
-	{
-	if (pd->GetFieldData() == NULL ||
-	    newPtField->GetNumberOfArrays() 
-	                        != pd->GetFieldData()->GetNumberOfArrays())
+	if (tensorsPresentInPD && newPtTensors == NULL)
 	  {
-	  // We should really check for array type too !
+	  newPtTensors = (vtkTensors*)(pd->GetTensors()->MakeObject());
+	  }
+	if (newPtTensors)
+	  {
+	  if (pd->GetTensors() == NULL ||
+	      newPtTensors->GetDataType() != pd->GetTensors()->GetDataType())
+	    {
+	    tensorsPresentInPD = 0;
+	    newPtTensors->Delete();
+	    newPtTensors = NULL;
+	    }
+	  }
+	// now for field data
+	if (pd->GetFieldData() == NULL )
+	  {
 	  fieldPresentInPD = 0;
-	  newPtField->Delete();
-	  newPtField = NULL;
+	  }
+	if (fieldPresentInPD && newPtField == NULL)
+	  {
+	  newPtField = (vtkFieldData*)(pd->GetFieldData()->MakeObject());
+	  }
+	if (newPtField)
+	  {
+	  if (pd->GetFieldData() == NULL ||
+	      newPtField->GetNumberOfArrays() 
+	      != pd->GetFieldData()->GetNumberOfArrays())
+	    {
+	    // We should really check for array type too !
+	    fieldPresentInPD = 0;
+	    newPtField->Delete();
+	    newPtField = NULL;
+	    }
 	  }
 	}
-      
-      cd = ds->GetCellData();
-      if ( cd && cd->GetScalars() == NULL )
-        {
-        scalarsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetVectors() == NULL )
-        {
-        vectorsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetNormals() == NULL )
-        {
-        normalsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetTCoords() == NULL )
-        {
-        tcoordsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetTensors() == NULL )
-        {
-        tensorsPresentInCD &= 0;
-        }
-      if ( cd && cd->GetFieldData() == NULL )
-        {
-        fieldPresentInCD &= 0;
-        }
+
+      if (ds->GetNumberOfCells() > 0)
+	{
+	cd = ds->GetCellData();
+	if ( cd && cd->GetScalars() == NULL )
+	  {
+	  scalarsPresentInCD &= 0;
+	  }
+	if ( cd && cd->GetVectors() == NULL )
+	  {
+	  vectorsPresentInCD &= 0;
+	  }
+	if ( cd && cd->GetNormals() == NULL )
+	  {
+	  normalsPresentInCD &= 0;
+	  }
+	if ( cd && cd->GetTCoords() == NULL )
+	  {
+	  tcoordsPresentInCD &= 0;
+	  }
+	if ( cd && cd->GetTensors() == NULL )
+	  {
+	  tensorsPresentInCD &= 0;
+	  }
+	if ( cd && cd->GetFieldData() == NULL )
+	  {
+	  fieldPresentInCD &= 0;
+	  }
+	}
       }
     }
-
   if ( numPts < 1 || numCells < 1 )
     {
     //vtkErrorMacro(<<"No data to append!");
@@ -419,91 +420,96 @@ void vtkAppendPolyData::Execute()
       inPolys = ds->GetPolys();
       inStrips = ds->GetStrips();
       
-      // copy points directly
-      this->AppendData(newPts->GetData(), 
-		       inPts->GetData(), ptOffset);
-      // copy scalars directly
-      if (newPtScalars)
+      if (ds->GetNumberOfPoints() > 0)
 	{
-	this->AppendData(newPtScalars->GetData(), 
-			 pd->GetScalars()->GetData(), ptOffset);
-	}
-      // copy normals directly
-      if (newPtNormals)
-	{
-	this->AppendData(newPtNormals->GetData(), 
-			 pd->GetNormals()->GetData(), ptOffset);
-	}
-      // copy vectors directly
-      if (newPtVectors)
-	{
-	this->AppendData(newPtVectors->GetData(),
-			 pd->GetVectors()->GetData(), ptOffset);
-	}
-      // copy tcoords directly
-      if (newPtTCoords)
-	{
-	this->AppendData(newPtTCoords->GetData(), 
-			 pd->GetTCoords()->GetData(), ptOffset);
-	}
-      // copy tensors directly
-      if (newPtTensors)
-	{
-	this->AppendData(newPtTensors->GetData(), 
-			 pd->GetTensors()->GetData(), ptOffset);
-	}
-      // copy field directly
-      if (newPtField)
-	{
-	for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
+	// copy points directly
+	this->AppendData(newPts->GetData(), 
+			 inPts->GetData(), ptOffset);
+	// copy scalars directly
+	if (newPtScalars)
 	  {
-	  this->AppendData(newPtField->GetArray(i), 
-			   pd->GetFieldData()->GetArray(i), ptOffset);
+	  this->AppendData(newPtScalars->GetData(), 
+			   pd->GetScalars()->GetData(), ptOffset);
+	  }
+	// copy normals directly
+	if (newPtNormals)
+	  {
+	  this->AppendData(newPtNormals->GetData(), 
+			   pd->GetNormals()->GetData(), ptOffset);
+	  }
+	// copy vectors directly
+	if (newPtVectors)
+	  {
+	  this->AppendData(newPtVectors->GetData(),
+			   pd->GetVectors()->GetData(), ptOffset);
+	  }
+	// copy tcoords directly
+	if (newPtTCoords)
+	  {
+	  this->AppendData(newPtTCoords->GetData(), 
+			   pd->GetTCoords()->GetData(), ptOffset);
+	  }
+	// copy tensors directly
+	if (newPtTensors)
+	  {
+	  this->AppendData(newPtTensors->GetData(), 
+			   pd->GetTensors()->GetData(), ptOffset);
+	  }
+	// copy field directly
+	if (newPtField)
+	  {
+	  for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
+	    {
+	    this->AppendData(newPtField->GetArray(i), 
+			     pd->GetFieldData()->GetArray(i), ptOffset);
+	    }
 	  }
 	}
       
+      if (ds->GetNumberOfPoints() > 0)
+	{
+	// cell data could be made efficient like the point data,
+	// but I will wait on that.
+	// copy cell data
+	for (cellId=0; cellId < numCells; cellId++)
+	  {
+	  outputCD->CopyData(cd,cellId,cellId+cellOffset);
+	  }
+	
+	// copy the cells
+	pPolys = this->AppendCells(pPolys, inPolys, ptOffset);
+	
+	// These other cell arrays could be made efficient like polys ...
+	for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
+	  {
+	  newVerts->InsertNextCell(npts);
+	  for (i=0; i < npts; i++)
+	    {
+	    newVerts->InsertCellPoint(pts[i]+ptOffset);
+	    }
+	  }
+	
+	for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
+	  {
+	  newLines->InsertNextCell(npts);
+	  for (i=0; i < npts; i++)
+	    {
+	    newLines->InsertCellPoint(pts[i]+ptOffset);
+	    }
+	  }
       
-      // cell data could be made efficient like the point data,
-      // but I will wait on that.
-      // copy cell data
-      for (cellId=0; cellId < numCells; cellId++)
-        {
-        outputCD->CopyData(cd,cellId,cellId+cellOffset);
-        }
-      
-      // copy the cells
-      pPolys = this->AppendCells(pPolys, inPolys, ptOffset);
-      
-      // These other cell arrays could be made efficient like polys ...
-      for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
-        {
-        newVerts->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-          {
-          newVerts->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
-      
-      for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-        {
-        newLines->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-          {
-          newLines->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
-      
-      for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-        {
-        newStrips->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-          {
-          newStrips->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
+	for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+	  {
+	  newStrips->InsertNextCell(npts);
+	  for (i=0; i < npts; i++)
+	    {
+	    newStrips->InsertCellPoint(pts[i]+ptOffset);
+	    }
+	  }
+	}
+      ptOffset += numPts; 
+      cellOffset += numCells;
       }
-    ptOffset += numPts; 
-    cellOffset += numCells;
     }
   
   //
