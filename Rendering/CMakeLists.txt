@@ -306,14 +306,7 @@ IF (VTK_WRAP_TCL)
     SET(RenderingTCL_SRCS
        vtkTkRenderWidget.cxx
        vtkTkImageViewerWidget.cxx)
-  ELSE(NOT VTK_USE_COCOA)
-    SET(VTK_DISABLE_TK_INIT 1)
   ENDIF(NOT VTK_USE_COCOA)
-
-  IF (VTK_USE_X)
-    SET(VTK_DISABLE_TK_INIT 0 CACHE BOOL "Allows the user to disable the automatic initialization of Tk widgets when loading the rendering library.")
-    MARK_AS_ADVANCED(VTK_DISABLE_TK_INIT)
-  ENDIF (VTK_USE_X)
 
   # find the tk internals for win32
   IF (NOT WIN32)
