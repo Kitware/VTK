@@ -59,7 +59,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.15")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.16")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -4245,7 +4245,6 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::SetMergeGhostGrid(
 
   return mergedGrid;
 }
-#include <unistd.h>
 vtkUnstructuredGrid *vtkDistributedDataFilter::MergeGrids(
          vtkDataSet **sets, int nsets, int deleteDataSets,
          const char *globalNodeIdArrayName, float pointMergeTolerance, 
