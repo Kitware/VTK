@@ -332,12 +332,12 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
       deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
       if (deltaScalar > 0)
         {
-          e1 = vert[0]; e2 = vert[1];
+        e1 = vert[0]; e2 = vert[1];
         }
-        else
+      else
         {
-  	  e1 = vert[1]; e2 = vert[0];
-          deltaScalar = -deltaScalar;
+	e1 = vert[1]; e2 = vert[0];
+        deltaScalar = -deltaScalar;
         }
       
       // linear interpolation
@@ -353,8 +353,8 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds.GetId(e1);
+          int p2 = this->PointIds.GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }

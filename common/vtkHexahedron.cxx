@@ -386,8 +386,8 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds.GetId(e1);
+          int p2 = this->PointIds.GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
