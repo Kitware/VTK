@@ -41,12 +41,12 @@ for {set i 0} {$i<$numBlanks} {incr i} {
 }
 
 # Manually blank out areas corresponding to dilution holes
-blanking SetScalar 313 0
-blanking SetScalar 929 0
-blanking SetScalar 1545 0
+blanking SetScalar 318 0
+blanking SetScalar 945 0
+blanking SetScalar 1572 0
 
-blanking SetScalar 630 0
-blanking SetScalar 1526 0
+blanking SetScalar 641 0
+blanking SetScalar 1553 0
 
 [blankImage GetPointData] SetScalars blanking
 

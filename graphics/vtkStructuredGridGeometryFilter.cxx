@@ -78,7 +78,7 @@ void vtkStructuredGridGeometryFilter::Execute()
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
   int totPoints, numPolys;
-  int offset[3], pos;
+  int offset[3], cellOffset[3], pos, cellPos;
   float *x;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
@@ -108,7 +108,8 @@ void vtkStructuredGridGeometryFilter::Execute()
     {
     extent[2*i] = this->Extent[2*i] < 0 ? 0 : this->Extent[2*i];
     extent[2*i] = this->Extent[2*i] >= dims[i] ? dims[i]-1 : this->Extent[2*i];
-    extent[2*i+1] = this->Extent[2*i+1] >= dims[i] ? dims[i]-1 : this->Extent[2*i+1];
+    extent[2*i+1] = 
+      this->Extent[2*i+1] >= dims[i] ? dims[i]-1 : this->Extent[2*i+1];
     if ( extent[2*i+1] < extent[2*i] )
       {
       extent[2*i+1] = extent[2*i];
@@ -121,7 +122,8 @@ void vtkStructuredGridGeometryFilter::Execute()
 
   // Now create polygonal data based on dimension of data
   //
-  // First compute starting index of the point and cell
+  // Compute starting index of the point and cell. First the starting
+  // point index.
   startIdx = extent[0] + extent[2]*dims[0] + extent[4]*dims[0]*dims[1];
 
   // The cell index is a bit more complicated at the boundaries
@@ -199,14 +201,17 @@ void vtkStructuredGridGeometryFilter::Execute()
       if ( dir[0] == 0 ) 
         {
         offset[0] = 1;
+        cellOffset[0] = 1;
         }
       else if (dir[0] == 1)
         {
         offset[0] = dims[0];
+        cellOffset[0] = dims[0] - 1;
         }
       else
         {
         offset[0] = dims[0]*dims[1];
+        cellOffset[0] = (dims[0] - 1) * (dims[1] - 1);
         }
 
       for (i=0; i<totPoints; i++) 
@@ -217,25 +222,12 @@ void vtkStructuredGridGeometryFilter::Execute()
         outPD->CopyData(pd,idx,ptIds[0]);
         }
 
-      if ( dir[0] == 0 ) 
-        {
-        offset[0] = 1;
-        }
-      else if (dir[0] == 1)
-        {
-        offset[0] = dims[0] - 1;
-        }
-      else
-        {
-        offset[0] = (dims[0] - 1) * (dims[1] - 1);
-        }
-
       for (i=0; i<(totPoints-1); i++) 
         {
-        if ( input->IsPointVisible(idx) &&
-             input->IsPointVisible(idx+offset[0]) )
+        if ( input->IsPointVisible(startIdx + i*offset[0]) &&
+             input->IsPointVisible(startIdx + (i+1)*offset[0]) )
           {
-          idx = startCellIdx + i*offset[0];
+          idx = startCellIdx + i*cellOffset[0];
           ptIds[0] = i;
           ptIds[1] = i + 1;
           cellId = newLines->InsertNextCell(2,ptIds);
@@ -277,18 +269,21 @@ void vtkStructuredGridGeometryFilter::Execute()
         if ( dir[i] == 0 )
           {
           offset[i] = 1;
+          cellOffset[i] = 1;
           }
         else if ( dir[i] == 1 )
           {
           offset[i] = dims[0];
+          cellOffset[i] = (dims[0] - 1);
           }
         else if ( dir[i] == 2 )
           {
           offset[i] = dims[0]*dims[1];
+          cellOffset[i] = (dims[0] - 1) * (dims[1] - 1);
           }
         }
 
-      // create points whether visible or not.  Makes coding easier 
+      // Create points whether visible or not.  Makes coding easier 
       // but generates extra data.
       for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
         {
@@ -302,25 +297,7 @@ void vtkStructuredGridGeometryFilter::Execute()
         pos += offset[1];
         }
 
-      // create any polygon who has a visible vertex.  To turn off 
-      // a polygon, all vertices have to be blanked.
-      for (i=0; i<2; i++) 
-        {
-        if ( dir[i] == 0 )
-          {
-          offset[i] = 1;
-          }
-        else if ( dir[i] == 1 )
-          {
-          offset[i] = (dims[0] - 1);
-          }
-        else if ( dir[i] == 2 )
-          {
-          offset[i] = (dims[0] - 1) * (dims[1] - 1);
-          }
-        }
-
-      for (pos=startCellIdx, j=0; j < diff[dir[1]]; j++) 
+      for (pos=startIdx, cellPos=startCellIdx, j=0; j < diff[dir[1]]; j++) 
         {
         for (i=0; i < diff[dir[0]]; i++) 
           {
@@ -329,7 +306,7 @@ void vtkStructuredGridGeometryFilter::Execute()
           && input->IsPointVisible(pos+i*offset[0]+offset[1]) 
           && input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
             {
-            idx = pos + i*offset[0];
+            idx = cellPos + i*cellOffset[0];
             ptIds[0] = i + j*(diff[dir[0]]+1);
             ptIds[1] = ptIds[0] + 1;
             ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
@@ -338,6 +315,7 @@ void vtkStructuredGridGeometryFilter::Execute()
             outCD->CopyData(cd,idx,cellId);
             }
           }
+        cellPos += cellOffset[1];
         pos += offset[1];
         }
       break;
