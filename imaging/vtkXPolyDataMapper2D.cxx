@@ -87,12 +87,13 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   unsigned char *rgba;
   int *pts;
   float *ftmp;
-  int currSize = 1024;
   int cellScalars = 0;
   int cellNum = 0;
   float tran;
+  int lastX, lastY, X, Y; 
   XPoint *points = new XPoint [1024];
-  
+  int currSize = 1024;
+ 
   vtkDebugMacro (<< "vtkXPolyDataMapper2D::Render");
 
   if ( input == NULL ) 
@@ -213,35 +214,38 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     { 
-    if (c) 
+    if (c && cellScalars) 
       {
-      if (cellScalars) 
-	{
-	rgba = c->GetColor(cellNum);
-	}
-      else
-	{
-	rgba = c->GetColor(pts[j]);
-	}
+      rgba = c->GetColor(cellNum);
       aColor.red = (unsigned short) (rgba[0] * 256);
-      aColor.green = (unsigned short) (actorColor[1] * 256);
-      aColor.blue = (unsigned short) (actorColor[2] * 256);
+      aColor.green = (unsigned short) (rgba[1] * 256);
+      aColor.blue = (unsigned short) (rgba[2] * 256);
       XAllocColor(displayId, attr.colormap, &aColor);
       XSetForeground(displayId, gc, aColor.pixel);
       }
-    if (npts > currSize)
-      {
-      delete [] points;
-      points = new XPoint [npts];
-      currSize = npts;
-      }
-    for (j = 0; j < npts; j++) 
+    ftmp = p->GetPoint(pts[0]);
+
+    lastX = (int)(actorPos[0] + ftmp[0]);
+    lastY = (int)(actorPos[1] - ftmp[1]);
+
+    for (j = 1; j < npts; j++) 
       {
       ftmp = p->GetPoint(pts[j]);
-      points[j].x = (short)(actorPos[0] + ftmp[0]);
-      points[j].y = (short)(actorPos[1] - ftmp[1]);
+      if (c && !cellScalars)
+	{
+	rgba = c->GetColor(pts[j]);
+	aColor.red = (unsigned short) (rgba[0] * 256);
+	aColor.green = (unsigned short) (rgba[1] * 256);
+	aColor.blue = (unsigned short) (rgba[2] * 256);
+	XAllocColor(displayId, attr.colormap, &aColor);
+	XSetForeground(displayId, gc, aColor.pixel);
+	}
+      X = (int)(actorPos[0] + ftmp[0]);
+      Y = (int)(actorPos[1] - ftmp[1]);
+      XDrawLine(displayId, drawable, gc, lastX, lastY, X, Y);
+      lastX = X;
+      lastY = Y;
       }
-    XDrawLines(displayId, drawable, gc, points, npts, CoordModeOrigin);
     }
 
   // Flush the X queue
