@@ -69,7 +69,7 @@ class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
   // Get the next Volume in the list. Return NULL when at the end of the 
   // list.
   vtkVolume *GetNextVolume() {
-      return vtkVolume::SafeDownCast(this->GetNextItemAsObject());};
+      return static_cast<vtkVolume *>(this->GetNextItemAsObject());};
 
 
   // Description:

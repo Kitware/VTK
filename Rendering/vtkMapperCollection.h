@@ -68,7 +68,7 @@ class VTK_EXPORT vtkMapperCollection : public vtkCollection
   // Description:
   // Get the next mapper in the list.
   vtkMapper *GetNextItem() { 
-    return vtkMapper::SafeDownCast(this->GetNextItemAsObject());};
+    return static_cast<vtkMapper *>(this->GetNextItemAsObject());};
   
   // Description:
   // Get the last mapper in the list.
@@ -95,7 +95,7 @@ inline vtkMapper *vtkMapperCollection::GetLastItem()
     }
   else
     {
-    return vtkMapper::SafeDownCast(this->Bottom->Item);
+    return static_cast<vtkMapper *>(this->Bottom->Item);
     }
 }
 

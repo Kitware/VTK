@@ -69,7 +69,7 @@ class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
   // Get the next RenderWindow in the list. Return NULL when at the end of the 
   // list.
   vtkRenderWindow *GetNextItem() {
-    return vtkRenderWindow::SafeDownCast(this->GetNextItemAsObject());};
+    return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());};
   
 protected:
   vtkRenderWindowCollection() {};

@@ -84,7 +84,7 @@ inline void vtkImagerCollection::AddItem(vtkImager *a)
 
 inline vtkImager *vtkImagerCollection::GetNextItem() 
 { 
-  return vtkImager::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkImager *>(this->GetNextItemAsObject());
 }
 
 inline vtkImager *vtkImagerCollection::GetLastItem() 
@@ -95,7 +95,7 @@ inline vtkImager *vtkImagerCollection::GetLastItem()
     }
   else
     {
-    return vtkImager::SafeDownCast(this->Bottom->Item);
+    return static_cast<vtkImager *>(this->Bottom->Item);
     }
 }
 

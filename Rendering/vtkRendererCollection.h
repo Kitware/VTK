@@ -69,7 +69,7 @@ class VTK_EXPORT vtkRendererCollection : public vtkCollection
   // Get the next Renderer in the list. Return NULL when at the end of the 
   // list.
   vtkRenderer *GetNextItem() {
-    return vtkRenderer::SafeDownCast(this->GetNextItemAsObject());};
+    return static_cast<vtkRenderer *>(this->GetNextItemAsObject());};
 
   // Description:
   // Forward the Render() method to each renderer in the list.
