@@ -19,16 +19,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlShrinkFilter_h
 #define __vlShrinkFilter_h
 
-#include "DataSetF.hh"
-#include "PolyData.hh"
+#include "DS2UGrid.hh"
 
-class vlShrinkFilter : public vlDataSetFilter
+class vlShrinkFilter : public vlDataSetToUnstructuredGridFilter
 {
 public:
   vlShrinkFilter(const float sf=0.5) {this->ShrinkFactor = sf;};
   ~vlShrinkFilter() {};
   char *GetClassName() {return "vlShrinkFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  vlSetMacro(ShrinkFactor,float);
+  vlGetMacro(ShrinkFactor,float);
 
 protected:
   void Execute();

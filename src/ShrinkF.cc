@@ -23,45 +23,70 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 void vlShrinkFilter::Execute()
 {
-  vlIdList ptId(25);
-  vlFloatPoints pt(25);
-  int i, j, k;
-  float center[3], *p;
+  vlIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
+  vlFloatPoints *newPts;
+  int i, j, cellId, numCells, numPts;
+  int oldId, newId;
+  float center[3], *p, pt[3];
+  vlPointData *pd;
+
+  vlDebugMacro(<<"Shrinking cells");
+  this->Initialize();
+
+  if ( (numCells=this->Input->GetNumberOfCells()) < 1 ||
+  (numPts = this->Input->GetNumberOfPoints()) < 1 )
+    {
+    vlErrorMacro(<<"No data to shrink!");
+    return;
+    }
+
+  newPts = new vlFloatPoints(numPts*8,numPts);
+  pd = this->Input->GetPointData();
+  this->PointData.CopyAllocate(pd,numPts*8,numPts);
 //
 // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
 // then create new vertices shrunk towards center.
 //
-/*
-  for (i=0; i<this->Input->GetNumberOfCells(); i++)
+  for (cellId=0; cellId < numCells; i++)
     {
+    this->Input->GetCellPoints(cellId,&ptIds);
+
     // get the center of the cell
-    this->CellPoints(i,ptId);
-    if ( ptId.GetNumberOfIds() > 0 )
+    center[0] = center[1] = center[2] = 0.0;
+    for (i=0; i < ptIds.GetNumberOfIds(); i++)
       {
-      this->GetPoints(ptId, pt);
-      for (center[0]=center[1]=center[2]=0.0, j=0; j<pt.GetNumberOfPoints(); j++)
-        {
-        p = pt.GetPoint(j);
-        for (k=0; k<3; k++) center[k] += p[k];
-        }
-      for (k=0; k<3; k++) center[k] /= pt.GetNumberOfPoints();
+      p = this->Input->GetPoint(i);
+      for (j=0; j < 3; j++) center[j] += p[j];
+      }
+    for (j=0; j<3; j++) center[j] /= ptIds.GetNumberOfIds();
 
-      // Create new points and cells
-      for (j=0; j<pt.GetNumberOfPoints(); j++)
-        {
-        
+    // Create new points and cells
+    for (i=0; i < ptIds.GetNumberOfIds(); i++)
+      {
+      p = this->Input->GetPoint(ptIds.GetId(i));
+      for (j=0; j < 3; j++)
+        pt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
 
-        }
+      oldId = ptIds.GetId(i);
+      newId = newPts->InsertNextPoint(pt);
+      newPtIds.SetId(i,newId);
+
+      this->InsertNextCell(this->Input->GetCellType(cellId), newPtIds);
+      
+      this->PointData.CopyData(pd, oldId, newId);
       }
     }
-*/
+//
+// Update ourselves
+//
+  this->SetPoints(newPts);
 }
 
 void vlShrinkFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlShrinkFilter::GetClassName()))
     {
-    vlDataSetFilter::PrintSelf(os,indent);
+    vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
     os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
     }
