@@ -39,18 +39,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageMagnitude.h"
 
-
-//----------------------------------------------------------------------------
-vtkImageMagnitude::vtkImageMagnitude()
-{
-  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
-  // For better performance, the execute function was written as a 3d.
-  this->NumberOfExecutionAxes = 3;
-}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -62,138 +53,121 @@ void vtkImageMagnitude::ExecuteImageInformation()
 
 //----------------------------------------------------------------------------
 // Description:
-// This templated execute method handles any type input, and output.
-// Axis 0 should be components.
-template <class T1, class T2>
+// This execute method handles boundaries.
+// it handles boundaries. Pixels are just replicated to get values 
+// out of extent.
+template <class T>
 static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
-			      vtkImageRegion *inRegion, T1 *inPtr,
-			      vtkImageRegion *outRegion, T2 *outPtr)
+					     vtkImageData *inData, T *inPtr,
+					     vtkImageData *outData, T *outPtr,
+					     int outExt[6], int id)
 {
-  int idx0, idx1, idx2;
-  int min0, max0, min1, max1, min2, max2;
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
-  T1 *inPtr0, *inPtr1, *inPtr2;
-  T2 *outPtr1, *outPtr2;
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
   float sum;
   
-  // Avoid complier warnings
-  self = self;
-  
-  // get information to loop through pixels.
-  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
-  inRegion->GetIncrements(inInc0, inInc1, inInc2);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2);
-  
-  inPtr2 = inPtr;
-  outPtr2 = outPtr;
-  for (idx2 = min2; idx2 <= max2; ++idx2)
+  // find the region to loop over
+  maxC = inData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
+
+  // Get increments to march through data 
+  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    inPtr1 = inPtr2;
-    outPtr1 = outPtr2;
-    for (idx1 = min1; idx1 <= max1; ++idx1)
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      // Compute magnitude along last axis.
-      inPtr0 = inPtr1;
-      sum = 0.0;
-      for (idx0 = min0; idx0 <= max0; ++idx0)
+      if (!id) 
 	{
-	sum += (float)(*inPtr0 * *inPtr0);
-	inPtr0 += inInc0;
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
 	}
-      *outPtr1 = (T2)(sqrt(sum));
-      inPtr1 += inInc1;
-      outPtr1 += outInc1;
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	sum = 0;
+	for (idxC = 0; idxC < maxC; idxC++)
+	  {
+	  sum += (*inPtr * *inPtr);
+	  inPtr++;
+	  }
+	*outPtr = (T)(sqrt(sum));
+	outPtr++;
+	}
+      outPtr += outIncY;
+      inPtr += inIncY;
       }
-    inPtr2 += inInc2;
-    outPtr2 += outInc2;
+    outPtr += outIncZ;
+    inPtr += inIncZ;
     }
 }
 
-//----------------------------------------------------------------------------
-template <class T>
-static void vtkImageMagnitudeExecute(vtkImageMagnitude *self, 
-			      vtkImageRegion *inRegion, 
-			      vtkImageRegion *outRegion, T *outPtr)
-{
-  void *inPtr;
-
-  inPtr = inRegion->GetScalarPointer();
-
-  // choose which templated function to call.
-  switch (inRegion->GetScalarType())
-    {
-    case VTK_FLOAT:
-      vtkImageMagnitudeExecute(self, inRegion, (float *)(inPtr), 
-			       outRegion, outPtr);
-      break;
-    case VTK_INT:
-      vtkImageMagnitudeExecute(self, inRegion, (int *)(inPtr),
-			       outRegion, outPtr);
-      break;
-    case VTK_SHORT:
-      vtkImageMagnitudeExecute(self, inRegion, (short *)(inPtr),
-			       outRegion, outPtr);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageMagnitudeExecute(self, inRegion, (unsigned short *)(inPtr),
-			       outRegion, outPtr);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageMagnitudeExecute(self, inRegion, (unsigned char *)(inPtr),
-			       outRegion, outPtr);
-      break;
-    default:
-      vtkGenericWarningMacro("Execute: Unknown ScalarType");
-      return;
-    }
-}
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is passed input and output regions, and executes the
-// magnitude function on each line.  It handles 3 axes for speed.
-void vtkImageMagnitude::Execute(vtkImageRegion *inRegion, 
-				vtkImageRegion *outRegion)
+// This method contains a switch statement that calls the correct
+// templated function for the input data type.  The output data
+// must match input type.  This method does handle boundary conditions.
+void vtkImageMagnitude::ThreadedExecute(vtkImageData *inData, 
+					vtkImageData *outData,
+					int outExt[6], int id)
 {
-  void *outPtr;
-
-  outPtr = outRegion->GetScalarPointer();
-
-  // choose which templated function to call.
-  switch (outRegion->GetScalarType())
+  void *inPtr = inData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
+  
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageMagnitudeExecute(this, inRegion, outRegion, (float *)(outPtr));
+      vtkImageMagnitudeExecute(this, 
+			       inData, (float *)(inPtr), 
+			       outData, (float *)(outPtr), outExt, id);
       break;
     case VTK_INT:
-      vtkImageMagnitudeExecute(this, inRegion, outRegion, (int *)(outPtr));
+      vtkImageMagnitudeExecute(this, 
+			       inData, (int *)(inPtr), 
+			       outData, (int *)(outPtr), outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageMagnitudeExecute(this, inRegion, outRegion, (short *)(outPtr));
+      vtkImageMagnitudeExecute(this, 
+			       inData, (short *)(inPtr), 
+			       outData, (short *)(outPtr), outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMagnitudeExecute(this, inRegion,outRegion, 
-			       (unsigned short *)(outPtr));
+      vtkImageMagnitudeExecute(this, 
+			       inData, (unsigned short *)(inPtr), 
+			       outData, (unsigned short *)(outPtr), 
+			       outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMagnitudeExecute(this, inRegion, outRegion, 
-			       (unsigned char *)(outPtr));
+      vtkImageMagnitudeExecute(this, 
+			       inData, (unsigned char *)(inPtr), 
+			       outData, (unsigned char *)(outPtr), outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 

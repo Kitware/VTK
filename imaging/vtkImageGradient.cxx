@@ -129,7 +129,7 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 				    vtkImageData *outData, T *outPtr,
 				    int outExt[6], int id)
 {
-  int idxC, idxX, idxY, idxZ;
+  int idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
@@ -137,7 +137,7 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
   unsigned long target;
   int axesNum;
   int *wholeExtent, *inIncs;
-  float r[3], d, sum;
+  float r[3], d;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   
   // find the region to loop over
@@ -181,7 +181,7 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 	}
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
-      for (idxX = 0; idxX < maxX; idxX++)
+      for (idxX = 0; idxX <= maxX; idxX++)
 	{
 	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
 	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];

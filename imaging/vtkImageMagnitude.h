@@ -52,14 +52,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMagnitude : public vtkImageFilter
 {
 public:
-  vtkImageMagnitude();
   static vtkImageMagnitude *New() {return new vtkImageMagnitude;};
   const char *GetClassName() {return "vtkImageMagnitude";};
 
 protected:
 
   void ExecuteImageInformation();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif

@@ -45,9 +45,11 @@ vtkImageGradientMagnitude \
 vtkImageHSVToRGB \
 vtkImageLogic \
 vtkImageMagnify \
+vtkImageMagnitude \
 vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
+vtkImageNonMaximumSuppression \
 vtkImagePermute \
 vtkImageReader \
 vtkImageRGBToHSV \
@@ -96,10 +98,8 @@ vtkTIFFWriter
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
 #vtkImageMagnify1D \
-#vtkImageMagnitude \
 #vtkImageMask \
 #vtkImageNoiseSource \
-#vtkImageNonMaximumSuppression \
 #vtkImageOpenClose3D \
 #vtkImageRFFT \
 #vtkImageRFFT1D \

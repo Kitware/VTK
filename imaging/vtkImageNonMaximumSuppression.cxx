@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageNonMaximumSuppression.h"
 
@@ -49,24 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageNonMaximumSuppression fitler.
 vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
-  this->NumberOfFilteredAxes = 3;
-  this->NumberOfExecutionAxes = 3;
+  this->Dimensionality= 2;
   this->HandleBoundaries = 1;
-  this->SetOutputScalarType(VTK_FLOAT);
 }
-
-//----------------------------------------------------------------------------
-// Options do not include YZ ...
-void vtkImageNonMaximumSuppression::SetNumberOfFilteredAxes(int num)
-{
-  if (this->NumberOfFilteredAxes != num)
-    {
-    this->NumberOfFilteredAxes = num;
-    this->Modified();
-    }
-}
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -75,22 +59,23 @@ void vtkImageNonMaximumSuppression::SetNumberOfFilteredAxes(int num)
 // output.
 void vtkImageNonMaximumSuppression::ExecuteImageInformation()
 {
-  int extent[8];
-  int idx, axis;
-
+  int extent[6];
+  int idx;
+  
   this->Inputs[0]->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
-    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+    for (idx = 0; idx < this->Dimensionality; ++idx)
       {
-      axis = this->FilteredAxes[idx];
-      extent[axis*2] += 1;
-      extent[axis*2+1] -= 1;
+      extent[idx*2] += 1;
+      extent[idx*2+1] -= 1;
       }
     }
+
+  this->Output->SetNumberOfScalarComponents
+    (this->Inputs[0]->GetNumberOfScalarComponents());
   
-  this->Output->SetNumberOfScalarComponents(1);
   this->Output->SetWholeExtent(extent);
 }
 
@@ -98,208 +83,274 @@ void vtkImageNonMaximumSuppression::ExecuteImageInformation()
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageNonMaximumSuppression::ComputeRequiredInputUpdateExtent(
-						     int whichInput)
+void vtkImageNonMaximumSuppression::
+ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+				 int whichInput)
 {
-  int extent[8];
   int *wholeExtent;
-  int idx, axis;
+  int idx;
 
   wholeExtent = this->Inputs[0]->GetWholeExtent();
-  this->Output->GetUpdateExtent(extent);
+  memcpy(inExt,outExt,6*sizeof(int));
+  if (whichInput == 1) return;
   
-  // grow input image extent.
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+  // grow input image extent for input 0
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
-    axis = this->FilteredAxes[idx];
-    extent[axis*2] -= 1;
-    extent[axis*2+1] += 1;
+    inExt[idx*2] -= 1;
+    inExt[idx*2+1] += 1;
     if (this->HandleBoundaries)
       {
       // we must clip extent with whole extent if we hanlde boundaries.
-      if (extent[axis*2] < wholeExtent[axis*2])
+      if (inExt[idx*2] < wholeExtent[idx*2])
 	{
-	extent[axis*2] = wholeExtent[axis*2];
+	inExt[idx*2] = wholeExtent[idx*2];
 	}
-      if (extent[idx*2 + 1] > wholeExtent[idx*2 + 1])
+      if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
 	{
-	extent[idx*2 + 1] = wholeExtent[idx*2 + 1];
+	inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
 	}
       }
     }
-  
-  this->Inputs[whichInput]->SetUpdateExtent(extent);
-  // different components
-  if (whichInput == 0)
-    {
-    this->Inputs[0]->SetNumberOfScalarComponents(1);
-    }
-  else
-    {
-    this->Inputs[1]->SetNumberOfScalarComponents(this->NumberOfFilteredAxes);
-    }
 }
-
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method executes the filter for boundary pixels.
-void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1, 
-					    vtkImageRegion *inRegion2,
-					    vtkImageRegion *outRegion)
+// This templated function executes the filter for any type of data.
+// Handles the two input operations
+template <class T>
+static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
+						 vtkImageData *in1Data, 
+						 T *in1Ptr,
+						 vtkImageData *in2Data, 
+						 T *in2Ptr,
+						 vtkImageData *outData, 
+						 T *outPtr,
+						 int outExt[6], int id)
 {
-  int idx;
-  int *wholeExtent, *incs;
-  int outIdxs[VTK_IMAGE_DIMENSIONS], *idxs;
-  // For looping though output (and input) pixels.
-  int min0, max0, min1, max1, min2, max2, min3, max3;
-  int outIdx0, outIdx1, outIdx2, outIdx3;
-  int outInc0, outInc1, outInc2, outInc3;
-  float *outPtr0, *outPtr1, *outPtr2, *outPtr3;
-  int in1Inc0, in1Inc1, in1Inc2, in1Inc3;
-  float *in1Ptr0, *in1Ptr1, *in1Ptr2, *in1Ptr3;
-  int in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2IncV;
-  float *in2Ptr0, *in2Ptr1, *in2Ptr2, *in2Ptr3, *in2PtrV;
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int in2IncX, in2IncY, in2IncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
+  float d, normalizeFactor, vector[3], *ratio;
   int neighborA, neighborB;
-  float d, normalizeFactor, vector[VTK_IMAGE_DIMENSIONS], *ratio;
+  int *wholeExtent, *inIncs;
+  int axesNum;
+  
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
 
+  // Get the dimensionality of the gradient.
+  axesNum = self->GetDimensionality();
+  // get some other info we need
+  inIncs = in1Data->GetIncrements(); 
+  wholeExtent = in1Data->GetExtent(); 
+  
+  // Get increments to march through data 
+  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+  in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // This filter expects that output and input are type float.
-  if (outRegion->GetScalarType() != VTK_FLOAT ||
-      inRegion1->GetScalarType() != VTK_FLOAT ||
-      inRegion2->GetScalarType() != VTK_FLOAT)
-    {
-    vtkErrorMacro(<< "Execute: output ScalarType, "
-                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
-                  << ", must be float");
-    return;
-    }
-
+  
   // Gradient is computed with data spacing (world coordinates)
-  ratio = inRegion2->GetSpacing();
+  ratio = in2Data->GetSpacing();
   
-  // Get information to march through data
-  inRegion1->GetIncrements(in1Inc0, in1Inc1, in1Inc2, in1Inc3); 
-  inRegion2->GetIncrements(in2Inc0, in2Inc1, in2Inc2, in2Inc3, in2IncV); 
-  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3); 
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
-  
-  // We want the input pixel to correspond to output
-  in1Ptr3 = (float *)(inRegion1->GetScalarPointer(min0, min1, min2, min3));
-  in2Ptr3 = (float *)(inRegion2->GetScalarPointer(min0, min1, min2, min3));
-  outPtr3 = (float *)(outRegion->GetScalarPointer());
-  
-  // loop through pixels of output
-  for (outIdx3 = min3; outIdx3 <= max3; ++outIdx3)
+  // Loop through ouput pixels
+  for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    outIdxs[3] = outIdx3;
-    outPtr2 = outPtr3;
-    in1Ptr2 = in1Ptr3;
-    in2Ptr2 = in2Ptr3;
-    for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
+    useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
+    useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
+    for (idxY = 0; idxY <= maxY; idxY++)
       {
-      outIdxs[2] = outIdx2;
-      outPtr1 = outPtr2;
-      in1Ptr1 = in1Ptr2;
-      in2Ptr1 = in2Ptr2;
-      for (outIdx1 = min1; outIdx1 <= max1; ++outIdx1)
+      useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
+      useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
+      if (!id) 
 	{
-	outIdxs[1] = outIdx1;
-	outPtr0 = outPtr1;
-	in1Ptr0 = in1Ptr1;
-	in2Ptr0 = in2Ptr1;
-	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
+	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	count++;
+	}
+      for (idxX = 0; idxX <= maxX; idxX++)
+	{
+	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+
+	// calculate the neighbors
+	d = vector[0] = *in2Ptr * ratio[0];
+	normalizeFactor = (d * d);
+	d = vector[1] = in2Ptr[1] * ratio[1];
+	normalizeFactor += (d * d);
+	if (axesNum == 3)
 	  {
-	  outIdxs[0] = outIdx0;
-	  
-	  // Use vector (in2) to determine which neighbors to use.
-	  in2PtrV = in2Ptr0;
-	  idxs = outIdxs;
-	  incs = inRegion1->GetIncrements();
-	  wholeExtent = inRegion1->GetWholeExtent();
-	  neighborA = neighborB = 0;
-	  // Convert vector to pixel units and normalize.
-	  normalizeFactor = 0.0;
-	  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-	    {
-	    // d units dI/world  -> dI
-	    d = vector[idx] = *in2PtrV * ratio[idx];
-	    normalizeFactor += d * d;
-	    in2PtrV += in2IncV;
-	    }
+	  d = vector[2] = in2Ptr[2] * ratio[2];
+	  normalizeFactor += (d * d);
+	  }
+	if (normalizeFactor)
+	  {
 	  normalizeFactor = 1.0 / sqrt(normalizeFactor);
-	  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+	  }
+	// Vector points positive along this idx?
+	// (can point along multiple axes)
+	d = vector[0] * normalizeFactor;  
+	
+	if (d > 0.5)  
+	  {
+	  neighborA = useXMax;
+	  neighborB = useXMin;
+	  }
+	else if (d < -0.5)
+	  {
+	  neighborB = useXMax;
+	  neighborA = useXMin;
+	  }
+	else
+	  {
+	  neighborA = 0;
+	  neighborB = 0;
+	  }
+	d = vector[1] * normalizeFactor;  
+	if (d > 0.5)  
+	  {
+	  neighborA += useYMax;
+	  neighborB += useYMin;
+	  }
+	else if (d < -0.5)
+	  {
+	  neighborB += useYMax;
+	  neighborA += useYMin;
+	  }
+	if (axesNum == 3)
+	  {
+	  d = vector[2] * normalizeFactor;  
+	  if (d > 0.5)  
 	    {
-	    d = vector[idx] * normalizeFactor;  
-	    // Vector points positive along this axis?
-	    // (can point along multiple axes)
-	    if (d > 0.5)  
-	      {
-	      if (*idxs < wholeExtent[1])  // max
-		{
-		neighborA += *incs;
-		}
-	      if (*idxs > *wholeExtent)  // min
-		{
-		neighborB -= *incs;
-		}
-	      }
-	    // Vector points negative along this axis?
-	    else if (d < -0.5)
-	      {
-	      if (*idxs < wholeExtent[1])  // max
-		{
-		neighborB += *incs;
-		}
-	      if (*idxs > *wholeExtent)  //min
-		{
-		neighborA -= *incs;
-		}
-	      }
-	    // Increment pointers
-	    ++idxs;
-	    ++incs;
-	    wholeExtent += 2;
+	    neighborA += useZMax;
+	    neighborB += useZMin;
 	    }
-	  
-	  // Set Output Magnitude
-	  if (in1Ptr0[neighborA] > *in1Ptr0 || in1Ptr0[neighborB] > *in1Ptr0)
+	  else if (d < -0.5)
 	    {
-	    *outPtr0 = 0.0;
+	    neighborB += useZMax;
+	    neighborA += useZMin;
+	    }
+	  }
+	
+	// now process the components
+	for (idxC = 0; idxC < maxC; idxC++)
+	  {
+	  // Pixel operation
+	  // Set Output Magnitude
+	  if (in1Ptr[neighborA] > *in1Ptr || in1Ptr[neighborB] > *in1Ptr)
+	    {
+	    *outPtr = 0;
 	    }
 	  else
 	    {
-	    *outPtr0 = *in1Ptr0;
+	    *outPtr = *in1Ptr;
 	    // also check for them being equal is neighbor with larger ptr
-	    if ((neighborA > neighborB)&&(in1Ptr0[neighborA] == *in1Ptr0))
+	    if ((neighborA > neighborB)&&(in1Ptr[neighborA] == *in1Ptr))
 	      {
-	      *outPtr0 = 0.0;
+	      *outPtr = 0;
 	      }
-	    if ((neighborB > neighborA)&&(in1Ptr0[neighborB] == *in1Ptr0))
+	    else if ((neighborB > neighborA)&&(in1Ptr[neighborB] == *in1Ptr))
 	      {
-	      *outPtr0 = 0.0;
+	      *outPtr = 0;
 	      }
 	    }
-	  
-	  outPtr0 += outInc0;
-	  in1Ptr0 += in1Inc0;
-	  in2Ptr0 += in2Inc0;
+	  outPtr++;
+	  in1Ptr++;
 	  }
-	outPtr1 += outInc1;
-	in1Ptr1 += in1Inc1;
-	in2Ptr1 += in2Inc1;
+	in2Ptr += axesNum;
 	}
-      outPtr2 += outInc2;
-      in1Ptr2 += in1Inc2;
-      in2Ptr2 += in2Inc2;
+      outPtr += outIncY;
+      in1Ptr += inIncY;
+      in2Ptr += in2IncY;
       }
-    outPtr3 += outInc3;
-    in1Ptr3 += in1Inc3;
-    in2Ptr3 += in2Inc3;
+    outPtr += outIncZ;
+    in1Ptr += inIncZ;
+    in2Ptr += in2IncZ;
     }
 }
 
+	  
 
-
-
+//----------------------------------------------------------------------------
+// Description:
+// This method is passed a input and output regions, and executes the filter
+// algorithm to fill the output from the inputs.
+// It just executes a switch statement to call the correct function for
+// the regions data types.
+void vtkImageNonMaximumSuppression::ThreadedExecute(vtkImageData **inData, 
+						    vtkImageData *outData,
+						    int outExt[6], int id)
+{
+  void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
+  void *in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+		<< ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData[0]->GetScalarType() != outData->GetScalarType() ||
+      inData[1]->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << 
+    inData[0]->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
+    return;
+    }
+  
+  switch (inData[0]->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageNonMaximumSuppressionExecute(this, inData[0], 
+					   (float *)(in1Ptr), 
+					   inData[1], (float *)(in2Ptr), 
+					   outData, (float *)(outPtr), 
+					   outExt, id);
+      break;
+    case VTK_INT:
+      vtkImageNonMaximumSuppressionExecute(this, inData[0], (int *)(in1Ptr), 
+					   inData[1], (int *)(in2Ptr), 
+					   outData, (int *)(outPtr), 
+					   outExt, id);
+      break;
+    case VTK_SHORT:
+      vtkImageNonMaximumSuppressionExecute(this, inData[0], 
+					   (short *)(in1Ptr), 
+					   inData[1], (short *)(in2Ptr), 
+					   outData, (short *)(outPtr), 
+					   outExt, id);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageNonMaximumSuppressionExecute(this, inData[0], 
+					   (unsigned short *)(in1Ptr), 
+					   inData[1], 
+					   (unsigned short *)(in2Ptr), 
+					   outData, 
+					   (unsigned short *)(outPtr), 
+					   outExt, id);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageNonMaximumSuppressionExecute(this, inData[0], 
+					   (unsigned char *)(in1Ptr), 
+					   inData[1], 
+					   (unsigned char *)(in2Ptr), 
+					   outData, 
+					   (unsigned char *)(outPtr), 
+					   outExt, id);
+      break;
+    default:
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      return;
+    }
+}

@@ -184,7 +184,7 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 	}
       useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
       useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
-      for (idxX = 0; idxX < maxX; idxX++)
+      for (idxX = 0; idxX <= maxX; idxX++)
 	{
 	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
 	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];

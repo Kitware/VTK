@@ -62,8 +62,6 @@ public:
   static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
   
-  void SetNumberOfFilteredAxes(int num);
-
   // Description:
   // Rename the inputs.
   void SetMagnitudeInput(vtkImageCache *input) {this->SetInput1(input);};
@@ -78,15 +76,21 @@ public:
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
 
+  // Description:
+  // Determines how the input is interpreted (set of 2d slices ...)
+  vtkSetClampMacro(Dimensionality,int,2,3);
+  vtkGetMacro(Dimensionality,int);
   
 protected:
   int HandleBoundaries;
-
+  int Dimensionality;
+  
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent(int whichInput);
-  void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
-	       vtkImageRegion *outRegion);
-
+  virtual void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
+						int whichInput);
+  void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
+		       int extent[6], int id);
+  
 };
 
 #endif
