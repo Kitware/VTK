@@ -45,7 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // radius centered at the origin. The resolution (polygonal discretization)
 // in both the latitude (phi) and longitude (theta) directions can be
 // specified. It also is possible to create partial spheres by specifying
-// maximum phi and theta angles.
+// maximum phi and theta angles. By default, the surface tessellation of
+// the sphere uses triangles; however you can set LatLongTessellation to
+// produce a tessellation using quadrilaterals.
 // .SECTION Caveats
 // Resolution means the number of latitude or longitude lines for a complete 
 // sphere. If you create partial spheres the number of latitude/longitude 
@@ -112,11 +114,22 @@ public:
   vtkSetClampMacro(EndPhi,float,0.0,360.0);
   vtkGetMacro(EndPhi,float);
 
+  // Description:
+  // Cause the sphere to be tessellated with edges along the latitude
+  // and longitude lines. If off, triangles are generated at non-polar
+  // regions, which results in edges that are not parallel to latitude and
+  // longitude lines. If on, quadrilaterals are generated everywhere
+  // except at the poles. This can be useful for generating a wireframe
+  // sphere with natural latitude and longitude lines.
+  vtkSetMacro(LatLongTessellation,int);
+  vtkGetMacro(LatLongTessellation,int);
+  vtkBooleanMacro(LatLongTessellation,int);
+
 protected:
   vtkSphereSource(int res=8);
-  ~vtkSphereSource() {};
-  vtkSphereSource(const vtkSphereSource&) {};
-  void operator=(const vtkSphereSource&) {};
+  ~vtkSphereSource() {}
+  vtkSphereSource(const vtkSphereSource&) {}
+  void operator=(const vtkSphereSource&) {}
 
   void Execute();
   void ExecuteInformation();
@@ -129,6 +142,8 @@ protected:
   float EndTheta;
   float StartPhi;
   float EndPhi;
+  int LatLongTessellation;
+  
 };
 
 #endif

@@ -76,6 +76,7 @@ vtkSphereSource::vtkSphereSource(int res)
   this->EndTheta = 360.0;
   this->StartPhi = 0.0;
   this->EndPhi = 180.0;
+  this->LatLongTessellation = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -89,7 +90,7 @@ void vtkSphereSource::Execute()
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
-  int pts[3], base, numPoles=0, thetaResolution, phiResolution;
+  int pts[4], base, numPoles=0, thetaResolution, phiResolution;
   vtkPolyData *output = this->GetOutput();
   int piece = output->GetUpdatePiece();
   int numPieces = output->GetUpdateNumberOfPieces();
@@ -115,10 +116,8 @@ void vtkSphereSource::Execute()
   localStartTheta = localStartTheta + (float)(start) * deltaTheta;
   localThetaResolution = end - start;
 
-  //
   // Set things up; allocate memory
   //
-
   vtkDebugMacro("SphereSource Executing");
 
   numPts = this->PhiResolution * localThetaResolution + 2;
@@ -133,7 +132,7 @@ void vtkSphereSource::Execute()
   
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys, 3));
-  //
+
   // Create sphere
   //
   // Create north pole if needed
@@ -252,14 +251,21 @@ void vtkSphereSource::Execute()
       pts[0] = phiResolution*i + j + numPoles;
       pts[1] = pts[0] + 1;
       pts[2] = ((phiResolution*(i+1)+j) % base) + numPoles + 1;
-      newPolys->InsertNextCell(3, pts);
-
-      pts[1] = pts[2];
-      pts[2] = pts[1] - 1;
-      newPolys->InsertNextCell(3, pts);
+      if ( !this->LatLongTessellation )
+        {
+        newPolys->InsertNextCell(3, pts);
+        pts[1] = pts[2];
+        pts[2] = pts[1] - 1;
+        newPolys->InsertNextCell(3, pts);
+        }
+      else
+        {
+        pts[3] = pts[2] - 1;
+        newPolys->InsertNextCell(4, pts);
+        }
       }
     }
-  //
+
   // Update ourselves and release memeory
   //
   newPoints->Squeeze();
@@ -288,6 +294,8 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "Center: (" << this->Center[0] << ", " 
      << this->Center[1] << ", " << this->Center[2] << ")\n";
+  os << indent 
+     << "LatLong Tessellation: " << this->LatLongTessellation << "\n";
 }
 
 //----------------------------------------------------------------------------
