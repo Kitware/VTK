@@ -33,9 +33,11 @@
 #ifdef _MSC_VER
 #pragma warning (push, 2)
 #endif
+
 #include <vector>
 #include <map>
 #include <algorithm>
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -124,7 +126,7 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.13");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.14");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
