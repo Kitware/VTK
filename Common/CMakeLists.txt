@@ -107,7 +107,6 @@ vtkReferenceCount
 vtkScalars 
 vtkShortArray 
 vtkSource 
-vtkStack 
 vtkStructuredData 
 vtkStructuredGrid 
 vtkStructuredPoints 
