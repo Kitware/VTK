@@ -87,6 +87,7 @@ package ifneeded vtktcl 3.3 {
 	if {[file exists $fname]} {
 	    set widgetObjectFound 1
 	    source $fname
+           break
 	}
     }
 
@@ -95,6 +96,7 @@ package ifneeded vtktcl 3.3 {
 	    set fname $dir/TkInteractor.tcl
 	    if {[file exists $fname]} {
 		source $fname
+               break
 	    }
 	}
     }
