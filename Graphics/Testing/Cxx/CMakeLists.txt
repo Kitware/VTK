@@ -53,6 +53,8 @@ IF (VTK_USE_RENDERING)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(Mace ${CXX_TEST_PATH}/Mace )
     ADD_TEST(expCos ${CXX_TEST_PATH}/expCos )
+    ADD_TEST(CellLocator ${CXX_TEST_PATH}/CellLocator)
+    ADD_TEST(PointLocator ${CXX_TEST_PATH}/PointLocator)
   ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_RENDERING)
