@@ -17,7 +17,6 @@ CONCRETE_H =
 ABSTRACT = 
 
 CONCRETE = \
-vtkImplicitManifoldModeller \
 vtkEarthSource \
 vtkImageReslice \
 vtkIVWriter \
