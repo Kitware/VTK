@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // data.
 //
 // .SECTION See Also
-// vtkAbstractMapper3D vtkMapper vtkVolumeMapper
+// vtkAbstractMapper3D vtkMapper vtkPolyDataMapper vtkVolumeMapper
 
 #ifndef __vtkAbstractMapper_h
 #define __vtkAbstractMapper_h
