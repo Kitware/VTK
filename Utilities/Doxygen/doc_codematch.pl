@@ -1,9 +1,14 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-21 17:40:32 barre>
+# Time-stamp: <2002-01-18 16:17:26 barre>
 #
 # Summary ?
 #
 # barre : Sebastien Barre <sebastien.barre@kitware.com>
+#
+# 0.2 (barre)
+#   - add --headerext s : expected header file extension
+#   - add --headernewext s : new header file extension
+#   - add --headernewsuffix s : new header file suffix
 #
 # 0.1 (barre)
 #   - first release
@@ -17,7 +22,7 @@ use File::Find;
 use File::Path;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.1, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.2, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -36,6 +41,9 @@ my %default =
             "../../Parallel", 
             "../../Patented", 
             "../../Rendering"],
+   headerext => "h",
+   headernewext => "h",
+   headernewsuffix => "",
    label => "Events",
    project => "VTK",
    relativeto => "",
@@ -55,7 +63,7 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "debug", "label=s", "codematch=s", "project=s", "relativeto=s", "sectionmatch=s", "sectionmatch2=s", "store=s", "store2=s", "title=s", "title2=s", "to=s", "unique=s", "weight=i");
+GetOptions (\%args, "help", "verbose|v", "debug", "label=s", "codematch=s", "headerext=s", "headernewext=s", "headernewsuffix=s", "project=s", "relativeto=s", "sectionmatch=s", "sectionmatch2=s", "store=s", "store2=s", "title=s", "title2=s", "to=s", "unique=s", "weight=i");
 
 if (exists $args{"help"}) {
     print <<"EOT";
@@ -63,6 +71,9 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--limit n] [--stop file] [--sectionma
   --help            : this message
   --verbose|-v      : verbose (display filenames while processing)
   --codematch str   : codematch used to generate matches against code (default: $default{codematch})
+  --headerext s     : expected header file extension (default: $default{headerext})
+  --headernewext s  : new header file extension (default: $default{headernewext})
+  --headernewsuffix s : new header file suffix (default: $default{headernewsuffix})
   --project name    : project name, used to uniquify (default: $default{project})
   --label str       : use string as label in class page (default: $default{label})
   --sectionmatch s  : use string against match to get unique alpha section (default: $default{sectionmatch})
@@ -85,6 +96,10 @@ EOT
 $args{"debug"} = $default{"debug"} if exists $default{"debug"};
 $args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"codematch"} = $default{"codematch"} if ! exists $args{"codematch"};
+$args{"headerext"} = $default{"headerext"} if ! exists $args{"headerext"};
+$args{"headernewext"} = $default{"headernewext"} if ! exists $args{"headernewext"};
+$args{"headernewsuffix"} = $default{"headernewsuffix"} 
+if ! exists $args{"headernewsuffix"};
 $args{"project"} = $default{"project"} if ! exists $args{"project"};
 $args{"label"} = $default{"label"} if ! exists $args{"label"};
 $args{"sectionmatch"} = $default{"sectionmatch"} if ! exists $args{"sectionmatch"};
@@ -138,16 +153,16 @@ my %allmatches;
 my %class2matches;
 my %match2classes;
 
-my ($nb_files, $nb_classes_matching) = (0, 0);
+my ($nb_files, $nb_replaced_files, $nb_classes_matching) = (0, 0);
 undef $/;  # slurp mode
 
 foreach my $source (@files) {
 
     # Skip if not a VTK header file or has no implementation file
 
-    next if $source !~ /(vtk[^\\\/]*)\.h\Z/;
+    next if $source !~ /(\w?vtk[^\\\/]*)\.$args{"headerext"}\Z/;
     my ($class, $implem) = ($1, $source);
-    $implem =~ s/\.h\Z/\.cxx/;
+    $implem =~ s/\.$args{"headerext"}\Z/\.cxx/;
     next if ! -e $implem;
 
     ++$nb_files;
@@ -201,6 +216,7 @@ foreach my $source (@files) {
         $source =~ s/^(\.\.[\/\\])*//;
         $header = $args{"to"} . '/' . $source;
     }
+    $header =~ s/\.$args{"headerext"}\Z/$args{"headernewsuffix"}\.$args{"headernewext"}/;
 
     next if ! -e $header;
 
@@ -236,6 +252,8 @@ foreach my $source (@files) {
       or croak "$PROGNAME: unable to open $header\n";
     print HEADERFILE $pre . $block . $post;
     close(HEADERFILE);
+
+    ++$nb_replaced_files;
 }
 
 print " => parsed in ", time() - $intermediate_time, " s.\n";
@@ -254,8 +272,8 @@ my $header;
 my (@summary, @credits);
 
 push @summary, 
-  "  - $nb_files implementation file(s) returning " . scalar (keys %allmatches) . " word(s) for " . scalar (keys %allclasses) . " classe(es) on " . 
-  localtime();
+  "  - $nb_files implementation file(s) returning " . scalar (keys %allmatches) . " word(s) for " . scalar (keys %allclasses) . " classe(es) on " . localtime(),
+  "  - $nb_replaced_files file(s) updated";
 
 push @credits, 
   "\@version $VERSION",
