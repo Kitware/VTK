@@ -743,7 +743,6 @@ macro:
    }
 | ViewportCoordinateMacro '(' any_id ')'
    { 
-     char *local = strdup(currentFunction->Signature);
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        $<str>3);
 
@@ -791,7 +790,6 @@ macro:
    }
 | WorldCoordinateMacro '(' any_id ')'
    { 
-     char *local = strdup(currentFunction->Signature);
      sprintf(currentFunction->Signature,"vtkCoordinate *Get%sCoordinate ();",
        $<str>3);
 
