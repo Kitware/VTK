@@ -109,10 +109,9 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
 
     for (int j=0; j<3; j++)
       {
-      box.LoCorner[j] = 
-        static_cast<int>(origin[j]/spacing[j] + extent[2*j]);
-      box.HiCorner[j] = 
-        static_cast<int>(origin[j]/spacing[j] + extent[2*j+1] - 1);
+      int num = static_cast<int>(floor(origin[j]/spacing[j] + 0.5));
+      box.LoCorner[j] = num + extent[2*j];
+      box.HiCorner[j] = num + extent[2*j+1] - 1;
       }
     
     // Similarly, the level of each sub-dataset is normally 
