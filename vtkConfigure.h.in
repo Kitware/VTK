@@ -40,3 +40,6 @@
 #cmakedefine VTK_USE_64BIT_IDS
 
 #cmakedefine VTK_USE_ANSI_STDLIB
+
+/* compiler used */
+#define VTK_CXX_COMPILER "${CMAKE_CXX_COMPILER}"
