@@ -85,7 +85,11 @@ vtkDepthSortPolyData::~vtkDepthSortPolyData()
 // Don't reference count to avoid nasty cycle
 void vtkDepthSortPolyData::SetProp3D(vtkProp3D *prop3d)
 {
-  this->Prop3D = prop3d;
+  if ( this->Prop3D != prop3d )
+    {
+    this->Prop3D = prop3d;
+    this->Modified();
+    }
 }
 
 vtkProp3D *vtkDepthSortPolyData::GetProp3D()
