@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkTensor.h"
 
-vtkCxxRevisionMacro(vtkCurvatures, "1.3");
+vtkCxxRevisionMacro(vtkCurvatures, "1.4");
 vtkStandardNewMacro(vtkCurvatures);
 
 //------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ vtkCurvatures* vtkCurvatures::New()
 vtkCurvatures::vtkCurvatures()
 {
   this->CurvatureType = VTK_CURVATURE_GAUSS;
-  this->InvertMeanCurvature = false;
+  this->InvertMeanCurvature = 0;
 }
 //-------------------------------------------------------//
 void vtkCurvatures::GetMeanCurvature()
