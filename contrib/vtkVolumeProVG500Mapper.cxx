@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
+#include "vtkDebugLeaks.h"
 
 
 vtkVolumeProVG500Mapper::vtkVolumeProVG500Mapper()
@@ -173,12 +174,18 @@ vtkVolumeProVG500Mapper *vtkVolumeProVG500Mapper::New()
 #ifdef VTK_USE_OGLR
   if (!strcmp("OpenGL",temp))
     {
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::DestructClass("vtkVolumeProVG500Mapper");
+#endif
     return vtkOpenGLVolumeProVG500Mapper::New();
     }
 #endif
 #ifdef _WIN32
   if (!strcmp("Win32OpenGL",temp))
     {
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::DestructClass("vtkVolumeProVG500Mapper");
+#endif
     return vtkOpenGLVolumeProVG500Mapper::New();
     }
 #endif

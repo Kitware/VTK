@@ -42,11 +42,6 @@ vtkObject* vtkObjectFactory::CreateInstance(const char* vtkclassname)
     vtkObject* newobject = factory->CreateObject(vtkclassname);
     if(newobject)
       {
-      // if the factory created an object, then use that objects
-      // real name as the constructed class
-#ifdef VTK_DEBUG_LEAKS
-      vtkDebugLeaks::ConstructClass(newobject->GetClassName());
-#endif
       return newobject;
       }
     }
