@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageComposite_h
 #define __vtkImageComposite_h
 
-#include "vtkStructuredPointsToStructuredPointsFilter.h"
+#include "vtkStructuredPointsSource.h"
 
 class VTK_EXPORT vtkImageComposite : public vtkStructuredPointsToStructuredPointsFilter
 {
@@ -69,15 +69,15 @@ public:
 
   // Description:
   // Add a dataset to the list of data to append.
-  void AddInput(vtkStructuredPoints *);
+  void AddInput(vtkImageData *);
 
   // Description:
   // Remove a dataset from the list of data to append.
-  void RemoveInput(vtkStructuredPoints *);
+  void RemoveInput(vtkImageData *);
 
   // Description:
   // Get any input of this filter.
-  vtkStructuredPoints *GetInput(int idx);
+  vtkImageData *GetInput(int idx);
 
 protected:
   vtkImageComposite();

@@ -54,26 +54,26 @@ vtkImageComposite::~vtkImageComposite()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageComposite::AddInput(vtkStructuredPoints *ds)
+void vtkImageComposite::AddInput(vtkImageData *ds)
 {
   this->vtkProcessObject::AddInput(ds);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageComposite::RemoveInput(vtkStructuredPoints *ds)
+void vtkImageComposite::RemoveInput(vtkImageData *ds)
 {
   this->vtkProcessObject::RemoveInput(ds);
 }
 
 //----------------------------------------------------------------------------
-vtkStructuredPoints *vtkImageComposite::GetInput(int idx)
+vtkImageData *vtkImageComposite::GetInput(int idx)
 {
   if (idx >= this->NumberOfInputs || idx < 0)
     {
     return NULL;
     }
   
-  return (vtkStructuredPoints *)(this->Inputs[idx]);
+  return (vtkImageData *)(this->Inputs[idx]);
 }
 
 //----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void vtkImageComposite::Execute()
 {
   vtkStructuredPoints *output = this->GetOutput();
   int numPts = output->GetNumberOfPoints();
-  vtkStructuredPoints *input;
+  vtkImageData *input;
   int i, j;
   int firstFlag = 1;
   vtkScalars *inPScalars;
@@ -116,7 +116,7 @@ void vtkImageComposite::Execute()
   // composite each input
   for (i = 0; i < this->NumberOfInputs; ++i)
     {
-    input = (vtkStructuredPoints*)(this->Inputs[i]);
+    input = (vtkImageData*)(this->Inputs[i]);
     if (input && input->GetPointData()->GetScalars() && 
         input->GetPointData()->GetFieldData()) 
       {
@@ -178,7 +178,7 @@ void vtkImageComposite::Execute()
 int vtkImageComposite::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   vtkStructuredPoints *output = (vtkStructuredPoints*)data;
-  vtkStructuredPoints *input;
+  vtkImageData *input;
   int i;
 
   for ( i = 0; i < this->NumberOfInputs; ++i)
