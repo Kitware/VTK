@@ -22,7 +22,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.14");
+vtkCxxRevisionMacro(vtkXMLParser, "1.15");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -243,7 +243,7 @@ int vtkXMLParser::ParseXML()
   // to not check the error condition on the fin.read() before using
   // the data, but the fin.gcount() will be zero if an error occurred.
   // Therefore, the loop should be safe everywhere.
-  while(!this->ParsingComplete() && in)
+  while(!this->ParseError && !this->ParsingComplete() && in)
     {
     in.read(buffer, bufferSize);
     if(in.gcount())
