@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.135");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.136");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -63,9 +63,6 @@ vtkRenderWindow::vtkRenderWindow()
   this->InAbortCheck = 0;
   this->InRender = 0;
   this->NeverRendered = 1;
-  this->AbortCheckMethod = NULL;
-  this->AbortCheckMethodArg = NULL;
-  this->AbortCheckMethodArgDelete = NULL;
   this->Renderers = vtkRendererCollection::New();
   this->NumberOfLayers = 1;
   this->CurrentCursor = VTK_CURSOR_DEFAULT;
@@ -86,12 +83,6 @@ vtkRenderWindow::~vtkRenderWindow()
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
-  // delete the current arg if there is one and a delete meth
-  if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
-    {
-    (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
-    }
-  
   this->Renderers->Delete();
 }
 
@@ -669,10 +660,6 @@ int vtkRenderWindow::CheckAbortStatus()
   if (!this->InAbortCheck)
     {
     this->InAbortCheck = 1;
-    if (this->AbortCheckMethod) 
-      {
-      (*this->AbortCheckMethod)(this->AbortCheckMethodArg);
-      }
     this->InvokeEvent(vtkCommand::AbortCheckEvent,NULL);
     this->InAbortCheck = 0;
     }
@@ -713,14 +700,6 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumberOfLayers << "\n";
   os << indent << "AccumulationBuffer Size " << this->AccumulationBufferSize << "\n";
-  if ( this->AbortCheckMethod )
-    {
-    os << indent << "AbortCheck method defined.\n";
-    }
-  else
-    {
-    os << indent << "No AbortCheck method.\n";
-    }
   os << indent << "AlphaBitPlanes: " << (this->AlphaBitPlanes ? "On" : "Off")
      << endl;
 }
@@ -1009,32 +988,3 @@ const char *vtkRenderWindow::GetRenderLibrary()
 {
   return vtkGraphicsFactory::GetRenderLibrary();
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-void vtkRenderWindow::SetAbortCheckMethod(void (*f)(void *), void *arg)
-{
-  VTK_LEGACY_METHOD(SetAbortCheckMethod, "4.2");
-  if ( f != this->AbortCheckMethod || arg != this->AbortCheckMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
-      {
-      (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
-      }
-    this->AbortCheckMethod = f;
-    this->AbortCheckMethodArg = arg;
-    this->Modified();
-    }
-}
-
-void vtkRenderWindow::SetAbortCheckMethodArgDelete(void (*f)(void *))
-{
-  VTK_LEGACY_METHOD(SetAbortCheckMethodArgDelete, "4.2");
-  if ( f != this->AbortCheckMethodArgDelete)
-    {
-    this->AbortCheckMethodArgDelete = f;
-    this->Modified();
-    }
-}
-#endif

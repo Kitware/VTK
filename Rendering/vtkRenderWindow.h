@@ -332,13 +332,6 @@ public:
   virtual void ClearInRenderStatus() { this->InRender = 0; }
 
   // Description:
-  // For legacy compatibility.  Do not use.
-#ifndef VTK_REMOVE_LEGACY_CODE
-  void SetAbortCheckMethod(void (*f)(void *), void *arg);
-  void SetAbortCheckMethodArgDelete(void (*f)(void *));
-#endif
-
-  // Description:
   // Set/Get the desired update rate. This is used with
   // the vtkLODActor class. When using level of detail actors you
   // need to specify what update rate you require. The LODActors then
@@ -444,9 +437,6 @@ protected:
   int   InRender;
   int   NeverRendered;
   int   NumberOfLayers;
-  void (*AbortCheckMethod)(void *);
-  void (*AbortCheckMethodArgDelete)(void *);
-  void *AbortCheckMethodArg;
   int CurrentCursor;
   int IsPicking;
 
