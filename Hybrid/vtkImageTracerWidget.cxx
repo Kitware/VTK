@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.10");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.11");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -58,7 +58,6 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->CaptureRadius = 1.0;
   this->IsSnapping = 0;
   this->ImageSnapType = VTK_ITW_SNAP_CELLS;
-  this->GlyphAngle = 0.0;
   this->CurrentPicker = NULL;
   this->CurrentHandle = NULL;
   this->CurrentHandleIndex = -1;
@@ -72,16 +71,16 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->PropPicker->PickFromListOn();
 
   // Build the representation of the widget
-  this->HandleGeometryGenerator = vtkGlyphSource2D::New();
-  this->HandleGeometryGenerator->SetGlyphTypeToCross();
-  this->HandleGeometryGenerator->FilledOff();
-  this->HandleGeometryGenerator->SetCenter(0,0,0);
+  this->HandleGenerator = vtkGlyphSource2D::New();
+  this->HandleGenerator->SetGlyphTypeToCross();
+  this->HandleGenerator->FilledOff();
+  this->HandleGenerator->SetCenter(0,0,0);
 
   this->TransformFilter = vtkTransformPolyDataFilter::New();
   this->Transform = vtkTransform::New();
   this->TransformFilter->SetTransform(this->Transform);
   this->Transform->Identity();
-  this->TransformFilter->SetInput(this->HandleGeometryGenerator->GetOutput());
+  this->TransformFilter->SetInput(this->HandleGenerator->GetOutput());
   this->TransformFilter->Update();
 
   this->TemporaryHandlePoints = vtkFloatArray::New();
@@ -125,7 +124,7 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   
   // Create one handle
   this->AllocateHandles(1);
-  this->AdjustHandlePosition(0,this->HandleGeometryGenerator->GetCenter());
+  this->AdjustHandlePosition(0,this->HandleGenerator->GetCenter());
 
   // Initial creation of the widget, serves to initialize it
   // Default bounds to get started
@@ -197,7 +196,7 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
   this->TransformFilter->Delete();
   this->Transform->Delete();
   this->TemporaryHandlePoints->Delete();
-  this->HandleGeometryGenerator->Delete();
+  this->HandleGenerator->Delete();
 }
 
 void vtkImageTracerWidget::SetProp(vtkProp* prop)
@@ -446,7 +445,6 @@ void vtkImageTracerWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "SnapToImage: "
      << (this->SnapToImage ? "On\n" : "Off\n") ;
   os << indent << "CaptureRadius: " << this->CaptureRadius << "\n";
-  os << indent << "GlyphAngle: " << this->GlyphAngle << "\n";
   os << indent << "NumberOfHandles: " << this->NumberOfHandles << "\n";
   os << indent << "IsClosed: " << this->IsClosed << "\n";
   os << indent << "AutoClose: "
@@ -503,10 +501,9 @@ void vtkImageTracerWidget::AdjustHandlePosition(int handle, double pos[3])
     pos[this->ProjectionNormal] = this->ProjectionPosition;
     }
 
-  this->HandleGeometryGenerator->SetCenter(0.0,0.0,0.0);
+  this->HandleGenerator->SetCenter(0.0,0.0,0.0);
   this->Transform->Identity();
   this->Transform->PostMultiply();
-  this->Transform->RotateZ(this->GlyphAngle);
 
   if (this->ProjectionNormal == VTK_ITW_PROJECTION_YZ)
     {
