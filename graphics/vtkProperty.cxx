@@ -134,7 +134,14 @@ float *vtkProperty::GetColor()
   float norm;
   int i;
   
-  norm = 1.0 / (this->Ambient + this->Diffuse + this->Specular);
+  if ((this->Ambient + this->Diffuse + this->Specular)>0)
+    {
+    norm = 1.0 / (this->Ambient + this->Diffuse + this->Specular);
+    }
+  else
+    {
+    norm = 0.0;
+    }
   
   for (i = 0; i < 3; i ++)
     {
