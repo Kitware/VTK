@@ -88,6 +88,7 @@ void vtkWin32RenderWindowInteractor::Initialize()
   int *size;
   int *position;
   int argc = 0;
+  HWND tmp;
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
@@ -106,7 +107,21 @@ void vtkWin32RenderWindowInteractor::Initialize()
   position= ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-  SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
+  tmp = (HWND)GetWindowLong(this->WindowId,GWL_USERDATA);
+  // watch for odd conditions
+  if (tmp != this->WindowId)
+    {
+    // OK someone else has a hold on our event handler
+    // so lets have them handle this stuff
+    // well send a USER message to the other
+    // event handler so that it can properly
+    // call this event handler if required
+    this->OldProc(this->WindowId,WM_USER+12,24,(LONG)vtkHandleMessage);
+    }
+  else
+    {
+    SetWindowLong(this->WindowId,GWL_WNDPROC,(LONG)vtkHandleMessage);
+    }
   /* add callback */
 
   this->Size[0] = size[0];
@@ -203,6 +218,13 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 
   ren = (vtkWin32OglrRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
   me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
+
+  if ((uMsg == WM_USER+13)&&(wParam == 26))
+    {
+    // someone is telling us to set our OldProc
+    me->OldProc = (WNDPROC)lParam;
+    return 1;
+    }
 
   switch (uMsg)
     {

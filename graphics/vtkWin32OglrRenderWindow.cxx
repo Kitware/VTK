@@ -220,14 +220,9 @@ void vtkWin32OglrSetupPixelFormat(HDC hDC)
     }
 }
 
-struct vtkWin32OglrCreateInfo
-  {
-  HDC DeviceContext;
-  HPALETTE Palette;
-  HGLRC ContextId;
-  };
+vtkWin32OglrRenderWindow *vtkWin32OglrRenderWindowPtr = NULL;
 
-void vtkWin32OglrSetupPalette(HDC hDC, vtkWin32OglrCreateInfo *me)
+void vtkWin32OglrSetupPalette(HDC hDC, vtkWin32OglrRenderWindow *me)
 {
     int pixelFormat = GetPixelFormat(hDC);
     PIXELFORMATDESCRIPTOR pfd;
@@ -288,6 +283,7 @@ void vtkWin32OglrInit()
   glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE);
 }
 
+
 LRESULT APIENTRY vtkWin32OglrWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   vtkWin32OglrRenderWindow *me = 
@@ -297,19 +293,14 @@ LRESULT APIENTRY vtkWin32OglrWndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
     {
     case WM_CREATE:
       {
-        // this code is going to create some stuff that we want to
-        // associate with the this pointer. But since there isn't an
-        // easy way to tget the this pointer during the create call
-        // we'll pass the created info back out
-        
         /* initialize OpenGL rendering */
-        vtkWin32OglrCreateInfo *info = new vtkWin32OglrCreateInfo;
-        SetWindowLong(hWnd,GWL_USERDATA,(LONG)info);
-        info->DeviceContext = GetDC(hWnd);
-        vtkWin32OglrSetupPixelFormat(info->DeviceContext);
-        vtkWin32OglrSetupPalette(info->DeviceContext,info);
-		    info->ContextId = wglCreateContext(info->DeviceContext);
-        wglMakeCurrent(info->DeviceContext, info->ContextId);
+        me = vtkWin32OglrRenderWindowPtr; 
+        SetWindowLong(hWnd,GWL_USERDATA,(LONG)me);
+        me->DeviceContext = GetDC(hWnd);
+        vtkWin32OglrSetupPixelFormat(me->DeviceContext);
+        vtkWin32OglrSetupPalette(me->DeviceContext,me);
+		    me->ContextId = wglCreateContext(me->DeviceContext);
+        wglMakeCurrent(me->DeviceContext, me->ContextId);
         vtkWin32OglrInit();
         return 0;
       }
@@ -410,7 +401,6 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
 	  if (!this->WindowId)
 		  {
       WNDCLASS wndClass;
-      vtkWin32OglrCreateInfo *info;
 
       if(this->WindowName) delete [] this->WindowName;
       int len = strlen( "Visualization Toolkit - Win32OpenGL #") 
@@ -435,6 +425,12 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
         RegisterClass(&wndClass);
         }
       
+      // use poor mans mutex
+      if (vtkWin32OglrRenderWindowPtr)
+        {
+        vtkErrorMacro("Two windows being created at the same time");
+        }
+      vtkWin32OglrRenderWindowPtr = this;
       /* create window */
       if (this->ParentId)
         {
@@ -452,18 +448,13 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
             x, y, width, height,
             NULL, NULL, this->ApplicationInstance, NULL);
         }
+      vtkWin32OglrRenderWindowPtr = NULL;
       if (!this->WindowId)
         {
         vtkErrorMacro("Could not create window, error:  " << GetLastError());
         return;
         }
       // extract the create info
-      info = (vtkWin32OglrCreateInfo *)GetWindowLong(this->WindowId,GWL_USERDATA);
-      this->DeviceContext = info->DeviceContext;
-      this->Palette = info->Palette;
-      this->ContextId = info->ContextId;
-      delete info;
-      SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
 
       /* display window */
       ShowWindow(this->WindowId, SW_SHOW);
