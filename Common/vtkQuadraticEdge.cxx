@@ -23,7 +23,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.14");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.15");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -235,9 +235,10 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
   jTj[0] = jTj0; jTj[1] = jTj1; jTj[2] = jTj2;
   double *jI[3], jI0[3], jI1[3], jI2[3];
   jI[0] = jI0; jI[1] = jI1; jI[2] = jI2;
+  /*
   double *iI[3], iI0[3], iI1[3], iI2[3];
   iI[0] = iI0; iI[1] = iI1; iI[2] = iI2;
-
+  */
   // Compute dx/dt, dy/dt, dz/dt
   this->InterpolationDerivs(pcoords,derivs);
   float dxdt = x0[0]*derivs[0] + x1[0]*derivs[1] + x2[0]*derivs[2];
