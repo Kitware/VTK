@@ -16,6 +16,7 @@ set scalarLabels  "Density Pressure Temperature Enthalpy Internal_Energy Kinetic
 set scalarComposite  "Black NotDest SrcAndDest SrcOrDest NotSrc SrcXorDest SrcAndNotDest Src White Black"
 set scalarFunctions  "100 110 120 130 140 144 153 163 170 184"
 vtkCamera camera
+vtkMath math
 
 set i 0
 foreach scalarFunction $scalarFunctions {
@@ -38,7 +39,7 @@ vtkRenderer ren$scalarFunction
   ren$scalarFunction SetBackground 0 0 .5
   ren$scalarFunction SetActiveCamera camera
   renWin AddRenderer ren$scalarFunction
-
+    ren$scalarFunction SetBackground [math Random .5 1] [math Random .5 1] [math Random .5 1] 
 ren$scalarFunction AddActor actor$scalarFunction
 
 vtkTextMapper textMapper$scalarFunction
@@ -47,7 +48,7 @@ vtkTextMapper textMapper$scalarFunction
   textMapper$scalarFunction SetFontFamilyToArial
 vtkActor2D text$scalarFunction
   text$scalarFunction SetMapper textMapper$scalarFunction
-  [text$scalarFunction GetProperty] SetColor 1 .6 1
+  [text$scalarFunction GetProperty] SetColor 0 0 0
     [text$scalarFunction GetProperty] SetCompositingOperatorTo[lindex $scalarComposite $i]
 ren$scalarFunction AddActor2D text$scalarFunction
 incr i
