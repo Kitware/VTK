@@ -23,6 +23,29 @@ AC_SUBST(HAVE_LIMITS_H)
 AC_HAVE_HEADERS(unistd.h, HAVE_UNISTD_H=-DHAVE_UNISTD_H,HAVE_UNISTD_H="")
 AC_SUBST(HAVE_UNISTD_H)
 
+# Step 1: set the variable "system" to hold the name and version number
+# for the system.  This can usually be done via the "uname" command, but
+# there are a few systems, like Next, where this doesn't work.
+
+AC_MSG_CHECKING([system version (for dynamic loading)])
+if test -f /usr/lib/NextStep/software_version; then
+  system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
+else
+    system=`uname -s`-`uname -r`
+    if test "$?" -ne 0 ; then
+	AC_MSG_RESULT([unknown (can't find uname command)])
+	system=unknown
+    else
+	# Special check for weird MP-RAS system (uname returns weird
+	# results, and the version is kept in special file).
+    
+	if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
+	    system=MP-RAS-`awk '{print $3}' /etc/.relid'`
+	fi
+	AC_MSG_RESULT($system)
+    fi
+fi
+
 ##########################
 ##			##
 ##	Starbase	##
@@ -52,10 +75,16 @@ AC_ARG_WITH(gl,
          [  --without-gl          do not use the gl graphics classes],
          [use_glr=$withval])
 
+# only allow gl on SGIs some Linux boxes were getting confused
+#
 if test "$use_glr" = "yes"; then
+  case $system in
+    IRIX*)
 	GRAPHICS_API_LIBS="${GRAPHICS_API_LIBS} -lgl"
 	GRAPHICS_API_OBJ="${GRAPHICS_API_OBJ} \${GLR_OBJ}"
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} -DVTK_USE_GLR"
+	;;
+  esac
 fi
 
 ##########################
@@ -353,28 +382,6 @@ fi
 #			as tclsh.
 #--------------------------------------------------------------------
 
-# Step 1: set the variable "system" to hold the name and version number
-# for the system.  This can usually be done via the "uname" command, but
-# there are a few systems, like Next, where this doesn't work.
-
-AC_MSG_CHECKING([system version (for dynamic loading)])
-if test -f /usr/lib/NextStep/software_version; then
-  system=NEXTSTEP-`awk '/3/,/3/' /usr/lib/NextStep/software_version`
-else
-    system=`uname -s`-`uname -r`
-    if test "$?" -ne 0 ; then
-	AC_MSG_RESULT([unknown (can't find uname command)])
-	system=unknown
-    else
-	# Special check for weird MP-RAS system (uname returns weird
-	# results, and the version is kept in special file).
-    
-	if test -r /etc/.relid -a "X`uname -n`" = "X`uname -s`" ; then
-	    system=MP-RAS-`awk '{print $3}' /etc/.relid'`
-	fi
-	AC_MSG_RESULT($system)
-    fi
-fi
 
 # Step 2: check for existence of -ldl library.  This is needed because
 # Linux can use either -ldl or -ldld for dynamic loading.
@@ -421,6 +428,7 @@ case $system in
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".so"
+	VTK_SHLIB_BUILD_FLAGS="-shared -rdata_shared"
 	if test "$have_dl" = yes; then
 	    DL_LIBS="-ldl"
 	    VTK_SHLIB_LINK_FLAGS="-rdynamic"
