@@ -3,6 +3,10 @@
 #include "vtkVertex.h"
 #include "vtkObjectFactoryCollection.h"
 #include "vtkDebugLeaks.h"
+#include "vtkOverrideInformationCollection.h"
+#include "vtkOverrideInformation.h"
+
+int failed = 0;
 
 class vtkTestVertex : public vtkVertex
 {
@@ -66,13 +70,14 @@ TestFactory::TestFactory()
 void TestNewVertex(vtkVertex* v, const char* expectedClassName)
 {
   if(strcmp(v->GetClassName(), expectedClassName) == 0)
-  {
+    {
     cout << "Test Passed" << endl;
-  }
+    }
   else
-  {
+    {
+    failed = 1;
     cout << "Test Failed" << endl;
-  }
+    }
 }
 
 
@@ -103,6 +108,70 @@ int main()
   v = vtkVertex::New();
   TestNewVertex(v, "vtkTestVertex");
   v->Delete();
+  vtkOverrideInformationCollection* oic = 
+    vtkOverrideInformationCollection::New();
+  vtkObjectFactory::GetOverrideInformation("vtkVertex", oic);
+  vtkOverrideInformation* oi;
+  if(oic->GetNumberOfItems() != 2)
+    {
+    cout << "Incorrect number of overrides for vtkVertex, expected 2, got: "
+         << oic->GetNumberOfItems() << "\n";
+    failed = 1;
+    if(oic->GetNumberOfItems() < 2)
+      {
+      return 1;
+      }
+    }
+  
+  
+  oic->InitTraversal();
+  oi = oic->GetNextItem();
+  cout << oi->GetClassOverrideName() << " " 
+         << oi->GetClassOverrideWithName() << " "
+         << oi->GetDescription() << " "
+         << oi->GetObjectFactory() << "\n";
+  if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
+    {
+    cout << "failed: GetClassOverrideName should be vtkVertex, is: "
+         << oi->GetClassOverrideName() << "\n";
+    failed = 1;
+    }
+  if(strcmp(oi->GetClassOverrideWithName(), "vtkTestVertex"))
+    {
+    cout << "failed: GetClassOverrideWithName should be vtkTestVertex, is: "
+         << oi->GetClassOverrideWithName() << "\n";
+    failed = 1;
+    }
+  if(strcmp(oi->GetDescription(), "test vertex factory override"))
+    {
+    cout << "failed: GetClassOverrideWithName should be test vertex factory override, is: "
+         << oi->GetDescription() << "\n";
+    failed = 1;
+    }
+
+  oi = oic->GetNextItem();
+  cout << oi->GetClassOverrideName() << " " 
+         << oi->GetClassOverrideWithName() << " "
+         << oi->GetDescription() << " "
+         << oi->GetObjectFactory() << "\n";
+  if(strcmp(oi->GetClassOverrideName(), "vtkVertex"))
+    {
+    cout << "failed: GetClassOverrideName should be vtkVertex, is: "
+         << oi->GetClassOverrideName() << "\n";
+    failed = 1;
+    }
+  if(strcmp(oi->GetClassOverrideWithName(), "vtkTestVertex2"))
+    {
+    cout << "failed: GetClassOverrideWithName should be vtkTestVertex2, is: "
+         << oi->GetClassOverrideWithName() << "\n";
+    failed = 1;
+    }
+  if(strcmp(oi->GetDescription(), "test vertex factory override 2"))
+    {
+    cout << "failed: GetClassOverrideWithName should be test vertex factory override 2, is: "
+         << oi->GetDescription() << "\n";
+    failed = 1;
+    }
   vtkObjectFactory::UnRegisterAllFactories();
-  return 0;
+  return failed;
 }
