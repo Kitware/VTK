@@ -123,7 +123,7 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
 
   this->InterpolationFunctions(pcoords, weights);
 
-  if ( pcoords[0] >= 0.0 && pcoords[1] <= 1.0 &&
+  if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
     dist2 = vtkMath::Distance2BetweenPoints(closestPoint,x); //projection distance
