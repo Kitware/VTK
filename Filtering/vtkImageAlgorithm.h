@@ -41,6 +41,7 @@ public:
   // Get the output data object for a port on this algorithm.
   vtkImageData* GetOutput();
   vtkImageData* GetOutput(int);
+  virtual void SetOutput(vtkDataObject* d);
 
   // Description:
   // see vtkAlgorithm for details

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.14");
 
 class vtkImageAlgorithmToDataSetFriendship
 {
@@ -357,7 +357,13 @@ vtkImageData* vtkImageAlgorithm::GetOutput(int port)
   return vtkImageData::SafeDownCast(this->GetOutputDataObject(port));
 }
 
+//----------------------------------------------------------------------------
+void vtkImageAlgorithm::SetOutput(vtkDataObject* d)
+{
+  this->GetExecutive()->SetOutputData(0, d);
+}
 
+//----------------------------------------------------------------------------
 int vtkImageAlgorithm::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

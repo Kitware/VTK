@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.12");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.13");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -55,6 +55,12 @@ vtkPolyData* vtkPolyDataAlgorithm::GetOutput()
 vtkPolyData* vtkPolyDataAlgorithm::GetOutput(int port)
 {
   return vtkPolyData::SafeDownCast(this->GetOutputDataObject(port));
+}
+
+//----------------------------------------------------------------------------
+void vtkPolyDataAlgorithm::SetOutput(vtkDataObject* d)
+{
+  this->GetExecutive()->SetOutputData(0, d);
 }
 
 //----------------------------------------------------------------------------
