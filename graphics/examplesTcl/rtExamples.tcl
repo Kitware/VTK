@@ -217,7 +217,7 @@ foreach afile $files {
     }
 
     # Write the image error out to the log file
-    puts -nonewline $logFile "$imageError error, "
+    puts -nonewline $logFile "$imageError imgdiff, "
 
     # Put the final passed or failed flag out there.
     # If it failed, say why (Image, Time)
