@@ -53,6 +53,9 @@ vtkTexture::vtkTexture()
 
   this->Input = NULL;
   this->Device = NULL;
+  this->LookupTable = NULL;
+  this->MappedScalars = NULL;
+  this->SelfCreatedLookupTable = 0;
 }
 
 vtkTexture::~vtkTexture()
@@ -63,12 +66,17 @@ vtkTexture::~vtkTexture()
     }
 }
 
-void vtkTexture::Load(vtkRenderer *ren)
+void vtkTexture::MakeTextureDevice (vtkRenderer *ren)
 {
   if (!this->Device)
     {
     this->Device = ren->GetRenderWindow()->MakeTexture();
     }
+}
+
+void vtkTexture::Load(vtkRenderer *ren)
+{
+  this->MakeTextureDevice (ren);
   this->Device->Load(this,ren);
 }
 
@@ -86,18 +94,58 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Input: (none)\n";
     }
+  if ( this->LookupTable )
+    {
+    os << indent << "LookupTable: (" << (void *)this->LookupTable << ")\n";
+    }
+  else
+    {
+    os << indent << "LookupTable: (none)\n";
+    }
 }
 
+unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
+{
+  int numPts = scalars->GetNumberOfScalars ();
+  vtkColorScalars *mappedScalars;
 
+  // if there is no lookup table, create one
+  if (this->LookupTable == NULL)
+    {
+      this->LookupTable = new vtkLookupTable;
+      this->LookupTable->Build ();
+      this->SelfCreatedLookupTable = 1;
+    }
+  if (this->MappedScalars &&
+      numPts > this->MappedScalars->GetNumberOfScalars ())
+    {
+      this->MappedScalars->Allocate (numPts);
+    }
+  else
+    {
+      this->MappedScalars = new vtkAPixmap(numPts);
+    }
+  // convert scalars to colors
+  if (this->SelfCreatedLookupTable) this->LookupTable->SetTableRange (scalars->GetRange ());
+
+  mappedScalars = this->MappedScalars;
+  for (int i = 0; i < numPts; i++)
+    {
+      mappedScalars->SetColor(i, this->LookupTable->MapValue(scalars->GetScalar(i)));
+    }
+  return this->MappedScalars->GetPtr(0);
+}
 
 void vtkTexture::Render(vtkRenderer *ren)
 {
   if (this->Input) //load texture map
     {
     this->Input->Update();
-    if (this->Input->GetMTime() > this->GetMTime())
+    if (this->Input->GetMTime() > this->GetMTime()
+	|| (this->LookupTable && this->LookupTable->GetMTime() > this->GetMTime ()))
       {
       this->Load(ren);
       }
     }
 }
+
