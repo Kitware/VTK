@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkImageCanvasSource2D.h"
 
-class vtkPolyLinesToImage : public vtkImageSource
+class VTK_EXPORT vtkPolyLinesToImage : public vtkImageSource
 {
 public:
   vtkPolyLinesToImage();
