@@ -71,21 +71,9 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->CopyTensors = 1;
   this->CopyFieldData = 1;
   
-  this->CellScalars.ReferenceCountingOff();
-  this->CellScalars.Allocate(VTK_CELL_SIZE);
-  this->CellVectors.ReferenceCountingOff();
-  this->CellVectors.Allocate(VTK_CELL_SIZE);
-  this->CellNormals.ReferenceCountingOff();
-  this->CellNormals.Allocate(VTK_CELL_SIZE);
-  this->CellTCoords.ReferenceCountingOff();
-  this->CellTCoords.Allocate(VTK_CELL_SIZE);
-  this->CellTensors.ReferenceCountingOff();
-  this->CellTensors.Allocate(VTK_CELL_SIZE);
-
   this->Null3Tuple[0] = this->Null3Tuple[1] = this->Null3Tuple[2] = 0.0;
   this->Null4Tuple[0] = this->Null4Tuple[1] = this->Null4Tuple[2] = this->Null4Tuple[3] = 0;
 
-  this->CellFieldData = NULL;
   this->NullTuple = new float[3];
   this->Tuple = new float[3];
   this->TupleSize = 3;
@@ -103,7 +91,6 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
 {
   vtkDataSetAttributes::Initialize();
 
-  if ( this->CellFieldData ) this->CellFieldData->Delete();
   if ( this->NullTuple ) delete [] this->NullTuple;
   if ( this->Tuple ) delete [] this->Tuple;
 }
@@ -481,50 +468,8 @@ void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, in
 void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd, int sze, int ext)
 {
   this->CopyAllocate(pd, sze, ext);
-
-  // Prepare supporting structure for interpolation
-  //
-  if ( this->CopyScalarsEnabled )
-    {
-    this->CellScalars.SetDataType(pd->Scalars->GetDataType());
-    this->CellScalars.SetNumberOfComponents(pd->Scalars->GetNumberOfComponents());
-    this->CellScalars.Allocate(VTK_CELL_SIZE);
-    }
-  
-  if ( this->CopyVectorsEnabled )
-    {
-    this->CellVectors.SetDataType(pd->Vectors->GetDataType());
-    this->CellVectors.Allocate(VTK_CELL_SIZE);
-    }
-  
-  if ( this->CopyNormalsEnabled )
-    {
-    this->CellNormals.SetDataType(pd->Normals->GetDataType());
-    this->CellNormals.Allocate(VTK_CELL_SIZE);
-    }
-  
-  if ( this->CopyTCoordsEnabled )
-    {
-    this->CellTCoords.SetDataType(pd->TCoords->GetDataType());
-    this->CellTCoords.SetNumberOfComponents(pd->TCoords->GetNumberOfComponents());
-    this->CellTCoords.Allocate(VTK_CELL_SIZE);
-    }
-  
-  if ( this->CopyTensorsEnabled )
-    {
-    this->CellTensors.SetDataType(pd->Tensors->GetDataType());
-    this->CellTensors.Allocate(VTK_CELL_SIZE);
-    }
-  
-  if ( this->CopyFieldDataEnabled )
-    {//set things up consistent (number and types of arrays)
-    if ( this->CellFieldData ) this->CellFieldData->Delete();
-    this->CellFieldData = (vtkFieldData *)pd->FieldData->MakeObject();
-    this->CellFieldData->Allocate(VTK_CELL_SIZE);
-    }
 }
 
-// Description:
 // Interpolate data from points and interpolation weights. Make sure that the 
 // method InterpolateAllocate() has been invoked before using this method.
 void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 

@@ -207,14 +207,6 @@ protected:
   int CopyTensorsEnabled;
   int CopyFieldDataEnabled;
 
-  // used internally during copying, interpolation, etc.
-  vtkScalars CellScalars;
-  vtkVectors CellVectors;
-  vtkNormals CellNormals;
-  vtkTCoords CellTCoords;
-  vtkTensors CellTensors;
-  vtkFieldData *CellFieldData;
-
   // used to set null values
   float Null3Tuple[3];
   float Null4Tuple[4];
