@@ -193,6 +193,15 @@ void vtkSource::UpdateInformation()
     // because our InformationTime will be more recent than
     // the MTime of our output.
     this->Modified();
+    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+      {
+      output = this->GetOutput(idx);
+      if (output)
+        {
+        output->SetPipelineMTime(this->GetMTime());
+        }  
+      }
+    
     return;
     }
 
