@@ -13,7 +13,7 @@ vtkRenderWindow renWin
 vtkVRMLImporter importer
   importer SetRenderWindow renWin
   importer ComputeNormalsOn
-  importer SetFileName "../bot2.wrl"
+  importer SetFileName "$VTK_DATA/bot2.wrl"
   importer Read
 
 vtkRenderWindowInteractor iren
@@ -31,15 +31,15 @@ set ren [$renCollection GetNextItem]
 #
 # change view up to +z
 #
-[$ren GetActiveCamera] SetPosition 0 1 0
+[$ren GetActiveCamera] SetPosition -3.25303 3.46205 3.15906
 [$ren GetActiveCamera] SetFocalPoint 0 0 0
-[$ren GetActiveCamera] SetViewUp 0 0 1
+[$ren GetActiveCamera] SetViewUp 0.564063 0.825024 -0.0341876
 
 #
 # let the renderer compute good position and focal point
 #
 $ren ResetCamera
-[$ren GetActiveCamera] Dolly 1.4
+[$ren GetActiveCamera] Dolly 1.75
 ren1 ResetCameraClippingRange
 
 # render the image
@@ -48,5 +48,5 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 wm withdraw .
 
-#renWin SetFileName "flamingo.tcl.ppm"
+#renWin SetFileName "VRMLImporter.tcl.ppm"
 #renWin SaveImageAsPPM
