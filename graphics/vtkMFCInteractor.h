@@ -113,8 +113,8 @@ public:
   void SetupLogicalPalette(void);
   void DoPalette(HDC hDC);
   HDIB GetDIB(int width, int height, int bitsperpixel);
-  BOOL StretchDIB(CDC *pDC,int x_position,int y_position, int x_width, int y_width,
-							 int width, int height, int bitsperpixel);
+  BOOL StretchDIB(CDC *pDC,int x_position,int y_position, int x_width,
+		  int y_width, int width, int height, int bitsperpixel);
   BOOL SaveBMP(LPCTSTR lpszPathName,int width, int height, int bitsperpixel);
   void Initialize(HWND hwnd, CRect *rcBounds,vtkRenderWindow *renw);
 #ifdef TIMER

@@ -204,7 +204,8 @@ public:
   // Description:
   // Clean up device contexts, rendering contexts, etc.
   void Clean();
-  
+
+ protected:
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
   HPALETTE  OldPalette;

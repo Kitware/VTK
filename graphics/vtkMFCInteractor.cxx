@@ -146,7 +146,10 @@ void vtkMFCInteractor::Initialize()
     return;
     }
 
-  if (this->Initialized) return;
+  if (this->Initialized)
+    {
+    return;
+    }
   this->Initialized = 1;
 
   // get the info we need from the RenderingWindow
@@ -181,7 +184,7 @@ void vtkMFCInteractor::MakeDirectRenderer(HWND hwnd, CRect *rcBounds,vtkRenderWi
   BOOL bResult;
   int bitsperpixel;
 
-  WindowRectangle = *rcBounds;
+  this->WindowRectangle = *rcBounds;
 
   this->WindowTop       = rcBounds->top;
   this->WindowLeft	= rcBounds->left;
@@ -217,7 +220,9 @@ void vtkMFCInteractor::MakeDirectRenderer(HWND hwnd, CRect *rcBounds,vtkRenderWi
     
     this->RenderWindow = renw;
     
-    DescribePixelFormat(this->WindowDC, PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, bitsperpixel);
+    this->DescribePixelFormat(this->WindowDC,
+			      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL
+			      | PFD_DOUBLEBUFFER, bitsperpixel);
     this->WindowRC = wglCreateContext(this->WindowDC);
     ASSERT(this->WindowRC != NULL);
     bResult = wglMakeCurrent(this->WindowDC, this->WindowRC);
@@ -229,7 +234,10 @@ void vtkMFCInteractor::MakeDirectRenderer(HWND hwnd, CRect *rcBounds,vtkRenderWi
     this->RenderWindow->SetSize(this->WindowWidth,this->WindowHeight);
     this->RenderWindow->DoubleBufferOn();
     this->RenderWindow->SwapBuffersOff();		// we do swapbuffers by ourselfs
-    if(!this->Initialized) this->Initialize();
+    if(!this->Initialized)
+      {
+      this->Initialize();
+      }
     }
   ((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->WindowInitialize();
   
@@ -281,8 +289,11 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
 					  (BITMAPINFO *) &bitmapheader, // ok!!, possible, because there is no palette
 					  DIB_PAL_COLORS,
 					  &m_pBits,NULL,0);
-    this->OldBitmap = (HBITMAP) ::SelectObject(this->MemoryDC->GetSafeHdc(),this->WindowBitmap);
-    DescribePixelFormat(this->MemoryDC->GetSafeHdc(),	PFD_DRAW_TO_BITMAP | PFD_SUPPORT_GDI | PFD_SUPPORT_OPENGL,bitsperpixel);
+    this->OldBitmap = (HBITMAP) ::SelectObject(this->MemoryDC->GetSafeHdc(),
+					       this->WindowBitmap);
+    this->DescribePixelFormat(this->MemoryDC->GetSafeHdc(),
+			      PFD_DRAW_TO_BITMAP | PFD_SUPPORT_GDI
+			      | PFD_SUPPORT_OPENGL, bitsperpixel);
     this->WindowRC = wglCreateContext(this->MemoryDC->m_hDC);
     VERIFY(wglMakeCurrent(this->MemoryDC->m_hDC, this->WindowRC));
     
@@ -306,8 +317,8 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
 	this->RenderWindow->SetWindowId(this->WindowHandle);
 	((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->SetDeviceContext(this->MemoryDC->m_hDC);
 	this->RenderWindow->SetSize(this->WindowWidth,this->WindowHeight);
-	Size[0] = this->WindowWidth;
-	Size[1] = this->WindowHeight;
+	this->Size[0] = this->WindowWidth;
+	this->Size[1] = this->WindowHeight;
 	}
       }
     }
@@ -320,34 +331,37 @@ void vtkMFCInteractor::OnMouseMove(CWnd *wnd,UINT nFlags, CPoint point)
 {
   ASSERT(wnd);		
 	
-  WaitForSingleObject(Mutex , INFINITE);
+  WaitForSingleObject(this->Mutex , INFINITE);
 
   this->LastPosition.x = point.x;
   this->LastPosition.y = point.y;	
 
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::OnRButtonDown(CWnd *wnd,UINT nFlags, CPoint point) 
 {
   ASSERT(wnd);
 
-  WaitForSingleObject(Mutex , INFINITE);
+  WaitForSingleObject(this->Mutex , INFINITE);
 
   wnd->SetCapture( ); 
 
   VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
 
-  FindPokedCamera(point.x,Size[1] - point.y);
-  if (State == VTKXI_START) 
+  this->FindPokedCamera(point.x,this->Size[1] - point.y);
+  if (this->State == VTKXI_START) 
     {
-    State = VTKXI_ZOOM;
+    this->State = VTKXI_ZOOM;
     this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-    if (! bAuto) SetTimer(this->WindowHandle,TimerId,10,NULL);
+    if (! bAuto)
+      {
+      SetTimer(this->WindowHandle,this->TimerId,10,NULL);
+      }
     }
   
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::OnRButtonUp(CWnd *wnd,UINT nFlags, CPoint point) 
@@ -356,134 +370,162 @@ void vtkMFCInteractor::OnRButtonUp(CWnd *wnd,UINT nFlags, CPoint point)
 
   VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
 
-  if (State == VTKXI_ZOOM) 
+  if (this->State == VTKXI_ZOOM) 
     {
-    State = VTKXI_START;
+    this->State = VTKXI_START;
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    if (! bAuto) KillTimer(this->WindowHandle,TimerId);
+    if (! bAuto)
+      {
+      KillTimer(this->WindowHandle,this->TimerId);
+      }
     }
   
   ReleaseCapture( );
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::OnLButtonDown(CWnd *wnd,UINT nFlags, CPoint point) 
 {
   VERIFY(wnd);
 
-  WaitForSingleObject(Mutex , INFINITE);
+  WaitForSingleObject(this->Mutex , INFINITE);
 
   wnd->SetCapture( ); // nje
 
   VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
 
-  FindPokedCamera(point.x,Size[1] - point.y);
+  this->FindPokedCamera(point.x,this->Size[1] - point.y);
   if (nFlags & MK_SHIFT) 
     { // Pan
     float *FocalPoint;
     float *Result;
     
-    if (State != VTKXI_START) return;
-    State = VTKXI_PAN;
+    if (this->State != VTKXI_START)
+      {
+      return;
+      }
+    this->State = VTKXI_PAN;
     
     // calculate the focal depth since we'll be using it a lot
-    FocalPoint = CurrentCamera->GetFocalPoint();
+    FocalPoint = this->CurrentCamera->GetFocalPoint();
     
-    CurrentRenderer->SetWorldPoint(FocalPoint[0],FocalPoint[1], FocalPoint[2],1.0);
-    CurrentRenderer->WorldToDisplay();
-    Result = CurrentRenderer->GetDisplayPoint();
-    FocalDepth = Result[2];
+    this->CurrentRenderer
+      ->SetWorldPoint(FocalPoint[0],FocalPoint[1], FocalPoint[2],1.0);
+    this->CurrentRenderer->WorldToDisplay();
+    Result = this->CurrentRenderer->GetDisplayPoint();
+    this->FocalDepth = Result[2];
     this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-    if (! bAuto) SetTimer(this->WindowHandle,TimerId,10,NULL);
+    if (! bAuto)
+      {
+      SetTimer(this->WindowHandle,this->TimerId,10,NULL);
+      }
     } 
   else 
     { //	Rotate
-    if (State != VTKXI_START) return;
-    State = VTKXI_ROTATE;
+    if (this->State != VTKXI_START)
+      {
+      return;
+      }
+    this->State = VTKXI_ROTATE;
     this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-    if (! bAuto) SetTimer(this->WindowHandle,TimerId,10,NULL);
+    if (! bAuto)
+      {
+      SetTimer(this->WindowHandle,this->TimerId,10,NULL);
+      }
     }
   
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::OnLButtonUp(CWnd *wnd,UINT nFlags, CPoint point) 
 {
-  WaitForSingleObject(Mutex , INFINITE);
+  WaitForSingleObject(this->Mutex , INFINITE);
   
   wglMakeCurrent(this->WindowDC,this->WindowRC);
 
-  if (State == VTKXI_ROTATE) 
+  if (this->State == VTKXI_ROTATE) 
     {
-    State = VTKXI_START;
+    this->State = VTKXI_START;
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    if (! bAuto) KillTimer(this->WindowHandle,TimerId);
+    if (! bAuto)
+      {
+      KillTimer(this->WindowHandle,this->TimerId);
+      }
     }
   
-  if (State == VTKXI_PAN) 
+  if (this->State == VTKXI_PAN) 
     {
-    State = VTKXI_START;
+    this->State = VTKXI_START;
     this->RenderWindow->SetDesiredUpdateRate(this->StillUpdateRate);
-    if (! bAuto) KillTimer(this->WindowHandle,TimerId);
+    if (! bAuto)
+      {
+      KillTimer(this->WindowHandle,this->TimerId);
+      }
     }
   
   ReleaseCapture( ); 
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::OnSize(CWnd *wnd,UINT nType, int cx, int cy) 
 {
   VERIFY(wnd);
 
-  if(RenderWindow) {
-  WaitForSingleObject(Mutex , INFINITE);
-
-  VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
-
-  // if the size changed send iren on to the RenderWindow
-  if ((cx != Size[0])||(cy != Size[1]))
+  if(this->RenderWindow)
     {
-    Size[0] = cx;
-    Size[1] = cy;
-    RenderWindow->SetSize(cx,cy);
-    glViewport(0,0,cx,cy);
+    WaitForSingleObject(this->Mutex , INFINITE);
+    
+    VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
+    
+    // if the size changed send iren on to the RenderWindow
+    if ((cx != this->Size[0]) || (cy != this->Size[1]))
+      {
+      this->Size[0] = cx;
+      this->Size[1] = cy;
+      this->RenderWindow->SetSize(cx,cy);
+      glViewport(0,0,cx,cy);
+      }
+
+    this->Update();
+    ReleaseMutex(this->Mutex);
+
+    VERIFY(wglMakeCurrent(NULL,NULL));
     }
-
-  Update();
-  ReleaseMutex(Mutex);
-
-  VERIFY(wglMakeCurrent(NULL,NULL));
-  }
 }
 
 void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent) 
 {
   float xf,yf;
 
-  if ( bAuto) KillTimer(WindowId,TimerId+TIMEROFFSETT);
+  if ( bAuto)
+    {
+    KillTimer(this->WindowId,this->TimerId+TIMEROFFSETT);
+    }
 
-  WaitForSingleObject(Mutex , INFINITE);
+  WaitForSingleObject(this->Mutex , INFINITE);
 
   VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
 
-  switch (State) 
+  switch (this->State) 
     {
     case VTKXI_ROTATE :
-      xf = (this->LastPosition.x - Center[0]) * DeltaAzimuth;
-      yf = ((Size[1] - this->LastPosition.y) - Center[1]) * DeltaElevation;
-      CurrentCamera->Azimuth(xf);
-      CurrentCamera->Elevation(yf);
-      CurrentCamera->OrthogonalizeViewUp();
-      if (LightFollowCamera) 
+      xf = (this->LastPosition.x - this->Center[0]) * this->DeltaAzimuth;
+      yf = ((this->Size[1] - this->LastPosition.y) - this->Center[1])
+	* this->DeltaElevation;
+      this->CurrentCamera->Azimuth(xf);
+      this->CurrentCamera->Elevation(yf);
+      this->CurrentCamera->OrthogonalizeViewUp();
+      if (this->LightFollowCamera) 
 	{
 	/* get the first light */
-	CurrentLight->SetPosition(CurrentCamera->GetPosition());
-	CurrentLight->SetFocalPoint(CurrentCamera->GetFocalPoint());
+	this->CurrentLight->SetPosition(this->CurrentCamera->GetPosition());
+	this->CurrentLight
+	  ->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
 	}
-      Update();
+      this->Update();
       break;
     case VTKXI_PAN :
       {
@@ -493,17 +535,17 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
       float  RPoint[4];
       
       // get the current focal point and position
-      memcpy(FPoint,CurrentCamera->GetFocalPoint(),sizeof(float)*3);
-      PPoint = CurrentCamera->GetPosition();
+      memcpy(FPoint,this->CurrentCamera->GetFocalPoint(),sizeof(float)*3);
+      PPoint = this->CurrentCamera->GetPosition();
       
       xf = this->LastPosition.x;
-      yf = Size[1] - this->LastPosition.y;
+      yf = this->Size[1] - this->LastPosition.y;
       APoint[0] = xf;
       APoint[1] = yf;
-      APoint[2] = FocalDepth;
-      CurrentRenderer->SetDisplayPoint(APoint);
-      CurrentRenderer->DisplayToWorld();
-      memcpy(RPoint,CurrentRenderer->GetWorldPoint(),sizeof(float)*4);
+      APoint[2] = this->FocalDepth;
+      this->CurrentRenderer->SetDisplayPoint(APoint);
+      this->CurrentRenderer->DisplayToWorld();
+      memcpy(RPoint,this->CurrentRenderer->GetWorldPoint(),sizeof(float)*4);
       if (RPoint[3]) 
 	{
 	RPoint[0] /= RPoint[3];
@@ -514,29 +556,32 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
        * Compute a translation vector, moving everything 1/10 
        * the distance to the cursor. (Arbitrary scale factor)
        */		
-      CurrentCamera->SetFocalPoint(
+      this->CurrentCamera->SetFocalPoint(
 				   (FPoint[0]-RPoint[0])/10.0 + FPoint[0],
 				   (FPoint[1]-RPoint[1])/10.0 + FPoint[1],
 				   (FPoint[2]-RPoint[2])/10.0 + FPoint[2]);
-      CurrentCamera->SetPosition(
-				 (FPoint[0]-RPoint[0])/10.0 + PPoint[0],
-				 (FPoint[1]-RPoint[1])/10.0 + PPoint[1],
-				 (FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
+      this->CurrentCamera->SetPosition(
+				       (FPoint[0]-RPoint[0])/10.0 + PPoint[0],
+				       (FPoint[1]-RPoint[1])/10.0 + PPoint[1],
+				       (FPoint[2]-RPoint[2])/10.0 + PPoint[2]);
       
-      if (LightFollowCamera) 
+      if (this->LightFollowCamera) 
 	{
 	/* get the first light */
-	CurrentLight->SetPosition(CurrentCamera->GetPosition());
-	CurrentLight->SetFocalPoint(CurrentCamera->GetFocalPoint());
+	this->CurrentLight
+	  ->SetPosition(this->CurrentCamera->GetPosition());
+	this->CurrentLight
+	  ->SetFocalPoint(this->CurrentCamera->GetFocalPoint());
 	}
-      Update();
+      this->Update();
       }
       break;
     case VTKXI_ZOOM :
       {
       float zoomFactor;
       float *clippingRange;
-      yf = ((Size[1] - this->LastPosition.y) - Center[1])/(float)Center[1];
+      yf = ((this->Size[1] - this->LastPosition.y) - this->Center[1])
+	/(float)this->Center[1];
       zoomFactor = pow((double)1.1,(double)yf);
       if (this->CurrentCamera->GetParallelProjection())
 	{
@@ -550,7 +595,7 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
 					    clippingRange[1]/zoomFactor);
 	this->CurrentCamera->Dolly(zoomFactor);
 	}
-      Update();
+      this->Update();
       }
       break;
     }	
@@ -559,12 +604,12 @@ void vtkMFCInteractor::OnTimer(CWnd *wnd,UINT nIDEvent)
   if(bAuto) SetTimer(WindowId,TimerId+TIMEROFFSETT,MiliSeconds,NULL);
 #endif
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
-  WaitForSingleObject(Mutex , INFINITE);
+  WaitForSingleObject(this->Mutex , INFINITE);
 
   VERIFY(wglMakeCurrent(this->WindowDC,this->WindowRC));
 
@@ -572,28 +617,38 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
     {
     case 'l': 
       if (bAuto)
-	KillTimer(WindowId,TimerId+TIMEROFFSETT);
+	{
+	KillTimer(this->WindowId,this->TimerId+TIMEROFFSETT);
+	}
       else
-	SetTimer(WindowId,TimerId+TIMEROFFSETT,MiliSeconds,NULL);
+	{
+	SetTimer(this->WindowId,this->TimerId+TIMEROFFSETT,
+		 this->MiliSeconds,NULL);
+	}
       bAuto= !bAuto;
       break;
       
       // case 'e': exit(1); break;
     case 'u':
-      if (UserMethod) (*UserMethod)(UserMethodArg);
+      if (this->UserMethod)
+	{
+	(*this->UserMethod)(this->UserMethodArg);
+	}
       break;
     case 'r':
-      FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-      CurrentRenderer->ResetCamera();
-      Update();
+      this->FindPokedRenderer(this->LastPosition.x,
+			      this->Size[1]-this->LastPosition.y);
+      this->CurrentRenderer->ResetCamera();
+      this->Update();
       break;
     case 'w':
       {
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       
-      FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-      ac = CurrentRenderer->GetActors();
+      this->FindPokedRenderer(this->LastPosition.x,
+			      this->Size[1]-this->LastPosition.y);
+      ac = this->CurrentRenderer->GetActors();
       for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	{
 	for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
@@ -601,7 +656,7 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
 	  aPart->GetProperty()->SetRepresentationToWireframe();
 	  }
 	}
-      Update();
+      this->Update();
       }
       break;
     case 's':
@@ -609,8 +664,9 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       
-      FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-      ac = CurrentRenderer->GetActors();
+      this->FindPokedRenderer(this->LastPosition.x,
+			      this->Size[1]-this->LastPosition.y);
+      ac = this->CurrentRenderer->GetActors();
       for (ac->InitTraversal(); (anActor = ac->GetNextItem()); )
 	{
 	for (anActor->InitPartTraversal();(aPart=anActor->GetNextPart()); )
@@ -618,28 +674,43 @@ void vtkMFCInteractor::OnChar(CWnd *wnd,UINT nChar, UINT nRepCnt, UINT nFlags)
 	  aPart->GetProperty()->SetRepresentationToSurface();
 	  }
 	}
-      Update();
+      this->Update();
       }
       break;
     case '3':
       {
-      if (this->RenderWindow->GetStereoRender()) this->RenderWindow->StereoRenderOff();
-      else this->RenderWindow->StereoRenderOn();
-      Update();
+      if (this->RenderWindow->GetStereoRender())
+	{
+	this->RenderWindow->StereoRenderOff();
+	}
+      else
+	{
+	this->RenderWindow->StereoRenderOn();
+	}
+      this->Update();
       }
       break;
     case 'p':
       {
-      FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-      if (StartPickMethod) (*StartPickMethod)(StartPickMethodArg);
-      Picker->Pick(this->LastPosition.x, Size[1]-this->LastPosition.y,0.0, CurrentRenderer);
-      HighlightActor(Picker->GetActor());
-      if (EndPickMethod) (*EndPickMethod)(EndPickMethodArg);
+      this->FindPokedRenderer(this->LastPosition.x,
+			      this->Size[1]-this->LastPosition.y);
+      if (this->StartPickMethod)
+	{
+	(*this->StartPickMethod)(this->StartPickMethodArg);
+	}
+      this->Picker->Pick(this->LastPosition.x,
+			 this->Size[1]-this->LastPosition.y, 0.0,
+			 this->CurrentRenderer);
+      this->HighlightActor(this->Picker->GetActor());
+      if (this->EndPickMethod)
+	{
+	(*this->EndPickMethod)(this->EndPickMethodArg);
+	}
       }
       break;
     }
   VERIFY(wglMakeCurrent(this->WindowDC,NULL));
-  ReleaseMutex(Mutex);
+  ReleaseMutex(this->Mutex);
 }
 
 void vtkMFCInteractor::Update()
@@ -647,7 +718,10 @@ void vtkMFCInteractor::Update()
   if(this->RenderWindow!=NULL) 
     {
     this->RenderWindow->Render();
-    if(this->WindowHandle!=NULL) SwapBuffers(this->WindowDC);	
+    if(this->WindowHandle!=NULL)
+      {
+      SwapBuffers(this->WindowDC);
+      }
     // to memory or double buffered
     }
 }
@@ -683,24 +757,37 @@ void vtkMFCInteractor::DescribePixelFormat(HDC hDC,DWORD flags,int bitsperpixel)
   int iResult = ::DescribePixelFormat(hDC, nPixelFormat, sizeof(pfd), &pfd);
   ASSERT(iResult != 0);
 
-  if (bitsperpixel == 8) {
-  if(!this->WindowPalette) SetupLogicalPalette();
-  }
-  DoPalette(hDC);
+  if (bitsperpixel == 8)
+    {
+    if(!this->WindowPalette)
+      {
+      this->SetupLogicalPalette();
+      }
+    }
+  this->DoPalette(hDC);
 }
 
 void vtkMFCInteractor::DoPalette(HDC hDC)
 {
   VERIFY(hDC);
 
-  if (this->WindowPalette) SelectPalette(hDC, this->WindowPalette, FALSE);
-  else SelectPalette(hDC,(HPALETTE) GetStockObject(DEFAULT_PALETTE), FALSE);
+  if (this->WindowPalette)
+    {
+    SelectPalette(hDC, this->WindowPalette, FALSE);
+    }
+  else
+    {
+    SelectPalette(hDC,(HPALETTE) GetStockObject(DEFAULT_PALETTE), FALSE);
+    }
   RealizePalette(hDC);
 }
 
 void vtkMFCInteractor::SetupLogicalPalette(void)
 {
-  if(this->WindowPalette) return;
+  if(this->WindowPalette)
+    {
+    return;
+    }
 
   struct {
     WORD          ver;
@@ -729,8 +816,14 @@ void vtkMFCInteractor::GetBitmapInfo(LPBITMAPINFOHEADER lpbi)
 
   // fill in BITMAP structure, return NULL if it didn't work
 
-  if(!this->WindowBitmap) return;
-  if (!GetObject(this->WindowBitmap, sizeof(bm), (LPSTR)&bm))  return;
+  if(!this->WindowBitmap)
+    {
+    return;
+    }
+  if (!GetObject(this->WindowBitmap, sizeof(bm), (LPSTR)&bm))
+    {
+    return;
+    }
 
   lpbi->biSize = sizeof(BITMAPINFOHEADER);
   lpbi->biWidth = bm.bmWidth;
@@ -754,18 +847,22 @@ HDIB vtkMFCInteractor::GetDIB(int width,int height,int bitsperpixel)
   int palsize = 0;
   HWND hwnd = this->WindowHandle;
 
-  MakeIndirectRenderer(width,height,bitsperpixel,this->RenderWindow);
-  if(GetBitmap()!=NULL) 
+  this->MakeIndirectRenderer(width,height,bitsperpixel,this->RenderWindow);
+  if(this->GetBitmap()!=NULL) 
     {
-    FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
+    this->FindPokedRenderer(this->LastPosition.x,
+			    this->Size[1]-this->LastPosition.y);
     this->Update();
     
     lpbi = &bi;
     
-    GetBitmapInfo(lpbi);
+    this->GetBitmapInfo(lpbi);
     
     // if we need a palette
-    if(lpbi->biBitCount<15) palsize = (2L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
+    if(lpbi->biBitCount<15)
+      {
+      palsize = (2L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
+      }
     
     dwLen = bi.biSize + palsize + bi.biSizeImage;
     
@@ -774,18 +871,21 @@ HDIB vtkMFCInteractor::GetDIB(int width,int height,int bitsperpixel)
       {
       lpbi = (LPBITMAPINFOHEADER) ::GlobalLock(hDIB);
       lpbi->biSize = sizeof(BITMAPINFOHEADER);
-      ::GetDIBits(this->MemoryDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+      ::GetDIBits(this->MemoryDC->GetSafeHdc(), this->GetBitmap(), 0,
+		  (UINT)bi.biHeight, 
 		  NULL,	(LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
-      ::GetDIBits(this->MemoryDC->GetSafeHdc(), GetBitmap(), 0, (UINT)bi.biHeight, 
+      ::GetDIBits(this->MemoryDC->GetSafeHdc(), this->GetBitmap(), 0,
+		  (UINT)bi.biHeight, 
 		  (LPSTR)lpbi + (WORD)lpbi->biSize + palsize,
 		  (LPBITMAPINFO)lpbi, DIB_RGB_COLORS);
       ::GlobalUnlock(hDIB);
       }
     
     }
-  MakeDirectRenderer(hwnd,&WindowRectangle,this->RenderWindow);
+  this->MakeDirectRenderer(hwnd,&this->WindowRectangle,this->RenderWindow);
   
-  FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
+  this->FindPokedRenderer(this->LastPosition.x,
+			  this->Size[1]-this->LastPosition.y);
   this->Update(); 
 
   return hDIB;
@@ -799,11 +899,17 @@ BOOL vtkMFCInteractor::StretchDIB(CDC *pDC,int x_position,int y_position, int x_
   HWND hwnd = this->WindowHandle;
   int palsize = 0;
 
-  hDIB = GetDIB(width,height,bitsperpixel);
-  if (!hDIB) return FALSE;
+  hDIB = this->GetDIB(width,height,bitsperpixel);
+  if (!hDIB)
+    {
+    return FALSE;
+    }
 
   lpbi = (LPBITMAPINFOHEADER) ::GlobalLock(hDIB);
-  if(lpbi->biBitCount<15) palsize = (2L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
+  if(lpbi->biBitCount<15)
+    {
+    palsize = (2L<<lpbi->biBitCount)*sizeof(RGBTRIPLE);
+    }
   ::StretchDIBits(pDC->GetSafeHdc(),x_position, y_position, x_width, y_width, 0, 0, 
 		  lpbi->biWidth, lpbi->biHeight,
 		  (LPSTR)lpbi + (WORD)lpbi->biSize + palsize ,	
@@ -820,27 +926,30 @@ BOOL vtkMFCInteractor::SaveBMP(LPCTSTR lpszPathName,int width,int height,int bit
 
   // make bitmap to render to
 
-  MakeIndirectRenderer(width,height,bitsperpixel,this->RenderWindow);
+  this->MakeIndirectRenderer(width,height,bitsperpixel,this->RenderWindow);
 	  
   if(GetBitmap()!=NULL) 
     {
-    FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
+    this->FindPokedRenderer(this->LastPosition.x,
+			    this->Size[1]-this->LastPosition.y);
     this->Update();
     
     BITMAPINFO *pbm;
     
-    pbm = CreateBitmapInfoStruct(NULL,GetBitmap());
+    pbm = this->CreateBitmapInfoStruct(NULL,this->GetBitmap());
     if(pbm!=NULL) 
       {
-      CreateBMPFile(NULL,(LPSTR) lpszPathName,pbm,GetBitmap(),::GetDC(NULL));
+      this->CreateBMPFile(NULL,(LPSTR) lpszPathName,pbm,
+			  this->GetBitmap(),::GetDC(NULL));
       LocalFree(pbm);
       bValue = TRUE;
       }
     }
 		
-  MakeDirectRenderer(hwnd,&WindowRectangle,this->RenderWindow);
-  FindPokedRenderer(this->LastPosition.x,Size[1]-this->LastPosition.y);
-  Update(); 
+  this->MakeDirectRenderer(hwnd,&this->WindowRectangle,this->RenderWindow);
+  this->FindPokedRenderer(this->LastPosition.x,
+			  this->Size[1]-this->LastPosition.y);
+  this->Update(); 
 	
   return bValue;
 }
@@ -855,18 +964,39 @@ PBITMAPINFO vtkMFCInteractor::CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
  
   /* Retrieve the bitmap's color format, width, and height. */ 
  
-  if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp)) return NULL;
+  if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
+    {
+    return NULL;
+    }
  
   /* Convert the color format to a count of bits. */ 
  
   cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel); 
  
-  if (cClrBits == 1) cClrBits = 1; 
-  else if (cClrBits <= 4) cClrBits = 4; 
-  else if (cClrBits <= 8) cClrBits = 8; 
-  else if (cClrBits <= 16) cClrBits = 16; 
-  else if (cClrBits <= 24) cClrBits = 24; 
-  else cClrBits = 32; 
+  if (cClrBits == 1)
+    {
+    cClrBits = 1;
+    }
+  else if (cClrBits <= 4)
+    {
+    cClrBits = 4;
+    }
+  else if (cClrBits <= 8)
+    {
+    cClrBits = 8;
+    }
+  else if (cClrBits <= 16)
+    {
+    cClrBits = 16;
+    }
+  else if (cClrBits <= 24)
+    {
+    cClrBits = 24;
+    }
+  else
+    {
+    cClrBits = 32;
+    }
  
   /* 
    * Allocate memory for the BITMAPINFO structure. (This structure 
@@ -875,17 +1005,21 @@ PBITMAPINFO vtkMFCInteractor::CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
    */ 
  
   if (cClrBits != 24) 
+    {
     pbmi = (PBITMAPINFO) LocalAlloc(LPTR, 
 				    sizeof(BITMAPINFOHEADER) + 
-				    sizeof(RGBQUAD) * (2^cClrBits)); 
+				    sizeof(RGBQUAD) * (2^cClrBits));
+    }
  
   /* 
    * There is no RGBQUAD array for the 24-bit-per-pixel format. 
    */ 
  
   else 
-    pbmi = (PBITMAPINFO) LocalAlloc(LPTR, 
-				    sizeof(BITMAPINFOHEADER)); 
+    {
+    pbmi = (PBITMAPINFO) LocalAlloc(LPTR,
+				    sizeof(BITMAPINFOHEADER));
+    }
  
  
  
@@ -897,7 +1031,9 @@ PBITMAPINFO vtkMFCInteractor::CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
   pbmi->bmiHeader.biPlanes = bmp.bmPlanes; 
   pbmi->bmiHeader.biBitCount = bmp.bmBitsPixel; 
   if (cClrBits < 24) 
-    pbmi->bmiHeader.biClrUsed = 2^cClrBits; 
+    {
+    pbmi->bmiHeader.biClrUsed = 2^cClrBits;
+    }
  
  
   /* If the bitmap is not compressed, set the BI_RGB flag. */ 
@@ -940,7 +1076,10 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
   
   pbih = (PBITMAPINFOHEADER) pbi; 
   lpBits = (LPBYTE) GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
-  if (!lpBits) return;
+  if (!lpBits)
+    {
+    return;
+    }
   
   /* 
    * Retrieve the color table (RGBQUAD array) and the bits 
@@ -948,7 +1087,10 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
    */ 
   
   if (!GetDIBits(hDC, hBMP, 0, (WORD) pbih->biHeight, 
-		 lpBits, pbi, DIB_RGB_COLORS)) return;
+		 lpBits, pbi, DIB_RGB_COLORS))
+    {
+    return;
+    }
   
   /* Create the .BMP file. */ 
   
@@ -960,7 +1102,10 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
 		  FILE_ATTRIBUTE_NORMAL, 
 		  (HANDLE) NULL); 
   
-  if (hf == INVALID_HANDLE_VALUE) return;
+  if (hf == INVALID_HANDLE_VALUE)
+    {
+    return;
+    }
   
   hdr.bfType = 0x4d42;        /* 0x42 = "B" 0x4d = "M" */ 
   
@@ -982,13 +1127,19 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
   /* Copy the BITMAPFILEHEADER into the .BMP file. */ 
   
   if (!WriteFile(hf, (LPVOID) &hdr, sizeof(BITMAPFILEHEADER), 
-		 (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL)) return;
+		 (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
+    {
+    return;
+    }
   
   /* Copy the BITMAPINFOHEADER and RGBQUAD array into the file. */ 
   
   if (!WriteFile(hf, (LPVOID) pbih, sizeof(BITMAPINFOHEADER) 
 		 + pbih->biClrUsed * sizeof (RGBQUAD), 
-		 (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL)) return;
+		 (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
+    {
+    return;
+    }
   
   /* Copy the array of color indices into the .BMP file. */ 
   
@@ -997,7 +1148,10 @@ void vtkMFCInteractor::CreateBMPFile(HWND hwnd, LPTSTR pszFile,
   while (cb > MAXWRITE)  
     {
     if (!WriteFile(hf, (LPSTR) hp, (int) MAXWRITE, 
-		   (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL)) return;
+		   (LPDWORD) &dwTmp, (LPOVERLAPPED) NULL))
+      {
+      return;
+      }
     cb-= MAXWRITE; 
     hp += MAXWRITE; 
     } 
