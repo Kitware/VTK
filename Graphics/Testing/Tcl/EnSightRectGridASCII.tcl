@@ -14,8 +14,10 @@ vtkCastToConcrete toRectilinearGrid
 vtkRectilinearGridGeometryFilter plane
     plane SetInput [toRectilinearGrid GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
+vtkTriangleFilter tri
+    tri SetInput [plane GetOutput]
 vtkWarpVector warper
-    warper SetInput [plane GetOutput]
+    warper SetInput [tri GetOutput]
     warper SetScaleFactor 0.05
 vtkDataSetMapper planeMapper
     planeMapper SetInput [warper GetOutput]
