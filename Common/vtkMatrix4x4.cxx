@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMatrix4x4, "1.61");
+vtkCxxRevisionMacro(vtkMatrix4x4, "1.62");
 vtkStandardNewMacro(vtkMatrix4x4);
 
 // Useful for viewing a double[16] as a double[4][4]
@@ -157,7 +157,6 @@ void vtkMatrix4x4::Invert(const double inElements[16],
   det = vtkMatrix4x4::Determinant(inElements);
   if ( det == 0.0 ) 
     {
-    vtkGenericWarningMacro(<< "Singular matrix, no inverse!" );
     return;
     }
 
