@@ -309,6 +309,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       target = size[1]*0.07 + size[0]*0.03;
       }
+    if (this->Title == NULL || (strlen(this->Title) == 0))
+      {
+      // dummy up a title to force a fontsize calculation (the same font
+      // size is used for title and ticks, so if we dummy up a title, the
+      // font size selected for the ticks will be same regardless of whether
+      // a title is supplied or not)
+      this->TitleMapper->SetInput("foo");
+      }
     fontSize = target;
     this->TitleMapper->SetFontSize(fontSize);
     this->TitleMapper->GetSize(viewport,tempi);
@@ -325,6 +333,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->TitleMapper->GetSize(viewport,tempi);
       }
     stringHeight = tempi[1];
+    if (this->Title == NULL || (strlen(this->Title) == 0))
+      {
+      // if no title was originally specified, then we used a dummy
+      // title above to force a font size selection.  We need to reset
+      // the title and indicate that no space is needed for the title
+      this->TitleMapper->SetInput( this->Title );
+      stringHeight = 0;
+      }
       
     this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
     this->TextActors = new vtkActor2D * [this->NumberOfLabels];
