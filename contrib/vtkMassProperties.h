@@ -37,7 +37,7 @@ PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
-// .NAME vtkWriter - abstract class to write data to file(s)
+// .NAME vtkMassProperties - estimate volume, area, shape index of triangle mesh
 // .SECTION Description
 // vtkMassProperties estimates the volume, the surface area, and the
 // normalized shape index of a model.  The algorithm implemented here is
