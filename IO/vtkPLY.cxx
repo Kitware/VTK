@@ -78,6 +78,30 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 */
 
 #include "vtkPLY.h"
+#include "vtkHeap.h"
+
+//wjs: added to manage memory leak
+static vtkHeap *plyHeap=NULL;
+static void plyInitialize()
+{
+  if ( plyHeap == NULL )
+    {
+    plyHeap = vtkHeap::New();
+    }
+}
+static void plyCleanUp()
+{
+  if ( plyHeap )
+    {
+    plyHeap->Delete();
+    plyHeap = NULL;
+    }
+}
+static void *plyAllocateMemory(size_t n)
+{
+  return plyHeap->AllocateMemory(n);
+}
+
 
 char *type_names[] = {
 "invalid",
@@ -185,8 +209,10 @@ PlyFile *vtkPLY::ply_open_for_writing(
   char *name;
   FILE *fp;
 
-  /* tack on the extension .ply, if necessary */
+  //memory leaks
+  plyInitialize();
 
+  /* tack on the extension .ply, if necessary */
   name = (char *) myalloc (sizeof (char) * (strlen (filename) + 5));
   strcpy (name, filename);
   if (strlen (name) < 4 ||
@@ -803,6 +829,9 @@ PlyFile *vtkPLY::ply_open_for_reading(
   PlyFile *plyfile;
   char *name;
 
+  //memory leaks
+  plyInitialize();
+
   /* tack on the extension .ply, if necessary */
 
   name = (char *) myalloc (sizeof (char) * (strlen (filename) + 5));
@@ -1383,6 +1412,9 @@ void vtkPLY::ply_close(PlyFile *plyfile)
   free (plyfile->obj_info);
   
   free (plyfile);
+  
+  // memory leaks
+  plyCleanUp();
 }
 
 
@@ -1677,7 +1709,7 @@ void vtkPLY::binary_get_element(PlyFile *plyfile, char *elem_ptr)
       }
       else {
         if (store_it) {
-          item_ptr = (char *) myalloc (sizeof (char) * item_size * list_count);
+          item_ptr = (char *) plyAllocateMemory (sizeof (char) * item_size * list_count);
           item = item_ptr;
           *store_array = item_ptr;
         }
