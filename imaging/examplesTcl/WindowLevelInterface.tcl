@@ -34,7 +34,15 @@ proc InitializeWindowLevelInterface {} {
    scale .wl.f2.level -from [expr $l - $w] -to [expr $l + $w] \
      -orient horizontal -command SetLevel
    checkbutton .wl.video -text "Inverse Video" -command SetInverseVideo
-   
+
+   # resolutions less than 1.0
+   if {$w < 10} {
+      set res [expr 0.05 * $w]
+      .wl.f1.window configure -resolution $res -from $res -to [expr 2.0 * $w]
+      .wl.f2.level configure -resolution $res \
+	-from [expr 0.0 + $l - $w] -to [expr 0.0 + $l + $w] 
+   }
+
    .wl.f1.window set $w
    .wl.f2.level set $l
    
@@ -88,3 +96,4 @@ InitializeWindowLevelInterface
 } else {
   viewer Render
 }
+
