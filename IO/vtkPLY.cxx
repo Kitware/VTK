@@ -2087,10 +2087,9 @@ double vtkPLY::old_write_ascii_item(FILE *fp, char *item, int type)
       double_value = *pdouble;
       fprintf (fp, "%g ", double_value);
       return (double_value);
-    default:
-      fprintf (stderr, "old_write_ascii_item: bad type = %d\n", type);
-      exit (-1);
   }
+  fprintf (stderr, "old_write_ascii_item: bad type = %d\n", type);
+  exit (-1);
 }
 
 

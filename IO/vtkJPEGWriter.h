@@ -66,8 +66,8 @@ public:
 
   // Description:
   // Compression quality. 0 = Low quality, 100 = High quality
-  vtkSetClampMacro(Quality, unsigned int, 0, 100);
-  vtkGetMacro(Quality, unsigned int);
+  vtkSetClampMacro(Quality, int, 0, 100);
+  vtkGetMacro(Quality, int);
 
   // Description:
   // Progressive JPEG generation.
@@ -82,7 +82,7 @@ protected:
   void WriteSlice(vtkImageData *data);
 
 private:
-  unsigned int Quality;
+  int Quality;
   unsigned int Progressive;
 
 private:
