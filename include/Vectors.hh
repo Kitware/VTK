@@ -13,9 +13,13 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Abstract interface to 3D vectors.
-//
+// .NAME vlPoints - abstract interface to 3D vectors
+// .SECTION Description
+// vlVectors provides an abstract interface to 3D vectors. The data model
+// for vlVectors is an array of vx-vy-vz triplets accessible by point id.
+// The subclasses of vlVectors are concrete data types (float, int, etc.)
+// that implement the interface of vlVectors.
+
 #ifndef __vlVectors_h
 #define __vlVectors_h
 
@@ -27,25 +31,47 @@ class vlFloatVectors;
 class vlVectors : public vlObject 
 {
 public:
- vlVectors();
+  vlVectors();
   virtual ~vlVectors() {};
+  char *GetClassName() {return "vlVectors";};
+  void PrintSelf(ostream& os, vlIndent indent);
+
+  // Description:
+  // Create a copy of this object.
   virtual vlVectors *MakeObject(int sze, int ext=1000) = 0;
+
+  // Description:
+  // Return number of vectors in array.
   virtual int GetNumberOfVectors() = 0;
+
+  // Description:
+  // Return a float vector v[3] for a particular point id.
   virtual float *GetVector(int i) = 0;
-  virtual void SetVector(int i,float v[3]) = 0;       // fast insert
-  virtual void InsertVector(int i, float v[3]) = 0;   // allocates memory as necessary
+
+  // Description:
+  // Insert vector into object. No range checking performed (fast!).
+  virtual void SetVector(int i,float v[3]) = 0;
+
+  // Description:
+  // Insert vector into object. Range checking performed and memory
+  // allocated as necessary.
+  virtual void InsertVector(int i, float v[3]) = 0;
+
+  // Description:
+  // Insert vector into next available slot. Returns point id of slot.
   virtual int InsertNextVector(float v[3]) = 0;
+
+  // Description:
+  // Reclaim any extra memory.
   virtual void Squeeze() = 0;
 
   void GetVectors(vlIdList& ptId, vlFloatVectors& fp);
-  char *GetClassName() {return "vlVectors";};
-  void PrintSelf(ostream& os, vlIndent indent);
   virtual void ComputeMaxNorm();
   float GetMaxNorm();
 
 protected:
   float MaxNorm;
-  vlTimeStamp ComputeTime; // Time at which range computed
+  vlTimeStamp ComputeTime; // Time at which MaxNorm computed
 };
 
 #endif

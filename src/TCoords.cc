@@ -13,13 +13,19 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  3D TCoords, abstract representation
-//
 #include "TCoords.hh"
 #include "IdList.hh"
 #include "FTCoords.hh"
 
+// Description:
+// Construct object whose texture coordinates are of specified dimension.
+vlTCoords::vlTCoords(int dim)
+{
+  this->Dimension = dim;
+}
+
+// Description:
+// Given a list of pt ids, return an array of texture coordinates.
 void vlTCoords::GetTCoords(vlIdList& ptId, vlFloatTCoords& ftc)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)

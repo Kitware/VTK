@@ -13,15 +13,14 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Methods for Sphere generator
-//
 #include <math.h>
 #include "SpherSrc.hh"
 #include "FPoints.hh"
 #include "FNormals.hh"
 #include "vlMath.hh"
 
+// Description:
+// Construct sphere with radius=0.5.
 vlSphereSource::vlSphereSource(int res)
 {
   res = res < 4 ? 4 : res;

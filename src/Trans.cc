@@ -633,7 +633,7 @@ float *vlTransform::GetPoint()
 // Transformed points are appended to output list (outPts).
 void vlTransform::MultiplyPoints(vlPoints *inPts, vlPoints *outPts)
 {
-  float newX[4];
+  float newX[3];
   float *x;
   int ptId, i;
   int numPts = inPts->GetNumberOfPoints();

@@ -13,9 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-//  Scalars, abstract representation
-//
 #include "Scalars.hh"
 #include "FScalars.hh"
 #include "IdList.hh"
@@ -26,6 +23,8 @@ vlScalars::vlScalars()
   this->Range[1] = 1.0;
 }
 
+// Description:
+// Given a list of pt ids, return an array of scalar values.
 void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
 {
   for (int i=0; i<ptId.GetNumberOfIds(); i++)
@@ -33,6 +32,9 @@ void vlScalars::GetScalars(vlIdList& ptId, vlFloatScalars& fs)
     fs.InsertScalar(i,this->GetScalar(ptId.GetId(i)));
     }
 }
+
+// Description:
+// Determine (rmin,rmax) range of scalar values.
 void vlScalars::ComputeRange()
 {
   int i;
@@ -53,6 +55,8 @@ void vlScalars::ComputeRange()
     }
 }
 
+// Description:
+// Return the range of scalar values.
 float *vlScalars::GetRange()
 {
   this->ComputeRange();
