@@ -45,8 +45,6 @@ vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
   this->SpatialRepresentation = NULL;
   this->Level = 0;
   this->TerminalNodesRequested = 0;
-
-  this->vtkSource::SetOutput(0, vtkPolyData::New());
 }
 
 vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
