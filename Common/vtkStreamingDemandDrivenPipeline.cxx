@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.2");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.3");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     }
 
   // Range check.
-  if(outputPort < 0 ||
+  if(outputPort < -1 ||
      outputPort >= this->Algorithm->GetNumberOfOutputPorts())
     {
     vtkErrorMacro("PropagateUpdateExtent given output port index "

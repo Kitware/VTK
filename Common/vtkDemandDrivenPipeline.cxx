@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.3");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.4");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -287,7 +287,7 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     }
 
   // Range check.
-  if(outputPort < 0 ||
+  if(outputPort < -1 ||
      outputPort >= this->Algorithm->GetNumberOfOutputPorts())
     {
     vtkErrorMacro("UpdateData given output port index "
