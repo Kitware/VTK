@@ -56,7 +56,7 @@ vtkVoxel::vtkVoxel()
 vtkCell *vtkVoxel::MakeObject()
 {
   vtkCell *cell = vtkVoxel::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

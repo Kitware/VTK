@@ -57,7 +57,7 @@ vtkQuad::vtkQuad()
 vtkCell *vtkQuad::MakeObject()
 {
   vtkCell *cell = vtkQuad::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

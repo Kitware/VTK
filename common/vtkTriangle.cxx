@@ -57,7 +57,7 @@ vtkTriangle::vtkTriangle()
 vtkCell *vtkTriangle::MakeObject()
 {
   vtkCell *cell = vtkTriangle::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

@@ -54,7 +54,7 @@ vtkVertex::vtkVertex()
 vtkCell *vtkVertex::MakeObject()
 {
   vtkCell *cell = vtkVertex::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

@@ -54,7 +54,7 @@ vtkLine::vtkLine()
 vtkCell *vtkLine::MakeObject()
 {
   vtkCell *cell = vtkLine::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

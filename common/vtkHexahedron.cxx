@@ -56,7 +56,7 @@ vtkHexahedron::vtkHexahedron()
 vtkCell *vtkHexahedron::MakeObject()
 {
   vtkCell *cell = vtkHexahedron::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

@@ -57,7 +57,7 @@ vtkPolygon::vtkPolygon()
 vtkCell *vtkPolygon::MakeObject()
 {
   vtkCell *cell = vtkPolygon::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 

@@ -57,7 +57,7 @@ vtkTetra::vtkTetra()
 vtkCell *vtkTetra::MakeObject()
 {
   vtkCell *cell = vtkTetra::New();
-  cell->ShallowCopy(*this);
+  cell->DeepCopy(*this);
   return cell;
 }
 
