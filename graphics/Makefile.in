@@ -88,7 +88,6 @@ vtkLight.o \
 vtkLineSource.o \
 vtkLinearExtrusionFilter.o \
 vtkLinkEdgels.o \
-vtkLinkSurfels.o \
 vtkMCubesReader.o \
 vtkMCubesWriter.o \
 vtkMapper.o \
@@ -290,7 +289,6 @@ tcl/vtkLightDeviceTcl.o \
 tcl/vtkLineSourceTcl.o \
 tcl/vtkLinearExtrusionFilterTcl.o \
 tcl/vtkLinkEdgelsTcl.o \
-tcl/vtkLinkSurfelsTcl.o \
 tcl/vtkMCubesReaderTcl.o \
 tcl/vtkMCubesWriterTcl.o \
 tcl/vtkMapperTcl.o \
@@ -494,7 +492,6 @@ vtkLightCollection.h \
 vtkLineSource.h \
 vtkLinearExtrusionFilter.h \
 vtkLinkEdgels.h \
-vtkLinkSurfels.h \
 vtkMCubesReader.h \
 vtkMCubesWriter.h \
 vtkMarchingCubes.h \
