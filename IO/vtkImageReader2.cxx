@@ -21,7 +21,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.28");
+vtkCxxRevisionMacro(vtkImageReader2, "1.28.2.1");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -550,10 +550,11 @@ unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
     this->ComputeInternalFileName(idx);
 
     struct stat statbuf;
-    stat(this->InternalFileName, &statbuf);
-
+    if (!stat(this->InternalFileName, &statbuf))
+      {
     return (int)(statbuf.st_size -
       (long)this->DataIncrements[this->GetFileDimensionality()]);
+      }
     }
   
   return this->HeaderSize;
