@@ -69,10 +69,10 @@ public:
   void GetPoint(int id, float x[3]);
   void SetPoint(int i, int x[3]);
   void SetPoint(int i, float x[3]);
-  void InsertPoint(int i, int *x);
-  void InsertPoint(int i, float *x);
-  int InsertNextPoint(int *x);
-  int InsertNextPoint(float *x);
+  void InsertPoint(int i, int x[3]);
+  void InsertPoint(int i, float x[3]);
+  int InsertNextPoint(int x[3]);
+  int InsertNextPoint(float x[3]);
   void GetPoints(vtkIdList& ptId, vtkFloatPoints& fp);
 
   // miscellaneous
@@ -131,21 +131,21 @@ inline void vtkIntPoints::SetPoint(int i, int x[3])
   this->P[i+2] = x[2];
 }
 
-inline void vtkIntPoints::InsertPoint(int i, int *x) 
+inline void vtkIntPoints::InsertPoint(int i, int x[3]) 
 {
   this->P.InsertValue(3*i+2, x[2]);
   this->P[3*i] =  x[0];
   this->P[3*i+1] = x[1];
 }
 
-inline void vtkIntPoints::InsertPoint(int i, float *x) 
+inline void vtkIntPoints::InsertPoint(int i, float x[3]) 
 {
   this->P.InsertValue(3*i+2, (int)x[2]);
   this->P[3*i] = (int)x[0];
   this->P[3*i+1] = (int)x[1];
 }
 
-inline int vtkIntPoints::InsertNextPoint(int *x) 
+inline int vtkIntPoints::InsertNextPoint(int x[3]) 
 {
   int id = this->P.GetMaxId() + 3;
   this->P.InsertValue(id,x[2]);
@@ -154,7 +154,7 @@ inline int vtkIntPoints::InsertNextPoint(int *x)
   return id/3;
 }
 
-inline int vtkIntPoints::InsertNextPoint(float *x) 
+inline int vtkIntPoints::InsertNextPoint(float x[3]) 
 {
   int id = this->P.GetMaxId() + 3;
   this->P.InsertValue(id,(int)x[2]);

@@ -414,7 +414,7 @@ void vtkCamera::SetRoll(float roll)
   this->Transform.PointMultiply(temp,temp);
   
   // now store the result
-  this->SetViewUp(temp);
+  this->SetViewUp((float *)temp);
 
   this->Transform.Pop();
 }
