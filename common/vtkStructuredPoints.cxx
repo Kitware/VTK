@@ -548,8 +548,16 @@ int vtkStructuredPoints::ComputeStructuredCoordinates(float x[3], int ijk[3],
 
     else //if ( d == ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
       {
-      ijk[i] = this->Dimensions[i] - 2;
-      pcoords[i] = 1.0;
+      if (this->Dimensions[i] == 1)
+        {
+        ijk[i] = 0;
+        pcoords[i] = 0.0;
+        }
+      else
+        {
+        ijk[i] = this->Dimensions[i] - 2;
+        pcoords[i] = 1.0;
+        }
       }
 
     }
