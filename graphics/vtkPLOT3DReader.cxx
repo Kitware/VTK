@@ -43,14 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPLOT3DReader.h"
 #include "vtkByteSwap.h"
 
-#define BINARY 0
-#define ASCII 1
+#define VTK_BINARY 0
+#define VTK_ASCII 1
 
-#define RHOINF 1.0
-#define CINF 1.0
-#define PINF ((RHOINF*CINF) * (RHOINF*CINF) / this->Gamma)
-#define CV (this->R / (this->Gamma-1.0))
-#define VINF (this->Fsmach*CINF)
+#define VTK_RHOINF 1.0
+#define VTK_CINF 1.0
+#define VTK_PINF ((VTK_RHOINF*VTK_CINF) * (VTK_RHOINF*VTK_CINF) / this->Gamma)
+#define VTK_CV (this->R / (this->Gamma-1.0))
 
 vtkPLOT3DReader::vtkPLOT3DReader()
 {
@@ -85,10 +84,22 @@ vtkPLOT3DReader::vtkPLOT3DReader()
 
 vtkPLOT3DReader::~vtkPLOT3DReader()
 {
-  if ( this->XYZFileName ) delete [] this->XYZFileName;
-  if ( this->QFileName ) delete [] this->QFileName;
-  if ( this->FunctionFileName ) delete [] this->FunctionFileName;
-  if ( this->VectorFunctionFileName ) delete [] this->VectorFunctionFileName;
+  if ( this->XYZFileName )
+    {
+    delete [] this->XYZFileName;
+    }
+  if ( this->QFileName )
+    {
+    delete [] this->QFileName;
+    }
+  if ( this->FunctionFileName )
+    {
+    delete [] this->FunctionFileName;
+    }
+  if ( this->VectorFunctionFileName )
+    {
+    delete [] this->VectorFunctionFileName;
+    }
 }
 
 void vtkPLOT3DReader::Execute()
@@ -112,7 +123,7 @@ void vtkPLOT3DReader::Execute()
     vtkErrorMacro(<< "File: " << this->XYZFileName << " not found");
     return;
     }
-  if ( this->GetFileType(xyzFp) == ASCII )
+  if ( this->GetFileType(xyzFp) == VTK_ASCII )
     {
     vtkWarningMacro("reading ascii grid files currently not supported");
     // error = this->ReadASCIIGrid(xyzFp);
@@ -143,7 +154,7 @@ void vtkPLOT3DReader::Execute()
       return;
       }
 
-    if ( this->GetFileType(QFp) == ASCII )
+    if ( this->GetFileType(QFp) == VTK_ASCII )
       {
       vtkWarningMacro("reading ascii solution files currently not supported");
       // error = this->ReadASCIISolution(QFp);
@@ -175,7 +186,7 @@ void vtkPLOT3DReader::Execute()
       return;
       }
 
-    if ( this->GetFileType(funcFp) == ASCII )
+    if ( this->GetFileType(funcFp) == VTK_ASCII )
       {
       vtkWarningMacro("reading ASCII function files currently not supported");
       // error = this->ReadASCIIFunctionFile(funcFp);
@@ -205,7 +216,7 @@ void vtkPLOT3DReader::Execute()
       return;
       }
 
-    if ( this->GetFileType(funcFp) == ASCII )
+    if ( this->GetFileType(funcFp) == VTK_ASCII )
       {
       vtkWarningMacro("reading ASCII vector function files currently not supported");
       // error = this->ReadASCIIFunctionFile(funcFp);
@@ -263,7 +274,10 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
-    if (fread(&(this->NumGrids), sizeof(int), 1, fp) < 1 ) return 1;
+    if (fread(&(this->NumGrids), sizeof(int), 1, fp) < 1 )
+      {
+      return 1;
+      }
     vtkByteSwap::Swap4BE(&(this->NumGrids));
     }
   else
@@ -276,13 +290,18 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   for (gridFound=0, offset=0, maxGridSize=0, i=0; i<this->NumGrids; i++) 
     {
     //read dimensions
-    if ( fread (dim, sizeof(int), 3, fp) < 3 ) return 1;
+    if ( fread (dim, sizeof(int), 3, fp) < 3 )
+      {
+      return 1;
+      }
     vtkByteSwap::Swap4BERange(dim,3);
     
     gridSize = dim[0] * dim[1] * dim[2];
 
     if ( i < this->GridNumber ) 
+      {
       offset += 3*gridSize;
+      }
     else if ( i == this->GridNumber ) 
       {
       gridFound = 1;
@@ -345,7 +364,10 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
 
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
-    if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;
+    if ( fread (&numGrids, sizeof(int), 1, fp) < 1 )
+      {
+      return 1;
+      }
     vtkByteSwap::Swap4BE(&numGrids);
     }
   else
@@ -364,7 +386,10 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   for (gridFound=0, offset=0, maxGridSize=0, i=0; i<numGrids; i++) 
     {
     //read dimensions
-    if ( fread (dim, sizeof(int), 3, fp) < 3 ) return 1;
+    if ( fread (dim, sizeof(int), 3, fp) < 3 )
+      {
+      return 1;
+      }
     vtkByteSwap::Swap4BERange(dim,3);
     gridSize = dim[0] * dim[1] * dim[2];
 
@@ -398,7 +423,10 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
   fseek (fp, offset*sizeof(float), 1);
 
   //read solution parameters
-  if ( fread (params, sizeof(float), 4, fp) < 4 ) return 1;
+  if ( fread (params, sizeof(float), 4, fp) < 4 )
+    {
+    return 1;
+    }
   vtkByteSwap::Swap4BERange(params,4);
   this->Fsmach = params[0];
   this->Alpha = params[1];
@@ -426,7 +454,9 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     {
     vtkByteSwap::Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumPts; i++) 
+      {
       newDensity->SetScalar(i,this->TempStorage[i]);
+      }
     }
 
   if (fread(this->TempStorage, sizeof(float), 3*this->NumPts, fp) < 
@@ -463,7 +493,9 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     {
     vtkByteSwap::Swap4BERange(this->TempStorage,numPts);
     for (i=0; i < this->NumPts; i++) 
+      {
       newEnergy->SetScalar(i,this->TempStorage[i]);
+      }
     }
 //
 // Register data for use by computation functions
@@ -490,7 +522,10 @@ int vtkPLOT3DReader::ReadBinaryFunctionFile(FILE *fp,vtkStructuredGrid *output)
   output = output;
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
-    if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;
+    if ( fread (&numGrids, sizeof(int), 1, fp) < 1 )
+      {
+      return 1;
+      }
     vtkByteSwap::Swap4BE(&numGrids);
     }
   else
@@ -514,7 +549,10 @@ int vtkPLOT3DReader::ReadBinaryVectorFunctionFile(FILE *fp,vtkStructuredGrid *ou
   output = output;
   if ( this->FileFormat == VTK_WHOLE_MULTI_GRID_NO_IBLANKING )
     {
-    if ( fread (&numGrids, sizeof(int), 1, fp) < 1 ) return 1;
+    if ( fread (&numGrids, sizeof(int), 1, fp) < 1 )
+      {
+      return 1;
+      }
     vtkByteSwap::Swap4BE(&numGrids);
     }
   else
@@ -843,7 +881,7 @@ void vtkPLOT3DReader::ComputeEntropy(vtkPointData *outputPD)
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
     p = (this->Gamma-1.)*(e - 0.5*d*v2);
-    s = CV * log((p/PINF)/pow((double)d/RHOINF,(double)this->Gamma));
+    s = VTK_CV * log((p/VTK_PINF)/pow((double)d/VTK_RHOINF,(double)this->Gamma));
     entropy->SetScalar(i, s);
   }
   outputPD->SetScalars(entropy);
@@ -894,9 +932,13 @@ void vtkPLOT3DReader::ComputeSwirl(vtkPointData *outputPD)
     w = m[2] * rr;        
     v2 = u*u + v*v + w*w;
     if ( v2 != 0.0 ) 
+      {
       s = (vort[0]*m[0] + vort[1]*m[1] + vort[2]*m[2]) / v2;
+      }
     else 
+      {
       s = 0.0;
+      }
 
     swirl->SetScalar(i,s);
   }
@@ -992,7 +1034,10 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
         if ( dims[0] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++) vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+          for (i=0; i<3; i++)
+	    {
+	    vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+	    }
           xp[0] = 1.0;
           }
         else if ( i == 0 ) 
@@ -1038,7 +1083,10 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
         if ( dims[1] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++) vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+          for (i=0; i<3; i++)
+	    {
+	    vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+	    }
           xp[1] = 1.0;
           }
         else if ( j == 0 ) 
@@ -1084,7 +1132,10 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
         if ( dims[2] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (i=0; i<3; i++) vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+          for (i=0; i<3; i++)
+	    {
+	    vp[i] = vm[i] = xp[i] = xm[i] = 0.0;
+	    }
           xp[2] = 1.0;
           }
         else if ( k == 0 ) 
@@ -1132,7 +1183,10 @@ void vtkPLOT3DReader::ComputeVorticity(vtkPointData *outputPD)
 //
         aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
               -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
-        if (aj != 0.0) aj = 1. / aj;
+        if (aj != 0.0)
+	  {
+	  aj = 1. / aj;
+	  }
 //
 //  Xi metrics.
 //
@@ -1224,7 +1278,10 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         if ( dims[0] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (ii=0; ii<3; ii++) xp[ii] = xm[ii] = 0.0;
+          for (ii=0; ii<3; ii++)
+	    {
+	    xp[ii] = xm[ii] = 0.0;
+	    }
           xp[0] = 1.0; pp = pm = 0.0;
           }
         else if ( i == 0 ) 
@@ -1268,7 +1325,10 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         if ( dims[1] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (ii=0; ii<3; ii++) xp[ii] = xm[ii] = 0.0;
+          for (ii=0; ii<3; ii++)
+	    {
+	    xp[ii] = xm[ii] = 0.0;
+	    }
           xp[1] = 1.0; pp = pm = 0.0;
           }
         else if ( j == 0 ) 
@@ -1312,7 +1372,10 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
         if ( dims[2] == 1 ) // 2D in this direction
           {
           factor = 1.0;
-          for (ii=0; ii<3; ii++) xp[ii] = xm[ii] = 0.0;
+          for (ii=0; ii<3; ii++)
+	    {
+	    xp[ii] = xm[ii] = 0.0;
+	    }
           xp[2] = 1.0; pp = pm = 0.0;
           }
         else if ( k == 0 ) 
@@ -1358,7 +1421,10 @@ void vtkPLOT3DReader::ComputePressureGradient(vtkPointData *outputPD)
 //
         aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
               -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
-        if (aj != 0.0) aj = 1. / aj;
+        if (aj != 0.0)
+	  {
+	  aj = 1. / aj;
+	  }
 //
 //  Xi metrics.
 //
@@ -1411,9 +1477,13 @@ int vtkPLOT3DReader::GetFileType(FILE *fp)
 //  Read a little from the file to figure what type it is.
 //
   fgets (fourBytes, 4, fp);
-  for (i=0, type=ASCII; i<4 && type == ASCII; i++)
+  for (i=0, type=VTK_ASCII; i<4 && type == VTK_ASCII; i++)
+    {
     if ( ! isprint(fourBytes[i]) )
-      type = BINARY;
+      {
+      type = VTK_BINARY;
+      }
+    }
 //
 // Reset file for reading
 //

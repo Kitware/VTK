@@ -162,87 +162,144 @@ void vtkMergeFilter::Update()
     {
     this->Scalars->Update();
     dsMtime = this->Scalars->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   if ( this->Vectors )
     {
     this->Vectors->Update();
     dsMtime = this->Vectors->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   if ( this->Normals )
     {
     this->Normals->Update();
     dsMtime = this->Normals->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   if ( this->TCoords )
     {
     this->TCoords->Update();
     dsMtime = this->TCoords->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   if ( this->Tensors )
     {
     this->Tensors->Update();
     dsMtime = this->Tensors->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   if ( this->FieldData )
     {
     this->FieldData->Update();
     dsMtime = this->FieldData->GetMTime();
-    if ( dsMtime > mtime ) mtime = dsMtime;
+    if ( dsMtime > mtime )
+      {
+      mtime = dsMtime;
+      }
     }
   this->Updating = 0;
 
   if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->Geometry->GetDataReleased() ) this->Geometry->ForceUpdate();
+    if ( this->Geometry->GetDataReleased() )
+      {
+      this->Geometry->ForceUpdate();
+      }
     if ( this->Scalars && this->Scalars->GetDataReleased() ) 
+      {
       this->Scalars->ForceUpdate();
+      }
     if ( this->Vectors && this->Vectors->GetDataReleased() ) 
+      {
       this->Vectors->ForceUpdate();
+      }
     if ( this->Normals && this->Normals->GetDataReleased() ) 
+      {
       this->Normals->ForceUpdate();
+      }
     if ( this->TCoords && this->TCoords->GetDataReleased() ) 
+      {
       this->TCoords->ForceUpdate();
+      }
     if ( this->Tensors && this->Tensors->GetDataReleased() ) 
+      {
       this->Tensors->ForceUpdate();
+      }
     if ( this->FieldData && this->FieldData->GetDataReleased() ) 
+      {
       this->FieldData->ForceUpdate();
+      }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
   
-  if ( this->Geometry->ShouldIReleaseData() ) this->Geometry->ReleaseData();
+  if ( this->Geometry->ShouldIReleaseData() )
+    {
+    this->Geometry->ReleaseData();
+    }
 
   if ( this->Scalars && this->Scalars->ShouldIReleaseData() ) 
+    {
     this->Scalars->ReleaseData();
+    }
 
   if ( this->Vectors && this->Vectors->ShouldIReleaseData() ) 
+    {
     this->Vectors->ReleaseData();
+    }
 
   if ( this->Normals && this->Normals->ShouldIReleaseData() ) 
+    {
     this->Normals->ReleaseData();
+    }
 
   if ( this->TCoords && this->TCoords->ShouldIReleaseData() ) 
+    {
     this->TCoords->ReleaseData();
+    }
 
   if ( this->Tensors && this->Tensors->ShouldIReleaseData() ) 
+    {
     this->Tensors->ReleaseData();
+    }
 
   if ( this->FieldData && this->FieldData->ShouldIReleaseData() ) 
+    {
     this->FieldData->ReleaseData();
+    }
 }
 
 // Merge it all together
@@ -284,92 +341,152 @@ void vtkMergeFilter::Execute()
     {
     pd = this->Scalars->GetPointData();
     scalars = pd->GetScalars();
-    if ( scalars != NULL ) numScalars = scalars->GetNumberOfScalars();
+    if ( scalars != NULL )
+      {
+      numScalars = scalars->GetNumberOfScalars();
+      }
     cd = this->Scalars->GetCellData();
     cellScalars = cd->GetScalars();
-    if ( cellScalars != NULL ) numCellScalars = cellScalars->GetNumberOfScalars();
+    if ( cellScalars != NULL )
+      {
+      numCellScalars = cellScalars->GetNumberOfScalars();
+      }
     }
 
   if ( this->Vectors ) 
     {
     pd = this->Vectors->GetPointData();
     vectors = pd->GetVectors();
-    if ( vectors != NULL ) numVectors= vectors->GetNumberOfVectors();
+    if ( vectors != NULL )
+      {
+      numVectors= vectors->GetNumberOfVectors();
+      }
     cd = this->Vectors->GetCellData();
     cellVectors = cd->GetVectors();
-    if ( cellVectors != NULL ) numCellVectors = cellVectors->GetNumberOfVectors();
+    if ( cellVectors != NULL )
+      {
+      numCellVectors = cellVectors->GetNumberOfVectors();
+      }
     }
 
   if ( this->Normals ) 
     {
     pd = this->Normals->GetPointData();
     normals = pd->GetNormals();
-    if ( normals != NULL ) numNormals= normals->GetNumberOfNormals();
+    if ( normals != NULL )
+      {
+      numNormals= normals->GetNumberOfNormals();
+      }
     cd = this->Normals->GetCellData();
     cellNormals = cd->GetNormals();
-    if ( cellNormals != NULL ) numCellNormals = cellNormals->GetNumberOfNormals();
+    if ( cellNormals != NULL )
+      {
+      numCellNormals = cellNormals->GetNumberOfNormals();
+      }
     }
 
   if ( this->TCoords ) 
     {
     pd = this->TCoords->GetPointData();
     tcoords = pd->GetTCoords();
-    if ( tcoords != NULL ) numTCoords= tcoords->GetNumberOfTCoords();
+    if ( tcoords != NULL )
+      {
+      numTCoords= tcoords->GetNumberOfTCoords();
+      }
     cd = this->TCoords->GetCellData();
     cellTCoords = cd->GetTCoords();
-    if ( cellTCoords != NULL ) numCellTCoords = cellTCoords->GetNumberOfTCoords();
+    if ( cellTCoords != NULL )
+      {
+      numCellTCoords = cellTCoords->GetNumberOfTCoords();
+      }
     }
 
   if ( this->Tensors ) 
     {
     pd = this->Tensors->GetPointData();
     tensors = pd->GetTensors();
-    if ( tensors != NULL ) numTensors = tensors->GetNumberOfTensors();
+    if ( tensors != NULL )
+      {
+      numTensors = tensors->GetNumberOfTensors();
+      }
     cd = this->Tensors->GetCellData();
     cellTensors = cd->GetTensors();
-    if ( cellTensors != NULL ) numCellTensors = cellTensors->GetNumberOfTensors();
+    if ( cellTensors != NULL )
+      {
+      numCellTensors = cellTensors->GetNumberOfTensors();
+      }
     }
 
   if ( this->FieldData ) 
     {
     pd = this->FieldData->GetPointData();
     f = pd->GetFieldData();
-    if ( f != NULL ) numTuples = f->GetNumberOfTuples();
+    if ( f != NULL )
+      {
+      numTuples = f->GetNumberOfTuples();
+      }
     cd = this->FieldData->GetCellData();
     cellf = cd->GetFieldData();
-    if ( cellf != NULL ) numCellTuples = cellf->GetNumberOfTuples();
+    if ( cellf != NULL )
+      {
+      numCellTuples = cellf->GetNumberOfTuples();
+      }
     }
 
   // merge data only if it is consistent
   if ( numPts == numScalars )
+    {
     outputPD->SetScalars(scalars);
+    }
   if ( numCells == numCellScalars )
+    {
     outputCD->SetScalars(cellScalars);
+    }
 
   if ( numPts == numVectors )
+    {
     outputPD->SetVectors(vectors);
+    }
   if ( numCells == numCellVectors )
+    {
     outputCD->SetVectors(cellVectors);
+    }
     
   if ( numPts == numNormals )
+    {
     outputPD->SetNormals(normals);
+    }
   if ( numCells == numCellNormals )
+    {
     outputCD->SetNormals(cellNormals);
+    }
 
   if ( numPts == numTCoords )
+    {
     outputPD->SetTCoords(tcoords);
+    }
   if ( numCells == numCellTCoords )
+    {
     outputCD->SetTCoords(cellTCoords);
+    }
 
   if ( numPts == numTensors )
+    {
     outputPD->SetTensors(tensors);
+    }
   if ( numCells == numCellTensors )
+    {
     outputCD->SetTensors(cellTensors);
+    }
 
   if ( numPts == numTuples )
+    {
     outputPD->SetFieldData(f);
+    }
   if ( numCells == numCellTuples )
+    {
     outputCD->SetFieldData(cellf);
+    }
 }
 
 // Get the output as vtkPolyData.
@@ -412,36 +529,62 @@ void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";
     }
   else
+    {
     os << indent << "Geometry: (none)\n";
+    }
 
   if ( this->Scalars )
+    {
     os << indent << "Scalars: (" << this->Scalars << ")\n";
+    }
   else
+    {
     os << indent << "Scalars: (none)\n";
+    }
 
   if ( this->Vectors )
+    {
     os << indent << "Vectors: (" << this->Vectors << ")\n";
+    }
   else
+    {
     os << indent << "Vectors: (none)\n";
+    }
 
   if ( this->Normals )
+    {
     os << indent << "Normals: (" << this->Normals << ")\n";
+    }
   else
+    {
     os << indent << "Normals: (none)\n";
+    }
 
   if ( this->TCoords )
+    {
     os << indent << "TCoords: (" << this->TCoords << ")\n";
+    }
   else
+    {
     os << indent << "TCoords: (none)\n";
+    }
 
   if ( this->Tensors )
+    {
     os << indent << "Tensors: (" << this->Tensors << ")\n";
+    }
   else
+    {
     os << indent << "Tensors: (none)\n";
+    }
 
   if ( this->FieldData )
+    {
     os << indent << "Field Data: (" << this->FieldData << ")\n";
+    }
   else
+    {
     os << indent << "Field Data: (none)\n";
+    }
 }
 

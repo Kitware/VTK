@@ -125,7 +125,10 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     return;
     }
   
-  if ( this->LookupTable == NULL ) this->CreateDefaultLookupTable();
+  if ( this->LookupTable == NULL )
+    {
+    this->CreateDefaultLookupTable();
+    }
 
 // make sure our window is current
 #ifdef _WIN32
@@ -1762,7 +1765,10 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   diff = prop->GetDiffuse();
   
   // if the primitives are invisable then get out of here 
-  if (tran <= 0.0) return;
+  if (tran <= 0.0)
+    {
+    return;
+    }
 
   // get the representation (e.g., surface / wireframe / points)
   rep = prop->GetRepresentation();
@@ -1831,7 +1837,10 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
 
   n = input->GetPointData()->GetNormals();
-  if (interpolation == VTK_FLAT) n = 0;
+  if (interpolation == VTK_FLAT)
+    {
+    n = 0;
+    }
   
   if (!n && input->GetCellData()->GetNormals())
     {
@@ -1854,12 +1863,30 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   void (*draw0)(vtkCellArray *, GLenum, int &, vtkPoints *, vtkNormals *, 
 		vtkScalars *, vtkTCoords *, vtkOpenGLRenderer *, int &);
   int idx;
-  if (n) idx = 1;
-  else idx = 0;
-  if (c) idx += 2;
-  if (t) idx += 4;
-  if (cellScalars) idx += 8;
-  if (cellNormals) idx += 16;
+  if (n)
+    {
+    idx = 1;
+    }
+  else
+    {
+    idx = 0;
+    }
+  if (c)
+    {
+    idx += 2;
+    }
+  if (t)
+    {
+    idx += 4;
+    }
+  if (cellScalars)
+    {
+    idx += 8;
+    }
+  if (cellNormals)
+    {
+    idx += 16;
+    }
   
   switch (idx) 
     {
@@ -2006,7 +2033,10 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   draw1(aPrim, aGlFunction, cellNum, p, n, c, t, ren, noAbort);
   
   // reset the lighting if we turned it off
-  if (!n) glEnable( GL_LIGHTING);
+  if (!n)
+    {
+    glEnable( GL_LIGHTING);
+    }
 
   // do tstrips
   aPrim = prims[2];

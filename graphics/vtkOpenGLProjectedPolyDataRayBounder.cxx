@@ -55,7 +55,9 @@ vtkOpenGLProjectedPolyDataRayBounder::vtkOpenGLProjectedPolyDataRayBounder()
 vtkOpenGLProjectedPolyDataRayBounder::~vtkOpenGLProjectedPolyDataRayBounder()
 {  
   if ( this->DepthRangeBuffer )
+    {
     delete [] this->DepthRangeBuffer;
+    }
 }
 
 // Create a display list from the polygons contained in pdata.
@@ -74,7 +76,9 @@ void vtkOpenGLProjectedPolyDataRayBounder::Build( vtkPolyData *pdata )
   strips = pdata->GetStrips();
 
   if ( !glIsList( this->DisplayList ) )
+    {
     this->DisplayList = glGenLists( 1 );
+    }
 
   glNewList( this->DisplayList, GL_COMPILE );
 
@@ -87,20 +91,30 @@ void vtkOpenGLProjectedPolyDataRayBounder::Build( vtkPolyData *pdata )
       // Unless of course this is our first time through - then we
       // don't want to end
       if ( current_num_vertices != -1 )
+	{
 	glEnd();
+	}
 
       // How many vertices do we have?
       if ( npts == 3 ) 
+	{
 	glBegin( GL_TRIANGLES );
+	}
       else if ( npts == 4 )
+	{
 	glBegin( GL_QUADS );
+	}
       else
+	{
 	glBegin( GL_POLYGON );
+	}
       }
 
     // Draw the vertices
     for ( i = 0; i < npts; i++ )
+      {
       glVertex3fv( points->GetPoint( pts[i] ) );
+      }
 
     current_num_vertices = npts;
     }
@@ -169,7 +183,9 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   far_buffer = new float[ size[0] * size[1] ];
 
   if ( this->DepthRangeBuffer )
+    {
     delete [] this->DepthRangeBuffer;
+    }
   this->DepthRangeBuffer = new float[ size[0] * size[1] * 2 ];
 
   // Save previous lighting state, and turn lighting off
@@ -213,7 +229,10 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   // Clean up
   glPopMatrix();
   glDepthFunc( GL_LEQUAL );
-  if ( lighting_on ) glEnable( GL_LIGHTING );
+  if ( lighting_on )
+    {
+    glEnable( GL_LIGHTING );
+    }
 
   glPopAttrib();
 
@@ -259,6 +278,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     zbias  = (matrix->Element[2][3]);
     
     for ( j = 0; j < size[1]; j++ )
+      {
       for ( i = 0; i < size[0]; i++ )
 	{
 	if ( *near_ptr < 1.0 )
@@ -274,6 +294,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
 	  far_ptr++;
 	  }
 	}
+      }
     }
   else
     {
@@ -316,6 +337,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
     ray_ptr += 2;
 
     for ( j = 0; j < size[1]; j++ )
+      {
       for ( i = 0; i < size[0]; i++ )
 	{
 	if ( *near_ptr < 1.0 )
@@ -341,7 +363,7 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
 	  ray_ptr += 3;
 	  }
 	}
-
+      }
     }
 
   delete [] near_buffer;

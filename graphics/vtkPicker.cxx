@@ -133,11 +133,17 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
   this->Transform->SetPoint(mapperHPosition);
   worldHPosition = this->Transform->GetPoint();
 
-  for (i=0; i < 3; i++) this->PickPosition[i] = worldHPosition[i];
+  for (i=0; i < 3; i++)
+    {
+    this->PickPosition[i] = worldHPosition[i];
+    }
   
   // Invoke pick method if one defined - actor goes first
   actor->Pick();
-  if ( this->PickMethod ) (*this->PickMethod)(this->PickMethodArg);
+  if ( this->PickMethod )
+    {
+    (*this->PickMethod)(this->PickMethodArg);
+    }
 }
 
 // Perform pick operation with selection point provided. Normally the 
@@ -219,8 +225,14 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   //  the camera position to the selection point, starting where this line
   //  intersects the front clipping plane, and terminating where this
   //  line intersects the back clipping plane.
-  for (i=0; i<3; i++) ray[i] = this->PickPosition[i] - cameraPos[i];
-  for (i=0; i<3; i++) cameraDOP[i] = cameraFP[i] - cameraPos[i];
+  for (i=0; i<3; i++)
+    {
+    ray[i] = this->PickPosition[i] - cameraPos[i];
+    }
+  for (i=0; i<3; i++)
+    {
+    cameraDOP[i] = cameraFP[i] - cameraPos[i];
+    }
   vtkMath::Normalize(cameraDOP);
 
   if (( rayLength = vtkMath::Dot(cameraDOP,ray)) == 0.0 ) 
@@ -337,7 +349,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     }//for all actors
 
   // Invoke end pick method if defined
-  if ( this->EndPickMethod ) (*this->EndPickMethod)(this->EndPickMethodArg);
+  if ( this->EndPickMethod )
+    {
+    (*this->EndPickMethod)(this->EndPickMethodArg);
+    }
 
   return picked;
 }
@@ -355,8 +370,14 @@ float vtkPicker::IntersectWithLine(float p1[3], float p2[3],
   //
   center = mapper->GetCenter();
 
-  for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
-  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) return 2.0;
+  for (i=0; i<3; i++)
+    {
+    ray[i] = p2[i] - p1[i];
+    }
+  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 )
+    {
+    return 2.0;
+    }
   //
   // Project the center point onto the ray and determine its parametric value
   //
@@ -495,17 +516,41 @@ void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
-  if ( this->PickFromList ) os << indent << "Picking from list\n";
-  else os << indent << "Picking from renderer's actor list\n";
+  if ( this->PickFromList )
+    {
+    os << indent << "Picking from list\n";
+    }
+  else
+    {
+    os << indent << "Picking from renderer's actor list\n";
+    }
 
-  if ( this->StartPickMethod ) os << indent << "Start PickMethod defined\n";
-  else os << indent <<"No Start PickMethod\n";
+  if ( this->StartPickMethod )
+    {
+    os << indent << "Start PickMethod defined\n";
+    }
+  else
+    {
+    os << indent <<"No Start PickMethod\n";
+    }
 
-  if ( this->PickMethod ) os << indent << " PickMethod defined\n";
-  else os << indent << "No  PickMethod\n";
+  if ( this->PickMethod )
+    {
+    os << indent << " PickMethod defined\n";
+    }
+  else
+    {
+    os << indent << "No  PickMethod\n";
+    }
 
-  if ( this->EndPickMethod ) os << indent << "End PickMethod defined\n";
-  else os << indent << "No End PickMethod\n";
+  if ( this->EndPickMethod )
+    {
+    os << indent << "End PickMethod defined\n";
+    }
+  else
+    {
+    os << indent << "No End PickMethod\n";
+    }
 
   if ( this->DataSet )
     {

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <GL/gl.h>
 
 
-#define MAX_LIGHTS 8
+#define VTK_MAX_LIGHTS 8
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
@@ -83,7 +83,7 @@ void vtkOpenGLRenderer::ClearLights (void)
     }
 
   // now delete all the old lights 
-  for (curLight = GL_LIGHT0; curLight < GL_LIGHT0 + MAX_LIGHTS; curLight++)
+  for (curLight = GL_LIGHT0; curLight < GL_LIGHT0 + VTK_MAX_LIGHTS; curLight++)
     {
     glDisable((GLenum)curLight);
     }
@@ -107,7 +107,7 @@ int vtkOpenGLRenderer::UpdateLights ()
       (light = this->Lights->GetNextItem()); )
     {
     status = light->GetSwitch();
-    if ((status > 0.0)&& (curLight < (GL_LIGHT0+MAX_LIGHTS)))
+    if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
       {
       curLight++;
       count++;
@@ -135,7 +135,7 @@ int vtkOpenGLRenderer::UpdateLights ()
 
     // if the light is on then define it and bind it. 
     // also make sure we still have room.             
-    if ((status > 0.0)&& (curLight < (GL_LIGHT0+MAX_LIGHTS)))
+    if ((status > 0.0)&& (curLight < (GL_LIGHT0+VTK_MAX_LIGHTS)))
       {
       light->Render((vtkRenderer *)this,curLight);
       glEnable((GLenum)curLight);

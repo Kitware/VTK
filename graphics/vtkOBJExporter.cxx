@@ -48,7 +48,10 @@ vtkOBJExporter::vtkOBJExporter()
 
 vtkOBJExporter::~vtkOBJExporter()
 {
-  if ( this->FilePrefix ) delete [] this->FilePrefix;
+  if ( this->FilePrefix )
+    {
+    delete [] this->FilePrefix;
+    }
 }
 
 void vtkOBJExporter::WriteData()
@@ -348,8 +351,14 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   
   idStart = idNext;
   trans->Delete();
-  if (normals) normals->Delete();
-  if (gf) gf->Delete();
+  if (normals)
+    {
+    normals->Delete();
+    }
+  if (gf)
+    {
+    gf->Delete();
+    }
 }
 
 
