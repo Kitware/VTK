@@ -24,30 +24,28 @@
 
 #include "Tokenizer.h"
 
-using vtkstd::string;
-
 Tokenizer::Tokenizer(const char *s, const char *delim)
   : FullString(s), Delim(delim)
 {
   this->Reset();
 }
 
-Tokenizer::Tokenizer(const string &s, const char *delim)
+Tokenizer::Tokenizer(const vtkstd::string &s, const char *delim)
   : FullString(s), Delim(delim)
 {
   this->Reset();
 }
 
-string Tokenizer::GetNextToken()
+vtkstd::string Tokenizer::GetNextToken()
 {
   if (this->HasMoreTokens())
     {
-    string::size_type token_start = this->Position;
-    string::size_type token_end
+    vtkstd::string::size_type token_start = this->Position;
+    vtkstd::string::size_type token_end
       = this->FullString.find_first_of(this->Delim, token_start);
     this->Position = this->FullString.find_first_not_of(this->Delim, token_end);
 
-    if (token_end != string::npos)
+    if (token_end != vtkstd::string::npos)
       {
       return this->FullString.substr(token_start, token_end-token_start);
       }
@@ -58,11 +56,11 @@ string Tokenizer::GetNextToken()
     }
   else
     {
-    return string();
+    return vtkstd::string();
     }
 }
 
-string Tokenizer::GetRemainingString() const
+vtkstd::string Tokenizer::GetRemainingString() const
 {
   if (this->HasMoreTokens())
     {
@@ -70,13 +68,13 @@ string Tokenizer::GetRemainingString() const
     }
   else
     {
-    return string();
+    return vtkstd::string();
     }
 }
 
 bool Tokenizer::HasMoreTokens() const
 {
-  return (this->Position != string::npos);
+  return (this->Position != vtkstd::string::npos);
 }
 
 void Tokenizer::Reset()

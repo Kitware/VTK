@@ -38,19 +38,17 @@
 #include <string.h>
 #include <ctype.h>
 
-using vtkstd::string;
-
 // #define this if you want debug output as the parser does its work
 
 // #define DEBUG_PARSE
 
-static vtkstd::set< vtkstd::pair< string, string > > ConstantsAlreadyWritten;
+static vtkstd::set< vtkstd::pair< vtkstd::string, vtkstd::string > > ConstantsAlreadyWritten;
 
-static string ToUpper(string s)
+static vtkstd::string ToUpper(vtkstd::string s)
 {
-  string u;
+  vtkstd::string u;
 
-  for (string::size_type i = 0; i < s.length(); i++)
+  for (vtkstd::string::size_type i = 0; i < s.length(); i++)
     {
     u.append(1, (char)toupper(s[i]));
     }
@@ -60,7 +58,7 @@ static string ToUpper(string s)
 
 class Extension {
 public:
-  string name;
+  vtkstd::string name;
   enum {GL, WGL, GLX} type;
 
   Extension() {}
@@ -124,7 +122,7 @@ Extension::Extension(char *line)
   this->name = t.GetNextToken();
 
   Tokenizer nameTokens(this->name, "_");
-  string header = nameTokens.GetNextToken();
+  vtkstd::string header = nameTokens.GetNextToken();
   if (header == "WGL")
     {
     this->type = WGL;
@@ -146,7 +144,7 @@ bool Extension::isExtension(char *line)
   if (t.GetNextToken() != "#ifndef") return false;
 
   Tokenizer nameTokens(t.GetNextToken(), "_");
-  string header = nameTokens.GetNextToken();
+  vtkstd::string header = nameTokens.GetNextToken();
   if ((header == "GL") || (header == "WGL") || (header == "GLX"))
     {
     return true;
@@ -159,8 +157,8 @@ static Extension currentExtension;
 
 class Constant {
 public:
-  string name;
-  string value;
+  vtkstd::string name;
+  vtkstd::string value;
 
   Constant(char *line);
   static bool isConstant(char *line);
@@ -168,7 +166,7 @@ public:
   bool operator<(const Constant &obj) const { return this->name < obj.name; }
 };
 
-static vtkstd::map<string, string> EncounteredConstants;
+static vtkstd::map<vtkstd::string, vtkstd::string> EncounteredConstants;
 
 Constant::Constant(char *line)
 {
@@ -178,7 +176,7 @@ Constant::Constant(char *line)
   t.GetNextToken();
 
   this->name = t.GetNextToken();
-  string fullname = this->name;
+  vtkstd::string fullname = this->name;
   if (currentExtension.type == Extension::GL)
     {
     // Skip the "GL_"
@@ -197,7 +195,7 @@ Constant::Constant(char *line)
 
   this->value = t.GetNextToken();
   // Sometimes, one constant points to another.  Handle this properly.
-  vtkstd::map<string, string>::iterator found
+  vtkstd::map<vtkstd::string, vtkstd::string>::iterator found
     = EncounteredConstants.find(value);
   if (found != EncounteredConstants.end())
     {
@@ -217,7 +215,7 @@ bool Constant::isConstant(char *line)
     return false;
     }
 
-  string n = t.GetNextToken();
+  vtkstd::string n = t.GetNextToken();
   if (   (   (currentExtension.type == Extension::GL)
           && (strncmp(n.c_str(), "GL_", 3) == 0) )
       || (   (currentExtension.type == Extension::WGL)
@@ -235,7 +233,7 @@ bool Constant::isConstant(char *line)
 
 class Typedef {
 public:
-  string definition;
+  vtkstd::string definition;
 
   Typedef(char *line);
   static bool isTypedef(char *line);
@@ -271,10 +269,10 @@ bool Typedef::isTypedef(char *line)
 
 class Function {
 public:
-  string returnType;
-  string entry;
-  string name;
-  string arguments;
+  vtkstd::string returnType;
+  vtkstd::string entry;
+  vtkstd::string name;
+  vtkstd::string arguments;
   int extensionType;
 
   Function(char *line);
@@ -291,7 +289,7 @@ Function::Function(char *line) : extensionType(currentExtension.type)
   Tokenizer t(line, " \n\t(");
 
   t.GetNextToken();
-  string token = t.GetNextToken();
+  vtkstd::string token = t.GetNextToken();
   this->returnType = "";
   while ((token == "const") || (token == "unsigned"))
     {
@@ -361,8 +359,8 @@ bool Function::isFunction(char *line)
 {
   Tokenizer t(line);
 
-  string modifier = t.GetNextToken();
-  string sreturnType = t.GetNextToken();
+  vtkstd::string modifier = t.GetNextToken();
+  vtkstd::string sreturnType = t.GetNextToken();
   if (sreturnType == "const")
     {
     // We don't really need the return type, just to skip over const.
@@ -370,7 +368,7 @@ bool Function::isFunction(char *line)
     sreturnType += t.GetNextToken();
     }
 
-  string sentry = t.GetNextToken();
+  vtkstd::string sentry = t.GetNextToken();
   if (sentry == "*")
     {
     sreturnType += " *";
@@ -394,7 +392,7 @@ bool Function::isFunction(char *line)
 
 const char *Function::GetProcType()
 {
-  static string proctype;
+  static vtkstd::string proctype;
 
   proctype = "PFN";
   proctype += Extension::TypeToCapString(this->extensionType);
@@ -416,7 +414,7 @@ static void ParseLine(char *line)
   static int ifLevel = 0;
 
   Tokenizer tokens(line);
-  string firstToken = tokens.GetNextToken();
+  vtkstd::string firstToken = tokens.GetNextToken();
 
   if (Extension::isExtension(line))
     {
@@ -719,7 +717,7 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
     cxxfile << "  if (strcmp(name, \"" << iextension->name.c_str()
             << "\") == 0)" << endl
             << "    {" << endl;
-    string vtkglclass = "vtk";
+    vtkstd::string vtkglclass = "vtk";
     vtkglclass += Extension::TypeToString(iextension->type);
     vtkstd::list<Function>::iterator ifunct;
     for (ifunct = functs[*iextension].begin();
