@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // but it will continually update its orientation so that it is right side
 // up and facing the camera. This is typically used for text labels in a
 // scene. All of the adjustments that can be made to an actor will also
-// take effect with a follwer.  So if you change the orientation of the
+// take effect with a follower.  So if you change the orientation of the
 // follower by 90 degrees then it will follow the camera, but be off by 
 // 90 degrees.
 

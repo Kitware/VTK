@@ -41,9 +41,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkFilter - abstract class for specifying filter behaviour
 // .SECTION Description
 // vtkFilter is an abstract class that specifies the interface for data 
-// filters. Each filter must have an UpdateFilter() and Execute() method 
+// filters. Each filter must have an Update() and Execute() method 
 // that will cause the filter to execute if its input or the filter itself 
 // has been modified since the last execution time.
+
+// .SECTION See Also
+// vtkSource
 
 #ifndef __vtkFilter_h
 #define __vtkFilter_h
