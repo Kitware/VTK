@@ -153,6 +153,26 @@ public:
     return (vtkLinearTransform *)this->GetInverse(); }; 
 
   // Description:
+  // Create a pipelined concatenation of two transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2) {
+    return vtkLinearTransform::Concatenate(t1,t2,0,0); };
+
+  // Description:
+  // Create a pipelined concatenation of three transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2,
+					 vtkLinearTransform *t3) {
+    return vtkLinearTransform::Concatenate(t1,t2,t3,0); };
+
+  // Description:
+  // Create a pipelined concatenation of four transforms.  
+  static vtkLinearTransform *Concatenate(vtkLinearTransform *t1,
+					 vtkLinearTransform *t2,
+					 vtkLinearTransform *t3,
+					 vtkLinearTransform *t4);
+
+  // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
   void InternalTransformPoint(const float in[3], float out[3]);

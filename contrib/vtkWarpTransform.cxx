@@ -81,7 +81,7 @@ void vtkWarpTransform::InternalTransformDerivative(const float input[3],
     tmp[2] = input[2];
     this->ForwardTransformDerivative(tmp,output,derivative);
     this->InverseTransformPoint(tmp,output);
-    vtkGeneralTransform::Invert3x3(derivative);
+    vtkGeneralTransform::Invert3x3(derivative,derivative);
     }
   else
     {

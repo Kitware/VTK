@@ -554,7 +554,7 @@ void vtkThinPlateSplineTransform::InverseTransformPoint(const float point[3],
     delta[2] -= point[2];
 
     // here is the critical step in Newton's method
-    vtkGeneralTransform::LinearSolve3x3(derivative,delta);
+    vtkGeneralTransform::LinearSolve3x3(derivative,delta,delta);
 
     inverse[0] -= delta[0];
     inverse[1] -= delta[1];

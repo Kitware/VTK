@@ -135,6 +135,26 @@ public:
   virtual void DeepCopy(vtkGeneralTransform *) = 0;
 
   // Description:
+  // Create a pipelined concatenation of two transforms.  
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2) {
+    return vtkGeneralTransform::Concatenate(t1,t2,0,0); };
+
+  // Description:
+  // Create a pipelined concatenation of three transforms.  
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3) {
+    return vtkGeneralTransform::Concatenate(t1,t2,t3,0); };
+
+  // Description:
+  // Create a pipelined concatenation of four transforms.  
+  static vtkGeneralTransform *Concatenate(vtkGeneralTransform *t1,
+					  vtkGeneralTransform *t2,
+					  vtkGeneralTransform *t3,
+					  vtkGeneralTransform *t4);
+
+  // Description:
   // Update the transform to account for any changes which
   // have been made.  You do not have to call this method 
   // yourself, it is called automatically whenever the
@@ -179,23 +199,24 @@ protected:
   // Description:
   // Solve Ay = x for y and place the result in x.  The matrix A is
   // destroyed in the process.
-  static void LinearSolve3x3(float A[3][3], float x[3]);
+  static void LinearSolve3x3(const float A[3][3], const float x[3],float y[3]);
 
   // Description:
   // Multiply a vector by a 3x3 matrix.  The result is placed in x.
-  static void Multiply3x3(const float A[3][3], float x[3]);
+  static void Multiply3x3(const float A[3][3], const float x[3], float y[3]);
   
   // Description:
   // Mutliply one 3x3 matrix by another: B = AB.
-  static void Multiply3x3(const float A[3][3], float B[3][3]);
+  static void Multiply3x3(const float A[3][3], const float B[3][3], 
+			  const float C[3][3]);
 
   // Description:
   // Transpose a 3x3 matrix.
-  static void Transpose3x3(float A[3][3]);
+  static void Transpose3x3(const float A[3][3], float AT[3][3]);
 
   // Description:
   // Invert a 3x3 matrix.
-  static void Invert3x3(float A[3][3]);
+  static void Invert3x3(const float A[3][3], float AI[3][3]);
 
   // Description:
   // Set A to the identity matrix.

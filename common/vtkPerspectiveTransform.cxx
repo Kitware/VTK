@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkPerspectiveTransform.h"
 #include "vtkPerspectiveTransformInverse.h"
+#include "vtkPerspectiveTransformConcatenation.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
@@ -239,6 +240,23 @@ vtkGeneralTransform *vtkPerspectiveTransform::GetInverse()
   return (vtkPerspectiveTransform *)this->MyInverse;
 }
 
+//----------------------------------------------------------------------------
+static vtkPerspectiveTransform *vtkPerspectiveTransform::Concatenate(
+                                            vtkPerspectiveTransform *t1,
+					    vtkPerspectiveTransform *t2,
+					    vtkPerspectiveTransform *t3,
+					    vtkPerspectiveTransform *t4)
+{
+  vtkPerspectiveTransformConcatenation *concat =
+    vtkPerspectiveTransformConcatenation::New();
+
+  if (t1) { concat->Concatenate(t1); }
+  if (t2) { concat->Concatenate(t2); }
+  if (t3) { concat->Concatenate(t3); }
+  if (t4) { concat->Concatenate(t4); }
+
+  return concat;
+}
 
 //----------------------------------------------------------------------------
 // update and copy out the current matrix

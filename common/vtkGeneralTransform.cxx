@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkGeneralTransform.h"
 #include "vtkGeneralTransformInverse.h"
+#include "vtkGeneralTransformConcatenation.h"
 #include "vtkMath.h"
 
 //----------------------------------------------------------------------------
@@ -151,15 +152,15 @@ void vtkGeneralTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
     if (inVrs)
       {
       inVrs->GetVector(i,coord);
-      vtkGeneralTransform::Multiply3x3(matrix,coord);
+      vtkGeneralTransform::Multiply3x3(matrix,coord,coord);
       outVrs->InsertNextVector(coord);
       }
     
     if (inNms)
       {
       inNms->GetNormal(i,coord);
-      vtkGeneralTransform::Transpose3x3(matrix);
-      vtkGeneralTransform::LinearSolve3x3(matrix,coord);
+      vtkGeneralTransform::Transpose3x3(matrix,matrix);
+      vtkGeneralTransform::LinearSolve3x3(matrix,coord,coord);
       vtkMath::Normalize(coord);
       outNms->InsertNextNormal(coord);
       }
@@ -205,6 +206,24 @@ void vtkGeneralTransform::UnRegister(vtkObject *o)
     }
 
   this->vtkObject::UnRegister(o);
+}
+
+//----------------------------------------------------------------------------
+static vtkGeneralTransform *vtkGeneralTransform::Concatenate(
+					vtkGeneralTransform *t1,
+					vtkGeneralTransform *t2,
+					vtkGeneralTransform *t3,
+					vtkGeneralTransform *t4)
+{
+  vtkGeneralTransformConcatenation *concat =
+    vtkGeneralTransformConcatenation::New();
+
+  if (t1) { concat->Concatenate(t1); }
+  if (t2) { concat->Concatenate(t2); }
+  if (t3) { concat->Concatenate(t3); }
+  if (t4) { concat->Concatenate(t4); }
+
+  return concat;
 }
 
 //----------------------------------------------------------------------------
@@ -322,77 +341,89 @@ void vtkGeneralTransform::LUSolve3x3(const float A[3][3], const int index[3],
 }  
 
 //----------------------------------------------------------------------------
-// this method solves Ay = x for y, the result is placed in x, 
-// the matrix A is destroyed
-void vtkGeneralTransform::LinearSolve3x3(float A[3][3], float x[3])
+// this method solves Ay = x for y
+void vtkGeneralTransform::LinearSolve3x3(const float A[3][3], const float x[3],
+					 float y[3])
 {
   int index[3];
+  float B[3][3];
+  memcpy(B,A,9*sizeof(float));
+  memcpy(y,x,3*sizeof(float));
 
-  LUFactor3x3(A,index);
-  LUSolve3x3(A,index,x);
+  vtkGeneralTransform::LUFactor3x3(B,index);
+  vtkGeneralTransform::LUSolve3x3(B,index,y);
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::Multiply3x3(const float A[3][3], float v[3])
+void vtkGeneralTransform::Multiply3x3(const float A[3][3], const float v[3], 
+				      float u[3])
 {
-  float x,y,z;
-  x = v[0]; y = v[1]; z = v[2];
+  float x = v[0]; 
+  float y = v[1]; 
+  float z = v[2];
 
-  v[0] = A[0][0]*x + A[0][1]*y + A[0][2]*z;
-  v[1] = A[1][0]*x + A[1][1]*y + A[1][2]*z;
-  v[2] = A[2][0]*x + A[2][1]*y + A[2][2]*z;
+  u[0] = A[0][0]*x + A[0][1]*y + A[0][2]*z;
+  u[1] = A[1][0]*x + A[1][1]*y + A[1][2]*z;
+  u[2] = A[2][0]*x + A[2][1]*y + A[2][2]*z;
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::Multiply3x3(const float A[3][3], float B[3][3])
+void vtkGeneralTransform::Multiply3x3(const float A[3][3], const float B[3][3],
+				      float C[3][3])
 {
-  float C[3][3];
-  memcpy(C,B,9*sizeof(float));
+  float D[3][3];
+  memcpy(D,B,9*sizeof(float));
 
   for (int i = 0; i < 3; i++)
     {
-    B[0][i] = A[0][0]*C[0][i] + A[0][1]*C[1][i] + A[0][2]*C[2][i];
-    B[1][i] = A[1][0]*C[0][i] + A[1][1]*C[1][i] + A[1][2]*C[2][i];
-    B[2][i] = A[2][0]*C[0][i] + A[2][1]*C[1][i] + A[2][2]*C[2][i];
+    C[0][i] = A[0][0]*D[0][i] + A[0][1]*D[1][i] + A[0][2]*D[2][i];
+    C[1][i] = A[1][0]*D[0][i] + A[1][1]*D[1][i] + A[1][2]*D[2][i];
+    C[2][i] = A[2][0]*D[0][i] + A[2][1]*D[1][i] + A[2][2]*D[2][i];
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::Transpose3x3(float A[3][3])
+void vtkGeneralTransform::Transpose3x3(const float A[3][3], float AT[3][3])
 {
   float tmp;
   tmp = A[1][0];
-  A[1][0] = A[0][1];
-  A[0][1] = tmp;
+  AT[1][0] = A[0][1];
+  AT[0][1] = tmp;
   tmp = A[0][2];
-  A[2][0] = A[0][2];
-  A[0][2] = tmp;
+  AT[2][0] = A[0][2];
+  AT[0][2] = tmp;
   tmp = A[2][1];
-  A[2][1] = A[1][2];
-  A[1][2] = tmp;
+  AT[2][1] = A[1][2];
+  AT[1][2] = tmp;
+
+  AT[1][1] = A[1][1];
+  AT[2][2] = A[2][2];
+  AT[3][3] = A[3][3];
 }
 
 //----------------------------------------------------------------------------
-void vtkGeneralTransform::Invert3x3(float A[3][3])
+void vtkGeneralTransform::Invert3x3(const float A[3][3], float AI[3][3])
 {
   int index[3];
   float tmp[3][3];
 
+  memcpy(AI,A,9*sizeof(float));
+
   // invert one column at a time
-  LUFactor3x3(A,index);
+  vtkGeneralTransform::LUFactor3x3(AI,index);
   for (int i = 0; i < 3; i++)
     {
     float *x = tmp[i];
     x[0] = x[1] = x[2] = 0.0;
     x[i] = 1.0;
-    LUSolve3x3(A,index,x);
+    vtkGeneralTransform::LUSolve3x3(AI,index,x);
     }
   for (int j = 0; j < 3; j++)
     {
     float *x = tmp[j];
-    A[0][j] = x[0];
-    A[1][j] = x[1];
-    A[2][j] = x[2];      
+    AI[0][j] = x[0];
+    AI[1][j] = x[1];
+    AI[2][j] = x[2];      
     }
 }
 
@@ -402,11 +433,5 @@ void vtkGeneralTransform::Identity3x3(float A[3][3])
   memset(A,0,9*sizeof(float));
   A[0][0] = A[1][1] = A[2][2] = 1.0;
 }
-
-
-
-
-
-
 
 
