@@ -651,7 +651,13 @@ void vtkNormalEncoder::BuildShadingTable( float light_direction[3],
 int vtkNormalEncoder::GetEncodedNormalIndex( int x_index, int y_index,
 					     int z_index )
 {
-  return 0;
+  int ystep, zstep;
+
+  // Compute steps through the volume in x, y, and z
+  ystep = this->ScalarInputSize[0];
+  zstep = this->ScalarInputSize[0] * this->ScalarInputSize[1];
+
+  return *(this->EncodedNormal + z_index * zstep + y_index * ystep + x_index);
 }
 
 
