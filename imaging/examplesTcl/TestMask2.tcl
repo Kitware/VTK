@@ -21,8 +21,21 @@ mask SetMaskedOutputValue 100 128 200;
 mask NotMaskOn;
 mask ReleaseDataFlagOff
 
+vtkImageEllipsoidSource sphere2
+sphere2 SetWholeExtent 0 511 0 255 0 0
+sphere2 SetCenter 328 128 0
+sphere2 SetRadius 80 50 1
+
+# Test the wrapping of the output masked value
+vtkImageMask mask2
+mask2 SetImageInput [mask GetOutput]
+mask2 SetMaskInput [sphere2 GetOutput]
+mask2 SetMaskedOutputValue 100;
+mask2 NotMaskOn;
+mask2 ReleaseDataFlagOff
+
 vtkImageViewer viewer
-viewer SetInput [mask GetOutput]
+viewer SetInput [mask2 GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 255
 viewer SetColorLevel 128
