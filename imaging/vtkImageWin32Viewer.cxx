@@ -120,6 +120,7 @@ vtkImageWin32Viewer::~vtkImageWin32Viewer()
     DeleteObject(this->HBitmap);
     this->HBitmap = (HBITMAP)0;
     }
+  if (this->WindowId && this->OwnWindow) DestroyWindow(this->WindowId);
 }
 
 
