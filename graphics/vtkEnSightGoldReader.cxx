@@ -163,9 +163,9 @@ vtkEnSightGoldReader::~vtkEnSightGoldReader()
       {
       delete [] this->ComplexVariableFileNames[i];
       if (i < this->NumberOfComplexVariables)
-	{
-	delete [] this->ComplexVariableDescriptions[i];
-	}
+        {
+        delete [] this->ComplexVariableDescriptions[i];
+        }
       }
     delete [] this->ComplexVariableFileNames;
     this->ComplexVariableFileNames = NULL;
@@ -184,7 +184,10 @@ vtkEnSightGoldReader::~vtkEnSightGoldReader()
         this->CellIds[i][j]->Delete();
         this->CellIds[i][j] = NULL;
         }
+      delete [] this->CellIds[i];
+      this->CellIds[i] = NULL;
       }
+    delete [] this->CellIds;
     this->CellIds = NULL;
     }
   
@@ -195,8 +198,6 @@ vtkEnSightGoldReader::~vtkEnSightGoldReader()
 //----------------------------------------------------------------------------
 void vtkEnSightGoldReader::Execute()
 {
-  vtkDebugMacro(<<"Executing EnSightReader");  
-  
   if (!this->ReadCaseFile())
     {
     vtkErrorMacro("error reading case file");
@@ -236,16 +237,6 @@ void vtkEnSightGoldReader::Update()
 //----------------------------------------------------------------------------
 int vtkEnSightGoldReader::ReadCaseFile()
 {
-  // What to do with "change_coords_only" tag?
-  // What to do with const_value(s) for constant per case variables?
-  // What to do with fs and ts?
-  // What to do with freq for complex variables?
-  // What to do about TIME section? (since we don't have a concept of time in
-  // vtk yet)
-  // What to do about FILE section?  We won't have one of these without a
-  // TIME section.
-  // Right now, I'm just ignoring these things in the case file.
-  
   char line[256];
   char subLine[256], subLine2[256];
   
@@ -312,17 +303,17 @@ int vtkEnSightGoldReader::ReadCaseFile()
         if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
           {
           this->SetGeometryFileName(subLine);
-//          vtkDebugMacro(<<this->GetGeometryFileName());
+          vtkDebugMacro(<<this->GetGeometryFileName());
           }
         else if (sscanf(line, " %*s %*d %s", subLine) == 1)
           {
           this->SetGeometryFileName(subLine);
-//          vtkDebugMacro(<<this->GetGeometryFileName());
+          vtkDebugMacro(<<this->GetGeometryFileName());
           }
         else if (sscanf(line, " %*s %s", subLine) == 1)
           {
           this->SetGeometryFileName(subLine);
-//          vtkDebugMacro(<<this->GetGeometryFileName());
+          vtkDebugMacro(<<this->GetGeometryFileName());
           }
         }
       else if (strncmp(subLine, "measured:", 9) == 0)
@@ -330,24 +321,24 @@ int vtkEnSightGoldReader::ReadCaseFile()
         if (sscanf(line, " %*s %*d %*d %s", subLine) == 1)
           {
           this->SetMeasuredFileName(subLine);
-//          vtkDebugMacro(<< this->GetMeasuredFileName());
+          vtkDebugMacro(<< this->GetMeasuredFileName());
           }
         else if (sscanf(line, " %*s %*d %s", subLine) == 1)
           {
           this->SetMeasuredFileName(subLine);
-//          vtkDebugMacro(<< this->GetMeasuredFileName());
+          vtkDebugMacro(<< this->GetMeasuredFileName());
           }
         else if (sscanf(line, " %*s %s", subLine) == 1)
           {
           this->SetMeasuredFileName(subLine);
-//          vtkDebugMacro(<< this->GetMeasuredFileName());
+          vtkDebugMacro(<< this->GetMeasuredFileName());
           }
         }
       else if (strncmp(subLine, "match:", 6) == 0)
         {
         sscanf(line, " %*s %s", subLine);
         this->SetMatchFileName(subLine);
-//        vtkDebugMacro(<< this->GetMatchFileName());
+        vtkDebugMacro(<< this->GetMatchFileName());
         }
       }
     }
@@ -363,14 +354,14 @@ int vtkEnSightGoldReader::ReadCaseFile()
       {
       if (strncmp(line, "constant", 8) == 0)
         {
-//        vtkDebugMacro(<< line);
+        vtkDebugMacro(<< line);
         }
       else if (strncmp(line, "scalar", 6) == 0)
         {
         sscanf(line, " %*s %*s %s", subLine);
         if (strcmp(subLine, "node:") == 0)
           {
-//          vtkDebugMacro("scalar per node");
+          vtkDebugMacro("scalar per node");
           this->VariableMode = VTK_SCALAR_PER_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -398,7 +389,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           }
         else if (strcmp(subLine, "element:") == 0)
           {
-//          vtkDebugMacro("scalar per element");
+          vtkDebugMacro("scalar per element");
           this->VariableMode = VTK_SCALAR_PER_ELEMENT;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -426,7 +417,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           }
         else if (strcmp(subLine, "measured") == 0)
           {
-//          vtkDebugMacro("scalar per measured node");
+          vtkDebugMacro("scalar per measured node");
           this->VariableMode = VTK_SCALAR_PER_MEASURED_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -458,7 +449,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
         sscanf(line, " %*s %*s %s", subLine);
         if (strcmp(subLine, "node:") == 0)
           {
-//          vtkDebugMacro("vector per node");
+          vtkDebugMacro("vector per node");
           this->VariableMode = VTK_VECTOR_PER_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -485,7 +476,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           }
         else if (strcmp(subLine, "element:") == 0)
           {
-//          vtkDebugMacro("vector per element");
+          vtkDebugMacro("vector per element");
           this->VariableMode = VTK_VECTOR_PER_ELEMENT;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -512,7 +503,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           }
         else if (strcmp(subLine, "measured") == 0)
           {
-//          vtkDebugMacro("vector per measured node");
+          vtkDebugMacro("vector per measured node");
           this->VariableMode = VTK_VECTOR_PER_MEASURED_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -544,7 +535,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
         sscanf(line, " %*s %*s %*s %s", subLine);
         if (strcmp(subLine, "node:") == 0)
           {
-//          vtkDebugMacro("tensor symm per node");
+          vtkDebugMacro("tensor symm per node");
           this->VariableMode = VTK_TENSOR_SYMM_PER_NODE;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -571,7 +562,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           }
         else if (strcmp(subLine, "element:") == 0)
           {
-//          vtkDebugMacro("tensor symm per element");
+          vtkDebugMacro("tensor symm per element");
           this->VariableMode = VTK_TENSOR_SYMM_PER_ELEMENT;
           this->AddVariableType();
           if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -606,7 +597,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           sscanf(line, " %*s %*s %*s %s", subLine);
           if (strcmp(subLine, "node:") == 0)
             {
-//            vtkDebugMacro("complex scalar per node");
+            vtkDebugMacro("complex scalar per node");
             this->VariableMode = VTK_COMPLEX_SCALAR_PER_NODE;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s %s", subLine) == 1)
@@ -635,7 +626,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
             }
           else if (strcmp(subLine, "element:") == 0)
             {
-//            vtkDebugMacro("complex scalar per element");
+            vtkDebugMacro("complex scalar per element");
             this->VariableMode = VTK_COMPLEX_SCALAR_PER_ELEMENT;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -668,7 +659,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
           sscanf(line, " %*s %*s %*s %s", subLine);
           if (strcmp(subLine, "node:") == 0)
             {
-//            vtkDebugMacro("complex vector per node");
+            vtkDebugMacro("complex vector per node");
             this->VariableMode = VTK_COMPLEX_VECTOR_PER_NODE;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -697,7 +688,7 @@ int vtkEnSightGoldReader::ReadCaseFile()
             }
           else if (strcmp(subLine, "element:") == 0)
             {
-//            vtkDebugMacro("complex vector per element");
+            vtkDebugMacro("complex vector per element");
             this->VariableMode = VTK_COMPLEX_VECTOR_PER_ELEMENT;
             this->AddVariableType();
             if (sscanf(line, " %*s %*s %*s %*s %*d %*d %s", subLine) == 1)
@@ -2436,7 +2427,7 @@ void vtkEnSightGoldReader::AddVariableFileName(char* fileName1,
     // add new file name at end of first array
     this->VariableFileNames[size] = new char[strlen(fileName1) + 1];
     strcpy(this->VariableFileNames[size], fileName1);
-//    vtkDebugMacro( << "file name: " << this->VariableFileNames[size]);
+    vtkDebugMacro( << "file name: " << this->VariableFileNames[size]);
     }
   else
     {
@@ -2470,12 +2461,12 @@ void vtkEnSightGoldReader::AddVariableFileName(char* fileName1,
     // add new file name at end of first array
     this->ComplexVariableFileNames[2*size] = new char[strlen(fileName1) + 1];
     strcpy(this->ComplexVariableFileNames[2*size], fileName1);
-//    vtkDebugMacro("real file name: "
-//                  << this->ComplexVariableFileNames[2*size]);
+    vtkDebugMacro("real file name: "
+                  << this->ComplexVariableFileNames[2*size]);
     this->ComplexVariableFileNames[2*size+1] = new char[strlen(fileName2) + 1];
     strcpy(this->ComplexVariableFileNames[2*size+1], fileName2);
-//    vtkDebugMacro("imag. file name: "
-//                  << this->ComplexVariableFileNames[2*size+1]);
+    vtkDebugMacro("imag. file name: "
+                  << this->ComplexVariableFileNames[2*size+1]);
     }
 }
 
@@ -2517,7 +2508,7 @@ void vtkEnSightGoldReader::AddVariableDescription(char* description)
     // add new description at end of first array
     this->VariableDescriptions[size] = new char[strlen(description) + 1];
     strcpy(this->VariableDescriptions[size], description);
-//    vtkDebugMacro("description: " << this->VariableDescriptions[size]);
+    vtkDebugMacro("description: " << this->VariableDescriptions[size]);
     }
   else
     {
@@ -2552,8 +2543,8 @@ void vtkEnSightGoldReader::AddVariableDescription(char* description)
     this->ComplexVariableDescriptions[size] =
       new char[strlen(description) + 1];
     strcpy(this->ComplexVariableDescriptions[size], description);
-//      vtkDebugMacro("description: "
-//                    << this->ComplexVariableDescriptions[size]);
+    vtkDebugMacro("description: "
+                  << this->ComplexVariableDescriptions[size]);
     }
 }
 
@@ -2584,7 +2575,7 @@ void vtkEnSightGoldReader::AddVariableType()
       }
     delete [] types;
     this->VariableTypes[size] = this->VariableMode;
-//    vtkDebugMacro("variable type: " << this->VariableTypes[size]);
+    vtkDebugMacro("variable type: " << this->VariableTypes[size]);
     }
   else
     {
@@ -2611,8 +2602,8 @@ void vtkEnSightGoldReader::AddVariableType()
       delete [] types;
       }
     this->ComplexVariableTypes[size] = this->VariableMode;
-//    vtkDebugMacro("complex variable type: "
-//                  << this->ComplexVariableTypes[size]);
+    vtkDebugMacro("complex variable type: "
+                  << this->ComplexVariableTypes[size]);
     }
 }
 
@@ -2773,4 +2764,3 @@ void vtkEnSightGoldReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfVectorsPerNode: "
      << this->NumberOfVectorsPerNode;
 }
-
