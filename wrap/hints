@@ -64,7 +64,6 @@ vtkPointSet		GetPoint	301 3
 vtkPoints		GetBounds	301 6
 vtkPoints		GetPoint	301 3
 vtkPolyDataMapper	GetBounds	301 6
-vtkActor		GetBounds	301 6
 vtkCubeAxesActor2D	GetBounds	301 6
 vtkProp3D		GetCenter	301 3
 vtkProp3D		GetXRange	301 2
@@ -72,6 +71,7 @@ vtkProp3D		GetYRange	301 2
 vtkProp3D		GetZRange	301 2
 vtkProp3D		GetOrientation	301 3
 vtkProp3D		GetOrientationWXYZ	301 4
+vtkProp3D		GetBounds	301 6
 vtkProperty		GetColor	301 3
 vtkViewport		GetCenter	301 3
 vtkViewport		GetSize		304 2
