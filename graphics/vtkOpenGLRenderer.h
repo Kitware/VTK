@@ -69,6 +69,8 @@ public:
   // into graphics pipeline.
   void ClearLights(void);
 
+  void Clear(void);
+
   // Description:
   // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);

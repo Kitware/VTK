@@ -161,6 +161,10 @@ public:
   virtual void DeviceRender() {};
 
   // Description:
+  // Clear the image to the background color.
+  virtual void Clear() {};
+
+  // Description:
   // Ask all actors to build and draw themselves.
   // Returns the number of actors processed.
   virtual int UpdateActors(void);

@@ -443,3 +443,16 @@ int vtkOpenGLRenderer::IsInViewport(int x,int y)
   
   return 0;
 }
+
+void vtkOpenGLRenderer::Clear(void)
+{
+  glClearColor( ((GLclampf)(this->Background[0])),
+                ((GLclampf)(this->Background[1])),
+                ((GLclampf)(this->Background[2])),
+                ((GLclampf)(1.0)) );
+
+  glClearDepth( (GLclampd)( 1.0 ) );
+  vtkDebugMacro(<< "glClear\n");
+  glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+}
+

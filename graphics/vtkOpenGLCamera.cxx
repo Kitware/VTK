@@ -184,14 +184,7 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
 
   if ((ren->GetRenderWindow())->GetErase()) 
     {
-    glClearColor( ((GLclampf)(bg_color[0])),
-		  ((GLclampf)(bg_color[1])),
-		  ((GLclampf)(bg_color[2])),
-		  ((GLclampf)(1.0)) );
-    
-    glClearDepth( (GLclampd)( 1.0 ) );
-    vtkDebugMacro(<< "glClear\n");
-    glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+    ren->Clear();
     }
 
   // if we have a stereo renderer, draw other eye next time 
