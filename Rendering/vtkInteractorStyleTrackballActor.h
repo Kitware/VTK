@@ -18,14 +18,17 @@
 // .NAME vtkInteractorStyleTrackballActor - manipulate objects in the scene independent of each other
 // .SECTION Description
 // vtkInteractorStyleTrackballActor allows the user to interact with (rotate,
-// pan, etc.) objects in the scene indendent of each other.  The position
-// of the mouse relative to the center of the object determine's the speed
-// at which the object moves.  When the mouse stops moving, so does the
-// object being manipulated.
-// For a 3-button mouse, the left button is for rotation, the right button
-// for zooming, the middle button for panning, and ctrl + left button for
-// spinning.  (With fewer mouse buttons, ctrl + shift + left button is
-// for zooming, and shift + left button is for panning.)
+// pan, etc.) objects in the scene indendent of each other.  In trackball
+// interaction, the magnitude of the mouse motion is proportional to the
+// actor motion associated with a particular mouse binding. For example,
+// small left-button motions cause small changes in the rotation of the
+// actor around its center point.
+//
+// The mouse bindings are as follows. For a 3-button mouse, the left button
+// is for rotation, the right button for zooming, the middle button for
+// panning, and ctrl + left button for spinning.  (With fewer mouse buttons,
+// ctrl + shift + left button is for zooming, and shift + left button is for
+// panning.)
 
 // .SECTION See Also
 // vtkInteractorStyleTrackballCamera vtkInteractorStyleJoystickActor
