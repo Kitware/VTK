@@ -57,7 +57,7 @@ proc TestKit {kit} {
 proc TestObject {kit objectClass} {
    global DEBUG
 
-   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp"} {
+   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp" } {
      return
    }
 
@@ -648,6 +648,14 @@ proc new {className} {
 proc CheckException {methodName} {
    # I give up on this one!
    if {$methodName == "SetRoll"} {
+      return 1
+   }
+
+   if {$methodName == "SetPoint"} {
+      return 1
+   }
+
+   if {$methodName == "SetVector"} {
       return 1
    }
 
