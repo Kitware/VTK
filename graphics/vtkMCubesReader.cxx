@@ -72,7 +72,11 @@ vtkMCubesReader::vtkMCubesReader()
 
   this->Locator = NULL;
 
+#ifndef VTK_WORDS_BIGENDIAN
+  this->SwapBytes = 1;
+#else
   this->SwapBytes = 0;
+#endif
   this->HeaderSize = 0;
   this->FlipNormals = 0;
   this->Normals = 1;
