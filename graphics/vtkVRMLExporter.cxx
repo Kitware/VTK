@@ -695,7 +695,14 @@ void vtkVRMLExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExporter::PrintSelf(os,indent);
  
-  os << indent << "File Name: " << this->FileName << "\n";
+  if (this->FileName)
+    {
+    os << indent << "FileName: " << this->FileName << "\n";
+    }
+  else
+    {
+    os << indent << "FileName: (null)\n";
+    }
   os << indent << "Speed: " << this->Speed << "\n";
 }
 

@@ -386,6 +386,13 @@ void vtkOBJExporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkExporter::PrintSelf(os,indent);
  
-  os << indent << "FilePrefix: " << this->FilePrefix << "\n";
+  if (this->FilePrefix)
+    {
+    os << indent << "FilePrefix: " << this->FilePrefix << "\n";
+    }
+  else
+    {
+    os << indent << "FilePrefix: (null)\n";      
+    }
 }
 

@@ -716,6 +716,13 @@ void vtkIVExporter::PrintSelf(ostream& os, vtkIndent ind)
 {
   vtkExporter::PrintSelf(os,ind);
  
-  os << ind << "FileName: " << this->FileName << "\n";
+  if (this->FileName)
+    {
+    os << ind << "FileName: " << this->FileName << "\n";
+    }
+  else
+    {
+    os << ind << "FileName: (null)\n";
+    }
 }
 
