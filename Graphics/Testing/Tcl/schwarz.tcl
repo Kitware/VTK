@@ -126,7 +126,6 @@ vtkPolyData model
 vtkMath rn
 
 vtkUnsignedCharArray cellColors
-#cellColors SetName "test"
   cellColors SetNumberOfComponents 3
   cellColors SetNumberOfTuples [model GetNumberOfCells]
 for { set i 0 } { $i < [model GetNumberOfCells] } { incr i } {
