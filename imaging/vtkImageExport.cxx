@@ -41,8 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageExport.h"
-#include "vtkBitmap.h"
-
 
 
 //----------------------------------------------------------------------------

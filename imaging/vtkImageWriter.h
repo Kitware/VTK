@@ -46,17 +46,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The dimensionality determines whether the data will be written in one or
 // multiple files.
 
-
 #ifndef __vtkImageWriter_h
 #define __vtkImageWriter_h
 
 #include <iostream.h>
 #include <fstream.h>
+#include "vtkProcessObject.h"
 #include "vtkImageCache.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 
-class VTK_EXPORT vtkImageWriter : public vtkObject
+class VTK_EXPORT vtkImageWriter : public vtkProcessObject
 {
 public:
   vtkImageWriter();
