@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkStructuredGridReader reader
-    reader SetFileName "../../../data/office.binary.vtk"
+    reader SetFileName "../../../data/office.vtk"
     reader Update;#force a read to occur
 
 set length [[reader GetOutput] GetLength]

@@ -8,11 +8,6 @@ source TkInteractor.tcl
 source vtkInt.tcl
 
 # Define global variables
-vtkPolyData PolyData
-    PolyData GlobalWarningDisplayOff
-vtkPolyData PreviousPolyData
-vtkPolyData TempPolyData
-vtkCellTypes CellTypes
 set deciReduction 0.0
 set deciPreserve 1
 set view Left
@@ -21,10 +16,21 @@ set FEdges 0
 set BEdges 0
 set NMEdges 0
 set Compare 0
+set edgeSplitting 1
+set flipNormals 0
+
+# Instances of vtk objects
+vtkPolyData PolyData
+    PolyData GlobalWarningDisplayOff
+vtkPolyData PreviousPolyData
+vtkPolyData TempPolyData
+vtkCellTypes CellTypes
+
 vtkDecimatePro deci
 vtkSmoothPolyDataFilter smooth
 vtkCleanPolyData cleaner
 vtkTriangleFilter tri
+vtkPolyDataNormals normals
 
 ######################################## Create top-level GUI
 #
@@ -48,6 +54,7 @@ menu .mbar.file.menu
 menu .mbar.edit.menu
     .mbar.edit.menu add command -label Clean -command Clean -state disabled
     .mbar.edit.menu add command -label Decimate -command Decimate -state disabled
+    .mbar.edit.menu add command -label Normals -command Normals -state disabled
     .mbar.edit.menu add command -label Smooth -command Smooth -state disabled
     .mbar.edit.menu add command -label Triangulate -command Triangulate \
 	    -state disabled
@@ -123,6 +130,8 @@ proc OpenFile {} {
         {{BYU}                                  {.g}          }
         {{Stereo-Lithography}                   {.stl}        }
         {{Visualization Toolkit (polygonal)}    {.vtk}        }
+        {{Cyberware (Laser Scanner)}            {.cyb}        }
+        {{Marching Cubes}                       {.tri}        }
         {{All Files }                           *             }
     }
     set filename [tk_getOpenFile -filetypes $types]
@@ -137,6 +146,12 @@ proc OpenFile {} {
         } elseif { [string match *.vtk $filename] } {
             vtkPolyDataReader reader
             reader SetFileName $filename
+        } elseif { [string match *.cyb $filename] } {
+            vtkCyberReader reader
+            reader SetFileName $filename
+        } elseif { [string match *.tri $filename] } {
+            vtkMCubesReader reader
+            reader SetFileName $filename
         } else {
             puts "Can't read this file"
             return
@@ -145,6 +160,9 @@ proc OpenFile {} {
         reader Update
         UpdateUndo "reader"
 	UpdateGUI
+
+	set filename "vtk Decimator: [file tail $filename]"
+	wm title . $filename
 
         Renderer ResetCamera
         $RenWin Render
@@ -159,6 +177,7 @@ proc SaveFile {} {
         {{BYU}                                  {.g}          }
         {{Stereo-Lithography}                   {.stl}        }
         {{Visualization Toolkit (polygonal)}    {.vtk}        }
+        {{Marching Cubes}                       {.tri}        }
         {{All Files }                           *             }
     }
     set filename [tk_getSaveFile -filetypes $types]
@@ -172,6 +191,9 @@ proc SaveFile {} {
             writer SetFileName $filename
         } elseif { [string match *.vtk $filename] } {
             vtkPolyDataWriter writer
+            writer SetFileName $filename
+        } elseif { [string match *.tri $filename] } {
+            vtkMCubesWriter writer
             writer SetFileName $filename
         } else {
             puts "Can't write this file"
@@ -223,6 +245,7 @@ proc ReleaseData {} {
     [smooth GetOutput] Initialize
     [cleaner GetOutput] Initialize
     [tri GetOutput] Initialize
+    [smooth GetOutput] Initialize
 }
 
 #### Create pipeline
@@ -282,6 +305,8 @@ proc UpdateGUI {} {
 	.mbar.edit.menu entryconfigure 1 -state disabled
 	.mbar.edit.menu entryconfigure 2 -state disabled
 	.mbar.edit.menu entryconfigure 3 -state disabled
+	.mbar.edit.menu entryconfigure 4 -state disabled
+	.mbar.edit.menu entryconfigure 5 -state disabled
 	.mbar.file.menu entryconfigure 1 -state disabled
 	.mbar.options.menu entryconfigure 1 -state disabled
         set s "(None)"
@@ -308,6 +333,7 @@ proc UpdateGUI {} {
 	}
 	.mbar.edit.menu entryconfigure 3 -state normal
 	.mbar.edit.menu entryconfigure 4 -state normal
+	.mbar.edit.menu entryconfigure 5 -state normal
 	.mbar.file.menu entryconfigure 2 -state normal
 	.mbar.options.menu entryconfigure 1 -state normal
     }
@@ -554,3 +580,62 @@ proc ApplyTri {} {
     $RenWin Render
     CloseTri
 }
+
+########################## The surface normals GUI
+#
+# Procedure defines GUI and behavior for generating surface normals. This will
+# convert all polygons into triangles.
+proc Normals {} {
+    UpdateNormalsGUI
+    wm deiconify .normals
+}
+proc CloseNormals {} {
+    wm withdraw .normals
+}
+
+toplevel .normals
+wm withdraw .normals
+wm title .normals "Generate Surface Normals"
+wm protocol .normals WM_DELETE_WINDOW {wm withdraw .normals}
+
+frame .normals.f1
+scale .normals.f1.fangle -label "Feature Angle" \
+	-from 0 -to 180 -length 3.0i -orient horizontal -resolution 1
+checkbutton .normals.f1.split -variable edgeSplitting \
+	-text "Edge Splitting"
+checkbutton .normals.f1.flip -variable flipNormals \
+	-text "Flip Normals"
+pack .normals.f1.fangle .normals.f1.split .normals.f1.flip \
+	-pady 0.1i -side top -anchor w
+
+frame .normals.fb
+button .normals.fb.apply -text Apply -command ApplyNormals
+button .normals.fb.cancel -text Cancel -command CloseNormals
+pack .normals.fb.apply .normals.fb.cancel -side left -expand 1 -fill x
+pack .normals.f1 .normals.fb -side top -fill both -expand 1
+
+proc UpdateNormalsGUI {} {
+    .normals.f1.fangle set [normals GetFeatureAngle]
+}
+
+proc ApplyNormals {} {
+    global edgeSplitting flipNormals
+    global RenWin
+
+    normals SetFeatureAngle [.normals.f1.fangle get]
+    normals SetSplitting $edgeSplitting
+    normals SetFlipNormals $flipNormals
+
+    normals SetInput PolyData
+    normals Update
+
+    UpdateUndo "normals"
+    UpdateGUI
+
+    $RenWin Render
+    CloseNormals
+}
+
+
+
+
