@@ -1,4 +1,4 @@
-import vtk.*;
+package vtk;
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.Math;
