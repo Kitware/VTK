@@ -65,7 +65,10 @@ vtkWin32OpenGLImageWindow::vtkWin32OpenGLImageWindow()
 
 vtkWin32OpenGLImageWindow::~vtkWin32OpenGLImageWindow()
 {
-  if (this->WindowId && this->OwnWindow) DestroyWindow(this->WindowId);
+  if (this->WindowId && this->OwnWindow)
+    {
+    DestroyWindow(this->WindowId);
+    }
 }
 
 void vtkWin32OpenGLImageWindow::Render()
@@ -109,15 +112,21 @@ LRESULT APIENTRY vtkWin32OpenGLImageWindow::WndProc(HWND hWnd, UINT message,
     }
       
   // forward to actual object
-  if (me) return me->MessageProc(hWnd, message, wParam, lParam);
+  if (me)
+    {
+    return me->MessageProc(hWnd, message, wParam, lParam);
+    }
 
-	return DefWindowProc(hWnd, message, wParam, lParam);
+  return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 void vtkWin32OpenGLImageWindow::SetWindowName( char * _arg )
 {
   vtkWindow::SetWindowName(_arg);
-  if (this->WindowId) SetWindowText(this->WindowId,this->WindowName);
+  if (this->WindowId)
+    {
+    SetWindowText(this->WindowId,this->WindowName);
+    }
 }
 
 void vtkWin32OpenGLImageWindow::MakeCurrent()

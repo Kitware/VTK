@@ -125,7 +125,10 @@ void vtkWin32RenderWindowInteractor::Initialize()
     return;
     }
 
-  if (this->Initialized) return;
+  if (this->Initialized)
+    {
+    return;
+    }
   this->Initialized = 1;
 
   // get the info we need from the RenderingWindow

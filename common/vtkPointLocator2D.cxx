@@ -230,8 +230,14 @@ static int idsortcompare(const void *arg1, const void *arg2)
 {
   idsort *v1 = (idsort *)arg1;
   idsort *v2 = (idsort *)arg2;
-  if (v1->dist < v2->dist) return -1;
-  if (v1->dist > v2->dist) return 1;
+  if (v1->dist < v2->dist)
+    {
+    return -1;
+    }
+  if (v1->dist > v2->dist)
+    {
+    return 1;
+    }
   return 0;  
 }
 
@@ -253,8 +259,14 @@ int GetQuadrant(float *x,float *pt)
   tmp[0] = pt[0] - x[0];
   tmp[1] = pt[1] - x[1];
   
-  if (tmp[0] > 0.0) res += 1;
-  if (tmp[1] > 0.0) res += 2;
+  if (tmp[0] > 0.0)
+    {
+    res += 1;
+    }
+  if (tmp[1] > 0.0)
+    {
+    res += 2;
+    }
   return res;
 }
 
@@ -265,7 +277,10 @@ static int GetMin(int *foo)
   
   for (i = 1; i < 4; i++)
     {
-    if (foo[i] < result) result = foo[i];
+    if (foo[i] < result)
+      {
+      result = foo[i];
+      }
     }
   return result;
 }
@@ -277,7 +292,10 @@ static float GetMax(float *foo)
   
   for (i = 1; i < 4; i++)
     {
-    if (foo[i] > result) result = foo[i];
+    if (foo[i] > result)
+      {
+      result = foo[i];
+      }
     }
   return result;
 }

@@ -81,8 +81,14 @@ void vtkChairDisplay::Update()
   if ( this->GetMTime() > this->ExecuteTime ||
        this->Input->GetPipelineMTime() > this->ExecuteTime)
     {
-    if (this->Output) this->Output->Initialize(); 
-    if (this->TextureOutput) this->TextureOutput->Initialize(); 
+    if (this->Output)
+      {
+      this->Output->Initialize();
+      }
+    if (this->TextureOutput)
+      {
+      this->TextureOutput->Initialize();
+      }
     this->AbortExecute = 0;
     this->Progress = 0.0;
     
@@ -403,7 +409,10 @@ void vtkChairDisplay::Execute(int recomputeTexture)
   this->GeneratePolyData(dimensions, origin, spacing, p2x, p2y,
 			 polys, points, tcoords);
 			
-  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);    
+  if ( this->StartMethod )
+    {
+    (*this->StartMethod)(this->StartMethodArg);
+    }
 
   if (recomputeTexture)
     {

@@ -80,8 +80,6 @@ public:
   
   vtkStructuredPoints *GetTextureOutput() {return this->TextureOutput;};
 
-  int MaxYZSize;
-
   void GenerateTexture(vtkImageData *inData, vtkScalars *scalars,
                        int xstart, int ystart,int xsize, int ysize, int p2x);
   
@@ -90,6 +88,8 @@ protected:
   vtkScalars *Scalars;
   vtkStructuredPoints *TextureOutput;
   
+  int MaxYZSize;
+
   int XNotchSize;
   int YNotchSize;
   int ZNotchSize;

@@ -398,7 +398,10 @@ void vtkWin32MappedInteractor::OnLButtonDown(HWND wnd,UINT nFlags, POINT& point)
     } 
   else 
     { //	Rotate
-    if (this->State != VTKXI_START) return;
+    if (this->State != VTKXI_START)
+      {
+      return;
+      }
     this->State = VTKXI_ROTATE;
     this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
     if (! bAuto)

@@ -129,9 +129,9 @@ public:
   void SetInterpolate(int terp) { this->SetInterpolationMode( \
      (terp ? VTK_RESLICE_LINEAR : VTK_RESLICE_NEAREST)); };
   void InterpolateOn() { this->SetInterpolationModeToLinear(); };
-  void InterpolateOff() { SetInterpolationModeToNearestNeighbor(); };
+  void InterpolateOff() { this->SetInterpolationModeToNearestNeighbor(); };
   int GetInterpolate() { 
-    return (GetInterpolationMode() != VTK_RESLICE_NEAREST); };
+    return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); };
 
   // Description:
   // Turn on and off optimizations (default on, turn them off only if

@@ -127,7 +127,9 @@ void vtkOpenGLProjectedPolyDataRayBounder::Build( vtkPolyData *pdata )
 
     // Draw the vertices
     for ( i = 0; i < npts; i++ )
+      {
       glVertex3fv( points->GetPoint( pts[i] ) );
+      }
 
     glEnd();
     }
