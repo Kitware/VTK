@@ -43,8 +43,11 @@ public:
 
   // Description:
   // This method is for setting up the processes.
-  virtual void Initialize(int* argc, char*** arcv);
+  virtual void Initialize(int* argc, char*** argv, int initializedExternally)
+    { this->Initialize(argc, argv); }
+  virtual void Initialize(int* argc, char*** argv);
   virtual void Finalize() {}
+  virtual void Finalize(int finalizedExternally) {}
 
   // Description:
   // This method returns an integer from 0 to (NumberOfProcesses-1)

@@ -71,13 +71,19 @@ public:
   // otherwise command line arguments will not be correct (because
   // usually MPI implementations add their own arguments during
   // startup).
-  virtual void Initialize(int* argc, char*** arcv);
+  virtual void Initialize(int* argc, char*** argv) 
+    { this->Initialize(argc, argv, 0); }
+
+  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv),
+                          int initializedExternally);
 
   // Description:
   // This method is for cleaning up and has to be called before
   // the end of the program if MPI was initialized with
   //Initialize()
-  virtual void Finalize();
+  virtual void Finalize() { this->Finalize(0); }
+
+  virtual void Finalize(int finalizedExternally);
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using

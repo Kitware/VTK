@@ -66,9 +66,9 @@ void vtkMPIController::CreateOutputWindow()
   vtkOutputWindow::SetInstance(this->OutputWindow);
 }
 
-vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.13");
+vtkCxxRevisionMacro(vtkMPIOutputWindow, "1.14");
 
-vtkCxxRevisionMacro(vtkMPIController, "1.13");
+vtkCxxRevisionMacro(vtkMPIController, "1.14");
 vtkStandardNewMacro(vtkMPIController);
 
 //----------------------------------------------------------------------------
@@ -146,7 +146,8 @@ int vtkMPIController::InitializeNumberOfProcesses()
 vtkMPICommunicator* vtkMPIController::WorldRMICommunicator=0;
 
 //----------------------------------------------------------------------------
-void vtkMPIController::Initialize(int* argc, char*** argv)
+void vtkMPIController::Initialize(int* argc, char*** argv, 
+                                  int initializedExternally)
 {
   if (vtkMPIController::Initialized)
     {
@@ -156,7 +157,10 @@ void vtkMPIController::Initialize(int* argc, char*** argv)
   
   // Can be done once in the program.
   vtkMPIController::Initialized = 1;
-  MPI_Init(argc, argv);
+  if (initializedExternally == 0)
+    {
+      MPI_Init(argc, argv);
+    }
   this->InitializeCommunicator(vtkMPICommunicator::GetWorldCommunicator());
   this->InitializeNumberOfProcesses();
 
@@ -184,15 +188,18 @@ const char* vtkMPIController::GetProcessorName()
 
 // Good-bye world
 // There should be no MPI calls after this.
-// (Except maybe MPI_XXX_free())
-void vtkMPIController::Finalize()
+// (Except maybe MPI_XXX_free()) unless finalized externally.
+void vtkMPIController::Finalize(int finalizedExternally)
 {
   if (vtkMPIController::Initialized)
     { 
     vtkMPIController::WorldRMICommunicator->Delete();
     vtkMPIController::WorldRMICommunicator = 0;
     vtkMPICommunicator::WorldCommunicator->Delete();
-    MPI_Finalize();
+    if (finalizedExternally == 0)
+      {
+        MPI_Finalize();
+      }
     vtkMPIController::Initialized = 0;
     this->Modified();
     }  

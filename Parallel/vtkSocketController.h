@@ -50,13 +50,16 @@ public:
   // Description:
   // This method is for initialiazing sockets.
   // One of these is REQUIRED for Windows.
-  virtual void Initialize(int* , char***);
+  virtual void Initialize(int* argc, char*** argv, int intitalizedExternally)
+    { this->Initialize(argc,argv); }
+  virtual void Initialize(int* argc, char*** argv); 
   virtual void Initialize()
     { this->Initialize(0,0); }
 
   // Description:
   // Does not apply to sockets. Does nothing.
   void Finalize() {};
+  void Finalize(int finalizedExternally) {};
 
   // Description:
   //  Does not apply to sockets. Does nothing.

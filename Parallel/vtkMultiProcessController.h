@@ -72,13 +72,26 @@ public:
   // This method is for setting up the processes.
   // If a subclass needs to initialize process communication (i.e. MPI)
   // it would over ride this method.
-  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(arcv))=0;
+  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv))=0;
+
+  // Description:
+  // This method is for setting up the processes.
+  // If a subclass needs to initialize process communication (i.e. MPI)
+  // it would over ride this method.  Provided for initialization outside vtk.
+  virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv),
+                          int initializedExternally)=0;
 
   // Description:
   // This method is for cleaning up.
   // If a subclass needs to clean up process communication (i.e. MPI)
   // it would over ride this method.
   virtual void Finalize()=0;
+
+  // Description:
+  // This method is for cleaning up.
+  // If a subclass needs to clean up process communication (i.e. MPI)
+  // it would over ride this method.  Provided for finalization outside vtk.
+  virtual void Finalize(int finalizedExternally)=0;
 
   // Description:
   // Set the number of processes you will be using.  This defaults
