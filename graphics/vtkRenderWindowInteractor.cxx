@@ -1892,7 +1892,6 @@ void vtkRenderWindowInteractor::TrackballDollyActor(int x, int y)
       {
       this->InteractionActor->AddPosition(this->MotionVector);
       }
-    //    this->HighlightActor(this->InteractionActor);
   
     this->OldX = x;
     this->OldY = y;

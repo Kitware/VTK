@@ -669,6 +669,10 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         {
         me->HighlightActor(me->InteractionActor);
         }
+      else
+        {
+        me->HighlightActor(NULL);
+        }
       break;
 	    
     case WM_MBUTTONDOWN: 
@@ -787,6 +791,10 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       if (me->ActorMode && me->ActorPicked)
         {
         me->HighlightActor(me->InteractionActor);
+        }
+      else
+        {
+        me->HighlightActor(NULL);
         }
       break;
       
@@ -907,6 +915,10 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
       if (me->ActorMode && me->ActorPicked)
         {
         me->HighlightActor(me->InteractionActor);
+        }
+      else
+        {
+        me->HighlightActor(NULL);
         }
       break;
 	    

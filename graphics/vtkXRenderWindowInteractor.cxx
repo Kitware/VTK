@@ -685,6 +685,10 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           {
           me->HighlightActor(me->InteractionActor);
           }
+        else
+          {
+          me->HighlightActor(NULL);
+          }
       break;
 
     case KeyPress:
