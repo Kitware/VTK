@@ -15,6 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include <math.h>
 #include "Camera.hh"
+#include "vlMath.hh"
 
 vlCamera::vlCamera()
 {
@@ -214,17 +215,6 @@ void vlCamera::SetDistance(float X)
   this->Modified();
 }  
 
-static void cross(float *a, float *b,float *r)
-{
-  float x,y,z;
-
-  x = a[1]*b[2] - a[2]*b[1];
-  y = a[2]*b[0] - a[0]*b[2];
-  z = a[0]*b[1] - a[1]*b[0];
-
-  r[0] = x; r[1] = y; r[2] = z;
-}
-
 float vlCamera::GetTwist()
 {
   float *vup, *vn;
@@ -232,6 +222,7 @@ float vlCamera::GetTwist()
   float v1[3], v2[3], y_axis[3];
   double theta, dot, mag;
   double cosang;
+  vlMath math;
 
   vup = this->ViewUp;
   vn = this->GetViewPlaneNormal();
@@ -249,13 +240,13 @@ float vlCamera::GetTwist()
 
   // first project the view_up onto the view_plane
   //
-  cross(vup, vn, v1);
-  cross(vn, v1, v1);
+  math.Cross(vup, vn, v1);
+  math.Cross(vn, v1, v1);
 
   // then project the y-axis onto the view plane
   //
-  cross(y_axis, vn, v2);
-  cross(vn, v2, v2);
+  math.Cross(y_axis, vn, v2);
+  math.Cross(vn, v2, v2);
 
   // then find the angle between the two projected vectors
   //
@@ -276,7 +267,7 @@ float vlCamera::GetTwist()
 
   // now see if the angle is positive or negative
   //
-  cross(v1, v2, v1);
+  math.Cross(v1, v2, v1);
   dot = v1[0]*vn[0] + v1[1]*vn[1] + v1[2]*vn[2];
   
   twist = (theta);
@@ -368,7 +359,7 @@ void vlCamera::SetRoll(float roll)
   temp[1] = this->ViewUp[1];
   temp[2] = this->ViewUp[2];
   temp[3] = 1.0;
-  this->Transform.VectorMultiply(temp,temp);
+  this->Transform.PointMultiply(temp,temp);
   
   // now store the result
   this->SetViewUp(temp);
@@ -575,13 +566,14 @@ void vlCamera::OrthogonalizeViewUp()
 {
   float *normal,*up,temp[3],new_up[3];
   float temp_mag_sq,new_mag_sq,ratio;
+  vlMath math;
 
   normal=this->ViewPlaneNormal;
   up=this->ViewUp;
-  cross(normal,up,temp);
+  math.Cross(normal,up,temp);
 
   temp_mag_sq = (SQ_MAG(up));
-  cross(temp,normal,new_up);
+  math.Cross(temp,normal,new_up);
   new_mag_sq = (SQ_MAG(new_up));
   ratio = sqrt(new_mag_sq/temp_mag_sq);
   this->SetViewUp(new_up[0]*ratio,new_up[1]*ratio,new_up[2]*ratio);
@@ -626,11 +618,11 @@ void vlCamera::Azimuth (float angle)
 			    -this->FocalPoint[2]);
    
   // now transform position
-  this->Transform.SetVector(this->Position[0],this->Position[1],
+  this->Transform.SetPoint(this->Position[0],this->Position[1],
 			    this->Position[2],1.0);
   
   // now store the result
-  this->SetPosition(this->Transform.GetVector());
+  this->SetPosition(this->Transform.GetPoint());
   
   this->Transform.Pop();
 }
@@ -667,11 +659,11 @@ void vlCamera::Elevation (float angle)
 			    -this->FocalPoint[2]);
    
   // now transform position
-  this->Transform.SetVector(this->Position[0],this->Position[1],
+  this->Transform.SetPoint(this->Position[0],this->Position[1],
 			    this->Position[2],1.0);
   
   // now store the result
-  this->SetPosition(this->Transform.GetVector());
+  this->SetPosition(this->Transform.GetPoint());
   
   this->Transform.Pop();
 }
@@ -699,11 +691,11 @@ void vlCamera::Yaw (float angle)
 			    -this->Position[2]);
    
   // now transform focal point
-  this->Transform.SetVector(this->FocalPoint[0],this->FocalPoint[1],
+  this->Transform.SetPoint(this->FocalPoint[0],this->FocalPoint[1],
 			    this->FocalPoint[2],1.0);
   
   // now store the result
-  this->SetFocalPoint(this->Transform.GetVector());
+  this->SetFocalPoint(this->Transform.GetPoint());
   
   this->Transform.Pop();
 }
@@ -740,11 +732,11 @@ void vlCamera::Pitch (float angle)
 			    -this->Position[2]);
    
   // now transform focal point
-  this->Transform.SetVector(this->FocalPoint[0],this->FocalPoint[1],
+  this->Transform.SetPoint(this->FocalPoint[0],this->FocalPoint[1],
 			    this->FocalPoint[2],1.0);
   
   // now store the result
-  this->SetFocalPoint(this->Transform.GetVector());
+  this->SetFocalPoint(this->Transform.GetPoint());
   
   this->Transform.Pop();
 }
@@ -763,11 +755,11 @@ void vlCamera::Roll (float angle)
 			     this->ViewPlaneNormal[2]);
   
   // now transform view up
-  this->Transform.SetVector(this->ViewUp[0],this->ViewUp[1],
+  this->Transform.SetPoint(this->ViewUp[0],this->ViewUp[1],
 			    this->ViewUp[2],1.0);
   
   // now store the result
-  this->SetViewUp(this->Transform.GetVector());
+  this->SetViewUp(this->Transform.GetPoint());
 
   this->Transform.Pop();
 }

@@ -269,10 +269,10 @@ float *vlActor::GetBounds()
   fptr = bbox;
   for (n = 0; n < 8; n++) 
     {
-    this->Transform.SetVector(fptr[0],fptr[1],fptr[2],1.0);
+    this->Transform.SetPoint(fptr[0],fptr[1],fptr[2],1.0);
   
     // now store the result
-    result = this->Transform.GetVector();
+    result = this->Transform.GetPoint();
     fptr[0] = result[0];
     fptr[1] = result[1];
     fptr[2] = result[2];

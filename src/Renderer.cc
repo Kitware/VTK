@@ -238,7 +238,7 @@ void vlRenderer::ViewToWorld()
   result[2] = this->ViewPoint[2];
   result[3] = 1.0;
 
-  mat.VectorMultiply(result,result);
+  mat.PointMultiply(result,result);
   
   // Get the transformed vector & set WorldPoint 
   this->SetWorldPoint(result);
