@@ -52,7 +52,9 @@ proc BindTkImageViewer {widget} {
    bind $widget <Expose> {ExposeTkImageViewer %W %x %y %w %h}
    bind $widget <Enter> {EnterTkViewer %W}
    bind $widget <Leave> {LeaveTkViewer %W}
+   bind $widget <KeyPress-e> {exit}
    bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
+   bind $widget <KeyPress-r> {ResetTkImageViewer %W}
 }
 
 
@@ -86,8 +88,18 @@ proc ExposeTkImageViewer {widget x y w h} {
 }
 
 proc StartWindowLevelInteraction {widget x y} {
+   set viewer [$widget GetImageViewer]
+
+   # save the starting mouse position and the corresponding window/level
    SetWidgetVariableValue $widget X $x
    SetWidgetVariableValue $widget Y $y
+   SetWidgetVariableValue $widget Window [$viewer GetColorWindow]
+   SetWidgetVariableValue $widget Level [$viewer GetColorLevel]
+
+   #puts "------------------------------------"
+   #puts "start: ($x, $y), w = [$viewer GetColorWindow], l =[$viewer GetColorLevel] "
+
+   # make the window level text visible
    set actor [GetWidgetObject $widget Actor1]
    $actor SetVisibility 1
    set actor [GetWidgetObject $widget Actor2]
@@ -106,57 +118,89 @@ proc EndWindowLevelInteraction {widget} {
 }
 
 
-# try to scale window level appropriately.
-# do not let window go below 0.5, do not let abs(level) go below 1.0.
+# clicking on the window sets up sliders with current value at mouse,
+# and scaled so that the whole window represents x4 change.
 proc UpdateWindowLevelInteraction {widget x y} {
    set viewer [$widget GetImageViewer]
-
-   # get old x, y values to compute delta
-   set old_x [GetWidgetVariableValue $widget X]
-   set old_y [GetWidgetVariableValue $widget Y]
-   # record new x, y values
-   SetWidgetVariableValue $widget X $x
-   SetWidgetVariableValue $widget Y $y
 
    # get the widgets dimensions
    set width [lindex [$widget configure -width] 4]
    set height [lindex [$widget configure -height] 4]
 
    # get the old window level values
-   set window [$viewer GetColorWindow]
-   set level [$viewer GetColorLevel]
+   set window [GetWidgetVariableValue $widget Window]
+   set level [GetWidgetVariableValue $widget Level]
 
-   # conditions might not be necessary since I fixed the x = y bug.
-   set window [expr $window + (0.0 + $x - $old_x) * $window / $width]
-   if {$level > 0.0} {
-      set level [expr $level + (0.0 + $y - $old_y) * $level / $height]
+   # get starting x, y and window/level values to compute delta
+   set start_x [GetWidgetVariableValue $widget X]
+   set start_y [GetWidgetVariableValue $widget Y]
+
+   # compute normalized delta
+   set dx [expr 4.0 * ($x - $start_x) / $width]
+   set dy [expr 4.0 * ($y - $start_y) / $height]
+
+   # scale by current values 
+   set dx [expr $dx * $window]
+   set dy [expr $dy * $level]
+
+   #puts "   update: ($x, $y), dx = $dx, dy = $dy"
+
+   # abs so that direction does not flip
+   if {$window < 0.0} {set dx [expr -$dx]}
+   if {$level < 0.0} {set dy [expr -$dy]}
+
+   # compute new window level
+   set new_window [expr $dx + $window]
+   if {$new_window < 0.0} {
+      set new_level [expr $dy + $level]
    } else {
-      set level [expr $level + (0.0 + $old_y - $y) * $level / $height]
+      set new_level [expr $level - $dy]
    }
 
-   # impose some minimum (if window == 0 ...)
-   if {$window < 0.5} {
-      set $window 0.5
-   }
-   if {$level < 1.0 && $level > -1.0} {
-      if {$y > $old_y} {
-	 set level 1.0
-      } else {
-	 set level -1.0
-      }
-   }
+   # zero window or level can trap the value.
+   # put a limit of 1 / 100 value
 
-   $viewer SetColorWindow $window
-   $viewer SetColorLevel $level
+
+   # if window is negative, then delta level should flip (down is dark).
+   if {$new_window < 0.0} {set dy [expr -$dy]}
+
+
+   $viewer SetColorWindow $new_window
+   $viewer SetColorLevel $new_level
 
    set mapper [GetWidgetObject $widget Mapper1]
-   $mapper SetInput "Window: $window"
+   $mapper SetInput "Window: $new_window"
 
    set mapper [GetWidgetObject $widget Mapper2]
-   $mapper SetInput "Level: $level"
+   $mapper SetInput "Level: $new_level"
 
    $widget Render
 }
+
+# ----------- Reset: Set window level to show all values ---------------
+
+proc ResetTkImageViewer {widget} {
+   set viewer [$widget GetImageViewer]
+   set input [$viewer GetInput]
+   if {$input == ""} {
+      return
+   }
+   # Get the extent in viewer
+   set z [viewer GetZSlice]
+   # x, y????
+   $input SetUpdateExtent -99999 99999 -99999 99999 $z $z
+   $input Update
+
+   set range [$input GetScalarRange]
+   set low [lindex $range 0]
+   set high [lindex $range 1]
+   
+   $viewer SetColorWindow [expr $high - $low]
+   $viewer SetColorLevel [expr ($high + $low) * 0.5]
+
+   $widget Render
+}
+   
 
 
 
