@@ -56,8 +56,9 @@ void vtkStreamPoints::Execute()
   int i, ptId, j, id;
   int npts = 0;
   float tOffset, x[3], v[3], s, r;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
-
+  vtkPolyData *output = this->GetOutput();
+  vtkDataSet *input = this->GetInput();
+  
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 )
     {
@@ -68,7 +69,7 @@ void vtkStreamPoints::Execute()
   newPts ->Allocate(1000);
   newVectors  = vtkVectors::New();
   newVectors ->Allocate(1000);
-  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( input->GetPointData()->GetScalars() || this->SpeedScalars )
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(1000);

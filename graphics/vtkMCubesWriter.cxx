@@ -63,7 +63,7 @@ void vtkMCubesWriter::WriteData()
   vtkPoints *pts;
   vtkNormals *normals;
   vtkCellArray *polys;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input=this->GetInput();
 
   polys = input->GetPolys();
   pts = input->GetPoints();

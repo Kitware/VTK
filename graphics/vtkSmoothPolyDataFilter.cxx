@@ -94,8 +94,8 @@ void vtkSmoothPolyDataFilter::Execute()
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkPoints *newPts;
   vtkMeshVertexPtr Verts;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
 //
 // Check input
 //

@@ -59,8 +59,8 @@ void vtkShrinkPolyData::Execute()
   vtkPoints *newPoints;
   vtkCellArray *newVerts, *newLines, *newPolys;
   float *p1, *p2, *p3, pt[3];
-  vtkPolyData *input =(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   vtkPointData *pointData = output->GetPointData(); 
   //
   // Initialize

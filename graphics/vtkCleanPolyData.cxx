@@ -59,7 +59,7 @@ vtkCleanPolyData::~vtkCleanPolyData()
 
 void vtkCleanPolyData::Execute()
 {
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
   int numPts=input->GetNumberOfPoints();
   vtkPoints *inPts;

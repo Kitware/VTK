@@ -89,11 +89,11 @@ void vtkSTLReader::Execute()
   FILE *fp;
   vtkPoints *newPts, *mergedPts;
   vtkCellArray *newPolys, *mergedPolys;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   if ((fp = fopen(this->FileName, "r")) == NULL)
     {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
@@ -104,9 +104,9 @@ void vtkSTLReader::Execute()
   newPts->Allocate(5000,10000);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(10000,20000);
-//
-// Depending upon file type, read differently
-//
+  //
+  // Depending upon file type, read differently
+  //
   if ( this->GetSTLFileType(fp) == VTK_ASCII )
     {
     if ( this->ReadASCIISTL(fp,newPts,newPolys) )
@@ -129,9 +129,9 @@ void vtkSTLReader::Execute()
                << newPolys->GetNumberOfCells() << " triangles");
 
   fclose(fp);
-//
-// If merging is on, create hash table and merge points/triangles.
-//
+  //
+  // If merging is on, create hash table and merge points/triangles.
+  //
   if ( this->Merging )
     {
     int npts, *pts, i, nodes[3];

@@ -69,7 +69,7 @@ vtkFeatureEdges::~vtkFeatureEdges()
 // Generate feature edges for mesh
 void vtkFeatureEdges::Execute()
 {
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input= this->GetInput();
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkScalars *newScalars;

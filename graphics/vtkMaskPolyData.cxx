@@ -60,7 +60,7 @@ void vtkMaskPolyData::Execute()
   int id, interval;
   vtkPointData *pd;
   int npts, *pts;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input= this->GetInput();
   vtkPolyData *output = this->GetOutput();
   
   //

@@ -57,8 +57,8 @@ void vtkStripper::Execute()
   vtkPolyData *Mesh;
   char *visited;
   int numStripPts, *stripPts;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   vtkPointData *pd=input->GetPointData();
 
   vtkDebugMacro(<<"Executing triangle strip / poly-line filter");

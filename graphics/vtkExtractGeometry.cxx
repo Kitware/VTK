@@ -83,7 +83,7 @@ void vtkExtractGeometry::Execute()
   float multiplier;
   vtkPoints *newPts;
   vtkIdList *newCellPts;
-  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   vtkUnstructuredGrid *output = this->GetOutput();

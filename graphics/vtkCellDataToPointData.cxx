@@ -52,8 +52,8 @@ void vtkCellDataToPointData::Execute()
 {
   int cellId, ptId;
   int numCells, numPts;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input= this->GetInput();
+  vtkDataSet *output= this->GetOutput();
   vtkCellData *inPD=input->GetCellData();
   vtkPointData *outPD=output->GetPointData();
   int maxCellSize=input->GetMaxCellSize();

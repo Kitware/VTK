@@ -51,9 +51,9 @@ vtkExtractVOI::vtkExtractVOI()
 
 void vtkExtractVOI::Execute()
 {
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output=this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
   float origin[3], ar[3], outOrigin[3], outAR[3];

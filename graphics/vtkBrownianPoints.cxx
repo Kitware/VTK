@@ -53,8 +53,8 @@ void vtkBrownianPoints::Execute()
   int i, j, numPts;
   vtkVectors *newVectors;
   float v[3], norm, speed;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input= this->GetInput();
+  vtkDataSet *output =  this->GetOutput();
 
   vtkDebugMacro(<< "Executing Brownian filter");
 

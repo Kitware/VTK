@@ -50,8 +50,8 @@ vtkReverseSense::vtkReverseSense()
 
 void vtkReverseSense::Execute()
 {
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   vtkNormals *normals=input->GetPointData()->GetNormals();
 
   vtkDebugMacro(<<"Reversing sense of poly data");

@@ -157,7 +157,7 @@ void vtkPolyDataReader::Execute()
   int numPts=0;
   char line[256];
   int npts, size, ncells;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 

@@ -63,7 +63,7 @@ void vtkAxes::Execute()
   vtkNormals *newNormals;
   float x[3], n[3];
   int ptIds[2];
-  vtkPolyData *output = (vtkPolyData *)this->Output;
+  vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Creating x-y-z axes");
 

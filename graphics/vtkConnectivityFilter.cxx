@@ -84,7 +84,7 @@ void vtkConnectivityFilter::Execute()
   int id;
   int maxCellsInRegion;
   int largestRegionId = 0;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outputPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outputCD=output->GetCellData();
@@ -379,7 +379,7 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
 {
   int j, k, ptId, numPts, numCells;
   vtkIdList *ptIds, *cellIds;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
 
   this->Visited[cellId] = this->RegionNumber;
 

@@ -69,7 +69,7 @@ void vtkEdgePoints::Execute()
   int e0, e1;
   int pts[1], p1, p2;
   int estimatedSize;
-  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkScalars *cellScalars;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();

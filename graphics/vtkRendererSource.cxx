@@ -65,7 +65,7 @@ void vtkRendererSource::Execute()
   float x1,y1,x2,y2;
   unsigned char *pixels, *ptr;
   int dims[3];
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output = this->GetOutput();
 
   vtkDebugMacro(<<"Converting points");
 

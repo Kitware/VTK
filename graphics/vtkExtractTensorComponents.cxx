@@ -80,9 +80,9 @@ void vtkExtractTensorComponents::Execute()
 {
   vtkTensors *inTensors;
   vtkTensor *tensor;
-  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
   vtkPointData *pd = input->GetPointData();
-  vtkPointData *outPD = ((vtkDataSet *)this->Output)->GetPointData();
+  vtkPointData *outPD = this->GetOutput()->GetPointData();
   float s, v[3];
   vtkScalars *newScalars=NULL;
   vtkVectors *newVectors=NULL;

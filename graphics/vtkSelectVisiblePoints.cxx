@@ -63,7 +63,7 @@ void vtkSelectVisiblePoints::Execute()
 {
   int ptId, id, visible;
   vtkPoints *outPts;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
   vtkPolyData *output=this->GetOutput();
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();

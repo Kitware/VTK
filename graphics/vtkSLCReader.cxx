@@ -117,7 +117,7 @@ void vtkSLCReader::Execute()
   unsigned char *scan_ptr = NULL;
   unsigned char *sptr = NULL;
 
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output = this->GetOutput();
 
   // Initialize
   if ((fp = fopen(this->FileName, "rb")) == NULL)

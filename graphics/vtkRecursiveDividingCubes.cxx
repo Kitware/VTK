@@ -72,8 +72,8 @@ void vtkRecursiveDividingCubes::Execute()
   float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkStructuredPoints *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   vtkScalars *voxelScalars;
 
   vtkDebugMacro(<< "Executing recursive dividing cubes...");

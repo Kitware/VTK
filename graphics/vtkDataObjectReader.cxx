@@ -104,7 +104,7 @@ void vtkDataObjectReader::Execute()
       field = this->Reader->ReadFieldData(); //reads named field (or first found)
       if ( field != NULL )
 	{
-	this->Output->SetFieldData(field);
+	this->GetOutput()->SetFieldData(field);
 	field->Delete();
 	}
       }

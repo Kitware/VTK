@@ -53,7 +53,7 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
   int i, numPts=ptIds->GetNumberOfIds();
   int ptId;
   vtkOBBTree *OBB = vtkOBBTree::New();
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
 
   float size[3];
 
@@ -144,8 +144,8 @@ void vtkDicer::Execute()
   vtkIdList *ptIds;
   vtkScalars *groupIds;
   vtkOBBNode *root;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkDataSet *output=(vtkDataSet *)this->Output;
+  vtkDataSet *input= this->GetInput();
+  vtkDataSet *output= this->GetOutput();
 
   vtkDebugMacro(<<"Dicing object");
 

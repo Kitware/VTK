@@ -51,9 +51,9 @@ vtkExtractGrid::vtkExtractGrid()
 
 void vtkExtractGrid::Execute()
 {
-  vtkStructuredGrid *input=(vtkStructuredGrid *)this->Input;
+  vtkStructuredGrid *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
-  vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
+  vtkStructuredGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
   int sliceSize, outSize, jOffset, kOffset, rate[3];

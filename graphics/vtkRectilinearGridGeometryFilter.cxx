@@ -66,8 +66,8 @@ void vtkRectilinearGridGeometryFilter::Execute()
   float *x;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
-  vtkRectilinearGrid *input=(vtkRectilinearGrid *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkRectilinearGrid *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<< "Extracting rectilinear points geometry");
 
@@ -77,10 +77,11 @@ void vtkRectilinearGridGeometryFilter::Execute()
   cd = input->GetCellData();
   outCD = output->GetCellData();
   dims = input->GetDimensions();
-//
-// Based on the dimensions of the rectilinear data, and the extent of the geometry,
-// compute the combined extent plus the dimensionality of the data
-//
+  //
+  // Based on the dimensions of the rectilinear data, 
+  // and the extent of the geometry,
+  // compute the combined extent plus the dimensionality of the data
+  //
   for (dimension=3, i=0; i<3; i++)
     {
     extent[2*i] = this->Extent[2*i] < 0 ? 0 : this->Extent[2*i];
@@ -95,11 +96,11 @@ void vtkRectilinearGridGeometryFilter::Execute()
       dimension--;
       }
     }
-//
-// Now create polygonal data based on dimension of data
-//
+  //
+  // Now create polygonal data based on dimension of data
+  //
   startIdx = extent[0] + extent[2]*dims[0] + extent[4]*dims[0]*dims[1];
-// The cell index is a bit more complicated at the boundaries
+  // The cell index is a bit more complicated at the boundaries
   if (dims[0] == 1)
     {
     startCellIdx = extent[0];

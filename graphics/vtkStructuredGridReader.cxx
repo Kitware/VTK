@@ -156,7 +156,7 @@ void vtkStructuredGridReader::Execute()
   int numPts=0, npts, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
-  vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
+  vtkStructuredGrid *output = this->GetOutput();
   
   vtkDebugMacro(<<"Reading vtk structured grid file...");
   if ( this->Debug )

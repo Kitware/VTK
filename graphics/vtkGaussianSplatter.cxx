@@ -92,7 +92,7 @@ void vtkGaussianSplatter::Execute()
   vtkScalars *inScalars=NULL;
   int loc[3], ip, jp, kp, idir, jdir, kdir;
   vtkStructuredPoints *output = this->GetOutput();
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
   
   vtkDebugMacro(<< "Splatting data");
   // init a couple variables to prevent compiler warnings
@@ -225,7 +225,7 @@ void vtkGaussianSplatter::ComputeModelBounds()
   float *bounds, maxDist;
   int i, adjustBounds=0;
   vtkStructuredPoints *output = this->GetOutput();
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||

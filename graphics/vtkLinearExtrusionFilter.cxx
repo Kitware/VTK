@@ -96,7 +96,7 @@ float *vtkLinearExtrusionFilter::ViaPoint(float x[3], int vtkNotUsed(id),
 void vtkLinearExtrusionFilter::Execute()
 {
   int numPts, numCells;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkNormals *inNormals=NULL;
   vtkPolyData *mesh;

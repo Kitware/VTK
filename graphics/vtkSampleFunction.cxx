@@ -109,7 +109,7 @@ void vtkSampleFunction::Execute()
   vtkNormals *newNormals=NULL;
   int numPts;
   float *p, s, ar[3], origin[3];
-  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output = this->GetOutput();
 
   vtkDebugMacro(<< "Sampling implicit function");
 //

@@ -107,7 +107,7 @@ void vtkPointLoad::Execute()
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
   float sx, sy, sz, seff, spacing[3], origin[3];
-  vtkStructuredPoints *output = (vtkStructuredPoints *)this->Output;
+  vtkStructuredPoints *output = this->GetOutput();
 
   vtkDebugMacro(<< "Computing point load stress tensors");
   //

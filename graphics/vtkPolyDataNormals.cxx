@@ -85,8 +85,8 @@ void vtkPolyDataNormals::Execute()
   vtkCellArray *newPolys;
   int ptId, oldId;
   vtkIdList *cellIds, *edgeNeighbors;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input = this->GetInput();
+  vtkPolyData *output = this->GetOutput();
   int noCellsNeedVisiting;
   int *Visited;
   vtkPolyData *OldMesh, *NewMesh;

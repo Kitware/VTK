@@ -115,7 +115,7 @@ void vtkGeometryFilter::SetExtent(float *extent)
 void vtkGeometryFilter::Execute()
 {
   int cellId, i, j, newCellId;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
+  vtkDataSet *input= this->GetInput();
   int numPts=input->GetNumberOfPoints();
   int numCells=input->GetNumberOfCells();
   char *cellVis;

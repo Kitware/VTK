@@ -60,8 +60,8 @@ vtkExtractEdges::~vtkExtractEdges()
 // Generate feature edges for mesh
 void vtkExtractEdges::Execute()
 {
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkDataSet *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   vtkPoints *newPts;
   vtkCellArray *newLines;
   int numCells, cellNum, numEdges, edgeNum, numEdgePts, numCellEdges;

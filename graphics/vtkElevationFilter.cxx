@@ -67,7 +67,7 @@ void vtkElevationFilter::Execute()
   vtkScalars *newScalars;
   float l, *x, s, v[3];
   float diffVector[3], diffScalar;
-  vtkDataSet *input = (vtkDataSet *)this->Input;
+  vtkDataSet *input = this->GetInput();
 
   // Initialize
   //
@@ -123,12 +123,12 @@ void vtkElevationFilter::Execute()
 
   // Update self
   //
-  ((vtkDataSet *)this->Output)->GetPointData()->CopyScalarsOff();
-  ((vtkDataSet *)this->Output)->GetPointData()->PassData(input->GetPointData());
+  this->GetOutput()->GetPointData()->CopyScalarsOff();
+  this->GetOutput()->GetPointData()->PassData(input->GetPointData());
 
-  ((vtkDataSet *)this->Output)->GetCellData()->PassData(input->GetCellData());
+  this->GetOutput()->GetCellData()->PassData(input->GetCellData());
 
-  ((vtkDataSet *)this->Output)->GetPointData()->SetScalars(newScalars);
+  this->GetOutput()->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 

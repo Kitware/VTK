@@ -54,8 +54,8 @@ void vtkShrinkFilter::Execute()
   float center[3], *p, pt[3];
   vtkPointData *pd, *outPD;;
   vtkIdList *ptIds, *newPtIds;
-  vtkDataSet *input=(vtkDataSet *)this->Input;
-  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
+  vtkDataSet *input= this->GetInput();
+  vtkUnstructuredGrid *output = this->GetOutput();
 
   vtkDebugMacro(<<"Shrinking cells");
 

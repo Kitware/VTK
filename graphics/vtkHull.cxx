@@ -386,8 +386,8 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
 // set of planes.
 void vtkHull::Execute()
 {
-  vtkPolyData    *input       = (vtkPolyData *)this->Input;
-  vtkPolyData    *output      = (vtkPolyData *)this->GetOutput();
+  vtkPolyData    *input       = this->GetInput();
+  vtkPolyData    *output      = this->GetOutput();
   vtkCellArray   *polys       = input->GetPolys(); 
   int            num_points;
   vtkPoints      *out_points;
@@ -440,7 +440,7 @@ void vtkHull::Execute()
 // the hull.
 void vtkHull::ComputePlaneDistances()
 {
-  vtkPolyData    *input       = (vtkPolyData *)this->Input;
+  vtkPolyData    *input       = this->GetInput();
   int            i, j;
   float          coord[3], v;
 
@@ -590,7 +590,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *out_points,
 
 void vtkHull::CreateInitialPolygon( float *verts, int i )
 {
-  vtkPolyData    *input       = (vtkPolyData *)this->Input;
+  vtkPolyData    *input       = this->GetInput();
   float          *bounds, center[3], d, plane_center[3];
   float          v1[3], v2[3], norm, dot_product;
   int            j;

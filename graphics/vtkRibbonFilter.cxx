@@ -78,8 +78,8 @@ void vtkRibbonFilter::Execute()
   double BevelAngle;
   float theta;
   int deleteNormals=0, ptId;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPolyData *input= this->GetInput();
+  vtkPolyData *output= this->GetOutput();
   vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
   int ptOffset=0;
