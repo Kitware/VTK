@@ -132,6 +132,7 @@ int main( int argc, char *argv[] )
     }
 
   floatArray->Delete();
+  ucCharArray->Delete();
   ucArray->Delete();
   sphereSource->Delete();
   actor->Delete();
@@ -139,7 +140,7 @@ int main( int argc, char *argv[] )
   ren->Delete();
   renWin->Delete();
   iren->Delete();
-  
+  delete [] checks;
   return !retVal;
 }
 
