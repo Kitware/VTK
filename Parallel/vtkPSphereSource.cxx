@@ -16,21 +16,29 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkLargeInteger.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPSphereSource, "1.12");
+vtkCxxRevisionMacro(vtkPSphereSource, "1.13");
 vtkStandardNewMacro(vtkPSphereSource);
 
 //----------------------------------------------------------------------------
-void vtkPSphereSource::Execute()
+int vtkPSphereSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  
   vtkIdType i, j, numOffset;
   int jStart, jEnd;
   vtkIdType numPts, numPolys;
@@ -42,9 +50,12 @@ void vtkPSphereSource::Execute()
   vtkIdType base, thetaResolution, phiResolution;
   int numPoles = 0;
   vtkIdType pts[3];
-  vtkPolyData *output = this->GetOutput();
-  int piece = output->GetUpdatePiece();
-  int numPieces = output->GetUpdateNumberOfPieces();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // I want to modify the ivars resoultion start theta and end theta, 
   // so I will make local copies of them.  THese might be able to be merged 
@@ -226,6 +237,8 @@ void vtkPSphereSource::Execute()
 
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -233,10 +246,16 @@ unsigned long vtkPSphereSource::GetEstimatedMemorySize()
 {
   vtkLargeInteger sz;
   vtkLargeInteger sz2;
-  unsigned long thetaResolution;
-  int numPieces = this->GetOutput()->GetUpdateNumberOfPieces();
-  
-  thetaResolution = this->ThetaResolution / numPieces;
+  unsigned long thetaResolution = this->ThetaResolution;
+  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
+  int numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+
+  if (numPieces)
+    {
+    thetaResolution /= numPieces;
+    }
+
   if (thetaResolution < 1)
     {
     thetaResolution = 1;

@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.18");
+vtkCxxRevisionMacro(vtkPolyDataStreamer, "1.19");
 vtkStandardNewMacro(vtkPolyDataStreamer);
 
 //----------------------------------------------------------------------------
@@ -105,7 +105,10 @@ int vtkPolyDataStreamer::RequestData(
   for (i = 0; i < this->NumberOfStreamDivisions; ++i)
     {
     inPiece = outPiece * this->NumberOfStreamDivisions + i;
-    input->SetUpdateExtent(inPiece,outNumPieces *this->NumberOfStreamDivisions);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+                inPiece);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+                outNumPieces *this->NumberOfStreamDivisions);
     input->Update();
     copy = vtkPolyData::New();
     copy->ShallowCopy(input);
@@ -125,9 +128,13 @@ int vtkPolyDataStreamer::RequestData(
   output->ShallowCopy(append->GetOutput());
   // set the piece and number of pieces back to the correct value
   // since the shallow copy of the append filter has overwritten them.
-  output->SetUpdateNumberOfPieces(outNumPieces );
-  output->SetUpdatePiece(outPiece);
-  output->SetUpdateGhostLevel(outGhost);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+               outNumPieces);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+               outPiece);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+               outGhost);
+
   if (pieceColors)
     {
     int idx = output->GetCellData()->AddArray(pieceColors);

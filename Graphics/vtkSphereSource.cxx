@@ -16,15 +16,18 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.67");
+vtkCxxRevisionMacro(vtkSphereSource, "1.68");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -45,11 +48,23 @@ vtkSphereSource::vtkSphereSource(int res)
   this->StartPhi = 0.0;
   this->EndPhi = 180.0;
   this->LatLongTessellation = 0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkSphereSource::Execute()
+int vtkSphereSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int i, j;
   int jStart, jEnd, numOffset;
   int numPts, numPolys;
@@ -60,9 +75,10 @@ void vtkSphereSource::Execute()
   double startTheta, endTheta, startPhi, endPhi;
   int base, numPoles=0, thetaResolution, phiResolution;
   vtkIdType pts[4];
-  vtkPolyData *output = this->GetOutput();
-  int piece = output->GetUpdatePiece();
-  int numPieces = output->GetUpdateNumberOfPieces();
+  int piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  int numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   if (numPieces > this->ThetaResolution)
     {
@@ -72,7 +88,7 @@ void vtkSphereSource::Execute()
     {
     // Although the super class should take care of this,
     // it cannot hurt to check here.
-    return;
+    return 1;
     }
 
   // I want to modify the ivars resoultion start theta and end theta, 
@@ -266,6 +282,8 @@ void vtkSphereSource::Execute()
   newPolys->Squeeze();
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -287,7 +305,16 @@ void vtkSphereSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkSphereSource::ExecuteInformation()
+int vtkSphereSource::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+
+  return 1;
 }

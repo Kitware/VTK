@@ -29,14 +29,14 @@
 #ifndef __vtkSphereSource_h
 #define __vtkSphereSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
-class VTK_GRAPHICS_EXPORT vtkSphereSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkSphereSource : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkSphereSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSphereSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -102,8 +102,8 @@ protected:
   vtkSphereSource(int res=8);
   ~vtkSphereSource() {}
 
-  void Execute();
-  void ExecuteInformation();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   double Radius;
   double Center[3];
@@ -121,5 +121,3 @@ private:
 };
 
 #endif
-
-

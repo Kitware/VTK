@@ -38,7 +38,7 @@ protected:
   vtkPSphereSource() {};
   ~vtkPSphereSource() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkPSphereSource(const vtkPSphereSource&);  // Not implemented.
   void operator=(const vtkPSphereSource&);  // Not implemented.

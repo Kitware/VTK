@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzle, "1.14");
+vtkCxxRevisionMacro(vtkSpherePuzzle, "1.15");
 vtkStandardNewMacro(vtkSpherePuzzle);
 
 //----------------------------------------------------------------------------
@@ -136,16 +136,13 @@ void vtkSpherePuzzle::Execute()
       tmp = vtkPolyData::New();
       if (this->PieceMask[count])
         { // Spheres original output is transforms input. Put it back.
-        sphere->SetOutput(originalSphereOutput);
-        tf->SetOutput(tmp);
-        tmp->Update();
-        tf->SetOutput(NULL);
+        tf->Update();
+        tmp->ShallowCopy(tf->GetOutput());
         }
       else
         { // Piece not involved in partial move. Just use the sphere.
-        sphere->SetOutput(tmp);
-        tmp->Update();
-        sphere->SetOutput(NULL);
+        sphere->Update();
+        tmp->ShallowCopy(sphere->GetOutput());
         }
       // Now create the colors for the faces.
       num = tmp->GetNumberOfPoints();
