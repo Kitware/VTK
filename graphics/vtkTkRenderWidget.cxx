@@ -308,6 +308,10 @@ static void vtkTkRenderWidget_Destroy(char *memPtr)
 
   if (self->RenderWindow)
     {
+    if (self->RenderWindow->GetReferenceCount() > 1)
+      {
+      vtkGenericWarningMacro("A TkRenderWidget is being destroyed before it associated vtkRenderWindow is destroyed. This is very bad and usually due to the order in which objects are being destroyed. Always destroy the vtkRenderWindow before destroying the user interface components.");
+      }
     self->RenderWindow->UnRegister(NULL);
     self->RenderWindow = NULL;
     ckfree (self->RW);
