@@ -19,13 +19,10 @@ IF (VTK_USE_RENDERING)
       Canny
       capCow
       capSphere
-      cellCenters
       CellDataToPointData
       clipArt
       clipVolume
       clipVolume2
-      combColorIso
-      combIso
       combStreamers
       combStreamers2
       coneResolution
@@ -66,14 +63,11 @@ IF (VTK_USE_RENDERING)
       MultidimensionalSolution
       multipleIso
       nacaBinary
-      OBBTree
       OBBCylinder
       officeStreamPoints
       polyConn
       PolyDataMapperAllPolygons
       PolyDataMapperAllWireframe
-      PolyDataNormals
-      probe
       probeComb
       progGlyphs
       progGlyphsBySource
@@ -89,7 +83,6 @@ IF (VTK_USE_RENDERING)
       smoothCyl2
       socbal
       spatialRepAll
-      spToPd
       stripF
       subdividePointData
       subDivideTetra
@@ -107,8 +100,6 @@ IF (VTK_USE_RENDERING)
       TransformPolyData
       triangularTCoords
       triangularTexture
-      ugFacet
-      warpComb
       warplens
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
@@ -132,7 +123,6 @@ IF (VTK_USE_RENDERING)
 
     FOREACH ( tfile
       capSphere
-      cellCenters
       CellDataToPointData
       clipVolume
       coneResolution
