@@ -65,7 +65,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkHexahedron.h"
 #include "vtkIdList.h"
 #include "vtkImageCache.h"
-#include "vtkImageCachedSource.h"
 #include "vtkImageData.h"
 #include "vtkImageRegion.h"
 #include "vtkImplicitFunction.h"
