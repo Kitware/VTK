@@ -115,8 +115,6 @@ extern "C" int Vtklocaltcl_Init(Tcl_Interp *interp);
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
-  Tk_Window main;
-  
   if (Tcl_Init(interp) == TCL_ERROR) {
   return TCL_ERROR;
   }
