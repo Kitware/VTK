@@ -24,6 +24,7 @@
 #include <vtkRenderer.h>
 #include <vtkWin32OpenGLRenderWindow.h>
 #include <vtkWin32RenderWindowInteractor.h>
+class vtkMFCWindow;
 
 #include <vtkSphereSource.h>
 #include <vtkConeSource.h>
@@ -56,7 +57,6 @@ public:
   virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
   virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
   virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
-  virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
   //}}AFX_VIRTUAL
 
 // Implementation
@@ -64,9 +64,8 @@ private:
   void Pipeline ( void );
   virtual ~CVtkSDIView();
 
-  vtkWin32OpenGLRenderWindow *renWin;
+  vtkMFCWindow* vtkWindow;
   vtkRenderer *ren;
-  vtkWin32RenderWindowInteractor *iren;
   
   vtkSphereSource *sphere;
   vtkPolyDataMapper *sphereMapper;
@@ -90,8 +89,8 @@ protected:
 protected:
   //{{AFX_MSG(CVtkSDIView)
   afx_msg void OnSize(UINT nType, int cx, int cy);
-  afx_msg BOOL OnEraseBkgnd(CDC* pDC);
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+  BOOL OnEraseBkgnd(CDC* pDC);
   //}}AFX_MSG
   DECLARE_MESSAGE_MAP()
 };

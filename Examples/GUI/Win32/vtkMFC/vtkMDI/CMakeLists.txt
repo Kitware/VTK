@@ -12,7 +12,8 @@ SET( vtkMDI_SRCS
  res/Toolbar.bmp
 ) 
 
-LINK_LIBRARIES( 
+LINK_LIBRARIES(
+  vtkMFC 
   vtkRendering
   vtkGraphics
   vtkImaging

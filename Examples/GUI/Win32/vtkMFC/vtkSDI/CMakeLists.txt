@@ -12,6 +12,7 @@ SET( vtkSDI_SRCS
 ) 
 
 LINK_LIBRARIES( 
+  vtkMFC
   vtkRendering
   vtkGraphics
   vtkImaging

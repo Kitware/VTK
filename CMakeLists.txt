@@ -85,6 +85,10 @@ ENDIF(VTK_USE_PATENTED)
 IF(VTK_USE_QVTK)
   SET(VTK_KITS ${VTK_KITS} QVTK)
 ENDIF(VTK_USE_QVTK)
+IF(VTK_USE_MFC)
+  SET(VTK_KITS ${VTK_KITS} MFC)
+ENDIF(VTK_USE_MFC)
+
 
 #-----------------------------------------------------------------------------
 # Determine GUI.

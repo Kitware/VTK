@@ -16,6 +16,8 @@
 #include "stdafx.h"
 #include "vtkSDI.h"
 
+#include "vtkMFCWindow.h"
+
 #include "vtkSDIDoc.h"
 #include "vtkSDIView.h"
 #include "vtkPolyData.h"
@@ -33,8 +35,8 @@ IMPLEMENT_DYNCREATE(CVtkSDIView, CView)
 BEGIN_MESSAGE_MAP(CVtkSDIView, CView)
   //{{AFX_MSG_MAP(CVtkSDIView)
   ON_WM_SIZE()
-  ON_WM_ERASEBKGND()
   ON_WM_CREATE()
+  ON_WM_ERASEBKGND()
   //}}AFX_MSG_MAP
   // Standard printing commands
   ON_COMMAND(ID_FILE_PRINT, CView::OnFilePrint)
@@ -48,10 +50,12 @@ END_MESSAGE_MAP()
 CVtkSDIView::CVtkSDIView()
 {
   // Create the the renderer, window and interactor objects.
-  this->ren = vtkRenderer::New();
-  this->renWin = vtkWin32OpenGLRenderWindow::New();
-  this->iren = vtkWin32RenderWindowInteractor::New();
+
+  this->vtkWindow = new vtkMFCWindow;
   
+  this->ren = vtkRenderer::New();
+
+
   // Create the the objects used to form the visualisation.
   this->sphere = vtkSphereSource::New();
   this->sphereElevation = vtkElevationFilter::New();
@@ -68,9 +72,8 @@ CVtkSDIView::CVtkSDIView()
 CVtkSDIView::~CVtkSDIView()
 {
   // Delete the the renderer, window and interactor objects.
-    this->ren->Delete();
-    this->iren->Delete();
-    this->renWin->Delete();
+  this->ren->Delete();
+  delete this->vtkWindow;
 
   // Delete the the objects used to form the visualisation.
   this->sphere->Delete();
@@ -106,23 +109,14 @@ BOOL CVtkSDIView::PreCreateWindow(CREATESTRUCT& cs)
  *
  * @return void  : 
  */
+
 void CVtkSDIView::OnDraw(CDC* pDC)
 {
+  CView::OnDraw(pDC);
+
   CVtkSDIDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
-
-  if ( !this->iren->GetInitialized() )
-  {
-    CRect rect;
-
-    this->GetClientRect(&rect);
-    this->iren->Initialize();
-    this->renWin->SetSize(rect.right-rect.left,rect.bottom-rect.top);
-
-    this->ren->ResetCamera();
-
-  }
 
   // Invoke the pipeline
   Pipeline();
@@ -136,7 +130,7 @@ void CVtkSDIView::OnDraw(CDC* pDC)
     int cyPage = pDC->GetDeviceCaps(VERTRES);
 
     // Get the size of the window in pixels.
-    int *size = this->renWin->GetSize();
+    int *size = this->vtkWindow->GetRenderWindow()->GetSize();
     int cxWindow = size[0];
     int cyWindow = size[1];
     float fx = float(cxPage) / float(cxWindow);
@@ -144,21 +138,23 @@ void CVtkSDIView::OnDraw(CDC* pDC)
     float scale = min(fx,fy);
     int x = int(scale * float(cxWindow));
     int y = int(scale * float(cyWindow));
-    this->renWin->SetupMemoryRendering(cxWindow, cyWindow, pDC->GetSafeHdc());
-    this->renWin->Render();
-    HDC memDC = this->renWin->GetMemoryDC();
+    this->vtkWindow->GetRenderWindow()->SetupMemoryRendering(cxWindow, cyWindow, pDC->GetSafeHdc());
+    this->vtkWindow->GetRenderWindow()->Render();
+    HDC memDC = this->vtkWindow->GetRenderWindow()->GetMemoryDC();
     StretchBlt(pDC->GetSafeHdc(),0,0,x,y,memDC,0,0,cxWindow,cyWindow,SRCCOPY);
-    this->renWin->ResumeScreenRendering();
+    this->vtkWindow->GetRenderWindow()->ResumeScreenRendering();
 
     this->EndWaitCursor();
 
   }
-  else
-  {
-    this->renWin->Render();
-  }
 
 }
+
+BOOL CVtkSDIView::OnEraseBkgnd(CDC*) 
+{
+  return TRUE;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CVtkSDIView printing
@@ -215,30 +211,12 @@ CVtkSDIDoc* CVtkSDIView::GetDocument() // non-debug version is inline
 void CVtkSDIView::OnSize(UINT nType, int cx, int cy) 
 {
   CView::OnSize(nType, cx, cy);
-  
-  CRect rect;
+
+  // vtk window takes up entire client view
+  RECT rect;
   this->GetClientRect(&rect);
-  this->renWin->SetSize(rect.right-rect.left,rect.bottom-rect.top);
-  
+  this->vtkWindow->MoveWindow(&rect);
 }
-
-/*! 
- * Based on a comment from Nigel Nunn in vtkusers list. 
- * <http://public.kitware.com/pipermail/vtkusers/2001-May/006371.html>
- *
- * Overriding OnEraseBkgnd() stops that horrible 
- * flickering on resizing.  The Renderer likes to do 
- * such things itself! 
- *
- * @param pDC : 
- *
- * @return BOOL  : 
- */
-BOOL CVtkSDIView::OnEraseBkgnd(CDC* pDC) 
-{
-  return TRUE;
-}
-
 
 
 /*!
@@ -255,48 +233,18 @@ int CVtkSDIView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   if (CView::OnCreate(lpCreateStruct) == -1)
     return -1;
   
-  this->renWin->AddRenderer(this->ren);
-  // setup the parent window
-  this->renWin->SetParentId(this->m_hWnd);
-  this->iren->SetRenderWindow(this->renWin);
+
+  this->vtkWindow->GetRenderWindow()->AddRenderer(this->ren);
+
+  // setup the vtk window
+  this->vtkWindow->Create(0, _T("VTK window"), 
+                          WS_CHILD | WS_VISIBLE, 
+                          CRect(), this, 0);
   
   return 0;
 }
 
 
-/*!
- * Allow the interactor to interact with the keyboard.
- *
- * @param message : 
- * @param wParam : 
- * @param lParam : 
- *
- * @return LRESULT  : 
- */
-LRESULT CVtkSDIView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
-{
-  switch (message)
-  {
-    //case WM_PAINT: 
-    case WM_LBUTTONDOWN: 
-    case WM_LBUTTONUP: 
-    case WM_MBUTTONDOWN: 
-    case WM_MBUTTONUP: 
-    case WM_RBUTTONDOWN: 
-    case WM_RBUTTONUP: 
-    case WM_MOUSEMOVE:
-    case WM_MOUSEWHEEL:
-    case WM_CHAR:
-    case WM_TIMER:
-      if (this->iren->GetInitialized())
-      {
-        return vtkHandleMessage2(this->m_hWnd, message, wParam, lParam, this->iren);
-      }
-      break;
-  }
-  
-  return CView::WindowProc(message, wParam, lParam);
-}
 
 /*!
  * This is the pipeline that creates the object for 

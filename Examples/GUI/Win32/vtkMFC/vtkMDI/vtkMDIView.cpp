@@ -16,6 +16,9 @@
 #include "stdafx.h"
 #include "vtkMDI.h"
 
+#include "vtkMFCWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
+
 #include "vtkMDIDoc.h"
 #include "vtkMDIView.h"
 #include "vtkTextProperty.h"
@@ -49,8 +52,8 @@ CVtkMDIView::CVtkMDIView()
 {
   // Create the the renderer, window and interactor objects.
   this->ren = vtkRenderer::New();
-  this->renWin = vtkWin32OpenGLRenderWindow::New();
-  this->iren = vtkWin32RenderWindowInteractor::New();
+  
+  vtkWindow = new vtkMFCWindow;
   
   // Create the the objects used to form the visualisation.
   this->Mapper = vtkDataSetMapper::New();
@@ -64,9 +67,9 @@ CVtkMDIView::CVtkMDIView()
 CVtkMDIView::~CVtkMDIView()
 {
   // Delete the the renderer, window and interactor objects.
-    this->ren->Delete();
-    this->iren->Delete();
-    this->renWin->Delete();
+  this->ren->Delete();
+
+  delete vtkWindow;
 
   // Delete the the objects used to form the visualisation.
   this->Mapper->Delete();
@@ -102,19 +105,6 @@ void CVtkMDIView::OnDraw(CDC* pDC)
   CVtkMDIDoc* pDoc = GetDocument();
   ASSERT_VALID(pDoc);
 
-  if ( !this->iren->GetInitialized() )
-  {
-    CRect rect;
-
-    this->GetClientRect(&rect);
-    this->iren->Initialize();
-    this->renWin->SetSize(rect.right-rect.left,rect.bottom-rect.top);
-
-    this->ren->ResetCamera();
-
-  }
-
-  // Invoke the pipeline
   Pipeline();
 
   if ( pDC->IsPrinting() )
@@ -126,7 +116,7 @@ void CVtkMDIView::OnDraw(CDC* pDC)
     int cyPage = pDC->GetDeviceCaps(VERTRES);
 
     // Get the size of the window in pixels.
-    int *size = this->renWin->GetSize();
+    int *size = this->vtkWindow->GetRenderWindow()->GetSize();
     int cxWindow = size[0];
     int cyWindow = size[1];
     float fx = float(cxPage) / float(cxWindow);
@@ -134,18 +124,14 @@ void CVtkMDIView::OnDraw(CDC* pDC)
     float scale = min(fx,fy);
     int x = int(scale * float(cxWindow));
     int y = int(scale * float(cyWindow));
-    this->renWin->SetupMemoryRendering(cxWindow, cyWindow, pDC->GetSafeHdc());
-    this->renWin->Render();
-    HDC memDC = this->renWin->GetMemoryDC();
+    this->vtkWindow->GetRenderWindow()->SetupMemoryRendering(cxWindow, cyWindow, pDC->GetSafeHdc());
+    this->vtkWindow->GetRenderWindow()->Render();
+    HDC memDC = this->vtkWindow->GetRenderWindow()->GetMemoryDC();
     StretchBlt(pDC->GetSafeHdc(),0,0,x,y,memDC,0,0,cxWindow,cyWindow,SRCCOPY);
-    this->renWin->ResumeScreenRendering();
+    this->vtkWindow->GetRenderWindow()->ResumeScreenRendering();
 
     this->EndWaitCursor();
 
-  }
-  else
-  {
-    this->renWin->Render();
   }
 }
 
@@ -204,11 +190,11 @@ CVtkMDIDoc* CVtkMDIView::GetDocument() // non-debug version is inline
 void CVtkMDIView::OnSize(UINT nType, int cx, int cy) 
 {
   CView::OnSize(nType, cx, cy);
-  
+
   CRect rect;
   this->GetClientRect(&rect);
-  this->renWin->SetSize(rect.right-rect.left,rect.bottom-rect.top);
-  
+  this->vtkWindow->MoveWindow(&rect);
+
 }
 
 /*! 
@@ -223,7 +209,7 @@ void CVtkMDIView::OnSize(UINT nType, int cx, int cy)
  *
  * @return BOOL  : 
  */
-BOOL CVtkMDIView::OnEraseBkgnd(CDC* pDC) 
+BOOL CVtkMDIView::OnEraseBkgnd(CDC*) 
 {
   return TRUE;
 }
@@ -242,48 +228,16 @@ int CVtkMDIView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   if (CView::OnCreate(lpCreateStruct) == -1)
     return -1;
   
-  this->renWin->AddRenderer(this->ren);
-  // setup the parent window
-  this->renWin->SetParentId(this->m_hWnd);
-  this->iren->SetRenderWindow(this->renWin);
-    
+  this->vtkWindow->GetRenderWindow()->AddRenderer(this->ren);
+
+  // create vtk child window
+  this->vtkWindow->Create(0, _T("VTK window"), 
+                          WS_CHILD | WS_VISIBLE, 
+                          CRect(), this, 0);
+  
+
   return 0;
 }
-
-/*!
- * Allow the interactor to interact with the keyboard.
- *
- * @param message : 
- * @param wParam : 
- * @param lParam : 
- *
- * @return LRESULT  : 
- */
-LRESULT CVtkMDIView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
-{
-  switch (message)
-  {
-    //case WM_PAINT: 
-    case WM_LBUTTONDOWN: 
-    case WM_LBUTTONUP: 
-    case WM_MBUTTONDOWN: 
-    case WM_MBUTTONUP: 
-    case WM_RBUTTONDOWN: 
-    case WM_RBUTTONUP: 
-    case WM_MOUSEMOVE:
-    case WM_MOUSEWHEEL:
-    case WM_CHAR:
-    case WM_TIMER:
-      if (this->iren->GetInitialized())
-      {
-        return vtkHandleMessage2(this->m_hWnd, message, wParam, lParam, this->iren);
-      }
-      break;
-  }
-   
-  return CView::WindowProc(message, wParam, lParam);
-}
-
 
 /*!
  * This is the pipeline that creates the object for 
