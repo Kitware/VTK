@@ -67,7 +67,8 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
   float vdc_vals[6];
   fd = ren->GetFd();
   vtkMatrix4x4 matrix;
-
+  float *pos;
+  
   // get the background color
   background = ren->GetBackground();
   // get size info
@@ -77,7 +78,7 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
 
   // find out if we should stereo render
   stereo = cam->GetStereo();
-
+  
   // set this renderer's viewport, must turn off z-buffering when changing
   // viewport
   hidden_surface(fd, FALSE, FALSE);
@@ -182,6 +183,9 @@ void vtkSbrCamera::Render(vtkCamera *cam, vtkSbrRenderer *ren)
  
   // insert model transformation 
   view_matrix3d(fd, (float (*)[4])(matrix[0]),REPLACE_VW);
+  
+  pos = cam->GetPosition();
+  viewpoint(fd,POSITIONAL,pos[0],pos[1],pos[2]);
   
   clip_depth(fd,0.0,1.0);
 }
