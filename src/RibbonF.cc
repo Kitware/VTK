@@ -52,7 +52,8 @@ void vlRibbonFilter::Execute()
   inPts = this->Input->GetPoints();
   pd = this->Input->GetPointData();
   // copy scalars, vectors, tcoords.  Normals are computed here.
-  this->PointData.CopyAllocate(pd,1,1,0,1);
+  this->PointData.CopyNormalsOff();
+  this->PointData.CopyAllocate(pd);
 
   if ( !(inLines = this->Input->GetLines()) || 
   inLines->GetNumberOfCells() < 1 )
