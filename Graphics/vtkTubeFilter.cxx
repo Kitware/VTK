@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.86");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.87");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -185,7 +185,7 @@ int vtkTubeFilter::RequestData(
   //
   numNewCells = inLines->GetNumberOfCells() * this->NumberOfSides + 2;
   outCD->CopyNormalsOff();
-  outPD->CopyAllocate(pd,numNewCells);
+  outCD->CopyAllocate(cd,numNewCells);
 
   //  Create points along each polyline that are connected into NumberOfSides
   //  triangle strips. Texture coordinates are optionally generated.
