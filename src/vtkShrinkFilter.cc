@@ -49,7 +49,7 @@ void vtkShrinkFilter::Execute()
 {
   vtkFloatPoints *newPts;
   int i, j, cellId, numCells, numPts;
-  int oldId, newId;
+  int oldId, newId, numIds;
   float center[3], *p, pt[3];
   vtkPointData *pd, *outPD;;
   vtkIdList ptIds(VTK_CELL_SIZE), newPtIds(VTK_CELL_SIZE);
@@ -77,18 +77,20 @@ void vtkShrinkFilter::Execute()
   for (cellId=0; cellId < numCells; cellId++)
     {
     this->Input->GetCellPoints(cellId,ptIds);
+    numIds = ptIds.GetNumberOfIds();
 
     // get the center of the cell
     center[0] = center[1] = center[2] = 0.0;
-    for (i=0; i < ptIds.GetNumberOfIds(); i++)
+    for (i=0; i < numIds; i++)
       {
       p = this->Input->GetPoint(ptIds.GetId(i));
       for (j=0; j < 3; j++) center[j] += p[j];
       }
-    for (j=0; j<3; j++) center[j] /= ptIds.GetNumberOfIds();
+    for (j=0; j<3; j++) center[j] /= numIds;
 
     // Create new points and cells
-    for (i=0; i < ptIds.GetNumberOfIds(); i++)
+    newPtIds.Reset();
+    for (i=0; i < numIds; i++)
       {
       p = this->Input->GetPoint(ptIds.GetId(i));
       for (j=0; j < 3; j++)
