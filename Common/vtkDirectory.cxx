@@ -18,7 +18,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.22");
+vtkCxxRevisionMacro(vtkDirectory, "1.23");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -110,7 +110,12 @@ int vtkDirectory::Open(const char* name)
   struct _finddata_t data;      // data of current file
   
   // First count the number of files in the directory
-  long srchHandle = _findfirst(buf, &data);
+#if _MSC_VER < 1300
+  long srchHandle;
+#else
+  intptr_t srchHandle;
+#endif
+  srchHandle = _findfirst(buf, &data);
   if (srchHandle == -1)
     {
     this->NumberOfFiles = 0;
@@ -120,6 +125,7 @@ int vtkDirectory::Open(const char* name)
     }
   
   this->NumberOfFiles = 1;
+  
   while(_findnext(srchHandle, &data) != -1)
     {
     this->NumberOfFiles++;
