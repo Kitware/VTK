@@ -540,5 +540,21 @@ void vtkPolyLine::Clip(float value, vtkFloatScalars *cellScalars,
                        vtkPointData *inPd, vtkPointData *outPd,
                        int insideOut)
 {
+  int i;
+  vtkFloatScalars lineScalars(2); lineScalars.ReferenceCountingOff();
+  static vtkLine line;
 
+  for ( i=0; i < this->Points.GetNumberOfPoints()-1; i++)
+    {
+    line.Points.SetPoint(0,this->Points.GetPoint(i));
+    line.Points.SetPoint(1,this->Points.GetPoint(i+1));
+
+    line.PointIds.SetId(0,this->PointIds.GetId(i));
+    line.PointIds.SetId(1,this->PointIds.GetId(i+1));
+
+    lineScalars.SetScalar(0,cellScalars->GetScalar(i));
+    lineScalars.SetScalar(1,cellScalars->GetScalar(i+1));
+
+    line.Clip(value, &lineScalars, locator, lines, inPd, outPd, insideOut);
+    }
 }

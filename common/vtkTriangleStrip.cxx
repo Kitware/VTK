@@ -311,5 +311,25 @@ void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars,
                             vtkPointData *inPd, vtkPointData *outPd,
                             int insideOut)
 {
+  int i;
+  vtkFloatScalars triScalars(2); triScalars.ReferenceCountingOff();
+  static vtkTriangle tri;
+
+  for ( i=0; i < this->Points.GetNumberOfPoints()-2; i++)
+    {
+    tri.Points.SetPoint(0,this->Points.GetPoint(i));
+    tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
+
+    tri.PointIds.SetId(0,this->PointIds.GetId(i));
+    tri.PointIds.SetId(1,this->PointIds.GetId(i+1));
+    tri.PointIds.SetId(2,this->PointIds.GetId(i+2));
+
+    triScalars.SetScalar(0,cellScalars->GetScalar(i));
+    triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
+    triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
+
+    tri.Clip(value, &triScalars, locator, tris, inPd, outPd, insideOut);
+    }
 
 }

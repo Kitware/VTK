@@ -190,9 +190,26 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId),
 }
 
 void vtkPolyVertex::Clip(float value, vtkFloatScalars *cellScalars, 
-                         vtkPointLocator *locator, vtkCellArray *pts,
-                         vtkPointData *inPd, vtkPointData *outPd,
+                         vtkPointLocator *locator, vtkCellArray *verts,
+                         vtkPointData *inPD, vtkPointData *outPD,
                          int insideOut)
 {
+  float s, x[3];
+  int pts[1], i;
 
+  for ( i=0; i < this->Points.GetNumberOfPoints(); i++ )
+    {
+    s = cellScalars->GetScalar(i);
+
+    if ( (!insideOut && s > value) || (insideOut && s <= value) )
+      {
+      this->Points.GetPoint(i,x);
+      if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
+        {
+        pts[0] = locator->InsertNextPoint(x);
+        outPD->CopyData(inPD,this->PointIds.GetId(i),pts[0]);
+        }
+      verts->InsertNextCell(1,pts);
+      }
+    }
 }
