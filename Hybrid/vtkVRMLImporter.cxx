@@ -1,5 +1,5 @@
 
-#if defined (__digital__) && defined (__unix__)
+#if defined (__digital__) && defined (__unix__) || defined(__IBMCPP__)
 #define HAVE_ALLOCA_H 1
 #endif
 
@@ -4257,7 +4257,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.70");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.71");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
