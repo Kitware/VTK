@@ -514,7 +514,7 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
     }
 
   clist[clistlen++] = r1;
-  clist[clistlen++] = r2;
+  clist[clistlen++] = r2 + 1;
 }
 
   
