@@ -19,7 +19,7 @@ ENDIF (HAVE_PNG)
 
 IF (VTK_USE_HYBRID)
   ADD_EXECUTABLE(ParallelIso ParallelIso)
-  TARGET_LINK_LIBRARIES(ParallelIso vtkPatented vtkHybrid)
+  TARGET_LINK_LIBRARIES(ParallelIso vtkHybrid)
 ENDIF (VTK_USE_HYBRID)
 
 
