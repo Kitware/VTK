@@ -1065,6 +1065,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
           this->RotateCamera(this->LastPos[0],this->LastPos[1]);
           }
         }
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       
     case VTKIS_PAN: // move perpendicular to camera's look vector
@@ -1093,6 +1094,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
           this->PanCamera(this->LastPos[0],this->LastPos[1]);
           }
         }
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       
     case VTKIS_ZOOM:
@@ -1108,6 +1110,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
           this->DollyCamera(this->LastPos[0],this->LastPos[1]);
           }
         }
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       
     case VTKIS_SPIN:
@@ -1136,6 +1139,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
           this->SpinCamera(this->LastPos[0],this->LastPos[1]);
           }
         }
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       
     case VTKIS_DOLLY:  // move along camera's view vector
@@ -1152,6 +1156,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
                                  this->LastPos[1]);
           }
         }
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       
     case VTKIS_USCALE:
@@ -1168,6 +1173,7 @@ void vtkInteractorStyleTrackball::OnTimer(void)
                                    this->LastPos[1]);
           }
         }
+      rwi->CreateTimer(VTKI_TIMER_UPDATE);
       break;
       
     case VTKIS_TIMER:
