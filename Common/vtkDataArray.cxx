@@ -33,7 +33,7 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.53");
+vtkCxxRevisionMacro(vtkDataArray, "1.54");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -575,7 +575,9 @@ unsigned long vtkDataArray::GetActualMemorySize()
 {
   unsigned long numPrims;
   float size = 0.0;
-  numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
+  // The allocated array may be larger than the number of primatives used.
+  //numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
+  numPrims = this->GetSize();
 
   switch (this->GetDataType())
     {
