@@ -186,7 +186,6 @@ public:
   float GetZ (int x, int y);
 
 protected:
-  void UpdateViewRays();
 
   vtkRayCaster *RayCaster;
 
