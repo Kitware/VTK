@@ -18,6 +18,7 @@
 #include "vtkVolumeTextureMapper2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkLargeInteger.h"
 
 #define VTK_PLUS_X_MAJOR_DIRECTION  0
 #define VTK_MINUS_X_MAJOR_DIRECTION 1
@@ -462,7 +463,7 @@ VolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.41");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.42");
 
 vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
 {
@@ -768,24 +769,47 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
   this->ComputeAxisTextureSize( 1, this->AxisTextureSize[1] );
   this->ComputeAxisTextureSize( 2, this->AxisTextureSize[2] );
 
-  int neededSize = 4 *
-    (( this->AxisTextureSize[0][0] *
-      this->AxisTextureSize[0][1] *
-      this->AxisTextureSize[0][2] ) +
-    ( this->AxisTextureSize[1][0] *
-      this->AxisTextureSize[1][1] *
-      this->AxisTextureSize[1][2] ) +
-    ( this->AxisTextureSize[2][0] *
-      this->AxisTextureSize[2][1] *
-      this->AxisTextureSize[2][2] ));
-  
-  this->SaveTextures = 
-    ( neededSize <= this->MaximumStorageSize && !this->Shade );
-  
+  vtkLargeInteger neededSize;
+  vtkLargeInteger tmpInt;
+
+
+  neededSize = 
+    this->AxisTextureSize[0][0];
+  neededSize = neededSize *
+    this->AxisTextureSize[0][1] *
+    this->AxisTextureSize[0][2] ;
+
+  tmpInt =
+    this->AxisTextureSize[1][0];
+  tmpInt = tmpInt *
+    this->AxisTextureSize[1][1] *
+    this->AxisTextureSize[1][2];
+  neededSize = neededSize + tmpInt;
+
+  tmpInt =  
+    this->AxisTextureSize[2][0];
+  tmpInt = tmpInt *
+    this->AxisTextureSize[2][1] *
+    this->AxisTextureSize[2][2];
+  neededSize = neededSize + tmpInt;
+
+  neededSize *= 4;
+
+  if ( neededSize.GetLength() > 31 )
+    {
+    this->SaveTextures = 0;
+    }
+  else
+    {
+    this->SaveTextures = 
+      ( neededSize.CastToLong() <= this->MaximumStorageSize && 
+        !this->Shade );
+    }
+
   if ( this->SaveTextures )
     {
-    this->Texture = new unsigned char [neededSize];
-    this->TextureSize = neededSize;
+    this->Texture = new unsigned char [neededSize.CastToLong()];
+    this->TextureSize = neededSize.CastToLong();
     
     int savedDirection = this->MajorDirection;
 
