@@ -583,8 +583,8 @@ int TestException()
 void TestVoidReturnInner() {}
 void TestVoidReturnOuter()
 {
-  // Visual Studio 6 does not support void returns.
-#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
+  // Visual Studio 6 and MIPSpro 7.3 do not support void returns.
+#if !(defined(_MSC_VER) && (_MSC_VER < 1300) || defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 740))
   return TestVoidReturnInner();
 #endif
 }
