@@ -11,7 +11,8 @@
 #include "vtkImageDifference.h"
 #include "vtkGetDataRoot.h"
 
-int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw ) 
+int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw, 
+                            float thresh ) 
 {
   int imageIndex=-1;
 
@@ -65,7 +66,7 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
     rt_id->Update(); 
     rt_w2if->Delete(); 
     rt_png->Delete(); 
-    if (rt_id->GetThresholdedError() <= 10) 
+    if (rt_id->GetThresholdedError() <= thresh) 
       { 
       rt_id->Delete(); 
       delete[] fname;
@@ -93,6 +94,9 @@ int vtkRegressionTestImage2(int argc, char *argv[], vtkWindow *rw )
 }
 
 #define vtkRegressionTestImage(rw) \
-vtkRegressionTestImage2(argc, argv, rw)
+vtkRegressionTestImage2(argc, argv, rw, 10)
+
+#define vtkRegressionTestImageThreshold(rw, t) \
+vtkRegressionTestImage2(argc, argv, rw, t)
 
 #endif // __vtkRegressionTestImage_h
