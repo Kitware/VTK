@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-
+static const float VTK_DIVERGED = 1.e6;
 
 //------------------------------------------------------------------------------
 vtkWedge* vtkWedge::New()
@@ -147,7 +147,8 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
       }
 
     //  compute determinants and generate improvements
-    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 ) 
+    d=vtkMath::Determinant3x3(rcol,scol,tcol);
+    if ( fabs(d) < 1.e-20) 
       {
       return -1;
       }
@@ -163,7 +164,13 @@ int vtkWedge::EvaluatePosition(float x[3], float* closestPoint,
       {
       converged = 1;
       }
-
+    // Test for bad divergence (S.Hirschberg 11.12.2001)
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
+	     (fabs(pcoords[1]) > VTK_DIVERGED) || 
+	     (fabs(pcoords[2]) > VTK_DIVERGED))
+      {
+      return -1;
+      }
     //  if not converged, repeat
     else 
       {

@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-
+static const float VTK_DIVERGED = 1.e6;
 
 //------------------------------------------------------------------------------
 vtkPyramid* vtkPyramid::New()
@@ -147,7 +147,8 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
       }
 
     //  compute determinants and generate improvements
-    if ( (d=vtkMath::Determinant3x3(rcol,scol,tcol)) == 0.0 ) 
+    d=vtkMath::Determinant3x3(rcol,scol,tcol);
+    if ( fabs(d) < 1.e-20) 
       {
       return -1;
       }
@@ -158,12 +159,18 @@ int vtkPyramid::EvaluatePosition(float x[3], float closestPoint[3],
 
     //  check for convergence
     if ( ((fabs(pcoords[0]-params[0])) < VTK_CONVERGED) &&
-    ((fabs(pcoords[1]-params[1])) < VTK_CONVERGED) &&
-    ((fabs(pcoords[2]-params[2])) < VTK_CONVERGED) )
+	 ((fabs(pcoords[1]-params[1])) < VTK_CONVERGED) &&
+	 ((fabs(pcoords[2]-params[2])) < VTK_CONVERGED) )
       {
       converged = 1;
       }
-
+    // Test for bad divergence (S.Hirschberg 11.12.2001)
+    else if ((fabs(pcoords[0]) > VTK_DIVERGED) || 
+	     (fabs(pcoords[1]) > VTK_DIVERGED) || 
+	     (fabs(pcoords[2]) > VTK_DIVERGED))
+      {
+      return -1;
+      }
     //  if not converged, repeat
     else 
       {
