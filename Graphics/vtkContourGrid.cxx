@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.23");
+vtkCxxRevisionMacro(vtkContourGrid, "1.24");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -55,6 +55,10 @@ vtkContourGrid::~vtkContourGrid()
     {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
+    }
+  if ( this->ScalarTree )
+    {
+    this->ScalarTree->Delete();
     }
   this->SetInputScalarsSelection(NULL);
 }
