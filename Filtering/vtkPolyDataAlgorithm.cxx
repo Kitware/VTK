@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkPolyDataAlgorithm, "1.14");
 vtkStandardNewMacro(vtkPolyDataAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -92,13 +92,20 @@ int vtkPolyDataAlgorithm::ProcessRequest(vtkInformation* request,
 
     // do we need to prepare all outputs? I think this should be done in the
     // executive
-    vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
-    output->PrepareForNewData();
+    vtkDataObject *output = 0;
+    if (info && info->Has(vtkDataObject::DATA_OBJECT()))
+      {
+      output = info->Get(vtkDataObject::DATA_OBJECT());
+      output->PrepareForNewData();
+      }
     int retVal = this->RequestData(request, inputVector, outputVector);
 
     // Mark the data as up-to-date. I think this should be done in the
     // executive
-    output->DataHasBeenGenerated();
+    if (output)
+      {
+      output->DataHasBeenGenerated();
+      }
     return retVal;
     }
 
@@ -257,18 +264,6 @@ void vtkPolyDataAlgorithm::SetInput(int index, vtkDataObject* input)
 }
 
 //----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::SetInput(vtkDataSet* input)
-{
-  this->SetInput(0, static_cast<vtkDataObject*>(input));
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::SetInput(int index, vtkDataSet* input)
-{
-  this->SetInput(index, static_cast<vtkDataObject*>(input));
-}
-
-//----------------------------------------------------------------------------
 void vtkPolyDataAlgorithm::AddInput(vtkDataObject* input)
 {
   this->AddInput(0, input);
@@ -283,14 +278,3 @@ void vtkPolyDataAlgorithm::AddInput(int index, vtkDataObject* input)
     }
 }
 
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::AddInput(vtkDataSet* input)
-{
-  this->AddInput(0, static_cast<vtkDataObject*>(input));
-}
-
-//----------------------------------------------------------------------------
-void vtkPolyDataAlgorithm::AddInput(int index, vtkDataSet* input)
-{
-  this->AddInput(index, static_cast<vtkDataObject*>(input));
-}
