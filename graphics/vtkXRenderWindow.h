@@ -124,7 +124,8 @@ public:
   // Description:
   // Move the window to a new position on the display.
   void     SetPosition(int,int);
-
+  void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};
+  
   // Description:
   // Get the properties available at runtime that would result in 
   // the best Xwindow for 3D rendering.

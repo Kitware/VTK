@@ -103,6 +103,7 @@ public:
   // Description:
   // Specify the size of the rendering window.
   void SetSize(int,int);
+  void SetSize(int a[2]) {this->SetSize(a[0], a[1]);};
 
   // Description:
   // Get the X properties of an ideal rendering window.
