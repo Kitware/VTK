@@ -43,7 +43,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.92");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.93");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -65,6 +65,7 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->ListId = 0;
+  this->TotalCells = 0;
 }
 
 // Destructor (don't call ReleaseGraphicsResources() since it is virtual
@@ -393,6 +394,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
       { \
       cellNum += 10000; \
       count = 0; \
+      this->UpdateProgress((double)cellNum/this->TotalCells); \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
         { \
         noAbort = 0; \
@@ -425,6 +427,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
       { \
       cellNum += 10000; \
       count = 0; \
+      this->UpdateProgress((double)cellNum/this->TotalCells); \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
         { \
         noAbort = 0; \
@@ -457,6 +460,7 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
       { \
       cellNum += 10000; \
       count = 0; \
+      this->UpdateProgress((double)cellNum/this->TotalCells); \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
         { \
         noAbort = 0; \
@@ -527,15 +531,15 @@ static void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
     } \
 }
 
-void vtkOpenGLPolyDataMapperDrawPoints(int idx,
-                                       vtkPoints *p, 
-                                       vtkDataArray *n,
-                                       vtkUnsignedCharArray *c,
-                                       vtkDataArray *t,
-                                       vtkIdType &cellNum,
-                                       int &noAbort,
-                                       vtkCellArray *ca,
-                                       vtkRenderer *ren)
+void vtkOpenGLPolyDataMapper::DrawPoints(int idx,
+                                         vtkPoints *p, 
+                                         vtkDataArray *n,
+                                         vtkUnsignedCharArray *c,
+                                         vtkDataArray *t,
+                                         vtkIdType &cellNum,
+                                         int &noAbort,
+                                         vtkCellArray *ca,
+                                         vtkRenderer *ren)
 {
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
@@ -600,7 +604,7 @@ void vtkOpenGLPolyDataMapperDrawPoints(int idx,
     int j;
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
-    int count = 0;
+    unsigned short count = 0;
     glBegin(GL_POINTS);
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(npts,pts); 
          count++)
@@ -637,9 +641,11 @@ void vtkOpenGLPolyDataMapperDrawPoints(int idx,
         }
       
       // check for abort condition
-      if (count == 100)
+      if (count == 10000)
         {
         count = 0;
+        // report progress
+        this->UpdateProgress((double)cellNum/this->TotalCells);
         if (ren->GetRenderWindow()->CheckAbortStatus())
           {
           noAbort = 0;
@@ -653,15 +659,15 @@ void vtkOpenGLPolyDataMapperDrawPoints(int idx,
 }
 
 
-void vtkOpenGLPolyDataMapperDrawLines(int idx,
-                                      vtkPoints *p, 
-                                      vtkDataArray *n,
-                                      vtkUnsignedCharArray *c,
-                                      vtkDataArray *t,
-                                      vtkIdType &cellNum,
-                                      int &noAbort,
-                                      vtkCellArray *ca,
-                                      vtkRenderer *ren)
+void vtkOpenGLPolyDataMapper::DrawLines(int idx,
+                                        vtkPoints *p, 
+                                        vtkDataArray *n,
+                                        vtkUnsignedCharArray *c,
+                                        vtkDataArray *t,
+                                        vtkIdType &cellNum,
+                                        int &noAbort,
+                                        vtkCellArray *ca,
+                                        vtkRenderer *ren)
 {
   void *voidPoints = p->GetVoidPointer(0);
   void *voidNormals = 0;
@@ -728,7 +734,7 @@ void vtkOpenGLPolyDataMapperDrawLines(int idx,
     int j;
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
-    int count = 0;
+    unsigned short count = 0;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(npts,pts); 
          count++)
       { 
@@ -766,9 +772,11 @@ void vtkOpenGLPolyDataMapperDrawLines(int idx,
       glEnd();
       
       // check for abort condition
-      if (count == 100)
+      if (count == 10000)
         {
         count = 0;
+        // report progress
+        this->UpdateProgress((double)cellNum/this->TotalCells);
         if (ren->GetRenderWindow()->CheckAbortStatus())
           {
           noAbort = 0;
@@ -791,7 +799,7 @@ void vtkOpenGLPolyDataMapperDrawLines(int idx,
 #define PolyNormal \
 { double polyNorm[3]; vtkPolygon::ComputeNormal(p,nPts,ptIds,polyNorm); glNormal3dv(polyNorm); }
 
-void vtkOpenGLPolyDataMapperDrawPolygons(int idx,
+void vtkOpenGLPolyDataMapper::DrawPolygons(int idx,
                                          vtkPoints *p, 
                                          vtkDataArray *n,
                                          vtkUnsignedCharArray *c,
@@ -949,7 +957,7 @@ void vtkOpenGLPolyDataMapperDrawPolygons(int idx,
     int j;
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
-    int count = 0;
+    unsigned short count = 0;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(npts,pts); 
          count++)
       { 
@@ -993,9 +1001,11 @@ void vtkOpenGLPolyDataMapperDrawPolygons(int idx,
       glEnd();
       
       // check for abort condition
-      if (count == 100)
+      if (count == 10000)
         {
         count = 0;
+        // report progress
+        this->UpdateProgress((double)cellNum/this->TotalCells);
         if (ren->GetRenderWindow()->CheckAbortStatus())
           {
           noAbort = 0;
@@ -1029,7 +1039,7 @@ vcount++;
   vtkTriangle::ComputeNormal(p, 3, ptIds, polyNorm); \
   glNormal3dv(polyNorm); int vcount = 0;
 
-void vtkOpenGLPolyDataMapperDrawTStrips(int idx,
+void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
                                         vtkPoints *p, 
                                         vtkDataArray *n,
                                         vtkUnsignedCharArray *c,
@@ -1124,7 +1134,7 @@ void vtkOpenGLPolyDataMapperDrawTStrips(int idx,
     {
     int j;
     vtkIdType nPts = 0;
-    int count = 0;
+    unsigned short count = 0;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(nPts,ptIds); 
          count++)
       { 
@@ -1183,9 +1193,11 @@ void vtkOpenGLPolyDataMapperDrawTStrips(int idx,
       glEnd();
       
       // check for abort condition
-      if (count == 100)
+      if (count == 10000)
         {
         count = 0;
+        // report progress
+        this->UpdateProgress((double)cellNum/this->TotalCells);
         if (ren->GetRenderWindow()->CheckAbortStatus())
           {
           noAbort = 0;
@@ -1596,6 +1608,13 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       }
     }
 
+  // we need to know the total number of cells so that we can report progress
+  this->TotalCells = 
+    input->GetVerts()->GetNumberOfCells() + 
+    input->GetLines()->GetNumberOfCells() + 
+    input->GetPolys()->GetNumberOfCells() + 
+    input->GetStrips()->GetNumberOfCells();
+  
   // For verts or lines that have no normals, disable shading.
   // This will fall back on the color set in the glColor4fv() 
   // call in vtkOpenGLProperty::Render() - the color returned
@@ -1605,8 +1624,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     glDisable( GL_LIGHTING);
     }
 
-  vtkOpenGLPolyDataMapperDrawPoints(idx,p,n,c,t,cellNum,noAbort,
-                                    input->GetVerts(), ren);
+  this->DrawPoints(idx,p,n,c,t,cellNum,noAbort,input->GetVerts(), ren);
   
   // do lines
   if ( zResolve )
@@ -1615,13 +1633,11 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   if (rep == VTK_POINTS)
     {
-    vtkOpenGLPolyDataMapperDrawPoints(idx,p,n,c,t,cellNum, noAbort,
-                                      input->GetLines(), ren);
+    this->DrawPoints(idx,p,n,c,t,cellNum, noAbort,input->GetLines(), ren);
     }
   else
     {
-    vtkOpenGLPolyDataMapperDrawLines(idx,p,n,c,t,cellNum, noAbort,
-                                     input->GetLines(), ren);
+    this->DrawLines(idx,p,n,c,t,cellNum, noAbort, input->GetLines(), ren);
     }
   
   // reset the lighting if we turned it off
@@ -1639,18 +1655,17 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   // do polys
   if (rep == VTK_POINTS)
     {
-    vtkOpenGLPolyDataMapperDrawPoints(idx,p,n,c,t,cellNum, noAbort,
-                                      input->GetPolys(), ren);
+    this->DrawPoints(idx,p,n,c,t,cellNum, noAbort, input->GetPolys(), ren);
     }
   else if (rep == VTK_WIREFRAME)
     {
-    vtkOpenGLPolyDataMapperDrawPolygons(idx,p,n,c,t,cellNum, noAbort, 
-                                        GL_LINE_LOOP, input->GetPolys(), ren);
+    this->DrawPolygons(idx,p,n,c,t,cellNum, noAbort,
+                       GL_LINE_LOOP, input->GetPolys(), ren);
     }
   else
     {
-    vtkOpenGLPolyDataMapperDrawPolygons(idx,p,n,c,t,cellNum, noAbort,
-                                        GL_POLYGON, input->GetPolys(), ren);
+    this->DrawPolygons(idx,p,n,c,t,cellNum, noAbort,
+                       GL_POLYGON, input->GetPolys(), ren);
     }
   
 
@@ -1661,24 +1676,21 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   if (rep == VTK_POINTS)
     {
-    vtkOpenGLPolyDataMapperDrawPoints(idx,p,n,c,t,cellNum, noAbort, 
-                                      input->GetStrips(), ren);
+    this->DrawPoints(idx,p,n,c,t,cellNum, noAbort, input->GetStrips(), ren);
     }
   else if (rep == VTK_WIREFRAME)
     {
     vtkIdType oldCellNum = cellNum;
-    vtkOpenGLPolyDataMapperDrawTStrips(idx,p,n,c,t,cellNum, noAbort,
-                                       GL_LINE_STRIP, input->GetStrips(), 
-                                       ren);
+    this->DrawTStrips(idx,p,n,c,t,cellNum, noAbort,
+                      GL_LINE_STRIP, input->GetStrips(), ren);
     vtkOpenGLPolyDataMapperDrawTStripLines(idx,p,n,c,t,oldCellNum, noAbort,
                                            GL_LINE_STRIP, input->GetStrips(), 
                                            ren);
     }
   else
     {
-    vtkOpenGLPolyDataMapperDrawTStrips(idx,p,n,c,t,cellNum, noAbort,
-                                       GL_TRIANGLE_STRIP, input->GetStrips(), 
-                                       ren);
+    this->DrawTStrips(idx,p,n,c,t,cellNum, noAbort,
+                      GL_TRIANGLE_STRIP, input->GetStrips(), ren);
     }
 
   // enable lighting again if necessary
@@ -1701,6 +1713,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
       }
     }
 
+  this->UpdateProgress(1.0); 
   return noAbort;
 }
 

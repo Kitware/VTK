@@ -23,6 +23,14 @@
 
 #include "vtkPolyDataMapper.h"
 
+#if defined(__APPLE__) && (defined(VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+#include <OpenGL/gl.h> // Needed for GLenum
+#else
+#include <GL/gl.h> // Needed for GLenum
+#endif
+
+class vtkCellArray;
+class vtkPoints;
 class vtkProperty;
 class vtkRenderWindow;
 class vtkOpenGLRenderer;
@@ -52,6 +60,49 @@ protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
 
+  void DrawPoints(int idx,
+                  vtkPoints *p, 
+                  vtkDataArray *n,
+                  vtkUnsignedCharArray *c,
+                  vtkDataArray *t,
+                  vtkIdType &cellNum,
+                  int &noAbort,
+                  vtkCellArray *ca,
+                  vtkRenderer *ren);
+  
+  void DrawLines(int idx,
+                 vtkPoints *p, 
+                 vtkDataArray *n,
+                 vtkUnsignedCharArray *c,
+                 vtkDataArray *t,
+                 vtkIdType &cellNum,
+                 int &noAbort,
+                 vtkCellArray *ca,
+                 vtkRenderer *ren);
+
+  void DrawPolygons(int idx,
+                    vtkPoints *p, 
+                    vtkDataArray *n,
+                    vtkUnsignedCharArray *c,
+                    vtkDataArray *t,
+                    vtkIdType &cellNum,
+                    int &noAbort,
+                    GLenum rep,
+                    vtkCellArray *ca,
+                    vtkRenderer *ren);
+
+  void DrawTStrips(int idx,
+                   vtkPoints *p, 
+                   vtkDataArray *n,
+                   vtkUnsignedCharArray *c,
+                   vtkDataArray *t,
+                   vtkIdType &cellNum,
+                   int &noAbort,
+                   GLenum rep,
+                   vtkCellArray *ca,
+                   vtkRenderer *ren);
+    
+  vtkIdType TotalCells;
   int ListId;
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);  // Not implemented.
