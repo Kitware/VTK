@@ -55,7 +55,7 @@ public:
     }
 };
 
-vtkCxxRevisionMacro(vtkPushImageReader, "1.8");
+vtkCxxRevisionMacro(vtkPushImageReader, "1.9");
 vtkStandardNewMacro(vtkPushImageReader);
 
 vtkPushImageReader::vtkPushImageReader()
@@ -157,7 +157,7 @@ void vtkPushImageReaderUpdate(vtkPushImageReader *self,
         {
         vtkGenericWarningMacro("File operation failed. row = " << idx1
                                << ", Read = " << streamRead
-                               << ", FilePos = " << self->GetFile()->tellg());
+                               << ", FilePos = " << static_cast<vtkIdType>(self->GetFile()->tellg()));
         return;
         }
       // handle swapping
