@@ -14,15 +14,15 @@ main ()
 
   // read the geometry file containing the letter v
   vtkPolyDataReader *letterVBYU = vtkPolyDataReader::New();
-      letterVBYU->SetFileName ("v.vtk");
+      letterVBYU->SetFileName ("../../../vtkdata/v.vtk");
 
   // read the geometry file containing the letter t
   vtkPolyDataReader *letterTBYU = vtkPolyDataReader::New();
-      letterTBYU->SetFileName ("t.vtk");
+      letterTBYU->SetFileName ("../../../vtkdata/t.vtk");
 
   // read the geometry file containing the letter k
   vtkPolyDataReader *letterKBYU = vtkPolyDataReader::New();
-      letterKBYU->SetFileName ("k.vtk");
+      letterKBYU->SetFileName ("../../../vtkdata/k.vtk");
 
   // create a transform and transform filter for each letter
   vtkTransform *VTransform = vtkTransform::New();
