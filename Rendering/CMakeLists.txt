@@ -209,12 +209,18 @@ IF (VTK_WRAP_PYTHON)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          debug ${PYTHON_DEBUG_LIBRARY} 
                          optimized ${PYTHON_LIBRARY})
-  SOURCE_FILES(RenderingPythonTkWidgets_SRCS 
-     vtkTkRenderWidgetPython
-     vtkTkImageViewerWidgetPython
-     vtkTkImageWindowWidgetPython)
-  ADD_LIBRARY(vtkRenderingPythonTkWidgets RenderingPythonTkWidgets_SRCS)
   INSTALL_TARGETS(/lib vtkRenderingPython)
+  IF (TK_LIBRARY)
+     SOURCE_FILES(RenderingPythonTkWidgets_SRCS 
+        vtkTkRenderWidgetPython
+        vtkTkImageViewerWidgetPython
+        vtkTkImageWindowWidgetPython)
+     ADD_LIBRARY(vtkRenderingPythonTkWidgets RenderingPythonTkWidgets_SRCS)
+     TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets 
+                            ${TCL_LIBRARY}
+                            ${TK_LIBRARY})
+     INSTALL_TARGETS(/lib vtkRenderingPythonTkWidgets)
+  ENDIF (TK_LIBRARY)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra 
