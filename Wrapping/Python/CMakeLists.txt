@@ -3,6 +3,11 @@
 IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
   IF (CMAKE_MINOR_VERSION MATCHES [4-9][0-9]*)
 
+# Create a setup.py file.
+CONFIGURE_FILE(
+  ${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in 
+  ${VTK_BINARY_DIR}/Wrapping/Python/setup.py)
+
 # create the VTK/Python  executable
 CONFIGURE_FILE(
   ${VTK_SOURCE_DIR}/Wrapping/Python/vtkpython.cxx.in 
