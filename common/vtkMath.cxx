@@ -345,7 +345,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
   static int *index = NULL, maxSize=0;
   static double *column = NULL;
-  int i, j;
+
   //
   // Check on allocation of working vectors
   //
@@ -362,31 +362,7 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
     column = new double[size];
     maxSize = size;
     }
-  //
-  // Factor matrix; then begin solving for inverse one column at a time.
-  //
-  if ( vtkMath::LUFactorLinearSystem(A, index, size) == 0 )
-    {
-    return 0;
-    }
-  
-  for ( i=0; i < size; i++ )
-    {
-    for ( j=0; j < size; j++ )
-      {
-      column[j] = 0.0;
-      }
-    column[i] = 1.0;
-
-    vtkMath::LUSolveLinearSystem(A,index,column,size);
-
-    for ( j=0; j < size; j++ )
-      {
-      AI[i][j] = column[j];
-      }
-    }
-
-  return 1;
+  return vtkMath::InvertMatrix(A, AI, size, index, column);
 }
 
 // Factor linear equations Ax = b using LU decompostion A = LU where L is
@@ -396,25 +372,11 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 // found, method returns 0. 
 int vtkMath::LUFactorLinearSystem(double **A, int *index, int size)
 {
-  double *scale = NULL;
-  int maxSize=0;
+  double *scale = new double[size];
   int i, j, k;
   int maxI = 0;
   double largest, temp1, temp2, sum;
-  //
-  // Check on allocation of working vectors
-  //
-  if ( scale == NULL ) 
-    {
-    scale = new double[size];
-    maxSize = size;
-    } 
-  else if ( size > maxSize ) 
-    {
-    delete [] scale; 
-    scale = new double[size];
-    maxSize = size;
-    }
+
   //
   // Loop over rows to get implicit scaling information
   //
@@ -789,7 +751,7 @@ double vtkMath::EstimateMatrixCondition(double **A, int size)
     {
     if ( fabs(A[i][i]) < min )
       {
-      min = fabs(A[i][j]);
+      min = fabs(A[i][i]);
       }
     }
 
@@ -1183,19 +1145,19 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size,
     return 0;
     }
   
-  for ( i=0; i < size; i++ )
+  for ( j=0; j < size; j++ )
     {
-    for ( j=0; j < size; j++ )
+    for ( i=0; i < size; i++ )
       {
-      tmp2Size[j] = 0.0;
+      tmp2Size[i] = 0.0;
       }
-    tmp2Size[i] = 1.0;
+    tmp2Size[j] = 1.0;
 
     vtkMath::LUSolveLinearSystem(A,tmp1Size,tmp2Size,size);
 
-    for ( j=0; j < size; j++ )
+    for ( i=0; i < size; i++ )
       {
-      AI[i][j] = tmp2Size[j];
+      AI[i][j] = tmp2Size[i];
       }
     }
 
