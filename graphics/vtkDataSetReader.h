@@ -129,8 +129,9 @@ public:
   char *GetFieldDataName();
 
   // Description:
-  // Get the output of this source.
-  vtkDataSet *GetOutput() {return (vtkDataSet *)this->Output;};
+  // Get the output of this source. Since we need to know the type
+  // of the data, the FileName must be set before GetOutput is apploed.
+  vtkDataSet *GetOutput();
 
 protected:
   void Execute();

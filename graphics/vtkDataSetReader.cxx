@@ -50,14 +50,30 @@ vtkDataSetReader::vtkDataSetReader()
 {
   this->Reader = vtkDataReader::New();
   this->Reader->SetSource(this);
+  this->Output = NULL;
 }
 
 
 vtkDataSetReader::~vtkDataSetReader()
 {
   this->Reader->Delete();
+  this->Reader = NULL;
+  if (this->Output)
+    {
+    this->Output->UnRegister(this);
+    this->Output = NULL;
+    }
 }
 
+vtkDataSet * vtkDataSetReader::GetOutput() {
+    if (!this->Reader->GetFileName ())
+      {
+	vtkWarningMacro(<< "FileName must be set");
+	return (vtkDataSet *) NULL;
+      }
+    this->Update();
+    return (vtkDataSet *) this->Output;
+}
 
 unsigned long int vtkDataSetReader::GetMTime()
 {
@@ -203,6 +219,7 @@ void vtkDataSetReader::Execute()
     if (!this->Reader->ReadString(line))
       {
       vtkErrorMacro(<< "Premature EOF reading type");
+      this->Reader->CloseVTKFile ();
       return;
       }
 
@@ -222,6 +239,8 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
+      output->Register(this);
+      preader->Delete();
       }
 
     else if ( ! strncmp(line,"structured_points",17) )
@@ -239,6 +258,8 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
+      output->Register(this);
+      preader->Delete();
       }
 
     else if ( ! strncmp(line,"structured_grid",15) )
@@ -256,6 +277,8 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
+      output->Register(this);
+      preader->Delete();
       }
 
     else if ( ! strncmp(line,"rectilinear_grid",16) )
@@ -273,6 +296,8 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
+      output->Register(this);
+      preader->Delete();
       }
 
     else if ( ! strncmp(line,"unstructured_grid",17) )
@@ -290,6 +315,8 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
+      output->Register(this);
+      preader->Delete();
       }
 
     else
