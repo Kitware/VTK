@@ -1,6 +1,7 @@
 package vtk;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 public class vtkPanel extends Canvas implements 
   MouseListener, 
@@ -18,6 +19,7 @@ public class vtkPanel extends Canvas implements
   protected int LightFollowCamera = 1;
   protected int InteractionMode = 1;
   protected boolean rendering = false;
+  protected WindowObservable windowSetObservable = new WindowObservable();
   
   static { 
     System.loadLibrary("vtkCommonJava"); 
@@ -50,6 +52,14 @@ public class vtkPanel extends Canvas implements
   public vtkRenderWindow GetRenderWindow()
   {
     return rw;
+  }
+
+  public void addWindowSetObserver(Observer obs) {
+    windowSetObservable.addObserver(obs);
+  }
+
+  public void removeWindowSetObserver(Observer obs) {
+    windowSetObservable.deleteObserver(obs);
   }
   
   public void setSize(int x, int y)
@@ -97,6 +107,8 @@ public class vtkPanel extends Canvas implements
                 }
                 RenderCreate(rw);
                 windowset = 1;
+                // notify observers that we have a renderwindow created
+                windowSetObservable.notifyObservers();
               }
             Lock();
             rw.Render();
@@ -380,5 +392,22 @@ public class vtkPanel extends Canvas implements
   }
   
   public void keyReleased(KeyEvent e) {}
+
+  private class WindowObservable extends Observable {
+
+    public void notifyObservers() {
+      this.setChanged();
+      super.notifyObservers();
+    }
+     
+    public void notifyObservers(Object message) {
+      this.setChanged();
+      super.notifyObservers(message);
+    }
+    
+    public boolean hasObservers() {
+      return 0 < super.countObservers();
+    }
+  }
 
 }

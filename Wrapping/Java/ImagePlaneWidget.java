@@ -2,27 +2,30 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.util.*;
 import vtk.*;
 
 // Example of complex 3D widget in use.  Note that widgets must belong
 // to the vtkCanvas object in order for mutex locking to work properly.
 public class ImagePlaneWidget extends JPanel {
 
+  private int width = 512;
+  private int height = 512;
+
   public ImagePlaneWidget(String path) {
     setLayout(new BorderLayout());
 
-    ImageCanvas renWin = new ImageCanvas();
-    add(renWin, BorderLayout.CENTER);
+    final ImageCanvas renWin = new ImageCanvas();
 
-    JFrame frame = new JFrame("ImagePlaneWidget Test");
-    frame.setBounds(10, 10, 512, 512);
-    frame.getContentPane().add(this, BorderLayout.CENTER);
-    frame.pack();
-    frame.setVisible(true);
-    frame.addWindowListener(new WindowAdapter() 
-      {
-        public void windowClosing(WindowEvent e) {System.exit(0);}
+    // attach observer to set the render window size after
+    // the render window is created...
+    renWin.addWindowSetObserver(new Observer() {
+        public void update(Observable o, Object arg) {
+          renWin.setSize(width, height);
+        }
       });
+
+    add(renWin, BorderLayout.CENTER);
 
     //Start by loading some data.
     vtkVolume16Reader v16 = new vtkVolume16Reader();
@@ -35,31 +38,32 @@ public class ImagePlaneWidget extends JPanel {
 
     renWin.setImageData(v16.GetOutput());
 
+    JFrame frame = new JFrame("ImagePlaneWidget Test");
+    frame.setBounds(10, 10, width, height);
+    frame.getContentPane().add(this, BorderLayout.CENTER);
+    frame.setVisible(true);
+
+    frame.addWindowListener(new WindowAdapter() 
+      {
+        public void windowClosing(WindowEvent e) {System.exit(0);}
+      });
   }
 
   private class ImageCanvas extends vtkCanvas {
-    
-    protected vtkImagePlaneWidget planeWidgetX = null;
-    protected vtkImagePlaneWidget planeWidgetY = null;
-    protected vtkImagePlaneWidget planeWidgetZ = null;
-    private vtkImageData id = null;
-    private vtkCellPicker picker = null;
-    
+        
     public ImageCanvas() {
       super();
+    }
+
+    public void setImageData(vtkImageData id) {
 
       //The shared picker enables us to use 3 planes at one time
       //and gets the picking order right
-      picker = new vtkCellPicker();
+      vtkCellPicker picker = new vtkCellPicker();
       picker.SetTolerance(0.005);
-      
-    }
-
-    public void setImageData(vtkImageData _id) {
-      this.id = _id;
 
       //The 3 image plane widgets are used to probe the dataset.
-      planeWidgetX = new vtkImagePlaneWidget();
+      vtkImagePlaneWidget planeWidgetX = new vtkImagePlaneWidget();
       planeWidgetX.DisplayTextOn();
       planeWidgetX.SetInput(id);
       planeWidgetX.SetInteractor(iren);
@@ -70,7 +74,7 @@ public class ImagePlaneWidget extends JPanel {
       planeWidgetX.GetPlaneProperty().SetColor(1, 0, 0);
       planeWidgetX.On();
 
-      planeWidgetY = new vtkImagePlaneWidget();
+      vtkImagePlaneWidget planeWidgetY = new vtkImagePlaneWidget();
       planeWidgetY.DisplayTextOn();
       planeWidgetY.SetInput(id);
       planeWidgetY.SetInteractor(iren);
@@ -85,7 +89,7 @@ public class ImagePlaneWidget extends JPanel {
      //for the z-slice, turn off texture interpolation:
      //interpolation is now nearest neighbour, to demonstrate
      //cross-hair cursor snapping to pixel centers
-      planeWidgetZ = new vtkImagePlaneWidget();
+      vtkImagePlaneWidget planeWidgetZ = new vtkImagePlaneWidget();
       planeWidgetZ.DisplayTextOn();
       planeWidgetZ.SetInput(id);
       planeWidgetZ.TextureInterpolateOff();
@@ -161,5 +165,6 @@ public class ImagePlaneWidget extends JPanel {
       ImagePlaneWidget.printUsage(f.getAbsolutePath() + " does not exist or cannot be read.");
 
     new ImagePlaneWidget(f.getAbsolutePath() + "/quarter");
+
   }
 }
