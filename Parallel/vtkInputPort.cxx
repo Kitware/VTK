@@ -343,7 +343,7 @@ void vtkInputPort::UpdateInformation()
     }
   output->SetPipelineMTime(this->GetMTime());
   // Locality has to be changed too.
-  //output->GetDataInformation()->SetLocality(1.0);
+  output->SetLocality(1.0);
   
 }
 
