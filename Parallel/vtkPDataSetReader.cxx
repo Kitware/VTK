@@ -33,7 +33,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.19");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.20");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -479,7 +479,7 @@ void vtkPDataSetReader::ExecuteInformation()
   int type;
   
   // Start reading the meta-data pvtk file.
-  file = this->OpenFile(this->FileName);
+   file = this->OpenFile(this->FileName);
   if (file == NULL)
     {
     return;
@@ -768,13 +768,14 @@ void vtkPDataSetReader::ReadVTKFileInformation(ifstream *file)
       {
       this->SkipFieldData(file);
       file->getline(str, 1024, ' ');
+      vtkErrorMacro(<< str);
       }
-
     if (strncmp(str, "DIMENSIONS", 10) != 0)
       {
       vtkErrorMacro("Expecting 'DIMENSIONS' insted of: " << str);
       return;
       }
+        
     *file >> dx;
     *file >> dy;
     *file >> dz;
@@ -909,7 +910,17 @@ void vtkPDataSetReader::SkipFieldData(ifstream *file)
 
     // suckup new line.
     file->getline(name,256);
-    file->seekg(length, ios::cur);
+
+    char *buf = new char[length];
+
+    //int t = file->tellg();
+    // this seek did not work for some reason.
+    // it passed too many characters.
+    //file->seekg(length, ios::cur);
+    file->read(buf, length);
+
+    delete [] buf;
+
     // suckup new line.
     file->getline(name,256);
     if (file->fail())
