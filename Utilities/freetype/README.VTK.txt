@@ -19,7 +19,7 @@ builds\unix\ftconfig.h.in:
 include\ft2build.h:
   added:
 #if defined(VTKFREETYPE)
-#include "vtkfreetypeConfig.h"
+#include "vtkFreeTypeConfig.h"
 #endif
 
 include\freetype\config\ftoption.h:
