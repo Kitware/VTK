@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVector.txx"
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.4");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.5");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 //----------------------------------------------------------------------------
@@ -41,19 +41,6 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Number of Arrays: " << this->GetNumberOfArrays() << "\n";
-}
-
-//----------------------------------------------------------------------------
-int vtkDataArraySelection::AddArray(const char* name)
-{
-  vtkIdType pos=0;
-  if(this->ArrayNames->FindItem(name, pos) == VTK_OK)
-    {
-    return 0;
-    }
-  this->ArrayNames->AppendItem(name);
-  this->ArraySettings->AppendItem(1);
-  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -205,6 +192,22 @@ void vtkDataArraySelection::RemoveAllArrays()
     this->ArraySettings->RemoveAllItems();
     this->Modified();
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkDataArraySelection::AddArray(const char* name)
+{
+  // This function is called only by the filter owning the selection.
+  // It should not call Modified() because array settings are not
+  // changed.
+  vtkIdType pos=0;
+  if(this->ArrayNames->FindItem(name, pos) == VTK_OK)
+    {
+    return 0;
+    }
+  this->ArrayNames->AppendItem(name);
+  this->ArraySettings->AppendItem(1);
+  return 1;
 }
 
 //----------------------------------------------------------------------------
