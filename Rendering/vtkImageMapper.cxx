@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkImagingFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMapper, "1.40");
+vtkCxxRevisionMacro(vtkImageMapper, "1.41");
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
@@ -238,7 +238,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     this->DisplayExtent[4] = this->ZSlice;
     this->DisplayExtent[5] = this->ZSlice;
     //
-    this->GetInput()->SetUpdateExtent(this->DisplayExtent);
+    this->GetInput()->SetUpdateExtentToWholeExtent();
     // clear the position adjustment
     this->PositionAdjustment[0] = 0;
     this->PositionAdjustment[1] = 0;
