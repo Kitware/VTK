@@ -63,8 +63,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkMultiProcessControllerRMI : public vtkObject
 {
 public:
-  static vtkMultiProcessControllerRMI *New() 
-    {return new vtkMultiProcessControllerRMI;}
+  static vtkMultiProcessControllerRMI *New(); 
+
   const char *GetClassName() 
     {return "vtkMultiProcessControllerRMI";};
   
@@ -72,6 +72,18 @@ public:
   vtkRMIFunctionType Function;
   void *LocalArgument;
 };
+
+vtkMultiProcessControllerRMI* vtkMultiProcessControllerRMI::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessControllerRMI");
+  if(ret)
+    {
+    return (vtkMultiProcessControllerRMI*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMultiProcessControllerRMI;
+}
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -362,8 +374,7 @@ int vtkMultiProcessController::Receive(vtkDataObject *data,
 void vtkMultiProcessController::AddRMI(vtkRMIFunctionType f, 
                                        void *localArg, int tag)
 {
-  //vtkMultiProcessControllerRMI *rmi = vtkMultiProcessControllerRMI::New();
-  vtkMultiProcessControllerRMI *rmi = new vtkMultiProcessControllerRMI;
+  vtkMultiProcessControllerRMI *rmi = vtkMultiProcessControllerRMI::New();
 
   rmi->Tag = tag;
   rmi->Function = f;
