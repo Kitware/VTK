@@ -17,6 +17,7 @@
 
 void Test(ostream& strm)
 {
+  int i, j, k;
   vtkColorTransferFunction *ctf1 = vtkColorTransferFunction::New();
 
   // actual test
@@ -50,9 +51,9 @@ void Test(ostream& strm)
 
   ctf1->GetTable(0, 15, 256, &table[0][0]);
   strm << "GetTable(0, 15, 256, &table[0][0])" << endl;
-  for (int i = 0; i < 256; i++)
+  for (i = 0; i < 256; i++)
     {
-      for (int j = 0; j < 3; j++)
+      for (j = 0; j < 3; j++)
         {
         strm << table[j][i] << " ";
         }
@@ -90,7 +91,6 @@ void Test(ostream& strm)
   float *fData = new float[128];
   double *dData = new double[128];
 
-  int k;
   for (k = 0; k < 128; k++)
     {
     *(cData+k) = static_cast<char>(static_cast<float>(k)/255.0);
