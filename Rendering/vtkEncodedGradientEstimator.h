@@ -186,9 +186,11 @@ public:
   // The time at which the normals were last built
   vtkTimeStamp          BuildTime;
 
+//BTX
   vtkGetVectorMacro( InputSize, int, 3 );
   vtkGetVectorMacro( InputAspect, float, 3 );
-
+//ETX
+  
 protected:
   vtkEncodedGradientEstimator();
   ~vtkEncodedGradientEstimator();
