@@ -197,7 +197,7 @@ void do_return(FILE *fp)
       fprintf(fp,"          return NULL;\n\n");
       fprintf(fp,"        vtkPythonAddObjectToHash(tempH,(void *)temp%i,(void *)%s_Typecast);\n",
 	      MAX_ARGS, currentFunction->ReturnClass);
-      fprintf(fp,"        temp%i->Register(NULL);\n        }\n",MAX_ARGS);
+      fprintf(fp,"        ((vtkObject *)((void *)temp%i))->Register(NULL);\n        }\n",MAX_ARGS);
       fprintf(fp,"      Py_INCREF(tempH);\n");
       fprintf(fp,"      return tempH;\n");
       break;
@@ -697,7 +697,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  if ((obj = PyObject_NEW(PyObject, &Py%sType)) == NULL)\n",
 	    data->ClassName);
     fprintf(fp,"    return NULL;\n\n");
-    fprintf(fp,"  vtkPythonAddObjecToHash(obj,(void *)(%s::New()),(void *)%s_Typecast);\n",
+    fprintf(fp,"  vtkPythonAddObjectToHash(obj,(void *)(%s::New()),(void *)%s_Typecast);\n",
 	    data->ClassName, data->ClassName);
     fprintf(fp,"  return obj;\n}\n\n");
 	  
