@@ -1374,7 +1374,7 @@ void vtkMesaRenderWindow::SetOffScreenRendering(int i)
     }
   else
     {
-    if (!this->OffScreenWindow)
+    if (this->OffScreenWindow)
       {
       OSMesaDestroyContext(this->OffScreenContextId);
       this->OffScreenContextId = NULL;
@@ -1386,6 +1386,7 @@ void vtkMesaRenderWindow::SetOffScreenRendering(int i)
     this->MakeCurrent();
     // reset the size based on the screen window
     this->GetSize();
+    this->WindowInitialize();
     }
 #endif
 }
