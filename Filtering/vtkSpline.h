@@ -61,15 +61,15 @@ public:
 
   // Description:
   // Interpolate the value of the spline at parametric location of t.
-  virtual float Evaluate (float t) = 0;
+  virtual double Evaluate (double t) = 0;
 
   // Description:
   // Add a pair of points to be fit with the spline.
-  void AddPoint (float t, float x);
+  void AddPoint (double t, double x);
 
   // Description:
   // Remove a point from the data to be fit with the spline.
-  void RemovePoint (float t);
+  void RemovePoint (double t);
  
   // Description:
   // Remove all points from the data.
@@ -106,10 +106,10 @@ public:
   // Description:
   // The values of the derivative on the left and right sides. The value
   // is used only if the left(right) constraint is type 1-3.
-  vtkSetMacro(LeftValue,float);
-  vtkGetMacro(LeftValue,float);
-  vtkSetMacro(RightValue,float);
-  vtkGetMacro(RightValue,float);
+  vtkSetMacro(LeftValue,double);
+  vtkGetMacro(LeftValue,double);
+  vtkSetMacro(RightValue,double);
+  vtkGetMacro(RightValue,double);
 
   // Description:
   // Return the MTime also considering the Piecewise function.
@@ -125,18 +125,18 @@ protected:
 
   unsigned long ComputeTime;
   int ClampValue;
-  float *Intervals;
-  float *Coefficients;
+  double *Intervals;
+  double *Coefficients;
   int LeftConstraint;
-  float LeftValue;
+  double LeftValue;
   int RightConstraint;
-  float RightValue;
+  double RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
   int Closed;
 
   // Helper methods
-  float ComputeLeftDerivative();
-  float ComputeRightDerivative();
+  double ComputeLeftDerivative();
+  double ComputeRightDerivative();
 
 private:
   vtkSpline(const vtkSpline&);  // Not implemented.

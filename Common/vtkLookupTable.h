@@ -92,52 +92,52 @@ public:
   // values less than minimum range value are clamped to minimum range value.
   // Scalar values greater than maximum range value are clamped to maximum
   // range value.
-  void SetTableRange(float r[2]); 
-  virtual void SetTableRange(float min, float max);
-  vtkGetVectorMacro(TableRange,float,2);
+  void SetTableRange(double r[2]); 
+  virtual void SetTableRange(double min, double max);
+  vtkGetVectorMacro(TableRange,double,2);
 
   // Description:
   // Set the range in hue (using automatic generation). Hue ranges 
   // between [0,1].
-  vtkSetVector2Macro(HueRange,float);
-  vtkGetVector2Macro(HueRange,float);
+  vtkSetVector2Macro(HueRange,double);
+  vtkGetVector2Macro(HueRange,double);
 
   // Description:
   // Set the range in saturation (using automatic generation). Saturation 
   // ranges between [0,1].
-  vtkSetVector2Macro(SaturationRange,float);
-  vtkGetVector2Macro(SaturationRange,float);
+  vtkSetVector2Macro(SaturationRange,double);
+  vtkGetVector2Macro(SaturationRange,double);
 
   // Description:
   // Set the range in value (using automatic generation). Value ranges 
   // between [0,1].
-  vtkSetVector2Macro(ValueRange,float);
-  vtkGetVector2Macro(ValueRange,float);
+  vtkSetVector2Macro(ValueRange,double);
+  vtkGetVector2Macro(ValueRange,double);
 
   // Description:
   // Set the range in alpha (using automatic generation). Alpha ranges from 
   // [0,1].
-  vtkSetVector2Macro(AlphaRange,float);
-  vtkGetVector2Macro(AlphaRange,float);
+  vtkSetVector2Macro(AlphaRange,double);
+  vtkGetVector2Macro(AlphaRange,double);
 
   // Description:
   // Map one value through the lookup table.
-  unsigned char *MapValue(float v);
+  unsigned char *MapValue(double v);
 
   // Description:
   // Map one value through the lookup table and return the color as
-  // an RGB array of floats between 0 and 1.
-  float *GetColor(float x) { return vtkScalarsToColors::GetColor(x); }
-  void GetColor(float x, float rgb[3]);
+  // an RGB array of doubles between 0 and 1.
+  double *GetColor(double x) { return vtkScalarsToColors::GetColor(x); }
+  void GetColor(double x, double rgb[3]);
 
   // Description:
   // Map one value through the lookup table and return the alpha value
-  // (the opacity) as a float between 0 and 1.
-  float GetOpacity(float v);
+  // (the opacity) as a double between 0 and 1.
+  double GetOpacity(double v);
 
   // Description:
   // Return the table index associated with a particular value.
-  virtual vtkIdType GetIndex(float v);
+  virtual vtkIdType GetIndex(double v);
 
   // Description:
   // Specify the number of values (i.e., colors) in the lookup
@@ -146,26 +146,26 @@ public:
   vtkIdType GetNumberOfTableValues() { return this->NumberOfColors; };
 
   // Description:
-  // Directly load color into lookup table. Use [0,1] float values for color
+  // Directly load color into lookup table. Use [0,1] double values for color
   // component specification. Make sure that you've either used the
   // Build() method or used SetNumberOfTableValues() prior to using this
   // method.
-  void SetTableValue(vtkIdType indx, float rgba[4]);
+  void SetTableValue(vtkIdType indx, double rgba[4]);
 
   // Description:
-  // Directly load color into lookup table. Use [0,1] float values for color 
+  // Directly load color into lookup table. Use [0,1] double values for color 
   // component specification.
-  void SetTableValue(vtkIdType indx, float r, float g, float b, float a=1.0);
+  void SetTableValue(vtkIdType indx, double r, double g, double b, double a=1.0);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
-  // components are expressed as [0,1] float values.
-  float *GetTableValue(vtkIdType id);
+  // components are expressed as [0,1] double values.
+  double *GetTableValue(vtkIdType id);
 
   // Description:
   // Return a rgba color value for the given index into the lookup table. Color
-  // components are expressed as [0,1] float values.
-  void GetTableValue(vtkIdType id, float rgba[4]);
+  // components are expressed as [0,1] double values.
+  void GetTableValue(vtkIdType id, double rgba[4]);
 
   // Description:
   // Get pointer to color table data. Format is array of unsigned char
@@ -182,9 +182,9 @@ public:
   // Description:
   // Sets/Gets the range of scalars which will be mapped.  This is a duplicate
   // of Get/SetTableRange.
-  float *GetRange() { return this->GetTableRange(); };
-  void SetRange(float min, float max) { this->SetTableRange(min, max); };
-  void SetRange(float rng[2]) { this->SetRange(rng[0], rng[1]); };
+  double *GetRange() { return this->GetTableRange(); };
+  void SetRange(double min, double max) { this->SetTableRange(min, max); };
+  void SetRange(double rng[2]) { this->SetRange(rng[0], rng[1]); };
 
   // Description:
   // Set the number of colors in the lookup table.  Use
@@ -210,16 +210,16 @@ protected:
 
   vtkIdType NumberOfColors;
   vtkUnsignedCharArray *Table;
-  float TableRange[2];
-  float HueRange[2];
-  float SaturationRange[2];
-  float ValueRange[2];
-  float AlphaRange[2];
+  double TableRange[2];
+  double HueRange[2];
+  double SaturationRange[2];
+  double ValueRange[2];
+  double AlphaRange[2];
   int Scale;
   int Ramp;
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
-  float RGBA[4]; //used during conversion process
+  double RGBA[4]; //used during conversion process
 
 private:
   vtkLookupTable(const vtkLookupTable&);  // Not implemented.

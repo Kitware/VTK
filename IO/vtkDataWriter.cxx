@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.102");
+vtkCxxRevisionMacro(vtkDataWriter, "1.103");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -749,7 +749,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
     *fp << "LOOKUP_TABLE " << this->LookupTableName << " " << size << "\n";
     if ( this->FileType == VTK_ASCII )
       {
-      float *c;
+      double *c;
       for (i=0; i<size; i++)
         {
         c = lut->GetTableValue(i);

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLightKit, "1.11");
+vtkCxxRevisionMacro(vtkLightKit, "1.12");
 vtkStandardNewMacro(vtkLightKit);
 
 vtkLightKit::vtkLightKit() {
@@ -300,7 +300,7 @@ void vtkLightKit::DeepCopy( vtkLightKit *k ) {
 }  
 
 // r, g, b, sqrt(color length)
-static float warmthTable[] = {
+static double warmthTable[] = {
   0.1674, 0.3065, 1.0000, 0.5865,
   0.1798, 0.3204, 1.0000, 0.5965,
   0.1935, 0.3352, 1.0000, 0.6071,
@@ -369,12 +369,13 @@ static float warmthTable[] = {
 
 void vtkLightKit::InitializeWarmthFunctions() {
 
-  const int len = sizeof(warmthTable) / sizeof(float) / 4;
+  const int len = sizeof(warmthTable) / sizeof(double) / 4;
 
-  for(int i = 0; i < 4; i++) {
+  for(int i = 0; i < 4; i++) 
+    {
     this->WarmthFunction[i]->BuildFunctionFromTable(0.0, 1.0, len,
                                                    &warmthTable[i], 4);
-  }
+    }
 }
 
 

@@ -157,7 +157,7 @@ protected:
 
   vtkTextMapper **TextMappers;
   virtual void AllocateAndSizeLabels(int *labelSize, int *size,
-                                     vtkViewport *viewport, float *range);
+                                     vtkViewport *viewport, double *range);
 
 private:
   vtkTextMapper *TitleMapper;

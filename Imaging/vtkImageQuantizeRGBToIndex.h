@@ -50,9 +50,9 @@ public:
   // corresponding to the index values in the output image.
   vtkGetObjectMacro( LookupTable, vtkLookupTable );
 
-  vtkGetMacro( InitializeExecuteTime, float );
-  vtkGetMacro( BuildTreeExecuteTime, float );
-  vtkGetMacro( LookupIndexExecuteTime, float );
+  vtkGetMacro( InitializeExecuteTime, double );
+  vtkGetMacro( BuildTreeExecuteTime, double );
+  vtkGetMacro( LookupIndexExecuteTime, double );
 
 //BTX
   // Description: 
@@ -61,9 +61,9 @@ public:
 
   // Description: 
   // For internal use only - set the times for execution
-  vtkSetMacro( InitializeExecuteTime, float );
-  vtkSetMacro( BuildTreeExecuteTime, float );
-  vtkSetMacro( LookupIndexExecuteTime, float );
+  vtkSetMacro( InitializeExecuteTime, double );
+  vtkSetMacro( BuildTreeExecuteTime, double );
+  vtkSetMacro( LookupIndexExecuteTime, double );
 //ETX
 
 protected:
@@ -74,9 +74,9 @@ protected:
   int             NumberOfColors;
   int             InputType;
 
-  float           InitializeExecuteTime;
-  float           BuildTreeExecuteTime;
-  float           LookupIndexExecuteTime;
+  double           InitializeExecuteTime;
+  double           BuildTreeExecuteTime;
+  double           LookupIndexExecuteTime;
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

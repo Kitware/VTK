@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.48");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.49");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 // Construct a new vtkColorTransferFunction with default values
@@ -63,10 +63,10 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
 }
 
 // Add a point defined in RGB
-int vtkColorTransferFunction::AddRGBPoint( float x, float r,
-                                           float g, float b )
+int vtkColorTransferFunction::AddRGBPoint( double x, double r,
+                                           double g, double b )
 {
-  float *fptr = this->Function;
+  double *fptr = this->Function;
   int i;
   
   
@@ -107,15 +107,15 @@ int vtkColorTransferFunction::AddRGBPoint( float x, float r,
       this->FunctionSize = 100;
       }
 
-    float *tmp = new float[this->FunctionSize*4];
+    double *tmp = new double[this->FunctionSize*4];
     if ( i > 0 )
       {
-      memcpy( tmp, this->Function, i*sizeof(float)*4 );
+      memcpy( tmp, this->Function, i*sizeof(double)*4 );
       }
     if ( i < this->NumberOfPoints )
       {
       memcpy( tmp+i+1, this->Function+i, 
-              (this->NumberOfPoints-i)*sizeof(float)*4 );
+              (this->NumberOfPoints-i)*sizeof(double)*4 );
       }
     if ( this->Function )
       {
@@ -150,19 +150,19 @@ int vtkColorTransferFunction::AddRGBPoint( float x, float r,
 }
 
 // Add a point defined in HSV
-int vtkColorTransferFunction::AddHSVPoint( float x, float h,
-                                            float s, float v )
+int vtkColorTransferFunction::AddHSVPoint( double x, double h,
+                                            double s, double v )
 { 
-  float r, b, g;
+  double r, b, g;
   
   vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
   return this->AddRGBPoint( x, r, g, b );
 }
 
 // Remove a point
-int vtkColorTransferFunction::RemovePoint( float x )
+int vtkColorTransferFunction::RemovePoint( double x )
 {
-  float *fptr = this->Function;
+  double *fptr = this->Function;
   int i;
   
 
@@ -224,17 +224,17 @@ void vtkColorTransferFunction::RemoveAllPoints()
 }
 
 // Add a line defined in RGB 
-void vtkColorTransferFunction::AddRGBSegment( float x1, float r1, 
-                                              float g1, float b1, 
-                                              float x2, float r2, 
-                                              float g2, float b2 )
+void vtkColorTransferFunction::AddRGBSegment( double x1, double r1, 
+                                              double g1, double b1, 
+                                              double x2, double r2, 
+                                              double g2, double b2 )
 {
-  float x;
+  double x;
   this->AddRGBPoint( x1, r1, g1, b1 );
   this->AddRGBPoint( x2, r2, g2, b2 );
 
   int i, j;
-  float *fptr = this->Function;
+  double *fptr = this->Function;
   
   // swap them if necessary
   if ( x1 > x2 )
@@ -283,12 +283,12 @@ void vtkColorTransferFunction::AddRGBSegment( float x1, float r1,
 }
 
 // Add a line defined in HSV
-void vtkColorTransferFunction::AddHSVSegment( float x1, float h1, 
-                                              float s1, float v1, 
-                                              float x2, float h2, 
-                                              float s2, float v2 )
+void vtkColorTransferFunction::AddHSVSegment( double x1, double h1, 
+                                              double s1, double v1, 
+                                              double x2, double h2, 
+                                              double s2, double v2 )
 {
-  float r1, r2, b1, b2, g1, g2;
+  double r1, r2, b1, b2, g1, g2;
   
   vtkMath::HSVToRGB(h1, s1, v1, &r1, &g1, &b1);
   vtkMath::HSVToRGB(h2, s2, v2, &r2, &g2, &b2);
@@ -296,9 +296,9 @@ void vtkColorTransferFunction::AddHSVSegment( float x1, float h1,
 }
 
 // Returns the RGBA color evaluated at the specified location
-unsigned char *vtkColorTransferFunction::MapValue( float x )
+unsigned char *vtkColorTransferFunction::MapValue( double x )
 {
-  float rgb[3];
+  double rgb[3];
   this->GetColor( x, rgb );
   
   this->UnsignedCharRGBAValue[0] = (unsigned char) (255.0*rgb[0]);
@@ -309,48 +309,48 @@ unsigned char *vtkColorTransferFunction::MapValue( float x )
 }
 
 // Returns the RGB color evaluated at the specified location
-void vtkColorTransferFunction::GetColor(float x, float rgb[3])
+void vtkColorTransferFunction::GetColor(double x, double rgb[3])
 {
   this->GetTable( x, x, 1, rgb );
 }
 
 // Returns the red color evaluated at the specified location
-float vtkColorTransferFunction::GetRedValue( float x )
+double vtkColorTransferFunction::GetRedValue( double x )
 {
-  float rgb[3];
+  double rgb[3];
   this->GetColor( x, rgb );
 
   return rgb[0];
 }
 
 // Returns the green color evaluated at the specified location
-float vtkColorTransferFunction::GetGreenValue( float x )
+double vtkColorTransferFunction::GetGreenValue( double x )
 {
-  float rgb[3];
+  double rgb[3];
   this->GetColor( x, rgb );
 
   return rgb[1];
 }
 
 // Returns the blue color evaluated at the specified location
-float vtkColorTransferFunction::GetBlueValue( float x )
+double vtkColorTransferFunction::GetBlueValue( double x )
 {
-  float rgb[3];
+  double rgb[3];
   this->GetColor( x, rgb );
 
   return rgb[2];
 }
 
 // Returns a table of RGB colors at regular intervals along the function
-void vtkColorTransferFunction::GetTable( float x1, float x2, 
-                                         int size, float* table )
+void vtkColorTransferFunction::GetTable( double x1, double x2, 
+                                         int size, double* table )
 {
-  float x, xinc=0;
-  float *tptr = table;
-  float *fptr = this->Function;
+  double x, xinc=0;
+  double *tptr = table;
+  double *fptr = this->Function;
   int   loc;
   int   i;
-  float weight;
+  double weight;
   
   if ( this->NumberOfPoints == 0 )
     {
@@ -361,7 +361,7 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
   
   if ( size > 1 )
     {
-    xinc = (x2 - x1) / (float)(size-1);
+    xinc = (x2 - x1) / (double)(size-1);
     }
   
   loc  = 0;
@@ -430,7 +430,7 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
         // HSV space
         else
           {
-          float h1, h2, h3, s1, s2, s3, v1, v2, v3;
+          double h1, h2, h3, s1, s2, s3, v1, v2, v3;
           vtkMath::RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), &h1, &s1, &v1);
           vtkMath::RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), &h2, &s2, &v2);
           s3 = (1.0-weight)*s1 + weight*s2;
@@ -470,14 +470,148 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
     }
 }
 
-const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2, 
-                                                         int size)
+void vtkColorTransferFunction::GetTable( double x1, double x2, 
+                                         int size, float* table )
 {
-  float x, xinc=0;
-  float *fptr = this->Function;
+  double x, xinc=0;
+  float *tptr = table;
+  double *fptr = this->Function;
   int   loc;
   int   i;
-  float weight;
+  double weight;
+  
+  if ( this->NumberOfPoints == 0 )
+    {
+    vtkErrorMacro( 
+      "Attempting to lookup a value with no points in the function");
+    return;
+    }
+  
+  if ( size > 1 )
+    {
+    xinc = (x2 - x1) / (double)(size-1);
+    }
+  
+  loc  = 0;
+  
+  for ( i = 0, x = x1; i < size; i++, x += xinc )
+    {
+    while ( (loc < this->NumberOfPoints) && (x > *fptr) )
+      {
+      loc++;
+      fptr+=4;
+      }
+    
+    // Are we past the outside edge? if so, fill in according to Clamping
+    if ( loc == this->NumberOfPoints )
+      {
+      if ( this->Clamping )
+        {
+        *(tptr++) = static_cast<float>(*(fptr-3));
+        *(tptr++) = static_cast<float>(*(fptr-2));
+        *(tptr++) = static_cast<float>(*(fptr-1));        
+        }
+      else
+        {
+        *(tptr++) = 0.0f;
+        *(tptr++) = 0.0f;
+        *(tptr++) = 0.0f;        
+        }      
+      }
+    else
+      {
+      // Do we have an exact match?
+      if ( x == *fptr )
+        {
+        *(tptr++) = static_cast<float>(*(fptr+1));
+        *(tptr++) = static_cast<float>(*(fptr+2));
+        *(tptr++) = static_cast<float>(*(fptr+3));
+        }
+      // Are we before the beginning?
+      else if ( loc == 0 )
+        {
+        if ( this->Clamping )
+          {
+          *(tptr++) = static_cast<float>(*(fptr+1));
+          *(tptr++) = static_cast<float>(*(fptr+2));
+          *(tptr++) = static_cast<float>(*(fptr+3));
+          }
+        else
+          {
+          *(tptr++) = 0.0f;
+          *(tptr++) = 0.0f;
+          *(tptr++) = 0.0f;
+          }
+        }
+      // We are somewhere in the middle. Use the correct interpolation.
+      else
+        {
+        weight = (x - *(fptr-4)) / (*fptr - *(fptr-4));
+      
+        // RGB space
+        if ( this->ColorSpace == VTK_CTF_RGB )
+          {
+          *(tptr++) = 
+            static_cast<float>((1.0-weight) * *(fptr-3) + weight * *(fptr+1));
+          *(tptr++) = 
+            static_cast<float>((1.0-weight) * *(fptr-2) + weight * *(fptr+2));
+          *(tptr++) = 
+            static_cast<float>((1.0-weight) * *(fptr-1) + weight * *(fptr+3));
+          }
+        // HSV space
+        else
+          {
+          double h1, h2, h3, s1, s2, s3, v1, v2, v3;
+          vtkMath::RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), &h1, &s1, &v1);
+          vtkMath::RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), &h2, &s2, &v2);
+          s3 = (1.0-weight)*s1 + weight*s2;
+          v3 = (1.0-weight)*v1 + weight*v2;
+          // Do we need to cross the 0/1 boundary?
+          if ( h1 - h2 > 0.5 || h2 - h1 > 0.5 )
+            {
+            //Yes, we are crossing the boundary
+            if ( h1 > h2 )
+              {
+              h1 -= 1.0;
+              }
+            else
+              {
+              h2 -= 1.0;
+              }
+            h3 = (1.0-weight)*h1 + weight*h2;
+            if ( h3 < 0.0 )
+              {
+              h3 += 1.0;
+              }
+            }
+          else
+            {
+            // No we are not crossing the boundary
+            h3 = (1.0-weight)*h1 + weight*h2;
+            }
+          // Make sure they are between 0 and 1
+          h3 = (h3>1.0)?(1.0):((h3<0.0)?(0.0):(h3));
+          s3 = (s3>1.0)?(1.0):((s3<0.0)?(0.0):(s3));
+          v3 = (v3>1.0)?(1.0):((v3<0.0)?(0.0):(v3));
+          vtkMath::HSVToRGB(static_cast<float>(h3), 
+                            static_cast<float>(s3), 
+                            static_cast<float>(v3), 
+                            tptr, tptr + 1, tptr + 2);
+          tptr += 3;
+          }
+        }
+      }
+    }
+}
+
+const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2, 
+                                                         int size)
+{
+  double x, xinc=0;
+  double *fptr = this->Function;
+  int   loc;
+  int   i;
+  double weight;
   
   if (this->GetMTime() <= this->BuildTime &&
       this->TableSize == size)
@@ -502,7 +636,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
   
   if ( size > 1 )
     {
-    xinc = (x2 - x1) / (float)(size-1);
+    xinc = (x2 - x1) / (double)(size-1);
     }
   
   loc  = 0;
@@ -573,7 +707,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
         // HSV space
         else
           {
-          float h1, h2, h3, s1, s2, s3, v1, v2, v3;
+          double h1, h2, h3, s1, s2, s3, v1, v2, v3;
           vtkMath::RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), &h1, &s1, &v1);
           vtkMath::RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), &h2, &s2, &v2);
           s3 = (1.0-weight)*s1 + weight*s2;
@@ -617,17 +751,17 @@ const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2,
   return this->Table;
 }
 
-void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
-                                                       int size, float *table)
+void vtkColorTransferFunction::BuildFunctionFromTable( double x1, double x2,
+                                                       int size, double *table)
 {
   // We are assuming the table is in ascending order
 
-  float      *fptr;
-  float      *tptr = table;
-  float      x, xinc;
+  double      *fptr;
+  double      *tptr = table;
+  double      x, xinc;
   int        i;
   
-  xinc = (x2 - x1) / (float)(size-1);
+  xinc = (x2 - x1) / (double)(size-1);
   
   this->RemoveAllPoints();
 
@@ -636,7 +770,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
     {
     delete [] this->Function;
     this->FunctionSize = size*2;
-    this->Function = new float [4*this->FunctionSize];
+    this->Function = new double [4*this->FunctionSize];
     }
   
   fptr = this->Function;
@@ -720,8 +854,8 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
   
   if ( this->FunctionSize > 0 )
     {
-    this->Function     = new float [4*this->FunctionSize];
-    memcpy(this->Function, f->Function, 4*sizeof(float)*this->FunctionSize);
+    this->Function     = new double [4*this->FunctionSize];
+    memcpy(this->Function, f->Function, 4*sizeof(double)*this->FunctionSize);
     }
   else
     {
@@ -740,9 +874,9 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
                                 unsigned char *output, 
                                 int length, int inIncr, int outFormat)
 {
-  float          x;
+  double          x;
   int            i = length;
-  float          rgb[3];
+  double          rgb[3];
   unsigned char  *optr = output;
   T              *iptr = input;
   
@@ -754,7 +888,7 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
 
   while (--i >= 0) 
     {
-    x = (float) *iptr;
+    x = (double) *iptr;
     self->GetColor(x, rgb);
     
     if (outFormat == VTK_RGB || outFormat == VTK_RGBA)
@@ -980,7 +1114,7 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
     }
 }
 
-void vtkColorTransferFunction::FillFromDataPointer(int nb, float *ptr)
+void vtkColorTransferFunction::FillFromDataPointer(int nb, double *ptr)
 {
   if (nb <= 0 || !ptr)
     {

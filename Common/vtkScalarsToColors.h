@@ -46,48 +46,48 @@ public:
   
   // Description:
   // Sets/Gets the range of scalars which will be mapped.
-  virtual float *GetRange() = 0;
-  virtual void SetRange(float min, float max) = 0;
-  void SetRange(float rng[2]) 
+  virtual double *GetRange() = 0;
+  virtual void SetRange(double min, double max) = 0;
+  void SetRange(double rng[2]) 
     {this->SetRange(rng[0],rng[1]);}
   
   // Description:
   // Map one value through the lookup table and return a color defined
   // as a RGBA unsigned char tuple (4 bytes).
-  virtual unsigned char *MapValue(float v) = 0;
+  virtual unsigned char *MapValue(double v) = 0;
 
   // Description:
   // Map one value through the lookup table and return the color as
-  // an RGB array of floats between 0 and 1.
-  virtual void GetColor(float v, float rgb[3]) = 0;
+  // an RGB array of doubles between 0 and 1.
+  virtual void GetColor(double v, double rgb[3]) = 0;
 
   // Description:
   // Map one value through the lookup table and return the color as
-  // an RGB array of floats between 0 and 1.
-  float *GetColor(float v) 
+  // an RGB array of doubles between 0 and 1.
+  double *GetColor(double v) 
     {this->GetColor(v,this->RGB); return this->RGB;}
 
   // Description:
   // Map one value through the lookup table and return the alpha value
-  // (the opacity) as a float between 0 and 1.
-  virtual float GetOpacity(float vtkNotUsed(v)) 
+  // (the opacity) as a double between 0 and 1.
+  virtual double GetOpacity(double vtkNotUsed(v)) 
     {return 1.0;}
 
   // Description:
   // Map one value through the lookup table and return the luminance
-  // 0.3*red + 0.59*green + 0.11*blue as a float between 0 and 1.
+  // 0.3*red + 0.59*green + 0.11*blue as a double between 0 and 1.
   // Returns the luminance value for the specified scalar value.
-  float GetLuminance(float x) 
-    {float rgb[3]; this->GetColor(x,rgb);
-    return static_cast<float>(rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11);}
+  double GetLuminance(double x) 
+    {double rgb[3]; this->GetColor(x,rgb);
+    return static_cast<double>(rgb[0]*0.30 + rgb[1]*0.59 + rgb[2]*0.11);}
 
   // Description:
   // Specify an additional opacity (alpha) value to blend with. Values
   // != 1 modify the resulting color consistent with the requested
   // form of the output. This is typically used by an actor in order to
   // blend its opacity.
-  void SetAlpha(float alpha);
-  vtkGetMacro(Alpha,float);
+  void SetAlpha(double alpha);
+  vtkGetMacro(Alpha,double);
 
   // Description:
   // An internal method maps a data array into a 4-component, unsigned char
@@ -147,7 +147,7 @@ protected:
   vtkScalarsToColors();
   ~vtkScalarsToColors() {}
 
-  float Alpha;
+  double Alpha;
 
   // How to map arrays with multiple components.
   int VectorMode;
@@ -165,7 +165,7 @@ protected:
 //ETX
 
 private:
-  float RGB[3];
+  double RGB[3];
 private:
   vtkScalarsToColors(const vtkScalarsToColors&);  // Not implemented.
   void operator=(const vtkScalarsToColors&);  // Not implemented.

@@ -4256,7 +4256,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.64");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.65");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -6272,7 +6272,7 @@ vtkVRMLImporter::exitField()
     // and also in the colorIndex field
     if (strcmp(fr->nodeType->getName(), "Color") == 0) 
       {
-      float vals4[4]; 
+      double vals4[4]; 
       vals4[3] = 1.0;
       vtkLookupTable *lut = vtkLookupTable::New();
       lut->SetNumberOfColors(yylval.vec3f->GetNumberOfPoints());

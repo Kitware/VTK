@@ -42,7 +42,7 @@ public:
 
   // Description:
   // Evaluate a 1D cardinal spline.
-  virtual float Evaluate (float t);
+  virtual double Evaluate (double t);
 
   // Description:
   // Deep copy of cardinal spline data.
@@ -52,12 +52,12 @@ protected:
   vtkCardinalSpline();
   ~vtkCardinalSpline() {}
 
-  void Fit1D (int n, float *x, float *y, float *w, float coefficients[][4],
-              int leftConstraint, float leftValue, int rightConstraint, 
-              float rightValue);
+  void Fit1D (int n, double *x, double *y, double *w, double coefficients[][4],
+              int leftConstraint, double leftValue, int rightConstraint, 
+              double rightValue);
 
-  void FitClosed1D (int n, float *x, float *y, float *w, 
-                    float coefficients[][4]);
+  void FitClosed1D (int n, double *x, double *y, double *w, 
+                    double coefficients[][4]);
 
 private:
   vtkCardinalSpline(const vtkCardinalSpline&);  // Not implemented.

@@ -15,7 +15,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.81");
+vtkCxxRevisionMacro(vtkMath, "1.82");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2051,13 +2051,24 @@ void vtkMath::SingularValueDecomposition3x3(const double A[3][3],
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::RGBToHSV(float r, float g, float b, float *h, float *s, float *v)
+void vtkMath::RGBToHSV(float r, float g, float b, 
+                       float *h, float *s, float *v)
 {
-  float onethird = 1.0 / 3.0;
-  float onesixth = 1.0 / 6.0;
-  float twothird = 2.0 / 3.0;
+  double dh,ds,dv;
+  vtkMath::RGBToHSV(r,g,b,&dh,&ds,&dv);
+  *h = static_cast<float>(dh);
+  *s = static_cast<float>(ds);
+  *v = static_cast<float>(dv);
+}
 
-  float cmax, cmin;
+void vtkMath::RGBToHSV(double r, double g, double b, 
+                       double *h, double *s, double *v)
+{
+  double onethird = 1.0 / 3.0;
+  double onesixth = 1.0 / 6.0;
+  double twothird = 2.0 / 3.0;
+
+  double cmax, cmin;
   
   cmax = r;
   cmin = r;
@@ -2113,12 +2124,23 @@ void vtkMath::RGBToHSV(float r, float g, float b, float *h, float *s, float *v)
 }
 
 //----------------------------------------------------------------------------
-void vtkMath::HSVToRGB(float h, float s, float v, float *r, float *g, float *b)
+void vtkMath::HSVToRGB(float h, float s, float v, 
+                       float *r, float *g, float *b)
 {
-  float onethird = 1.0 / 3.0;
-  float onesixth = 1.0 / 6.0;
-  float twothird = 2.0 / 3.0;
-  float fivesixth = 5.0 / 6.0;
+  double dr,dg,db;
+  vtkMath::HSVToRGB(h,s,v,&dr,&dg,&db);
+  *r = static_cast<float>(dr);
+  *g = static_cast<float>(dg);
+  *b = static_cast<float>(db);
+}
+
+void vtkMath::HSVToRGB(double h, double s, double v, 
+                       double *r, double *g, double *b)
+{
+  double onethird = 1.0 / 3.0;
+  double onesixth = 1.0 / 6.0;
+  double twothird = 2.0 / 3.0;
+  double fivesixth = 5.0 / 6.0;
 
   // compute RGB from HSV
   if (h > onesixth && h <= onethird) // green/red

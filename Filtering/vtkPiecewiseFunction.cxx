@@ -16,7 +16,7 @@
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.36");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.37");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -24,7 +24,7 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
 {
   this->ArraySize        = 64;
   this->Clamping         = 1;
-  this->Function         = new float[this->ArraySize*2];
+  this->Function         = new double[this->ArraySize*2];
   this->FunctionSize     = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
@@ -53,12 +53,12 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
     this->ArraySize    = f->ArraySize;
     this->Clamping     = f->Clamping;
     this->FunctionSize = f->FunctionSize;
-    memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
+    memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(double) );
     if ( this->ArraySize > 0 )
       {
       delete [] this->Function;
-      this->Function     = new float[this->ArraySize*2];
-      memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+      this->Function     = new double[this->ArraySize*2];
+      memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(double) );
       }
     
     this->Modified();
@@ -76,10 +76,10 @@ void vtkPiecewiseFunction::ShallowCopy( vtkDataObject *o )
     {
     this->ArraySize    = f->ArraySize;
     this->Clamping     = f->Clamping;
-    this->Function     = new float[this->ArraySize*2]; 
+    this->Function     = new double[this->ArraySize*2]; 
     this->FunctionSize = f->FunctionSize;
-    memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(float) );
-    memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
+    memcpy( this->FunctionRange, f->FunctionRange, 2*sizeof(double) );
+    memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(double) );
     }
 
   // Do the superclass
@@ -95,7 +95,7 @@ void vtkPiecewiseFunction::Initialize()
 
   this->ArraySize        = 64;
   this->Clamping         = 1;
-  this->Function         = new float[this->ArraySize*2];
+  this->Function         = new double[this->ArraySize*2];
   this->FunctionSize     = 0;
   this->FunctionRange[0] = 0;
   this->FunctionRange[1] = 0;
@@ -125,8 +125,8 @@ int vtkPiecewiseFunction::GetSize()
 const char *vtkPiecewiseFunction::GetType()
 {
   int   i;
-  float value;
-  float prev_value = 0.0;
+  double value;
+  double prev_value = 0.0;
   int   function_type;
 
   this->Update();
@@ -222,11 +222,11 @@ unsigned long vtkPiecewiseFunction::GetMTime()
 
 // Returns the first point location which starts a non-zero segment of the
 // function. Note that the value at this point may be zero.
-float vtkPiecewiseFunction::GetFirstNonZeroValue()
+double vtkPiecewiseFunction::GetFirstNonZeroValue()
 {
   int   i;
   int   all_zero = 1;
-  float x = 0.0;
+  double x = 0.0;
 
   this->Update();
 
@@ -271,13 +271,13 @@ float vtkPiecewiseFunction::GetFirstNonZeroValue()
 
 // Adds a point to the function. If a duplicate point is inserted
 // then the function value at that location is set to the new value.
-int vtkPiecewiseFunction::AddPoint( float x, float val )
+int vtkPiecewiseFunction::AddPoint( double x, double val )
 {
   return this->InsertPoint( x, val );
 }
 
 // Adds a point to the function and returns the array index of the point.
-int vtkPiecewiseFunction::InsertPoint( float x, float val )
+int vtkPiecewiseFunction::InsertPoint( double x, double val )
 {
   int   point_index;
   int   i;
@@ -358,8 +358,8 @@ void vtkPiecewiseFunction::MovePoints( int index, int down )
 {
   int i;
 
-  float swap1_x, swap1_y;
-  float swap2_x, swap2_y;
+  double swap1_x, swap1_y;
+  double swap2_x, swap2_y;
 
   i = index;
 
@@ -407,10 +407,10 @@ void vtkPiecewiseFunction::MovePoints( int index, int down )
 
 // Removes a point from the function. If no point is found then function
 // remains the same.
-int vtkPiecewiseFunction::RemovePoint( float x )
+int vtkPiecewiseFunction::RemovePoint( double x )
 {
   int   i;
-  float x1;
+  double x1;
 
   if( this->FunctionSize )
     {
@@ -462,8 +462,8 @@ void vtkPiecewiseFunction::RemoveAllPoints()
 }
 
 // Add in end points of line and remove any points between them
-void vtkPiecewiseFunction::AddSegment( float x1, float val1, 
-  float x2, float val2 )
+void vtkPiecewiseFunction::AddSegment( double x1, double val1, 
+  double x2, double val2 )
 {
   int   index1, index2;
   int   swap;
@@ -499,14 +499,14 @@ void vtkPiecewiseFunction::AddSegment( float x1, float val1,
 }
 
 // Return the value of the function at a position 
-float vtkPiecewiseFunction::GetValue( float x )
+double vtkPiecewiseFunction::GetValue( double x )
 {
   int   i1, i2;
-  float x1, y1; // Point before x
-  float x2, y2; // Point after x
+  double x1, y1; // Point before x
+  double x2, y2; // Point after x
 
-  float slope;
-  float value;
+  double slope;
+  double value;
 
   this->Update();
 
@@ -572,17 +572,17 @@ float vtkPiecewiseFunction::GetValue( float x )
 }
 
 // Return the smallest and largest position stored in function
-float *vtkPiecewiseFunction::GetRange()
+double *vtkPiecewiseFunction::GetRange()
 {
   return( this->FunctionRange );
 }
 
 // Returns a table of function values evaluated at regular intervals
-void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
-                                     float* table, int stride )
+void vtkPiecewiseFunction::GetTable( double x1, double x2, int size,
+                                     double* table, int stride )
 {
-  float x, xi1, xi2, yi1, yi2, tx;
-  float inc, value, slope, *tbl;
+  double x, xi1, xi2, yi1, yi2, tx;
+  double inc, value, slope, *tbl;
   int   i, i1, i2;
 
   this->Update();
@@ -594,7 +594,7 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
 
   if( size > 1 )
     {
-    inc = (x2-x1)/(float)(size-1);
+    inc = (x2-x1)/(double)(size-1);
     }
   else
     {
@@ -672,21 +672,115 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size,
     }
 }
 
+void vtkPiecewiseFunction::GetTable( double x1, double x2, int size,
+                                     float* table, int stride )
+{
+  double x, xi1, xi2, yi1, yi2, tx;
+  double inc, value, slope;
+  float *tbl;
+  int   i, i1, i2;
 
-void vtkPiecewiseFunction::BuildFunctionFromTable( float x1, float x2,
+  this->Update();
+
+  if( x1 == x2 )
+    {
+    return;
+    }
+
+  if( size > 1 )
+    {
+    inc = (x2-x1)/(double)(size-1);
+    }
+  else
+    {
+    inc = 0;
+    }
+
+  tbl = table;
+  x = x1;
+  i2 = 0;
+  xi2 = this->Function[0];
+  yi2 = this->Function[1];
+  for (i=0; i < size; i++)
+    {
+    tx = x;
+    
+    // Clamped to lowest value below range and highest above range
+    if( this->Clamping == 1 )  
+      {
+      if( x < this->FunctionRange[0] ) 
+        {
+        tx = this->Function[0];
+        }
+      else if( x > this->FunctionRange[1] )
+        {
+        tx = this->Function[(this->FunctionSize-1)*2];
+        }
+      }
+    else if( this->Clamping == 0 )      // Always zero outside of range
+      {
+      if( (x < this->FunctionRange[0]) || (x > this->FunctionRange[1]) )
+        {
+        *tbl = 0.0f;
+        tbl += stride;
+        x += inc;
+        continue;
+        }
+      }
+    else
+      {
+      vtkErrorMacro( << "Error: vtkPiecewiseFunction has an unknown clamp type: " << this->Clamping << "\n" );
+      *tbl =  0.0f;
+      tbl += stride;
+      x += inc;
+      continue;
+      }
+
+    // search for the end of the interval containing x
+    while( (xi2 < tx) && (i2 < this->FunctionSize) )
+      {
+      i2 += 1;
+      xi2 = this->Function[(i2*2)];
+      yi2 = this->Function[(i2*2+1)];
+      }
+    
+    // Check if we have found the exact point
+    if( xi2 == tx )
+      {
+      value = this->Function[(i2*2 + 1)];
+      }
+    else
+      {
+      i1 = i2 - 1;
+      xi1 = this->Function[(i1*2)];
+      yi1 = this->Function[(i1*2 +1)];
+
+      // Now that we have the two points, use linear interpolation
+      slope = (yi2-yi1)/(xi2-xi1);
+    
+      value = yi1 + slope*(tx-xi1);
+      }
+    
+    *tbl = static_cast<float>(value);
+    tbl += stride;
+    x += inc;
+    }
+}
+
+void vtkPiecewiseFunction::BuildFunctionFromTable( double x1, double x2,
                                                    int size,
-                                                   float* table, int stride )
+                                                   double* table, int stride )
 {
   int i;
-  float inc = 0.0;
-  float *tptr = table;
+  double inc = 0.0;
+  double *tptr = table;
 
   if (size > this->ArraySize)
     {
     delete [] this->Function;
     this->ArraySize = size;
     this->FunctionSize = size;
-    this->Function = new float[this->ArraySize*2];
+    this->Function = new double[this->ArraySize*2];
     }
   else
     {
@@ -699,7 +793,7 @@ void vtkPiecewiseFunction::BuildFunctionFromTable( float x1, float x2,
   
   if( size > 1 )
     {
-    inc = (x2-x1)/(float)(size-1);
+    inc = (x2-x1)/(double)(size-1);
     }
 
   for (i=0; i < size; i++)
@@ -715,7 +809,7 @@ void vtkPiecewiseFunction::BuildFunctionFromTable( float x1, float x2,
 // Increase the size of the array used to store the function
 void vtkPiecewiseFunction::IncreaseArraySize()
 {
-  float *old_function;
+  double *old_function;
   int   old_size;
 
   int   i;
@@ -725,7 +819,7 @@ void vtkPiecewiseFunction::IncreaseArraySize()
 
   // Create larger array to store points
   this->ArraySize = old_size * 2;
-  this->Function  = new float[(this->ArraySize*2)];
+  this->Function  = new double[(this->ArraySize*2)];
 
   // Copy points from old array to new array
   for( i=0; i<old_size; i++ )
@@ -744,7 +838,7 @@ void vtkPiecewiseFunction::IncreaseArraySize()
   delete [] old_function;
 }
 
-void vtkPiecewiseFunction::FillFromDataPointer(int nb, float *ptr)
+void vtkPiecewiseFunction::FillFromDataPointer(int nb, double *ptr)
 {
   if (nb <= 0 || !ptr)
     {

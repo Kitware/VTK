@@ -47,8 +47,8 @@ public:
   // Add/Remove points to/from the function. If a duplicate point is added
   // then the function value is changed at that location.
   // Return the index of the point (0 based), or -1 on error.
-  int AddPoint( float x, float val );
-  int RemovePoint( float x );
+  int AddPoint( double x, double val );
+  int RemovePoint( double x );
 
   // Description:
   // Removes all points from the function. 
@@ -57,30 +57,31 @@ public:
   // Description:
   // Add a line segment to the function. All points defined between the
   // two points specified are removed from the function.
-  void AddSegment( float x1, float val1, float x2, float val2 );
+  void AddSegment( double x1, double val1, double x2, double val2 );
 
   // Description:
   // Returns the value of the function at the specified location using
   // the specified interpolation. Returns zero if the specified location
   // is outside the min and max points of the function.
-  float GetValue( float x );
+  double GetValue( double x );
 
   // Description:
   // Returns a pointer to the data stored in the table.
   // Fills from a pointer to data stored in a similar table.
-  float *GetDataPointer() {return this->Function;};
-  void FillFromDataPointer(int, float*);
+  double *GetDataPointer() {return this->Function;};
+  void FillFromDataPointer(int, double*);
 
   // Description:
   // Returns the min and max point locations of the function.
-  float *GetRange();
+  double *GetRange();
 
   // Description:
   // Fills in an array of function values evaluated at regular intervals.
   // Parameter "stride" is used to step through the output "table". It is
   // used by vtkColorTransferFunction to fill in an rgb table using three
   // separate piecewise functions and three separate calls to GetTable().
-  void GetTable( float x1, float x2, int size, float *table, int stride=1 );
+  void GetTable( double x1, double x2, int size, float *table, int stride=1 );
+  void GetTable( double x1, double x2, int size, double *table, int stride=1 );
 
   // Description:
   // Constructs a piecewise function from a table.  Function range is
@@ -88,8 +89,8 @@ public:
   // are regularly spaced between x1 and x2.  Parameter "stride" is
   // is step through the input table.  It is used by vtkColorTransferFunction
   // to construct 3 piecewise functions from an rgb table.
-  void BuildFunctionFromTable( float x1, float x2, int size,
-                               float *table, int stride=1 );
+  void BuildFunctionFromTable( double x1, double x2, int size,
+                               double *table, int stride=1 );
   
   // Description:
   // When zero range clamping is Off, GetValue() returns 0.0 when a
@@ -119,7 +120,7 @@ public:
   // Description:
   // Returns the first point location which precedes a non-zero segment of the
   // function. Note that the value at this point may be zero.
-  float GetFirstNonZeroValue();
+  double GetFirstNonZeroValue();
 
 protected:
   vtkPiecewiseFunction();
@@ -135,13 +136,13 @@ protected:
   int   Clamping;
 
   // Array of points ((X,Y) pairs)
-  float *Function;
+  double *Function;
 
   // Number of points used to specify function
   int   FunctionSize;
 
   // Min and max range of function point locations
-  float FunctionRange[2];
+  double FunctionRange[2];
 
   // Increases size of the function array. The array grows by a factor of 2
   // when the array limit has been reached.
@@ -149,7 +150,7 @@ protected:
 
   // Private function to add a point to the function. Returns the array
   // index of the inserted point.
-  int InsertPoint( float x, float val );
+  int InsertPoint( double x, double val );
 
   // Move points one index down or up in the array. This is useful for 
   // inserting and deleting points into the array.

@@ -19,7 +19,7 @@
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.40");
+vtkCxxRevisionMacro(vtkPolyDataMapper2D, "1.41");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -116,7 +116,7 @@ unsigned long vtkPolyDataMapper2D::GetMTime()
 
 // a side effect of this is that this->Colors is also set
 // to the return value
-vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(float alpha)
+vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
 {
   // Get rid of old colors
   if ( this->Colors )
@@ -289,7 +289,7 @@ void vtkPolyDataMapper2D::PrintSelf(ostream& os, vtkIndent indent)
       break;
     }
   
-  float *range = this->GetScalarRange();
+  double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";
   os << indent << "UseLookupTableScalarRange: " << this->UseLookupTableScalarRange << "\n";
   

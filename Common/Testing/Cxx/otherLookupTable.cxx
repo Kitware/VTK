@@ -31,7 +31,7 @@ void TestOLT(vtkLookupTable *lut1)
   lut1->SetRampToLinear();
   lut1->Build();
 
-  float rgb[4];
+  double rgb[4];
   lut1->GetColor(0, rgb);
   lut1->GetColor(0);
 
@@ -43,71 +43,114 @@ void TestOLT(vtkLookupTable *lut1)
   unsigned char output[4*1024];
 
   int bitA = 1;
-  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_BIT, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_BIT, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) &bitA, output, VTK_CHAR, 
+                                2, 1, VTK_LUMINANCE);
 
 
   char charA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) charA, output, VTK_CHAR, 
+                                2, 1, VTK_LUMINANCE);
 
   unsigned char ucharA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) ucharA, output, VTK_UNSIGNED_CHAR, 
+                                2, 1, VTK_LUMINANCE);
 
   int intA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) intA, output, VTK_INT, 
+                                2, 1, VTK_LUMINANCE);
 
   unsigned int uintA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) uintA, output, VTK_UNSIGNED_INT, 
+                                2, 1, VTK_LUMINANCE);
 
   long longA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) longA, output, VTK_LONG, 
+                                2, 1, VTK_LUMINANCE);
 
   unsigned long ulongA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
   lut1->MapScalarsThroughTable2((void *) ulongA, output, VTK_UNSIGNED_LONG, 2, 1, VTK_LUMINANCE);
 
   short shortA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 
+                                2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 
+                                2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 
+                                2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) shortA, output, VTK_SHORT, 
+                                2, 1, VTK_LUMINANCE);
 
   unsigned short ushortA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) ushortA, output, VTK_UNSIGNED_SHORT, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) ushortA, output, VTK_UNSIGNED_SHORT, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) ushortA, output, VTK_UNSIGNED_SHORT, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) ushortA, output, VTK_UNSIGNED_SHORT, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) ushortA, output, 
+                                VTK_UNSIGNED_SHORT, 2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) ushortA, output, 
+                                VTK_UNSIGNED_SHORT, 2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) ushortA, output, 
+                                VTK_UNSIGNED_SHORT, 2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) ushortA, output, 
+                                VTK_UNSIGNED_SHORT, 2, 1, VTK_LUMINANCE);
 
   float floatA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) floatA, output, VTK_FLOAT, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) floatA, output, VTK_FLOAT, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) floatA, output, VTK_FLOAT, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) floatA, output, VTK_FLOAT, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) floatA, output, 
+                                VTK_FLOAT, 2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) floatA, output, 
+                                VTK_FLOAT, 2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) floatA, output, 
+                                VTK_FLOAT, 2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) floatA, output, 
+                                VTK_FLOAT, 2, 1, VTK_LUMINANCE);
 
   double doubleA[2] = {1, 10};
-  lut1->MapScalarsThroughTable2((void *) doubleA, output, VTK_DOUBLE, 2, 1, VTK_RGBA);
-  lut1->MapScalarsThroughTable2((void *) doubleA, output, VTK_DOUBLE, 2, 1, VTK_RGB);
-  lut1->MapScalarsThroughTable2((void *) doubleA, output, VTK_DOUBLE, 2, 1, VTK_LUMINANCE_ALPHA);
-  lut1->MapScalarsThroughTable2((void *) doubleA, output, VTK_DOUBLE, 2, 1, VTK_LUMINANCE);
+  lut1->MapScalarsThroughTable2((void *) doubleA, output, 
+                                VTK_DOUBLE, 2, 1, VTK_RGBA);
+  lut1->MapScalarsThroughTable2((void *) doubleA, output, 
+                                VTK_DOUBLE, 2, 1, VTK_RGB);
+  lut1->MapScalarsThroughTable2((void *) doubleA, output, 
+                                VTK_DOUBLE, 2, 1, VTK_LUMINANCE_ALPHA);
+  lut1->MapScalarsThroughTable2((void *) doubleA, output, 
+                                VTK_DOUBLE, 2, 1, VTK_LUMINANCE);
 
 
 }

@@ -26,7 +26,7 @@
 #include "vtkWindow.h"
 #include "vtkLogLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.53");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.54");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -248,7 +248,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     
     // we hard code how many steps to display
     int numColors = this->MaximumNumberOfColors;
-    float *range = lut->GetRange();
+    double *range = lut->GetRange();
 
     int numPts = 2*(numColors + 1);
     vtkPoints *pts = vtkPoints::New();
@@ -305,13 +305,13 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->NumberOfLabelsBuilt = this->NumberOfLabels;
     
     // generate points
-    float x[3]; x[2] = 0.0;
-    float delta;
+    double x[3]; x[2] = 0.0;
+    double delta;
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
       barWidth = size[0] - 4 - labelSize[0];
       barHeight = (int)(0.86*size[1]);
-      delta=(float)barHeight/numColors;
+      delta=(double)barHeight/numColors;
       for (i=0; i<numPts/2; i++)
         {
         x[0] = 0;
@@ -325,7 +325,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       barWidth = size[0];
       barHeight = (int)(0.4*size[1]);
-      delta=(float)barWidth/numColors;
+      delta=(double)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
         {
         x[0] = i*delta;
@@ -349,14 +349,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
       if ( isLogTable )
         {
-        float rgbval = log10(range[0]) + 
+        double rgbval = log10(range[0]) + 
           i*(log10(range[1])-log10(range[0]))/(numColors -1);
         rgba = lut->MapValue(pow(10.0f,rgbval));
         }
       else
         {
         rgba = lut->MapValue(range[0] + (range[1] - range[0])*
-                             ((float)i /(numColors-1.0)));
+                             ((double)i /(numColors-1.0)));
         }
 
       rgb = colors->GetPointer(3*i); //write into array directly
@@ -367,7 +367,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     // Now position everything properly
     //
-    float val;
+    double val;
     if (this->Orientation == VTK_ORIENT_VERTICAL)
       {
       int sizeTextData[2];
@@ -379,7 +379,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         if (this->NumberOfLabels > 1)
           {
-          val = (float)i/(this->NumberOfLabels-1) *barHeight;
+          val = (double)i/(this->NumberOfLabels-1) *barHeight;
           }
         else 
           {
@@ -400,7 +400,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
         this->TextMappers[i]->GetTextProperty()->SetJustificationToCentered();
         if (this->NumberOfLabels > 1)
           {
-          val = (float)i/(this->NumberOfLabels-1) * barWidth;
+          val = (double)i/(this->NumberOfLabels-1) * barWidth;
           }
         else
           {
@@ -515,7 +515,7 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
 void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize, 
                                               int *size,
                                               vtkViewport *viewport,
-                                              float *range)
+                                              double *range)
 {
   labelSize[0] = labelSize[1] = 0;
 
@@ -524,7 +524,7 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 
   char string[512];
 
-  float val;
+  double val;
   int i;
   
   // TODO: this should be optimized, maybe by keeping a list of
@@ -542,10 +542,10 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 
     if ( isLogTable )
       {
-      float lval;
+      double lval;
       if (this->NumberOfLabels > 1)
         {
-        lval = log10(range[0]) + (float)i/(this->NumberOfLabels-1) *
+        lval = log10(range[0]) + (double)i/(this->NumberOfLabels-1) *
           (log10(range[1])-log10(range[0]));
         }
       else
@@ -559,7 +559,7 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
       if (this->NumberOfLabels > 1)
         {
         val = range[0] + 
-          (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+          (double)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
         }
       else
         {

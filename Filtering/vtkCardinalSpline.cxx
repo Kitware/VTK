@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkCardinalSpline, "1.22");
+vtkCxxRevisionMacro(vtkCardinalSpline, "1.23");
 vtkStandardNewMacro(vtkCardinalSpline);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -39,12 +39,12 @@ vtkCardinalSpline::vtkCardinalSpline ()
 }
 
 // Evaluate a 1D Spline
-float vtkCardinalSpline::Evaluate (float t)
+double vtkCardinalSpline::Evaluate (double t)
 {
   int i, index;
   int size = this->PiecewiseFunction->GetSize ();
-  float *intervals;
-  float *coefficients;
+  double *intervals;
+  double *coefficients;
 
   // make sure we have at least 2 points
   if (size < 2)
@@ -101,10 +101,10 @@ float vtkCardinalSpline::Evaluate (float t)
 // Compute Cardinal Splines for each dependent variable
 void vtkCardinalSpline::Compute ()
 {
-  float *ts, *xs;
-  float *work;
-  float *coefficients;
-  float *dependent;
+  double *ts, *xs;
+  double *work;
+  double *coefficients;
+  double *dependent;
   int size;
   int i;
 
@@ -121,7 +121,7 @@ void vtkCardinalSpline::Compute ()
 
   if ( !this->Closed )
     {
-    this->Intervals = new float[size];
+    this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size; i++)
       {
@@ -129,17 +129,17 @@ void vtkCardinalSpline::Compute ()
       }
 
     // allocate memory for work arrays
-    work = new float[size];
+    work = new double[size];
 
     // allocate memory for coefficients
     if (this->Coefficients)
       {
       delete [] this->Coefficients;
       }
-    this->Coefficients = new float [4 * size];
+    this->Coefficients = new double [4 * size];
 
     // allocate memory for dependent variables
-    dependent = new float [size];
+    dependent = new double [size];
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -152,7 +152,7 @@ void vtkCardinalSpline::Compute ()
       }
 
     this->Fit1D (size, this->Intervals, dependent,
-                 work, (float (*)[4])coefficients,
+                 work, (double (*)[4])coefficients,
                  this->LeftConstraint, this->LeftValue,
                  this->RightConstraint, this->RightValue);
     }
@@ -160,7 +160,7 @@ void vtkCardinalSpline::Compute ()
   else //add extra "fictitious" point to close loop
     {
     size = size + 1;
-    this->Intervals = new float[size];
+    this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size-1; i++)
       {
@@ -169,17 +169,17 @@ void vtkCardinalSpline::Compute ()
     this->Intervals[size-1] = this->Intervals[size-2] + 1.0;
 
     // allocate memory for work arrays
-    work = new float[size];
+    work = new double[size];
 
     // allocate memory for coefficients
     if (this->Coefficients)
       {
       delete [] this->Coefficients;
       }
-    this->Coefficients = new float [4 * size];
+    this->Coefficients = new double [4 * size];
 
     // allocate memory for dependent variables
-    dependent = new float [size];
+    dependent = new double [size];
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -193,7 +193,7 @@ void vtkCardinalSpline::Compute ()
     dependent[size-1] = *xs;
 
     this->FitClosed1D (size, this->Intervals, dependent,
-                 work, (float (*)[4])coefficients);
+                 work, (double (*)[4])coefficients);
     }
 
   // free the work array and dependent variable storage
@@ -203,14 +203,14 @@ void vtkCardinalSpline::Compute ()
 
 
 // Compute the coefficients for a 1D spline. The spline is open.
-void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
-                        float *work, float coefficients[][4],
-                        int leftConstraint, float leftValue,
-                        int rightConstraint, float rightValue)
+void vtkCardinalSpline::Fit1D (int size, double *x, double *y,
+                        double *work, double coefficients[][4],
+                        int leftConstraint, double leftValue,
+                        int rightConstraint, double rightValue)
 {
-  float   b = 0.0;
-  float   xlk;
-  float   xlkp;
+  double   b = 0.0;
+  double   xlk;
+  double   xlkp;
   int     k;
 
   // develop constraint at leftmost point.
@@ -342,15 +342,15 @@ void vtkCardinalSpline::Fit1D (int size, float *x, float *y,
 // Compute the coefficients for a 1D spline. The spline is closed
 // (i.e., the first and last point are assumed the same) and the
 // spline is continous in value and derivatives.
-void vtkCardinalSpline::FitClosed1D (int size, float *x, float *y,
-                        float *work, float coefficients[][4])
+void vtkCardinalSpline::FitClosed1D (int size, double *x, double *y,
+                        double *work, double coefficients[][4])
 {
-  float   b;
-  float   xlk;
-  float   xlkp;
-  int     k;
-  float aN, bN, cN, dN;
-  int   N;
+  double   b;
+  double   xlk;
+  double   xlkp;
+  int      k;
+  double   aN, bN, cN, dN;
+  int      N;
 
   N = size - 1;
 

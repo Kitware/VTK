@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkKochanekSpline, "1.22");
+vtkCxxRevisionMacro(vtkKochanekSpline, "1.23");
 vtkStandardNewMacro(vtkKochanekSpline);
 
 // Construct a KochanekSpline wth the following defaults:
@@ -32,12 +32,12 @@ vtkKochanekSpline::vtkKochanekSpline ()
 }
 
 // Evaluate a 1D Spline
-float vtkKochanekSpline::Evaluate (float t)
+double vtkKochanekSpline::Evaluate (double t)
 {
   int i, index = 0;
   int size = this->PiecewiseFunction->GetSize ();
-  float *intervals;
-  float *coefficients;
+  double *intervals;
+  double *coefficients;
 
   // make sure we have at least 2 points
   if (size < 2)
@@ -93,9 +93,9 @@ float vtkKochanekSpline::Evaluate (float t)
 // Compute Kochanek Spline coefficients.
 void vtkKochanekSpline::Compute ()
 {
-  float *ts, *xs;
-  float *coefficients;
-  float *dependent;
+  double *ts, *xs;
+  double *coefficients;
+  double *dependent;
   int size;
   int i;
 
@@ -109,7 +109,7 @@ void vtkKochanekSpline::Compute ()
       {
       delete [] this->Intervals;
       }
-    this->Intervals = new float[size];
+    this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size; i++)
       {
@@ -121,10 +121,10 @@ void vtkKochanekSpline::Compute ()
       {
       delete [] this->Coefficients;
       }
-    this->Coefficients = new float [4 * size];
+    this->Coefficients = new double [4 * size];
 
     // allocate memory for dependent variables
-    dependent = new float [size];
+    dependent = new double [size];
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -144,7 +144,7 @@ void vtkKochanekSpline::Compute ()
       {
       delete [] this->Intervals;
       }
-    this->Intervals = new float[size];
+    this->Intervals = new double[size];
     ts = this->PiecewiseFunction->GetDataPointer ();  
     for (i = 0; i < size-1; i++)
       {
@@ -157,10 +157,10 @@ void vtkKochanekSpline::Compute ()
       {
       delete [] this->Coefficients;
       }
-    this->Coefficients = new float [4 * size];
+    this->Coefficients = new double [4 * size];
 
     // allocate memory for dependent variables
-    dependent = new float [size];
+    dependent = new double [size];
 
     // get start of coefficients for this dependent variable
     coefficients = this->Coefficients;
@@ -178,7 +178,7 @@ void vtkKochanekSpline::Compute ()
                  this->DefaultTension,
                  this->DefaultBias,
                  this->DefaultContinuity,
-                 (float (*)[4])coefficients,
+                 (double (*)[4])coefficients,
                  this->LeftConstraint, this->LeftValue,
                  this->RightConstraint, this->RightValue);
 
@@ -192,17 +192,17 @@ void vtkKochanekSpline::Compute ()
 #define VTK_EPSILON .0001
 
 // Compute the coefficients for a 1D spline
-void vtkKochanekSpline::Fit1D (int size, float *x, float *y,
-                               float tension, float bias, float continuity,
-                               float coefficients[][4],
-                               int leftConstraint, float leftValue,
-                               int rightConstraint, float rightValue)
+void vtkKochanekSpline::Fit1D (int size, double *x, double *y,
+                               double tension, double bias, double continuity,
+                               double coefficients[][4],
+                               int leftConstraint, double leftValue,
+                               int rightConstraint, double rightValue)
 {
-  float         cs;             /* source chord                 */
-  float         cd;             /* destination chord            */
-  float         ds;             /* source deriviative           */
-  float         dd;             /* destination deriviative      */
-  float         n0, n1;         /* number of frames btwn nodes  */
+  double        cs;             /* source chord                 */
+  double        cd;             /* destination chord            */
+  double        ds;             /* source deriviative           */
+  double        dd;             /* destination deriviative      */
+  double        n0, n1;         /* number of frames btwn nodes  */
   int           N;              /* top point number             */
   int           i;
 

@@ -98,8 +98,8 @@ public:
   // Specify range in terms of scalar minimum and maximum (smin,smax). These
   // values are used to map scalars into lookup table. Has no effect when
   // UseLookupTableScalarRange is true.
-  vtkSetVector2Macro(ScalarRange,float);
-  vtkGetVectorMacro(ScalarRange,float,2);
+  vtkSetVector2Macro(ScalarRange,double);
+  vtkGetVectorMacro(ScalarRange,double,2);
 
   // Description:
   // Control how the filter works with scalar point data and cell attribute
@@ -155,7 +155,7 @@ public:
   // typically done as part of the rendering process. The alpha parameter 
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
-  vtkUnsignedCharArray *MapScalars(float alpha);
+  vtkUnsignedCharArray *MapScalars(double alpha);
   
   // Description:
   // Make a shallow copy of this mapper.
@@ -172,7 +172,7 @@ protected:
   vtkScalarsToColors *LookupTable;
   int ScalarVisibility;
   vtkTimeStamp BuildTime;
-  float ScalarRange[2];
+  double ScalarRange[2];
   int UseLookupTableScalarRange;
   int ColorMode;
   int ScalarMode;

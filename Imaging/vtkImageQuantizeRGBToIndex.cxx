@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.35");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.36");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -50,7 +50,7 @@ public:
   void SetImageIncrement( int v[3] )
     { memcpy( this->ImageIncrement, v, 3*sizeof(int) ); };
 
-  void SetImageType( float type ) { this->ImageType = (int)type; };
+  void SetImageType( double type ) { this->ImageType = (int)type; };
 
   void SetImage( void *image ) { this->Image = image; };
 
@@ -66,12 +66,12 @@ public:
   int  GetIndex(       ) { return this->Index; };
   void SetIndex( int v ) { this->Index = v; };
 
-  float GetStdDev( int axis ) { return this->StdDev[axis]; };
+  double GetStdDev( int axis ) { return this->StdDev[axis]; };
   void  ComputeStdDev();
 
   int GetCount() { return this->Count; };
 
-  float GetMean( int axis ) { return this->Mean[axis]; };
+  double GetMean( int axis ) { return this->Mean[axis]; };
 
   void Divide( int axis, int nextIndex );
 
@@ -116,12 +116,12 @@ protected:
   int                  SplitPoint;
   int                  Bounds[6];
   int                  Index;
-  float                StdDev[3];
-  float                Median[3];
-  float                Mean[3];
+  double                StdDev[3];
+  double                Median[3];
+  double                Mean[3];
   int                  Count;
   int                  AverageCount;
-  float                AverageColor[3];
+  double                AverageColor[3];
   int                  ImageIncrement[3];
   int                  ImageExtent[6];
   int                  ImageType;
@@ -221,15 +221,15 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   vtkColorQuantizeNode *leafNodes[65536];
   int                  numLeafNodes;
   int                  maxdevAxis = 0, maxdevLeafNode = 0;
-  float                maxdev, dev;
+  double                maxdev, dev;
   int                  leaf, axis;
   int                  cannotDivideFurther;
   vtkLookupTable       *lut;
-  float                color[4];
+  double                color[4];
   int                  rgb[3];
   vtkTimerLog          *timer;
   int                  totalCount;
-  float                weight;
+  double                weight;
   int                  done=0;
   
   timer = vtkTimerLog::New();
@@ -279,7 +279,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
       for ( axis = 0; axis < 3; axis++ )
         {
         dev = leafNodes[leaf]->GetStdDev( axis );
-        weight = (float)(leafNodes[leaf]->GetCount())/(float)(totalCount);
+        weight = (double)(leafNodes[leaf]->GetCount())/(double)(totalCount);
         dev *= weight;
         if ( dev > maxdev )
           {
@@ -394,7 +394,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 void vtkColorQuantizeNode::ComputeStdDev()
 {
   int   i, j;
-  float mean;
+  double mean;
   int   count=0;
   int   medianCount;
 
@@ -426,7 +426,7 @@ void vtkColorQuantizeNode::ComputeStdDev()
       }
     if (count>0)
       {
-      mean /= (float)count;
+      mean /= (double)count;
       }
     else
       {
@@ -457,9 +457,9 @@ void vtkColorQuantizeNode::ComputeStdDev()
     for ( j = 0; j <= (this->Bounds[i*2 + 1] - this->Bounds[i*2]); j++ )
       {
       count += this->Histogram[i][j];
-      this->StdDev[i] += (float)this->Histogram[i][j] * 
-        ((float)j+this->Bounds[i*2]-mean) * 
-        ((float)j+this->Bounds[i*2]-mean); 
+      this->StdDev[i] += (double)this->Histogram[i][j] * 
+        ((double)j+this->Bounds[i*2]-mean) * 
+        ((double)j+this->Bounds[i*2]-mean); 
       if ( this->Median[i] == -1 && count > medianCount )
         {
         this->Median[i] = j + this->Bounds[i*2];
@@ -479,7 +479,7 @@ void vtkColorQuantizeNode::ComputeStdDev()
     // Do the final division and square root to get the standard deviation
     if (count>0)
       {
-      this->StdDev[i] /= (float)count;
+      this->StdDev[i] /= (double)count;
       }
     else
       {

@@ -49,17 +49,17 @@ public:
   // Description:
   // Add/Remove a point to/from the function defined in RGB or HSV
   // Return the index of the point (0 based), or -1 on error.
-  int AddRGBPoint( float x, float r, float g, float b );
-  int AddHSVPoint( float x, float h, float s, float v );
-  int RemovePoint( float x );
+  int AddRGBPoint( double x, double r, double g, double b );
+  int AddHSVPoint( double x, double h, double s, double v );
+  int RemovePoint( double x );
 
   // Description:
   // Add two points to the function and remove all the points 
   // between them
-  void AddRGBSegment( float x1, float r1, float g1, float b1, 
-                      float x2, float r2, float g2, float b2 );
-  void AddHSVSegment( float x1, float h1, float s1, float v1, 
-                      float x2, float h2, float s2, float v2 );
+  void AddRGBSegment( double x1, double r1, double g1, double b1, 
+                      double x2, double r2, double g2, double b2 );
+  void AddHSVSegment( double x1, double h1, double s1, double v1, 
+                      double x2, double h2, double s2, double v2 );
   
   // Description:
   // Remove all points
@@ -68,35 +68,36 @@ public:
   // Description:
   // Returns an RGB color for the specified scalar value (from
   // vtkScalarsToColors)
-  float *GetColor(float x) { 
+  double *GetColor(double x) { 
     return vtkScalarsToColors::GetColor(x); }
-  void GetColor(float x, float rgb[3]);
+  void GetColor(double x, double rgb[3]);
 
   // Description:
   // Get the color components individually.
-  float GetRedValue( float x );
-  float GetGreenValue( float x );
-  float GetBlueValue( float x );
+  double GetRedValue( double x );
+  double GetGreenValue( double x );
+  double GetBlueValue( double x );
 
   // Description:
   // Map one value through the lookup table.
-  virtual unsigned char *MapValue(float v);
+  virtual unsigned char *MapValue(double v);
 
   // Description:
   // Returns min and max position of all function points.
-  vtkGetVector2Macro( Range, float );
+  vtkGetVector2Macro( Range, double );
 
   // Description:
   // Fills in a table of n function values between x1 and x2
-  void GetTable( float x1, float x2, int n, float* table );
-  const unsigned char *GetTable( float x1, float x2, int n);
+  void GetTable( double x1, double x2, int n, double* table );
+  void GetTable( double x1, double x2, int n, float* table );
+  const unsigned char *GetTable( double x1, double x2, int n);
 
   // Description:
   // Construct a color transfer function from a table. Function range is
   // is set to [x1, x2], each function size is set to size, and function 
   // points are regularly spaced between x1 and x2. Parameter "table" is 
   // assumed to be a block of memory of size [3*size]
-  void BuildFunctionFromTable( float x1, float x2, int size, float *table);
+  void BuildFunctionFromTable( double x1, double x2, int size, double *table);
 
   // Description:
   // Sets and gets the clamping value for this transfer function.
@@ -114,8 +115,8 @@ public:
   // Description:
   // Returns a list of all nodes
   // Fills from a pointer to data stored in a similar list of nodes.
-  float *GetDataPointer() {return this->Function;};
-  void FillFromDataPointer(int, float*);
+  double *GetDataPointer() {return this->Function;};
+  void FillFromDataPointer(int, double*);
 
   // Description:
   // map a set of scalars through the lookup table
@@ -137,7 +138,7 @@ protected:
   int ColorSpace;
   
   // The color function
-  float       *Function;
+  double     *Function;
   int         FunctionSize;
   int         NumberOfPoints;
 
@@ -145,7 +146,7 @@ protected:
   unsigned char UnsignedCharRGBAValue[4];
 
   // The min and max point locations for all three transfer functions
-  float Range[2]; 
+  double Range[2]; 
 
   // Transfer functions for each color component
   // Remove after corresponding depricated methods are removed
@@ -159,8 +160,8 @@ protected:
   // Description:
   // Set the range of scalars being mapped. The set has no functionality
   // in this subclass of vtkScalarsToColors.
-  virtual void SetRange(float, float) {};
-  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
+  virtual void SetRange(double, double) {};
+  void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
 
 
 private:

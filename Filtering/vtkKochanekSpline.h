@@ -62,22 +62,22 @@ public:
   
   // Description:
   // Evaluate a 1D Kochanek spline.
-  float Evaluate (float t);
+  double Evaluate (double t);
 
   // Description:
   // Set the bias for all points. Default is 0.
-  vtkSetMacro(DefaultBias,float);
-  vtkGetMacro(DefaultBias,float);
+  vtkSetMacro(DefaultBias,double);
+  vtkGetMacro(DefaultBias,double);
 
   // Description:
   // Set the tension for all points. Default is 0.
-  vtkSetMacro(DefaultTension,float);
-  vtkGetMacro(DefaultTension,float);
+  vtkSetMacro(DefaultTension,double);
+  vtkGetMacro(DefaultTension,double);
 
   // Description:
   // Set the continuity for all points. Default is 0.
-  vtkSetMacro(DefaultContinuity,float);
-  vtkGetMacro(DefaultContinuity,float);
+  vtkSetMacro(DefaultContinuity,double);
+  vtkGetMacro(DefaultContinuity,double);
 
   // Description:
   // Deep copy of cardinal spline data.
@@ -87,13 +87,13 @@ protected:
   vtkKochanekSpline();
   ~vtkKochanekSpline() {}
 
-  void Fit1D (int n, float *x, float *y, float tension, float bias, 
-              float continuity, float coefficients[][4], int leftConstraint, 
-              float leftValue, int rightConstraint, float rightValue);
+  void Fit1D (int n, double *x, double *y, double tension, double bias, 
+              double continuity, double coefficients[][4], int leftConstraint, 
+              double leftValue, int rightConstraint, double rightValue);
 
-  float DefaultBias;
-  float DefaultTension;
-  float DefaultContinuity;
+  double DefaultBias;
+  double DefaultTension;
+  double DefaultContinuity;
 
 private:
   vtkKochanekSpline(const vtkKochanekSpline&);  // Not implemented.

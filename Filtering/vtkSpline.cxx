@@ -16,7 +16,7 @@
 
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkSpline, "1.22");
+vtkCxxRevisionMacro(vtkSpline, "1.23");
 
 // Construct a spline wth the folloing defaults:
 // ClampValueOff
@@ -50,9 +50,9 @@ vtkSpline::~vtkSpline ()
     }
 }
 
-float vtkSpline::ComputeLeftDerivative()
+double vtkSpline::ComputeLeftDerivative()
 {
-  float *dptr = this->PiecewiseFunction->GetDataPointer();
+  double *dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
   if ( dptr == NULL || size < 2 )
     {
@@ -64,9 +64,9 @@ float vtkSpline::ComputeLeftDerivative()
     }
 }
 
-float vtkSpline::ComputeRightDerivative()
+double vtkSpline::ComputeRightDerivative()
 {
-  float *dptr = this->PiecewiseFunction->GetDataPointer();
+  double *dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
   if ( dptr == NULL || size < 2 )
     {
@@ -79,13 +79,13 @@ float vtkSpline::ComputeRightDerivative()
 }
 
 // Add a point to the Piecewise Functions containing the data
-void vtkSpline::AddPoint (float t, float x)
+void vtkSpline::AddPoint (double t, double x)
 {
   this->PiecewiseFunction->AddPoint (t, x);
 }
 
 // Remove a point from the Piecewise Functions.
-void vtkSpline::RemovePoint (float t)
+void vtkSpline::RemovePoint (double t)
 {
   this->PiecewiseFunction->RemovePoint (t);
 }

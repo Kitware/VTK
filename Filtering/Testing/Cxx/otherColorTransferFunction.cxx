@@ -52,7 +52,7 @@ int Test(ostream& strm)
        << ctf1->GetRange()[0] << "," 
        << ctf1->GetRange()[1] << endl;
 
-  float table[3][256];
+  double table[3][256];
 
   ctf1->GetTable(0, 15, 256, &table[0][0]);
   strm << "GetTable(0, 15, 256, &table[0][0])" << endl;

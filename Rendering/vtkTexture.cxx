@@ -20,7 +20,7 @@
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.50");
+vtkCxxRevisionMacro(vtkTexture, "1.51");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -168,9 +168,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkDataArray *scalars)
   // to the range of the scalar data.
   if (this->SelfAdjustingTableRange)
     {
-    double tmp[2];
-    scalars->GetRange(tmp,0);
-    this->LookupTable->SetTableRange ((float)(tmp[0]),(float)(tmp[1]));
+    this->LookupTable->SetTableRange (scalars->GetRange(0));
     }
   
   // map the scalars to colors

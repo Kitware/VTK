@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunctionShiftScale, "1.3");
+vtkCxxRevisionMacro(vtkPiecewiseFunctionShiftScale, "1.4");
 vtkStandardNewMacro(vtkPiecewiseFunctionShiftScale);
 
 vtkPiecewiseFunctionShiftScale::vtkPiecewiseFunctionShiftScale()
@@ -46,7 +46,7 @@ void vtkPiecewiseFunctionShiftScale::Execute()
     return;
     }
 
-  float *inFunction = input->GetDataPointer();
+  double *inFunction = input->GetDataPointer();
   int numInValues = input->GetSize();
   
   output->RemoveAllPoints();
