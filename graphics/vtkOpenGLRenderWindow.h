@@ -81,6 +81,11 @@ public:
   virtual Visual  *GetDesiredVisual();
   XVisualInfo     *GetDesiredVisualInfo();
 
+  // Description:
+  // Set/Get the maximum number of multisamples
+  static void SetGlobalMaximumNumberOfMultiSamples(int val);
+  static int  GetGlobalMaximumNumberOfMultiSamples();
+
   vtkSetMacro(MultiSamples,int);
   vtkGetMacro(MultiSamples,int);
 

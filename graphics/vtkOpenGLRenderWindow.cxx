@@ -149,10 +149,24 @@ XVisualInfo *vtkOpenGLRenderWindow::GetDesiredVisualInfo()
   return ( v );
 }
 
+// Initialize static member that controls global maximum number of multisamples.
+static int vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = 8;
+
+void vtkOpenGLRenderWindow::SetGlobalMaximumNumberOfMultiSamples(int val)
+{
+  if (val == vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples) return;
+  vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples = val;
+}
+
+int vtkOpenGLRenderWindow::GetGlobalMaximumNumberOfMultiSamples()
+{
+  return vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
+}
+
 vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
 {
   this->ContextId = NULL;
-  this->MultiSamples = 8;
+  this->MultiSamples = vtkOpenGLRenderWindowGlobalMaximumNumberOfMultiSamples;
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
