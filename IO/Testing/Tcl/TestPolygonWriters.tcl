@@ -60,6 +60,7 @@ wm withdraw .
 
 if {[catch {set channel [open test.tmp w]}] == 0 } {
    close $channel
+   file delete -force test.tmp
 
    #
    #
@@ -68,17 +69,20 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    dsw SetInput [smooth GetOutput]
    dsw SetFileName brain.dsw
    dsw Write
+   file delete -force brain.dsw
    
    vtkPolyDataWriter pdw
    pdw SetInput [smooth GetOutput]
    pdw SetFileName brain.pdw
    pdw Write
+   file delete -force brain.pdw
    
    if { [info command vtkIVWriter] != "" } {
       vtkIVWriter iv
       iv SetInput [smooth GetOutput]
       iv SetFileName brain.iv
       iv Write
+      file delete -force brain.iv
    }
    
    #
@@ -91,6 +95,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
       iv2 SetInput [triangles GetOutput]
       iv2 SetFileName brain2.iv
       iv2 Write
+      file delete -force brain2.iv
    }
    
    if { [info command vtkIVWriter] != "" } {
@@ -100,6 +105,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
       iv3 SetInput [edges GetOutput]
       iv3 SetFileName brain3.iv
       iv3 Write
+      file delete -force brain3.iv
    }
    
    vtkBYUWriter byu
@@ -108,23 +114,30 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    byu SetDisplacementFileName brain.d
    byu SetInput [triangles GetOutput]
    byu Write
+   file delete -force brain.g
+   file delete -force brain.s
+   file delete -force brain.d
    
    vtkMCubesWriter mcubes
    mcubes SetInput [triangles GetOutput]
    mcubes SetFileName brain.tri
    mcubes SetLimitsFileName brain.lim
    mcubes Write
+   file delete -force brain.lim
+   file delete -force brain.tri
    
    vtkSTLWriter stl
    stl SetInput [triangles GetOutput]
    stl SetFileName brain.stl
    stl Write
+   file delete -force brain.stl
    
    vtkSTLWriter stlBinary
    stlBinary SetInput [triangles GetOutput]
    stlBinary SetFileName brainBinary.stl
    stlBinary SetFileType 2
    stlBinary Write
+   file delete -force brainBinary.stl
 }
  
   

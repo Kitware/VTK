@@ -5,7 +5,8 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
     FOREACH ( tfile 
-      AllWriters
+      TestImageWriters
+      TestPolygonWriters
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
