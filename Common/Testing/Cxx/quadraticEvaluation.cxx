@@ -36,7 +36,15 @@ void  ComputeDataValues(vtkPoints *pts, float *edgeValues)
   for (int i=0; i<numPts; i++)
     {
     pts->GetPoint(i,x);
-    edgeValues[i] = 1.0 / (1.0 + x[0]); //simple linear function for now
+    float dem = (1.0 + x[0]);
+    if(fabs(dem) < 1.e-08)
+      {
+      edgeValues[i] = 0;
+      }
+    else
+      {
+      edgeValues[i] = 1.0 / dem; //simple linear function for now
+      }
     }
 }
 
