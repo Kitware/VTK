@@ -94,6 +94,7 @@ struct vtkCompositeRendererInfo
   float CameraClippingRange[2];
   float LightPosition[3];
   float LightFocalPoint[3];
+  float Background[3];
 };
 
 
@@ -468,6 +469,7 @@ void vtkTreeComposite::RenderRMI()
         light->SetPosition(renInfo.LightPosition);
         light->SetFocalPoint(renInfo.LightFocalPoint);
         }
+      ren->SetBackground(renInfo.Background);
       }
     }
   renWin->Render();
@@ -616,6 +618,7 @@ void vtkTreeComposite::StartRender()
       light->GetPosition(renInfo.LightPosition);
       light->GetFocalPoint(renInfo.LightFocalPoint);
       }
+    ren->GetBackground(renInfo.Background);
     
     for (id = 1; id < numProcs; ++id)
       {
