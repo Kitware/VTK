@@ -81,6 +81,14 @@ public:
   virtual void Build();
 
   // Description:
+  // Force the lookup table to regenerate from hue, saturation, value,
+  // and alpha min/max values.  Table is built from a linear ramp of
+  // each value.  ForceBuild() is useful if a lookup table has been
+  // defined manually (using SetTableValue) and then an application
+  // decides to rebuild the lookup table using the implicit process.
+  virtual void ForceBuild();
+
+  // Description:
   // Set the shape of the table ramp to either linear or S-curve.
   // The default is S-curve, which tails off gradually at either end.  
   // The equation used for the S-curve is y = (sin((x - 1/2)*pi) + 1)/2,
@@ -147,7 +155,11 @@ public:
   // Description:
   // Map one value through the lookup table and return the alpha value
   // (the opacity) as a float between 0 and 1.
-  float GetOpacity(float v);  
+  float GetOpacity(float v);
+
+  // Description:
+  // Return the table index associated with a particular value.
+  virtual int GetIndex(float v);
 
   // Description:
   // Specify the number of values (i.e., colors) in the lookup

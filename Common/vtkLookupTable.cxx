@@ -161,9 +161,8 @@ int vtkLookupTable::Allocate(int sz, int ext)
   return a;
 }
 
-// Generate lookup table from hue, saturation, value, alpha min/max values. 
-// Table is built from linear ramp of each value.
-void vtkLookupTable::Build()
+// Force the lookup table to rebuild
+void vtkLookupTable::ForceBuild()
 {
   int i, hueCase;
   float hue, sat, val, lx, ly, lz, frac, hinc, sinc, vinc, ainc;
@@ -172,31 +171,27 @@ void vtkLookupTable::Build()
 
   int maxIndex = this->NumberOfColors - 1;
 
-  if (this->Table->GetNumberOfTuples() < 1 ||
-      (this->GetMTime() > this->BuildTime && 
-       this->InsertTime < this->BuildTime))
+  hinc = (this->HueRange[1] - this->HueRange[0])/maxIndex;
+  sinc = (this->SaturationRange[1] - this->SaturationRange[0])/maxIndex;
+  vinc = (this->ValueRange[1] - this->ValueRange[0])/maxIndex;
+  ainc = (this->AlphaRange[1] - this->AlphaRange[0])/maxIndex;
+
+  for (i = 0; i <= maxIndex; i++) 
     {
-    hinc = (this->HueRange[1] - this->HueRange[0])/maxIndex;
-    sinc = (this->SaturationRange[1] - this->SaturationRange[0])/maxIndex;
-    vinc = (this->ValueRange[1] - this->ValueRange[0])/maxIndex;
-    ainc = (this->AlphaRange[1] - this->AlphaRange[0])/maxIndex;
+    hue = this->HueRange[0] + i*hinc;
+    sat = this->SaturationRange[0] + i*sinc;
+    val = this->ValueRange[0] + i*vinc;
+    alpha = this->AlphaRange[0] + i*ainc;
 
-    for (i = 0; i <= maxIndex; i++) 
+    hueCase = static_cast<int>(hue * 6);
+    frac = 6*hue - hueCase;
+    lx = val*(1.0 - sat);
+    ly = val*(1.0 - sat*frac);
+    lz = val*(1.0 - sat*(1.0 - frac));
+
+    switch (hueCase) 
       {
-      hue = this->HueRange[0] + i*hinc;
-      sat = this->SaturationRange[0] + i*sinc;
-      val = this->ValueRange[0] + i*vinc;
-      alpha = this->AlphaRange[0] + i*ainc;
-
-      hueCase = static_cast<int>(hue * 6);
-      frac = 6*hue - hueCase;
-      lx = val*(1.0 - sat);
-      ly = val*(1.0 - sat*frac);
-      lz = val*(1.0 - sat*(1.0 - frac));
-
-      switch (hueCase) 
-      {
-        /* 0<hue<1/6 */
+      /* 0<hue<1/6 */
       case 0:
       case 6:
         rgba[0] = val;
@@ -234,39 +229,50 @@ void vtkLookupTable::Build()
         rgba[2] = ly;
         break;
       }
-      rgba[3] = alpha;
+    rgba[3] = alpha;
 
-      c_rgba = this->Table->WritePointer(4*i,4);
+    c_rgba = this->Table->WritePointer(4*i,4);
 
-      if (this->Ramp == VTK_RAMP_SCURVE)
-        {
-        c_rgba[0] = static_cast<unsigned char> 
-          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[0]))*3.141593)));
-        c_rgba[1] = static_cast<unsigned char> 
-          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[1]))*3.141593)));
-        c_rgba[2] = static_cast<unsigned char> 
-          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*3.141593)));
-        c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
-        /* same code, but with rounding 
-        c_rgba[0] = static_cast<unsigned char> 
-          (127.5f*(1.0f + (float)cos(double((1.0f-rgba[0])*3.141593f)))+0.5f);
-        c_rgba[1] = static_cast<unsigned char> 
-          (127.5f*(1.0f + (float)cos(double((1.0f-rgba[1])*3.141593f)))+0.5f);
-        c_rgba[2] = static_cast<unsigned char> 
-          (127.5f*(1.0f + (float)cos(double((1.0f-rgba[2])*3.141593f)))+0.5f);
-        c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
-        */
-        }
-      else
-        {
-        c_rgba[0] = static_cast<unsigned char>(rgba[0]*255.0f + 0.5f);
-        c_rgba[1] = static_cast<unsigned char>(rgba[1]*255.0f + 0.5f);
-        c_rgba[2] = static_cast<unsigned char>(rgba[2]*255.0f + 0.5f);
-        c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
-        }
+    if (this->Ramp == VTK_RAMP_SCURVE)
+      {
+      c_rgba[0] = static_cast<unsigned char> 
+        (127.5*(1.0+cos((1.0-static_cast<double>(rgba[0]))*3.141593)));
+      c_rgba[1] = static_cast<unsigned char> 
+        (127.5*(1.0+cos((1.0-static_cast<double>(rgba[1]))*3.141593)));
+      c_rgba[2] = static_cast<unsigned char> 
+        (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*3.141593)));
+      c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
+      /* same code, but with rounding 
+         c_rgba[0] = static_cast<unsigned char> 
+         (127.5f*(1.0f + (float)cos(double((1.0f-rgba[0])*3.141593f)))+0.5f);
+         c_rgba[1] = static_cast<unsigned char> 
+         (127.5f*(1.0f + (float)cos(double((1.0f-rgba[1])*3.141593f)))+0.5f);
+         c_rgba[2] = static_cast<unsigned char> 
+         (127.5f*(1.0f + (float)cos(double((1.0f-rgba[2])*3.141593f)))+0.5f);
+         c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+      */
+      }
+    else
+      {
+      c_rgba[0] = static_cast<unsigned char>(rgba[0]*255.0f + 0.5f);
+      c_rgba[1] = static_cast<unsigned char>(rgba[1]*255.0f + 0.5f);
+      c_rgba[2] = static_cast<unsigned char>(rgba[2]*255.0f + 0.5f);
+      c_rgba[3] = static_cast<unsigned char>(rgba[3]*255.0f + 0.5f);
+      }
     }
-    this->BuildTime.Modified();
-  }
+  this->BuildTime.Modified();
+}
+
+// Generate lookup table from hue, saturation, value, alpha min/max values. 
+// Table is built from linear ramp of each value.
+void vtkLookupTable::Build()
+{
+  if (this->Table->GetNumberOfTuples() < 1 ||
+      (this->GetMTime() > this->BuildTime && 
+       this->InsertTime < this->BuildTime))
+    {
+    this->ForceBuild();
+    }
 }
 
 // get the color for a scalar value
@@ -380,6 +386,59 @@ static inline unsigned char *vtkLinearLookup(float v,
   /* round
   return &table[4*(int)(findx + 0.5f)];
   */
+}
+
+// Given a scalar value v, return an index into the lookup table
+int vtkLookupTable::GetIndex(float v)
+{
+  float maxIndex = this->NumberOfColors - 1;
+  float shift, scale;
+
+  if (this->Scale == VTK_SCALE_LOG10)
+    {   // handle logarithmic scale
+    float logRange[2];
+    vtkLookupTableLogRange(this->TableRange, logRange);
+    shift = -logRange[0];
+    if (logRange[1] <= logRange[0])
+      {
+      scale = VTK_LARGE_FLOAT;
+      }
+    else
+      {
+      scale = (maxIndex + 1)/(logRange[1] - logRange[0]);
+      }
+    /* correct scale
+    scale = maxIndex/(logRange[1] - logRange[0]);
+    */
+    v = vtkApplyLogScale(v, this->TableRange, logRange);
+    }
+  else
+    {   // plain old linear
+    shift = -this->TableRange[0];
+    if (this->TableRange[1] <= this->TableRange[0])
+      {
+      scale = VTK_LARGE_FLOAT;
+      }
+    else
+      {
+      scale = (maxIndex + 1)/(this->TableRange[1] - this->TableRange[0]);
+      }
+    /* correct scale
+    scale = maxIndex/(this->TableRange[1] - this->TableRange[0]);
+    */
+    }
+
+  // map to an index
+  float findx = (v + shift)*scale;
+  if (findx < 0)
+    {
+    findx = 0;
+    }
+  if (findx > maxIndex)
+    {
+    findx = maxIndex;
+    }
+  return static_cast<int>(findx);
 }
 
 // Given a scalar value v, return an rgba color value from lookup table.
