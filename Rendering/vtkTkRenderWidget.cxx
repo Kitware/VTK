@@ -19,6 +19,7 @@
 #include "vtkImageData.h"
 #include "vtkTclUtil.h"
 #include "vtkTkInternals.h"
+#include "vtkToolkits.h"
 
 #ifdef _WIN32
 #include "vtkWin32OpenGLRenderWindow.h"

@@ -30,6 +30,7 @@ PURPOSE.  See the above copyright notice for more information.
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
+#include "vtkConfigure.h"
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
 #include "Wrapping/Tcl/vtkTkAppInitConfigure.h"

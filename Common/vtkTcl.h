@@ -15,7 +15,7 @@
 #ifndef __vtkTcl_h
 #define __vtkTcl_h
 
-#include "vtkToolkits.h"
+#include "vtkConfigure.h"
 
 #ifdef VTK_TCL_TK_STATIC
 # ifndef STATIC_BUILD
