@@ -49,7 +49,7 @@
 
 class vtkCallbackCommand;
 
-class VTK_HYBRID_EXPORT vtkInteractorObserver : public vtkObject
+class VTK_RENDERING_EXPORT vtkInteractorObserver : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkInteractorObserver,vtkObject);
@@ -121,7 +121,9 @@ protected:
   
   // helper method for subclasses
   void ComputeDisplayToWorld(double x, double y, double z, double *worldPt);
+  void ComputeDisplayToWorld(double x, double y, double z, float *worldPt);
   void ComputeWorldToDisplay(double x, double y, double z, double *displayPt);
+  void ComputeWorldToDisplay(double x, double y, double z, float *displayPt);
     
   // The state of the widget, whether on or off (observing events or not)
   int Enabled;
