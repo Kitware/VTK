@@ -65,13 +65,8 @@ vtkLightKit* vtkLightKit::New() {
 vtkLightKit::vtkLightKit() {
   // create members
   this->KeyLight = vtkLight::New();
-  this->KeyLight->Register(this);
-
   this->FillLight = vtkLight::New();
-  this->FillLight->Register(this);
-
   this->Headlight = vtkLight::New();
-  this->Headlight->Register(this);
 
   for(int i = 0; i < 4; i++) {
     this->WarmthFunction[i] = vtkPiecewiseFunction::New();
