@@ -30,8 +30,8 @@ vtkPolyMapper camMapper;
     camMapper SetInput [camAPD GetOutput];
 vtkLODActor camActor;
     camActor SetMapper camMapper;
-camActor SetScale 0.8 0.8 0.8;
-camActor SetPosition 0.3 0 0;
+camActor SetScale 2 2 2;
+camActor SetPosition 3 0 0;
 
 # draw the arrows
 vtkPolyData pd;
@@ -86,7 +86,7 @@ arrowMapper ScalarsVisibleOff;
 vtkLODActor a1Actor;
 a1Actor SetMapper arrowMapper;
 a1Actor RotateY -90;
-a1Actor SetPosition 1 0 1;
+a1Actor SetPosition 1 0 3;
 [a1Actor GetProperty] SetColor 1 0.3 0.3;
 [a1Actor GetProperty] SetSpecularColor 1 1 1;
 [a1Actor GetProperty] SetSpecular 0.3;
@@ -96,9 +96,9 @@ a1Actor SetPosition 1 0 1;
 
 vtkLODActor a2Actor;
 a2Actor SetMapper arrowMapper;
-a2Actor RotateY -90;
 a2Actor RotateX 180;
-a2Actor SetPosition 1 0 -1;
+a2Actor RotateY -90;
+a2Actor SetPosition 1 0 -3;
 [a2Actor GetProperty] SetColor 1 0.3 0.3;
 [a2Actor GetProperty] SetSpecularColor 1 1 1;
 [a2Actor GetProperty] SetSpecular 0.3;
@@ -109,9 +109,9 @@ a2Actor SetPosition 1 0 -1;
 # draw the elevation arrows
 vtkLODActor a3Actor;
 a3Actor SetMapper arrowMapper;
-a3Actor RotateY -90;
 a3Actor RotateX 270;
-a3Actor SetPosition 1 -1 0;
+a3Actor RotateY -90;
+a3Actor SetPosition 1 3 0;
 [a3Actor GetProperty] SetColor 0.3 1 0.3;
 [a3Actor GetProperty] SetSpecularColor 1 1 1;
 [a3Actor GetProperty] SetSpecular 0.3;
@@ -121,9 +121,9 @@ a3Actor SetPosition 1 -1 0;
 
 vtkLODActor a4Actor;
 a4Actor SetMapper arrowMapper;
-a4Actor RotateY -90;
 a4Actor RotateX 90;
-a4Actor SetPosition 1 1 0;
+a4Actor RotateY -90;
+a4Actor SetPosition 1 -3 0;
 [a4Actor GetProperty] SetColor 0.3 1 0.3;
 [a4Actor GetProperty] SetSpecularColor 1 1 1;
 [a4Actor GetProperty] SetSpecular 0.3;
@@ -150,7 +150,7 @@ spikeMapper SetInput [arrowREF GetOutput];
 
 vtkLODActor a5Actor;
 a5Actor SetMapper spikeMapper;
-a5Actor SetScale 0.2 0.2 0.4;
+a5Actor SetScale .3 .3 .6;
 a5Actor RotateY 90;
 a5Actor SetPosition -1 0 0;
 [a5Actor GetProperty] SetColor 1 0.3 1;
