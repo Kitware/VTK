@@ -578,14 +578,25 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
       inPtr = inData[idx1]->GetScalarPointerForExtent(inExt);
       outPtr = outData->GetScalarPointerForExtent(inExt);  
 
-      switch (inData[idx1]->GetScalarType())
+      // for performance reasons, use a special method for unsigned char
+      if (inData[idx1]->GetScalarType() == VTK_UNSIGNED_CHAR)
 	{
-        vtkTemplateMacro9(vtkImageBlendExecute, this, id, inExt,
-                          inData[idx1], (VTK_TT *)(inPtr), outExt, 
-                          outData, (VTK_TT *)(outPtr), opacity);
-	default:
-	  vtkErrorMacro(<< "Execute: Unknown ScalarType");
-	  return;
+	vtkImageBlendExecuteChar(this, id, inExt,
+				 inData[idx1], (unsigned char *)(inPtr),
+				 outExt,outData,(unsigned char *)(outPtr),
+				 opacity);
+	}
+      else
+	{
+	switch (inData[idx1]->GetScalarType())
+	  {
+	  vtkTemplateMacro9(vtkImageBlendExecute, this, id, inExt,
+			    inData[idx1], (VTK_TT *)(inPtr), outExt, 
+			    outData, (VTK_TT *)(outPtr), opacity);
+	  default:
+	    vtkErrorMacro(<< "Execute: Unknown ScalarType");
+	    return;
+	  }
 	}
       }
     }
