@@ -346,7 +346,6 @@ LRESULT APIENTRY vtkWin32OpenGLWndProc(HWND hWnd, UINT message, WPARAM wParam, L
         me = vtkWin32OpenGLRenderWindowPtr; 
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)me);
         me->DeviceContext = GetDC(hWnd);
-	me->Pen = CreatePen(PS_SOLID,0,me->PenColor);
         vtkWin32OpenGLSetupPixelFormat(me->DeviceContext,me->GetDebug());
         vtkWin32OpenGLSetupPalette(me->DeviceContext,me);
 		    me->ContextId = wglCreateContext(me->DeviceContext);
@@ -1109,39 +1108,3 @@ void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
 
 }
-
-void vtkWin32OpenGLRenderWindow::SetPenColor(float r,float g,float b) 
-  {
-  int ir,ig,ib;
-  if (this->DeviceContext != (HDC) 0) 
-    {
-    ir = 255*r;
-    ig = 255*g;
-    ib = 255*b;
-
-    this->PenColor = RGB(ir,ig,ib);
-    if (this->Pen != NULL) 
-      {
-      DeleteObject(this->Pen);
-      this->Pen = CreatePen(PS_SOLID,0,this->PenColor);
-      }
-    }
-  }
-
-void vtkWin32OpenGLRenderWindow::PenLineTo(int x,int y) 
-  {
-  HPEN hPenOld;
-  if (this->DeviceContext != (HDC) 0) 
-    {
-    hPenOld = (HPEN) SelectObject(this->DeviceContext,this->Pen);
-    LineTo(this->DeviceContext,x,y);
-    SelectObject(this->DeviceContext,hPenOld);
-    }
-  }
-void vtkWin32OpenGLRenderWindow::PenMoveTo(int x,int y) 
-  {
-  if (this->DeviceContext != (HDC) 0) 
-    {
-    MoveToEx(this->DeviceContext,x,y,NULL);
-    }
-  }
