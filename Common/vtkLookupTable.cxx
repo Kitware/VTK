@@ -189,7 +189,7 @@ void vtkLookupTable::Build()
       val = this->ValueRange[0] + i*vinc;
       alpha = this->AlphaRange[0] + i*ainc;
 
-      hueCase = (int)(hue * 6);
+      hueCase = static_cast<int>(hue * 6);
       frac = 6*hue - hueCase;
       lx = val*(1.0 - sat);
       ly = val*(1.0 - sat*frac);
@@ -242,11 +242,11 @@ void vtkLookupTable::Build()
       if (this->Ramp == VTK_RAMP_SCURVE)
         {
         c_rgba[0] = static_cast<unsigned char> 
-          ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[0])*3.141593)));
+          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[0]))*3.141593)));
         c_rgba[1] = static_cast<unsigned char> 
-          ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[1])*3.141593)));
+          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[1]))*3.141593)));
         c_rgba[2] = static_cast<unsigned char> 
-          ((float)127.5*(1.0+(float)cos((1.0-(double)rgba[2])*3.141593)));
+          (127.5*(1.0+cos((1.0-static_cast<double>(rgba[2]))*3.141593)));
         c_rgba[3] = static_cast<unsigned char> (alpha*255.0);
         /* same code, but with rounding 
         c_rgba[0] = static_cast<unsigned char> 
@@ -333,7 +333,7 @@ static inline float vtkApplyLogScale(float v, float range[2],
     {
     if (v < 0)
       {
-      v = log10(-(double)v);
+      v = log10(-static_cast<double>(v));
       }
     else if (range[0] > range[1])
       {
@@ -348,7 +348,7 @@ static inline float vtkApplyLogScale(float v, float range[2],
     {
     if (v > 0)
       {
-      v = log10((double)v);
+      v = log10(static_cast<double>(v));
       }
     else if (range[0] < range[1])
       {
@@ -377,7 +377,7 @@ static inline unsigned char *vtkLinearLookup(float v,
     {
     findx = maxIndex;
     }
-  return &table[4*(int)(findx)];
+  return &table[4*static_cast<int>(findx)];
   /* round
   return &table[4*(int)(findx + 0.5f)];
   */
