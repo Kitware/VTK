@@ -154,6 +154,12 @@ int MeshQuality( int argc, char* argv[] )
     cout << " Edge Ratio:"
          << endl;
     DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
+    
+    iq->SetTetQualityMeasureToMinAngle();
+    iq->Update();
+    cout << " Minimal Dihedral Angle:"
+         << endl;
+    DumpQualityStats( iq, "Mesh Tetrahedron Quality" );
     cout << endl; 
 
     cout << "Hexahedral quality of mesh" << endl;

@@ -35,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.28");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.29");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -192,6 +192,9 @@ int vtkMeshQuality::RequestData(
       break;
     case VTK_QUALITY_EDGE_RATIO:
       TetQuality = TetEdgeRatio;
+      break;
+    case VTK_QUALITY_MIN_ANGLE:
+      TetQuality = TetMinAngle;
       break;
     default:
       vtkWarningMacro( "Bad TetQualityMeasure ("
@@ -1240,6 +1243,61 @@ double vtkMeshQuality::TetEdgeRatio( vtkCell* cell )
   M2 = M2  > Mef ? M2  : Mef;
 
   return sqrt(M2 / m2);
+}
+
+double vtkMeshQuality::TetMinAngle( vtkCell* cell )
+{
+  double p0[3],p1[3],p2[3],p3[3];
+  double ab[3],bc[3],ad[3],cd[3];
+  double abc[3],abd[3],acd[3],bcd[3];
+  double nabc,nabd,nacd,nbcd;
+  double alpha,beta,gamma,delta,epsilon,zeta;
+  const double normal_coeff = .3183098861837906715377675267450287;
+
+  vtkPoints *p = cell->GetPoints();
+  p->GetPoint(0, p0);
+  p->GetPoint(1, p1);
+  p->GetPoint(2, p2);
+  p->GetPoint(3, p3);
+
+  ab[0] = p1[0]-p0[0];
+  ab[1] = p1[1]-p0[1];
+  ab[2] = p1[2]-p0[2];
+ 
+  bc[0] = p2[0]-p1[0];
+  bc[1] = p2[1]-p1[1];
+  bc[2] = p2[2]-p1[2];
+ 
+  ad[0] = p3[0]-p0[0];
+  ad[1] = p3[1]-p0[1];
+  ad[2] = p3[2]-p0[2];
+ 
+  cd[0] = p3[0]-p2[0];
+  cd[1] = p3[1]-p2[1];
+  cd[2] = p3[2]-p2[2];
+
+  vtkMath::Cross(ab,bc,abc);
+  nabc = vtkMath::Norm(abc);
+  vtkMath::Cross(ab,ad,abd);
+  nabd = vtkMath::Norm(abd);
+  vtkMath::Cross(ad,cd,acd);
+  nacd = vtkMath::Norm(acd);
+  vtkMath::Cross(bc,cd,bcd);
+  nbcd = vtkMath::Norm(bcd);
+
+  alpha   = acos(vtkMath::Dot(abc,abd) / (nabc * nabd));
+  beta    = acos(vtkMath::Dot(abc,acd) / (nabc * nacd));
+  gamma   = acos(vtkMath::Dot(abc,bcd) / (nabc * nbcd));
+  delta   = acos(vtkMath::Dot(abd,acd) / (nabd * nacd));
+  epsilon = acos(vtkMath::Dot(abd,bcd) / (nabd * nbcd));
+  zeta    = acos(vtkMath::Dot(acd,bcd) / (nacd * nbcd));
+
+  alpha = alpha < beta    ? alpha : beta;
+  alpha = alpha < gamma   ? alpha : gamma;
+  alpha = alpha < gamma   ? alpha : gamma;
+  alpha = alpha < epsilon ? alpha : epsilon;
+  
+  return  (alpha < zeta ? alpha : zeta) * 180. * normal_coeff;
 }
 
 double vtkMeshQuality::HexEdgeRatio( vtkCell* cell)

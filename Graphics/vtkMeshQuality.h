@@ -162,6 +162,10 @@ public:
     {
     this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO );
     }
+  void SetTetQualityMeasureToMinAngle()
+    {
+    this->SetTetQualityMeasure( VTK_QUALITY_MIN_ANGLE );
+    }
 
   // Description:
   // Set/Get the particular estimator used to measure the quality of hexahedra.
@@ -347,6 +351,14 @@ public:
   // where \f$|K|_\infty\f$ and \f$|K|_0\f$ respectively denote the greatest and
   // the smallest edge lengths of \f$K\f$.
   static double TetEdgeRatio( vtkCell* cell );
+
+  // Description:
+  // This is a static function used to calculate the minimal (nonoriented) dihedral
+  // angle of a tetrahedron, expressed in degrees.
+  // It assumes that you pass the correct type of cell -- no type checking is
+  // performed because this method is called from the inner loop of the Execute()
+  // member function.
+  static double TetMinAngle( vtkCell* cell );
 
   // Description:
   // This is a static function used to calculate the edge ratio of a hexahedron.
