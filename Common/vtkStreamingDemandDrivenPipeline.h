@@ -40,6 +40,7 @@ public:
   virtual int Update(vtkAlgorithm* algorithm);
   virtual int Update(vtkAlgorithm* algorithm, int port);
 
+  static vtkInformationIntegerKey* CONTINUE_EXECUTING();
   static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
   static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
   static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();

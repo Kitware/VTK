@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.14");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.15");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,16 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     }
   if(port >= 0 && port < this->Algorithm->GetNumberOfOutputPorts())
     {
-    return this->PropagateUpdateExtent(port) && this->UpdateData(port);
+    int retval = 1;
+    // some streaming filters can request that the pipeline execute multiple
+    // times for a single update
+    do 
+      {
+      retval =  
+        this->PropagateUpdateExtent(port) && this->UpdateData(port) && retval;
+      }
+    while (this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()));
+    return retval;
     }
   else
     {
@@ -260,6 +269,12 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
       }
     }
 
+  // is continue executing set? 
+  if (this->Algorithm->GetInformation()->Get(CONTINUE_EXECUTING()))
+    {
+    return 1;
+    }
+  
   // We do not need to execute.
   return 0;
 }
@@ -273,6 +288,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
            #NAME, "vtkStreamingDemandDrivenPipeline");                      \
     return &instance;                                                       \
     }
+VTK_SDDP_DEFINE_KEY_METHOD(CONTINUE_EXECUTING, Integer);
 VTK_SDDP_DEFINE_KEY_METHOD(REQUEST_UPDATE_EXTENT, Integer);
 VTK_SDDP_DEFINE_KEY_METHOD(WHOLE_EXTENT, IntegerVector);
 VTK_SDDP_DEFINE_KEY_METHOD(MAXIMUM_NUMBER_OF_PIECES, Integer);
