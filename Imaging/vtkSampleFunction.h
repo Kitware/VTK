@@ -121,6 +121,9 @@ protected:
   vtkSampleFunction();
   ~vtkSampleFunction();
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+
   void ExecuteData(vtkDataObject *);
   void ExecuteInformation();
   void Cap(vtkDataArray *s);
