@@ -52,10 +52,11 @@
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
+#include "vtkCompositeManager.h"
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.4");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.5");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -545,24 +546,37 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
     {
     if (this->InternalPData)
       {
-      this->InternalPData->Delete();
+      vtkCompositeManager::DeleteArray(this->InternalPData);
       this->InternalPData = NULL;
       }
-    this->InternalPData = pBuf->MakeObject();
-    this->InternalPData->SetNumberOfComponents(numComps);
-    this->InternalPData->Allocate(pBuf->GetSize());
+    if (pBuf->GetDataType() == VTK_UNSIGNED_CHAR)
+      {
+      this->InternalPData = vtkUnsignedCharArray::New();
+      vtkCompositeManager::ResizeUnsignedCharArray(
+                               static_cast<vtkUnsignedCharArray*>(this->InternalPData),
+                               numComps, pBuf->GetSize());
+      }
+    else 
+      {
+      this->InternalPData = vtkFloatArray::New();
+      vtkCompositeManager::ResizeFloatArray(
+                               static_cast<vtkFloatArray*>(this->InternalPData),
+                               numComps, pBuf->GetSize());
+      }
     }
-
+  // Now float array.
   if (this->InternalZData == NULL || 
       this->InternalZData->GetSize() < zBuf->GetSize())
     {
     if (this->InternalZData)
       {
-      this->InternalZData->Delete();
+      vtkCompositeManager::DeleteArray(this->InternalZData);
       this->InternalZData = NULL;
       }
     this->InternalZData = vtkFloatArray::New();
-    this->InternalZData->Allocate(zBuf->GetSize());
+    vtkCompositeManager::ResizeFloatArray(
+                             static_cast<vtkFloatArray*>(this->InternalPData),
+                             1, zBuf->GetSize());
     }
 
   // Compress the incoming buffers (in place operation).
@@ -667,6 +681,9 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
   //cerr << "Composite " << " took " << time << " seconds.\n";
 
 }
+
+
+
 
 //----------------------------------------------------------------------------
 void vtkCompressCompositer::PrintSelf(ostream& os, vtkIndent indent)

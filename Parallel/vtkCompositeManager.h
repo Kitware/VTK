@@ -172,6 +172,14 @@ public:
   virtual void SetCompositer(vtkCompositer*);
   vtkGetObjectMacro(Compositer, vtkCompositer);
 
+  // Description:
+  // Methods that allocate and delete memory with special MPIPro calls.
+  static void DeleteArray(vtkDataArray* da);
+  static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
+                               vtkIdType size);
+  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
+                                      int numComp, vtkIdType size);
+
 protected:
   vtkCompositeManager();
   ~vtkCompositeManager();
@@ -182,11 +190,6 @@ protected:
   void MagnifyBuffer(vtkDataArray *localPdata, vtkDataArray* magPdata,
                      int windowSize[2]);
 
-  static void DeleteArray(vtkDataArray* da);
-  static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
-                               vtkIdType size);
-  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
-                                      int numComp, vtkIdType size);
   void ReallocPDataArrays();
   
   vtkRenderWindow* RenderWindow;
