@@ -26,29 +26,31 @@
 #define __vtkImageSobel3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageSobel3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageSobel3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageSobel3D *New();
-  vtkTypeRevisionMacro(vtkImageSobel3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageSobel3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkImageSobel3D();
   ~vtkImageSobel3D() {};
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int outExt[6], int id);
+  void ExecuteInformation(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+
 private:
   vtkImageSobel3D(const vtkImageSobel3D&);  // Not implemented.
   void operator=(const vtkImageSobel3D&);  // Not implemented.
 };
 
 #endif
-
-
-

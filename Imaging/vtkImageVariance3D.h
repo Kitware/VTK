@@ -26,15 +26,15 @@
 #define __vtkImageVariance3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
 class vtkImageEllipsoidSource;
 
-class VTK_IMAGING_EXPORT vtkImageVariance3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageVariance3D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageVariance3D *New();
-  vtkTypeRevisionMacro(vtkImageVariance3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageVariance3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -48,16 +48,18 @@ protected:
 
   vtkImageEllipsoidSource *Ellipse;
     
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
+  void ExecuteInformation(vtkInformation *request,
+                          vtkInformationVector **inputVector,
+                          vtkInformationVector *outputVector);
+
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int extent[6], int id);
 private:
   vtkImageVariance3D(const vtkImageVariance3D&);  // Not implemented.
   void operator=(const vtkImageVariance3D&);  // Not implemented.
 };
 
 #endif
-
-
-

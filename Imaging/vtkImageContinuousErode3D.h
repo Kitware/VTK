@@ -23,18 +23,18 @@
 #define __vtkImageContinuousErode3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
 class vtkImageEllipsoidSource;
 
-class VTK_IMAGING_EXPORT vtkImageContinuousErode3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageContinuousErode3D : public vtkImageSpatialAlgorithm
 {
 public:
   // Description:
   // Construct an instance of vtkImageContinuousErode3D filter.
   // By default zero values are eroded.
   static vtkImageContinuousErode3D *New();
-  vtkTypeRevisionMacro(vtkImageContinuousErode3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageContinuousErode3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -56,14 +56,14 @@ protected:
 
   vtkImageEllipsoidSource *Ellipse;
     
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData, 
+                           int extent[6], int id);
 private:
   vtkImageContinuousErode3D(const vtkImageContinuousErode3D&);  // Not implemented.
   void operator=(const vtkImageContinuousErode3D&);  // Not implemented.
 };
 
 #endif
-
-
-

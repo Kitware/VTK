@@ -23,11 +23,11 @@
 #define __vtkImageContinuousDilate3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
 class vtkImageEllipsoidSource;
 
-class VTK_IMAGING_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageContinuousDilate3D : public vtkImageSpatialAlgorithm
 {
 public:
 
@@ -35,7 +35,7 @@ public:
   // Construct an instance of vtkImageContinuousDilate3D filter.
   // By default zero values are dilated.
   static vtkImageContinuousDilate3D *New();
-  vtkTypeRevisionMacro(vtkImageContinuousDilate3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageContinuousDilate3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -57,14 +57,14 @@ protected:
 
   vtkImageEllipsoidSource *Ellipse;
     
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData, 
+                           int extent[6], int id);
 private:
   vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);  // Not implemented.
   void operator=(const vtkImageContinuousDilate3D&);  // Not implemented.
 };
 
 #endif
-
-
-

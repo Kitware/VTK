@@ -25,18 +25,18 @@
 #define __vtkImageDilateErode3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
 class vtkImageEllipsoidSource;
 
-class VTK_IMAGING_EXPORT vtkImageDilateErode3D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageDilateErode3D : public vtkImageSpatialAlgorithm
 {
 public:
   // Description:
   // Construct an instance of vtkImageDilateErode3D filter.
   // By default zero values are dilated.
   static vtkImageDilateErode3D *New();
-  vtkTypeRevisionMacro(vtkImageDilateErode3D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageDilateErode3D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -60,12 +60,14 @@ protected:
   double DilateValue;
   double ErodeValue;
     
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int extent[6], int id);
 private:
   vtkImageDilateErode3D(const vtkImageDilateErode3D&);  // Not implemented.
   void operator=(const vtkImageDilateErode3D&);  // Not implemented.
 };
 
 #endif
-

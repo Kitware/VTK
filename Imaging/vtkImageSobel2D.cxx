@@ -15,11 +15,14 @@
 #include "vtkImageSobel2D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.29");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.30");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -35,23 +38,22 @@ vtkImageSobel2D::vtkImageSobel2D()
   this->HandleBoundaries = 1;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageSobel2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
-
-
 //----------------------------------------------------------------------------
-void vtkImageSobel2D::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                         vtkImageData *outData)
+void vtkImageSobel2D::ExecuteInformation(vtkInformation *request,
+                                         vtkInformationVector **inputVector,
+                                         vtkInformationVector *outputVector)
 {
-  outData->SetNumberOfScalarComponents(2);
-  outData->SetScalarType(VTK_DOUBLE);
+  this->Superclass::ExecuteInformation(request, inputVector, outputVector);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 2);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_DOUBLE);
 }
-
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
@@ -79,20 +81,27 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   int inWholeMin0,inWholeMax0;
   int inWholeMin1,inWholeMax1;
   int inWholeMin2,inWholeMax2;
+  int inWholeExt[6];
   unsigned long count = 0;
   unsigned long target;
 
-  // Get boundary information 
-  self->GetInput()->GetWholeExtent(inWholeMin0,inWholeMax0,
-                           inWholeMin1,inWholeMax1, inWholeMin2,inWholeMax2);
-  
+  // Get boundary information
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExt);
+  inWholeMin0 = inWholeExt[0];
+  inWholeMax0 = inWholeExt[1];
+  inWholeMin1 = inWholeExt[2];
+  inWholeMax1 = inWholeExt[3];
+  inWholeMin2 = inWholeExt[4];
+  inWholeMax2 = inWholeExt[5];
+
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   min0 = outExt[0];   max0 = outExt[1];
   min1 = outExt[2];   max1 = outExt[3];
   min2 = outExt[4];   max2 = outExt[5];
-  
+
   // We want the input pixel to correspond to output
   inPtr = (T *)(inData->GetScalarPointer(min0,min1,min2));
 
@@ -105,7 +114,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
 
   target = (unsigned long)((max2-min2+1)*(max1-min1+1)/50.0);
   target++;
-  
+
   // loop through pixels of output
   outPtr2 = outPtr;
   inPtr2 = inPtr;
@@ -125,14 +134,14 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         }
       inInc1L = (outIdx1 == inWholeMin1) ? 0 : -inInc1;
       inInc1R = (outIdx1 == inWholeMax1) ? 0 : inInc1;
-      
+
       outPtr0 = outPtr1;
       inPtr0 = inPtr1;
       for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
         {
         inInc0L = (outIdx0 == inWholeMin0) ? 0 : -inInc0;
         inInc0R = (outIdx0 == inWholeMax0) ? 0 : inInc0;
-        
+
         // compute vector.
         outPtrV = outPtr0;
         // 0 direction
@@ -141,7 +150,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         sum = 2.0 * (*inPtrR - *inPtrL);
         sum += (double)(inPtrR[inInc1L] + inPtrR[inInc1R]);
         sum -= (double)(inPtrL[inInc1L] + inPtrL[inInc1R]);
-        
+
         *outPtrV = sum * r0;
         ++outPtrV;
         // 1 direction
@@ -151,7 +160,7 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
         sum += (double)(inPtrR[inInc0L] + inPtrR[inInc0R]);
         sum -= (double)(inPtrL[inInc0L] + inPtrL[inInc0R]);
         *outPtrV = static_cast<double>(sum * r1);
-        
+
         outPtr0 += outInc0;
         inPtr0 += inInc0;
         }
@@ -163,52 +172,51 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The output region
 // must be of type double.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
-void vtkImageSobel2D::ThreadedExecute(vtkImageData *inData, 
-                                      vtkImageData *outData,
-                                      int outExt[6], int id)
+void vtkImageSobel2D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   void *inPtr, *outPtr;
-  int inExt[6];
-  
-  this->ComputeInputUpdateExtent(inExt, outExt);  
-  
-  inPtr = inData->GetScalarPointerForExtent(inExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
-  
+  int inExt[6], wholeExt[6];
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  this->InternalRequestUpdateExtent(inExt, outExt, wholeExt);
+
+  inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
+  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+
   // this filter expects that output is type double.
-  if (outData->GetScalarType() != VTK_DOUBLE)
+  if (outData[0]->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "Execute: output ScalarType, "
-                  << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+                  << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
                   << ", must be double");
     return;
     }
-  
+
   // this filter cannot handle multi component input.
-  if (inData->GetNumberOfScalarComponents() != 1)
+  if (inData[0][0]->GetNumberOfScalarComponents() != 1)
     {
     vtkWarningMacro("Expecting input with only one compenent.\n");
     }
-  
-  switch (inData->GetScalarType())
+
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageSobel2DExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, outExt, 
+    vtkTemplateMacro7(vtkImageSobel2DExecute, this, inData[0][0], 
+                      (VTK_TT *)(inPtr), outData[0], outExt, 
                       (double *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-

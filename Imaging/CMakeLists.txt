@@ -101,6 +101,7 @@ vtkImageSinusoidSource.cxx
 vtkImageSkeleton2D.cxx
 vtkImageSobel2D.cxx
 vtkImageSobel3D.cxx
+vtkImageSpatialAlgorithm.cxx
 vtkImageSpatialFilter.cxx
 vtkImageStencil.cxx
 vtkImageStencilData.cxx
@@ -125,6 +126,7 @@ vtkImageDecomposeFilter
 vtkImageFourierFilter
 vtkImageIterateFilter
 vtkImagePadFilter
+vtkImageSpatialAlgorithm
 vtkImageSpatialFilter
   ABSTRACT
 )

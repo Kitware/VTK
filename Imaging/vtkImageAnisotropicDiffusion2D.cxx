@@ -15,11 +15,14 @@
 #include "vtkImageAnisotropicDiffusion2D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.46");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.47");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //----------------------------------------------------------------------------
@@ -40,7 +43,6 @@ vtkImageAnisotropicDiffusion2D::vtkImageAnisotropicDiffusion2D()
   this->GradientMagnitudeThreshold = 1;
   this->GradientMagnitudeThresholdOff();
 }
-
 
 //----------------------------------------------------------------------------
 void 
@@ -81,7 +83,6 @@ vtkImageAnisotropicDiffusion2D::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This method sets the number of inputs which also affects the
 // input neighborhood needed to compute one output pixel.
@@ -103,54 +104,55 @@ void vtkImageAnisotropicDiffusion2D::SetNumberOfIterations(int num)
   this->KernelMiddle[1] = num;
 
   this->NumberOfIterations = num;
-}
-
-
-  
-  
-  
+}  
   
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The input and output datas
 // must have the same data type.
-void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData, 
-                                                     vtkImageData *outData,
-                                                     int outExt[6], int id)
+void vtkImageAnisotropicDiffusion2D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  int inExt[6];
+  int inExt[6], wholeExt[6];
   double *ar;
   int idx;
   vtkImageData *temp;
   
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  this->InternalRequestUpdateExtent(inExt,outExt,wholeExt);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro("Execute: input ScalarType, "
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType "
+                  << outData[0]->GetScalarType());
     return;
     }
   
-  ar = inData->GetSpacing();
+  ar = inData[0][0]->GetSpacing();
 
   // make the temporary regions to iterate over.
   vtkImageData *in = vtkImageData::New();
   in->SetExtent(inExt);
-  in->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+  in->SetNumberOfScalarComponents(inData[0][0]->GetNumberOfScalarComponents());
   in->SetScalarType(VTK_DOUBLE);
-  in->CopyAndCastFrom(inData,inExt);
+  in->CopyAndCastFrom(inData[0][0],inExt);
   
   vtkImageData *out = vtkImageData::New();
   out->SetExtent(inExt);
-  out->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+  out->SetNumberOfScalarComponents(
+    inData[0][0]->GetNumberOfScalarComponents());
   out->SetScalarType(VTK_DOUBLE);
   out->AllocateScalars();
-  
+
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
   // (but never get smaller than output region).
@@ -169,12 +171,10 @@ void vtkImageAnisotropicDiffusion2D::ThreadedExecute(vtkImageData *inData,
     }
   
   // copy results into output.
-  outData->CopyAndCastFrom(in,outExt);
+  outData[0]->CopyAndCastFrom(in,outExt);
   in->Delete();
   out->Delete();
 }
-
-  
 
 //----------------------------------------------------------------------------
 // This method performs one pass of the diffusion filter.
@@ -388,5 +388,3 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
       }
     }
 }
-
-  

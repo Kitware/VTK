@@ -27,26 +27,26 @@
 #define __vtkImageHybridMedian2D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageSpatialAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialFilter
+class VTK_IMAGING_EXPORT vtkImageHybridMedian2D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageHybridMedian2D *New();
-  vtkTypeRevisionMacro(vtkImageHybridMedian2D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageHybridMedian2D,vtkImageSpatialAlgorithm);
 
 protected:
   vtkImageHybridMedian2D();
   ~vtkImageHybridMedian2D() {};
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int outExt[6], int id);
 private:
   vtkImageHybridMedian2D(const vtkImageHybridMedian2D&);  // Not implemented.
   void operator=(const vtkImageHybridMedian2D&);  // Not implemented.
 };
 
 #endif
-
-
-

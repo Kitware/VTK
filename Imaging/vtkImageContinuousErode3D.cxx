@@ -17,10 +17,13 @@
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.26");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.27");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -38,7 +41,6 @@ vtkImageContinuousErode3D::vtkImageContinuousErode3D()
   this->SetKernelSize(1, 1, 1);
 }
 
-
 //----------------------------------------------------------------------------
 vtkImageContinuousErode3D::~vtkImageContinuousErode3D()
 {
@@ -48,7 +50,6 @@ vtkImageContinuousErode3D::~vtkImageContinuousErode3D()
     this->Ellipse = NULL;
     }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -100,13 +101,15 @@ void vtkImageContinuousErode3D::SetKernelSize(int size0, int size1, int size2)
                              (float)(this->KernelSize[1])*0.5,
                              (float)(this->KernelSize[2])*0.5);
     // make sure scalars have been allocated (needed if multithreaded is used)
-    this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
-                                                0, this->KernelSize[1]-1, 
-                                                0, this->KernelSize[2]-1);
+    vtkInformation *ellipseOutInfo =
+      this->Ellipse->GetExecutive()->GetOutputInformation(0);
+    ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                        0, this->KernelSize[0]-1, 
+                        0, this->KernelSize[1]-1, 
+                        0, this->KernelSize[2]-1);
     this->Ellipse->GetOutput()->Update();
     }
 }
-
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter on any region,
@@ -140,6 +143,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   // The extent of the whole input image
   int inImageMin0, inImageMin1, inImageMin2;
   int inImageMax0, inImageMax1, inImageMax2;
+  int inImageExt[6];
   // to compute the range
   T pixelMin;
   unsigned long count = 0;
@@ -151,14 +155,19 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
-  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
-                                   inImageMax1, inImageMin2, inImageMax2);
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
+  inImageMin0 = inImageExt[0];
+  inImageMax0 = inImageExt[1];
+  inImageMin1 = inImageExt[2];
+  inImageMax1 = inImageExt[3];
+  inImageMin2 = inImageExt[4];
+  inImageMax2 = inImageExt[5];
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
   outMin2 = outExt[4];   outMax2 = outExt[5];
   numComps = outData->GetNumberOfScalarComponents();
-  
   
   // Get ivars of this object (easier than making friends)
   kernelSize = self->GetKernelSize();
@@ -269,25 +278,29 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
     }
 }
 
-
-                
-
 //----------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData, 
-                                                vtkImageData *outData, 
-                                                int outExt[6], int id)
+void vtkImageContinuousErode3D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData, 
+  int outExt[6], int id)
 {
-  int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
+  int inExt[6], wholeExt[6];
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  this->InternalRequestUpdateExtent(inExt,outExt,wholeExt);
   void *inPtr;
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
   vtkDataArray *inArray;
 
-  inArray = inData->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inArray =
+    inData[0][0]->GetPointData()->GetScalars(this->InputScalarsSelection);
   // The inPtr is reset anyway, so just get the id 0 pointer.
   inPtr = inArray->GetVoidPointer(0);
 
@@ -301,10 +314,10 @@ void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData,
     }
 
   // this filter expects the output type to be same as input
-  if (outData->GetScalarType() != inArray->GetDataType())
+  if (outData[0]->GetScalarType() != inArray->GetDataType())
     {
     vtkErrorMacro(<< "Execute: output ScalarType, " 
-      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+      << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input array data type");
     return;
     }
@@ -312,12 +325,10 @@ void vtkImageContinuousErode3D::ThreadedExecute(vtkImageData *inData,
   switch (inArray->GetDataType())
     {
     vtkTemplateMacro9(vtkImageContinuousErode3DExecute, this, mask, 
-                      inData, (VTK_TT *)(inPtr), outData, outExt, 
+                      inData[0][0], (VTK_TT *)(inPtr), outData[0], outExt, 
                       (VTK_TT *)(outPtr),id, this->InputScalarsSelection);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-

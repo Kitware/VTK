@@ -15,12 +15,15 @@
 #include "vtkImageHybridMedian2D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include <vtkstd/vector>
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.23");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.24");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -35,7 +38,6 @@ vtkImageHybridMedian2D::vtkImageHybridMedian2D()
   this->HandleBoundaries = 1;
 }
 
-
 template <class T>
 void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
                              vtkImageData *inData, T *inPtr2,
@@ -47,6 +49,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
   int outInc0, outInc1, outInc2;
   int min0, max0, min1, max1, min2, max2, numComps;
   int wholeMin0, wholeMax0, wholeMin1, wholeMax1, wholeMin2, wholeMax2;
+  int wholeExt[6];
   T *inPtr0, *inPtr1, *inPtrC;
   T *outPtr0, *outPtr1, *outPtrC, *ptr;
   T median1, median2, temp;
@@ -56,10 +59,15 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
 
   id = id;
 
-
   inData->GetIncrements(inInc0, inInc1, inInc2);
-  self->GetInput()->GetWholeExtent(wholeMin0, wholeMax0, wholeMin1, wholeMax1,
-                              wholeMin2, wholeMax2);
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  wholeMin0 = wholeExt[0];
+  wholeMax0 = wholeExt[1];
+  wholeMin1 = wholeExt[2];
+  wholeMax1 = wholeExt[3];
+  wholeMin2 = wholeExt[4];
+  wholeMax2 = wholeExt[5];
   numComps = inData->GetNumberOfScalarComponents();
   outData->GetIncrements(outInc0, outInc1, outInc2);
   min0 = outExt[0];   max0 = outExt[1];
@@ -245,26 +253,30 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
-                                       vtkImageData *outData,
-                                       int outExt[6], int id)
+void vtkImageHybridMedian2D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   // this filter expects the output type to be same as input
-  if (outData->GetScalarType() != inData->GetScalarType())
+  if (outData[0]->GetScalarType() != inData[0][0]->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: output ScalarType, "
-      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+      << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must match input scalar type");
     return;
     }
 
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageHybridMedian2DExecute, this, inData,
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
+    vtkTemplateMacro7(vtkImageHybridMedian2DExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
                       outExt, id);
 
     default:
@@ -272,7 +284,3 @@ void vtkImageHybridMedian2D::ThreadedExecute(vtkImageData *inData,
       return;
     }
 }
-
-
-
-

@@ -38,12 +38,12 @@
 #define __vtkImageAnisotropicDiffusion2D_h
 
 
-#include "vtkImageSpatialFilter.h"
-class VTK_IMAGING_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialFilter
+#include "vtkImageSpatialAlgorithm.h"
+class VTK_IMAGING_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageSpatialAlgorithm
 {
 public:
   static vtkImageAnisotropicDiffusion2D *New();
-  vtkTypeRevisionMacro(vtkImageAnisotropicDiffusion2D,vtkImageSpatialFilter);
+  vtkTypeRevisionMacro(vtkImageAnisotropicDiffusion2D,vtkImageSpatialAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -105,8 +105,11 @@ protected:
   // What threshold to use
   int GradientMagnitudeThreshold;
   
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int extent[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData, 
+                           int extent[6], int id);
   void Iterate(vtkImageData *in, vtkImageData *out, 
                double ar0, double ar1, int *coreExtent, int count);
 private:

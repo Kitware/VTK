@@ -15,11 +15,14 @@
 #include "vtkImageAnisotropicDiffusion3D.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion3D, "1.41");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion3D, "1.42");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion3D);
 
 //----------------------------------------------------------------------------
@@ -40,7 +43,6 @@ vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
   this->GradientMagnitudeThreshold = 1;
   this->GradientMagnitudeThresholdOff();
 }
-
 
 //----------------------------------------------------------------------------
 void 
@@ -118,40 +120,46 @@ void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The input and output regions
 // must have the same data type.
-void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData, 
-                                                     vtkImageData *outData,
-                                                     int outExt[6], int id)
+void vtkImageAnisotropicDiffusion3D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
-  int inExt[6];
+  int inExt[6], wholeExt[6];
   double *ar;
   int idx;
   vtkImageData *temp;
-  
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-  << ", outData = " << outData);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  this->InternalRequestUpdateExtent(inExt,outExt,wholeExt);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro("Execute: input ScalarType, "
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType "
+                  << outData[0]->GetScalarType());
     return;
     }
   
-  ar = inData->GetSpacing();
+  ar = inData[0][0]->GetSpacing();
 
   // make the temporary regions to iterate over.
   vtkImageData *in = vtkImageData::New();
   in->SetExtent(inExt);
-  in->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+  in->SetNumberOfScalarComponents(inData[0][0]->GetNumberOfScalarComponents());
   in->SetScalarType(VTK_DOUBLE);
-  in->CopyAndCastFrom(inData,inExt);
+  in->CopyAndCastFrom(inData[0][0],inExt);
   
   vtkImageData *out = vtkImageData::New();
   out->SetExtent(inExt);
-  out->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+  out->SetNumberOfScalarComponents(
+    inData[0][0]->GetNumberOfScalarComponents());
   out->SetScalarType(VTK_DOUBLE);
   out->AllocateScalars();
   
@@ -173,15 +181,10 @@ void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData,
     }
   
   // copy results into output.
-  outData->CopyAndCastFrom(in,outExt);
+  outData[0]->CopyAndCastFrom(in,outExt);
   in->Delete();
   out->Delete();
 }
-
-
-
-
-
 
 //----------------------------------------------------------------------------
 // This method performs one pass of the diffusion filter.
@@ -589,12 +592,3 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageData *inData,
       }
     }
 }
-
-
-  
-
-
-
-
-
-

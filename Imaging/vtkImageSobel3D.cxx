@@ -13,12 +13,16 @@
 
 =========================================================================*/
 #include "vtkImageSobel3D.h"
-#include "vtkObjectFactory.h"
+
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.31");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.32");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -34,7 +38,6 @@ vtkImageSobel3D::vtkImageSobel3D()
   this->HandleBoundaries = 1;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -42,13 +45,15 @@ void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                         vtkImageData *outData)
+void vtkImageSobel3D::ExecuteInformation(vtkInformation *request,
+                                         vtkInformationVector **inputVector,
+                                         vtkInformationVector *outputVector)
 {
-  outData->SetNumberOfScalarComponents(3);
-  outData->SetScalarType(VTK_DOUBLE);
+  this->Superclass::ExecuteInformation(request, inputVector, outputVector);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 3);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_DOUBLE);
 }
-
 
 //----------------------------------------------------------------------------
 // This execute method handles boundaries.
@@ -75,13 +80,19 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   // Boundary of input image
   int inWholeMin0, inWholeMax0, inWholeMin1, inWholeMax1;
   int inWholeMin2, inWholeMax2;
+  int inWholeExt[6];
   unsigned long count = 0;
   unsigned long target;
 
   // Get boundary information 
-  self->GetInput()->GetWholeExtent(inWholeMin0,inWholeMax0, 
-                           inWholeMin1,inWholeMax1,
-                           inWholeMin2,inWholeMax2);
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExt);
+  inWholeMin0 = inWholeExt[0];
+  inWholeMax0 = inWholeExt[1];
+  inWholeMin1 = inWholeExt[2];
+  inWholeMax1 = inWholeExt[3];
+  inWholeMin2 = inWholeExt[4];
+  inWholeMax2 = inWholeExt[5];
   
   // Get information to march through data (skip component)
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -189,52 +200,51 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input Data type.  The output Data
 // must be of type double.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
-void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData, 
-                                      vtkImageData *outData,
-                                      int outExt[6], int id)
+void vtkImageSobel3D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   void *inPtr, *outPtr;
-  int inExt[6];
-  
-  this->ComputeInputUpdateExtent(inExt, outExt);  
-  
-  inPtr = inData->GetScalarPointerForExtent(inExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
+  int inExt[6], wholeExt[6];
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  this->InternalRequestUpdateExtent(inExt, outExt, wholeExt);
+
+  inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
+  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   // this filter cannot handle multi component input.
-  if (inData->GetNumberOfScalarComponents() != 1)
+  if (inData[0][0]->GetNumberOfScalarComponents() != 1)
     {
     vtkWarningMacro("Expecting input with only one compenent.\n");
     }
-  
+
   // this filter expects that output is type double.
-  if (outData->GetScalarType() != VTK_DOUBLE)
+  if (outData[0]->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "Execute: output ScalarType, "
-                  << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+                  << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
                   << ", must be double");
     return;
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageSobel3DExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, outExt, 
+    vtkTemplateMacro7(vtkImageSobel3DExecute, this, inData[0][0],
+                      (VTK_TT *)(inPtr), outData[0], outExt,
                       (double *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
-
-
-
-
-
-

@@ -13,11 +13,15 @@
 
 =========================================================================*/
 #include "vtkImageVariance3D.h"
+
 #include "vtkImageEllipsoidSource.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.24");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.25");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -42,7 +46,6 @@ vtkImageVariance3D::~vtkImageVariance3D()
     this->Ellipse = NULL;
     }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageVariance3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -90,26 +93,26 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
                              (float)(this->KernelSize[2])*0.5);
 
     // make sure scalars have been allocated (needed if multithreaded is used)
-    this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
-                                                0, this->KernelSize[1]-1, 
-                                                0, this->KernelSize[2]-1);
+    vtkInformation *ellipseOutInfo =
+      this->Ellipse->GetExecutive()->GetOutputInformation(0);
+    ellipseOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                        0, this->KernelSize[0]-1, 
+                        0, this->KernelSize[1]-1, 
+                        0, this->KernelSize[2]-1);
     this->Ellipse->GetOutput()->Update();
     }
 }
 
-
-
 //----------------------------------------------------------------------------
 // Output is always float
-void vtkImageVariance3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                            vtkImageData *outData)
+void vtkImageVariance3D::ExecuteInformation(vtkInformation *request,
+                                            vtkInformationVector **inputVector,
+                                            vtkInformationVector *outputVector)
 {
-  outData->SetScalarType(VTK_FLOAT);
+  this->Superclass::ExecuteInformation(request, inputVector, outputVector);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_FLOAT);
 }
-
-
-
-
 
 //----------------------------------------------------------------------------
 // This templated function executes the filter on any region,
@@ -142,6 +145,7 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   // The extent of the whole input image
   int inImageMin0, inImageMin1, inImageMin2;
   int inImageMax0, inImageMax1, inImageMax2;
+  int inImageExt[6];
   // To compute the variance
   float diff, sum;
   int icount;
@@ -149,15 +153,20 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   unsigned long target;
 
   // Get information to march through data
-  inData->GetIncrements(inInc0, inInc1, inInc2); 
-  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
-                                   inImageMax1, inImageMin2, inImageMax2);
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  vtkInformation *inInfo = self->GetExecutive()->GetInputInformation(0, 0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inImageExt);
+  inImageMin0 = inImageExt[0];
+  inImageMax0 = inImageExt[1];
+  inImageMin1 = inImageExt[2];
+  inImageMax1 = inImageExt[3];
+  inImageMin2 = inImageExt[4];
+  inImageMax2 = inImageExt[5];
   outData->GetIncrements(outInc0, outInc1, outInc2); 
   outMin0 = outExt[0];   outMax0 = outExt[1];
   outMin1 = outExt[2];   outMax1 = outExt[3];
   outMin2 = outExt[4];   outMax2 = outExt[5];
   numComps = outData->GetNumberOfScalarComponents();
-  
   
   // Get ivars of this object (easier than making friends)
   kernelSize = self->GetKernelSize();;
@@ -270,14 +279,20 @@ void vtkImageVariance3DExecute(vtkImageVariance3D *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData, 
-                                         vtkImageData *outData, 
-                                         int outExt[6], int id)
+void vtkImageVariance3D::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData, 
+  int outExt[6], int id)
 {
-  int inExt[6];
-  this->ComputeInputUpdateExtent(inExt,outExt);
-  void *inPtr = inData->GetScalarPointerForExtent(inExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  int inExt[6], wholeExt[6];
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  this->InternalRequestUpdateExtent(inExt,outExt,wholeExt);
+  void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
 
   // Error checking on mask
@@ -290,18 +305,18 @@ void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData,
     }
 
   // this filter expects the output to be float
-  if (outData->GetScalarType() != VTK_FLOAT)
+  if (outData[0]->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: output ScalarType, " 
-      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
+      << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
       << " must be float");
     return;
     }
 
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageVariance3DExecute, this, mask, inData, 
-                      (VTK_TT *)(inPtr), outData, outExt, 
+    vtkTemplateMacro8(vtkImageVariance3DExecute, this, mask, inData[0][0], 
+                      (VTK_TT *)(inPtr), outData[0], outExt,
                       (float *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
