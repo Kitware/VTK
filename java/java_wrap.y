@@ -163,7 +163,7 @@ class_def : CLASS VTK_ID
 	  fprintf(yyout,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKInit(JNIEnv *env, jobject obj)\n",
 		  class_name);
 	  fprintf(yyout,"{\n  if (!vtk_%s_NoCreate)\n",class_name);
-	  fprintf(yyout,"    {\n    %s *aNewOne = new %s;\n",class_name,
+	  fprintf(yyout,"    {\n    %s *aNewOne = %s::New();\n",class_name,
 		  class_name);
 	  fprintf(yyout,"    vtkJavaAddObjectToHash(env,obj,(void *)aNewOne,(void *)%s_Typecast,1);\n",class_name);
 	  fprintf(yyout,"    }\n  vtk_%s_NoCreate = 0;\n}\n",class_name);
