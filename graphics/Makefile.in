@@ -159,6 +159,7 @@ vtkImplicitVolume \
 vtkImplicitWindowFunction \
 vtkInteractorStyle \
 vtkInteractorStyleTrackball \
+vtkInteractorStyleFlight \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \
