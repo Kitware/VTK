@@ -318,16 +318,19 @@ static inline void vtkLinearHelper(float displacement[3],
   float fxfyrz = fx*fyrz;
   float fxfyfz = fx*fyfz;
 
-  for (int i = 0; i < 3; i++)
+  if (!derivatives)
     {
-    T *gridPtr0 = gridPtr + i;
-    displacement[i] = rxryrz*gridPtr0[i000]+rxryfz*gridPtr0[i001] +
-                      rxfyrz*gridPtr0[i010]+rxfyfz*gridPtr0[i011] +
-                      fxryrz*gridPtr0[i100]+fxryfz*gridPtr0[i101] +
-		      fxfyrz*gridPtr0[i110]+fxfyfz*gridPtr0[i111];
-    }
+    for (int i = 0; i < 3; i++)
+      {
+      T *gridPtr0 = gridPtr + i;
 
-  if (derivatives)
+      displacement[i] = rxryrz*gridPtr0[i000]+rxryfz*gridPtr0[i001] +
+	                rxfyrz*gridPtr0[i010]+rxfyfz*gridPtr0[i011] +
+                        fxryrz*gridPtr0[i100]+fxryfz*gridPtr0[i101] +
+		        fxfyrz*gridPtr0[i110]+fxfyfz*gridPtr0[i111];
+      }
+    }
+  else
     {
     float rxrz = rx*rz;
     float rxfz = rx*fz;
@@ -342,6 +345,12 @@ static inline void vtkLinearHelper(float displacement[3],
     for (int i = 0; i < 3; i++)
       {
       T *gridPtr0 = gridPtr + i;
+
+      displacement[i] = rxryrz*gridPtr0[i000]+rxryfz*gridPtr0[i001] +
+                        rxfyrz*gridPtr0[i010]+rxfyfz*gridPtr0[i011] +
+                        fxryrz*gridPtr0[i100]+fxryfz*gridPtr0[i101] +
+                        fxfyrz*gridPtr0[i110]+fxfyfz*gridPtr0[i111];
+
       derivatives[i][0] = (ryrz*gridPtr0[i100]+ryfz*gridPtr0[i101] +
 			   fyrz*gridPtr0[i110]+fyfz*gridPtr0[i111])
 	                - (ryrz*gridPtr0[i000]+ryfz*gridPtr0[i001] +
@@ -651,10 +660,10 @@ static inline void vtkCubicHelper(float displacement[3],
 	for (int l = ll; l < lm; l++)
 	  {
 	  T *gridPtr3 = gridPtr2 + factX[l];
-	  float fx = fX[l];
-	  vY[0] += gridPtr3[0] * fx;
-	  vY[1] += gridPtr3[1] * fx;
-	  vY[2] += gridPtr3[2] * fx;
+	  float f = fX[l];
+	  vY[0] += gridPtr3[0] * f;
+	  vY[1] += gridPtr3[1] * f;
+	  vY[2] += gridPtr3[2] * f;
 	  }
 	}
       else
@@ -662,22 +671,22 @@ static inline void vtkCubicHelper(float displacement[3],
 	for (int l = ll; l < lm; l++)
 	  {
 	  T *gridPtr3 = gridPtr2 + factX[l];
-	  float fx = fX[l];
+	  float f = fX[l];
 	  float gff = gX[l]*fY[k]*fZ[j];
 	  float fgf = fX[l]*gY[k]*fZ[j];
 	  float ffg = fX[l]*fY[k]*gZ[j];
 	  float inVal = gridPtr3[0];
-	  vY[0] += inVal * fx;
+	  vY[0] += inVal * f;
 	  derivatives[0][0] += inVal * gff;
 	  derivatives[0][1] += inVal * fgf;
 	  derivatives[0][2] += inVal * ffg;
 	  inVal = gridPtr3[1];
-	  vY[1] += inVal * fx;
+	  vY[1] += inVal * f;
 	  derivatives[1][0] += inVal * gff;
 	  derivatives[1][1] += inVal * fgf;
 	  derivatives[1][2] += inVal * ffg;
 	  inVal = gridPtr3[2];
-	  vY[2] += inVal * fx;
+	  vY[2] += inVal * f;
 	  derivatives[2][0] += inVal * gff;
 	  derivatives[2][1] += inVal * fgf;
 	  derivatives[2][2] += inVal * ffg;
