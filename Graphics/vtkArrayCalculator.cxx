@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkArrayCalculator, "1.25");
+vtkCxxRevisionMacro(vtkArrayCalculator, "1.25.2.1");
 vtkStandardNewMacro(vtkArrayCalculator);
 
 vtkArrayCalculator::vtkArrayCalculator()
@@ -159,23 +159,26 @@ void vtkArrayCalculator::Execute()
   vtkFieldData* inFD;
   vtkDataArray* currentArray;
   vtkDoubleArray* resultArray;
-  vtkIdType numPts = input->GetNumberOfPoints();
+  vtkIdType numTuples;
   double scalarResult[1];
   
   if (this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT)
     {
     inFD = inPD;
     attributeDataType = 0;
+    numTuples = input->GetNumberOfPoints();
     }
   else if (this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA)
     {
     inFD = inPD;
     attributeDataType = 0;
+    numTuples = input->GetNumberOfPoints();
     }
   else
     {
     inFD = inCD;
     attributeDataType = 1;
+    numTuples = input->GetNumberOfCells();
     }
   
   for (i = 0; i < this->NumberOfScalarArrays; i++)
@@ -254,19 +257,19 @@ void vtkArrayCalculator::Execute()
   if (resultType == 0)
     {
     resultArray->SetNumberOfComponents(1);
-    resultArray->SetNumberOfTuples(numPts);
+    resultArray->SetNumberOfTuples(numTuples);
     scalarResult[0] = this->FunctionParser->GetScalarResult();
     resultArray->SetTuple(0, scalarResult);
     }
   else
     {
-    resultArray->Allocate(numPts * 3);
+    resultArray->Allocate(numTuples * 3);
     resultArray->SetNumberOfComponents(3);
-    resultArray->SetNumberOfTuples(numPts);
+    resultArray->SetNumberOfTuples(numTuples);
     resultArray->SetTuple(0, this->FunctionParser->GetVectorResult());
     }
   
-  for (i = 1; i < numPts; i++)
+  for (i = 1; i < numTuples; i++)
     {
     for (j = 0; j < this->NumberOfScalarArrays; j++)
       {
