@@ -39,7 +39,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.54");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.55");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -353,6 +353,8 @@ void vtkXYPlotActor::RemoveAllInputs()
       }
     }
   this->SelectedInputScalarsComponent->Reset();
+
+  this->DataObjectInputList->RemoveAllItems();
 }
 
 //----------------------------------------------------------------------------
