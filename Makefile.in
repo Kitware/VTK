@@ -71,6 +71,18 @@ build_borescope:
 build_tcl:
 	cd tcl;        ${MAKE} -${MAKEFLAGS} all
 
+build_gemsio:
+	cd gemsio;     ${MAKE} -${MAKEFLAGS} all
+
+build_gemsip:
+	cd gemsip;     ${MAKE} -${MAKEFLAGS} all
+
+build_geae:
+	cd geae;     ${MAKE} -${MAKEFLAGS} all
+
+build_contrib:
+	cd contrib;     ${MAKE} -${MAKEFLAGS} all
+
 # tcl part2
 build_tclbuild_tcl:
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
