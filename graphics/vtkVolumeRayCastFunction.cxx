@@ -51,24 +51,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 void vtkVolumeRayCastFunction::FunctionInitialize( 
 				vtkRenderer *ren, 
 				vtkVolume *vol,
-				struct VolumeRayCastVolumeInfoStruct *volumeInfo,
+				VTKRayCastVolumeInfo *volumeInfo,
 				vtkVolumeRayCastMapper *mapper )
 {
   // Is shading on?
-  volumeInfo->Shading = vol->GetVolumeProperty()->GetShade();
+  volumeInfo->Shading = vol->GetProperty()->GetShade();
 
   // How many color channels? Either 1 or 3. 1 means we have
   // to use the GrayTransferFunction, 3 means we use the
   // RGBTransferFunction
-  volumeInfo->ColorChannels = vol->GetVolumeProperty()->GetColorChannels();
+  volumeInfo->ColorChannels = vol->GetProperty()->GetColorChannels();
 
   // What is the interpolation type? Nearest or linear.
-  volumeInfo->InterpolationType = vol->GetVolumeProperty()->GetInterpolationType();
+  volumeInfo->InterpolationType = vol->GetProperty()->GetInterpolationType();
 
   // Get the size, spacing and origin of the scalar data
-  mapper->GetScalarInput()->GetDimensions( volumeInfo->DataSize );
-  mapper->GetScalarInput()->GetSpacing( volumeInfo->DataSpacing );
-  mapper->GetScalarInput()->GetOrigin( volumeInfo->DataOrigin );
+  ((vtkStructuredPoints *)mapper->GetInput())->GetDimensions( volumeInfo->DataSize );
+  ((vtkStructuredPoints *)mapper->GetInput())->GetSpacing( volumeInfo->DataSpacing );
+  ((vtkStructuredPoints *)mapper->GetInput())->GetOrigin( volumeInfo->DataOrigin );
 
   // What are the data increments? 
   // (One voxel, one row, and one slice offsets)
@@ -91,7 +91,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
     volumeInfo->RGBDataPointer = (unsigned char *)
       mapper->GetRGBTextureInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
 
-    volumeInfo->RGBTextureCoefficient = vol->GetVolumeProperty()->GetRGBTextureCoefficient();
+    volumeInfo->RGBTextureCoefficient = vol->GetProperty()->GetRGBTextureCoefficient();
     }
   else
     {

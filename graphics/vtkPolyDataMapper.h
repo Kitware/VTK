@@ -63,10 +63,6 @@ public:
   virtual void Render(vtkRenderer *, vtkActor *) {};
 
   // Description:
-  // Return the bounds of the poly data.
-  float *GetBounds();
-
-  // Description:
   // Specify the input data to map.
   void SetInput(vtkPolyData *in);
 

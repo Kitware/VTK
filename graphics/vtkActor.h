@@ -145,17 +145,6 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   vtkGetObjectMacro(Mapper,vtkMapper);
 
   // Description:
-  // Set/Get the scale of the actor. Scaling in performed independently on the
-  // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
-  vtkSetVector3Macro(Scale,float);
-  vtkGetVectorMacro(Scale,float,3);
-
-  // Description:
-  // Get the matrix from the position, origin, scale and orientation This
-  // matrix is cached, so multiple GetMatrix() calls will be efficient.
-  void GetMatrix(vtkMatrix4x4 *m);
-
-  // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
   // method GetBounds(float bounds[6]) is available from the superclass.)
   float *GetBounds();
@@ -201,7 +190,6 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   void SetProperty(vtkProperty& lut) {this->SetProperty(&lut);};
   void SetBackfaceProperty(vtkProperty& lut) 
     {this->SetBackfaceProperty(&lut);};
-  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
   // Description:
   // Return the mtime of anything that would cause the rendered image to 
@@ -209,13 +197,12 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   // prop plus anything else it depends on such as properties, textures
   // etc.
   virtual unsigned long GetRedrawMTime();
-  
+
 protected:
   vtkProperty *Property; 
   vtkProperty *BackfaceProperty; 
   vtkTexture *Texture; 
   vtkMapper *Mapper;
-  float Scale[3];
 
   // this stuff supports multiple-part actors (e.g. assemblies)
   int TraversalLocation;

@@ -84,14 +84,14 @@ public:
   char *GetCompositeMethodAsString(void);
 
 //BTX
-  void CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
-		struct VolumeRayCastVolumeInfoStruct *volumeInfo);
+  void CastRay( VTKRayCastRayInfo *rayInfo,
+		VTKRayCastVolumeInfo *volumeInfo);
 //ETX
 protected:
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
 				   vtkVolume   *vol,
-				   struct VolumeRayCastVolumeInfoStruct *volumeInfo,
+				   VTKRayCastVolumeInfo *volumeInfo,
 				   vtkVolumeRayCastMapper *mapper );
 //ETX
   

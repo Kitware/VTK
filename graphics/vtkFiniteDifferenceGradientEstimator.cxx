@@ -81,8 +81,8 @@ static void ComputeGradients(
   int                 computeGradientMagnitudes;
   vtkDirectionEncoder *direction_encoder;
   
-  estimator->GetScalarInputSize( size );
-  estimator->GetScalarInputAspect( aspect );
+  estimator->GetInputSize( size );
+  estimator->GetInputAspect( aspect );
   computeGradientMagnitudes = estimator->GetComputeGradientMagnitudes();
   scale = estimator->GetGradientMagnitudeScale();
   bias = estimator->GetGradientMagnitudeBias();
@@ -116,9 +116,9 @@ static void ComputeGradients(
     y_start = bounds[2];
     y_limit = bounds[3]+1;
     z_start = (int)(( (float)thread_id / (float)thread_count ) *
-		    (bounds[5]-bounds[4]+1) );
+		    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
     z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-		    (bounds[5]-bounds[4]+1) );
+		    (float)(bounds[5]-bounds[4]+1) ) + bounds[4];
     }
   else
     {
@@ -302,12 +302,12 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
   estimator = (vtkFiniteDifferenceGradientEstimator *)
     (((ThreadInfoStruct *)(arg))->UserData);
-  scalars = estimator->ScalarInput->GetPointData()->GetScalars();
+  scalars = estimator->Input->GetPointData()->GetScalars();
 
-  // Find the data type of the ScalarInput and call the correct 
+  // Find the data type of the Input and call the correct 
   // templated function to actually compute the normals and magnitudes
 
-  switch ( estimator->GetScalarInput()->GetPointData()->
+  switch ( estimator->GetInput()->GetPointData()->
 	   GetScalars()->GetDataType() )
     {
     case VTK_CHAR:
@@ -384,7 +384,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
 
 // This method is used to compute the encoded normal and the
 // magnitude of the gradient for each voxel location in the 
-// ScalarInput.
+// Input.
 void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
 {
   vtkDebugMacro( << "Updating Normals!" );

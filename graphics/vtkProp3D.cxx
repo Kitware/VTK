@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkProp3D.h"
+#include "vtkAbstractMapper.h"
 
 // Construct with the following defaults: origin(0,0,0) 
 // position=(0,0,0) visibility=1 pickable=1 dragable=1
@@ -59,6 +60,10 @@ vtkProp3D::vtkProp3D()
   this->Orientation[0] = 0.0;
   this->Orientation[1] = 0.0;
   this->Orientation[2] = 0.0;
+
+  this->Scale[0] = 1.0;
+  this->Scale[1] = 1.0;
+  this->Scale[2] = 1.0;
 
   this->Pickable   = 1;
   this->PickMethod = NULL;
@@ -102,6 +107,7 @@ vtkProp3D& vtkProp3D::operator=(const vtkProp3D& Prop3D)
     this->Position[i] = Prop3D.Position[i];
     this->Orientation[i] = Prop3D.Orientation[i];
     this->Center[i] = Prop3D.Center[i];
+    this->Scale[i] = Prop3D.Scale[i];
     }
 
   *(this->Transform) = *(Prop3D.Transform);
@@ -257,6 +263,50 @@ void vtkProp3D::RotateWXYZ (float degree, float x, float y, float z)
   this->Modified();
 }
 
+void vtkProp3D::GetMatrix(vtkMatrix4x4 *result)
+{
+  // check whether or not need to rebuild the matrix
+  if ( this->GetMTime() > this->MatrixMTime )
+    {
+    this->GetOrientation();
+    this->Transform->Push();  
+    this->Transform->Identity();  
+    this->Transform->PostMultiply();  
+    
+    // shift back to actor's origin
+    this->Transform->Translate(-this->Origin[0],
+                              -this->Origin[1],
+                              -this->Origin[2]);
+
+    // scale
+    this->Transform->Scale(this->Scale[0],
+                          this->Scale[1],
+                          this->Scale[2]);
+    
+    // rotate
+    this->Transform->RotateY(this->Orientation[1]);
+    this->Transform->RotateX(this->Orientation[0]);
+    this->Transform->RotateZ(this->Orientation[2]);
+    
+    // move back from origin and translate
+    this->Transform->Translate(this->Origin[0] + this->Position[0],
+                              this->Origin[1] + this->Position[1],
+                              this->Origin[2] + this->Position[2]);
+   
+    // apply user defined matrix last if there is one 
+    if (this->UserMatrix)
+      {
+      this->Transform->Concatenate(this->UserMatrix);
+      }
+
+    this->Transform->PreMultiply();  
+    this->Transform->GetMatrix(this->Matrix);
+    this->MatrixMTime.Modified();
+    this->Transform->Pop();  
+    }
+  result->DeepCopy(this->Matrix);
+} 
+
 // Return a reference to the Prop3D's 4x4 composite matrix.
 vtkMatrix4x4 *vtkProp3D::GetMatrixPointer()
 {
@@ -383,5 +433,8 @@ void vtkProp3D::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Origin: (" << this->Origin[0] << ", " 
      << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+
+  os << indent << "Scale: (" << this->Scale[0] << ", " 
+     << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 }
 

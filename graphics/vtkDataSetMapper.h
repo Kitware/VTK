@@ -66,7 +66,6 @@ public:
   const char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);
-  float *GetBounds();
 
   // Description:
   // Specify the input data to map.

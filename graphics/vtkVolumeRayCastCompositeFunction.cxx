@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // and does not perform shading.
 template <class T>
 static void CastRay_NN_Unshaded( T *data_ptr,
-				 struct VolumeRayCastRayInfoStruct *rayInfo,
-				 struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+				 VTKRayCastRayInfo *rayInfo,
+				 VTKRayCastVolumeInfo *volumeInfo )
 {
   int             value;
   unsigned char   *grad_mag_ptr = NULL;
@@ -79,9 +79,9 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   int             num_steps;
   float           *ray_start, *ray_increment;
 
-  num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
-  ray_increment = rayInfo->VolumeRayIncrement;
+  num_steps = rayInfo->NumberOfStepsToTake;
+  ray_start = rayInfo->TransformedStart;
+  ray_increment = rayInfo->TransformedIncrement;
  
   SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
   CTF  =  volumeInfo->Volume->GetRGBArray();
@@ -270,19 +270,19 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->RayColor[0] = accum_red_intensity;
-  rayInfo->RayColor[1] = accum_green_intensity;
-  rayInfo->RayColor[2] = accum_blue_intensity;
-  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->Color[0] = accum_red_intensity;
+  rayInfo->Color[1] = accum_green_intensity;
+  rayInfo->Color[2] = accum_blue_intensity;
+  rayInfo->Color[3] = 1.0 - remaining_opacity;
+  rayInfo->NumberOfStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
     {
-    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    rayInfo->Depth = volumeInfo->CenterDistance;
     }
   else 
     {
-    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->Depth = VTK_LARGE_FLOAT;
     }
   
 }
@@ -293,8 +293,8 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 // perform shading.
 template <class T>
 static void CastRay_NN_Shaded( T *data_ptr,
-			       struct VolumeRayCastRayInfoStruct *rayInfo,
-			       struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+			       VTKRayCastRayInfo *rayInfo,
+			       VTKRayCastVolumeInfo *volumeInfo )
 {
   int             value = 0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -326,9 +326,9 @@ static void CastRay_NN_Shaded( T *data_ptr,
   int             num_steps;
   float           *ray_start, *ray_increment;
 
-  num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
-  ray_increment = rayInfo->VolumeRayIncrement;
+  num_steps = rayInfo->NumberOfStepsToTake;
+  ray_start = rayInfo->TransformedStart;
+  ray_increment = rayInfo->TransformedIncrement;
  
   // Get diffuse shading table pointers
   red_d_shade = volumeInfo->RedDiffuseShadingTable;
@@ -568,19 +568,19 @@ static void CastRay_NN_Shaded( T *data_ptr,
   
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->RayColor[0] = accum_red_intensity;
-  rayInfo->RayColor[1] = accum_green_intensity;
-  rayInfo->RayColor[2] = accum_blue_intensity;
-  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->Color[0] = accum_red_intensity;
+  rayInfo->Color[1] = accum_green_intensity;
+  rayInfo->Color[2] = accum_blue_intensity;
+  rayInfo->Color[3] = 1.0 - remaining_opacity;
+  rayInfo->NumberOfStepsTaken = steps_this_ray;
   
   if ( remaining_opacity < 1.0 )
     {
-    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    rayInfo->Depth = volumeInfo->CenterDistance;
     }
   else 
     {
-    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->Depth = VTK_LARGE_FLOAT;
     }
 }
 
@@ -589,8 +589,8 @@ static void CastRay_NN_Shaded( T *data_ptr,
 // does not compute shading
 template <class T>
 static void CastRay_TrilinSample_Unshaded( T *data_ptr,
-					   struct VolumeRayCastRayInfoStruct *rayInfo,
-					   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+					   VTKRayCastRayInfo *rayInfo,
+					   VTKRayCastVolumeInfo *volumeInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -621,9 +621,9 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
   int             num_steps;
   float           *ray_start, *ray_increment;
 
-  num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
-  ray_increment = rayInfo->VolumeRayIncrement;
+  num_steps = rayInfo->NumberOfStepsToTake;
+  ray_start = rayInfo->TransformedStart;
+  ray_increment = rayInfo->TransformedIncrement;
 
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
@@ -927,19 +927,19 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->RayColor[0] = accum_red_intensity;
-  rayInfo->RayColor[1] = accum_green_intensity;
-  rayInfo->RayColor[2] = accum_blue_intensity;
-  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->Color[0] = accum_red_intensity;
+  rayInfo->Color[1] = accum_green_intensity;
+  rayInfo->Color[2] = accum_blue_intensity;
+  rayInfo->Color[3] = 1.0 - remaining_opacity;
+  rayInfo->NumberOfStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
     {
-    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    rayInfo->Depth = volumeInfo->CenterDistance;
     }
   else 
     {
-    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->Depth = VTK_LARGE_FLOAT;
     }
 }
 
@@ -948,8 +948,8 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 // does perform shading.
 template <class T>
 static void CastRay_TrilinSample_Shaded( T *data_ptr,
-					 struct VolumeRayCastRayInfoStruct *rayInfo,
-					 struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+					 VTKRayCastRayInfo *rayInfo,
+					 VTKRayCastVolumeInfo *volumeInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -989,9 +989,9 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
   float           *ray_start, *ray_increment;
 
 
-  num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
-  ray_increment = rayInfo->VolumeRayIncrement;
+  num_steps = rayInfo->NumberOfStepsToTake;
+  ray_start = rayInfo->TransformedStart;
+  ray_increment = rayInfo->TransformedIncrement;
 
   // Get diffuse shading table pointers
   red_d_shade = volumeInfo->RedDiffuseShadingTable;
@@ -1391,19 +1391,19 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->RayColor[0] = accum_red_intensity;
-  rayInfo->RayColor[1] = accum_green_intensity;
-  rayInfo->RayColor[2] = accum_blue_intensity;
-  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->Color[0] = accum_red_intensity;
+  rayInfo->Color[1] = accum_green_intensity;
+  rayInfo->Color[2] = accum_blue_intensity;
+  rayInfo->Color[3] = 1.0 - remaining_opacity;
+  rayInfo->NumberOfStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
     {
-    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    rayInfo->Depth = volumeInfo->CenterDistance;
     }
   else 
     {
-    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->Depth = VTK_LARGE_FLOAT;
     }
 }
 
@@ -1413,8 +1413,8 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 // does not compute shading
 template <class T>
 static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
-					   struct VolumeRayCastRayInfoStruct *rayInfo,
-					   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+					   VTKRayCastRayInfo *rayInfo,
+					   VTKRayCastVolumeInfo *volumeInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -1446,9 +1446,9 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
   int             grad_op_is_constant;
   float           gradient_opacity_constant;
 
-  num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
-  ray_increment = rayInfo->VolumeRayIncrement;
+  num_steps = rayInfo->NumberOfStepsToTake;
+  ray_start = rayInfo->TransformedStart;
+  ray_increment = rayInfo->TransformedIncrement;
  
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
@@ -1854,19 +1854,19 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->RayColor[0] = accum_red_intensity;
-  rayInfo->RayColor[1] = accum_green_intensity;
-  rayInfo->RayColor[2] = accum_blue_intensity;
-  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->Color[0] = accum_red_intensity;
+  rayInfo->Color[1] = accum_green_intensity;
+  rayInfo->Color[2] = accum_blue_intensity;
+  rayInfo->Color[3] = 1.0 - remaining_opacity;
+  rayInfo->NumberOfStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
     {
-    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    rayInfo->Depth = volumeInfo->CenterDistance;
     }
   else 
     {
-    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->Depth = VTK_LARGE_FLOAT;
     }
 }
 
@@ -1877,8 +1877,8 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 // does perform shading.
 template <class T>
 static void CastRay_TrilinVertices_Shaded( T *data_ptr,
-					   struct VolumeRayCastRayInfoStruct *rayInfo,
-					   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+					   VTKRayCastRayInfo *rayInfo,
+					   VTKRayCastVolumeInfo *volumeInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -1914,9 +1914,9 @@ static void CastRay_TrilinVertices_Shaded( T *data_ptr,
   float           *ray_start, *ray_increment;
 
 
-  num_steps = rayInfo->VolumeRayNumberOfSamples;
-  ray_start = rayInfo->VolumeRayStart;
-  ray_increment = rayInfo->VolumeRayIncrement;
+  num_steps = rayInfo->NumberOfStepsToTake;
+  ray_start = rayInfo->TransformedStart;
+  ray_increment = rayInfo->TransformedIncrement;
 
   // Get diffuse shading table pointers
   red_d_shade = volumeInfo->RedDiffuseShadingTable;
@@ -2408,19 +2408,19 @@ static void CastRay_TrilinVertices_Shaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->RayColor[0] = accum_red_intensity;
-  rayInfo->RayColor[1] = accum_green_intensity;
-  rayInfo->RayColor[2] = accum_blue_intensity;
-  rayInfo->RayColor[3] = 1.0 - remaining_opacity;
-  rayInfo->VolumeRayStepsTaken = steps_this_ray;
+  rayInfo->Color[0] = accum_red_intensity;
+  rayInfo->Color[1] = accum_green_intensity;
+  rayInfo->Color[2] = accum_blue_intensity;
+  rayInfo->Color[3] = 1.0 - remaining_opacity;
+  rayInfo->NumberOfStepsTaken = steps_this_ray;
 
   if ( remaining_opacity < 1.0 )
     {
-    rayInfo->RayDepth = volumeInfo->CenterDistance;
+    rayInfo->Depth = volumeInfo->CenterDistance;
     }
   else 
     {
-    rayInfo->RayDepth = VTK_LARGE_FLOAT;
+    rayInfo->Depth = VTK_LARGE_FLOAT;
     }
 
 }
@@ -2442,8 +2442,8 @@ vtkVolumeRayCastCompositeFunction::~vtkVolumeRayCastCompositeFunction()
 // by a templated function.  It also uses the shading and
 // interpolation types to determine which templated function
 // to call.
-void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStruct *rayInfo,
-						 struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+void vtkVolumeRayCastCompositeFunction::CastRay( VTKRayCastRayInfo *rayInfo,
+						 VTKRayCastVolumeInfo *volumeInfo )
 {
   void *data_ptr;
 
@@ -2551,14 +2551,14 @@ void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStru
 float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume 
 								  *vol )
 {
-  return vol->GetVolumeProperty()->GetScalarOpacity()->GetFirstNonZeroValue();
+  return vol->GetProperty()->GetScalarOpacity()->GetFirstNonZeroValue();
 }
 
 // We don't need to do any specific initialization here...
 void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize( 
 				vtkRenderer *vtkNotUsed(ren), 
 				vtkVolume *vtkNotUsed(vol),
-				struct VolumeRayCastVolumeInfoStruct *vtkNotUsed(volumeInfo),
+				VTKRayCastVolumeInfo *vtkNotUsed(volumeInfo),
 				vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
 }

@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMapper_h
 #define __vtkMapper_h
 
-#include "vtkProcessObject.h"
+#include "vtkAbstractMapper.h"
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
 
@@ -84,7 +84,7 @@ class vtkWindow;
 class vtkRenderer;
 class vtkActor;
 
-class VTK_EXPORT vtkMapper : public vtkProcessObject
+class VTK_EXPORT vtkMapper : public vtkAbstractMapper
 {
 public:
   vtkMapper();
@@ -179,30 +179,7 @@ public:
   vtkSetVector2Macro(ScalarRange,float);
   vtkGetVectorMacro(ScalarRange,float,2);
 
-  // Description:
-  // Return bounding box (array of six floats) of data expressed as
-  // (xmin,xmax, ymin,ymax, zmin,zmax).
-  virtual float *GetBounds() = 0;
-
-  // Description:
-  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  void GetBounds(float bounds[6]);
-  
-  // Description:
-  // Return the Center of this mapper's data.
-  float *GetCenter();
-  
-  // Description:
-  // Return the diagonal length of this mappers bounding box.
-  float GetLength();
-
-  // Description:
-  // Update the network connected to this mapper.
   virtual void Update();
-
-  // Description:
-  // Return the Input of this mapper.
-  virtual vtkDataSet *GetInput() {return this->Input;};
 
   // Description:
   // Calculate and return the colors for the input. After invoking this
@@ -241,7 +218,6 @@ public:
   void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);}
 
 protected:
-  vtkDataSet *Input;
   vtkScalars *Colors;
 
   vtkLookupTable *LookupTable;
@@ -251,8 +227,6 @@ protected:
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;
-  float Bounds[6];
-  float Center[3];
 
   float RenderTime;
 };

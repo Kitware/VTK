@@ -70,10 +70,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Main routine to do the volume rendering.
-  void Render(vtkRenderer *, int raycastCount, int softwareCount);
-
-  // Description:
   // Method for a vtkVolumeMapper to retrieve the view rays 
   // for a perspective projection
   float *GetPerspectiveViewRays();
@@ -101,6 +97,10 @@ public:
   float GetImageScale(int level); 
 
   // Description:
+  // Get the number of levels of resolution.
+  int GetImageScaleCount( void ) { return VTK_MAX_VIEW_RAYS_LEVEL; };
+
+  // Description:
   // During multi-resolution rendering, this indicated the selected level
   // of resolution
   vtkSetClampMacro(SelectedImageScaleIndex, int, 0, VTK_MAX_VIEW_RAYS_LEVEL-1);
@@ -112,27 +112,6 @@ public:
   void SetViewRaysStepSize(int level, float scale); 
   float GetViewRaysStepSize(int level); 
 
-  // Description:
-  // This method allows the ray caster to know about the renderer with which 
-  // it is associated
-  vtkSetObjectMacro(Renderer,vtkRenderer);
-  vtkGetObjectMacro(Renderer,vtkRenderer);
-
-
-  // Description:
-  // This method returns the scale that should be applied to the viewport
-  // for geometric rendering, and for the image in volume rendering. It 
-  // is either explicitly set (if AutomaticScaleAdjustment is off) or
-  // is adjusted automatically to get the desired frame rate.
-  //
-  // Note: IMPORTANT!!!! This should only be called once per render!!!
-  //
-  float GetViewportScaleFactor( vtkRenderer *ren );
-
-  // Description:
-  // Get the step size that should be used 
-  float GetViewportStepSize( );
-  
   // Description:
   // Get the value of AutomaticScaleAdjustment. 0 = off, 1 = on
   vtkGetMacro( AutomaticScaleAdjustment, int );
@@ -151,10 +130,6 @@ public:
   // value is 0.15.
   vtkSetClampMacro( AutomaticScaleLowerLimit, float, 0.0, 1.0 );
   vtkGetMacro( AutomaticScaleLowerLimit, float );
-
-  // Description:
-  // Get the number of levels of resolution.
-  int GetImageScaleCount( void ) { return VTK_MAX_VIEW_RAYS_LEVEL; };
 
   // Description:
   // Set/Get the value of bilinear image zooming.
@@ -178,6 +153,51 @@ public:
   // mapper directly
   int GetNumberOfSamplesTaken();
 
+  int **RowBounds;
+  int *RowBoundsSize;
+  
+  vtkProp **SoftwareProps;
+  vtkProp **RayCastProps;
+
+//BTX
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // This method allows the ray caster to know about the renderer with which 
+  // it is associated
+  vtkSetObjectMacro(Renderer,vtkRenderer);
+  vtkGetObjectMacro(Renderer,vtkRenderer);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Render all prop that require ray casting or that render into
+  // an image buffer. Merge the results with the image generated from
+  // updating the geometry, and place it on the screen. 
+  void Render(vtkRenderer *, int, vtkProp **, int, vtkProp **);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // This method returns the scale that should be applied to the viewport
+  // for geometric rendering, and for the image in volume rendering. It 
+  // is either explicitly set (if AutomaticScaleAdjustment is off) or
+  // is adjusted automatically to get the desired frame rate.
+  //
+  // Note: IMPORTANT!!!! This should only be called once per render!!!
+  //
+  float GetViewportScaleFactor( vtkRenderer *ren );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Get the step size that should be used 
+  float GetViewportStepSize( );
+  
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetCurrentZBuffer()
   {
     if ( this->FirstBlend )
@@ -189,6 +209,8 @@ public:
       return this->ZImage;
       }
   };
+
+//ETX
 
 protected:
 
@@ -215,8 +237,7 @@ protected:
   void InitializeRayCasting( vtkRenderer *ren );
 
 //BTX
-  void ComputeRowBounds( vtkRenderer *ren,
-			 struct VolumeRayCastVolumeInfoStruct *volumeInfo );
+  void ComputeRowBounds( vtkRenderer *ren, vtkProp *prop, int index );
 //ETX
 
   friend VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg );
@@ -257,8 +278,8 @@ protected:
   //BTX
   struct VolumeRayCastVolumeInfoStruct *VolumeInfo;
   //ETX
-  int           RayCastVolumeCount;
-  int           SoftwareBufferVolumeCount;
+  int           RayCastPropCount;
+  int           SoftwareBufferPropCount;
   vtkTransform  *ViewToWorldTransform;
   float         CameraClippingRange[2];
   float         ViewToWorldMatrix[4][4];

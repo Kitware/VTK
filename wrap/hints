@@ -28,8 +28,8 @@ vtkImageCache		GetScalarRange	301 2
 vtkImageSpatialFilter   GetKernelSize   304 4
 vtkIntPoints		GetPoint	301 3
 vtkLookupTable		GetTableValue	301 4
-vtkMapper	 	GetBounds	301 6
-vtkMapper		GetCenter	301 3
+vtkAbstractMapper 	GetBounds	301 6
+vtkAbstractMapper	GetCenter	301 3
 vtkMath			SolveCubic	2307 4
 vtkMath			SolveQuadratic	2307 3
 vtkMergeFilter		GetPoint	301 3
@@ -70,8 +70,5 @@ vtkTransform		GetScale	301 3
 vtkTransform		GetPoint	301 3
 vtkVectors		GetVector 	301 3
 vtkVolume		GetBounds	301 6
-vtkVolume		GetXRange	301 2
-vtkVolume		GetYRange	301 2
-vtkVolume		GetZRange	301 2
 
 vtkDFALeader		GetTextPosition 301 2

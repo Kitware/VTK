@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXGLPolyDataMapper.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
+#include "vtkTimerLog.h"
 
 // Construct empty object.
 vtkXGLPolyDataMapper::vtkXGLPolyDataMapper()
@@ -119,6 +120,7 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
+  vtkTimerLog *timer;
 
   // a chance to abort rendering.
   if (ren->GetRenderWindow()->CheckAbortStatus())
@@ -161,9 +163,17 @@ void vtkXGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->BuildTime.Modified();
     }
    
-  // if we are in immediate mode rendering we always
+  // Actually draw
   // want to draw the primitives here
+  timer = vtkTimerLog::New();
+  timer->StartTimer();
+
   this->Draw(ren,act);
+
+  timer->StopTimer();      
+  this->TimeToDraw = (float)timer->GetElapsedTime();
+  timer->Delete();
+
 }
 
 float *vtkXGLPolyDataMapper::AddVertex(int npts, int pointSize, int *pts,

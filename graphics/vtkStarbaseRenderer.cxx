@@ -155,16 +155,11 @@ void vtkStarbaseRenderer::DeviceRender(void)
   // standard render method 
   this->ClearLights();
 
-  this->UpdateCameras();
+  this->UpdateCamera();
   this->UpdateLights();
 
-  actor_count = this->UpdateActors();
-  volume_count = this->UpdateVolumes();
+  this->UpdateGeometry();
 
-  if ( !(actor_count + volume_count) )
-    {
-    vtkWarningMacro(<< "No actors or volumes are on.");
-    }
 }
 
 // Return center of renderer in display coordinates.

@@ -57,9 +57,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProp3D.h"
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
+#include "vtkVolumeMapper.h"
+#include "vtkVolumeRayCastStructures.h"
 
 class vtkRenderer;
-class vtkVolumeMapper;
 class vtkPropCollection;
 class vtkVolumeCollection;
 class vtkWindow;
@@ -73,12 +74,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Support the standard render methods.
-  virtual void RenderPostSwap(vtkViewport *viewport) {};
-  virtual void RenderGeometry(vtkViewport *viewport) {};
-  virtual void RenderVolume(vtkViewport *viewport) {};
-
-  // Description:
   // Creates a Volume with the following defaults: origin(0,0,0) 
   // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0).
@@ -88,45 +83,14 @@ public:
   // For some exporters and other other operations we must be
   // able to collect all the actors or volumes. These methods
   // are used in that process.
-  virtual void GetVolumes(vtkPropCollection *vc);
-
-  // Description:
-  // Support the standard render methods.
-  // Depending on the mapper type, the volume may be rendered using
-  // this method
-  virtual int RenderTranslucentGeometry(vtkViewport *viewport);
-
-  // Description:
-  // Render the volume by calling the Render() method of its mapper
-  virtual void Render(vtkRenderer *ren);
-
-  // Description:
-  // Release any graphics resources that are being consumed by this volume.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  void ReleaseGraphicsResources(vtkWindow *);
+  void GetVolumes(vtkPropCollection *vc);
 
   // Description:
   // Update the volume rendering pipeline by updating the volume mapper
-  virtual void Update();
-
-  // Description:
-  // Set/Get the scale of the volume. Scaling in performed isotropically in
-  // X,Y and Z. Any scale values that are zero will be automatically
-  // converted to one. Non-isotropic scaling must be done in the 
-  // scalar data provided to vtkVolumeMapper.
-  vtkGetMacro(Scale,float);
-  vtkSetMacro(Scale,float);
-
-  // Description:
-  // Get the matrix from the position, origin, scale and orientation
-  // This matrix is cached, so multiple GetMatrix() calls will be
-  // efficient.
-  void GetMatrix(vtkMatrix4x4 *m);
+  void Update();
 
   // Description:
   // Get the bounds. GetBounds(),
-  // GetXRange(), GetYRange(), and GetZRange return world coordinates.
   float *GetBounds();
   float GetMinXBound();
   float GetMaxXBound();
@@ -137,13 +101,21 @@ public:
 
   // Description:
   // Set/Get the volume mapper.
-  void SetVolumeMapper(vtkVolumeMapper *mapper);
-  vtkGetObjectMacro(VolumeMapper,vtkVolumeMapper);
+  void SetMapper(vtkVolumeMapper *mapper);
+  vtkGetObjectMacro(Mapper, vtkVolumeMapper);
 
   // Description:
   // Set/Get the volume property.
-  void SetVolumeProperty(vtkVolumeProperty *property);
-  vtkVolumeProperty *GetVolumeProperty();
+  void SetProperty(vtkVolumeProperty *property);
+  vtkVolumeProperty *GetProperty();
+
+  // Description:
+  // Do we need to ray cast this prop?
+  int RequiresRayCasting();
+
+  // Description:
+  // Does this prop render into an image?
+  int RequiresRenderingIntoImage();
 
   // Description:
   // Return the MTime also considering the property etc.
@@ -154,33 +126,118 @@ public:
   // appear differently. Usually this involves checking the mtime of the 
   // prop plus anything else it depends on such as properties, mappers,
   // etc.
-  virtual unsigned long GetRedrawMTime();
+  unsigned long GetRedrawMTime();
+
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  void SetVolumeProperty(vtkVolumeProperty *property) {this->SetProperty(property);};
+  vtkVolumeProperty *GetVolumeProperty() {return this->GetProperty();};
+
+  // Description:
+  // For legacy compatibility. Do not use.
+  vtkVolumeMapper *GetVolumeMapper() {return this->Mapper;};
+  void SetVolumeMapper(vtkVolumeMapper *mapper) {this->SetMapper(mapper);};
 
   // Description:
   // For legacy compatibility. Do not use.
   vtkVolume &operator=(const vtkVolume& volume);
-  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
   void SetVolumeProperty(vtkVolumeProperty& property) 
-    {this->SetVolumeProperty(&property);}
+    {this->SetProperty(&property);}
 
-  void UpdateTransferFunctions( vtkRenderer *ren );
-  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance );
+//BTX
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Support the standard render methods.
+  // Depending on the mapper type, the volume may be rendered using
+  // this method (FRAMEBUFFER volume such as texture mapping will
+  // be rendered this way)
+  int RenderTranslucentGeometry(vtkViewport *viewport);
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Support the standard render methods.
+  // Depending on the mapper type, the volume may be rendered using
+  // this method (SOFTWAREBUFFER volumes such as multiray will be
+  // rendered this way)
+  int RenderIntoImage(vtkViewport *viewport);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Support the standard render methods. These are the methods
+  // to access the image generated by the RenderIntoImage() 
+  // method.
+  float *GetRGBAImage();
+  float *GetZImage();
+
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Support for ray casting if the mapper requires it - 
+  // do the initialization and save up all the info required into
+  // a structure that will later be passed into the mapper when
+  // each ray is cast.
+  virtual int InitializeRayCasting( vtkViewport *viewport);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Support for ray casting if the mapper requires it - 
+  // cast a ray that is defined in viewing coordinates 
+  virtual int CastViewRay( VTKRayCastRayInfo *rayInfo );
+ 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Release any graphics resources that are being consumed by this volume.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetCorrectedScalarOpacityArray () { return this->CorrectedScalarOpacityArray; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetScalarOpacityArray () { return this->ScalarOpacityArray; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetGradientOpacityArray () { return this->GradientOpacityArray; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetGrayArray () { return this->GrayArray; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float *GetRGBArray () { return this->RGBArray; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float  GetGradientOpacityConstant () { return this->GradientOpacityConstant; };
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   float  GetArraySize () { return this->ArraySize; };
+//ETX
 
 protected:
 
-  float             Scale;
+  vtkVolumeMapper              *Mapper;
 
-  vtkVolumeMapper   *VolumeMapper;
-
-  vtkVolumeProperty *VolumeProperty;
+  vtkVolumeProperty            *Property;
 
   // The rgb transfer function array - for unsigned char data this
   // is 256 elements, for short or unsigned short it is 65536 elements
@@ -225,6 +282,18 @@ protected:
   float                        GradientOpacityArray[256];
   float                        GradientOpacityConstant;
   vtkTimeStamp                 GradientOpacityArrayMTime;
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  void UpdateTransferFunctions( vtkRenderer *ren );
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  void UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance );
+
+  VTKRayCastVolumeInfo *VolumeInfo;
 };
 
 #endif

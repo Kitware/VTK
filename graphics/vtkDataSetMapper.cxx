@@ -80,24 +80,6 @@ void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 }
 
 //
-// Return bounding box of data
-//
-float *vtkDataSetMapper::GetBounds()
-{
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
-  if ( ! this->Input ) 
-    {
-    return bounds;
-    }
-  else
-    {
-    this->Input->Update();
-    this->Input->GetBounds(this->Bounds);
-    return this->Bounds;
-    }
-}
-//
 // Receives from Actor -> maps data to primitives
 //
 void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
@@ -154,6 +136,8 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   this->PolyDataMapper->SetScalarMode(this->GetScalarMode());
 
   this->PolyDataMapper->Render(ren,act);
+
+  this->TimeToDraw = this->PolyDataMapper->GetTimeToDraw();
 }
 
 void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)

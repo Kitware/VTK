@@ -44,14 +44,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 
 // Construct a vtkEncodedGradientEstimator with initial values of NULL for
-// the ScalarInput, EncodedNormal, and GradientMagnitude. Also,
+// the Input, EncodedNormal, and GradientMagnitude. Also,
 // indicate that the IndexTable has not yet been initialized. The
 // GradientMagnitudeRange and the GradientMangitudeTable are 
 // initialized to default values - these will change in the future
 // when magnitude of gradient opacities are included
 vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 {
-  this->ScalarInput                = NULL;
+  this->Input                      = NULL;
   this->EncodedNormals             = NULL;
   this->GradientMagnitudes         = NULL;
   this->GradientMagnitudeScale     = 1.0;
@@ -79,7 +79,7 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
-  this->SetScalarInput(NULL);
+  this->SetInput(NULL);
   this->Threader->Delete();
   this->Threader = NULL;
   
@@ -161,8 +161,8 @@ int vtkEncodedGradientEstimator::GetEncodedNormalIndex( int x_index,
   this->Update();
 
   // Compute steps through the volume in x, y, and z
-  ystep = this->ScalarInputSize[0];
-  zstep = this->ScalarInputSize[0] * this->ScalarInputSize[1];
+  ystep = this->InputSize[0];
+  zstep = this->InputSize[0] * this->InputSize[1];
 
   return *(this->EncodedNormals + z_index * zstep + y_index * ystep + x_index);
 }
@@ -190,7 +190,7 @@ void vtkEncodedGradientEstimator::Update( )
 
   if ( this->GetMTime() > this->BuildTime || 
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
-       this->ScalarInput->GetMTime() > this->BuildTime ||
+       this->Input->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
     {
 
@@ -198,8 +198,8 @@ void vtkEncodedGradientEstimator::Update( )
     startCPUSeconds = vtkTimerLog::GetCPUTime();
     
     // Get the dimensions of the data and its aspect ratio
-    this->ScalarInput->GetDimensions( scalar_input_size );
-    this->ScalarInput->GetSpacing( scalar_input_aspect );
+    this->Input->GetDimensions( scalar_input_size );
+    this->Input->GetSpacing( scalar_input_aspect );
     
     // If we previously have allocated space for the encoded normals,
     // and this space is no longer the right size, delete it
@@ -238,14 +238,14 @@ void vtkEncodedGradientEstimator::Update( )
       }
 
     // Copy info that multi threaded function will need into temp variables
-    memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
-    memcpy( this->ScalarInputAspect, scalar_input_aspect, 3 * sizeof(float) );
+    memcpy( this->InputSize, scalar_input_size, 3 * sizeof(int) );
+    memcpy( this->InputAspect, scalar_input_aspect, 3 * sizeof(float) );
 
     if ( this->CylinderClip && 
-	 (this->ScalarInputSize[0] == this->ScalarInputSize[1]) )
+	 (this->InputSize[0] == this->InputSize[1]) )
       {
       this->UseCylinderClip = 1;
-      this->ComputeCircleLimits( this->ScalarInputSize[0] );
+      this->ComputeCircleLimits( this->InputSize[0] );
       }
     else
       {
@@ -301,13 +301,13 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
 
-  if ( this->ScalarInput )
+  if ( this->Input )
     {
-    os << indent << "ScalarInput: (" << this->ScalarInput << ")\n";
+    os << indent << "Input: (" << this->Input << ")\n";
     }
   else
     {
-    os << indent << "ScalarInput: (none)\n";
+    os << indent << "Input: (none)\n";
     }
 
   if ( this->DirectionEncoder )
@@ -359,9 +359,9 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   // within the threaded function
   // os << indent << "Use Cylinder Clip: " 
   //    << this->UseCylinderClip << endl;
-  // os << indent << "Scalar Input Size: " 
-  //    << this->ScalarInputSize << endl;
-  // os << indent << "Scalar Input Aspect Clip: " 
-  //    << this->ScalarInputAspect << endl;
+  // os << indent << " Input Size: " 
+  //    << this->InputSize << endl;
+  // os << indent << " Input Aspect Clip: " 
+  //    << this->InputAspect << endl;
   
 }

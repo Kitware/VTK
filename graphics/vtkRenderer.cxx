@@ -164,7 +164,9 @@ vtkRenderer *vtkRenderer::New()
 // Concrete render method.
 void vtkRenderer::Render(void)
 {
-  double t1, t2;
+  double   t1, t2;
+  int      i;
+  vtkProp  *aProp;
 
   t1 = vtkTimerLog::GetCurrentTime();
 
@@ -224,9 +226,45 @@ void vtkRenderer::Render(void)
       return;
       }
     }
+
+  // Create the initial list of visible props
+  // This will be passed through AllocateTime(), where
+  // a time is allocated for each prop, and the list
+  // maybe re-ordered by the cullers. Also create the
+  // sublists for the props that need ray casting, and
+  // the props that need to be rendered into an image.
+  // Fill these in later (in AllocateTime) - get a 
+  // count of them there too
+  this->PropArray                = new vtkProp *[this->Props->GetNumberOfItems()];
+  this->RayCastPropArray         = new vtkProp *[this->Props->GetNumberOfItems()];
+  this->RenderIntoImagePropArray = new vtkProp *[this->Props->GetNumberOfItems()];
+  this->PropArrayCount = 0;
+
+  for ( i = 0, this->Props->InitTraversal(); 
+	(aProp = this->Props->GetNextProp());i++ )
+    {
+    if ( aProp->GetVisibility() )
+      {
+      this->PropArray[this->PropArrayCount++] = aProp;
+      }
+    }
   
+  if ( this->PropArrayCount == 0 )
+    {
+    vtkDebugMacro( << "There are no visible props!" );
+    }
+
+  // Call all the outer culling methods to set allocated time
+  // for each prop and re-order the prop list if desired
+  this->AllocateTime();
+
   // do the render library specific stuff
   this->DeviceRender();
+
+  // Clean up the space we allocated before
+  delete [] this->PropArray;
+  delete [] this->RayCastPropArray;
+  delete [] this->RenderIntoImagePropArray;
 
   if (this->BackingStore)
     {
@@ -269,56 +307,8 @@ void vtkRenderer::RenderOverlay()
   this->RenderTime.Modified();
 }
 
-// Ask volumes to render themselves.
-int vtkRenderer::UpdateVolumes()
-{
-  int visibleRayCastVolumeCount = 0;
-  int visibleFrameBufferVolumeCount = 0;
-  int visibleSoftwareBufferVolumeCount = 0;
-
-  vtkProp    *aProp;
-
-  // loop through volumes to count the visible volumes of each type
-  // Also, render the frame buffer volumes at this time
-  for (this->Props->InitTraversal(); 
-       (aProp = this->Props->GetNextProp()); )
-    {
-    if (aProp->GetVisibility() && 
-	!strcmp( aProp->GetClassName(), "vtkVolume" ) )
-      {
-      switch ( ((vtkVolume *)aProp)->GetVolumeMapper()->GetMapperType() )
-	{
-	case VTK_RAYCAST_VOLUME_MAPPER:
-	  visibleRayCastVolumeCount++;
-	  break;
-	case VTK_SOFTWAREBUFFER_VOLUME_MAPPER:
-	  visibleSoftwareBufferVolumeCount++;
-	  break;
-	case VTK_FRAMEBUFFER_VOLUME_MAPPER:
-	  visibleFrameBufferVolumeCount++; 
-	  break;
-	}
-      }
-    }
-
-   // If there are any ray cast volumes, or softwarebuffer
-   // volumes, let the ray caster handle it.
-   if ( visibleRayCastVolumeCount + 
-        visibleSoftwareBufferVolumeCount > 0 )
-     {
-     // Render the volume
-     this->RayCaster->Render((vtkRenderer *)this,
- 			    visibleRayCastVolumeCount,
- 			    visibleSoftwareBufferVolumeCount);
-     }
-
-  return ( visibleRayCastVolumeCount +
-	   visibleFrameBufferVolumeCount +
-	   visibleSoftwareBufferVolumeCount );
-}
-
 // Ask active camera to load its view matrix.
-int vtkRenderer::UpdateCameras ()
+int vtkRenderer::UpdateCamera ()
 {
   if (!this->ActiveCamera)
     {
@@ -334,217 +324,118 @@ int vtkRenderer::UpdateCameras ()
   return 1;
 }
 
+// Do all outer culling to set allocated time for each prop.
+// Possibly re-order the actor list.
+void vtkRenderer::AllocateTime()
+{
+  int          initialized = 0;
+  float        renderTime;
+  float        totalTime;
+  int          i;
+  vtkCuller    *aCuller;
+  vtkProp      *aProp;
+
+  // Give each of the cullers a chance to modify allocated rendering time
+  // for the entire set of props. Each culler returns the total time given
+  // by AllocatedRenderTime for all props. Each culler is required to
+  // place any props that have an allocated render time of 0.0 
+  // at the end of the list. The PropArrayCount value that is
+  // returned is the number of non-zero, visible actors.
+  // Some cullers may do additional sorting of the list (by distance,
+  // importance, etc).
+  //
+  // The first culler will initialize all the allocated render times. 
+  // Any subsequent culling will multiply the new render time by the 
+  // existing render time for an actor.
+
+  totalTime = this->PropArrayCount;
+
+  for (this->Cullers->InitTraversal(); 
+       (aCuller=this->Cullers->GetNextItem());)
+    {
+    totalTime = 
+      aCuller->Cull((vtkRenderer *)this, 
+		    this->PropArray, this->PropArrayCount,
+		    initialized );
+    }
+
+  // loop through all props and set the AllocatedRenderTime
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+    aProp = this->PropArray[i];
+
+    // If we don't have an outer cull method in any of the cullers,
+    // then the allocated render time has not yet been initialized
+    renderTime = (initialized)?(aProp->GetAllocatedRenderTime()):(1.0);
+
+    // We need to divide by total time so that the total rendering time
+    // (all prop's AllocatedRenderTime added together) would be equal
+    // to the renderer's AllocatedRenderTime.
+    aProp->
+      SetAllocatedRenderTime(( renderTime / totalTime ) * 
+			     this->AllocatedRenderTime );  
+    }
+
+  // Since we now have allocated render times, we can select an LOD
+  // (if this is an LODProp3D). We can now count up how many props need
+  // ray casting or need to be rendered into an image and create
+  // an array of them for fast traversal in the ray caster
+  this->NumberOfPropsToRayCast = 0;
+  this->NumberOfPropsToRenderIntoImage = 0;
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    {    
+    aProp = this->PropArray[i];
+    if ( aProp->RequiresRayCasting() )
+      {
+      this->RayCastPropArray[this->NumberOfPropsToRayCast++] = aProp; 
+      }
+    
+    if ( aProp->RequiresRenderingIntoImage() )
+      {
+      this->RenderIntoImagePropArray[this->NumberOfPropsToRenderIntoImage++] = aProp; 
+      }
+    }
+}
+
 // Ask actors to render themselves. As a side effect will cause 
 // visualization network to update.
-int vtkRenderer::UpdateActors()
+int vtkRenderer::UpdateGeometry()
 {
-  vtkProp   *aProp, **actorList;
-  vtkCuller  *aCuller;
-  int        num_actors;
-  float      total_time, actor_time, gained_time, additional_time;
-  int        allocated_time_initialized = 0, i;
-  float      render_time, new_render_time;
-  int        renderedPropsCount = 0;
+  int        i;
 
-  num_actors = this->Props->GetNumberOfItems();
-
-  if ( num_actors == 0 ) 
+  if ( this->PropArrayCount == 0 ) 
     {
-    this->NumberOfPropsRenderedAsGeometry = renderedPropsCount;
-    return renderedPropsCount;
+    this->NumberOfPropsRenderedAsGeometry = 0;
+    return 0;
     }
 
-  // We don't have any cullers so don't try to do any culling
-  if ( this->Cullers->GetNumberOfItems() == 0 )
+  // We can render everything because if it was
+  // not visible it would not have been put in the
+  // list in the first place, and if it was allocated
+  // no time (culled) it would have been removed from
+  // the list
+
+  // loop through props and give them a change to 
+  // render themselves as opaque geometry
+  for ( i = 0; i < this->PropArrayCount; i++ )
     {
-    // Give each actor an equal slice of the time
-    actor_time = this->AllocatedRenderTime / (float) num_actors;
-
-    // loop through props doing opaque and then translucent
-    for ( this->Props->InitTraversal(); 
-	  (aProp=this->Props->GetNextProp()); )
-      {
-      // we need to draw it only if it is visible 
-      if ( aProp->GetVisibility() )
-	{
-	aProp->SetAllocatedRenderTime( actor_time );
-	renderedPropsCount += aProp->RenderOpaqueGeometry(this);
-	}
-      }
-    for ( this->Props->InitTraversal(); 
-	  (aProp=this->Props->GetNextProp()); )
-      {
-      // we need to draw it only if it is visible 
-      if ( aProp->GetVisibility() )
-	{
-	aProp->SetAllocatedRenderTime( actor_time );
-	renderedPropsCount += aProp->RenderTranslucentGeometry(this);
-	}
-      }
-    }
-  // We do have cullers so we'll need to do both outer culling (where each
-  // culler has a chance to change allocated render times, and order all
-  // of the actors) and inner culling (where for each actor, each culler gets
-  // a chance to set the allocated render time to 0).
-  //
-  // The first culler to do an outer culling will initialize all the
-  // allocated render times. Any subsequent outer culling will multiply
-  // the new render time by the existing render time for an actor.
-  //
-  // If an actor is culled from the inner culling method, the time it
-  // would have used for rendering is redistributed among the remaining
-  // actors.
-  else
-    {
-    // Create the initial list of actors
-    actorList = new vtkProp *[num_actors];
-    for ( i = 0, this->Props->InitTraversal(); 
-	  (aProp = this->Props->GetNextProp());i++ )
-      {
-      actorList[i] = aProp;
-      }
-
-    // Give each of the cullers a chance to modify allocated rendering time
-    // for the entire set of actors. Each culler returns the total time given
-    // by AllocatedRenderTime for all actors. Each culler is required to
-    // place any actors that have an allocated render time of 0.0 or are
-    // invisible at the end of the list. The num_actors value that is
-    // returned is the number of non-zero, visible actors.
-    // Some cullers may do additional sorting of the list (by distance,
-    // importance, etc).
-    for (this->Cullers->InitTraversal(); 
-	 (aCuller=this->Cullers->GetNextItem());)
-      {
-      total_time = aCuller->OuterCullMethod((vtkRenderer *)this, 
-					    actorList, num_actors,
-					    allocated_time_initialized );
-      }
-
-    // We need to keep track of how much time we gain from the inner culling
-    // method
-    gained_time = 0;
-
-    // loop through actors 
-    for ( i = 0; i < num_actors; i++ )
-      {
-      aProp = actorList[i];
-
-      if ( allocated_time_initialized || aProp->GetVisibility() )
-	{
-	// If we don't have an outer cull method in any of the cullers,
-	// then the allocated render time has not yet been initialized
-	if ( !allocated_time_initialized )
-	  {
-	  aProp->SetAllocatedRenderTime( 1.0 );
-	  }
-
-	// What is the initial render time allocated to this actor
-	// before we do the inner culling
-	render_time = aProp->GetAllocatedRenderTime();
-	  
-	// Give the inner culling method a chance to do its thing.
-	// The inner cull method returns 0 if the object is culled, 1 if
-	// it is not culled. It may also just reduce the allocated render
-        // time of the actor, so we'll have to check that again later.
-	// Cullers are not allowed to increase the allocated time for
-	// an actor.
-	for (this->Cullers->InitTraversal(); 
-	     (aCuller=this->Cullers->GetNextItem());)
-	  {
-	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, aProp) ) ) 
-	    {
-	    break;
-	    }
-	  }
-	// What is the new render time allocated to this actor
-	// after we do the inner culling.
-	new_render_time = aProp->GetAllocatedRenderTime();
-
-	// If there is a difference between this time and the original
-	// render time, then this is time that is gained for use across
-	// all remaining actors;
-	gained_time += render_time - new_render_time;
-
-	// If it didn't get culled, we really need to render it
-	if ( new_render_time > 0.0 )
-	  {
-	  // If we culled a previous actor using the inner culling method, 
-	  // we will have some additional time that we can add to this actor
-	  additional_time = gained_time / (float)(num_actors - i);
-	  gained_time -= additional_time;
-	  
-	  // We need to divide by total time so that the total rendering time
-	  // (all actor's AllocatedRenderTime added together) would be 1.
-	  // We add the additional time to get the total allocated time.
-	  aProp->SetAllocatedRenderTime(
-	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
-	  
-	  // Finally - render the thing!
-	  renderedPropsCount += aProp->RenderOpaqueGeometry(this);
-	  }
-	}
-      }
-    // loop through translucent actors 
-    for ( i = 0; i < num_actors; i++ )
-      {
-      aProp = actorList[i];
-
-      if ( allocated_time_initialized || aProp->GetVisibility() )
-	{
-	// What is the initial render time allocated to this actor
-	// before we do the inner culling
-	render_time = aProp->GetAllocatedRenderTime();
-	  
-	// Give the inner culling method a chance to do its thing.
-	// The inner cull method returns 0 if the object is culled, 1 if
-	// it is not culled. It may also just reduce the allocated render
-        // time of the actor, so we'll have to check that again later.
-	// Cullers are not allowed to increase the allocated time for
-	// an actor.
-	for (this->Cullers->InitTraversal(); 
-	     (aCuller=this->Cullers->GetNextItem());)
-	  {
-	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, aProp) ) ) 
-	    {
-	    break;
-	    }
-	  }
-	// What is the new render time allocated to this actor
-	// after we do the inner culling.
-	new_render_time = aProp->GetAllocatedRenderTime();
-
-	// If there is a difference between this time and the original
-	// render time, then this is time that is gained for use across
-	// all remaining actors;
-	gained_time += render_time - new_render_time;
-
-	// If it didn't get culled, we really need to render it
-	if ( new_render_time > 0.0 )
-	  {
-	  // If we culled a previous actor using the inner culling method, 
-	  // we will have some additional time that we can add to this actor
-	  additional_time = gained_time / (float)(num_actors - i);
-	  gained_time -= additional_time;
-	  
-	  // We need to divide by total time so that the total rendering time
-	  // (all actor's AllocatedRenderTime added together) would be 1.
-	  // We add the additional time to get the total allocated time.
-	  aProp->SetAllocatedRenderTime(
-	     ( new_render_time / total_time ) * this->AllocatedRenderTime );
-	  
-	  // Finally - render the thing!
-	  renderedPropsCount += aProp->RenderTranslucentGeometry(this);
-	  }
-	}
-      }
-    delete [] actorList;
+    this->NumberOfPropsRenderedAsGeometry += 
+      this->PropArray[i]->RenderOpaqueGeometry(this);
     }
 
-  vtkDebugMacro( << "Rendered " << renderedPropsCount << " actors" );
 
-  this->NumberOfPropsRenderedAsGeometry = renderedPropsCount;
+  // loop through props and give them a chance to 
+  // render themselves as translucent geometry
+  for ( i = 0; i < this->PropArrayCount; i++ )
+    {
+    this->NumberOfPropsRenderedAsGeometry += 
+      this->PropArray[i]->RenderTranslucentGeometry(this);
+    }
 
-  return renderedPropsCount;
+  vtkDebugMacro( << "Rendered " << 
+                    this->NumberOfPropsRenderedAsGeometry << " actors" );
+
+  return  this->NumberOfPropsRenderedAsGeometry;
 }
 
 vtkWindow *vtkRenderer::GetVTKWindow()
@@ -664,6 +555,8 @@ void vtkRenderer::ResetCamera()
 {
   vtkActor   *anActor;
   vtkVolume  *aVolume;
+  vtkProp    *aProp;
+  vtkProp3D  *aProp3D;
   float      *bounds;
   float      allBounds[6];
   int        nothingVisible=1;
@@ -754,6 +647,47 @@ void vtkRenderer::ResetCamera()
       }
     }
 
+  // For now, just search through all the props to look for a vtkLODProp3D
+  for (this->Props->InitTraversal(); (aProp = this->Props->GetNextProp()); )
+    {      
+    if ( strcmp( aProp->GetClassName(), "vtkLODProp3D" ) == 0 )
+      {
+      aProp3D = (vtkProp3D *)aProp;
+
+      // if it's invisible we can skip the rest 
+      if ( aProp3D->GetVisibility() )
+	{
+	nothingVisible = 0;
+	bounds = aProp3D->GetBounds();
+
+	if (bounds[0] < allBounds[0])
+	  {
+	  allBounds[0] = bounds[0]; 
+	  }
+	if (bounds[1] > allBounds[1])
+	  {
+	  allBounds[1] = bounds[1]; 
+	  }
+	if (bounds[2] < allBounds[2])
+	  {
+	  allBounds[2] = bounds[2]; 
+	  }
+	if (bounds[3] > allBounds[3])
+	  {
+	  allBounds[3] = bounds[3]; 
+	  }
+	if (bounds[4] < allBounds[4])
+	  {
+	  allBounds[4] = bounds[4]; 
+	  }
+	if (bounds[5] > allBounds[5])
+	  {
+	  allBounds[5] = bounds[5]; 
+	  }
+	}
+      }
+    }
+  
   if ( nothingVisible )
     {
     vtkDebugMacro(<< "Can't reset camera, no actors or volumes are visible");
@@ -1084,11 +1018,14 @@ int vtkRenderer::VisibleVolumeCount()
   return count;
 }
 
-
+// We need to override the unregister method because the raycaster
+// is registered by the renderer and the renderer is registered by
+// raycaster. If we are down to just two references on the renderer
+// (from itself and the raycaster) then delete it, and the raycaster.
 void vtkRenderer::UnRegister(vtkObject *o)
 {
   if (this->RayCaster != NULL && this->RayCaster->GetRenderer() == this &&
-      this->GetReferenceCount() == 2 && 0 != this->RayCaster)
+      this->GetReferenceCount() == 2 )
     {
     vtkRayCaster *temp = this->RayCaster;
     this->RayCaster = NULL;    

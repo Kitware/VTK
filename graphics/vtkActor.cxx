@@ -54,10 +54,6 @@ vtkActor::vtkActor()
   this->BackfaceProperty = NULL;
   this->Texture = NULL;
 
-  this->Scale[0] = 1.0;
-  this->Scale[1] = 1.0;
-  this->Scale[2] = 1.0;
-
   this->TraversalLocation = 0;
   
   // The mapper bounds are cache to know when the bounds must be recomputed
@@ -92,8 +88,6 @@ vtkActor::~vtkActor()
 // Shallow copy of an actor.
 vtkActor& vtkActor::operator=(const vtkActor& actor)
 {
-  int i;
-
   this->SetUserMatrix(actor.UserMatrix);
   this->SetMapper(actor.Mapper);
   this->SetProperty(actor.Property);
@@ -101,11 +95,6 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
   this->SetTexture(actor.Texture);
 
   *((vtkProp3D *)this) = actor;
-
-  for (i=0; i < 3; i++) 
-    {
-    this->Scale[i] = actor.Scale[i];
-    }
 
   return *this;
 }
@@ -195,7 +184,7 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
 {
   int          renderedSomething = 0; 
   vtkRenderer  *ren = (vtkRenderer *)vp;
-  
+
   if ( ! this->Mapper )
     {
     return 0;
@@ -225,6 +214,7 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport *vp)
       this->Texture->Render(ren);
       }
     this->Render(ren,this->Mapper);
+    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
 
     renderedSomething = 1;
     }
@@ -266,6 +256,7 @@ int vtkActor::RenderTranslucentGeometry(vtkViewport *vp)
       this->Texture->Render(ren);
       }
     this->Render(ren,this->Mapper);
+    this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
 
     renderedSomething = 1;
     }
@@ -343,50 +334,6 @@ vtkProperty *vtkActor::GetBackfaceProperty()
 {
   return this->BackfaceProperty;
 }
-
-void vtkActor::GetMatrix(vtkMatrix4x4 *result)
-{
-  // check whether or not need to rebuild the matrix
-  if ( this->GetMTime() > this->MatrixMTime )
-    {
-    this->GetOrientation();
-    this->Transform->Push();  
-    this->Transform->Identity();  
-    this->Transform->PostMultiply();  
-    
-    // shift back to actor's origin
-    this->Transform->Translate(-this->Origin[0],
-                              -this->Origin[1],
-                              -this->Origin[2]);
-
-    // scale
-    this->Transform->Scale(this->Scale[0],
-                          this->Scale[1],
-                          this->Scale[2]);
-    
-    // rotate
-    this->Transform->RotateY(this->Orientation[1]);
-    this->Transform->RotateX(this->Orientation[0]);
-    this->Transform->RotateZ(this->Orientation[2]);
-    
-    // move back from origin and translate
-    this->Transform->Translate(this->Origin[0] + this->Position[0],
-                              this->Origin[1] + this->Position[1],
-                              this->Origin[2] + this->Position[2]);
-   
-    // apply user defined matrix last if there is one 
-    if (this->UserMatrix)
-      {
-      this->Transform->Concatenate(this->UserMatrix);
-      }
-
-    this->Transform->PreMultiply();  
-    this->Transform->GetMatrix(this->Matrix);
-    this->MatrixMTime.Modified();
-    this->Transform->Pop();  
-    }
-  result->DeepCopy(this->Matrix);
-} 
 
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkActor::GetBounds()
@@ -619,8 +566,6 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Texture: (none)\n";
     }
 
-  os << indent << "Scale: (" << this->Scale[0] << ", " 
-     << this->Scale[1] << ", " << this->Scale[2] << ")\n";
 }
 
 

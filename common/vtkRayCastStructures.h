@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCuller.h
+  Module:    vtkRayCastStructures.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,35 +38,57 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkCuller - a superclass for prop cullers
+
+// .NAME vtkRayCastStructures - the structure definitions for ray casting
+
 // .SECTION Description
-// A culler has a cull method called by the vtkRenderer. The cull 
-// method is called before any rendering is performed,
-// and it allows the culler to do some processing on the props and 
-// to modify their AllocatedRenderTime and re-order them in the prop list. 
+// These are the structures required for ray casting.
 
-// .SECTION see also
-// vtkFrustumCoverageCuller
+// .SECTION See Also
+// vtkRayCaster
 
-#ifndef __vtkCuller_h
-#define __vtkCuller_h
+#ifndef __vtkRayCastStructures_h
+#define __vtkRayCastStructures_h
 
-#include "vtkObject.h"
-
-class vtkProp;
-class vtkRenderer;
-
-class VTK_EXPORT vtkCuller : public vtkObject
+typedef struct 
 {
-public:
-  const char *GetClassName() {return "vtkCuller";};
+  // These are the input values that define the ray
+  float Origin[3];
+  float Direction[3];
+  int   Pixel[2];
 
-  // Description:
-  // This is called outside the render loop by vtkRenderer
-  virtual float Cull( vtkRenderer *ren, vtkProp **propList,
-		      int& listLength, int& initialized )=0;
+  // This input value defines the size of the image
+  int   ImageSize[2];
 
-protected:
-};
-                                         
+  // These are input values for clipping but may be changed
+  // along the way
+  float NearClip;
+  float FarClip;
+
+  // These are the return values - RGBA and Z
+  float Color[4];
+  float Depth;
+
+
+  // Some additional space that may be useful for the
+  // specific implementation of the ray caster. This structure
+  // is a convenient place to put it, since there is one
+  // per thread so that writing to these locations is safe
+
+  // Ray information transformed into local coordinates
+  float                        TransformedStart[4];
+  float                        TransformedEnd[4];
+  float                        TransformedDirection[4];
+  float                        TransformedIncrement[3];
+  
+  // The number of steps we want to take if this is
+  // a ray caster that takes steps
+  int                          NumberOfStepsToTake;
+  
+  // The number of steps we actually take if this is
+  // a ray caster that takes steps
+  int                          NumberOfStepsTaken;
+
+} VTKRayCastRayInfo;
+
 #endif

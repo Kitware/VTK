@@ -119,17 +119,9 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
       }
     }
   
-  // put culling here for now. (to test set inside frustrum)
-  if (this->AllocatedRenderTime == 0.0)
-    {
-    return;
-    }
-  
   // figure out how much time we have to render
   myTime = this->AllocatedRenderTime;
 
-  // cerr << "AllocatedRenderTime: " << myTime << endl;
-  
   //   Figure out which resolution to use 
   // none is a valid resolution. Do we want to have a lowest:
   // bbox, single point, ...
@@ -138,14 +130,14 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
   //   Timings might become out of date, but we rely on 
 
   bestMapper = this->Mapper;
-  bestTime = bestMapper->GetRenderTime();
+  bestTime = bestMapper->GetTimeToDraw();
   if (bestTime > myTime)
     {
     this->LODMappers->InitTraversal();
     while ((mapper = this->LODMappers->GetNextItem()) != NULL && 
 	   bestTime != 0.0)
       {
-      tempTime = mapper->GetRenderTime();
+      tempTime = mapper->GetTimeToDraw();
       
       // If the LOD has never been rendered, select it!
       if (tempTime == 0.0)
@@ -172,9 +164,6 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
       }
     }
     
-  // record start rendering time
-  aTime = vtkTimerLog::GetCurrentTime();
-  
   /* render the property */
   if (!this->Property)
     {
@@ -203,23 +192,6 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
   this->Device->Render(ren,bestMapper);
-  // Aborted render will give incorrect times
-  if (!(ren->GetRenderWindow()->GetAbortRender()))
-    {
-    myTime = (float)(vtkTimerLog::GetCurrentTime() - aTime);
-    // combine time with a moving average
-    if (bestTime == 0.0)
-      { // This is the first render. 
-      bestMapper->SetRenderTime(myTime);
-      }
-    else
-      { // Running average of render time as a temporary fix for
-      // openGL buffering.  The only problem is that the first render takes
-      // a long time, so unless forced renders are frequent, 
-      // an LOD can be locked out.
-      bestMapper->SetRenderTime(0.2 * myTime + 0.8 * bestTime);
-      }
-    }
 }
 
 

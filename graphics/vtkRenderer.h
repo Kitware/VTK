@@ -159,26 +159,6 @@ public:
   virtual void Clear() {};
 
   // Description:
-  // Ask all actors to build and draw themselves.
-  // Returns the number of actors processed.
-  virtual int UpdateActors(void);
-
-  // Description:
-  // Ask the volumes to build and draw themselves.
-  // Returns the number of volumes processed.
-  virtual int UpdateVolumes(void);
-
-  // Description:
-  // Ask the active camera to do whatever it needs to do prior to rendering.
-  // Creates a camera if none found active.
-  virtual int UpdateCameras(void);
-
-  // Description:
-  // Ask all lights to load themselves into rendering pipeline.
-  // This method will return the actual number of lights that were on.
-  virtual int UpdateLights(void) {return 0;};
-
-  // Description:
   // Returns the number of visible actors.
   int VisibleActorCount();
 
@@ -304,9 +284,46 @@ protected:
   unsigned char      *BackingImage;
   vtkTimeStamp       RenderTime;
 
-  int                NumberOfPropsRenderedAsGeometry;
 
   float              LastRenderTimeInSeconds;
+
+  // Allocate the time for each prop
+  void               AllocateTime();
+
+  // Internal variables indicating the number of props
+  // that have been or will be rendered in each category.
+  int                NumberOfPropsRenderedAsGeometry;
+  int                NumberOfPropsToRayCast;
+  int                NumberOfPropsToRenderIntoImage;
+
+  // A temporary list of props used for culling, and traversal
+  // of all props when rendering
+  vtkProp            **PropArray;
+  int                PropArrayCount;
+
+  // A sublist of props that need ray casting
+  vtkProp            **RayCastPropArray;
+
+  // A sublist of props that want to be rendered into an image
+  vtkProp            **RenderIntoImagePropArray;
+
+  // Description:
+  // Ask all props to update and draw any opaque and translucent
+  // geometry. This includes both vtkActors and vtkVolumes
+  // Returns the number of props that rendered geometry.
+  virtual int UpdateGeometry(void);
+
+  // Description:
+  // Ask the active camera to do whatever it needs to do prior to rendering.
+  // Creates a camera if none found active.
+  virtual int UpdateCamera(void);
+
+  // Description:
+  // Ask all lights to load themselves into rendering pipeline.
+  // This method will return the actual number of lights that were on.
+  virtual int UpdateLights(void) {return 0;};
+
+
 };
 
 // Description:

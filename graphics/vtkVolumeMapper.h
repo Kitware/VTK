@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVolumeMapper_h
 #define __vtkVolumeMapper_h
 
-#include "vtkProcessObject.h"
+#include "vtkAbstractMapper.h"
 #include "vtkStructuredPoints.h"
 #include "vtkImageToStructuredPoints.h"
 #include "vtkImageCache.h"
@@ -60,13 +60,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkVolume;
 
-#define VTK_RAYCAST_VOLUME_MAPPER 0
-#define VTK_FRAMEBUFFER_VOLUME_MAPPER 1
+#define VTK_RAYCAST_VOLUME_MAPPER        0
+#define VTK_FRAMEBUFFER_VOLUME_MAPPER    1
 #define VTK_SOFTWAREBUFFER_VOLUME_MAPPER 2
 
 class vtkWindow;
 
-class VTK_EXPORT vtkVolumeMapper : public vtkProcessObject
+class VTK_EXPORT vtkVolumeMapper : public vtkAbstractMapper
 {
 public:
   vtkVolumeMapper();
@@ -75,34 +75,8 @@ public:
   void PrintSelf( ostream& os, vtkIndent index );
 
   // Description:
-  // Render the volume
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
-
-  // Description:
-  // Release any graphics resources that are being consumed by this mapper.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *) {};
-
-  // Description:
   // Update the volume rendering pipeline by updating the scalar input
   virtual void Update();
-
-  // Description:
-  // Get the bounds of the scalar data.
-  virtual float *GetBounds();
-
-  // Description:
-  // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  void GetBounds(float bounds[6]);
-  
-  // Description:
-  // Return the Center of this mapper's data.
-  float *GetCenter();
-
-  // Description:
-  // Return the diagonal length of this mappers bounding box.
-  float GetLength();
 
   // Description:
   // Turn On/Off orthogonal clipping. (Clipping planes are
@@ -127,14 +101,6 @@ public:
   void SetClippingPlanes( float p[6] ); 
   float *GetClippingPlanes() { return this->ClippingPlanes; };
 
-  // Description:
-  // Set/Get the scalar input data
-  vtkSetObjectMacro( ScalarInput, vtkStructuredPoints );
-  void SetScalarInput(vtkImageCache *cache)
-    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
-    this->SetScalarInput(tmp->GetOutput()); tmp->Delete();}
-  virtual vtkStructuredPoints *GetScalarInput() {return this->ScalarInput;};
-
 
   // Description:
   // Set/Get the rgb texture input data
@@ -149,14 +115,45 @@ public:
 
   virtual float *GetRGBAPixelData() {return NULL;};
 
+  // Description:
+  // Set/Get the input data
+  void SetInput( vtkStructuredPoints * );
+  void SetInput(vtkImageCache *cache)
+    {this->SetInput(cache->GetImageToStructuredPoints()->GetOutput());}
+
+
+  // Description:
+  // OBSOLETE!!!! DO NOT USE!!!! Equivalent to SetInput()
+  // Set/Get the scalar input data
+  void SetScalarInput( vtkStructuredPoints *input ) {this->SetInput(input);};
+  void SetScalarInput(vtkImageCache *cache)
+    {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
+    this->SetScalarInput(tmp->GetOutput()); tmp->Delete();}
+  virtual vtkStructuredPoints *GetScalarInput() {return (vtkStructuredPoints *)this->Input;};
+
+//BTX
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  // Render the volume
+  virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
+
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *) {};
+
+//ETX
+
+
 protected:
-  vtkStructuredPoints  *ScalarInput;
   vtkStructuredPoints  *RGBTextureInput;
   int                  Clipping;
   float                ClippingPlanes[6];
   vtkTimeStamp         BuildTime;
-  float Bounds[6];
-  float Center[3];
 };
 
 inline void vtkVolumeMapper::SetClippingPlanes(float a, float b, float c, 

@@ -46,7 +46,6 @@ static int vtkMapperGlobalImmediateModeRendering = 0;
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
 {
-  this->Input = NULL;
   this->Colors = NULL;
 
   this->LookupTable = NULL;
@@ -228,40 +227,6 @@ void vtkMapper::CreateDefaultLookupTable()
   this->LookupTable = vtkLookupTable::New();
 }
 
-// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-void vtkMapper::GetBounds(float bounds[6])
-{
-  this->GetBounds();
-  for (int i=0; i<6; i++)
-    {
-    bounds[i] = this->Bounds[i];
-    }
-}
-
-float *vtkMapper::GetCenter()
-{
-  this->GetBounds();
-  for (int i=0; i<3; i++) 
-    {
-    this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
-    }
-  return this->Center;
-}
-
-float vtkMapper::GetLength()
-{
-  double diff, l=0.0;
-  int i;
-
-  this->GetBounds();
-  for (i=0; i<3; i++)
-    {
-    diff = this->Bounds[2*i+1] - this->Bounds[2*i];
-    l += diff * diff;
-    }
- 
-  return (float)sqrt(l);
-}
 
 // Update the network connected to this mapper.
 void vtkMapper::Update()
@@ -310,15 +275,6 @@ char *vtkMapper::GetScalarModeAsString(void)
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProcessObject::PrintSelf(os,indent);
-
-  if ( this->Input )
-    {
-    os << indent << "Input: (" << this->Input << ")\n";
-    }
-  else
-    {
-    os << indent << "Input: (none)\n";
-    }
 
   if ( this->LookupTable )
     {
