@@ -22,7 +22,7 @@ This file is part of the vis library
 vlActor::vlActor()
 {
   this->Mapper = 0;
-  this->MyProperty = 0;
+  this->Property = 0;
 
   this->Origin[0] = 0.0;
   this->Origin[1] = 0.0;
@@ -43,6 +43,20 @@ vlActor::vlActor()
   this->Visibility = 1;
 }
 
+vlActor::~vlActor()
+{
+  if ( this->Mapper ) this->Mapper->UnRegister((void *)this);
+}
+
+void vlActor::SetVisibility(int flg)
+{
+  if ( this->Visibility != flg )
+    {
+    this->Visibility = flg;
+    this->Modified();
+    }
+}
+
 int vlActor::GetVisibility()
 {
   return this->Visibility;
@@ -50,8 +64,8 @@ int vlActor::GetVisibility()
 
 void vlActor::Render(vlRenderer *ren)
 {
-  /* render my property */
-  this->MyProperty->Render(ren);
+  /* render the property */
+  this->Property->Render(ren);
 
   /* send a render to the modeller */
   this->Mapper->Render(ren);
@@ -69,12 +83,12 @@ void vlActor::GetCompositeMatrix(float mat[4][4])
 void vlActor::SetMapper(vlMapper *m)
 {
   if ( this->Mapper != m )
-  {
+    {
     if ( this->Mapper ) this->Mapper->UnRegister((void *)this);
     this->Mapper = m;
     this->Mapper->Register((void *)this);
     this->Modified();
-  }
+    }
 }
 
 vlMapper *vlActor::GetMapper()

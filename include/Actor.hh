@@ -26,12 +26,14 @@ class vlActor : public vlObject
 {
  public:
   vlActor();
+  ~vlActor();
   void Render(vlRenderer *ren);
   int GetVisibility();
+  void SetVisibility(int flag);
   void GetCompositeMatrix(float mat[4][4]);
   void SetMapper(vlMapper *m);
   vlMapper *GetMapper();
-  vlProperty *MyProperty; 
+  vlProperty *Property; 
 
  protected:
   vlMapper *Mapper;
