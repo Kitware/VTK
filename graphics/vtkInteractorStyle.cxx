@@ -108,7 +108,6 @@ vtkInteractorStyle::~vtkInteractorStyle()
     if (this->CurrentRenderer) 
       {
       this->CurrentRenderer->RemoveActor(this->OutlineActor);
-      this->CurrentRenderer->UnRegister(this);
       }
     this->OutlineActor->Delete();
     }
