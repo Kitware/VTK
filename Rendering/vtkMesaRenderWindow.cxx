@@ -740,7 +740,7 @@ Colormap vtkMesaRenderWindow::GetDesiredColormap ()
 
 void vtkMesaRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkXRenderWindow::PrintSelf(os,indent);
+  this->vtkOpenGLRenderWindow::PrintSelf(os,indent);
 
   os << indent << "ContextId: " << this->ContextId << "\n";
   os << indent << "OffScreenContextId: " << this->OffScreenContextId << "\n";
