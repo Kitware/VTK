@@ -130,6 +130,7 @@ void vlAppendFilter::Execute()
     }
 
 // Now can allocate memory
+  this->Allocate(numCells); //allocate storage for geometry/topology
   if ( !scalarsPresent ) this->PointData.CopyScalarsOff();
   if ( !vectorsPresent ) this->PointData.CopyVectorsOff();
   if ( !normalsPresent ) this->PointData.CopyNormalsOff();
