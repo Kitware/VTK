@@ -58,6 +58,7 @@ class VTK_EXPORT vtkPolyDataMapper : public vtkMapper
 public:
   static vtkPolyDataMapper *New();
   vtkTypeMacro(vtkPolyDataMapper,vtkMapper);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Implement required Render method. Just a dummy routine here.
@@ -84,7 +85,6 @@ protected:
   ~vtkPolyDataMapper() {};
   vtkPolyDataMapper(const vtkPolyDataMapper&) {};
   void operator=(const vtkPolyDataMapper&) {};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   int Piece;
   int NumberOfPieces;
