@@ -51,6 +51,16 @@ vtkRenderLargeImage::vtkRenderLargeImage()
 }
 
 //----------------------------------------------------------------------------
+vtkRenderLargeImage::~vtkRenderLargeImage()
+{
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);

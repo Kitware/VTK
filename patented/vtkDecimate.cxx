@@ -537,9 +537,12 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   vtkLocalVertex sn;
   int i, j, *verts;
   int startVertex, nextVertex;
-//
-// Check complex cases
-//
+
+  nei.ReferenceCountingOff();
+
+  //
+  // Check complex cases
+  //
   if ( numTris >= this->Degree ) 
     {
     if ( Squawks++ < this->MaximumNumberOfSquawks ) 
@@ -548,11 +551,11 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     this->Stats[VTK_FAILED_DEGREE_TEST]++;
     return VTK_COMPLEX_VERTEX;
     }
-//
-//  From the adjacency structure we can find the triangles that use the
-//  vertex. Traverse this structure, gathering all the surrounding vertices
-//  into an ordered list.
-//
+  //
+  //  From the adjacency structure we can find the triangles that use the
+  //  vertex. Traverse this structure, gathering all the surrounding vertices
+  //  into an ordered list.
+  //
   V->Reset();
   T->Reset();
 
@@ -563,10 +566,11 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   t.n[0] = t.n[1] = t.n[2] = 0.0;
   t.verts[0] = -1; // Marks the fact that this poly hasn't been replaced 
 
-//
-//  Find the starting edge.  Do it very carefully do make sure
-//  ordering is consistent (e.g., polygons ordering/normals remains consistent)
-//
+  //
+  //  Find the starting edge.  Do it very carefully do make sure
+  //  ordering is consistent 
+  // (e.g., polygons ordering/normals remains consistent)
+  //
   Mesh->GetCellPoints(*tris,numVerts,verts); // get starting point
   for (i=0; i<3; i++)
     {
@@ -584,11 +588,11 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
   nei.Reset();
   nei.InsertId(0,*tris);
   numNei = 1;
-//
-//  Traverse the edge neighbors and see whether a cycle can be
-//  completed.  Also have to keep track of orientation of faces for
-//  computing normals.
-//
+  //
+  //  Traverse the edge neighbors and see whether a cycle can be
+  //  completed.  Also have to keep track of orientation of faces for
+  //  computing normals.
+  //
   while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
     {
     t.id = nei.GetId(0);

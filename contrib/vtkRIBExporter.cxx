@@ -118,11 +118,11 @@ void vtkRIBExporter::WriteData()
   if (this->FilePtr == NULL)
     {
     vtkErrorMacro (<< "Cannot open " << ribFileName);
-    delete ribFileName;
+    delete [] ribFileName;
     return;
     }
 
-  delete ribFileName;
+  delete [] ribFileName;
 	
   //
   //  Write Header
@@ -201,17 +201,17 @@ void vtkRIBExporter::WriteData()
       }
     }
 
-//  RiWorldEnd ();
+  //  RiWorldEnd ();
     fprintf (this->FilePtr, "WorldEnd\n");
   //
   // Write trailer
   //
   this->WriteTrailer ();
-
-//  RiEnd ();
+  
+  //  RiEnd ();
   fclose (this->FilePtr);
 
-  delete textures;
+  textures->Delete();
 }
 
 void vtkRIBExporter::WriteHeader (vtkRenderer *aRen)
@@ -449,7 +449,6 @@ void vtkRIBExporter::WriteCamera (vtkCamera *aCamera)
 {
   RtPoint direction;
   float position[3], focalPoint[3];
-  vtkMatrix4x4 matrix;
 
   aCamera->GetPosition (position);
   aCamera->GetFocalPoint (focalPoint);
@@ -559,7 +558,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   vtkDataSet *aDataSet;
   vtkPolyData *polyData;
   vtkGeometryFilter *geometryFilter = NULL;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
   fprintf (this->FilePtr, "AttributeBegin\n");
 
@@ -571,14 +570,18 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
   // get the mappers input and matrix
   aDataSet = anActor->GetMapper()->GetInput();
   anActor->GetMatrix (matrix);
-  matrix.Transpose();
+  matrix->Transpose();
 
   // insert model transformation 
   fprintf (this->FilePtr, "ConcatTransform [%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f ]\n",
-	matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3],
-	matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
-	matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
-	matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
+	matrix->Element[0][0], matrix->Element[0][1], 
+	matrix->Element[0][2], matrix->Element[0][3],
+	matrix->Element[1][0], matrix->Element[1][1], 
+	matrix->Element[1][2], matrix->Element[1][3],
+	matrix->Element[2][0], matrix->Element[2][1], 
+	matrix->Element[2][2], matrix->Element[2][3],
+	matrix->Element[3][0], matrix->Element[3][1], 
+	matrix->Element[3][2], matrix->Element[3][3]);
 
   // we really want polydata
   if ( aDataSet->GetDataSetType() != VTK_POLY_DATA )
@@ -607,6 +610,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
     {
     geometryFilter->Delete();
     }
+  matrix->Delete();
 }
 
 void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
@@ -627,7 +631,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
   vtkCellArray *polys;
   vtkNormals *n = NULL;
   vtkPoints *p;
-  vtkPolygon polygon;
+  vtkPolygon *polygon;
   vtkTCoords *t;
 
   // get the representation 
@@ -646,6 +650,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
   interpolation = aProperty->GetInterpolation();
 
   // and draw the display list
+  polygon = vtkPolygon::New();
   p = polyData->GetPoints();
   polys = polyData->GetPolys();
 
@@ -670,7 +675,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
     { 
     if (!n)
       {
-      polygon.ComputeNormal(p,npts,pts,poly_norm);
+      polygon->ComputeNormal(p,npts,pts,poly_norm);
       }
     
     for (j = 0; j < npts; j++) 
@@ -749,6 +754,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkScalars *s, vtkPro
       }
     fprintf (this->FilePtr, "\n");
     }
+  polygon->Delete();
 }
 
 void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkProperty *aProperty)
@@ -771,7 +777,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
   vtkNormals *n = NULL;
   vtkPoints *p;
   vtkTCoords *t;
-  vtkPolygon polygon;
+  vtkPolygon *polygon;
   int idx[3];
 
   // get the representation 
@@ -792,7 +798,8 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
   // and draw the display list
   p = polyData->GetPoints();
   strips = polyData->GetStrips();
-
+  polygon = vtkPolygon::New();
+  
   t = polyData->GetPointData()->GetTCoords();
   if ( t ) 
     {
@@ -835,7 +842,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
 
       if (!n) 
 	{
-	polygon.ComputeNormal (p, 3, idx, poly_norm);
+	polygon->ComputeNormal (p, 3, idx, poly_norm);
 	}
 
       // build colors, texture coordinates and normals for the triangle
@@ -921,6 +928,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkScalars *s, vtkPrope
 	}
       }
     }
+  polygon->Delete();
 }
 
 void vtkRIBExporter::PrintSelf(ostream& os, vtkIndent indent)

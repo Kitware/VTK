@@ -59,7 +59,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMassProperties : public vtkProcessObject
 {
 public:
+  // Description:
+  // Constructs with initial 0 values.
   vtkMassProperties();
+
+  ~vtkMassProperties();
   const char *GetClassName() {return "vtkMassProperties";};
   static vtkMassProperties *New() {return new  vtkMassProperties;};
   void PrintSelf(ostream& os, vtkIndent indent);

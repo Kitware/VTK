@@ -105,15 +105,15 @@ void vtkSubdivideTetra::Execute()
     cell = input->GetCell(cellId);
 
     // get tetra points
-    cell->Points.GetPoint(0,x0);
-    cell->Points.GetPoint(1,x1);
-    cell->Points.GetPoint(2,x2);
-    cell->Points.GetPoint(3,x3);
+    cell->Points->GetPoint(0,x0);
+    cell->Points->GetPoint(1,x1);
+    cell->Points->GetPoint(2,x2);
+    cell->Points->GetPoint(3,x3);
 
-    p0 = cell->PointIds.GetId(0);
-    p1 = cell->PointIds.GetId(1);
-    p2 = cell->PointIds.GetId(2);
-    p3 = cell->PointIds.GetId(3);
+    p0 = cell->PointIds->GetId(0);
+    p1 = cell->PointIds->GetId(1);
+    p2 = cell->PointIds->GetId(2);
+    p3 = cell->PointIds->GetId(3);
 
         // compute center point
     weights[0] = weights[1] = weights[2] = weights[3] = 0.25;
@@ -122,7 +122,7 @@ void vtkSubdivideTetra::Execute()
       x[i] = 0.25*(x0[i] + x1[i] + x2[i] + x3[i]);
       }
     center = locator->InsertNextPoint(x);
-    outputPD->InterpolatePoint(pd, center, &cell->PointIds, weights);
+    outputPD->InterpolatePoint(pd, center, cell->PointIds, weights);
     
     // compute edge points
     // edge 0-1

@@ -119,9 +119,9 @@ void vtkSweptSurface::Execute()
   int numSteps, stepNum;
   int numTransforms, transNum;
   vtkActor a; //use the actor to do position/orientation stuff
-  vtkTransform *transform1, *transform2, t;
+  vtkTransform *transform1, *transform2, *t = vtkTransform::New();
   float time;
-// position2 is [4] for GetPoint() call
+  // position2 is [4] for GetPoint() call
   float position[3], position1[3], position2[4]; 
   float orient[3], orient1[3], orient2[3];
   float origin[3], spacing[3], bbox[24];
@@ -139,6 +139,7 @@ void vtkSweptSurface::Execute()
   inScalars == NULL )
     {
     vtkErrorMacro(<<"No input scalars defined!");
+    t->Delete();
     return;
     }
 
@@ -146,12 +147,14 @@ void vtkSweptSurface::Execute()
   if ( this->Transforms == NULL )
     {
     vtkErrorMacro(<<"No path defined!");
+    t->Delete();
     return;
     }
 
   if ( (numTransforms=this->Transforms->GetNumberOfItems()) < 2 )
     {
     vtkErrorMacro(<<"At least two transforms are required to define path!");
+    t->Delete();
     return;
     }
 
@@ -174,9 +177,9 @@ void vtkSweptSurface::Execute()
   input->GetSpacing(inSpacing);
   input->GetOrigin(inOrigin);
 
-//
-// Allocate data.  Scalar "type" is same as input.
-//
+  //
+  // Allocate data.  Scalar "type" is same as input.
+  //
   numOutPts = this->SampleDimensions[0] * this->SampleDimensions[1] * 
               this->SampleDimensions[2];
   newScalars = (vtkScalars *)inScalars->MakeObject();
@@ -185,26 +188,27 @@ void vtkSweptSurface::Execute()
     {
     newScalars->SetScalar(i,this->FillValue);
     }
-//
-// Sample data at each point in path
-//
+  //
+  // Sample data at each point in path
+  //
   this->Transforms->InitTraversal();
   transform2 = this->Transforms->GetNextItem();
-  transform2->GetInverse(t.GetMatrix());
+  transform2->GetInverse(t->GetMatrix());
 
-  this->GetRelativePosition(t,actorOrigin,position2);
-  t.GetOrientation(orient2[0], orient2[1], orient2[2]);
+  this->GetRelativePosition(*t,actorOrigin,position2);
+  t->GetOrientation(orient2[0], orient2[1], orient2[2]);
 
   for (transNum=0; transNum < (numTransforms-1); transNum++)
     {
     transform1 = transform2;
     transform2 = this->Transforms->GetNextItem();
-    transform2->GetInverse(t.GetMatrix());
+    transform2->GetInverse(t->GetMatrix());
 
-//
-// Loop over all points (i.e., voxels), transform into input coordinate system,
-// and obtain interpolated value. Then perform union operation.  
-//
+    //
+    // Loop over all points (i.e., voxels), 
+    // transform into input coordinate system,
+    // and obtain interpolated value. Then perform union operation.  
+    //
     if ( this->NumberOfInterpolationSteps > 0 ) 
       {
       numSteps = this->NumberOfInterpolationSteps;
@@ -226,9 +230,9 @@ void vtkSweptSurface::Execute()
       orient1[i] = orient2[i];
       }
 
-    t.PreMultiply();
-    this->GetRelativePosition(t,actorOrigin,position2);
-    t.GetOrientation(orient2[0], orient2[1], orient2[2]);
+    t->PreMultiply();
+    this->GetRelativePosition(*t,actorOrigin,position2);
+    t->GetOrientation(orient2[0], orient2[1], orient2[2]);
 
     vtkDebugMacro(<<"Injecting " << numSteps << " steps between transforms "
                   << transNum <<" and "<< transNum+1);
@@ -265,6 +269,7 @@ void vtkSweptSurface::Execute()
   // Update ourselves and release memory
   outPD->SetScalars(newScalars);
   newScalars->Delete();
+  t->Delete();
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3], 
@@ -408,8 +413,11 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
     int numTransforms, transNum;
     float position[3], orient[3], position1[3], orient1[3];
     float position2[3], orient2[3];
-    vtkActor a;
-    vtkTransform t, t2, *transform1, *transform2;
+    vtkActor *a = vtkActor::New();
+    vtkTransform *t, *t2, *transform1, *transform2;
+
+    t = vtkTransform::New();
+    t2 = vtkTransform::New();
 
     xmin[0] = xmin[1] = xmin[2] = VTK_LARGE_FLOAT;
     xmax[0] = xmax[1] = xmax[2] = -VTK_LARGE_FLOAT;
@@ -426,16 +434,16 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
         
     this->Transforms->InitTraversal();
     transform2 = this->Transforms->GetNextItem();
-    transform2->GetMatrix(t.GetMatrix());
-    t.GetPosition(position2[0], position2[1], position2[2]);
-    t.GetOrientation(orient2[0], orient2[1], orient2[2]);
+    transform2->GetMatrix(t->GetMatrix());
+    t->GetPosition(position2[0], position2[1], position2[2]);
+    t->GetOrientation(orient2[0], orient2[1], orient2[2]);
 
     // Initialize process with initial transformed position of input
     x[3] = 1.0;
     for (i=0; i<8; i++)
       {
       x[0] = bbox[i*3]; x[1] = bbox[i*3+1]; x[2] = bbox[i*3+2]; 
-      t.MultiplyPoint(x,xTrans);
+      t->MultiplyPoint(x,xTrans);
       if ( xTrans[3] != 0.0 )
 	{
 	for (ii=0; ii<3; ii++)
@@ -460,14 +468,14 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
       {
       transform1 = transform2;
       transform2 = this->Transforms->GetNextItem();
-      transform2->GetMatrix(t.GetMatrix());
+      transform2->GetMatrix(t->GetMatrix());
       for (i=0; i<3; i++)
         {
         position1[i] = position2[i];
         orient1[i] = orient2[i];
         }
-      t.GetPosition(position2[0], position2[1], position2[2]);
-      t.GetOrientation(orient2[0], orient2[1], orient2[2]);
+      t->GetPosition(position2[0], position2[1], position2[2]);
+      t->GetOrientation(orient2[0], orient2[1], orient2[2]);
 
       // Sample inbetween matrices to compute better bounds. 
       // Use 4 steps (arbitrary),
@@ -480,14 +488,14 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
           orient[i] = orient1[i] + k*h*(orient2[i] - orient1[i]);
           }
 
-        a.SetPosition(position);
-        a.SetOrientation(orient);
-        a.GetMatrix(t2.GetMatrix());
+        a->SetPosition(position);
+        a->SetOrientation(orient);
+        a->GetMatrix(&(t2->GetMatrix()));
 
         for (i=0; i<8; i++) //loop over eight corners of bounding box
           {
           x[0] = bbox[i*3]; x[1] = bbox[i*3+1]; x[2] = bbox[i*3+2]; 
-          t2.MultiplyPoint(x,xTrans);
+          t2->MultiplyPoint(x,xTrans);
           if ( xTrans[3] != 0.0 ) 
 	    {
             for (ii=0; ii<3; ii++)
@@ -509,7 +517,9 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
           }
         }
       }
-
+    t->Delete();
+    t2->Delete();
+    a->Delete();
     } //if compute model bounds
 
   else // else use model bounds specified

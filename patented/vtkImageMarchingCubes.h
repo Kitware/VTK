@@ -83,14 +83,14 @@ class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {
 public:
   vtkImageMarchingCubes();
-  static vtkImageMarchingCubes *New() {return new vtkImageMarchingCubes;};
   ~vtkImageMarchingCubes();
+  static vtkImageMarchingCubes *New() {return new vtkImageMarchingCubes;};
   const char *GetClassName() {return "vtkImageMarchingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
   // Set/Get the source for the scalar data to contour.
-  vtkSetObjectMacro(Input, vtkImageCache);
+  vtkSetReferenceCountedObjectMacro(Input, vtkImageCache);
   vtkGetObjectMacro(Input, vtkImageCache);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}

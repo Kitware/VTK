@@ -83,9 +83,11 @@ void vtkDividingCubes::Execute()
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum, n[3];
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
-  voxelScalars.ReferenceCountingOff();
   vtkPolyData *output = this->GetOutput();
   
+  voxelPts.ReferenceCountingOff();
+  voxelScalars.ReferenceCountingOff();
+
   vtkDebugMacro(<< "Executing dividing cubes...");
 //
 // Initialize self; check input; create output objects
@@ -228,6 +230,8 @@ void vtkDividingCubes::SubDivide(float origin[3], int dim[3], float h[3],
   subVoxelScalars.Reset();
   subVoxelNormals.ReferenceCountingOff();
   subVoxelNormals.Reset();
+  subVoxelPts.ReferenceCountingOff();
+  subVoxel.ReferenceCountingOff();
 
   // Compute normals and scalars on subvoxel array
   for (k=0; k < dim[2]; k++)

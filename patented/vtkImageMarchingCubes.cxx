@@ -73,6 +73,11 @@ vtkImageMarchingCubes::vtkImageMarchingCubes()
 vtkImageMarchingCubes::~vtkImageMarchingCubes()
 {
   this->ContourValues->Delete();
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
 }
 
 // Description:
