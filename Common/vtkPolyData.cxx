@@ -1531,24 +1531,6 @@ void vtkPolyData::GetCellEdgeNeighbors(vtkIdType cellId, vtkIdType p1,
     }
 }
 
-
-static int idsortcompare (const void *arg1, const void *arg2)
-{
-  int *i1 = (int *) arg1;
-  int *i2 = (int *) arg2;
-
-  if (i1[0] < i2[0])
-    {
-      return -1;
-    }
-  if (i1[0] > i2[0])
-    {
-      return 1;
-    }
-  return 0;
-}
-
-
 //----------------------------------------------------------------------------
 void vtkPolyData::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
                                    vtkIdList *cellIds)
