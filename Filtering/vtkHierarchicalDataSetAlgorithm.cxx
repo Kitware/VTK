@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSetAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkHierarchicalDataSetAlgorithm, "1.3");
 vtkStandardNewMacro(vtkHierarchicalDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ int vtkHierarchicalDataSetAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
   // now add our info
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHierarchicalDataSet");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
   info->Set(vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE(), 
             "vtkHierarchicalDataSet");
   return 1;
