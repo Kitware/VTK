@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.1");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.2");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 //----------------------------------------------------------------------------
@@ -147,11 +147,9 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
           return VTK_ERROR;
           }
         this->SetPieceCaseFileName(filename);
+        break;
         }
-      else
-        {
-        currentserver ++;
-        }
+      currentserver ++;
       }
     //cout << "Read: " << result << endl;
     }
