@@ -800,3 +800,58 @@ void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars,
     tris->InsertNextCell(3,pts);
     }
 }
+
+// Description:
+// Given a point x, determine whether it is inside (within the
+// tolerance squared, tol2) the triangle defined by the three 
+// coordinate values p1, p2, p3. Method is via comparing dor products.
+// (Note: in current implementation the tolerance only works in the
+// neighborhood of the three vertices of the triangle.
+int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3], 
+                                 float p3[3], float tol2)
+{
+  float       x1[3], x2[3], x3[3], v13[3], v21[3], v32[3];
+  float       n1[3], n2[3], n3[3];
+  int		i;
+//
+//  Compute appropriate vectors
+//
+  for (i=0; i<3; i++) 
+    {
+    x1[i] = x[i] - p1[i];
+    x2[i] = x[i] - p2[i];
+    x3[i] = x[i] - p3[i];
+    v13[i] = p1[i] - p3[i];
+    v21[i] = p2[i] - p1[i];
+    v32[i] = p3[i] - p2[i];
+    }
+//
+//  See whether intersection point is within tolerance of a vertex.
+//
+  if ( (x1[0]*x1[0] + x1[1]*x1[1] + x1[2]*x1[2]) <= tol2 ||
+  (x2[0]*x2[0] + x2[1]*x2[1] + x2[2]*x2[2]) <= tol2 ||
+  (x3[0]*x3[0] + x3[1]*x3[1] + x3[2]*x3[2]) <= tol2 )
+    {
+    return 1;
+    }
+
+//  If not near a vertex, check whether point is inside of triangular face.
+//
+//  Obtain normal off of triangular face
+//
+  vtkMath::Cross (x1, v13, n1);
+  vtkMath::Cross (x2, v21, n2);
+  vtkMath::Cross (x3, v32, n3);
+//
+//  Check whether normals go in same direction
+//
+  if ( (vtkMath::Dot(n1,n2) >= 0.0) && (vtkMath::Dot(n2,n3) >= 0.0) )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
