@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
 #include "vtkRayCaster.h"
+#include "vtkCuller.h"
 #include <GL/gl.h>
 
 
@@ -53,30 +54,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
   this->NumberOfLightsBound = 0;
-}
-
-// Description:
-// Ask actors to render themselves. As a side effect will cause 
-// visualization network to update.
-int vtkOpenGLRenderer::UpdateActors()
-{
-  vtkActor *anActor;
-  int count = 0;
- 
-  // set matrix mode for actors 
-  glMatrixMode(GL_MODELVIEW);
-
-  // loop through actors 
-  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
-    {
-    // if it's invisible, we can skip the rest 
-    if (anActor->GetVisibility())
-      {
-      count++;
-      anActor->Render((vtkRenderer *)this);
-      }
-    }
-  return count;
 }
 
 // Description:
@@ -263,6 +240,9 @@ void vtkOpenGLRenderer::DeviceRender(void)
   this->UpdateCameras();
   this->UpdateLights();
 
+  // set matrix mode for actors 
+  glMatrixMode(GL_MODELVIEW);
+
   actor_count =  this->UpdateActors();
 
   // If we are rendering with a reduced size image for the volume
@@ -288,7 +268,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
 
   if ( !(actor_count + volume_count) )
     {
-    vtkWarningMacro(<< "No actors or volumes are on.");
+    vtkDebugMacro(<< "No actors or volumes are on.");
     }
 
   // clean up the model view matrix set up by the camera 

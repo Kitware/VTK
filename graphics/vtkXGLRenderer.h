@@ -70,7 +70,6 @@ public:
 
   void DeviceRender(void);
 
-  int UpdateActors(void);
   int UpdateVolumes(void);
   int UpdateCameras(void);
   int UpdateLights(void);

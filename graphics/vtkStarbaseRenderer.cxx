@@ -53,26 +53,6 @@ vtkStarbaseRenderer::vtkStarbaseRenderer()
 }
 
 // Description:
-// Ask actors to build and draw themselves.
-int vtkStarbaseRenderer::UpdateActors()
-{
-  vtkActor *anActor;
-  int count = 0;
- 
-  // loop through actors 
-  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
-    {
-    // if it's invisible, we can skip the rest 
-    if (anActor->GetVisibility())
-      {
-      count++;
-      anActor->Render((vtkRenderer *)this);
-      }
-    }
-  return count;
-}
-
-// Description:
 // Ask volumes to render themselves.
 int vtkStarbaseRenderer::UpdateVolumes()
 {
