@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.14");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.15");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -201,10 +201,10 @@ void vtkReflectionFilter::Execute()
       {
       numCellPts++;  
       newCellPts = new vtkIdType[numCellPts];
-      newCellPts[0] = cellPts->GetId(0) + numPts;
-      newCellPts[1] = cellPts->GetId(2) + numPts;
-      newCellPts[2] = cellPts->GetId(1) + numPts;
-      newCellPts[3] = cellPts->GetId(2) + numPts;
+      newCellPts[0] = cellPts->GetId(0);
+      newCellPts[1] = cellPts->GetId(2);
+      newCellPts[2] = cellPts->GetId(1);
+      newCellPts[3] = cellPts->GetId(2);
       for (j = 4; j < numCellPts; j++)
         {
         newCellPts[j] = cellPts->GetId(j-1);
