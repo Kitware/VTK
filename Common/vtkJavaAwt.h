@@ -20,9 +20,32 @@
 
 #define VTK_JAVA_DEBUG
 
+
+#if defined(_WIN32) || defined(WIN32)
+#define WIN32_JAWT_LOCK_HACK
+#endif
+
+#if defined(WIN32_JAWT_LOCK_HACK)
+#define WJLH_MAX_COUNT (32)
+#define WJLH_HASH_FUNC(E,C,H) {\
+  jclass cls = E->GetObjectClass(C);\
+  jmethodID mid = E->GetMethodID(cls, "hashCode", "()I");\
+  H = E->CallIntMethod(C, mid); }
+#include <windows.h>
+int WJLH_init_check = 0;
+#include "vtkstd/map"
+vtkstd::map<int,int> WJLH_lock_map;
+#endif
+
 extern "C" JNIEXPORT jint  JNICALL 
 Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 {
+#if defined(WIN32_JAWT_LOCK_HACK)
+  int hash;
+  WJLH_HASH_FUNC(env, canvas, hash);
+  WJLH_lock_map[hash] = 0;
+#endif
+
   JAWT awt;
   JAWT_DrawingSurface* ds;
   JAWT_DrawingSurfaceInfo* dsi;
@@ -104,6 +127,13 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
 
+#if defined(WIN32_JAWT_LOCK_HACK)
+if (WJLH_init_check == 0)
+{
+  WJLH_init_check = 1;
+}
+  WJLH_lock_map[hash] = 1;
+#endif
   return 0;
 
 }
@@ -143,7 +173,17 @@ Java_vtk_vtkPanel_Lock(JNIEnv *env,
 #endif
     return 1;
     }
-  
+
+#if defined(WIN32_JAWT_LOCK_HACK)
+  int hash;
+  WJLH_HASH_FUNC(env, canvas, hash);
+  if (WJLH_init_check && WJLH_lock_map[hash] > WJLH_MAX_COUNT)
+  {
+    env->MonitorEnter(canvas);      
+  }
+  else
+  {
+#endif
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
   if((lock & JAWT_LOCK_ERROR) != 0) 
@@ -154,6 +194,9 @@ Java_vtk_vtkPanel_Lock(JNIEnv *env,
     awt.FreeDrawingSurface(ds);
     return 1;
     }
+#if defined(WIN32_JAWT_LOCK_HACK)
+  }
+#endif
 
   return 0;
 
@@ -187,9 +230,23 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
 #endif
     return 1;
     }
-  
+
+#if defined(WIN32_JAWT_LOCK_HACK)
+  int hash;
+  WJLH_HASH_FUNC(env, canvas, hash);
+  if (WJLH_init_check && WJLH_lock_map[hash] > WJLH_MAX_COUNT)
+  {
+    env->MonitorExit(canvas);
+  }
+  else
+  {
+    if (WJLH_init_check) WJLH_lock_map[hash]++;
+#endif
   /* Unlock the drawing surface */
   ds->Unlock(ds);
+#if defined(WIN32_JAWT_LOCK_HACK)
+  }
+#endif
   
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
