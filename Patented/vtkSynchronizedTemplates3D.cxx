@@ -311,7 +311,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
-  int xInc, yInc, zInc;
+  int yInc, zInc;
   float *origin = data->GetOrigin();
   float *spacing = data->GetSpacing();
   int *isect1Ptr, *isect2Ptr;
@@ -373,7 +373,6 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   
   // increments to move through scalars Compute these ourself because
   // we may be contouring an array other than scalars.
-  xInc = 1;
   yInc = (inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
 
