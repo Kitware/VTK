@@ -76,6 +76,7 @@ vtkImageWriter \
 vtkImageXViewer \
 vtkPNMReader \
 vtkPNMWriter \
+vtkTIFFReader \
 vtkTIFFWriter
 
 
