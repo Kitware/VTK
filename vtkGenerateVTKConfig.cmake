@@ -23,6 +23,9 @@ ENDIF(VTK_USE_MPI)
 # The "use" file.
 SET(VTK_USE_FILE ${VTK_BINARY_DIR}/UseVTK.cmake)
 
+# The library dependencies file.
+SET(VTK_LIBRARY_DEPENDS_FILE ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
+
 # The build settings file.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
   SET(VTK_BUILD_SETTINGS_FILE ${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
@@ -99,8 +102,13 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
 # The "use" file.
 SET(VTK_USE_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/UseVTK.cmake)
 
+# The library dependencies file.
+SET(VTK_LIBRARY_DEPENDS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKLibraryDepends.cmake)
+
 # The build settings file.
-SET(VTK_BUILD_SETTINGS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKBuildSettings.cmake)
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  SET(VTK_BUILD_SETTINGS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKBuildSettings.cmake)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 # Include directories.
 SET(VTK_INCLUDE_DIRS_CONFIG
@@ -161,6 +169,45 @@ ENDIF(VTK_USE_PARALLEL)
 SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake)
 
 #-----------------------------------------------------------------------------
-# Configure VTKConfig.cmake for the build tree.
+# Configure VTKConfig.cmake for the install tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
+
+#-----------------------------------------------------------------------------
+# Configure VTKLibraryDependencies.cmake for both trees.
+
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  SET(VTK_LIBS
+    vtkCommon vtkCommonJava vtkCommonPython vtkCommonTCL
+    vtkFiltering vtkFilteringJava vtkFilteringPython vtkFilteringTCL
+    vtkGraphics vtkGraphicsJava vtkGraphicsPython vtkGraphicsTCL
+    vtkHybrid vtkHybridJava vtkHybridPython vtkHybridTCL
+    vtkIO vtkIOJava vtkIOPython vtkIOTCL
+    vtkImaging vtkImagingJava vtkImagingPython vtkImagingTCL
+    vtkParallel vtkParallelJava vtkParallelPython vtkParallelTCL
+    vtkPatented vtkPatentedJava vtkPatentedPython vtkPatentedTCL
+    vtkRendering vtkRenderingJava vtkRenderingPython vtkRenderingTCL
+    vtkRenderingPythonTkWidgets
+    vtkexpat vtkfreetype vtkftgl vtkjpeg vtkpng vtktiff vtkzlib
+    )
+
+  # Write an input file that will be configured.
+  STRING(ASCII 35 VTK_STRING_POUND)
+  STRING(ASCII 64 VTK_STRING_AT)
+  WRITE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake.in
+             "${VTK_STRING_POUND} VTK Library Dependencies (for external projects)")
+  FOREACH(lib ${VTK_LIBS})
+    WRITE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake.in
+     "SET(${lib}_LIB_DEPENDS \"${VTK_STRING_AT}${lib}_LIB_DEPENDS${VTK_STRING_AT}\")"
+      APPEND
+    )
+  ENDFOREACH(lib)
+
+  # Configure the file during the final pass so that the latest settings
+  # for the *_LIB_DEPENDS cache entries will be available.
+  CONFIGURE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake.in
+                 ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake @ONLY)
+ELSE(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  CONFIGURE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake14.in
+                 ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake @ONLY)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)

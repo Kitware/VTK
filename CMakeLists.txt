@@ -556,8 +556,7 @@ INCLUDE (${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
 
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
-INSTALL_FILES(/lib/vtk .cmake UseVTK)
-INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
+INSTALL_FILES(/lib/vtk .cmake UseVTK VTKBuildSettings VTKLibraryDepends)
 
 # Hack for cmake 1.4 module.  It needs the file here.
 INSTALL_FILES(/include/vtk .cmake UseVTK)
