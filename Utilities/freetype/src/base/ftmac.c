@@ -65,12 +65,15 @@
 #include "truetype/ttobjs.h"
 #include "type1/t1objs.h"
 
+#if TARGET_API_MAC_CARBON
+#include <Carbon/Carbon.h>
+#else
 #include <Resources.h>
 #include <Fonts.h>
 #include <Errors.h>
 #include <Files.h>
 #include <TextUtils.h>
-
+#endif
 
 #include FT_MAC_H
 

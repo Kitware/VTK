@@ -8,3 +8,11 @@ Modifications
 -------------
 freetype\builds\win32\freetype\config\ftoption.h: 
   new file used to support DLL build for Windows
+
+src\base\ftmac.c:
+  added: 
+#if TARGET_API_MAC_CARBON
+#include <Carbon/Carbon.h>
+#else
+[...]
+#endif
