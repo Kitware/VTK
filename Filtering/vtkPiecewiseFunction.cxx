@@ -16,7 +16,7 @@
 #include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.37");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.38");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -111,7 +111,7 @@ void vtkPiecewiseFunction::Initialize()
 int vtkPiecewiseFunction::GetSize()
 {
   this->Update();
-  return( this->FunctionSize );
+  return this->FunctionSize;
 }
 
 // Return the type of function stored in object:
@@ -185,16 +185,16 @@ const char *vtkPiecewiseFunction::GetType()
   switch( function_type )
     {
     case 0:
-      return( "Constant" );
+      return "Constant";
     case 1:
-      return( "NonDecreasing" );
+      return "NonDecreasing";
     case 2:
-      return( "NonIncreasing" );
+      return "NonIncreasing";
     case 3:
-      return( "Varied" );
+      return "Varied";
     }
 
-    return( "Unknown" );
+    return "Unknown";
 }
 
 
@@ -233,7 +233,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
   // Check if no points specified
   if( this->FunctionSize == 0 )
     {
-    return( 0 );
+    return 0;
     }
 
   for( i=0; i < this->FunctionSize; i++ )
@@ -266,7 +266,7 @@ double vtkPiecewiseFunction::GetFirstNonZeroValue()
       }
     }
  
-  return( x );
+  return x;
 }
 
 // Adds a point to the function. If a duplicate point is inserted
@@ -318,7 +318,7 @@ int vtkPiecewiseFunction::InsertPoint( double x, double val )
           this->Function[(i*2 + 1)] = val;
           this->Modified();
           }
-        return( i );
+        return i;
         }
 
       // Move to next point
@@ -348,7 +348,7 @@ int vtkPiecewiseFunction::InsertPoint( double x, double val )
 
     this->Modified();
 
-    return( point_index );
+    return point_index;
 }
 
 // Moves all points to the right of index down or up by one index value
@@ -463,7 +463,7 @@ void vtkPiecewiseFunction::RemoveAllPoints()
 
 // Add in end points of line and remove any points between them
 void vtkPiecewiseFunction::AddSegment( double x1, double val1, 
-  double x2, double val2 )
+                                       double x2, double val2 )
 {
   int   index1, index2;
   int   swap;
@@ -554,7 +554,7 @@ double vtkPiecewiseFunction::GetValue( double x )
   // Check if we have found the exact point
   if( x2 == x )
     {
-    return( this->Function[(i2*2 + 1)] );
+    return this->Function[(i2*2 + 1)];
     }
   else
     {
@@ -568,13 +568,13 @@ double vtkPiecewiseFunction::GetValue( double x )
 
   value = y1 + slope*(x-x1);
 
-  return( value );
+  return value;
 }
 
 // Return the smallest and largest position stored in function
 double *vtkPiecewiseFunction::GetRange()
 {
-  return( this->FunctionRange );
+  return this->FunctionRange;
 }
 
 // Returns a table of function values evaluated at regular intervals
