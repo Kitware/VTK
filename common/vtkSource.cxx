@@ -70,14 +70,14 @@ vtkSource::vtkSource()
 {
   this->NumberOfOutputs = 0;
   this->Outputs = NULL;
-  this->Updating = 0; 
+  this->Updating = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkSource::~vtkSource()
 {
   int idx;
-  
+
   for (idx = 0; idx < this->NumberOfOutputs; ++idx)
     {
     if (this->Outputs[idx])
@@ -102,8 +102,24 @@ vtkDataObject *vtkSource::GetOutput(int i)
     {
     return NULL;
     }
-  
+
   return this->Outputs[i];
+}
+
+//----------------------------------------------------------------------------
+void vtkSource::UnregisterAllOutputs(void)
+{
+  int idx;
+
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx])
+      {
+      this->Outputs[idx]->SetSource(NULL);
+      this->Outputs[idx]->UnRegister(this);
+      this->Outputs[idx] = NULL;
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

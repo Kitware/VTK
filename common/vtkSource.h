@@ -155,11 +155,17 @@ public:
 
   // Description:
   // Return an array with all the inputs of this process object.
-  // This is useful for tracing back in the pipeline to contruct
+  // This is useful for tracing back in the pipeline to construct
   // graphs etc.
   vtkDataObject **GetOutputs();
   vtkGetMacro(NumberOfOutputs,int);
-    
+
+  // Description:
+  // Release/disconnect all outputs of this source. This is intended to be
+  // called prior to Delete() if the user is concerned about outputs holding
+  // on to the filter/source.
+  void UnregisterAllOutputs(void);
+
 protected:
   vtkSource();
   ~vtkSource();
