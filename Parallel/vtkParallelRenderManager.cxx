@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.39");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.40");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1753,8 +1753,8 @@ void vtkParallelRenderManager::SatelliteStartRender()
       cam->SetViewUp(renInfoDouble.CameraViewUp);
       cam->SetClippingRange(renInfoDouble.CameraClippingRange);
       cam->SetViewAngle(renInfoDouble.CameraViewAngle);
-      cam->SetWindowCenter(renInfoDouble.WindowCenter[0],
-                           renInfoDouble.WindowCenter[1]);
+      //cam->SetWindowCenter(renInfoDouble.WindowCenter[0],
+      //                     renInfoDouble.WindowCenter[1]);
       if (renInfoDouble.ParallelScale != 0.0)
         {
         cam->ParallelProjectionOn();
