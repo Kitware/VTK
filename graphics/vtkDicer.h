@@ -57,8 +57,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // data, or the output field data.
 
 // .SECTION Caveats
-// The number of pieces generated may be less that the specified number
-// of pieces. 
+// The number of pieces generated may not equal the specified number
+// of pieces. Use the method GetNumberOfActualPieces() after filter
+// execution to get the actual number of pieces generated.
 
 // .SECTION See Also
 // vtkOBBDicer vtkConnectedDicer vtkSpatialDicer
@@ -83,11 +84,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the flag which controls whether to generate scalar data
-  // or field data. If this flag is off, scalar data is generated.
-  // Otherwise, field data is generated. Note that both cell and point
-  // data is generated - the data are integer numbers indicating which 
-  // piece a particular cell and point belongs to.
+  // Set/Get the flag which controls whether to generate point scalar
+  // data or point field data. If this flag is off, scalar data is
+  // generated.  Otherwise, field data is generated. Note that the
+  // generated the data are integer numbers indicating which piece a
+  // particular point belongs to.
   vtkSetMacro(FieldData,int);
   vtkGetMacro(FieldData,int);
   vtkBooleanMacro(FieldData,int);
@@ -118,19 +119,20 @@ public:
   vtkGetMacro(NumberOfPointsPerPiece,int);
 
   // Description:
-  // Set/Get the number of pieces the object is to be separated into. 
-  // (This ivar has effect only when the DiceMode is set to 
+  // Set/Get the number of pieces the object is to be separated into.
+  // (This ivar has effect only when the DiceMode is set to
   // SetDiceModeToSpecifiedNumber()). Note that the ivar
   // NumberOfPieces is a target - depending on the particulars of the
-  // data, fewer pieces than the target value may be created.
+  // data, more or less number of pieces than the target value may be
+  // created.
   vtkSetClampMacro(NumberOfPieces,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfPieces,int);
 
   // Description:
   // Control piece size based on a memory limit.  (This ivar has
   // effect only when the DiceMode is set to
-  // SetDiceModeToMemoryLimit()). The memory limit should be set
-  // in kilobytes.
+  // SetDiceModeToMemoryLimit()). The memory limit should be set in
+  // kilobytes.
   vtkSetClampMacro(MemoryLimit,unsigned long,100,VTK_LARGE_INTEGER);
   vtkGetMacro(MemoryLimit,unsigned long);
 
