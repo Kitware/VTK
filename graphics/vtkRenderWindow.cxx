@@ -64,7 +64,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->StereoType = VTK_STEREO_RED_BLUE;
   this->StereoStatus = 0;
   this->Interactor = NULL;
-  this->WindowName = strdup( "Visualization Toolkit" );
+  this->WindowName = new char[strlen("Visualization Toolkit")+1];
+    strcpy( this->WindowName, "Visualization Toolkit" );
   this->AAFrames = 0;
   this->FDFrames = 0;
   this->SubFrames = 0;
