@@ -245,7 +245,7 @@ public:
   // Description:
   // Control the visibility of the actual texture mapped reformatted plane.
   // in some cases you may only want the plane outline for example.
-  virtual void SetTextureVisibility(int);
+  vtkSetMacro(TextureVisibility,int);
   vtkGetMacro(TextureVisibility,int);
   vtkBooleanMacro(TextureVisibility,int);
   
