@@ -313,7 +313,7 @@ void vtkInteractorStyleUnicam::Choose( int X, int Y )
     {
     int tmp = xa;
     xa = ya;
-    ya = xa;
+    ya = tmp;
     }
      
   float len = sqrt(sdelt[0] * sdelt[0] + sdelt[1] * sdelt[1]);
