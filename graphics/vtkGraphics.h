@@ -266,7 +266,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectorDot.h"
 #include "vtkVectorNorm.h"
 #include "vtkVectorText.h"
-#include "vtkVectorTopology.h"
 #include "vtkViewRays.h"
 #include "vtkVolume.h"
 #include "vtkVolume16Reader.h"
