@@ -335,11 +335,10 @@ void Get##name (type data[count]) \
 //
 #define vtkDebugMacro(x) \
 { if (Debug) { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n "; \
+      vtkmsg << "Debug: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
       MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONINFORMATION | MB_OK); \
-      delete vtkmsgbuff;}}
+      vtkmsg.rdbuf()->freeze(0);}}
 
 //
 // This macro is used to print out warning messages.
@@ -347,11 +346,10 @@ void Get##name (type data[count]) \
 //
 #define vtkWarningMacro(x) \
       { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "Warning: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n "; \
+      vtkmsg << "Warning: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
-      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONWARNING | MB_OK); \
-      delete vtkmsgbuff;}
+      MessageBox(NULL,vtkmsgbuff,"Warning",MB_ICONWARNING | MB_OK); \
+      vtkmsg.rdbuf()->freeze(0);}
 
 //
 // This macro is used to print out errors
@@ -359,11 +357,10 @@ void Get##name (type data[count]) \
 //
 #define vtkErrorMacro(x) \
       { char *vtkmsgbuff; ostrstream vtkmsg; \
-      vtkmsg << "ERROR: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n "; \
+      vtkmsg << "ERROR: In " __FILE__ << ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkmsgbuff[vtkmsg.pcount()] = '\0'; \
-      MessageBox(NULL,vtkmsgbuff,"Debug Info",MB_ICONERROR | MB_OK); \
-      delete vtkmsgbuff; vtkObject::BreakOnError();}
+      MessageBox(NULL,vtkmsgbuff,"Error",MB_ICONERROR | MB_OK); \
+      vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}
 
 #else
 //
