@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkSource.h"
+#include "vtkDataObject.h"
 
 #ifndef NULL
 #define NULL 0
@@ -154,5 +155,17 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-
-
+void vtkSource::UnRegister(vtkObject *o)
+{
+  // detect the circular loop source <-> data
+  // If we have two references and one of them is my data
+  // and I am not being unregistered by my data, break the loop.
+  if (this->ReferenceCount == 2 && this->Output != NULL &&
+      this->Output->GetSource() == this && o != this->Output &&
+      this->Output->GetReferenceCount() == 1)
+    {
+    this->Output->SetSource(NULL);
+    }
+  
+  this->vtkObject::UnRegister(o);
+}

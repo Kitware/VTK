@@ -99,6 +99,15 @@ public:
   virtual int GetDataReleased();
   virtual void SetDataReleased(int flag);
 
+  // Description:
+  // Handle the source/data loop.
+  void UnRegister(vtkObject *o);
+  
+  // Description:
+  // Get the output as a DataObject, useful highlevel get output method.
+  vtkDataObject *GetOutputAsDataObject() {return this->Output;};
+  
+  
 protected:
   virtual void Execute();
   vtkTimeStamp ExecuteTime;

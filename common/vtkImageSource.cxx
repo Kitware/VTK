@@ -296,7 +296,8 @@ void vtkImageSource::UnRegister(vtkObject *o)
   // If we have two references and one of them is my cache
   // and I am not being unregistered by my cache, break the loop.
   if (this->ReferenceCount == 2 && this->Output != NULL &&
-      this->Output->GetSource() == this && o != this->Output)
+      this->Output->GetSource() == this && o != this->Output &&
+      this->Output->GetReferenceCount() == 1)
     {
     this->Output->SetSource(NULL);
     }
