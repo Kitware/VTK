@@ -178,10 +178,4 @@ inline int vtkStructuredPoints::ComputeCellId(int ijk[3])
   return vtkStructuredData::ComputeCellId(this->Dimensions,ijk);
 }
 
-
-
-
-
-#include "vtkStructuredPointsToImage.h"
-
 #endif

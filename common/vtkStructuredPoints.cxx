@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkPixel.h"
 #include "vtkVoxel.h"
+#include "vtkStructuredPointsToImage.h"
 
 vtkStructuredPoints::vtkStructuredPoints()
 {

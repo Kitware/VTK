@@ -97,8 +97,6 @@ protected:
 
 
 
-#include "vtkImageRegion.h"
-#include "vtkImageToStructuredPoints.h"
 
 #endif
 

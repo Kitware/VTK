@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageCachedSource.h"
 #include "vtkImageSimpleCache.h"
+#include <stdio.h>
 
 //----------------------------------------------------------------------------
 vtkImageCachedSource::vtkImageCachedSource()
@@ -117,6 +118,7 @@ void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
   int axis = this->Axes[dim - 1];
   
   // Terminate recursion?
+  printf("Cached Source UpdatePointData(%d,region)\n",dim);
   if (dim == this->Dimensionality)
     {
     this->UpdatePointData(region);
@@ -124,6 +126,8 @@ void vtkImageCachedSource::UpdatePointData(int dim, vtkImageRegion *region)
     }
   
   region->GetAxisExtent(axis, min, max);
+  printf("region: axis: %d min: %d max: %d\n",
+    axis,min,max);
   
   for (coordinate = min; coordinate <= max; ++coordinate)
     {

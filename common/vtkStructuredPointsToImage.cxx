@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkStructuredPointsToImage.h"
 #include "vtkColorScalars.h"
+#include "vtkImageRegion.h"
 
 //----------------------------------------------------------------------------
 vtkStructuredPointsToImage::vtkStructuredPointsToImage()
