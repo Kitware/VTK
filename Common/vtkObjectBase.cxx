@@ -64,6 +64,20 @@ vtkObjectBase::~vtkObjectBase()
     }
 }
 
+int vtkObjectBase::IsTypeOf(const char *name) 
+{
+  if ( !strcmp("vtkObjectBase",name) )
+    {
+    return 1;
+    }
+  return 0;
+}
+
+int vtkObjectBase::IsA(const char *type)
+{
+  return this->vtkObjectBase::IsTypeOf(type);
+}
+
 // Delete a vtk object. This method should always be used to delete an object 
 // when the new operator was used to create it. Using the C++ delete method
 // will not work with reference counting.
@@ -149,5 +163,5 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.3\n";
+  os << "vtkObjectBase 1.4\n";
 }

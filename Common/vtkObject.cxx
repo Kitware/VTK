@@ -243,7 +243,7 @@ int vtkObject::IsTypeOf(const char *name)
     {
     return 1;
     }
-  return 0;
+  return vtkObject::Superclass::IsTypeOf(name);
 }
 
 int vtkObject::IsA(const char *type)
@@ -258,7 +258,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.77\n";
+  os << "vtkObject 1.78\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
