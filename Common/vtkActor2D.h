@@ -30,9 +30,10 @@
 #define __vtkActor2D_h
 
 #include "vtkProp.h"
-#include "vtkCoordinate.h"
-#include "vtkProperty2D.h"
+#include "vtkCoordinate.h" // For vtkViewportCoordinateMacro
+
 class vtkMapper2D;
+class vtkProperty2D;
 
 class VTK_COMMON_EXPORT vtkActor2D : public vtkProp
 {
@@ -69,7 +70,7 @@ public:
 
   // Description:
   // Set this vtkProp's vtkProperty2D.
-  vtkSetObjectMacro(Property, vtkProperty2D);
+  virtual void SetProperty(vtkProperty2D*);
 
   // Description:
   // Get the PositionCoordinate instance of vtkCoordinate.

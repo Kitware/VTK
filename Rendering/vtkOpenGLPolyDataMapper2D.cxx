@@ -21,6 +21,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkProperty2D.h"
 #include "vtkScalarsToColors.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
@@ -29,7 +30,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.38");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.39");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
