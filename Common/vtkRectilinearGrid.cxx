@@ -30,7 +30,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.58");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.59");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -80,6 +80,10 @@ vtkRectilinearGrid::~vtkRectilinearGrid()
 void vtkRectilinearGrid::Initialize()
 {
   vtkDataSet::Initialize();
+  // Superclass does not know about dimensions ivar.
+  this->Dimensions[0] = 0;
+  this->Dimensions[1] = 0;
+  this->Dimensions[2] = 0;
 
   if ( this->XCoordinates ) 
     {
