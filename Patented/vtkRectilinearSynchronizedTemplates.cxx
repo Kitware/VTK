@@ -51,7 +51,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.18");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.19");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -644,14 +644,16 @@ int vtkRectilinearSynchronizedTemplates::RequestUpdateExtent(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   int piece, numPieces;
-  int *wholeExt, *ext;
+  int *wholeExt;
+  int ext[6];
   vtkExtentTranslator *translator;
 
   translator = vtkExtentTranslator::SafeDownCast(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
 
-  ext = wholeExt =
+  wholeExt =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  memcpy(ext, wholeExt, 6*sizeof(int));
 
   // Get request from output
   piece =
