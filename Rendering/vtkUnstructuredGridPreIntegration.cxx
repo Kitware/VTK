@@ -32,12 +32,12 @@
 #include "vtkDoubleArray.h"
 #include "vtkUnstructuredGridPartialPreIntegration.h"
 
-#include <algorithm>
+#include <vtkstd/algorithm>
 #include <math.h>
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -154,7 +154,7 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     = (this->IntegrationTableLengthResolution-2)/this->MaxLength;
 
   // We only do computations at one length.
-  float d_length = 1/this->IntegrationTableLengthScale;
+  float d_length = (float)(1/this->IntegrationTableLengthScale);
 
   for (int component = 0; component < this->NumComponents; component++)
     {
@@ -276,10 +276,10 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
             {
             // Compute the integration table the old-fashioned slow way.
             float length = d_idx*d_length;
-            float sb =
+            float sb = (float)
               (  (sb_idx - this->IntegrationTableScalarShift[component])
                / (this->IntegrationTableScalarScale[component]) );
-            float sf =
+            float sf = (float)
               (  (sf_idx - this->IntegrationTableScalarShift[component])
                / (this->IntegrationTableScalarScale[component]) );
             tmpIntersectionLengths->SetTuple1(0, length);
@@ -352,9 +352,9 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
     double cellbounds[6];
     input->GetCellBounds(i, cellbounds);
 #define SQR(x)  ((x)*(x))
-    float diagonal_length = sqrt(  SQR(cellbounds[1]-cellbounds[0])
-                                 + SQR(cellbounds[3]-cellbounds[2])
-                                 + SQR(cellbounds[5]-cellbounds[4]) );
+    double diagonal_length = sqrt(  SQR(cellbounds[1]-cellbounds[0])
+                                  + SQR(cellbounds[3]-cellbounds[2])
+                                  + SQR(cellbounds[5]-cellbounds[4]) );
 #undef SQR
     if (diagonal_length > this->MaxLength)
       {
