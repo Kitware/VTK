@@ -170,7 +170,7 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
          !(offset < scalars->GetNumberOfComponents()) )
       {
       offset=0;
-      vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
+      //vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
       }
     }
   else if ( scalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
@@ -189,7 +189,7 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
          !(offset < scalars->GetNumberOfComponents()) )
       {
       offset=0;
-      vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
+      //vtkGenericWarningMacro(<<"Data array (used for coloring) not found");
       }
     }
   
