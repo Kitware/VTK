@@ -29,7 +29,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.19");
+vtkCxxRevisionMacro(vtkXMLReader, "1.20");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -662,8 +662,18 @@ void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
   for(i=0;i < numArrays;++i)
     {
     vtkXMLDataElement* eNested = eDSA->GetNestedElement(i);
-    names[i] = new char[ strlen(eNested->GetAttribute("Name"))+1 ];
-    strcpy(names[i], eNested->GetAttribute("Name"));
+    const char* name = eNested->GetAttribute("Name");
+    if(name)
+      {
+      names[i] = new char[strlen(name)+1];
+      strcpy(names[i], name);
+      }
+    else
+      {
+      ostrstream ostr;
+      ostr << "Array " << i << ends;
+      names[i] = ostr.str();
+      }
     }
   sel->SetArrays(names, numArrays);
   this->DestroyStringArray(numArrays, names);
