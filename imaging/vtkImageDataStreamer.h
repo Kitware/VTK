@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //BTX
 // Define a helper class to keep track of a stack of extents 
-class vtkImageDataStreamerExtentStack
+class VTK_EXPORT vtkImageDataStreamerExtentStack
 {
 public:
   vtkImageDataStreamerExtentStack()
