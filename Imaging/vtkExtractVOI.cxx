@@ -18,7 +18,7 @@
 #include "vtkExtractVOI.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.28");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.29");
 vtkStandardNewMacro(vtkExtractVOI);
 
 // Construct object to extract all of the input data.
@@ -28,6 +28,32 @@ vtkExtractVOI::vtkExtractVOI()
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
 
   this->SampleRate[0] = this->SampleRate[1] = this->SampleRate[2] = 1;
+}
+
+//----------------------------------------------------------------------------
+// Get ALL of the input.
+void vtkExtractVOI::ComputeInputUpdateExtent(int inExt[6], 
+                                             int *)
+{
+  // request all of the VOI
+  int *wholeExtent;
+  int i;
+  
+  wholeExtent = this->GetInput()->GetWholeExtent();
+  memcpy(inExt, wholeExtent, 6*sizeof(int));
+
+  // no need to go outside the VOI
+  for (i = 0; i < 3; ++i)
+    {
+    if (inExt[i*2] < this->VOI[i*2])
+      {
+      inExt[i*2] = this->VOI[i*2];
+      }
+    if (inExt[i*2+1] > this->VOI[i*2+1])
+      {
+      inExt[i*2+1] = this->VOI[i*2+1];
+      }
+    }
 }
 
 void vtkExtractVOI::ExecuteInformation()
@@ -101,7 +127,9 @@ void vtkExtractVOI::ExecuteData(vtkDataObject *outp)
   vtkImageData *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
-  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkImageData *output = this->GetOutput();
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
