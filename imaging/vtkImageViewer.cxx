@@ -40,7 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageViewer.h"
-#ifndef _WIN32
+#ifdef _WIN32
+#include "vtkImageWin32Viewer.h"
+#else
 #include "vtkImageXViewer.h"
 #endif
 
@@ -80,10 +82,11 @@ void vtkImageViewer::SetSize(int a[2])
 //----------------------------------------------------------------------------
 vtkImageViewer *vtkImageViewer::New()
 {
-#ifndef _WIN32
+#ifdef _WIN32
+  return new vtkImageWin32Viewer;
+#else
   return new vtkImageXViewer;
 #endif  
-  cerr << "vtkImageViewer: New: No viewers defined.\n";
   return NULL;
 }
 

@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Subclass must define this method.
-  virtual void Render(void) = 0;
+  virtual void Render(void) {};
   
   // Description:
   // Set/Get the input to the viewer.
@@ -147,8 +147,8 @@ public:
 
   // Description:
   // These are here for using a tk window.
-  virtual void SetDisplayId(void *) = 0;
-  virtual void SetWindowId(void *) = 0;
+  virtual void SetDisplayId(void *) {};
+  virtual void SetWindowId(void *) {};
   
   // Description:
   // Keep track of whether the rendering window has been mapped to screen.
