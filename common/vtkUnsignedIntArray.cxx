@@ -149,7 +149,7 @@ void vtkUnsignedIntArray::DeepCopy(vtkDataArray& sa)
 
 void vtkUnsignedIntArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkDataArray::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
 }

@@ -113,7 +113,7 @@ void vtkVoidArray::DeepCopy(vtkDataArray& da)
 
 void vtkVoidArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkDataArray::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
 }
