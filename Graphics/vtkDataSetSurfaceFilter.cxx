@@ -36,7 +36,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.24.2.1");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -47,6 +47,14 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
   this->QuadHashLength = 0;
   this->UseStrips = 0;
   this->NumberOfNewCells = 0;
+
+  // Quad allocation stuff.
+  this->FastGeomQuadArrayLength = 0;
+  this->NumberOfFastGeomQuadArrays = 0;
+  this->FastGeomQuadArrays = NULL;
+  this->NextArrayIndex = 0;
+  this->NextQuadIndex = 0;
+
 }
 
 //----------------------------------------------------------------------------
@@ -690,17 +698,6 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 // We might want to change the method names from QuadHash to just Hash.
 
 
-// Helper classes for hashing faces.
-class vtkFastGeomQuad 
-{
-  public:
-  vtkIdType p0;
-  vtkIdType p1;
-  vtkIdType p2;
-  vtkIdType p3;
-  vtkIdType SourceId;
-  vtkFastGeomQuad *Next;
-};
 
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
@@ -730,7 +727,9 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType outPts[4];
   vtkFastGeomQuad *q;
-  // These are for the defualt case/
+  unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
+
+  // These are for the default case/
   vtkIdList *pts;
   vtkPoints *coords;
   vtkCell *face;
@@ -777,8 +776,8 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
       }
     progressCount++;
   
-    // Direct acces to cells.
-    cellType = input->GetCellType(cellId);
+    // Direct access to cells.
+    cellType = cellTypes[cellId];
     numCellPts = cellPointer[0];
     ids = cellPointer+1;
     // Move to the next cell.
@@ -794,7 +793,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
         outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
         newVerts->InsertCellPoint(outPtId);
         }
-//      outputCD->CopyData(cd,cellId,newCellId);
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
       }
     else if (cellType == VTK_LINE || cellType == VTK_POLY_LINE)
@@ -1075,6 +1073,10 @@ void vtkDataSetSurfaceFilter::InitializeQuadHash(vtkIdType numPoints)
     {
     this->DeleteQuadHash();
     }
+
+  // Prepare our special quad allocator (for efficiency).
+  this->InitFastGeomQuadAllocation(numPoints);
+
   this->QuadHash = new vtkFastGeomQuad*[numPoints];
   this->QuadHashLength = numPoints;
   this->PointMap = new vtkIdType[numPoints];
@@ -1089,21 +1091,13 @@ void vtkDataSetSurfaceFilter::InitializeQuadHash(vtkIdType numPoints)
 //----------------------------------------------------------------------------
 void vtkDataSetSurfaceFilter::DeleteQuadHash()
 {
-  vtkFastGeomQuad *quad, *next;
   vtkIdType i;
+
+  this->DeleteAllFastGeomQuads();
 
   for (i = 0; i < this->QuadHashLength; ++i)
     {
-    quad = this->QuadHash[i];
     this->QuadHash[i] = NULL;
-    while (quad)
-      {
-      next = quad->Next;
-      quad->Next = NULL;
-      delete quad;
-      quad = next;
-      next = NULL;
-      }
     }
 
   delete [] this->QuadHash;
@@ -1178,7 +1172,7 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
   
   //cerr << "  New\n";
   // Create a new quad and add it to the hash.
-  quad = new vtkFastGeomQuad;
+  quad = this->NewFastGeomQuad();
   quad->Next = NULL;
   quad->SourceId = sourceId;
   quad->p0 = a;
@@ -1211,6 +1205,13 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     c = b;
     b = tmp;
     }
+  // We might as well order b and c for efficient comparison.
+  if (c < b)
+    {
+    tmp = c;
+    c = b;
+    b = tmp;
+    }
 
   // Look for existing tri in the hash;
   end = this->QuadHash + a;
@@ -1222,8 +1223,7 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     // Tris have p0 == p3 
     if (quad->p0 == quad->p3)
       { 
-      // Check both orders for b and c.
-      if ((b == quad->p1 && c == quad->p2) || (b == quad->p2 && c == quad->p1))
+      if ((b == quad->p1 && c == quad->p2))
         {
         // We have a match.
         quad->SourceId = -1;
@@ -1235,7 +1235,7 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
     }
   
   // Create a new quad and add it to the hash.
-  quad = new vtkFastGeomQuad;
+  quad = this->NewFastGeomQuad();
   quad->Next = NULL;
   quad->SourceId = sourceId;
   quad->p0 = a;
@@ -1243,6 +1243,112 @@ void vtkDataSetSurfaceFilter::InsertTriInHash(vtkIdType a, vtkIdType b,
   quad->p2 = c;
   quad->p3 = a;
   *end = quad;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkDataSetSurfaceFilter::InitFastGeomQuadAllocation(int numberOfCells)
+{
+  int idx;
+
+  this->DeleteAllFastGeomQuads();
+  // Allocate 100 pointers to arrays.
+  // This should be plenty (unless we have riangle strips) ...
+  this->NumberOfFastGeomQuadArrays = 100;
+  this->FastGeomQuadArrays = new vtkFastGeomQuad*[100];
+  // Initalize all to NULL;
+  for (idx = 0; idx < 100; ++idx)
+    {
+    this->FastGeomQuadArrays[idx] = NULL;
+    }
+  // Set pointer to the begining.
+  this->NextArrayIndex = 0;
+  this->NextQuadIndex = 0;
+
+  // Lets keep the chunk size relatively small.
+  if (numberOfCells < 100)
+    {
+    this->FastGeomQuadArrayLength = 50;
+    }
+  else
+    {
+    this->FastGeomQuadArrayLength = numberOfCells / 2;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataSetSurfaceFilter::DeleteAllFastGeomQuads()
+{
+  int idx;
+
+  for (idx = 0; idx < this->NumberOfFastGeomQuadArrays; ++idx)
+    {
+    if (this->FastGeomQuadArrays[idx])
+      {
+      delete [] this->FastGeomQuadArrays[idx];
+      this->FastGeomQuadArrays[idx] = NULL;
+      }
+    }
+  if (this->FastGeomQuadArrays)
+    {
+    delete [] this->FastGeomQuadArrays;
+    this->FastGeomQuadArrays = NULL;
+    }
+  this->FastGeomQuadArrayLength = 0;
+  this->NumberOfFastGeomQuadArrays = 0;
+  this->NextArrayIndex = 0;
+  this->NextQuadIndex = 0;
+}
+
+//----------------------------------------------------------------------------
+vtkFastGeomQuad* vtkDataSetSurfaceFilter::NewFastGeomQuad()
+{
+  if (this->FastGeomQuadArrayLength == 0)
+    {
+    vtkErrorMacro("Face hash allocation has not been initialized.");
+    return NULL;
+    }
+
+  // Although this should not happen often, check first.
+  if (this->NextArrayIndex >= this->NumberOfFastGeomQuadArrays)
+    {
+    int idx, num;
+    vtkFastGeomQuad** newArrays;
+    num = this->FastGeomQuadArrayLength * 2;
+    newArrays = new vtkFastGeomQuad*[num];
+    for (idx = 0; idx < num; ++idx)
+      {
+      newArrays[idx] = NULL;
+      if (idx < this->NumberOfFastGeomQuadArrays)
+        {
+        newArrays[idx] = this->FastGeomQuadArrays[idx];
+        }
+      }
+    delete [] this->FastGeomQuadArrays;
+    this->FastGeomQuadArrays = newArrays;
+    this->FastGeomQuadArrayLength = num;
+    }
+
+  // Next: allocate a new array if necessary.
+  if (this->FastGeomQuadArrays[this->NextArrayIndex] == NULL)
+    {
+    // We are allocating a whole bunch at a time to avoid 
+    // allocation of many small pieces of memory.
+    this->FastGeomQuadArrays[this->NextArrayIndex] 
+      = new vtkFastGeomQuad[this->FastGeomQuadArrayLength];
+    }
+
+  vtkFastGeomQuad* q = (this->FastGeomQuadArrays[this->NextArrayIndex]) + this->NextQuadIndex;
+
+  // Move to the next quad.
+  ++(this->NextQuadIndex);
+  if (this->NextQuadIndex >= this->FastGeomQuadArrayLength)
+    {
+    ++(this->NextArrayIndex);
+    this->NextQuadIndex = 0;
+    }
+
+  return q;
 }
 
 //----------------------------------------------------------------------------

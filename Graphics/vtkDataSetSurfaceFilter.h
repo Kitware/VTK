@@ -30,9 +30,22 @@
 
 #include "vtkDataSetToPolyDataFilter.h"
 
-class vtkFastGeomQuad; 
+
 class vtkPointData;
 class vtkPoints;
+//BTX
+// Helper structure for hashing faces.
+struct vtkFastGeomQuadStruct
+{
+  vtkIdType p0;
+  vtkIdType p1;
+  vtkIdType p2;
+  vtkIdType p3;
+  vtkIdType SourceId;
+  struct vtkFastGeomQuadStruct *Next;
+};
+typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
+//ETX
 
 class VTK_GRAPHICS_EXPORT vtkDataSetSurfaceFilter : public vtkDataSetToPolyDataFilter
 {
@@ -89,6 +102,18 @@ protected:
   
   vtkIdType NumberOfNewCells;
   
+  // Better memory allocation for faces (hash)
+  void InitFastGeomQuadAllocation(int numberOfCells);
+  vtkFastGeomQuad* NewFastGeomQuad();
+  void DeleteAllFastGeomQuads();
+  // -----
+  int FastGeomQuadArrayLength;
+  int NumberOfFastGeomQuadArrays;
+  vtkFastGeomQuad** FastGeomQuadArrays;
+  // These indexes allow us to find the next available face.
+  int NextArrayIndex;
+  int NextQuadIndex;
+
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
   void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.
