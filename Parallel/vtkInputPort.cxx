@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.18");
+vtkCxxRevisionMacro(vtkInputPort, "1.19");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -44,7 +44,6 @@ vtkInputPort::vtkInputPort()
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   // State variables.
-  this->TransferNeeded = 0;
   this->DataTime = 0;
 
   this->DoUpdateInformation = 1;
@@ -76,7 +75,6 @@ void vtkInputPort::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Tag: " << this->Tag << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";
   os << indent << "DataTime: " << this->DataTime << endl;
-  os << indent << "TransferNeeded: " << this->TransferNeeded << endl;  
   os << indent << "DoUpdateInformation: " << this->DoUpdateInformation << endl;
 }
 
@@ -228,14 +226,6 @@ int vtkInputPort::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
-  // This should be cleared by this point.
-  // UpdateInformation and Update calls need to be made in pairs.
-  if (this->TransferNeeded)
-    {
-    vtkWarningMacro("Transfer should have been received.");
-    return 0;
-    }
-
   // Trigger Update in remotePort.
   // remotePort should have the same tag.
   this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag+1);
@@ -258,10 +248,6 @@ int vtkInputPort::RequestData(vtkInformation* vtkNotUsed(request),
   this->Controller->Send( &(this->DataTime), 1, this->RemoteProcessId,
                           vtkInputPort::NEW_DATA_TIME_TAG);
   
-  // This automatically causes to remotePort to send the data.
-  // Tell the update method to receive the data.
-  this->TransferNeeded = 1;
-  
   if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased() &&
       !this->UpdateExtentIsOutsideOfTheExtent(output) )
     { 
@@ -269,12 +255,8 @@ int vtkInputPort::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
     }
 
-  if ( ! this->TransferNeeded)
-    {
-    // If something unexpected happened, let me know.
-    vtkWarningMacro("UpdateData was called when no data was needed.");
-    return 1;
-    }
+  // we need the data so we send another request to get the data
+  this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag+3);
   
   // Well here is a bit of a hack.
   // Since the reader will overwrite whole extents, we need to save the whole
@@ -290,10 +272,8 @@ int vtkInputPort::RequestData(vtkInformation* vtkNotUsed(request),
   
   // Receive the data time
   this->Controller->Receive( &(this->DataTime), 1, this->RemoteProcessId,
-                            vtkInputPort::NEW_DATA_TIME_TAG);
+                             vtkInputPort::NEW_DATA_TIME_TAG);
      
-  this->TransferNeeded = 0;
-  
   this->LastUpdatePiece = output->GetUpdatePiece();
   this->LastUpdateNumberOfPieces = output->GetUpdateNumberOfPieces();
   this->LastUpdateGhostLevel = output->GetUpdateGhostLevel();

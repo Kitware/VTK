@@ -74,6 +74,7 @@ public:
   void TriggerUpdateInformation(int remoteProcessId);
   void TriggerUpdate(int remoteProcessId);
   void TriggerRequestDataObject(int remoteProcessId);
+  void TriggerRequestData(int remoteProcessId);
   
   // Description:
   // Trying to get pipeline parallelism working.
@@ -95,6 +96,7 @@ protected:
   ~vtkOutputPort();  
   
   int Tag;
+  unsigned long DownDataTime;
   
   virtual int FillInputPortInformation(int, vtkInformation*);
 

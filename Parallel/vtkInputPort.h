@@ -93,7 +93,6 @@ protected:
 
   unsigned long DataTime;
   unsigned long UpStreamMTime;
-  int TransferNeeded;
   int DoUpdateInformation;
 
   int LastUpdatePiece;
