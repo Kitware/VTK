@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.18");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.19");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -577,15 +577,13 @@ void vtkCarbonRenderWindow::WindowConfigure()
 }
 
 //--------------------------------------------------------------------------
-void vtkCarbonRenderWindow::SetupPixelFormat(void *hDC, void *dwFlags,
-    int debug, int bpp,
-    int zbpp)
+void vtkCarbonRenderWindow::SetupPixelFormat(void*, void*, int, int, int)
 {
   cout << "vtkCarbonRenderWindow::SetupPixelFormat - IMPLEMENT\n";
 }
 
 //--------------------------------------------------------------------------
-void vtkCarbonRenderWindow::SetupPalette(void *hDC)
+void vtkCarbonRenderWindow::SetupPalette(void*)
 {
   cout << "vtkCarbonRenderWindow::SetupPalette - IMPLEMENT\n";
 }
@@ -606,11 +604,10 @@ void vtkCarbonRenderWindow::InitializeApplication()
 
 //--------------------------------------------------------------------------
 // Initialize the window for rendering.
-void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
+void vtkCarbonRenderWindow::CreateAWindow(int, int, int, int)
 {
   GDHandle hGD = NULL;
   GLint depthSizeSupport;
-  OSStatus err = noErr;
   static int count = 1;
   short i;
   char *windowName;

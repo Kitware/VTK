@@ -132,7 +132,7 @@ public:
   // Get the window id.
   virtual WindowPtr GetWindowId();
   void  SetWindowId(void *foo) {this->SetWindowId((WindowPtr)foo);};
-  void SetNextWindowId(void *foo)
+  void SetNextWindowId(void*)
     {
        vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
