@@ -36,7 +36,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPlane.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.20");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.21");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -259,8 +259,6 @@ void vtkPlaneWidget::SetEnabled(int enabling)
 
     this->SelectRepresentation();
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
-    cout << "Plane enabled" << endl;
-    this->Print(cout);
     }
   
   else //disabling----------------------------------------------------------
