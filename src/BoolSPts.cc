@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 vlBooleanStructuredPoints::vlBooleanStructuredPoints()
 {
   this->OperationType = UNION_OPERATOR;
-  this->Operator = this->Union;
+  // this->Operator = this->Union;
 }
 
 vlBooleanStructuredPoints::~vlBooleanStructuredPoints()
@@ -100,9 +100,9 @@ void vlBooleanStructuredPoints::InitializeBoolean()
   numPts = this->GetNumberOfPoints();
 
   // If ModelBounds unset, use input, else punt
-  if ( this->ModelBounds[0] <= this->ModelBounds[1] ||
-  this->ModelBounds[2] <= this->ModelBounds[3] ||
-  this->ModelBounds[4] <= this->ModelBounds[5] )
+  if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
+  this->ModelBounds[2] >= this->ModelBounds[3] ||
+  this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     if ( this->Input.GetNumberOfItems() > 0 )
       {
@@ -178,6 +178,15 @@ void vlBooleanStructuredPoints::Execute()
 void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 {
   vlScalars *currentScalars, *inScalars;
+  float *in_bounds;
+  float *dest_bounds;
+  int i,j,k;
+  float *in_aspect;
+  float in_x,in_y,in_z;
+  int in_i,in_j,in_k;
+  int in_kval,in_jval;
+  int dest_kval,dest_jval;
+  int *in_dimensions;
 
   if ( (currentScalars = this->PointData.GetScalars()) == NULL )
     {
@@ -187,8 +196,52 @@ void vlBooleanStructuredPoints::Append(vlStructuredPoints *sp)
 
   inScalars = sp->GetPointData()->GetScalars();
 
-  // now perform operation on data
+  in_bounds = sp->GetBounds();
+  dest_bounds = this->GetModelBounds();
+  in_aspect = sp->GetAspectRatio();
+  in_dimensions = sp->GetDimensions();
 
+  // now perform operation on data
+  switch (this->OperationType)
+    {
+    case UNION_OPERATOR :
+      {
+      // for each cell
+      for (k = 0; k < this->SampleDimensions[2]; k++)
+	{
+	in_z = dest_bounds[4] + k*this->AspectRatio[2];
+	in_k = (in_z - in_bounds[4])/in_aspect[2];
+	if ((in_k >= 0)&&(in_k < in_dimensions[2]))
+	  {
+	  in_kval = in_k*in_dimensions[0]*in_dimensions[1];
+	  dest_kval = k*this->SampleDimensions[0]*this->SampleDimensions[1];
+	  for (j = 0; j < this->SampleDimensions[1]; j++)
+	    {
+	    in_y = dest_bounds[2] + j*this->AspectRatio[1];
+	    in_j = (in_y - in_bounds[2])/in_aspect[1];
+	    if ((in_j >= 0)&&(in_j < in_dimensions[1]))
+	      {
+	      in_jval = in_j*in_dimensions[0];
+	      dest_jval = j*this->SampleDimensions[0];
+	      for (i = 0; i < this->SampleDimensions[0]; i++)
+		{
+		in_x = dest_bounds[0] + i*this->AspectRatio[0];
+		in_i = (in_x - in_bounds[0])/in_aspect[0];
+		if ((in_i >= 0)&&(in_i < in_dimensions[0]))
+		  {
+		  if (inScalars->GetScalar(in_kval+in_jval+in_i))
+		    {
+		    currentScalars->SetScalar(dest_kval + dest_jval+i,1);
+		    }
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+      break;
+    }
 }
 
 void vlBooleanStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
