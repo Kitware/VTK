@@ -1,42 +1,28 @@
 # This example shows how to use the InteractorStyleImage and add your own
 # event handling.  The InteractorStyleImage is a special interactor designed
 # to be used with vtkImageActor in a rendering window context. It forces the
-# camera to stay perpendicular to the x-y plane. You may also wish to refer
-# to the MandelbrotViewer.tcl example for comparison.
+# camera to stay perpendicular to the x-y plane. 
 
 package require vtk
 package require vtkinteraction
 
 # Create the image
 #
-set RANGE            150
-set MAX_ITERATIONS_1 $RANGE
-set MAX_ITERATIONS_2 $RANGE
-set XRAD             200
-set YRAD             200
-set sample [expr 1.3 / $XRAD]
+vtkImageReader reader
+  [reader GetOutput] ReleaseDataFlagOff
+  reader SetDataByteOrderToLittleEndian
+  reader SetDataExtent 0 255 0 255 17 17
+  reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/fullHead/headsq"
+  reader SetDataMask 0x7fff
 
-# Create a Mandelbrot set of appropriate resolution
-vtkImageMandelbrotSource mandelbrot1
-  mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
-  mandelbrot1 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
-                            [expr -$YRAD] [expr $YRAD-1] 0 0
-  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
-  mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
-  mandelbrot1 SetProjectionAxes 0 1 2
-
-vtkLookupTable table1
-  table1 SetTableRange 0 $RANGE
-  table1 SetNumberOfColors $RANGE
-  table1 Build
-  table1 SetTableValue [expr $RANGE - 1]  0.0 0.0 0.0 0.0
-
-vtkImageMapToRGBA map1
-  map1 SetInput [mandelbrot1 GetOutput]
-  map1 SetLookupTable table1
+vtkImageShiftScale shiftScale
+  shiftScale SetInput [reader GetOutput]
+  shiftScale SetShift 0
+  shiftScale SetScale 0.07
+  shiftScale SetOutputScalarTypeToUnsignedChar
 
 vtkImageActor ia
-ia SetInput [map1 GetOutput]
+  ia SetInput [shiftScale GetOutput]
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1
@@ -45,11 +31,14 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-# Create an image interactor
+# Create an image interactor style and associate it with the 
+# interactive renderer. Then assign some callbacks with the
+# appropriate events. THe callbacks are implemented as Tcl procs.
 vtkInteractorStyleImage interactor
-iren SetInteractorStyle interactor
-interactor AddObserver LeftButtonPressEvent {StartZoom}
-interactor AddObserver LeftButtonReleaseEvent {EndZoom}
+  iren SetInteractorStyle interactor
+  interactor AddObserver LeftButtonPressEvent {StartZoom}
+  interactor AddObserver MouseMoveEvent {MouseMove}
+  interactor AddObserver LeftButtonReleaseEvent {EndZoom}
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor ia
@@ -68,110 +57,138 @@ renWin Render
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-# methods to support Mandelbrot viewing
-proc Reset {} {
-  global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE XRAD
+### Supporting data for callbacks
+vtkPoints pts
+  pts SetNumberOfPoints 4
+vtkCellArray lines
+  lines InsertNextCell 5
+  lines InsertCellPoint 0
+  lines InsertCellPoint 1
+  lines InsertCellPoint 2
+  lines InsertCellPoint 3
+  lines InsertCellPoint 0
+vtkPolyData pd
+  pd SetPoints pts
+  pd SetLines lines
+vtkPolyDataMapper2D bboxMapper
+  bboxMapper SetInput pd
+vtkActor2D bboxActor
+  bboxActor SetMapper bboxMapper
+  [bboxActor GetProperty] SetColor 1 0 0
+ren1 AddProp bboxActor
 
-  set MAX_ITERATIONS_2 $RANGE
-  set MAX_ITERATIONS_1 $RANGE
-
-  set sample [expr 1.3 / $XRAD]
-  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
-  mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
-
-  set sample [expr 1.3 / $XRAD]
-  mandelbrot2 SetSampleCX $sample $sample $sample $sample 
-  mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
-
-  MandelbrotUpdate
-}
-
-proc MandelbrotUpdate {} {
-  global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE
-  global manRange
-
-  mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
-  
-  set tmp [mandelbrot1 GetOriginCX]
-  set cr [lindex $tmp 0]
-  set ci [lindex $tmp 1]
-  set xr [lindex $tmp 2]
-  set xi [lindex $tmp 3]
-
-  mandelbrot1 Update
-  set tmp [[mandelbrot1 GetOutput] GetScalarRange]
-  set min [lindex $tmp 0]
-  set max [lindex $tmp 1]
-  eval table1 SetTableRange [expr $min - 1] $max
-  set MAX_ITERATIONS_1 [expr $min + $RANGE]
-
-  renWin Render
-}
+### Procedures for callbacks---------------------
+set X 0
+set Y 0
+set bboxEnabled 0
 
 proc StartZoom {} {
-  global X Y
+  global X Y bboxEnabled
 
   set xy [iren GetEventPosition]
   set X [lindex $xy 0]
   set Y [lindex $xy 1]
+
+  pts SetPoint 0 $X $Y 0
+  pts SetPoint 1 $X $Y 0
+  pts SetPoint 2 $X $Y 0
+  pts SetPoint 3 $X $Y 0
+
+  set bboxEnabled 1
+  bboxActor VisibilityOn
 }
 
-# precision good enough?
-proc EndZoom {} {
-  global X Y XRAD YRAD
-  
-  set xy [iren GetEventPosition]
-  set x [lindex $xy 0]
-  set y [lindex $xy 1]
+proc MouseMove {} {
+  global X Y bboxEnabled
 
-  # Tk origin in uppder left. Flip y axis. Put origin in middle. 
-  set y [expr $YRAD - $y]
-  set Y [expr $YRAD - $Y]
-  set x [expr $x - $XRAD]
-  set X [expr $X - $XRAD]
+  if { $bboxEnabled } {
+    set xy [iren GetEventPosition]
+    set x [lindex $xy 0]
+    set y [lindex $xy 1]
 
-  # sort
-  if {$X < $x} {
-    set tmp $X
-    set X $x
-    set x $tmp
-  }
-  if {$Y < $y} {
-    set tmp $Y
-    set Y $y
-    set y $tmp
-  }
+    pts SetPoint 1 $x $Y 0
+    pts SetPoint 2 $x $y 0
+    pts SetPoint 3 $X $y 0
 
-  # middle/radius
-  set xMid [expr 0.5 * ($x + $X)]
-  set yMid [expr 0.5 * ($y + $Y)]
-  set xDim [expr ($X - $x)]
-  set yDim [expr ($Y - $y)]
-
-  # determine scale
-  if { $xDim <= 4 && $yDim <= 4} {
-    # Box too small.  Zoom into point.
-    set scale 0.5
-  } else {
-    # relative to window dimensions
-    set xDim [expr 1.0 * $xDim / (2*$XRAD)]
-    set yDim [expr 1.0 * $yDim / (2*$YRAD)]
-    # take the largest
-    if {$xDim > $yDim} {
-      set scale $xDim
-    } else {
-      set scale $yDim
+    renWin Render
     }
-  }
-
-  mandelbrot1 Pan $xMid $yMid 0.0
-  mandelbrot1 Zoom $scale
-
-  MandelbrotUpdate
 }
 
-MandelbrotUpdate
+#Do the hard stuff: pan and dolly
+proc EndZoom {} {
+  global bboxEnabled
 
+  set p1 [pts GetPoint 0]
+  set p2 [pts GetPoint 2]
+  set x1 [lindex $p1 0]
+  set y1 [lindex $p1 1]
+  set x2 [lindex $p2 0]
+  set y2 [lindex $p2 1]
 
+  ren1 SetDisplayPoint $x1 $y1 0
+  ren1 DisplayToWorld
+  set p1 [ren1 GetWorldPoint]
+  ren1 SetDisplayPoint $x2 $y2 0
+  ren1 DisplayToWorld
+  set p2 [ren1 GetWorldPoint]
 
+  set p1X [lindex $p1 0]
+  set p1Y [lindex $p1 1]
+  set p1Z [lindex $p1 2]
+
+  set p2X [lindex $p2 0]
+  set p2Y [lindex $p2 1]
+  set p2Z [lindex $p2 2]
+
+  set camera [ren1 GetActiveCamera]
+  set focalPt [$camera GetFocalPoint]
+  set focalX [lindex $focalPt 0]
+  set focalY [lindex $focalPt 1]
+  set focalZ [lindex $focalPt 2]
+  set position [$camera GetPosition]
+  set positionX [lindex $position 0]
+  set positionY [lindex $position 1]
+  set positionZ [lindex $position 2]
+  
+  set deltaX [expr $focalX - ($p1X + $p2X)/2.0]
+  set deltaY [expr $focalY - ($p1Y + $p2Y)/2.0]
+
+  #Set camera focal point to the center of the box
+  $camera SetFocalPoint [expr ($p1X + $p2X)/2.0] \
+          [expr ($p1Y + $p2Y)/2.0] $focalZ
+  $camera SetPosition [expr $positionX - $deltaX] \
+          [expr $positionY - $deltaY] $positionZ
+
+  #Now dolly the camera to fill the box
+  #This is a half-assed hack for demonstration purposes
+  if { $p1X > $p2X } {
+      set deltaX [expr $p1X - $p2X]
+  } else {
+      set deltaX [expr $p2X - $p1X]
+  }
+  if { $p1Y > $p2Y } {
+      set deltaY [expr $p1Y - $p2Y]
+  } else {
+      set deltaY [expr $p2Y - $p1Y]
+  }
+
+  set winSize [renWin GetSize]
+  set winX [lindex $winSize 0]
+  set winY [lindex $winSize 1]
+
+  set sx [expr $deltaX / $winX]
+  set sy [expr $deltaY / $winY]
+
+  if { $sx > $sy } {
+      set dolly [expr 1.0 + 1.0/(2.0*$sx)]
+  } else {
+      set dolly [expr 1.0 + 1.0/(2.0*$sy)]
+  }
+  $camera Dolly $dolly
+  ren1 ResetCameraClippingRange
+
+  set bboxEnabled 0
+  bboxActor VisibilityOff
+  renWin Render
+}
 
