@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.39");
+vtkCxxRevisionMacro(vtkImageReslice, "1.40");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -771,11 +771,6 @@ inline int vtkResliceRound(double x)
   return vtkResliceFloor(x + 0.5);
 }
 
-inline int vtkResliceRound(float x)
-{
-  return vtkResliceRound((double)x);
-}
-
 // convert a float into an integer plus a fraction  
 inline int vtkResliceFloor(double x, double &f)
 {
@@ -792,11 +787,6 @@ template<class T>
 inline void vtkResliceRound(double val, T& rnd)
 {
   rnd = vtkResliceRound(val);
-}
-
-inline void vtkResliceRound(float val, float& rnd)
-{
-  rnd = val;
 }
 
 //----------------------------------------------------------------------------
