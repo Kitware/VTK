@@ -192,6 +192,7 @@ protected:
   float Height;
   int   MaximumNumberOfColors;
   int   NumberOfLabels;
+  int   NumberOfLabelsBuilt;
   int   Orientation;
   char  *Title;
 

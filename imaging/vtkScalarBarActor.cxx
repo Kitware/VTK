@@ -53,6 +53,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->Height = 0.8;
   this->MaximumNumberOfColors = 64;
   this->NumberOfLabels = 5;
+  this->NumberOfLabelsBuilt = 0;
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = NULL;
 
@@ -91,7 +92,7 @@ vtkScalarBarActor::~vtkScalarBarActor()
 
   if (this->TextMappers != NULL )
     {
-    for (int i=0; i < this->NumberOfLabels; i++)
+    for (int i=0; i < this->NumberOfLabelsBuilt; i++)
       {
       this->TextMappers[i]->Delete();
       this->TextActors[i]->Delete();
@@ -132,7 +133,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
     //
     if (this->TextMappers != NULL )
       {
-      for (i=0; i < this->NumberOfLabels; i++)
+      for (i=0; i < this->NumberOfLabelsBuilt; i++)
 	{
 	this->TextMappers[i]->Delete();
 	this->TextActors[i]->Delete();
@@ -243,7 +244,7 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
 
     this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
     this->TextActors = new vtkActor2D * [this->NumberOfLabels];
-    char string[50];
+    char string[512];
     float val;
     for (i=0; i < this->NumberOfLabels; i++)
       {
@@ -260,6 +261,8 @@ void vtkScalarBarActor::Render(vtkViewport *viewport)
       this->TextActors[i]->SetMapper(this->TextMappers[i]);
       this->TextActors[i]->SetProperty(this->GetProperty());
       }
+
+    this->NumberOfLabelsBuilt = this->NumberOfLabels;
 
     // Now position everything properly
     //
@@ -325,6 +328,7 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Number Of Colors: " 
      << this->MaximumNumberOfColors << "\n";
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
+  os << indent << "Number Of Labels Built: " << this->NumberOfLabelsBuilt << "\n";
 
   os << indent << "Orientation: ";
   if ( this->Orientation == VTK_ORIENT_HORIZONTAL )
