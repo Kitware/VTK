@@ -79,10 +79,10 @@ ren1 SetBackground 0 0 0
 
 ren1 AddVolume volume
 renWin SetSize 200 200
-renWin SetDesiredUpdateRate 1
 renWin Render
 
 iren SetUserMethod {wm deiconify .vtkInteract}
+iren SetDesiredUpdateRate 1
 iren Initialize
 
 wm withdraw .
