@@ -96,8 +96,6 @@ class wxVTKRenderWindowInteractor(baseClass):
     def __init__(self, parent, ID, *args, **kw):
 
         # private attributes
-        self.__OldFocus = None
-
         self.__RenderWhenDisabled = 0
 
         # First do special handling of some keywords:
@@ -197,9 +195,6 @@ class wxVTKRenderWindowInteractor(baseClass):
         
         EVT_SIZE(self, self.OnSize)
         
-        EVT_SET_FOCUS(self, self.OnSetFocus)
-        EVT_KILL_FOCUS(self, self.OnKillFocus)
-
     def __getattr__(self, attr):        
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor"""
@@ -242,9 +237,6 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.MouseMoveEvent()
 
     def OnEnter(self,event):
-        if self.__OldFocus == None:
-            self.__OldFocus = wxWindow_FindFocus()
-            self.SetFocus()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
 					    event.ShiftDown(), 
@@ -252,9 +244,6 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.EnterEvent()
         
     def OnLeave(self,event):
-        if self.__OldFocus:
-            self.__OldFocus.SetFocus()
-            self.__OldFocus = None
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
 					    event.ShiftDown(), 
@@ -321,12 +310,6 @@ class wxVTKRenderWindowInteractor(baseClass):
                                             ctrl, shift, key, 0,
                                             keysym)
         self._Iren.KeyReleaseEvent()
-
-    def OnSetFocus(self,event):
-        pass
-
-    def OnKillFocus(self,event):
-        pass
 
     def GetRenderWindow(self):
         return self._RenderWindow
