@@ -130,9 +130,6 @@ public:
   // Description:
   // Set the current text message associated with the progress state.
   // This may be used by a calling process/GUI.
-  // Caution: The memory/text in the provided char * is not copied, so
-  // users should not pass temporarily allocated strings which have a lifetime
-  // less than that of the function accessing the text.
   vtkSetStringMacro(ProgressText);
   vtkGetStringMacro(ProgressText);
 
