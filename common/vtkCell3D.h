@@ -91,7 +91,7 @@ public:
                     vtkPointLocator *locator, vtkCellArray *connectivity,
                     vtkPointData *inPd, vtkPointData *outPd,
                     vtkCellData *inCd, int cellId, vtkCellData *outCd, 
-                    int insideOut) {/*to be implemented shortly*/}
+                    int insideOut);
 
   // Description:
   // The topological dimension of the cell. (Satisfies vtkCell API.)
