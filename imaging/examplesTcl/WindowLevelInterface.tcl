@@ -11,16 +11,19 @@ proc InitializeWindowLevelInterface {} {
    set sliceNumber [viewer GetZSlice]
 
    frame .slice
-   button .slice.up -text "Slice Up" -command SliceUp
-   button .slice.down -text "Slice Down" -command SliceDown
+   label .slice.label -text "Slice"
+   scale .slice.scale -from 1 -to 128 -orient horizontal \
+     -command SetSlice -variable sliceNumber
+#   button .slice.up -text "Up" -command SliceUp
+#   button .slice.down -text "Down" -command SliceDown
    
    frame .wl
    frame .wl.f1
-   label .wl.f1.windowLabel -text Window
+   label .wl.f1.windowLabel -text "Window"
    scale .wl.f1.window -from 1 -to [expr $w * 2]  -orient horizontal \
      -command SetWindow -variable window
    frame .wl.f2
-   label .wl.f2.levelLabel -text Level
+   label .wl.f2.levelLabel -text "Level"
    scale .wl.f2.level -from [expr $l - $w] -to [expr $l + $w] \
      -orient horizontal -command SetLevel
    checkbutton .wl.video -text "Inverse Video" -command SetInverseVideo
@@ -28,27 +31,21 @@ proc InitializeWindowLevelInterface {} {
    .wl.f1.window set $w
    .wl.f2.level set $l
    
-   pack .slice .wl -side left
-   pack .slice.up .slice.down -side top
+   frame .ex
+   button .ex.exit -text "Exit" -command "exit"
+
+   pack .slice .wl .ex -side top
+   pack .slice.label .slice.scale -side left
    pack .wl.f1 .wl.f2 .wl.video -side top
    pack .wl.f1.windowLabel .wl.f1.window -side left
    pack .wl.f2.levelLabel .wl.f2.level -side left
+   pack .ex.exit -side left
 }
    
-   
-proc SliceUp {} {
+proc SetSlice { slice } {
    global sliceNumber viewer
-   set sliceNumber [expr $sliceNumber + 1]
-   viewer SetZSlice $sliceNumber
-   puts $sliceNumber
-   viewer Render
-}
 
-proc SliceDown {} {
-   global sliceNumber viewer
-   set sliceNumber [expr $sliceNumber - 1]
-   viewer SetZSlice $sliceNumber
-   puts $sliceNumber
+   viewer SetZSlice $slice
    viewer Render
 }
 
