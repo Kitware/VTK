@@ -15,6 +15,7 @@ vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
 vtkFieldDataToAttributeDataFilter
+vtkGraphLayoutFilter
 vtkImageInPlaceFilter
 vtkImageMultipleInputFilter
 vtkImageSource 
