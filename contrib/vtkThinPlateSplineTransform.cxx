@@ -168,6 +168,10 @@ vtkThinPlateSplineTransform::~vtkThinPlateSplineTransform()
     {
     this->TargetLandmarks->Delete();
     }
+  if (this->ApproximateInverse)
+    {
+    this->ApproximateInverse->Delete();
+    }
   if (this->MatrixW)
     {
     DeleteMatrix(this->MatrixW,this->NumberOfPoints+3+1,3);
