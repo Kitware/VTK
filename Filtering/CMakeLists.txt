@@ -190,6 +190,7 @@ vtkVertex.cxx
 vtkVoxel.cxx
 vtkWedge.cxx
 vtkViewport.cxx
+vtkGenericInterpolatedVelocityField.cxx
 )
 
 SET_SOURCE_FILES_PROPERTIES(
