@@ -53,12 +53,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"
+#ifdef VTK_DEBUG_LEAKS
+#include "vtkDebugLeaks.h"
+#endif
 
 class VTK_EXPORT vtkObjectFactoryCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkObjectFactoryCollection,vtkCollection);
-  static vtkObjectFactoryCollection *New() {return new vtkObjectFactoryCollection;};
+  static vtkObjectFactoryCollection *New() 
+    {
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::ConstructClass("vtkObjectFactoryCollection");
+#endif    
+return new vtkObjectFactoryCollection;};
 
   // Description:
   // Add an ObjectFactory from the list.
