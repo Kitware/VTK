@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.7");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.8");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -599,6 +599,13 @@ int vtkDemandDrivenPipeline::InputTypeIsValid(int port, int index)
   vtkInformation* info = this->Algorithm->GetInputPortInformation(port);
   vtkDataObject* input = this->GetInputData(port, index);
 
+  // Special case for compatibility layer to support NULL inputs.
+  if(this->Algorithm->IsA("vtkProcessObject") &&
+     input->IsA("vtkProcessObjectDummyData"))
+    {
+    return 1;
+    }
+
   // Enforce required type, if any.
   if(const char* dt = info->Get(vtkInformation::INPUT_REQUIRED_DATA_TYPE()))
     {
@@ -670,12 +677,19 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid(int port, int index)
     {
     return 1;
     }
+  vtkDataObject* input = this->GetInputData(port, index);
+
+  // Special case for compatibility layer to support NULL inputs.
+  if(this->Algorithm->IsA("vtkProcessObject") &&
+     input->IsA("vtkProcessObjectDummyData"))
+    {
+    return 1;
+    }
 
   // Check availability of each required field.
   int result = 1;
   for(int i=0; i < fields->GetNumberOfInformationObjects(); ++i)
     {
-    vtkDataObject* input = this->GetInputData(port, index);
     vtkInformation* field = fields->GetInformationObject(i);
 
     // Decide which kinds of fields to check.
