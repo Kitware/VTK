@@ -36,7 +36,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.107");
+vtkCxxRevisionMacro(vtkDataWriter, "1.108");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -744,6 +744,8 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
       }
 
     *fp << "\n";
+    delete[] scalarsName;
+
     }
 
   //if lookup table, write it out
