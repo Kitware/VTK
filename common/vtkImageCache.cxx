@@ -103,6 +103,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
     this->NumberOfScalarComponents << endl;
   os << indent << "Source: (" << this->Source << ").\n";
   os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
+  os << indent << "Data Released: " << this->DataReleased << "\n";
   os << indent << "ScalarType: "<<vtkImageScalarTypeNameMacro(this->ScalarType)
      << "\n";
   os << indent << "ImageToStructuredPoints: (" 

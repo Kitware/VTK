@@ -377,7 +377,7 @@ void vtkScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   float *range;
 
-  vtkReferenceCount::PrintSelf(os,indent);
+  this->vtkAttributeData::PrintSelf(os,indent);
 
   os << indent << "Number Of Scalars: " << this->GetNumberOfScalars() << "\n";
   range = this->GetRange();

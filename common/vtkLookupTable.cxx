@@ -274,7 +274,7 @@ void vtkLookupTable::GetTableValue (int indx, float rgba[4])
 
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
   os << indent << "Hue Range: (" << this->HueRange[0] << ", "
@@ -287,4 +287,6 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << this->TableRange[1] << ")\n";
   os << indent << "Value Range: (" << this->ValueRange[0] << ", "
      << this->ValueRange[1] << ")\n";
+  os << indent << "Alpha Range: (" << this->AlphaRange[0] << ", "
+     << this->AlphaRange[1] << ")\n";
 }

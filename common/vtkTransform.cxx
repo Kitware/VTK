@@ -745,6 +745,10 @@ void vtkTransform::PrintSelf (ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os, indent);
 
+  os << indent << "Point: " << "( " << 
+     this->Point[0] << ", " << this->Point[1] << ", " <<
+     this->Point[2] << ", " << this->Point[3] << "\n";
+
   os << indent << "Current Transformation:" << "\n";
 
   (**this->Stack).PrintSelf (os, indent.GetNextIndent());

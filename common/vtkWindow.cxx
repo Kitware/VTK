@@ -138,7 +138,8 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Position: (" << temp[0] << ", " << temp[1] << ")\n";
   temp = this->GetSize();
   os << indent << "Size: (" << temp[0] << ", " << temp[1] << ")\n";
-
+  os << indent << "Mapped: " << this->Mapped << "\n";
+  os << indent << "Double Buffered: " << this->DoubleBuffer << "\n";
 
 }
 

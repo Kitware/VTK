@@ -648,7 +648,8 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
 // Print method for the multithreader
 void vtkMultiThreader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  
+  this->vtkObject::PrintSelf(os,indent); 
+
   os << indent << "Thread Count: " << this->NumberOfThreads << "\n";
   os << indent << "Global Maximum Number Of Threads: " << 
     vtkMultiThreaderGlobalMaximumNumberOfThreads << endl;

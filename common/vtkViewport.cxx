@@ -326,6 +326,16 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     << this->Viewport[1] << ", " << this->Viewport[2] << ", " 
       << this->Viewport[3] << ")\n";
 
+  os << indent << "Displaypoint: (" << this->DisplayPoint[0] << ", " 
+    << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
+
+  os << indent << "Viewpoint: (" << this->ViewPoint[0] << ", " 
+    << this->ViewPoint[1] << ", " << this->ViewPoint[2] << ")\n";
+
+  os << indent << "Worldpoint: (" << this->WorldPoint[0] << ", " 
+    << this->WorldPoint[1] << ", " << this->WorldPoint[2] << ", " 
+      << this->WorldPoint[3] << ")\n";
+
   if ( this->StartRenderMethod )
     {
     os << indent << "Start Render method defined.\n";
