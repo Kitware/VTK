@@ -1,8 +1,10 @@
 SOURCE_FILES ( Parallel_SRCS
 vtkBranchExtentTranslator.cxx
+vtkCollectPolyData.cxx
 vtkCommunicator.cxx
 vtkCompositeManager.cxx
 vtkCompositer.cxx
+vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
