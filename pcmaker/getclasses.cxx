@@ -1165,8 +1165,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"    %s\\lib\\bfcs40.lib+ \\\n",vals->m_WhereCompiler);
     fprintf(fp,"    %s\\lib\\import32.lib+ \\\n",vals->m_WhereCompiler);
      fprintf(fp,"   %s\\lib\\cw32.lib+ \\\n",vals->m_WhereCompiler);
-    fprintf(fp,"    %s\\lib\\cw32mt.lib+ \\\n",vals->m_WhereCompiler);
-    fprintf(fp,"    %s\\lib\\gl\\glaux.lib \\\n",vals->m_WhereCompiler);
+    fprintf(fp,"    %s\\lib\\cw32mt.lib \\\n",vals->m_WhereCompiler);
  fprintf(fp,"\n");
   fprintf(fp,"vtkdll.dll : \"obj\" $(DEF_FILE) $(DEPLINK32_OBJS)\n");
   fprintf(fp,"    $(LINK32) @&&|\n");
@@ -1572,8 +1571,8 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"| CPP_PROJ.CFG \n\n"); 
   fprintf(fp,"LINK32=tlink32.exe\n\n");
 
-  fprintf(fp,"LINK32_FLAGS=-L%s\\lib;..\\vtkdll\\obj\\vtkdll.lib;%s\\pcmaker\\tk42.lib;%s\\pcmaker\\tcl76.lib \\\n",
-  vals->m_WhereCompiler,vals->m_WhereCompiler,vals->m_WhereCompiler);
+  fprintf(fp,"LINK32_FLAGS=-L%s\\lib;..\\vtkdll\\vtkdll.lib;%s\\pcmaker\\tk42.lib;%s\\pcmaker\\tcl76.lib \\\n",
+  vals->m_WhereCompiler,vals->m_WhereVTK,vals->m_WhereVTK);
   if (debugFlag)
     {
     fprintf(fp,"  -v \\\n");
@@ -1627,7 +1626,10 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,", \\\n $<,$*,  \\\n");   // this is the target and map file name
     fprintf(fp,"    %s\\lib\\cw32.lib \\\n",vals->m_WhereCompiler);
     fprintf(fp,"    %s\\lib\\import32.lib \\\n",vals->m_WhereCompiler);
-  fprintf(fp," \n");
+    fprintf(fp,"    %s\\vtkdll\\vtkdll.lib \\\n",vals->m_WhereBuild);
+    fprintf(fp,"    %s\\pcmaker\\tk42.lib \\\n",vals->m_WhereVTK);
+    fprintf(fp,"    %s\\pcmaker\\tcl76.lib \\\n",vals->m_WhereVTK);
+	fprintf(fp," \n");
   fprintf(fp,"vtktcl.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS) obj\n");
   fprintf(fp,"    $(LINK32) @&&|\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
