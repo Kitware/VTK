@@ -43,7 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 // Description:
-// Construct with user-specified implicit function.
+// Construct with user-specified implicit function; initial value of 0.0; and
+// generating cut scalars turned off.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 {
   for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
@@ -52,6 +53,8 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->Range[1] = 1.0;
 
   this->CutFunction = cf;
+
+  this->GenerateCutScalars = 0;
 
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
@@ -85,10 +88,14 @@ void vtkCutter::Execute()
   vtkCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkFloatPoints *newPoints;
-  float value, *x, s;
+  vtkFloatScalars *cutScalars;
+  float value, s;
   vtkPolyData *output = this->GetOutput();
-  int estimatedSize, numCells=this->Input->GetNumberOfCells();
-  vtkPointData *inPd, *outPd;
+  vtkDataSet *input=this->GetInput();
+  int estimatedSize, numCells=input->GetNumberOfCells();
+  int numPts=input->GetNumberOfPoints();
+  vtkPointData *inPD, *outPD;
+  vtkIdList *cellIds;
   
   vtkDebugMacro(<< "Executing cutter");
   cellScalars.ReferenceCountingOff();
@@ -99,6 +106,12 @@ void vtkCutter::Execute()
   if ( !this->CutFunction )
     {
     vtkErrorMacro(<<"No cut function specified");
+    return;
+    }
+
+  if ( numPts < 1 )
+    {
+    vtkErrorMacro(<<"No data to cut");
     return;
     }
 //
@@ -112,28 +125,48 @@ void vtkCutter::Execute()
   newVerts = new vtkCellArray(estimatedSize,estimatedSize/2);
   newLines = new vtkCellArray(estimatedSize,estimatedSize/2);
   newPolys = new vtkCellArray(estimatedSize,estimatedSize/2);
+  cutScalars = new vtkFloatScalars(numPts);
 
+  // Interpolate data along edge. If generating cut scalars, do the necessary setup.
+  if ( this->GenerateCutScalars )
+    {
+    inPD = new vtkPointData(*(input->GetPointData()));
+    inPD->SetScalars(cutScalars);
+    }
+  else 
+    {
+    inPD = input->GetPointData();
+    }
+  outPD = output->GetPointData();
+  outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
+    
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
-  this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
+  this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
-  // interpolate data along edge
-  inPd = this->Input->GetPointData();
-  outPd = output->GetPointData();
-  outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
+  //
+  // Loop over all cells creating scalar function determined by evaluating cell
+  // points using cut function.
+  //
+  for ( i=0; i < numPts; i++ )
+    {
+    s = this->CutFunction->EvaluateFunction(input->GetPoint(i));
+    cutScalars->InsertScalar(i,s);
+    }
 
-//
-// Loop over all cells creating scalar function determined by evaluating cell
-// points using cut function.
-//
+  //
+  // Loop over all cells creating scalar function determined by evaluating cell
+  // points using cut function.
+  //
   for (cellId=0; cellId < numCells; cellId++)
     {
-    cell = Input->GetCell(cellId);
+    cell = input->GetCell(cellId);
     cellPts = cell->GetPoints();
+    cellIds = cell->GetPointIds();
+
     for (i=0; i<cellPts->GetNumberOfPoints(); i++)
       {
-      x = cellPts->GetPoint(i);
-      s = this->CutFunction->FunctionValue(x);
+      s = cutScalars->GetScalar(cellIds->GetId(i));
       cellScalars.SetScalar(i,s);
       }
 
@@ -145,7 +178,7 @@ void vtkCutter::Execute()
       {
       value = this->Values[iter];
       cell->Contour(value, &cellScalars, this->Locator, 
-                    newVerts, newLines, newPolys, inPd, outPd);
+                    newVerts, newLines, newPolys, inPD, outPD);
 
       } // for all contour values
     } // for all cells
@@ -153,6 +186,9 @@ void vtkCutter::Execute()
 // Update ourselves.  Because we don't know upfront how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
+  cutScalars->Delete();
+  if ( this->GenerateCutScalars ) inPD->Delete();
+
   output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -257,4 +293,5 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
     }
+  os << indent << "Generate Cut Scalars: " << (this->GenerateCutScalars ? "On\n" : "Off\n");
 }

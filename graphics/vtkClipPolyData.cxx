@@ -45,13 +45,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangle.h"
 
 // Description:
-// Construct with user-specified implicit function.
+// Construct with user-specified implicit function; InsideOut turned off; value
+// set to 0.0; and generate clip scalars turned off.
 vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
 {
   this->ClipFunction = cf;
   this->InsideOut = 0;
   this->Locator = NULL;
   this->Value = 0.0;
+  this->GenerateClipScalars = 0;
   this->SelfCreatedLocator = 0;
 }
 
@@ -104,7 +106,7 @@ void vtkClipPolyData::Execute()
   //
   if ( !this->ClipFunction )
     {
-    vtkErrorMacro(<<"No Clip function specified");
+    vtkErrorMacro(<<"No clip function specified");
     return;
     }
 
@@ -130,8 +132,17 @@ void vtkClipPolyData::Execute()
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
-  // interpolate data along edge
-  inPD = input->GetPointData();
+  // Interpolate data along edge. If generating clip scalars, do the necessary setup.
+  if ( this->GenerateClipScalars )
+    {
+    inPD = new vtkPointData(*(input->GetPointData()));
+    inPD->SetScalars(clipScalars);
+    }
+  else 
+    {
+    inPD = input->GetPointData();
+    }
+    
   outPD = output->GetPointData();
   outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
 
@@ -261,6 +272,7 @@ void vtkClipPolyData::Execute()
   // polys we've created, take care to reclaim memory. 
   //
   clipScalars->Delete();
+  if ( this->GenerateClipScalars ) inPD->Delete();
 
   output->SetPoints(newPoints);
   newPoints->Delete();
@@ -315,4 +327,5 @@ void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
+  os << indent << "Generate Clip Scalars: " << (this->GenerateClipScalars ? "On\n" : "Off\n");
 }

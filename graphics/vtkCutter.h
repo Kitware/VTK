@@ -42,9 +42,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkCutter is a filter to cut through data using any subclass of 
 // vtkImplicitFunction. That is, a polygonal surface is created
-// corresponding to the implicit function F(x,y,z) = 0.
+// corresponding to the implicit function F(x,y,z) = value(s), where
+// you can specify one or more values used to cut with.
 // .SECTION See Also
-// vtkImplicitFunction
+// vtkImplicitFunction vtkClipper
 
 #ifndef __vtkCutter_h
 #define __vtkCutter_h
@@ -84,6 +85,13 @@ public:
   vtkSetObjectMacro(CutFunction,vtkImplicitFunction);
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
 
+  // Description:
+  // If this flag is enabled, then the output scalar values will be interpolated
+  // from the implicit function values, and not the input scalar data.
+  vtkSetMacro(GenerateCutScalars,int);
+  vtkGetMacro(GenerateCutScalars,int);
+  vtkBooleanMacro(GenerateCutScalars,int);
+
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
@@ -102,6 +110,7 @@ protected:
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
+  int GenerateCutScalars;
 };
 
 #endif

@@ -100,7 +100,12 @@ public:
   vtkSetObjectMacro(ClipFunction,vtkImplicitFunction);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
-  unsigned long int GetMTime();
+  // Description:
+  // If this flag is enabled, then the output scalar values will be interpolated
+  // from the implicit function values, and not the input scalar data.
+  vtkSetMacro(GenerateClipScalars,int);
+  vtkGetMacro(GenerateClipScalars,int);
+  vtkBooleanMacro(GenerateClipScalars,int);
 
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
@@ -111,6 +116,8 @@ public:
   // The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  unsigned long int GetMTime();
+
 protected:
   void Execute();
 
@@ -119,6 +126,7 @@ protected:
   int SelfCreatedLocator;
   int InsideOut;
   float Value;
+  int GenerateClipScalars;
 
 };
 

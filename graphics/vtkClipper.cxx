@@ -81,8 +81,7 @@ void vtkClipper::Execute()
 {
   vtkDataSet *input = this->Input;
   vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
-  vtkPointData *outPD = output->GetPointData();
-  vtkPointData *inPD = input->GetPointData();
+  vtkPointData *inPD, *outPD = output->GetPointData();
   vtkFloatPoints *cellPts, *newPoints;
   vtkFloatScalars *clipScalars;
   vtkIdList *cellIds, triIds(64);
@@ -120,7 +119,18 @@ void vtkClipper::Execute()
   if ( this->Locator == NULL ) this->CreateDefaultLocator();
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
 
-  //allocate space for output
+  clipScalars = new vtkFloatScalars(numPts);
+  // Interpolate data along edge. If generating clip scalars, do the necessary setup.
+  if ( this->GenerateClipScalars )
+    {
+    inPD = new vtkPointData(*(input->GetPointData()));
+    inPD->SetScalars(clipScalars);
+    }
+  else 
+    {
+    inPD = input->GetPointData();
+    }
+    
   output->Allocate(numCells/2,numCells/2);
   outPD->InterpolateAllocate(inPD,numPts/2,numPts/2);
 
@@ -128,7 +138,6 @@ void vtkClipper::Execute()
   // Loop over all cells creating scalar function determined by evaluating cell
   // points using clip function.
   //
-  clipScalars = new vtkFloatScalars(numPts);
   for ( i=0; i < numPts; i++ )
     {
     s = this->ClipFunction->EvaluateFunction(input->GetPoint(i));
@@ -284,6 +293,7 @@ void vtkClipper::Execute()
 // Update ourselves and release memory
 //
   clipScalars->Delete();
+  if ( this->GenerateClipScalars ) inPD->Delete();
 
   output->SetPoints(newPoints);
   newPoints->Delete();

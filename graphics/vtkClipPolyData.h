@@ -77,8 +77,6 @@ public:
   char *GetClassName() {return "vtkClipPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  unsigned long int GetMTime();
-
   // Description:
   // Set the clipping value of the implicit function. Default is 0.0.
   vtkSetMacro(Value,float);
@@ -100,6 +98,13 @@ public:
   vtkSetObjectMacro(ClipFunction,vtkImplicitFunction);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
+  // Description:
+  // If this flag is enabled, then the output scalar values will be interpolated
+  // from the implicit function values, and not the input scalar data.
+  vtkSetMacro(GenerateClipScalars,int);
+  vtkGetMacro(GenerateClipScalars,int);
+  vtkBooleanMacro(GenerateClipScalars,int);
+
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
@@ -109,6 +114,8 @@ public:
   // is used to merge coincident points.
   void CreateDefaultLocator();
 
+  unsigned long int GetMTime();
+
 protected:
   void Execute();
   vtkImplicitFunction *ClipFunction;
@@ -117,6 +124,7 @@ protected:
   int SelfCreatedLocator;
   int InsideOut;
   float Value;
+  int GenerateClipScalars;
 };
 
 #endif
