@@ -65,6 +65,8 @@ vtkImageExport::vtkImageExport()
 {
   this->ImageLowerLeft = 1;
   this->ExportVoidPointer = 0;
+  this->DataDimensions[0] = this->DataDimensions[1] = \
+    this->DataDimensions[2] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -101,10 +103,16 @@ vtkImageData *vtkImageExport::GetInput()
 //----------------------------------------------------------------------------
 int vtkImageExport::GetDataMemorySize()
 {
-  this->GetInput()->UpdateInformation();
-  int *extent = this->GetInput()->GetWholeExtent();
-  int size = this->GetInput()->GetScalarSize();
-  size *= this->GetInput()->GetNumberOfScalarComponents();
+  vtkImageData *input = this->GetInput();
+  if (input == NULL)
+    {
+    return 0;
+    }
+
+  input->UpdateInformation();
+  int *extent = input->GetWholeExtent();
+  int size = input->GetScalarSize();
+  size *= input->GetNumberOfScalarComponents();
   size *= (extent[1] - extent[0] + 1);
   size *= (extent[3] - extent[2] + 1);
   size *= (extent[5] - extent[4] + 1);
@@ -116,8 +124,15 @@ int vtkImageExport::GetDataMemorySize()
 //----------------------------------------------------------------------------
 void vtkImageExport::GetDataDimensions(int *dims)
 {
-  this->GetInput()->UpdateInformation();
-  int *extent = this->GetInput()->GetWholeExtent();
+  vtkImageData *input = this->GetInput();
+  if (input == NULL)
+    {
+    dims[0] = dims[1] = dims[2] = 0;
+    return;
+    }
+
+  input->UpdateInformation();
+  int *extent = input->GetWholeExtent();
   dims[0] = extent[1]-extent[0]+1;
   dims[1] = extent[3]-extent[2]+1;
   dims[2] = extent[5]-extent[4]+1;

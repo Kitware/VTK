@@ -76,30 +76,42 @@ public:
   // Description:
   // Get the number of scalar components of the data
   int GetDataNumberOfScalarComponents() {
+    if (this->GetInput() == NULL) { return 1; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetNumberOfScalarComponents(); };
 
   // Description: 
   // Get misc. information about the data
-  int *GetDataExtent() {   
+  int *GetDataExtent() {
+    static int defaultextent[6] = {0, 0, 0, 0, 0, 0};
+    if (this->GetInput() == NULL) { return defaultextent; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetWholeExtent(); };
   void GetDataExtent(int *ptr) {   
+    if (this->GetInput() == NULL) { 
+      ptr[0] = ptr[1] = ptr[2] = ptr[3] = ptr[4] = ptr[5] = 0; return; }
     this->GetInput()->UpdateInformation();
     this->GetInput()->GetWholeExtent(ptr); };
   float *GetDataSpacing() { 
+    static float defaultspacing[3] = {1, 1, 1}; 
+    if (this->GetInput() == NULL) { return defaultspacing; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetSpacing(); };
   void GetDataSpacing(float *ptr) { 
+    if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
     this->GetInput()->UpdateInformation();
     this->GetInput()->GetSpacing(ptr); };
   float *GetDataOrigin() { 
+    static float defaultorigin[3] = {0, 0, 0};
+    if (this->GetInput() == NULL) { return defaultorigin; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetOrigin(); };
   void GetDataOrigin(float *ptr) { 
+    if (this->GetInput() == NULL) { ptr[0] = ptr[1] = ptr[2] = 0.0; return; }
     this->GetInput()->UpdateInformation();
     this->GetInput()->GetOrigin(ptr); };
   int GetDataScalarType() {
+    if (this->GetInput() == NULL) { return VTK_UNSIGNED_CHAR; }
     this->GetInput()->UpdateInformation();
     return this->GetInput()->GetScalarType(); };
 
