@@ -341,6 +341,63 @@ void vtkImageSource::SetEndMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// For streaming and threads.  Splits output update extent into num pieces.
+// This method needs to be called num times.  Results must not overlap for
+// consistent starting extent.  Subclass can override this method.
+// This method returns the number of peices resulting from a successful split.
+// This can be from 1 to "total".  
+// If 1 is returned, the extent cannot be split.
+int vtkImageSource::SplitExtent(int splitExt[6], int startExt[6], 
+				int num, int total)
+{
+  int splitAxis;
+  int min, max;
+
+  vtkDebugMacro("SplitExtent: ( " << startExt[0] << ", " << startExt[1] << ", "
+		<< startExt[2] << ", " << startExt[3] << ", "
+		<< startExt[4] << ", " << startExt[5] << "), " 
+		<< num << " of " << total);
+
+  // start with same extent
+  memcpy(splitExt, startExt, 6 * sizeof(int));
+
+  splitAxis = 2;
+  min = startExt[4];
+  max = startExt[5];
+  while (min == max)
+    {
+    splitAxis--;
+    if (splitAxis < 0)
+      { // cannot split
+      vtkDebugMacro("  Cannot Split");
+      return 1;
+      }
+    min = startExt[splitAxis*2];
+    max = startExt[splitAxis*2+1];
+    }
+
+  // determine the actual number of pieces that will be generated
+  int range = max - min + 1;
+  int valuesPerThread = (int)ceil(range/(double)total);
+  int maxThreadIdUsed = (int)ceil(range/(double)valuesPerThread) - 1;
+  if (num < maxThreadIdUsed)
+    {
+    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
+    splitExt[splitAxis*2+1] = splitExt[splitAxis*2] + valuesPerThread - 1;
+    }
+  if (num == maxThreadIdUsed)
+    {
+    splitExt[splitAxis*2] = splitExt[splitAxis*2] + num*valuesPerThread;
+    }
+  
+  vtkDebugMacro("  Split Piece: ( " <<splitExt[0]<< ", " <<splitExt[1]<< ", "
+		<< splitExt[2] << ", " << splitExt[3] << ", "
+		<< splitExt[4] << ", " << splitExt[5] << ")");
+
+  return maxThreadIdUsed + 1;
+}
 
 
 

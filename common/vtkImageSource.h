@@ -103,6 +103,12 @@ public:
   // executes it. Then sets the Progress ivar to amount.
   void UpdateProgress(float amount);
 
+  // Description:
+  // subclass can over ride this method to do custom streaming and
+  // splitting for multiprocessing.
+  virtual int SplitExtent(int splitExt[6], int startExt[6], 
+			  int num, int total);
+
 protected:
   vtkImageCache *Output;
 
