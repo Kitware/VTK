@@ -1271,6 +1271,8 @@ yyparse(vtkVRMLImporter* self)
 #endif
 
 
+  // Note: several free() methods are commented out due to the use of
+  // vtkVRMLAllocator.
   switch (yyn) {
 
   case 8:
@@ -1283,13 +1285,13 @@ yyparse(vtkVRMLImporter* self)
   { creatingDEF = 0; ;
   break;}
   case 11:
-  { self->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
+  { self->useNode(yyvsp[0].string);//free(yyvsp[0].string); ;
   break;}
   case 14:
   { beginProto(yyvsp[0].string); ;
   break;}
   case 15:
-  { endProto();  free(yyvsp[-7].string);;
+  { endProto();  //free(yyvsp[-7].string);;
   break;}
   case 16:
   { beginProto(yyvsp[0].string); ;
@@ -1298,66 +1300,66 @@ yyparse(vtkVRMLImporter* self)
   { expect(MFSTRING); ;
   break;}
   case 18:
-  { endProto();  free(yyvsp[-6].string); ;
+  { endProto();  //free(yyvsp[-6].string); ;
   break;}
   case 21:
   { addEventIn(yyvsp[-1].string, yyvsp[0].string);
-  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 22:
   { addEventOut(yyvsp[-1].string, yyvsp[0].string);
-  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 23:
   { int type = addField(yyvsp[-1].string, yyvsp[0].string);
   expect(type); ;
   break;}
   case 24:
-  { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
+  { //free(yyvsp[-3].string); free(yyvsp[-2].string); ;
   break;}
   case 25:
   { int type = addExposedField(yyvsp[-1].string, yyvsp[0].string);
   expect(type); ;
   break;}
   case 26:
-  { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
+  { //free(yyvsp[-3].string); free(yyvsp[-2].string); ;
   break;}
   case 29:
   { addEventIn(yyvsp[-1].string, yyvsp[0].string);
-  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 30:
   { addEventOut(yyvsp[-1].string, yyvsp[0].string);
-  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 31:
   { addField(yyvsp[-1].string, yyvsp[0].string);
-  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 32:
   { addExposedField(yyvsp[-1].string, yyvsp[0].string);
-  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 33:
-  { free(yyvsp[-6].string); free(yyvsp[-4].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
+  { //free(yyvsp[-6].string); free(yyvsp[-4].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
   break;}
   case 34:
   { self->enterNode(yyvsp[0].string); ;
   break;}
   case 35:
-  { self->exitNode(); free(yyvsp[-4].string);;
+  { self->exitNode(); //free(yyvsp[-4].string);;
   break;}
   case 38:
   { self->enterField(yyvsp[0].string); ;
   break;}
   case 39:
-  { self->exitField(); free(yyvsp[-2].string); ;
+  { self->exitField(); //free(yyvsp[-2].string); ;
   break;}
   case 42:
-  { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  { inScript(); //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 43:
-  { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  { inScript(); //free(yyvsp[-1].string); free(yyvsp[0].string); ;
   break;}
   case 44:
   { inScript(); 
@@ -1365,13 +1367,13 @@ yyparse(vtkVRMLImporter* self)
   expect(type); ;
   break;}
   case 45:
-  { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
+  { //free(yyvsp[-3].string); free(yyvsp[-2].string); ;
   break;}
   case 46:
-  { inScript(); free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
+  { inScript(); //free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
   break;}
   case 47:
-  { inScript(); free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
+  { inScript(); //free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
   break;}
   case 49:
   {;
@@ -1386,7 +1388,7 @@ yyparse(vtkVRMLImporter* self)
   case 64:
   {     break;}
   case 68:
-  { free(yyvsp[0].string); ;
+  { //free(yyvsp[0].string); ;
   break;}
   }
   /* the action file gets copied in in place of this dollarsign */
@@ -4256,7 +4258,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.57");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.58");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -4480,7 +4482,7 @@ int yylex ( vtkVRMLImporter* self )
       case 14:
         YY_USER_ACTION
           { 
-          yylval.string = strdup(yytext);
+          yylval.string = vtkVRMLAllocator::StrDup(yytext);
           return IDENTIFIER; }
         /* All fields may have an IS declaration: */
       case 15:
