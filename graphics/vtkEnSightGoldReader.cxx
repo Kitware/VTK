@@ -108,6 +108,12 @@ vtkEnSightGoldReader::vtkEnSightGoldReader()
 vtkEnSightGoldReader::~vtkEnSightGoldReader()
 {
   int i, j;
+
+  if (this->FilePath)
+    {
+    delete [] this->FilePath;
+    this->FilePath = NULL;
+    }
   
   if (this->CaseFileName)
     {
@@ -1670,7 +1676,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(char* fileName,
 int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
                                                        char line[256])
 {
-  int lineRead;
+  int lineRead = 1;
   char subLine[256];
   int i, j;
   int *nodeIds;
@@ -2247,11 +2253,7 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
     for (i = 0; i < numPts; i++)
       {
       this->ReadNextDataLine(line);
-      if (atoi(line))
-        {
-        ((vtkStructuredGrid*)this->GetOutput(partId))->UnBlankPoint(i);
-        }
-      else
+      if (!atoi(line))
         {
         ((vtkStructuredGrid*)this->GetOutput(partId))->BlankPoint(i);
         }
