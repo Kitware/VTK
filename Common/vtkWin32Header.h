@@ -81,6 +81,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_IMAGING_EXPORT __declspec( dllimport ) 
  #endif
 
+ #if defined(vtkGenericFiltering_EXPORTS)
+  #define VTK_GENERIC_FILTERING_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_GENERIC_FILTERING_EXPORT __declspec( dllimport ) 
+ #endif
+
  #if defined(vtkGraphics_EXPORTS)
   #define VTK_GRAPHICS_EXPORT __declspec( dllexport ) 
  #else
@@ -119,6 +125,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #else
  #define VTK_COMMON_EXPORT
  #define VTK_FILTERING_EXPORT
+ #define VTK_GENERIC_FILTERING_EXPORT
  #define VTK_GRAPHICS_EXPORT
  #define VTK_IMAGING_EXPORT
  #define VTK_IO_EXPORT
