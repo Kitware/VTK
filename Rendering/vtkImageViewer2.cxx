@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.18");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.19");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -231,6 +231,7 @@ void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
     }
   this->Interactor->SetInteractorStyle(this->InteractorStyle);
   this->Interactor->SetRenderWindow(this->RenderWindow);
+  this->Renderer->GetActiveCamera()->ParallelProjectionOn();
 }
 
 void vtkImageViewer2::Render()
@@ -252,9 +253,9 @@ void vtkImageViewer2::Render()
       this->Renderer->GetActiveCamera()->SetParallelScale(xs < 150 ? 75 
                                                           : (xs-1)/2.0);
       }
-    this->Renderer->GetActiveCamera()->ParallelProjectionOn();
     this->FirstRender = 0;  
     }
+  this->Renderer->ResetCameraClippingRange();
   this->RenderWindow->Render();
 }
 
