@@ -426,6 +426,16 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       }
       break;
 
+    case MapNotify:
+      {
+      // only render if we are currently accepting events
+      if (me->GetEnabled() && me->GetRenderWindow()->GetNeverRendered())
+	{
+	me->GetRenderWindow()->Render();
+	}
+      }
+      break;
+
     case ConfigureNotify: 
       {
       XEvent result;
@@ -440,11 +450,11 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	{
 	me->UpdateSize(((XConfigureEvent *)event)->width,
 		       ((XConfigureEvent *)event)->height); 
-	}
-      // only render if we are currently accepting events
-      if (me->GetEnabled())
-	{
-	me->GetRenderWindow()->Render();
+	// only render if we are currently accepting events
+        if (me->GetEnabled())
+          {
+          me->GetRenderWindow()->Render();
+          }
 	}
       }
       break;
