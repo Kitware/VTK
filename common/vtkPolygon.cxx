@@ -1,10 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkPolygon.cc
+  Module:    vtkPolygon.cxx
   Language:  C++
-  Date:      11/01/95
-  Version:   1.31
+  Date:      $Date$
+  Version:   $Revision$
 
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
@@ -168,7 +168,7 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
   v2 = pts + 3;
   v3 = pts + 6;
 
-  for (i=0; i<numPts; i++) 
+  for (i=0; i<numPts-2; i++) 
     {
     ax = v2[0] - v1[0]; ay = v2[1] - v1[1]; az = v2[2] - v1[2];
     bx = v3[0] - v1[0]; by = v3[1] - v1[1]; bz = v3[2] - v1[2];
@@ -189,7 +189,7 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
       {
       v1 = v2;
       v2 = v3;
-      v3 = pts + 9 + 3*i;
+      v3 += 3;
       }
     } //over all points
 }
@@ -997,7 +997,7 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   float closestPoint[3];
   float dist2;
   int npts = this->GetNumberOfPoints();
-  float *weights = new float[npts];
+  float *weights;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -1016,9 +1016,15 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 //
 // Evaluate position
 //
+  weights = new float[npts];
   if ( this->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights) )
-    if ( dist2 <= tol2 ) return 1;
+    if ( dist2 <= tol2 ) 
+      {
+      delete weights;
+      return 1;
+      }
 
+  delete weights;
   return 0;
 
 }
