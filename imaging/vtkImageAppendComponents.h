@@ -42,8 +42,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // one output.
 // .SECTION Description
 // vtkImageAppendComponents takes the components from two inputs and merges
-// them into one output. If Input1 has M compoennts, and Input2 has N 
-// components, the output will have M+N compoennts with input1
+// them into one output. If Input1 has M components, and Input2 has N 
+// components, the output will have M+N components with input1
 // components comming first.
 
 

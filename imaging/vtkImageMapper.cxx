@@ -99,7 +99,7 @@ float vtkImageMapper::GetColorShift()
 
 float vtkImageMapper::GetColorScale()
 {
-  return 255.0 / this->ColorWindow;
+  return 256.0 / this->ColorWindow;
 }
 
 void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)

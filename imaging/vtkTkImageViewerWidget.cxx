@@ -296,24 +296,27 @@ static void vtkTkImageViewerWidget_EventProc(ClientData clientData,
     case Expose:
       if ((eventPtr->xexpose.count == 0)
 	  /* && !self->UpdatePending*/) 
-	{
-	// bid this in tcl now
-	//self->ImageViewer->Render();
-	}
+		{
+		// bid this in tcl now
+		//self->ImageViewer->Render();
+		}
       break;
     case ConfigureNotify:
       if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
         {
-	self->Width = Tk_Width(self->TkWin);
-	self->Height = Tk_Height(self->TkWin);
-        Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
-	if (self->ImageViewer)
-	  {
-          self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
-	  self->ImageViewer->SetSize(self->Width, self->Height);
-	  }
-	//vtkTkImageViewerWidget_PostRedisplay(self);
-	}
+		self->Width = Tk_Width(self->TkWin);
+		self->Height = Tk_Height(self->TkWin);
+        //Tk_GeometryRequest(self->TkWin,self->Width,self->Height);
+
+				
+		if (self->ImageViewer)
+		  {
+		  self->ImageViewer->SetPosition(Tk_X(self->TkWin),Tk_Y(self->TkWin));
+		  self->ImageViewer->SetSize(self->Width, self->Height);
+		  }
+		  
+		//vtkTkImageViewerWidget_PostRedisplay(self);
+  	  	}
       break;
     case MapNotify:
       break;
