@@ -20,9 +20,63 @@ ENDIF(VTK_USE_CARBON)
 
 ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "...")
 
+FOREACH(dir
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/gtk
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/qt
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/tk
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/util
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/wx
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/testing
+  ${VTK_BINARY_DIR}/Wrapping/Python/vtk/test
+  )
+  MAKE_DIRECTORY(${dir})
+ENDFOREACH(dir)
 SET(VTK_PYTHON_LIBRARY_FILES "")
 FOREACH(file
+  vtk/gtk/GtkVTKRenderWindow
+  vtk/gtk/__init__
+  vtk/gtk/GtkVTKRenderWindowInteractor
+  vtk/qt/QVTKRenderWidget
+  vtk/qt/__init__
+  vtk/qt/QVTKRenderWindowInteractor
+  vtk/__helper
+  vtk/__init__
+  vtk/common
+  vtk/filtering
+  vtk/graphics
+  vtk/hybrid
+  vtk/imaging
+  vtk/io
+  vtk/parallel
+  vtk/patented
+  vtk/rendering
+  vtk/required
+  vtk/tk/__init__
+  vtk/tk/vtkLoadPythonTkWidgets
+  vtk/tk/vtkTkImageViewerWidget
+  vtk/tk/vtkTkRenderWidget
+  vtk/tk/vtkTkRenderWindowInteractor
+  vtk/tk/vtkTkPhotoImage
+  vtk/util/__init__
+  vtk/util/vtkMethodParser
+  vtk/util/misc
+  vtk/util/vtkConstants
+  vtk/util/vtkImageExportToArray
+  vtk/util/vtkImageImportFromArray
+  vtk/util/colors
+  vtk/wx/__init__
+  vtk/wx/wxVTKRenderWindow
+  vtk/wx/wxVTKRenderWindowInteractor
+  vtk/test/BlackBox
+  vtk/test/Testing
+  vtk/test/__init__
+  QVTKRenderWidget
+  vtkRenderWidget
+  vtkTkImageViewerWidget
+  vtkTkRenderWidget
   vtkpython
+  vtkpythontk
+  wxVTKRenderWindow
   )
   SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
   SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.pyc")
