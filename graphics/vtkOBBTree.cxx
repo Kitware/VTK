@@ -571,9 +571,13 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
     {
     *leaf_vol += volume;
     if ( nCells < *minCells )
+      {
       *minCells = nCells;
+      }
     if ( nCells > *maxCells )
+      {
       *maxCells = nCells;
+      }
     }
   if ( this->Kids != NULL )
     {
@@ -632,7 +636,7 @@ void vtkOBBTree::BuildLocator()
   this->Level = this->DeepestLevel;
 
   vtkDebugMacro(<<"# Cells: " << numCells << ", Deepest tree level: " <<
-                this->DeepestLevel <<", Created: " << OBBCount << " OBB nodes");
+                this->DeepestLevel <<", Created: " << this->OBBCount << " OBB nodes");
   if ( this->GetDebug() > 1 )
     { // print tree
     double volume = 0.0;
@@ -1083,6 +1087,7 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
   // Bad luck: now we must look for a separation plane parallel
   // to one edge from A and one edge from B.
   for ( ii=0; ii<3; ii++ )
+    {
     for ( jj=0; jj<3; jj++ )
       {
       // the plane is normal to pA->Axes[ii] X pB->Axes[jj]
@@ -1118,6 +1123,7 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
         return( 4 ); // A and B are Disjoint by the 4th test.
         }
       }
+    }
   // if we fall through to here, the OBB's overlap
   return( 0 );
   }
