@@ -878,7 +878,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
       // Get ready for next triangle
       p1 = p2;
       p2 = p3;
-      p3 = pts[3+j];
+      if (3*j < npts) p3 = pts[3+j];
       }
   }
 }
