@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.19");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.20");
 vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
@@ -132,8 +132,8 @@ void vtkImageChangeInformation::ExecuteInformation (
   
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inExtent);
 
-  vtkImageData *infoInput;
-  if (infoInput = this->GetInformationInput())
+  vtkImageData *infoInput = this->GetInformationInput();
+  if (infoInput)
     {
     // If there is an InformationInput, it is set as a second input
     vtkInformation *in2Info = inputVector[1]->GetInformationObject(0);
