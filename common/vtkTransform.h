@@ -335,7 +335,9 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
     {VTK_LEGACY_METHOD(GetTranspose,"3.2"); this->GetTranspose(&transpose);}
   void GetInverse(vtkMatrix4x4& inverse)
     {VTK_LEGACY_METHOD(GetInverse,"3.2"); this->GetInverse(&inverse);};
+#endif
 //BTX
+#ifndef VTK_REMOVE_LEGACY_CODE
   void GetOrientation(float *prx, float *pry, float *prz) 
     {VTK_LEGACY_METHOD(GetOrientation,"3.2"); 
     double temp[3]; this->GetOrientation(temp); 
@@ -354,8 +356,8 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
     *psx = temp[0]; *psy = temp[1]; *psz = temp[2]; };
   void GetScale(float& x, float& y, float& z)
     {VTK_LEGACY_METHOD(GetScale,"3.2"); this->GetScale(&x, &y, &z);}
-//ETX
 #endif
+//ETX
 
 protected:
   vtkTransform ();
