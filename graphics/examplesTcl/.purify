@@ -82,6 +82,9 @@ suppress mlk _malloc; _XUpdateAtomCache
 suppress mlk _malloc; TkBindInit
 suppress mlk _malloc; XCreateGC
 suppress mlk _malloc; XInitExtension
+suppress mlk _malloc; _calloc; XInitExtension
+suppress mlk _malloc; TkFreeWindowId
+suppress mlk _malloc; Tcl_CreateTimerHandler
 suppress mlk _malloc; _X11TransConnectDisplay
 suppress mlk _malloc; _X11TransParseAddress
 suppress mlk _malloc; __glXInitThread
