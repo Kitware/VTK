@@ -26,7 +26,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.26");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.27");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -560,8 +560,10 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkParallelCoordinatesActor::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetFontFamily(val); 
@@ -571,9 +573,12 @@ void vtkParallelCoordinatesActor::SetFontFamily(int val)
     this->TitleTextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkParallelCoordinatesActor::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetFontFamily(); 
@@ -583,9 +588,12 @@ int vtkParallelCoordinatesActor::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkParallelCoordinatesActor::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetBold(val); 
@@ -595,9 +603,12 @@ void vtkParallelCoordinatesActor::SetBold(int val)
     this->TitleTextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkParallelCoordinatesActor::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetBold(); 
@@ -607,9 +618,12 @@ int vtkParallelCoordinatesActor::GetBold()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkParallelCoordinatesActor::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetItalic(val); 
@@ -619,9 +633,12 @@ void vtkParallelCoordinatesActor::SetItalic(int val)
     this->TitleTextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkParallelCoordinatesActor::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetItalic(); 
@@ -631,9 +648,12 @@ int vtkParallelCoordinatesActor::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkParallelCoordinatesActor::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetShadow(val); 
@@ -643,9 +663,12 @@ void vtkParallelCoordinatesActor::SetShadow(int val)
     this->TitleTextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkParallelCoordinatesActor::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetShadow(); 
@@ -655,3 +678,4 @@ int vtkParallelCoordinatesActor::GetShadow()
     return 0;
     }
 }
+#endif

@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.45");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.46");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -589,8 +589,10 @@ void vtkScalarBarActor::SizeTitle(int *titleSize,
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkScalarBarActor::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetFontFamily(val); 
@@ -600,9 +602,12 @@ void vtkScalarBarActor::SetFontFamily(int val)
     this->TitleTextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkScalarBarActor::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetFontFamily(); 
@@ -612,9 +617,12 @@ int vtkScalarBarActor::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkScalarBarActor::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetBold(val); 
@@ -624,9 +632,12 @@ void vtkScalarBarActor::SetBold(int val)
     this->TitleTextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkScalarBarActor::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetBold(); 
@@ -636,9 +647,12 @@ int vtkScalarBarActor::GetBold()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkScalarBarActor::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetItalic(val); 
@@ -648,9 +662,12 @@ void vtkScalarBarActor::SetItalic(int val)
     this->TitleTextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkScalarBarActor::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetItalic(); 
@@ -660,9 +677,12 @@ int vtkScalarBarActor::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkScalarBarActor::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetShadow(val); 
@@ -672,9 +692,12 @@ void vtkScalarBarActor::SetShadow(int val)
     this->TitleTextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkScalarBarActor::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetShadow(); 
@@ -684,3 +707,4 @@ int vtkScalarBarActor::GetShadow()
     return 0;
     }
 }
+#endif

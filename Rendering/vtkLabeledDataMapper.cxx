@@ -23,7 +23,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.32");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.33");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);
@@ -363,16 +363,21 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLabeledDataMapper::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLabeledDataMapper::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetFontFamily(); 
@@ -382,17 +387,23 @@ int vtkLabeledDataMapper::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLabeledDataMapper::SetFontSize(int size) 
 { 
+  VTK_LEGACY_METHOD(SetFontSize, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetFontSize(size); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLabeledDataMapper::GetFontSize()
 { 
+  VTK_LEGACY_METHOD(GetFontSize, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetFontSize(); 
@@ -402,17 +413,23 @@ int vtkLabeledDataMapper::GetFontSize()
     return 0;
     }
 }
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLabeledDataMapper::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLabeledDataMapper::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetBold(); 
@@ -422,17 +439,23 @@ int vtkLabeledDataMapper::GetBold()
     return 0;
     }
 }
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLabeledDataMapper::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLabeledDataMapper::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetItalic(); 
@@ -442,17 +465,23 @@ int vtkLabeledDataMapper::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLabeledDataMapper::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->LabelTextProperty)
     {
     this->LabelTextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLabeledDataMapper::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->LabelTextProperty)
     {
     return this->LabelTextProperty->GetShadow(); 
@@ -462,3 +491,4 @@ int vtkLabeledDataMapper::GetShadow()
     return 0;
     }
 }
+#endif

@@ -58,25 +58,29 @@ if { [info command rtExMath] == ""} {
 ren1 SetBackground 0.1 0.2 0.4
 ren2 SetBackground 0.1 0.2 0.4
 
+vtkTextProperty tprop
+    tprop SetColor 1 1 1
+    tprop ShadowOn
+
 vtkCubeAxesActor2D axes
     axes SetInput [normals GetOutput]
     axes SetCamera [ren1 GetActiveCamera]
     axes SetLabelFormat "%6.1f"
-    axes ShadowOn
     axes SetFlyModeToOuterEdges
     axes SetFontFactor 0.8
-    [axes GetProperty] SetColor 1 1 1
+    axes SetAxisTitleTextProperty tprop
+    axes SetAxisLabelTextProperty tprop
 ren1 AddProp axes 
 
 vtkCubeAxesActor2D axes2
     axes2 SetProp foheActor
     axes2 SetCamera [ren2 GetActiveCamera]
     axes2 SetLabelFormat [axes GetLabelFormat]
-    axes2 SetShadow [axes GetShadow]
     axes2 SetFlyModeToClosestTriad
     axes2 SetFontFactor [axes GetFontFactor]
-    [axes2 GetProperty] SetColor 1 1 1
     axes2 ScalingOff
+    axes2 SetAxisTitleTextProperty tprop
+    axes2 SetAxisLabelTextProperty tprop
 ren2 AddProp axes2 
 
 renWin Render

@@ -40,7 +40,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.42");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.43");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -2076,120 +2076,6 @@ float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float
 }
     
 //----------------------------------------------------------------------------
-// Backward compatibility calls
-
-void vtkXYPlotActor::SetFontFamily(int val) 
-{ 
-  if (this->AxisLabelTextProperty)
-    {
-    this->AxisLabelTextProperty->SetFontFamily(val); 
-    }
-  if (this->AxisTitleTextProperty)
-    {
-    this->AxisTitleTextProperty->SetFontFamily(val); 
-    }
-  if (this->TitleTextProperty)
-    {
-    this->TitleTextProperty->SetFontFamily(val); 
-    }
-}
-
-int vtkXYPlotActor::GetFontFamily()
-{ 
-  if (this->TitleTextProperty)
-    {
-    return this->TitleTextProperty->GetFontFamily(); 
-    }
-  else
-    {
-    return 0;
-    }
-}
-
-void vtkXYPlotActor::SetBold(int val)
-{ 
-  if (this->AxisLabelTextProperty)
-    {
-    this->AxisLabelTextProperty->SetBold(val); 
-    }
-  if (this->AxisTitleTextProperty)
-    {
-    this->AxisTitleTextProperty->SetBold(val); 
-    }
-  if (this->TitleTextProperty)
-    {
-    this->TitleTextProperty->SetBold(val); 
-    }
-}
-
-int vtkXYPlotActor::GetBold()
-{ 
-  if (this->TitleTextProperty)
-    {
-    return this->TitleTextProperty->GetBold(); 
-    }
-  else
-    {
-    return 0;
-    }
-}
-
-void vtkXYPlotActor::SetItalic(int val)
-{ 
-  if (this->AxisLabelTextProperty)
-    {
-    this->AxisLabelTextProperty->SetItalic(val); 
-    }
-  if (this->AxisTitleTextProperty)
-    {
-    this->AxisTitleTextProperty->SetItalic(val); 
-    }
-  if (this->TitleTextProperty)
-    {
-    this->TitleTextProperty->SetItalic(val); 
-    }
-}
-
-int vtkXYPlotActor::GetItalic()
-{ 
-  if (this->TitleTextProperty)
-    {
-    return this->TitleTextProperty->GetItalic(); 
-    }
-  else
-    {
-    return 0;
-    }
-}
-
-void vtkXYPlotActor::SetShadow(int val)
-{ 
-  if (this->AxisLabelTextProperty)
-    {
-    this->AxisLabelTextProperty->SetShadow(val); 
-    }
-  if (this->AxisTitleTextProperty)
-    {
-    this->AxisTitleTextProperty->SetShadow(val); 
-    }
-  if (this->TitleTextProperty)
-    {
-    this->TitleTextProperty->SetShadow(val); 
-    }
-}
-
-int vtkXYPlotActor::GetShadow()
-{ 
-  if (this->TitleTextProperty)
-    {
-    return this->TitleTextProperty->GetShadow(); 
-    }
-  else
-    {
-    return 0;
-    }
-}
-
 void vtkXYPlotActor::SetLabelFormat(const char* _arg)
 {
   if (this->LabelFormat == NULL && _arg == NULL) 
@@ -2222,3 +2108,141 @@ void vtkXYPlotActor::SetLabelFormat(const char* _arg)
 
   this->Modified();
 } 
+//----------------------------------------------------------------------------
+// Backward compatibility calls
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+void vtkXYPlotActor::SetFontFamily(int val) 
+{ 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetFontFamily(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetFontFamily(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetFontFamily(val); 
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkXYPlotActor::GetFontFamily()
+{ 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetFontFamily(); 
+    }
+  else
+    {
+    return 0;
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+void vtkXYPlotActor::SetBold(int val)
+{ 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetBold(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetBold(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetBold(val); 
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkXYPlotActor::GetBold()
+{ 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetBold(); 
+    }
+  else
+    {
+    return 0;
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+void vtkXYPlotActor::SetItalic(int val)
+{ 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetItalic(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetItalic(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetItalic(val); 
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkXYPlotActor::GetItalic()
+{ 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetItalic(); 
+    }
+  else
+    {
+    return 0;
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+void vtkXYPlotActor::SetShadow(int val)
+{ 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
+  if (this->AxisLabelTextProperty)
+    {
+    this->AxisLabelTextProperty->SetShadow(val); 
+    }
+  if (this->AxisTitleTextProperty)
+    {
+    this->AxisTitleTextProperty->SetShadow(val); 
+    }
+  if (this->TitleTextProperty)
+    {
+    this->TitleTextProperty->SetShadow(val); 
+    }
+}
+#endif
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+int vtkXYPlotActor::GetShadow()
+{ 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
+  if (this->TitleTextProperty)
+    {
+    return this->TitleTextProperty->GetShadow(); 
+    }
+  else
+    {
+    return 0;
+    }
+}
+#endif

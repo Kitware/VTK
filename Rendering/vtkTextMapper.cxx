@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 
-vtkCxxRevisionMacro(vtkTextMapper, "1.48");
+vtkCxxRevisionMacro(vtkTextMapper, "1.49");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -512,16 +512,21 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetFontFamily(); 
@@ -531,17 +536,23 @@ int vtkTextMapper::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetFontSize(int size) 
 { 
+  VTK_LEGACY_METHOD(SetFontSize, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetFontSize(size); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetFontSize()
 { 
+  VTK_LEGACY_METHOD(GetFontSize, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetFontSize(); 
@@ -551,17 +562,23 @@ int vtkTextMapper::GetFontSize()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetBold(); 
@@ -571,17 +588,23 @@ int vtkTextMapper::GetBold()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetItalic(); 
@@ -591,17 +614,23 @@ int vtkTextMapper::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetShadow(); 
@@ -611,17 +640,23 @@ int vtkTextMapper::GetShadow()
     return 0;
     }
 }
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetJustification(int val)
 { 
+  VTK_LEGACY_METHOD(SetJustification, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetJustification(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetJustification()
 { 
+  VTK_LEGACY_METHOD(GetJustification, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetJustification(); 
@@ -631,17 +666,23 @@ int vtkTextMapper::GetJustification()
     return 0;
     }
 }
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetVerticalJustification(int val)
 { 
+  VTK_LEGACY_METHOD(SetVerticalJustification, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetVerticalJustification(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkTextMapper::GetVerticalJustification()
 { 
+  VTK_LEGACY_METHOD(GetVerticalJustification, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetVerticalJustification(); 
@@ -651,17 +692,23 @@ int vtkTextMapper::GetVerticalJustification()
     return 0;
     }
 }
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetLineOffset(float val)
 { 
+  VTK_LEGACY_METHOD(SetLineOffset, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetLineOffset(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 float vtkTextMapper::GetLineOffset()
 { 
+  VTK_LEGACY_METHOD(GetLineOffset, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetLineOffset(); 
@@ -671,17 +718,23 @@ float vtkTextMapper::GetLineOffset()
     return 0.0f;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkTextMapper::SetLineSpacing(float val)
 { 
+  VTK_LEGACY_METHOD(SetLineSpacing, "4.2");
   if (this->TextProperty)
     {
     this->TextProperty->SetLineSpacing(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 float vtkTextMapper::GetLineSpacing()
 { 
+  VTK_LEGACY_METHOD(GetLineSpacing, "4.2");
   if (this->TextProperty)
     {
     return this->TextProperty->GetLineSpacing(); 
@@ -691,3 +744,4 @@ float vtkTextMapper::GetLineSpacing()
     return 0.0f;
     }
 }
+#endif

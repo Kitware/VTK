@@ -63,6 +63,7 @@ public:
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
   
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
@@ -73,14 +74,18 @@ public:
   void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
   void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the font size.
   // Warning: these functions remain for backward compatibility. Please access
   // the vtkTextProperty associated to the actor that use the text mapper.
   virtual void SetFontSize(int size);
   virtual int GetFontSize();
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Enable/disable text bolding.
   // Warning: these functions remain for backward compatibility. Please access
@@ -88,7 +93,9 @@ public:
   virtual void SetBold(int val);
   virtual int GetBold();
   vtkBooleanMacro(Bold, int);
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Enable/disable text italic.
   // Warning: these functions remain for backward compatibility. Please access
@@ -96,7 +103,9 @@ public:
   virtual void SetItalic(int val);
   virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Enable/disable text shadows.
   // Warning: these functions remain for backward compatibility. Please access
@@ -104,7 +113,9 @@ public:
   virtual void SetShadow(int val);
   virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the horizontal justification to left (default), centered,
   // or right.
@@ -118,7 +129,9 @@ public:
     { this->SetJustification(VTK_TEXT_CENTERED);};
   void SetJustificationToRight()    
     { this->SetJustification(VTK_TEXT_RIGHT);};
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the vertical justification to bottom (default), middle,
   // or top.
@@ -132,7 +145,9 @@ public:
     {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
   void SetVerticalJustificationToTop() 
     {this->SetVerticalJustification(VTK_TEXT_TOP);};
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // These methods can be used to control the spacing and placement of 
   // text (in the vertical direction). LineOffset is a vertical offset 
@@ -143,6 +158,7 @@ public:
   virtual float GetLineOffset();
   virtual void SetLineSpacing(float val);
   virtual float GetLineSpacing();
+#endif
 
   vtkGetMacro(NumberOfLines,int);
   

@@ -30,7 +30,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.23");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.24");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
 vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);
@@ -714,16 +714,21 @@ void vtkLegendBoxActor::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLegendBoxActor::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->EntryTextProperty)
     {
     this->EntryTextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLegendBoxActor::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->EntryTextProperty)
     {
     return this->EntryTextProperty->GetFontFamily(); 
@@ -733,17 +738,23 @@ int vtkLegendBoxActor::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLegendBoxActor::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->EntryTextProperty)
     {
     this->EntryTextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLegendBoxActor::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->EntryTextProperty)
     {
     return this->EntryTextProperty->GetBold(); 
@@ -753,17 +764,23 @@ int vtkLegendBoxActor::GetBold()
     return 0;
     }
 }
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLegendBoxActor::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->EntryTextProperty)
     {
     this->EntryTextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLegendBoxActor::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->EntryTextProperty)
     {
     return this->EntryTextProperty->GetItalic(); 
@@ -773,17 +790,23 @@ int vtkLegendBoxActor::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkLegendBoxActor::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->EntryTextProperty)
     {
     this->EntryTextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkLegendBoxActor::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->EntryTextProperty)
     {
     return this->EntryTextProperty->GetShadow(); 
@@ -793,3 +816,4 @@ int vtkLegendBoxActor::GetShadow()
     return 0;
     }
 }
+#endif

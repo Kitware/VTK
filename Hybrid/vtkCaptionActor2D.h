@@ -140,6 +140,7 @@ public:
   virtual void SetCaptionTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(CaptionTextProperty,vtkTextProperty);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
@@ -150,7 +151,9 @@ public:
   void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
   void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Enable/disable text bolding.
   // Warning: these functions remain for backward compatibility. Use the
@@ -158,7 +161,9 @@ public:
   virtual void SetBold(int val);
   virtual int GetBold();
   vtkBooleanMacro(Bold, int);
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Enable/disable text italic.
   // Warning: these functions remain for backward compatibility. Use the
@@ -166,7 +171,9 @@ public:
   virtual void SetItalic(int val);
   virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Enable/disable text shadows.
   // Warning: these functions remain for backward compatibility. Use the
@@ -174,7 +181,9 @@ public:
   virtual void SetShadow(int val);
   virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the horizontal justification to left (default), centered,
   // or right.
@@ -188,7 +197,9 @@ public:
     { this->SetJustification(VTK_TEXT_CENTERED);};
   void SetJustificationToRight()    
     { this->SetJustification(VTK_TEXT_RIGHT);};
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // Set/Get the vertical justification to bottom (default), middle,
   // or top.
@@ -202,6 +213,7 @@ public:
     {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
   void SetVerticalJustificationToTop() 
     {this->SetVerticalJustification(VTK_TEXT_TOP);};
+#endif
     
   // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual

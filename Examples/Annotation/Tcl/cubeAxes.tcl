@@ -75,16 +75,22 @@ ren2 AddProp outlineActor
 ren1 SetBackground 0.1 0.2 0.4
 ren2 SetBackground 0.1 0.2 0.4
 
+# Create a text property for both cube axes
+#
+vtkTextProperty tprop
+    tprop SetColor 1 1 1
+    tprop ShadowOn
+
 # Create a vtkCubeAxesActor2D.  Use the outer edges of the bounding box to
 # draw the axes.  Add the actor to the renderer.
 vtkCubeAxesActor2D axes
     axes SetInput [normals GetOutput]
     axes SetCamera [ren1 GetActiveCamera]
     axes SetLabelFormat "%6.4g"
-    axes ShadowOn
     axes SetFlyModeToOuterEdges
     axes SetFontFactor 0.8
-    [axes GetProperty] SetColor 1 1 1
+    axes SetAxisTitleTextProperty tprop
+    axes SetAxisLabelTextProperty tprop
 ren1 AddProp axes 
 
 # Create a vtkCubeAxesActor2D.  Use the closest vertex to the camera to
@@ -93,11 +99,11 @@ vtkCubeAxesActor2D axes2
     axes2 SetProp foheActor
     axes2 SetCamera [ren2 GetActiveCamera]
     axes2 SetLabelFormat "%6.4g"
-    axes2 ShadowOn
     axes2 SetFlyModeToClosestTriad
     axes2 SetFontFactor 0.8
-    [axes2 GetProperty] SetColor 1 1 1
     axes2 ScalingOff
+    axes2 SetAxisTitleTextProperty tprop
+    axes2 SetAxisLabelTextProperty tprop
 ren2 AddProp axes2 
 
 # Render

@@ -25,7 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.37");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.38");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -1007,8 +1007,10 @@ static int IsInBounds(float x[3], float bounds[6])
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCubeAxesActor2D::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->AxisLabelTextProperty)
     {
     this->AxisLabelTextProperty->SetFontFamily(val); 
@@ -1018,9 +1020,12 @@ void vtkCubeAxesActor2D::SetFontFamily(int val)
     this->AxisTitleTextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCubeAxesActor2D::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->AxisLabelTextProperty)
     {
     return this->AxisLabelTextProperty->GetFontFamily(); 
@@ -1030,9 +1035,12 @@ int vtkCubeAxesActor2D::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCubeAxesActor2D::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->AxisLabelTextProperty)
     {
     this->AxisLabelTextProperty->SetBold(val); 
@@ -1042,9 +1050,12 @@ void vtkCubeAxesActor2D::SetBold(int val)
     this->AxisTitleTextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCubeAxesActor2D::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->AxisLabelTextProperty)
     {
     return this->AxisLabelTextProperty->GetBold(); 
@@ -1054,9 +1065,12 @@ int vtkCubeAxesActor2D::GetBold()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCubeAxesActor2D::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->AxisLabelTextProperty)
     {
     this->AxisLabelTextProperty->SetItalic(val); 
@@ -1066,9 +1080,12 @@ void vtkCubeAxesActor2D::SetItalic(int val)
     this->AxisTitleTextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCubeAxesActor2D::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->AxisLabelTextProperty)
     {
     return this->AxisLabelTextProperty->GetItalic(); 
@@ -1078,9 +1095,12 @@ int vtkCubeAxesActor2D::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCubeAxesActor2D::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->AxisLabelTextProperty)
     {
     this->AxisLabelTextProperty->SetShadow(val); 
@@ -1090,9 +1110,12 @@ void vtkCubeAxesActor2D::SetShadow(int val)
     this->AxisTitleTextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCubeAxesActor2D::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->AxisLabelTextProperty)
     {
     return this->AxisLabelTextProperty->GetShadow(); 
@@ -1102,3 +1125,4 @@ int vtkCubeAxesActor2D::GetShadow()
     return 0;
     }
 }
+#endif

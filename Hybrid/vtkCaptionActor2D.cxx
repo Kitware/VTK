@@ -33,7 +33,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.21");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.22");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -508,16 +508,21 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------------
 // Backward compatibility calls
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCaptionActor2D::SetFontFamily(int val) 
 { 
+  VTK_LEGACY_METHOD(SetFontFamily, "4.2");
   if (this->CaptionTextProperty)
     {
     this->CaptionTextProperty->SetFontFamily(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCaptionActor2D::GetFontFamily()
 { 
+  VTK_LEGACY_METHOD(GetFontFamily, "4.2");
   if (this->CaptionTextProperty)
     {
     return this->CaptionTextProperty->GetFontFamily(); 
@@ -527,17 +532,23 @@ int vtkCaptionActor2D::GetFontFamily()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCaptionActor2D::SetBold(int val)
 { 
+  VTK_LEGACY_METHOD(SetBold, "4.2");
   if (this->CaptionTextProperty)
     {
     this->CaptionTextProperty->SetBold(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCaptionActor2D::GetBold()
 { 
+  VTK_LEGACY_METHOD(GetBold, "4.2");
   if (this->CaptionTextProperty)
     {
     return this->CaptionTextProperty->GetBold(); 
@@ -547,17 +558,23 @@ int vtkCaptionActor2D::GetBold()
     return 0;
     }
 }
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCaptionActor2D::SetItalic(int val)
 { 
+  VTK_LEGACY_METHOD(SetItalic, "4.2");
   if (this->CaptionTextProperty)
     {
     this->CaptionTextProperty->SetItalic(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCaptionActor2D::GetItalic()
 { 
+  VTK_LEGACY_METHOD(GetItalic, "4.2");
   if (this->CaptionTextProperty)
     {
     return this->CaptionTextProperty->GetItalic(); 
@@ -567,17 +584,23 @@ int vtkCaptionActor2D::GetItalic()
     return 0;
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCaptionActor2D::SetShadow(int val)
 { 
+  VTK_LEGACY_METHOD(SetShadow, "4.2");
   if (this->CaptionTextProperty)
     {
     this->CaptionTextProperty->SetShadow(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCaptionActor2D::GetShadow()
 { 
+  VTK_LEGACY_METHOD(GetShadow, "4.2");
   if (this->CaptionTextProperty)
     {
     return this->CaptionTextProperty->GetShadow(); 
@@ -587,17 +610,23 @@ int vtkCaptionActor2D::GetShadow()
     return 0;
     }
 }
+#endif
   
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCaptionActor2D::SetJustification(int val)
 { 
+  VTK_LEGACY_METHOD(SetJustification, "4.2");
   if (this->CaptionTextProperty)
     {
     this->CaptionTextProperty->SetJustification(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCaptionActor2D::GetJustification()
 { 
+  VTK_LEGACY_METHOD(GetJustification, "4.2");
   if (this->CaptionTextProperty)
     {
     return this->CaptionTextProperty->GetJustification(); 
@@ -607,17 +636,23 @@ int vtkCaptionActor2D::GetJustification()
     return 0;
     }
 }
+#endif
     
+#ifndef VTK_REMOVE_LEGACY_CODE
 void vtkCaptionActor2D::SetVerticalJustification(int val)
 { 
+  VTK_LEGACY_METHOD(SetVerticalJustification, "4.2");
   if (this->CaptionTextProperty)
     {
     this->CaptionTextProperty->SetVerticalJustification(val); 
     }
 }
+#endif
 
+#ifndef VTK_REMOVE_LEGACY_CODE
 int vtkCaptionActor2D::GetVerticalJustification()
 { 
+  VTK_LEGACY_METHOD(GetVerticalJustification, "4.2");
   if (this->CaptionTextProperty)
     {
     return this->CaptionTextProperty->GetVerticalJustification(); 
@@ -627,3 +662,4 @@ int vtkCaptionActor2D::GetVerticalJustification()
     return 0;
     }
 }
+#endif
