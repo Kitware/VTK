@@ -53,6 +53,7 @@ public:
   vtkImageCursor3D();
   static vtkImageCursor3D *New() {return new vtkImageCursor3D;};
   const char *GetClassName() {return "vtkImageCursor3D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkSetVector3Macro(CursorPosition, float);
   vtkGetVector3Macro(CursorPosition, float);
@@ -69,7 +70,8 @@ protected:
   float CursorValue;
   int CursorRadius;
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  // not threaded because it's too simple a filter
+  void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 
 

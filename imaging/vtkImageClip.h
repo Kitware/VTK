@@ -42,12 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageClip  will make an image smaller.  The output must have
 // an image extent which is the subset of the input.  Data is
-// not copied in this filter.  If Automatic is On, then the new image extent
-// is automatically computed to remove uniform pixel values (white space).
-// Note that even small variations (ie OutputScalarType VTK_FLOAT)
-// will stop the clipping.  All the data must be parsed when the 
-// OutputImageExtent is recomputed.
-
+// not copied in this filter.  
 
 #ifndef __vtkImageClip_h
 #define __vtkImageClip_h
@@ -66,32 +61,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get whether to use automatic clipping.
-  vtkSetMacro(Automatic,int);
-  vtkGetMacro(Automatic,int);
-  vtkBooleanMacro(Automatic,int);
-  
-  // Description:
-  // The new image extent.  You should turn automatic clipping off
-  // if you want to set the OutputImageExtent.
-  void SetOutputWholeExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(OutputWholeExtent);
-  void GetOutputWholeExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(OutputWholeExtent);
-  void SetOutputAxisWholeExtent(int axis, int min, int max);
-  
+  // The image extent of the output has to be set explicitely.
+  void SetOutputWholeExtent(int extent[6]);
+  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
+			    int minZ, int maxZ);
+  void GetOutputWholeExtent(int extent[6]);
+  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+
   void ResetOutputWholeExtent();
-  void InternalUpdate();
+  void InternalUpdate(vtkImageData *outData);
 
 protected:
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
-  int Automatic;
   int Initialized; // Set the OutputImageExtent for the first time.
   int OutputWholeExtent[6];
   
   void ExecuteImageInformation();
-  void ComputeOutputWholeExtent();
 };
 
 

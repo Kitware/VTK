@@ -76,7 +76,7 @@ public:
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-  void InternalUpdate(vtkImageData *outData);
+  virtual void InternalUpdate(vtkImageData *outData);
   void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
@@ -113,7 +113,7 @@ protected:
   virtual void ExecuteImageInformation();
   virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6]);
 
-  void RecursiveStreamUpdate(vtkImageData *outData, int axis);
+  virtual void RecursiveStreamUpdate(vtkImageData *outData, int axis);
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 

@@ -38,53 +38,63 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageCursor3D.h"
 
 
 //----------------------------------------------------------------------------
+void vtkImageCursor3D::PrintSelf(ostream& os, vtkIndent indent)
+{
+  int idx;
+  
+  os << indent << "Cursor Radius: " << this->CursorRadius << "\n";
+  os << indent << "Cursor Value: " << this->CursorValue << "\n";
+  os << indent << "Cursor Position: (" << this->CursorPosition[0];
+  for (idx = 1; idx < 3; ++idx)
+    {
+    os << ", " << this->CursorPosition[idx];
+    }
+  os << ")\n";
+  
+  vtkImageInPlaceFilter::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
 vtkImageCursor3D::vtkImageCursor3D()
 {
-  int axes[3];
-
-  axes[0] = 0;
-  axes[1] = 1;
-  axes[2] = 2;
-  
   this->CursorPosition[0] = 0;
   this->CursorPosition[1] = 0;
   this->CursorPosition[2] = 0;
   
   this->CursorRadius = 5;
-  
-  this->NumberOfFilteredAxes = 3;
-  this->NumberOfExecutionAxes = 3;
+  this->CursorValue = 255;
 }
 
 
 
 template <class T>
 static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
-				    vtkImageRegion *outRegion, T *ptr)
+				    vtkImageData *outData, T *ptr)
 {
   int min0, max0, min1, max1, min2, max2;
-  float c0, c1, c2;
+  int c0, c1, c2;
   int idx;
   float value = 0.0;
   int rad = self->GetCursorRadius();
   
-  self->GetCursorPosition(c0, c1, c2);
+  c0 = (int)(self->GetCursorPosition()[0]);
+  c1 = (int)(self->GetCursorPosition()[1]);
+  c2 = (int)(self->GetCursorPosition()[2]);
   value = self->GetCursorValue();
   
-  outRegion->GetExtent(min0, max0, min1, max1, min2, max2);
-
+  outData->GetExtent(min0, max0, min1, max1, min2, max2);
+  
   if (c1 >= min1 && c1 <= max1 && c2 >= min2 && c2 <= max2)
     {
     for (idx = c0 - rad; idx <= c0 + rad; ++idx)
       {
       if (idx >= min0 && idx <= max0)
 	{
-	ptr = (T *)(outRegion->GetScalarPointer(idx, c1, c2));
+	ptr = (T *)(outData->GetScalarPointer(idx, c1, c2));
 	*ptr = (T)(value);
 	}
       }
@@ -97,7 +107,7 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
       {
       if (idx >= min1 && idx <= max1)
 	{
-	ptr = (T *)(outRegion->GetScalarPointer(c0, idx, c2));
+	ptr = (T *)(outData->GetScalarPointer(c0, idx, c2));
 	*ptr = (T)(value);
 	}
       }
@@ -110,7 +120,7 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
       {
       if (idx >= min2 && idx <= max2)
 	{
-	ptr = (T *)(outRegion->GetScalarPointer(c0, c1, idx));
+	ptr = (T *)(outData->GetScalarPointer(c0, c1, idx));
 	*ptr = (T)(value);
 	}
       }
@@ -118,34 +128,33 @@ static void vtkImageCursor3DExecute(vtkImageCursor3D *self,
 }
 
 //----------------------------------------------------------------------------
-// Split up into finished and border regions.  Fill the border regions.
-void vtkImageCursor3D::Execute(vtkImageRegion *inRegion, 
-			       vtkImageRegion *outRegion)
+// Split up into finished and border datas.  Fill the border datas.
+void vtkImageCursor3D::Execute(vtkImageData *vtkNotUsed(inData), 
+			       vtkImageData *outData)
 {
   void *ptr = NULL;
-
-  inRegion = inRegion;
-  switch (outRegion->GetScalarType())
+  
+  switch (outData->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageCursor3DExecute(this, 
-			  outRegion, (float *)(ptr));
+			      outData, (float *)(ptr));
       break;
     case VTK_INT:
       vtkImageCursor3DExecute(this, 
-			  outRegion, (int *)(ptr));
+			      outData, (int *)(ptr));
       break;
     case VTK_SHORT:
       vtkImageCursor3DExecute(this, 
-			  outRegion, (short *)(ptr));
+			      outData, (short *)(ptr));
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageCursor3DExecute(this, 
-			  outRegion, (unsigned short *)(ptr));
+			      outData, (unsigned short *)(ptr));
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageCursor3DExecute(this, 
-			  outRegion, (unsigned char *)(ptr));
+			      outData, (unsigned char *)(ptr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

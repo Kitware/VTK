@@ -43,8 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageInPlaceFilter is a filter super class that 
 // operates directly on the input region.  The data is copied
 // if the requested region has different extent than the input region
-// or some other object is referencing the input region.  No streaming
-// is available for in-place filters.
+// or some other object is referencing the input region.  
 
 // .SECTION See Also
 // vtkImageFilter vtImageMultipleInputFilter vtkImageTwoInputFilter
@@ -54,56 +53,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h
 
-#include "vtkImageSource.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsToImage.h"
+#include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageSource
+class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageFilter
 {
 public:
-  vtkImageInPlaceFilter();
   static vtkImageInPlaceFilter *New() {return new vtkImageInPlaceFilter;};
   const char *GetClassName() {return "vtkImageInPlaceFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void SetInput(vtkImageCache *input);
-  void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
-
-  void InternalUpdate();
-  void UpdateImageInformation();
-  unsigned long int GetPipelineMTime();
-  
-  // Description:
-  // Get input to this InPlaceFilter.
-  vtkGetObjectMacro(Input,vtkImageCache);
-  
-  // Description:
-  // Turning bypass on will causse the filter to turn off and
-  // simply pass the data from the first input (input0) through.  
-  // It is implemented for consitancy with vtkImageFilter.
-  vtkSetMacro(Bypass,int);
-  vtkGetMacro(Bypass,int);
-  vtkBooleanMacro(Bypass,int);
-
-  // Description:
-  // Filtered axes specify the axes which will be operated on.
-  vtkGetMacro(NumberOfFilteredAxes, int);
-
+  virtual void InternalUpdate(vtkImageData *outData);
 protected:
-  int FilteredAxes[4];
-  int NumberOfFilteredAxes;
-  vtkImageCache *Input;     
-  int Bypass;
-  int Updating;
-  
-  virtual void SetFilteredAxes(int num, int *axes);
-  virtual void ExecuteImageInformation();
-  virtual void ComputeRequiredInputUpdateExtent();
+  virtual void RecursiveStreamUpdate(vtkImageData *outData,int splitAxis);
+  void CopyData(vtkImageData *in, vtkImageData *out);
 
-  virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
-				    vtkImageRegion *outRegion);
-  virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
