@@ -11,7 +11,9 @@ IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
   WRITE_FILE(
     ${VTK_BINARY_DIR}/CMakeTmp/TestExplicitInstantiation/CMakeLists.txt
     "PROJECT(EXPLICIT)\n"
-    "ADD_EXECUTABLE(A A.cxx B.cxx)\n"
+    "ADD_LIBRARY(A A.cxx)\n"
+    "ADD_EXECUTABLE(B B.cxx)\n"
+    "TARGET_LINK_LIBRARIES(B A)\n"
     )
   WRITE_FILE(
     ${VTK_BINARY_DIR}/CMakeTmp/TestExplicitInstantiation/A.h
