@@ -237,15 +237,6 @@ void vtkOpenGLRenderer::DeviceRender(void)
   this->UpdateCamera();
   this->UpdateLights();
 
-  if (this->RenderWindow->GetNumLayers() > 1)
-    {
-    // Find the acceptable range for the z-buffer for this layer and clamp
-    // our geometry to it when we render.
-    float  zbuff_min, zbuff_max;
-    this->RenderWindow->GetLayer(this->Layer, zbuff_min, zbuff_max);
-    glDepthRange(zbuff_min, zbuff_max);
-    }
-
   // set matrix mode for actors 
   glMatrixMode(GL_MODELVIEW);
 
@@ -305,13 +296,22 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkOpenGLRenderer::Clear(void)
 {
-  glClearColor( ((GLclampf)(this->Background[0])),
-                ((GLclampf)(this->Background[1])),
-                ((GLclampf)(this->Background[2])),
-                ((GLclampf)(1.0)) );
+  GLbitfield  clear_mask = 0;
+
+  if (! this->Transparent())
+    {
+    glClearColor( ((GLclampf)(this->Background[0])),
+                  ((GLclampf)(this->Background[1])),
+                  ((GLclampf)(this->Background[2])),
+                  ((GLclampf)(1.0)) );
+    clear_mask |= GL_COLOR_BUFFER_BIT;
+    }
+
   glClearDepth( (GLclampd)( 1.0 ) );
+  clear_mask |= GL_DEPTH_BUFFER_BIT;
+
   vtkDebugMacro(<< "glClear\n");
-  glClear((GLbitfield)(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+  glClear(clear_mask);
 }
 
 void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
