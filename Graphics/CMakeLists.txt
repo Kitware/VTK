@@ -46,6 +46,7 @@ vtkGaussianSplatter
 vtkGeometryFilter
 vtkGlyph2D
 vtkGlyph3D
+vtkGlyphSource2D
 vtkHedgeHog
 vtkHyperStreamline
 vtkIdFilter

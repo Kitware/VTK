@@ -1,7 +1,6 @@
 SOURCE_FILES( Imaging_SRCS
 vtkBooleanTexture
 vtkExtractVOI
-vtkGlyphSource2D
 vtkImageAccumulate
 vtkImageAnisotropicDiffusion2D
 vtkImageAnisotropicDiffusion3D
