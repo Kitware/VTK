@@ -26,24 +26,21 @@ pack .top.f1.r2 -side left -padx 3 -pady 3 -fill both -expand t
 pack .top.f1  -fill both -expand t
 pack .top.btn -fill x
 
-puts [bind .top.f1.r1]
-puts [bind .top.f1.r2]
-
-# Create graphics pipeline
-#
-
 # Get the render window associated with the widget.
 set renWin1 [.top.f1.r1 GetRenderWindow]
-set ren1   [$renWin1 MakeRenderer]
+vtkRenderer ren1;
+$renWin1 AddRenderer ren1;
 
 set renWin2 [.top.f1.r2 GetRenderWindow]
-set ren2   [$renWin2 MakeRenderer]
+vtkRenderer ren2;
+$renWin2 AddRenderer ren2;
 
 
 # create a sphere source and actor
 vtkSphereSource sphere
 vtkPolyDataMapper   sphereMapper
     sphereMapper SetInput [sphere GetOutput]
+    sphereMapper ImmediateModeRenderingOn
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
@@ -58,17 +55,18 @@ vtkGlyph3D glyph
     glyph SetScaleFactor 0.25
 vtkPolyDataMapper spikeMapper
     spikeMapper SetInput [glyph GetOutput]
+    spikeMapper ImmediateModeRenderingOn
 vtkLODActor spikeActor
     spikeActor SetMapper spikeMapper
 
 # Add the actors to the renderer, set the background and size
 #
-$ren1 AddActor sphereActor
-$ren1 AddActor spikeActor
-$ren1 SetBackground 0.1 0.2 0.4
+ren1 AddActor sphereActor
+ren1 AddActor spikeActor
+ren1 SetBackground 0.1 0.2 0.4
 $renWin1 SetSize 300 300
 
-$ren2 AddActor sphereActor
-$ren2 AddActor spikeActor
-$ren2 SetBackground 0.1 0.2 0.4
+ren2 AddActor sphereActor
+ren2 AddActor spikeActor
+ren2 SetBackground 0.1 0.2 0.4
 $renWin2 SetSize 300 300
