@@ -21,7 +21,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.11");
+vtkCxxRevisionMacro(vtkTextActor, "1.12");
 vtkStandardNewMacro(vtkTextActor);
 
 vtkCxxSetObjectMacro(vtkTextActor,TextProperty,vtkTextProperty);
@@ -147,27 +147,28 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
   vtkTextMapper *mapper = (vtkTextMapper *)this->GetMapper();
   if (!mapper)
     {
+    vtkErrorMacro(<<"Need mapper to render text actor");
     return 0;
     }
 
   vtkTextProperty *tprop = this->GetTextProperty();
-  if (!tprop)
+  vtkTextProperty *tpropmapper = mapper->GetTextProperty();
+  if (!tprop && !tpropmapper)
     {
     vtkErrorMacro(<<"Need text property to render text actor");
     return 0;
     }
 
-  if (tprop->GetMTime() > this->BuildTime)
+  if (tprop && tprop->GetMTime() > this->BuildTime)
     {
     // Shallow copy here so that the size of the text prop is not affected
     // by the automatic adjustment of its text mapper's size (i.e. its
     // mapper's text property is identical except for the font size
     // which will be modified later). This allows text actors to
     // share the same text property.
-    vtkTextProperty *tproptemp = mapper->GetTextProperty();
-    if (tproptemp)
+    if (tpropmapper && tprop->GetMTime() > tpropmapper->GetMTime())
       {
-      tproptemp->ShallowCopy(tprop);
+      tpropmapper->ShallowCopy(tprop);
       }
     }
 
@@ -221,9 +222,19 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         v = point2[1];
         break;
       }
+
+      viewport->ViewportToNormalizedViewport(u, v);
+      this->AdjustedPositionCoordinate->SetValue(u,v);
+      this->BuildTime.Modified();
     } 
   else 
     {
+    point1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
+    point2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
+
+    size[0] = point2[0] - point1[0];
+    size[1] = point2[1] - point1[1];
+
     // Check to see whether we have to rebuild everything
     if (viewport->GetMTime() > this->BuildTime ||
         (viewport->GetVTKWindow() &&
@@ -231,11 +242,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       // if the viewport has changed we may - or may not need
       // to rebuild, it depends on if the projected coords change
-      point1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
-      point2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-      size[0] = point2[0] - point1[0];
-      size[1] = point2[1] - point1[1];
-      if (this->LastSize[0] != size[0]     || this->LastSize[1] != size[1] ||
+      if (this->LastSize[0]   != size[0]   || this->LastSize[1]   != size[1] ||
           this->LastOrigin[0] != point1[0] || this->LastOrigin[1] != point1[1])
         {
         this->Modified();
@@ -245,23 +252,20 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     // Check to see whether we have to rebuild everything
     if (this->GetMTime() > this->BuildTime ||
         mapper->GetMTime() > this->BuildTime ||
-        tprop->GetMTime() > this->BuildTime)
+        tpropmapper->GetMTime() > this->BuildTime)
       {
+      // printf("Rebuilding text\n");
       vtkDebugMacro(<<"Rebuilding text");
 
-      // get the viewport size in display coordinates
-      point1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
-      point2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
-      size[0] = point2[0] - point1[0];
-      size[1] = point2[1] - point1[1];
       this->LastOrigin[0] = point1[0];
       this->LastOrigin[1] = point1[1];
 
       //  Lets try to minimize the number of times we change the font size.
       //  If the width of the font box has not changed by more than a pixel
-      // (numerical issues)  do not recompute font size.
-      if (this->LastSize[0] < size[0]-1 || this->LastSize[1] < size[1]-1 ||
-          this->LastSize[0] > size[0]+1 || this->LastSize[1] > size[1]+1)
+      // (numerical issues) do not recompute font size.
+      if (tpropmapper->GetMTime() > this->BuildTime ||
+          this->LastSize[0] < size[0] - 1 || this->LastSize[1] < size[1] - 1 ||
+          this->LastSize[0] > size[0] + 1 || this->LastSize[1] > size[1] + 1)
         {
         this->LastSize[0] = size[0];
         this->LastSize[1] = size[1];
@@ -285,7 +289,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
     
       // now set the position of the Text
       int fpos[2];
-      switch (tprop->GetJustification())
+      switch (tpropmapper->GetJustification())
         {
         case VTK_TEXT_LEFT:
           fpos[0] = point1[0];
@@ -297,7 +301,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
           fpos[0] = point1[0]+size[0];
           break;
         }
-      switch (tprop->GetVerticalJustification())
+      switch (tpropmapper->GetVerticalJustification())
         {
         case VTK_TEXT_TOP:
           fpos[1] = point1[1] + size[1];
@@ -312,12 +316,12 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
       u = fpos[0];
       v = fpos[1];
+
+      viewport->ViewportToNormalizedViewport(u, v);
+      this->AdjustedPositionCoordinate->SetValue(u,v);
+      this->BuildTime.Modified();
       }
     }
-
-  viewport->ViewportToNormalizedViewport(u, v);
-  this->AdjustedPositionCoordinate->SetValue(u,v);
-  this->BuildTime.Modified();
 
   // Everything is built, just have to render
   return this->vtkActor2D::RenderOpaqueGeometry(viewport);
