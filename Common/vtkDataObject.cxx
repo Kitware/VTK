@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.86");
+vtkCxxRevisionMacro(vtkDataObject, "1.87");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -284,10 +284,10 @@ void vtkDataObject::UpdateInformation()
 
 void vtkDataObject::PropagateUpdateExtent()
 {
-  if (this->UpdateExtentIsEmpty())
-    {
-    return;
-    }
+  //if (this->UpdateExtentIsEmpty())
+  //  {
+  //  return;
+  //  }
   
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the update extent to the source 
@@ -522,9 +522,9 @@ int vtkDataObject::VerifyUpdateExtent()
     {
     // Are we asking for more pieces than we can get?
     case VTK_PIECES_EXTENT:
-      if ( this->UpdatePiece >= this->UpdateNumberOfPieces ||
+      if ( 0 && this->UpdatePiece >= this->UpdateNumberOfPieces ||
         this->UpdatePiece < 0 )
-        {
+        { // This does nothing for the moment. I want to request nothing.
         vtkErrorMacro( << "Invalid update piece " << this->UpdatePiece
         << ". Must be between 0 and " 
         << this->UpdateNumberOfPieces - 1);
@@ -540,23 +540,27 @@ int vtkDataObject::VerifyUpdateExtent()
           this->UpdateExtent[3] > this->WholeExtent[3] ||
           this->UpdateExtent[4] < this->WholeExtent[4] ||
           this->UpdateExtent[5] > this->WholeExtent[5] )
-        {
-        vtkErrorMacro( << "Update extent does not lie within whole extent" );
-        vtkErrorMacro( << "Update extent is: " <<
-        this->UpdateExtent[0] << ", " <<
-        this->UpdateExtent[1] << ", " <<
-        this->UpdateExtent[2] << ", " <<
-        this->UpdateExtent[3] << ", " <<
-        this->UpdateExtent[4] << ", " <<
-        this->UpdateExtent[5]);
-        vtkErrorMacro( << "Whole extent is: " <<
-        this->WholeExtent[0] << ", " <<
-        this->WholeExtent[1] << ", " <<
-        this->WholeExtent[2] << ", " <<
-        this->WholeExtent[3] << ", " <<
-        this->WholeExtent[4] << ", " <<
-        this->WholeExtent[5]);
-
+        { // Update extent outside whole extent.
+        if (this->UpdateExtent[1] >= this->UpdateExtent[0] &&
+            this->UpdateExtent[3] >= this->UpdateExtent[2] &&
+            this->UpdateExtent[5] >= this->UpdateExtent[4])
+          { // non empty update extent.
+          vtkErrorMacro( << "Update extent does not lie within whole extent" );
+          vtkErrorMacro( << "Update extent is: " <<
+            this->UpdateExtent[0] << ", " <<
+            this->UpdateExtent[1] << ", " <<
+            this->UpdateExtent[2] << ", " <<
+            this->UpdateExtent[3] << ", " <<
+            this->UpdateExtent[4] << ", " <<
+            this->UpdateExtent[5]);
+          vtkErrorMacro( << "Whole extent is: " <<
+            this->WholeExtent[0] << ", " <<
+            this->WholeExtent[1] << ", " <<
+            this->WholeExtent[2] << ", " <<
+            this->WholeExtent[3] << ", " <<
+            this->WholeExtent[4] << ", " <<
+            this->WholeExtent[5]);
+          }
         retval = 0;
         }
       break;

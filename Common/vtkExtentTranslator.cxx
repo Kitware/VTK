@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
 
-vtkCxxRevisionMacro(vtkExtentTranslator, "1.19");
+vtkCxxRevisionMacro(vtkExtentTranslator, "1.20");
 vtkStandardNewMacro(vtkExtentTranslator);
 
 //----------------------------------------------------------------------------
@@ -135,6 +135,11 @@ int vtkExtentTranslator::SplitExtent(int piece, int numPieces, int *ext,
   int splitAxis;
   vtkLargeInteger mid;
   
+  if (piece >= numPieces || piece < 0)
+    {
+    return 0;
+    }
+
   // keep splitting until we have only one piece.
   // piece and numPieces will always be relative to the current ext. 
   while (numPieces > 1)
