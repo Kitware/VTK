@@ -47,11 +47,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkRayBounder.h"
 
+class vtkPolyData;
+
 class VTK_EXPORT vtkProjectedPolyDataRayBounder : public vtkRayBounder
 {
 public:
   vtkTypeMacro(vtkProjectedPolyDataRayBounder,vtkRayBounder);
-  void PrintSelf(ostream& os, vtkIndent indent);
   
   static vtkProjectedPolyDataRayBounder *New() 
     {return new vtkProjectedPolyDataRayBounder;};
@@ -75,8 +76,8 @@ public:
     {vtkErrorMacro("vtkRayBounder and all subclasses have been obsoleted.");}
 
 protected:
-  vtkProjectedPolyDataRayBounder();
-  ~vtkProjectedPolyDataRayBounder();
+  vtkProjectedPolyDataRayBounder(){};
+  ~vtkProjectedPolyDataRayBounder(){};
   vtkProjectedPolyDataRayBounder(const vtkProjectedPolyDataRayBounder&);
   void operator=(const vtkProjectedPolyDataRayBounder&);
 };
