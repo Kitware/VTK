@@ -83,11 +83,14 @@ VTK_THREAD_RETURN_TYPE process_b( void *arg )
     {
     renWin->SetFileName( save_filename );
     renWin->SaveImageAsPPM();
-    exit( 1 );
+    // Tell the other process to stop waiting.
+    controller->TriggerRMI(otherid, VTK_BREAK_RMI_TAG);
     }
-
-  //  Begin mouse interaction
-  iren->Start();
+  else
+    {
+    //  Begin mouse interaction
+    iren->Start();
+    }
   
   // Clean up
   ren->Delete();
@@ -121,6 +124,8 @@ void main( int argc, char *argv[] )
   controller->MultipleMethodExecute();
 
   controller->UnRegister(NULL);
+  
+  exit( 1 );
 }
 
 
