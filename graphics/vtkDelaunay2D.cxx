@@ -156,7 +156,7 @@ int vtkDelaunay2D::InCircle (double x[3], double x1[3], double x2[3],
     }
 }
 
-#define VTK_DEL2D_TOLERANCE 1.0e-012
+#define VTK_DEL2D_TOLERANCE 1.0e-014
 
 // Recursive method to locate triangle containing point. Starts with arbitrary
 // triangle (tri) and "walks" towards it. Influenced by some of Guibas and 
@@ -170,7 +170,8 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
   int i, j, npts, *pts, inside, i2, i3, newNei;
   vtkIdList *neighbors;
   double p[3][3], n[2], vp[2], vx[2], dp, minProj;
-  
+  int e1, e2;
+
   // get local triangle info
   this->Mesh->GetCellPoints(tri,npts,pts);
   for (i=0; i<3; i++) 
@@ -207,14 +208,16 @@ int vtkDelaunay2D::FindTriangle(double x[3], int ptIds[3], int tri,
       }
 
     // see if two points are in opposite half spaces
-    dp = vtkMath::Dot2D(n,vp) * vtkMath::Dot2D(n,vx);
+    dp = vtkMath::Dot2D(n,vx) * (vtkMath::Dot2D(n,vp) < 0 ? -1.0 : 1.0);
     if ( dp < VTK_DEL2D_TOLERANCE )
       {
       if ( dp < minProj ) //track edge most orthogonal to point direction
         {
         inside = 0;
         nei[1] = ptIds[i];
+				e1 = ptIds[i];
         nei[2] = ptIds[i2];
+				e2 = ptIds[i2];
         minProj = dp;
         }
       }//outside this edge
@@ -472,13 +475,15 @@ void vtkDelaunay2D::Execute()
         //replace two triangles
         this->Mesh->RemoveReferenceToCell(nei[2],tri[0]);
         this->Mesh->RemoveReferenceToCell(nei[2],nei[0]);
-        nodes[0][0] = ptId; nodes[0][1] = p1; nodes[0][2] = nei[1];
+        nodes[0][0] = ptId; nodes[0][1] = p2; nodes[0][2] = nei[1];
         this->Mesh->ReplaceCell(tri[0], 3, nodes[0]);
-        nodes[1][0] = ptId; nodes[1][1] = p2; nodes[1][2] = nei[1];
+        nodes[1][0] = ptId; nodes[1][1] = p1; nodes[1][2] = nei[1];
         this->Mesh->ReplaceCell(nei[0], 3, nodes[1]);
         this->Mesh->ResizeCellList(ptId, 2);
         this->Mesh->AddReferenceToCell(ptId,tri[0]);
         this->Mesh->AddReferenceToCell(ptId,nei[0]);
+
+        tri[1] = nei[0];
 
         //create two new triangles
         nodes[2][0] = ptId; nodes[2][1] = p2; nodes[2][2] = nei[2];
@@ -517,8 +522,8 @@ void vtkDelaunay2D::Execute()
 
   if ( this->NumberOfDegeneracies > 0 )
     {
-    vtkWarningMacro(<< this->NumberOfDegeneracies 
-                 << " degenerate triangles encountered, mesh quality suspect");
+    vtkDebugMacro(<< this->NumberOfDegeneracies 
+    << " degenerate triangles encountered, mesh quality suspect");
     }
 
   // Finish up by recovering the boundary, or deleting all triangles connected 
