@@ -52,8 +52,8 @@ except ImportError:
         pass
     
 
-import os.path
-from vtkGetDataRoot import *
+import sys, os.path
+
     
 def vtkRegressionTestImage( renWin ):
     
