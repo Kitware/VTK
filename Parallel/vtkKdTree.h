@@ -135,22 +135,31 @@ public:
   //    Partition along all three axes - this is the default
   void OmitNoPartitioning();
 
-  // Description:
-  // Add a data set to the list of those included in spatial paritioning
-  void SetDataSet(vtkDataSet *set);
+  //  Description
+  //     This class can compute a spatial decomposition based on the
+  //     cells in a list of one or more input data sets.
+  //     SetDataSet sets the first data set in the list to the named set.
+  //     SetNthDataSet sets the data set at index N to the data set named.
+  //     RemoveData set takes either the data set itself or an index and
+  //   removes that data set from the list of data sets.
+  //     AddDataSet adds a data set to the list of data sets.
 
-  // Description:
-  //   Remove a data set from the list of those included in spatial paritioning
+  void SetDataSet(vtkDataSet *set);
+  void SetNthDataSet(int index, vtkDataSet *set);
+  void RemoveDataSet(int index);
   void RemoveDataSet(vtkDataSet *set);
-  void RemoveDataSet(int which);
+  void AddDataSet(vtkDataSet *set);
 
   // Description:
   //   Get the number of data sets included in spatial paritioning
   int GetNumberOfDataSets(){return this->NumDataSets;};
 
   // Description:
-  //   Get one of the data sets included in spatial paritioning
-  vtkDataSet *GetDataSet(int i){return this->DataSet?this->DataSets[i]:0;}
+  //   Get the nth defined data set in the spatial partitioning.
+  //   (If you used SetNthDataSet to define 0,1 and 3 and ask for
+  //   data set 2, you get 3.)
+
+  vtkDataSet *GetDataSet(int n);
   vtkDataSet *GetDataSet(){ return this->GetDataSet(0); }
 
   // Description:
@@ -694,7 +703,10 @@ private:
                                int len, float tolerance2);
 
   int _FindClosestPointInRegion(int regionId, 
-                                float x, float y, float z, float &dist2);
+                          float x, float y, float z, float &dist2);
+
+  int FindClosestPointInSphere(float x, float y, float z, float radius,
+                               int skipRegion, float &dist2);
 
   void NewParitioningRequest(int req);
   void SetInputDataInfo(int i, 
