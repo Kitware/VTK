@@ -13,38 +13,7 @@
 #
 #===========================================================================
 
-# As of December 15, 2004 VTK no longer includes windows.h by default
-# in most of its header files.  This change results in a 70% compile
-# time reduction on Windows compilers because the compiler does not
-# have to parse the 280K lines of source the preprocessor produces
-# from windows.h.  All VTK code that still includes windows.h does so
-# through vtkWindows.h which includes a minimal part of the real
-# windows.h header.
-#
-# In order to avoid the windows method mangling problem all three
-# possible names for such methods (Foo, FooA, and FooW) are provided
-# using a preprocessor trick.  Users can detect places in their own code
-# that may need this trick by using the cmake script
-# VTK/Utilities/Upgrading/FindWindowsMangledMethods.cmake.
-#
-# There are two backward-compatibility issues:
-#
-# 1.) User code that used the windows API without including windows.h
-# that worked before because VTK included it will now break until the
-# explicit inclusion is added.  This is considered acceptable because
-# the code was technically wrong in the first place.  As a quick-fix,
-# users can define VTK_INCLUDE_WINDOWS_H in their application and VTK
-# will include windows.h as it did before.
-#
-# 2.) A few virtual functions in VTK were renamed and replaced by
-# non-virtuals that forward their calls to a virtual internal
-# implementation.  User code calling these methods will not be affected.
-# User code wishing to override these methods in a subclass will have to
-# rename to the internal name.  Such user methods will also be exposed
-# by the above mentioned CMake script.  The most common such method is
-# GetClassName, which has been renamed to GetClassNameInternal.  Since
-# user code is supposed to define this method by using vtkTypeMacro or
-# vtkTypeRevisionMacro, this should not be a problem.
+# See README.WindowsMangling.txt for the purpose of this script.
 
 #-----------------------------------------------------------------------------
 # Instructions to use this script:
