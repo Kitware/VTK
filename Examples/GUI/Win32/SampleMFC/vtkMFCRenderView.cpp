@@ -26,9 +26,22 @@ vtkMFCRenderView::vtkMFCRenderView()
 
 vtkMFCRenderView::~vtkMFCRenderView()
 {
-  if (this->Interactor) this->Interactor->Delete();
-  if (this->Renderer) this->Renderer->Delete();
-  if (this->RenderWindow) this->RenderWindow->Delete();
+  if (this->Interactor) 
+    {
+    this->Interactor->Delete();
+    }
+  if (this->Renderer) 
+    {
+    this->Renderer->SetRenderWindow(NULL);
+    }
+  if (this->RenderWindow) 
+    {
+    this->RenderWindow->Delete();
+    }
+  if (this->Renderer) 
+    {
+    this->Renderer->Delete();
+    }
 }
 
 
