@@ -624,7 +624,7 @@ virtual float *Get##name() \
   { \
     if ( o && o->IsA(#thisClass) ) \
       { \
-      return (thisClass *)o; \
+      return static_cast<thisClass *>(o); \
       } \
     return NULL;\
   }
