@@ -163,7 +163,7 @@ void vtkArrayCalculator::SetResultArrayName(const char* name)
     vtkErrorMacro("The result array must have a name.");
     return;
     }
-  if (strcmp(this->ResultArrayName, name) == 0)
+  if (this->ResultArrayName != NULL && strcmp(this->ResultArrayName, name) == 0)
     {
     return;
     }
