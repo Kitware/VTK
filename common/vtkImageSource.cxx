@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageSource.h"
-
+#include "vtkImageToStructuredPoints.h"
 
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
