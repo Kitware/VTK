@@ -297,42 +297,41 @@ void vtkPolyData::Initialize()
   vtkPointSet::Initialize();
 
   if ( this->Verts ) 
-  {
+    {
     this->Verts->UnRegister(this);
     this->Verts = NULL;
-  }
+    }
 
   if ( this->Lines ) 
-  {
+    {
     this->Lines->UnRegister(this);
     this->Lines = NULL;
-  }
+    }
 
   if ( this->Polys ) 
-  {
+    {
     this->Polys->UnRegister(this);
     this->Polys = NULL;
-  }
+    }
 
   if ( this->Strips ) 
-  {
+    {
     this->Strips->UnRegister(this);
     this->Strips = NULL;
-  }
+    }
 
   if ( this->Cells )
-  {
+    {
     this->Cells->UnRegister(this);
     this->Cells = NULL;
-  }
+    }
 
   if ( this->Links )
-  {
+    {
     this->Links->UnRegister(this);
     this->Links = NULL;
-  }
-
-};
+    }
+}
 
 int vtkPolyData::GetMaxCellSize() 
 {

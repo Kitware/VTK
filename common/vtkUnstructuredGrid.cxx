@@ -118,23 +118,23 @@ void vtkUnstructuredGrid::Initialize()
   vtkPointSet::Initialize();
 
   if ( this->Connectivity )
-  {
+    {
     this->Connectivity->UnRegister(this);
     this->Connectivity = NULL;
-  }
+    }
 
   if ( this->Cells )
-  {
+    {
     this->Cells->UnRegister(this);
     this->Cells = NULL;
-  }
+    }
 
   if ( this->Links )
-  {
+    {
     this->Links->UnRegister(this);
     this->Links = NULL;
-  }
-};
+    }
+}
 
 int vtkUnstructuredGrid::GetCellType(int cellId)
 {
