@@ -72,9 +72,18 @@ void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 // Append data sets into single unstructured grid
 void vtkAppendPolyData::Execute()
 {
-  int scalarsPresentInPD, vectorsPresentInPD;
-  int normalsPresentInPD, tcoordsPresentInPD;
-  int tensorsPresentInPD, fieldPresentInPD;
+  int scalarsPresentInPD;
+  vtkScalars *newPtScalars = NULL;
+  int vectorsPresentInPD;
+  vtkVectors *newPtVectors = NULL;
+  int normalsPresentInPD;
+  vtkNormals *newPtNormals = NULL;
+  int tcoordsPresentInPD;
+  vtkTCoords *newPtTCoords = NULL;
+  int tensorsPresentInPD;
+  vtkTensors *newPtTensors = NULL;
+  int fieldPresentInPD;
+  vtkFieldData *newPtField = NULL;
   int scalarsPresentInCD, vectorsPresentInCD;
   int normalsPresentInCD, tcoordsPresentInCD;
   int tensorsPresentInCD, fieldPresentInCD;
@@ -84,6 +93,7 @@ void vtkAppendPolyData::Execute()
   vtkCellArray *inVerts, *newVerts;
   vtkCellArray *inLines, *newLines;
   vtkCellArray *inPolys, *newPolys;
+  int sizePolys, numPolys, *pPolys;
   vtkCellArray *inStrips, *newStrips;
   int i, ptId, ptOffset, cellId, cellOffset;
   int numPts, numCells;
@@ -100,6 +110,7 @@ void vtkAppendPolyData::Execute()
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;
   numCells = 0;
+
   scalarsPresentInPD = 1;
   vectorsPresentInPD = 1;
   normalsPresentInPD = 1;
@@ -113,6 +124,7 @@ void vtkAppendPolyData::Execute()
   tensorsPresentInCD = 1;
   fieldPresentInCD = 1;
 
+  sizePolys = numPolys = 0;
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     ds = (vtkPolyData *)(this->Inputs[idx]);
@@ -123,35 +135,138 @@ void vtkAppendPolyData::Execute()
         {
         continue; //no input, just skip
         }
-
+      
+      // keep track of the size of the poly cell array
+      if (ds->GetPolys())
+	{
+	numPolys += ds->GetPolys()->GetNumberOfCells();
+	sizePolys += ds->GetPolys()->GetNumberOfConnectivityEntries();
+	}
+      
       numPts += ds->GetNumberOfPoints();
       numCells += ds->GetNumberOfCells();
       pd = ds->GetPointData();
       
-      if ( pd && pd->GetScalars() == NULL )
+      // complicated test to make sure all inputs that have points also
+      // have scalars, and point scalars of all inputs are of the same type
+      // with the same number of components.  Otherwise do not copy.
+      if (pd->GetScalars() == NULL )
         {
-        scalarsPresentInPD &= 0;
+	scalarsPresentInPD = 0;
         }
-      if ( pd && pd->GetVectors() == NULL )
+      if (scalarsPresentInPD && newPtScalars == NULL)
+	{
+	newPtScalars = (vtkScalars*)(pd->GetScalars()->MakeObject());
+	}
+      if (newPtScalars)
+	{
+	if (pd->GetScalars() == NULL ||
+	    newPtScalars->GetDataType() != pd->GetScalars()->GetDataType() ||
+	    newPtScalars->GetNumberOfComponents() 
+	                != pd->GetScalars()->GetNumberOfComponents())
+	  {
+	  scalarsPresentInPD = 0;
+	  newPtScalars->Delete();
+	  newPtScalars = NULL;
+	  }
+	}
+      // now for normals
+      if (pd->GetNormals() == NULL )
         {
-        vectorsPresentInPD &= 0;
+	normalsPresentInPD = 0;
         }
-      if ( pd && pd->GetNormals() == NULL )
+      if (normalsPresentInPD && newPtNormals == NULL)
+	{
+	newPtNormals = (vtkNormals*)(pd->GetNormals()->MakeObject());
+	}
+      if (newPtNormals)
+	{
+	if (pd->GetNormals() == NULL ||
+	    newPtNormals->GetDataType() != pd->GetNormals()->GetDataType())
+	  {
+	  normalsPresentInPD = 0;
+	  newPtNormals->Delete();
+	  newPtNormals = NULL;
+	  }
+	}
+      // now for vectors
+      if (pd->GetVectors() == NULL )
         {
-        normalsPresentInPD &= 0;
+	vectorsPresentInPD = 0;
         }
-      if ( pd && pd->GetTCoords() == NULL )
+      if (vectorsPresentInPD && newPtVectors == NULL)
+	{
+	newPtVectors = (vtkVectors*)(pd->GetVectors()->MakeObject());
+	}
+      if (newPtVectors)
+	{
+	if (pd->GetVectors() == NULL ||
+	    newPtVectors->GetDataType() != pd->GetVectors()->GetDataType())
+	  {
+	  vectorsPresentInPD = 0;
+	  newPtVectors->Delete();
+	  newPtVectors = NULL;
+	  }
+	}
+      // now for TCoords
+      if (pd->GetTCoords() == NULL )
         {
-        tcoordsPresentInPD &= 0;
+	tcoordsPresentInPD = 0;
         }
-      if ( pd && pd->GetTensors() == NULL )
+      if (tcoordsPresentInPD && newPtTCoords == NULL)
+	{
+	newPtTCoords = (vtkTCoords*)(pd->GetTCoords()->MakeObject());
+	}
+      if (newPtTCoords)
+	{
+	if (pd->GetTCoords() == NULL ||
+	    newPtTCoords->GetDataType() != pd->GetTCoords()->GetDataType())
+	  {
+	  tcoordsPresentInPD = 0;
+	  newPtTCoords->Delete();
+	  newPtTCoords = NULL;
+	  }
+	}
+      // now for tensors
+      if (pd->GetTensors() == NULL )
         {
-        tensorsPresentInPD &= 0;
+	tensorsPresentInPD = 0;
         }
-      if ( pd && pd->GetFieldData() == NULL )
+      if (tensorsPresentInPD && newPtTensors == NULL)
+	{
+	newPtTensors = (vtkTensors*)(pd->GetTensors()->MakeObject());
+	}
+      if (newPtTensors)
+	{
+	if (pd->GetTensors() == NULL ||
+	    newPtTensors->GetDataType() != pd->GetTensors()->GetDataType())
+	  {
+	  tensorsPresentInPD = 0;
+	  newPtTensors->Delete();
+	  newPtTensors = NULL;
+	  }
+	}
+      // now for field data
+      if (pd->GetFieldData() == NULL )
         {
-        fieldPresentInPD &= 0;
+	fieldPresentInPD = 0;
         }
+      if (fieldPresentInPD && newPtField == NULL)
+	{
+	newPtField = (vtkFieldData*)(pd->GetFieldData()->MakeObject());
+	}
+      if (newPtField)
+	{
+	if (pd->GetFieldData() == NULL ||
+	    newPtField->GetNumberOfArrays() 
+	                        != pd->GetFieldData()->GetNumberOfArrays())
+	  {
+	  // We should really check for array type too !
+	  fieldPresentInPD = 0;
+	  newPtField->Delete();
+	  newPtField = NULL;
+	  }
+	}
       
       cd = ds->GetCellData();
       if ( cd && cd->GetScalars() == NULL )
@@ -189,17 +304,44 @@ void vtkAppendPolyData::Execute()
 
   // Now can allocate memory
 
-  if ( !scalarsPresentInPD )
+  // we are going to copy date directly
+  outputPD->CopyScalarsOff();
+  if (newPtScalars)
     {
-    outputPD->CopyScalarsOff();
+    newPtScalars->SetNumberOfScalars(numPts);
     }
+  outputPD->CopyNormalsOff();
+  if (newPtNormals)
+    {
+    newPtNormals->SetNumberOfNormals(numPts);
+    }
+  outputPD->CopyVectorsOff();
+  if (newPtVectors)
+    {
+    newPtVectors->SetNumberOfVectors(numPts);
+    }
+  outputPD->CopyTCoordsOff();
+  if (newPtTCoords)
+    {
+    newPtTCoords->SetNumberOfTCoords(numPts);
+    }
+  outputPD->CopyTensorsOff();
+  if (newPtTensors)
+    {
+    newPtTensors->SetNumberOfTensors(numPts);
+    }
+  outputPD->CopyFieldDataOff();
+  if (newPtField)
+    {
+    for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
+      {
+      newPtField->GetArray(i)->SetNumberOfTuples(numPts);
+      }
+    }
+  
   if ( !vectorsPresentInPD )
     {
     outputPD->CopyVectorsOff();
-    }
-  if ( !normalsPresentInPD )
-    {
-    outputPD->CopyNormalsOff();
     }
   if ( !tcoordsPresentInPD )
     {
@@ -213,7 +355,6 @@ void vtkAppendPolyData::Execute()
     {
     outputPD->CopyFieldDataOff();
     }
-  outputPD->CopyAllocate(pd,numPts);
 
   // now do cell data
   if ( !scalarsPresentInCD )
@@ -251,12 +392,12 @@ void vtkAppendPolyData::Execute()
   newLines = vtkCellArray::New();
   newLines->Allocate(numCells*4);
 
-  newPolys = vtkCellArray::New();
-  newPolys->Allocate(numCells*4);
-
   newStrips = vtkCellArray::New();
   newStrips->Allocate(numCells*4);
 
+  newPolys = vtkCellArray::New();
+  pPolys = newPolys->WritePointer(numPolys, sizePolys);  
+  
   // loop over all input sets
   ptOffset = 0; 
   cellOffset = 0;
@@ -278,13 +419,52 @@ void vtkAppendPolyData::Execute()
       inPolys = ds->GetPolys();
       inStrips = ds->GetStrips();
       
-      // copy points and point data
-      for (ptId=0; ptId < numPts; ptId++)
-        {
-        newPts->SetPoint(ptId+ptOffset,inPts->GetPoint(ptId));
-        outputPD->CopyData(pd,ptId,ptId+ptOffset);
-        }
+      // copy points directly
+      this->AppendData(newPts->GetData(), 
+		       inPts->GetData(), ptOffset);
+      // copy scalars directly
+      if (newPtScalars)
+	{
+	this->AppendData(newPtScalars->GetData(), 
+			 pd->GetScalars()->GetData(), ptOffset);
+	}
+      // copy normals directly
+      if (newPtNormals)
+	{
+	this->AppendData(newPtNormals->GetData(), 
+			 pd->GetNormals()->GetData(), ptOffset);
+	}
+      // copy vectors directly
+      if (newPtVectors)
+	{
+	this->AppendData(newPtVectors->GetData(),
+			 pd->GetVectors()->GetData(), ptOffset);
+	}
+      // copy tcoords directly
+      if (newPtTCoords)
+	{
+	this->AppendData(newPtTCoords->GetData(), 
+			 pd->GetTCoords()->GetData(), ptOffset);
+	}
+      // copy tensors directly
+      if (newPtTensors)
+	{
+	this->AppendData(newPtTensors->GetData(), 
+			 pd->GetTensors()->GetData(), ptOffset);
+	}
+      // copy field directly
+      if (newPtField)
+	{
+	for (i = 0; i < newPtField->GetNumberOfArrays(); ++i)
+	  {
+	  this->AppendData(newPtField->GetArray(i), 
+			   pd->GetFieldData()->GetArray(i), ptOffset);
+	  }
+	}
       
+      
+      // cell data could be made efficient like the point data,
+      // but I will wait on that.
       // copy cell data
       for (cellId=0; cellId < numCells; cellId++)
         {
@@ -292,6 +472,9 @@ void vtkAppendPolyData::Execute()
         }
       
       // copy the cells
+      pPolys = this->AppendCells(pPolys, inPolys, ptOffset);
+      
+      // These other cell arrays could be made efficient like polys ...
       for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
         {
         newVerts->InsertNextCell(npts);
@@ -307,15 +490,6 @@ void vtkAppendPolyData::Execute()
         for (i=0; i < npts; i++)
           {
           newLines->InsertCellPoint(pts[i]+ptOffset);
-          }
-        }
-      
-      for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
-        {
-        newPolys->InsertNextCell(npts);
-        for (i=0; i < npts; i++)
-          {
-          newPolys->InsertCellPoint(pts[i]+ptOffset);
           }
         }
       
@@ -338,6 +512,32 @@ void vtkAppendPolyData::Execute()
   output->SetPoints(newPts);
   newPts->Delete();
 
+  if (newPtScalars)
+    {
+    output->GetPointData()->SetScalars(newPtScalars);
+    newPtScalars->Delete();
+    }
+  if (newPtNormals)
+    {
+    output->GetPointData()->SetNormals(newPtNormals);
+    newPtNormals->Delete();
+    }
+  if (newPtVectors)
+    {
+    output->GetPointData()->SetVectors(newPtVectors);
+    newPtVectors->Delete();
+    }
+  if (newPtTCoords)
+    {
+    output->GetPointData()->SetTCoords(newPtTCoords);
+    newPtTCoords->Delete();
+    }
+  if (newPtTensors)
+    {
+    output->GetPointData()->SetTensors(newPtTensors);
+    newPtTensors->Delete();
+    }
+  
   if ( newVerts->GetNumberOfCells() > 0 )
     {
     output->SetVerts(newVerts);
@@ -362,6 +562,8 @@ void vtkAppendPolyData::Execute()
     }
   newStrips->Delete();
 
+  // When all optimizations are complete, this squeeze will be unecessary.
+  // (But it does not seem to cost much.)
   output->Squeeze();
 }
 
@@ -539,3 +741,105 @@ void vtkAppendPolyData::UpdateInformation()
 }
 
 
+void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
+				   int offset)
+{
+  void *pSrc, *pDest;
+  int length;
+
+  // sanity checks
+  if (src->GetDataType() != dest->GetDataType())
+    {
+    vtkErrorMacro("Data type mismatch.");
+    return;
+    }
+  if (src->GetNumberOfComponents() != dest->GetNumberOfComponents())
+    {
+    vtkErrorMacro("NumberOfComponents mismatch.");
+    return;
+    }
+  if (src->GetNumberOfTuples() + offset > dest->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Destination not big enough");
+    return;
+    }
+  
+  // convert from tuples to components.
+  offset *= src->GetNumberOfComponents();
+  length = src->GetMaxId() + 1;
+
+  switch (src->GetDataType())
+    {
+    case VTK_FLOAT:
+      length *= sizeof(float);
+      break;
+    case VTK_DOUBLE:
+      length *= sizeof(double);
+      break;
+    case VTK_INT:
+      length *= sizeof(int);
+      break;
+    case VTK_UNSIGNED_INT:
+      length *= sizeof(unsigned int);
+      break;
+    case VTK_LONG:
+      length *= sizeof(long);
+      break;
+    case VTK_UNSIGNED_LONG:
+      length *= sizeof(unsigned long);
+      break;
+    case VTK_SHORT:
+      length *= sizeof(short);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      length *= sizeof(unsigned short);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      length *= sizeof(unsigned char);
+      break;
+    case VTK_CHAR:
+      length *= sizeof(char);
+      break;
+    default:
+      vtkErrorMacro("Unknown data type " << src->GetDataType());
+    }
+  
+  pSrc  = src->GetVoidPointer(0);
+  pDest = dest->GetVoidPointer(offset);  
+  
+  memcpy(pDest, pSrc, length);
+}
+
+// returns the next pointer in dest      
+int *vtkAppendPolyData::AppendCells(int *pDest, vtkCellArray *src, int offset)
+{
+  int *pSrc, *end;
+  int *pNum;
+
+  if (src == NULL)
+    {
+    return pDest;
+    }
+  
+  pSrc = (int*)(src->GetPointer());
+  end = pSrc + src->GetNumberOfConnectivityEntries();
+  pNum = pSrc;
+  
+  while (pSrc < end)
+    {
+    if (pSrc == pNum)
+      {
+      // move cell pointer to next cell
+      pNum += 1+*pSrc;
+      // copy the number of cells
+      *pDest++ = *pSrc++;
+      }
+    else
+      {
+      // offset the point index
+      *pDest++ = offset + *pSrc++;
+      }
+    }
+  
+  return pDest;
+}

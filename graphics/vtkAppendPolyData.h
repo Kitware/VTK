@@ -104,6 +104,11 @@ protected:
   void Execute();
   // Support for streaming (parallel)
   int ComputeInputUpdateExtents(vtkDataObject *output);
+
+  // An efficient way to append data/cells.
+  void AppendData(vtkDataArray *dest, vtkDataArray *src, int offset);
+  int *AppendCells(int *pDest, vtkCellArray *src, int offset);
+
 };
 
 #endif
