@@ -40,24 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkTextureMapToSphere - generate texture coordinates by mapping points to sphere
 // .SECTION Description
-// vtkTextureMapToSphere is a filter that generates 2D texture coordinates
-// by mapping input dataset points onto a sphere. The sphere can either be
-// user specified or generated automatically. (The sphere is generated 
-// automatically by computing the center (i.e., averaged coordinates) of the sphere.)
-// Note that the generated texture coordinates range beween (0,1). The s-coordinate
-// lies in the angular direction around the z-axis, measured counter-clockwise from the
-// x-axis. The t-coordinate lies in the angular direction measured down from the north
-// pole towards the south pole.
+// vtkTextureMapToSphere is a filter that generates 2D texture coordinates by
+// mapping input dataset points onto a sphere. The sphere can either be user
+// specified or generated automatically. (The sphere is generated
+// automatically by computing the center (i.e., averaged coordinates) of the
+// sphere.)  Note that the generated texture coordinates range beween
+// (0,1). The s-coordinate lies in the angular direction around the z-axis,
+// measured counter-clockwise from the x-axis. The t-coordinate lies in the
+// angular direction measured down from the north pole towards the south
+// pole.
 //
 // A special ivar controls how the s-coordinate is generated. If PreventSeam
 // is set to true, the s-texture varies from 0->1 and then 1->0 (corresponding
 // to angles of 0->180 and 180->360).
 
-// .Section Caveats
-// The resulting texture coordinates will lie between (0,1), and the texture coordinates
-// are determined with respect to the modeller's x-y-z coordinate system. Use the class 
-// vtkTransformTextureCoords to linearly scale and shift the origin of the texture
-// coordinates (if necessary).
+// .SECTION Caveats
+// The resulting texture coordinates will lie between (0,1), and the texture
+// coordinates are determined with respect to the modeller's x-y-z coordinate
+// system. Use the class vtkTransformTextureCoords to linearly scale and
+// shift the origin of the texture coordinates (if necessary).
 
 // .SECTION See Also
 // vtkTextureMapToPlane vtkTextureMapToCylinder vtkTextureMapToBox
