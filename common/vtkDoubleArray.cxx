@@ -151,7 +151,7 @@ void vtkDoubleArray::DeepCopy(vtkDataArray& fa)
 
 void vtkDoubleArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "Array: " << this->Array << "\n";
 }
