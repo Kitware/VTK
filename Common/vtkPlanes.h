@@ -88,10 +88,11 @@ public:
   
   // Description:
   // Create and return a pointer to a vtkPlane object at the ith
-  // position. It is your responsibility to delete the vtkPlane
-  // when done with it. Asking for a plane outside the allowable
-  // range returns NULL.
+  // position. Asking for a plane outside the allowable range returns NULL.
+  // This method always returns the same object. 
+  // Use GetPlane(int i, vtkPlane *plane) instead
   vtkPlane *GetPlane(int i);
+  void GetPlane(int i, vtkPlane *plane);
 
 protected:
   vtkPlanes();
