@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.5");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.6");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -365,7 +365,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
 int vtkMoleculeReaderBase::MakeAtomType(const char *atype)
 {
   char      a, b;
-  int       anum;
+  int       anum=0;
 
   a = atype[0];
   if (islower(a)) a = toupper(a);
