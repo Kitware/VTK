@@ -123,7 +123,11 @@ static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
         V = temp / 3.0;
         
         // Hue
-        temp = acos((0.5 * ((R-G) + (R-B))) / sqrt((R-G)*(R-G) + (R-B)*(G-B)));
+        temp = sqrt((R-G)*(R-G) + (R-B)*(G-B));
+        if(temp != 0.0)
+          {
+          temp = acos((0.5 * ((R-G) + (R-B))) / temp);
+          }
         if (G >= B)
           {
           H = max * (temp / 6.2831853);
@@ -143,7 +147,15 @@ static void vtkImageRGBToHSVExecute(vtkImageRGBToHSV *self,
           {
           temp = B;
           }
-        S = max * (1.0 - (3.0 * temp / (R+G+B)));
+        float sumRGB = R+G+B;
+        if(sumRGB == 0.0)
+          {
+          S = 0.0;
+          }
+        else
+          {
+          S = max * (1.0 - (3.0 * temp / sumRGB));
+          }
         
         // assign output.
         *outPtr = (T)(H); outPtr++;

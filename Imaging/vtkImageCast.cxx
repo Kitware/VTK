@@ -102,7 +102,7 @@ static void vtkImageCastExecute(vtkImageCast *self,
                                 vtkImageData *outData, OT *outPtr,
                                 int outExt[6], int id)
 {
-  float typeMin, typeMax, val;
+  double typeMin, typeMax, val;
   int clamp;
   int idxR, idxY, idxZ;
   int maxY, maxZ;
