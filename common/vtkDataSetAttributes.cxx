@@ -114,36 +114,48 @@ void vtkDataSetAttributes::DeepCopy(vtkDataSetAttributes& pd)
     {
     newData = data->MakeObject();
     newData->DeepCopy(*data);
+    this->SetScalars((vtkScalars *) newData);
+    newData->Delete ();
     }
   
   if ( (data=pd.GetVectors()) != NULL )
     {
     newData = data->MakeObject();
     newData->DeepCopy(*data);
+    this->SetVectors((vtkVectors *) newData);
+    newData->Delete ();
     }
   
   if ( (data=pd.GetNormals()) != NULL )
     {
     newData = data->MakeObject();
     newData->DeepCopy(*data);
+    this->SetNormals((vtkNormals *) newData);
+    newData->Delete ();
     }
   
   if ( (data=pd.GetTCoords()) != NULL )
     {
     newData = data->MakeObject();
     newData->DeepCopy(*data);
+    this->SetTCoords((vtkTCoords *) newData);
+    newData->Delete ();
     }
   
   if ( (data=pd.GetTensors()) != NULL )
     {
     newData = data->MakeObject();
     newData->DeepCopy(*data);
+    this->SetTensors((vtkTensors *) newData);
+    newData->Delete ();
     }
   
   if ( (f=pd.GetFieldData()) != NULL )
     {
     newF = (vtkFieldData *)f->MakeObject();
     newF->DeepCopy(*f);
+    this->SetFieldData((vtkFieldData *) newF);
+    newF->Delete ();
     }
   
   this->CopyScalars = pd.CopyScalars;
