@@ -350,7 +350,7 @@ int TestSplineWidget( int argc, char *argv[] )
   // Render the image
   iren->Initialize();
   renWin->Render();
-  ren1->ResetCamera();
+  //ren1->ResetCamera();
   recorder->Play();
 
   int retVal = vtkRegressionTestImage( renWin );
