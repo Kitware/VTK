@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.3");
+vtkCxxRevisionMacro(vtkPolyDataToImageStencil, "1.4");
 vtkStandardNewMacro(vtkPolyDataToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -140,8 +140,14 @@ void vtkTurnPointsIntoList(vtkPoints *points, int *&clist, int &clistlen,
 //----------------------------------------------------------------------------
 void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
                                                 int extent[6],
-                                                int vtkNotUsed(id))
+                                                int id)
 {
+  // for keeping track of progress
+  unsigned long count = 0;
+  unsigned long target = (unsigned long)
+    ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)/50.0);
+  target++;
+
   float *spacing = data->GetSpacing();
   float *origin = data->GetOrigin();
 
@@ -151,7 +157,7 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
   float p0[3],p1[3];
 
   p1[0] = p0[0] = extent[0]*spacing[0] + origin[0];
-  p1[0] = p0[1] = extent[2]*spacing[1] + origin[1];
+  p1[1] = p0[1] = extent[2]*spacing[1] + origin[1];
   p0[2] = extent[4]*spacing[2] + origin[2];
   p1[2] = extent[5]*spacing[2] + origin[2];
 
@@ -200,6 +206,15 @@ void vtkPolyDataToImageStencil::ThreadedExecute(vtkImageStencilData *data,
         {
         ystate = -ystate;
         ylistidx++;
+        }
+
+      if (id == 0)
+        { // update progress if we're the main thread
+        if (count%target == 0) 
+          {
+          this->UpdateProgress(count/(50.0*target));
+          }
+        count++;
         }
 
       p0[1] = p1[1] = idY*spacing[1] + origin[1];
