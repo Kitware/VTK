@@ -228,6 +228,8 @@ vtkActor outlineActor
     [outlineActor GetProperty] SetColor 0 0 0
 
 # Create source for streamtubes
+vtkMath mymath
+    mymath RandomSeed 4
 vtkPointSource seeds
     seeds SetRadius 0.075
     eval seeds SetCenter 0.1 2.7 0.5
