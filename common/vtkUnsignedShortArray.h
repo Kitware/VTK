@@ -80,7 +80,6 @@ public:
   void Squeeze();
   int GetSize();
   int GetMaxId();
-  unsigned short *GetArray();
   void Reset();
 
 private:
@@ -162,11 +161,6 @@ inline int vtkUnsignedShortArray::GetSize() {return this->Size;};
 // Description:
 // Returning the maximum index of data inserted so far.
 inline int vtkUnsignedShortArray::GetMaxId() {return this->MaxId;};
-
-// Description:
-// Get the pointer to the array. Useful for interfacing to C or 
-// FORTRAN routines.
-inline unsigned short *vtkUnsignedShortArray::GetArray() {return this->Array;};
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like
