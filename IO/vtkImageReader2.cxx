@@ -21,7 +21,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.17");
+vtkCxxRevisionMacro(vtkImageReader2, "1.18");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -605,8 +605,7 @@ void vtkImageReader2::SeekFile(int i, int j, int k)
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-static void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data,
-                                  OT *outPtr)
+void vtkImageReader2Update(vtkImageReader2 *self, vtkImageData *data, OT *outPtr)
 {
   int outIncr[3];
   OT *outPtr1, *outPtr2;

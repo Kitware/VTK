@@ -55,7 +55,7 @@
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.3");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.4");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -117,9 +117,8 @@ vtkCompressCompositer::~vtkCompressCompositer()
 // We could easily compress inplace, but it works out better for buffer 
 // managment if we do not.  zIn == zOut is allowed....
 template <class P>
-static int vtkCompressCompositerCompress(float *zIn, P *pIn,
-                                         float *zOut, P *pOut,
-                                         int numPixels)
+int vtkCompressCompositerCompress(float *zIn, P *pIn, float *zOut, P *pOut,
+                                  int numPixels)
 {
   float* endZ;
   int length = 0;
@@ -221,8 +220,7 @@ void vtkCompressCompositer::Compress(vtkFloatArray *zIn, vtkDataArray *pIn,
 // Assume that the array has enough allocated space for the uncompressed.
 // In place/reverse order.
 template <class P>
-static void vtkCompressCompositerUncompress(float *zIn, P *pIn,
-                                            P *pOut, int lengthIn)
+void vtkCompressCompositerUncompress(float *zIn, P *pIn, P *pOut, int lengthIn)
 {
   float* endZ;
   int count;
@@ -319,10 +317,8 @@ void vtkCompressCompositer::Uncompress(vtkFloatArray *zIn, vtkDataArray *pIn,
 // Can handle compositing compressed buffers.
 // z values above 1.0 mean: Repeat background for that many pixels.
 template <class P>
-static int vtkCompressCompositerCompositePair(float *z1, P *p1,
-                                              float *z2, P *p2,
-                                              float *zOut, P *pOut,
-                                              int length1)
+int vtkCompressCompositerCompositePair(float *z1, P *p1, float *z2, P *p2,
+                                       float *zOut, P *pOut, int length1)
 {
   float* startZOut = zOut;
   float* endZ1;
@@ -506,7 +502,7 @@ void vtkCompressCompositer::CompositeImagePair(
 #define vtkTCPow2(j) (1 << (j))
 
 //----------------------------------------------------------------------------
-static inline int vtkTCLog2(int j, int& exact)
+inline int vtkTCLog2(int j, int& exact)
 {
   int counter=0;
   exact = 1;

@@ -47,7 +47,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.79");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.80");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -93,8 +93,8 @@ unsigned long vtkMarchingCubes::GetMTime()
 // Calculate the gradient using central difference.
 // NOTE: We calculate the negative of the gradient for efficiency
 template <class T>
-static void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3], 
-                          int sliceSize, float Spacing[3], float n[3])
+void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int dims[3], 
+                                          int sliceSize, float Spacing[3], float n[3])
 {
   float sp, sm;
 
@@ -163,12 +163,14 @@ static void vtkMarchingCubesComputePointGradient(int i, int j, int k, T *s, int 
 // Contouring filter specialized for volumes and "short int" data values.  
 //
 template <class T>
-static void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3], 
-                          float origin[3], float Spacing[3],
-                          vtkPointLocator *locator, vtkDataArray *newScalars, 
-                          vtkDataArray *newGradients, 
-                          vtkDataArray *newNormals, 
-                          vtkCellArray *newPolys, float *values, int numValues)
+void vtkMarchingCubesComputeGradient(vtkMarchingCubes *self,T *scalars, int dims[3], 
+                                     float origin[3], float Spacing[3],
+                                     vtkPointLocator *locator, 
+                                     vtkDataArray *newScalars, 
+                                     vtkDataArray *newGradients, 
+                                     vtkDataArray *newNormals, 
+                                     vtkCellArray *newPolys, float *values, 
+                                     int numValues)
 {
   float s[8], value;
   int i, j, k, sliceSize;

@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.21");
+vtkCxxRevisionMacro(vtkVolumeRayCastIsosurfaceFunction, "1.22");
 vtkStandardNewMacro(vtkVolumeRayCastIsosurfaceFunction);
 
 /*    Is x between y and z?                                     */
@@ -264,10 +264,9 @@ void trilin_line_intersection( float start[3], float vec[3],
 // the pixel_value for isosurface-ray intersection.  It is valid for
 // unsigned char, unsigned short, short, int and float data.
 template <class T>
-static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
-                         T *data_ptr,
-                         VTKVRCDynamicInfo *dynamicInfo,
-                         VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
+                     T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                     VTKVRCStaticInfo *staticInfo )
 {
 
   unsigned short  *encoded_normals;
@@ -533,10 +532,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 // the pixel_value for isosurface-ray intersection.  It is valid for
 // unsigned char, unsigned short, short, int and float data.
 template <class T>
-static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
-                             T *data_ptr, 
-                             VTKVRCDynamicInfo *dynamicInfo,
-                             VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
+                         T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                         VTKVRCStaticInfo *staticInfo )
 {
   LineIntersectInfo  line_info;
   unsigned short  *encoded_normals, *nptr;
@@ -1069,11 +1067,11 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
       switch ( staticInfo->ScalarDataType )
         {
         case VTK_UNSIGNED_CHAR:
-          CastRay_NN 
+          vtkCastRay_NN 
             ( this, (unsigned char *)data_ptr, dynamicInfo, staticInfo ); 
           break;
         case VTK_UNSIGNED_SHORT:
-          CastRay_NN
+          vtkCastRay_NN
             ( this, (unsigned short *)data_ptr, dynamicInfo, staticInfo );
           break;
         default:
@@ -1087,11 +1085,11 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
       switch ( staticInfo->ScalarDataType )
         {
         case VTK_UNSIGNED_CHAR:
-          CastRay_Trilin
+          vtkCastRay_Trilin
             ( this, (unsigned char *)data_ptr, dynamicInfo, staticInfo );
           break;
         case VTK_UNSIGNED_SHORT:
-          CastRay_Trilin
+          vtkCastRay_Trilin
             ( this, (unsigned short *)data_ptr, dynamicInfo, staticInfo );
           break;
         default:

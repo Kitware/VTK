@@ -24,7 +24,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.10");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.11");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -133,8 +133,8 @@ void vtkJPEGReader::ExecuteInformation()
 }
 
 template <class OT>
-static void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
-                                int *outExt, int *outInc, long)
+void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
+                          int *outExt, int *outInc, long)
 {
   unsigned int ui;
   int i;
@@ -223,8 +223,7 @@ static void vtkJPEGReaderUpdate2(vtkJPEGReader *self, OT *outPtr,
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-static void vtkJPEGReaderUpdate(vtkJPEGReader *self, vtkImageData *data, 
-                               OT *outPtr)
+void vtkJPEGReaderUpdate(vtkJPEGReader *self, vtkImageData *data, OT *outPtr)
 {
   int outIncr[3];
   int outExtent[6];

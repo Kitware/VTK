@@ -34,7 +34,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.48");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.49");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -86,7 +86,7 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 } 
 
 // pad an integer to a multiply of four, for OpenGL
-static inline int vtkPadToFour(int n)
+inline int vtkPadToFour(int n)
 {
   return (((n+3)/4)*4);
 }
@@ -98,10 +98,9 @@ static inline int vtkPadToFour(int n)
 // 3) draw using glDrawPixels
 
 template <class T>
-static void vtkOpenGLImageMapperRender(
-        vtkOpenGLImageMapper *self, vtkImageData *data, T *dataPtr,
-        float shift, float scale,
-        int *actorPos, int *actorPos2, int front, int *vsize)
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data, 
+                                T *dataPtr, float shift, float scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];
@@ -218,10 +217,10 @@ static void vtkOpenGLImageMapperRender(
 // overflow cannot occur.
 
 template <class T>
-static void vtkOpenGLImageMapperRenderShort(
-        vtkOpenGLImageMapper *self, vtkImageData *data, T *dataPtr,
-        float shift, float scale,
-        int *actorPos, int *actorPos2, int front, int *vsize)
+void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *data, 
+                                     T *dataPtr, float shift, float scale,
+                                     int *actorPos, int *actorPos2, int front, 
+                                     int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];
@@ -356,9 +355,9 @@ static void vtkOpenGLImageMapperRenderShort(
 // render unsigned char data without any shift/scale
 
 template <class T>
-static void vtkOpenGLImageMapperRenderChar(
-        vtkOpenGLImageMapper *self, vtkImageData *data, T *dataPtr,
-        int *actorPos, int *actorPos2, int front, int *vsize)
+void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *data, 
+                                    T *dataPtr, int *actorPos, int *actorPos2, 
+                                    int front, int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];

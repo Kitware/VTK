@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.48");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.49");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -304,9 +304,9 @@ void vtkImageMarchingCubes::Execute()
 // b0 = 0 => no boundary conditions
 // b0 = +1 => pixel is on x axis maximum of region.
 template <class T>
-static void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
-                                             int inc0, int inc1, int inc2,
-                                             short b0, short b1, short b2)
+void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
+                                               int inc0, int inc1, int inc2,
+                                               short b0, short b1, short b2)
 {
   if (b0 < 0)
     {
@@ -352,13 +352,13 @@ static void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
 //----------------------------------------------------------------------------
 // This method interpolates verticies to make a new point.
 template <class T>
-static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
-                                            int idx0, int idx1, int idx2,
-                                            int inc0, int inc1, int inc2,
-                                            T *ptr, int edge, 
-                                            int *imageExtent,
-                                            float *spacing, float *origin,
-                                            float value)
+int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
+                                      int idx0, int idx1, int idx2,
+                                      int inc0, int inc1, int inc2,
+                                      T *ptr, int edge, 
+                                      int *imageExtent,
+                                      float *spacing, float *origin,
+                                      float value)
 {
   int edgeAxis = 0;
   T *ptrB = NULL;
@@ -529,10 +529,10 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
 //----------------------------------------------------------------------------
 // This method runs marching cubes on one cube.
 template <class T>
-static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
-                                           int cellX, int cellY, int cellZ,
-                                           vtkImageData *inData,
-                                           T *ptr, int numContours, float *values)
+void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
+                                     int cellX, int cellY, int cellZ,
+                                     vtkImageData *inData,
+                                     T *ptr, int numContours, float *values)
 {
   int inc0, inc1, inc2;
   int valueIdx;
@@ -618,10 +618,10 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 
 //----------------------------------------------------------------------------
 template <class T>
-static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
-                                      vtkImageData *inData, T *ptr,
-                                      int chunkMin, int chunkMax,
-                                      int numContours, float *values)
+void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
+                                vtkImageData *inData, T *ptr,
+                                int chunkMin, int chunkMax,
+                                int numContours, float *values)
 {
   int idx0, idx1, idx2;
   int min0, max0, min1, max1, min2, max2;

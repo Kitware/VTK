@@ -31,10 +31,10 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.13");
+vtkCxxRevisionMacro(vtkCommunicator, "1.14");
 
 template <class T>
-static int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
+int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
 {
 
   self->Send(data, length, handle, tag);

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.32");
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.33");
 vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02
@@ -32,9 +32,8 @@ vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 // The composite value. This version uses nearest neighbor interpolation
 // and does not perform shading.
 template <class T>
-static void CastRay_NN_Unshaded( T *data_ptr,
-                                 VTKVRCDynamicInfo *dynamicInfo,
-                                 VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_NN_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                          VTKVRCStaticInfo *staticInfo )
 {
   int             value=0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -254,9 +253,8 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 // the composite value. This version uses nearest neighbor and does
 // perform shading.
 template <class T>
-static void CastRay_NN_Shaded( T *data_ptr,
-                               VTKVRCDynamicInfo *dynamicInfo,
-                               VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_NN_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                           VTKVRCStaticInfo *staticInfo )
 {
   int             value = 0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -543,9 +541,8 @@ static void CastRay_NN_Shaded( T *data_ptr,
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
 template <class T>
-static void CastRay_TrilinSample_Unshaded( T *data_ptr,
-                                           VTKVRCDynamicInfo *dynamicInfo,
-                                           VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                                       VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -895,9 +892,8 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
 template <class T>
-static void CastRay_TrilinSample_Shaded( T *data_ptr,
-                                         VTKVRCDynamicInfo *dynamicInfo,
-                                         VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinSample_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                                     VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -1353,9 +1349,8 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
 template <class T>
-static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
-                                           VTKVRCDynamicInfo *dynamicInfo,
-                                           VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                                         VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -1810,9 +1805,8 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
 template <class T>
-static void CastRay_TrilinVertices_Shaded( T *data_ptr,
-                                           VTKVRCDynamicInfo *dynamicInfo,
-                                           VTKVRCStaticInfo *staticInfo )
+void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                                       VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -2384,10 +2378,12 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
       switch ( staticInfo->ScalarDataType )
         {
         case VTK_UNSIGNED_CHAR:
-          CastRay_NN_Unshaded( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
+          vtkCastRay_NN_Unshaded( (unsigned char *)data_ptr, dynamicInfo, 
+                                  staticInfo );
           break;
         case VTK_UNSIGNED_SHORT:
-          CastRay_NN_Unshaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+          vtkCastRay_NN_Unshaded( (unsigned short *)data_ptr, dynamicInfo, 
+                                  staticInfo );
           break;
         default:
           vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
@@ -2400,10 +2396,10 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
       switch ( staticInfo->ScalarDataType )
         {
         case VTK_UNSIGNED_CHAR:
-          CastRay_NN_Shaded( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
+          vtkCastRay_NN_Shaded( (unsigned char *)data_ptr, dynamicInfo, staticInfo);
           break;
         case VTK_UNSIGNED_SHORT:
-          CastRay_NN_Shaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+          vtkCastRay_NN_Shaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo);
           break;
         default:
           vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
@@ -2421,12 +2417,12 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         switch ( staticInfo->ScalarDataType )
           {
           case VTK_UNSIGNED_CHAR:
-            CastRay_TrilinSample_Unshaded( (unsigned char *)data_ptr,  
-                                           dynamicInfo, staticInfo );
+            vtkCastRay_TrilinSample_Unshaded( (unsigned char *)data_ptr,  
+                                              dynamicInfo, staticInfo );
             break;
           case VTK_UNSIGNED_SHORT:
-            CastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
-                                           dynamicInfo, staticInfo );
+            vtkCastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
+                                              dynamicInfo, staticInfo );
             break;
           default:
             vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
@@ -2438,12 +2434,12 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         switch ( staticInfo->ScalarDataType )
           {
           case VTK_UNSIGNED_CHAR:
-            CastRay_TrilinVertices_Unshaded( (unsigned char *)data_ptr,  
-                                           dynamicInfo, staticInfo );
+            vtkCastRay_TrilinVertices_Unshaded( (unsigned char *)data_ptr,  
+                                                dynamicInfo, staticInfo );
             break;
           case VTK_UNSIGNED_SHORT:
-            CastRay_TrilinVertices_Unshaded( (unsigned short *)data_ptr, 
-                                           dynamicInfo, staticInfo );
+            vtkCastRay_TrilinVertices_Unshaded( (unsigned short *)data_ptr, 
+                                                dynamicInfo, staticInfo );
             break;
           default:
             vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
@@ -2459,12 +2455,12 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         switch ( staticInfo->ScalarDataType )
           {
           case VTK_UNSIGNED_CHAR:
-            CastRay_TrilinSample_Shaded( (unsigned char *)data_ptr, 
-                                         dynamicInfo, staticInfo );
+            vtkCastRay_TrilinSample_Shaded( (unsigned char *)data_ptr, 
+                                            dynamicInfo, staticInfo );
             break;
           case VTK_UNSIGNED_SHORT:
-            CastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
-                                         dynamicInfo, staticInfo );
+            vtkCastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
+                                            dynamicInfo, staticInfo );
             break;
           default:
             vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
@@ -2476,12 +2472,12 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         switch ( staticInfo->ScalarDataType )
           {
           case VTK_UNSIGNED_CHAR:
-            CastRay_TrilinVertices_Shaded( (unsigned char *)data_ptr, 
-                                         dynamicInfo, staticInfo );
+            vtkCastRay_TrilinVertices_Shaded( (unsigned char *)data_ptr, 
+                                              dynamicInfo, staticInfo );
             break;
           case VTK_UNSIGNED_SHORT:
-            CastRay_TrilinVertices_Shaded( (unsigned short *)data_ptr, 
-                                         dynamicInfo, staticInfo );
+            vtkCastRay_TrilinVertices_Shaded( (unsigned short *)data_ptr, 
+                                              dynamicInfo, staticInfo );
             break;
           default:
             vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );

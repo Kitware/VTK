@@ -236,8 +236,8 @@ void vtkTIFFReader::ExecuteInformation()
 
 
 template <class OT>
-static void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
-                                 int *outExt, int* vtkNotUsed(outInc), long)
+void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
+                          int *outExt, int* vtkNotUsed(outInc), long)
 {
   if ( !self->GetInternalImage()->Open(self->GetInternalFileName()) )
     {
@@ -255,8 +255,7 @@ static void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-static void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, 
-                               OT *outPtr)
+void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, OT *outPtr)
 {
   int outIncr[3];
   int outExtent[6];

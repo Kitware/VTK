@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.26");
+vtkCxxRevisionMacro(vtkVolumeRayCastMIPFunction, "1.27");
 vtkStandardNewMacro(vtkVolumeRayCastMIPFunction);
 
 #define vtkRoundFuncMacro(x)   (int)((x)+0.5)
@@ -41,9 +41,8 @@ vtkStandardNewMacro(vtkVolumeRayCastMIPFunction);
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
-static void CastMaxScalarValueRay( T *data_ptr,
-                                   VTKVRCDynamicInfo *dynamicInfo,
-                                   VTKVRCStaticInfo *staticInfo )
+void vtkCastMaxScalarValueRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                               VTKVRCStaticInfo *staticInfo )
 {
   float     triMax, triValue;
   int       max = 0;;
@@ -246,9 +245,8 @@ static void CastMaxScalarValueRay( T *data_ptr,
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
-static void CastMaxOpacityRay( T *data_ptr,
-                               VTKVRCDynamicInfo *dynamicInfo,
-                               VTKVRCStaticInfo *staticInfo )
+void vtkCastMaxOpacityRay( T *data_ptr, VTKVRCDynamicInfo *dynamicInfo,
+                        VTKVRCStaticInfo *staticInfo )
 {
   float     max;
   float     opacity;
@@ -481,10 +479,12 @@ void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
     switch ( staticInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-        CastMaxScalarValueRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
+        vtkCastMaxScalarValueRay( (unsigned char *)data_ptr, dynamicInfo, 
+                                  staticInfo );
         break;
       case VTK_UNSIGNED_SHORT:
-        CastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+        vtkCastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo, 
+                                  staticInfo );
         break;
       default:
         vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
@@ -496,10 +496,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
     switch ( staticInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-        CastMaxOpacityRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
+        vtkCastMaxOpacityRay( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
         break;
       case VTK_UNSIGNED_SHORT:
-        CastMaxOpacityRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+        vtkCastMaxOpacityRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
         break;
       default:
         vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );

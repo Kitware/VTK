@@ -18,7 +18,7 @@
 #include "vtkWarpVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWarpVector, "1.37");
+vtkCxxRevisionMacro(vtkWarpVector, "1.38");
 vtkStandardNewMacro(vtkWarpVector);
 
 vtkWarpVector::vtkWarpVector()
@@ -33,8 +33,8 @@ vtkWarpVector::~vtkWarpVector()
 }
 
 template <class T1, class T2>
-static void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts, 
-                                  T1 *outPts, T2 *inVec, vtkIdType max)
+void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts, 
+                           T1 *outPts, T2 *inVec, vtkIdType max)
 {
   vtkIdType ptId;
   T1 scaleFactor = (T1)self->GetScaleFactor();
@@ -61,8 +61,7 @@ static void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
 }
           
 template <class T>
-static void vtkWarpVectorExecute(vtkWarpVector *self,
-                                 T *inPts, T *outPts, vtkIdType max)
+void vtkWarpVectorExecute(vtkWarpVector *self, T *inPts, T *outPts, vtkIdType max)
 {
   void *inVec;
   vtkDataArray *vectors = self->GetInput()->GetPointData()->

@@ -20,7 +20,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.10");
+vtkCxxRevisionMacro(vtkPNGReader, "1.11");
 vtkStandardNewMacro(vtkPNGReader);
 
 void vtkPNGReader::ExecuteInformation()
@@ -135,8 +135,8 @@ void vtkPNGReader::ExecuteInformation()
 
 
 template <class OT>
-static void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
-                                int *outExt, int *outInc, long pixSize)
+void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
+                         int *outExt, int *outInc, long pixSize)
 {
   unsigned int ui;
   int i;
@@ -250,8 +250,7 @@ static void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class OT>
-static void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, 
-                               OT *outPtr)
+void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, OT *outPtr)
 {
   int outIncr[3];
   int outExtent[6];

@@ -38,7 +38,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDataReader, "1.126");
+vtkCxxRevisionMacro(vtkDataReader, "1.127");
 vtkStandardNewMacro(vtkDataReader);
 
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
@@ -800,7 +800,7 @@ int vtkDataReader::ReadPointData(vtkDataSet *ds, int numPts)
 
 // General templated function to read data of various types.
 template <class T>
-static int ReadBinaryData(istream *IS, T *data, int numTuples, int numComp)
+int vtkReadBinaryData(istream *IS, T *data, int numTuples, int numComp)
 {
   char line[256];
 
@@ -817,7 +817,7 @@ static int ReadBinaryData(istream *IS, T *data, int numTuples, int numComp)
 
 // General templated function to read data of various types.
 template <class T>
-static int ReadASCIIData(vtkDataReader *self, T *data, int numTuples, int numComp)
+int vtkReadASCIIData(vtkDataReader *self, T *data, int numTuples, int numComp)
 {
   int i, j;
 
@@ -894,11 +894,11 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     char *ptr = ((vtkCharArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -909,11 +909,11 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     unsigned char *ptr = ((vtkUnsignedCharArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -924,12 +924,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     short *ptr = ((vtkShortArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap2BERange(ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -940,12 +940,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     unsigned short *ptr = ((vtkUnsignedShortArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap2BERange((short *)ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -956,12 +956,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     int *ptr = ((vtkIntArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -972,12 +972,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     unsigned int *ptr = ((vtkUnsignedIntArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -988,13 +988,13 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     long *ptr = ((vtkLongArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
       }
 
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -1005,12 +1005,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     unsigned long *ptr = ((vtkUnsignedLongArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange((int *)ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -1021,12 +1021,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     float *ptr = ((vtkFloatArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap4BERange(ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   
@@ -1037,12 +1037,12 @@ vtkDataArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, int 
     double *ptr = ((vtkDoubleArray *)array)->WritePointer(0,numTuples*numComp);
     if ( this->FileType == VTK_BINARY )
       {
-      ReadBinaryData(this->IS, ptr, numTuples, numComp);
+      vtkReadBinaryData(this->IS, ptr, numTuples, numComp);
       vtkByteSwap::Swap8BERange(ptr,numTuples*numComp);
       }
     else 
       {
-      ReadASCIIData(this, ptr, numTuples, numComp);
+      vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
     }
   

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.102");
+vtkCxxRevisionMacro(vtkImageReader, "1.103");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -184,8 +184,8 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class IT, class OT>
-static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
-                                  IT *inPtr, OT *outPtr)
+void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
+                           IT *inPtr, OT *outPtr)
 {
   int inIncr[3], outIncr[3];
   OT *outPtr0, *outPtr1, *outPtr2;
@@ -382,8 +382,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 // This function reads in one data of one slice.
 // templated to handle different data types.
 template <class T>
-static void vtkImageReaderUpdate1(vtkImageReader *self, 
-                                  vtkImageData *data, T *inPtr)
+void vtkImageReaderUpdate1(vtkImageReader *self, vtkImageData *data, T *inPtr)
 {
   void *outPtr;
 

@@ -19,13 +19,13 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.27");
+vtkCxxRevisionMacro(vtkThinPlateSplineTransform, "1.28");
 vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
 //------------------------------------------------------------------------
 // some dull matrix things
 
-static inline double** NewMatrix(int rows, int cols) 
+inline double** vtkNewMatrix(int rows, int cols) 
 {
   double *matrix = new double[rows*cols];
   double **m = new double *[rows];
@@ -37,14 +37,14 @@ static inline double** NewMatrix(int rows, int cols)
 }
 
 //------------------------------------------------------------------------
-static inline void DeleteMatrix(double **m) 
+inline void vtkDeleteMatrix(double **m) 
 {
   delete [] *m;
   delete [] m;
 }
 
 //------------------------------------------------------------------------
-static inline void ZeroMatrix(double **m, int rows, int cols) 
+inline void vtkZeroMatrix(double **m, int rows, int cols) 
 {
   for(int i = 0; i < rows; i++) 
     {
@@ -56,9 +56,8 @@ static inline void ZeroMatrix(double **m, int rows, int cols)
 }
 
 //------------------------------------------------------------------------
-static inline void MatrixMultiply(double **a, double **b, double **c,
-                                  int arows, int acols, 
-                                  int brows, int bcols) 
+inline void vtkMatrixMultiply(double **a, double **b, double **c,
+                              int arows, int acols, int brows, int bcols) 
 {
   if(acols != brows) 
     {
@@ -81,7 +80,7 @@ static inline void MatrixMultiply(double **a, double **b, double **c,
 }
 
 //------------------------------------------------------------------------
-static inline void MatrixTranspose(double **a, double **b, int rows, int cols)
+inline void vtkMatrixTranspose(double **a, double **b, int rows, int cols)
 {
   for(int i = 0; i < rows; i++) 
     {
@@ -480,11 +479,10 @@ void vtkThinPlateSplineTransform::InternalUpdate()
 // apply the transform:  do an affine transformation, then do
 // perturbations based on the landmarks.
 template<class T>
-static inline void vtkThinPlateSplineForwardTransformPoint(
-                                           vtkThinPlateSplineTransform *self,
-                                           double **W, int N,
-                                           double (*phi)(double),
-                                           const T point[3], T output[3])
+inline void vtkThinPlateSplineForwardTransformPoint(vtkThinPlateSplineTransform *self,
+                                                    double **W, int N,
+                                                    double (*phi)(double),
+                                                    const T point[3], T output[3])
 {
   if (N == 0)
     {
@@ -549,12 +547,12 @@ void vtkThinPlateSplineTransform::ForwardTransformPoint(const float point[3],
 //----------------------------------------------------------------------------
 // calculate the thin plate spline as well as the jacobian
 template<class T>
-static inline void vtkThinPlateSplineForwardTransformDerivative(
-                                           vtkThinPlateSplineTransform *self,
-                                           double **W, int N,
-                                           double (*phi)(double, double&),
-                                           const T point[3], T output[3],
-                                           T derivative[3][3])
+inline void vtkThinPlateSplineForwardTransformDerivative(
+  vtkThinPlateSplineTransform *self,
+  double **W, int N,
+  double (*phi)(double, double&),
+  const T point[3], T output[3],
+  T derivative[3][3])
 {
   if (N == 0)
     {
@@ -706,13 +704,13 @@ void vtkThinPlateSplineTransform::InternalDeepCopy(
 
 //------------------------------------------------------------------------
 // a very basic radial basis function
-static double RBFr(double r)
+double vtkRBFr(double r)
 {
   return r;
 }
 
 // calculate both phi(r) its derivative wrt r
-static double RBFDRr(double r, double &dUdr)
+double vtkRBFDRr(double r, double &dUdr)
 {
   dUdr = 1;
   return r;
@@ -720,7 +718,7 @@ static double RBFDRr(double r, double &dUdr)
 
 //------------------------------------------------------------------------
 // the standard 2D thin plate spline basis function
-static double RBFr2logr(double r)
+double vtkRBFr2logr(double r)
 {
   if (r)
     {
@@ -733,7 +731,7 @@ static double RBFr2logr(double r)
 }
 
 // calculate both phi(r) its derivative wrt r
-static double RBFDRr2logr(double r, double &dUdr)
+double vtkRBFDRr2logr(double r, double &dUdr)
 {
   if (r)
     {

@@ -19,7 +19,7 @@
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.11");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.12");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -194,10 +194,9 @@ void vtkGESignaReader::ExecuteInformation()
   fclose(fp);
 }
 
-static void vtkcopygenesisimage(FILE *infp, int width, int height, 
-                                int compress,
-                                short *map_left, short *map_wide,
-                                unsigned short *output)
+void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
+                         short *map_left, short *map_wide,
+                         unsigned short *output)
 {
   unsigned short row;
   unsigned short last_pixel=0;
@@ -302,8 +301,8 @@ static void vtkcopygenesisimage(FILE *infp, int width, int height,
 }
 
 
-static void vtkGESignaReaderUpdate2(vtkGESignaReader *self, 
-                                    unsigned short *outPtr, int *outExt, int *)
+void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr, 
+                             int *outExt, int *)
 {
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
   if (!fp)
@@ -399,8 +398,8 @@ static void vtkGESignaReaderUpdate2(vtkGESignaReader *self,
 //----------------------------------------------------------------------------
 // This function reads in one data of data.
 // templated to handle different data types.
-static void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data, 
-                                   unsigned short *outPtr)
+void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data, 
+                            unsigned short *outPtr)
 {
   int outIncr[3];
   int outExtent[6];

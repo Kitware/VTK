@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkSplitField, "1.8");
+vtkCxxRevisionMacro(vtkSplitField, "1.9");
 vtkStandardNewMacro(vtkSplitField);
 
 char vtkSplitField::FieldLocationNames[3][12] 
@@ -256,8 +256,8 @@ void vtkSplitField::Execute()
 
 // fast pointer copy
 template <class T>
-static void CopyTuples(T* input, T* output, vtkIdType numTuples, 
-                       int numComp, int component)
+void vtkCopyTuples(T* input, T* output, vtkIdType numTuples, 
+                   int numComp, int component)
 {
   for (int i=0; i<numTuples; i++)
     {
@@ -281,7 +281,7 @@ vtkDataArray* vtkSplitField::SplitArray(vtkDataArray* da, int component)
     {
     switch (output->GetDataType())
       {
-      vtkTemplateMacro5(CopyTuples, (VTK_TT *)da->GetVoidPointer(0), 
+      vtkTemplateMacro5(vtkCopyTuples, (VTK_TT *)da->GetVoidPointer(0), 
                         (VTK_TT *)output->GetVoidPointer(0), numTuples,
                         da->GetNumberOfComponents(), component );
       // This is not supported by the template macro.

@@ -23,7 +23,7 @@
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 
-vtkCxxRevisionMacro(vtkWin32ImageMapper, "1.33");
+vtkCxxRevisionMacro(vtkWin32ImageMapper, "1.34");
 vtkStandardNewMacro(vtkWin32ImageMapper);
 
 vtkSetObjectMacro(vtkWin32ImageMapper,LookupTable,vtkLookupTable);
@@ -82,10 +82,10 @@ unsigned long int vtkWin32ImageMapper::GetMTime()
  * for a window of values of type T, lower and upper.
  */
 template <class T>
-static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
-                                        float l, T& lower, T& upper,
-                                        unsigned char &lower_val,
-                                        unsigned char &upper_val)
+void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
+                                 float l, T& lower, T& upper,
+                                 unsigned char &lower_val,
+                                 unsigned char &upper_val)
 {
   double f_lower, f_upper, f_lower_val, f_upper_val;
   double adjustedLower, adjustedUpper;
@@ -179,10 +179,10 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
 //----------------------------------------------------------------------------
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkWin32ImageMapperRenderGray(
-        vtkImageData *data, T *inPtr, unsigned char *outPtr, int DisplayExtent[6],
-        float cwindow, float clevel, float cshift, float cscale,
-        vtkLookupTable *lut)
+void vtkWin32ImageMapperRenderGray(vtkImageData *data, T *inPtr, 
+                                   unsigned char *outPtr, int DisplayExtent[6],
+                                   float cwindow, float clevel, float cshift, 
+                                   float cscale, vtkLookupTable *lut)
 {
   unsigned char colorIdx;
   T *inPtr0, *inPtr1, *endPtr;
@@ -299,10 +299,10 @@ static void vtkWin32ImageMapperRenderGray(
 //----------------------------------------------------------------------------
 // A templated function that handles gray scale images.
 template <class T>
-static void vtkWin32ImageMapperRenderShortGray(
-        vtkImageData *data, T *inPtr, unsigned char *outPtr, int DisplayExtent[6],
-        float cwindow, float clevel, float cshift, float cscale,
-        vtkLookupTable *lut)
+void vtkWin32ImageMapperRenderShortGray(vtkImageData *data, T *inPtr, 
+                                        unsigned char *outPtr, int DisplayExtent[6],
+                                        float cwindow, float clevel, float cshift, 
+                                        float cscale, vtkLookupTable *lut)
 {
   unsigned char colorIdx;
   T *inPtr0, *inPtr1, *endPtr;
@@ -421,9 +421,10 @@ static void vtkWin32ImageMapperRenderShortGray(
 //----------------------------------------------------------------------------
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
-static void vtkWin32ImageMapperRenderColor(
-        vtkImageData *data, T *redPtr, int bpp, unsigned char *outPtr,
-        int DisplayExtent[6], float cwindow, float clevel, float cshift, float cscale)
+void vtkWin32ImageMapperRenderColor(vtkImageData *data, T *redPtr, int bpp, 
+                                    unsigned char *outPtr, int DisplayExtent[6], 
+                                    float cwindow, float clevel, float cshift, 
+                                    float cscale)
 {
   unsigned char red, green, blue;
   T *redPtr0, *redPtr1;

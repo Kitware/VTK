@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.17");
+vtkCxxRevisionMacro(vtkContourGrid, "1.18");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -79,12 +79,11 @@ unsigned long vtkContourGrid::GetMTime()
 }
 
 template <class T>
-static void vtkContourGridExecute(vtkContourGrid *self,
-                                  vtkDataSet *input,
-                                  vtkDataArray *inScalars, T *scalarArrayPtr,
-                                  int numContours, float *values, 
-                                  vtkPointLocator *locator, int computeScalars,
-                                  int useScalarTree,vtkScalarTree *&scalarTree)
+void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
+                           vtkDataArray *inScalars, T *scalarArrayPtr,
+                           int numContours, float *values, 
+                           vtkPointLocator *locator, int computeScalars,
+                           int useScalarTree,vtkScalarTree *&scalarTree)
 {
   vtkIdType cellId, i;
   int abortExecute=0;

@@ -18,7 +18,7 @@
 #include "vtkShrinkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.60");
+vtkCxxRevisionMacro(vtkShrinkPolyData, "1.61");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(float sf)
@@ -29,8 +29,7 @@ vtkShrinkPolyData::vtkShrinkPolyData(float sf)
 
 
 template <class T>
-static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
-                                     T *inPts, float shrinkFactor)
+void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts, float shrinkFactor)
 {
   int j, k;
   T center[3];

@@ -23,7 +23,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.16");
+vtkCxxRevisionMacro(vtkGridTransform, "1.17");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -33,7 +33,7 @@ vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
 // (the floor() implementation on some computers is much slower than this,
 // because they require some 'exact' behaviour that we don't).
 
-static inline int vtkGridFloor(float x, float &f)
+inline int vtkGridFloor(float x, float &f)
 {
   int ix = int(x);
   f = x-ix;
@@ -42,7 +42,7 @@ static inline int vtkGridFloor(float x, float &f)
   return ix;
 }
 
-static inline int vtkGridFloor(float x)
+inline int vtkGridFloor(float x)
 {
   int ix = int(x);
   if (x-ix < 0) { ix--; }
@@ -57,8 +57,7 @@ static inline int vtkGridFloor(float x)
 // and one which doesn't.
 
 template <class T>
-static inline void vtkNearestHelper(float displacement[3], T *gridPtr, 
-                                    int increment)
+inline void vtkNearestHelper(float displacement[3], T *gridPtr, int increment)
 {
   gridPtr += increment;
   displacement[0] = gridPtr[0];
@@ -66,10 +65,10 @@ static inline void vtkNearestHelper(float displacement[3], T *gridPtr,
   displacement[2] = gridPtr[2];
 }
 
-static inline void vtkNearestNeighborInterpolation(float point[3], 
-                                             float displacement[3],
-                                             void *gridPtr, int gridType,
-                                             int gridExt[6], int gridInc[3])
+inline void vtkNearestNeighborInterpolation(float point[3], 
+                                            float displacement[3],
+                                            void *gridPtr, int gridType,
+                                            int gridExt[6], int gridInc[3])
 {
   int gridId[3];
   gridId[0] = vtkGridFloor(point[0]+0.5f)-gridExt[0];
@@ -125,11 +124,9 @@ static inline void vtkNearestNeighborInterpolation(float point[3],
 }
 
 template <class T>
-static inline void vtkNearestHelper(float displacement[3],
-                                    float derivatives[3][3],
-                                    T *gridPtr, int gridId[3],
-                                    int gridId0[3], int gridId1[3],
-                                    int gridInc[3])
+inline void vtkNearestHelper(float displacement[3], float derivatives[3][3],
+                             T *gridPtr, int gridId[3], int gridId0[3], 
+                             int gridId1[3], int gridInc[3])
 {
   int incX = gridId[0]*gridInc[0];
   int incY = gridId[1]*gridInc[1];
@@ -172,11 +169,9 @@ static inline void vtkNearestHelper(float displacement[3],
   derivatives[2][2] = gridPtr1[2] - gridPtr0[2];
 }
 
-static void vtkNearestNeighborInterpolation(float point[3], 
-                                            float displacement[3],
-                                            float derivatives[3][3],
-                                            void *gridPtr, int gridType,
-                                            int gridExt[6], int gridInc[3])
+void vtkNearestNeighborInterpolation(float point[3], float displacement[3],
+                                     float derivatives[3][3], void *gridPtr, 
+                                     int gridType, int gridExt[6], int gridInc[3])
 {
   if (derivatives == NULL)
     {
@@ -267,11 +262,10 @@ static void vtkNearestNeighborInterpolation(float point[3],
 // The displacement as well as the derivatives are returned.
 
 template <class T>
-static inline void vtkLinearHelper(float displacement[3], 
-                                   float derivatives[3][3],
-                                   float fx, float fy, float fz, T *gridPtr, 
-                                   int i000, int i001, int i010, int i011,
-                                   int i100, int i101, int i110, int i111)
+inline void vtkLinearHelper(float displacement[3], float derivatives[3][3],
+                            float fx, float fy, float fz, T *gridPtr, 
+                            int i000, int i001, int i010, int i011,
+                            int i100, int i101, int i110, int i111)
 {
   float rx = 1 - fx;
   float ry = 1 - fy;
@@ -347,11 +341,9 @@ static inline void vtkLinearHelper(float displacement[3],
     }
 }
 
-static void vtkTrilinearInterpolation(float point[3], 
-                                      float displacement[3],
-                                      float derivatives[3][3],
-                                      void *gridPtr, int gridType, 
-                                      int gridExt[6], int gridInc[3])
+void vtkTrilinearInterpolation(float point[3], float displacement[3],
+                               float derivatives[3][3], void *gridPtr, int gridType, 
+                               int gridExt[6], int gridInc[3])
 {
   // change point into integer plus fraction
   float f[3];
@@ -585,12 +577,10 @@ void vtkSetTricubicDerivCoeffs(float F[4], float G[4], int *l, int *m,
 // (set derivatives to NULL to avoid computing them).
 
 template <class T>
-static inline void vtkCubicHelper(float displacement[3], 
-                                  float derivatives[3][3],
-                                  float fx, float fy, float fz, T *gridPtr,
-                                  int interpModeX, int interpModeY, 
-                                  int interpModeZ,
-                                  int factX[4], int factY[4], int factZ[4])
+inline void vtkCubicHelper(float displacement[3], float derivatives[3][3],
+                           float fx, float fy, float fz, T *gridPtr,
+                           int interpModeX, int interpModeY, int interpModeZ,
+                           int factX[4], int factY[4], int factZ[4])
 {
   float fX[4],fY[4],fZ[4];
   float gX[4],gY[4],gZ[4];
@@ -680,11 +670,9 @@ static inline void vtkCubicHelper(float displacement[3],
     }
 }
 
-static void vtkTricubicInterpolation(float point[3],
-                                     float displacement[3], 
-                                     float derivatives[3][3],
-                                     void *gridPtr, int gridType, 
-                                     int gridExt[6], int gridInc[3])
+void vtkTricubicInterpolation(float point[3], float displacement[3], 
+                              float derivatives[3][3], void *gridPtr, 
+                              int gridType, int gridExt[6], int gridInc[3])
 {
   int factX[4],factY[4],factZ[4];
 
