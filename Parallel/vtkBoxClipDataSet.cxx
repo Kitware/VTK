@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.2");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.3");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -1781,7 +1781,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
         unsigned num_inter = 0;
         unsigned edges_inter = 0;
         unsigned i0,i1;
-        double p_inter[4][3];   
+        //double p_inter[4][3];   
         vtkIdType p_id[4];
         cellarray->GetNextCell(npts,v_id);
         
@@ -1834,7 +1834,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
               }
       
             // Incorporate point into output and interpolate edge data as necessary
@@ -2271,7 +2271,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
         unsigned i0,i1;
-        double p_inter[4][3];   
+        //double p_inter[4][3];   
         unsigned num_inter = 0;
         unsigned edges_inter = 0;
         vtkIdType p_id[4];
@@ -2340,7 +2340,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
               }
       
             // Incorporate point into output and interpolate edge data as necessary
@@ -2786,7 +2786,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
         unsigned num_inter = 0;
         unsigned edges_inter = 0;
         unsigned i0,i1;
-        double p_inter[4][3];   
+        //double p_inter[4][3];   
         vtkIdType p_id[4];
         cellarray->GetNextCell(npts,v_id);
         
@@ -2838,7 +2838,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
               }
       
             // Incorporate point into output and interpolate edge data as necessary
@@ -3340,7 +3340,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
       {
       unsigned i0,i1;
-      double p_inter[4][3];   
+      //double p_inter[4][3];   
       unsigned num_inter = 0;
       unsigned edges_inter = 0;
       vtkIdType p_id[4];
@@ -3410,7 +3410,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
             {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
             }
           
           // Incorporate point into output and interpolate edge data as necessary
@@ -3868,7 +3868,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
         unsigned num_inter = 0;
         unsigned edges_inter = 0;
         unsigned i0;
-        double p_inter[3][3];   
+        //double p_inter[3][3];   
         vtkIdType p_id[3];
         cellarray->GetNextCell(npts,v_id);
 
@@ -3918,7 +3918,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
               }
 
             // Incorporate point into output and interpolate edge data as necessary
@@ -4219,7 +4219,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
         unsigned num_inter = 0;
         unsigned edges_inter = 0;
         unsigned i0;
-        double p_inter[3][3];   
+        //double p_inter[3][3];   
         vtkIdType p_id[3];
         cellarray->GetNextCell(npts,v_id);
         
@@ -4269,7 +4269,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
               }
       
             // Incorporate point into output and interpolate edge data as necessary
@@ -4592,7 +4592,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
         for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
           {
           unsigned i0;
-          double p_inter[3][3];   
+          //double p_inter[3][3];   
           unsigned num_inter = 0;
           unsigned edges_inter = 0;
           vtkIdType p_id[3];
@@ -4657,7 +4657,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
                 {
                 x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
                 pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-                p_inter[num_inter][j] = x[j];
+                //p_inter[num_inter][j] = x[j];
                 }
         
               // Incorporate point into output and interpolate edge data as necessary
@@ -4948,7 +4948,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
         {
         unsigned i0;
-        double p_inter[3][3];   
+        //double p_inter[3][3];   
         unsigned num_inter = 0;
         unsigned edges_inter = 0;
         vtkIdType p_id[3];
@@ -5013,7 +5013,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
               {
               x[j]  = pedg1[j]  + t*(pedg2[j] - pedg1[j]);
               pc[j] = pc1[j] + t*(pc2[j] - pc1[j]);
-              p_inter[num_inter][j] = x[j];
+              //p_inter[num_inter][j] = x[j];
               }
       
             // Incorporate point into output and interpolate edge data as necessary
