@@ -1,10 +1,12 @@
-package require vtk
-package require vtkinteraction
-
+#
 # This script uses a vtkTkRenderWidget to create a
 # Tk widget that is associated with a vtkRenderWindow.
-#source TkInteractor.tcl
-
+#
+# First we include the VTK Tcl packages which will make available 
+# all of the vtk commands to Tcl
+#
+package require vtk
+package require vtkinteraction
 
 set RANGE            150
 set MAX_ITERATIONS_1 $RANGE
@@ -12,10 +14,14 @@ set MAX_ITERATIONS_2 $RANGE
 set XRAD             200
 set YRAD             200
 
+#
+# Create firt Mandelbrot viewer
+#
 vtkImageMandelbrotSource mandelbrot1
   mandelbrot1 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_1)]
   mandelbrot1 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
-                            [expr -$YRAD] [expr $YRAD-1] 0 0
+                             [expr -$YRAD] [expr $YRAD-1] \
+                             0 0
   set sample [expr 1.3 / $XRAD]
   mandelbrot1 SetSampleCX $sample $sample $sample $sample 
   mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
@@ -27,8 +33,9 @@ vtkLookupTable table1
   table1 Build
   table1 SetTableValue [expr $RANGE - 1]  0.0 0.0 0.0 0.0
 
-vtkImageMapToRGBA map1
+vtkImageMapToColors map1
   map1 SetInput [mandelbrot1 GetOutput]
+  map1 SetOutputFormatToRGB
   map1 SetLookupTable table1
 
 vtkImageViewer viewer
@@ -37,13 +44,14 @@ vtkImageViewer viewer
   viewer SetColorLevel 127.5
   [viewer GetActor2D] SetPosition $XRAD $YRAD
 
-
-
-
+#
+# Create second Mandelbrot viewer
+#
 vtkImageMandelbrotSource mandelbrot2
   mandelbrot2 SetMaximumNumberOfIterations [expr int($MAX_ITERATIONS_2)]
   mandelbrot2 SetWholeExtent [expr -$XRAD] [expr $XRAD-1] \
-                            [expr -$YRAD] [expr $YRAD-1] 0 0
+                             [expr -$YRAD] [expr $YRAD-1] \
+                             0 0
   set sample [expr 1.3 / $XRAD]
   mandelbrot2 SetSampleCX $sample $sample $sample $sample 
   mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
@@ -55,8 +63,9 @@ vtkLookupTable table2
   table2 Build
   table2 SetTableValue [expr $RANGE - 1]  0.0 0.0 0.0 0.0
 
-vtkImageMapToRGBA map2
+vtkImageMapToColors map2
   map2 SetInput [mandelbrot2 GetOutput]
+  map2 SetOutputFormatToRGB
   map2 SetLookupTable table2
 
 vtkImageViewer viewer2
@@ -65,100 +74,122 @@ vtkImageViewer viewer2
   viewer2 SetColorLevel 127.5
   [viewer2 GetActor2D] SetPosition $XRAD $YRAD
 
-# Create the GUI: two renderer widgets and a quit button
+#
+# Create the GUI: two vtkTkImageViewer widgets and a quit/reset buttons
 #
 wm withdraw .
 set top [toplevel .top] 
+wm protocol .top WM_DELETE_WINDOW ::vtk::cb_exit
+wm title .top "Mandelbrot Viewer"
 
 set f1 [frame $top.f1] 
-set quit [button $top.quit  -text Quit -command exit]
 
-pack $quit -side bottom -fill x -expand f
+pack $f1 \
+        -side bottom \
+        -fill both -expand f
 
-
-set reset [button $top.reset  -text Reset -command Reset]
-pack $reset -side bottom -fill x -expand f
-
-
-pack $f1 -side bottom  -fill both -expand t
-
-
-
+#
+# Create the image viewer widget for set 1
+#
 set manFrame [frame $f1.man]
 set julFrame [frame $f1.jul]
 
-pack $manFrame $julFrame -side left -padx 3 -pady 3 -fill both -expand t
+pack $manFrame $julFrame \
+        -side left \
+        -padx 3 -pady 3 \
+        -fill both -expand f
 
+set manView [vtkTkImageViewerWidget $manFrame.view \
+        -iv viewer \
+        -width [expr $XRAD*2] \
+        -height [expr $YRAD*2]]
 
-set manView [vtkTkImageViewerWidget $manFrame.view -iv viewer \
-                  -width [expr $XRAD*2] -height [expr $YRAD*2]]
-set manRange [label $manFrame.range -text "Mandelbrot Range: 0 - $RANGE"]
-pack $manRange -side bottom -fill none -expand f
-pack $manView -side bottom -fill none -expand t
+set manRange [label $manFrame.range \
+        -text "Mandelbrot Range: 0 - $RANGE"]
 
-set julView [vtkTkImageViewerWidget $julFrame.view -iv viewer2 \
-                  -width [expr $XRAD*2] -height [expr $YRAD*2]]
-set julRange [label $julFrame.range -text "Julia Range: 0 - $RANGE"]
-pack $julRange -side bottom -fill none -expand f
-pack $julView -side bottom -fill both -expand t
+set quit [button $manFrame.quit  \
+        -text "Quit" \
+        -command ::vtk::cb_exit]
 
+#
+# Create the image viewer widget for set 2
+#
+pack $manView $manRange $quit \
+        -side top \
+        -padx 2 -pady 2 \
+        -fill both -expand f
 
-set equation [label $top.equation -text "X = X^2 + C"]
+set julView [vtkTkImageViewerWidget $julFrame.view \
+        -iv viewer2 \
+        -width [expr $XRAD*2] \
+        -height [expr $YRAD*2]]
 
-pack $equation -side bottom -fill x
+set julRange [label $julFrame.range \
+        -text "Julia Range: 0 - $RANGE"]
 
+set reset [button $julFrame.reset  \
+        -text "Reset" \
+        -command Reset]
 
-focus $manView
-bind $manView <ButtonPress-1> {StartZoom %x %y}
-bind $manView <ButtonRelease-1> {EndZoom %x %y 1 2}
-bind $manView <ButtonRelease-2> {Pan %x %y 1 2}
-bind $manView <ButtonRelease-3> {ZoomOut %x %y 1 2}
-bind $manView <KeyPress-u> {wm deiconify .vtkInteract}
-bind $manView <KeyPress-e> {exit}
-bind $manView <Expose> {Expose %W}
+pack $julView $julRange $reset \
+        -side top \
+        -padx 2 -pady 2 \
+        -fill both -expand f
+#
+# The equation label
+#
+set equation [label $top.equation \
+        -text "X = X^2 + C"]
 
-bind $julView <ButtonPress-1> {StartZoom %x %y}
-bind $julView <ButtonRelease-1> {EndZoom %x %y 2 1}
-bind $julView <ButtonRelease-2> {Pan %x %y 2 1}
-bind $julView <ButtonRelease-3> {ZoomOut %x %y 2 1}
-bind $julView <KeyPress-u> {wm deiconify .vtkInteract}
-bind $julView <KeyPress-e> {exit}
-bind $julView <Expose> {Expose %W}
+pack $equation \
+        -side bottom \
+        -fill x -expand f
 
+#
+# Create the default bindings
+#
+::vtk::bind_tk_imageviewer_widget $manView
+::vtk::bind_tk_imageviewer_widget $julView
 
+#
+# Override some of the bindings
+#
+set man_iren [[[$manView GetImageViewer] GetRenderWindow] GetInteractor]
+set man_istyle [$man_iren GetInteractorStyle]
 
+set jul_iren [[[$julView GetImageViewer] GetRenderWindow] GetInteractor]
+set jul_istyle [$jul_iren GetInteractorStyle]
 
+# Zoom in
 
+$man_istyle AddObserver LeftButtonPressEvent   [list StartZoom $man_iren]
+$man_istyle AddObserver LeftButtonReleaseEvent [list EndZoom $man_iren 1 2]
 
+$jul_istyle AddObserver LeftButtonPressEvent   [list StartZoom $jul_iren]
+$jul_istyle AddObserver LeftButtonReleaseEvent [list EndZoom $jul_iren 2 1]
 
+# Zoom out
 
-set IN_EXPOSE 0
-proc Expose {widget} {
-  global IN_EXPOSE
-  if {$IN_EXPOSE == $widget} {return}
-  set IN_EXPOSE $widget
-  update
-  set IN_EXPOSE 0
-  $widget Render
-}
+$man_istyle RemoveObserver \
+      [::vtk::get_widget_variable_value $man_istyle RightButtonPressEventTag]
+$man_istyle AddObserver RightButtonPressEvent   [list ZoomOut $man_iren 1 2]
 
-proc Reset {} {
-  global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE XRAD
+$man_istyle RemoveObserver \
+      [::vtk::get_widget_variable_value $man_istyle RightButtonReleaseEventTag]
 
-  set MAX_ITERATIONS_2 $RANGE
-  set MAX_ITERATIONS_1 $RANGE
+$jul_istyle RemoveObserver \
+      [::vtk::get_widget_variable_value $jul_istyle RightButtonPressEventTag]
+$jul_istyle AddObserver RightButtonPressEvent   [list ZoomOut $jul_iren 2 1]
 
-  set sample [expr 1.3 / $XRAD]
-  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
-  mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
+# Pan
 
-  set sample [expr 1.3 / $XRAD]
-  mandelbrot2 SetSampleCX $sample $sample $sample $sample 
-  mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
+$man_istyle AddObserver MiddleButtonPressEvent [list Pan $man_iren 1 2]
 
-  MandelbrotUpdate
-}
+$jul_istyle AddObserver MiddleButtonPressEvent [list Pan $jul_iren 2 1]
 
+#
+# Update the display
+#
 proc MandelbrotUpdate {} {
   global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE
   global manView julView manRange julRange
@@ -192,26 +223,50 @@ proc MandelbrotUpdate {} {
   $julView Render
 }
 
+#
+# Reset both sets
+#
+proc Reset {} {
+  global MAX_ITERATIONS_1 MAX_ITERATIONS_2 RANGE XRAD
 
+  set MAX_ITERATIONS_2 $RANGE
+  set MAX_ITERATIONS_1 $RANGE
 
-proc StartZoom {x y} {
-  global X Y
+  set sample [expr 1.3 / $XRAD]
+  mandelbrot1 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot1 SetOriginCX -0.72 0.22  0.0 0.0
 
-  set X $x
-  set Y $y
+  set sample [expr 1.3 / $XRAD]
+  mandelbrot2 SetSampleCX $sample $sample $sample $sample 
+  mandelbrot2 SetOriginCX -0.72 0.22  0.0 0.0
+
+  MandelbrotUpdate
 }
 
-# prescision good enough?
-proc EndZoom {x y master slave} {
+#
+# Zoom in
+#
+proc StartZoom {iren} {
+  global X Y
+
+  set pos [$iren GetEventPosition]
+  set X [lindex $pos 0]
+  set Y [lindex $pos 1]
+}
+
+proc EndZoom {iren master slave} {
   global X Y XRAD YRAD
   
-  # Tk origin in uppder left. Flip y axis. Put origin in middle. 
-  set y [expr $YRAD - $y]
-  set Y [expr $YRAD - $Y]
-  set x [expr $x - $XRAD]
-  set X [expr $X - $XRAD]
+  # Put origin in middle. 
 
-  # sort
+  set pos [$iren GetEventPosition]
+  set x [expr [lindex $pos 0] - $XRAD]
+  set y [expr [lindex $pos 1] - $YRAD]
+  set X [expr $X - $XRAD]
+  set Y [expr $Y - $YRAD]
+
+  # Sort
+
   if {$X < $x} {
     set tmp $X
     set X $x
@@ -223,21 +278,23 @@ proc EndZoom {x y master slave} {
     set y $tmp
   }
 
-  # middle/radius
+  # Middle/radius
+
   set xMid [expr 0.5 * ($x + $X)]
   set yMid [expr 0.5 * ($y + $Y)]
   set xDim [expr ($X - $x)]
   set yDim [expr ($Y - $y)]
 
-  # determine scale
+  # Determine scale
+
   if { $xDim <= 4 && $yDim <= 4} {
     # Box too small.  Zoom into point.
     set scale 0.5
   } else {
-    # relative to window dimensions
+    # Relative to window dimensions
     set xDim [expr 1.0 * $xDim / (2*$XRAD)]
     set yDim [expr 1.0 * $yDim / (2*$YRAD)]
-    # take the largest
+    # Take the largest
     if {$xDim > $yDim} {
       set scale $xDim
     } else {
@@ -252,29 +309,17 @@ proc EndZoom {x y master slave} {
   MandelbrotUpdate
 }
 
-proc Pan {x y master slave} {
-  global XRAD YRAD
-    
-  # Tk origin in uppder left. Flip y axis. Put origin in middle. 
-  set x [expr $x - $XRAD]
-  set y [expr $YRAD - $y]
-
-  set scale 2.0
-
-  # Compute new origin.
-
-  mandelbrot$master Pan $x $y 0.0
-  mandelbrot$slave CopyOriginAndSample mandelbrot$master
-
-  MandelbrotUpdate
-}
-
-proc ZoomOut {x y master slave} {
+#
+# Zoom out
+#
+proc ZoomOut {iren master slave} {
   global XRAD YRAD
   
-  # Tk origin in uppder left. Flip y axis. Put origin in middle. 
-  set x [expr $x - $XRAD]
-  set y [expr $YRAD - $y]
+  # Put origin in middle. 
+
+  set pos [$iren GetEventPosition]
+  set x [expr [lindex $pos 0] - $XRAD]
+  set y [expr [lindex $pos 1] - $YRAD]
 
   set scale 2.0
 
@@ -287,6 +332,27 @@ proc ZoomOut {x y master slave} {
   MandelbrotUpdate
 }
 
+#
+# Pan
+#
+proc Pan {iren master slave} {
+  global XRAD YRAD
+    
+  # Put origin in middle. 
+
+  set pos [$iren GetEventPosition]
+  set x [expr [lindex $pos 0] - $XRAD]
+  set y [expr [lindex $pos 1] - $YRAD]
+
+  set scale 2.0
+
+  # Compute new origin.
+
+  mandelbrot$master Pan $x $y 0.0
+  mandelbrot$slave CopyOriginAndSample mandelbrot$master
+
+  MandelbrotUpdate
+}
 
 MandelbrotUpdate
 
