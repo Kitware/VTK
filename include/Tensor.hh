@@ -36,6 +36,7 @@ public:
   float GetComponent(int i, int j);
   void SetComponent(int i, int j, float v);
   void AddComponent(int i, int j, float v);
+  float *GetColumn(int j);
   void operator=(float *t);
   void operator=(vtkTensor &t);
   operator float*() {return this->T;};
@@ -120,6 +121,13 @@ inline void vtkTensor::operator=(vtkTensor &t)
   for (int j=0; j < this->Dimension; j++)
     for (int i=0; i < this->Dimension; i++)
       this->T[i+this->Dimension*j] = t.T[i+this->Dimension*j];
+}
+
+// Description:
+// Return column vector from tensor. (Assumes 2D matrix form). 0-offset.
+inline float *vtkTensor::GetColumn(int j)
+{
+  return this->T + this->Dimension*j;
 }
 
 #endif
