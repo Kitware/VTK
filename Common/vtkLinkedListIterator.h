@@ -72,8 +72,8 @@ public:
   void InitTraversal();
 
   // Description:
-  // Check if the iterator is at the end of the container. Return 
-  // VTK_OK if it is.
+  // Check if the iterator is at the end of the container. Returns 1 for yes
+  // and 0 for no.
   int IsDoneWithTraversal();
 
   // Description:

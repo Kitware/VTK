@@ -96,9 +96,9 @@ int vtkLinkedListIterator<DType>::IsDoneWithTraversal()
 {
   if ( !this->Pointer )
     {
-    return VTK_OK;
+    return 1;
     }
-  return VTK_ERROR;
+  return 0;
 }
 
 // Description:

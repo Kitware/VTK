@@ -89,9 +89,9 @@ int vtkArrayMapIterator<KeyType,DataType>::IsDoneWithTraversal()
     = static_cast<vtkArrayMap<KeyType,DataType>*>(this->Container);
   if ( !lmap || this->Index < 0 || this->Index >= lmap->GetNumberOfItems() )
     {
-    return VTK_OK;
+    return 1;
     }
-  return VTK_ERROR;
+  return 0;
 }
 
 // Description:
