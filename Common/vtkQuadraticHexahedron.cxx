@@ -25,7 +25,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.10");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.11");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -33,6 +33,9 @@ vtkStandardNewMacro(vtkQuadraticHexahedron);
 vtkQuadraticHexahedron::vtkQuadraticHexahedron()
 {
   int i;
+
+  // At times the cell looks like it has 27 points (during interpolation)
+  // We initially allocate for 27.
   this->Points->SetNumberOfPoints(27);
   this->PointIds->SetNumberOfIds(27);
   for (i = 0; i < 27; i++)
@@ -40,6 +43,8 @@ vtkQuadraticHexahedron::vtkQuadraticHexahedron()
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
     }
+  this->Points->SetNumberOfPoints(20);
+  this->PointIds->SetNumberOfIds(20);
 
   this->Edge = vtkQuadraticEdge::New();
   this->Face = vtkQuadraticQuad::New();
@@ -499,19 +504,15 @@ void vtkQuadraticHexahedron::Derivatives(int vtkNotUsed(subId),
 // except that it cuts the hex to produce tetrahedra.
 void vtkQuadraticHexahedron::Clip(float value, 
                                   vtkDataArray* vtkNotUsed(cellScalars), 
-                                  vtkPointLocator* locator,
-                                  vtkCellArray* tets,
-                                  vtkPointData* inPd, 
-                                  vtkPointData* outPd,
-                                  vtkCellData* inCd, 
-                                  vtkIdType cellId, 
-                                  vtkCellData* outCd,
-                                  int insideOut)
+                                  vtkPointLocator* locator, vtkCellArray* tets,
+                                  vtkPointData* inPd, vtkPointData* outPd,
+                                  vtkCellData* inCd, vtkIdType cellId, 
+                                  vtkCellData* outCd, int insideOut)
 {
   //create eight linear hexes
   this->Subdivide(inPd,inCd,cellId);
   
-  //contour each linear quad separately
+  //contour each linear hex separately
   vtkDataArray *localScalars = this->PointData->GetScalars();
   for (int i=0; i<8; i++)
     {
@@ -521,8 +522,8 @@ void vtkQuadraticHexahedron::Clip(float value,
       this->Hex->PointIds->SetId(j,this->PointIds->GetId(LinearHexs[i][j]));
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
       }
-    this->Hex->Clip(value,localScalars,locator,tets,inPd,outPd,
-                    inCd,0,outCd,insideOut);
+    this->Hex->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
+                    this->CellData,0,outCd,insideOut);
     }
 }
 
