@@ -54,6 +54,41 @@ vtkImageMathematics::vtkImageMathematics()
 
 //----------------------------------------------------------------------------
 // Description:
+// The output extent is the intersection.
+void vtkImageMathematics::ExecuteImageInformation()
+{
+  int ext[6], *ext2, idx;
+
+  this->Inputs[0]->GetWholeExtent(ext);
+  // two input take intersection
+  if (this->Operation == VTK_ADD || this->Operation == VTK_SUBTRACT || 
+      this->Operation == VTK_MULTIPLY || this->Operation == VTK_DIVIDE ||
+      this->Operation == VTK_MIN || this->Operation == VTK_MAX) 
+    {
+    ext2 = this->Inputs[1]->GetWholeExtent();
+    for (idx = 0; idx < 3; ++idx)
+      {
+      if (ext2[idx*2] > ext[idx*2])
+	{
+	ext[idx*2] = ext2[idx*2];
+	}
+      if (ext2[idx*2+1] < ext[idx*2+1])
+	{
+	ext[idx*2+1] = ext2[idx*2+1];
+	}
+      }
+    }
+  
+  this->Output->SetWholeExtent(ext);
+}
+
+
+
+
+
+
+//----------------------------------------------------------------------------
+// Description:
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>

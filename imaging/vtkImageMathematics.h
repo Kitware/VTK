@@ -95,10 +95,10 @@ public:
   void SetOperationToMin() {this->SetOperation(VTK_MIN);};
   void SetOperationToMax() {this->SetOperation(VTK_MAX);};
 
-  
 protected:
   int Operation;
   
+  void ExecuteImageInformation();
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 };
