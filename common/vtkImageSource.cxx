@@ -94,7 +94,8 @@ vtkImageData *vtkImageSource::GetOutput()
 void vtkImageSource::PropagateUpdateExtent(vtkDataObject *out)
 {
   vtkImageData *output = (vtkImageData*)out;
-  
+
+#ifndef VTK_REMOVE_LEGACY_CODE
   // ----------------------------------------------
   // For legacy compatability
   this->LegacyHack = 1;
@@ -105,6 +106,7 @@ void vtkImageSource::PropagateUpdateExtent(vtkDataObject *out)
                    << "to the name EnlargeOutputUpdateExtents.");
     return;
     }
+#endif
 
   this->vtkSource::PropagateUpdateExtent(output);
 }

@@ -94,7 +94,7 @@ vtkWedge::~vtkWedge()
 vtkCell *vtkWedge::MakeObject()
 {
   vtkCell *cell = vtkWedge::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 

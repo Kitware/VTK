@@ -94,7 +94,7 @@ vtkPyramid::~vtkPyramid()
 vtkCell *vtkPyramid::MakeObject()
 {
   vtkCell *cell = vtkPyramid::New();
-  cell->DeepCopy(*this);
+  cell->DeepCopy(this);
   return cell;
 }
 
