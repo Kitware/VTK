@@ -55,7 +55,8 @@ vtkThreshold::vtkThreshold()
 // Criterion is cells whose scalars are less or equal to lower threshold.
 void vtkThreshold::ThresholdByLower(float lower) 
 {
-  if ( this->LowerThreshold != lower )
+  if ( this->LowerThreshold != lower || 
+       this->ThresholdFunction != &vtkThreshold::Lower)
     {
     this->LowerThreshold = lower; 
     this->ThresholdFunction = &vtkThreshold::Lower;
@@ -67,7 +68,8 @@ void vtkThreshold::ThresholdByLower(float lower)
 // Criterion is cells whose scalars are greater or equal to upper threshold.
 void vtkThreshold::ThresholdByUpper(float upper)
 {
-  if ( this->UpperThreshold != upper )
+  if ( this->UpperThreshold != upper ||
+       this->ThresholdFunction != &vtkThreshold::Upper)
     {
     this->UpperThreshold = upper; 
     this->ThresholdFunction = &vtkThreshold::Upper;
@@ -79,7 +81,8 @@ void vtkThreshold::ThresholdByUpper(float upper)
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThreshold::ThresholdBetween(float lower, float upper)
 {
-  if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
+  if ( this->LowerThreshold != lower || this->UpperThreshold != upper ||
+       this->ThresholdFunction != &vtkThreshold::Between)
     {
     this->LowerThreshold = lower; 
     this->UpperThreshold = upper;
