@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.2");
+vtkCxxRevisionMacro(vtkSource, "1.3");
 
 #ifndef NULL
 #define NULL 0
@@ -573,16 +573,10 @@ void vtkSource::UpdateData(vtkDataObject* output)
 
   // Call the end method, if there is one
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
-    
+
   // Now we have to mark the data as up to data.
-  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
-    {
-    if (this->Outputs[idx])
-      {
-      this->Outputs[idx]->DataHasBeenGenerated();
-      }
-    }
-  
+  this->MarkGeneratedOutputs(output);
+
   // Release any inputs if marked for release
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
@@ -1285,7 +1279,8 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
       }
 
     // Execute the filter.
-    this->ExecuteData((outputPort >= 0)? this->Outputs[outputPort] : 0);
+    vtkDataObject* output = (outputPort >= 0)? this->Outputs[outputPort] : 0;
+    this->ExecuteData(output);
     if(!this->AbortExecute)
       {
       this->UpdateProgress(1.0);
@@ -1293,13 +1288,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
     // Mark the data as up-to-date.
-    for(i=0; i < this->NumberOfOutputs; ++i)
-      {
-      if(this->Outputs[i])
-        {
-        this->Outputs[i]->DataHasBeenGenerated();
-        }
-      }
+    this->MarkGeneratedOutputs(output);
 
     // Release any inputs if marked for release.
     for(i=0; i < this->NumberOfInputs; ++i)
@@ -1329,4 +1318,17 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
   return this->Superclass::ProcessDownstreamRequest(request, inputVector,
                                                     outputVector);
 #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkSource::MarkGeneratedOutputs(vtkDataObject*)
+{
+  // Mark the data as up-to-date.  Mark all outputs by default.
+  for(int i=0; i < this->NumberOfOutputs; ++i)
+    {
+    if(this->Outputs[i])
+      {
+      this->Outputs[i]->DataHasBeenGenerated();
+      }
+    }
 }

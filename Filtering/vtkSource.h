@@ -150,6 +150,13 @@ protected:
   // unmodified from the input to the output.
   virtual void ExecuteInformation();
 
+  // Called after ExecuteData to call DataHasBeenGenerated on the
+  // outputs.  It can be overridden by subclasses to call
+  // DataHasBeenGenerated on only a subset of the outputs.  The
+  // argument is the pointer to the output data object that was passed
+  // to ExecuteData.
+  virtual void MarkGeneratedOutputs(vtkDataObject*);
+
   // Called to allocate the input array.  Copies old inputs.
   void SetNumberOfOutputs(int num);
 
