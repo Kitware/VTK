@@ -31,6 +31,50 @@ void AddToDepends(const char *file, const char *vtkHome, char *extraPtr[], int e
 void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome, char *extraPtr[],
 		 int extra_num);
 
+int GetFullPath(char *name, const char *vtkHome, char *fullPath, char *extraPtr[],
+		int extra_num)
+{
+  struct stat statBuff;
+  int i;
+  
+  // does the file exist ?
+  // search for it in the vtk src code
+  sprintf(fullPath,"%s/common/%s",vtkHome,name);
+  if (!stat(fullPath,&statBuff))
+    return 1;
+
+  // if control reaches here then it hasn't been found yet
+  sprintf(fullPath,"%s/graphics/%s",vtkHome,name);
+  if (!stat(fullPath,&statBuff))
+    return 1;
+
+  // if control reaches here then it hasn't been found yet
+  sprintf(fullPath,"%s/imaging/%s",vtkHome,name);
+  if (!stat(fullPath,&statBuff))
+    return 1;
+
+  // if control reaches here then it hasn't been found yet
+  sprintf(fullPath,"%s/contrib/%s",vtkHome,name);
+  if (!stat(fullPath,&statBuff))
+    return 1;
+
+  // if control reaches here then it hasn't been found yet
+  sprintf(fullPath,"%s/patented/%s",vtkHome,name);
+  if (!stat(fullPath,&statBuff))
+    return 1;
+
+  // now do extra directories
+  for (i = 0; i < extra_num; i++)
+    {
+    sprintf(fullPath,"%s/%s",extraPtr[i],name);
+    if (!stat(fullPath,&statBuff))
+      return 1;
+    }
+
+  return 0;
+}
+
+
 void GetDepends(int index)
 {
   int i, j;
@@ -78,6 +122,69 @@ extern void OutputPCDepends(char *file, FILE *fp, const char *vtkHome, char *ext
     fprintf(fp,"  \"%s\"\\\n",DependsStructArray[ dependIndices[i] ]->name);
     }
   fprintf(fp,"\n");
+}
+
+extern char **ReturnDepends(int &rnum)
+{
+  int i, j;
+  num = 0;
+  char *tname;
+  
+  for (i = 0; i < NumInDepends; i++)
+    {
+    GetDepends(i);
+    }
+  
+  rnum = num;
+  
+  char **list = new char *[num];
+  for (i = 0; i < num; i++)
+    {
+    // we only want the filename, not the full path
+    tname = DependsStructArray[ dependIndices[i] ]->name;
+    for (j = strlen(tname)-1; j; j--)
+      {
+      if (tname[j] == '/' || tname[j] == '\\')
+        {
+        break;
+        }
+      }
+    tname = tname+j+1;
+    for (j = 0; j < strlen(tname); j++)
+      {
+      if (tname[j] == '.')
+        {
+        break;
+        }
+      }
+    tname[j] = '\0';
+    list[i] = strdup(tname);
+    }
+  return list;
+}
+
+extern void CheckAndAddToDepends(char *file, const char *vtkHome, 
+                                 char *extraPtr[], int extra_num)
+{
+  int i;
+  num = 0;
+  char fullPath[300];
+  
+  // get the full path
+  if (GetFullPath(file, vtkHome, fullPath, extraPtr, extra_num))
+    {
+    // find this entry in DependsStructArray
+    for (i = 0; i < NumInDepends; i++)
+      {
+      if ( !strcmp(fullPath,DependsStructArray[i]->name) )
+        break;
+      }
+    if ( i == NumInDepends ) 
+      {
+      // need to add the file (and any new files it needs)
+      AddToDepends(fullPath, vtkHome, extraPtr, extra_num);
+      }
+    }
 }
 
 extern void OutputUNIXDepends(char *file, FILE *fp, const char *vtkHome, char *extraPtr[],
@@ -135,50 +242,6 @@ void AddToDepends(const char *filename, const char *vtkHome,
   DependsStructArray[ NumInDepends++ ] = dependsEntry;
 
   GetIncludes(DependsStructArray[NumInDepends-1],vtkHome, extraPtr, extra_num);
-}
-
-
-int GetFullPath(char *name, const char *vtkHome, char *fullPath, char *extraPtr[],
-		int extra_num)
-{
-  struct stat statBuff;
-  int i;
-  
-  // does the file exist ?
-  // search for it in the vtk src code
-  sprintf(fullPath,"%s/common/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/graphics/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/imaging/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/contrib/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // if control reaches here then it hasn't been found yet
-  sprintf(fullPath,"%s/patented/%s",vtkHome,name);
-  if (!stat(fullPath,&statBuff))
-    return 1;
-
-  // now do extra directories
-  for (i = 0; i < extra_num; i++)
-    {
-    sprintf(fullPath,"%s/%s",extraPtr[i],name);
-    if (!stat(fullPath,&statBuff))
-      return 1;
-    }
-
-  return 0;
 }
 
 
