@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 #include <iostream.h>
 #include "SbrRenW.hh"
 #include "SbrRen.hh"

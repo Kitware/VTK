@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <stdlib.h>
 #include <math.h>
 #include <iostream.h>
 #include "OglrRenW.hh"
@@ -55,8 +56,7 @@ XVisualInfo *vtkOglrRenderWindow::GetDesiredVisualInfo()
 {
   int           index;
   static int	attributes[50];
-  XVisualInfo   *v, vinfo;
-  int           value;
+  XVisualInfo   *v;
   int           ms;
 
   // get the default display connection 
@@ -208,7 +208,7 @@ vtkOglrRenderWindow::~vtkOglrRenderWindow()
   /* first delete all the old lights */
   for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
     {
-    glDisable(cur_light);
+    glDisable((enum GLenum)cur_light);
     }
   
   glXDestroyContext( this->DisplayId, this->ContextId);
@@ -364,7 +364,6 @@ void vtkOglrRenderWindow::WindowInitialize (void)
 {
   XVisualInfo  *v;
   XSetWindowAttributes	attr;
-  Window  wins[2];
   int x,y,width,height;
   XWindowAttributes winattr;
   XSizeHints xsh;
@@ -570,7 +569,7 @@ void vtkOglrRenderWindow::WindowRemap()
   /* first delete all the old lights */
   for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
     {
-    glDisable(cur_light);
+    glDisable((enum GLenum)cur_light);
     }
   
   glXDestroyContext( this->DisplayId, this->ContextId);

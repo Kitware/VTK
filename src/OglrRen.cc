@@ -126,7 +126,7 @@ void vtkOglrRenderer::ClearLights (void)
   for (cur_light = GL_LIGHT0; 
        cur_light < GL_LIGHT0 + MAX_LIGHTS; cur_light++)
     {
-    glDisable(cur_light);
+    glDisable((enum GLenum)cur_light);
     }
 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Info);
@@ -159,7 +159,7 @@ int vtkOglrRenderer::UpdateLights ()
     if ((status > 0.0)&& (cur_light < (GL_LIGHT0+MAX_LIGHTS)))
       {
       light->Render((vtkRenderer *)this,cur_light);
-      glEnable(cur_light);
+      glEnable((enum GLenum)cur_light);
       // increment the current light by one 
       cur_light++;
       count++;
@@ -169,7 +169,7 @@ int vtkOglrRenderer::UpdateLights ()
 	  (cur_light < (GL_LIGHT0+MAX_LIGHTS)) &&
 	  ((!light->GetPositional())))
 	{
-	glEnable(cur_light);
+	glEnable((enum GLenum)cur_light);
 	// if backlighting is on then increment the current light again 
 	cur_light++;
 	}
