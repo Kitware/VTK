@@ -97,7 +97,7 @@ void vtkExtractVOI::Execute()
 
     if ( (rate[i] = this->SampleRate[i]) < 1 ) rate[i] = 1;
 
-    outDims[i] = (voi[2*i+1] - voi[2*i] + 1) / this->SampleRate[i];
+    outDims[i] = (voi[2*i+1] - voi[2*i]) / rate[i] + 1;
     if ( outDims[i] < 1 ) outDims[i] = 1;
 
     outAR[i] = ar[i] * this->SampleRate[i];
