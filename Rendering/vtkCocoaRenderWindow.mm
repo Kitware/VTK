@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.19");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.20");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -251,6 +251,12 @@ int vtkCocoaRenderWindow::IsDirect()
 }
 
 //----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetSize(int* a)
+{
+  this->SetSize( a[0], a[1] );
+}
+
+//----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetSize(int x, int y)
 {
   static int resizing = 0;
@@ -280,6 +286,12 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
 void vtkCocoaRenderWindow::SetForceMakeCurrent()
 {
   this->ForceMakeCurrent = 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCocoaRenderWindow::SetPosition(int* a)
+{
+  this->SetPosition( a[0], a[1] );
 }
 
 //----------------------------------------------------------------------------

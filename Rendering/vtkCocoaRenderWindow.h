@@ -35,23 +35,23 @@ public:
 
   // Description:
   // Begin the rendering process.
-  virtual void Start(void);
+  virtual void Start();
 
   // Description:
   // End the rendering process and display the image.
-  virtual void Frame(void);
+  virtual void Frame();
 
   // Description:
   // Specify various window parameters.
-  virtual void WindowConfigure(void);
+  virtual void WindowConfigure();
 
   // Description:
   // Initialize the window for rendering.
-  virtual void WindowInitialize(void);
+  virtual void WindowInitialize();
 
   // Description:
   // Initialize the rendering window.
-  virtual void Initialize(void);
+  virtual void Initialize();
 
   // Description:
   // Change the window to fill the entire screen.
@@ -59,14 +59,15 @@ public:
 
   // Description:
   // Remap the window.
-  virtual void WindowRemap(void);
+  virtual void WindowRemap();
 
   // Description:
   // Set the preferred window size to full screen.
-  virtual void PrefFullScreen(void);
+  virtual void PrefFullScreen();
 
   // Description:
   // Set the size of the window.
+  virtual void SetSize(int*);
   virtual void SetSize(int,int);
 
   // Description:
@@ -75,6 +76,7 @@ public:
 
   // Description:
   // Set the position of the window.
+  virtual void SetPosition(int*);
   virtual void SetPosition(int,int);
   
   // Description:
