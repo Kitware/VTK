@@ -16,19 +16,30 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPoints.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.5");
+#ifdef _WIN32
+# define VTK_STDCALL _stdcall
+#else
+# define VTK_STDCALL
+#endif //_WIN32
+
+vtkCxxRevisionMacro(vtkGLUTesselatorTriangleFilter, "1.6");
 vtkStandardNewMacro(vtkGLUTesselatorTriangleFilter);
 
 // GLU support methods
-static void _stdcall GluError(GLenum err) 
+static void VTK_STDCALL GluError(GLenum err) 
 {
   const GLubyte* pByte = gluErrorString(err);
 }
-static void _stdcall GlBegin(GLenum mode, void * polygon_data);
-static void _stdcall GlEnd(void * polygon_data);
-static void _stdcall GlVertex3dv(void * vertex_data , void * polygon_data);
-static void _stdcall GLCombineData(GLdouble coords[3], void *vertex_data[4], 
+static void VTK_STDCALL GlBegin(GLenum mode, void * polygon_data);
+static void VTK_STDCALL GlEnd(void * polygon_data);
+static void VTK_STDCALL GlVertex3dv(void * vertex_data , void * polygon_data);
+static void VTK_STDCALL GLCombineData(GLdouble coords[3], void *vertex_data[4], 
                                    GLfloat weight[4], void **outData, 
                                    void * polygon_data); 
 
@@ -40,15 +51,15 @@ vtkGLUTesselatorTriangleFilter::vtkGLUTesselatorTriangleFilter()
   if (GLUTesselator) 
     {
     gluTessCallback(GLUTesselator, GLU_TESS_BEGIN_DATA, 
-                    (void (_stdcall *) ())&GlBegin);  
+                    (void (VTK_STDCALL *) ())&GlBegin);  
     gluTessCallback(GLUTesselator, GLU_TESS_VERTEX_DATA, 
-                    (void (_stdcall *) ())&GlVertex3dv);  
+                    (void (VTK_STDCALL *) ())&GlVertex3dv);  
     gluTessCallback(GLUTesselator, GLU_TESS_END_DATA, 
-                    (void (_stdcall *) ())&GlEnd);
+                    (void (VTK_STDCALL *) ())&GlEnd);
     gluTessCallback(GLUTesselator, GLU_TESS_COMBINE_DATA, 
-                    (void (_stdcall *) ())&GLCombineData);
+                    (void (VTK_STDCALL *) ())&GLCombineData);
     gluTessCallback(GLUTesselator, GLU_ERROR, 
-                    (void (_stdcall *) ())&GluError);
+                    (void (VTK_STDCALL *) ())&GluError);
     }
 }
 
@@ -171,18 +182,18 @@ void vtkGLUTesselatorTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
 // GLU support methods
 static unsigned int iVCnt = 0;
 static GLenum eMode;
-void _stdcall GlBegin(GLenum mode , void * /*polygon_data*/)
+void VTK_STDCALL GlBegin(GLenum mode , void * /*polygon_data*/)
 {
   iVCnt = 0;
   eMode = mode;
 }
 
-void _stdcall GlEnd(void * /*polygon_data*/)
+void VTK_STDCALL GlEnd(void * /*polygon_data*/)
 {
 }
 
 // We need to only output triangles
-void _stdcall GlVertex3dv(void * vertex_data , void * polygon_data)
+void VTK_STDCALL GlVertex3dv(void * vertex_data , void * polygon_data)
 {
   vtkGLUTesselatorTriangleFilter *pThis = 
     (vtkGLUTesselatorTriangleFilter*)polygon_data;
@@ -255,7 +266,7 @@ void _stdcall GlVertex3dv(void * vertex_data , void * polygon_data)
 }
 
 // Combine verticies
-static void _stdcall GLCombineData(GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **outData, void * polygon_data)
+static void VTK_STDCALL GLCombineData(GLdouble coords[3], void *vertex_data[4], GLfloat weight[4], void **outData, void * polygon_data)
 {
   vtkGLUTesselatorTriangleFilter *pThis = 
     (vtkGLUTesselatorTriangleFilter*)polygon_data;

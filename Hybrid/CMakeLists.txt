@@ -18,7 +18,6 @@ IF (WIN32)
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
 
-
 SET ( Kit_SRCS
 vtk3DSImporter.cxx
 vtk3DWidget.cxx
@@ -63,6 +62,10 @@ vtkWeightedTransformFilter.cxx
 vtkXYPlotActor.cxx
 vtkXYPlotWidget.cxx
 )
+
+IF(OPENGL_GLU_FOUND)
+  SET(Kit_SRCS ${Kit_SRCS} vtkGLUTesselatorTriangleFilter.cxx)
+ENDIF(OPENGL_GLU_FOUND)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtk3DWidget

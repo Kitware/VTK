@@ -19,8 +19,8 @@
 // requested. 
 //
 // This filter is a specialized version of vtkTriangleFilter. It uses
-// glu code to perform the tessellation. To use this filter, you will
-// have to link against a GLU library.
+// glu code to perform the tessellation. To use this filter, you need to
+// have a GLU library.
 //
 // .SECTION See Also
 // vtkTriangleFilter
@@ -29,7 +29,7 @@
 #define __vtkGLUTesselatorTriangleFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include <GL/GLU.h> // Needed for GLUtesselator
+#include <GL/glu.h> // Needed for GLUtesselator
 
 class VTK_HYBRID_EXPORT vtkGLUTesselatorTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
