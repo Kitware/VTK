@@ -34,7 +34,7 @@
 #ifndef __vtkThreshold_h
 #define __vtkThreshold_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 #define VTK_ATTRIBUTE_MODE_DEFAULT         0
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA  1
@@ -47,11 +47,11 @@
 
 class vtkDataArray;
 
-class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkThreshold *New();
-  vtkTypeRevisionMacro(vtkThreshold,vtkDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkThreshold,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -134,7 +134,9 @@ protected:
   ~vtkThreshold();
 
   // Usual data generation method
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int    AllScalars;
   double LowerThreshold;

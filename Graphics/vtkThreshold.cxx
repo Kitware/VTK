@@ -17,11 +17,13 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.66");
+vtkCxxRevisionMacro(vtkThreshold, "1.67");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -81,8 +83,21 @@ void vtkThreshold::ThresholdBetween(double lower, double upper)
     }
 }
   
-void vtkThreshold::Execute()
+int vtkThreshold::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts;
@@ -91,13 +106,6 @@ void vtkThreshold::Execute()
   int i, ptId, newId, numPts;
   int numCellPts;
   double x[3];
-  vtkDataSet *input = this->GetInput();
-  
-  if (!input)
-    {
-    vtkErrorMacro(<<"No input, Can't Execute");
-    }
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkDataArray *pointScalars;
@@ -112,7 +120,7 @@ void vtkThreshold::Execute()
   if ( !(pointScalars || cellScalars) )
     {
     vtkDebugMacro(<<"No scalar data to threshold");
-    return;
+    return 1;
     }
 
   outPD->CopyAllocate(pd);
@@ -155,12 +163,12 @@ void vtkThreshold::Execute()
   if ( usePointScalars && !pointScalars )
     {
     vtkErrorMacro(<<"Can't use point scalars because there are none");
-    return;
+    return 1;
     }
   else if ( !usePointScalars && !cellScalars )
     {
     vtkErrorMacro(<<"Can't use cell scalars because there are none");
-    return;
+    return 1;
     }
 
   newCellPts = vtkIdList::New();     
@@ -230,6 +238,8 @@ void vtkThreshold::Execute()
   newPoints->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
@@ -297,6 +307,12 @@ const char *vtkThreshold::GetComponentModeAsString(void)
     {
     return "UseAll";
     }
+}
+
+int vtkThreshold::FillInputPortInformation(int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
