@@ -65,9 +65,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkScalarsToColors.h"
 #include "vtkPolyData.h"
 
-#define VTK_GET_ARRAY_BY_ID 0
-#define VTK_GET_ARRAY_BY_NAME 1
-
 class VTK_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 {
 public:
