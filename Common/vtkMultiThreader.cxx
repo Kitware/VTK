@@ -17,7 +17,7 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.47");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.48");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -719,6 +719,39 @@ void vtkMultiThreader::TerminateThread( int threadID )
   this->SpawnedThreadActiveFlagLock[threadID]->Delete();
   this->SpawnedThreadActiveFlagLock[threadID] = NULL;
 
+}
+
+//----------------------------------------------------------------------------
+vtkMultiThreaderIDType vtkMultiThreader::GetCurrentThreadID()
+{
+#if defined(VTK_USE_PTHREADS)
+  return pthread_self();
+#elif defined(VTK_USE_WIN32_THREADS)
+  return GetCurrentThreadId();
+#elif defined(VTK_USE_SPROC)
+  return getpid();
+#else
+  // No threading implementation.  Assume all callers are in the same
+  // thread.
+  return 0;
+#endif
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiThreader::ThreadsEqual(vtkMultiThreaderIDType t1,
+                                   vtkMultiThreaderIDType t2)
+{
+#if defined(VTK_USE_PTHREADS)
+  return pthread_equal(t1, t2) != 0;
+#elif defined(VTK_USE_WIN32_THREADS)
+  return t1 == t2;
+#elif defined(VTK_USE_SPROC)
+  return t1 == t2;
+#else
+  // No threading implementation.  Assume all callers are in the same
+  // thread.
+  return 1;
+#endif
 }
 
 // Print method for the multithreader

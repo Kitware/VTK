@@ -50,6 +50,7 @@
 //BTX
 #ifdef VTK_USE_SPROC
 typedef int vtkThreadProcessIDType;
+typedef int vtkMultiThreaderIDType;
 #endif
 
 // Defined in vtkSystemIncludes.h:
@@ -61,6 +62,7 @@ typedef void *(*vtkThreadFunctionType)(void *);
 typedef pthread_t vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_VALUE  NULL
 // #define VTK_THREAD_RETURN_TYPE   void *
+typedef pthread_t vtkMultiThreaderIDType;
 #endif
 
 #ifdef VTK_USE_WIN32_THREADS
@@ -68,6 +70,7 @@ typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
 typedef HANDLE vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_VALUE 0
 // #define VTK_THREAD_RETURN_TYPE DWORD __stdcall
+typedef DWORD vtkMultiThreaderIDType;
 #endif
 
 #if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)
@@ -75,6 +78,7 @@ typedef void (*vtkThreadFunctionType)(void *);
 typedef int vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_VALUE
 // #define VTK_THREAD_RETURN_TYPE void
+typedef int vtkMultiThreaderIDType;
 #endif
 //ETX
 
@@ -173,6 +177,14 @@ public:
   // Terminate the thread that was created with a SpawnThreadExecute()
   void TerminateThread( int thread_id );
 
+  // Description:
+  // Get the thread identifier of the calling thread.
+  static vtkMultiThreaderIDType GetCurrentThreadID();
+
+  // Description:
+  // Check whether two thread identifiers refer to the same thread.
+  static int ThreadsEqual(vtkMultiThreaderIDType t1,
+                          vtkMultiThreaderIDType t2);
 
 protected:
   vtkMultiThreader();
