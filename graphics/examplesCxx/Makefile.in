@@ -43,6 +43,7 @@ EXAMPLES = VisQuad \
 	Model \
 	MotBlur \
 	Normals \
+	QuantizePolyData \
 	RGrid \
 	SGrid \
 	Sample \
@@ -161,6 +162,9 @@ MotBlur: MotBlur.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 Normals: Normals.o ${VTKLIB}
 	${CXX} -o Normals ${CXX_FLAGS} Normals.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+QuantizePolyData: QuantizePolyData.o ${VTKLIB}
+	${CXX} -o QuantizePolyData ${CXX_FLAGS} QuantizePolyData.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 RGrid: RGrid.o ${VTKLIB}
 	${CXX} -o RGrid ${CXX_FLAGS} RGrid.o ${XLDFLAGS} ${LDLIBS} \

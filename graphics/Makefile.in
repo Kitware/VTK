@@ -212,6 +212,7 @@ vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkPropPicker \
 vtkQuadric \
+vtkQuantizePolyDataPoints \
 vtkRayCaster \
 vtkRectilinearGridGeometryFilter \
 vtkRectilinearGridReader \
