@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkScalarsToColors, "1.23");
+vtkCxxRevisionMacro(vtkScalarsToColors, "1.24");
 
 vtkScalarsToColors::vtkScalarsToColors()
 {
@@ -108,10 +108,11 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
   num = newColors->GetNumberOfTuples();
   for (idx = 0; idx < num; ++idx)
     {
-    if (*alphaPtr < 1.0)
+    if (*alphaPtr < 255)
       {
       opaque = 0;
       }
+    alphaPtr += 4;
     }
   if (opaque)
     {
