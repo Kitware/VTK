@@ -452,31 +452,15 @@ void vlPolyData::GetCellPoints(int cellId, vlIdList *ptIds)
 
   switch (type)
     {
-    case vlPOINT:
+    case vlPOINT: case vlPOLY_POINTS:
      this->Verts->GetCell(loc,numPts,pts);
      break;
 
-    case vlPOLY_POINTS:
-     this->Verts->GetCell(loc,numPts,pts);
-     break;
-
-    case vlLINE: 
+    case vlLINE: case vlPOLY_LINE:
       this->Lines->GetCell(loc,numPts,pts);
       break;
 
-    case vlPOLY_LINE:
-      this->Lines->GetCell(loc,numPts,pts);
-      break;
-
-    case vlTRIANGLE:
-      this->Polys->GetCell(loc,numPts,pts);
-      break;
-
-    case vlQUAD:
-      this->Polys->GetCell(loc,numPts,pts);
-      break;
-
-    case vlPOLYGON:
+    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
@@ -529,6 +513,62 @@ void vlPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
 
     default:
       vlErrorMacro(<<"Bad cell type! Can't insert!");
+    }
+}
+
+void vlPolyData::ReverseCell(int cellId)
+{
+  int loc, type;
+
+  if ( this->Cells == NULL ) this->BuildCells();
+  loc = this->Cells->GetCellLocation(cellId);
+  type = this->Cells->GetCellType(cellId);
+
+  switch (type)
+    {
+    case vlPOINT: case vlPOLY_POINTS:
+     this->Verts->ReverseCell(loc);
+     break;
+
+    case vlLINE: case vlPOLY_LINE:
+      this->Lines->ReverseCell(loc);
+      break;
+
+    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+      this->Polys->ReverseCell(loc);
+      break;
+
+    case vlTRIANGLE_STRIP:
+      this->Strips->ReverseCell(loc);
+      break;
+    }
+}
+
+void vlPolyData::ReplaceCell(int cellId, vlIdList& ptIds)
+{
+  int loc, type;
+
+  if ( this->Cells == NULL ) this->BuildCells();
+  loc = this->Cells->GetCellLocation(cellId);
+  type = this->Cells->GetCellType(cellId);
+
+  switch (type)
+    {
+    case vlPOINT: case vlPOLY_POINTS:
+     this->Verts->ReplaceCell(loc,ptIds);
+     break;
+
+    case vlLINE: case vlPOLY_LINE:
+      this->Lines->ReplaceCell(loc,ptIds);
+      break;
+
+    case vlTRIANGLE: case vlQUAD: case vlPOLYGON:
+      this->Polys->ReplaceCell(loc,ptIds);
+      break;
+
+    case vlTRIANGLE_STRIP:
+      this->Strips->ReplaceCell(loc,ptIds);
+      break;
     }
 }
 

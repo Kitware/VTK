@@ -67,6 +67,10 @@ public:
   // create verts, lines, polys, tmeshes from cell object
   void InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
 
+  // special operations on cell
+  void ReverseCell(int cellId);
+  void ReplaceCell(int cellId, vlIdList& ptIds);
+
   // following stuff supports cell structure
   // Booleans control whether certain types of data are loaded.
   vlBooleanMacro(LoadVerts,int);
