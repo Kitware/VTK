@@ -122,9 +122,13 @@ void vtkMPIController::SingleMethodExecute()
       }
     }
   
-  MPI_Barrier (MPI_COMM_WORLD);
   // since we expect to call the method only once.
-  MPI_Finalize();
+  if (this->Initialized && 0)
+    { // Let destructor do this.
+    MPI_Barrier (MPI_COMM_WORLD);
+    MPI_Finalize();
+    this->Initialized = 0;
+    }  
 }
 
 
@@ -146,9 +150,13 @@ void vtkMPIController::MultipleMethodExecute()
       }
     }
   
-  MPI_Barrier (MPI_COMM_WORLD);
   // since we expect to call the method only once.
-  MPI_Finalize();
+  if (this->Initialized && 0)
+    { // Let destructor do this.
+    MPI_Barrier (MPI_COMM_WORLD);
+    MPI_Finalize();
+    this->Initialized = 0;
+    }  
 }
 
 
