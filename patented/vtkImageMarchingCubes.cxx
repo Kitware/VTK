@@ -338,41 +338,41 @@ static void vtkImageMarchingCubesComputePointGradient(T *ptr, float *g,
 {
   if (b0 < 0)
     {
-    g[0] = ptr[inc0] - *ptr;
+    g[0] = (float)(ptr[inc0]) - (float)(*ptr);
     }
   else if (b0 > 0)
     {
-    g[0] = *ptr - ptr[-inc0];
+    g[0] = (float)(*ptr) - (float)(ptr[-inc0]);
     }
   else
     {
-    g[0] = ptr[inc0] - ptr[-inc0];
+    g[0] = (float)(ptr[inc0]) - (float)(ptr[-inc0]);
     }
 
   if (b1 < 0)
     {
-    g[1] = ptr[inc1] - *ptr;
+    g[1] = (float)(ptr[inc1]) - (float)(*ptr);
     }
   else if (b1 > 0)
     {
-    g[1] = *ptr - ptr[-inc1];
+    g[1] = (float)(*ptr) - (float)(ptr[-inc1]);
     }
   else
     {
-    g[1] = ptr[inc1] - ptr[-inc1];
+    g[1] = (float)(ptr[inc1]) - (float)(ptr[-inc1]);
     }
 
   if (b2 < 0)
     {
-    g[2] = ptr[inc2] - *ptr;
+    g[2] = (float)(ptr[inc2]) - (float)(*ptr);
     }
   else if (b2 > 0)
     {
-    g[2] = *ptr - ptr[-inc2];
+    g[2] = (float)(*ptr) - (float)(ptr[-inc2]);
     }
   else
     {
-    g[2] = ptr[inc2] - ptr[-inc2];
+    g[2] = (float)(ptr[inc2]) - (float)(ptr[-inc2]);
     }
 }
 
