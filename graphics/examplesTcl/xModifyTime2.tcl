@@ -185,7 +185,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
       set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
 			  $call1, $methodClass]      
       if {$DEBUG} {puts "----------------- error ---------------------------"}
-      if {$DEBUG}{puts " $call1   (method class: $methodClass)"}
+      if {$DEBUG} {puts " $call1   (method class: $methodClass)"}
       if {$DEBUG} {debug}
    }
    DeleteArgValues $argValues
