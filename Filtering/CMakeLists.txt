@@ -77,6 +77,7 @@ vtkHierarchicalBoxToPolyDataFilter.cxx
 vtkHierarchicalBoxVisitor.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
+vtkImageAlgorithm.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
 vtkImageIterator.cxx
@@ -215,6 +216,7 @@ vtkHierarchicalBoxSource
 vtkHierarchicalBoxToHierarchicalBoxFilter
 vtkHierarchicalBoxToPolyDataFilter
 vtkHierarchicalDataSet
+vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator
 vtkImageMultipleInputFilter
