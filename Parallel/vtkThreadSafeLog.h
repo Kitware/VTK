@@ -23,6 +23,8 @@
 #define __vtkThreadSafeLog_h
 
 #include "vtkObject.h"
+#include "vtkTimerLog.h"
+
 
 #define VTK_THREAD_SAFE_LOG_MAX 1000
 
@@ -48,7 +50,8 @@ public:
   // if mode is out, then two lines are printed: 
   // Tags on first, values on second.
   // If mode is iso::app, then only the line with values is printed.
-  void DumpLog(char *filename, int mode = ios::out);
+  void DumpLog(char *filename, int mode);
+  void DumpLog(char *filename);
 
 protected:
 

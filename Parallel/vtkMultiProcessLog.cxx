@@ -19,12 +19,13 @@
 #include "vtkMultiProcessLog.h"
 #include "vtkObjectFactory.h"
 #include "vtkMultiProcessController.h"
+#include "vtkThreadSafeLog.h"
 
 // Is there a thread safe way to initialize this array?
 // A log for each process.
 vtkThreadSafeLog *VTK_TIMER_LOGS[VTK_MULTI_PROCESS_LOG_MAX];
 
-vtkCxxRevisionMacro(vtkMultiProcessLog, "1.4");
+vtkCxxRevisionMacro(vtkMultiProcessLog, "1.4.22.1");
 vtkStandardNewMacro(vtkMultiProcessLog);
 
 //----------------------------------------------------------------------------

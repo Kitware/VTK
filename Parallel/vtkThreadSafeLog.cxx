@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include <iomanip.h>
 
-vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3");
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.1");
 vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,12 @@ void vtkThreadSafeLog::AddEntry(char *tag, float value)
     }
   this->Values[idx] = value;
   this->NumberOfEntries = idx+1;
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadSafeLog::DumpLog(char *filename)
+{
+  this->DumpLog(filename, ios::out);
 }
 
 //----------------------------------------------------------------------------
