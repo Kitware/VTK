@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.46");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.47");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -383,6 +383,12 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
           break;
         case Button3: 
           me->InvokeEvent(vtkCommand::RightButtonPressEvent, NULL);
+          break;
+        case Button4: 
+          me->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
+          break;
+        case Button5: 
+          me->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
           break;
         }
       }

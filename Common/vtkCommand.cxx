@@ -45,6 +45,8 @@ static const char *vtkCommandEventStrings[] = {
   "ConfigureEvent",
   "TimerEvent",
   "MouseMoveEvent",
+  "MouseWheelForwardEvent",
+  "MouseWheelBackwardEvent",
   "ResetCameraEvent",
   "ResetCameraClippingRangeEvent",
   "ModifiedEvent",

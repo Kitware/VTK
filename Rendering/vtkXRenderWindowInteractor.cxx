@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.111");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.112");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 typedef struct
@@ -511,6 +511,12 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
           break;
         case Button3: 
           me->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+          break;
+        case Button4: 
+          me->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
+          break;
+        case Button5: 
+          me->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
           break;
         }
       }

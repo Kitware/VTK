@@ -99,6 +99,8 @@ public:
   virtual void OnKeyDown    (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
   virtual void OnKeyUp      (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
   virtual void OnChar       (HWND wnd, UINT nChar, UINT nRepCnt, UINT nFlags);
+  virtual void OnMouseWheelForward (HWND wnd, UINT nFlags, int X, int Y);
+  virtual void OnMouseWheelBackward(HWND wnd, UINT nFlags, int X, int Y);
   //ETX
 
   // Description:

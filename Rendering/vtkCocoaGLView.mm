@@ -129,6 +129,24 @@
 }
 
 
+- (void)scrollWheel:(NSEvent *)theEvent {
+    NSPoint mouseLoc = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+    int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
+    int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+
+    myVTKRenderWindowInteractor->SetEventInformation((int)mouseLoc.x, (int)mouseLoc.y, 
+					             controlDown, shiftDown);
+    if( [theEvent deltaY] > 0)
+      {
+      myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
+      }
+    else
+      {
+      myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
+      }
+}
+
+
 - (void)mouseDown:(NSEvent *)theEvent {
     BOOL keepOn = YES;
     NSPoint mouseLoc;

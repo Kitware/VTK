@@ -19,6 +19,16 @@
 
 #include "vtkWin32OpenGLRenderWindow.h"
 
+// Mouse wheel support
+// In an ideal world we would just have to include <zmouse.h>, but it is not
+// always available with all compilers/headers
+#ifndef WM_MOUSEWHEEL
+#  define WM_MOUSEWHEEL                   0x020A
+#endif  //WM_MOUSEWHEEL
+#ifndef GET_WHEEL_DELTA_WPARAM
+#  define GET_WHEEL_DELTA_WPARAM(wparam) ((short)HIWORD (wparam))
+#endif  //GET_WHEEL_DELTA_WPARAM
+
 // MSVC does the right thing without the forward declaration when it 
 // sees it in the friend decl in vtkWin32RenderWindowInteractor, but
 // GCC needs to see the declaration beforehand. It has to do with the
@@ -46,7 +56,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.85");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.86");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -350,6 +360,34 @@ void vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
     }
 }
 
+void vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND wnd,UINT nFlags, 
+                                                   int X, int Y) 
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
+  this->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
+}
+
+void vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND wnd,UINT nFlags, 
+                                                   int X, int Y) 
+{
+  if (!this->Enabled) 
+    {
+    return;
+    }
+  this->SetEventInformationFlipY(X, 
+                                 Y, 
+                                 nFlags & MK_CONTROL, 
+                                 nFlags & MK_SHIFT);
+  this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
+}
+
 void vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd,UINT nFlags, 
                                                    int X, int Y) 
 {
@@ -622,6 +660,13 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       me->OnMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
 
+    case WM_MOUSEWHEEL:
+      if( GET_WHEEL_DELTA_WPARAM(wParam) > 0)
+        me->OnMouseWheelForward(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+      else
+        me->OnMouseWheelBackward(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
+      break;
+      
 #ifdef WM_MCVMOUSEMOVE
     case WM_NCMOUSEMOVE:
       me->OnNCMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
