@@ -449,7 +449,7 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"\n");
   if (Debug)
     {
-    fprintf(fp,"CPP_PROJ=/nologo /D \"_DEBUG\" /MTd /GX /Od /Yd /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/nologo /D \"_DEBUG\" /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vtkCompiler, vtkCompiler, vtkHome, vtkHome);
     }
   else
@@ -513,7 +513,7 @@ void doHeader(FILE *fp, const char *vtkHome,
   fprintf(fp,"BuildCmds= \\\n");
   if (Debug)
     {
-    fprintf(fp,"	$(CPP) /D \"_DEBUG\" /nologo /MTd /GX /Od /Yd /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
+    fprintf(fp,"	$(CPP) /D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\"\\\n",
       vtkCompiler, vtkCompiler, vtkHome,vtkHome);
     }
   else
@@ -570,7 +570,7 @@ void doTclHeader(FILE *fp, const char *vtkHome,
 
   if (Debug)
     {
-    fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Yd /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
+    fprintf(fp,"CPP_PROJ=/D \"_DEBUG\" /nologo /MTd /GX /Od /Zi /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
     }
   else
