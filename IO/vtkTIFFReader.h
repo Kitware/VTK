@@ -87,10 +87,6 @@ public:
   // Auxilary methods used by the reader internally.
   void InitializeColors();
 
-  //Description: 
-  // create a clone of this object.
-  virtual vtkImageReader2* MakeObject() { return vtkTIFFReader::New(); }
-
 //BTX
   enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
 

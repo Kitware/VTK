@@ -35,9 +35,6 @@ public:
   vtkTypeRevisionMacro(vtkJPEGReader,vtkImageReader2);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description: create a clone of this object.
-  virtual vtkImageReader2* MakeObject() { return vtkJPEGReader::New(); }
-
   // Description:
   // Is the given file a JPEG file?
   int CanReadFile(const char* fname);

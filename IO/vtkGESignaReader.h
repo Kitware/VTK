@@ -41,8 +41,6 @@ public:
   vtkTypeRevisionMacro(vtkGESignaReader,vtkMedicalImageReader2);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  //Description: create a clone of this object.
-  virtual vtkImageReader2* MakeObject() { return vtkGESignaReader::New();}
   // Description: is the given file name a GESigna file?
   virtual int CanReadFile(const char* fname);
 

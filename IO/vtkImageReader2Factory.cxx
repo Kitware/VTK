@@ -29,7 +29,7 @@
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.11");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.12");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
@@ -109,7 +109,7 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
     if(ret->CanReadFile(path))
       {
       // like a new call
-      return ret->MakeObject();
+      return ret->NewInstance();
       }
     }
   return 0;
