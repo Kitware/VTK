@@ -58,6 +58,15 @@ class vtkUnsignedCharArray;
 #define VTK_STEREO_RIGHT        5
 #define VTK_STEREO_DRESDEN      6
 
+#define VTK_CURSOR_DEFAULT  0
+#define VTK_CURSOR_ARROW    1
+#define VTK_CURSOR_SIZENESW 2
+#define VTK_CURSOR_SIZENWSE 3
+#define VTK_CURSOR_SIZENS   4
+#define VTK_CURSOR_SIZEWE   5
+#define VTK_CURSOR_SIZEALL  6
+#define VTK_CURSOR_HAND     7
+
 class VTK_RENDERING_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
@@ -120,6 +129,11 @@ public:
   virtual void HideCursor() = 0;
   virtual void ShowCursor() = 0;
   virtual void SetCursorPosition(int , int ) {};
+
+  // Description:
+  // Change the shape of the cursor
+  vtkSetMacro(CurrentCursor,int);
+  vtkGetMacro(CurrentCursor,int);
 
   // Description:
   // Turn on/off rendering full screen window size.
@@ -412,6 +426,8 @@ protected:
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
+  int CurrentCursor;
+
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
   void operator=(const vtkRenderWindow&);  // Not implemented.

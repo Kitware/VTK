@@ -25,7 +25,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.126");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.127");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -64,6 +64,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AbortCheckMethodArgDelete = NULL;
   this->Renderers = vtkRendererCollection::New();
   this->NumberOfLayers = 1;
+  this->CurrentCursor = VTK_CURSOR_DEFAULT;
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -709,6 +710,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
      << (this->PolygonSmoothing ? "On\n":"Off\n");
   os << indent << "Anti Aliased Frames: " << this->AAFrames << "\n";
   os << indent << "Abort Render: " << this->AbortRender << "\n";
+  os << indent << "Current Cursor: " << this->CurrentCursor << "\n";
   os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";
   os << indent << "Focal Depth Frames: " << this->FDFrames << "\n";
   os << indent << "In Abort Check: " << this->InAbortCheck << "\n";
