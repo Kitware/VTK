@@ -702,6 +702,24 @@ void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, f
     + this->YComputedRange[0];
 }
 
+void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
+					      float &u, float &v)
+{
+  int *p0, *p1, *p2;
+
+  // XAxis, YAxis are in viewport coordinates already
+  p0 = this->XAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+  p1 = this->XAxis->GetPoint2Coordinate()->GetComputedViewportValue(viewport);
+  p2 = this->YAxis->GetPoint1Coordinate()->GetComputedViewportValue(viewport);
+
+  u = (((u - this->XComputedRange[0])
+	/ (this->XComputedRange[1] - this->XComputedRange[0]))
+       * (float)(p1[0] - p0[0])) + p0[0];
+  v = (((v - this->YComputedRange[0])
+	/ (this->YComputedRange[1] - this->YComputedRange[0]))
+       * (float)(p2[1] - p0[1])) + p0[1];
+}
+
 int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
 {
   int *p0, *p1, *p2;

@@ -246,6 +246,10 @@ public:
   void ViewportToPlotCoordinate(vtkViewport *viewport, float &u, float &v);
 
   // Description:
+  // Given a plot coordinate, return the viewpoint position
+  void PlotToViewportCoordinate(vtkViewport *viewport, float &u, float &v);
+
+  // Description:
   // Is the specified viewport position within the plot area (as opposed to the
   // region used by the plot plus the labels)?
   int IsInPlot(vtkViewport *viewport, float u, float v);
