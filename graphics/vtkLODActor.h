@@ -102,13 +102,6 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   // The order is not important.
   vtkGetObjectMacro(LODMappers, vtkMapperCollection);
   
-  // Description:
-  // If this flag is on, this object will create and manage the LOD
-  // mappers on its own.  If not, it is the users resposibility.
-  void SetBuildLODs(int val);
-  vtkGetMacro(BuildLODs, int);
-  vtkBooleanMacro(BuildLODs, int);
-  
 protected:
   vtkPointSource      *PointSource;
   vtkGlyph3D          *Glyph3D;
@@ -119,10 +112,10 @@ protected:
   vtkActor            *Device;
   
   vtkMapperCollection *LODMappers;
-  int                 BuildLODs;
+  int                 SelfCreatedLODs;
 
-  void GenerateLODs();
-  void DeleteLODMappers();
+  void CreateLODs();
+  void DeleteSelfCreatedLODs();
 };
 
 #endif

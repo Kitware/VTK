@@ -49,47 +49,21 @@ vtkLODActor::vtkLODActor()
   // get a hardware dependent actor and mappers
   this->Device = vtkActor::New();
   this->LODMappers = vtkMapperCollection::New();
-  this->BuildLODs = 1;
+  this->SelfCreatedLODs = 0;
   // stuff for creating own LODs
   this->PointSource = NULL;
   this->MaskPoints = NULL;
   this->Glyph3D = NULL;
   this->OutlineFilter = NULL;
   this->NumberOfCloudPoints = 150;
-
 }
 
 //----------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
-  if (this->BuildLODs)
-    {
-    this->DeleteLODMappers();
-    }
+  this->DeleteSelfCreatedLODs();
   this->LODMappers->Delete();
-
-  // delete the filters used to create the LODs
-  if (this->PointSource)
-    {
-    this->PointSource->Delete();
-    this->PointSource = NULL;
-    }
-  if (this->Glyph3D)
-    {
-    this->Glyph3D->Delete();
-    this->Glyph3D = NULL;
-    }
-  if (this->MaskPoints)
-    {
-    this->MaskPoints->Delete();
-    this->MaskPoints = NULL;
-    }
-  if (this->OutlineFilter)
-    {
-    this->OutlineFilter->Delete();
-    this->OutlineFilter = NULL;
-    }
 }
 
 
@@ -100,7 +74,6 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Cloud Points: " << this->NumberOfCloudPoints << "\n";
 
-  os << indent << "BuildLODs: " << this->BuildLODs << endl;
   // how should we print out the LODMappers?
   os << indent << "NumberOfLODMappers: " << this->LODMappers->GetNumberOfItems() 
      << endl;
@@ -115,14 +88,21 @@ void vtkLODActor::Render(vtkRenderer *ren)
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   vtkMapper *mapper, *bestMapper;
   
-
-  // has anything changed ???
-  if (this->BuildLODs)
+  // first time through create lods if non have been added
+  if (this->LODMappers->GetNumberOfItems() == 0)
+    {
+    this->CreateLODs();
+    }
+  
+  
+  // If the actor has changed or the primary mapper has changed ...
+  // Is this the correct test?
+  if (this->SelfCreatedLODs)
     {
     if (this->GetMTime() > this->BuildTime || 
 	this->Mapper->GetMTime() > this->BuildTime)
       {
-      this->GenerateLODs();
+      this->CreateLODs();
       }
     }
   
@@ -217,8 +197,10 @@ void vtkLODActor::Render(vtkRenderer *ren)
       }
     else
       { // Running average of render time as a temporary fix for
-      // openGL buffering.
-      bestMapper->SetRenderTime(0.1 * myTime + 0.9 * bestTime);
+      // openGL buffering.  The only problem is that the first render takes
+      // a long time, so unless forced renders are frequent, 
+      // an LOD can be locked out.
+      bestMapper->SetRenderTime(0.2 * myTime + 0.8 * bestTime);
       }
     }
 
@@ -240,46 +222,32 @@ void vtkLODActor::AddLODMapper(vtkMapper *mapper)
 
 
 //----------------------------------------------------------------------------
-void vtkLODActor::SetBuildLODs(int val)
+// Can only be used if no LOD mappers have been added.
+void vtkLODActor::CreateLODs()
 {
-  if (( ! val &&  ! this->BuildLODs) || (val && this->BuildLODs))
-    {
-    return;
-    }
-  
-  this->Modified();
-  this->BuildLODs = val;
-  
-  if (val)
-    { // user now wants this object to manage LOD mappers
-    this->LODMappers->RemoveAllItems();
-    this->GenerateLODs();
-    }
-  else
-    { // delete LODMappers created by this object.
-    this->DeleteLODMappers();
-    // delete the filters too?
-    }
-}
-
-//----------------------------------------------------------------------------
-// Deletes Mappers and there input data.
-void vtkLODActor::GenerateLODs()
-{
+  int num;
   vtkPolyDataMapper *mediumMapper, *lowMapper;
-  
-  // cerr << "-------- Building LODs\n";
   
   if ( this->Mapper == NULL)
     {
     vtkErrorMacro("Cannot create LODs with out a mapper.");
     return;
     }
-
+  
   // delete the old mappers
-  this->DeleteLODMappers();
+  this->DeleteSelfCreatedLODs();
+
+  // There are ways of getting arround this limitation ...
+  num = this->LODMappers->GetNumberOfItems();
+  if (num > 0)
+    {
+    vtkErrorMacro(
+	  "Cannot generate LOD mappers when some have been added already");
+    return;
+    }
   
   // create filters if necessary
+  // NULL check should not be necessary but ...
   if (this->PointSource == NULL)
     {
     this->PointSource = vtkPointSource::New();
@@ -319,22 +287,62 @@ void vtkLODActor::GenerateLODs()
   this->AddLODMapper(lowMapper);
   
   this->BuildTime.Modified();
+  this->SelfCreatedLODs = 1;
 }
 
 
 //----------------------------------------------------------------------------
-// Deletes Mappers and filters used when creating own LODs.
-void vtkLODActor::DeleteLODMappers()
+// Deletes Mappers and filters created by this object.
+// (number two and three)
+void vtkLODActor::DeleteSelfCreatedLODs()
 {
-  vtkMapper *mapper;
-  
-  this->LODMappers->InitTraversal();
-  while ((mapper = this->LODMappers->GetNextItem()))
+  vtkMapper *lowMapper, *mediumMapper;
+
+  if ( ! this->SelfCreatedLODs)
     {
-    // deleting and then removing scares me so InitTraversal each time.
-    this->LODMappers->RemoveItem(mapper);
-    this->LODMappers->InitTraversal();
-    mapper->Delete();
-    }  
+    return;
+    }
+  
+  // delete the filters used to create the LODs
+  // The NULL check should not be necessary, but for sanity ...
+  if (this->PointSource)
+    {
+    this->PointSource->Delete();
+    this->PointSource = NULL;
+    }
+  if (this->Glyph3D)
+    {
+    this->Glyph3D->Delete();
+    this->Glyph3D = NULL;
+    }
+  if (this->MaskPoints)
+    {
+    this->MaskPoints->Delete();
+    this->MaskPoints = NULL;
+    }
+  if (this->OutlineFilter)
+    {
+    this->OutlineFilter->Delete();
+    this->OutlineFilter = NULL;
+    }
+  
+  mediumMapper = (vtkMapper *)(this->LODMappers->GetItemAsObject(0));
+  lowMapper = (vtkMapper *)(this->LODMappers->GetItemAsObject(1));
+
+  if (lowMapper)
+    {
+    this->LODMappers->RemoveItem(lowMapper);
+    lowMapper->Delete();
+    this->Modified();
+    }
+  
+  if (mediumMapper)
+    {
+    this->LODMappers->RemoveItem(mediumMapper);
+    mediumMapper->Delete();
+    this->Modified();
+    }
+  
+  this->SelfCreatedLODs = 0;
 }
 
