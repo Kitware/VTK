@@ -61,7 +61,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 
 class vtkRenderWindow;
-class vtkVolumeRenderer;
 class vtkNewVolumeRenderer;
 
 class vtkRenderer : public vtkObject
@@ -83,8 +82,6 @@ public:
 
   void SetActiveCamera(vtkCamera *);
   vtkCamera *GetActiveCamera();
-  void SetVolumeRenderer(vtkVolumeRenderer *);
-  vtkVolumeRenderer *GetVolumeRenderer();
 
   void SetNewVolumeRenderer(vtkNewVolumeRenderer *);
   vtkNewVolumeRenderer *GetNewVolumeRenderer();
@@ -212,7 +209,6 @@ public:
 protected:
   void UpdateViewRays();
 
-  vtkVolumeRenderer *VolumeRenderer;
   vtkNewVolumeRenderer *NewVolumeRenderer;
 
   vtkCamera *ActiveCamera;

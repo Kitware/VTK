@@ -176,7 +176,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
     {
     previous = path->GetLastItem();
     matrix = new vtkMatrix4x4;
-    *matrix = previous->GetMatrix();
+    previous->GetMatrix(*matrix);
     copy->SetUserMatrix(matrix);
     }
 

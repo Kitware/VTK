@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOglrProperty.h"
 #include "vtkOglrCamera.h"
 #include "vtkOglrLight.h"
-#include "vtkVolumeRenderer.h"
 #include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 8
@@ -299,11 +298,6 @@ void vtkOglrRenderer::Render(void)
   // clean up the model view matrix set up by the camera 
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-
-  if (this->VolumeRenderer)
-    {
-    this->VolumeRenderer->Render((vtkRenderer *)this);
-    }
 
   if (this->EndRenderMethod) 
     {

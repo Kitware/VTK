@@ -192,7 +192,7 @@ void vtkSweptSurface::Execute()
 
       a.SetPosition(position);
       a.SetOrientation(orient);
-      this->SampleInput(a.GetMatrix(), inDim, inOrigin, inAr,
+      this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inAr,
                         inScalars, newScalars);
       }
     }
@@ -200,7 +200,7 @@ void vtkSweptSurface::Execute()
   //finish off last step
   a.SetPosition(position2);
   a.SetOrientation(orient2);
-  this->SampleInput(a.GetMatrix(), inDim, inOrigin, inAr,
+  this->SampleInput(a.vtkProp::GetMatrix(), inDim, inOrigin, inAr,
                     inScalars, newScalars);
 
   // Update ourselves and release memory

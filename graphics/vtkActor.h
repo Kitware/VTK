@@ -41,13 +41,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkActor - represents an object (geometry & properties) in a rendered scene 
 // .SECTION Description
 // vtkActor is used to represent an entity in a rendering scene.  It
-// handles functions related to the actors position, orientation and
-// scaling. It combines these instance variables into one 4x4
-// transformation matrix as follows: [x y z 1] = [x y z 1]
-// Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
-// Trans(position). The actor also maintains a reference to the
+// inherits functions related to the actors position, and orientation
+// from vtkProp. The actor also has scaling and maintains a reference to the
 // defining geometry (i.e., the mapper), rendering properties, and
 // possibly a texture map.
+// vtkActor combines these instance variables into one 4x4
+// transformation matrix as follows: [x y z 1] = [x y z 1]
+// Translate(-origin) Scale(scale) Rot(y) Rot(x) Rot (z) Trans(origin)
+// Trans(position)
 
 // .SECTION See Also
 // vtkProperty vtkTexture vtkMapper vtkActorDevice
@@ -56,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkActor_h
 #define __vtkActor_h
 
-#include "vtkObject.h"
+#include "vtkProp.h"
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkMapper.h"
@@ -68,7 +69,7 @@ class vtkActorDevice;
 class vtkProperty;
 class vtkMapper;
 
-class vtkActor : public vtkObject
+class vtkActor : public vtkProp
 {
  public:
   vtkActor();
@@ -120,18 +121,6 @@ class vtkActor : public vtkObject
   vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
   vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
-  // Description:
-  // Set/Get/Add the position of the actor in world coordinates.
-  vtkSetVector3Macro(Position,float);
-  vtkGetVectorMacro(Position,float,3);
-  void AddPosition(float deltaPosition[3]);
-  void AddPosition(float deltaX,float deltaY,float deltaZ);
-
-  // Description:
-  // Set/Get the origin of the actor. This is the point about which all 
-  // rotations take place.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
 
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
@@ -139,52 +128,9 @@ class vtkActor : public vtkObject
   vtkSetVector3Macro(Scale,float);
   vtkGetVectorMacro(Scale,float,3);
 
-  // Description:
-  // Set/Get the visibility of the actor. Visibility is like a light switch
-  // for actors. Use it to turn them on or off.
-  vtkSetMacro(Visibility,int);
-  vtkGetMacro(Visibility,int);
-  vtkBooleanMacro(Visibility,int);
+  void GetMatrix(vtkMatrix4x4& m);
 
-  // Description:
-  // Set/Get the pickable instance variable.  This determines if the actor can 
-  // be picked (typically using the mouse). Also see dragable.
-  vtkSetMacro(Pickable,int);
-  vtkGetMacro(Pickable,int);
-  vtkBooleanMacro(Pickable,int);
-
-  // Description:
-  // Set/Get the value of the dragable instance variable. This determines if 
-  // an actor, once picked, can be dragged (translated) through space.
-  // This is typically done through an interactive mouse interface.
-  // This does not affect methods such as SetPosition, which will continue
-  // to work.  It is just intended to prevent some actors from being
-  // dragged from within a user interface.
-  vtkSetMacro(Dragable,int);
-  vtkGetMacro(Dragable,int);
-  vtkBooleanMacro(Dragable,int);
-
-  vtkMatrix4x4& GetMatrix();
-  virtual void GetMatrix(vtkMatrix4x4& m);
-
-  virtual float *GetBounds();
-  void GetBounds(float bounds[6]);
-  float *GetCenter();
-  float *GetXRange();
-  float *GetYRange();
-  float *GetZRange();
-
-  void RotateX(float);
-  void RotateY(float);
-  void RotateZ(float);
-  void RotateWXYZ(float,float,float,float);
-
-  void SetOrientation(float,float,float);
-  void SetOrientation(float a[3]);
-  float *GetOrientation();
-  float *GetOrientationWXYZ();
-  void AddOrientation(float,float,float);
-  void AddOrientation(float a[3]);
+  float *GetBounds();
 
   // Description:
   // Subclasses of vtkActor can be composed of one or more parts. A part is an
@@ -211,21 +157,11 @@ class vtkActor : public vtkObject
   unsigned long int GetMTime();//overload superclasses' implementation
 
 protected:
-  vtkMatrix4x4 *UserMatrix;
   vtkProperty *Property; 
   vtkTexture *Texture; 
   vtkMapper *Mapper;
-  float Origin[3];
-  float Position[3];
-  float Orientation[3];
   float Scale[3];
-  int   Visibility;
-  int   Pickable;
-  int   Dragable;
-  vtkTransform Transform;
-  float Bounds[6];
   int SelfCreatedProperty;
-  float Center[3];
   vtkActorDevice *Device;
 
   // this stuff supports multiple-part actors (e.g. assemblies)

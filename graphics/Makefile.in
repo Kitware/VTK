@@ -53,6 +53,7 @@ vtkActorDevice \
 vtkCameraDevice \
 vtkLightDevice \
 vtkPropertyDevice \
+vtkRayBounder \
 vtkTextureDevice 
 
 CONCRETE_H = \
@@ -63,15 +64,17 @@ vtkLightCollection \
 vtkPolyDataCollection \
 vtkRenderWindowCollection \
 vtkStructuredPointsCollection \
-vtkVolumeCollection 
+vtkVolumeCollection
 
 ABSTRACT = \
 vtkDataWriter \
 vtkExporter \
 vtkMapper \
 vtkPolyMapperDevice \
+vtkProp \
 vtkRenderWindow \
 vtkRenderer \
+vtkVolumeMapper \
 vtkVolumeReader \
 vtkWriter \
 vtkXRenderWindow 
@@ -165,6 +168,7 @@ vtkMaskPolyData \
 vtkMergeFilter \
 vtkMergePoints \
 vtkNewVolumeRenderer \
+vtkNormalEncoder \
 vtkOBBTree \
 vtkOBJExporter \
 vtkOutlineFilter \
@@ -198,6 +202,7 @@ vtkRendererCollection \
 vtkRendererSource \
 vtkRibbonFilter \
 vtkRotationalExtrusionFilter \
+vtkSLCReader \
 vtkSTLReader \
 vtkSTLWriter \
 vtkSampleFunction \
@@ -262,9 +267,9 @@ vtkVectorDot \
 vtkVectorNorm \
 vtkVectorText \
 vtkVectorTopology \
+vtkViewRays \
 vtkVolume \
 vtkVolume16Reader \
-vtkVolumeRenderer \
 vtkVoxelModeller \
 vtkVoxelReader \
 vtkVoxelWriter \

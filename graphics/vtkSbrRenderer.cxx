@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSbrLight.h"
 #include "vtkSbrRenderWindow.h"
 #include "vtkSbrRenderer.h"
-#include "vtkVolumeRenderer.h"
 #include "vtkNewVolumeRenderer.h"
 
 #define MAX_LIGHTS 16
@@ -219,11 +218,6 @@ void vtkSbrRenderer::Render(void)
   if ( !(actor_count + volume_count) )
     {
     vtkWarningMacro(<< "No actors or volumes are on.");
-    }
-
-  if (this->VolumeRenderer)
-    {
-    this->VolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 

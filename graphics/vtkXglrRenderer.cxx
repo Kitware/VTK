@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXglrRenderWindow.h"
 #include "vtkXglrRenderer.h"
 #include "vtkNewVolumeRenderer.h"
-#include "vtkVolumeRenderer.h"
 
 
 vtkXglrRenderer::vtkXglrRenderer()
@@ -224,11 +223,6 @@ void vtkXglrRenderer::Render(void)
   if ( !(actor_count + volume_count) )
     {
     vtkWarningMacro(<< "No actors or volumes are on.");
-    }
-
-  if (this->VolumeRenderer)
-    {
-    this->VolumeRenderer->Render((vtkRenderer *)this);
     }
 
   if (this->EndRenderMethod) 

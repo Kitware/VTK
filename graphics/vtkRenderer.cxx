@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
-#include "vtkVolumeRenderer.h"
 #include "vtkNewVolumeRenderer.h"
 #include "vtkMath.h"
 
@@ -89,7 +88,6 @@ vtkRenderer::vtkRenderer()
   this->AllocatedRenderTime = 0;
   
   this->Aspect[0] = this->Aspect[1] = 1.0;
-  this->VolumeRenderer = NULL;
   this->NewVolumeRenderer = NULL;
   this->SelfCreatedCamera = 0;
   this->SelfCreatedLight = 0;
@@ -138,21 +136,6 @@ vtkCamera *vtkRenderer::GetActiveCamera()
     }
 
   return this->ActiveCamera;
-}
-
-// Description:
-// Specify a volume renderer to use. If this is set, then volume rendering
-// will be done. 9It isn't a very good volume renderer, but it works.)
-void vtkRenderer::SetVolumeRenderer(vtkVolumeRenderer *vol)
-{
-  this->VolumeRenderer = vol;
-}
-
-// Description:
-// Get the volume renderer.
-vtkVolumeRenderer *vtkRenderer::GetVolumeRenderer()
-{
-  return this->VolumeRenderer;
 }
 
 // Description:
@@ -213,7 +196,6 @@ void vtkRenderer::CreateLight(void)
 // camera position to focal point) so that all of the actors can be seen.
 void vtkRenderer::ResetCamera()
 {
-  vtkVolume *aVolume;
   vtkActor *anActor;
   float *bounds;
   float allBounds[6];
@@ -241,26 +223,26 @@ void vtkRenderer::ResetCamera()
     }
 
   // loop through volumes if any
-  if (this->VolumeRenderer)
-    {
-    for (this->VolumeRenderer->GetVolumes()->InitTraversal(); 
-	 (aVolume = this->VolumeRenderer->GetVolumes()->GetNextItem()); )
-      {
+//  if (this->VolumeRenderer)
+//    {
+//    for (this->VolumeRenderer->GetVolumes()->InitTraversal(); 
+//	 (aVolume = this->VolumeRenderer->GetVolumes()->GetNextItem()); )
+//      {
       // if it's invisible, we can skip the rest 
-      if ( aVolume->GetVisibility() )
-	{
-	nothingVisible = 0;
-	bounds = aVolume->GetBounds();
+//      if ( aVolume->GetVisibility() )
+//	{
+//	nothingVisible = 0;
+//	bounds = aVolume->GetBounds();
 	
-	if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
-	if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
-	if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
-	if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
-	if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
-	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
-	}
-      }
-    }
+//	if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
+//	if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
+//	if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
+//	if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
+//	if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
+//	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+//	}
+//      }
+//    }
 
   if ( this->NewVolumeRenderer )
     {
