@@ -100,6 +100,7 @@ IF (VTK_USE_RENDERING)
       subPixelPositionMin
       teapotHulls
       TenEllip
+      TestButtonSource
       TestCellDerivs
       testDataSetTriangleFilter
       testDataSetTriangleFilter2
