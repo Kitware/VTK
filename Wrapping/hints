@@ -61,6 +61,11 @@ vtkImageExport          GetDataOrigin           301 3
 vtkImageExport          GetDataSpacing          301 3
 vtkImageMandelbrotSource GetSizeCX		307 4
 vtkImagePadFilter       GetOutputWholeExtent    304 6
+vtkImagePlaneWidget	GetCenter		301 3
+vtkImagePlaneWidget	GetNormal		301 3
+vtkImagePlaneWidget	GetOrigin		301 3
+vtkImagePlaneWidget	GetPoint1		301 3
+vtkImagePlaneWidget	GetPoint2		301 3
 vtkImageReslice         GetResliceAxesDirectionCosines 307 9
 vtkImageReslice         GetResliceAxesOrigin    307 3
 vtkImageSource          GetExecuteExtent        304 6
@@ -100,7 +105,6 @@ vtkPiecewiseFunction    GetRange                301 2
 vtkPlaneWidget		GetCenter		301 3
 vtkPlaneWidget		GetNormal		301 3
 vtkPlaneWidget		GetOrigin		301 3
-vtkPlaneWidget		GetOrigin		301 3
 vtkPlaneWidget		GetPoint1		301 3
 vtkPlaneWidget		GetPoint2		301 3
 vtkLineWidget           GetPoint1               301 3
@@ -136,6 +140,7 @@ vtkRecursiveSphereDirectionEncoder GetDecodedGradient 301 3
 vtkRenderer		ComputeVisiblePropBounds    301 6
 vtkScalars              GetRange                301 2
 vtkScalarsToColors      GetColor                301 3
+vtkSplineWidget         GetHandlePosition       301 3
 vtkStreamer             GetStartPosition        301 3
 vtkStructuredGrid       GetDimensions           304 3
 vtkStructuredGrid       GetPoint                301 3
