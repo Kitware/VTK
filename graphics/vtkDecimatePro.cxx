@@ -117,7 +117,7 @@ vtkDecimatePro::~vtkDecimatePro()
 {
   this->InflectionPoints->Delete();
   if ( this->Queue ) delete this->Queue;
-  if ( this->VertexError ) delete this->VertexError;
+  if ( this->VertexError ) this->VertexError->Delete();
 }
 
 //
