@@ -8,7 +8,8 @@ MACRO(VTK_COMPILE_CMAKE_EXTENSIONS source_dir build_dir result_var)
   ELSE(COMMAND VTK_MAKE_INSTANTIATOR2)
     MESSAGE(STATUS "Compiling VTK CMake commands")
     TRY_COMPILE("${result_var}" "${build_dir}" "${source_dir}"
-                VTK_LOADED_COMMANDS
+                VTK_LOADED_COMMANDS      
+                CMAKE_FLAGS -DVTK_BUILD_FROM_TRY_COMPILE:BOOL=TRUE
                 OUTPUT_VARIABLE VTK_COMPILE_CMAKE_EXTENSIONS_OUTPUT)
     IF("${result_var}")
       MESSAGE(STATUS "Compiling VTK CMake commands - done")

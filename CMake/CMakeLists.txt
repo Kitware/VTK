@@ -1,5 +1,9 @@
 PROJECT(VTK_LOADED_COMMANDS)
 
+IF(NOT VTK_BUILD_FROM_TRY_COMPILE)
+  STRING(REGEX REPLACE "[\\/][cC][mM][Aa][Kk][Ee]$" "" REAL_SOURCE "${VTK_LOADED_COMMANDS_SOURCE_DIR}")
+  MESSAGE(SEND_ERROR  "\nThis directory:\n${VTK_LOADED_COMMANDS_SOURCE_DIR}\nshould not be used as a source directory for building VTK. \nYou should exit cmake and remove the file:\n${VTK_LOADED_COMMANDS_BINARY_DIR}/CMakeCache.txt\nThen re-run cmake with the source directory set to:\n${REAL_SOURCE}")   
+ENDIF(NOT VTK_BUILD_FROM_TRY_COMPILE)
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_ANSI_CFLAGS}")
 INCLUDE_DIRECTORIES(${CMAKE_ROOT}/include ${CMAKE_ROOT}/Source)
 ADD_LIBRARY(cmVTK_WRAP_TCL2 MODULE cmVTKWrapTcl2Command.c)
