@@ -142,7 +142,6 @@ void vtkHedgeHog::Execute()
     newLines->InsertNextCell(2,pts);
 
     outputPD->CopyData(pd,ptId,pts[0]);
-    outputPD->CopyData(pd,ptId,pts[1]);
     }
 
   // Update ourselves and release memory
