@@ -99,8 +99,8 @@ extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_CONTRIB
 extern Vtkcontribtcl_Init(Tcl_Interp *interp);
 #endif
-#ifdef VTK_USE_VOLUME
-extern Vtkvolumetcl_Init(Tcl_Interp *interp);
+#ifdef VTK_USE_WORKING
+extern Vtkworkingtcl_Init(Tcl_Interp *interp);
 #endif
 #ifdef VTK_USE_GEMSVOLUME
 extern Vtkgemsvolumetcl_Init(Tcl_Interp *interp);
@@ -170,8 +170,8 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-#ifdef VTK_USE_VOLUME
-  if (Vtkvolumetcl_Init(interp) == TCL_ERROR) 
+#ifdef VTK_USE_WORKING
+  if (Vtkworkingtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
