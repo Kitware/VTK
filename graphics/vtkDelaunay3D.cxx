@@ -45,8 +45,90 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkEdgeTable.h"
 #include "vtkPolyData.h"
 
+// Structure used to represent sphere around tetrahedron
+//
+//BTX - begin tcl exclude
+//
+typedef struct _vtkDelaunaySphere 
+{
+  float r2;
+  float center[3];
+}
+vtkDelaunaySphere;
+
+// Special classes for manipulating sphere array
+//
+class vtkSphereArray { //;prevent man page generation
+public:
+  vtkSphereArray(int sz, int extend);
+  ~vtkSphereArray() {if (this->Array) delete [] this->Array;};
+  vtkDelaunaySphere *GetSphere(int tetraId) {return this->Array + tetraId;};
+  void InsertSphere(int tetraId, float r2, float center[3]);
+  vtkDelaunaySphere *Resize(int sz); //reallocates data
+
+protected:
+  vtkDelaunaySphere *Array;  // pointer to data
+  int MaxId;              // maximum index inserted thus far
+  int Size;               // allocated size of data
+  int Extend;             // grow array by this amount
+};
+
+vtkSphereArray::vtkSphereArray(int sz, int extend)
+{
+  this->MaxId = -1; 
+  this->Array = new vtkDelaunaySphere[sz];
+  this->Size = sz;
+  this->Extend = extend;
+}
+
+void vtkSphereArray::InsertSphere(int id, float r2, float center[3])
+{
+  if ( id >= this->Size ) this->Resize(id+1);
+  this->Array[id].r2 = r2;
+  this->Array[id].center[0] = center[0];
+  this->Array[id].center[1] = center[1];
+  this->Array[id].center[2] = center[2];
+  if ( id > this->MaxId ) this->MaxId = id;
+}
+
+vtkDelaunaySphere *vtkSphereArray::Resize(int sz)
+{
+  vtkDelaunaySphere *newArray;
+  int newSize;
+
+  if ( sz > this->Size ) newSize = this->Size + 
+    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  else if (sz == this->Size)
+    return this->Array;
+  else newSize = sz;
+
+  if ( (newArray = new vtkDelaunaySphere[newSize]) == NULL )
+    { 
+    vtkGenericWarningMacro(<< "Cannot allocate memory\n");
+    return 0;
+    }
+
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array,
+           (sz < this->Size ? sz : this->Size) * sizeof(vtkDelaunaySphere));
+    delete [] this->Array;
+    }
+
+  this->Size = newSize;
+  this->Array = newArray;
+
+  return this->Array;
+}
+//ETX
+//
+
+
+// vtkDelaunay3D methods
+//
+
 // Description:
-// Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;
+// Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
 // BoundingTriangulation turned off.
 vtkDelaunay3D::vtkDelaunay3D()
 {
@@ -54,41 +136,31 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
+  this->SelfCreatedLocator = 0;
+  this->Locator = NULL;
 
   this->Output = vtkUnstructuredGrid::New();
   this->Output->SetSource(this);
+  
+  this->Spheres = NULL;
 }
 
-// Determine whether point x is inside of circumsphere of tetrahedron
-// defined by points (x1, x2, x3, x4). Returns non-zero if inside sphere.
-static int InSphere (float x[3], float x1[3], float x2[3], float x3[3],
-                     float x4[3])
+vtkDelaunay3D::~vtkDelaunay3D()
 {
-  float radius2, center[3], dist2;
-
-  radius2 = vtkTetra::Circumsphere(x1,x2,x3,x4,center);
-
-  // check if inside/outside circumcircle
-  dist2 = (x[0]-center[0]) * (x[0]-center[0]) + 
-          (x[1]-center[1]) * (x[1]-center[1]) +
-          (x[2]-center[2]) * (x[2]-center[2]);
-
-  if ( dist2 < (0.99999*radius2) ) return 1;
-  else return 0;
+  if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
+  if ( this->Spheres ) delete this->Spheres;
 }
+
 
 #define VTK_DEL3D_TOLERANCE 1.0e-06
-
-static int NumberOfDuplicatePoints;
-static int NumberOfDegeneracies;
 
 // Recursive method to locate tetrahedron containing point. Starts with
 // arbitrary tetrahedron (tetra) and "walks" towards it. Influenced by 
 // some of Guibas and Stolfi's work. Returns id of enclosing tetra, or -1 
 // if no tetrahedron found.
-static int FindTetra(float x[3], int ptIds[4], float p[4][3], 
-                     int tetra, vtkUnstructuredGrid *Mesh, 
-                     vtkFloatPoints *points, float tol, int depth)
+int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3], 
+                             int tetra, vtkUnstructuredGrid *Mesh, 
+                             vtkFloatPoints *points, float tol, int depth)
 {
   int i, j, inside, i2, i3, i4;
   vtkIdList pts(4), facePts(3); facePts.SetNumberOfIds(3);
@@ -98,7 +170,7 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
   // prevent aimless wandering and death by recursion
   if ( depth++ > 100 )
     {
-    NumberOfDegeneracies++;
+    this->NumberOfDegeneracies++;
     return -1;
     }
 
@@ -128,13 +200,13 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
 
     if ( vtkMath::Normalize(vx) <= tol ) //check for duplicate point
       {
-      NumberOfDuplicatePoints++;
+      this->NumberOfDuplicatePoints++;
       return -1;
       }
 
     if ( vtkMath::Normalize(vp) <=  VTK_DEL3D_TOLERANCE ) //degenerate tetra
       {
-      NumberOfDegeneracies++;
+      this->NumberOfDegeneracies++;
       return -1;
       }
 
@@ -178,17 +250,18 @@ static int FindTetra(float x[3], int ptIds[4], float p[4][3],
 // neighbors are visited repeatedly until no more tetrahedron are found.
 // Enclosing tetras are returned in the tetras list; the enclosing faces 
 // are returned in the faces list.
-static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
-                              vtkFloatPoints *points, float tol,
-                              vtkIdList &tetras, vtkIdList &faces,
-                              vtkPointLocator &Locator)
+int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra, 
+                                      vtkUnstructuredGrid *Mesh,
+                                      vtkFloatPoints *points, float tol,
+                                      vtkIdList &tetras, vtkIdList &faces,
+                                      vtkPointLocator *Locator)
 {
   vtkTetra *tetraCell=NULL;
   int ptIds[4];
-  float bcoords[4], *x1, *x2, *x3, *x4;
+  float bcoords[4];
   float p[4][3];
   int tetraId=(-1), verts[4], onCount, i, j, numTetras;
-  static vtkIdList boundaryPts(3), checkedTetras(25), neiTetras(2);
+  vtkIdList boundaryPts(3), checkedTetras(25), neiTetras(2);
   int p1, p2, p3, insertFace;
   int npts, *tetraPts, nei, numNeiPts, *neiPts;
   int closestPoint;
@@ -201,21 +274,21 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
   onCount = verts[0] = verts[1] = verts[2] = verts[3] = 0;
 
   // start off by finding closest point and tetras that use the point
-  if ( Locator.IsInsertedPoint(x) >= 0 ) 
+  if ( Locator->IsInsertedPoint(x) >= 0 ) 
     {
     return 0;
     }
 
-  closestPoint = Locator.FindClosestInsertedPoint(x);
+  closestPoint = Locator->FindClosestInsertedPoint(x);
   Mesh->GetPointCells(closestPoint, checkedTetras);
 
   //check these cells to see if any contain the point
   for ( i=0; i < checkedTetras.GetNumberOfIds(); i++ )
     {
     tetraId = checkedTetras.GetId(i);
-    tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
-    if ( tetraCell->EvaluatePosition(x,closest,subId,pcoords,dist2,weights) == 1 )
+    if ( this->InSphere(x,tetraId) )
       {
+      tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
       for ( j=0; j < 4; j++ ) 
         {
         tetraCell->Points.GetPoint(j,p[j]);
@@ -231,51 +304,7 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
     tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
     }
 
-  if ( tetraCell->BarycentricCoords(x, p[0], p[1], p[2], p[3], bcoords) )
-    {
-    //check edges / faces for point being "on" them. Coincident points
-    //should have been caught already.
-    for (i=0; i < 4; i++ )
-      {
-      if ( bcoords[i] <= tol )
-        {
-        verts[i] = 1;
-        onCount++;
-        }
-      }
-
-    if ( onCount == 0 ) //inside tetra
-      {
-      tetras.InsertNextId(tetraId);
-      }
-
-    else if ( onCount == 1 ) //on face
-      {
-      for (i=0; i < 4; i++)
-        if ( !verts[i] ) 
-          boundaryPts.InsertNextId(ptIds[i]);
-
-      Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
-      tetras.InsertNextId(tetraId);
-      }
-
-    else if ( onCount == 2 ) //on edge
-      {
-      for (i=0; i < 4; i++)
-        if ( !verts[i] ) 
-          boundaryPts.InsertNextId(ptIds[i]);
-
-      Mesh->GetCellNeighbors(tetraId, boundaryPts, tetras);
-      tetras.InsertNextId(tetraId);
-      }
-
-    else //on vertex - shouldn't happen, but hey, you never know!
-      {
-      NumberOfDuplicatePoints++;
-      return 0;
-      }
-
-    }//if non-degenerate tetra
+  tetras.InsertNextId(tetraId); //means that point is in this tetra
 
   // Okay, check neighbors for Delaunay criterion. Purpose is to find 
   // list of enclosing faces and deleted tetras.
@@ -307,12 +336,7 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
         nei = neiTetras.GetId(0);
         if ( ! checkedTetras.IsId(nei) )
           {
-          Mesh->GetCellPoints(nei,numNeiPts,neiPts);
-          x1 = points->GetPoint(neiPts[0]);
-          x2 = points->GetPoint(neiPts[1]);
-          x3 = points->GetPoint(neiPts[2]);
-          x4 = points->GetPoint(neiPts[3]);
-          if ( ! InSphere(x,x1,x2,x3,x4) ) //if point outside circumsphere
+          if ( ! this->InSphere(x,nei) ) //if point outside circumsphere
             {
             insertFace = 1;
             }
@@ -367,16 +391,16 @@ static int FindEnclosingFaces(float x[3], int tetra, vtkUnstructuredGrid *Mesh,
 void vtkDelaunay3D::Execute()
 {
   int numPoints, numTetras, i;
-  int tetraNum, numFaces, tetraId;
+  int tetraNum, tetraId;
   int ptId;
   vtkPoints *inPoints;
   vtkFloatPoints *points;
-  vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
+  vtkUnstructuredGrid *Mesh;
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
   float x[3];
   int nodes[4], pts[4], npts, *tetraPts;
-  vtkIdList neighbors(2), cells(64), tetras(5), faces(15), holeTetras(12);
+  vtkIdList neighbors(2), cells(64), holeTetras(12);
   float center[3], length, tol;
   char *tetraUse;
   float bounds[6];
@@ -392,144 +416,41 @@ void vtkDelaunay3D::Execute()
     }
 
   numPoints = inPoints->GetNumberOfPoints();
-  NumberOfDuplicatePoints = 0;
-  NumberOfDegeneracies = 0;
-//
-// Create initial bounding triangulation. Have to create bounding points.
-// Initialize mesh structure.
-//
-  points = vtkFloatPoints::New();
-  points->Allocate(numPoints+6);
+  this->NumberOfDuplicatePoints = 0;
+  this->NumberOfDegeneracies = 0;
 
+  // Create initial bounding triangulation. Have to create bounding points.
+  // Initialize mesh structure.
   input->GetCenter(center);
   tol = input->GetLength();
-  if ( (length = this->Offset * tol) <= 0.0 ) length = 1.0;
+  Mesh = this->InitPointInsertion(center, this->Offset*tol,
+                                  numPoints, points);
+  tetraId = 0;
 
-  bounds[0] = center[0] - length; bounds[1] = center[0] + length; 
-  bounds[2] = center[1] - length; bounds[3] = center[1] + length; 
-  bounds[4] = center[2] - length; bounds[5] = center[2] + length; 
-  this->Locator.InitPointInsertion(points,bounds);
-
-  //create bounding octahedron
-  x[0] = center[0] - length;
-  x[1] = center[1];
-  x[2] = center[2];
-  this->Locator.InsertPoint(numPoints,x);
-
-  x[0] = center[0] + length;
-  x[1] = center[1];
-  x[2] = center[2];
-  this->Locator.InsertPoint(numPoints+1,x);
-
-  x[0] = center[0];              
-  x[1] = center[1] - length;
-  x[2] = center[2];
-  this->Locator.InsertPoint(numPoints+2,x);
-
-  x[0] = center[0];              
-  x[1] = center[1] + length;
-  x[2] = center[2];
-  this->Locator.InsertPoint(numPoints+3,x);
-
-  x[0] = center[0];              
-  x[1] = center[1];
-  x[2] = center[2] - length;
-  this->Locator.InsertPoint(numPoints+4,x);
-
-  x[0] = center[0];              
-  x[1] = center[1];
-  x[2] = center[2] + length;
-  this->Locator.InsertPoint(numPoints+5,x);
-
-  Mesh->Allocate(5*numPoints);
-
-  //create bounding tetras (there are six)
-  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints ; pts[3] = numPoints + 2;
-  Mesh->InsertNextCell(VTK_TETRA,4,pts);
-
-  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints + 2; pts[3] = numPoints + 1;
-  Mesh->InsertNextCell(VTK_TETRA,4,pts);
-
-  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints + 1; pts[3] = numPoints + 3;
-  Mesh->InsertNextCell(VTK_TETRA,4,pts);
-
-  pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints + 3; pts[3] = numPoints;
-  tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-
-  Mesh->SetPoints(points);
-  Mesh->BuildLinks();
-//
-// For each point; find faces containing point. (Faces are found by deleting
-// one or more tetrahedra "containing" point.) Tetrahedron contain point when 
-// they satisfy Delaunay criterion. (More than one tetra may contain
-// a point if the point is on or near an edge or face.) For each face, create 
-// a tetrahedron. (The locator helps speed search of points in tetras.)
-  
+  // Insert each point into triangulation. Points lying "inside"
+  // of tetra cause tetra to be deleted, leaving a void with bounding
+  // faces. Combination of point and each face is used to form new 
+  // tetrahedra.
   for (ptId=0; ptId < numPoints; ptId++)
     {
     inPoints->GetPoint(ptId,x);
 
-    if ( (numFaces=FindEnclosingFaces(x,tetraId,Mesh,
-    points,this->Tolerance,tetras,faces,this->Locator)) > 0 )
-      {
-      this->Locator.InsertPoint(ptId,x); //point is part of mesh now
-      numTetras = tetras.GetNumberOfIds();
-
-      // create new tetra for each face
-      for (tetraNum=0; tetraNum < numFaces; tetraNum++)
-        {
-        //define tetrahedron
-        nodes[0] = ptId;
-        nodes[1] = faces.GetId(3*tetraNum);
-        nodes[2] = faces.GetId(3*tetraNum+1);
-        nodes[3] = faces.GetId(3*tetraNum+2);
-
-        //either replace previously deleted tetra or create new one
-        if ( tetraNum < numTetras )
-          {
-          tetraId = tetras.GetId(tetraNum);
-          Mesh->ReplaceCell(tetraId, 4, nodes);
-          for (i=0; i < 4; i++)
-            {
-            Mesh->ResizeCellList(nodes[i],1);
-            Mesh->AddReferenceToCell(nodes[i],tetraId);
-            }
-          }
-        else
-          {
-          tetraId = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes);
-          }
-
-        }//for each face
-
-      // Sometimes there are more tetras deleted than created. These
-      // have to be accounted for because they leave a "hole" in the
-      // data structure. Keep track of them here...mark them deleted later.
-      for (tetraNum = numFaces; tetraNum < numTetras; tetraNum++ )
-        {
-        holeTetras.InsertNextId(tetras.GetId(tetraNum));
-        }
-
-      }//if enclosing faces found
+    this->InsertPoint(Mesh, points, ptId, x, holeTetras);
 
     if ( ! (ptId % 100) ) vtkDebugMacro(<<"point #" << ptId);
     }//for all points
 
   vtkDebugMacro(<<"Triangulated " << numPoints <<" points, " 
-                << NumberOfDuplicatePoints << " of which were duplicates");
+                << this->NumberOfDuplicatePoints << " of which were duplicates");
 
-  if ( NumberOfDegeneracies > 0 )
+  if ( this->NumberOfDegeneracies > 0 )
     {
-    vtkWarningMacro(<< NumberOfDegeneracies 
+    vtkWarningMacro(<< this->NumberOfDegeneracies 
                     << " degenerate triangles encountered, mesh quality suspect");
     }
-//
-// Send appropriate portions of triangulation to output
-//
+
+  // Send appropriate portions of triangulation to output
+  //
   output->Allocate(5*numPoints);
   numTetras = Mesh->GetNumberOfCells();
   tetraUse = new char[numTetras];
@@ -552,19 +473,20 @@ void vtkDelaunay3D::Execute()
         }
       }
     }
-//
-// If non-zero alpha value, then figure out which parts of mesh are
-// contained within alpha radius.
-//
+
+  // If non-zero alpha value, then figure out which parts of mesh are
+  // contained within alpha radius.
+  //
   if ( this->Alpha > 0.0 )
     {
     float alpha2 = this->Alpha * this->Alpha;
     vtkEdgeTable edges(numPoints+6);
     char *pointUse = new char[numPoints+6];
     int p1, p2, p3, nei, j, k, numNei;
-    float x1[3], x2[3], x3[3], x4[3], v1[2], v2[2], v3[2];
+    float x1[3], x2[3], x3[3], v1[2], v2[2], v3[2];
+    vtkDelaunaySphere *sphere;
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
-    static vtkIdList boundaryPts(3), neiTetras(2);
+    vtkIdList boundaryPts(3), neiTetras(2);
 
     for (ptId=0; ptId < (numPoints+6); ptId++) pointUse[ptId] = 0;
 
@@ -574,19 +496,14 @@ void vtkDelaunay3D::Execute()
       //check tetras
       if ( tetraUse[i] == 1 )
         {
-        Mesh->GetCellPoints(i, npts, tetraPts);
-        points->GetPoint(tetraPts[0],x1);
-        points->GetPoint(tetraPts[1],x2);
-        points->GetPoint(tetraPts[2],x3);
-        points->GetPoint(tetraPts[3],x4);
-
-        //check tetras
-        if ( vtkTetra::Circumsphere(x1,x2,x3,x4,center) > alpha2 )
+        sphere = this->Spheres->GetSphere(i);
+        if ( sphere->r2 > alpha2 )
           {
           tetraUse[i] = 0;
           }
         else
           {
+          Mesh->GetCellPoints(i, npts, tetraPts);
           for (j=0; j<4; j++) pointUse[tetraPts[j]] = 1; 
           for (j=0; j<6; j++)
             {
@@ -687,9 +604,9 @@ void vtkDelaunay3D::Execute()
     // update output
     delete [] pointUse;
     }
-//
-// Update output; free up supporting data structures.
-//
+
+  // Update output; free up supporting data structures.
+  //
   if ( this->BoundingTriangulation )
     {
     output->SetPoints(points);
@@ -713,10 +630,276 @@ void vtkDelaunay3D::Execute()
 
   delete [] tetraUse;
 
-  points->Delete();
-  delete Mesh;
+  Mesh->Delete();
 
   output->Squeeze();
+}
+
+// Description:
+// This is a helper method used with InsertPoint() to create 
+// tetrahedronalizations of points. Its purpose is construct an initial
+// Delaunay triangulation into which to inject other points. You must
+// specify the center of a cubical bounding box and its length, as well
+// as the numer of points to insert. The method returns a pointer to
+// an unstructured grid. Use this pointer to manipulate the mesh as
+// necessary. You must delete (with Delete()) the mesh when done.
+// Note: This initialization method places points forming bounding octahedron
+// at the end of the Mesh's point list. That is, InsertPoint() assumes that
+// you will be inserting points between (0,numPtsToInsert-1).
+vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3], 
+                       float length, int numPtsToInsert, vtkFloatPoints* &points)
+{
+  float x[3], bounds[6];
+  int pts[4], tetraId;
+  vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
+
+  points = vtkFloatPoints::New();
+  points->Allocate(numPtsToInsert+6);
+
+  if ( length <= 0.0 ) length = 1.0;
+
+  bounds[0] = center[0] - length; bounds[1] = center[0] + length; 
+  bounds[2] = center[1] - length; bounds[3] = center[1] + length; 
+  bounds[4] = center[2] - length; bounds[5] = center[2] + length; 
+
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion(points,bounds);
+
+  //create bounding octahedron: 6 points & 4 tetra
+  x[0] = center[0] - length;
+  x[1] = center[1];
+  x[2] = center[2];
+  this->Locator->InsertPoint(numPtsToInsert,x);
+
+  x[0] = center[0] + length;
+  x[1] = center[1];
+  x[2] = center[2];
+  this->Locator->InsertPoint(numPtsToInsert+1,x);
+
+  x[0] = center[0];              
+  x[1] = center[1] - length;
+  x[2] = center[2];
+  this->Locator->InsertPoint(numPtsToInsert+2,x);
+
+  x[0] = center[0];              
+  x[1] = center[1] + length;
+  x[2] = center[2];
+  this->Locator->InsertPoint(numPtsToInsert+3,x);
+
+  x[0] = center[0];              
+  x[1] = center[1];
+  x[2] = center[2] - length;
+  this->Locator->InsertPoint(numPtsToInsert+4,x);
+
+  x[0] = center[0];              
+  x[1] = center[1];
+  x[2] = center[2] + length;
+  this->Locator->InsertPoint(numPtsToInsert+5,x);
+
+  Mesh->Allocate(5*numPtsToInsert);
+  this->Spheres = new vtkSphereArray(5*numPtsToInsert,numPtsToInsert);
+
+  //create bounding tetras (there are four)
+  pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
+  pts[2] = numPtsToInsert ; pts[3] = numPtsToInsert + 2;
+  tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
+  this->InsertSphere(Mesh,points,tetraId);
+
+  pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
+  pts[2] = numPtsToInsert + 2; pts[3] = numPtsToInsert + 1;
+  tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
+  this->InsertSphere(Mesh,points,tetraId);
+
+  pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
+  pts[2] = numPtsToInsert + 1; pts[3] = numPtsToInsert + 3;
+  tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
+  this->InsertSphere(Mesh,points,tetraId);
+
+  pts[0] = numPtsToInsert + 4; pts[1] = numPtsToInsert + 5; 
+  pts[2] = numPtsToInsert + 3; pts[3] = numPtsToInsert;
+  tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
+  this->InsertSphere(Mesh,points,tetraId);
+
+  Mesh->SetPoints(points);
+  points->Delete();
+  Mesh->BuildLinks();
+
+  return Mesh;
+}
+
+// Description:
+// This is a helper method used with InsertPoint() to create 
+// tetrahedronalizations of points. Its purpose is construct an initial
+// Delaunay triangulation into which to inject other points. You must
+// specify the number of points you wish to insert, and then define an
+// initial Delaunay tetrahedronalization. This is defined by specifying 
+// the number of tetrahedra, and a list of points coordinates defining
+// the tetra (total of 4*numTetra points). The method returns a pointer 
+// to an unstructured grid. Use this pointer to manipulate the mesh as
+// necessary. You must delete (with Delete()) the mesh when done.
+// Note: The points you insert using InsertPoint() will range from
+// (0,numPtsToInsert-1). Make sure that numPtsToInsert is large enough to
+// accomodate this.
+vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(int numPtsToInsert,  
+               int numTetra, vtkFloatPoints &boundingTetraPts, float bounds[6],
+               vtkFloatPoints* &points)
+{
+  int i, j, pts[4], ptNum, tetraId;
+  float *x;
+  vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
+
+  points = vtkFloatPoints::New();
+  points->Allocate(numPtsToInsert+numTetra*4); //estimate
+
+  if ( this->Locator == NULL ) this->CreateDefaultLocator();
+  this->Locator->InitPointInsertion(points,bounds);
+
+  Mesh->Allocate(5*numPtsToInsert);
+  this->Spheres = new vtkSphereArray(5*numPtsToInsert,numPtsToInsert);
+
+  for ( ptNum=0, j=0; j<numTetra; j++)
+    {
+    for ( i=0; i<4; i++)
+      {
+      x = boundingTetraPts.GetPoint(4*j+i);
+      if ( (pts[i]=this->Locator->IsInsertedPoint(x)) < 0 ) 
+        {
+        pts[i] = numPtsToInsert + ptNum++;
+        this->Locator->InsertPoint(pts[i], x);
+        }
+      }
+    tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
+    this->InsertSphere(Mesh, points, tetraId);
+    }
+
+  Mesh->SetPoints(points);
+  points->Delete();
+  Mesh->BuildLinks();
+
+  return Mesh;
+}
+  
+// Description:
+// This is a helper method used with InitPointInsertion() to create
+// tetrahedronalizations of points. Its purpose is to inject point at
+// coordinates specified into tetrahedronalization. The point id is an index
+// into the list of points in the mesh structure.  (See
+// vtkDelaunay3D::InitPointInsertion() for more information.)  When you have
+// completed inserting points, traverse the mesh structure to extract desired
+// tetrahedra (or tetra faces and edges). The holeTetras id list lists all the
+// tetrahedra that are deleted (invalid) in the mesh structure.
+void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkFloatPoints *points,
+                                int ptId, float x[3], vtkIdList& holeTetras)
+{
+  int numFaces, tetraId, nodes[4], i;
+  int tetraNum, numTetras;
+  vtkIdList tetras(5), faces(15);
+
+  // Find faces containing point. (Faces are found by deleting
+  // one or more tetrahedra "containing" point.) Tetrahedron contain point when 
+  // they satisfy Delaunay criterion. (More than one tetra may contain
+  // a point if the point is on or near an edge or face.) For each face, create 
+  // a tetrahedron. (The locator helps speed search of points in tetras.)
+  tetraId = Mesh->GetNumberOfCells() - 1;
+
+  if ( (numFaces=this->FindEnclosingFaces(x,tetraId,Mesh,
+  points,this->Tolerance,tetras,faces,this->Locator)) > 0 )
+    {
+    this->Locator->InsertPoint(ptId,x); //point is part of mesh now
+    numTetras = tetras.GetNumberOfIds();
+
+    // create new tetra for each face
+    for (tetraNum=0; tetraNum < numFaces; tetraNum++)
+      {
+      //define tetrahedron
+      nodes[0] = ptId;
+      nodes[1] = faces.GetId(3*tetraNum);
+      nodes[2] = faces.GetId(3*tetraNum+1);
+      nodes[3] = faces.GetId(3*tetraNum+2);
+
+      //either replace previously deleted tetra or create new one
+      if ( tetraNum < numTetras )
+        {
+        tetraId = tetras.GetId(tetraNum);
+        Mesh->ReplaceCell(tetraId, 4, nodes);
+        for (i=0; i < 4; i++)
+          {
+          Mesh->ResizeCellList(nodes[i],1);
+          Mesh->AddReferenceToCell(nodes[i],tetraId);
+          }
+        }
+      else
+        {
+        tetraId = Mesh->InsertNextLinkedCell(VTK_TETRA, 4, nodes);
+        }
+
+      this->InsertSphere(Mesh, points, tetraId);
+
+      }//for each face
+
+    // Sometimes there are more tetras deleted than created. These
+    // have to be accounted for because they leave a "hole" in the
+    // data structure. Keep track of them here...mark them deleted later.
+    for (tetraNum = numFaces; tetraNum < numTetras; tetraNum++ )
+      {
+      holeTetras.InsertNextId(tetras.GetId(tetraNum));
+      }
+
+    }//if enclosing faces found
+}
+
+
+// Description:
+// Specify a spatial locator for merging points. By default, 
+// an instance of vtkMergePoints is used.
+void vtkDelaunay3D::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vtkDelaunay3D::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = vtkPointLocator::New();
+  this->SelfCreatedLocator = 1;
+}
+
+// See whether point is in sphere of tetrahedron
+int vtkDelaunay3D::InSphere(float x[3], int tetraId)
+{
+  float dist2;
+  vtkDelaunaySphere *sphere = this->Spheres->GetSphere(tetraId);
+  
+  // check if inside/outside circumcircle
+  dist2 = (x[0] - sphere->center[0]) * (x[0] - sphere->center[0]) + 
+          (x[1] - sphere->center[1]) * (x[1] - sphere->center[1]) +
+          (x[2] - sphere->center[2]) * (x[2] - sphere->center[2]);
+
+  if ( dist2 < (0.99999 * sphere->r2) ) return 1;
+  else return 0;
+}
+
+// Compute circumsphere and place into array of spheres
+void vtkDelaunay3D::InsertSphere(vtkUnstructuredGrid *Mesh, vtkFloatPoints *points,
+                                 int tetraId)
+{
+  float *x1, *x2, *x3, *x4, radius2, center[3];
+  int npts, *pts;
+
+  Mesh->GetCellPoints(tetraId, npts, pts);
+  x1 = points->GetPoint(pts[0]);
+  x2 = points->GetPoint(pts[1]);
+  x3 = points->GetPoint(pts[2]);
+  x4 = points->GetPoint(pts[3]);
+
+  radius2 = vtkTetra::Circumsphere(x1,x2,x3,x4,center);
+  this->Spheres->InsertSphere(tetraId, radius2, center);
 }
 
 void vtkDelaunay3D::PrintSelf(ostream& os, vtkIndent indent)
