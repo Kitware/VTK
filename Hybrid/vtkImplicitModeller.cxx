@@ -30,12 +30,13 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.86");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.87");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -952,6 +953,28 @@ vtkImplicitModeller::FillInputPortInformation(int port, vtkInformation* info)
     }
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
+}
+
+int vtkImplicitModeller::ProcessDownstreamRequest(
+  vtkInformation *request, 
+  vtkInformationVector *inputVector, 
+  vtkInformationVector *outputVector)
+{
+#ifdef VTK_USE_EXECUTIVES
+
+  // should we generate the data?
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    if (this->GetInput() == NULL)
+      {
+      // we do not want to release the data because user might
+      // have called Append ...
+      return 1;
+      }
+    }
+#endif
+  return this->Superclass::ProcessDownstreamRequest(request, inputVector,
+                                                    outputVector);
 }
 
 void vtkImplicitModeller::PrintSelf(ostream& os, vtkIndent indent)
