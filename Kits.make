@@ -98,8 +98,8 @@ libVTK${ME}Python.a: python/${ME}Init.o ${PYTHON_O_ADD} ${PYTHON_WRAP}
 	${PYTHON_O_ADD} ${PYTHON_WRAP} 
 	${RANLIB} libVTK$(ME)Python.a
 
-libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o \
-	${PYTHON_O_ADD} ${PYTHON_WRAP}
+libVTK$(ME)Python$(SHLIB_SUFFIX): libVTK$(ME)$(SHLIB_SUFFIX) \
+	python/${ME}Init.o ${PYTHON_O_ADD} ${PYTHON_WRAP}
 	rm -f libVTK$(ME)Python$(SHLIB_SUFFIX)
 	$(CXX) ${CXX_FLAGS} ${VTK_SHLIB_BUILD_FLAGS} \
 	-o libVTK$(ME)Python$(SHLIB_SUFFIX) python/${ME}Init.o \
