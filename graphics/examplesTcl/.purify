@@ -50,6 +50,9 @@ suppress abr _open; map_rtc
 suppress abr strncmp; GetBoardInfo
 suppress abr strcat; GetBoardInfo
 suppress abr strncat; GetBoardInfo
+suppress umr strncat; GetBoardInfo
+suppress umr strncmp; GetBoardInfo
+suppress umc GetBoardInfo
 suppress abr _bcopy; addTexTableUsage
 suppress umr __glKonTexQuickSortPairs
 suppress umc __glKonTexQuickSortPairs
