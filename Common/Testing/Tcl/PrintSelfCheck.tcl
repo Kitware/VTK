@@ -697,7 +697,6 @@ proc measure_vtk {kits} {
     clear_results
 
     puts $pd_id " "
-    puts $pd_id "Results for directory: $toolkit"
 
     read_directory $path$toolkit
 
