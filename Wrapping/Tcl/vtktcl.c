@@ -42,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkToolkits.h"
 
 #ifdef VTK_USE_RENDERING
-# include "tk.h"
+# include "vtkTk.h"
 #else 
-# include "tcl.h"
+# include "vtkTcl.h"
 #endif
 
 extern int Vtkcommontcl_Init(Tcl_Interp *interp);

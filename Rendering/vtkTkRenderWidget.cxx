@@ -18,8 +18,6 @@
 #include <stdlib.h>
 
 #include "vtkTkRenderWidget.h"
-#include <tcl.h>
-#include <tk.h>
 #include "vtkRenderWindowInteractor.h"
 #include "vtkImageData.h"
 #include "vtkTclUtil.h"

@@ -44,9 +44,9 @@
 #endif
 
 #ifdef VTK_USE_RENDERING
-# include "tk.h"
+# include "vtkTk.h"
 #else
-# include "tcl.h"
+# include "vtkTcl.h"
 #endif
 
 /*

@@ -45,6 +45,8 @@
 
 #cmakedefine VTK_DISABLE_TK_INIT
 
+#cmakedefine TCL_TK_STATIC
+
 /* java awt support */
 #cmakedefine JAVA_AWT_INCLUDE_PATH
 #ifdef JAVA_AWT_INCLUDE_PATH
