@@ -171,7 +171,7 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_BUILD_DIR tcl_support_lib_dir tk_support
     ELSE (CMAKE_CONFIGURATION_TYPES)
       SET (CONFIG_TYPES .)
     ENDIF (CMAKE_CONFIGURATION_TYPES)
-    FOREACH (config "${CONFIG_TYPES}")
+    FOREACH (config ${CONFIG_TYPES})
      VTK_COPY_TCL_TK_SUPPORT_FILES (
        "${tcl_support_lib_dir}"
        "${build_dir}/${config}/${dir}/tcl${TCL_TK_VERSION}"
