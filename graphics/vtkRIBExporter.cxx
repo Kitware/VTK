@@ -978,13 +978,13 @@ static char textureName[4096];
 
 char *vtkRIBExporter::GetTIFFName (vtkTexture *aTexture)
 {
-    sprintf (tiffName, "%s_%x_%d.tif", this->TexturePrefix, (int *) aTexture, (int) aTexture->GetMTime ());
+    sprintf (tiffName, "%s_%p_%d.tif", this->TexturePrefix, (void *) aTexture, (int) aTexture->GetMTime ());
     return tiffName;
 }
 
 char *vtkRIBExporter::GetTextureName (vtkTexture *aTexture)
 {
-    sprintf (textureName, "%s_%x_%d.txt", this->TexturePrefix, (int *) aTexture, (int) aTexture->GetMTime ());
+    sprintf (textureName, "%s_%p_%d.txt", this->TexturePrefix, (void *) aTexture, (int) aTexture->GetMTime ());
     return textureName;
 }
 
