@@ -250,6 +250,22 @@ void CreateToolkitsH(CPcmakerDlg *vals)
     AfxMessageBox(msg);
     exit(1);
     }
+
+  // create the vtkToolkits.h file
+  sprintf(fname,"%s\\vtkConfigure.h",vals->m_WhereBuild);
+  ofp = fopen(fname,"w");
+  if (ofp)
+    {
+    fprintf(ofp,"/* generated file from pcmaker.exe */\n");
+    fclose(ofp);    
+    }
+  else
+    {
+    char msg[256];
+    sprintf(msg,"ERROR!!!!! Unable to create vtkConfigure.h\n");
+    AfxMessageBox(msg);
+    exit(1);
+    }
 }
 
 
