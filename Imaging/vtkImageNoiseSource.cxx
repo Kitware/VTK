@@ -17,9 +17,12 @@
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageNoiseSource, "1.27");
+vtkCxxRevisionMacro(vtkImageNoiseSource, "1.27.10.1");
 vtkStandardNewMacro(vtkImageNoiseSource);
 
 //----------------------------------------------------------------------------
@@ -30,6 +33,7 @@ vtkImageNoiseSource::vtkImageNoiseSource()
   this->WholeExtent[0] = 0;  this->WholeExtent[1] = 255;
   this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
   this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
+  this->SetNumberOfInputPorts(0);
 }
 
 
@@ -76,13 +80,18 @@ void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax,
     }
 }
 //----------------------------------------------------------------------------
-void vtkImageNoiseSource::ExecuteInformation()
+void vtkImageNoiseSource::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector * vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  vtkImageData *output = this->GetOutput();
-  
-  output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_DOUBLE);
-  output->SetNumberOfScalarComponents(1);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
 }
 
 void vtkImageNoiseSource::ExecuteData(vtkDataObject *output)
