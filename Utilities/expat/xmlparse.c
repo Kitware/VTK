@@ -713,7 +713,7 @@ XML_Parser XML_ExternalEntityParserCreate(XML_Parser oldParser,
   int oldDefaultExpandInternalEntities = defaultExpandInternalEntities;
   void *oldExternalEntityRefHandlerArg = externalEntityRefHandlerArg;
 #ifdef XML_DTD
-  int oldParamEntityParsing = paramEntityParsing;
+  enum XML_ParamEntityParsing oldParamEntityParsing = paramEntityParsing;
 #endif
   int oldns_triplets = ns_triplets;
 
@@ -3404,7 +3404,6 @@ appendAttributeValue(XML_Parser parser, const ENCODING *enc, int isCdata,
     case XML_TOK_DATA_CHARS:
       if (!poolAppend(pool, enc, ptr, next))
         return XML_ERROR_NO_MEMORY;
-      break;
       break;
     case XML_TOK_TRAILING_CR:
       next = ptr + enc->minBytesPerChar;
