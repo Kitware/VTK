@@ -59,6 +59,7 @@ IF (VTK_USE_RENDERING)
       KlineBottle
       motor
       MatrixToTransform
+      mergeFilter
       MultidimensionalSolution
       nacaBinary
       OBBTree
