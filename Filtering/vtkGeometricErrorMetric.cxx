@@ -22,18 +22,34 @@
 #include "vtkMath.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.3");
+vtkCxxRevisionMacro(vtkGeometricErrorMetric,"1.4");
 vtkStandardNewMacro(vtkGeometricErrorMetric);
 
 //-----------------------------------------------------------------------------
 vtkGeometricErrorMetric::vtkGeometricErrorMetric()
 {
-  this->GeometricTolerance = 1.0; // arbitrary positive value
+  this->AbsoluteGeometricTolerance = 1.0; // arbitrary positive value
 }
 
 //-----------------------------------------------------------------------------
 vtkGeometricErrorMetric::~vtkGeometricErrorMetric()
 {
+}
+
+//-----------------------------------------------------------------------------
+// Description :
+// Set the geometric accuracy with an absolute value.
+// Subdivision will be required if the square distance is greater than
+// value. For instance 0.01 will give better result than 0.1.
+// \pre positive_value: value>0
+void vtkGeometricErrorMetric::SetAbsoluteGeometricTolerance(double value)
+{
+  assert("pre: positive_value" && value>0);
+  if(this->AbsoluteGeometricTolerance!=value)
+    {
+    this->AbsoluteGeometricTolerance=value;
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -74,9 +90,13 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value,
     smallest = 1;
     }
   double tmp = value*smallest;
+  tmp=tmp*tmp;
 
-  this->GeometricTolerance = tmp*tmp;
-  this->Modified();
+  if(this->AbsoluteGeometricTolerance!=tmp)
+    {
+    this->AbsoluteGeometricTolerance = tmp;
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +115,7 @@ int vtkGeometricErrorMetric::NeedEdgeSubdivision(double *leftPoint,
     return 0;
     }
   // distance between the line (leftPoint,rightPoint) and the point midPoint.
-  return this->Distance2LinePoint(leftPoint,rightPoint,midPoint)>this->GeometricTolerance;
+  return this->Distance2LinePoint(leftPoint,rightPoint,midPoint)>this->AbsoluteGeometricTolerance;
 }
 
 //-----------------------------------------------------------------------------
@@ -135,5 +155,5 @@ void vtkGeometricErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "GeometricTolerance: "  << this->GeometricTolerance << endl;
+  os << indent << "AbsoluteGeometricTolerance: "  << this->AbsoluteGeometricTolerance << endl;
 }
