@@ -39,7 +39,16 @@ IF (HAVE_PNG)
         TestMask2
         TestMedian3D
         TestNormalize
-        TestQuantizeTo16Colors
+        TestOpenClose3D
+        TestPermute
+        TestQuantizeTo16Colors 
+        TestRange3D
+        TestResample
+        TestSkeleton2D
+        TestSobel2D
+        TestSobel3D
+        TestVariance3D
+        TestWrapPad
         )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
