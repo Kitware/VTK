@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkPLOT3DReader, "1.66");
+vtkCxxRevisionMacro(vtkPLOT3DReader, "1.67");
 vtkStandardNewMacro(vtkPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -69,7 +69,15 @@ vtkPLOT3DReader::~vtkPLOT3DReader()
 
 int vtkPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
 {
-  if ( (fp = fopen(fname, "r")) == NULL)
+  if (this->BinaryFile)
+    {
+    fp = fopen(fname, "rb");
+    }
+  else
+    {
+    fp = fopen(fname, "r");
+    }
+  if ( fp == NULL)
     {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro(<< "File: " << fname << " not found.");
