@@ -206,12 +206,17 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
     upperPixel = temp;
     }
   
+#if 0
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
     inInc1 = -inInc1;
     inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
     }
-  
+#endif
+
+    inInc1 = -inInc1;
+    inPtr = (T *)(region->GetScalarPointer(inMin0, inMax1));
+
   // Loop through in regions pixels
   inPtr1 = inPtr;
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
@@ -322,11 +327,15 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
   region->GetExtent(inMin0, inMax0, inMin1, inMax1);
   region->GetIncrements(inInc0, inInc1);
   
+#if 0
   if (self->GetOriginLocation() == VTK_IMAGE_VIEWER_LOWER_LEFT)
     {
     inInc1 = -inInc1;
     }
-  
+#endif  
+
+    inInc1 = -inInc1;
+
   // Loop through in regions pixels
   redPtr1 = redPtr;
   greenPtr1 = greenPtr;
@@ -416,15 +425,21 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
     }
   dataOut = new unsigned char[size];
 
+  int min = 0;
+  int max = 0;
+  int dim = 0;
+
+  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+  dim = max - min + 1;
+
+#if 0
   if (this->ColorFlag)
-    {
-    // Handle color display
-    // We only support color with 24 bit True Color Visuals
-    if (this->VisualDepth != 24 || this->VisualClass != TrueColor)
-      {
-      vtkErrorMacro(<< "Color is only supported with 24 bit True Color");
-      return;
-      }
+#endif
+  
+  if (dim > 1)
+    { 
+
+#if 0
     if (this->GetOriginLocation() == VTK_IMAGE_VIEWER_UPPER_LEFT)
       {
       ptr0 = region->GetScalarPointer(extent[0], extent[2], 
@@ -444,6 +459,16 @@ void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
 				      this->BlueComponent);
       }
     
+#endif
+
+      ptr0 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->RedComponent);
+      ptr1 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->GreenComponent);
+      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->BlueComponent);
+
+
     if ( ! ptr0 ||! ptr1 || ! ptr2)
       {
       vtkErrorMacro("Render: Could not get date. Check that RGB are in range");
