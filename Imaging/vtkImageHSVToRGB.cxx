@@ -19,11 +19,10 @@
 
 #include "vtkImageData.h"
 #include "vtkImageProgressIterator.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-#include <math.h>
-
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.26");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.27");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------
@@ -45,8 +44,6 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   float R, G, B, H, S, V;
   float max = self->GetMaximum();
-  float temp;
-  float third = max / 3.0;
   int idxC;
   
   // find the region to loop over
@@ -61,55 +58,16 @@ void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      H = (float)(*inSI); ++inSI;
-      S = (float)(*inSI); ++inSI;
-      V = (float)(*inSI); ++inSI;
-      
-      // compute rgb assuming S = 1.0;
-      if (H >= 0.0 && H <= third) // red -> green
-        {
-        G = H/third;
-        R = 1.0 - G;
-        B = 0.0;
-        }
-      else if (H >= third && H <= 2.0*third) // green -> blue
-        {
-        B = (H - third)/third;
-        G = 1.0 - B;
-        R = 0.0;
-        }
-      else // blue -> red
-        {
-        R = (H - 2.0 * third)/third;
-        B = 1.0 - R;
-        G = 0.0;
-        }
-        
-      // add Saturation to the equation.
-      S = S / max;
-      //R = S + (1.0 - S)*R;
-      //G = S + (1.0 - S)*G;
-      //B = S + (1.0 - S)*B;
-      // what happend to this?
-      R = S*R + (1.0 - S);
-      G = S*G + (1.0 - S);
-      B = S*B + (1.0 - S);
-      
-      // Use value to get actual RGB 
-      // normalize RGB first then apply value
-      temp = R + G + B; 
-      //V = 3 * V / (temp * max);
-      // and what happend to this?
-      V = 3 * V / (temp);
-      R = R * V;
-      G = G * V;
-      B = B * V;
-      
-      // clip below 255
-      //if (R > 255.0) R = max;
-      //if (G > 255.0) G = max;
-      //if (B > 255.0) B = max;
-      // mixed constant 255 and max ?????
+      H = (float)(*inSI) / max; ++inSI;
+      S = (float)(*inSI) / max; ++inSI;
+      V = (float)(*inSI) / max; ++inSI;
+
+      vtkMath::HSVToRGB(H, S, V, &R, &G, &B);
+
+      R *= max;
+      G *= max;
+      B *= max;
+
       if (R > max)
         {
         R = max;
