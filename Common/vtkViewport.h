@@ -145,24 +145,6 @@ public:
   virtual vtkWindow *GetVTKWindow() = 0;
 
   // Description:
-  // Specify a function to be called before rendering process begins.
-  // Function will be called with argument provided.
-  void SetStartRenderMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Specify a function to be called when rendering process completes.
-  // Function will be called with argument provided.
-  void SetEndRenderMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
-  void SetStartRenderMethodArgDelete(void (*f)(void *));
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
-  void SetEndRenderMethodArgDelete(void (*f)(void *));
-
-  // Description:
   // Convert display coordinates to view coordinates.
   virtual void DisplayToView(); // these get modified in subclasses
 
@@ -281,9 +263,6 @@ protected:
   float Aspect[2];
   float PixelAspect[2];
   float Center[2];
-
-  unsigned long StartTag;
-  unsigned long EndTag;
 
   int Size[2];
   int Origin[2];

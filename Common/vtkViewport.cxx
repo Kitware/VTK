@@ -16,12 +16,11 @@
 
 #include "vtkActor2DCollection.h"
 #include "vtkAssemblyPath.h"
-#include "vtkOldStyleCallbackCommand.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.54");
+vtkCxxRevisionMacro(vtkViewport, "1.55");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -54,9 +53,6 @@ vtkViewport::vtkViewport()
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
   this->PixelAspect[0] = this->PixelAspect[1] = 1.0;
-
-  this->StartTag = 0;
-  this->EndTag = 0;
 
   this->Size[0] = 0;
   this->Size[1] = 0;
@@ -350,66 +346,6 @@ int vtkViewport::IsInViewport(int x,int y)
   return 0;
 }
 
-// Specify a function to be called before rendering process begins.
-// Function will be called with argument provided.
-void vtkViewport::SetStartRenderMethod(void (*f)(void *), void *arg)
-{
-  if ( this->StartTag )
-    {
-    this->RemoveObserver(this->StartTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->StartTag = this->AddObserver(vtkCommand::StartEvent,cbc);
-    cbc->Delete();
-    }
-}
-
-// Set the arg delete method. This is used to free user memory.
-void vtkViewport::SetStartRenderMethodArgDelete(void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->StartTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-// Set the arg delete method. This is used to free user memory.
-void vtkViewport::SetEndRenderMethodArgDelete(void (*f)(void *))
-{
-  vtkOldStyleCallbackCommand *cmd = 
-    (vtkOldStyleCallbackCommand *)this->GetCommand(this->EndTag);
-  if (cmd)
-    {
-    cmd->SetClientDataDeleteCallback(f);
-    }
-}
-
-// Specify a function to be called when rendering process completes.
-// Function will be called with argument provided.
-void vtkViewport::SetEndRenderMethod(void (*f)(void *), void *arg)
-{
-  if ( this->EndTag )
-    {
-    this->RemoveObserver(this->EndTag);
-    }
-  
-  if ( f )
-    {
-    vtkOldStyleCallbackCommand *cbc = vtkOldStyleCallbackCommand::New();
-    cbc->Callback = f;
-    cbc->ClientData = arg;
-    this->EndTag = this->AddObserver(vtkCommand::EndEvent,cbc);
-    cbc->Delete();
-    }
-}
-
 void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -437,23 +373,6 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
     << this->WorldPoint[1] << ", " << this->WorldPoint[2] << ", " 
       << this->WorldPoint[3] << ")\n";
 
-  if ( this->StartTag)
-    {
-    os << indent << "Start Render method defined.\n";
-    }
-  else
-    {
-    os << indent << "No Start Render method.\n";
-    }
-
-  if ( this->EndTag )
-    {
-    os << indent << "End Render method defined.\n";
-    }
-  else
-    {
-    os << indent << "No End Render method.\n";
-    }
   os << indent << "Pick Position X Y: " << this->PickX 
      << " " << this->PickY << endl;
   os << indent << "IsPicking boolean: " << this->IsPicking << endl;
