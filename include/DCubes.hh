@@ -40,7 +40,7 @@ public:
   vtkGetMacro(Value,float);
 
   // Description:
-  // Specifysub-voxel size at which to generate point..
+  // Specify sub-voxel size at which to generate point..
   vtkSetClampMacro(Distance,float,1.0e-06,LARGE_FLOAT);
   vtkGetMacro(Distance,float);
 
