@@ -28,12 +28,7 @@
 #ifndef __vtkMesaVolumeRayCastMapper_h
 #define __vtkMesaVolumeRayCastMapper_h
 
-#include "MangleMesaInclude/gl_mangle.h"
-#include "MangleMesaInclude/gl.h"
-
 #include "vtkVolumeRayCastMapper.h"
-#include <stdlib.h>
-#include "vtkToolkits.h"
 
 
 class VTK_RENDERING_EXPORT vtkMesaVolumeRayCastMapper : public vtkVolumeRayCastMapper

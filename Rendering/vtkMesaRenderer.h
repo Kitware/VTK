@@ -24,7 +24,6 @@
 #ifndef __vtkMesaRenderer_h
 #define __vtkMesaRenderer_h
 
-#include <stdlib.h>
 #include "vtkRenderer.h"
 
 class VTK_RENDERING_EXPORT vtkMesaRenderer : public vtkRenderer
