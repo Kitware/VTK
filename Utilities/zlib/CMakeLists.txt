@@ -1,5 +1,5 @@
 PROJECT(VTKZLIB)
-INCLUDE_REGULAR_EXPRESSION("^(deflate|inf|trees|zconf|zlib|zutil).*$")
+INCLUDE_REGULAR_EXPRESSION("^(vtk|deflate|inf|trees|zconf|zlib|zutil).*$")
 
 INCLUDE_DIRECTORIES(${VTKZLIB_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${VTKZLIB_BINARY_DIR})
