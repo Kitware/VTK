@@ -8,6 +8,7 @@
 <!-- Changed by: will schroeder,  5-Dec-2001 -->
 <!-- Changed by: will schroeder,  17-Jan-2003 -->
 <!-- Changed by: Prabhu Ramachandran,  6-Feb-2003 -->
+<!-- Changed by: will schroeder,  11-Aug-2004 -->
 
 </header>
 <body>
@@ -51,7 +52,7 @@ ISBN 1-930934-07-6). VTK has grown (since its initial release in 1994)
 to a world-wide user base in the commercial, academic, and research 
 communities.<p>
 
-This README is written for VTK version 4.2 and greater. For more information,
+This README is written for VTK version 4.4 and greater. For more information,
 additional resources, and the FAQ see the web page at 
 <A HREF="http://www.vtk.org">http://www.vtk.org</A><p>
 
@@ -66,7 +67,7 @@ commercial application, you will want to contact the patent/copyright holder
 copyright follows.
 
 <pre>
-Copyright (c) 1993-2003 Ken Martin, Will Schroeder, Bill Lorensen 
+Copyright (c) 1993-2004 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -103,7 +104,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The VTK 4.2 source code repository is organized into four major sections.
   <ul>
   <li>The source code is found in the directories Common, Rendering,
-         Filtering, Graphics, Imaging, Hybrid, Parallel, and Patented.<p>
+         Filtering, Graphics, Imaging, Hybrid, Parallel, Patented, and
+         GenericFiltering. In some cases additional README.html files
+         are found in the named directories. Please see these for more
+         information.<p>
          <ul>
          <li><b>Common</b>- Core classes
          <li><b>Rendering</b>- Classes used to render
@@ -115,6 +119,8 @@ The VTK 4.2 source code repository is organized into four major sections.
          <li><b>Parallel</b>- Parallel processing support such as MPI
          <li><b>Patented</b>- Patented classes, to be used in 
          commercial applications only with a license
+         <li><b>GenericFiltering</b>- Part of an adaptor framework 
+         supporting integration of VTK with external systems
          </ul>
          </li><p>
   <li><B>Examples</B> that are reasonably well documented are found in the
@@ -170,14 +176,14 @@ VTK uses <A HREF="http://www.cmake.org">CMake</A>
 for its build process.  To build VTK for UNIX or Windows, you will first 
 have to install CMake. You can download CMake from: 
 <A HREF="http://www.cmake.org"</A>http://www.cmake.org</A>
-The following instructions assume that cmake is already installed.
+The following instructions assume that CMake is already installed.
 <p>
 
 <h3><A NAME="Unix">Unix Installation</h3><p>
 The following instructions only apply to UNIX systems.  
 
 First we will give you the quick and dirty way to build VTK. Begin
-by telling Cmake what C and C++ compilers
+by telling CMake what C and C++ compilers
 you will be using. This can avoid many build problems.
 On most systems you can pass this information to CMake in the 
 following way:
@@ -372,6 +378,9 @@ for instructions to build your classes outside VTK.
 
 <HR>
 <h1><A NAME="Help">Getting Help / Mailing List</h1> 
+For general information go to the VTK web site
+<a href="http://www.vtk.org">http://www.vtk.org</a>
+<p>
 If you run into problems, your best bet is to join the VTK mailing list.
 Visit <a href="http://public.kitware.com/mailman/listinfo/vtkusers">
 http://public.kitware.com/mailman/listinfo/vtkusers</a> to join the list.
