@@ -6,11 +6,18 @@ AC_INIT(VisQuad.cxx)
 VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 
+# if using patents we also need imaging library
+AC_ARG_WITH(imaging,
+         [  --without-imaging           exclude the imaging classes],
+	 if test "$withval" = yes; then
+     VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+         fi,)
+
 # if using patents we also need patents library
 AC_ARG_WITH(patented,
          [  --with-patented           include the patented classes],
 	 if test "$withval" = yes; then
-     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
+     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi,)
 
 AC_SUBST(VTK_LIB_FILE)

@@ -12,6 +12,8 @@ ac_help=
 ac_default_prefix=/usr/local
 # Any additions from configure.in:
 ac_help="$ac_help
+  --without-imaging           exclude the imaging classes"
+ac_help="$ac_help
   --with-patented           include the patented classes"
 ac_help="$ac_help
   --with-bsdmake            uses bsd style makefile includes"
@@ -526,12 +528,22 @@ fi
 VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 
+# if using patents we also need imaging library
+# Check whether --with-imaging or --without-imaging was given.
+if test "${with_imaging+set}" = set; then
+  withval="$with_imaging"
+  if test "$withval" = yes; then
+     VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+         fi
+fi
+
+
 # if using patents we also need patents library
 # Check whether --with-patented or --without-patented was given.
 if test "${with_patented+set}" = set; then
   withval="$with_patented"
   if test "$withval" = yes; then
-     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
+     VTK_LIB_FILE="../../patented/libVTKPatented\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi
 fi
 
