@@ -25,7 +25,7 @@ proc parseFile {} {
 
    # create the data object
    vtkFieldData field
-   field SetNumberOfArrays 4
+   field AllocateArrays 4
 
    # read TIME_LATE - dependent variable
    while { [gets $file arrayName] == 0 } {}
