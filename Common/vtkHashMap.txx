@@ -83,7 +83,7 @@ template<class KeyType, class DataType>
 int vtkHashMap<KeyType,DataType>::RemoveItem(const KeyType& key)
 {
   vtkIdType bucket = this->HashKey(key);
-  ItemType item = { k2ey, DataType() };
+  ItemType item = { key, DataType() };
   vtkIdType index=0;
   
   if(this->Buckets[bucket]->FindItem(item, index) == VTK_OK)
