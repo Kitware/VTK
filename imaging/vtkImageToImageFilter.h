@@ -127,6 +127,7 @@ protected:
 
   vtkMultiThreader *Threader;
   int Bypass;
+  int BypassWasOn;
   int NumberOfThreads;
   
   // This is called by the superclass.
@@ -138,6 +139,8 @@ protected:
   void Execute();
   // This is the method you should override.
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
+  // scalars are allocated here.   
+  void StreamExecuteStart(); 
 
   // Overide this if your filter is not a pixel for pixel operation.
   // Given outExt, tell me what you need for inExt.

@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageToImageFilter::vtkImageToImageFilter()
 {
   this->Bypass = 0;
+  this->BypassWasOn = 0;
   this->Threader = vtkMultiThreader::New();
   this->NumberOfThreads = this->Threader->GetNumberOfThreads();
 }
@@ -219,6 +220,33 @@ VTK_THREAD_RETURN_TYPE vtkImageThreadedExecute( void *arg )
 }
 
 
+void vtkImageToImageFilter::StreamExecuteStart()
+{
+  vtkImageData *output = this->GetOutput();
+
+  // We need to be careful if Bypass has been toggled.
+  if (this->Bypass == 0)
+    {
+    if (this->BypassWasOn)
+      {
+      // We were bypassing this filter (causing pointers to be copied from
+      // input to output), now we are not bypassing the filter.  Need to reset
+      // the output so we do not use the "copied" references.
+      output->GetPointData()->Initialize();
+      this->BypassWasOn = 0;
+      }
+    }
+  else
+    {
+    this->BypassWasOn = 1;
+    }
+
+  //
+  // Call vtkImageSource's StreamExecuteStart
+  //
+  this->vtkImageSource::StreamExecuteStart();
+}
+
 //----------------------------------------------------------------------------
 // This is the superclasses style of Execute method.  Convert it into
 // an imaging style Execute method.
@@ -238,6 +266,7 @@ void vtkImageToImageFilter::Execute()
       return;
       }    
     this->GetOutput()->GetPointData()->PassData(inData->GetPointData());
+    this->GetOutput()->SetExtent( this->GetInput()->GetExtent() );
     }
 }
 
