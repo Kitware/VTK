@@ -13,13 +13,13 @@ source $VTK_TCL/vtkInt.tcl
 #
 vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA/polyEx.vtk"
-    reader SetScalarsName $scalar0
     set numScalars [reader GetNumberOfScalarsInFile]
     set numVectors [reader GetNumberOfVectorsInFile]
     set numNormals [reader GetNumberOfNormalsInFile]
     reader Modified
     set numScalars [reader GetNumberOfScalarsInFile]
     set scalar0 [reader GetScalarsNameInFile 1]
+    reader SetScalarsName $scalar0
 
 vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]
