@@ -72,31 +72,28 @@ int main( int argc, char *argv[] )
     picker->PickFromListOn();
 
   vtkImagePlaneWidget* planeWidgetX = vtkImagePlaneWidget::New();
-  planeWidgetX->SetInput(v16->GetOutput());
-  planeWidgetX->RestrictPlaneToVolumeOn();
+  planeWidgetX->SetInput(v16->GetOutput());  
   planeWidgetX->SetInteractor( iren);
   planeWidgetX->SetPlaneOrientationToXAxes();  
+  planeWidgetX->SetSliceIndex(32);
   planeWidgetX->SetPicker(picker);
   planeWidgetX->On();
-  planeWidgetX->SetSliceIndex(32);
 
   vtkImagePlaneWidget* planeWidgetY = vtkImagePlaneWidget::New();
   planeWidgetY->SetInput(v16->GetOutput());
-  planeWidgetY->RestrictPlaneToVolumeOn();
   planeWidgetY->SetInteractor( iren);
   planeWidgetY->SetPlaneOrientationToYAxes();
+  planeWidgetY->SetSliceIndex(32);
   planeWidgetY->SetPicker(picker);
   planeWidgetY->On();
-  planeWidgetY->SetSliceIndex(32);
 
   vtkImagePlaneWidget* planeWidgetZ = vtkImagePlaneWidget::New();
   planeWidgetZ->SetInput(v16->GetOutput());
-  planeWidgetZ->RestrictPlaneToVolumeOn();
   planeWidgetZ->SetInteractor( iren);
   planeWidgetZ->SetPlaneOrientationToZAxes();
+  planeWidgetZ->SetSliceIndex(46);
   planeWidgetZ->SetPicker(picker);
   planeWidgetZ->On();
-  planeWidgetZ->SetSliceIndex(46);
 
   ren1->AddActor( outlineActor);
 
