@@ -71,12 +71,13 @@ IF(VTK_FOUND)
 
   # Create the instantiator for these classes.
   SET(VTK_USE_INSTANTIATOR_NEW 1)
-  VTK_MAKE_INSTANTIATOR2("${PROJECT_NAME}Instantiator" vtkLocalInstantiator_SRCS
-                         ${vtkLocal_SRCS}
-                         EXPORT_MACRO "VTK_${PROJECT_NAME}_EXPORT"
-                         HEADER_LOCATION ${PROJECT_BINARY_DIR}
-                         INCLUDES "${PROJECT_NAME}Configure.h")
-
+  VTK_MAKE_INSTANTIATOR3("${PROJECT_NAME}Instantiator" 
+    vtkLocalInstantiator_SRCS
+    "${vtkLocal_SRCS}"
+    "VTK_${PROJECT_NAME}_EXPORT"
+    ${PROJECT_BINARY_DIR}
+    "${PROJECT_NAME}Configure.h")
+  
   # Create the library.
   ADD_LIBRARY(${PROJECT_NAME} ${vtkLocal_SRCS} ${vtkLocalInstantiator_SRCS})
   TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${vtkLocal_LIBS})
