@@ -336,7 +336,6 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkDataSet *ds;
   vtkPolyData *pd;
   vtkGeometryFilter *gf = NULL;
-  vtkPointData *pntData;
   vtkPoints *points = NULL;
   int i;
   vtkProperty *prop;
@@ -392,7 +391,6 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   pm->SetLookupTable(anActor->GetMapper()->GetLookupTable());
 
   points = pd->GetPoints();
-  pntData = pd->GetPointData();
 
   // usage of GetColors() has been deprecated in VTK 4.0
   colors  = pm->MapScalars(1.0);
