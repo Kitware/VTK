@@ -368,7 +368,7 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
 //  "in" or "out" status is returned.
 //
   for (deltaVotes = 0, iterNumber = 1;
-  (iterNumber < MAX_ITER) && (fabs(deltaVotes) < VOTE_THRESHOLD);
+  (iterNumber < MAX_ITER) && (abs(deltaVotes) < VOTE_THRESHOLD);
   iterNumber++) 
     {
 //
