@@ -296,127 +296,69 @@ void vtkImageToIsoSurface::Execute()
   this->DeleteLocator();
 }
 
-
-
-
-
 //----------------------------------------------------------------------------
-// This method selectively applies marching cubes (iso surface = 0.0)
-// to the derivative (second derivative because vector was first).
-// the cube is ignored if the magnitude values are below the 
-// MagnitudeThreshold.
-void vtkImageToIsoSurface::March(vtkImageRegion *inRegion, 
-				 int chunkMin, int chunkMax)
+// This method uses central differences to compute the gradient
+// of a point. Note: This method assumes that max > min for all 3 axes!
+// It does not consider aspect ratio.
+template <class T>
+static void vtkImageToIsoSurfaceComputePointGradient(float g[3], T *ptr,
+					     int inc0, int inc1, int inc2,
+					     int b0, int b1, int b2)
 {
-  int idx0, idx1, idx2;
-  int min0, max0, min1, max1, min2, max2;
-  int inc0, inc1, inc2;
-  float *ptr0, *ptr1, *ptr2;
-  
-  // Get information to loop through images.
-  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
-  ptr2 = (float *)(inRegion->GetScalarPointer(min0, min1, chunkMin));
-  inRegion->GetIncrements(inc0, inc1, inc2);
-
-  // Loop over all the cubes
-  for (idx2 = chunkMin; idx2 < chunkMax; ++idx2)
+  if (b0 < 0)
     {
-    ptr1 = ptr2;
-    for (idx1 = min1; idx1 < max1; ++idx1)
-      {
-      ptr0 = ptr1;
-      for (idx0 = min0; idx0 < max0; ++idx0)
-	{
-	// put magnitudes into the cube structure.
-	this->HandleCube(idx0, idx1, idx2, inRegion, ptr0);
+    g[0] = ptr[inc0] - *ptr;
+    }
+  else if (b0 > 0)
+    {
+    g[0] = *ptr - ptr[-inc0];
+    }
+  else
+    {
+    g[0] = ptr[inc0] - ptr[-inc0];
+    }
 
-	ptr0 += inc0;
-	}
-      ptr1 += inc1;
-      }
-    ptr2 += inc2;
-    this->IncrementLocatorZ();
+  if (b1 < 0)
+    {
+    g[1] = ptr[inc1] - *ptr;
+    }
+  else if (b1 > 0)
+    {
+    g[1] = *ptr - ptr[-inc1];
+    }
+  else
+    {
+    g[1] = ptr[inc1] - ptr[-inc1];
+    }
+
+  if (b2 < 0)
+    {
+    g[2] = ptr[inc2] - *ptr;
+    }
+  else if (b2 > 0)
+    {
+    g[2] = *ptr - ptr[-inc2];
+    }
+  else
+    {
+    g[2] = ptr[inc2] - ptr[-inc2];
     }
 }
-
-
-
-
-
-//----------------------------------------------------------------------------
-// This method runs marching cubes on one cube.
-void vtkImageToIsoSurface::HandleCube(int cellX, int cellY, int cellZ,
-				      vtkImageRegion *inRegion,
-				      float *ptr)
-{
-  int inc0, inc1, inc2;
-  int valueIdx;
-  float value;
-  int cubeIndex, ii, pointIds[3];
-  TRIANGLE_CASES *triCase;
-  EDGE_LIST  *edge;
-
-  inRegion->GetIncrements(inc0, inc1, inc2);
-  for (valueIdx = 0; valueIdx < this->NumberOfContours; ++valueIdx)
-    {
-    value = this->Values[valueIdx];
-    // compute the case index
-    cubeIndex = 0;
-    if (ptr[0] > value) cubeIndex += 1;
-    if (ptr[inc0] > value) cubeIndex += 2;
-    if (ptr[inc0 + inc1] > value) cubeIndex += 4;
-    if (ptr[inc1] > value) cubeIndex += 8;
-    if (ptr[inc2] > value) cubeIndex += 16;
-    if (ptr[inc0 + inc2] > value) cubeIndex += 32;
-    if (ptr[inc0 + inc1 + inc2] > value) cubeIndex += 64;
-    if (ptr[inc1 + inc2] > value) cubeIndex += 128;
-    // Make sure we have trianlges
-    if (cubeIndex != 0 && cubeIndex != 255)
-      {
-      // Get edges.
-      triCase = triCases + cubeIndex;
-      edge = triCase->edges; 
-      // loop over triangles  
-      while(*edge > -1)
-	{
-	for (ii=0; ii<3; ++ii, ++edge) //insert triangle
-	  {
-	  // Get the index of the point
-	  pointIds[ii] = this->GetLocatorPoint(cellX, cellY, *edge);
-	  // If the point has not been created yet
-	  if (pointIds[ii] == -1)
-	    {
-	    float *aspectRatio = inRegion->GetAspectRatio();
-	    float *origin = inRegion->GetOrigin();
-	    int *extent = inRegion->GetImageExtent();
-	    
-	    pointIds[ii] = this->MakeNewPoint(cellX, cellY, cellZ,
-					      inc0, inc1, inc2,
-					      ptr, *edge, extent,
-					      aspectRatio, origin, value);
-	    this->AddLocatorPoint(cellX, cellY, *edge, pointIds[ii]);
-	    }
-	  }
-	this->Triangles->InsertNextCell(3,pointIds);
-	}//for each triangle
-      }
-    }
-}
-
-
-
 
 
 //----------------------------------------------------------------------------
 // This method interpolates verticies to make a new point.
-int vtkImageToIsoSurface::MakeNewPoint(int idx0, int idx1, int idx2,
-				       int inc0, int inc1, int inc2,
-				       float *ptr, int edge, int *imageExtent,
-				       float *aspectRatio, float *origin,
-				       float value)
+template <class T>
+static int vtkImageToIsoSurfaceMakeNewPoint(vtkImageToIsoSurface *self,
+					    int idx0, int idx1, int idx2,
+					    int inc0, int inc1, int inc2,
+					    T *ptr, int edge, 
+					    int *imageExtent,
+					    float *aspectRatio, float *origin,
+					    float value)
 {
   int edgeAxis;
-  float *ptrB;
+  T *ptrB;
   float temp, pt[3];
 
   // decode the edge into starting point and axis direction
@@ -514,13 +456,13 @@ int vtkImageToIsoSurface::MakeNewPoint(int idx0, int idx1, int idx2,
     }
   
   // Save the scale if we are generating scalars
-  if (this->ComputeScalars)
+  if (self->ComputeScalars)
     {
-    this->Scalars->InsertNextScalar(value);
+    self->Scalars->InsertNextScalar(value);
     }
   
   // Interpolate to find normal from vectors.
-  if (this->NeedGradients)
+  if (self->NeedGradients)
     {
     short b0, b1, b2;
     float g[3], gB[3];
@@ -531,7 +473,8 @@ int vtkImageToIsoSurface::MakeNewPoint(int idx0, int idx1, int idx2,
     if (idx1 == imageExtent[2]) b1 = -1;
     b2 = (idx2 == imageExtent[5]);
     if (idx2 == imageExtent[4]) b2 = -1;
-    this->ComputePointGradient(g, ptr, inc0, inc1, inc2, b0, b1, b2);
+    vtkImageToIsoSurfaceComputePointGradient(g, ptr, inc0, inc1, inc2, 
+					     b0, b1, b2);
     // Find boundary conditions and compute gradient (second point)
     switch (edgeAxis)
       {
@@ -548,74 +491,167 @@ int vtkImageToIsoSurface::MakeNewPoint(int idx0, int idx1, int idx2,
 	b2 = (idx2 == imageExtent[5]);
 	break;
       }
-    this->ComputePointGradient(gB, ptrB, inc0, inc1, inc2, b0, b1, b2);
+    vtkImageToIsoSurfaceComputePointGradient(gB, ptrB, inc0, inc1, inc2, 
+					     b0, b1, b2);
     // Interpolate Gradient
     g[0] = g[0] + temp * (gB[0] - g[0]);
     g[1] = g[1] + temp * (gB[1] - g[1]);
     g[2] = g[2] + temp * (gB[2] - g[2]);
-    if (this->ComputeGradients)
+    if (self->ComputeGradients)
       {
-      this->Gradients->InsertNextVector(g);
+      self->Gradients->InsertNextVector(g);
       }
-    if (this->ComputeNormals)
+    if (self->ComputeNormals)
       {
       temp = -1.0 / sqrt(g[0]*g[0] + g[1]*g[1] + g[2]*g[2]);
       g[0] *= temp;
       g[1] *= temp;
       g[2] *= temp;
-      this->Normals->InsertNextNormal(g);
+      self->Normals->InsertNextNormal(g);
       }
     }
   
-  return this->Points->InsertNextPoint(pt);
+  return self->Points->InsertNextPoint(pt);
+}
+
+//----------------------------------------------------------------------------
+// This method runs marching cubes on one cube.
+template <class T>
+static void vtkImageToIsoSurfaceHandleCube(vtkImageToIsoSurface *self,
+					   int cellX, int cellY, int cellZ,
+					   vtkImageRegion *inRegion,
+					   T *ptr)
+{
+  int inc0, inc1, inc2;
+  int valueIdx;
+  float value;
+  int cubeIndex, ii, pointIds[3];
+  TRIANGLE_CASES *triCase;
+  EDGE_LIST  *edge;
+
+  inRegion->GetIncrements(inc0, inc1, inc2);
+  for (valueIdx = 0; valueIdx < self->NumberOfContours; ++valueIdx)
+    {
+    value = self->Values[valueIdx];
+    // compute the case index
+    cubeIndex = 0;
+    if ((float)(ptr[0]) > value) cubeIndex += 1;
+    if ((float)(ptr[inc0]) > value) cubeIndex += 2;
+    if ((float)(ptr[inc0 + inc1]) > value) cubeIndex += 4;
+    if ((float)(ptr[inc1]) > value) cubeIndex += 8;
+    if ((float)(ptr[inc2]) > value) cubeIndex += 16;
+    if ((float)(ptr[inc0 + inc2]) > value) cubeIndex += 32;
+    if ((float)(ptr[inc0 + inc1 + inc2]) > value) cubeIndex += 64;
+    if ((float)(ptr[inc1 + inc2]) > value) cubeIndex += 128;
+    // Make sure we have trianlges
+    if (cubeIndex != 0 && cubeIndex != 255)
+      {
+      // Get edges.
+      triCase = triCases + cubeIndex;
+      edge = triCase->edges; 
+      // loop over triangles  
+      while(*edge > -1)
+	{
+	for (ii=0; ii<3; ++ii, ++edge) //insert triangle
+	  {
+	  // Get the index of the point
+	  pointIds[ii] = self->GetLocatorPoint(cellX, cellY, *edge);
+	  // If the point has not been created yet
+	  if (pointIds[ii] == -1)
+	    {
+	    float *aspectRatio = inRegion->GetAspectRatio();
+	    float *origin = inRegion->GetOrigin();
+	    int *extent = inRegion->GetImageExtent();
+	    
+	    pointIds[ii] = vtkImageToIsoSurfaceMakeNewPoint(self,
+					      cellX, cellY, cellZ,
+					      inc0, inc1, inc2,
+					      ptr, *edge, extent,
+					      aspectRatio, origin, value);
+	    self->AddLocatorPoint(cellX, cellY, *edge, pointIds[ii]);
+	    }
+	  }
+	self->Triangles->InsertNextCell(3,pointIds);
+	}//for each triangle
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+// This method selectively applies marching cubes (iso surface = 0.0)
+// to the derivative (second derivative because vector was first).
+// the cube is ignored if the magnitude values are below the 
+// MagnitudeThreshold.
+template <class T>
+static void vtkImageToIsoSurfaceMarch(vtkImageToIsoSurface *self,
+				      vtkImageRegion *inRegion, T *ptr,
+				      int chunkMin, int chunkMax)
+{
+  int idx0, idx1, idx2;
+  int min0, max0, min1, max1, min2, max2;
+  int inc0, inc1, inc2;
+  T *ptr0, *ptr1, *ptr2;
+  
+  // Get information to loop through images.
+  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
+  ptr2 = (T *)(inRegion->GetScalarPointer(min0, min1, chunkMin));
+  inRegion->GetIncrements(inc0, inc1, inc2);
+
+  // Loop over all the cubes
+  for (idx2 = chunkMin; idx2 < chunkMax; ++idx2)
+    {
+    ptr1 = ptr2;
+    for (idx1 = min1; idx1 < max1; ++idx1)
+      {
+      ptr0 = ptr1;
+      for (idx0 = min0; idx0 < max0; ++idx0)
+	{
+	// put magnitudes into the cube structure.
+	vtkImageToIsoSurfaceHandleCube(self, idx0, idx1, idx2, inRegion, ptr0);
+
+	ptr0 += inc0;
+	}
+      ptr1 += inc1;
+      }
+    ptr2 += inc2;
+    self->IncrementLocatorZ();
+    }
 }
 
 
+
 //----------------------------------------------------------------------------
-// This method uses central differences to compute the gradient
-// of a point. Note: This method assumes that max > min for all 3 axes!
-// It does not consider aspect ratio.
-void vtkImageToIsoSurface::ComputePointGradient(float g[3], float *ptr,
-						int inc0, int inc1, int inc2,
-						int b0, int b1, int b2)
+// This method calls the proper templade function.
+void vtkImageToIsoSurface::March(vtkImageRegion *inRegion, 
+				 int chunkMin, int chunkMax)
 {
-  if (b0 < 0)
+  void *ptr = inRegion->GetScalarPointer();
+  
+  switch (inRegion->GetScalarType())
     {
-    g[0] = ptr[inc0] - *ptr;
-    }
-  else if (b0 > 0)
-    {
-    g[0] = *ptr - ptr[-inc0];
-    }
-  else
-    {
-    g[0] = ptr[inc0] - ptr[-inc0];
-    }
-
-  if (b1 < 0)
-    {
-    g[1] = ptr[inc1] - *ptr;
-    }
-  else if (b1 > 0)
-    {
-    g[1] = *ptr - ptr[-inc1];
-    }
-  else
-    {
-    g[1] = ptr[inc1] - ptr[-inc1];
-    }
-
-  if (b2 < 0)
-    {
-    g[2] = ptr[inc2] - *ptr;
-    }
-  else if (b2 > 0)
-    {
-    g[2] = *ptr - ptr[-inc2];
-    }
-  else
-    {
-    g[2] = ptr[inc2] - ptr[-inc2];
+    case VTK_FLOAT:
+      vtkImageToIsoSurfaceMarch(this, inRegion, (float *)(ptr), 
+				chunkMin, chunkMax);
+      break;
+    case VTK_INT:
+      vtkImageToIsoSurfaceMarch(this, inRegion, (int *)(ptr), 
+				chunkMin, chunkMax);
+      break;
+    case VTK_SHORT:
+      vtkImageToIsoSurfaceMarch(this, inRegion, (short *)(ptr), 
+				chunkMin, chunkMax);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageToIsoSurfaceMarch(this, inRegion, (unsigned short *)(ptr), 
+				chunkMin, chunkMax);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageToIsoSurfaceMarch(this, inRegion, (unsigned char *)(ptr), 
+				chunkMin, chunkMax);
+      break;
+    default:
+      cerr << "March: Unknown output ScalarType";
+      return;
     }
 }
 

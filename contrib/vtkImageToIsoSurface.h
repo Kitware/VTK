@@ -111,26 +111,32 @@ public:
   // For now, only the Z axis is split.
   vtkSetMacro(InputMemoryLimit, int);
   vtkGetMacro(InputMemoryLimit, int);
-  
-protected:
-  vtkImageSource *Input;
-  int InputMemoryLimit;
-  int NumberOfSlicesPerChunk;
 
+  // Should be protected, but the templated functions need these
   int ComputeScalars;
   int ComputeNormals;
   int ComputeGradients;
   int NeedGradients;
-  
+
   float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
-  float Range[2];
   
   vtkCellArray *Triangles;
   vtkFloatScalars *Scalars;
   vtkFloatPoints *Points;
   vtkFloatNormals *Normals;
   vtkFloatVectors *Gradients;
+  
+  int GetLocatorPoint(int cellX, int cellY, int edge);
+  void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);
+  void IncrementLocatorZ();
+  
+protected:
+  vtkImageSource *Input;
+  int InputMemoryLimit;
+  int NumberOfSlicesPerChunk;
+
+  float Range[2];
   
   int *LocatorPointIds;
   int LocatorDimX;
@@ -141,21 +147,8 @@ protected:
   void Execute();
 
   void March(vtkImageRegion *inRegion, int chunkMin, int chunkMax);
-  void HandleCube(int cellX, int cellY, int cellZ, vtkImageRegion *inRegion,
-		  float *ptr);
-  int MakeNewPoint(int idx0, int idx1, int idx2,
-		   int inc0, int inc1, int inc2,
-		   float *ptr, int edge, int *imageExtent,
-		   float *aspectRatio, float *origin,
-		   float value);
-  void ComputePointGradient(float g[3], float *ptr,
-			    int inc0, int inc1, int inc2, 
-			    int b0, int b1, int b2);
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();
-  void IncrementLocatorZ();
-  void AddLocatorPoint(int cellX, int cellY, int edge, int ptId);
-  int GetLocatorPoint(int cellX, int cellY, int edge);
   int *GetLocatorPointer(int cellX, int cellY, int edge);
 };
 
