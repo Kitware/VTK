@@ -40,9 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkTransformPolyDataFilter - transform points and associated normals and vectors for polygonal dataset
 // .SECTION Description
-// vtkTransformPolyDataFilter is a filter to transform point coordinates and 
-// associated point normals and vectors. Other point data is passed
-// through the filter. This filter is specialized for polygonal data. See
+// vtkTransformPolyDataFilter is a filter to transform point
+// coordinates and associated point and cell normals and
+// vectors. Other point and cell data is passed through the filter
+// unchanged. This filter is specialized for polygonal data. See
 // vtkTransformFilter for more general data.
 //
 // An alternative method of transformation is to use vtkActor's methods
