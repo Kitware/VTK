@@ -130,15 +130,6 @@ vtkWindowLevelLookupTable.cxx
 vtkXMLFileOutputWindow.cxx
 )
 
-IF (WIN32)
-  IF (NOT VTK_USE_X)
-    SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx
-      vtkWin32ProcessOutputWindow.cxx vtkWin32OutputWindowProcessEncoded.c)
-    SET_SOURCE_FILES_PROPERTIES(vtkWin32OutputWindowProcessEncoded.c
-      PROPERTIES WRAP_EXCLUDE 1)
-  ENDIF (NOT VTK_USE_X)
-ENDIF (WIN32)
-
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
 vtkAbstractTransform
@@ -188,6 +179,16 @@ SET(Kit_EXTRA_CMDS)
 SET(Kit_TCL_EXTRA_SRCS vtkTclUtil.cxx)
 SET(Kit_PYTHON_EXTRA_SRCS vtkPythonUtil.cxx)
 SET(Kit_JAVA_EXTRA_SRCS vtkJavaUtil.cxx)
+
+IF (WIN32)
+  IF (NOT VTK_USE_X)
+    SET(Kit_SRCS ${Kit_SRCS} vtkWin32OutputWindow.cxx
+      vtkWin32ProcessOutputWindow.cxx)
+    SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} vtkWin32OutputWindowProcessEncoded.c)
+    SET_SOURCE_FILES_PROPERTIES(vtkWin32OutputWindowProcessEncoded.c
+      PROPERTIES WRAP_EXCLUDE 1)
+  ENDIF (NOT VTK_USE_X)
+ENDIF (WIN32)
 
 # -----------------------------------------------------------------
 # Start of common section
