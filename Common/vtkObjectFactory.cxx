@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.39");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.40");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -129,7 +129,7 @@ void vtkObjectFactory::LoadDynamicFactories()
   char* SeparatorPosition = LoadPath; // initialize to env variable
   while(SeparatorPosition)
   {
-    int PathLength =0;
+    size_t PathLength =0;
     // find PathSeparator in LoadPath
     SeparatorPosition = strchr(LoadPath, PathSeparator);
     // if not found then use the whole string
