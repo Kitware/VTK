@@ -70,6 +70,7 @@ vtkProgrammableFilter::vtkProgrammableFilter()
 {
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
+  this->ExecuteMethodArgDelete = NULL;
 }
 
 vtkProgrammableFilter::~vtkProgrammableFilter()
