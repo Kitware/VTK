@@ -53,6 +53,7 @@ public:
                                 ostream&, 
                                 const char *sep = 0);
 
+  //BTX
   // Description:
   // Flatten a vtkXMLDataElement to a stream, i.e. output a textual stream
   // corresponding to that XML element, its attributes and its
@@ -74,6 +75,7 @@ public:
   static int WriteElementToFile(vtkXMLDataElement*, 
                                 const char *filename, 
                                 vtkIndent *indent = 0);
+  //ETX
 
   // Description:
   // Read a vtkXMLDataElement from a stream, string or file.
