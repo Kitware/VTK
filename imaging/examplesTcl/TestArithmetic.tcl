@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # A script to test the Arithmetic filter.
 # An image is smoothed then sbutracted from the original image.
 # The result is a high-pass filter.

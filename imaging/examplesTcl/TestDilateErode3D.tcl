@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # A script to test DilationErode filter
 # First the image is thresholded.
 # It is the dilated with a spher of radius 5.

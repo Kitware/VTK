@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Simple viewer for images.
 #make interface
 wm withdraw .

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Make an image larger by repeating the data.  Tile.
 
 source vtkImageInclude.tcl

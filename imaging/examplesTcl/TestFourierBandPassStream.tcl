@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This scripts performs bandpass in frequency domain.
 # It demostrates the ability to stream even FFT filters.
 

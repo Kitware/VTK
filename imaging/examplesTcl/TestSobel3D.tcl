@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This script is for testing the 3D Sobel filter.
 # Displays the 3 components using color.
 

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This script shows the magnitude of an image in frequency domain.
 
 

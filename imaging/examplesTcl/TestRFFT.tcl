@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This scripts the reverse FFT. Pipeline is Reader->FFT->RFFT->Viewer.
 # Output should be the same as Reader.
 

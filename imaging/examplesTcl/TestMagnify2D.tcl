@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Doubles the size of the image in the X and Y dimensions.
 
 

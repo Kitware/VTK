@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Divergence measures rate of change of gradient.
 
 

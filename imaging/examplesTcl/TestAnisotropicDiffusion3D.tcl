@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Diffuses to 26 neighbors if difference is below threshold.
 
 

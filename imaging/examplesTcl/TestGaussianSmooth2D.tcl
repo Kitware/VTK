@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This script is for testing the 1d Gaussian Smooth filter.
 
 

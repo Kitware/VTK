@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This scripts shows the real component of an image in frequencey space.
 
 

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 #- TOP LEVEL ------------------------------
 toplevel .file 
 #wm withdraw .file

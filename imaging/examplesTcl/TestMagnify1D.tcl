@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Doubles the The number of images (z dimension).
 
 

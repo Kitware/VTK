@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This script is for testing the 2d Gradient filter.
 # It only displays the first component (0) which contains
 # the magnitude of the gradient.

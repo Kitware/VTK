@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Threshold a volume and write it to disk.
 # It then reads the new data set from disk and displays it.
 # The data set is updated and written in pieces.

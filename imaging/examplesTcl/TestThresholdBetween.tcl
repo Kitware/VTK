@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # A script to test the threshold filter.
 # Values between 1500 and 2000 are set to 255.
 

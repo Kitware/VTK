@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Developed By Majeid Alyassin
 
 wm withdraw .

@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # This script is for testing the 3d NonMaximumSuppressionFilter.
 # The filter works exclusively on the output of the gradient filter.
 # The effect is to pick the peaks of the gradient creating thin surfaces.

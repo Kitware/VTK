@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Compute the second derivative the long way
 
 

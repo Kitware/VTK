@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Halves the size of the image in the x, Y and Z dimensions.
 # Computes the whole volume, but streams the input using the streaming
 # functionality in vtkImageFilter class.

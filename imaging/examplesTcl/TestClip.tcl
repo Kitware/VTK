@@ -1,5 +1,4 @@
 catch {load vtktcl}
-catch {load vtktcl}
 # Test the object vtkImagePaint which is a region that has methods to draw
 # lines and Boxs in different colors.  This extension allows the
 # paint object to draw grey scale.
