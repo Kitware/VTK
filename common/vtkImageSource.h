@@ -79,7 +79,16 @@ public:
   // Legacy compatability.  Do not use.
   virtual void InterceptCacheUpdate() {this->LegacyHack = 0;}
   int LegacyHack;
-
+    
+  // Description:
+  // This method is called by the data object as part of the update chain
+  // of events.  It provides a mechanism to start a non-blocking update
+  // in upstream ports.  A side effect of this method is that the 
+  // UpdateExtents are propagated upstream.  This call also calls 
+  // ModifyOutputUpdateExtents to allow subclasses to generate more
+  // that the requested structured extent.
+  virtual void PreUpdate(vtkDataObject *output);
+  
 protected:
   vtkImageSource();
   ~vtkImageSource() {};

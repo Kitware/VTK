@@ -66,14 +66,13 @@ vtkImageData *vtkImageSource::GetOutput()
   return (vtkImageData *)(this->Outputs[0]);
 }
 
-//----------------------------------------------------------------------------
-// vtkImageData has a legacy API.  The execute method does not allocate the 
-// scalars.  ModifyOutputUpdateExtent lets the subclass override the extent
-// allocated here.
-void vtkImageSource::StreamExecuteStart()
-{
-  vtkImageData *output = this->GetOutput();
 
+//----------------------------------------------------------------------------
+// We might want to put this ModifyOutputUpdateExtents into vtkSource.
+void vtkImageSource::PreUpdate(vtkDataObject *out)
+{
+  vtkImageData *output = (vtkImageData*)out;
+  
   // ----------------------------------------------
   // For legacy compatability
   this->LegacyHack = 1;
@@ -86,9 +85,21 @@ void vtkImageSource::StreamExecuteStart()
     return;
     }
   // ----------------------------------------------
-  
-
   this->ModifyOutputUpdateExtent();
+  
+  this->vtkSource::PreUpdate(output);
+}
+
+
+
+//----------------------------------------------------------------------------
+// vtkImageData has a legacy API.  The execute method does not allocate the 
+// scalars.  ModifyOutputUpdateExtent lets the subclass override the extent
+// allocated here.
+void vtkImageSource::StreamExecuteStart()
+{
+  vtkImageData *output = this->GetOutput();
+
   // If we have multiple Outputs, they need to be allocate
   // in a subclass.  We cannot be sure all outputs are images.
   output->SetExtent(output->GetUpdateExtent());
