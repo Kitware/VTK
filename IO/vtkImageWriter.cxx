@@ -22,9 +22,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-#include <stdio.h>
+#if !defined(_WIN32) || defined(__CYGWIN__)
+# include <unistd.h> /* unlink */
+#endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.47");
+vtkCxxRevisionMacro(vtkImageWriter, "1.48");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write

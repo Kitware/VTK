@@ -22,9 +22,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <stdio.h>
+#if !defined(_WIN32) || defined(__CYGWIN__)
+# include <unistd.h> /* unlink */
+#endif
 
-vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.37");
+vtkCxxRevisionMacro(vtkUnstructuredGridWriter, "1.38");
 vtkStandardNewMacro(vtkUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------

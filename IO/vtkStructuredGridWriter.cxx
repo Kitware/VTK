@@ -20,9 +20,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-#include <stdio.h>
+#if !defined(_WIN32) || defined(__CYGWIN__)
+# include <unistd.h> /* unlink */
+#endif
 
-vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.34");
+vtkCxxRevisionMacro(vtkStructuredGridWriter, "1.35");
 vtkStandardNewMacro(vtkStructuredGridWriter);
 
 //----------------------------------------------------------------------------

@@ -20,9 +20,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredPoints.h"
 
-#include <stdio.h>
+#if !defined(_WIN32) || defined(__CYGWIN__)
+# include <unistd.h> /* unlink */
+#endif
 
-vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.36");
+vtkCxxRevisionMacro(vtkStructuredPointsWriter, "1.37");
 vtkStandardNewMacro(vtkStructuredPointsWriter);
 
 //----------------------------------------------------------------------------
