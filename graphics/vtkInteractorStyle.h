@@ -190,7 +190,8 @@ protected:
   float Center[2];
   float DeltaAzimuth;
   float DeltaElevation;
-  int  CtrlKey, ShiftKey;
+  int   CtrlKey;
+  int   ShiftKey;
   int   LastPos[2];
   int   State;
   float FocalDepth;  
