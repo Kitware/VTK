@@ -49,5 +49,5 @@ void vtkCell3D::Clip(float, vtkScalars*, vtkPointLocator*, vtkCellArray*,
 
 void vtkCell3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkCell3D::PrintSelf(os,indent);
+  vtkCell::PrintSelf(os,indent);
 }
