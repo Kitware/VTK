@@ -109,17 +109,55 @@ void vtkGESignaReader::ExecuteInformation()
   vtkByteSwap::Swap4BE(&imgHdrOffset);
 
   // now seek to the image header and read some values
-  fseek(fp, imgHdrOffset + 26, SEEK_SET);
-  
   float spacingX, spacingY, spacingZ;
-  fread(&spacingZ, 4, 1, fp);
-  vtkByteSwap::Swap4BE(&spacingZ);
   fseek(fp, imgHdrOffset + 50, SEEK_SET);
   fread(&spacingX, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingX);
   fread(&spacingY, 4, 1, fp);
   vtkByteSwap::Swap4BE(&spacingY);
+  fseek(fp, imgHdrOffset + 116, SEEK_SET);  
+  fread(&spacingZ, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&spacingZ);
 
+  float origX, origY, origZ;
+  float tmpX, tmpY, tmpZ;
+  fseek(fp, imgHdrOffset + 160, SEEK_SET);
+  // read TLHC
+  fread(&origX, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&origX);
+  fread(&origY, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&origY);
+  fread(&origZ, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&origZ);
+
+  // read TRHC
+  fread(&tmpX, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpX);
+  fread(&tmpY, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpY);
+  fread(&tmpZ, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpZ);
+
+  // compute BLHC = TLHC - TRHC + BRHC
+  origX = origX - tmpX;
+  origY = origY - tmpY;
+  origZ = origZ - tmpZ;
+  
+  // read BRHC
+  fread(&tmpX, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpX);
+  fread(&tmpY, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpY);
+  fread(&tmpZ, 4, 1, fp);
+  vtkByteSwap::Swap4BE(&tmpZ);
+
+  // compute BLHC = TLHC - TRHC + BRHC
+  origX = origX + tmpX;
+  origY = origY + tmpY;
+  origZ = origZ + tmpZ;
+  
+  this->SetDataOrigin(origX, origY, origZ);
+  
   this->DataExtent[0] = 0;
   this->DataExtent[1] = width - 1;
   this->DataExtent[2] = 0;
