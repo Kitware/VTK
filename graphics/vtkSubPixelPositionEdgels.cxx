@@ -160,6 +160,12 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       result[0] = x;
       result[1] = y;
       result[2] = z;
+      for (i = 0; i < 3; i++)
+	{
+	resultNormal[i] = 
+	  inVecs->GetVector(x + xdim*y)[i];
+	}
+      vtkMath::Normalize(resultNormal);
       }
     else 
       {
@@ -242,6 +248,12 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       result[0] = x;
       result[1] = y;
       result[2] = z;
+      for (i = 0; i < 3; i++)
+	{
+	resultNormal[i] = 
+	  inVecs->GetVector(x + xdim*y + xdim*ydim*z)[i];
+	}
+      vtkMath::Normalize(resultNormal);
       }
     else 
       {
