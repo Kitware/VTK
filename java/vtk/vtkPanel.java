@@ -1,9 +1,11 @@
 package vtk;
 
 import vtk.*;
+import java.awt.peer.*;
 import java.awt.*;
 import java.applet.*;
 import java.lang.Math;
+import sun.awt.*;
 
 public class vtkPanel extends Canvas {
         vtkRenderWindow rw = new vtkRenderWindow();	
@@ -17,22 +19,41 @@ public class vtkPanel extends Canvas {
 	int InteractionMode = 1;
 
 	static { System.loadLibrary("vtkJava"); }
-
+        rw.DebugOn();
         public vtkPanel()
-      	{
+      	  {
 	  ren.SetRenderWindow(rw);
-	}
+	  }
+
+        public int getWindowID() 
+          {
+          DrawingSurfaceInfo surfaceInfo =
+            ((DrawingSurface)this.getPeer()).getDrawingSurfaceInfo();
+          surfaceInfo.lock();
+          Win32DrawingSurface wds =
+            (Win32DrawingSurface)surfaceInfo.getSurface();
+          int hWnd = wds.getHWnd();
+          surfaceInfo.unlock();
+          return hWnd;
+          }
+ 
+        public String GetWindowInfo()
+          {
+          String result;
+          result = "" + this.getWindowID();
+          return result; 
+          }
 
 	public void resize(int x, int y)
-	{
+	  {
 	  super.resize(x,y);
           rw.SetSize(x,y);
-	}
+	  }
 
 	public vtkRenderer GetRenderer()
- 	{
+ 	  {
 	  return ren;
-	}
+	  }
 
         public void Render() 
         {
@@ -41,7 +62,7 @@ public class vtkPanel extends Canvas {
 	    if (windowSet == 0)
               { 
 	      // set the window id and the active camera
-              //this.setWindow(rw);
+              //rw.SetWindowInfo(this.GetWindowInfo());
               cam = ren.GetActiveCamera();
 	      ren.AddLight(lgt);
               lgt.SetPosition(cam.GetPosition());
@@ -61,7 +82,7 @@ public class vtkPanel extends Canvas {
 	    if (windowSet == 0)
               { 
 	      // set the window id and the active camera
-              //this.setWindow(rw);
+              //rw.SetWindowInfo(this.GetWindowInfo());
               cam = ren.GetActiveCamera();
 	      ren.AddLight(lgt);
               lgt.SetPosition(cam.GetPosition());
