@@ -50,6 +50,7 @@ protected:
   ~vtkLineSource() {};
 
   void Execute();
+  void ExecuteInformation();
   double Point1[3];
   double Point2[3];
   int Resolution;

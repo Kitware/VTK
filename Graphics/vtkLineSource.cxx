@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkLineSource, "1.44");
+vtkCxxRevisionMacro(vtkLineSource, "1.45");
 vtkStandardNewMacro(vtkLineSource);
 
 vtkLineSource::vtkLineSource(int res)
@@ -38,6 +38,13 @@ vtkLineSource::vtkLineSource(int res)
   this->Resolution = (res < 1 ? 1 : res);
 }
 
+
+
+void vtkLineSource::ExecuteInformation()
+{
+  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+}
+
 void vtkLineSource::Execute()
 {
   int numLines=this->Resolution;
@@ -49,6 +56,11 @@ void vtkLineSource::Execute()
   vtkCellArray *newLines;
   vtkPolyData *output = this->GetOutput();
   
+  if (output->GetUpdatePiece() > 0)
+    {
+    return;
+    }
+
   vtkDebugMacro(<<"Creating line");
 
   newPoints = vtkPoints::New();
