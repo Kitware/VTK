@@ -17,10 +17,10 @@ public:
   void Initialize(vlPointData* const pd=0,const int sze=0,const int ext=1000);
   ~vlPointData();
   char *GetClassName() {return "vlPointData";};
-  vlPointData::vlPointData (const vlPointData& pd);
+  vlPointData (const vlPointData& pd);
+  vlPointData &operator=(const vlPointData& pd);
   virtual void Update() {};
-  void CopyData(const vlPointData *const from_pd, const int from_id, 
-                const vlPointData* to_pd, const int to_id);
+  void CopyData(const vlPointData *const from_pd, int from_id, int to_id);
 
   vlSetObjectMacro (Scalars, vlFloatScalars);
   vlGetObjectMacro (Scalars, vlFloatScalars);

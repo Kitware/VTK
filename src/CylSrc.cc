@@ -24,7 +24,6 @@ void vlCylinderSource::Execute()
   vlFloatNormals *newNormals;
   vlFloatTCoords *newTCoords;
   vlCellArray *newPolys;
-  vlPointData *newPtData;
 //
 // Set things up; allocate memory
 //
@@ -49,8 +48,6 @@ void vlCylinderSource::Execute()
 
   newTCoords = new vlFloatTCoords;
   newTCoords->Initialize(numPts,2);
-
-  newPtData = new vlPointData;
 
   newPolys = new vlCellArray;
   newPolys->Initialize(newPolys->EstimateSize(numPolys,this->Resolution));
@@ -143,9 +140,8 @@ void vlCylinderSource::Execute()
 // Update ourselves
 //
   this->SetPoints(newPoints);
-  this->SetPointData(newPtData);
-  newPtData->SetNormals(newNormals);
-  newPtData->SetTCoords(newTCoords);
+  this->PointData.SetNormals(newNormals);
+  this->PointData.SetTCoords(newTCoords);
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   this->SetPolys(newPolys);

@@ -6,16 +6,16 @@
 vlPointData::vlPointData (const vlPointData& pd)
 {
   this->Scalars = pd.Scalars;
-  this->Scalars->Register((void *)this);
+  if (this->Scalars) this->Scalars->Register((void *)this);
 
   this->Vectors = pd.Vectors;
-  this->Vectors->Register((void *)this);
+  if (this->Vectors) this->Vectors->Register((void *)this);
 
   this->Normals = pd.Normals;
-  this->Normals->Register((void *)this);
+  if (this->Normals) this->Normals->Register((void *)this);
 
   this->TCoords = pd.TCoords;
-  this->TCoords->Register((void *)this);
+  if(this->TCoords) this->TCoords->Register((void *)this);
 }
 
 vlPointData::~vlPointData()
@@ -23,30 +23,65 @@ vlPointData::~vlPointData()
   vlPointData::Initialize();
 }
 
+vlPointData& vlPointData::operator=(const vlPointData& pd)
+{
+  if ( this != &pd )
+    {
+    if ( this->Scalars != pd.Scalars )
+      {
+      if (this->Scalars) this->Scalars->UnRegister((void *)this);
+      this->Scalars = pd.Scalars;
+      if (this->Scalars) this->Scalars->Register((void *)this);
+      }
+        
+    if ( this->Vectors != pd.Vectors )
+      {
+      if (this->Vectors) this->Vectors->UnRegister((void *)this);
+      this->Vectors = pd.Vectors;
+      if (this->Vectors) this->Vectors->Register((void *)this);
+      }
+        
+    if ( this->Normals != pd.Normals )
+      {
+      if (this->Normals) this->Normals->UnRegister((void *)this);
+      this->Normals = pd.Normals;
+      if (this->Normals) this->Normals->Register((void *)this);
+      }
+        
+    if ( this->TCoords != pd.TCoords )
+      {
+      if (this->TCoords) this->TCoords->UnRegister((void *)this);
+      this->TCoords = pd.TCoords;
+      if (this->TCoords) this->TCoords->Register((void *)this);
+      }
+    this->Modified();
+    }        
+    return *this;
+}
+
 //
 // Copy the point data from one point to another
 //
-void vlPointData::CopyData(const vlPointData* const from_pd, const int from_id,
-                         const vlPointData* to_pd, const int to_id)
+void vlPointData::CopyData(const vlPointData* const from_pd, int from_id, int to_id)
 {
-  if ( from_pd->Scalars && to_pd->Scalars )
+  if ( from_pd->Scalars && this->Scalars )
     {
-    to_pd->Scalars->InsertScalar(to_id,(*from_pd->Scalars)[from_id]);
+    this->Scalars->InsertScalar(to_id,(*from_pd->Scalars)[from_id]);
     }
 
-  if ( from_pd->Vectors && to_pd->Vectors )
+  if ( from_pd->Vectors && this->Vectors )
     {
-    to_pd->Vectors->InsertVector(to_id,(*from_pd->Vectors)[from_id]);
+    this->Vectors->InsertVector(to_id,(*from_pd->Vectors)[from_id]);
     }
 
-  if ( from_pd->Normals && to_pd->Normals )
+  if ( from_pd->Normals && this->Normals )
     {
-    to_pd->Normals->InsertNormal(to_id,(*from_pd->Normals)[from_id]);
+    this->Normals->InsertNormal(to_id,(*from_pd->Normals)[from_id]);
     }
 
-  if ( from_pd->TCoords && to_pd->TCoords )
+  if ( from_pd->TCoords && this->TCoords )
     {
-    to_pd->TCoords->InsertTCoord(to_id,(*from_pd->TCoords)[from_id]);
+    this->TCoords->InsertTCoord(to_id,(*from_pd->TCoords)[from_id]);
     }
 }
 
@@ -65,6 +100,10 @@ void vlPointData::Initialize(vlPointData* const pd,const int sze,const int ext)
   vlFloatVectors *v;
   vlFloatNormals *n;
   vlFloatTCoords *t;
+//
+// Modify ourselves
+//
+  this->Modified();
 //
 // First free up any memory
 //

@@ -13,10 +13,12 @@ public:
   vlDataSetFilter();
   ~vlDataSetFilter();
   char *GetClassName() {return "vlDataSetFilter";};
-  virtual void SetInput(vlDataSet *in);
-  virtual vlDataSet*  GetInput();
   void Execute();
   void Update();
+
+  vlSetObjectMacro(Input,vlDataSet);
+  vlGetObjectMacro(Input,vlDataSet);
+
 protected:
   vlDataSet *Input;
 

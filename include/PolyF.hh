@@ -12,10 +12,12 @@ public:
   vlPolyFilter() : Input(0) {};
   ~vlPolyFilter();
   char *GetClassName() {return "vlPolyFilter";};
-  virtual void SetInput(vlPolyData *in);
-  virtual vlPolyData* GetInput();
   void Execute();
   void Update();
+
+  vlSetObjectMacro(Input,vlPolyData);
+  vlGetObjectMacro(Input,vlPolyData);
+
 protected:
   vlPolyData *Input;
 

@@ -20,13 +20,16 @@ public:
   vlPolyData();
   vlPolyData(const vlPolyData& pd);
   ~vlPolyData();
+  vlDataSet *CopySelf();
   char *GetClassName() {return "vlPolyData";};
   int NumCells();
   int NumPoints();
   int CellDimension(int cellId);
   void CellPoints(int cellId, vlIdList& ptId);
   void Initialize();
+  vlFloatTriple& PointCoord(int i) {return this->Points->operator[](i);};
   void PointCoords(vlIdList& ptId, vlFloatPoints& fp);
+  vlMapper *MakeMapper(vlDataSet *ds);
 
   // PolyData specific stuff follows
   vlSetObjectMacro(Points,vlFloatPoints);
@@ -51,7 +54,7 @@ public:
   int NumStrips();
 
 private:
-  /* point data (i.e., scalars, vectors, normals, tcoords) inherited */
+  // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vlFloatPoints *Points;
   vlCellArray *Verts;
   vlCellArray *Lines;
@@ -59,7 +62,7 @@ private:
   vlCellArray *Strips;
   vlCellList Cells;
   vlLinkList Links;
-  /* trick to simplify traversal */
+  // dummy static member below used as a trick to simplify traversal
   static vlCellArray Dummy;
 
   void BuildCells();

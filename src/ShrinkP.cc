@@ -11,15 +11,14 @@ void vlShrinkPolyData::Execute()
 {
   int i, j, k;
   float center[3], *p;
-  vlFloatPoints *in_pts;
+  vlFloatPoints *inPts;
   vlPointData *pd;
-  vlCellArray *in_verts,*in_lines,*in_polys,*in_strips;
-  int num_new_points, num_new_lines, num_new_polys, poly_alloc_size;
+  vlCellArray *inVerts,*inLines,*inPolys,*inStrips;
+  int numNewPts, numNewLines, numNewPolys, poly_alloc_size;
   int npts, *pts;
-  vlFloatPoints *new_points;
-  vlPointData *new_pointData;
-  vlCellArray *new_verts, *new_lines, *new_polys;
-  int new_ids[MAX_CELL_SIZE];
+  vlFloatPoints *newPoints;
+  vlCellArray *newVerts, *newLines, *newPolys;
+  int newIds[MAX_CELL_SIZE];
   float *p1, *p2, *p3, pt[3];
 //
 // Initialize
@@ -31,100 +30,97 @@ void vlShrinkPolyData::Execute()
     return;
     }
 
-  in_pts = this->Input->GetPoints();
+  inPts = this->Input->GetPoints();
   pd = this->Input->GetPointData();
 
-  in_verts = this->Input->GetVerts();
-  in_lines = this->Input->GetLines();
-  in_polys = this->Input->GetPolys();
-  in_strips = this->Input->GetStrips();
+  inVerts = this->Input->GetVerts();
+  inLines = this->Input->GetLines();
+  inPolys = this->Input->GetPolys();
+  inStrips = this->Input->GetStrips();
 //
 // Count the number of new points and other primitives that 
 // need to be created.
 //
-  num_new_points = this->Input->NumVerts();
-  num_new_lines = 0;
-  num_new_polys = 0;
+  numNewPts = this->Input->NumVerts();
+  numNewLines = 0;
+  numNewPolys = 0;
   poly_alloc_size = 0;
 
-  for (in_lines->InitTraversal(); in_lines->GetNextCell(npts,pts); )
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
-    num_new_points += (npts-1) * 2;
-    num_new_lines += npts - 1;
+    numNewPts += (npts-1) * 2;
+    numNewLines += npts - 1;
     }
-  for (in_polys->InitTraversal(); in_polys->GetNextCell(npts,pts); )
+  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
-    num_new_points += npts;
-    num_new_polys++;
+    numNewPts += npts;
+    numNewPolys++;
     poly_alloc_size += npts + 1;
     }
-  for (in_strips->InitTraversal(); in_strips->GetNextCell(npts,pts); )
+  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
-    num_new_points += (npts-2) * 3;
+    numNewPts += (npts-2) * 3;
     poly_alloc_size += (npts - 2) * 4;
     }
 //
 // Allocate
 //
-  new_points = new vlFloatPoints;
-  new_points->Initialize(num_new_points);
+  newPoints = new vlFloatPoints;
+  newPoints->Initialize(numNewPts);
 
-  new_pointData = new vlPointData;
-  new_pointData->Initialize(pd,num_new_points);
+  newVerts = new vlCellArray;
+  newVerts->Initialize(this->Input->NumVerts());
 
-  new_verts = new vlCellArray;
-  new_verts->Initialize(this->Input->NumVerts());
-
-  new_lines = new vlCellArray;
-  new_lines->Initialize(num_new_lines*3);
+  newLines = new vlCellArray;
+  newLines->Initialize(numNewLines*3);
  
-  new_polys = new vlCellArray;
-  new_polys->Initialize(poly_alloc_size);
+  newPolys = new vlCellArray;
+  newPolys->Initialize(poly_alloc_size);
 
 //
 // Copy vertices (no shrinking necessary)
 //
-  for (in_verts->InitTraversal(); in_verts->GetNextCell(npts,pts); )
+  for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
     for (j=0; j<npts; j++)
       {
-      new_ids[j] = new_points->InsertNextPoint((*in_pts)[pts[j]]);
-      new_pointData->CopyData(pd,pts[j],new_pointData,new_ids[j]);
+      newIds[j] = newPoints->InsertNextPoint((*inPts)[pts[j]]);
+      this->PointData.CopyData(pd,pts[j],newIds[j]);
       }    
-    new_verts->InsertNextCell(npts,new_ids);
+    newVerts->InsertNextCell(npts,newIds);
     }
 //
 // Lines need to be shrunk, and if polyline, split into separate pieces
 //
-  for (in_lines->InitTraversal(); in_lines->GetNextCell(npts,pts); )
+  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     for (j=0; j<(npts-1); j++)
       {
-      p1 = (*in_pts)[pts[j]];
-      p2 = (*in_pts)[pts[j+1]];
+      p1 = (*inPts)[pts[j]];
+      p2 = (*inPts)[pts[j+1]];
       for (k=0; k<3; k++) center[k] = (p1[k] + p2[k]) / 2.0;
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
-      new_ids[0] = new_points->InsertNextPoint(pt);
-      new_pointData->CopyData(pd,pts[j],new_pointData,new_ids[0]);
+      newIds[0] = newPoints->InsertNextPoint(pt);
+      this->PointData.CopyData(pd,pts[j],newIds[0]);
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
-      new_ids[1] = new_points->InsertNextPoint(pt);
-      new_pointData->CopyData(pd,pts[j+1],new_pointData,new_ids[1]);
+      newIds[1] = newPoints->InsertNextPoint(pt);
+      this->PointData.CopyData(pd,pts[j+1],newIds[1]);
 
-      new_lines->InsertNextCell(2,new_ids);
+      newLines->InsertNextCell(2,newIds);
       }
     }
 //
 // Polygons need to be shrunk
 //
-  for (in_polys->InitTraversal(); in_polys->GetNextCell(npts,pts); )
+  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
       {
-      p1 = (*in_pts)[pts[j]];
+      p1 = (*inPts)[pts[j]];
       for (k=0; k<3; k++) center[k] += p1[k];
       }
 
@@ -132,52 +128,51 @@ void vlShrinkPolyData::Execute()
 
     for (j=0; j<npts; j++)
       {
-      p1 = (*in_pts)[pts[j]];
+      p1 = (*inPts)[pts[j]];
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
-      new_ids[j] = new_points->InsertNextPoint(pt);
-      new_pointData->CopyData(pd,pts[j],new_pointData,new_ids[j]);
+      newIds[j] = newPoints->InsertNextPoint(pt);
+      this->PointData.CopyData(pd,pts[j],newIds[j]);
       }
-    new_polys->InsertNextCell(npts,new_ids);
+    newPolys->InsertNextCell(npts,newIds);
     }
 //
 // Triangle strips need to be shrunk and split into separate pieces.
 //
-  for (in_strips->InitTraversal(); in_strips->GetNextCell(npts,pts); )
+  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
     for (j=0; j<(npts-2); j++)
       {
-      p1 = (*in_pts)[pts[j]];
-      p2 = (*in_pts)[pts[j+1]];
-      p3 = (*in_pts)[pts[j+1]];
+      p1 = (*inPts)[pts[j]];
+      p2 = (*inPts)[pts[j+1]];
+      p3 = (*inPts)[pts[j+1]];
       for (k=0; k<3; k++) center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
-      new_ids[0] = new_points->InsertNextPoint(pt);
-      new_pointData->CopyData(pd,pts[j],new_pointData,new_ids[0]);
+      newIds[0] = newPoints->InsertNextPoint(pt);
+      this->PointData.CopyData(pd,pts[j],newIds[0]);
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
-      new_ids[1] = new_points->InsertNextPoint(pt);
-      new_pointData->CopyData(pd,pts[j+1],new_pointData,new_ids[1]);
+      newIds[1] = newPoints->InsertNextPoint(pt);
+      this->PointData.CopyData(pd,pts[j+1],newIds[1]);
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p3[k] - center[k]);
-      new_ids[2] = new_points->InsertNextPoint(pt);
-      new_pointData->CopyData(pd,pts[j+2],new_pointData,new_ids[2]);
+      newIds[2] = newPoints->InsertNextPoint(pt);
+      this->PointData.CopyData(pd,pts[j+2],newIds[2]);
 
-      new_polys->InsertNextCell(3,new_ids);
+      newPolys->InsertNextCell(3,newIds);
       }
     }
 //
 // Update self
 //
-  this->SetPoints(new_points);
-  this->SetPointData(new_pointData);
+  this->SetPoints(newPoints);
 
-  this->SetVerts(new_verts);
-  this->SetLines(new_lines);
-  this->SetPolys(new_polys);
+  this->SetVerts(newVerts);
+  this->SetLines(newLines);
+  this->SetPolys(newPolys);
 }
 

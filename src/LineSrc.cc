@@ -26,7 +26,6 @@ void vlLineSource::Execute()
   int pts[2];
   vlFloatPoints *newPoints; 
   vlFloatTCoords *newTCoords; 
-  vlPointData *newPtData;
   vlCellArray *newLines;
 //
 // Set things up; allocate memory
@@ -38,8 +37,6 @@ void vlLineSource::Execute()
 
   newTCoords = new vlFloatTCoords;
   newTCoords->Initialize(numPts,2);
-
-  newPtData = new vlPointData;
 
   newLines = new vlCellArray;
   newLines->Initialize(newLines->EstimateSize(numLines,2));
@@ -69,7 +66,6 @@ void vlLineSource::Execute()
 // Update ourselves
 //
   this->SetPoints(newPoints);
-  this->SetPointData(newPtData);
-  newPtData->SetTCoords(newTCoords);
+  this->PointData.SetTCoords(newTCoords);
   this->SetLines(newLines);
 }

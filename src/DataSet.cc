@@ -6,31 +6,24 @@
 
 vlDataSet::vlDataSet ()
 {
-  this->PointData = 0;
-}
-vlDataSet::vlDataSet (const vlDataSet& ds)
-{
-  this->PointData = ds.PointData;
-  this->PointData->Register((void *)this);
-}
-
-vlDataSet::~vlDataSet()
-{
-  vlDataSet::Initialize();
+  this->Bounds[0] = 0.0;
+  this->Bounds[1] = 1.0;
+  this->Bounds[2] = 0.0;
+  this->Bounds[3] = 1.0;
+  this->Bounds[4] = 0.0;
+  this->Bounds[5] = 1.0;
 }
 
 void vlDataSet::Initialize()
 {
-  if ( this->PointData )
-    {
-    this->PointData->UnRegister((void *)this);
-    this->PointData = 0;
-    }
+  this->PointData.Initialize();
+  this->Modified();
 };
 
 void vlDataSet::ComputeBounds()
 {
-  int i;
+  int i, j;
+  float *x;
 
   if ( this->Mtime > this->ComputeTime )
     {
@@ -38,7 +31,12 @@ void vlDataSet::ComputeBounds()
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -LARGE_FLOAT;
     for (i=0; i<this->NumPoints(); i++)
       {
-        
+      x = this->PointCoord(i);
+      for (j=0; j<3; j++)
+        {
+        if ( x[j] < this->Bounds[2*j] ) this->Bounds[2*j] = x[j];
+        if ( x[j] > this->Bounds[2*j+1] ) this->Bounds[2*j+1] = x[j];
+        }
       }
 
     this->ComputeTime.Modified();
@@ -63,7 +61,7 @@ float *vlDataSet::GetCenter()
 
 float vlDataSet::GetLength()
 {
-  double diff, l;
+  double diff, l=0.0;
   int i;
 
   this->ComputeBounds();
@@ -74,4 +72,10 @@ float vlDataSet::GetLength()
     }
  
   return (float)sqrt(l);
+}
+
+unsigned long int vlDataSet::GetMtime()
+{
+  if ( this->PointData.GetMtime() > this->Mtime ) return this->PointData.GetMtime();
+  else return this->Mtime;
 }

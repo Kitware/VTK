@@ -2,7 +2,7 @@
 // DataSet methods
 //
 #include "PolyData.hh"
-
+#include "PolyMap.hh"
 //
 // Initialize static member.  This member is used to simplify traversal of lists 
 // of verts, lines, polygons, and triangle strips.  It basically "marks" empty lists
@@ -24,19 +24,19 @@ vlPolyData::vlPolyData(const vlPolyData& pd)
 {
 
   this->Points = pd.Points;
-  this->Points->Register((void *)this);
+  if (this->Points) this->Points->Register((void *)this);
 
   this->Verts = pd.Verts;
-  this->Verts->Register((void *)this);
+  if (this->Verts) this->Verts->Register((void *)this);
 
   this->Lines = pd.Lines;
-  this->Lines->Register((void *)this);
+  if (this->Lines) this->Lines->Register((void *)this);
 
   this->Polys = pd.Polys;
-  this->Polys->Register((void *)this);
+  if (this->Polys) this->Polys->Register((void *)this);
 
   this->Strips = pd.Strips;
-  this->Strips->Register((void *)this);
+  if (this->Strips) this->Strips->Register((void *)this);
 }
 
 vlPolyData::~vlPolyData()
@@ -44,6 +44,10 @@ vlPolyData::~vlPolyData()
   vlPolyData::Initialize();
 }
 
+vlDataSet* vlPolyData::CopySelf()
+{
+  return new vlPolyData(*this);;
+}
 int vlPolyData::CellDimension (int cellId)
 {
   return 2;
@@ -125,6 +129,8 @@ vlCellArray* vlPolyData::GetStrips()
 
 void vlPolyData::Initialize()
 {
+  vlDataSet::Initialize();
+
   if ( this->Points != 0 ) 
   {
     this->Points->UnRegister((void *)this);
@@ -154,7 +160,6 @@ void vlPolyData::Initialize()
     this->Strips->UnRegister((void *)this);
     this->Strips = 0;
   }
-
 };
 
 int vlPolyData::NumCells() 
@@ -185,4 +190,14 @@ int vlPolyData::NumPolys()
 int vlPolyData::NumStrips() 
 {
   return (this->Strips ? this->Strips->GetNumCells() : 0);
+}
+
+vlMapper *vlPolyData::MakeMapper(vlDataSet *ds)
+{
+  vlPolyMapper *mapper;
+
+  mapper = new vlPolyMapper;
+  // following cast ok because using virtual function
+  mapper->SetInput((vlPolyData *)ds);
+  return mapper;
 }

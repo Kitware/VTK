@@ -11,31 +11,36 @@
 
 #define MAX_CELL_SIZE 128
 
+class vlMapper;
+
 class vlDataSet : virtual public vlObject 
 {
 public:
   vlDataSet();
-  vlDataSet(const vlDataSet& ds);
-  ~vlDataSet();
   char *GetClassName() {return "vlDataSet";};
+  virtual vlDataSet *CopySelf() = 0;
   virtual int NumCells() = 0;
   virtual int NumPoints() = 0;
   virtual int CellDimension(int cellId) = 0;
   virtual void CellPoints(int cellId, vlIdList& ptId) = 0;
-  virtual void Initialize() = 0;
+  virtual void Initialize();
+  virtual vlFloatTriple& PointCoord(int i) = 0;
   virtual void PointCoords(vlIdList& ptId, vlFloatPoints& fp) = 0;
   virtual void Update() {};
+
+  unsigned long int GetMtime();
 
   virtual void ComputeBounds();
   float *GetBounds();
   float *GetCenter();
   float GetLength();
   
-  vlSetObjectMacro(PointData,vlPointData);
-  vlGetObjectMacro(PointData,vlPointData);
+  vlPointData *GetPointData() {return &this->PointData;};
+
+  virtual vlMapper *MakeMapper(vlDataSet *ds) = 0;
 
 protected:
-  vlPointData *PointData;  // Scalars, vectors, etc. associated w/ each point
+  vlPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vlTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];
 };

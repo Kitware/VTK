@@ -20,7 +20,6 @@ void vlCubeSource::Execute()
   vlFloatPoints *newPoints; 
   vlFloatNormals *newNormals;
   vlCellArray *newPolys;
-  vlPointData *newPtData;
 //
 // Set things up; allocate memory
 //
@@ -31,8 +30,6 @@ void vlCubeSource::Execute()
 
   newNormals = new vlFloatNormals;
   newNormals->Initialize(numPts);
-
-  newPtData = new vlPointData;
 
   newPolys = new vlCellArray;
   newPolys->Initialize(newPolys->EstimateSize(numPolys,4));
@@ -95,8 +92,7 @@ void vlCubeSource::Execute()
 // Update ourselves
 //
   this->SetPoints(newPoints);
-  this->SetPointData(newPtData);
-  newPtData->SetNormals(newNormals);
+  this->PointData.SetNormals(newNormals);
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   this->SetPolys(newPolys);

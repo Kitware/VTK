@@ -1,19 +1,5 @@
 #include "PolyF.hh"
 
-void vlPolyFilter::SetInput(vlPolyData *in)
-{
-  if (in != this->Input )
-    {
-    this->Input = in;
-    this->Input->Register((void *)this);
-    this->Modified();
-    }
-}
-vlPolyData* vlPolyFilter::GetInput()
-{
-  return this->Input;
-}
-
 vlPolyFilter::~vlPolyFilter()
 {
   if ( this->Input != 0 )
@@ -43,7 +29,7 @@ void vlPolyFilter::Update()
   this->Input->Update();
   this->Updating = 0;
 
-  if (this->Input->Mtime > this->Mtime || this->Mtime > this->ExecuteTime )
+  if (this->Input->GetMtime() > this->Mtime || this->Mtime > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)();
     this->Execute();

@@ -80,6 +80,7 @@ void vlPolyMapper::Render(vlRenderer *ren)
     colors = new vlRGBArray;
     colors->Initialize (this->Input->NumPoints());
 
+    this->Lut->SetTableRange(this->ScalarRange);
     for (i=0; i<this->Input->NumPoints(); i++)
       {
       (*colors)[i] = this->Lut->MapValue((*scalars)[i]);
@@ -92,8 +93,8 @@ void vlPolyMapper::Render(vlRenderer *ren)
 //
 // Now send data down to primitives and draw it
 //
-  if ( forceBuild || this->Input->Mtime > this->BuildTime || 
-  this->Lut->Mtime > this->BuildTime )
+  if ( forceBuild || this->Input->GetMtime() > this->BuildTime || 
+  this->Lut->GetMtime() > this->BuildTime )
     {
 //      this->Verts->Build(this->Input,colors);
 //      this->Lines->Build(this->Input,colors);

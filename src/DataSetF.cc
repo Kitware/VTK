@@ -3,18 +3,9 @@
 //
 #include "DataSetF.hh"
 
-void vlDataSetFilter::SetInput(vlDataSet *in)
+vlDataSetFilter::vlDataSetFilter()
 {
-  if (in != this->Input )
-    {
-    this->Input = in;
-    this->Input->Register((void *)this);
-    this->Modified();
-    }
-}
-vlDataSet* vlDataSetFilter::GetInput()
-{
-  return this->Input;
+  this->Input = 0;
 }
 
 vlDataSetFilter::~vlDataSetFilter()
@@ -46,11 +37,11 @@ void vlDataSetFilter::Update()
   this->Input->Update();
   this->Updating = 0;
 
-  if (this->Input->Mtime > this->Mtime )
+  if (this->Input->GetMtime() > this->Mtime || this->Mtime > this->ExecuteTime )
     {
     if ( this->StartMethod ) (*this->StartMethod)();
     this->Execute();
-    this->Modified();
+    this->ExecuteTime.Modified();
     if ( this->EndMethod ) (*this->EndMethod)();
     }
 }

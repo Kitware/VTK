@@ -28,7 +28,6 @@ void vlPlaneSource::Execute()
   vlFloatNormals *newNormals;
   vlFloatTCoords *newTCoords;
   vlCellArray *newPolys;
-  vlPointData *newPtData;
 //
 // Set things up; allocate memory
 //
@@ -45,8 +44,6 @@ void vlPlaneSource::Execute()
 
   newTCoords = new vlFloatTCoords;
   newTCoords->Initialize(numPts,2);
-
-  newPtData = new vlPointData;
 
   newPolys = new vlCellArray;
   newPolys->Initialize(5*numPolys);
@@ -89,9 +86,8 @@ void vlPlaneSource::Execute()
 // Update ourselves
 //
   this->SetPoints(newPoints);
-  this->SetPointData(newPtData);
-  newPtData->SetNormals(newNormals);
-  newPtData->SetTCoords(newTCoords);
+  this->PointData.SetNormals(newNormals);
+  this->PointData.SetTCoords(newTCoords);
 
   this->SetPolys(newPolys);
 }
