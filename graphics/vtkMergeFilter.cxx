@@ -320,6 +320,11 @@ void vtkMergeFilter::Execute()
 }
 
 //----------------------------------------------------------------------------
+//  Trick:  Abstract data types that may or may not be the same type
+// (structured/unstructured), but the points/cells match up.
+// Output/Geometry may be structured while ScalarInput may be 
+// unstructured (but really have same triagulation/topology as geometry).
+// Just request al the input. Always generate all of the output (todo).
 int vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 {
   vtkDataSet *output = (vtkDataSet*)data;
@@ -331,9 +336,8 @@ int vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
     input = (vtkDataSet *)(this->Inputs[idx]);
     if (input)
       {
-      input->CopyUpdateExtent(output);
+      input->SetUpdateExtent(0, 1);
       }
-    
     }
   
   return 1;
