@@ -20,17 +20,18 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.14");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.15");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
 vtkInteractorStyleImage::vtkInteractorStyleImage() 
 {
   this->MotionFactor = 10.0;
-  this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
   this->RadianToDegree = 180.0 / vtkMath::Pi();
-  this->WindowLevelStartPosition[0] = 0;
-  this->WindowLevelStartPosition[1] = 0;  
+
+  this->WindowLevelStartPosition[0]   = 0;
+  this->WindowLevelStartPosition[1]   = 0;  
+
   this->WindowLevelCurrentPosition[0] = 0;
   this->WindowLevelCurrentPosition[1] = 0;  
 }
@@ -41,38 +42,278 @@ vtkInteractorStyleImage::~vtkInteractorStyleImage()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMouseMove(int ctrl, int shift, int x, int y) 
+void vtkInteractorStyleImage::StartWindowLevel() 
 {
-  this->UpdateInternalState(ctrl, shift, x, y);
+  if (this->State != VTKIS_START) 
+    {
+    return;
+    }
+  this->StartState(VTKIS_WINDOW_LEVEL);
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::EndWindowLevel() 
+{
+  if (this->State != VTKIS_WINDOW_LEVEL) 
+    {
+    return;
+    }
+  this->StopState();
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::StartPick() 
+{
+  if (this->State != VTKIS_START) 
+    {
+    return;
+    }
+  this->StartState(VTKIS_PICK);
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::EndPick() 
+{
+  if (this->State != VTKIS_PICK) 
+    {
+    return;
+    }
+  this->StopState();
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnMouseMove(int ctrl, 
+                                          int shift, 
+                                          int x, 
+                                          int y) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_WINDOW_LEVEL:
+      this->FindPokedCamera(x, y);
+      this->WindowLevelXY(x, y);
+      break;
 
-  if (this->State == VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL)
-    {
-    this->FindPokedCamera(x, y);
-    this->WindowLevelXY(x, y);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PAN)
-    {
-    this->FindPokedCamera(x, y);
-    this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_ZOOM)
-    {
-    this->FindPokedCamera(x, y);
-    this->DollyXY(x - this->LastPos[0], y - this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_SPIN)
-    {
-    this->FindPokedCamera(x, y);
-    this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
-    }
-  else if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PICK)
-    {
-    this->FindPokedCamera(x, y);
-    this->PickXY(x, y);
+    case VTKIS_PAN:
+      this->FindPokedCamera(x, y);
+      this->PanXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
+
+    case VTKIS_DOLLY:
+      this->FindPokedCamera(x, y);
+      this->DollyXY(x - this->LastPos[0], y - this->LastPos[1]);
+      break;
+
+    case VTKIS_SPIN:
+      this->FindPokedCamera(x, y);
+      this->SpinXY(x, y, this->LastPos[0], this->LastPos[1]);
+      break;
+
+    case VTKIS_PICK:
+      this->FindPokedCamera(x, y);
+      this->PickXY(x, y);
+      break;
     }
 
   this->LastPos[0] = x;
   this->LastPos[1] = y;
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, 
+                                               int shift, 
+                                               int x, 
+                                               int y) 
+{
+  this->FindPokedRenderer(x, y);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+
+  if (shift) 
+    {
+    if (ctrl) 
+      {
+      this->StartDolly();
+      }
+    else 
+      {
+      this->StartPan();
+      }
+    } 
+  else 
+    {
+    if (ctrl) 
+      {
+      this->StartSpin();
+      }
+    else 
+      {
+      this->StartWindowLevel();
+      this->WindowLevelStartPosition[0] = x;
+      this->WindowLevelStartPosition[1] = y;      
+      if (this->HasObserver(vtkCommand::StartWindowLevelEvent)) 
+        {
+        this->InvokeEvent(vtkCommand::StartWindowLevelEvent,this);
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnLeftButtonUp(int vtkNotUsed(ctrl), 
+                                             int vtkNotUsed(shift), 
+                                             int vtkNotUsed(x), 
+                                             int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+
+    case VTKIS_SPIN:
+      this->EndSpin();
+      break;
+
+    case VTKIS_WINDOW_LEVEL:
+      if (this->HasObserver(vtkCommand::EndWindowLevelEvent))
+        {
+        this->InvokeEvent(vtkCommand::EndWindowLevelEvent, this);
+        }
+      this->EndWindowLevel();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnMiddleButtonDown(int vtkNotUsed(ctrl), 
+                                                 int vtkNotUsed(shift), 
+                                                 int x, 
+                                                 int y) 
+{
+  this->FindPokedRenderer(x, y);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+  
+  this->StartPan();
+}
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnMiddleButtonUp(int vtkNotUsed(ctrl), 
+                                               int vtkNotUsed(shift), 
+                                               int vtkNotUsed(x), 
+                                               int vtkNotUsed(y))
+{
+  switch (this->State) 
+    {
+    case VTKIS_PAN:
+      this->EndPan();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnRightButtonDown(int vtkNotUsed(ctrl), 
+                                                int shift, 
+                                                int x, 
+                                                int y) 
+{
+  this->FindPokedRenderer(x, y);
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+
+  if (shift)
+    {
+    this->StartPick();
+    if (this->HasObserver(vtkCommand::StartPickEvent)) 
+      {
+      this->InvokeEvent(vtkCommand::StartPickEvent, this);
+      }
+    }
+  else 
+    {
+    this->StartDolly();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnRightButtonUp(int vtkNotUsed(ctrl), 
+                                              int vtkNotUsed(shift), 
+                                              int vtkNotUsed(x), 
+                                              int vtkNotUsed(y)) 
+{
+  switch (this->State) 
+    {
+    case VTKIS_PICK:
+      if (this->HasObserver(vtkCommand::EndPickEvent)) 
+        {
+        this->InvokeEvent(vtkCommand::EndPickEvent, this);
+        }
+      this->EndPick();
+      break;
+
+    case VTKIS_DOLLY:
+      this->EndDolly();
+      break;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleImage::OnChar(int ctrl, 
+                                     int shift, 
+                                     char keycode, 
+                                     int repeatcount) 
+{
+  vtkRenderWindowInteractor *rwi = this->Interactor;
+
+  switch (keycode) 
+    {
+    case 'f' :      
+    case 'F' :
+      {
+      this->AnimState = VTKIS_ANIM_ON;
+      vtkAssemblyPath *path=NULL;
+      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+      rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
+                             this->CurrentRenderer);
+      vtkAbstractPropPicker *picker;
+      if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
+        {
+        path = picker->GetPath();
+        }
+      if ( path != NULL )
+        {
+        rwi->FlyToImage(this->CurrentRenderer,picker->GetPickPosition());
+        }
+      this->AnimState = VTKIS_ANIM_OFF;
+      break;
+      }
+
+    case 'r' :      
+    case 'R' :
+      // Allow either shift/ctrl to trigger the usual 'r' binding
+      // otherwise trigger reset window level event
+      if (shift || ctrl)
+        {
+        this->Superclass::OnChar(ctrl, shift, keycode, repeatcount);
+        }
+      else
+        {
+        if (this->HasObserver(vtkCommand::ResetWindowLevelEvent)) 
+          {
+          this->InvokeEvent(vtkCommand::ResetWindowLevelEvent, this);
+          }
+        }
+      break;
+
+    default:
+      this->Superclass::OnChar(ctrl, shift, keycode, repeatcount);
+      break;
+    }
 }
 
 
@@ -136,7 +377,7 @@ void vtkInteractorStyleImage::PanXY(int x, int y, int oldX, int oldY)
     this->CurrentLight->SetPosition(cam->GetPosition());
     this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
     }
-    
+  
   rwi->Render();
 }
 
@@ -210,185 +451,13 @@ void vtkInteractorStyleImage::PickXY(int vtkNotUsed(x), int vtkNotUsed(y))
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnLeftButtonDown(int ctrl, int shift, 
-                                               int x, int y) 
-{
-  this->UpdateInternalState(ctrl, shift, x, y);
-  this->FindPokedRenderer(x, y);
-
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-
-  if (shift)
-    {
-    if (ctrl)
-      {
-      this->State = VTK_INTERACTOR_STYLE_IMAGE_ZOOM;
-      }
-    else
-      {
-      this->State = VTK_INTERACTOR_STYLE_IMAGE_PAN;
-      }
-    }
-  else 
-    {
-    if (this->CtrlKey)
-      {
-      this->State = VTK_INTERACTOR_STYLE_IMAGE_SPIN;
-      }
-    else
-      {
-      this->State = VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL;
-      this->WindowLevelStartPosition[0] = x;
-      this->WindowLevelStartPosition[1] = y;      
-      if (this->HasObserver(vtkCommand::StartWindowLevelEvent)) 
-        {
-        this->InvokeEvent(vtkCommand::StartWindowLevelEvent,this);
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnLeftButtonUp(int ctrl, int shift, 
-                                             int x, int y)
-{
-  this->UpdateInternalState(ctrl, shift, x, y);
-
-  if (this->State == VTK_INTERACTOR_STYLE_IMAGE_WINDOW_LEVEL &&
-      this->HasObserver(vtkCommand::EndWindowLevelEvent)) 
-      {
-      this->InvokeEvent(vtkCommand::EndWindowLevelEvent, this);
-      }
-
-  this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMiddleButtonDown(int ctrl, int shift, 
-                                                 int x, int y) 
-{
-  this->UpdateInternalState(ctrl, shift, x, y);
-  this->FindPokedRenderer(x, y);
-
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-  
-  this->State = VTK_INTERACTOR_STYLE_IMAGE_PAN;
-}
-//----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnMiddleButtonUp(int ctrl, int shift, 
-                                               int x, int y)
-{
-  this->UpdateInternalState(ctrl, shift, x, y);
-  this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonDown(int ctrl, int shift, 
-                                                int x, int y) 
-{
-  this->UpdateInternalState(ctrl, shift, x, y);
-  this->FindPokedRenderer(x, y);
-
-  if (this->CurrentRenderer == NULL)
-    {
-    return;
-    }
-
-  if (shift)
-    {
-    this->State = VTK_INTERACTOR_STYLE_IMAGE_PICK;
-    if (this->HasObserver(vtkCommand::StartPickEvent)) 
-      {
-      this->InvokeEvent(vtkCommand::StartPickEvent, this);
-      }
-    }
-  else 
-    {
-    this->State = VTK_INTERACTOR_STYLE_IMAGE_ZOOM;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleImage::OnRightButtonUp(int ctrl, int shift, 
-                                              int x, int y)
-{
-  this->UpdateInternalState(ctrl, shift, x, y);
-
-  if (this->State == VTK_INTERACTOR_STYLE_IMAGE_PICK &&
-      this->HasObserver(vtkCommand::EndPickEvent)) 
-    {
-    this->InvokeEvent(vtkCommand::EndPickEvent, this);
-    }
-
-  this->State = VTK_INTERACTOR_STYLE_IMAGE_NONE;
-}
-
-void vtkInteractorStyleImage::OnChar(int ctrl, int shift, char keycode, 
-                                     int repeatcount) 
-{
-  this->CtrlKey  = ctrl;
-  this->ShiftKey = shift;
-  
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  switch (keycode) 
-    {
-    case 'f' :      
-    case 'F' :
-      {
-      this->AnimState = VTKIS_ANIM_ON;
-      vtkAssemblyPath *path=NULL;
-      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
-      rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
-                             this->CurrentRenderer);
-      vtkAbstractPropPicker *picker;
-      if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
-        {
-        path = picker->GetPath();
-        }
-      if ( path != NULL )
-        {
-        rwi->FlyToImage(this->CurrentRenderer,picker->GetPickPosition());
-        }
-      this->AnimState = VTKIS_ANIM_OFF;
-      break;
-      }
-    case 'r' :      
-    case 'R' :
-      // Allow either shift/ctrl to trigger the usual 'r' binding
-      if (shift || ctrl)
-        {
-        this->Superclass::OnChar(ctrl,shift,keycode,repeatcount);
-        }
-      else
-        {
-        if (this->HasObserver(vtkCommand::ResetWindowLevelEvent)) 
-          {
-          this->InvokeEvent(vtkCommand::ResetWindowLevelEvent,this);
-          }
-        }
-      break;
-    default:
-      this->Superclass::OnChar(ctrl,shift,keycode,repeatcount);
-      break;
-    }
-}
-
-//----------------------------------------------------------------------------
 void vtkInteractorStyleImage::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->Superclass::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os, indent);
   
   os << indent << "Window Level Current Position: " <<
     this->WindowLevelCurrentPosition << endl;
 
   os << indent << "Window Level Start Position: " <<
     this->WindowLevelStartPosition << endl;
-
-  os << indent << "State: " << this->GetStateAsString() << endl;
 }
