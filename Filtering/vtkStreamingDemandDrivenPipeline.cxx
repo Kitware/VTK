@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.8");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.9");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -235,28 +235,91 @@ vtkStreamingDemandDrivenPipeline
   if(this->Algorithm->GetNumberOfOutputPorts() > 0)
     {
     // Copy information from the output port that made the request.
+    // Since VerifyOutputInformation has already been called we know
+    // there is output information with a data object.
     vtkInformation* outInfo =
       this->GetOutputInformation((outputPort >= 0)? outputPort : 0);
-    if(outInfo)
+    vtkDataObject* outData = outInfo->Get(vtkDataObject::DATA_OBJECT());
+
+    // Loop over all input ports.
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
       {
-      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      // Get the vector of connections on this input port.
+      vtkInformationVector* inVec =
+        this->GetInputInformation(i)->Get(
+          vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
+      // Loop over all connections on this input port.
+      int numInConnections = inVec->GetNumberOfInformationObjects();
+      for (int j=0; j<numInConnections; j++)
         {
-        vtkInformationVector* inVec =
-          this->GetInputInformation(i)->Get(
-            vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
-        int numInConnections = inVec->GetNumberOfInformationObjects();
-        for (int j=0; j<numInConnections; j++)
+        // Get the pipeline information for this input connection.
+        vtkInformation* inInfo = inVec->GetInformationObject(j);
+
+        // Get the executive and port number producing this input.
+        vtkStreamingDemandDrivenPipeline* inExec =
+          vtkStreamingDemandDrivenPipeline::SafeDownCast(
+            inInfo->Get(vtkExecutive::EXECUTIVE()));
+        int inPort = inInfo->Get(vtkExecutive::PORT_NUMBER());
+        if(!inExec)
           {
-          vtkInformation* inInfo = inVec->GetInformationObject(j);
-          vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
-          if(inData && inData->GetExtentType() == VTK_PIECES_EXTENT)
+          vtkErrorMacro(
+            "Cannot copy default update request from output port "
+            << outputPort << " on algorithm "
+            << this->Algorithm->GetClassName()
+            << "(" << this->Algorithm << ") to input connection "
+            << j << " on input port " << i
+            << " because the input is not managed by a"
+            << " vtkStreamingDemandDrivenPipeline.");
+          continue;
+          }
+
+        // Get the input data object for this connection.  It should
+        // have already been created by the UpdateDataObject pass.
+        vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+        if(!inData)
+          {
+          vtkErrorMacro("Cannot copy default update request from output port "
+                        << outputPort << " on algorithm "
+                        << this->Algorithm->GetClassName()
+                        << "(" << this->Algorithm << ") to input connection "
+                        << j << " on input port " << i
+                        << " because there is no data object.");
+          continue;
+          }
+
+        // Consider all combinations of extent types.
+        if(inData->GetExtentType() == VTK_PIECES_EXTENT)
+          {
+          if(outData->GetExtentType() == VTK_PIECES_EXTENT)
             {
             inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
             inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
             inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
             inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
             }
-          else if(inData && inData->GetExtentType() == VTK_3D_EXTENT)
+          else if(outData->GetExtentType() == VTK_3D_EXTENT)
+            {
+            vtkErrorMacro(
+              "Cannot copy default update request from output port "
+              << outputPort << " on algorithm "
+              << this->Algorithm->GetClassName()
+              << "(" << this->Algorithm << ") to input connection "
+              << j << " on input port " << i
+              << " because the output has a structured extent and the"
+              << " input requires an unstructured extent.");
+            inExec->SetUpdateExtentToWholeExtent(inPort);
+            }
+          }
+        else if(inData->GetExtentType() == VTK_3D_EXTENT)
+          {
+          if(outData->GetExtentType() == VTK_PIECES_EXTENT)
+            {
+            int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
+            int numPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
+            int ghostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+            inExec->SetUpdateExtent(inPort, piece, numPieces, ghostLevel);
+            }
+          else if(outData->GetExtentType() == VTK_3D_EXTENT)
             {
             inInfo->CopyEntry(outInfo, UPDATE_EXTENT());
             inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
@@ -370,7 +433,7 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
   vtkInformation* outInfo = this->GetOutputInformation(outputPort);
 
   // Make sure there is a data object.  It is supposed to be created
-  // by the ExecuteInformation step.
+  // by the UpdateDataObject step.
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!dataObject)
     {
