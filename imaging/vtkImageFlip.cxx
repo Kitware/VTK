@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageFlip.h"
 
 
@@ -46,46 +47,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFlip::vtkImageFlip()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS);
-  this->ExecuteDimensionality = 2;
-  this->PreserveImageExtent = 0;
+  this->NumberOfExecutionAxes = 4;
+  this->PreserveImageExtent = 1;
 }
 
 //----------------------------------------------------------------------------
+void vtkImageFlip::SetFilteredAxes(int num, int *axes)
+{
+  this->vtkImageFilter::SetFilteredAxes(num, axes);
+  this->NumberOfExecutionAxes = 4;
+}
+						 
+//----------------------------------------------------------------------------
 // Description:
 // Image extent is modified by this filter.
-void vtkImageFlip::ComputeOutputImageInformation(vtkImageRegion *inRegion,
-						 vtkImageRegion *outRegion)
+void vtkImageFlip::ExecuteImageInformation(vtkImageCache *in,
+					   vtkImageCache *out)
 {
-  int min, max;
+  int idx, axis, extent[8], temp;
 
   if ( ! this->PreserveImageExtent)
     {
-    inRegion->GetImageExtent(min ,max);
-    outRegion->SetImageExtent(-max, -min);
+    in->GetWholeExtent(extent);
+    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
+      {
+      axis = this->FilteredAxes[idx];
+      temp = extent[axis*2];
+      extent[axis*2] = -extent[axis*2+1];
+      extent[axis*2+1] = -temp;
+      }
+    out->SetWholeExtent(extent);
     }
 }
-
 
 //----------------------------------------------------------------------------
 // Description:
 // What input should be requested.
-void vtkImageFlip::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-						    vtkImageRegion *inRegion)
+void vtkImageFlip::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
+						    vtkImageCache *in)
 {
-  int min, max;
-  int imageMin, imageMax;
+  int idx, axis, extent[8], temp, sum;
+  int *wholeExtent;
   
-  outRegion->GetExtent(min, max);
-  outRegion->GetImageExtent(imageMin, imageMax);
-  if (this->PreserveImageExtent)
+  in = in;
+  
+  out->GetUpdateExtent(extent);
+  wholeExtent = out->GetWholeExtent();
+  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
-    inRegion->SetExtent(-max+imageMax+imageMin, -min+imageMax+imageMin);
+    axis = this->FilteredAxes[idx];
+    if (this->PreserveImageExtent)
+      {
+      temp = extent[axis*2];
+      sum = wholeExtent[axis*2] + wholeExtent[axis*2+1];
+      extent[axis*2] = -extent[axis*2+1]+sum;
+      extent[axis*2+1] = -temp+sum;
+      }
+    else
+      {
+      temp = extent[axis*2];
+      extent[axis*2] = -extent[axis*2+1];
+      extent[axis*2+1] = -temp;
+      }
     }
-  else
-    {
-    inRegion->SetExtent(-max, -min);
-    }
+  
 }
 
 
@@ -96,35 +121,72 @@ template <class IT, class OT>
 static void vtkImageFlipExecute(vtkImageFlip *self,
 			 vtkImageRegion *inRegion, IT *inPtr,
 			 vtkImageRegion *outRegion, OT *outPtr){
-  int min0, max0, min1, max1;
-  int idx0, idx1;
-  int inInc0, inInc1;
-  int outInc0, outInc1;
-  IT  *inPtr0, *inPtr1;
-  OT  *outPtr0, *outPtr1;
+  int min0, max0, min1, max1, min2, max2, min3, max3;
+  int idx0, idx1, idx2, idx3;
+  int inInc0, inInc1, inInc2, inInc3;
+  int outInc0, outInc1, outInc2, outInc3;
+  IT  *inPtr0, *inPtr1, *inPtr2, *inPtr3;
+  OT  *outPtr0, *outPtr1, *outPtr2, *outPtr3;
 
   self = self;
   outPtr = outPtr;
   
   // Get information to march through data 
-  inRegion->GetIncrements(inInc0, inInc1);
-  outRegion->GetIncrements(outInc0, outInc1);
-  outRegion->GetExtent(min0, max0, min1, max1);
+  inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
+  outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
+  outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
 
-  // Loop through ouput pixels
-  inPtr1 = inPtr;
-  outPtr1 = (OT *)(outRegion->GetScalarPointer(max0, min1));
-  for (idx1 = min1; idx1 <= max1; ++idx1){
-    outPtr0 = outPtr1;
-    inPtr0 = inPtr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0){
-        *outPtr0 = (OT)(*inPtr0);
-        outPtr0 -= outInc0;
-        inPtr0  += inInc0;
+  if (self->GetNumberOfFilteredAxes() > 0)
+    {
+    outPtr += (max0 - min0) * outInc0;
+    outInc0 = -outInc0;
     }
-    outPtr1 += outInc1;
-    inPtr1 += inInc1;
-  }
+  if (self->GetNumberOfFilteredAxes() > 1)
+    {
+    outPtr += (max1 - min1) * outInc1;
+    outInc1 = -outInc1;
+    }
+  if (self->GetNumberOfFilteredAxes() > 2)
+    {
+    outPtr += (max2 - min2) * outInc2;
+    outInc2 = -outInc2;
+    }
+  if (self->GetNumberOfFilteredAxes() > 3)
+    {
+    outPtr += (max3 - min3) * outInc3;
+    outInc3 = -outInc3;
+    }
+  
+  // Loop through ouput pixels
+  inPtr3 = inPtr;
+  outPtr3 = outPtr;
+  for (idx3 = min3; idx3 <= max3; ++idx3)
+    {
+    outPtr2 = outPtr3;
+    inPtr2 = inPtr3;
+    for (idx2 = min2; idx2 <= max2; ++idx2)
+      {
+      outPtr1 = outPtr0;
+      inPtr1 = inPtr0;
+      for (idx1 = min1; idx1 <= max1; ++idx1)
+	{
+	outPtr0 = outPtr1;
+	inPtr0 = inPtr1;
+	for (idx0 = min0; idx0 <= max0; ++idx0)
+	  {
+	  *outPtr0 = (OT)(*inPtr0);
+	  outPtr0 += outInc0;
+	  inPtr0  += inInc0;
+	  }
+	outPtr1 += outInc1;
+	inPtr1 += inInc1;
+	}
+      outPtr2 += outInc2;
+      inPtr2 += inInc2;
+      }
+    outPtr3 += outInc3;
+    inPtr3 += inInc3;
+    }
 }
 
 

@@ -57,7 +57,7 @@ vtkImageImport::~vtkImageImport()
 //----------------------------------------------------------------------------
 void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageCachedSource::PrintSelf(os,indent);
+  vtkImageSource::PrintSelf(os,indent);
   os << indent << "DataScalarType: " 
      << vtkImageScalarTypeNameMacro(this->DataScalarType) << "\n";
   os << indent << "Region: (" << this->Region << ")\n";

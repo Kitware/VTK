@@ -50,22 +50,48 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageResample1D::vtkImageResample1D()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS);
+  this->FilteredAxis = VTK_IMAGE_X_AXIS;
+  this->SetExecutionAxes(VTK_IMAGE_X_AXIS);
+  // For better performance, the execute function was written as a 2d.
+  this->NumberOfExecutionAxes = 2;
+  
   this->MagnificationFactor = 1.0;
   this->OutputSpacing = 0.0; // not specified.
-
-  // For better performance, the execute function was written as a 2d.
-  this->ExecuteDimensionality = 2;
 }
 
 
 //----------------------------------------------------------------------------
+void vtkImageResample1D::SetFilteredAxis(int axis)
+{
+  if (axis < 0 || axis > 3)
+    {
+    vtkErrorMacro("SetFilteredAxis: Bad axis " << axis);
+    return;
+    }
+  if (axis != this->FilteredAxis)
+    {
+    this->FilteredAxis = axis;
+    this->Modified();
+    this->SetExecutionAxes(axis);
+    this->NumberOfExecutionAxes = 2;
+    }
+}
+
+  
+//----------------------------------------------------------------------------
 void vtkImageResample1D::SetOutputSpacing(float spacing)
 {
-  this->OutputSpacing = spacing;
-  // Delay computing the magnification factor.
-  // Input might not be set yet.
-  this->MagnificationFactor = 0.0; // Not computed yet.
+  if (this->OutputSpacing != spacing)
+    {
+    this->OutputSpacing = spacing;
+    this->Modified();
+    if (spacing != 0.0)
+      {
+      // Delay computing the magnification factor.
+      // Input might not be set yet.
+      this->MagnificationFactor = 0.0; // Not computed yet.
+      }
+    }
 }
 
 
@@ -82,16 +108,14 @@ float vtkImageResample1D::GetMagnificationFactor()
 {
   if (this->MagnificationFactor == 0.0)
     {
-    vtkImageRegion *region;
     float inputSpacing;
     if ( ! this->Input)
       {
       vtkErrorMacro("GetMagnificationFactor: Input not set.");
       return 0.0;
       }
-    region = vtkImageRegion::New();
-    this->Input->UpdateImageInformation(region);
-    region->GetSpacing(inputSpacing);
+    this->Input->UpdateImageInformation();
+    this->Input->GetAxisSpacing(this->FilteredAxis, inputSpacing);
     this->MagnificationFactor = this->OutputSpacing / inputSpacing;
     }
   
@@ -105,44 +129,48 @@ float vtkImageResample1D::GetMagnificationFactor()
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageResample1D::ComputeRequiredInputRegionExtent(
-					       vtkImageRegion *outRegion,
-					       vtkImageRegion *inRegion)
+void vtkImageResample1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+							  vtkImageCache *in)
 {
-  int extent[2];
+  int min, max;
  
-  outRegion->GetExtent(1, extent);
+  out->GetAxisUpdateExtent(this->FilteredAxis, min, max);
   
-  extent[0] = (int)(floor((float)(extent[0]) /this->GetMagnificationFactor()));
-  extent[1] = (int)(ceil((float)(extent[1]) / this->GetMagnificationFactor()));
+  min = (int)(floor((float)(min) / this->GetMagnificationFactor()));
+  max = (int)(ceil((float)(max) / this->GetMagnificationFactor()));
 
-  inRegion->SetExtent(1, extent);
+  in->SetAxisUpdateExtent(this->FilteredAxis, min, max);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Computes any global image information associated with regions.
-void vtkImageResample1D::ComputeOutputImageInformation(
-		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+void vtkImageResample1D::ExecuteImageInformation(vtkImageCache *in, 
+						 vtkImageCache *out)
 {
-  int imageExtent[2];
+  int wholeMin, wholeMax;
   float spacing;
 
-  inRegion->GetImageExtent(1, imageExtent);
-  inRegion->GetSpacing(spacing);
+  in->GetAxisWholeExtent(this->FilteredAxis, wholeMin, wholeMax);
+  in->GetAxisSpacing(this->FilteredAxis,spacing);
 
   // Scale the output extent
-  imageExtent[0] = (int)(ceil((float)(imageExtent[0]) 
-			      * this->GetMagnificationFactor()));
-  imageExtent[1] = (int)(floor((float)(imageExtent[1]) 
-			       * this->GetMagnificationFactor()));
+  wholeMin = (int)(ceil((float)(wholeMin) * this->GetMagnificationFactor()));
+  wholeMax = (int)(floor((float)(wholeMax) * this->GetMagnificationFactor()));
 
   // Change the data spacing
   spacing /= this->GetMagnificationFactor();
 
-  outRegion->SetImageExtent(1, imageExtent);
-  outRegion->SetSpacing(spacing);
+  out->SetAxisWholeExtent(this->FilteredAxis, wholeMin, wholeMax);
+  out->SetAxisSpacing(this->FilteredAxis, spacing);
+  
+  // just in case  the input spacing has changed.
+  if (this->OutputSpacing != 0.0)
+    {
+    // Cause MagnificationFactor to recompute.
+    this->MagnificationFactor = 0.0;
+    }
 }
 
 

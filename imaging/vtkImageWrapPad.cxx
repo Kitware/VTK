@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageWrapPad.h"
 
 
@@ -49,24 +50,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageWrapPad::vtkImageWrapPad()
 {
   // execute function handles four axes.
-  this->ExecuteDimensionality = 4;
+  this->NumberOfExecutionAxes = 4;
 }
 
 
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void 
-vtkImageWrapPad::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-						  vtkImageRegion *inRegion)
+void vtkImageWrapPad::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+						       vtkImageCache *in)
 {
   int idx;
   int extent[8];
   int min, max, width, imageMin, imageMax, imageWidth;
-  int *imageExtent;
+  int *wholeExtent;
   
-  outRegion->GetExtent(VTK_IMAGE_DIMENSIONS, extent);
-  imageExtent = inRegion->GetImageExtent();
+  out->GetUpdateExtent(extent);
+  wholeExtent = in->GetWholeExtent();
 
   // Clip
   for (idx = 0; idx < 4; ++idx)
@@ -74,8 +74,8 @@ vtkImageWrapPad::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
     min = extent[idx * 2];
     max = extent[idx * 2 + 1];
     width = max - min + 1;
-    imageMin = imageExtent[idx * 2];
-    imageMax = imageExtent[idx * 2 + 1];
+    imageMin = wholeExtent[idx * 2];
+    imageMax = wholeExtent[idx * 2 + 1];
     imageWidth = imageMax - imageMin + 1;
     
     // convert min max to image extent range.
@@ -98,7 +98,7 @@ vtkImageWrapPad::ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
     extent[idx * 2 + 1] = max;
     }
   
-  inRegion->SetExtent(4, extent);
+  in->SetUpdateExtent(extent);
 }
 
 
@@ -128,7 +128,7 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
-  inRegion->GetImageExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
+  inRegion->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
 			   imageMin2, imageMax2, imageMin3, imageMax3);
   outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
   outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);

@@ -57,6 +57,7 @@ public:
   vtkImageMagnify1D();
   static vtkImageMagnify1D *New() {return new vtkImageMagnify1D;};
   const char *GetClassName() {return "vtkImageMagnify1D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the convolution axis.
@@ -69,14 +70,17 @@ public:
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
   
+  // Description:
+  // Specify which axis to magnify
+  void SetFilteredAxis(int axis);
+  int GetFilteredAxis() {return this->FilteredAxes[0];}
+  
 protected:
   int MagnificationFactor;
   int Interpolate;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 

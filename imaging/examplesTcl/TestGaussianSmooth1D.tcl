@@ -1,23 +1,9 @@
 catch {load vtktcl}
 # This script is for testing the 1d Gaussian Smooth filter.
 
-
+source vtkImageInclude.tcl
 
 set sliceNumber 22
-
-set VTK_FLOAT              1
-set VTK_INT                2
-set VTK_SHORT              3
-set VTK_UNSIGNED_SHORT     4
-set VTK_UNSIGNED_CHAR      5
-
-set VTK_IMAGE_X_AXIS             0
-set VTK_IMAGE_Y_AXIS             1
-set VTK_IMAGE_Z_AXIS             2
-set VTK_IMAGE_TIME_AXIS          3
-set VTK_IMAGE_COMPONENT_AXIS     4
-
-
 
 
 # Image pipeline
@@ -29,20 +15,21 @@ reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetDataMask 0x7fff
 
-vtkImageGaussianSmooth smooth
-smooth SetDimensionality 1
+vtkImageGaussianSmooth1D smooth
 smooth SetInput [reader GetOutput]
+smooth SetStride 2
 smooth SetStandardDeviation 6
+smooth SetFilteredAxis $VTK_IMAGE_Y_AXIS
 smooth SetRadiusFactor 1.5
 smooth ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [smooth GetOutput]
-viewer SetCoordinate2 $sliceNumber
-viewer SetColorWindow 2000
-viewer SetColorLevel 1000
+viewer SetZSlice $sliceNumber
+viewer SetColorWindow 1200
+viewer SetColorLevel 600
+viewer SetOriginLocationToUpperLeft
 viewer Render
 
 
@@ -56,15 +43,16 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1
 label .wl.f1.windowLabel -text Window
-scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 3000 -orient horizontal -command SetWindow \
+  -variable window
 frame .wl.f2
 label .wl.f2.levelLabel -text Level
 scale .wl.f2.level -from 1 -to 1500 -orient horizontal -command SetLevel
-checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
+checkbutton .wl.video -text "Inverse Video" -command SetInverseVideo
 
 
-.wl.f1.window set 2000
-.wl.f2.level set 1000
+.wl.f1.window set 1200
+.wl.f2.level set 600
 
 
 pack .slice .wl -side left
@@ -78,7 +66,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber
+   viewer SetZSlice $sliceNumber
    viewer Render
 }
 
@@ -86,13 +74,17 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber
+   viewer SetZSlice $sliceNumber
    viewer Render
 }
 
 proc SetWindow window {
-   global viewer
-   viewer SetColorWindow $window
+   global viewer video
+   if {$video} {
+      viewer SetColorWindow [expr -$window]
+   } else {
+      viewer SetColorWindow $window
+   }
    viewer Render
 }
 
@@ -103,21 +95,14 @@ proc SetLevel level {
 }
 
 proc SetInverseVideo {} {
-   global viewer
-   if { $inverseVideo == 0 } {
-      viewer SetWindow -255
+   global viewer video window
+   if {$video} {
+      viewer SetColorWindow [expr -$window]
    } else {
-      viewer SetWindow 255
-   }		
+      viewer SetColorWindow $window
+   }
    viewer Render
 }
-
-
-
-
-
-#$renWin Render
-#wm withdraw .
 
 
 

@@ -43,58 +43,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFFT::vtkImageFFT()
 {
-  // To avoid compiler warnings
-  _vtkImageComplexMultiplyTemp.Real = 0.0;
+  int idx;
+  vtkImageFFT1D *filter;
+
+  for (idx = 0; idx < 4; ++idx)
+    {
+    filter = vtkImageFFT1D::New();
+    this->Filters[idx] = filter;
+    filter->SetFilteredAxis(idx);
+    }
+  // Let the superclass set some superclass variables of the filters.
+  this->InitializeFilters();
+
+  // Default 2D fft.
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method sets up multiple RFFT filters
-void vtkImageFFT::SetDimensionality(int num)
-{
-  int idx, idx2;
-  int splitOrder[VTK_IMAGE_DIMENSIONS];
-  int *axes;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many filters.");
-    return;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    // GetRid of old filters
-    if (this->Filters[idx])
-      {
-      this->Filters[idx]->Delete();
-      }
-    // Create new filters
-    this->Filters[idx] = vtkImageFFT1D::New();
-    this->Filters[idx]->SetAxes(this->Axes[idx]);
-    // Splitting the principle axis will do no good (reverse order).
-    axes = this->Filters[idx]->GetAxes();
-    for (idx2 = 0; idx2 < VTK_IMAGE_DIMENSIONS; ++idx2)
-      {
-      splitOrder[idx2] = axes[VTK_IMAGE_DIMENSIONS - idx2 - 1];
-      }
-    this->Filters[idx]->SetSplitOrder(VTK_IMAGE_DIMENSIONS, splitOrder);
-    }
-  
-  this->Dimensionality = num;
-  this->Modified();
-  
-  // If the input has already been set, set the pipelines input.
-  if (this->Input)
-    {
-    this->SetInternalInput(this->Input);
-    }
-}
-
-
-
 
 
 

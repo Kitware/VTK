@@ -50,10 +50,9 @@ vtkImageShiftScale::vtkImageShiftScale()
 {
   this->Shift = 0.0;
   this->Scale = 1.0;
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 
   // For better performance, the execute function was written as a 2d.
-  this->ExecuteDimensionality = 2;
+  this->NumberOfExecutionAxes = 2;
 }
 
 

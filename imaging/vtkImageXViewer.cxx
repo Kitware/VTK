@@ -340,18 +340,21 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
 }
 
 //----------------------------------------------------------------------------
-// Maybe we should cache the dataOut! (MTime)
-void vtkImageXViewer::Render(void)
+// Expects region to be X, Y, components
+void vtkImageXViewer::RenderRegion(vtkImageRegion *region)
 {
-  int extent[8];
-  int *imageExtent;
   int width, height;
   int size;
   unsigned char *dataOut;
-  vtkImageRegion *region;
   void *ptr0, *ptr1, *ptr2;
+  int extent[6];
   
-  if ( ! this->Input)
+  // Compute the displayed size
+  region->GetExtent(3, extent);
+  width = (extent[1] - extent[0] + 1);
+  height = (extent[3] - extent[2] + 1);
+
+  if ( ! region)
     {
     // open the window anyhow if not yet open
     // use default size if not specified
@@ -367,79 +370,11 @@ void vtkImageXViewer::Render(void)
 	this->Size[0] = 256;
 	this->Size[1] = 256;
 	}
-      this->SetWindow(this->MakeDefaultWindow(this->Size[0],this->Size[1]));
+      this->SetWindow(this->MakeDefaultWindow(this->Size[0] + this->XOffset,
+					      this->Size[1] + this->YOffset));
       }
-    vtkDebugMacro(<< "Render: Please Set the input.");
     return;
     }
-
-  this->Input->UpdateImageInformation(&(this->Region));
-  imageExtent = this->Region.GetImageExtent();
-  
-  // determine the Extent of the 2D input region needed
-  if (this->WholeImage)
-    {
-    this->Region.GetImageExtent(2, extent);
-    }
-  else
-    {
-    this->Region.GetExtent(2, extent);
-    }
-  
-  if (this->ColorFlag)
-    {
-    extent[4] = extent[5] = this->Red;
-    if (this->Green < extent[4]) extent[4] = this->Green;
-    if (this->Green > extent[5]) extent[5] = this->Green;
-    if (this->Blue < extent[4]) extent[4] = this->Blue;
-    if (this->Blue > extent[5]) extent[5] = this->Blue;
-    }
-  else
-    {
-    // Make sure the requested  image is in the range.
-    if (this->Coordinate2 < imageExtent[4])
-      {
-      extent[4] = extent[5] = imageExtent[4];
-      }
-    else if (this->Coordinate2 > imageExtent[5])
-      {
-      extent[4] = extent[5] = imageExtent[5];
-      }
-    else
-      {
-      extent[4] = extent[5] = this->Coordinate2;
-      }
-    }
-
-  // Make sure the requested  image is in the range.
-  if (this->Coordinate3 < imageExtent[6])
-    {
-    extent[6] = extent[6] = imageExtent[6];
-    }
-  else if (this->Coordinate3 > imageExtent[7])
-    {
-    extent[6] = extent[7] = imageExtent[7];
-    }
-  else
-    {
-    extent[6] = extent[7] = this->Coordinate3;
-    }
-  
-  // Get the region form the input
-  region = vtkImageRegion::New();
-  region->SetAxes(this->Region.GetAxes());
-  region->SetExtent(4, extent);
-  this->Input->Update(region);
-  if ( ! region->AreScalarsAllocated())
-    {
-    vtkErrorMacro(<< "View: Could not get region from input.");
-    region->Delete();
-    return;
-    }
-
-  // allocate the display data array.
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
 
   // In case a window has not been set.
   if ( ! this->WindowId)
@@ -472,15 +407,21 @@ void vtkImageXViewer::Render(void)
       }
     if (this->GetOriginLocation() == VTK_IMAGE_VIEWER_UPPER_LEFT)
       {
-      ptr0 = region->GetScalarPointer(extent[0], extent[2], this->Red);
-      ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
-      ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
+      ptr0 = region->GetScalarPointer(extent[0], extent[2], 
+				      this->RedComponent);
+      ptr1 = region->GetScalarPointer(extent[0], extent[2], 
+				      this->GreenComponent);
+      ptr2 = region->GetScalarPointer(extent[0], extent[2], 
+				      this->BlueComponent);
       }
     else
       {
-      ptr0 = region->GetScalarPointer(extent[0], extent[3], this->Red);
-      ptr1 = region->GetScalarPointer(extent[0], extent[3], this->Green);
-      ptr2 = region->GetScalarPointer(extent[0], extent[3], this->Blue);
+      ptr0 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->RedComponent);
+      ptr1 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->GreenComponent);
+      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->BlueComponent);
       }
     
     if ( ! ptr0 ||! ptr1 || ! ptr2)
@@ -557,7 +498,6 @@ void vtkImageXViewer::Render(void)
   
   delete dataOut;	 
   XFree(this->Image);
-  region->Delete();
 }
 
 
@@ -775,37 +715,18 @@ Colormap vtkImageXViewer::GetDesiredColormap ()
 //----------------------------------------------------------------------------
 int vtkImageXViewer::GetWindow() 
 {
-  int extent[8];
-  int width, height;
-  
   if ( this->WindowId)
     {
     return (int)(this->WindowId);
     }
   
-  // In case a window has not been set.
-  if ( ! this->Input)
+  if (this->Size[0] == 0 )
     {
-    return (int)(NULL);
+    this->Size[0] = 256;
+    this->Size[1] = 256;
     }
-
-  // determine the Extent of the input region to be displayed
-  if (this->WholeImage)
-    {
-    this->Input->UpdateImageInformation(&(this->Region));
-    this->Region.GetImageExtent(2, extent);
-    }
-  else
-    {
-    this->Region.GetExtent(2, extent);
-    }
-  
-  // allocate the display data array.
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
-
-  this->SetWindow(this->MakeDefaultWindow(width + this->XOffset,
-					  height + this->YOffset));
+  this->SetWindow(this->MakeDefaultWindow(this->Size[0] + this->XOffset,
+					  this->Size[1] + this->YOffset));
   this->Modified();
 
   return (int)(this->WindowId);
@@ -1069,7 +990,7 @@ float vtkImageXViewer::GetColorShift()
 // Support for the templated function.
 float vtkImageXViewer::GetColorScale()
 {
-  return (float)(this->NumberOfColors - 1) / this->ColorWindow;
+  return 255.0 / this->ColorWindow;
 }
 
 

@@ -52,7 +52,7 @@ vtkImageMatte::vtkImageMatte()
   // Or have execute recursion termination depend on something else.
   this->SetBorderWidths(1, 1);
   this->SetBorderValue(0.0);
-  this->ExecuteDimensionality = VTK_IMAGE_DIMENSIONS;
+  this->NumberOfExecutionAxes = VTK_IMAGE_DIMENSIONS;
 }
 
 

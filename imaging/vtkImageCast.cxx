@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageCast.h"
 
 //----------------------------------------------------------------------------
@@ -46,8 +47,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor sets default values
 vtkImageCast::vtkImageCast()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-  this->ExecuteDimensionality = 2;
+  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// The update method first checks to see is a cast is necessary.
+void vtkImageCast::Update()
+{
+  
+  if (! this->Input || ! this->Output)
+    {
+    vtkErrorMacro("Update: Input or output is not set.");
+    return;
+    }
+  
+  // Do the scalar types already match
+  if (this->Input->GetScalarType() == this->Output->GetScalarType())
+    {
+    int bypassSave = this->Bypass;
+    // just copy by reference. (use Bypass)
+    vtkDebugMacro("Update: Cast is not necessary.");
+    this->Bypass = 1;
+    this->vtkImageFilter::Update();
+    this->Bypass = bypassSave;
+    return;
+    }
+  
+  // call the superclass update which will cause an execute.
+  vtkDebugMacro("Update: Casting to type "
+		<< vtkImageScalarTypeNameMacro(this->Output->GetScalarType()));
+  this->vtkImageFilter::Update();
 }
 
 //----------------------------------------------------------------------------
@@ -55,8 +86,9 @@ vtkImageCast::vtkImageCast()
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageCastExecute(vtkImageCast *self,
-			      vtkImageRegion *inRegion, IT *inPtr,
-			      vtkImageRegion *outRegion, OT *outPtr){
+				vtkImageRegion *inRegion, IT *inPtr,
+				vtkImageRegion *outRegion, OT *outPtr)
+{
   int min0, max0, min1, max1;
   int idx0, idx1;
   int inInc0, inInc1;
@@ -74,14 +106,16 @@ static void vtkImageCastExecute(vtkImageCast *self,
   // Loop through ouput pixels
   inPtr1 = inPtr;
   outPtr1 = outPtr;
-  for (idx1 = min1; idx1 <= max1; ++idx1){
+  for (idx1 = min1; idx1 <= max1; ++idx1)
+    {
     outPtr0 = outPtr1;
     inPtr0 = inPtr1;
-    for (idx0 = min0; idx0 <= max0; ++idx0){
-        *outPtr0 = (OT)(*inPtr0);
-        outPtr0 += outInc0;
-        inPtr0  += inInc0;
-    }
+    for (idx0 = min0; idx0 <= max0; ++idx0)
+      {
+      *outPtr0 = (OT)(*inPtr0);
+      outPtr0 += outInc0;
+      inPtr0  += inInc0;
+      }
     outPtr1 += outInc1;
     inPtr1 += inInc1;
   }
@@ -129,19 +163,19 @@ static void vtkImageCastExecute(vtkImageCast *self,
     }
 }
 
+
+
+
 //----------------------------------------------------------------------------
 // Description:
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageCast::Execute(vtkImageRegion *inRegion, 
-				vtkImageRegion *outRegion) {
+void vtkImageCast::Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+{
   void *inPtr = inRegion->GetScalarPointer();
   
-  vtkDebugMacro(<< "Execute: inRegion = " << *inRegion 
-		<< ", outRegion = " << *outRegion);
-
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedian.h
+  Module:    vtkImageFourierCenter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,50 +38,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageMedian - Median Filter
-// .SECTION Description
-// vtkImageMedian a Median filter that replaces each pixel with the 
-// median value from a square neighborhood around that pixel.
-// Neighborhoods can be no more than 3 dimensional.
+#include "vtkImageFourierCenter.h"
 
-
-#ifndef __vtkImageMedian_h
-#define __vtkImageMedian_h
-
-
-#include "vtkImageSpatialFilter.h"
-
-class VTK_EXPORT vtkImageMedian : public vtkImageSpatialFilter
+//----------------------------------------------------------------------------
+vtkImageFourierCenter::vtkImageFourierCenter()
 {
-public:
-  vtkImageMedian();
-  ~vtkImageMedian();
-  static vtkImageMedian *New() {return new vtkImageMedian;};
-  const char *GetClassName() {return "vtkImageMedian";};
+  int idx;
+  vtkImageFourierCenter1D *filter;
 
-  // Set/Get the size of the neighood.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize,int);
-  
-  void ClearMedian();
-  void AccumulateMedian(double val);
-  double GetMedian();
-  
-protected:
-  // stuff for sorting the pixels
-  int NumNeighborhood;
-  double *Sort;
-  double *Median;
-  int UpMax;
-  int DownMax;
-  int UpNum;
-  int DownNum;
+  for (idx = 0; idx < 4; ++idx)
+    {
+    filter = vtkImageFourierCenter1D::New();
+    this->Filters[idx] = filter;
+    filter->SetFilteredAxis(idx);
+    }
+  // Let the superclass set some superclass variables of the filters.
+  this->InitializeFilters();
 
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-
-};
-
-#endif
+  // Default 2D FourierCenter.
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+}
 
 
 

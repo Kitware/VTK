@@ -55,7 +55,7 @@ vtkImageMIPFilter::vtkImageMIPFilter()
   this->MIPX = 0; this->MIPY = 0; this->MIPZ = 1;
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
 
-  this->ExecuteDimensionality = 3;
+  this->NumberOfExecutionAxes = 3;
 }
 
 //----------------------------------------------------------------------------

@@ -46,10 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageArithmetic::vtkImageArithmetic()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->SetExecutionAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->Operator = VTK_SUBTRACT;
-  
-  this->ExecuteDimensionality = 2;
 }
 
 

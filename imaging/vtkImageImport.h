@@ -47,12 +47,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageImport_h
 #define __vtkImageImport_h
 
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
 #include "vtkImageRegion.h"
 #include "vtkImageExport.h"
 
 
-class VTK_EXPORT vtkImageImport : public vtkImageCachedSource
+class VTK_EXPORT vtkImageImport : public vtkImageSource
 {
 public:
   vtkImageImport();

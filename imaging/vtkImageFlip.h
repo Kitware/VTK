@@ -40,10 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageFlip - 
 // .SECTION Description
-// vtkImageFlip produces a mirror image of the input.  The image is flipped
-// over axis0.  The Origin is not changed, min0 and max0 of extent are
+// vtkImageFlip will reflect the data over all of the filtered axes.
+// The Origin and Spacing are not changed, min0 and max0 of extent are
 // negated, and are swapped.  If PreserveImageExtent is "On", then the 
-// image is shifted so that it has the same image extent.
+// image is shifted so that it has the same image extent.  
+// The default preserves the extent of the input.
 
 #ifndef __vtkImageFlip_h
 #define __vtkImageFlip_h
@@ -59,6 +60,11 @@ public:
   const char *GetClassName() {return "vtkImageFlip";};
 
   // Description:
+  // Specify which axes will be flipped.
+  void SetFilteredAxes(int num, int *axes);
+  vtkImageSetMacro(FilteredAxes, int);
+  
+  // Description:
   // If PreseveImageExtent is off, then extent of axis0 is simply
   // multiplied by -1.  If it is on, then the new image min (-imageMax0)
   // is shifted to old image min (imageMin0).
@@ -69,10 +75,8 @@ public:
 protected:
   int PreserveImageExtent;
   
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

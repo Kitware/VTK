@@ -41,10 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageDecomposedFilter - Contains multiple 1d filters.
 // .SECTION Description
 // vtkImageDecomposedFilter is a super class for filters that break
-// their Nd processing into three 1d steps.  They contain a sub pipeline
-// that contains multiple 1d filters in series.  It is important to 
-// "SetDimensionality" before the method "GetOutput" is called.
-
+// their Nd processing into 1d steps.  They contain a sub pipeline
+// that contains multiple 1d filters in series.  
 
 #ifndef __vtkImageDecomposedFilter_h
 #define __vtkImageDecomposedFilter_h
@@ -60,42 +58,33 @@ public:
   const char *GetClassName() {return "vtkImageDecomposedFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Forward Object messages to all fitlers
   void DebugOn();
   void Modified();
-  // Foward Source messages to last filter
   void SetCache(vtkImageCache *cache);
-  vtkImageCache *GetCache();
-  void SetReleaseDataFlag(int flag);
-  vtkImageCache *GetOutput();
-  unsigned long GetPipelineMTime();
-  // Foward filter messages to first fitler
   void SetInput(vtkImageCache *Input);
-  void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+  //  void SetInput(vtkStructuredPoints *spts)
+  //    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   // Input memory limit causes streaming
   void SetInputMemoryLimit(long limit);
-  
-  
-  // Description:
-  // Set the axes of the filter. This also tells the filter how many 
-  // 1D filters should be created.
-  void SetAxes(int num, int *axes);
-  
-  // Description:
-  // This function must be implemented by the subclass to create
-  // the sub filters.
-  virtual void SetDimensionality(int num) = 0;
 
-  void Update();
+  void SetFilteredAxes(int num, int *axes);
+  vtkImageSetMacro(FilteredAxes, int);
+
+  // Description:
+  // Legacy compatability.
+  void SetDimensionality(int dim) 
+    {this->SetFilteredAxes(dim, this->FilteredAxes);}
   
+  void Update();
   void SetStartMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
   
 protected:
-  vtkImageFilter *Filters[VTK_IMAGE_DIMENSIONS];
-
+  vtkImageFilter *Filters[4];
+  
+  void InitializeFilters();
   void SetInternalInput(vtkImageCache *Input);
+  void DeleteFilters();
 };
 
 

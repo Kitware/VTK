@@ -66,15 +66,17 @@ public:
   // Set the desired Spacing of the output.
   // Zero is a special value indicating the value has not been set.
   void SetOutputSpacing(float spacing);
+
+  void SetFilteredAxis(int axis);
   
 protected:
+  int FilteredAxis;
   float MagnificationFactor;
   float OutputSpacing;
   
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+					vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 

@@ -71,7 +71,10 @@ public:
 
   // Description:
   // This filter handles different strides to shrink the output.
-  void SetStride(int stride){ this->Strides[0] = stride; this->Modified();};
+  void SetStride(int s);
+
+  void SetFilteredAxis(int axis);
+  int GetFilteredAxis() {return this->FilteredAxes[0];}
   
   // users shouldn't access these directly but templated functions need to
   float *Kernel;
@@ -81,7 +84,6 @@ public:
 protected:
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  
 };
 
 #endif

@@ -48,8 +48,7 @@ vtkImageDecomposedFilter::vtkImageDecomposedFilter()
 {
   int idx;
 
-  this->Dimensionality = 0;
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
     this->Filters[idx] = NULL;
     }
@@ -61,27 +60,18 @@ vtkImageDecomposedFilter::vtkImageDecomposedFilter()
 // Destructor: Delete the sub filters.
 vtkImageDecomposedFilter::~vtkImageDecomposedFilter()
 {
-  int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    if (this->Filters[idx])
-      {
-      this->Filters[idx]->Delete();
-      this->Filters[idx] = NULL;
-      }
-    }
+  this->DeleteFilters();
 }
 
 
 
 //----------------------------------------------------------------------------
-void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
+void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent) {
   int idx;
   
   vtkImageFilter::PrintSelf(os,indent);
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+
+  for (idx = 0; idx < 4; ++idx)
     {
     if (this->Filters[idx])
       {
@@ -93,11 +83,30 @@ void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent)
       os << indent << "Filter" << idx << ": NULL\n";
       }
     }
-  
 }
 
-
-
+//----------------------------------------------------------------------------
+void vtkImageDecomposedFilter::DeleteFilters()
+{
+  int idx;
+  vtkImageFilter *lastFilter = this->Filters[this->NumberOfFilteredAxes];
+  
+  // Don't delete the cache if it is ours.
+  if (lastFilter && (lastFilter->GetOutput() == this->GetOutput()))
+    {
+    lastFilter->SetCache(NULL);
+    this->GetOutput()->SetSource(this);
+    }
+  
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if (this->Filters[idx])
+      {
+      this->Filters[idx]->Delete();
+      this->Filters[idx] = NULL;
+      }
+    }
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -107,7 +116,7 @@ void vtkImageDecomposedFilter::DebugOn()
   int idx;
   
   this->vtkObject::DebugOn();
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
     if (this->Filters[idx])
       {
@@ -126,7 +135,7 @@ void vtkImageDecomposedFilter::Modified()
   int idx;
   
   this->vtkObject::Modified();
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
     if (this->Filters[idx])
       {
@@ -141,18 +150,77 @@ void vtkImageDecomposedFilter::Modified()
 // Set the Input of the filter.
 void vtkImageDecomposedFilter::SetInput(vtkImageCache *input)
 {
+  if (this->Input == input)
+    {
+    return;
+    }
+  
   this->Input = input;
   this->Modified();
   vtkDebugMacro(<< "SetInput: " << input->GetClassName()
-		<< " (" << input << ")");
+     << " (" << input << ")");
 
-  if (this->Filters[0])
+  this->SetInternalInput(input);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// By specifying which axes are filtered, you are really just
+// setting the Bypass flag of the four (one for each axis) filters.
+void vtkImageDecomposedFilter::SetFilteredAxes(int num, int *axes)
+{
+  int idxFilter, idxAxis, flag;
+  
+  this->vtkImageFilter::SetFilteredAxes(num, axes);
+  for (idxFilter = 0; idxFilter < 4; ++idxFilter)
     {
-    this->SetInternalInput(input);
+    // should this filter be on?
+    flag = 1;
+    for (idxAxis = 0; idxAxis < num; ++idxAxis)
+      {
+      if (axes[idxAxis] == idxFilter)
+	{
+	flag = 0;
+	}
+      }
+    this->Filters[idxFilter]->SetBypass(flag);
     }
 }
 
 
+
+//----------------------------------------------------------------------------
+// Description:
+// Called after the filters have been created by the subclass.
+// This method sets some generic ivars, and connect the filters
+// together.
+void vtkImageDecomposedFilter::InitializeFilters()
+{
+  int idx;
+  
+  // Set ivars
+  for (idx = 0; idx < 4; ++idx)
+    {
+    if ( ! this->Filters[idx])
+      {
+      vtkErrorMacro("Filters not created");
+      return;
+      }
+    this->Filters[idx]->SetInputMemoryLimit(this->GetInputMemoryLimit());
+    }
+  
+  // set the output of the last filter. 
+  if (this->GetOutput())
+    {
+    this->Filters[3]->SetCache(this->GetOutput());
+    this->GetOutput()->SetSource(this->Filters[3]);
+    }
+}
+
+  
+  
 //----------------------------------------------------------------------------
 // Description:
 // Set the Input of the sub pipeline.
@@ -174,7 +242,7 @@ void vtkImageDecomposedFilter::SetInternalInput(vtkImageCache *input)
   // Connect all the filters
   // This is conditional on having the input because
   // the OutputScalarTypes are computed when the pipeline is connected.
-  for (idx = 1; idx < this->Dimensionality; ++idx)
+  for (idx = 1; idx < 4; ++idx)
     {
     if ( ! this->Filters[idx])
       {
@@ -193,47 +261,16 @@ void vtkImageDecomposedFilter::SetInputMemoryLimit(long limit)
 {
   int idx;
   
-  for (idx = 0; idx < this->Dimensionality; ++idx)
-    {
-    if ( ! this->Filters[idx])
-      {
-      vtkErrorMacro(<< "SetInputMemoryLimit: Sub filter not created yet. "
-		    << "Subclasses SetDimensionality did not work");
-      return;
-      }
-    this->Filters[idx]->SetInputMemoryLimit(limit);
-    }
-  
-  this->Modified();
-}
-
-
-
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Set the plane of the smoothing.
-void vtkImageDecomposedFilter::SetAxes(int num, int *axes)
-{
-  int idx;
-  
-  this->vtkImageFilter::SetAxes(num, axes);
-  for (idx = 0; idx < num; ++idx)
+  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
     if (this->Filters[idx])
       {
-      this->Filters[idx]->SetAxes(axes[idx]);
+      this->Filters[idx]->SetInputMemoryLimit(limit);
       }
     }
+  
   this->Modified();
 }
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -243,57 +280,13 @@ void vtkImageDecomposedFilter::SetCache(vtkImageCache *cache)
 {
   vtkDebugMacro(<< "SetCache: (" << cache << ")");
   
-  if ( ! this->Filters[this->Dimensionality - 1])
+  if (this->Filters[this->NumberOfFilteredAxes - 1])
     {
-    vtkErrorMacro(<< "SetCache: Sub filter not created yet. "
-		  << "SetDimensionality first");
-    return;
+    this->Filters[this->NumberOfFilteredAxes - 1]->SetCache(cache);
     }
-  
-  this->Filters[this->Dimensionality - 1]->SetCache(cache);
+  this->vtkImageFilter::SetCache(cache);
 }
   
-//----------------------------------------------------------------------------
-// Description:
-// This method tells the last filter to save or release its output.
-void vtkImageDecomposedFilter::SetReleaseDataFlag(int flag)
-{
-  if ( ! this->Filters[this->Dimensionality - 1])
-    {
-    vtkErrorMacro(<< "SetReleaseDataFlag: Sub filter not created yet. "
-		  << "SetDimensionality first.");
-    return;
-    }
-  
-  this->Filters[this->Dimensionality - 1]->SetReleaseDataFlag(flag);
-}
-  
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method returns the cache to make a connection
-// It justs feeds the request to the sub filter.
-vtkImageCache *vtkImageDecomposedFilter::GetOutput()
-{
-  vtkImageCache *source;
-
-  if ( ! this->Filters[this->Dimensionality - 1])
-    {
-    vtkErrorMacro(<< "GetOutput: Sub filter not created yet. "
-		  << "SetDimensionality first");
-    return NULL;
-    }
-  
-  source = this->Filters[this->Dimensionality - 1]->GetOutput();
-
-  vtkDebugMacro(<< "GetOutput: returning source "
-                << source->GetClassName() << " (" << source << ")");
-
-  return source;
-}
-  
-
 //----------------------------------------------------------------------------
 // Description:
 // Causes the filter to execute, and put its results in cache.
@@ -301,12 +294,12 @@ void vtkImageDecomposedFilter::Update()
 {
   vtkImageCache *cache;
   
-  if (this->Dimensionality == 0)
+  if (this->NumberOfFilteredAxes == 0)
     {
-    vtkErrorMacro("Update: Dimensionality not set.");
+    vtkErrorMacro("Update: NumberOfFilteredAxes not set.");
     return;
     }
-  if (this->Filters[this->Dimensionality - 1] == NULL)
+  if (this->Filters[this->NumberOfFilteredAxes - 1] == NULL)
     {
     vtkErrorMacro("Update: Last filter not created");
     return;
@@ -315,49 +308,11 @@ void vtkImageDecomposedFilter::Update()
   cache = this->GetOutput();
   if (cache == NULL)
     {
-    vtkErrorMacro("Update: Dimensionality not set.");
+    vtkErrorMacro("Update: NumberOfFilteredAxes not set.");
     return;
     }
   
   cache->Update();
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method returns the l;ast cache of the internal pipline.
-vtkImageCache *vtkImageDecomposedFilter::GetCache()
-{
-  return (vtkImageCache *)(this->GetOutput());
-}
-  
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This Method returns the MTime of the pipeline before this filter.
-// It propagates the message back.
-unsigned long int vtkImageDecomposedFilter::GetPipelineMTime()
-{
-  unsigned long int time1, time2;
-
-  // This objects MTime
-  time1 = this->GetMTime();
-
-  if ( ! this->Filters[this->Dimensionality - 1])
-    {
-    vtkWarningMacro(<< "GetPipelineMTime: Sub filter not created yet. "
-		    << "SetDimensionality first");
-    }
-  else
-    {
-    time2 = this->Filters[this->Dimensionality - 1]->GetPipelineMTime();
-    // Return the larger of the two
-    if (time2 > time1)
-      time1 = time2;
-    }
-  
-  return time1;
 }
 
 
@@ -390,16 +345,16 @@ void vtkImageDecomposedFilter::SetEndMethod(void (*f)(void *), void *arg)
 {
   if ( f != this->EndMethod || arg != this->EndMethodArg )
     {
-    // delete the current arg if there is one and a delete meth
+    // delete the current arg if there is one and a delete method
     if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
       {
       (*this->EndMethodArgDelete)(this->EndMethodArg);
       }
     this->EndMethod = f;
     this->EndMethodArg = arg;
-    if (this->Filters[this->Dimensionality - 1])
+    if (this->Filters[this->NumberOfFilteredAxes - 1])
       {
-      this->Filters[this->Dimensionality - 1]->SetEndMethod(f, arg);
+      this->Filters[this->NumberOfFilteredAxes - 1]->SetEndMethod(f, arg);
       }
     this->Modified();
     }

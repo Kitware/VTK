@@ -59,29 +59,15 @@ public:
   static vtkImageFFT1D *New() {return new vtkImageFFT1D;};
   const char *GetClassName() {return "vtkImageFFT1D";};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  void SetFilteredAxis(int axis);
+  vtkGetMacro(FilteredAxis,int);
   
-  void SetAxes(int axis);
-  void InterceptCacheUpdate(vtkImageRegion *region);
-
-  // Description:
-  // Tell the filter which input component is real and which is imaginary.
-  // If imaginary is out of the image extent, it is ignored.
-  vtkSetMacro(InputRealComponent, int);
-  vtkGetMacro(InputRealComponent, int);
-  vtkSetMacro(InputImaginaryComponent, int);
-  vtkGetMacro(InputImaginaryComponent, int);
-
-  // which input components are real and which are imaginary.
-  // Public for templated function.
-  int InputRealComponent;
-  int InputImaginaryComponent;
-
 protected:
-    
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  int FilteredAxis;
+  
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

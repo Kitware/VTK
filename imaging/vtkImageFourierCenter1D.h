@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFourierBandPass.h
+  Module:    vtkImageFourierCenter1D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,59 +38,46 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageFourierBandPass - Simple frequency domain band pass.
+// .NAME vtkImageFourierCenter1D - Shifts constant frequency to center for
+// display.
 // .SECTION Description
-// vtkImageFourierBandPass just sets a portion of the image to zero.
-// Input and Output must be floats.  Dimensionality is set when the
-// axes are set.  Defaults to 2D on X and Y axes.
+// Is used for dispaying images in frequency space.  FFT converts spatial
+// images into ferequency space, but puts the zero frequency at the origin.
+// This filter shifts the zero frequency to the center of the image.
+// Input and output are assumed to be floats.
+
+#ifndef __vtkImageFourierCenter1D_h
+#define __vtkImageFourierCenter1D_h
 
 
+#include "vtkImageFourierFilter.h"
 
-#ifndef __vtkImageFourierBandPass_h
-#define __vtkImageFourierBandPass_h
-
-
-#include "vtkImageFilter.h"
-
-class VTK_EXPORT vtkImageFourierBandPass : public vtkImageFilter
+class VTK_EXPORT vtkImageFourierCenter1D : public vtkImageFourierFilter
 {
 public:
-  vtkImageFourierBandPass();
-  static vtkImageFourierBandPass *New() {return new vtkImageFourierBandPass;};
-  const char *GetClassName() {return "vtkImageFourierBandPass";};
+  vtkImageFourierCenter1D();
+  static vtkImageFourierCenter1D *New() {return new vtkImageFourierCenter1D;};
+  const char *GetClassName() {return "vtkImageFourierCenter1D";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Setting the Axes specifies the dimensionality of the bandpass.
-  // ComponentAxis should not be included.  It is taken care of by this
-  // filter already.
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes,int);
-  
-  void InterceptCacheUpdate(vtkImageRegion *region);
-  
-  // Description:
-  // Set/Get the band to pass for each axis.
-  // The components axis is ignored as if it does not exist.
-  // Units: Cyles per world unit (as defined by the data spacing).
-  void SetLowPass(int num, float *lowPass);
-  vtkImageSetMacro(LowPass, float);
-  void GetLowPass(int num, float *lowPass);
-  vtkImageGetMacro(LowPass, float);
-  float *GetLowPass() {return this->LowPass;};  
-  void SetHighPass(int num, float *highPass);
-  vtkImageSetMacro(HighPass, float);
-  void GetHighPass(int num, float *highPass);
-  vtkImageGetMacro(HighPass, float);
-  float *GetHighPass() {return this->HighPass;};  
+  void SetFilteredAxis(int axis);
+  vtkGetMacro(FilteredAxis,int);
   
 protected:
-  float LowPass[VTK_IMAGE_DIMENSIONS];
-  float HighPass[VTK_IMAGE_DIMENSIONS];
+  int FilteredAxis;
   
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 
 #endif
+
+
+
+
+
+
+
 
 
 

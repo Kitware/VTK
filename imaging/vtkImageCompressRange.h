@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDivergence.h
+  Module:    vtkImageCompressRange.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -32,42 +32,40 @@ EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
 BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE, AND -INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDivergence - Scalar field from vector field.
+// .NAME vtkImageCompressRange - Reduces range of positive pixel values.
 // .SECTION Description
-// vtkImageDivergence takes a vector field from a surface detection
-// filter (i.e. Gradient) and creates a scalar field which 
-// which represents the rate of change of the vector field.
+// vtkImageCompressRange passes each pixel through the function
+// c*log(1+x).  It also handles negative values with the function
+// -c*log(1-x).
 
 
 
+#ifndef __vtkImageCompressRange_h
+#define __vtkImageCompressRange_h
 
-#ifndef __vtkImageDivergence_h
-#define __vtkImageDivergence_h
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageDivergence : public vtkImageFilter
+class VTK_EXPORT vtkImageCompressRange : public vtkImageFilter
 {
 public:
-  vtkImageDivergence();
-  static vtkImageDivergence *New() {return new vtkImageDivergence;};
-  const char *GetClassName() {return "vtkImageDivergence";};
+  vtkImageCompressRange();
+  static vtkImageCompressRange *New() {return new vtkImageCompressRange;};
+  const char *GetClassName() {return "vtkImageCompressRange";};
+
+  vtkSetMacro(Constant,float);
+  vtkGetMacro(Constant,float);
   
 protected:
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion);
+  float Constant;
+  
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeMagnitudes(vtkImageRegion *vector, vtkImageRegion *magnitude);
-  void ComputeDerivatives(vtkImageRegion *vector, vtkImageRegion *magnitude,
-			  vtkImageRegion *derivative);
 };
 
 #endif

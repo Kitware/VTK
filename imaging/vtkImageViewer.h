@@ -44,7 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageViewer  is a generic viewer superclass.  The "New" method
 // creates a viewer of the correct type.  Viewer have a coordinate system
 // measured in pixels, and does not consider "Spacing" when displaying 
-// an image.
+// an image.  The viewer can display color stored as RGB in the scalars
+// components.  The components used for the RGB values can be specified,
+// but default to 0, 1, 2.
 
 #ifndef __vtkImageViewer_h
 #define __vtkImageViewer_h
@@ -56,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkImageCache.h"
 #include "vtkImageRegion.h"
-#include "vtkStructuredPointsToImage.h"
+//#include "vtkStructuredPointsToImage.h"
 
 // For placement of origin in the viewer.
 #define VTK_IMAGE_VIEWER_UPPER_LEFT 0
@@ -66,6 +68,7 @@ class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:
   vtkImageViewer();
   ~vtkImageViewer();
+  static vtkImageViewer *New();
   const char *GetClassName() {return "vtkImageViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -73,13 +76,10 @@ public:
   // Get name of rendering window
   vtkGetStringMacro(WindowName);
 
+  void Render(void);
   // Description:
-  // Object factory for this class.
-  static vtkImageViewer *New();
-
-  // Description:
-  // Subclass must define this method.
-  virtual void Render(void) {};
+  // Subclass must define these methods.
+  virtual void RenderRegion(vtkImageRegion *region) {region = region;};
   
   // Description:
   // Set/Get the position of the origin in the viewer.
@@ -94,50 +94,30 @@ public:
   // Set/Get the input to the viewer.
   vtkSetObjectMacro(Input,vtkImageCache);
   vtkGetObjectMacro(Input,vtkImageCache);
-  void SetInput(vtkStructuredPoints *spts)
-    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
+  //  void SetInput(vtkStructuredPoints *spts)
+  //    {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
   // Description:
-  // Display the wole image or just the region specified by extent.
-  vtkSetMacro(WholeImage,int);
-  vtkGetMacro(WholeImage,int);
-  vtkBooleanMacro(WholeImage,int);
+  // Methods used to specify the region to be displayed.
+  // The actual extent displayed is clipped by the "WholeExtent".
+  vtkSetVector4Macro(DisplayExtent, int);
+  vtkGetVector4Macro(DisplayExtent, int);  
+  vtkSetMacro(ZSlice, int);
+  vtkGetMacro(ZSlice, int);
+  vtkSetMacro(TimeSlice, int);
+  vtkGetMacro(TimeSlice, int);
   
   // Description:
-  // Messages that get forwarded to this viewers "Region".
-  void SetExtent(int *extent)
-  {this->Region.SetExtent(2,extent); this->Modified(); this->WholeImageOff();};
-  void SetExtent(int min0, int max0, int min1, int max1)
-  {this->Region.SetExtent(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
-  int *GetExtent(){return this->Region.GetExtent();};
-  void GetExtent(int *extent){this->Region.GetExtent(2,extent);};
-  void GetExtent(int &min0,int &max0,int &min1,int &max1)
-  {this->Region.GetExtent(min0,max0,min1,max1);};
-
-  // Description:
-  // Coordinate2 and Coordiante3 specify which 2d image to show.
-  vtkSetMacro(Coordinate2,int);
-  vtkGetMacro(Coordinate2,int);
-  vtkSetMacro(Coordinate3,int);
-  vtkGetMacro(Coordinate3,int);
-  
-  // Description:
-  // Sets The coordinate system of the displayed region.  The first
-  // Two dimensions are the ones displayed.  The others are provided
-  // to set default values (i.e. slice of a volume.
-  void SetAxes(int axis0, int axis1)
-  {this->Region.SetAxes(axis0,axis1); this->Modified();};
-  void SetAxes(int axis0, int axis1, int axis2)
-  {this->Region.SetAxes(axis0,axis1,axis2); this->Modified();};
-  void SetAxes(int axis0, int axis1, int axis2, int axis3)
-  {this->Region.SetAxes(axis0,axis1,axis2,axis3); this->Modified();};
+  // Legacy compatability
+  void SetCoordinate2(int c) {this->SetZSlice(c);}
+  void SetCoordinate3(int c) {this->SetTimeSlice(c);}
 
   // Description:
   // Sets window/level for mapping pixels to colors.
-  vtkSetMacro(ColorWindow,float);
-  vtkGetMacro(ColorWindow,float);
-  vtkSetMacro(ColorLevel,float);
-  vtkGetMacro(ColorLevel,float);
+  vtkSetMacro(ColorWindow, float);
+  vtkGetMacro(ColorWindow, float);
+  vtkSetMacro(ColorLevel, float);
+  vtkGetMacro(ColorLevel, float);
 
   // Description:
   // Turn color interpretation on/off.
@@ -146,12 +126,12 @@ public:
   vtkBooleanMacro(ColorFlag, int);
   // Description:
   // Which components should be used for RGB.
-  vtkSetMacro(Red, int);
-  vtkGetMacro(Red, int);
-  vtkSetMacro(Green, int);
-  vtkGetMacro(Green, int);
-  vtkSetMacro(Blue, int);
-  vtkGetMacro(Blue, int);
+  vtkSetMacro(RedComponent, int);
+  vtkGetMacro(RedComponent, int);
+  vtkSetMacro(GreenComponent, int);
+  vtkGetMacro(GreenComponent, int);
+  vtkSetMacro(BlueComponent, int);
+  vtkGetMacro(BlueComponent, int);
   
   // Description:
   // Set/Get the upper left location of the viewer in the window.
@@ -173,7 +153,8 @@ public:
   vtkBooleanMacro(Mapped,int);
 
   // Description:
-  // By default this is a color viewer. GrayScaleHintOn will improve the appearance
+  // By default this is a color viewer. 
+  // GrayScaleHintOn will improve the appearance
   // of gray scale images on some systems.
   vtkSetMacro(GrayScaleHint,int);
   vtkGetMacro(GrayScaleHint,int);
@@ -190,28 +171,38 @@ public:
   virtual int *GetSize() {return (int *)NULL;};
   virtual void SetSize(int,int) {};
   virtual void SetSize(int a[2]);
+  
+  // Description:
+  // The viewer implements a permutation before the image
+  // is displayed.  (Do we really want this?  Is the speed up worth it?)
+  vtkSetVector4Macro(PermutationAxes, int);
+  vtkGetVector4Macro(PermutationAxes, int);
 
 protected:
   // Placement of origin that determines orientation of image in viewer.
   int OriginLocation;
   // location of upper left corner in window.
-  int                  XOffset;
-  int                  YOffset;
+  int XOffset;
+  int YOffset;
+  
   int Mapped;
   vtkImageCache *Input;
-  int WholeImage;
-  // Contains the extent of the region to be displayed.
-  vtkImageRegion Region;
-  int Coordinate2;
-  int Coordinate3;  
+  // Contains the extent of the region to be displayed (X and Y axes).
+  int DisplayExtent[4];
+  int ZSlice;
+  int TimeSlice;
+  // The viewer can do a permutation before the image is rendered.
+  int PermutationAxes[4];
+  
   // For converting image pixels to X pixels.
   float ColorWindow;
   float ColorLevel;
+  
   // Stuff for mapping color (i.e. Components to RGB)
   int ColorFlag;
-  int Red;
-  int Green;
-  int Blue;
+  int RedComponent;
+  int GreenComponent;
+  int BlueComponent;
   char *WindowName;
   int Size[2];
   int Position[2];

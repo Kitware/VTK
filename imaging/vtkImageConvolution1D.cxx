@@ -48,12 +48,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageConvolution1D::vtkImageConvolution1D()
 {
   this->Kernel = NULL;
-  this->SetAxes(VTK_IMAGE_X_AXIS);
   this->BoundaryRescale = 1;
-  this->HandleBoundariesOn();
+  this->HandleBoundaries = 1;
 
   // Poor performance, but simple implementation.
-  this->ExecuteDimensionality = 1;
+  this->SetFilteredAxis(VTK_IMAGE_X_AXIS);
 }
 
 
@@ -83,6 +82,35 @@ void vtkImageConvolution1D::PrintSelf(ostream& os, vtkIndent indent)
     os << ")\n";
     }
 }
+
+//----------------------------------------------------------------------------
+// Description:
+// This method Sets the Stride of the convolution axis.
+void vtkImageConvolution1D::SetStride(int stride)
+{
+  if (this->Strides[0] != stride)
+    {
+    this->Strides[0] = stride;
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Which axis will be operated on.
+void vtkImageConvolution1D::SetFilteredAxis(int axis)
+{
+  if (axis < 0 || axis > 3)
+    {
+    vtkErrorMacro("SetFilteredAxis: Bad axis: " << axis);
+    return;
+    }
+  
+  // Tell the supper class which axes to loop over
+  this->vtkImageSpatialFilter::SetFilteredAxes(1, &axis);
+  // Super class handles modified.
+}
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -263,13 +291,13 @@ static void vtkImageConvolution1DExecute(vtkImageConvolution1D *self,
   // Get information about kernel.
   kernelMiddle = self->KernelMiddle[0];
   kernelSize = self->KernelSize[0];
+  stride = self->Strides[0];
   
   // Get information to march through data 
   inRegion->GetIncrements(inInc);
   inRegion->GetExtent(inMin, inMax);  
   outRegion->GetIncrements(outInc);  
-  outRegion->GetExtent(outMin, outMax);  
-  stride = self->Strides[0];
+  outRegion->GetExtent(outMin, outMax);
 
   // Input pointer should correspond to the output pixel.
   inPtr = (T *)(inRegion->GetScalarPointer(outMin*stride));

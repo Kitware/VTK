@@ -59,8 +59,6 @@ public:
   static vtkImageRFFT *New() {return new vtkImageRFFT;};
   const char *GetClassName() {return "vtkImageRFFT";};
 
-  void SetDimensionality(int num);
-
 protected:
 };
 

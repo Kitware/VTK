@@ -55,7 +55,7 @@ vtkImageSeriesReader::vtkImageSeriesReader()
   this->First = 1;
   this->FileDimensionality = 2;
 
-  this->ExecuteDimensionality = 5;
+  this->NumberOfExecutionAxes = 5;
 }
 
 //----------------------------------------------------------------------------

@@ -59,12 +59,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageTwoOutputFilter_h
 
 
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
+#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 class vtkImageRegion;
 class vtkImageCache;
 
-class VTK_EXPORT vtkImageTwoOutputFilter : public vtkImageCachedSource
+class VTK_EXPORT vtkImageTwoOutputFilter : public vtkImageSource
 {
 public:
   vtkImageTwoOutputFilter();
@@ -76,8 +77,8 @@ public:
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
-  void Update(vtkImageRegion *outRegion);
-  void UpdateImageInformation(vtkImageRegion *region);
+  void Update();
+  void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
   // Description:
@@ -86,28 +87,47 @@ public:
 
   // Description:
   // Get the two outputs.
-  vtkImageCache *GetOutput0(){return this->GetOutput();}
-  vtkImageCache *GetOutput1();
+  vtkImageCache *GetOutput1(){return this->GetOutput();}
+  vtkImageCache *GetOutput2();
+
+  // Description:
+  // Filtered axes specify the axes which will be operated on.
+  vtkGetMacro(NumberOfFilteredAxes, int);
+
+  // Description:
+  // Turning bypass on will cause the filter to turn off and
+  // simply pass the data through.  This functionality is implemented
+  // for consistancey with vtkImageFilter.
+  vtkSetMacro(Bypass,int);
+  vtkGetMacro(Bypass,int);
+  vtkBooleanMacro(Bypass,int);
   
 protected:
+  int FilteredAxes[4];
+  int NumberOfFilteredAxes;
   vtkImageCache *Input;     
-  // Ouput0 is the same as Output
-  vtkImageCache *Output1;
+  // Ouput1 is the same as Output
+  vtkImageCache *Output2;
+  int Bypass;
   
   void SetReleaseDataFlag(int value);
   
-  virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-					     vtkImageRegion *outRegion);
-  virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-						vtkImageRegion *inRegion);
+  virtual void SetFilteredAxes(int num, int *axes);
+  virtual void ExecuteImageInformation(vtkImageCache *in,
+				       vtkImageCache *out1,
+				       vtkImageCache *out2);
+  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out1,
+						vtkImageCache *out2,
+						vtkImageCache *in);
 
   virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
-				    vtkImageRegion *outRegion0, 
-				    vtkImageRegion *outRegion1);
+				    vtkImageRegion *outRegion1, 
+				    vtkImageRegion *outRegion2);
   virtual void Execute(vtkImageRegion *inRegion, 
-		       vtkImageRegion *outRegion0, vtkImageRegion *outRegion1);
+		       vtkImageRegion *outRegion1, 
+		       vtkImageRegion *outRegion2);
 
-  virtual void CheckCache1();
+  virtual void CheckCache2();
 };
 
 #endif

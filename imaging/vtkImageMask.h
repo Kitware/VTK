@@ -43,9 +43,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkImageMask combines a mask with an image.  Non zero mask
 // implies the output pixel will be the same as the image.
 // If a mask pixel is zero,  the the output pixel
-// is set to "MaskedValue".
-// The two inputs should have the same image extent.
-// The mask input should be usigned char, and the image scalar type
+// is set to "MaskedValue".  The filter also has the option to pass
+// the mask through a boolean not operation before processing the image.
+// This reverses the passed and replaced pixels.
+// The two inputs should have the same "WholeExtent".
+// The mask input should be unsigned char, and the image scalar type
 // is the same as the output scalar type.
 
 
@@ -63,18 +65,27 @@ public:
   const char *GetClassName() {return "vtkImageMask";};
 
   // Description:
-  // SetGet the MaskedValue.  This is the value of the output
-  // when the mask is Masked.
-  vtkSetMacro(MaskedValue, float);
-  vtkGetMacro(MaskedValue, float);
+  // SetGet the value of the output pixel replaced by mask.
+  vtkSetMacro(MaskedOutputValue, float);
+  vtkGetMacro(MaskedOutputValue, float);
 
   void SetImageInput(vtkImageCache *in) {this->SetInput1(in);}
   void SetImageInput(vtkStructuredPoints *in) {this->SetInput1(in);}
   void SetMaskInput(vtkImageCache *in) {this->SetInput2(in);}
   void SetMaskInput(vtkStructuredPoints *in) {this->SetInput2(in);}
   
+  // Description:
+  // When Nopt Mask is on, the mask is passed through a boolean not
+  // before it is used to mask the image.  The effect is to pass the
+  // pixels where the input mask is zero, and replace the pixels
+  // where the input value is non zero.
+  vtkSetMacro(NotMask,int);
+  vtkGetMacro(NotMask,int);
+  vtkBooleanMacro(NotMask, int);
+  
 protected:
-  float MaskedValue;
+  float MaskedOutputValue;
+  int NotMask;
   
   void Execute(vtkImageRegion *inRegion1, 
 	       vtkImageRegion *inRegion2, 

@@ -58,7 +58,8 @@ class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageFilter
 {
 public:
   vtkImageGradientMagnitude();
-  static vtkImageGradientMagnitude *New() {return new vtkImageGradientMagnitude;};
+  static vtkImageGradientMagnitude *New() 
+    {return new vtkImageGradientMagnitude;};
   const char *GetClassName() {return "vtkImageGradientMagnitude";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
@@ -71,17 +72,14 @@ public:
 
   // Description:
   // Determines how the input is interpreted (set of 2d slices ...)
-  vtkSetMacro(Dimensionality, int);
-  vtkGetMacro(Dimensionality, int);
+  void SetFilteredAxes(int num, int *axes);
+  vtkImageSetMacro(FilteredAxes, int);
   
 protected:
   int HandleBoundaries;
-  int Dimensionality;
   
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };

@@ -53,13 +53,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetAreaThreshold(4);
   this->SquareNeighborhoodOff();
   this->SetReplaceValue(255);
   this->SetIslandValue(0);
-
-  this->ExecuteDimensionality = 2;
+  
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
 }
 
 //----------------------------------------------------------------------------
@@ -80,23 +79,33 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
   
 }
 
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageIslandRemoval2D::SetFilteredAxes(int axis0, int axis1)
+{
+  int axes[2];
+
+  axes[0] = axis0;
+  axes[1] = axis1;
+  this->vtkImageFilter::SetFilteredAxes(2, axes);
+}
+
+
+
 //----------------------------------------------------------------------------
 // Description:
 // Intercepts the caches Update to make the region larger than requested.
 // The whole image is generated when any region is requested.
-void vtkImageIslandRemoval2D::InterceptCacheUpdate(vtkImageRegion *region)
+void vtkImageIslandRemoval2D::InterceptCacheUpdate(vtkImageCache *out)
 {
-  int extent[4];
+  int min, max;
 
-  if ( ! this->Input)
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
-  
-  this->Input->UpdateImageInformation(region);
-  region->GetImageExtent(2, extent);
-  region->SetExtent(2, extent);
+  out->GetAxisWholeExtent(this->FilteredAxes[0], min ,max);
+  out->SetAxisUpdateExtent(this->FilteredAxes[0], min ,max);
+  out->GetAxisWholeExtent(this->FilteredAxes[1], min ,max);
+  out->SetAxisUpdateExtent(this->FilteredAxes[1], min ,max);
 }
 
 
@@ -415,7 +424,7 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 	      }
 	    }
 	  
-	  // Change don't knows to keep value
+	  // Change "don't knows" to keep value
 	  nextPixel = pixels;
 	  for (nextPixelIdx = 0; nextPixelIdx < numPixels; ++nextPixelIdx)
 	    {

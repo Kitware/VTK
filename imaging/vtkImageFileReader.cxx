@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageFileReader::vtkImageFileReader()
 {
-  this->ExecuteDimensionality = 4;
+  this->NumberOfExecutionAxes = 4;
 }
 
 //----------------------------------------------------------------------------

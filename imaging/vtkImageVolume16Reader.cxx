@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageVolume16Reader.h"
 
 
@@ -75,9 +76,9 @@ void vtkImageVolume16Reader::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method computes ImageExtent (the largest region that can be generated),
+// This method computes WholeExtent (the largest region that can be generated),
 // Spacing and Origin.
-void vtkImageVolume16Reader::UpdateImageInformation(vtkImageRegion *region)
+void vtkImageVolume16Reader::UpdateImageInformation()
 {
   int idx;
   int dataAxes[3];
@@ -86,18 +87,15 @@ void vtkImageVolume16Reader::UpdateImageInformation(vtkImageRegion *region)
   
   // Set the axes from the transform
   this->ComputeTransformedDataAxes(dataAxes);
-  this->SetAxes(3, dataAxes);
+  this->SetExecutionAxes(3, dataAxes);
+  this->NumberOfExecutionAxes = 5;
 
   // Set the flips (Note: "this" is in data coordinate system now)
   this->ComputeTransformedDataFlips(dataFlips);
   this->SetFlips(3, dataFlips);
 
-  // Convert region into data coordinate system.
-  region->SetAxes(3, dataAxes);
-  // Set the spacing (positive)
-  region->SetSpacing(3, this->DataSpacing);
-  // Set the ImageExtent
-  region->SetImageExtent(3, this->DataExtent);
+  this->Output->SetAxesSpacing(3, dataAxes, this->DataSpacing);
+  this->Output->SetAxesWholeExtent(3, dataAxes, this->DataExtent);
   
   // Shift the Origin to account for any flips
   for (idx = 0; idx < 3; ++idx)
@@ -112,7 +110,7 @@ void vtkImageVolume16Reader::UpdateImageInformation(vtkImageRegion *region)
       origin[idx] = this->DataOrigin[idx];
       }
     }
-  region->SetOrigin(3, origin);
+  this->Output->SetAxesOrigin(3, dataAxes, origin);
 }
 
 

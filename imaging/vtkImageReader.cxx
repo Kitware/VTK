@@ -55,8 +55,8 @@ vtkImageReader::vtkImageReader()
   // Output should default to the same scalar type as file data.
   this->SetOutputScalarType(VTK_SHORT);
   
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
-		VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
+  this->SetDataMemoryOrder(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS,
+			   VTK_IMAGE_Z_AXIS);
 
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
@@ -160,7 +160,7 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageCachedSource::PrintSelf(os,indent);
+  vtkImageSource::PrintSelf(os,indent);
   
   if (this->FileName)
     {
@@ -219,14 +219,15 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageReader::SetDataMemoryOrder(int dim, int *axes)
 {
-  this->SetAxes(dim, axes);
-  this->GetAxes(VTK_IMAGE_DIMENSIONS, this->DataMemoryOrder);
+  // SetAxes modifies this object.
+  this->SetExecutionAxes(dim, axes);
+  this->GetExecutionAxes(VTK_IMAGE_DIMENSIONS, this->DataMemoryOrder);
 }
 
 //----------------------------------------------------------------------------
 void vtkImageReader::GetDataMemoryOrder(int dim, int *axes)
 {
-  this->GetAxes(dim, axes);
+  this->GetExecutionAxes(dim, axes);
 }
   
 //----------------------------------------------------------------------------
@@ -258,18 +259,30 @@ void vtkImageReader::GetDataDimensions(int num, int *size)
 //----------------------------------------------------------------------------
 void vtkImageReader::SetDataExtent(int num, int *extent)
 {
-  int idx;
+  int idx, modified = 0;
   
   for (idx = 0; idx < num; ++idx)
     {
-    this->DataExtent[idx*2] = extent[idx*2];
-    this->DataExtent[idx*2+1] = extent[idx*2+1];
+    if (this->DataExtent[idx*2] != extent[idx*2])
+      {
+      this->DataExtent[idx*2] = extent[idx*2];
+      modified = 1;
+      }
+
+    if (this->DataExtent[idx*2+1] != extent[idx*2+1])
+      {
+      this->DataExtent[idx*2+1] = extent[idx*2+1];
+      modified = 1;
+      }
     // Also set the dimensions
     this->DataDimensions[idx] = extent[idx*2+1] - extent[idx*2] + 1;
     }
 
   this->Initialized = 0;
-  this->Modified();
+  if (modified)
+    {
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -331,9 +344,8 @@ void vtkImageReader::GetDataOrigin(int num, float *origin)
 //----------------------------------------------------------------------------
 void vtkImageReader::SetFlips(int num, int *flips)
 {
-  int idx;
+  int idx, modified = 0;
   
-  this->Modified();
   if (num > VTK_IMAGE_DIMENSIONS)
     {
     vtkWarningMacro("SetFlips: " << num << " out of range");
@@ -342,7 +354,15 @@ void vtkImageReader::SetFlips(int num, int *flips)
   
   for (idx = 0; idx < num; ++idx)
     {
-    this->Flips[idx] = flips[idx];
+    if (this->Flips[idx] != flips[idx])
+      {
+      this->Flips[idx] = flips[idx];
+      modified = 1;
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
     }
 }
 
@@ -368,17 +388,18 @@ void vtkImageReader::GetFlips(int num, int *flips)
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
-void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
+void vtkImageReader::UpdateImageInformation()
 {
   int idx;
-  float outOrigin[VTK_IMAGE_DIMENSIONS];
-  
-  region->SetImageExtent(5, this->DataExtent); // One extra for component ?
-  // Flips should change aspect ratio, but VTK cannot handle 
-  // negative aspect ratios.
-  region->SetSpacing(4, this->DataSpacing);
+  float outOrigin[4];
+
+  // Make sure we have an output.
+  this->CheckCache();
+    
+  this->Output->SetAxesWholeExtent(4, this->DataMemoryOrder, this->DataExtent);
+  this->Output->SetAxesSpacing(4, this->DataMemoryOrder, this->DataSpacing);
   // Flips an axis changes the origin.
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
     if ( this->Flips[idx])
       {
@@ -390,7 +411,7 @@ void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
       outOrigin[idx] = this->DataOrigin[idx];
       }
     }
-  region->SetOrigin(4, outOrigin);
+  this->Output->SetAxesOrigin(4, this->DataMemoryOrder, outOrigin);
 }
 
 
@@ -660,7 +681,7 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageRegion *region,
 // templated to handle different data types.
 template <class T>
 static void vtkImageReaderUpdate1(vtkImageReader *self, 
-			   vtkImageRegion *region, T *inPtr)
+				  vtkImageRegion *region, T *inPtr)
 {
   void *outPtr;
 

@@ -40,14 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkImageFilter - Generic filter that has one input..
 // .SECTION Description
-// vtkImageFilter is a filter class that can hide som of the pipeline 
+// vtkImageFilter is a filter class that hides some of the pipeline 
 // complexity.  This super class will loop over extra dimensions so the
 // subclass can deal with simple low dimensional regions.
-// "ComputeRequiredInputExtent(vtkImageRegion *out, *in)" must set the
+// "ComputeRequiredInputExtent(vtkImageCache *out, *in)" must set the
 // extent of in required to compute out. 
 // The advantage of using the execute method is that this super class
 // will automatically break the execution into pieces if the 
-// InputMemroyLimit is violated or the input request fails.
+// InputMemoryLimit is violated.
 // This creates streaming where the pipeline processes images
 // in dynamically sized pieces.
 
@@ -57,12 +57,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageFilter_h
 
 
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
+#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 class vtkImageRegion;
 class vtkImageCache;
 
-class VTK_EXPORT vtkImageFilter : public vtkImageCachedSource
+class VTK_EXPORT vtkImageFilter : public vtkImageSource
 {
 public:
   vtkImageFilter();
@@ -74,8 +75,8 @@ public:
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
-  void Update(vtkImageRegion *outRegion);
-  void UpdateImageInformation(vtkImageRegion *region);
+  void Update();
+  void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
   // Description:
@@ -90,32 +91,38 @@ public:
   // Description:
   // Set/Get the order to split region requests if we need to stream
   void SetSplitOrder(int num, int *axes);
-  vtkImageSetMacro(SplitOrder,int);
+  vtkSetVector4Macro(SplitOrder,int);
   void GetSplitOrder(int num, int *axes);
-  vtkImageGetMacro(SplitOrder,int);
-  int *GetSplitOrder() {return this->SplitOrder;};
+  vtkGetVector4Macro(SplitOrder,int);
 
+  // Description:
+  // Turning bypass on will cause the filter to turn off and
+  // simply pass the data through.  This main purpose for this functionality
+  // is support for vtkImageDecomposedFilter.  InputMemoryLimit is ignored
+  // when Bypass in on.
+  vtkSetMacro(Bypass,int);
+  vtkGetMacro(Bypass,int);
+  vtkBooleanMacro(Bypass,int);
+
+  // Description:
+  // Filtered axes specify the axes which will be operated on.
+  vtkGetMacro(NumberOfFilteredAxes, int);
+  
 protected:
+  int FilteredAxes[4];
+  int NumberOfFilteredAxes;
   vtkImageCache *Input;     
-  
-  int Dimensionality;
-  // This is set in the subclass constructor and (probably) should not be 
-  // changed.  It indicates the dimensionality of the regions the
-  // execute/update methods expect.  It may be larger than dimensionality
-  // to make the filter faster (this supper class is not efficient at
-  // looping over extra dimensions.
-  int ExecuteDimensionality;
-  
+  int Bypass;
   int SplitOrder[VTK_IMAGE_DIMENSIONS];
   int NumberOfSplitAxes;
   long InputMemoryLimit;
   
-  virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-					     vtkImageRegion *outRegion);
-  virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-						vtkImageRegion *inRegion);
-  void RecursiveStreamUpdate(vtkImageRegion *inRegion, 
-			     vtkImageRegion *outRegion);
+  virtual void SetFilteredAxes(int num, int *axes);
+  virtual void ExecuteImageInformation(vtkImageCache *in,
+				       vtkImageCache *out);
+  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+						vtkImageCache *in);
+  void RecursiveStreamUpdate(vtkImageRegion *outRegion);
   virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);

@@ -75,26 +75,14 @@ public:
   const char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Get the stride of the filter.  Strides are like shrink factors.
-  void GetStrides(int num, int *size);
-  vtkImageGetMacro(Strides,int);
-  int *GetStrides() {return this->Strides;};
-  
-  // Description:
-  // Get the Spatial kernel size and middle.
-  void GetKernelSize(int num, int *size);
-  vtkImageGetMacro(KernelSize,int);
-  int *GetKernelSize() {return this->KernelSize;};  
-  void GetKernelMiddle(int num, int *middle);
-  vtkImageGetMacro(KernelMiddle,int);
-  int *GetKernelMiddle() {return this->KernelMiddle;};  
-  // Description:
-  // Set/Get whether use boundary execute method or not (shrink image).
-  vtkSetMacro(HandleBoundaries,int);
-  vtkGetMacro(HandleBoundaries,int);
-  vtkBooleanMacro(HandleBoundaries,int);
-  
+  // users shouldn't access these directly but templated functions need to
+  int   KernelSize[4];
+  int   KernelMiddle[4];      // Index of kernel origin
+  int   Strides[4];      // Shrink factor
+  int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
+  int   ExecuteType;   // Subclasses can use special execute methods.
+
+protected:
   // Description:
   // There are three types of execute methods that can be used by the subclass.
   // "Subclass" is the usual execute method for non spatial filters,
@@ -111,18 +99,12 @@ public:
   void SetExecuteTypeToPixel()
     {this->SetExecuteType(VTK_IMAGE_SPATIAL_PIXEL);}
   
-  // users shouldn't access these directly but templated functions need to
-  int   KernelSize[VTK_IMAGE_DIMENSIONS];
-  int   KernelMiddle[VTK_IMAGE_DIMENSIONS];      // Index of kernel origin
-  int   Strides[VTK_IMAGE_DIMENSIONS];      // Shrink factor
-  int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
-  int   ExecuteType;   // Subclasses can use special execute methods.
-
-protected:
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeOutputWholeExtent(int *extent, int handleBoundaries);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
+  void ComputeRequiredInputRegionExtent(vtkImageRegion *out, 
+					vtkImageRegion *in);
+  void ComputeRequiredInputExtent(int *extent, int *wholeExtent);
   
   void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
 			    vtkImageRegion *outRegion);
@@ -137,7 +119,6 @@ protected:
   virtual void ExecutePixel(vtkImageRegion *inRegion, 
 			    vtkImageRegion *outRegion);  
   
-  void ComputeOutputImageExtent(int *extent, int handleBoundaries);
 
 };
 

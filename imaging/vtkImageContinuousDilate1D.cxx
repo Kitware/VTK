@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageCache.h"
 #include "vtkImageContinuousDilate1D.h"
 
 
@@ -47,35 +48,77 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // By default zero values are dilated.
 vtkImageContinuousDilate1D::vtkImageContinuousDilate1D()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS);
-  this->HandleBoundariesOn();
-
-  // Poor performance, but simple implementation.
-  this->ExecuteDimensionality = 1;
-  this->Dimensionality = 1;
-
-  this->SetStride(1);
-  this->SetKernelSize(1);
+  this->Stride = 1;
+  this->KernelSize = 1;
+  // Execute method hanldes 1 Axis. Poor performance, but simple implementation
+  this->SetFilteredAxis(VTK_IMAGE_X_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the size of the neighborhood.
-void vtkImageContinuousDilate1D::SetKernelSize(int size)
+// Specify which axis to operate on.
+void vtkImageContinuousDilate1D::SetFilteredAxis(int axis)
 {
-  this->KernelSize[0] = size;
-  this->KernelMiddle[0] = size / 2;
+  if (axis < 0 || axis > 3)
+    {
+    vtkErrorMacro("SetFilteredAxis: Bad axis " << axis);
+    return;
+    }
+  
+  this->vtkImageFilter::SetFilteredAxes(1, &axis);
 }
-			     
-			     
+
+
+
 //----------------------------------------------------------------------------
-// Description:
-// This method Does nothing for now.
-void vtkImageContinuousDilate1D::SetStride(int stride)
+void vtkImageContinuousDilate1D::ExecuteImageInformation(vtkImageCache *in, 
+							 vtkImageCache *out)
 {
-  this->Strides[0] = stride;
+  int min, max;
+  float spacing;
+  
+  in->GetAxisWholeExtent(this->FilteredAxes[0], min, max);
+  min = (int)(ceil(((float)min) /((float)this->Stride)));
+  max = (int)(floor((((float)max+1.0) / ((float)this->Stride))-1.0));
+  
+  in->GetAxisSpacing(this->FilteredAxes[0], spacing);
+  out->SetAxisSpacing(this->FilteredAxes[0], spacing * (float)(this->Stride));
 }
+
+  
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate1D::ComputeRequiredInputUpdateExtent(
+					 vtkImageCache *out, vtkImageCache *in)
+{
+  int min, max, mid, wholeMin, wholeMax;
+
+  out->GetAxisUpdateExtent(this->FilteredAxes[0], min, max);
+  out->GetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
+
+  // Magnify by strides
+  min *= this->Stride;
+  max = (max+1)*this->Stride - 1;
+  // Expand to get inRegion Extent
+  mid = (this->KernelSize - 1) / 2;
+  min -= mid;
+  max += (this->KernelSize - 1) - mid;
+  // Clip
+  if (min < wholeMin)
+    {
+    min = wholeMin;
+    }
+  if (max > wholeMax)
+    {
+    max = wholeMax;
+    }
+  
+  in->SetAxisUpdateExtent(this->FilteredAxes[0], min, max);
+}
+
 			     
 			     
 //----------------------------------------------------------------------------
@@ -83,7 +126,7 @@ void vtkImageContinuousDilate1D::SetStride(int stride)
 // This templated function is passed a input and output region, 
 // and executes the dilate algorithm to fill the output from the input.
 // Note that input pixel is offset from output pixel.
-// It also handles ImageExtent by truncating the kernel.  
+// It also handles WholeExtent by truncating the kernel.  
 template <class T>
 static void vtkImageContinuousDilate1DExecute(vtkImageContinuousDilate1D *self,
 			     vtkImageRegion *inRegion, T *inPtr,
@@ -93,49 +136,41 @@ static void vtkImageContinuousDilate1DExecute(vtkImageContinuousDilate1D *self,
   int outMin, outMax;
   int inInc, outInc;
   T *tmpPtr;
-  int cut;
-  int outImageExtentMin, outImageExtentMax;
+  int cut, mid, size;
+  int outWholeExtentMin, outWholeExtentMax;
   
   // Get information to march through data 
   inRegion->GetIncrements(inInc);
   outRegion->GetIncrements(outInc);  
   outRegion->GetExtent(outMin, outMax);  
+  
+  // I do not like this method of boundary cheching !!!!
+  size = self->GetKernelSize();
+  mid = (size - 1) / 2;
 
   // Determine the middle portion of the region 
-  // that does not need ImageExtent handling.
-  outRegion->GetImageExtent(outImageExtentMin, outImageExtentMax);
-  if (self->HandleBoundaries)
-    {
-    outImageExtentMin += self->KernelMiddle[0];
-    outImageExtentMax -= (self->KernelSize[0] - 1) - self->KernelMiddle[0];
-    }
-  else
-    {
-    // just some error checking
-    if (outMin < outImageExtentMin || outMax > outImageExtentMax)
-      {
-      vtkGenericWarningMacro(
-            "vtkImageContinuousDilate1DExecute: Boundaries not handled.");
-      return;
-      }
-    }
-  // Shrink ImageExtent if generated region is smaller
-  outImageExtentMin = outImageExtentMin > outMin ? outImageExtentMin : outMin;
-  outImageExtentMax = outImageExtentMax < outMax ? outImageExtentMax : outMax;
+  // that does not need WholeExtent handling.
+  outRegion->GetWholeExtent(outWholeExtentMin, outWholeExtentMax);
+  outWholeExtentMin += mid;
+  outWholeExtentMax -= (size - 1) - mid;
+
+  // Shrink WholeExtent if generated region is smaller
+  outWholeExtentMin = outWholeExtentMin > outMin ? outWholeExtentMin : outMin;
+  outWholeExtentMax = outWholeExtentMax < outMax ? outWholeExtentMax : outMax;
 
   
   // loop divided into three pieces, so initialize here.
   outIdx = outMin;
 
-  // loop through the ImageExtent pixels on the left.
-  for ( ; outIdx < outImageExtentMin; ++outIdx)
+  // loop through the WholeExtent pixels on the left.
+  for ( ; outIdx < outWholeExtentMin; ++outIdx)
     {
     *outPtr = *inPtr;
     // The number of pixels cut from the kernel
-    cut = (outImageExtentMin - outIdx);
+    cut = (outWholeExtentMin - outIdx);
     // loop over neighborhood pixels
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < size; ++kernelIdx)
       {
       if (*tmpPtr > *outPtr)
 	{
@@ -145,16 +180,16 @@ static void vtkImageContinuousDilate1DExecute(vtkImageContinuousDilate1D *self,
       }
     // increment to next pixel.
     outPtr += outInc;
-    // the input pixel is not being incremented because of ImageExtent.
+    // the input pixel is not being incremented because of WholeExtent.
     }
   
-  // loop through non ImageExtent pixels
-  for ( ; outIdx <= outImageExtentMax; ++outIdx)
+  // loop through non WholeExtent pixels
+  for ( ; outIdx <= outWholeExtentMax; ++outIdx)
     {
     *outPtr = *inPtr;
     // loop for neighborhood
     tmpPtr = inPtr;
-    for (kernelIdx = 0; kernelIdx < self->KernelSize[0]; ++kernelIdx)
+    for (kernelIdx = 0; kernelIdx < size; ++kernelIdx)
       {
       if (*tmpPtr > *outPtr)
 	{
@@ -168,15 +203,15 @@ static void vtkImageContinuousDilate1DExecute(vtkImageContinuousDilate1D *self,
     }
   
   
-  // loop through the ImageExtent pixels on the right.
+  // loop through the WholeExtent pixels on the right.
   for ( ; outIdx <= outMax; ++outIdx)
     {
     *outPtr = *inPtr;
     // The number of pixels cut from the Dilate.
-    cut = (outIdx - outImageExtentMax);
+    cut = (outIdx - outWholeExtentMax);
     // loop for Dilate (sum)
     tmpPtr = inPtr;
-    for (kernelIdx = cut; kernelIdx < self->KernelSize[0]; ++kernelIdx)
+    for (kernelIdx = cut; kernelIdx < size; ++kernelIdx)
       {
       if (*tmpPtr > *outPtr)
 	{
@@ -202,7 +237,7 @@ void vtkImageContinuousDilate1D::Execute(vtkImageRegion *inRegion,
 {
   void *inPtr, *outPtr;
 
-  if (this->Strides[0] != 1)
+  if (this->Stride != 1)
     {
     vtkErrorMacro("Strides not implemented yet.");
     return;

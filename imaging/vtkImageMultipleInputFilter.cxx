@@ -69,12 +69,64 @@ void vtkImageMultipleInputFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageCachedSource::PrintSelf(os,indent);
+  os << indent << "FilteredAxes: ";
+  if (this->NumberOfFilteredAxes == 0)
+    {
+    os << indent << "None\n";
+    }
+  else
+    {
+    os << indent << "(" << vtkImageAxisNameMacro(this->FilteredAxes[0]);
+    for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
+      {
+      os << ", " << vtkImageAxisNameMacro(this->FilteredAxes[idx]);
+      }
+    os << ")\n";
+    }
+  
+  os << indent << "Bypass: " << this->Bypass << "\n";
+  
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     os << indent << "Input " << idx << ": (" << this->Inputs[idx] << ")\n";
     }
+
+  vtkImageSource::PrintSelf(os,indent);
 }
+
+//----------------------------------------------------------------------------
+void vtkImageMultipleInputFilter::SetFilteredAxes(int num, int *axes)
+{
+  int idx;
+  int modified = 0;
+  
+  if (num > 4)
+    {
+    vtkWarningMacro("SetFilteredAxes: Too many axes");
+    num = 4;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    if (this->FilteredAxes[idx] != axes[idx])
+      {
+      modified = 1;
+      this->FilteredAxes[idx] = axes[idx];
+      }
+    }
+  if (num != this->NumberOfFilteredAxes)
+    {
+    modified = 1;
+    this->NumberOfFilteredAxes = num;
+    }
+  
+  if (modified)
+    {
+    this->Modified();
+    this->SetExecutionAxes(num, this->FilteredAxes);
+    }
+}
+
 
 // SGI had problems with new (vtkImageRegion *)[num];
 typedef vtkImageRegion *vtkImageRegionPointer;
@@ -84,6 +136,31 @@ typedef vtkImageCache *vtkImageCachePointer;
 void vtkImageMultipleInputFilter::SetNumberOfInputs(int num)
 {
   int idx;
+  vtkImageCachePointer *inputs;
+  vtkImageRegionPointer *regions;
+
+  // in case nothing has changed.
+  if (num == this->NumberOfInputs)
+    {
+    return;
+    }
+  
+  // Allocate new arrays.
+  inputs = new vtkImageCachePointer[num];
+  regions = new vtkImageRegionPointer[num];
+
+  // Initialize with NULLs.
+  for (idx = 0; idx < num; ++idx)
+    {
+    inputs[idx] = NULL;
+    regions[idx] = NULL;
+    }
+
+  // Copy old inputs
+  for (idx = 0; idx < num && idx < this->NumberOfInputs; ++idx)
+    {
+    inputs[idx] = this->Inputs[idx];
+    }
   
   // delete the previous arrays
   if (this->Inputs)
@@ -94,21 +171,14 @@ void vtkImageMultipleInputFilter::SetNumberOfInputs(int num)
     {
     delete [] this->Regions;
     }
-  // Allocate new arrays.
-  this->Inputs = new vtkImageCachePointer[num];
-  this->Regions = new vtkImageRegionPointer[num];
-  // Initialize with NULLs.
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->Inputs[idx] = NULL;
-    this->Regions[idx] = NULL;
-    }
+  
+  // Set the new arrays
+  this->Inputs = inputs;
+  this->Regions = regions;
   
   this->NumberOfInputs = num;
   this->Modified();
 }
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -126,13 +196,13 @@ unsigned long int vtkImageMultipleInputFilter::GetPipelineMTime()
 
   // This objects MTime
   // (Super class considers cache in case cache did not originate message)
-  time1 = this->vtkImageCachedSource::GetPipelineMTime();
+  time1 = this->vtkImageSource::GetPipelineMTime();
   // Look at input modified times.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     if ( ! this->Inputs[idx])
       {
-      vtkWarningMacro(<< "GetPipelineMTime: Input1 not set.");
+      vtkWarningMacro(<< "GetPipelineMTime: Input " << idx << " not set.");
       time2 = time1;
       }
     else
@@ -153,15 +223,40 @@ unsigned long int vtkImageMultipleInputFilter::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
+// Adds an input to the first null position in the input list.
+// Expands the list memory if necessary
+void vtkImageMultipleInputFilter::AddInput(vtkImageCache *input)
+{
+  int idx;
+  
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx] == NULL)
+      {
+      this->Inputs[idx] = input;
+      return;
+      }
+    }
+  
+  this->SetNumberOfInputs(this->NumberOfInputs + 1);
+  this->Inputs[this->NumberOfInputs - 1] = input;
+}
+
+//----------------------------------------------------------------------------
+// Description:
 // Set an Input of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
 void vtkImageMultipleInputFilter::SetInput(int num, vtkImageCache *input)
 {
-  if (num < 0 || num >= this->NumberOfInputs)
+  if (num < 0)
     {
-    vtkErrorMacro(<< "SetInput: " << num << ", cannot set input. " 
-        << "Try setting NumberOfInputs first.");
+    vtkErrorMacro(<< "SetInput: " << num << ", cannot set input. ");
     return;
+    }
+  // Expand array if necessary.
+  if (num >= this->NumberOfInputs)
+    {
+    this->SetNumberOfInputs(num + 1);
     }
   
   // does this change anything?
@@ -191,26 +286,63 @@ void vtkImageMultipleInputFilter::SetInput(int num, vtkImageCache *input)
 //----------------------------------------------------------------------------
 // Description:
 // Called by cache
-void vtkImageMultipleInputFilter::Update(vtkImageRegion *outRegion)
+void vtkImageMultipleInputFilter::Update()
 {
-  int idx;
+  vtkImageRegion *outRegion;
+  int idx, idx2;
+  
+  // We could handle NULLs in our input list, but ...
+  if ( ! this->Inputs || ! this->Inputs[0])
+    {
+    vtkErrorMacro("Input0 required");
+    return;
+    }
+  
+  // Make sure there is an output.
+  this->CheckCache();
+  
+  // In case this update is called directly.
+  this->UpdateImageInformation();
+  this->Output->ClipUpdateExtentWithWholeExtent();
+  
+  // Handle bypass condition.
+  if (this->Bypass)
+    {
+    this->Inputs[0]->SetUpdateExtent(this->Output->GetUpdateExtent());
+    this->Inputs[0]->Update();
+    this->Output->SetScalarData(this->Inputs[0]->GetScalarData());
+    this->Output->SetNumberOfScalarComponents(
+			      this->Inputs[0]->GetNumberOfScalarComponents());
+    // release input data
+    if (this->Inputs[0]->ShouldIReleaseData())
+      {
+      this->Inputs[0]->ReleaseData();
+      }
+    return;
+    }  
   
   // Make sure the subclss has defined the execute dimensionality
   // It is needed to terminate recursion.
-  if (this->ExecuteDimensionality < 0)
+  if (this->NumberOfExecutionAxes < 0)
     {
-    vtkErrorMacro(<< "Subclass has not set ExecuteDimensionality");
+    vtkErrorMacro(<< "Subclass has not set NumberOfExecutionAxes");
     return;
     }
 
+  // Get the output region.
+  // Note: outRegion does not allocate until first "GetScalarPointer" call
+  outRegion = this->Output->GetScalarRegion();
+  outRegion->SetAxes(5, this->ExecutionAxes);
+  
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())
     {
+    outRegion->Delete();
     return;
     }
     
   // Make sure the Inputs have been set.
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+  for (idx = 1; idx < this->NumberOfInputs; ++idx)
     {
     if ( ! this->Inputs[idx])
       {
@@ -219,66 +351,63 @@ void vtkImageMultipleInputFilter::Update(vtkImageRegion *outRegion)
       }
     }
     
-  // Make the input regions that will be used to generate the output region
-  for (idx = 0; idx < this->NumberOfInputs; ++idx)
-    {
-    this->Regions[idx] = vtkImageRegion::New();
-    // Fill in image information
-    this->Inputs[idx]->UpdateImageInformation(this->Regions[idx]);
-    // Translate to local coordinate system
-    this->Regions[idx]->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
-    // Set the default extents.
-    this->Regions[idx]->SetExtent(VTK_IMAGE_DIMENSIONS, 
-				  outRegion->GetExtent());
-    }
-  // Compute the required input region extent.
+  // Compute the required input region extents.
   // Copy to fill in extent of extra dimensions.
-  this->ComputeRequiredInputRegionExtent(outRegion, this->Regions);
-
-  // Use the input to fill the data of the region.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    this->Inputs[idx]->Update(this->Regions[idx]);
-    // Make sure we actuall got input.
-    if (! this->Regions[idx]->AreScalarsAllocated())
-      {
-      int idx2;
-      // Free regions aquired so far.
-      for (idx2 = 0; idx2 < idx; ++idx)
-	{
-	this->Regions[idx]->Delete();
-	this->Regions[idx] = NULL;
-	}
-      return;
-      }
+    this->Inputs[idx]->SetUpdateExtent(this->Output->GetUpdateExtent());
     }
+  this->ComputeRequiredInputUpdateExtent(this->Output, this->Inputs);
+
+  // ... no streaming implemented yet ...
   
-  // fill the output region 
+  // Get the input regions
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+      this->Inputs[idx]->Update();
+      this->Regions[idx] = this->Inputs[idx]->GetScalarRegion();
+      this->Regions[idx]->SetAxes(5, this->ExecutionAxes);
+      // Make sure we got the input.
+      if ( ! this->Regions[idx]->AreScalarsAllocated())
+	{
+	vtkErrorMacro("Update: Could not get input " << idx);
+	for (idx2 = 0; idx2 <= idx; ++idx2)
+	  {
+	  this->Regions[idx2]->Delete();
+	  this->Regions[idx2] = NULL;
+	  }
+	return;
+	}   
+    }
+
+  // The StartMethod call is placed here to be after updating the input.
   if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+  // fill the output region 
   this->RecursiveLoopExecute(VTK_IMAGE_DIMENSIONS, this->Regions, outRegion);
   if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
   
-  // Save the new region in cache.
-  // I am not happy with the necessity of the call CacheRegion.
-  // Getting the region from the cache originally seems more consistent
-  // and more compatable with the visualization pipeline.
-  this->Output->CacheRegion(outRegion);  
-  
-  // free the input regions
+  // inRegion is just a handle to the data.
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
     this->Regions[idx]->Delete();
     this->Regions[idx] = NULL;
+  
+    // Like the graphics pipeline this source releases inputs data.
+    if (this->Inputs[idx]->ShouldIReleaseData())
+      {
+      this->Inputs[idx]->ReleaseData();
+      }
     }
+  
+  // Delete the container for the data (not the data).
+  outRegion->Delete();
 }
-
 
 //----------------------------------------------------------------------------
 // Description:
 // This method gets the boundary of the inputs then computes and returns 
 // the boundary of the largest region that can be generated. 
-void 
-vtkImageMultipleInputFilter::UpdateImageInformation(vtkImageRegion *outRegion)
+void vtkImageMultipleInputFilter::UpdateImageInformation()
 {
   int idx;
   
@@ -291,25 +420,17 @@ vtkImageMultipleInputFilter::UpdateImageInformation(vtkImageRegion *outRegion)
         << " is not set.");
       return;
       }
+    this->Inputs[idx]->UpdateImageInformation();
     }
 
-  // Use the output for region 1
-  this->Regions[0] = outRegion;
-  this->Inputs[0]->UpdateImageInformation(outRegion);
-  for (idx = 1; idx < this->NumberOfInputs; ++idx)
+  // Set the defaults from input1
+  this->Output->SetWholeExtent(this->Inputs[0]->GetWholeExtent());
+  this->Output->SetSpacing(this->Inputs[0]->GetSpacing());
+  this->Output->SetOrigin(this->Inputs[0]->GetOrigin());
+  if ( ! this->Bypass)
     {
-    this->Regions[idx] = vtkImageRegion::New();
-    this->Inputs[idx]->UpdateImageInformation(this->Regions[idx]);
-    }
-  
-  this->ComputeOutputImageInformation(this->Regions, outRegion);
-  
-  // Delete Regions
-  this->Regions[0] = NULL;
-  for (idx = 1; idx < this->NumberOfInputs; ++idx)
-    {
-    this->Regions[idx]->Delete();
-    this->Regions[idx] = NULL;
+    // Let the subclass modify the default.
+    this->ExecuteImageInformation(this->Inputs, this->Output);
     }
 }
 
@@ -322,14 +443,13 @@ vtkImageMultipleInputFilter::UpdateImageInformation(vtkImageRegion *outRegion)
 // the image information after this filter is finished.
 // outImage is identical to inImage when this method is envoked, and
 // outImage may be the same object as in image.
-void vtkImageMultipleInputFilter::ComputeOutputImageInformation(
-						vtkImageRegion **inRegions,
-						vtkImageRegion *outRegion)
+void vtkImageMultipleInputFilter::ExecuteImageInformation(vtkImageCache **ins,
+							  vtkImageCache *out)
 {
   // Default: Image information does not change (do nothing).
   // Avoid warnings
-  inRegions = inRegions;
-  outRegion = outRegion;
+  ins = ins;
+  out = out;
 }
 
 
@@ -342,18 +462,17 @@ void vtkImageMultipleInputFilter::ComputeOutputImageInformation(
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageMultipleInputFilter::ComputeRequiredInputRegionExtent(
-					       vtkImageRegion *outRegion,
-					       vtkImageRegion **inRegions)
+void vtkImageMultipleInputFilter::ComputeRequiredInputUpdateExtent(
+					       vtkImageCache *out,
+					       vtkImageCache **ins)
 {
   int idx;
   
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    inRegions[idx]->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
+    ins[idx]->SetUpdateExtent(out->GetUpdateExtent());
     }
 }
-
 
 
 
@@ -365,7 +484,7 @@ void vtkImageMultipleInputFilter::RecursiveLoopExecute(int dim,
 		       vtkImageRegion **inRegions, vtkImageRegion *outRegion)
 {
   // Terminate recursion?
-  if (dim <= this->ExecuteDimensionality)
+  if (dim <= this->NumberOfExecutionAxes)
     {
     this->Execute(inRegions, outRegion);
     return;
@@ -378,11 +497,12 @@ void vtkImageMultipleInputFilter::RecursiveLoopExecute(int dim,
     int idx;
     
     // Get the extent of the forth dimension to be eliminated.
-    axis = this->Axes[dim - 1];
+    axis = this->ExecutionAxes[dim - 1];
     inRegions[0]->GetAxisExtent(axis, inMin, inMax);
     outRegion->GetAxisExtent(axis, outMin, outMax);
     
     // Extra axis of in and out must have the same extent
+    // NOTE: Only Checking the first input...
     if (inMin != outMin || inMax != outMax)
       {
       vtkErrorMacro(<< "Execute: Extra axis can not be eliminated.");

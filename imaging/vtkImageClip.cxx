@@ -50,13 +50,13 @@ vtkImageClip::vtkImageClip()
 
   this->Initialized = 0;
   this->Input = NULL;
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->Automatic = 0;
-  for (idx = 0; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
-    this->OutputImageExtent[idx] = 0;
+    this->OutputWholeExtent[idx*2]  = -VTK_LARGE_INTEGER;
+    this->OutputWholeExtent[idx*2+1] = VTK_LARGE_INTEGER;
     }
-  this->ExecuteDimensionality = VTK_IMAGE_DIMENSIONS;
+  this->NumberOfExecutionAxes = 5;
 }
 
 
@@ -65,7 +65,7 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkImageInPlaceFilter::PrintSelf(os,indent);
+  vtkImageFilter::PrintSelf(os,indent);
 
   if (this->Automatic)
     {
@@ -76,109 +76,169 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Automatic: Off\n";
     }
 
-  os << indent << "OutputImageExtent: (" << this->OutputImageExtent[0]
-     << "," << this->OutputImageExtent[1];
-  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0]
+     << "," << this->OutputWholeExtent[1];
+  for (idx = 1; idx < 4; ++idx)
     {
-    os << indent << ", " << this->OutputImageExtent[idx * 2]
-       << "," << this->OutputImageExtent[idx*2 + 1];
+    os << indent << ", " << this->OutputWholeExtent[idx * 2]
+       << "," << this->OutputWholeExtent[idx*2 + 1];
     }
   os << ")\n";
 }
   
 //----------------------------------------------------------------------------
-// Set the OutputImageExtent (used internally also)
-void vtkImageClip::SetOutputImageExtent(int dim, int *extent)
+// Set the OutputWholeExtent (used internally also)
+void vtkImageClip::SetOutputWholeExtent(int dim, int *extent)
 {
   int idx;
+  int modified = 0;
   
-  if (dim > 5)
+  if (dim > 4)
     {
-    vtkWarningMacro("GetOutputImageExtent: dim > 5");
-    dim = 5;
+    vtkWarningMacro("GetOutputWholeExtent: dim > 4");
+    dim = 4;
     }
 
   dim = dim * 2;
   for (idx = 0; idx < dim; ++idx)
     {
-    this->OutputImageExtent[idx] = extent[idx];
+    if (this->OutputWholeExtent[idx] != extent[idx])
+      {
+      this->OutputWholeExtent[idx] = extent[idx];
+      modified = 1;
+      }
     }
 
   this->Initialized = 1;
-  this->Modified();
+  if (modified)
+    {
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
-// Get the OutputImageExtent.
-void vtkImageClip::GetOutputImageExtent(int dim, int *extent)
+void vtkImageClip::SetOutputAxisWholeExtent(int axis, int min, int max)
+{
+  int idx;
+  int modified = 0;
+  
+  if (axis < 0 || axis > 3)
+    {
+    vtkErrorMacro("SetOutputAxisWholeExtent: bad axis " << axis);
+    return;
+    }
+
+  if (this->OutputWholeExtent[axis*2] != min ||
+      this->OutputWholeExtent[axis*2+1] != max)
+    {
+    this->OutputWholeExtent[axis*2] = min;
+    this->OutputWholeExtent[axis*2+1] = max;
+    this->Modified();
+    }
+  this->Initialized = 1;
+}
+
+//----------------------------------------------------------------------------
+// Get the OutputWholeExtent.
+void vtkImageClip::GetOutputWholeExtent(int dim, int *extent)
 {
   int idx;
   
-  if (dim > 5)
+  if (dim > 4)
     {
-    vtkWarningMacro("GetOutputImageExtent: dim > 5");
-    dim = 5;
+    vtkWarningMacro("GetOutputWholeExtent: dim > 4");
+    dim = 4;
     }
   
   if (this->Automatic)
     {
-    this->ComputeOutputImageExtent();
+    this->ComputeOutputWholeExtent();
     }
   
   dim = dim * 2;
   for (idx = 0; idx < dim; ++idx)
     {
-    extent[idx] = this->OutputImageExtent[idx];
+    extent[idx] = this->OutputWholeExtent[idx];
     }
 }
 
 //----------------------------------------------------------------------------
-// Change the imageExtent
-void vtkImageClip::ComputeOutputImageInformation(vtkImageRegion *inRegion, 
-						 vtkImageRegion *outRegion)
+// Change the WholeExtent
+void vtkImageClip::ExecuteImageInformation(vtkImageCache *in, 
+					   vtkImageCache *out)
 {
+  int idx, extent[8];
+  
+  in->GetWholeExtent(extent);
   if ( ! this->Initialized)
     {
-    this->SetOutputImageExtent(5, inRegion->GetImageExtent());
+    this->SetOutputWholeExtent(4, extent);
     }
-  
-  if (this->Automatic)
+  if ( ! this->Bypass)
     {
-    this->ComputeOutputImageExtent();
+    if (this->Automatic)
+      {
+      this->ComputeOutputWholeExtent();
+      }
+    
+    // Clip the OutputWholeExtent with the input WholeExtent
+    for (idx = 0; idx < 4; ++idx)
+      {
+      if (this->OutputWholeExtent[idx*2] > extent[idx*2])
+	{
+	extent[idx*2] = this->OutputWholeExtent[idx*2];
+	}
+      if (this->OutputWholeExtent[idx*2+1] < extent[idx*2+1])
+	{
+	extent[idx*2+1] = this->OutputWholeExtent[idx*2+1];
+	}
+      }
     }
   
-  outRegion->SetImageExtent(5, this->OutputImageExtent);
+  out->SetWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
-// Change the imageExtent
-void vtkImageClip::ResetOutputImageExtent()
+// Description:
+// Sets the output whole extent to be the input whole extent.
+void vtkImageClip::ResetOutputWholeExtent()
 {
-  vtkImageRegion *region;
-  
   if ( ! this->Input)
     {
-    vtkErrorMacro("ResetOutputImageExtent: No input");
+    vtkWarningMacro("ResetOutputWholeExtent: No input");
     return;
     }
 
-  region = vtkImageRegion::New();
-  this->Input->UpdateImageInformation(region);
-  this->SetOutputImageExtent(VTK_IMAGE_DIMENSIONS, region->GetImageExtent());
-  region->Delete();
+  this->Input->UpdateImageInformation();
+  this->SetOutputWholeExtent(4, this->Input->GetWholeExtent());
 }
+
 
 
 //----------------------------------------------------------------------------
-// Do nothing.  Every thing was done by ComputeImageInformation
-void vtkImageClip::Execute(vtkImageRegion *inRegion, 
-			   vtkImageRegion *outRegion)
+// Description:
+// This method simply copies by reference the input data to the output.
+void vtkImageClip::Update()
 {
-  inRegion = inRegion;
-  outRegion = outRegion;
-}
+  // Make sure the Input has been set.
+  if ( ! this->Input)
+    {
+    vtkErrorMacro(<< "Input is not set.");
+    return;
+    }
 
+  this->Input->SetUpdateExtent(this->Output->GetUpdateExtent());
+  this->Input->Update();
+  this->Output->SetScalarData(this->Input->GetScalarData());
+  this->Output->SetNumberOfScalarComponents(
+		      this->Input->GetNumberOfScalarComponents());
+  // release input data
+  if (this->Input->ShouldIReleaseData())
+    {
+    this->Input->ReleaseData();
+    }
+}
 
   
 //----------------------------------------------------------------------------
@@ -275,7 +335,7 @@ static void vtkImageClipAxis(vtkImageRegion *region, T backGround)
 
 
 //----------------------------------------------------------------------------
-// The automatically computes a new ImageExtent.
+// The automatically computes a new WholeExtent.
 template <class T>
 static void vtkImageClipCompute(vtkImageRegion *region, T *ptr)
 {
@@ -351,12 +411,13 @@ static void vtkImageClipCompute(vtkImageRegion *region, T *ptr)
   
   
 //----------------------------------------------------------------------------
-void vtkImageClip::ComputeOutputImageExtent()
+void vtkImageClip::ComputeOutputWholeExtent()
 {
   vtkImageRegion *region;
   void *ptr;
   
   // Only recompute if necessary
+  // Do we really need this, or does pipline handle this?
   if (this->CTime.GetMTime() > this->GetPipelineMTime())
     {
     return;
@@ -365,10 +426,10 @@ void vtkImageClip::ComputeOutputImageExtent()
   // Get the entire input region.
   if ( ! this->Input)
     {
-    vtkErrorMacro("ComputeOutputImageExtent: No Input.");
+    vtkErrorMacro("ComputeOutputWholeExtent: No Input.");
     }
-  region = this->Input->GetOutput()->UpdateRegion();
-  region->SetAxes(5, this->GetAxes());
+  this->Input->Update();
+  region = this->Input->GetScalarRegion();
 
   // Look through every pixel.
   ptr = region->GetScalarPointer();
@@ -390,11 +451,12 @@ void vtkImageClip::ComputeOutputImageExtent()
       vtkImageClipCompute(region, (unsigned char *)(ptr));
       break;
     default:
-      vtkErrorMacro("ComputeOutputImageExtent: Cannot handle ScalarType.\n");
+      vtkErrorMacro("ComputeOutputWholeExtent: Cannot handle ScalarType.\n");
       return;
     }         
   
-  this->SetOutputImageExtent(5, region->GetExtent());
+  // This ignores the computed component extent.
+  this->SetOutputWholeExtent(4, region->GetExtent());
   this->CTime.Modified();
   region->Delete();
 }

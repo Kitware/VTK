@@ -58,7 +58,7 @@ vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
   this->CornersOn();
   this->GradientMagnitudeThresholdOff();
 
-  this->ExecuteDimensionality = 3;
+  this->NumberOfExecutionAxes = 3;
 }
 
 

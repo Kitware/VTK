@@ -48,12 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include <fstream.h>
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
-class VTK_EXPORT vtkImageReader : public vtkImageCachedSource
+class VTK_EXPORT vtkImageReader : public vtkImageSource
 {
 public:
   vtkImageReader();
@@ -95,7 +95,6 @@ public:
   vtkImageGetMacro(DataDimensions,int);
   int *GetDataDimensions() {return this->DataDimensions;};  
   
-  
   // Description:
   // Set/Get the spacing of the data in the file.
   void SetDataSpacing(int num, float *ratio);
@@ -121,7 +120,7 @@ public:
   vtkImageGetMacro(DataMemoryOrder,int);
   int *GetDataMemoryOrder() {return this->DataMemoryOrder;};
   
-  void UpdateImageInformation(vtkImageRegion *region);
+  void UpdateImageInformation();
   vtkImageCache *GetOutput();
   
   // Description:

@@ -51,20 +51,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
-class VTK_EXPORT vtkImageContinuousDilate1D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageContinuousDilate1D : public vtkImageFilter
 {
 public:
   vtkImageContinuousDilate1D();
   static vtkImageContinuousDilate1D *New()
     {return new vtkImageContinuousDilate1D;};
   const char *GetClassName() {return "vtkImageContinuousDilate1D";};
-  void SetKernelSize(int size);
-  void SetStride(int stride);
   
-protected:
-  
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  vtkSetMacro(KernelSize, int);
+  vtkGetMacro(KernelSize, int);
 
+  vtkSetMacro(Stride, int);
+  vtkGetMacro(Stride, int);
+  
+  void SetFilteredAxis(int axis);
+  int GetFilteredAxis() {return this->FilteredAxes[0];}
+
+protected:
+  int KernelSize;
+  int Stride;
+
+  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
 };
 
 #endif

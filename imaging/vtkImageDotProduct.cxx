@@ -48,7 +48,7 @@ vtkImageDotProduct::vtkImageDotProduct()
 {
   this->SetAxes(VTK_IMAGE_COMPONENT_AXIS);
 
-  this->ExecuteDimensionality = 2;
+  this->NumberOfExecutionAxes = 2;
 }
 
 

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageMirrorPad.h"
 
 
@@ -49,33 +50,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMirrorPad::vtkImageMirrorPad()
 {
   // execute function handles four axes.
-  this->ExecuteDimensionality = 4;
+  this->NumberOfExecutionAxes = 4;
 }
 
 
 
 //----------------------------------------------------------------------------
 // Just clip the request.
-void vtkImageMirrorPad::ComputeRequiredInputRegionExtent(
-						 vtkImageRegion *outRegion,
-						 vtkImageRegion *inRegion)
+void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+							 vtkImageCache *in)
 {
   int idx;
   int extent[8];
   int min, max, imageMin, imageMax;
   int minCycle, maxCycle, minRemainder, maxRemainder, minMirror, maxMirror;
-  int *imageExtent;
+  int *wholeExtent;
   
-  outRegion->GetExtent(VTK_IMAGE_DIMENSIONS, extent);
-  imageExtent = inRegion->GetImageExtent();
+  out->GetUpdateExtent(extent);
+  wholeExtent = in->GetWholeExtent();
 
   // determine input extent
   for (idx = 0; idx < 4; ++idx)
     {
     min = extent[idx * 2];
     max = extent[idx*2 + 1];
-    imageMin = imageExtent[idx * 2];
-    imageMax = imageExtent[idx * 2 + 1];
+    imageMin = wholeExtent[idx * 2];
+    imageMax = wholeExtent[idx * 2 + 1];
     // Relative to imageMin;
     min -= imageMin;
     max -= imageMin;
@@ -139,7 +139,7 @@ void vtkImageMirrorPad::ComputeRequiredInputRegionExtent(
     extent[idx * 2 + 1] = max;
     }
   
-  inRegion->SetExtent(4, extent);
+  in->SetUpdateExtent(extent);
 }
 
 
@@ -174,7 +174,7 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
   
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
-  inRegion->GetImageExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
+  inRegion->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
 			   imageMin2, imageMax2, imageMin3, imageMax3);
   outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
   outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);

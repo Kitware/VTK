@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageConstantPad::vtkImageConstantPad()
 {
   // execute function handles four axes.
-  this->ExecuteDimensionality = 4;
+  this->NumberOfExecutionAxes = 4;
 }
 
 
@@ -59,8 +59,8 @@ vtkImageConstantPad::vtkImageConstantPad()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
-				vtkImageRegion *inRegion, T *inPtr,
-				vtkImageRegion *outRegion, T *outPtr)
+				       vtkImageRegion *inRegion, T *inPtr,
+				       vtkImageRegion *outRegion, T *outPtr)
 {
   int min0, max0, min1, max1, min2, max2, min3, max3;
   int imageMin0, imageMax0, imageMin1, imageMax1, 
@@ -77,7 +77,7 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
   constant = (T)(self->GetConstant());
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3);
-  inRegion->GetImageExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
+  inRegion->GetWholeExtent(imageMin0, imageMax0, imageMin1, imageMax1, 
 			   imageMin2, imageMax2, imageMin3, imageMax3);
   outRegion->GetIncrements(outInc0, outInc1, outInc2, outInc3);
   outRegion->GetExtent(min0, max0, min1, max1, min2, max2, min3, max3);
@@ -145,7 +145,7 @@ static void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageConstantPad::Execute(vtkImageRegion *inRegion, 
-			   vtkImageRegion *outRegion)
+				  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();

@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageLaplacian.h"
 
 
@@ -48,54 +49,76 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageLaplacian fitler.
 vtkImageLaplacian::vtkImageLaplacian()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
   this->SetOutputScalarType(VTK_FLOAT);
-  
-  this->ExecuteDimensionality = 3;
-  this->Dimensionality = 3;
+
+  // The execute handles three axes.
+  this->NumberOfExecutionAxes = 3;
 }
 
 
 //----------------------------------------------------------------------------
 void vtkImageLaplacian::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx;
+  
   this->vtkImageFilter::PrintSelf(os, indent);
+  os << indent << "FitleredAxes: " 
+     << vtkImageAxisNameMacro(this->FilteredAxes[0]);
+  for (idx = 1; idx < this->NumberOfFilteredAxes; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->FilteredAxes[idx]);
+    }
+  os << "\n";
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Determines how the input is interpreted (set of 2d slices ...)
+// and cannot be more than 3.
+void vtkImageLaplacian::SetFilteredAxes(int num, int *axes)
+{
+  if (num > 3)
+    {
+    vtkErrorMacro("SetFilteredAxes: This filter is only ");
+    num = 3;
+    }
+  this->vtkImageFilter::SetFilteredAxes(num, axes);
+  this->NumberOfExecutionAxes = 3;
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageLaplacian::ComputeRequiredInputRegionExtent(
-			vtkImageRegion *outRegion, vtkImageRegion *inRegion)
+void vtkImageLaplacian::ComputeRequiredInputUpdateExtent(vtkImageCache *out, 
+							 vtkImageCache *in)
 {
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int *imageExtent;
-  int idx;
+  int extent[8];
+  int *wholeExtent;
+  int idx, axis;
 
-  imageExtent = inRegion->GetImageExtent();
-  outRegion->GetExtent(VTK_IMAGE_DIMENSIONS, extent);
-  // Component axis is number 4
-  extent[8] = 0;
-  extent[9] = 0;
+  wholeExtent = in->GetWholeExtent();
+  out->GetUpdateExtent(extent);
   
   // grow input image extent.
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
-    extent[idx*2] -= 1;
-    extent[idx*2+1] += 1;
-    // we must clip extent with image extent is we hanlde boundaries.
-    if (extent[idx*2] < imageExtent[idx*2])
+    axis = this->FilteredAxes[idx];
+    extent[axis*2] -= 1;
+    extent[axis*2+1] += 1;
+    // we must clip extent with image extent if we hanlde boundaries.image
+    if (extent[axis*2] < wholeExtent[axis*2])
       {
-      extent[idx*2] = imageExtent[idx*2];
+      extent[axis*2] = wholeExtent[axis*2];
       }
-    if (extent[idx*2 + 1] > imageExtent[idx*2 + 1])
+    if (extent[axis*2 + 1] > wholeExtent[axis*2 + 1])
       {
-      extent[idx*2 + 1] = imageExtent[idx*2 + 1];
+      extent[axis*2 + 1] = wholeExtent[axis*2 + 1];
       }
     }
   
-  inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, extent);
+  in->SetUpdateExtent(extent);
 }
 
 
@@ -109,8 +132,8 @@ void vtkImageLaplacian::ComputeRequiredInputRegionExtent(
 // out of extent.
 template <class T>
 static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
-			      vtkImageRegion *inRegion, T *inPtr, 
-			      vtkImageRegion *outRegion, float *outPtr)
+				     vtkImageRegion *inRegion, T *inPtr, 
+				     vtkImageRegion *outRegion, float *outPtr)
 {
   int axisIdx, axesNum;
   float d, sum;
@@ -126,7 +149,7 @@ static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
   int *incs, *imageExtent, *idxs, outIdxs[3];
   
   // Get the dimensionality of the Laplacian.
-  axesNum = self->GetDimensionality();
+  axesNum = self->GetNumberOfFilteredAxes();
   
   // Get information to march through data (skip component)
   inRegion->GetIncrements(inInc0, inInc1, inInc2); 
@@ -164,7 +187,7 @@ static void vtkImageLaplacianExecute(vtkImageLaplacian *self,
 	sum = 0.0;
 	idxs = outIdxs;
 	incs = inRegion->GetIncrements(); 
-	imageExtent = inRegion->GetImageExtent(); 
+	imageExtent = inRegion->GetWholeExtent(); 
 	for(axisIdx = 0; axisIdx < axesNum; ++axisIdx)
 	  {
 	  // Compute difference using central differences (if in extent).

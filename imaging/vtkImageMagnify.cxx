@@ -48,80 +48,54 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMagnify::vtkImageMagnify()
 {
   int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  vtkImageMagnify1D *filter;
+
+  this->Interpolate = 1;
+  for (idx = 0; idx < 4; ++idx)
     {
+    filter = vtkImageMagnify1D::New();
+    this->Filters[idx] = filter;
     this->MagnificationFactors[idx] = 1;
-    
+    filter->SetFilteredAxis(idx);
     }
+  // Let the superclass set some superclass variables of the filters.
+  this->InitializeFilters();
+  this->InitializeParameters();
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// This method sets up multiple magnify filters (one for each axis).
-void vtkImageMagnify::SetDimensionality(int num)
+void vtkImageMagnify::InitializeParameters()
 {
-  int idx;
+  int idx, axis;
   
-  if (num > VTK_IMAGE_DIMENSIONS)
+  vtkImageMagnify1D *filter;
+  
+  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
-    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
-    return;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    // Get rid of old filters
-    if (this->Filters[idx])
-      {
-      this->Filters[idx]->Delete();
-      }
-    // Create new filters
-    this->Filters[idx] = vtkImageMagnify1D::New();
-    this->Filters[idx]->SetAxes(this->Axes[idx]);
-    // Set ivars
-    ((vtkImageMagnify1D *)
-     this->Filters[idx])->SetMagnificationFactor(
-			    this->MagnificationFactors[idx]);
-    ((vtkImageMagnify1D *)
-     this->Filters[idx])->SetInterpolate(this->Interpolate);
-    }
-  
-  this->Dimensionality = num;
-  this->Modified();
-  
-  // If the input has already been set, set the pipelines input.
-  if (this->Input)
-    {
-    this->SetInternalInput(this->Input);
+    axis = this->FilteredAxes[idx];
+    filter = (vtkImageMagnify1D *)(this->Filters[axis]);
+    filter->SetMagnificationFactor(this->MagnificationFactors[idx]);
+    filter->SetInterpolate(this->Interpolate);
     }
 }
-
-
-
+      
 //----------------------------------------------------------------------------
 void vtkImageMagnify::SetMagnificationFactors(int num, int *factors)
 {
   int idx;
   
-  // If dimensionality has already been set
-  if (this->Dimensionality != num && this->Dimensionality != 0)
+  if (num > 4)
     {
-    vtkWarningMacro(<< "SetMagnificationFactors: number of axes " << num 
-        << " does not match dimensionality " << this->Dimensionality);
+    vtkWarningMacro("Too many factors");
+    num = 4;
     }
-  
   for (idx = 0; idx < num; ++idx)
     {
     this->MagnificationFactors[idx] = factors[idx];
-    if (this->Filters[idx])
-      {
-      ((vtkImageMagnify1D *)
-       (this->Filters[idx]))->SetMagnificationFactor(factors[idx]);
-      }
     }
-
-  this->Modified();
+  // initialize filters wiht ne parameters
+  // Sub Filters handle modifies.
+  this->InitializeParameters();
 }
 
 
@@ -130,10 +104,10 @@ void vtkImageMagnify::GetMagnificationFactors(int num, int *factors)
 {
   int idx;
   
-  if (num > this->Dimensionality)
+  if (num > 4)
     {
     vtkWarningMacro(<< "GetMagnificationFactors: Asking for too many " << num);
-    num = this->Dimensionality;
+    num = 4;
     }
   
   for (idx = 0; idx < num; ++idx)
@@ -147,29 +121,18 @@ void vtkImageMagnify::GetMagnificationFactors(int num, int *factors)
 //----------------------------------------------------------------------------
 void vtkImageMagnify::SetInterpolate(int interpolate)
 {
-  int idx;
-  
-  for (idx = 0; idx < this->Dimensionality; ++idx)
-    {
-    if (this->Filters[idx])
-      {
-      ((vtkImageMagnify1D *)
-       (this->Filters[idx]))->SetInterpolate(interpolate);
-      }
-    }
-  
   this->Interpolate = interpolate;
-  this->Modified();
+  this->InitializeParameters();
+  // Sub filters tak care of modified.
 }
-
 
 
 //----------------------------------------------------------------------------
-int vtkImageMagnify::GetInterpolate()
+void vtkImageMagnify::SetFilteredAxes(int num, int *axes)
 {
-  return this->Interpolate;
+  this->vtkImageDecomposedFilter::SetFilteredAxes(num, axes);
+  this->InitializeParameters();
 }
-
 
 
 

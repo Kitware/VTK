@@ -71,19 +71,20 @@ public:
   // Description:
   // Turn interpolation on and off (pixel replication)
   void SetInterpolate(int interpolate);
-  int GetInterpolate();
+  vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
   
-  // Description:
-  // Determines how many sub filters are created.
-  void SetDimensionality(int num);
+  void SetFilteredAxes(int num, int *axes);
   
 protected:
-  int MagnificationFactors[VTK_IMAGE_DIMENSIONS];
+  int MagnificationFactors[4];
   int Interpolate;
+  
+  void InitializeParameters();
 };
 
 #endif
+
 
 
 

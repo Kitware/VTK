@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImagePadFilter_h
 #define __vtkImagePadFilter_h
 
-
+class vtkImageCache;
 #include "vtkImageFilter.h"
 
 class VTK_EXPORT vtkImagePadFilter : public vtkImageFilter
@@ -61,26 +61,23 @@ public:
 
   // Description:
   // The image extent of the output has to be set explicitely.
-  void SetOutputImageExtent(int num, int *extent);
-  vtkImageSetExtentMacro(OutputImageExtent);
-  void GetOutputImageExtent(int num, int *extent);
-  vtkImageGetExtentMacro(OutputImageExtent);
-  
-  // Description:
-  // This affects the OutputImage Extent
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes,int);
+  void SetOutputWholeExtent(int extent[8]);
+  void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY, 
+			    int minZ, int maxZ, int minT, int maxT);
+  void GetOutputWholeExtent(int extent[8]);
+  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+
+  // Pad the scalar components as well.
+  vtkSetMacro(OutputNumberOfScalarComponents, int);
+  vtkGetMacro(OutputNumberOfScalarComponents, int);
   
 protected:
-  int OutputImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int OutputWholeExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int OutputNumberOfScalarComponents;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion);
-
-void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
-				  int *extentOut, int *axesOut);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+					vtkImageCache *in);
 };
 
 #endif

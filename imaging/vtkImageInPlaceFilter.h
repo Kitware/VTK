@@ -54,10 +54,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h
 
-#include "vtkImageCachedSource.h"
+#include "vtkImageSource.h"
+#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsToImage.h"
 
-class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageCachedSource
+class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageSource
 {
 public:
   vtkImageInPlaceFilter();
@@ -69,21 +70,37 @@ public:
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
 
-  void Update(vtkImageRegion *outRegion);
-  void UpdateImageInformation(vtkImageRegion *region);
+  void Update();
+  void UpdateImageInformation();
   unsigned long int GetPipelineMTime();
   
   // Description:
   // Get input to this InPlaceFilter.
   vtkGetObjectMacro(Input,vtkImageCache);
   
-protected:
-  vtkImageCache *Input;     
+  // Description:
+  // Turning bypass on will causse the filter to turn off and
+  // simply pass the data from the first input (input0) through.  
+  // It is implemented for consitancy with vtkImageFilter.
+  vtkSetMacro(Bypass,int);
+  vtkGetMacro(Bypass,int);
+  vtkBooleanMacro(Bypass,int);
 
-  virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-					     vtkImageRegion *outRegion);
-  virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-						vtkImageRegion *inRegion);
+  // Description:
+  // Filtered axes specify the axes which will be operated on.
+  vtkGetMacro(NumberOfFilteredAxes, int);
+
+protected:
+  int FilteredAxes[4];
+  int NumberOfFilteredAxes;
+  vtkImageCache *Input;     
+  int Bypass;
+  
+  virtual void SetFilteredAxes(int num, int *axes);
+  virtual void ExecuteImageInformation(vtkImageCache *in,
+				       vtkImageCache *out);
+  virtual void ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+						vtkImageCache *in);
   virtual void RecursiveLoopExecute(int dim, vtkImageRegion *inRegion, 
 				    vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);

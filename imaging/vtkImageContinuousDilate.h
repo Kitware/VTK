@@ -41,7 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageContinuousDilate - Maximum of neighborhood.
 // .SECTION Description
 // vtkImageContinuousDilate implements a continous dilation by replacing
-// a pixel with the maximum of its neighborhood.
+// a pixel with the maximum of its neighborhood.  This filter is implemented 
+// as a decomposible neighborhood, so the neighborhood is rectagle for 2D
+// or a box for 3D.
 
 
 #ifndef __vtkImageContinuousDilate_h
@@ -58,22 +60,25 @@ public:
   static vtkImageContinuousDilate *New(){return new vtkImageContinuousDilate;};
   const char *GetClassName() {return "vtkImageContinuousDilate";};
 
-  void SetDimensionality(int num);
-
   // Description:
-  // Set/Get the size of the neighborhood to apply Dilate.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize, int);
-  void GetKernelSize(int num, int *size);
-  vtkImageGetMacro(KernelSize, int);
-
+  // The Kernel size can be specified for each axis individually
+  void SetKernelSize(int sx, int sy, int sz, int st);
+  void SetKernelSize(int s) {this->SetKernelSize(s, s, s, s);}
+  void SetXKernelSize(int s);
+  void SetYKernelSize(int s);
+  void SetZKernelSize(int s);
+  void SetTimeKernelSize(int s);
+  
   // Description:
-  // Set/Get the stride which shrinks the images.
-  void SetStrides(int num, int *size);
-  vtkImageSetMacro(Strides, int);
-  void GetStrides(int num, int *size);
-  vtkImageGetMacro(Strides, int);
-
+  // Each axis can have a stride to shrink the image.
+  void SetStrides(int sx, int sy, int sz, int st);
+  void SetStride(int s) {this->SetStrides(s, s, s, s);}
+  void SetXStride(int s);
+  void SetYStride(int s);
+  void SetZStride(int s);
+  void SetTimeStride(int s);
+  
+  
 protected:
   int KernelSize[VTK_IMAGE_DIMENSIONS];
   int Strides[VTK_IMAGE_DIMENSIONS];

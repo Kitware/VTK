@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageGaussianSmooth1D : public vtkImageConvolution1D
 {
 public:
   vtkImageGaussianSmooth1D();
-  static vtkImageGaussianSmooth1D *New() {return new vtkImageGaussianSmooth1D;};
+  static vtkImageGaussianSmooth1D *New(){return new vtkImageGaussianSmooth1D;};
   const char *GetClassName() {return "vtkImageGaussianSmooth1D";};
 
   // Description:
@@ -67,7 +67,7 @@ public:
   vtkGetMacro(RadiusFactor,float);
   // Description:
   // Get the cutoff in units of pixels.
-  vtkGetMacro(Radius,int)
+  vtkGetMacro(Radius,int);
 
 protected:
   float StandardDeviation;

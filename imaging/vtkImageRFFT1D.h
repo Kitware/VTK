@@ -59,12 +59,14 @@ public:
   static vtkImageRFFT1D *New() {return new vtkImageRFFT1D;};
   const char *GetClassName() {return "vtkImageRFFT1D";};
 
-  void SetAxes(int axis);
-  void InterceptCacheUpdate(vtkImageRegion *region);
+  void SetFilteredAxis(int axis);
+  vtkGetMacro(FilteredAxis,int);
   
 protected:
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  int FilteredAxis;
+  
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

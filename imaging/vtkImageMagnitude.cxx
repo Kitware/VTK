@@ -40,60 +40,33 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageMagnitude.h"
 
 
 //----------------------------------------------------------------------------
 vtkImageMagnitude::vtkImageMagnitude()
 {
-  this->SetAxes(VTK_IMAGE_COMPONENT_AXIS);
-
+  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
   // For better performance, the execute function was written as a 3d.
-  this->ExecuteDimensionality = 3;
-}
-
-//----------------------------------------------------------------------------
-// Only one axis is allowed, but the execute method handles three axes
-// for speed.
-void vtkImageMagnitude::SetAxes(int num, int *axes)
-{
-  if (num != 1)
-    {
-    vtkErrorMacro(<< "SetAxes: Can only colapse 1 axis.");
-    }
-    
-  this->vtkImageFilter::SetAxes(1, axes);
+  this->NumberOfExecutionAxes = 3;
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method tells the superclass that the first axis will collapse.
-void vtkImageMagnitude::ComputeOutputImageInformation(vtkImageRegion *inRegion,
-						     vtkImageRegion *outRegion)
+void vtkImageMagnitude::ExecuteImageInformation(vtkImageCache *in,
+						vtkImageCache *out)
 {
   // Avoid compiler warnings.
-  inRegion = inRegion;
-  outRegion->SetImageExtent(0, 0);
+  in = in;
+  out->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------
 // Description:
-// This method tells the superclass that the whole axis is neede to compute
-// the magnitude.
-void vtkImageMagnitude::ComputeRequiredInputRegionExtent(
-		   vtkImageRegion *outRegion, vtkImageRegion *inRegion)
-{
-  int extent[2];
-  
-  outRegion = outRegion;
-  inRegion->GetImageExtent(1, extent);
-  inRegion->SetExtent(1, extent);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This templated execute method handles any type input, but the output
-// is always floats. Axis 0 should be components. FFT is performed on axis 1.
+// This templated execute method handles any type input, and output.
+// Axis 0 should be components.
 template <class T1, class T2>
 static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 			      vtkImageRegion *inRegion, T1 *inPtr,

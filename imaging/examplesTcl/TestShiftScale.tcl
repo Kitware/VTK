@@ -31,14 +31,14 @@ reader SetDataMask 0x7fff
 vtkImageShiftScale shiftScale
 #shiftScale DebugOn
 shiftScale SetInput [reader GetOutput]
-shiftScale SetShift 270.0
-shiftScale SetScale 0.085
+shiftScale SetShift -3000.0
+shiftScale SetScale -0.12
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [shiftScale GetOutput]
-viewer SetCoordinate2 $sliceNumber
+viewer SetZSlice $sliceNumber
+viewer SetOriginLocationToUpperLeft
 viewer SetColorWindow 256
 viewer SetColorLevel 128
 viewer Render
@@ -54,11 +54,12 @@ button .slice.down -text "Slice Down" -command SliceDown
 frame .wl
 frame .wl.f1
 label .wl.f1.windowLabel -text Window
-scale .wl.f1.window -from 1 -to 512 -orient horizontal -command SetWindow
+scale .wl.f1.window -from 1 -to 512 -orient horizontal -command SetWindow \
+  -variable window
 frame .wl.f2
 label .wl.f2.levelLabel -text Level
 scale .wl.f2.level -from 1 -to 256 -orient horizontal -command SetLevel
-checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
+checkbutton .wl.video -text "Inverse Video" -command SetInverseVideo
 
 
 .wl.f1.window set 256
@@ -76,7 +77,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber
+   viewer SetZSlice $sliceNumber
    viewer Render
 }
 
@@ -84,13 +85,17 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber
+   viewer SetZSlice $sliceNumber
    viewer Render
 }
 
 proc SetWindow window {
-   global viewer
-   viewer SetColorWindow $window
+   global viewer video
+   if {$video} {
+      viewer SetColorWindow [expr -$window]
+   } else {
+      viewer SetColorWindow $window
+   }
    viewer Render
 }
 
@@ -101,21 +106,15 @@ proc SetLevel level {
 }
 
 proc SetInverseVideo {} {
-   global viewer
-   if { $inverseVideo == 0 } {
-      viewer SetWindow -255
+   global viewer video window
+   if {$video} {
+      viewer SetColorWindow [expr -$window]
    } else {
-      viewer SetWindow 255
-   }		
+      viewer SetColorWindow $window
+   }
    viewer Render
 }
 
-
-
-
-
-#$renWin Render
-#wm withdraw .
 
 
 

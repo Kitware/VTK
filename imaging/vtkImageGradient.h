@@ -42,10 +42,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageGradient computes the gradient
 // vector of an image.  The vector results are placed along the
-// component axis.  Setting the axes determines whether the gradient
+// component axis.  Setting the FilteredAxes determines whether the gradient
 // computed on 1D lines, 2D images, 3D volumes or higher dimensional 
 // images.  The default is two dimensional XY images.  OutputScalarType
-// is always float.
+// is always float.  Gradient is computed using central differences.
 
 
 
@@ -63,14 +63,10 @@ public:
   const char *GetClassName() {return "vtkImageGradient";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void InterceptCacheUpdate(vtkImageRegion *region);
-
   // Description:
-  // This SetAxes method sets VTK_COMPONENT_AXIS as the first axis.
-  // The superclass is told not to loop over this axis.
-  // Note: Get Axes still returns the super class axes.
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes,int);
+  // Which axes should be considered when computing the gradient.
+  void SetFilteredAxes(int num, int *axes);
+  vtkImageSetMacro(FilteredAxes,int);
   
   // Description:
   // If "HandleBoundariesOn" then boundary pixels are duplicated
@@ -78,23 +74,13 @@ public:
   vtkSetMacro(HandleBoundaries, int);
   vtkGetMacro(HandleBoundaries, int);
   vtkBooleanMacro(HandleBoundaries, int);
-  
-  // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
-  // and the number of components in the output vectors.
-  // (Input can not use the component axis).
-  vtkSetMacro(Dimensionality, int);
-  vtkGetMacro(Dimensionality, int);
-  
-  
+
 protected:
   int HandleBoundaries;
   int Dimensionality;
   
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };

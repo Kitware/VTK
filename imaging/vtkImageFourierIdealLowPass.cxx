@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageFourierBandPass.cxx
+  Module:    vtkImageFourierIdealLowPass.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,172 +40,85 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
-#include "vtkImageFourierBandPass.h"
+#include "vtkImageFourierIdealLowPass.h"
 
 
 
 //----------------------------------------------------------------------------
-vtkImageFourierBandPass::vtkImageFourierBandPass()
+vtkImageFourierIdealLowPass::vtkImageFourierIdealLowPass()
 {
   int idx;
   
-  this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->SetOutputScalarType(VTK_FLOAT);
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->LowPass[idx] = this->HighPass[idx] = VTK_LARGE_FLOAT;
+    this->CutOff[idx] = VTK_LARGE_FLOAT;
     }
   
-  // One complex number at a time.
-  this->ExecuteDimensionality = 1;
+  // One complex number at a time. (sssssslowwww)
+  this->SetExecutionAxes(VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageFourierBandPass::SetHighPass(int num, float *highPass)
+void vtkImageFourierIdealLowPass::SetXCutOff(float cutOff)
 {
-  int idx;
-  
-  if (num >= VTK_IMAGE_DIMENSIONS)
+  if (cutOff == this->CutOff[0])
     {
-    vtkWarningMacro(<< "SetHighPass: Too many elements " << num);
-    num = VTK_IMAGE_DIMENSIONS;
+    return;
     }
-  
-  for (idx = 0; idx < num; ++idx)
+  this->CutOff[0] = cutOff;
+  this->Modified();
+}
+//----------------------------------------------------------------------------
+void vtkImageFourierIdealLowPass::SetYCutOff(float cutOff)
+{
+  if (cutOff == this->CutOff[1])
     {
-    this->HighPass[idx] = highPass[idx];
+    return;
     }
+  this->CutOff[1] = cutOff;
+  this->Modified();
+}
+//----------------------------------------------------------------------------
+void vtkImageFourierIdealLowPass::SetZCutOff(float cutOff)
+{
+  if (cutOff == this->CutOff[2])
+    {
+    return;
+    }
+  this->CutOff[2] = cutOff;
+  this->Modified();
+}
+//----------------------------------------------------------------------------
+void vtkImageFourierIdealLowPass::SetTimeCutOff(float cutOff)
+{
+  if (cutOff == this->CutOff[3])
+    {
+    return;
+    }
+  this->CutOff[3] = cutOff;
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
-void vtkImageFourierBandPass::GetHighPass(int num, float *highPass)
-{
-  int idx;
-  
-  if ( num >= VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro(<< "SetHighPass: Too many elements " << num);
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    highPass[idx] = this->HighPass[idx];
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageFourierBandPass::SetLowPass(int num, float *lowPass)
-{
-  int idx;
-  
-  if ( num >= VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro(<< "SetLowPass: Too many elements " << num);
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->LowPass[idx] = lowPass[idx];
-    }
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkImageFourierBandPass::GetLowPass(int num, float *lowPass)
-{
-  int idx;
-  
-  if ( num >= VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro(<< "SetLowPass: Too many elements " << num);
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    lowPass[idx] = this->LowPass[idx];
-    }
-}
-
-
-
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Sets the axes, but puts the component axis first.
-// Note that GetAxes will not return the same set of Axes.
-void vtkImageFourierBandPass::SetAxes(int num, int *axes)
-{
-  int newAxes[VTK_IMAGE_DIMENSIONS];
-  int idx;
-  
-  if (num >= VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetAxes: Too many axes");
-    }
-
-  // Add the component axis
-  newAxes[0] = VTK_IMAGE_COMPONENT_AXIS;
-
-  // Copy the additional axes
-  for (idx = 0; idx < num; ++idx)
-    {
-    if (axes[idx] == VTK_IMAGE_COMPONENT_AXIS)
-      {
-      vtkErrorMacro(<< "SetAxes: You can's specify component axis.");
-      }
-    newAxes[idx + 1] = axes[idx];
-    }
-
-  // Call the superclass
-  this->vtkImageFilter::SetAxes(num + 1, newAxes);
-
-  // over ride the nuber of axes so execute will only get
-  // one complex pixel oer region.
-  this->Dimensionality = 1;
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Intercepts the caches Update to make the region larger than requested.
-// We might as well create both real and imaginary components.
-void 
-vtkImageFourierBandPass::InterceptCacheUpdate(vtkImageRegion *region)
-{
-  int min, max;
-  
-  region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
-  if (min < 0 || max > 1)
-    {
-    vtkErrorMacro(<< "Only two channels to request 0 and 1");
-    }
-  
-  region->SetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, 0, 1);
-}
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This function zeros a portion of the image.  Zero is assumed
 // to be the origin. (1d easy but slow)
-void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion, 
-				      vtkImageRegion *outRegion)
+void vtkImageFourierIdealLowPass::Execute(vtkImageRegion *inRegion, 
+					  vtkImageRegion *outRegion)
 {
   int idx;
   float *inPtr = (float *)(inRegion->GetScalarPointer());
   float *outPtr = (float *)(outRegion->GetScalarPointer());
-  int *extent, *imageExtent;
+  int *extent, *wholeExtent;
   float *Spacing;
   int inInc;
   int outInc;
   float temp, freq, mid;
-  float sumLow, sumHigh;
+  float sum;
   
   // Make sure we have real and imaginary components.
   extent = inRegion->GetExtent();
@@ -223,15 +136,16 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
     return;
     }
 
-  imageExtent = inRegion->GetImageExtent();
+  wholeExtent = inRegion->GetWholeExtent();
   Spacing = inRegion->GetSpacing();
-  sumLow = sumHigh = 0.0;
+  sum = 0.0;
   // Sum up distance squared for each axis (except for component)
+  // This assumes the order of the regions axes is C,X,Y,Z,T.
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     temp = (float)(extent[2*idx]);
     // Assumes image min is 0.
-    mid = (float)(imageExtent[2*idx + 1] + 1) / 2.0;
+    mid = (float)(wholeExtent[2*idx + 1] + 1) / 2.0;
     // Wrap back to 0.
     if (temp > mid)
       {
@@ -243,7 +157,7 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
       // Convert location into cycles / world unit
       freq = temp / (Spacing[idx] * 2.0 * mid);
       // Scale to unit circle (Pass band does not include Component Axis)
-      temp = this->LowPass[idx - 1];
+      temp = this->CutOff[idx - 1];
       if (temp > 0)
 	{
 	temp = freq / temp;
@@ -252,28 +166,16 @@ void vtkImageFourierBandPass::Execute(vtkImageRegion *inRegion,
 	{
 	temp = VTK_LARGE_FLOAT;
 	}
-      sumLow += temp * temp;
-      // Scale to unit circle (Pass band does not include Component Axis)
-      temp = this->HighPass[idx - 1];
-      if (temp > 0)
-	{
-	temp = freq / temp;
-	}
-      else
-	{
-	temp = VTK_LARGE_FLOAT;
-	}
-      sumHigh += temp * temp;
+      sum += temp * temp;
       }
     }
   
-  sumLow = sqrt(sumLow);
-  sumHigh = sqrt(sumHigh);
+  sum = sqrt(sum);
   
   inRegion->GetIncrements(inInc);
   outRegion->GetIncrements(outInc);
   
-  if (sumLow > 1.0 && sumHigh < 1.0)
+  if (sum < 1.0)
     {
     *outPtr = *inPtr;
     outPtr[outInc] = inPtr[inInc];

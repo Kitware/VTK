@@ -44,151 +44,109 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageContinuousDilate::vtkImageContinuousDilate()
 {
   int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  vtkImageContinuousDilate1D *filter;
+
+  for (idx = 0; idx < 4; ++idx)
     {
+    filter = vtkImageContinuousDilate1D::New();
+    this->Filters[idx] = filter;
     this->Strides[idx] = 1;
     this->KernelSize[idx] = 1;
+    filter->SetFilteredAxis(idx);
+    filter->SetStride(this->Strides[idx]);
+    filter->SetKernelSize(this->KernelSize[idx]);
     }
+  // Let the superclass set some superclass variables of the filters.
+  this->InitializeFilters();
 }
 
 
 //----------------------------------------------------------------------------
-// Description:
-// This method sets up multiple smoothing filters
-void vtkImageContinuousDilate::SetDimensionality(int num)
+void vtkImageContinuousDilate::SetStrides(int sx, int sy, 
+					int sz, int st)
 {
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetDimensionality: " << num << " is too many fitlers.");
-    return;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    // Free old filters
-    if (this->Filters[idx])
-      {
-      this->Filters[idx]->Delete();
-      }
-    // Create new filters
-    this->Filters[idx] = vtkImageContinuousDilate1D::New();
-    // Set ivars set before dimensionality
-    this->Filters[idx]->SetAxes(this->Axes[idx]);
-    ((vtkImageContinuousDilate1D *)
-     (this->Filters[idx]))->SetKernelSize(this->KernelSize[idx]);
-    ((vtkImageContinuousDilate1D *)
-     (this->Filters[idx]))->SetStride(this->Strides[idx]);
-    }
-  
-  this->Dimensionality = num;
-  this->Modified();
-  
-  // If the input has already been set, set the pipelines input.
-  if (this->Input)
-    {
-    this->SetInternalInput(this->Input);
-    }
+  this->Strides[0] = sx;
+  this->Strides[1] = sy;
+  this->Strides[2] = sz;
+  this->Strides[3] = st;
+  ((vtkImageContinuousDilate1D *)this->Filters[0])->SetStride(sx);
+  ((vtkImageContinuousDilate1D *)this->Filters[1])->SetStride(sy);
+  ((vtkImageContinuousDilate1D *)this->Filters[2])->SetStride(sz);
+  ((vtkImageContinuousDilate1D *)this->Filters[3])->SetStride(st);
+  // Modified handled by sub calls
+}
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate::SetXStride(int s)
+{
+  this->Strides[0] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[0])->SetStride(s);
+  // Modified handled by sub calls
+}
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate::SetYStride(int s)
+{
+  this->Strides[1] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[1])->SetStride(s);
+  // Modified handled by sub calls
+}
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate::SetZStride(int s)
+{
+  this->Strides[2] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[2])->SetStride(s);
+  // Modified handled by sub calls
+}
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate::SetTimeStride(int s)
+{
+  this->Strides[3] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[3])->SetStride(s);
+  // Modified handled by sub calls
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageContinuousDilate::SetStrides(int num, int *Strides)
+void vtkImageContinuousDilate::SetKernelSize(int sx, int sy, int sz, int st)
 {
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetStrides: not that many dimensions.");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-
-  if (num != this->Dimensionality && this->Dimensionality != 0)
-    {
-    vtkWarningMacro("SetStrides: num " << num 
-      << " does not match dimensionality " << this->Dimensionality);
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->Strides[idx] = Strides[idx];
-    // Set if the sub filters have been created already.
-    if (this->Filters[idx])
-      {
-      ((vtkImageContinuousDilate1D *)
-       (this->Filters[idx]))->SetStride(Strides[idx]);
-      }
-    }
-
-  this->Modified();
+  this->KernelSize[0] = sx;
+  this->KernelSize[1] = sy;
+  this->KernelSize[2] = sz;
+  this->KernelSize[3] = st;
+  ((vtkImageContinuousDilate1D *)this->Filters[0])->SetKernelSize(sx);
+  ((vtkImageContinuousDilate1D *)this->Filters[1])->SetKernelSize(sy);
+  ((vtkImageContinuousDilate1D *)this->Filters[2])->SetKernelSize(sz);
+  ((vtkImageContinuousDilate1D *)this->Filters[3])->SetKernelSize(st);
+  // Modified handled by sub calls
 }
-
 //----------------------------------------------------------------------------
-void vtkImageContinuousDilate::GetStrides(int num, int *Strides)
+void vtkImageContinuousDilate::SetXKernelSize(int s)
 {
-  int idx;
-
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "GetStrides: not that many dimensions.");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    Strides[idx] = this->Strides[idx];
-    }
+  this->KernelSize[0] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[0])->SetKernelSize(s);
+  // Modified handled by sub calls
 }
-
-
-
 //----------------------------------------------------------------------------
-void vtkImageContinuousDilate::SetKernelSize(int num, int *size)
+void vtkImageContinuousDilate::SetYKernelSize(int s)
 {
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "SetKernelSize: " << num << "is too many dimensions.");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  if (num != this->Dimensionality && this->Dimensionality != 0)
-    {
-    vtkWarningMacro("SetKernelSize: num " << num 
-      << " does not match dimensionality " << this->Dimensionality);
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->KernelSize[idx] = size[idx];
-    // Set the filter if it has been created.
-    if (this->Filters[idx])
-      {
-      ((vtkImageContinuousDilate1D *)
-       (this->Filters[idx]))->SetKernelSize(size[idx]);
-      }
-    }
-
-  this->Modified();
+  this->KernelSize[1] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[1])->SetKernelSize(s);
+  // Modified handled by sub calls
 }
-
 //----------------------------------------------------------------------------
-void vtkImageContinuousDilate::GetKernelSize(int num, int *size)
+void vtkImageContinuousDilate::SetZKernelSize(int s)
 {
-  int idx;
-
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkErrorMacro(<< "GetKernelSize: not that many dimensions.");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num; ++idx)
-    {
-    size[idx] = this->KernelSize[idx];
-    }
+  this->KernelSize[2] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[2])->SetKernelSize(s);
+  // Modified handled by sub calls
 }
+//----------------------------------------------------------------------------
+void vtkImageContinuousDilate::SetTimeKernelSize(int s)
+{
+  this->KernelSize[3] = s;
+  ((vtkImageContinuousDilate1D *)this->Filters[3])->SetKernelSize(s);
+  // Modified handled by sub calls
+}
+
+
+
 

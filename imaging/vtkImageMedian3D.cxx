@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageMedian.cxx
+  Module:    vtkImageMedian3D.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,56 +38,72 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageMedian.h"
+#include "vtkImageMedian3D.h"
 
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImageMedian fitler.
-vtkImageMedian::vtkImageMedian()
+// Construct an instance of vtkImageMedian3D fitler.
+vtkImageMedian3D::vtkImageMedian3D()
 {
   this->Sort = NULL;
-  this->SetKernelSize(1, 1, 1);
-  this->HandleBoundariesOn();
+  this->SetKernelSize(1,1,1);
+  this->HandleBoundaries = 1;
 
-  this->ExecuteDimensionality = 3;
+  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Destructor
-vtkImageMedian::~vtkImageMedian()
+vtkImageMedian3D::~vtkImageMedian3D()
 {
   if (this->Sort)
     delete [] this->Sort;
 }
 
 //----------------------------------------------------------------------------
+void vtkImageMedian3D::SetFilteredAxes(int axis0, int axis1, int axis2)
+{
+  int axes[3];
+
+  axes[0] = axis0;
+  axes[1] = axis1;
+  axes[2] = axis2;
+  this->vtkImageSpatialFilter::SetFilteredAxes(3, axes);
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood 
-void vtkImageMedian::SetKernelSize(int num, int *size)
-{
-  int idx, volume;
+void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
+{  
+  int volume;
   
-  // Limit dimensionality to be 3 or less.
-  if (num > 3)
+  if (this->KernelSize[0] == size0 && this->KernelSize[1] == size1 && 
+      this->KernelSize[2] == size2)
     {
-    vtkWarningMacro(<< "SetKernelSize: Neighborhood can't have dimensionality "
-                    << num);
-    num = 3;
+    return;
     }
-
+  
   // Set the kernel size and middle
   volume = 1;
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->KernelSize[idx] = size[idx];
-    this->KernelMiddle[idx] = size[idx] / 2;
-    volume *= size[idx];
-    }
+  this->KernelSize[0] = size0;
+  this->KernelMiddle[0] = size0 / 2;
+  volume *= size0;
+  this->KernelSize[1] = size1;
+  this->KernelMiddle[1] = size1 / 2;
+  volume *= size1;
+  this->KernelSize[2] = size2;
+  this->KernelMiddle[2] = size2 / 2;
+  volume *= size2;
+
+  this->KernelSize[3] = 1;
+  this->KernelMiddle[3] = 0;
+
   this->NumNeighborhood = volume;
   
   // free old sort memeory
@@ -108,7 +124,7 @@ void vtkImageMedian::SetKernelSize(int num, int *size)
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 template <class T>
-static void vtkImageMedianExecute(vtkImageMedian *self,
+static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 			   vtkImageRegion *inRegion, T *inPtr, 
 			   vtkImageRegion *outRegion, T *outPtr)
 {
@@ -132,8 +148,8 @@ static void vtkImageMedianExecute(vtkImageMedian *self,
   inRegion->GetIncrements(inInc0, inInc1, inInc2); 
   outRegion->GetIncrements(outInc0, outInc1, outInc2); 
   outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
-  kernelMiddle = self->GetKernelMiddle();
-  kernelSize = self->GetKernelSize();
+  kernelMiddle = self->KernelMiddle;
+  kernelSize = self->KernelSize;
   
   hoodMin0 = outMin0 - kernelMiddle[0]; 
   hoodMin1 = outMin1 - kernelMiddle[1]; 
@@ -143,7 +159,7 @@ static void vtkImageMedianExecute(vtkImageMedian *self,
   hoodMax2 = kernelSize[2] + hoodMin2 - 1;
   
   // Clip by the input image extent
-  inRegion->GetImageExtent(middleMin0, middleMax0, 
+  inRegion->GetWholeExtent(middleMin0, middleMax0, 
 			   middleMin1, middleMax1, 
 			   middleMin2, middleMax2);
   hoodMin0 = (hoodMin0 > middleMin0) ? hoodMin0 : middleMin0;
@@ -252,7 +268,7 @@ static void vtkImageMedianExecute(vtkImageMedian *self,
 // Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImageMedian::Execute(vtkImageRegion *inRegion, 
+void vtkImageMedian3D::Execute(vtkImageRegion *inRegion, 
 			     vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -272,27 +288,27 @@ void vtkImageMedian::Execute(vtkImageRegion *inRegion,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageMedianExecute(this, 
+      vtkImageMedian3DExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageMedianExecute(this, 
+      vtkImageMedian3DExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageMedianExecute(this, 
+      vtkImageMedian3DExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMedianExecute(this, 
+      vtkImageMedian3DExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMedianExecute(this, 
+      vtkImageMedian3DExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
       break;
@@ -307,7 +323,7 @@ void vtkImageMedian::Execute(vtkImageRegion *inRegion,
 //----------------------------------------------------------------------------
 // Description:
 // Get the current median of all accumilated values.
-double vtkImageMedian::GetMedian()
+double vtkImageMedian3D::GetMedian()
 {
   if ( ! this->Median)
     {
@@ -323,7 +339,7 @@ double vtkImageMedian::GetMedian()
 //----------------------------------------------------------------------------
 // Description:
 // Clear the memory to compute a new median
-void vtkImageMedian::ClearMedian()
+void vtkImageMedian3D::ClearMedian()
 {
   this->DownNum = this->UpNum = 0;
   this->Median = this->Sort + (this->NumNeighborhood / 2);
@@ -333,7 +349,7 @@ void vtkImageMedian::ClearMedian()
 //----------------------------------------------------------------------------
 // Description:
 // Add a sample to the median computation
-void vtkImageMedian::AccumulateMedian(double val)
+void vtkImageMedian3D::AccumulateMedian(double val)
 {
   int idx, max;
   double temp, *ptr;

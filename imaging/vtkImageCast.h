@@ -41,7 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageCast -  Image Data type Casting Filter
 // .SECTION Description
 // vtkImageCast filter casts the input type to match the output type in
-// the image processing pipeline
+// the image processing pipeline.  The filter does nothing if the input
+// already has the correct type.  To specify the "CastTo" type,
+// use "SetOutputScalarType" method.
 
 
 #ifndef __vtkImageCast_h
@@ -57,8 +59,8 @@ public:
   static vtkImageCast *New() {return new vtkImageCast;};
   const char *GetClassName() {return "vtkImageCast";};
 
-  
 protected:
+  void Update();
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

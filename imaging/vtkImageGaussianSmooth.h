@@ -59,21 +59,40 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   const char *GetClassName() {return "vtkImageGaussianSmooth";};
 
-  void SetDimensionality(int num);
-  void SetRadiusFactor(float factor);
-
-  void SetStandardDeviation(int num, float *std);
-  vtkImageSetMacro(StandardDeviation, float);
+  void SetFilteredAxes(int num, int *axes);
 
   // Description:
-  // Each axis can have a stride to srink the image.
+  // Each axis can have a separate radius factor which determines
+  // the cuttoff of the kernel.  The Kernel will have radius =
+  // (RadiusFactor * StanardDeviation) pixels.
+  void SetRadiusFactors(int num, float *factors);
+  vtkImageSetMacro(RadiusFactors, float);
+  void SetRadiusFactor(float f) {this->SetRadiusFactors(f, f, f, f);}
+
+  // Description:
+  // Each axis can have a separate standard deviation.
+  void SetStandardDeviations(int num, float *stds);
+  vtkImageSetMacro(StandardDeviations, float);
+
+  // Description:
+  // For legacy compatability.
+  // Repeats the deviations.
+  void SetStandardDeviation(int num, float *stds);
+  vtkImageSetMacro(StandardDeviation, float);
+  
+  // Description:
+  // Each axis can have a stride to shrink the image.
   void SetStrides(int num, int *strides);
   vtkImageSetMacro(Strides, int);
+  void SetStride(int s) {this->SetStrides(s, s, s, s);}
+
   
 protected:
-  int Strides[VTK_IMAGE_DIMENSIONS];
-  float StandardDeviation[VTK_IMAGE_DIMENSIONS];
-  float RadiusFactor;
+  int Strides[4];
+  float RadiusFactors[4];
+  float StandardDeviations[4];
+
+  void InitializeParameters();
 };
 
 #endif

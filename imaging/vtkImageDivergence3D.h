@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageDilateErode.h
+  Module:    vtkImageDivergence3D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -32,54 +32,40 @@ EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
 BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+PARTICULAR PURPOSE, AND -INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
 "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
 MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDilateErode - Dilates one value and erodes another.
+// .NAME vtkImageDivergence3D - Scalar field from vector field.
 // .SECTION Description
-// vtkImageDilateErode will dilate one value and erode another.
-// It uses an eliptical foot print, and only erodes/dilates on the
-// boundary of the two values.
+// vtkImageDivergence3D takes a 3D vector field from a surface detection
+// filter (i.e. 3D Gradient) and creates a scalar field which 
+// which represents the rate of change of the vector field.
+// The filteredAxes are hard coded to be x, y, z.
+// If a single image (whole extent) is filtered, then the filter degenerates
+// to a 2D Divergence fitler because of boundary handling.
+// Input and output are always float.
 
 
-#ifndef __vtkImageDilateErode_h
-#define __vtkImageDilateErode_h
 
 
-#include "vtkImageSpatialFilter.h"
+#ifndef __vtkImageDivergence3D_h
+#define __vtkImageDivergence3D_h
 
-class VTK_EXPORT vtkImageDilateErode : public vtkImageSpatialFilter
+#include "vtkImageFilter.h"
+
+class VTK_EXPORT vtkImageDivergence3D : public vtkImageFilter
 {
 public:
-  vtkImageDilateErode();
-  static vtkImageDilateErode *New() {return new vtkImageDilateErode;};
-  const char *GetClassName() {return "vtkImageDilateErode";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-  
-  // Set/Get the size of the neighood.
-  void SetKernelSize(int num, int *size);
-  vtkImageSetMacro(KernelSize,int);
-  
-  // Description:
-  // Set/Get the value to dilate/erode
-  vtkSetMacro(DilateValue, float);
-  vtkGetMacro(DilateValue, float);
-  vtkSetMacro(ErodeValue, float);
-  vtkGetMacro(ErodeValue, float);
-
-  // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
+  vtkImageDivergence3D();
+  static vtkImageDivergence3D *New() {return new vtkImageDivergence3D;};
+  const char *GetClassName() {return "vtkImageDivergence3D";};
   
 protected:
-  float DilateValue;
-  float ErodeValue;
-  vtkImageRegion *Mask;
-    
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void UpdateImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 };
 

@@ -57,7 +57,7 @@ vtkImageRDuotone::vtkImageRDuotone()
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_COMPONENT_AXIS);
 
   // 2 dimensions + Components
-  this->ExecuteDimensionality = 3;
+  this->NumberOfExecutionAxes = 3;
 }
 
 void vtkImageRDuotone::PrintSelf(ostream& os, vtkIndent indent)

@@ -39,6 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
+#include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageGradientMagnitude.h"
 
 
@@ -47,13 +49,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageGradientMagnitude fitler.
 vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
-  this->Dimensionality = 2;
+  this->NumberOfExecutionAxes = 4;
 
   this->SetOutputScalarType(VTK_FLOAT);
   this->HandleBoundariesOn();
-  
-  this->ExecuteDimensionality = 4;  
 }
 
 
@@ -68,63 +67,77 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
+// Tells the filters whether gradient will be 1d, 2d, 3d, or 4d, and
+// which axes to operate on.
+void vtkImageGradientMagnitude::SetFilteredAxes(int num, int *axes)
+{
+  this->vtkImageFilter::SetFilteredAxes(num, axes);
+  this->NumberOfExecutionAxes = 4;
+}
+
+    
+
+//----------------------------------------------------------------------------
+// Description:
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageGradientMagnitude::ComputeOutputImageInformation(
-		      vtkImageRegion *inRegion, vtkImageRegion *outRegion)
-{
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int idx;
+void vtkImageGradientMagnitude::ExecuteImageInformation(vtkImageCache *in, 
+							vtkImageCache *out)
+{  
+  int extent[8];
+  int idx, axis;
 
-  inRegion->GetImageExtent(VTK_IMAGE_DIMENSIONS, extent);
+  in->GetWholeExtent(extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
-    for (idx = 0; idx < this->Dimensionality; ++idx)
+    for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
       {
-      extent[idx*2] += 1;
-      extent[idx*2 + 1] -= 1;
+      axis = this->FilteredAxes[idx];
+      extent[axis*2] += 1;
+      extent[axis*2 + 1] -= 1;
       }
     }
   
-  outRegion->SetImageExtent(VTK_IMAGE_DIMENSIONS, extent);
+  out->SetWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the input extent necessary to generate the output.
-void vtkImageGradientMagnitude::ComputeRequiredInputRegionExtent(
-			vtkImageRegion *outRegion, vtkImageRegion *inRegion)
+void vtkImageGradientMagnitude::ComputeRequiredInputUpdateExtent(
+			vtkImageCache *out, vtkImageCache *in)
 {
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int *imageExtent;
-  int idx;
+  int extent[8];
+  int *wholeExtent;
+  int idx, axis;
 
-  imageExtent = inRegion->GetImageExtent();
-  outRegion->GetExtent(VTK_IMAGE_DIMENSIONS, extent);
+  wholeExtent = in->GetWholeExtent();
+  out->GetUpdateExtent(extent);
   
-  // grow input image extent.
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  // grow input whole extent.
+  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
     {
-    extent[idx*2] -= 1;
-    extent[idx*2+1] += 1;
+    axis = this->FilteredAxes[idx];
+    extent[axis*2] -= 1;
+    extent[axis*2+1] += 1;
     if (this->HandleBoundaries)
       {
-      // we must clip extent with image extent is we hanlde boundaries.
-      if (extent[idx*2] < imageExtent[idx*2])
+      // we must clip extent with whole extent is we hanlde boundaries.
+      if (extent[axis*2] < wholeExtent[axis*2])
 	{
-	extent[idx*2] = imageExtent[idx*2];
+	extent[axis*2] = wholeExtent[axis*2];
 	}
-      if (extent[idx*2 + 1] > imageExtent[idx*2 + 1])
+      if (extent[axis*2 + 1] > wholeExtent[axis*2 + 1])
 	{
-	extent[idx*2 + 1] = imageExtent[idx*2 + 1];
+	extent[axis*2 + 1] = wholeExtent[axis*2 + 1];
 	}
       }
     }
   
-  inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, extent);
+  in->SetUpdateExtent(extent);
 }
 
 
@@ -152,11 +165,11 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
   int inInc0, inInc1, inInc2, inInc3;
   T *inPtr0, *inPtr1, *inPtr2, *inPtr3;
   // For computation of gradient (everything has to be arrays for loop).
-  int *incs, *imageExtent, *idxs, outIdxs[VTK_IMAGE_DIMENSIONS];
+  int *incs, *wholeExtent, *idxs, outIdxs[VTK_IMAGE_DIMENSIONS];
 
   
   // Get the dimensionality of the gradient.
-  axesNum = self->GetDimensionality();
+  axesNum = self->GetNumberOfFilteredAxes();
   
   // Get information to march through data (skip component)
   inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3); 
@@ -199,15 +212,15 @@ static void vtkImageGradientMagnitudeExecute(vtkImageGradientMagnitude *self,
 	  sum = 0.0;
 	  idxs = outIdxs;
 	  incs = inRegion->GetIncrements(); 
-	  imageExtent = inRegion->GetImageExtent(); 
+	  wholeExtent = inRegion->GetWholeExtent(); 
 	  for(axisIdx = 0; axisIdx < axesNum; ++axisIdx)
 	    {
 	    // Compute difference using central differences (if in extent).
-	    d = ((*idxs - 1) < *imageExtent) ? *inPtr0 : inPtr0[-*incs];
-	    ++imageExtent;  // now points to max.
-	    d -= ((*idxs + 1) > *imageExtent) ? *inPtr0 : inPtr0[*incs];
+	    d = ((*idxs - 1) < *wholeExtent) ? *inPtr0 : inPtr0[-*incs];
+	    ++wholeExtent;  // now points to max.
+	    d -= ((*idxs + 1) > *wholeExtent) ? *inPtr0 : inPtr0[*incs];
 	    d *= r[axisIdx]; // multiply by the data spacing
-	    ++imageExtent;
+	    ++wholeExtent;
 	    ++idxs;
 	    ++incs;
 	    sum += d * d;

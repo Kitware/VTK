@@ -38,6 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include "vtkImageCache.h"
 #include "vtkImageRegion.h"
 #include "vtkImagePadFilter.h"
 
@@ -49,132 +50,101 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImagePadFilter::vtkImagePadFilter()
 {
   int idx;
+
+  this->NumberOfExecutionAxes = 5;
   
   // Initialize output image extent to one pixel (origin)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
-    this->OutputImageExtent[idx * 2] = 0;
-    this->OutputImageExtent[idx * 2 + 1] = 0;
+    this->OutputWholeExtent[idx * 2] = 0;
+    this->OutputWholeExtent[idx * 2 + 1] = 0;
     }
+  this->OutputNumberOfScalarComponents = 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkImagePadFilter::SetOutputWholeExtent(int extent[8])
+{
+  int idx, modified = 0;
+  
+  for (idx = 0; idx < 8; ++idx)
+    {
+    if (this->OutputWholeExtent[idx] != extent[idx])
+      {
+      this->OutputWholeExtent[idx] = extent[idx];
+      this->Modified();
+      }
+    }
+  if (modified)
+    {
+    this->Modified();
+    }
+}
+//----------------------------------------------------------------------------
+void vtkImagePadFilter::SetOutputWholeExtent(int minX, int maxX, 
+					     int minY, int maxY,
+					     int minZ, int maxZ, 
+					     int minT, int maxT)
+{
+  int extent[8];
+  
+  extent[0] = minX;  extent[1] = maxX;
+  extent[2] = minY;  extent[3] = maxY;
+  extent[4] = minZ;  extent[5] = maxZ;
+  extent[6] = minT;  extent[7] = maxT;
+  this->SetOutputWholeExtent(extent);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImagePadFilter::SetAxes(int num, int *axes)
-{
-  int oldAxes[VTK_IMAGE_DIMENSIONS];
-
-  // Save old axes for translation
-  this->GetAxes(oldAxes);
-  // Call superclass method
-  vtkImageFilter::SetAxes(num, axes);
-  
-  // Change the coordinate system of the ivars. 
-  this->ChangeExtentCoordinateSystem(this->OutputImageExtent, oldAxes,
-				     this->OutputImageExtent, this->Axes);
-}  
-
-//----------------------------------------------------------------------------
-// Description:
-// Convert 4d extent from one coordinate system into another.
-// "extentIn" and "extentOut" may be the same array.
-// Copy of vtkImageRegion's method.
-void 
-vtkImagePadFilter::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
-						int *extentOut, int *axesOut)
-{
-  int idx;
-  int absolute[VTK_IMAGE_EXTENT_DIMENSIONS];
-
-  // Change into a known coordinate system (0,1,2,...)
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    absolute[axesIn[idx]*2] = extentIn[idx*2];
-    absolute[axesIn[idx]*2+1] = extentIn[idx*2+1];
-    }
-
-  // Change into the desired coordinate system.
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    extentOut[idx*2] = absolute[axesOut[idx]*2];
-    extentOut[idx*2+1] = absolute[axesOut[idx]*2+1];
-    }
-}
-
-
-
-//----------------------------------------------------------------------------
-void vtkImagePadFilter::SetOutputImageExtent(int num, int *extent)
+void vtkImagePadFilter::GetOutputWholeExtent(int extent[8])
 {
   int idx;
   
-  if (num > VTK_IMAGE_DIMENSIONS)
+  for (idx = 0; idx < 8; ++idx)
     {
-    vtkWarningMacro(<< "SetOutputImageExtent: Dimensions too large");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num*2; ++idx)
-    {
-    this->OutputImageExtent[idx] = extent[idx];
-    }
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImagePadFilter::GetOutputImageExtent(int num, int *extent)
-{
-  int idx;
-  
-  if (num > VTK_IMAGE_DIMENSIONS)
-    {
-    vtkWarningMacro(<< "GetOutputImageExtent: Dimensions too large");
-    num = VTK_IMAGE_DIMENSIONS;
-    }
-  
-  for (idx = 0; idx < num*2; ++idx)
-    {
-    extent[idx] = this->OutputImageExtent[idx];
+    extent[idx] = this->OutputWholeExtent[idx];
     }
 }
 
 
 //----------------------------------------------------------------------------
 // Just change the Image extent.
-void vtkImagePadFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
-					      vtkImageRegion *outRegion)
+void vtkImagePadFilter::ExecuteImageInformation(vtkImageCache *in,
+						vtkImageCache *out)
 {
-  inRegion = inRegion;
-  outRegion->SetImageExtent(VTK_IMAGE_DIMENSIONS, this->OutputImageExtent);
+  in = in;
+  out->SetWholeExtent(this->OutputWholeExtent);
+  out->SetNumberOfScalarComponents(this->OutputNumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImagePadFilter::ComputeRequiredInputRegionExtent(
-						 vtkImageRegion *outRegion,
-						 vtkImageRegion *inRegion)
+void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+							 vtkImageCache *in)
 {
   int idx;
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-  int *imageExtent;
+  int extent[8];
+  int *wholeExtent;
   
-  outRegion->GetExtent(VTK_IMAGE_DIMENSIONS, extent);
-  imageExtent = inRegion->GetImageExtent();
-
+  // handle XYZT
+  out->GetUpdateExtent(extent);
+  wholeExtent = in->GetWholeExtent();
   // Clip
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 0; idx < 4; ++idx)
     {
-    if (extent[idx*2] < imageExtent[idx*2])
+    if (extent[idx*2] < wholeExtent[idx*2])
       {
-      extent[idx*2] = imageExtent[idx*2];
+      extent[idx*2] = wholeExtent[idx*2];
       }
-    if (extent[idx*2 + 1] > imageExtent[idx*2 + 1])
+    if (extent[idx*2 + 1] > wholeExtent[idx*2 + 1])
       {
-      extent[idx*2 + 1] = imageExtent[idx*2 + 1];
+      extent[idx*2 + 1] = wholeExtent[idx*2 + 1];
       }
     }
+  in->SetUpdateExtent(extent);
   
-  inRegion->SetExtent(VTK_IMAGE_DIMENSIONS, extent);
+  // Components are handled automatically (see ExecuteImageInformation)
 }
 
 

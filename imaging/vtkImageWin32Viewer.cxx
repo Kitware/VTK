@@ -395,19 +395,24 @@ int *vtkImageWin32Viewer::GetSize(void)
 }
 
 //----------------------------------------------------------------------------
-// Maybe we should cache the dataOut! (MTime)
-void vtkImageWin32Viewer::Render(void)
+// Expects region to be X, Y, components
+void vtkImageWin32Viewer::RenderRegion(vtkImageRegion *region)
 {
-  int extent[8];
-  int *imageExtent;
   int dataWidth, width, height;
-  vtkImageRegion *region;
+  int size;
+  int extent[6];
+  unsigned char *dataOut;
   void *ptr0, *ptr1, *ptr2;
   float shift, scale;
   HDC compatDC;
   HBITMAP hOldBitmap;
 
-  if ( ! this->Input)
+  // Determine the size of the displayed region.
+  region->GetExtent(3, extent);
+  width = (extent[1] - extent[0] + 1);
+  height = (extent[3] - extent[2] + 1);
+
+  if ( ! region)
     {
     // open the window anyhow if one has not been set.
     if (!this->DeviceContext)
@@ -420,79 +425,9 @@ void vtkImageWin32Viewer::Render(void)
         }
       this->MakeDefaultWindow();
       }
-
-    vtkDebugMacro(<< "Render: Please Set the input.");
     return;
     }
-
-  this->Input->UpdateImageInformation(&(this->Region));
-  imageExtent = this->Region.GetImageExtent();
   
-  // determine the Extent of the 2D input region needed
-  if (this->WholeImage)
-    {
-    this->Region.GetImageExtent(2, extent);
-    }
-  else
-    {
-    this->Region.GetExtent(2, extent);
-    }
-  
-  if (this->ColorFlag)
-    {
-    extent[4] = extent[5] = this->Red;
-    if (this->Green < extent[4]) extent[4] = this->Green;
-    if (this->Green > extent[5]) extent[5] = this->Green;
-    if (this->Blue < extent[4]) extent[4] = this->Blue;
-    if (this->Blue > extent[5]) extent[5] = this->Blue;
-    }
-  else
-    {
-    // Make sure the requested  image is in the range.
-    if (this->Coordinate2 < imageExtent[4])
-      {
-      extent[4] = extent[5] = imageExtent[4];
-      }
-    else if (this->Coordinate2 > imageExtent[5])
-      {
-      extent[4] = extent[5] = imageExtent[5];
-      }
-    else
-      {
-      extent[4] = extent[5] = this->Coordinate2;
-      }
-    }
-
-  // Make sure the requested  image is in the range.
-  if (this->Coordinate3 < imageExtent[6])
-    {
-    extent[6] = extent[6] = imageExtent[6];
-    }
-  else if (this->Coordinate3 > imageExtent[7])
-    {
-    extent[6] = extent[7] = imageExtent[7];
-    }
-  else
-    {
-    extent[6] = extent[7] = this->Coordinate3;
-    }
-  
-  // Get the region form the input
-  region = vtkImageRegion::New();
-  region->SetAxes(this->Region.GetAxes());
-  region->SetExtent(4, extent);
-  this->Input->Update(region);
-  if ( ! region->AreScalarsAllocated())
-    {
-    vtkErrorMacro(<< "View: Could not get region from input.");
-    region->Delete();
-    return;
-    }
-
-  // allocate the display data array.
-  width = (extent[1] - extent[0] + 1);
-  height = (extent[3] - extent[2] + 1);
-
   // In case a window has not been set.
   if (!this->DeviceContext)
     {
@@ -532,15 +467,21 @@ void vtkImageWin32Viewer::Render(void)
     {
     if (this->GetOriginLocation() == VTK_IMAGE_VIEWER_UPPER_LEFT)
       {
-      ptr0 = region->GetScalarPointer(extent[0], extent[2], this->Red);
-      ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
-      ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
+      ptr0 = region->GetScalarPointer(extent[0], extent[2], 
+				      this->RedComponent);
+      ptr1 = region->GetScalarPointer(extent[0], extent[2], 
+				      this->GreenComponent);
+      ptr2 = region->GetScalarPointer(extent[0], extent[2], 
+				      this->BlueComponent);
       }
     else
       {
-      ptr0 = region->GetScalarPointer(extent[0], extent[3], this->Red);
-      ptr1 = region->GetScalarPointer(extent[0], extent[3], this->Green);
-      ptr2 = region->GetScalarPointer(extent[0], extent[3], this->Blue);
+      ptr0 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->RedComponent);
+      ptr1 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->GreenComponent);
+      ptr2 = region->GetScalarPointer(extent[0], extent[3], 
+				      this->BlueComponent);
       }
     
     if ( ! ptr0 ||! ptr1 || ! ptr2)
@@ -616,7 +557,6 @@ void vtkImageWin32Viewer::Render(void)
   SelectObject(compatDC, hOldBitmap);
   DeleteDC(compatDC);
     
-  region->Delete();
 }
 
 void vtkImageWin32ViewerSetupRGBPixelFormat(HDC hDC)

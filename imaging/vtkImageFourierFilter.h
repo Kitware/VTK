@@ -91,12 +91,13 @@ typedef struct{
   (cOut).Real = (C1).Real - (C2).Real; \
   (cOut).Imag = (C1).Imag - (C2).Imag
 
-// Hack for temporary variable
-static vtkImageComplex _vtkImageComplexMultiplyTemp = {0.0, 0.0};
 #define vtkImageComplexMultiply(C1, C2, cOut) \
+{ \
+  vtkImageComplex _vtkImageComplexMultiplyTemp; \
   _vtkImageComplexMultiplyTemp.Real = (C1).Real*(C2).Real-(C1).Imag*(C2).Imag;\
   _vtkImageComplexMultiplyTemp.Imag = (C1).Real*(C2).Imag+(C1).Imag*(C2).Real;\
-  cOut = _vtkImageComplexMultiplyTemp;
+  cOut = _vtkImageComplexMultiplyTemp; \
+}
 
 // This macro calculates exp(cIn) and puts the result in cOut 
 #define vtkImageComplexExponential(cIn, cOut) \

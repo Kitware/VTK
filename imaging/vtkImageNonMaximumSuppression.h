@@ -62,8 +62,8 @@ public:
   
   // Description:
   // These method add VTK_IMAGE_COMPONENT_AXIS as the last axis.
-  void SetAxes(int num, int *axes);
-  vtkImageSetMacro(Axes, int);
+  void SetFilteredAxes(int num, int *axes);
+  vtkImageSetMacro(FilteredAxes, int);
 
   // Description:
   // Rename the inputs.
@@ -84,12 +84,10 @@ protected:
   int HandleBoundaries;
   int Dimensionality;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
-				     vtkImageRegion *inRegion2,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion1,
-					vtkImageRegion *inRegion2);
+  void ExecuteImageInformation(vtkImageCache *in1, vtkImageCache *in2,
+			       vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in1,
+					vtkImageCache *in2);
   void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
 	       vtkImageRegion *outRegion);
 

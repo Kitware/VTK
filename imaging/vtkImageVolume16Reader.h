@@ -95,7 +95,7 @@ public:
 protected:
   vtkTransform *Transform;
   
-  void UpdateImageInformation(vtkImageRegion *region);
+  void UpdateImageInformation();
   void ComputeTransformedDataAxes(int axes[3]);
   void ComputeTransformedDataFlips(int flips[3]);
 };

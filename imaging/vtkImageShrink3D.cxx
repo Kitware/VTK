@@ -40,8 +40,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
-#include "vtkImageShrink3D.h"
 #include "vtkImageCache.h"
+#include "vtkImageShrink3D.h"
 
 
 //----------------------------------------------------------------------------
@@ -49,37 +49,38 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageShrink3D::vtkImageShrink3D()
 {
-  this->Axes[0] = VTK_IMAGE_X_AXIS;
-  this->Axes[1] = VTK_IMAGE_Y_AXIS;
-  this->Axes[2] = VTK_IMAGE_Z_AXIS;
+  this->FilteredAxes[0] = VTK_IMAGE_X_AXIS;
+  this->FilteredAxes[1] = VTK_IMAGE_Y_AXIS;
+  this->FilteredAxes[2] = VTK_IMAGE_Z_AXIS;
+  this->NumberOfFilteredAxes = 3;
+  this->SetExecutionAxes(3, this->FilteredAxes);
+  
   this->ShrinkFactors[0] = this->ShrinkFactors[1] = this->ShrinkFactors[2] = 1;
   this->Shift[0] = this->Shift[1] = this->Shift[2] = 0;
   this->Averaging = 1;
-
-  this->ExecuteDimensionality = 3;
 }
 
 //----------------------------------------------------------------------------
 void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkImageFilter::PrintSelf(os,indent);
   os << indent << "ShrinkFactors: (" << this->ShrinkFactors[0] << ", "
      << this->ShrinkFactors[1] << ", " << this->ShrinkFactors[2] << ")\n";
   os << indent << "Shift: (" << this->Shift[0] << ", "
      << this->Shift[1] << ", " << this->Shift[2] << ")\n";
+  
+  vtkImageFilter::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
-void vtkImageShrink3D::ComputeRequiredInputRegionExtent(
-					       vtkImageRegion *outRegion,
-					       vtkImageRegion *inRegion)
+void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+							vtkImageCache *in)
 {
-  int extent[6];
+  int extent[8];
   int idx;
   
-  outRegion->GetExtent(3, extent);
+  out->GetUpdateExtent(extent);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -96,7 +97,7 @@ void vtkImageShrink3D::ComputeRequiredInputRegionExtent(
       }
     }
   
-  inRegion->SetExtent(3, extent);
+  in->SetUpdateExtent(extent);
 }
 
 
@@ -104,31 +105,31 @@ void vtkImageShrink3D::ComputeRequiredInputRegionExtent(
 // Description:
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::ComputeOutputImageInformation(
-		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+void vtkImageShrink3D::ExecuteImageInformation(vtkImageCache *in, 
+					       vtkImageCache *out)
 {
   int idx;
-  int imageExtent[6];
-  float Spacing[3];
+  int wholeExtent[8];
+  float spacing[4];
 
-  inRegion->GetImageExtent(3, imageExtent);
-  inRegion->GetSpacing(3, Spacing);
+  in->GetWholeExtent(wholeExtent);
+  in->GetSpacing(spacing);
 
   for (idx = 0; idx < 3; ++idx)
     {
     // Scale the output extent
-    imageExtent[2*idx] = 
-      (int)(ceil((float)(imageExtent[2*idx] - this->Shift[idx]) 
+    wholeExtent[2*idx] = 
+      (int)(ceil((float)(wholeExtent[2*idx] - this->Shift[idx]) 
       / (float)(this->ShrinkFactors[idx])));
-    imageExtent[2*idx+1] = (int)(floor(
-     (float)(imageExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
+    wholeExtent[2*idx+1] = (int)(floor(
+     (float)(wholeExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
          / (float)(this->ShrinkFactors[idx])));
     // Change the data spacing
-    Spacing[idx] *= (float)(this->ShrinkFactors[idx]);
+    spacing[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  outRegion->SetImageExtent(3, imageExtent);
-  outRegion->SetSpacing(3, Spacing);
+  out->SetWholeExtent(wholeExtent);
+  out->SetSpacing(spacing);
 }
 
 

@@ -47,7 +47,7 @@ vtkImageDistance1D::vtkImageDistance1D()
 {
   this->SetOutputScalarType(VTK_SHORT);
   
-  this->ExecuteDimensionality = 1;
+  this->NumberOfExecutionAxes = 1;
 }
 
 

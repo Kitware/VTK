@@ -52,9 +52,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageClip_h
 #define __vtkImageClip_h
 
-#include "vtkImageInPlaceFilter.h"
+// I did not make this a subclass of in place filter because
+// the references on the data do not matter. I make no modifiactions
+// to the data.
+#include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageClip : public vtkImageInPlaceFilter
+class VTK_EXPORT vtkImageClip : public vtkImageFilter
 {
 public:
   vtkImageClip();
@@ -71,26 +74,25 @@ public:
   // Description:
   // The new image extent.  You should turn automatic clipping off
   // if you want to set the OutputImageExtent.
-  void SetOutputImageExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(OutputImageExtent);
-  void GetOutputImageExtent(int dim, int *extent);
-  vtkImageGetExtentMacro(OutputImageExtent);
+  void SetOutputWholeExtent(int dim, int *extent);
+  vtkImageSetExtentMacro(OutputWholeExtent);
+  void GetOutputWholeExtent(int dim, int *extent);
+  vtkImageGetExtentMacro(OutputWholeExtent);
+  void SetOutputAxisWholeExtent(int axis, int min, int max);
   
-  // Description:
-  // Sets the output image extent to be the input image extent.
-  void ResetOutputImageExtent();
+  void ResetOutputWholeExtent();
+  void Update();
 
 protected:
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
   int Automatic;
   int Initialized; // Set the OutputImageExtent for the first time.
-  int OutputImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  int OutputWholeExtent[8];
   
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion, 
-				     vtkImageRegion *outRegion);
-  void ComputeOutputImageExtent();
+  void ExecuteImageInformation(vtkImageCache *in, 
+			       vtkImageCache *out);
+  void ComputeOutputWholeExtent();
 };
 
 

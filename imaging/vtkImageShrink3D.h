@@ -71,7 +71,11 @@ public:
   vtkGetVector3Macro(Shift,int);
 
   // Description:
-  // Choose Averaging or sub sampling
+  // Choose Averaging or sub sampling. The averaging neighborhood
+  // currently implemented is not centered on the sampled pixel.
+  // This may cause a half pixel shift in your output image.
+  // You can changed "Shift to get arround this, or use
+  // vtkImageGaussianSmooth or vtkImageMean with strides.
   vtkSetMacro(Averaging,int);
   vtkGetMacro(Averaging,int);
   vtkBooleanMacro(Averaging,int);
@@ -82,10 +86,8 @@ protected:
   int Shift[3];
   int Averaging;
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
-  void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
-					vtkImageRegion *inRegion);
+  void ExecuteImageInformation(vtkImageCache *in, vtkImageCache *out);
+  void ComputeRequiredInputUpdateExtent(vtkImageCache *out, vtkImageCache *in);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);  
 };
 

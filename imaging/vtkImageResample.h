@@ -62,25 +62,16 @@ public:
   // Description:
   // Set/Get Magnification factors.
   // Zero is a reserved value indicating values have not been computed.
-  void SetMagnificationFactors(int num, float *factors);
-  vtkImageSetMacro(MagnificationFactors,float);
-  void GetMagnificationFactors(int num, float *factors);
-  vtkImageGetMacro(MagnificationFactors,float);
-  float *GetMagnificationFactors() {return this->MagnificationFactors;};  
+  void SetAxisMagnificationFactor(int axis, float MagnificationFactor);
   
   // Description:
   // Set desired spacing.  
   // Zero is a reserved value indicating spacing has not been set.
-  void SetOutputSpacing(int num, float *spacing);
-  vtkImageSetMacro(OutputSpacing,float);
-  
-  // Description:
-  // Determines how many sub filters are created.
-  void SetDimensionality(int num);
+  void SetAxisOutputSpacing(int axis, float OutputSpacing);
   
 protected:
-  float MagnificationFactors[VTK_IMAGE_DIMENSIONS];
-  float OutputSpacing[VTK_IMAGE_DIMENSIONS];
+  float MagnificationFactors[4];
+  float OutputSpacing[4];
 };
 
 #endif

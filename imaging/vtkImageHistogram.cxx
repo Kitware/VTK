@@ -55,7 +55,7 @@ vtkImageHistogram::vtkImageHistogram()
 
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   
-  this->ExecuteDimensionality = 2;
+  this->NumberOfExecutionAxes = 2;
 }
 
 //----------------------------------------------------------------------------

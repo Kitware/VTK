@@ -18,15 +18,14 @@ reader SetDataMask 0x7fff
 
 vtkImageWrapPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputImageExtent -300 355 -300 370 0 92
+pad SetOutputWholeExtent -300 355 -300 370 0 92 0 0
 pad ReleaseDataFlagOff
 
 vtkImageViewer viewer
-viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
 viewer SetInput [pad GetOutput]
-viewer SetCoordinate2 $sliceNumber
-viewer SetColorWindow 3000
-viewer SetColorLevel 1500
+viewer SetZSlice $sliceNumber
+viewer SetColorWindow 2000
+viewer SetColorLevel 1000
 #viewer DebugOn
 viewer Render
 
@@ -48,8 +47,8 @@ scale .wl.f2.level -from 1 -to 2000 -orient horizontal -command SetLevel
 checkbutton .wl.video -text "Inverse Video" -variable inverseVideo -command SetInverseVideo
 
 
-.wl.f1.window set 3000
-.wl.f2.level set 1500
+.wl.f1.window set 2000
+.wl.f2.level set 1000
 
 
 pack .slice .wl -side left
@@ -63,7 +62,7 @@ proc SliceUp {} {
    global sliceNumber viewer
    if {$sliceNumber < 92} {set sliceNumber [expr $sliceNumber + 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber
+   viewer SetZSlice $sliceNumber
    viewer Render
 }
 
@@ -71,7 +70,7 @@ proc SliceDown {} {
    global sliceNumber viewer
    if {$sliceNumber > 0} {set sliceNumber [expr $sliceNumber - 1]}
    puts $sliceNumber
-   viewer SetCoordinate2 $sliceNumber
+   viewer SetZSlice $sliceNumber
    viewer Render
 }
 

@@ -56,7 +56,7 @@ vtkImageMean1D::vtkImageMean1D()
   this->SetKernelSize(1);
 
   // For better performance, the execute function was written as a 2d.
-  this->ExecuteDimensionality = 2;
+  this->NumberOfExecutionAxes = 2;
 }
 
 

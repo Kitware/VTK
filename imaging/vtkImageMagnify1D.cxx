@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
+#include "vtkImageCache.h"
 #include "vtkImageMagnify1D.h"
 
 
@@ -49,75 +50,85 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify1D::vtkImageMagnify1D()
 {
-  this->SetAxes(VTK_IMAGE_X_AXIS);
+  this->SetFilteredAxis(VTK_IMAGE_X_AXIS);
   this->MagnificationFactor = 1;
-  this->InterpolateOff();
-
-  // For better performance, the execute function was written as a 2d.
-  this->ExecuteDimensionality = 2;
+  this->Interpolate = 0;
 }
 
+
+//----------------------------------------------------------------------------
+void vtkImageMagnify1D::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << "MagnificationFactor: " << this->MagnificationFactor << "\n";
+  os << indent << "Interpolate: " << this->Interpolate << "\n";
+
+  vtkImageFilter::PrintSelf(os,indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageMagnify1D::SetFilteredAxis(int axis)
+{
+  this->SetFilteredAxes(1, &axis);
+  // For better performance, the execute function was written as a 2d.
+  this->NumberOfExecutionAxes = 2;
+}
 
 //----------------------------------------------------------------------------
 // Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
-void vtkImageMagnify1D::ComputeRequiredInputRegionExtent(
-					       vtkImageRegion *outRegion,
-					       vtkImageRegion *inRegion)
+void vtkImageMagnify1D::ComputeRequiredInputUpdateExtent(vtkImageCache *out,
+							 vtkImageCache *in)
 {
-  int extent[2];
+  int min, max;
   
-  outRegion->GetExtent(1, extent);
+  out->GetAxisUpdateExtent(this->FilteredAxes[0], min, max);
   
   // For Min. Round Down
-  extent[0] = 
-    (int)(floor((float)(extent[0]) / (float)(this->MagnificationFactor)));
+  min = (int)(floor((float)(min) / (float)(this->MagnificationFactor)));
   
   if (this->Interpolate)
     {
     // Round Up
-    extent[1] = 
-      (int)(ceil((float)(extent[1]) / (float)(this->MagnificationFactor)));
+    max = (int)(ceil((float)(max) / (float)(this->MagnificationFactor)));
     }
   else
     {
-    extent[1] =
-      (int)(floor((float)(extent[1]) / (float)(this->MagnificationFactor)));
+    max = (int)(floor((float)(max) / (float)(this->MagnificationFactor)));
     }
   
-  inRegion->SetExtent(1, extent);
+  in->SetAxisUpdateExtent(this->FilteredAxes[0], min, max);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Computes any global image information associated with regions.
-void vtkImageMagnify1D::ComputeOutputImageInformation(
-		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+void vtkImageMagnify1D::ExecuteImageInformation(vtkImageCache *in, 
+						vtkImageCache *out)
 {
-  int imageExtent[2];
-  float Spacing;
+  int wholeMin, wholeMax;
+  float spacing;
 
-  inRegion->GetImageExtent(1, imageExtent);
-  inRegion->GetSpacing(Spacing);
+  in->GetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
+  in->GetAxisSpacing(this->FilteredAxes[0], spacing);
 
   // Scale the output extent
-  imageExtent[0] *= this->MagnificationFactor;
+  wholeMin *= this->MagnificationFactor;
   if (this->Interpolate)
     {
-    imageExtent[1] *= this->MagnificationFactor;
+    wholeMax *= this->MagnificationFactor;
     }
   else
     {
-    imageExtent[1] = (imageExtent[1]+1) * this->MagnificationFactor - 1;
+    wholeMax = (wholeMax+1) * this->MagnificationFactor - 1;
     }
   
   // Change the data spacing
-  Spacing /= (float)(this->MagnificationFactor);
+  spacing /= (float)(this->MagnificationFactor);
 
-  outRegion->SetImageExtent(1, imageExtent);
-  outRegion->SetSpacing(Spacing);
+  out->SetAxisWholeExtent(this->FilteredAxes[0], wholeMin, wholeMax);
+  out->SetAxisSpacing(this->FilteredAxes[0], spacing);
 }
 
 
