@@ -258,8 +258,8 @@ public:
   vtkTexture *GetTexture();
 
   // Description:
-  // Get the plane properties. The properties of the plane when selected
-  // and unselected can be manipulated.
+  // Get the plane's outline properties. The properties of the plane's outline
+  // when selected and unselected can be manipulated.
   virtual void SetPlaneProperty(vtkProperty*);
   vtkGetObjectMacro(PlaneProperty,vtkProperty);
   virtual void SetSelectedPlaneProperty(vtkProperty*);
@@ -382,73 +382,73 @@ protected:
   int   UserLookupTableEnabled;
   int   DisplayText;
 
-  // the plane
-  vtkActor          *PlaneActor;
-  vtkPolyDataMapper *PlaneMapper;
+  // The geometric represenation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
-  vtkPolyData       *PlaneOutline;
-  void HighlightPlane(int highlight);
+  float              Normal[3]; // plane normal normalized
+  vtkPoints         *PlaneOutlinePoints;
+  vtkPolyData       *PlaneOutlinePolyData;
+  vtkActor          *PlaneOutlineActor;
+  vtkPolyDataMapper *PlaneOutlineMapper;
+  void               GeneratePlaneOutline();
+  void               HighlightPlane(int highlight);
 
-  void PositionHandles();
+  void BuildRepresentation();
 
   // Do the picking
   vtkCellPicker *PlanePicker;
 
-  // Methods to manipulate the plane.
+  // Methods to manipulate the plane
   void WindowLevel(int X, int Y);
   void Push(double *p1, double *p2);
   void Spin(double *p1, double *p2);
   void Rotate(double *p1, double *p2, double *vpn);
   void Scale(double *p1, double *p2, int X, int Y);
   void Translate(double *p1, double *p2);
-  
-  // Plane normal, normalized
-  float Normal[3];
 
-  vtkTransform         *Transform;
-  vtkMatrix4x4         *ResliceAxes;
-  vtkTextureMapToPlane *TexturePlaneCoords;
+  vtkImageData         *ImageData;
   vtkImageReslice      *Reslice;
+  vtkMatrix4x4         *ResliceAxes;
+  vtkTransform         *Transform;
+  vtkTextureMapToPlane *TexturePlaneCoords;
   vtkDataSetMapper     *TexturePlaneMapper;
   vtkActor             *TexturePlaneActor;
   vtkLookupTable       *LookupTable;
   vtkImageMapToColors  *ColorMap;
   vtkTexture           *Texture;
-  vtkImageData         *ImageData;
 
   // Properties used to control the appearance of selected objects and
-  // the manipulator in general.
+  // the manipulator in general.  The plane property is actually that for
+  // the outline.
   vtkProperty   *PlaneProperty;
   vtkProperty   *SelectedPlaneProperty;
   vtkProperty   *CursorProperty;
   vtkProperty   *MarginProperty;
   void           CreateDefaultProperties();
 
+  // Reslice and texture management
   void UpdateNormal();
   void UpdateOrigin();
   void GenerateTexturePlane();
-  void SetRepresentation();
 
   // The cross-hair cursor
-  vtkPoints          *CursorPoints;
-  vtkPolyData        *CursorPolyData;
-  vtkPolyDataMapper  *CursorMapper;
-  vtkActor           *CursorActor;
+  vtkPoints         *CursorPoints;
+  vtkPolyData       *CursorPolyData;
+  vtkPolyDataMapper *CursorMapper;
+  vtkActor          *CursorActor;
+  int                CurrentCursorPosition[3];
+  float              CurrentImageValue; // Set to VTK_FLOAT_MAX when invalid
+  void               GenerateCursor();
+  void               UpdateCursor(int,int);
+  void               ActivateCursor(int);
+  void               ComputeImageToWorldCoords(float* in, float* out);
+  void               ComputeWorldToImageCoords(float* in, float* out);
 
   // The text to display W/L, image data
-  vtkTextActor    *TextActor;
-  char       TextBuff[128];
-
-  void  UpdateCursor(int,int);
-  void  ActivateCursor(int);
-  void  ActivateText(int);
-  void  ManageTextDisplay();
-  void  GenerateCursor();
-  void  GenerateText();
-  void  ComputeImageToWorldCoords(float* in, float* out);
-  void  ComputeWorldToImageCoords(float* in, float* out);
-  int   CurrentCursorPosition[3];
-  float CurrentImageValue;       // Set to VTK_FLOAT_MAX when invalid
+  vtkTextActor *TextActor;
+  char          TextBuff[128];
+  void          GenerateText();
+  void          ManageTextDisplay();
+  void          ActivateText(int);
 
   // Oblique reslice control
   float RotateAxis[3];
@@ -460,11 +460,10 @@ protected:
   vtkPolyData       *MarginPolyData;
   vtkPolyDataMapper *MarginMapper;
   vtkActor          *MarginActor;
-
-  void UpdateMargins();
-  void GenerateMargins();
-  void ActivateMargins(int);
-  int MarginSelectMode;
+  int                MarginSelectMode;
+  void               GenerateMargins();
+  void               UpdateMargins();
+  void               ActivateMargins(int);
 
 private:
   vtkImagePlaneWidget(const vtkImagePlaneWidget&);  //Not implemented
