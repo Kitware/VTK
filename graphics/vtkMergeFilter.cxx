@@ -142,6 +142,8 @@ void vtkMergeFilter::Update()
 
   this->Updating = 1;
   this->Geometry->Update();
+  mtime = this->Geometry->GetMTime();
+  
   if ( this->Scalars ) 
     {
     this->Scalars->Update();
