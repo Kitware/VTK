@@ -21,7 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "gl2ps.h"
 
-vtkCxxRevisionMacro(vtkGL2PSExporter, "1.1");
+vtkCxxRevisionMacro(vtkGL2PSExporter, "1.2");
 vtkStandardNewMacro(vtkGL2PSExporter);
 
 vtkGL2PSExporter::vtkGL2PSExporter()
@@ -52,6 +52,16 @@ void vtkGL2PSExporter::WriteData()
   char *fName;
   GLint format;
   GLint options = GL2PS_NONE;
+  int buffsize = 0;
+  int state = GL2PS_OVERFLOW;
+  GLint viewport[4];
+  int *sz = this->RenderWindow->GetSize();
+
+  // Setting this to the entire window size for now.
+  viewport[0] = 0;
+  viewport[1] = 0;
+  viewport[2] = sz[0];
+  viewport[3] = sz[1];
 
   // Set the options based on user's choices.   
   if (this->DrawBackground == 1)
@@ -114,14 +124,12 @@ void vtkGL2PSExporter::WriteData()
     }
 
   // Call gl2ps to generate the file.
-  int buffsize = 0;
-  int state = GL2PS_OVERFLOW;
   while(state == GL2PS_OVERFLOW)
     {
     buffsize += 1024*1024;
-    gl2psBeginPage(this->RenderWindow->GetWindowName(), "VTK",
+    gl2psBeginPage(this->RenderWindow->GetWindowName(), "VTK", viewport,
                    format, GL2PS_BSP_SORT, options,
-                   GL_RGBA, 0, NULL, buffsize, fpObj, fName);
+                   GL_RGBA, 0, NULL, 0, 0, 0, buffsize, fpObj, fName);
     this->RenderWindow->Render();
     state = gl2psEndPage();
     }
