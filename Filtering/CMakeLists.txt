@@ -22,11 +22,13 @@ vtkImageTwoInputFilter
 vtkImplicitBoolean
 vtkImplicitDataSet
 vtkImplicitSelectionLoop
+vtkImplicitSum
 vtkImplicitVolume
 vtkImplicitWindowFunction
 vtkKochanekSpline
 vtkMergePoints
 vtkMergePoints2D 
+vtkPerlinNoise
 vtkPiecewiseFunction
 vtkPiecewiseFunctionSource
 vtkPiecewiseFunctionShiftScale
