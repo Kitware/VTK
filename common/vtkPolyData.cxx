@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolygon.h"
 #include "vtkEmptyCell.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkCriticalSection.h"
 
 
 //----------------------------------------------------------------------------
@@ -76,6 +76,8 @@ vtkPolyData* vtkPolyData::New()
 // works properly.
 vtkCellArray *vtkPolyData::Dummy = NULL;
 
+static vtkSimpleCriticalSection DummyCritSect;
+
 vtkPolyData::vtkPolyData ()
 {
   // Create these guys only when needed. This saves a huge amount
@@ -96,6 +98,7 @@ vtkPolyData::vtkPolyData ()
   this->Strips = NULL;
 
   // static variable, initialized only once.
+  DummyCritSect.Lock();
   if (this->Dummy == NULL) 
     {
     this->Dummy = vtkCellArray::New();
@@ -106,6 +109,7 @@ vtkPolyData::vtkPolyData ()
     {
     this->Dummy->Register(this);
     }
+  DummyCritSect.Unlock();
 
   this->Cells = NULL;
   this->Links = NULL;
@@ -117,6 +121,7 @@ vtkPolyData::~vtkPolyData()
   vtkPolyData::Initialize();
   // Reference to static dummy persists. 
   // Keep destructed dummy from being used again.
+  DummyCritSect.Lock();
   if (this->Dummy->GetReferenceCount() == 1)
     {
     this->Dummy->UnRegister(this);
@@ -126,6 +131,7 @@ vtkPolyData::~vtkPolyData()
     {
     this->Dummy->UnRegister(this);
     }
+  DummyCritSect.Unlock();
 
   if (this->Vertex)
     {
