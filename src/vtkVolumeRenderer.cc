@@ -100,8 +100,8 @@ void vtkVolumeRenderer::Render(vtkRenderer *ren)
 
   // allocate the memory for image and rays
   if (this->Image) delete [] this->Image;
-  this->Image = new (unsigned char) [size[0]*size[1]*3];
-  rays = new (float) [this->Volumes.GetNumberOfItems()*4*steps];
+  this->Image = new unsigned char [size[0]*size[1]*3];
+  rays = new float [this->Volumes.GetNumberOfItems()*4*steps];
 
   for (x = 0; x < size[0]; x++)
     {
@@ -363,7 +363,7 @@ void vtkVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 				   int steps, float *resultRay)
 {
   int i,j;
-  float p1Mapper[4], p2Mapper[4];
+  float p1Mapper[3], p2Mapper[3];
   float ray[3];
   vtkStructuredPoints *strPts;
   static vtkVoxel cell; // use to take advantage of Hitbbox() method

@@ -95,7 +95,7 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
       else if (pcoords[i] > 1.0) pc[i] = 1.0;
       else pc[i] = pcoords[i];
       }
-    this->EvaluateLocation(subId, pc, closestPoint, w);
+    this->EvaluateLocation(subId, pc, closestPoint, (float *)w);
     dist2 = math.Distance2BetweenPoints(closestPoint,x);
     return 0;
     }
