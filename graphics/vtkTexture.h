@@ -68,7 +68,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkTexture_h
 #define __vtkTexture_h
 
-#include "vtkObject.h"
+#include "vtkProcessObject.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
 #include "vtkScalars.h"
@@ -80,7 +80,7 @@ class vtkWindow;
 #define VTK_TEXTURE_QUALITY_16BIT   16
 #define VTK_TEXTURE_QUALITY_32BIT   32
 
-class VTK_EXPORT vtkTexture : public vtkObject
+class VTK_EXPORT vtkTexture : public vtkProcessObject
 {
 public:
   static vtkTexture *New();
@@ -139,9 +139,9 @@ public:
   vtkBooleanMacro(MapColorScalarsThroughLookupTable,int);
 
   // Description:
-  // Specify the data for the texture map.
-  vtkSetObjectMacro(Input,vtkImageData);
-  vtkGetObjectMacro(Input,vtkImageData);
+  // This process object accepts image data as input.
+  void SetInput( vtkImageData *input );
+  vtkImageData *GetInput();
   
   // Description:
   // Specify the lookup table to convert scalars if necessary
@@ -166,7 +166,6 @@ protected:
   int   Interpolate;
   int   Quality;
   int   MapColorScalarsThroughLookupTable;
-  vtkImageData *Input;
   vtkLookupTable *LookupTable;
   vtkScalars *MappedScalars;
   

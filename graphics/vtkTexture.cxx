@@ -52,7 +52,6 @@ vtkTexture::vtkTexture()
   this->Interpolate = 0;
   this->Quality = VTK_TEXTURE_QUALITY_DEFAULT;
 
-  this->Input = NULL;
   this->LookupTable = NULL;
   this->MappedScalars = NULL;
   this->MapColorScalarsThroughLookupTable = 0;
@@ -71,11 +70,8 @@ vtkTexture::~vtkTexture()
     {
     this->LookupTable->UnRegister(this);
     }
-  if (this->Input) 
-    {
-    this->Input->UnRegister(this);
-    this->Input = NULL;
-    }
+
+  this->SetInput(NULL);
 }
 
 // return the correct type of Texture 
@@ -84,6 +80,21 @@ vtkTexture *vtkTexture::New()
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkTexture");
   return (vtkTexture*)ret;
+}
+
+vtkImageData *vtkTexture::GetInput()
+{
+   if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return vtkImageData::SafeDownCast(this->Inputs[0]); 
+}
+
+void vtkTexture::SetInput( vtkImageData *input )
+{
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 void vtkTexture::SetLookupTable(vtkLookupTable *lut)
@@ -118,9 +129,9 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "MapColorScalarsThroughLookupTable: " << (this->MapColorScalarsThroughLookupTable  ? "On\n" : "Off\n");
 
-  if ( this->Input )
+  if ( this->GetInput() )
     {
-    os << indent << "Input: (" << (void *)this->Input << ")\n";
+    os << indent << "Input: (" << (void *)this->GetInput() << ")\n";
     }
   else
     {
@@ -185,14 +196,17 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
 
 void vtkTexture::Render(vtkRenderer *ren)
 {
-  if (this->Input) //load texture map
+  vtkImageData *input = this->GetInput();
+  
+  if (input) //load texture map
     {
-	// We do not want more than requested.
-	this->Input->RequestExactExtentOn();
-	// Updating the whole extent may not be necessary.
-    this->Input->UpdateInformation();
-    this->Input->SetUpdateExtentToWholeExtent();
-    this->Input->Update();
+    // We do not want more than requested.
+    input->RequestExactExtentOn();
+    
+    // Updating the whole extent may not be necessary.
+    input->UpdateInformation();
+    input->SetUpdateExtentToWholeExtent();
+    input->Update();
     this->Load(ren);
     }
 }

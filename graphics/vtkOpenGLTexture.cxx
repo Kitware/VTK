@@ -122,10 +122,11 @@ void vtkOpenGLTexture::ReleaseGraphicsResources(vtkWindow *renWin)
 void vtkOpenGLTexture::Load(vtkRenderer *ren)
 {
   GLenum format = GL_LUMINANCE;
-
+  vtkImageData *input = this->GetInput();
+  
   // need to reload the texture
   if (this->GetMTime() > this->LoadTime.GetMTime() ||
-      this->Input->GetMTime() > this->LoadTime.GetMTime() ||
+      input->GetMTime() > this->LoadTime.GetMTime() ||
       (this->GetLookupTable() && this->GetLookupTable()->GetMTime () >  
        this->LoadTime.GetMTime()) || 
        ren->GetRenderWindow() != this->RenderWindow)
@@ -141,8 +142,8 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     GLuint tempIndex=0;
 
     // get some info
-    size = this->Input->GetDimensions();
-    scalars = (this->Input->GetPointData())->GetScalars();
+    size = input->GetDimensions();
+    scalars = (input->GetPointData())->GetScalars();
 
     // make sure scalars are non null
     if (!scalars) 
