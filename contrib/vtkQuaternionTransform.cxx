@@ -94,7 +94,7 @@ vtkQuaternionTransform::~vtkQuaternionTransform()
 //----------------------------------------------------------------------------
 void vtkQuaternionTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkGeneralTransform::PrintSelf(os, indent);
+  vtkLinearTransform::PrintSelf(os, indent);
 
   os << indent << "Quaternion: " << "( " <<
      this->Quaternion[0] << ", " << this->Quaternion[1] << ", " <<
@@ -407,9 +407,9 @@ void vtkQuaternionTransform::RotateQuaternion(double w,
 					       this->Quaternion);
     vtkQuaternionTransform::QuaternionNormalize(this->Quaternion);
 
-    double x = position[0];
-    double y = position[1];
-    double z = position[2];
+    x = position[0];
+    y = position[1];
+    z = position[2];
   
     double matrix[3][3];
     vtkQuaternionTransform::QuaternionToMatrix(quat,matrix);

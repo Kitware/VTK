@@ -273,10 +273,11 @@ void vtkPerspectiveTransformConcatenation::Update()
   unsigned long mtime;
   unsigned long matrixMTime = this->Matrix->GetMTime();
   unsigned long maxMTime = 0;
+  int i;
 
   if (this->InverseFlag)
     {
-    for (int i = this->NumberOfTransforms-1; i >= 0; i--)
+    for (i = this->NumberOfTransforms-1; i >= 0; i--)
       {
       mtime = this->TransformList[i]->GetMTime();
       if (mtime > maxMTime)
@@ -287,7 +288,7 @@ void vtkPerspectiveTransformConcatenation::Update()
     if (maxMTime > matrixMTime)
       {
       this->Matrix->Identity();
-      for (int i = this->NumberOfTransforms-1; i >= 0; i--)
+      for (i = this->NumberOfTransforms-1; i >= 0; i--)
 	{
 	vtkPerspectiveTransform *transform = this->TransformList[i];
 	transform->Update();
@@ -298,7 +299,7 @@ void vtkPerspectiveTransformConcatenation::Update()
     }
   else
     {
-    for (int i = 0; i < this->NumberOfTransforms; i++)
+    for (i = 0; i < this->NumberOfTransforms; i++)
       {
       mtime = this->TransformList[i]->GetMTime();
       if (mtime > maxMTime)
@@ -309,7 +310,7 @@ void vtkPerspectiveTransformConcatenation::Update()
     if (maxMTime > matrixMTime)
       {
       this->Matrix->Identity();
-      for (int i = 0; i < this->NumberOfTransforms; i++)
+      for (i = 0; i < this->NumberOfTransforms; i++)
 	{
 	vtkPerspectiveTransform *transform = this->TransformList[i];
 	transform->Update();

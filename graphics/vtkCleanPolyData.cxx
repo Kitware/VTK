@@ -364,19 +364,19 @@ void vtkCleanPolyData::Execute()
   // Cell data output
   int CombinedCellID = vertIDcounter;
   if (newLines) {
-      for (int i=0; i<lineIDcounter; i++, CombinedCellID++) {
+      for (i=0; i<lineIDcounter; i++, CombinedCellID++) {
           outputCD->CopyData(outLineData, i, CombinedCellID);
       }
       outLineData->Delete();
   }
   if (newPolys) {
-      for (int i=0; i<polyIDcounter; i++, CombinedCellID++) {
+      for (i=0; i<polyIDcounter; i++, CombinedCellID++) {
           outputCD->CopyData(outPolyData, i, CombinedCellID);
       }
       outPolyData->Delete();
   }
   if (newStrips) {
-      for (int i=0; i<strpIDcounter; i++, CombinedCellID++) {
+      for (i=0; i<strpIDcounter; i++, CombinedCellID++) {
           outputCD->CopyData(outStrpData, i, CombinedCellID);
       }
       outStrpData->Delete();
