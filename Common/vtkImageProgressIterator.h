@@ -51,52 +51,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkImageProgressIterator_h
 
 #include "vtkImageIterator.h"
-#include "vtkProcessObject.h"
+class vtkProcessObject;
 
 template<typename DType> class VTK_COMMON_EXPORT vtkImageProgressIterator : 
   public vtkImageIterator<DType> 
 {
 public:        
-  vtkImageProgressIterator(vtkImageData *imgd, int *ext, 
-                           vtkProcessObject *po, 
-                           int id): vtkImageIterator<DType>(imgd,ext)
-    {
-      m_Target = 
-        (unsigned long)((ext[5] - ext[4]+1)*(ext[3] - ext[2]+1)/50.0);
-      m_Target++;
-      m_Count = 0;
-      m_Count2 = 0;
-      m_ProcessObject = po;
-      m_Id = id;
-    }
 
-  void NextSpan()
-    {
-      m_Ptr = m_Ptr + m_Inc[1];
-      m_SpanEndPtr += m_Inc[1];
-      if (m_Ptr >= m_SliceEndPtr)
-        {
-        m_Ptr = m_Ptr + m_CInc[2];
-        m_SliceEndPtr += m_Inc[2];
-        }
-      if (m_Id)
-        {
-        if (m_Count2 == m_Target)
-          {
-          m_Count += m_Count2;
-          m_ProcessObject->UpdateProgress(m_Count/(50.0*m_Target));
-          m_Count2 = 0;
-          }
-        m_Count2++;
-        }
-    }
+  // Description:
+  // Create a progress iterator for the provided image data
+  // and extent to iterate over. The passes progress object will
+  // receive any UpdateProgress calls if the thread id is zero
+  vtkImageProgressIterator(vtkImageData *imgd, int *ext, 
+                           vtkProcessObject *po, int id);
+
+  // Description:
+  // Move the iterator to the next span, may call UpdateProgress on the
+  // filter (vtkProcessObject)
+  void NextSpan();
   
 protected:
-  vtkProcessObject *m_ProcessObject;
-  unsigned long m_Count;
-  unsigned long m_Count2;
-  unsigned long m_Target;
-  int m_Id;
+  vtkProcessObject *ProcessObject;
+  unsigned long     Count;
+  unsigned long     Count2;
+  unsigned long     Target;
+  int               ID;
 };
+
+#ifdef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+// include the code
+#include "vtkImageProgressIterator.cxx"
+#endif
 
 #endif

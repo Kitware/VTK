@@ -58,64 +58,47 @@ template<typename DType> class VTK_COMMON_EXPORT vtkImageIterator
 public:        
   typedef DType *SpanIterator;
   
-  vtkImageIterator(vtkImageData *id, int *ext)
-    {
-      m_Ptr = (DType *)id->GetScalarPointerForExtent(ext);
-      id->GetIncrements(m_Inc[0], m_Inc[1], m_Inc[2]);
-      id->GetContinuousIncrements(ext,m_CInc[0], m_CInc[1], m_CInc[2]);
-      m_EndPtr = 
-        (DType *)id->GetScalarPointer(ext[1], ext[3], ext[5]) + m_Inc[0];
-      // handle y z volumes quickly as well
-      if (id->GetExtent()[1] == id->GetExtent()[0])
-        {
-        m_SpanEndPtr = m_Ptr + m_Inc[1]*(ext[3] - ext[2] + 1);
-        m_SliceEndPtr = m_EndPtr;
-        m_CInc[0] = m_CInc[1];
-        m_CInc[1] = m_CInc[2];
-        m_Inc[0] = m_Inc[1];
-        m_Inc[1] = m_Inc[2];
-        }
-      else // normal volumes
-        {
-        m_SpanEndPtr = m_Ptr + m_Inc[0]*(ext[1] - ext[0] + 1);
-        m_SliceEndPtr = m_Ptr + m_Inc[1]*(ext[3] - ext[2] + 1);
-        }
-    }
+  // Description:
+  // Create an image iterator fora given image data and a given extent
+  vtkImageIterator(vtkImageData *id, int *ext);
 
+  // Description:
+  // Move the iterator to the next span
+  void NextSpan();
 
-  void NextSpan()
-    {
-      m_Ptr = m_Ptr + m_Inc[1];
-      m_SpanEndPtr += m_Inc[1];
-      if (m_Ptr >= m_SliceEndPtr)
-        {
-        m_Ptr = m_Ptr + m_CInc[2];
-        m_SliceEndPtr += m_Inc[2];
-        }
-    }
-
+  // Description:
+  // Return an iterator (pointer) for the span
   SpanIterator BeginSpan()
     {
-      return m_Ptr;
+      return this->Pointer;
     }
 
+  // Description:
+  // Return an iterator (pointer) for the end of the span
   SpanIterator EndSpan()
     {
-      return m_SpanEndPtr;
+      return this->SpanEndPointer;
     }
     
+  // Description:
+  // tets if the end of the extent has been reached
   bool IsAtEnd()
     {
-    return (m_Ptr >= m_EndPtr);
+    return (this->Pointer >= this->EndPointer);
     }
 
 protected:
-  DType *m_Ptr;
-  DType *m_SpanEndPtr;
-  DType *m_SliceEndPtr;
-  DType *m_EndPtr;
-  int m_Inc[3];
-  int m_CInc[3];
+  DType *Pointer;
+  DType *SpanEndPointer;
+  DType *SliceEndPointer;
+  DType *EndPointer;
+  int    Increments[3];
+  int    ContinuousIncrements[3];
 };
+
+#ifdef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+// include the code
+#include "vtkImageIterator.cxx"
+#endif
 
 #endif
