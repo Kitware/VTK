@@ -81,7 +81,7 @@ public:
   // Higher level than MapValue:  return the color as 
   // for the scalar value as floats in range [0,1].
   float *GetColor(float value) {
-    this->GetColor(value,this->RGBA); return this->RGBA; };
+    this->GetColor(value,(float *)this->RGBA); return this->RGBA; };
   void GetColor(float value, float color[4]);
 
   // Description:
