@@ -282,7 +282,7 @@ void vtkMapper::AddClippingPlane(vtkPlane *plane)
 {
   if (this->ClippingPlanes == NULL)
     {
-    this->ClippingPlanes = vtkImplicitFunctionCollection::New();
+    this->ClippingPlanes = vtkPlaneCollection::New();
     }
 
   this->ClippingPlanes->AddItem(plane);

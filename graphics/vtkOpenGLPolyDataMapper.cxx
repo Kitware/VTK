@@ -97,7 +97,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow *vtkNotUsed(ren
     glDeleteLists(this->ListId,1);
     this->ListId = 0;
     }
-  this->RenderWindow = NULL;
+  this->RenderWindow = NULL; 
 }
 
 
@@ -125,7 +125,7 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
   vtkTimerLog *timer;
-  vtkImplicitFunctionCollection *clipPlanes;
+  vtkPlaneCollection *clipPlanes;
   vtkPlane *plane;
   int i,numClipPlanes;
   double planeEquation[4];
@@ -215,10 +215,6 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   for (i = 0; i < numClipPlanes; i++)
     {    
     plane = (vtkPlane *)clipPlanes->GetItemAsObject(i);
-    if (strcmp(plane->GetClassName(),"vtkPlane") != 0)
-      {
-      vtkErrorMacro(<< "Attempt to clip with something other than a vtkPlane");
-      }
 
     planeEquation[0] = plane->GetNormal()[0]; 
     planeEquation[1] = plane->GetNormal()[1]; 
