@@ -866,7 +866,7 @@ macro:
      currentFunction->ArgTypes[0] = 309;
      currentFunction->ArgCounts[0] = 1;
      currentFunction->ArgClasses[0] = vtkstrdup("vtkObject");
-     currentFunction->ReturnType = 309;
+     currentFunction->ReturnType = 2309;
      currentFunction->ReturnClass = vtkstrdup($<str>3);
      output_function();
      }
