@@ -3215,6 +3215,7 @@ if test "$use_pthreads" = "yes"; then
 case $system in
     HP-UX-*.10.*)
 	THREAD_LIBS="-lcma"
+	THREAD_FLAGS="-DVTK_USE_PTHREADS -DVTK_HP_PTHREADS"
 	;;
     OSF1-V*)
         THREAD_FLAGS=""
@@ -3242,17 +3243,15 @@ fi
 
 
 
-# on an HP unsing the native CC we need special +d flag for inlines
-VTK_INLINE_FLAGS=""
+# on hp use -Aa for ansi
 if test $ac_cv_prog_gxx = no; then
 case $system in
     HP-UX-*.08.*|HP-UX-*.09.*|HP-UX-*.10.*)
-	VTK_INLINE_FLAGS="+z"
-        echo $ac_n "checking whether ${CXX} accepts +d""... $ac_c" 1>&6
-        echo 'void f(){}' > conftest.cc
-        if test -z "`${CXX} +d -c conftest.cc 2>&1`"; then
+        echo $ac_n "checking whether ${CC} accepts -Aa""... $ac_c" 1>&6
+        echo 'void f(){}' > conftest.c
+        if test -z "`${CC} -Aa -c conftest.cc 2>&1`"; then
           echo "$ac_t""yes" 1>&6
-          VTK_INLINE_FLAGS="+d"
+          ANSI_CFLAGS="-Aa"
         else
           echo "$ac_t""no" 1>&6
         fi
@@ -3520,7 +3519,7 @@ s%@SHLIB_LD_LIBS@%$SHLIB_LD_LIBS%g
 s%@SHLIB_SUFFIX@%$SHLIB_SUFFIX%g
 s%@THREAD_FLAGS@%$THREAD_FLAGS%g
 s%@THREAD_LIBS@%$THREAD_LIBS%g
-s%@VTK_INLINE_FLAGS@%$VTK_INLINE_FLAGS%g
+s%@ANSI_CFLAGS@%$ANSI_CFLAGS%g
 s%@VTK_TEMPLATE_FLAGS@%$VTK_TEMPLATE_FLAGS%g
 s%@subdirs@%$subdirs%g
 
