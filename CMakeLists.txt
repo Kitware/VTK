@@ -378,7 +378,7 @@ ENDIF(VTK_OPENGL_HAS_OSMESA)
 #-----------------------------------------------------------------------------
 # Configure VolumePro support.
 IF(VTK_USE_VOLUMEPRO)
-  INCLUDE(${VTK_SOURCE_DIR}/Modules/FindVLI.cmake)
+  INCLUDE(${VTK_SOURCE_DIR}/CMake/FindVLI.cmake)
   MARK_AS_ADVANCED(VLI_LIBRARY_FOR_VG500 VLI_INCLUDE_PATH_FOR_VG500
                    VLI_LIBRARY_FOR_VP1000 VLI_INCLUDE_PATH_FOR_VP1000)
   IF(VLI_LIBRARY_FOR_VG500 AND VLI_INCLUDE_PATH_FOR_VG500)
