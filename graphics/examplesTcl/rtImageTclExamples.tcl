@@ -182,6 +182,9 @@ foreach afile $files {
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
     
     
+    # reset global GL variables
+    vtkPolyDataMapper rtMapper; rtMapper SetResolveCoincidentTopologyToDefault
+
     # look for a renderWindow ImageWindow or ImageViewer
     # first check for some common names
     if {[info commands renWin] == "renWin"} {
