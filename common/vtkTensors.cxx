@@ -106,13 +106,14 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
 
 // Description:
 // Given a list of pt ids, return an array of tensors.
-void vtkTensors::GetTensors(vtkIdList& ptIds, vtkTensors& ft)
+void vtkTensors::GetTensors(vtkIdList& ptIds, vtkTensors& t)
 {
   int num=ptIds.GetNumberOfIds();
 
+  t.SetNumberOfTensors(num);
   for (int i=0; i<num; i++)
     {
-    ft.InsertTensor(i,this->GetTensor(ptIds.GetId(i)));
+    t.SetTensor(i,this->GetTensor(ptIds.GetId(i)));
     }
 }
 

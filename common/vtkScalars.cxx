@@ -83,11 +83,14 @@ void vtkScalars::SetData(vtkDataArray *data)
 
 // Description:
 // Given a list of point ids, return an array of scalar values.
-void vtkScalars::GetScalars(vtkIdList& ptId, vtkScalars& fs)
+void vtkScalars::GetScalars(vtkIdList& ptIds, vtkScalars& s)
 {
-  for (int i=0; i<ptId.GetNumberOfIds(); i++)
+  int num=ptIds.GetNumberOfIds();
+
+  s.SetNumberOfScalars(num);
+  for (int i=0; i<num; i++)
     {
-    fs.InsertScalar(i,this->GetScalar(ptId.GetId(i)));
+    s.SetScalar(i,this->GetScalar(ptIds.GetId(i)));
     }
 }
 

@@ -70,13 +70,14 @@ void vtkTCoords::SetData(vtkDataArray *data)
 
 // Description:
 // Given a list of pt ids, return an array of texture coordinates.
-void vtkTCoords::GetTCoords(vtkIdList& ptIds, vtkTCoords& ftc)
+void vtkTCoords::GetTCoords(vtkIdList& ptIds, vtkTCoords& tc)
 {
   int num=ptIds.GetNumberOfIds();
 
+  tc.SetNumberOfTCoords(num);
   for (int i=0; i<num; i++)
     {
-    ftc.InsertTCoord(i,this->GetTCoord(ptIds.GetId(i)));
+    tc.SetTCoord(i,this->GetTCoord(ptIds.GetId(i)));
     }
 }
 
