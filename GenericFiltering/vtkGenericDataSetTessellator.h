@@ -34,19 +34,19 @@
 #ifndef __vtkGenericDataSetTessellator_h
 #define __vtkGenericDataSetTessellator_h
 
-#include "vtkGenericDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkPointData;
 class vtkPointLocator;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericDataSetTessellator : public vtkGenericDataSetToUnstructuredGridFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericDataSetTessellator : public vtkUnstructuredGridAlgorithm
 {
 public:
   // Description:
   // Standard VTK methods.
   static vtkGenericDataSetTessellator *New();
   vtkTypeRevisionMacro(vtkGenericDataSetTessellator,
-                       vtkGenericDataSetToUnstructuredGridFilter);
+                       vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
@@ -84,8 +84,10 @@ public:
 protected:
   vtkGenericDataSetTessellator();
   ~vtkGenericDataSetTessellator();
-
-  void Execute();
+  
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  int FillInputPortInformation(int, vtkInformation*);
   
   // See Set/Get KeepCellIds() for explanations.
   int KeepCellIds;

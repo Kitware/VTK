@@ -19,6 +19,8 @@
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -37,7 +39,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.7");
+vtkCxxRevisionMacro(vtkGenericGeometryFilter, "1.8");
 vtkStandardNewMacro(vtkGenericGeometryFilter);
 
 //----------------------------------------------------------------------------
@@ -117,11 +119,24 @@ void vtkGenericGeometryFilter::SetExtent(double extent[6])
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericGeometryFilter::Execute()
+int vtkGenericGeometryFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+   vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId;
   int i, j;
-  vtkGenericDataSet *input= this->GetInput();
+//  vtkGenericDataSet *input= this->GetInput();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   char *cellVis;
@@ -134,14 +149,14 @@ void vtkGenericGeometryFilter::Execute()
   //int npts;
   //vtkIdType pt=0;
   int allVisible;
-  vtkPolyData *output = this->GetOutput();
+//  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   
   if (numCells == 0)
     {
     vtkErrorMacro(<<"No data to clip");
-    return;
+    return 1;
     }
 
   vtkDebugMacro(<<"Executing geometry filter");
@@ -359,6 +374,19 @@ void vtkGenericGeometryFilter::Execute()
     {
     delete [] cellVis;
     }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericGeometryFilter::FillInputPortInformation(int port,
+                                                       vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -438,29 +466,49 @@ unsigned long int vtkGenericGeometryFilter::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericGeometryFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkGenericGeometryFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+//  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int piece, numPieces;
   
   if (this->GetInput() == NULL)
     {
     vtkErrorMacro("No Input");
-    return;
+    return 1;
     }
+  
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
   
   this->GetInput()->SetUpdateExtent(piece, numPieces, 0);
 
   this->GetInput()->RequestExactExtentOn();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkGenericGeometryFilter::ExecuteInformation()
+int vtkGenericGeometryFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
+  // get the info objects
+//  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+//  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   if (this->GetInput() == NULL)
     {
     vtkErrorMacro("No Input");
-    return;
+    return 1;
     }
+  return 1;
 }

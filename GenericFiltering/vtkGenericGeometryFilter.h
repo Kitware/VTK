@@ -44,16 +44,16 @@
 #ifndef __vtkGenericGeometryFilter_h
 #define __vtkGenericGeometryFilter_h
 
-#include "vtkGenericDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkPointLocator;
 class vtkPointData;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericGeometryFilter : public vtkGenericDataSetToPolyDataFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGenericGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkGenericGeometryFilter,vtkGenericDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGenericGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -130,13 +130,15 @@ protected:
   vtkGenericGeometryFilter();
   ~vtkGenericGeometryFilter();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void PolyDataExecute(); //special cases for performance
   void UnstructuredGridExecute();
   void StructuredGridExecute();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  void ExecuteInformation();
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
+  int FillInputPortInformation(int, vtkInformation*);
+  
   vtkIdType PointMaximum;
   vtkIdType PointMinimum;
   vtkIdType CellMinimum;

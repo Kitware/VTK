@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkGenericDataSetTessellator.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkPointData.h"
@@ -31,7 +33,7 @@
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.12");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.13");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -58,12 +60,25 @@ vtkGenericDataSetTessellator::~vtkGenericDataSetTessellator()
 
 //----------------------------------------------------------------------------
 //
-void vtkGenericDataSetTessellator::Execute()
+int vtkGenericDataSetTessellator::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDebugMacro(<< "Executing vtkGenericDataSetTessellator...");
 
-  vtkGenericDataSet *input = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
+//  vtkGenericDataSet *input = this->GetInput();
+//  vtkUnstructuredGrid *output = this->GetOutput();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   vtkPointData *outputPD = output->GetPointData();
@@ -213,7 +228,21 @@ void vtkGenericDataSetTessellator::Execute()
   locs->Delete();
   conn->Delete();
 
-  output->Squeeze();  
+  output->Squeeze();
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericDataSetTessellator::FillInputPortInformation(
+  int port,
+  vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
