@@ -84,9 +84,12 @@ public:
   virtual int Send(unsigned long* data, int length, int remoteThreadId, 
 		   int tag);
   virtual int Send(char* data, int length, int remoteThreadId, int tag);
+  virtual int Send(unsigned char* data, int length, int remoteThreadId, int tag);
   virtual int Send(float* data, int length, int remoteThreadId, int tag);
   virtual int Send(double* data, int length, int remoteThreadId, int tag);
+  virtual int Send(vtkIdType* data, int length, int remoteThreadId, int tag);
   virtual int Send(vtkDataObject* data, int remoteThreadId, int tag);
+  virtual int Send(vtkDataArray* data, int remoteThreadId, int tag);
 
   // Description:
   // This method receives data from a corresponding send. It blocks
@@ -98,11 +101,16 @@ public:
 		      int remoteThreadId, int tag);
   virtual int Receive(char* data, int length, int remoteThreadId, 
 		      int tag);
+  virtual int Receive(unsigned char* data, int length, int remoteThreadId, 
+		      int tag);
   virtual int Receive(float* data, int length, int remoteThreadId, 
 		      int tag);
   virtual int Receive(double* data, int length, int remoteThreadId, 
 		      int tag);
+  virtual int Receive(vtkIdType* data, int length, int remoteThreadId, 
+		      int tag);
   virtual int Receive(vtkDataObject *data, int remoteThreadId, int tag);
+  virtual int Receive(vtkDataArray *data, int remoteThreadId, int tag);
 
 //BTX
 
@@ -147,7 +155,15 @@ protected:
   int Receive(vtkDataObject* object, void *data, int dataLength, 
 	      int remoteThreadId, int tag);
 
+  int Send(vtkDataArray* object, int dataLength, 
+	   int remoteThreadId, int tag);
+  int Receive(vtkDataArray* object, int dataLength, 
+	      int remoteThreadId, int tag);
+
   vtkSharedMemoryCommunicatorMessage* NewMessage(vtkDataObject* object,
+						 void* data, 
+						 int dataLength);
+  vtkSharedMemoryCommunicatorMessage* NewMessage(vtkDataArray* object,
 						 void* data, 
 						 int dataLength);
   void DeleteMessage(vtkSharedMemoryCommunicatorMessage *message);
@@ -184,8 +200,4 @@ protected:
 
 };
 
-#endif
-
-
-
-
+#endif //  __vtkSharedMemoryCommunicator_h

@@ -99,11 +99,16 @@ public:
   virtual int Send(unsigned long* data, int length, int remoteProcessId,
 		   int tag);
   virtual int Send(char* data, int length, int remoteProcessId, int tag);
+  virtual int Send(unsigned char* data, int length, int remoteProcessId, int tag);
   virtual int Send(float* data, int length, int remoteProcessId, 
 		   int tag);
   virtual int Send(double* data, int length, int remoteProcessId, 
 		   int tag);
+  virtual int Send(vtkIdType* data, int length, int remoteProcessId, 
+		   int tag);
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
+    { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
+  virtual int Send(vtkDataArray* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
 
 //BTX
@@ -143,11 +148,17 @@ public:
 		      int remoteProcessId, int tag);
   virtual int Receive(char* data, int length, int remoteProcessId, 
 		      int tag);
+  virtual int Receive(unsigned char* data, int length, int remoteProcessId, 
+		      int tag);
   virtual int Receive(float* data, int length, int remoteProcessId, 
 		      int tag);
   virtual int Receive(double* data, int length, int remoteProcessId, 
 		      int tag);
+  virtual int Receive(vtkIdType* data, int length, int remoteProcessId, 
+		      int tag);
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
+    { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
+  virtual int Receive(vtkDataArray* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
 
   // Description:
@@ -219,10 +230,10 @@ protected:
   vtkMPICommunicator(const vtkMPICommunicator&) {};
   void operator=(const vtkMPICommunicator&) {};
 
+ private:
+  static int CheckForMPIError(int err);
+
 };
 
-#endif
-
-
-
+#endif //  __vtkMPICommunicator_h
 

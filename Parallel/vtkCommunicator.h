@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 #include "vtkDataObject.h"
+#include "vtkDataArray.h"
 
 class vtkDataSet;
 class vtkImageData;
@@ -66,14 +67,23 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This method sends an object to a destination.  Tag eliminates ambiguity
+  // This method sends a data object to a destination.  
+  // Tag eliminates ambiguity
   // and is used to match sends to receives.
   virtual int Send(vtkDataObject* data, int remoteHandle, int tag);
+
+  // Description:
+  // This method sends a data array to a destination.  
+  // Tag eliminates ambiguity
+  // and is used to match sends to receives.
+  virtual int Send(vtkDataArray* data, int remoteHandle, int tag);
   
   // Description:
   // Subclass have to supply these methods to send various arrays of data.
   virtual int Send(int* data, int length, int remoteHandle, int tag) = 0;
   virtual int Send(unsigned long* data, int length, int remoteHandle, 
+		   int tag) = 0;
+  virtual int Send(unsigned char* data, int length, int remoteHandle, 
 		   int tag) = 0;
   virtual int Send(char* data, int length, int remoteHandle, 
 		   int tag) = 0;
@@ -81,6 +91,9 @@ public:
 		   int tag) = 0;
   virtual int Send(double* data, int length, int remoteHandle, 
 		   int tag) = 0;
+  virtual int Send(vtkIdType* data, int length, int remoteHandle, 
+		   int tag) = 0;
+
 
   // Description:
   // This method receives a data object from a corresponding send. It blocks
@@ -88,16 +101,25 @@ public:
   virtual int Receive(vtkDataObject* data, int remoteHandle, int tag);
 
   // Description:
+  // This method receives a data array from a corresponding send. It blocks
+  // until the receive is finished. 
+  virtual int Receive(vtkDataArray* data, int remoteHandle, int tag);
+
+  // Description:
   // Subclass have to supply these methods to receive various arrays of data.
   virtual int Receive(int* data, int length, int remoteHandle, 
 		      int tag) = 0;
   virtual int Receive(unsigned long* data, int length, int remoteHandle,
+		      int tag) = 0;
+  virtual int Receive(unsigned char* data, int length, int remoteHandle, 
 		      int tag) = 0;
   virtual int Receive(char* data, int length, int remoteHandle, 
 		      int tag) = 0;
   virtual int Receive(float* data, int length, int remoteHandle, 
 		      int tag) = 0;
   virtual int Receive(double* data, int length, int remoteHandle, 
+		      int tag) = 0;
+  virtual int Receive(vtkIdType* data, int length, int remoteHandle, 
 		      int tag) = 0;
 
 protected:
@@ -115,6 +137,9 @@ protected:
   int WriteImageData(vtkImageData *object);
   int ReadImageData(vtkImageData *object);
 
+  int WriteDataArray(vtkDataArray *object);
+  int ReadDataArray(vtkDataArray *object);
+
   vtkCommunicator();
   ~vtkCommunicator();
   vtkCommunicator(const vtkCommunicator&) {};
@@ -127,6 +152,5 @@ protected:
 
 };
 
-#endif
-
+#endif // __vtkCommunicator_h
 

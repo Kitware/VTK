@@ -322,13 +322,81 @@ void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
     }
 }
 
-//----------------------------------------------------------------------------
-int vtkMPICommunicator::Send(int* data, int length, int remoteProcessId, 
-			    int tag)
+// overloaded functions for vtkIdType
+static MPI_Datatype getMPIType(long long *data)
 {
-  int err = 
-    MPI_Send(data, length, MPI_INT, remoteProcessId, tag, 
-	     *(this->Handle));
+  return MPI_LONG_LONG;
+}
+
+static MPI_Datatype getMPIType(long *data)
+{
+  return MPI_LONG;
+}
+
+template <class T>
+static int SendData(T* data, int length, 
+		    int remoteProcessId, int tag, 
+		    MPI_Datatype datatype,
+		    MPI_Comm *Handle)
+{
+
+  return MPI_Send(data, length, datatype, 
+		  remoteProcessId, tag, 
+		  *(Handle));
+}
+
+template <class T>
+static int ReceiveData(T* data, int length,
+		       int remoteProcessId, int tag, 
+		       MPI_Datatype datatype, MPI_Comm *Handle)
+{
+
+  MPI_Status status; 
+
+  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
+    {
+    remoteProcessId = MPI_ANY_SOURCE;
+    }
+
+  return MPI_Recv(data, length, datatype, 
+		  remoteProcessId, tag, 
+		  *(Handle), &status);
+
+}
+
+template <class T>
+static int NoBlockSendData(T* data, int length, 
+			   int remoteProcessId, 
+			   int tag, MPI_Datatype datatype, 
+			   vtkMPICommunicator::Request& req, MPI_Comm *Handle)
+{
+
+  return MPI_Isend(data, length, datatype, 
+		   remoteProcessId, tag, 
+		   *(Handle), &req.Req);
+}
+
+template <class T>
+static int NoBlockReceiveData(T* data, int length, 
+			      int remoteProcessId, 
+			      int tag, MPI_Datatype datatype, 
+			      vtkMPICommunicator::Request& req, MPI_Comm *Handle)
+{
+
+  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
+    {
+      remoteProcessId = MPI_ANY_SOURCE;
+    }
+
+  return MPI_Irecv(data, length, datatype, 
+		   remoteProcessId, tag, 
+		   *(Handle), &req.Req);
+
+}
+
+int vtkMPICommunicator::CheckForMPIError(int err)
+{
+
   if ( err == MPI_SUCCESS )
     {
     return 1;
@@ -336,110 +404,87 @@ int vtkMPICommunicator::Send(int* data, int length, int remoteProcessId,
   else
     {
     char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
+    vtkGenericWarningMacro("MPI error occured: " << msg);
     delete[] msg;
     return 0;
     }
+
+}
+
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(int* data, int length, int remoteProcessId, 
+			    int tag)
+{
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   MPI_INT, this->Handle));
 
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Send(unsigned long* data, int length, 
 			     int remoteProcessId, int tag)
 {
-  int err = 
-    MPI_Send(data, length, MPI_UNSIGNED_LONG, remoteProcessId, tag, 
-	     *(this->Handle));
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   MPI_UNSIGNED_LONG, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Send(char* data, int length, 
 			     int remoteProcessId, int tag)
 {
-  int err = 
-    MPI_Send(data, length, MPI_CHAR, remoteProcessId, tag, 
-	     *(this->Handle));
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   MPI_CHAR, this->Handle));
+
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(unsigned char* data, int length, 
+			     int remoteProcessId, int tag)
+{
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   MPI_UNSIGNED_CHAR, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Send(float* data, int length, 
 			     int remoteProcessId, int tag)
 {
-  int err = 
-    MPI_Send(data, length, MPI_FLOAT, remoteProcessId, tag, 
-	     *(this->Handle));
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   MPI_FLOAT, this->Handle));
+ 
 }
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Send(double* data, int length, 
 			     int remoteProcessId, int tag)
 {
-  int err = 
-    MPI_Send(data, length, MPI_DOUBLE, remoteProcessId, tag, 
-	     *(this->Handle));
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   MPI_DOUBLE, this->Handle));
+
 }
 
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Send(vtkIdType* data, int length, 
+			     int remoteProcessId, int tag)
+{
+
+  return CheckForMPIError(SendData(data, length, remoteProcessId, tag, 
+				   getMPIType(data), this->Handle));
+
+}
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(int* data, int length, 
 				    int remoteProcessId, int tag,
 				    Request& req)
 {
-  int err = 
-    MPI_Isend(data, length, MPI_INT, remoteProcessId, tag, 
-	      *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(NoBlockSendData(data, length, remoteProcessId, 
+					  tag, MPI_INT, req, this->Handle));
 
 }
 //----------------------------------------------------------------------------
@@ -447,58 +492,28 @@ int vtkMPICommunicator::NoBlockSend(unsigned long* data, int length,
 				    int remoteProcessId, int tag,
 				    Request& req)
 {
-  int err = 
-    MPI_Isend(data, length, MPI_UNSIGNED_LONG, remoteProcessId, tag, 
-	      *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(NoBlockSendData(data, length, remoteProcessId, 
+					  tag, MPI_UNSIGNED_LONG, req, this->Handle));
+
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(char* data, int length, 
 				    int remoteProcessId, int tag, Request& req)
 {
-  int err = 
-    MPI_Isend(data, length, MPI_CHAR, remoteProcessId, tag, 
-	     *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(NoBlockSendData(data, length, remoteProcessId, 
+					  tag, MPI_CHAR, req, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockSend(float* data, int length, 
 				    int remoteProcessId, int tag, Request& req)
 {
-  int err = 
-    MPI_Isend(data, length, MPI_FLOAT, remoteProcessId, tag, 
-	     *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+
+  return CheckForMPIError(NoBlockSendData(data, length, remoteProcessId, 
+					  tag, MPI_FLOAT, req, this->Handle));
 }
 
 
@@ -507,132 +522,65 @@ int vtkMPICommunicator::NoBlockSend(float* data, int length,
 int vtkMPICommunicator::Receive(int* data, int length, 
 				int remoteProcessId, int tag)
 {
-  MPI_Status status; 
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Recv(data, length, MPI_INT, remoteProcessId, tag, 
-	     *(this->Handle),
-	     &status);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      MPI_INT, this->Handle));
 
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Receive(unsigned long* data, int length, 
 				int remoteProcessId, int tag)
 {
-  MPI_Status status; 
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Recv(data, length, MPI_UNSIGNED_LONG, remoteProcessId, 
-	     tag, *(this->Handle), &status);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      MPI_UNSIGNED_LONG, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Receive(char* data, int length, 
 				int remoteProcessId, int tag)
 {
-  MPI_Status status; 
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Recv(data, length, MPI_CHAR, remoteProcessId, tag, 
-	     *(this->Handle),
-	     &status);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      MPI_CHAR, this->Handle));
+
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(unsigned char* data, int length, 
+				int remoteProcessId, int tag)
+{
+
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      MPI_UNSIGNED_CHAR, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Receive(float* data, int length, 
 				int remoteProcessId, int tag)
 {
-  MPI_Status status; 
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Recv(data, length, MPI_FLOAT, remoteProcessId, tag, 
-	     *(this->Handle),
-	     &status);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      MPI_FLOAT, this->Handle));
+
 }
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Receive(double* data, int length, 
 				int remoteProcessId, int tag)
 {
-  MPI_Status status; 
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Recv(data, length, MPI_DOUBLE, remoteProcessId, tag, 
-	     *(this->Handle),
-	     &status);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      MPI_DOUBLE, this->Handle));
+
+}
+
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Receive(vtkIdType* data, int length, 
+				int remoteProcessId, int tag)
+{
+
+  return CheckForMPIError(ReceiveData(data, length, remoteProcessId, tag, 
+				      getMPIType(data), this->Handle));
 }
 
 //----------------------------------------------------------------------------
@@ -641,24 +589,8 @@ int vtkMPICommunicator::NoBlockReceive(int* data, int length,
 				       Request& req)
 {
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Irecv(data, length, MPI_INT, remoteProcessId, tag, 
-	     *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(NoBlockReceiveData(data, length, remoteProcessId, 
+					     tag, MPI_INT, req, this->Handle));
 
 }
 //----------------------------------------------------------------------------
@@ -667,24 +599,9 @@ int vtkMPICommunicator::NoBlockReceive(unsigned long* data, int length,
 				       Request& req)
 {
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Irecv(data, length, MPI_UNSIGNED_LONG, remoteProcessId, 
-	      tag, *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(NoBlockReceiveData(data, length, remoteProcessId, 
+					     tag, MPI_UNSIGNED_LONG, req, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(char* data, int length, 
@@ -692,24 +609,9 @@ int vtkMPICommunicator::NoBlockReceive(char* data, int length,
 				       Request& req)
 {
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Irecv(data, length, MPI_CHAR, remoteProcessId, tag, 
-	      *(this->Handle),&req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(NoBlockReceiveData(data, length, remoteProcessId, 
+					     tag, MPI_CHAR, req, this->Handle));
+
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::NoBlockReceive(float* data, int length, 
@@ -717,24 +619,9 @@ int vtkMPICommunicator::NoBlockReceive(float* data, int length,
 				       Request& req)
 {
 
-  if (remoteProcessId == vtkMultiProcessController::ANY_SOURCE)
-    {
-    remoteProcessId = MPI_ANY_SOURCE;
-    }
-  int err = 
-    MPI_Irecv(data, length, MPI_FLOAT, remoteProcessId, tag, 
-	     *(this->Handle), &req.Req);
-  if ( err == MPI_SUCCESS )
-    {
-    return 1;
-    }
-  else
-    {
-    char *msg = vtkMPIController::ErrorString(err);
-    vtkErrorMacro("MPI error occured: " << msg);
-    delete[] msg;
-    return 0;
-    }
+  return CheckForMPIError(NoBlockReceiveData(data, length, remoteProcessId, 
+					     tag, MPI_FLOAT, req, this->Handle));
+
 }
 
 int vtkMPICommunicator::Request::Test()
