@@ -371,8 +371,9 @@ void  vtkRenderWindowInteractor::FindPokedCamera(int x,int y)
   this->FindPokedRenderer(x,y);
   vp = this->CurrentRenderer->GetViewport();
 
-  this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();  
-  memcpy(this->Center,this->CurrentRenderer->GetCenter(),sizeof(double)*2);
+  this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();
+  this->Center[0] = this->CurrentRenderer->GetCenter()[0];
+  this->Center[1] = this->CurrentRenderer->GetCenter()[1];
   this->DeltaElevation = -20.0/((vp[3] - vp[1])*this->Size[1]);
   this->DeltaAzimuth = -20.0/((vp[2] - vp[0])*this->Size[0]);
 
@@ -1372,8 +1373,10 @@ void vtkRenderWindowInteractor::JoystickRotateActor(int x, int y)
   if (this->Preprocess)
     {
     // first get the origin of the assembly
-    memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(double));
+    float *center = this->InteractionActor->GetCenter();
+    this->ObjCenter[0] = center[0];
+    this->ObjCenter[1] = center[1];
+    this->ObjCenter[2] = center[2];
 
     // GetLength gets the length of the diagonal of the bounding box
     double boundRadius = this->InteractionActor->GetLength() * 0.5;
@@ -1470,8 +1473,10 @@ void vtkRenderWindowInteractor::JoystickSpinActor(int x, int y)
   if (this->Preprocess)
     {
 
-    memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-            3 * sizeof(double));
+    float *center = this->InteractionActor->GetCenter();
+    this->ObjCenter[0] = center[0];
+    this->ObjCenter[1] = center[1];
+    this->ObjCenter[2] = center[2];
 
     if (this->CurrentCamera->GetParallelProjection())
       {
@@ -1537,8 +1542,10 @@ void vtkRenderWindowInteractor::JoystickPanActor(int x, int y)
   if (this->Preprocess)
     {
     // use initial center as the origin from which to pan
-    memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(double));
+    float *center = this->InteractionActor->GetCenter();
+    this->ObjCenter[0] = center[0];
+    this->ObjCenter[1] = center[1];
+    this->ObjCenter[2] = center[2];
 
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
@@ -1594,8 +1601,10 @@ void vtkRenderWindowInteractor::JoystickDollyActor(int x, int y)
     this->CurrentCamera->GetFocalPoint(this->ViewFocus);
 
     // use initial center as the origin from which to pan
-    memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(double));
+    float *center = this->InteractionActor->GetCenter();
+    this->ObjCenter[0] = center[0];
+    this->ObjCenter[1] = center[1];
+    this->ObjCenter[2] = center[2];
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
 
@@ -1645,8 +1654,10 @@ void vtkRenderWindowInteractor::JoystickScaleActor(int x, int y)
   if (this->Preprocess)
     {
     // use bounding box center as the origin from which to pan
-    memmove(this->ObjCenter,
-            this->InteractionActor->GetCenter(), 3 * sizeof(double));
+    float *center = this->InteractionActor->GetCenter();
+    this->ObjCenter[0] = center[0];
+    this->ObjCenter[1] = center[1];
+    this->ObjCenter[2] = center[2];
 
     this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                 this->ObjCenter[2], this->DispObjCenter);
@@ -1682,8 +1693,10 @@ void vtkRenderWindowInteractor::TrackballRotateActor(int x, int y)
 
     if (this->Preprocess)
       {
-      memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-              3 * sizeof(double));
+      float *center = this->InteractionActor->GetCenter();
+      this->ObjCenter[0] = center[0];
+      this->ObjCenter[1] = center[1];
+      this->ObjCenter[2] = center[2];
 
       // GetLength gets the length of the diagonal of the bounding box
       double boundRadius = this->InteractionActor->GetLength() * 0.5;
@@ -1779,8 +1792,10 @@ void vtkRenderWindowInteractor::TrackballSpinActor(int x, int y)
     if (this->Preprocess)
       {
       // get the position plus origin of the object
-      memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-              3 * sizeof(double));
+      float *center = this->InteractionActor->GetCenter();
+      this->ObjCenter[0] = center[0];
+      this->ObjCenter[1] = center[1];
+      this->ObjCenter[2] = center[2];
   
       // get the axis to rotate around = vector from eye to origin
       if (this->CurrentCamera->GetParallelProjection())
@@ -1846,8 +1861,10 @@ void vtkRenderWindowInteractor::TrackballPanActor(int x, int y)
     if (this->Preprocess)
       {
       // use initial center as the origin from which to pan
-      memmove(this->ObjCenter,
-              this->InteractionActor->GetCenter(), 3 * sizeof(double));
+      float *center = this->InteractionActor->GetCenter();
+      this->ObjCenter[0] = center[0];
+      this->ObjCenter[1] = center[1];
+      this->ObjCenter[2] = center[2];
       this->ComputeWorldToDisplay(this->ObjCenter[0], this->ObjCenter[1],
                                   this->ObjCenter[2], this->DispObjCenter);
       this->FocalDepth = this->DispObjCenter[2];
@@ -1946,8 +1963,10 @@ void vtkRenderWindowInteractor::TrackballScaleActor(int x, int y)
     {
     if (this->Preprocess)
       {
-      memmove(this->ObjCenter, this->InteractionActor->GetCenter(),
-              3 * sizeof(double));
+      float *center = this->InteractionActor->GetCenter();
+      this->ObjCenter[0] = center[0];
+      this->ObjCenter[1] = center[1];
+      this->ObjCenter[2] = center[2];
 
       this->HighlightActor(NULL);
       this->Preprocess = 0;
