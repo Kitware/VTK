@@ -14,7 +14,12 @@ import __helper
 
 # set the dlopen flags so that VTK does not run into problems with
 # shared symbols.
-orig_dlopen_flags = sys.getdlopenflags()
+try:
+    # only Python >= 2.2 has this functionality
+    orig_dlopen_flags = sys.getdlopenflags()
+except AttributeError:
+    orig_dlopen_flags = None
+
 if dl and (os.name == 'posix'):
     sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)    
 
@@ -58,8 +63,8 @@ except ImportError, exc:
 # import useful VTK related constants.
 from util.vtkConstants import *
 
-# reset the dlopen flags to the original state.
-if dl and (os.name == 'posix'):
+# reset the dlopen flags to the original state if possible.
+if dl and (os.name == 'posix') and orig_dlopen_flags:
     sys.setdlopenflags(orig_dlopen_flags)
 
 # removing things the user shouldn't have to see.
