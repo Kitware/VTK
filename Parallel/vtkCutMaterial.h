@@ -52,15 +52,15 @@ public:
 
   // Description:
   // The last piece of information that specifies the plane.
-  vtkSetVector3Macro(UpVector, float);
-  vtkGetVector3Macro(UpVector, float);
+  vtkSetVector3Macro(UpVector, double);
+  vtkGetVector3Macro(UpVector, double);
   
   // Description:
   // Accesses to the values computed during the execute method.  They
   // could be used to get a good camera view for the resulting plane.
-  vtkGetVector3Macro(MaximumPoint, float);
-  vtkGetVector3Macro(CenterPoint, float);
-  vtkGetVector3Macro(Normal, float);
+  vtkGetVector3Macro(MaximumPoint, double);
+  vtkGetVector3Macro(CenterPoint, double);
+  vtkGetVector3Macro(Normal, double);
   
 protected:
   vtkCutMaterial();
@@ -73,10 +73,10 @@ protected:
   char *MaterialArrayName;
   int Material;
   char *ArrayName;
-  float UpVector[3];
-  float MaximumPoint[3];
-  float CenterPoint[3];
-  float Normal[3];
+  double UpVector[3];
+  double MaximumPoint[3];
+  double CenterPoint[3];
+  double Normal[3];
   
   vtkPlane *PlaneFunction;
   

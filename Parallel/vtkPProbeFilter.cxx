@@ -21,7 +21,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPProbeFilter, "1.7");
+vtkCxxRevisionMacro(vtkPProbeFilter, "1.8");
 vtkStandardNewMacro(vtkPProbeFilter);
 
 vtkCxxSetObjectMacro(vtkPProbeFilter, Controller, vtkMultiProcessController);
@@ -85,7 +85,7 @@ void vtkPProbeFilter::ExecuteData(vtkDataObject *)
     vtkIdType k;
     vtkIdType pointId;
     vtkIdType numComponents = pointData->GetNumberOfComponents();
-    float *tuple = new float[numComponents];
+    double *tuple = new double[numComponents];
     for (i = 1; i < numProcs; i++)
       {
       this->Controller->Receive(&numRemotePoints, 1, i, 1970);

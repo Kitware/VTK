@@ -22,7 +22,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkErrorCode.h"
 
-vtkCxxRevisionMacro(vtkPDataSetWriter, "1.11");
+vtkCxxRevisionMacro(vtkPDataSetWriter, "1.12");
 vtkStandardNewMacro(vtkPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -306,18 +306,21 @@ int vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input,
 {
   int i;
   int *pi;
-  float *pf;
+  double *pf;
 
   // We should indicate the type of data that is being saved.
   *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
   // Image data has a buch of meta data.
   *fptr << "      scalarType=\"" << input->GetScalarType() << "\"" << endl;
   pf = input->GetOrigin();
-  *fptr << "      origin=\"" << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
+  *fptr << "      origin=\"" 
+        << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
   pf = input->GetSpacing();
-  *fptr << "      spacing=\"" << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
+  *fptr << "      spacing=\"" 
+        << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
   pi = input->GetWholeExtent();
-  *fptr << "      wholeExtent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+  *fptr << "      wholeExtent=\"" 
+        << pi[0] << " " << pi[1] << " " << pi[2] << " "
         << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
 
   // This is making the assumption that all the files will be written out by

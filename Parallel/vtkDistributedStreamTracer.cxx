@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.5");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.6");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -37,13 +37,13 @@ vtkDistributedStreamTracer::~vtkDistributedStreamTracer()
 {
 }
 
-void vtkDistributedStreamTracer::ForwardTask(float seed[3], 
+void vtkDistributedStreamTracer::ForwardTask(double seed[3], 
                                              int direction, 
                                              int isNewSeed,
                                              int lastId,
                                              int lastCellId,
                                              int currentLine,
-                                             float* firstNormal)
+                                             double* firstNormal)
 {
   int myid = this->Controller->GetLocalProcessId();
   int numProcs = this->Controller->GetNumberOfProcesses();
@@ -65,11 +65,11 @@ void vtkDistributedStreamTracer::ForwardTask(float seed[3],
     this->Controller->Send(seed, 3, nextid, 333);
     this->Controller->Send(&direction, 1, nextid, 344);
     this->Controller->Send(&currentLine, 1, nextid, 355);
-    float tmpNormal[4];
+    double tmpNormal[4];
     if (firstNormal)
       {
       tmpNormal[0] = 1;
-      memcpy(tmpNormal+1, firstNormal, 3*sizeof(float));
+      memcpy(tmpNormal+1, firstNormal, 3*sizeof(double));
       }
     else
       {
@@ -86,7 +86,7 @@ int vtkDistributedStreamTracer::ReceiveAndProcessTask()
   int lastCellId = 0;
   int currentLine = 0;
   int direction=FORWARD;
-  float seed[3] = {0.0, 0.0, 0.0};
+  double seed[3] = {0.0, 0.0, 0.0};
   int myid = this->Controller->GetLocalProcessId();
   int numProcs = this->Controller->GetNumberOfProcesses();
 
@@ -128,12 +128,12 @@ int vtkDistributedStreamTracer::ReceiveAndProcessTask()
                             1, 
                             vtkMultiProcessController::ANY_SOURCE, 
                             355);
-  float tmpNormal[4];
+  double tmpNormal[4];
   this->Controller->Receive(tmpNormal, 
                             4, 
                             vtkMultiProcessController::ANY_SOURCE, 
                             366);
-  float* firstNormal=0;
+  double* firstNormal=0;
   if (tmpNormal[0] != 0)
     {
     firstNormal = &(tmpNormal[1]);
@@ -158,20 +158,20 @@ int vtkDistributedStreamTracer::ProcessNextLine(int currentLine)
     }
 
   // All done. Tell everybody to stop.
-  float seed[3] = {0.0, 0.0, 0.0};
+  double seed[3] = {0.0, 0.0, 0.0};
   this->ForwardTask(seed, 0, 2, myid, 0, 0, 0);
   return 0;
 
 }
 
 // Integrate a streamline
-int vtkDistributedStreamTracer::ProcessTask(float seed[3], 
+int vtkDistributedStreamTracer::ProcessTask(double seed[3], 
                                             int direction, 
                                             int isNewSeed,
                                             int lastId,
                                             int lastCellId,
                                             int currentLine,
-                                            float* firstNormal)
+                                            double* firstNormal)
 {
   int myid = this->Controller->GetLocalProcessId();
 
@@ -182,7 +182,7 @@ int vtkDistributedStreamTracer::ProcessTask(float seed[3],
     return this->ProcessNextLine(currentLine);
     }
 
-  float velocity[3];
+  double velocity[3];
   // We don't have it, let's forward it to the next guy
   this->Interpolator->ClearLastCellId();
   int retVal = this->Interpolator->FunctionValues(seed, velocity);
@@ -194,7 +194,7 @@ int vtkDistributedStreamTracer::ProcessTask(float seed[3],
     }
 
   // We have it, let's integrate
-  float lastPoint[3];
+  double lastPoint[3];
 
   vtkFloatArray* seeds = vtkFloatArray::New();
   seeds->SetNumberOfComponents(3);
@@ -279,19 +279,19 @@ int vtkDistributedStreamTracer::ProcessTask(float seed[3],
   this->SetIntegrator(tmpSolver);
   tmpSolver->Delete();
 
-  float tmpseed[3];
-  memcpy(tmpseed, lastPoint, 3*sizeof(float));
+  double tmpseed[3];
+  memcpy(tmpseed, lastPoint, 3*sizeof(double));
   this->SimpleIntegrate(tmpseed, lastPoint, this->LastUsedTimeStep, func);
   func->Delete();
 
   this->SetIntegrator(ivp);
   ivp->UnRegister(this);
   
-  float* lastNormal = 0;
+  double* lastNormal = 0;
   vtkDataArray* normals = tmpOutput->GetPointData()->GetArray("Normals");
   if (normals)
     {
-    lastNormal = new float[3];
+    lastNormal = new double[3];
     normals->GetTuple(normals->GetNumberOfTuples()-1, lastNormal);
     }
   

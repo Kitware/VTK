@@ -20,7 +20,7 @@
 #include "vtkOutlineSource.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.5");
+vtkCxxRevisionMacro(vtkPOutlineFilter, "1.6");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 
@@ -44,7 +44,7 @@ vtkPOutlineFilter::~vtkPOutlineFilter ()
 void vtkPOutlineFilter::Execute()
 {
   vtkPolyData *output = this->GetOutput();
-  float bds[6];
+  double bds[6];
   int procid = 0;
   int numProcs = 1;
 
@@ -64,7 +64,7 @@ void vtkPOutlineFilter::Execute()
   else
     {
     int idx;
-    float tmp[6];
+    double tmp[6];
 
     for (idx = 1; idx < numProcs; ++idx)
       {

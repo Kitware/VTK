@@ -25,7 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.14");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.15");
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
@@ -133,7 +133,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
   int numCellPts;
   vtkIdType *cellPointer;
   vtkIdType *ids;
-  float *x;
+  double *x;
 
   // Pipeline update piece will tell us what to generate.
   ghostLevel = output->GetUpdateGhostLevel();

@@ -31,7 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.28");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.29");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -518,7 +518,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(ifstream *file)
   int type;
   vtkDataSet *output = NULL;
   int ext[6];
-  float vect[3];
+  double vect[3];
   int i;
   char *pfn, *pdir;
   int count, dirLength;
@@ -621,7 +621,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(ifstream *file)
         vtkErrorMacro("Expecting an image.");
         return;
         }
-      sscanf(val, "%f %f %f", vect, vect+1, vect+2);
+      sscanf(val, "%lf %lf %lf", vect, vect+1, vect+2);
       image->SetSpacing(vect);
       }
 
@@ -634,7 +634,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(ifstream *file)
         vtkErrorMacro("Expecting an image.");
         return;
         }
-      sscanf(val, "%f %f %f", vect, vect+1, vect+2);
+      sscanf(val, "%lf %lf %lf", vect, vect+1, vect+2);
       image->SetOrigin(vect);
       }
 
@@ -1254,7 +1254,7 @@ void vtkPDataSetReader::StructuredGridExecute()
   int i;
   int pIncY, pIncZ, cIncY, cIncZ;
   int ix, iy, iz;
-  float *pt;
+  double *pt;
   vtkIdType inId, outId;
   vtkIdType numPts, numCells;
 
@@ -1292,11 +1292,15 @@ void vtkPDataSetReader::StructuredGridExecute()
         pieces[count] = tmp;
         // Sanity check: extent is correct.  Ignore electric slide.
         tmp->GetExtent(ext);
-        if (ext[1] - ext[0] != this->PieceExtents[i][1] - this->PieceExtents[i][0] ||
-            ext[3] - ext[2] != this->PieceExtents[i][3] - this->PieceExtents[i][2] ||
-            ext[5] - ext[4] != this->PieceExtents[i][5] - this->PieceExtents[i][4])
+        if (ext[1] - ext[0] != 
+            this->PieceExtents[i][1] - this->PieceExtents[i][0] ||
+            ext[3] - ext[2] != 
+            this->PieceExtents[i][3] - this->PieceExtents[i][2] ||
+            ext[5] - ext[4] != 
+            this->PieceExtents[i][5] - this->PieceExtents[i][4])
           {
-          vtkErrorMacro("Unexpected extent in VTK file: " << this->PieceFileNames[i]);
+          vtkErrorMacro("Unexpected extent in VTK file: " << 
+                        this->PieceFileNames[i]);
           }
         else
           {
@@ -1365,7 +1369,8 @@ void vtkPDataSetReader::StructuredGridExecute()
             outId = (ix-uExt[0]) + pIncY*(iy-uExt[2]) + pIncZ*(iz-uExt[4]);
             pt = pieces[i]->GetPoint(inId);
             newPts->SetPoint(outId, pt);
-            output->GetPointData()->CopyData(ptList, pieces[i]->GetPointData(), i, 
+            output->GetPointData()->CopyData(ptList, 
+                                             pieces[i]->GetPointData(), i, 
                                              inId, outId); 
             }
           ++inId;

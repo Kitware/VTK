@@ -42,20 +42,20 @@ protected:
   vtkDistributedStreamTracer();
   ~vtkDistributedStreamTracer();
 
-  void ForwardTask(float seed[3], 
+  void ForwardTask(double seed[3], 
                    int direction, 
                    int isNewSeed, 
                    int lastid, 
                    int lastCellId,
                    int currentLine,
-                   float* firstNormal);
-  int ProcessTask(float seed[3], 
+                   double* firstNormal);
+  int ProcessTask(double seed[3], 
                   int direction, 
                   int isNewSeed, 
                   int lastid, 
                   int lastCellId,
                   int currentLine,
-                  float* firstNormal);
+                  double* firstNormal);
   int ProcessNextLine(int currentLine);
   int ReceiveAndProcessTask();
 

@@ -27,7 +27,7 @@
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.16");
+vtkCxxRevisionMacro(vtkPOPReader, "1.17");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -401,8 +401,8 @@ vtkPoints *vtkPOPReader::ReadPoints(vtkImageData *image)
       {
       for (i = ext[0]; i <= ext[1]; ++i)
         {      
-        phi = (double)(image->GetScalarComponentAsFloat(i, j, 0, 0));
-        theta = (double)(image->GetScalarComponentAsFloat(i, j, 1, 0));
+        phi = image->GetScalarComponentAsDouble(i, j, 0, 0);
+        theta = image->GetScalarComponentAsDouble(i, j, 1, 0);
         phi += vtkMath::Pi()/2.0;
         y = -cos(phi)*radius;
         x = sin(theta)*sin(phi)*radius;
@@ -805,7 +805,7 @@ void vtkPOPReader::ReadFlow()
   // Now do the computation from bottom to top.
   // Since dw is uniform across a level, forget about traversing the points
   // back to front.  Just do the first slice always.
-  pp = pts->GetPoint(0);  
+  pp = vtkFloatArray::SafeDownCast(pts)->GetPointer(0);  
   for (v = updateExt[2]; v <= updateExt[3]; ++v)
     {
     for (u = updateExt[0]; u <= updateExt[1]; ++u)

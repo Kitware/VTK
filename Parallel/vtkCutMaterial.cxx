@@ -25,7 +25,7 @@
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.13");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.14");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
@@ -69,7 +69,7 @@ void vtkCutMaterial::Execute()
   vtkDataSet *input = this->GetInput();
   vtkThreshold *thresh;
   vtkCutter *cutter;
-  float *bds;
+  double *bds;
   
   // Check to see if we have the required field arrays.
   if (this->MaterialArrayName == NULL || this->ArrayName == NULL)
@@ -127,8 +127,8 @@ void vtkCutMaterial::Execute()
 
 void vtkCutMaterial::ComputeNormal()
 {
-  float tmp[3];
-  float mag;
+  double tmp[3];
+  double mag;
   
   if (this->UpVector[0] == 0.0 && this->UpVector[1] == 0.0 && this->UpVector[2] == 0.0)
     {
@@ -156,9 +156,9 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
 {
   vtkDataArray *data;
   vtkIdType idx, bestIdx, num;
-  float comp, best;
+  double comp, best;
   vtkCell *cell;
-  float *bds;
+  double *bds;
   
   // Find the maximum value.
   data = input->GetCellData()->GetArray(this->ArrayName);
