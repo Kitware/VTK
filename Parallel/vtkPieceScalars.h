@@ -13,10 +13,12 @@
 
 =========================================================================*/
 // .NAME vtkPieceScalars - Sets all cell scalars from the update piece.
+//
 // .SECTION Description
 // vtkPieceScalars is meant to display which piece is being requested
-// as scalar values.  It is usefull for visualizing the partioning for
+// as scalar values.  It is usefull for visualizing the partitioning for
 // streaming or distributed pipelines.
+//
 // .SECTION See Also
 // vtkPolyDataStreamer
 
