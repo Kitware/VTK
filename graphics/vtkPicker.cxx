@@ -273,7 +273,8 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 
   for (tol=0.0,i=0; i<3; i++) 
     {
-    tol += (windowUpperRight[i] - windowLowerLeft[i])*(windowUpperRight[i] - windowLowerLeft[i]);
+    tol += (windowUpperRight[i] - windowLowerLeft[i]) *
+              (windowUpperRight[i] - windowLowerLeft[i]);
     }
   
   tol = sqrt (tol) * this->Tolerance;
@@ -296,7 +297,11 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     {
     for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
       {
-      pickable = part->GetPickable();
+      pickable = part->GetPickable() & part->GetVisibility();
+      if ( part->GetProperty()->GetOpacity() <= 0.0 )
+	{
+	pickable = 0;
+	}
 
       //  If actor can be picked, get its composite matrix, invert it, and
       //  use the inverted matrix to transform the ray points into mapper
