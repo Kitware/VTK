@@ -38,7 +38,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.1");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.2");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1083,6 +1083,9 @@ int vtkFreeTypeUtilitiesRenderString(
       for (j = 0; j < bitmap->rows; j++)
         {
         glyph_ptr = glyph_ptr_row;
+
+        // That loop should probably be located inside the switch for efficency
+
         for (i = 0; i < bitmap->width; i++)
           {
           t_alpha = tprop_opacity * (*glyph_ptr / 255.0);
@@ -1237,6 +1240,15 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
 void vtkFreeTypeUtilities::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "MaximumNumberOfFaces: " 
+     << this->MaximumNumberOfFaces << endl;
+
+  os << indent << "MaximumNumberOfSizes: " 
+     << this->MaximumNumberOfSizes << endl;
+
+  os << indent << "MaximumNumberOfBytes: " 
+     << this->MaximumNumberOfBytes << endl;
 }
 
 //----------------------------------------------------------------------------

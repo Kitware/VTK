@@ -207,10 +207,13 @@ public:
   vtkFreeTypeUtilities::Entry* GetFont(vtkTextProperty *tprop, 
                                        double override_color[3] = NULL);
 
-private:
+protected:
   vtkFreeTypeUtilities();
   virtual ~vtkFreeTypeUtilities();
 
+private:
+  vtkFreeTypeUtilities(const vtkFreeTypeUtilities&);  // Not implemented.
+  void operator=(const vtkFreeTypeUtilities&);  // Not implemented.
 
   // The singleton instance and the singleton cleanup instance
 
