@@ -107,7 +107,7 @@ void vtkImageMarchingCubes::Update()
 //----------------------------------------------------------------------------
 void vtkImageMarchingCubes::Execute()
 {
-  vtkImageData *inData = NULL;
+  vtkImageData *inData = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   int extent[8], estimatedSize;
   int temp, zMin, zMax, chunkMin, chunkMax;
@@ -116,7 +116,7 @@ void vtkImageMarchingCubes::Execute()
   float *values=this->ContourValues->GetValues();
   
   vtkDebugMacro("Starting Execute Method");
-  if ( ! this->GetInput())
+  if ( ! inData)
     {
     vtkErrorMacro(<< "No Input");
     return;
@@ -136,9 +136,9 @@ void vtkImageMarchingCubes::Execute()
     minSlicesPerChunk = 2;
     chunkOverlap = 1;
     }
-  this->GetInput()->UpdateInformation();
+  inData->UpdateInformation();
   // Each data type requires a different amount of memory.
-  switch (this->GetInput()->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
       temp = sizeof(float);
@@ -174,7 +174,7 @@ void vtkImageMarchingCubes::Execute()
       vtkErrorMacro(<< "Could not determine input scalar type.");
       return;
     }
-  this->GetInput()->GetWholeExtent(extent);
+  inData->GetWholeExtent(extent);
   // multiply by the area of each slice
   temp *= extent[1] - extent[0] + 1;
   temp *= extent[3] - extent[2] + 1;
@@ -257,9 +257,8 @@ void vtkImageMarchingCubes::Execute()
       extent[5] = zMax;
       }
     // Get the chunk from the input
-    this->GetInput()->SetUpdateExtent(extent);
-    this->GetInput()->Update();
-    inData = this->GetInput();
+    inData->SetUpdateExtent(extent);
+    inData->Update();
     
     if ( this->StartMethod )
       {
@@ -275,9 +274,9 @@ void vtkImageMarchingCubes::Execute()
       (*this->EndMethod)(this->EndMethodArg);
       }
 
-    if (this->GetInput()->ShouldIReleaseData())
+    if (inData->ShouldIReleaseData())
       {
-      this->GetInput()->ReleaseData();
+      inData->ReleaseData();
       }
     }
   
@@ -665,6 +664,10 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
       if (!(count%target))
 	{
 	self->UpdateProgress(count/(50.0*target));
+        if (self->GetAbortExecute())
+          {
+          return;
+          }
 	}
       count++;
       // continue with last loop
