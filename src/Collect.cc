@@ -25,6 +25,7 @@ vlCollection::vlCollection()
   this->NumberOfItems = 0;
   this->Top = NULL;
   this->Bottom = NULL;
+  this->Current = NULL;
 }
 
 vlCollection::~vlCollection()
@@ -63,7 +64,7 @@ void vlCollection::AddItem(vlObject *a)
 
 // Description:
 // Remove an object from the list. Removes the first object found, not
-// all occurences.
+// all occurences. If no object found, list is unaffected.
 void vlCollection::RemoveItem(vlObject *a)
 {
   int i;
@@ -136,27 +137,6 @@ int vlCollection::GetNumberOfItems()
   return this->NumberOfItems;
 }
 
-// Description:
-// Return a pointer to the object at the specified location in the list.
-vlObject *vlCollection::GetItem(int num)
-{
-  int i;
-  vlCollectionElement *elem;
-
-  if ((num < 1) || (num > this->NumberOfItems))
-    {
-    vlErrorMacro(<< ": Requesting illegal index\n");
-    return this->Top->Item;
-    }
-
-  elem = this->Top;
-  for (i = 1; i < num; i++)
-    {
-    elem = elem->Next;
-    }
-  
-  return (elem->Item);
-}
 
 void vlCollection::PrintSelf(ostream& os, vlIndent indent)
 {

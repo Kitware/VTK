@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlDataSetCollection - maintain a list of dataset objects
+// .NAME vlDataSetCollection - maintain an unordered list of dataset objects
 // .SECTION Description
 // vlDataSetCollection is an object that creates and manipulates lists of
 // datasets. See also vlCollection and subclasses.
@@ -27,15 +27,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlDataSetCollectionElement
 {
  public:
+  vlDataSetCollectionElement():Item(NULL),Next(NULL) {};
   vlDataSet *Item;
   vlDataSetCollectionElement *Next;
 };
 
 class vlDataSetCollection : public vlObject
 {
-
- public:
+public:
   vlDataSetCollection();
+  ~vlDataSetCollection();
   void PrintSelf(ostream& os, vlIndent indent);
   char *GetClassName() {return "vlDataSetCollection";};
 
@@ -43,13 +44,41 @@ class vlDataSetCollection : public vlObject
   void RemoveItem(vlDataSet *);
   int IsItemPresent(vlDataSet *);
   int GetNumberOfItems();
-  vlDataSet *GetItem(int num);
+  void InitTraversal();
+  vlDataSet *GetNextItem();
 
- private:
+protected:
   int NumberOfItems;
   vlDataSetCollectionElement *Top;
   vlDataSetCollectionElement *Bottom;
+  vlDataSetCollectionElement *Current;
 
 };
+
+// Description:
+// Initialize the traversal of the collection. This means the data pointer
+// is set at the beginning of the list.
+inline void vlDataSetCollection::InitTraversal()
+{
+  this->Current = this->Top;
+}
+
+// Description:
+// Get the next item in the collection. NULL is returned if the collection
+// is exhausted.
+inline vlDataSet *vlDataSetCollection::GetNextItem()
+{
+  vlDataSetCollectionElement *elem=this->Current;
+
+  if ( elem != NULL )
+    {
+    this->Current = elem->Next;
+    return elem->Item;
+    }
+  else
+    {
+    return NULL;
+    }
+}
 
 #endif

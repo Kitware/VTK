@@ -26,6 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlStructuredPointsCollectionElement
 {
  public:
+  vlStructuredPointsCollectionElement():Item(NULL),Next(NULL) {};
   vlStructuredPoints *Item;
   vlStructuredPointsCollectionElement *Next;
 };
@@ -34,6 +35,7 @@ class vlStructuredPointsCollection : public vlObject
 {
 public:
   vlStructuredPointsCollection();
+  ~vlStructuredPointsCollection();
   void PrintSelf(ostream& os, vlIndent indent);
   char *GetClassName() {return "vlStructuredPointsCollection";};
 
@@ -41,13 +43,41 @@ public:
   void RemoveItem(vlStructuredPoints *);
   int IsItemPresent(vlStructuredPoints *);
   int GetNumberOfItems();
-  vlStructuredPoints *GetItem(int num);
+  void InitTraversal();
+  vlStructuredPoints *GetNextItem();
 
-private:
+protected:
   int NumberOfItems;
   vlStructuredPointsCollectionElement *Top;
   vlStructuredPointsCollectionElement *Bottom;
+  vlStructuredPointsCollectionElement *Current;
 
 };
+
+// Description:
+// Initialize the traversal of the collection. This means the data pointer
+// is set at the beginning of the list.
+inline void vlStructuredPointsCollection::InitTraversal()
+{
+  this->Current = this->Top;
+}
+
+// Description:
+// Get the next item in the collection. NULL is returned if the collection
+// is exhausted.
+inline vlStructuredPoints *vlStructuredPointsCollection::GetNextItem()
+{
+  vlStructuredPointsCollectionElement *elem=this->Current;
+
+  if ( elem != NULL )
+    {
+    this->Current = elem->Next;
+    return elem->Item;
+    }
+  else
+    {
+    return NULL;
+    }
+}
 
 #endif
