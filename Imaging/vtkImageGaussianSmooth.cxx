@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.36");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.37");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -179,7 +179,7 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
     {
     inPtr1 = inPtrC;
     outPtr1 = outPtrC;    
-    for (idx1 = 0; idx1 < max1; ++idx1)
+    for (idx1 = 0; !self->AbortExecute && idx1 < max1; ++idx1)
       {
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;    
