@@ -178,7 +178,7 @@ if {$validImageFound != 0} {
                # write out the difference image scaled and gamma adjusted
                # for the dashboard
                set rt_size [[rt_png GetOutput] GetDimensions]
-               if { [lindex rt_size 1] <= 250.0} {
+               if { [lindex $rt_size 1] <= 250.0} {
                    set rt_magfactor 1.0
                } else {
                    set rt_magfactor [expr 250.0 / [lindex $rt_size 1]]
