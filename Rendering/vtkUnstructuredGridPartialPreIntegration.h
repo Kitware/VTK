@@ -40,6 +40,7 @@
 #define __vtkUnstructuredGridPartialPreIntegration_h
 
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
+#include "vtkMath.h" // For all the inline methods
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridPartialPreIntegration : public vtkUnstructuredGridVolumeRayIntegrator
 {
