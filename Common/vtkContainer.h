@@ -28,12 +28,14 @@
 // Since vtkContainer and vtkAbstractList provide some pure 
 // virtual methods, each object of type container will have
 // v-tabe.
+// For container of strings, use <const char*> as a template 
+// argument. This way you will be able to use string literals
+// as keys or values.
 
 // .SECTION See Also
 // vtkAbstractIterator, vtkAbstractList, vtkAbstractMap
 
 #include "vtkObjectBase.h"
-#include "vtkString.h"
 
 #ifndef __vtkContainer_h
 #define __vtkContainer_h
@@ -110,10 +112,8 @@ static inline int vtkContainerCompareMethod(float d1, float d2)
 { return vtkContainerDefaultCompare(d1,d2); }
 static inline int vtkContainerCompareMethod(double d1, double d2)
 { return vtkContainerDefaultCompare(d1,d2); }
-static inline int vtkContainerCompareMethod(const char* d1, const char* d2)
-{ return vtkString::Compare(d1, d2); }
-static inline int vtkContainerCompareMethod(char* d1, char* d2)
-{ return vtkString::Compare(d1, d2); }
+int vtkContainerCompareMethod(const char* d1, const char* d2);
+ int vtkContainerCompareMethod(char* d1, char* d2);
 static inline int vtkContainerCompareMethod(void* d1, void* d2)
 { return vtkContainerDefaultCompare(d1,d2); }
 
@@ -142,10 +142,8 @@ static inline float vtkContainerCreateMethod(float d1)
 { return vtkContainerDefaultCreate(d1); }
 static inline double vtkContainerCreateMethod(double d1)
 { return vtkContainerDefaultCreate(d1); }
-static inline const char* vtkContainerCreateMethod(const char* d1)
-{ return vtkString::Duplicate(d1); }
-static inline char* vtkContainerCreateMethod(char* d1)
-{ return vtkString::Duplicate(d1); }
+const char* vtkContainerCreateMethod(const char* d1);
+char* vtkContainerCreateMethod(char* d1);
 static inline void* vtkContainerCreateMethod(void* d1)
 { return vtkContainerDefaultCreate(d1); }
 
