@@ -61,8 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
-static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function,
-				   T *data_ptr,
+static void CastMaxScalarValueRay( T *data_ptr,
 				   struct VolumeRayCastRayInfoStruct *rayInfo,
 				   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
@@ -96,9 +95,9 @@ static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function,
   // Set the max value.  This will not always be correct and should be fixed
   max = -999999;
 
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -256,7 +255,7 @@ static void CastMaxScalarValueRay( vtkVolumeRayCastMIPFunction *cast_function,
 // This is the templated function that actually casts a ray and computes
 // the maximum value.  It is valid for unsigned char and unsigned short,
 template <class T>
-static void CastMaxOpacityRay( vtkVolumeRayCastMIPFunction *cast_function, T *data_ptr,
+static void CastMaxOpacityRay( T *data_ptr,
 			       struct VolumeRayCastRayInfoStruct *rayInfo,
 			       struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
@@ -292,9 +291,9 @@ static void CastMaxOpacityRay( vtkVolumeRayCastMIPFunction *cast_function, T *da
   // Set the max value.  This will not always be correct and should be fixed
   max = -999999.0;
 
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -488,10 +487,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( struct VolumeRayCastRayInfoStruct *ra
     switch ( volumeInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-	CastMaxScalarValueRay( this, (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	CastMaxScalarValueRay( (unsigned char *)data_ptr, rayInfo, volumeInfo );
 	break;
       case VTK_UNSIGNED_SHORT:
-	CastMaxScalarValueRay( this, (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	CastMaxScalarValueRay( (unsigned short *)data_ptr, rayInfo, volumeInfo );
       }  
     }
   else
@@ -499,10 +498,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( struct VolumeRayCastRayInfoStruct *ra
     switch ( volumeInfo->ScalarDataType )
       {
       case VTK_UNSIGNED_CHAR:
-	CastMaxOpacityRay( this, (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	CastMaxOpacityRay( (unsigned char *)data_ptr, rayInfo, volumeInfo );
 	break;
       case VTK_UNSIGNED_SHORT:
-	CastMaxOpacityRay( this, (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	CastMaxOpacityRay( (unsigned short *)data_ptr, rayInfo, volumeInfo );
       }  
     }
 }

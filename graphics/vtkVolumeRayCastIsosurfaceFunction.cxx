@@ -323,9 +323,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   rayInfo->VolumeRayStepsTaken = 0;
 
   // Move the increments into local variables
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position_x = ray_start[0];
@@ -344,9 +344,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_direction_y = ray_increment[1];
   ray_direction_z = ray_increment[2];
 
-  x_voxels = cast_function->DataSize[0];
-  y_voxels = cast_function->DataSize[1];
-  z_voxels = cast_function->DataSize[2];
+  x_voxels = volumeInfo->DataSize[0];
+  y_voxels = volumeInfo->DataSize[1];
+  z_voxels = volumeInfo->DataSize[2];
       
   if ( voxel_x >= x_voxels - 1 ||
        voxel_y >= y_voxels - 1 ||
@@ -433,7 +433,7 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      blue_s_shade = volumeInfo->BlueSpecularShadingTable;
 	      
 	      // Get a pointer to the encoded normals for this volume
-	      encoded_normals = cast_function->EncodedNormals;
+	      encoded_normals = volumeInfo->EncodedNormals;
 	      
 	      // Set up the data values for the first pass through the loop
 	      offset = voxel_z * zinc + voxel_y * yinc + voxel_x;
@@ -590,9 +590,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   rayInfo->VolumeRayStepsTaken = 0;
 
   // Move the increments into local variables
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position_x = ray_start[0];
@@ -611,9 +611,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_direction_y = ray_increment[1];
   ray_direction_z = ray_increment[2];
 
-  x_voxels = cast_function->DataSize[0];
-  y_voxels = cast_function->DataSize[1];
-  z_voxels = cast_function->DataSize[2];
+  x_voxels = volumeInfo->DataSize[0];
+  y_voxels = volumeInfo->DataSize[1];
+  z_voxels = volumeInfo->DataSize[2];
       
   if ( voxel_x >= x_voxels - 1 ||
        voxel_y >= y_voxels - 1 ||
@@ -754,7 +754,7 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	    blue_s_shade = volumeInfo->BlueSpecularShadingTable;
 	    
 	    // Get a pointer to the encoded normals for this volume
-	    encoded_normals = cast_function->EncodedNormals;
+	    encoded_normals = volumeInfo->EncodedNormals;
 	    
 	    // Get the opacity transfer function which maps scalar input values
 	    

@@ -105,6 +105,10 @@ struct VolumeRayCastVolumeInfoStruct
   float                        *RedSpecularShadingTable;
   float                        *GreenSpecularShadingTable;
   float                        *BlueSpecularShadingTable;
+  int                          DataIncrement[3];
+  int                          DataSize[3];
+  unsigned short               *EncodedNormals;
+  unsigned char                *GradientMagnitudes;
 };
 
 
@@ -133,11 +137,6 @@ public:
   // Get the value below which all scalar values are considered to
   // have 0 opacity.
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
-
-  int                          DataIncrement[3];
-  int                          DataSize[3];
-  unsigned short               *EncodedNormals;
-  unsigned char                *GradientMagnitudes;
 
 protected:
 

@@ -51,8 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The composite value. This version uses nearest neighbor interpolation
 // and does not perform shading.
 template <class T>
-static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_function, 
-				 T *data_ptr,
+static void CastRay_NN_Unshaded( T *data_ptr,
 				 struct VolumeRayCastRayInfoStruct *rayInfo,
 				 struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
@@ -97,9 +96,9 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Move the increments into local variables
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -119,7 +118,7 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = cast_function->GradientMagnitudes;
+    grad_mag_ptr = volumeInfo->GradientMagnitudes;
     }
 
   // Set up the data values for the first pass through the loop
@@ -296,8 +295,7 @@ static void CastRay_NN_Unshaded( vtkVolumeRayCastCompositeFunction *cast_functio
 // the composite value. This version uses nearest neighbor and does
 // perform shading.
 template <class T>
-static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function, 
-			       T *data_ptr,
+static void CastRay_NN_Shaded( T *data_ptr,
 			       struct VolumeRayCastRayInfoStruct *rayInfo,
 			       struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
@@ -346,7 +344,7 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   blue_s_shade = volumeInfo->BlueSpecularShadingTable;
 
   // Get a pointer to the encoded normals for this volume
-  encoded_normals = cast_function->EncodedNormals;
+  encoded_normals = volumeInfo->EncodedNormals;
 
   // Get the scalar opacity transfer function for this volume (which maps
   // scalar input values to opacities)
@@ -370,13 +368,13 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = cast_function->GradientMagnitudes;
+    grad_mag_ptr = volumeInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -594,11 +592,9 @@ static void CastRay_NN_Shaded( vtkVolumeRayCastCompositeFunction *cast_function,
 // the composite value.  This version uses trilinear interpolation and
 // does not compute shading
 template <class T>
-static void CastRay_TrilinSample_Unshaded( 
-					  vtkVolumeRayCastCompositeFunction *cast_function, 
-					  T *data_ptr,
-					  struct VolumeRayCastRayInfoStruct *rayInfo,
-					  struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+static void CastRay_TrilinSample_Unshaded( T *data_ptr,
+					   struct VolumeRayCastRayInfoStruct *rayInfo,
+					   struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -656,13 +652,13 @@ static void CastRay_TrilinSample_Unshaded(
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = cast_function->GradientMagnitudes;
+    grad_mag_ptr = volumeInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -958,11 +954,9 @@ static void CastRay_TrilinSample_Unshaded(
 // the composite value.  This version uses trilinear interpolation, and
 // does perform shading.
 template <class T>
-static void CastRay_TrilinSample_Shaded( 
-					vtkVolumeRayCastCompositeFunction *cast_function, 
-					T *data_ptr,
-					struct VolumeRayCastRayInfoStruct *rayInfo,
-					struct VolumeRayCastVolumeInfoStruct *volumeInfo )
+static void CastRay_TrilinSample_Shaded( T *data_ptr,
+					 struct VolumeRayCastRayInfoStruct *rayInfo,
+					 struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -1018,7 +1012,7 @@ static void CastRay_TrilinSample_Shaded(
   blue_s_shade = volumeInfo->BlueSpecularShadingTable;
 
   // Get a pointer to the encoded normals for this volume
-  encoded_normals = cast_function->EncodedNormals;
+  encoded_normals = volumeInfo->EncodedNormals;
 
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
@@ -1042,13 +1036,13 @@ static void CastRay_TrilinSample_Shaded(
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = cast_function->GradientMagnitudes;
+    grad_mag_ptr = volumeInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = cast_function->DataIncrement[0];
-  yinc = cast_function->DataIncrement[1];
-  zinc = cast_function->DataIncrement[2];
+  xinc = volumeInfo->DataIncrement[0];
+  yinc = volumeInfo->DataIncrement[1];
+  zinc = volumeInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -1453,10 +1447,10 @@ void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStru
       switch ( volumeInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
-	  CastRay_NN_Unshaded( this, (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Unshaded( (unsigned char *)data_ptr, rayInfo, volumeInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
-	  CastRay_NN_Unshaded( this, (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Unshaded( (unsigned short *)data_ptr, rayInfo, volumeInfo );
 	  break;
 	}
       }
@@ -1466,10 +1460,10 @@ void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStru
       switch ( volumeInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
-	  CastRay_NN_Shaded( this, (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Shaded( (unsigned char *)data_ptr, rayInfo, volumeInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
-	  CastRay_NN_Shaded( this, (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Shaded( (unsigned short *)data_ptr, rayInfo, volumeInfo );
 	  break;
 	}
       }
@@ -1482,11 +1476,11 @@ void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStru
       switch ( volumeInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
-	  CastRay_TrilinSample_Unshaded( this, (unsigned char *)data_ptr,  
+	  CastRay_TrilinSample_Unshaded( (unsigned char *)data_ptr,  
 					 rayInfo, volumeInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
-	  CastRay_TrilinSample_Unshaded( this, (unsigned short *)data_ptr, 
+	  CastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
 					 rayInfo, volumeInfo );
 	  break;
 	}
@@ -1497,11 +1491,11 @@ void vtkVolumeRayCastCompositeFunction::CastRay( struct VolumeRayCastRayInfoStru
       switch ( volumeInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
-	  CastRay_TrilinSample_Shaded( this, (unsigned char *)data_ptr, 
+	  CastRay_TrilinSample_Shaded( (unsigned char *)data_ptr, 
 				       rayInfo, volumeInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
-	  CastRay_TrilinSample_Shaded( this, (unsigned short *)data_ptr, 
+	  CastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
 				       rayInfo, volumeInfo );
 	  break;
 	}
