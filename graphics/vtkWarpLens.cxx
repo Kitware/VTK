@@ -58,14 +58,47 @@ vtkWarpLens* vtkWarpLens::New()
   return new vtkWarpLens;
 }
 
+//
+// Preserve old Kappa instance variable. It appears to be the
+// second order symmetric radial lens distortion parameter
+//
+void vtkWarpLens::SetKappa(float kappa)
+{
+  this->SetK1(kappa);
+}
 
+float vtkWarpLens::GetKappa(float kappa)
+{
+  return this->GetK1();
+}
+
+//
+// Preserve old Center point instance variable.
+// It appears to be the center of radial distortion in pixel coordinates
+//
+void vtkWarpLens::SetCenter(float centerX, float centerY)
+{
+  this->SetPrincipalPoint(centerX, centerY);
+}
+
+float *vtkWarpLens::GetCenter()
+{
+  return this->GetPrincipalPoint();
+}
 
 
 vtkWarpLens::vtkWarpLens()
 {
-  this->Kappa = -1.0e-6;
-  this->Center[0] = 0.0;
-  this->Center[1] = 0.0;
+  this->PrincipalPoint[0] = 0.0;
+  this->PrincipalPoint[1] = 0.0;
+  this->K1 = -1.0e-6;
+  this->K2 = 0.0;
+  this->P1 = 0.0;
+  this->P2 = 0.0;
+  this->FormatWidth = 1.0;
+  this->FormatHeight = 1.0;
+  this->ImageWidth = 1;
+  this->ImageHeight = 1;	
 }
 
 void vtkWarpLens::Execute()
@@ -73,19 +106,19 @@ void vtkWarpLens::Execute()
   vtkPoints *inPts;
   vtkPoints *newPts;
   int ptId, numPts;
-  float *x, newX[3];
+  float *pixel, newPixel[3];
   vtkPointSet *input = this->GetInput();
   vtkPointSet *output = this->GetOutput();
-  float r;
-  float offset;
+  float x;
+  float y;
+  float newX;
+  float newY;
+  float rSquared;
   
   vtkDebugMacro(<<"Warping data to a point");
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
-
-  r = this->Center[0]*this->Center[0];
-  offset = this->Center[0]*(1.0 + this->Kappa*r);
 
   inPts = input->GetPoints();  
   if (!inPts )
@@ -99,19 +132,45 @@ void vtkWarpLens::Execute()
   newPts->SetNumberOfPoints(numPts);
 
   //
-  // Loop over all points, adjusting locations
+  // Loop over all pixels, adjusting locations
   //
   for (ptId=0; ptId < numPts; ptId++)
     {
-    x = inPts->GetPoint(ptId);
-    newX[0] = x[0] - this->Center[0];
-    newX[1] = x[1] - this->Center[1];
-    r = newX[0]*newX[0] + newX[1]*newX[1];
-    newX[0] = offset + newX[0]*(1.0 + this->Kappa*r);
-    newX[1] = offset + newX[1]*(1.0 + this->Kappa*r);
-    newX[2] = x[2];
-    newPts->SetPoint(ptId, newX);
+    pixel = inPts->GetPoint(ptId);
+
+    //
+    // Convert to working in mm from pixels and make the Principal Point (0,0)
+    //
+    x = pixel[0] / this->ImageWidth * this->FormatWidth - this->PrincipalPoint[0];
+    y = (- pixel[1]) / this->ImageHeight * this->FormatHeight + this->PrincipalPoint[1];
+
+    //
+    // Lens distortion causes a point's image on the imaging surface to
+    // shifted from its true position as if it had been imaged by an ideal pin-hole 
+    // camera.
+    //
+    // The corrected location adds the correction for radial len distortion
+    // and for the decentering lens distortion
+    //
+    rSquared = pow(x,2) + pow(y,2);
+
+    newX = x * (1 + this->K1 * rSquared + this->K2 * pow(rSquared,2) ) +
+      this->P1 * (rSquared + 2 * pow(x,2)) + 2 * this->P2 * x * y;
+
+    newY = y * (1 + this->K1 * rSquared + this->K2 * pow(rSquared,2) ) +
+      this->P2 * (rSquared + 2 * pow(y,2)) + 2 * this->P1 * x * y;
+
+    //
+    // Convert back to pixels
+    //
+    newPixel[0] = (newX + this->PrincipalPoint[0]) / this->FormatWidth * this->ImageWidth; 
+    newPixel[1] = (newY - this->PrincipalPoint[1]) / 
+      this->FormatHeight * this->ImageHeight * -1; 
+
+    newPixel[2] = pixel[2];		// pixel color
+    newPts->SetPoint(ptId, newPixel);
     }
+
   //
   // Update ourselves and release memory
   //
@@ -126,7 +185,14 @@ void vtkWarpLens::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSetToPointSetFilter::PrintSelf(os,indent);
   
-  os << indent << "Center: (" << this->Center[0] << ", " 
-    << this->Center[1] << ")\n";
-  os << indent << "Kappa: " << this->Kappa << "\n";
+  os << indent << "PrincipalPoint: (" << this->PrincipalPoint[0] << ", " 
+    << this->PrincipalPoint[1] << ") in mm\n";
+  os << indent << "K1: " << this->K1 << "\n";
+  os << indent << "K2: " << this->K2 << "\n";
+  os << indent << "P1: " << this->P1 << "\n";
+  os << indent << "P2: " << this->P2 << "\n";
+  os << indent << "FormatWidth: " << this->FormatWidth << " in mm\n";
+  os << indent << "FormatHeight: " << this->FormatHeight << " in mm\n";
+  os << indent << "ImageWidth: " << this->ImageWidth << " in pixels\n";
+  os << indent << "ImageHeight: " << this->ImageHeight << " in pixels\n";
 }

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkWarpLens - deform geometry by applying lens distortion
 // .SECTION Description
 // vtkWarpLens is a filter that modifies point coordinates by moving
-// in accord with a second order lens distortion model.
+// in accord with a lens distortion model.
 
 #ifndef __vtkWarpLens_h
 #define __vtkWarpLens_h
@@ -57,14 +57,50 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the distortion constant
-  vtkSetMacro(Kappa,float);
-  vtkGetMacro(Kappa,float);
+  // Specify second order symmetric radial lens distortion parameter.
+  // This is obsoleted by newer instance variables.
+  void SetKappa(float kappa);
+  float GetKappa(float kappa);
 
   // Description:
-  // Set the center of the lens distortion
-  vtkSetVector2Macro(Center,float);
-  vtkGetVectorMacro(Center,float,2);
+  // Specify the center of radial distortion in pixels.
+  // This is obsoleted by newer instance variables.
+  void SetCenter(float centerX, float centerY);
+  float *GetCenter();
+
+  // Description:
+  // Specify the calibrated principal point of the camera/lens
+  vtkSetVector2Macro(PrincipalPoint,float);
+  vtkGetVectorMacro(PrincipalPoint,float,2);
+
+  // Description:
+  // Specify the symmetric radial distortion parameters for the lens
+  vtkSetMacro(K1,float);
+  vtkGetMacro(K1,float);
+  vtkSetMacro(K2,float);
+  vtkGetMacro(K2,float);
+
+  // Description:
+  // Specify the decentering distortion parameters for the lens
+  vtkSetMacro(P1,float);
+  vtkGetMacro(P1,float);
+  vtkSetMacro(P2,float);
+  vtkGetMacro(P2,float);
+
+  // Description:
+  // Specify the imager format width / height in mm
+  vtkSetMacro(FormatWidth,float);
+  vtkGetMacro(FormatWidth,float);
+  vtkSetMacro(FormatHeight,float);
+  vtkGetMacro(FormatHeight,float);
+
+  // Description:
+  // Specify the image width / height in pixels
+  vtkSetMacro(ImageWidth,int);
+  vtkGetMacro(ImageWidth,int);
+  vtkSetMacro(ImageHeight,int);
+  vtkGetMacro(ImageHeight,int);
+
 
 protected:
   vtkWarpLens();
@@ -74,8 +110,15 @@ protected:
 
   void Execute();
 
-  float Kappa;
-  float Center[2];
+  float PrincipalPoint[2]; 	// The calibrated principal point of camera/lens in mm
+  float K1; 			// Symmetric radial distortion parameters
+  float K2;
+  float P1;			// Decentering distortion parameters
+  float P2;
+  float FormatWidth;		// imager format width in mm
+  float FormatHeight;		// imager format height in mm
+  int ImageWidth;		// image width in pixels
+  int ImageHeight;		// image height in pixels
 };
 
 #endif
