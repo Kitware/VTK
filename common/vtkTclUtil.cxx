@@ -29,6 +29,12 @@ extern Tcl_HashTable vtkCommandLookup;
 
 static int num = 0;
 static int vtkTclDebugOn = 0;
+static int vtkInDelete = 0;
+
+int vtkTclInDelete()
+{  
+  return vtkInDelete;
+}
 
 // we do no error checking in this.  We assume that if we were called
 // then tcl must have been able to find the command function and object
@@ -96,9 +102,15 @@ void vtkTclGenericDeleteObject(ClientData cd)
   entry = Tcl_FindHashEntry(&vtkCommandLookup,temp);
   command = (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry);
 
-  i = Tcl_CreateInterp();
-  command(cd,i,2,args);
-  Tcl_DeleteInterp(i);
+  // do we need to delete the c++ obj
+  if (vtkTclDeleteObjectFromHash(cd))
+    {
+    i = Tcl_CreateInterp();
+    vtkInDelete = 1;
+    command(cd,i,2,args);
+    vtkInDelete = 0;
+    Tcl_DeleteInterp(i);
+    }
 }
 
 int vtkCommand(ClientData cd, Tcl_Interp *interp, int argc, char *argv[])
