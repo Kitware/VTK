@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.30");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.31");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -80,7 +80,6 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   // Boundary of input image
   int inWholeMin0,inWholeMax0;
   int inWholeMin1,inWholeMax1;
-  int inWholeMin2,inWholeMax2;
   int inWholeExt[6];
   unsigned long count = 0;
   unsigned long target;
@@ -92,8 +91,6 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   inWholeMax0 = inWholeExt[1];
   inWholeMin1 = inWholeExt[2];
   inWholeMax1 = inWholeExt[3];
-  inWholeMin2 = inWholeExt[4];
-  inWholeMax2 = inWholeExt[5];
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
