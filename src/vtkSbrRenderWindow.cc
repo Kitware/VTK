@@ -983,29 +983,38 @@ void vtkSbrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Fd: " << this->Fd << "\n";
 }
 
-#define RGB_TO_332( r, g, b ) ( (  r       & 0xe0 ) + \
-				( (g >> 3) & 0x1c ) + \
-				( (b >> 6) & 0x03 ) )
-#define RGB_TO_666_FACTOR 0.0196078
-#define RGB_TO_666( r, g, b ) ( 40 + \
-(unsigned char)(r * RGB_TO_666_FACTOR) * 36 + \
-(unsigned char)(g * RGB_TO_666_FACTOR) * 6 + \
-(unsigned char)(b * RGB_TO_666_FACTOR) )
-#define RED_FROM_332(p) ((p & 0xe0))
-#define GREEN_FROM_332(p) ((p & 0x1c) << 3)
-#define BLUE_FROM_332(p) ((p & 0x03) << 6)
-#define RED_FROM_666(p) ((p/36)*51)
-#define GREEN_FROM_666(p) ((p%36)/6*51)
-#define BLUE_FROM_666(p) ((p%6)*51)
+/* There are two possible 8-bit formats, commonly known as 3:3:2 and
+6|6|6.  If the SB_X_SHARED_CMAP environment variable is set, we
+will use the 6|6|6 format.  Otherwise, we use the 3:3:2 format. 
+We'll define some macros to make this easier. */
 
-unsigned char *vtkSbrRenderWindow::GetPixelData(
-int x1, 
-int y1, 
-int x2, 
-int y2,
-int front)
+#define RGB_TO_332( r, g, b ) ( (  r       & 0xe0 ) + \
+			      ( (g >> 3) & 0x1c ) + \
+			      ( (b >> 6) & 0x03 ) )
+
+/* RGB_TO_666_FACTOR is 5.0/255.0, which is needed to quantize a value in 
+the range 0..255 into a range of 0..5 */
+
+#define RGB_TO_666_FACTOR 5.0/255.0
+#define RGB_FROM_666_FACTOR 255.0/5.0
+
+#define RGB_TO_666( r, g, b ) ( 40 + \
+    (unsigned char)(r * RGB_TO_666_FACTOR) * 36 + \
+    (unsigned char)(g * RGB_TO_666_FACTOR) * 6 + \
+    (unsigned char)(b * RGB_TO_666_FACTOR) )
+
+#define RED_FROM_666(c) ((unsigned char)(((c-40)/36)*RGB_FROM_666_FACTOR))
+#define GREEN_FROM_666(c) ((unsigned char)((((c-40)/6)%6)*RGB_FROM_666_FACTOR))
+#define BLUE_FROM_666(c) ((unsigned char)(((c-40)%6)*RGB_FROM_666_FACTOR))
+#define RED_FROM_332(c) (c & 0xe0)
+#define GREEN_FROM_332(c) ((c & 0x1c) << 3)
+#define BLUE_FROM_332(c) ((c & 0x03) << 6)
+
+unsigned char *vtkSbrRenderWindow::GetPixelData(int x1, int y1, 
+						int x2, int y2,
+						int front)
 {
-  long     xloop,yloop;
+  int     xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
   unsigned char   *buff1;
@@ -1013,6 +1022,15 @@ int front)
   unsigned char   *buff3;
   unsigned char   *data = NULL;
   unsigned char   *p_data = NULL;
+  int cmap_mode, dbuffer_mode, Dfront, SuppressClear;
+  
+  // make sure values are up to date
+  inquire_display_mode(this->Fd, &cmap_mode, &dbuffer_mode, 
+		       &this->NumPlanes, &this->Buffer);
+  this->DoubleBuffer = (dbuffer_mode & TRUE) ? 1 : 0;
+  Dfront = (dbuffer_mode & DFRONT) ? 1 : 0;
+  SuppressClear = (dbuffer_mode & SUPPRESS_CLEAR) ? 1 : 0;
+  this->Buffer &= 1;
 
   buff1 = new unsigned char[abs(x2 - x1)+1];
   buff2 = new unsigned char[abs(x2 - x1)+1];
@@ -1043,6 +1061,19 @@ int front)
 
   /* We'll turn off clipping so that we can do the block write anywhere */
   clip_indicator(this->Fd, CLIP_OFF );
+
+  if (this->DoubleBuffer)
+    {
+    if (front)
+      {
+      double_buffer(this->Fd, TRUE | DFRONT, this->NumPlanes);
+      }
+    else
+      {
+      double_buffer(this->Fd, TRUE, this->NumPlanes);
+      }
+    }
+
 
   /* now read the binary info one row at a time */
   p_data = data;
@@ -1161,6 +1192,14 @@ int front)
   /* Restore the clip_indicator() back to its default value */
   clip_indicator( this->Fd, CLIP_TO_VIEWPORT);
 
+  if (this->DoubleBuffer)
+    {
+    double_buffer(this->Fd,
+		  TRUE
+		  | (SuppressClear ? SUPPRESS_CLEAR : 0),
+		  this->NumPlanes);
+    }
+
   delete [] buff1;
   delete [] buff2;
   delete [] buff3;
@@ -1178,21 +1217,23 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   unsigned char   *buff2;
   unsigned char   *buff3;
   unsigned char   *p_data = NULL;
-
+  int cmap_mode, dbuffer_mode, Dfront, SuppressClear;
+  
+  // make sure values are up to date
+  inquire_display_mode(this->Fd, &cmap_mode, &dbuffer_mode, 
+		       &this->NumPlanes, &this->Buffer);
+  this->DoubleBuffer = (dbuffer_mode & TRUE) ? 1 : 0;
+  Dfront = (dbuffer_mode & DFRONT) ? 1 : 0;
+  SuppressClear = (dbuffer_mode & SUPPRESS_CLEAR) ? 1 : 0;
+  this->Buffer &= 1;
+  
   /* We'll turn off clipping so that we can do the block write anywhere */
   clip_indicator(this->Fd, CLIP_OFF );
 
  
   if (this->DoubleBuffer)
     {
-    if (front)
-      {
-      double_buffer(this->Fd, SUPPRESS_CLEAR | TRUE | DFRONT | INIT, this->NumPlanes);
-      }
-    else
-      {
-      double_buffer(this->Fd, SUPPRESS_CLEAR | TRUE | INIT, this->NumPlanes);
-      }
+    double_buffer(this->Fd, TRUE | (front?DFRONT:0), this->NumPlanes);
     }
 
   buff1 = new unsigned char[abs(x2 - x1)+1];
@@ -1324,7 +1365,10 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   if (this->DoubleBuffer)
     {
-    double_buffer(this->Fd, TRUE | INIT | SUPPRESS_CLEAR, this->NumPlanes);
+    double_buffer(this->Fd,
+		  TRUE
+		  | (SuppressClear ? SUPPRESS_CLEAR : 0),
+		  this->NumPlanes);
     }
 
   /* Restore the clip_indicator() back to its default value */
