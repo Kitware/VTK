@@ -75,6 +75,7 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->DataDescription = VTK_SINGLE_POINT;
 
   vtkFloatArray *fs=vtkFloatArray::New(); fs->Allocate(1);
+  fs->SetNumberOfTuples(1);
   fs->SetComponent(0, 0, 0.0);
   this->XCoordinates = fs; fs->Register(this);
   this->YCoordinates = fs; fs->Register(this);
