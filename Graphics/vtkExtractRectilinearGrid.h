@@ -29,14 +29,19 @@
 #ifndef __vtkExtractRectilinearGrid_h
 #define __vtkExtractRectilinearGrid_h
 
-#include "vtkRextilinearGridToRectilinearGridFilter.h"
+#include "vtkRectilinearGridSource.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridToRectilinearGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractRectilinearGrid : public vtkRectilinearGridSource
 {
 public:
   static vtkExtractRectilinearGrid *New();
-  vtkTypeRevisionMacro(vtkExtractRectilinearGrid,vtkRectilinearGridToRectilinearGridFilter);
+  vtkTypeRevisionMacro(vtkExtractRectilinearGrid,vtkRectilinearGridSource);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set / get the input Grid or filter.
+  void SetInput(vtkRectilinearGrid *input);
+  vtkRectilinearGrid *GetInput();
 
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured grid
@@ -53,6 +58,17 @@ public:
   vtkSetVector3Macro(SampleRate, int);
   vtkGetVectorMacro(SampleRate, int, 3);
 
+  // Description:
+  // Control whether to enforce that the "boundary" of the grid is output in
+  // the subsampling process. (This ivar only has effect when the SampleRate
+  // in any direction is not equal to 1.) When this ivar IncludeBoundary is
+  // on, the subsampling will always include the boundary of the grid even
+  // though the sample rate is not an even multiple of the grid
+  // dimensions. (By default IncludeBoundary is off.)
+  vtkSetMacro(IncludeBoundary,int);
+  vtkGetMacro(IncludeBoundary,int);
+  vtkBooleanMacro(IncludeBoundary,int);
+
 protected:
   vtkExtractRectilinearGrid();
   ~vtkExtractRectilinearGrid() {};
@@ -62,6 +78,8 @@ protected:
   void ComputeInputUpdateExtents(vtkDataObject *out);
   
   int VOI[6];
+  int SampleRate[3];
+  int IncludeBoundary;
   
 private:
   vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.

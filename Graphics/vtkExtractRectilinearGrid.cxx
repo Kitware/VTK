@@ -16,9 +16,10 @@
 
 =========================================================================*/
 #include "vtkExtractRectilinearGrid.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.1");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.2");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
@@ -33,6 +34,26 @@ vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
 }
 
 
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+void vtkExtractRectilinearGrid::SetInput(vtkRectilinearGrid *input)
+{
+  this->vtkProcessObject::SetNthInput(0, input);
+}
+
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkRectilinearGrid *vtkExtractRectilinearGrid::GetInput()
+{
+  if (this->NumberOfInputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkRectilinearGrid *)(this->Inputs[0]);
+}
+
+//----------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(out))
 {
   vtkRectilinearGrid *input = this->GetInput();
@@ -123,8 +144,7 @@ void vtkExtractRectilinearGrid::ComputeInputUpdateExtents(vtkDataObject *vtkNotU
   input->SetRequestExactExtent(0);
 }
 
-
-
+//----------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::ExecuteInformation()
 {
   vtkRectilinearGrid *input= this->GetInput();
@@ -139,7 +159,7 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
     return;
     }
 
-  this->vtkRectilinearGridToRectilinearGridFilter::ExecuteInformation();
+  this->vtkRectilinearGridSource::ExecuteInformation();
 
   input->GetWholeExtent(wholeExtent);
 
@@ -218,6 +238,7 @@ void vtkExtractRectilinearGrid::ExecuteInformation()
   output->SetWholeExtent(wholeExtent);
 }
 
+//----------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::Execute()
 {
   vtkRectilinearGrid *input= this->GetInput();
@@ -226,17 +247,15 @@ void vtkExtractRectilinearGrid::Execute()
   vtkRectilinearGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
-  int i, j, k, uExt[6], voi[6];
+  int uExt[6], voi[6];
   int *inExt, *outWholeExt;
-  int iIn, jIn, kIn;
+  vtkIdType i, j, k; 
+  vtkIdType iIn, jIn, kIn;
   int outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
-  vtkPoints *newPts, *inPts;
   int inInc1, inInc2;
 
   vtkDebugMacro(<< "Extracting Grid");
-
-  inPts = input->GetPoints();
 
   outWholeExt = output->GetWholeExtent();
   output->GetUpdateExtent(uExt);
@@ -275,7 +294,9 @@ void vtkExtractRectilinearGrid::Execute()
        uExt[4] <= inExt[4] && uExt[5] >= inExt[5] &&
        rate[0] == 1 && rate[1] == 1 && rate[2] == 1)
     { 
-    output->SetPoints(inPts);
+    output->SetXCoordinates(input->GetXCoordinates());
+    output->SetYCoordinates(input->GetYCoordinates());
+    output->SetZCoordinates(input->GetZCoordinates());
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     vtkDebugMacro(<<"Passed data through bacause input and output are the same");
@@ -285,17 +306,83 @@ void vtkExtractRectilinearGrid::Execute()
   // Allocate necessary objects
   //
   outSize = (uExt[1]-uExt[0]+1)*(uExt[3]-uExt[2]+1)*(uExt[5]-uExt[4]+1);
-  newPts = (vtkPoints *) inPts->MakeObject(); 
-  newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
   outCD->CopyAllocate(cd,outSize,outSize);
+
+  // Setup the new "geometry"
+  vtkDataArray *inCoords;
+  vtkFloatArray *outCoords;
+  // X
+  inCoords = input->GetXCoordinates();
+  if (inCoords->GetNumberOfComponents() > 1)
+    {
+    vtkWarningMacro("Multiple componenet axis coordinate.");
+    }
+  outCoords = vtkFloatArray::New();
+  outCoords->Allocate(uExt[1]-uExt[0]+1);
+  outCoords->Allocate(uExt[1]-uExt[0]+1);
+  outCoords->SetNumberOfTuples(uExt[1]-uExt[0]+1);
+  for ( k=uExt[0]; k <= uExt[1]; ++k)
+    { // Convert out coords to in coords.
+    kIn = voi[0] + ((k-outWholeExt[0])*rate[0]);
+    if (kIn > voi[1])
+      { // This handles the IncludeBoundaryOn condition.
+      kIn = voi[1];
+      }
+    outCoords->SetValue(k-uExt[0], inCoords->GetComponent(kIn-inExt[0], 0));
+    }
+  output->SetXCoordinates(outCoords);
+  outCoords->Delete();
+  outCoords = NULL;
+  // Y
+  inCoords = input->GetYCoordinates();
+  if (inCoords->GetNumberOfComponents() > 1)
+    {
+    vtkWarningMacro("Multiple componenet axis coordinate.");
+    }
+  outCoords = vtkFloatArray::New();
+  outCoords->Allocate(uExt[3]-uExt[2]+1);
+  outCoords->SetNumberOfTuples(uExt[3]-uExt[2]+1);
+  for ( k=uExt[2]; k <= uExt[3]; ++k)
+    { // Convert out coords to in coords.
+    kIn = voi[2] + ((k-outWholeExt[2])*rate[1]);
+    if (kIn > voi[3])
+      { // This handles the IncludeBoundaryOn condition.
+      kIn = voi[3];
+      }
+    outCoords->SetValue(k-uExt[2], inCoords->GetComponent(kIn-inExt[2], 0));
+    }
+  output->SetYCoordinates(outCoords);
+  outCoords->Delete();
+  outCoords = NULL;
+  // Z
+  inCoords = input->GetZCoordinates();
+  if (inCoords->GetNumberOfComponents() > 1)
+    {
+    vtkWarningMacro("Multiple componenet axis coordinate.");
+    }
+  outCoords = vtkFloatArray::New();
+  outCoords->Allocate(uExt[5]-uExt[4]+1);
+  outCoords->SetNumberOfTuples(uExt[5]-uExt[4]+1);
+  for ( k=uExt[4]; k <= uExt[5]; ++k)
+    { // Convert out coords to in coords.
+    kIn = voi[4] + ((k-outWholeExt[4])*rate[2]);
+    if (kIn > voi[5])
+      { // This handles the IncludeBoundaryOn condition.
+      kIn = voi[5];
+      }
+    outCoords->SetValue(k-uExt[4], inCoords->GetComponent(kIn-inExt[4], 0));
+    }
+  output->SetZCoordinates(outCoords);
+  outCoords->Delete();
+  outCoords = NULL;
 
   // Traverse input data and copy point attributes to output
   // iIn,jIn,kIn are in input grid coordinates.
   newIdx = 0;
   for ( k=uExt[4]; k <= uExt[5]; ++k)
     { // Convert out coords to in coords.
-    kIn = outWholeExt[4] + ((k-outWholeExt[4])*rate[2]);
+    kIn = voi[4] + ((k-outWholeExt[4])*rate[2]);
     if (kIn > voi[5])
       { // This handles the IncludeBoundaryOn condition.
       kIn = voi[5];
@@ -303,7 +390,7 @@ void vtkExtractRectilinearGrid::Execute()
     kOffset = (kIn-inExt[4]) * inInc2;
     for ( j=uExt[2]; j <= uExt[3]; ++j)
       { // Convert out coords to in coords.
-      jIn = outWholeExt[2] + ((j-outWholeExt[2])*rate[1]);
+      jIn = voi[2] + ((j-outWholeExt[2])*rate[1]);
       if (jIn > voi[3])
         { // This handles the IncludeBoundaryOn condition.
         jIn = voi[3];
@@ -311,13 +398,13 @@ void vtkExtractRectilinearGrid::Execute()
       jOffset = (jIn-inExt[2]) * inInc1;
       for ( i=uExt[0]; i <= uExt[1]; ++i)
         { // Convert out coords to in coords.
-        iIn = outWholeExt[0] + ((i-outWholeExt[0])*rate[0]);
+        iIn = voi[0] + ((i-outWholeExt[0])*rate[0]);
         if (iIn > voi[1])
           { // This handles the IncludeBoundaryOn condition.
           iIn = voi[1];
           }
         idx = (iIn-inExt[0]) + jOffset + kOffset;
-        newPts->SetPoint(newIdx,inPts->GetPoint(idx));
+        //newPts->SetPoint(newIdx,inPts->GetPoint(idx));
         outPD->CopyData(pd, idx, newIdx++);
 
         }
@@ -360,12 +447,10 @@ void vtkExtractRectilinearGrid::Execute()
         }
       }
     }
-
-  output->SetPoints(newPts);
-  newPts->Delete();
 }
 
 
+//----------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
