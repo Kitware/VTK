@@ -21,6 +21,7 @@ vtkPLinearExtrusionFilter
 vtkPPolyDataNormals 
 vtkPOPReader 
 vtkPSphereSource 
+vtkPVGeometryFilter
 vtkRTAnalyticSource 
 vtkSharedMemoryCommunicator 
 vtkThreadedController 
