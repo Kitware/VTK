@@ -52,26 +52,51 @@ vlDataSet* vlDataSetMapper::GetInput()
 }
 
 //
+// Return bounding box of data
+//
+float *vlDataSetMapper::GetBounds()
+{
+  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+
+  if ( ! this->Input ) 
+    return bounds;
+  else
+    {
+    this->Input->Update();
+    return this->Input->GetBounds();
+    }
+}
+//
 // Receives from Actor -> maps data to primitives
 //
 void vlDataSetMapper::Render(vlRenderer *ren)
 {
-  vlMapper *mapper;
 //
 // make sure that we've been properly initialized
 //
   if ( !this->Input )
     {
-    vlErrorMacro(<< ": No input!\n");
+    vlErrorMacro(<< "No input!\n");
     return;
     }
+  else
+    {
 //
 // Now can create appropriate mapper
 //
+    if ( this->CreateMapper() )
+      this->Mapper->Render(ren);
+    }
+}
+
+int vlDataSetMapper::CreateMapper()
+{
+  vlMapper *mapper;
+
   if ( !(mapper = this->Input->MakeMapper()) )
     {
-    vlErrorMacro(<< ": Cannot map type: " << this->Input->GetClassName() <<"\n");
-    return;
+    vlErrorMacro(<< "Cannot map type: " << this->Input->GetClassName() <<"\n");
+    return 0;
     }
   if ( mapper != this->Mapper ) 
     {
@@ -80,9 +105,8 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     this->Mapper = mapper;
     this->Mapper->Register((void *)this);
     }
- 
-  this->Mapper->Render(ren);
-}
+  return 1;
+} 
 
 void vlDataSetMapper::PrintSelf(ostream& os, vlIndent indent)
 {

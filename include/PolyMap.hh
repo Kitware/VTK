@@ -32,6 +32,7 @@ public:
   void PrintSelf(ostream& os, vlIndent indent);
 
   void Render(vlRenderer *ren);
+  float *GetBounds();
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();
 

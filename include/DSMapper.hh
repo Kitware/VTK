@@ -31,10 +31,12 @@ public:
   char *GetClassName() {return "vlDataSetMapper";};
   void PrintSelf(ostream& os, vlIndent indent);
   void Render(vlRenderer *ren);
+  float *GetBounds();
   virtual void SetInput(vlDataSet *in);
   virtual vlDataSet* GetInput();
 
 protected:
+  int CreateMapper();
   vlDataSet *Input;
   vlMapper *Mapper;
 };

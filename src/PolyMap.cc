@@ -52,6 +52,21 @@ vlPolyData* vlPolyMapper::GetInput()
 {
   return this->Input;
 }
+//
+// Return bounding box of data
+//
+float *vlPolyMapper::GetBounds()
+{
+  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+
+  if ( ! this->Input ) 
+    return bounds;
+  else
+    {
+    this->Input->Update();
+    return this->Input->GetBounds();
+    }
+}
 
 //
 // Receives from Actor -> maps data to primitives
@@ -67,7 +82,10 @@ void vlPolyMapper::Render(vlRenderer *ren)
 // make sure that we've been properly initialized
 //
   if ( ! this->Input ) 
+    {
+    vlErrorMacro(<< "No input!\n");
     return;
+    }
   else
     this->Input->Update();
 
