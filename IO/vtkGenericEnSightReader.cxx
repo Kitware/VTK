@@ -27,7 +27,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.62");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.63");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -236,7 +236,7 @@ void vtkGenericEnSightReader::Execute()
     // Since most unstructured filters in VTK generate all their data once,
     // make it the default.
     // protected: if ( output->GetExtentType() == VTK_PIECES_EXTENT )
-    if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
+    if (output && ( output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid")))
       {
       output->SetMaximumNumberOfPieces(1);
       }
