@@ -72,7 +72,7 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX): tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} \
 	libVTK$(ME)Tcl$(SHLIB_SUFFIX) \
 	tcl/${ME}Init.o ${KIT_LIBS} ${KIT_TCL_OBJ} \
 	-L. -lVTK$(ME) ${SHLIB_VTK_TCL_LIBS} ${SHLIB_VTK_LIBS} \
-	${SHLIB_LD_LIBS} ${TK_LIB} ${TCL_LIB}
+	${SHLIB_LD_LIBS}
 
 #------------------------------------------------------------------------------
 # rules for the java library
