@@ -23,7 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.52");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.53");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -234,6 +234,12 @@ void vtkRotationalExtrusionFilter::Execute()
           mesh->GetCellPoints(cellId, npts, pts);
           newPolys->InsertNextCell(npts,pts);
           outCD->CopyData(cd,cellId,newCellId++);
+          newPolys->InsertNextCell(npts);
+          for (i=0; i < npts; i++)
+            {
+            newPolys->InsertCellPoint(pts[i] + this->Resolution*numPts);
+            }
+          outCD->CopyData(cd,cellId,newCellId++);
           }
         }
       }
@@ -245,6 +251,12 @@ void vtkRotationalExtrusionFilter::Execute()
         {
         mesh->GetCellPoints(cellId, npts, pts);
         newStrips->InsertNextCell(npts,pts);
+        outCD->CopyData(cd,cellId,newCellId++);
+        newStrips->InsertNextCell(npts);
+        for (i=0; i < npts; i++)
+          {
+          newStrips->InsertCellPoint(pts[i] + this->Resolution*numPts);
+          }
         outCD->CopyData(cd,cellId,newCellId++);
         }
       }
