@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // alpha range and generating a table.
 //
 // This class is designed as a base class for derivation by other classes. 
-// The Build(), MapValue(), and SetTableRange() methods are virtual and may 
-// require overloading in subclasses.
+// The Build(), MapValue(), MapValues(), and SetTableRange() methods are 
+// virtual and may require overloading in subclasses.
 //
 // .SECTION Caveats
 // vtkLookupTable is a reference counted object. Therefore, you should 
@@ -63,6 +63,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 #include "vtkUnsignedCharArray.h"
+
+class vtkScalars;
 
 class VTK_EXPORT vtkLookupTable : public vtkObject
 {
@@ -132,6 +134,13 @@ public:
   virtual unsigned char *MapValue(float v);
 
   // Description:
+  // map a set of scalars through the lookup table
+  virtual void MapScalarsThroughTable(void *input, unsigned char *output,
+				      int inputDataType, int numberOfValues,
+				      int inputIncrement);
+  void MapScalarsThroughTable(vtkScalars *scalars, unsigned char *output);
+    
+  // Description:
   // Specify the number of values (i.e., colors) in the lookup
   // table. This method simply allocates memory and prepares the table
   // for use with SetTableValue(). It differs from Build() method in
@@ -190,5 +199,6 @@ inline unsigned char *vtkLookupTable::WritePointer(const int id,
 }
 
 #endif
+
 
 

@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkLookupTable.h"
+#include "vtkScalars.h"
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
 // (from red to blue).
@@ -195,12 +196,125 @@ void vtkLookupTable::Build()
 // Given a scalar value v, return an rgba color value from lookup table.
 unsigned char *vtkLookupTable::MapValue(float v)
 {
-  int indx;
+  float findx;
+  float maxIndex = this->NumberOfColors-1;
+  float shift = -this->TableRange[0];
+  float scale = this->NumberOfColors/(this->TableRange[1]+shift);
 
-  indx = (int)((v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumberOfColors);
-  indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
+  findx = (v+shift)*scale;
+  if (findx < 0)
+    {
+    findx = 0;
+    }
+  if (findx > maxIndex)
+    {
+    findx = maxIndex;
+    }
+  return this->Table->GetPointer(4*(int)findx);
+}
 
-  return this->Table->GetPointer(indx*4);
+// accelerate the mapping by copying the data in 32-bit chunks instead
+// of 8-bit chunks
+template<class T>
+void vtkLookupTableMapDataToRGBA(vtkLookupTable *self, T *input, 
+				 unsigned char *output, int length, int incr)
+{
+  float findx;
+  int i = length;
+  float *range = self->GetTableRange();
+  float maxIndex = self->GetNumberOfColors()-1;
+  float shift = -range[0];
+  float scale = self->GetNumberOfColors()/(range[1]-range[0]);
+  unsigned char *table = self->GetPointer(0);
+  unsigned char *cptr;
+
+  while (--i >= 0) 
+    {
+    findx = (*input + shift)*scale;
+    if (findx < 0)
+      {
+      findx = 0;
+      }
+    if (findx > maxIndex)
+      {
+      findx = maxIndex;
+      }
+    cptr = &table[4*(int)findx];
+    *output++ = *cptr++;
+    *output++ = *cptr++;
+    *output++ = *cptr++;
+    *output++ = *cptr++;     
+    input += incr;
+    }
+}
+
+void vtkLookupTable::MapScalarsThroughTable(void *input, 
+					    unsigned char *output,
+					    int inputDataType, 
+					    int numberOfValues,
+					    int inputIncrement)
+{
+  switch (inputDataType)
+    {
+    case VTK_CHAR:
+      vtkLookupTableMapDataToRGBA(this,(char *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_CHAR:
+      vtkLookupTableMapDataToRGBA(this,(unsigned char *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_SHORT:
+      vtkLookupTableMapDataToRGBA(this,(short *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_SHORT:
+      vtkLookupTableMapDataToRGBA(this,(unsigned short *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_INT:
+      vtkLookupTableMapDataToRGBA(this,(int *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_INT:
+      vtkLookupTableMapDataToRGBA(this,(unsigned int *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_LONG:
+      vtkLookupTableMapDataToRGBA(this,(long *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_UNSIGNED_LONG:
+      vtkLookupTableMapDataToRGBA(this,(unsigned long *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_FLOAT:
+      vtkLookupTableMapDataToRGBA(this,(float *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    case VTK_DOUBLE:
+      vtkLookupTableMapDataToRGBA(this,(double *)input,output,numberOfValues,inputIncrement);
+      break;
+      
+    default:
+      vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
+      return;
+    }
+}  
+
+// Map a set of scalar values through the table
+void vtkLookupTable::MapScalarsThroughTable(vtkScalars *scalars, 
+					    unsigned char *output)
+{
+  int dimensions = scalars->GetNumberOfComponents();
+  int inputIncrements = scalars->GetNumberOfComponents();
+  int outputIncrements = 4;
+
+  MapScalarsThroughTable(scalars->GetVoidPointer(0),
+			 output,
+			 scalars->GetDataType(),
+			 scalars->GetNumberOfScalars(),
+			 scalars->GetNumberOfComponents());
 }
 
 // Specify the number of values (i.e., colors) in the lookup
