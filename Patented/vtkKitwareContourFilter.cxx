@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.38");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.39");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -188,8 +188,8 @@ int vtkKitwareContourFilter::RequestData(
   inScalars = input->GetPointData()->GetScalars(this->InputScalarsSelection);
   if ( ! inScalars || numCells < 1 )
     {
-    // vtkErrorMacro(<<"No data to contour");
-    return 0;
+    vtkDebugMacro(<<"No data to contour");
+    return 1;
     }
 
   // If structured points and structured grid, use more efficient algorithms

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPointDataToCellData, "1.28");
+vtkCxxRevisionMacro(vtkPointDataToCellData, "1.29");
 vtkStandardNewMacro(vtkPointDataToCellData);
 
 //----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ int vtkPointDataToCellData::RequestData(
   if ( (numCells=input->GetNumberOfCells()) < 1 )
     {
     vtkDebugMacro(<<"No input cells!");
-    return 0;
+    return 1;
     }
   weights=new double[maxCellSize];
   

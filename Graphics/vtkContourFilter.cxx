@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.109");
+vtkCxxRevisionMacro(vtkContourFilter, "1.110");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -160,7 +160,7 @@ int vtkContourFilter::RequestData(
     if ( ! inScalars || numCells < 1 )
       {
       vtkDebugMacro(<<"No data to contour");
-      return 0;
+      return 1;
       }
 
     // Create objects to hold output of contour operation. First estimate
