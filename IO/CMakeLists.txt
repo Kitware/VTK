@@ -117,6 +117,7 @@ vtkXMLUnstructuredDataReader.cxx
 vtkXMLUnstructuredDataWriter.cxx
 vtkXMLUnstructuredGridReader.cxx
 vtkXMLUnstructuredGridWriter.cxx
+vtkXMLUtilities.cxx
 vtkXMLWriter.cxx
 vtkXYZMolReader.cxx
 vtkZLibDataCompressor.cxx
