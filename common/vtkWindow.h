@@ -132,7 +132,16 @@ public:
   vtkGetMacro(DPI,int);
   vtkSetClampMacro(DPI,int,1,3000);
   
+  // Description:
+  // Create a window in memory instead of on the screen. This may not be
+  // supported for every type of window and on some windows you may need to
+  // invoke this prior to the first render.
+  vtkSetMacro(OffScreenRendering,int);
+  vtkGetMacro(OffScreenRendering,int);
+  vtkBooleanMacro(OffScreenRendering,int);
+
 protected:
+  int OffScreenRendering;
   vtkWindow();
   ~vtkWindow();
   vtkWindow(const vtkWindow&) {};
