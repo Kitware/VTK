@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.6");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -255,6 +255,10 @@ int vtkXMLPStructuredDataReader::ReadPieceData()
 void vtkXMLPStructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray,
                                                      vtkDataArray* outArray)
 {
+  if(!inArray || !outArray)
+    {
+    return;
+    }
   this->CopySubExtent(this->SubPieceExtent,
                       this->SubPiecePointDimensions,
                       this->SubPiecePointIncrements,
@@ -267,6 +271,10 @@ void vtkXMLPStructuredDataReader::CopyArrayForPoints(vtkDataArray* inArray,
 void vtkXMLPStructuredDataReader::CopyArrayForCells(vtkDataArray* inArray,
                                                     vtkDataArray* outArray)
 {
+  if(!inArray || !outArray)
+    {
+    return;
+    }
   this->CopySubExtent(this->SubPieceExtent,
                       this->SubPieceCellDimensions,
                       this->SubPieceCellIncrements,

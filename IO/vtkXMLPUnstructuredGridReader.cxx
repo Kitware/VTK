@@ -25,7 +25,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.3");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.4");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -186,6 +186,10 @@ void vtkXMLPUnstructuredGridReader::CopyArrayForCells(vtkDataArray* inArray,
                                                       vtkDataArray* outArray)
 {
   if(!this->PieceReaders[this->Piece])
+    {
+    return;
+    }
+  if(!inArray || !outArray)
     {
     return;
     }
