@@ -30,12 +30,7 @@ vlCollection::vlCollection()
 
 vlCollection::~vlCollection()
 {
-  vlCollectionElement *p;  
-
-  for ( p=this->Top; p != NULL; p = p->Next )
-    {
-    delete p;
-    }
+  this->RemoveAllItems();
 }
 
 // Description:
@@ -101,6 +96,21 @@ void vlCollection::RemoveItem(vlObject *a)
       elem = elem->Next;
       }
     }
+}
+
+// Description:
+// Remove all object from the list.
+void vlCollection::RemoveAllItems()
+{
+  vlCollectionElement *p;  
+
+  for ( p=this->Top; p != NULL; p = p->Next )
+    {
+    delete p;
+    }
+
+  this->NumberOfItems = 0;
+  this->Top = this->Bottom = this->Current = NULL;
 }
 
 // Description:

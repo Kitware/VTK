@@ -43,6 +43,7 @@ public:
 
   void AddItem(vlObject *);
   void RemoveItem(vlObject *);
+  void RemoveAllItems();
   int  IsItemPresent(vlObject *);
   int  GetNumberOfItems();
   void InitTraversal();
