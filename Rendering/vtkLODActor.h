@@ -129,9 +129,9 @@ protected:
   vtkPolyDataMapper   *LowMapper;
   vtkPolyDataMapper   *MediumMapper;
 
-  void CreateOwnLODs();
-  void UpdateOwnLODs();
-  void DeleteOwnLODs();
+  virtual void CreateOwnLODs();
+  virtual void UpdateOwnLODs();
+  virtual void DeleteOwnLODs();
 
 private:
   vtkLODActor(const vtkLODActor&);  // Not implemented.
