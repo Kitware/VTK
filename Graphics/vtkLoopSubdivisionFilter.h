@@ -62,6 +62,8 @@ protected:
   vtkLoopSubdivisionFilter () {};
   ~vtkLoopSubdivisionFilter () {};
 
+  virtual void Execute();
+  
   void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData,
                                   vtkPoints *outputPts,
                                   vtkPointData *outputPD);

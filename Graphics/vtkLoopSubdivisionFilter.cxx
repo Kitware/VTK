@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.19");
+vtkCxxRevisionMacro(vtkLoopSubdivisionFilter, "1.20");
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
 static double LoopWeights[4] =
@@ -313,3 +313,33 @@ void vtkLoopSubdivisionFilter::ComputeInputUpdateExtents(vtkDataObject *output)
     }
 }
 
+void vtkLoopSubdivisionFilter::Execute()
+{
+  vtkPolyData *input = this->GetInput();
+  vtkCellArray *polys = input->GetPolys();
+  int hasTris = 0;
+  vtkIdType numPts, *pts;
+
+  input->BuildLinks();
+  
+  polys->InitTraversal();
+  while (polys->GetNextCell(numPts, pts))
+    {
+    if (numPts == 3)
+      {
+      if (input->IsTriangle(pts[0], pts[1], pts[2]))
+        {
+        hasTris = 1;
+        break;
+        }
+      }
+    }
+  
+  if (!hasTris)
+    {
+    vtkWarningMacro("vtkLoopSubdivisionFilter only operates on triangles, but this data set has no triangles to operate on.")
+    return;
+    }
+  
+  this->Superclass::Execute();
+}
