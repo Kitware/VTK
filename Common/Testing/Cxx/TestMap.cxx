@@ -3,7 +3,7 @@
 #include "vtkArrayMap.txx"
 #include "vtkHashMap.txx"
 
-template <typename MapType, typename IteratorType>
+template <class MapType, class IteratorType>
 class TestMapIntToString
 {
 public:
@@ -101,7 +101,7 @@ public:
     }
 };
 
-template <typename MapType>
+template <class MapType>
 class TestMapStringToString
 {
 public:
@@ -175,7 +175,7 @@ public:
     }
 };
 
-template <typename MapType>
+template <class MapType>
 class TestMapStringToObject
 {
 public:
