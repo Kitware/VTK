@@ -16,8 +16,8 @@
 
 #include <assert.h>
 #include <string.h> // memset()
-#include <vector>
-#include <list>
+#include <vtkstd/vector>
+#include <vtkstd/list>
 
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
@@ -1922,7 +1922,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
