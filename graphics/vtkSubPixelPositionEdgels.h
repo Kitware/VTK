@@ -78,9 +78,9 @@ public:
 protected:
   // Usual data generation method
   void Execute();
-  void Move(int xdim, int ydim, int x, int y,
+  void Move(int xdim, int ydim, int zdim, int x, int y,
 	    float *img, vtkVectors *inVecs, 
-	    float *result, int z);
+	    float *result, int z, float *aspect);
   vtkStructuredPoints *GradMaps;  
 };
 

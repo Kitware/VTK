@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <math.h>
+#include "vtkMath.h"
 #include "vtkSubPixelPositionEdgels.h"
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
@@ -52,14 +52,13 @@ void vtkSubPixelPositionEdgels::Execute()
   vtkFloatPoints *newPts;
   vtkPoints *inPts;
   vtkVectors *inVectors;
-  vtkCellArray *inLines=input->GetLines();
-  int nptsin, *idsin;
+  int ptId;
   vtkPolyData *output = this->GetOutput();
-  int j;
-  float *MapData, *CurrMap;
-  float *pnt;
+  float *MapData;
+  float pnt[3];
   int *dimensions;
   float result[3];
+  float *aspect, *origin;
   
   vtkDebugMacro(<<"SubPixelPositioning Edgels");
 
@@ -72,45 +71,54 @@ void vtkSubPixelPositionEdgels::Execute()
   newPts = new vtkFloatPoints;
 
   dimensions = this->GradMaps->GetDimensions();
+  aspect = this->GradMaps->GetAspectRatio();
+  origin = this->GradMaps->GetOrigin();
   MapData = ((vtkFloatScalars *)((this->GradMaps->GetPointData())->GetScalars()))->GetPtr(0);
   inVectors = this->GradMaps->GetPointData()->GetVectors();
 
-  // loop over all the segments
-  for(inLines->InitTraversal(); inLines->GetNextCell(nptsin, idsin);)
+  //
+  // Loop over all points, adjusting locations
+  //
+  for (ptId=0; ptId < inPts->GetNumberOfPoints(); ptId++)
     {
-    // move the current point based on its gradient neighbors
-    for (j = 0; j < nptsin; j++)
-      {
-      pnt = inPts->GetPoint(idsin[j]);
-      CurrMap = MapData + dimensions[0]*dimensions[1]*((int)(pnt[2]+0.5));
-      this->Move(dimensions[0],dimensions[1],
-		 (int)(pnt[0]+0.5),(int)(pnt[1]+0.5),CurrMap,
-		 inVectors, result, (int)(pnt[2]+0.5));
-      newPts->InsertNextPoint(result);
-      }
+    inPts->GetPoint(ptId,pnt);
+    pnt[0] = (pnt[0] - origin[0])/aspect[0];
+    pnt[1] = (pnt[1] - origin[1])/aspect[1];
+    pnt[2] = (pnt[2] - origin[2])/aspect[2];
+    this->Move(dimensions[0],dimensions[1],dimensions[2],
+	       (int)(pnt[0]+0.5),(int)(pnt[1]+0.5),MapData,
+	       inVectors, result, (int)(pnt[2]+0.5), aspect);
+    result[0] = result[0]*aspect[0] + origin[0];
+    result[1] = result[1]*aspect[1] + origin[1];
+    result[2] = result[2]*aspect[2] + origin[2];
+    newPts->InsertNextPoint(result);
     }
   
+  output->CopyStructure(input);
   output->GetPointData()->PassData(input->GetPointData());
   output->SetPoints(newPts);
-  output->SetLines(inLines);
   newPts->Delete();
 }
 
-void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int x, int y,
+void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
+				     int x, int y,
 				     float *img, vtkVectors *inVecs, 
-				     float *result, int z)
+				     float *result, int z, float *aspect)
 {
   int ypos, zpos;
-  float *vec;
-  float val1, val2, val3, val4;
-  float mix,mag;
-  float dist;
+  float vec[3];
+  float valn, valp;
+  float mag;
   float a,b,c,root;
+  float xp, yp, zp;
+  float xn, yn, zn;
+  int xi, yi, zi;
   
   zpos = z*xdim*ydim;
 
   ypos = y*xdim;
-  if (x == 0 || y == 0 || x == (xdim-1) || y == (ydim -1))
+  if (x < 1 || y < 1 || z < 1 || 
+      x == (xdim-1) || y == (ydim -1) || z == (zdim -1))
     {
     result[0] = x;
     result[1] = y;
@@ -118,86 +126,63 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int x, int y,
     }
   else 
     {
-    // do the non maximal suppression at this pixel
     // first get the orientation
-    vec = inVecs->GetVector(x+ypos+zpos);
-    mag = img[x+ypos];
-    if (vec[1] && vec[0])
-      {
-      mix = fabs(atan2(vec[1],vec[0]));
-      }
-    else
-      {
-      mix = 0;
-      }
+    inVecs->GetVector(x+ypos+zpos,vec);
+    vec[0] = vec[0]/aspect[0];
+    vec[1] = vec[1]/aspect[1];
+    vec[2] = vec[2]/aspect[2];
+    vtkMath::Normalize(vec);
+    mag = img[x+ypos+zpos];
     
-    if (mix > 3.1415926/2.0)
-      {
-      mix -= 3.1415926/2.0;
-      }
-    if (mix > 3.1415926/4.0)
-      {
-      mix = 3.1415926/2.0 - mix;
-      }
-    
-    mix = sin(mix)*1.4142;
-    if (fabs(vec[0]) < fabs(vec[1]))
-      {
-      if (vec[1]*vec[0] > 0)
-	{
-	val1 = img[x + (y+1)*xdim];
-	val2 = img[x + 1 + (y+1)*xdim];
-	val3 = img[x + (y-1)*xdim];
-	val4 = img[x - 1 + (y-1)*xdim];
-	}
-      else
-	{
-	val1 = img[x + (y+1)*xdim];
-	val2 = img[x - 1 + (y+1)*xdim];
-	val3 = img[x + (y-1)*xdim];
-	val4 = img[x + 1 + (y-1)*xdim];
-	}
-      }
-    else
-      {
-      if (vec[0]*vec[1] > 0)
-	{
-	val1 = img[x + 1 + ypos];
-	val2 = img[x + 1 + (y+1)*xdim];
-	val3 = img[x - 1 + ypos];
-	val4 = img[x - 1 + (y-1)*xdim];
-	}
-      else
-	{
-	val1 = img[x - 1 + ypos];
-	val2 = img[x - 1 + (y+1)*xdim];
-	val3 = img[x + 1 + ypos];
-	val4 = img[x + 1 + (y-1)*xdim];
-	}
-      }
-    val1 = (1.0 - mix)*val1 + mix*val2;
-    val3 = (1.0 - mix)*val3 + mix*val4;
+    // compute the sample points
+    xp = (float)x + vec[0];
+    yp = (float)y + vec[1];
+    zp = (float)z + vec[2];
+    xn = (float)x - vec[0];
+    yn = (float)y - vec[1];
+    zn = (float)z - vec[2];
 
+    // compute their values
+    xi = (int)xp;
+    yi = (int)yp;
+    zi = (int)zp;
+    valp = 
+      img[xi + xdim*(yi + zi*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
+      img[1 + xi + xdim*(yi + zi*ydim)]*(xp -xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
+      img[xi + xdim*(yi +1 + zi*ydim)]*(1.0 -xp +xi)*(yp -yi)*(1.0 -zp +zi) +
+      img[1 + xi + xdim*(yi +1 +zi*ydim)]*(xp -xi)*(yp -yi)*(1.0 -zp +zi) +
+      img[xi + xdim*(yi + (zi+1)*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(zp -zi) +
+      img[1 + xi + xdim*(yi + (zi+1)*ydim)]*(xp -xi)*(1.0 -yp +yi)*(zp -zi) +
+      img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xp +xi)*(yp -yi)*(zp -zi) +
+      img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xp -xi)*(yp -yi)*(zp -zi);
+    
+    xi = (int)xn;
+    yi = (int)yn;
+    zi = (int)zn;
+    valn = 
+      img[xi + xdim*(yi + zi*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
+      img[1 + xi + xdim*(yi + zi*ydim)]*(xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
+      img[xi + xdim*(yi +1 + zi*ydim)]*(1.0 -xn +xi)*(yn -yi)*(1.0 -zn +zi) +
+      img[1 + xi + xdim*(yi +1 +zi*ydim)]*(xn -xi)*(yn -yi)*(1.0 -zn +zi) +
+      img[xi + xdim*(yi + (zi+1)*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
+      img[1 + xi + xdim*(yi + (zi+1)*ydim)]*(xn -xi)*(1.0 -yn +yi)*(zn -zi) +
+      img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xn +xi)*(yn -yi)*(zn -zi) +
+      img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xn -xi)*(yn -yi)*(zn -zi);
+      
     result[0] = x;
     result[1] = y;
     result[2] = z;
 
-    // swap val1 and val3 if necc
-    if (vec[1] < 0)
-      {
-      val2 = val3;
-      val3 = val1;
-      val1 = val2;
-      }
-    
     // now fit to a parabola and find max
-    dist = 1.0 + mix*0.414;
     c = mag;
-    b = (val1 - val3)/(2.0*dist);
-    a = (val1 - mag - b*dist)/(dist*dist);
+    b = (valp - valn)/2.0;
+    a = (valp - c - b);
     root = -0.5*b/a;
+    if (root > 1.0) root = 1.0;
+    if (root < -1.0) root = -1.0;
     result[0] += vec[0]*root;
     result[1] += vec[1]*root;
+    result[2] += vec[2]*root;
     }
 }
 
