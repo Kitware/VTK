@@ -7,41 +7,44 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
 ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx)
 
+FIND_LIBRARY(UTIL_LIBRARY
+  NAMES util
+  PATHS /usr/lib
+)
+
 # Link against all the kit wrappers.
 IF (APPLE)
   SET_TARGET_PROPERTIES(vtkpython PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress")
   OPTION(VTK_HAVE_FRAMEWORK_PYTHON "The system has Python installed by default (Mac OSX 10.2)" OFF)
   IF (VTK_HAVE_FRAMEWORK_PYTHON)
-    TARGET_LINK_LIBRARIES (vtkpython "-framework Python")
-  ELSE (VTK_HAVE_FRAMEWORK_PYTHON)
-    TARGET_LINK_LIBRARIES (vtkpython ${PYTHON_LIBRARY})
+    SET(PYTHON_LIBRARY "-framework Python")
   ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
 ELSE (APPLE)
-  TARGET_LINK_LIBRARIES (vtkpython
-    ${PYTHON_LIBRARY}
-    vtkCommon
-    vtkFiltering
-    vtkIO
-    vtkGraphics
-    vtkImaging
-  )
 
-  IF (VTK_USE_RENDERING)
-    TARGET_LINK_LIBRARIES(vtkpython vtkRendering)
-  ENDIF (VTK_USE_RENDERING)
+TARGET_LINK_LIBRARIES(vtkpython 
+  ${PYTHON_LIBRARY} 
+  vtkCommon 
+  vtkFiltering
+  vtkIO
+  vtkGraphics
+  vtkImaging
+  ${UTIL_LIBRARY})
 
-  IF (VTK_USE_PATENTED)
-    TARGET_LINK_LIBRARIES(vtkpython vtkPatented)
-  ENDIF (VTK_USE_PATENTED)
+IF (VTK_USE_RENDERING)
+  TARGET_LINK_LIBRARIES(vtkpython vtkRendering)
+ENDIF (VTK_USE_RENDERING)
 
-  IF (VTK_USE_HYBRID)
-    TARGET_LINK_LIBRARIES(vtkpython vtkHybrid)
-  ENDIF (VTK_USE_HYBRID)
+IF (VTK_USE_PATENTED)
+  TARGET_LINK_LIBRARIES(vtkpython vtkPatented)
+ENDIF (VTK_USE_PATENTED)
 
-  IF (VTK_USE_PARALLEL)
-    TARGET_LINK_LIBRARIES(vtkpython vtkParallel)
-  ENDIF (VTK_USE_PARALLEL)
-ENDIF (APPLE)
+IF (VTK_USE_HYBRID)
+  TARGET_LINK_LIBRARIES(vtkpython vtkHybrid)
+ENDIF (VTK_USE_HYBRID)
+
+IF (VTK_USE_PARALLEL)
+  TARGET_LINK_LIBRARIES(vtkpython vtkParallel)
+ENDIF (VTK_USE_PARALLEL)
 
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
@@ -49,38 +52,25 @@ IF (VTK_USE_PARALLEL)
     ADD_EXECUTABLE(pvtkpython vtkParaPythonAppInit.cxx)
 
     TARGET_LINK_LIBRARIES (pvtkpython
-    ${PYTHON_LIBRARY}
+      ${PYTHON_LIBRARY}
       vtkCommon
       vtkFiltering
       vtkIO
       vtkGraphics
       vtkImaging
       vtkParallel
+      ${UTIL_LIBRARY}
     )
-
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtkpython vtkPatented)
     ENDIF (VTK_USE_PATENTED)
     IF (VTK_USE_HYBRID)
       TARGET_LINK_LIBRARIES(pvtkpython vtkHybrid)
     ENDIF (VTK_USE_HYBRID)
-
     INSTALL_TARGETS(/bin pvtkpython)
   ENDIF (VTK_USE_MPI)
 ENDIF (VTK_USE_PARALLEL)
 
-FIND_LIBRARY(UTIL_LIBRARY
-  NAMES util
-  PATHS /usr/lib
-)
-IF (UTIL_LIBRARY)
-  TARGET_LINK_LIBRARIES(vtkpython ${UTIL_LIBRARY})
-  IF (VTK_USE_PARALLEL)
-    IF (VTK_USE_MPI)
-      TARGET_LINK_LIBRARIES(pvtkpython ${UTIL_LIBRARY})
-    ENDIF (VTK_USE_MPI)
-  ENDIF (VTK_USE_PARALLEL)
-ENDIF (UTIL_LIBRARY) 
 INSTALL_TARGETS(/bin vtkpython)    
 
 # Allow the user to customize their build with some local options
