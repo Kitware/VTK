@@ -7,6 +7,8 @@
 #include "SampleDoc.h"
 #include "SampleView.h"
 
+#include "vtkRenderer.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
