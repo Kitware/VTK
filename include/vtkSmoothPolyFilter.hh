@@ -78,17 +78,18 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // "interior edge", and all others are "fixed" vertices.
 //
 // Once the classification is known, the vertices are smoothed
-// differently. Corner vertices are not smoothed at all. Simple vertices are
-// smoothed as before (i.e., average of connected vertex coordinates). Interior
-// edge vertices are smoothed only along their two connected edges, and only
-// if the angle between the edges is less than the EdgeAngle ivar.
+// differently. Corner (i.e., fixed) vertices are not smoothed at all. 
+// Simple vertices are smoothed as before (i.e., average of connected 
+// vertex coordinates). Interior edge vertices are smoothed only along 
+// their two connected edges, and only if the angle between the edges 
+// is less than the EdgeAngle ivar.
 //
 // The total smoothing can be controlled by using two ivars. The 
-// NumberOfIterations is a cap on the maximum numper of combined expansion
-// and contraction passes. The Convergence ivar is a limit on the maximum
-// point motion. If the maximum motion during an iteration is less than 
-// Convergence, then the filter terminates execution. (Convergence is expressed
-// as a fraction of the diagonal of the bounding box.)
+// NumberOfIterations is a cap on the maximum numper of smoothing passes.
+// The Convergence ivar is a limit on the maximum point motion. If the 
+// maximum motion during an iteration is less than Convergence, then the 
+// filter terminates execution. (Convergence is expressed as a fraction of 
+// the diagonal of the bounding box.)
 //
 // There are two instance variables that control the generation of error
 // data. If the ivar GenerateErrorScalars is on, then a scalar value indicating
@@ -99,6 +100,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // An excellent reference for this technique is from Gabriel Taubin. "A
 // Signal Processing Approach To Fair Surface Design." Proceedings of
 // SIGGRAPH '95. 
+
 // .SECTION Caveats
 // The Laplacian operation reduces high frequency information in the
 // geometry of the mesh. With excessive smoothing important details may be
@@ -107,6 +109,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // The contraction factor is by default a positive value, while the expansion
 // factor is a negative value. This is counter-intuitive for many people.
+
 // .SECTION See Also
 // vtkDecimate
 
