@@ -21,6 +21,9 @@
 // It's main purpose is to allow thread-safe access to cells, supporting
 // the vtkDataSet::GetCell(vtkGenericCell *) method. vtkGenericCell acts
 // like any type of cell, it just dereferences an internal representation.
+// The SetCellType() methods use #define constants; these are defined in
+// the file vtkCellType.h.
+
 // .SECTION See Also
 // vtkCell vtkDataSet
 
@@ -95,9 +98,12 @@ public:
   void SetCellTypeToHexahedron() {this->SetCellType(VTK_HEXAHEDRON);}
   void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);}
   void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);}
+  void SetCellTypeToConvexPointSet() {this->SetCellType(VTK_CONVEX_POINT_SET);}
   void SetCellTypeToQuadraticEdge() {this->SetCellType(VTK_QUADRATIC_EDGE);}
   void SetCellTypeToQuadraticTriangle() {this->SetCellType(VTK_QUADRATIC_TRIANGLE);}
+  void SetCellTypeToQuadraticQuad() {this->SetCellType(VTK_QUADRATIC_QUAD);}
   void SetCellTypeToQuadraticTetra() {this->SetCellType(VTK_QUADRATIC_TETRA);}
+  void SetCellTypeToQuadraticHexahedron () {this->SetCellType(VTK_QUADRATIC_HEXAHEDRON);}
 
 protected:
   vtkGenericCell();

@@ -140,21 +140,20 @@ public:
   virtual int CellBoundary(int subId, float pcoords[3], vtkIdList *pts) = 0;
 
   // Description:
-  // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
+  // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
-  // distance squared of point x[3] to cell (in particular, the sub-cell 
-  // indicated), closest point on cell to x[3] (unless closestPoint is
-  // null, in which case, the closest point and dist2 are not found), and 
-  // interpolation weights 
-  // in cell. (The number of weights is equal to the number of points
-  // defining the cell). Note: on rare occasions a -1 is returned from the 
-  // method. This means that numerical error has occurred and all data 
-  // returned from this method should be ignored. Also, inside/outside 
-  // is determine parametrically. That is, a point is inside if it 
-  // satisfies parametric limits. This can cause problems for cells of 
-  // topological dimension 2 or less, since a point in 3D can project 
-  // onto the cell within parametric limits but be "far" from the cell. 
-  // Thus the value dist2 may be checked to determine true in/out.
+  // distance squared of point x[3] to cell (in particular, the sub-cell
+  // indicated), closest point on cell to x[3] (unless closestPoint is null,
+  // in which case, the closest point and dist2 are not found), and
+  // interpolation weights in cell. (The number of weights is equal to the
+  // number of points defining the cell). Note: on rare occasions a -1 is
+  // returned from the method. This means that numerical error has occurred
+  // and all data returned from this method should be ignored. Also,
+  // inside/outside is determine parametrically. That is, a point is inside
+  // if it satisfies parametric limits. This can cause problems for cells of
+  // topological dimension 2 or less, since a point in 3D can project onto
+  // the cell within parametric limits but be "far" from the cell.  Thus the
+  // value dist2 may be checked to determine true in/out.
   virtual int EvaluatePosition(float x[3], float* closestPoint, 
                                int& subId, float pcoords[3], 
                                float& dist2, float *weights) = 0;
