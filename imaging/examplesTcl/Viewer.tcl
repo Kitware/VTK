@@ -20,7 +20,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 #reader DebugOn
 reader ReleaseDataFlagOff;
 reader SwapBytesOn;

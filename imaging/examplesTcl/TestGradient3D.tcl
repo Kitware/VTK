@@ -22,14 +22,14 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImageGradient3d gradient;
+vtkImageGradient3D gradient;
 gradient SetInput [reader GetOutput];
 gradient ReleaseDataFlagOff;
 

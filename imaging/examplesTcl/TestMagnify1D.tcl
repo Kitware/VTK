@@ -20,14 +20,14 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
-vtkImageMagnify1d magnify;
+vtkImageMagnify1D magnify;
 magnify SetInput [reader GetOutput];
 magnify SetAxes $VTK_IMAGE_Z_AXIS;
 magnify SetMagnificationFactor 2;

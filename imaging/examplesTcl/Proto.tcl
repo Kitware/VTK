@@ -1,4 +1,4 @@
-# Halves the size of the image in the x, Y and Z dimensions.
+# Prototype segmentation pipline
 
 
 set sliceNumber 11
@@ -24,22 +24,57 @@ vtkImageShortReader4D reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
+reader SetAspectRatio 1 1 4 0;
 reader SetFilePrefix "../../data/fullHead/headsq";
 reader SetPixelMask 0x7fff;
 
+# there is no shrink2D yet.
 vtkImageShrink3D shrink;
 shrink SetInput [reader GetOutput];
-shrink SetShrinkFactors 2 2 2;
+shrink SetShrinkFactors 4 4 1;
 shrink AveragingOn;
 shrink ReleaseDataFlagOff;
 
+# ReplaceOut is not working for some reason. debug later..
+vtkImageThreshold thresh1;
+#thresh1 SetOutputScalarType $VTK_UNSIGNED_CHAR;
+thresh1 SetInput [reader GetOutput];
+thresh1 ThresholdByUpper 2000.0;
+thresh1 SetReplaceIn 255;
+thresh1 SetReplaceOut 0;
+
+vtkImageThreshold thresh2;
+thresh2 SetInput [shrink GetOutput];
+thresh2 ThresholdByUpper 1000.0;
+thresh2 SetReplaceIn 0;
+
+# connectivity
+
+vtkImageDilateErode3D dilate;
+dilate SetInput [thresh1 GetOutput];
+dilate SetDilateValue 255;
+dilate SetErodeValue 0;
+
+vtkImageArithmetic subtract;
+subtract SetInput1 [dilate GetOutput];
+subtract SetInput2 [thresh1 GetOutput];
+
+# will be an adaptive median with subtract as input too.
+vtkImageMedian median;
+median SetInput [shrink GetOutput];
+median SetKernelSize 5 5 5;
+
+
+
+
+# here for debugging
 vtkImageXViewer viewer;
 #viewer DebugOn;
 viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS;
-viewer SetInput [shrink GetOutput];
+viewer SetInput [thresh1 GetOutput];
 viewer SetCoordinate2 $sliceNumber;
-viewer SetColorWindow 3000
-viewer SetColorLevel 1500
+viewer SetColorWindow 255
+viewer SetColorLevel 128
 viewer Render;
 
 

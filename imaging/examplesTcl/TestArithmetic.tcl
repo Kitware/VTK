@@ -21,7 +21,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 #reader DebugOn
 [reader GetCache] ReleaseDataFlagOff;
 reader SwapBytesOn;
@@ -30,7 +30,7 @@ reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 reader SetOutputScalarType $VTK_SHORT;
 
-vtkImageGaussianSmooth2d smooth
+vtkImageGaussianSmooth2D smooth
 smooth SetInput [reader GetOutput];
 smooth SetGaussianStdRadius 6.0 8;
 

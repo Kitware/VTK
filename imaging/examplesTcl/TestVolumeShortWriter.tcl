@@ -22,7 +22,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
@@ -46,7 +46,7 @@ writer Write;
 
 
 
-vtkImageShortReader4d reader2;
+vtkImageShortReader4D reader2;
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff;
 reader2 SwapBytesOn;

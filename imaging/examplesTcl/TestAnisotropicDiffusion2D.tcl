@@ -20,7 +20,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
@@ -29,7 +29,7 @@ reader SetOutputScalarType $VTK_FLOAT
 #reader DebugOn
 
 
-vtkImageAnisotropicDiffusion2d diffusion;
+vtkImageAnisotropicDiffusion2D diffusion;
 diffusion SetInput [reader GetOutput];
 diffusion SetDiffusionFactor 0.2;
 diffusion SetDiffusionThreshold 200.0;

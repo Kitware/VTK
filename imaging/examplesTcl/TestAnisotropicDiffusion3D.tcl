@@ -20,7 +20,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageShortReader4d reader;
+vtkImageShortReader4D reader;
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
@@ -30,7 +30,7 @@ reader SetAspectRatio 1 1 2 0;
 #reader DebugOn
 
 
-vtkImageAnisotropicDiffusion3d diffusion;
+vtkImageAnisotropicDiffusion3D diffusion;
 diffusion SetInput [reader GetOutput];
 diffusion SetDiffusionFactor 1.0;
 diffusion SetDiffusionThreshold 100.0;
