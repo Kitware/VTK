@@ -1076,15 +1076,34 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
   char line[256], name[256], key[256], tableName[256];
   int skipScalar=0;
   vtkDataArray *data;
+  int numComp = 1;
+  
+  if (!(this->ReadString(name) && this->ReadString(line)))
+    {
+    vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
+    << this->FileName);
+    return 0;
+    }
 
-  if (!(this->ReadString(name) && this->ReadString(line) && 
-        this->ReadString(key) && this->ReadString(tableName)))
+  if (!this->ReadString(key))
     {
     vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
                   << this->FileName);
     return 0;
     }
 
+  // the next string could be an integer number of components or a lookup table
+  if (strcmp(this->LowerCase(key), "lookup_table"))
+    {
+    numComp = atoi(key);
+    if (numComp < 1 || numComp > 4 || !this->ReadString(key))
+      {
+      vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
+      << this->FileName);
+      return 0;
+      }
+    }
+  
   if (strcmp(this->LowerCase(key), "lookup_table"))
     {
     vtkErrorMacro(<<"Lookup table must be specified with scalar.\n" <<
@@ -1092,7 +1111,15 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  //
+  if (!this->ReadString(tableName))
+    {
+    vtkErrorMacro(<<"Cannot read scalar header!" << " for file: " 
+                  << this->FileName);
+    return 0;
+    }
+    
+
+//
   // See whether scalar has been already read or scalar name (if specified) 
   // matches name in file. 
   //
@@ -1106,7 +1133,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     }
 
   // Read the data
-  data = this->ReadArray(line, numPts, 1);
+  data = this->ReadArray(line, numPts, numComp);
   if ( data != NULL )
     {
     vtkScalars *scalars=vtkScalars::New();

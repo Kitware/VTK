@@ -563,7 +563,8 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
   char *name;
   vtkLookupTable *lut;
   int dataType = scalars->GetDataType();
-
+  int numComp = scalars->GetNumberOfComponents();
+  
   if ( (lut=scalars->GetLookupTable()) == NULL || (size = lut->GetNumberOfColors()) <= 0 )
     {
     name = "default";
@@ -577,8 +578,8 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int num)
     {
     char format[1024];
     fprintf (fp, "SCALARS ");
-    sprintf(format,"%s %s %s\n",this->ScalarsName, "%s\nLOOKUP_TABLE", name);
-    if (this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, 1) == 0)
+    sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n",this->ScalarsName, numComp, name);
+    if (this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, numComp) == 0)
       {
       return 0;
       }
