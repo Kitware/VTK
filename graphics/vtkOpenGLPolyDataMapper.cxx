@@ -1985,26 +1985,14 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
   // do verts
   aPrim = prims[0];
   aGlFunction = glFunction[0];
+
+  // For verts or lines that have no normals, disable shading.
+  // This will fall back on the color set in the glColor4fv() 
+  // call in vtkOpenGLProperty::Render() - the color returned
+  // by vtkProperty::GetColor() with alpha set to 1.0.
   if (!n)
     {
     glDisable( GL_LIGHTING);
-    if (!c)
-      {
-      float *bg_color;
-      // if a line is being drawn without normals and with the  
-      // ambient intensity set to zero, then lets pretend that  
-      // the ambient intensity is 1.0 because otherwise the line
-      // would either not show up or be screwed up              
-      // get the color from the property and set it 
-      bg_color = prop->GetColor();
-      fclr[0] = bg_color[0]; 
-      fclr[1] = bg_color[1]; 
-      fclr[2] = bg_color[2];
-      fclr[3]  = tran;
-      glBegin( GL_POINTS );
-      glColor4fv(fclr);
-      glEnd();
-      }
     }
   
   // draw all the elements

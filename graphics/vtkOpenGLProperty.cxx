@@ -51,6 +51,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   GLenum method;
   float Info[4];
   GLenum Face;
+  float  color[4];
 
   // unbind any textures for starters
   glDisable(GL_TEXTURE_2D);
@@ -115,6 +116,15 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
     }
   
   glShadeModel(method);
+
+  // The material properties set above are used if shading is
+  // enabled. This color set here is used if shading is 
+  // disabled. Shading is disabled in the 
+  // vtkOpenGLPolyDataMapper::Draw() method if points or lines
+  // are encountered without normals. 
+  this->GetColor( color );
+  color[3] = 1.0;
+  glColor4fv( color );
 }
 
 // Implement base class method.
