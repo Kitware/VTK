@@ -225,5 +225,10 @@ void vtkOpenGLVolumeProVP1000Mapper::GetDepthBufferValues(vtkRenderer *ren,
     }
   
   // The render window allocated this memory, so it should release it.
+#if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
+  delete [] zData;
+#else
   vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow())->ReleaseRGBAPixelData(zData);
+#endif
 }
+

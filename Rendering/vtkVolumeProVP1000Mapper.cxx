@@ -1065,4 +1065,10 @@ void vtkVolumeProVP1000Mapper::Render( vtkRenderer *ren, vtkVolume *vol )
   delete [] outData;
 }
 
-
+#if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
+void vtkVolumeProVP1000Mapper::ConvertCroppingRegionPlanesToVoxels()
+{
+  memcpy( this->VoxelCroppingRegionPlanes, this->CroppingRegionPlanes,
+          sizeof ( this->VoxelCroppingRegionPlanes ) );
+}
+#endif

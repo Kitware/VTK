@@ -140,6 +140,13 @@ protected:
                                      int size[2],
                                      unsigned int *outData )
     { (void)outData; }
+
+#if ((VTK_MAJOR_VERSION == 3)&&(VTK_MINOR_VERSION == 2))
+  vtkGetVectorMacro( VoxelCroppingRegionPlanes, float, 6 );
+  void ConvertCroppingRegionPlanesToVoxels();
+  float                VoxelCroppingRegionPlanes[6];
+#endif
+
   
   // Keep track of the size of the data loaded so we know if we can
   // simply update when a change occurs or if we need to release and
