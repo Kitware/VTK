@@ -265,7 +265,9 @@ void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
     }
 }
 
-static void vtkWin32OpenGLSwapBuffers(HDC hdc)
+// this function is needed because SwapBuffers is an ivar,
+// as well as a Win32 API
+inline static void vtkWin32OpenGLSwapBuffers(HDC hdc)
 {
   SwapBuffers(hdc);
 }
@@ -273,6 +275,7 @@ static void vtkWin32OpenGLSwapBuffers(HDC hdc)
 // End the rendering process and display the image.
 void vtkWin32OpenGLRenderWindow::Frame(void)
 {
+  this->MakeCurrent();
   glFlush();
   if (!this->AbortRender && this->DoubleBuffer)
     {
