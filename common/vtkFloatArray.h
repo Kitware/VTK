@@ -92,7 +92,7 @@ private:
 
 // Description:
 // Get the data at a particular index.
-inline float vtkFloatArray::GetValue(const int id) {return this->Array[id];};
+inline float vtkFloatArray::GetValue(const int id) {return this->Array[id];}
 
 // Description:
 // Specify the number of values for this object to hold. Does an
@@ -114,7 +114,7 @@ inline void vtkFloatArray::SetValue(const int id, const float value)
 
 // Description:
 // Get the address of a particular data index.
-inline float *vtkFloatArray::GetPointer(const int id) {return this->Array + id;};
+inline float *vtkFloatArray::GetPointer(const int id) {return this->Array + id;}
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
@@ -152,19 +152,19 @@ inline void vtkFloatArray::operator+=(const float f)
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkFloatArray::Squeeze() {this->Resize (this->MaxId+1);};
+inline void vtkFloatArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 // Description:
 // Get the allocated size of the object in terms of number of data items.
-inline int vtkFloatArray::GetSize() {return this->Size;};
+inline int vtkFloatArray::GetSize() {return this->Size;}
 
 // Description:
 // Returning the maximum index of data inserted so far.
-inline int vtkFloatArray::GetMaxId() {return this->MaxId;};
+inline int vtkFloatArray::GetMaxId() {return this->MaxId;}
 
 // Description:
 // Reuse the memory allocated by this object. Object appears as if
 // no data has been previously inserted.
-inline void vtkFloatArray::Reset() {this->MaxId = -1;};
+inline void vtkFloatArray::Reset() {this->MaxId = -1;}
 
 #endif

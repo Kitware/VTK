@@ -97,7 +97,7 @@ private:
 
 // Description:
 // Get a link structure given a point id.
-inline _vtkLink_s &vtkCellLinks::GetLink(int ptId) {return this->Array[ptId];};
+inline _vtkLink_s &vtkCellLinks::GetLink(int ptId) {return this->Array[ptId];}
 
 // Description:
 // Get the number of cells using the point specified by ptId.
@@ -108,7 +108,7 @@ inline unsigned short vtkCellLinks::GetNcells(int ptId)
 
 // Description:
 // Return a list of cell ids using the point.
-inline int *vtkCellLinks::GetCells(int ptId) {return this->Array[ptId].cells;};
+inline int *vtkCellLinks::GetCells(int ptId) {return this->Array[ptId].cells;}
 
 // Description:
 // Increment the count of the number of cells using the point.

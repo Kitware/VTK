@@ -111,7 +111,7 @@ inline float vtkPriorityQueue::DeleteId(int id)
     this->Pop(priority,loc);
     }
   return priority;
-};
+}
 
 // Description:
 // Get the priority of an entry in the queue with specified id. Returns priority
@@ -126,6 +126,6 @@ inline float vtkPriorityQueue::GetPriority(int id)
     return this->Array[loc].priority;
     }
   return VTK_LARGE_FLOAT;
-};
+}
 
 #endif

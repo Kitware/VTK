@@ -90,6 +90,10 @@ public:
   void operator+=(const vtkShortScalars& ss) {*(this->S) += *(ss.S);};
   void Reset() {this->S->Reset();};
 
+  // Used by vtkImageToStructuredPoints (Proper length array is up to user!)
+  vtkSetReferenceCountedObjectMacro(S, vtkShortArray);
+  vtkGetObjectMacro(S, vtkShortArray);
+
 protected:
   vtkShortArray *S;
 };

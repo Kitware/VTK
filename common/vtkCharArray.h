@@ -92,7 +92,7 @@ private:
 
 // Description:
 // Get the data at a particular index.
-inline char vtkCharArray::GetValue(const int id) {return this->Array[id];};
+inline char vtkCharArray::GetValue(const int id) {return this->Array[id];}
 
 // Description:
 // Specify the number of values for this object to hold. Does an
@@ -114,7 +114,7 @@ inline void vtkCharArray::SetValue(const int id, const char value)
 
 // Description:
 // Get the address of a particular data index.
-inline char *vtkCharArray::GetPointer(const int id) {return this->Array + id;};
+inline char *vtkCharArray::GetPointer(const int id) {return this->Array + id;}
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
@@ -152,19 +152,19 @@ inline void vtkCharArray::operator+=(const char c)
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkCharArray::Squeeze() {this->Resize (this->MaxId+1);};
+inline void vtkCharArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 // Description:
 // Get the allocated size of the object in terms of number of data items.
-inline int vtkCharArray::GetSize() {return this->Size;};
+inline int vtkCharArray::GetSize() {return this->Size;}
 
 // Description:
 // Returning the maximum index of data inserted so far.
-inline int vtkCharArray::GetMaxId() {return this->MaxId;};
+inline int vtkCharArray::GetMaxId() {return this->MaxId;}
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like
 // no data has been previously inserted.
-inline void vtkCharArray::Reset() {this->MaxId = -1;};
+inline void vtkCharArray::Reset() {this->MaxId = -1;}
 
 #endif

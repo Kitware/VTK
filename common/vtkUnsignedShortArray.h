@@ -82,6 +82,13 @@ public:
   int GetMaxId();
   void Reset();
 
+  // Description:
+  // secret voodoo method to get a raw pointer into this object
+  // once into this object you still own the pointer. You must free
+  // it. Just don't free it before this object is done using it.
+  // the size is the number of short scalars, NOT the number of bytes.
+  void SetArray(unsigned short *, int size);
+
 private:
   unsigned short *Array;   // pointer to data
   int Size;       // allocated size of data
@@ -92,7 +99,7 @@ private:
 
 // Description:
 // Get the data at a particular index.
-inline unsigned short vtkUnsignedShortArray::GetValue(const int id) {return this->Array[id];};
+inline unsigned short vtkUnsignedShortArray::GetValue(const int id) {return this->Array[id];}
 
 // Description:
 // Specify the number of values for this object to hold. Does an
@@ -114,7 +121,7 @@ inline void vtkUnsignedShortArray::SetValue(const int id, const unsigned short v
 
 // Description:
 // Get the address of a particular data index.
-inline unsigned short *vtkUnsignedShortArray::GetPointer(const int id) {return this->Array + id;};
+inline unsigned short *vtkUnsignedShortArray::GetPointer(const int id) {return this->Array + id;}
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
@@ -152,20 +159,20 @@ inline void vtkUnsignedShortArray::operator+=(const unsigned short i)
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkUnsignedShortArray::Squeeze() {this->Resize (this->MaxId+1);};
+inline void vtkUnsignedShortArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 // Description:
 // Get the allocated size of the object in terms of number of data items.
-inline int vtkUnsignedShortArray::GetSize() {return this->Size;};
+inline int vtkUnsignedShortArray::GetSize() {return this->Size;}
 
 // Description:
 // Returning the maximum index of data inserted so far.
-inline int vtkUnsignedShortArray::GetMaxId() {return this->MaxId;};
+inline int vtkUnsignedShortArray::GetMaxId() {return this->MaxId;}
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like
 // no data has been previously inserted.
-inline void vtkUnsignedShortArray::Reset() {this->MaxId = -1;};
+inline void vtkUnsignedShortArray::Reset() {this->MaxId = -1;}
 
 #endif
 

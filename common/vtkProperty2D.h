@@ -91,7 +91,7 @@ public:
   void SetCompositingOperatorToSrc() {this->CompositingOperator = VTK_SRC;};
   void SetCompositingOperatorToWhite() {this->CompositingOperator = VTK_WHITE;};
 
-  void Render (vtkViewport* viewport)  { viewport;}
+  void Render (vtkViewport* vtkNotUsed(viewport))  {}
   
 protected:
   float Color[3];

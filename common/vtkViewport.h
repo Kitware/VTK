@@ -157,11 +157,11 @@ protected:
 
 // Description:
 // Convert display (or screen) coordinates to world coordinates.
-inline void vtkViewport::DisplayToWorld() {DisplayToView(); ViewToWorld();};
+inline void vtkViewport::DisplayToWorld() {DisplayToView(); ViewToWorld();}
 
 // Description:
 // Convert world point coordinates to display (or screen) coordinates.
-inline void vtkViewport::WorldToDisplay() {WorldToView(); ViewToDisplay();};
+inline void vtkViewport::WorldToDisplay() {WorldToView(); ViewToDisplay();}
 
 
 #endif

@@ -82,6 +82,13 @@ public:
   int GetMaxId();
   void Reset();
 
+  // Description:
+  // secret voodoo method to get a raw pointer into this object
+  // once into this object you still own the pointer. You must free
+  // it. Just don't free it before this object is done using it.
+  // the size is the number of short scalars, NOT the number of bytes.
+  void SetArray(short *, int size);
+
 private:
   short *Array;   // pointer to data
   int Size;       // allocated size of data
@@ -92,7 +99,7 @@ private:
 
 // Description:
 // Get the data at a particular index.
-inline short vtkShortArray::GetValue(const int id) {return this->Array[id];};
+inline short vtkShortArray::GetValue(const int id) {return this->Array[id];}
 
 // Description:
 // Specify the number of values for this object to hold. Does an
@@ -114,7 +121,7 @@ inline void vtkShortArray::SetValue(const int id, const short value)
 
 // Description:
 // Get the address of a particular data index.
-inline short *vtkShortArray::GetPointer(const int id) {return this->Array + id;};
+inline short *vtkShortArray::GetPointer(const int id) {return this->Array + id;}
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
@@ -152,19 +159,19 @@ inline void vtkShortArray::operator+=(const short i)
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkShortArray::Squeeze() {this->Resize (this->MaxId+1);};
+inline void vtkShortArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 // Description:
 // Get the allocated size of the object in terms of number of data items.
-inline int vtkShortArray::GetSize() {return this->Size;};
+inline int vtkShortArray::GetSize() {return this->Size;}
 
 // Description:
 // Returning the maximum index of data inserted so far.
-inline int vtkShortArray::GetMaxId() {return this->MaxId;};
+inline int vtkShortArray::GetMaxId() {return this->MaxId;}
 
 // Description:
 // Reuse the memory allocated by this object. Objects appears like
 // no data has been previously inserted.
-inline void vtkShortArray::Reset() {this->MaxId = -1;};
+inline void vtkShortArray::Reset() {this->MaxId = -1;}
 
 #endif

@@ -58,6 +58,13 @@ int vtkUnsignedShortArray::Allocate(const int sz, const int ext)
   return 1;
 }
 
+void vtkUnsignedShortArray::SetArray(unsigned short *ptr, int size)
+{
+    this->Size = size;
+    this->Array = ptr;
+    this->MaxId = size -1;
+}
+
 // Description:
 // Release storage and reset array to initial state.
 void vtkUnsignedShortArray::Initialize()

@@ -143,7 +143,7 @@ inline int vtkIdList::InsertUniqueId(const int id)
 
 // Description:
 // Get a pointer to a particular data index.
-inline int *vtkIdList::GetPointer(const int i) {return this->Ia->GetPointer(i);};
+inline int *vtkIdList::GetPointer(const int i) {return this->Ia->GetPointer(i);}
 
 // Description:
 // Get a pointer to a particular data index. Make sure data is allocated

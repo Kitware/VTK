@@ -96,7 +96,7 @@ private:
 inline unsigned char *vtkBitArray::GetPointer(const int id)
 {
   return this->Array + id/8;
-};
+}
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated

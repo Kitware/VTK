@@ -92,7 +92,7 @@ private:
 
 // Description:
 // Get the data at a particular index.
-inline double vtkDoubleArray::GetValue(const int id) {return this->Array[id];};
+inline double vtkDoubleArray::GetValue(const int id) {return this->Array[id];}
 
 // Description:
 // Specify the number of values for this object to hold. Does an
@@ -114,7 +114,7 @@ inline void vtkDoubleArray::SetValue(const int id, const double value)
 
 // Description:
 // Get the address of a particular data index.
-inline double *vtkDoubleArray::GetPointer(const int id) {return this->Array + id;};
+inline double *vtkDoubleArray::GetPointer(const int id) {return this->Array + id;}
 
 // Description:
 // Get the address of a particular data index. Make sure data is allocated
@@ -152,19 +152,19 @@ inline void vtkDoubleArray::operator+=(const double f)
 
 // Description:
 // Resize object to just fit data requirement. Reclaims extra memory.
-inline void vtkDoubleArray::Squeeze() {this->Resize (this->MaxId+1);};
+inline void vtkDoubleArray::Squeeze() {this->Resize (this->MaxId+1);}
 
 // Description:
 // Get the allocated size of the object in terms of number of data items.
-inline int vtkDoubleArray::GetSize() {return this->Size;};
+inline int vtkDoubleArray::GetSize() {return this->Size;}
 
 // Description:
 // Returning the maximum index of data inserted so far.
-inline int vtkDoubleArray::GetMaxId() {return this->MaxId;};
+inline int vtkDoubleArray::GetMaxId() {return this->MaxId;}
 
 // Description:
 // Reuse the memory allocated by this object. Objects appear as if
 // no data has been previously inserted.
-inline void vtkDoubleArray::Reset() {this->MaxId = -1;};
+inline void vtkDoubleArray::Reset() {this->MaxId = -1;}
 
 #endif

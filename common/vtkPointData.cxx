@@ -255,7 +255,7 @@ void vtkPointData::Initialize()
     this->UserDefined->UnRegister(this);
     this->UserDefined = NULL;
     }
-};
+}
 
 // Description:
 // Pass entire arrays of input data through to output. Obey the "copy"
@@ -337,7 +337,7 @@ void vtkPointData::CopyAllocate(vtkPointData* pd, int sze, int ext)
     this->SetUserDefined(newUserDefined);
     newUserDefined->Delete();
     }
-};
+}
 
 
 // do it this way because some compilers don't initialize file scope statics
