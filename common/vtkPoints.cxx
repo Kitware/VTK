@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkPoints* vtkPoints::New()
+vtkPoints* vtkPoints::New(int dataType)
 {
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPoints");
@@ -52,7 +52,7 @@ vtkPoints* vtkPoints::New()
     return (vtkPoints*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkPoints;
+  return new vtkPoints(dataType);
 }
 
 vtkAttributeData *vtkPoints::MakeObject()
