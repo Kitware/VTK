@@ -646,7 +646,7 @@ void vtkStructuredGrid::SetPointVisibility(vtkUnsignedCharArray *ptVis)
 // Return non-zero if the specified cell is visible (i.e., not blanked)
 unsigned char vtkStructuredGrid::IsCellVisible(int cellId)
 {
-  int ptIds[8], numIds;
+  int ptIds[8], numIds=0;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   iMin = iMax = jMin = jMax = kMin = kMax = 0;

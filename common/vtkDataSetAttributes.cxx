@@ -1478,7 +1478,7 @@ int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
 void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes::FieldList& list, 
                                         int sze, int ext)
 {
-  vtkDataArray* newDA;
+  vtkDataArray* newDA=0;
   int i;
 
   // Get rid of any old stuff
