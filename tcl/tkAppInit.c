@@ -11,10 +11,6 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#ifndef lint
-static char sccsid[] = "@(#) tkAppInit.c 1.15 95/06/28 13:14:28";
-#endif /* not lint */
-
 #include "tk.h"
 
 #ifdef USE_TIX
@@ -83,6 +79,39 @@ main(int argc, char **argv)
  *
  *----------------------------------------------------------------------
  */
+
+extern Vtkcommontcl_Init(Tcl_Interp *interp);
+#ifdef USE_GRAPHICS
+extern Vtkgraphicstcl_Init(Tcl_Interp *interp);
+extern Vtktkrenderwidget_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_IMAGING
+extern Vtkimagingtcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_PATENTED
+extern Vtkpatentedtcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_CONTRIB
+extern Vtkcontribtcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_VOLUME
+extern Vtkvolumetcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_GEMSVOLUME
+extern Vtkgemsvolumetcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_GEAE
+extern Vtkgeaetcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_GEMSIO
+extern Vtkgemsiotcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_GEMSIP
+extern Vtkgemsiptcl_Init(Tcl_Interp *interp);
+#endif
+#ifdef USE_BORESCOPE
+extern Vtkborescopetcl_Init(Tcl_Interp *interp);
+#endif
 
 int Tcl_AppInit(Tcl_Interp *interp)
 {
