@@ -23,7 +23,7 @@
 #include "vtkTrivialProducer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.100");
+vtkCxxRevisionMacro(vtkDataObject, "1.101");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -883,6 +883,18 @@ void vtkDataObject::RemoveReferences()
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  if (this->ProducerPort && this->ProducerPort->GetProducer())
+    {
+    os << indent << "ProducerPort: "
+       << this->ProducerPort->GetProducer()->GetClassName()
+       << "(" << this->ProducerPort->GetProducer() << ") port "
+       << this->ProducerPort->GetIndex() << "\n";
+    }
+  else
+    {
+    os << indent << "ProducerPort: (none)\n";
+    }
 
   if ( this->Source )
     {
