@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.74");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.75");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -236,6 +236,12 @@ void vtkTubeFilter::Execute()
     }//for all polylines
 
   singlePolyline->Delete();
+  
+  // reset the radius to ite orginal value if necessary
+  if (this->VaryRadius == VTK_VARY_RADIUS_BY_ABSOLUTE_SCALAR)
+      {
+      this->Radius = oldRadius;
+      }
 
   // Update ourselves
   //
