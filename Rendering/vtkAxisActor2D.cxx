@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.39");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.40");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -313,7 +313,22 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       }
     }
   
-  if (!positionsHaveChanged &&
+  size = viewport->GetSize();
+
+  // See whether fonts have to be rebuilt (font size depends on viewport size)
+
+  if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1])
+    {
+    viewportSizeHasChanged = 1;
+    this->LastSize[0] = size[0];
+    this->LastSize[1] = size[1];
+    }
+  else
+    {
+    viewportSizeHasChanged = 0;
+    }
+
+  if (!positionsHaveChanged && !viewportSizeHasChanged &&
       this->GetMTime() < this->BuildTime &&
       (!this->LabelVisibility || 
        this->LabelTextProperty->GetMTime() < this->BuildTime) &&
@@ -360,8 +375,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   p2[2] = 0.0;
   this->LastPosition2[0] = x[0]; 
   this->LastPosition2[1] = x[1];
-
-  size = viewport->GetSize();
 
   vtkPoints *pts = vtkPoints::New();
   vtkCellArray *lines = vtkCellArray::New();
@@ -424,19 +437,6 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
       ptIds[1] = 2*i + 1;
       lines->InsertNextCell(2, ptIds);
       }
-    }
-
-  // See whether fonts have to be rebuilt (font size depends on viewport size)
-
-  if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1])
-    {
-    viewportSizeHasChanged = 1;
-    this->LastSize[0] = size[0];
-    this->LastSize[1] = size[1];
-    }
-  else
-    {
-    viewportSizeHasChanged = 0;
     }
 
   // Build the labels
