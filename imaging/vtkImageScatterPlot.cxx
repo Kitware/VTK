@@ -47,13 +47,13 @@ vtkImageScatterPlot::vtkImageScatterPlot()
 {
   this->vtkImageFilter::SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, 
 				VTK_IMAGE_Z_AXIS, VTK_IMAGE_COMPONENT_AXIS);
-  this->SetOutputDataType(VTK_UNSIGNED_SHORT);
+  this->SetOutputScalarType(VTK_UNSIGNED_SHORT);
   // set up for a 2d (256x256) image representing 0->256 in the components.
   this->ImageRegion.SetExtent(0, 255, 0, 255);
   this->AspectRatio = 1.0;
   // We want to request our input all by ourself.
   this->UseExecuteMethodOff();
-  this->InRegion.SetExtent(0, 255, 0, 255, 47, 47, 0, 1);
+  this->InRegion.SetExtent(1, 0, 255, 0, 255, 47, 47, 0);
   
 }
 
@@ -72,9 +72,9 @@ void vtkImageScatterPlot::SetInput(vtkImageSource *input)
 //----------------------------------------------------------------------------
 // Description:
 // Set coordinate system of the filter.
-void vtkImageScatterPlot::SetAxes(int *axes, int dim)
+void vtkImageScatterPlot::SetAxes(int dim, int *axes)
 {
-  this->vtkImageCachedSource::SetAxes(axes, dim);
+  this->vtkImageCachedSource::SetAxes(dim, axes);
   this->InRegion.SetAxes(axes);
   this->ImageRegion.SetAxes(axes);
 }
@@ -140,7 +140,7 @@ void vtkImageScatterPlotUpdate(vtkImageScatterPlot *self,
       if (outMin0 <= coordinates[0] && coordinates[0] <= outMax0 &&
 	  outMin1 <= coordinates[1] && coordinates[1] <= outMax1)
 	{
-	outPtr = (unsigned short *)(outRegion->GetScalarPointer(coordinates), 2);
+	outPtr = (unsigned short *)(outRegion->GetScalarPointer(2, coordinates));
 	++(*outPtr);
 	}
 
@@ -175,7 +175,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
     }
   
   // this filter expects that output is unsigned short
-  if (outRegion->GetDataType() != VTK_UNSIGNED_SHORT)
+  if (outRegion->GetScalarType() != VTK_UNSIGNED_SHORT)
     {
     vtkErrorMacro(<< "Execute: output must be unsigned short");
     return;
@@ -201,7 +201,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
     }
   
   // Input region can only have two components for now.
-  this->InRegion.GetExtent(extent, 4);
+  this->InRegion.GetExtent(4, extent);
   if (extent[7] - extent[6] != 1)
     {
     vtkErrorMacro(<< "Update Region: I only generate 2d plots.");
@@ -216,8 +216,8 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
     // Set up the region to have the extent of one 2d image.
     extent[4] = extent[5] = idx2;
     // Request Image.
-    inRegion = this->GetInputRegion(extent, 4);
-    if ( ! inRegion->IsAllocated())
+    inRegion = this->GetInputRegion(4, extent);
+    if ( ! inRegion->AreScalarsAllocated())
       {
       vtkErrorMacro(<< "UpdateRegion:Input request failed.");
       return;
@@ -225,7 +225,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
     // Call the template function to add to this scatter plot.
     inPtr = inRegion->GetScalarPointer();
     outPtr = inRegion->GetScalarPointer();
-    switch (inRegion->GetDataType())
+    switch (inRegion->GetScalarType())
       {
       case VTK_FLOAT:
 	vtkImageScatterPlotUpdate(this, inRegion, (float *)(inPtr), 
@@ -250,7 +250,7 @@ void vtkImageScatterPlot::UpdateRegion(vtkImageRegion *outRegion)
 					outRegion, (unsigned short *)(outPtr));
 	break;
       default:
-	vtkErrorMacro(<< "Execute: Unknown DataType");
+	vtkErrorMacro(<< "Execute: Unknown ScalarType");
 	return;
       }
     // We are done with this input, so delete it.

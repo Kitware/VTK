@@ -106,8 +106,8 @@ unsigned long int vtkImageDyadicFilter::GetPipelineMTime()
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the Input1 of this filter. If a DataType has not been set,
-// then the DataType of the input is used.
+// Set the Input1 of this filter. If a ScalarType has not been set,
+// then the ScalarType of the input is used.
 void vtkImageDyadicFilter::SetInput1(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput1: input = " << input->GetClassName()
@@ -124,12 +124,12 @@ void vtkImageDyadicFilter::SetInput1(vtkImageSource *input)
 
   // Should we use the data type from the input?
   this->CheckCache();      // make sure a cache exists
-  if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+  if (this->Output->GetScalarType() == VTK_VOID)
     {
-    this->Output->SetDataType(input->GetDataType());
-    if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+    this->Output->SetScalarType(input->GetScalarType());
+    if (this->Output->GetScalarType() == VTK_VOID)
       {
-      vtkErrorMacro(<< "SetInput1: Cannot determine DataType of input.");
+      vtkErrorMacro(<< "SetInput1: Cannot determine ScalarType of input.");
       }
     }
 }
@@ -138,8 +138,8 @@ void vtkImageDyadicFilter::SetInput1(vtkImageSource *input)
 
 //----------------------------------------------------------------------------
 // Description:
-// Set the Input2 of this filter. If a DataType has not been set,
-// then the DataType of the input is used.
+// Set the Input2 of this filter. If a ScalarType has not been set,
+// then the ScalarType of the input is used.
 void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
 {
   vtkDebugMacro(<< "SetInput2: input = " << input->GetClassName()
@@ -156,12 +156,12 @@ void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
 
   // Should we use the data type from the input?
   this->CheckCache();      // make sure a cache exists
-  if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+  if (this->Output->GetScalarType() == VTK_VOID)
     {
-    this->Output->SetDataType(input->GetDataType());
-    if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+    this->Output->SetScalarType(input->GetScalarType());
+    if (this->Output->GetScalarType() == VTK_VOID)
       {
-      vtkErrorMacro(<< "SetInput2: Cannot determine DataType of input.");
+      vtkErrorMacro(<< "SetInput2: Cannot determine ScalarType of input.");
       }
     }
 }
@@ -176,7 +176,7 @@ void vtkImageDyadicFilter::SetInput2(vtkImageSource *input)
 // UseExecuteMethod is on.  ImageInformation has already been
 // updated by this point, and outRegion is in local coordinates.
 void 
-vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
+vtkImageDyadicFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion1, *inRegion2;
   
@@ -196,7 +196,7 @@ vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
   // Determine whether to use the execute methods or the generate methods.
   if ( ! this->UseExecuteMethod)
     {
-    this->vtkImageCachedSource::UpdatePointData(axisIdx, outRegion);
+    this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
     return;
     }
   
@@ -214,13 +214,13 @@ vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
   this->Input1->UpdateImageInformation(inRegion1);
   this->Input2->UpdateImageInformation(inRegion2);
   // Translate to local coordinate system
-  inRegion1->SetAxes(this->Axes, VTK_IMAGE_DIMENSIONS);
-  inRegion2->SetAxes(this->Axes, VTK_IMAGE_DIMENSIONS);
+  inRegion1->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
+  inRegion2->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   
   // Compute the required input region extent.
   // Copy to fill in extent of extra dimensions.
-  inRegion1->SetExtent(outRegion->GetExtent(), VTK_IMAGE_DIMENSIONS);
-  inRegion2->SetExtent(outRegion->GetExtent(), VTK_IMAGE_DIMENSIONS);
+  inRegion1->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
+  inRegion2->SetExtent(VTK_IMAGE_DIMENSIONS, outRegion->GetExtent());
   this->ComputeRequiredInputRegionExtent(outRegion, inRegion1, inRegion2);
 
   // Cheap and dirty streaming 
@@ -230,14 +230,14 @@ vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
     {
     inRegion1->Delete();
     inRegion2->Delete();
-    if (axisIdx == 0)
+    if (dim == 0)
       {
       vtkErrorMacro(<< "UpdatePointData: Memory Limit "
                     << this->InputMemoryLimit << " must be really small");
       }
     else
       {
-      this->vtkImageCachedSource::UpdatePointData(axisIdx, outRegion);
+      this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
       }
     return;
     }
@@ -247,18 +247,18 @@ vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
   this->Input2->UpdateRegion(inRegion2);
   
   // Make sure the region was not too large 
-  if ( ! inRegion1->IsAllocated() || ! inRegion2->IsAllocated())
+  if ( ! inRegion1->AreScalarsAllocated() || ! inRegion2->AreScalarsAllocated())
     {
     // Try Streaming
     inRegion1->Delete();
     inRegion2->Delete();
-    if (axisIdx == 0)
+    if (dim == 0)
       {
       vtkErrorMacro(<< "UpdatePointData: Could not get input.");
       }
     else
       {
-      this->vtkImageCachedSource::UpdatePointData(axisIdx, outRegion);
+      this->vtkImageCachedSource::UpdatePointData(dim, outRegion);
       }
     return;
     }
@@ -267,7 +267,7 @@ vtkImageDyadicFilter::UpdatePointData(int axisIdx, vtkImageRegion *outRegion)
   this->Output->AllocateRegion(outRegion);
 
   // fill the output region 
-  this->Execute(axisIdx, inRegion1, inRegion2, outRegion);
+  this->Execute(dim, inRegion1, inRegion2, outRegion);
 
   // free the input regions
   inRegion1->Delete();
@@ -348,58 +348,47 @@ void vtkImageDyadicFilter::ComputeRequiredInputRegionExtent(
 // Description:
 // This execute method recursively loops over extra dimensions and
 // calls the subclasses Execute method with lower dimensional regions.
-void vtkImageDyadicFilter::Execute(int axisIdx, vtkImageRegion *inRegion1,
+void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
 				     vtkImageRegion *inRegion2,
 				     vtkImageRegion *outRegion)
 {
-  int coordinate, min, max;
-  int *inExtent = new int[axisIdx*2];
-  int *outExtent = new int[axisIdx*2];
+  int coordinate, axis;
+  int inMin, inMax;
+  int outMin, outMax;
   
 
   // Terminate recursion?
-  if (axisIdx <= this->NumberOfAxes)
+  if (dim <= this->NumberOfAxes)
     {
     this->Execute(inRegion1, inRegion2, outRegion);
-    delete [] inExtent;
-    delete [] outExtent;    
     return;
     }
   
   // Get the extent of the forth dimension to be eliminated.
-  inRegion1->GetExtent(inExtent, axisIdx);
-  outRegion->GetExtent(outExtent, axisIdx);
+  axis = this->Axes[dim - 1];
+  inRegion1->GetAxisExtent(axis, inMin, inMax);
+  outRegion->GetAxisExtent(axis, outMin, outMax);
 
-  // This method assumes that the fifth axis of in and out have same extent.
-  min = outExtent[axisIdx*2 - 2];
-  max = outExtent[axisIdx*2 - 1];
-  if (min != inExtent[axisIdx*2 - 2] || max != inExtent[axisIdx*2 - 1])
+  // Extra axis of in and out must have the same extent
+  if (inMin != outMin || inMax != outMax)
     {
     vtkErrorMacro(<< "Execute: Extra axis can not be eliminated.");
     return;
     }
   
   // loop over the samples along the extra axis.
-  for (coordinate = min; coordinate <= max; ++coordinate)
+  for (coordinate = inMin; coordinate <= inMax; ++coordinate)
     {
     // set up the lower dimensional regions.
-    inExtent[2*axisIdx - 2] = inExtent[2*axisIdx - 1] = coordinate;
-    inRegion1->SetExtent(inExtent, axisIdx);
-    inRegion2->SetExtent(inExtent, axisIdx);
-    outExtent[2*axisIdx - 2] = outExtent[2*axisIdx - 1] = coordinate;
-    outRegion->SetExtent(outExtent, axisIdx);
-    this->Execute(axisIdx - 1, inRegion1, inRegion2, outRegion);
+    inRegion1->SetAxisExtent(axis, coordinate, coordinate);
+    inRegion2->SetAxisExtent(axis, coordinate, coordinate);
+    outRegion->SetAxisExtent(axis, coordinate, coordinate);
+    this->Execute(dim - 1, inRegion1, inRegion2, outRegion);
     }
   // restore the original extent
-  inExtent[2*axisIdx - 2] = min;
-  inExtent[2*axisIdx - 1] = max;
-  outExtent[2*axisIdx - 2] = min;
-  outExtent[2*axisIdx - 1] = max; 
-  inRegion1->SetExtent(inExtent, axisIdx);
-  inRegion2->SetExtent(inExtent, axisIdx);
-  outRegion->SetExtent(outExtent, axisIdx);
-  delete [] inExtent;
-  delete [] outExtent;    
+  inRegion1->SetAxisExtent(axis, inMin, inMax);
+  inRegion2->SetAxisExtent(axis, inMin, inMax);
+  outRegion->SetAxisExtent(axis, outMax, outMax);
 }
   
   
@@ -423,7 +412,7 @@ void vtkImageDyadicFilter::Execute(vtkImageRegion *inRegion1,
 //============================================================================
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *extent, int dim)
+vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int dim, int *extent)
 {
   int idx;
   int *imageExtent;
@@ -454,7 +443,7 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *extent, int dim)
     }
   
   // Note: This automatical sets the unspecified dimension extent to [0,0]
-  region->SetExtent(extent, dim);
+  region->SetExtent(dim, extent);
   this->Input1->UpdateRegion(region);
   
   return region;
@@ -463,7 +452,7 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput1Region(int *extent, int dim)
 
 
 //----------------------------------------------------------------------------
-vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *extent, int dim)
+vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int dim, int *extent)
 {
   int idx;
   int *imageExtent;
@@ -494,7 +483,7 @@ vtkImageRegion *vtkImageDyadicFilter::GetInput2Region(int *extent, int dim)
     }
   
   // Note: This automatical sets the unspecified dimension extent to [0,0]
-  region->SetExtent(extent, dim);
+  region->SetExtent(dim, extent);
   this->Input2->UpdateRegion(region);
   
   return region;

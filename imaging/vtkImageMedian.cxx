@@ -49,6 +49,8 @@ vtkImageMedian::vtkImageMedian()
 {
   this->Sort = NULL;
   this->SetKernelSize(1, 1, 1);
+  this->HandleBoundariesOn();
+  this->UseExecuteCenterOff();
 }
 
 
@@ -68,7 +70,13 @@ vtkImageMedian::~vtkImageMedian()
 void vtkImageMedian::SetKernelSize(int size0, int size1, int size2)
 {
   // Call the superclass to set the kernel size
-  this->vtkImageSpatial3d::SetKernelSize(size0, size1, size2);
+  // Call the superclass to set the kernel size
+  this->KernelSize[0] = size0;
+  this->KernelSize[1] = size1;
+  this->KernelSize[2] = size2;
+  this->KernelMiddle[0] = size0 / 2;
+  this->KernelMiddle[1] = size1 / 2;
+  this->KernelMiddle[2] = size2 / 2;
   
   // free old sort memeory
   if (this->Sort)
@@ -245,14 +253,14 @@ void vtkImageMedian::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageMedianExecute(this, 
@@ -280,7 +288,7 @@ void vtkImageMedian::Execute(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

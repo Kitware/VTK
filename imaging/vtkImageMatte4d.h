@@ -62,7 +62,7 @@ public:
   void UpdateRegion(vtkImageRegion *region); 
   void UpdateImageInformation(vtkImageRegion *region); 
   unsigned long GetPipelineMTime();
-  int GetDataType();
+  int GetScalarType();
 
   void SetBorderWidths(int w0);
   void SetBorderWidths(int w0, int w1);

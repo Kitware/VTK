@@ -94,11 +94,11 @@ vtkImageDilateErode3d::SetKernelSize(int size0, int size1, int size2)
     this->Mask->Delete();
     }
   this->Mask = new vtkImageRegion;
-  this->Mask->SetDataType(VTK_UNSIGNED_CHAR);
+  this->Mask->SetScalarType(VTK_UNSIGNED_CHAR);
   this->Mask->SetAxes(this->GetAxes());
   this->Mask->SetExtent(0, size0-1, 0, size1-1, 0, size2-1);
-  this->Mask->Allocate();
-  if ( ! this->Mask->IsAllocated())
+  this->Mask->AllocateScalars();
+  if ( ! this->Mask->AreScalarsAllocated())
     {
     this->Mask->Delete();
     this->Mask = NULL;
@@ -292,21 +292,21 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
 
   // Error checking on mask
-  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_UNSIGNED_CHAR))
+  if ( ! this->Mask || (this->Mask->GetScalarType() != VTK_UNSIGNED_CHAR))
     {
     vtkErrorMacro(<< "Execute: Bad Mask");
     return;
     }
 
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageDilateErode3dExecute(this, 
@@ -334,7 +334,7 @@ void vtkImageDilateErode3d::ExecuteCenter3d(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr), 0);
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
@@ -355,21 +355,21 @@ void vtkImageDilateErode3d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
 
   // Error checking on mask
-  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_UNSIGNED_CHAR))
+  if ( ! this->Mask || (this->Mask->GetScalarType() != VTK_UNSIGNED_CHAR))
     {
     vtkErrorMacro(<< "Execute: Bad Mask");
     return;
     }
 
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageDilateErode3dExecute(this, 
@@ -397,7 +397,7 @@ void vtkImageDilateErode3d::Execute(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr), 1);
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

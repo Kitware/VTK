@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageMedian_h
 
 
-#include "vtkImageSpatial3d.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImageMedian : public vtkImageSpatial3d
+class vtkImageMedian : public vtkImageSpatialFilter
 {
 public:
   vtkImageMedian();

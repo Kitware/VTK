@@ -46,8 +46,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageShortReader4d::vtkImageShortReader4d()
 {
+  int idx;
+  
   this->File = NULL;
-
   this->PixelMask = 0xffff;
   this->Signed = 0;
   this->SwapBytes = 0;  
@@ -58,11 +59,15 @@ vtkImageShortReader4d::vtkImageShortReader4d()
   // since the update method will only read images.
   this->NumberOfAxes = 2;
   
-  this->SetDimensions(256, 256, 1, 2);
   this->PixelMax = -9e99;
   this->PixelMin = +9e99;
-  this->SetAspectRatio(1.0, 1.0, 1.0, 1.0);
-  this->SetOrigin(0.0, 0.0, 0.0, 0.0);
+  for (idx = 0; idx < 4; ++idx)
+    {
+    this->Dimensions[idx] = 0;
+    this->Increments[idx] = 1;
+    this->AspectRatio[idx] = 1.0;
+    this->Origin[idx] = 0.0;
+    }
 
   this->FilePrefix = NULL;
   this->FilePattern = NULL;
@@ -164,8 +169,8 @@ void vtkImageShortReader4d::UpdateImageInformation(vtkImageRegion *region)
 			 0, this->Dimensions[1]-1, 
 			 0, this->Dimensions[2]-1,
 			 0, this->Dimensions[3]-1);
-  region->SetAspectRatio(this->AspectRatio, 4);
-  region->SetOrigin(this->Origin, 4);
+  region->SetAspectRatio(4, this->AspectRatio);
+  region->SetOrigin(4, this->Origin);
 }
 
 
@@ -536,7 +541,7 @@ void vtkImageShortReader4d::UpdatePointData(vtkImageRegion *region)
 
   // read in the slice
   ptr = region->GetScalarPointer();
-  switch (region->GetDataType())
+  switch (region->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageShortReader4dGenerateRegion(this, region, (float *)(ptr));
@@ -567,19 +572,19 @@ void vtkImageShortReader4d::UpdatePointData(vtkImageRegion *region)
 
 //----------------------------------------------------------------------------
 // Description:
-// Sets the default DataType of the cache.
+// Sets the default ScalarType of the cache.
 vtkImageSource *vtkImageShortReader4d::GetOutput()
 {
   this->CheckCache();
-  if (this->Output->GetDataType() == VTK_IMAGE_VOID)
+  if (this->Output->GetScalarType() == VTK_VOID)
     {
     if (this->Signed)
       {
-      this->Output->SetDataType(VTK_SHORT);
+      this->Output->SetScalarType(VTK_SHORT);
       }
     else
       {
-      this->Output->SetDataType(VTK_UNSIGNED_SHORT);
+      this->Output->SetScalarType(VTK_UNSIGNED_SHORT);
       }
     }
   

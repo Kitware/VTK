@@ -146,14 +146,14 @@ void vtkImageMipFilter::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageMipFilterExecute(this, 
@@ -181,7 +181,7 @@ void vtkImageMipFilter::Execute(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }
@@ -200,9 +200,9 @@ vtkImageMipFilter::ComputeOutputImageInformation(vtkImageRegion *inRegion,
 
 
   // reduce extent from 3 to 2 D.
-  inRegion->GetImageExtent(extent, 3);
+  inRegion->GetImageExtent(3, extent);
   extent[4] = 0; extent[5] =0;
-  outRegion->SetImageExtent(extent, 3);
+  outRegion->SetImageExtent(3, extent);
 }
 
 
@@ -222,14 +222,14 @@ void vtkImageMipFilter::ComputeRequiredInputRegionExtent(
   int extent[6];
   int imageExtent[6];
   
-  outRegion->GetExtent(extent, 3);
+  outRegion->GetExtent(3, extent);
   
-  inRegion->GetImageExtent(imageExtent, 3);
+  inRegion->GetImageExtent(3, imageExtent);
 
   extent[4] = this->ProjectionRange[0];
   extent[5] = this->ProjectionRange[1];
 
-  inRegion->SetExtent(extent, 3);
+  inRegion->SetExtent(3, extent);
 }
 
 

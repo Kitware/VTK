@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageFourierWavelet2d::vtkImageFourierWavelet2d()
 {
   this->SetAxes(VTK_IMAGE_COMPONENT_AXIS,VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
   this->Spacing = 2;
   this->Wavelets = NULL;
 }
@@ -63,8 +63,8 @@ vtkImageFourierWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
   int extent[6];
 
   this->UpdateImageInformation(region);
-  region->GetImageExtent(extent, 3);
-  region->SetExtent(extent, 3);
+  region->GetImageExtent(3, extent);
+  region->SetExtent(3, extent);
 }
 
 
@@ -84,8 +84,8 @@ void vtkImageFourierWavelet2d::ComputeOutputImageInformation(
   int waveletMin, waveletMax, waveletSize;
   int idx;
   
-  inRegion->GetImageExtent(imageExtent, 3);
-  this->Wavelets->GetExtent(waveletExtent, 3);
+  inRegion->GetImageExtent(3, imageExtent);
+  this->Wavelets->GetExtent(3, waveletExtent);
   imageExtent[0] = waveletExtent[0];
   imageExtent[1] = waveletExtent[1];
   for (idx = 1; idx < 3; ++idx)
@@ -105,17 +105,17 @@ void vtkImageFourierWavelet2d::ComputeOutputImageInformation(
       }
     imageExtent[idx*2+1] = imageMin + (imageSize-waveletSize) / this->Spacing;
     }
-  outRegion->SetImageExtent(imageExtent, 3);
+  outRegion->SetImageExtent(3, imageExtent);
 
   // Compute aspect ratio (Components?)
-  inRegion->GetAspectRatio(aspectRatio, 3);
+  inRegion->GetAspectRatio(3, aspectRatio);
   aspectRatio[0] = 0.0;
   for (idx = 1; idx < 3; ++idx)
     {
     aspectRatio[idx] *= this->Spacing;
     }
   
-  outRegion->SetAspectRatio(aspectRatio, 3);
+  outRegion->SetAspectRatio(3, aspectRatio);
 }
 
 
@@ -128,10 +128,10 @@ void vtkImageFourierWavelet2d::ComputeRequiredInputRegionExtent(
   int extent[6];
   
   outRegion = outRegion;
-  inRegion->GetImageExtent(extent, 3);
+  inRegion->GetImageExtent(3, extent);
   // Only take the first component, but the whole image in other dimensions.
   extent[1] = extent[0];
-  inRegion->SetExtent(extent, 3);
+  inRegion->SetExtent(3, extent);
 }
 
 
@@ -152,12 +152,12 @@ void vtkImageFourierWavelet2d::InitializeWavelets(int dim)
     }
   // Allocate new region for the wavelets
   this->Wavelets = new vtkImageRegion;
-  this->Wavelets->SetDataType(VTK_FLOAT);
+  this->Wavelets->SetScalarType(VTK_FLOAT);
   this->Wavelets->SetAxes(VTK_IMAGE_COMPONENT_AXIS, 
 			  VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
   this->Wavelets->SetExtent(0,(dim*dim)-1, 0,dim-1, 0,dim-1);
-  this->Wavelets->Allocate();
-  if ( ! this->Wavelets->IsAllocated())
+  this->Wavelets->AllocateScalars();
+  if ( ! this->Wavelets->AreScalarsAllocated())
     {
     this->Wavelets->Delete();
     this->Wavelets = NULL;
@@ -218,7 +218,7 @@ void vtkImageFourierWavelet2d::ComputeWaveletReal(int f1, int f2, int w0)
   int idx1, idx2;
   
   this->Wavelets->GetIncrements(waveletInc0, waveletInc1, waveletInc2);
-  this->Wavelets->GetExtent(waveletExtent, 3);
+  this->Wavelets->GetExtent(3, waveletExtent);
   waveletSize1 = waveletExtent[3] - waveletExtent[2] + 1;
   waveletSize2 = waveletExtent[5] - waveletExtent[4] + 1;
   
@@ -260,7 +260,7 @@ void vtkImageFourierWavelet2d::ComputeWaveletImaginary(int f1, int f2,
   int idx1, idx2;
   
   this->Wavelets->GetIncrements(waveletInc0, waveletInc1, waveletInc2);
-  this->Wavelets->GetExtent(waveletExtent, 3);
+  this->Wavelets->GetExtent(3, waveletExtent);
   waveletSize1 = waveletExtent[3] - waveletExtent[2] + 1;
   waveletSize2 = waveletExtent[5] - waveletExtent[4] + 1;
   
@@ -456,7 +456,7 @@ void vtkImageFourierWavelet2d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that output is float.
-  if (outRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Output must be floats");
     return;
@@ -465,7 +465,7 @@ void vtkImageFourierWavelet2d::Execute(vtkImageRegion *inRegion,
   inPtr = inRegion->GetScalarPointer();
   outPtr = outRegion->GetScalarPointer();
 
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageFourierWavelet2dExecute(this,
@@ -493,7 +493,7 @@ void vtkImageFourierWavelet2d::Execute(vtkImageRegion *inRegion,
 				    outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageFourierBandPass2d::vtkImageFourierBandPass2d()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
   this->SetLowPass(0.0);
   this->SetHighPass(1.5);
 }
@@ -77,7 +77,7 @@ vtkImageFourierBandPass2d::InterceptCacheUpdate(vtkImageRegion *region)
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent(0, 1);
+  region->SetExtent(1, 0);
 }
 
 
@@ -105,8 +105,8 @@ void vtkImageFourierBandPass2d::Execute(vtkImageRegion *inRegion,
     }
   
   // this filter expects that input is the same type as output (float).
-  if (inRegion->GetDataType() != VTK_FLOAT ||
-      outRegion->GetDataType() != VTK_FLOAT)
+  if (inRegion->GetScalarType() != VTK_FLOAT ||
+      outRegion->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: input and output must be floats");
     return;

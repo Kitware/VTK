@@ -21,13 +21,13 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 # Image pipeline
 
 vtkImageShortReader4d reader;
-#reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
-reader SetOutputDataType $VTK_FLOAT
+reader SetOutputScalarType $VTK_FLOAT
 reader SetAspectRatio 1 1 2 0;
+#reader DebugOn
 
 
 vtkImageAnisotropicDiffusion3d diffusion;

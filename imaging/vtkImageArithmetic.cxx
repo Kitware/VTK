@@ -118,16 +118,16 @@ void vtkImageArithmetic::Execute(vtkImageRegion *inRegion1,
   void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that inputs are the same type as output.
-  if (inRegion1->GetDataType() != outRegion->GetDataType() ||
-      inRegion2->GetDataType() != outRegion->GetDataType())
+  if (inRegion1->GetScalarType() != outRegion->GetScalarType() ||
+      inRegion2->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataTypes, " << inRegion1->GetDataType()
-                  << " and " << inRegion2->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarTypes, " << inRegion1->GetScalarType()
+                  << " and " << inRegion2->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion1->GetDataType())
+  switch (inRegion1->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageArithmeticExecute(this, 
@@ -160,7 +160,7 @@ void vtkImageArithmetic::Execute(vtkImageRegion *inRegion1,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

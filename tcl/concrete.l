@@ -77,8 +77,8 @@
 "vtkSetVector4Macro"   return(SetVector4Macro);
 "vtkSetVectorMacro"    return(SetVectorMacro);
 "vtkGetVectorMacro"    return(GetVectorMacro);
-"vtkImageRegionSetMacro" return(ImageRegionSetMacro);
-"vtkImageRegionSetBoundsMacro" return(ImageRegionSetBoundsMacro);
+"vtkImageSetMacro"     return(ImageSetMacro);
+"vtkImageSetExtentMacro" return(ImageSetExtentMacro);
 
 [0-9]+		{ sscanf(yytext,"%d",&yylval.integer); return(NUM);}
 

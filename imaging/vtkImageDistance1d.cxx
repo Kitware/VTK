@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageDistance1d::vtkImageDistance1d()
 {
-  this->SetOutputDataType(VTK_UNSIGNED_CHAR);
+  this->SetOutputScalarType(VTK_UNSIGNED_CHAR);
 }
 
 
@@ -77,8 +77,8 @@ void vtkImageDistance1d::ComputeRequiredInputRegionExtent(
 
   // Avoid a warning message.
   outRegion = outRegion;
-  inRegion->GetImageExtent(extent, 1);
-  inRegion->SetExtent(extent, 1);
+  inRegion->GetImageExtent(1, extent);
+  inRegion->SetExtent(1, extent);
 }
 
 
@@ -100,11 +100,11 @@ void vtkImageDistance1d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that inputand output are unsigned char.
-  if (inRegion->GetDataType() != VTK_UNSIGNED_CHAR ||
-      outRegion->GetDataType() != VTK_UNSIGNED_CHAR)
+  if (inRegion->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      outRegion->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", and out DataType " << outRegion->GetDataType()
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", and out ScalarType " << outRegion->GetScalarType()
                   << " must by unsigned chars.");
     return;
     }

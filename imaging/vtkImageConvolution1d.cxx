@@ -310,15 +310,15 @@ void vtkImageConvolution1d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
 
   // choose which templated function to call.
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageConvolution1dExecute(this, inRegion, (float *)(inPtr), 
@@ -343,7 +343,7 @@ void vtkImageConvolution1d::Execute(vtkImageRegion *inRegion,
 				 outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

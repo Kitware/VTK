@@ -69,8 +69,8 @@ void vtkImageHarrWavelet2d::InterceptCacheUpdate(vtkImageRegion *region)
     }
   
   this->Input->UpdateImageInformation(region);
-  region->GetImageExtent(extent, 2);
-  region->SetExtent(extent, 2);
+  region->GetImageExtent(2, extent);
+  region->SetExtent(2, extent);
 }
 
 
@@ -157,10 +157,10 @@ void vtkImageHarrWavelet2d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
 
@@ -178,7 +178,7 @@ void vtkImageHarrWavelet2d::Execute(vtkImageRegion *inRegion,
     inPtr = inRegion->GetScalarPointer();
     outPtr = outRegion->GetScalarPointer();
 
-    switch (inRegion->GetDataType())
+    switch (inRegion->GetScalarType())
       {
       case VTK_FLOAT:
 	vtkImageHarrWavelet2dExecute(this, qSize0, qSize1,
@@ -206,7 +206,7 @@ void vtkImageHarrWavelet2d::Execute(vtkImageRegion *inRegion,
 				   outRegion, (unsigned char *)(outPtr));
 	break;
       default:
-	vtkErrorMacro(<< "Execute: Unknown DataType");
+	vtkErrorMacro(<< "Execute: Unknown ScalarType");
 	return;
       }
     
@@ -219,7 +219,7 @@ void vtkImageHarrWavelet2d::Execute(vtkImageRegion *inRegion,
       if ( ! tempRegion)
 	{
 	tempRegion = new vtkImageRegion;
-	tempRegion->SetDataType(outRegion->GetDataType());
+	tempRegion->SetScalarType(outRegion->GetScalarType());
 	// A sore point with me (default coordinates !!!)
 	tempRegion->SetExtent(outRegion->GetExtent());
 	}

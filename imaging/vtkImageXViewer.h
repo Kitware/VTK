@@ -80,11 +80,11 @@ public:
   // Description:
   // Messages that get forwarded to this viewers "Region".
   void SetExtent(int *extent)
-  {this->Region.SetExtent(extent,2); this->Modified(); this->WholeImageOff();};
+  {this->Region.SetExtent(2,extent); this->Modified(); this->WholeImageOff();};
   void SetExtent(int min0, int max0, int min1, int max1)
   {this->Region.SetExtent(min0,max0, min1,max1); this->Modified();this->WholeImageOff();};
   int *GetExtent(){return this->Region.GetExtent();};
-  void GetExtent(int *extent){this->Region.GetExtent(extent,2);};
+  void GetExtent(int *extent){this->Region.GetExtent(2,extent);};
   void GetExtent(int &min0,int &max0,int &min1,int &max1)
   {this->Region.GetExtent(min0,max0,min1,max1);};
 

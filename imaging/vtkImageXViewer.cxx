@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageXViewer::vtkImageXViewer()
 {
   this->Input = NULL;
-  this->WholeImageOn();
+  this->WholeImage = 1;
   this->Coordinate2 = 0;
   this->Coordinate3 = 0;
   
@@ -228,11 +228,11 @@ void vtkImageXViewer::Render(void)
   if (this->WholeImage)
     {
     this->Input->UpdateImageInformation(&(this->Region));
-    this->Region.GetImageExtent(extent, 2);
+    this->Region.GetImageExtent(2, extent);
     }
   else
     {
-    this->Region.GetExtent(extent, 2);
+    this->Region.GetExtent(2, extent);
     }
   
   if (this->ColorFlag)
@@ -252,9 +252,9 @@ void vtkImageXViewer::Render(void)
   // Get the region form the input
   region = new vtkImageRegion;
   region->SetAxes(this->Region.GetAxes());
-  region->SetExtent(extent, 4);
+  region->SetExtent(4, extent);
   this->Input->UpdateRegion(region);
-  if ( ! region->IsAllocated())
+  if ( ! region->AreScalarsAllocated())
     {
     vtkErrorMacro(<< "View: Could not get region from input.");
     region->Delete();
@@ -292,7 +292,7 @@ void vtkImageXViewer::Render(void)
     ptr1 = region->GetScalarPointer(extent[0], extent[2], this->Green);
     ptr2 = region->GetScalarPointer(extent[0], extent[2], this->Blue);
     // Call the appropriate templated function
-    switch (region->GetDataType())
+    switch (region->GetScalarType())
       {
       case VTK_FLOAT:
 	vtkImageXViewerRenderColor(this, region, 
@@ -326,7 +326,7 @@ void vtkImageXViewer::Render(void)
     // GreyScale images.
     ptr0 = region->GetScalarPointer();
     // Call the appropriate templated function
-    switch (region->GetDataType())
+    switch (region->GetScalarType())
       {
       case VTK_FLOAT:
 	vtkImageXViewerRenderGrey(this, region, (float *)(ptr0), dataOut);

@@ -91,8 +91,8 @@ protected:
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
   
-  void Execute(int axisIdx,vtkImageRegion *inRegion,vtkImageRegion *outRegion);
-  void ExecuteCenter(int axisIdx, vtkImageRegion *inRegion,
+  void Execute(int dim, vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ExecuteCenter(int dim, vtkImageRegion *inRegion,
 		     vtkImageRegion *outRegion);  
   
   virtual void ExecuteCenter(vtkImageRegion *inRegion, 

@@ -71,7 +71,7 @@ public:
   vtkImageRegion *GetImageRegion(){return &(this->ImageRegion);};
   
   void SetInput(vtkImageSource *input);
-  void SetAxes(int *axes, int dim);
+  void SetAxes(int dim, int *axes);
   
   // Description:
   // Set/Get The aspect ratio (same for all axes)

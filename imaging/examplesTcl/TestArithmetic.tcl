@@ -28,7 +28,7 @@ reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
-reader SetOutputDataType $VTK_SHORT;
+reader SetOutputScalarType $VTK_SHORT;
 
 vtkImageGaussianSmooth2d smooth
 smooth SetInput [reader GetOutput];

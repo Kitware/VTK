@@ -54,7 +54,7 @@ vtkImageGradient2d::vtkImageGradient2d()
   this->KernelMiddle[1] = 1;
   
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
   
   this->UseExecuteCenterOff();
 }
@@ -89,10 +89,10 @@ void vtkImageGradient2d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int extent[6];
   
-  region->GetExtent(extent, 3);
+  region->GetExtent(3, extent);
   extent[4] = 0;
   extent[5] = 2;
-  region->SetExtent(extent, 3);
+  region->SetExtent(3, extent);
 }
 
 
@@ -108,7 +108,7 @@ void vtkImageGradient2d::ComputeOutputImageInformation(
   int extent[8];
   int idx;
 
-  inRegion->GetImageExtent(extent, 4);
+  inRegion->GetImageExtent(4, extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -123,7 +123,7 @@ void vtkImageGradient2d::ComputeOutputImageInformation(
   extent[4] = 0;
   extent[5] = 2;
 
-  outRegion->SetImageExtent(extent, 4);
+  outRegion->SetImageExtent(4, extent);
 }
 
 
@@ -217,15 +217,15 @@ void vtkImageGradient2d::Execute(vtkImageRegion *inRegion,
   void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that output is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageGradient2dExecute(this, 
@@ -253,7 +253,7 @@ void vtkImageGradient2d::Execute(vtkImageRegion *inRegion,
 			  outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

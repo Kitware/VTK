@@ -57,6 +57,7 @@ vtkImageAnisotropicDiffusion3d::vtkImageAnisotropicDiffusion3d()
   this->FacesOn();
   this->EdgesOn();
   this->CornersOn();
+  this->GradientMagnitudeThresholdOff();
 }
 
 
@@ -94,6 +95,15 @@ vtkImageAnisotropicDiffusion3d::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Corners: Off\n";
+    }
+
+  if (this->GradientMagnitudeThreshold)
+    {
+    os << indent << "GradientMagnitudeThreshold: On\n";
+    }
+  else
+    {
+    os << indent << "GradientMagnitudeThreshold: Off\n";
     }
 }
 
@@ -140,23 +150,24 @@ void vtkImageAnisotropicDiffusion3d::Execute(vtkImageRegion *inRegion,
   vtkImageRegion *out;
   vtkImageRegion *temp;
 
+
+  inRegion->GetExtent(3, extent);
   inRegion->GetAspectRatio(ar0, ar1, ar2);
-  inRegion->GetExtent(extent, 3);
 
   // make the temporary regions to iterate over.
   in = new vtkImageRegion;
   out = new vtkImageRegion;
   
   // might as well make these floats
-  in->SetExtent(extent, 3);
-  in->SetDataType(VTK_FLOAT);
+  in->SetExtent(3, extent);
+  in->SetScalarType(VTK_FLOAT);
   in->CopyRegionData(inRegion);
-  out->SetExtent(extent, 3);
-  out->SetDataType(VTK_FLOAT);
-  out->Allocate();
+  out->SetExtent(3, extent);
+  out->SetScalarType(VTK_FLOAT);
+  out->AllocateScalars();
   
   // To compute extent of diffusion which will shrink.
-  outRegion->GetExtent(extent, 3);
+  outRegion->GetExtent(3, extent);
   
   // Loop performing the diffusion
   // Note: region extent could get smaller as the diffusion progresses
@@ -196,7 +207,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
   int min0, max0, min1, max1, min2, max2;
   float *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
-  float ar01, ar02, ar12, ar012, diff;
+  float th0, th1, th2, th01, th02, th12, th012, diff;
   float fact;
 
   inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
@@ -227,15 +238,19 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
     vtkWarningMacro(<< "Iterate: NO NEIGHBORS");
     fact = this->DiffusionFactor;
     }
+
+  // Compute the thresholds (one for each distance).
+  if (! this->GradientMagnitudeThreshold)
+    {
+    th01 = sqrt(ar0 * ar0 + ar1 * ar1) * this->DiffusionThreshold;
+    th02 = sqrt(ar0 * ar0 + ar2 * ar2) * this->DiffusionThreshold;
+    th12 = sqrt(ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
+    th012 = sqrt(ar0 * ar0 + ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
+    th0 = ar0 * this->DiffusionThreshold;
+    th1 = ar1 * this->DiffusionThreshold;
+    th2 = ar2 * this->DiffusionThreshold;
+    }
     
-  ar01 = sqrt(ar0 * ar0 + ar1 * ar1) * this->DiffusionThreshold;
-  ar02 = sqrt(ar0 * ar0 + ar2 * ar2) * this->DiffusionThreshold;
-  ar12 = sqrt(ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
-  ar012 = sqrt(ar0 * ar0 + ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
-  ar0 *= this->DiffusionThreshold;
-  ar1 *= this->DiffusionThreshold;
-  ar2 *= this->DiffusionThreshold;
-  
   // Compute the shrinking extent to loop over.
   min0 = coreExtent[0] - count;
   max0 = coreExtent[1] + count;
@@ -272,6 +287,35 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	{
 	// Copy center
 	*outPtr0 = *inPtr0;
+	
+	// Special case for gradient magnitude threhsold 
+	if (this->GradientMagnitudeThreshold)
+	  {
+	  float d0, d1, d2;
+	  // compute the gradient magnitude (central differences).
+	  d0  = (idx0 != inMax0) ? inPtr0[inInc0] : *inPtr0;
+	  d0 -= (idx0 != inMin0) ? inPtr0[-inInc0] : *inPtr0;
+	  d0 /= ar0;
+	  d1  = (idx1 != inMax1) ? inPtr0[inInc1] : *inPtr0;
+	  d1 -= (idx1 != inMin1) ? inPtr0[-inInc1] : *inPtr0;
+	  d1 /= ar1;
+	  d2  = (idx2 != inMax2) ? inPtr0[inInc2] : *inPtr0;
+	  d2 -= (idx2 != inMin2) ? inPtr0[-inInc2] : *inPtr0;
+	  d2 /= ar2;
+	  // If magnitude is big, don't diffuse.
+	  d0 = sqrt(d0*d0 + d1*d1 + d2*d2);
+	  if (d0 > this->DiffusionThreshold)
+	    {
+	    // hack to not diffuse
+	    th0 = th1 = th2 = th01 = th02 = th12 = th012 = 0.0;
+	    }
+	  else
+	    {
+	    // hack to diffuse
+	    th0 = th1 = th2 = th01 = th02 = th12 = th012 = VTK_LARGE_FLOAT;
+	    }
+	  }
+	
 	// Start diffusing
 	if (this->Faces)
 	  {
@@ -279,7 +323,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0)
 	    {
 	    diff = inPtr0[-inInc0] - *inPtr0;
-	    if (fabs(diff) < ar0)
+	    if (fabs(diff) < th0)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -288,7 +332,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0)
 	    {
 	    diff = inPtr0[inInc0] - *inPtr0;
-	    if (fabs(diff) < ar0)
+	    if (fabs(diff) < th0)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -297,7 +341,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx1 != inMin1)
 	    {
 	    diff = inPtr0[-inInc1] - *inPtr0;
-	    if (fabs(diff) < ar1)
+	    if (fabs(diff) < th1)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -306,7 +350,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx1 != inMax1)
 	    {
 	    diff = inPtr0[inInc1] - *inPtr0;
-	    if (fabs(diff) < ar1)
+	    if (fabs(diff) < th1)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -315,7 +359,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx2 != inMin2)
 	    {
 	    diff = inPtr0[-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar2)
+	    if (fabs(diff) < th2)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -324,7 +368,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx2 != inMax2)
 	    {
 	    diff = inPtr0[inInc2] - *inPtr0;
-	    if (fabs(diff) < ar2)
+	    if (fabs(diff) < th2)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -337,7 +381,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx1 != inMin1)
 	    {
 	    diff = inPtr0[-inInc0-inInc1] - *inPtr0;
-	    if (fabs(diff) < ar01)
+	    if (fabs(diff) < th01)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -346,7 +390,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx1 != inMin1)
 	    {
 	    diff = inPtr0[inInc0-inInc1] - *inPtr0;
-	    if (fabs(diff) < ar01)
+	    if (fabs(diff) < th01)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -355,7 +399,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx1 != inMax1)
 	    {
 	    diff = inPtr0[-inInc0+inInc1] - *inPtr0;
-	    if (fabs(diff) < ar01)
+	    if (fabs(diff) < th01)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -364,7 +408,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx1 != inMax1)
 	    {
 	    diff = inPtr0[inInc0+inInc1] - *inPtr0;
-	    if (fabs(diff) < ar01)
+	    if (fabs(diff) < th01)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -374,7 +418,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[-inInc0-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar02)
+	    if (fabs(diff) < th02)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -383,7 +427,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[inInc0-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar02)
+	    if (fabs(diff) < th02)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -392,7 +436,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[-inInc0+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar02)
+	    if (fabs(diff) < th02)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -401,7 +445,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[inInc0+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar02)
+	    if (fabs(diff) < th02)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -411,7 +455,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx1 != inMin1 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[-inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar12)
+	    if (fabs(diff) < th12)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -420,7 +464,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx1 != inMax1 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar12)
+	    if (fabs(diff) < th12)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -429,7 +473,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx1 != inMin1 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[-inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar12)
+	    if (fabs(diff) < th12)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -438,7 +482,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx1 != inMax1 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar12)
+	    if (fabs(diff) < th12)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -451,7 +495,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -460,7 +504,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -469,7 +513,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -478,7 +522,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMin2)
 	    {
 	    diff = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -487,7 +531,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -496,7 +540,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -505,7 +549,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }
@@ -514,7 +558,7 @@ void vtkImageAnisotropicDiffusion3d::Iterate(vtkImageRegion *inRegion,
 	  if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMax2)
 	    {
 	    diff = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < ar012)
+	    if (fabs(diff) < th012)
 	      {
 	      *outPtr0 += diff * fact;
 	      }

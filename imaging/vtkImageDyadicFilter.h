@@ -61,7 +61,7 @@ public:
 
   virtual void SetInput1(vtkImageSource *input);
   virtual void SetInput2(vtkImageSource *input);
-  void UpdatePointData(int axisIdx, vtkImageRegion *outRegion);
+  void UpdatePointData(int dim, vtkImageRegion *outRegion);
   void UpdateImageInformation(vtkImageRegion *outRegion);
   unsigned long int GetPipelineMTime();
   
@@ -92,8 +92,8 @@ protected:
   // getting the input source to fill it with data.  The extent
   // of the unspecified dimensions default to [0, 0];
   // Used in vtkImageScatterPlot.
-  vtkImageRegion *GetInput1Region(int *extent, int dim);    
-  vtkImageRegion *GetInput2Region(int *extent, int dim);    
+  vtkImageRegion *GetInput1Region(int dim, int *extent);    
+  vtkImageRegion *GetInput2Region(int dim, int *extent);    
   
   virtual void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 					     vtkImageRegion *inRegion2,
@@ -101,7 +101,7 @@ protected:
   virtual void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,
 						vtkImageRegion *inRegion1,
 						vtkImageRegion *inRegion2);
-  virtual void Execute(int axisIdx, vtkImageRegion *inRegion1,
+  virtual void Execute(int dim, vtkImageRegion *inRegion1,
 		       vtkImageRegion *inRegion2, vtkImageRegion *outRegion);
   virtual void Execute(vtkImageRegion *inRegion1, vtkImageRegion *inRegion2, 
 		       vtkImageRegion *outRegion);

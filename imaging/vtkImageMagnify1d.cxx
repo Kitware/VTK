@@ -64,7 +64,7 @@ void vtkImageMagnify1d::ComputeRequiredInputRegionExtent(
 {
   int extent[2];
   
-  outRegion->GetExtent(extent, 1);
+  outRegion->GetExtent(1, extent);
   
   // For Min. Round Down
   extent[0] = 
@@ -82,7 +82,7 @@ void vtkImageMagnify1d::ComputeRequiredInputRegionExtent(
       (int)(floor((float)(extent[1]) / (float)(this->MagnificationFactor)));
     }
   
-  inRegion->SetExtent(extent, 1);
+  inRegion->SetExtent(1, extent);
 }
 
 
@@ -95,7 +95,7 @@ void vtkImageMagnify1d::ComputeOutputImageInformation(
   int imageExtent[2];
   float aspectRatio;
 
-  inRegion->GetImageExtent(imageExtent, 1);
+  inRegion->GetImageExtent(1, imageExtent);
   inRegion->GetAspectRatio(aspectRatio);
 
   // Scale the output extent
@@ -112,7 +112,7 @@ void vtkImageMagnify1d::ComputeOutputImageInformation(
   // Change the aspect ratio.
   aspectRatio /= (float)(this->MagnificationFactor);
 
-  outRegion->SetImageExtent(imageExtent, 1);
+  outRegion->SetImageExtent(1, imageExtent);
   outRegion->SetAspectRatio(aspectRatio);
 }
 
@@ -210,14 +210,14 @@ void vtkImageMagnify1d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageMagnify1dExecute(this, 
@@ -245,7 +245,7 @@ void vtkImageMagnify1d::Execute(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

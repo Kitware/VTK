@@ -71,8 +71,8 @@ int is_concrete;
 %token SetVector4Macro
 %token SetVectorMacro
 %token GetVectorMacro
-%token ImageRegionSetMacro
-%token ImageRegionSetBoundsMacro
+%token ImageSetMacro
+%token ImageSetExtentMacro
 
 
 
@@ -428,7 +428,7 @@ macro:
    arg_types[3] = $<integer>5;
    output_function();
    }
-| ImageRegionSetMacro '(' any_id ',' type_red2 ')'
+| ImageSetMacro '(' any_id ',' type_red2 ')'
    { 
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);
@@ -471,7 +471,7 @@ macro:
    output_function();
    free(func_name);
    }
-| ImageRegionSetBoundsMacro '(' any_id ')'
+| ImageSetExtentMacro '(' any_id ')'
    { 
    sprintf(temps,"Set%s",$<str>3); 
    func_name = strdup(temps);

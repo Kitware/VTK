@@ -63,7 +63,7 @@ public:
   void InterceptCacheUpdate(vtkImageRegion *region);
 
 protected:
-  void ExecuteCenter4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 
 };

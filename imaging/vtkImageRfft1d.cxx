@@ -49,7 +49,7 @@ vtkImageRfft1d::vtkImageRfft1d()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS);
   // Output is whatever type you want, but defaults to float.
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ void vtkImageRfft1d::InterceptCacheUpdate(vtkImageRegion *region)
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent(0, 1);
+  region->SetExtent(1, 0);
 }
 
 
@@ -90,7 +90,7 @@ void vtkImageRfft1d::ComputeRequiredInputRegionExtent(
   int extent[4];
   
   outRegion = outRegion;
-  inRegion->GetImageExtent(extent, 2);
+  inRegion->GetImageExtent(2, extent);
   // make sure input has two component
   if (extent[0] != 0 || extent[1] != 1)
     {
@@ -99,7 +99,7 @@ void vtkImageRfft1d::ComputeRequiredInputRegionExtent(
     return;
     }
   
-  inRegion->SetExtent(extent, 2);
+  inRegion->SetExtent(2, extent);
 }
 
 //----------------------------------------------------------------------------
@@ -192,14 +192,14 @@ void vtkImageRfft1d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects the input to be floats.
-  if (inRegion->GetDataType() != VTK_FLOAT)
+  if (inRegion->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Input must be be type float.");
     return;
     }
 
   // choose which templated function to call.
-  switch (outRegion->GetDataType())
+  switch (outRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageRfft1dExecute(this, inRegion, (float *)(inPtr), 
@@ -222,7 +222,7 @@ void vtkImageRfft1d::Execute(vtkImageRegion *inRegion,
 				   outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

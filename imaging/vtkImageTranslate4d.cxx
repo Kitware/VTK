@@ -59,14 +59,14 @@ void vtkImageTranslate4d::ComputeOutputImageInformation(
   int idx;
   int extent[8];
   
-  inRegion->GetImageExtent(extent, 4);
+  inRegion->GetImageExtent(4, extent);
   for(idx = 0; idx < 4; ++idx)
     {
     extent[idx*2] += this->Translation[idx];
     extent[idx*2+1] += this->Translation[idx];    
     }
   
-  outRegion->SetImageExtent(extent, 4);
+  outRegion->SetImageExtent(4, extent);
 }
 
   
@@ -80,14 +80,14 @@ void vtkImageTranslate4d::ComputeRequiredInputRegionExtent(
   int idx;
   int extent[8];
   
-  outRegion->GetExtent(extent, 4);
+  outRegion->GetExtent(4, extent);
   for(idx = 0; idx < 4; ++idx)
     {
     extent[idx*2] -= this->Translation[idx];
     extent[idx*2+1] -= this->Translation[idx];    
     }
   
-  inRegion->SetExtent(extent, 4);
+  inRegion->SetExtent(4, extent);
 }
 
   
@@ -174,14 +174,14 @@ void vtkImageTranslate4d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageTranslate4dExecute(this, 
@@ -209,7 +209,7 @@ void vtkImageTranslate4d::Execute(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

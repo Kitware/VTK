@@ -54,7 +54,7 @@ vtkImageNonMaximalSuppression2d::vtkImageNonMaximalSuppression2d()
   this->KernelMiddle[1] = 1;
   
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
 }
 
 
@@ -80,10 +80,10 @@ void vtkImageNonMaximalSuppression2d::InterceptCacheUpdate(
 {
   int extent[6];
   
-  region->GetExtent(extent, 3);
+  region->GetExtent(3, extent);
   extent[4] = 0;
   extent[5] = 2;
-  region->SetExtent(extent, 3);
+  region->SetExtent(3, extent);
 }
 
 
@@ -93,8 +93,7 @@ void vtkImageNonMaximalSuppression2d::InterceptCacheUpdate(
 // This method executes the filter for the pixels of the image which
 // are not affected by boundaries.  Component axis is axis2.  
 // NonMaximalSuppression is performed over axis0 and axis1.
-void vtkImageNonMaximalSuppression2d::ExecuteCenter3d(
-						    vtkImageRegion *inRegion,
+void vtkImageNonMaximalSuppression2d::ExecuteCenter(vtkImageRegion *inRegion,
 						    vtkImageRegion *outRegion)
 {
   float d0, d1;
@@ -108,11 +107,11 @@ void vtkImageNonMaximalSuppression2d::ExecuteCenter3d(
   int neighbor;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT ||
-      inRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT ||
+      inRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }
@@ -198,7 +197,7 @@ void vtkImageNonMaximalSuppression2d::ExecuteCenter3d(
 // Description:
 // This method executes the filter for boundary pixels.
 void vtkImageNonMaximalSuppression2d::Execute(vtkImageRegion *inRegion,
-						     vtkImageRegion *outRegion)
+					      vtkImageRegion *outRegion)
 {
   float d0, d1;
   int inImageMin0, inImageMax0, inImageMin1, inImageMax1;
@@ -212,11 +211,11 @@ void vtkImageNonMaximalSuppression2d::Execute(vtkImageRegion *inRegion,
   int neighborA, neighborB;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT ||
-      inRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT ||
+      inRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }

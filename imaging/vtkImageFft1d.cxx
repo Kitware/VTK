@@ -49,7 +49,7 @@ vtkImageFft1d::vtkImageFft1d()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS);
   // Output is always floats.
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
   this->InputRealComponent = 0;
   this->InputImaginaryComponent = 1;
 }
@@ -112,7 +112,7 @@ void vtkImageFft1d::InterceptCacheUpdate(vtkImageRegion *region)
     vtkErrorMacro(<< "Only two channels to request 0 and 1");
     }
   
-  region->SetExtent(0, 1);
+  region->SetExtent(1, 0);
 }
 
 //----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ void vtkImageFft1d::ComputeRequiredInputRegionExtent(
     }
 
   // Eliminate a component if it is not contained in the image extent.
-  inRegion->GetImageExtent(extent, 2);
+  inRegion->GetImageExtent(2, extent);
   if (min < extent[0])
     {
     min = max;
@@ -158,7 +158,7 @@ void vtkImageFft1d::ComputeRequiredInputRegionExtent(
 
   extent[0] = min;
   extent[1] = max;
-  inRegion->SetExtent(extent, 2);
+  inRegion->SetExtent(2, extent);
 }
 
 //----------------------------------------------------------------------------
@@ -282,14 +282,14 @@ void vtkImageFft1d::Execute(vtkImageRegion *inRegion,
 		<< ", outRegion = " << outRegion);
   
   // this filter expects that the output be floats.
-  if (outRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: Output must be be type float.");
     return;
     }
 
   // choose which templated function to call.
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageFft1dExecute(this, inRegion, (float *)(inPtr), 
@@ -312,7 +312,7 @@ void vtkImageFft1d::Execute(vtkImageRegion *inRegion,
 				   outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

@@ -221,7 +221,7 @@ void vtkImageMatte4d::UpdateRegion(vtkImageRegion *region)
 
   // Change to local coordinate system.
   region->GetAxes(axesSave);
-  region->SetAxes(this->Axes, 4);
+  region->SetAxes(4, this->Axes);
 
   // Get the region from input
   this->Input->UpdateRegion(region);
@@ -251,7 +251,7 @@ void vtkImageMatte4d::UpdateRegion(vtkImageRegion *region)
   
   // Add the border
   ptr = region->GetScalarPointer();
-  switch (region->GetDataType())
+  switch (region->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageMatte4dExecute(this, region, (float *)(ptr));
@@ -269,7 +269,7 @@ void vtkImageMatte4d::UpdateRegion(vtkImageRegion *region)
       vtkImageMatte4dExecute(this, region, (unsigned char *)(ptr));
       break;
     default:
-      vtkErrorMacro(<< "UpdateRegion: Cannot handle DataType.\n");
+      vtkErrorMacro(<< "UpdateRegion: Cannot handle ScalarType.\n");
     }         
   
 }
@@ -310,16 +310,16 @@ unsigned long vtkImageMatte4d::GetPipelineMTime()
   
 //----------------------------------------------------------------------------
 // Description:
-// Returns DataType of input.
-int vtkImageMatte4d::GetDataType()
+// Returns ScalarType of input.
+int vtkImageMatte4d::GetScalarType()
 {
   if ( ! this->Input)
     {
-    vtkWarningMacro(<< "GetDataType: No Input");
-    return VTK_IMAGE_VOID;
+    vtkWarningMacro(<< "GetScalarType: No Input");
+    return VTK_VOID;
     }
 
-  return this->Input->GetDataType();
+  return this->Input->GetScalarType();
 }
 
 

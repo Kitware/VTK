@@ -108,7 +108,7 @@ void vtkImageVolumeShortWriter::Write()
     }
     
   this->Input->UpdateImageInformation(&region);
-  region.GetImageExtent(extent, 3);
+  region.GetImageExtent(3, extent);
   this->Write(extent);
 }
 
@@ -142,7 +142,7 @@ void vtkImageVolumeShortWriter::Write(int min0, int max0,
 void vtkImageVolumeShortWriter::Write(int *extent)
 {
   int idx;
-  int sliceExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
+  int sliceExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
   vtkImageRegion region;
   
   if ( ! this->Input)
@@ -171,7 +171,7 @@ void vtkImageVolumeShortWriter::Write(int *extent)
     sliceExtent[4] = sliceExtent[5] = idx;
     region.SetExtent(sliceExtent);
     this->Input->UpdateRegion(&region);
-    if ( ! region.IsAllocated())
+    if ( ! region.AreScalarsAllocated())
       vtkErrorMacro(<< "Write: Request for image " << idx << " failed.");
     else
       this->Write2d(&region);
@@ -271,7 +271,7 @@ void vtkImageVolumeShortWriter::Write2d(vtkImageRegion *region)
 {
   void *ptr = region->GetScalarPointer();
   
-  switch (region->GetDataType())
+  switch (region->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageVolumeShortWriterWrite2d(this, region, (float *)(ptr));

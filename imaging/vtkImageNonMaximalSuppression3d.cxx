@@ -57,7 +57,7 @@ vtkImageNonMaximalSuppression3d::vtkImageNonMaximalSuppression3d()
   
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
   
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
 }
 
 
@@ -85,10 +85,10 @@ void vtkImageNonMaximalSuppression3d::InterceptCacheUpdate(
 {
   int extent[8];
   
-  region->GetExtent(extent, 4);
+  region->GetExtent(4, extent);
   extent[6] = 0;
   extent[7] = 3;
-  region->SetExtent(extent, 4);
+  region->SetExtent(4, extent);
 }
 
 
@@ -98,8 +98,7 @@ void vtkImageNonMaximalSuppression3d::InterceptCacheUpdate(
 // This method executes the filter for the pixels of the image which
 // are not affected by boundaries.  Component axis is axis3,  
 // NonMaximalSuppression is performed over axis0, axis1 and axis2.
-void vtkImageNonMaximalSuppression3d::ExecuteCenter4d(
-						    vtkImageRegion *inRegion,
+void vtkImageNonMaximalSuppression3d::ExecuteCenter(vtkImageRegion *inRegion,
 						    vtkImageRegion *outRegion)
 {
   float d0, d1, d2;
@@ -113,11 +112,11 @@ void vtkImageNonMaximalSuppression3d::ExecuteCenter4d(
   int neighbor;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT ||
-      inRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT ||
+      inRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }
@@ -237,11 +236,11 @@ void vtkImageNonMaximalSuppression3d::Execute(vtkImageRegion *inRegion,
   int neighborA, neighborB;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT ||
-      inRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT ||
+      inRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }

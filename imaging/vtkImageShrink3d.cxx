@@ -73,7 +73,7 @@ void vtkImageShrink3d::ComputeRequiredInputRegionExtent(
   int extent[6];
   int idx;
   
-  outRegion->GetExtent(extent, 3);
+  outRegion->GetExtent(3, extent);
   
   for (idx = 0; idx < 3; ++idx)
     {
@@ -90,7 +90,7 @@ void vtkImageShrink3d::ComputeRequiredInputRegionExtent(
       }
     }
   
-  inRegion->SetExtent(extent, 3);
+  inRegion->SetExtent(3, extent);
 }
 
 
@@ -105,8 +105,8 @@ void vtkImageShrink3d::ComputeOutputImageInformation(
   int imageExtent[6];
   float aspectRatio[3];
 
-  inRegion->GetImageExtent(imageExtent, 3);
-  inRegion->GetAspectRatio(aspectRatio, 3);
+  inRegion->GetImageExtent(3, imageExtent);
+  inRegion->GetAspectRatio(3, aspectRatio);
 
   for (idx = 0; idx < 3; ++idx)
     {
@@ -119,8 +119,8 @@ void vtkImageShrink3d::ComputeOutputImageInformation(
     aspectRatio[idx] *= (float)(this->ShrinkFactors[idx]);
     }
 
-  outRegion->SetImageExtent(imageExtent, 3);
-  outRegion->SetAspectRatio(aspectRatio, 3);
+  outRegion->SetImageExtent(3, imageExtent);
+  outRegion->SetAspectRatio(3, aspectRatio);
 }
 
 
@@ -225,14 +225,14 @@ void vtkImageShrink3d::Execute(vtkImageRegion *inRegion,
   << ", outRegion = " << outRegion);
   
   // this filter expects that input is the same type as output.
-  if (inRegion->GetDataType() != outRegion->GetDataType())
+  if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
-                  << ", must match out DataType " << outRegion->GetDataType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
+                  << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageShrink3dExecute(this, 
@@ -260,7 +260,7 @@ void vtkImageShrink3d::Execute(vtkImageRegion *inRegion,
 			  outRegion, (unsigned char *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

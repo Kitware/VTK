@@ -56,7 +56,7 @@ vtkImageGradient3d::vtkImageGradient3d()
   this->KernelMiddle[2] = 1;
   
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS);
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
   
   this->UseExecuteCenterOff();
 }
@@ -92,10 +92,10 @@ void vtkImageGradient3d::InterceptCacheUpdate(vtkImageRegion *region)
 {
   int extent[8];
   
-  region->GetExtent(extent, 4);
+  region->GetExtent(4, extent);
   extent[6] = 0;
   extent[7] = 3;
-  region->SetExtent(extent, 4);
+  region->SetExtent(4, extent);
 }
 
 
@@ -111,7 +111,7 @@ void vtkImageGradient3d::ComputeOutputImageInformation(
   int extent[8];
   int idx;
 
-  inRegion->GetImageExtent(extent, 4);
+  inRegion->GetImageExtent(4, extent);
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
@@ -126,7 +126,7 @@ void vtkImageGradient3d::ComputeOutputImageInformation(
   extent[6] = 0;
   extent[7] = 3;
 
-  outRegion->SetImageExtent(extent, 4);
+  outRegion->SetImageExtent(4, extent);
 }
 
 
@@ -235,15 +235,15 @@ void vtkImageGradient3d::Execute(vtkImageRegion *inRegion,
   void *outPtr = outRegion->GetScalarPointer();
   
   // this filter expects that output is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }
   
-  switch (inRegion->GetDataType())
+  switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
       vtkImageGradient4dExecute(this, 
@@ -271,7 +271,7 @@ void vtkImageGradient3d::Execute(vtkImageRegion *inRegion,
 			  outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute: Unknown DataType");
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
 }

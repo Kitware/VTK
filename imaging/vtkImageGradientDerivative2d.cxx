@@ -56,7 +56,7 @@ vtkImageGradientDerivative2d::vtkImageGradientDerivative2d()
   this->LowerThreshold = 0.0;
   
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
-  this->SetOutputDataType(VTK_FLOAT);
+  this->SetOutputScalarType(VTK_FLOAT);
 }
 
 
@@ -91,10 +91,10 @@ void vtkImageGradientDerivative2d::InterceptCacheUpdate(
 {
   int extent[6];
   
-  region->GetExtent(extent, 3);
+  region->GetExtent(3, extent);
   extent[4] = 0;
   extent[5] = 1;
-  region->SetExtent(extent, 3);
+  region->SetExtent(3, extent);
 }
 
 
@@ -119,11 +119,11 @@ void vtkImageGradientDerivative2d::ExecuteCenter3d(
   int neighbor;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT ||
-      inRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT ||
+      inRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }
@@ -207,11 +207,11 @@ void vtkImageGradientDerivative2d::Execute(vtkImageRegion *inRegion,
   int neighborA, neighborB;
 
   // This filter expects that output and input is type float.
-  if (outRegion->GetDataType() != VTK_FLOAT ||
-      inRegion->GetDataType() != VTK_FLOAT)
+  if (outRegion->GetScalarType() != VTK_FLOAT ||
+      inRegion->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: output DataType, "
-                  << vtkImageDataTypeNameMacro(outRegion->GetDataType())
+    vtkErrorMacro(<< "Execute: output ScalarType, "
+                  << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
                   << ", must be float");
     return;
     }

@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageIslandRemoval2d computes the area of separate islands in 
 // a mask image.  It removes any island that has less than AreaThreshold
-// pixels.  Output has the same DataType as input.
+// pixels.  Output has the same ScalarType as input.
 
 
 #ifndef __vtkImageIslandRemoval2d_h
