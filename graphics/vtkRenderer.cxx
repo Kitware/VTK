@@ -161,25 +161,25 @@ void vtkRenderer::Render(void)
     
     // now we just need to check the lights and actors
     for(this->Lights->InitTraversal(); 
-	(light = this->Lights->GetNextItem()); )
+        (light = this->Lights->GetNextItem()); )
       {
       if (light->GetSwitch() && 
-	  light->GetMTime() > this->RenderTime)
-	{
-	mods = 1;
-	}
+          light->GetMTime() > this->RenderTime)
+        {
+        mods = 1;
+        }
       }
     for (this->Props->InitTraversal(); 
-	 (aProp = this->Props->GetNextProp()); )
+         (aProp = this->Props->GetNextProp()); )
       {
       // if it's invisible, we can skip the rest 
       if (aProp->GetVisibility())
-	{
-	if (aProp->GetRedrawMTime() > this->RenderTime)
-	  {
-	  mods = 1;
-	  }
-	}
+        {
+        if (aProp->GetRedrawMTime() > this->RenderTime)
+          {
+          mods = 1;
+          }
+        }
       }
     
     if (!mods)
@@ -224,7 +224,7 @@ void vtkRenderer::Render(void)
 
   this->PropArrayCount = 0;
   for ( i = 0, this->Props->InitTraversal(); 
-	(aProp = this->Props->GetNextProp());i++ )
+        (aProp = this->Props->GetNextProp());i++ )
     {
     if ( aProp->GetVisibility() )
       {
@@ -289,10 +289,13 @@ void vtkRenderer::RenderOverlay()
   for (this->Props->InitTraversal(); 
        (aProp = this->Props->GetNextProp()); )
     {
-    aProp->RenderOverlay(this);
+    if ( aProp->GetVisibility() )
+      {
+      aProp->RenderOverlay(this);
+      }
     }
 
-			 if (this->EndRenderMethod) 
+  if (this->EndRenderMethod) 
     {
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
@@ -348,8 +351,8 @@ void vtkRenderer::AllocateTime()
     {
     totalTime = 
       aCuller->Cull((vtkRenderer *)this, 
-		    this->PropArray, this->PropArrayCount,
-		    initialized );
+                    this->PropArray, this->PropArrayCount,
+                    initialized );
     }
 
   // loop through all props and set the AllocatedRenderTime
@@ -366,7 +369,7 @@ void vtkRenderer::AllocateTime()
     // to the renderer's AllocatedRenderTime.
     aProp->
       SetAllocatedRenderTime(( renderTime / totalTime ) * 
-			     this->AllocatedRenderTime );  
+                             this->AllocatedRenderTime );  
     }
 
   // Since we now have allocated render times, we can select an LOD
@@ -689,8 +692,8 @@ void vtkRenderer::ResetCamera(float bounds[6])
   // update the camera
   this->ActiveCamera->SetFocalPoint(center[0],center[1],center[2]);
   this->ActiveCamera->SetPosition(center[0]+distance*vn[0],
-				  center[1]+distance*vn[1],
-				  center[2]+distance*vn[2]);
+                                  center[1]+distance*vn[1],
+                                  center[2]+distance*vn[2]);
 
   this->ResetCameraClippingRange( bounds );
 
@@ -700,7 +703,7 @@ void vtkRenderer::ResetCamera(float bounds[6])
   
 // Alternative version of ResetCamera(bounds[6]);
 void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax, 
-			      float zmin, float zmax)
+                              float zmin, float zmax)
 {
   float bounds[6];
 
@@ -746,11 +749,11 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
     for ( j = 0; j < 2; j++ )
       {
       for ( i = 0; i < 2; i++ )
-	{
-	dist = a*bounds[i] + b*bounds[2+j] + c*bounds[4+k] + d;
-	range[0] = (dist<range[0])?(dist):(range[0]);
-	range[1] = (dist>range[1])?(dist):(range[1]);
-	}
+        {
+        dist = a*bounds[i] + b*bounds[2+j] + c*bounds[4+k] + d;
+        range[0] = (dist<range[0])?(dist):(range[0]);
+        range[1] = (dist>range[1])?(dist):(range[1]);
+        }
       }
     }
   
@@ -788,8 +791,8 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
 
 // Alternative version of ResetCameraClippingRange(bounds[6]);
 void vtkRenderer::ResetCameraClippingRange(float xmin, float xmax, 
-					   float ymin, float ymax, 
-					   float zmin, float zmax)
+                                           float ymin, float ymax, 
+                                           float zmin, float zmax)
 {
   float bounds[6];
 
@@ -819,8 +822,8 @@ void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
     // context specific) information (such as display lists and texture ids)
     this->Props->InitTraversal();
     for ( aProp = this->Props->GetNextProp();
-	  aProp != NULL;
-	  aProp = this->Props->GetNextProp() )
+          aProp != NULL;
+          aProp = this->Props->GetNextProp() )
       {
       aProp->ReleaseGraphicsResources(this->RenderWindow);
       }
@@ -860,7 +863,7 @@ void vtkRenderer::ViewToWorld()
 
   // get the perspective transformation from the active camera 
   mat->DeepCopy(
-	this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
+        this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
   
   // use the inverse matrix 
   mat->Invert();
@@ -929,7 +932,7 @@ void vtkRenderer::WorldToView()
 
   // get the perspective transformation from the active camera 
   matrix->DeepCopy(
-	   this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
+           this->ActiveCamera->GetCompositePerspectiveTransformMatrix(1,0,1));
 
   world = this->WorldPoint;
   view[0] = world[0]*matrix->Element[0][0] + world[1]*matrix->Element[0][1] +
@@ -944,8 +947,8 @@ void vtkRenderer::WorldToView()
   if (view[3] != 0.0)
     {
     this->SetViewPoint(view[0]/view[3],
-		       view[1]/view[3],
-		       view[2]/view[3]);
+                       view[1]/view[3],
+                       view[2]/view[3]);
     }
   matrix->Delete();
 }
@@ -1041,7 +1044,7 @@ int vtkRenderer::VisibleVolumeCount()
 
   // loop through volumes
   for (this->Props->InitTraversal(); 
-	(aProp = this->Props->GetNextProp()); )
+        (aProp = this->Props->GetNextProp()); )
     {
     if (aProp->GetVisibility())
       {
@@ -1163,7 +1166,7 @@ void vtkRenderer::PickRender()
   // Things that are not Actors will get put into the PropArray
   // directly
   for (  props->InitTraversal(); 
-	(aProp = props->GetNextProp()); )
+        (aProp = props->GetNextProp()); )
     {
     if ( aProp->GetVisibility() && aProp->GetPickable() )
       {
@@ -1174,9 +1177,9 @@ void vtkRenderer::PickRender()
       // be culled, most likely this is an Actor2D, so 
       // add it to the PropArray
       if(count == pickFrom->GetNumberOfItems())
-	{
-	this->PropArray[this->PropArrayCount++] = aProp;
-	}
+        {
+        this->PropArray[this->PropArrayCount++] = aProp;
+        }
       }
     }
   // For a first pass at the pick process, just use a vtkPicker to
@@ -1189,7 +1192,7 @@ void vtkRenderer::PickRender()
   vtkActor* anActor = 0;
   // Add each of the Actors from the pickFrom list into the picker
   for ( pickFrom->InitTraversal(); 
-	(anActor = (vtkActor*)pickFrom->GetNextProp()); )
+        (anActor = (vtkActor*)pickFrom->GetNextProp()); )
     {
     cullPicker->AddPickList(anActor);
     }
