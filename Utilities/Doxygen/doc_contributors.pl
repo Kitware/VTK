@@ -1,16 +1,19 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-02-04 19:10:01 barre>
+# Time-stamp: <2002-02-07 17:12:59 barre>
 #
 # Get author and contributors.
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
 #
+# 0.4 (barre) :
+#   - D'oh ! Month returned by localtime start with 0 (=january).
+#
 # 0.3 (barre) :
 #   - add history feature + gnuplot fig
-
+#
 # 0.2 (barre) :
 #   - now handles most files
-
+#
 # 0.1 (barre) :
 #   - first release
 
@@ -25,7 +28,7 @@ use POSIX;
 use strict;
 use FileHandle;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.3, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.4, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # -------------------------------------------------------------------------
@@ -863,7 +866,7 @@ mkpath($args{"history_dir"});
 
 my ($sec, $min, $hours, $mday, $month, $year) = (localtime)[0..5];
 my $datestr = sprintf("%04d/%02d/%02d %02d:%02d:%02d", 
-                      $year + 1900, $month, $mday,
+                      $year + 1900, $month + 1, $mday,
                       $hours, $min, $sec);
 
 foreach my $contributor (@contributors_sorted) {
