@@ -108,15 +108,16 @@ public:
   // Description:
   // Get a key instance for the information entry specified by the
   // method name.
-  vtkInformationIntegerKey* DATA_TYPE();
-  vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
-  vtkInformationDataSetKey* DATA_OBJECT();
-  vtkInformationStringKey* FIELD_NAME();
-  vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
-  vtkInformationIntegerKey* FIELD_OPERATION();
-  vtkInformationIntegerVectorKey* UPDATE_EXTENT();
-  vtkInformationKeyVectorKey* SUPPORTED_UPSTREAM_REQUESTS();
-  vtkInformationKeyVectorKey* SUPPORTED_DOWNSTREAM_REQUESTS();
+  static vtkInformationIntegerKey* DATA_TYPE();
+  static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
+  static vtkInformationInformationVectorKey* OUTPUT_PROVIDED_FIELDS();
+  static vtkInformationDataSetKey* DATA_OBJECT();
+  static vtkInformationStringKey* FIELD_NAME();
+  static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
+  static vtkInformationIntegerKey* FIELD_OPERATION();
+  static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
+  static vtkInformationKeyVectorKey* SUPPORTED_UPSTREAM_REQUESTS();
+  static vtkInformationKeyVectorKey* SUPPORTED_DOWNSTREAM_REQUESTS();
 
   // Description:
   // Upcast the given key instance.
