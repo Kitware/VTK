@@ -37,7 +37,7 @@
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericEdgeTable.h"
 
-vtkCxxRevisionMacro(vtkBridgeDataSet, "1.1");
+vtkCxxRevisionMacro(vtkBridgeDataSet, "1.2");
 vtkStandardNewMacro(vtkBridgeDataSet);
 
 //----------------------------------------------------------------------------
@@ -87,11 +87,12 @@ void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
 // \pre ds_exists: ds!=0
 void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
 {
-  int i=0;
-  int c=0;
-  vtkPointData *pd=0;
-  vtkCellData *cd=0;
-  vtkBridgeAttribute *a=0;
+  int i;
+  int c;
+  vtkPointData *pd;
+  vtkCellData *cd;
+  vtkBridgeAttribute *a;
+  
   vtkSetObjectBodyMacro(Implementation,vtkDataSet,ds);
   // refresh the attribute collection
   this->Attributes->Reset();
@@ -202,7 +203,7 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
   unsigned char type;
   vtkIdType cellId;
   vtkIdType numCells;
-  vtkCell *c=0;
+  vtkCell *c;
 
   if ( this->GetMTime() > this->ComputeNumberOfCellsTime ) // cache is obsolete
      {
@@ -353,8 +354,8 @@ void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
 {
   assert("pre: types_exist" && types!=0);
   
-  int i=0;
-  int c=0;
+  int i;
+  int c;
   this->ComputeNumberOfCellsAndTypes();
   
   // copy from `this->Types' to `types'.
@@ -380,10 +381,10 @@ void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
 vtkGenericCellIterator *vtkBridgeDataSet::NewCellIterator(int dim)
 {
   assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
-  vtkBridgeCellIterator *result=0;
   
-  result=vtkBridgeCellIterator::New();
+  vtkBridgeCellIterator *result=vtkBridgeCellIterator::New();
   result->InitWithDataSet(this,dim); // vtkBridgeCellIteratorOnDataSetCells
+  
   assert("post: result_exists" && result!=0);
   return result;
 }
@@ -400,10 +401,10 @@ vtkGenericCellIterator *vtkBridgeDataSet::NewBoundaryIterator(int dim,
                                                        int exteriorOnly)
 {
   assert("pre: valid_dim_range" && (dim>=-1) && (dim<=2));
-  vtkBridgeCellIterator *result=0;
   
-  result=vtkBridgeCellIterator::New();
+  vtkBridgeCellIterator *result=vtkBridgeCellIterator::New();
   result->InitWithDataSetBoundaries(this,dim,exteriorOnly); //vtkBridgeCellIteratorOnDataSetBoundaries(dim,exterior_only);
+  
   assert("post: result_exists" && result!=0);
   return result;
 }
@@ -450,10 +451,10 @@ vtkIdType vtkBridgeDataSet::FindCell(double x[3],
   assert("pre: cell_exists" && cell!=0);
   assert("pre: positive_tolerance" && tol2>0);
   
-  vtkIdType cellid=0;
-  vtkBridgeCell *c=0;
+  vtkIdType cellid;
+  vtkBridgeCell *c;
   vtkBridgeCellIterator *it=static_cast<vtkBridgeCellIterator *>(cell);
-  vtkCell *c2=0;
+  vtkCell *c2;
   
   double *ignoredWeights=new double[this->Implementation->GetMaxCellSize()];
   
@@ -521,7 +522,7 @@ unsigned long int vtkBridgeDataSet::GetMTime()
 // Compute the geometry bounding box.
 void vtkBridgeDataSet::ComputeBounds()
 {
-  double *bounds=0;
+  double *bounds;
   
   if ( this->GetMTime() > this->ComputeTime )
     {

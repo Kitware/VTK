@@ -71,7 +71,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.1");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.2");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -115,8 +115,7 @@ int vtkBridgeCell::GetType()
 // \post valid_result: result>=0 && result<=3
 int vtkBridgeCell::GetDimension()
 {
-  int result=0;
-  result=this->Cell->GetCellDimension();
+  int result=this->Cell->GetCellDimension();
   assert("post: valid_result" && (result>=0)&&(result<=3));
   return result;
 }
@@ -127,7 +126,7 @@ int vtkBridgeCell::GetDimension()
 // \post positive_result: result>=0
 int vtkBridgeCell::GetGeometryOrder()
 {
-  int result=0;
+  int result;
   if(this->Cell->IsLinear())
     {
     result=1;
@@ -278,18 +277,16 @@ int vtkBridgeCell::CountNeighbors(vtkGenericAdaptorCell *boundary)
   assert("pre: boundary_exists" && boundary!=0);
   assert("pre: real_boundary" && !boundary->IsInDataSet());
   assert("pre: cell_of_the_dataset" && IsInDataSet());
-  int result=0;
   
   vtkIdList *cells=vtkIdList::New();
-  vtkIdList *pts=0;
-  
   vtkBridgeCell *b=static_cast<vtkBridgeCell *>(boundary);
-  
-  pts=b->Cell->GetPointIds();
+  vtkIdList *pts=b->Cell->GetPointIds();
   this->DataSet->Implementation->GetCellNeighbors(this->Id,pts,cells);
-  result=cells->GetNumberOfIds();
+  int result=cells->GetNumberOfIds();
   cells->Delete();
+  
   assert("post: positive_result" && result>=0);
+  
   return result;
 }
 
@@ -303,8 +300,8 @@ void vtkBridgeCell::CountEdgeNeighbors(int *sharing)
   vtkIdType c=this->Cell->GetNumberOfEdges();
   vtkIdList *cells=vtkIdList::New();
   vtkIdType i=0;
-  vtkCell *edge=0;
-  vtkIdList *pts=0;
+  vtkCell *edge;
+  vtkIdList *pts;
   
   while(i<c)
     {
@@ -359,12 +356,12 @@ int vtkBridgeCell::FindClosestBoundary(int subId,
                                        vtkGenericCellIterator* &boundary)
 {
   assert("pre: positive_subId" && subId>=0);
-  int result=0;
   
   vtkIdList *pts=vtkIdList::New();
-  result=this->Cell->CellBoundary(subId,pcoords,pts);
+  int result=this->Cell->CellBoundary(subId,pcoords,pts);
   static_cast<vtkBridgeCellIterator *>(boundary)->InitWithPoints(this->Cell->Points,pts,this->GetDimension()-1,0); // id of the boundary always 0?
   pts->Delete();
+  
   return result;
 }
 
@@ -385,11 +382,9 @@ int vtkBridgeCell::EvaluatePosition(double x[3],
                                     double pcoords[3], 
                                     double &dist2)
 {
-  int result=0;
-  
   this->AllocateWeights();
-  result=this->Cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,
-                                      this->Weights);
+  int result=this->Cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,
+                                          this->Weights);
   
   assert("post: valid_result" && result==-1 || result==0 || result==1);
   assert("post: positive_distance" && (!(result!=-1) || (!(closestPoint!=0)||dist2>=0))); // A=>B: !A || B
@@ -713,8 +708,7 @@ void vtkBridgeCell::Derivatives(int subId,
                                 vtkGenericAttribute *attribute,
                                 double *derivs)
 {
-  double *tuples=0;
-  tuples=new double[attribute->GetNumberOfComponents()*this->GetNumberOfPoints()];
+  double *tuples=new double[attribute->GetNumberOfComponents()*this->GetNumberOfPoints()];
   attribute->GetTuple(this->InternalIterator,tuples);
   this->Cell->Derivatives(subId,pcoords,tuples,
                           attribute->GetNumberOfComponents(),derivs);
@@ -906,15 +900,13 @@ int vtkBridgeCell::IsFaceOnBoundary(vtkIdType faceId)
 {
   assert("pre: 3d" && this->GetDimension()==3);
   
-  int result=0;
-  
   // result=CountNeighbors(boundary(faceId))==0;
   
   vtkCell *face=this->Cell->GetFace(faceId);
   vtkIdList *cells=vtkIdList::New(); // expensive
   this->DataSet->Implementation->GetCellNeighbors(this->Id,face->GetPointIds(),cells);
 
-  result=cells->GetNumberOfIds()==0;
+  int result=cells->GetNumberOfIds()==0;
   cells->Delete(); // expensive
 #if 0 
   if(this->GetType()==VTK_QUADRATIC_TETRA)
@@ -1084,7 +1076,7 @@ void vtkBridgeCell::DeepCopy(vtkBridgeCell *other)
   assert("pre: other_exists" && other!=0);
   assert("pre: other_differ" && this!=other);
   
-  vtkCell *tmp=0;
+  vtkCell *tmp;
   
   if(this->InternalIterator==0)
     {
