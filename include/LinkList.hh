@@ -19,12 +19,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlLinkList_h
 #define __vlLinkList_h
 
+#include "Object.hh"
+
 struct vlLink {
     unsigned short ncells;
     int *cells;
 };
 
-class vlLinkList {
+class vlLinkList : public vlObject {
 public:
   vlLinkList():Array(0),Size(0),MaxId(-1),Extend(1000) {};
   vlLinkList(const int sz, const int ext);

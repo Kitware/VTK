@@ -20,7 +20,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 void vlSource::Execute()
 {
-  cerr << "Executing Source\n";
+  vlDebugMacro(<< "Executing Source\n");
 }
 
 void vlSource::Update()

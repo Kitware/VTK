@@ -38,7 +38,7 @@ vlRenderWindow *vlRenderMaster::MakeRenderWindow(char *type)
     }
 #endif
 
-  cerr <<"RenderMaster Error: unable to return render window.\n";
+  vlErrorMacro(<<"RenderMaster Error: unable to return render window.\n");
   return (vlRenderWindow *)NULL;
 }
 

@@ -48,6 +48,7 @@ public:
   void Squeeze() {this->Ia.Squeeze();};
   int EstimateSize(int numCells, int maxPtsPerCell) 
     {return numCells*(1+maxPtsPerCell);};
+  int GetSize() {return Ia.GetSize();};
   
 protected:
   int NumberOfCells;

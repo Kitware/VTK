@@ -36,7 +36,7 @@ void vlDataSetFilter::Update()
   // make sure input is available
   if ( !this->Input )
     {
-    cerr << "No input available for DataSetFilter\n";
+    vlErrorMacro(<< "No input!\n");
     return;
     }
 

@@ -51,7 +51,7 @@ void vlElevationFilter::Execute()
   this->Initialize();
   if ( ((numPts=this->Input->NumberOfPoints()) < 1) )
     {
-    cerr << "No input available for Elevation Filter\n";
+    vlErrorMacro(<< "No input!\n");
     return;
     }
 //
@@ -66,7 +66,7 @@ void vlElevationFilter::Execute()
   for (i=0; i<3; i++) diffVector[i] = this->HighPoint[i] - this->LowPoint[i];
   if ( (l = math.Dot(diffVector,diffVector)) == 0.0)
     {
-    cerr << this << ": Bad vector, using (0,0,1)\n";
+    vlErrorMacro(<< this << ": Bad vector, using (0,0,1)\n");
     diffVector[0] = diffVector[1] = 0.0; diffVector[2] = 1.0;
     l = 1.0;
     }

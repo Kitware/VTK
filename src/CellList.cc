@@ -76,7 +76,7 @@ vlCell *vlCellList::Resize(const int sz)
 
   if ( (newArray = new vlCell[newSize]) == 0 )
   {
-    cerr << "Cannot allocate memory\n";
+    vlErrorMacro(<< "Cannot allocate memory\n");
     return 0;
   }
 

@@ -19,12 +19,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlCellList_h
 #define __vlCellList_h
 
+#include "Object.hh"
+
 struct vlCell {
     short type;
     int loc;
 };
 
-class vlCellList {
+class vlCellList : public vlObject {
 public:
   vlCellList() : Array(0),Size(0),MaxId(-1),Extend(1000) {};
   vlCellList(const int sz, const int ext);

@@ -62,7 +62,7 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 //
   if ( !this->Input )
     {
-    cerr << this->GetClassName() << ": No input!\n";
+    vlErrorMacro(<< ": No input!\n");
     return;
     }
 //
@@ -70,8 +70,7 @@ void vlDataSetMapper::Render(vlRenderer *ren)
 //
   if ( !(mapper = this->Input->MakeMapper()) )
     {
-    cerr << this->GetClassName() << ": Cannot map type: " 
-         << this->Input->GetClassName() <<"\n";
+    vlErrorMacro(<< ": Cannot map type: " << this->Input->GetClassName() <<"\n");
     return;
     }
   if ( mapper != this->Mapper ) 

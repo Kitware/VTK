@@ -57,7 +57,7 @@ void vlRibbonFilter::Execute()
   if ( !(inLines = this->Input->GetLines()) || 
   inLines->GetNumberOfCells() < 1 )
     {
-    cerr << this->GetClassName() << ": No input data!\n";
+    vlErrorMacro(<< ": No input data!\n");
     return;
     }
 
@@ -68,7 +68,7 @@ void vlRibbonFilter::Execute()
     inNormals = new vlFloatNormals(inPts->NumberOfPoints());
     if ( !lineNormalGenerator.GenerateNormals(inPts,inLines,(vlFloatNormals*)inNormals) )
       {
-      cerr << this->GetClassName() << ": No normals for line!\n";
+      vlErrorMacro(<< ": No normals for line!\n");
       delete inNormals;
       return;
       }

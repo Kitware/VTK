@@ -13,7 +13,7 @@ void vlPolyFilter::Update()
   // make sure input is available
   if ( !this->Input )
     {
-    cerr << "No input available for PolyFilter\n";
+    vlErrorMacro(<< "No input!\n");
     return;
     }
 

@@ -76,7 +76,7 @@ vlLink *vlLinkList::Resize(const int sz)
 
   if ( (newArray = new vlLink[newSize]) == 0 )
     {
-    cerr << "Cannot allocate memory\n";
+    vlErrorMacro("Cannot allocate memory\n");
     return 0;
     }
 
