@@ -18,7 +18,7 @@
 # 4) KeyRun CameraPosition 30
 #    runs key frame for 30 steps. Steps that lie
 #    between keyframes are interpolated with Cubic Splines.
-# Afetr each step is interpolated, the proc KeyRender
+# After each step is interpolated, the proc KeyRender
 # is invoked. This proc can be redefined by the use to
 # do something more sophisticated. The default proc does
 # a: renWin Render
@@ -103,7 +103,7 @@ proc KeySaveInFile {keyFrame fileName} {
   upvar $keyFrame a
   set filePtr [open $fileName w]
   set frames $a(counter)
-  puts $filePtr "KeyNew $keyFrame $a(object) $a(method)"
+  puts $filePtr "KeyNew $keyFrame $a(object) \"$a(method)\""
     for {set i 0} {$i < $frames} {incr i} {
     puts $filePtr "KeyAdd $keyFrame \"$a($i)\""
   }
