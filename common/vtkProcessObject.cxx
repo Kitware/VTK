@@ -158,6 +158,7 @@ void vtkProcessObject::AddInput(vtkDataObject *input)
   
   if (input)
     {
+    input->AddConsumer(this);
     input->Register(this);
     }
   this->Modified();
@@ -202,6 +203,7 @@ void vtkProcessObject::RemoveInput(vtkDataObject *input)
     return;
     }
   
+  this->Inputs[loc]->RemoveConsumer(this);
   this->Inputs[loc]->UnRegister(this);
   this->Inputs[loc] = NULL;
 
@@ -272,12 +274,14 @@ void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
   
   if (this->Inputs[idx])
     {
+    this->Inputs[idx]->RemoveConsumer(this);
     this->Inputs[idx]->UnRegister(this);
     this->Inputs[idx] = NULL;
     }
   
   if (input)
     {
+    input->AddConsumer(this);
     input->Register(this);
     }
 

@@ -113,6 +113,9 @@ vtkDataObject::vtkDataObject()
   this->ExtentTranslator = vtkExtentTranslator::New();
   this->ExtentTranslator->Register(this);
   this->ExtentTranslator->Delete();
+
+  this->NumberOfConsumers = 0;
+  this->Consumers = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -121,6 +124,7 @@ vtkDataObject::~vtkDataObject()
   this->FieldData->Delete();
 
   this->SetExtentTranslator(NULL);
+  delete [] this->Consumers;
 }
 
 
@@ -154,6 +158,73 @@ void vtkDataObject::Initialize()
   this->Piece = -1;
   this->NumberOfPieces = 0;
   this->GhostLevel = 0;
+}
+
+void vtkDataObject::AddConsumer(vtkProcessObject *c)
+{
+  // make sure it isn't already there
+  if (this->IsConsumer(c))
+    {
+    return;
+    }
+  // add it to the list, reallocate memory
+  vtkProcessObject **tmp = this->Consumers;
+  this->NumberOfConsumers++;
+  this->Consumers = new vtkProcessObject* [this->NumberOfConsumers];
+  for (int i = 0; i < (this->NumberOfConsumers-1); i++)
+    {
+    this->Consumers[i] = tmp[i];
+    }
+  this->Consumers[this->NumberOfConsumers-1] = c;
+  // free old memory
+  delete [] tmp;
+}
+
+void vtkDataObject::RemoveConsumer(vtkProcessObject *c)
+{
+  // make sure it is already there
+  if (!this->IsConsumer(c))
+    {
+    return;
+    }
+  // remove it from the list, reallocate memory
+  vtkProcessObject **tmp = this->Consumers;
+  this->NumberOfConsumers--;
+  this->Consumers = new vtkProcessObject* [this->NumberOfConsumers];
+  int cnt = 0;
+  int i;
+  for (i = 0; i <= this->NumberOfConsumers; i++)
+    {
+    if (tmp[i] != c)
+      {
+      this->Consumers[cnt] = tmp[i];
+      cnt++;
+      }
+    }
+  // free old memory
+  delete [] tmp;
+}
+
+int vtkDataObject::IsConsumer(vtkProcessObject *c)
+{
+  int i;
+  for (i = 0; i < this->NumberOfConsumers; i++)
+    {
+    if (this->Consumers[i] == c)
+      {
+      return 1;
+      }
+    }
+  return 0;
+}
+
+vtkProcessObject *vtkDataObject::GetConsumer(int i)
+{
+  if (i >= this->NumberOfConsumers)
+    {
+    return 0;
+    }
+  return this->Consumers[i];
 }
 
 //----------------------------------------------------------------------------

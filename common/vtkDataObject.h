@@ -62,6 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObject.h"
 #include "vtkFieldData.h"
 
+class vtkProcessObject;
 class vtkSource;
 class vtkExtentTranslator;
 
@@ -311,6 +312,17 @@ public:
   void SetExtentTranslator(vtkExtentTranslator *translator);
   vtkExtentTranslator *GetExtentTranslator();  
 
+  // Description:
+  // Get the number of consumers
+  vtkGetMacro(NumberOfConsumers,int);
+  
+  // Description:
+  // Add or remove or get or check a consumer, 
+  void AddConsumer(vtkProcessObject *c);
+  void RemoveConsumer(vtkProcessObject *c);
+  vtkProcessObject *GetConsumer(int i);
+  int IsConsumer(vtkProcessObject *c);
+  
 protected:
 
   vtkDataObject();
@@ -327,6 +339,10 @@ protected:
   // Keep track of data release during network execution
   int DataReleased; 
 
+  // how many consumers does this object have
+  int NumberOfConsumers;
+  vtkProcessObject **Consumers;
+  
   // Description:
   // Return non zero if the UpdateExtent is outside of the Extent
   int UpdateExtentIsOutsideOfTheExtent();
