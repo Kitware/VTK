@@ -54,7 +54,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
-#include "vtkXRenderWindowInteractor.h"
 #endif
 
 #ifdef VTK_USE_MESA
@@ -68,7 +67,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMesaTexture.h"
 #include "vtkMesaVolumeTextureMapper2D.h"
 #include "vtkMesaProjectedPolyDataRayBounder.h"
-#include "vtkXRenderWindowInteractor.h"
 #endif
 
 #ifdef _WIN32
@@ -83,6 +81,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkWin32RenderWindowInteractor.h"
+#else
+#include "vtkXRenderWindowInteractor.h"
 #endif
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
