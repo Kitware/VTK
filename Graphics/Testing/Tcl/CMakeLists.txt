@@ -98,7 +98,6 @@ IF (VTK_USE_RENDERING)
       triangularTCoords
       triangularTexture
       ugFacet
-      volTestClipRegions
       warpComb
       warplens
       )
