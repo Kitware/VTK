@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // never see this class.
 
 // .SECTION see also
-// vtkCamera vtkDeviceObject
+// vtkCamera
 
 #ifndef __vtkCameraDevice_hh
 #define __vtkCameraDevice_hh
