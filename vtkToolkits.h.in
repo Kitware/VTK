@@ -55,4 +55,15 @@
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
 
+/*--------------------------------------------------------------------------*/
+/* Setup VTK based on platform features and configuration.                  */
+
+/* OGLR */
+#if ((defined(VTK_USE_OPENGL_LIBRARY) && !defined(_WIN32)) || \
+     (defined(VTK_USE_X) && defined(_WIN32)) || \
+     (defined(VTK_USE_MANGLED_MESA) && !defined(_WIN32))) && \
+     !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
+# define VTK_USE_OGLR
+#endif
+
 #endif

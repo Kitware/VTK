@@ -83,17 +83,6 @@
 /* Wheter the Tcl/Tk support files are copied to the build dir */
 #cmakedefine VTK_TCL_TK_COPY_SUPPORT_LIBRARY
 
-/*--------------------------------------------------------------------------*/
-/* Setup VTK based on platform features and configuration.                  */
-
-/* OGLR */
-#if ((defined(VTK_USE_OPENGL_LIBRARY) && !defined(_WIN32)) || \
-     (defined(VTK_USE_X) && defined(_WIN32)) || \
-     (defined(VTK_USE_MANGLED_MESA) && !defined(_WIN32))) && \
-     !(defined (VTK_USE_CARBON) || defined(VTK_USE_COCOA))
-# define VTK_USE_OGLR
-#endif
-
 /* Configure internal Tk headers.  */
 #ifdef VTK_USE_CARBON
 # define USE_NON_CONST
