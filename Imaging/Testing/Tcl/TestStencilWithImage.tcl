@@ -19,6 +19,9 @@ translate SetTranslation 60 60 0
 vtkImageToImageStencil imageToStencil
 imageToStencil SetInput [translate GetOutput]
 imageToStencil ThresholdBetween 0 127
+# silly stuff to increase coverage
+imageToStencil SetUpperThreshold [imageToStencil GetUpperThreshold]
+imageToStencil SetLowerThreshold [imageToStencil GetLowerThreshold]
 
 vtkImageStencil stencil
 stencil SetInput [reader1 GetOutput]
