@@ -10,7 +10,7 @@ source $VTK_TCL/vtkInt.tcl
 #
 # create sphere to color
 vtkSphereSource sphere1
-    sphere1 SetThetaResolution 5
+    sphere1 SetThetaResolution 4
     sphere1 SetPhiResolution 5
 sphere1 SetStartTheta 110
 
