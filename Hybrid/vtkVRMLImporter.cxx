@@ -772,6 +772,11 @@ static const short yycheck[] = {    66,
    This special exception was added by the Free Software Foundation
    in version 1.24 of Bison.  */
 
+#if defined (__digital__) && defined (__unix__)
+#define HAVE_ALLOCA_H 1
+#endif
+
+
 #ifdef __GNUC__
 #undef alloca
 #define alloca __builtin_alloca
