@@ -11,6 +11,7 @@ proc rtOtherTest { fileid } {
 #actual test
     set all [lsort [info command vtk*]]
     foreach a $all {
+        puts "Testing -- $a"
 	if {$a == "vtkIndent"} {
 	    continue
 	}
@@ -20,7 +21,23 @@ proc rtOtherTest { fileid } {
 	if {$a == "vtkTimeStamp"} {
 	    continue
 	}
-	catch {$a b; b Print; b Delete}
+	catch {
+           $a b
+           b Print
+           if {[b IsA $a] == 0} {puts "  IsA failed!!!"}
+           b GetClassName
+           b Delete
+        }
+        if {$a == "vtkOutputWindow"} {
+           continue
+        }
+	catch {
+           $a b 
+           $a c 
+           set d [b SafeDownCast c]
+           b Delete
+           c Delete
+        }
     }
 }
 
