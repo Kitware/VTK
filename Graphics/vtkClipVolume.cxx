@@ -33,7 +33,7 @@
 #include "vtkIntArray.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.55");
+vtkCxxRevisionMacro(vtkClipVolume, "1.56");
 vtkStandardNewMacro(vtkClipVolume);
 vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
@@ -205,7 +205,6 @@ void vtkClipVolume::Execute()
     tmpScalars->Allocate(numPts);
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());
-    //    inPD = new vtkPointData(*(input->GetPointData()));//copies original
     if ( this->GenerateClipScalars )
       {
       inPD->SetScalars(tmpScalars);
@@ -421,8 +420,6 @@ void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *cli
                              vtkPointData *outPD, vtkCellData *inCD, vtkIdType cellId, 
                              vtkCellData *outCD, vtkCellData *clippedCD, int insideOut)
 {
-  (void)inPD;
-  (void)clippedCD;
   // Tesselate this cell as if it were inside
   vtkIdType ntetra = tetraPts->GetNumberOfPoints() / 4;
   int i, id, j, k, numNew;
@@ -438,7 +435,7 @@ void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *cli
       clipTetra->Points->SetPoint(j,tetraPts->GetPoint(id+j));
       cellScalars->SetComponent(j,0,clipScalars->GetComponent(tetraIds->GetId(id+j),0));
       }
-    clipTetra->Clip(value, cellScalars, this->Locator, this->Connectivity, outPD,
+    clipTetra->Clip(value, cellScalars, this->Locator, this->Connectivity, inPD,
                     outPD, inCD, cellId, outCD, insideOut);
     numNew = this->Connectivity->GetNumberOfCells() - this->NumberOfCells;
     this->NumberOfCells = this->Connectivity->GetNumberOfCells();
@@ -451,8 +448,8 @@ void vtkClipVolume::ClipTets(float value, vtkTetra *clipTetra, vtkDataArray *cli
 
     if ( this->GenerateClippedOutput )
       {
-      clipTetra->Clip(value, cellScalars, this->Locator, this->ClippedConnectivity, outPD,
-                      outPD, inCD, cellId, outCD, !insideOut);
+      clipTetra->Clip(value, cellScalars, this->Locator, this->ClippedConnectivity, inPD,
+                      outPD, inCD, cellId, clippedCD, !insideOut);
       numNew = this->ClippedConnectivity->GetNumberOfCells() - this->NumberOfClippedCells;
       this->NumberOfClippedCells = this->ClippedConnectivity->GetNumberOfCells();
       for (k=0; k<numNew; k++)
