@@ -88,7 +88,7 @@ inline int vtkLightCollection::IsItemPresent(vtkLight *a)
 
 // Description:
 // Get the next light in the list. NULL is returned when the collection is 
-// exausted.
+// exhausted.
 inline vtkLight *vtkLightCollection::GetNextItem() 
 { 
   return (vtkLight *)(this->vtkCollection::GetNextItem());
