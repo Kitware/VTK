@@ -130,7 +130,6 @@ void vtkWin32RenderWindowInteractor::Initialize()
 {
   static int any_initialized = 0;
   vtkWin32OpenGLRenderWindow *ren;
-  int depth;
   int *size;
   int *position;
   int argc = 0;
@@ -391,7 +390,6 @@ void vtkWin32RenderWindowInteractor::OnChar(HWND wnd,UINT nChar,
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, 
                                   LPARAM lParam) 
 {
-  float xf,yf;
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
   
