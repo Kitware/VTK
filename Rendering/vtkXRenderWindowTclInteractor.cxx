@@ -28,7 +28,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.44");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.45");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -474,7 +474,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
                                    shift, 
                                    buffer[0], 
                                    1, 
-                                   buffer);
+                                   XKeysymToString(ks));
       me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
       me->InvokeEvent(vtkCommand::CharEvent, NULL);
       }
