@@ -126,11 +126,16 @@ int TIFFInternal::Initialize()
 {
   if ( this->Image )
     {
-    TIFFGetField(this->Image, TIFFTAG_IMAGEWIDTH, &this->Width);
-    TIFFGetField(this->Image, TIFFTAG_IMAGELENGTH, &this->Height);
-    TIFFGetField(this->Image, TIFFTAG_SAMPLESPERPIXEL, &this->SamplesPerPixel);
+    if ( !TIFFGetField(this->Image, TIFFTAG_IMAGEWIDTH, &this->Width) &&
+         TIFFGetField(this->Image, TIFFTAG_IMAGELENGTH, &this->Height) )
+      {
+      return 0;
+      }
+    TIFFGetField(this->Image, TIFFTAG_SAMPLESPERPIXEL, 
+                 &this->SamplesPerPixel);
     TIFFGetField(this->Image, TIFFTAG_COMPRESSION, &this->Compression);
-    TIFFGetField(this->Image, TIFFTAG_BITSPERSAMPLE, &this->BitsPerSample);
+    TIFFGetField(this->Image, TIFFTAG_BITSPERSAMPLE, 
+                 &this->BitsPerSample);
     TIFFGetField(this->Image, TIFFTAG_PHOTOMETRIC, &this->Photometrics);
     TIFFGetField(this->Image, TIFFTAG_PLANARCONFIG, &this->PlanarConfig);
     if ( !TIFFGetField(this->Image, TIFFTAG_TILEDEPTH, &this->TileDepth) )
