@@ -26,7 +26,7 @@
 #include "vtkIdListCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.34.4.1");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.34.4.2");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1356,4 +1356,5 @@ void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MaximumTimeValue: " << this->MaximumTimeValue << endl;
   os << indent << "TimeSets: " << this->TimeSets << endl;
   os << indent << "ReadAllVariables: " << this->ReadAllVariables << endl;
+  os << indent << "ByteOrder: " << this->ByteOrder << endl;
 }
