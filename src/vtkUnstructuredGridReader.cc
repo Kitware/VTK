@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkUnstructuredGridReader.hh"
+#include "vtkByteSwap.hh"
 
 vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
@@ -151,6 +152,7 @@ void vtkUnstructuredGridReader::Execute()
   vtkCellArray *cells=NULL;
   int *types=NULL;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
+  vtkByteSwap swap;
   
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
@@ -234,6 +236,7 @@ void vtkUnstructuredGridReader::Execute()
             vtkErrorMacro(<<"Error reading binary cell types!");
             return;
             }
+	  swap.Swap4BERange(types,ncells);
           }
         else //ascii
           {

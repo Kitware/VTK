@@ -90,6 +90,8 @@ void vtkSTLReader::Execute()
     }
   else
     {
+    fclose(fp);
+    fp = fopen(this->Filename, "rb");
     if ( this->ReadBinarySTL(fp,newPts,newPolys) ) return;
     }
 
@@ -163,7 +165,7 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
 //
   fread (header, 1, 80, fp);
   fread (&ulint, 1, 4, fp);
-  swap.Swap4 (&ulint);
+  swap.Swap4LE(&ulint);
 //
 // Many .stl files contain bogus count.  Hence we will ignore and read 
 //   until end of file.
@@ -177,23 +179,23 @@ int vtkSTLReader::ReadBinarySTL(FILE *fp, vtkFloatPoints *newPts, vtkCellArray *
     {
     fread(&ibuff2,2,1,fp); //read extra junk
 
-    swap.Swap4 (facet.n);
-    swap.Swap4 (facet.n+1);
-    swap.Swap4 (facet.n+2);
+    swap.Swap4LE (facet.n);
+    swap.Swap4LE (facet.n+1);
+    swap.Swap4LE (facet.n+2);
 
-    swap.Swap4 (facet.v1);
-    swap.Swap4 (facet.v1+1);
-    swap.Swap4 (facet.v1+2);
+    swap.Swap4LE (facet.v1);
+    swap.Swap4LE (facet.v1+1);
+    swap.Swap4LE (facet.v1+2);
     pts[0] = newPts->InsertNextPoint(facet.v1);
 
-    swap.Swap4 (facet.v2);
-    swap.Swap4 (facet.v2+1);
-    swap.Swap4 (facet.v2+2);
+    swap.Swap4LE (facet.v2);
+    swap.Swap4LE (facet.v2+1);
+    swap.Swap4LE (facet.v2+2);
     pts[1] = newPts->InsertNextPoint(facet.v2);
 
-    swap.Swap4 (facet.v3);
-    swap.Swap4 (facet.v3+1);
-    swap.Swap4 (facet.v3+2);
+    swap.Swap4LE (facet.v3);
+    swap.Swap4LE (facet.v3+1);
+    swap.Swap4LE (facet.v3+2);
     pts[2] = newPts->InsertNextPoint(facet.v3);
 
     newPolys->InsertNextCell(3,pts);
