@@ -82,6 +82,10 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 //ETX
 
   // Description:
+  // Non-static member function. Assigns *from* elements array
+  void DeepCopy(double Elements[16]);
+
+  // Description:
   // Set all of the elements to zero.
   void Zero();
 //BTX

@@ -436,12 +436,29 @@ void vtkMatrix4x4::DeepCopy(double Elements[16], vtkMatrix4x4 *source)
   
   for (i = 0; i < 4; ++i)
     {
-    for (j = 0; j < 4; ++j)
-      {
-      elem[i][j] = source->Element[i][j];
-      }
+    elem[i][0] = source->Element[i][0];
+    elem[i][1] = source->Element[i][1];
+    elem[i][2] = source->Element[i][2];
+    elem[i][3] = source->Element[i][3];
     }
 }
+
+// Non-static member function. Assigns *from* elements array
+void vtkMatrix4x4::DeepCopy(double Elements[16])
+{
+  SqMatPtr elem = (SqMatPtr) Elements;
+  int i;
+
+  for (i = 0; i < 4; i++)
+    {
+    this->Element[i][0] = elem[i][0];
+    this->Element[i][1] = elem[i][1];
+    this->Element[i][2] = elem[i][2];
+    this->Element[i][3] = elem[i][3];
+    }
+  this->Modified();
+}
+
 
 // Transpose the matrix and put it into out. 
   
