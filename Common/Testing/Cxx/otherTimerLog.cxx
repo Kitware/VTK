@@ -28,7 +28,7 @@
 #include <sys/unistd.h>
 #endif
 
-void Test(ostream& strm)
+void otherTimerLogTest(ostream& strm)
 {
   // actual test
   float a = 1.0;
@@ -69,7 +69,7 @@ int otherTimerLog(int,char *[])
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  Test(vtkmsg);
+  otherTimerLogTest(vtkmsg);
 
   return 0;
 } 

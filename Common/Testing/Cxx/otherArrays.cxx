@@ -640,7 +640,7 @@ int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
   return errors;
 }
 
-int Test(ostream& strm)
+int otherArraysTest(ostream& strm)
 {
   int errors = 0;
   {
@@ -771,6 +771,6 @@ int otherArrays(int, char *[])
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  return otherArraysTest(vtkmsg);
 
 } 
