@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkVolumeProMapper_h
 
 #include "vtkVolumeMapper.h"
-
+#include "vtkToolkits.h"
 //BTX
 class VLIContext;
 class VLIVolume;
