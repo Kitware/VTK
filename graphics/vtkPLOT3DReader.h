@@ -198,8 +198,9 @@ public:
   vtkGetMacro(Wvinf,float);
 
   // Description:
-  // Get the number number of grids.
-  vtkGetMacro(NumGrids, int);
+  // Get the number of grids. This is valid only after a
+  // read has been performed.
+  vtkGetMacro(NumberOfGrids, int);
 
 protected:
   vtkPLOT3DReader();
@@ -227,8 +228,8 @@ protected:
 
   //temporary variables used during read
   float *TempStorage;
-  int NumPts;
-  int NumGrids;
+  int NumberOfPoints;
+  int NumberOfGrids;
 
   //supplied in PLOT3D file
   float Fsmach;
