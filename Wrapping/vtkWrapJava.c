@@ -544,7 +544,6 @@ void HandleDataArray(FILE *fp, FileInfo *data)
     }
   else
     {
-    printf("%s is not a data array\n", data->ClassName);
     return;
     }
 
