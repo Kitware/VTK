@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPixel.h"
 #include "vtkVoxel.h"
 #include "vtkObjectFactory.h"
-
+#include "vtkFloatArray.h"
 
 
 //----------------------------------------------------------------------------
@@ -74,8 +74,8 @@ vtkRectilinearGrid::vtkRectilinearGrid()
   this->Dimensions[2] = 1;
   this->DataDescription = VTK_SINGLE_POINT;
 
-  vtkScalars *fs=vtkScalars::New(); fs->Allocate(1);
-  fs->InsertScalar(0, 0.0);
+  vtkFloatArray *fs=vtkFloatArray::New(); fs->Allocate(1);
+  fs->SetComponent(0, 0.0);
   this->XCoordinates = fs; fs->Register(this);
   this->YCoordinates = fs; fs->Register(this);
   this->ZCoordinates = fs; fs->Register(this);
@@ -223,13 +223,13 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
   // Extract point coordinates and point ids
   for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->ZCoordinates->GetScalar(loc[2]);
+    x[2] = this->ZCoordinates->GetComponent(loc[2]);
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = this->YCoordinates->GetScalar(loc[1]);
+      x[1] = this->YCoordinates->GetComponent(loc[1]);
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = this->XCoordinates->GetScalar(loc[0]);
+        x[0] = this->XCoordinates->GetComponent(loc[0]);
 
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
         cell->PointIds->SetId(npts,idx);
@@ -313,13 +313,13 @@ void vtkRectilinearGrid::GetCell(int cellId, vtkGenericCell *cell)
   // Extract point coordinates and point ids
   for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->ZCoordinates->GetScalar(loc[2]);
+    x[2] = this->ZCoordinates->GetComponent(loc[2]);
     for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
       {
-      x[1] = this->YCoordinates->GetScalar(loc[1]);
+      x[1] = this->YCoordinates->GetComponent(loc[1]);
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        x[0] = this->XCoordinates->GetScalar(loc[0]);
+        x[0] = this->XCoordinates->GetComponent(loc[0]);
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
         cell->PointIds->SetId(npts,idx);
         cell->Points->SetPoint(npts++,x);
@@ -396,19 +396,19 @@ void vtkRectilinearGrid::GetCellBounds(int cellId, float bounds[6])
   // Extract point coordinates
   for (loc[2]=kMin; loc[2]<=kMax; loc[2]++)
     {
-    x[2] = this->ZCoordinates->GetScalar(loc[2]);
+    x[2] = this->ZCoordinates->GetComponent(loc[2]);
     bounds[4] = (x[2] < bounds[4] ? x[2] : bounds[4]);
     bounds[5] = (x[2] > bounds[5] ? x[2] : bounds[5]);
     }
   for (loc[1]=jMin; loc[1]<=jMax; loc[1]++)
     {
-    x[1] = this->YCoordinates->GetScalar(loc[1]);
+    x[1] = this->YCoordinates->GetComponent(loc[1]);
     bounds[2] = (x[1] < bounds[2] ? x[1] : bounds[2]);
     bounds[3] = (x[1] > bounds[3] ? x[1] : bounds[3]);
     }
   for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
     {
-    x[0] = this->XCoordinates->GetScalar(loc[0]);
+    x[0] = this->XCoordinates->GetComponent(loc[0]);
     bounds[0] = (x[0] < bounds[0] ? x[0] : bounds[0]);
     bounds[1] = (x[0] > bounds[1] ? x[0] : bounds[1]);
     }
@@ -466,9 +466,9 @@ float *vtkRectilinearGrid::GetPoint(int ptId)
       break;
     }
 
-  this->PointReturn[0] = this->XCoordinates->GetScalar(loc[0]);
-  this->PointReturn[1] = this->YCoordinates->GetScalar(loc[1]);
-  this->PointReturn[2] = this->ZCoordinates->GetScalar(loc[2]);
+  this->PointReturn[0] = this->XCoordinates->GetComponent(loc[0]);
+  this->PointReturn[1] = this->YCoordinates->GetComponent(loc[1]);
+  this->PointReturn[2] = this->ZCoordinates->GetComponent(loc[2]);
 
   return this->PointReturn;
 }
@@ -523,9 +523,9 @@ void vtkRectilinearGrid::GetPoint(int ptId, float x[3])
       break;
     }
 
-  x[0] = this->XCoordinates->GetScalar(loc[0]);
-  x[1] = this->YCoordinates->GetScalar(loc[1]);
-  x[2] = this->ZCoordinates->GetScalar(loc[2]);
+  x[0] = this->XCoordinates->GetComponent(loc[0]);
+  x[1] = this->YCoordinates->GetComponent(loc[1]);
+  x[2] = this->ZCoordinates->GetComponent(loc[2]);
 
 }
 
@@ -534,7 +534,7 @@ int vtkRectilinearGrid::FindPoint(float x[3])
 {
   int i, j, loc[3];
   float xPrev, xNext;
-  vtkScalars *scalars[3];
+  vtkDataArray *scalars[3];
 
   scalars[0] = this->XCoordinates;
   scalars[1] = this->YCoordinates;
@@ -545,16 +545,16 @@ int vtkRectilinearGrid::FindPoint(float x[3])
   for ( j=0; j < 3; j++ )
     {
     loc[j] = 0;
-    xPrev = scalars[j]->GetScalar(0);
-    xNext = scalars[j]->GetScalar(scalars[j]->GetNumberOfScalars()-1);
+    xPrev = scalars[j]->GetComponent(0);
+    xNext = scalars[j]->GetComponent(scalars[j]->GetNumberOfTuples()-1);
     if ( x[j] < xPrev || x[j] > xNext )
       {
       return -1;
       }
 
-    for (i=1; i < scalars[j]->GetNumberOfScalars(); i++)
+    for (i=1; i < scalars[j]->GetNumberOfTuples(); i++)
       {
-      xNext = scalars[j]->GetScalar(i);
+      xNext = scalars[j]->GetComponent(i);
       if ( x[j] >= xPrev && x[j] <= xNext )
         {
         if ( (x[j]-xPrev) < (xNext-x[j]) )
@@ -669,16 +669,16 @@ void vtkRectilinearGrid::ComputeBounds()
     return;
     }
   
-  this->Bounds[0] = this->XCoordinates->GetScalar(0);
-  this->Bounds[2] = this->YCoordinates->GetScalar(0);
-  this->Bounds[4] = this->ZCoordinates->GetScalar(0);
+  this->Bounds[0] = this->XCoordinates->GetComponent(0);
+  this->Bounds[2] = this->YCoordinates->GetComponent(0);
+  this->Bounds[4] = this->ZCoordinates->GetComponent(0);
 
-  this->Bounds[1] = this->XCoordinates->GetScalar(
-                        this->XCoordinates->GetNumberOfScalars()-1);
-  this->Bounds[3] = this->YCoordinates->GetScalar(
-                        this->YCoordinates->GetNumberOfScalars()-1);
-  this->Bounds[5] = this->ZCoordinates->GetScalar(
-                        this->ZCoordinates->GetNumberOfScalars()-1);
+  this->Bounds[1] = this->XCoordinates->GetComponent(
+                        this->XCoordinates->GetNumberOfTuples()-1);
+  this->Bounds[3] = this->YCoordinates->GetComponent(
+                        this->YCoordinates->GetNumberOfTuples()-1);
+  this->Bounds[5] = this->ZCoordinates->GetComponent(
+                        this->ZCoordinates->GetNumberOfTuples()-1);
   // ensure that the bounds are increasing
   for (int i = 0; i < 5; i += 2)
     {
@@ -752,7 +752,7 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 {
   int i, j;
   float xPrev, xNext, tmp;
-  vtkScalars *scalars[3];
+  vtkDataArray *scalars[3];
 
   scalars[0] = this->XCoordinates;
   scalars[1] = this->YCoordinates;
@@ -765,8 +765,8 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
 
   for ( j=0; j < 3; j++ )
     {
-    xPrev = scalars[j]->GetScalar(0);
-    xNext = scalars[j]->GetScalar(scalars[j]->GetNumberOfScalars()-1);
+    xPrev = scalars[j]->GetComponent(0);
+    xNext = scalars[j]->GetComponent(scalars[j]->GetNumberOfTuples()-1);
     if (xNext < xPrev)
       {
       tmp = xNext;
@@ -778,9 +778,9 @@ int vtkRectilinearGrid::ComputeStructuredCoordinates(float x[3], int ijk[3],
       return 0;
       }
 
-    for (i=1; i < scalars[j]->GetNumberOfScalars(); i++)
+    for (i=1; i < scalars[j]->GetNumberOfTuples(); i++)
       {
-      xNext = scalars[j]->GetScalar(i);
+      xNext = scalars[j]->GetComponent(i);
       if ( x[j] >= xPrev && x[j] < xNext )
         {
         ijk[j] = i - 1;
@@ -926,19 +926,19 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
 
   if ( grid != NULL )
     {
-    vtkScalars *s;
+    vtkFloatArray *s;
     this->SetDimensions(grid->GetDimensions());
     this->DataDescription = grid->DataDescription;
     
-    s = vtkScalars::New();
+    s = vtkFloatArray::New();
     s->DeepCopy(grid->GetXCoordinates());
     this->SetXCoordinates(s);
     s->Delete();
-    s = vtkScalars::New();
+    s = vtkFloatArray::New();
     s->DeepCopy(grid->GetYCoordinates());
     this->SetYCoordinates(s);
     s->Delete();
-    s = vtkScalars::New();
+    s = vtkFloatArray::New();
     s->DeepCopy(grid->GetZCoordinates());
     this->SetZCoordinates(s);
     s->Delete();

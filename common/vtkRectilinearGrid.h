@@ -66,6 +66,7 @@ class vtkVertex;
 class vtkLine;
 class vtkPixel;
 class vtkVoxel;
+class vtkDataArray;
 
 class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
@@ -151,18 +152,18 @@ public:
 
   // Description:
   // Specify the grid coordinates in the x-direction.
-  vtkSetObjectMacro(XCoordinates,vtkScalars);
-  vtkGetObjectMacro(XCoordinates,vtkScalars);
+  vtkSetObjectMacro(XCoordinates,vtkDataArray);
+  vtkGetObjectMacro(XCoordinates,vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the y-direction.
-  vtkSetObjectMacro(YCoordinates,vtkScalars);
-  vtkGetObjectMacro(YCoordinates,vtkScalars);
+  vtkSetObjectMacro(YCoordinates,vtkDataArray);
+  vtkGetObjectMacro(YCoordinates,vtkDataArray);
 
   // Description:
   // Specify the grid coordinates in the z-direction.
-  vtkSetObjectMacro(ZCoordinates,vtkScalars);
-  vtkGetObjectMacro(ZCoordinates,vtkScalars);
+  vtkSetObjectMacro(ZCoordinates,vtkDataArray);
+  vtkGetObjectMacro(ZCoordinates,vtkDataArray);
 
   // Description:
   // Required for the lowest common denominator for setting the UpdateExtent
@@ -219,9 +220,9 @@ protected:
   int Dimensions[3];
   int DataDescription;
 
-  vtkScalars *XCoordinates;
-  vtkScalars *YCoordinates;
-  vtkScalars *ZCoordinates;
+  vtkDataArray *XCoordinates;
+  vtkDataArray *YCoordinates;
+  vtkDataArray *ZCoordinates;
 
   // Hang on to some space for returning points when GetPoint(id) is called.
   float PointReturn[3];

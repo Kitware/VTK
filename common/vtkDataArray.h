@@ -258,7 +258,17 @@ public:
   // Set(Get)Component
   void SetActiveComponent(int i);
   vtkGetMacro(ActiveComponent, int);
+
+  // Description:
+  // Creates an array for dataType where dataType is one of
+  // VTK_BIT, VTK_CHAR, VTK_UNSIGNED_CHAR, VTK_SHORT,
+  // VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_LONG,
+  // VTK_UNSIGNED_LONG, VTK_FLOAT, VTK_DOUBLE.
+  // Note that the data array returned has be deleted by the
+  // user
   
+  static vtkDataArray* CreateDataArray(int dataType);
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(int numComp=1);
