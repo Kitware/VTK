@@ -156,7 +156,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyDataToPolyDataFilter.h"
 
-class VTK_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataToPolyDataFilter {
+class VTK_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataToPolyDataFilter 
+{
  public:
   vtkWindowedSincPolyDataFilter();
   static vtkWindowedSincPolyDataFilter *New() {return new vtkWindowedSincPolyDataFilter;};
