@@ -21,7 +21,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // for freeing list (use delete []).
 int *vlMergePoints::MergePoints()
 {
-  float *bounds;
   int ptId, i, j;
   int numPts;
   int *index;
@@ -37,8 +36,6 @@ int *vlMergePoints::MergePoints()
   (numPts=this->Points->GetNumberOfPoints()) < 1 ) return NULL;
 
   this->SubDivide(); // subdivides if necessary
-
-  bounds = this->Points->GetBounds();
 
   index = new int[numPts];
   for (i=0; i < numPts; i++) index[i] = -1;
@@ -59,8 +56,8 @@ int *vlMergePoints::MergePoints()
       index[i] = newPtId;
 
       for (j=0; j<3; j++) 
-        ijk[j] = (int) ((float)((p[j] - bounds[2*j])*0.999 / 
-                      (bounds[2*j+1] - bounds[2*j])) * this->Divisions[j]);
+        ijk[j] = (int) ((float)((p[j] - this->Bounds[2*j])*0.999 / 
+              (this->Bounds[2*j+1] - this->Bounds[2*j])) * this->Divisions[j]);
 
       cno = ijk[0] + ijk[1]*this->Divisions[0] + 
             ijk[2]*this->Divisions[0]*this->Divisions[1];
