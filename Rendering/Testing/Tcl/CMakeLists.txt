@@ -18,6 +18,7 @@ IF (VTK_USE_RENDERING)
       rotations
       ScalarBar
       TestFlyTo
+      TestFreetypeTextMapper
       TestLODProp3D
       TestOnePoint
       TestParallelCoordinates
