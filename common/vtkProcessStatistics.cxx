@@ -163,7 +163,7 @@ float vtkProcessStatistics::GetProcessCPUTimeInMilliseconds()
 #endif
 
 #ifdef _WIN32
-  return 0.0
+  return 0.0;
 #endif
 
 }
