@@ -21,9 +21,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlImplicitModeller_h
 #define __vlImplicitModeller_h
 
-#include "P2SPtsF.hh"
+#include "DS2SPtsF.hh"
 
-class vlImplicitModeller : public vlPolyToStructuredPointsFilter 
+class vlImplicitModeller : public vlDataSetToStructuredPointsFilter 
 {
 public:
   vlImplicitModeller();

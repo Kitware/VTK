@@ -32,7 +32,7 @@ vlCellList::~vlCellList()
 //
 // Add a cell to structure
 //
-void vlCellList::InsertCell(const int id, const short type, const int loc)
+void vlCellList::InsertCell(const int id, const unsigned char type, const int loc)
 {
   vlCell *cell;
 
@@ -46,7 +46,7 @@ void vlCellList::InsertCell(const int id, const short type, const int loc)
   return;
 }
 
-int vlCellList::InsertNextCell(const short type, const int loc)
+int vlCellList::InsertNextCell(const unsigned char type, const int loc)
 {
   this->InsertCell (++this->MaxId,type,loc);
   return this->MaxId;

@@ -23,8 +23,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DataSet.hh"
 #include "FPoints.hh"
 #include "CellArr.hh"
-#include "CellList.hh"
-#include "LinkList.hh"
 
 #define MAX_VERTS MAX_CELL_SIZE
 
@@ -77,13 +75,8 @@ private:
   vlCellArray *Lines;
   vlCellArray *Polys;
   vlCellArray *Strips;
-  vlCellList Cells;
-  vlLinkList Links;
   // dummy static member below used as a trick to simplify traversal
   static vlCellArray *Dummy;
-
-  void BuildCells();
-  void BuildLinks();
 };
 
 #endif

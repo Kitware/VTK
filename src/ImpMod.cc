@@ -37,7 +37,7 @@ void vlImplicitModeller::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlImplicitModeller::GetClassName()))
     {
-    vlPolyToStructuredPointsFilter::PrintSelf(os,indent);
+    vlDataSetToStructuredPointsFilter::PrintSelf(os,indent);
 
     os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
     os << indent << "ModelBounds: \n";

@@ -13,7 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <iostream.h>
 #include "LinkList.hh"
 
 vlLinkList::vlLinkList(const int sz, const int ext)
@@ -32,24 +31,12 @@ vlLinkList::~vlLinkList()
 //
 // Add a link to structure
 //
-void vlLinkList::InsertLink(const int id, const unsigned short ncells, int *cells)
+void vlLinkList::AllocateLinks()
 {
-  vlLink *link;
-
-  if ( id >= this->Size ) this->Resize(id);
-  if ( id > this->MaxId ) this->MaxId = id;
-
-  link = this->Array + id;
-  link->ncells = ncells;
-  for (unsigned short i=0; i<ncells; i++) link->cells[i] = cells[i];
-
-  return;
-}
-
-int vlLinkList::InsertNextLink(const unsigned short ncells, int *cells)
-{
-  this->InsertLink (++this->MaxId,ncells,cells);
-  return this->MaxId;
+  for (int i=0; i<=this->MaxId; i++)
+    {
+    this->Array[i].cells = new int[this->Array[i].ncells];
+    }
 }
 
 void vlLinkList::Squeeze()

@@ -29,14 +29,16 @@ struct vlLink {
 class vlLinkList : public vlObject {
 public:
   vlLinkList():Array(0),Size(0),MaxId(-1),Extend(1000) {};
-  vlLinkList(const int sz, const int ext);
+  vlLinkList(const int sz, const int ext=1000);
   ~vlLinkList();
   char *GetClassName() {return "vlLinkList";};
   vlLink &GetLink(const int id) {return this->Array[id];};
   unsigned short GetNcells(const int id) {return this->Array[id].ncells;};
   int *GetCells(const int id) {return this->Array[id].cells;};
-  void InsertLink(const int id, const unsigned short ncells, int *cells);
-  int InsertNextLink(const unsigned short ncells, int *cells);
+  void IncrementLinkCount(const int id) {this->Array[id].ncells++;};
+  void AllocateLinks();
+  void InsertCellReference(const int id, const int pos, const int cellId)
+    {this->Array[id].cells[pos] = cellId;};
   void Squeeze();
   void Reset();
 

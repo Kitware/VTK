@@ -79,3 +79,9 @@ void vlPolygon::ComputeNormal(float *v1, float *v2, float *v3, float *n)
         n[2] /= length;
     }
 }
+
+float vlPolygon::DistanceToPoint(float *x)
+{
+
+  return 1.0;
+}

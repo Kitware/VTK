@@ -22,7 +22,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Object.hh"
 
 struct vlCell {
-    short type;
+    unsigned char type;
     int loc;
 };
 
@@ -33,10 +33,10 @@ public:
   ~vlCellList();
   char *GetClassName() {return "vlCellList";};
   vlCell &GetCell(const int id) {return this->Array[id];};
-  short GetCellType(const int id) {return this->Array[id].type;};
+  unsigned char GetCellType(const int id) {return this->Array[id].type;};
   int GetCellLoc(const int id) {return this->Array[id].loc;};
-  void InsertCell(const int id, const short type, const int loc);
-  int InsertNextCell(const short type, const int pos);
+  void InsertCell(const int id, const unsigned char type, const int loc);
+  int InsertNextCell(const unsigned char type, const int pos);
   void Squeeze();
   void Reset();
 

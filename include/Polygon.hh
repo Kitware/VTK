@@ -21,12 +21,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlPolygon_h
 #define __vlPolygon_h
 
-#include "Object.hh"
+#include "Cell.hh"
 #include "Points.hh"
 
 #define MAX_RESOLUTION MAX_VERTS
 
-class vlPolygon : public vlObject
+class vlPolygon : public vlCell
 {
 public:
   vlPolygon() {};
@@ -35,6 +35,7 @@ public:
   void ComputeNormal(vlPoints *p, int numPts, int *pts, float *n);
   void ComputeNormal(float *v1, float *v2, float *v3, float *n);
 
+  float DistanceToPoint(float *x);
 };
 
 #endif
