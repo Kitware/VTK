@@ -34,10 +34,12 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.15");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.16");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
+
+#define VTK_BUNYKRCF_MAX_COMPONENTS 4
 
 // Constructor - initially everything to null, and create a matrix for use later
 vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction()
@@ -263,6 +265,7 @@ void vtkUnstructuredGridBunykRayCastFunction::Initialize( vtkRenderer *ren,
   this->Volume     = vol;
   this->Scalars    = (void *)this->Mapper->GetInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
   this->ScalarType =  this->Mapper->GetInput()->GetPointData()->GetScalars()->GetDataType();
+  this->NumberOfComponents = this->Mapper->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents();
   
   
   vtkUnstructuredGrid *input = this->Mapper->GetInput();
@@ -375,6 +378,8 @@ int vtkUnstructuredGridBunykRayCastFunction::CheckValidity( vtkRenderer *ren,
 void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
 {
   vtkRenderer *ren = this->Renderer;  
+  vtkVolume   *vol = this->Volume;
+
   ren->ComputeAspect();
   double *aspect = ren->GetAspect();
 
@@ -387,6 +392,7 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
   perspectiveTransform->Identity();
   perspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
+  perspectiveTransform->Concatenate(vol->GetMatrix());
   perspectiveMatrix->DeepCopy(perspectiveTransform->GetMatrix());
   
   // Invert this project matrix and store for later use
@@ -984,9 +990,11 @@ void vtkUnstructuredGridBunykRayCastFunction::UpdateColorTable()
       }
 
     // Add opacity to color table in double format
+    // Multiply by component weight
+    double weight =  vol->GetProperty()->GetComponentWeight(c);
     for ( i = 0; i < this->ColorTableSize[c]; i++ )
       {
-      this->ColorTable[c][4*i+3] = (double)(tmpArray[i]);
+      this->ColorTable[c][4*i+3] = (double)(tmpArray[i]) * weight;
       }    
     }
   
@@ -1053,6 +1061,7 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
 template <class T>
 void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars, 
                                                      vtkUnstructuredGridBunykRayCastFunction *self,
+                                                     int numComponents,
                                                      int x, int y, 
                                                      double bounds[2],
                                                      float color[4] )
@@ -1167,77 +1176,75 @@ void vtkUnstructuredGridBunykRayCastFunctionCastRay( T scalars,
         double dist = sqrt( (p1[0]-p2[0])*(p1[0]-p2[0]) + 
                             (p1[1]-p2[1])*(p1[1]-p2[1]) + 
                             (p1[2]-p2[2])*(p1[2]-p2[2]) );
-      
-        // Compute scalar of triangle 1
-        double A, B, C;
         
-        A = *(scalars + currentTriangle->PointIndex[0]);
-        B = *(scalars + currentTriangle->PointIndex[1]);
-        C = *(scalars + currentTriangle->PointIndex[2]);
-      
-        double ax, ay;
+        // compute the barycentric weights
+        float ax, ay;
+        double a1, b1, c1;
         ax = points[3*currentTriangle->PointIndex[0]];
         ay = points[3*currentTriangle->PointIndex[0]+1];
+        b1 = ((fx-ax)*currentTriangle->P2Y - (fy-ay)*currentTriangle->P2X) / currentTriangle->Denominator;
+        c1 = ((fy-ay)*currentTriangle->P1X - (fx-ax)*currentTriangle->P1Y) / currentTriangle->Denominator;
+        a1 = 1.0 - b1 - c1;
       
-        double a, b, c;
-        b = ((fx-ax)*currentTriangle->P2Y - (fy-ay)*currentTriangle->P2X) / currentTriangle->Denominator;
-        c = ((fy-ay)*currentTriangle->P1X - (fx-ax)*currentTriangle->P1Y) / currentTriangle->Denominator;
-        a = 1.0 - b - c;
-      
-        double v1 = a * A + b * B + c * C;
-      
-        A = *(scalars + nextTriangle->PointIndex[0]);
-        B = *(scalars + nextTriangle->PointIndex[1]);
-        C = *(scalars + nextTriangle->PointIndex[2]);
-      
+        double a2, b2, c2;
         ax = points[3*nextTriangle->PointIndex[0]];
         ay = points[3*nextTriangle->PointIndex[0]+1];
+        b2 = ((fx-ax)*nextTriangle->P2Y - (fy-ay)*nextTriangle->P2X) / nextTriangle->Denominator;
+        c2 = ((fy-ay)*nextTriangle->P1X - (fx-ax)*nextTriangle->P1Y) / nextTriangle->Denominator;
+        a2 = 1.0 - b2 - c2;
+
+        float newColor1[4] = {0.0,0.0,0.0,0.0};
+        float newColor2[4] = {0.0,0.0,0.0,0.0};
+        
+        float remainingOpacity = 1.0 - color[3];
+
+        int c;
+        for ( c = 0; c < numComponents; c++ )
+          {
+          double A, B, C;
+          A = *(scalars + numComponents*currentTriangle->PointIndex[0] + c);
+          B = *(scalars + numComponents*currentTriangle->PointIndex[1] + c);
+          C = *(scalars + numComponents*currentTriangle->PointIndex[2] + c);
+          double v = a1 * A + b1 * B + c1 * C;
       
-        b = ((fx-ax)*nextTriangle->P2Y - (fy-ay)*nextTriangle->P2X) / nextTriangle->Denominator;
-        c = ((fy-ay)*nextTriangle->P1X - (fx-ax)*nextTriangle->P1Y) / nextTriangle->Denominator;
-        a = 1.0 - b - c;
+          double *tmpptr = 
+            colorTable[c] +
+            4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
+          
+          float opacity = *(tmpptr+3) * dist/2.0;
+          float w =  remainingOpacity * opacity;
+          newColor1[0] += w * *(tmpptr);
+          newColor1[1] += w * *(tmpptr+1);
+          newColor1[2] += w * *(tmpptr+2);
+          newColor1[3] += opacity;
+          }
+
+        remainingOpacity *= (1.0 - newColor1[3]);
+        
+        for ( c = 0; c < numComponents; c++ )
+          {
+          double A, B, C;
+          A = *(scalars + numComponents*nextTriangle->PointIndex[0] + c);
+          B = *(scalars + numComponents*nextTriangle->PointIndex[1] + c);
+          C = *(scalars + numComponents*nextTriangle->PointIndex[2] + c);
+          double v = a2 * A + b2 * B + c2 * C;
       
-        double v2 = a * A + b * B + c * C;
+          double *tmpptr = 
+            colorTable[c] +
+            4 * (unsigned short)((v+colorTableShift[c])*colorTableScale[c]);
+          
+          float opacity = *(tmpptr+3) * dist / 2.0;
+          float w =  remainingOpacity * opacity;
+          newColor2[0] += w * *(tmpptr);
+          newColor2[1] += w * *(tmpptr+1);
+          newColor2[2] += w * *(tmpptr+2);
+          newColor2[3] += opacity;
+          }
 
-        double color1[4], color2[4];
-        double *tmpptr1 = 
-          colorTable[0] +
-          4 * (unsigned short)((v1+colorTableShift[0])*colorTableScale[0]); 
-        double *tmpptr2 = 
-          colorTable[0] +
-          4 * (unsigned short)((v2+colorTableShift[0])*colorTableScale[0]); 
-
-        double opacity1 = *(tmpptr1+3) * 0.5 * dist;
-        double opacity2 = *(tmpptr2+3) * 0.5 * dist;
-        
-        opacity1 = (opacity1 > 1.0)?(1.0):(opacity1);
-        opacity2 = (opacity2 > 1.0)?(1.0):(opacity2);
-
-        color1[3] = *(tmpptr1+3);
-        color1[0] = *(tmpptr1)   * opacity1;
-        color1[1] = *(tmpptr1+1) * opacity1;
-        color1[2] = *(tmpptr1+2) * opacity1;
-
-        color2[3] = *(tmpptr2+3);
-        color2[0] = *(tmpptr2)   * opacity2;
-        color2[1] = *(tmpptr2+1) * opacity2;
-        color2[2] = *(tmpptr2+2) * opacity2;
-
-        double newOpacity = color[3] + (1-color[3])*opacity1;
-        
-        color[0] += 
-          color1[0] * (1.0 - color[3]) +
-          color2[0] * (1.0 - newOpacity);
-        
-        color[1] += 
-          color1[1] * (1.0 - color[3]) +
-          color2[1] * (1.0 - newOpacity);
-        
-        color[2] += 
-          color1[2] * (1.0 - color[3]) +
-          color2[2] * (1.0 - newOpacity);
-        
-        color[3] = newOpacity + (1.0 - newOpacity)*opacity2;
+        color[0] += newColor1[0] + newColor2[0];
+        color[1] += newColor1[1] + newColor2[1];
+        color[2] += newColor1[2] + newColor2[2];
+        color[3] = 1.0 - remainingOpacity * (1.0 - newColor2[3]);
         
         // The far triangle has one or two tetras in its referred list.
         // If one, return -1 for next tetra and NULL for next triangle 
@@ -1285,9 +1292,10 @@ void vtkUnstructuredGridBunykRayCastFunction::CastRay( int x, int y, double boun
   
   switch ( this->ScalarType )
     {
-    vtkTemplateMacro6( vtkUnstructuredGridBunykRayCastFunctionCastRay,
+    vtkTemplateMacro7( vtkUnstructuredGridBunykRayCastFunctionCastRay,
                       (VTK_TT *)this->Scalars, this,
-                      x, y, bounds, color );
+                       this->NumberOfComponents,
+                       x, y, bounds, color );
     }
   
 }

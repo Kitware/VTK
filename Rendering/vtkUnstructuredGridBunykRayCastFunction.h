@@ -166,6 +166,7 @@ protected:
   vtkUnstructuredGridVolumeRayCastMapper  *Mapper;
   void                                    *Scalars;
   int                                      ScalarType;
+  int                                      NumberOfComponents;
   
   // Computed during the initialize method - if something is
   // wrong (no mapper, no volume, no input, etc.) then no rendering
