@@ -92,7 +92,7 @@ protected:
   vtkPropPicker();
   ~vtkPropPicker();
   vtkPropPicker(const vtkPropPicker&);
-  void operator=(vtkPropPicker&);
+  void operator=(const vtkPropPicker&);
 
   void Initialize();
   
