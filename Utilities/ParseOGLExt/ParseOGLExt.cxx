@@ -747,13 +747,15 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
 
 int main(int argc, char **argv)
 {
-  if (argc < 2)
+  if (argc < 3)
     {
-    cerr << "USAGE: " << argv[0] << " <header files>" << endl;
+    cerr << "USAGE: " << argv[0] << "<output dir> <header files>" << endl;
     return 1;
     }
 
-  for (int i = 1; i < argc; i++)
+  vtkstd::string outputDir = argv[1];
+
+  for (int i = 2; i < argc; i++)
     {
 #ifdef DEBUG_PARSE
     cerr << "*** Parsing declarations from file " << argv[i] << endl;
@@ -774,9 +776,9 @@ int main(int argc, char **argv)
     file.close();
     }
 
-  ofstream hfile("vtkgl.h");
+  ofstream hfile((outputDir + "/vtkgl.h").c_str());
   WriteHeader(hfile, argv[0], argv+1, argc-1);
-  ofstream cxxfile("vtkgl.cxx");
+  ofstream cxxfile((outputDir + "/vtkgl.cxx").c_str());
   WriteHeader(cxxfile, argv[0], argv+1, argc-1);
 
   WriteCode(hfile, cxxfile);
