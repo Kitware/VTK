@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkParametricFunctionSource.h"
+#include "vtkParametricFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
@@ -22,35 +23,50 @@
 #include "vtkPointData.h"
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.4");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.5");
+vtkStandardNewMacro(vtkParametricFunctionSource);
+
 
 vtkParametricFunctionSource::vtkParametricFunctionSource() :
-  NumberOfUPoints(0)
-  , NumberOfVPoints(0)
-  , MinimumU(0)
-  , MaximumU(0)
-  , MinimumV(0)
-  , MaximumV(0)
-  , JoinUTessellation(0)
-  , JoinVTessellation(0)
-  , TwistUTessellation(0)
-  , TwistVTessellation(0)
-  , ClockwiseOrdering(1)
-  , DerivativesSupplied(1)
+  NumberOfUPoints(50)
+  , NumberOfVPoints(50)
+  , NumberOfWPoints(50)
   , ScalarMode(vtkParametricFunctionSource::SCALAR_NONE)
-{}
+  , ParametricFunction(NULL)
+{
+  this->SetNumberOfInputPorts(0);
+}
 
 
 vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
 }
 
+void vtkParametricFunctionSource::SetParametricFunction(vtkParametricFunction *f)
+{
+  if ( f != this->ParametricFunction )
+    {
+    if ( this->ParametricFunction != NULL )
+      {
+      this->ParametricFunction->UnRegister(this);
+      }
+    this->ParametricFunction = f;
+    if ( this->ParametricFunction != NULL )
+      {
+      this->ParametricFunction->Register(this);
+      }
+    this->Modified();
+    }
+}
+
 void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips, 
-                                                 int PtsU, int PtsV )
+                                                       int PtsU, int PtsV )
 {
   int id1;
   int id2;
@@ -60,7 +76,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
   for ( int i = 0; i < PtsU - 1; ++i )
     {
     // Allocate space
-    if ( this->JoinVTessellation )
+    if ( this->ParametricFunction->GetJoinV() )
       {
       strips->InsertNextCell( PtsV * 2 + 2 );
       }
@@ -74,7 +90,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
       {
       id1 = j + i * PtsV;
       id2 = (i + 1 ) * PtsV + j;
-      if ( this->ClockwiseOrdering )
+      if ( this->ParametricFunction->GetClockwiseOrdering() )
         { 
         strips->InsertCellPoint(id1);
         strips->InsertCellPoint(id2); 
@@ -86,9 +102,9 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
         }
       }
     // If necessary, connect the ends of the triangle strip.
-    if ( this->JoinVTessellation )
+    if ( this->ParametricFunction->GetJoinV() )
       {
-      if ( this->TwistVTessellation )
+      if ( this->ParametricFunction->GetTwistV() )
         {
         id1 = (i + 1) * PtsV;
         id2 = i * PtsV;
@@ -98,7 +114,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
         id1 = i * PtsV;
         id2 = (i + 1) * PtsV;
         }
-      if ( this->ClockwiseOrdering )
+      if ( this->ParametricFunction->GetClockwiseOrdering() )
         { 
         strips->InsertCellPoint(id1);
         strips->InsertCellPoint(id2); 
@@ -113,9 +129,9 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
   // If required, connect the last triangle strip to the first by 
   // adding a new triangle strip and filling it with the indexes
   // to the points.
-  if ( this->JoinUTessellation )
+  if ( this->ParametricFunction->GetJoinU() )
     {
-    if ( this->JoinVTessellation )
+    if ( this->ParametricFunction->GetJoinV() )
       {
       strips->InsertNextCell( PtsV * 2 + 2 );
       }
@@ -125,7 +141,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
       }
     for ( int j = 0; j < PtsV; ++j )
       {
-      if ( this->TwistUTessellation )
+      if ( this->ParametricFunction->GetTwistU() )
         {
         id1 = ( PtsU - 1 ) * PtsV + j;
         id2 = PtsV - 1 - j;
@@ -135,7 +151,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
         id1 = ( PtsU - 1 ) * PtsV + j;
         id2 = j;
         }
-      if ( this->ClockwiseOrdering )
+      if ( this->ParametricFunction->GetClockwiseOrdering() )
         { 
         strips->InsertCellPoint(id1);
         strips->InsertCellPoint(id2); 
@@ -148,11 +164,11 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
       }
 
     // If necessary, connect the ends of the triangle strip.
-    if ( this->JoinVTessellation )
+    if ( this->ParametricFunction->GetJoinV() )
       {
-      if ( this->TwistUTessellation )
+      if ( this->ParametricFunction->GetTwistU() )
         {
-        if ( this->TwistVTessellation )
+        if ( this->ParametricFunction->GetTwistV() )
           {
           id1 = PtsV - 1;
           id2 = ( PtsU - 1 ) * PtsV;
@@ -165,7 +181,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
         }
       else
         {
-        if ( this->TwistVTessellation )
+        if ( this->ParametricFunction->GetTwistV() )
           {
           id1 = 0;
           id2 = ( PtsU - 1 ) * PtsV;
@@ -176,7 +192,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
           id2 = 0;
           }
         }
-      if ( this->ClockwiseOrdering )
+      if ( this->ParametricFunction->GetClockwiseOrdering() )
         { 
         strips->InsertCellPoint(id1);
         strips->InsertCellPoint(id2); 
@@ -191,103 +207,31 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
   vtkDebugMacro(<< "MakeTriangleStrips() finished.");
 }
 
-void vtkParametricFunctionSource::SetScalarModeToNone( void )
+int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
+                                             vtkInformationVector **vtkNotUsed(inputV),
+                                             vtkInformationVector *output)
 {
-   this->ScalarMode = SCALAR_NONE;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToU( void )
-{
-   this->ScalarMode = SCALAR_U;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToV( void )
-{
-   this->ScalarMode = SCALAR_V;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToU0( void )
-{
-   this->ScalarMode = SCALAR_U0;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToV0( void )
-{
-   this->ScalarMode = SCALAR_V0;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToU0V0( void )
-{
-   this->ScalarMode = SCALAR_U0V0;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToModulus( void )
-{
-   this->ScalarMode = SCALAR_MODULUS;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToPhase( void )
-{
-   this->ScalarMode = SCALAR_PHASE;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToQuadrant( void )
-{
-   this->ScalarMode = SCALAR_QUADRANT;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToX( void )
-{
-   this->ScalarMode = SCALAR_X;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToY( void )
-{
-   this->ScalarMode = SCALAR_Y; 
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToZ( void )
-{
-   this->ScalarMode = SCALAR_Z;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToDistance( void )
-{
-   this->ScalarMode = SCALAR_DISTANCE;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::SetScalarModeToUserDefined( void )
-{
-   this->ScalarMode = SCALAR_USER_DEFINED;
-   this->Modified();
-}
-
-void vtkParametricFunctionSource::Execute()
-{
-  vtkDebugMacro(<< "Execute - started constructing the surface.");
+  vtkDebugMacro(<< "Executing");
+  
+  // Check that a parametric function has been defined
+  if ( !this->ParametricFunction )
+    {
+    vtkErrorMacro(<<"Parametric function not defined");
+    return 1;
+    }
+  
+  // Used to hold the surface
   vtkPolyData * pd = vtkPolyData::New();
-  vtkMath * math = vtkMath::New();
 
-  // Adjust so the range this->MinimumU ... this->MaximumU, this->MinimumV
-  // ... this->MaximumV is included in the triangulation.
-  double MaxU = this->MaximumU + 
-    (this->MaximumU - this->MinimumU)/this->NumberOfUPoints;
+  // Adjust so the range this->MinimumU ... this->ParametricFunction->GetMaximumU(), this->MinimumV
+  // ... this->ParametricFunction->GetMaximumV() is included in the triangulation.
+  double MaxU = this->ParametricFunction->GetMaximumU() + 
+    (this->ParametricFunction->GetMaximumU() - this->ParametricFunction->GetMinimumU()) /
+    this->NumberOfUPoints;
   int PtsU = this->NumberOfUPoints + 1;
-  double MaxV = this->MaximumV + 
-    (this->MaximumV - this->MinimumV)/this->NumberOfVPoints;
+  double MaxV = this->ParametricFunction->GetMaximumV() + 
+    (this->ParametricFunction->GetMaximumV() - this->ParametricFunction->GetMinimumV()) / 
+    this->NumberOfVPoints;
   int PtsV = this->NumberOfVPoints + 1;
   int totPts = PtsU * PtsV;
 
@@ -303,18 +247,18 @@ void vtkParametricFunctionSource::Execute()
   vtkPoints * points = vtkPoints::New();
   points->SetNumberOfPoints( totPts );
 
-  double uStep = ( MaxU - this->MinimumU ) / PtsU;
-  double vStep = ( MaxV - this->MinimumV ) / PtsV;
+  double uStep = ( MaxU - this->ParametricFunction->GetMinimumU() ) / PtsU;
+  double vStep = ( MaxV - this->ParametricFunction->GetMinimumV() ) / PtsV;
 
   // Find the mid points of the (u,v) map.
-  double u0 = this->MinimumU;
+  double u0 = this->ParametricFunction->GetMinimumU();
   double u_mp = (MaxU - u0)/2.0 + u0 - uStep;
   while ( u0 < u_mp ) 
     {
     u0 += uStep;
     }
   
-  double v0 = this->MinimumV;
+  double v0 = this->ParametricFunction->GetMinimumV();
   double v_mp = (MaxV - v0)/2.0 + v0 - vStep;
   while ( v0 < v_mp )  
     {
@@ -330,94 +274,99 @@ void vtkParametricFunctionSource::Execute()
   double rel_v = 0; // will be v - v_mp
 
   int k = 0;
-  double u = this->MinimumU - uStep;
+  double uv[3];
+  uv[0] = this->ParametricFunction->GetMinimumU() - uStep;
 
   for ( int i = 0; i < PtsU; ++i )
     {
-    u += uStep;
-    double v = this->MinimumV - vStep;
+    uv[0] += uStep;
+    uv[1] = this->ParametricFunction->GetMinimumV() - vStep;
 
     for ( int j = 0; j < PtsV; ++j )
       {
-      v += vStep;
+      uv[1] += vStep;
 
       // The point
       double Pt[3];
-      // Partial derivative at Pt with respect to u.
-      double Du[3];
+      // Partial derivative at Pt with respect to u,v,w.
+      double Du[9];
       // Partial derivative at Pt with respect to v.
-      double Dv[3];
+      double *Dv = Du+3;
 
-      // Calculate fn(u,v)->(Pt,Du,Dv).
-      this->Evaluate(u,v,Pt,Du,Dv);
-
-      double scalar;
+      // Calculate fn(u)->(Pt,Du).
+      this->ParametricFunction->Evaluate(uv,Pt,Du);
 
       // Insert the points and scalar.
       points->InsertPoint(k, Pt[0], Pt[1], Pt[2]);
+      double scalar;
 
       if ( this->ScalarMode != SCALAR_NONE )
         {
         switch ( this->ScalarMode )
           {
           case SCALAR_U:
-            scalar = u;
+            scalar = uv[0];
             break;
           case SCALAR_V:
-            scalar = v;
+            scalar = uv[1];
             break;
           case SCALAR_U0:
-            scalar = u==u0?1:0;
+            scalar = uv[0] == u0 ? 1 : 0;
             break;
           case SCALAR_V0:
-            scalar = v==v0?1:0;
+            scalar = uv[1] == v0 ? 1 : 0;
             break;
           case SCALAR_U0V0:
             scalar = 0;
             // u0, v0
-            if ( u==u0 && v==v0 ) 
+            if ( uv[0] == u0 && uv[1] == v0 ) 
+              {
               scalar = 3;
+              }
             else
               {
               // u0 line
-              if ( u==u0 ) 
+              if ( uv[0] == u0 ) 
                 {
                 scalar = 1;
                 }
               else 
                 {
                 // v0 line
-                if ( v==v0 ) scalar = 2;
+                if ( uv[1] == v0 ) scalar = 2;
                 }
               }
             break;
           case SCALAR_MODULUS:
-            rel_u = u - u_mp;
-            rel_v = v - v_mp;
+            rel_u = uv[0] - u_mp;
+            rel_v = uv[1] - v_mp;
             scalar = sqrt(rel_u * rel_u + rel_v * rel_v);
             break;
           case SCALAR_PHASE:
-            rel_u = u - u_mp;
-            rel_v = v - v_mp;
-            scalar = math->RadiansToDegrees() * atan2(rel_v,rel_u);
-            if ( scalar < 0 )
-              scalar += 360;
+            rel_u = uv[0] - u_mp;
+            rel_v = uv[1] - v_mp;
+            scalar = vtkMath::RadiansToDegrees() * atan2(rel_v,rel_u);
+            if ( scalar < 0 ) scalar += 360;
             break;
           case SCALAR_QUADRANT:
-            if ( u>=u0 && v>=v0 )
+            if ( uv[0] >= u0 && uv[1] >= v0 )
               {
               scalar = 1;
               break;
               }
-            if ( u<u0 && v>=v0 ) 
+            if ( uv[0] < u0 && uv[1] >= v0 ) 
               {
               scalar = 2;
               break;
               }
-            if ( u<u0 && v<v0 ) 
+            if ( uv[0] < u0 && uv[1] < v0 ) 
+              {
               scalar = 3;
+              }
             else 
+              {
               scalar = 4;
+              }
             break;
           case SCALAR_X:
             scalar = Pt[0];
@@ -431,8 +380,8 @@ void vtkParametricFunctionSource::Execute()
           case SCALAR_DISTANCE:
             scalar = sqrt(Pt[0]*Pt[0] + Pt[1]*Pt[1] + Pt[2]*Pt[2]);
             break;
-          case SCALAR_USER_DEFINED:
-            scalar = this->EvaluateScalar(u, v, Pt, Du, Dv);
+          case SCALAR_FUNCTION_DEFINED:
+            scalar = this->ParametricFunction->EvaluateScalar(uv, Pt, Du);
             break;
           case SCALAR_NONE:
           default:
@@ -442,11 +391,11 @@ void vtkParametricFunctionSource::Execute()
         }
 
       // Calculate the normal.
-      if ( this->DerivativesSupplied )
+      if ( this->ParametricFunction->GetDerivativesAvailable() )
         {
         double n[3];
-        math->Cross(Du,Dv,n);
-        math->Normalize(n);
+        vtkMath::Cross(Du,Dv,n);
+        vtkMath::Normalize(n);
         nval->SetTuple3(k, n[0], n[1], n[2]);
         }
 
@@ -467,7 +416,7 @@ void vtkParametricFunctionSource::Execute()
     pd->GetPointData()->SetScalars( sval );
     }
 
-  if ( this->DerivativesSupplied )
+  if ( this->ParametricFunction->GetDerivativesAvailable() )
     {
     pd->GetPointData()->SetNormals( nval );
     }
@@ -475,7 +424,7 @@ void vtkParametricFunctionSource::Execute()
 
   vtkTriangleFilter * tri = vtkTriangleFilter::New();
   vtkPolyDataNormals * norm = vtkPolyDataNormals::New();
-  if ( this->DerivativesSupplied )
+  if ( this->ParametricFunction->GetDerivativesAvailable() )
     {
     //Generate polygons from the triangle strips
     tri->SetInput(pd);
@@ -491,10 +440,11 @@ void vtkParametricFunctionSource::Execute()
   tri->PassVertsOff();
   tri->Update();
 
-  this->GetOutput()->DeepCopy(tri->GetOutput());
+  vtkInformation *outInfo = output->GetInformationObject(0);
+  vtkPolyData *outData = static_cast<vtkPolyData*>(outInfo->Get( vtkDataObject::DATA_OBJECT() ));
+  outData->DeepCopy(tri->GetOutput());
 
   // Were done, clean up.
-  math->Delete();
   points->Delete();
   sval->Delete();
   nval->Delete();
@@ -503,12 +453,10 @@ void vtkParametricFunctionSource::Execute()
   tri->Delete();
   norm->Delete();
 
-  vtkDebugMacro(<< "Execute - finished constructing the surface.");
-  //vtkPolyData *output = this->GetOutput();
-
-  //ConstructSurface( output );
+  return 1;
 }
 
+/*
 void vtkParametricFunctionSource::GetAllParametricTriangulatorParameters (
   int & numberOfUPoints,
   int & numberOfVPoints,
@@ -516,24 +464,24 @@ void vtkParametricFunctionSource::GetAllParametricTriangulatorParameters (
   double & maximumU,
   double & minimumV,
   double & maximumV,
-  int & joinUTessellation,
-  int & joinVTessellation,
-  int & twistUTessellation,
-  int & twistVTessellation,
+  int & joinU,
+  int & joinV,
+  int & twistU,
+  int & twistV,
   int & clockwiseOrdering,
   int & scalarMode)
 {
   numberOfUPoints = this->NumberOfUPoints;
   numberOfVPoints = this->NumberOfVPoints;
   minimumU = this->MinimumU;
-  maximumU = this->MaximumU;
-  minimumV = this->MinimumV;
-  maximumV = this->MaximumV;
-  joinUTessellation = this->JoinUTessellation;
-  joinVTessellation = this->JoinVTessellation;
-  twistUTessellation = this->TwistUTessellation;
-  twistVTessellation = this->TwistVTessellation;
-  clockwiseOrdering = this->ClockwiseOrdering;
+  maximumU = this->ParametricFunction->GetMaximumU();
+  minimumV = this->ParametricFunction->GetMinimumV();
+  maximumV = this->ParametricFunction->GetMaximumV();
+  joinU = this->ParametricFunction->GetJoinU();
+  joinV = this->ParametricFunction->GetJoinV;
+  twistU = this->ParametricFunction->GetTwistU();
+  twistV = this->ParametricFunction->GetTwistV();
+  clockwiseOrdering = this->ParametricFunction->GetClockwiseOrdering();
   scalarMode = this->ScalarMode;
 }
 
@@ -544,24 +492,24 @@ void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
   double maximumU,
   double minimumV,
   double maximumV,
-  int joinUTessellation,
-  int joinVTessellation,
-  int twistUTessellation,
-  int twistVTessellation,
-  int clockwiseOrdering,
+  int joinU,
+  int joinV,
+  int twistU,
+  int twistV,
+  int ParametricFunction->GetclockwiseOrdering(),
   int scalarMode)
 {
   this->NumberOfUPoints = numberOfUPoints;
   this->NumberOfVPoints = numberOfVPoints;
-  this->MinimumU = minimumU;
-  this->MaximumU = maximumU;
-  this->MinimumV = minimumV;
-  this->MaximumV = maximumV;
-  this->JoinUTessellation = joinUTessellation;
-  this->JoinVTessellation = joinVTessellation;
-  this->TwistUTessellation = twistUTessellation;
-  this->TwistVTessellation = twistVTessellation;
-  this->ClockwiseOrdering = clockwiseOrdering;
+  this->ParametricFunction->SetMinimumU( minimumU );
+  this->ParametricFunction->SetMaximumU( maximumU );
+  this->ParametricFunction->SetMinimumV( minimumV );
+  this->ParametricFunction->SetMaximumV( maximumV );
+  this->ParametricFunction->SetJoinU( joinU );
+  this->ParametricFunction->SetJoinV( joinV );
+  this->ParametricFunction->SetTwistU( twistU );
+  this->ParametricFunction->SetTwistV( twistV );
+  this->ParametricFunction->SetClockwiseOrdering( clockwiseOrdering );
   this->ScalarMode = scalarMode;
   if ( ScalarMode < SCALAR_NONE || ScalarMode > SCALAR_USER_DEFINED )
     {
@@ -569,7 +517,7 @@ void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
     }
   this->Modified();
 }
-
+*/
 
 void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -577,16 +525,8 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "NumberOfUPoints: " << this->NumberOfUPoints << "\n";
   os << indent << "NumberOfVPoints: " << this->NumberOfVPoints << "\n";
-  os << indent << "MinimumU: " << this->MinimumU << "\n";
-  os << indent << "MaximumU: " << this->MaximumU << "\n";
-  os << indent << "MinimumV: " << this->MinimumV << "\n";
-  os << indent << "MaximumV: " << this->MaximumV << "\n";
-  os << indent << "JoinUTessellation: " << this->JoinUTessellation << "\n";
-  os << indent << "JoinVTessellation: " << this->JoinVTessellation << "\n";
-  os << indent << "TwistUTessellation: " << this->TwistUTessellation << "\n";
-  os << indent << "TwistVTessellation: " << this->TwistVTessellation << "\n";
-  os << indent << "ClockwiseOrdering: " << this->ClockwiseOrdering << "\n";
-  os << indent << "Derivatives Supplied: " << this->DerivativesSupplied << "\n";
+  os << indent << "NumberOfWPoints: " << this->NumberOfWPoints << "\n";
+
   vtkstd::string s;
   switch ( this->ScalarMode )
   {
@@ -629,8 +569,8 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
   case SCALAR_DISTANCE:
     s = "SCALAR_DISTANCE";
     break;
-  case SCALAR_USER_DEFINED:
-    s = "SCALAR_USER_DEFINED";
+  case SCALAR_FUNCTION_DEFINED:
+    s = "SCALAR_FUNCTION_DEFINED";
     break;
   default:
     s = "Unknown scalar mode.";

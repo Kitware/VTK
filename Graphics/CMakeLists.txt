@@ -188,7 +188,6 @@ vtkApproximatingSubdivisionFilter
 vtkButtonSource
 vtkDicer
 vtkInterpolatingSubdivisionFilter
-vtkParametricFunctionSource
 vtkStreamer
 ABSTRACT
 )
