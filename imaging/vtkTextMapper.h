@@ -187,8 +187,8 @@ protected:
   int   Justification;
   int   VerticalJustification;
   vtkTimeStamp FontMTime;
-  
   // these functions are used to parse, process, and render multiple lines 
+  int LineSize;
   float LineOffset;
   float LineSpacing;
   int  NumberOfLines;

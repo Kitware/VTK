@@ -78,7 +78,7 @@ void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
     size[1] = this->LastSize[1];
     return;
     }
-  
+
   // Check for input
   if (this->Input == NULL) 
     {
@@ -197,7 +197,7 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedLocalDisplayValue(viewport);
   ptDestOff.x = actorPos[0];
-  ptDestOff.y = actorPos[1] - (this->LineOffset * this->LineSpacing * size[1]);
+  ptDestOff.y = actorPos[1] - this->LineOffset;
 
   // Set up the font color from the text actor
   unsigned char red = 0;

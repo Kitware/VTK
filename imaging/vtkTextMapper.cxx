@@ -67,7 +67,7 @@ vtkTextMapper::vtkTextMapper()
   this->NumberOfLines = 0;
   this->NumberOfLinesAllocated = 0;
   this->LineOffset = 0.0;
-  this->LineSpacing = 0.9;
+  this->LineSpacing = 1.0;
 }
 
 vtkTextMapper *vtkTextMapper::New()
@@ -297,14 +297,18 @@ void vtkTextMapper::GetMultiLineSize(vtkViewport* viewport, int size[2])
     }
   
   // add in the line spacing
-  size[1] += this->NumberOfLines * this->LineSpacing * size[1];
+  this->LineSize = size[1];
+  size[1] = this->NumberOfLines* this->LineSpacing * size[1];
 }
 
 void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport, 
                                                vtkActor2D *actor)    
 {
   float offset;
-
+  int size[2];
+  // make sure LineSize is up to date 
+  this->GetMultiLineSize(viewport,size);
+  
   switch (this->VerticalJustification)
     {
     case VTK_TEXT_TOP:
@@ -326,7 +330,7 @@ void vtkTextMapper::RenderOverlayMultipleLines(vtkViewport *viewport,
     this->TextLines[lineNum]->SetFontSize(this->FontSize);
     this->TextLines[lineNum]->SetFontFamily(this->FontFamily);
     this->TextLines[lineNum]->SetJustification(this->Justification);
-    this->TextLines[lineNum]->SetLineOffset((float)lineNum+offset);
+    this->TextLines[lineNum]->SetLineOffset(this->LineSize*(lineNum+offset));
     this->TextLines[lineNum]->SetLineSpacing(this->LineSpacing);
     this->TextLines[lineNum]->RenderOverlay(viewport,actor);
     }
@@ -336,6 +340,9 @@ void vtkTextMapper::RenderOpaqueGeometryMultipleLines(vtkViewport *viewport,
                                                       vtkActor2D *actor)    
 {
   float offset;
+  int size[2];
+  // make sure LineSize is up to date 
+  this->GetMultiLineSize(viewport,size);
 
   switch (this->VerticalJustification)
     {
@@ -358,7 +365,7 @@ void vtkTextMapper::RenderOpaqueGeometryMultipleLines(vtkViewport *viewport,
     this->TextLines[lineNum]->SetFontSize(this->FontSize);
     this->TextLines[lineNum]->SetFontFamily(this->FontFamily);
     this->TextLines[lineNum]->SetJustification(this->Justification);
-    this->TextLines[lineNum]->SetLineOffset((float)lineNum+offset);
+    this->TextLines[lineNum]->SetLineOffset(this->LineSize*(lineNum+offset));
     this->TextLines[lineNum]->SetLineSpacing(this->LineSpacing);
     this->TextLines[lineNum]->RenderOpaqueGeometry(viewport,actor);
     }

@@ -204,7 +204,7 @@ void vtkWin32OpenGLTextMapper::RenderOpaqueGeometry(vtkViewport* viewport,
   int* actorPos = 
     actor->GetPositionCoordinate()->GetComputedViewportValue(viewport);
   ptDestOff.x = actorPos[0];
-  ptDestOff.y = actorPos[1] - (this->LineOffset * this->LineSpacing * size[1]);
+  ptDestOff.y = actorPos[1] - this->LineOffset;
 
   // Set up the font color from the text actor
   unsigned char red = 0;
