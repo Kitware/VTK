@@ -58,7 +58,8 @@ protected:
   void WriteSlice(vtkImageData *data);
   unsigned int WriteToMemory;
   vtkUnsignedCharArray *Result;
-
+  FILE *TempFP;
+  
 private:
   vtkPNGWriter(const vtkPNGWriter&);  // Not implemented.
   void operator=(const vtkPNGWriter&);  // Not implemented.
