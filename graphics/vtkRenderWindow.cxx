@@ -293,7 +293,7 @@ void vtkRenderWindow::Render()
 	}
       else
 	{
-	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
 	}
       p3 = p2;
       for (y = 0; y < size[1]; y++)
@@ -500,7 +500,7 @@ void vtkRenderWindow::DoAARender()
 	  }
 	else
 	  {
-	  p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+	  p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
 	  }
 	p3 = p2;
 	for (y = 0; y < size[1]; y++)
@@ -608,7 +608,7 @@ void vtkRenderWindow::DoFDRender()
 	}
       else
 	{
-	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
 	}
       p3 = p2;
       for (y = 0; y < size[1]; y++)
@@ -828,7 +828,7 @@ void vtkRenderWindow::StereoMidpoint(void)
     // get the size
     size = this->GetSize();
     // get the data
-    this->StereoBuffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+    this->StereoBuffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
     }
 }
 
@@ -851,7 +851,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
       // get the size
       size = this->GetSize();
       // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
       p1 = this->StereoBuffer;
       p2 = buff;
 
@@ -897,7 +897,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
       // get the size
       size = this->GetSize();
       // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
       p1 = this->StereoBuffer;
       p2 = buff;
       line = size[0] * 3;
@@ -958,7 +958,7 @@ void vtkRenderWindow::CopyResultFrame(void)
 
     // get the size
     size = this->GetSize();
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,!this->DoubleBuffer);
     }
 
   this->Frame();
