@@ -25,8 +25,9 @@
 #include <sys/unistd.h>
 #elif defined(_WIN32)
 # include <io.h>
-# include "vtkWindows.h"
 #endif
+
+#include "vtkWindows.h" // for Sleep
 
 void otherTimerLogTest(ostream& strm)
 {
