@@ -225,7 +225,6 @@ IF(PYTHON_EXECUTABLE)
     FOREACH(file ${VTK_PYTHON_FILES})
       SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
       SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
-      MESSAGE("Add custom command")
       ADD_CUSTOM_COMMAND(SOURCE ${src}
 		         COMMAND ${CMAKE_COMMAND}
                          ARGS -E copy ${src} ${tgt}
