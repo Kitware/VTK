@@ -70,7 +70,7 @@ class vtkFloatScalars;
 class vtkShortScalars;
 class vtkLookupTable;
 
-class vtkScalars : public vtkRefCount 
+class VTK_EXPORT vtkScalars : public vtkRefCount 
 {
 public:
   vtkScalars();

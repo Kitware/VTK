@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageTwoOutputFilter.h"
 
-class vtkImageDuotone : public vtkImageTwoOutputFilter
+class VTK_EXPORT vtkImageDuotone : public vtkImageTwoOutputFilter
 {
 public:
   vtkImageDuotone();

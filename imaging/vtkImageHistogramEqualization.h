@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageHistogramEqualization : public vtkImageFilter
+class VTK_EXPORT vtkImageHistogramEqualization : public vtkImageFilter
 {
 public:
   vtkImageHistogramEqualization();

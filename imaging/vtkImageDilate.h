@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDecomposedFilter.h"
 #include "vtkImageDilate1D.h"
 
-class vtkImageDilate : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageDilate : public vtkImageDecomposedFilter
 {
 public:
   vtkImageDilate();

@@ -59,7 +59,7 @@ struct _vtkLink_s {
     int *cells;
 };
 
-class vtkLinkList : public vtkRefCount 
+class VTK_EXPORT vtkLinkList : public vtkRefCount 
 {
 public:
   vtkLinkList():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

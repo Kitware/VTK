@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkExporter.h"
 
-class vtkVRMLExporter : public vtkExporter
+class VTK_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
   vtkVRMLExporter();

@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatPoints.h"
 #include "vtkCellArray.h"
 
-class vtkSTLReader : public vtkPolySource 
+class VTK_EXPORT vtkSTLReader : public vtkPolySource 
 {
 public:
   vtkSTLReader();

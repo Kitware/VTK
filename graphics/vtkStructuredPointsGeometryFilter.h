@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class vtkStructuredPointsGeometryFilter : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkStructuredPointsGeometryFilter : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkStructuredPointsGeometryFilter();

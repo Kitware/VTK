@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolySource.h"
 #include "vtkShortArray.h"
 
-class vtkUGFacetReader : public vtkPolySource 
+class VTK_EXPORT vtkUGFacetReader : public vtkPolySource 
 {
 public:
   vtkUGFacetReader();

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.h"
 #include "vtkDataSet.h"
 
-class vtkDataSetToDataSetFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {
 
 public:

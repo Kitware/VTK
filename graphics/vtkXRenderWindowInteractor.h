@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <X11/StringDefs.h>
 #include <X11/Intrinsic.h>
 
-class vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
+class VTK_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   vtkXRenderWindowInteractor();

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkColorScalars.h"
 #include "vtkUnsignedCharArray.h"
 
-class vtkPixmap : public vtkColorScalars 
+class VTK_EXPORT vtkPixmap : public vtkColorScalars 
 {
 public:
   vtkPixmap() {};

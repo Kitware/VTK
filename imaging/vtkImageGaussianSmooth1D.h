@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageConvolution1D.h"
 
-class vtkImageGaussianSmooth1D : public vtkImageConvolution1D
+class VTK_EXPORT vtkImageGaussianSmooth1D : public vtkImageConvolution1D
 {
 public:
   vtkImageGaussianSmooth1D();

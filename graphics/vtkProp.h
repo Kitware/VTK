@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkRenderer;
 
-class vtkProp : public vtkObject
+class VTK_EXPORT vtkProp : public vtkObject
 {
  public:
   vtkProp();

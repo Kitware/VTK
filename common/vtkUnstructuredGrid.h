@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellList.h"
 #include "vtkLinkList.h"
 
-class vtkUnstructuredGrid : public vtkPointSet {
+class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
   vtkUnstructuredGrid();
   vtkUnstructuredGrid(const vtkUnstructuredGrid& up);

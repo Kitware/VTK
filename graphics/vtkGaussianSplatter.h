@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-class vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
+class VTK_EXPORT vtkGaussianSplatter : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkGaussianSplatter();

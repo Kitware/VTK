@@ -11,7 +11,7 @@
 #include "vtkRenderer.h"
 // #include "vtkNewVolumeCollection.h"
 
-class vtkNewVolumeRenderer : public vtkObject
+class VTK_EXPORT vtkNewVolumeRenderer : public vtkObject
 {
 public:
   vtkNewVolumeRenderer();

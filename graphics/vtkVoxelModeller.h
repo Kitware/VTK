@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-class vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
+class VTK_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkVoxelModeller();

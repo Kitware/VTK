@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyMapper.h"
 #include "vtkOutlineSource.h"
 
-class vtkRenderWindowInteractor : public vtkObject
+class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
 public:
   vtkRenderWindowInteractor();

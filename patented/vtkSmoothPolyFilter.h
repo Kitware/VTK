@@ -118,7 +118,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkSmoothPolyFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkSmoothPolyFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkSmoothPolyFilter();

@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSetToPointSetFilter.h"
 #include "vtkTransform.h"
 
-class vtkTransformFilter : public vtkPointSetToPointSetFilter
+class VTK_EXPORT vtkTransformFilter : public vtkPointSetToPointSetFilter
 {
 public:
   vtkTransformFilter() : Transform(NULL) {};

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImplicitFunction.h"
 
-class vtkPlane : public vtkImplicitFunction
+class VTK_EXPORT vtkPlane : public vtkImplicitFunction
 {
 public:
   vtkPlane();

@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkRobot2D.h"
 
-class vtkRobotGroup2D : public vtkRobot2D
+class VTK_EXPORT vtkRobotGroup2D : public vtkRobot2D
 {
 public:
   vtkRobotGroup2D();

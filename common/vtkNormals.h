@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkIdList;
 class vtkFloatNormals;
 
-class vtkNormals : public vtkRefCount 
+class VTK_EXPORT vtkNormals : public vtkRefCount 
 {
 public:
   vtkNormals() {};

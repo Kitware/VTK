@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkPolyWriter.h"
 #include "vtkNormals.h"
-class vtkMCubesWriter : public vtkPolyWriter
+class VTK_EXPORT vtkMCubesWriter : public vtkPolyWriter
 {
 
 public:

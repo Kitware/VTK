@@ -71,7 +71,7 @@ class vtkCellArray;
 class vtkPointLocator;
 class vtkPointData;
 
-class vtkCell : public vtkObject
+class VTK_EXPORT vtkCell : public vtkObject
 {
 public:
   vtkCell();

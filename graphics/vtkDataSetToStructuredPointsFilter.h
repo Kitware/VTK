@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkDataSetToStructuredPointsFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToStructuredPointsFilter : public vtkDataSetFilter
 {
 public:
   vtkDataSetToStructuredPointsFilter();

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPicker.h"
 
-class vtkPointPicker : public vtkPicker
+class VTK_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
   vtkPointPicker();

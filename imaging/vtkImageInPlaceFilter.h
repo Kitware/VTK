@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageCachedSource.h"
 
-class vtkImageInPlaceFilter : public vtkImageCachedSource
+class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageCachedSource
 {
 public:
   vtkImageInPlaceFilter();

@@ -21,7 +21,7 @@
 class vtkRenderer;
 class vtkVolumeMapper;
 
-class vtkVolume : public vtkProp
+class VTK_EXPORT vtkVolume : public vtkProp
 {
  public:
   vtkVolume();

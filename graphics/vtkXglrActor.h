@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkXglrRenderer;
 
-class vtkXglrActor : public vtkActorDevice
+class VTK_EXPORT vtkXglrActor : public vtkActorDevice
 {
 protected:
   

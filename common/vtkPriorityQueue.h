@@ -68,7 +68,7 @@ typedef struct _vtkPriorityItem
   int id;
   } vtkPriorityItem;
 
-class vtkPriorityQueue : public vtkObject
+class VTK_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
   vtkPriorityQueue();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include 	"vtkImageSource.h"
 #include 	"vtkImageRegion.h"
 
-class vtkImageViewer : public vtkObject {
+class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:
   vtkImageViewer();
   ~vtkImageViewer();

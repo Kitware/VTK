@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-class vtkUnstructuredGridFilter : public vtkFilter 
+class VTK_EXPORT vtkUnstructuredGridFilter : public vtkFilter 
 {
 public:
   char *GetClassName() {return "vtkUnstructuredGridFilter";};

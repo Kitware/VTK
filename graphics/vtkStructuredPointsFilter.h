@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkStructuredPointsFilter : public vtkFilter 
+class VTK_EXPORT vtkStructuredPointsFilter : public vtkFilter 
 {
 public:
   char *GetClassName() {return "vtkStructuredPointsFilter";};

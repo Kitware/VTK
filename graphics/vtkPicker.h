@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMapper.h"
 #include "vtkTransform.h"
 
-class vtkPicker : public vtkObject
+class VTK_EXPORT vtkPicker : public vtkObject
 {
 public:
   vtkPicker();

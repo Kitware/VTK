@@ -79,7 +79,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 class vtkPolyData;
 
-class vtkLocator : public vtkObject
+class VTK_EXPORT vtkLocator : public vtkObject
 {
 public:
   vtkLocator();

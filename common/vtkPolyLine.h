@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkFloatNormals.h"
 
-class vtkPolyLine : public vtkCell
+class VTK_EXPORT vtkPolyLine : public vtkCell
 {
 public:
   vtkPolyLine() {};

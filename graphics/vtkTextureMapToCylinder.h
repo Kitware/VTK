@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkTextureMapToCylinder : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTextureMapToCylinder();

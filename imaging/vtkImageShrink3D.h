@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageShrink3D : public vtkImageFilter
+class VTK_EXPORT vtkImageShrink3D : public vtkImageFilter
 {
 public:
   vtkImageShrink3D();

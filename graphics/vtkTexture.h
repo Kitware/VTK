@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkTextureDevice;
 
-class vtkTexture : public vtkObject
+class VTK_EXPORT vtkTexture : public vtkObject
 {
 public:
   vtkTexture();

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkRIBRenderer;
 
-class vtkRIBProperty : public vtkProperty
+class VTK_EXPORT vtkRIBProperty : public vtkProperty
 {
 public:
   vtkRIBProperty();

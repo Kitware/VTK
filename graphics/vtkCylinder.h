@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImplicitFunction.h"
 
-class vtkCylinder : public vtkImplicitFunction
+class VTK_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
   vtkCylinder();

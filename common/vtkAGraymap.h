@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkColorScalars.h"
 #include "vtkUnsignedCharArray.h"
 
-class vtkAGraymap : public vtkColorScalars 
+class VTK_EXPORT vtkAGraymap : public vtkColorScalars 
 {
 public:
   vtkAGraymap() {};

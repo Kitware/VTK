@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkMaskPolyData : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkMaskPolyData : public vtkPolyToPolyFilter
 {
 public:
   vtkMaskPolyData();

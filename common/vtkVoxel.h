@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCell.h"
 
-class vtkVoxel : public vtkCell
+class VTK_EXPORT vtkVoxel : public vtkCell
 {
 public:
   vtkVoxel() {};

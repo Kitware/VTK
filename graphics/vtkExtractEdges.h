@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkExtractEdges : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyFilter
 {
 public:
   vtkExtractEdges();

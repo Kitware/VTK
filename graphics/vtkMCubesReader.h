@@ -76,7 +76,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatPoints.h"
 #include "vtkCellArray.h"
 
-class vtkMCubesReader : public vtkPolySource 
+class VTK_EXPORT vtkMCubesReader : public vtkPolySource 
 {
 public:
   vtkMCubesReader();

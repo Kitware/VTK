@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkTextureMapToPlane : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkTextureMapToPlane : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTextureMapToPlane();

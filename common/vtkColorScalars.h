@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkAPixmap;
 
-class vtkColorScalars : public vtkScalars 
+class VTK_EXPORT vtkColorScalars : public vtkScalars 
 {
 public:
   vtkColorScalars() {};

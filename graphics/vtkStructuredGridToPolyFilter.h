@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGridFilter.h"
 #include "vtkPolyData.h"
 
-class vtkStructuredGridToPolyFilter : public vtkStructuredGridFilter
+class VTK_EXPORT vtkStructuredGridToPolyFilter : public vtkStructuredGridFilter
 {
 public:
   vtkStructuredGridToPolyFilter();

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 #include "vtkStructuredPoints.h"
 
-class vtkStructuredPointsCollection : public vtkCollection
+class VTK_EXPORT vtkStructuredPointsCollection : public vtkCollection
 {
 public:
   char *GetClassName() {return "vtkStructuredPointsCollection";};

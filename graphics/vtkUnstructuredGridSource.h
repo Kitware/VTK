@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkUnstructuredGrid.h"
 
-class vtkUnstructuredGridSource : public vtkSource
+class VTK_EXPORT vtkUnstructuredGridSource : public vtkSource
 {
 public:
   vtkUnstructuredGridSource();

@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkTransform.h"
 
-class vtkImplicitFunction : public vtkObject
+class VTK_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
   vtkImplicitFunction();

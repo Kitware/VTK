@@ -126,7 +126,7 @@ public:
 //ETX
 //
 
-class vtkStreamer : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyFilter
 {
 public:
   vtkStreamer();

@@ -50,6 +50,7 @@ void vtkSubPixelPositionEdgels::Execute()
   vtkPolyData *input=(vtkPolyData *)this->Input;
   int numPts=input->GetNumberOfPoints();
   vtkFloatPoints *newPts;
+  vtkFloatNormals *newNormals;
   vtkPoints *inPts;
   vtkVectors *inVectors;
   int ptId;
@@ -57,7 +58,7 @@ void vtkSubPixelPositionEdgels::Execute()
   float *MapData;
   float pnt[3];
   int *dimensions;
-  float result[3];
+  float result[3], resultNormal[3];
   float *aspect, *origin;
   
   vtkDebugMacro(<<"SubPixelPositioning Edgels");
@@ -69,7 +70,8 @@ void vtkSubPixelPositionEdgels::Execute()
     }
 
   newPts = new vtkFloatPoints;
-
+  newNormals = new vtkFloatNormals;
+  
   dimensions = this->GradMaps->GetDimensions();
   aspect = this->GradMaps->GetAspectRatio();
   origin = this->GradMaps->GetOrigin();
@@ -87,23 +89,29 @@ void vtkSubPixelPositionEdgels::Execute()
     pnt[2] = (pnt[2] - origin[2])/aspect[2];
     this->Move(dimensions[0],dimensions[1],dimensions[2],
 	       (int)(pnt[0]+0.5),(int)(pnt[1]+0.5),MapData,
-	       inVectors, result, (int)(pnt[2]+0.5), aspect);
+	       inVectors, result, (int)(pnt[2]+0.5), aspect,
+	       resultNormal);
     result[0] = result[0]*aspect[0] + origin[0];
     result[1] = result[1]*aspect[1] + origin[1];
     result[2] = result[2]*aspect[2] + origin[2];
     newPts->InsertNextPoint(result);
+    newNormals->InsertNextNormal(resultNormal);
     }
   
   output->CopyStructure(input);
+  output->GetPointData()->CopyNormalsOff();
   output->GetPointData()->PassData(input->GetPointData());
+  output->GetPointData()->SetNormals(newNormals);
   output->SetPoints(newPts);
   newPts->Delete();
+  newNormals->Delete();
 }
 
 void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
 				     int x, int y,
 				     float *img, vtkVectors *inVecs, 
-				     float *result, int z, float *aspect)
+				     float *result, int z, float *aspect,
+				     float *resultNormal)
 {
   int ypos, zpos;
   float vec[3];
@@ -112,77 +120,184 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
   float a,b,c,root;
   float xp, yp, zp;
   float xn, yn, zn;
-  int xi, yi, zi;
+  int xi, yi, zi, i;
   
   zpos = z*xdim*ydim;
 
   ypos = y*xdim;
-  if (x < 1 || y < 1 || z < 1 || 
-      x == (xdim-1) || y == (ydim -1) || z == (zdim -1))
+  
+  // handle the 2d case
+  if (zdim < 2)
     {
-    result[0] = x;
-    result[1] = y;
-    result[2] = z;
-    }
-  else 
-    {
-    // first get the orientation
-    inVecs->GetVector(x+ypos+zpos,vec);
-    vec[0] = vec[0]/aspect[0];
-    vec[1] = vec[1]/aspect[1];
-    vec[2] = vec[2]/aspect[2];
-    vtkMath::Normalize(vec);
-    mag = img[x+ypos+zpos];
-    
-    // compute the sample points
-    xp = (float)x + vec[0];
-    yp = (float)y + vec[1];
-    zp = (float)z + vec[2];
-    xn = (float)x - vec[0];
-    yn = (float)y - vec[1];
-    zn = (float)z - vec[2];
-
-    // compute their values
-    xi = (int)xp;
-    yi = (int)yp;
-    zi = (int)zp;
-    valp = 
-      img[xi + xdim*(yi + zi*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
-      img[1 + xi + xdim*(yi + zi*ydim)]*(xp -xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
-      img[xi + xdim*(yi +1 + zi*ydim)]*(1.0 -xp +xi)*(yp -yi)*(1.0 -zp +zi) +
-      img[1 + xi + xdim*(yi +1 +zi*ydim)]*(xp -xi)*(yp -yi)*(1.0 -zp +zi) +
-      img[xi + xdim*(yi + (zi+1)*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(zp -zi) +
-      img[1 + xi + xdim*(yi + (zi+1)*ydim)]*(xp -xi)*(1.0 -yp +yi)*(zp -zi) +
-      img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xp +xi)*(yp -yi)*(zp -zi) +
-      img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xp -xi)*(yp -yi)*(zp -zi);
-    
-    xi = (int)xn;
-    yi = (int)yn;
-    zi = (int)zn;
-    valn = 
-      img[xi + xdim*(yi + zi*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
-      img[1 + xi + xdim*(yi + zi*ydim)]*(xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
-      img[xi + xdim*(yi +1 + zi*ydim)]*(1.0 -xn +xi)*(yn -yi)*(1.0 -zn +zi) +
-      img[1 + xi + xdim*(yi +1 +zi*ydim)]*(xn -xi)*(yn -yi)*(1.0 -zn +zi) +
-      img[xi + xdim*(yi + (zi+1)*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
-      img[1 + xi + xdim*(yi + (zi+1)*ydim)]*(xn -xi)*(1.0 -yn +yi)*(zn -zi) +
-      img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xn +xi)*(yn -yi)*(zn -zi) +
-      img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xn -xi)*(yn -yi)*(zn -zi);
+    if (x < 1 || y < 1 || x == (xdim-1) || y == (ydim -1))
+      {
+      result[0] = x;
+      result[1] = y;
+      result[2] = z;
+      }
+    else 
+      {
+      // first get the orientation
+      inVecs->GetVector(x+ypos,vec);
+      vec[0] = vec[0]*aspect[0];
+      vec[1] = vec[1]*aspect[1];
+      vec[2] = 0;
+      vtkMath::Normalize(vec);
+      mag = img[x+ypos];
       
-    result[0] = x;
-    result[1] = y;
-    result[2] = z;
-
-    // now fit to a parabola and find max
-    c = mag;
-    b = (valp - valn)/2.0;
-    a = (valp - c - b);
-    root = -0.5*b/a;
-    if (root > 1.0) root = 1.0;
-    if (root < -1.0) root = -1.0;
-    result[0] += vec[0]*root;
-    result[1] += vec[1]*root;
-    result[2] += vec[2]*root;
+      // compute the sample points
+      xp = (float)x + vec[0];
+      yp = (float)y + vec[1];
+      xn = (float)x - vec[0];
+      yn = (float)y - vec[1];
+      
+      // compute their values
+      xi = (int)xp;
+      yi = (int)yp;
+      valp = 
+	img[xi +xdim*yi]*(1.0 -xp +xi)*(1.0 -yp +yi) +
+	img[1 +xi + xdim*yi]*(xp -xi)*(1.0 -yp +yi) +
+	img[xi +xdim*(yi +1)]*(1.0 -xp +xi)*(yp -yi) +
+	img[1 + xi + xdim*(yi +1)]*(xp -xi)*(yp -yi);
+      
+      xi = (int)xn;
+      yi = (int)yn;
+      valn = 
+	img[xi +xdim*yi]*(1.0 -xn +xi)*(1.0 -yn +yi) +
+	img[1 + xi +xdim*yi]*(xn -xi)*(1.0 -yn +yi) +
+	img[xi + xdim*(yi +1)]*(1.0 -xn +xi)*(yn -yi) +
+	img[1 + xi + xdim*(yi +1)]*(xn -xi)*(yn -yi);
+      
+      result[0] = x;
+      result[1] = y;
+      result[2] = z;
+      
+      // now fit to a parabola and find max
+      c = mag;
+      b = (valp - valn)/2.0;
+      a = (valp - c - b);
+      root = -0.5*b/a;
+      if (root > 1.0) root = 1.0;
+      if (root < -1.0) root = -1.0;
+      result[0] += vec[0]*root;
+      result[1] += vec[1]*root;
+      
+      // now calc the normal, trilinear interp of vectors
+      xi = (int)result[0];
+      yi = (int)result[1];
+      zi = (int)result[2];
+      xn = result[0];
+      yn = result[1];
+      zn = result[2];
+      for (i = 0; i < 3; i++)
+	{
+	resultNormal[i] = 
+	  inVecs->GetVector(xi + xdim*yi)[i] * (1.0 -xn +xi)*(1.0 -yn +yi) +
+	  inVecs->GetVector(1 + xi + xdim*yi)[i] * (xn -xi)*(1.0 -yn +yi) +
+	  inVecs->GetVector(xi + xdim*(yi +1))[i] * (1.0 -xn +xi)*(yn -yi) +
+	  inVecs->GetVector(1 + xi + xdim*(yi +1))[i] * (xn -xi)*(yn -yi);
+	}
+      vtkMath::Normalize(resultNormal);
+      }
+    }
+  else
+    {
+    if (x < 1 || y < 1 || z < 1 || 
+	x == (xdim-1) || y == (ydim -1) || z == (zdim -1))
+      {
+      result[0] = x;
+      result[1] = y;
+      result[2] = z;
+      }
+    else 
+      {
+      // first get the orientation
+      inVecs->GetVector(x+ypos+zpos,vec);
+      vec[0] = vec[0]*aspect[0];
+      vec[1] = vec[1]*aspect[1];
+      vec[2] = vec[2]*aspect[2];
+      vtkMath::Normalize(vec);
+      mag = img[x+ypos+zpos];
+      
+      // compute the sample points
+      xp = (float)x + vec[0];
+      yp = (float)y + vec[1];
+      zp = (float)z + vec[2];
+      xn = (float)x - vec[0];
+      yn = (float)y - vec[1];
+      zn = (float)z - vec[2];
+      
+      // compute their values
+      xi = (int)xp;
+      yi = (int)yp;
+      zi = (int)zp;
+      valp = 
+	img[xi +xdim*(yi +zi*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
+	img[1 +xi + xdim*(yi + zi*ydim)]*(xp -xi)*(1.0 -yp +yi)*(1.0 -zp +zi) +
+	img[xi +xdim*(yi +1 + zi*ydim)]*(1.0 -xp +xi)*(yp -yi)*(1.0 -zp +zi) +
+	img[1 + xi + xdim*(yi +1 +zi*ydim)]*(xp -xi)*(yp -yi)*(1.0 -zp +zi) +
+	img[xi +xdim*(yi + (zi+1)*ydim)]*(1.0 -xp +xi)*(1.0 -yp +yi)*(zp -zi) +
+	img[1 + xi + xdim*(yi + (zi+1)*ydim)]*(xp -xi)*(1.0 -yp +yi)*(zp -zi) +
+	img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xp +xi)*(yp -yi)*(zp -zi) +
+	img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xp -xi)*(yp -yi)*(zp -zi);
+      
+      xi = (int)xn;
+      yi = (int)yn;
+      zi = (int)zn;
+      valn = 
+	img[xi +xdim*(yi +zi*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
+	img[1 + xi +xdim*(yi + zi*ydim)]*(xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
+	img[xi + xdim*(yi +1 + zi*ydim)]*(1.0 -xn +xi)*(yn -yi)*(1.0 -zn +zi) +
+	img[1 + xi + xdim*(yi +1 +zi*ydim)]*(xn -xi)*(yn -yi)*(1.0 -zn +zi) +
+	img[xi +xdim*(yi + (zi+1)*ydim)]*(1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
+	img[1 + xi + xdim*(yi + (zi+1)*ydim)]*(xn -xi)*(1.0 -yn +yi)*(zn -zi) +
+	img[xi + xdim*(yi +1 + (zi+1)*ydim)]*(1.0 -xn +xi)*(yn -yi)*(zn -zi) +
+	img[1 + xi + xdim*(yi +1 +(zi+1)*ydim)]*(xn -xi)*(yn -yi)*(zn -zi);
+      
+      result[0] = x;
+      result[1] = y;
+      result[2] = z;
+      
+      // now fit to a parabola and find max
+      c = mag;
+      b = (valp - valn)/2.0;
+      a = (valp - c - b);
+      root = -0.5*b/a;
+      if (root > 1.0) root = 1.0;
+      if (root < -1.0) root = -1.0;
+      result[0] += vec[0]*root;
+      result[1] += vec[1]*root;
+      result[2] += vec[2]*root;
+      
+      // now calc the normal, trilinear interp of vectors
+      xi = (int)result[0];
+      yi = (int)result[1];
+      zi = (int)result[2];
+      xn = result[0];
+      yn = result[1];
+      zn = result[2];
+      for (i = 0; i < 3; i++)
+	{
+	resultNormal[i] = 
+	  inVecs->GetVector(xi + xdim*(yi + zi*ydim))[i] * 
+	  (1.0 -xn +xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
+	  inVecs->GetVector(1 + xi + xdim*(yi + zi*ydim))[i] *
+	  (xn -xi)*(1.0 -yn +yi)*(1.0 -zn +zi) +
+	  inVecs->GetVector(xi + xdim*(yi +1 + zi*ydim))[i] *
+	  (1.0 -xn +xi)*(yn -yi)*(1.0 -zn +zi) +
+	  inVecs->GetVector(1 + xi + xdim*(yi +1 +zi*ydim))[i] *
+	  (xn -xi)*(yn -yi)*(1.0 -zn +zi) +
+	  inVecs->GetVector(xi + xdim*(yi + (zi+1)*ydim))[i] *
+	  (1.0 -xn +xi)*(1.0 -yn +yi)*(zn -zi) +
+	  inVecs->GetVector(1 + xi + xdim*(yi + (zi+1)*ydim))[i] * 
+	  (xn -xi)*(1.0 -yn +yi)*(zn -zi) +
+	  inVecs->GetVector(xi + xdim*(yi +1 + (zi+1)*ydim))[i] *
+	  (1.0 -xn +xi)*(yn -yi)*(zn -zi) +
+	  inVecs->GetVector(1 + xi + xdim*(yi +1 +(zi+1)*ydim))[i] *
+	  (xn -xi)*(yn -yi)*(zn -zi);
+	}
+      vtkMath::Normalize(resultNormal);
+      }
     }
 }
 

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_SPHERE_RESOLUTION 1024
 
-class vtkSphereSource : public vtkPolySource 
+class VTK_EXPORT vtkSphereSource : public vtkPolySource 
 {
 public:
   vtkSphereSource(int res=8);

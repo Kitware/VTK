@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 #include "vtkImageRegion.h"
 
-class vtkImageSimpleCache : public vtkImageCache
+class VTK_EXPORT vtkImageSimpleCache : public vtkImageCache
 {
 public:
   vtkImageSimpleCache();

@@ -82,7 +82,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkAssemblyPaths;
 
-class vtkAssembly : public vtkActor
+class VTK_EXPORT vtkAssembly : public vtkActor
 {
 public:
   vtkAssembly();

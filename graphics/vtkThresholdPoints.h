@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkThresholdPoints : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkThresholdPoints();

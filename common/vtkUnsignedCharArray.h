@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class vtkUnsignedCharArray : public vtkObject 
+class VTK_EXPORT vtkUnsignedCharArray : public vtkObject 
 {
 public:
   vtkUnsignedCharArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

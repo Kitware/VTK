@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageMIPFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageMIPFilter : public vtkImageFilter
 {
 public:
   vtkImageMIPFilter();

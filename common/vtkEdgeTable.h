@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkIdList.h"
 
-class vtkEdgeTable : public vtkObject
+class VTK_EXPORT vtkEdgeTable : public vtkObject
 {
 public:
   vtkEdgeTable(int numPoints=1);

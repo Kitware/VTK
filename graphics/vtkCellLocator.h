@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkLocator.h"
 
-class vtkCellLocator : public vtkLocator
+class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
   vtkCellLocator();

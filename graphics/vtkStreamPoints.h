@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStreamer.h"
 
-class vtkStreamPoints : public vtkStreamer
+class VTK_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
   vtkStreamPoints();

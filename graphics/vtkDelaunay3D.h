@@ -112,7 +112,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSetFilter.h"
 #include "vtkUnstructuredGrid.h"
 
-class vtkDelaunay3D : public vtkPointSetFilter
+class VTK_EXPORT vtkDelaunay3D : public vtkPointSetFilter
 {
 public:
   vtkDelaunay3D();

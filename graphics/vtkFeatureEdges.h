@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkFeatureEdges : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkFeatureEdges : public vtkPolyToPolyFilter
 {
 public:
   vtkFeatureEdges();

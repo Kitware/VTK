@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_XZ_PLANE 7
 #define VTK_XYZ_GRID 8
 
-class vtkStructuredData : public vtkObject 
+class VTK_EXPORT vtkStructuredData : public vtkObject 
 {
 public:
   static int SetDimensions(int inDim[3], int dim[3]);

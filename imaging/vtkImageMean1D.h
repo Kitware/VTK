@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageMean1D : public vtkImageFilter
+class VTK_EXPORT vtkImageMean1D : public vtkImageFilter
 {
 public:
   vtkImageMean1D();

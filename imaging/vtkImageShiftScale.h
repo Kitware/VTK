@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageShiftScale : public vtkImageFilter
+class VTK_EXPORT vtkImageShiftScale : public vtkImageFilter
 {
 public:
   vtkImageShiftScale();

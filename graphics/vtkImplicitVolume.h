@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitFunction.h"
 #include "vtkStructuredPoints.h"
 
-class vtkImplicitVolume : public vtkImplicitFunction
+class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
   vtkImplicitVolume();

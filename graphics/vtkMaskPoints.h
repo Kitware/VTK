@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkMaskPoints : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkMaskPoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkMaskPoints();

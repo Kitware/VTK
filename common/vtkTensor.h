@@ -52,8 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkTensor_h
 
 #define VTK_TENSOR_MAXDIM 3
+#include "vtkWin32Header.h"
 
-class vtkTensor
+class VTK_EXPORT vtkTensor
 {
 public:
   vtkTensor(int dim=3);

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkImageSource.h"
 
-class vtkImageShortWriter : public vtkObject
+class VTK_EXPORT vtkImageShortWriter : public vtkObject
 {
 public:
   vtkImageShortWriter();

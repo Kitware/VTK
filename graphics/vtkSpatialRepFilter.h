@@ -84,7 +84,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_SPATIALREP_LEVEL 24
 
-class vtkSpatialRepFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkSpatialRepFilter : public vtkDataSetFilter
 {
 public:
   vtkSpatialRepFilter();

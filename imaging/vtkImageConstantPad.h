@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImagePadFilter.h"
 
-class vtkImageConstantPad : public vtkImagePadFilter
+class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
   vtkImageConstantPad();

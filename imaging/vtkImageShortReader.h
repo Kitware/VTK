@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream.h>
 #include "vtkImageCachedSource.h"
 
-class vtkImageShortReader : public vtkImageCachedSource
+class VTK_EXPORT vtkImageShortReader : public vtkImageCachedSource
 {
 public:
   vtkImageShortReader();

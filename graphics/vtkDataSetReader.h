@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkDataReader.h"
 
-class vtkDataSetReader : public vtkSource
+class VTK_EXPORT vtkDataSetReader : public vtkSource
 {
 public:
   vtkDataSetReader();

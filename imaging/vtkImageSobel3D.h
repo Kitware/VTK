@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageSobel3D : public vtkImageFilter
+class VTK_EXPORT vtkImageSobel3D : public vtkImageFilter
 {
 public:
   vtkImageSobel3D();

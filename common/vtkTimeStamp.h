@@ -49,11 +49,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTimeStamp_h
 #define __vtkTimeStamp_h
 
-#ifdef _WIN32
 #include "vtkWin32Header.h"
-#endif
 
-class vtkTimeStamp 
+class VTK_EXPORT vtkTimeStamp 
 {
 public:
   vtkTimeStamp() {this->ModifiedTime = 0;};

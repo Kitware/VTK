@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkTriangleFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTriangleFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTriangleFilter() : PassVerts(1), PassLines(1) {};

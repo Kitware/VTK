@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkConeSource : public vtkPolySource 
+class VTK_EXPORT vtkConeSource : public vtkPolySource 
 {
 public:
   vtkConeSource(int res=6);

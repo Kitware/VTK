@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkVoxelWriter : public vtkWriter
+class VTK_EXPORT vtkVoxelWriter : public vtkWriter
 {
 public:
   vtkVoxelWriter();

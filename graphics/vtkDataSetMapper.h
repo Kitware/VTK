@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyMapper.h"
 #include "vtkRenderer.h"
 
-class vtkDataSetMapper : public vtkMapper 
+class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
 {
 public:
   vtkDataSetMapper();

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class vtkMatrix4x4 : public vtkObject
+class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 {
  public:
   float Element[4][4];

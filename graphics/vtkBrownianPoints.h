@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkBrownianPoints : public vtkDataSetToDataSetFilter
+class VTK_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
 {
 public:
   vtkBrownianPoints();

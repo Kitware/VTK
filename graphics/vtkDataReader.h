@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-class vtkDataReader : public vtkObject
+class VTK_EXPORT vtkDataReader : public vtkObject
 {
 public:
   vtkDataReader();

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTCoords.h"
 #include "vtkFloatArray.h"
 
-class vtkFloatTCoords : public vtkTCoords
+class VTK_EXPORT vtkFloatTCoords : public vtkTCoords
 {
 public:
   vtkFloatTCoords() {};

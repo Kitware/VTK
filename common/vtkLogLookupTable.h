@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkLookupTable.h"
 
-class vtkLogLookupTable : public vtkLookupTable
+class VTK_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
   vtkLogLookupTable(int sze=256, int ext=256);

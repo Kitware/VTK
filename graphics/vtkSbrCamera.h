@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkSbrRenderer;
 
-class vtkSbrCamera : public vtkCameraDevice
+class VTK_EXPORT vtkSbrCamera : public vtkCameraDevice
 {
  public:
   char *GetClassName() {return "vtkSbrCamera";};

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDecomposedFilter.h"
 #include "vtkImageGaussianSmooth1D.h"
 
-class vtkImageGaussianSmooth : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageDecomposedFilter
 {
 public:
   vtkImageGaussianSmooth();

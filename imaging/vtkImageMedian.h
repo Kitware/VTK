@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
-class vtkImageMedian : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageMedian : public vtkImageSpatialFilter
 {
 public:
   vtkImageMedian();

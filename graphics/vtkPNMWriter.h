@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkPNMWriter : public vtkWriter
+class VTK_EXPORT vtkPNMWriter : public vtkWriter
 {
 public:
   vtkPNMWriter();

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCell.h"
 
-class vtkVertex : public vtkCell
+class VTK_EXPORT vtkVertex : public vtkCell
 {
 public:
   vtkVertex() {};

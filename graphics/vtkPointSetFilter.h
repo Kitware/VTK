@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.h"
 #include "vtkPointSet.h"
 
-class vtkPointSetFilter : public vtkFilter 
+class VTK_EXPORT vtkPointSetFilter : public vtkFilter 
 {
 public:
   vtkPointSetFilter() {};

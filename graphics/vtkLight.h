@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkLightDevice;
 
-class vtkLight : public vtkObject
+class VTK_EXPORT vtkLight : public vtkObject
 {
 public:
   vtkLight();

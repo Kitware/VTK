@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_CONTOURS 256
 
-class vtkContourFilter : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyFilter
 {
 public:
   vtkContourFilter();

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <X11/Xutil.h>
 #include "vtkRenderWindow.h"
 
-class vtkXRenderWindow : public vtkRenderWindow
+class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 {
 public:
   vtkXRenderWindow();

@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyToPolyFilter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkSubPixelPositionEdgels : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyToPolyFilter
 {
 public:
   vtkSubPixelPositionEdgels();
@@ -80,7 +80,7 @@ protected:
   void Execute();
   void Move(int xdim, int ydim, int zdim, int x, int y,
 	    float *img, vtkVectors *inVecs, 
-	    float *result, int z, float *aspect);
+	    float *result, int z, float *aspect, float *resultNormal);
   vtkStructuredPoints *GradMaps;  
 };
 

@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkTensorGlyph : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkTensorGlyph : public vtkDataSetToPolyFilter
 {
 public:
   vtkTensorGlyph();

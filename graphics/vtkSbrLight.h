@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkSbrRenderer;
 
-class vtkSbrLight : public vtkLightDevice
+class VTK_EXPORT vtkSbrLight : public vtkLightDevice
 {
 protected:
   

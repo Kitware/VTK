@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 #include "vtkImageRegion.h"
 
-class vtkImageSpatialFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageSpatialFilter : public vtkImageFilter
 {
 public:
   vtkImageSpatialFilter();

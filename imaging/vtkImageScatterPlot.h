@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageScatterPlot : public vtkImageFilter
+class VTK_EXPORT vtkImageScatterPlot : public vtkImageFilter
 {
 public:
   vtkImageScatterPlot();

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGridSource.h"
 #include "vtkDataReader.h"
 
-class vtkStructuredGridReader : public vtkStructuredGridSource
+class VTK_EXPORT vtkStructuredGridReader : public vtkStructuredGridSource
 {
 public:
   vtkStructuredGridReader();

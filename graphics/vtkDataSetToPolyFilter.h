@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.h"
 #include "vtkPolyData.h"
 
-class vtkDataSetToPolyFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToPolyFilter : public vtkDataSetFilter
 {
 public:
   vtkDataSetToPolyFilter();

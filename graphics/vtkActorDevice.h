@@ -56,7 +56,7 @@ class vtkRenderer;
 class vtkActor;
 class vtkMapper;
 
-class vtkActorDevice : public vtkObject
+class VTK_EXPORT vtkActorDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkActorDevice";};

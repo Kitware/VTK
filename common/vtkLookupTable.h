@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRefCount.h"
 #include "vtkAPixmap.h"
 
-class vtkLookupTable : public vtkRefCount
+class VTK_EXPORT vtkLookupTable : public vtkRefCount
 {
 public:
   vtkLookupTable(int sze=256, int ext=256);

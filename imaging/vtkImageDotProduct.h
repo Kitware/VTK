@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageTwoInputFilter.h"
 
-class vtkImageDotProduct : public vtkImageTwoInputFilter
+class VTK_EXPORT vtkImageDotProduct : public vtkImageTwoInputFilter
 {
 public:
   vtkImageDotProduct();

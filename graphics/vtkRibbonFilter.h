@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkRibbonFilter : public vtkPolyToPolyFilter 
+class VTK_EXPORT vtkRibbonFilter : public vtkPolyToPolyFilter 
 {
 public:
   vtkRibbonFilter();

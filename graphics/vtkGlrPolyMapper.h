@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkGlrRenderer;
 class vtkProperty;
 
-class vtkGlrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkGlrPolyMapper : public vtkPolyMapperDevice
 {
  public:
   vtkGlrPolyMapper();

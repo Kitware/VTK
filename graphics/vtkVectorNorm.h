@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkVectorNorm : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkVectorNorm();

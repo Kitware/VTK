@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkCameraDevice;
 
-class vtkCamera : public vtkObject
+class VTK_EXPORT vtkCamera : public vtkObject
 {
  public:
   vtkCamera();

@@ -69,7 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define HDIB HANDLE
 
-class vtkMFCInteractor : public vtkRenderWindowInteractor
+class VTK_EXPORT vtkMFCInteractor : public vtkRenderWindowInteractor
 {
 public:
   vtkMFCInteractor();

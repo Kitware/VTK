@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImplicitFunction.h"
 
-class vtkQuadric : public vtkImplicitFunction
+class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
   vtkQuadric();

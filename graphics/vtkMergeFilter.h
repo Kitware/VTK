@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkFilter.h"
 
-class vtkMergeFilter : public vtkFilter
+class VTK_EXPORT vtkMergeFilter : public vtkFilter
 {
 public:
   vtkMergeFilter();

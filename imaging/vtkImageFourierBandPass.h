@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageFourierBandPass : public vtkImageFilter
+class VTK_EXPORT vtkImageFourierBandPass : public vtkImageFilter
 {
 public:
   vtkImageFourierBandPass();

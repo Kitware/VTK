@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkColorScalars.h"
 #include "vtkBitArray.h"
 
-class vtkBitmap : public vtkColorScalars 
+class VTK_EXPORT vtkBitmap : public vtkColorScalars 
 {
 public:
   vtkBitmap() {};

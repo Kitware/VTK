@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <X11/Xutil.h>
 #include "vtkXRenderWindow.h"
 
-class vtkGlrRenderWindow : public vtkXRenderWindow
+class VTK_EXPORT vtkGlrRenderWindow : public vtkXRenderWindow
 {
 protected:
   int Gid;

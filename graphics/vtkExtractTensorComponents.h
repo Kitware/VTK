@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkExtractTensorComponents : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkExtractTensorComponents();

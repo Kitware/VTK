@@ -96,7 +96,7 @@ public:
 //ETX - end tcl exclude
 //
 
-class vtkOBBTree : public vtkCellLocator
+class VTK_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
   vtkOBBTree();

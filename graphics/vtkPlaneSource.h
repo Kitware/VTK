@@ -69,7 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkPlaneSource : public vtkPolySource 
+class VTK_EXPORT vtkPlaneSource : public vtkPolySource 
 {
 public:
   vtkPlaneSource();

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCachedSource.h"
 #include "vtkImageRegion.h"
 
-class vtkImageTwoInputFilter : public vtkImageCachedSource
+class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageCachedSource
 {
 public:
   vtkImageTwoInputFilter();

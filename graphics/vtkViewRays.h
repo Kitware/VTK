@@ -49,7 +49,7 @@
 #include "vtkMatrix4x4.h"
 class vtkRenderer;
 
-class vtkViewRays :public vtkObject
+class VTK_EXPORT vtkViewRays :public vtkObject
   {
   public:
   vtkViewRays(void);

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageThreshold : public vtkImageFilter
+class VTK_EXPORT vtkImageThreshold : public vtkImageFilter
 {
 public:
   vtkImageThreshold();

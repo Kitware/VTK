@@ -369,7 +369,8 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[3];
-
+  vtkLine aline;
+  
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 //
@@ -392,6 +393,33 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
     {
     if ( dist2 <= tol2 ) return 1;
     }
+  
+  // so the easy test failed. The line is not intersecting the triangle.
+  // Let's now do the 3d case check to see how close the line comes.
+  // basically we just need to test against the three lines of the triangle
+  aline.Points.InsertPoint(0,pt1);
+  aline.Points.InsertPoint(1,pt2);
+  aline.PointIds.InsertId(0,0);
+  aline.PointIds.InsertId(1,1);
+  if (aline.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+    {
+    return 1;
+    }
+  
+  aline.Points.InsertPoint(0,pt2);
+  aline.Points.InsertPoint(1,pt3);
+  if (aline.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+    {
+    return 1;
+    }
+  
+  aline.Points.InsertPoint(0,pt3);
+  aline.Points.InsertPoint(1,pt1);
+  if (aline.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+    {
+    return 1;
+    }
+  
   
   return 0;
 }

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class vtkVoidArray : public vtkObject 
+class VTK_EXPORT vtkVoidArray : public vtkObject 
 {
 public:
   vtkVoidArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

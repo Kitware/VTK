@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkCursor3D : public vtkPolySource 
+class VTK_EXPORT vtkCursor3D : public vtkPolySource 
 {
 public:
   vtkCursor3D();

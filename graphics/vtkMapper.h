@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkActor;
 
-class vtkMapper : public vtkObject 
+class VTK_EXPORT vtkMapper : public vtkObject 
 {
 public:
   vtkMapper();

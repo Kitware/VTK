@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDecomposedFilter.h"
 #include "vtkImageRFFT1D.h"
 
-class vtkImageRFFT : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageRFFT : public vtkImageDecomposedFilter
 {
 public:
   vtkImageRFFT();

@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_EXTRACT_SPECIFIED_REGIONS 3
 #define VTK_EXTRACT_LARGEST_REGION 4
 
-class vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_EXPORT vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkConnectivityFilter();

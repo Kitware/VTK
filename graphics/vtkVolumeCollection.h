@@ -16,7 +16,7 @@
 
 class vtkVolume;
 
-class vtkVolumeCollection : public vtkCollection
+class VTK_EXPORT vtkVolumeCollection : public vtkCollection
 {
  public:
   char *GetClassName() {return "vtkVolumeCollection";};

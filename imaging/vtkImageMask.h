@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageTwoInputFilter.h"
 
-class vtkImageMask : public vtkImageTwoInputFilter
+class VTK_EXPORT vtkImageMask : public vtkImageTwoInputFilter
 {
 public:
   vtkImageMask();

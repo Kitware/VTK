@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_CONTOURS 256
 
-class vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkMarchingCubes();

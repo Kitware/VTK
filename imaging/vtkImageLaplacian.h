@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageLaplacian : public vtkImageFilter
+class VTK_EXPORT vtkImageLaplacian : public vtkImageFilter
 {
 public:
   vtkImageLaplacian();

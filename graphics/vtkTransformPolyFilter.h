@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyToPolyFilter.h"
 #include "vtkTransform.h"
 
-class vtkTransformPolyFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTransformPolyFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTransformPolyFilter() : Transform(NULL) {};

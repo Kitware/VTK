@@ -16,27 +16,15 @@ Copyright (c) Ken Martin 1995
 #include <iostream.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <thread.h>
+#include <synch.h>
 #include "vtkJavaUtil.h"
 
+mutex_t vtkGlobalMutex;
 
-// #define VTKJAVADEBUG
+int vtkJavaIdCount = 1;
 
-// semaphore for the sun
-#include <synch.h>
-sema_t VTKsema;
-#define SEMAINIT sema_init(&VTKsema, 1, USYNC_THREAD,NULL)
-#define SEMAWAIT sema_wait(&VTKsema);
-#define SEMAPOST sema_post(&VTKsema);
-//#else
-// semaphore for SGI
-//#include <ulocks.h>
-//usema_t *VTKsema;
-//usptr_t *VTKlock;
-//#define SEMAINIT VTKlock = usinit(VTKsema = usnewsema( ,1)
-//#define SEMAINIT if (1)
-//#define SEMAWAIT if (1)
-//#define SEMAPOST if (1)
-//#endif
+#define VTKJAVADEBUG
 
 class vtkHashNode 
 {
@@ -147,14 +135,32 @@ void vtkHashTable::DeleteHashEntry(void *key)
     }
 }
 
-// add an object to the hash table
-void vtkJavaAddObjectToHash(void *hnd,void *obj,void *tcFunc,int deleteMe)
+int vtkJavaGetId(JNIEnv *env,jobject obj)
 {
-  if (!vtkInstanceLookup)
-    {
-    SEMAINIT;
-    }
-  SEMAWAIT;
+  jfieldID id;
+  int result;
+    
+  id = env->GetFieldID(env->GetObjectClass(obj),"vtkId","I");
+  
+  result = (int)env->GetIntField(obj,id);
+  return result;
+}
+
+void vtkJavaSetId(JNIEnv *env,jobject obj, int newVal)
+{
+  jfieldID id;
+  jint jNewVal = newVal;
+    
+  id = env->GetFieldID(env->GetObjectClass(obj),"vtkId","I");
+  
+  env->SetIntField(obj,id,jNewVal);
+}
+
+// add an object to the hash table
+void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
+			    void *tcFunc,int deleteMe)
+{
+  mutex_lock(&vtkGlobalMutex);
   
   if (!vtkInstanceLookup)
     {
@@ -164,108 +170,127 @@ void vtkJavaAddObjectToHash(void *hnd,void *obj,void *tcFunc,int deleteMe)
     vtkDeleteLookup = new vtkHashTable;
     }
 #ifdef VTKJAVADEBUG
-  cerr << "Adding an object to hash " << hnd << " " << obj << "\n";
+  cerr << "Adding an object to hash ptr = " << ptr << "\n";
 #endif  
   // lets make sure it isn't already there
-  if (vtkInstanceLookup->GetHashTableValue(hnd) != NULL)
+  if (vtkJavaGetId(env,obj))
     {
 #ifdef VTKJAVADEBUG
     cerr << "Attempt to add an object to the hash when one already exists!!!\n";
 #endif
-    SEMAPOST;
+    mutex_unlock(&vtkGlobalMutex);
     return;
     }
 
-  vtkInstanceLookup->AddHashEntry(hnd,obj);
-  vtkTypecastLookup->AddHashEntry(hnd,tcFunc);
-  vtkPointerLookup->AddHashEntry(obj,hnd);
-  vtkDeleteLookup->AddHashEntry(hnd,(void *)deleteMe);
+  // get a unique id for this object
+  // just use vtkJavaIdCount and then increment
+  // to handle loop around make sure the id isn't currently in use
+  while (vtkInstanceLookup->GetHashTableValue((void *)vtkJavaIdCount))
+    {
+    vtkJavaIdCount++;
+    if (vtkJavaIdCount > 268435456) vtkJavaIdCount = 1;
+    }
 
+  vtkInstanceLookup->AddHashEntry((void *)vtkJavaIdCount,ptr);
+  vtkTypecastLookup->AddHashEntry((void *)vtkJavaIdCount,tcFunc);
+  vtkPointerLookup->AddHashEntry(ptr,(void *)env->NewGlobalRef(obj));
+  vtkDeleteLookup->AddHashEntry((void *)vtkJavaIdCount,(void *)deleteMe);
+
+  vtkJavaSetId(env,obj,vtkJavaIdCount);
+  
 #ifdef VTKJAVADEBUG
-  cerr << "Added object to hash " << hnd << " " << obj << "\n";
+  cerr << "Added object to hash id= " << vtkJavaIdCount << " " << ptr << "\n";
 #endif  
-  SEMAPOST;
+  vtkJavaIdCount++;
+  mutex_unlock(&vtkGlobalMutex);
 }
 
 // should we delete this object
-int vtkJavaShouldIDeleteObject(void *hnd)
+int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
 {
-  SEMAWAIT;
-  if ((int)(vtkDeleteLookup->GetHashTableValue(hnd)))
+  int id = vtkJavaGetId(env,obj);
+  
+  mutex_lock(&vtkGlobalMutex);
+  if ((int)(vtkDeleteLookup->GetHashTableValue((void *)id)))
     {
 #ifdef VTKJAVADEBUG
-    cerr << "Decided to delete " << hnd << "\n";
+    cerr << "Decided to delete id = " << id << "\n";
 #endif
-    vtkJavaDeleteObjectFromHash(hnd);
-    SEMAPOST;
+    vtkJavaDeleteObjectFromHash(env, id);
+    mutex_unlock(&vtkGlobalMutex);
     return 1;
     }
 
 #ifdef VTKJAVADEBUG
-  cerr << "Decided to NOT delete " << hnd << "\n";
+  cerr << "Decided to NOT delete id = " << id << "\n";
 #endif
-  vtkJavaDeleteObjectFromHash(hnd);
-  SEMAPOST;
+  vtkJavaDeleteObjectFromHash(env, id);
+  mutex_unlock(&vtkGlobalMutex);
   return 0;
 }
 
 
 // delete an object from the hash
-void vtkJavaDeleteObjectFromHash(void *hnd)
+void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
 {
-  void *obj;
-
-  obj = vtkInstanceLookup->GetHashTableValue(hnd);
-  if (!obj) 
+  void *ptr;
+  void *vptr;
+  
+  ptr = vtkInstanceLookup->GetHashTableValue((void *)id);
+  if (!ptr) 
     {
 #ifdef VTKJAVADEBUG
     cerr << "Attempt to delete an object that doesnt exist!!!";
 #endif  
     return;
     }
-  vtkInstanceLookup->DeleteHashEntry(hnd);
-  vtkTypecastLookup->DeleteHashEntry(hnd);
-  vtkPointerLookup->DeleteHashEntry(obj);
-  vtkDeleteLookup->DeleteHashEntry(hnd);
+  vtkInstanceLookup->DeleteHashEntry((void *)id);
+  vtkTypecastLookup->DeleteHashEntry((void *)id);
+  vptr = vtkPointerLookup->GetHashTableValue(ptr);
+  env->DeleteGlobalRef(&vptr);
+  vtkPointerLookup->DeleteHashEntry(ptr);
+  vtkDeleteLookup->DeleteHashEntry((void *)id);
 }
 
-void *vtkJavaGetObjectFromPointer(void *obj)
+jobject vtkJavaGetObjectFromPointer(void *ptr)
 {
-  void *hnd;
+  jobject obj;
 
 #ifdef VTKJAVADEBUG
-  cerr << "Checking into object " << obj << "\n";
+  cerr << "Checking into pointer " << ptr << "\n";
 #endif  
-  hnd = vtkPointerLookup->GetHashTableValue(obj);
+  obj = vtkPointerLookup->GetHashTableValue(ptr);
 #ifdef VTKJAVADEBUG
-  cerr << "Checking into object " << obj << " hnd = " << hnd << "\n";
+  cerr << "Checking into pointer " << ptr << " obj = " << obj << "\n";
 #endif  
-  return hnd;
+  return obj;
 }
 
-void *vtkJavaGetPointerFromObject(void *hnd,char *result_type)
+void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
 {
-  void *obj;
+  void *ptr;
   void *(*command)(void *,char *);
-
-  obj = vtkInstanceLookup->GetHashTableValue(hnd);
-  command = (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue(hnd);
+  int id;
+  
+  id = vtkJavaGetId(env,obj);
+  ptr = vtkInstanceLookup->GetHashTableValue((void *)id);
+  command = (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue((void *)id);
 
 #ifdef VTKJAVADEBUG
-  cerr << "Checking into hnd " << hnd << " obj = " << obj << "\n";
+  cerr << "Checking into id " << id << " ptr = " << ptr << "\n";
 #endif  
 
-  if (!obj)
+  if (!ptr)
     {
     return NULL;
     }
   
-  if (command(obj,result_type))
+  if (command(ptr,result_type))
     {
 #ifdef VTKJAVADEBUG
-    cerr << "Got hnd " << hnd << " obj = " << obj << " " << result_type << "\n";
+    cerr << "Got id= " << id << " ptr= " << ptr << " " << result_type << "\n";
 #endif  
-    return command(obj,result_type);
+    return command(ptr,result_type);
     }
   else
     {
@@ -276,65 +301,130 @@ void *vtkJavaGetPointerFromObject(void *hnd,char *result_type)
     }
 }
 
-HArrayOfDouble *vtkJavaMakeHArrayOfDoubleFromDouble(double *ptr, int size)
+jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
 {
-  HArrayOfDouble *ret;
-  double *vals;
+  jarray ret;
   int i;
+  jdouble *array;
 
-  ret = (HArrayOfDouble *)ArrayAlloc(T_DOUBLE,size);
+  ret = env->NewDoubleArray(size);
   if (ret == 0)
     {
-    SignalError(0,"OutOfMemoryError", 0);
+    // should throw an exception here
     return 0;
     }
-  vals = (double *)unhand(ret)->body;
 
+  array = env->GetDoubleArrayElements(ret,NULL);
+
+  // copy the data
   for (i = 0; i < size; i++)
     {
-    vals[i] = ptr[i];
+    array[i] = ptr[i];
     }
+  
+  env->ReleaseDoubleArrayElements(ret,array,0);
   return ret;
 }
 
-HArrayOfDouble *vtkJavaMakeHArrayOfDoubleFromFloat(float *ptr, int size)
+jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
 {
-  HArrayOfDouble *ret;
-  double *vals;
+  jarray ret;
   int i;
+  jdouble *array;
 
-  ret = (HArrayOfDouble *)ArrayAlloc(T_DOUBLE,size);
+  ret = env->NewDoubleArray(size);
   if (ret == 0)
     {
-    SignalError(0,"OutOfMemoryError", 0);
+    // should throw an exception here
     return 0;
     }
-  vals = (double *)unhand(ret)->body;
 
+  array = env->GetDoubleArrayElements(ret,NULL);
+
+  // copy the data
   for (i = 0; i < size; i++)
     {
-    vals[i] = ptr[i];
+    array[i] = ptr[i];
     }
+  
+  env->ReleaseDoubleArrayElements(ret,array,0);
   return ret;
 }
 
-HArrayOfInt *vtkJavaMakeHArrayOfIntFromInt(int *ptr, int size)
+jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
 {
-  HArrayOfInt *ret;
-  long *vals;
+  jarray ret;
   int i;
+  jint *array;
 
-  ret = (HArrayOfInt *)ArrayAlloc(T_INT,size);
+  ret = env->NewIntArray(size);
   if (ret == 0)
     {
-    SignalError(0,"OutOfMemoryError", 0);
+    // should throw an exception here
     return 0;
     }
-  vals = (long *)unhand(ret)->body;
 
+  array = env->GetIntArrayElements(ret,NULL);
+
+  // copy the data
   for (i = 0; i < size; i++)
     {
-    vals[i] = ptr[i];
+    array[i] = ptr[i];
     }
+  
+  env->ReleaseIntArrayElements(ret,array,0);
   return ret;
+}
+
+char *vtkJavaUTFToChar(JNIEnv *env,jstring in)
+{
+  char *result;
+  jbyte *inBytes;
+  int length, i;
+  int resultLength = 1;
+  
+  length = env->GetStringUTFLength(in);
+  inBytes = env->GetStringUTFChars(in,NULL);
+  
+  for (i = 0; i < length; i++)
+    {
+    if (inBytes[i] < 128) resultLength++;
+    }
+  result = new char [resultLength];
+
+  resultLength = 0; // the 0 versus 1 up above is on purpose
+  for (i = 0; i < length; i++)
+    {
+    if (inBytes[i] < 128) 
+      {
+      result[resultLength] = inBytes[i];
+      resultLength++;
+      }
+    }
+  result[resultLength] = '\0';
+  env->ReleaseStringUTFChars(in,inBytes);
+  return result;
+}
+
+jstring vtkJavaMakeJavaString(JNIEnv *env, char *in)
+{
+  jstring result;
+  jbyte *utf;
+  int inLength, utfLength, i;
+  
+  inLength = strlen(in);
+  utfLength = inLength + 2;
+  utf = new jbyte [utfLength];
+  
+  for (i = 0; i < inLength; i++)
+    {
+    utf[i] = in[i];
+    }
+  utf[inLength] = 0xC0;
+  utf[inLength+1] = 0x80;
+  result = env->NewStringUTF(utf,utfLength);
+
+  // do we need to free utf here ? Does JNI make a copy ?
+  
+  return result;
 }

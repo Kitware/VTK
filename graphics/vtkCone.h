@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImplicitFunction.h"
 
-class vtkCone : public vtkImplicitFunction
+class VTK_EXPORT vtkCone : public vtkImplicitFunction
 {
 public:
   vtkCone();

@@ -95,12 +95,17 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 //
 //  Intersect two 3D lines
 //
+// returns if the projectstion of thw two lines onto the plane defined by the
+// vector orthogonal to both lines. The method may report skewed lines as 
+// intersecting and (u,v) represent the parametric coords of closest approach 
 int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
                            float& u, float& v)
 {
   float a21[3], b21[3], b1a1[3];
   float sys[2][2], c[2], det;
   int i;
+  float p1[3], p2[3];
+  
 //
 //  Initialize 
 //
@@ -322,12 +327,9 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   a1 = this->Points.GetPoint(0);
   a2 = this->Points.GetPoint(1);
 
-  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == NO_INTERSECTION )
+  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == INTERSECTION )
     {
-    return 0;
-    }
-  else //check to make sure lies within tolerance
-    {
+    // make sure we are withing tolerance
     for (i=0; i<3; i++)
       {
       x[i] = a1[i] + pcoords[i]*(a2[i]-a1[i]);
@@ -337,6 +339,34 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       return 1;
     else
       return 0;
+    }
+  else //check to see if it lies within tolerance
+    {
+    // one of the parametric coords must be outside 0-1
+    if (t < 0.0)
+      {
+      t = 0.0;
+      if (vtkLine::DistanceToLine(p1,a1,a2,pcoords[0],x) <= tol*tol) return 1;
+      else return 0;
+      }
+    if (t > 1.0)
+      {
+      t = 1.0;
+      if (vtkLine::DistanceToLine(p2,a1,a2,pcoords[0],x) <= tol*tol) return 1;
+      else return 0;
+      }
+    if (pcoords[0] < 0.0)
+      {
+      pcoords[0] = 0.0;
+      if (vtkLine::DistanceToLine(a1,p1,p2,t,x) <= tol*tol) return 1;
+      else return 0;
+      }
+    if (pcoords[0] > 1.0)
+      {
+      pcoords[0] = 1.0;
+      if (vtkLine::DistanceToLine(a2,p1,p2,t,x) <= tol*tol) return 1;
+      else return 0;
+      }
     }
 }
 

@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkTransformTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkTransformTextureCoords();

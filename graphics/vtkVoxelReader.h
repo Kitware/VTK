@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsSource.h"
 #include "vtkBitScalars.h"
 
-class vtkVoxelReader : public vtkStructuredPointsSource 
+class VTK_EXPORT vtkVoxelReader : public vtkStructuredPointsSource 
 {
 public:
   vtkVoxelReader();

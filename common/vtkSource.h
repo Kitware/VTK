@@ -79,7 +79,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkDataSet.h"
 
-class vtkSource : public vtkObject
+class VTK_EXPORT vtkSource : public vtkObject
 {
 public:
   vtkSource();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.h"
 #include "vtkDataSet.h"
 
-class vtkDataWriter : public vtkWriter
+class VTK_EXPORT vtkDataWriter : public vtkWriter
 {
 public:
   vtkDataWriter();

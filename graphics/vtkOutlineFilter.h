@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkOutlineFilter : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkOutlineFilter : public vtkDataSetToPolyFilter
 {
 public:
   char *GetClassName() {return "vtkOutlineFilter";};

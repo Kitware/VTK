@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
-class vtkImageGradientMagnitude : public vtkImageFilter
+class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageFilter
 {
 public:
   vtkImageGradientMagnitude();

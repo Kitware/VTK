@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include "vtkRenderer.h"
 
-class vtkOglrRenderer : public vtkRenderer
+class VTK_EXPORT vtkOglrRenderer : public vtkRenderer
 {
  protected:
   int NumberOfLightsBound;

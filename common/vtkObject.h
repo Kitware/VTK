@@ -52,14 +52,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkObject_h
 
 #include <iostream.h>
-#ifdef _WIN32
-#include "vtkWin32Header.h"
-#endif
+#include "vtkIndent.h"
 #include "vtkTimeStamp.h"
 #include "vtkSetGet.h"
-#include "vtkIndent.h"
 
-class vtkObject 
+class VTK_EXPORT vtkObject 
 {
 public:
   vtkObject(); //create a vtk object

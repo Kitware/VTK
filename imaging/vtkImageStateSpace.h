@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkClaw.h"
 
 
-class vtkImageStateSpace : public vtkStateSpace
+class VTK_EXPORT vtkImageStateSpace : public vtkStateSpace
 {
 public:
   vtkImageStateSpace();

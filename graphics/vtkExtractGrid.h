@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredGridToStructuredGridFilter.h"
 
-class vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
+class VTK_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 {
 public:
   vtkExtractGrid();

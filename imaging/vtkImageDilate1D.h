@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
-class vtkImageDilate1D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageDilate1D : public vtkImageSpatialFilter
 {
 public:
   vtkImageDilate1D();

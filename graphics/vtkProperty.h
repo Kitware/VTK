@@ -61,7 +61,7 @@ class vtkRenderer;
 class vtkPropertyDevice;
 class vtkActor;
 
-class vtkProperty : public vtkObject
+class VTK_EXPORT vtkProperty : public vtkObject
 {
 public:
   vtkProperty();

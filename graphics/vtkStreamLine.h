@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStreamer.h"
 
-class vtkStreamLine : public vtkStreamer
+class VTK_EXPORT vtkStreamLine : public vtkStreamer
 {
 public:
   vtkStreamLine();

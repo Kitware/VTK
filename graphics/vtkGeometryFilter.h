@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkGeometryFilter : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyFilter
 {
 public:
   vtkGeometryFilter();

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoidArray.h"
 #include "vtkIdList.h"
 
-class vtkUserDefined : public vtkRefCount 
+class VTK_EXPORT vtkUserDefined : public vtkRefCount 
 {
 public:
   vtkUserDefined() {};

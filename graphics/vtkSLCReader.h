@@ -12,7 +12,7 @@
 #include "vtkStructuredPointsSource.h"
 #include "vtkBitScalars.h"
 
-class vtkSLCReader : public vtkStructuredPointsSource 
+class VTK_EXPORT vtkSLCReader : public vtkStructuredPointsSource 
 {
 public:
   vtkSLCReader();

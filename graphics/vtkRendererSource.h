@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsSource.h"
 #include "vtkRenderer.h"
 
-class vtkRendererSource : public vtkStructuredPointsSource
+class VTK_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
   vtkRendererSource();

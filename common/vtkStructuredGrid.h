@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredData.h"
 #include "vtkBitScalars.h"
 
-class vtkStructuredGrid : public vtkPointSet {
+class VTK_EXPORT vtkStructuredGrid : public vtkPointSet {
 public:
   vtkStructuredGrid();
   vtkStructuredGrid(const vtkStructuredGrid& sg);

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatPoints.h"
 #include "vtkTransformPolyFilter.h"
 #include "vtkPolyReader.h"
-#include <strstream.h>
 
 char *VTK_VECTOR_TEXT_33 = "36 0.189286 "
 "0.14286 -0.35786 0.13000 -0.35643 0.11857 -0.35214 0.16143 -0.35071 0.10786 -0.34429 "

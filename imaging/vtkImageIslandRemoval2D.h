@@ -62,7 +62,7 @@ typedef struct{
 
 
 
-class vtkImageIslandRemoval2D : public vtkImageFilter
+class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageFilter
 {
 public:
   vtkImageIslandRemoval2D();

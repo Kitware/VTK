@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkProbeFilter : public vtkDataSetToDataSetFilter
+class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkProbeFilter();

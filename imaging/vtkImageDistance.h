@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDecomposedFilter.h"
 #include "vtkImageDistance1D.h"
 
-class vtkImageDistance : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageDistance : public vtkImageDecomposedFilter
 {
 public:
   vtkImageDistance();

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkClaw.h"
 
-class vtkStateSpace : public vtkObject
+class VTK_EXPORT vtkStateSpace : public vtkObject
 {
 public:
   vtkStateSpace();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkPointLocator.h"
 
-class vtkPointSet : public vtkDataSet
+class VTK_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
   vtkPointSet();

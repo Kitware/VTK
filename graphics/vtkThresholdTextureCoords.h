@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
+class VTK_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkThresholdTextureCoords();

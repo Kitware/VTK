@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageCache;
 
 
-class vtkImageCachedSource : public vtkObject
+class VTK_EXPORT vtkImageCachedSource : public vtkObject
 {
 public:
   vtkImageCachedSource();

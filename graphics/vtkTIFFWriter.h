@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkTIFFWriter : public vtkWriter
+class VTK_EXPORT vtkTIFFWriter : public vtkWriter
 {
 public:
   vtkTIFFWriter();

@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkStructuredPointsSource.h"
 
-class vtkVolumeReader : public vtkStructuredPointsSource
+class VTK_EXPORT vtkVolumeReader : public vtkStructuredPointsSource
 {
 public:
   vtkVolumeReader();

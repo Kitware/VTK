@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToDataSetFilter.h"
 #include "vtkOBBTree.h"
 
-class vtkDicer : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkDicer();

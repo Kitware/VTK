@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDecomposedFilter.h"
 #include "vtkImageMean1D.h"
 
-class vtkImageMean : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageMean : public vtkImageDecomposedFilter
 {
 public:
   vtkImageMean();

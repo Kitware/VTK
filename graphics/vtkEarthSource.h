@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkEarthSource : public vtkPolySource 
+class VTK_EXPORT vtkEarthSource : public vtkPolySource 
 {
 public:
   vtkEarthSource();

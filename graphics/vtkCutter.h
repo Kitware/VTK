@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_CONTOURS 256
 
-class vtkCutter : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkCutter : public vtkDataSetToPolyFilter
 {
 public:
   vtkCutter(vtkImplicitFunction *cf=NULL);

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataWriter.h"
 #include "vtkStructuredPoints.h"
 
-class vtkStructuredPointsWriter : public vtkDataWriter
+class VTK_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {
 public:
   vtkStructuredPointsWriter() {};

@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkVectorTopology : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkVectorTopology : public vtkDataSetToPolyFilter
 {
 public:
   vtkVectorTopology();

@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_INTERSECTION_OPERATOR 1
 #define VTK_DIFFERENCE_OPERATOR 2
 
-class vtkBooleanStructuredPoints : public vtkFilter
+class VTK_EXPORT vtkBooleanStructuredPoints : public vtkFilter
 {
 public:
   vtkBooleanStructuredPoints();

@@ -42,12 +42,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkWIN32Header_h
 #define __vtkWIN32Header_h
 
+// include  generic stuff 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fstream.h>
 #include <math.h>
 
+// now add in the UNIX / Windows varients
+#ifdef _WIN32
+#include <strstrea.h>
 #include <afxwin.h>  // MFC core and standard components
 #include <afxext.h>  // MFC extensions
 #ifdef stdio
@@ -62,9 +66,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #pragma warning ( disable : 4309 )
 
 #ifdef VTKDLL
-#define class class  __declspec( dllexport ) 
+#define VTK_EXPORT __declspec( dllexport ) 
 #else
-#define class class __declspec( dllimport )
+#define VTK_EXPORT __declspec( dllimport )
+#endif
+
+// Now for the UNIX stuff
+#else 
+
+#include <strstream.h>
+#define VTK_EXPORT
+
 #endif
 
 #endif

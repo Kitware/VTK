@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <fstream.h>
 #include "vtkImageCachedSource.h"
 
-class vtkImageReader : public vtkImageCachedSource
+class VTK_EXPORT vtkImageReader : public vtkImageCachedSource
 {
 public:
   vtkImageReader();

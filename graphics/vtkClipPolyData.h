@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyToPolyFilter.h"
 #include "vtkImplicitFunction.h"
 
-class vtkClipPolyData : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkClipPolyData : public vtkPolyToPolyFilter
 {
 public:
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);

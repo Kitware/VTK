@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "starbase.c.h"
 
-class vtkSbrRenderer : public vtkRenderer
+class VTK_EXPORT vtkSbrRenderer : public vtkRenderer
 {
 public:
   vtkSbrRenderer();

@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkRenderWindowInteractor.h"
 
-class vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
+class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
   vtkWin32RenderWindowInteractor();

@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGlyph3D.h"
 #include "vtkPointSource.h"
 
-class vtkLODActor : public vtkActor
+class VTK_EXPORT vtkLODActor : public vtkActor
 {
  public:
   vtkLODActor();

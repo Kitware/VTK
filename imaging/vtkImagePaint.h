@@ -70,7 +70,7 @@ public:
 //
 
 
-class vtkImagePaint : public vtkImageRegion
+class VTK_EXPORT vtkImagePaint : public vtkImageRegion
 {
 public:
   vtkImagePaint();

@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-class vtkCastToConcrete : public vtkDataSetFilter
+class VTK_EXPORT vtkCastToConcrete : public vtkDataSetFilter
 {
 
 public:

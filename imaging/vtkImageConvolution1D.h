@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSpatialFilter.h"
 #include "vtkImageRegion.h"
 
-class vtkImageConvolution1D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageConvolution1D : public vtkImageSpatialFilter
 {
 public:
   vtkImageConvolution1D();

@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_VARY_RADIUS_BY_SCALAR 1
 #define VTK_VARY_RADIUS_BY_VECTOR 2
 
-class vtkTubeFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTubeFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTubeFilter();

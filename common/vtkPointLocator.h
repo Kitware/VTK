@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkIdList.h"
 
-class vtkPointLocator : public vtkLocator
+class VTK_EXPORT vtkPointLocator : public vtkLocator
 {
 public:
   vtkPointLocator();

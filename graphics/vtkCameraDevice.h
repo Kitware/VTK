@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkCamera;
 
-class vtkCameraDevice : public vtkObject
+class VTK_EXPORT vtkCameraDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkCameraDevice";};

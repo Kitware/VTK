@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageReader.h"
 
-class vtkImageFileReader : public vtkImageReader
+class VTK_EXPORT vtkImageFileReader : public vtkImageReader
 {
 public:
   vtkImageFileReader();

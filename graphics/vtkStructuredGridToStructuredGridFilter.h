@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGridFilter.h"
 #include "vtkStructuredGrid.h"
 
-class vtkStructuredGridToStructuredGridFilter : public vtkStructuredGridFilter
+class VTK_EXPORT vtkStructuredGridToStructuredGridFilter : public vtkStructuredGridFilter
 {
 public:
   vtkStructuredGridToStructuredGridFilter();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToUnstructuredGridFilter.h"
 #include "vtkImplicitFunction.h"
 
-class vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
+class VTK_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkExtractGeometry(vtkImplicitFunction *f=NULL);

@@ -79,7 +79,7 @@ struct vtkSphereTreeSphere
  
 
 
-class vtkSphereTree : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkSphereTree : public vtkPolyToPolyFilter
 {
 public:
   vtkSphereTree();

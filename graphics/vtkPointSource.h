@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkPointSource : public vtkPolySource 
+class VTK_EXPORT vtkPointSource : public vtkPolySource 
 {
 public:
   vtkPointSource(int numPts=10);

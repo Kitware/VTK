@@ -103,7 +103,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class vtkGlyph3D : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkGlyph3D : public vtkDataSetToPolyFilter
 {
 public:
   vtkGlyph3D();

@@ -114,7 +114,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLineSource.h"
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkLinkEdgels.h"
-#include "vtkLinkSurfels.h"
 #include "vtkMCubesReader.h"
 #include "vtkMCubesWriter.h"
 #include "vtkMapper.h"

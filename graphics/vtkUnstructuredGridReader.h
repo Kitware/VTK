@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnstructuredGridSource.h"
 #include "vtkDataReader.h"
 
-class vtkUnstructuredGridReader : public vtkUnstructuredGridSource
+class VTK_EXPORT vtkUnstructuredGridReader : public vtkUnstructuredGridSource
 {
 public:
   vtkUnstructuredGridReader();

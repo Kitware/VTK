@@ -109,7 +109,7 @@ static vtkImageComplex _vtkImageComplexMultiplyTemp = {0.0, 0.0};
 /******************* End of COMPLEX number stuff ********************/
 
 
-class vtkImageFourierFilter : public vtkImageFilter
+class VTK_EXPORT vtkImageFourierFilter : public vtkImageFilter
 {
 public:
   char *GetClassName() {return "vtkImageFourierFilter";};

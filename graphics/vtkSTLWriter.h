@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyWriter.h"
 #include "vtkPolyData.h"
 
-class vtkSTLWriter : public vtkPolyWriter
+class VTK_EXPORT vtkSTLWriter : public vtkPolyWriter
 {
 public:
   vtkSTLWriter();

@@ -93,7 +93,7 @@ struct SphereList
 
 
 
-class vtkClaw : public vtkObject
+class VTK_EXPORT vtkClaw : public vtkObject
 {
 public:
   vtkClaw();

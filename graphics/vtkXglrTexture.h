@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkXglrRenderer;
 
-class vtkXglrTexture : public vtkTextureDevice
+class VTK_EXPORT vtkXglrTexture : public vtkTextureDevice
 {
 public:
   vtkXglrTexture();

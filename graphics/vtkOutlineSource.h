@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkOutlineSource : public vtkPolySource 
+class VTK_EXPORT vtkOutlineSource : public vtkPolySource 
 {
 public:
   vtkOutlineSource();

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.h"
 #include "vtkStructuredData.h"
 
-class vtkStructuredPoints : public vtkDataSet
+class VTK_EXPORT vtkStructuredPoints : public vtkDataSet
 {
 public:
   vtkStructuredPoints();

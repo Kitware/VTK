@@ -69,7 +69,7 @@ class vtkActorDevice;
 class vtkProperty;
 class vtkMapper;
 
-class vtkActor : public vtkProp
+class VTK_EXPORT vtkActor : public vtkProp
 {
  public:
   vtkActor();

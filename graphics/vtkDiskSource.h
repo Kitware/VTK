@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolySource.h"
 #include "vtkPolyData.h"
 
-class vtkDiskSource : public vtkPolySource 
+class VTK_EXPORT vtkDiskSource : public vtkPolySource 
 {
 public:
   vtkDiskSource();

@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellList.h"
 #include "vtkLinkList.h"
 
-class vtkPolyData : public vtkPointSet 
+class VTK_EXPORT vtkPolyData : public vtkPointSet 
 {
 public:
   vtkPolyData();

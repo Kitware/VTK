@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkStripper : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkStripper : public vtkPolyToPolyFilter
 {
 public:
   vtkStripper();

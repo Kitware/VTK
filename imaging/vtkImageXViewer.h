@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include 	"vtkImageViewer.h"
 
-class vtkImageXViewer : public vtkImageViewer {
+class VTK_EXPORT vtkImageXViewer : public vtkImageViewer {
 public:
   vtkImageXViewer();
   ~vtkImageXViewer();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkTexture;
 
-class vtkTextureDevice : public vtkObject
+class VTK_EXPORT vtkTextureDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkTextureDevice";};

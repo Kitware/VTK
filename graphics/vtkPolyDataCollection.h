@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 #include "vtkPolyData.h"
 
-class vtkPolyDataCollection : public vtkCollection
+class VTK_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
   char *GetClassName() {return "vtkPolyDataCollection";};

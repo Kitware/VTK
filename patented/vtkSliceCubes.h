@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeReader.h"
 #include "vtkMCubesReader.h"
 
-class vtkSliceCubes : public vtkObject
+class VTK_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
   vtkSliceCubes();

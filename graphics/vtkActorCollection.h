@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 class vtkActor;
 
-class vtkActorCollection : public vtkCollection
+class VTK_EXPORT vtkActorCollection : public vtkCollection
 {
  public:
   char *GetClassName() {return "vtkActorCollection";};

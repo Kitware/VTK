@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageMagnitude : public vtkImageFilter
+class VTK_EXPORT vtkImageMagnitude : public vtkImageFilter
 {
 public:
   vtkImageMagnitude();

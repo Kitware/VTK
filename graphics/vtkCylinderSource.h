@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkCylinderSource : public vtkPolySource 
+class VTK_EXPORT vtkCylinderSource : public vtkPolySource 
 {
 public:
   vtkCylinderSource(int res=6);

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindowCollection.h"
 #include "vtkRenderWindowInteractor.h"
 
-class vtkRenderMaster : public vtkObject
+class VTK_EXPORT vtkRenderMaster : public vtkObject
 {
  public:
   vtkRenderMaster();

@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkPolyNormals : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkPolyNormals : public vtkPolyToPolyFilter
 {
 public:
   vtkPolyNormals();

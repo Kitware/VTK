@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 
-class vtkTransform : public vtkObject
+class VTK_EXPORT vtkTransform : public vtkObject
 {
  public:
   vtkTransform ();

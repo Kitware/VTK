@@ -78,7 +78,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_NORMAL_EXTRUSION 2
 #define VTK_POINT_EXTRUSION 3
 
-class vtkLinearExtrusionFilter : public vtkPolyToPolyFilter 
+class VTK_EXPORT vtkLinearExtrusionFilter : public vtkPolyToPolyFilter 
 {
 public:
   vtkLinearExtrusionFilter();

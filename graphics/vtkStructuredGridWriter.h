@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataWriter.h"
 #include "vtkStructuredGrid.h"
 
-class vtkStructuredGridWriter : public vtkDataWriter
+class VTK_EXPORT vtkStructuredGridWriter : public vtkDataWriter
 {
 public:
   vtkStructuredGridWriter() {};

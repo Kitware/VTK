@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkFloatPoints;
 class vtkIdList;
 
-class vtkPoints : public vtkRefCount 
+class VTK_EXPORT vtkPoints : public vtkRefCount 
 {
 public:
   vtkPoints();

@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-class vtkExporter : public vtkObject 
+class VTK_EXPORT vtkExporter : public vtkObject 
 {
 public:
   vtkExporter();

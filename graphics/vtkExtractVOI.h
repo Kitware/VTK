@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 
-class vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_EXPORT vtkExtractVOI : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
   vtkExtractVOI();

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredGridToPolyFilter.h"
 
-class vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyFilter
+class VTK_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyFilter
 {
 public:
   char *GetClassName() {return "vtkStructuredGridOutlineFilter";};

@@ -106,7 +106,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSetFilter.h"
 #include "vtkPolyData.h"
 
-class vtkDelaunay2D : public vtkPointSetFilter
+class VTK_EXPORT vtkDelaunay2D : public vtkPointSetFilter
 {
 public:
   vtkDelaunay2D();

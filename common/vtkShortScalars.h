@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkShortArray.h"
 
-class vtkShortScalars : public vtkScalars 
+class VTK_EXPORT vtkShortScalars : public vtkScalars 
 {
 public:
   vtkShortScalars() {};

@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 #include "vtkTransformCollection.h"
 
-class vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
   vtkSweptSurface();

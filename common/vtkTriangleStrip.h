@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCell.h"
 
-class vtkTriangleStrip : public vtkCell
+class VTK_EXPORT vtkTriangleStrip : public vtkCell
 {
 public:
   vtkTriangleStrip() {};

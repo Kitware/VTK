@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPointLocator.h"
 
-class vtkMergePoints : public vtkPointLocator
+class VTK_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
   vtkMergePoints() {};

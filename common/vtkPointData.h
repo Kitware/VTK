@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTensors.h"
 #include "vtkUserDefined.h"
 
-class vtkPointData : public vtkObject 
+class VTK_EXPORT vtkPointData : public vtkObject 
 {
 public:
   vtkPointData();

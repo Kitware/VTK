@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPointSetToPointSetFilter.h"
 
-class vtkWarpScalar : public vtkPointSetToPointSetFilter
+class VTK_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:
   vtkWarpScalar();

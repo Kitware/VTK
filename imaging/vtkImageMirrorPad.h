@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImagePadFilter.h"
 
-class vtkImageMirrorPad : public vtkImagePadFilter
+class VTK_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
   vtkImageMirrorPad();

@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkUnsignedCharArray.h"
 
-class vtkUnsignedCharScalars : public vtkScalars 
+class VTK_EXPORT vtkUnsignedCharScalars : public vtkScalars 
 {
 public:
   vtkUnsignedCharScalars() {};

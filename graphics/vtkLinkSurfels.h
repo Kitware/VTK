@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class vtkLinkSurfels : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkLinkSurfels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkLinkSurfels();

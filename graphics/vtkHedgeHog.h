@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.h"
 
-class vtkHedgeHog : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyFilter
 {
 public:
   vtkHedgeHog() : ScaleFactor(1.0) {};

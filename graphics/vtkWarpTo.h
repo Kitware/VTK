@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPointSetToPointSetFilter.h"
 
-class vtkWarpTo : public vtkPointSetToPointSetFilter
+class VTK_EXPORT vtkWarpTo : public vtkPointSetToPointSetFilter
 {
 public:
   vtkWarpTo() {this->ScaleFactor = 0.5; this->Absolute = 0;};

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkPolyMapperDevice;
 
-class vtkPolyMapper : public vtkMapper 
+class VTK_EXPORT vtkPolyMapper : public vtkMapper 
 {
 public:
   vtkPolyMapper();

@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGraymap.h"
 #include "vtkBitmap.h"
 
-class vtkPNMReader : public vtkVolumeReader
+class VTK_EXPORT vtkPNMReader : public vtkVolumeReader
 {
 public:
   vtkPNMReader();

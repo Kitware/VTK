@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class vtkDividingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkDividingCubes();

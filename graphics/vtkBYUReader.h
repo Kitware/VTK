@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkPolySource.h"
 
-class vtkBYUReader : public vtkPolySource 
+class VTK_EXPORT vtkBYUReader : public vtkPolySource 
 {
 public:
   vtkBYUReader();

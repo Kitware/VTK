@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIntArray.h"
 #include "vtkCell.h"
 
-class vtkCellArray : public vtkRefCount
+class VTK_EXPORT vtkCellArray : public vtkRefCount
 {
 public:
   vtkCellArray() : NumberOfCells(0), Location(0) {};

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageFilter.h"
 #include "vtkImageDilateErode.h"
 
-class vtkImageOpenClose : public vtkImageFilter
+class VTK_EXPORT vtkImageOpenClose : public vtkImageFilter
 {
 public:
   vtkImageOpenClose();

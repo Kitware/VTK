@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.h"
 #include "vtkStructuredGrid.h"
 
-class vtkDataSetToStructuredGridFilter : public vtkDataSetFilter
+class VTK_EXPORT vtkDataSetToStructuredGridFilter : public vtkDataSetFilter
 {
 public:
   vtkDataSetToStructuredGridFilter();

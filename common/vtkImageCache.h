@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageRegion.h"
 
 
-class vtkImageCache : public vtkImageSource
+class VTK_EXPORT vtkImageCache : public vtkImageSource
 {
 public:
   vtkImageCache();

@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class vtkRefCount : public vtkObject
+class VTK_EXPORT vtkRefCount : public vtkObject
 {
 public:
   vtkRefCount();

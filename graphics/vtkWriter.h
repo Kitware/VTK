@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
-class vtkWriter : public vtkObject 
+class VTK_EXPORT vtkWriter : public vtkObject 
 {
 public:
   vtkWriter();

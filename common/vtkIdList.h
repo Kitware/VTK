@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkIntArray.h"
 
-class vtkIdList : public vtkObject
+class VTK_EXPORT vtkIdList : public vtkObject
 {
  public:
   vtkIdList(const int sz=512, const int ext=1000):Ia(sz,ext) {};

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkGlrRenderer;
 
-class vtkGlrTexture : public vtkTextureDevice
+class VTK_EXPORT vtkGlrTexture : public vtkTextureDevice
 {
 public:
   vtkGlrTexture();

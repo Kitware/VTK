@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkSbrRenderer;
 
-class vtkSbrTexture : public vtkTexture
+class VTK_EXPORT vtkSbrTexture : public vtkTexture
 {
 public:
   vtkSbrTexture();

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageHarrWavelet2D : public vtkImageFilter
+class VTK_EXPORT vtkImageHarrWavelet2D : public vtkImageFilter
 {
 public:
   vtkImageHarrWavelet2D();

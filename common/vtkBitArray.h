@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class vtkBitArray : public vtkObject 
+class VTK_EXPORT vtkBitArray : public vtkObject 
 {
 public:
   vtkBitArray():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

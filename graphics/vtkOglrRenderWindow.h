@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXRenderWindow.h"
 #include "GL/glx.h"
 
-class vtkOglrRenderWindow : public vtkXRenderWindow
+class VTK_EXPORT vtkOglrRenderWindow : public vtkXRenderWindow
 {
 protected:
   GLXContext ContextId;

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkIdList;
 class vtkFloatTensors;
 
-class vtkTensors : public vtkRefCount 
+class VTK_EXPORT vtkTensors : public vtkRefCount 
 {
 public:
   vtkTensors(int dim=3);

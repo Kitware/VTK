@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageData.h"
 
 
-class vtkImageRegion : public vtkImageSource 
+class VTK_EXPORT vtkImageRegion : public vtkImageSource 
 {
 public:
   vtkImageRegion();

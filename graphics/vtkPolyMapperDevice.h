@@ -63,7 +63,7 @@ class vtkColorScalars;
 class vtkRenderer;
 class vtkActor;
 
-class vtkPolyMapperDevice : public vtkObject
+class VTK_EXPORT vtkPolyMapperDevice : public vtkObject
 {
  public:
   vtkPolyMapperDevice();

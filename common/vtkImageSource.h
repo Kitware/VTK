@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageRegion;
 
 
-class vtkImageSource : public vtkObject 
+class VTK_EXPORT vtkImageSource : public vtkObject 
 {
 public:
   vtkImageSource();

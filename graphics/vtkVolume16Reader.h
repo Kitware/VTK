@@ -73,7 +73,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeReader.h"
 #include "vtkTransform.h"
 
-class vtkVolume16Reader : public vtkVolumeReader
+class VTK_EXPORT vtkVolume16Reader : public vtkVolumeReader
 {
 public:
   vtkVolume16Reader();

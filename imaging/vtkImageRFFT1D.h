@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFourierFilter.h"
 
-class vtkImageRFFT1D : public vtkImageFourierFilter
+class VTK_EXPORT vtkImageRFFT1D : public vtkImageFourierFilter
 {
 public:
   vtkImageRFFT1D();

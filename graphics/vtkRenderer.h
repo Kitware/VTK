@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderWindow;
 class vtkNewVolumeRenderer;
 
-class vtkRenderer : public vtkObject
+class VTK_EXPORT vtkRenderer : public vtkObject
 {
 public:
   vtkRenderer();

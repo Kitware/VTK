@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.h"
 #include "vtkPolyData.h"
 
-class vtkPolyFilter : public vtkFilter 
+class VTK_EXPORT vtkPolyFilter : public vtkFilter 
 {
 public:
   char *GetClassName() {return "vtkPolyFilter";};

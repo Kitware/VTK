@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkFilter.h"
 
-class vtkExtractVectorComponents : public vtkFilter
+class VTK_EXPORT vtkExtractVectorComponents : public vtkFilter
 {
 public:
   vtkExtractVectorComponents();

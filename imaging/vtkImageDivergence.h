@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageDivergence : public vtkImageFilter
+class VTK_EXPORT vtkImageDivergence : public vtkImageFilter
 {
 public:
   vtkImageDivergence();

@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMath.h"
+#include "vtkTriangle.h"
 #include "vtkMergePoints.h"
 #include "vtkLinkSurfels.h"
 
@@ -236,7 +237,7 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
     1, 3, 6, 4, 3, 6, 7, 8, 9, 9, 9, 9, 9, /*0101 1011*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1100*/
     1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1101*/
-    1, 3, 6, 7, 1, 4, 5, 8, 9, 9, 9, 9, 9, /*0101 1110*/
+    1, 3, 6, 4, 1, 4, 5, 8, 9, 9, 9, 9, 9, /*0101 1110*/
     1, 3, 7, 5, 4, 6, 7, 5, 9, 9, 9, 9, 9, /*0101 1111*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0000*/
     1, 2, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0001*/
@@ -315,7 +316,7 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
     64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1010*/
     64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1011*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1100*/
-    0, 2, 7, 6, 0, 4, 5, 8, 9, 9, 9, 9, 9, /*1010 1101*/
+    0, 2, 7, 5, 0, 4, 5, 8, 9, 9, 9, 9, 9, /*1010 1101*/
     64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1110*/
     64,2, 6, 4, 4, 5, 7, 6, 9, 9, 9, 9, 9, /*1010 1111*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0000*/
@@ -353,7 +354,7 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0000*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0001*/
     0, 1, 6, 8, 1, 3, 6, 8, 9, 9, 9, 9, 9, /*1101 0010*/
-    0, 1, 6, 7, 1, 3, 7, 8, 9, 9, 9, 9, 9, /*1101 0011*/
+    0, 1, 7, 6, 1, 3, 7, 8, 9, 9, 9, 9, 9, /*1101 0011*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0100*/
     1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0101*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0110*/
@@ -369,7 +370,7 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0000*/
     0, 1, 7, 8, 0, 2, 7, 8, 9, 9, 9, 9, 9, /*1110 0001*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0010*/
-    0, 1, 6, 7, 0, 2, 6, 8, 9, 9, 9, 9, 9, /*1110 0011*/
+    0, 1, 7, 6, 0, 2, 6, 8, 9, 9, 9, 9, 9, /*1110 0011*/
     9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0100*/
     0, 2, 7, 5, 0, 1, 5, 8, 9, 9, 9, 9, 9, /*1110 0101*/
     1, 5, 6, 2, 0, 1, 2, 8, 9, 9, 9, 9, 9, /*1110 0110*/
@@ -409,6 +410,8 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
   vtkMergePoints *locator;
   float vec[3], bounds[6];
   int Id[4];
+  int caseVal;
+  float norm[3];
   
   offset[0] = 0;
   offset[1] = 1;
@@ -479,16 +482,16 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
 	    {
 	    for (pointNum = 0; pointNum < 4; pointNum++)
 	      {
-	      if (polygonCases[index + pointNum] < 8)
+	      caseVal = polygonCases[index + pointNum]%16;
+	      if (caseVal < 8)
 		{
-		xo = x + polygonCases[index + pointNum]%2;
-		yo = y + (polygonCases[index + pointNum]/2)%2;
-		zo = z + (polygonCases[index + pointNum]/4)%2;
+		xo = x + caseVal%2;
+		yo = y + (caseVal/2)%2;
+		zo = z + (caseVal/4)%2;
 		vec[0] = xo*aspect[0] + origin[0];
 		vec[1] = yo*aspect[1] + origin[1];
 		vec[2] = zo*aspect[2] + origin[2];
-		if ((Id[pointNum] = locator->IsInsertedPoint(vec)) 
-		    < 0)
+		if ((Id[pointNum] = locator->IsInsertedPoint(vec)) < 0)
 		  {
 		  Id[pointNum] = locator->InsertNextPoint(vec);
 		  outScalars->InsertNextScalar(image[xo +
@@ -500,20 +503,45 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
 		}
 	      }
 	    // add the polygon
-	    if (polygonCases[index + 3] < 8)
+	    vtkTriangle::ComputeNormal(newPts->GetPoint(Id[0]),
+				       newPts->GetPoint(Id[1]), 
+				       newPts->GetPoint(Id[2]),norm);
+	    inVectors->GetVector(xo+xdim*(yo+zo*ydim),vec);
+	    if (vtkMath::Dot(norm,vec) > 0)
 	      {
-	      newLines->InsertNextCell(4);
-	      newLines->InsertCellPoint(Id[0]);
-	      newLines->InsertCellPoint(Id[1]);
-	      newLines->InsertCellPoint(Id[2]);
-	      newLines->InsertCellPoint(Id[3]);
+	      if (polygonCases[index + 3] < 8)
+		{
+		newLines->InsertNextCell(4);
+		newLines->InsertCellPoint(Id[0]);
+		newLines->InsertCellPoint(Id[1]);
+		newLines->InsertCellPoint(Id[2]);
+		newLines->InsertCellPoint(Id[3]);
+		}
+	      else
+		{
+		newLines->InsertNextCell(3);
+		newLines->InsertCellPoint(Id[0]);
+		newLines->InsertCellPoint(Id[1]);
+		newLines->InsertCellPoint(Id[2]);
+		}
 	      }
 	    else
 	      {
-	      newLines->InsertNextCell(3);
-	      newLines->InsertCellPoint(Id[0]);
-	      newLines->InsertCellPoint(Id[1]);
-	      newLines->InsertCellPoint(Id[2]);
+	      if (polygonCases[index + 3] < 8)
+		{
+		newLines->InsertNextCell(4);
+		newLines->InsertCellPoint(Id[3]);
+		newLines->InsertCellPoint(Id[2]);
+		newLines->InsertCellPoint(Id[1]);
+		newLines->InsertCellPoint(Id[0]);
+		}
+	      else
+		{
+		newLines->InsertNextCell(3);
+		newLines->InsertCellPoint(Id[2]);
+		newLines->InsertCellPoint(Id[1]);
+		newLines->InsertCellPoint(Id[0]);
+		}
 	      }
 	    }
 	  index += 4;

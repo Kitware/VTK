@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkAxes : public vtkPolySource 
+class VTK_EXPORT vtkAxes : public vtkPolySource 
 {
 public:
   vtkAxes();

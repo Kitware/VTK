@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkIntArray.h"
 
-class vtkIntPoints : public vtkPoints
+class VTK_EXPORT vtkIntPoints : public vtkPoints
 {
 public:
   vtkIntPoints() {};

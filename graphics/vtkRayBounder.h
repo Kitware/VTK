@@ -13,7 +13,7 @@
 #include "vtkObject.h"
 #include "vtkRenderer.h"
 
-class vtkRayBounder : public vtkObject
+class VTK_EXPORT vtkRayBounder : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkRayBounder";};

@@ -105,7 +105,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_WHOLE_SINGLE_GRID_NO_IBLANKING 0
 #define VTK_WHOLE_MULTI_GRID_NO_IBLANKING 2
 
-class vtkPLOT3DReader : public vtkStructuredGridSource 
+class VTK_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource 
 {
 public:
   vtkPLOT3DReader();

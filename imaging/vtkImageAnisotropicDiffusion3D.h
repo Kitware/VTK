@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
-class vtkImageAnisotropicDiffusion3D : public vtkImageSpatialFilter
+class VTK_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageAnisotropicDiffusion3D();

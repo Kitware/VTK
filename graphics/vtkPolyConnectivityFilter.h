@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_EXTRACT_SPECIFIED_REGIONS 3
 #define VTK_EXTRACT_LARGEST_REGION 4
 
-class vtkPolyConnectivityFilter : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkPolyConnectivityFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkPolyConnectivityFilter();

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXRenderWindow.h"
 #include <xgl/xgl.h>
 
-class vtkXglrRenderWindow : public vtkXRenderWindow
+class VTK_EXPORT vtkXglrRenderWindow : public vtkXRenderWindow
 {
 public:
   vtkXglrRenderWindow();

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageGradientDerivative : public vtkImageFilter
+class VTK_EXPORT vtkImageGradientDerivative : public vtkImageFilter
 {
 public:
   vtkImageGradientDerivative();

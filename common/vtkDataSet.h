@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkSource;
 
-class vtkDataSet : public vtkObject 
+class VTK_EXPORT vtkDataSet : public vtkObject 
 {
 public:
   vtkDataSet();

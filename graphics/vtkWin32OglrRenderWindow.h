@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <afxwin.h>
 #include "vtkRenderWindow.h"
 
-class vtkWin32OglrRenderWindow : public vtkRenderWindow
+class VTK_EXPORT vtkWin32OglrRenderWindow : public vtkRenderWindow
 {
 protected:
   HGLRC  ContextId;

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkRenderer;
 class vtkLight;
 
-class vtkLightDevice : public vtkObject
+class VTK_EXPORT vtkLightDevice : public vtkObject
 {
 public:
   char *GetClassName() {return "vtkLightDevice";};

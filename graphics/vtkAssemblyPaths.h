@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActorCollection.h"
 class vtkActor;
 
-class vtkAssemblyPaths : public vtkCollection
+class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {
  public:
   char *GetClassName() {return "vtkAssemblyPaths";};

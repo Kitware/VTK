@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataWriter.h"
 
-class vtkDataSetWriter : public vtkDataWriter
+class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 {
 public:
   vtkDataSetWriter() {};

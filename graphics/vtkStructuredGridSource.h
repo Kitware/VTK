@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkStructuredGrid.h"
 
-class vtkStructuredGridSource : public vtkSource
+class VTK_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
   vtkStructuredGridSource();

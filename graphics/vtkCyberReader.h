@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkPolySource.h"
 
-class vtkCyberReader : public vtkPolySource 
+class VTK_EXPORT vtkCyberReader : public vtkPolySource 
 {
 public:
   vtkCyberReader();

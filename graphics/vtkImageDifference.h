@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 
-class vtkImageDifference : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_EXPORT vtkImageDifference : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
   vtkImageDifference();

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
 
-class vtkThreshold : public vtkDataSetToUnstructuredGridFilter
+class VTK_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkThreshold();

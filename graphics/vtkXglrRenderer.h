@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #define VTK_MAX_LIGHTS 12
 
-class vtkXglrRenderer : public vtkRenderer
+class VTK_EXPORT vtkXglrRenderer : public vtkRenderer
 {
 protected:
   Xgl_light XglrLights[VTK_MAX_LIGHTS];

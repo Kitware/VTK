@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageDistance1D : public vtkImageFilter
+class VTK_EXPORT vtkImageDistance1D : public vtkImageFilter
 {
 public:
   vtkImageDistance1D();

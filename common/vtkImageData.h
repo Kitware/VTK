@@ -103,7 +103,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 
-class vtkImageData : public vtkRefCount
+class VTK_EXPORT vtkImageData : public vtkRefCount
 {
 public:
   vtkImageData();

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.h"
 #include "vtkPolyDataCollection.h"
 
-class vtkAppendPolyData : public vtkFilter
+class VTK_EXPORT vtkAppendPolyData : public vtkFilter
 {
 public:
   vtkAppendPolyData();

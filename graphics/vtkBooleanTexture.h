@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsSource.h"
 
-class vtkBooleanTexture : public vtkStructuredPointsSource
+class VTK_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
 {
 public:
   vtkBooleanTexture();

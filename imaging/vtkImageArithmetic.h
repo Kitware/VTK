@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageTwoInputFilter.h"
 
-class vtkImageArithmetic : public vtkImageTwoInputFilter
+class VTK_EXPORT vtkImageArithmetic : public vtkImageTwoInputFilter
 {
 public:
   vtkImageArithmetic();

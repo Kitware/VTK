@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkStructuredPoints.h"
 
-class vtkStructuredPointsSource : public vtkSource
+class VTK_EXPORT vtkStructuredPointsSource : public vtkSource
 {
 public:
   vtkStructuredPointsSource();

@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 class vtkCamera;
 
-class vtkFollower : public vtkActor
+class VTK_EXPORT vtkFollower : public vtkActor
 {
  public:
   vtkFollower();

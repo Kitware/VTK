@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkClaw.h"
 
 
-class vtkImageRobotSpace2D : public vtkStateSpace
+class VTK_EXPORT vtkImageRobotSpace2D : public vtkStateSpace
 {
 public:
   vtkImageRobotSpace2D();

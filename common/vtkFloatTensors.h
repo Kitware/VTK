@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTensors.h"
 #include "vtkFloatArray.h"
 
-class vtkFloatTensors : public vtkTensors
+class VTK_EXPORT vtkFloatTensors : public vtkTensors
 {
 public:
   vtkFloatTensors() {};

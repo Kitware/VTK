@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageMagnify1D : public vtkImageFilter
+class VTK_EXPORT vtkImageMagnify1D : public vtkImageFilter
 {
 public:
   vtkImageMagnify1D();

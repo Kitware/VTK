@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.h"
 #include "vtkImagePaint.h"
 
-class vtkRobot2D : public vtkObject
+class VTK_EXPORT vtkRobot2D : public vtkObject
 {
 public:
   vtkRobot2D();

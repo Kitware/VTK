@@ -147,7 +147,7 @@ public:
 //
 
 
-class vtkDecimate : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkDecimate : public vtkPolyToPolyFilter
 {
 public:
   vtkDecimate();

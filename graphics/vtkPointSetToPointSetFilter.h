@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSetFilter.h"
 #include "vtkPointSet.h"
 
-class vtkPointSetToPointSetFilter : public vtkPointSetFilter
+class VTK_EXPORT vtkPointSetToPointSetFilter : public vtkPointSetFilter
 {
 public:
   char *GetClassName() {return "vtkPointSetToPointSetFilter";};

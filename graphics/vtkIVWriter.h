@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyWriter.h"
 
-class vtkIVWriter : public vtkPolyWriter
+class VTK_EXPORT vtkIVWriter : public vtkPolyWriter
 {
 public:
   char *GetClassName() {return "vtkIVWriter";};

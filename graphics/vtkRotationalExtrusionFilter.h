@@ -81,7 +81,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkRotationalExtrusionFilter : public vtkPolyToPolyFilter 
+class VTK_EXPORT vtkRotationalExtrusionFilter : public vtkPolyToPolyFilter 
 {
 public:
   vtkRotationalExtrusionFilter();

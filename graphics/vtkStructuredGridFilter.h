@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.h"
 #include "vtkStructuredGrid.h"
 
-class vtkStructuredGridFilter : public vtkFilter 
+class VTK_EXPORT vtkStructuredGridFilter : public vtkFilter 
 {
 public:
   char *GetClassName() {return "vtkStructuredGridFilter";};

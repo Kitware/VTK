@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAPixmap.h"
 #include "vtkLookupTable.h"
 
-class vtkWindowLevelLookupTable : public vtkLookupTable
+class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);

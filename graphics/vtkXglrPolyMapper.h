@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkXglrRenderer;
 
-class vtkXglrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkXglrPolyMapper : public vtkPolyMapperDevice
 {
 public:
   vtkXglrPolyMapper();

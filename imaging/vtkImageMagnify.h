@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageMagnify1D.h"
 #include "vtkImageSetGet.h"
 
-class vtkImageMagnify : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageMagnify : public vtkImageDecomposedFilter
 {
 public:
   vtkImageMagnify();

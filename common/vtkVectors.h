@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkIdList;
 class vtkFloatVectors;
 
-class vtkVectors : public vtkRefCount 
+class VTK_EXPORT vtkVectors : public vtkRefCount 
 {
 public:
   vtkVectors();

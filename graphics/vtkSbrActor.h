@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkSbrRenderer;
 
-class vtkSbrActor : public vtkActorDevice
+class VTK_EXPORT vtkSbrActor : public vtkActorDevice
 {
 protected:
   

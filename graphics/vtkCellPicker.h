@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPicker.h"
 
-class vtkCellPicker : public vtkPicker
+class VTK_EXPORT vtkCellPicker : public vtkPicker
 {
 public:
   vtkCellPicker();

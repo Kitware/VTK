@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 #include "vtkImplicitFunction.h"
 
-class vtkImplicitFunctionCollection : public vtkCollection
+class VTK_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
   char *GetClassName() {return "vtkImplicitFunctionCollection";};

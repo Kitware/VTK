@@ -82,7 +82,7 @@ typedef struct
   char Event[VTK_LOG_EVENT_LENGTH];
 } vtkTimerLogEntry;
 
-class vtkTimerLog : public vtkObject 
+class VTK_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
   char *GetClassName() {return "vtkTimerLog";};

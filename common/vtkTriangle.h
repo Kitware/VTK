@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCell.h"
 #include "vtkMath.h"
 
-class vtkTriangle : public vtkCell
+class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
   vtkTriangle() {};

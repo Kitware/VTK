@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageReader.h"
 
-class vtkImageSeriesReader : public vtkImageReader
+class VTK_EXPORT vtkImageSeriesReader : public vtkImageReader
 {
 public:
   vtkImageSeriesReader();

@@ -25,7 +25,7 @@
 // to too many entries for a 16 bit value.
 #define NORM_SQR_SIZE          65
 
-class vtkNormalEncoder : public vtkObject
+class VTK_EXPORT vtkNormalEncoder : public vtkObject
 {
 public:
   vtkNormalEncoder();

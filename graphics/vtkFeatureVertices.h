@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkFeatureVertices : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkFeatureVertices : public vtkPolyToPolyFilter
 {
 public:
   vtkFeatureVertices();

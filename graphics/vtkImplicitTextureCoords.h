@@ -75,7 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToDataSetFilter.h"
 #include "vtkImplicitFunction.h"
 
-class vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkImplicitTextureCoords();

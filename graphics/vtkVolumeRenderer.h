@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkVolumeCollection.h"
 
-class vtkVolumeRenderer : public vtkObject
+class VTK_EXPORT vtkVolumeRenderer : public vtkObject
 {
 public:
   vtkVolumeRenderer();

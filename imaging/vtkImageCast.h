@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageFilter.h"
 
-class vtkImageCast : public vtkImageFilter
+class VTK_EXPORT vtkImageCast : public vtkImageFilter
 {
 public:
   vtkImageCast();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImageFilter.h"
 
-class vtkImageFourierWavelet2D : public vtkImageFilter
+class VTK_EXPORT vtkImageFourierWavelet2D : public vtkImageFilter
 {
 public:
   vtkImageFourierWavelet2D();

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkColorScalars.h"
 #include "vtkUnsignedCharArray.h"
 
-class vtkGraymap : public vtkColorScalars 
+class VTK_EXPORT vtkGraymap : public vtkColorScalars 
 {
 public:
   vtkGraymap() {};

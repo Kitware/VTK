@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImplicitFunction.h"
 #include "vtkDataSet.h"
 
-class vtkImplicitDataSet : public vtkImplicitFunction
+class VTK_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
   vtkImplicitDataSet();

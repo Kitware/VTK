@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsSource.h"
 #include "vtkDataReader.h"
 
-class vtkStructuredPointsReader : public vtkStructuredPointsSource
+class VTK_EXPORT vtkStructuredPointsReader : public vtkStructuredPointsSource
 {
 public:
   vtkStructuredPointsReader();

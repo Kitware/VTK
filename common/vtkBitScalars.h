@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkBitArray.h"
 
-class vtkBitScalars : public vtkScalars 
+class VTK_EXPORT vtkBitScalars : public vtkScalars 
 {
 public:
   vtkBitScalars() {};

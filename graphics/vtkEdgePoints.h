@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToPolyFilter.h"
 #include "vtkMergePoints.h"
 
-class vtkEdgePoints : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkEdgePoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkEdgePoints();

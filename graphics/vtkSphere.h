@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImplicitFunction.h"
 
-class vtkSphere : public vtkImplicitFunction
+class VTK_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
   vtkSphere();

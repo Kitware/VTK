@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-class vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
+class VTK_EXPORT vtkShepardMethod : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkShepardMethod();

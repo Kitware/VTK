@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolyToPolyFilter.h"
 
-class vtkTriangularTCoords : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkTriangularTCoords : public vtkPolyToPolyFilter
 {
 public:
   char *GetClassName() {return "vtkTriangularTCoords";};

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageTwoInputFilter.h"
 
-class vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
+class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
   vtkImageNonMaximumSuppression();

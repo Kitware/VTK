@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkUnstructuredGrid;
 
-class vtkTetra : public vtkCell
+class VTK_EXPORT vtkTetra : public vtkCell
 {
 public:
   vtkTetra() {};

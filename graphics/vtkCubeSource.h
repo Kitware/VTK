@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPolySource.h"
 
-class vtkCubeSource : public vtkPolySource 
+class VTK_EXPORT vtkCubeSource : public vtkPolySource 
 {
 public:
   vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);

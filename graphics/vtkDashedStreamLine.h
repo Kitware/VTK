@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStreamLine.h"
 
-class vtkDashedStreamLine : public vtkStreamLine
+class VTK_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
   vtkDashedStreamLine();

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetToUnstructuredGridFilter.h"
 #include "vtkDataSetCollection.h"
 
-class vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
+class VTK_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkAppendFilter();

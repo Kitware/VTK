@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkOglrRenderer;
 class vtkProperty;
 
-class vtkOglrPolyMapper : public vtkPolyMapperDevice
+class VTK_EXPORT vtkOglrPolyMapper : public vtkPolyMapperDevice
 {
  public:
   vtkOglrPolyMapper();

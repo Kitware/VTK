@@ -59,7 +59,7 @@ class vtkStackElement //;prevents pick-up by man page generator
 };
 //ETX end tcl exclude
 
-class vtkStack : public vtkObject
+class VTK_EXPORT vtkStack : public vtkObject
 {
 public:
   vtkStack();

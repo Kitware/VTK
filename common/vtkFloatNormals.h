@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkFloatArray.h"
 
-class vtkFloatNormals : public vtkNormals
+class VTK_EXPORT vtkFloatNormals : public vtkNormals
 {
 public:
   vtkFloatNormals() {};

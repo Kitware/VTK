@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_DIFFERENCE 2
 #define VTK_UNION_OF_MAGNITUDES 3
 
-class vtkImplicitBoolean : public vtkImplicitFunction
+class VTK_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkImplicitBoolean();

@@ -89,7 +89,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This file is included to grab structure definitions and include files
 #include "vtkDecimate.h"
 
-class vtkDecimatePro : public vtkPolyToPolyFilter
+class VTK_EXPORT vtkDecimatePro : public vtkPolyToPolyFilter
 {
 public:
   vtkDecimatePro();

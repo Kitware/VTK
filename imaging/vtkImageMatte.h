@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageInPlaceFilter.h"
 
-class vtkImageMatte : public vtkImageInPlaceFilter
+class VTK_EXPORT vtkImageMatte : public vtkImageInPlaceFilter
 {
 public:
   vtkImageMatte();

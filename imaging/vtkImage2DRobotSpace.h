@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkClaw.h"
 
 
-class vtkImage2DRobotSpace : public vtkStateSpace
+class VTK_EXPORT vtkImage2DRobotSpace : public vtkStateSpace
 {
 public:
   vtkImage2DRobotSpace();

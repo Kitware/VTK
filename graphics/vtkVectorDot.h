@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToDataSetFilter.h"
 
-class vtkVectorDot : public vtkDataSetToDataSetFilter 
+class VTK_EXPORT vtkVectorDot : public vtkDataSetToDataSetFilter 
 {
 public:
   vtkVectorDot();

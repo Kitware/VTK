@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkImplicitFunction.h"
 
-class vtkImplicitWindowFunction : public vtkImplicitFunction
+class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 {
 public:
   vtkImplicitWindowFunction();

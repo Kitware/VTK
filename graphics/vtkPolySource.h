@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkPolyData.h"
 
-class vtkPolySource : public vtkSource
+class VTK_EXPORT vtkPolySource : public vtkSource
 {
 public:
   vtkPolySource();

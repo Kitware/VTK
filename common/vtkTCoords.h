@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkIdList;
 class vtkFloatTCoords;
 
-class vtkTCoords : public vtkRefCount
+class VTK_EXPORT vtkTCoords : public vtkRefCount
 {
 public:
   vtkTCoords(int dim=2);

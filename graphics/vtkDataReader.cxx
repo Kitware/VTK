@@ -39,11 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <ctype.h>
-#ifdef _WIN32
-#include <strstrea.h>
-#else
-#include <strstream.h>
-#endif
 #include "vtkDataReader.h"
 #include "vtkBitScalars.h"
 #include "vtkUnsignedCharScalars.h"

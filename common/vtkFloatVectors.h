@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkFloatArray.h"
 
-class vtkFloatVectors : public vtkVectors
+class VTK_EXPORT vtkFloatVectors : public vtkVectors
 {
 public:
   vtkFloatVectors() {};

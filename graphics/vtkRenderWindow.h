@@ -68,7 +68,7 @@ class vtkPolyMapperDevice;
 #define VTK_STEREO_CRYSTAL_EYES 1
 #define VTK_STEREO_RED_BLUE     2
 
-class vtkRenderWindow : public vtkObject
+class VTK_EXPORT vtkRenderWindow : public vtkObject
 {
 public:
   vtkRenderWindow();

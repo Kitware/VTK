@@ -79,7 +79,7 @@ struct ThreadInfoStruct
   void                *UserData;
 };
 
-class vtkMultiThreader : public vtkObject 
+class VTK_EXPORT vtkMultiThreader : public vtkObject 
 {
 public:
   vtkMultiThreader();

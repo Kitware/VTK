@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 #include "vtkRenderWindow.h"
 
-class vtkRenderWindowCollection : public vtkCollection
+class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
   char *GetClassName() {return "vtkRenderWindowCollection";};

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkGlrRenderer;
 
-class vtkGlrCamera : public vtkCameraDevice
+class VTK_EXPORT vtkGlrCamera : public vtkCameraDevice
 {
  public:
   virtual char *GetClassName() {return "vtkGlrCamera";};

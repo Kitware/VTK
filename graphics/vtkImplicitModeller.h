@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToStructuredPointsFilter.h"
 
-class vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
+class VTK_EXPORT vtkImplicitModeller : public vtkDataSetToStructuredPointsFilter 
 {
 public:
   vtkImplicitModeller();

@@ -31,7 +31,7 @@ shrink SetShrinkFactor 0.1;
 
 vtkPolyMapper spikeMapper;
     spikeMapper SetInput [shrink GetOutput];
-vtkLODActor spikeActor;
+vtkActor spikeActor;
     spikeActor SetMapper spikeMapper;
 
 # Add the actors to the renderer, set the background and size

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "gl.h"
 
-class vtkGlrRenderer : public vtkRenderer
+class VTK_EXPORT vtkGlrRenderer : public vtkRenderer
 {
  protected:
   int NumberOfLightsBound;

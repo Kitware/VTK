@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 
-class vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
+class VTK_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkLinkEdgels();

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataWriter.h"
 #include "vtkUnstructuredGrid.h"
 
-class vtkUnstructuredGridWriter : public vtkDataWriter
+class VTK_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
   vtkUnstructuredGridWriter() {};

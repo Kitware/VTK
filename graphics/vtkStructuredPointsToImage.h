@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkImageSource.h"
 
-class vtkStructuredPointsToImage : public vtkImageSource
+class VTK_EXPORT vtkStructuredPointsToImage : public vtkImageSource
 {
 public:
   vtkStructuredPointsToImage();

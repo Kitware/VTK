@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkOglrRenderer;
 
-class vtkOglrProperty : public vtkPropertyDevice
+class VTK_EXPORT vtkOglrProperty : public vtkPropertyDevice
 {
  public:
   char *GetClassName() {return "vtkOglrProperty";};

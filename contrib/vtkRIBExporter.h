@@ -79,7 +79,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTexture.h"
 #include "vtkPolyData.h"
 
-class vtkRIBExporter : public vtkExporter
+class VTK_EXPORT vtkRIBExporter : public vtkExporter
 {
 public:
   vtkRIBExporter();

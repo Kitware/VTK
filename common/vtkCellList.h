@@ -58,7 +58,7 @@ struct _vtkCell_s {
     int loc; //location in associated CellArray object
 };
 
-class vtkCellList : public vtkRefCount 
+class VTK_EXPORT vtkCellList : public vtkRefCount 
 {
 public:
   vtkCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

@@ -125,7 +125,7 @@ public:
 //ETX - end tcl exclude
 //
 
-class vtkHyperStreamline : public vtkDataSetToPolyFilter
+class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyFilter
 {
 public:
   vtkHyperStreamline();

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCell.h"
 #include "vtkPoints.h"
 
-class vtkPolygon : public vtkCell
+class VTK_EXPORT vtkPolygon : public vtkCell
 {
 public:
   vtkPolygon() {};
