@@ -33,11 +33,29 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
     a${array}Array Delete
 }
 
-foreach attribute "Scalars Vectors Normals Tensors TCoords" {
+foreach attribute "Scalars Vectors Normals TCoords" {
     dsa SetActive${attribute} aFloatArray
     dsa Get${attribute} aFloatArray
     dsa Get${attribute} foo
 }
+
+vtkFloatArray aFloatTensors
+aFloatTensors Allocate 1 1
+aFloatTensors SetNumberOfComponents 9
+aFloatTensors SetNumberOfTuples 4
+aFloatTensors SetName aFloatTensors
+for {set i 0} {$i < [aFloatTensors GetNumberOfTuples]} {incr i} {
+   for {set j 0} {$j < [aFloatTensors GetNumberOfComponents]} {incr j} {
+      aFloatTensors SetComponent $i $j 1
+      incr k
+   }     
+}
+dsa AddArray  aFloatTensors
+aFloatTensors Delete
+dsa SetActiveTensors aFloatTensors
+dsa GetTensors aFloatTensors
+dsa GetTensors foo
+
 dsa RemoveArray aFloatArray
 
 vtkDataSetAttributes dsa2
