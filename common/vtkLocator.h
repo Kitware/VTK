@@ -63,12 +63,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // buckets. If an intersection is found, more expensive operations are then
 // carried out on the entities in the bucket.
 // 
-// To obtain good performance, locators are often organized in a tree structure.
-// In such a structure, there are frequently multiple "levels" corresponding
-// to different nodes in the tree. So the word level (in the context of the 
-// locator) can be used to specify a particular representation in the tree.
-// For example, in an octree (which is a tree with 8 children), level 0 is 
-// the bounding box, or root octant, and level 1 consists of its eight children.
+// To obtain good performance, locators are often organized in a tree
+// structure.  In such a structure, there are frequently multiple "levels"
+// corresponding to different nodes in the tree. So the word level (in the
+// context of the locator) can be used to specify a particular representation
+// in the tree.  For example, in an octree (which is a tree with 8 children),
+// level 0 is the bounding box, or root octant, and level 1 consists of its
+// eight children.
 
 // .SECTION See Also
 // vtkPointLocator vtkCellLocator vtkOBBTree vtkLocatorFilter
@@ -104,7 +105,7 @@ public:
 
   // Description:
   // Boolean controls whether locator depth/resolution of locator is computed
-  // automatically from average number of entities in bucket. If not set, 
+  // automatically from average number of entities in bucket. If not set,
   // there will be an explicit method to control the construction of the
   // locator (found in the subclass).
   vtkSetMacro(Automatic,int);
