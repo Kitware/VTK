@@ -93,7 +93,6 @@ public:
   // Description:
   // We need to check the modified time of the lookup table too.
   unsigned long GetMTime();
-  void UpdateData(vtkDataObject *output);
 
 protected:
   vtkImageMapToColors();
@@ -101,17 +100,20 @@ protected:
   vtkImageMapToColors(const vtkImageMapToColors&) {};
   void operator=(const vtkImageMapToColors&) {};
 
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation() {
+    this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
+  
+  void ExecuteData(vtkDataObject *output);
+
   vtkScalarsToColors *LookupTable;
   int OutputFormat;
   
   int ActiveComponent;
   int PassAlphaToOutput;
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int extent[6], int id);
-  
   int DataWasPassed;
 };
 

@@ -61,11 +61,6 @@ public:
   vtkSetVector3Macro(Translation, int);
   vtkGetVector3Macro(Translation, int);
 
-
-  // Description:
-  // This method simply copies by reference the input data to the output.
-  void UpdateData(vtkDataObject *data);
-
 protected:
   vtkImageTranslateExtent();
   ~vtkImageTranslateExtent() {};
@@ -76,10 +71,10 @@ protected:
   
   void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+  void ExecuteInformation() {
+    this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ExecuteData(vtkDataObject *data);
 };
-
-
 
 #endif
 
