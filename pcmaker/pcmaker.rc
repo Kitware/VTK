@@ -118,8 +118,6 @@ BEGIN
     PUSHBUTTON      "Help",IDC_HELP1,174,208,50,14
     CONTROL         "Geae",IDC_GEAE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
                     187,157,33,10
-    CONTROL         "DFA",IDC_DFA,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,227,
-                    157,41,10
     LTEXT           "Where is libtk (leave blank for default)",IDC_STATIC,
                     168,94,152,11
     EDITTEXT        IDC_WHERETK,167,105,153,15,ES_AUTOHSCROLL

@@ -37,7 +37,6 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_Lean = FALSE;
 	m_Working = FALSE;
 	m_GEAE = FALSE;
-	m_DFA = FALSE;
 	m_WhereTcl = _T("");
 	m_WhereTk = _T("");
 	//}}AFX_DATA_INIT
@@ -69,7 +68,6 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_LEAN, m_Lean);
 	DDX_Check(pDX, IDC_WORKING, m_Working);
 	DDX_Check(pDX, IDC_GEAE, m_GEAE);
-	DDX_Check(pDX, IDC_DFA, m_DFA);
 	DDX_Text(pDX, IDC_WHERETCL, m_WhereTcl);
 	DDV_MaxChars(pDX, m_WhereTcl, 512);
 	DDX_Text(pDX, IDC_WHERETK, m_WhereTk);

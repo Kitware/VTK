@@ -165,7 +165,6 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_GEMSIP = (dwData&0x40)?TRUE:FALSE;
       dlg.m_GEMSVOLUME = (dwData&0x80)?TRUE:FALSE;
       dlg.m_GEAE = (dwData&0x100)?TRUE:FALSE;
-      dlg.m_DFA = (dwData&0x200)?TRUE:FALSE;
       }
     }
 
@@ -233,7 +232,6 @@ void WriteRegistry(CPcmakerDlg &dlg)
     dwData |= (dlg.m_GEMSIP)?0x40:0;
     dwData |= (dlg.m_GEMSVOLUME)?0x80:0;
     dwData |= (dlg.m_GEAE)?0x100:0;
-    dwData |= (dlg.m_DFA)?0x200:0;
     RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
 		  (CONST BYTE *)&dwData, sizeof(DWORD));
     }

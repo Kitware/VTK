@@ -8,9 +8,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-// Switch to turn on and off widget building in the working directory
-#define BUILD_WORKING_TK_WIDGET 0
-
 // where to split the graphics library: A-O and P-Z
 #define LIB_SPLIT_STRING "vtkp" 
 
@@ -56,14 +53,6 @@ int *SplitGraphicsIndices[40];  // allows 40 libs of >= 50!!!! 2000 files
 int NumInSplitLib[40];
 // keep track of how many split libs
 int NumOfGraphicsLibs=0;
-
-// classes that should only be built with tcl
-char *abstractTcl[100];
-char *concreteTcl[100];
-const char *abstractTcl_lib[100];
-const char *concreteTcl_lib[100];
-int num_abstractTcl = 0;
-int num_concreteTcl = 0;
 
 char *abstract_h[2048];
 char *concrete_h[2048];
@@ -170,14 +159,6 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
           strncmp(concrete[i],"vtkTcl",6) && 
           strncmp(concrete[i],"vtkTk",5) ))
       {
-      if (vals->m_DFA && !( strncmp(concrete[i],"vtkDFA",6) && 
-						                strncmp(concrete[i],"vtkTcl",6) && 
-						                strncmp(concrete[i],"vtkTk",5) ))
-				{
-				concreteTcl[num_concreteTcl] = concrete[i];
-				concreteTcl_lib[num_concreteTcl++] = concrete_lib[i];
-				}
-
       if (i < num_concrete - 1)
         {
         memmove((void *)(concrete + i), (void *)(concrete + i + 1), sizeof(char*)*(num_concrete - i - 1) );
@@ -208,14 +189,6 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
           strncmp(abstract[i],"vtkTcl",6) && 
           strncmp(abstract[i],"vtkTk",5) ))
       {
-      if (vals->m_DFA && !( strncmp(abstract[i],"vtkDFA",6) && 
-						                strncmp(abstract[i],"vtkTcl",6) && 
-						                strncmp(abstract[i],"vtkTk",5) ))
-				{
-				abstractTcl[num_abstractTcl] = abstract[i];
-				abstractTcl_lib[num_abstractTcl++] = abstract_lib[i];
-				}
-
       if (i < num_abstract - 1)
         {
         memmove((void *)(abstract + i), (void *)(abstract + i + 1), sizeof(char*)*(num_abstract - i - 1) );
@@ -251,9 +224,9 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
     fprintf(fp,"int vtkCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[]);\n");
     // claw: I am adding this so c++ can evaluate strings.
     fprintf(fp,"\nTcl_Interp *vtkGlobalTclInterp;\n");
-    fprintf(fp,"\nTcl_HashTable vtkInstanceLookup;\n");
-    fprintf(fp,"Tcl_HashTable vtkPointerLookup;\n");
-    fprintf(fp,"Tcl_HashTable vtkCommandLookup;\n");
+    fprintf(fp,"\n__declspec( dllexport) Tcl_HashTable vtkInstanceLookup;\n");
+    fprintf(fp,"__declspec( dllexport) Tcl_HashTable vtkPointerLookup;\n");
+    fprintf(fp,"__declspec( dllexport) Tcl_HashTable vtkCommandLookup;\n");
     }
   else
     {
@@ -359,8 +332,11 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 
   /* prototype for tkRenderWidget */
   if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
-  if (vals->m_Imaging) fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
-  if (vals->m_Working) fprintf(fp,"extern \"C\" {int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}\n\n");
+  if (vals->m_Imaging) 
+    {
+    fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
+    fprintf(fp,"extern \"C\" {int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);}\n\n");
+    }
 
 
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
@@ -380,10 +356,11 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
     fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
     /* initialize the tkRenderWidget */
     if (vals->m_Graphics) fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
-    if (vals->m_Imaging) fprintf(fp,"  Vtktkimageviewerwidget_Init(interp);\n");
-
-	if (vals->m_Working) fprintf(fp,"  Vtktkimagewindowwidget_Init(interp);\n");
-
+    if (vals->m_Imaging) 
+      {
+      fprintf(fp,"  Vtktkimageviewerwidget_Init(interp);\n");
+      fprintf(fp,"  Vtktkimagewindowwidget_Init(interp);\n");
+      }
   }
   
   for (i = 0; i < anindex; i++)
@@ -421,10 +398,6 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
   for (i = 0; i < num_concrete_h; i++)
   {
 	names[anindex++] = concrete_h[i];
-  }
-  for (i = 0; i < num_concreteTcl; i++)
-  {
-    names[anindex++] = concreteTcl[i];
   }
   
   fp = fopen(fname,"w");
@@ -600,6 +573,15 @@ int ReadMakefiles(CPcmakerDlg *vals)
 	  concrete[num_concrete] = strdup("vtkImageWin32Viewer");
     concrete_lib[num_concrete] = strdup("imaging");
     num_concrete++;
+	  concrete[num_concrete] = strdup("vtkWin32ImageMapper");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
+	  concrete[num_concrete] = strdup("vtkWin32ImageWindow");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
+	  concrete[num_concrete] = strdup("vtkWin32TextMapper");
+    concrete_lib[num_concrete] = strdup("imaging");
+    num_concrete++;
     UpdateEnd(LT_IMAGING);
     }
   if (vals->m_Contrib)
@@ -614,15 +596,6 @@ int ReadMakefiles(CPcmakerDlg *vals)
     UpdateStart(LT_WORKING);
     sprintf(fname,"%s\\working\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("working"));
-	  concrete[num_concrete] = strdup("vtkWin32ImageMapper");
-    concrete_lib[num_concrete] = strdup("working");
-    num_concrete++;
-	  concrete[num_concrete] = strdup("vtkWin32ImageWindow");
-    concrete_lib[num_concrete] = strdup("working");
-    num_concrete++;
-	  concrete[num_concrete] = strdup("vtkWin32TextMapper");
-    concrete_lib[num_concrete] = strdup("working");
-    num_concrete++;
 	  concrete[num_concrete] = strdup("vtkWin32PolyMapper2D");
     concrete_lib[num_concrete] = strdup("working");
     num_concrete++;
@@ -772,8 +745,7 @@ void makeMakefiles(CPcmakerDlg *vals)
   // 1st for computing depends....
   total = 2 * (1 + vals->m_Graphics + vals->m_Imaging + vals->m_Working + vals->m_Contrib + 
                     vals->m_GEMSIP + vals->m_GEMSVOLUME + vals->m_GEAE +
-                    2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h +
-										2*num_concreteTcl + 2*num_abstractTcl);
+                    2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h);
 
   // extra for split graphics stuff
   if (vals->m_Graphics)
@@ -1626,8 +1598,6 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     fprintf(fp," \"%s\\pcmaker\\tk42.lib\" \"%s\\pcmaker\\tcl76.lib\" \n",
             vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  if (vals->m_DFA)
-    fprintf(fp,"FORCE_MULTIPLE=/FORCE:MULTIPLE /WARN:0\n\n");
   fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/vtktcl.pdb\" /machine:I386\\\n");
   fprintf(fp," /out:\"$(LIBDIR)/vtktcl.dll\" /implib:\"$(LIBDIR)/vtktcl.lib\" \n\n"); 
   fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:vtktcl.pdb /machine:I386\\\n");
@@ -1661,25 +1631,6 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
      
     fprintf(fp,"\n\n");
 
-// Special objects...vtk objects which are closely linked with Tcl/Tk
-  if (num_abstractTcl + num_concreteTcl) // special objects
-    {
-    fprintf(fp,"SPECIALTCL_OBJS= \\\n");
-    for (i = 0; i < num_abstractTcl; i++)
-      fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",abstractTcl[i]);
-
-    for (i = 0; i < num_concreteTcl; i++)
-      fprintf(fp,"    \"$(OUTDIR)\\%s.obj\" \\\n",concreteTcl[i]);
-
-    for (i = 0; i < num_abstractTcl; i++)
-      fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstractTcl[i]);
-
-    for (i = 0; i < num_concreteTcl; i++)
-      fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concreteTcl[i]);
-  
-    fprintf(fp,"\n");
-    }
-
   // All the graphics Tcl objects
   if (vals->m_Graphics)
     {
@@ -1703,8 +1654,11 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
   // Now all the TCL objects other than graphics (and DFA stuff)
   fprintf(fp,"OTHERTCL_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
-  if (vals->m_Imaging)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
-  if (vals->m_Working)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" \\\n");
+  if (vals->m_Imaging)  
+    {
+    fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
+    fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" \\\n");
+    }
 
   for (i = (vals->m_Graphics ? abstractEnd[LT_GRAPHICS] : 0); 
                                             i < abstractEnd[LT_COMMON]; i++)
@@ -1723,14 +1677,14 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",concrete_h[i]);
   fprintf(fp,"\n");
   
-  fprintf(fp,"vtktcl.dll : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(SPECIALTCL_OBJS) $(TCLOBJLIBS)\n");
+  fprintf(fp,"vtktcl.dll : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(TCLOBJLIBS)\n");
   fprintf(fp,"    $(LINK32) @<<\n");
-  fprintf(fp,"  $(LINK32_FLAGS) $(FORCE_MULTIPLE) $(MORE_FLAGS2) $(SPECIALTCL_OBJS) $(TCLOBJLIBS) $(VTKDLL_LIB)\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS2) $(TCLOBJLIBS) $(VTKDLL_LIB)\n");
   fprintf(fp,"<<\n\n");
 
-  fprintf(fp,"\"$(LIBDIR)\\vtktcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(SPECIALTCL_OBJS) $(TCLOBJLIBS)\n");
+  fprintf(fp,"\"$(LIBDIR)\\vtktcl.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtktcl.obj\" $(TCLOBJLIBS)\n");
   fprintf(fp,"    $(LINK32) @<<\n");
-  fprintf(fp,"  $(LINK32_FLAGS) $(FORCE_MULTIPLE) $(MORE_FLAGS1) $(SPECIALTCL_OBJS) $(TCLOBJLIBS) $(VTK_LIBRARIES)\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS1) $(TCLOBJLIBS) $(VTK_LIBRARIES)\n");
   fprintf(fp,"<<\n\n");
 
   if (vals->m_Graphics)
@@ -1786,66 +1740,12 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue, int debugFlag)
     fprintf(fp,"\"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" : \"%s\\imaging\\vtkTkImageViewerWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
-    }
-
-
-  if (vals->m_Working)
-    {
-    sprintf(file,"%s\\working\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
+    sprintf(file,"%s\\imaging\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
     OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
-    fprintf(fp,"\"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" : \"%s\\working\\vtkTkImageWindowWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" : \"%s\\imaging\\vtkTkImageWindowWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\working\\vtkTkImageWindowWidget.cxx\"\n\n",vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageWindowWidget.cxx\"\n\n",vals->m_WhereVTK);
     }
-
-
-  for (i = 0; i < num_abstractTcl; i++)
-  {
-    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
-    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
-    vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
-  	      abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ2) \"%s\\%s\\%s.cxx\"\n\n",
-	        vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
-
-    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i]);
-    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
-    vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
-		abstractTcl[i],vals->m_WhereVTK,abstractTcl_lib[i],abstractTcl[i],vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
-    fprintf(fp," $(CPP_PARSE)  \"%s\\%s\\%s.h\"\\\n",
-		vals->m_WhereVTK, abstractTcl_lib[i], abstractTcl[i]);
-    fprintf(fp,"  \"%s\\tcl\\hints\" 0 > src\\%sTcl.cxx\n\n",
-		vals->m_WhereVTK, abstractTcl[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
-		abstractTcl[i],abstractTcl[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",abstractTcl[i]);
-
-  }
-  for (i = 0; i < num_concreteTcl; i++)
-  {
-    sprintf(file,"%s\\%s\\%s.cxx",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
-    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
-    vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"$(OUTDIR)\\%s.obj\" : \"%s\\%s\\%s.cxx\" $(DEPENDS) \n",
-  	      concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ2) \"%s\\%s\\%s.cxx\"\n\n",
-	        vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
-
-    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i]);
-    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
-    vals->m_Progress.OffsetPos(1);
-    fprintf(fp,"\"src\\%sTcl.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkTclUtil.h\" \"%s\\tcl\\cpp_parse.y\" \"%s\\tcl\\hints\" \"$(OUTDIR)\"\n",
-		concreteTcl[i],vals->m_WhereVTK,concreteTcl_lib[i],concreteTcl[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
-    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
-		vals->m_WhereVTK, concreteTcl_lib[i], concreteTcl[i]);
-    fprintf(fp,"  \"%s\\tcl\\hints\" 1 > src\\%sTcl.cxx\n\n",
-		vals->m_WhereVTK, concreteTcl[i]);
-    fprintf(fp,"\"$(OUTDIR)\\%sTcl.obj\" : src\\%sTcl.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
-		concreteTcl[i],concreteTcl[i]);
-    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sTcl.cxx\n\n",concreteTcl[i]);
-  }
 
   fprintf(fp,"\"$(OUTDIR)\\vtktcl.obj\" : src\\vtktcl.cxx \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtktcl.cxx\n\n");

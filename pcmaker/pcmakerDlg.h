@@ -34,7 +34,6 @@ public:
 	BOOL	m_Lean;
 	BOOL	m_Working;
 	BOOL	m_GEAE;
-	BOOL	m_DFA;
 	CString	m_WhereTcl;
 	CString	m_WhereTk;
 	//}}AFX_DATA
