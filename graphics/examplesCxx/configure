@@ -528,13 +528,16 @@ fi
 VTK_LIB_FILE="../libVTKGraphics\${VTK_LIB_EXT} ../../common/libVTKCommon\${VTK_LIB_EXT}"
 
 
-# if using patents we also need imaging library
+# if using imaging we also need imaging library
 # Check whether --with-imaging or --without-imaging was given.
 if test "${with_imaging+set}" = set; then
   withval="$with_imaging"
   if test "$withval" = yes; then
      VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
          fi
+else
+  VTK_LIB_FILE="../../imaging/libVTKImaging\${VTK_LIB_EXT} ${VTK_LIB_FILE}"
+         
 fi
 
 
