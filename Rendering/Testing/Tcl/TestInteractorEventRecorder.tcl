@@ -95,3 +95,4 @@ proc SelectPolygons {} {
 }
 
 recorder Play
+recorder Off
