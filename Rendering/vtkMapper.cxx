@@ -20,7 +20,7 @@
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.100");
+vtkCxxRevisionMacro(vtkMapper, "1.101");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -155,7 +155,7 @@ void vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(
     return;
     }
   vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = factor;
-  vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = units;
+  vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = units;
 }
 
 void vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
