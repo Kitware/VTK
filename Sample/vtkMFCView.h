@@ -25,47 +25,47 @@ class vtkMFCDocument;
 class vtkMFCView : public CView
 {
 protected:
-	vtkMFCView();           // protected constructor used by dynamic creation
-	DECLARE_DYNCREATE(vtkMFCView)
-	int PrintDPI;
-
+  vtkMFCView();           // protected constructor used by dynamic creation
+  DECLARE_DYNCREATE(vtkMFCView)
+    int PrintDPI;
+  
 // Attributes
 public:
 
 // Operations
 public:
-	void SetPrintDPI(int dpi) {this->PrintDPI = dpi;};
+  void SetPrintDPI(int dpi) {this->PrintDPI = dpi;};
   int  GetPrintDPI() {return this->PrintDPI;};
-	vtkMFCDocument *GetDocument() {return (vtkMFCDocument *)m_pDocument;};
-	virtual vtkWindow *GetVTKWindow() {return NULL;};
+  vtkMFCDocument *GetDocument() {return (vtkMFCDocument *)m_pDocument;};
+  virtual vtkWindow *GetVTKWindow() {return NULL;};
   virtual void SetupMemoryRendering(int x, int y, HDC prn) {};
-	virtual void ResumeScreenRendering() {};
+  virtual void ResumeScreenRendering() {};
   virtual unsigned char *GetMemoryData() {return NULL;};
-
+  
 // Overrides
-	// ClassWizard generated virtual function overrides
-	//{{AFX_VIRTUAL(vtkMFCView)
-	protected:
-	virtual void OnDraw(CDC* pDC);      // overridden to draw this view
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	//}}AFX_VIRTUAL
-
+  // ClassWizard generated virtual function overrides
+  //{{AFX_VIRTUAL(vtkMFCView)
+protected:
+  virtual void OnDraw(CDC* pDC);      // overridden to draw this view
+  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
+  //}}AFX_VIRTUAL
+  
 // Implementation
 protected:
-	virtual ~vtkMFCView();
+  virtual ~vtkMFCView();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+  virtual void AssertValid() const;
+  virtual void Dump(CDumpContext& dc) const;
 #endif
-
-	// Generated message map functions
+  
+  // Generated message map functions
 protected:
-	//{{AFX_MSG(vtkMFCView)
-	afx_msg void OnEditCopy();
-	//}}AFX_MSG
-	DECLARE_MESSAGE_MAP()
-};
+  //{{AFX_MSG(vtkMFCView)
+  afx_msg void OnEditCopy();
+  //}}AFX_MSG
+  DECLARE_MESSAGE_MAP()
+    };
 
 /////////////////////////////////////////////////////////////////////////////
 

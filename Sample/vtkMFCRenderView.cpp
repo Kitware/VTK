@@ -19,16 +19,16 @@ IMPLEMENT_DYNCREATE(vtkMFCRenderView, vtkMFCView)
 vtkMFCRenderView::vtkMFCRenderView()
 {
   this->Renderer = vtkRenderer::New();
-	this->RenderWindow = vtkWin32OpenGLRenderWindow::New();
-	this->RenderWindow->AddRenderer(this->Renderer);
+  this->RenderWindow = vtkWin32OpenGLRenderWindow::New();
+  this->RenderWindow->AddRenderer(this->Renderer);
   this->Interactor = vtkWin32RenderWindowInteractor::New();
 }
 
 vtkMFCRenderView::~vtkMFCRenderView()
 {
-	if (this->Interactor) this->Interactor->Delete();
-	if (this->RenderWindow) this->RenderWindow->Delete();
-	if (this->Renderer) this->Renderer->Delete();
+  if (this->Interactor) this->Interactor->Delete();
+  if (this->Renderer) this->Renderer->Delete();
+  if (this->RenderWindow) this->RenderWindow->Delete();
 }
 
 
@@ -47,30 +47,30 @@ END_MESSAGE_MAP()
 
 void vtkMFCRenderView::OnDraw(CDC* pDC)
 {
-	CDocument* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	if (!this->Interactor->GetInitialized())
-		{
-		this->Interactor->SetRenderWindow(this->RenderWindow);
-		WNDPROC OldProc = (WNDPROC)GetWindowLong(this->m_hWnd,GWL_WNDPROC);
-		this->Interactor->Initialize();
-		SetWindowLong(this->m_hWnd,GWL_WNDPROC,(LONG)OldProc);
-		}
-
-	// TODO: add draw code for native data here
+  CDocument* pDoc = GetDocument();
+  ASSERT_VALID(pDoc);
+  
+  if (!this->Interactor->GetInitialized())
+    {
+    this->Interactor->SetRenderWindow(this->RenderWindow);
+    WNDPROC OldProc = (WNDPROC)GetWindowLong(this->m_hWnd,GWL_WNDPROC);
+    this->Interactor->Initialize();
+    SetWindowLong(this->m_hWnd,GWL_WNDPROC,(LONG)OldProc);
+    }
+  
+  // TODO: add draw code for native data here
   if (pDC->IsPrinting())
     {
     int size[2];
-	  float scale;
-
+    float scale;
+    
     BeginWaitCursor();
-		memcpy(size,this->RenderWindow->GetSize(),sizeof(int)*2);
-
+    memcpy(size,this->RenderWindow->GetSize(),sizeof(int)*2);
+    
     int cxDIB = size[0];         // Size of DIB - x
     int cyDIB = size[1];         // Size of DIB - y
     CRect rcDest;
-
+    
     // get size of printer page (in pixels)
     int cxPage = pDC->GetDeviceCaps(HORZRES);
     int cyPage = pDC->GetDeviceCaps(VERTRES);
@@ -91,44 +91,44 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
     rcDest.bottom = rcDest.left = 0;
     if (((float)cyDIB*(float)cxPage/(float)cxInch) > 
 	      ((float)cxDIB*(float)cyPage/(float)cyInch))
-	    {
+      {
       rcDest.top = cyPage;
       rcDest.right = ((float)(cyPage*cxInch*cxDIB)) /
-	      ((float)(cyInch*cyDIB));
-	    }
+        ((float)(cyInch*cyDIB));
+      }
     else
-			{
-	    rcDest.right = cxPage;
-	    rcDest.top = ((float)(cxPage*cyInch*cyDIB)) /
-	       ((float)(cxInch*cxDIB));
-			} 
-
+      {
+      rcDest.right = cxPage;
+      rcDest.top = ((float)(cxPage*cyInch*cyDIB)) /
+        ((float)(cxInch*cxDIB));
+      } 
+    
     CRect	rcDestLP(rcDest);
     pDC->DPtoLP(rcDestLP);
-	  int DPI = this->RenderWindow->GetDPI();
-
+    int DPI = this->RenderWindow->GetDPI();
+    
     this->RenderWindow->SetupMemoryRendering(rcDest.right/scale,
-																						 rcDest.top/scale,
-																					   pDC->m_hAttribDC);
-
+                                             rcDest.top/scale,
+                                             pDC->m_hAttribDC);
+    
     this->RenderWindow->Render();
-
+    
     pDC->SetStretchBltMode(HALFTONE);
-
+    
     StretchBlt(pDC->GetSafeHdc(),0,0,
-	      rcDest.right, rcDest.top, 
-				this->RenderWindow->GetMemoryDC(),
-		    0, 0, rcDest.right/scale, rcDest.top/scale, SRCCOPY);
-
-		this->RenderWindow->ResumeScreenRendering();
-
+               rcDest.right, rcDest.top, 
+               this->RenderWindow->GetMemoryDC(),
+               0, 0, rcDest.right/scale, rcDest.top/scale, SRCCOPY);
+    
+    this->RenderWindow->ResumeScreenRendering();
+    
     EndWaitCursor();
     }
-	else
-		{
-		this->RenderWindow->Render();
-		}	
-	CView::OnDraw(pDC);
+  else
+    {
+    this->RenderWindow->Render();
+    }	
+  CView::OnDraw(pDC);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -137,12 +137,12 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
 #ifdef _DEBUG
 void vtkMFCRenderView::AssertValid() const
 {
-	CView::AssertValid();
+  CView::AssertValid();
 }
 
 void vtkMFCRenderView::Dump(CDumpContext& dc) const
 {
-	CView::Dump(dc);
+  CView::Dump(dc);
 }
 #endif //_DEBUG
 
@@ -152,14 +152,14 @@ void vtkMFCRenderView::Dump(CDumpContext& dc) const
 
 int vtkMFCRenderView::OnCreate(LPCREATESTRUCT lpCreateStruct) 
 {
-	if (vtkMFCView::OnCreate(lpCreateStruct) == -1)
-		return -1;
-	
-	// TODO: Add your specialized creation code here
-	this->RenderWindow->SetParentId(lpCreateStruct->hwndParent);
+  if (vtkMFCView::OnCreate(lpCreateStruct) == -1)
+    return -1;
+  
+  // TODO: Add your specialized creation code here
+  this->RenderWindow->SetParentId(lpCreateStruct->hwndParent);
   this->RenderWindow->SetWindowId(this->m_hWnd);
-	this->RenderWindow->WindowInitialize();
-	return 0;
+  this->RenderWindow->WindowInitialize();
+  return 0;
 }
 
 // Define our own event handler here
@@ -177,29 +177,30 @@ LRESULT vtkMFCRenderView::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
     case WM_CHAR:
     case WM_TIMER:
-			if (this->Interactor->GetInitialized())
-				{
-				return vtkHandleMessage(this->m_hWnd, message, wParam, lParam);
-				}
-			break;
-		}
+      if (this->Interactor->GetInitialized())
+        {
+        return vtkHandleMessage2(this->m_hWnd, message, wParam, lParam, 
+                                 this->Interactor);
+        }
+      break;
+    }
   return vtkMFCView::WindowProc(message, wParam, lParam);
 }
 
 void vtkMFCRenderView::OnSize(UINT nType, int cx, int cy) 
 {
-	vtkMFCView::OnSize(nType, cx, cy);
-	
-	// TODO: Add your message handler code here
-	if (this->Interactor->GetInitialized())
-		{
-		this->Interactor->SetSize(cx,cy);		
-		}
+  vtkMFCView::OnSize(nType, cx, cy);
+  
+  // TODO: Add your message handler code here
+  if (this->Interactor->GetInitialized())
+    {
+    this->Interactor->SetSize(cx,cy);		
+    }
 }
 
 BOOL vtkMFCRenderView::OnPreparePrinting(CPrintInfo* pInfo) 
 {
-	// TODO: call DoPreparePrinting to invoke the Print dialog box
+  // TODO: call DoPreparePrinting to invoke the Print dialog box
   // default preparation
   pInfo->SetMinPage(1);
   pInfo->SetMaxPage(1);
