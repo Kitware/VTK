@@ -44,13 +44,25 @@ vtkPolyData pd
 pd SetPoints pts
 pd SetLines lines
 
-vtkGraphLayoutFilter layout
-layout SetInput pd
-layout ThreeDimensionalLayoutOn
+vtkGraphLayoutFilter layout2D
+    layout2D SetInput pd
+    layout2D ThreeDimensionalLayoutOff
+    layout2D AutomaticBoundsComputationOff
+    layout2D SetGraphBounds -2.0 0.0 -1.0 1.0 -1.0 1.0
+
+vtkGraphLayoutFilter layout3D
+    layout3D SetInput pd
+    layout3D ThreeDimensionalLayoutOn
+    layout3D AutomaticBoundsComputationOff
+    layout3D SetGraphBounds 0.0 2.0 -1.0 1.0 -1.0 1.0
+
+vtkAppendPolyData apf
+    apf AddInput [layout2D GetOutput]
+    apf AddInput [layout3D GetOutput]
 
 vtkTubeFilter tubes
-    tubes SetInput [layout GetOutput]
-    tubes SetRadius 0.1
+    tubes SetInput [apf GetOutput]
+    tubes SetRadius 0.01
     tubes SetNumberOfSides 6
 vtkPolyDataMapper mapEdges
     mapEdges SetInput [tubes GetOutput]
@@ -64,11 +76,11 @@ vtkActor edgeActor
     [edgeActor GetProperty] SetDiffuse 0.8
 
 vtkSphereSource ball
-    ball SetRadius 0.25
+    ball SetRadius 0.025
     ball SetThetaResolution 12
     ball SetPhiResolution 12
 vtkGlyph3D balls
-    balls SetInput [layout GetOutput]
+    balls SetInput [apf GetOutput]
     balls SetSource [ball GetOutput]
 vtkPolyDataMapper mapBalls
     mapBalls SetInput [balls GetOutput]
@@ -91,13 +103,13 @@ ren1 AddActor edgeActor
 ren1 AddActor ballActor
 
 ren1 SetBackground 1 1 1
-renWin SetSize 250 250
+renWin SetSize 400 250
 
 set cam1 [ren1 GetActiveCamera]
-    $cam1 SetClippingRange 19.245 47.25
-    $cam1 SetFocalPoint 80.1472 169.291 -279.609
-    $cam1 SetPosition 58.1543 192.094 -276.643
-    $cam1 SetViewUp 0.404855 0.490812 -0.77149
+    $cam1 SetClippingRange 3.55085 6.01004
+    $cam1 SetFocalPoint 0.0427 -0.0149608 0.0
+    $cam1 SetPosition 0.0427 -0.0149608 4.63462
+    $cam1 SetViewUp 0 1 0
 
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
