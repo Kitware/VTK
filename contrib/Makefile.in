@@ -50,6 +50,7 @@ vtkVideoSource \
 vtkVolumeProMapper \
 vtkVRMLImporter \
 vtkXYPlotActor \
+vtkWeightedTransformFilter \
 ${VTK_PLATFORM_OBJ}
 
 WIN32_OBJ = \
