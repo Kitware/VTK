@@ -19,7 +19,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImage4dShortReader reader;
+vtkImageShortReader4d reader;
 #reader DebugOn
 [reader GetCache] ReleaseDataFlagOff;
 reader SwapBytesOn;
@@ -27,7 +27,7 @@ reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImageShiftScaleFilter shiftScale;
+vtkImageShiftScale shiftScale;
 #shiftScale DebugOn;
 shiftScale SetInput [reader GetOutput];
 shiftScale SetShift 270.0;

@@ -21,7 +21,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImage4dShortReader reader;
+vtkImageShortReader4d reader;
 #reader DebugOn
 [reader GetCache] ReleaseDataFlagOff;
 reader SwapBytesOn;
@@ -34,7 +34,7 @@ vtkImageGaussianSmooth2d smooth
 smooth SetInput [reader GetOutput];
 smooth SetGaussianStdRadius 6.0 8;
 
-vtkImageDifferenceFilter subtract;
+vtkImageDifference subtract;
 subtract SetInput1 [reader GetOutput];
 subtract SetInput2 [smooth GetOutput];
 subtract ReleaseDataFlagOff;

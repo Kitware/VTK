@@ -22,14 +22,14 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImage4dShortReader reader;
+vtkImageShortReader4d reader;
 #reader DebugOn
 reader SwapBytesOn;
 reader SetDimensions 256 256 94 1;
 reader SetFilePrefix "../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff;
 
-vtkImageThresholdFilter thresh;
+vtkImageThreshold thresh;
 thresh SetInput [reader GetOutput];
 thresh ThresholdByUpper 1000.0
 thresh SetInValue 0.0;
@@ -46,7 +46,7 @@ writer Write;
 
 
 
-vtkImage4dShortReader reader2;
+vtkImageShortReader4d reader2;
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff;
 reader2 SwapBytesOn;
