@@ -25,7 +25,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.4");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.5");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -360,7 +360,7 @@ int vtkGenericAttributeCollection::HasAttribute(int size,
                                                 int attribute)
 {
   assert("pre: positive_size" && size>=0);
-  assert("pre: valid_attributes" && ((!size>0)||(attributes!=0))); // size>0 => attributes!=0 (A=>B: !A||B )
+  assert("pre: valid_attributes" && ((!(size>0))||(attributes!=0))); // size>0 => attributes!=0 (A=>B: !A||B )
 
   int result = 0; // false
   int i;
@@ -385,7 +385,7 @@ void vtkGenericAttributeCollection::SetAttributesToInterpolate(int size,
   assert("pre: not_empty" && !this->IsEmpty());
   assert("pre: positive_size" && size>=0);
   assert("pre: magic_number" && size<=10);
-  assert("pre: valid_attributes" && ((!size>0)||(attributes!=0)));  // size>0 => attributes!=0 (A=>B: !A||B )
+  assert("pre: valid_attributes" && ((!(size>0))||(attributes!=0)));  // size>0 => attributes!=0 (A=>B: !A||B )
   assert("pre: valid_attributes_contents" && (!(attributes!=0) || !(!this->HasAttribute(size,attributes,this->GetActiveAttribute())))); // attributes!=0 => !this->HasAttribute(size,attributes,this->GetActiveAttribute()) (A=>B: !A||B )
   
   this->NumberOfAttributesToInterpolate = size;
