@@ -66,6 +66,7 @@ vtkImageChangeInformation \
 vtkImageCheckerboard \
 vtkImageCityBlockDistance \
 vtkImageClip \
+vtkImageClippingExtents \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageContinuousDilate3D \
@@ -134,6 +135,7 @@ vtkImageSinusoidSource \
 vtkImageSkeleton2D \
 vtkImageSobel2D \
 vtkImageSobel3D \
+vtkImageStencil \
 vtkImageThreshold \
 vtkImageTranslateExtent \
 vtkImageVariance3D \
