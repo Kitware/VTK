@@ -59,6 +59,7 @@ IF (VTK_USE_RENDERING)
       smoothCyl
       smoothCyl2
       socbal
+      spatialRepAll
       spToPd
       subDivideTetra
       teapotHulls
