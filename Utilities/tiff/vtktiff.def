@@ -1,4 +1,4 @@
-LIBRARY libtiff
+LIBRARY vtktiff
 EXPORTS TIFFOpen
 	TIFFGetVersion
 	TIFFClose
