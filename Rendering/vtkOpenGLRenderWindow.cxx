@@ -29,7 +29,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.62");
+vtkCxxRevisionMacro(vtkOpenGLRenderWindow, "1.63");
 #endif
 
 #define MAX_LIGHTS 8
@@ -169,8 +169,8 @@ int vtkOpenGLRenderWindow::GetDepthBufferSize()
 }
 
 unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
-						   int x2, int y2, 
-						   int front)
+                                                   int x2, int y2,
+                                                   int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -203,10 +203,10 @@ unsigned char* vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   return data;
 }
 
-int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
-					int x2, int y2, 
-					int front, 
-					vtkUnsignedCharArray* data)
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
+                                        int x2, int y2,
+                                        int front,
+                                        vtkUnsignedCharArray* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -247,9 +247,9 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
   
 }
 
-int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1, 
-					int x2, int y2, 
-					int front, unsigned char* data)
+int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
+                                        int x2, int y2,
+                                        int front, unsigned char* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -342,7 +342,7 @@ int vtkOpenGLRenderWindow::GetPixelData(int x1, int y1,
 }
 
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-					vtkUnsignedCharArray *data, int front)
+                                        vtkUnsignedCharArray *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -384,7 +384,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 }
 
 int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-					unsigned char *data, int front)
+                                        unsigned char *data, int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -467,6 +467,10 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
     glDrawPixels((x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     }
+  
+  // This seems to be necessary for the image to show up
+  glFlush();  
+  
   glEnable(GL_BLEND);
 #else
   // If the Sun bug is ever fixed, then we could use the following
@@ -497,6 +501,9 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   glDrawPixels((x_hi-x_low+1), (y_hi - y_low + 1),
                GL_RGB, GL_UNSIGNED_BYTE, data);
   glEnable(GL_BLEND);
+  
+  // This seems to be necessary for the image to show up
+  glFlush();  
 #endif
   
   if (glGetError() != GL_NO_ERROR)
@@ -510,7 +517,7 @@ int vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 }
 
 float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
-					       int front)
+                                               int front)
 {
 
   int     y_low, y_hi;
@@ -550,7 +557,7 @@ float* vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 }
 
 int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
-					    int front, vtkFloatArray* data)
+                                            int front, vtkFloatArray* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -594,7 +601,7 @@ int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
 }
 
 int vtkOpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2,
-					    int front, float* data)
+                                            int front, float* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -665,8 +672,8 @@ void vtkOpenGLRenderWindow::ReleaseRGBAPixelData(float *data)
 }
 
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-					    vtkFloatArray *data, int front, 
-					    int blend)
+                                            vtkFloatArray *data, int front,
+                                            int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -705,11 +712,11 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     }
 
   return this->SetRGBAPixelData(x1, y1, x2, y2, data->GetPointer(0), front,
-				blend);
+                                blend);
 }
 
 int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
-					    float *data, int front, int blend)
+                                            float *data, int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -784,6 +791,9 @@ int vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
     }
+  
+  // This seems to be necessary for the image to show up
+  glFlush();  
 
   if (glGetError() != GL_NO_ERROR)
     {
@@ -835,10 +845,10 @@ unsigned char *vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
   return data;
 }
 
-int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
-						int x2, int y2, 
-						int front,
-						vtkUnsignedCharArray* data)
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
+                                                int x2, int y2,
+                                                int front,
+                                                vtkUnsignedCharArray* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -875,14 +885,14 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
     data->SetNumberOfComponents(4);
     data->SetNumberOfValues(size);
     }
-  return this->GetRGBACharPixelData(x1, y1, x2, y2, front, 
-				    data->GetPointer(0));
+  return this->GetRGBACharPixelData(x1, y1, x2, y2, front,
+                                    data->GetPointer(0));
 }
 
-int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1, 
-						int x2, int y2, 
-						int front,
-						unsigned char* data)
+int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
+                                                int x2, int y2,
+                                                int front,
+                                                unsigned char* data)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -948,9 +958,9 @@ int vtkOpenGLRenderWindow::GetRGBACharPixelData(int x1, int y1,
 }
 
 
-int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2, 
-						vtkUnsignedCharArray *data, 
-						int front, int blend)
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
+                                                vtkUnsignedCharArray *data,
+                                                int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -985,18 +995,18 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1,int y1,int x2,int y2,
   if ( data->GetMaxId()+1 != size )
     {
     vtkErrorMacro("Buffer is of wrong size. It is " << data->GetMaxId()+1
-		  << ", it should be: " << size);
+                  << ", it should be: " << size);
     return VTK_ERROR;
     }
 
-  return this->SetRGBACharPixelData(x1, y1, x2, y2, data->GetPointer(0), 
-				    front, blend);
+  return this->SetRGBACharPixelData(x1, y1, x2, y2, data->GetPointer(0),
+                                    front, blend);
   
 }
 
-int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2, 
-						int y2, unsigned char *data, 
-						int front, int blend)
+int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
+                                                int y2, unsigned char *data,
+                                                int front, int blend)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1079,6 +1089,9 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
                   data);
     }
 
+  // This seems to be necessary for the image to show up
+  glFlush();  
+
   if (glGetError() != GL_NO_ERROR)
     {
     return VTK_ERROR;
@@ -1091,7 +1104,7 @@ int vtkOpenGLRenderWindow::SetRGBACharPixelData(int x1, int y1, int x2,
 
 
 int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
-					   float* z_data )
+                                           float* z_data )
 {
   int             y_low;
   int             x_low;
@@ -1161,7 +1174,7 @@ float *vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2  )
 }
 
 int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
-					   vtkFloatArray *buffer )
+                                           vtkFloatArray *buffer )
 {
   int  width, height;
   width =  abs(x2 - x1)+1;
@@ -1177,7 +1190,7 @@ int vtkOpenGLRenderWindow::GetZbufferData( int x1, int y1, int x2, int y2,
 }
 
 int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					   vtkFloatArray *buffer )
+                                           vtkFloatArray *buffer )
 {
   int width, height;
   width =  abs(x2 - x1)+1;
@@ -1192,7 +1205,7 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 }
 
 int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
-					   float *buffer )
+                                           float *buffer )
 {
   int             y_low;
   int             x_low;
@@ -1246,6 +1259,9 @@ int vtkOpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
   glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 
   glDrawPixels( width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer);
+
+  // This seems to be necessary for the image to show up
+  glFlush();  
 
   if (glGetError() != GL_NO_ERROR)
     {
