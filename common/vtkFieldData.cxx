@@ -626,9 +626,13 @@ unsigned long vtkFieldData::GetActualMemorySize()
 
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);    
 
   os << indent << "Number Of Arrays: " << this->GetNumberOfArrays() << "\n";
+  for (int i=0; i<this->NumberOfArrays; i++)
+    {
+    os << indent << "Array " << i << " name = " << this->GetArrayName(i) << "\n";
+    }
   os << indent << "Number Of Components: " << this->GetNumberOfComponents() << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
 }
