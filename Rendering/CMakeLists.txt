@@ -179,6 +179,7 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaProperty
                  vtkMesaRenderer
                  vtkMesaTexture
+                 vtkMesaVolumeRayCastMapper
                  vtkMesaVolumeTextureMapper2D
                  vtkMesaImageWindow
                  vtkMesaRenderWindow
