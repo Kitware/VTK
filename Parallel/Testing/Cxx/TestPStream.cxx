@@ -25,7 +25,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPLOT3DReader.h"
-#include "vtkPVGeometryFilter.h"
+#include "vtkGeometryFilter.h"
 #include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -35,6 +35,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStructuredGrid.h"
+#include "vtkStructuredGridOutlineFilter.h"
 
 struct PStreamArgs_tmp
 {
@@ -89,7 +90,8 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   delete[] fname1;
   delete[] fname2;
 
-  vtkPVGeometryFilter* Geometry5 = vtkPVGeometryFilter::New();
+  vtkStructuredGridOutlineFilter* Geometry5 = 
+    vtkStructuredGridOutlineFilter::New();
   Geometry5->SetInput(Plot3D0->GetOutput());
   
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
@@ -131,7 +133,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Stream0->SetMaximumNumberOfSteps(2000);
   Stream0->SetTerminalSpeed(1e-12);
 
-  vtkPVGeometryFilter* Geometry6 = vtkPVGeometryFilter::New();;
+  vtkGeometryFilter* Geometry6 = vtkGeometryFilter::New();;
   Geometry6->SetInput(Stream0->GetOutput());
 
   vtkLookupTable* LookupTable1 = vtkLookupTable::New();
