@@ -35,7 +35,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.5");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.6");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -466,7 +466,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
             vtkInformation* partInf = dataInf->GetInformation(k, l);
             if (!partInf->Has(MARKED_FOR_UPDATE()))
               {
-              cout << k << "," << l << "  not marked for update" << endl;
+              vtkDebugMacro(<< k << "," << l << "  not marked for update");
               continue;
               }
             }
@@ -704,7 +704,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
         vtkDataObject* prevInput = inInfo->Get(vtkDataObject::DATA_OBJECT());
         prevInput->Register(this);
 
-        cout << "EXECUTING: " << this->Algorithm->GetClassName() << endl;
+        vtkDebugMacro("EXECUTING: " << this->Algorithm->GetClassName());
         for (unsigned int k=0; k<numLevels; k++)
           {
           unsigned int numDataSets = dataInf->GetNumberOfDataSets(k);
