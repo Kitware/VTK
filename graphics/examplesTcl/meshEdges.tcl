@@ -56,12 +56,19 @@ ren1 AddActor meshActor
 ren1 AddActor edgeActor
 ren1 AddActor vertActor
 ren1 SetBackground 1 1 1
-renWin SetSize 500 500
+renWin SetSize 450 250
+
+vtkCamera camera
+    camera SetClippingRange 17.7933 98.4632
+    camera SetFocalPoint 2.3045 9.29536 -0.035267
+    camera SetPosition 46.9464 -16.1013 14.7638
+    camera SetViewAngle 30.0
+    camera SetViewUp -0.229845 0.155785 0.960678
+ren1 SetActiveCamera camera
 
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-[ren1 GetActiveCamera] Azimuth 90
 iren Initialize
 
 # prevent the tk window from showing up then start the event loop
