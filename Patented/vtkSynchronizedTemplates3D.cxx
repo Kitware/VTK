@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.71");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.72");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -167,7 +167,7 @@ void vtkSynchronizedTemplates3DInitializeOutput(int *ext,vtkImageData *input,
 // Calculate the gradient using central difference.
 template <class T>
 void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt, 
-                               int xInc, int yInc, int zInc, int comp,
+                               int xInc, int yInc, int zInc,
                                float *spacing, float n[3])
 {
   float sp, sm;
@@ -175,60 +175,60 @@ void vtkSTComputePointGradient(int i, int j, int k, T *s, int *wholeExt,
   // x-direction
   if ( i == wholeExt[0] )
     {
-    sp = *(s+xInc+comp);
-    sm = *(s+comp);
+    sp = *(s+xInc);
+    sm = *s;
     n[0] = (sp - sm) / spacing[0];
     }
   else if ( i == wholeExt[1] )
     {
-    sp = *(s+comp);
-    sm = *(s-xInc+comp);
+    sp = *s;
+    sm = *(s-xInc);
     n[0] = (sp - sm) / spacing[0];
     }
   else
     {
-    sp = *(s+xInc+comp);
-    sm = *(s-xInc+comp);
+    sp = *(s+xInc);
+    sm = *(s-xInc);
     n[0] = 0.5 * (sp - sm) / spacing[0];
     }
 
   // y-direction
   if ( j == wholeExt[2] )
     {
-    sp = *(s+yInc+comp);
-    sm = *(s+comp);
+    sp = *(s+yInc);
+    sm = *s;
     n[1] = (sp - sm) / spacing[1];
     }
   else if ( j == wholeExt[3] )
     {
-    sp = *(s+comp);
-    sm = *(s-yInc+comp);
+    sp = *s;
+    sm = *(s-yInc);
     n[1] = (sp - sm) / spacing[1];
     }
   else
     {
-    sp = *(s+yInc+comp);
-    sm = *(s-yInc+comp);
+    sp = *(s+yInc);
+    sm = *(s-yInc);
     n[1] = 0.5 * (sp - sm) / spacing[1];
     }
 
   // z-direction
   if ( k == wholeExt[4] )
     {
-    sp = *(s+zInc+comp);
-    sm = *(s+comp);
+    sp = *(s+zInc);
+    sm = *s;
     n[2] = (sp - sm) / spacing[2];
     }
   else if ( k == wholeExt[5] )
     {
-    sp = *(s+comp);
-    sm = *(s-zInc+comp);
+    sp = *s;
+    sm = *(s-zInc);
     n[2] = (sp - sm) / spacing[2];
     }
   else
     {
-    sp = *(s+zInc+comp);
-    sm = *(s-zInc+comp);
+    sp = *(s+zInc);
+    sm = *(s-zInc);
     n[2] = 0.5 * (sp - sm) / spacing[2];
     }
 }
@@ -239,10 +239,10 @@ if (NeedGradients) \
 { \
   if (!g0) \
     { \
-    vtkSTComputePointGradient(i, j, k, s0, wholeExt, xInc, yInc, zInc, comp, spacing, n0); \
+    vtkSTComputePointGradient(i, j, k, s0, wholeExt, xInc, yInc, zInc, spacing, n0); \
     g0 = 1; \
     } \
-  vtkSTComputePointGradient(i2, j2, k2, s, wholeExt, xInc, yInc, zInc, comp, spacing, n1); \
+  vtkSTComputePointGradient(i2, j2, k2, s, wholeExt, xInc, yInc, zInc, spacing, n1); \
   for (jj=0; jj<3; jj++) \
     { \
     n[jj] = n0[jj] + t * (n1[jj] - n0[jj]); \
@@ -313,7 +313,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   vtkFloatArray *newGradients = NULL;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
-  int comp = self->GetArrayComponent();
+  ptr += self->GetArrayComponent();
   
   if (ComputeScalars)
     {
@@ -384,7 +384,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     {
     value = values[vidx];
     inPtrZ = ptr;
-    s2 = inPtrZ + comp;
+    s2 = inPtrZ;
     v2 = (*s2 < value ? 0 : 1);
 
     //==================================================================
@@ -430,7 +430,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 
         y = origin[1] + j*spacing[1];
         xz[1] = y;
-        s1 = inPtrY + comp;
+        s1 = inPtrY;
         v1 = (*s1 < value ? 0 : 1);
         
         inPtrX = inPtrY;
@@ -442,7 +442,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
           g0 = 0;
           if (i < xMax)
             {
-            s1 = (inPtrX + xInc + comp);
+            s1 = (inPtrX + xInc);
             v1 = (*s1 < value ? 0 : 1);
             if (v0 ^ v1)
               {
@@ -460,7 +460,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             }
           if (j < yMax)
             {
-            s2 = (inPtrX + yInc + comp);
+            s2 = (inPtrX + yInc);
             v2 = (*s2 < value ? 0 : 1);
             if (v0 ^ v2)
               {
@@ -478,7 +478,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             }
           if (k < zMax)
             {
-            s3 = (inPtrX + zInc + comp);
+            s3 = (inPtrX + zInc);
             v3 = (*s3 < value ? 0 : 1);
             if (v0 ^ v3)
               {

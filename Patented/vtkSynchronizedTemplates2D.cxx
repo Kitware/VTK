@@ -47,7 +47,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.29");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.30");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -127,7 +127,6 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   float s0, s1, s2, value;
   int i, j;
   int lineCases[64];
-  int comp = self->GetArrayComponent();
   
   // The update extent may be different than the extent of the image.
   // The only problem with using the update extent is that one or two 
@@ -227,7 +226,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   // on a part of the image.
   scalars += incs[0]*(updateExt[0]-ext[0]) 
     + incs[1]*(updateExt[2]-ext[2])
-    + incs[2]*(updateExt[4]-ext[4]);
+    + incs[2]*(updateExt[4]-ext[4]) + self->GetArrayComponent();
   
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -251,7 +250,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
       // set the y coordinate
       y = origin[axis1] + j*spacing[axis1];
       // first compute the intersections
-      s1 = *inPtr + comp;
+      s1 = *inPtr;
       
       // swap the buffers
       if (j%2)
@@ -276,7 +275,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
       for (i = min0; i < max0; i++)
         {
         s0 = s1;
-        s1 = *(inPtr + inc0 + comp);
+        s1 = *(inPtr + inc0);
         // compute in/out for verts
         v0 = (s0 < value ? 0 : 1);
         v1 = (s1 < value ? 0 : 1);
@@ -297,7 +296,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
           }
         if (j < max1)
           {
-          s2 = *(inPtr + inc1 + comp);
+          s2 = *(inPtr + inc1);
           v2 = (s2 < value ? 0 : 1);
           if (v0 ^ v2)
             {
@@ -354,7 +353,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
       // now compute the last column, use s2 since it is around
       if (j < max1)
         {
-        s2 = *(inPtr + dim0 + comp);
+        s2 = *(inPtr + dim0);
         v2 = (s2 < value ? 0 : 1);
         if (v1 ^ v2)
           {
@@ -509,6 +508,6 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "InputScalarsSelection: " 
        << this->InputScalarsSelection << endl;
-    }
+    }  
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
