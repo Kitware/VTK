@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // (e.g., scalars, vectors, etc.) are also represented.
 //
 // The actual cell types (CellType.hh) supported by vtkPolyData are: 
-// vtkVertex, vtkPolyVertex, vtkLine, vtlPolyLine, vtkTriangle, 
+// vtkVertex, vtkPolyVertex, vtkLine, vtkPolyLine, vtkTriangle, 
 // vtkTriangleStrip, vtkPolygon, vtkPixel, and vtkQuad.
 //
 // One important feature of vtkPolyData objects is that special traversal
