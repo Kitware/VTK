@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.46");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.47");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -375,7 +375,12 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
                 << ", outData = " << outData);
   
 
-  if (inData[0] == NULL)
+  // we shouldn't check inData[i] directly; inData grows with the
+  // number of inputs.  It's safer to check on this->GetInput(i), as
+  // this will automatically return NULL if i is out of range, i.e. >=
+  // NumberOfInputs.  If this->GetInput(i) returns non-NULL, inData[i]
+  // can also be used.
+  if (this->GetInput(0) == NULL)
     {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
@@ -391,8 +396,10 @@ void vtkImageMathematics::ThreadedExecute(vtkImageData **inData,
       this->Operation == VTK_ATAN2 || this->Operation == VTK_COMPLEX_MULTIPLY) 
     {
     void *inPtr2;
-    
-    if (inData[1] == NULL)
+
+    // see explanation above on why we use this->GetInput(1) instead
+    // of inData[1]
+    if (this->GetInput(1) == NULL)
       {
       vtkErrorMacro(<< "Input " << 1 << " must be specified.");
       return;
