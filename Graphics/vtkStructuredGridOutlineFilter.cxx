@@ -15,25 +15,39 @@
 #include "vtkStructuredGridOutlineFilter.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.45");
+vtkCxxRevisionMacro(vtkStructuredGridOutlineFilter, "1.46");
 vtkStandardNewMacro(vtkStructuredGridOutlineFilter);
 
 //----------------------------------------------------------------------------
 // ComputeDivisionExtents has done most of the work for us.
 // Now just connect the points.
-void vtkStructuredGridOutlineFilter::Execute()
+int vtkStructuredGridOutlineFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkStructuredGrid *input=this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int *ext, *wExt, cExt[6];
   int xInc, yInc, zInc;
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkPolyData *output=this->GetOutput();
   int idx;
   vtkIdType ids[2], numPts, offset;
   // for marching through the points along an edge.
@@ -45,19 +59,19 @@ void vtkStructuredGridOutlineFilter::Execute()
   inPts = input->GetPoints();
   if (!inPts)
     {
-    return;
+    return 1;
     }
   
   newLines = vtkCellArray::New();
   newPts = vtkPoints::New();
 
   ext = input->GetExtent();
-  wExt = input->GetWholeExtent();
+  wExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   // Since it is possible that the extent is larger than the whole extent,
   // and we want the outline to be the whole extent, 
   // compute the clipped extent.
-  input->GetUpdateExtent(cExt);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), cExt);
   for (i = 0; i < 3; ++i)
     {
     if (cExt[2*i] < wExt[2*i])
@@ -214,7 +228,7 @@ void vtkStructuredGridOutlineFilter::Execute()
         if (id < 0 || id >= numPts)
           {
           vtkErrorMacro("Error stepping through points.");
-          return;
+          return 0;
           }
         newPts->InsertNextPoint(inPts->GetPoint(id));
         }
@@ -233,5 +247,13 @@ void vtkStructuredGridOutlineFilter::Execute()
   newPts->Delete();
   output->SetLines(newLines);
   newLines->Delete();
+
+  return 1;
 }
 
+int vtkStructuredGridOutlineFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
+  return 1;
+}

@@ -33,12 +33,14 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -46,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.39");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.40");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -55,8 +57,6 @@ vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkSynchronizedTemplates2D::vtkSynchronizedTemplates2D()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->ContourValues = vtkContourValues::New();
   this->ComputeScalars = 1;
   this->InputScalarsSelection = NULL;
@@ -67,27 +67,6 @@ vtkSynchronizedTemplates2D::~vtkSynchronizedTemplates2D()
 {
   this->ContourValues->Delete();
   this->SetInputScalarsSelection(NULL);
-}
-
-
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-void vtkSynchronizedTemplates2D::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-// Specify the input data or filter.
-vtkImageData *vtkSynchronizedTemplates2D::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkImageData *)(this->Inputs[0]);
 }
 
 //----------------------------------------------------------------------------
@@ -108,13 +87,12 @@ int vtkSynchronizedTemplates2D::FillInputPortInformation(int port,
 // then this object is modified as well.
 unsigned long vtkSynchronizedTemplates2D::GetMTime()
 {
-  unsigned long mTime=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   return mTime;
 }
-
 
 //----------------------------------------------------------------------------
 //
@@ -123,14 +101,15 @@ unsigned long vtkSynchronizedTemplates2D::GetMTime()
 template <class T>
 void vtkContourImage(vtkSynchronizedTemplates2D *self,
                      T *scalars, vtkPoints *newPts,
-                     vtkDataArray *newScalars, vtkCellArray *lines)
+                     vtkDataArray *newScalars, vtkCellArray *lines,
+                     vtkImageData *input, int *updateExt)
 {
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtr, *rowPtr;
   double x[3];
-  double *origin = self->GetInput()->GetOrigin();
-  double *spacing = self->GetInput()->GetSpacing();
+  double *origin = input->GetOrigin();
+  double *spacing = input->GetSpacing();
   double y, t;
   int *isect1Ptr, *isect2Ptr;
   vtkIdType ptIds[2];
@@ -145,9 +124,8 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   // The only problem with using the update extent is that one or two 
   // sources enlarge the update extent.  This behavior is slated to be 
   // eliminated.
-  int *incs = self->GetInput()->GetIncrements();
-  int *ext = self->GetInput()->GetExtent();
-  int *updateExt = self->GetInput()->GetUpdateExtent();
+  int *incs = input->GetIncrements();
+  int *ext = input->GetExtent();
   int axis0, axis1;
   int min0, max0, dim0;
   int min1, max1;
@@ -394,15 +372,26 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
 //
 // Contouring filter specialized for images (or slices from images)
 //
-void vtkSynchronizedTemplates2D::Execute()
+int vtkSynchronizedTemplates2D::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkImageData  *input= this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData  *pd;
   vtkPoints     *newPts;
   vtkCellArray  *newLines;
   vtkDataArray  *inScalars;
   vtkDataArray  *newScalars = NULL;
-  vtkPolyData   *output = this->GetOutput();
   int           *ext;
   int           dims[3];
   int           dataSize, estimatedSize;
@@ -410,19 +399,14 @@ void vtkSynchronizedTemplates2D::Execute()
 
   vtkDebugMacro(<< "Executing 2D structured contour");
   
-  if (input == NULL)
-    {
-    vtkErrorMacro("Missing input.");
-    return;
-    }
-
-  ext = input->GetUpdateExtent();
+  ext =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   pd = input->GetPointData();
   inScalars = pd->GetScalars(this->InputScalarsSelection);
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
-    return;
+    return 1;
     }
 
   int numComps = inScalars->GetNumberOfComponents();
@@ -430,7 +414,7 @@ void vtkSynchronizedTemplates2D::Execute()
     {
     vtkErrorMacro("Scalars have " << numComps << " components. "
                   "ArrayComponent must be smaller than " << numComps);
-    return;
+    return 1;
     }
   
   // We have to compute the dimenisons from the update extent because
@@ -471,8 +455,8 @@ void vtkSynchronizedTemplates2D::Execute()
     }
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro5(vtkContourImage,this,(VTK_TT *)scalars, newPts,
-                      newScalars, newLines);
+    vtkTemplateMacro7(vtkContourImage,this,(VTK_TT *)scalars, newPts,
+                      newScalars, newLines, input, ext);
     }//switch
 
   // Lets set the name of the scalars here.
@@ -502,6 +486,7 @@ void vtkSynchronizedTemplates2D::Execute()
     }
 
   output->Squeeze();
+  return 1;
 }
 
 //----------------------------------------------------------------------------

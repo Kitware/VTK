@@ -22,20 +22,21 @@
 #ifndef __vtkRectilinearGridOutlineFilter_h
 #define __vtkRectilinearGridOutlineFilter_h
 
-#include "vtkRectilinearGridToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_PARALLEL_EXPORT vtkRectilinearGridOutlineFilter : public vtkRectilinearGridToPolyDataFilter
+class VTK_PARALLEL_EXPORT vtkRectilinearGridOutlineFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkRectilinearGridOutlineFilter *New();
-  vtkTypeRevisionMacro(vtkRectilinearGridOutlineFilter,vtkRectilinearGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRectilinearGridOutlineFilter,vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
   vtkRectilinearGridOutlineFilter() {};
   ~vtkRectilinearGridOutlineFilter() {};
-  void Execute();
-  void ExecuteInformation();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
 
 private:
   vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
@@ -43,5 +44,3 @@ private:
 };
 
 #endif
-
-

@@ -17,11 +17,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.12");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.13");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -35,8 +37,21 @@ vtkImageDataGeometryFilter::vtkImageDataGeometryFilter()
   this->Extent[5] = VTK_LARGE_INTEGER;
 }
 
-void vtkImageDataGeometryFilter::Execute()
+int vtkImageDataGeometryFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   vtkIdType idx, startIdx, startCellIdx;
@@ -50,12 +65,6 @@ void vtkImageDataGeometryFilter::Execute()
   double x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
-  vtkImageData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
-  if (input==NULL)
-    {
-    return;
-    }
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   pd = input->GetPointData();
@@ -67,7 +76,7 @@ void vtkImageDataGeometryFilter::Execute()
 
   if (dims[0] <= 0 || dims[1] <= 0 || dims[2] <= 0)
     {
-    return;
+    return 1;
     }
 
 //
@@ -364,6 +373,8 @@ void vtkImageDataGeometryFilter::Execute()
     output->SetPolys(newPolys);
     newPolys->Delete();
     }
+
+  return 1;
 }
 
 void vtkImageDataGeometryFilter::SetExtent(int iMin, int iMax, 
@@ -408,8 +419,14 @@ void vtkImageDataGeometryFilter::SetExtent(int extent[6])
     }
 }
 
-void vtkImageDataGeometryFilter::PrintSelf(ostream& os,
-                                                  vtkIndent indent)
+int vtkImageDataGeometryFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+  return 1;
+}
+
+void vtkImageDataGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 

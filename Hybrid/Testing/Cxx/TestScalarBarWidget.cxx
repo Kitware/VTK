@@ -22,6 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkScalarBarActor.h"
+#include "vtkStructuredGrid.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"

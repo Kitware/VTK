@@ -15,54 +15,64 @@
 #include "vtkRectilinearGridOutlineFilter.h"
 
 #include "vtkCellArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.7");
+vtkCxxRevisionMacro(vtkRectilinearGridOutlineFilter, "1.8");
 vtkStandardNewMacro(vtkRectilinearGridOutlineFilter);
 
 
-void vtkRectilinearGridOutlineFilter::ExecuteInformation()
+int vtkRectilinearGridOutlineFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  if (this->GetInput() == NULL)
-    {
-    return;
-    }
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   // Although there may be overlap between piece outlines,
   // it is not worth requesting exact extents.
-  this->GetInput()->RequestExactExtentOff();
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
+  return 1;
 }
 
-
-void vtkRectilinearGridOutlineFilter::Execute()
+int vtkRectilinearGridOutlineFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   float         bounds[6];
   double         *range;
   float         x[3];
   vtkIdType     pts[2];
   vtkPoints*    newPts;
   vtkCellArray* newLines;
-  vtkPolyData*  output = this->GetOutput();
-  vtkRectilinearGrid* input = this->GetInput();
 
-  if (this->GetInput() == NULL)
-    {
-    return;
-    }
-  
   vtkDataArray* xCoords  = input->GetXCoordinates();
   vtkDataArray* yCoords  = input->GetYCoordinates();
   vtkDataArray* zCoords  = input->GetZCoordinates();
   int*          ext      = input->GetExtent();;
-  int*          wholeExt = input->GetWholeExtent();
-
+  int*          wholeExt =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   if (xCoords == NULL || yCoords == NULL || zCoords == NULL ||
       input->GetNumberOfCells() == 0)
     {
-    return;
+    return 1;
     }
 
   // We could probably use just the input bounds ...
@@ -191,9 +201,7 @@ void vtkRectilinearGridOutlineFilter::Execute()
     x[0] = bounds[1]; x[1] = bounds[3]; x[2] = bounds[5];
     pts[1] = newPts->InsertNextPoint(x);
     newLines->InsertNextCell(2,pts);
-    }  
-
-
+    }
   
   output->SetPoints(newPts);
   newPts->Delete();
@@ -202,6 +210,15 @@ void vtkRectilinearGridOutlineFilter::Execute()
   newLines->Delete();
 
   output->Squeeze();
+
+  return 1;
+}
+
+int vtkRectilinearGridOutlineFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 void vtkRectilinearGridOutlineFilter::PrintSelf(ostream& os, vtkIndent indent)

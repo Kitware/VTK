@@ -16,13 +16,15 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.29");
+vtkCxxRevisionMacro(vtkRectilinearGridGeometryFilter, "1.30");
 vtkStandardNewMacro(vtkRectilinearGridGeometryFilter);
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -36,8 +38,21 @@ vtkRectilinearGridGeometryFilter::vtkRectilinearGridGeometryFilter()
   this->Extent[5] = VTK_LARGE_INTEGER;
 }
 
-void vtkRectilinearGridGeometryFilter::Execute()
+int vtkRectilinearGridGeometryFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   vtkIdType idx, startIdx, startCellIdx;
@@ -52,8 +67,6 @@ void vtkRectilinearGridGeometryFilter::Execute()
   double x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
-  vtkRectilinearGrid *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<< "Extracting rectilinear points geometry");
 
@@ -360,6 +373,8 @@ void vtkRectilinearGridGeometryFilter::Execute()
     output->SetPolys(newPolys);
     newPolys->Delete();
     }
+
+  return 1;
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
@@ -402,6 +417,13 @@ void vtkRectilinearGridGeometryFilter::SetExtent(int extent[6])
       this->Extent[2*i+1] = extent[2*i+1];
       }
     }
+}
+
+int vtkRectilinearGridGeometryFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 void vtkRectilinearGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

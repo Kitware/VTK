@@ -41,13 +41,13 @@
 #ifndef __vtkStructuredGridGeometryFilter_h
 #define __vtkStructuredGridGeometryFilter_h
 
-#include "vtkStructuredGridToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkStructuredGridGeometryFilter : public vtkStructuredGridToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkStructuredGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
   static vtkStructuredGridGeometryFilter *New();
-  vtkTypeRevisionMacro(vtkStructuredGridGeometryFilter,vtkStructuredGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStructuredGridGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -67,8 +67,10 @@ protected:
   vtkStructuredGridGeometryFilter();
   ~vtkStructuredGridGeometryFilter() {}
 
-  void Execute();
-  void ComputeInputUpdateExtents( vtkDataObject *output );
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
+
   int Extent[6];
 private:
   vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&);  // Not implemented.

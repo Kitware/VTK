@@ -35,12 +35,12 @@
 #ifndef __vtkRectilinearGridGeometryFilter_h
 #define __vtkRectilinearGridGeometryFilter_h
 
-#include "vtkRectilinearGridToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkRectilinearGridGeometryFilter : public vtkRectilinearGridToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkRectilinearGridGeometryFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkRectilinearGridGeometryFilter,vtkRectilinearGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRectilinearGridGeometryFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -64,7 +64,9 @@ protected:
   vtkRectilinearGridGeometryFilter();
   ~vtkRectilinearGridGeometryFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation *);
+
   int Extent[6];
 private:
   vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&);  // Not implemented.
@@ -72,5 +74,3 @@ private:
 };
 
 #endif
-
-

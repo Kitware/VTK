@@ -17,12 +17,15 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkExtentTranslator.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.60");
+vtkCxxRevisionMacro(vtkStructuredGridGeometryFilter, "1.61");
 vtkStandardNewMacro(vtkStructuredGridGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -36,8 +39,21 @@ vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()
   this->Extent[5] = VTK_LARGE_INTEGER;
 }
 
-void vtkStructuredGridGeometryFilter::Execute()
+int vtkStructuredGridGeometryFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6], *inExt;
   vtkIdType ptIds[4], idx, startIdx, startCellIdx, cellId;
@@ -50,15 +66,13 @@ void vtkStructuredGridGeometryFilter::Execute()
   double x[3];
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
-  vtkStructuredGrid *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   if ( input->GetPoints() == NULL)
     {
     //vtkErrorMacro(<<"No data to extract");
-    return;
+    return 1;
     }
 
   pd = input->GetPointData();
@@ -90,7 +104,7 @@ void vtkStructuredGridGeometryFilter::Execute()
     // Handle empty extent.
     if (extent[2*i] > extent[2*i+1])
       {
-      return;
+      return 1;
       }
     
     // Compute dimensions.
@@ -381,6 +395,8 @@ void vtkStructuredGridGeometryFilter::Execute()
     output->SetPolys(newPolys);
     newPolys->Delete();
     }
+
+  return 1;
 }
 
 // Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
@@ -425,29 +441,31 @@ void vtkStructuredGridGeometryFilter::SetExtent(int extent[6])
     }
 }
 
-void vtkStructuredGridGeometryFilter::ComputeInputUpdateExtents( vtkDataObject *out )
+int vtkStructuredGridGeometryFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkStructuredGrid *input = this->GetInput();
-  vtkPolyData *output = vtkPolyData::SafeDownCast(out);
-  int piece, numPieces, ghostLevel;
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  int piece, numPieces;
   int *wholeExt;
   int ext[6];
   vtkExtentTranslator *translator;
   
-  if (!input)
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
-
-  translator = input->GetExtentTranslator();  
-  wholeExt = input->GetWholeExtent();
-
-  // Get request from output
-  output->GetUpdateExtent(piece, numPieces, ghostLevel);
-
-  // Start with the whole grid.
-  input->GetWholeExtent(ext);  
+  translator = vtkExtentTranslator::SafeDownCast(
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  wholeExt =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  memcpy(ext, wholeExt, 6*sizeof(int));
+  
+  // Get request from output information
+  piece =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces =
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // get the extent associated with the piece.
   if (translator == NULL)
@@ -498,7 +516,15 @@ void vtkStructuredGridGeometryFilter::ComputeInputUpdateExtents( vtkDataObject *
     }
   
   // Set the update extent of the input.
-  input->SetUpdateExtent(ext);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+  return 1;
+}
+
+int vtkStructuredGridGeometryFilter::FillInputPortInformation(
+  int, vtkInformation *info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
+  return 1;
 }
 
 void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)

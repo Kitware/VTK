@@ -39,26 +39,21 @@
 #ifndef __vtkSynchronizedTemplates2D_h
 #define __vtkSynchronizedTemplates2D_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 class vtkImageData;
 class vtkKitwareContourFilter;
 
-class VTK_PATENTED_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSynchronizedTemplates2D *New();
-  vtkTypeRevisionMacro(vtkSynchronizedTemplates2D,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkSynchronizedTemplates2D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set / get the input data or filter.
-  void SetInput(vtkImageData *input);
-  vtkImageData *GetInput();
-  
-// Description:
   // Because we delegate to vtkContourValues
   unsigned long int GetMTime();
 
@@ -130,7 +125,7 @@ protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkContourValues *ContourValues;
 
   int ComputeScalars;
