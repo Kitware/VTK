@@ -16,12 +16,14 @@
 
 #include "vtkCellArray.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.66");
+vtkCxxRevisionMacro(vtkStripper, "1.67");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -30,8 +32,21 @@ vtkStripper::vtkStripper()
   this->MaximumLength = 1000;
 }
 
-void vtkStripper::Execute()
+int vtkStripper::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, numCells, i;
   int longestStrip, longestLine, j, numPts;
   vtkIdType numLines, numStrips, nei;
@@ -48,8 +63,6 @@ void vtkStripper::Execute()
   vtkIdType *linePts = 0;
   vtkIdType *triPts;
   vtkIdType numTriPts;
-  vtkPolyData *input= this->GetInput();
-  vtkPolyData *output= this->GetOutput();
   vtkPointData *pd=input->GetPointData();
 
   vtkDebugMacro(<<"Executing triangle strip / poly-line filter");
@@ -74,7 +87,7 @@ void vtkStripper::Execute()
     output->GetCellData()->PassData(input->GetCellData());
     mesh->Delete();
     vtkDebugMacro(<<"No data to strip!");
-    return;
+    return 0;
     }
 
   pts = new vtkIdType[this->MaximumLength + 2]; //working array
@@ -354,6 +367,8 @@ void vtkStripper::Execute()
   // pass through verts
   output->SetVerts(input->GetVerts());
   cellIds->Delete();
+
+  return 1;
 }
 
 void vtkStripper::PrintSelf(ostream& os, vtkIndent indent)

@@ -39,12 +39,12 @@
 #ifndef __vtkStripper_h
 #define __vtkStripper_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkStripper : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkStripper : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkStripper,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkStripper,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -62,7 +62,7 @@ protected:
   ~vtkStripper() {}
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int MaximumLength;
 
@@ -72,5 +72,3 @@ private:
 };
 
 #endif
-
-
