@@ -251,8 +251,10 @@ vtkImageTwoInputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     }
   
   // fill the output region 
+  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   this->Execute(dim, inRegion1, inRegion2, outRegion);
-
+  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  
   // Save the new region in cache.
   this->Output->CacheRegion(outRegion);  
   

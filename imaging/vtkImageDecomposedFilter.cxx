@@ -294,6 +294,35 @@ vtkImageCache *vtkImageDecomposedFilter::GetOutput()
 
 //----------------------------------------------------------------------------
 // Description:
+// Causes the filter to execute, and put its results in cache.
+void vtkImageDecomposedFilter::Update()
+{
+  vtkImageCache *cache;
+  
+  if (this->Dimensionality == 0)
+    {
+    vtkErrorMacro("Update: Dimensionality not set.");
+    return;
+    }
+  if (this->Filters[this->Dimensionality - 1] == NULL)
+    {
+    vtkErrorMacro("Update: Last filter not created");
+    return;
+    }
+  
+  cache = this->GetOutput();
+  if (cache == NULL)
+    {
+    vtkErrorMacro("Update: Dimensionality not set.");
+    return;
+    }
+  
+  cache->Update();
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
 // This method returns the l;ast cache of the internal pipline.
 vtkImageCache *vtkImageDecomposedFilter::GetCache()
 {
@@ -330,7 +359,49 @@ unsigned long int vtkImageDecomposedFilter::GetPipelineMTime()
 }
 
 
+//----------------------------------------------------------------------------
+// Description:
+// Specify function to be called before object executes.
+void vtkImageDecomposedFilter::SetStartMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->StartMethod || arg != this->StartMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
+      {
+      (*this->StartMethodArgDelete)(this->StartMethodArg);
+      }
+    this->StartMethod = f;
+    this->StartMethodArg = arg;
+    if (this->Filters[0])
+      {
+      this->Filters[0]->SetStartMethod(f, arg);
+      }
+    this->Modified();
+    }
+}
 
+//----------------------------------------------------------------------------
+// Description:
+// Specify function to be called after object executes.
+void vtkImageDecomposedFilter::SetEndMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->EndMethod || arg != this->EndMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
+      {
+      (*this->EndMethodArgDelete)(this->EndMethodArg);
+      }
+    this->EndMethod = f;
+    this->EndMethodArg = arg;
+    if (this->Filters[this->Dimensionality - 1])
+      {
+      this->Filters[this->Dimensionality - 1]->SetEndMethod(f, arg);
+      }
+    this->Modified();
+    }
+}
 
 
 

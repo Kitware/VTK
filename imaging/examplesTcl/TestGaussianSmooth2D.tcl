@@ -34,7 +34,6 @@ smooth SetDimensionality 2
 smooth SetInput [reader GetOutput]
 smooth SetStandardDeviation 6 6
 smooth SetRadiusFactor 1.5
-smooth ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn

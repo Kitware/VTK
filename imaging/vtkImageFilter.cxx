@@ -269,7 +269,9 @@ void vtkImageFilter::UpdatePointData2(int dim, vtkImageRegion *inRegion,
       // Use the input to fill the data of the region.
       this->Input->UpdateRegion(inRegion);
       // fill the output region 
+      if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
       this->Execute(dim, inRegion, outRegion);
+      if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
       return;
       }
     // Set the first half to update
@@ -291,7 +293,9 @@ void vtkImageFilter::UpdatePointData2(int dim, vtkImageRegion *inRegion,
   // Use the input to fill the data of the region.
   this->Input->UpdateRegion(inRegion);
   // fill the output region 
+  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   this->Execute(dim, inRegion, outRegion);
+  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
   vtkTimerLogMacro("Finished Update");
 }
 

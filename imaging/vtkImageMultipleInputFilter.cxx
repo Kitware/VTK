@@ -253,8 +253,10 @@ void vtkImageMultipleInputFilter::UpdatePointData(int dim,
     }
   
   // fill the output region 
+  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   this->Execute(dim, this->Regions, outRegion);
-
+  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  
   // Save the new region in cache.
   this->Output->CacheRegion(outRegion);  
   

@@ -172,7 +172,9 @@ void vtkImageInPlaceFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 
   // fill the output region 
   // The inRegion is passed just in case.
+  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   this->Execute(dim, inRegion, outRegion);
+  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
 
   // Save the new region in cache.
   this->Output->CacheRegion(outRegion);

@@ -86,6 +86,11 @@ public:
   // This function must be implemented by the subclass to create
   // the sub filters.
   virtual void SetDimensionality(int num) = 0;
+
+  void Update();
+  
+  void SetStartMethod(void (*f)(void *), void *arg);
+  void SetEndMethod(void (*f)(void *), void *arg);
   
 protected:
   vtkImageFilter *Filters[VTK_IMAGE_DIMENSIONS];

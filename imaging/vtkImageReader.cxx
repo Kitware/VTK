@@ -71,9 +71,6 @@ vtkImageReader::vtkImageReader()
     this->Flips[idx] = 0;
     }
 
-  // origin is lower left, so flip y axis by default.
-  this->Flips[1] = 1;
-  
   this->FileName = NULL;
   
   this->HeaderSize = 0;

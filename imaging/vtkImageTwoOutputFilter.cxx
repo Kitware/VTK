@@ -190,8 +190,10 @@ vtkImageTwoOutputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 
   // Pass on to a method that can be called recursively (for streaming)
   // inRegion is passed to avoid setting up a new region many times.
+  if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
   this->Execute(dim, inRegion, outRegion0, outRegion1);
-
+  if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+  
   // free the input region
   inRegion->Delete();
 
