@@ -227,6 +227,11 @@ void vtkInteractorStyleTrackballCamera::SpinXY(int x, int y, int oldX, int oldY)
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam;
 
+  if (this->CurrentRenderer == NULL)
+    {
+    return;
+    }
+
   double newAngle = atan2((double)(y - this->Center[1]),
                          (double)(x - this->Center[0]));
   double oldAngle = atan2((double)(oldY -this->Center[1]),
