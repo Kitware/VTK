@@ -74,15 +74,14 @@ vtkActor Actor6
  	[Actor6 GetProperty] SetInterpolationToGouraud
 Ren1 AddActor Actor6
 
-compManager SetRenderWindow renWin 
- 	compManager InitializePieces
+if { $numProcs > 1 } {
+    compManager SetRenderWindow renWin 
+        compManager InitializePieces
+}
 
 # enable user interface interactor
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
-
-set myProcId 0
-catch [ set myProcId [[compManager GetController] GetLocalProcessId] ]
 
 renWin SetWindowName "Process $myProcId"
 

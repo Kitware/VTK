@@ -17,8 +17,10 @@ rtDebugLeaks PromptUserOff
 set myProcId 0
 set numProcs 1
 vtkCompositeManager compManager
-catch [ set myProcId [[compManager GetController] GetLocalProcessId] ]
-catch [ set numProcs [[compManager GetController] GetNumberOfProcesses] ]
+if { [compManager GetController] != "" } {
+    catch [ set myProcId [[compManager GetController] GetLocalProcessId] ]
+    catch [ set numProcs [[compManager GetController] GetNumberOfProcesses] ]
+}
 
 proc ExitMaster { code } {
     global numProcs
