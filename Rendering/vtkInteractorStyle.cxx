@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.69");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.70");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -558,12 +558,13 @@ void vtkInteractorStyle::StopState()
   if (this->AnimState == VTKIS_ANIM_OFF) 
     {   
     vtkRenderWindowInteractor *rwi = this->Interactor;
-    rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
-    rwi->Render();
+    vtkRenderWindow *renwin = rwi->GetRenderWindow();
+    renwin->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
     if (this->UseTimers && !rwi->DestroyTimer()) 
       {
       vtkErrorMacro(<< "Timer stop failed");
       }
+    rwi->Render();
     }   
 }
 
@@ -572,11 +573,9 @@ void vtkInteractorStyle::StopState()
 void vtkInteractorStyle::StartAnimate() 
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
-  vtkErrorMacro(<< "Starting animation");
   this->AnimState = VTKIS_ANIM_ON;
   if (this->State == VTKIS_NONE) 
     {   
-    vtkErrorMacro(<< "Start state found");
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
     if (this->UseTimers && !rwi->CreateTimer(VTKI_TIMER_FIRST) ) 
       {
