@@ -43,6 +43,12 @@ vtkImageActor           GetDisplayExtent        304 6
 vtkImageButterworthHighPass GetCutOff           301 3
 vtkImageButterworthLowPass GetCutOff            301 3
 vtkImageClip            GetOutputWholeExtent    304 6
+vtkImageConvolve        GetKernel3x3            301 9
+vtkImageConvolve        GetKernel5x5            301 25
+vtkImageConvolve        GetKernel7x7            301 49
+vtkImageConvolve        GetKernel3x3x3          301 27
+vtkImageConvolve        GetKernel5x5x5          301 125
+vtkImageConvolve        GetKernel7x7x7          301 343
 vtkImageData            GetDimensions           304 3
 vtkImageData            GetIncrements           304 3
 vtkImageData            GetPoint                301 3
