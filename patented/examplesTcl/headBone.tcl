@@ -24,9 +24,16 @@ vtkVolume16Reader v16
 vtkMarchingCubes iso
     iso SetInput [v16 GetOutput]
     iso SetValue 0 1150
-vtkPolyDataMapper isoMapper
-    isoMapper SetInput [iso GetOutput]
-    isoMapper ScalarVisibilityOff
+    iso ComputeGradientsOn
+
+vtkVectorNorm gradient
+  gradient SetInput [iso GetOutput]
+
+vtkDataSetMapper isoMapper
+    isoMapper SetInput [gradient GetOutput]
+    isoMapper ScalarVisibilityOn
+    isoMapper SetScalarRange 0 1200
+
 vtkActor isoActor
     isoActor SetMapper isoMapper
 set isoProp [isoActor GetProperty]
