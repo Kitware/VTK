@@ -3,7 +3,6 @@ vtkBranchExtentTranslator.cxx
 vtkCommunicator.cxx
 vtkCompositeManager.cxx
 vtkCompositer.cxx
-vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
