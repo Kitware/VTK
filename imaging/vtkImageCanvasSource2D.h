@@ -89,8 +89,6 @@ public:
   // Description:
   // Set/Get DrawValue.  This is the value that is used when filling data
   // or drawing lines.
-  void SetDrawColor(int dim, float *color);
-  void GetDrawColor(int dim, float *color);
   vtkSetVector4Macro(DrawColor, float);
   vtkGetVector4Macro(DrawColor, float);
   void SetDrawColor(float a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
