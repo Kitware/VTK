@@ -45,33 +45,33 @@ public:
   // Specify file name for the image file. You should specify either
   // a FileName or a FilePrefix. Use FilePrefix if the data is stored 
   // in multiple files.
-  void SetFileName(const char *);
+  virtual void SetFileName(const char *);
   vtkGetStringMacro(FileName);
 
   // Description:
   // Specify file prefix for the image file(s).You should specify either
   // a FileName or FilePrefix. Use FilePrefix if the data is stored
   // in multiple files.
-  void SetFilePrefix(const char *);
+  virtual void SetFilePrefix(const char *);
   vtkGetStringMacro(FilePrefix);
 
   // Description:
   // The sprintf format used to build filename from FilePrefix and number.
-  void SetFilePattern(const char *);
+  virtual void SetFilePattern(const char *);
   vtkGetStringMacro(FilePattern);
 
   // Description:
   // Set the data type of pixels in the file.  
   // If you want the output scalar type to have a different value, set it
   // after this method is called.
-  void SetDataScalarType(int type);
-  void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
-  void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
-  void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
-  void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
-  void SetDataScalarTypeToUnsignedShort()
+  virtual void SetDataScalarType(int type);
+  virtual void SetDataScalarTypeToFloat(){this->SetDataScalarType(VTK_FLOAT);}
+  virtual void SetDataScalarTypeToDouble(){this->SetDataScalarType(VTK_DOUBLE);}
+  virtual void SetDataScalarTypeToInt(){this->SetDataScalarType(VTK_INT);}
+  virtual void SetDataScalarTypeToShort(){this->SetDataScalarType(VTK_SHORT);}
+  virtual void SetDataScalarTypeToUnsignedShort()
     {this->SetDataScalarType(VTK_UNSIGNED_SHORT);}
-  void SetDataScalarTypeToUnsignedChar()
+  virtual void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
 
   // Description:
@@ -111,7 +111,7 @@ public:
   // Description:
   // If there is a tail on the file, you want to explicitly set the
   // header size.
-  void SetHeaderSize(unsigned long size);
+  virtual void SetHeaderSize(unsigned long size);
   
   // Description:
   // These methods should be used instead of the SwapBytes methods.
@@ -125,11 +125,11 @@ public:
   // and VAX tend to be LittleEndian. So if the file you are reading
   // in was generated on a VAX or PC, SetDataByteOrderToLittleEndian 
   // otherwise SetDataByteOrderToBigEndian. 
-  void SetDataByteOrderToBigEndian();
-  void SetDataByteOrderToLittleEndian();
-  int GetDataByteOrder();
-  void SetDataByteOrder(int);
-  const char *GetDataByteOrderAsString();
+  virtual void SetDataByteOrderToBigEndian();
+  virtual void SetDataByteOrderToLittleEndian();
+  virtual int GetDataByteOrder();
+  virtual void SetDataByteOrder(int);
+  virtual const char *GetDataByteOrderAsString();
 
   // Description:
   // When reading files which start at an unusual index, this can be added
@@ -148,7 +148,7 @@ public:
   // Description:
   // Set/Get the byte swapping to explicitly swap the bytes of a file.
   vtkSetMacro(SwapBytes,int);
-  int GetSwapBytes() {return this->SwapBytes;}
+  virtual int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);
 
 //BTX
@@ -156,8 +156,8 @@ public:
   vtkGetVectorMacro(DataIncrements,unsigned long,4);
 //ETX
 
-  int OpenFile();
-  void SeekFile(int i, int j, int k);
+  virtual int OpenFile();
+  virtual void SeekFile(int i, int j, int k);
 
   // Description:
   // Set/Get whether the data comes from the file starting in the lower left
@@ -168,7 +168,7 @@ public:
 
   // Description:
   // Set/Get the internal file name
-  void ComputeInternalFileName(int slice);
+  virtual void ComputeInternalFileName(int slice);
   vtkGetStringMacro(InternalFileName);
   
 #ifndef VTK_REMOVE_LEGACY_CODE
