@@ -22,7 +22,7 @@
 #include "vtkEnSightGoldBinaryReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.21");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.22");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 //----------------------------------------------------------------------------
@@ -197,7 +197,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
 {
   char line[256], subLine[256], binaryLine[80];
   int stringRead;
-  int timeSet = 0, fileSet = 0;
+  int timeSet = 1, fileSet = 1;
   char *fileName = NULL;
   
   if (!this->CaseFileName)
@@ -294,7 +294,6 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           if (this->IFile == NULL)
             {
             vtkErrorMacro("Unable to open file: " << line);
-            fclose(this->IFile);
             this->IFile = NULL;
             delete [] fileName;
             return 0;
@@ -302,7 +301,8 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
           
           this->ReadBinaryLine(binaryLine);
           sscanf(binaryLine, " %*s %s", subLine);
-          if (strcmp(subLine, "Binary") == 0)
+          if (strcmp(subLine, "Binary") == 0 ||
+              strcmp(subLine, "binary") == 0)
             {
             fclose(this->IFile);
             this->IFile = NULL;
