@@ -207,50 +207,67 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
   int min0, max0, min1, max1, min2, max2;
   float *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
-  float th0, th1, th2, th01, th02, th12, th012, diff;
-  float fact;
+  float th0, th1, th2, th01, th02, th12, th012;
+  float df0, df1, df2, df01, df02, df12, df012;
+  float temp, sum;
 
   inRegion->GetExtent(inMin0, inMax0, inMin1, inMax1, inMin2, inMax2);
   inRegion->GetIncrements(inInc0, inInc1, inInc2);
   outRegion->GetIncrements(outInc0, outInc1, outInc2);
 
-  // Compute the factor from the number of neighbors.
-  // we could take distance into account and have face factor, edge factor ...
-  fact = 0.0;
+  // Compute direction specific diffusion thresholds and factors.
+  sum = 0.0;
   if (this->Faces)
     {
-    fact += 6;
+    th0 = ar0 * this->DiffusionThreshold;
+    df0 = 1.0 / ar0;
+    th1 = ar1 * this->DiffusionThreshold;
+    df1 = 1.0 / ar1;
+    th2 = ar2 * this->DiffusionThreshold;
+    df2 = 1.0 / ar2;
+    // two faces per direction.
+    sum += 2.0 * (df0 + df1 + df2);
     }
   if (this->Edges)
     {
-    fact += 12;
+    temp = sqrt(ar0*ar0 + ar1*ar1);
+    th01 = temp * this->DiffusionThreshold;
+    df01 = 1 / temp;
+    temp = sqrt(ar0*ar0 + ar2*ar2);
+    th02 = temp * this->DiffusionThreshold;
+    df02 = 1 / temp;
+    temp = sqrt(ar1*ar1 + ar2*ar2);
+    th12 = temp * this->DiffusionThreshold;
+    df12 = 1 / temp;
+    // four edges per plane
+    sum += 4 * (df01 + df02 + df12);
     }
   if (this->Corners)
     {
-    fact += 8;
+    temp = sqrt(ar0*ar0 + ar1*ar1 + ar2*ar2);
+    th012 = temp * this->DiffusionThreshold;
+    df012 = 1 / temp;
+    // eight corners in a cube
+    sum += 8 * df012;
+
     }
-  if (fact > 0.0)
+  if (sum > 0.0)
     {
-    fact = this->DiffusionFactor / fact;
+    temp = this->DiffusionFactor / sum;
+    df0 *= temp;
+    df1 *= temp;
+    df2 *= temp;
+    df01 *= temp;
+    df02 *= temp;
+    df12 *= temp;
+    df012 *= temp;
     }
   else
     {
     vtkWarningMacro(<< "Iterate: NO NEIGHBORS");
-    fact = this->DiffusionFactor;
+    return;
     }
 
-  // Compute the thresholds (one for each distance).
-  if (! this->GradientMagnitudeThreshold)
-    {
-    th01 = sqrt(ar0 * ar0 + ar1 * ar1) * this->DiffusionThreshold;
-    th02 = sqrt(ar0 * ar0 + ar2 * ar2) * this->DiffusionThreshold;
-    th12 = sqrt(ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
-    th012 = sqrt(ar0 * ar0 + ar1 * ar1 + ar2 * ar2) * this->DiffusionThreshold;
-    th0 = ar0 * this->DiffusionThreshold;
-    th1 = ar1 * this->DiffusionThreshold;
-    th2 = ar2 * this->DiffusionThreshold;
-    }
-    
   // Compute the shrinking extent to loop over.
   min0 = coreExtent[0] - count;
   max0 = coreExtent[1] + count;
@@ -322,55 +339,55 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
 	  // left
 	  if (idx0 != inMin0)
 	    {
-	    diff = inPtr0[-inInc0] - *inPtr0;
-	    if (fabs(diff) < th0)
+	    temp = inPtr0[-inInc0] - *inPtr0;
+	    if (fabs(temp) < th0)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df0;
 	      }
 	    }
 	  // right
 	  if (idx0 != inMax0)
 	    {
-	    diff = inPtr0[inInc0] - *inPtr0;
-	    if (fabs(diff) < th0)
+	    temp = inPtr0[inInc0] - *inPtr0;
+	    if (fabs(temp) < th0)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df0;
 	      }
 	    }
 	  // up
 	  if (idx1 != inMin1)
 	    {
-	    diff = inPtr0[-inInc1] - *inPtr0;
-	    if (fabs(diff) < th1)
+	    temp = inPtr0[-inInc1] - *inPtr0;
+	    if (fabs(temp) < th1)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df1;
 	      }
 	    }
 	  // down
 	  if (idx1 != inMax1)
 	    {
-	    diff = inPtr0[inInc1] - *inPtr0;
-	    if (fabs(diff) < th1)
+	    temp = inPtr0[inInc1] - *inPtr0;
+	    if (fabs(temp) < th1)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df1;
 	      }
 	    }
 	  // in
 	  if (idx2 != inMin2)
 	    {
-	    diff = inPtr0[-inInc2] - *inPtr0;
-	    if (fabs(diff) < th2)
+	    temp = inPtr0[-inInc2] - *inPtr0;
+	    if (fabs(temp) < th2)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df2;
 	      }
 	    }
 	  // out
 	  if (idx2 != inMax2)
 	    {
-	    diff = inPtr0[inInc2] - *inPtr0;
-	    if (fabs(diff) < th2)
+	    temp = inPtr0[inInc2] - *inPtr0;
+	    if (fabs(temp) < th2)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df2;
 	      }
 	    }
 	  }
@@ -380,111 +397,111 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
 	  // left up
 	  if (idx0 != inMin0 && idx1 != inMin1)
 	    {
-	    diff = inPtr0[-inInc0-inInc1] - *inPtr0;
-	    if (fabs(diff) < th01)
+	    temp = inPtr0[-inInc0-inInc1] - *inPtr0;
+	    if (fabs(temp) < th01)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df01;
 	      }
 	    }
 	  // right up
 	  if (idx0 != inMax0 && idx1 != inMin1)
 	    {
-	    diff = inPtr0[inInc0-inInc1] - *inPtr0;
-	    if (fabs(diff) < th01)
+	    temp = inPtr0[inInc0-inInc1] - *inPtr0;
+	    if (fabs(temp) < th01)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df01;
 	      }
 	    }
 	  // left down
 	  if (idx0 != inMin0 && idx1 != inMax1)
 	    {
-	    diff = inPtr0[-inInc0+inInc1] - *inPtr0;
-	    if (fabs(diff) < th01)
+	    temp = inPtr0[-inInc0+inInc1] - *inPtr0;
+	    if (fabs(temp) < th01)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df01;
 	      }
 	    }
 	  // right down
 	  if (idx0 != inMax0 && idx1 != inMax1)
 	    {
-	    diff = inPtr0[inInc0+inInc1] - *inPtr0;
-	    if (fabs(diff) < th01)
+	    temp = inPtr0[inInc0+inInc1] - *inPtr0;
+	    if (fabs(temp) < th01)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df01;
 	      }
 	    }
 	  
 	  // left in
 	  if (idx0 != inMin0 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[-inInc0-inInc2] - *inPtr0;
-	    if (fabs(diff) < th02)
+	    temp = inPtr0[-inInc0-inInc2] - *inPtr0;
+	    if (fabs(temp) < th02)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df02;
 	      }
 	    }
 	  // right in
 	  if (idx0 != inMax0 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[inInc0-inInc2] - *inPtr0;
-	    if (fabs(diff) < th02)
+	    temp = inPtr0[inInc0-inInc2] - *inPtr0;
+	    if (fabs(temp) < th02)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df02;
 	      }
 	    }
 	  // left out
 	  if (idx0 != inMin0 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[-inInc0+inInc2] - *inPtr0;
-	    if (fabs(diff) < th02)
+	    temp = inPtr0[-inInc0+inInc2] - *inPtr0;
+	    if (fabs(temp) < th02)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df02;
 	      }
 	    }
 	  // right out
 	  if (idx0 != inMax0 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[inInc0+inInc2] - *inPtr0;
-	    if (fabs(diff) < th02)
+	    temp = inPtr0[inInc0+inInc2] - *inPtr0;
+	    if (fabs(temp) < th02)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df02;
 	      }
 	    }
 	  
 	  // up in
 	  if (idx1 != inMin1 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[-inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < th12)
+	    temp = inPtr0[-inInc1-inInc2] - *inPtr0;
+	    if (fabs(temp) < th12)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df12;
 	      }
 	    }
 	  // down in
 	  if (idx1 != inMax1 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < th12)
+	    temp = inPtr0[inInc1-inInc2] - *inPtr0;
+	    if (fabs(temp) < th12)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df12;
 	      }
 	    }
 	  // up out
 	  if (idx1 != inMin1 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[-inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < th12)
+	    temp = inPtr0[-inInc1+inInc2] - *inPtr0;
+	    if (fabs(temp) < th12)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df12;
 	      }
 	    }
 	  // down out
 	  if (idx1 != inMax1 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < th12)
+	    temp = inPtr0[inInc1+inInc2] - *inPtr0;
+	    if (fabs(temp) < th12)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df12;
 	      }
 	    }
 	  }
@@ -494,73 +511,73 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
 	  // left up in
 	  if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[-inInc0-inInc1-inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // right up in
 	  if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[inInc0-inInc1-inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // left down in
 	  if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[-inInc0+inInc1-inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // right down in
 	  if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMin2)
 	    {
-	    diff = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[inInc0+inInc1-inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // left up out
 	  if (idx0 != inMin0 && idx1 != inMin1 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[-inInc0-inInc1+inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // right up out
 	  if (idx0 != inMax0 && idx1 != inMin1 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[inInc0-inInc1+inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // left down out
 	  if (idx0 != inMin0 && idx1 != inMax1 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[-inInc0+inInc1+inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  // right down out
 	  if (idx0 != inMax0 && idx1 != inMax1 && idx2 != inMax2)
 	    {
-	    diff = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
-	    if (fabs(diff) < th012)
+	    temp = inPtr0[inInc0+inInc1+inInc2] - *inPtr0;
+	    if (fabs(temp) < th012)
 	      {
-	      *outPtr0 += diff * fact;
+	      *outPtr0 += temp * df012;
 	      }
 	    }
 	  }
