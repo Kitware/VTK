@@ -215,7 +215,7 @@ void vtkMapper::ShallowCopy(vtkMapper *m)
 // to the return value
 vtkScalars *vtkMapper::GetColors()
 {
-  vtkScalars *scalars;
+  vtkScalars *scalars = NULL;
   vtkDataArray *dataArray=0;
   vtkFieldData *fd;
   int i, numScalars;
