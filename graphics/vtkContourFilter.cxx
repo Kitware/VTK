@@ -172,7 +172,7 @@ void vtkContourFilter::Execute()
   cellScalars = vtkScalars::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   
-  
+ 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
     {
@@ -181,6 +181,11 @@ void vtkContourFilter::Execute()
   this->Locator->InitPointInsertion (newPts, input->GetBounds(),estimatedSize);
 
   // interpolate data along edge
+  // if we did not ask for scalars to be computed, don't copy them
+  if (!this->ComputeScalars)
+    {
+    outPd->CopyScalarsOff();
+    }
   outPd->InterpolateAllocate(inPd,estimatedSize,estimatedSize);
   outCd->CopyAllocate(inCd,estimatedSize,estimatedSize);
 
