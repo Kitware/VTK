@@ -117,12 +117,6 @@ void Test(ostream& strm)
     out[2] << " " << out[3] << "]" << endl;
   
 
-  strm << "point multiply" << endl;
-  mat1->PointMultiply(in, out);
-  strm << "output point = [" << out[0] << " " << out[1] << " " <<
-    out[2] << " " << out[3] << "]" << endl;
-
-
   strm << "text test vtkMatrix4x4 completed" << endl;
   mat1->Delete();
   mat2->Delete();
