@@ -20,11 +20,16 @@ vtkPLOT3DReader pl3d
     pl3d SetScalarFunctionNumber 100
     pl3d SetVectorFunctionNumber 202
     pl3d Update
+
+vtkExtractGrid extract
+  extract SetVOI 1 55 -1000 1000 -1000 1000
+  extract SetInput [pl3d GetOutput]
+
 vtkPlane plane
   plane SetOrigin 0 4 2
   plane SetNormal 0 1 0
 vtkCutter cutter
-  cutter SetInput [pl3d GetOutput]
+  cutter SetInput [extract GetOutput]
   cutter SetCutFunction plane
   cutter GenerateCutScalarsOff
   cutter SetSortBy 1
