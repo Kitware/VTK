@@ -72,7 +72,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   float	dx, dy, dz;
   float	color[4];
   float Info[4];
-  vtkMatrix4x4 *xform;
+  vtkMatrix4x4 *xform = NULL;
 
   // get required info from light
   color[0] = this->Intensity * this->Color[0];

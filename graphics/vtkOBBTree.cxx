@@ -499,7 +499,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
   vtkIdList *cells;
   int depth, ii, foundIntersection = 0, bestIntersection = 0;
   float tBest = VTK_LARGE_FLOAT, xBest[3], pcoordsBest[3];
-  int subIdBest, thisId, cellIdBest = -1;
+  int subIdBest = -1, thisId, cellIdBest = -1;
 
   OBBstack = new vtkOBBNode *[this->GetLevel()+1];
   OBBstack[0] = this->Tree;

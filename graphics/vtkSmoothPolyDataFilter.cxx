@@ -200,7 +200,7 @@ void vtkSmoothPolyDataFilter::Execute()
   float x1[3], x2[3], x3[3], l1[3], l2[3];
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
-  float closestPt[3], dist2, *w;
+  float closestPt[3], dist2, *w = NULL;
   int iterationNumber, abortExecute;
   int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;

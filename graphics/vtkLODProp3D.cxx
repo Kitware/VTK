@@ -855,7 +855,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
   int    i;
   int    index = -1;
   float  bestTime;
-  float  bestLevel;
+  float  bestLevel = 0;
   float  targetTime;
   float  estimatedTime;
   float  newTime;

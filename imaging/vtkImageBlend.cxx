@@ -795,7 +795,7 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
 
   float opacity;
 
-  vtkImageData *tmpData;
+  vtkImageData *tmpData = NULL;
   
   // check
 
