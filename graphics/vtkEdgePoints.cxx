@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkEdgePoints::vtkEdgePoints()
 {
   this->Value = 0.0;
+  this->Locator.ReferenceCountingOff ();
 }
 
 //
