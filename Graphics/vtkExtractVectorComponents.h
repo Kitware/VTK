@@ -46,10 +46,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Each output is the same as the input, except that the scalar values will be
 // one of the three components of the vector. These can be found in the
 // VxComponent, VyComponent, and VzComponent.
+// Alternatively, if the ExtractToFieldData flag is set, the filter will
+// put all the components in the field data. The first component will be
+// the scalar and the others will be non-attribute arrays.
 
 // .SECTION Caveats
 // This filter is unusual in that it creates multiple outputs. 
-// If you use the GetOutput() method, you will be retrieving the x vector component.
+// If you use the GetOutput() method, you will be retrieving the x vector 
+// component.
 
 #ifndef __vtkExtractVectorComponents_h
 #define __vtkExtractVectorComponents_h
@@ -83,6 +87,7 @@ public:
   // NULL then input hasn't been set, which is necessary for abstract
   // objects. (Note: this method returns the same information as the
   // GetOutput() method with an index of 1.)
+  // Note that if ExtractToFieldData is true, this output will be empty.
   vtkDataSet *GetVyComponent();
   
   // Description:
@@ -90,6 +95,7 @@ public:
   // NULL then input hasn't been set, which is necessary for abstract
   // objects. (Note: this method returns the same information as the
   // GetOutput() method with an index of 2.)
+  // Note that if ExtractToFieldData is true, this output will be empty.
   vtkDataSet *GetVzComponent();
 
   // Description:
@@ -98,6 +104,13 @@ public:
   // vector component. By default, the x component is extracted.
   vtkDataSet *GetOutput(int i=0); //default extracts vector component.
 
+  // Description:
+  // Determines whether the vector components will be put
+  // in separate outputs or in the first output's field data
+  vtkSetMacro(ExtractToFieldData, int);
+  vtkGetMacro(ExtractToFieldData, int);
+  vtkBooleanMacro(ExtractToFieldData, int);
+
 protected:
   vtkExtractVectorComponents();
   ~vtkExtractVectorComponents();
@@ -105,6 +118,7 @@ protected:
   void operator=(const vtkExtractVectorComponents&) {};
 
   void Execute();
+  int ExtractToFieldData;
 };
 
 #endif
