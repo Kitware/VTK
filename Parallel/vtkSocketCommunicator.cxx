@@ -36,7 +36,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.50");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.50.2.1");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->Socket = -1;
   this->IsConnected = 0;
   this->NumberOfProcesses = 2;
-  this->SwapBytesInReceivedData = 0;
+  this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapNotSet;
   this->PerformHandshake = 1;
   this->LogStream = 0;
   this->LogFile = 0;
@@ -67,8 +67,21 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "SwapBytesInReceivedData: " << this->SwapBytesInReceivedData
-     << endl;
+
+  os << indent << "SwapBytesInReceivedData: ";
+  if (this->SwapBytesInReceivedData == SwapOff) 
+    {
+    os << "Off\n";
+    }
+  if (this->SwapBytesInReceivedData == SwapOn) 
+    {
+    os << "On\n";
+    }
+  if (this->SwapBytesInReceivedData == SwapNotSet) 
+    {
+    os << "NotSet\n";
+    }
+
   os << indent << "IsConnected: " << this->IsConnected << endl;
   os << indent << "Perform a handshake: " 
      << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
@@ -368,7 +381,11 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
     
     if ( clientIsBE != IAmBE )
       {
-      this->SwapBytesInReceivedData = 1;
+      this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOn;
+      }
+    else
+      {
+      this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
       }
     }
   
@@ -465,7 +482,11 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 
   if ( serverIsBE != IAmBE )
     {
-    this->SwapBytesInReceivedData = 1;
+    this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOn;
+    }
+  else
+    {
+    this->SwapBytesInReceivedData = vtkSocketCommunicator::SwapOff;
     }
 
   return 1;
@@ -551,7 +572,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
       vtkErrorMacro("Could not receive tag. " << tag);
       return 0;
       }
-    if(this->SwapBytesInReceivedData)
+    if(this->SwapBytesInReceivedData == vtkSocketCommunicator::SwapOn)
       {
       vtkSwap4(reinterpret_cast<char*>(&recvTag));
       }
@@ -561,7 +582,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
       vtkErrorMacro("Could not receive length.");
       return 0;
       }
-    if(this->SwapBytesInReceivedData)
+    if(this->SwapBytesInReceivedData == vtkSocketCommunicator::SwapOn)
       {
       vtkSwap4(reinterpret_cast<char*>(&length));
       }
@@ -590,7 +611,12 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
       success = 1;
       }
     }
-  if ( (wordSize * numWords) != length )
+  // Length may not be correct for the first message sent as an 
+  // endian handshake because the SwapBytesInReceivedData flag 
+  // is not initialized at this point.  We could just initialize it
+  // here, but what is the point.
+  if ((wordSize * numWords) != length && 
+      this->SwapBytesInReceivedData != vtkSocketCommunicator::SwapNotSet)
     {
     vtkErrorMacro("Requested size (" << (wordSize * numWords) 
       << ") is different than the size that was sent (" << length << ")");
@@ -611,7 +637,7 @@ int vtkSocketCommunicator::ReceivePartialTagged(void* data, int wordSize,
     }
   // Unless we're dealing with chars, then check byte ordering.
   // This is really bad and should probably use some enum for types
-  if(this->SwapBytesInReceivedData)
+  if(this->SwapBytesInReceivedData == vtkSocketCommunicator::SwapOn)
     {
     if(wordSize == 4)
       {
