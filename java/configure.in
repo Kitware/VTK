@@ -504,6 +504,13 @@ AC_ARG_WITH(imaging,
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingJava"
          USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
 
+AC_ARG_WITH(patented,
+         [  --with-patented          include the patented classes],
+         [vtk_use_patented=yes] 
+         USE_PATENTED_LIBS="-L../patented -lVTKPatentedJava"
+         USE_PATENTED_FLAG="-I$(srcdir)/../patented -DUSE_PATENTED",
+         [vtk_use_patented=no])
+
 AC_ARG_WITH(volume,
          [  --with-volume          include the volume classes],
          [vtk_use_volume=yes] 
@@ -565,6 +572,9 @@ AC_SUBST(USE_GRAPHICS_LIBS)
 
 AC_SUBST(USE_IMAGING_FLAG)
 AC_SUBST(USE_IMAGING_LIBS)
+
+AC_SUBST(USE_PATENTED_FLAG)
+AC_SUBST(USE_PATENTED_LIBS)
 
 AC_SUBST(USE_VOLUME_FLAG)
 AC_SUBST(USE_VOLUME_LIBS)

@@ -509,6 +509,13 @@ AC_ARG_WITH(imaging,
          USE_IMAGING_LIBS="-L../imaging -lVTKImagingTcl"
          USE_IMAGING_FLAG="-I$(srcdir)/../imaging -DUSE_IMAGING")
 
+AC_ARG_WITH(patented,
+         [  --with-patented          include the patented classes],
+         [vtk_use_patented=yes] 
+         USE_PATENTED_LIBS="-L../patented -lVTKPatentedTcl"
+         USE_PATENTED_FLAG="-I$(srcdir)/../patented -DUSE_PATENTED",
+         [vtk_use_patented=no])
+
 AC_ARG_WITH(volume,
          [  --with-volume          include the volume classes],
          [vtk_use_volume=yes] 
@@ -560,6 +567,7 @@ AC_ARG_WITH(gemsvolume,
 
 USE_GRAPHICS_DEPENDS=""
 USE_IMAGING_DEPENDS=""
+USE_PATENTED_DEPENDS=""
 USE_VOLUME_DEPENDS=""
 USE_BORESCOPE_DEPENDS=""
 USE_CONTRIB_DEPENDS=""
@@ -583,6 +591,9 @@ else
     fi
     if test "$vtk_use_imaging" = "yes"; then
        USE_IMAGING_DEPENDS="../imaging/libVTKImagingTcl.a"
+    fi
+    if test "$vtk_use_patented" = "yes"; then
+       USE_PATENTED_DEPENDS="../patented/libVTKPatentedTcl.a"
     fi
     if test "$vtk_use_volume" = "yes"; then
        USE_VOLUME_DEPENDS="../volume/libVTKVolumeTcl.a"
@@ -614,6 +625,10 @@ AC_SUBST(USE_GRAPHICS_DEPENDS)
 AC_SUBST(USE_IMAGING_FLAG)
 AC_SUBST(USE_IMAGING_LIBS)
 AC_SUBST(USE_IMAGING_DEPENDS)
+
+AC_SUBST(USE_PATENTED_FLAG)
+AC_SUBST(USE_PATENTED_LIBS)
+AC_SUBST(USE_PATENTED_DEPENDS)
 
 AC_SUBST(USE_VOLUME_FLAG)
 AC_SUBST(USE_VOLUME_LIBS)

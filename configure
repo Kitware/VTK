@@ -26,6 +26,8 @@ ac_help="$ac_help
 ac_help="$ac_help
   --without-imaging       do not include the imaging classes"
 ac_help="$ac_help
+  --with-patented           include the patented classes"
+ac_help="$ac_help
   --with-volume           include the volume classes"
 ac_help="$ac_help
   --with-borescope        include the borescope classes"
@@ -630,7 +632,7 @@ else
   yes;
 #endif
 EOF
-if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:634: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
+if { ac_try='${CC-cc} -E conftest.c'; { (eval echo configure:636: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }; } | egrep yes >/dev/null 2>&1; then
   ac_cv_prog_gcc=yes
 else
   ac_cv_prog_gcc=no
@@ -741,6 +743,20 @@ else
          BUILD_IMAGING=build_imaging
          DEPEND_IMAGING=depend_imaging
          CLEAN_IMAGING=clean_imaging
+fi
+
+
+
+
+
+
+# Check whether --with-patented or --without-patented was given.
+if test "${with_patented+set}" = set; then
+  withval="$with_patented"
+  patenteddir=patented
+         BUILD_PATENTED=build_patented
+         DEPEND_PATENTED=depend_patented
+         CLEAN_PATENTED=clean_patented
 fi
 
 
@@ -1049,6 +1065,9 @@ s%@CLEAN_GRAPHICS@%$CLEAN_GRAPHICS%g
 s%@BUILD_IMAGING@%$BUILD_IMAGING%g
 s%@DEPEND_IMAGING@%$DEPEND_IMAGING%g
 s%@CLEAN_IMAGING@%$CLEAN_IMAGING%g
+s%@BUILD_PATENTED@%$BUILD_PATENTED%g
+s%@DEPEND_PATENTED@%$DEPEND_PATENTED%g
+s%@CLEAN_PATENTED@%$CLEAN_PATENTED%g
 s%@BUILD_VOLUME@%$BUILD_VOLUME%g
 s%@DEPEND_VOLUME@%$DEPEND_VOLUME%g
 s%@CLEAN_VOLUME@%$CLEAN_VOLUME%g
