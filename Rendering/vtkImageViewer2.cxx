@@ -25,7 +25,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.16");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.17");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ void vtkImageViewer2::SetOffScreenRendering(int i)
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
-int vtkImageViewer2::GetOffScreenRendering(int i)
+int vtkImageViewer2::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }

@@ -110,7 +110,7 @@ public:
   // be supported for every type of window and on some windows you may
   // need to invoke this prior to the first render.
   void SetOffScreenRendering(int);
-  int GetOffScreenRendering(int);
+  int GetOffScreenRendering();
   void OffScreenRenderingOn();
   void OffScreenRenderingOff();
 
