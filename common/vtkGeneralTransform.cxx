@@ -936,7 +936,6 @@ void vtkTransformConcatenation::DeepCopy(vtkTransformConcatenation *concat)
   this->InverseFlag = concat->InverseFlag;
   this->PreMultiplyFlag = concat->PreMultiplyFlag;
 
-  this->MaxNumberOfTransforms = concat->MaxNumberOfTransforms;
   this->NumberOfTransforms = concat->NumberOfTransforms;
   this->NumberOfPreTransforms = concat->NumberOfPreTransforms;
 }
