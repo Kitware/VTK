@@ -1277,7 +1277,8 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
   // Turn of texturing in case it is on - some drivers have a problem
   // getting / setting pixels with texturing enabled.
   glDisable( GL_TEXTURE_2D );
-
+  glDisable( GL_LIGHTING );
+  
   /* write out a row of pixels */
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
@@ -1305,6 +1306,9 @@ void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1,
     {
     glDrawPixels( width, height, GL_RGBA, GL_FLOAT, data);
     }    
+  
+  glEnable( GL_LIGHTING );
+  
 
 }
 
