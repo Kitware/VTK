@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkStructuredPointsToImage::vtkStructuredPointsToImage()
 {
+  this->Input = NULL;
 }
 
 //----------------------------------------------------------------------------
