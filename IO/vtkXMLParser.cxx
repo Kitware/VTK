@@ -22,16 +22,17 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.11");
+vtkCxxRevisionMacro(vtkXMLParser, "1.12");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
 vtkXMLParser::vtkXMLParser()
 {
-  this->Stream      = 0;
-  this->Parser      = 0;
-  this->FileName    = 0;
-  this->InputString = 0;
+  this->Stream            = 0;
+  this->Parser            = 0;
+  this->FileName          = 0;
+  this->InputString       = 0;
+  this->InputStringLength = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -61,8 +62,20 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
 int vtkXMLParser::Parse(const char* inputString)
 {
   this->InputString = inputString;
+  this->InputStringLength = -1;
   int result = this->vtkXMLParser::Parse();
   this->InputString = 0;
+  return result;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLParser::Parse(const char* inputString, unsigned int length)
+{
+  this->InputString = inputString;
+  this->InputStringLength = length;
+  int result = this->vtkXMLParser::Parse();
+  this->InputString = 0;
+  this->InputStringLength = -1;
   return result;
 }
 
@@ -135,7 +148,14 @@ int vtkXMLParser::ParseXML()
   // Parsing of message
   if ( this->InputString )
     {
-    return this->ParseBuffer(this->InputString);
+    if ( this->InputStringLength >= 0 )
+      {
+      return this->ParseBuffer(this->InputString, this->InputStringLength);
+      }
+    else
+      {
+      return this->ParseBuffer(this->InputString);
+      }
     }
 
   // Make sure we have input.

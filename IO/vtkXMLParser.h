@@ -56,8 +56,10 @@ public:
   virtual int Parse();
 
   // Description:
-  // Parse the XML message.
+  // Parse the XML message. If length is specified, parse only the
+  // first "length" characters
   virtual int Parse(const char* inputString);
+  virtual int Parse(const char* inputString, unsigned int length);
 
   // Description:
   // Set and get file name.
@@ -76,6 +78,7 @@ protected:
   
   // Character message to parse
   const char* InputString;
+  int InputStringLength;
   
   // Expat parser structure.  Exists only during call to Parse().
   void* Parser;
