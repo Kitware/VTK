@@ -49,6 +49,8 @@ vtkLocator::vtkLocator()
   this->MaxLevel = 8;
   this->Level = 8;
   this->Tolerance = 0.001;
+  this->Automatic = 1;
+  this->RetainCellLists = 1;
 }
 
 vtkLocator::~vtkLocator()
