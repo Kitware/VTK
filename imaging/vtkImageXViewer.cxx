@@ -55,6 +55,12 @@ vtkImageXViewer::vtkImageXViewer()
 //----------------------------------------------------------------------------
 vtkImageXViewer::~vtkImageXViewer()
 {
+  // then close the old window 
+  if (this->OwnWindow && this->DisplayId && this->WindowId)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
+  XSync(this->DisplayId,0);
 }
 
 
@@ -568,7 +574,7 @@ Window vtkImageXViewer::MakeDefaultWindow(int width, int height)
   XMapWindow(this->DisplayId, window);
   
   XSync(this->DisplayId,0);
-  
+  this->OwnWindow = 1;
   return window;
 }
 
