@@ -20,6 +20,22 @@
 // filter. The point attributes are computed at the Input point positions
 // by interpolating into the source data. For example, we can compute data
 // values on a plane (plane specified as Input) from a volume (Source).
+//
+// This filter can be used to resample data, or convert one dataset form into
+// another. For example, a generic dataset can be probed with a volume
+// (three-dimensional vtkImageData), and then volume rendering techniques can
+// be used to visualize the results. Another example: a line or curve can be
+// used to probe data to produce x-y plots along that line or curve.
+//
+// This filter has been implemented to operate on generic datasets, rather
+// than the typical vtkDataSet (and subclasses). vtkGenericDataSet is a more
+// complex cousin of vtkDataSet, typically consisting of nonlinear,
+// higher-order cells. To process this type of data, generic cells are
+// automatically tessellated into linear cells prior to isocontouring.
+
+// .SECTION See Also
+// vtkGenericProbeFilter vtkProbeFilter vtkGenericDataSet
+
 
 #ifndef __vtkGenericProbeFilter_h
 #define __vtkGenericProbeFilter_h
@@ -37,23 +53,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the point locations used to probe input. Any geometry
-  // can be used.
+  // Specify the point locations used to probe input. A generic dataset
+  // type is assumed.
   void SetSource(vtkGenericDataSet *source);
   vtkGenericDataSet *GetSource();
-
-  // Description:
-  // This flag is used only when a piece is requested to update.  By default
-  // the flag is off.  Because no spatial correspondence between input pieces
-  // and source pieces is known, all of the source has to be requested no
-  // matter what piece of the output is requested.  When there is a spatial 
-  // correspondence, the user/application can set this flag.  This hint allows
-  // the breakup of the probe operation to be much more efficient.  When piece
-  // m of n is requested for update by the user, then only n of m needs to
-  // be requested of the source. 
-  vtkSetMacro(SpatialMatch, int);
-  vtkGetMacro(SpatialMatch, int);
-  vtkBooleanMacro(SpatialMatch, int);
 
   // Description:
   // Get the list of point ids in the output that contain attribute data
@@ -64,13 +67,10 @@ protected:
   vtkGenericProbeFilter();
   ~vtkGenericProbeFilter();
 
-  int SpatialMatch;
-
   virtual void Execute();
-  //void ExecuteInformation();
-  //virtual void ComputeInputUpdateExtents(vtkDataObject *output);
 
   vtkIdTypeArray *ValidPoints;
+
 private:
   vtkGenericProbeFilter(const vtkGenericProbeFilter&);  // Not implemented.
   void operator=(const vtkGenericProbeFilter&);  // Not implemented.

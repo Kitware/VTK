@@ -26,13 +26,12 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
 
-vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.2");
+vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.3");
 vtkStandardNewMacro(vtkGenericProbeFilter);
 
 //----------------------------------------------------------------------------
 vtkGenericProbeFilter::vtkGenericProbeFilter()
 {
-  this->SpatialMatch = 0;
   this->ValidPoints = vtkIdTypeArray::New();
 }
 
@@ -172,117 +171,6 @@ void vtkGenericProbeFilter::Execute()
     }
 }
 
-//----------------------------------------------------------------------------
-/*void vtkGenericProbeFilter::ExecuteInformation()
-{
-  if (this->GetInput() == NULL || this->GetSource() == NULL)
-    {
-    vtkErrorMacro("Missing input or source");
-    return;
-    }
-
-  // Copy whole extent ...
-  this->vtkSource::ExecuteInformation();
-
-  // Special case for ParaView.
-  if (this->SpatialMatch == 2)
-    {
-    this->GetOutput()->SetMaximumNumberOfPieces(this->GetSource()->GetMaximumNumberOfPieces());
-    }
-
-  if (this->SpatialMatch == 1)
-    {
-    int m1 = this->GetInput()->GetMaximumNumberOfPieces();
-    int m2 = this->GetSource()->GetMaximumNumberOfPieces();
-    if (m1 < 0 && m2 < 0)
-      {
-      this->GetOutput()->SetMaximumNumberOfPieces(-1);
-      }
-    else
-      {
-      if (m1 < -1)
-        {
-        m1 = VTK_LARGE_INTEGER;
-        }
-      if (m2 < -1)
-        {
-        m2 = VTK_LARGE_INTEGER;
-        }
-      if (m2 < m1)
-        {
-        m1 = m2;
-        }
-      this->GetOutput()->SetMaximumNumberOfPieces(m1);
-      }
-    }
-}*/
-
-
-//----------------------------------------------------------------------------
-/*void vtkGenericProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
-{
-  vtkDataObject *input = this->GetInput();
-  vtkDataObject *source = this->GetSource();
-  int usePiece = 0;
-  
-  if (input == NULL || source == NULL)
-    {
-    vtkErrorMacro("Missing input or source.");
-    return;
-    }
-
-  // What ever happend to CopyUpdateExtent in vtkDataObject?
-  // Copying both piece and extent could be bad.  Setting the piece
-  // of a structured data set will affect the extent.
-  if (output->IsA("vtkUnstructuredGrid") || output->IsA("vtkPolyData"))
-    {
-    usePiece = 1;
-    }
-  
-  input->RequestExactExtentOn();
-  
-  if ( ! this->SpatialMatch)
-    {
-    source->SetUpdateExtent(0, 1, 0);
-    }
-  else if (this->SpatialMatch == 1)
-    {
-    if (usePiece)
-      {
-      // Request an extra ghost level because the probe
-      // gets external values with computation prescision problems.
-      // I think the probe should be changed to have an epsilon ...
-      source->SetUpdateExtent(output->GetUpdatePiece(), 
-                              output->GetUpdateNumberOfPieces(),
-                              output->GetUpdateGhostLevel()+1);
-      }
-    else
-      {
-      source->SetUpdateExtent(output->GetUpdateExtent()); 
-      }
-    }
-  
-  if (usePiece)
-    {
-    input->SetUpdateExtent(output->GetUpdatePiece(), 
-                           output->GetUpdateNumberOfPieces(),
-                           output->GetUpdateGhostLevel());
-    }
-  else
-    {
-    input->SetUpdateExtent(output->GetUpdateExtent()); 
-    }
-  
-  // Use the whole input in all processes, and use the requested update
-  // extent of the output to divide up the source.
-  if (this->SpatialMatch == 2)
-    {
-    input->SetUpdateExtent(0, 1, 0);
-    source->SetUpdateExtent(output->GetUpdatePiece(),
-                            output->GetUpdateNumberOfPieces(),
-                            output->GetUpdateGhostLevel());
-    }
-}*/
 
 //----------------------------------------------------------------------------
 void vtkGenericProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -290,14 +178,7 @@ void vtkGenericProbeFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkGenericDataSet *source = this->GetSource();
 
   this->Superclass::PrintSelf(os,indent);
+
   os << indent << "Source: " << source << "\n";
-  if (this->SpatialMatch)
-    {
-    os << indent << "SpatialMatchOn\n";
-    }
-  else
-    {
-    os << indent << "SpatialMatchOff\n";
-    }
   os << indent << "ValidPoints: " << this->ValidPoints << "\n";
 }

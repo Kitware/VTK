@@ -20,6 +20,13 @@
 // filter. The point attributes are computed at the Input point positions
 // by interpolating into the source data. For example, we can compute data
 // values on a plane (plane specified as Input) from a volume (Source).
+//
+// This filter can be used to resample data, or convert one dataset form into
+// another. For example, an unstructured grid (vtkUnstructuredGrid) can be
+// probed with a volume (three-dimensional vtkImageData), and then volume
+// rendering techniques can be used to visualize the results. Another example:
+// a line or curve can be used to probe data to produce x-y plots along
+// that line or curve.
 
 #ifndef __vtkProbeFilter_h
 #define __vtkProbeFilter_h
