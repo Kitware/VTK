@@ -73,6 +73,12 @@ public:
   virtual vtkDataSet *MakeObject() = 0;
 
   // Description:
+  // Copy the geometric and topological structure of an object. Note that
+  // the invoking object and the object pointed to by the parameter ds must
+  // be of the same type.
+  virtual void CopyStructure(vtkDataSet *ds) = 0;
+
+  // Description:
   // Return class name of data type. This is one of vtkStructuredGrid, 
   // vtkStructuredPoints, vtkUnstructuredGrid, vtkPolyData.
   virtual char *GetDataType() = 0;

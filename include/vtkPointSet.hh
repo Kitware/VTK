@@ -63,6 +63,7 @@ public:
 
   // dataset interface
   void Initialize();
+  void CopyStructure(vtkDataSet *pd);
   int GetNumberOfPoints();
   float *GetPoint(int ptId) {return this->Points->GetPoint(ptId);};
   void GetPoint(int ptId, float x[3]) {this->Points->GetPoint(ptId,x);};

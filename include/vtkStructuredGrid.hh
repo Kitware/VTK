@@ -66,6 +66,7 @@ public:
 
   // dataset interface
   vtkDataSet *MakeObject() {return new vtkStructuredGrid(*this);};
+  void CopyStructure(vtkDataSet *ds);
   int GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();};
   vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);

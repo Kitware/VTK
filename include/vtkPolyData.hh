@@ -70,6 +70,7 @@ public:
 
   // dataset interface
   vtkDataSet *MakeObject() {return new vtkPolyData(*this);};
+  void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);
   int GetCellType(int cellId);

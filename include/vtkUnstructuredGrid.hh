@@ -72,6 +72,7 @@ public:
 
   // dataset interface
   vtkDataSet *MakeObject() {return new vtkUnstructuredGrid(*this);};
+  void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   vtkCell *GetCell(int cellId);
   void GetCellPoints(int cellId, vtkIdList& ptIds);

@@ -65,6 +65,7 @@ public:
 
   // dataset interface
   vtkDataSet *MakeObject() {return new vtkStructuredPoints(*this);};
+  void CopyStructure(vtkDataSet *ds);
   int GetNumberOfCells();
   int GetNumberOfPoints();
   float *GetPoint(int ptId);
