@@ -401,17 +401,16 @@ void vtkImageRegion::SetAxes4d(int *axes)
   // Change the bounds
   for (relativeAxis = 0; relativeAxis < 4; ++relativeAxis)
     {
-    absoluteAxis = axes[relativeAxis];
-    this->Axes[relativeAxis] = absoluteAxis;
-
-    this->Bounds[relativeAxis * 2] = this->AbsoluteBounds[absoluteAxis * 2];
-    this->Bounds[relativeAxis * 2 + 1] = 
-      this->AbsoluteBounds[absoluteAxis * 2 + 1];
+    this->Axes[relativeAxis] = axes[relativeAxis];
     }
-
+  
   // Any DefaultCoordinates set must be invalid now.
   this->ResetDefaultCoordinates(4);
   
+  // Recompute relative IVARs
+  this->ShuffleBoundsAbsoluteToRelative4d(this->AbsoluteBounds, this->Bounds);
+  this->ShuffleBoundsAbsoluteToRelative4d(this->AbsoluteImageBounds, 
+					  this->ImageBounds);
   if (this->Data)
     {
     this->ShuffleAbsoluteToRelative4d(this->Data->GetIncrements(), 
@@ -505,7 +504,7 @@ void vtkImageRegion::SetBounds(int *bounds, int dim)
     {
     this->Bounds[idx] = bounds[idx];
     }
-  this->UpdateAbsoluteBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(dim);
 }
 //----------------------------------------------------------------------------
@@ -516,7 +515,7 @@ void vtkImageRegion::SetBounds4d(int min0, int max0, int min1, int max1,
   this->Bounds[2] = min1;   this->Bounds[3] = max1;   
   this->Bounds[4] = min2;   this->Bounds[5] = max2;   
   this->Bounds[6] = min3;   this->Bounds[7] = max3;   
-  this->UpdateAbsoluteBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(4);
 }
 //----------------------------------------------------------------------------
@@ -526,7 +525,7 @@ void vtkImageRegion::SetBounds3d(int min0, int max0, int min1, int max1,
   this->Bounds[0] = min0;   this->Bounds[1] = max0;   
   this->Bounds[2] = min1;   this->Bounds[3] = max1;   
   this->Bounds[4] = min2;   this->Bounds[5] = max2;   
-  this->UpdateAbsoluteBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(3);
 }
 //----------------------------------------------------------------------------
@@ -534,14 +533,14 @@ void vtkImageRegion::SetBounds2d(int min0, int max0, int min1, int max1)
 {
   this->Bounds[0] = min0;   this->Bounds[1] = max0;   
   this->Bounds[2] = min1;   this->Bounds[3] = max1;   
-  this->UpdateAbsoluteBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(2);
 }
 //----------------------------------------------------------------------------
 void vtkImageRegion::SetBounds1d(int min0, int max0)
 {
   this->Bounds[0] = min0;   this->Bounds[1] = max0;   
-  this->UpdateAbsoluteBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->Bounds, this->AbsoluteBounds);
   this->ResetDefaultCoordinates(1);
 }
 
@@ -609,7 +608,8 @@ void vtkImageRegion::SetImageBounds(int *bounds, int dim)
     {
     this->ImageBounds[idx] = bounds[idx];
     }
-  this->UpdateAbsoluteImageBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
+					  this->AbsoluteImageBounds);
   this->ResetDefaultCoordinates(dim);
 }
 //----------------------------------------------------------------------------
@@ -620,7 +620,8 @@ void vtkImageRegion::SetImageBounds4d(int min0, int max0, int min1, int max1,
   this->ImageBounds[2] = min1;   this->ImageBounds[3] = max1;   
   this->ImageBounds[4] = min2;   this->ImageBounds[5] = max2;   
   this->ImageBounds[6] = min3;   this->ImageBounds[7] = max3;   
-  this->UpdateAbsoluteImageBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
+					  this->AbsoluteImageBounds);
   this->ResetDefaultCoordinates(4);
 }
 //----------------------------------------------------------------------------
@@ -630,7 +631,8 @@ void vtkImageRegion::SetImageBounds3d(int min0, int max0, int min1, int max1,
   this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
   this->ImageBounds[2] = min1;   this->ImageBounds[3] = max1;   
   this->ImageBounds[4] = min2;   this->ImageBounds[5] = max2;   
-  this->UpdateAbsoluteImageBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
+					  this->AbsoluteImageBounds);
   this->ResetDefaultCoordinates(3);
 }
 //----------------------------------------------------------------------------
@@ -638,14 +640,16 @@ void vtkImageRegion::SetImageBounds2d(int min0, int max0, int min1, int max1)
 {
   this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
   this->ImageBounds[2] = min1;   this->ImageBounds[3] = max1;   
-  this->UpdateAbsoluteImageBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
+					  this->AbsoluteImageBounds);
   this->ResetDefaultCoordinates(2);
 }
 //----------------------------------------------------------------------------
 void vtkImageRegion::SetImageBounds1d(int min0, int max0)
 {
   this->ImageBounds[0] = min0;   this->ImageBounds[1] = max0;   
-  this->UpdateAbsoluteImageBounds();
+  this->ShuffleBoundsRelativeToAbsolute4d(this->ImageBounds, 
+					  this->AbsoluteImageBounds);
   this->ResetDefaultCoordinates(1);
 }
 
@@ -703,34 +707,6 @@ void vtkImageRegion::GetImageBounds1d(int &min0,int &max0)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method updates the absolute bounds from the relative bounds.
-void vtkImageRegion::UpdateAbsoluteBounds()
-{
-  int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->AbsoluteBounds[this->Axes[idx]*2] = this->Bounds[idx*2];
-    this->AbsoluteBounds[this->Axes[idx]*2+1] = this->Bounds[idx*2+1];
-    }
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method updates the absolute bounds from the relative bounds.
-void vtkImageRegion::UpdateAbsoluteImageBounds()
-{
-  int idx;
-  
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    this->AbsoluteImageBounds[this->Axes[idx]*2] = this->ImageBounds[idx*2];
-    this->AbsoluteImageBounds[this->Axes[idx]*2+1] =this->ImageBounds[idx*2+1];
-    }
-}
-
-//----------------------------------------------------------------------------
-// Description:
 // Convert 4d vector (not bounds!) from absolute coordinates into
 // relative coordinate system of region.
 void vtkImageRegion::ShuffleRelativeToAbsolute4d(int *relative, int *absolute)
@@ -754,6 +730,40 @@ void vtkImageRegion::ShuffleAbsoluteToRelative4d(int *absolute, int *relative)
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     relative[idx] = absolute[this->Axes[idx]];
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Convert 4d bounds from absolute coordinates into
+// relative coordinate system of region.
+void vtkImageRegion::ShuffleBoundsRelativeToAbsolute4d(int *relative, 
+						       int *absolute)
+{
+  int idx;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    absolute[this->Axes[idx]*2] = relative[idx*2];
+    absolute[this->Axes[idx]*2+1] = relative[idx*2+1];
+    }
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Convert 4d bounds from relative coordinates into
+// absolute coordinate system.
+void vtkImageRegion::ShuffleBoundsAbsoluteToRelative4d(int *absolute, 
+						       int *relative)
+{
+  int idx;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    relative[idx*2] = absolute[this->Axes[idx]*2];
+    relative[idx*2+1] = absolute[this->Axes[idx]*2+1];
     }
 }
 

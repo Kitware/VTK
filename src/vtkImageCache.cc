@@ -182,13 +182,13 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 
   vtkDebugMacro(<< "UpdateRegion: ");
 
-  // Translate region into the sources coordinate system. (save old)
-  region->GetAxes4d(saveAxes);
-  region->SetAxes4d(this->Source->GetAxes());
-  
   // Allow the source to modify the bounds of the region
   region->GetBounds4d(saveBounds);
   this->Source->InterceptCacheUpdate(region);
+  
+  // Translate region into the sources coordinate system. (save old)
+  region->GetAxes4d(saveAxes);
+  region->SetAxes4d(this->Source->GetAxes());
   
   // Check if bounds exceeds memory limit
   memory = region->GetVolume();

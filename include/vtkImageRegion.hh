@@ -284,10 +284,10 @@ protected:
   void GetImageBounds(int *bounds, int dim);
   void GetAxes(int *axes, int dim);  
   int *GetIncrements();
-  void UpdateAbsoluteBounds();
-  void UpdateAbsoluteImageBounds();
   void ShuffleRelativeToAbsolute4d(int *relative, int *absolute);
   void ShuffleAbsoluteToRelative4d(int *absolute, int *relative);
+  void ShuffleBoundsRelativeToAbsolute4d(int *relative, int *absolute);
+  void ShuffleBoundsAbsoluteToRelative4d(int *absolute, int *relative);
 };
 
 
