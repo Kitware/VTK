@@ -17,7 +17,6 @@ void Test(ostream& strm)
   // actual test
   strm << " the number is 0.017453292519943295769237" << endl;
   strm << " the number is ";
-  strm.precision(40);
   strm << vtkMath::DoubleDegreesToRadians() << endl;
 
 
@@ -133,6 +132,8 @@ int main(int argc, char* argv[])
       }
     }
 
+  // double precision ?
+  (*out).precision(27);
   Test(*out);
 
   // Clean up

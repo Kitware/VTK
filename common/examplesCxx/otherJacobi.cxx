@@ -7,7 +7,7 @@
  *                       Schenectady, NY 12301
  *
  * Created:       Mon Feb  1 17:10:45 1999 by Tony Chi-shao Pan
- * Last Modified: Thu Dec 16 16:45:10 1999 by tony c pan
+ * Last Modified: Tue Dec 21 10:29:47 1999 by tony c pan
  *
  * < General description goes here > 
  *
@@ -199,6 +199,8 @@ int main(int argc, char* argv[])
       }
     }
 
+  // single precision
+  (*out).precision(6);
   Test(*out);
 
   // Clean up

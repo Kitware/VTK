@@ -161,7 +161,9 @@ int main(int argc, char* argv[])
       return 0;
       }
     }
-
+  
+  // double precision
+  (*out).precision(40);
   Test(*out);
 
   // Clean up
