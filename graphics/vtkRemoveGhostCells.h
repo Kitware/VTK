@@ -72,4 +72,4 @@ protected:
   int GhostLevel;
 };
 
-#endihang
+#endif
