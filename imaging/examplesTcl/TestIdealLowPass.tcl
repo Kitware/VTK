@@ -17,7 +17,7 @@ fft SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 fft SetInput [reader GetOutput]
 #fft DebugOn
 
-vtkImageFourierIdealLowPass lowPass
+vtkImageIdealLowPass lowPass
 lowPass SetInput [fft GetOutput]
 lowPass SetXCutOff 0.2
 lowPass SetYCutOff 0.1
