@@ -162,6 +162,7 @@ void vtkStructuredPointsReader::Execute()
   if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
+    this->Reader.CloseVTKFile ();
     return;
     }
 
@@ -173,12 +174,14 @@ void vtkStructuredPointsReader::Execute()
     if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
+      this->Reader.CloseVTKFile ();
       return;
       } 
 
     if ( strncmp(this->Reader.LowerCase(line),"structured_points",17) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
+      this->Reader.CloseVTKFile ();
       return;
       }
 //
@@ -197,6 +200,7 @@ void vtkStructuredPointsReader::Execute()
 	      this->Reader.ReadInt(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -213,6 +217,7 @@ void vtkStructuredPointsReader::Execute()
 	      this->Reader.ReadFloat(ar+2)))
           {
           vtkErrorMacro(<<"Error reading aspect ratio!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -228,6 +233,7 @@ void vtkStructuredPointsReader::Execute()
 	      this->Reader.ReadFloat(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -240,12 +246,14 @@ void vtkStructuredPointsReader::Execute()
         if (!this->Reader.ReadInt(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
+          this->Reader.CloseVTKFile ();
           return;
           }
         
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match data values!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -256,6 +264,7 @@ void vtkStructuredPointsReader::Execute()
       else
         {
         vtkErrorMacro(<< "Unrecognized keyord: " << line);
+        this->Reader.CloseVTKFile ();
         return;
         }
       }
@@ -271,6 +280,7 @@ void vtkStructuredPointsReader::Execute()
     if (!this->Reader.ReadInt(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
+      this->Reader.CloseVTKFile ();
       return;
       }
     this->Reader.ReadPointData(output, numPts);
@@ -280,6 +290,7 @@ void vtkStructuredPointsReader::Execute()
     {
     vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
+  this->Reader.CloseVTKFile ();
 }
 
 void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)

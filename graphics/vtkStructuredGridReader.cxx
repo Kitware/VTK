@@ -160,6 +160,7 @@ void vtkStructuredGridReader::Execute()
   if (!this->Reader.ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
+    this->Reader.CloseVTKFile ();
     return;
     }
 
@@ -171,12 +172,14 @@ void vtkStructuredGridReader::Execute()
     if (!this->Reader.ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
+      this->Reader.CloseVTKFile ();
       return;
       } 
 
     if ( strncmp(this->Reader.LowerCase(line),"structured_grid",17) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
+      this->Reader.CloseVTKFile ();
       return;
       }
 //
@@ -194,6 +197,7 @@ void vtkStructuredGridReader::Execute()
 	      this->Reader.ReadInt(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -207,6 +211,7 @@ void vtkStructuredGridReader::Execute()
         if (!this->Reader.ReadInt(&npts))
           {
           vtkErrorMacro(<<"Error reading points!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -218,12 +223,14 @@ void vtkStructuredGridReader::Execute()
         if (!this->Reader.ReadInt(&numPts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
+          this->Reader.CloseVTKFile ();
           return;
           }
         
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match!");
+          this->Reader.CloseVTKFile ();
           return;
           }
 
@@ -234,6 +241,7 @@ void vtkStructuredGridReader::Execute()
       else
         {
         vtkErrorMacro(<< "Unrecognized keyord: " << line);
+        this->Reader.CloseVTKFile ();
         return;
         }
       }
@@ -248,6 +256,7 @@ void vtkStructuredGridReader::Execute()
     if (!this->Reader.ReadInt(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
+      this->Reader.CloseVTKFile ();
       return;
       }
     }
@@ -256,6 +265,7 @@ void vtkStructuredGridReader::Execute()
     {
     vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
+    this->Reader.CloseVTKFile ();
 }
 
 void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
