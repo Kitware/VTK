@@ -69,6 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridToPolyDataFilter.h"
 #include "vtkContourValues.h"
 #include "vtkMultiThreader.h"
+#include "vtkKitwareContourFilter.h"
 
 class VTK_EXPORT vtkGridSynchronizedTemplates3D : public vtkStructuredGridToPolyDataFilter
 {
@@ -191,6 +192,12 @@ protected:
 
   vtkPolyData *Threads[VTK_MAX_THREADS];
   void InitializeOutput(int *ext,vtkPolyData *o);
+
+private:
+  //BTX
+  friend VTK_EXPORT vtkKitwareContourFilter;
+  //ETX
+
 
 };
 

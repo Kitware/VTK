@@ -71,6 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkContourValues.h"
 #include "vtkMultiThreader.h"
+#include "vtkKitwareContourFilter.h"
 
 class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {
@@ -200,6 +201,11 @@ protected:
   // temporary outputs
   vtkPolyData *Threads[VTK_MAX_THREADS];
   void InitializeOutput(int *ext,vtkPolyData *o);
+
+private:
+  //BTX
+  friend VTK_EXPORT vtkKitwareContourFilter;
+  //ETX
   
 };
 

@@ -74,6 +74,84 @@ vtkKitwareContourFilter::~vtkKitwareContourFilter()
 {
 }
 
+void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+{
+  vtkDataSet *input=this->GetInput();
+
+  if (!input) 
+    {
+    this->vtkContourFilter::ComputeInputUpdateExtents(data);
+    return;
+    }
+
+   int inputObjectType = input->GetDataObjectType();
+
+   if ( inputObjectType == VTK_STRUCTURED_POINTS || 
+        inputObjectType == VTK_IMAGE_DATA )
+     {
+     
+     int ext[6], dims[3], dim=0;
+     ((vtkImageData *)input)->GetWholeExtent(ext);
+     for(int j=0; j<3; j++)
+       {
+       dims[j] = ext[2*j+1]-ext[2*j];
+       if ( dims[j] != 0 )
+	 {
+	 dim++;
+	 }
+       }
+     
+     if ((dim == 2) && (dims[2] == 0))
+       {
+       vtkSynchronizedTemplates2D *syncTemp2D = 
+	 vtkSynchronizedTemplates2D::New();
+       syncTemp2D->SetInput((vtkImageData *)input);
+       syncTemp2D->SetDebug(this->Debug);
+       syncTemp2D->ComputeInputUpdateExtents(data);
+       syncTemp2D->Delete();
+       return;
+       }
+     else if (dim == 3)
+       {
+       vtkSynchronizedTemplates3D *syncTemp3D =
+	 vtkSynchronizedTemplates3D::New();
+       syncTemp3D->SetInput((vtkImageData *)input);
+       syncTemp3D->SetDebug(this->Debug);
+       syncTemp3D->ComputeInputUpdateExtents(data);
+       syncTemp3D->Delete();
+       return;
+       }
+     }
+
+
+   if ( inputObjectType  == VTK_STRUCTURED_GRID )
+     {
+     int ext[6], dim=0;
+     ((vtkStructuredGrid *)input)->GetWholeExtent(ext);
+     for(int j=0; j<3; j++)
+       {
+       if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
+	 {
+	 dim++;
+	 }
+       }
+       if (dim == 3)
+	 {
+	 vtkGridSynchronizedTemplates3D *gridTemp3D =
+	   vtkGridSynchronizedTemplates3D::New();
+	 gridTemp3D->SetInput((vtkStructuredGrid *)input);
+	 gridTemp3D->SetDebug(this->Debug);
+	 gridTemp3D->ComputeInputUpdateExtents(data);
+	 gridTemp3D->Delete();
+	 return;
+	 }
+     }
+
+  this->vtkContourFilter::ComputeInputUpdateExtents(data);
+  return;
+
+}
+
 
 
 void vtkKitwareContourFilter::ExecuteInformation()
@@ -232,7 +310,6 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
 void vtkKitwareContourFilter::DataSetContour()
 {
   vtkPolyData *output = this->GetOutput();
-  vtkPolyData *thisOutput = this->GetOutput();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
 

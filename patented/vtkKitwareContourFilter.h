@@ -97,7 +97,8 @@ protected:
   ~vtkKitwareContourFilter();
   vtkKitwareContourFilter(const vtkKitwareContourFilter&) {};
   void operator=(const vtkKitwareContourFilter&) {};
-  
+
+  void ComputeInputUpdateExtents(vtkDataObject *data);
   void Execute();
   void ExecuteInformation();
 

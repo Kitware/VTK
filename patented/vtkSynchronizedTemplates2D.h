@@ -69,6 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
 #include "vtkContourValues.h"
+#include "vtkKitwareContourFilter.h"
 
 class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkStructuredPointsToPolyDataFilter
 {
@@ -134,6 +135,11 @@ protected:
 
   void Execute();
   vtkContourValues *ContourValues;
+
+private:
+  //BTX
+  friend VTK_EXPORT vtkKitwareContourFilter;
+  //ETX
 };
 
 
