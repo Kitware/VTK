@@ -42,7 +42,7 @@
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.44");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.45");
 vtkStandardNewMacro(vtkXYPlotActor);
 
 vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
@@ -1592,6 +1592,7 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
 {
   int titleSizeX[2], titleSizeY[2], labelSizeX[2], labelSizeY[2];
   float labelFactorX, labelFactorY;
+  float fontFactorX, fontFactorY;
   float tickOffsetX, tickOffsetY;
   float tickLengthX, tickLengthY;
 
@@ -1611,6 +1612,12 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
     axisY = this->YAxis;
     }
 
+  fontFactorY = axisY->GetFontFactor();
+  fontFactorX = axisX->GetFontFactor();
+
+  labelFactorY = axisY->GetLabelFactor();
+  labelFactorX = axisX->GetLabelFactor();
+
   // Create a dummy text mapper for getting font sizes
 
   vtkTextMapper *textMapper = vtkTextMapper::New();
@@ -1625,11 +1632,13 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
 
   tprop->ShallowCopy(axisX->GetTitleTextProperty());
   textMapper->SetInput(axisX->GetTitle());
-  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, 1.0, titleSizeX);
+  vtkAxisActor2D::SetFontSize(
+    viewport, textMapper, size, fontFactorX, titleSizeX);
 
   tprop->ShallowCopy(axisY->GetTitleTextProperty());
   textMapper->SetInput(axisY->GetTitle());
-  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, 1.0, titleSizeY);
+  vtkAxisActor2D::SetFontSize(
+    viewport, textMapper, size, fontFactorY, titleSizeY);
 
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
@@ -1638,21 +1647,18 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   sprintf(str1, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0]);
   sprintf(str2, axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1]);
   tprop->ShallowCopy(axisY->GetLabelTextProperty());
-  labelFactorY = axisY->GetLabelFactor();
   textMapper->SetInput(strlen(str1) > strlen(str2) ? str1 : str2);
-  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, labelFactorY, 
-                              labelSizeY);
+  vtkAxisActor2D::SetFontSize(
+    viewport, textMapper, size, labelFactorY * fontFactorY, labelSizeY);
 
   // We do only care of the height of the label in the X axis, so let's
   // use the min for example
 
   sprintf(str1, axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0]);
   tprop->ShallowCopy(axisX->GetLabelTextProperty());
-  labelFactorX = axisX->GetLabelFactor();
   textMapper->SetInput(str1);
-  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, labelFactorX, 
-                              labelSizeX);
-
+  vtkAxisActor2D::SetFontSize(
+    viewport, textMapper, size, labelFactorX * fontFactorX, labelSizeX);
 
   tickOffsetX = axisX->GetTickOffset();
   tickOffsetY = axisY->GetTickOffset();
