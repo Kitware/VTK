@@ -53,7 +53,7 @@ class VTK_EXPORT vtkWarpLens : public vtkPointSetToPointSetFilter
 public:
   vtkWarpLens();
   static vtkWarpLens *New() {return new vtkWarpLens;};
-  char *GetClassName() {return "vtkWarpLens";};
+  const char *GetClassName() {return "vtkWarpLens";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Set the center of the lense distortion
-  vtkSetVector3Macro(Center,float);
+  vtkSetVector2Macro(Center,float);
   vtkGetVectorMacro(Center,float,2);
 
 protected:

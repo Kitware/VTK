@@ -168,7 +168,6 @@ vtkOBJExporter \
 vtkOutlineFilter \
 vtkOutlineSource \
 vtkPLOT3DReader \
-vtkPNMReader \
 vtkPNMWriter \
 vtkPicker \
 vtkPiecewiseFunction \
@@ -277,6 +276,7 @@ vtkVolumeRayCastCompositeFunction \
 vtkVolumeRayCastMapper \
 vtkVolume16Reader \
 vtkVoxelModeller \
+vtkWarpLens \
 vtkWarpScalar \
 vtkWarpTo \
 vtkWorldPointPicker \
