@@ -686,12 +686,10 @@ public:
   int GetBlockLocalIndex(int id);
 
 protected:
-
   vtkModelMetadata();
   ~vtkModelMetadata();
 
 private:
-
   void InitializeAllMetadata();
   void InitializeAllIvars();
 

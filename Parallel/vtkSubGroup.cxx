@@ -26,7 +26,7 @@
 #endif
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkSubGroup, "1.9");
+vtkCxxRevisionMacro(vtkSubGroup, "1.10");
 vtkStandardNewMacro(vtkSubGroup);
 
 vtkSubGroup::vtkSubGroup()
@@ -39,6 +39,7 @@ vtkSubGroup::vtkSubGroup()
   this->tag = 0;
   this->nFrom = this->nTo = this->fanInTo = 0;
   this->nRecv = this->nSend = 0;
+  this->gatherRoot = this->gatherLength = -1;
 }
 vtkSubGroup::vtkSubGroup(const vtkSubGroup &sg)
 {
