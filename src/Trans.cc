@@ -329,11 +329,12 @@ void vlTransform::GetInverse ( vlMatrix4x4& inverse)
   inverse.Invert (**this->Stack, inverse);
 }
 
-void vlTransform::GetOrientation ( float & x, float & y, float & z)
+float *vlTransform::GetOrientation ()
 {
 #define AXIS_EPSILON .01
 	float	scale_x, scale_y, scale_z;
 	vlMatrix4x4  temp;
+	float   x,y,z;
 	float   d;
 	float   d1;
 	float   d2;
@@ -423,6 +424,12 @@ void vlTransform::GetOrientation ( float & x, float & y, float & z)
   alpha = atan2 (sin_alpha, cos_alpha);
 
   z = - alpha / RADIANS_PER_DEGREE;
+
+  this->Orientation[0] = x;
+  this->Orientation[1] = y;
+  this->Orientation[2] = z;
+
+  return this->Orientation;
 }
 
 void vlTransform::GetPosition (float & x,float & y,float & z)
