@@ -7,8 +7,8 @@ source vtkInt.tcl
 #
 # create plane to warp
 vtkPlaneSource plane
-    plane SetXResolution 200
-    plane SetYResolution 200
+    plane SetXResolution 100
+    plane SetYResolution 100
 vtkTransform transform
    transform Scale 10 10 1
 vtkTransformPolyFilter transF
@@ -19,17 +19,17 @@ vtkTransformPolyFilter transF
 # compute Bessel function and derivatives. This portion could be 
 # encapsulated into source or filter object.
 #
-set output [transF GetOutput]
-set numPts [$output GetNumberOfPoints]
+set input [transF GetOutput]
+set numPts [$input GetNumberOfPoints]
 vtkFloatPoints newPts
 vtkFloatScalars derivs
 vtkPolyData bessel
-    bessel CopyStructure $output
+    bessel CopyStructure $input
     bessel SetPoints newPts
     [bessel GetPointData] SetScalars derivs
 
 for {set i 0} {$i < $numPts} {incr i} {
-    set x [$output GetPoint $i]
+    set x [$input GetPoint $i]
     set x0 [lindex $x 0]
     set x1 [lindex $x 1]
 
@@ -40,9 +40,8 @@ for {set i 0} {$i < $numPts} {incr i} {
     newPts InsertPoint $i $x0 $x1 $x2
     eval derivs InsertScalar $i $deriv
 }
-
 newPts Delete; #reference counting - it's ok
-derivs Delete;
+derivs Delete
 
 # warp plane
 vtkWarpScalar warp
@@ -53,7 +52,7 @@ vtkWarpScalar warp
 # mapper and actor
 vtkDataSetMapper mapper
     mapper SetInput [warp GetOutput]
-    eval mapper SetScalarRange [$output GetScalarRange]
+    eval mapper SetScalarRange [$input GetScalarRange]
 vtkActor carpet
     carpet SetMapper mapper
 
