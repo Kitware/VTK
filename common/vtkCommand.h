@@ -6,7 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
 
@@ -39,19 +38,19 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkCommand - super class for callback/ observer commands
+// .NAME vtkCommand - superclass for callback/observer methods
 // .SECTION Description
-// vtkCommand is an implementation of the command design pattern which
-// is used in callbacks (such as Start, End, Progress) in VTK. vtkObject
-// implements a Subject/Observer pattern. When a subject needs to notify a
-// observer, it does so using a vtkCommand. 
+// vtkCommand is an implementation of the command design pattern that is used
+// in callbacks (such as StartMethod(), ProgressMethod(), and EndMethod()) in
+// VTK. vtkObject implements a Subject/Observer pattern. When a subject needs
+// to notify a observer, it does so using a vtkCommand.
 
 
 //BTX - begin tcl exclude
 
 class vtkObject;
 
-// The superclass which all commands should be subclasses of
+// The superclass that all commands should be subclasses of
 class vtkCommand
 {
 public:
@@ -78,47 +77,47 @@ public:
     
   static unsigned long GetEventIdFromString(const char *event)
     {  
-      if (!strcmp("DeleteEvent",event))
-        {
-        return vtkCommand::DeleteEvent;
-        }
-      if (!strcmp("StartEvent",event))
-        {
-        return vtkCommand::StartEvent;
-        }
-      if (!strcmp("EndEvent",event))
-        {
-        return vtkCommand::EndEvent;
-        }
-      if (!strcmp("ProgressEvent",event))
-        {
-        return vtkCommand::ProgressEvent;
-        }
-      if (!strcmp("PickEvent",event))
-        {
-        return vtkCommand::PickEvent;
-        }
-      if (!strcmp("ExitEvent",event))
-        {
-        return vtkCommand::PickEvent;
-        }
-      if (!strcmp("StartPickEvent",event))
-        {
-        return vtkCommand::StartPickEvent;
-        }
-      if (!strcmp("EndPickEvent",event))
-        {
-        return vtkCommand::EndPickEvent;
-        }
-      if (!strcmp("AbortCheckEvent",event))
-        {
-        return vtkCommand::AbortCheckEvent;
-        }
-      if (!strcmp("UserEvent",event))
-        {
-        return vtkCommand::UserEvent;
-        }
-      return vtkCommand::NoEvent;
+    if (!strcmp("DeleteEvent",event))
+      {
+      return vtkCommand::DeleteEvent;
+      }
+    if (!strcmp("StartEvent",event))
+      {
+      return vtkCommand::StartEvent;
+      }
+    if (!strcmp("EndEvent",event))
+      {
+      return vtkCommand::EndEvent;
+      }
+    if (!strcmp("ProgressEvent",event))
+      {
+      return vtkCommand::ProgressEvent;
+      }
+    if (!strcmp("PickEvent",event))
+      {
+      return vtkCommand::PickEvent;
+      }
+    if (!strcmp("ExitEvent",event))
+      {
+      return vtkCommand::PickEvent;
+      }
+    if (!strcmp("StartPickEvent",event))
+      {
+      return vtkCommand::StartPickEvent;
+      }
+    if (!strcmp("EndPickEvent",event))
+      {
+      return vtkCommand::EndPickEvent;
+      }
+    if (!strcmp("AbortCheckEvent",event))
+      {
+      return vtkCommand::AbortCheckEvent;
+      }
+    if (!strcmp("UserEvent",event))
+      {
+      return vtkCommand::UserEvent;
+      }
+    return vtkCommand::NoEvent;
     };
 };
 
@@ -132,10 +131,10 @@ public:
   this->Callback = NULL; this->ClientDataDeleteCallback = NULL;};
   ~vtkCallbackCommand() 
     { 
-      if (this->ClientDataDeleteCallback)
-        {
-        this->ClientDataDeleteCallback(this->ClientData);
-        }
+    if (this->ClientDataDeleteCallback)
+      {
+      this->ClientDataDeleteCallback(this->ClientData);
+      }
     };
   void SetClientData(void *cd) {this->ClientData = cd;};
   void SetCallback(void (*f)(vtkObject *, void *, void *)) 
@@ -145,10 +144,10 @@ public:
   
   void Execute(vtkObject *caller, void *callData)
     {
-      if (this->Callback)
-        {
-        this->Callback(caller, this->ClientData, callData);
-        }
+    if (this->Callback)
+      {
+      this->Callback(caller, this->ClientData, callData);
+      }
     };
   
   void *ClientData;
@@ -165,10 +164,10 @@ public:
   this->Callback = NULL; this->ClientDataDeleteCallback = NULL;};
   ~vtkOldStyleCallbackCommand() 
     { 
-      if (this->ClientDataDeleteCallback)
-        {
-        this->ClientDataDeleteCallback(this->ClientData);
-        }
+    if (this->ClientDataDeleteCallback)
+      {
+      this->ClientDataDeleteCallback(this->ClientData);
+      }
     };
   void SetClientData(void *cd) {this->ClientData = cd;};
   void SetCallback(void (*f)(void *)) {this->Callback = f;};
@@ -177,10 +176,10 @@ public:
   
   void Execute(vtkObject *,void *)
     {
-      if (this->Callback)
-        {
-        this->Callback(this->ClientData);
-        }
+    if (this->Callback)
+      {
+      this->Callback(this->ClientData);
+      }
     };
   
   void *ClientData;
@@ -190,3 +189,5 @@ public:
 
 
 //ETX end tcl exclude
+
+

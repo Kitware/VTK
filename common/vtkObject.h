@@ -39,28 +39,27 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkObject - abstract base class for most of the vtk objects
+// .NAME vtkObject - abstract base class for most VTK objects
 // .SECTION Description
-// vtkObject is the base class for many objects in the visualization 
-// toolkit. vtkObject provides methods for tracking modification times, 
-// debugging, and printing. Most objects created within the vtk 
-// framework should be a subclass of vtkObject or one of its children.
-// The few exceptions tend to be very small helper classes that usually
-// never get instantiated or situations where multiple inheritance
-// gets in the way. 
-// vtkObject also performs reference counting:
-// Objects that are reference counted exist as long as another object
-// uses them. Once the last reference to a reference counted object is 
-// removed, the object will spontaneously destruct. Typically only data
-// objects that are passed between objects are reference counted.
+// vtkObject is the base class for most objects in the visualization
+// toolkit. vtkObject provides methods for tracking modification time,
+// debugging, printing, and event callbacks. Most objects created within the
+// VTK framework should be a subclass of vtkObject or one of its children.
+// The few exceptions tend to be very small helper classes that usually never
+// get instantiated or situations where multiple inheritance gets in the way.
+// vtkObject also performs reference counting: objects that are reference
+// counted exist as long as another object uses them. Once the last reference
+// to a reference counted object is removed, the object will spontaneously
+// destruct. 
 
 // .SECTION Caveats
-// Note: in vtk objects should always be created with combinations of 
-// new/Delete() methods. This does not work when objects are allocated
-// off the stack (i.e., automatic objects). Automatic objects,
-// when automatically deleted (by exiting scope), will cause warnings to
-// occur. You should not create vtkObjects in this manner.
+// Note: in VTK objects should always be created with the New() method and
+// deleted with the Delete() method. VTK objects cannot be allocated off the
+// stack (i.e., automatic objects) because the constructor is a protected
+// method.
 
+// .SECTION See also
+// vtkCommand vtkTimeStamp
 
 #ifndef __vtkObject_h
 #define __vtkObject_h
@@ -101,16 +100,16 @@ public:
   static vtkObject *SafeDownCast(vtkObject *o);
 
   // Description:
-  // Delete a vtk object. 
-  // This method should always be used to delete an object 
-  // when the new operator was used to create it. Using the C++ delete method
-  // will not work with reference counting.
-  virtual void Delete(); //delete a vtk object.
+  // Delete a VTK object.  This method should always be used to delete
+  // an object when the New() method was used to create it. Using the
+  // C++ delete method will not work with reference counting.
+  virtual void Delete();
 
   // Description:
   // Create an object with Debug turned off, modified time initialized 
   // to zero, and reference counting on.
-  static vtkObject *New() {return new vtkObject;};
+  static vtkObject *New() 
+    {return new vtkObject;}
 
 #ifdef _WIN32
   // avoid dll boundary problems
@@ -131,7 +130,6 @@ public:
   // Get the value of the debug flag.
   unsigned char GetDebug();
   
-  
   // Description:
   // Set the value of the debug flag. A non-zero value turns debugging on.
   void SetDebug(unsigned char debugFlag);
@@ -141,25 +139,27 @@ public:
   // the debugger to break on error.
   static void BreakOnError();
   
-  // Description: 
-  // Return this objects modified time.
-  virtual unsigned long GetMTime();
-
   // Description:
   // Update the modification time for this object. Many filters rely on
   // the modification time to determine if they need to recompute their
-  // data.
+  // data. The modification time is a unique monotonically increasing
+  // unsigned long integer.
   virtual void Modified();
   
+  // Description: 
+  // Return this object's modified time.
+  virtual unsigned long GetMTime();
+
   // Description:
-  // Print an object to an ostream.
+  // Print an object to an ostream. This is the method to call
+  // when you wish to see print the internal state of an object.
   void Print(ostream& os);
 
   // Description:
-  // Methods invoked by print to print information about
-  // the object including superclasses. Typically not called by the
-  // user (use Print() instead) but used in the hierarchical print
-  // process to combine the output of several classes.
+  // Methods invoked by print to print information about the object
+  // including superclasses. Typically not called by the user (use
+  // Print() instead) but used in the hierarchical print process to
+  // combine the output of several classes.
   virtual void PrintSelf(ostream& os, vtkIndent indent);
   virtual void PrintHeader(ostream& os, vtkIndent indent);
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
@@ -178,21 +178,26 @@ public:
   void Register(vtkObject* o);
 
   // Description:
-  // Decrease the reference count (release by another object).
+  // Decrease the reference count (release by another object). This has
+  // the same effect as invoking Delete() (i.e., it reduces the reference
+  // count by 1).
   virtual void UnRegister(vtkObject* o);
 
-  int  GetReferenceCount() {return this->ReferenceCount;};
+  // Description:
+  // Return the current reference count of this object.
+  int  GetReferenceCount() 
+    {return this->ReferenceCount;}
 
   // Description:
-  // Sets the reference count (use with care)
+  // Sets the reference count. (This is very dangerous, use with care.)
   void SetReferenceCount(int);
 
   // Description:
-  // Allow people to add/remove/invoke observers (callbacks) to any VTK object
-  // This is an implementation of the subject/observer design pattern. An 
-  // observer is added by specifying an event to respond to and a vtkCommand
-  // to execute. It returns an unsigned long tag which can be used later to
-  // remove the event or retrieve the command.
+  // Allow people to add/remove/invoke observers (callbacks) to any VTK
+  // object.  This is an implementation of the subject/observer design
+  // pattern. An observer is added by specifying an event to respond to
+  // and a vtkCommand to execute. It returns an unsigned long tag which
+  // can be used later to remove the event or retrieve the command.
   //BTX
   unsigned long AddObserver(unsigned long event, vtkCommand *);
   unsigned long AddObserver(const char *event, vtkCommand *);
@@ -210,8 +215,8 @@ protected:
   vtkObject(const vtkObject&) {};
   void operator=(const vtkObject&) {};
 
-  unsigned char Debug;         // Enable debug messages
-  vtkTimeStamp MTime; // Keep track of modification time
+  unsigned char Debug;     // Enable debug messages
+  vtkTimeStamp MTime;      // Keep track of modification time
   int ReferenceCount;      // Number of uses of this object by other objects
   vtkSubjectHelper *SubjectHelper;
 
