@@ -77,6 +77,11 @@ public:
   virtual void SetFileName(const char* fname);
   virtual char* GetFileName() { return this->MHDFileName; }
 
+  // Description:
+  // Test whether the file with the given name can be read by this
+  // reader.
+  virtual int CanReadFile(const char* name);
+
 protected:
   vtkMetaImageReader();
   ~vtkMetaImageReader();

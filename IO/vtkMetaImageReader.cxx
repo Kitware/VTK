@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageReader, "1.3");
+vtkCxxRevisionMacro(vtkMetaImageReader, "1.4");
 vtkStandardNewMacro(vtkMetaImageReader);
 
 //----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ public:
   static vtkstd::string GetFilenamePath(const vtkstd::string& filename);
   static int StringEquals(const char* s1, const char* s2, size_t maxlen);
   static int GetLineFromStream(istream& is, vtkstd::string& line,
-    bool *has_newline /* = 0 */);
+    bool *has_newline /* = 0 */, size_t maxlen /* = 0 */);
 };
 
 //----------------------------------------------------------------------------
@@ -183,7 +183,7 @@ vtkstd::string vtkMetaImageReaderInternal::GetFilenamePath(const vtkstd::string&
 // need this very carefully written version of getline.  Returns true
 // if any data were read before the end-of-file was reached.
 int vtkMetaImageReaderInternal::GetLineFromStream(istream& is, vtkstd::string& line,
-  bool *has_newline /* = 0 */)
+  bool *has_newline /* = 0 */, size_t maxlen /* = 0 */)
 {
   const int bufferSize = 1024;
   char buffer[bufferSize];
@@ -199,7 +199,14 @@ int vtkMetaImageReaderInternal::GetLineFromStream(istream& is, vtkstd::string& l
   while((is.getline(buffer, bufferSize), is.gcount() > 0))
     {
     haveData = 1;
-    line.append(buffer);
+    if ( maxlen > 0 && is.gcount() + line.size() > maxlen )
+      {
+      line.append(buffer, maxlen - line.size());
+      }
+    else
+      {
+      line.append(buffer);
+      }
 
     // If newline character was read, the gcount includes the
     // character, but the buffer does not.  The end of line has been
@@ -266,8 +273,10 @@ void vtkMetaImageReader::ExecuteInformation()
   vtkstd::string datafile = "";
 
   vtkstd::string line;
-  while(vtkMetaImageReaderInternal::GetLineFromStream(ifs, line, 0) )
+  int count = -1;
+  while(vtkMetaImageReaderInternal::GetLineFromStream(ifs, line, 0, 0) )
     {
+    count ++;
     vtkstd::string::size_type pos = line.find("=");
     if ( pos != vtkstd::string::npos )
       {
@@ -455,6 +464,10 @@ void vtkMetaImageReader::ExecuteInformation()
         vtkDebugMacro(<< "* Use data file: " << datafile.c_str());
         }
       }
+    else
+      {
+      vtkErrorMacro(<< "Problem parsing line: " << count << " of file: " << fname);
+      }
     }
   if ( ndims <= 0 )
     {
@@ -496,6 +509,86 @@ void vtkMetaImageReader::ExecuteInformation()
 
   this->Superclass::SetFileName(datafile.c_str());
   this->Superclass::ExecuteInformation();
+}
+
+//----------------------------------------------------------------------------
+int vtkMetaImageReader::CanReadFile(const char* fname)
+{
+  if ( !fname )
+    {
+    return 0;
+    }
+  struct stat fs;
+  if ( stat( fname, &fs) )
+    {
+    return 0;
+    }
+
+  ifstream ifs(fname);
+  if ( !fname )
+    {
+    return 0;
+    }
+  int have_dims = 0;
+  int have_ndims = 0;
+  int have_datafile = 0;
+  int count = 0;
+  vtkstd::string line;
+  while(vtkMetaImageReaderInternal::GetLineFromStream(ifs, line, 0, 1024) )
+    {
+    count ++;
+    if ( count > 10 )
+      {
+      break;
+      }
+    vtkstd::string::size_type pos = line.find("=");
+    if ( pos != vtkstd::string::npos )
+      {
+      vtkstd::string::size_type keylen;
+      const char* key = line.c_str();
+      const char* endkey = line.c_str()+pos-1;
+      while ( *key!= 0 )
+        {
+        if ( *key!= ' ' && *key!= '\t' && *key!= '\r' )
+          {
+          break;
+          }
+        key++;
+        }
+
+      while ( endkey > key )
+        {
+        if ( *endkey != ' ' && *endkey != '\t' && *endkey != '\r' && *endkey != 0 )
+          {
+          break;
+          }
+        endkey--;
+        }
+      keylen = endkey - key + 1;
+
+      if ( vtkMetaImageReaderInternal::StringEquals(key, "NDims", keylen) )
+        {
+        have_ndims = 1;
+        }
+      else if ( vtkMetaImageReaderInternal::StringEquals(key, "DimSize", keylen) )
+        {
+        have_dims = 1;
+        }
+      else if ( vtkMetaImageReaderInternal::StringEquals(key, "ElementDataFile", keylen) )
+        {
+        have_datafile = 1;
+        }
+      }
+    else
+      {
+      return 0;
+      }
+    }
+  if ( !have_dims || !have_ndims || !have_datafile )
+    {
+    return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
