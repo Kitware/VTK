@@ -15,7 +15,7 @@ IF (WIN32)
 ENDIF (WIN32)
 
 # See if we need to link the socket library 
-INCLUDE(CheckLibraryExists)
+INCLUDE(${CMAKE_ROOT}/Modules/CheckLibraryExists.cmake)
 CHECK_LIBRARY_EXISTS("socket" getsockname "" VTK_HAVE_LIBSOCKET)
 
 IF("VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T" MATCHES "^VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T$")
