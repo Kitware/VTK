@@ -20,13 +20,24 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.8");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.9");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkPNGWriter::vtkPNGWriter()
 {
   this->FileLowerLeft = 1;
   this->FileDimensionality = 2;
+  this->WriteToMemory = 0;
+  this->Result = 0;
+}
+
+vtkPNGWriter::~vtkPNGWriter()
+{
+  if (this->Result)
+    {
+    this->Result->Delete();
+    this->Result = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -39,7 +50,7 @@ void vtkPNGWriter::Write()
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
     }
-  if ( ! this->FileName && !this->FilePattern)
+  if (!this->WriteToMemory && !this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     return;
@@ -91,6 +102,31 @@ void vtkPNGWriter::Write()
   this->InternalFileName = NULL;
 }
 
+void vtkPNGWriteInit(png_structp png_ptr, png_bytep, png_size_t sizeToWrite)
+{
+  vtkPNGWriter *self = 
+    vtkPNGWriter::SafeDownCast(static_cast<vtkObject *>
+                               (png_get_io_ptr(png_ptr)));
+  if (self)
+    {
+      vtkUnsignedCharArray *uc = self->GetResult();
+      if (!uc || uc->GetReferenceCount() > 1)
+        {
+          uc = vtkUnsignedCharArray::New();
+          self->SetResult(uc);
+          uc->Delete();
+          // start out with 10K as a guess for the image size
+          uc->Allocate(10000);
+        }
+      // write to the uc array
+      uc->WritePointer(uc->GetMaxId()+1,sizeToWrite);
+    }
+}
+
+void vtkPNGWriteFlush(png_structp png_ptr)
+{
+}
+
 
 void vtkPNGWriter::WriteSlice(vtkImageData *data)
 {
@@ -108,19 +144,11 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     return;
     }   
 
-  FILE *fp = fopen(this->InternalFileName, "wb");
-  if (!fp)
-    {
-    vtkErrorMacro("Unable to open file " << this->InternalFileName);
-    return;
-    }
-  
   png_structp png_ptr = png_create_write_struct
     (PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
   if (!png_ptr)
     {
     vtkErrorMacro(<<"Unable to write PNG file!");
-    fclose(fp);
     return;
     }
   
@@ -130,11 +158,27 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     png_destroy_write_struct(&png_ptr,
                              (png_infopp)NULL);
     vtkErrorMacro(<<"Unable to write PNG file!");
-    fclose(fp);
     return;
     }
 
-  png_init_io(png_ptr, fp);
+  
+  FILE *fp = 0;
+  if (this->WriteToMemory)
+    {
+      png_set_write_fn(png_ptr, static_cast<png_voidp>(this), 
+                       vtkPNGWriteInit, vtkPNGWriteFlush);
+    }
+  else
+    {
+      fp = fopen(this->InternalFileName, "wb");
+      if (!fp)
+        {
+        vtkErrorMacro("Unable to open file " << this->InternalFileName);
+        return;
+        }
+      png_init_io(png_ptr, fp);
+    }
+
   
   int *uExtent = data->GetUpdateExtent();
   png_uint_32 width, height;
@@ -186,5 +230,17 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
 
   delete [] row_pointers;
   png_destroy_write_struct(&png_ptr, &info_ptr);
-  fclose(fp);
+
+  if (fp)
+    {
+    fclose(fp);
+    }
+}
+
+void vtkPNGWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Result: " << this->Result << "\n";
+  os << indent << "WriteToMemory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
 }

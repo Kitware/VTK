@@ -33,16 +33,31 @@ class VTK_IO_EXPORT vtkPNGWriter : public vtkImageWriter
 public:
   static vtkPNGWriter *New();
   vtkTypeRevisionMacro(vtkPNGWriter,vtkImageWriter);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
+  // Description:
+  // Write the image to memory (a vtkUnsignedCharArray)
+  vtkSetMacro(WriteToMemory, unsigned int);
+  vtkGetMacro(WriteToMemory, unsigned int);
+  vtkBooleanMacro(WriteToMemory, unsigned int);
+  
+  // Description:
+  // When writing to memory this is the result, it will be NULL until the 
+  // data is written the first time
+  vtkSetObjectMacro(Result, vtkUnsignedCharArray);
+  vtkGetObjectMacro(Result, vtkUnsignedCharArray);
+
 protected:
   vtkPNGWriter();
-  ~vtkPNGWriter() {};
+  ~vtkPNGWriter();
   
   void WriteSlice(vtkImageData *data);
+  unsigned int WriteToMemory;
+  vtkUnsignedCharArray *Result;
 
 private:
   vtkPNGWriter(const vtkPNGWriter&);  // Not implemented.
