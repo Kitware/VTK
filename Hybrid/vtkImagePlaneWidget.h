@@ -36,10 +36,24 @@
 // "PlaceWidget()" to initially position the widget. If the "i" key (for
 // "interactor") is pressed, the vtkImagePlaneWidget will appear. (See
 // superclass documentation for information about changing this behavior.)
-// Selecting any part of the widget with the middle mouse button enables
-// translation of the plane along its normal. (Once selected using middle
-// mouse, moving "up" in the middle moves the plane in the direction of the
-// normal; moving "down" moves it in the opposite direction.)
+//
+// Selecting the widget with the middle mouse button with and without holding
+// the shift or control keys enables complex reslicing capablilites.
+// To facilitate use, a set of 'margins' (left, right, top, bottom) are shown as
+// a set of plane-axes aligned lines, the properties of which can be changed
+// as a group.
+// Without keyboard modifiers: selecting in the middle of the margins
+// enables translation of the plane along its normal. Selecting one of the
+// corners within the margins enables spinning around the plane's normal at its
+// center.  Selecting within a margin allows rotating about the center of the
+// plane around an axis aligned with the margin (i.e., selecting left margin
+// enables rotating around the plane's local y-prime axis).
+// With control key modifier: margin selection enables edge translation (i.e., a
+// constrained form of scaling). Selecting within the margins enables
+// translation of the entire plane.
+// With shift key modifier: uniform plane scaling is enabled.  Moving the mouse
+// up enlarges the plane while downward movement shrinks it.
+//
 // Window-level is achieved by using the right mouse button.
 // The left mouse button can be used to query the underlying image data
 // with a cross-hair cursor. Text display of window-level and image
@@ -308,6 +322,8 @@ protected:
     Pushing,
     Spinning,
     Rotating,
+    Moving,
+    Scaling,
     Outside
   };
 //ETX
@@ -357,6 +373,8 @@ protected:
   void Push(double *p1, double *p2);
   void Spin(double *p1, double *p2);
   void Rotate(double *p1, double *p2, double *vpn);
+  void Scale(double *p1, double *p2, int X, int Y);
+  void Translate(double *p1, double *p2);
   
   // Plane normal, normalized
   float Normal[3];
@@ -411,6 +429,7 @@ protected:
   float RadiusVector[3];
   void  AdjustState();
 
+  // Visible margins to assist user interaction
   vtkPoints         *MarginPoints;
   vtkPolyData       *MarginPolyData;
   vtkPolyDataMapper *MarginMapper;
@@ -419,6 +438,7 @@ protected:
   void UpdateMargins();
   void GenerateMargins();
   void ActivateMargins(int);
+  int MarginSelectMode;
 
   // Keep track of last pick position
   float LastPickPosition[3];
