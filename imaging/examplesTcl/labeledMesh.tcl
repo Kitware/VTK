@@ -66,8 +66,8 @@ ren1 SetBackground 1 1 1
 renWin SetSize 500 500
 renWin Render
 
-#renWin SetFileName "strip.tcl.ppm"
-#renWin SaveImageAsPPM
+renWin SetFileName "labeledMesh.tcl.ppm"
+renWin SaveImageAsPPM
 
 # render the image
 #
