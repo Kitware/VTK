@@ -26,7 +26,7 @@ int vlCharArray::Allocate(const int sz, const int ext)
   if ( this->Array != NULL ) delete [] this->Array;
 
   this->Size = ( sz > 0 ? sz : 1);
-  if ( (this->Array = new unsigned char[sz]) == NULL ) return 0;
+  if ( (this->Array = new unsigned char[this->Size]) == NULL ) return 0;
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
@@ -51,7 +51,7 @@ void vlCharArray::Initialize()
 vlCharArray::vlCharArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new unsigned char[sz];
+  this->Array = new unsigned char[this->Size];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 }

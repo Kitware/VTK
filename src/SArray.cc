@@ -22,7 +22,7 @@ int vlShortArray::Allocate(const int sz, const int ext)
   if ( this->Array != NULL ) delete [] this->Array;
 
   this->Size = ( sz > 0 ? sz : 1);
-  if ( (this->Array = new short[sz]) == NULL ) return 0;
+  if ( (this->Array = new short[this->Size]) == NULL ) return 0;
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
@@ -47,7 +47,7 @@ void vlShortArray::Initialize()
 vlShortArray::vlShortArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new short[sz];
+  this->Array = new short[this->Size];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 }

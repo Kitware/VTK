@@ -22,7 +22,7 @@ int vlFloatArray::Allocate(const int sz, const int ext)
   if ( this->Array ) delete [] this->Array;
 
   this->Size = ( sz > 0 ? sz : 1);
-  if ( (this->Array = new float[sz]) == NULL ) return 0;
+  if ( (this->Array = new float[this->Size]) == NULL ) return 0;
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 
@@ -47,7 +47,7 @@ void vlFloatArray::Initialize()
 vlFloatArray::vlFloatArray(const int sz, const int ext)
 {
   this->Size = ( sz > 0 ? sz : 1);
-  this->Array = new float[sz];
+  this->Array = new float[this->Size];
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
 }
