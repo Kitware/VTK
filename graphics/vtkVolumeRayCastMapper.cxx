@@ -548,7 +548,6 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
   float    t, point[3], dp;
   float    *worldToVolumeMatrix;
   float    *volumeToWorldMatrix;
-  float    worldZero[3], volumeZero[4];
   float    *rayStart, *rayEnd;
 
   rayStart = rayInfo->TransformedStart;
