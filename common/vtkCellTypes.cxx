@@ -40,8 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkCellTypes.h"
-#include "vtkObjectFactory.h"
-
+#include "vtkObjectFactory.h"  
 
 
 //------------------------------------------------------------------------------
@@ -57,33 +56,37 @@ vtkCellTypes* vtkCellTypes::New()
   return new vtkCellTypes;
 }
 
-
-
-
 vtkCellTypes::~vtkCellTypes()
 {
-  delete [] this->Array;
+  this->TypeArray->Delete();
+  this->LocationArray->Delete();
 }
 
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkCellTypes::Allocate(int sz, int ext)
 {
-  if ( sz > this->Size || this->Array == NULL )
-    {
-    if ( this->Array != NULL )
-      {
-      delete [] this->Array;
-      }
 
-    this->Size = ( sz > 0 ? sz : 1);
-    if ( (this->Array = new _vtkCell_s[this->Size]) == NULL )
-      {
-      return 0;
-      }
-    }
-
+  this->Size = ( sz > 0 ? sz : 1);
   this->Extend = ( ext > 0 ? ext : 1);
   this->MaxId = -1;
+
+  if ( this->TypeArray )
+    {
+    this->TypeArray->UnRegister(this);
+    }
+  this->TypeArray = vtkUnsignedCharArray::New();
+  this->TypeArray->Allocate(sz,ext);
+  this->TypeArray->Register(this);
+  this->TypeArray->Delete();
+
+  if ( this->LocationArray )
+    {
+    this->LocationArray->UnRegister(this);
+    }
+  this->LocationArray = vtkIntArray::New();
+  this->LocationArray->Allocate(sz,ext);
+  this->LocationArray->Register(this);
+  this->LocationArray->Delete();
 
   return 1;
 }
@@ -91,20 +94,14 @@ int vtkCellTypes::Allocate(int sz, int ext)
 // Add a cell at specified id.
 void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
 {
-  _vtkCell_s *cell;
 
-  if ( cellId >= this->Size )
-    {
-    this->Resize(cellId + 1);
-    }
+  TypeArray->InsertValue(cellId, type);
+  LocationArray->InsertValue(cellId, loc);
+
   if ( cellId > this->MaxId )
     {
     this->MaxId = cellId;
     }
-
-  cell = this->Array + cellId;
-  cell->type = type;
-  cell->loc = loc;
 
   return;
 }
@@ -116,10 +113,22 @@ int vtkCellTypes::InsertNextCell(unsigned char type, int loc)
   return this->MaxId;
 }
 
+// Specify a group of cell types.
+void vtkCellTypes::SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations)
+{
+  this->Size = ncells;
+  this->TypeArray = cellTypes;
+  this->LocationArray = cellLocations;
+  this->Extend = 1;
+  this->MaxId = -1;
+
+}
+
 // Reclaim any extra memory.
 void vtkCellTypes::Squeeze()
 {
-  this->Resize (this->MaxId+1);
+  this->TypeArray->Squeeze();
+  this->LocationArray->Squeeze();
 }
 
 // Initialize object without releasing memory.
@@ -128,40 +137,19 @@ void vtkCellTypes::Reset()
   this->MaxId = -1;
 }
 
-// Private function does "reallocate"
-//
-_vtkCell_s *vtkCellTypes::Resize(int sz)
-{
-  int i;
-  _vtkCell_s *newArray;
-  int newSize;
-
-  if ( sz >= this->Size )
-    {
-    newSize = this->Size + sz;
-    }
-  else
-    {
-    newSize = sz;
-    }
-
-  newArray = new _vtkCell_s[newSize];
-
-  for (i=0; i<sz && i<this->Size; i++)
-    {
-    newArray[i] = this->Array[i];
-    }
-
-  this->Size = newSize;
-  delete [] this->Array;
-  this->Array = newArray;
-
-  return this->Array;
-}
-
 unsigned long vtkCellTypes::GetActualMemorySize()
 {
-  unsigned long size=sizeof(_vtkCell_s)*this->GetNumberOfTypes();
+  unsigned long size=0;
+
+  if ( this->TypeArray )
+    {
+    size += this->TypeArray->GetActualMemorySize();
+    }
+
+  if ( this->LocationArray )
+    {
+    size += this->LocationArray->GetActualMemorySize();
+    }
 
   return (unsigned long) ceil((float)size/1000.0); //kilobytes
 }
@@ -169,8 +157,33 @@ unsigned long vtkCellTypes::GetActualMemorySize()
 
 void vtkCellTypes::DeepCopy(vtkCellTypes *src)
 {
+  if (this->TypeArray)
+    {
+      this->TypeArray->UnRegister(this);
+      this->TypeArray = NULL;
+    }
+  if (src->TypeArray)
+    {
+      this->TypeArray = vtkUnsignedCharArray::New();
+      this->TypeArray->DeepCopy(src->TypeArray);
+      this->TypeArray->Register(this);
+      this->TypeArray->Delete();
+    }
+
+  if (this->LocationArray)
+    {
+      this->LocationArray->UnRegister(this);
+      this->LocationArray = NULL;
+    }
+  if (src->LocationArray)
+    {
+      this->LocationArray = vtkIntArray::New();
+      this->LocationArray->DeepCopy(src->LocationArray);
+      this->LocationArray->Register(this);
+      this->LocationArray->Delete();
+    }
+
   this->Allocate(src->Size, src->Extend);
-  memcpy(this->Array, src->Array, this->Size * sizeof(_vtkCell_s));
   this->MaxId = src->MaxId;
 }
 

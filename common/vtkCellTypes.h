@@ -1,5 +1,4 @@
 /*=========================================================================
-
   Program:   Visualization Toolkit
   Module:    vtkCellTypes.h
   Language:  C++
@@ -62,11 +61,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObject.h"
 #include "vtkCellType.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedCharArray.h"
 
-struct _vtkCell_s {
-    unsigned char type; //from CellType.h
-    int loc; //location in associated CellArray object
-};
 
 class VTK_EXPORT vtkCellTypes : public vtkObject 
 {
@@ -87,12 +84,16 @@ public:
   int InsertNextCell(unsigned char type, int loc);
 
   // Description:
+  // Specify a group of cell types.
+  void SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations);
+
+  // Description:
   // Return the location of the cell in the associated vtkCellArray.
-  int GetCellLocation(int cellId) { return this->Array[cellId].loc;};
+  int GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
 
   // Description:
   // Delete cell by setting to NULL cell type.
-  void DeleteCell(int cellId) { this->Array[cellId].type = VTK_EMPTY_CELL;};
+  void DeleteCell(int cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
 
   // Description:
   // Return the number of types in the list.
@@ -107,12 +108,8 @@ public:
   int InsertNextType(unsigned char type){return this->InsertNextCell(type,-1);};
   
   // Description:
-  // Return a reference to a cell list structure.
-  _vtkCell_s &GetCell(int id) { return this->Array[id];};
-
-  // Description:
   // Return the type of cell.
-  unsigned char GetCellType(int cellId) { return this->Array[cellId].type;};
+  unsigned char GetCellType(int cellId) { return this->TypeArray->GetValue(cellId);};
 
   // Description:
   // Reclaim any extra memory.
@@ -137,16 +134,16 @@ public:
   void DeepCopy(vtkCellTypes *src);
 
 protected:
-  vtkCellTypes() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
+  vtkCellTypes() : TypeArray(NULL), LocationArray(NULL), Size(0), MaxId(-1), Extend(1000) {};
   ~vtkCellTypes();
   vtkCellTypes(const vtkCellTypes&) {};
-  void operator=(const vtkCellTypes&) {};
+  void operator=(const vtkCellTypes&) {};  
 
-  _vtkCell_s *Array;   // pointer to data
+  vtkUnsignedCharArray *TypeArray; // pointer to types array
+  vtkIntArray *LocationArray;   // pointer to array of offsets
   int Size;            // allocated size of data
   int MaxId;           // maximum index inserted thus far
   int Extend;          // grow array by this point
-  _vtkCell_s *Resize(int sz);  // function to resize data
 };
 
 
