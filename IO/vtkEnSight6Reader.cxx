@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.40");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.41");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -1468,7 +1468,7 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
   size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(len+1);
+  nmArray->SetNumberOfTuples(static_cast<vtkIdType(len)+1);
   char* copy = nmArray->GetPointer(0);
   memcpy(copy, name, len);
   copy[len] = '\0';
@@ -1991,7 +1991,7 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
   size_t len = strlen(name);
-  nmArray->SetNumberOfTuples(len+1);
+  nmArray->SetNumberOfTuples(static_cast<vtkIdType>(len)+1);
   char* copy = nmArray->GetPointer(0);
   memcpy(copy, name, len);
   copy[len] = '\0';
