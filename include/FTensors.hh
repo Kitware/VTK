@@ -40,11 +40,11 @@ public:
   char *GetDataType() {return "float";};
   int GetNumberOfTensors();
   void Squeeze() {this->T.Squeeze();};
-  vtkTensor &GetTensor(int i);
+  vtkTensor *GetTensor(int i);
   void GetTensor(int i,vtkTensor &t) {this->vtkTensors::GetTensor(i,t);};
-  void SetTensor(int i, vtkTensor &t);
-  void InsertTensor(int i, vtkTensor &t);
-  int InsertNextTensor(vtkTensor &t);
+  void SetTensor(int i, vtkTensor *t);
+  void InsertTensor(int i, vtkTensor *t);
+  int InsertNextTensor(vtkTensor *t);
 
   // miscellaneous
   float *GetPtr(const int id);
@@ -103,30 +103,30 @@ inline int vtkFloatTensors::GetNumberOfTensors()
   return (this->T.GetMaxId()+1)/(this->Dimension*this->Dimension);
 }
 
-inline void vtkFloatTensors::SetTensor(int id, vtkTensor &t) 
+inline void vtkFloatTensors::SetTensor(int id, vtkTensor *t) 
 {
   id *= this->Dimension*this->Dimension; 
   
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T[id+i+t.GetDimension()*j] = t.GetComponent(i,j);
+      this->T[id+i+t->GetDimension()*j] = t->GetComponent(i,j);
 }
 
-inline void vtkFloatTensors::InsertTensor(int id, vtkTensor &t) 
+inline void vtkFloatTensors::InsertTensor(int id, vtkTensor *t) 
 {
   id *= this->Dimension*this->Dimension; 
   
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T.InsertValue(id+i+t.GetDimension()*j,t.GetComponent(i,j));
+      this->T.InsertValue(id+i+t->GetDimension()*j,t->GetComponent(i,j));
 }
 
-inline int vtkFloatTensors::InsertNextTensor(vtkTensor &t) 
+inline int vtkFloatTensors::InsertNextTensor(vtkTensor *t) 
 {
   int id = this->GetNumberOfTensors() + 1;
   for (int j=0; j < this->Dimension; j++) 
     for (int i=0; i < this->Dimension; i++) 
-      this->T.InsertNextValue(t.GetComponent(i,j));
+      this->T.InsertNextValue(t->GetComponent(i,j));
 
   return id;
 }

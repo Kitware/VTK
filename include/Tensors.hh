@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Return a float tensor t[dim*dim] for a particular point id.
-  virtual vtkTensor &GetTensor(int id) = 0;
+  virtual vtkTensor *GetTensor(int id) = 0;
 
   // Description:
   // Copy float tensor into user provided tensor
@@ -61,12 +61,12 @@ public:
 
   // Description:
   // Insert tensor into object. No range checking performed (fast!).
-  virtual void SetTensor(int id, vtkTensor& t) = 0;
+  virtual void SetTensor(int id, vtkTensor *t) = 0;
 
   // Description:
   // Insert tensor into object. Range checking performed and 
   // memory allocated as necessary.
-  virtual void InsertTensor(int id, vtkTensor &t) = 0;
+  virtual void InsertTensor(int id, vtkTensor *t) = 0;
   void InsertTensor(int id, float t11, float t12, float t13, 
                     float t21, float t22, float t23, 
                     float t31, float t32, float t33);
@@ -74,7 +74,7 @@ public:
   // Description:
   // Insert tensor into next available slot. Returns point
   // id of slot.
-  virtual int InsertNextTensor(vtkTensor &t) = 0;
+  virtual int InsertNextTensor(vtkTensor *t) = 0;
   int InsertNextTensor(float t11, float t12, float t13, 
                        float t21, float t22, float t23, 
                        float t31, float t32, float t33);

@@ -22,6 +22,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // be used as the direction along which to warp the geometry. If normals are
 // present but you would like to use the Normals instance variable, set the 
 // UseNormals boolean to true.
+//    If XYPlane boolean is set true, then the z-value is considered to be 
+// a scalar value (still scaled by scale factor) and the displacement is
+// along the z-axis. If scalars are also present, these are copied through
+// and can be used to color the surface.
 
 #ifndef __vtkWarpScalar_h
 #define __vtkWarpScalar_h
@@ -54,17 +58,27 @@ public:
   vtkSetVector3Macro(Normal,float);
   vtkGetVectorMacro(Normal,float,3);
 
+  // Description:
+  // Turn on/off flag specifying that input data is x-y plane. If x-y plane,
+  // then the z value is used to warp the surface in the z-axis direction 
+  // (times the scale factor) and scalars are used to color the surface.
+  vtkSetMacro(XYPlane,int);
+  vtkGetMacro(XYPlane,int);
+  vtkBooleanMacro(XYPlane,int);
+
 protected:
   void Execute();
 
   float ScaleFactor;
   int UseNormal;
   float Normal[3];
+  int XYPlane;
 
   //BTX
   float *(vtkWarpScalar::*PointNormal)(int id, vtkNormals *normals);
   float *DataNormal(int id, vtkNormals *normals=NULL);
   float *InstanceNormal(int id, vtkNormals *normals=NULL);
+  float *ZNormal(int id, vtkNormals *normals=NULL);
   //ETX
 };
 
