@@ -379,9 +379,9 @@ protected:
 
   virtual void RemoveArray(int index);
 
-  static int NumberOfAttributeComponents[NUM_ATTRIBUTES];
-  static int AttributeLimits[NUM_ATTRIBUTES];
-  static char AttributeNames[NUM_ATTRIBUTES][10];
+  static const int NumberOfAttributeComponents[NUM_ATTRIBUTES];
+  static const int AttributeLimits[NUM_ATTRIBUTES];
+  static const char AttributeNames[NUM_ATTRIBUTES][10];
 
 private:
   int SetAttribute(vtkDataArray* da, int attributeType);
