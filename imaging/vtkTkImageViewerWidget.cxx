@@ -718,9 +718,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     ImageWindow->SetParentId(Tk_WindowId(Tk_Parent(self->TkWin) ));
     }
 
-  self->ImageViewer->Render();  
-  XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
-	
+  self->ImageViewer->Render();  	
   return TCL_OK;
 }
 #endif
