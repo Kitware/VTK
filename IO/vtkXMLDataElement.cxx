@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.2");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.3");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name, vtkIdType& value)
 
 //----------------------------------------------------------------------------
 template <class T>
-static int vtkXMLVectorAttributeParse(const char* str, int length, T* data)
+int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
 {
   if(!str || !length) { return 0; }
   strstream vstr;
@@ -345,21 +345,24 @@ static int vtkXMLVectorAttributeParse(const char* str, int length, T* data)
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           int* data)
 {
-  return vtkXMLVectorAttributeParse(this->GetAttribute(name), length, data);
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           float* data)
 {
-  return vtkXMLVectorAttributeParse(this->GetAttribute(name), length, data);
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           unsigned long* data)
 {
-  return vtkXMLVectorAttributeParse(this->GetAttribute(name), length, data);
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
 }
 
 //----------------------------------------------------------------------------
@@ -367,7 +370,8 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           vtkIdType* data)
 {
-  return vtkXMLVectorAttributeParse(this->GetAttribute(name), length, data);
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
 }
 #endif
 
