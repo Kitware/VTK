@@ -54,6 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include 	"vtkObject.h"
 #include 	"vtkImageSource.h"
 #include 	"vtkImageRegion.h"
+#include        "vtkStructuredPointsToImage.h"
 
 class VTK_EXPORT vtkImageViewer : public vtkObject {
 public:

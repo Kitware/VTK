@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageInPlaceFilter_h
 #define __vtkImageInPlaceFilter_h
 
-
 #include "vtkImageCachedSource.h"
+#include "vtkStructuredPointsToImage.h"
 
 class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageCachedSource
 {

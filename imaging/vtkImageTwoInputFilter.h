@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 #include "vtkImageCachedSource.h"
+#include "vtkStructuredPointsToImage.h"
 #include "vtkImageRegion.h"
 
 class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageCachedSource
