@@ -23,8 +23,10 @@ AC_ARG_WITH(graphics,
          [  --without-graphics      do not include the graphics classes],,
          graphicsdir=graphics
          BUILD_GRAPHICS=build_graphics
+         DEPEND_GRAPHICS=depend_graphics
          CLEAN_GRAPHICS=clean_graphics)
 
+AC_SUBST(DEPEND_GRAPHICS)
 AC_SUBST(BUILD_GRAPHICS)
 AC_SUBST(CLEAN_GRAPHICS)
 
@@ -32,27 +34,33 @@ AC_ARG_WITH(imaging,
          [  --without-imaging       do not include the imaging classes],,
          imagingdir=imaging
          BUILD_IMAGING=build_imaging
+         DEPEND_IMAGING=depend_imaging
          CLEAN_IMAGING=clean_imaging)
 
 AC_SUBST(BUILD_IMAGING)
+AC_SUBST(DEPEND_IMAGING)
 AC_SUBST(CLEAN_IMAGING)
 
 AC_ARG_WITH(volume,
          [  --without-volume       do not include the volume classes],,
          volumedir=volume
          BUILD_VOLUME=build_volume
+         DEPEND_VOLUME=depend_volume
          CLEAN_VOLUME=clean_volume)
 
 AC_SUBST(BUILD_VOLUME)
+AC_SUBST(DEPEND_VOLUME)
 AC_SUBST(CLEAN_VOLUME)
 
 AC_ARG_WITH(borescope,
          [  --with-borescope        include the borescope classes],
          borescopedir=borescope
          BUILD_BORESCOPE=build_borescope
+         DEPEND_BORESCOPE=depend_borescope
          CLEAN_BORESCOPE=clean_borescope,)
 
 AC_SUBST(BUILD_BORESCOPE)
+AC_SUBST(DEPEND_BORESCOPE)
 AC_SUBST(CLEAN_BORESCOPE)
 
 AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir $imagingdir $borescopedir $volumedir)

@@ -38,9 +38,12 @@ MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 #   export CXX 
 # instead.
 
-AR = ar
-CFLAGS=-O -Wall
-CXXFLAGS=-O -Wall
+
+# here are some common settings for gcc, g++
+#
+CFLAGS=-O2 -Wall
+CXXFLAGS=-O2 -Wall
+MAKE_DEPEND_COMMAND=${CXX} -MM  $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make
 
 
 

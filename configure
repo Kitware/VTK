@@ -563,8 +563,10 @@ if test "${with_graphics+set}" = set; then
 else
   graphicsdir=graphics
          BUILD_GRAPHICS=build_graphics
+         DEPEND_GRAPHICS=depend_graphics
          CLEAN_GRAPHICS=clean_graphics
 fi
+
 
 
 
@@ -577,8 +579,10 @@ if test "${with_imaging+set}" = set; then
 else
   imagingdir=imaging
          BUILD_IMAGING=build_imaging
+         DEPEND_IMAGING=depend_imaging
          CLEAN_IMAGING=clean_imaging
 fi
+
 
 
 
@@ -591,8 +595,10 @@ if test "${with_volume+set}" = set; then
 else
   volumedir=volume
          BUILD_VOLUME=build_volume
+         DEPEND_VOLUME=depend_volume
          CLEAN_VOLUME=clean_volume
 fi
+
 
 
 
@@ -603,8 +609,10 @@ if test "${with_borescope+set}" = set; then
   withval="$with_borescope"
   borescopedir=borescope
          BUILD_BORESCOPE=build_borescope
+         DEPEND_BORESCOPE=depend_borescope
          CLEAN_BORESCOPE=clean_borescope
 fi
+
 
 
 
@@ -810,13 +818,17 @@ s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
 s%@BUILD_TCL@%$BUILD_TCL%g
 s%@CLEAN_TCL@%$CLEAN_TCL%g
+s%@DEPEND_GRAPHICS@%$DEPEND_GRAPHICS%g
 s%@BUILD_GRAPHICS@%$BUILD_GRAPHICS%g
 s%@CLEAN_GRAPHICS@%$CLEAN_GRAPHICS%g
 s%@BUILD_IMAGING@%$BUILD_IMAGING%g
+s%@DEPEND_IMAGING@%$DEPEND_IMAGING%g
 s%@CLEAN_IMAGING@%$CLEAN_IMAGING%g
 s%@BUILD_VOLUME@%$BUILD_VOLUME%g
+s%@DEPEND_VOLUME@%$DEPEND_VOLUME%g
 s%@CLEAN_VOLUME@%$CLEAN_VOLUME%g
 s%@BUILD_BORESCOPE@%$BUILD_BORESCOPE%g
+s%@DEPEND_BORESCOPE@%$DEPEND_BORESCOPE%g
 s%@CLEAN_BORESCOPE@%$CLEAN_BORESCOPE%g
 s%@subdirs@%$subdirs%g
 s%@MAKEINCLUDE@%$MAKEINCLUDE%g

@@ -53,9 +53,8 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT
 
 
 #------------------------------------------------------------------------------
-depend.make: 
-	$(CXX) -MM $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make
-	echo "Created depend.make - please run gmake again - maybe twice"
+depend: 
+	-$(MAKE_DEPEND_COMMAND)
 
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL}

@@ -17,12 +17,16 @@ exec_prefix       = @exec_prefix@
 BUILD_TCL         = @BUILD_TCL@
 CLEAN_TCL         = @CLEAN_TCL@
 BUILD_GRAPHICS    = @BUILD_GRAPHICS@
+DEPEND_GRAPHICS   = @DEPEND_GRAPHICS@
 CLEAN_GRAPHICS    = @CLEAN_GRAPHICS@
 BUILD_IMAGING     = @BUILD_IMAGING@
+DEPEND_IMAGING    = @DEPEND_IMAGING@
 CLEAN_IMAGING     = @CLEAN_IMAGING@
 BUILD_VOLUME      = @BUILD_VOLUME@
+DEPEND_VOLUME     = @DEPEND_VOLUME@
 CLEAN_VOLUME      = @CLEAN_VOLUME@
 BUILD_BORESCOPE   = @BUILD_BORESCOPE@
+DEPEND_BORESCOPE  = @DEPEND_BORESCOPE@
 CLEAN_BORESCOPE   = @CLEAN_BORESCOPE@
 
 #------------------------------------------------------------------------------
@@ -59,8 +63,28 @@ build_tclbuild_tcl:
 	cd tcl;        ${MAKE} -${MAKEFLAGS} vtk
 
 #------------------------------------------------------------------------------
-# Clean up all files that were built by make.
+# generate dpend.make files
 
+depend: ${DEPEND_TCL} ${DEPEND_GRAPHICS} ${DEPEND_IMAGING} ${DEPEND_BORESCOPE} ${DEPEND_VOLUME}
+	cd common;    ${MAKE} -${MAKEFLAGS} depend
+
+depend_tcl:
+	cd tcl;       ${MAKE} -${MAKEFLAGS} depend
+
+depend_graphics:
+	cd graphics;  ${MAKE} -${MAKEFLAGS} depend
+
+depend_imaging:
+	cd imaging;   ${MAKE} -${MAKEFLAGS} depend
+
+depend_volume:
+	cd volume;    ${MAKE} -${MAKEFLAGS} depend
+
+depend_borescope:
+	cd borescope; ${MAKE} -${MAKEFLAGS} depend
+
+#------------------------------------------------------------------------------
+# Clean up all files that were built by make.
 clean: ${CLEAN_TCL} ${CLEAN_GRAPHICS} ${CLEAN_IMAGING} ${CLEAN_BORESCOPE} ${CLEAN_VOLUME}
 	cd common;    ${MAKE} -${MAKEFLAGS} clean
 	rm -f config.cache
@@ -75,7 +99,7 @@ clean_imaging:
 	cd imaging;   ${MAKE} -${MAKEFLAGS} clean
 
 clean_volume:
-	cd volume;   ${MAKE} -${MAKEFLAGS} clean
+	cd volume;    ${MAKE} -${MAKEFLAGS} clean
 
 clean_borescope:
 	cd borescope; ${MAKE} -${MAKEFLAGS} clean
