@@ -30,6 +30,7 @@ public:
   vtkPolyVertex(const vtkPolyVertex& pp);
   char *GetClassName() {return "vtkPolyVertex";};
 
+  // cell methods
   vtkCell *MakeObject() {return new vtkPolyVertex(*this);};
   int GetCellType() {return vtkPOLY_VERTEX;};
   int GetCellDimension() {return 0;};
@@ -49,7 +50,9 @@ public:
                         float weights[MAX_CELL_SIZE]);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
-
+  int Triangulate(int index, vtkFloatPoints &pts);
+  void Derivatives(int subId, float pcoords[3], float *values, 
+                   int dim, float *derivs);
 
 };
 

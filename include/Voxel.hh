@@ -32,6 +32,7 @@ public:
   vtkVoxel(const vtkVoxel& b);
   char *GetClassName() {return "vtkVoxel";};
 
+  // cell methods
   vtkCell *MakeObject() {return new vtkVoxel(*this);};
   int GetCellType() {return vtkVOXEL;};
   int GetCellDimension() {return 3;};
@@ -51,7 +52,11 @@ public:
                         float weights[MAX_CELL_SIZE]);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
+  int Triangulate(int index, vtkFloatPoints &pts);
+  void Derivatives(int subId, float pcoords[3], float *values, 
+                   int dim, float *derivs);
 
+  // voxel specific
   void InterpolationFunctions(float pcoords[3], float weights[8]);
 
 };

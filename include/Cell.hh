@@ -49,6 +49,7 @@ public:
   vtkCell(): Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE) {};
   void Initialize(int npts, int *pts, vtkPoints *p);
   char *GetClassName() {return "vtkCell";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Create concrete copy of this cell.
@@ -105,8 +106,15 @@ public:
   // Description:
   // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
-  // distance squared  of point x[3] to cell (in particular, the sub-cell 
-  // indicated), and interpolation weights in cell.
+  // distance squared of point x[3] to cell (in particular, the sub-cell 
+  // indicated), closest point on cell to x[3], and interpolation weights 
+  // in cell. Note: on rare occasions a -1 is returned from the method. This 
+  // means that numerical error has occured and all data returned from this method
+  // should be ignored. Also, inside/outside is determine parametrically. That
+  // is, a point is inside if it satisfies parametric limits. This can cause
+  // problems for cells of topological dimension 2 or less, since a point in
+  // 3D can project onto the cell within parametric limits but be "far" from
+  // the cell. Thus the value dist2 may be checked to determine true in/out.
   virtual int EvaluatePosition(float x[3], float closestPoint[3], 
                                int& subId, float pcoords[3], 
                                float& dist2, float weights[MAX_CELL_SIZE]) = 0;
@@ -129,6 +137,30 @@ public:
   // The method returns non-zero value if intersection occurs.
   virtual int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                                 float x[3], float pcoords[3], int& subId) = 0;
+
+  // Description:
+  // Generate simplices of proper dimension. If cell is 3D, tetrahedron are 
+  // generated; if 2D triangles; if 1D lines; if 0D points. The form of the
+  // output is a sequence of points, each n+1 points (where n is topological 
+  // cell dimension) defining a simplex. The index is a parameter that controls
+  // which triangulation to use (if more than one is possible). If numerical
+  // degeneracy encountered, 0 is returned, otherwise 1 is returned.
+  virtual int Triangulate(int index, vtkFloatPoints &pts) = 0;
+
+  // Description:
+  // Compute derivatives given cell subId and parametric coordinates. The values
+  // array is a series of data value(s) at the cell points. There is a one-to-one
+  // correspondance between cell point and data value(s). Dim is the number of 
+  // data values per cell point. Derivs are derivaties in the x-y-z coordinate
+  // directions for each data value. Thus, if computing derivatives for a 
+  // scalar function in a hexahedron, dim=1, 8 values are supplied, and 3 deriv
+  // values are returned (i.e., derivatives in x-y-z directions). On the other 
+  // hand, if computing derivates of velocity (vx,vy,vz) dim=3, 24 values are
+  // supplied ((vx,vy,vz)1, (vx,vy,vz)2, ....()8), and 9 deriva values are
+  // returned ((d(vx)/dx),(d(vx)/dy),(d(vx)/dz), (d(vy)/dx),(d(vy)/dy),
+  // (d(vy)/dz), (d(vz)/dx),(d(vz)/dy),(d(vz)/dz)).
+  virtual void Derivatives(int subId, float pcoords[3], float *values, 
+                           int dim, float *derivs) = 0;
 
   void GetBounds(float bounds[6]);
   float *GetBounds();

@@ -31,6 +31,7 @@ public:
   vtkTriangle(const vtkTriangle& t);
   char *GetClassName() {return "vtkTriangle";};
 
+  // cell methods
   vtkCell *MakeObject() {return new vtkTriangle(*this);};
   int GetCellType() {return vtkTRIANGLE;};
   int GetCellDimension() {return 2;};
@@ -51,15 +52,13 @@ public:
                         float weights[MAX_CELL_SIZE]);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
+  int Triangulate(int index, vtkFloatPoints &pts);
+  void Derivatives(int subId, float pcoords[3], float *values, 
+                   int dim, float *derivs);
 
+  // triangle specific
   void TriangleCenter(float p1[3], float p2[3], float p3[3], float center[3]);
   float TriangleArea(float p1[3], float p2[3], float p3[3]);
-
-private:
-  int _EvaluatePosition(float x[3], float closestPoint[3],
-                       int& subId, float pcoords[3],
-                       float& dist2, float weights[MAX_CELL_SIZE]);
-
 };
 
 // Description:

@@ -30,6 +30,7 @@ public:
   vtkTetra(const vtkTetra& t);
   char *GetClassName() {return "vtkTetra";};
 
+  // cell methods
   vtkCell *MakeObject() {return new vtkTetra(*this);};
   int GetCellType() {return vtkTETRA;};
   int GetCellDimension() {return 3;};
@@ -49,7 +50,9 @@ public:
                         float weights[MAX_CELL_SIZE]);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
-
+  int Triangulate(int index, vtkFloatPoints &pts);
+  void Derivatives(int subId, float pcoords[3], float *values, 
+                   int dim, float *derivs);
 };
 
 #endif

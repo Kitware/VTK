@@ -36,6 +36,7 @@ public:
   int GenerateNormals(vtkPoints *, vtkCellArray *, vtkFloatNormals *);
   int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkFloatNormals *);
 
+  // cell methods
   vtkCell *MakeObject() {return new vtkPolyLine(*this);};
   int GetCellType() {return vtkPOLY_LINE;};
   int GetCellDimension() {return 1;};
@@ -56,6 +57,10 @@ public:
                         float weights[MAX_CELL_SIZE]);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
+  int Triangulate(int index, vtkFloatPoints &pts);
+  void Derivatives(int subId, float pcoords[3], float *values, 
+                   int dim, float *derivs);
+
 };
 
 #endif
