@@ -50,6 +50,7 @@ vtkCoordinate::vtkCoordinate()
   this->Value[0] = 0.0;
   this->Value[1] = 0.0;
   this->Value[2] = 0.0;
+  this->Viewport = NULL;
   this->ReferenceCoordinate = NULL;
   this->Computing = 0;
 }
@@ -88,6 +89,7 @@ void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Value: (" << this->Value[0] << "," 
      << this->Value[1] << "," << this->Value[2] << ")\n";
   os << indent << "ReferenceCoordinate: " << this->ReferenceCoordinate << "\n";
+  os << indent << "Viewport: " << this->Viewport << "\n";
 }
 
 float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
@@ -102,6 +104,35 @@ float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
   val[1] = this->Value[1];
   val[2] = this->Value[2];
 
+  // use our viewport if set
+  if (this->Viewport)
+    {
+    viewport = this->Viewport;
+    }
+  
+  // if viewport is NULL then we can only do minimal calculations
+  if (!viewport)
+    {
+    if (this->CoordinateSystem == VTK_WORLD)
+      {
+      if (this->ReferenceCoordinate)
+	{
+	float *RefValue;
+	
+	RefValue = this->ReferenceCoordinate->GetComputedWorldValue(viewport);
+	val[0] += RefValue[0];
+	val[1] += RefValue[1];
+	val[2] += RefValue[2];
+	}
+      this->Computing = 0;
+      }
+    else
+      {
+      vtkErrorMacro("Attempt to compute world coordinates from another coordinate system without a viewport");
+      }
+    return val;
+    }
+  
   if (this->ReferenceCoordinate && this->CoordinateSystem != VTK_WORLD)
     {
     float RefValue[3];
@@ -163,6 +194,10 @@ float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     }
   
   this->Computing = 0;
+  vtkDebugMacro("Returning WorldValue of : " << 
+		this->ComputedWorldValue[0] << " , " << 
+		this->ComputedWorldValue[1] << " , " << 
+		this->ComputedWorldValue[2]);
   return val;
 }
 
@@ -170,7 +205,20 @@ float *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
 
 int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
 {
+  // use our viewport if set
+  if (this->Viewport)
+    {
+    viewport = this->Viewport;
+    }
+
   int *d = this->GetComputedDisplayValue(viewport);
+
+  if (!viewport)
+    {
+    vtkDebugMacro("Attempt to convert to compute viewport coordinates without a viewport, results may not be valid");
+    return this->ComputedDisplayValue;
+    }
+
   float f[2];
   
   f[0] = (float)d[0];
@@ -179,8 +227,8 @@ int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
   viewport->DisplayToNormalizedDisplay(f[0],f[1]);
   viewport->NormalizedDisplayToViewport(f[0],f[1]);
   
-  this->ComputedViewportValue[0] = (int)f[0];
-  this->ComputedViewportValue[1] = (int)f[1];
+  this->ComputedViewportValue[0] = (int)rint(f[0]);
+  this->ComputedViewportValue[1] = (int)rint(f[1]);
 
   return this->ComputedViewportValue;
 }
@@ -188,15 +236,27 @@ int *vtkCoordinate::GetComputedViewportValue(vtkViewport* viewport)
 int *vtkCoordinate::GetComputedLocalDisplayValue(vtkViewport* viewport)
 {
   float a[2];
+
+  // use our viewport if set
+  if (this->Viewport)
+    {
+    viewport = this->Viewport;
+    }
   this->GetComputedDisplayValue(viewport);
 
+  if (!viewport)
+    {
+    vtkErrorMacro("Attempt to convert to local display coordinates without a viewport");
+    return this->ComputedDisplayValue;
+    }
+    
   a[0] = (float)this->ComputedDisplayValue[0];
   a[1] = (float)this->ComputedDisplayValue[1];
   
   viewport->DisplayToLocalDisplay(a[0],a[1]);
 
-  this->ComputedDisplayValue[0] = (int)a[0];
-  this->ComputedDisplayValue[1] = (int)a[1];
+  this->ComputedDisplayValue[0] = (int)rint(a[0]);
+  this->ComputedDisplayValue[1] = (int)rint(a[1]);
 
   vtkDebugMacro("Returning LocalDisplayValue of : " << 
 		this->ComputedDisplayValue[0] << " , " << 
@@ -216,6 +276,37 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
   val[0] = this->Value[0];
   val[1] = this->Value[1];
   val[2] = this->Value[2];
+
+  // use our viewport if set
+  if (this->Viewport)
+    {
+    viewport = this->Viewport;
+    }
+
+  // if viewport is NULL, there is very little we can do
+  if (viewport == NULL)
+    {
+    // for DISPLAY and VIEWPORT just use the value
+    if (this->CoordinateSystem == VTK_DISPLAY ||
+	this->CoordinateSystem == VTK_VIEWPORT)
+      {
+      this->ComputedDisplayValue[0] = (int)rint(val[0]);
+      this->ComputedDisplayValue[1] = (int)rint(val[1]);
+      if (this->ReferenceCoordinate)
+	{
+	int *RefValue;
+	
+	RefValue = this->ReferenceCoordinate->GetComputedDisplayValue(viewport);
+	this->ComputedDisplayValue[0] += RefValue[0];
+	this->ComputedDisplayValue[1] += RefValue[1];
+	}
+      }
+    else
+      {
+      vtkErrorMacro("Request for coordinate transformation without required viewport");
+      }
+    return this->ComputedDisplayValue;
+    }
   
   // compute our WC
   switch (this->CoordinateSystem)
@@ -241,8 +332,8 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
       viewport->NormalizedDisplayToDisplay(val[0],val[1]);
     }
   
-  this->ComputedDisplayValue[0] = (int)(val[0]);
-  this->ComputedDisplayValue[1] = (int)(val[1]);
+  this->ComputedDisplayValue[0] = (int)rint(val[0]);
+  this->ComputedDisplayValue[1] = (int)rint(val[1]);
   
   // if we have a reference coordinate then get that first
   if (this->ReferenceCoordinate && this->CoordinateSystem != VTK_WORLD)
@@ -264,4 +355,43 @@ int *vtkCoordinate::GetComputedDisplayValue(vtkViewport* viewport)
 
 
 
+
+float *vtkCoordinate::GetComputedValue(vtkViewport* viewport)
+{
+  // use our viewport if set
+  if (this->Viewport)
+    {
+    viewport = this->Viewport;
+    }
+  
+  switch (this->CoordinateSystem)
+    {
+    case VTK_WORLD:
+      return this->GetComputedWorldValue(viewport);
+      break;
+    case VTK_VIEW:
+    case VTK_NORMALIZED_VIEWPORT:
+    case VTK_VIEWPORT:
+      {
+      // result stored in computed world value due to float
+      // but is really a viewport value
+      int *v = this->GetComputedViewportValue(viewport);
+      this->ComputedWorldValue[0] = v[0];
+      this->ComputedWorldValue[1] = v[1];
+      break;
+      }
+    case VTK_NORMALIZED_DISPLAY:
+    case VTK_DISPLAY:
+      {
+      // result stored in computed world value due to float
+      // but is really a display value
+      int *d = this->GetComputedDisplayValue(viewport);
+      this->ComputedWorldValue[0] = d[0];
+      this->ComputedWorldValue[1] = d[1];
+      break;
+      }
+    }
+
+  return this->ComputedWorldValue;
+}
 

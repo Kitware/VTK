@@ -97,15 +97,29 @@ public:
   vtkSetReferenceCountedObjectMacro(ReferenceCoordinate,vtkCoordinate);
   vtkGetObjectMacro(ReferenceCoordinate,vtkCoordinate);
 
+  // Description:
+  // If you want this coordinate to be relative to a specific
+  // vtkViewport (vtkRenderer, vtkImager) then you can specify
+  // that here.
+  vtkSetObjectMacro(Viewport,vtkViewport);
+  vtkGetObjectMacro(Viewport,vtkViewport);
+
   float *GetComputedWorldValue(vtkViewport *);
   int *GetComputedViewportValue(vtkViewport *);
   int *GetComputedDisplayValue(vtkViewport *);
   int *GetComputedLocalDisplayValue(vtkViewport *);
 
+  // GetComputed Value will return either World, Viewport or 
+  // Display based on what has been set as the coordinate system
+  // This is good for objects like vtkLineSource, where the
+  // user might want to use them as World or Viewport coordinates
+  float *GetComputedValue(vtkViewport *);
+  
 protected:
   float Value[3];
   int   CoordinateSystem;
   vtkCoordinate *ReferenceCoordinate;
+  vtkViewport *Viewport;
   float ComputedWorldValue[3];
   int   ComputedDisplayValue[2];
   int   ComputedViewportValue[2];

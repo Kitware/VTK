@@ -67,11 +67,8 @@ vtkActor2D::vtkActor2D()
 vtkActor2D::~vtkActor2D()
 {
   if (this->SelfCreatedProperty) this->Property->Delete();
-  if (this->PositionCoordinate)
-    {
-    this->PositionCoordinate->Delete();
-    this->PositionCoordinate = NULL;
-    }
+  this->PositionCoordinate->Delete();
+  this->PositionCoordinate = NULL;
 }
 
 void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
@@ -83,10 +80,7 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 
   os << indent << "PositionCoordinate: " << this->PositionCoordinate << "\n";
-  if (this->PositionCoordinate) 
-    {
-    this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
-    }
+  this->PositionCoordinate->PrintSelf(os, indent.GetNextIndent());
   
   os << indent << "Self Created Property: " << (this->SelfCreatedProperty ? "Yes\n" : "No\n");
   os << indent << "Property: " << this->Property << "\n";
@@ -99,11 +93,6 @@ void vtkActor2D::PrintSelf(ostream& os, vtkIndent indent)
 // Set the actor2D's position in display coordinates.  
 void vtkActor2D::SetDisplayPosition(int XPos, int YPos)
 {
-  if (!this->PositionCoordinate)
-    {
-    this->PositionCoordinate = vtkCoordinate::New();
-    }
-  
   this->PositionCoordinate->SetCoordinateSystem(VTK_DISPLAY);
   this->PositionCoordinate->SetValue((float)XPos,(float)YPos,0.0);
 }
@@ -149,6 +138,22 @@ vtkProperty2D *vtkActor2D::GetProperty()
 }
 
 
+unsigned long int vtkActor2D::GetMTime()
+{
+  unsigned long mTime=this->vtkObject::GetMTime();
+  unsigned long time;
+  
+  time = this->PositionCoordinate->GetMTime();
+  mTime = ( time > mTime ? time : mTime );
+  
+  if ( this->Property != NULL )
+    {
+    time = this->Property->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
+  return mTime;
+}
 
 
 

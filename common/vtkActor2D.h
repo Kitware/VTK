@@ -92,11 +92,14 @@ public:
   vtkProperty2D* GetProperty();
   vtkSetObjectMacro(Property, vtkProperty2D);
 
-  vtkSetReferenceCountedObjectMacro(PositionCoordinate,vtkCoordinate);
-  vtkGetObjectMacro(PositionCoordinate,vtkCoordinate);
-
+  // Description:
+  // Get the PositionCoordinate instance of vtkCoordinate
+  // This is used for for complicated or relative positioning
+  vtkViewportCoordinateMacro(Position);
+  
   void SetDisplayPosition(int,int);
   
+  unsigned long int GetMTime();//overload superclasses' implementation
 
 protected:
   float Orientation;
