@@ -162,7 +162,7 @@ foreach s $flake_list {
 ## Get the culler from the renderer
 [ren1 GetCullers] InitTraversal
 set culler [[ren1 GetCullers] GetNextItem]
-
+$culler SetSortingStyleToBackToFront
 
 ## Create some UI stuff for controling things
 
