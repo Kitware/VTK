@@ -82,6 +82,7 @@ void vtkRIBProperty::Render(vtkActor *anActor, vtkRenderer *ren)
   // Copy this property's ivars into the property to be rendered
   ref = this->Property->GetReferenceCount();
   *this->Property = *((vtkProperty *) this);
+	this->Property->SetDeleteMethod(NULL);
   this->Property->SetReferenceCount(ref);
   
   // Render the property
