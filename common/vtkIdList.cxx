@@ -90,7 +90,6 @@ int vtkIdList::Allocate(const int sz, const int vtkNotUsed(strategy))
       return 0;
       }
     }
-
   this->NumberOfIds = 0;
   return 1;
 }
@@ -177,13 +176,13 @@ void vtkIdList::DeleteId(int id)
 
 void vtkIdList::DeepCopy(vtkIdList *ids)
 {
-  ids->Initialize();
-  ids->NumberOfIds = this->NumberOfIds;
-  ids->Size = this->Size;
-  ids->Ids = new int [this->Size];
-  for (int i=0; i < this->NumberOfIds; i++)
+  this->Initialize();
+  this->NumberOfIds = ids->NumberOfIds;
+  this->Size = ids->Size;
+  this->Ids = new int [ids->Size];
+  for (int i=0; i < ids->NumberOfIds; i++)
     {
-    ids->Ids[i] = this->Ids[i];
+    this->Ids[i] = ids->Ids[i];
     }
 }
 
