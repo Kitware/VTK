@@ -15,7 +15,7 @@
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPropCollection, "1.10");
+vtkCxxRevisionMacro(vtkPropCollection, "1.11");
 vtkStandardNewMacro(vtkPropCollection);
 
 int vtkPropCollection::GetNumberOfPaths()
@@ -23,7 +23,8 @@ int vtkPropCollection::GetNumberOfPaths()
   int numPaths=0;
   vtkProp *aProp;
 
-  for ( this->InitTraversal(); (aProp=this->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for ( this->InitTraversal(pit); (aProp=this->GetNextProp(pit)); )
     {
     numPaths += aProp->GetNumberOfPaths();
     }

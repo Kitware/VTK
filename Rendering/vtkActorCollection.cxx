@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkProperty.h"
 
-vtkCxxRevisionMacro(vtkActorCollection, "1.11");
+vtkCxxRevisionMacro(vtkActorCollection, "1.12");
 vtkStandardNewMacro(vtkActorCollection);
 
 void vtkActorCollection::ApplyProperties(vtkProperty *p)
@@ -29,7 +29,8 @@ void vtkActorCollection::ApplyProperties(vtkProperty *p)
     return;
     }
   
-  for ( this->InitTraversal(); (actor=this->GetNextActor()); )
+  vtkCollectionSimpleIterator ait;
+  for ( this->InitTraversal(ait); (actor=this->GetNextActor(ait)); )
     {
     actor->GetProperty()->DeepCopy(p);
     }

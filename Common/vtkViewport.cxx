@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.56");
+vtkCxxRevisionMacro(vtkViewport, "1.57");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -128,8 +128,9 @@ void vtkViewport::RemoveProp(vtkProp *p)
 void vtkViewport::RemoveAllProps(void)
 {
   vtkProp *aProp;
-  for (this->Props->InitTraversal();
-       (aProp = this->Props->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit);
+       (aProp = this->Props->GetNextProp(pit)); )
     {
     aProp->ReleaseGraphicsResources(this->VTKWindow);
     aProp->RemoveConsumer(this);
@@ -144,9 +145,10 @@ vtkActor2DCollection *vtkViewport::GetActors2D()
   
   // clear the collection first
   this->Actors2D->RemoveAllItems();
-
-  for (this->Props->InitTraversal();
-       (aProp = this->Props->GetNextProp()); )
+  
+  vtkCollectionSimpleIterator pit;
+  for (this->Props->InitTraversal(pit);
+       (aProp = this->Props->GetNextProp(pit)); )
     {
     aProp->GetActors2D(this->Actors2D);
     }

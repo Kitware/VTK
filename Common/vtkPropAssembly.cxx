@@ -23,7 +23,7 @@
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.24");
+vtkCxxRevisionMacro(vtkPropAssembly, "1.25");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
@@ -162,7 +162,9 @@ void vtkPropAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
   vtkProp::ReleaseGraphicsResources(renWin);
 
   // broadcast the message down the Parts
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for ( this->Parts->InitTraversal(pit); 
+        (part=this->Parts->GetNextProp(pit)); )
     {
     part->ReleaseGraphicsResources(renWin);
     }
@@ -177,7 +179,9 @@ double *vtkPropAssembly::GetBounds()
   int partVisible=0;
 
   // carefully compute the bounds
-  for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for ( this->Parts->InitTraversal(pit); 
+        (part=this->Parts->GetNextProp(pit)); )
     {
     if ( part->GetVisibility() )
       {
@@ -239,7 +243,9 @@ unsigned long int vtkPropAssembly::GetMTime()
   unsigned long time;
   vtkProp *part;
 
-  for (this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for (this->Parts->InitTraversal(pit); 
+       (part=this->Parts->GetNextProp(pit)); )
     {
     time = part->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -255,10 +261,11 @@ void vtkPropAssembly::ShallowCopy(vtkProp *prop)
   if ( propAssembly != NULL )
     {
     this->Parts->RemoveAllItems();
-    propAssembly->Parts->InitTraversal();
+    vtkCollectionSimpleIterator pit;
+    propAssembly->Parts->InitTraversal(pit);
     for (int i=0; i<0; i++)
       {
-      this->AddPart(propAssembly->Parts->GetNextProp());
+      this->AddPart(propAssembly->Parts->GetNextProp(pit));
       }
     }
 
@@ -307,8 +314,9 @@ void vtkPropAssembly::UpdatePaths()
     
     vtkProp *prop;
     // Add nodes as we proceed down the hierarchy
-    for ( this->Parts->InitTraversal(); 
-          (prop = this->Parts->GetNextProp()); )
+    vtkCollectionSimpleIterator pit;
+    for ( this->Parts->InitTraversal(pit); 
+          (prop = this->Parts->GetNextProp(pit)); )
       {
       // add a matrix, if any
       path->AddNode(prop,prop->GetMatrix());
@@ -331,8 +339,9 @@ void vtkPropAssembly::BuildPaths(vtkAssemblyPaths *paths,
 {
   vtkProp *prop;
 
-  for ( this->Parts->InitTraversal(); 
-        (prop = this->Parts->GetNextProp()); )
+  vtkCollectionSimpleIterator pit;
+  for ( this->Parts->InitTraversal(pit); 
+        (prop = this->Parts->GetNextProp(pit)); )
     {
     path->AddNode(prop,NULL);
 
