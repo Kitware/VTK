@@ -99,7 +99,6 @@
 #define __vtkDecimate_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkMath.h"
 #include "vtkTriangle.h"
 #include "vtkPlane.h"
 #include "vtkPolygon.h"

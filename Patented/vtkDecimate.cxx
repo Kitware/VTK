@@ -32,8 +32,9 @@
 #include "vtkDecimate.h"
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDecimate, "1.66");
+vtkCxxRevisionMacro(vtkDecimate, "1.67");
 vtkStandardNewMacro(vtkDecimate);
 
 #define VTK_TOLERANCE 1.0e-05
