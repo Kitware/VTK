@@ -236,19 +236,19 @@ void vtkImageToImageFilter::StreamExecuteStart()
       // We were bypassing this filter (causing pointers to be copied from
       // input to output), now we are not bypassing the filter.  Need to reset
       // the output so we do not use the "copied" references.
-      output->GetPointData()->Initialize();
+      output->ReleaseData();
       this->BypassWasOn = 0;
       }
+    //
+    // Call vtkImageSource's StreamExecuteStart
+    //
+    this->vtkImageSource::StreamExecuteStart();
     }
   else
     {
     this->BypassWasOn = 1;
     }
 
-  //
-  // Call vtkImageSource's StreamExecuteStart
-  //
-  this->vtkImageSource::StreamExecuteStart();
 }
 
 //----------------------------------------------------------------------------
