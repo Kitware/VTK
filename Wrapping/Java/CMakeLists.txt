@@ -73,11 +73,33 @@ IF(JAVA_COMPILE)
       INCLUDE(${VTK_BINARY_DIR}/${kit}/JavaDependencies.cmake OPTIONAL)
       VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava${kit} ${VTK_JAVA_DEPENDENCIES})
       ADD_DEPENDENCIES(VTKJava${kit} VTKJavaExecutable)
+      ADD_DEPENDENCIES(VTKJava${kit} vtk${kit}JavaJavaClasses)
       ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
     ENDFOREACH(kit)
 
+    ADD_DEPENDENCIES(VTKJavaFiltering VTKJavaCommon) 
+    ADD_DEPENDENCIES(VTKJavaImaging VTKJavaFiltering) 
+    ADD_DEPENDENCIES(VTKJavaGraphics VTKJavaFiltering) 
+    ADD_DEPENDENCIES(VTKJavaIO VTKJavaFiltering) 
     ADD_DEPENDENCIES(VTKJava VTKJavaJar)
-
+    IF(VTK_USE_RENDERING) 
+      ADD_DEPENDENCIES(VTKJavaRendering 
+        VTKJavaGraphics 
+        VTKJavaIO 
+        VTKJavaImaging
+        ) 
+    ENDIF(VTK_USE_RENDERING) 
+    IF(VTK_USE_HYBRID) 
+      ADD_DEPENDENCIES(VTKJavaHybrid VTKJavaRendering) 
+    ENDIF(VTK_USE_HYBRID) 
+    IF(VTK_USE_PATENTED) 
+      ADD_DEPENDENCIES(VTKJavaPatented VTKJavaGraphics 
+        VTKJavaIO VTKJavaImaging) 
+    ENDIF(VTK_USE_PATENTED) 
+    IF(VTK_USE_PARALLEL) 
+      ADD_DEPENDENCIES(VTKJavaParallel VTKJavaRendering) 
+    ENDIF(VTK_USE_PARALLEL) 
+    
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
                        COMMAND ${JAVA_ARCHIVE}
                        ARGS -cvf  "${LIBRARY_OUTPUT_PATH}/vtk.jar"
