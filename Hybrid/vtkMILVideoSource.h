@@ -35,13 +35,20 @@
 #include "vtkVideoSource.h"
 
 // digitizer hardware
-#define VTK_MIL_DEFAULT       0
-#define VTK_MIL_METEOR        1
-#define VTK_MIL_METEOR_II     2
-#define VTK_MIL_METEOR_II_DIG 3
-#define VTK_MIL_CORONA        4
-#define VTK_MIL_PULSAR        5
-#define VTK_MIL_GENESIS       6
+#define VTK_MIL_DEFAULT        0
+#define VTK_MIL_METEOR         "M_SYSTEM_METEOR"
+#define VTK_MIL_METEOR_II      "M_SYSTEM_METEOR_II"
+#define VTK_MIL_METEOR_II_DIG  "M_SYSTEM_METEOR_II_DIG"
+#define VTK_MIL_METEOR_II_CL   "M_SYSTEM_METEOR_II_CL"
+#define VTK_MIL_METEOR_II_1394 "M_SYSTEM_METEOR_II_1394"
+#define VTK_MIL_CORONA         "M_SYSTEM_CORONA"
+#define VTK_MIL_CORONA_II      "M_SYSTEM_CORONA_II"
+#define VTK_MIL_PULSAR         "M_SYSTEM_PULSAR"
+#define VTK_MIL_GENESIS        "M_SYSTEM_GENESIS"
+#define VTK_MIL_GENESIS_PLUS   "M_SYSTEM_GENESIS_PLUS"
+#define VTK_MIL_ORION          "M_SYSTEM_ORION"
+#define VTK_MIL_CRONOS         "M_SYSTEM_CRONOS"
+#define VTK_MIL_ODYSSEY        "M_SYSTEM_ODYSSEY"
 
 // video inputs: 
 #define VTK_MIL_MONO          0
@@ -134,15 +141,21 @@ public:
   // Description:
   // Set the system which you want use.  If you don't specify a system,
   // then an attempt will be made to autodetect your system.
-  vtkSetMacro(MILSystemType,int);
-  vtkGetMacro(MILSystemType,int);
+  vtkSetStringMacro(MILSystemType);
+  vtkGetStringMacro(MILSystemType);
   void SetMILSystemTypeToMeteor() { this->SetMILSystemType(VTK_MIL_METEOR); };
   void SetMILSystemTypeToMeteorII() { this->SetMILSystemType(VTK_MIL_METEOR_II); };
-  void SetMILSystemTypeToCorona() { this->SetMILSystemType(VTK_MIL_CORONA); };
-  void SetMILSystemTypeToPulsar() { this->SetMILSystemType(VTK_MIL_PULSAR); };
   void SetMILSystemTypeToMeteorIIDig() { this->SetMILSystemType(VTK_MIL_METEOR_II_DIG); };
+  void SetMILSystemTypeToMeteorIICL() { this->SetMILSystemType(VTK_MIL_METEOR_II_CL); };
+  void SetMILSystemTypeToMeteorII1394() { this->SetMILSystemType(VTK_MIL_METEOR_II_1394); };
+  void SetMILSystemTypeToCorona() { this->SetMILSystemType(VTK_MIL_CORONA); };
+  void SetMILSystemTypeToCoronaII() { this->SetMILSystemType(VTK_MIL_CORONA_II); };
+  void SetMILSystemTypeToPulsar() { this->SetMILSystemType(VTK_MIL_PULSAR); };
   void SetMILSystemTypeToGenesis() { this->SetMILSystemType(VTK_MIL_GENESIS); };
-
+  void SetMILSystemTypeToGenesisPlus() { this->SetMILSystemType(VTK_MIL_GENESIS_PLUS); };
+  void SetMILSystemTypeToOrion() { this->SetMILSystemType(VTK_MIL_ORION); };
+  void SetMILSystemTypeToCronos() { this->SetMILSystemType(VTK_MIL_CRONOS); };
+  void SetMILSystemTypeToODYSSEY() { this->SetMILSystemType(VTK_MIL_ODYSSEY); };
   // Description:
   // Set the system number if you have multiple systems of the same type
   vtkSetMacro(MILSystemNumber,int);
@@ -198,7 +211,7 @@ protected:
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();
 
-  virtual void *MILInterpreterForSystem(int system);
+  virtual void *MILInterpreterForSystem(const char *system);
   char *MILInterpreterDLL;
 
   int VideoChannel;
@@ -220,7 +233,7 @@ protected:
   // long MILDispBufID;
   // long MILDispID;
 
-  int MILSystemType;
+  char *MILSystemType;
   int MILSystemNumber;
 
   int MILDigitizerNumber;
@@ -232,6 +245,18 @@ protected:
   int MILSysInternallyAllocated;
 
   int FatalMILError;
+
+  // Description:
+  // Method for updating the virtual clock that accurately times the
+  // arrival of each frame, more accurately than is possible with
+  // the system clock alone because the virtual clock averages out the
+  // jitter.
+  double CreateTimeStampForFrame(unsigned long frame);
+
+  double LastTimeStamp;
+  unsigned long LastFrameCount;
+  double EstimatedFramePeriod;
+  double NextFramePeriod;
 
 private:
   vtkMILVideoSource(const vtkMILVideoSource&);  // Not implemented.

@@ -23,7 +23,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.17");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.18");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
@@ -68,6 +68,12 @@ vtkMILVideoSource::vtkMILVideoSource()
   this->MILErrorMessages = 1;
 
   this->FlipFrames = 1; //apply vertical flip to each frame
+
+  // for accurate timing
+  this->LastTimeStamp = 0;
+  this->LastFrameCount = 0;
+  this->EstimatedFramePeriod = 0.033;
+  this->NextFramePeriod = 0.033;
 }
 
 //----------------------------------------------------------------------------
@@ -79,7 +85,9 @@ vtkMILVideoSource::~vtkMILVideoSource()
     {
     delete [] this->MILDigitizerDCF;
     this->MILDigitizerDCF = NULL;
-    }  
+    }
+
+  this->SetMILSystemType(0);
 }  
 
 //----------------------------------------------------------------------------
@@ -143,38 +151,13 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
       break;
     }
 
-  os << indent << "MILSystemType: ";
-  switch (this->MILSystemType)
-    {
-    case VTK_MIL_DEFAULT:
-      os << "Default\n";
-      break;
-    case VTK_MIL_METEOR:
-      os << "Meteor\n";
-      break;
-    case VTK_MIL_METEOR_II:
-      os << "MeteorII\n";
-      break;
-    case VTK_MIL_METEOR_II_DIG:
-      os << "MeteorIIDig\n";
-      break;
-    case VTK_MIL_PULSAR:
-      os << "Pulsar\n";
-      break;
-    case VTK_MIL_CORONA:
-      os << "Corona\n";
-      break;
-    case VTK_MIL_GENESIS:
-      os << "Genesis\n";
-      break;
-    default:
-      os << "Unrecognized\n";
-      break;
-    }
+  os << indent << "MILSystemType: " << 
+    (this->MILSystemType ? this->MILSystemType : "Default") << "\n";
 
   os << indent << "MILSystemNumber: " << this->MILSystemNumber << "\n";
 
-  os << indent << "MILDigitizerDCF: " << this->MILDigitizerDCF << "\n";
+  os << indent << "MILDigitizerDCF: " << (this->MILDigitizerDCF ?
+    this->MILDigitizerDCF : "NULL") << "\n";
 
   os << indent << "MILDigitizerNumber: " << this->MILDigitizerNumber << "\n";
 
@@ -189,45 +172,69 @@ void vtkMILVideoSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// load the DLL for the specified Matrox digitizer
-void *vtkMILVideoSource::MILInterpreterForSystem(int system)
+// load the DLL for the specified Matrox digitizer, for MIL 5 and MIL 6
+void *vtkMILVideoSource::MILInterpreterForSystem(const char *system)
 {
   char *dll_name;
   char *func_name;
 
-  switch (system)
+  if (strcmp(system,VTK_MIL_CORONA) == 0)
     {
-    case VTK_MIL_CORONA:
-      dll_name = "milcor";
-      func_name = "MDCoronaCommandDecoder";
-      break;
-    case VTK_MIL_METEOR:
-      dll_name = "milmet";
-      func_name = "MDMeteorCommandDecoder";
-      break;
-    case VTK_MIL_METEOR_II:
-      dll_name = "milmet2";
-      func_name = "MDMeteorIICommandDecoder";
-      break;
-    case VTK_MIL_METEOR_II_DIG:
-      dll_name = "milmet2d";
-      func_name = "MDMeteorIIDigCommandDecoder";
-      break;
-    case VTK_MIL_PULSAR:
-      dll_name = "milpul";
-      func_name = "MDPulsarCommandDecoder";
-      break;
-    case VTK_MIL_GENESIS:
-      dll_name = "milgen";
-      func_name = "MDGenesisCommandDecoder";
-      break;
-    default:
-      dll_name = "unknown";
-      func_name = "unknown";
+    dll_name = "milcor";
+    func_name = "MDCoronaCommandDecoder";
     }
-      
+  else if (strcmp(system,VTK_MIL_METEOR) == 0)
+    {
+    dll_name = "milmet";
+    func_name = "MDMeteorCommandDecoder";
+    }
+  else if (strcmp(system,VTK_MIL_METEOR_II) == 0)
+    {
+    dll_name = "milmet2";
+    func_name = "MDMeteorIICommandDecoder";
+    }
+  else if (strcmp(system,VTK_MIL_METEOR_II_DIG) == 0)
+    {
+    dll_name = "milmet2d";
+    func_name = "MDMeteorIIDigCommandDecoder";
+    }
+  else if (strcmp(system,VTK_MIL_PULSAR) == 0)
+    {
+    dll_name = "milpul";
+    func_name = "MDPulsarCommandDecoder";
+    }
+  else if (strcmp(system,VTK_MIL_GENESIS) == 0)
+    {
+    dll_name = "milgen";
+    func_name = "MDGenesisCommandDecoder";
+    }
+  else if (strcmp(system,VTK_MIL_ORION) == 0)
+    {
+    dll_name = "milorion";
+    func_name = "MDOrionCommandDecoder";
+    }
+  else
+    {
+    dll_name = "unknown";
+    func_name = "unknown";
+    }
+
+  // first try mil.dll (for later versions of mil)
+  this->MILInterpreterDLL = "mil";
+  HINSTANCE mil_lib = LoadLibrary("mil");
+  if (mil_lib == 0)
+    {
+    return NULL;
+    }
+  void *proc_address = (void *)GetProcAddress(mil_lib,func_name);
+  if (proc_address)
+    {
+    return proc_address;
+    }
+
+  // then try the device-specific dll
   this->MILInterpreterDLL = dll_name;
-  HINSTANCE mil_lib = LoadLibrary(dll_name);
+  mil_lib = LoadLibrary(dll_name);
 
   if (mil_lib == 0)
     {
@@ -327,9 +334,13 @@ static void vtkMILVideoSourceSetSize(long digID, int size[3], int maxSize[2])
 //----------------------------------------------------------------------------
 void vtkMILVideoSource::Initialize()
 {
-  static int system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, 
-                                VTK_MIL_CORONA, VTK_MIL_PULSAR, 
-                                VTK_MIL_METEOR_II_DIG, VTK_MIL_GENESIS, 0 };
+  static char *system_types[] = { VTK_MIL_METEOR, VTK_MIL_METEOR_II, 
+                                  VTK_MIL_METEOR_II_DIG, VTK_MIL_METEOR_II_CL,
+                                  VTK_MIL_METEOR_II_1394, VTK_MIL_CORONA_II,
+                                  VTK_MIL_CORONA, VTK_MIL_PULSAR, 
+                                  VTK_MIL_GENESIS, VTK_MIL_GENESIS_PLUS,
+                                  VTK_MIL_ORION, VTK_MIL_CRONOS,
+                                  VTK_MIL_ODYSSEY, 0 };
 
   if (this->Initialized || this->FatalMILError)
     {
@@ -358,13 +369,23 @@ void vtkMILVideoSource::Initialize()
     void *systemType;
     if (this->MILSystemType != VTK_MIL_DEFAULT)
       { // asked for a particular system by name
-      systemType = this->MILInterpreterForSystem(this->MILSystemType);
-      if (systemType)
+      // try MIL 7 style of allocation first
+      char tmptext[256];
+      sprintf(tmptext,"\\\\.\\%s",this->MILSystemType);
+      this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
+                                 M_DEFAULT,M_NULL);
+      // try MIL 5, MIL 6 which requires loading the appropriate DLL
+      if (this->MILSysID == 0)
         {
-        this->MILSysID = MsysAlloc(systemType, this->MILSystemNumber,
-                                   M_DEFAULT,M_NULL);
+        systemType = this->MILInterpreterForSystem(this->MILSystemType);
+        if (systemType)
+          {
+          this->MILSysID = MsysAlloc(systemType, this->MILSystemNumber,
+                                     M_DEFAULT,M_NULL);
+          }
         }
-      else
+
+      if (this->MILSysID == 0)
         {
         this->ReleaseSystemResources();
         vtkErrorMacro(<< "Initialize: couldn't find " << this->MILInterpreterDLL << ".dll\n");
@@ -377,11 +398,20 @@ void vtkMILVideoSource::Initialize()
       int i;
       for (i = 0; this->MILSysID == 0 && system_types[i] != 0; i++)
         {
-        systemType = this->MILInterpreterForSystem(system_types[i]);
-        if (systemType)
+        // try MIL 7 style of allocation first
+        char tmptext[256];
+        sprintf(tmptext,"\\\\.\\%s",system_types[i]);
+        this->MILSysID = MsysAlloc(tmptext,this->MILSystemNumber,
+                                   M_DEFAULT,M_NULL);
+        // try MIL 5, MIL 6 which requires loading the appropriate DLL
+        if (this->MILSysID == 0)
           {
-          this->MILSysID = MsysAlloc(systemType,this->MILSystemNumber,
+          systemType = this->MILInterpreterForSystem(system_types[i]);
+          if (systemType)
+            {
+            this->MILSysID = MsysAlloc(systemType,this->MILSystemNumber,
                                      M_DEFAULT,M_NULL);
+            }
           }
         }
       if (system_types[i] == 0)
@@ -444,7 +474,7 @@ void vtkMILVideoSource::ReleaseSystemResources()
     {
     //  The MdigFree call never returns if it is called by atexit(),
     //  and it doesn't seem to hurt anything if it isn't called.
-    // MdigFree(this->MILDigID);
+    MdigFree(this->MILDigID);
     this->MILDigID = 0;
     }
   if (this->MILSysInternallyAllocated && this->MILSysID != 0)
@@ -517,7 +547,8 @@ void vtkMILVideoSource::InternalGrab()
 
   int index = this->FrameBufferIndex;
 
-  this->FrameBufferTimeStamps[index] = vtkTimerLog::GetCurrentTime();
+  this->FrameBufferTimeStamps[index] = 
+    this->CreateTimeStampForFrame(this->LastFrameCount + 1);
   if (this->FrameCount++ == 0)
     {
     this->StartTimeStamp = this->FrameBufferTimeStamps[index];
@@ -556,6 +587,54 @@ void vtkMILVideoSource::InternalGrab()
   this->FrameBufferMutex->Unlock();
 }
   
+//----------------------------------------------------------------------------
+// for accurate timing of the transformation: this solves a differential
+// equation that works to smooth out the jitter in the times that
+// are returned by vtkTimerLog::GetCurrentTime() i.e. the system clock.
+double vtkMILVideoSource::CreateTimeStampForFrame(unsigned long framecount)
+{
+  double timestamp = vtkTimerLog::GetCurrentTime();
+
+  double frameperiod = ((timestamp - this->LastTimeStamp)/
+                        (framecount - this->LastFrameCount));
+  double deltaperiod = (frameperiod - this->EstimatedFramePeriod)*0.01;
+  
+  this->EstimatedFramePeriod += deltaperiod;
+  this->LastTimeStamp += ((framecount - this->LastFrameCount)*
+                          this->NextFramePeriod);
+  this->LastFrameCount = framecount;
+
+  double diffperiod = (timestamp - this->LastTimeStamp);
+
+  if (diffperiod < -0.2 || diffperiod > 0.2)
+    { // time is off by more than 0.2 seconds: reset the clock
+    this->EstimatedFramePeriod -= deltaperiod;
+    this->NextFramePeriod = this->EstimatedFramePeriod;
+    this->LastTimeStamp = timestamp;
+    return timestamp;
+    }
+
+  diffperiod *= 0.1;
+  double maxdiff = 0.001;
+  if (diffperiod < -maxdiff)
+    {
+    diffperiod = -maxdiff;
+    }
+  else if (diffperiod > maxdiff)
+    {
+    diffperiod = maxdiff;
+    }
+ 
+  this->NextFramePeriod = this->EstimatedFramePeriod + diffperiod;
+
+  /*
+  fprintf(stderr, "V %4i %.4f %.4f %.3f %.3f %f %f\n",
+          framecount, this->EstimatedFramePeriod, this->NextFramePeriod,
+          this->LastTimeStamp, timestamp, deltaperiod, diffperiod);
+  */
+
+  return this->LastTimeStamp;
+}
 
 //----------------------------------------------------------------------------
 // Circulate the buffer and grab a frame.
@@ -620,6 +699,9 @@ void vtkMILVideoSource::Record()
                    (void *)this);
   this->FrameCounter = 0;
   this->ForceGrab = 0;
+
+  // for accurate timing
+  this->LastTimeStamp = vtkTimerLog::GetCurrentTime();
 
   // this will call the hook function on every frame
   MdigGrabContinuous(this->MILDigID,this->MILBufID);
