@@ -26,9 +26,22 @@ vtkMFCRenderView::vtkMFCRenderView()
 
 vtkMFCRenderView::~vtkMFCRenderView()
 {
-  if (this->Interactor) this->Interactor->Delete();
-  if (this->Renderer) this->Renderer->Delete();
-  if (this->RenderWindow) this->RenderWindow->Delete();
+  if (this->Interactor) 
+    {
+    this->Interactor->Delete();
+    }
+  if (this->Renderer) 
+    {
+    this->Renderer->SetRenderWindow(NULL);
+    }
+  if (this->RenderWindow) 
+    {
+    this->RenderWindow->Delete();
+    }
+  if (this->Renderer) 
+    {
+    this->Renderer->Delete();
+    }
 }
 
 
@@ -157,9 +170,18 @@ int vtkMFCRenderView::OnCreate(LPCREATESTRUCT lpCreateStruct)
   
   // TODO: Add your specialized creation code here
   this->RenderWindow->SetParentId(lpCreateStruct->hwndParent);
+
+  return 0;
+}
+
+void vtkMFCRenderView::OnInitialUpdate()
+{
+  vtkMFCView::OnInitialUpdate();
+
+  // TODO: Add your specialized creation code here
+  
   this->RenderWindow->SetWindowId(this->m_hWnd);
   this->RenderWindow->WindowInitialize();
-  return 0;
 }
 
 // Define our own event handler here

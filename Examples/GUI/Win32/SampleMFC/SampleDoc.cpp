@@ -45,6 +45,8 @@ CSampleDoc::CSampleDoc()
   txt->SetInput("Hello World");
   txt->SetFontSize(24);
   this->Props->AddItem(act);
+  txt->Delete();
+  act->Delete();
 }
 
 CSampleDoc::~CSampleDoc()
@@ -102,13 +104,15 @@ void CSampleDoc::Dump(CDumpContext& dc) const
 
 BOOL CSampleDoc::OnOpenDocument(LPCTSTR lpszPathName) 
 {
-	if (!vtkMFCDocument::OnOpenDocument(lpszPathName))
-		return FALSE;
-	
-	// TODO: Add your specialized creation code here
-  this->Reader->SetFileName(strdup(lpszPathName));
+  if (!vtkMFCDocument::OnOpenDocument(lpszPathName))
+    {
+    return FALSE;
+    }
+  
+  // TODO: Add your specialized creation code here
+  this->Reader->SetFileName(lpszPathName);
   this->Mapper->SetInput(this->Reader->GetOutput());
   this->Actor->VisibilityOn();
 	
-	return TRUE;
+  return TRUE;
 }
