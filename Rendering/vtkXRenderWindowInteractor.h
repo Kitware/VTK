@@ -37,8 +37,8 @@
 // now we define the C++ class
 
 #include "vtkRenderWindowInteractor.h"
-#include <X11/StringDefs.h>
-#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h> // Needed for X types in the public interface
+#include <X11/Intrinsic.h> // Needed for X types in the public interface
 
 class VTK_RENDERING_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {

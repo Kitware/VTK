@@ -47,9 +47,10 @@
 #define __vtkVolumeProperty_h
 
 #include "vtkObject.h"
-#include "vtkPiecewiseFunction.h"
-#include "vtkColorTransferFunction.h"
-#include "vtkTimeStamp.h"
+
+class vtkPiecewiseFunction;
+class vtkTimeStamp;
+class vtkColorTransferFunction;
 
 // Constants for InterpolationType
 #define VTK_NEAREST_INTERPOLATION       0

@@ -29,11 +29,11 @@
 
 #include "vtkTextMapper.h"
 
-#include        <X11/Xlib.h>
-#include        <X11/Xutil.h>
-#include        <X11/cursorfont.h>
-#include        <X11/X.h>
-#include        <X11/keysym.h>
+#include        <X11/Xlib.h> // Needed for Font
+#include        <X11/Xutil.h> // Needed for Font
+#include        <X11/cursorfont.h> // Needed for Font
+#include        <X11/X.h> // Needed for Font
+#include        <X11/keysym.h> // Needed for Font
 
 
 class VTK_RENDERING_EXPORT vtkXTextMapper : public vtkTextMapper

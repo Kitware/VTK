@@ -30,6 +30,7 @@
 #include "vtkVolumeRayCastMIPFunction.h"
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolumeTextureMapper2D.h"
+#include "vtkColorTransferFunction.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"

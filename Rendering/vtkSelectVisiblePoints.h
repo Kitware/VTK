@@ -46,7 +46,8 @@
 #define __vtkSelectVisiblePoints_h
 
 #include "vtkDataSetToPolyDataFilter.h"
-#include "vtkRenderer.h"
+
+class vtkRenderer;
 
 class VTK_RENDERING_EXPORT vtkSelectVisiblePoints : public vtkDataSetToPolyDataFilter
 {

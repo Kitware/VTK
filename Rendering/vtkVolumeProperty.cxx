@@ -16,9 +16,12 @@
 
 =========================================================================*/
 #include "vtkVolumeProperty.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.31");
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkColorTransferFunction.h"
+
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.32");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values

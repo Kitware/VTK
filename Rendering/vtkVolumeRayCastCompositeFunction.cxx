@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkVolumeRayCastCompositeFunction.h"
+
+#include "vtkObjectFactory.h"
+#include "vtkPiecewiseFunction.h"
+#include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
-#include "vtkVolume.h"
-#include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.34");
+vtkCxxRevisionMacro(vtkVolumeRayCastCompositeFunction, "1.35");
 vtkStandardNewMacro(vtkVolumeRayCastCompositeFunction);
 
 #define VTK_REMAINING_OPACITY           0.02

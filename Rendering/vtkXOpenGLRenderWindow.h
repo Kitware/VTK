@@ -26,8 +26,8 @@
 #define __vtkXOpenGLRenderWindow_h
 
 #include "vtkOpenGLRenderWindow.h"
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+#include <X11/Xlib.h> // Needed for X types in the public interface
+#include <X11/Xutil.h> // Needed for X types in the public interface
 
 class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;
