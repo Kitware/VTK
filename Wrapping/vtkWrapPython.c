@@ -1027,18 +1027,12 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     /* Block inclusion of full streams.  */
     fprintf(fp,"#define VTK_STREAMS_FWD_ONLY\n");
     }
-/* so far apple and AIX require the class include 
-   to be before the python includes.  Sun requires
-   the oposite */
-#if !defined(__APPLE__) && !defined(_AIX)
-  fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
-#endif
-  fprintf(fp,"#include \"vtkSystemIncludes.h\"\n");
+  fprintf(fp,"#include <Python.h>\n");
+  fprintf(fp,"#undef _XOPEN_SOURCE /* Conflicts with standards.h.  */\n");
+  fprintf(fp,"#undef _THREAD_SAFE /* Conflicts with pthread.h.  */\n");
+  fprintf(fp,"#include \"vtkPythonUtil.h\"\n");
   fprintf(fp,"#include \"%s.h\"\n",data->ClassName);
-#if defined(__APPLE__) || defined(_AIX)
-  fprintf(fp,"#include \"vtkPythonUtil.h\"\n\n");
-#endif
-  
+
   fprintf(fp,"#if defined(WIN32)\n");
   fprintf(fp,"extern \"C\" { __declspec( dllexport ) PyObject *PyVTKClass_%sNew(char *); }\n",
           data->ClassName);
