@@ -24,7 +24,7 @@ OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
 OPTION (VTK_USE_HYBRID "Build the hybrid directory classes")
 OPTION (VTK_USE_PATENTED "Build the patented directory classes, these classes are patented and may require a license to use")
 IF (APPLE)
-  OPTION (VTK_USE_QUARTZ "Build classes for the Quartz window manager" OFF)
+  OPTION (VTK_USE_QUARTZ "Build classes for the Quartz window manager" ON)
 ENDIF(APPLE)
 
 IF (CMAKE_HAS_X)
