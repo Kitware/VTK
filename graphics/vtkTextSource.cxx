@@ -386,9 +386,7 @@ void vtkTextSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Text: " << (this->Text ? this->Text : "(none)") << "\n";
   os << indent << "ForegroundColor: (" << this->ForegroundColor[0] << ", " 
-     << this->ForegroundColor[1] << ", " << this->ForegroundColor[2] << ","
-     << this->ForegroundColor[3] << ")\n";
+     << this->ForegroundColor[1] << ", " << this->ForegroundColor[2]  << ")\n";
   os << indent << "BackgroundColor: (" << this->BackgroundColor[0] << ", " 
-     << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ","
-     << this->BackgroundColor[3] << ")\n";
+     << this->BackgroundColor[1] << ", " << this->BackgroundColor[2] << ")\n";
 }

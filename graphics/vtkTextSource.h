@@ -81,14 +81,14 @@ public:
   vtkBooleanMacro(Backing,int);
 
   // Description:
-  // Set/Get the foreground color. Default is white (1,1,1,1).
-  vtkSetVector4Macro(ForegroundColor,float);
-  vtkGetVectorMacro(ForegroundColor,float,4);
+  // Set/Get the foreground color. Default is white (1,1,1). ALpha is always 1.
+  vtkSetVector3Macro(ForegroundColor,float);
+  vtkGetVectorMacro(ForegroundColor,float,3);
 
   // Description:
-  // Set/Get the background color. Default is black (0,0,0,1).
-  vtkSetVector4Macro(BackgroundColor,float);
-  vtkGetVectorMacro(BackgroundColor,float,4);
+  // Set/Get the background color. Default is black (0,0,0). Alpha is always 1.
+  vtkSetVector3Macro(BackgroundColor,float);
+  vtkGetVectorMacro(BackgroundColor,float,3);
 
 protected:
   void Execute();
