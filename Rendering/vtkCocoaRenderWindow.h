@@ -228,6 +228,7 @@ protected:
   ~vtkCocoaRenderWindow();
 
   int       ApplicationInitialized; //NSApplication called?
+  void     *AutoreleasePool;
   void     *ContextId;
   void     *DeviceContext;
   void     *WindowId;
