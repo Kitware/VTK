@@ -44,6 +44,7 @@ IF (VTK_USE_RENDERING)
         TestEuclideanDistance
         TestEuclideanDistanceCached
         TestEuclideanToPolar
+        TestFFTCorrelation
         TestGradientMagnitude
         TestGradientMagnitude2
         TestHSVToRGB
