@@ -32,7 +32,7 @@
 #include <time.h>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.4");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.5");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #undef FREE
@@ -4110,78 +4110,136 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
 
 void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int i;
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Title: " <<  \
-                   this->Title  << endl;
-  os << indent << "NumberOfQARecords: " <<  \
+  os << indent << "Title: " << (this->Title?this->Title:"(none)") << endl;
+  os << indent << "NumberOfQARecords: " <<
                    this->NumberOfQARecords << endl;
-  os << indent << "NumberOfInformationLines: " <<  \
+  os << indent << "NumberOfInformationLines: " <<
                    this->NumberOfInformationLines << endl;
-  os << indent << "Dimension: " <<  \
+  os << indent << "Dimension: " <<
                    this->Dimension << endl;
-  os << indent << "CoordinateNames: " <<  \
-                   this->CoordinateNames << endl;
-  os << indent << "NumberOfBlocks: " <<  \
+  os << indent << "CoordinateNames: " << endl;
+  for(i=0;i<this->Dimension;i++)
+    {
+    os << indent << "-" << (this->CoordinateNames[i]?this->CoordinateNames[i]:"(none)") << endl;
+    }
+  os << indent << "NumberOfBlocks: " <<
                    this->NumberOfBlocks << endl;
-  os << indent << "NumberOfNodeSets: " <<  \
+  os << indent << "NumberOfNodeSets: " <<
                    this->NumberOfNodeSets << endl;
-  os << indent << "NodeSetIds: " <<  \
-                   this->NodeSetIds << endl;
-  os << indent << "NodeSetSize: " <<  \
-                   this->NodeSetSize << endl;
-  os << indent << "NodeSetNodeIdList: " <<  \
-                   this->NodeSetNodeIdList << endl;
-  os << indent << "NodeSetNumberOfDistributionFactors: " <<  \
-                   this->NodeSetNumberOfDistributionFactors << endl;
-  os << indent << "NodeSetDistributionFactors: " <<  \
-                   this->NodeSetDistributionFactors << endl;
-  os << indent << "NumberOfSideSets: " <<  \
+  os << indent << "NodeSetIds: ";
+  for(i=0;i<this->NumberOfNodeSets;i++)
+    {
+    os << this->NodeSetIds[i] << " ";
+    }
+  os << endl;
+  os << indent << "NodeSetSize: ";
+  for(i=0;i<this->NumberOfNodeSets;i++)
+    {
+    os << this->NodeSetSize[i] << " ";
+    }
+  os << endl;
+  os << indent << "NodeSetNodeIdList: ";
+  for(i=0;i<this->SumNodesPerNodeSet;i++)
+    {
+    os << this->NodeSetNodeIdList[i] << " ";
+    }
+  os << endl;
+//  os << indent << "NodeSetNumberOfDistributionFactors: " <<
+//                   (this->NodeSetNumberOfDistributionFactors?this->NodeSetNumberOfDistributionFactors:"(none)") << endl;
+  os << indent << "NodeSetDistributionFactors: ";
+  for(i=0;i<this->SumDistFactPerNodeSet;i++)
+    {
+    os << this->NodeSetDistributionFactors[i] << " ";
+    }
+  os << endl;
+  os << indent << "NumberOfSideSets: " <<
                    this->NumberOfSideSets << endl;
-  os << indent << "SideSetIds: " <<  \
-                   this->SideSetIds << endl;
-  os << indent << "SideSetSize: " <<  \
-                   this->SideSetSize << endl;
-  os << indent << "SideSetNumberOfDistributionFactors: " <<  \
-                   this->SideSetNumberOfDistributionFactors << endl;
-  os << indent << "SideSetElementList: " <<  \
-                   this->SideSetElementList << endl;
-  os << indent << "SideSetSideList: " <<  \
-                   this->SideSetSideList << endl;
-  os << indent << "SideSetNumDFPerSide: " <<  \
-                   this->SideSetNumDFPerSide << endl;
-  os << indent << "SideSetDistributionFactors: " <<  \
-                   this->SideSetDistributionFactors << endl;
-  os << indent << "NumberOfBlockProperties: " <<  \
+  os << indent << "SideSetIds: ";
+  for(i=0;i<this->NumberOfSideSets;i++)
+    {
+    os << this->SideSetIds[i] << " ";
+    }
+  os << endl;
+  os << indent << "SideSetSize: ";
+  for(i=0;i<this->NumberOfSideSets;i++)
+    {
+    os << this->SideSetSize[i] << " ";
+    }
+  os << endl;
+//  os << indent << "SideSetNumberOfDistributionFactors: " <<
+//                  (this->SideSetNumberOfDistributionFactors?this->SideSetNumberOfDistributionFactors:"(none)" << endl;
+  os << indent << "SideSetElementList: ";
+  for(i=0;i<this->SumSidesPerSideSet;i++)
+    {
+    os << this->SideSetElementList[i] << " ";
+    }
+  os << endl;
+  os << indent << "SideSetSideList: ";
+  for(i=0;i<this->SumSidesPerSideSet;i++)
+    {
+    os << this->SideSetSideList[i] << " ";
+    }
+  os << endl;
+  os << indent << "SideSetNumDFPerSide: ";
+  for(i=0;i<this->SumSidesPerSideSet;i++)
+    {
+    os << this->SideSetNumDFPerSide[i] << " ";
+    }
+  os << endl;
+  os << indent << "SideSetDistributionFactors: ";
+  for(i=0;i<this->SumDistFactPerSideSet;i++)
+    {
+    os << this->SideSetDistributionFactors[i] << " ";
+    }
+  os << endl;
+  os << indent << "NumberOfBlockProperties: " <<
                    this->NumberOfBlockProperties << endl;
-  os << indent << "BlockPropertyNames: " <<  \
-                   this->BlockPropertyNames << endl;
-  os << indent << "BlockPropertyValue: " <<  \
-                   this->BlockPropertyValue << endl;
-  os << indent << "NumberOfNodeSetProperties: " <<  \
+  os << indent << "BlockPropertyNames: ";
+  for(i=0;i<this->NumberOfBlockProperties;i++)
+    {
+    os << indent << "-" << (this->BlockPropertyNames[i]?this->BlockPropertyNames[i]:"(none)") << endl;
+    }
+//  os << indent << "BlockPropertyValue: " <<
+//                   (this->BlockPropertyValue?this->BlockPropertyValue:"(none)") << endl;
+  os << indent << "NumberOfNodeSetProperties: " <<
                    this->NumberOfNodeSetProperties << endl;
-  os << indent << "NodeSetPropertyNames: " <<  \
-                   this->NodeSetPropertyNames << endl;
-  os << indent << "NodeSetPropertyValue: " <<  \
-                   this->NodeSetPropertyValue << endl;
-  os << indent << "NumberOfSideSetProperties: " <<  \
+  os << indent << "NodeSetPropertyNames: ";
+  for(i=0;i<this->NumberOfNodeSetProperties;i++)
+    {
+    os << indent << "-" << (this->NodeSetPropertyNames[i]?this->NodeSetPropertyNames[i]:"(none)") << endl;
+    }
+//  os << indent << "NodeSetPropertyValue: " <<
+//                  (this->NodeSetPropertyValue?this->NodeSetPropertyValue:"(none)") << endl;
+  os << indent << "NumberOfSideSetProperties: " <<
                    this->NumberOfSideSetProperties << endl;
-  os << indent << "SideSetPropertyNames: " <<  \
-                   this->SideSetPropertyNames << endl;
-  os << indent << "SideSetPropertyValue: " <<  \
-                   this->SideSetPropertyValue << endl;
-  os << indent << "NumberOfElementVariables: " <<  \
+  os << indent << "SideSetPropertyNames: ";
+  for(i=0;i<this->NumberOfSideSetProperties;i++)
+    {
+    os << indent << "-" << (this->SideSetPropertyNames[i]?this->SideSetPropertyNames[i]:"(none)") << endl;
+    }
+//  os << indent << "SideSetPropertyValue: " <<
+//                  (this->SideSetPropertyValue?this->SideSetPropertyValue:"(none)") << endl;
+  os << indent << "NumberOfElementVariables: " <<
                    this->NumberOfElementVariables << endl;
-  os << indent << "ElementVariableNames: " <<  \
-                   this->ElementVariableNames << endl;
-  os << indent << "NumberOfNodeVariables: " <<  \
+  os << indent << "ElementVariableNames: ";
+  for(i=0;i<this->MaxNumberOfElementVariables;i++)
+    {
+    os << indent << "-" << (this->ElementVariableNames[i]?this->ElementVariableNames[i]:"(none)") << endl;
+    }
+  os << indent << "NumberOfNodeVariables: " <<
                    this->NumberOfNodeVariables << endl;
-  os << indent << "NodeVariableNames: " <<  \
-                   this->NodeVariableNames << endl;
-  os << indent << "ElementVariableTruthTable: " <<  \
-                   this->ElementVariableTruthTable << endl;
-  os << indent << "TimeStepIndex: " <<  \
+  os << indent << "NodeVariableNames: ";
+  for(i=0;i<this->NumberOfNodeVariables;i++)
+    {
+    os << indent << "-" << (this->NodeVariableNames[i]?this->NodeVariableNames[i]:"(none)") << endl;
+    }
+//  os << indent << "ElementVariableTruthTable: " <<
+//                  (this->ElementVariableTruthTable?this->ElementVariableTruthTable:"(none)") << endl;
+  os << indent << "TimeStepIndex: " <<
                    this->TimeStepIndex << endl;
-  os << indent << "AllVariablesDefinedInAllBlocks: " <<  \
+  os << indent << "AllVariablesDefinedInAllBlocks: " <<
                    this->AllVariablesDefinedInAllBlocks << endl;
 }
