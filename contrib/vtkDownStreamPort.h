@@ -106,6 +106,7 @@ protected:
   int Tag;
 
   unsigned long DataTime;
+  unsigned long UpStreamMTime;
   int TransferNeeded;
 };
 

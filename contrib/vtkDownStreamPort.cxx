@@ -115,8 +115,7 @@ vtkPolyData *vtkDownStreamPort::GetPolyDataOutput()
 
 //----------------------------------------------------------------------------
 // The only tricky thing here is the translation of the PipelineMTime
-// into a value meaningful to this process, and the Update occuring in
-// the UpdateInformation call.
+// into a value meaningful to this process.
 void vtkDownStreamPort::UpdateInformation()
 {
   vtkDataObject *output;
@@ -130,14 +129,6 @@ void vtkDownStreamPort::UpdateInformation()
 
   output = this->Outputs[0];
   
-  // This should be cleared by this point.
-  // UpdateInformation and Update calls need to be made in pairs.
-  if (this->TransferNeeded)
-    {
-    vtkWarningMacro("Transfer should have been received.");
-    return;
-    }
-  
   // Trigger UpdateInformation in UpStreamPort.
   // Up-stream port should have the same tag.
   this->Controller->TriggerRMI(this->UpStreamProcessId, this->Tag);
@@ -149,6 +140,9 @@ void vtkDownStreamPort::UpdateInformation()
 
   // Convert Pipeline MTime into a value meaningful in this process.
   pmt = output->GetDataInformation()->GetPipelineMTime();
+
+  // Save the upstream PMT for execute check (this may not be necessary)
+  this->UpStreamMTime = pmt;
   
   // !!! Make sure that Update is called if data is released. !!!
   if (pmt > this->DataTime || output->GetDataReleased())
@@ -160,7 +154,22 @@ void vtkDownStreamPort::UpdateInformation()
   output->SetPipelineMTime(this->GetMTime());
   // Locality has to be changed too.
   output->GetDataInformation()->SetLocality(1.0);
+}
 
+
+//----------------------------------------------------------------------------
+// The only tricky thing here is the translation of the PipelineMTime
+// into a value meaningful to this process.
+void vtkDownStreamPort::PreUpdate(vtkDataObject *output)
+{
+  // This should be cleared by this point.
+  // UpdateInformation and Update calls need to be made in pairs.
+  if (this->TransferNeeded)
+    {
+    vtkWarningMacro("Transfer should have been received.");
+    return;
+    }
+  
   // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // This would normally be done in the Update method, but since
   // we want task parallelism whith multiple input filters, 
@@ -170,7 +179,7 @@ void vtkDownStreamPort::UpdateInformation()
   // !!! I am uneasy about the Released check.  Although a new update extent
   // will cause the data to be released,  released data does not imply 
   // Update will be called !!!!
-  if (pmt <= this->DataTime && ! output->GetDataReleased())
+  if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased())
     { 
     // No, we do not need to update.
     return;
