@@ -23,7 +23,7 @@ vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor 0.7 0.3 0.3
 
-vtkOutlineFilter outline
+vtkOutlineCornerFilter outline
     outline SetInput [reader GetOutput]
 vtkPolyDataMapper outlineMapper
     outlineMapper SetInput [outline GetOutput]
