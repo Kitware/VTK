@@ -26,7 +26,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticWedge, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticWedge, "1.6");
 vtkStandardNewMacro(vtkQuadraticWedge);
 
 // Construct the wedge with 15 points + 3 extra points for internal
@@ -354,7 +354,7 @@ void vtkQuadraticWedge::Contour(double value,
     for (int j=0; j<6; j++) //for each point of wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
-      this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
+      this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearWedges[i][j]));
       }
     this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys,
@@ -544,7 +544,7 @@ void vtkQuadraticWedge::Clip(double value, vtkDataArray* vtkNotUsed(cellScalars)
     for (int j=0; j<6; j++) //for each of the six vertices of the wedge
       {
       this->Wedge->Points->SetPoint(j,this->Points->GetPoint(LinearWedges[i][j]));
-      this->Wedge->PointIds->SetId(j,this->PointIds->GetId(LinearWedges[i][j]));
+      this->Wedge->PointIds->SetId(j,LinearWedges[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearWedges[i][j]));
       }
     this->Wedge->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,

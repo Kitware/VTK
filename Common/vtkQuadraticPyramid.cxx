@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.6");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.7");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 // Construct the wedge with 13 points + 1 extra point for internal
@@ -359,7 +359,7 @@ void vtkQuadraticPyramid::Contour(double value,
     for (int j=0; j<5; j++) //for each point of pyramid
       {
       this->Pyramid->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Pyramid->PointIds->SetId(j,this->PointIds->GetId(LinearPyramids[i][j]));
+      this->Pyramid->PointIds->SetId(j,LinearPyramids[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
       }
     this->Pyramid->Contour(value,this->Scalars,locator,verts,lines,polys,
@@ -373,7 +373,7 @@ void vtkQuadraticPyramid::Contour(double value,
     for (int j=0; j<4; j++) //for each point of tetra
       {
       this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearPyramids[i][j]));
+      this->Tetra->PointIds->SetId(j,LinearPyramids[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
       }
     this->Tetra->Contour(value,this->Scalars,locator,verts,lines,polys,
@@ -575,7 +575,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalar
     for (int j=0; j<5; j++) //for each of the five vertices of the pyramid
       {
       this->Pyramid->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Pyramid->PointIds->SetId(j,this->PointIds->GetId(LinearPyramids[i][j]));
+      this->Pyramid->PointIds->SetId(j,LinearPyramids[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
       }
     this->Pyramid->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
@@ -588,7 +588,7 @@ void vtkQuadraticPyramid::Clip(double value, vtkDataArray* vtkNotUsed(cellScalar
     for (int j=0; j<4; j++) //for each of the four vertices of the tetra
       {
       this->Tetra->Points->SetPoint(j,this->Points->GetPoint(LinearPyramids[i][j]));
-      this->Tetra->PointIds->SetId(j,this->PointIds->GetId(LinearPyramids[i][j]));
+      this->Tetra->PointIds->SetId(j,LinearPyramids[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
       }
     this->Tetra->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,

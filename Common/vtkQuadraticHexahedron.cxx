@@ -25,7 +25,7 @@
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
 
-vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.21");
+vtkCxxRevisionMacro(vtkQuadraticHexahedron, "1.22");
 vtkStandardNewMacro(vtkQuadraticHexahedron);
 
 // Construct the hex with 20 points + 7 extra points for internal
@@ -342,7 +342,7 @@ void vtkQuadraticHexahedron::Contour(double value,
     for (int j=0; j<8; j++)
       {
       this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
-      this->Hex->PointIds->SetId(j,this->PointIds->GetId(LinearHexs[i][j]));
+      this->Hex->PointIds->SetId(j,LinearHexs[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
       }
     this->Hex->Contour(value,this->Scalars,locator,verts,lines,polys,
@@ -515,7 +515,7 @@ void vtkQuadraticHexahedron::Clip(double value,
     for (int j=0; j<8; j++)
       {
       this->Hex->Points->SetPoint(j,this->Points->GetPoint(LinearHexs[i][j]));
-      this->Hex->PointIds->SetId(j,this->PointIds->GetId(LinearHexs[i][j]));
+      this->Hex->PointIds->SetId(j,LinearHexs[i][j]);
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearHexs[i][j]));
       }
     this->Hex->Clip(value,this->Scalars,locator,tets,this->PointData,outPd,
