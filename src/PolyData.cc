@@ -240,7 +240,7 @@ void vlPolyData::PrintSelf(ostream& os, vlIndent indent)
     vlDataSet::PrintSelf(os,indent);
     
     os << indent << "Number Of Points: " << this->NumberOfPoints() << "\n";
-    os << indent << "Number Of Verticess: " << this->NumberOfVerts() << "\n";
+    os << indent << "Number Of Vertices: " << this->NumberOfVerts() << "\n";
     os << indent << "Number Of Lines: " << this->NumberOfLines() << "\n";
     os << indent << "Number Of Polygons: " << this->NumberOfPolys() << "\n";
     os << indent << "Number Of Triangle Strips: " << this->NumberOfStrips() << "\n";
