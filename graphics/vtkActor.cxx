@@ -353,7 +353,7 @@ float *vtkActor::GetBounds()
   
     // save the old transform
     this->Transform->Push(); 
-    this->Transform->SetMatrix(this->GetMatrixPointer());
+    this->Transform->SetMatrix(this->GetMatrix());
 
     // and transform into actors coordinates
     fptr = bbox;

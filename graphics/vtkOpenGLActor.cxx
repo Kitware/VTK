@@ -81,7 +81,7 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     }
 
   // build transformation 
-  double *mat = this->GetMatrixPointer()->Element[0];
+  double *mat = this->GetMatrix()->Element[0];
   double mat2[16];
   mat2[0] = mat[0];
   mat2[1] = mat[4];
