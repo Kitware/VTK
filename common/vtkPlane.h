@@ -87,6 +87,8 @@ public:
   // have magnitude 1.
   static void ProjectPoint(float x[3], float origin[3], float normal[3], 
                            float xproj[3]);
+  static void ProjectPoint(double x[3], double origin[3], double normal[3], 
+                           double xproj[3]);
 
   // Description
   // Project a point x onto plane defined by origin and normal. The 

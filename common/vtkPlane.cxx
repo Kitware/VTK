@@ -72,6 +72,21 @@ void vtkPlane::ProjectPoint(float x[3], float origin[3], float normal[3], float 
   xproj[2] = x[2] - t * normal[2];
 }
 
+void vtkPlane::ProjectPoint(double x[3], double origin[3], double normal[3], double xproj[3])
+{
+  double t, xo[3];
+
+  xo[0] = x[0] - origin[0];
+  xo[1] = x[1] - origin[1];
+  xo[2] = x[2] - origin[2];
+
+  t = vtkMath::Dot(normal,xo);
+
+  xproj[0] = x[0] - t * normal[0];
+  xproj[1] = x[1] - t * normal[1];
+  xproj[2] = x[2] - t * normal[2];
+}
+
 // Project a point x onto plane defined by origin and normal. The 
 // projected point is returned in xproj. NOTE : normal NOT required to
 // have magnitude 1.
