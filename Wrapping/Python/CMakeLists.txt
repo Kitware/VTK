@@ -61,9 +61,9 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
         NAMES util
         PATHS /usr/lib
       )
-      IF (VTK_USE_PARALLEL)
+      IF (UTIL_LIBRARY)
         TARGET_LINK_LIBRARIES(vtkpython ${UTIL_LIBRARY})
-      ENDIF (VTK_USE_PARALLEL) 
+      ENDIF (UTIL_LIBRARY) 
       INSTALL_TARGETS(/bin vtkpython)
     
     ENDIF (VTK_BUILD_PYTHON_EXECUTABLE)
