@@ -22,7 +22,7 @@
 #include "vtkProcessObject.h"
 #endif
 
-template <typename DType>
+template <class DType>
 vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd, 
                                                        int *ext, 
                                                        vtkProcessObject *po, 
@@ -38,7 +38,7 @@ vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd,
   this->ID = id;
 }
 
-template <typename DType>
+template <class DType>
 void vtkImageProgressIterator<DType>::NextSpan()
 {
   this->Pointer = this->Pointer + this->Increments[1];

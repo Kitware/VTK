@@ -29,7 +29,7 @@
 #include "vtkImageIterator.h"
 class vtkProcessObject;
 
-template<typename DType> class VTK_COMMON_EXPORT vtkImageProgressIterator : 
+template<class DType> class VTK_COMMON_EXPORT vtkImageProgressIterator : 
   public vtkImageIterator<DType> 
 {
 public:        

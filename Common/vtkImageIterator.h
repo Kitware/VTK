@@ -29,7 +29,7 @@
 #include "vtkWin32Header.h"
 class vtkImageData;
 
-template<typename DType> class VTK_COMMON_EXPORT vtkImageIterator 
+template<class DType> class VTK_COMMON_EXPORT vtkImageIterator 
 {
 public:        
   typedef DType *SpanIterator;

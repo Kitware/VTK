@@ -22,7 +22,7 @@
 
 #include "vtkImageData.h"
 
-template <typename DType>
+template <class DType>
 vtkImageIterator<DType>::vtkImageIterator(vtkImageData *id, int *ext)
 {
   this->Pointer = (DType *)id->GetScalarPointerForExtent(ext);
@@ -41,7 +41,7 @@ vtkImageIterator<DType>::vtkImageIterator(vtkImageData *id, int *ext)
 }
   
   
-template <typename DType>
+template <class DType>
 void vtkImageIterator<DType>::NextSpan()
 {
   this->Pointer = this->Pointer + this->Increments[1];
