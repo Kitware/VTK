@@ -670,11 +670,12 @@ void vtkCellLocator::FindClosestPoint(float x[3], float closestPoint[3],
 int
 vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
                                              float closestPoint[3],
-					     vtkGenericCell *cell,
-                                             int &cellId,
-                                             int &subId, float& dist2)
+					                                   vtkGenericCell *cell, int &cellId,
+                                             int &subId, float& dist2,
+                                             int &inside)
   {
   int i, j;
+  int tmpInside;
   int *nei;
   int closestCell = -1;
   int closestSubCell = -1;
@@ -778,10 +779,11 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
             }
           
           // evaluate the position to find the closest point
-          cell->EvaluatePosition(x, point, subId, pcoords,
+          tmpInside = cell->EvaluatePosition(x, point, subId, pcoords,
             dist2, weights);
           if ( dist2 < minDist2 ) 
             {
+            inside = tmpInside;
             closestCell = cellId;
             closestSubCell = subId;
             minDist2 = dist2;
@@ -911,11 +913,12 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
                   }
                 
                 // evaluate the position to find the closest point
-                cell->EvaluatePosition(x, point, subId, pcoords,
+                tmpInside = cell->EvaluatePosition(x, point, subId, pcoords,
                   dist2, weights);
                 
                 if ( dist2 < minDist2 ) 
                   {
+                  inside = tmpInside;
                   closestCell = cellId;
                   closestSubCell = subId;
                   minDist2 = dist2;
@@ -966,14 +969,26 @@ vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
 
 int
 vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
+                                             float closestPoint[3],
+					                                   vtkGenericCell *cell, int &cellId,
+                                             int &subId, float& dist2)
+  {
+  int inside;
+
+  return this->FindClosestPointWithinRadius(x, radius, closestPoint,
+					     cell, cellId, subId, dist2, inside);
+  }
+
+int
+vtkCellLocator::FindClosestPointWithinRadius(float x[3], float radius,
                                              float closestPoint[3],int &cellId,
                                              int &subId, float& dist2)
   {
   vtkGenericCell *cell = vtkGenericCell::New();
-  int found;
+  int found, inside;
   
   found = this->FindClosestPointWithinRadius(x, radius, closestPoint,
-					     cell, cellId, subId, dist2);
+					     cell, cellId, subId, dist2, inside);
   cell->Delete();
   return found;
   }
