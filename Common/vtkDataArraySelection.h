@@ -28,10 +28,6 @@
 
 #include "vtkObject.h"
 
-//BTX
-template <class DType> class vtkVector;
-//ETX
-
 class VTK_COMMON_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
@@ -108,8 +104,8 @@ protected:
   ~vtkDataArraySelection();
   
   //BTX
-  typedef vtkVector<const char*> ArrayNamesType;
-  typedef vtkVector<int> ArraySettingsType;
+  class ArrayNamesType;
+  class ArraySettingsType;
   //ETX
   
   // The list of array names.

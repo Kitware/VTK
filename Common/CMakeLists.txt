@@ -20,7 +20,6 @@ vtkCharArray.cxx
 vtkCollection.cxx
 vtkCollectionIterator.cxx
 vtkCommand.cxx
-vtkContainer.cxx
 vtkContourValues.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
@@ -131,6 +130,7 @@ vtkRungeKutta4.cxx
 vtkRungeKutta45.cxx
 vtkScalarsToColors.cxx
 vtkShortArray.cxx
+vtkSmartPointerBase.cxx
 vtkSource.cxx
 vtkSphericalTransform.cxx
 vtkStructuredData.cxx
@@ -171,7 +171,6 @@ vtkCallbackCommand
 vtkCell
 vtkCell3D
 vtkCommand
-vtkContainer
 vtkDataArray
 vtkDataSet
 vtkExplicitCell
@@ -207,7 +206,6 @@ ENDIF (WIN32)
 SET_SOURCE_FILES_PROPERTIES(
   vtkCallbackCommand
   vtkCommand
-  vtkContainer
   vtkDebugLeaksManager
   vtkErrorCode
   vtkIdType.cxx
@@ -217,6 +215,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand
+  vtkSmartPointerBase.cxx
   WRAP_EXCLUDE
 )
 
@@ -316,35 +315,14 @@ INSTALL_FILES(/include/vtk .h ${Common_SRCS}
   vtkSetGet
   vtkSystemIncludes
   vtkWin32Header
-  vtkAbstractIterator
-  vtkAbstractList
-  vtkAbstractMap
-  vtkArrayMap
-  vtkArrayMapIterator
-  vtkHashMap
-  vtkHashMapIterator
+  vtkSmartPointer
   vtkIOStream
   vtkIOStreamFwd
-  vtkLinkedList
-  vtkLinkedListIterator
-  vtkVector
-  vtkVectorIterator
   )
 
 INSTALL_FILES(/include/vtk .txx
-  vtkAbstractIterator
-  vtkAbstractList
-  vtkAbstractMap
-  vtkArrayMap
-  vtkArrayMapIterator
-  vtkHashMap
-  vtkHashMapIterator
   vtkImageIterator
   vtkImageProgressIterator
-  vtkLinkedList
-  vtkLinkedListIterator
-  vtkVector
-  vtkVectorIterator
 )
 
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)

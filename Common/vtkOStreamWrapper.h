@@ -34,6 +34,7 @@ Do_not_include_vtkOStreamWrapper_directly__vtkSystemIncludes_includes_it;
 class vtkIndent;
 class vtkObjectBase;
 class vtkLargeInteger;
+class vtkSmartPointerBase;
 
 class VTK_COMMON_EXPORT vtkOStreamWrapper
 {
@@ -54,6 +55,7 @@ public:
   vtkOStreamWrapper& operator << (const vtkIndent&);
   vtkOStreamWrapper& operator << (vtkObjectBase&);
   vtkOStreamWrapper& operator << (const vtkLargeInteger&);
+  vtkOStreamWrapper& operator << (const vtkSmartPointerBase&);
   vtkOStreamWrapper& operator << (ostream&);
   vtkOStreamWrapper& operator << (const char*);
   vtkOStreamWrapper& operator << (void*);

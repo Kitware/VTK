@@ -33,6 +33,12 @@
 #include "vtkWin32Header.h"
 #undef __VTK_SYSTEM_INCLUDES__INSIDE
 
+#ifndef VTK_NO_STD_NAMESPACE
+# define vtkstd std
+#else
+# define vtkstd
+#endif
+
 // The language wrapper files do not need the real streams.  They
 // define VTK_STREAMS_FWD_ONLY so that the streams are only
 // forward-declared.  This significantly improves compile time on some

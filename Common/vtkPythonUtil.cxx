@@ -21,10 +21,12 @@
 #include "vtkPythonUtil.h"
 
 #include "vtkObject.h"
-#include "vtkTimeStamp.h"
 #include "vtkObjectFactory.h"
-#include "vtkHashMap.txx"
-#include "vtkHashMapIterator.txx"
+#include "vtkSmartPointerBase.h"
+#include "vtkTimeStamp.h"
+
+#include <map>
+#include <string>
 
 #if defined ( _MSC_VER )
 #  define vtkConvertPtrToLong(x) ((long)(PtrToUlong(x)))
@@ -43,8 +45,8 @@ public:
   vtkPythonUtil();
   ~vtkPythonUtil();
 
-  vtkHashMap<vtkObjectBase *, PyObject *> *ObjectHash;
-  vtkHashMap<const char *, PyObject *> *ClassHash;
+  vtkstd::map<vtkSmartPointerBase, PyObject*> *ObjectHash;
+  vtkstd::map<vtkstd::string, PyObject*> *ClassHash;
 };
 
 //--------------------------------------------------------------------
@@ -53,15 +55,15 @@ vtkPythonUtil *vtkPythonHash = NULL;
 //--------------------------------------------------------------------
 vtkPythonUtil::vtkPythonUtil()
 {
-  this->ObjectHash = vtkHashMap<vtkObjectBase *, PyObject *>::New();
-  this->ClassHash = vtkHashMap<const char *, PyObject *>::New();
+  this->ObjectHash = new vtkstd::map<vtkSmartPointerBase, PyObject*>;
+  this->ClassHash = new vtkstd::map<vtkstd::string, PyObject*>;;
 }
 
 //--------------------------------------------------------------------
 vtkPythonUtil::~vtkPythonUtil()
 {
-  this->ObjectHash->Delete();
-  this->ClassHash->Delete();
+  delete this->ObjectHash;
+  delete this->ClassHash;
 }
 
 //--------------------------------------------------------------------
@@ -427,7 +429,12 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
   PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
   self->vtk_ptr = ptr;
   PyObject *cls = NULL;
-  vtkPythonHash->ClassHash->GetItem(ptr->GetClassName(), cls);
+  vtkstd::map<vtkstd::string, PyObject*>::iterator i =
+    vtkPythonHash->ClassHash->find(ptr->GetClassName());
+  if(i != vtkPythonHash->ClassHash->end())
+    {
+    cls = i->second;
+    }
   self->vtk_class = (PyVTKClass *)cls;
   
   // If the class was not in the dictionary (i.e. if there is no 'python'
@@ -829,7 +836,12 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
 
   if (vtkPythonHash)
     {
-    vtkPythonHash->ClassHash->GetItem(classname, self);
+    vtkstd::map<vtkstd::string, PyObject*>::iterator i =
+      vtkPythonHash->ClassHash->find(classname);
+    if(i != vtkPythonHash->ClassHash->end())
+      {
+      self = i->second;
+      }
     }
   if (self)
     {
@@ -1194,8 +1206,9 @@ void vtkPythonAddClassToHash(PyObject *vtkclass, const char *classname)
 #endif  
 
   // lets make sure it isn't already there
-  PyObject *tmp = NULL;
-  if (vtkPythonHash->ClassHash->GetItem(classname, tmp) == VTK_OK)
+  vtkstd::map<vtkstd::string, PyObject*>::iterator i =
+    vtkPythonHash->ClassHash->find(classname);
+  if(i != vtkPythonHash->ClassHash->end())
     {
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("Attempt to add type to the hash when already there!!!");
@@ -1203,7 +1216,7 @@ void vtkPythonAddClassToHash(PyObject *vtkclass, const char *classname)
     return;
     }
 
-  vtkPythonHash->ClassHash->SetItem(classname, vtkclass);
+  (*vtkPythonHash->ClassHash)[classname] = vtkclass;
 
 #ifdef VTKPYTHONDEBUG
   //  vtkGenericWarningMacro("Added type to hash type = " << typeObject);
@@ -1224,7 +1237,7 @@ void vtkPythonAddObjectToHash(PyObject *obj, vtkObjectBase *ptr)
 #endif  
 
   ((PyVTKObject *)obj)->vtk_ptr = ptr;
-  vtkPythonHash->ObjectHash->SetItem(ptr, obj);
+  (*vtkPythonHash->ObjectHash)[ptr] = obj;
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to hash obj= " << obj << " " 
@@ -1242,7 +1255,7 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
                          << obj->vtk_ptr);
 #endif  
 
-  vtkPythonHash->ObjectHash->RemoveItem(ptr);
+  vtkPythonHash->ObjectHash->erase(ptr);
 }
 
 //--------------------------------------------------------------------
@@ -1258,8 +1271,12 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr)
   
   if (ptr)
     {
-    vtkPythonHash->ObjectHash->GetItem(ptr, obj);
-
+    vtkstd::map<vtkSmartPointerBase, PyObject*>::iterator i =
+      vtkPythonHash->ObjectHash->find(ptr);
+    if(i != vtkPythonHash->ObjectHash->end())
+      {
+      obj = i->second;
+      }
     if (obj)
       {
       Py_INCREF(obj);
@@ -1277,7 +1294,12 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr)
   if (obj == NULL)
     {
     PyObject *vtkclass = NULL;
-    vtkPythonHash->ClassHash->GetItem(ptr->GetClassName(),vtkclass);
+    vtkstd::map<vtkstd::string, PyObject*>::iterator i =
+      vtkPythonHash->ClassHash->find(ptr->GetClassName());
+    if(i != vtkPythonHash->ClassHash->end())
+      {
+      vtkclass = i->second;
+      }
 
       // if the class was not in the hash, then find the nearest base class
       // that is and associate ptr->GetClassName() with that base class
@@ -1297,19 +1319,15 @@ PyObject *vtkPythonGetObjectFromPointer(vtkObjectBase *ptr)
 // object whose class is not in the ClassDict
 static PyObject *vtkFindNearestBase(vtkObjectBase *ptr)
 {
-  vtkHashMap<const char *, PyObject *>::IteratorType *classes = 
-    vtkPythonHash->ClassHash->NewIterator();
-
   PyObject *nearestbase = NULL;
   int maxdepth = 0;
   int depth;
 
-  for(classes->InitTraversal();
-      !classes->IsDoneWithTraversal();
-      classes->GoToNextItem())
+  for(vtkstd::map<vtkstd::string, PyObject*>::iterator classes =
+        vtkPythonHash->ClassHash->begin();
+      classes != vtkPythonHash->ClassHash->end(); ++classes)
     {
-    PyObject *pyclass = NULL;
-    classes->GetData(pyclass);
+    PyObject *pyclass = classes->second;
 
     if (ptr->IsA(PyString_AsString(((PyVTKClass *)pyclass)->vtk_name)))
       { 
@@ -1330,8 +1348,6 @@ static PyObject *vtkFindNearestBase(vtkObjectBase *ptr)
       }
     }
   
-  classes->Delete();
-
   return nearestbase;
 }
 

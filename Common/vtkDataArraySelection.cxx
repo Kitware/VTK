@@ -17,23 +17,29 @@
 =========================================================================*/
 #include "vtkDataArraySelection.h"
 #include "vtkObjectFactory.h"
-#include "vtkVector.txx"
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.5");
+#include <vector>
+#include <string>
+#include <algorithm>
+
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.6");
 vtkStandardNewMacro(vtkDataArraySelection);
+
+class vtkDataArraySelection::ArrayNamesType: public vtkstd::vector<vtkstd::string> {};
+class vtkDataArraySelection::ArraySettingsType: public vtkstd::vector<int> {};
 
 //----------------------------------------------------------------------------
 vtkDataArraySelection::vtkDataArraySelection()
 {
-  this->ArrayNames = ArrayNamesType::New();
-  this->ArraySettings = ArraySettingsType::New();
+  this->ArrayNames = new ArrayNamesType;
+  this->ArraySettings = new ArraySettingsType;
 }
 
 //----------------------------------------------------------------------------
 vtkDataArraySelection::~vtkDataArraySelection()
 {
-  this->ArraySettings->Delete();
-  this->ArrayNames->Delete();
+  delete this->ArraySettings;
+  delete this->ArrayNames;
 }
 
 //----------------------------------------------------------------------------
@@ -46,53 +52,56 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::EnableArray(const char* name)
 {
-  vtkIdType pos=0;
-  if(this->ArrayNames->FindItem(name, pos) == VTK_OK)
+  vtkstd::vector<vtkstd::string>::iterator i =
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+  if(i != this->ArrayNames->end())
     {
-    int value = 0;
-    this->ArraySettings->GetItemNoCheck(pos, value);
-    if(!value)
+    int& setting = (*this->ArraySettings)[i-this->ArrayNames->begin()];
+    if(!setting)
       {
-      this->ArraySettings->SetItemNoCheck(pos, 1);
+      setting = 1;
       this->Modified();
       }
-    return;
     }
-  this->ArrayNames->AppendItem(name);
-  this->ArraySettings->AppendItem(1);
-  this->Modified();
+  else
+    {
+    this->ArrayNames->push_back(name);
+    this->ArraySettings->push_back(1);
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::DisableArray(const char* name)
 {
-  vtkIdType pos=0;
-  if(this->ArrayNames->FindItem(name, pos) == VTK_OK)
+  vtkstd::vector<vtkstd::string>::iterator i =
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+  if(i != this->ArrayNames->end())
     {
-    int value = 0;
-    this->ArraySettings->GetItemNoCheck(pos, value);
-    if(value)
+    int& setting = (*this->ArraySettings)[i - this->ArrayNames->begin()];
+    if(setting)
       {
-      this->ArraySettings->SetItemNoCheck(pos, 0);
+      setting = 0;
       this->Modified();
       }
-    return;
     }
-  this->ArrayNames->AppendItem(name);
-  this->ArraySettings->AppendItem(0);
-  this->Modified();
+  else
+    {
+    this->ArrayNames->push_back(name);
+    this->ArraySettings->push_back(0);
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::ArrayIsEnabled(const char* name)
 {
   // Check if there is a specific entry for this array.
-  vtkIdType pos=0;
-  int result=0;
-  if((this->ArrayNames->FindItem(name, pos) == VTK_OK) &&
-     (this->ArraySettings->GetItem(pos, result) == VTK_OK))
+  vtkstd::vector<vtkstd::string>::iterator i =
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+  if(i != this->ArrayNames->end())
     {
-    return result;
+    return (*this->ArraySettings)[i - this->ArrayNames->begin()];
     }
   
   // The array does not have an entry.  Assume it is disabled.
@@ -103,28 +112,21 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name)
 int vtkDataArraySelection::ArrayExists(const char* name)
 {
   // Check if there is a specific entry for this array.
-  vtkIdType pos=0;
-  if( this->ArrayNames->FindItem(name, pos) == VTK_OK )
-    {
-    return 1;
-    }
-  
-  // The array does not have an entry. 
-  return 0;
+  vtkstd::vector<vtkstd::string>::iterator i =
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), name);
+  return i != this->ArrayNames->end();
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArraySelection::EnableAllArrays()
 {
   int modified = 0;
-  vtkIdType i;
-  for(i=0;i < this->ArraySettings->GetNumberOfItems();++i)
+  for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
+      i != this->ArraySettings->end(); ++i)
     {
-    int value = 0;
-    this->ArraySettings->GetItemNoCheck(i, value);
-    if(!value)
+    if(!*i)
       {
-      this->ArraySettings->SetItemNoCheck(i, 1);
+      *i = 1;
       modified = 1;
       }
     }
@@ -138,14 +140,12 @@ void vtkDataArraySelection::EnableAllArrays()
 void vtkDataArraySelection::DisableAllArrays()
 {
   int modified = 0;
-  vtkIdType i;
-  for(i=0;i < this->ArraySettings->GetNumberOfItems();++i)
+  for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
+      i != this->ArraySettings->end(); ++i)
     {
-    int value = 0;
-    this->ArraySettings->GetItemNoCheck(i, value);
-    if(value)
+    if(*i)
       {
-      this->ArraySettings->SetItemNoCheck(i, 0);
+      *i = 0;
       modified = 1;
       }
     }
@@ -158,16 +158,16 @@ void vtkDataArraySelection::DisableAllArrays()
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::GetNumberOfArrays()
 {
-  return this->ArrayNames->GetNumberOfItems();
+  return static_cast<int>(this->ArrayNames->size());
 }
 
 //----------------------------------------------------------------------------
 const char* vtkDataArraySelection::GetArrayName(int index)
 {
-  const char* n = 0;
-  if(this->ArrayNames->GetItem(index, n) == VTK_OK)
+  vtkstd::vector<vtkstd::string>::iterator i = this->ArrayNames->begin()+index;
+  if(i >= this->ArrayNames->begin() && i < this->ArrayNames->end())
     {
-    return n;
+    return i->c_str();
     }
   return 0;
 }
@@ -175,10 +175,10 @@ const char* vtkDataArraySelection::GetArrayName(int index)
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::GetArraySetting(int index)
 {
-  int n = 0;
-  if(this->ArraySettings->GetItem(index, n) == VTK_OK)
+  vtkstd::vector<int>::iterator i = this->ArraySettings->begin()+index;
+  if(i >= this->ArraySettings->begin() && i < this->ArraySettings->end())
     {
-    return n;
+    return *i;
     }
   return 0;
 }
@@ -188,8 +188,10 @@ void vtkDataArraySelection::RemoveAllArrays()
 {
   if(this->GetNumberOfArrays() > 0)
     {
-    this->ArrayNames->RemoveAllItems();
-    this->ArraySettings->RemoveAllItems();
+    this->ArrayNames->erase(this->ArrayNames->begin(),
+                            this->ArrayNames->end());
+    this->ArraySettings->erase(this->ArraySettings->begin(),
+                               this->ArraySettings->end());
     this->Modified();
     }
 }
@@ -200,13 +202,12 @@ int vtkDataArraySelection::AddArray(const char* name)
   // This function is called only by the filter owning the selection.
   // It should not call Modified() because array settings are not
   // changed.
-  vtkIdType pos=0;
-  if(this->ArrayNames->FindItem(name, pos) == VTK_OK)
+  if(this->ArrayExists(name))
     {
     return 0;
     }
-  this->ArrayNames->AppendItem(name);
-  this->ArraySettings->AppendItem(1);
+  this->ArrayNames->push_back(name);
+  this->ArraySettings->push_back(1);
   return 1;
 }
 
@@ -218,41 +219,35 @@ void vtkDataArraySelection::SetArrays(const char* const* names, int numArrays)
   // changed.
   
   // Create a new map for this set of arrays.
-  ArrayNamesType* newNames = ArrayNamesType::New();
-  ArraySettingsType* newSettings = ArraySettingsType::New();
+  ArrayNamesType* newNames = new ArrayNamesType;
+  ArraySettingsType* newSettings = new ArraySettingsType;
   
-  // Allocate.
-  newNames->SetSize(numArrays);
-  newSettings->SetSize(numArrays);
-  newNames->ResizeOn();
-  newSettings->ResizeOn();
+  newNames->reserve(numArrays);
+  newSettings->reserve(numArrays);
   
   // Fill with settings for all arrays.
   int i;
   for(i=0;i < numArrays; ++i)
     {
     // Add this array.
-    newNames->AppendItem(names[i]);
+    newNames->push_back(names[i]);
     
-    // Fill in the setting.
-    vtkIdType pos=0;
-    int result=0;
-    if((this->ArrayNames->FindItem(names[i], pos) == VTK_OK) &&
-       (this->ArraySettings->GetItem(pos, result) == VTK_OK))
+    // Fill in the setting.  Use the old value if available.
+    // Otherwise, default to on.
+    vtkstd::vector<vtkstd::string>::iterator it =
+      vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(),
+                   names[i]);
+    int setting = 1;
+    if(it != this->ArrayNames->end())
       {
-      // Copy the old setting for this array.
-      newSettings->AppendItem(result);
+      setting = (*this->ArraySettings)[it - this->ArrayNames->begin()];
       }
-    else
-      {
-      // No setting existed, default to on.
-      newSettings->AppendItem(1);
-      }
+    newSettings->push_back(setting);
     }
   
   // Delete the old map and save the new one.
-  this->ArrayNames->Delete();
-  this->ArraySettings->Delete();
+  delete this->ArrayNames;
+  delete this->ArraySettings;
   this->ArrayNames = newNames;
   this->ArraySettings = newSettings;
 }
@@ -266,15 +261,11 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
     }
   this->RemoveAllArrays();
   
-  const char* name=0;
-  int setting=0;
-  vtkIdType i;
-  for(i=0;i < selections->ArrayNames->GetNumberOfItems();++i)
-    {
-    selections->ArrayNames->GetItemNoCheck(i, name);
-    selections->ArraySettings->GetItemNoCheck(i, setting);
-    this->ArrayNames->AppendItem(name);
-    this->ArraySettings->AppendItem(setting);
-    }
+  this->ArrayNames->insert(this->ArrayNames->begin(),
+                           selections->ArrayNames->begin(),
+                           selections->ArrayNames->end());
+  this->ArraySettings->insert(this->ArraySettings->begin(),
+                              selections->ArraySettings->begin(),
+                              selections->ArraySettings->end());
   this->Modified();
 }

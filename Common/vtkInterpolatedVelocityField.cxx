@@ -22,10 +22,15 @@
 #include "vtkGenericCell.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkVector.txx"
+#include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.20");
+#include <vector>
+
+vtkCxxRevisionMacro(vtkInterpolatedVelocityField, "1.21");
 vtkStandardNewMacro(vtkInterpolatedVelocityField);
+
+typedef vtkstd::vector< vtkSmartPointer<vtkDataSet> > DataSetsTypeBase;
+class vtkInterpolatedVelocityField::DataSetsType: public DataSetsTypeBase {};
 
 vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
 {
@@ -42,7 +47,7 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
   this->Cell = vtkGenericCell::New();
   this->VectorsSelection = 0;
 
-  this->DataSets = vtkVector<vtkDataSet*>::New();
+  this->DataSets = new DataSetsType;
   this->LastDataSet = 0;
 }
 
@@ -57,7 +62,7 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
   this->Cell->Delete();
   this->SetVectorsSelection(0);
 
-  this->DataSets->Delete();
+  delete this->DataSets;
 }
 
 static int tmp_count=0;
@@ -65,9 +70,9 @@ static int tmp_count=0;
 int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 {
   vtkDataSet* ds=0;
-  if (!this->LastDataSet)
+  if(!this->LastDataSet && !this->DataSets->empty())
     {
-    this->DataSets->GetItem(0, ds);
+    ds = (*this->DataSets)[0].GetPointer();
     this->LastDataSet = ds;
     }
   else
@@ -77,14 +82,12 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
   int retVal = this->FunctionValues(ds, x, f);
   if (!retVal)
     {
-    vtkIdType numItems = this->DataSets->GetNumberOfItems();
-    vtkIdType i;
     tmp_count = 0;
-    for (i=0; i<numItems; i++)
+    for(DataSetsTypeBase::iterator i = this->DataSets->begin();
+        i != this->DataSets->end(); ++i)
       {
-      ds = 0;
-      this->DataSets->GetItem(i, ds);
-      if (ds && ds != this->LastDataSet )
+      ds = i->GetPointer();
+      if(ds && ds != this->LastDataSet)
         {
         this->ClearLastCellId();
         retVal = this->FunctionValues(ds, x, f);
@@ -222,7 +225,7 @@ void vtkInterpolatedVelocityField::AddDataSet(vtkDataSet* dataset)
     return;
     }
 
-  this->DataSets->AppendItem(dataset);
+  this->DataSets->push_back(dataset);
 
   int size = dataset->GetMaxCellSize();
   if (size > this->WeightsSize)

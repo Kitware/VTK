@@ -38,10 +38,6 @@ class vtkRenderer;
 class vtkPushPipelineProcessInfo;
 class vtkPushPipelineDataInfo;
 
-//BTX
-template <class T> class vtkVector;
-template <class K, class D> class vtkArrayMap;
-//ETX
 class VTK_HYBRID_EXPORT vtkPushPipeline : public vtkObject
 {
 public:
@@ -87,9 +83,12 @@ protected:
   friend class vtkPushPipelineDataInfo;
   friend class vtkPushPipelineConsumeCommand;
   
-  vtkVector<vtkRenderWindow *> *Windows;
-  vtkArrayMap<vtkProcessObject *, vtkPushPipelineProcessInfo *> *ProcessMap;
-  vtkArrayMap<vtkDataObject *, vtkPushPipelineDataInfo *> *DataMap;
+  class WindowsType;
+  class ProcessMapType;
+  class DataMapType;
+  WindowsType* Windows;
+  ProcessMapType* ProcessMap;
+  DataMapType* DataMap;
   //ETX
   
   vtkPushPipelineDataInfo *GetPushDataInfo(vtkDataObject *);
