@@ -303,6 +303,7 @@ void vtkImageCache::Update()
     if (this->Source)
       {
       vtkDebugMacro("Update: We have to update the source.");
+      this->ReleaseData();
       this->Source->InternalUpdate();
       // save the time and extent of the update for test "cache has data?"
       this->ExecuteTime.Modified();
@@ -415,7 +416,7 @@ vtkImageRegion *vtkImageCache::GetScalarRegion()
 	this->NumberOfScalarComponents > (max-min+1))
       {
       // Data is not valid. Get rid of it.
-      this->ScalarData->Delete();
+      this->ScalarData->UnRegister(this);
       this->ScalarData = NULL;
       }
     }
@@ -449,7 +450,7 @@ vtkImageRegion *vtkImageCache::GetScalarRegion()
 //----------------------------------------------------------------------------
 // Description:
 // Here for Bypass functionality.  I just can not seem to get
-// rid of CacheScalarData.
+// rid of CacheScalarData method.
 void vtkImageCache::CacheScalarData(vtkImageData *data)
 {
   if ( ! this->ScalarData)
@@ -459,19 +460,41 @@ void vtkImageCache::CacheScalarData(vtkImageData *data)
     }
   else
     {
-    // data already exists, we must copy.
-    // Data does not have a copy method, so use a region.
-    vtkImageRegion *r1 = vtkImageRegion::New();
-    vtkImageRegion *r2 = vtkImageRegion::New();
-    r1->SetAxes(0, 1, 2, 3, 4);
-    r1->SetExtent(5, data->GetExtent());
-    r1->SetData(data);
-    r2->SetAxes(0, 1, 2, 3, 4);
-    r2->SetExtent(5, data->GetExtent());
-    r2->SetData(this->ScalarData);
-    r2->CopyRegionData(r1);
-    r1->Delete();
-    r2->Delete();
+    int *e1 = data->GetExtent();
+    int *e2 = this->ScalarData->GetExtent();
+    // Equal condition
+    if (e1[0]==e2[0] && e1[1]==e2[1] && e1[2]==e2[2] && e1[3]==e2[3] && 
+	e1[4]==e2[4] && e1[5]==e2[5] && e1[6]==e2[6] && e1[7]==e2[7] && 
+	e1[8]==e2[8] && e1[9]==e2[9])
+      {
+      this->SetScalarData(data);
+      }
+    else
+      {
+      // Unless new data is a piece of old data just reference.
+      if (e1[0]<e2[0] || e1[1]>e2[1] || e1[2]<e2[2] && e1[3]>e2[3] && 
+	  e1[4]<e2[4] || e1[5]>e2[5] || e1[6]<e2[6] && e1[7]>e2[7] && 
+	  e1[8]<e2[8] || e1[9]>e2[9])
+	{
+	this->SetScalarData(data);
+	}
+      else
+	{
+	// data already exists, we must copy.
+	// Data does not have a copy method, so use a region.
+	vtkImageRegion *r1 = vtkImageRegion::New();
+	vtkImageRegion *r2 = vtkImageRegion::New();
+	r1->SetAxes(0, 1, 2, 3, 4);
+	r1->SetExtent(5, data->GetExtent());
+	r1->SetData(data);
+	r2->SetAxes(0, 1, 2, 3, 4);
+	r2->SetExtent(5, data->GetExtent());
+	r2->SetData(this->ScalarData);
+	r2->CopyRegionData(r1);
+	r1->Delete();
+	r2->Delete();
+	}
+      }
     }
 }
 
@@ -503,7 +526,7 @@ void vtkImageCache::SetWholeUpdateExtent(int *extent)
 	this->NumberOfScalarComponents > (max-min+1))
       {
       // Data is not valid. Get rid of it.
-      this->ScalarData->Delete();
+      this->ScalarData->UnRegister(this);
       this->ScalarData = NULL;
       }
     }
@@ -1030,7 +1053,7 @@ void vtkImageCache::ReleaseData()
 {
   if (this->ScalarData)
     {
-    this->ScalarData->Delete();
+    this->ScalarData->UnRegister(this);
     this->ScalarData = NULL;
     }
   if (this->VectorData)
