@@ -441,6 +441,19 @@ int TestSafeBoolIdiom()
   return result;
 }
 
+//-------------------------------------------------------------------
+// See if the following code works on all platforms
+#if defined(_MSC_VER) && defined(_DEBUG)
+/* MSVC debug hook to prevent dialogs when running from DART.  */
+# include <crtdbg.h>
+static int TestDriverDebugReport(int type, char* message, int* retVal)
+{
+  (void)type; (void)retVal;
+  fprintf(stderr, message);
+  exit(1);
+}
+#endif
+
 //----------------------------------------------------------------------------
 
 #define DO_TEST(x) \
@@ -462,5 +475,16 @@ int main()
 #endif
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
+#if defined(_MSC_VER) && defined(_DEBUG)
+  // just call the code to shut up a linker warning
+  int retVal = 0;
+  if (result)
+    {
+    // really shouldn't be calle dunless somehting else failed
+    // just want to make the compiler think it might get called
+    // all this will be yanked once I see the results of this test
+    TestDriverDebugReport(0, "a temp test", &retVal);
+    }
+#endif
   return result;
 }
