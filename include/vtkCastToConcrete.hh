@@ -75,6 +75,7 @@ class vtkCastToConcrete : public vtkDataSetFilter
 
 public:
   vtkCastToConcrete();
+  ~vtkCastToConcrete();
   char *GetClassName() {return "vtkCastToConcrete";};
 
   // filter interface (special pass-thru)
@@ -90,11 +91,10 @@ protected:
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
   
   // objects used in the casting process
-  vtkPolyData PolyData;
-  vtkStructuredPoints StructuredPoints;
-  vtkStructuredGrid StructuredGrid;
-  vtkUnstructuredGrid UnstructuredGrid;
-
+  vtkPolyData *PolyData;
+  vtkStructuredPoints *StructuredPoints;
+  vtkStructuredGrid *StructuredGrid;
+  vtkUnstructuredGrid *UnstructuredGrid;
 };
 
 #endif
