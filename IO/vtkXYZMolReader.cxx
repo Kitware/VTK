@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkXYZMolReader, "1.3");
+vtkCxxRevisionMacro(vtkXYZMolReader, "1.4");
 vtkStandardNewMacro(vtkXYZMolReader);
 
 //----------------------------------------------------------------------------
@@ -279,6 +279,9 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
 
   float pos[3];
   char atom[maxlen];
+
+  this->AtomType->Allocate(1024);
+  this->Points->Allocate(1024);
   
   while ( (lptr = this->GetNextLine(fp, buffer, maxlen)) )
     {
@@ -345,16 +348,21 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE *fp)
     num = rcnt;
     }
 
-  vtkDebugMacro("Number of atoms: " << num << " (" << rcnt << ")");
-  if ( num != rcnt )
-    {
-    vtkErrorMacro("Expecting " << num << " atoms, got " << rcnt);
-    return;
-    }
+  this->AtomType->Squeeze();
+  this->Points->Squeeze();
 
   if ( selectstep >= timestep )
     {
-    vtkErrorMacro("Only have " << timestep << " time steps");
+    this->NumberOfAtoms = 0;
+    vtkErrorMacro("Only have " << timestep << " time step(s)");
+    return;
+    }
+
+  vtkDebugMacro("Number of atoms: " << num << " (" << rcnt << ")");
+  if ( num != rcnt )
+    {
+    this->NumberOfAtoms = 0;
+    vtkErrorMacro("Expecting " << num << " atoms, got " << rcnt);
     return;
     }
 
