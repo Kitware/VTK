@@ -29,7 +29,7 @@ set camera [Ren1 GetActiveCamera]
 vtkPDataSetReader ironProt0
 	ironProt0 SetFileName "$VTK_DATA_ROOT/Data/ironProt.vtk"
 
-vtkPVGeometryFilter Geometry4
+vtkPOutlineFilter Geometry4
 	Geometry4 SetInput [ironProt0 GetOutput]
 vtkPolyDataMapper Mapper4
 	Mapper4 SetInput [Geometry4 GetOutput]
@@ -63,7 +63,7 @@ vtkTubeFilter Tuber0
  	Tuber0 SetRadius 1
  	Tuber0 SetVaryRadius 1
  	Tuber0 SetRadiusFactor 10
-vtkPVGeometryFilter Geometry6
+vtkPOutlineFilter Geometry6
  	Geometry6 SetInput [Tuber0 GetOutput]
 Geometry6 Update
 
