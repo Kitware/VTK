@@ -91,6 +91,12 @@ unsigned long vtkClipVolume::GetMTime()
 
   mTime=this->vtkStructuredPointsToUnstructuredGridFilter::GetMTime();
 
+  if ( this->Locator != NULL )
+    {
+    time = this->Locator->GetMTime();
+    mTime = ( time > mTime ? time : mTime );
+    }
+
   if ( this->ClipFunction != NULL )
     {
     time = this->ClipFunction->GetMTime();

@@ -12,40 +12,6 @@
 source ../../examplesTcl/vtkInt.tcl
 
 
-wm withdraw .
-
-# create a viewer to record results (regression tests need an image).
-vtkImageCanvasSource2D canvas
-  canvas SetNumberOfScalarComponents 1
-  canvas SetScalarType 4
-  canvas SetExtent 0 1200 0 40 0 0
-  canvas SetDrawColor 0
-  canvas FillBox 0 511 0 511
-
-vtkImageViewer viewer
-  viewer SetInput [canvas GetOutput]
-# stuff for text
-vtkTextMapper mapper
-  mapper SetInput ""
-  mapper SetFontFamilyToTimes
-  mapper SetFontSize 18
-vtkActor2D actor
-  actor SetMapper mapper
-  actor SetLayerNumber 1
-  [actor GetPositionCoordinate] SetValue 4 10
-  [actor GetProperty] SetColor 1 1 1
-set imager [viewer GetImager]
-  $imager AddActor2D actor
-
-set ERROR_STRING "Reset Modify Time Bugs:"
-
-mapper SetInput $ERROR_STRING
-viewer Render
-
-
-
-
-
 
 
 # finds all objects by doing an "ls"
@@ -172,9 +138,6 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    if { $modifyTime1a != $modifyTime1b} {
       set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
 			  $methodClass $methodName]
-      mapper SetInput $ERROR_STRING
-      viewer Render
-
       #puts "--------------------------- error -------------------------------"
       #puts $ERROR_LOG_FD "MTime changed : ------------------------"
       #puts $ERROR_LOG_FD " MTime: $modifyTime0, $modifyTime1a, $modifyTime1b"  
@@ -626,12 +589,45 @@ proc CheckException {methodName} {
 }
 
 
+wm withdraw .
+
+# create a viewer to record results (regression tests need an image).
+vtkImageCanvasSource2D canvas
+  canvas SetNumberOfScalarComponents 1
+  canvas SetScalarType 4
+  canvas SetExtent 0 1200 0 40 0 0
+  canvas SetDrawColor 0
+  canvas FillBox 0 511 0 511
+
+vtkImageViewer viewer
+  viewer SetInput [canvas GetOutput]
+# stuff for text
+vtkTextMapper mapper
+  mapper SetInput ""
+  mapper SetFontFamilyToTimes
+  mapper SetFontSize 18
+vtkActor2D actor
+  actor SetMapper mapper
+  actor SetLayerNumber 1
+  [actor GetPositionCoordinate] SetValue 4 10
+  [actor GetProperty] SetColor 1 1 1
+set imager [viewer GetImager]
+  $imager AddActor2D actor
+
+set ERROR_STRING "Reset Modify Time Bugs:"
+
+
 TestKit imaging
 TestKit graphics
 TestKit imaging
 TestKit patented
 TestKit common
 
+
+
+
+mapper SetInput $ERROR_STRING
+viewer Render
 
 
 

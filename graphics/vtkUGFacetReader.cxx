@@ -63,6 +63,20 @@ vtkUGFacetReader::~vtkUGFacetReader()
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
 }
 
+// Description:
+// Overload standard modified time function. If locator is modified,
+// then this object is modified as well.
+unsigned long vtkUGFacetReader::GetMTime()
+{
+  unsigned long mTime1=this->vtkPolyDataSource::GetMTime();
+  unsigned long mTime2=this->Locator->GetMTime();
+
+  mTime1 = ( mTime1 > mTime2 ? mTime1 : mTime2 );
+
+  return mTime1;
+}
+
+
 void vtkUGFacetReader::Execute()
 {
   FILE *fp;

@@ -71,6 +71,8 @@ public:
   const char *GetClassName() {return "vtkSTLReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  unsigned long GetMTime();
+
   // Description:
   // Specify file name of stereo lithography file.
   vtkSetStringMacro(FileName);

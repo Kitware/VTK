@@ -60,6 +60,8 @@ public:
   const char *GetClassName() {return "vtkUGFacetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  unsigned long GetMTime();
+
   // Description:
   // Specify Unigraphics file name.
   vtkSetStringMacro(FileName);

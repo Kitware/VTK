@@ -375,6 +375,7 @@ void vtkGlyph3D::Execute()
   output->Squeeze();
 }
 
+
 // Description:
 // Override update method because execution can branch two ways (via Input 
 // and Source).
