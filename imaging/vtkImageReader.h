@@ -179,7 +179,7 @@ public:
   // Warning !!!
   // following should only be used by methods or template helpers, not users
   ifstream *File;
-  int DataIncrements[3];
+  int DataIncrements[4];
   int DataExtent[6];
   unsigned short DataMask;  // Mask each pixel with ...
   int SwapBytes;

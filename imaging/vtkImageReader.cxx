@@ -65,6 +65,7 @@ vtkImageReader::vtkImageReader()
     this->DataSpacing[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
     }
+  this->DataIncrements[3] = 1;
   
   this->FileName = NULL;
   this->InternalFileName = NULL;
@@ -445,6 +446,7 @@ void vtkImageReader::ComputeDataIncrements()
     fileDataLength = fileDataLength *
       (this->DataExtent[idx*2+1] - this->DataExtent[idx*2] + 1);
     }
+  this->DataIncrements[3] = fileDataLength;
 }
 
 
