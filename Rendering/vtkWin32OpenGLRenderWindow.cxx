@@ -60,7 +60,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //------------------------------------------------------------------------------
 vtkWin32OpenGLRenderWindow* vtkWin32OpenGLRenderWindow::New()
 {
@@ -603,7 +602,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
     }
   this->SetupPalette(this->DeviceContext);
   this->ContextId = wglCreateContext(this->DeviceContext);
-  wglMakeCurrent(this->DeviceContext, this->ContextId);
+  this->MakeCurrent();
   this->OpenGLInit();
   this->Mapped = 1;
 }
@@ -627,7 +626,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize()
     }	
   else 
     {
-    wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
+    this->MakeCurrent(); // hsr
     this->OpenGLInit();
     }
   
@@ -991,7 +990,7 @@ void vtkWin32OpenGLRenderWindow::CreateOffScreenDC(HBITMAP hbmp, HDC aHdc)
                          PFD_DRAW_TO_BITMAP, this->GetDebug(), 24, 32);
   this->SetupPalette(this->DeviceContext);
   this->ContextId = wglCreateContext(this->DeviceContext);
-  wglMakeCurrent(this->DeviceContext, this->ContextId);
+  this->MakeCurrent();
   
   // we need to release resources
   for (this->Renderers->InitTraversal(); 
@@ -1063,7 +1062,7 @@ void vtkWin32OpenGLRenderWindow::ResumeScreenRendering(void)
   this->DeviceContext = this->ScreenDeviceContext;
   this->DoubleBuffer = this->ScreenDoubleBuffer;
   this->ContextId = this->ScreenContextId;
-  wglMakeCurrent(this->DeviceContext, this->ContextId);
+  this->MakeCurrent();
 
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal();
