@@ -286,16 +286,43 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines, vtk
             return 0;
             }
 
-          for (i=0; i<3; i++) 
-            {
-            if ( sNext[i] != 0.0 ) 
+	  // the following logic will produce a normal orthogonal
+	  // to the first line segment. If we have three points
+	  // we use special logic to select a normal orthogonal
+	  // too the first two line segments
+	  if (npts > 2)
+	    {
+	    float ftmp[3];
+	    
+	    pts->GetPoint(linePts[2],ftmp);
+            for (i=0; i<3; i++) 
               {
-              normal[(i+2)%3] = 0.0;
-              normal[(i+1)%3] = 1.0;
-              normal[i] = -sNext[(i+1)%3]/sNext[i];
-              break;
+              ftmp[i] = ftmp[i] - pNext[i];
               }
-            }
+            if ( vtkMath::Normalize(ftmp) == 0.0 )
+              {
+              vtkErrorMacro(<<"Coincident points in polyline...can't compute normals");
+              return 0;
+              }
+	    // now the starting normal should simply be the cross product
+	    // in the following if statement we check for the case where
+	    /// the first three points are colinear 
+            vtkMath::Cross(sNext,ftmp,normal);
+	    }
+          if ((npts <= 2)|| (vtkMath::Normalize(normal) == 0.0)) 
+	    {
+	    for (i=0; i<3; i++) 
+	      {
+	      // a little trick to find othogonal normal
+	      if ( sNext[i] != 0.0 ) 
+		{
+		normal[(i+2)%3] = 0.0;
+		normal[(i+1)%3] = 1.0;
+		normal[i] = -sNext[(i+1)%3]/sNext[i];
+		break;
+		}
+	      }
+	    }
           vtkMath::Normalize(normal);
           normals->InsertNormal(linePts[0],normal);
           }
