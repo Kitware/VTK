@@ -74,7 +74,7 @@
 #ifndef __vtkPlaneWidget_h
 #define __vtkPlaneWidget_h
 
-#include "vtk3DWidget.h"
+#include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
 class vtkCellPicker;
@@ -94,14 +94,14 @@ class vtkTransform;
 #define VTK_PLANE_WIREFRAME 2
 #define VTK_PLANE_SURFACE 3
 
-class VTK_HYBRID_EXPORT vtkPlaneWidget : public vtk3DWidget
+class VTK_HYBRID_EXPORT vtkPlaneWidget : public vtkPolyDataSourceWidget
 {
 public:
   // Description:
   // Instantiate the object.
   static vtkPlaneWidget *New();
 
-  vtkTypeRevisionMacro(vtkPlaneWidget,vtk3DWidget);
+  vtkTypeRevisionMacro(vtkPlaneWidget,vtkPolyDataSourceWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -110,9 +110,6 @@ public:
   virtual void PlaceWidget(float bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
-    {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
   // Set/Get the resolution (number of subdivisions) of the plane.
@@ -191,8 +188,18 @@ public:
   // EndInteraction events are invoked. The user provides the vtkPolyData and
   // the points and polyplane are added to it.
   void GetPolyData(vtkPolyData *pd);
+
+  // Description:
+  // Satisfies superclass API.  This returns a pointer to the underlying
+  // PolyData.  Make changes to this before calling the initial PlaceWidget()
+  // to have the initial placement follow suit.  Or, make changes after the
+  // widget has been initialised and call UpdatePlacement() to realise.
+  vtkPolyDataSource* GetPolyDataSource();
    
-  void RealiseGeometry(void);
+  // Description:
+  // Satisfies superclass API.  This will change the state of the widget to
+  // match changes that have been made to the underlying PolyDataSource
+  void UpdatePlacement(void);
 
   // Description:
   // Get the handle properties (the little balls are the handles). The 

@@ -17,6 +17,7 @@ vtkLegendBoxActor.cxx
 vtkLineWidget.cxx
 vtkPCAAnalysisFilter.cxx
 vtkPlaneWidget.cxx
+vtkPolyDataSourceWidget.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
 vtkRenderLargeImage.cxx
@@ -35,6 +36,7 @@ vtkWeightedTransformFilter.cxx
 
 ABSTRACT_FILES(
 vtk3DWidget
+vtkPolyDataSourceWidget
 )
 
 IF (WIN32)
