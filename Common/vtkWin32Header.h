@@ -49,6 +49,7 @@
 #pragma warning ( disable : 4309 )
 #pragma warning ( disable : 4706 )
 #pragma warning ( disable : 4786 )
+#pragma warning ( disable : 4097 )
 #endif //VTK_DISPLAY_WIN32_WARNINGS
 
 #endif
