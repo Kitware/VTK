@@ -847,11 +847,11 @@ void vtkSynchronizedTemplates3D::Execute()
   int idx, offset, num, ptIdx, newIdx, numCellPts, *cellPts, newCellPts[3];
   vtkPolyData *output = this->GetOutput();
   vtkPoints *outPts;
-  vtkPointData *outPD = output->GetPointData();
-  vtkCellArray *outTris = output->GetPolys();
-  vtkScalars *outScalars = outPD->GetScalars();
-  vtkVectors *outGrads = outPD->GetVectors();
-  vtkNormals *outNormals = outPD->GetNormals();
+  vtkPointData *outPD;
+  vtkCellArray *outTris;
+  vtkScalars *outScalars;
+  vtkVectors *outGrads;
+  vtkNormals *outNormals;
   vtkPolyData *threadOut;
   vtkPointData *threadPD;
   vtkCellArray *threadTris;
@@ -864,6 +864,11 @@ void vtkSynchronizedTemplates3D::Execute()
   this->InitializeOutput(ext, output);
 
   outPts = output->GetPoints();
+  outPD = output->GetPointData();
+  outTris = output->GetPolys();
+  outScalars = outPD->GetScalars();
+  outGrads = outPD->GetVectors();
+  outNormals = outPD->GetNormals();
 
   if (this->NumberOfThreads == 1)
     {
