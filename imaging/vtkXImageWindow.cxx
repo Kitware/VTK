@@ -321,7 +321,12 @@ void vtkXImageWindow::EraseWindow()
 
     // Set the foreground color to the background so the rectangle
     // matches the background color
-    XSetForeground(this->DisplayId, this->Gc, 0x0);
+    XColor aColor;
+    aColor.red = 0;
+    aColor.green = 0;
+    aColor.blue = 0;
+    XAllocColor(this->DisplayId,this->ColorMap,&aColor);
+    XSetForeground(this->DisplayId, this->Gc, aColor.pixel);
     XFillRectangle(this->DisplayId, this->Drawable, this->Gc, 0, 0, 
 	           this->Size[0], this->Size[1]);
 
@@ -331,11 +336,9 @@ void vtkXImageWindow::EraseWindow()
   // otherwise, erase the window
   else
     {
-    XClearWindow(this->DisplayId, this->WindowId);
-    XFlush(this->DisplayId); 
-    XSync(this->DisplayId, False); 
+    XClearWindow(this->DisplayId,this->WindowId);
+    XFlush(this->DisplayId);
     }
-
 }
 
 
@@ -525,7 +528,12 @@ void vtkXImageWindow::MakeDefaultWindow()
   // If this is a pseudocolor visual, create a color map.
   values.colormap = this->GetDesiredColormap();
   
-  values.background_pixel = BlackPixel(this->DisplayId, screen);
+  XColor aColor;
+  aColor.red = 0;
+  aColor.green = 0;
+  aColor.blue = 0;
+  XAllocColor(this->DisplayId,values.colormap,&aColor);
+  values.background_pixel = aColor.pixel;
   values.border_pixel = None;
   values.event_mask = 0;
   values.override_redirect = False;
