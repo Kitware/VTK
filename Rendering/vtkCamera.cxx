@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.104.2.2");
+vtkCxxRevisionMacro(vtkCamera, "1.104.2.3");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -956,6 +956,7 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FocalDisk: " << this->FocalDisk << "\n";
   os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", " 
      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
+  os << indent << "LeftEye: " << this->LeftEye << "\n";
   os << indent << "ViewShear: (" << this->ViewShear[0]
      << ", " << this->ViewShear[1] 
      << ", " << this->ViewShear[2] << ")\n";
