@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageRange3D, "1.26");
+vtkCxxRevisionMacro(vtkImageRange3D, "1.27");
 vtkStandardNewMacro(vtkImageRange3D);
 
 //----------------------------------------------------------------------------
@@ -106,11 +106,11 @@ void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
 
 //----------------------------------------------------------------------------
 // Output is always float
-void vtkImageRange3D::ExecuteInformation(vtkInformation *request,
+void vtkImageRange3D::RequestInformation (vtkInformation *request,
                                          vtkInformationVector **inputVector,
                                          vtkInformationVector *outputVector)
 {
-  this->Superclass::ExecuteInformation(request, inputVector, outputVector);
+  this->Superclass::RequestInformation(request, inputVector, outputVector);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_FLOAT);
 }

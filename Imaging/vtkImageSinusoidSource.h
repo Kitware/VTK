@@ -67,7 +67,7 @@ protected:
   double Phase;
   double Amplitude;
 
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  virtual void RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 private:
   vtkImageSinusoidSource(const vtkImageSinusoidSource&);  // Not implemented.

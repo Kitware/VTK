@@ -61,7 +61,7 @@ protected:
   int HandleBoundaries;
   int Dimensionality;
   
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
 
   virtual void RequestUpdateExtent(vtkInformation*,

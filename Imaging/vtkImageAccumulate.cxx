@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.56");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.57");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -328,7 +328,7 @@ void vtkImageAccumulate::RequestData(
 
 
 //----------------------------------------------------------------------------
-void vtkImageAccumulate::ExecuteInformation (
+void vtkImageAccumulate::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

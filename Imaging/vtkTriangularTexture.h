@@ -68,7 +68,7 @@ protected:
   vtkTriangularTexture();
   ~vtkTriangularTexture() {};
 
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  virtual void RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);
 
   int XSize;

@@ -82,7 +82,7 @@ protected:
   double Center[3];
   double Maximum;
 
-  virtual void ExecuteInformation (vtkInformation *, 
+  virtual void RequestInformation (vtkInformation *, 
                                    vtkInformationVector **, 
                                    vtkInformationVector *);
   virtual void ExecuteData(vtkDataObject *data);

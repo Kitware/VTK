@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.21");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.22");
 vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
@@ -114,7 +114,7 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Change the information
-void vtkImageChangeInformation::ExecuteInformation (
+void vtkImageChangeInformation::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

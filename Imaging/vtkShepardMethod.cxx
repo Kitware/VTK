@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.44");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.45");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -99,7 +99,7 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3],
   return maxDist;  
 }
 
-void vtkShepardMethod::ExecuteInformation (
+void vtkShepardMethod::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.37");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.38");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -617,7 +617,7 @@ void vtkImageQuantizeRGBToIndex::RequestData(
 }
 
 // Change the output type and number of components
-void vtkImageQuantizeRGBToIndex::ExecuteInformation(
+void vtkImageQuantizeRGBToIndex::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)

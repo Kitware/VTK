@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMagnitude, "1.38");
+vtkCxxRevisionMacro(vtkImageMagnitude, "1.39");
 vtkStandardNewMacro(vtkImageMagnitude);
 
 //----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ vtkImageMagnitude::vtkImageMagnitude()
   this->SetNumberOfOutputPorts(1);
 }
 
-void vtkImageMagnitude::ExecuteInformation(
+void vtkImageMagnitude::RequestInformation (
   vtkInformation       * vtkNotUsed( request ),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)

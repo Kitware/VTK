@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkDEMReader, "1.35");
+vtkCxxRevisionMacro(vtkDEMReader, "1.36");
 vtkStandardNewMacro(vtkDEMReader);
 
 #define VTK_SW  0
@@ -85,7 +85,7 @@ vtkDEMReader::~vtkDEMReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkDEMReader::ExecuteInformation (
+void vtkDEMReader::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

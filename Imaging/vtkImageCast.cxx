@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCast, "1.47");
+vtkCxxRevisionMacro(vtkImageCast, "1.48");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ vtkImageCast::vtkImageCast()
 
 //----------------------------------------------------------------------------
 // Just change the Image type.
-void vtkImageCast::ExecuteInformation(
+void vtkImageCast::RequestInformation (
   vtkInformation       * vtkNotUsed( request ),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector * outputVector)

@@ -93,7 +93,7 @@ protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();
 
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
 
   void RequestData(vtkInformation *, 

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.34");
+vtkCxxRevisionMacro(vtkImageMask, "1.35");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
@@ -266,7 +266,7 @@ void vtkImageMask::ThreadedRequestData(
 
 //----------------------------------------------------------------------------
 // The output extent is the intersection.
-void vtkImageMask::ExecuteInformation (
+void vtkImageMask::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

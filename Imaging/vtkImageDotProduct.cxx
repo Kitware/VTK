@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.29");
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.30");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
@@ -32,7 +32,7 @@ vtkImageDotProduct::vtkImageDotProduct()
 
 //----------------------------------------------------------------------------
 // Colapse the first axis
-void vtkImageDotProduct::ExecuteInformation (
+void vtkImageDotProduct::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -26,7 +26,7 @@
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.45");
+vtkCxxRevisionMacro(vtkImageImport, "1.46");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -193,7 +193,7 @@ void vtkImageImport::RequestUpdateExtent(
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::ExecuteInformation (
+void vtkImageImport::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

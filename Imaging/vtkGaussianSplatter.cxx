@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGaussianSplatter, "1.56");
+vtkCxxRevisionMacro(vtkGaussianSplatter, "1.57");
 vtkStandardNewMacro(vtkGaussianSplatter);
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
@@ -59,7 +59,7 @@ vtkGaussianSplatter::vtkGaussianSplatter()
   this->NullValue = 0.0;
 }
 
-void vtkGaussianSplatter::ExecuteInformation (
+void vtkGaussianSplatter::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

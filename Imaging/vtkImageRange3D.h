@@ -45,7 +45,7 @@ protected:
 
   vtkImageEllipsoidSource *Ellipse;
     
-  void ExecuteInformation(vtkInformation *request,
+  void RequestInformation (vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
   void ThreadedRequestData(vtkInformation *request,

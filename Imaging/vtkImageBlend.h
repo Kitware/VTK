@@ -129,7 +129,7 @@ protected:
 
   
 
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
 
   void ThreadedRequestData (vtkInformation* request,

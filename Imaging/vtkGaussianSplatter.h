@@ -190,7 +190,7 @@ protected:
   ~vtkGaussianSplatter() {};
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual void ExecuteInformation (vtkInformation *, 
+  virtual void RequestInformation (vtkInformation *, 
                                    vtkInformationVector **, 
                                    vtkInformationVector *);
   virtual void RequestData(vtkInformation *, 

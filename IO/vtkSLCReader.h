@@ -64,11 +64,9 @@ protected:
   // Reads the file name and builds a vtkStructuredPoints dataset.
   virtual void ExecuteData(vtkDataObject*);
 
-  // Not used now, but will be needed when this is made into an 
-  // imaging filter.
-  // Sets WholeExtent, Origin, Spacing, ScalarType 
-  // and NumberOfComponents of output.
-  void ExecuteInformation();
+  virtual void RequestInformation(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
   
   // Decodes an array of eight bit run-length encoded data.
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );

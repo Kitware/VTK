@@ -69,7 +69,7 @@ protected:
 
   int ClipData;
   
-  void ExecuteInformation (vtkInformation *,
+  void RequestInformation (vtkInformation *,
                            vtkInformationVector **,
                            vtkInformationVector *);
 

@@ -44,7 +44,7 @@ protected:
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
-  void ExecuteInformation(vtkInformation *request,
+  void RequestInformation (vtkInformation *request,
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 

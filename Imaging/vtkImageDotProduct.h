@@ -39,7 +39,7 @@ protected:
   vtkImageDotProduct();
   ~vtkImageDotProduct() {};
 
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
   
   virtual void ThreadedRequestData(vtkInformation *request, 

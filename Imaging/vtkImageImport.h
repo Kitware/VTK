@@ -237,7 +237,7 @@ protected:
   vtkImageImport();
   ~vtkImageImport();
 
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector **, 
+  virtual void RequestInformation (vtkInformation *, vtkInformationVector **, 
                                    vtkInformationVector *);
 
   

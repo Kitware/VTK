@@ -63,7 +63,7 @@ protected:
   vtkRenderer *Input;
   void RequestData(vtkInformation *, 
                    vtkInformationVector **, vtkInformationVector *);
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);  
 
   // see algorithm for more info

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.32");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.33");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -45,11 +45,11 @@ void vtkImageSobel3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSobel3D::ExecuteInformation(vtkInformation *request,
+void vtkImageSobel3D::RequestInformation (vtkInformation *request,
                                          vtkInformationVector **inputVector,
                                          vtkInformationVector *outputVector)
 {
-  this->Superclass::ExecuteInformation(request, inputVector, outputVector);
+  this->Superclass::RequestInformation(request, inputVector, outputVector);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 3);
   outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_DOUBLE);

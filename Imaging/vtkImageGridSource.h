@@ -97,7 +97,7 @@ protected:
   double DataSpacing[3];
   double DataOrigin[3];
 
-  virtual void ExecuteInformation(vtkInformation*,
+  virtual void RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
   virtual void ExecuteData(vtkDataObject *data);

@@ -109,7 +109,7 @@ protected:
   
   int OutputScalarType;
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

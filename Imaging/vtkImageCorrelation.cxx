@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.29");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.30");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ vtkImageCorrelation::vtkImageCorrelation()
 
 //----------------------------------------------------------------------------
 // Grow the output image 
-void vtkImageCorrelation::ExecuteInformation (
+void vtkImageCorrelation::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -96,7 +96,7 @@ protected:
   double OutValue;
   int OutputScalarType;
   
-  virtual void ExecuteInformation (vtkInformation *, 
+  virtual void RequestInformation (vtkInformation *, 
                                    vtkInformationVector **, 
                                    vtkInformationVector *);
 

@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.32");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.33");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest region that can be generated.
-void vtkWindowToImageFilter::ExecuteInformation (
+void vtkWindowToImageFilter::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -187,7 +187,7 @@ int vtkWindowToImageFilter::ProcessRequest(vtkInformation* request,
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    this->ExecuteInformation(request, inputVector, outputVector);
+    this->RequestInformation(request, inputVector, outputVector);
     // after executing set the origin and spacing from the
     // info
     int i;

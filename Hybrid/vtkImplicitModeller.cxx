@@ -37,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.91");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.92");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -682,7 +682,7 @@ void vtkImplicitModeller::EndAppend()
 
 
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::ExecuteInformation (
+void vtkImplicitModeller::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.64");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.65");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -162,7 +162,7 @@ void vtkImageShrink3D::RequestUpdateExtent (
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
-void vtkImageShrink3D::ExecuteInformation (
+void vtkImageShrink3D::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

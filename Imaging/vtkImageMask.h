@@ -88,7 +88,7 @@ protected:
   int NotMask;
   double MaskAlpha;
   
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
   
  

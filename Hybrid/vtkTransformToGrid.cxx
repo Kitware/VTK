@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.17");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.18");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -94,7 +94,7 @@ void vtkTransformToGrid::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkTransformToGrid::ExecuteInformation (
+void vtkTransformToGrid::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)
@@ -472,7 +472,7 @@ int vtkTransformToGrid::ProcessRequest(vtkInformation* request,
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    this->ExecuteInformation(request, inputVector, outputVector);
+    this->RequestInformation(request, inputVector, outputVector);
     // after executing set the origin and spacing from the
     // info
     int i;

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.30");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.31");
 vtkStandardNewMacro(vtkImageDivergence);
 
 vtkImageDivergence::vtkImageDivergence()
@@ -33,7 +33,7 @@ vtkImageDivergence::vtkImageDivergence()
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the first axis will collapse.
-void vtkImageDivergence::ExecuteInformation(
+void vtkImageDivergence::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* outputVector)

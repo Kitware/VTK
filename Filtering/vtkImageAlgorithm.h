@@ -66,7 +66,7 @@ protected:
   ~vtkImageAlgorithm();
 
   // convinience method
-  virtual void ExecuteInformation(vtkInformation* request,
+  virtual void RequestInformation(vtkInformation* request,
                                   vtkInformationVector** inputVector,
                                   vtkInformationVector* outputVector);
   virtual void RequestUpdateExtent(vtkInformation*,

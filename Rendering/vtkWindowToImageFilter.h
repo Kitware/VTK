@@ -112,7 +112,7 @@ protected:
   void RequestData(vtkInformation *, 
                    vtkInformationVector **, vtkInformationVector *);
 
-  virtual void ExecuteInformation(vtkInformation*,
+  virtual void RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageNoiseSource, "1.29");
+vtkCxxRevisionMacro(vtkImageNoiseSource, "1.30");
 vtkStandardNewMacro(vtkImageNoiseSource);
 
 //----------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void vtkImageNoiseSource::SetWholeExtent(int xMin, int xMax,
     }
 }
 //----------------------------------------------------------------------------
-void vtkImageNoiseSource::ExecuteInformation (
+void vtkImageNoiseSource::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.12");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.13");
 
 class vtkImageAlgorithmToDataSetFriendship
 {
@@ -135,7 +135,7 @@ int vtkImageAlgorithm::ProcessRequest(vtkInformation* request,
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    this->ExecuteInformation(request, inputVector, outputVector);
+    this->RequestInformation(request, inputVector, outputVector);
     // after executing set the origin and spacing from the
     // info
     int i;
@@ -183,7 +183,7 @@ void vtkImageAlgorithm::Execute()
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
 }
 
-void vtkImageAlgorithm::ExecuteInformation(
+void vtkImageAlgorithm::RequestInformation(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector))

@@ -26,16 +26,16 @@
 #ifndef __vtkImageReader2_h
 #define __vtkImageReader2_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
 
-class VTK_IO_EXPORT vtkImageReader2 : public vtkImageSource
+class VTK_IO_EXPORT vtkImageReader2 : public vtkImageAlgorithm
 {
 public:
   static vtkImageReader2 *New();
-  vtkTypeRevisionMacro(vtkImageReader2,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageReader2,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -223,6 +223,9 @@ protected:
   int FileNameSliceOffset;
   int FileNameSliceSpacing;
   
+  virtual void RequestInformation(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
   virtual void ComputeDataIncrements();

@@ -107,7 +107,7 @@ protected:
   double ConstantC;
   int DivideByZeroToC;
   
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
   
   virtual void ThreadedRequestData(vtkInformation *request, 

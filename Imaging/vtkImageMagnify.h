@@ -50,7 +50,7 @@ protected:
   int MagnificationFactors[3];
   int Interpolate;
   void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

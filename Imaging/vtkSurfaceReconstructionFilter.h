@@ -57,7 +57,7 @@ protected:
   vtkSurfaceReconstructionFilter();
   ~vtkSurfaceReconstructionFilter() {};
 
-  virtual void ExecuteInformation (vtkInformation *, 
+  virtual void RequestInformation (vtkInformation *, 
                                    vtkInformationVector **, 
                                    vtkInformationVector *);
   virtual void RequestData (vtkInformation *, 

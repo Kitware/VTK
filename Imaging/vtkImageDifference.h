@@ -95,7 +95,7 @@ protected:
   int Threshold;
   int Averaging;
   
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *); 
   void RequestUpdateExtent(vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);

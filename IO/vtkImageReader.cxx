@@ -16,11 +16,14 @@
 
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.115");
+vtkCxxRevisionMacro(vtkImageReader, "1.116");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -90,15 +93,20 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-//----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkImageReader::ExecuteInformation()
+void vtkImageReader::RequestInformation (
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector * outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // call the old method to help with backwards compatiblity
+  this->ExecuteInformation();
+
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
   double spacing[3];
   int extent[6];
   double origin[3];
-  
   
   // set the extent, if the VOI has not been set then default to
   // the DataExtent
@@ -107,24 +115,24 @@ void vtkImageReader::ExecuteInformation()
       this->DataVOI[4] || this->DataVOI[5])
     {
     this->ComputeTransformedExtent(this->DataVOI,extent);
-    output->SetWholeExtent(extent);
     }
   else
     {
     this->ComputeTransformedExtent(this->DataExtent,extent);
-    output->SetWholeExtent(extent);
     }
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent, 6);
     
   // set the spacing
   this->ComputeTransformedSpacing(spacing);
-  output->SetSpacing(spacing);
+  outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
 
   // set the origin.
   this->ComputeTransformedOrigin(origin);
-  output->SetOrigin(origin);
+  outInfo->Set(vtkDataObject::ORIGIN(),  this->DataOrigin, 3);
 
-  output->SetScalarType(this->DataScalarType);
-  output->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->DataScalarType);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               this->NumberOfScalarComponents);
 }
 
 

@@ -78,7 +78,7 @@ protected:
   double           BuildTreeExecuteTime;
   double           LookupIndexExecuteTime;
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   virtual void RequestData(vtkInformation *,

@@ -39,7 +39,7 @@ protected:
   void RequestUpdateExtent(vtkInformation*,
                            vtkInformationVector**,
                            vtkInformationVector*);
-  void ExecuteInformation(vtkInformation*,
+  void RequestInformation (vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*);
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.51");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.52");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageNonMaximumSuppression::ExecuteInformation (
+void vtkImageNonMaximumSuppression::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

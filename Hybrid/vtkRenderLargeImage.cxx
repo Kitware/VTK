@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.26");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.27");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -123,7 +123,7 @@ int vtkRenderLargeImage::ProcessRequest(vtkInformation* request,
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
-    this->ExecuteInformation(request, inputVector, outputVector);
+    this->RequestInformation(request, inputVector, outputVector);
     // after executing set the origin and spacing from the
     // info
     int i;
@@ -153,7 +153,7 @@ int vtkRenderLargeImage::ProcessRequest(vtkInformation* request,
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the largest region that can be generated.
-void vtkRenderLargeImage::ExecuteInformation (
+void vtkRenderLargeImage::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -70,7 +70,7 @@ protected:
 
   int ClampOverflow;
   int OutputScalarType;
-  void ExecuteInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  void RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData, 
                        int ext[6], int id);

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.39");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.40");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ void vtkImageGradientMagnitude::PrintSelf(ostream& os, vtkIndent indent)
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
-void vtkImageGradientMagnitude::ExecuteInformation (
+void vtkImageGradientMagnitude::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

@@ -121,7 +121,7 @@ protected:
   int ConstantSize;
 
   virtual void ExecuteData(vtkDataObject *outData);
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  virtual void RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
   double EvaluateSet(double p[4]);
 private:
   vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);  // Not implemented.

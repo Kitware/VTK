@@ -16,12 +16,15 @@
 
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.30");
+vtkCxxRevisionMacro(vtkImageReader2, "1.31");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -66,6 +69,7 @@ vtkImageReader2::vtkImageReader2()
   this->SwapBytes = 0;
   this->FileLowerLeft = 0;
   this->FileDimensionality = 2;
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -405,19 +409,34 @@ void vtkImageReader2::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+void vtkImageReader2::ExecuteInformation()
+{
+  // this is empty, the idea is that converted filters should implement
+  // RequestInformation. But to help out old filters we will call
+  // ExecuteInformation and hope that the subclasses correctly set the ivars
+  // and not the output.
+}
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkImageReader2::ExecuteInformation()
+void vtkImageReader2::RequestInformation (
+  vtkInformation       * vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector * outputVector)
 {
-  vtkImageData *output = this->GetOutput();
+  // call for backwards compatibility
+  this->ExecuteInformation();
   
-  output->SetWholeExtent(this->DataExtent);
-  output->SetSpacing(this->DataSpacing);
-  output->SetOrigin(this->DataOrigin);
-
-  output->SetScalarType(this->DataScalarType);
-  output->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+ 
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->DataExtent, 6);
+  outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(),  this->DataOrigin, 3);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), this->DataScalarType);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               this->NumberOfScalarComponents);
 }
 
 

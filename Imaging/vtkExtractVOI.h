@@ -70,7 +70,7 @@ protected:
   virtual void RequestUpdateExtent(vtkInformation*,
                                    vtkInformationVector**,
                                    vtkInformationVector*);
-  void ExecuteInformation(vtkInformation*,
+  void RequestInformation (vtkInformation*,
                           vtkInformationVector**,
                           vtkInformationVector*);
   virtual void RequestData(vtkInformation* request,

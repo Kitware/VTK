@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageClip, "1.53");
+vtkCxxRevisionMacro(vtkImageClip, "1.54");
 vtkStandardNewMacro(vtkImageClip);
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
 
 //----------------------------------------------------------------------------
 // Change the WholeExtent
-void vtkImageClip::ExecuteInformation (
+void vtkImageClip::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

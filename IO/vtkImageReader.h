@@ -91,7 +91,10 @@ protected:
   
   char *ScalarArrayName;
   
-  void ExecuteInformation();
+  virtual void RequestInformation(vtkInformation* request,
+                                  vtkInformationVector** inputVector,
+                                  vtkInformationVector* outputVector);
+
   void ExecuteData(vtkDataObject *data);
 private:
   vtkImageReader(const vtkImageReader&);  // Not implemented.

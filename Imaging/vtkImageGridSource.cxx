@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGridSource, "1.12");
+vtkCxxRevisionMacro(vtkImageGridSource, "1.13");
 vtkStandardNewMacro(vtkImageGridSource);
 
 //----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ vtkImageGridSource::vtkImageGridSource()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGridSource::ExecuteInformation (
+void vtkImageGridSource::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector ** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.16");
+vtkCxxRevisionMacro(vtkImageStencil, "1.17");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ vtkImageData *vtkImageStencil::GetBackgroundInput()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::ExecuteInformation (
+void vtkImageStencil::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector))

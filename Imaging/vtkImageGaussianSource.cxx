@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSource, "1.28");
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.29");
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void vtkImageGaussianSource::SetWholeExtent(int xMin, int xMax,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageGaussianSource::ExecuteInformation (
+void vtkImageGaussianSource::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed( inputVector ),
   vtkInformationVector *outputVector)

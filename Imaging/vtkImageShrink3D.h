@@ -77,7 +77,7 @@ protected:
   int Maximum;
   int Median;
 
-  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void ThreadedRequestData(vtkInformation *request,

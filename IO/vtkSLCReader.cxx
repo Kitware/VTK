@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkSLCReader, "1.50");
+vtkCxxRevisionMacro(vtkSLCReader, "1.51");
 vtkStandardNewMacro(vtkSLCReader);
 
 // Constructor for a vtkSLCReader.
@@ -81,7 +81,10 @@ unsigned char* vtkSLCReader::Decode8BitData( unsigned char *in_ptr,
 
 
 // This will be needed when we make this an imaging filter.
-void vtkSLCReader::ExecuteInformation()
+void vtkSLCReader::RequestInformation (
+  vtkInformation       * request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector * outputVector)
 {
   FILE *fp;
   int   temp;
@@ -90,7 +93,6 @@ void vtkSLCReader::ExecuteInformation()
   int   magic_num;
 
   this->Error = 1;
-  vtkImageData *output = this->GetOutput();
 
   if (!this->FileName)
     {
@@ -113,12 +115,12 @@ void vtkSLCReader::ExecuteInformation()
     }
 
   f[0] = f[1] = f[2] = 0.0;
-  output->SetOrigin(f);
+  this->SetDataOrigin(f);
 
   fscanf( fp, "%d", size );
   fscanf( fp, "%d", size+1 );
   fscanf( fp, "%d", size+2 );
-  output->SetWholeExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
+  this->SetDataExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
 
   // Skip Over bits_per_voxel Field */
   fscanf( fp, "%d",   &temp );
@@ -126,17 +128,18 @@ void vtkSLCReader::ExecuteInformation()
   fscanf( fp, "%lf", f );
   fscanf( fp, "%lf", f+1 );
   fscanf( fp, "%lf", f+2 );
-  output->SetSpacing(f);
+  this->SetDataSpacing(f);
 
   // Skip Over unit_type, data_origin, and data_modification 
   fscanf( fp, "%d", &temp );
   fscanf( fp, "%d", &temp );
   fscanf( fp, "%d", &temp );
 
-  output->SetScalarType(VTK_UNSIGNED_CHAR);
-  output->SetNumberOfScalarComponents(1);
+  this->SetDataScalarType(VTK_UNSIGNED_CHAR);
+  this->SetNumberOfScalarComponents(1);
 
   fclose( fp );
+  this->Superclass::RequestInformation(request, inputVector, outputVector);
 }
           
 // Reads an SLC file and creates a vtkStructuredPoints dataset.

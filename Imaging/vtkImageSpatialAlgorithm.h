@@ -52,7 +52,7 @@ protected:
   int   Strides[3];      // Shrink factor
   int   HandleBoundaries;     // Output shrinks if boundaries aren't handled
 
-  virtual void ExecuteInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   void ComputeOutputWholeExtent(int extent[6], int handleBoundaries);
   virtual void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSpatialAlgorithm, "1.1");
+vtkCxxRevisionMacro(vtkImageSpatialAlgorithm, "1.2");
 vtkStandardNewMacro(vtkImageSpatialAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void vtkImageSpatialAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageSpatialAlgorithm::ExecuteInformation(
+void vtkImageSpatialAlgorithm::RequestInformation (
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

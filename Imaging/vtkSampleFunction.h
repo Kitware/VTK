@@ -124,7 +124,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
 
   void ExecuteData(vtkDataObject *);
-  void ExecuteInformation (vtkInformation *, 
+  void RequestInformation (vtkInformation *, 
                            vtkInformationVector **, vtkInformationVector *);
   void Cap(vtkDataArray *s);
 

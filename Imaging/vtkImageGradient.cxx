@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.46");
+vtkCxxRevisionMacro(vtkImageGradient, "1.47");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageGradient::ExecuteInformation (
+void vtkImageGradient::RequestInformation (
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)

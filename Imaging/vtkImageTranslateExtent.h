@@ -41,7 +41,7 @@ protected:
   int Translation[3];
   
   void RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 

@@ -37,7 +37,7 @@ protected:
   vtkImageAppendComponents() {};
   ~vtkImageAppendComponents() {};
   
-  void ExecuteInformation (vtkInformation *, vtkInformationVector **, 
+  void RequestInformation (vtkInformation *, vtkInformationVector **, 
                            vtkInformationVector *);
   
   void ThreadedRequestData (vtkInformation* request,

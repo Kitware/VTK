@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.36");
+vtkCxxRevisionMacro(vtkImageDifference, "1.37");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -361,7 +361,7 @@ void vtkImageDifference::ThreadedRequestData(
 //----------------------------------------------------------------------------
 //Make the output the intersection of the inputs, of course the inputs better
 //be the same size
-void vtkImageDifference::ExecuteInformation (
+void vtkImageDifference::RequestInformation (
   vtkInformation * vtkNotUsed(request),
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)

@@ -89,7 +89,7 @@ protected:
   vtkShepardMethod();
   ~vtkShepardMethod() {};
 
-  virtual void ExecuteInformation (vtkInformation *, 
+  virtual void RequestInformation (vtkInformation *, 
                                    vtkInformationVector **, 
                                    vtkInformationVector *);
 
