@@ -26,7 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PolySrc.hh"
 #include "vlDataR.hh"
 
-class vlPolyReader : public vlPolySource, vlDataReader
+class vlPolyReader : public vlPolySource
 {
 public:
   vlPolyReader();
@@ -39,9 +39,13 @@ public:
   vlSetStringMacro(Filename);
   vlGetStringMacro(Filename);
 
+  // overload because of vlDataReader ivar
+  unsigned long int GetMTime();
+
 protected:
   void Execute();
   char *Filename;
+  vlDataReader Reader;
 };
 
 #endif

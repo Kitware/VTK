@@ -27,7 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "DSSrc.hh"
 #include "vlDataR.hh"
 
-class vlDataSetReader : public vlDataSetSource, public vlDataReader
+class vlDataSetReader : public vlDataSetSource
 {
 public:
   vlDataSetReader();
@@ -43,7 +43,7 @@ public:
 protected:
   void Execute();
   char *Filename;
-
+  vlDataReader Reader;
 };
 
 #endif
