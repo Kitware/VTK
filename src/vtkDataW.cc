@@ -359,7 +359,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
         for (i=0; i<numPts; i++)
           {
           s = scalars->GetScalar(i);
-          fprintf (fp, "%d ", s);
+          fprintf (fp, "%d ", (int)s);
           if ( !((i+1)%6) ) fprintf (fp,"\n");
           }
         }
