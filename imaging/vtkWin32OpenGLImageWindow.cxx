@@ -383,8 +383,8 @@ void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
   
   x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
   y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
-  width = ((this->Size[0] > 0) ? this->Size[0] : 300);
-  height = ((this->Size[1] > 0) ? this->Size[1] : 300);
+  width = ((this->Size[0] > 0) ? this->Size[0] : 256);
+  height = ((this->Size[1] > 0) ? this->Size[1] : 256);
 
   // create our own window if not already set
   this->OwnWindow = 0;
