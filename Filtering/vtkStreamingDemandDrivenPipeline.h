@@ -43,6 +43,8 @@ public:
   virtual int UpdateWholeExtent(vtkAlgorithm* algorithm);
   virtual int Update(vtkAlgorithm* algorithm, int port);
 
+  virtual int UpdateData(int outputPort);
+
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
   static vtkInformationObjectBaseKey* EXTENT_TRANSLATOR();
   static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();
@@ -87,7 +89,6 @@ protected:
   ~vtkStreamingDemandDrivenPipeline();
 
   virtual int ExecuteInformation();
-  virtual int ExecuteData(int outputPort);
   virtual void CopyDefaultDownstreamInformation();
   virtual void CopyDefaultUpstreamInformation(int outputPort);
   int VerifyOutputInformation(int outputPort);

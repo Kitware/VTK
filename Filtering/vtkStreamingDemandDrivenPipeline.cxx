@@ -26,7 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.3");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.4");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -138,6 +138,29 @@ int vtkStreamingDemandDrivenPipeline::Update(vtkAlgorithm* algorithm, int port)
 }
 
 //----------------------------------------------------------------------------
+int vtkStreamingDemandDrivenPipeline::UpdateData(int outputPort)
+{
+  if(this->Superclass::UpdateData(outputPort))
+    {
+    // Crop the output if the exact extent flag is set.
+    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = this->GetOutputInformation(i);
+      vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
+      if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
+        {
+        vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
+        }
+      }
+    return 1;
+    }
+  else
+    {
+    return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
 {
   // Let the superclass make the request to the algorithm.
@@ -171,30 +194,6 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
         {
         // Request all data by default.
         this->SetUpdateExtentToWholeExtent(i);
-        }
-      }
-    return 1;
-    }
-  else
-    {
-    return 0;
-    }
-}
-
-//----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::ExecuteData(int outputPort)
-{
-  // Let the superclass make the request to the algorithm.
-  if(this->Superclass::ExecuteData(outputPort))
-    {
-    // Crop the output if the exact extent flag is set.
-    for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-      {
-      vtkInformation* info = this->GetOutputInformation(i);
-      vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
-      if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
-        {
-        vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
         }
       }
     return 1;
