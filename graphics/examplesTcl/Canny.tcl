@@ -83,8 +83,8 @@ dsm SetScalarRange 0 70
 
 vtkActor planeActor
 planeActor SetMapper dsm
-[planeActor GetProperty] SetAmbient 1.0
-[planeActor GetProperty] SetDiffuse 0.0
+[planeActor GetProperty] SetAmbient .5
+[planeActor GetProperty] SetDiffuse 1.0
 
 # Add the actors to the renderer, set the background and size
 ren1 AddActor planeActor
