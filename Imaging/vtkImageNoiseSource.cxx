@@ -18,10 +18,9 @@
 #include "vtkImageNoiseSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
-#include <stdlib.h>
-
-vtkCxxRevisionMacro(vtkImageNoiseSource, "1.23");
+vtkCxxRevisionMacro(vtkImageNoiseSource, "1.24");
 vtkStandardNewMacro(vtkImageNoiseSource);
 
 //----------------------------------------------------------------------------
@@ -90,54 +89,27 @@ void vtkImageNoiseSource::ExecuteInformation()
 void vtkImageNoiseSource::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
-  float *outPtr;
-  int idxR, idxY, idxZ;
-  int maxY, maxZ;
-  int outIncX, outIncY, outIncZ;
-  int rowLength;
-  int *outExt;
-  unsigned long count = 0;
-  unsigned long target;
   
   if (data->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro("Execute: This source only outputs floats");
     }
   
-  outExt = data->GetExtent();
-  
-  // find the region to loop over
-  rowLength = (outExt[1] - outExt[0]+1);
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  
-  // Get increments to march through data 
-  data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
-  
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
+  vtkImageProgressIterator<float> outIt(data, data->GetExtent(), this, 0);
 
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
+    float* outSI = outIt.BeginSpan();
+    float* outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!(count%target))
-        {
-        this->UpdateProgress(count/(50.0*target));
-        }
-      count++;
-      for (idxR = 0; idxR < rowLength; idxR++)
-        {
-        // Pixel operation
-        *outPtr = this->Minimum +
-          (this->Maximum - this->Minimum) * vtkMath::Random();
-        outPtr++;
-        }
-      outPtr += outIncY;
+      // now process the components
+      *outSI = this->Minimum +
+        (this->Maximum - this->Minimum) * vtkMath::Random();
+      outSI++;
       }
-    outPtr += outIncZ;
+    outIt.NextSpan();
     }
 }
 
