@@ -214,7 +214,7 @@ void vtkLinkEdgels::LinkEdgels(vtkImageRegion *region,
   static int xoffset[8] = {1,1,0,-1,-1,-1,0,1};
   static int yoffset[8] = {0,1,1,1,0,-1,-1,-1};
   int length, start;
-  int bestDirection;
+  int bestDirection = 0;
   float error, bestError;
   float *imgPtrX, *imgPtrY, *imgPtrX2;
   int    imgIncX,  imgIncY, imgIncVec;
