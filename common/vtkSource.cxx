@@ -375,17 +375,17 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
 	(*this->EndMethod)(this->EndMethodArg);
 	}
       }
-    
-    // Let the source clean up after streaming.
-    this->StreamExecuteEnd();
-    
-    // Now we have to mark the data as up to data.
-    for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    }
+  
+  // Let the source clean up after streaming.
+  this->StreamExecuteEnd();
+  
+  // Now we have to mark the data as up to data.
+  for (idx = 0; idx < this->NumberOfOutputs; ++idx)
+    {
+    if (this->Outputs[idx])
       {
-      if (this->Outputs[idx])
-	{
-	this->Outputs[idx]->DataHasBeenGenerated();
-	}
+      this->Outputs[idx]->DataHasBeenGenerated();
       }
     }
   
