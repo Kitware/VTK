@@ -37,7 +37,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.89");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.90");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -1109,3 +1109,17 @@ void vtkWin32OpenGLRenderWindow::ShowCursor()
   ::ShowCursor(!this->CursorHidden);
 }                                  
 
+//----------------------------------------------------------------------------
+void vtkWin32OpenGLRenderWindow::SetCursorPosition(int x, int y) 
+{
+  int *size = this->GetSize();
+
+  POINT point;
+  point.x = x;
+  point.y = size[1] - y - 1;
+
+  if (ClientToScreen(this->WindowId, &point))
+    {
+    SetCursorPos(point.x, point.y);
+    }
+};
