@@ -5,20 +5,18 @@
 int main( int argc, char *argv[] )
 {
  vtkBar *bar = vtkBar::New();
- bar->PrintSelf();
+ bar->Print(cout);
  bar->Delete();
 
  vtkBar2 *bar2 = vtkBar2::New();
- bar2->PrintSelf();
+ bar2->Print(cout);
  bar2->Delete();
 
  vtkImageFoo *imagefoo = vtkImageFoo::New();
- imagefoo->PrintSelf();
+ imagefoo->Print(cout);
  imagefoo->Delete();
 
  return 0;
 }
-
-
 
 
