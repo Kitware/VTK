@@ -181,16 +181,18 @@ public:
 #endif
     FTFont *Font;
     char *FaceFileName;
+    float LargestAscender;
+    float LargestDescender;
   };
 
   static vtkFontCache* GetInstance();
   static void SetInstance(vtkFontCache *instance);
 
-  FTFont* GetFont(vtkTextProperty *tprop, 
-                  int override_color = 0,
-                  unsigned char red = 0,
-                  unsigned char green = 0,
-                  unsigned char blue = 0);
+  vtkFontCache::Entry* GetFont(vtkTextProperty *tprop, 
+                               int override_color = 0,
+                               unsigned char red = 0,
+                               unsigned char green = 0,
+                               unsigned char blue = 0);
 
 private:
 
@@ -416,11 +418,11 @@ void vtkFontCache::ReleaseCache()
 // override_color is true, then red, green, blue are used as text color
 // instead of the colors found in the vtkTextProperty.
 
-FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop, 
-                              int override_color,
-                              unsigned char red,
-                              unsigned char green,
-                              unsigned char blue)
+vtkFontCache::Entry* vtkFontCache::GetFont(vtkTextProperty *tprop, 
+                                           int override_color,
+                                           unsigned char red,
+                                           unsigned char green,
+                                           unsigned char blue)
 {
   int i;
 #if VTK_FTTM_REORDER
@@ -486,9 +488,9 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
           }
         this->Entries[0] = tmp;
         }
-      return this->Entries[0]->Font;
+      return this->Entries[0];
 #else
-      return this->Entries[i]->Font;
+      return this->Entries[i];
 #endif
       }
     }
@@ -603,6 +605,9 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 
   this->Entries[this->NumberOfEntries]->Font          = font;
 
+  this->Entries[this->NumberOfEntries]->LargestAscender  =
+  this->Entries[this->NumberOfEntries]->LargestDescender = -1;
+
 #if VTK_FTTM_DEBUG
   this->PrintEntry(this->NumberOfEntries, "Cr");
 #endif
@@ -620,11 +625,11 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 #endif
 
   this->NumberOfEntries++;
-  return tmp->Font;
+  return tmp;
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.16");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.17");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
@@ -703,17 +708,17 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
 
   // Check for font and try to set the size
 
-  FTFont *font;
-  font = vtkFontCache::GetInstance()->GetFont(tprop);
-
+  vtkFontCache::Entry *entry = vtkFontCache::GetInstance()->GetFont(tprop);
+  FTFont *font = entry->Font;
   if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
     size[0] = size[1] = 0;
     return;
     }
+  
   // Set the size (costly)
-
+  
   if (font->GetSize().GetSizeInPoints() != tprop->GetFontSize())
     {
 #if VTK_FTTM_DEBUG
@@ -723,17 +728,20 @@ void vtkOpenGLFreeTypeTextMapper::GetSize(vtkViewport* viewport, int *size)
     font->FaceSize(tprop->GetFontSize());
     }
   
-  float llx, lly, llz, urx, ury, urz;
-
-  font->BBox(this->Input, llx, lly, llz, urx, ury, urz, false);
-
-#if VTK_FTTM_DEBUG
-    printf("vtkOpenGLFreeTypeTextMapper::GetSize: BBox (%d)\n", 
-           tprop->GetFontSize());
-#endif
-
-  this->LastSize[0] = size[0] = (int)(urx - llx);
-  this->LastSize[1] = size[1] = (int)(ury - lly);
+  // The font global ascender and descender might just be too high
+  // for given a face. Let's get a compromise from the usual ascii chars.
+  
+  if (entry->LargestAscender < 0 || entry->LargestDescender < 0)
+    {
+    float llx, lly, llz, urx, ury, urz;
+    font->BBox("_/7Agfy", llx, lly, llz, urx, ury, urz);
+    entry->LargestAscender = ury;
+    entry->LargestDescender = lly;
+    }
+  
+  this->LastSize[0] = size[0] = (int)font->Advance(this->Input);
+  this->LastSize[1] = size[1] =  
+    (int)(entry->LargestAscender - entry->LargestDescender);
 
   this->SizeBuildTime.Modified();
 }
@@ -808,8 +816,9 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   // Check for font and set the size
   // (incoming ::GetSize() might not do it since it caches the result)
   
-  FTFont *font;
-  font = vtkFontCache::GetInstance()->GetFont(tprop, 1, red, green, blue);
+  vtkFontCache::Entry *entry = 
+    vtkFontCache::GetInstance()->GetFont(tprop, 1, red,green,blue);
+  FTFont *font = entry->Font;
   if (!font) 
     {
     vtkErrorMacro(<< "Render - No font");
@@ -853,10 +862,10 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
   switch (tprop->GetVerticalJustification())
     {
     case VTK_TEXT_TOP: 
-      pos[1] = pos[1] - size[1];
+      pos[1] = pos[1] - size[1] - entry->LargestDescender;
       break;
     case VTK_TEXT_CENTERED:
-      pos[1] = pos[1] - size[1] / 2;
+      pos[1] = pos[1] - size[1] / 2 - entry->LargestDescender / 2;
       break;
     case VTK_TEXT_BOTTOM: 
       break;
@@ -942,7 +951,7 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
       shadow_font = vtkFontCache::GetInstance()->GetFont(
-        tprop, 1, shadow_red, shadow_green, shadow_blue);
+        tprop, 1, shadow_red, shadow_green, shadow_blue)->Font;
 
       if (!shadow_font) 
         {
@@ -984,7 +993,8 @@ void vtkOpenGLFreeTypeTextMapper::RenderOverlay(vtkViewport* viewport,
     // cache by the shadow font
     if (IsAntiAliasingRequestedByThisProperty(tprop))
       {
-      font = vtkFontCache::GetInstance()->GetFont(tprop, 1, red, green, blue);
+      font = 
+        vtkFontCache::GetInstance()->GetFont(tprop, 1, red, green, blue)->Font;
       if (!font) 
         {
         vtkErrorMacro(<< "Render - No font");

@@ -133,7 +133,8 @@ public:
   // Description:
   // These methods can be used to control the spacing and placement of 
   // text (in the vertical direction). LineOffset is a vertical offset 
-  // (measured in lines); LineSpacing is the spacing between lines.
+  // (measured in pixels); LineSpacing is the spacing between lines, 
+  // expressed as a text height multiplication factor.
   vtkSetMacro(LineOffset, float);
   vtkGetMacro(LineOffset, float);
   vtkSetMacro(LineSpacing, float);
