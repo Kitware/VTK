@@ -35,6 +35,7 @@
 #include "vtkPointData.h"
 #include "vtkGenericAttribute.h"
 #include <assert.h>
+#include <vtkstd/string>
 
 //-----------------------------------------------------------------------------
 // Description:
