@@ -26,7 +26,7 @@ vtkImageReader reader
   reader SetDataExtent $extent(0) $extent(1) \
           $extent(2) $extent(3) $extent(4) $extent(5)
   reader SetDataOrigin $origin(0) $origin(1) $origin(2)
-  reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
+  reader SetFilePrefix "$VTK_DATA/fullHead/headsq"
   reader SetDataMask 0x7fff
   reader UpdateWholeExtent
 
