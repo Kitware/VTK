@@ -31,7 +31,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.29");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.30");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -971,6 +971,13 @@ void vtkPDataSetReader::Execute()
     {
     vtkDataSet *output;
     vtkDataSetReader *reader = vtkDataSetReader::New();
+    reader->ReadAllScalarsOn();
+    reader->ReadAllVectorsOn();
+    reader->ReadAllNormalsOn();
+    reader->ReadAllTensorsOn();
+    reader->ReadAllColorScalarsOn();
+    reader->ReadAllTCoordsOn();
+    reader->ReadAllFieldsOn();
     reader->SetFileName(this->FileName);
     reader->Update();
     vtkDataSet *data = reader->GetOutput();
@@ -1076,6 +1083,13 @@ void vtkPDataSetReader::PolyDataExecute()
     {
     vtkPolyData *tmp;
     reader = vtkDataSetReader::New();
+    reader->ReadAllScalarsOn();
+    reader->ReadAllVectorsOn();
+    reader->ReadAllNormalsOn();
+    reader->ReadAllTensorsOn();
+    reader->ReadAllColorScalarsOn();
+    reader->ReadAllTCoordsOn();
+    reader->ReadAllFieldsOn();
     reader->SetFileName(this->PieceFileNames[idx]);
     tmp = reader->GetPolyDataOutput();
     if (tmp && tmp->GetDataObjectType() != VTK_POLY_DATA)
@@ -1135,6 +1149,13 @@ void vtkPDataSetReader::UnstructuredGridExecute()
   for (idx = startPiece; idx <= endPiece; ++idx)
     {
     reader = vtkDataSetReader::New();
+    reader->ReadAllScalarsOn();
+    reader->ReadAllVectorsOn();
+    reader->ReadAllNormalsOn();
+    reader->ReadAllTensorsOn();
+    reader->ReadAllColorScalarsOn();
+    reader->ReadAllTCoordsOn();
+    reader->ReadAllFieldsOn();
     reader->SetFileName(this->PieceFileNames[idx]);
     reader->Update();
     if (reader->GetOutput()->GetDataObjectType() != VTK_UNSTRUCTURED_GRID)
@@ -1192,6 +1213,13 @@ void vtkPDataSetReader::ImageDataExecute()
 
   // Now read and append
   reader = vtkStructuredPointsReader::New();
+  reader->ReadAllScalarsOn();
+  reader->ReadAllVectorsOn();
+  reader->ReadAllNormalsOn();
+  reader->ReadAllTensorsOn();
+  reader->ReadAllColorScalarsOn();
+  reader->ReadAllTCoordsOn();
+  reader->ReadAllFieldsOn();
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
     if (pieceMask[i])
@@ -1279,6 +1307,13 @@ void vtkPDataSetReader::StructuredGridExecute()
   // Now read the pieces.
   pieces = new vtkStructuredGrid*[this->NumberOfPieces];
   reader = vtkStructuredGridReader::New();
+  reader->ReadAllScalarsOn();
+  reader->ReadAllVectorsOn();
+  reader->ReadAllNormalsOn();
+  reader->ReadAllTensorsOn();
+  reader->ReadAllColorScalarsOn();
+  reader->ReadAllTCoordsOn();
+  reader->ReadAllFieldsOn();
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
     if (pieceMask[i])
