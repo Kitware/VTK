@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.42");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.43");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -249,131 +249,11 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 // free up memory & close the window
 vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
 {
-  GLuint id;
-  short cur_light;
-  vtkOpenGLRenderer *ren;
-  
-  // free the cursors
-  if (this->DisplayId)
-    {
-    if (this->WindowId)
-      {
-      XUndefineCursor(this->DisplayId,this->WindowId);
-      }
-    if (this->XCArrow)
-      {
-      XFreeCursor(this->DisplayId,this->XCArrow);
-      }
-    if (this->XCSizeAll)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeAll);
-      }
-    if (this->XCSizeNS)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeNS);
-      }
-    if (this->XCSizeWE)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeWE);
-      }
-    if (this->XCSizeNE)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeNE);
-      }
-    if (this->XCSizeNW)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeNW);
-      }
-    if (this->XCSizeSE)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeSE);
-      }
-    if (this->XCSizeSW)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeSW);
-      }
-    }
-  
-  // make sure we have been initialized 
-  if (this->Internal->ContextId 
-#ifdef VTK_OPENGL_HAS_OSMESA
-      || this->Internal->OffScreenContextId
-#endif
-    )
-    {
-    this->MakeCurrent();
+  // close-down all system-specific drawing resources
+  this->Deinitialize();
 
-    /* first delete all the old lights */
-    for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
-      {
-      glDisable((GLenum)cur_light);
-      }
-
-    /* now delete all textures */
-    glDisable(GL_TEXTURE_2D);
-    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
-      {
-      id = (GLuint) this->TextureResourceIds->GetId(i);
-#ifdef GL_VERSION_1_1
-      if (glIsTexture(id))
-        {
-        glDeleteTextures(1, &id);
-        }
-#else
-      if (glIsList(id))
-        {
-        glDeleteLists(id,1);
-        }
-#endif
-      }
-
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    this->Renderers->InitTraversal();
-    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-          ren != NULL;
-          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-      {
-      ren->SetRenderWindow(NULL);
-      }
-
-    glFinish();
-#ifdef VTK_OPENGL_HAS_OSMESA
-    if (this->OffScreenRendering && this->Internal->OffScreenContextId)
-      {
-      OSMesaDestroyContext(this->Internal->OffScreenContextId);
-      this->Internal->OffScreenContextId = NULL;
-      vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
-      this->Internal->OffScreenWindow = NULL;
-      }
-    else
-#endif
-      {
-      glXDestroyContext( this->DisplayId, this->Internal->ContextId);
-      this->Internal->ContextId = NULL;
-      
-      // then close the old window 
-      if (this->OwnWindow && this->DisplayId && this->WindowId)
-        {
-        XDestroyWindow(this->DisplayId,this->WindowId);
-        this->WindowId = (Window)NULL;
-        }
-      }
-    }
-
-  if (this->DisplayId)
-    {
-    XSync(this->DisplayId,0);
-    }
-  // if we create the display, we'll delete it
-  if (this->OwnDisplay && this->DisplayId)
-    {
-    XCloseDisplay(this->DisplayId);
-    this->DisplayId = NULL;
-    }
   delete this->Internal;
-  delete[] this->Capabilities;
+
 }
 
 // End the rendering process and display the image.
@@ -552,6 +432,15 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
     this->Mapped = 0;
     }
 
+  // tell our renderers about us
+  vtkRenderer* ren;
+  for (this->Renderers->InitTraversal(); 
+       (ren = this->Renderers->GetNextItem());)
+    {
+    ren->SetRenderWindow(0);
+    ren->SetRenderWindow(this);
+    }
+
   this->OpenGLInit();
   glAlphaFunc(GL_GREATER,0);
 }
@@ -571,6 +460,149 @@ void vtkXOpenGLRenderWindow::Initialize (void)
 
   // now initialize the window 
   this->WindowInitialize();
+}
+
+void vtkXOpenGLRenderWindow::Deinitialize (void)
+{
+  vtkRenderer *ren;
+  GLuint id;
+  short cur_light;
+  
+  // free the cursors
+  if (this->DisplayId)
+    {
+    if (this->WindowId)
+      {
+      XUndefineCursor(this->DisplayId,this->WindowId);
+      }
+    if (this->XCArrow)
+      {
+      XFreeCursor(this->DisplayId,this->XCArrow);
+      }
+    if (this->XCSizeAll)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeAll);
+      }
+    if (this->XCSizeNS)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNS);
+      }
+    if (this->XCSizeWE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeWE);
+      }
+    if (this->XCSizeNE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNE);
+      }
+    if (this->XCSizeNW)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeNW);
+      }
+    if (this->XCSizeSE)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeSE);
+      }
+    if (this->XCSizeSW)
+      {
+      XFreeCursor(this->DisplayId,this->XCSizeSW);
+      }
+    }
+
+  this->XCArrow =   0;
+  this->XCSizeAll = 0;
+  this->XCSizeNS =  0;
+  this->XCSizeWE =  0;
+  this->XCSizeNE =  0;
+  this->XCSizeNW =  0;
+  this->XCSizeSE =  0;
+  this->XCSizeSW =  0;
+  
+  // make sure we have been initialized 
+  if (this->Internal->ContextId 
+#ifdef VTK_OPENGL_HAS_OSMESA
+      || this->Internal->OffScreenContextId
+#endif
+    )
+    {
+    this->MakeCurrent();
+
+    /* first delete all the old lights */
+    for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+      {
+      glDisable((GLenum)cur_light);
+      }
+
+    /* now delete all textures */
+    glDisable(GL_TEXTURE_2D);
+    for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
+      {
+      id = (GLuint) this->TextureResourceIds->GetId(i);
+#ifdef GL_VERSION_1_1
+      if (glIsTexture(id))
+        {
+        glDeleteTextures(1, &id);
+        }
+#else
+      if (glIsList(id))
+        {
+        glDeleteLists(id,1);
+        }
+#endif
+      }
+
+    // tell each of the renderers that this render window/graphics context
+    // is being removed (the RendererCollection is removed by vtkRenderWindow's
+    // destructor)
+    this->Renderers->InitTraversal();
+    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
+          ren != NULL;
+          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+      {
+      ren->SetRenderWindow(NULL);
+      }
+
+    glFinish();
+#ifdef VTK_OPENGL_HAS_OSMESA
+    if (this->OffScreenRendering && this->Internal->OffScreenContextId)
+      {
+      OSMesaDestroyContext(this->Internal->OffScreenContextId);
+      this->Internal->OffScreenContextId = NULL;
+      vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
+      this->Internal->OffScreenWindow = NULL;
+      }
+    else
+#endif
+      {
+      glXDestroyContext( this->DisplayId, this->Internal->ContextId);
+      this->Internal->ContextId = NULL;
+      
+      // then close the old window 
+      if (this->OwnWindow && this->DisplayId && this->WindowId)
+        {
+        XDestroyWindow(this->DisplayId,this->WindowId);
+        this->WindowId = (Window)NULL;
+        }
+      }
+    }
+
+  if (this->DisplayId)
+    {
+    XSync(this->DisplayId,0);
+    }
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
+    {
+    XCloseDisplay(this->DisplayId);
+    this->DisplayId = NULL;
+    }
+
+  if (this->Capabilities)
+    {
+    delete[] this->Capabilities;
+    this->Capabilities = 0;
+    }
+
 }
 
 // Change the window to fill the entire screen.
@@ -663,39 +695,15 @@ void vtkXOpenGLRenderWindow::PrefFullScreen()
 // Resize the window.
 void vtkXOpenGLRenderWindow::WindowRemap()
 {
-  short cur_light;
+  // shut everything down
+  this->Deinitialize();
 
-  /* first delete all the old lights */
-  for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
-    {
-    glDisable((GLenum)cur_light);
-    }
-#ifdef VTK_OPENGL_HAS_OSMESA
-  if (this->OffScreenRendering && this->Internal->OffScreenContextId)
-    {
-    OSMesaDestroyContext(this->Internal->OffScreenContextId);
-    this->Internal->OffScreenContextId = NULL;
-    vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
-    this->Internal->OffScreenWindow = NULL;
-    }
-  else
-#endif
-    {
-    glXDestroyContext( this->DisplayId, this->Internal->ContextId);
-    // then close the old window 
-    if (this->OwnWindow)
-      {
-      XDestroyWindow(this->DisplayId,this->WindowId);
-      }
-    }
-  
-  
   // set the default windowid 
   this->WindowId = this->NextWindowId;
   this->NextWindowId = (Window)NULL;
 
-  // configure the window 
-  this->WindowInitialize();
+  // set everything up again 
+  this->Initialize();
 }
 
 // Begin the rendering process.

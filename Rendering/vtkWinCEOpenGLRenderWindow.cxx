@@ -31,7 +31,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.7");
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.8");
 vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -63,23 +63,7 @@ vtkWinCEOpenGLRenderWindow::vtkWinCEOpenGLRenderWindow()
 
 vtkWinCEOpenGLRenderWindow::~vtkWinCEOpenGLRenderWindow()
 {
-  if (this->CursorHidden)
-    {
-    this->ShowCursor();
-    }
-
-  if (this->WindowId && this->OwnWindow)
-    {
-    this->Clean();
-    ReleaseDC(this->WindowId, this->DeviceContext);
-    // can't set WindowId=NULL, needed for DestroyWindow
-    this->DeviceContext = NULL;
-    
-    // clear the extra data before calling destroy
-    SetWindowLong(this->WindowId,4,(LONG)0);
-    DestroyWindow(this->WindowId);
-    }
-
+  this->Deinitialize();
 }
 
 void vtkWinCEOpenGLRenderWindow::Clean()
@@ -91,6 +75,12 @@ void vtkWinCEOpenGLRenderWindow::Clean()
   if (this->OffScreenContextId) 
     {
     this->MakeCurrent();
+
+    /* first delete all the old lights */
+    for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
+      {
+      glDisable((GLenum)cur_light);
+      }
 
     /* now delete all textures */
     glDisable(GL_TEXTURE_2D);
@@ -486,6 +476,26 @@ void vtkWinCEOpenGLRenderWindow::Initialize (void)
   this->WindowInitialize();
 }
 
+void vtkWinCEOpenGLRenderWindow::Deinitialize (void)
+{
+  if (this->CursorHidden)
+    {
+    this->ShowCursor();
+    }
+
+  if (this->WindowId && this->OwnWindow)
+    {
+    this->Clean();
+    ReleaseDC(this->WindowId, this->DeviceContext);
+    // can't set WindowId=NULL, needed for DestroyWindow
+    this->DeviceContext = NULL;
+    
+    // clear the extra data before calling destroy
+    SetWindowLong(this->WindowId,4,(LONG)0);
+    DestroyWindow(this->WindowId);
+    }
+}
+
 
 // Get the current size of the window.
 int *vtkWinCEOpenGLRenderWindow::GetSize(void)
@@ -618,33 +628,14 @@ void vtkWinCEOpenGLRenderWindow::PrefFullScreen()
 // Remap the window.
 void vtkWinCEOpenGLRenderWindow::WindowRemap()
 {
-  short cur_light;
+  this->Deinitialize();
 
-  /* first delete all the old lights */
-  for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+VTK_MAX_LIGHTS; cur_light++)
-    {
-    glDisable(cur_light);
-    }
-  
-  // then close the old window 
-  if (this->OwnWindow)
-    {
-    SendMessage(this->WindowId, WM_CLOSE, 0, 0L );
-    if (this->OffScreenContextId)
-      {
-       OSMesaDestroyContext(this->OffScreenContextId);
-       this->OffScreenContextId = NULL;
-       vtkOSMesaDestroyWindow(this->OffScreenWindow);
-       this->OffScreenWindow = NULL;
-      }
-    }
-  
   // set the default windowid 
   this->WindowId = this->NextWindowId;
   this->NextWindowId = 0;
 
   // configure the window 
-  this->WindowInitialize();
+  this->Initialize();
 }
 
 void vtkWinCEOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
