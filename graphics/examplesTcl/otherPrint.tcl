@@ -8,7 +8,7 @@
 
 catch {load vtktcl}
 
-set rtSelector "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v -i thread | grep -v StartTime: | grep -v 0x | grep -v Modified "
+set rtSelector "sed -e s/0x0/0/ | sed -e s/-0/0/ | grep -v -i thread | grep -v StartTime: | grep -v 0x | grep -v Modified | grep -v 'Compute Time:'"
 set rtComparator "diff -b"
 
 proc rtOtherTest { fileid } {
