@@ -35,7 +35,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.22");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.23");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -451,6 +451,15 @@ void vtkBoxWidget::PositionHandles()
 }
 #undef VTK_AVERAGE
 
+void vtkBoxWidget::SizeHandles()
+{
+  float radius = this->vtk3DWidget::SizeHandles(1.5);
+  for(int i=0; i<7; i++)
+    {
+    this->HandleGeometry[i]->SetRadius(radius);
+    }
+}
+
 int vtkBoxWidget::HighlightHandle(vtkProp *prop)
 {
   // first unhighlight anything picked
@@ -583,6 +592,7 @@ void vtkBoxWidget::OnLeftButtonUp()
 
   this->State = vtkBoxWidget::Start;
   this->HighlightFace(this->HighlightHandle(NULL));
+  this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -646,6 +656,7 @@ void vtkBoxWidget::OnMiddleButtonUp()
 
   this->State = vtkBoxWidget::Start;
   this->HighlightFace(this->HighlightHandle(NULL));
+  this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -705,6 +716,7 @@ void vtkBoxWidget::OnRightButtonUp()
 
   this->State = vtkBoxWidget::Start;
   this->HighlightOutline(0);
+  this->SizeHandles();
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
@@ -1116,9 +1128,6 @@ void vtkBoxWidget::PlaceWidget(float bds[6])
   this->Points->SetPoint(6, bounds[1], bounds[3], bounds[5]);
   this->Points->SetPoint(7, bounds[0], bounds[3], bounds[5]);
 
-  this->PositionHandles();
-  this->ComputeNormals();
-
   for (i=0; i<6; i++)
     {
     this->InitialBounds[i] = bounds[i];
@@ -1126,10 +1135,9 @@ void vtkBoxWidget::PlaceWidget(float bds[6])
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  for(i=0; i<7; i++)
-    {
-    this->HandleGeometry[i]->SetRadius(0.025*this->InitialLength);
-    }
+  this->PositionHandles();
+  this->ComputeNormals();
+  this->SizeHandles();
 }
 
 void vtkBoxWidget::GetTransform(vtkTransform *t)

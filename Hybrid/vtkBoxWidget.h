@@ -245,6 +245,7 @@ protected:
   void HighlightFace(int cellId);
   void HighlightOutline(int highlight);
   void ComputeNormals();
+  virtual void SizeHandles();
   
   // wireframe outline
   vtkActor          *HexOutline;
