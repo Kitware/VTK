@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.39");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.40");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -241,6 +241,9 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->XCSizeNW =  0;
   this->XCSizeSE =  0;
   this->XCSizeSW =  0;
+
+  this->Capabilities = 0;
+
 }
 
 // free up memory & close the window
@@ -370,6 +373,7 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
     this->DisplayId = NULL;
     }
   delete this->Internal;
+  delete[] this->Capabilities;
 }
 
 // End the rendering process and display the image.
@@ -759,13 +763,14 @@ void vtkXOpenGLRenderWindow::SetSize(int x,int y)
   else
     {
     // if we arent mappen then just set the ivars 
-    if (!this->Mapped)
-      {
-      return;
-      }
-    
-    XResizeWindow(this->DisplayId,this->WindowId,x,y);
-    XSync(this->DisplayId,False);
+      if (!this->Mapped)
+        {
+          return;
+        }
+
+      XResizeWindow(this->DisplayId,this->WindowId,x,y);
+      XSync(this->DisplayId,False);
+
     }
 }
 
@@ -878,7 +883,7 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
   else
 #endif
     {
-    if (this->Internal->ContextId && (this->Internal->ContextId != glXGetCurrentContext()) || this->ForceMakeCurrent)
+    if (this->Internal->ContextId && ((this->Internal->ContextId != glXGetCurrentContext()) || this->ForceMakeCurrent))
       {
       glXMakeCurrent(this->DisplayId,this->WindowId,this->Internal->ContextId);
       this->ForceMakeCurrent = 0;
@@ -1042,11 +1047,11 @@ void vtkXOpenGLRenderWindow::SetPosition(int x, int y)
 // Sets the parent of the window that WILL BE created.
 void vtkXOpenGLRenderWindow::SetParentId(Window arg)
 {
-  if (this->ParentId)
-    {
-    vtkErrorMacro("ParentId is already set.");
-    return;
-    }
+//   if (this->ParentId)
+//     {
+//     vtkErrorMacro("ParentId is already set.");
+//     return;
+//     }
   
   vtkDebugMacro(<< "Setting ParentId to " << (void *)arg << "\n"); 
 
@@ -1172,7 +1177,10 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
       }
     }
   strm << ends;
-  return strm.str();
+  delete[] this->Capabilities;
+  this->Capabilities = new char[strlen(strm.str()) + 1];
+  strcpy(this->Capabilities, strm.str());
+  return this->Capabilities;
 }
 
 int vtkXOpenGLRenderWindow::SupportsOpenGL()

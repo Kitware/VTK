@@ -212,6 +212,7 @@ protected:
   int      CursorHidden;
   int      ForceMakeCurrent;
   int      UsingHardware;
+  char    *Capabilities;
 
   // we must keep track of the cursors we are using
   Cursor XCArrow;

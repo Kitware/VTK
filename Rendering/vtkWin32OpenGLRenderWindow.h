@@ -238,6 +238,7 @@ protected:
   int CursorHidden;
   int ForceMakeCurrent;
 
+  char   *Capabilities;
 
   void ResizeWhileOffscreen(int xsize, int ysize);
   void CreateAWindow(int x, int y, int width, int height);
