@@ -88,7 +88,7 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 //  Write header
 //
   vtkDebugMacro("Writing ASCII sla file");
-  fprintf (fp, "%80s\n", header);
+  fprintf (fp, "solid ascii\n");
 //
 //  Write out triangle polygons.  In not a triangle polygon, only first 
 //  three vertices are written.
@@ -101,16 +101,16 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys)
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-    fprintf (fp, " FACET NORMAL %.6g %.6g %.6g\n  OUTER LOOP\n",
+    fprintf (fp, " facet normal %.6g %.6g %.6g\n  outer loop\n",
             n[0], n[1], n[2]);
 
-    fprintf (fp, "   VERTEX %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
-    fprintf (fp, "   VERTEX %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
-    fprintf (fp, "   VERTEX %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
+    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
+    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v2[0], v2[1], v2[2]);
+    fprintf (fp, "   vertex %.6g %.6g %.6g\n", v3[0], v3[1], v3[2]);
 
-    fprintf (fp, "  ENDLOOP\n ENDFACET\n");
+    fprintf (fp, "  endloop\n endfacet\n");
     }
-  fprintf (fp, "ENDSOLID\n");
+  fprintf (fp, "endsolid\n");
   fclose (fp);
 }
 
