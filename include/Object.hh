@@ -67,7 +67,7 @@ private:
   int RefCount;    // Number of uses of this object by other objects
   vlPrintList PrintList;
 
-friend ostream& operator<<(ostream& os, vlObject& o) {o.Print(os);return os;}
+  friend ostream& operator<<(ostream& os, vlObject& o);
 };
 
 #endif
