@@ -83,6 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkQuadricClustering_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkTimerLog.h"
 
 typedef struct {
   int VertexId;
@@ -156,6 +157,8 @@ protected:
   float ZBinSize;
   VTK_POINT_QUADRIC* QuadricArray;
   vtkIdList *BinIds;
+
+  vtkTimerLog* log;
 };
 
 #endif

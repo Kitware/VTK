@@ -67,17 +67,24 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->NumberOfZDivisions = 50;
   this->QuadricArray = NULL;
   this->BinIds = vtkIdList::New();
+  this->log = vtkTimerLog::New();
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering::~vtkQuadricClustering()
 {
   this->BinIds->Delete();
+  this->log->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkQuadricClustering::Execute()
 {
+  if (Debug)
+    {
+    this->log->StartTimer();
+    }
+
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkCellArray *outputTris = vtkCellArray::New();
@@ -91,6 +98,7 @@ void vtkQuadricClustering::Execute()
   vtkIdList *triPtIds = vtkIdList::New();
   float newPt[3];
   int vertexId;
+  int abortExecute = 0;
   
   if (numTris == 0)
     {
@@ -110,8 +118,20 @@ void vtkQuadricClustering::Execute()
 		    this->NumberOfZDivisions);
   
   inputTris->InitTraversal();
-  for (i = 0; i < numTris; i++)
+  for (i = 0; i < numTris && !abortExecute ; i++)
     {
+
+    if ( ! (i % 10000) ) 
+      {
+      vtkDebugMacro(<<"Visiting polygon #" << i);
+      this->UpdateProgress (0.5*i/numTris);
+      if (this->GetAbortExecute())
+        {
+        abortExecute = 1;
+        break;
+        }
+      }
+
     inputTris->GetNextCell(numPts, cellPtIds);
     for (j = 0; j < 3; j++)
       {
@@ -140,8 +160,19 @@ void vtkQuadricClustering::Execute()
       outputTris->InsertNextCell(triPtIds);
       }
     }
-  for (i = 0; i < this->BinIds->GetNumberOfIds(); i++)
+  for (i = 0; i < this->BinIds->GetNumberOfIds() && !abortExecute ; i++)
     {
+
+    if ( ! (i % 1000) ) 
+      {
+      vtkDebugMacro(<<"Finding point in bin #" << i);
+      this->UpdateProgress (0.5*i/this->BinIds->GetNumberOfIds());
+      if (this->GetAbortExecute())
+        {
+        abortExecute = 1;
+        break;
+        }
+      }
     this->ComputeRepresentativePoint(
       this->QuadricArray[this->BinIds->GetId(i)].Quadric,
       this->BinIds->GetId(i), newPt);
@@ -156,6 +187,12 @@ void vtkQuadricClustering::Execute()
   triPtIds->Delete();
   outputPoints->Delete();
   delete [] this->QuadricArray;
+
+  if ( Debug )
+    {
+    this->log->StopTimer();
+    vtkDebugMacro(<<"Execution took: "<<this->log->GetElapsedTime()<<" seconds.");
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -235,7 +272,7 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
   float cellCenter[3], tempVector[3];
   float cellBounds[6];
   int x, y, z;
-  
+
   x = binId / (this->NumberOfYDivisions * this->NumberOfZDivisions);
   y = (binId - x * this->NumberOfYDivisions * this->NumberOfZDivisions) /
     this->NumberOfZDivisions;
