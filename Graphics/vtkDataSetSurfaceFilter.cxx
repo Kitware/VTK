@@ -37,7 +37,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.41");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.42");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -875,7 +875,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       }
     else if (cellType == VTK_PIXEL || cellType == VTK_QUAD || 
              cellType == VTK_TRIANGLE || cellType == VTK_POLYGON || 
-             cellType == VTK_TRIANGLE_STRIP)
+             cellType == VTK_TRIANGLE_STRIP || 
+             cellType == VTK_QUADRATIC_TRIANGLE ||
+             cellType == VTK_QUADRATIC_QUAD )
       { // save 2D cells for second pass
       flag2D = 1;
       }
@@ -938,12 +940,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
           }
         else if ( cell->GetCellDimension() == 2 )
           {
-          cell->Triangulate(0,pts,coords);
-          for (i=0; i < pts->GetNumberOfIds(); i+=3)
-            {
-            this->InsertTriInHash(pts->GetId(i), pts->GetId(i+1),
-                                  pts->GetId(i+2), cellId);
-            }
+          vtkWarningMacro(<< "2-D nonlinear cells must be processed with all other 2-D cells.");
           } 
         else //3D nonlinear cell
           {
@@ -1049,6 +1046,19 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
         }
       newPolys->InsertNextCell(pts);
       outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
+      }
+    else if ( cellType == VTK_QUADRATIC_TRIANGLE || cellType == VTK_QUADRATIC_QUAD )
+      {
+      input->GetCell( cellId, cell );
+      cell->Triangulate( 0, pts, coords );
+      for ( i=0; i < pts->GetNumberOfIds(); i+=3 )
+        {
+        outPts[0] = this->GetOutputPointId( pts->GetId(i),   input, newPts, outputPD );
+        outPts[1] = this->GetOutputPointId( pts->GetId(i+1), input, newPts, outputPD );
+        outPts[2] = this->GetOutputPointId( pts->GetId(i+2), input, newPts, outputPD );
+        newPolys->InsertNextCell( 3, outPts );
+        outputCD->CopyData(cd, cellId, this->NumberOfNewCells++);
+        }
       }
     } // for all cells.
 
