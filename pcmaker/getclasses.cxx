@@ -342,12 +342,12 @@ void MakeForce(char *fname)
   }
 }
 
-void doMSCHeader(FILE *fp, CPcmakerDlg *vals);
-void doBorHeader(FILE *fp, CPcmakerDlg *vals);
-void doMSCTclHeader(FILE *fp, CPcmakerDlg *vals);
-void doBorTclHeader(FILE *fp, CPcmakerDlg *vals);
-void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals);
-void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals);
+void doMSCHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doMSCTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doBorTclHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
+void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals, int doAdded);
 
 // generate depend info for a .cxx file
 // outputs the result as DEPEND
@@ -357,6 +357,7 @@ void makeMakefile(CPcmakerDlg *vals)
 {
   char fname[256];
   FILE *ofp;
+  int doAddedValue = 0;
   int total;
   
   sprintf(fname,"%s\\common\\Makefile.in",vals->m_WhereVTK);
@@ -380,6 +381,26 @@ void makeMakefile(CPcmakerDlg *vals)
   {
     sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("patented"));
+  }
+  if (vals->m_Working)
+  {
+    sprintf(fname,"%s\\working\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("working"));
+  }
+  if (vals->m_GEMSIP)
+  {
+    doAddedValue = 1;
+    sprintf(fname,"%s\\gemsio\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("gemsio"));
+    doAddedValue = 1;
+    sprintf(fname,"%s\\gemsip\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("gemsip"));
+  }
+  if (vals->m_GEMSVOLUME)
+  {
+    doAddedValue = 1;
+    sprintf(fname,"%s\\gemsvolume\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("gemsvolume"));
   }
 
   //remove any UNIX only stuff
@@ -449,14 +470,14 @@ void makeMakefile(CPcmakerDlg *vals)
   // spit out a Makefile
   sprintf(fname,"%s\\vtkdll\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCHeader(ofp, vals);
-  if (vals->m_BorlandComp) doBorHeader(ofp, vals);
+  if (vals->m_MSComp) doMSCHeader(ofp, vals, doAddedValue);
+  if (vals->m_BorlandComp) doBorHeader(ofp, vals, doAddedValue);
   fclose(ofp);
 
   sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCTclHeader(ofp, vals);
-  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals);
+  if (vals->m_MSComp) doMSCTclHeader(ofp, vals, doAddedValue);
+  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals, doAddedValue);
   fclose(ofp);
 
   // generate the java makefiles if requested
@@ -464,8 +485,8 @@ void makeMakefile(CPcmakerDlg *vals)
     {
     sprintf(fname,"%s\\vtkjava\\makefile",vals->m_WhereBuild);
     ofp = fopen(fname,"w");
-    if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals);
-    if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals);
+    if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals, doAddedValue);
+    if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals, doAddedValue);
     fclose(ofp);
     }
 }
@@ -476,7 +497,7 @@ void makeMakefile(CPcmakerDlg *vals)
   Here are the different makefile methods
 *******************************************************************************/
 
-void doMSCHeader(FILE *fp,CPcmakerDlg *vals)
+void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
   char file[256];
@@ -594,7 +615,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals)
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorHeader(FILE *fp, CPcmakerDlg *vals)
+void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
 
@@ -756,7 +777,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals)
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals)
+void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
   char file [256];
@@ -792,6 +813,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   if (vals->m_Lean)
     {
     fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo\"$(OUTDIR)/\" /c \n");
@@ -955,7 +978,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals)
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorTclHeader(FILE *fp,CPcmakerDlg *vals)
+void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
   fprintf(fp,"# VTK Borland makefile\n");
@@ -990,6 +1013,8 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals)
  fprintf(fp," -I%s\\pcmaker\\xlib \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n"); 
   fprintf(fp,"LINK32=tlink32.exe\n\n");
@@ -1155,7 +1180,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals)
   fprintf(fp,"################################################################################\n");
 }
 
-void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals)
+void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
   char file[256];
@@ -1188,6 +1213,8 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals)
     {
     fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
     }
+  if (doAddedValue) fprintf(fp," /I \"%s\\working\" /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
     vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
@@ -1334,7 +1361,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals)
   fprintf(fp,"################################################################################\n");
 }
 
-void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals)
+void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
 {
   int i;
 
@@ -1371,6 +1398,8 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals)
  fprintf(fp," -I%s\\include\\win32 \n",vals->m_WhereJDK);
  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
+  if (doAddedValue) fprintf(fp," -I%s\\gemsio -I%s\\gemsip -I%s\\gemsvolume \\\n",
+    vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n");
   fprintf(fp,"LINK32=tlink32.exe\n\n");
