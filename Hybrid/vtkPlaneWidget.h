@@ -285,6 +285,7 @@ protected:
   void HandlesOn(double length);
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
+  virtual void SizeHandles();
   
   // the normal cone
   vtkActor          *ConeActor;
