@@ -93,6 +93,7 @@ class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkProperty;
 class vtkTextActor;
+class vtkTextProperty;
 class vtkTexture;
 class vtkTextureMapToPlane;
 class vtkTransform;
@@ -257,6 +258,11 @@ public:
   // Set the properties of the cross-hair cursor.
   virtual void SetCursorProperty(vtkProperty*);
   vtkGetObjectMacro(CursorProperty,vtkProperty);
+
+  // Description:
+  // Set/Get the text property for the image data and window-level annotation.
+  void SetTextProperty(vtkTextProperty* tprop);
+  vtkTextProperty* GetTextProperty();
 
   // Description:
   // Get the current window and level values.
