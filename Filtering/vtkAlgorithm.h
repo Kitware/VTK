@@ -112,15 +112,6 @@ public:
   virtual void SetInformation(vtkInformation*);
 
   // Description:
-  // Set an input of this algorithm.  The input must correspond to the
-  // output of another algorithm.
-  //
-  // TODO: Accept an actual vtkDataObject instance as input and use it
-  // to establish the pipeline connection to maintain backward
-  // compatability.
-  void SetInput(int index, vtkAlgorithmOutput* input);
-
-  // Description:
   // Get the data object that will contain the algorithm output for
   // the given port.
   vtkDataObject* GetOutputDataObject(int port);
