@@ -77,7 +77,6 @@ void vtkMapper::SetGlobalImmediateModeRendering(int val)
 {
   if (val == vtkMapperGlobalImmediateModeRendering) return;
   vtkMapperGlobalImmediateModeRendering = val;
-  this->Modified(); 
 }
 
 int vtkMapper::GetGlobalImmediateModeRendering()
