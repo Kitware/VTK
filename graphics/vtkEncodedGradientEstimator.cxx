@@ -307,6 +307,10 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Clip Outside Circle: " 
      << ((this->ClipOutsideCircle)?"On":"Off") << endl;
 
+  // I don't want to print out this->UseCircleClip
+  // os << indent << "Use Circle Clip: " 
+  //    << this->UseCircleClip << endl;
+
   os << indent << "Number Of Threads: " 
      << this->NumberOfThreads << endl;
 
