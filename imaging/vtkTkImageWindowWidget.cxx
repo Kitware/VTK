@@ -410,7 +410,7 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
   TkWindow *winPtr2;
   Tcl_HashEntry *hPtr;
   int new_flag;
-  vtkWin32ImageWindow *ImageWindow;
+  vtkImageWindow *ImageWindow;
   TkWinDrawable *twdPtr;
   HWND parentWin;
 
@@ -430,7 +430,7 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     {
     // Make the ImageWindow window.
     self->ImageWindow = vtkImageWindow::New();
-    ImageWindow = (vtkWin32ImageWindow *)(self->ImageWindow);
+    ImageWindow = self->ImageWindow;
     vtkTclGetObjectFromPointer(self->Interp, self->ImageWindow,
 			       vtkImageWindowCommand);
     self->IW = strdup(self->Interp->result);
@@ -438,7 +438,7 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     }
   else
     {
-    ImageWindow = (vtkWin32ImageWindow *)
+    ImageWindow =
       vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp,
 				 new_flag);
     if (ImageWindow != self->ImageWindow)
@@ -484,12 +484,12 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
   self->ImageWindow->Render();  
 
 #if(TK_MAJOR_VERSION >=  8)
-  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, ImageWindow->GetWindowId());
+  twdPtr = (TkWinDrawable*)Tk_AttachHWND(self->TkWin, (HWND)ImageWindow->GetGenericWindowId());
 #else
   twdPtr = (TkWinDrawable*) ckalloc(sizeof(TkWinDrawable));
   twdPtr->type = TWD_WINDOW;
   twdPtr->window.winPtr = winPtr;
-  twdPtr->window.handle = ImageWindow->GetWindowId();
+  twdPtr->window.handle = (HWND)ImageWindow->GetGenericWindowId();
 #endif
   
   self->OldProc = (WNDPROC)GetWindowLong(twdPtr->window.handle,GWL_WNDPROC);

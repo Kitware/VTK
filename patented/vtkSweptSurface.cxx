@@ -245,7 +245,7 @@ void vtkSweptSurface::Execute()
                                        position, orientation); 
       a->SetPosition(position);
       a->SetOrientation(orientation);
-      this->SampleInput(a->vtkProp::GetMatrixPointer(), inDim, inOrigin, 
+      this->SampleInput(a->vtkProp3D::GetMatrixPointer(), inDim, inOrigin, 
 			inSpacing, inScalars, newScalars);
       }
     }
@@ -253,7 +253,7 @@ void vtkSweptSurface::Execute()
   //finish off last step
   a->SetPosition(position2);
   a->SetOrientation(orient2);
-  this->SampleInput(a->vtkProp::GetMatrixPointer(), inDim, inOrigin, inSpacing,
+  this->SampleInput(a->vtkProp3D::GetMatrixPointer(), inDim, inOrigin, inSpacing,
                     inScalars, newScalars);
 
   // Cap if requested
