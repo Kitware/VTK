@@ -25,7 +25,8 @@ vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
-vtkSubdivideTetra
+vtkSubdivideTetra \
+vtkMassProperties
 
 #vtkHershey \
 #vtkVectorTextSource
