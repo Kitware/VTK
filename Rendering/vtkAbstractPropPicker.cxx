@@ -23,7 +23,7 @@
 #include "vtkPropAssembly.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.9");
+vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.10");
 
 vtkCxxSetObjectMacro(vtkAbstractPropPicker,Path,vtkAssemblyPath);
 
@@ -157,6 +157,15 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+
+// Disable warnings about qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303
+#endif
+#if defined(__INTEL_COMPILER) 
+# pragma warning (disable:858)
+#endif
+
 #ifndef VTK_LEGACY_REMOVE
 # ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 #  undef GetProp
