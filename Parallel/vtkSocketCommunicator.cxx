@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkSocketController.h"
 #include "vtkObjectFactory.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #define WSA_VERSION MAKEWORD(1,1)
 #define vtkCloseSocketMacro(sock) (closesocket(sock))
 #else

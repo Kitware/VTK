@@ -50,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdlib.h>
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkMutexLock.h"
 #ifndef VTK_IMPLEMENT_MESA_CXX
 #include <GL/gl.h>
 #endif

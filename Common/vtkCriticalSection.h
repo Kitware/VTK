@@ -74,14 +74,14 @@ typedef abilock_t vtkCritSecType;
 typedef pthread_mutex_t vtkCritSecType;
 #endif
  
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
 #include <winbase.h>
 typedef CRITICAL_SECTION vtkCritSecType;
 #endif
 
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 typedef int vtkCritSecType;
 #endif
 #endif

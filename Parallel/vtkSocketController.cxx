@@ -86,7 +86,7 @@ void vtkSocketController::Initialize(int* , char***)
     return;
     }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
   WSAData wsaData;  
   if (WSAStartup(WSA_VERSION, &wsaData))
     {

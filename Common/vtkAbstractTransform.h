@@ -69,7 +69,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkVectors.h"
-#include "vtkMutexLock.h"
+
+class vtkSimpleMutexLock;
+
 
 class VTK_EXPORT vtkAbstractTransform : public vtkObject
 {

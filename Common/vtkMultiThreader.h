@@ -76,11 +76,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MAX_THREADS              32
 #endif
 
-#ifdef _WIN32
+
+#ifdef VTK_USE_WIN32_THREADS
 #define VTK_MAX_THREADS              8
 #endif
 
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
 #define VTK_MAX_THREADS              1
@@ -104,20 +105,18 @@ typedef pthread_t vtkThreadProcessIDType;
 #define VTK_THREAD_RETURN_TYPE   void *
 #endif
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
 typedef LPTHREAD_START_ROUTINE vtkThreadFunctionType;
 typedef HANDLE vtkThreadProcessIDType;
 #define VTK_THREAD_RETURN_VALUE 0
 #define VTK_THREAD_RETURN_TYPE DWORD __stdcall
 #endif
 
-#ifndef _WIN32
-#ifndef VTK_USE_PTHREADS
+#if !defined(VTK_USE_PTHREADS) && !defined(VTK_USE_WIN32_THREADS)
 typedef void (*vtkThreadFunctionType)(void *);
 typedef int vtkThreadProcessIDType;
 #define VTK_THREAD_RETURN_VALUE
 #define VTK_THREAD_RETURN_TYPE void
-#endif
 #endif
 //ETX
 

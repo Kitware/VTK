@@ -95,7 +95,7 @@ protected:
 
 void vtkThreadedController::CreateOutputWindow()
 {
-#if defined(VTK_USE_PTHREADS) || defined(VTK_USE_SPROC) || defined(_WIN32)
+#if defined(VTK_USE_PTHREADS) || defined(VTK_USE_SPROC) || defined(VTK_USE_WIN32_THREADS)
   vtkThreadedControllerOutputWindow* window = new vtkThreadedControllerOutputWindow;
   this->OutputWindow = window;
   vtkOutputWindow::SetInstance(this->OutputWindow);
@@ -249,7 +249,7 @@ void vtkThreadedController::CreateProcessControllers()
 vtkSimpleCriticalSection vtkThreadedController::CounterLock;
 int vtkThreadedController::Counter;
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
 HANDLE vtkThreadedController::BarrierEndedEvent = 0;
 HANDLE vtkThreadedController::NextThread = 0;
 #else
@@ -329,7 +329,7 @@ void vtkThreadedController::Start(int threadId)
   this->ThreadIds[threadId] = pthread_self();
 #elif defined VTK_USE_SPROC
   this->ThreadIds[threadId] = PRDA->sys_prda.prda_sys.t_pid;
-#elif defined _WIN32
+#elif defined VTK_USE_WIN32_THREADS
   this->ThreadIds[threadId] = GetCurrentThreadId();
 #endif
   
@@ -433,7 +433,7 @@ vtkMultiProcessController *vtkThreadedController::GetLocalController()
   // recursion (the controller's output window calls GetLocalController)
   cerr << "Could Not Find my process id." << endl;
   return NULL;
-#elif defined _WIN32
+#elif defined VTK_USE_WIN32_THREADS
 
   int idx;
   DWORD pid = GetCurrentThreadId();
@@ -470,7 +470,7 @@ vtkMultiProcessController *vtkThreadedController::GetLocalController()
 // wait until that is cleaned up or bad things happen.
 void vtkThreadedController::WaitForPreviousBarrierToEnd()
 {
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   WaitForSingleObject(vtkThreadedController::BarrierEndedEvent, INFINITE);
 #else
   vtkThreadedController::BarrierInProgress.Lock();
@@ -481,7 +481,7 @@ void vtkThreadedController::WaitForPreviousBarrierToEnd()
 void vtkThreadedController::BarrierStarted()
 {
   vtkThreadedController::IsBarrierInProgress = 1;
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
 
 #else
   vtkThreadedController::BarrierInProgress.Lock();
@@ -492,7 +492,7 @@ void vtkThreadedController::BarrierStarted()
 void vtkThreadedController::BarrierEnded()
 {
   vtkThreadedController::IsBarrierInProgress = 0;
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   SetEvent(vtkThreadedController::BarrierEndedEvent);
 #else
   vtkThreadedController::BarrierInProgress.Unlock();
@@ -502,7 +502,7 @@ void vtkThreadedController::BarrierEnded()
 // Tell the next guy that it is ok to continue with the barrier
 void vtkThreadedController::SignalNextThread()
 {
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   SetEvent(vtkThreadedController::NextThread);
 #else
   vtkThreadedController::BarrierLock.Unlock();
@@ -512,7 +512,7 @@ void vtkThreadedController::SignalNextThread()
 // Create the windows event necessary for waiting  
 void vtkThreadedController::InitializeBarrier()
 {
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   if (!BarrierEndedEvent)
     {
     vtkThreadedController::BarrierEndedEvent = CreateEvent(0,FALSE,FALSE,0);
@@ -524,7 +524,7 @@ void vtkThreadedController::InitializeBarrier()
 // Wait until the previous thread says it's ok to continue
 void vtkThreadedController::WaitForNextThread()
 {
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   WaitForSingleObject(vtkThreadedController::NextThread,INFINITE);
 #else
   vtkThreadedController::BarrierLock.Lock();

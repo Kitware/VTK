@@ -71,7 +71,7 @@ vtkSimpleMutexLock::vtkSimpleMutexLock()
   init_lock( &this->MutexLock );
 #endif
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   this->MutexLock = CreateMutex( NULL, FALSE, NULL ); 
 #endif
 
@@ -88,7 +88,7 @@ vtkSimpleMutexLock::vtkSimpleMutexLock()
 // Destruct the vtkMutexVariable
 vtkSimpleMutexLock::~vtkSimpleMutexLock()
 {
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   CloseHandle(this->MutexLock);
 #endif
 
@@ -104,7 +104,7 @@ void vtkSimpleMutexLock::Lock()
   spin_lock( &this->MutexLock );
 #endif
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   WaitForSingleObject( this->MutexLock, INFINITE );
 #endif
 
@@ -120,7 +120,7 @@ void vtkSimpleMutexLock::Unlock()
   release_lock( &this->MutexLock );
 #endif
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   ReleaseMutex( this->MutexLock );
 #endif
 

@@ -25,6 +25,11 @@
 #define VTK_HP_PTHREADS
 #endif
 
+#cmakedefine CMAKE_USE_WIN32_THREADS
+#ifdef CMAKE_USE_WIN32_THREADS
+#define VTK_USE_WIN32_THREADS
+#endif
+
 #cmakedefine BUILD_SHARED_LIBS
 #ifdef BUILD_SHARED_LIBS
 #define VTKDLL

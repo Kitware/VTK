@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkHomogeneousTransform.h"
 #include "vtkMath.h"
 #include "vtkDebugLeaks.h"
+#include "vtkMutexLock.h"
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()

@@ -106,7 +106,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
 {
   if (vtkMultiThreaderGlobalDefaultNumberOfThreads == 0)
     {
-    int num;
+    int num = 1; // default is 1
 #ifdef VTK_USE_SPROC
     // Default the number of threads to be the number of available
     // processors if we are using sproc()
@@ -120,8 +120,6 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
     num = sysconf( _SC_NPROCESSORS_ONLN );
 #elif defined(_SC_NPROC_ONLN)
     num = sysconf( _SC_NPROC_ONLN );
-#else
-    num = 1;
 #endif
 #endif
 
@@ -133,7 +131,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
     }
 #endif
 
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
     // If we are not multithreading, the number of threads should
@@ -218,7 +216,7 @@ void vtkMultiThreader::SingleMethodExecute()
 {
   int                thread_loop = 0;
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   DWORD              threadId;
   HANDLE             process_id[VTK_MAX_THREADS];
 #endif
@@ -249,7 +247,7 @@ void vtkMultiThreader::SingleMethodExecute()
   // We are using sproc (on SGIs), pthreads(on Suns), or a single thread
   // (the default)  
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   // Using CreateThread on a PC
   //
   // We want to use CreateThread to start this->NumberOfThreads - 1 
@@ -345,7 +343,9 @@ void vtkMultiThreader::SingleMethodExecute()
   pthread_attr_create( &attr );
 #else  
   pthread_attr_init(&attr);
+#if !defined(__CYGWIN__)
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
+#endif
 #endif
   
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
@@ -383,7 +383,7 @@ void vtkMultiThreader::SingleMethodExecute()
     }
 #endif
 
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
@@ -399,7 +399,7 @@ void vtkMultiThreader::MultipleMethodExecute()
 {
   int                thread_loop;
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   DWORD              threadId;
   HANDLE             process_id[VTK_MAX_THREADS];
 #endif
@@ -433,7 +433,7 @@ void vtkMultiThreader::MultipleMethodExecute()
   // We are using sproc (on SGIs), pthreads(on Suns), CreateThread
   // on a PC or a single thread (the default)  
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   // Using CreateThread on a PC
   //
   // We want to use CreateThread to start this->NumberOfThreads - 1 
@@ -532,7 +532,9 @@ void vtkMultiThreader::MultipleMethodExecute()
   pthread_attr_create( &attr );
 #else  
   pthread_attr_init(&attr);
+#ifndef __CYGWIN__
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
+#endif
 #endif
 
   for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
@@ -564,7 +566,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
 #endif
 
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
@@ -584,7 +586,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
   vtkThreadFunctionType tf;
   tf = f; tf= tf;
   
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   DWORD              threadId;
 #endif
 
@@ -626,7 +628,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
   // We are using sproc (on SGIs), pthreads(on Suns or HPs), 
   // CreateThread (on win32), or generating an error  
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   // Using CreateThread on a PC
   //
   this->SpawnedThreadProcessID[id] = 
@@ -655,7 +657,9 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
   pthread_attr_create( &attr );
 #else  
   pthread_attr_init(&attr);
+#ifndef __CYGWIN__
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_PROCESS);
+#endif
 #endif
   
 #ifdef VTK_HP_PTHREADS
@@ -670,7 +674,7 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
 
 #endif
 
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
@@ -696,7 +700,7 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
   this->SpawnedThreadActiveFlag[ThreadID] = 0;
   this->SpawnedThreadActiveFlagLock[ThreadID]->Unlock();
 
-#ifdef _WIN32
+#ifdef VTK_USE_WIN32_THREADS
   WaitForSingleObject(this->SpawnedThreadProcessID[ThreadID], INFINITE);
   CloseHandle(this->SpawnedThreadProcessID[ThreadID]);
 #endif
@@ -712,7 +716,7 @@ void vtkMultiThreader::TerminateThread( int ThreadID )
   pthread_join( this->SpawnedThreadProcessID[ThreadID], NULL );
 #endif
 
-#ifndef _WIN32
+#ifndef VTK_USE_WIN32_THREADS
 #ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
@@ -735,5 +739,17 @@ void vtkMultiThreader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Thread Count: " << this->NumberOfThreads << "\n";
   os << indent << "Global Maximum Number Of Threads: " << 
     vtkMultiThreaderGlobalMaximumNumberOfThreads << endl;
-
+  os << "Thread system used: " <<
+#ifdef VTK_USE_PTHREADS  
+   "PTHREADS"
+#elif defined VTK_USE_SPROC
+    "SPROC"
+#elif defined VTK_USE_WIN32_THREADS
+    "WIN32 Threads"
+#elif defined VTK_HP_PTHREADS
+    "HP PThreads"
+#else
+    "NO THREADS SUPPORT"
+#endif
+     << endl;
 }

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkSocketController_h
 #define __vtkSocketController_h
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #include <winsock2.h>
 #else
 #include <sys/types.h>
