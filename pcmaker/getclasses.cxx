@@ -259,24 +259,42 @@ void CreateToolkitsH(CPcmakerDlg *vals)
   sprintf(fname,"%s\\vtkConfigure.h",vals->m_WhereBuild);
   ofp = fopen(fname,"r");
   const char* AnsiDefine = "#define VTK_USE_ANSI_STDLIB\n";
+  // Assume writting the file
   bool writeFilep = true;
   if(ofp)
     {
     char lineIn[1024];
+    // Read the first line in the file
     fgets(lineIn, 1024, ofp);
-    // if the second line is the ansi flag, and ansi is on, then do not
-    // write the file again, as it needs no change
+    // Read the second line
     fgets(lineIn, 1024, ofp);
-    if(vals->m_AnsiCpp)
+    bool configWasAnsi = false;
+    // see if the second line is the AnsiDefine string
+    if(strcmp(lineIn, AnsiDefine) == 0)
       {
-      if(strcmp(lineIn, AnsiDefine) == 0)
+      configWasAnsi = true;
+      }
+    if(vals->m_AnsiCpp )
+      {
+      // it is already ansi, so no need to write the file again
+      if(configWasAnsi)
         {
         writeFilep = false;
         }
       }
+    else // not ansi
+      {
+      if(!configWasAnsi) // if config file is also not ansi, then don't write
+        {
+        writeFilep = false;
+        }
+      }
+    // close the file
     fclose(ofp);
+    ofp = 0;
     }
-  if (!ofp || writeFilep)
+  // if writeFilep is true, then write the file
+  if (writeFilep)
     {
     ofp = fopen(fname,"w");
     if (ofp)
