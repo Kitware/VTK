@@ -19,7 +19,10 @@
 #include "vtkImageData.h"
 #include "vtkMultiThreader.h"
 #include "vtkMutexLock.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -65,7 +68,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.38");
+vtkCxxRevisionMacro(vtkVideoSource, "1.39");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -142,6 +145,8 @@ vtkVideoSource::vtkVideoSource()
 
   this->FrameBufferBitsPerPixel = 8;
   this->FrameBufferRowAlignment = 1;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -927,8 +932,14 @@ double vtkVideoSource::GetFrameTimeStamp(int frame)
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkVideoSource::ExecuteInformation()
+void vtkVideoSource::RequestInformation(
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   int i;
   int extent[6];
 
@@ -964,17 +975,18 @@ void vtkVideoSource::ExecuteInformation()
   // multiply Z extent by number of frames to output
   extent[5] = extent[4] + (extent[5]-extent[4]+1) * numFrames - 1;
 
-  this->GetOutput()->SetWholeExtent(extent);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
     
   // set the spacing
-  this->GetOutput()->SetSpacing(this->DataSpacing);
+  outInfo->Set(vtkDataObject::SPACING(),this->DataSpacing,3);
 
   // set the origin.
-  this->GetOutput()->SetOrigin(this->DataOrigin);
+  outInfo->Set(vtkDataObject::ORIGIN(),this->DataOrigin,3);
 
   // set default data type (8 bit greyscale)
-  this->GetOutput()->SetScalarType(VTK_UNSIGNED_CHAR);
-  this->GetOutput()->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_CHAR);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               this->NumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------
@@ -1004,9 +1016,12 @@ void vtkVideoSource::UnpackRasterLine(char *outPtr, char *rowPtr,
 // it unless you have to.  Override the UnpackRasterLine() method instead.
 // You should only have to override it if you are using something other 
 // than 8-bit vtkUnsignedCharArray for the frame buffer.
-void vtkVideoSource::ExecuteData(vtkDataObject *output)
+void vtkVideoSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkImageData *data = this->AllocateOutputData(this->GetOutput());
   int i,j;
 
   int outputExtent[6];     // will later be clipped in Z to a single frame

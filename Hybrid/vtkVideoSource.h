@@ -29,18 +29,18 @@
 #ifndef __vtkVideoSource_h
 #define __vtkVideoSource_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkTimerLog;
 class vtkCriticalSection;
 class vtkMultiThreader;
 class vtkScalarsToColors;
 
-class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageSource
+class VTK_HYBRID_EXPORT vtkVideoSource : public vtkImageAlgorithm
 {
 public:
   static vtkVideoSource *New();
-  vtkTypeRevisionMacro(vtkVideoSource,vtkImageSource);
+  vtkTypeRevisionMacro(vtkVideoSource,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -225,7 +225,7 @@ public:
 protected:
   vtkVideoSource();
   ~vtkVideoSource();
-  void ExecuteInformation();
+  void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int Initialized;
 
@@ -291,7 +291,7 @@ protected:
   // These methods can be overridden in subclasses
   virtual void UpdateFrameBuffer();
   virtual void AdvanceFrameBuffer(int n);
-  virtual void ExecuteData(vtkDataObject *data);
+  virtual void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr, 
                                 int start, int count);
