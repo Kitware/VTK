@@ -147,7 +147,16 @@ public:
   // Enable/disable drawing the vector text.
   vtkSetMacro(FaceText, int);
   vtkGetMacro(FaceText, int);
-  vtkBooleanMacro(FaceText, int);    
+  vtkBooleanMacro(FaceText, int);
+
+  // Description:
+  // Augment individual face text orientations.
+  vtkSetMacro(XFaceTextRotation,double);
+  vtkGetMacro(XFaceTextRotation,double);
+  vtkSetMacro(YFaceTextRotation,double);
+  vtkGetMacro(YFaceTextRotation,double);
+  vtkSetMacro(ZFaceTextRotation,double);
+  vtkGetMacro(ZFaceTextRotation,double);
 
 protected:
   vtkAnnotatedCubeActor();
@@ -173,6 +182,10 @@ protected:
 
   double              FaceTextScale;
   int                 FaceText;
+
+  double              XFaceTextRotation;
+  double              YFaceTextRotation;
+  double              ZFaceTextRotation;
 
   vtkVectorText      *XPlusFaceVectorText;
   vtkVectorText      *XMinusFaceVectorText;

@@ -30,7 +30,7 @@
 #include "vtkTransformFilter.h"
 #include "vtkVectorText.h"
 
-vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.2");
+vtkCxxRevisionMacro(vtkAnnotatedCubeActor, "1.3");
 vtkStandardNewMacro(vtkAnnotatedCubeActor);
 
 vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
@@ -125,7 +125,7 @@ vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
   this->AppendTextEdges->UserManagedInputsOn();
   this->AppendTextEdges->SetNumberOfInputs(6);
 
-  for(int i = 0; i < 6; i++)
+  for (int i = 0; i < 6; i++)
     {
     vtkPolyData *edges = vtkPolyData::New();
     this->AppendTextEdges->SetInputByNumber(i,edges);
@@ -153,7 +153,11 @@ vtkAnnotatedCubeActor::vtkAnnotatedCubeActor()
 
   this->TransformFilter = vtkTransformFilter::New();
   this->Transform = vtkTransform::New();
-  this->TransformFilter->SetTransform(this->Transform);
+  this->TransformFilter->SetTransform( this->Transform );
+
+  this->XFaceTextRotation = 0.0;
+  this->YFaceTextRotation = 0.0;
+  this->ZFaceTextRotation = 0.0;
 
   this->UpdateProps();
 }
@@ -447,7 +451,7 @@ void vtkAnnotatedCubeActor::UpdateProps()
 
   this->XPlusFaceActor->SetScale( this->FaceTextScale );
   this->XPlusFaceActor->SetPosition( offset, cu, cv );
-  this->XPlusFaceActor->SetOrientation( 90, 0, 90 );
+  this->XPlusFaceActor->SetOrientation( 90 , 0, 90 );
 
   this->XMinusFaceVectorText->Update();
   bounds = this->XMinusFaceVectorText->GetOutput()->GetBounds();
@@ -456,7 +460,17 @@ void vtkAnnotatedCubeActor::UpdateProps()
 
   this->XMinusFaceActor->SetScale( this->FaceTextScale );
   this->XMinusFaceActor->SetPosition( -offset, cu, cv );
-  this->XMinusFaceActor->SetOrientation( 90, 0, -90 );
+  this->XMinusFaceActor->SetOrientation( 90 , 0, -90 );
+
+  if ( this->XFaceTextRotation != 0.0 )
+    {
+    vtkTransform* transform = vtkTransform::New();
+    transform->Identity();
+    transform->RotateX( this->XFaceTextRotation );
+    this->XPlusFaceActor->SetUserTransform( transform );
+    this->XMinusFaceActor->SetUserTransform( transform );
+    transform->Delete();
+    }
 
   this->YPlusFaceVectorText->Update();
   bounds = this->YPlusFaceVectorText->GetOutput()->GetBounds();
@@ -476,6 +490,16 @@ void vtkAnnotatedCubeActor::UpdateProps()
   this->YMinusFaceActor->SetPosition( cu, -offset, cv );
   this->YMinusFaceActor->SetOrientation( 90, 0, 0 );
 
+  if ( this->YFaceTextRotation != 0.0 )
+    {
+    vtkTransform* transform = vtkTransform::New();
+    transform->Identity();
+    transform->RotateY( this->YFaceTextRotation );
+    this->YPlusFaceActor->SetUserTransform( transform );
+    this->YMinusFaceActor->SetUserTransform( transform );
+    transform->Delete();
+    }
+
   this->ZPlusFaceVectorText->Update();
   bounds = this->ZPlusFaceVectorText->GetOutput()->GetBounds();
   cu = this->FaceTextScale*0.5*(bounds[0] + bounds[1]);
@@ -493,6 +517,16 @@ void vtkAnnotatedCubeActor::UpdateProps()
   this->ZMinusFaceActor->SetScale( this->FaceTextScale );
   this->ZMinusFaceActor->SetPosition( cv, cu, -offset );
   this->ZMinusFaceActor->SetOrientation( 180, 0, 90 );
+
+  if ( this->ZFaceTextRotation != 0.0 )
+    {
+    vtkTransform* transform = vtkTransform::New();
+    transform->Identity();
+    transform->RotateZ( this->ZFaceTextRotation );
+    this->ZPlusFaceActor->SetUserTransform( transform );
+    this->ZMinusFaceActor->SetUserTransform( transform );
+    transform->Delete();
+    }
 
   this->XPlusFaceActor->ComputeMatrix();
   this->TransformFilter->SetInput( this->XPlusFaceVectorText->GetOutput() );
@@ -572,4 +606,11 @@ void vtkAnnotatedCubeActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FaceText: " << (this->FaceText ? "On\n" : "Off\n");
 
   os << indent << "Cube: " << (this->Cube ? "On\n" : "Off\n");
+
+  os << indent << "XFaceTextRotation: " << this->XFaceTextRotation << endl;
+
+  os << indent << "YFaceTextRotation: " << this->YFaceTextRotation << endl;
+
+  os << indent << "ZFaceTextRotation: " << this->ZFaceTextRotation << endl;
 }
+
