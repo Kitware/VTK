@@ -126,6 +126,10 @@ protected:
   // built
   void                  InitializeIndexTable( void );
   int                   IndexTableRecursionDepth;
+
+  int                   OuterSize;
+  int                   InnerSize;
+  int                   GridSize;
 }; 
 
 
