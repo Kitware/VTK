@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProbeFilter, "1.81");
+vtkCxxRevisionMacro(vtkProbeFilter, "1.82");
 vtkStandardNewMacro(vtkProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -235,9 +235,10 @@ int vtkProbeFilter::RequestUpdateExtent(
   // What ever happend to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.
-  if (outInfo->Get(vtkDataObject::DATA_TYPE_NAME()) &&
-      (!strcmp(outInfo->Get(vtkDataObject::DATA_TYPE_NAME()), "vtkUnstructuredGrid") ||
-       !strcmp(outInfo->Get(vtkDataObject::DATA_TYPE_NAME()), "vtkPolyData")))
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (output &&
+      (!strcmp(output->GetClassName(), "vtkUnstructuredGrid") ||
+       !strcmp(output->GetClassName(), "vtkPolyData")))
     {
     usePiece = 1;
     }

@@ -37,7 +37,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.42");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.43");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -663,7 +663,8 @@ int vtkDataSetSurfaceFilter::RequestUpdateExtent(
     {
     // The special execute for structured data handle boundaries internally.
     // PolyData does not need any ghost levels.
-    if (!strcmp(inInfo->Get(vtkDataObject::DATA_TYPE_NAME()), "vtkUnstructuredGrid"))
+    vtkDataObject* dobj = inInfo->Get(vtkDataObject::DATA_OBJECT());
+    if (dobj && !strcmp(dobj->GetClassName(), "vtkUnstructuredGrid"))
       { // Processing does nothing fo ghost levels yet so ...
       // Be careful to set output ghost level value one less than default
       // when they are implemented.  I had trouble with multiple executes.
