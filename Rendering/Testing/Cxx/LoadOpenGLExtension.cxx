@@ -84,13 +84,37 @@ int LoadOpenGLExtension(int argc, char *argv[])
 
   if (!extensions->ExtensionSupported("GL_VERSION_1_2"))
     {
-    cerr << "Is it possible that your driver does not support OpenGL 1.2?\n";
-    cout << "Some drivers report supporting only GL 1.1 even though they\n"
-         << "actually support 1.2 (and probably higher).  I'm going to\n"
-         << "try to load the extension anyway.  You will definitely get\n"
-         << "a warning from vtkOpenGLExtensionManager about it.  If GL 1.2\n"
-         << "really is not supported (or something else is wrong), I will\n"
-         << "seg fault.\n\n";
+    cerr << "Is it possible that your driver does not support OpenGL 1.2?"
+         << endl;
+    int forceLoad = 0;
+    for (int i = 0; i < argc; i++)
+      {
+      if (strcmp("-ForceLoad", argv[i]) == 0)
+        {
+        forceLoad = 1;
+        break;
+        }
+      }
+    if (forceLoad)
+      {
+      cout << "Some drivers report supporting only GL 1.1 even though they\n"
+           << "actually support 1.2 (and probably higher).  I'm going to\n"
+           << "try to load the extension anyway.  You will definitely get\n"
+           << "a warning from vtkOpenGLExtensionManager about it.  If GL 1.2\n"
+           << "really is not supported (or something else is wrong), I will\n"
+           << "seg fault." << endl << endl;
+      }
+    else
+      {
+      cout << "Your OpenGL driver reports that it does not support\n"
+           << "OpenGL 1.2.  If this is true, I cannot perform this test.\n"
+           << "There are a few drivers that report only supporting GL 1.1\n"
+           << "when they in fact actually support 1.2 (and probably higher).\n"
+           << "If you think this might be the case, try rerunning this test\n"
+           << "with the -ForceLoad flag.  However, if Opengl 1.2 is really\n"
+           << "not supported, a seg fault will occur." << endl;
+      return 0;
+      }
     }
   extensions->LoadExtension("GL_VERSION_1_2");
   extensions->Delete();
