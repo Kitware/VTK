@@ -71,6 +71,7 @@ vtkPDataSetWriter::vtkPDataSetWriter()
 
   this->FilePattern = NULL;
   this->SetFilePattern("%s.%d.vtk");
+  this->UseRelativeFileNames = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -146,6 +147,33 @@ void vtkPDataSetWriter::Write()
     {
     fileRoot[length-4] = '\0';
     }
+  // If we are using relative file names, trim off the directory path.
+  if (this->UseRelativeFileNames)
+    {
+    char *tmp, *slash;
+    // Find the last / or \ in the file name.
+    slash = NULL;
+    tmp = fileRoot;
+    while (*tmp != '\0')
+      {
+      if (*tmp == '/' || *tmp == '\\')
+        {
+        slash = tmp;
+        }
+      ++tmp;
+      }
+    // Copy just the filename into root.
+    if (slash)
+      {
+      ++slash;
+      tmp = fileRoot;
+      while (*slash != '\0')
+        {
+        *tmp++ = *slash++;
+        }
+      *tmp = '\0';         
+      }
+    }
 
   // Lets write the toplevel file.
   if (this->StartPiece == 0)
@@ -191,6 +219,19 @@ void vtkPDataSetWriter::Write()
   
     //fptr->close();
     delete fptr;
+    }
+
+  // Restore the fileRoot to the full path.
+  strncpy(fileRoot, this->FileName, length);
+  fileRoot[length] = '\0';
+  // Trim off the pvtk extension.
+  if (strncmp(fileRoot+length-5, ".pvtk", 5) == 0)
+    {
+    fileRoot[length-5] = '\0';
+    }
+  if (strncmp(fileRoot+length-4, ".vtk", 4) == 0)
+    {
+    fileRoot[length-4] = '\0';
     }
 
   // Now write the pieces assigned to this writer.
@@ -368,6 +409,7 @@ void vtkPDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfPieces: " << this->NumberOfPieces << endl;
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
   os << indent << "FilePattern: " << this->FilePattern << endl;
+  os << indent << "UseRelativeFileNames: " << this->UseRelativeFileNames << endl;
 }
 
 

@@ -88,18 +88,6 @@ vtkPDataSetReader::~vtkPDataSetReader()
 {
   delete[] this->FileName;
   this->SetNumberOfPieces(0);
-
-  if (this->PieceFileNames)
-    {
-    for (int i = 0; i < this->NumberOfPieces; ++i)
-      {
-      if (this->PieceFileNames[i])
-        {
-        delete [] this->PieceFileNames[i];
-        this->PieceFileNames[i] = NULL;
-        }
-      }
-    }
 }
 
 
@@ -185,6 +173,11 @@ vtkDataSet *vtkPDataSetReader::GetOutput()
 
   // Creates an output if necessary.
   this->CheckOutput();
+  if (! this->Outputs)
+    {
+    return NULL;
+    }
+
   output = (vtkDataSet *)(this->Outputs[0]);
 
   return output;
@@ -262,9 +255,31 @@ void vtkPDataSetReader::ExecuteInformation()
 {
   ifstream *file;
   char str[1024];
+  char dir[512];
+  char *pfn, *pdir;
+  int count, dirLength;
   vtkDataSet *output;
   int i;
 
+  // Extract the directory form the filename so we can complete relative paths.
+  count = dirLength = 0;
+  pfn = this->FileName;
+  pdir = dir;
+  // Copy filename to dir, and keep track of the last slash.
+  while (*pfn != '\0' && count < 512)
+    {
+    *pdir++ = *pfn++;
+    ++count;
+    if (*pfn == '/' || *pfn == '\\')
+      {
+      // The extra +1 is to keep the last slash.
+      dirLength = count+1;
+      }
+    }
+  // This trims off every thing after the last slash.
+  dir[dirLength] = '\0';
+
+  // Start writing the meta-data pvtk file.
   file = this->OpenFile();
   if (file == NULL)
     {
@@ -374,7 +389,14 @@ void vtkPDataSetReader::ExecuteInformation()
       file->getline(str, 512);
       // Take all characters after the quote off.
       str[strlen(str)-1] = '\0';
-      strcpy(this->PieceFileNames[i], str+19);
+      if (str[19] != '/' && str[20] != ':' && dirLength > 0)
+        { // Must be a relative path.
+        sprintf(this->PieceFileNames[i], "%s%s", dir, str+19);
+        }
+      else
+        {
+        strcpy(this->PieceFileNames[i], str+19);
+        }
       // Now read the extent.
       file->getline(str, 512);
       // Take all characters after the quote off.
@@ -386,7 +408,14 @@ void vtkPDataSetReader::ExecuteInformation()
       file->getline(str, 512);
       // Take all characters after the quote off.
       str[strlen(str)-4] = '\0';
-      strcpy(this->PieceFileNames[i], str+19);
+      if (str[19] != '/' && str[20] != ':' && dirLength > 0)
+        { // Must be a relative path.
+        sprintf(this->PieceFileNames[i], "%s%s", dir, str+19);
+        }
+      else
+        {
+        strcpy(this->PieceFileNames[i], str+19);
+        }
       }
     }
 }
@@ -589,6 +618,10 @@ ifstream *vtkPDataSetReader::OpenFile()
 
   if (! file || file->fail())
     {
+    if (file)
+      {
+      delete [] file;
+      }
     vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);
     return NULL;
     }
@@ -874,9 +907,6 @@ void vtkPDataSetReader::StructuredGridExecute()
     return;
     }
 
-  // Allocate the data object.
-  output->SetExtent(uExt);
-
   // Get the pieces that will be read.
   pieceMask = new int[this->NumberOfPieces];
   for (i = 0; i < this->NumberOfPieces; ++i)
@@ -928,6 +958,7 @@ void vtkPDataSetReader::StructuredGridExecute()
     delete [] pieces;
     delete [] pieceMask;
     reader->Delete();
+    return;
     }
 
   // Allocate the points.
@@ -1042,7 +1073,14 @@ void vtkPDataSetReader::CoverExtent(int ext[6], int *pieceMask)
         {
         cExt[j*2+1] = this->PieceExtents[i][j*2+1];
         }
-      area *= cExt[j*2+1] - cExt[j*2];
+      if (cExt[j*2] > cExt[j*2+1])
+        {
+        area = 0.0;
+        }
+      else
+        {
+        area *= (cExt[j*2+1] - cExt[j*2] + 1);
+        }
       }
     if (area > bestArea)
       {

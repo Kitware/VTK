@@ -91,6 +91,15 @@ public:
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
 
+  // Description:
+  // This flag determines whether to use absolute paths for the piece files.
+  // By default the pieces are put in the main directory, and the piece file
+  // names in the meta data pvtk file are relative to this directory.
+  // This should make moving the whole lot to another directory, an easier task.
+  vtkSetMacro(UseRelativeFileNames, int);
+  vtkGetMacro(UseRelativeFileNames, int);
+  vtkBooleanMacro(UseRelativeFileNames, int);
+
 protected:
   vtkPDataSetWriter();
   ~vtkPDataSetWriter();
@@ -113,6 +122,8 @@ protected:
   int EndPiece;
   int NumberOfPieces;
   int GhostLevel;
+
+  int UseRelativeFileNames;
 
   char *FilePattern;
 };
