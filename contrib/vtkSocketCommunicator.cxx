@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkSocketCommunicator.h"
+#include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
 #ifdef _WIN32
@@ -48,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-static const int VTK_MAX_MSG_SIZE=16000;
+const int vtkSocketCommunicator::MAX_MSG_SIZE=16000;
 
 //------------------------------------------------------------------------------
 vtkSocketCommunicator* vtkSocketCommunicator::New()
@@ -66,60 +67,25 @@ vtkSocketCommunicator* vtkSocketCommunicator::New()
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::vtkSocketCommunicator()
 {
-  this->Initialized = 0;
-  this->Sockets = 0;
-  this->NumberOfProcesses = 1;
+  this->Socket = -1;
+  this->IsConnected = 0;
+  this->NumberOfProcesses = 2;
 }
 
 //----------------------------------------------------------------------------
 vtkSocketCommunicator::~vtkSocketCommunicator()
 {
-  for(int i=0; i<this->NumberOfProcesses; i++)
+  if (this->IsConnected)
     {
-    if (this->IsConnected[i])
-      {
-      vtkCloseSocketMacro(this->Sockets[i]);
-      }
+    vtkCloseSocketMacro(this->Socket);
     }
-  delete[] this->Sockets;
-  delete[] this->IsConnected;
-  this->Sockets = 0;
-  this->IsConnected = 0;
 }
 
-void vtkSocketCommunicator::Initialize(int vtkNotUsed(argc), char *argv[])
-{
-  argv = argv;
-#ifdef _WIN32
-  WSAData wsaData;  
-  if (WSAStartup(WSA_VERSION, &wsaData))
-    {
-    vtkErrorMacro("Could not initialize sockets !");
-    }
-#endif
-}
-
-void vtkSocketCommunicator::SetNumberOfProcesses(int num)
-{
-  if (this->Sockets)
-    {
-    vtkErrorMacro("Can not change the number of processes.");
-    return;
-    }
-  this->Sockets = new int[num];
-  this->IsConnected = new int[num];
-  for (int i=0; i<num; i++)
-    {
-    this->IsConnected[i] = 0;
-    }
-  this->NumberOfProcesses = num;
-  return;
-}
 
 //----------------------------------------------------------------------------
 void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkMultiProcessController::PrintSelf(os,indent);
+  vtkCommunicator::PrintSelf(os,indent);
 }
 
 static inline int checkForError(int id, int maxId)
@@ -144,14 +110,18 @@ static int sendMessage(T* data, int length, int tag, int sock)
   send(sock, (char *)&tag, sizeof(int), 0);
 
   int totalLength = length*sizeof(T);
-  if ( totalLength < VTK_MAX_MSG_SIZE )
+  if ( totalLength < vtkSocketCommunicator::MAX_MSG_SIZE )
     send(sock, (char *)data, totalLength, 0);
   else
     {
-    int num = totalLength/VTK_MAX_MSG_SIZE;
+    int num = totalLength/vtkSocketCommunicator::MAX_MSG_SIZE;
     for(int i=0; i<num; i++)
-      send(sock, &(((char *)data)[i*VTK_MAX_MSG_SIZE]), VTK_MAX_MSG_SIZE, 0);
-    send(sock, &(((char *)data)[num*VTK_MAX_MSG_SIZE]), totalLength-num*VTK_MAX_MSG_SIZE, 0);
+      {
+      send(sock, &(((char *)data)[i*vtkSocketCommunicator::MAX_MSG_SIZE]), 
+	   vtkSocketCommunicator::MAX_MSG_SIZE, 0);
+      }
+    send(sock, &(((char *)data)[num*vtkSocketCommunicator::MAX_MSG_SIZE]), 
+	 totalLength-num*vtkSocketCommunicator::MAX_MSG_SIZE, 0);
     }
 
   return 1;
@@ -166,7 +136,7 @@ int vtkSocketCommunicator::Send(int *data, int length, int remoteProcessId,
     return 0;
     }
 
-  return sendMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return sendMessage(data, length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -178,7 +148,7 @@ int vtkSocketCommunicator::Send(unsigned long *data, int length,
     return 0;
     }
 
-  return sendMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return sendMessage(data, length, tag, this->Socket);
 }
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(char *data, int length, 
@@ -189,7 +159,7 @@ int vtkSocketCommunicator::Send(char *data, int length,
     return 0;
     }
 
-  return sendMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return sendMessage(data, length, tag, this->Socket);
 }
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(float *data, int length, 
@@ -200,7 +170,7 @@ int vtkSocketCommunicator::Send(float *data, int length,
     return 0;
     }
 
-  return sendMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return sendMessage(data, length, tag, this->Socket);
 }
 
 template <class T>
@@ -215,14 +185,18 @@ static int receiveMessage(T* data, int length, int tag, int sock)
 
   recv(sock, (char *)&recvTag, sizeof(int), 0);
   int totalLength = length*sizeof(T);
-  if ( totalLength < VTK_MAX_MSG_SIZE )
+  if ( totalLength < vtkSocketCommunicator::MAX_MSG_SIZE )
     recv(sock, (char *)data, totalLength, 0);
   else
     {
-    int num = totalLength/VTK_MAX_MSG_SIZE;
+    int num = totalLength/vtkSocketCommunicator::MAX_MSG_SIZE;
     for(int i=0; i<num; i++)
-      recv(sock, &(((char *)data)[i*VTK_MAX_MSG_SIZE]), VTK_MAX_MSG_SIZE, 0);
-    recv(sock, &(((char *)data)[num*VTK_MAX_MSG_SIZE]), totalLength-num*VTK_MAX_MSG_SIZE, 0);
+      {
+      recv(sock, &(((char *)data)[i*vtkSocketCommunicator::MAX_MSG_SIZE]), 
+	   vtkSocketCommunicator::MAX_MSG_SIZE, 0);
+      }
+    recv(sock, &(((char *)data)[num*vtkSocketCommunicator::MAX_MSG_SIZE]), 
+	 totalLength-num*vtkSocketCommunicator::MAX_MSG_SIZE, 0);
     }
   
 
@@ -230,52 +204,23 @@ static int receiveMessage(T* data, int length, int tag, int sock)
 
 }
 
-template <class T>
-static int receiveFromAnySource(T* data, int length, 
-				int tag, const int* sockets, 
-				const int* isConnected,
-				int nOfProcesses)
-{
-  int success;
-  
-  for ( int i=1; i < nOfProcesses; i++)
-    {
-    if (isConnected[i])
-      {
-      success = receiveMessage(data, length, tag, sockets[i]);
-      if (success)
-	{
-	return i;
-	}
-      }
-    }
-  return 0;
-
-}
-
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Receive(int *data, int length, int remoteProcessId, 
 				   int tag)
 {
-  int status;
-
   if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
     {
     return 0;
     }
 
-  if (remoteProcessId == VTK_MP_CONTROLLER_ANY_SOURCE)
+  int id =  receiveMessage(data, length, tag, this->Socket);
+  
+  if ( tag == vtkMultiProcessController::RMI_TAG )
     {
-    int id =  receiveFromAnySource(data, length, tag, this->Sockets,
-				   this->IsConnected, this->NumberOfProcesses);
-    if ( tag == VTK_MP_CONTROLLER_RMI_TAG )
-      {
-      data[2] = id;
-      }
-    return id;
+    data[2] = id;
     }
 
-  return receiveMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return id;
 }
 
 //----------------------------------------------------------------------------
@@ -287,12 +232,7 @@ int vtkSocketCommunicator::Receive(unsigned long *data, int length,
     return 0;
     }
 
-  if (remoteProcessId == VTK_MP_CONTROLLER_ANY_SOURCE)
-    {
-    return receiveFromAnySource(data, length, tag, this->Sockets,
-				this->IsConnected, this->NumberOfProcesses);
-    }
-  return receiveMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return receiveMessage(data, length, tag, this->Socket);
 }
 
 //----------------------------------------------------------------------------
@@ -304,12 +244,7 @@ int vtkSocketCommunicator::Receive(char *data, int length,
     return 0;
     }
 
-  if (remoteProcessId == VTK_MP_CONTROLLER_ANY_SOURCE)
-    {
-    return receiveFromAnySource(data, length, tag, this->Sockets,
-				this->IsConnected, this->NumberOfProcesses);
-    }
-  return receiveMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return receiveMessage(data, length, tag, this->Socket);
 }
 
 int vtkSocketCommunicator::Receive(float *data, int length, 
@@ -320,27 +255,16 @@ int vtkSocketCommunicator::Receive(float *data, int length,
     return 0;
     }
 
-  if (remoteProcessId == VTK_MP_CONTROLLER_ANY_SOURCE)
-    {
-    return receiveFromAnySource(data, length, tag, this->Sockets,
-				this->IsConnected, this->NumberOfProcesses);
-    }
-  return receiveMessage(data, length, tag, this->Sockets[remoteProcessId]);
+  return receiveMessage(data, length, tag, this->Socket);
 }
 
 
-int vtkSocketCommunicator::WaitForConnection(int port, int timeout, 
-					     int processId)
+int vtkSocketCommunicator::WaitForConnection(int port, int timeout)
 {
 
-  if ( checkForError(processId, this->NumberOfProcesses) )
+  if ( this->IsConnected )
     {
-    return 0;
-    }
-
-  if ( this->IsConnected[processId] )
-    {
-    vtkErrorMacro("Port " << processId << " is occupied.");
+    vtkErrorMacro("Port " << 1 << " is occupied.");
     return 0;
     }
 
@@ -357,39 +281,33 @@ int vtkSocketCommunicator::WaitForConnection(int port, int timeout,
     return 0;
     }
   listen(sock,1);
-  this->Sockets[processId] = accept(sock, 0, 0);
-  if ( this->Sockets[processId] == -1 )
+  this->Socket = accept(sock, 0, 0);
+  if ( this->Socket == -1 )
     {
     vtkErrorMacro("Error in accept.");
     return 0;
     }
   vtkCloseSocketMacro(sock);
     
-  this->IsConnected[processId] = 1;
+  this->IsConnected = 1;
   return 1;
 }
 
-void vtkSocketCommunicator::CloseConnection ( int processId )
+void vtkSocketCommunicator::CloseConnection()
 {
-  if ( this->IsConnected[processId] )
+  if ( this->IsConnected )
     {
-    vtkCloseSocketMacro(this->Sockets[processId]);
-    this->IsConnected[processId] = 0;
+    vtkCloseSocketMacro(this->Socket);
+    this->IsConnected = 0;
     }
 }
 
-int vtkSocketCommunicator::ConnectTo ( char* hostName, int port, 
-					int processId )
+int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 {
 
-  if ( checkForError(processId, this->NumberOfProcesses) )
+  if ( this->IsConnected )
     {
-    return 0;
-    }
-
-  if ( this->IsConnected[processId] )
-    {
-    vtkErrorMacro("Communicator port " << processId << " is occupied.");
+    vtkErrorMacro("Communicator port " << 1 << " is occupied.");
     return 0;
     }
 
@@ -406,21 +324,21 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port,
     return 0;
     }
 
-  this->Sockets[processId] = socket(AF_INET, SOCK_STREAM, 0);
+  this->Socket = socket(AF_INET, SOCK_STREAM, 0);
 
   struct sockaddr_in name;
   name.sin_family = AF_INET;
   memcpy(&name.sin_addr, hp->h_addr, hp->h_length);
   name.sin_port = htons(port);
 
-  if( connect(this->Sockets[processId], (sockaddr *)&name, sizeof(name)) < 0)
+  if( connect(this->Socket, (sockaddr *)&name, sizeof(name)) < 0)
     {
     vtkErrorMacro("Can not connect to " << hostName << " on port " << port);
     return 0;
     }
 
   vtkDebugMacro("Connected to " << hostName << " on port " << port);
-  this->IsConnected[processId] = 1;
+  this->IsConnected = 1;
   return 1;
 
 }

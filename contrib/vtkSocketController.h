@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkSocketCommunicator.h
+  Module:    vtkSocketController.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,10 +38,10 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkSocketCommunicator - Process communication using Sockets
+// .NAME vtkSocketController - Process communication using Sockets
 
-#ifndef __vtkSocketCommunicator_h
-#define __vtkSocketCommunicator_h
+#ifndef __vtkSocketController_h
+#define __vtkSocketController_h
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -55,63 +55,83 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "vtkObject.h"
-#include "vtkCommunicator.h"
+#include "vtkMultiProcessController.h"
+#include "vtkSocketCommunicator.h"
 
-
-class VTK_EXPORT vtkSocketCommunicator : public vtkCommunicator
+class VTK_EXPORT vtkSocketController : public vtkMultiProcessController
 {
 public:
-  static vtkSocketCommunicator *New();
-  vtkTypeMacro(vtkSocketCommunicator,vtkCommunicator);
+  static vtkSocketController *New();
+  vtkTypeMacro(vtkSocketController,vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Wait for connection on a given port
-  virtual int WaitForConnection(int port, int timeout);
+  // This method is for setting the sockets.
+  // One of these is REQUIRED for Windows.
+  virtual void Initialize(int* , char***);
+  virtual void Initialize()
+    { this->Initialize(0,0); }
 
   // Description:
-  // Close a connection
-  virtual void CloseConnection();
+  // Has to be overridden. Does nothing.
+  void Finalize() {};
 
   // Description:
-  // Open a connection to a give machine
-  virtual int ConnectTo( char* hostName, int port);
-
-  //------------------ Communication --------------------
+  // Has to be overridden. Does nothing.
+  void SingleMethodExecute() {};
   
   // Description:
-  // This method sends data to another process.  Tag eliminates ambiguity
-  // when multiple sends or receives exist in the same process.
-  int Send(int *data, int length, int remoteProcessId, int tag);
-  int Send(unsigned long *data, int length, int remoteProcessId, int tag);
-  int Send(char *data, int length, int remoteProcessId, int tag);
-  int Send(float *data, int length, int remoteProcessId, int tag);
-  int Send(vtkDataObject *data, int remoteId, int tag)
-    {return this->vtkCommunicator::Send(data,remoteId,tag);}
+  // Has to be overridden. Does nothing.
+  void MultipleMethodExecute() {};
 
   // Description:
-  // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
-  int Receive(int *data, int length, int remoteProcessId, int tag);
-  int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
-  int Receive(char *data, int length, int remoteProcessId, int tag);
-  int Receive(float *data, int length, int remoteProcessId, int tag);
-  int Receive(vtkDataObject *data, int remoteId, int tag)
-    {return this->vtkCommunicator::Receive(data, remoteId, tag);}
+  // Has to be overridden. Does nothing.
+  void CreateOutputWindow() {};
 
-  static const int MAX_MSG_SIZE;
+  // Description:
+  // Has to be overridden. Does nothing.
+  void Barrier() {};
+
+  // Description:
+  // Set the number of processes you will be using.
+  virtual void SetNumberOfProcesses(int num);
+
+  // Description:
+  // Wait for connection on a given port, forwarded
+  // to the communicator
+  virtual int WaitForConnection(int port, int timeout)
+    { 
+      vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+	WaitForConnection(port,timeout); 
+    }
+
+  // Description:
+  // Close a connection, forwarded
+  // to the communicator
+  virtual void CloseConnection()
+    { 
+      vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+	CloseConnection(); 
+    }
+
+  // Description:
+  // Open a connection to a give machine, forwarded
+  // to the communicator
+  virtual int ConnectTo( char* hostName, int port )
+    { 
+      vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+	ConnectTo(hostName, port); 
+    }
 
 protected:
 
-  int Socket;
-  int IsConnected;
-  int NumberOfProcesses;
+  vtkSocketController();
+  ~vtkSocketController();
+  vtkSocketController(const vtkSocketController&) {};
+  void operator=(const vtkSocketController&) {};
 
-  vtkSocketCommunicator();
-  ~vtkSocketCommunicator();
-  vtkSocketCommunicator(const vtkSocketCommunicator&) {};
-  void operator=(const vtkSocketCommunicator&) {};
+  // Initialize only once, finialize on destruction.
+  static int Initialized;
 
 };
 
