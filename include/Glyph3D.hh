@@ -30,12 +30,12 @@ class vlGlyph3D : public vlDataSetToPolyFilter
 {
 public:
   vlGlyph3D();
-  ~vlGlyph3D() {};
+  ~vlGlyph3D();
   char *GetClassName() {return "vlGlyph3D";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  vlSetMacro(Source,vlPolyData*);
-  vlGetMacro(Source,vlPolyData*);
+  vlSetObjectMacro(Source,vlPolyData);
+  vlGetObjectMacro(Source,vlPolyData);
 
   vlBooleanMacro(Scaling,int);
   vlSetMacro(Scaling,int);

@@ -27,6 +27,14 @@ vlGlyph3D::vlGlyph3D()
   this->Range[0] = 1.0;
 }
 
+vlGlyph3D::~vlGlyph3D()
+{
+  if (this->Source)
+    {
+    this->Source->UnRegister((void *)this);
+    }
+}
+
 void vlGlyph3D::PrintSelf(ostream& os, vlIndent indent)
 {
 
