@@ -33,18 +33,18 @@
 #ifndef __vtkAVSucdReader_h
 #define __vtkAVSucdReader_h
 
-#include "vtkUnstructuredGridSource.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIdTypeArray;
 class vtkDataArraySelection;
 
-class VTK_IO_EXPORT vtkAVSucdReader : public vtkUnstructuredGridSource
+class VTK_IO_EXPORT vtkAVSucdReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkAVSucdReader *New();
-  vtkTypeRevisionMacro(vtkAVSucdReader,vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkAVSucdReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -122,8 +122,8 @@ public:
 protected:
   vtkAVSucdReader();
   ~vtkAVSucdReader();
-  void ExecuteInformation();
-  void Execute();
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char *FileName;
   int BinaryFile;
@@ -175,10 +175,10 @@ protected:
   DataInfo *CellDataInfo;
 
 private:
-  void ReadFile();
-  void ReadGeometry();
-  void ReadNodeData();
-  void ReadCellData();
+  void ReadFile(vtkUnstructuredGrid *output);
+  void ReadGeometry(vtkUnstructuredGrid *output);
+  void ReadNodeData(vtkUnstructuredGrid *output);
+  void ReadCellData(vtkUnstructuredGrid *output);
 
   int ReadFloatBlock(int n, float *block);
   int ReadIntBlock(int n, int *block);

@@ -23,6 +23,8 @@
 #include "vtkDataArraySelection.h"
 #include "vtkErrorCode.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkFieldData.h"
 #include "vtkPointData.h"
@@ -34,7 +36,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.25");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.26");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 //----------------------------------------------------------------------------
@@ -57,6 +59,8 @@ vtkAVSucdReader::vtkAVSucdReader()
   this->CellDataInfo = NULL;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -107,16 +111,28 @@ const char *vtkAVSucdReader::GetByteOrderAsString()
 }
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::Execute()
+int vtkAVSucdReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDebugMacro( << "Reading AVS UCD file");
 
   // If ExecuteInformation() failed FileStream will be NULL and
   // ExecuteInformation() will have spit out an error.
   if ( this->FileStream )
     {
-    this->ReadFile();
+    this->ReadFile(output);
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -146,18 +162,18 @@ void vtkAVSucdReader::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadFile()
+void vtkAVSucdReader::ReadFile(vtkUnstructuredGrid *output)
 {
-  this->ReadGeometry();
+  this->ReadGeometry(output);
 
   if(this->NumberOfNodeFields)
     {
-    this->ReadNodeData();
+    this->ReadNodeData(output);
     }
 
   if(this->NumberOfCellFields)
     {
-    this->ReadCellData(); 
+    this->ReadCellData(output);
     }
 
   delete this->FileStream;
@@ -166,7 +182,10 @@ void vtkAVSucdReader::ReadFile()
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ExecuteInformation()
+int vtkAVSucdReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   char magic_number='\0';
   long trueFileLength, calculatedFileLength;
@@ -176,7 +195,7 @@ void vtkAVSucdReader::ExecuteInformation()
   if ( !this->FileName )
     {
     vtkErrorMacro("No filename specified");
-    return;
+    return 0;
     }
   
 #ifdef _WIN32
@@ -190,7 +209,7 @@ void vtkAVSucdReader::ExecuteInformation()
     delete this->FileStream;
     this->FileStream = NULL;
     vtkErrorMacro("Specified filename not found");
-    return;
+    return 0;
     }
 
   this->FileStream->get(magic_number);
@@ -439,6 +458,8 @@ void vtkAVSucdReader::ExecuteInformation()
     }
 
   vtkDebugMacro( << "end of ExecuteInformation\n");
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -464,10 +485,8 @@ void vtkAVSucdReader::GetNodeDataRange(int nodeComp, int index, float *min, floa
 }
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadGeometry()
+void vtkAVSucdReader::ReadGeometry(vtkUnstructuredGrid *output)
 {
-  vtkUnstructuredGrid *output = this->GetOutput();
-
   // add a material array
   vtkIntArray *materials = vtkIntArray::New();
   materials->SetNumberOfTuples(this->NumberOfCells);
@@ -778,7 +797,7 @@ void vtkAVSucdReader::ReadXYZCoords(vtkFloatArray *coords)
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadNodeData()
+void vtkAVSucdReader::ReadNodeData(vtkUnstructuredGrid *output)
 {
   int i, j, n;
   float *ptr;
@@ -814,10 +833,10 @@ void vtkAVSucdReader::ReadNodeData()
           delete [] ptr;
           }
 
-        this->GetOutput()->GetPointData()->AddArray(scalars);
-        if (!this->GetOutput()->GetPointData()->GetScalars())
+        output->GetPointData()->AddArray(scalars);
+        if (!output->GetPointData()->GetScalars())
           {
-          this->GetOutput()->GetPointData()->SetScalars(scalars);
+          output->GetPointData()->SetScalars(scalars);
           }
         scalars->Delete();
         }
@@ -875,10 +894,10 @@ void vtkAVSucdReader::ReadNodeData()
       }
     for(i=0; i < this->NumberOfNodeComponents; i++)
       {
-      this->GetOutput()->GetPointData()->AddArray(scalars[i]);
-      if (!this->GetOutput()->GetPointData()->GetScalars())
+      output->GetPointData()->AddArray(scalars[i]);
+      if (!output->GetPointData()->GetScalars())
         {
-        this->GetOutput()->GetPointData()->SetScalars(scalars[i]);
+        output->GetPointData()->SetScalars(scalars[i]);
         }
       scalars[i]->Delete();
       }
@@ -889,7 +908,7 @@ void vtkAVSucdReader::ReadNodeData()
 
 
 //----------------------------------------------------------------------------
-void vtkAVSucdReader::ReadCellData()
+void vtkAVSucdReader::ReadCellData(vtkUnstructuredGrid *output)
 {
   int i, j, n;
   float *ptr;
@@ -929,10 +948,10 @@ void vtkAVSucdReader::ReadCellData()
           delete [] ptr;
           }
 
-        this->GetOutput()->GetCellData()->AddArray(scalars);
-        if (!this->GetOutput()->GetCellData()->GetScalars())
+        output->GetCellData()->AddArray(scalars);
+        if (!output->GetCellData()->GetScalars())
           {
-          this->GetOutput()->GetCellData()->SetScalars(scalars);
+          output->GetCellData()->SetScalars(scalars);
           }
         scalars->Delete();
         }
@@ -985,10 +1004,10 @@ void vtkAVSucdReader::ReadCellData()
       }
     for(i=0; i < this->NumberOfCellComponents; i++)
       {
-      this->GetOutput()->GetCellData()->AddArray(scalars[i]);
-      if (!this->GetOutput()->GetCellData()->GetScalars())
+      output->GetCellData()->AddArray(scalars[i]);
+      if (!output->GetCellData()->GetScalars())
         {
-        this->GetOutput()->GetCellData()->SetScalars(scalars[i]);
+        output->GetCellData()->SetScalars(scalars[i]);
         }
       scalars[i]->Delete();
       }
