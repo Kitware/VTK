@@ -129,7 +129,7 @@ for { set j 1 } { $j <= 2 } { incr j } {
 }
 
 
-renWin SetSize 800 400
+renWin SetSize 600 300
 [ren1 GetActiveCamera] ParallelProjectionOn
 [ren1 GetActiveCamera] SetParallelScale 140
 
