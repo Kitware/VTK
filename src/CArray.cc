@@ -93,7 +93,7 @@ vlCharArray& vlCharArray::operator+=(vlCharArray& ia)
     this->Array[this->MaxId+1+i] = ia.Array[i];
     }
   this->MaxId += ia.MaxId + 1;
-
+  return *this;
 }
 
 void vlCharArray::PrintSelf(ostream& os, vlIndent indent)
