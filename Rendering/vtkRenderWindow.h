@@ -222,7 +222,7 @@ public:
   // and from bottom to top.
   virtual int SetPixelData(int, int, int, int, unsigned char *,int) = 0;
   virtual int SetPixelData(int, int, int, int, vtkUnsignedCharArray*,
-			   int ) = 0;
+                           int ) = 0;
 
   // Description:
   // Same as Get/SetPixelData except that the image also contains an alpha
@@ -233,17 +233,18 @@ public:
   virtual float *GetRGBAPixelData(int ,int ,int ,int ,int ) = 0;
   virtual int GetRGBAPixelData(int, int, int, int, int, vtkFloatArray* ) = 0;
   virtual int SetRGBAPixelData(int ,int ,int ,int ,float *,int,
-			       int blend=0) = 0;
+                               int blend=0) = 0;
   virtual int SetRGBAPixelData(int, int, int, int, vtkFloatArray*,
-			       int, int blend=0) = 0;
+                               int, int blend=0) = 0;
+  virtual void ReleaseRGBAPixelData(float *data)=0;
   virtual unsigned char *GetRGBACharPixelData(int ,int ,int ,int ,int ) = 0;
   virtual int GetRGBACharPixelData(int ,int, int, int, int,
-				   vtkUnsignedCharArray*) = 0;
+                                   vtkUnsignedCharArray*) = 0;
   virtual int SetRGBACharPixelData(int ,int ,int ,int ,unsigned char *, int,
-				   int blend=0) = 0;
+                                   int blend=0) = 0;
   virtual int SetRGBACharPixelData(int, int, int, int,
-				   vtkUnsignedCharArray *,
-				   int, int blend=0) = 0;
+                                   vtkUnsignedCharArray *,
+                                   int, int blend=0) = 0;
 
   // Description:
   // Set/Get the zbuffer data from the frame buffer.
