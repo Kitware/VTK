@@ -99,7 +99,7 @@ vtkTransform		GetScale	301 3
 vtkTransform		GetPoint	301 3
 vtkVectors		GetVector 	301 3
 vtkVolume		GetBounds	301 6
-
+vtkDataWriter           GetBinaryOutputString 313 1
 
 vtkDFALeader		GetTextPosition 301 2
 

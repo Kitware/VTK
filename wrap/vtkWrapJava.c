@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
 FunctionInfo *currentFunction;
-
+FileInfo *CurrentData;
 
 void output_proto_vars(FILE *fp, int i)
 {
@@ -108,6 +108,19 @@ void use_hints(FILE *fp)
   /* use the hint */
   switch (currentFunction->ReturnType%1000)
     {
+    case 313:
+      /* for vtkDataWriter we want to handle this case specially */
+      if (strcmp(currentFunction->Name,"GetBinaryOutputString") ||
+          strcmp(CurrentData->ClassName,"vtkDataWriter"))
+        { 
+        fprintf(fp,"    return vtkJavaMakeJArrayOfByteFromUnsignedChar(env,temp%i,%i);\n",
+	        MAX_ARGS, currentFunction->HintSize);
+        }
+      else
+        {
+        fprintf(fp,"    return vtkJavaMakeJArrayOfByteFromUnsignedChar(env,temp%i,op->GetOutputStringLength());\n", MAX_ARGS);
+        }
+      break;
     case 301:
       fprintf(fp,"    return vtkJavaMakeJArrayOfDoubleFromFloat(env,temp%i,%i);\n",
 	      MAX_ARGS, currentFunction->HintSize);
@@ -123,7 +136,7 @@ void use_hints(FILE *fp)
 	      MAX_ARGS, currentFunction->HintSize);
       break;
       
-    case 305: case 306: case 313: case 314: case 315: case 316:
+    case 305: case 306: case 314: case 315: case 316:
       break;
     }
 }
@@ -144,7 +157,7 @@ void return_result(FILE *fp)
     case 309:  
       fprintf(fp,"jobject "); break;
       
-    case 301: case 307:
+    case 301: case 307: case 313:
     case 304: case 305: case 306:
       fprintf(fp,"jarray "); break;
     }
@@ -294,8 +307,11 @@ void do_return(FILE *fp)
 
   switch (currentFunction->ReturnType%1000)
     {
-    case 303: fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i);\n",
-		      MAX_ARGS); 
+    case 303: 
+      {
+      fprintf(fp,"  return vtkJavaMakeJavaString(env,temp%i);\n",
+              MAX_ARGS); 
+      }
     break;
     case 109:
     case 309:  
@@ -316,7 +332,7 @@ void do_return(FILE *fp)
       
     /* handle functions returning vectors */
     /* this is done by looking them up in a hint file */
-    case 301: case 307:
+    case 301: case 307: case 313:
     case 304: case 305: case 306:
       use_hints(fp);
       break;
@@ -416,13 +432,30 @@ int DoneOne()
   return 0;
 }
 
+void HandleDataReader(FILE *fp, FileInfo *data)
+{
+    fprintf(fp,"\n");
+    fprintf(fp,"extern \"C\" JNIEXPORT void");
+    fprintf(fp," JNICALL Java_vtk_%s_%s_1%i(JNIEnv *env, jobject obj, jbyteArray id0, jint id1)\n",
+            data->ClassName,currentFunction->Name, numberOfWrappedFunctions);
+    fprintf(fp,"{\n");
+    fprintf(fp,"  %s *op;\n",data->ClassName);
+    fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
+            data->ClassName, data->ClassName);
+    fprintf(fp,"  jboolean isCopy;\n");
+    fprintf(fp,"  jbyte *data = env->GetByteArrayElements(id0,&isCopy);\n");
+    fprintf(fp,"  op->SetBinaryInputString((unsigned char *)data,id1);\n");
+    fprintf(fp,"  env->ReleaseByteArrayElements(id0,data,JNI_ABORT);\n");
+    fprintf(fp,"}\n");
+}
 
 
 void outputFunction(FILE *fp, FileInfo *data)
 {
   int i;
   int args_ok = 1;
- 
+  CurrentData = data;
+
   /* some functions will not get wrapped no matter what else */
   if (currentFunction->IsPureVirtual ||
       currentFunction->IsOperator || 
@@ -453,8 +486,7 @@ void outputFunction(FILE *fp, FileInfo *data)
       ((currentFunction->ReturnType%1000)/100)) args_ok = 0;
 
 
-  /* eliminate unsigned char * and unsigned short * */
-  if (currentFunction->ReturnType%1000 == 313) args_ok = 0;
+  /* eliminate unsigned short * usigned int * etc */
   if (currentFunction->ReturnType%1000 == 314) args_ok = 0;
   if (currentFunction->ReturnType%1000 == 315) args_ok = 0;
   if (currentFunction->ReturnType%1000 == 316) args_ok = 0;
@@ -476,7 +508,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   switch (currentFunction->ReturnType%1000)
     {
     case 301: case 302: case 307:
-    case 304: case 305: case 306:
+    case 304: case 305: case 306: case 313:
       args_ok = currentFunction->HaveHint;
       break;
     }
@@ -487,7 +519,22 @@ void outputFunction(FILE *fp, FileInfo *data)
     {
     args_ok = 0;
     }
+
+  /* handle DataReader SetBinaryInputString as a special case */
+  if (!strcmp("SetBinaryInputString",currentFunction->Name) &&
+      (!strcmp("vtkDataReader",data->ClassName) ||
+       !strcmp("vtkStructuredGridReader",data->ClassName) ||
+       !strcmp("vtkRectilinearGridReader",data->ClassName) ||
+       !strcmp("vtkUnstructuredGridReader",data->ClassName) ||
+       !strcmp("vtkStructuredPointsReader",data->ClassName) ||
+       !strcmp("vtkPolyDataReader",data->ClassName)))
+      {
+          HandleDataReader(fp,data);
+          wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
+          numberOfWrappedFunctions++;
+      }
   
+
   if (currentFunction->IsPublic && args_ok && 
       strcmp(data->ClassName,currentFunction->Name) &&
       strcmp(data->ClassName, currentFunction->Name + 1))

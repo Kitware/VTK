@@ -947,7 +947,7 @@ void output_function()
     switch (currentFunction->ReturnType%1000)
       {
       case 301: case 302: case 307:
-      case 304: case 305: case 306:
+      case 304: case 305: case 306: case 313:
         look_for_hint();
 	break;
       }

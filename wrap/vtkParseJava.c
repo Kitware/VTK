@@ -114,7 +114,10 @@ void return_result(FILE *fp)
     case 301: case 307:
       fprintf(fp,"double[] "); 
       break;
-    case 304: case 305: case 306: case 313: case 314: case 315: case 316:
+    case 313:
+        fprintf(fp,"byte[] ");
+        break;
+    case 304: case 305: case 306: case 314: case 315: case 316:
       fprintf(fp,"int[]  "); break;
     }
 }
@@ -210,6 +213,17 @@ int DoneOne()
   return 0;
 }
 
+void HandleDataReader(FILE *fp, FileInfo *data)
+{
+    fprintf(fp,"\n  private native void ");
+    fprintf(fp,"%s_%i(byte id0[],int id1);\n",
+            currentFunction->Name,numberOfWrappedFunctions);
+    fprintf(fp,"\n  public void ");
+    fprintf(fp,"%s(byte id0[],int id1)\n",currentFunction->Name);
+    fprintf(fp,"    { %s_%i(id0,id1); }\n",
+            currentFunction->Name,numberOfWrappedFunctions);
+}
+
 void outputFunction(FILE *fp, FileInfo *data)
 {
   int i;
@@ -246,7 +260,6 @@ void outputFunction(FILE *fp, FileInfo *data)
 
 
   /* eliminate unsigned char * and unsigned short * */
-  if (currentFunction->ReturnType%1000 == 313) args_ok = 0;
   if (currentFunction->ReturnType%1000 == 314) args_ok = 0;
   if (currentFunction->ReturnType%1000 == 315) args_ok = 0;
   if (currentFunction->ReturnType%1000 == 316) args_ok = 0;
@@ -268,7 +281,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   switch (currentFunction->ReturnType%1000)
     {
     case 301: case 302: case 307:
-    case 304: case 305: case 306:
+    case 304: case 305: case 306: case 313:
       args_ok = currentFunction->HaveHint;
       break;
     }
@@ -280,6 +293,20 @@ void outputFunction(FILE *fp, FileInfo *data)
     args_ok = 0;
     }
   
+  /* handle DataReader SetBinaryInputString as a special case */
+  if (!strcmp("SetBinaryInputString",currentFunction->Name) &&
+      (!strcmp("vtkDataReader",data->ClassName) ||
+       !strcmp("vtkStructuredGridReader",data->ClassName) ||
+       !strcmp("vtkRectilinearGridReader",data->ClassName) ||
+       !strcmp("vtkUnstructuredGridReader",data->ClassName) ||
+       !strcmp("vtkStructuredPointsReader",data->ClassName) ||
+       !strcmp("vtkPolyDataReader",data->ClassName)))
+      {
+          HandleDataReader(fp,data);
+          wrappedFunctions[numberOfWrappedFunctions] = currentFunction;
+          numberOfWrappedFunctions++;
+      }
+
   if (currentFunction->IsPublic && args_ok && 
       strcmp(data->ClassName,currentFunction->Name) &&
       strcmp(data->ClassName, currentFunction->Name + 1))
