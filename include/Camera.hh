@@ -61,14 +61,19 @@ class vlCamera : public vlObject
 
   // Description:
   // Set the camera view angle (i.e., the width of view in degrees). Larger
-  // values yield greater perspective ditortion.
+  // values yield greater perspective distortion.
   vlSetClampMacro(ViewAngle,float,1.0,179.0);
+  // Description:
+  // Get the camera view angle (i.e., the width of view in degrees).
   vlGetMacro(ViewAngle,float);
 
   // Description:
   // Set the seperation between eyes (in degrees). Used to generate stereo
   // images.
   vlSetMacro(EyeAngle,float);
+  // Description:
+  // Get the seperation between eyes (in degrees). Used to generate stereo
+  // images.
   vlGetMacro(EyeAngle,float);
 
   void SetThickness(float);
@@ -80,7 +85,12 @@ class vlCamera : public vlObject
   // Description:
   // Turn the camera on/off.
   vlSetMacro(Switch,int);
+  // Description:
+  // Get the value of the Switch instance variable. This indicates if the 
+  // camera is on or off.
   vlGetMacro(Switch,int);
+  // Description:
+  // Turn the camera on/off.
   vlBooleanMacro(Switch,int);
 
   float GetTwist();

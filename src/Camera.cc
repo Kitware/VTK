@@ -18,9 +18,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "vlMath.hh"
 
 // Description:
-// Construct camera instance with focal point at origin, and position=(0,0,1).
-// The view up is along the y-axis, view angle is 30 degrees, and the clipping
-// range is (.1,1000).
+// Construct camera instance with its focal point at the origin, 
+// and position=(0,0,1). The view up is along the y-axis, 
+// view angle is 30 degrees, and the clipping range is (.1,1000).
 vlCamera::vlCamera()
 {
   this->FocalPoint[0] = 0.0;
@@ -46,7 +46,7 @@ vlCamera::vlCamera()
 }
 
 // Description:
-// Set the position of the camera in global coordinates.
+// Set the position of the camera in world coordinates.
 void vlCamera::SetPosition(float X, float Y, float Z)
 {
   this->Position[0] = X;
@@ -71,7 +71,7 @@ void vlCamera::SetPosition(float a[3])
 }
 
 // Description:
-// Set the focal point of the camera in global coordinates.
+// Set the focal point of the camera in world coordinates.
 void vlCamera::SetFocalPoint(float X, float Y, float Z)
 {
   this->FocalPoint[0] = X; 
@@ -96,7 +96,7 @@ void vlCamera::SetFocalPoint(float a[3])
 }
 
 // Description:
-// Define the up-direction for the camera.
+// Define the view-up direction for the camera.
 void vlCamera::SetViewUp(float X, float Y, float Z)
 {
   float dx, dy, dz, norm;
@@ -137,7 +137,8 @@ void vlCamera::SetViewUp(float a[3])
 
 // Description:
 // Specify the location of the front and back clipping planes along the
-// view vector.
+// direction of projection. These are positive distances along the 
+// direction of projection.
 void vlCamera::SetClippingRange(float X, float Y)
 {
   this->ClippingRange[0] = X; 
@@ -211,8 +212,8 @@ void vlCamera::SetThickness(float X)
 }  
 
 // Description:
-// Set the distance of the camera from the object. The focal point is modified
-// accordingly.
+// Set the distance of the focal point from the camera. The focal point is 
+// modified accordingly. This should be positive.
 void vlCamera::SetDistance(float X)
 {
   if (this->Distance == X) return;
@@ -240,7 +241,9 @@ void vlCamera::SetDistance(float X)
 }  
 
 // Description:
-// 
+// This returns the twist of the camera.  The twist corrisponds to Roll and
+// represents the angle of rotation about the z axis to achieve the 
+// current view-up vector.
 float vlCamera::GetTwist()
 {
   float *vup, *vn;
@@ -367,6 +370,8 @@ void vlCamera::SetRoll(float roll)
   this->Transform.Pop();
 }
 
+// Description:
+// Returns the roll of the camera, this is very similar to GetTwist.
 float vlCamera::GetRoll()
 {
   float	*orient;
@@ -423,7 +428,9 @@ void vlCamera::CalcDistance ()
 } 
 
 // Description:
-// Return the rotations about the x-y-z axes.
+// Returns the orientation of the camera. This is a vector of X,Y and Z 
+// rotations that when performed in the order RotateZ, RotateX and finally
+// RotateY will yield the same 3x3 rotation matrix for the camera.
 float *vlCamera::GetOrientation ()
 {
   // calculate a new orientation
@@ -436,7 +443,8 @@ float *vlCamera::GetOrientation ()
 }
 
 // Description:
-// Compute the perspective transform matrix.
+// Compute the perspective transform matrix. This is used in converting 
+// between display, view and world coordinates.
 void vlCamera::CalcPerspectiveTransform ()
 {
   vlMatrix4x4  matrix;
@@ -559,7 +567,7 @@ void vlCamera::CalcPerspectiveTransform ()
 
 
 // Description:
-// Return the perspective transform matrix.
+// Return the perspective transform matrix. See CalcPerspectiveTransform.
 vlMatrix4x4 &vlCamera::GetPerspectiveTransform()
 {
   // update transform 
@@ -611,7 +619,7 @@ void vlCamera::Zoom(float amount)
 
 
 // Description:
-// Rotate the camera about the view up vector.
+// Rotate the camera about the view up vector centered at the focal point.
 void vlCamera::Azimuth (float angle)
 {
   // azimuth is a rotation of camera position about view up vector
@@ -645,7 +653,8 @@ void vlCamera::Azimuth (float angle)
 }
 
 // Description:
-// Rotate the camera around the focal point towards the view up vector.
+// Rotate the camera about the corss product of the view plane normal and 
+// the view_up vector centered on the focal_point.
 void vlCamera::Elevation (float angle)
 {
   double	axis[3];
@@ -688,8 +697,8 @@ void vlCamera::Elevation (float angle)
 }
 
 // Description:
-// Rotate the camera around an axis parallel to the view up vector and 
-// passing through the camera.
+// Rotate the focal point about the view_up vector centered at the cameras 
+// position. 
 void vlCamera::Yaw (float angle)
 {
   // yaw is a rotation of camera focal_point about view up vector
@@ -723,7 +732,8 @@ void vlCamera::Yaw (float angle)
 }
 
 // Description:
-// Rotate the camera towards the view up vector.
+// Rotate the focal point about the cross product of the view up vector 
+// and the view plane normal, centered at the cameras position.
 void vlCamera::Pitch (float angle)
 {
   float	axis[3];
@@ -792,7 +802,7 @@ void vlCamera::Roll (float angle)
 
 // Description:
 // Set the direction that the camera points.
-// adjusts position to be consistent with VPN
+// Adjusts position to be consistent with the view plane normal.
 void vlCamera::SetViewPlaneNormal(float X,float Y,float Z)
 {
   float norm;
