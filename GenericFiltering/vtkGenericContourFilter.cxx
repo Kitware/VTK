@@ -30,7 +30,7 @@
 #include "vtkPolyData.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.2");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.3");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -115,7 +115,7 @@ void vtkGenericContourFilter::Execute()
   //
   numCells = input->GetNumberOfCells();
   
-  estimatedSize = (vtkIdType) pow ((double) numCells, .75);
+  //estimatedSize = (vtkIdType) pow ((double) numCells, .75);
 //  estimatedSize *= numContours;
 
   estimatedSize = input->GetEstimatedSize();

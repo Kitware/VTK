@@ -31,7 +31,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.2");
+vtkCxxRevisionMacro(vtkGenericGlyph3DFilter, "1.3");
 vtkStandardNewMacro(vtkGenericGlyph3DFilter);
 
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -95,11 +95,11 @@ void vtkGenericGlyph3DFilter::Execute()
   vtkDataArray *newVectors=NULL;
   vtkDataArray *newNormals=NULL;
   double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value;
-  vtkTransform *trans = 0;
+  vtkTransform *trans;
   vtkCell *cell;
   vtkIdList *cellPts;
   int npts;
-  vtkIdList *pts=0;
+  vtkIdList *pts;
   vtkIdType ptIncr, cellId;
   int haveVectors, haveNormals;
   double scalex,scaley,scalez, den;
@@ -803,7 +803,7 @@ void vtkGenericGlyph3DFilter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->InputNormalsSelection ? this->InputNormalsSelection : "(none)") << "\n";
 }
 
-void vtkGenericGlyph3DFilter::ComputeInputUpdateExtents( vtkDataObject *output )
+void vtkGenericGlyph3DFilter::ComputeInputUpdateExtents( vtkDataObject * )
 {
   vtkPolyData *outPd;
 
@@ -813,7 +813,6 @@ void vtkGenericGlyph3DFilter::ComputeInputUpdateExtents( vtkDataObject *output )
     return;
     }
 
-  output = output;
   outPd = this->GetOutput();
   if (this->GetSource())
     {

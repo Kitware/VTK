@@ -26,7 +26,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamer, "1.4");
+vtkCxxRevisionMacro(vtkGenericStreamer, "1.5");
 vtkCxxSetObjectMacro(vtkGenericStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -226,7 +226,7 @@ VTK_THREAD_RETURN_TYPE vtkGenericStreamer::ThreadedIntegrate( void *arg )
   vtkDataArray             *cellScalars=0;
   double tOffset, vort[3];
   double err;
-  int nSavePts = 0, counter=0;
+  int counter=0;
 
   thread_id = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
   thread_count = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
@@ -401,12 +401,10 @@ VTK_THREAD_RETURN_TYPE vtkGenericStreamer::ThreadedIntegrate( void *arg )
             idxNext = streamer->InsertNextStreamPoint();
             sNext = streamer->GetStreamPoint(idxNext);
             *sNext = pt1;
-            nSavePts++;
             }
           idxNext = streamer->InsertNextStreamPoint();
           sNext = streamer->GetStreamPoint(idxNext);
           *sNext = pt2;
-          nSavePts++;
           }
         if (tOffset < pt2.t)
           {
@@ -423,7 +421,6 @@ VTK_THREAD_RETURN_TYPE vtkGenericStreamer::ThreadedIntegrate( void *arg )
         idxNext = streamer->InsertNextStreamPoint();
         sNext = streamer->GetStreamPoint(idxNext);
         *sNext = pt2;
-        nSavePts++;
         }
       // Clear the last cell to avoid starting a search from
       // the last point in the streamline
