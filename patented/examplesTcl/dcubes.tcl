@@ -6,8 +6,11 @@ source ../../examplesTcl/colors.tcl
 # Create the RenderWindow, Renderer and both Actors
 #
 vtkRenderer ren1
+vtkRenderer ren2
 vtkRenderWindow renWin
+    renWin PointSmoothingOn
     renWin AddRenderer ren1
+    renWin AddRenderer ren2
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
@@ -19,14 +22,25 @@ vtkStructuredPointsReader reader
 vtkDividingCubes iso
     iso SetInput [reader GetOutput]
     iso SetValue 128
-    iso SetDistance 0.5
+    iso SetDistance 1
     iso SetIncrement 1
 vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper ScalarVisibilityOff
-vtkActor isoActor
-    isoActor SetMapper isoMapper
-    eval [isoActor GetProperty] SetColor $bisque
+vtkActor isoActor1
+    isoActor1 SetMapper isoMapper
+    eval [isoActor1 GetProperty] SetDiffuseColor $banana
+    eval [isoActor1 GetProperty] SetDiffuse .7
+    eval [isoActor1 GetProperty] SetSpecular .5
+    eval [isoActor1 GetProperty] SetSpecularPower 30
+
+vtkActor isoActor2
+    isoActor2 SetMapper isoMapper
+    eval [isoActor2 GetProperty] SetDiffuseColor $banana
+    eval [isoActor2 GetProperty] SetDiffuse .7
+    eval [isoActor2 GetProperty] SetSpecular .5
+    eval [isoActor2 GetProperty] SetSpecularPower 30
+    eval [isoActor2 GetProperty] SetPointSize 5
 
 vtkOutlineFilter outline
     outline SetInput [reader GetOutput]
@@ -39,10 +53,19 @@ vtkActor outlineActor
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor outlineActor
-ren1 AddActor isoActor
+ren1 AddActor isoActor1
 ren1 SetBackground 1 1 1
+
+ren2 AddActor outlineActor
+ren2 AddActor isoActor2
+ren2 SetBackground 1 1 1
+
 renWin SetSize 500 500
 ren1 SetBackground 0.1 0.2 0.4
+ren2 SetBackground 0.1 0.2 0.4
+
+ren1 SetViewport 0 0 .5 1
+ren2 SetViewport .5 0 1 1
 
 vtkCamera cam1
     cam1 SetClippingRange 19.1589 957.946
@@ -50,7 +73,17 @@ vtkCamera cam1
     cam1 SetPosition 150.841 89.374 -107.462
     cam1 ComputeViewPlaneNormal
     cam1 SetViewUp -0.190015 0.944614 0.267578
+    cam1 Dolly 2
+
+vtkLight aLight
+eval  aLight SetPosition [cam1 GetPosition]
+eval  aLight SetFocalPoint [cam1 GetFocalPoint]
+
 ren1 SetActiveCamera cam1
+ren1 AddLight aLight
+
+ren2 SetActiveCamera cam1
+ren2 AddLight aLight
 
 iren Initialize
 
