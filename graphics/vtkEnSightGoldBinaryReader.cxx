@@ -375,6 +375,7 @@ int vtkEnSightGoldBinaryReader::SkipStructuredGrid(char line[256])
 
   // reading next line to check for EOF
   lineRead = this->ReadLine(line);
+  return lineRead;
 }
 
 //----------------------------------------------------------------------------
