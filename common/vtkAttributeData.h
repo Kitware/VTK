@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // control the type of the underlying data, if necessary.
 
 // .SECTION See Also
-// vtkPoints vtkScalars vtkVectors vtkNormals vtkTCoords vtkTensors vtkField
+// vtkPoints vtkScalars vtkVectors vtkNormals vtkTCoords vtkTensors vtkFieldData
 
 #ifndef __vtkAttributeData_h
 #define __vtkAttributeData_h
