@@ -470,7 +470,7 @@ invertible");
     }
 
   // default origin places centre of output over centre of input
-  if (this->OutputAlwaysCenteredOnInput || this->OutputOrigin[0] == FLT_MAX )
+  if (this->OutputOrigin[0] == FLT_MAX )
     {
     for (i = 0; i < 3; i++)
       {
