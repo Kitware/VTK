@@ -58,10 +58,21 @@ void vtkProjectedTexture::SetFocalPoint(float fp[3])
 
 void vtkProjectedTexture::SetFocalPoint(float x, float y, float z)
 {
-  this->Orientation[0] = x - this->Position[0];
-  this->Orientation[1] = y - this->Position[1];
-  this->Orientation[2] = z - this->Position[2];
-  vtkMath::Normalize(this->Orientation);
+  float orientation[3];
+
+  orientation[0] = x - this->Position[0];
+  orientation[1] = y - this->Position[1];
+  orientation[2] = z - this->Position[2];
+  vtkMath::Normalize(orientation);
+  if (this->Orientation[0] != orientation[0] ||
+      this->Orientation[1] != orientation[1] ||
+      this->Orientation[2] != orientation[2])
+    {
+    this->Orientation[0] = orientation[0];
+    this->Orientation[1] = orientation[1];
+    this->Orientation[2] = orientation[2];
+    this->Modified();
+    }
 }
 
 void vtkProjectedTexture::Execute()
