@@ -171,3 +171,83 @@ extern "C" JNIEXPORT void  JNICALL
   awt.FreeDrawingSurface(ds);
 }
 
+
+// This function is provided to lock the render window and execute the
+// method represented by methodString of the object represented by anObject.
+// This is necessary to wrap any vtk filter which might call Render in
+// its Execute method (for example vtkRenderLargeImage).  The method passed
+// in must be void and zero-argument (this could be extended later to handle
+// more generic methods).
+extern "C" JNIEXPORT void  JNICALL 
+    Java_vtkPanel_LockAndExecuteVoidMethod(JNIEnv *env, 
+                                           jobject canvas,
+                                           jobject renderWindow, 
+                                           jobject anObject,
+                                           jstring methodString)
+{
+  JAWT awt;
+  JAWT_DrawingSurface* ds;
+  jint lock;
+
+  jclass clazz;
+  jmethodID mid;
+  jboolean isCopy;
+
+  // get the render window pointer
+  vtkRenderWindow *temp0;
+  temp0 = (vtkRenderWindow *)(vtkJavaGetPointerFromObject(env,renderWindow,(char *) "vtkRenderWindow"));
+
+
+  // convert jstring to const char*
+  const char* utf_string = env->GetStringUTFChars(methodString, &isCopy);
+
+  /* Get the AWT */
+  awt.version = JAWT_VERSION_1_3;
+  if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
+      {
+          printf("AWT Not found\n");
+          return;
+      }
+  
+  /* Get the drawing surface */
+  ds = awt.GetDrawingSurface(env, canvas);
+  if (ds == NULL) 
+      {
+          printf("NULL drawing surface\n");
+          return;
+      }
+  
+  /* Lock the drawing surface */
+  lock = ds->Lock(ds);
+  if((lock & JAWT_LOCK_ERROR) != 0) 
+    {
+    printf("Error locking surface\n");
+    awt.FreeDrawingSurface(ds);
+    return;
+    }
+
+  // get object class containing method
+  clazz = env->GetObjectClass(anObject);
+
+  // get void method id 
+  mid = env->GetMethodID(clazz, utf_string, "()V");
+  if (mid == 0)
+    {
+      printf("Can't get void methodID %s for object\n", utf_string);
+      ds->Unlock(ds);
+      awt.FreeDrawingSurface(ds);
+      return;
+    }
+
+  env->CallVoidMethod(anObject, mid);
+
+  temp0->Render();
+  
+  /* Unlock the drawing surface */
+  ds->Unlock(ds);
+  
+  /* Free the drawing surface */
+  awt.FreeDrawingSurface(ds);
+}
+
+
