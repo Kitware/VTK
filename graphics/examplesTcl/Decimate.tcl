@@ -20,6 +20,7 @@ set Surface 1
 set FEdges 0
 set BEdges 0
 set NMEdges 0
+set Compare 0
 
 ######################################## Create top-level GUI
 #
@@ -30,8 +31,9 @@ pack .mbar -side top -fill x
 menubutton .mbar.file -text File -menu .mbar.file.menu
 menubutton .mbar.edit -text Edit -menu .mbar.edit.menu
 menubutton .mbar.view -text View -menu .mbar.view.menu
+menubutton .mbar.options -text Options -menu .mbar.options.menu
 menubutton .mbar.help -text Help -menu .mbar.help.menu
-pack .mbar.file .mbar.edit .mbar.view -side left
+pack .mbar.file .mbar.edit .mbar.view .mbar.options -side left
 pack .mbar.help -side right
 
 menu .mbar.file.menu
@@ -42,6 +44,7 @@ menu .mbar.file.menu
 menu .mbar.edit.menu
     .mbar.edit.menu add command -label Clean -command Clean -state disabled
     .mbar.edit.menu add command -label Decimate -command Decimate -state disabled
+    .mbar.edit.menu add command -label Smooth -command Smooth -state disabled
     .mbar.edit.menu add command -label Triangulate -command Triangulate \
 	    -state disabled
     .mbar.edit.menu add command -label "Undo/Redo" -command Undo
@@ -71,6 +74,10 @@ menu .mbar.view.menu
     .mbar.view.menu add radiobutton -label Isometric -variable view \
         -value Isometric -command {UpdateView 1 1 1 0 1 0}
 
+menu .mbar.options.menu
+    .mbar.options.menu add command -label "Compare Results" -command Compare \
+	    -state disabled
+
 menu .mbar.help.menu
     .mbar.help.menu add command -label {Are you kidding?}
 
@@ -79,7 +86,15 @@ vtkTkRenderWidget .window -width 300 -height 300
     BindTkRenderWidget .window
 pack .window -side top -anchor nw -padx 3 -pady 3 -fill both -expand 1
 
+vtkCamera camera
+vtkLight light
 vtkRenderer Renderer
+    Renderer SetActiveCamera camera
+    Renderer AddLight light
+vtkRenderer CompareRenderer
+    CompareRenderer SetViewport 0.0 0.0 0.5 1.0
+    CompareRenderer SetActiveCamera camera
+    CompareRenderer AddLight light
 set RenWin [.window GetRenderWindow]
 $RenWin AddRenderer Renderer
 
@@ -169,6 +184,7 @@ proc UpdateUndo {filter} {
 
     PreviousPolyData CopyStructure PolyData
     [PreviousPolyData GetPointData] PassData [PolyData GetPointData]
+    PreviousPolyData Modified
 
     PolyData CopyStructure [$filter GetOutput]
     [PolyData GetPointData] PassData [[$filter GetOutput] GetPointData]
@@ -188,6 +204,7 @@ proc Undo {} {
 
     PreviousPolyData CopyStructure TempPolyData
     [PreviousPolyData GetPointData] PassData [TempPolyData GetPointData]
+    PreviousPolyData Modified
 
     UpdateGUI
     $RenWin Render
@@ -206,6 +223,13 @@ vtkPolyDataMapper bannerMapper
     bannerMapper SetInput [banner GetOutput]
 vtkActor bannerActor
     bannerActor SetMapper bannerMapper
+
+# Actor used for side-by-side data comparison
+vtkPolyDataMapper CompareMapper
+    CompareMapper SetInput PreviousPolyData
+vtkActor CompareActor
+    CompareActor SetMapper CompareMapper
+CompareRenderer AddActor CompareActor
 
 # Edges
 vtkFeatureEdges FeatureEdges
@@ -244,6 +268,7 @@ proc UpdateGUI {} {
 	.mbar.edit.menu entryconfigure 2 -state disabled
 	.mbar.edit.menu entryconfigure 3 -state disabled
 	.mbar.file.menu entryconfigure 1 -state disabled
+	.mbar.options.menu entryconfigure 1 -state disabled
         set s "(None)"
 
     } else {
@@ -267,10 +292,33 @@ proc UpdateGUI {} {
                    $NumberOfNodes $NumberOfElements]
 	}
 	.mbar.edit.menu entryconfigure 3 -state normal
+	.mbar.edit.menu entryconfigure 4 -state normal
 	.mbar.file.menu entryconfigure 2 -state normal
+	.mbar.options.menu entryconfigure 1 -state normal
     }
 
     .status configure -text $s
+}
+
+### Procedure manages splitting screen and comparing data
+#
+proc Compare {} {
+    global Compare RenWin
+
+    if { $Compare == 0} {
+	$RenWin AddRenderer CompareRenderer
+	Renderer SetViewport 0.5 0.0 1.0 1.0
+	.mbar.options.menu entryconfigure 1 -label "Uncompare Results"
+	set Compare 1
+
+    } else {
+	$RenWin RemoveRenderer CompareRenderer
+	Renderer SetViewport 0.0 0.0 1.0 1.0
+	.mbar.options.menu entryconfigure 1 -label "Compare Results"
+	set Compare 0
+    }
+
+    $RenWin Render
 }
 
 ########################## The decimation GUI
@@ -331,6 +379,74 @@ proc ApplyDecimation {} {
 
     $RenWin Render
     CloseDecimate
+}  
+
+proc SetDeciPolygons value {
+    global deciReduction
+
+    set numInPolys [PolyData GetNumberOfCells]
+    if { $numInPolys <= 0 } {return}
+    set deciReduction [expr (double($numInPolys) - $value) / $numInPolys]
+}
+
+########################## The smooth poly data GUI
+#
+# Procedure defines GUI and behavior for decimating data
+#
+proc Smooth {} {
+    UpdateSmoothGUI
+    wm deiconify .smooth
+}
+
+proc CloseSmooth {} {
+    wm withdraw .smooth
+}
+
+toplevel .smooth
+wm withdraw .smooth
+wm title .smooth "Smooth"
+wm protocol .smooth WM_DELETE_WINDOW {wm withdraw .smooth}
+
+frame .smooth.f1
+scale .smooth.f1.num -label "Number Of Iterations" \
+	-from 1 -to 1000 -length 3.0i -orient horizontal \
+	-resolution 1
+.smooth.f1.num set 100
+scale .smooth.f1.fact -label "RelaxationFactor" \
+	-from 0.00 -to 1.00 -length 3.0i -orient horizontal \
+	-resolution 0.01
+.smooth.f1.fact set 0.01
+pack .smooth.f1.num .smooth.f1.fact \
+	-pady 0.1i -side top -anchor w
+
+frame .smooth.fb
+button .smooth.fb.apply -text Apply -command ApplySmooth
+button .smooth.fb.cancel -text Cancel -command CloseSmooth
+pack .smooth.fb.apply .smooth.fb.cancel -side left -expand 1 -fill x
+pack .smooth.f1 .smooth.fb -side top -fill both -expand 1
+
+vtkSmoothPolyDataFilter smooth
+
+proc UpdateSmoothGUI {} {
+
+   .smooth.f1.num set [smooth GetNumberOfIterations]
+   .smooth.f1.fact set [smooth GetRelaxationFactor]
+}
+
+proc ApplySmooth {} {
+    global RenWin
+
+    smooth SetInput PolyData    
+
+    smooth SetNumberOfIterations [.smooth.f1.num get]
+    smooth SetRelaxationFactor [.smooth.f1.fact get]
+    smooth Update
+
+    UpdateUndo "smooth"
+    UpdateGUI
+
+    $RenWin Render
+    CloseSmooth
 }  
 
 proc SetDeciPolygons value {
