@@ -39,7 +39,6 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-#include <math.h>
 #include "vtkClipVolume.h"
 #include "vtkMergePoints.h"
 #include "vtkVoxel.h"
@@ -173,6 +172,15 @@ void vtkClipVolume::Execute()
   input->GetOrigin(origin);
   input->GetSpacing(spacing);
   
+  int extent[6];
+  input->GetExtent(extent);
+
+  int wextent[6];
+  input->GetWholeExtent(wextent);
+
+  int dims2[3];
+  input->GetDimensions(dims2);
+
   for (dimension=3, i=0; i<3; i++)
     {
     if ( dims[0] <= 1 )
@@ -362,7 +370,8 @@ void vtkClipVolume::Execute()
         
         else if (above == below ) // clipped voxel, have to triangulate 
           {
-          this->ClipVoxel(value, cellScalars, flip, origin, spacing, 
+          this->ClipVoxel(value, cellScalars, flip, origin, spacing, extent,
+			  wextent, dims2,
                           cellIds, cellPts, inPD, outPD, inCD, cellId, 
                           outCD, clippedCD);
           }
@@ -372,13 +381,13 @@ void vtkClipVolume::Execute()
     }// for k
 
   vtkDebugMacro(<<"Created: " 
-                << newPoints->GetNumberOfPoints() << " points, " 
-                << output->GetNumberOfCells() << " tetra" );
+  << newPoints->GetNumberOfPoints() << " points, " 
+  << output->GetNumberOfCells() << " tetra" );
  
   if ( this->GenerateClippedOutput )
     {
     vtkDebugMacro(<<"Created (clipped output): " 
-                  << clippedOutput->GetNumberOfCells() << " tetra");
+    << clippedOutput->GetNumberOfCells() << " tetra");
     }
 
   // Update ourselves.  Because we don't know upfront how many cells
@@ -416,7 +425,8 @@ void vtkClipVolume::Execute()
 // Delaunay problems.
 void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars, 
                               int flip, float vtkNotUsed(origin)[3],
-                              float spacing[3], 
+			      float spacing[3], int extent[6],
+			      int wextent[6], int dims[3],
                               vtkIdList *cellIds, vtkPoints *cellPts,
                               vtkPointData *inPD, vtkPointData *outPD,
                               vtkCellData *vtkNotUsed(inCD),
@@ -425,8 +435,9 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
                               vtkCellData *vtkNotUsed(clippedCD))
 {
   float x[3], *xPtr, s1, s2, t, voxelOrigin[3];
+  int itmp, jtmp, ktmp;
   float bounds[6], p1[3], p2[3];
-  int i, edgeNum, numPts;
+  int i, edgeNum, numPts, sortId;
   vtkIdType id, ptId;
   vtkUnstructuredGrid *output=this->GetOutput();
   vtkUnstructuredGrid *clippedOutput=this->GetClippedOutput();
@@ -473,7 +484,12 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
       {
       outPD->CopyData(inPD,cellIds->GetId(ptId), id);
       }
-    internalId[ptId] = this->Triangulator->InsertPoint(id, xPtr, type);
+    itmp = id % dims[0];
+    jtmp = (id/dims[0]) % dims[1];
+    ktmp = id / (dims[0]*dims[1]);
+    sortId = (extent[0]+itmp) + (wextent[1]-wextent[0]+1)*(extent[2]+jtmp) + 
+      ((wextent[1]-wextent[0]+1)*(wextent[3]-wextent[2]+1))*(extent[4]+ktmp);
+    internalId[ptId] = this->Triangulator->InsertPoint(id, sortId, xPtr, type);
     }//for eight voxel corner points
   
   // For each edge intersection point, insert into triangulation. Edge
@@ -516,7 +532,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkDataArray *cellScalars,
         }
 
       //Insert into Delaunay triangulation
-      this->Triangulator->InsertPoint(ptId,x,2);
+      this->Triangulator->InsertPoint(ptId,ptId,x,2);
 
       }//if edge intersects value
     }//for all edges
