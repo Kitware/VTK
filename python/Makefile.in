@@ -83,7 +83,7 @@ vtkpython${SHLIB_SUFFIX}: Makefile vtkpython.o ${TOOLKIT_DEPENDS}
 # build vtkpython.pth
 vtkpython.pth: Makefile
 	-rm -f vtkpython.pth
-	echo $(LIB_INSTALL_DIR)/vtk/python/ > vtkpython.pth
+	echo $(exec_prefix)/lib/vtk/python/ > vtkpython.pth
 
 #------------------------------------------------------------------------------
 # Install the python files and libraries
@@ -106,10 +106,11 @@ install: all vtkpython.pth
 	${INSTALL} -m 644 ${srcdir}/vtkImageWindowWidget.py     $(LIB_INSTALL_DIR)/vtk/python/
 	${INSTALL} -m 644 ${srcdir}/vtkRenderWidget.py          $(LIB_INSTALL_DIR)/vtk/python/
 	${INSTALL} -m 755 vtkpython.so                          $(LIB_INSTALL_DIR)/vtk/python/
-	-${INSTALL} -m 755 vtkpython.pth                        `python getmodulepath.py`
+	-${INSTALL} -m 755 -d $(INSTALL_ROOT)`python getmodulepath.py`
+	-${INSTALL} -m 644 vtkpython.pth                        $(INSTALL_ROOT)`python getmodulepath.py`
 	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageViewerWidget
 	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageWindowWidget
-	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkImageRenderWidget
+	-rm $(LIB_INSTALL_DIR)/vtk/python/vtkTkRenderWidget
 	${INSTALL} -m 755 vtkTkImageViewerWidget                $(LIB_INSTALL_DIR)/
 	${INSTALL} -m 755 vtkTkImageWindowWidget                $(LIB_INSTALL_DIR)/
 	${INSTALL} -m 755 vtkTkRenderWidget                     $(LIB_INSTALL_DIR)/
