@@ -1,7 +1,16 @@
 """ This module loads the entire VTK library into its namespace.  It
 also allows one to use specific packages inside the vtk directory.."""
 
+import os
+import sys
+import dl
 import __helper
+
+# set the dlopen flags so that VTK does not run into problems with
+# shared symbols.
+orig_dlopen_flags = sys.getdlopenflags()
+if os.name == 'posix':
+    sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)    
 
 # Load all required kits.
 from common import *
@@ -40,8 +49,13 @@ try:
 except ImportError, exc:
     __helper.refine_import_err('parallel', exc)
 
-# removing things the user shouldn't have to see.
-del __helper
-
 # import useful VTK related constants.
 from util.vtkConstants import *
+
+# reset the dlopen flags to the original state.
+if os.name == 'posix':
+    sys.setdlopenflags(orig_dlopen_flags)
+
+# removing things the user shouldn't have to see.
+del __helper, orig_dlopen_flags
+del sys, dl, os
