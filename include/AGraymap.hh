@@ -42,6 +42,7 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/2;};
   void Squeeze() {this->S.Squeeze();};
   int GetNumberOfValuesPerPoint() {return 2;};
+  unsigned char *GetUCharPtr() {return S.GetPtr(0);};
 
   // miscellaneous
   vlAGraymap &operator=(const vlAGraymap& fs);

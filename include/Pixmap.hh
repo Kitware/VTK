@@ -41,6 +41,7 @@ public:
   int GetNumberOfScalars() {return (this->S.GetMaxId()+1)/3;};
   void Squeeze() {this->S.Squeeze();};
   int GetNumberOfValuesPerPoint() {return 3;};
+  unsigned char *GetUCharPtr() {return S.GetPtr(0);};
 
   // miscellaneous
   vlPixmap &operator=(const vlPixmap& fs);
