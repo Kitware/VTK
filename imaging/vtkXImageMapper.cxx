@@ -230,6 +230,7 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
   int colorsMax;
   int visualDepth, visualClass;
   T lower, upper;
+  int hit;
   unsigned char lowerPixel, upperPixel, temp;
   int colorIdx;
 
@@ -304,8 +305,8 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
     lowerPixel = (unsigned char)(colors->pixel);
     }  
 
-  vtkXImageMapperClamps( data, self->GetColorWindow(),
-			 self->GetColorLevel(), 
+  vtkXImageMapperClamps( data, mapper->GetColorWindow(),
+			 mapper->GetColorLevel(), 
 			 lower, upper, hit );
 
   inInc1 = -inInc1;
@@ -424,6 +425,7 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
   T *greenPtr;
   T *bluePtr;
   T lower, upper;
+  int hit;
   
   vtkWindow*  window = viewport->GetVTKWindow();
     
@@ -476,8 +478,8 @@ static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,
 
   unsigned long* ulOutPtr = (unsigned long*) outPtr;
 
-  vtkXImageMapperClamps ( data, self->GetColorWindow(),
-			  self->GetColorLevel(), 
+  vtkXImageMapperClamps ( data, mapper->GetColorWindow(),
+			  mapper->GetColorLevel(), 
 			  lower, upper, hit );
 
   inInc1 = -inInc1;
