@@ -239,7 +239,7 @@ void vtkCell::GetBounds(float bounds[6])
 // Compute Length squared of cell (i.e., bounding box diagonal squared).
 float vtkCell::GetLength2 ()
 {
-  float diff, l=0.0;
+  double diff, l=0.0;
   int i;
 
   this->GetBounds();
@@ -248,8 +248,11 @@ float vtkCell::GetLength2 ()
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
     }
- 
-  return l;
+  if(l > VTK_LARGE_FLOAT)
+    {
+    return VTK_LARGE_FLOAT;
+    }
+  return static_cast<float>(l);
 }
 
 // Return center of the cell in parametric coordinates.
