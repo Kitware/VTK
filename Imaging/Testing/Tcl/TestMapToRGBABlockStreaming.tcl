@@ -17,7 +17,7 @@ LUT SetTableRange 0 1800
 LUT SetSaturationRange 1 1
 LUT SetHueRange $rangeStart $rangeEnd
 LUT SetValueRange 1 1  
-LUT SetAlphaRange 0 0
+LUT SetAlphaRange 1 1
 LUT Build
 
 proc changeLUT { } {
