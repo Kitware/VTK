@@ -70,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPoints.h"
 #include "vtkIdList.h"
 
-class vtkNeighborPoints;
+class vtkNeighborPoints2D;
 
 class VTK_EXPORT vtkPointLocator2D : public vtkLocator
 {
@@ -158,7 +158,7 @@ protected:
   vtkIdList **HashTable; // lists of point ids in buckets
   int NumberOfBuckets; // total size of hash table
   float H[2]; // width of each bucket in x-y-z directions
-  vtkNeighborPoints *Buckets;
+  vtkNeighborPoints2D *Buckets;
   float InsertionTol2;
 };
 

@@ -63,12 +63,19 @@ vtkPointLocator2D* vtkPointLocator2D::New()
 
 
 
-class vtkNeighborPoints
+class vtkNeighborPoints2D
 {
 public:
-  vtkNeighborPoints(const int sz, const int ext=1000)
+  vtkNeighborPoints2D(const int sz, const int ext=1000)
     {this->P = vtkIntArray::New(); this->P->Allocate(2*sz,2*ext);};
-  ~vtkNeighborPoints(){this->P->Delete();}; 
+  ~vtkNeighborPoints2D()
+    {
+    if (this->P)
+      {
+      this->P->Delete();
+      this->P = NULL;
+      }
+    }
   int GetNumberOfNeighbors() {return (this->P->GetMaxId()+1)/2;};
   void Reset() {this->P->Reset();};
 
@@ -79,7 +86,7 @@ protected:
   vtkIntArray *P;
 };
 
-inline int vtkNeighborPoints::InsertNextPoint(int *x) 
+inline int vtkNeighborPoints2D::InsertNextPoint(int *x) 
 {
   int id = this->P->GetMaxId() + 2;
   this->P->InsertValue(id,x[1]);
@@ -92,7 +99,7 @@ inline int vtkNeighborPoints::InsertNextPoint(int *x)
 vtkPointLocator2D::vtkPointLocator2D()
 {
 
-  this->Buckets = new vtkNeighborPoints(26,50);
+  this->Buckets = new vtkNeighborPoints2D(26,50);
   this->Points = NULL;
   this->Divisions[0] = this->Divisions[1] = 50;
   this->NumberOfPointsPerBucket = 3;
@@ -112,6 +119,7 @@ vtkPointLocator2D::~vtkPointLocator2D()
   if ( this->Buckets)
     {
      delete this->Buckets;
+     this->Buckets = NULL;
     }
   this->FreeSearchStructure();
 }
