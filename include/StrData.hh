@@ -33,7 +33,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define XZ_PLANE 6
 #define XYZ_GRID 7
 
-class vlStructuredDataSet : public vlDataSet {
+class vlStructuredDataSet : virtual public vlDataSet {
 public:
   vlStructuredDataSet();
   vlStructuredDataSet(const vlStructuredDataSet& sds);
