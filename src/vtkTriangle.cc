@@ -360,7 +360,7 @@ void vtkTriangle::Derivatives(int subId, float pcoords[3], float *values,
 }
 
 // Special dot product definition for 2-vectors
-#define DOT(_x,_y) _x[0]*_y[0] + _x[1]*_y[1]
+#define VTK_DOT(_x,_y) _x[0]*_y[0] + _x[1]*_y[1]
 
 // Description:
 // Compute the circumcenter (center[3]) and radius (method return value) of
@@ -370,8 +370,8 @@ void vtkTriangle::Derivatives(int subId, float pcoords[3], float *values,
 float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2], 
                                 float center[2])
 {
-  float n12[2], n13[2], x12[2], x13[2];
-  float c1[2], c2[2], rhs[2], diff, sum, det;
+  double n12[2], n13[2], x12[2], x13[2];
+  double *A[2], rhs[2], sum, diff;
   int i;
 //
 //  calculate normals and intersection points of bisecting planes.  
@@ -385,24 +385,26 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
     }
 //
 //  Compute solutions to the intersection of two bisecting lines
-//  (2-eqns. in 2-unknowns) using Kramer's rule.
+//  (2-eqns. in 2-unknowns).
 //
 //  form system matrices
 //
-  c1[0] = n12[0]; c2[0] = n12[1]; 
-  c1[1] = n13[0]; c2[1] = n13[1];
+  A[0] = n12;
+  A[1] = n13;
 
-  rhs[0] = DOT(n12,x12);
-  rhs[1] = DOT(n13,x13);
+  rhs[0] = VTK_DOT(n12,x12);
+  rhs[1] = VTK_DOT(n13,x13);
 //
 // Solve system of equations
 //
-  if ( (det=math.Determinant2x2(c1,c2)) == 0.0 ||
-  fabs((center[0]=math.Determinant2x2(rhs,c2)/det)) > 1.0e04 || 
-  fabs((center[1]=math.Determinant2x2(c1,rhs)/det)) > 1.0e04 )
+  if ( math.SolveLinearSystem(A,rhs,2) == 0 )
     {
     center[0] = center[1] = 0.0;
     return VTK_LARGE_FLOAT;
+    }
+  else
+    {
+    center[0] = rhs[0]; center[1] = rhs[1];
     }
 
   //determine average value of radius squared
@@ -416,6 +418,6 @@ float vtkTriangle::Circumcircle(float  x1[2], float x2[2], float x3[2],
     sum += diff*diff;
     }
 
-  return (sum / 3.0);
+  return (float) (sum / 3.0);
 }
-#undef DOT
+#undef VTK_DOT
