@@ -67,6 +67,9 @@ vtkStructuredGrid::vtkStructuredGrid()
 
   this->UpdateExtent = vtkStructuredExtent::New();
 
+  this->Extent[0] = this->Extent[2] = this->Extent[4] = 0;
+  this->Extent[1] = this->Extent[3] = this->Extent[5] = 0;
+
   this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] = 0;
   this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = 0;
 }
