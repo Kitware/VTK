@@ -23,7 +23,7 @@ IF(VTK_USE_CARBON)
     ADD_CUSTOM_COMMAND(
       SOURCE vtk
       COMMAND ${VTK_APPLE_RESOURCE}
-      ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/vtk
+      ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/vtk
       TARGET vtk
       )
   ENDIF(VTK_APPLE_RESOURCE)
@@ -54,7 +54,7 @@ IF (VTK_USE_PARALLEL)
         ADD_CUSTOM_COMMAND(
           SOURCE pvtk
           COMMAND ${VTK_APPLE_RESOURCE}
-          ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/pvtk
+          ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtk
           TARGET pvtk
           )
       ENDIF(VTK_APPLE_RESOURCE)
@@ -132,13 +132,13 @@ ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 IF(VTK_TCL_CONFIGURATION_TYPES)
   FOREACH(config ${VTK_TCL_CONFIGURATION_TYPES})
-    SET(VTK_TCL_LIBRARY_DIR "${VTK_LIBRARY_PATH}/${config}")
+    SET(VTK_TCL_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}/${config}")
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                    ${VTK_BINARY_DIR}/Wrapping/Tcl/${config}/pkgIndex.tcl
                    @ONLY IMMEDIATE)
   ENDFOREACH(config)
 ELSE(VTK_TCL_CONFIGURATION_TYPES)
-  SET(VTK_TCL_LIBRARY_DIR "${VTK_LIBRARY_PATH}")
+  SET(VTK_TCL_LIBRARY_DIR "${LIBRARY_OUTPUT_PATH}")
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                  ${VTK_BINARY_DIR}/Wrapping/Tcl/pkgIndex.tcl
                  @ONLY IMMEDIATE)

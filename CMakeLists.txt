@@ -11,6 +11,14 @@ SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
 #-----------------------------------------------------------------------------
+# Output directories.
+SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
+SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
+
+#-----------------------------------------------------------------------------
 # Load the VTK CMake extension module.
 IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
   # test for some required system info
@@ -131,11 +139,11 @@ ENDIF(VTK_USE_PARALLEL)
 #-----------------------------------------------------------------------------
 # VTK executable locations
 IF(VTK_WRAP_TCL)
-  SET(VTK_TCL_EXE ${VTK_EXECUTABLE_PATH}/vtk)
+  SET(VTK_TCL_EXE ${VTK_EXECUTABLE_DIR}/vtk)
   SET(VTK_TCL_HOME ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ENDIF(VTK_WRAP_TCL)
 IF(VTK_WRAP_PYTHON)
-  SET(VTK_PYTHON_EXE ${VTK_EXECUTABLE_PATH}/vtkpython)
+  SET(VTK_PYTHON_EXE ${VTK_EXECUTABLE_DIR}/vtkpython)
 ENDIF(VTK_WRAP_PYTHON)
 IF(VTK_WRAP_JAVA)
   SET(VTK_JAVA_JAR ${LIBRARY_OUTPUT_PATH}/vtk.jar)
@@ -151,14 +159,6 @@ SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 SUBDIRS(Wrapping Utilities Common Filtering Imaging Graphics IO)
 INSTALL_FILES(/include/vtk .h vtkCommonInstantiator vtkFilteringInstantiator 
   vtkIOInstantiator vtkImagingInstantiator vtkGraphicsInstantiator)
-
-SET (LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all libraries.")
-SET (EXECUTABLE_OUTPUT_PATH ${VTK_BINARY_DIR}/bin/ CACHE PATH "Single output directory for building all executables.")
-MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
-
-SET (VTK_LIBRARY_PATH ${LIBRARY_OUTPUT_PATH} CACHE INTERNAL "Where VTK libraries are. Used by projects which depend on VTK. Do not remove.")
-
-SET (VTK_EXECUTABLE_PATH ${EXECUTABLE_OUTPUT_PATH} CACHE INTERNAL "Where VTK executables are. Used by projects which depend on VTK. Do not remove.")
 
 OPTION (VTK_DEBUG_LEAKS "Build leak checking support into vtk." OFF)
 MARK_AS_ADVANCED(VTK_DEBUG_LEAKS)
@@ -230,8 +230,7 @@ ENDIF(VTK_USE_MANGLED_MESA)
 
 IF (VTK_WRAP_TCL)
   INCLUDE (${CMAKE_ROOT}/Modules/FindTCL.cmake)
-  UTILITY_SOURCE(VTK_WRAP_TCL_EXE vtkWrapTcl Wrapping vtkWrapTcl.c)
-  MARK_AS_ADVANCED(VTK_WRAP_TCL_EXE)
+  SET(VTK_WRAP_TCL_EXE ${VTK_EXECUTABLE_DIR}/vtkWrapTcl)
   FIND_FILE(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping )
   MARK_AS_ADVANCED(VTK_WRAP_HINTS)
   SET (VTK_EXECUTABLE ${EXECUTABLE_OUTPUT_PATH}/vtk)

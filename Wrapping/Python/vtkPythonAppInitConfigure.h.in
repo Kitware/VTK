@@ -2,6 +2,6 @@
 #define __vtkPythonAppInitConfigure_h
 
 #define VTK_PYTHON_SOURCE_DIR "@VTK_SOURCE_DIR@/Wrapping/Python"
-#define VTK_PYTHON_LIBRARY_PATH "@VTK_LIBRARY_PATH@"
+#define VTK_PYTHON_LIBRARY_DIR_BUILD "@LIBRARY_OUTPUT_PATH@"
 
 #endif

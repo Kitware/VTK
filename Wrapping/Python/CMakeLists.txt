@@ -12,7 +12,7 @@ IF(VTK_USE_CARBON)
     ADD_CUSTOM_COMMAND(
       SOURCE vtkpython
       COMMAND ${VTK_APPLE_RESOURCE}
-      ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/vtkpython
+      ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/vtkpython
       TARGET vtkpython
       )
   ENDIF(VTK_APPLE_RESOURCE)
@@ -71,7 +71,7 @@ IF (VTK_USE_PARALLEL)
         ADD_CUSTOM_COMMAND(
           SOURCE pvtkpython
           COMMAND ${VTK_APPLE_RESOURCE}
-          ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/pvtkpython
+          ARGS Carbon.r -o ${VTK_EXECUTABLE_DIR}/pvtkpython
           TARGET pvtkpython
           )
       ENDIF(VTK_APPLE_RESOURCE)

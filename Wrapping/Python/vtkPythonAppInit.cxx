@@ -26,6 +26,12 @@
 #include "vtkVersion.h"
 #include "Wrapping/Python/vtkPythonAppInitConfigure.h"
 
+#if defined(CMAKE_INTDIR)
+# define VTK_PYTHON_LIBRARY_DIR VTK_PYTHON_LIBRARY_DIR_BUILD "/" CMAKE_INTDIR
+#else
+# define VTK_PYTHON_LIBRARY_DIR VTK_PYTHON_LIBRARY_DIR_BUILD
+#endif
+
 #include "Python.h"
 #include <sys/stat.h>
 
@@ -139,9 +145,9 @@ int main(int argc, char **argv)
   // make sure to decrease reference counting for both path strings.
   PyObject* path = PySys_GetObject("path");
   PyObject* newpath;
-  if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_LIBRARY_PATH) )
+  if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_LIBRARY_DIR) )
     {
-    newpath = PyString_FromString(VTK_PYTHON_LIBRARY_PATH);
+    newpath = PyString_FromString(VTK_PYTHON_LIBRARY_DIR);
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
     }
