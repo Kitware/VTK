@@ -54,7 +54,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.22")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.23")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -567,15 +567,6 @@ void vtkDistributedDataFilter::Execute()
   this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
   this->SetProgressText("Compute global data array bounds");
 
-  if (this->ClipCells && vtkDistributedDataFilter::HasMetadata(splitInput))
-    {
-    // Clipping cells invalidates metadata that is cell based
-    // Here we should remove the metadata and display a warning
-    }
-
-  // Stage (1) - use vtkPKdTree to...
-  //   Create a load balanced spatial decomposition in parallel.
-
   // Let the vtkPKdTree class compile global bounds for all
   // data arrays.  These can be accessed by D3 user by getting
   // a handle to the vtkPKdTree object and querying it.
@@ -723,9 +714,18 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
 
   this->Kdtree->BuildLocator();
 
-  if (this->Kdtree->GetNumberOfRegions() == 0)
+  int nregions = this->Kdtree->GetNumberOfRegions();
+
+  if (nregions < this->NumProcesses)
     {
-    vtkErrorMacro("Unable to build k-d tree structure");
+    if (nregions == 0)
+      {
+      vtkErrorMacro("Unable to build k-d tree structure");
+      }
+    else
+      {
+      vtkErrorMacro("K-d tree must have at least one region per process");
+      }
     this->Kdtree->Delete();
     this->Kdtree = NULL;
     return 1;
@@ -766,17 +766,23 @@ vtkUnstructuredGrid *
 
   // Create a search structure mapping global point IDs to local point IDs
 
-  int *gnids = this->GetGlobalNodeIds(grid);
+  vtkIdType numPoints = grid->GetNumberOfPoints();
 
-  if (!gnids)
+  int *gnids = NULL;
+
+  if (numPoints > 0)
     {
-    vtkWarningMacro(<< "Can't create ghost cells without global node IDs");
-    return grid;
+    gnids = this->GetGlobalNodeIds(grid);
+
+    if (!gnids)
+      {
+      vtkWarningMacro(<< "Can't create ghost cells without global node IDs");
+      return grid;
+      }
     }
 
   vtkDistributedDataFilterSTLCloak *globalToLocalMap 
     = new vtkDistributedDataFilterSTLCloak;
-  vtkIdType numPoints = grid->GetNumberOfPoints();
 
   for (int localPtId = 0; localPtId < numPoints; localPtId++)
     {
@@ -853,15 +859,27 @@ void vtkDistributedDataFilter::SingleProcessExecute()
 }
 void vtkDistributedDataFilter::ComputeMyRegionBounds()
 {
-    vtkIntArray *myRegions = vtkIntArray::New();
+  vtkIntArray *myRegions = vtkIntArray::New();
 
-    this->Kdtree->GetRegionAssignmentList(this->MyId, myRegions);
+  this->Kdtree->GetRegionAssignmentList(this->MyId, myRegions);
 
+  if (myRegions->GetNumberOfTuples() > 0)
+    {
     this->NumConvexSubRegions =
       this->Kdtree->MinimalNumberOfConvexSubRegions(
         myRegions, &this->ConvexSubRegionBounds);
+    }
+  else
+    {
+    this->NumConvexSubRegions = 0;
+    if (this->ConvexSubRegionBounds)
+      {
+      delete [] this->ConvexSubRegionBounds;
+      this->ConvexSubRegionBounds = NULL;
+      }
+    }
 
-    myRegions->Delete();
+  myRegions->Delete();
 }
 int vtkDistributedDataFilter::CheckFieldArrayTypes(vtkDataSet *set)
 {
@@ -3198,14 +3216,24 @@ vtkIntArray **vtkDistributedDataFilter::FindGlobalPointIds(
      vtkFloatArray **ptarray, vtkIntArray *ids, vtkUnstructuredGrid *grid,
      int &numUniqueMissingPoints)
 {
+  int nprocs = this->NumProcesses;
+
+  if (grid->GetNumberOfCells() == 0)
+    {
+    // There are no cells in my assigned region
+
+    vtkIntArray **ids = new vtkIntArray * [nprocs];
+    memset(ids, 0, sizeof(vtkIntArray *) * nprocs);
+
+    return ids;
+    }
+
   vtkKdTree *kd = vtkKdTree::New();
 
   kd->BuildLocatorFromPoints(grid->GetPoints());
 
   int procId;
   int ptId, localId;
-
-  int nprocs = this->NumProcesses;
 
   vtkIntArray **gids = new vtkIntArray * [nprocs];
 
@@ -3489,21 +3517,28 @@ vtkIntArray **vtkDistributedDataFilter::GetGhostPointIds(
                              int ghostLevel, vtkUnstructuredGrid *grid,
                              int AddCellsIAlreadyHave)
 {
+  int nprocs = this->NumProcesses;
+  int me = this->MyId;
+  vtkIdType numPoints = grid->GetNumberOfPoints();
+
+  vtkIntArray **ghostPtIds = new vtkIntArray * [nprocs];
+  memset(ghostPtIds, 0, sizeof(vtkIntArray *) * nprocs);
+
+  if (numPoints < 1)
+    {
+    return ghostPtIds;
+    }
+
   int processId = -1;
   int regionId = -1;
 
   vtkPKdTree *kd = this->Kdtree;
-  int nprocs = this->NumProcesses;
-  int me = this->MyId;
 
   vtkPoints *pts = grid->GetPoints();
-  vtkIdType numPoints = pts->GetNumberOfPoints();
 
   int *gidsPoint = this->GetGlobalNodeIds(grid);
   int *gidsCell = this->GetGlobalElementIds(grid);
 
-  vtkIntArray **ghostPtIds = new vtkIntArray * [nprocs];
-  memset(ghostPtIds, 0, sizeof(vtkIntArray *) * nprocs);
 
   vtkDataArray *da = grid->GetPointData()->GetArray("vtkGhostLevels");
   vtkUnsignedCharArray *uca = vtkUnsignedCharArray::SafeDownCast(da);
