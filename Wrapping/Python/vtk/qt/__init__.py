@@ -1,3 +1,3 @@
 """pyQt widgets for VTK."""
 
-__all__ = ['QVTKRenderWidget']
+__all__ = ['QVTKRenderWidget', 'QVTKRenderWindowInteractor']
