@@ -578,10 +578,11 @@ void vtkStructuredPoints::SetDimensions(int dim[3])
 {
   int returnStatus=vtkStructuredData::SetDimensions(dim,this->Dimensions);
 
-  if ( returnStatus > 0 ) 
+  if ( returnStatus > 0 )
     {
     this->DataDescription = returnStatus;
-    this->Modified();
+    if (returnStatus != VTK_UNCHANGED)
+      this->Modified();
     }
    else if ( returnStatus < 0 ) //improperly specified
     {
