@@ -67,7 +67,6 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
   float det;
   float maxComponent;
   int idx, indices[2];
-  int edge;
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
