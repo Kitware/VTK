@@ -216,8 +216,9 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
     outPtr = (unsigned char *)outPtr + rowInc;
     }
   png_write_image(png_ptr, row_pointers);
-
   png_write_end(png_ptr, info_ptr);
+
+  delete [] row_pointers;
   png_destroy_write_struct(&png_ptr, &info_ptr);
   fclose(fp);
 }
