@@ -23,15 +23,17 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkDataSetMapper, "1.69");
+vtkCxxRevisionMacro(vtkDataSetMapper, "1.70");
 vtkStandardNewMacro(vtkDataSetMapper);
 
+//----------------------------------------------------------------------------
 vtkDataSetMapper::vtkDataSetMapper()
 {
   this->GeometryExtractor = NULL;
   this->PolyDataMapper = NULL;
 }
 
+//----------------------------------------------------------------------------
 vtkDataSetMapper::~vtkDataSetMapper()
 {
   // delete internally created objects.
@@ -45,6 +47,7 @@ vtkDataSetMapper::~vtkDataSetMapper()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSetMapper::SetInput(vtkDataSet *input)
 {
   if(input)
@@ -58,11 +61,13 @@ void vtkDataSetMapper::SetInput(vtkDataSet *input)
     }
 }
 
+//----------------------------------------------------------------------------
 vtkDataSet *vtkDataSetMapper::GetInput()
 {
   return this->Superclass::GetInputAsDataSet();
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
 {
   if (this->PolyDataMapper)
@@ -71,6 +76,7 @@ void vtkDataSetMapper::ReleaseGraphicsResources( vtkWindow *renWin )
     }
 }
 
+//----------------------------------------------------------------------------
 // Receives from Actor -> maps data to primitives
 //
 void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
@@ -153,6 +159,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
   this->TimeToDraw = this->PolyDataMapper->GetTimeToDraw();
 }
 
+//----------------------------------------------------------------------------
 void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -176,6 +183,7 @@ void vtkDataSetMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkDataSetMapper::GetMTime()
 {
   unsigned long mTime=this->vtkMapper::GetMTime();

@@ -31,16 +31,7 @@
 class vtkPointData;
 class vtkPoints;
 //BTX
-// Helper structure for hashing faces.
-struct vtkFastGeomQuadStruct
-{
-  vtkIdType p0;
-  vtkIdType p1;
-  vtkIdType p2;
-  vtkIdType p3;
-  vtkIdType SourceId;
-  struct vtkFastGeomQuadStruct *Next;
-};
+struct vtkFastGeomQuadStruct;
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
 //ETX
 
@@ -89,6 +80,14 @@ protected:
   void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c, vtkIdType d,
                         vtkIdType sourceId);
   void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
+                       vtkIdType sourceId);
+  void InsertPentaInHash(vtkIdType a, vtkIdType b,
+                       vtkIdType c, vtkIdType d,
+                       vtkIdType e, 
+                       vtkIdType sourceId);
+  void InsertHexInHash(vtkIdType a, vtkIdType b,
+                       vtkIdType c, vtkIdType d,
+                       vtkIdType e, vtkIdType f,
                        vtkIdType sourceId);
   void InitQuadHashTraversal();
   vtkFastGeomQuad *GetNextVisibleQuadFromHash();
