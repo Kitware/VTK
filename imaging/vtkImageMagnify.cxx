@@ -110,8 +110,8 @@ void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 static void vtkImageMagnifyExecute(vtkImageMagnify *self,
-				   vtkImageData *inData, T *par_inPtr,
-				   vtkImageData *outData, T *par_outPtr,
+				   vtkImageData *inData, T *inPtr,
+				   vtkImageData *outData, T *outPtr,
 				   int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
@@ -124,16 +124,15 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   int magXIdx, magX;
   int magYIdx, magY;
   int magZIdx, magZ;
-  T *inPtrZ, *inPtrY, *inPtrX;
+  T *inPtrZ, *inPtrY, *inPtrX, *outPtrC;
   float iMag, iMagP, iMagPY, iMagPZ, iMagPYZ;
-  T *dataP, *dataPX, *dataPY, *dataPZ;
-  T *dataPXY, *dataPXZ, *dataPYZ, *dataPXYZ;
+  T dataP, dataPX, dataPY, dataPZ;
+  T dataPXY, dataPXZ, dataPYZ, dataPXYZ;
   int interpSetup;
   int *wExtent;
   T *minInPtr; 
   int inDimensions[3];
-  T *outPtr;  
-
+  
   interpolate = self->GetInterpolate();
   magX = self->GetMagnificationFactors()[0];
   magY = self->GetMagnificationFactors()[1];
@@ -142,16 +141,6 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   
   // find the region to loop over
   maxC = outData->GetNumberOfScalarComponents();
-
-  dataP = new T [maxC];
-  dataPX = new T [maxC];
-  dataPY = new T [maxC];
-  dataPZ = new T [maxC];
-  dataPXY = new T [maxC];
-  dataPXZ = new T [maxC];
-  dataPYZ = new T [maxC];
-  dataPXYZ = new T [maxC];  
-  
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
@@ -170,140 +159,123 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
   inDimensions[2] = wExtent[5] - wExtent[4] + 1;
   
   // Loop through ouput pixels
-  inPtrZ = par_inPtr;
-  outPtr = par_outPtr;
-  magZIdx = magZ - outExt[4]%magZ - 1;
-  for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
+  for (idxC = 0; idxC < maxC; idxC++)
     {
-    inPtrY = inPtrZ;
-    magYIdx = magY - outExt[2]%magY - 1;
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++, magYIdx--)
+    inPtrZ = inPtr + idxC;
+    outPtrC = outPtr + idxC;
+    magZIdx = magZ - outExt[4]%magZ - 1;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
       {
-      if (!id) 
+      inPtrY = inPtrZ;
+      magYIdx = magY - outExt[2]%magY - 1;
+      for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++, magYIdx--)
 	{
-	if (!(count%target))
+	if (!id) 
 	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
-      
-      if (interpolate)
-	{
-	// precompute some values for interpolation
-	iMagP = (magYIdx + 1)*(magZIdx + 1)*iMag;
-	iMagPY = (magY - magYIdx - 1)*(magZIdx + 1)*iMag;
-	iMagPZ = (magYIdx + 1)*(magZ - magZIdx - 1)*iMag;
-	iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
-	}
-      
-      magXIdx = magX - outExt[0]%magX - 1;
-      inPtrX = inPtrY;
-      interpSetup = 0;
-      for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
-	{
-	// Pixel operation
-	if (!interpolate)
-	  {
-	  for (idxC = 0; idxC < maxC; idxC++)
+	  if (!(count%target))
 	    {
-	    *(outPtr + idxC) = *(inPtrX + idxC);
+	    self->UpdateProgress(count/(50.0*target));
+	    }
+	  count++;
+	  }
+	
+	if (interpolate)
+	  {
+	  // precompute some values for interpolation
+	  iMagP = (magYIdx + 1)*(magZIdx + 1)*iMag;
+	  iMagPY = (magY - magYIdx - 1)*(magZIdx + 1)*iMag;
+	  iMagPZ = (magYIdx + 1)*(magZ - magZIdx - 1)*iMag;
+	  iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
+	  }
+	
+	magXIdx = magX - outExt[0]%magX - 1;
+	inPtrX = inPtrY;
+	interpSetup = 0;
+	for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
+	  {
+	  // Pixel operation
+	  if (!interpolate)
+	    {
+	    *outPtrC = *inPtrX;
+	    }
+	  else
+	    {
+	    // setup data values for interp, overload dataP as an 
+	    // indicator of if this has been done yet
+	    if (!interpSetup) 
+	      {
+	      int tiX, tiY, tiZ;
+	      int numPixels = inPtrX - minInPtr;
+	      
+	      dataP = *inPtrX;
+
+	      if ((numPixels+1)%inDimensions[0]) 
+		{
+		tiX = inIncX;
+		}
+	      else
+		{
+		tiX = 0;
+		}
+	      if ((numPixels/inDimensions[0] + 1)%inDimensions[1]) 
+		{
+		tiY = inIncY;
+		}
+	      else
+		{
+		tiY = 0;
+		}
+	      if (((numPixels/inDimensions[0])/inDimensions[1] + 1) >= 
+		  inDimensions[2]) 
+		{
+		tiZ = 0;
+		}
+	      else
+		{
+		tiZ = inIncZ;
+		}
+	      dataPX = *(inPtrX + tiX);
+	      dataPY = *(inPtrX + tiY);
+	      dataPZ = *(inPtrX + tiZ);
+	      dataPXY = *(inPtrX + tiX + tiY);
+	      dataPXZ = *(inPtrX + tiX + tiZ);
+	      dataPYZ = *(inPtrX + tiY + tiZ);
+	      dataPXYZ = *(inPtrX + tiX + tiY + tiZ);
+	      interpSetup = 1;
+	      }
+	    *outPtrC = (T)
+	      (dataP*(magXIdx + 1)*iMagP + 
+	       dataPX*(magX - magXIdx - 1)*iMagP +
+	       dataPY*(magXIdx + 1)*iMagPY + 
+	       dataPXY*(magX - magXIdx - 1)*iMagPY +
+	       dataPZ*(magXIdx + 1)*iMagPZ + 
+	       dataPXZ*(magX - magXIdx - 1)*iMagPZ +
+	       dataPYZ*(magXIdx + 1)*iMagPYZ + 
+	       dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
+	    }
+	  outPtrC += maxC;
+	  if (!magXIdx) 
+	    {
+	    inPtrX += inIncX;
+	    magXIdx = magX;
+	    interpSetup = 0;
 	    }
 	  }
-	else
+	outPtrC += outIncY;
+	if (!magYIdx) 
 	  {
-	  // setup data values for interp, overload dataP as an 
-	  // indicator of if this has been done yet
-	  if (!interpSetup) 
-	    {
-	    int tiX, tiY, tiZ;
-	    int numPixels = inPtrX - minInPtr;
-	    
-	    for (idxC = 0; idxC < maxC; idxC++)
-	      {
-	      dataP[idxC] = *(inPtrX + idxC);
-	      }
-	    
-	    if ((numPixels+1)%inDimensions[0]) 
-	      {
-	      tiX = inIncX;
-	      }
-	    else
-	      {
-	      tiX = 0;
-	      }
-	    if ((numPixels/inDimensions[0] + 1)%inDimensions[1]) 
-	      {
-	      tiY = inIncY;
-	      }
-	    else
-	      {
-	      tiY = 0;
-	      }
-	    if (((numPixels/inDimensions[0])/inDimensions[1] + 1) >= 
-		inDimensions[2]) 
-	      {
-	      tiZ = 0;
-	      }
-	    else
-	      {
-	      tiZ = inIncZ;
-	      }
-	    for (idxC = 0; idxC < maxC; idxC++)
-	      {
-	      dataPX[idxC] = *(inPtrX + tiX + idxC);
-	      dataPY[idxC] = *(inPtrX + tiY + idxC);
-	      dataPZ[idxC] = *(inPtrX + tiZ + idxC);
-	      dataPXY[idxC] = *(inPtrX + tiX + tiY + idxC);
-	      dataPXZ[idxC] = *(inPtrX + tiX + tiZ + idxC);
-	      dataPYZ[idxC] = *(inPtrX + tiY + tiZ + idxC);
-	      dataPXYZ[idxC] = *(inPtrX + tiX + tiY + tiZ + idxC);
-	      }
-	    interpSetup = 1;
-	    }
-	  for (idxC = 0; idxC < maxC; idxC++)
-	    {
-	    *(outPtr + idxC) = (T)
-	      (dataP[idxC]*(magXIdx + 1)*iMagP + 
-	       dataPX[idxC]*(magX - magXIdx - 1)*iMagP +
-	       dataPY[idxC]*(magXIdx + 1)*iMagPY + 
-	       dataPXY[idxC]*(magX - magXIdx - 1)*iMagPY +
-	       dataPZ[idxC]*(magXIdx + 1)*iMagPZ + 
-	       dataPXZ[idxC]*(magX - magXIdx - 1)*iMagPZ +
-	       dataPYZ[idxC]*(magXIdx + 1)*iMagPYZ + 
-	       dataPXYZ[idxC]*(magX - magXIdx - 1)*iMagPYZ);
-	    }
-	  }
-	outPtr += maxC;
-	if (!magXIdx) 
-	  {
-	  inPtrX += inIncX;
-	  magXIdx = magX;
-	  interpSetup = 0;
+	  inPtrY += inIncY;
+	  magYIdx = magY;
 	  }
 	}
-      outPtr += outIncY;
-      if (!magYIdx) 
+      outPtrC += outIncZ;
+      if (!magZIdx) 
 	{
-	inPtrY += inIncY;
-	magYIdx = magY;
+	inPtrZ += inIncZ;
+	magZIdx = magZ;
 	}
-      }
-    outPtr += outIncZ;
-    if (!magZIdx) 
-      {
-      inPtrZ += inIncZ;
-      magZIdx = magZ;
       }
     }
-  delete dataP;
-  delete dataPX;
-  delete dataPY;
-  delete dataPZ;
-  delete dataPXY;
-  delete dataPXZ;
-  delete dataPYZ;
-  delete dataPXYZ;
 }
 
 void vtkImageMagnify::ThreadedExecute(vtkImageData *inData, 
