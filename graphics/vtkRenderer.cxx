@@ -249,15 +249,21 @@ void vtkRenderer::ResetCamera()
     // if it's invisible, or has no geometry, we can skip the rest 
     if ( anActor->GetVisibility() )
       {
-      nothingVisible = 0;
       bounds = anActor->GetBounds();
+      // make sure we haven't got bogus bounds
+      if ( bounds[0] > -VTK_LARGE_FLOAT && bounds[1] < VTK_LARGE_FLOAT &&
+           bounds[2] > -VTK_LARGE_FLOAT && bounds[3] < VTK_LARGE_FLOAT &&
+           bounds[4] > -VTK_LARGE_FLOAT && bounds[5] < VTK_LARGE_FLOAT )
+	{
+        nothingVisible = 0;
 
-      if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
-      if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
-      if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
-      if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
-      if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
-      if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+	if (bounds[0] < allBounds[0]) allBounds[0] = bounds[0]; 
+	if (bounds[1] > allBounds[1]) allBounds[1] = bounds[1]; 
+	if (bounds[2] < allBounds[2]) allBounds[2] = bounds[2]; 
+	if (bounds[3] > allBounds[3]) allBounds[3] = bounds[3]; 
+	if (bounds[4] < allBounds[4]) allBounds[4] = bounds[4]; 
+	if (bounds[5] > allBounds[5]) allBounds[5] = bounds[5]; 
+	}
       }
     }
 
