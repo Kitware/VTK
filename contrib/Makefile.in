@@ -29,7 +29,6 @@ vtkImageReslice \
 vtkIVWriter \
 vtkLandmarkTransform \
 vtkMassProperties \
-vtkMultiProcessController \
 vtkOBJReader \
 vtkProjectedTexture \
 vtkRenderLargeImage \
