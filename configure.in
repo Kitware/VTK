@@ -96,6 +96,7 @@ if test "$use_oglr" = "yes"; then
 	GRAPHICS_API_FLAGS="${GRAPHICS_API_FLAGS} ${OGLR_INCLUDE}"
 fi
 
+
 ##########################
 ##			##
 ##	sproc		##
@@ -148,6 +149,14 @@ if test "$use_oglr" = "yes"; then
   AC_DEFINE(VTK_USE_OGLR)
 fi
 fi
+
+# for cygwin, use the win32 objects and library
+case $system in
+       CYGWIN_NT*)
+        GRAPHICS_API_OBJ="\${WIN32_OBJ}"
+	GRAPHICS_API_LIBS=" -lopengl32"
+	GRAPHICS_API_FLAGS=
+esac
 
 AC_SUBST(GRAPHICS_API_OBJ)
 AC_SUBST(GRAPHICS_API_FLAGS)
@@ -751,6 +760,9 @@ case $system in
 	THREAD_LIBS=""
 	VTK_USE_PTHREADS=0
 	;;
+    CYGWIN_NT*)
+        THREAD_LIBS=""
+	VTK_USE_PTHREADS=0
 esac
 fi
 
