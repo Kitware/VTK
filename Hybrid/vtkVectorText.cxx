@@ -24,7 +24,7 @@
 #include "vtkPolyDataReader.h"
 #include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkVectorText, "1.31");
+vtkCxxRevisionMacro(vtkVectorText, "1.32");
 vtkStandardNewMacro(vtkVectorText);
 
 char *VTK_VECTOR_TEXT_33 = (char *) "11 0.438482 "
@@ -1690,7 +1690,7 @@ void vtkVectorText::Execute()
         if ((this->Text[pos] > 32)&&(this->Text[pos] < 127))
           {
           // add the result to our output
-          aLetter = this->Letters[this->Text[pos]];
+          aLetter = this->Letters[static_cast<int>(this->Text[pos])];
           ptCount = strtol(aLetter,&aLetter,10);
           width = strtod(aLetter,&aLetter);
           for (i = 0; i < ptCount; i++)
