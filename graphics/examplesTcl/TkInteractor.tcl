@@ -38,8 +38,8 @@ proc StartMotion {widget x y} {
 
     set LastX $x
     set LastY $y
-    set WindowX [lindex [$widget configure -height] 4]
-    set WindowY [lindex [$widget configure -width] 4]
+    set WindowX [lindex [$widget configure -width] 4]
+    set WindowY [lindex [$widget configure -height] 4]
 }
 
 proc EndMotion {widget x y} {
@@ -90,6 +90,12 @@ proc Pan {widget x y} {
         set RPoint0 [lindex $RPoint 0]
         set RPoint1 [lindex $RPoint 1]
         set RPoint2 [lindex $RPoint 2]
+        set RPoint3 [lindex $RPoint 3]
+    if { $RPoint3 != 0.0 } {
+        set RPoint0 [expr $RPoint0 / $RPoint3]
+        set RPoint1 [expr $RPoint1 / $RPoint3]
+        set RPoint2 [expr $RPoint2 / $RPoint3]
+    }
 
     $CurrentCamera SetFocalPoint \
       [expr ($FPoint0 - $RPoint0)/2.0 + $FPoint0] \
