@@ -536,6 +536,11 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "ComputeScalarsOff\n";  
     }
+  if (this->InputScalarsSelection)
+    {
+    os << indent << "InputScalarsSelection: " 
+       << this->InputScalarsSelection << endl;
+    }
 }
 
 
