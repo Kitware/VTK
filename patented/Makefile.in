@@ -25,6 +25,7 @@ vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
 vtkSweptSurface \
+vtkSynchronizedTemplates2D \ 
 vtkSynchronizedTemplates3D 
 
 #------------------------------------------------------------------------------
