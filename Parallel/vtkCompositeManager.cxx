@@ -43,7 +43,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.48");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.48.2.1");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -876,6 +876,7 @@ void vtkCompositeManager::EndRender()
   // EndRender only happens on root.
   if (this->CheckForAbortComposite())
     {
+    renWin->SwapBuffersOn();  
     this->Lock = 0;
     return;
     }  
