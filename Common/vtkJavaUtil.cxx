@@ -102,6 +102,8 @@ public:
   vtkHashNode *(nodes[64]);
   void AddHashEntry(void *key,void *value);
   void *GetHashTableValue(void *key);
+  void *GetHashTableValue(int key);
+  void *InternalGetHashTableValue(int loc, void *key);
   void DeleteHashEntry(void *key);
 };
 
@@ -129,7 +131,7 @@ void vtkHashTable::AddHashEntry(void *key,void *value)
   newpos->value = value;
   newpos->next = NULL;
   
-  loc = (((unsigned long)key) & 0x03f0) / 16;
+  loc = (unsigned long)((size_t)key & 0x03f0) / 16;
   
   pos = this->nodes[loc];
   if (!pos)
@@ -144,11 +146,21 @@ void vtkHashTable::AddHashEntry(void *key,void *value)
   pos->next = newpos;
 }
 
+void *vtkHashTable::GetHashTableValue(int key)
+{
+  int loc = (unsigned long)(key & 0x03f0) / 16;
+  return this->InternalGetHashTableValue(loc, (void *)(size_t)key);
+}
+
 void *vtkHashTable::GetHashTableValue(void *key)
 {
+  int loc = (unsigned long)((size_t)key & 0x03f0) / 16;
+  return this->InternalGetHashTableValue(loc, key);
+}
+
+void *vtkHashTable::InternalGetHashTableValue(int loc, void *key)
+{
   vtkHashNode *pos;
-  int loc = (((unsigned long)key) & 0x03f0) / 16;
-  
   pos = this->nodes[loc];
 
   if (!pos)
@@ -170,7 +182,7 @@ void vtkHashTable::DeleteHashEntry(void *key)
 {
   vtkHashNode *pos;
   vtkHashNode *prev = NULL;
-  int loc = (((unsigned long)key) & 0x03f0) / 16;
+  int loc = (unsigned long)((size_t)key & 0x03f0) / 16;
   
   pos = this->nodes[loc];
 
@@ -263,7 +275,7 @@ VTK_GET_MUTEX();
   // get a unique id for this object
   // just use vtkJavaIdCount and then increment
   // to handle loop around make sure the id isn't currently in use
-  while (vtkInstanceLookup->GetHashTableValue((void *)vtkJavaIdCount))
+  while (vtkInstanceLookup->GetHashTableValue(vtkJavaIdCount))
     {
     vtkJavaIdCount++;
     if (vtkJavaIdCount > 268435456) vtkJavaIdCount = 1;
@@ -294,7 +306,7 @@ JNIEXPORT void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   void *ptr;
   void *vptr;
   
-  ptr = vtkInstanceLookup->GetHashTableValue((void *)id);
+  ptr = vtkInstanceLookup->GetHashTableValue(id);
   if (!ptr) 
     {
 #ifdef VTKJAVADEBUG
@@ -356,8 +368,8 @@ JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *resu
   
   id = vtkJavaGetId(env,obj);
   VTK_GET_MUTEX();
-  ptr = vtkInstanceLookup->GetHashTableValue((void *)id);
-  command = (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue((void *)id);
+  ptr = vtkInstanceLookup->GetHashTableValue(id);
+  command = (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue(id);
   VTK_RELEASE_MUTEX();
 
 #ifdef VTKJAVADEBUG
