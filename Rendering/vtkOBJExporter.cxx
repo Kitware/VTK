@@ -19,16 +19,20 @@
 
 #include "vtkActorCollection.h"
 #include "vtkAssemblyNode.h"
+#include "vtkCellArray.h"
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkGeometryFilter.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.47");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.48");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()

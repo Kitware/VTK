@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkVolumeMapper.h"
-#include "vtkImageClip.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.40");
+#include "vtkImageClip.h"
+#include "vtkImageData.h"
+
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.41");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()

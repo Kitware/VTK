@@ -19,12 +19,14 @@
 
 #include "vtkAssemblyNode.h"
 #include "vtkCamera.h"
+#include "vtkCellArray.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
@@ -33,7 +35,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.49");
+vtkCxxRevisionMacro(vtkIVExporter, "1.50");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
