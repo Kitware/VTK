@@ -22,7 +22,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.9");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -117,8 +117,11 @@ void vtkXMLDataReader::SetupPieces(int numPieces)
 {
   if(this->NumberOfPieces) { this->DestroyPieces(); }
   this->NumberOfPieces = numPieces;
-  this->PointDataElements = new vtkXMLDataElement*[numPieces];
-  this->CellDataElements = new vtkXMLDataElement*[numPieces];
+  if(numPieces > 0)
+    {
+    this->PointDataElements = new vtkXMLDataElement*[numPieces];
+    this->CellDataElements = new vtkXMLDataElement*[numPieces];
+    }
   int i;
   for(i=0;i < this->NumberOfPieces;++i)
     {
