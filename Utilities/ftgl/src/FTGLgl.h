@@ -16,7 +16,7 @@
 
     // Non windows platforms - don't require nonsense as seen above :-)    
     #ifndef __gl_h_
-        #ifdef __APPLE_CC__
+        #ifdef __APPLE__
             #include <OpenGL/gl.h>
             #ifndef FTGL_DO_NOT_USE_VECTORISER
               #include <OpenGL/glu.h>
