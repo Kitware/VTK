@@ -59,7 +59,10 @@ static void ComputeGradients(
   int                 xstep, ystep, zstep;
   int                 x, y, z;
   int                 offset;
+  int                 x_start, x_limit;
   int                 z_start, z_limit;
+  int                 useClip;
+  int                 *clip;
   T                   *dptr;
   unsigned char       *gptr;
   unsigned short      *nptr;
@@ -67,7 +70,7 @@ static void ComputeGradients(
   float               gvalue;
   float               normalize_factor;
   vtkDirectionEncoder *direction_encoder;
-
+  
   // Compute steps through the volume in x, y, and z
   xstep = 1;
   ystep = estimator->ScalarInputSize[0];
@@ -111,13 +114,26 @@ static void ComputeGradients(
 
   direction_encoder = estimator->GetDirectionEncoder();
 
+  useClip = estimator->GetUseCircleClip();
+  clip = estimator->GetCircleLimits();
+
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
     {
     for ( y = 0; y < estimator->ScalarInputSize[1]; y++ )
       {
-      for ( x = 0; x < estimator->ScalarInputSize[0]; x++ )
+      if ( useClip )
+	{
+	x_start = clip[2*y];
+	x_limit   = clip[2*y+1];
+	}
+      else
+	{
+	x_start = 0;
+	x_limit = estimator->ScalarInputSize[0]-1;
+	}
+      for ( x = x_start; x <= x_limit; x++ )
 	{
 	// Use a central difference method if possible,
 	// otherwise use a forward or backward difference if
@@ -186,23 +202,27 @@ static void ComputeGradients(
 			    n[1]*n[1] + 
 			    n[2]*n[2] ) );
 	
-	// Encode this into an 8 bit value 
-	gvalue = t * normalize_factor * estimator->GradientMagnitudeScale + 
-	  estimator->GradientMagnitudeBias;
+	if ( estimator->ComputeGradientMagnitudes )
+	  {
+	  // Encode this into an 8 bit value 
+	  gvalue = t * normalize_factor * estimator->GradientMagnitudeScale + 
+	    estimator->GradientMagnitudeBias;
 	  
-	if ( gvalue < 0.0 )
-	  {
-	  *gptr = 0;
+	  if ( gvalue < 0.0 )
+	    {
+	    *gptr = 0;
+	    }
+	  else if ( gvalue > 255.0 )
+	    {
+	    *gptr = 255;
+	    }
+	  else 
+	    {
+	    *gptr = (unsigned char) gvalue;
+	    }
+	  gptr++;
 	  }
-	else if ( gvalue > 255.0 )
-	  {
-	  *gptr = 255;
-	  }
-	else 
-	  {
-	  *gptr = (unsigned char) gvalue;
-	  }
-	
+
 	// Normalize the gradient direction
 	if ( t )
 	  {
@@ -215,7 +235,6 @@ static void ComputeGradients(
 	*nptr = direction_encoder->GetEncodedDirection( n );
 
 	nptr++;
-	gptr++;
 	dptr++;
 
 	}
@@ -250,7 +269,8 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   // Find the data type of the ScalarInput and call the correct 
   // templated function to actually compute the normals and magnitudes
 
-  switch (estimator->GetScalarInput()->GetPointData()->GetScalars()->GetDataType())
+  switch ( estimator->GetScalarInput()->GetPointData()->
+	   GetScalars()->GetDataType() )
     {
     case VTK_CHAR:
       {
