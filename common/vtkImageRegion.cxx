@@ -781,6 +781,81 @@ void vtkImageRegion::Translate(int dim, int *vector)
 
 
 //----------------------------------------------------------------------------
+template <class T>
+void vtkImageRegionFill(vtkImageRegion *self, T value)
+{
+  int min0, max0, min1, max1, min2, max2, min3, max3, min4, max4;
+  int inc0, inc1, inc2, inc3, inc4;
+  int idx0, idx1, idx2, idx3, idx4;
+  T *ptr0, *ptr1, *ptr2, *ptr3, *ptr4;
+  
+  self->GetIncrements(inc0, inc1, inc2, inc3, inc4);
+  self->GetExtent(min0,max0, min1,max1, min2,max2, min3,max3, min4,max4);
+  
+  // loop over 5d space.
+  ptr4 = (T *)(self->GetScalarPointer());
+  for (idx4 = min4; idx4 <= max4; ++idx4)
+    {
+    ptr3 = ptr4;
+    for (idx3 = min3; idx3 <= max3; ++idx3)
+      {
+      ptr2 = ptr3;
+      for (idx2 = min2; idx2 <= max2; ++idx2)
+	{
+	ptr1 = ptr2;
+	for (idx1 = min1; idx1 <= max1; ++idx1)
+	  {
+	  ptr0 = ptr1;
+	  for (idx0 = min0; idx0 <= max0; ++idx0)
+	    {
+	    *ptr0 = value;
+	    ptr0 += inc0;
+	    }
+	  ptr1 += inc1;
+	  }
+	ptr2 += inc2;
+	}
+      ptr3 += inc3;
+      }
+    ptr4 += inc4;
+    }
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This function sets all the pixels in a region to the specified value.
+void vtkImageRegion::Fill(float value)
+{
+  this->Modified();
+  
+  switch (this->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageRegionFill(this, (float)(value));
+      break;
+    case VTK_INT:
+      vtkImageRegionFill(this, (int)(value));
+      break;
+    case VTK_SHORT:
+      vtkImageRegionFill(this, (short)(value));
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageRegionFill(this, (unsigned short)(value));
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageRegionFill(this, (unsigned char)(value));
+      break;
+    default:
+      vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
+    }   
+}
+
+
+
+
+//----------------------------------------------------------------------------
 // since data in region has same extent as region, 5 nested loops are not
 // actually necessary.  But to keep this method tolerent to future changes ...
 template <class T>
@@ -822,6 +897,8 @@ void vtkImageRegionImportMemory(vtkImageRegion *self, T *memPtr)
     ptr4 += inc4;
     }
 }
+
+
 
 //----------------------------------------------------------------------------
 // Description:

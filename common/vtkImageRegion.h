@@ -69,6 +69,10 @@ public:
 
   void CopyRegionData(vtkImageRegion *region);
 
+  // Description:
+  // This function sets all the pixels in a region to the specified value.
+  void Fill(float value);
+  
   // Stuff to use region as a source.
   void UpdateRegion(vtkImageRegion *region); 
   void UpdateImageInformation(vtkImageRegion *region);
