@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkTrivialProducer.h"
 
-#include "vtkCallbackCommand.h"
 #include "vtkDataObject.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkGarbageCollector.h"
@@ -25,7 +24,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.5");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.6");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -34,18 +33,18 @@ vtkTrivialProducer::vtkTrivialProducer()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Output = 0;
-
-  // Setup a callback for the output to report modification.
-  this->ModifiedObserver = vtkCallbackCommand::New();
-  this->ModifiedObserver->SetCallback(&vtkTrivialProducer::ModifiedCallbackFunction);
-  this->ModifiedObserver->SetClientData(this);
 }
 
 //----------------------------------------------------------------------------
 vtkTrivialProducer::~vtkTrivialProducer()
 {
   this->SetOutput(0);
-  this->ModifiedObserver->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkTrivialProducer::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -64,12 +63,9 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*
       {
       newOutput->Register(this);
       newOutput->SetProducerPort(this->GetOutputPort(0));
-      newOutput->AddObserver(vtkCommand::ModifiedEvent,
-                             this->ModifiedObserver);
       }
     if(oldOutput)
       {
-      oldOutput->RemoveObserver(this->ModifiedObserver);
       oldOutput->SetProducerPort(0);
       oldOutput->UnRegister(this);
       }
@@ -79,9 +75,18 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*
 }
 
 //----------------------------------------------------------------------------
-void vtkTrivialProducer::PrintSelf(ostream& os, vtkIndent indent)
+unsigned long vtkTrivialProducer::GetMTime()
 {
-  this->Superclass::PrintSelf(os, indent);
+  unsigned long mtime = this->Superclass::GetMTime();
+  if(this->Output)
+    {
+    unsigned long omtime = this->Output->GetMTime();
+    if(omtime > mtime)
+      {
+      mtime = omtime;
+      }
+    }
+  return mtime;
 }
 
 //----------------------------------------------------------------------------
@@ -161,21 +166,6 @@ vtkTrivialProducer::ProcessDownstreamRequest(vtkInformation* request,
     this->Output->DataHasBeenGenerated();
     }
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkTrivialProducer::ModifiedCallbackFunction(vtkObject*,
-                                                  unsigned long,
-                                                  void* clientdata,
-                                                  void*)
-{
-  reinterpret_cast<vtkTrivialProducer*>(clientdata)->ModifiedCallback();
-}
-
-//----------------------------------------------------------------------------
-void vtkTrivialProducer::ModifiedCallback()
-{
-  this->Modified();
 }
 
 //----------------------------------------------------------------------------

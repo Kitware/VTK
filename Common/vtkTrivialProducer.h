@@ -25,7 +25,6 @@
 
 #include "vtkAlgorithm.h"
 
-class vtkCallbackCommand;
 class vtkDataObject;
 
 class VTK_COMMON_EXPORT vtkTrivialProducer : public vtkAlgorithm
@@ -50,6 +49,11 @@ public:
   // Set the data object that is "produced" by this producer.  It is
   // never really modified.
   virtual void SetOutput(vtkDataObject* output);
+
+  // Description:
+  // The modified time of this producer is the newer of this object or
+  // the assigned output.
+  virtual unsigned long GetMTime();
 protected:
   vtkTrivialProducer();
   ~vtkTrivialProducer();
@@ -60,15 +64,6 @@ protected:
 
   // The real data object.
   vtkDataObject* Output;
-
-  // The observer to report when the internal object is modified.
-  vtkCallbackCommand* ModifiedObserver;
-
-  // Callback registered with the ModifiedObserver.
-  static void ModifiedCallbackFunction(vtkObject*, unsigned long, void*,
-                                       void*);
-  // Modified callback from output data object.
-  virtual void ModifiedCallback();
 
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
