@@ -33,6 +33,7 @@
 #endif
 
 #ifdef VTK_USE_PTHREADS
+#include <pthread.h> // Needed for PTHREAD implementation of mutex
 #include <sys/types.h> // Needed for unix implementation of pthreads
 #include <unistd.h> // Needed for unix implementation of pthreads
 #endif
