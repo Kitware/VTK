@@ -178,7 +178,7 @@ void vtkMultiThreader::SingleMethodExecute()
   //
   // First, start up the this->NumberOfThreads-1 processes.  Keep track
   // of their process ids for use later in the waitid call
-  for (thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for (thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
@@ -192,22 +192,19 @@ void vtkMultiThreader::SingleMethodExecute()
     }
   
   // Now, the parent thread calls this->SingleMethod() itself
-  this->ThreadInfoArray[this->NumberOfThreads-1].UserData    = 
-    this->SingleData;
-  this->ThreadInfoArray[this->NumberOfThreads-1].NumberOfThreads = 
-    this->NumberOfThreads;
-  this->SingleMethod( 
-    (void *)(&this->ThreadInfoArray[this->NumberOfThreads-1]));
+  this->ThreadInfoArray[0].UserData = this->SingleData;
+  this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
+  this->SingleMethod((void *)(&this->ThreadInfoArray[0]));
 
   // The parent thread has finished this->SingleMethod() - so now it
   // waits for each of the other processes to exit
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     WaitForSingleObject(process_id[thread_loop], INFINITE);
     }
 
   // close the threads
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     CloseHandle(process_id[thread_loop]);
     }
@@ -223,7 +220,7 @@ void vtkMultiThreader::SingleMethodExecute()
   //
   // First, start up the this->NumberOfThreads-1 processes.  Keep track
   // of their process ids for use later in the waitid call
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
@@ -233,16 +230,13 @@ void vtkMultiThreader::SingleMethodExecute()
     }
   
   // Now, the parent thread calls this->SingleMethod() itself
-  this->ThreadInfoArray[this->NumberOfThreads-1].UserData    = 
-    this->SingleData;
-  this->ThreadInfoArray[this->NumberOfThreads-1].NumberOfThreads = 
-    this->NumberOfThreads;
-  this->SingleMethod( 
-    (void *)(&this->ThreadInfoArray[this->NumberOfThreads-1]) );
+  this->ThreadInfoArray[0].UserData = this->SingleData;
+  this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
+  this->SingleMethod((void *)(&this->ThreadInfoArray[0]) );
 
   // The parent thread has finished this->SingleMethod() - so now it
   // waits for each of the other processes to exit
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     waitid( P_PID, (id_t) process_id[thread_loop], &info_ptr, WEXITED );
     }
@@ -268,7 +262,7 @@ void vtkMultiThreader::SingleMethodExecute()
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 #endif
   
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData    = this->SingleData;
     this->ThreadInfoArray[thread_loop].NumberOfThreads = this->NumberOfThreads;
@@ -285,16 +279,13 @@ void vtkMultiThreader::SingleMethodExecute()
     }
   
   // Now, the parent thread calls this->SingleMethod() itself
-  this->ThreadInfoArray[this->NumberOfThreads-1].UserData    = 
-    this->SingleData;
-  this->ThreadInfoArray[this->NumberOfThreads-1].NumberOfThreads = 
-    this->NumberOfThreads;
-  this->SingleMethod( 
-    (void *)(&this->ThreadInfoArray[this->NumberOfThreads - 1]) );
+  this->ThreadInfoArray[0].UserData = this->SingleData;
+  this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
+  this->SingleMethod((void *)(&this->ThreadInfoArray[0]) );
 
   // The parent thread has finished this->SingleMethod() - so now it
   // waits for each of the other processes to exit
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     pthread_join( process_id[thread_loop], NULL );
     }
@@ -352,7 +343,7 @@ void vtkMultiThreader::MultipleMethodExecute()
   //
   // First, start up the this->NumberOfThreads-1 processes.  Keep track
   // of their process ids for use later in the waitid call
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData = 
       this->MultipleData[thread_loop];
@@ -367,23 +358,20 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
   
   // Now, the parent thread calls the last method itself
-  this->ThreadInfoArray[this->NumberOfThreads-1].UserData = 
-    this->MultipleData[this->NumberOfThreads-1];
-  this->ThreadInfoArray[this->NumberOfThreads-1].NumberOfThreads = 
-    this->NumberOfThreads;
-  (this->MultipleMethod[this->NumberOfThreads-1])( 
-    (void *)(&this->ThreadInfoArray[this->NumberOfThreads-1]) );
+  this->ThreadInfoArray[0].UserData = this->MultipleData[0];
+  this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
+  (this->MultipleMethod[0])((void *)(&this->ThreadInfoArray[0]) );
 
   // The parent thread has finished its method - so now it
   // waits for each of the other processes (created with sproc) to
   // exit
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     WaitForSingleObject(process_id[thread_loop], INFINITE);
     }
 
   // close the threads
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     CloseHandle(process_id[thread_loop]);
     }
@@ -400,7 +388,7 @@ void vtkMultiThreader::MultipleMethodExecute()
   //
   // First, start up the this->NumberOfThreads-1 processes.  Keep track
   // of their process ids for use later in the waitid call
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData = 
       this->MultipleData[thread_loop];
@@ -411,17 +399,14 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
   
   // Now, the parent thread calls the last method itself
-  this->ThreadInfoArray[this->NumberOfThreads-1].UserData = 
-    this->MultipleData[this->NumberOfThreads-1];
-  this->ThreadInfoArray[this->NumberOfThreads-1].NumberOfThreads = 
-    this->NumberOfThreads;
-  (this->MultipleMethod[this->NumberOfThreads-1])( 
-    (void *)(&this->ThreadInfoArray[this->NumberOfThreads-1]) );
+  this->ThreadInfoArray[0].UserData = this->MultipleData[0];
+  this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
+  (this->MultipleMethod[0])((void *)(&this->ThreadInfoArray[0]) );
 
   // The parent thread has finished its method - so now it
   // waits for each of the other processes (created with sproc) to
   // exit
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     waitid( P_PID, (id_t) process_id[thread_loop], &info_ptr, WEXITED );
     }
@@ -449,7 +434,7 @@ void vtkMultiThreader::MultipleMethodExecute()
   pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 #endif
 
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     this->ThreadInfoArray[thread_loop].UserData = 
       this->MultipleData[thread_loop];
@@ -466,16 +451,13 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
   
   // Now, the parent thread calls the last method itself
-  this->ThreadInfoArray[this->NumberOfThreads-1].UserData = 
-    this->MultipleData[this->NumberOfThreads-1];
-  this->ThreadInfoArray[this->NumberOfThreads-1].NumberOfThreads = 
-    this->NumberOfThreads;
-  (this->MultipleMethod[this->NumberOfThreads-1])( 
-    (void *)(&this->ThreadInfoArray[this->NumberOfThreads - 1]) );
+  this->ThreadInfoArray[0].UserData = this->MultipleData[0];
+  this->ThreadInfoArray[0].NumberOfThreads = this->NumberOfThreads;
+  (this->MultipleMethod[0])((void *)(&this->ThreadInfoArray[0]) );
 
   // The parent thread has finished its method - so now it
   // waits for each of the other processes to exit
-  for ( thread_loop = 0; thread_loop < this->NumberOfThreads-1; thread_loop++ )
+  for ( thread_loop = 1; thread_loop < this->NumberOfThreads; thread_loop++ )
     {
     pthread_join( process_id[thread_loop], NULL );
     }
