@@ -28,7 +28,6 @@ vtkGridTransform \
 vtkIVWriter \
 vtkImageToPolyDataFilter \
 vtkImageReslice \
-vtkInteractorStyleUnicam \
 vtkLandmarkTransform \
 vtkLegendBoxActor \
 vtkLightKit \

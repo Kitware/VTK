@@ -98,6 +98,7 @@ vtkArrayCalculator \
 vtkAssembly \
 vtkAttributeDataToFieldDataFilter \
 vtkAxes \
+vtkBlankStructuredGridWithImage \
 vtkBYUReader \
 vtkBYUWriter \
 vtkBooleanTexture \
@@ -187,6 +188,7 @@ vtkInteractorStyleSwitch \
 vtkInteractorStyleTrackball \
 vtkInteractorStyleTrackballActor \
 vtkInteractorStyleTrackballCamera \
+vtkInteractorStyleUnicam \
 vtkInteractorStyleUser \
 vtkInterpolateDataSetAttributes \
 vtkIVExporter \
