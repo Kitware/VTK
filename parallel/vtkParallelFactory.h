@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   virtual const char* GetVTKSourceVersion();
   virtual const char* GetDescription();
-private:
+protected:
   vtkParallelFactory();
   ~vtkParallelFactory() { }
   vtkParallelFactory(const vtkParallelFactory&) {};
