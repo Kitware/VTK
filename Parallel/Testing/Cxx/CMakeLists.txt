@@ -1,12 +1,12 @@
-IF (VTK_USE_HYBRID)
-  ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
-  TARGET_LINK_LIBRARIES(ParallelIsoTest vtkParallel vtkHybrid)
-ENDIF (VTK_USE_HYBRID)
-
 ADD_EXECUTABLE(SocketServer SocketServer.cxx)
 ADD_EXECUTABLE(SocketClient SocketClient.cxx)
 
 IF (VTK_HAS_THREADS OR VTK_USE_MPI)
+  IF (VTK_USE_HYBRID)
+    ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
+    TARGET_LINK_LIBRARIES(ParallelIsoTest vtkParallel vtkHybrid)
+  ENDIF (VTK_USE_HYBRID)
+
  ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
  TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
 ENDIF (VTK_HAS_THREADS OR VTK_USE_MPI)
