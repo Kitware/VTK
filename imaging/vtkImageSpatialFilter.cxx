@@ -183,16 +183,21 @@ void vtkImageSpatialFilter::Execute(int axisIdx, vtkImageRegion *inRegion,
 				    vtkImageRegion *outRegion)
 {
   int idx, idx2;
-  int extent[axisIdx*2];
-  int outImageExtent[axisIdx*2];
-  int outCenterExtent[axisIdx*2];
-  int inExtentSave[axisIdx*2];
-  int outExtentSave[axisIdx*2];
+  int *extent = new int[axisIdx*2];
+  int *outImageExtent = new int[axisIdx*2];
+  int *outCenterExtent = new int[axisIdx*2];
+  int *inExtentSave = new int[axisIdx*2];
+  int *outExtentSave = new int[axisIdx*2];
   
   // If a separate center method does not exist, don't bother splitting
   if ( ! this->UseExecuteCenter)
     {
     this->vtkImageFilter::Execute(axisIdx, inRegion, outRegion);
+    delete [] extent;
+    delete [] outImageExtent;
+    delete [] outCenterExtent;
+    delete [] inExtentSave;
+    delete [] outExtentSave;    
     return;
     }
   
@@ -279,6 +284,11 @@ void vtkImageSpatialFilter::Execute(int axisIdx, vtkImageRegion *inRegion,
   // Restore original extent just in case
   outRegion->SetExtent(outExtentSave, axisIdx);
   inRegion->SetExtent(inExtentSave, axisIdx);
+  delete [] extent;
+  delete [] outImageExtent;
+  delete [] outCenterExtent;
+  delete [] inExtentSave;
+  delete [] outExtentSave;    
 }
 
 

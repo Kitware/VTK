@@ -281,13 +281,16 @@ void vtkImageFilter::Execute(int axisIdx, vtkImageRegion *inRegion,
 			     vtkImageRegion *outRegion)
 {
   int coordinate, min, max;
-  int inExtent[2*axisIdx], outExtent[2*axisIdx];
+  int *inExtent = new int[2*axisIdx];
+  int *outExtent = new int[2*axisIdx];
   
   
   // Terminate recursion?
   if (axisIdx <= this->NumberOfAxes)
     {
     this->Execute(inRegion, outRegion);
+    delete [] inExtent;
+    delete [] outExtent;    
     return;
     }
   
@@ -324,6 +327,8 @@ void vtkImageFilter::Execute(int axisIdx, vtkImageRegion *inRegion,
   outExtent[2*axisIdx - 1] = max; 
   inRegion->SetExtent(inExtent, axisIdx);
   outRegion->SetExtent(outExtent, axisIdx);
+  delete [] inExtent;
+  delete [] outExtent;    
 }
 
 

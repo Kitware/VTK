@@ -113,7 +113,7 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 void vtkImageCachedSource::UpdatePointData(int axisIdx, vtkImageRegion *region)
 {
   int coordinate;
-  int extent[2*axisIdx];
+  int *extent = new int[2*axisIdx];
   int min, max;
 
   
@@ -121,6 +121,7 @@ void vtkImageCachedSource::UpdatePointData(int axisIdx, vtkImageRegion *region)
   if (axisIdx == this->NumberOfAxes)
     {
     this->UpdatePointData(region);
+    delete [] extent;
     return;
     }
   
@@ -140,6 +141,7 @@ void vtkImageCachedSource::UpdatePointData(int axisIdx, vtkImageRegion *region)
   extent[axisIdx*2 - 2] = min;
   extent[axisIdx*2 - 1] = max;
   region->SetExtent(extent, axisIdx);  
+  delete [] extent;
 }
 
 //----------------------------------------------------------------------------

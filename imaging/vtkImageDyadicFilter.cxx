@@ -353,13 +353,16 @@ void vtkImageDyadicFilter::Execute(int axisIdx, vtkImageRegion *inRegion1,
 				     vtkImageRegion *outRegion)
 {
   int coordinate, min, max;
-  int inExtent[axisIdx*2], outExtent[axisIdx*2];
+  int *inExtent = new int[axisIdx*2];
+  int *outExtent = new int[axisIdx*2];
   
 
   // Terminate recursion?
   if (axisIdx <= this->NumberOfAxes)
     {
     this->Execute(inRegion1, inRegion2, outRegion);
+    delete [] inExtent;
+    delete [] outExtent;    
     return;
     }
   
@@ -395,6 +398,8 @@ void vtkImageDyadicFilter::Execute(int axisIdx, vtkImageRegion *inRegion1,
   inRegion1->SetExtent(inExtent, axisIdx);
   inRegion2->SetExtent(inExtent, axisIdx);
   outRegion->SetExtent(outExtent, axisIdx);
+  delete [] inExtent;
+  delete [] outExtent;    
 }
   
   
