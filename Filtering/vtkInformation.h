@@ -136,6 +136,26 @@ public:
   // Description:
   // Get/Set an InformationKey-vector-valued entry.
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationDataObjectKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationDoubleVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationExecutivePortKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationInformationKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationInformationVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationIntegerKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationIntegerVectorKey* value);
+  void Append(vtkInformationKeyVectorKey* key, vtkInformationStringKey* value);
+  void Append(vtkInformationKeyVectorKey* key, 
+              vtkInformationObjectBaseKey* value);
+  void Append(vtkInformationKeyVectorKey* key,   
+              vtkInformationUnsignedLongKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);

@@ -32,7 +32,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.9");
+vtkCxxRevisionMacro(vtkInformation, "1.10");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -294,6 +294,83 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
 #undef VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationDataObjectKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationDoubleKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationDoubleVectorKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationExecutivePortKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationInformationKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationInformationVectorKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationIntegerKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationIntegerVectorKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+                            vtkInformationStringKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,   
+                            vtkInformationUnsignedLongKey* value)
+{
+  key->Append(this, value);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,   
+                            vtkInformationObjectBaseKey* value)
+{
+  key->Append(this, value);
+}
 
 //----------------------------------------------------------------------------
 void vtkInformation::Set(vtkInformationExecutivePortKey* key,
