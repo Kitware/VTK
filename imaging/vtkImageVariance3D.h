@@ -54,30 +54,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageSpatialFilter.h"
 
+class vtkImageEllipsoidSource;
+
 class VTK_EXPORT vtkImageVariance3D : public vtkImageSpatialFilter
 {
 public:
   vtkImageVariance3D();
+  ~vtkImageVariance3D();
   static vtkImageVariance3D *New() 
     {return new vtkImageVariance3D;};
   const char *GetClassName() {return "vtkImageVariance3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetFilteredAxes(int axis0, int axis1, int axis2);
-
   // Set/Get the size of the neighood.
   void SetKernelSize(int size0, int size1, int size2);
   
-  // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
-  
 protected:
-  vtkImageRegion *Mask;
+  vtkImageEllipsoidSource *Ellipse;
     
-  void ExecuteCenter(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
-  void ComputeMask();
+  void ExecuteImageInformation();
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+		       int extent[6], int id);
 };
 
 #endif

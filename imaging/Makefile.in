@@ -81,6 +81,7 @@ vtkImageReader \
 vtkImageResample \
 vtkImageRFFT \
 vtkImageRGBToHSV \
+vtkImageRange3D \
 vtkImageSeedConnectivity \
 vtkImageShiftScale \
 vtkImageShrink3D \
@@ -89,6 +90,7 @@ vtkImageSobel2D \
 vtkImageSobel3D \
 vtkImageStaticCache \
 vtkImageThreshold \
+vtkImageVariance3D \
 vtkImageViewer \
 vtkImageWindow \
 vtkImageWrapPad \
@@ -115,10 +117,8 @@ vtkXTextMapper
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
 #vtkImageOpenClose3D \
-#vtkImageRange3D \
 #vtkImageSkeleton2D \
 #vtkImageSubsample3D \
-#vtkImageVariance3D \
 
 
 #------------------------------------------------------------------------------

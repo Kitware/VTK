@@ -38,27 +38,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
+#include "vtkImageData.h"
 #include "vtkImageCache.h"
 #include "vtkImageVariance3D.h"
-#include "vtkImageElipsoidSource.h"
+#include "vtkImageEllipsoidSource.h"
 
 
 //----------------------------------------------------------------------------
-// Description:
-// Construct an instance of vtkImageVariance3D fitler.
-// By default zero values are dilated.
 vtkImageVariance3D::vtkImageVariance3D()
 {
   this->HandleBoundaries = 1;
-  this->Mask = NULL;
   this->KernelSize[0] = 1;
   this->KernelSize[1] = 1;
   this->KernelSize[2] = 1;
-  this->KernelSize[3] = 1;
 
-  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
-  this->SetOutputScalarType(VTK_FLOAT);
+  this->Ellipse = vtkImageEllipsoidSource::New();
+  // Setup the Ellipse to default size
+  this->SetKernelSize(1, 1, 1);
+
+}
+
+//----------------------------------------------------------------------------
+vtkImageVariance3D::~vtkImageVariance3D()
+{
+  if (this->Ellipse)
+    {
+    this->Ellipse->Delete();
+    this->Ellipse = NULL;
+    }
 }
 
 
@@ -69,20 +76,9 @@ void vtkImageVariance3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageVariance3D::SetFilteredAxes(int axis0, int axis1, int axis2)
-{
-  int axes[3];
-  
-  axes[0] = axis0;
-  axes[1] = axis1;
-  axes[2] = axis2;
-  this->vtkImageSpatialFilter::SetFilteredAxes(3, axes);
-}
-  
-//----------------------------------------------------------------------------
 // Description:
 // This method sets the size of the neighborhood.  It also sets the 
-// default middle of the neighborhood and computes the eliptical foot print.
+// default middle of the neighborhood and computes the Elliptical foot print.
 void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
 {
   int modified = 0;
@@ -109,34 +105,30 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
   if (modified)
     {
     this->Modified();
-    this->ComputeMask();
+    this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
+				  0, this->KernelSize[1]-1, 
+				  0, this->KernelSize[2]-1);
+    this->Ellipse->SetCenter((float)(this->KernelSize[0]-1)*0.5,
+			     (float)(this->KernelSize[1]-1)*0.5,
+			     (float)(this->KernelSize[2]-1)*0.5);
+    this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
+			     (float)(this->KernelSize[1])*0.5,
+			     (float)(this->KernelSize[2])*0.5);
     }
 }
+
+
 
 //----------------------------------------------------------------------------
-void vtkImageVariance3D::ComputeMask()
+// Output is always float
+void vtkImageVariance3D::ExecuteImageInformation()
 {
-  vtkImageElipsoidSource *elipseSource = vtkImageElipsoidSource::New();
-
-  // create the eliptical mask
-  if (this->Mask)
-    {
-    this->Mask->Delete();
-    }
-  
-  elipseSource->SetWholeExtent(0, this->KernelSize[0]-1, 
-			       0, this->KernelSize[1]-1, 
-			       0, this->KernelSize[2]-1);
-  elipseSource->SetCenter((float)(this->KernelSize[0]-1)*0.5,
-			  (float)(this->KernelSize[1]-1)*0.5,
-			  (float)(this->KernelSize[2]-1)*0.5);
-  elipseSource->SetRadius((float)(this->KernelSize[0])*0.5,
-			  (float)(this->KernelSize[1])*0.5,
-			  (float)(this->KernelSize[2])*0.5);
-  elipseSource->Update();
-  this->Mask = elipseSource->GetOutput()->GetScalarRegion();
-  elipseSource->Delete();
+  this->vtkImageSpatialFilter::ExecuteImageInformation();
+  this->Output->SetScalarType(VTK_FLOAT);
 }
+
+
+
 
 
 //----------------------------------------------------------------------------
@@ -147,9 +139,9 @@ void vtkImageVariance3D::ComputeMask()
 // for strictly center (no boundary ) processing.
 template <class T>
 static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
-				      vtkImageRegion *inRegion, T *inPtr, 
-				      vtkImageRegion *outRegion, float *outPtr,
-				      int boundaryFlag)
+		      vtkImageData *mask,
+		      vtkImageData *inData, T *inPtr, 
+		      vtkImageData *outData, int *outExt, float *outPtr)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -159,6 +151,7 @@ static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   int outInc0, outInc1, outInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
+  int numComps, outIdxC;
   // For looping through hood pixels
   int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
   int hoodIdx0, hoodIdx1, hoodIdx2;
@@ -166,20 +159,23 @@ static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   // For looping through the mask.
   unsigned char *maskPtr, *maskPtr0, *maskPtr1, *maskPtr2;
   int maskInc0, maskInc1, maskInc2;
-  vtkImageRegion *mask;
   // The extent of the whole input image
   int inImageMin0, inImageMin1, inImageMin2;
   int inImageMax0, inImageMax1, inImageMax2;
   // To compute the variance
   float diff, sum;
   int count;
-  
+
   // Get information to march through data
-  inRegion->GetIncrements(inInc0, inInc1, inInc2); 
-  inRegion->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
-			   inImageMax1, inImageMin2, inImageMax2);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2); 
-  outRegion->GetExtent(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
+  inData->GetIncrements(inInc0, inInc1, inInc2); 
+  self->GetInput()->GetWholeExtent(inImageMin0, inImageMax0, inImageMin1,
+				   inImageMax1, inImageMin2, inImageMax2);
+  outData->GetIncrements(outInc0, outInc1, outInc2); 
+  outMin0 = outExt[0];   outMax0 = outExt[1];
+  outMin1 = outExt[2];   outMax1 = outExt[3];
+  outMin2 = outExt[4];   outMax2 = outExt[5];
+  numComps = outData->GetNumberOfScalarComponents();
+  
   
   // Get ivars of this object (easier than making friends)
   kernelSize = self->KernelSize;
@@ -192,200 +188,143 @@ static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
   hoodMax2 = hoodMin2 + kernelSize[2] - 1;
 
   // Setup mask info
-  mask = self->GetMask();
   maskPtr = (unsigned char *)(mask->GetScalarPointer());
   mask->GetIncrements(maskInc0, maskInc1, maskInc2);
   
   // in and out should be marching through corresponding pixels.
-  inPtr = (T *)(inRegion->GetScalarPointer(outMin0, outMin1, outMin2));
+  inPtr = (T *)(inData->GetScalarPointer(outMin0, outMin1, outMin2));
+
   
-  // loop through pixels of output
-  outPtr2 = outPtr;
-  inPtr2 = inPtr;
-  for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
+  // loop through components
+  for (outIdxC = 0; outIdxC < numComps; ++outIdxC)
     {
-    outPtr1 = outPtr2;
-    inPtr1 = inPtr2;
-    for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+    // loop through pixels of output
+    outPtr2 = outPtr;
+    inPtr2 = inPtr;
+    for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
       {
-      outPtr0 = outPtr1;
-      inPtr0 = inPtr1;
-      for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+      outPtr1 = outPtr2;
+      inPtr1 = inPtr2;
+      for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
 	{
-
-	// Find variance
-	sum = 0.0;
-	count = 0;
-	// loop through neighborhood pixels
-	// as sort of a hack to handle boundaries, 
-	// input pointer will be marching through data that does not exist.
-	hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
-	  - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
-	maskPtr2 = maskPtr;
-	for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+	outPtr0 = outPtr1;
+	inPtr0 = inPtr1;
+	for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
 	  {
-	  hoodPtr1 = hoodPtr2;
-	  maskPtr1 = maskPtr2;
-	  for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+	  
+	  // Find variance
+	  sum = 0.0;
+	  count = 0;
+	  // loop through neighborhood pixels
+	  // as sort of a hack to handle boundaries, 
+	  // input pointer will be marching through data that does not exist.
+	  hoodPtr2 = inPtr0 - kernelMiddle[0] * inInc0 
+	    - kernelMiddle[1] * inInc1 - kernelMiddle[2] * inInc2;
+	  maskPtr2 = maskPtr;
+	  for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
 	    {
-	    hoodPtr0 = hoodPtr1;
-	    maskPtr0 = maskPtr1;
-	    for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+	    hoodPtr1 = hoodPtr2;
+	    maskPtr1 = maskPtr2;
+	    for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
 	      {
-	      // A quick but rather expensive way to handle boundaries
-	      if ( ! boundaryFlag ||
-		   (outIdx0 + hoodIdx0 >= inImageMin0 &&
-		    outIdx0 + hoodIdx0 <= inImageMax0 &&
-		    outIdx1 + hoodIdx1 >= inImageMin1 &&
-		    outIdx1 + hoodIdx1 <= inImageMax1 &&
-		    outIdx2 + hoodIdx2 >= inImageMin2 &&
-		    outIdx2 + hoodIdx2 <= inImageMax2))
+	      hoodPtr0 = hoodPtr1;
+	      maskPtr0 = maskPtr1;
+	      for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
 		{
-		if (*maskPtr0)
+		// A quick but rather expensive way to handle boundaries
+		if ( outIdx0 + hoodIdx0 >= inImageMin0 &&
+		     outIdx0 + hoodIdx0 <= inImageMax0 &&
+		     outIdx1 + hoodIdx1 >= inImageMin1 &&
+		     outIdx1 + hoodIdx1 <= inImageMax1 &&
+		     outIdx2 + hoodIdx2 >= inImageMin2 &&
+		     outIdx2 + hoodIdx2 <= inImageMax2)
 		  {
-		  diff = (float)(*hoodPtr0) - (float)(*inPtr0);
-		  sum += diff * diff;
-		  ++count;
+		  if (*maskPtr0)
+		    {
+		    diff = (float)(*hoodPtr0) - (float)(*inPtr0);
+		    sum += diff * diff;
+		    ++count;
+		    }
 		  }
+		
+		hoodPtr0 += inInc0;
+		maskPtr0 += maskInc0;
 		}
-	      
-	      hoodPtr0 += inInc0;
-	      maskPtr0 += maskInc0;
+	      hoodPtr1 += inInc1;
+	      maskPtr1 += maskInc1;
 	      }
-	    hoodPtr1 += inInc1;
-	    maskPtr1 += maskInc1;
+	    hoodPtr2 += inInc2;
+	    maskPtr2 += maskInc2;
 	    }
-	  hoodPtr2 += inInc2;
-	  maskPtr2 += maskInc2;
+	  *outPtr0 = sum / (float)count;
+	  
+	  inPtr0 += inInc0;
+	  outPtr0 += outInc0;
 	  }
-	*outPtr0 = sum / (float)count;
-	
-	inPtr0 += inInc0;
-	outPtr0 += outInc0;
+	inPtr1 += inInc1;
+	outPtr1 += outInc1;
 	}
-      inPtr1 += inInc1;
-      outPtr1 += outInc1;
+      inPtr2 += inInc2;
+      outPtr2 += outInc2;
       }
-    inPtr2 += inInc2;
-    outPtr2 += outInc2;
+    ++inPtr;
+    ++outPtr;
     }
 }
 
 //----------------------------------------------------------------------------
 // Description:
 // This method contains the first switch statement that calls the correct
-// templated function for the input and output region types.
-// This function deals with regions that are in the center of the image and 
-// need no boundary checking.
-void vtkImageVariance3D::ExecuteCenter(vtkImageRegion *inRegion, 
-					  vtkImageRegion *outRegion)
-{
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
-  
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
-
-  // Error checking on mask
-  if ( ! this->Mask || (this->Mask->GetScalarType() != VTK_UNSIGNED_CHAR))
-    {
-    vtkErrorMacro(<< "Execute: Bad Mask");
-    return;
-    }
-
-  // this filter expects the output to be float
-  if (outRegion->GetScalarType() != VTK_FLOAT)
-    {
-    vtkErrorMacro(<< "Execute: output ScalarType, " 
-      << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
-      << " must be float");
-    return;
-    }
-  
-  switch (inRegion->GetScalarType())
-    {
-    case VTK_FLOAT:
-      vtkImageVariance3DExecute(this, inRegion, (float *)(inPtr), 
-				   outRegion, (float *)(outPtr), 0);
-      break;
-    case VTK_INT:
-      vtkImageVariance3DExecute(this, inRegion, (int *)(inPtr), 
-				   outRegion, (float *)(outPtr), 0);
-      break;
-    case VTK_SHORT:
-      vtkImageVariance3DExecute(this, inRegion, (short *)(inPtr), 
-				   outRegion, (float *)(outPtr), 0);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageVariance3DExecute(this, inRegion, (unsigned short *)(inPtr), 
-				   outRegion, (float *)(outPtr), 0);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageVariance3DExecute(this, inRegion, (unsigned char *)(inPtr), 
-				   outRegion, (float *)(outPtr), 0);
-      break;
-    default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
-      return;
-    }
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This method contains the first switch statement that calls the correct
-// templated function for the input and output region types.
+// templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.
-void vtkImageVariance3D::Execute(vtkImageRegion *inRegion, 
-				    vtkImageRegion *outRegion)
+void vtkImageVariance3D::ThreadedExecute(vtkImageData *inData, 
+					 vtkImageData *outData, 
+					 int outExt[6], int id)
 {
-  void *inPtr = inRegion->GetScalarPointer();
-  void *outPtr = outRegion->GetScalarPointer();
-  
-  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
-		<< ", outRegion = " << outRegion);
+  void *inPtr = inData->GetScalarPointer();
+  void *outPtr = outData->GetScalarPointer();
+  vtkImageData *mask;
 
+  id = id;
+  
   // Error checking on mask
-  if ( ! this->Mask)
+  mask = this->Ellipse->GetOutput()->UpdateAndReturnData();
+  if (mask->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-    this->ComputeMask();
-    }
-  if (this->Mask->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
-    vtkErrorMacro(<< "Execute: Bad Mask");
+    vtkErrorMacro(<< "Execute: mask has wrong scalar type");
     return;
     }
 
   // this filter expects the output to be float
-  if (outRegion->GetScalarType() != VTK_FLOAT)
+  if (outData->GetScalarType() != VTK_FLOAT)
     {
     vtkErrorMacro(<< "Execute: output ScalarType, " 
-      << vtkImageScalarTypeNameMacro(outRegion->GetScalarType())
+      << vtkImageScalarTypeNameMacro(outData->GetScalarType())
       << " must be float");
     return;
     }
-  
-  switch (inRegion->GetScalarType())
+
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageVariance3DExecute(this, inRegion, (float *)(inPtr), 
-				   outRegion, (float *)(outPtr), 1);
+      vtkImageVariance3DExecute(this, mask, inData, (float *)(inPtr), 
+				outData, outExt, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageVariance3DExecute(this, inRegion, (int *)(inPtr), 
-				   outRegion, (float *)(outPtr), 1);
+      vtkImageVariance3DExecute(this, mask, inData, (int *)(inPtr), 
+				outData, outExt, (float *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageVariance3DExecute(this, inRegion, (short *)(inPtr), 
-				   outRegion, (float *)(outPtr), 1);
+      vtkImageVariance3DExecute(this, mask, inData, (short *)(inPtr), 
+				outData, outExt, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageVariance3DExecute(this, inRegion, (unsigned short *)(inPtr), 
-				   outRegion, (float *)(outPtr), 1);
+      vtkImageVariance3DExecute(this, mask, inData, (unsigned short *)(inPtr), 
+				outData, outExt, (float *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageVariance3DExecute(this, inRegion, (unsigned char *)(inPtr), 
-				   outRegion, (float *)(outPtr), 1);
+      vtkImageVariance3DExecute(this, mask, inData, (unsigned char *)(inPtr), 
+				outData, outExt, (float *)(outPtr));
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
