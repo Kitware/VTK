@@ -5,12 +5,14 @@ IF (VTK_USE_RENDERING)
   #
   IF (VTK_DATA_ROOT)
 
-    ADD_TEST(MesaCone-image ${VTK_EXECUTABLE}
-      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
-      -D ${VTK_DATA_ROOT}
-      -V Baseline/Graphics/MesaCone.png
-      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    IF (VTK_MANGLE_MESA)
+      ADD_TEST(MesaCone-image ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
+        -D ${VTK_DATA_ROOT}
+        -V Baseline/Graphics/MesaCone.png
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
       Canny
@@ -52,10 +54,12 @@ IF (VTK_USE_RENDERING)
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
-    ADD_TEST(MesaCone ${VTK_EXECUTABLE}
-      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
-      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
-      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    IF (VTK_MANGLE_MESA)
+      ADD_TEST(MesaCone ${VTK_EXECUTABLE}
+        ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+        ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/MesaCone.tcl
+        -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+    ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
       Delaunay2D
