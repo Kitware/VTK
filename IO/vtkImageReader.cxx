@@ -591,7 +591,7 @@ unsigned long vtkImageReader::GetHeaderSize(int idx)
     // Get the size of the header from the size of the image
     this->File->seekg(0,ios::end);
     
-    return (unsigned long)(this->File->tellg() - 
+    return (unsigned long)((unsigned long)this->File->tellg() - 
       (unsigned long)this->DataIncrements[this->GetFileDimensionality()]);
     }
 
