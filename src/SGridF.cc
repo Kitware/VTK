@@ -18,16 +18,16 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 //
 #include "StrDataF.hh"
 
-vlStructuredDataSetFilter::vlStructuredDataSetFilter()
+vlStructuredDataFilter::vlStructuredDataFilter()
 {
   this->Input = NULL;
 }
 
-vlStructuredDataSetFilter::~vlStructuredDataSetFilter()
+vlStructuredDataFilter::~vlStructuredDataFilter()
 {
 }
 
-void vlStructuredDataSetFilter::Update()
+void vlStructuredDataFilter::Update()
 {
   // make sure input is available
   if ( !this->Input )
@@ -52,9 +52,9 @@ void vlStructuredDataSetFilter::Update()
     }
 }
 
-void vlStructuredDataSetFilter::PrintSelf(ostream& os, vlIndent indent)
+void vlStructuredDataFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredDataSetFilter::GetClassName()))
+  if (this->ShouldIPrint(vlStructuredDataFilter::GetClassName()))
     {
     vlFilter::PrintSelf(os,indent);
 

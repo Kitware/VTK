@@ -285,7 +285,7 @@ void vlStructuredGeometryFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlStructuredGeometryFilter::GetClassName()))
     {
-    vlStructuredDataSetToPolyFilter::PrintSelf(os,indent);
+    vlStructuredDataToPolyFilter::PrintSelf(os,indent);
 
     os << indent << "Extent: \n";
     os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";

@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "StrData.hh"
 
-vlStructuredDataSet::vlStructuredDataSet()
+vlStructuredData::vlStructuredData()
 {
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
@@ -26,7 +26,7 @@ vlStructuredDataSet::vlStructuredDataSet()
   this->PointVisibility = NULL;
 }
 
-vlStructuredDataSet::vlStructuredDataSet(const vlStructuredDataSet& sds) :
+vlStructuredData::vlStructuredData(const vlStructuredData& sds) :
 vlDataSet(sds)
 {
   this->Dimensions[0] = sds.Dimensions[0];
@@ -41,14 +41,14 @@ vlDataSet(sds)
     this->PointVisibility = NULL;
 }
 
-vlStructuredDataSet::~vlStructuredDataSet()
+vlStructuredData::~vlStructuredData()
 {
   this->Initialize();
 }
 
 // Description:
 // Return the topological dimension of the data (e.g.,0, 1, 2, or 3D).
-int vlStructuredDataSet::GetDataDimension()
+int vlStructuredData::GetDataDimension()
 {
   switch (this->DataDescription)
     {
@@ -64,7 +64,7 @@ int vlStructuredDataSet::GetDataDimension()
 
 // Description:
 // Set the i-j-k dimensions of the data.
-void vlStructuredDataSet::SetDimensions(int i, int j, int k)
+void vlStructuredData::SetDimensions(int i, int j, int k)
 {
   int dim[3];
 
@@ -75,7 +75,7 @@ void vlStructuredDataSet::SetDimensions(int i, int j, int k)
   this->SetDimensions(dim);
 }
 
-void vlStructuredDataSet::SetDimensions(int dim[3])
+void vlStructuredData::SetDimensions(int dim[3])
 {
   vlDebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
@@ -119,9 +119,9 @@ void vlStructuredDataSet::SetDimensions(int dim[3])
     }
 }
 
-void vlStructuredDataSet::PrintSelf(ostream& os, vlIndent indent)
+void vlStructuredData::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredDataSet::GetClassName()))
+  if (this->ShouldIPrint(vlStructuredData::GetClassName()))
     {
     vlDataSet::PrintSelf(os,indent);
     
@@ -131,7 +131,7 @@ void vlStructuredDataSet::PrintSelf(ostream& os, vlIndent indent)
     }
 }
 
-int vlStructuredDataSet::GetNumberOfCells()
+int vlStructuredData::GetNumberOfCells()
 {
   int nCells=1;
   int i;
@@ -143,7 +143,7 @@ int vlStructuredDataSet::GetNumberOfCells()
   return nCells;
 }
 
-int vlStructuredDataSet::GetNumberOfPoints()
+int vlStructuredData::GetNumberOfPoints()
 {
   return Dimensions[0]*Dimensions[1]*Dimensions[2];
 }
@@ -153,7 +153,7 @@ int vlStructuredDataSet::GetNumberOfPoints()
 // portions of the grid when displaying or operating on it. Some data
 // (like finite difference data) routinely turns off data to simulate
 // solid obstacles.
-void vlStructuredDataSet::BlankingOn()
+void vlStructuredData::BlankingOn()
 {
   this->Blanking = 1;
   this->Modified();
@@ -170,7 +170,7 @@ void vlStructuredDataSet::BlankingOn()
 
 // Description:
 // Turn off data blanking.
-void vlStructuredDataSet::BlankingOff()
+void vlStructuredData::BlankingOff()
 {
   this->Blanking = 0;
   this->Modified();
@@ -178,7 +178,7 @@ void vlStructuredDataSet::BlankingOff()
 
 // Description:
 // Turn off a particular data point.
-void vlStructuredDataSet::BlankPoint(int ptId)
+void vlStructuredData::BlankPoint(int ptId)
 {
   if ( !this->PointVisibility ) this->BlankingOn();
   this->PointVisibility->InsertValue(ptId,0);
@@ -186,13 +186,13 @@ void vlStructuredDataSet::BlankPoint(int ptId)
 
 // Description:
 // Turn on a particular data point.
-void vlStructuredDataSet::UnBlankPoint(int ptId)
+void vlStructuredData::UnBlankPoint(int ptId)
 {
   if ( !this->PointVisibility ) this->BlankingOn();
   this->PointVisibility->InsertValue(ptId,1);
 }
 
-void vlStructuredDataSet::Initialize()
+void vlStructuredData::Initialize()
 {
   vlDataSet::Initialize();
 
@@ -206,7 +206,7 @@ void vlStructuredDataSet::Initialize()
     }
 }
 
-void vlStructuredDataSet::GetCellPoints(int cellId, vlIdList& ptIds)
+void vlStructuredData::GetCellPoints(int cellId, vlIdList& ptIds)
 {
   int i, j, k, idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
@@ -286,7 +286,7 @@ void vlStructuredDataSet::GetCellPoints(int cellId, vlIdList& ptIds)
     }
 }
 
-void vlStructuredDataSet::GetPointCells(int ptId, vlIdList& cellIds)
+void vlStructuredData::GetPointCells(int ptId, vlIdList& cellIds)
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];

@@ -28,7 +28,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "PointSet.hh"
 #include "StrData.hh"
 
-class vlStructuredGrid : public vlPointSet, public vlStructuredDataSet {
+class vlStructuredGrid : public vlPointSet, public vlStructuredData {
 public:
   vlStructuredGrid();
   vlStructuredGrid(const vlStructuredGrid& sg);

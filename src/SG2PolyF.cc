@@ -17,19 +17,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "SD2PolyF.hh"
 
-void vlStructuredDataSetToPolyFilter::Update()
+void vlStructuredDataToPolyFilter::Update()
 {
-  vlStructuredDataSetFilter::Update();
+  vlStructuredDataFilter::Update();
 }
 
-void vlStructuredDataSetToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
+void vlStructuredDataToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
 {
-  if (this->ShouldIPrint(vlStructuredDataSetToPolyFilter::GetClassName()))
+  if (this->ShouldIPrint(vlStructuredDataToPolyFilter::GetClassName()))
     {
     this->PrintWatchOn(); // watch for multiple inheritance
     
     vlPolyData::PrintSelf(os,indent);
-    vlStructuredDataSetFilter::PrintSelf(os,indent);
+    vlStructuredDataFilter::PrintSelf(os,indent);
     
     this->PrintWatchOff(); // stop worrying about it now
     }

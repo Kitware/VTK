@@ -24,7 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "SD2PolyF.hh"
 
-class vlStructuredOutlineFilter : public vlStructuredDataSetToPolyFilter
+class vlStructuredOutlineFilter : public vlStructuredDataToPolyFilter
 {
 public:
   vlStructuredOutlineFilter() {};

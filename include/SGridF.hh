@@ -13,34 +13,34 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredDataSetFilter - filter that takes vlStructuredDataSet as input
+// .NAME vlStructuredDataFilter - filter that takes vlStructuredData as input
 // .SECTION Description
-// vlStructuredDataSetFilter is a filter that takes a single 
-// vlStructuredDataSet data object as input.
+// vlStructuredDataFilter is a filter that takes a single 
+// vlStructuredData data object as input.
 
-#ifndef __vlStructuredDataSetFilter_h
-#define __vlStructuredDataSetFilter_h
+#ifndef __vlStructuredDataFilter_h
+#define __vlStructuredDataFilter_h
 
 #include "Filter.hh"
 #include "StrData.hh"
 
-class vlStructuredDataSetFilter : public vlFilter 
+class vlStructuredDataFilter : public vlFilter 
 {
 public:
-  vlStructuredDataSetFilter();
-  ~vlStructuredDataSetFilter();
-  char *GetClassName() {return "vlStructuredDataSetFilter";};
+  vlStructuredDataFilter();
+  ~vlStructuredDataFilter();
+  char *GetClassName() {return "vlStructuredDataFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   void Update();
 
   // Description:
   // Specify the input object.
-  vlSetObjectMacro(Input,vlStructuredDataSet);
-  vlGetObjectMacro(Input,vlStructuredDataSet);
+  vlSetObjectMacro(Input,vlStructuredData);
+  vlGetObjectMacro(Input,vlStructuredData);
 
 protected:
-  vlStructuredDataSet *Input;
+  vlStructuredData *Input;
 
 };
 

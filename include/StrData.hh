@@ -13,15 +13,15 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlStructuredDataSet - abstract class for topologically structured datasets
+// .NAME vlStructuredData - abstract class for topologically regular data
 // .SECTION Description
-// vlStructuredDataSet is an abstract class that specifies an interface for
+// vlStructuredData is an abstract class that specifies an interface for
 // topologically regular data. Regular data is data that can be accessed
 // in rectangular fashion using a i-j-k index. A finite difference grid,
 // a volume, or a pixmap are all considered regular.
 
-#ifndef __vlStructuredDataSet_h
-#define __vlStructuredDataSet_h
+#ifndef __vlStructuredData_h
+#define __vlStructuredData_h
 
 #include "DataSet.hh"
 #include "BArray.hh"
@@ -35,12 +35,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define XZ_PLANE 6
 #define XYZ_GRID 7
 
-class vlStructuredDataSet : virtual public vlDataSet {
+class vlStructuredData : virtual public vlDataSet {
 public:
-  vlStructuredDataSet();
-  vlStructuredDataSet(const vlStructuredDataSet& sds);
-  ~vlStructuredDataSet();
-  char *GetClassName() {return "vlStructuredDataSet";};
+  vlStructuredData();
+  vlStructuredData(const vlStructuredData& sds);
+  ~vlStructuredData();
+  char *GetClassName() {return "vlStructuredData";};
   void PrintSelf(ostream& os, vlIndent indent);
 
   // dataset interface
@@ -73,7 +73,7 @@ protected:
 
 // Description:
 // Return non-zero value if specified point is visible.
-inline int vlStructuredDataSet::IsPointVisible(int ptId) 
+inline int vlStructuredData::IsPointVisible(int ptId) 
 {
   if (!this->Blanking) return 1; 
   else return this->PointVisibility->GetValue(ptId);

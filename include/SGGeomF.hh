@@ -26,7 +26,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include "SD2PolyF.hh"
 
-class vlStructuredGeometryFilter : public vlStructuredDataSetToPolyFilter
+class vlStructuredGeometryFilter : public vlStructuredDataToPolyFilter
 {
 public:
   vlStructuredGeometryFilter();

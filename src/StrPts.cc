@@ -33,7 +33,7 @@ vlStructuredPoints::vlStructuredPoints()
 }
 
 vlStructuredPoints::vlStructuredPoints(const vlStructuredPoints& v) :
-vlStructuredDataSet(v)
+vlStructuredData(v)
 {
 
   this->AspectRatio[1] = v.AspectRatio[1];
@@ -208,7 +208,7 @@ void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 {
   if (this->ShouldIPrint(vlStructuredPoints::GetClassName()))
     {
-    vlStructuredDataSet::PrintSelf(os,indent);
+    vlStructuredData::PrintSelf(os,indent);
     
     os << indent << "Origin: (" << this->Origin[0] << ", "
                                     << this->Origin[1] << ", "
@@ -221,7 +221,7 @@ void vlStructuredPoints::PrintSelf(ostream& os, vlIndent indent)
 
 void vlStructuredPoints::Initialize()
 {
-  vlStructuredDataSet::Initialize();
+  vlStructuredData::Initialize();
 
   this->SetAspectRatio(1,1,1);
   this->SetOrigin(0,0,0);
