@@ -29,6 +29,18 @@ import Numeric
 from vtk import vtkImageImport
 from vtkConstants import *
 
+_NEW_NUMERIC = 0
+try:
+    val = float(Numeric.__version__)
+except ValueError:
+    _NEW_NUMERIC = 0
+else:
+    if val > 20.0:
+        _NEW_NUMERIC = 1
+    else:
+        _NEW_NUMERIC = 0
+
+
 class vtkImageImportFromArray:
     def __init__(self):
         self.__import = vtkImageImport()
@@ -68,7 +80,6 @@ class vtkImageImportFromArray:
     # import an array
     def SetArray(self,imArray):
         self.__Array = imArray
-        imString = imArray.tostring()
         numComponents = 1
         dim = imArray.shape
 
@@ -82,12 +93,18 @@ class vtkImageImportFromArray:
             numComponents = numComponents * 2
 
         if (self.__ConvertIntToUnsignedShort and imArray.typecode() == 'i'):
-            imString = imArray.astype(Numeric.Int16).tostring()
+            if _NEW_NUMERIC:
+                imTmpArr = imArray.astype(Numeric.Int16).flat
+            else:
+                imTmpArr = imArray.astype(Numeric.Int16).tostring()
             type = VTK_UNSIGNED_SHORT
         else:
-            imString = imArray.tostring()
+            if _NEW_NUMERIC:
+                imTmpArr = imArray.flat
+            else:
+                imTmpArr = imArray.tostring()
             
-        self.__import.CopyImportVoidPointer(imString,len(imString))
+        self.__import.CopyImportVoidPointer(imTmpArr,len(imTmpArr))
         self.__import.SetDataScalarType(type)
         self.__import.SetNumberOfScalarComponents(numComponents)
         extent = self.__import.GetDataExtent()
