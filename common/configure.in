@@ -23,5 +23,7 @@ AC_ARG_WITH(bsdmake,
 AC_SUBST(MAKEINCLUDE)
 AC_SUBST(MAKEQUOTE)
 
+AC_CONFIG_SUBDIRS(examplesCxx)
+
 dnl Checks for library functions.
 AC_OUTPUT(Makefile)

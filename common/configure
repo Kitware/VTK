@@ -565,6 +565,9 @@ fi
 
 
 
+subdirs="tcl java python examplesCxx"
+
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -842,7 +845,7 @@ if test "$no_recursion" != yes; then
     esac
   done
 
-  for ac_config_dir in tcl java python; do
+  for ac_config_dir in tcl java python examplesCxx; do
 
     # Do not complain, so a configure script can configure whichever
     # parts of a large source tree are present.
