@@ -40,7 +40,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.4");
+vtkCxxRevisionMacro(vtkMergeCells, "1.5");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -82,6 +82,10 @@ vtkMergeCells::vtkMergeCells()
 vtkMergeCells::~vtkMergeCells()
 {
   this->FreeLists();
+
+  delete this->GlobalIdMap;
+  delete this->GlobalCellIdMap;
+
   this->SetUnstructuredGrid(0);
 }
 
@@ -97,16 +101,6 @@ void vtkMergeCells::FreeLists()
     {
     delete [] this->GlobalCellIdArrayName;
     this->GlobalCellIdArrayName = NULL;
-    }
-
-  if (this->GlobalIdMap)
-    {
-    delete this->GlobalIdMap;
-    }
-
-  if (this->GlobalCellIdMap)
-    {
-    delete this->GlobalCellIdMap;
     }
 
   if (this->ptList)
@@ -993,6 +987,7 @@ void vtkMergeCells::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "GlobalIdMap: " << this->GlobalIdMap->IdTypeMap.size() << endl;
+  os << indent << "GlobalCellIdMap: " << this->GlobalCellIdMap->IdTypeMap.size() << endl;
 
   os << indent << "PointMergeTolerance: " << this->PointMergeTolerance << endl;
   os << indent << "MergeDuplicatePoints: " << this->MergeDuplicatePoints << endl;
