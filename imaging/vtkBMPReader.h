@@ -95,9 +95,7 @@ protected:
   
   virtual void ComputeDataIncrements();
   virtual void ExecuteInformation();
-  virtual void Execute(vtkImageData *out);
-  void Execute() { this->vtkImageReader::Execute(); };
-  
+  virtual void ExecuteData(vtkDataObject *out);
 };
 #endif
 
