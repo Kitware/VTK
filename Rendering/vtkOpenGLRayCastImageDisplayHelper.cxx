@@ -35,7 +35,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.2");
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 #endif
 
@@ -99,6 +99,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
   
   // get the perspective transformation from the active camera 
   viewToWorldMatrix->DeepCopy( perspectiveTransform->GetMatrix() );
+  perspectiveTransform->Delete();
   
   // use the inverse matrix 
   viewToWorldMatrix->Invert();

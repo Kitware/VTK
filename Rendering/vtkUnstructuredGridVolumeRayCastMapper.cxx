@@ -40,7 +40,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 
@@ -525,6 +525,9 @@ float vtkUnstructuredGridVolumeRayCastMapper::GetMinimumBoundsDepth( vtkRenderer
         }
       }
     }
+  
+  perspectiveTransform->Delete();
+  perspectiveMatrix->Delete();
   
   return minZ;
 }

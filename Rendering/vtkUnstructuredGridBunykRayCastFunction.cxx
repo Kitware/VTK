@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.10");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.11");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -414,6 +414,9 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
   
     transformedPtr += 3;
     }
+  
+  perspectiveTransform->Delete();
+  perspectiveMatrix->Delete();
   
 }
 
