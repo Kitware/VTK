@@ -14,6 +14,7 @@ proc BindTkRenderWidget {widget} {
     bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
+    bind $widget <Expose> {%W Render}
 }
 
 # Global variable keeps track of whether active renderer was found
