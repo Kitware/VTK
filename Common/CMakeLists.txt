@@ -94,6 +94,7 @@ vtkOldStyleCallbackCommand.cxx
 vtkOutputWindow.cxx
 vtkOverrideInformation.cxx
 vtkOverrideInformationCollection.cxx
+vtkParametricFunction.cxx
 vtkPerspectiveTransform.cxx
 vtkPlane.cxx
 vtkPlaneCollection.cxx
@@ -151,6 +152,7 @@ vtkObjectFactory
 vtkOldStyleCallbackCommand
 vtkOverrideInformation
 vtkOverrideInformationCollection
+vtkParametricFunction
 vtkProp
 vtkScalarsToColors
 vtkStructuredData
