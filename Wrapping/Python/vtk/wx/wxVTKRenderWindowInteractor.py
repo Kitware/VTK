@@ -413,7 +413,7 @@ def wxVTKRenderWindowInteractorConeExample():
     # on some platforms, this SetSize() is necessary to cause an OnPaint()
     # when the event loop begins; else we get an empty window until we 
     # force a redraw.
-    frame.SetSize((640,480))
+    frame.SetSize((400,400))
     frame.Show(1)
 
     app.MainLoop()
