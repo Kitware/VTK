@@ -21,6 +21,7 @@ vtkDecimate \
 vtkDividingCubes \
 vtkGridSynchronizedTemplates3D \
 vtkImageMarchingCubes \
+vtkKitwareContourFilter \
 vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
