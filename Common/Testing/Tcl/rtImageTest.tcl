@@ -147,7 +147,6 @@ if {$validImageFound != 0} {
        set errIndex -1
        while 1 {
 	   set newFileName [IncrementFileName $validImage $count]
-	   puts $newFileName
 	   if {[catch {set channel [open $newFileName r]}]} {
 	       break
 	   }
