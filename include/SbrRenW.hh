@@ -35,12 +35,11 @@ public:
   char *GetClassName() {return "vlSbrRenderWindow";};
   void PrintSelf(ostream& os, vlIndent indent);
   
-  vlRenderer  *MakeRenderer();
-  vlActor     *MakeActor();
-  vlLight     *MakeLight();
-  vlCamera    *MakeCamera();
-  vlProperty  *MakeProperty();
-  vlTexture  *MakeTexture();
+  vlRenderer       *MakeRenderer();
+  vlLightDevice    *MakeLight();
+  vlCameraDevice   *MakeCamera();
+  vlPropertyDevice *MakeProperty();
+  vlTextureDevice  *MakeTexture();
 
   void Start(void);
   void Frame(void);

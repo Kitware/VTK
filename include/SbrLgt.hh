@@ -21,19 +21,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlSbrLight_hh
 #define __vlSbrLight_hh
 
-#include "Light.hh"
+#include "LgtDev.hh"
 
 class vlSbrRenderer;
 
-class vlSbrLight : public vlLight
+class vlSbrLight : public vlLightDevice
 {
 protected:
   
 public:
   char *GetClassName() {return "vlSbrLight";};
 
-  void Render(vlRenderer *ren,int light_index);
-  void Render(vlSbrRenderer *ren,int light_index);
+  void Render(vlLight *lgt, vlRenderer *ren,int light_index);
+  void Render(vlLight *lgt, vlSbrRenderer *ren,int light_index);
   
 };
 

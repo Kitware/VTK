@@ -37,28 +37,15 @@ vlSbrRenderWindow::vlSbrRenderWindow()
   this->Buffer = 0;
 }
 
-// Description:
-// Create a starbase-specific actor.
-vlActor *vlSbrRenderWindow::MakeActor()
-{
-  vlActor *actor;
-  vlSbrProperty *prop;
-
-  actor = new vlActor;
-  prop  = new vlSbrProperty;
-
-  actor->SetProperty((vlProperty *)prop);
-  return (vlActor *)actor;
-}
 
 // Description:
 // Create a starbase specific light.
-vlLight *vlSbrRenderWindow::MakeLight()
+vlLightDevice *vlSbrRenderWindow::MakeLight()
 {
   vlSbrLight *light;
 
   light = new vlSbrLight;
-  return (vlLight *)light;
+  return (vlLightDevice *)light;
 }
 
 // Description:
@@ -78,32 +65,32 @@ vlRenderer *vlSbrRenderWindow::MakeRenderer()
 
 // Description:
 // Create a starbase specific camera.
-vlCamera *vlSbrRenderWindow::MakeCamera()
+vlCameraDevice *vlSbrRenderWindow::MakeCamera()
 {
   vlSbrCamera *camera;
 
   camera = new vlSbrCamera;
-  return (vlCamera *)camera;
+  return (vlCameraDevice *)camera;
 }
 
 // Description:
 // Create a starbase specific property.
-vlProperty *vlSbrRenderWindow::MakeProperty()
+vlPropertyDevice *vlSbrRenderWindow::MakeProperty()
 {
   vlSbrProperty *property;
 
   property = new vlSbrProperty;
-  return (vlProperty *)property;
+  return (vlPropertyDevice *)property;
 }
 
 // Description:
 // Create a starbase specific texture.
-vlTexture *vlSbrRenderWindow::MakeTexture()
+vlTextureDevice *vlSbrRenderWindow::MakeTexture()
 {
   vlSbrTexture *texture;
 
   texture = new vlSbrTexture;
-  return (vlTexture *)texture;
+  return (vlTextureDevice *)texture;
 }
 
 // Description:

@@ -21,19 +21,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlSbrCamera_hh
 #define __vlSbrCamera_hh
 
-#include "Camera.hh"
+#include "CamDev.hh"
 #include "starbase.c.h"
 
 class vlSbrRenderer;
 
-class vlSbrCamera : public vlCamera
+class vlSbrCamera : public vlCameraDevice
 {
  public:
   char *GetClassName() {return "vlSbrCamera";};
 
-  void Render(vlRenderer *ren);
-  void Render(vlSbrRenderer *ren);
-
+  void Render(vlCamera *, vlRenderer *ren);
+  void Render(vlCamera *, vlSbrRenderer *ren);
 };
 
 #endif

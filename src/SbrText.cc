@@ -30,14 +30,14 @@ vlSbrTexture::vlSbrTexture()
 
 // Description:
 // Implement base class method.
-void vlSbrTexture::Load(vlRenderer *ren)
+void vlSbrTexture::Load(vlTexture *txt, vlRenderer *ren)
 {
-  this->Load((vlSbrRenderer *)ren);
+  this->Load(txt, (vlSbrRenderer *)ren);
 }
 
 // Description:
 // Actual Texture load method.
-void vlSbrTexture::Load(vlSbrRenderer *ren)
+void vlSbrTexture::Load(vlTexture *txt, vlSbrRenderer *ren)
 {
   // currently a nop
 }

@@ -21,17 +21,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlSbrProperty_hh
 #define __vlSbrProperty_hh
 
-#include "Property.hh"
+#include "PropDev.hh"
 
 class vlSbrRenderer;
 
-class vlSbrProperty : public vlProperty
+class vlSbrProperty : public vlPropertyDevice
 {
  public:
   char *GetClassName() {return "vlSbrProperty";};
 
-  void Render(vlRenderer *ren);
-  void Render(vlSbrRenderer *ren);
+  void Render(vlProperty *prop, vlRenderer *ren);
+  void Render(vlProperty *prop, vlSbrRenderer *ren);
 };
 
 #endif

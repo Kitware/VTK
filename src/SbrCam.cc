@@ -135,14 +135,14 @@ void stereopersp(int fd, float fovy, float aspect, float near,
 
 // Description:
 // Implement base class method.
-void vlSbrCamera::Render(vlRenderer *ren)
+void vlSbrCamera::Render(vlCamera *cam, vlRenderer *ren)
 {
-  this->Render((vlSbrRenderer *)ren);
+  this->Render(cam, (vlSbrRenderer *)ren);
 }
 
 // Description:
 // Actual camera render method.
-void vlSbrCamera::Render(vlSbrRenderer *ren)
+void vlSbrCamera::Render(vlCamera *cam, vlSbrRenderer *ren)
 {
   float aspect[3];
   float vaspect[2];
@@ -162,7 +162,7 @@ void vlSbrCamera::Render(vlSbrRenderer *ren)
   float old;
   float view_size[2];
   float vdc_vals[6];
-
+  float *Position, *FocalPoint, *ClippingRange;
   fd = ren->GetFd();
 
   // get the background color
@@ -188,7 +188,7 @@ void vlSbrCamera::Render(vlSbrRenderer *ren)
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VL_STEREO_CRYSTAL_EYES:
-	if (this->LeftEye > 0.0) 
+	if (cam->GetLeftEye()) 
 	  {
 	  viewport[1] = 0.5 + viewport[1]*0.5;
 	  viewport[3] = 0.5 + viewport[3]*0.5;
@@ -275,44 +275,45 @@ void vlSbrCamera::Render(vlSbrRenderer *ren)
   hidden_surface(fd, TRUE, FALSE);
   vlDebugMacro(<< " SB_hidden_surface: True False\n");
 
-  twist = this->GetTwist();
+  twist = cam->GetTwist();
 
+  ClippingRange = cam->GetClippingRange();
+  Position = cam->GetPosition();
+  FocalPoint = cam->GetFocalPoint();
   if (stereo)
     {
-    if (this->LeftEye)
+    if (cam->GetLeftEye())
       {
-      stereopersp(fd,this->ViewAngle, aspect[0] / aspect[1],
-		  this->ClippingRange[0],this->ClippingRange[1],
-		  this->Distance,-1.0*this->EyeAngle);
+      stereopersp(fd,cam->GetViewAngle(), aspect[0] / aspect[1],
+		  ClippingRange[0],ClippingRange[1],
+		  cam->GetDistance(),-1.0*cam->GetEyeAngle());
       }
     else
       {
-      stereopersp(fd,this->ViewAngle, aspect[0] / aspect[1],
-		  this->ClippingRange[0],this->ClippingRange[1],
-		  this->Distance,1.0*this->EyeAngle);
+      stereopersp(fd,cam->GetViewAngle(), aspect[0] / aspect[1],
+		  ClippingRange[0],ClippingRange[1],
+		  cam->GetDistance(),1.0*cam->GetEyeAngle());
       }
 
-    lookat(fd,this->Position[0], this->Position[1], 
-	   this->Position[2], this->FocalPoint[0], 
-	   this->FocalPoint[1], this->FocalPoint[2],twist);
+    lookat(fd,Position[0], Position[1], Position[2], 
+	   FocalPoint[0], FocalPoint[1], FocalPoint[2],twist);
     }
   else
     {
-    stereopersp(fd,this->ViewAngle, aspect[0] / aspect[1],
-		this->ClippingRange[0],this->ClippingRange[1],
-		this->Distance,0.0);
+    stereopersp(fd,cam->GetViewAngle(), aspect[0] / aspect[1],
+		ClippingRange[0],ClippingRange[1],
+		cam->GetDistance(),0.0);
 
-    lookat(fd,this->Position[0], this->Position[1], 
-	   this->Position[2], this->FocalPoint[0], 
-	   this->FocalPoint[1], this->FocalPoint[2],twist);
+    lookat(fd,Position[0], Position[1], Position[2], 
+	   FocalPoint[0], FocalPoint[1], FocalPoint[2],twist);
     }
 
-  clip_depth(fd,0.0,this->ClippingRange[1]);
+  clip_depth(fd,0.0,ClippingRange[1]);
 
   // if we have a stereo renderer, draw other eye next time 
   if (stereo)
     {
-    if (this->LeftEye) this->LeftEye = 0;
-    else this->LeftEye = 1;
+    if (cam->GetLeftEye()) cam->SetLeftEye(0);
+    else cam->SetLeftEye(1);
     }
 }
