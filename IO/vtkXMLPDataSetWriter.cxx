@@ -30,7 +30,7 @@
 #include "vtkXMLPStructuredGridWriter.h"
 #include "vtkXMLPUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataSetWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPDataSetWriter, "1.2");
 vtkStandardNewMacro(vtkXMLPDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -69,6 +69,12 @@ vtkDataSet* vtkXMLPDataSetWriter::GetInput()
 //----------------------------------------------------------------------------
 int vtkXMLPDataSetWriter::Write()
 {
+  // Make sure there are enough settings to write (Input, FileName, etc).
+  if(!this->IsSafeToWrite())
+    {
+    return 0;
+    }
+  
   vtkDataSet* input = this->GetInput();
   vtkXMLPDataWriter* writer = 0;
   
