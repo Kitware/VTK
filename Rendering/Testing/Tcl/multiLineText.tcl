@@ -180,13 +180,13 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer; set the background and size; zoom in
 # closer to the image; render
 #
+ren1 AddActor2D gridActor
 ren1 AddActor2D textActorL
 ren1 AddActor2D textActorC
 ren1 AddActor2D textActorR
 ren1 AddActor2D singleLineTextActorB
 ren1 AddActor2D singleLineTextActorC
 ren1 AddActor2D singleLineTextActorT
-ren1 AddActor2D gridActor
 
 ren1 SetBackground 1 1 1
 renWin SetSize 500 300
