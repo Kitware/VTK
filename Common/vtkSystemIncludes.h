@@ -95,3 +95,5 @@ typedef long vtkIdType;
 #else
 typedef int vtkIdType;
 #endif
+
+#endif
