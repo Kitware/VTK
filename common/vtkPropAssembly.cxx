@@ -390,6 +390,7 @@ void vtkPropAssembly::UpdatePaths()
       path->DeleteLastNode();
       }
 
+    path->Delete();
     this->PathTime.Modified();
     }
 }
