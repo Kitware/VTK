@@ -985,3 +985,10 @@ void vtkXglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     }
 }
 
+// Description:
+// Indicates if a StereoOn will require the window to be remapped.
+int vtkXglrRenderWindow::GetRemapWindow(void)
+{
+  // even crystal eyes does not require a remap
+  return 0;
+}
