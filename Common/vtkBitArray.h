@@ -102,6 +102,13 @@ public:
   vtkIdType InsertNextTuple(const double * tuple);
 
   // Description:
+  // Set the data component at the ith tuple and jth component location.
+  // Note that i is less then NumberOfTuples and j is less then 
+  // NumberOfComponents. Make sure enough memory has been allocated (use 
+  // SetNumberOfTuples() and  SetNumberOfComponents()).
+  void SetComponent(const vtkIdType i, const int j, const float c);
+
+  // Description:
   // Free any unneeded memory.
   void Squeeze();
 

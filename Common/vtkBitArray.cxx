@@ -415,3 +415,13 @@ void vtkBitArray::InsertComponent(const vtkIdType i, const int j,
   this->InsertValue(i*this->NumberOfComponents + j, 
                     static_cast<const int>(c));
 }
+
+// Set the data component at the ith tuple and jth component location.
+// Note that i<NumberOfTuples and j<NumberOfComponents. Make sure enough
+// memory has been allocated (use SetNumberOfTuples() and 
+// SetNumberOfComponents()).
+void vtkBitArray::SetComponent(const vtkIdType i, const int j,
+                               const float c)
+{
+  this->SetValue(i*this->NumberOfComponents + j, (int)c);
+}
