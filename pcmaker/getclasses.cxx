@@ -808,14 +808,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   char file[256], temp[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"CPP=\"%s\\bin\\cl.exe\"\n\n",vals->m_WhereCompiler);
-  fprintf(fp,"PATH=%s\\bin;%s\\..\\SharedIDE\\bin\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-  fprintf(fp,"INCLUDE=%s\\INCLUDE;%s\\MFC\\INCLUDE\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-  fprintf(fp,"LIB=%s\\LIB;%s\\MFC\\LIB\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-
+  fprintf(fp,"CPP=cl.exe\n\n");
   fprintf(fp,"OBJDIR=obj\n");
   fprintf(fp,"LIBDIR=..\\lib\n\n");
 
@@ -1263,13 +1256,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"# VTK Generic makefile\n");
   fprintf(fp,"!MESSAGE making tcl library...\n");
-  fprintf(fp,"CPP=\"%s\\bin\\cl.exe\"\n\n",vals->m_WhereCompiler);
-  fprintf(fp,"PATH=%s\\bin;%s\\..\\SharedIDE\\bin\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-  fprintf(fp,"INCLUDE=%s\\INCLUDE;%s\\MFC\\INCLUDE\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-  fprintf(fp,"LIB=%s\\LIB;%s\\MFC\\LIB\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
+  fprintf(fp,"CPP=cl.exe\n\n");
   fprintf(fp,"PATH=$(PATH);\"%s\\pcmaker\\\"\n",vals->m_WhereVTK);
   fprintf(fp,"CPP_PARSE=vtkWrapTcl.exe\n");
   fprintf(fp,"OUTDIR=obj\n\n");
@@ -1576,20 +1563,20 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   else
     {
- fprintf(fp,"-v- -R- \n");
+  fprintf(fp,"-v- -R- \n");
        }
   if (vals->m_Patented)
     {
     fprintf(fp,"-DVTK_USE_PATENTED -I%s\\patented\n",
       vals->m_WhereVTK);
     }
- fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;STRICT\n",
+  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;STRICT\n",
       vals->m_WhereVTK);
- fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics -DWIN32\n",
+  fprintf(fp,"-tWM -tWD -Od -H- -VF -I%s\\include\\mfc;%s\\include;%s\\common;%s\\graphics -DWIN32\n",
       vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK);
- fprintf(fp," -I%s\\pcmaker\\xlib \n",vals->m_WhereVTK);
- fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
- fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
+  fprintf(fp," -I%s\\pcmaker\\xlib \n",vals->m_WhereVTK);
+  fprintf(fp," -I%s\\imaging \n",vals->m_WhereVTK);
+  fprintf(fp," -I%s\\contrib \n",vals->m_WhereVTK);
   fprintf(fp,"-P -c -w-hid -w-inl \n");
   fprintf(fp,"| CPP_PROJ.CFG \n\n"); 
   fprintf(fp,"LINK32=tlink32.exe\n\n");
@@ -1779,13 +1766,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   char file[256];
 
   fprintf(fp,"# VTK Generic makefile\n");
-  fprintf(fp,"CPP=\"%s\\bin\\cl.exe\"\n\n",vals->m_WhereCompiler);
-  fprintf(fp,"PATH=%s\\bin;%s\\..\\SharedIDE\\bin\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-  fprintf(fp,"INCLUDE=%s\\INCLUDE;%s\\MFC\\INCLUDE\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
-  fprintf(fp,"LIB=%s\\LIB;%s\\MFC\\LIB\n",vals->m_WhereCompiler,
-	  vals->m_WhereCompiler);
+  fprintf(fp,"CPP=cl.exe\n\n");
   fprintf(fp,"OUTDIR=obj\n\n");
 
 	fprintf(fp,"LIBDIR=..\\lib\n\n");
