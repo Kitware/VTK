@@ -93,6 +93,41 @@ int vtkExtentTranslator::PieceToExtent()
     this->Extent[1] = this->Extent[3] = this->Extent[5] = -1;
     return 0;
     }
+  if (this->GhostLevel > 0)
+    {
+    this->Extent[0] -= this->GhostLevel;
+    this->Extent[1] += this->GhostLevel;
+    this->Extent[2] -= this->GhostLevel;
+    this->Extent[3] += this->GhostLevel;
+    this->Extent[4] -= this->GhostLevel;
+    this->Extent[5] += this->GhostLevel;
+    
+    if (this->Extent[0] < this->WholeExtent[0])
+      {
+      this->Extent[0] = this->WholeExtent[0];
+      }
+    if (this->Extent[1] > this->WholeExtent[1])
+      {
+      this->Extent[1] = this->WholeExtent[1];
+      }
+    if (this->Extent[2] < this->WholeExtent[2])
+      {
+      this->Extent[2] = this->WholeExtent[2];
+      }
+    if (this->Extent[3] > this->WholeExtent[3])
+      {
+      this->Extent[3] = this->WholeExtent[3];
+      }
+    if (this->Extent[4] < this->WholeExtent[4])
+      {
+      this->Extent[4] = this->WholeExtent[4];
+      }
+    if (this->Extent[5] > this->WholeExtent[5])
+      {
+      this->Extent[5] = this->WholeExtent[5];
+      }
+    }
+    
   return 1;
 }
 
