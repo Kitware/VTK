@@ -82,6 +82,8 @@ vtkRenderer::vtkRenderer()
   this->CreatedLight = NULL;
   
   this->TwoSidedLighting = 1;
+  this->BackingStore = 0;
+  this->BackingImage = NULL;
 }
 
 vtkRenderer::~vtkRenderer()
@@ -91,6 +93,7 @@ vtkRenderer::~vtkRenderer()
   if ( this->SelfCreatedLight && this->CreatedLight != NULL) 
     this->CreatedLight->Delete();
   this->RayCaster->Delete();
+  if (this->BackingImage) delete [] this->BackingImage;
 }
 
 #ifdef VTK_USE_GLR
@@ -130,6 +133,95 @@ vtkRenderer *vtkRenderer::New()
 #endif
   
   return new vtkRenderer;
+}
+
+// Description:
+// Concrete render method.
+void vtkRenderer::Render(void)
+{
+  int    actor_count;
+  int    volume_count;
+  float  scale_factor;
+  float  saved_viewport[4];
+  float  new_viewport[4];
+  int    saved_erase;
+
+  if (this->StartRenderMethod) 
+    {
+    (*this->StartRenderMethod)(this->StartRenderMethodArg);
+    }
+
+  // if backing store is on and we have a stored image
+  if (this->BackingStore && this->BackingImage &&
+      this->MTime < this->RenderTime &&
+      this->ActiveCamera->GetMTime() < this->RenderTime &&
+      this->RenderWindow->GetMTime() < this->RenderTime)
+    {
+    int mods = 0;
+    vtkLight *light;
+    vtkActor *anActor;
+    
+    // now we just need to check the lights and actors
+    for(this->Lights.InitTraversal(); 
+	(light = this->Lights.GetNextItem()); )
+      {
+      if (light->GetSwitch() && 
+	  light->GetMTime() > this->RenderTime) mods = 1;
+      }
+    for (this->Actors.InitTraversal(); 
+	 (anActor = this->Actors.GetNextItem()); )
+      {
+      // if it's invisible, we can skip the rest 
+      if (anActor->GetVisibility())
+	{
+	if (anActor->GetMTime() > this->RenderTime) mods = 1;
+	if (anActor->GetProperty()->GetMTime() > this->RenderTime) mods = 1;
+	if (anActor->GetTexture() && 
+	    anActor->GetTexture()->GetMTime() > this->RenderTime) mods = 1;
+	if (anActor->GetMapper()->GetMTime() > this->RenderTime) mods = 1;
+	anActor->GetMapper()->GetInput()->Update();
+	if (anActor->GetMapper()->GetInput()->GetMTime() > this->RenderTime) mods = 1;
+	}
+      }
+    
+    if (!mods)
+      {
+      int x1, y1, x2, y2;
+      
+      // backing store should be OK, lets use it
+      // calc the pixel range for the renderer
+      x1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
+      y1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
+      x2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
+      y2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
+      this->RenderWindow->SetPixelData(x1,y1,x2,y2,this->BackingImage,0);
+      return;
+      }
+    }
+  
+  // do the render library specific stuff
+  this->DeviceRender();
+
+  if (this->BackingStore)
+    {
+    if (this->BackingImage) delete [] this->BackingImage;
+    
+    int x1, y1, x2, y2;
+    
+    // backing store should be OK, lets use it
+    // calc the pixel range for the renderer
+    x1 = (int)(this->Viewport[0]*(this->RenderWindow->GetSize()[0] - 1));
+    y1 = (int)(this->Viewport[1]*(this->RenderWindow->GetSize()[1] - 1));
+    x2 = (int)(this->Viewport[2]*(this->RenderWindow->GetSize()[0] - 1));
+    y2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
+    this->BackingImage = this->RenderWindow->GetPixelData(x1,y1,x2,y2,0);
+    }
+  
+  if (this->EndRenderMethod) 
+    {
+    (*this->EndRenderMethod)(this->EndRenderMethodArg);
+    }
+  this->RenderTime.Modified();
 }
 
 vtkWindow *vtkRenderer::GetVTKWindow()
@@ -486,6 +578,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ambient: (" << this->Ambient[0] << ", " 
     << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
 
+  os << indent << "BackingStore: " << (this->BackingStore ? "On\n":"Off\n");
   os << indent << "DisplayPoint: ("  << this->DisplayPoint[0] << ", " 
     << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
   os << indent << "Lights:\n";

@@ -194,7 +194,7 @@ int vtkXGLRenderer::UpdateLights ()
  
 // Description:
 // Concrete XGL render method.
-void vtkXGLRenderer::Render(void)
+void vtkXGLRenderer::DeviceRender(void)
 {
   int  actor_count;
   int  volume_count;
@@ -204,11 +204,6 @@ void vtkXGLRenderer::Render(void)
   int    saved_erase;
 
   vtkXGLRenderWindow *temp;
-
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
 
   volume_count = this->VisibleVolumeCount();
 
@@ -282,11 +277,6 @@ void vtkXGLRenderer::Render(void)
   if ( !(actor_count + volume_count) )
     {
     vtkWarningMacro(<< "No actors or volumes are on.");
-    }
-
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
 }
 

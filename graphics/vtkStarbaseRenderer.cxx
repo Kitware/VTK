@@ -174,17 +174,12 @@ int vtkStarbaseRenderer::UpdateLights ()
  
 // Description:
 // Concrete starbase render method.
-void vtkStarbaseRenderer::Render(void)
+void vtkStarbaseRenderer::DeviceRender(void)
 {
   int  actor_count;
   int  volume_count;
 
   vtkStarbaseRenderWindow *temp;
-
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
 
   // update our Fd first
   temp = (vtkStarbaseRenderWindow *)this->GetRenderWindow();
@@ -211,11 +206,6 @@ void vtkStarbaseRenderer::Render(void)
   if ( !(actor_count + volume_count) )
     {
     vtkWarningMacro(<< "No actors or volumes are on.");
-    }
-
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
 }
 

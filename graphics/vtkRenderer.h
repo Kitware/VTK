@@ -104,8 +104,13 @@ public:
   vtkGetMacro(AllocatedRenderTime,float);
 
   // Description:
+  // Create an image. This is a superclass method which will in turn 
+  // call the DeviceRender method of Subclasses of vtkRenderer
+  virtual void Render();
+
+  // Description:
   // Create an image. Subclasses of vtkRenderer must implement this method.
-  virtual void Render() {};
+  virtual void DeviceRender() {};
 
   // Description:
   // Ask all actors to build and draw themselves.
@@ -175,6 +180,15 @@ public:
   vtkSetMacro(TwoSidedLighting,int);
   vtkBooleanMacro(TwoSidedLighting,int);
 
+  // Description:
+  // Turn on/off using backing store. This may cause the re-rendering
+  // time to be slightly slower when the view changes. But it is
+  // much faster when the image has not changed, such as during an
+  // expose event.
+  vtkSetMacro(BackingStore,int);
+  vtkGetMacro(BackingStore,int);
+  vtkBooleanMacro(BackingStore,int);
+
   virtual void DisplayToView(); // these get modified in subclasses
   virtual void ViewToDisplay(); // to handle stereo rendering
   void WorldToView();
@@ -204,6 +218,9 @@ protected:
   int   SelfCreatedLight;
   float AllocatedRenderTime;
   int   TwoSidedLighting;
+  int   BackingStore;
+  unsigned char *BackingImage;
+  vtkTimeStamp RenderTime;
 };
 
 // Description:

@@ -203,15 +203,10 @@ int vtkGLRenderer::UpdateLights ()
 
 // Description:
 // Concrete gl render method.
-void vtkGLRenderer::Render(void)
+void vtkGLRenderer::DeviceRender(void)
 {
   int  actor_count;
   int  volume_count;
-
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
 
   // standard render method 
   this->ClearLights();
@@ -230,11 +225,6 @@ void vtkGLRenderer::Render(void)
   // clean up the model view matrix set up by the camera 
   mmode(MVIEWING);
   popmatrix();
-
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
-    }
 }
 
 void vtkGLRenderer::PrintSelf(ostream& os, vtkIndent indent)

@@ -216,7 +216,7 @@ int vtkOpenGLRenderer::UpdateLights ()
 
 // Description:
 // Concrete open gl render method.
-void vtkOpenGLRenderer::Render(void)
+void vtkOpenGLRenderer::DeviceRender(void)
 {
   int    actor_count;
   int    volume_count;
@@ -224,11 +224,6 @@ void vtkOpenGLRenderer::Render(void)
   float  saved_viewport[4];
   float  new_viewport[4];
   int    saved_erase;
-
-  if (this->StartRenderMethod) 
-    {
-    (*this->StartRenderMethod)(this->StartRenderMethodArg);
-    }
 
   volume_count = this->VisibleVolumeCount();
 
@@ -298,11 +293,6 @@ void vtkOpenGLRenderer::Render(void)
   // clean up the model view matrix set up by the camera 
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-
-  if (this->EndRenderMethod) 
-    {
-    (*this->EndRenderMethod)(this->EndRenderMethodArg);
-    }
 }
 
 void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)

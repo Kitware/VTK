@@ -61,7 +61,7 @@ public:
   const char *GetClassName() {return "vtkStarbaseRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(void);
+  void DeviceRender(void);
   void ClearLights(void);
 
   int UpdateActors(void);

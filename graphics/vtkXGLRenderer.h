@@ -68,7 +68,7 @@ public:
   const char *GetClassName() {return "vtkXGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Render(void);
+  void DeviceRender(void);
 
   int UpdateActors(void);
   int UpdateVolumes(void);
