@@ -746,6 +746,7 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   // These are for the defualt case/
   vtkIdList *pts;
   vtkCell *face;
+  int flag2D = 0;
   
   pts = vtkIdList::New();  
   cell = vtkGenericCell::New();
@@ -764,14 +765,17 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   outputPD->CopyAllocate(inputPD, numPts, numPts/2);
   outputCD->CopyAllocate(inputCD, numCells, numCells/2);
 
-  // initialize the pointer to the cells for fast traversal.
-  cellPointer = input->GetCells()->GetPointer();
   
   // Traverse cells to extract geometry
   //
   progressCount = 0;
   int abort=0;
   vtkIdType progressInterval = numCells/20 + 1;
+
+  // First insert all points lines in output and 3D geometry in hash.
+  // Save 2D geometry for second pass.
+  // initialize the pointer to the cells for fast traversal.
+  cellPointer = input->GetCells()->GetPointer();
   for(cellId=0; cellId < numCells && !abort; cellId++)
     {
     //Progress and abort method support
@@ -839,54 +843,10 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
       this->InsertTriInHash(ids[0], ids[3], ids[2], cellId);
       this->InsertTriInHash(ids[1], ids[2], ids[3], cellId);
       }
-    else if (cellType == VTK_PIXEL)
-      { // Do we really want to insert the 2D cells into a hash?
-      this->InsertQuadInHash(ids[0], ids[1], ids[3], ids[2], cellId);
-      }
-    else if (cellType == VTK_QUAD)
-      {
-      this->InsertQuadInHash(ids[0], ids[1], ids[2], ids[3], cellId);
-      }
-    else if (cellType == VTK_TRIANGLE)
-      {
-      this->InsertTriInHash(ids[0], ids[1], ids[2], cellId);
-      }
-    else if (cellType == VTK_POLYGON)
-      {
-      if (cell->GetCellType() == VTK_POLYGON
-          || cell->GetCellType() == VTK_TRIANGLE)
-        {
-        numFacePts = cell->GetNumberOfPoints();
-        pts->Reset();
-        for ( i=0; i < numFacePts; i++)
-          {
-          inPtId = cell->GetPointId(i);
-          outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-          pts->InsertId(i, outPtId);
-          }
-        newCellId = newPolys->InsertNextCell(pts);
-        outputCD->CopyData(cd,cellId,newCellId);
-        }
-      }
-    else if (cellType == VTK_TRIANGLE_STRIP)
-      {
-      // Change strips to triangles so we do not have to worry about order.
-      int toggle = 0;
-      vtkIdType ptIds[3];
-      numFacePts = cell->GetNumberOfPoints();
-      inPtId = cell->GetPointId(0);
-      ptIds[0] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-      inPtId = cell->GetPointId(1);
-      ptIds[1] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-      for (i = 2; i < numFacePts; ++i)
-        {
-        inPtId = cell->GetPointId(i);
-        ptIds[2] = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
-        newCellId = newPolys->InsertNextCell(3, ptIds);
-        outputCD->CopyData(cd,cellId,newCellId);
-        ptIds[toggle] = ptIds[2];
-        toggle = !toggle;
-        }
+    else if (cellType == VTK_PIXEL || cellType == VTK_QUAD || cellType == VTK_TRIANGLE
+             || cellType == VTK_POLYGON || cellType == VTK_TRIANGLE_STRIP)
+      { // save 2D cells for second pass
+      flag2D = 1;
       }
     else
       { // Default way of getting faces.
@@ -925,6 +885,66 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
     } // for all cells.
   
   
+  // Now insert 2DCells.  Because of poly datas (cell data) ordering,
+  // the 2D cells have to come after points and lines.
+  // initialize the pointer to the cells for fast traversal.
+  cellPointer = input->GetCells()->GetPointer();
+  for(cellId=0; cellId < numCells && !abort && flag2D; cellId++)
+    {  
+    // Direct acces to cells.
+    cellType = input->GetCellType(cellId);
+    numCellPts = cellPointer[0];
+    ids = cellPointer+1;
+    // Move to the next cell.
+    cellPointer += (1 + *cellPointer);
+
+    // A couple of common cases to see if things go faster.
+    if (cellType == VTK_PIXEL)
+      { // Do we really want to insert the 2D cells into a hash?
+      pts->Reset();
+      pts->InsertId(0, this->GetOutputPointId(ids[0], input, newPts, outputPD));
+      pts->InsertId(1, this->GetOutputPointId(ids[1], input, newPts, outputPD));
+      pts->InsertId(2, this->GetOutputPointId(ids[3], input, newPts, outputPD));
+      pts->InsertId(3, this->GetOutputPointId(ids[2], input, newPts, outputPD));
+      newCellId = newPolys->InsertNextCell(pts);
+      outputCD->CopyData(cd,cellId,newCellId);
+      }
+    else if (cellType == VTK_POLYGON || cellType == VTK_TRIANGLE || cellType == VTK_QUAD)
+      {
+      pts->Reset();
+      for ( i=0; i < numCellPts; i++)
+        {
+        inPtId = ids[i];
+        outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
+        pts->InsertId(i, outPtId);
+        }
+      newCellId = newPolys->InsertNextCell(pts);
+      outputCD->CopyData(cd,cellId,newCellId);
+      }
+    else if (cellType == VTK_TRIANGLE_STRIP)
+      {
+      // Change strips to triangles so we do not have to worry about order.
+      int toggle = 0;
+      vtkIdType ptIds[3];
+      // This check is not really necessary.  It was put here because of another (now fixed) bug.
+      if (numCellPts > 1)
+        {
+        ptIds[0] = this->GetOutputPointId(ids[0], input, newPts, outputPD); 
+        ptIds[1] = this->GetOutputPointId(ids[1], input, newPts, outputPD); 
+        for (i = 2; i < numCellPts; ++i)
+          {
+          ptIds[2] = this->GetOutputPointId(ids[i], input, newPts, outputPD); 
+          newCellId = newPolys->InsertNextCell(3, ptIds);
+          outputCD->CopyData(cd,cellId,newCellId);
+          ptIds[toggle] = ptIds[2];
+          toggle = !toggle;
+          }
+        }
+      }
+    } // for all cells.
+
+
+  // Now transfer geometry from hash to output (only triangles and quads).
   this->InitQuadHashTraversal();
   while ( (q = this->GetNextVisibleQuadFromHash()) )
     {
