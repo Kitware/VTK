@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -42,6 +40,7 @@ public:
   int GetNumberOfPoints() {return (P.GetMaxId()+1)/3;};
   void Squeeze() {this->P.Squeeze();};
   float *GetPoint(int i);
+  void GetPoint(int id, float x[3]);
   void SetPoint(int i, float x[3]);
   void InsertPoint(int i, float *x);
   int InsertNextPoint(int *x);
@@ -55,6 +54,12 @@ public:
 protected:
   vlIntArray P;
 };
+
+inline void vlIntPoints::GetPoint(int id, float x[3])
+{
+  int *p=this->P.GetPtr(3*id); 
+  x[0] = (float)p[0]; x[1] = (float)p[1]; x[2] = (float)p[2];
+}
 
 inline void vlIntPoints::SetPoint(int i, float x[3]) 
 {

@@ -40,6 +40,7 @@ public:
   int GetNumberOfCells() {return this->DataSet->GetNumberOfCells();}
   int GetNumberOfPoints() {return this->DataSet->GetNumberOfPoints();}
   float *GetPoint(int i) {return this->DataSet->GetPoint(i);}
+  void GetPoint(int i, float p[3]) {this->DataSet->GetPoint(i,p);}
   vlCell *GetCell(int cellId) {return this->DataSet->GetCell(cellId);}
   int GetCellType(int cellId) {return this->DataSet->GetCellType(cellId);}
   void Initialize();

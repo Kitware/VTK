@@ -45,7 +45,8 @@ public:
   int GetNumberOfPoints() {return vlPointSet::GetNumberOfPoints();};
   vlCell *GetCell(int cellId);
   int GetCellType(int cellId);
-  float *GetPoint(int ptId) {return this->vlPointSet::GetPoint(ptId);};
+  float *GetPoint(int ptId);
+  void GetPoint(int ptId, float p[3]);
   int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]) { return this->vlPointSet::FindCell(x,cell,tol2,subId,pcoords);}
   int GetNumberOfCells();
   void GetCellPoints(int cellId, vlIdList& ptIds);
@@ -56,6 +57,16 @@ protected:
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   // blanking information inherited
 };
+
+inline float *vlStructuredGrid::GetPoint(int ptId) 
+{
+  return this->vlPointSet::GetPoint(ptId);
+}
+
+inline void vlStructuredGrid::GetPoint(int ptId, float p[3]) 
+{
+  this->vlPointSet::GetPoint(ptId,p);
+}
 
 inline int vlStructuredGrid::GetNumberOfCells() 
 {

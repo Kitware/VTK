@@ -43,6 +43,7 @@ public:
   int GetNumberOfCells();
   int GetNumberOfPoints();
   float *GetPoint(int ptId);
+  void GetPoint(int id, float x[3]);
   vlCell *GetCell(int cellId);
   void Initialize();
   int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]);
@@ -67,6 +68,12 @@ protected:
   float Origin[3];
   float AspectRatio[3];
 };
+
+inline void vlStructuredPoints::GetPoint(int id, float x[3])
+{
+  float *p=this->GetPoint(id);
+  x[0] = p[0]; x[1] = p[1]; x[2] = p[2];
+}
 
 inline int vlStructuredPoints::GetNumberOfCells() 
 {
