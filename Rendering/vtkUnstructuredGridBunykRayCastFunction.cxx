@@ -32,7 +32,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.25");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.26");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -1174,10 +1174,6 @@ static vtkIdType TemplateCastRay(const T *scalars,
     // Determine which face the ray exits the cell from.
     for ( i = 0; i < 3; i++ )
       {
-      double ax, ay;
-      ax = points[3*candidate[i]->PointIndex[0]];
-      ay = points[3*candidate[i]->PointIndex[0]+1];
-
       // Far intersection is the nearest intersectation that is farther
       // than nearZ.
       double tmpZ = 
