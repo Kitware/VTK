@@ -41,4 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkCommon.h"
 #include "../graphics/vtkGraphics.h"
-//#include "vtkImaging.h"
+#ifdef VTK_USE_PATENTED
+#include "../patented/vtkPatented.h"
+#endif
+#ifdef VTK_USE_IMAGING
+#include "../imaging/vtkImaging.h"
+#endif
