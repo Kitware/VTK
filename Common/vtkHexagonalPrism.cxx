@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.7");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.8");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -92,15 +92,15 @@ static const double VTK_HEX_CONVERGED=1.e-03f;
 
 //----------------------------------------------------------------------------
 int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
-                                    int& subId, double pcoords[3], 
-                                    double& dist2, double *weights)
+                                        int& subId, double pcoords[3], 
+                                        double& dist2, double *weights)
 {
   int iteration, converged;
   double  params[3];
   double  fcol[3], rcol[3], scol[3], tcol[3];
   int i, j;
   double  d, pt[3];
-  double derivs[24];
+  double derivs[36];
 
   //  set initial position for Newton's method
   subId = 0;
@@ -119,15 +119,15 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
       {
       fcol[i] = rcol[i] = scol[i] = tcol[i] = 0.0;
       }
-    for (i=0; i<8; i++)
+    for (i=0; i<12; i++)
       {
       this->Points->GetPoint(i, pt);
       for (j=0; j<3; j++)
         {
         fcol[j] += pt[j] * weights[i];
         rcol[j] += pt[j] * derivs[i];
-        scol[j] += pt[j] * derivs[i+8];
-        tcol[j] += pt[j] * derivs[i+16];
+        scol[j] += pt[j] * derivs[i+12];
+        tcol[j] += pt[j] * derivs[i+24];
         }
       }
 
@@ -194,7 +194,7 @@ int vtkHexagonalPrism::EvaluatePosition(double x[3], double* closestPoint,
     }
   else
     {
-    double pc[3], w[8];
+    double pc[3], w[12];
     if (closestPoint)
       {
       for (i=0; i<3; i++) //only approximate, not really true for warped hexa
@@ -424,6 +424,7 @@ static int faces[8][6] = { {0,5,4,3,2,1}, {6,7,8,9,10,11},
                            {4,5,11,10,-1,-1}, {5,0,6,11,-1,-1} };
 
 //----------------------------------------------------------------------------
+#if 0
 void vtkHexagonalPrism::Contour(double value, vtkDataArray *cellScalars, 
                                 vtkPointLocator *locator, vtkCellArray *verts, 
                                 vtkCellArray *lines, vtkCellArray *polys, 
@@ -476,7 +477,7 @@ void vtkHexagonalPrism::Contour(double value, vtkDataArray *cellScalars,
     }
   newCellScalars->Delete();
 }
-
+#endif
 //----------------------------------------------------------------------------
 void vtkHexagonalPrism::Clip(double value, vtkDataArray *cellScalars, 
                          vtkPointLocator *locator, vtkCellArray *tetras,
@@ -528,6 +529,7 @@ void vtkHexagonalPrism::Clip(double value, vtkDataArray *cellScalars,
     }
   newCellScalars->Delete();
 }
+
 //----------------------------------------------------------------------------
 void vtkHexagonalPrism::Subdivide(vtkPointData *inPd, vtkCellData *inCd, vtkIdType cellId)
 {
@@ -727,10 +729,10 @@ int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkP
 // with interpolation function derivatives.
 //
 void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3], 
-                                double *values, int dim, double *derivs)
+                                    double *values, int dim, double *derivs)
 {
   double *jI[3], j0[3], j1[3], j2[3];
-  double functionDerivs[18], sum[3], value;
+  double functionDerivs[36], sum[3], value;
   int i, j, k;
 
   // compute inverse Jacobian and interpolation function derivatives
@@ -741,12 +743,12 @@ void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
   for (k=0; k < dim; k++) //loop over values per vertex
     {
     sum[0] = sum[1] = sum[2] = 0.0;
-    for ( i=0; i < 6; i++) //loop over interp. function derivatives
+    for ( i=0; i < 12; i++) //loop over interp. function derivatives
       {
       value = values[dim*i + k];
       sum[0] += functionDerivs[i] * value;
-      sum[1] += functionDerivs[6 + i] * value;
-      sum[2] += functionDerivs[12 + i] * value;
+      sum[1] += functionDerivs[12 + i] * value;
+      sum[2] += functionDerivs[24 + i] * value;
       }
 
     for (j=0; j < 3; j++) //loop over derivative directions
@@ -760,7 +762,7 @@ void vtkHexagonalPrism::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 // matrix. Returns 9 elements of 3x3 inverse Jacobian plus interpolation
 // function derivatives.
 void vtkHexagonalPrism::JacobianInverse(double pcoords[3], double **inverse,
-                                    double derivs[24])
+                                        double derivs[36])
 {
   int i, j;
   double *m[3], m0[3], m1[3], m2[3];
@@ -776,14 +778,14 @@ void vtkHexagonalPrism::JacobianInverse(double pcoords[3], double **inverse,
     m0[i] = m1[i] = m2[i] = 0.0;
     }
 
-  for ( j=0; j < 8; j++ )
+  for ( j=0; j < 12; j++ )
     {
     this->Points->GetPoint(j, x);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];
-      m1[i] += x[i] * derivs[8 + j];
-      m2[i] += x[i] * derivs[16 + j];
+      m1[i] += x[i] * derivs[12 + j];
+      m2[i] += x[i] * derivs[24 + j];
       }
     }
 
