@@ -38,12 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageDivergence - Scalar field from vector field.
+// .NAME vtkImageDivergence - Divergence of a vector field.
 // .SECTION Description
-// vtkImageDivergence takes a 3D vector field from a surface detection
-// filter (i.e. Gradient) and creates a scalar field which 
+// vtkImageDivergence takes a 3D vector field 
+// and creates a scalar field which 
 // which represents the rate of change of the vector field.
-
+// The definition of Divergence:
+// Given V = P(x,y,z), Q(x,y,z), R(x,y,z),
+// Divergence = dP/dx + dQ/dy + dR/dz.
 
 #ifndef __vtkImageDivergence_h
 #define __vtkImageDivergence_h
@@ -55,24 +57,18 @@ class VTK_EXPORT vtkImageDivergence : public vtkImageToImageFilter
 public:
   static vtkImageDivergence *New();
   const char *GetClassName() {return "vtkImageDivergence";};
-  void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Determines how the input is interpreted (set of 2d slices ...)
-  vtkSetClampMacro(Dimensionality,int,2,3);
-  vtkGetMacro(Dimensionality,int);
 
 protected:
-  vtkImageDivergence();
+  vtkImageDivergence() {};
   ~vtkImageDivergence() {};
   vtkImageDivergence(const vtkImageDivergence&) {};
   void operator=(const vtkImageDivergence&) {};
 
-  int Dimensionality;
-
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int ext[6], int id);
+
 };
 
 #endif

@@ -1,6 +1,5 @@
-catch {load vtktcl}
 # Divergence measures rate of change of gradient.
-
+catch {load vtktcl}
 source vtkImageInclude.tcl
 
 # Image pipeline
@@ -17,7 +16,6 @@ gradient SetDimensionality 3
 gradient SetInput [reader GetOutput]
 
 vtkImageDivergence derivative
-derivative SetDimensionality 3
 derivative SetInput [gradient GetOutput]
 
 vtkImageViewer viewer

@@ -51,10 +51,12 @@ renWin2 Render
 
 vtkRendererSource ren1Image
   ren1Image SetInput ren1
+  ren1Image DepthValuesOn
   ren1Image Update
 
 vtkRendererSource ren2Image
   ren2Image SetInput ren2
+  ren2Image DepthValuesOn
   ren2Image Update
 
 vtkImageComposite composite

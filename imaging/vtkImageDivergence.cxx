@@ -59,13 +59,12 @@ vtkImageDivergence* vtkImageDivergence::New()
 }
 
 
-
-
-
 //----------------------------------------------------------------------------
-vtkImageDivergence::vtkImageDivergence()
+// This method tells the superclass that the first axis will collapse.
+void vtkImageDivergence::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
+					    vtkImageData *outData)
 {
-  this->Dimensionality = 2;
+  outData->SetNumberOfScalarComponents(1);
 }
 
 //----------------------------------------------------------------------------
@@ -75,13 +74,20 @@ void vtkImageDivergence::ComputeRequiredInputUpdateExtent(int inExt[6],
 {
   int idx;
   int *wholeExtent;
+  int dimensionality = this->GetInput()->GetNumberOfScalarComponents();
+  
+  if (dimensionality > 3)
+    {
+    vtkErrorMacro("Divergence has to have dimensionality <= 3");
+    dimensionality = 3;
+    }
   
   // handle XYZ
   memcpy(inExt,outExt,sizeof(int)*6);
   
   wholeExtent = this->GetInput()->GetWholeExtent();
   // update and Clip
-  for (idx = 0; idx < 3; ++idx)
+  for (idx = 0; idx < dimensionality; ++idx)
     {
     --inExt[idx*2];
     ++inExt[idx*2+1];
@@ -120,22 +126,23 @@ static void vtkImageDivergenceExecute(vtkImageDivergence *self,
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int axesNum;
   int *wholeExtent, *inIncs;
   float r[3], d, sum;
-  int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
+  int useMin[3], useMax[3];
   
   // find the region to loop over
   maxC = inData->GetNumberOfScalarComponents();
+  if (maxC > 3)
+    {
+    vtkGenericWarningMacro("Dimensionality must be less than or equal to 3");
+    maxC = 3;
+    }
   maxX = outExt[1] - outExt[0];
   maxY = outExt[3] - outExt[2]; 
   maxZ = outExt[5] - outExt[4];
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;
 
-  // Get the dimensionality of the gradient.
-  axesNum = self->GetDimensionality();
-  
   // Get increments to march through data 
   inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
@@ -155,8 +162,8 @@ static void vtkImageDivergenceExecute(vtkImageDivergence *self,
   // Loop through ouput pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-    useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
-    useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
+    useMin[2] = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
+    useMax[2] = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
       if (!id) 
@@ -167,33 +174,23 @@ static void vtkImageDivergenceExecute(vtkImageDivergence *self,
 	  }
 	count++;
 	}
-      useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
-      useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
+      useMin[1] = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
+      useMax[1] = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
       for (idxX = 0; idxX <= maxX; idxX++)
 	{
-	useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+	useMin[0] = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+	useMax[0] = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+	sum = 0.0;
 	for (idxC = 0; idxC < maxC; idxC++)
 	  {
 	  // do X axis
-	  d = (float)(inPtr[useXMin]);
-	  d -= (float)(inPtr[useXMax]);
-	  sum = d * r[0];
-	  // do y axis
-	  d = (float)(inPtr[useYMin]);
-	  d -= (float)(inPtr[useYMax]);
-	  sum = sum + d * r[1];
-	  if (axesNum == 3)
-	    {
-	    // do z axis
-	    d = (float)(inPtr[useZMin]);
-	    d -= (float)(inPtr[useZMax]);
-	    sum = sum + d * r[2];
-	    }
-	  *outPtr = (T)sum;
+	  d = (float)(inPtr[useMin[idxC]]);
+	  d -= (float)(inPtr[useMax[idxC]]);
+	  sum = d * r[idxC];
 	  inPtr++;
-	  outPtr++;
 	  }
+	*outPtr = (T)sum;
+	outPtr++;
 	}
       outPtr += outIncY;
       inPtr += inIncY;
@@ -282,13 +279,5 @@ void vtkImageDivergence::ThreadedExecute(vtkImageData *inData,
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
     }
-}
-
-void vtkImageDivergence::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageToImageFilter::PrintSelf(os,indent);
-
-  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
-
 }
 

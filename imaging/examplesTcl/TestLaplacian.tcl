@@ -1,6 +1,4 @@
 catch {load vtktcl}
-# Divergence measures rate of change of gradient.
-
 source vtkImageInclude.tcl
 
 # Image pipeline
