@@ -19,12 +19,10 @@ vtkCleanPolyData cpd
   cpd SetInput [reader GetOutput]
 
 vtkPolyDataNormals normals
-  normals SetMaxRecursionDepth 100
   normals SetFeatureAngle 30
   normals SetInput [cpd GetOutput]
 
 vtkConnectivityFilter conn
-  conn SetMaxRecursionDepth 500
   conn SetInput [normals GetOutput]
   conn ColorRegionsOn
   conn SetExtractionModeToAllRegions

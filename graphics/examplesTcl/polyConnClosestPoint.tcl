@@ -33,12 +33,10 @@ vtkCleanPolyData cpd
   cpd SetInput [reader GetOutput]
 
 vtkPolyDataNormals normals
-  normals SetMaxRecursionDepth 10
   normals SetFeatureAngle 15
   normals SetInput [cpd GetOutput]
 
 vtkPolyDataConnectivityFilter conn
-  conn SetMaxRecursionDepth 1000
   conn SetInput [normals GetOutput]
   conn SetExtractionModeToClosestPointRegion
   conn SetClosestPoint 125.6 90.5 222.678
