@@ -26,12 +26,13 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearSynchronizedTemplates.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkImageData.h"
 #include "vtkSynchronizedTemplates2D.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.6");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.7");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -71,7 +72,7 @@ int vtkKitwareCutter::RequestData(
     {    
     if ( input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
       {
-      this->StructuredPointsCutter(input, output);
+      this->StructuredPointsCutter(input, output, outInfo);
       return 1;
       }
     }
@@ -84,7 +85,8 @@ int vtkKitwareCutter::RequestData(
       // only do 3D structured grids (to be extended in the future)
       if (dim >= 3)
         {
-        this->StructuredGridCutter(input, output);
+        this->StructuredGridCutter(input, output, outInfo);
+        return 1;
         }
       }
     }
@@ -95,7 +97,7 @@ int vtkKitwareCutter::RequestData(
 
     if ( dim == 3 ) 
       {
-      this->RectilinearGridCutter(input, output);
+      this->RectilinearGridCutter(input, output, outInfo);
       return 1;
       }
     }
@@ -104,7 +106,8 @@ int vtkKitwareCutter::RequestData(
 }
 
 void vtkKitwareCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
-                                              vtkPolyData *thisOutput)
+                                              vtkPolyData *thisOutput,
+                                              vtkInformation *outInfo)
 {
   vtkImageData *input = vtkImageData::SafeDownCast(dataSetInput);
   vtkPolyData *output;
@@ -148,8 +151,14 @@ void vtkKitwareCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
     }
   contour->ComputeScalarsOff();
   contour->ComputeNormalsOff();
-  contour->Update();
   output = contour->GetOutput();
+  output->SetUpdateNumberOfPieces(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  output->SetUpdatePiece(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  output->SetUpdateGhostLevel(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  contour->Update();
   output->Register(this);  
   contour->Delete();
 
@@ -163,7 +172,8 @@ void vtkKitwareCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
 }
 
 void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
-                                            vtkPolyData *thisOutput)
+                                            vtkPolyData *thisOutput,
+                                            vtkInformation *outInfo)
 {
   vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(dataSetInput);
   vtkPolyData *output;
@@ -208,8 +218,14 @@ void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     }
   contour->ComputeScalarsOff();
   contour->ComputeNormalsOff();
-  contour->Update();
   output = contour->GetOutput();
+  output->SetUpdateNumberOfPieces(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  output->SetUpdatePiece(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  output->SetUpdateGhostLevel(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  contour->Update();
   output->Register(this);
   contour->Delete();
   
@@ -221,7 +237,8 @@ void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
 }
 
 void vtkKitwareCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
-                                             vtkPolyData *thisOutput)
+                                             vtkPolyData *thisOutput,
+                                             vtkInformation *outInfo)
 {
   vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(dataSetInput);
   vtkPolyData *output;
@@ -266,8 +283,14 @@ void vtkKitwareCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
     }
   contour->ComputeScalarsOff();
   contour->ComputeNormalsOff();
-  contour->Update();
   output = contour->GetOutput();
+  output->SetUpdateNumberOfPieces(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  output->SetUpdatePiece(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  output->SetUpdateGhostLevel(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  contour->Update();
   output->Register(this);
   contour->Delete();
   
