@@ -86,6 +86,11 @@ class FTGL_EXPORT FTFont
     FTSize& GetSize() { return this->charSize; };
     
     /**
+     * Gets the current face.
+     */
+    FTFace* Face() { return &face;}
+
+    /**
      * Set the extrusion distance for the font. Only availbale for
      * Extruded fonts
      *

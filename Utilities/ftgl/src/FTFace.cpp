@@ -18,7 +18,10 @@ FTFace::FTFace()
 
 FTFace::~FTFace()
 {
-  delete charMap;
+  if (charMap)
+    {
+    delete charMap;
+    }
   charMap = 0;
   Close();
 }
@@ -26,20 +29,19 @@ FTFace::~FTFace()
 
 bool FTFace::Open( const char* filename)
 {
-  ftFace = new FT_Face;
-  
   // FIXME check library for errors
-  err = FT_New_Face( *FTLibrary::Instance().GetLibrary(), filename, 0, ftFace);
+  err = FT_New_Face( *FTLibrary::Instance().GetLibrary(), 
+                     filename, 
+                     0, 
+                     &ftFace);
 
   if( err)
     {
-    delete ftFace;
-    ftFace = 0;
-      return false;
+    return false;
     }
     else
     {
-    charMap = new FTCharmap( *ftFace);
+    charMap = new FTCharmap( ftFace);
     return true;
   }
 }
@@ -47,20 +49,22 @@ bool FTFace::Open( const char* filename)
 
 bool FTFace::Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes )
 {
-  ftFace = new FT_Face;
-
   // FIXME check library for errors
-  err = FT_New_Memory_Face( *FTLibrary::Instance().GetLibrary(), pBufferBytes, bufferSizeInBytes, 0, ftFace);
+  err = FT_New_Memory_Face( *FTLibrary::Instance().GetLibrary(), 
+                            pBufferBytes, 
+                            bufferSizeInBytes, 
+                            0, 
+                            &ftFace);
+
+  // printf("FTFace::Open(): face from %lu bytes @ %p => err: %d, ftFace: %p\n", bufferSizeInBytes, pBufferBytes, err, ftFace);
 
   if( err)
     {
-    delete ftFace;
-    ftFace = 0;
-      return false;
+    return false;
     }
     else
     {
-    charMap = new FTCharmap( *ftFace);
+    charMap = new FTCharmap( ftFace);
     return true;
   }
 }
@@ -68,7 +72,7 @@ bool FTFace::Open( const unsigned char *pBufferBytes, size_t bufferSizeInBytes )
 
 bool FTFace::Attach( const char* filename) 
 { 
-  err = FT_Attach_File( *ftFace, filename); 
+  err = FT_Attach_File( ftFace, filename); 
   return !err; 
 } 
 
@@ -77,8 +81,9 @@ void FTFace::Close()
 {
   if( ftFace)
   {
-    FT_Done_Face( *ftFace);
-    delete ftFace;
+  // printf("FTFace::Close() face: %p\n", ftFace);
+
+    FT_Done_Face( ftFace);
     ftFace = 0;
   }
 }
@@ -86,7 +91,7 @@ void FTFace::Close()
 
 FTSize& FTFace::Size( const unsigned int size, const unsigned int res)
 {
-  if( !charSize.CharSize( ftFace, size, res, res))
+  if( !charSize.CharSize( &ftFace, size, res, res))
   {
     err = charSize.Error();
   }
@@ -111,9 +116,9 @@ FT_Vector& FTFace::KernAdvance( unsigned int index1, unsigned int index2)
 {
   kernAdvance.x = 0; kernAdvance.y = 0;
   
-  if( FT_HAS_KERNING((*ftFace)) && index1 && index2)
+  if( FT_HAS_KERNING((ftFace)) && index1 && index2)
   {
-    err = FT_Get_Kerning( *ftFace, index1, index2, ft_kerning_unfitted, &kernAdvance);
+    err = FT_Get_Kerning( ftFace, index1, index2, ft_kerning_unfitted, &kernAdvance);
     if( !err)
     {  
       kernAdvance.x /= 64; kernAdvance.y /= 64;
@@ -126,8 +131,8 @@ FT_Vector& FTFace::KernAdvance( unsigned int index1, unsigned int index2)
 
 FT_Glyph* FTFace::Glyph( unsigned int index, FT_Int load_flags)
 {
-  err = FT_Load_Glyph( *ftFace, index, load_flags);  
-  err = FT_Get_Glyph( (*ftFace)->glyph, &ftGlyph);
+  err = FT_Load_Glyph( ftFace, index, load_flags);  
+  err = FT_Get_Glyph( ftFace->glyph, &ftGlyph);
     
   if( !err)
   {

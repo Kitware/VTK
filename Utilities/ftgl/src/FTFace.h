@@ -107,7 +107,7 @@ class FTGL_EXPORT FTFace
     /**
      * Gets the current Freetype face.
      */
-    FT_Face* Face() const { return ftFace;}
+    FT_Face* Face() { return &ftFace;}
 
     /**
      * Queries for errors.
@@ -130,7 +130,7 @@ class FTGL_EXPORT FTFace
     /**
      * The Freetype face
      */
-    FT_Face* ftFace;
+    FT_Face ftFace;
 
     /**
      * Temporary variable to hold a glyph
