@@ -308,7 +308,6 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 					XEvent *event, 
 					Boolean *vtkNotUsed(ctd))
 {
-  XEvent marker;
   vtkXRenderWindowInteractor *me;
 
   me = (vtkXRenderWindowInteractor *)client_data;

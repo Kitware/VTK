@@ -489,6 +489,8 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     return TCL_OK;
     }
   
+  dpy = Tk_Display(self->TkWin);
+
   if (winPtr->window != None) 
     {
     // XDestroyWindow(dpy, winPtr->window);
