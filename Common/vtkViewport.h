@@ -56,6 +56,10 @@ public:
   vtkPropCollection *GetProps() {return this->Props;};
 
   // Description:
+  // Query if a prop is in the list of props.
+  int HasProp(vtkProp *);
+
+  // Description:
   // Remove an actor from the list of actors.
   void RemoveProp(vtkProp *);
 
