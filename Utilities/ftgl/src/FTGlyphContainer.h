@@ -8,7 +8,7 @@
 #include "FTGL.h"
 #include "FTGlyph.h" // for FTBBox
 
-class FTFace;
+#include "FTFace.h"
 
 #ifdef FTGL_DO_NOT_USE_STL
 #include <NoSTL/FTGlyphVector.h>
@@ -48,7 +48,11 @@ class FTGL_EXPORT FTGlyphContainer
      * @param glyph    
      * @return      <code>true</code>
      */
-    bool Add( FTGlyph* tempGlyph, unsigned int g);
+    bool Add( FTGlyph* tempGlyph, unsigned int g)
+    {
+      glyphs[g] = tempGlyph;
+      return true;
+    }
 
     /**
      * Get a glyph from the glyph list
@@ -57,10 +61,15 @@ class FTGL_EXPORT FTGlyphContainer
      * @return  An FTGlyph or <code>null</code> is it hasn't been
      * loaded.
      */
-    FTGlyph* Glyph( const unsigned int c) const;
-
+    FTGlyph* Glyph( const unsigned int c) const
+    {
+      return glyphs[face->CharIndex( c)];
+    }
     
-    FTBBox BBox( const unsigned int index) const;
+    FTBBox BBox( const unsigned int index) const
+    {
+      return glyphs[face->CharIndex( index)]->BBox();
+    }
     
     /**
     * Returns the kerned advance width for a glyph.

@@ -32,25 +32,6 @@ FTGlyphContainer::~FTGlyphContainer()
 }
 
 
-bool FTGlyphContainer::Add( FTGlyph* tempGlyph, unsigned int g)
-{
-  glyphs[g] = tempGlyph;
-  return true;
-}
-
-
-FTGlyph* FTGlyphContainer::Glyph( const unsigned int c) const
-{
-  return glyphs[face->CharIndex( c)];
-}
-
-
-FTBBox FTGlyphContainer::BBox( const unsigned int index) const
-{
-  return glyphs[face->CharIndex( index)]->BBox();
-}
-
-
 float FTGlyphContainer::Advance( unsigned int index, unsigned int next)
 {
   unsigned int left = face->CharIndex( index);
