@@ -45,7 +45,11 @@
 #include <string.h>
 #include <ctype.h>
 
-using namespace vtkstd;
+using vtkstd::list;
+using vtkstd::set;
+using vtkstd::map;
+using vtkstd::pair;
+using vtkstd::string;
 
 // #define this if you want debug output as the parser does its work
 
