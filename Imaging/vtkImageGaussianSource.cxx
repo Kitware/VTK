@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSource, "1.25");
+vtkCxxRevisionMacro(vtkImageGaussianSource, "1.26");
 vtkStandardNewMacro(vtkImageGaussianSource);
 
 //----------------------------------------------------------------------------
@@ -86,28 +86,28 @@ void vtkImageGaussianSource::ExecuteInformation()
   vtkImageData *output = this->GetOutput();
   
   output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_FLOAT);
+  output->SetScalarType(VTK_DOUBLE);
   output->SetNumberOfScalarComponents(1);
 }
 
 void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
 {
-  float *outPtr;
+  double *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
   int outIncX, outIncY, outIncZ;
   int *outExt;
-  float sum;
-  float yContrib, zContrib;
-  float temp, temp2;
+  double sum;
+  double yContrib, zContrib;
+  double temp, temp2;
   unsigned long count = 0;
   unsigned long target;
   
   vtkImageData *data = this->AllocateOutputData(output);
 
-  if (data->GetScalarType() != VTK_FLOAT)
+  if (data->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro("Execute: This source only outputs floats");
+    vtkErrorMacro("Execute: This source only outputs doubles");
     }
   
   outExt = data->GetExtent();
@@ -119,7 +119,7 @@ void vtkImageGaussianSource::ExecuteData(vtkDataObject *output)
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  outPtr = (double *)data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
   
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;

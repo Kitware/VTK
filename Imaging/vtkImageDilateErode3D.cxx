@@ -17,7 +17,7 @@
 #include "vtkImageEllipsoidSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.39");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.40");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -91,12 +91,12 @@ void vtkImageDilateErode3D::SetKernelSize(int size0, int size1, int size2)
     this->Ellipse->SetWholeExtent(0, this->KernelSize[0]-1, 
                                   0, this->KernelSize[1]-1, 
                                   0, this->KernelSize[2]-1);
-    this->Ellipse->SetCenter((float)(this->KernelSize[0]-1)*0.5,
-                             (float)(this->KernelSize[1]-1)*0.5,
-                             (float)(this->KernelSize[2]-1)*0.5);
-    this->Ellipse->SetRadius((float)(this->KernelSize[0])*0.5,
-                             (float)(this->KernelSize[1])*0.5,
-                             (float)(this->KernelSize[2])*0.5);
+    this->Ellipse->SetCenter((double)(this->KernelSize[0]-1)*0.5,
+                             (double)(this->KernelSize[1]-1)*0.5,
+                             (double)(this->KernelSize[2]-1)*0.5);
+    this->Ellipse->SetRadius((double)(this->KernelSize[0])*0.5,
+                             (double)(this->KernelSize[1])*0.5,
+                             (double)(this->KernelSize[2])*0.5);
     // make sure scalars have been allocated (needed if multithreaded is used)
     this->Ellipse->GetOutput()->SetUpdateExtent(0, this->KernelSize[0]-1, 
                                                 0, this->KernelSize[1]-1, 

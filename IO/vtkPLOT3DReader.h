@@ -184,28 +184,28 @@ public:
 
   // Description:
   // Set/Get the gas constant. Default is 1.0.
-  vtkSetMacro(R,float);
-  vtkGetMacro(R,float);
+  vtkSetMacro(R,double);
+  vtkGetMacro(R,double);
 
   // Description:
   // Set/Get the ratio of specific heats. Default is 1.4.
-  vtkSetMacro(Gamma,float);
-  vtkGetMacro(Gamma,float);
+  vtkSetMacro(Gamma,double);
+  vtkGetMacro(Gamma,double);
 
   // Description:
   // Set/Get the x-component of the free-stream velocity. Default is 1.0.
-  vtkSetMacro(Uvinf,float);
-  vtkGetMacro(Uvinf,float);
+  vtkSetMacro(Uvinf,double);
+  vtkGetMacro(Uvinf,double);
 
   // Description:
   // Set/Get the y-component of the free-stream velocity. Default is 1.0.
-  vtkSetMacro(Vvinf,float);
-  vtkGetMacro(Vvinf,float);
+  vtkSetMacro(Vvinf,double);
+  vtkGetMacro(Vvinf,double);
 
   // Description:
   // Set/Get the z-component of the free-stream velocity. Default is 1.0.
-  vtkSetMacro(Wvinf,float);
-  vtkGetMacro(Wvinf,float);
+  vtkSetMacro(Wvinf,double);
+  vtkGetMacro(Wvinf,double);
 
   // Description:
   // Specify the scalar function to extract. If ==(-1), then no scalar 
@@ -301,11 +301,11 @@ protected:
   long FileSize;
 
   //parameters used in computing derived functions
-  float R; 
-  float Gamma;
-  float Uvinf;
-  float Vvinf;
-  float Wvinf;
+  double R; 
+  double Gamma;
+  double Uvinf;
+  double Vvinf;
+  double Wvinf;
 
   //functions to read that are not scalars or vectors
   vtkIntArray *FunctionList;

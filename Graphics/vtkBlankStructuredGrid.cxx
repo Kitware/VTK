@@ -20,7 +20,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.10");
+vtkCxxRevisionMacro(vtkBlankStructuredGrid, "1.11");
 vtkStandardNewMacro(vtkBlankStructuredGrid);
 
 // Construct object to extract all of the input data.
@@ -46,7 +46,7 @@ vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
 template <class T>
 void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid *vtkNotUsed(self),
                                    T *dptr, int numPts, int numComp,
-                                   int comp, float min, float max,
+                                   int comp, double min, double max,
                                    vtkUnsignedCharArray *blanking)
 {
   T compValue;

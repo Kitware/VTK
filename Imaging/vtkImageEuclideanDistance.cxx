@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.15");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.16");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -34,11 +34,11 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageEuclideanDistance::ExecuteInformation(vtkImageData *vtkNotUsed(input), 
-                                                   vtkImageData *output)
+void vtkImageEuclideanDistance::ExecuteInformation(
+  vtkImageData *vtkNotUsed(input), vtkImageData *output)
 {
   output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_FLOAT);
+  output->SetScalarType(VTK_DOUBLE);
 }
 
 //----------------------------------------------------------------------------
@@ -62,19 +62,19 @@ void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
-// is always floats.
+// is always doubles.
 template <class TT>
 void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
                                        vtkImageData *inData, TT *inPtr,
                                        vtkImageData *outData, int outExt[6], 
-                                       float *outPtr )
+                                       double *outPtr )
 {
   int inInc0, inInc1, inInc2;
   TT *inPtr0, *inPtr1, *inPtr2;
 
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
   
   int idx0, idx1, idx2;
   
@@ -110,22 +110,22 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
 
 //----------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
-// is always floats.
+// is always doubles.
 template <class T>
 void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
                                          vtkImageData *inData, T *inPtr,
                                          vtkImageData *outData, 
-                                         int outExt[6], float *outPtr )
+                                         int outExt[6], double *outPtr )
 {
   int inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
 
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
   
   int idx0, idx1, idx2;
-  float maxDist;
+  double maxDist;
   
   // Reorder axes
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
@@ -171,7 +171,7 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
     {
     vtkImageEuclideanDistanceCopyData( self, 
                                        inData, (T *)(inPtr), 
-                                       outData, outExt, (float *)(outPtr) );
+                                       outData, outExt, (double *)(outPtr) );
     }
 }
 
@@ -185,19 +185,20 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
 // Notations stay as close as possible to those used in the paper.
 //
 void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
-                                           vtkImageData *outData, int outExt[6], float *outPtr )
+                                           vtkImageData *outData, 
+                                           int outExt[6], double *outPtr )
 {
   
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
   int idx0, idx1, idx2, inSize0;
-  float maxDist;
-  float *sq;
-  float *buff,buffer;
+  double maxDist;
+  double *sq;
+  double *buff,buffer;
   int df,a,b,n;
-  float m;
-  float spacing;
+  double m;
+  double spacing;
   
   // Reorder axes (The outs here are just placeholdes
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
@@ -206,11 +207,10 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
   inSize0 = outMax0 - outMin0 + 1;  
   maxDist = self->GetMaximumDistance();
 
-  buff= (float *)calloc(outMax0+1,sizeof(float));
+  buff= (double *)calloc(outMax0+1,sizeof(double));
     
   // precompute sq[]. Anisotropy is handled here by using Spacing information
-  
-  sq = (float *)calloc(inSize0*2+2,sizeof(float));
+  sq = (double *)calloc(inSize0*2+2,sizeof(double));
   for(df=2*inSize0+1;df>inSize0;df--)
     {
     sq[df]=maxDist;
@@ -366,24 +366,25 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
 //----------------------------------------------------------------------------
 // Execute Saito's algorithm, modified for Cache Efficiency
 //
-void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self,
-                                           vtkImageData *outData, int outExt[6], float *outPtr )
+void vtkImageEuclideanDistanceExecuteSaitoCached(
+  vtkImageEuclideanDistance *self,
+  vtkImageData *outData, int outExt[6], double *outPtr )
 {
   
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
   //
   int idx0, idx1, idx2, inSize0;
   
-  float maxDist;
+  double maxDist;
   
-  float *sq;
-  float *buff,*temp,buffer;
+  double *sq;
+  double *buff,*temp,buffer;
   int df,a,b,n;
-  float m;
+  double m;
   
-  float spacing;
+  double spacing;
   
   // Reorder axes (The outs here are just placeholdes
   self->PermuteExtent(outExt, outMin0,outMax0,outMin1,outMax1,outMin2,outMax2);
@@ -392,14 +393,15 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
   inSize0 = outMax0 - outMin0 + 1;  
   maxDist = self->GetMaximumDistance();
 
-  buff= (float *)calloc(outMax0+1,sizeof(float));
-  temp= (float *)calloc(outMax0+1,sizeof(float));
+  buff= (double *)calloc(outMax0+1,sizeof(double));
+  temp= (double *)calloc(outMax0+1,sizeof(double));
     
   // precompute sq[]. Anisotropy is handled here by using Spacing information
-  
-  sq = (float *)calloc(inSize0*2+2,sizeof(float));
-  for(df=2*inSize0+1;df>inSize0;df--) sq[df]=maxDist;
-  
+  sq = (double *)calloc(inSize0*2+2,sizeof(double));
+  for(df=2*inSize0+1;df>inSize0;df--) 
+    {
+    sq[df]=maxDist;
+    }
   if ( self->GetConsiderAnisotropy() )
     {
     spacing = outData->GetSpacing()[ self->GetIteration() ];
@@ -510,7 +512,6 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(vtkImageEuclideanDistance *self
           }
               
         // backward scan
-
         outPtr0 -= 2;
         a=0;
         buffer=buff[outMax0];
@@ -564,8 +565,8 @@ void vtkImageEuclideanDistance::AllocateOutputScalars(vtkImageData *outData)
   outData->AllocateScalars();
 }
 //----------------------------------------------------------------------------
-// This method is passed input and output Datas, and executes the EuclideanDistance
-// algorithm to fill the output from the input.
+// This method is passed input and output Datas, and executes the
+// EuclideanDistance algorithm to fill the output from the input.
 void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
                                                      vtkImageData *outData)
 {
@@ -580,10 +581,10 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
   inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
   outPtr = outData->GetScalarPointer();
   
-  // this filter expects that the output be floats.
-  if (outData->GetScalarType() != VTK_FLOAT)
+  // this filter expects that the output be doubles.
+  if (outData->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro(<< "Execute: Output must be be type float.");
+    vtkErrorMacro(<< "Execute: Output must be be type double.");
     return;
     }
   
@@ -594,7 +595,6 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
     return;
     }
   
-
   if ( this->GetIteration() == 0 )
     {
     switch (inData->GetScalarType())
@@ -602,7 +602,7 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
       vtkTemplateMacro6(vtkImageEuclideanDistanceInitialize,
                         this, 
                         inData, (VTK_TT *)(inPtr), 
-                        outData, outExt, (float *)(outPtr) );
+                        outData, outExt, (double *)(outPtr) );
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -616,7 +616,7 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
         vtkTemplateMacro6(vtkImageEuclideanDistanceCopyData,
                           this, 
                           inData, (VTK_TT *)(inPtr), 
-                          outData, outExt, (float *)(outPtr) );
+                          outData, outExt, (double *)(outPtr) );
         }
     }
   
@@ -624,10 +624,12 @@ void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
   switch( this->GetAlgorithm() ) 
     {
     case VTK_EDT_SAITO:
-      vtkImageEuclideanDistanceExecuteSaito( this, outData, outExt, (float *)(outPtr) );
+      vtkImageEuclideanDistanceExecuteSaito( this, outData, outExt, 
+                                             (double *)(outPtr) );
       break;
     case VTK_EDT_SAITO_CACHED:
-      vtkImageEuclideanDistanceExecuteSaitoCached( this, outData, outExt, (float *)(outPtr) );
+      vtkImageEuclideanDistanceExecuteSaitoCached( this, outData, outExt, 
+                                                   (double *)(outPtr) );
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown Algorithm");

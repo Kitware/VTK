@@ -85,8 +85,8 @@ public:
   // Description:
   // Any distance bigger than this->MaximumDistance will not ne computed but
   // set to this->MaximumDistance instead. 
-  vtkSetMacro(MaximumDistance, float);
-  vtkGetMacro(MaximumDistance, float);
+  vtkSetMacro(MaximumDistance, double);
+  vtkGetMacro(MaximumDistance, double);
 
   // Description:
   // Selects a Euclidean DT algorithm. 
@@ -106,7 +106,7 @@ protected:
   vtkImageEuclideanDistance();
   ~vtkImageEuclideanDistance() {}
 
-  float MaximumDistance;
+  double MaximumDistance;
   int Initialize;
   int ConsiderAnisotropy;
   int Algorithm;

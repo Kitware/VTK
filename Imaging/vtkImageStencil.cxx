@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.10");
+vtkCxxRevisionMacro(vtkImageStencil, "1.11");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
 }
 
 //----------------------------------------------------------------------------
-// Convert background color from float to appropriate type
+// Convert background color from double to appropriate type
 
 template <class T>
 void vtkAllocBackground(vtkImageStencil *self, T *&background)

@@ -91,8 +91,8 @@ public:
   // Description:
   // Specify the region in space over which the sampling occurs. The
   // bounds is specified as (xMin,xMax, yMin,yMax, zMin,zMax).
-  vtkSetVector6Macro(ModelBounds,float);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  vtkSetVector6Macro(ModelBounds,double);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // Turn on/off capping. If capping is on, then the outer boundaries of the
@@ -104,8 +104,8 @@ public:
   
   // Description:
   // Set the cap value.
-  vtkSetMacro(CapValue,float);
-  vtkGetMacro(CapValue,float);
+  vtkSetMacro(CapValue,double);
+  vtkGetMacro(CapValue,double);
 
   // Description:
   // Turn on/off the computation of normals.
@@ -127,9 +127,9 @@ protected:
 
   int OutputScalarType;
   int SampleDimensions[3];
-  float ModelBounds[6];
+  double ModelBounds[6];
   int Capping;
-  float CapValue;
+  double CapValue;
   vtkImplicitFunction *ImplicitFunction;
   int ComputeNormals;
 private:

@@ -42,15 +42,15 @@ public:
   // Set / Get the Window to use -> modulation will be performed on the 
   // color based on (S - (L - W/2))/W where S is the scalar value, L is
   // the level and W is the window.
-  vtkSetMacro( Window, float );
-  vtkGetMacro( Window, float );
+  vtkSetMacro( Window, double );
+  vtkGetMacro( Window, double );
   
   // Description:
   // Set / Get the Level to use -> modulation will be performed on the 
   // color based on (S - (L - W/2))/W where S is the scalar value, L is
   // the level and W is the window.
-  vtkSetMacro( Level, float );
-  vtkGetMacro( Level, float );
+  vtkSetMacro( Level, double );
+  vtkGetMacro( Level, double );
   
 protected:
   vtkImageMapToWindowLevelColors();
@@ -62,8 +62,8 @@ protected:
                        int extent[6], int id);
   void ExecuteData(vtkDataObject *output);
   
-  float Window;
-  float Level;
+  double Window;
+  double Level;
   
 private:
   vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&);  // Not implemented.

@@ -49,7 +49,7 @@ protected:
   
   int Permutation[32];
 
-  float Radius;
+  double Radius;
 
 private:
   vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&); // Not implemented

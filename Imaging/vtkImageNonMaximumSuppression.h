@@ -17,7 +17,7 @@
 // vtkImageNonMaximumSuppression Sets to zero any pixel that is not a peak.
 // If a pixel has a neighbor along the vector that has larger magnitude, the
 // smaller pixel is set to zero.  The filter takes two inputs: a magnitude
-// and a vector.  Output is magnitude information and is always in floats.
+// and a vector.  Output is magnitude information and is always in doubles.
 // Typically this filter is used with vtkImageGradient and
 // vtkImageGradientMagnitude as inputs.
 

@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageNoiseSource, "1.26");
+vtkCxxRevisionMacro(vtkImageNoiseSource, "1.27");
 vtkStandardNewMacro(vtkImageNoiseSource);
 
 //----------------------------------------------------------------------------
@@ -81,7 +81,7 @@ void vtkImageNoiseSource::ExecuteInformation()
   vtkImageData *output = this->GetOutput();
   
   output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_FLOAT);
+  output->SetScalarType(VTK_DOUBLE);
   output->SetNumberOfScalarComponents(1);
 }
 
@@ -89,18 +89,18 @@ void vtkImageNoiseSource::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
   
-  if (data->GetScalarType() != VTK_FLOAT)
+  if (data->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro("Execute: This source only outputs floats");
+    vtkErrorMacro("Execute: This source only outputs doubles");
     }
   
-  vtkImageProgressIterator<float> outIt(data, data->GetExtent(), this, 0);
+  vtkImageProgressIterator<double> outIt(data, data->GetExtent(), this, 0);
 
   // Loop through ouput pixels
   while (!outIt.IsAtEnd())
     {
-    float* outSI = outIt.BeginSpan();
-    float* outSIEnd = outIt.EndSpan();
+    double* outSI = outIt.BeginSpan();
+    double* outSIEnd = outIt.EndSpan();
     while (outSI != outSIEnd)
       {
       // now process the components

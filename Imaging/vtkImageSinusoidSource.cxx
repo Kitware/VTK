@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.34");
+vtkCxxRevisionMacro(vtkImageSinusoidSource, "1.35");
 vtkStandardNewMacro(vtkImageSinusoidSource);
 
 //----------------------------------------------------------------------------
@@ -39,14 +39,14 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
   
 }
 
-void vtkImageSinusoidSource::SetDirection(float v[3])
+void vtkImageSinusoidSource::SetDirection(double v[3])
 {
   this->SetDirection(v[0],v[1],v[2]);
 }
 
-void vtkImageSinusoidSource::SetDirection(float v0, float v1, float v2)
+void vtkImageSinusoidSource::SetDirection(double v0, double v1, double v2)
 {
-  float sum;
+  double sum;
 
   sum = v0*v0 + v1*v1 + v2*v2;
 
@@ -124,26 +124,26 @@ void vtkImageSinusoidSource::ExecuteInformation()
   vtkImageData *output = this->GetOutput();
 
   output->SetWholeExtent(this->WholeExtent);
-  output->SetScalarType(VTK_FLOAT);
+  output->SetScalarType(VTK_DOUBLE);
   output->SetNumberOfScalarComponents(1);
 }
 
 void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
 {
   vtkImageData *data = this->AllocateOutputData(output);
-  float *outPtr;
+  double *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
   int outIncX, outIncY, outIncZ;
   int *outExt;
-  float sum;
-  float yContrib, zContrib, xContrib;
+  double sum;
+  double yContrib, zContrib, xContrib;
   unsigned long count = 0;
   unsigned long target;
   
-  if (data->GetScalarType() != VTK_FLOAT)
+  if (data->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro("Execute: This source only outputs floats");
+    vtkErrorMacro("Execute: This source only outputs doubles");
     }
   
   outExt = data->GetExtent();
@@ -155,7 +155,7 @@ void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
   
   // Get increments to march through data 
   data->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  outPtr = (float *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
+  outPtr = (double *) data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
 
   target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
   target++;
@@ -174,7 +174,7 @@ void vtkImageSinusoidSource::ExecuteData(vtkDataObject *output)
       yContrib = this->Direction[1] * (idxY + outExt[2]);
       for (idxX = 0; idxX <= maxX; idxX++)
         {
-        xContrib = this->Direction[0] * (float)(idxX + outExt[0]);
+        xContrib = this->Direction[0] * (double)(idxX + outExt[0]);
         // find dot product
         sum = zContrib + yContrib + xContrib;
         

@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.25");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.26");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------
@@ -39,8 +39,8 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 {
   vtkImageIterator<T> inIt(inData, outExt);
   vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
-  float X, Y, Theta, R;
-  float thetaMax = self->GetThetaMaximum();
+  double X, Y, Theta, R;
+  double thetaMax = self->GetThetaMaximum();
   
   // find the region to loop over
   int maxC = inData->GetNumberOfScalarComponents();
@@ -54,8 +54,8 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
     while (outSI != outSIEnd)
       {
       // Pixel operation
-      X = (float)(*inSI);
-      Y = (float)(inSI[1]);
+      X = (double)(*inSI);
+      Y = (double)(inSI[1]);
       
       if ((X == 0.0) && (Y == 0.0))
         {

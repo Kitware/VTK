@@ -17,7 +17,7 @@
 // vtkImageCorrelation finds the correlation between two data sets. 
 // SetDimensionality determines
 // whether the Correlation will be 3D, 2D or 1D.  
-// The default is a 2D Correlation.  The Output type will be float.
+// The default is a 2D Correlation.  The Output type will be double.
 // The output size will match the size of the first input.
 // The second input is considered the correlation kernel.
 

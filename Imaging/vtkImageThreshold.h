@@ -34,15 +34,15 @@ public:
   
   // Description:
   // The values greater than or equal to the value match.
-  void ThresholdByUpper(float thresh);
+  void ThresholdByUpper(double thresh);
   
   // Description:
   // The values less than or equal to the value match.
-  void ThresholdByLower(float thresh);
+  void ThresholdByLower(double thresh);
   
   // Description:
   // The values in a range (inclusive) match
-  void ThresholdBetween(float lower, float upper);
+  void ThresholdBetween(double lower, double upper);
   
   // Description:
   // Determines whether to replace the pixel in range with InValue
@@ -52,8 +52,8 @@ public:
   
   // Description:
   // Replace the in range pixels with this value.
-  void SetInValue(float val);
-  vtkGetMacro(InValue, float);
+  void SetInValue(double val);
+  vtkGetMacro(InValue, double);
   
   // Description:
   // Determines whether to replace the pixel out of range with OutValue
@@ -63,13 +63,13 @@ public:
 
   // Description:
   // Replace the in range pixels with this value.
-  void SetOutValue(float val);
-  vtkGetMacro(OutValue, float);
+  void SetOutValue(double val);
+  vtkGetMacro(OutValue, double);
   
   // Description:
   // Get the Upper and Lower thresholds.
-  vtkGetMacro(UpperThreshold, float);
-  vtkGetMacro(LowerThreshold, float);
+  vtkGetMacro(UpperThreshold, double);
+  vtkGetMacro(LowerThreshold, double);
   
   // Description:
   // Set the desired output scalar type to cast to
@@ -100,12 +100,12 @@ protected:
   vtkImageThreshold();
   ~vtkImageThreshold() {};
 
-  float UpperThreshold;
-  float LowerThreshold;
+  double UpperThreshold;
+  double LowerThreshold;
   int ReplaceIn;
-  float InValue;
+  double InValue;
   int ReplaceOut;
-  float OutValue;
+  double OutValue;
   
   int OutputScalarType;
 

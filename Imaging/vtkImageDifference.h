@@ -44,15 +44,15 @@ public:
   
   // Description:
   // Return the total error in comparing the two images.
-  float GetError(void);
-  void GetError(float *e) { *e = this->GetError(); };
+  double GetError(void);
+  void GetError(double *e) { *e = this->GetError(); };
   
   // Description:
   // Return the total thresholded error in comparing the two images.
   // The thresholded error is the error for a given pixel minus the
   // threshold and clamped at a minimum of zero. 
-  float GetThresholdedError(void);
-  void GetThresholdedError(float *e) { *e = this->GetThresholdedError(); };
+  double GetThresholdedError(void);
+  void GetThresholdedError(double *e) { *e = this->GetThresholdedError(); };
 
 
   // Description:
@@ -83,8 +83,8 @@ protected:
   vtkImageDifference();
   ~vtkImageDifference() {};
 
-  float ErrorPerThread[VTK_MAX_THREADS];
-  float ThresholdedErrorPerThread[VTK_MAX_THREADS];
+  double ErrorPerThread[VTK_MAX_THREADS];
+  double ThresholdedErrorPerThread[VTK_MAX_THREADS];
   int AllowShift;
   int Threshold;
   int Averaging;

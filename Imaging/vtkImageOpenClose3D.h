@@ -84,14 +84,14 @@ public:
   // Description:
   // Determines the value that will opened.  
   // Open value is first eroded, and then dilated.
-  void SetOpenValue(float value);
-  float GetOpenValue();
+  void SetOpenValue(double value);
+  double GetOpenValue();
 
   // Description:
   // Determines the value that will closed.
   // Close value is first dilated, and then eroded
-  void SetCloseValue(float value);
-  float GetCloseValue();
+  void SetCloseValue(double value);
+  double GetCloseValue();
   
   // Description:
   // Needed for Progress functions

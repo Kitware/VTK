@@ -75,7 +75,7 @@ typedef struct{
 // This macro calculates exp(cIn) and puts the result in cOut 
 #define vtkImageComplexExponential(cIn, cOut) \
 { \
-  float tmp = exp(cIn.Real); \
+  double tmp = exp(cIn.Real); \
   cOut.Real = tmp * cos(cIn.Imag); \
   cOut.Imag = tmp * sin(cIn.Imag); \
 }

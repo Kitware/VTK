@@ -38,10 +38,10 @@ public:
 
   // Description:
   // Set/Get the minimum and maximum values for the generated noise.
-  vtkSetMacro(Minimum, float);
-  vtkGetMacro(Minimum, float);
-  vtkSetMacro(Maximum, float);
-  vtkGetMacro(Maximum, float);
+  vtkSetMacro(Minimum, double);
+  vtkGetMacro(Minimum, double);
+  vtkSetMacro(Maximum, double);
+  vtkGetMacro(Maximum, double);
 
   // Description:
   // Set how large of an image to generate.
@@ -52,8 +52,8 @@ protected:
   vtkImageNoiseSource();
   ~vtkImageNoiseSource() {};
 
-  float Minimum;
-  float Maximum;
+  double Minimum;
+  double Maximum;
   int WholeExtent[6];
 
   virtual void ExecuteInformation();

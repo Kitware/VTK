@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkImageSobel2D computes a vector field from a scalar field by using
 // Sobel functions.  The number of vector components is 2 because
-// the input is an image.  Output is always floats.
+// the input is an image.  Output is always doubles.
 
 
 #ifndef __vtkImageSobel2D_h

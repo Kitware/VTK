@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRFFT, "1.30");
+vtkCxxRevisionMacro(vtkImageRFFT, "1.31");
 vtkStandardNewMacro(vtkImageRFFT);
 
 //----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ void vtkImageRFFT::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
                                       vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(2);
-  outData->SetScalarType(VTK_FLOAT);
+  outData->SetScalarType(VTK_DOUBLE);
 }
 
 //----------------------------------------------------------------------------
@@ -48,11 +48,11 @@ void vtkImageRFFT::ComputeInputUpdateExtent(int inExt[6],
 
 //----------------------------------------------------------------------------
 // This templated execute method handles any type input, but the output
-// is always floats.
+// is always doubles.
 template <class T>
 void vtkImageRFFTExecute(vtkImageRFFT *self,
                          vtkImageData *inData, int inExt[6], T *inPtr,
-                         vtkImageData *outData, int outExt[6], float *outPtr,
+                         vtkImageData *outData, int outExt[6], double *outPtr,
                          int id)
 {
   vtkImageComplex *inComplex;
@@ -65,14 +65,14 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
   //
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
+  double *outPtr0, *outPtr1, *outPtr2;
   //
   int idx0, idx1, idx2, inSize0, numberOfComponents;
   unsigned long count = 0;
   unsigned long target;
-  float startProgress;
+  double startProgress;
 
-  startProgress = self->GetIteration()/(float)(self->GetNumberOfIterations());
+  startProgress = self->GetIteration()/(double)(self->GetNumberOfIterations());
   
   // Reorder axes (The outs here are just placeholdes
   self->PermuteExtent(inExt, inMin0, inMax0, outMin1,outMax1,outMin2,outMax2);
@@ -138,8 +138,8 @@ void vtkImageRFFTExecute(vtkImageRFFT *self,
       pComplex = outComplex + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
         {
-        *outPtr0 = (float)pComplex->Real;
-        outPtr0[1] = (float)pComplex->Imag;
+        *outPtr0 = (double)pComplex->Real;
+        outPtr0[1] = (double)pComplex->Imag;
         outPtr0 += outInc0;
         ++pComplex;
         }
@@ -171,10 +171,10 @@ void vtkImageRFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);
   
-  // this filter expects that the output be floats.
-  if (outData->GetScalarType() != VTK_FLOAT)
+  // this filter expects that the output be doubles.
+  if (outData->GetScalarType() != VTK_DOUBLE)
     {
-    vtkErrorMacro(<< "Execute: Output must be be type float.");
+    vtkErrorMacro(<< "Execute: Output must be be type double.");
     return;
     }
 
@@ -191,7 +191,7 @@ void vtkImageRFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
     {
     vtkTemplateMacro8(vtkImageRFFTExecute, this, inData, inExt, 
                       (VTK_TT *)(inPtr), outData, outExt, 
-                      (float *)(outPtr), threadId);
+                      (double *)(outPtr), threadId);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

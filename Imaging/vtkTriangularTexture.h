@@ -43,8 +43,8 @@ public:
 
   // Description:
   // Set a Scale Factor.
-  vtkSetMacro(ScaleFactor,float);
-  vtkGetMacro(ScaleFactor,float);
+  vtkSetMacro(ScaleFactor,double);
+  vtkGetMacro(ScaleFactor,double);
 
   // Description:
   // Set the X texture map dimension. Default is 64.
@@ -73,7 +73,7 @@ protected:
 
   int XSize;
   int YSize;
-  float ScaleFactor;
+  double ScaleFactor;
 
   int TexturePattern;
 private:

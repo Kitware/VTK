@@ -200,8 +200,8 @@ public:
 
   // Description:
   // Set the background color (for multi-component images).
-  vtkSetVector4Macro(BackgroundColor, float);
-  vtkGetVector4Macro(BackgroundColor, float);
+  vtkSetVector4Macro(BackgroundColor, double);
+  vtkGetVector4Macro(BackgroundColor, double);
 
   // Description:
   // Set background grey level (for single-component images).
@@ -290,7 +290,7 @@ protected:
   int Mirror;
   int InterpolationMode;
   int Optimization;
-  float BackgroundColor[4];
+  double BackgroundColor[4];
   double OutputOrigin[3];
   double OutputSpacing[3];
   int OutputExtent[6];

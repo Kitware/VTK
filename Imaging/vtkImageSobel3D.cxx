@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel3D, "1.30");
+vtkCxxRevisionMacro(vtkImageSobel3D, "1.31");
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void vtkImageSobel3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
                                          vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(3);
-  outData->SetScalarType(VTK_FLOAT);
+  outData->SetScalarType(VTK_DOUBLE);
 }
 
 
@@ -58,14 +58,14 @@ template <class T>
 void vtkImageSobel3DExecute(vtkImageSobel3D *self,
                             vtkImageData *inData, T *inPtr, 
                             vtkImageData *outData, int *outExt, 
-                            float *outPtr, int id)
+                            double *outPtr, int id)
 {
   double r0, r1, r2, *r;
   // For looping though output (and input) pixels.
   int min0, max0, min1, max1, min2, max2;
   int outIdx0, outIdx1, outIdx2;
   int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2, *outPtrV;
+  double *outPtr0, *outPtr1, *outPtr2, *outPtrV;
   int inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   // For sobel function convolution (Left Right incs for each axis)
@@ -175,7 +175,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
                 + inPtrL[inInc1L] + inPtrL[inInc1R]);
         sum -= (double)(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
                          + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
-        *outPtrV = static_cast<float>(sum * r2);
+        *outPtrV = static_cast<double>(sum * r2);
         ++outPtrV;
 
         outPtr0 += outInc0;
@@ -193,7 +193,7 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 //----------------------------------------------------------------------------
 // This method contains a switch statement that calls the correct
 // templated function for the input Data type.  The output Data
-// must be of type float.  This method does handle boundary conditions.
+// must be of type double.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
 void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData, 
                                       vtkImageData *outData,
@@ -213,12 +213,12 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
     vtkWarningMacro("Expecting input with only one compenent.\n");
     }
   
-  // this filter expects that output is type float.
-  if (outData->GetScalarType() != VTK_FLOAT)
+  // this filter expects that output is type double.
+  if (outData->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "Execute: output ScalarType, "
                   << vtkImageScalarTypeNameMacro(outData->GetScalarType())
-                  << ", must be float");
+                  << ", must be double");
     return;
     }
   
@@ -226,7 +226,7 @@ void vtkImageSobel3D::ThreadedExecute(vtkImageData *inData,
     {
     vtkTemplateMacro7(vtkImageSobel3DExecute, this, inData, 
                       (VTK_TT *)(inPtr), outData, outExt, 
-                      (float *)(outPtr),id);
+                      (double *)(outPtr),id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -52,9 +52,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.13");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.14");
 
-static float vtkMoleculeReaderBaseCovRadius[103] = {
+static double vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
 0.68 , 0.68 , 0.64 , 1.12 , 0.972 , 1.1 , 1.352 , 1.2 , 1.036 ,
 1.02 , 1 , 1.568 , 1.328 , 0.992 , 1.44 , 1.472 , 1.328 , 1.352 ,
@@ -68,7 +68,7 @@ static float vtkMoleculeReaderBaseCovRadius[103] = {
 1.432 , 1.18 , 1.02 , 0.888 , 0.968 , 0.952 , 0.928 , 0.92 , 0.912 ,
 0.9 , 0.888 , 0.88 , 0.872 , 0.86 , 0.848 , 0.84 };
 
-static float vtkMoleculeReaderBaseAtomColors[][3] = {
+static double vtkMoleculeReaderBaseAtomColors[][3] = {
   {255, 255, 255}, {127, 0, 127}, {255, 0, 255},
   {127, 127, 127}, {127, 0, 127}, {0, 255, 0},
   {0, 0, 255}, {255, 0, 0}, {0, 255, 255},
@@ -106,7 +106,7 @@ static float vtkMoleculeReaderBaseAtomColors[][3] = {
   {127, 127, 127}, {127, 127, 127}
 };
 
-static float vtkMoleculeReaderBaseRadius[] = {
+static double vtkMoleculeReaderBaseRadius[] = {
   1.2, 1.22, 1.75,  /* "H " "He" "Li" */
   1.50, 1.90, 1.80, /* "Be" "B " "C " */
   1.70, 1.60, 1.35, /* "N " "O " "F " */
@@ -272,7 +272,7 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     this->Radii = vtkFloatArray::New();
     }
   this->Radii->SetNumberOfComponents(3);
-//  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
+  //  this->Radii->SetNumberOfTuples(this->NumberOfAtoms);
   this->Radii->Allocate(3 * this->NumberOfAtoms);
   this->Radii->SetName("radius");
 

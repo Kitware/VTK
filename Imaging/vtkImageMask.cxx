@@ -17,14 +17,14 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMask, "1.32");
+vtkCxxRevisionMacro(vtkImageMask, "1.33");
 vtkStandardNewMacro(vtkImageMask);
 
 //----------------------------------------------------------------------------
 vtkImageMask::vtkImageMask()
 {
   this->NotMask = 0;
-  this->MaskedOutputValue = new float[3];
+  this->MaskedOutputValue = new double[3];
   this->MaskedOutputValueLength = 3;
   this->MaskedOutputValue[0] = this->MaskedOutputValue[1] 
     = this->MaskedOutputValue[2] = 0.0;
@@ -38,7 +38,7 @@ vtkImageMask::~vtkImageMask()
 
 
 //----------------------------------------------------------------------------
-void vtkImageMask::SetMaskedOutputValue(int num, float *v)
+void vtkImageMask::SetMaskedOutputValue(int num, double *v)
 {
   int idx;
 
@@ -55,7 +55,7 @@ void vtkImageMask::SetMaskedOutputValue(int num, float *v)
   if (num > this->MaskedOutputValueLength)
     {
     delete [] this->MaskedOutputValue;
-    this->MaskedOutputValue = new float[num];
+    this->MaskedOutputValue = new double[num];
     this->MaskedOutputValueLength = num;
     }
 
@@ -85,10 +85,10 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   int in2Inc0, in2Inc1, in2Inc2;
   int outInc0, outInc1, outInc2;
   T *maskedValue;
-  float *v;
+  double *v;
   int nv;
   int maskState;
-  float maskAlpha, oneMinusMaskAlpha;
+  double maskAlpha, oneMinusMaskAlpha;
   unsigned long count = 0;
   unsigned long target;
   

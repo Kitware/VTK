@@ -37,27 +37,27 @@ public:
   
   // Description:
   // Set/Get the center of the Gaussian.
-  vtkSetVector3Macro(Center, float);
-  vtkGetVector3Macro(Center, float);
+  vtkSetVector3Macro(Center, double);
+  vtkGetVector3Macro(Center, double);
 
   // Description:
   // Set/Get the Maximum value of the gaussian
-  vtkSetMacro(Maximum, float);
-  vtkGetMacro(Maximum, float);
+  vtkSetMacro(Maximum, double);
+  vtkGetMacro(Maximum, double);
 
   // Description:
   // Set/Get the standard deviation of the gaussian
-  vtkSetMacro(StandardDeviation, float);
-  vtkGetMacro(StandardDeviation, float);
+  vtkSetMacro(StandardDeviation, double);
+  vtkGetMacro(StandardDeviation, double);
 
 protected:
   vtkImageGaussianSource();
   ~vtkImageGaussianSource() {};
 
-  float StandardDeviation;
+  double StandardDeviation;
   int WholeExtent[6];
-  float Center[3];
-  float Maximum;
+  double Center[3];
+  double Maximum;
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);

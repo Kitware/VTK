@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToImageStencil, "1.10");
+vtkCxxRevisionMacro(vtkImageToImageStencil, "1.11");
 vtkStandardNewMacro(vtkImageToImageStencil);
 
 //----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ vtkImageData *vtkImageToImageStencil::GetInput()
 
 //----------------------------------------------------------------------------
 // The values greater than or equal to the value match.
-void vtkImageToImageStencil::ThresholdByUpper(float thresh)
+void vtkImageToImageStencil::ThresholdByUpper(double thresh)
 {
   if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_LARGE_FLOAT)
     {
@@ -77,7 +77,7 @@ void vtkImageToImageStencil::ThresholdByUpper(float thresh)
 
 //----------------------------------------------------------------------------
 // The values less than or equal to the value match.
-void vtkImageToImageStencil::ThresholdByLower(float thresh)
+void vtkImageToImageStencil::ThresholdByLower(double thresh)
 {
   if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_LARGE_FLOAT)
     {
@@ -89,7 +89,7 @@ void vtkImageToImageStencil::ThresholdByLower(float thresh)
 
 //----------------------------------------------------------------------------
 // The values in a range (inclusive) match
-void vtkImageToImageStencil::ThresholdBetween(float lower, float upper)
+void vtkImageToImageStencil::ThresholdBetween(double lower, double upper)
 {
   if (this->LowerThreshold != lower || this->UpperThreshold != upper)
     {
@@ -112,8 +112,8 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
   int *inExt = inData->GetExtent();
   int *inWholeExt = inData->GetWholeExtent();
   vtkDataArray *inScalars = inData->GetPointData()->GetScalars();
-  float upperThreshold = this->UpperThreshold;
-  float lowerThreshold = this->LowerThreshold;
+  double upperThreshold = this->UpperThreshold;
+  double lowerThreshold = this->LowerThreshold;
 
   // clip the extent with the image data extent
   int extent[6];
@@ -168,7 +168,7 @@ void vtkImageToImageStencil::ThreadedExecute(vtkImageStencilData *data,
       for (int idX = extent[0]; idX <= extent[1]; idX++)
         {
         int newstate = 1;
-        float value = inScalars->GetComponent(idS++,0);
+        double value = inScalars->GetComponent(idS++,0);
         if (value >= lowerThreshold && value <= upperThreshold)
           {
           newstate = -1;

@@ -38,34 +38,34 @@ public:
   // Description:
   // Set/Get the direction vector which determines the sinusoidal
   // orientation. The magnitude is ignored.
-  void SetDirection(float,float,float);
-  void SetDirection(float dir[3]);
-  vtkGetVector3Macro(Direction, float);
+  void SetDirection(double,double,double);
+  void SetDirection(double dir[3]);
+  vtkGetVector3Macro(Direction, double);
   
   // Description:
   // Set/Get the period of the sinusoid in pixels.
-  vtkSetMacro(Period, float);
-  vtkGetMacro(Period, float);
+  vtkSetMacro(Period, double);
+  vtkGetMacro(Period, double);
 
   // Description:
   // Set/Get the phase: 0->2Pi.  0 => Cosine, pi/2 => Sine.
-  vtkSetMacro(Phase, float);
-  vtkGetMacro(Phase, float);
+  vtkSetMacro(Phase, double);
+  vtkGetMacro(Phase, double);
 
   // Description:
   // Set/Get the magnitude of the sinusoid.
-  vtkSetMacro(Amplitude, float);
-  vtkGetMacro(Amplitude, float);
+  vtkSetMacro(Amplitude, double);
+  vtkGetMacro(Amplitude, double);
 
 protected:
   vtkImageSinusoidSource();
   ~vtkImageSinusoidSource() {};
 
   int WholeExtent[6];
-  float Direction[3];
-  float Period;
-  float Phase;
-  float Amplitude;
+  double Direction[3];
+  double Period;
+  double Phase;
+  double Amplitude;
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);

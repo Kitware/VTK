@@ -68,11 +68,11 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-  vtkSetMacro(BScale, float);
-  vtkGetMacro(BScale, float);
+  vtkSetMacro(BScale, double);
+  vtkGetMacro(BScale, double);
 
-  vtkSetMacro(HBScale, float);
-  vtkGetMacro(HBScale, float);
+  vtkSetMacro(HBScale, double);
+  vtkGetMacro(HBScale, double);
 
   vtkGetMacro(NumberOfAtoms, int);
 
@@ -81,8 +81,10 @@ protected:
   ~vtkMoleculeReaderBase();
 
   char *FileName;
-  float BScale;  // a scaling factor to compute bonds between non-hydrogen atoms
-  float HBScale; // a scaling factor to compute bonds with hydrogen atoms
+  double BScale;  
+  // a scaling factor to compute bonds between non-hydrogen atoms
+  double HBScale; 
+  // a scaling factor to compute bonds with hydrogen atoms
   int NumberOfAtoms;
 
   virtual void Execute();

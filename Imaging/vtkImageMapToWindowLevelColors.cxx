@@ -19,7 +19,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.16");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.17");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -126,8 +126,8 @@ void vtkImageMapToWindowLevelColors::ExecuteInformation(vtkImageData *inData,
  * for a window of values of type T, lower and upper. 
  */
 template <class T>
-void vtkImageMapToWindowLevelClamps ( vtkImageData *data, float w, 
-                                      float l, T& lower, T& upper, 
+void vtkImageMapToWindowLevelClamps ( vtkImageData *data, double w, 
+                                      double l, T& lower, T& upper, 
                                       unsigned char &lower_val, 
                                       unsigned char &upper_val)
 {
@@ -244,8 +244,8 @@ void vtkImageMapToWindowLevelColorsExecute(
   T *inPtr1;
   unsigned char *optr;
   T    *iptr;
-  float shift =  self->GetWindow() / 2.0 - self->GetLevel();
-  float scale = 255.0 / self->GetWindow();
+  double shift =  self->GetWindow() / 2.0 - self->GetLevel();
+  double scale = 255.0 / self->GetWindow();
 
   T   lower, upper;
   unsigned char lower_val, upper_val, result_val;

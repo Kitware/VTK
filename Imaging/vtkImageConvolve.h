@@ -38,40 +38,40 @@ public:
 
   // Description:
   // Set the kernel to be a given 3x3 or 5x5 or 7x7 kernel.
-  void SetKernel3x3(const float kernel[9]);
-  void SetKernel5x5(const float kernel[25]);
+  void SetKernel3x3(const double kernel[9]);
+  void SetKernel5x5(const double kernel[25]);
 //BTX
-  void SetKernel7x7(float kernel[49]);
+  void SetKernel7x7(double kernel[49]);
 //ETX
 
   // Description:
   // Return an array that contains the kernel.
-  float* GetKernel3x3(); 
-  void GetKernel3x3(float kernel[9]);
-  float* GetKernel5x5(); 
-  void GetKernel5x5(float kernel[25]);
+  double* GetKernel3x3(); 
+  void GetKernel3x3(double kernel[9]);
+  double* GetKernel5x5(); 
+  void GetKernel5x5(double kernel[25]);
 //BTX
-  float* GetKernel7x7(); 
-  void GetKernel7x7(float kernel[49]);
+  double* GetKernel7x7(); 
+  void GetKernel7x7(double kernel[49]);
 //ETX
 
   // Description:
   // Set the kernel to be a 3x3x3 or 5x5x5 or 7x7x7 kernel.
-  void SetKernel3x3x3(const float kernel[27]);
+  void SetKernel3x3x3(const double kernel[27]);
 //BTX
-  void SetKernel5x5x5(float kernel[125]);
-  void SetKernel7x7x7(float kernel[343]);
+  void SetKernel5x5x5(double kernel[125]);
+  void SetKernel7x7x7(double kernel[343]);
 //ETX
 
   // Description:
   // Return an array that contains the kernel
-  float* GetKernel3x3x3(); 
-  void GetKernel3x3x3(float kernel[27]);
+  double* GetKernel3x3x3(); 
+  void GetKernel3x3x3(double kernel[27]);
 //BTX
-  float* GetKernel5x5x5(); 
-  void GetKernel5x5x5(float kernel[125]);
-  float* GetKernel7x7x7(); 
-  void GetKernel7x7x7(float kernel[343]);
+  double* GetKernel5x5x5(); 
+  void GetKernel5x5x5(double kernel[125]);
+  double* GetKernel7x7x7(); 
+  void GetKernel7x7x7(double kernel[343]);
 //ETX
 
 protected:
@@ -81,14 +81,14 @@ protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int outExt[6], int id);
 
-  void GetKernel(float *kernel);
-  float* GetKernel();
-  void SetKernel(const float* kernel,
+  void GetKernel(double *kernel);
+  double* GetKernel();
+  void SetKernel(const double* kernel,
                  int sizeX, int sizeY, int sizeZ);
   
 
   int KernelSize[3];
-  float Kernel[343];
+  double Kernel[343];
 private:
   vtkImageConvolve(const vtkImageConvolve&);  // Not implemented.
   void operator=(const vtkImageConvolve&);  // Not implemented.

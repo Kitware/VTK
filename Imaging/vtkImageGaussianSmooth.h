@@ -38,29 +38,30 @@ public:
   
   // Description:
   // Sets/Gets the Standard deviation of the gaussian in pixel units.
-  vtkSetVector3Macro(StandardDeviations, float);
-  void SetStandardDeviation(float std)
+  vtkSetVector3Macro(StandardDeviations, double);
+  void SetStandardDeviation(double std)
         {this->SetStandardDeviations(std,std,std);}
-  void SetStandardDeviations(float a,float b)
+  void SetStandardDeviations(double a,double b)
         {this->SetStandardDeviations(a,b,0.0);}
-  vtkGetVector3Macro(StandardDeviations, float);
+  vtkGetVector3Macro(StandardDeviations, double);
 
   // Description:
   // Sets/Gets the Standard deviation of the gaussian in pixel units.
   // These methods are provided for compatibility with old scripts
-  void SetStandardDeviation(float a,float b)
+  void SetStandardDeviation(double a,double b)
         {this->SetStandardDeviations(a,b,0.0);}
-  void SetStandardDeviation(float a,float b,float c) 
+  void SetStandardDeviation(double a,double b,double c) 
         {this->SetStandardDeviations(a,b,c);}
 
   // Description:
   // Sets/Gets the Radius Factors of the gaussian in pixel units.
   // The radius factors determine how far out the gaussian kernel will 
   // go before being clamped to zero.
-  vtkSetVector3Macro(RadiusFactors, float);
-  void SetRadiusFactors(float f, float f2) {this->SetRadiusFactors(f,f2,1.5);}
-  void SetRadiusFactor(float f) {this->SetRadiusFactors(f, f, f);}
-  vtkGetVector3Macro(RadiusFactors, float);
+  vtkSetVector3Macro(RadiusFactors, double);
+  void SetRadiusFactors(double f, double f2) {
+    this->SetRadiusFactors(f,f2,1.5);}
+  void SetRadiusFactor(double f) {this->SetRadiusFactors(f, f, f);}
+  vtkGetVector3Macro(RadiusFactors, double);
 
   // Description:
   // Set/Get the dimensionality of this filter. This determines whether
@@ -73,8 +74,8 @@ protected:
   ~vtkImageGaussianSmooth();
 
   int Dimensionality;
-  float StandardDeviations[3];
-  float RadiusFactors[3];
+  double StandardDeviations[3];
+  double RadiusFactors[3];
   
   void ComputeKernel(double *kernel, int min, int max, double std);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);

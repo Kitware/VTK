@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.24");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.25");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ public:
   
   // some ivars that should be set
   vtkImageOpenClose3D *Self;
-  float Offset;
+  double Offset;
 };
 
 //----------------------------------------------------------------------------
@@ -247,7 +247,7 @@ void vtkImageOpenClose3D::SetKernelSize(int size0, int size1, int size2)
 //----------------------------------------------------------------------------
 // Determines the value that will closed.
 // Close value is first dilated, and then eroded
-void vtkImageOpenClose3D::SetCloseValue(float value)
+void vtkImageOpenClose3D::SetCloseValue(double value)
 {
   if ( ! this->Filter0 || ! this->Filter1)
     {
@@ -261,7 +261,7 @@ void vtkImageOpenClose3D::SetCloseValue(float value)
 }
 
 //----------------------------------------------------------------------------
-float vtkImageOpenClose3D::GetCloseValue()
+double vtkImageOpenClose3D::GetCloseValue()
 {
   if ( ! this->Filter0)
     {
@@ -278,7 +278,7 @@ float vtkImageOpenClose3D::GetCloseValue()
 //----------------------------------------------------------------------------
 // Determines the value that will opened.  
 // Open value is first eroded, and then dilated.
-void vtkImageOpenClose3D::SetOpenValue(float value)
+void vtkImageOpenClose3D::SetOpenValue(double value)
 {
   if ( ! this->Filter0 || ! this->Filter1)
     {
@@ -292,7 +292,7 @@ void vtkImageOpenClose3D::SetOpenValue(float value)
 
 
 //----------------------------------------------------------------------------
-float vtkImageOpenClose3D::GetOpenValue()
+double vtkImageOpenClose3D::GetOpenValue()
 {
   if ( ! this->Filter0)
     {

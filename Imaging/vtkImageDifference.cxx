@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.33");
+vtkCxxRevisionMacro(vtkImageDifference, "1.34");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -365,9 +365,9 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
   output->SetWholeExtent(ext);
 }
 
-float vtkImageDifference::GetError()
+double vtkImageDifference::GetError()
 {
-  float error = 0.0;
+  double error = 0.0;
   int i;
 
   for ( i= 0; i < this->NumberOfThreads; i++ )
@@ -378,9 +378,9 @@ float vtkImageDifference::GetError()
   return error;
 }
 
-float vtkImageDifference::GetThresholdedError()
+double vtkImageDifference::GetThresholdedError()
 {
-  float error = 0.0;
+  double error = 0.0;
   int i;
 
   for ( i= 0; i < this->NumberOfThreads; i++ )

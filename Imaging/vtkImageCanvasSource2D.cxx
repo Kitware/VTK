@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.38");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.39");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -221,17 +221,17 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    min0 = int(float(min0) * this->Ratio[0]);
-    max0 = int(float(max0) * this->Ratio[0]);
+    min0 = int(double(min0) * this->Ratio[0]);
+    max0 = int(double(max0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    min1 = int(float(min1) * this->Ratio[1]);
-    max1 = int(float(max1) * this->Ratio[1]);
+    min1 = int(double(min1) * this->Ratio[1]);
+    max1 = int(double(max1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
   // Clip the data to keep in in bounds
   extent = this->ImageData->GetExtent();
@@ -266,14 +266,14 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
 // Draw a data.  Only implentented for 2D extents.
 template <class T>
 void vtkImageCanvasSource2DFillBox(vtkImageData *image, 
-                                          float *drawColor, T *ptr, 
-                                          int min0, int max0, int min1, int max1)
+                                   double *drawColor, T *ptr, 
+                                   int min0, int max0, int min1, int max1)
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
   int inc0, inc1, inc2;
   int maxV;
-  float *pf;
+  double *pf;
   
   image->GetIncrements(inc0, inc1, inc2);
   maxV = image->GetNumberOfScalarComponents() - 1;
@@ -311,17 +311,17 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    min0 = int(float(min0) * this->Ratio[0]);
-    max0 = int(float(max0) * this->Ratio[0]);
+    min0 = int(double(min0) * this->Ratio[0]);
+    max0 = int(double(max0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    min1 = int(float(min1) * this->Ratio[1]);
-    max1 = int(float(max1) * this->Ratio[1]);
+    min1 = int(double(min1) * this->Ratio[1]);
+    max1 = int(double(max1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   // Clip the data to keep in in bounds
@@ -354,18 +354,19 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 // Fill a tube (thick line for initial 2D implementation.
 template <class T>
 void vtkImageCanvasSource2DFillTube(vtkImageData *image, 
-                                  float *drawColor, T *ptr, 
-                                  int a0, int a1, int b0, int b1, float radius)
+                                    double *drawColor, T *ptr, 
+                                    int a0, int a1, int b0, int b1, 
+                                    double radius)
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
   int inc0, inc1, inc2;
   int min0, max0, min1, max1, min2, max2, maxV;
-  float *pf;
+  double *pf;
   int n0, n1;
   int ak, bk, k;
-  float fract;
-  float v0, v1;
+  double fract;
+  double v0, v1;
   
   // Compute vector of tube.
   n0 = a0 - b0;
@@ -399,12 +400,12 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
       if ( k >= bk && k <= ak)
         {
         // Compute actual projection point.
-        fract = (float)(k - bk) / (float)(ak - bk);
-        v0 = b0 + fract * (float)(a0 - b0);
-        v1 = b1 + fract * (float)(a1 - b1);
+        fract = (double)(k - bk) / (double)(ak - bk);
+        v0 = b0 + fract * (double)(a0 - b0);
+        v1 = b1 + fract * (double)(a1 - b1);
         // Compute distance to tube
-        v0 -= (float)(idx0);
-        v1 -= (float)(idx1);
+        v0 -= (double)(idx0);
+        v1 -= (double)(idx1);
         if (radius >= sqrt(v0*v0 + v1*v1))
           {
           ptrV = ptr0;
@@ -426,7 +427,8 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
 
 //----------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation).
-void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radius)
+void vtkImageCanvasSource2D::FillTube(int a0, int a1, 
+                                      int b0, int b1, double radius)
 {
   void *ptr;
   int z = this->DefaultZ;
@@ -435,18 +437,18 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a0 = int(float(a0) * this->Ratio[0]);
-    b0 = int(float(b0) * this->Ratio[0]);
-    radius = int(float(radius) * this->Ratio[0]);
+    a0 = int(double(a0) * this->Ratio[0]);
+    b0 = int(double(b0) * this->Ratio[0]);
+    radius = int(double(radius) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a1 = int(float(a1) * this->Ratio[1]);
-    b1 = int(float(b1) * this->Ratio[1]);
+    a1 = int(double(a1) * this->Ratio[1]);
+    b1 = int(double(b1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   z = (z < extent[4]) ? extent[4] : z;
@@ -470,17 +472,18 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radi
 // Fill a triangle (rasterize)
 template <class T>
 void vtkImageCanvasSource2DFillTriangle(vtkImageData *image, 
-                                      float *drawColor, T *ptr, int a0, int a1,
-                                      int b0, int b1, int c0, int c1, int z)
+                                        double *drawColor, T *ptr, 
+                                        int a0, int a1, int b0, int b1, 
+                                        int c0, int c1, int z)
 {
   int temp;
-  float longT, shortT;  // end points of intersection of trainge and row.
-  float longStep, shortStep;
+  double longT, shortT;  // end points of intersection of trainge and row.
+  double longStep, shortStep;
   int left, right;
   int idx0, idx1, idxV;
   int min0, max0, min1, max1, min2, max2;
   int  maxV;
-  float *pf;
+  double *pf;
   
   ptr = ptr;
   maxV = image->GetNumberOfScalarComponents() - 1;
@@ -508,10 +511,10 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
   z = (z > max2) ? max2 : z;
   
   // for all rows: compute 2 points, intersection of triangle edges and row
-  longStep = (float)(c0 - a0) / (float)(c1 - a1 + 1);
-  longT = (float)(a0) + (0.5 * longStep);
-  shortStep = (float)(b0 - a0) / (float)(b1 - a1 + 1);
-  shortT = (float)(a0) + (0.5 * shortStep);
+  longStep = (double)(c0 - a0) / (double)(c1 - a1 + 1);
+  longT = (double)(a0) + (0.5 * longStep);
+  shortStep = (double)(b0 - a0) / (double)(b1 - a1 + 1);
+  shortT = (double)(a0) + (0.5 * shortStep);
   for (idx1 = a1; idx1 < b1; ++idx1)
     {
     // Fill row long to short (y = idx1)
@@ -544,8 +547,8 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
     }
 
   // fill the second half of the triangle
-  shortStep = (float)(c0 - b0) / (float)(c1 - b1 + 1);
-  shortT = (float)(b0) + (0.5 * shortStep);
+  shortStep = (double)(c0 - b0) / (double)(c1 - b1 + 1);
+  shortT = (double)(b0) + (0.5 * shortStep);
   for (idx1 = b1; idx1 < c1; ++idx1)
     {
     // Fill row long to short (y = idx1)
@@ -580,7 +583,8 @@ void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
 
 //----------------------------------------------------------------------------
 // Fill a tube (thick line for initial 2D implementation).
-void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
+void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, 
+                                          int c0,int c1)
 {
   void *ptr;
   int z = this->DefaultZ;
@@ -588,19 +592,19 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a0 = int(float(a0) * this->Ratio[0]);
-    b0 = int(float(b0) * this->Ratio[0]);
-    c0 = int(float(c0) * this->Ratio[0]);
+    a0 = int(double(a0) * this->Ratio[0]);
+    b0 = int(double(b0) * this->Ratio[0]);
+    c0 = int(double(c0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a1 = int(float(a1) * this->Ratio[1]);
-    b1 = int(float(b1) * this->Ratio[1]);
-    c1 = int(float(c1) * this->Ratio[1]);
+    a1 = int(double(a1) * this->Ratio[1]);
+    b1 = int(double(b1) * this->Ratio[1]);
+    c1 = int(double(c1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   ptr = this->ImageData->GetScalarPointer();
@@ -622,12 +626,12 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,i
 // Draw a point.  Only implentented for 2D images.
 template <class T>
 void vtkImageCanvasSource2DDrawPoint(vtkImageData *image, 
-                                   float *drawColor, T *ptr, 
+                                   double *drawColor, T *ptr, 
                                    int p0, int p1, int z)
 {
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
-  float *pf;
+  double *pf;
   
   image->GetExtent(min0, max0, min1, max1, min2, max2);
   z = (z < min2) ? min2 : z;
@@ -663,15 +667,15 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    p0 = int(float(p0) * this->Ratio[0]);
+    p0 = int(double(p0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    p1 = int(float(p1) * this->Ratio[1]);
+    p1 = int(double(p1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   switch (this->ImageData->GetScalarType())
@@ -690,12 +694,12 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 // Draw a circle.  Only implentented for 2D images.
 template <class T>
 void vtkImageCanvasSource2DDrawCircle(vtkImageData *image, 
-                                    float *drawColor, T *ptr, 
-                                    int c0, int c1, float radius, int z)
+                                    double *drawColor, T *ptr, 
+                                    int c0, int c1, double radius, int z)
 {
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
-  float *pf;
+  double *pf;
   int numberOfSteps;
   double thetaCos, thetaSin;
   double x, y, temp;
@@ -742,7 +746,7 @@ void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
 
 //----------------------------------------------------------------------------
 // Draw a circle
-void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
+void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
 {
   void *ptr = NULL;
   int z = this->DefaultZ;
@@ -753,16 +757,16 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    c0 = int(float(c0) * this->Ratio[0]);
-    radius = int(float(radius) * this->Ratio[0]);
+    c0 = int(double(c0) * this->Ratio[0]);
+    radius = int(double(radius) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    c1 = int(float(c1) * this->Ratio[1]);
+    c1 = int(double(c1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   switch (this->ImageData->GetScalarType())
@@ -782,16 +786,16 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
 // First point is already shifted to origin.
 template <class T>
 void vtkImageCanvasSource2DDrawSegment(vtkImageData *image, 
-                                     float *drawColor, T *ptr, 
+                                     double *drawColor, T *ptr, 
                                      int p0, int p1)
 {
-  float f0, f1;
-  float s0, s1;
+  double f0, f1;
+  double s0, s1;
   int numberOfSteps;
   int  maxV;
   int idx, idxV;
   int inc0, inc1, inc2;
-  float *pf;
+  double *pf;
   T *ptrV;
   
   
@@ -821,8 +825,8 @@ void vtkImageCanvasSource2DDrawSegment(vtkImageData *image,
     }
 
   // Compute the step vector.
-  s0 = (float)(p0) / (float)(numberOfSteps);
-  s1 = (float)(p1) / (float)(numberOfSteps);
+  s0 = (double)(p0) / (double)(numberOfSteps);
+  s1 = (double)(p1) / (double)(numberOfSteps);
 
   f0 = f1 = 0.5;
 
@@ -880,17 +884,17 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a0 = int(float(a0) * this->Ratio[0]);
-    b0 = int(float(b0) * this->Ratio[0]);
+    a0 = int(double(a0) * this->Ratio[0]);
+    b0 = int(double(b0) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a1 = int(float(a1) * this->Ratio[1]);
-    b1 = int(float(b1) * this->Ratio[1]);
+    a1 = int(double(a1) * this->Ratio[1]);
+    b1 = int(double(b1) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   // check to make sure line segment is in bounds.
@@ -927,7 +931,7 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
 int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 {
   int min0, max0, min1, max1, min2, max2;
-  float fract;
+  double fract;
 
   
   this->ImageData->GetExtent(min0, max0, min1, max1, min2, max2);
@@ -942,17 +946,17 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
   if (a0 < min0 && b0 >= min0)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(b0 - min0) / (float)(b0 - a0);
+    fract = (double)(b0 - min0) / (double)(b0 - a0);
     a0 = min0;
-    a1 = b1 + (int)(fract * (float)(a1 - b1));
+    a1 = b1 + (int)(fract * (double)(a1 - b1));
     }
   // second out of bounds.
   if (b0 < min0 && a0 >= min0)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(a0 - min0) / (float)(a0 - b0);
+    fract = (double)(a0 - min0) / (double)(a0 - b0);
     b0 = min0;
-    b1 = a1 + (int)(fract * (float)(b1 - a1));
+    b1 = a1 + (int)(fract * (double)(b1 - a1));
     }
 
   // Both out of bounds
@@ -964,17 +968,17 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
   if (a0 > max0 && b0 <= max0)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(b0 - max0) / (float)(b0 - a0);
+    fract = (double)(b0 - max0) / (double)(b0 - a0);
     a0 = max0;
-    a1 = b1 + (int)(fract * (float)(a1 - b1));
+    a1 = b1 + (int)(fract * (double)(a1 - b1));
     }
   // second out of bounds.
   if (b0 > max0 && a0 <= max0)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(a0 - max0) / (float)(a0 - b0);
+    fract = (double)(a0 - max0) / (double)(a0 - b0);
     b0 = max0;
-    b1 = a1 + (int)(fract * (float)(b1 - a1));
+    b1 = a1 + (int)(fract * (double)(b1 - a1));
     }
   
 
@@ -987,17 +991,17 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
   if (a1 < min1 && b1 >= min1)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(b1 - min1) / (float)(b1 - a1);
+    fract = (double)(b1 - min1) / (double)(b1 - a1);
     a1 = min1;
-    a0 = b0 + (int)(fract * (float)(a0 - b0));
+    a0 = b0 + (int)(fract * (double)(a0 - b0));
     }
   // second out of bounds.
   if (b1 < min1 && a1 >= min1)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(a1 - min1) / (float)(a1 - b1);
+    fract = (double)(a1 - min1) / (double)(a1 - b1);
     b1 = min1;
-    b0 = a0 + (int)(fract * (float)(b0 - a0));
+    b0 = a0 + (int)(fract * (double)(b0 - a0));
     }
 
   // Both out of bounds
@@ -1009,17 +1013,17 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
   if (a1 > max1 && b1 <= max1)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(b1 - max1) / (float)(b1 - a1);
+    fract = (double)(b1 - max1) / (double)(b1 - a1);
     a1 = max1;
-    a0 = b0 + (int)(fract * (float)(a0 - b0));
+    a0 = b0 + (int)(fract * (double)(a0 - b0));
     }
   // second out of bounds.
   if (b1 > max1 && a1 <= max1)
     {
     // interpolate to find point on bounding plane.
-    fract = (float)(a1 - max1) / (float)(a1 - b1);
+    fract = (double)(a1 - max1) / (double)(a1 - b1);
     b1 = max1;
-    b0 = a0 + (int)(fract * (float)(b0 - a0));
+    b0 = a0 + (int)(fract * (double)(b0 - a0));
     }
   
   return 1;
@@ -1040,15 +1044,15 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
 // First point is already shifted to origin.
 template <class T>
 void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image, 
-                                       float *drawColor, 
+                                       double *drawColor, 
                                        T *ptr, int p0, int p1, int p2)
 {
-  float f0, f1, f2;
-  float s0, s1, s2;
+  double f0, f1, f2;
+  double s0, s1, s2;
   int numberOfSteps;
   int idx, idxV,  maxV;
   int inc0, inc1, inc2;
-  float *pf;
+  double *pf;
   T *ptrV;
   
   
@@ -1077,9 +1081,9 @@ void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image,
   numberOfSteps = (numberOfSteps > p2) ? numberOfSteps : p2;
 
   // Compute the step vector.
-  s0 = (float)(p0) / (float)(numberOfSteps);
-  s1 = (float)(p1) / (float)(numberOfSteps);
-  s2 = (float)(p2) / (float)(numberOfSteps);
+  s0 = (double)(p0) / (double)(numberOfSteps);
+  s1 = (double)(p1) / (double)(numberOfSteps);
+  s2 = (double)(p2) / (double)(numberOfSteps);
 
   f0 = f1 = f2 = 0.5;
 
@@ -1129,7 +1133,7 @@ void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image,
 //----------------------------------------------------------------------------
 // Draw a Segment from point a to point b.
 // No clipping or bounds checking.
-void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
+void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
 {
   void *ptr;
   int a0, a1, a2;
@@ -1137,18 +1141,18 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    a[0] = int(float(a[0]) * this->Ratio[0]);
-    b[0] = int(float(b[0]) * this->Ratio[0]);
+    a[0] = int(double(a[0]) * this->Ratio[0]);
+    b[0] = int(double(b[0]) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    a[1] = int(float(a[1]) * this->Ratio[1]);
-    b[1] = int(float(b[1]) * this->Ratio[1]);
+    a[1] = int(double(a[1]) * this->Ratio[1]);
+    b[1] = int(double(b[1]) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    a[2] = int(float(a[2]) * this->Ratio[2]);
-    b[2] = int(float(b[2]) * this->Ratio[2]);
+    a[2] = int(double(a[2]) * this->Ratio[2]);
+    b[2] = int(double(b[2]) * this->Ratio[2]);
     }
 
   ptr = this->ImageData->GetScalarPointer((int)(b[0] + 0.5), 
@@ -1170,7 +1174,7 @@ void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
 
 //----------------------------------------------------------------------------
 template <class T>
-void vtkImageCanvasSource2DFill(vtkImageData *image, float *color, 
+void vtkImageCanvasSource2DFill(vtkImageData *image, double *color, 
                                 T *ptr, int x, int y)
 {
   vtkImageCanvasSource2DPixel *pixel;
@@ -1444,15 +1448,15 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
   // Pre-multiply coords if needed
   if (this->Ratio[0] != 1.0) 
     {
-    x = int(float(x) * this->Ratio[0]);
+    x = int(double(x) * this->Ratio[0]);
     }
   if (this->Ratio[1] != 1.0) 
     {
-    y = int(float(y) * this->Ratio[1]);
+    y = int(double(y) * this->Ratio[1]);
     }
   if (this->Ratio[2] != 1.0) 
     {
-    z = int(float(z) * this->Ratio[2]);
+    z = int(double(z) * this->Ratio[2]);
     }
 
   z = (z < ext[4]) ? ext[4] : z;

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.11");
+vtkCxxRevisionMacro(vtkSpherePuzzleArrows, "1.12");
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 
 //----------------------------------------------------------------------------
@@ -87,11 +87,11 @@ void vtkSpherePuzzleArrows::Execute()
 void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
                                         vtkPoints *pts, vtkCellArray *polys)
 {
-  float phi1, phi2, dPhi;
-  float theta1, theta2, dTheta;
-  float phi=0, theta=0, phiOff, thetaOff;
-  float length;
-  float x, y, z;
+  double phi1, phi2, dPhi;
+  double theta1, theta2, dTheta;
+  double phi=0, theta=0, phiOff, thetaOff;
+  double length;
+  double x, y, z;
   int num, idx;
   vtkIdType ptId1, ptId2, ptId3, ptId4, ptId5;
 
@@ -149,16 +149,18 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
   for (idx = 1; idx < num; ++idx)
     {
     // Interpolate angles.
-    theta = theta1 + ((float)(idx)/(float)(num)) * dTheta;
-    phi = phi1 + ((float)(idx)/(float)(num)) * (phi2-phi1);
+    theta = theta1 + ((double)(idx)/(double)(num)) * dTheta;
+    phi = phi1 + ((double)(idx)/(double)(num)) * (phi2-phi1);
     x = cos(theta+thetaOff)*sin(phi+phiOff);
     y = sin(theta+thetaOff)*sin(phi+phiOff);
     z = cos(phi+phiOff);
-    ptId3 = pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
+    ptId3 = 
+      pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
     x = cos(theta+2*thetaOff)*sin(phi+2*phiOff);
     y = sin(theta+2*thetaOff)*sin(phi+2*phiOff);
     z = cos(phi+2*phiOff);
-    ptId4 = pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
+    ptId4 = 
+      pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
     // Create the rectangle.
     polys->InsertNextCell(4);
     polys->InsertCellPoint(ptId1);

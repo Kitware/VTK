@@ -5,7 +5,7 @@ package require vtk
 
 
 vtkImageCanvasSource2D imageCanvas
-imageCanvas SetScalarTypeToFloat
+imageCanvas SetScalarTypeToDouble
 imageCanvas SetExtent 1 256 1 256 0 0
 # back ground zero
 imageCanvas SetDrawColor 0

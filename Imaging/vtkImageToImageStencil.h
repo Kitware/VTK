@@ -42,22 +42,22 @@ public:
 
   // Description:
   // The values greater than or equal to the value match.
-  void ThresholdByUpper(float thresh);
+  void ThresholdByUpper(double thresh);
   
   // Description:
   // The values less than or equal to the value match.
-  void ThresholdByLower(float thresh);
+  void ThresholdByLower(double thresh);
   
   // Description:
   // The values in a range (inclusive) match
-  void ThresholdBetween(float lower, float upper);
+  void ThresholdBetween(double lower, double upper);
   
   // Description:
   // Get the Upper and Lower thresholds.
-  vtkSetMacro(UpperThreshold, float);
-  vtkGetMacro(UpperThreshold, float);
-  vtkSetMacro(LowerThreshold, float);
-  vtkGetMacro(LowerThreshold, float);
+  vtkSetMacro(UpperThreshold, double);
+  vtkGetMacro(UpperThreshold, double);
+  vtkSetMacro(LowerThreshold, double);
+  vtkGetMacro(LowerThreshold, double);
 
 protected:
   vtkImageToImageStencil();
@@ -66,9 +66,9 @@ protected:
   void ThreadedExecute(vtkImageStencilData *output,
                        int extent[6], int threadId);
 
-  float UpperThreshold;
-  float LowerThreshold;
-  float Threshold;
+  double UpperThreshold;
+  double LowerThreshold;
+  double Threshold;
 private:
   vtkImageToImageStencil(const vtkImageToImageStencil&);  // Not implemented.
   void operator=(const vtkImageToImageStencil&);  // Not implemented.

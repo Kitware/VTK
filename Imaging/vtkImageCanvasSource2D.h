@@ -62,21 +62,23 @@ public:
   // Description:
   // Set/Get DrawValue.  This is the value that is used when filling data
   // or drawing lines.
-  vtkSetVector4Macro(DrawColor, float);
-  vtkGetVector4Macro(DrawColor, float);
-  void SetDrawColor(float a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
-  void SetDrawColor(float a,float b) {this->SetDrawColor(a, b, 0.0, 0.0);}
-  void SetDrawColor(float a, float b, float c) {this->SetDrawColor(a, b, c, 0.0);}
+  vtkSetVector4Macro(DrawColor, double);
+  vtkGetVector4Macro(DrawColor, double);
+  void SetDrawColor(double a) {this->SetDrawColor(a, 0.0, 0.0, 0.0);}
+  void SetDrawColor(double a,double b) {this->SetDrawColor(a, b, 0.0, 0.0);}
+  void SetDrawColor(double a, double b, double c) {
+    this->SetDrawColor(a, b, c, 0.0);}
     
   void FillBox(int min0, int max0, int min1, int max1);
-  void FillTube(int x0, int y0, int x1, int y1, float radius);
+  void FillTube(int x0, int y0, int x1, int y1, double radius);
   void FillTriangle(int x0, int y0, int x1, int y1, int x2, int y2);
-  void DrawCircle(int c0, int c1, float radius);
+  void DrawCircle(int c0, int c1, double radius);
   void DrawPoint(int p0, int p1);
   void DrawSegment(int x0, int y0, int x1, int y1);
-  void DrawSegment3D(float *p0, float *p1);
-  void DrawSegment3D(float x1, float y1, float z1, float x2, float y2, float z2) 
-    { float p1[3], p2[3]; 
+  void DrawSegment3D(double *p0, double *p1);
+  void DrawSegment3D(double x1, double y1, double z1, 
+                     double x2, double y2, double z2) 
+    { double p1[3], p2[3]; 
     p1[0] = x1; p1[1] = y1; p1[2] = z1; p2[0] = x2; p2[1] = y2; p2[2] = z2;
     this->DrawSegment3D(p1, p2);}
 
@@ -116,8 +118,8 @@ public:
   // Description:
   // Set/Get Ratio. This is the value that is used to pre-multiply each
   // (x, y, z) drawing coordinates (including DefaultZ).
-  vtkSetVector3Macro(Ratio, float);
-  vtkGetVector3Macro(Ratio, float);
+  vtkSetVector3Macro(Ratio, double);
+  vtkGetVector3Macro(Ratio, double);
 
 protected:
   vtkImageCanvasSource2D();
@@ -127,9 +129,9 @@ protected:
   ~vtkImageCanvasSource2D();
 
   vtkImageData *ImageData;
-  float DrawColor[4];
+  double DrawColor[4];
   int DefaultZ;
-  float Ratio[3];
+  double Ratio[3];
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
 private:

@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.38");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.39");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -206,9 +206,9 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
           { // yes
           *pcycle -= target;
           *pcount += target;
-          self->UpdateProgress((float)(*pcount) / (float)total);
+          self->UpdateProgress((double)(*pcount) / (double)total);
           //fprintf(stderr, "count: %d, total: %d, progress: %f\n",
-          //*pcount, total, (float)(*pcount) / (float)total);
+          //*pcount, total, (double)(*pcount) / (double)total);
           }
         }
       }

@@ -54,16 +54,16 @@ public:
 
   // Description:
   // Set the default output value to use when the second input is not set.
-  void SetBackgroundValue(float val) {
+  void SetBackgroundValue(double val) {
     this->SetBackgroundColor(val,val,val,val); };
-  float GetBackgroundValue() {
+  double GetBackgroundValue() {
     return this->BackgroundColor[0]; };
 
   // Description:
   // Set the default color to use when the second input is not set.
   // This is like SetBackgroundValue, but for multi-component images.
-  vtkSetVector4Macro(BackgroundColor, float);
-  vtkGetVector4Macro(BackgroundColor, float);
+  vtkSetVector4Macro(BackgroundColor, double);
+  vtkGetVector4Macro(BackgroundColor, double);
 
 protected:
   vtkImageStencil();
@@ -77,7 +77,7 @@ protected:
                        int extent[6], int id);
   
   int ReverseStencil;
-  float BackgroundColor[4];
+  double BackgroundColor[4];
 private:
   vtkImageStencil(const vtkImageStencil&);  // Not implemented.
   void operator=(const vtkImageStencil&);  // Not implemented.

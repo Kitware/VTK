@@ -40,32 +40,34 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Specify the lower data value in the data array specified which will be converted
-  // into a "blank" (or off) value in the blanking array.
-  vtkSetMacro(MinBlankingValue,float);
-  vtkGetMacro(MinBlankingValue,float);
+  // Specify the lower data value in the data array specified which will be
+  // converted into a "blank" (or off) value in the blanking array.
+  vtkSetMacro(MinBlankingValue,double);
+  vtkGetMacro(MinBlankingValue,double);
 
   // Description:
-  // Specify the upper data value in the data array specified which will be converted
-  // into a "blank" (or off) value in the blanking array.
-  vtkSetMacro(MaxBlankingValue,float);
-  vtkGetMacro(MaxBlankingValue,float);
+  // Specify the upper data value in the data array specified which will be
+  // converted into a "blank" (or off) value in the blanking array.
+  vtkSetMacro(MaxBlankingValue,double);
+  vtkGetMacro(MaxBlankingValue,double);
 
   // Description:
-  // Specify the data array name to use to generate the blanking field. Alternatively,
-  // you can specify the array id. (If both are set, the array name takes precedence.)
+  // Specify the data array name to use to generate the blanking
+  // field. Alternatively, you can specify the array id. (If both are set,
+  // the array name takes precedence.)
   vtkSetStringMacro(ArrayName);
   vtkGetStringMacro(ArrayName);
 
   // Description:
-  // Specify the data array id to use to generate the blanking field. Alternatively,
-  // you can specify the array name. (If both are set, the array name 
-  // takes precedence.)
+  // Specify the data array id to use to generate the blanking
+  // field. Alternatively, you can specify the array name. (If both are set,
+  // the array name takes precedence.)
   vtkSetMacro(ArrayId,int);
   vtkGetMacro(ArrayId,int);
 
   // Description:
-  // Specify the component in the data array to use to generate the blanking field.
+  // Specify the component in the data array to use to generate the blanking
+  // field.
   vtkSetClampMacro(Component,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(Component,int);
 
@@ -75,8 +77,8 @@ protected:
 
   void Execute();
   
-  float MinBlankingValue;
-  float MaxBlankingValue;
+  double MinBlankingValue;
+  double MaxBlankingValue;
   char  *ArrayName;
   int   ArrayId;
   int   Component;

@@ -18,7 +18,7 @@
 #include "vtkImageProgressIterator.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.42");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.43");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ vtkImageThreshold::vtkImageThreshold()
 
 
 //----------------------------------------------------------------------------
-void vtkImageThreshold::SetInValue(float val)
+void vtkImageThreshold::SetInValue(double val)
 {
   if (val != this->InValue || this->ReplaceIn != 1)
     {
@@ -48,7 +48,7 @@ void vtkImageThreshold::SetInValue(float val)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageThreshold::SetOutValue(float val)
+void vtkImageThreshold::SetOutValue(double val)
 {
   if (val != this->OutValue || this->ReplaceOut != 1)
     {
@@ -62,7 +62,7 @@ void vtkImageThreshold::SetOutValue(float val)
 
 //----------------------------------------------------------------------------
 // The values greater than or equal to the value match.
-void vtkImageThreshold::ThresholdByUpper(float thresh)
+void vtkImageThreshold::ThresholdByUpper(double thresh)
 {
   if (this->LowerThreshold != thresh || this->UpperThreshold < VTK_LARGE_FLOAT)
     {
@@ -75,7 +75,7 @@ void vtkImageThreshold::ThresholdByUpper(float thresh)
 
 //----------------------------------------------------------------------------
 // The values less than or equal to the value match.
-void vtkImageThreshold::ThresholdByLower(float thresh)
+void vtkImageThreshold::ThresholdByLower(double thresh)
 {
   if (this->UpperThreshold != thresh || this->LowerThreshold > -VTK_LARGE_FLOAT)
     {
@@ -88,7 +88,7 @@ void vtkImageThreshold::ThresholdByLower(float thresh)
 
 //----------------------------------------------------------------------------
 // The values in a range (inclusive) match
-void vtkImageThreshold::ThresholdBetween(float lower, float upper)
+void vtkImageThreshold::ThresholdBetween(double lower, double upper)
 {
   if (this->LowerThreshold != lower || this->UpperThreshold != upper)
     {

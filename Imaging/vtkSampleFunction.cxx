@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkSampleFunction.h"
 
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
@@ -21,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkSampleFunction, "1.66");
+vtkCxxRevisionMacro(vtkSampleFunction, "1.67");
 vtkStandardNewMacro(vtkSampleFunction);
 vtkCxxSetObjectMacro(vtkSampleFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -46,7 +47,7 @@ vtkSampleFunction::vtkSampleFunction()
   this->ImplicitFunction = NULL;
 
   this->ComputeNormals = 1;
-  this->OutputScalarType = VTK_FLOAT;
+  this->OutputScalarType = VTK_DOUBLE;
 }
 
 vtkSampleFunction::~vtkSampleFunction() 
@@ -90,7 +91,7 @@ void vtkSampleFunction::ExecuteInformation()
   double ar[3], origin[3];
   vtkImageData *output = this->GetOutput();
   
-  output->SetScalarType(VTK_FLOAT);
+  output->SetScalarType(VTK_DOUBLE);
   output->SetNumberOfScalarComponents(1);
   output->SetWholeExtent(0, this->SampleDimensions[0]-1,
                          0, this->SampleDimensions[1]-1,
@@ -124,8 +125,8 @@ void vtkSampleFunction::ExecuteData(vtkDataObject *outp)
 
   output->SetExtent(output->GetUpdateExtent());
   output = this->AllocateOutputData(outp);
-  vtkFloatArray *newScalars = 
-    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+  vtkDoubleArray *newScalars = 
+    vtkDoubleArray::SafeDownCast(output->GetPointData()->GetScalars());
 
   vtkDebugMacro(<< "Sampling implicit function");
 

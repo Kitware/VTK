@@ -47,18 +47,18 @@ public:
   
   // Description:
   // Set/Get the Dilate and Erode values to be used by this filter.
-  vtkSetMacro(DilateValue, float);
-  vtkGetMacro(DilateValue, float);
-  vtkSetMacro(ErodeValue, float);
-  vtkGetMacro(ErodeValue, float);
+  vtkSetMacro(DilateValue, double);
+  vtkGetMacro(DilateValue, double);
+  vtkSetMacro(ErodeValue, double);
+  vtkGetMacro(ErodeValue, double);
 
 protected:
   vtkImageDilateErode3D();
   ~vtkImageDilateErode3D();
 
   vtkImageEllipsoidSource *Ellipse;
-  float DilateValue;
-  float ErodeValue;
+  double DilateValue;
+  double ErodeValue;
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int extent[6], int id);

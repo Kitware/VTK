@@ -40,13 +40,13 @@ public:
 
   // Description:
   // SetGet the value of the output pixel replaced by mask.
-  void SetMaskedOutputValue(int num, float *v);
-  void SetMaskedOutputValue(float v) {this->SetMaskedOutputValue(1, &v);}
-  void SetMaskedOutputValue(float v1, float v2) 
-    {float v[2]; v[0]=v1; v[1]=v2; this->SetMaskedOutputValue(2, v);}
-  void SetMaskedOutputValue(float v1, float v2, float v3) 
-    {float v[3]; v[0]=v1; v[1]=v2; v[2]=v3; this->SetMaskedOutputValue(3, v);}
-  float *GetMaskedOutputValue() {return this->MaskedOutputValue;}
+  void SetMaskedOutputValue(int num, double *v);
+  void SetMaskedOutputValue(double v) {this->SetMaskedOutputValue(1, &v);}
+  void SetMaskedOutputValue(double v1, double v2) 
+    {double v[2]; v[0]=v1; v[1]=v2; this->SetMaskedOutputValue(2, v);}
+  void SetMaskedOutputValue(double v1, double v2, double v3) 
+    {double v[3]; v[0]=v1; v[1]=v2; v[2]=v3; this->SetMaskedOutputValue(3, v);}
+  double *GetMaskedOutputValue() {return this->MaskedOutputValue;}
   int GetMaskedOutputValueLength() {return this->MaskedOutputValueLength;}
 
   // Description:
@@ -54,8 +54,8 @@ public:
   // The input image is assumed to be at alpha = 1.0
   // and the mask image uses this alpha to blend using
   // an over operator.
-  vtkSetClampMacro ( MaskAlpha, float, 0.0, 1.0 );
-  vtkGetMacro ( MaskAlpha, float );
+  vtkSetClampMacro ( MaskAlpha, double, 0.0, 1.0 );
+  vtkGetMacro ( MaskAlpha, double );
 
   // Description:
   // Set the input to be masked.
@@ -78,10 +78,10 @@ protected:
   vtkImageMask();
   ~vtkImageMask();
 
-  float *MaskedOutputValue;
+  double *MaskedOutputValue;
   int MaskedOutputValueLength;
   int NotMask;
-  float MaskAlpha;
+  double MaskAlpha;
   
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
