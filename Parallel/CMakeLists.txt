@@ -114,6 +114,9 @@ IF (VTK_WRAP_TCL)
       IF (OPENGL_LIBRARY)
         TARGET_LINK_LIBRARIES (pvtk ${OPENGL_LIBRARY})
       ENDIF (OPENGL_LIBRARY)
+      IF(MESA_OS_LIBRARY)
+        TARGET_LINK_LIBRARIES(pvtk ${MESA_OS_LIBRARY} )
+      ENDIF(MESA_OS_LIBRARY)
     ENDIF (WIN32)
 
     # add in the Tk values if found
