@@ -79,7 +79,7 @@ public:
   vtkGetMacro(Allow8BitBMP,int);
   vtkBooleanMacro(Allow8BitBMP,int);
 
-  vtkLookupTable *GetLookupTable(void);
+  vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
 //BTX
   // Description:

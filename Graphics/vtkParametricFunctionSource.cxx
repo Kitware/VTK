@@ -29,10 +29,11 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.14");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.15");
 vtkStandardNewMacro(vtkParametricFunctionSource);
+vtkCxxSetObjectMacro(vtkParametricFunctionSource,ParametricFunction,vtkParametricFunction);
 
-
+//----------------------------------------------------------------------------
 vtkParametricFunctionSource::vtkParametricFunctionSource() :
   ParametricFunction(NULL)
   , UResolution(50)
@@ -45,28 +46,13 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
 }
 
 
+//----------------------------------------------------------------------------
 vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
   this->SetParametricFunction(NULL);
 }
 
-void vtkParametricFunctionSource::SetParametricFunction(vtkParametricFunction *f)
-{
-  if ( f != this->ParametricFunction )
-    {
-    if ( this->ParametricFunction != NULL )
-      {
-      this->ParametricFunction->UnRegister(this);
-      }
-    this->ParametricFunction = f;
-    if ( this->ParametricFunction != NULL )
-      {
-      this->ParametricFunction->Register(this);
-      }
-    this->Modified();
-    }
-}
-
+//----------------------------------------------------------------------------
 void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips, 
                                                        int PtsU, int PtsV )
 {
@@ -209,6 +195,7 @@ void vtkParametricFunctionSource::MakeTriangleStrips ( vtkCellArray * strips,
   vtkDebugMacro(<< "MakeTriangleStrips() finished.");
 }
 
+//----------------------------------------------------------------------------
 int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
                                              vtkInformationVector **vtkNotUsed(inputV),
                                              vtkInformationVector *output)
@@ -239,6 +226,7 @@ int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
 {
   vtkIdType numPts = this->UResolution + 1;
@@ -270,6 +258,7 @@ void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
   lines->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 {
   // Used to hold the surface
@@ -344,7 +333,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
     uv[0] += uStep;
     uv[1] = this->ParametricFunction->GetMinimumV() - vStep;
 
-    if ( GenerateTextureCoordinates != 0 )
+    if ( this->GenerateTextureCoordinates != 0 )
       {
       tc[0] = i/MaxI;
       }
@@ -353,7 +342,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
       {
       uv[1] += vStep;
 
-      if ( GenerateTextureCoordinates != 0 )
+      if ( this->GenerateTextureCoordinates != 0 )
         {
         tc[1] = 1.0 - j/MaxJ;
         newTCoords->InsertNextTuple(tc);
@@ -524,7 +513,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
   vtkPolyData *outData = static_cast<vtkPolyData*>(outInfo->Get( vtkDataObject::DATA_OBJECT() ));
   outData->DeepCopy(tri->GetOutput());
 
-  if ( GenerateTextureCoordinates != 0 )
+  if ( this->GenerateTextureCoordinates != 0 )
     {
     outData->GetPointData()->SetTCoords( newTCoords );
     }
@@ -541,6 +530,7 @@ void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
 }
 
 /*
+//----------------------------------------------------------------------------
 void vtkParametricFunctionSource::GetAllParametricTriangulatorParameters (
   int & numberOfUPoints,
   int & numberOfVPoints,
@@ -569,6 +559,7 @@ void vtkParametricFunctionSource::GetAllParametricTriangulatorParameters (
   scalarMode = this->ScalarMode;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
   int uResolution,
   int vResolution,
@@ -603,6 +594,7 @@ void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
 }
 */
 
+//----------------------------------------------------------------------------
 unsigned long vtkParametricFunctionSource::GetMTime()
 {
   unsigned long mTime=this->Superclass::GetMTime();
@@ -617,6 +609,7 @@ unsigned long vtkParametricFunctionSource::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.50");
+vtkCxxRevisionMacro(vtkBMPReader, "1.51");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -55,10 +55,6 @@ vtkBMPReader::~vtkBMPReader()
     this->LookupTable->Delete();
     this->LookupTable = NULL;
     }
-}
-
-vtkLookupTable *vtkBMPReader::GetLookupTable(void) {
-    return this->LookupTable;
 }
 
 void vtkBMPReader::ExecuteInformation()
