@@ -1268,6 +1268,9 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
           CastRay_NN
             ( this, (unsigned short *)data_ptr, dynamicInfo, staticInfo );
           break;
+        default:
+          vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
+          break;
         }
     }
   else if ( staticInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
@@ -1282,6 +1285,9 @@ void vtkVolumeRayCastIsosurfaceFunction::CastRay(
         case VTK_UNSIGNED_SHORT:
           CastRay_Trilin
             ( this, (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+          break;
+        default:
+          vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
           break;
         }
     }

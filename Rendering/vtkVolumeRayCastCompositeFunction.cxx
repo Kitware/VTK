@@ -2428,6 +2428,9 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         case VTK_UNSIGNED_SHORT:
           CastRay_NN_Unshaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
           break;
+        default:
+          vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
+          break;
         }
       }
     else
@@ -2440,6 +2443,9 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
           break;
         case VTK_UNSIGNED_SHORT:
           CastRay_NN_Shaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+          break;
+        default:
+          vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
           break;
         }
       }
@@ -2461,6 +2467,9 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
             CastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
                                            dynamicInfo, staticInfo );
             break;
+          default:
+            vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
+            break;
           }
         }
       else
@@ -2474,6 +2483,9 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
           case VTK_UNSIGNED_SHORT:
             CastRay_TrilinVertices_Unshaded( (unsigned short *)data_ptr, 
                                            dynamicInfo, staticInfo );
+            break;
+          default:
+            vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
             break;
           }
         }
@@ -2493,6 +2505,9 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
             CastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
                                          dynamicInfo, staticInfo );
             break;
+          default:
+            vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
+            break;
           }
         }       
       else
@@ -2506,6 +2521,9 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
           case VTK_UNSIGNED_SHORT:
             CastRay_TrilinVertices_Shaded( (unsigned short *)data_ptr, 
                                          dynamicInfo, staticInfo );
+            break;
+          default:
+            vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
             break;
           }
         }
