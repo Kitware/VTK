@@ -46,23 +46,49 @@ vtkFloatArray::vtkFloatArray(int numComp)
 {
   this->NumberOfComponents = (numComp < 1 ? 1 : numComp);
   this->Array = NULL;
+  this->SaveUserArray = 0;
 }
 
 vtkFloatArray::~vtkFloatArray()
 {
-  if (this->Array) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
+
 }
+
+void vtkFloatArray::SetArray(float* array, int size, int save)
+{
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+      vtkDebugMacro (<< "Deleting the array...");
+      delete [] this->Array;
+    }
+  else 
+    {
+      vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
+    }
+
+  vtkDebugMacro(<<"Setting array to: " << array);
+
+  this->Array = array;
+  this->Size = size;
+  this->MaxId = size-1;
+  this->SaveUserArray = save;
+}
+
 
 // Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkFloatArray::Allocate(const int sz, const int ext)
 {
-  if ( sz > this->Size || this->Array == NULL )
+  if ( sz > this->Size)
     {
-    delete [] this->Array;
-
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+      delete [] this->Array;
+      }
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new float[this->Size]) == NULL ) return 0;
+    this->SaveUserArray = 0;
     }
 
   this->Extend = ( ext > 0 ? ext : 1);
@@ -75,13 +101,14 @@ int vtkFloatArray::Allocate(const int sz, const int ext)
 // Release storage and reset array to initial state.
 void vtkFloatArray::Initialize()
 {
-  if ( this->Array != NULL )
+  if (( this->Array != NULL ) && (!this->SaveUserArray))
     {
     delete [] this->Array;
-    this->Array = NULL;
     }
+  this->Array = NULL;
   this->Size = 0;
   this->MaxId = -1;
+  this->SaveUserArray = 0;
 }
 
 // Description:
@@ -93,15 +120,19 @@ void vtkFloatArray::DeepCopy(vtkDataArray& fa)
     vtkDataArray::DeepCopy(fa);
     return;
     }
-  
+
   if ( this != &fa )
     {
-    if (this->Array) delete [] this->Array;
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+      delete [] this->Array;
+      }
 
     this->NumberOfComponents = fa.GetNumberOfComponents();
     this->MaxId = fa.GetMaxId();
     this->Size = fa.GetSize();
     this->Extend = fa.GetExtend();
+    this->SaveUserArray = 0;
 
     this->Array = new float[this->Size];
     memcpy(this->Array, (float *)fa.GetVoidPointer(0), this->Size*sizeof(float));
@@ -122,11 +153,18 @@ float *vtkFloatArray::Resize(const int sz)
   float *newArray;
   int newSize;
 
-  if ( sz > this->Size ) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  if ( sz > this->Size ) 
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
   else if (sz == this->Size)
+    {
     return this->Array;
-  else newSize = sz;
+    }
+  else 
+    {
+    newSize = sz;
+    }
 
   if ( (newArray = new float[newSize]) == NULL )
     { 
@@ -138,12 +176,15 @@ float *vtkFloatArray::Resize(const int sz)
     {
     memcpy(newArray, this->Array,
 	   (sz < this->Size ? sz : this->Size) * sizeof(float));
-    delete [] this->Array;
+    if (!this->SaveUserArray)
+      {
+      delete [] this->Array;
+      }
     }
 
   this->Size = newSize;
   this->Array = newArray;
-
+  this->SaveUserArray = 0;
   return this->Array;
 }
 

@@ -85,11 +85,15 @@ public:
   float *GetPointer(const int id) {return this->Array + id;}
   float *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkDataArray &da);
+  void DeepCopy(vtkDataArray& fa);
+
+  void SetArray(float* array, int size, int save);
 
 private:
   float *Array;  // pointer to data
   float *Resize(const int sz);  // function to reallocate data
+
+  int SaveUserArray;
 };
 
 // Description:

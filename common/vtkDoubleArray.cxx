@@ -48,24 +48,57 @@ vtkDoubleArray::vtkDoubleArray(int numComp)
   this->Array = NULL;
   this->TupleSize = 3;
   this->Tuple = new float[this->TupleSize]; //used for conversion
+  this->SaveUserArray = 0;
 }
 
 vtkDoubleArray::~vtkDoubleArray()
 {
-  if (this->Array) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
   delete [] this->Tuple;
+}
+
+// Description:
+// This method lets the user specify data to be held by the array.  The 
+// array argument is a pointer to the data.  size is the size of 
+// the array supplied by the user.  Set save to 1 to keep the class
+// from deleting the array when it cleans up or reallocates memory.
+// The class uses the actual array provided; it does not copy the data 
+// from the suppled array.
+void vtkDoubleArray::SetArray(double* array, int size, int save)
+{
+  
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+      vtkDebugMacro (<< "Deleting the array...");
+      delete [] this->Array;
+    }
+  else 
+    {
+      vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
+    }
+
+  vtkDebugMacro(<<"Setting array to: " << array);
+
+  this->Array = array;
+  this->Size = size;
+  this->MaxId = size-1;
+  this->SaveUserArray = save;
 }
 
 // Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkDoubleArray::Allocate(const int sz, const int ext)
 {
-  if ( sz > this->Size || this->Array == NULL )
+  if ( sz > this->Size)
     {
-    delete [] this->Array;
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+      delete [] this->Array;
+      }
 
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new double[this->Size]) == NULL ) return 0;
+    this->SaveUserArray = 0;
     }
 
   this->Extend = ( ext > 0 ? ext : 1);
@@ -78,36 +111,41 @@ int vtkDoubleArray::Allocate(const int sz, const int ext)
 // Release storage and reset array to initial state.
 void vtkDoubleArray::Initialize()
 {
-  if ( this->Array != NULL )
+  if (( this->Array != NULL ) && (!this->SaveUserArray))
     {
     delete [] this->Array;
-    this->Array = NULL;
     }
+  this->Array = NULL;
   this->Size = 0;
   this->MaxId = -1;
+  this->SaveUserArray = 0;
 }
 
 // Description:
 // Deep copy of another double array.
-void vtkDoubleArray::DeepCopy(vtkDataArray& da)
+void vtkDoubleArray::DeepCopy(vtkDataArray& fa)
 {
-  if ( da.GetDataType() != VTK_DOUBLE )
+  if (fa.GetDataType() != VTK_DOUBLE)
     {
-    vtkDataArray::DeepCopy(da);
+    vtkDataArray::DeepCopy(fa);
     return;
     }
 
-  if ( this != &da )
+  if ( this != &fa )
     {
-    if (this->Array) delete [] this->Array;
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+      delete [] this->Array;
+      }
 
-    this->NumberOfComponents = da.GetNumberOfComponents();
-    this->MaxId = da.GetMaxId();
-    this->Size = da.GetSize();
-    this->Extend = da.GetExtend();
+    this->NumberOfComponents = fa.GetNumberOfComponents();
+    this->MaxId = fa.GetMaxId();
+    this->Size = fa.GetSize();
+    this->Extend = fa.GetExtend();
+    this->SaveUserArray = 0;
 
     this->Array = new double[this->Size];
-    memcpy(this->Array, (double *)da.GetVoidPointer(0), this->Size*sizeof(double));
+    memcpy(this->Array, (double*) fa.GetVoidPointer(0), this->Size*sizeof(double));
     }
 }
 
@@ -125,11 +163,18 @@ double *vtkDoubleArray::Resize(const int sz)
   double *newArray;
   int newSize;
 
-  if ( sz > this->Size ) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  if ( sz > this->Size ) 
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
   else if (sz == this->Size)
+    {
     return this->Array;
-  else newSize = sz;
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   if ( (newArray = new double[newSize]) == NULL )
     { 
@@ -137,12 +182,19 @@ double *vtkDoubleArray::Resize(const int sz)
     return 0;
     }
 
-  memcpy(newArray, this->Array,
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array,
          (sz < this->Size ? sz : this->Size) * sizeof(double));
+    if (!this->SaveUserArray)
+      {
+      delete[] this->Array;
+      }
+    }
 
   this->Size = newSize;
-  delete [] this->Array;
   this->Array = newArray;
+  this->SaveUserArray = 0;
 
   return this->Array;
 }

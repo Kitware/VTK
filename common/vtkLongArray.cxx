@@ -93,13 +93,13 @@ void vtkLongArray::DeepCopy(vtkDataArray& sa)
 {
   if ( sa.GetDataType() != VTK_LONG )
     {
-    vtkDataArray::DeepCopy(sa);
-    return;
+      vtkDataArray::DeepCopy(sa);
+      return;
     }
 
   if ( this != &sa )
     {
-    if (this->Array) delete [] this->Array;
+    delete [] this->Array;
 
     this->NumberOfComponents = sa.GetNumberOfComponents();
     this->MaxId = sa.GetMaxId();
@@ -107,7 +107,7 @@ void vtkLongArray::DeepCopy(vtkDataArray& sa)
     this->Extend = sa.GetExtend();
 
     this->Array = new long[this->Size];
-    memcpy(this->Array, (long *)sa.GetVoidPointer(0), this->Size*sizeof(long));
+    memcpy(this->Array, (long *) sa.GetVoidPointer(0), this->Size*sizeof(long));
     }
 }
 

@@ -80,7 +80,9 @@ public:
   unsigned long *GetPointer(const int id) {return this->Array + id;}
   unsigned long *WritePointer(const int id, const int number);
   void *GetVoidPointer(const int id) {return (void *)this->GetPointer(id);};
-  void DeepCopy(vtkDataArray &da);
+  void DeepCopy(vtkDataArray& da);
+
+  void SetArray(unsigned long* array, int size, int save);
 
 private:
   unsigned long *Array;   // pointer to data
@@ -88,6 +90,8 @@ private:
 
   int TupleSize; //used for data conversion
   float *Tuple;
+
+  int SaveUserArray;
 };
 
 // Description:

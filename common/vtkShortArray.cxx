@@ -48,24 +48,55 @@ vtkShortArray::vtkShortArray(int numComp)
   this->Array = NULL;
   this->TupleSize = 3;
   this->Tuple = new float[this->TupleSize]; //used for conversion
+  this->SaveUserArray = 0;
 }
 
 vtkShortArray::~vtkShortArray()
 {
-  if (this->Array) delete [] this->Array;
+  if ((this->Array) && (!this->SaveUserArray)) delete [] this->Array;
   delete [] this->Tuple;
+}
+
+// Description:
+// This method lets the user specify data to be held by the array.  The 
+// array argument is a pointer to the data.  size is the size of 
+// the array supplied by the user.  Set save to 1 to keep the class
+// from deleting the array when it cleans up or reallocates memory.
+// The class uses the actual array provided; it does not copy the data 
+// from the suppled array.
+void vtkShortArray::SetArray(short* array, int size, int save)
+{
+  if ((this->Array) && (!this->SaveUserArray))
+    {
+      vtkDebugMacro (<< "Deleting the array...");
+      delete [] this->Array;
+    }
+  else 
+    {
+      vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
+    }
+
+  vtkDebugMacro(<<"Setting array to: " << array);
+
+  this->Array = array;
+  this->Size = size;
+  this->MaxId = size-1;
+  this->SaveUserArray = save;
 }
 
 // Description:
 // Allocate memory for this array. Delete old storage only if necessary.
 int vtkShortArray::Allocate(const int sz, const int ext)
 {
-  if ( sz > this->Size || this->Array == NULL )
+  if ( sz > this->Size )
     {
-    delete [] this->Array;
-
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+      delete [] this->Array;
+      }
     this->Size = ( sz > 0 ? sz : 1);
     if ( (this->Array = new short[this->Size]) == NULL ) return 0;
+    this->SaveUserArray = 0;
     }
 
   this->Extend = ( ext > 0 ? ext : 1);
@@ -78,13 +109,14 @@ int vtkShortArray::Allocate(const int sz, const int ext)
 // Release storage and reset array to initial state.
 void vtkShortArray::Initialize()
 {
-  if ( this->Array != NULL )
+  if (( this->Array != NULL ) && (!this->SaveUserArray))
     {
     delete [] this->Array;
-    this->Array = NULL;
     }
+  this->Array = NULL;
   this->Size = 0;
   this->MaxId = -1;
+  this->SaveUserArray = 0;
 }
 
 // Description:
@@ -93,21 +125,25 @@ void vtkShortArray::DeepCopy(vtkDataArray& sa)
 {
   if ( sa.GetDataType() != VTK_SHORT )
     {
-    vtkDataArray::DeepCopy(sa);
-    return;
+      vtkDataArray::DeepCopy(sa);
+      return;
     }
-  
+
   if ( this != &sa )
     {
-    if (this->Array) delete [] this->Array;
+    if ((this->Array) && (!this->SaveUserArray))
+      {
+      delete [] this->Array;
+      }
 
     this->NumberOfComponents = sa.GetNumberOfComponents();
     this->MaxId = sa.GetMaxId();
     this->Size = sa.GetSize();
     this->Extend = sa.GetExtend();
+    this->SaveUserArray = 0;
 
     this->Array = new short[this->Size];
-    memcpy(this->Array, (short *)sa.GetVoidPointer(0), this->Size*sizeof(short));
+    memcpy(this->Array, (long *)sa.GetVoidPointer(0), this->Size*sizeof(long)); 
     }
 }
 
@@ -126,11 +162,18 @@ short *vtkShortArray::Resize(const int sz)
   short *newArray;
   int newSize;
 
-  if ( sz > this->Size ) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
+  if ( sz > this->Size ) 
+    {
+    newSize = this->Size + this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
   else if (sz == this->Size)
+    {
     return this->Array;
-  else newSize = sz;
+    }
+  else 
+    {
+    newSize = sz;
+    }
 
   if ( (newArray = new short[newSize]) == NULL )
     {
@@ -138,12 +181,19 @@ short *vtkShortArray::Resize(const int sz)
     return 0;
     }
 
-  memcpy(newArray, this->Array, 
+  if (this->Array)
+    {
+    memcpy(newArray, this->Array, 
          (sz < this->Size ? sz : this->Size) * sizeof(short));
+    if (!this->SaveUserArray)
+      {  
+      delete [] this->Array;
+      }
+    }
 
   this->Size = newSize;
-  delete [] this->Array;
   this->Array = newArray;
+  this->SaveUserArray = 0;
 
   return this->Array;
 }
