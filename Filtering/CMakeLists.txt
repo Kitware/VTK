@@ -27,6 +27,8 @@ vtkImplicitSelectionLoop
 vtkImplicitVolume
 vtkImplicitWindowFunction
 vtkKochanekSpline
+vtkMergePoints
+vtkMergePoints2D 
 vtkPiecewiseFunction
 vtkPointSetSource
 vtkPointSetToPointSetFilter

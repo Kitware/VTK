@@ -62,8 +62,6 @@ vtkMaskPolyData
 vtkMassProperties 
 vtkMergeDataObjectFilter
 vtkMergeFilter
-vtkMergePoints
-vtkMergePoints2D 
 vtkOBBDicer
 vtkOBBTree
 vtkOutlineCornerFilter 
