@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.2");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.3");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -126,7 +126,7 @@ void vtkStreamTracer::SetIntegratorType(int type)
 }
 
 void vtkStreamTracer::SetIntervalInformation(int unit, 
-					   vtkStreamTracer::IntervalInformation& currentValues)
+                                           vtkStreamTracer::IntervalInformation& currentValues)
 {
   if ( unit == currentValues.Unit )
     {
@@ -147,7 +147,7 @@ void vtkStreamTracer::SetIntervalInformation(int unit,
 }
 
 void vtkStreamTracer::SetIntervalInformation(int unit, float interval,
-					   vtkStreamTracer::IntervalInformation& currentValues)
+                                           vtkStreamTracer::IntervalInformation& currentValues)
 {
   if ( (unit == currentValues.Unit) && (interval == currentValues.Interval) )
     {
@@ -337,8 +337,8 @@ float vtkStreamTracer::ConvertToUnit(vtkStreamTracer::IntervalInformation& inter
 }
 
 void vtkStreamTracer::ConvertIntervals(float& step, float& minStep, 
-				     float& maxStep, int direction,
-				     float cellLength, float speed)
+                                     float& maxStep, int direction,
+                                     float cellLength, float speed)
 {
   step = direction * this->ConvertToTime(
     this->InitialIntegrationStep, cellLength, speed);
@@ -349,7 +349,7 @@ void vtkStreamTracer::ConvertIntervals(float& step, float& minStep,
   else
     {
     minStep = this->ConvertToTime(this->MinimumIntegrationStep, cellLength,  
-				  speed);
+                                  speed);
     }
   if ( this->MaximumIntegrationStep.Interval <= 0.0 )
     {
@@ -358,13 +358,13 @@ void vtkStreamTracer::ConvertIntervals(float& step, float& minStep,
   else
     {
     maxStep = this->ConvertToTime(this->MaximumIntegrationStep,cellLength, 
-				  speed);
+                                  speed);
     }
 }
 
 void vtkStreamTracer::CalculateVorticity(vtkGenericCell* cell, float pcoords[3],
-				       vtkFloatArray* cellVectors, 
-				       float vorticity[3])
+                                       vtkFloatArray* cellVectors, 
+                                       float vorticity[3])
 {
   float* cellVel;
   float derivs[9];
@@ -390,29 +390,29 @@ void vtkStreamTracer::Execute()
       // For now, one thread will do all
       seedIds->SetNumberOfIds(numSeeds);
       for (i=0; i<numSeeds; i++)
-	{
-	seedIds->SetId(i, i);
-	}
+        {
+        seedIds->SetId(i, i);
+        }
       // Check if the source is a PointSet
       vtkPointSet* seedPts = vtkPointSet::SafeDownCast(source);
       if (seedPts)
-	{
-	// If it is, use it's points as source
-	this->Integrate(seedPts->GetPoints()->GetData(), seedIds);
-	}
+        {
+        // If it is, use it's points as source
+        this->Integrate(seedPts->GetPoints()->GetData(), seedIds);
+        }
       else
-	{
-	// Else, create a seed source
-	vtkFloatArray* seeds = vtkFloatArray::New();
-	seeds->SetNumberOfComponents(3);
-	seeds->SetNumberOfTuples(numSeeds);
-	for (i=0; i<numSeeds; i++)
-	  {
-	  seeds->SetTuple(i, source->GetPoint(i));
-	  }
-	this->Integrate(seeds, seedIds);
-	seeds->Delete();
-	}
+        {
+        // Else, create a seed source
+        vtkFloatArray* seeds = vtkFloatArray::New();
+        seeds->SetNumberOfComponents(3);
+        seeds->SetNumberOfTuples(numSeeds);
+        for (i=0; i<numSeeds; i++)
+          {
+          seeds->SetTuple(i, source->GetPoint(i));
+          }
+        this->Integrate(seeds, seedIds);
+        seeds->Delete();
+        }
       }
     }
   else
@@ -562,7 +562,9 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     // have to convert it to time.
     IntervalInformation delT;
     delT.Unit = TIME_UNIT;
-    float propagation = 0.0, step, minStep, maxStep, stepTaken, accumTime=0;
+    delT.Interval = 0;
+    float propagation = 0.0, step, minStep=0, maxStep=0, 
+      stepTaken, accumTime=0;
     float speed;
     double cellLength;
     int retVal=OUT_OF_TIME, tmp;
@@ -576,7 +578,7 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     if (speed != 0.0)
       {
       this->ConvertIntervals(delT.Interval, minStep, maxStep, direction, 
-			     cellLength, speed);
+                             cellLength, speed);
       }
 
     // Interpolate all point attributes on first point
@@ -607,57 +609,57 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     while ( propagation < this->MaximumPropagation.Interval )
       {
       if (numSteps > this->MaximumNumberOfSteps)
-	{
-	retVal = OUT_OF_STEPS;
-	break;
-	}
+        {
+        retVal = OUT_OF_STEPS;
+        break;
+        }
       numSteps++;
 
       // Never call conversion methods if speed == 0
       if ( (speed == 0) || (speed <= this->TerminalSpeed) )
-	{
-	retVal = STAGNATION;
-	break;
-	}
+        {
+        retVal = STAGNATION;
+        break;
+        }
 
       // If, with the next step, propagation will be larger than
       // max, reduce it so that it is (approximately) equal to max.
       maxPropTime = this->ConvertToTime(this->MaximumPropagation, cellLength, 
-					speed);
+                                        speed);
       if ( (accumTime + delT.Interval) > maxPropTime )
-	{
-	delT.Interval = maxPropTime - accumTime;
-	maxStep = delT.Interval;
-	}
-	  
+        {
+        delT.Interval = maxPropTime - accumTime;
+        maxStep = delT.Interval;
+        }
+          
       // Calculate the next step using the integrator provided
       // Break if the next point is out of bounds.
       if ((tmp=
-	   integrator->ComputeNextStep(point1, point2, 0, delT.Interval, 
-				       stepTaken, minStep, maxStep, 
-				       this->MaximumError, error)) != 0)
-	{
-	retVal = tmp;
-	break;
-	}
+           integrator->ComputeNextStep(point1, point2, 0, delT.Interval, 
+                                       stepTaken, minStep, maxStep, 
+                                       this->MaximumError, error)) != 0)
+        {
+        retVal = tmp;
+        break;
+        }
       accumTime += stepTaken;
       // Calculate propagation (using the same units as MaximumPropagation
       propagation += fabs(this->ConvertToUnit(delT, 
-					      this->MaximumPropagation.Unit,
-					      cellLength, speed));
+                                              this->MaximumPropagation.Unit,
+                                              cellLength, speed));
 
       // This is the next starting point
       for(i=0; i<3; i++)
-	{
-	point1[i] = point2[i];
-	}
+        {
+        point1[i] = point2[i];
+        }
 
       // Interpolate the velocity at the next point
       if ( !func->FunctionValues(point2, velocity) )
-	{
-	retVal = OUT_OF_DOMAIN;
-	break;
-	}
+        {
+        retVal = OUT_OF_DOMAIN;
+        break;
+        }
 
       // Point is valid. Insert it.
       numPts++;
@@ -677,33 +679,33 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       // Compute vorticity if required
       // This can be used later for streamribbon generation.
       if (this->ComputeVorticity)
-	{
-	inVectors->GetTuples(cell->PointIds, cellVectors);
-	func->GetLastLocalCoordinates(pcoords);
-	vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vort);
-	vorticity->InsertNextTuple(vort);
-	// rotation
-	// angular velocity = vorticity . unit tangent ( i.e. velocity/speed )
-	// rotation = sum ( angular velocity * delT )
-	omega = vtkMath::Dot(vort, velocity);
-	omega /= speed;
-	omega *= this->RotationScale;
-	index = angularVel->InsertNextValue(omega);
-	rotation->InsertNextValue(rotation->GetValue(index-1) +
-				  (angularVel->GetValue(index-1) + omega)/2 * 
-				  (accumTime - time->GetValue(index-1)));
-	}
+        {
+        inVectors->GetTuples(cell->PointIds, cellVectors);
+        func->GetLastLocalCoordinates(pcoords);
+        vtkStreamTracer::CalculateVorticity(cell, pcoords, cellVectors, vort);
+        vorticity->InsertNextTuple(vort);
+        // rotation
+        // angular velocity = vorticity . unit tangent ( i.e. velocity/speed )
+        // rotation = sum ( angular velocity * delT )
+        omega = vtkMath::Dot(vort, velocity);
+        omega /= speed;
+        omega *= this->RotationScale;
+        index = angularVel->InsertNextValue(omega);
+        rotation->InsertNextValue(rotation->GetValue(index-1) +
+                                  (angularVel->GetValue(index-1) + omega)/2 * 
+                                  (accumTime - time->GetValue(index-1)));
+        }
 
       // Never call conversion methods if speed == 0
       if ( (speed == 0) || (speed <= this->TerminalSpeed) )
-	{
-	retVal = STAGNATION;
-	break;
-	}
+        {
+        retVal = STAGNATION;
+        break;
+        }
 
       // Convert all intervals to time
       this->ConvertIntervals(step, minStep, maxStep, direction, 
-			     cellLength, speed);
+                             cellLength, speed);
 
 
       // If the solver is adaptive and the next time step (delT.Interval)
@@ -712,20 +714,20 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       // because minStep and maxStep can change depending on the cell
       // size (unless it is specified in time units)
       if (integrator->IsAdaptive())
-	{
-	if (delT.Interval < minStep)
-	  {
-	  delT.Interval = minStep * delT.Interval/fabs(delT.Interval);
-	  }
-	else if (delT.Interval > maxStep)
-	  {
-	  delT.Interval = maxStep * delT.Interval/fabs(delT.Interval);
-	  }
-	}
+        {
+        if (delT.Interval < minStep)
+          {
+          delT.Interval = minStep * delT.Interval/fabs(delT.Interval);
+          }
+        else if (delT.Interval > maxStep)
+          {
+          delT.Interval = maxStep * delT.Interval/fabs(delT.Interval);
+          }
+        }
       else
-	{
-	delT.Interval = step;
-	}
+        {
+        delT.Interval = step;
+        }
 
       }
 
@@ -733,9 +735,9 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       {
       outputLines->InsertNextCell(numPts);
       for (i=numPtsTotal-numPts; i<numPtsTotal; i++)
-	{
-	outputLines->InsertCellPoint(i);
-	}
+        {
+        outputLines->InsertCellPoint(i);
+        }
       retVals->InsertNextValue(retVal);
       }
     }
@@ -773,33 +775,33 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
       normals->SetNumberOfTuples(numPts);
 
       lineNormalGenerator->GenerateSlidingNormals(outputPoints,
-						  outputLines,
-						  normals);
+                                                  outputLines,
+                                                  normals);
       lineNormalGenerator->Delete();
       
       int j;
       float normal[3], local1[3], local2[3], theta, costheta, sintheta, length;
       for(i=0; i<numPts; i++)
-	{
-	normals->GetTuple(i, normal);
-	vtkDataArray* newVectors = outputPD->GetVectors();
-	newVectors->GetTuple(i, velocity);
-	// obtain two unit orthogonal vectors on the plane perpendicular to
-	// the streamline
-	for(j=0; j<3; j++) { local1[j] = normal[j]; }
-	length = vtkMath::Normalize(local1);
-	vtkMath::Cross(local1, velocity, local2);
-	vtkMath::Normalize(local2);
-	// Rotate the normal with theta
-	rotation->GetTuple(i, &theta);
-	costheta = cos(theta);
-	sintheta = sin(theta);
-	for(j=0; j<3; j++)
-	  {
-	  normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
-	  }
-	normals->SetTuple(i, normal);
-	}
+        {
+        normals->GetTuple(i, normal);
+        vtkDataArray* newVectors = outputPD->GetVectors();
+        newVectors->GetTuple(i, velocity);
+        // obtain two unit orthogonal vectors on the plane perpendicular to
+        // the streamline
+        for(j=0; j<3; j++) { local1[j] = normal[j]; }
+        length = vtkMath::Normalize(local1);
+        vtkMath::Cross(local1, velocity, local2);
+        vtkMath::Normalize(local2);
+        // Rotate the normal with theta
+        rotation->GetTuple(i, &theta);
+        costheta = cos(theta);
+        sintheta = sin(theta);
+        for(j=0; j<3; j++)
+          {
+          normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
+          }
+        normals->SetTuple(i, normal);
+        }
       outputPD->SetNormals(normals);
       normals->Delete();
       }
