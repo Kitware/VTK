@@ -35,17 +35,20 @@ ren1 ResetCamera
 
 #
 # export to rib format
+
+if { [info command vtkRIBExporter] != "" } {
 vtkRIBExporter exporter
   exporter SetFilePrefix importExport
   exporter SetRenderWindow [importer GetRenderWindow]
   exporter BackgroundOn
   exporter Write
+}
 
 #
 # now do the normal rendering
 renWin Render
 
-#renWin SetFileName "3dsToRIB.tcl.ppm"
+renWin SetFileName "3dsToRIB.tcl.ppm"
 #renWin SaveImageAsPPM
 
 iren SetUserMethod {wm deiconify .vtkInteract}
