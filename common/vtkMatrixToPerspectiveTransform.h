@@ -48,8 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // then any modifications to the matrix will automatically be reflected in
 // the output of the filter.
 // .SECTION See Also
-// vtkMatrix4x4 vtkMatrixToLinearTransform vtkPerspectiveTransform 
-// vtkPerspectiveTransformConcatenation 
+// vtkProjectionTransform vtkMatrix4x4 vtkMatrixToLinearTransform  
 
 #ifndef __vtkMatrixToPerspectiveTransform_h
 #define __vtkMatrixToPerspectiveTransform_h
@@ -65,18 +64,16 @@ class VTK_EXPORT vtkMatrixToPerspectiveTransform :
   vtkTypeMacro(vtkMatrixToPerspectiveTransform,vtkPerspectiveTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the matrix.  Calls to Identity() and Inverse() will modify
-  // this matrix, calls to GetInverse() will modify a copy of this
-  // matrix.  
-  void SetMatrix(vtkMatrix4x4 *m);
+  vtkSetObjectMacro(Input,vtkMatrix4x4);
+  vtkGetObjectMacro(Input,vtkMatrix4x4);
 
   // Description:
-  // Make the matrix into the identity matrix.
-  void Identity();
+  // Identity, doesn't do anything.
+  void Identity() {};
 
   // Description:
-  // Invert the matrix.
+  // The input matrix is left as-is, but the transformation matrix
+  // is inverted.
   void Inverse();
 
   // Description:
@@ -84,18 +81,26 @@ class VTK_EXPORT vtkMatrixToPerspectiveTransform :
   unsigned long GetMTime();
 
   // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
-
-  // Description:
   // Make a new transform of the same type.
   vtkGeneralTransform *MakeTransform();
 
+  // Description:
+  // This method is deprecated.
+  void SetMatrix(vtkMatrix4x4 *matrix) {
+    this->SetInput(matrix);
+    vtkWarningMacro("SetMatrix: deprecated, use SetInput() instead"); }
+
 protected:
-  vtkMatrixToPerspectiveTransform() {};
-  ~vtkMatrixToPerspectiveTransform() {};
+  vtkMatrixToPerspectiveTransform();
+  ~vtkMatrixToPerspectiveTransform();
   vtkMatrixToPerspectiveTransform(const vtkMatrixToPerspectiveTransform&) {};
   void operator=(const vtkMatrixToPerspectiveTransform&) {};
+
+  void InternalUpdate();
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  int InverseFlag;
+  vtkMatrix4x4 *Input;
 };
 
 #endif

@@ -64,15 +64,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkGeneralTransform_h
 
 #include "vtkObject.h"
+#include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkVectors.h"
 #include "vtkMutexLock.h"
-
-//BTX
-//forward declaration of a helper class
-class VTK_EXPORT vtkSimpleTransformConcatenation;
-//ETX
 
 class VTK_EXPORT vtkGeneralTransform : public vtkObject
 {
@@ -94,11 +90,11 @@ public:
     this->Update(); this->InternalTransformPoint(in,out); };
 
   // Description:
-  // Synonymous with TransformFloatPoint(x,y,z).
+  // Synonymous with TransformDoublePoint(x,y,z).
   // Use this if you are programming in python, tcl or Java.
-  float *TransformPoint(float x, float y, float z) {
-    return this->TransformFloatPoint(x,y,z); }
-  float *TransformPoint(const float point[3]) {
+  double *TransformPoint(double x, double y, double z) {
+    return this->TransformDoublePoint(x,y,z); }
+  double *TransformPoint(const double point[3]) {
     return this->TransformPoint(point[0],point[1],point[2]); };
 
   // Description:
@@ -146,10 +142,6 @@ public:
   virtual void Inverse() = 0;
 
   // Description:
-  // Make this transform into an identity transformation.
-  virtual void Identity() {};
-
-  // Description:
   // Copy this transform from another of the same type.
   void DeepCopy(vtkGeneralTransform *);
 
@@ -176,14 +168,18 @@ public:
   virtual void InternalTransformDerivative(const double in[3], double out[3],
 					   double derivative[3][3]) = 0;
 
-
-  // Description:
-  // Perform a DeepCopy without type checking, quite risky!
-  virtual void InternalDeepCopy(vtkGeneralTransform *) = 0;
-
   // Description:
   // Make another transform of the same type.
   virtual vtkGeneralTransform *MakeTransform() = 0;
+
+  // Description:
+  // Check for self-reference.  Will return true if concatenating
+  // with the specified transform, setting it to be our inverse,
+  // or setting it to be our input will create a circular reference.
+  // CircuitCheck is automatically called by SetInput(), SetInverse(),
+  // and Concatenate(vtkXTransform *).  Avoid using this function,
+  // it is experimental.
+  virtual int CircuitCheck(vtkGeneralTransform *transform);
 
   // Description:
   // Override GetMTime necessary because of inverse transforms.
@@ -194,6 +190,12 @@ public:
   // circular references.
   void UnRegister(vtkObject *O);
 
+  // Description:
+  // This method is deprecated in the base class.  It is still valid
+  // to use it on many of the specialized classes.
+  void Identity() { 
+    vtkWarningMacro("vtkGeneralTransform::Identity() is deprecated"); };
+
 protected:
   vtkGeneralTransform();
   ~vtkGeneralTransform();
@@ -201,14 +203,12 @@ protected:
   void operator=(const vtkGeneralTransform&) {};
 
   // Description:
-  // Perform updates that are necessary for a specific transform type.
+  // Perform any subclass-specific Update.
   virtual void InternalUpdate() {};
 
-//BTX
-  // The Concatenation is only for use within the vtkGeneralTransform class
-  // and within the vtk*Concatenation classes.
-//ETX
-  vtkSimpleTransformConcatenation *Concatenation;
+  // Description:
+  // Perform any subclass-specific DeepCopy. 
+  virtual void InternalDeepCopy(vtkGeneralTransform *transform) {};
 
   float InternalFloatPoint[3];
   double InternalDoublePoint[3];
@@ -225,6 +225,7 @@ private:
 //ETX
   vtkTimeStamp UpdateTime;
   vtkSimpleMutexLock UpdateMutex;
+  vtkSimpleMutexLock InverseMutex;
   int DependsOnInverse;
 
 //BTX
@@ -236,70 +237,124 @@ private:
 };
 
 //BTX
-  //-------------------------------------------------------------------------
-  // A helper class (not derived from vtkObject) to make it more efficient
-  // to derive vtk*TransformConcatenation classes
-class VTK_EXPORT vtkSimpleTransformConcatenation
+//-------------------------------------------------------------------------
+// A simple data structure to hold both a transform and its inverse.
+// One of ForwardTransform or InverseTransform might be NULL,
+// and must be acquired by calling GetInverse() on the other.
+class vtkTransformPair
 {
 public:
-  static vtkSimpleTransformConcatenation *New(
-				    vtkGeneralTransform *transform) {
-    return new vtkSimpleTransformConcatenation(transform); };
+  vtkGeneralTransform *ForwardTransform;
+  vtkGeneralTransform *InverseTransform;
+  
+  void SwapForwardInverse() {
+    vtkGeneralTransform *tmp = this->ForwardTransform;
+    this->ForwardTransform = this->InverseTransform;
+    this->InverseTransform = tmp; };
+};
+
+// A helper class (not derived from vtkObject) to store a series of
+// transformations in a pipelined concatenation.
+class VTK_EXPORT vtkTransformConcatenation
+{
+public:
+  static vtkTransformConcatenation *New() {
+    return new vtkTransformConcatenation(); };
   void Delete() { delete this; };
 
-    // add a transform to the list according to Pre/PostMultiply semantics
-  void Concatenate(vtkGeneralTransform *transform);
-  void Concatenate(vtkGeneralTransform *t1,
-		   vtkGeneralTransform *t2,
-		   vtkGeneralTransform *t3,
-		   vtkGeneralTransform *t4);
+  // add a transform to the list according to Pre/PostMultiply semantics
+  void Concatenate(vtkGeneralTransform *transform); 
     
-  // inverse simply sets the inverse flag
+  // concatenate with a matrix according to Pre/PostMultiply semantics
+  void Concatenate(const double elements[16]);
+
+  // set the PreMultiply flag
+  void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; };
+  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; };
+  
+  // the three basic linear transformations
+  void Translate(double x, double y, double z);
+  void Rotate(double angle, double x, double y, double z);
+  void Scale(double x, double y, double z);
+
+  // invert the concatenation
   void Inverse();
-    
+  
+  // get the inverse flag
+  int GetInverseFlag() { return this->InverseFlag; };
+  
   // identity simply clears the transform list
   void Identity();
     
   // copy the list
-  void DeepCopy(vtkSimpleTransformConcatenation *transform);
+  void DeepCopy(vtkTransformConcatenation *transform);
     
   // the number of stored transforms
   int GetNumberOfTransforms() { return this->NumberOfTransforms; };
     
+  // the number of transforms that were pre-concatenated (note that
+  // whenever Iverse() is called, the pre-concatenated and
+  // post-concatenated transforms are switched)
+  int GetNumberOfPreTransforms() { return this->NumberOfPreTransforms; };
+
+  // the number of transforms that were post-concatenated.
+  int GetNumberOfPostTransforms() { 
+    return this->NumberOfTransforms-this->NumberOfPreTransforms; };
+
   // get one of the transforms
   vtkGeneralTransform *GetTransform(int i);
     
-  // switch between pre- and post-multiply mode
-  void PreMultiply() { 
-    this->PreMultiplyFlag = 1; this->Transform->Modified(); };
-  void PostMultiply() { 
-    this->PreMultiplyFlag = 0; this->Transform->Modified(); };
-    
-  // determine which mode we are in
-  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }; 
-
   // get maximum MTime of all transforms
   unsigned long GetMaxMTime();
     
-  // print relevant information
   void PrintSelf(ostream& os, vtkIndent indent);
-    
+
 protected:
-  vtkSimpleTransformConcatenation(vtkGeneralTransform *transform);
-  vtkSimpleTransformConcatenation() {}; // should never be called
-  ~vtkSimpleTransformConcatenation();  
-    
-  // the transform that owns us
-  vtkGeneralTransform *Transform;
+  vtkTransformConcatenation();
+  ~vtkTransformConcatenation();  
     
   int InverseFlag;
   int PreMultiplyFlag;
     
+  vtkMatrix4x4 *PreMatrix;
+  vtkMatrix4x4 *PostMatrix;
+  vtkGeneralTransform *PreMatrixTransform;
+  vtkGeneralTransform *PostMatrixTransform;
+
   int NumberOfTransforms;
+  int NumberOfPreTransforms;
   int MaxNumberOfTransforms;
-  vtkGeneralTransform **TransformList;
-  vtkGeneralTransform **InverseList;
+  vtkTransformPair *TransformList;
 };
+
+// A helper class (not derived from vtkObject) to store a stack of
+// concatenations.
+class VTK_EXPORT vtkTransformConcatenationStack
+{
+public:
+  static vtkTransformConcatenationStack *New() {
+    return new vtkTransformConcatenationStack(); };
+  void Delete() { delete this; };
+
+  // pop will pop delete 'concat', then pop the
+  // top item on the stack onto 'concat'.
+  void Pop(vtkTransformConcatenation **concat);
+
+  // push will move 'concat' onto the stack, and
+  // make 'concat' a copy of its previous self
+  void Push(vtkTransformConcatenation **concat);
+
+  void DeepCopy(vtkTransformConcatenationStack *stack);
+
+protected:
+  vtkTransformConcatenationStack();
+  ~vtkTransformConcatenationStack();
+
+  int StackSize;
+  vtkTransformConcatenation **Stack;
+  vtkTransformConcatenation **StackBottom;
+};
+
 //ETX
 
 #endif

@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearTransform.h"
 #include "vtkMath.h"
 
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPerspectiveTransform::PrintSelf(os, indent);
@@ -309,6 +309,4 @@ void vtkLinearTransform::TransformVectors(vtkVectors *inNms,
     outNms->InsertNextVector(vec);
     }
 }
-
-
 

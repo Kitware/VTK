@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // are not actually concatenated, but this is simulated by passing each
 // input point through each transform in turn.
 // .SECTION see also
-// vtkPerspectiveTransformConcatenation vtkLinearTransformConcatenation
+// vtkTransform vtkProjectionTransform
 
 #include "vtkGeneralTransform.h"
 
@@ -62,49 +62,93 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Concatenate the current transform with the specified transform(s),
-  // taking the PreMultiply flag into consideration.  If you specify
-  // multiple transforms, then (assuming that your current transform
-  // is called 't') the result is t*t1*t2*t3*t4 in PreMultiply mode,
-  // or t1*t2*t3*t4*t in PostMultiply mode.
-  void Concatenate(vtkGeneralTransform *transform) {
-    this->Concatenation->Concatenate(transform); };
-  void Concatenate(vtkGeneralTransform *t1,
-		   vtkGeneralTransform *t2) { 
-    this->Concatenate(t1,t2,0,0); };
-  void Concatenate(vtkGeneralTransform *t1,
-		   vtkGeneralTransform *t2,
-		   vtkGeneralTransform *t3) { 
-    this->Concatenate(t1,t2,t3,0); };
-  void Concatenate(vtkGeneralTransform *t1,
-		   vtkGeneralTransform *t2,
-		   vtkGeneralTransform *t3,
-		   vtkGeneralTransform *t4) { 
-    this->Concatenation->Concatenate(t1,t2,t3,t4); }
+  // Set this tranformation to the identity transformation.
+  void Identity() { this->Concatenation->Identity(); this->Modified(); };
 
   // Description:
-  // Sets the internal state of the transform to post multiply. All
-  // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.  The default is PreMultiply.
-  void PostMultiply() { this->Concatenation->PostMultiply(); };
+  // Invert the transformation.
+  void Inverse() { this->Concatenation->Inverse(); this->Modified(); };
+
+  // Description:
+  // Concatenate the current transform with the specified transform,
+  // taking the PreMultiply flag into consideration.  
+  void Concatenate(vtkGeneralTransform *transform);
+
+  // Description:
+  // Concatenates the current transformation with the specified matrix.
+  // The setting of the PreMultiply flag determines whether the matrix
+  // is PreConcatenated or PostConcatenated.
+  void Concatenate(vtkMatrix4x4 *matrix) { 
+    this->Concatenate(*matrix->Element); };
+  void Concatenate(const double elements[16]) {
+    this->Concatenation->Concatenate(elements); };
 
   // Description:
   // Sets the internal state of the transform to pre multiply. All subsequent
   // matrix operations will occur before those already represented in the
   // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply() { this->Concatenation->PreMultiply(); };    
+  void PreMultiply() { 
+    if (this->Concatenation->GetPreMultiplyFlag()) { return; }
+    this->Concatenation->SetPreMultiplyFlag(1); this->Modified(); };
 
   // Description:
-  // Invert the transformation. 
-  void Inverse() { this->Concatenation->Inverse(); }
+  // Sets the internal state of the transform to post multiply. All
+  // subsequent matrix operations will occur after those already represented
+  // in the current transformation matrix.  The default is PreMultiply.
+  void PostMultiply()  { 
+    if (!this->Concatenation->GetPreMultiplyFlag()) { return; }
+    this->Concatenation->SetPreMultiplyFlag(0); this->Modified(); };
 
   // Description:
-  // Create an identity transformation.
-  void Identity() { this->Concatenation->Identity(); }
+  // Create a translation matrix and concatenate it with the current
+  // matrix according to PreMultiply or PostMultiply semantics.
+  void Translate(double x, double y, double z) {
+    this->Concatenation->Translate(x,y,z); };
+  void Translate(const double x[3]) { this->Translate(x[0], x[1], x[2]); };
+  void Translate(const float x[3]) { this->Translate(x[0], x[1], x[2]); };
 
   // Description:
-  // Return modified time of transformation.
-  unsigned long GetMTime();
+  // Create a rotation matrix and concatenate it with the current
+  // transformation according to PreMultiply or PostMultiply semantics.
+  // The angle is in degrees, and (x,y,z) specifies the axis that the
+  // rotation will be performed around. 
+  void RotateWXYZ(double angle, double x, double y, double z) {
+    this->Concatenation->Rotate(angle,x,y,z); };
+  void RotateWXYZ(double angle, const double axis[3]) {
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+  void RotateWXYZ(double angle, const float axis[3]) {
+    this->RotateWXYZ(angle, axis[0], axis[1], axis[2]); };
+
+  // Description:
+  // Create a rotation matrix about the X, Y, or Z axis and concatenate
+  // it with the current transformation according to PreMultiply or
+  // PostMultiply semantics.  The angle is expressed in degrees.
+  void RotateX(double angle) { this->RotateWXYZ(angle, 1, 0, 0); };
+  void RotateY(double angle) { this->RotateWXYZ(angle, 0, 1, 0); };
+  void RotateZ(double angle) { this->RotateWXYZ(angle, 0, 0, 1); };
+
+  // Description:
+  // Create a scale matrix (i.e. set the diagonal elements to x, y, z)
+  // and concatenate it with the current transformation according to
+  // PreMultiply or PostMultiply semantics.
+  void Scale(double x, double y, double z) {
+    this->Concatenation->Scale(x,y,z); };
+  void Scale(const double s[3]) { this->Scale(s[0], s[1], s[2]); };
+  void Scale(const float s[3]) { this->Scale(s[0], s[1], s[2]); };
+
+  // Description:
+  // Pushes the current transformation matrix onto the transformation stack.
+  void Push() { if (this->Stack == NULL) { 
+                    this->Stack = vtkTransformConcatenationStack::New(); }
+                this->Stack->Push(&this->Concatenation); 
+                this->Modified(); };
+
+  // Description:
+  // Deletes the transformation on the top of the stack and sets the top 
+  // to the next transformation on the stack.
+  void Pop() { if (this->Stack == NULL) { return; }
+               this->Stack->Pop(&this->Concatenation);
+               this->Modified(); };
 
   // Description:
   // This will calculate the transformation without calling Update.
@@ -122,12 +166,27 @@ public:
 				   double derivative[3][3]);
 
   // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
+  // Set the input for this transformation.  Any transformations you
+  // apply will be concatenated with the input.
+  void SetInput(vtkGeneralTransform *input);
+  vtkGeneralTransform *GetInput() { return this->Input; };
+
+  // Description:
+  // Check for self-reference.  Will return true if concatenating
+  // with the specified transform, setting it to be our inverse,
+  // or setting it to be our input will create a circular reference.
+  // CircuitCheck is automatically called by SetInput(), SetInverse(),
+  // and Concatenate(vtkXTransform *).  Avoid using this function,
+  // it is experimental.
+  int CircuitCheck(vtkGeneralTransform *transform);
 
   // Description:
   // Make another transform of the same type.
   vtkGeneralTransform *MakeTransform();
+
+  // Description:
+  // Override GetMTime to account for input and concatenation.
+  unsigned long GetMTime();
 
 protected:
   vtkGeneralTransformConcatenation();
@@ -135,9 +194,12 @@ protected:
   vtkGeneralTransformConcatenation(const vtkGeneralTransformConcatenation&) {};
   void operator=(const vtkGeneralTransformConcatenation&) {};
 
-  // Description:
-  // Update the concatenated transform.
+  void InternalDeepCopy(vtkGeneralTransform *t);
   void InternalUpdate();
+
+  vtkGeneralTransform *Input;
+  vtkTransformConcatenation *Concatenation;
+  vtkTransformConcatenationStack *Stack;
 };
 
 

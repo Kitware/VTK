@@ -59,7 +59,7 @@ vtkLinearTransformConcatenation *vtkLinearTransformConcatenation::New()
 //----------------------------------------------------------------------------
 vtkLinearTransformConcatenation::vtkLinearTransformConcatenation()
 {
-  this->Concatenation = vtkSimpleTransformConcatenation::New(this);
+  vtkWarningMacro("This class is obsolete, use vtkTransform instead");
 }
 
 //----------------------------------------------------------------------------
@@ -70,8 +70,7 @@ vtkLinearTransformConcatenation::~vtkLinearTransformConcatenation()
 //----------------------------------------------------------------------------
 void vtkLinearTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLinearTransform::PrintSelf(os,indent);
-  this->Concatenation->PrintSelf(os,indent);
+  vtkTransform::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
@@ -79,38 +78,4 @@ vtkGeneralTransform *vtkLinearTransformConcatenation::MakeTransform()
 {
   return vtkLinearTransformConcatenation::New();
 }
-
-//----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::InternalDeepCopy(
-					     vtkGeneralTransform *transform)
-{
-  vtkLinearTransformConcatenation *t = 
-    (vtkLinearTransformConcatenation *)transform;
-
-  this->Concatenation->DeepCopy(t->Concatenation);
-}
-
-//----------------------------------------------------------------------------
-void vtkLinearTransformConcatenation::InternalUpdate()
-{
-  this->Matrix->Identity();
-
-  // concatenate transforms in forward direction
-  for (int i = 0; i < this->Concatenation->GetNumberOfTransforms(); i++)
-    {
-    vtkLinearTransform *transform = 
-      (vtkLinearTransform *)this->Concatenation->GetTransform(i);
-    vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),
-			      this->Matrix,this->Matrix);
-    }
-}
-
-//----------------------------------------------------------------------------
-unsigned long vtkLinearTransformConcatenation::GetMTime()
-{
-  unsigned long mtime1 = this->vtkLinearTransform::GetMTime();
-  unsigned long mtime2 = this->Concatenation->GetMaxMTime();
-  return ((mtime1 > mtime2) ? mtime1 : mtime2);
-}
-
 

@@ -58,16 +58,17 @@ vtkTransform* vtkTransform::New()
 }
 
 //----------------------------------------------------------------------------
-// Constructs a transform and sets the following defaults
-// preMultiplyFlag = 1 stackSize = 10. It then
-// creates an identity matrix as the top matrix on the stack.
 vtkTransform::vtkTransform()
 {
-  this->PreMultiplyFlag = 1;
-  this->StackSize = 10;
-  this->Stack = new vtkMatrix4x4 *[this->StackSize];
-  this->StackBottom = this->Stack;
+  this->Input = NULL;
 
+  // most of the functionality is provided by the concatenation
+  this->Concatenation = vtkTransformConcatenation::New();
+
+  // the stack will be allocated the first time Push is called
+  this->Stack = NULL;
+
+  // initialize the legacy 'Point' info
   this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
   this->DoublePoint[0] = 
     this->DoublePoint[1] = this->DoublePoint[2] = this->DoublePoint[3] = 0.0;
@@ -76,21 +77,26 @@ vtkTransform::vtkTransform()
 //----------------------------------------------------------------------------
 vtkTransform::~vtkTransform()
 {
-  int n = this->Stack-this->StackBottom;
-  for (int i = 0; i < n; i++)
-    {
-    this->StackBottom[i]->Delete();
-    }
+  this->SetInput(NULL);
 
-  delete [] this->StackBottom;
+  if (this->Concatenation)
+    {
+    this->Concatenation->Delete();
+    }
+  if (this->Stack)
+    {
+    this->Stack->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLinearTransform::PrintSelf(os, indent);
+  this->Update();
 
-  os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
+  this->vtkLinearTransform::PrintSelf(os, indent);
+  os << indent << "Input: (" << this->Input << ")\n";
+  this->Concatenation->PrintSelf(os, indent);
 
   os << indent << "DoublePoint: " << "( " << 
      this->DoublePoint[0] << ", " << this->DoublePoint[1] << ", " <<
@@ -102,278 +108,167 @@ void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkTransform::Identity()
+void vtkTransform::InternalDeepCopy(vtkGeneralTransform *gtrans)
 {
-  this->Matrix->Identity();
-  this->Modified();
-}
+  vtkTransform *transform = (vtkTransform *)gtrans;
 
-//----------------------------------------------------------------------------
-void vtkTransform::Inverse()
-{
-  this->Matrix->Invert();
-  this->Modified();
-}
+  // copy the input
+  this->SetInput(transform->Input);
 
-//----------------------------------------------------------------------------
-void vtkTransform::Transpose()
-{
-  this->Matrix->Transpose();
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Set the current matrix directly.
-void vtkTransform::SetMatrix(const double Elements[16])
-{
-  this->Matrix->DeepCopy(Elements);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkTransform::Translate(double x, double y, double z)
-{
-  if (x == 0.0 && y == 0.0 && z == 0.0) 
-    {
-    return;
-    }
-
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  matrix[0][3] = x;
-  matrix[1][3] = y;
-  matrix[2][3] = z;
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-void vtkTransform::RotateWXYZ(double angle, double x, double y, double z)
-{
-  if (x == 0.0 && y == 0.0 && z == 0.0) 
-    {
-    vtkErrorMacro(<<"Trying to rotate around zero-length axis");
-    return;
-    }
-
-  if (angle == 0)
-    {
-    return;
-    }
-
-  // convert to radians
-  angle = angle*vtkMath::DoubleDegreesToRadians();
-
-  // make a normalized quaternion
-  double w = cos(0.5*angle);
-  double f = sin(0.5*angle)/sqrt(x*x+y*y+z*z);
-  x *= f;
-  y *= f;
-  z *= f;
-
-  // convert the quaternion to a matrix
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  double ww = w*w;
-  double wx = w*x;
-  double wy = w*y;
-  double wz = w*z;
-
-  double xx = x*x;
-  double yy = y*y;
-  double zz = z*z;
-
-  double xy = x*y;
-  double xz = x*z;
-  double yz = y*z;
-
-  double ss = (ww - xx - yy - zz)/2;
-
-  matrix[0][0] = ( ss + xx)*2;
-  matrix[1][0] = ( wz + xy)*2;
-  matrix[2][0] = (-wy + xz)*2;
-
-  matrix[0][1] = (-wz + xy)*2;
-  matrix[1][1] = ( ss + yy)*2;
-  matrix[2][1] = ( wx + yz)*2;
-
-  matrix[0][2] = ( wy + xz)*2;
-  matrix[1][2] = (-wx + yz)*2;
-  matrix[2][2] = ( ss + zz)*2;
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-void vtkTransform::Scale(double x, double y, double z)
-{
-  if (x == 0.0 && y == 0.0 && z == 0.0) 
-    {
-    return;
-    }
-
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  matrix[0][0] = x;
-  matrix[1][1] = y;
-  matrix[2][2] = z;
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-// Concatenates the input matrix with the current matrix.
-// The setting of the PreMultiply flag determines whether the matrix
-// is PreConcatenated or PostConcatenated.
-void vtkTransform::Concatenate(const double Elements[16])
-{
-  if (this->PreMultiplyFlag) 
-    {
-    vtkMatrix4x4::Multiply4x4(*this->Matrix->Element, Elements, 
-			      *this->Matrix->Element);
-    }
-  else 
-    {
-    vtkMatrix4x4::Multiply4x4(Elements, *this->Matrix->Element, 
-			      *this->Matrix->Element);
-    }
-  this->Matrix->Modified();
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Sets the internal state of the Transform to
-// post multiply. All subsequent matrix
-// operations will occur after those already represented
-// in the current Transformation matrix.
-void vtkTransform::PostMultiply()
-{
-  if (this->PreMultiplyFlag != 0) 
-    {
-    this->PreMultiplyFlag = 0;
-    this->Modified ();
-    }
-}
-
-//----------------------------------------------------------------------------
-// Sets the internal state of the Transform to
-// pre multiply. All subsequent matrix
-// operations will occur before those already represented
-// in the current Transformation matrix.
-void vtkTransform::PreMultiply()
-{
-  if (this->PreMultiplyFlag != 1) 
-    {
-    this->PreMultiplyFlag = 1;
-    this->Modified ();
-    }
-}
-
-//----------------------------------------------------------------------------
-// support for the vtkGeneralTransform superclass
-void vtkTransform::InternalDeepCopy(vtkGeneralTransform *transform)
-{
-  vtkTransform *t = (vtkTransform *)transform;
-
-  this->PreMultiplyFlag = t->PreMultiplyFlag;
-  this->StackSize = t->StackSize;
-  this->Matrix->DeepCopy(t->Matrix);
-
-  // free old stack
-  if (this->StackBottom)
-    {
-    int n = this->Stack-this->StackBottom;
-    for (int i = 0; i < n; i++)
-      {
-      this->StackBottom[i]->Delete();
-      }
-    delete [] this->StackBottom;
-    } 
-
-  // allocate and copy stack
-  this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
+  // copy the concatenation
+  this->Concatenation->DeepCopy(transform->Concatenation);
 
   // copy the stack
-  int n = t->Stack-t->StackBottom;
-  for (int i = 0; i < n; i++ )
+  if (transform->Stack)
     {
-    this->StackBottom[i] = vtkMatrix4x4::New();
-    (this->StackBottom[i])->DeepCopy(t->Stack[i]);
+    if (this->Stack == NULL)
+      {
+      this->Stack = vtkTransformConcatenationStack::New();
+      }
+    this->Stack->DeepCopy(transform->Stack);
     }
-  this->Stack = this->StackBottom + n;
+  else
+    {
+    if (this->Stack)
+      {
+      this->Stack->Delete();
+      this->Stack = NULL;
+      }
+    }
 
-  // copy Point and DoublePoint
+  // legacy stuff: copy Point and DoublePoint
   for (int j = 0; j < 3; j++)
     {
-    this->Point[j] = t->Point[j];
-    this->DoublePoint[j] = t->DoublePoint[j];
+    this->Point[j] = transform->Point[j];
+    this->DoublePoint[j] = transform->DoublePoint[j];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkTransform::InternalUpdate()
+{
+  // copy matrix from input
+  if (this->Input)
+    {
+    this->Matrix->DeepCopy(this->Input->GetMatrix());
+    // if inverse flag is set, invert the matrix
+    if (this->Concatenation->GetInverseFlag())
+      {
+      this->Matrix->Invert();
+      }
+    }
+  else
+  // no input, start with identity
+    {
+    this->Matrix->Identity();
     }
 
+  int i;
+  int nTransforms = this->Concatenation->GetNumberOfTransforms();
+  int nPreTransforms = this->Concatenation->GetNumberOfPreTransforms();
+
+  // concatenate PreTransforms 
+  for (i = nPreTransforms-1; i >= 0; i--)
+    {
+    vtkPerspectiveTransform *transform = 
+      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
+    vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
+			      this->Matrix);
+    }
+
+  // concatenate PostTransforms
+  for (i = nPreTransforms; i < nTransforms; i++)
+    {
+    vtkPerspectiveTransform *transform = 
+      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
+    vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
+			      this->Matrix);
+    }
+}  
+
+//----------------------------------------------------------------------------
+void vtkTransform::Concatenate(vtkLinearTransform *transform)
+{
+  if (transform->CircuitCheck(this))
+    {
+    vtkErrorMacro("Concatenate: this would create a circular reference.");
+    return; 
+    }
+  this->Concatenation->Concatenate(transform); 
+  this->Modified(); 
+};
+
+//----------------------------------------------------------------------------
+void vtkTransform::SetInput(vtkLinearTransform *input)
+{
+  if (this->Input == input) 
+    { 
+    return; 
+    }
+  if (input && input->CircuitCheck(this)) 
+    {
+    vtkErrorMacro("SetInput: this would create a circular reference.");
+    return; 
+    }
+  if (this->Input) 
+    { 
+    this->Input->Delete(); 
+    }
+  this->Input = input;
+  if (this->Input) 
+    { 
+    this->Input->Register(this); 
+    } 
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-// support for the vtkGeneralTransform superclass
+int vtkTransform::CircuitCheck(vtkGeneralTransform *transform)
+{
+  if (this->vtkLinearTransform::CircuitCheck(transform) ||
+      this->Input && this->Input->CircuitCheck(transform))
+    {
+    return 1;
+    }
+
+  int n = this->Concatenation->GetNumberOfTransforms();
+  for (int i = 0; i < n; i++)
+    {
+    if (this->Concatenation->GetTransform(i)->CircuitCheck(transform))
+      {
+      return 1;
+      }
+    }
+
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 vtkGeneralTransform *vtkTransform::MakeTransform()
 {
   return vtkTransform::New();
 }
 
 //----------------------------------------------------------------------------
-// Deletes the transformation on the top of the stack and sets the top 
-// to the next transformation on the stack.
-void vtkTransform::Pop()
+unsigned long vtkTransform::GetMTime()
 {
-  // if we're at the bottom of the stack, don't pop
-  if (this->Stack == this->StackBottom)
+  unsigned long mtime = this->vtkLinearTransform::GetMTime();
+  unsigned long mtime2;
+
+  if (this->Input)
     {
-    return;
+    mtime2 = this->Input->GetMTime();
+    if (mtime2 > mtime)
+      {
+      mtime = mtime2;
+      }
     }
-
-  this->Matrix->DeepCopy(*--this->Stack);
-
-  // free the stack matrix storage
-  (*this->Stack)->Delete();
-  (*this->Stack) = NULL;
-
-  this->Modified ();
-}
-
-//----------------------------------------------------------------------------
-// Pushes the current transformation matrix onto the
-// transformation stack.
-void vtkTransform::Push()
-{
-  if ((this->Stack - this->StackBottom) > this->StackSize) 
+  mtime2 = this->Concatenation->GetMaxMTime();
+  if (mtime2 > mtime)
     {
-    vtkErrorMacro("Push: Exceeded matrix stack size");
-    return;
+    return mtime2;
     }
-
-  // allocate a new matrix on the stack
-  (*this->Stack) = vtkMatrix4x4::New();
-  
-  // set the new matrix to the previous top of stack matrix
-  (*this->Stack++)->DeepCopy(this->Matrix);
-
-  this->Modified ();
-}
-
-//----------------------------------------------------------------------------
-// Return the inverse of the current transformation matrix.
-void vtkTransform::GetInverse(vtkMatrix4x4 *inverse)
-{
-  vtkMatrix4x4::Invert(this->Matrix,inverse);
-}
-
-//----------------------------------------------------------------------------
-// Obtain the transpose of the current transformation matrix.
-void vtkTransform::GetTranspose(vtkMatrix4x4 *transpose)
-{
-  vtkMatrix4x4::Transpose(this->Matrix,transpose);
+  return mtime;
 }
 
 //----------------------------------------------------------------------------
@@ -383,6 +278,7 @@ void vtkTransform::GetOrientation(double orientation[3])
 {
 #define VTK_AXIS_EPSILON 0.001
 
+  this->Update();
   // convenient access to matrix
   double (*matrix)[4] = this->Matrix->Element;
 
@@ -464,6 +360,8 @@ void vtkTransform::GetOrientation(double orientation[3])
 // vtkTransform::GetOrientationWXYZ 
 void vtkTransform::GetOrientationWXYZ(double wxyz[4])
 {
+  this->Update();
+
   double matrix[4][4]; // for local manipulation
   vtkMatrix4x4::DeepCopy(*matrix,this->Matrix);
 
@@ -545,6 +443,8 @@ void vtkTransform::GetOrientationWXYZ(double wxyz[4])
 // component of the 4x4 matrix.
 void vtkTransform::GetPosition(double position[3])
 {
+  this->Update();
+
   position[0] = this->Matrix->Element[0][3];
   position[1] = this->Matrix->Element[1][3];
   position[2] = this->Matrix->Element[2][3];
@@ -555,6 +455,8 @@ void vtkTransform::GetPosition(double position[3])
 // an array of three float numbers.
 void vtkTransform::GetScale(double scale[3])
 {
+  this->Update();
+
   // convenient access to matrix
   double (*matrix)[4] = this->Matrix->Element;
 
@@ -567,6 +469,20 @@ void vtkTransform::GetScale(double scale[3])
 }
 
 //----------------------------------------------------------------------------
+// Return the inverse of the current transformation matrix.
+void vtkTransform::GetInverse(vtkMatrix4x4 *inverse)
+{
+  vtkMatrix4x4::Invert(this->GetMatrix(),inverse);
+}
+
+//----------------------------------------------------------------------------
+// Obtain the transpose of the current transformation matrix.
+void vtkTransform::GetTranspose(vtkMatrix4x4 *transpose)
+{
+  vtkMatrix4x4::Transpose(this->GetMatrix(),transpose);
+}
+
+//----------------------------------------------------------------------------
 // Returns the result of multiplying the currently set Point by the current 
 // transformation matrix. Point is expressed in homogeneous coordinates.
 // The setting of the PreMultiplyFlag will determine if the Point is
@@ -575,7 +491,7 @@ void vtkTransform::GetScale(double scale[3])
 // These methods are obsolete.
 float *vtkTransform::GetPoint()
 {
-  if (this->PreMultiplyFlag)
+  if (this->Concatenation->GetPreMultiplyFlag())
     {
     this->Matrix->PointMultiply(this->Point,this->Point);
     }
@@ -589,7 +505,7 @@ float *vtkTransform::GetPoint()
 //----------------------------------------------------------------------------
 double *vtkTransform::GetDoublePoint()
 {
-  if (this->PreMultiplyFlag)
+  if (this->Concatenation->GetPreMultiplyFlag())
     {
     this->Matrix->PointMultiply(this->DoublePoint,this->DoublePoint);
     }

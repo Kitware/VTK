@@ -60,29 +60,93 @@ vtkProjectionTransform* vtkProjectionTransform::New()
 //----------------------------------------------------------------------------
 vtkProjectionTransform::vtkProjectionTransform()
 {
-  this->PreMultiplyFlag = 1;
-  this->StackSize = 10;
-  this->Stack = new vtkMatrix4x4 *[this->StackSize];
-  this->StackBottom = this->Stack;
+  this->Input = NULL;
+
+  // most of the functionality is provided by the concatenation
+  this->Concatenation = vtkTransformConcatenation::New();
+
+  // the stack will be allocated the first time Push is called
+  this->Stack = NULL;
 }
 
 //----------------------------------------------------------------------------
 vtkProjectionTransform::~vtkProjectionTransform()
 {
-  int n = this->Stack-this->StackBottom;
-  for (int i = 0; i < n; i++)
+  if (this->Concatenation)
     {
-    this->StackBottom[i]->Delete();
+    this->Concatenation->Delete();
     }
-
-  delete [] this->StackBottom;
+  if (this->Stack)
+    {
+    this->Stack->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkProjectionTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Update();
+
   vtkPerspectiveTransform::PrintSelf(os, indent);
-  os << indent << (this->PreMultiplyFlag ? "PreMultiply\n" : "PostMultiply\n");
+  os << indent << "Input: (" << this->Input << ")\n";
+  this->Concatenation->PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkProjectionTransform::Concatenate(vtkPerspectiveTransform *transform)
+{
+  if (transform->CircuitCheck(this))
+    {
+    vtkErrorMacro("Concatenate: this would create a circular reference.");
+    return; 
+    }
+  this->Concatenation->Concatenate(transform); 
+  this->Modified(); 
+};
+
+//----------------------------------------------------------------------------
+void vtkProjectionTransform::SetInput(vtkPerspectiveTransform *input)
+{
+  if (this->Input == input) 
+    { 
+    return; 
+    }
+  if (input && input->CircuitCheck(this)) 
+    {
+    vtkErrorMacro("SetInput: this would create a circular reference.");
+    return; 
+    }
+  if (this->Input) 
+    { 
+    this->Input->Delete(); 
+    }
+  this->Input = input;
+  if (this->Input) 
+    { 
+    this->Input->Register(this); 
+    }
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+int vtkProjectionTransform::CircuitCheck(vtkGeneralTransform *transform)
+{
+  if (this->vtkPerspectiveTransform::CircuitCheck(transform) ||
+      this->Input && this->Input->CircuitCheck(transform))
+    {
+    return 1;
+    }
+
+  int n = this->Concatenation->GetNumberOfTransforms();
+  for (int i = 0; i < n; i++)
+    {
+    if (this->Concatenation->GetTransform(i)->CircuitCheck(transform))
+      {
+      return 1;
+      }
+    }
+
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -92,110 +156,101 @@ vtkGeneralTransform *vtkProjectionTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkProjectionTransform::InternalDeepCopy(vtkGeneralTransform *transform)
+unsigned long vtkProjectionTransform::GetMTime()
 {
-  vtkProjectionTransform *t = (vtkProjectionTransform *)transform;  
+  unsigned long mtime = this->vtkPerspectiveTransform::GetMTime();
+  unsigned long mtime2;
 
-  this->PreMultiplyFlag = t->PreMultiplyFlag;
-  this->StackSize = t->StackSize;
-  this->Matrix->DeepCopy(t->Matrix);
-
-  // free the old stack
-  if (this->StackBottom)
+  if (this->Input)
     {
-    int n = this->Stack-this->StackBottom;
-    for (int i = 0; i < n; i++)
+    mtime2 = this->Input->GetMTime();
+    if (mtime2 > mtime)
       {
-      this->StackBottom[i]->Delete();
+      mtime = mtime2;
       }
-    delete [] this->StackBottom;
-    } 
+    }
+  mtime2 = this->Concatenation->GetMaxMTime();
+  if (mtime2 > mtime)
+    {
+    return mtime2;
+    }
+  return mtime;
+}
 
-  // allocate new stack
-  this->StackBottom = new vtkMatrix4x4 *[this->StackSize];
+//----------------------------------------------------------------------------
+void vtkProjectionTransform::InternalDeepCopy(vtkGeneralTransform *gtrans)
+{
+  vtkProjectionTransform *transform = (vtkProjectionTransform *)gtrans;
+
+  // copy the input
+  this->SetInput(transform->Input);
+
+  // copy the concatenation
+  this->Concatenation->DeepCopy(transform->Concatenation);
 
   // copy the stack
-  int n = t->Stack-t->StackBottom;
-  for (int i = 0; i < n; i++ )
+  if (transform->Stack)
     {
-    this->StackBottom[i] = vtkMatrix4x4::New();
-    (this->StackBottom[i])->DeepCopy(t->Stack[i]);
+    if (this->Stack == NULL)
+      {
+      this->Stack = vtkTransformConcatenationStack::New();
+      }
+    this->Stack->DeepCopy(transform->Stack);
     }
-  this->Stack = this->StackBottom + n;
-
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Creates an identity matrix.
-void vtkProjectionTransform::Identity()
-{
-  this->Matrix->Identity();
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-void vtkProjectionTransform::Inverse()
-{ 
-  this->Matrix->Invert();
-  this->Modified(); 
-}
-
-//----------------------------------------------------------------------------
-// Set the current matrix directly.
-void vtkProjectionTransform::SetMatrix(const double Elements[16])
-{
-  this->Matrix->DeepCopy(Elements);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Concatenates the input matrix with the current matrix.
-// The setting of the PreMultiply flag determines whether the matrix
-// is PreConcatenated or PostConcatenated.
-void vtkProjectionTransform::Concatenate(const double Elements[16])
-{
-  if (this->PreMultiplyFlag) 
+  else
     {
-    vtkMatrix4x4::Multiply4x4(*this->Matrix->Element, Elements, 
-			      *this->Matrix->Element);
+    if (this->Stack)
+      {
+      this->Stack->Delete();
+      this->Stack = NULL;
+      }
     }
-  else 
-    {
-    vtkMatrix4x4::Multiply4x4(Elements, *this->Matrix->Element, 
-			      *this->Matrix->Element);
-    }
-  this->Matrix->Modified();
-  this->Modified();
+
+  // defer to superclass
+  this->vtkPerspectiveTransform::InternalDeepCopy(transform);
 }
 
 //----------------------------------------------------------------------------
-// Sets the internal state of the ProjectionTransform to
-// post multiply. All subsequent matrix
-// operations will occur after those already represented
-// in the current ProjectionTransformation matrix.
-void vtkProjectionTransform::PostMultiply()
+void vtkProjectionTransform::InternalUpdate()
 {
-  if (this->PreMultiplyFlag != 0) 
+  // copy matrix from input
+  if (this->Input)
     {
-    this->PreMultiplyFlag = 0;
-    this->Modified ();
+    this->Matrix->DeepCopy(this->Input->GetMatrix());
+    // if inverse flag is set, invert the matrix
+    if (this->Concatenation->GetInverseFlag())
+      {
+      this->Matrix->Invert();
+      }
     }
-}
+  else
+  // no input, start with identity
+    {
+    this->Matrix->Identity();
+    }
 
-//----------------------------------------------------------------------------
-// Sets the internal state of the ProjectionTransform to
-// pre multiply. All subsequent matrix
-// operations will occur before those already represented
-// in the current ProjectionTransformation matrix.
-void vtkProjectionTransform::PreMultiply()
-{
-  if (this->PreMultiplyFlag != 1) 
+  int i;
+  int nTransforms = this->Concatenation->GetNumberOfTransforms();
+  int nPreTransforms = this->Concatenation->GetNumberOfPreTransforms();
+
+  // concatenate PreTransforms 
+  for (i = nPreTransforms-1; i >= 0; i--)
     {
-    this->PreMultiplyFlag = 1;
-    this->Modified ();
+    vtkPerspectiveTransform *transform = 
+      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
+    vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
+			      this->Matrix);
     }
-}
+
+  // concatenate PostTransforms
+  for (i = nPreTransforms; i < nTransforms; i++)
+    {
+    vtkPerspectiveTransform *transform = 
+      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
+    vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
+			      this->Matrix);
+    }
+}  
 
 //----------------------------------------------------------------------------
 // Utility for adjusting the window range to a new one.  Usually the
@@ -424,140 +479,6 @@ void vtkProjectionTransform::SetupCamera(const double position[3],
 
   // apply the transformation
   this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-void vtkProjectionTransform::Translate(double x, double y, double z)
-{
-  if (x == 0.0 && y == 0.0 && z == 0.0) 
-    {
-    return;
-    }
-
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  matrix[0][3] = x;
-  matrix[1][3] = y;
-  matrix[2][3] = z;
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-void vtkProjectionTransform::RotateWXYZ(double angle, 
-					double x, double y, double z)
-{
-  if (x == 0.0 && y == 0.0 && z == 0.0) 
-    {
-    vtkErrorMacro(<<"Trying to rotate around zero-length axis");
-    return;
-    }
-
-  if (angle == 0)
-    {
-    return;
-    }
-
-  // convert to radians
-  angle = angle*vtkMath::DoubleDegreesToRadians();
-
-  // make a normalized quaternion
-  double w = cos(0.5*angle);
-  double f = sin(0.5*angle)/sqrt(x*x+y*y+z*z);
-  x *= f;
-  y *= f;
-  z *= f;
-
-  // convert the quaternion to a matrix
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  double ww = w*w;
-  double wx = w*x;
-  double wy = w*y;
-  double wz = w*z;
-
-  double xx = x*x;
-  double yy = y*y;
-  double zz = z*z;
-
-  double xy = x*y;
-  double xz = x*z;
-  double yz = y*z;
-
-  double ss = (ww - xx - yy - zz)/2;
-
-  matrix[0][0] = ( ss + xx)*2;
-  matrix[1][0] = ( wz + xy)*2;
-  matrix[2][0] = (-wy + xz)*2;
-
-  matrix[0][1] = (-wz + xy)*2;
-  matrix[1][1] = ( ss + yy)*2;
-  matrix[2][1] = ( wx + yz)*2;
-
-  matrix[0][2] = ( wy + xz)*2;
-  matrix[1][2] = (-wx + yz)*2;
-  matrix[2][2] = ( ss + zz)*2;
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-void vtkProjectionTransform::Scale(double x, double y, double z)
-{
-  if (x == 0.0 && y == 0.0 && z == 0.0) 
-    {
-    return;
-    }
-
-  double matrix[4][4];
-  vtkMatrix4x4::Identity(*matrix);
-
-  matrix[0][0] = x;
-  matrix[1][1] = y;
-  matrix[2][2] = z;
-
-  this->Concatenate(*matrix);
-}
-
-//----------------------------------------------------------------------------
-// Deletes the matrix on the top of the stack and sets the top 
-// to the next matrix on the stack.
-void vtkProjectionTransform::Pop()
-{
-  // if we're at the bottom of the stack, don't pop
-  if (this->Stack == this->StackBottom)
-    {
-    return;
-    }
-
-  this->Matrix->DeepCopy(*--this->Stack);
-
-  // free the stack matrix storage
-  (*this->Stack)->Delete();
-  (*this->Stack) = NULL;
-
-  this->Modified ();
-}
-
-//----------------------------------------------------------------------------
-// Pushes the current matrix onto the stack.
-void vtkProjectionTransform::Push()
-{
-  if ((this->Stack - this->StackBottom) > this->StackSize) 
-    {
-    vtkErrorMacro("Push: Exceeded matrix stack size");
-    return;
-    }
-
-  // allocate a new matrix on the stack
-  (*this->Stack) = vtkMatrix4x4::New();
-  
-  // set the new matrix to the previous top of stack matrix
-  (*this->Stack++)->DeepCopy(this->Matrix);
-
-  this->Modified ();
 }
 
   

@@ -86,11 +86,6 @@ public:
 				     vtkVectors *inVrs, 
 				     vtkVectors *outVrs);
 
-  // Description:
-  // Create an identity transformation, which is does nothing because
-  // this transform is always the identity transform.
-  void Identity() {};
-
   // Invert the transformation.  This doesn't do anything to the 
   // identity transformation.
   void Inverse() {};

@@ -42,20 +42,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkPerspectiveTransformConcatenation - concatenation of perspective 
 // transformations
 // .SECTION Description
-// vtkPerspectiveTransformConcatenation is a special PerspectiveTransform 
-// which allows concatenation of 4x4 matrices in a pipelined manner.
-// .SECTION see also
-// vtkGeneralTransformConcatenation vtkLinearTransformConcatenation
-
+// This class is obsolete, all of its functionality can be found
+// in vtkProjectionTransform.
 
 #ifndef __vtkPerspectiveTransformConcatenation_h
 #define __vtkPerspectiveTransformConcatenation_h
 
-#include "vtkPerspectiveTransform.h"
-#include "vtkMutexLock.h"
+#include "vtkProjectionTransform.h"
 
 class VTK_EXPORT vtkPerspectiveTransformConcatenation : 
-  public vtkPerspectiveTransform
+  public vtkProjectionTransform
 {
 public:
   static vtkPerspectiveTransformConcatenation *New();
@@ -63,55 +59,6 @@ public:
   vtkTypeMacro(vtkPerspectiveTransformConcatenation,vtkPerspectiveTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Concatenate the current transform with the specified transform(s),
-  // taking the PreMultiply flag into consideration.  If you specify
-  // multiple transforms, then (assuming that your current transform
-  // is called 't') the result is t*t1*t2*t3*t4 in PreMultiply mode,
-  // or t1*t2*t3*t4*t in PostMultiply mode.
-  void Concatenate(vtkPerspectiveTransform *transform) {
-    this->Concatenation->Concatenate(transform); };
-  void Concatenate(vtkPerspectiveTransform *t1,
-		   vtkPerspectiveTransform *t2) { 
-    this->Concatenate(t1,t2,0,0); };
-  void Concatenate(vtkPerspectiveTransform *t1,
-		   vtkPerspectiveTransform *t2,
-		   vtkPerspectiveTransform *t3) { 
-    this->Concatenate(t1,t2,t3,0); };
-  void Concatenate(vtkPerspectiveTransform *t1,
-		   vtkPerspectiveTransform *t2,
-		   vtkPerspectiveTransform *t3,
-		   vtkPerspectiveTransform *t4) {
-    this->Concatenation->Concatenate(t1,t2,t3,t4); };
-
-  // Description:
-  // Sets the internal state of the transform to post multiply. All
-  // subsequent matrix operations will occur after those already represented
-  // in the current transformation matrix.  The default is PreMultiply.
-  void PostMultiply() { this->Concatenation->PostMultiply(); };
-
-  // Description:
-  // Sets the internal state of the transform to pre multiply. All subsequent
-  // matrix operations will occur before those already represented in the
-  // current transformation matrix.  The default is PreMultiply.
-  void PreMultiply() { this->Concatenation->PreMultiply(); };
-
-  // Description:
-  // Invert the transformation. 
-  void Inverse() { this->Concatenation->Inverse(); };
-
-  // Description:
-  // Create an identity transformation.
-  void Identity() { this->Concatenation->Identity(); };
-
-  // Description:
-  // Return modified time of transformation.
-  unsigned long GetMTime();
-
-  // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
-
   // Description:
   // Make another transform of the same type.
   vtkGeneralTransform *MakeTransform();
@@ -122,10 +69,6 @@ protected:
   vtkPerspectiveTransformConcatenation(
 	  const vtkPerspectiveTransformConcatenation&) {};
   void operator=(const vtkPerspectiveTransformConcatenation&) {};
-
-  // Description:
-  // Update the concatenated transform.
-  void InternalUpdate();
 };
 
 #endif

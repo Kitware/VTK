@@ -56,9 +56,65 @@ vtkMatrixToPerspectiveTransform* vtkMatrixToPerspectiveTransform::New()
 }
 
 //----------------------------------------------------------------------------
+vtkMatrixToPerspectiveTransform::vtkMatrixToPerspectiveTransform()
+{
+  this->Input = NULL;
+  this->InverseFlag = 0;
+}
+
+//----------------------------------------------------------------------------
+vtkMatrixToPerspectiveTransform::~vtkMatrixToPerspectiveTransform()
+{
+  this->SetInput(NULL);
+}
+
+//----------------------------------------------------------------------------
 void vtkMatrixToPerspectiveTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->Update();
+
   vtkPerspectiveTransform::PrintSelf(os, indent);
+  os << indent << "Input: " << this->Input << "\n";
+  os << indent << "InverseFlag: " << this->InverseFlag << "\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkMatrixToPerspectiveTransform::Inverse()
+{
+  this->InverseFlag = !this->InverseFlag;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkMatrixToPerspectiveTransform::InternalUpdate()
+{
+  if (this->Input)
+    {
+    this->Matrix->DeepCopy(this->Input);
+    if (this->InverseFlag)
+      {
+      this->Matrix->Invert();
+      }
+    }
+  else
+    {
+    this->Matrix->Identity();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkMatrixToPerspectiveTransform::InternalDeepCopy(
+						vtkGeneralTransform *gtrans)
+{
+  vtkMatrixToPerspectiveTransform *transform = 
+    (vtkMatrixToPerspectiveTransform *)gtrans;
+
+  this->SetInput(transform->Input);
+
+  if (this->InverseFlag != transform->InverseFlag)
+    {
+    this->Inverse();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -68,60 +124,18 @@ vtkGeneralTransform *vtkMatrixToPerspectiveTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-void vtkMatrixToPerspectiveTransform::InternalDeepCopy(
-					     vtkGeneralTransform *transform)
-{
-  vtkMatrixToPerspectiveTransform *t = 
-    (vtkMatrixToPerspectiveTransform *)transform;  
-
-  this->Matrix->DeepCopy(t->Matrix);
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Set the current matrix directly.
-void vtkMatrixToPerspectiveTransform::SetMatrix(vtkMatrix4x4 *m)
-{
-  if (this->Matrix == m)
-    {
-    return;
-    }
-
-  if (this->Matrix)
-    {
-    this->Matrix->Delete();
-    }
-  m->Register(this);
-  this->Matrix = m;
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Creates an identity matrix.
-void vtkMatrixToPerspectiveTransform::Identity()
-{
-  this->Matrix->Identity();
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-// Inverts the matrix.
-void vtkMatrixToPerspectiveTransform::Inverse()
-{
-  this->Matrix->Invert();
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
 // Get the MTime
 unsigned long vtkMatrixToPerspectiveTransform::GetMTime()
 {
   unsigned long mtime = this->vtkPerspectiveTransform::GetMTime();
-  unsigned long matrixMTime = this->Matrix->GetMTime();
 
-  if (matrixMTime > mtime)
+  if (this->Input)
     {
-    mtime = matrixMTime;
+    unsigned long matrixMTime = this->Input->GetMTime();
+    if (matrixMTime > mtime)
+      {
+      return matrixMTime;
+      }
     }
   return mtime;
 }

@@ -86,11 +86,6 @@ public:
   const char *GetModeAsString();
 
   // Description:
-  // Create an identity transformation.  This simply calls
-  // SetSourceLandmarks(NULL), SetTargetLandmarks(NULL).
-  void Identity();
-
-  // Description:
   // Invert the transformation.  This is done by switching the
   // source and target landmarks.
   void Inverse();
@@ -98,10 +93,6 @@ public:
   // Description:
   // Get the MTime.
   unsigned long GetMTime();
-
-  // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
 
   // Description:
   // Make another transform of the same type.
@@ -115,6 +106,10 @@ protected:
 
   // Update the matrix from the quaternion.
   void InternalUpdate();
+
+  // Description:
+  // This method does no type checking, use DeepCopy instead.
+  void InternalDeepCopy(vtkGeneralTransform *transform);
 
   vtkPoints* SourceLandmarks;
   vtkPoints* TargetLandmarks;

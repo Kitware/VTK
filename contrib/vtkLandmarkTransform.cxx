@@ -360,13 +360,6 @@ void vtkLandmarkTransform::SetTargetLandmarks(vtkPoints *target)
 }
 
 //----------------------------------------------------------------------------
-void vtkLandmarkTransform::Identity()
-{
-  this->SetSourceLandmarks(NULL);
-  this->SetTargetLandmarks(NULL);
-}
-
-//----------------------------------------------------------------------------
 void vtkLandmarkTransform::Inverse()
 {
   vtkPoints *tmp1 = this->SourceLandmarks;
@@ -390,6 +383,8 @@ void vtkLandmarkTransform::InternalDeepCopy(vtkGeneralTransform *transform)
   this->SetMode(t->Mode);
   this->SetSourceLandmarks(t->SourceLandmarks);
   this->SetTargetLandmarks(t->TargetLandmarks);
+
+  this->Modified();
 }
 
 

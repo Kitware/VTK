@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-// .NAME vtkMatrixToLinearTransform - convert a matrix to a linear transform
+// .NAME vtkMatrixToLinearTransform - convert a matrix to a transform
 // .SECTION Description
 // This is a very simple class which allows a vtkMatrix4x4 to be used in
 // place of a vtkLinearTransform or vtkGeneralTransform.  For example,
@@ -48,8 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // then any modifications to the matrix will automatically be reflected in
 // the output of the filter.
 // .SECTION See Also
-// vtkMatrix4x4 vtkMatrixToPerspectiveTransform vtkLinearTransform 
-// vtkLinearTransformConcatenation 
+// vtkTransform vtkMatrix4x4 vtkMatrixToPerspectiveTransform 
 
 #ifndef __vtkMatrixToLinearTransform_h
 #define __vtkMatrixToLinearTransform_h
@@ -64,18 +63,16 @@ class VTK_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
   vtkTypeMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
   void PrintSelf (ostream& os, vtkIndent indent);
 
-  // Description:
-  // Set the matrix.  Calls to Identity() and Inverse() will modify
-  // this matrix, calls to GetInverse() will modify a copy of this
-  // matrix.  
-  void SetMatrix(vtkMatrix4x4 *m);
+  vtkSetObjectMacro(Input,vtkMatrix4x4);
+  vtkGetObjectMacro(Input,vtkMatrix4x4);
 
   // Description:
-  // Make the matrix into the identity matrix.
-  void Identity();
+  // Identity, doesn't do anything.
+  void Identity() {};
 
   // Description:
-  // Invert the matrix.
+  // The input matrix is left as-is, but the transformation matrix
+  // is inverted.
   void Inverse();
 
   // Description:
@@ -83,18 +80,26 @@ class VTK_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
   unsigned long GetMTime();
 
   // Description:
-  // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkGeneralTransform *transform);
-
-  // Description:
   // Make a new transform of the same type.
   vtkGeneralTransform *MakeTransform();
 
+  // Description:
+  // This method is deprecated.
+  void SetMatrix(vtkMatrix4x4 *matrix) {
+    this->SetInput(matrix);
+    vtkWarningMacro("SetMatrix: deprecated, use SetInput() instead"); }
+
 protected:
-  vtkMatrixToLinearTransform() {};
-  ~vtkMatrixToLinearTransform() {};
+  vtkMatrixToLinearTransform();
+  ~vtkMatrixToLinearTransform();
   vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) {};
   void operator=(const vtkMatrixToLinearTransform&) {};
+
+  void InternalUpdate();
+  void InternalDeepCopy(vtkGeneralTransform *transform);
+
+  int InverseFlag;
+  vtkMatrix4x4 *Input;
 };
 
 #endif

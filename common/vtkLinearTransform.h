@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkLinearTransform provides a generic interface for linear 
 // (affine or 12 degree-of-freedom) transformations. 
 // .SECTION see also
-// vtkTransform vtkLinearTransformConcatenation vtkIdentityTransform 
+// vtkTransform vtkIdentityTransform 
 
 
 #ifndef __vtkLinearTransform_h
@@ -72,12 +72,12 @@ public:
     this->Update(); this->InternalTransformNormal(in,out); };
 
   // Description:
-  // Synonymous with TransformFloatNormal(x,y,z).
+  // Synonymous with TransformDoubleNormal(x,y,z).
   // Use this if you are programming in python, tcl or Java.
-  float *TransformNormal(float x, float y, float z) {
-    return this->TransformFloatNormal(x,y,z); }
-  float *TransformNormal(const float normal[3]) {
-    return this->TransformFloatNormal(normal[0],normal[1],normal[2]); };
+  double *TransformNormal(double x, double y, double z) {
+    return this->TransformDoubleNormal(x,y,z); }
+  double *TransformNormal(const double normal[3]) {
+    return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); };
 
   // Description:
   // Apply the transformation to an (x,y,z) normal.
@@ -94,12 +94,12 @@ public:
     return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); };
 
   // Description:
-  // Synonymous with TransformFloatVector(x,y,z).
+  // Synonymous with TransformDoubleVector(x,y,z).
   // Use this if you are programming in python, tcl or Java.
-  float *TransformVector(float x, float y, float z) {
-    return this->TransformFloatVector(x,y,z); }
-  float *TransformVector(const float normal[3]) {
-    return this->TransformFloatVector(normal[0],normal[1],normal[2]); };
+  double *TransformVector(double x, double y, double z) {
+    return this->TransformDoubleVector(x,y,z); }
+  double *TransformVector(const double normal[3]) {
+    return this->TransformDoubleVector(normal[0],normal[1],normal[2]); };
 
   // Description:
   // Apply the transformation to a vector.

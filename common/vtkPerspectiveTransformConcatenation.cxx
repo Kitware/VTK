@@ -59,7 +59,7 @@ vtkPerspectiveTransformConcatenation *vtkPerspectiveTransformConcatenation::New(
 //----------------------------------------------------------------------------
 vtkPerspectiveTransformConcatenation::vtkPerspectiveTransformConcatenation()
 {
-  this->Concatenation = vtkSimpleTransformConcatenation::New(this);
+  vtkWarningMacro("This class is obsolete, use vtkProjectionTransform instead");
 }
 
 //----------------------------------------------------------------------------
@@ -70,8 +70,7 @@ vtkPerspectiveTransformConcatenation::~vtkPerspectiveTransformConcatenation()
 //----------------------------------------------------------------------------
 void vtkPerspectiveTransformConcatenation::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPerspectiveTransform::PrintSelf(os,indent);
-  this->Concatenation->PrintSelf(os,indent);
+  vtkProjectionTransform::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
@@ -79,38 +78,4 @@ vtkGeneralTransform *vtkPerspectiveTransformConcatenation::MakeTransform()
 {
   return vtkPerspectiveTransformConcatenation::New();
 }
-
-//----------------------------------------------------------------------------
-void vtkPerspectiveTransformConcatenation::InternalDeepCopy(
-				          vtkGeneralTransform *transform)
-{
-  vtkPerspectiveTransformConcatenation *t = 
-    (vtkPerspectiveTransformConcatenation *)transform;
-
-  this->Concatenation->DeepCopy(t->Concatenation);
-}
-
-//----------------------------------------------------------------------------
-void vtkPerspectiveTransformConcatenation::InternalUpdate()
-{
-  this->Matrix->Identity();
-
-  // concatenate transforms in forward direction
-  for (int i = 0; i < this->Concatenation->GetNumberOfTransforms(); i++)
-    {
-    vtkPerspectiveTransform *transform = 
-      (vtkPerspectiveTransform *)this->Concatenation->GetTransform(i);
-    vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),
-			      this->Matrix,this->Matrix);
-    }
-}
-
-//----------------------------------------------------------------------------
-unsigned long vtkPerspectiveTransformConcatenation::GetMTime()
-{
-  unsigned long mtime1 = this->vtkPerspectiveTransform::GetMTime();
-  unsigned long mtime2 = this->Concatenation->GetMaxMTime();
-  return ((mtime1 > mtime2) ? mtime1 : mtime2);
-}
-
 
