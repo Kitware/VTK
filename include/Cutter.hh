@@ -31,6 +31,7 @@ public:
   vlCutter(vlImplicitFunction *cf=NULL);
   ~vlCutter();
   char *GetClassName() {return "vlCutter";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   unsigned long int GetMTime();
 

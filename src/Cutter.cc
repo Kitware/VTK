@@ -31,7 +31,7 @@ vlCutter::~vlCutter()
 // then we are modified as well.
 unsigned long vlCutter::GetMTime()
 {
-  unsigned long mTime=this->GetMTime();
+  unsigned long mTime=this->vlDataSetToPolyFilter::GetMTime();
   unsigned long cutFuncMTime;
 
   if ( this->CutFunction != NULL )
@@ -99,12 +99,10 @@ void vlCutter::Execute()
 // Update ourselves.  Because we don't know upfront how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
-  newPoints->Squeeze();
   this->SetPoints(newPoints);
 
   if (newVerts->GetNumberOfCells()) 
     {
-    newVerts->Squeeze();    
     this->SetVerts(newVerts);
     }
   else
@@ -114,7 +112,6 @@ void vlCutter::Execute()
 
   if (newLines->GetNumberOfCells()) 
     {
-    newLines->Squeeze();    
     this->SetLines(newLines);
     }
   else
@@ -124,7 +121,6 @@ void vlCutter::Execute()
 
   if (newPolys->GetNumberOfCells()) 
     {
-    newPolys->Squeeze();    
     this->SetPolys(newPolys);
     }
   else
@@ -133,6 +129,12 @@ void vlCutter::Execute()
     }
 
   this->PointData.SetScalars(newScalars);
-  
+  this->Squeeze();
+}
 
+void vlCutter::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlDataSetToPolyFilter::PrintSelf(os,indent);
+
+  os << indent << "Cut Function: " << this->CutFunction << "\n";
 }
