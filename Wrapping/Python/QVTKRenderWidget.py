@@ -56,6 +56,10 @@ class QVTKRenderWidget(QWidget):
         self._Mode = None
         self._ActiveButton = 0
 
+        # used by the LOD actors
+        self._DesiredUpdateRate = 15
+        self._StillUpdateRate = 0.0001
+
         # private attributes
         self.__oldFocus = None
         self.__saveX = 0
@@ -132,7 +136,7 @@ class QVTKRenderWidget(QWidget):
     def mousePressEvent(self,ev):
         if self._Mode != None:
             return
-        
+
         if (ev.button() == 2 or 
             ev.button() == 1 and ev.state() & 16):
             self._Mode = "Zoom"
@@ -144,11 +148,17 @@ class QVTKRenderWidget(QWidget):
         elif (ev.button() == 1):
             self._Mode = "Rotate"
             self._ActiveButton = ev.button()
+
+        if self._Mode != None:
+            self._RenderWindow.SetDesiredUpdateRate(self._DesiredUpdateRate)
+        
         self.UpdateRenderer(ev.x(),ev.y())
 
     def mouseReleaseEvent(self,ev):
         if self._Mode == None:
             return
+
+        self._RenderWindow.SetDesiredUpdateRate(self._StillUpdateRate)
 
         if self._CurrentRenderer:
             self.Render()
@@ -176,6 +186,26 @@ class QVTKRenderWidget(QWidget):
             self.Surface()
         if ev.key() == ord('P'):
             self.PickActor(self.__saveX,self.__saveY)
+
+    def SetDesiredUpdateRate(self, rate):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        self._DesiredUpdateRate = rate
+
+    def GetDesiredUpdateRate(self):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        return self._DesiredUpdateRate 
+        
+    def SetStillUpdateRate(self, rate):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        self._StillUpdateRate = rate
+
+    def GetStillUpdateRate(self):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        return self._StillUpdateRate 
 
     def GetZoomFactor(self):
         return self._CurrentZoom

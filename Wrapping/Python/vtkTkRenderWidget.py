@@ -95,6 +95,10 @@ class vtkTkRenderWidget(Tkinter.Widget):
         
         self._OldFocus = None
 
+        # used by the LOD actors
+        self._DesiredUpdateRate = 15
+        self._StillUpdateRate = 0.0001
+
         # these record the previous mouse position
         self._LastX = 0
         self._LastY = 0
@@ -150,6 +154,26 @@ class vtkTkRenderWidget(Tkinter.Widget):
 
     def GetZoomFactor(self):
         return self._CurrentZoom
+
+    def SetDesiredUpdateRate(self, rate):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        self._DesiredUpdateRate = rate
+
+    def GetDesiredUpdateRate(self):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        return self._DesiredUpdateRate 
+        
+    def SetStillUpdateRate(self, rate):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        self._StillUpdateRate = rate
+
+    def GetStillUpdateRate(self):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        return self._StillUpdateRate 
 
     def GetRenderWindow(self):
         addr = self.tk.call(self._w, 'GetRenderWindow')[5:]
@@ -224,9 +248,11 @@ class vtkTkRenderWidget(Tkinter.Widget):
             self._OldFocus.focus()
 
     def StartMotion(self,x,y):
+        self.GetRenderWindow().SetDesiredUpdateRate(self._DesiredUpdateRate)
         self.UpdateRenderer(x,y)
 
     def EndMotion(self,x,y):
+        self.GetRenderWindow().SetDesiredUpdateRate(self._StillUpdateRate)
         if self._CurrentRenderer:
             self.Render()
 

@@ -141,6 +141,10 @@ class wxVTKRenderWindow(baseClass):
         # private attributes
         self.__OldFocus = None
 
+        # used by the LOD actors
+        self._DesiredUpdateRate = 15
+        self._StillUpdateRate = 0.0001
+
         # First do special handling of some keywords:
         # stereo, position, size, width, height, style
         
@@ -233,6 +237,26 @@ class wxVTKRenderWindow(baseClass):
         EVT_SET_FOCUS(self, self.OnSetFocus)
         EVT_KILL_FOCUS(self, self.OnKillFocus)
 
+    def SetDesiredUpdateRate(self, rate):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        self._DesiredUpdateRate = rate
+
+    def GetDesiredUpdateRate(self):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        return self._DesiredUpdateRate 
+        
+    def SetStillUpdateRate(self, rate):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        self._StillUpdateRate = rate
+
+    def GetStillUpdateRate(self):
+        """Mirrors the method with the same name in
+        vtkRenderWindowInteractor."""
+        return self._StillUpdateRate 
+
     def OnPaint(self,event):
         dc = wxPaintDC(self)
         self.Render()
@@ -280,6 +304,8 @@ class wxVTKRenderWindow(baseClass):
 
     def _OnButtonDown(self,event):
         # helper function for capturing mouse until button released
+        self._RenderWindow.SetDesiredUpdateRate(self._DesiredUpdateRate)
+        
         if event.RightDown():
             button = "Right"
         elif event.LeftDown():
@@ -328,6 +354,8 @@ class wxVTKRenderWindow(baseClass):
 
     def _OnButtonUp(self,event):
         # helper function for releasing mouse capture
+        self._RenderWindow.SetDesiredUpdateRate(self._StillUpdateRate)
+
         if event.RightUp():
             button = "Right"
         elif event.LeftUp():
