@@ -30,14 +30,14 @@
 #ifndef __vtkGAMBITReader_h
 #define __vtkGAMBITReader_h
 
-#include "vtkUnstructuredGridSource.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkDoubleArray;
-class VTK_IO_EXPORT vtkGAMBITReader : public vtkUnstructuredGridSource
+class VTK_IO_EXPORT vtkGAMBITReader : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkGAMBITReader *New();
-  vtkTypeRevisionMacro(vtkGAMBITReader,vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkGAMBITReader,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -61,8 +61,8 @@ public:
 protected:
   vtkGAMBITReader();
   ~vtkGAMBITReader();
-  void ExecuteInformation();
-  void Execute();
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   char *FileName;
 
@@ -90,16 +90,16 @@ protected:
   //ETX
 
 private:
-  void ReadFile();
-  void ReadGeometry();
-  void ReadNodeData();
-  void ReadCellData();
+  void ReadFile(vtkUnstructuredGrid *output);
+  void ReadGeometry(vtkUnstructuredGrid *output);
+  void ReadNodeData(vtkUnstructuredGrid *output);
+  void ReadCellData(vtkUnstructuredGrid *output);
 
   void ReadXYZCoords(vtkDoubleArray *coords);
 
-  void ReadCellConnectivity();
-  void ReadMaterialTypes();
-  void ReadBoundaryConditionSets();
+  void ReadCellConnectivity(vtkUnstructuredGrid *output);
+  void ReadMaterialTypes(vtkUnstructuredGrid *output);
+  void ReadBoundaryConditionSets(vtkUnstructuredGrid *output);
 
   vtkGAMBITReader(const vtkGAMBITReader&);  // Not implemented.
   void operator=(const vtkGAMBITReader&);  // Not implemented.

@@ -18,6 +18,8 @@
 
 #include "vtkGAMBITReader.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
 #include "vtkUnstructuredGrid.h"
@@ -27,7 +29,7 @@
 #include "vtkIntArray.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkGAMBITReader, "1.5");
+vtkCxxRevisionMacro(vtkGAMBITReader, "1.6");
 vtkStandardNewMacro(vtkGAMBITReader);
 
 //----------------------------------------------------------------------------
@@ -39,6 +41,8 @@ vtkGAMBITReader::vtkGAMBITReader()
   this->NumberOfNodeFields = 0;
   this->NumberOfCellFields = 0;
   this->FileStream = NULL;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -51,20 +55,30 @@ vtkGAMBITReader::~vtkGAMBITReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::Execute()
+int vtkGAMBITReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDebugMacro( << "Reading GAMBIT Neutral file");
 
   // If ExecuteInformation() failed the FileStream will be NULL and
   // ExecuteInformation() will have spit out an error.
   if ( this->FileStream == NULL )
     {
-    return;
+    return 0;
     }
 
-  this->ReadFile();
+  this->ReadFile(output);
 
-  return;
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -85,21 +99,21 @@ void vtkGAMBITReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadFile()
+void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid *output)
 {
-  this->ReadGeometry();
+  this->ReadGeometry(output);
 
   // yes, but, we cannot find any examples containing data.
   // GAMBIT users seem to say that they use the Fluent solver and do not
   // use Gambit as an output format, thus no data when used as input to solver
   if(this->NumberOfNodeFields)
     {
-    this->ReadNodeData();
+    this->ReadNodeData(output);
     }
 
   if(this->NumberOfCellFields)
     {
-    this->ReadCellData(); 
+    this->ReadCellData(output); 
     }
 
   delete this->FileStream;
@@ -107,19 +121,22 @@ void vtkGAMBITReader::ReadFile()
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadNodeData()
+void vtkGAMBITReader::ReadNodeData(vtkUnstructuredGrid *vtkNotUsed(output))
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadCellData()
+void vtkGAMBITReader::ReadCellData(vtkUnstructuredGrid *vtkNotUsed(output))
 {
   vtkWarningMacro("Not implemented due to lack of examples");
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ExecuteInformation()
+int vtkGAMBITReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   if ( !this->FileName )
     {
@@ -129,7 +146,7 @@ void vtkGAMBITReader::ExecuteInformation()
     this->NumberOfCellFields = 0;
 
     vtkErrorMacro("No filename specified");
-    return;
+    return 0;
     }
   
   this->FileStream = new ifstream(this->FileName, ios::in);
@@ -140,7 +157,7 @@ void vtkGAMBITReader::ExecuteInformation()
     delete this->FileStream;
     this->FileStream = NULL;
     vtkErrorMacro("Specified filename not found");
-    return;
+    return 0;
     }
 
   char c='\0', buf[128];
@@ -173,27 +190,27 @@ void vtkGAMBITReader::ExecuteInformation()
   << "\nNumberOfBoundaryConditionSets " << this->NumberOfBoundaryConditionSets
   << "\nNumberOfCoordinateDirections " << this->NumberOfCoordinateDirections
   << "\nNumberOfVelocityComponents " << this->NumberOfVelocityComponents);
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadGeometry()
+void vtkGAMBITReader::ReadGeometry(vtkUnstructuredGrid *output)
 {
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
-
   vtkDoubleArray *coords = vtkDoubleArray::New();
   coords->SetNumberOfComponents(3);
   // allocate one more pt and store node id=0
   coords->SetNumberOfTuples(this->NumberOfNodes);
 
   this->ReadXYZCoords(coords);
-  this->ReadCellConnectivity();
+  this->ReadCellConnectivity(output);
   if(this->NumberOfElementGroups > 0)
     {
-    this->ReadMaterialTypes();
+    this->ReadMaterialTypes(output);
     }
   if(this->NumberOfBoundaryConditionSets > 0)
     {
-    this->ReadBoundaryConditionSets();
+    this->ReadBoundaryConditionSets(output);
     }
   vtkPoints *points = vtkPoints::New();
   points->SetData(coords);
@@ -204,14 +221,12 @@ void vtkGAMBITReader::ReadGeometry()
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadBoundaryConditionSets()
+void vtkGAMBITReader::ReadBoundaryConditionSets(vtkUnstructuredGrid *output)
 {
   int bcs, f, itype, nentry, nvalues;
   int isUsable=0;
   int node, elt, eltype, facenumber;
   char c, buf[128];
-
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
 
   // no idea about how to treat element/cell, so we allocate a single array
 
@@ -285,11 +300,10 @@ void vtkGAMBITReader::ReadBoundaryConditionSets()
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadMaterialTypes()
+void vtkGAMBITReader::ReadMaterialTypes(vtkUnstructuredGrid *output)
 {
   int grp, f, flag, id, nbelts, elt, mat, nbflags;
   char c, buf[128];
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
 
   vtkIntArray *materials = vtkIntArray::New();
   materials->SetNumberOfComponents(1);
@@ -338,12 +352,11 @@ void vtkGAMBITReader::ReadMaterialTypes()
 }
 
 //----------------------------------------------------------------------------
-void vtkGAMBITReader::ReadCellConnectivity()
+void vtkGAMBITReader::ReadCellConnectivity(vtkUnstructuredGrid *output)
 {
   int i, k;
   vtkIdType list[27];
   char c, buf[128];
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
 
   output->Allocate();
 
