@@ -29,7 +29,7 @@
 #include "vtkWindow.h"
 #include "vtkLogLookupTable.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.48.2.2");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.48.2.3");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
@@ -380,7 +380,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       
       for (i=0; i < this->NumberOfLabels; i++)
         {
-        val = (float)i/(this->NumberOfLabels-1) *barHeight;
+        if (this->NumberOfLabels > 1)
+          {
+          val = (float)i/(this->NumberOfLabels-1) *barHeight;
+          }
+        else 
+          {
+          val = 0.5*barHeight;
+          }
         this->TextMappers[i]->GetSize(viewport,sizeTextData);
         this->TextMappers[i]->GetTextProperty()->SetJustificationToLeft();
         this->TextActors[i]->SetPosition(barWidth+3,
@@ -394,7 +401,14 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       for (i=0; i < this->NumberOfLabels; i++)
         {
         this->TextMappers[i]->GetTextProperty()->SetJustificationToCentered();
-        val = (float)i/(this->NumberOfLabels-1) * barWidth;
+        if (this->NumberOfLabels > 1)
+          {
+          val = (float)i/(this->NumberOfLabels-1) * barWidth;
+          }
+        else
+          {
+          val = 0.5*barWidth;
+          }
         this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
         }
       }
@@ -531,13 +545,29 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize,
 
     if ( isLogTable )
       {
-      float lval = log10(range[0]) + (float)i/(this->NumberOfLabels-1) *
-        (log10(range[1])-log10(range[0]));
-      val = pow(10,lval);
+      float lval;
+      if (this->NumberOfLabels > 1)
+        {
+        lval = log10(range[0]) + (float)i/(this->NumberOfLabels-1) *
+          (log10(range[1])-log10(range[0]));
+        }
+      else
+        {
+        lval = log10(range[0]) + 0.5*(log10(range[1])-log10(range[0]));
+        }
+      val = pow(10.0f,lval);
       }
     else
       {
-      val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+      if (this->NumberOfLabels > 1)
+        {
+        val = range[0] + 
+          (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
+        }
+      else
+        {
+        val = range[0] + 0.5*(range[1]-range[0]);
+        }
       }
 
     sprintf(string, this->LabelFormat, val);
