@@ -290,7 +290,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkThreshold.h"
 #include "vtkThresholdPoints.h"
 #include "vtkThresholdTextureCoords.h"
-#include "vtkTkRenderWidget.h"
 #include "vtkTransformFilter.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransformTextureCoords.h"
