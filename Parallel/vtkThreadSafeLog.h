@@ -26,6 +26,7 @@
 #include "vtkTimerLog.h"
 
 
+
 #define VTK_THREAD_SAFE_LOG_MAX 1000
 
 class VTK_PARALLEL_EXPORT vtkThreadSafeLog : public vtkObject
@@ -37,9 +38,9 @@ public:
 
   // Description:
   // some of the timeing features of vtkTimerLog.
-  void StartTimer() { this->Timer->StartTimer();}
-  void StopTimer() { this->Timer->StopTimer();}
-  double GetElapsedTime() { return this->Timer->GetElapsedTime();}
+  void StartTimer();
+  void StopTimer();
+  double GetElapsedTime();
 
   // Decription:
   // Save a tag/value pair. 

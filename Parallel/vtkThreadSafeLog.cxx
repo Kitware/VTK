@@ -15,12 +15,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkThreadSafeLog.h"
-#include "vtkObjectFactory.h"
-#include <iomanip.h>
 
-vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.4");
+#include "vtkObjectFactory.h"
+#include "vtkTimerLog.h"
+
+vtkCxxRevisionMacro(vtkThreadSafeLog, "1.3.22.5");
 vtkStandardNewMacro(vtkThreadSafeLog);
 
 //----------------------------------------------------------------------------
@@ -103,6 +103,25 @@ void vtkThreadSafeLog::DumpLog(char *filename, int nMode)
   os << endl;
 }
 
+//----------------------------------------------------------------------------
+void vtkThreadSafeLog::StartTimer()
+{
+  this->Timer->StartTimer();
+}
+
+//----------------------------------------------------------------------------
+void vtkThreadSafeLog::StopTimer()
+{
+  this->Timer->StopTimer();
+}
+
+//----------------------------------------------------------------------------
+double vtkThreadSafeLog::GetElapsedTime()
+{
+  return this->Timer->GetElapsedTime();
+}
+
+//----------------------------------------------------------------------------
 void vtkThreadSafeLog::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
