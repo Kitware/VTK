@@ -12,6 +12,9 @@
 #include "vtkPNGWriter.h"
 #include "vtkImageDifference.h"
 #include "vtkTestUtilities.h"
+#include "vtkImageResample.h"
+#include "vtkJPEGWriter.h"
+#include "vtkImageShiftScale.h"
 
 class vtkRegressionTester
 {
@@ -173,7 +176,81 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
       rt_pngw->SetInput(rt_id->GetOutput());
       rt_pngw->Write();
       rt_pngw->Delete();
+      
+      // write out the difference image scaled and gamma adjusted
+      // for the dashboard
+      int* rt_size = rt_png->GetOutput()->GetDimensions();
+      float rt_magfactor=1.0;
+      if ( rt_size[1] > 250.0)
+	{
+	rt_magfactor = 250.0 / rt_size[1];
+	}
+      vtkImageResample*  rt_shrink = vtkImageResample::New();
+      rt_shrink->SetInput(rt_id->GetOutput());
+      rt_shrink->InterpolateOn();
+      rt_shrink->SetAxisMagnificationFactor(0, rt_magfactor );
+      rt_shrink->SetAxisMagnificationFactor(1, rt_magfactor );
+      vtkImageShiftScale* rt_gamma = vtkImageShiftScale::New();
+      rt_gamma->SetInput(rt_shrink->GetOutput());
+      rt_gamma->SetShift(0);
+      rt_gamma->SetScale(10);
+
+      vtkJPEGWriter* rt_jpegw_dashboard = vtkJPEGWriter::New();
+      char* diff_small = new char[strlen(fname) + 30];
+      sprintf(diff_small, "%s.diff.small.jpg", fname);
+      rt_jpegw_dashboard->SetFileName( diff_small );
+      rt_jpegw_dashboard->SetInput(rt_gamma->GetOutput());
+      rt_jpegw_dashboard->SetQuality(85);
+      rt_jpegw_dashboard->Write();
+
+      // write out the image that was generated
+      rt_shrink->SetInput(rt_id->GetInput());
+      rt_jpegw_dashboard->SetInput(rt_shrink-> GetOutput());
+      char* valid_test_small = new char[strlen(fname) + 30];
+      sprintf(valid_test_small, "%s.test.small.jpg", fname);
+      rt_jpegw_dashboard->SetFileName(valid_test_small);
+      rt_jpegw_dashboard->Write();
+
+      // write out the valid image that matched
+      rt_shrink->SetInput(rt_id->GetImage());
+      rt_jpegw_dashboard-> SetInput (rt_shrink->GetOutput());
+      char* valid = new char[strlen(fname) + 30];
+      sprintf(valid, "%s.small.jpg", fname);
+      rt_jpegw_dashboard-> SetFileName( valid);
+      rt_jpegw_dashboard->Write();
+      rt_jpegw_dashboard->Delete();
+
+
+      cout << "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">";
+      cout << error;
+      cout << "</DartMeasurement>";
+      if ( errIndex <= 0)
+	{
+	  cout << "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>";
+	} 
+      else 
+	{
+	  cout <<  "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">";
+	  cout << errIndex;
+	  cout << "</DartMeasurement>";
+	}
+	   
+      cout <<  "<DartMeasurementFile name=\"TestImage\" type=\"image/jpeg\">";
+      cout << valid_test_small;
+      delete [] valid_test_small;
+      cout << "</DartMeasurementFile>";
+      cout << "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/jpeg\">";
+      cout << diff_small;
+      cout << "</DartMeasurementFile>";
+      cout << "<DartMeasurementFile name=\"ValidImage\" type=\"image/jpeg\">";
+      cout << valid;
+      cout <<  "</DartMeasurementFile>";
+
+      delete [] valid;
+      delete [] diff_small;
+
       }
+
     delete [] rt_diffName;
     rt_id->Delete(); 
     delete[] fname;
