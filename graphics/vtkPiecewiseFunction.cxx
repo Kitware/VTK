@@ -102,6 +102,8 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
       this->Function     = new float[this->ArraySize*2];
       memcpy( this->Function, f->Function, this->ArraySize*2*sizeof(float) );
       }
+    
+    this->Modified();
     }
 
   // Do the superclass

@@ -859,6 +859,7 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
     this->Function = NULL;
     }
   
+  this->Modified();
 }
 
 // accelerate the mapping by copying the data in 32-bit chunks instead
