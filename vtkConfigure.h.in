@@ -35,8 +35,8 @@
 #define VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #endif
 
-#cmakedefine BUILD_SHARED_LIBS
-#ifdef BUILD_SHARED_LIBS
+#cmakedefine VTK_BUILD_SHARED_LIBS
+#ifdef VTK_BUILD_SHARED_LIBS
 #define VTKDLL
 #else
 #define VTKSTATIC
