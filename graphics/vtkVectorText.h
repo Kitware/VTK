@@ -63,7 +63,7 @@ public:
 protected:
   void Execute();
   char *Text;
-  char *Letters[62];
+  char *Letters[127];
 };
 
 #endif
