@@ -26,7 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.71");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.72");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -97,6 +97,7 @@ void vtkTubeFilter::Execute()
   newPts = vtkPoints::New();
   newPts->Allocate(numNewPts);
   newNormals = vtkFloatArray::New();
+  newNormals->SetName("TubeNormals");
   newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(3*numNewPts);
   newStrips = vtkCellArray::New();
