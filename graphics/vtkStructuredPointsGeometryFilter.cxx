@@ -41,7 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsGeometryFilter.h"
 
 // Description:
-// Construct with initial extent (0,100, 0,100, 0,0) (i.e., a plane).
+// Construct with initial extent of all the data
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
 {
   this->Extent[0] = 0;
