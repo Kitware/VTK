@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.34");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.35");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 //----------------------------------------------------------------------------
@@ -214,6 +214,7 @@ void vtkEnSightGoldBinaryReader::SkipTimeStep()
   char line[80], subLine[80];
   int lineRead;
 
+  line[0] = '\0';
   while (strncmp(line, "BEGIN TIME STEP", 15) != 0)
     {
     this->ReadLine(line);
