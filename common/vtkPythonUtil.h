@@ -46,9 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 extern void *vtkPythonGetPointerFromObject(PyObject *obj,char *result_type);
 extern PyObject *vtkPythonGetObjectFromPointer(void *ptr);
 extern void vtkPythonAddObjectToHash(PyObject *obj, void *anInstance,
-				   void *tcFunc, int deleteMe);
+				   void *tcFunc);
 extern void vtkPythonDeleteObjectFromHash(PyObject *obj);
-extern int  vtkPythonShouldIDeleteObject(PyObject *obj);
 
 extern void vtkPythonVoidFunc(void *);
 extern void vtkPythonVoidFuncArgDelete(void *);

@@ -79,7 +79,6 @@ vtkHashTable::vtkHashTable()
 vtkHashTable *vtkInstanceLookup = NULL;
 vtkHashTable *vtkPointerLookup = NULL;
 vtkHashTable *vtkTypecastLookup = NULL;
-vtkHashTable *vtkDeleteLookup = NULL;
 
 void vtkHashTable::AddHashEntry(void *key,void *value)
 {
@@ -158,15 +157,13 @@ void vtkHashTable::DeleteHashEntry(void *key)
 }
 
 // add an object to the hash table
-void vtkPythonAddObjectToHash(PyObject *obj, void *ptr,
-			      void *tcFunc,int deleteMe)
+void vtkPythonAddObjectToHash(PyObject *obj, void *ptr, void *tcFunc)
 { 
   if (!vtkInstanceLookup)
     {
     vtkInstanceLookup = new vtkHashTable;
     vtkTypecastLookup = new vtkHashTable;
     vtkPointerLookup = new vtkHashTable;
-    vtkDeleteLookup = new vtkHashTable;
     }
 
 #ifdef VTKPYTHONDEBUG
@@ -184,30 +181,10 @@ void vtkPythonAddObjectToHash(PyObject *obj, void *ptr,
   vtkInstanceLookup->AddHashEntry((void *)obj,ptr);
   vtkTypecastLookup->AddHashEntry((void *)obj,tcFunc);
   vtkPointerLookup->AddHashEntry(ptr,(void *)obj);
-  vtkDeleteLookup->AddHashEntry((void *)obj,(void *)deleteMe);
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Added object to hash obj= " << obj << " " << ptr);
 #endif  
-}
-
-// should we delete this object
-int vtkPythonShouldIDeleteObject(PyObject *obj)
-{
-  if (vtkDeleteLookup->GetHashTableValue((void *)obj))
-    {
-#ifdef VTKPYTHONDEBUG
-    vtkGenericWarningMacro("Decided to delete obj = " << obj);
-#endif
-    vtkPythonDeleteObjectFromHash(obj);
-    return 1;
-    }
-
-#ifdef VTKPYTHONDEBUG
-  vtkGenericWarningMacro("Decided to NOT delete obj = " << obj);
-#endif
-  vtkPythonDeleteObjectFromHash(obj);
-  return 0;
 }
 
 
@@ -229,7 +206,6 @@ void vtkPythonDeleteObjectFromHash(PyObject *obj)
   vtkInstanceLookup->DeleteHashEntry((void *)obj);
   vtkTypecastLookup->DeleteHashEntry((void *)obj);
   vtkPointerLookup->DeleteHashEntry(ptr);
-  vtkDeleteLookup->DeleteHashEntry((void *)obj);
 }
 
 PyObject *vtkPythonGetObjectFromPointer(void *ptr)
