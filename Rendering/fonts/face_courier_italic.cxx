@@ -1,8 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Courier Italic
-// Courier 10 Pitch Regular Italic
-// c0582bt_.pfb -bitstream-courier-medium-i-normal--0-0-0-0-m-0-iso8859-1
+// Courier 10 Pitch Regular Italic (c0582bt_.pfb)
 // Contributed by Bitstream (XFree86)
 
 size_t face_courier_italic_buffer_length = 39511;

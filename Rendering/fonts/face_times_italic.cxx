@@ -1,8 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Times Italic
-// Bitstream Charter Regular Italic
-// c0649bt_.pfb -bitstream-charter-medium-i-normal--0-0-0-0-p-0-iso8859-1
+// Bitstream Charter Regular Italic (c0649bt_.pfb)
 // Contributed by Bitstream (XFree86)
 
 size_t face_times_italic_buffer_length = 35118;

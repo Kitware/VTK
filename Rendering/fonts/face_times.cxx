@@ -1,8 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Times Normal
-// Bitstream Charter
-// c0648bt_.pfb -bitstream-charter-medium-r-normal--0-0-0-0-p-0-iso8859-1
+// Bitstream Charter (c0648bt_.pfb)
 // Contributed by Bitstream (XFree86)
 
 size_t face_times_buffer_length = 34869;

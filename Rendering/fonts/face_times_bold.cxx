@@ -1,8 +1,7 @@
 #include "vtkEmbeddedFonts.h"
 
 // VTK: Times Bold
-// Bitstream Charter Bold
-// c0632bt_.pfb -bitstream-charter-bold-r-normal--0-0-0-0-p-0-iso8859-1
+// Bitstream Charter Bold (c0632bt_.pfb)
 // Contributed by Bitstream (XFree86)
 
 size_t face_times_bold_buffer_length = 33799;
