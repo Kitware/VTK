@@ -135,7 +135,10 @@ void vtkImageReader::SetFileName(char* _arg)
 
 void vtkImageReader::SetFilePrefix(char* _arg) 
 { 
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FilePrefix to " << _arg ); 
+  if (_arg) 
+    {
+	vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting FilePrefix to " << _arg ); 
+    }
   if ( this->FilePrefix && _arg && (!strcmp(this->FilePrefix,_arg))) return; 
   if (this->FilePrefix) delete [] this->FilePrefix; 
   if (_arg) 
