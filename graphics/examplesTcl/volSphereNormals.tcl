@@ -159,7 +159,7 @@ proc MakeSphere { } {
 
 # Simple volume rendering example.
 vtkSLCReader reader
-    reader SetFileName "sphere.slc"
+    reader SetFileName "../../../vtkdata/sphere.slc"
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction
@@ -363,7 +363,7 @@ few minutes at the highest levels.)"
     update
 }
 
-#renWin SetFileName "valid/volSphereNormals.ppm"
+#renWin SetFileName "valid/volSphereNormals.tcl.ppm"
 #renWin SaveImageAsPPM
 
 
