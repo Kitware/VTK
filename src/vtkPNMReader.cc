@@ -141,7 +141,7 @@ vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
   
   dim[2] = 1;
 
-  if ( !(fp = fopen(this->Filename,"r")) )
+  if ( !(fp = fopen(this->Filename,"rb")) )
     {
     vtkErrorMacro(<<"Can't find file: " << this->Filename);
     return NULL;
@@ -272,14 +272,14 @@ int vtkPNMReader::ReadBinaryPPM(FILE *fp, vtkPixmap* pixmap,
   unsigned char *cptr;
 
   max = vtkPNMReaderGetInt(fp);
-//
-// Since pnm coordinate system is at upper left of image, need to convert
-// to lower rh corner origin by reading a row at a time.
-//
+  //
+  // Since pnm coordinate system is at upper left of image, need to convert
+  // to lower rh corner origin by reading a row at a time.
+  //
   for (j=0; j<ysize; j++)
     {
     cptr = pixmap->WritePtr((ysize-j-1)*xsize,xsize);
-    if ( ! fread(cptr,3,xsize,fp) )
+    if ( ! fread(cptr,1,3*xsize,fp) )
       {
       vtkErrorMacro(<<"Error reaading raw ppm data!");
       return 0;
