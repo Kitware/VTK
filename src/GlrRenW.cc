@@ -173,7 +173,8 @@ void vlGlrRenderWindow::Start(void)
   if (this->Gid < 0)
     this->Initialize();
 
-  winset(this->Gid);
+  // set the current window 
+  GLXwinset(this->DisplayId,this->WindowId);
 }
 
 // Description:
