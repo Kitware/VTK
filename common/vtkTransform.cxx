@@ -740,7 +740,7 @@ void vtkTransform::GetMatrix (vtkMatrix4x4 & ctm)
 
 vtkTransform::~vtkTransform ()
 {
-  int i, n=this->Stack-this->StackBottom+1;
+  int i, n;
 
   for (n=this->Stack-this->StackBottom+1, i=0; i < n; i++)
     {
