@@ -1130,6 +1130,9 @@ void vtkPolyData::Allocate(vtkIdType numCells, int extSize)
     {
     this->Cells = vtkCellTypes::New();
     this->Cells->Allocate(numCells,3*numCells);
+    // Consistent Register/UnRegister. (ShallowCopy).
+    this->Cells->Register(this);
+    this->Cells->Delete();
     }
 
   cells = vtkCellArray::New();
@@ -1683,7 +1686,7 @@ void vtkPolyData::ShallowCopy(vtkDataObject *dataObject)
     // I do not know if this is correct but.
     if (this->Cells)
       {
-      this->Cells->Delete();
+      this->Cells->UnRegister(this);
       }
     this->Cells = polyData->Cells;
     if (this->Cells)

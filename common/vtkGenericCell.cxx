@@ -205,8 +205,9 @@ void vtkGenericCell::SetCellType(int cellType)
 {
   if ( this->Cell->GetCellType() != cellType )
     {
-    this->Points->Delete();
-    this->PointIds->Delete();
+    this->Points->UnRegister(this);
+    this->PointIds->UnRegister(this);
+    this->PointIds = NULL;
     this->Cell->Delete();
 
     switch (cellType)
