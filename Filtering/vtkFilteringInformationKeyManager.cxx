@@ -18,11 +18,20 @@
 
 #include <vtkstd/vector>
 
+// Subclass vector so we can directly call constructor.  This works
+// around problems on Borland C++.
+struct vtkFilteringInformationKeyManagerKeysType:
+  public vtkstd::vector<vtkInformationKey*>
+{
+  typedef vtkstd::vector<vtkInformationKey*> Superclass;
+  typedef Superclass::iterator iterator;
+};
+
 //----------------------------------------------------------------------------
 // Must NOT be initialized.  Default initialization to zero is
 // necessary.
-unsigned int vtkFilteringInformationKeyManagerCount;
-vtkstd::vector<vtkInformationKey*>* vtkFilteringInformationKeyManagerKeys;
+static unsigned int vtkFilteringInformationKeyManagerCount;
+static vtkFilteringInformationKeyManagerKeysType* vtkFilteringInformationKeyManagerKeys;
 
 //----------------------------------------------------------------------------
 vtkFilteringInformationKeyManager::vtkFilteringInformationKeyManager()
@@ -58,9 +67,9 @@ void vtkFilteringInformationKeyManager::ClassInitialize()
   // symbol loading.  Calling operator new here causes static
   // initialization to occur in other translation units immediately,
   // which then may try to access the vector before it is set here.
-  void* keys = malloc(sizeof(vtkstd::vector<vtkInformationKey*>));
+  void* keys = malloc(sizeof(vtkFilteringInformationKeyManagerKeysType));
   vtkFilteringInformationKeyManagerKeys =
-    new (keys) vtkstd::vector<vtkInformationKey*>;
+    new (keys) vtkFilteringInformationKeyManagerKeysType;
 }
 
 //----------------------------------------------------------------------------
@@ -69,7 +78,7 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
   if(vtkFilteringInformationKeyManagerKeys)
     {
     // Delete information keys.
-    for(vtkstd::vector<vtkInformationKey*>::iterator i =
+    for(vtkFilteringInformationKeyManagerKeysType::iterator i =
           vtkFilteringInformationKeyManagerKeys->begin();
         i != vtkFilteringInformationKeyManagerKeys->end(); ++i)
       {
@@ -80,7 +89,7 @@ void vtkFilteringInformationKeyManager::ClassFinalize()
     // Delete the singleton storing pointers to information keys.  See
     // ClassInitialize above for why this is a free instead of a
     // delete.
-    vtkFilteringInformationKeyManagerKeys->~vector();
+    vtkFilteringInformationKeyManagerKeys->~vtkFilteringInformationKeyManagerKeysType();
     free(vtkFilteringInformationKeyManagerKeys);
     vtkFilteringInformationKeyManagerKeys = 0;
     }
