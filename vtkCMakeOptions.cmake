@@ -35,6 +35,13 @@ IF (VTK_USE_PARALLEL)
       "use MPI (Message Passing Interface) library for parallel support")
     INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Parallel)
     LINK_DIRECTORIES(${VTK_BINARY_DIR}/Parallel) 
+    IF(BUILD_TESTING)
+     IF (DART_ROOT)
+      FIND_PROGRAM(MPIRUN names mpirun lamexec)
+      SET (MPI_PREFLAGS "-np 2" CACHE STRING " Flags used by mpi start program.")
+      SET (MPI_POSTFLAGS "" CACHE STRING " Flags used by mpi start program.")
+     ENDIF (DART_ROOT)
+    ENDIF(BUILD_TESTING)
 ENDIF (VTK_USE_PARALLEL)
 
 #
