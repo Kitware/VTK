@@ -73,6 +73,7 @@ vtkLookupTable \
 vtkMapper2D \
 vtkMath \
 vtkMatrix4x4 \
+vtkMergePoints2D \
 vtkMultiThreader \
 vtkMutexLock \
 vtkNormals \
@@ -81,6 +82,7 @@ vtkPixel \
 vtkPlane \
 vtkPointData \
 vtkPointLocator \
+vtkPointLocator2D \
 vtkPoints \
 vtkPolyData \
 vtkPolyLine \
