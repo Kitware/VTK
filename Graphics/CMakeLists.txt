@@ -88,6 +88,7 @@ vtkPointSource.cxx
 vtkPolyDataConnectivityFilter.cxx
 vtkPolyDataNormals.cxx
 vtkPolyDataStreamer.cxx
+vtkPowerCrustSurfaceReconstruction.cxx
 vtkProbeFilter.cxx
 vtkProgrammableAttributeDataFilter.cxx
 vtkProgrammableDataObjectSource.cxx
