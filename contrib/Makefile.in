@@ -25,9 +25,10 @@ vtkDEMReader \
 vtkDepthSortPolyData \
 vtkEarthSource \
 vtkGridTransform \
+vtkIVWriter \
 vtkImageToPolyDataFilter \
 vtkImageReslice \
-vtkIVWriter \
+vtkInteractorStyleUnicam \
 vtkLandmarkTransform \
 vtkLegendBoxActor \
 vtkLightKit \
