@@ -217,4 +217,6 @@ void vtkOpenGLVolumeProVP1000Mapper::GetDepthBufferValues(vtkRenderer *ren,
     {
     outData[i] = (unsigned int)(zData[i] * rescale);
    }
+  
+  delete [] zData;
 }
