@@ -101,6 +101,7 @@ vtkPointLocator::vtkPointLocator()
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->InsertionPointId = 0;
   this->InsertionTol2 = 0.0001;
+  this->InsertionLevel = 0;
 }
 
 vtkPointLocator::~vtkPointLocator()
@@ -908,9 +909,6 @@ void vtkPointLocator::GetOverlappingBuckets(float x[3], int ijk[3],
 }
 
 
-// specifically for point insertion
-float InsertionLevel;
-
 // Initialize the point insertion process. The newPts is an object representing
 // point coordinates into which incremental insertion methods place their 
 // data. Bounds are the box that the points lie in.
@@ -1001,9 +999,8 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6],
     hmin = (this->H[i] < hmin ? this->H[i] : hmin);
     maxDivs = (maxDivs > this->Divisions[i] ? maxDivs : this->Divisions[i]);
     }
-  InsertionLevel = ceil ((double) this->Tolerance / hmin);
-  InsertionLevel = (InsertionLevel > maxDivs ? maxDivs : InsertionLevel);
-  
+  this->InsertionLevel = ceil ((double) this->Tolerance / hmin);
+  this->InsertionLevel = (this->InsertionLevel > maxDivs ? maxDivs : this->InsertionLevel);
   return 1;
 }
 
@@ -1088,6 +1085,7 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
   int i, j, ijk[3];
   int idx;
   vtkIdList *bucket;
+
   //
   //  Locate bucket that point is in.
   //
@@ -1100,49 +1098,41 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
   idx = ijk[0] + ijk[1]*this->Divisions[0] + 
         ijk[2]*this->Divisions[0]*this->Divisions[1];
 
-  bucket = this->HashTable[idx];
-  if ( ! bucket )
-    {
-    return -1;
-    }
-  else // see whether we've got duplicate point
-    {
-    //
-    // Check the list of points in that bucket for merging.  Also need to 
-    // search all neighboring buckets within the tolerance.  The number 
-    // and level of neighbors to search depends upon the tolerance and 
-    // the bucket width.
-    //
-    int *nei, lvtk, cno, ptId;
-    vtkIdList *ptIds;
-    float *pt;
+  //
+  // Check the list of points in that bucket for merging.  Also need to 
+  // search all neighboring buckets within the tolerance.  The number 
+  // and level of neighbors to search depends upon the tolerance and 
+  // the bucket width.
+  //
+  int *nei, lvtk, cno, ptId;
+  vtkIdList *ptIds;
+  float *pt;
 
-    for (lvtk=0; lvtk <= InsertionLevel; lvtk++)
+  for (lvtk=0; lvtk <= this->InsertionLevel; lvtk++)
+    {
+    this->GetBucketNeighbors (ijk, this->Divisions, lvtk);
+
+    for ( i=0; i < this->Buckets->GetNumberOfNeighbors(); i++ ) 
       {
-      this->GetBucketNeighbors (ijk, this->Divisions, lvtk);
+      nei = this->Buckets->GetPoint(i);
+      cno = nei[0] + nei[1]*this->Divisions[0] + 
+	nei[2]*this->Divisions[0]*this->Divisions[1];
 
-      for ( i=0; i < this->Buckets->GetNumberOfNeighbors(); i++ ) 
-        {
-        nei = this->Buckets->GetPoint(i);
-        cno = nei[0] + nei[1]*this->Divisions[0] + 
-              nei[2]*this->Divisions[0]*this->Divisions[1];
+      if ( (ptIds = this->HashTable[cno]) != NULL )
+	{
+	for (j=0; j < ptIds->GetNumberOfIds(); j++) 
+	  {
+	  ptId = ptIds->GetId(j);
+	  pt = this->Points->GetPoint(ptId);
 
-        if ( (ptIds = this->HashTable[cno]) != NULL )
-          {
-          for (j=0; j < ptIds->GetNumberOfIds(); j++) 
-            {
-            ptId = ptIds->GetId(j);
-            pt = this->Points->GetPoint(ptId);
-
-            if ( vtkMath::Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
-              {
-              return ptId;
-              }
-            }
-          } //if points in bucket
-        } //for each neighbor
-      } //for neighbors at this level
-    } // else check duplicate point
+	  if ( vtkMath::Distance2BetweenPoints(x,pt) <= this->InsertionTol2 )
+	    {
+	    return ptId;
+	    }
+	  }
+	} //if points in bucket
+      } //for each neighbor
+    } //for neighbors at this level
 
   return -1;
 }

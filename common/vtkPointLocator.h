@@ -208,6 +208,8 @@ protected:
 
   float InsertionTol2;
   int InsertionPointId;
+
+  float InsertionLevel; 
 };
 
 #endif
