@@ -428,7 +428,11 @@ int vtkMultiProcessController::WritePolyData(vtkPolyData *data)
   vtkPolyDataWriter *writer = vtkPolyDataWriter::New();
   vtkPointData *pd;
   
-  writer->SetFileTypeToBinary();
+  numCells = data->GetNumberOfCells();
+  if (numCells > 0)
+    {
+    writer->SetFileTypeToBinary();
+    }
   writer->WriteToOutputStringOn();
   writer->SetInput(data);  
   
