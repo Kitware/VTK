@@ -33,7 +33,7 @@ class vlLightCollection : public vlCollection
   void AddItem(vlLight *a);
   void RemoveItem(vlLight *a);
   int IsItemPresent(vlLight *a);
-  vlLight *GetItem(int num);
+  vlLight *GetNextItem();
 };
 
 // Description:
@@ -59,10 +59,10 @@ inline int vlLightCollection::IsItemPresent(vlLight *a)
 }
 
 // Description:
-// Get an light in the list at a particular location (1<=num<=number items).
-inline vlLight *vlLightCollection::GetItem(int num) 
+// Get the next light in the list.
+inline vlLight *vlLightCollection::GetNextItem() 
 { 
-  return (vlLight *)(this->vlCollection::GetItem(num));
+  return (vlLight *)(this->vlCollection::GetNextItem());
 }
 
 #endif

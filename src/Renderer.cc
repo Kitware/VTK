@@ -149,7 +149,6 @@ void vlRenderer::DoActors()
 void vlRenderer::ResetCamera()
 {
   vlActor *anActor;
-  int num;
   float *bounds;
   float allBounds[6];
   int nothingVisible=1;
@@ -158,10 +157,8 @@ void vlRenderer::ResetCamera()
   allBounds[1] = allBounds[3] = allBounds[5] = -LARGE_FLOAT;
   
   // loop through actors 
-  for (num = 1; num <= this->Actors.GetNumberOfItems(); num++)
+  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
     {
-    anActor = this->Actors.GetItem(num);
- 
     // if it's invisible, we can skip the rest 
     if ( anActor->GetVisibility() )
       {

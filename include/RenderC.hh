@@ -33,7 +33,7 @@ class vlRendererCollection : public vlCollection
   void AddItem(vlRenderer *a);
   void RemoveItem(vlRenderer *a);
   int IsItemPresent(vlRenderer *a);
-  vlRenderer *GetItem(int num);
+  vlRenderer *GetNextItem();
   void Render();
 };
 
@@ -60,10 +60,10 @@ inline int vlRendererCollection::IsItemPresent(vlRenderer *a)
 }
 
 // Description:
-// Get an renderer in the list at a particular location (1<=num<=number items).
-inline vlRenderer *vlRendererCollection::GetItem(int num) 
+// Get the next renderer in the list.
+inline vlRenderer *vlRendererCollection::GetNextItem() 
 {
-  return (vlRenderer *)(this->vlCollection::GetItem(num));
+  return (vlRenderer *)(this->vlCollection::GetNextItem());
 }
 
 #endif

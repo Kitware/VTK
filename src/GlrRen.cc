@@ -42,17 +42,14 @@ int vlGlrRenderer::UpdateActors()
   vlActor *anActor;
   float visibility;
   vlMatrix4x4 matrix;
-  int   num;
   int count = 0;
  
   // set matrix mode for actors 
   mmode(MVIEWING);
 
   // loop through actors 
-  for (num = 1; num <= this->Actors.GetNumberOfItems(); num++)
+  for ( this->Actors.InitTraversal(); anActor = this->Actors.GetNextItem(); )
     {
-    anActor = this->Actors.GetItem(num);
- 
     // if it's invisible, we can skip the rest 
     visibility = anActor->GetVisibility();
 
@@ -121,7 +118,6 @@ int vlGlrRenderer::UpdateLights ()
   vlLight *light;
   short cur_light;
   float status;
-  int i;
   int count = 0;
 
   cur_light= this->NumberOfLightsBound + LIGHT0;
@@ -130,9 +126,8 @@ int vlGlrRenderer::UpdateLights ()
   mmode(MVIEWING);
   pushmatrix();
 
-  for (i = 1; i <= this->Lights.GetNumberOfItems(); i++)
+  for ( this->Lights.InitTraversal(); light = this->Lights.GetNextItem(); )
     {
-    light = this->Lights.GetItem(i);
 
     status = light->GetSwitch();
 
