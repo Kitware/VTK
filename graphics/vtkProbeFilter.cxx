@@ -109,8 +109,6 @@ void vtkProbeFilter::Execute()
     vtkErrorMacro (<< "Source is NULL.");
     return;
     }
-  
-  weights=new float[source->GetMaxCellSize()];
 
   pd = source->GetPointData();
   if (pd == NULL)
@@ -118,6 +116,8 @@ void vtkProbeFilter::Execute()
     vtkErrorMacro(<< "PointData is NULL.");
     return;
     }
+
+  weights=new float[source->GetMaxCellSize()];
 
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
