@@ -96,7 +96,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGlyph3D.h"
 #include "vtkHedgeHog.h"
 #include "vtkHyperStreamline.h"
-#include "vtkImageDifference.h"
 #include "vtkImageToStructuredPoints.h"
 #include "vtkImplicitBoolean.h"
 #include "vtkImplicitDataSet.h"
