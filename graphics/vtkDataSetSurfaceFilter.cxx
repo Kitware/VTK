@@ -141,9 +141,9 @@ void vtkDataSetSurfaceFilter::Execute()
       this->DataSetExecute();
       return;
     }
-
-  vtkErrorMacro("We do not handle " << input->GetClassName() << " yet.");
 }
+
+
 
 
 
@@ -271,14 +271,12 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   vtkPoints    *outPts;
   vtkCellArray *outStrips;
   vtkPointData *inPD, *outPD;
-  vtkCellData  *inCD, *outCD;
   int          *wholeExt;
   int          pInc[3];
   int          qInc[3];
   int          cOutInc;
   float        pt[3];
   int          inStartPtId;
-  int          inStartCellId;
   int          outStartPtId;
   int          outPtId;
   int          inId, outId;
@@ -292,8 +290,6 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
   outPts = output->GetPoints();
   outPD = output->GetPointData();
   inPD = input->GetPointData();
-  outCD = output->GetCellData();
-  inCD = input->GetCellData();
 
   wholeExt = input->GetWholeExtent();
   pInc[0] = 1;
@@ -344,11 +340,10 @@ void vtkDataSetSurfaceFilter::ExecuteFaceStrips(vtkDataSet *input,
     }
   
   // Assuming no ghost cells ...
-  inStartPtId = inStartCellId = 0;
+  inStartPtId = 0;
   if (maxFlag)
     {
     inStartPtId = pInc[aAxis]*(ext[aA2+1]-ext[aA2]);
-    inStartCellId = qInc[aAxis]*(ext[aA2+1]-ext[aA2]-1);
     }
 
   outStartPtId = outPts->GetNumberOfPoints();
@@ -536,31 +531,12 @@ void vtkDataSetSurfaceFilter::DataSetExecute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  // ghost cell stuff
-  unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());
-  unsigned char  *cellGhostLevels = NULL;
   
   if (numCells == 0)
     {
     return;
     }
 
-  vtkFieldData* fd = input->GetCellData()->GetFieldData();
-  vtkDataArray* temp = 0;
-  if (fd)
-    {
-    temp = fd->GetArray("vtkGhostLevels");
-    }
-  if ( (!temp) || (temp->GetDataType() != VTK_UNSIGNED_CHAR)
-    || (temp->GetNumberOfComponents() != 1))
-    {
-    vtkDebugMacro("No appropriate ghost levels field available.");
-    }
-  else
-    {
-    cellGhostLevels = ((vtkUnsignedCharArray*)temp)->GetPointer(0);
-    }
-  
   cellIds = vtkIdList::New();
   pts = vtkIdList::New();
 
@@ -744,7 +720,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
   // These are for the defualt case/
   vtkIdList *pts;
   vtkCell *face;
-  float *x;
   
   pts = vtkIdList::New();  
   cell = vtkGenericCell::New();
@@ -826,7 +801,6 @@ void vtkDataSetSurfaceFilter::UnstructuredGridExecute()
 	  for ( i=0; i < numFacePts; i++)
 	    {
 	    inPtId = cell->GetPointId(i);
-	    x = input->GetPoint(inPtId);
 	    outPtId = this->GetOutputPointId(inPtId, input, newPts, outputPD); 
 	    pts->InsertId(i, outPtId);
 	    }
