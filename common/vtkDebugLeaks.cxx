@@ -286,14 +286,15 @@ void vtkDebugLeaks::DestructClass(const char* p)
   DebugLeaksCritSec.Lock();
   // Due to globals being deleted, this table may already have
   // been deleted.
-  if(vtkDebugLeaks::MemoryTable)
+  if(vtkDebugLeaks::MemoryTable && !vtkDebugLeaks::MemoryTable->DecrementCount(p))
     {
-    if(!vtkDebugLeaks::MemoryTable->DecrementCount(p))
-      {
-      vtkGenericWarningMacro("Deleting unknown object: " << p);
-      }
+    DebugLeaksCritSec.Unlock();
+    vtkGenericWarningMacro("Deleting unknown object: " << p);
     }
-  DebugLeaksCritSec.Unlock();
+  else
+    {
+    DebugLeaksCritSec.Unlock();
+    }
 }
 
 void vtkDebugLeaks::PrintCurrentLeaks()
