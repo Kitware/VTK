@@ -210,6 +210,7 @@ vtkSphereTree \
 vtkStreamLine \
 vtkStreamPoints \
 vtkStreamer \
+vtkStripper \
 vtkStructuredGridFilter \
 vtkStructuredGridGeometryFilter \
 vtkStructuredGridOutlineFilter \

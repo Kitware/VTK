@@ -21,7 +21,6 @@ vtkMarchingCubes \
 vtkMarchingSquares \
 vtkSliceCubes \
 vtkSmoothPolyFilter \
-vtkStripper \
 vtkTubeFilter
 
 #------------------------------------------------------------------------------
