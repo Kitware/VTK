@@ -35,6 +35,7 @@ import sys
 import re
 import os
 import stat
+import string
 
 ## For backward compatibility
 def StringEndsWith(str1, str2):
@@ -93,7 +94,7 @@ class TestVTKFiles:
         cc = 0
         includeparent = 0
         for a in self.FileLines:
-            line = a.strip()
+            line = string.strip(a)
             rm = regx.match(line)
             if rm and not regx1.match(line):
                 lines.append(" %4d: %s" % (cc, line))
@@ -131,7 +132,7 @@ class TestVTKFiles:
         regx = re.compile(classre)
         cc = 0
         for a in self.FileLines:
-            line = a.strip()
+            line = string.strip(a)
             rm = regx.match(line)
             if rm:
                 cname = rm.group(1)
@@ -162,7 +163,7 @@ class TestVTKFiles:
         regx = re.compile(typere)
         cc = 0
         for a in self.FileLines:
-            line = a.strip()
+            line = string.strip(a)
             rm = regx.match(line)
             if rm:
                 if rm.group(1) != "Revision":
@@ -201,7 +202,7 @@ class TestVTKFiles:
         foundcopy = 0
         foundasgn = 0
         for a in self.FileLines:
-            line = a.strip()
+            line = string.strip(a)
             if regx1.match(line):
                 foundcopy = foundcopy + 1
             if regx2.match(line):
@@ -238,10 +239,10 @@ class TestVTKFiles:
         regx2 = re.compile(copyoperator)
         cc = 0
         for a in self.FileLines:
-            line = a.strip()
+            line = string.strip(a)
             rm = regx1.match(line)
             if rm:
-                arg = rm.group(1).strip()
+                arg = string.strip(rm.group(1))
                 if arg and not regx2.match(line):
                     lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
@@ -257,12 +258,19 @@ class TestVTKFiles:
         if not self.ClassName:
             return
         typere = "^\s*void\s*PrintSelf\s*\(\s*ostream\s*&\s*os*\s*,\s*vtkIndent\s*indent\s*\)"
-        regx = re.compile(typere)
-        found = 0;
+        newtypere = "^\s*virtual\s*void\s*PrintSelf\s*\(\s*ostream\s*&\s*os*\s*,\s*vtkIndent\s*indent\s*\)"
+        regx1 = re.compile(typere)
+        regx2 = re.compile(newtypere)
+        found = 0
+        oldstyle = 0
         for a in self.FileLines:
-            line = a.strip()
-            if regx.match(line):
-                found = 1;
+            line = string.strip(a)
+            rm1 = regx1.match(line)
+            rm2 = regx2.match(line)
+            if rm1 or rm2:
+                found = 1
+                if rm1:
+                    oldstyle = 1
         if not found:
             self.Print( "File: %s does not define PrintSelf method:" %
                         self.FileName )
