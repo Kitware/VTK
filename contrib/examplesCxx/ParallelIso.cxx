@@ -40,36 +40,27 @@ void reader_start_callback(void *arg)
 
 
 // call back to set the iso surface value.
-void set_iso_val_rmi(void *arg, int id)
+void set_iso_val_rmi(void *localArg, void *remoteArg, 
+		     int remoteArgLen, int id)
 { 
   float val;
 
   vtkSynchronizedTemplates3D *iso;
-  iso = (vtkSynchronizedTemplates3D *)arg;
+  iso = (vtkSynchronizedTemplates3D *)localArg;
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
 }
 
-// call back to exit program
-// This should really be embedded in the controller.
-void exit_callback(void *arg, int id)
-{ 
-  // clean up controller ?
-  exit(0);
-}
 
-
-
-VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
+void process( vtkMultiProcessController *controller,
+	      void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
   vtkImageReader *reader;
   vtkSynchronizedTemplates3D *iso;
   vtkElevationFilter *elev;
   int myid, numProcs;
   float val;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   myid = controller->GetLocalProcessId();
   numProcs = controller->GetNumberOfProcesses();
     
@@ -101,7 +92,6 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     
     // last, set up a RMI call back to change the iso surface value.
     controller->AddRMI(set_iso_val_rmi, (void *)iso, 300);
-    controller->AddRMI(exit_callback, (void *)iso, 666);
   
     upPort->SetInput(elev->GetPolyDataOutput());
     // the different process ids differentiate between sources.
@@ -173,7 +163,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     for (j = 0; j < ISO_NUM; ++j)
       {
       // set the local value
-      set_iso_val_rmi((void*)iso, 0);
+      set_iso_val_rmi((void*)iso, NULL, 0, 0);
       for (i = 1; i < numProcs; ++i)
 	{
 	// trigger the RMI to change the iso surface value.
@@ -198,7 +188,7 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     //for (i = 1; i < numProcs; ++i)
     //  {
     //  // trigger the RMI to exit
-    //  controller->TriggerRMI(i, 666);      
+    //  controller->TriggerRMI(i, VTK_BREAK_RMI_TAG);      
     //  }
     //exit(0);
     
@@ -215,12 +205,9 @@ VTK_THREAD_RETURN_TYPE process( void *vtkNotUsed(arg) )
     }
   
   // clean up objects in all processes.
-  controller->UnRegister(NULL);
   reader->Delete();
   iso->Delete();
   elev->Delete();
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
@@ -228,7 +215,7 @@ void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
   // Needed for threaded controller.
@@ -236,7 +223,7 @@ void main( int argc, char *argv[] )
   controller->SetSingleMethod(process, NULL);
   controller->SingleMethodExecute();
 
-  controller->UnRegister(NULL);
+  controller->Delete();
 }
 
 
