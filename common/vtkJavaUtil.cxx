@@ -352,6 +352,11 @@ JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *resu
   void *ptr;
   void *(*command)(void *,char *);
   int id;
+
+  if (!obj)
+    {
+    return NULL;  
+    }
   
   id = vtkJavaGetId(env,obj);
   VTK_GET_MUTEX();
