@@ -62,7 +62,7 @@ public:
   void Delete() {delete this;};
 
   virtual void Execute(vtkObject *caller, unsigned long, void *callData) = 0;
-  static char *GetStringFromEventId(unsigned long event);
+  static const char *GetStringFromEventId(unsigned long event);
   static unsigned long GetEventIdFromString(const char *event);
 
 //BTX

@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // this list should only contain the initial, contiguous
 // set of events and should not include UserEvent
-static char *vtkCommandEventStrings[] = {
+static const char *vtkCommandEventStrings[] = {
   "NoEvent", 
   "DeleteEvent",
   "StartEvent",
@@ -65,7 +65,7 @@ vtkCommand *vtkCommand::New()
   return new vtkCallbackCommand; 
 }
 
-char *vtkCommand::GetStringFromEventId(unsigned long event)
+const char *vtkCommand::GetStringFromEventId(unsigned long event)
 {
   static unsigned long numevents = 0;
   
