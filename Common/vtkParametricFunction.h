@@ -68,7 +68,7 @@ public:
   virtual int GetDimension() = 0;
 
   // Description:
-  // Performs the mapping (uvw)->(Pt,Duvw).
+  // Performs the mapping \$f(uvw)->(Pt,Duvw)\$f.
   // This is a pure virtual function that must be instantiated in 
   // a derived class. 
   //
@@ -81,7 +81,7 @@ public:
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
   // Description:
-  // Calculate a user defined scalar using none, one or all of uvw,Pt,Duvw.
+  // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   // This is a pure virtual function that must be instantiated in 
   // a derived class. 
   //

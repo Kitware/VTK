@@ -70,7 +70,7 @@ public:
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
-  // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
+  // Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
   //
   // uvw are the parameters with Pt being the the cartesian point, 
   // Duvw are the derivatives of this point with respect to u, v and w.
