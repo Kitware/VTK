@@ -206,6 +206,7 @@ void vtkXRenderWindowInteractor::Initialize()
 				   XtNy, position[1],
 				   XtNwidth, size[0],
 				   XtNheight, size[1],
+				   XtNinput, True,
 				   XtNmappedWhenManaged, 0,
 				   NULL);
     }
@@ -538,8 +539,8 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       zoomFactor = pow(1.1,yf);
       clippingRange = me->CurrentCamera->GetClippingRange();
       me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
-					  clippingRange[1]/zoomFactor);
-      me->CurrentCamera->Zoom(zoomFactor);
+      					  clippingRange[1]/zoomFactor);
+      me->CurrentCamera->Dolly(zoomFactor);
       me->RenderWindow->Render();
       XtAppAddTimeOut(me->App,10,vtkXRenderWindowInteractorTimer,client_data);
       }
