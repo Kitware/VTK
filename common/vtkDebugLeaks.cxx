@@ -247,7 +247,7 @@ void vtkDebugLeaks::DestructClass(const char* p)
 {
   if(!vtkDebugLeaks::MemoryTable->DecrementCount(p))
     {
-    vtkGenericWarningMacro("Error deleting object not registered with vtkDebugLeaks");
+    vtkGenericWarningMacro("Deleting unknown object: " << p);
     }
 }
 
