@@ -25,6 +25,11 @@
 
 #include "vtkCompositeManager.h"
 
+//BTX
+#ifdef VTK_REMOVE_LEGACY_CODE
+vtkTreeComposite_is_deprecated__Do_not_use
+#endif
+//ETX
 
 class VTK_PARALLEL_EXPORT vtkTreeComposite : public vtkCompositeManager
 {
