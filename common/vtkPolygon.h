@@ -118,7 +118,7 @@ public:
   // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
   // Can also return -1 to indicate degenerate polygon.
   static int PointInPolygon(float x[3], int numPts, float *pts, 
-			    float bounds[6], float n[3]);  
+                            float bounds[6], float n[3]);  
 
   // Description:
   // Triangulate polygon. Tries to use the fast triangulation technique 
@@ -127,10 +127,17 @@ public:
   int Triangulate(vtkIdList *outTris);
   
   // Description: 
-  // A fast triangulation method. Uses recursive divide and 
-  // conquer based on plane splitting  to reduce loop into triangles.  
-  // The cell (e.g., triangle) is presumed properly initialized (i.e., 
-  // Points and PointIds).
+  // Initialize the triangulation method, call prior to the
+  // RecursiveTriangulate() method.
+  void InitTriangulate(int numVerts, int *verts);
+
+  // Description: 
+  // A triangulation method that uses recursive divide and conquer based on
+  // plane splitting to reduce a polygon loop into triangles.  The cell
+  // (e.g., triangle) is presumed properly initialized (i.e., invoke
+  // InitTriangulate() first, and cell Points and PointIds must have bee
+  // set). When the method returns, the return value indicates success (=1)
+  // or failure (=0).
   int RecursiveTriangulate(int numVerts, int *verts);
 
   // Description:
@@ -143,10 +150,9 @@ public:
                    int& n2, int *l2);
 
   // Description:
-  // Creates two loops from splitting plane provided
+  // Creates two loops from the split line (fedges) provided.
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
                   int& n2, int* l2);
-
 
   // Description:
   // Method intersects two polygons. You must supply the number of points and
