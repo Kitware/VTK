@@ -125,9 +125,18 @@ void vtkUGFacetReader::Execute()
     }
 
   // update output
+  vtkDebugMacro(<<"Read " 
+                << newPolys->GetNumberOfCells() << " triangles, "
+                << newPoints->GetNumberOfPoints() << " points.");
+
   output->SetPoints(newPoints);
+  newPoints->Delete();
+
   output->GetPointData()->SetNormals(newNormals);
+  newNormals->Delete();
+ 
   output->SetPolys(newPolys);
+  newPolys->Delete();
 
   output->Squeeze();
 }
