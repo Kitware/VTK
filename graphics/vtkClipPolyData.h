@@ -89,9 +89,9 @@ class VTK_EXPORT vtkClipPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
 
-// Description:
-// Construct with user-specified implicit function; InsideOut turned off; value
-// set to 0.0; and generate clip scalars turned off.
+  // Description:
+  // Construct with user-specified implicit function; InsideOut turned
+  // off; value set to 0.0; and generate clip scalars turned off.
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
 
   ~vtkClipPolyData();
@@ -142,10 +142,9 @@ public:
 
   vtkPolyData *GetClippedOutput() {return this->ClippedOutput;};
 
-
-// Description:
-// Specify a spatial locator for merging points. By default, 
-// an instance of vtkMergePoints is used.
+  // Description:
+  // Specify a spatial locator for merging points. By default, an
+  // instance of vtkMergePoints is used.
   void SetLocator(vtkPointLocator *locator);
 
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
