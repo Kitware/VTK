@@ -214,11 +214,11 @@ proc CreateRegressionImage {} {
 	puts $rtFile "catch {load vtktcl}"
 	if {[string match \*graphics\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/graphics/$file.tif
-	} elseif {[string match \*graphics\* $filename]} {
+	} elseif {[string match \*imaging\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/imaging/$file.tif
-	} elseif {[string match \*graphics\* $filename]} {
+	} elseif {[string match \*patented\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/patented/$file.tif
-	} elseif {[string match \*graphics\* $filename]} {
+	} elseif {[string match \*contrib\* $filename]} {
 	    set regressionImage $env(VTK_VALID_IMAGE_PATH)/contrib/$file.tif
 	} else {
 	    set regressionImage $file.tif
