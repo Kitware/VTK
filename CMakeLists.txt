@@ -146,11 +146,7 @@ IF (VTK_USE_RENDERING)
   /usr/X11R6/lib
   )
 
-  IF(MESA_OS_LIBRARY AND OSMESA_INCLUDE_PATH)
-    OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." ON)
-  ELSE(MESA_OS_LIBRARY AND OSMESA_INCLUDE_PATH)
-    OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." OFF)
-  ENDIF(MESA_OS_LIBRARY AND OSMESA_INCLUDE_PATH)
+  OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." OFF)
   SUBDIRS(Rendering)
   SUBDIR_DEPENDS(Rendering Imaging Graphics IO)
 ENDIF (VTK_USE_RENDERING)
