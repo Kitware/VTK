@@ -421,7 +421,7 @@ invertible");
     {
     for (j = 0; j < 4; j++)
       {
-      matrix->SetElement(i,j,mat2[j][i]);
+      matrix->SetElement(i,j,mat2[i][j]);
       }
     }
 

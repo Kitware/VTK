@@ -282,7 +282,7 @@ static void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
     sum = 0.0;
     for (j = 0; j < 3; ++j)
       {
-      sum += NtNi[i][j] * Nts[j];
+      sum += NtNi[j][i] * Nts[j];
       }
     g[i] = sum;
     }
