@@ -11,11 +11,13 @@ vtkRenderWindowInteractor iren
 # First one tests the changing display extent without
 # changing the size of the display extent (so it
 # reuses a texture, but not a contiguous one)
-vtkImageGaussianSource gsOne
+vtkImageEllipsoidSource gsOne
 gsOne SetWholeExtent 0 999 0 999 0 0
 gsOne SetCenter 500 500 0
-gsOne SetStandardDeviation 300
-gsOne SetMaximum 255
+gsOne SetRadius 300 400 0
+gsOne SetInValue 0
+gsOne SetOutValue 255
+gsOne SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssOne
 ssOne SetInput [gsOne GetOutput]
@@ -30,11 +32,13 @@ iaOne SetInput [ssOne GetOutput]
 ren1 AddActor iaOne
 
 # The second one tests a really large texture
-vtkImageGaussianSource gsTwo
+vtkImageEllipsoidSource gsTwo
 gsTwo SetWholeExtent 1000 8999 1000 8999 0 0
 gsTwo SetCenter 4000 4000 0
-gsTwo SetStandardDeviation 2000
-gsTwo SetMaximum 255
+gsTwo SetRadius 1800 1800 0
+gsTwo SetInValue 250
+gsTwo SetOutValue 150
+gsTwo SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssTwo
 ssTwo SetInput [gsTwo GetOutput]
@@ -52,11 +56,13 @@ ren1 AddActor iaTwo
 
 # The third one will test changing input and a 
 # power of two texture
-vtkImageGaussianSource gsThree
+vtkImageEllipsoidSource gsThree
 gsThree SetWholeExtent 0 511 2000 2511 0 0
 gsThree SetCenter 255 2255 0
-gsThree SetStandardDeviation 100
-gsThree SetMaximum 255
+gsThree SetRadius 100 200 0
+gsThree SetInValue 250
+gsThree SetOutValue 0
+gsThree SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssThree
 ssThree SetInput [gsThree GetOutput]
@@ -74,11 +80,13 @@ ren1 AddActor iaThree
 # Same as first one, but the display extents
 # represent contiguous section of memory that
 # are powers of two
-vtkImageGaussianSource gsFour
+vtkImageEllipsoidSource gsFour
 gsFour SetWholeExtent 2000 2511 0 511 0 0
 gsFour SetCenter 2255 255 0
-gsFour SetStandardDeviation 130
-gsFour SetMaximum 255
+gsFour SetRadius 130 130 0
+gsFour SetInValue 40
+gsFour SetOutValue 190
+gsFour SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssFour
 ssFour SetInput [gsFour GetOutput]
@@ -95,11 +103,13 @@ ren1 AddActor iaFour
 # Same as previous one, but the display extents
 # represent contiguous section of memory that
 # are not powers of two
-vtkImageGaussianSource gsFive
+vtkImageEllipsoidSource gsFive
 gsFive SetWholeExtent 1200 1712 0 512 0 0
 gsFive SetCenter 1456 256 0
-gsFive SetStandardDeviation 130
-gsFive SetMaximum 255
+gsFive SetRadius 130 180 0
+gsFive SetInValue 190
+gsFive SetOutValue 100
+gsFive SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssFive
 ssFive SetInput [gsFive GetOutput]
@@ -132,12 +142,12 @@ renWin Render
 iaOne SetDisplayExtent 200 999 200 999 0 0
 iaFour SetDisplayExtent 2000 2511 0 300 0 0
 iaFive SetDisplayExtent 1200 1712 0 300 0 0
-gsThree SetStandardDeviation 120
+gsThree SetRadius 120 120 0
 renWin Render
 
 iaOne SetDisplayExtent 0 799 0 799 0 0
 iaFour SetDisplayExtent 2000 2511 200 500 0 0
 iaFive SetDisplayExtent 1200 1712 200 500 0 0
-gsThree SetStandardDeviation 150
+gsThree SetRadius 150 150 0
 renWin Render
 
