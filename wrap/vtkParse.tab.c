@@ -83,7 +83,7 @@ typedef union
 #include <memory.h>
 #endif
 
-#ifdef WIN32
+#ifndef WIN32
 #include <values.h>
 #endif
 
