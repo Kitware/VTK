@@ -892,3 +892,109 @@ int vtkMath::SolveLinear( double c2, double c3, double *r1, int *num_roots )
 
   return *num_roots;
 }
+
+// Solves for the least squares best fit matrix for the equation X'M' = Y'.
+// Uses pseudoinverse to get the ordinary least squares. 
+// The inputs and output are transposed matrices.
+//    Dimensions: X' is numberOfSamples by xOrder,
+//                Y' is numberOfSamples by yOrder,
+//                M' dimension is xOrder by yOrder.
+// M' should be pre-allocated. All matrices are row major. The resultant
+// matrix M' should be pre-multiplied to X' to get Y', or transposed and
+// then post multiplied to X to get Y
+int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
+                               double **yt, int yOrder, double **mt)
+{
+  // check dimensional consistency
+  if ((numberOfSamples < xOrder) || (numberOfSamples < yOrder))
+    {
+    vtkGenericWarningMacro("Insufficient number of samples. Underdetermined.");
+    return 0;
+    }
+
+  int i, j, k;
+
+  // set up intermediate variables
+  double **XXt = new double *[xOrder];     // size x by x
+  double **XXtI = new double *[xOrder];    // size x by x
+  double **XYt = new double *[yOrder];     // size x by y
+  for (i = 0; i < xOrder; i++)
+    {
+    XXt[i] = new double[xOrder];
+    XXtI[i] = new double[xOrder];
+
+    for (j = 0; j < xOrder; j++)
+      {
+      XXt[i][j] = 0.0;
+      XXtI[i][j] = 0.0;
+      }
+
+    XYt[i] = new double[yOrder];
+    for (j = 0; j < yOrder; j++)
+      {
+      XYt[i][j] = 0.0;
+      }
+    }
+
+  // first find the pseudoinverse matrix
+  for (k = 0; k < numberOfSamples; k++)
+    {
+    for (i = 0; i < xOrder; i++)
+      {
+      // first calculate the XXt matrix, only do the upper half (symmetrical)
+      for (j = i; j < xOrder; j++)
+        {
+        XXt[i][j] += xt[k][i] * xt[k][j];
+        }
+
+      // now calculate the XYt matrix
+      for (j = 0; j < yOrder; j++)
+        {
+        XYt[i][j] += xt[k][i] * yt[k][j];
+        }
+      }
+    }
+  
+  // now fill in the lower half of the XXt matrix
+  for (i = 0; i < xOrder; i++)
+    {
+    for (j = 0; j < i; j++)
+      {
+      XXt[i][j] = XXt[j][i];
+      }
+    }
+  
+  // next get the inverse of XXt
+  if (!(vtkMath::InvertMatrix(XXt, XXtI, xOrder)))
+    {
+    return 0;
+    }
+  
+  // next get m
+  for (i = 0; i < xOrder; i++)
+    {
+    for (j = 0; j < yOrder; j++)
+      {
+      mt[i][j] = 0.0;
+      for (k = 0; k < xOrder; k++)
+        {
+        mt[i][j] += XXtI[i][k] * XYt[k][j];
+        }
+      }
+    }
+
+  // clean up:
+  // set up intermediate variables
+  for (i = 0; i < xOrder; i++)
+    {
+    delete [] XXt[i];
+    delete [] XXtI[i];
+
+    delete [] XYt[i];
+    }
+  delete [] XXt;
+  delete [] XXtI;
+  delete [] XYt;
+  
+  return 1;
+}
