@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.11");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.12");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -100,6 +100,8 @@ void vtkXMLDataParser::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Compressor: (none)\n";
     }
+  os << indent << "Progress: " << this->Progress << "\n";
+  os << indent << "Abort: " << this->Abort << "\n";
 }
 
 //----------------------------------------------------------------------------
