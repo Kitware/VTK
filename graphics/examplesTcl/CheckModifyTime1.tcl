@@ -105,7 +105,6 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    # format the first call
    set argValues [GetArgValues $argTypes 1 $kit]
    set call1 "$objectName $methodName $argValues"
-   #puts "             call1: $call1"
 
    # record the original mtime
    if {[catch {set modifyTime0 [$objectName GetMTime]}] != 0} {
@@ -114,6 +113,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    }
 
    # make the first call
+   #puts "             call1: $call1"   
    if { [catch {eval $call1}] != 0} {
       # puts "---- Method call did not work !!!!!"
       # puts "$call1"
@@ -124,6 +124,7 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    
    # make another call the same as the first
    # debug for SetCache
+   #puts "             call1: $call1"   
    eval $call1
    set modifyTime1b [$objectName GetMTime]
 
@@ -439,14 +440,14 @@ proc ConcreteNew {class kit} {
       return $objectName
    }
 
-   # puts "               Searching for concrete subclass of $class"
+   #puts "               Searching for concrete subclass of $class in $kit"
 
    # have we found a concrete subclass before?
    if {[catch {set concrete_class $CONCRETE_ARRAY($class)}] == 0} {
-      # puts "                  concete for $class: $concrete_class found before"
+      #puts "                 concete for $class: $concrete_class found before"
       set objectName [new $concrete_class]
       if { $objectName == "" } {
-	 # puts "---Cannot create concrete class $concrete_class !!!!"
+	 #puts "---Cannot create concrete class $concrete_class !!!!"
 	 # debug
 	 return ""
       }
@@ -457,6 +458,7 @@ proc ConcreteNew {class kit} {
    set inFiles [lsort [glob -nocomplain ../../$kit/*.h]]
    foreach f $inFiles {
       set subClass [file rootname [file tail $f]]
+      #puts "check $subClass"
       if { [CheckSubclassRelationship $class $subClass $kit] == 1} {
 	 set objectName [ConcreteNew $subClass $kit]
 	 if { $objectName != "" } {
@@ -468,7 +470,7 @@ proc ConcreteNew {class kit} {
 
    # look through all the objects in common a sub class
    if { $kit != "common"} {
-      set inFiles [lsort [glob -nocomplain common/*.h]]
+      set inFiles [lsort [glob -nocomplain ../../common/*.h]]
       foreach f $inFiles {
 	 set subClass [file rootname [file tail $f]]
 	 if { [CheckSubclassRelationship $class $subClass "common"] == 1} {
@@ -483,7 +485,7 @@ proc ConcreteNew {class kit} {
 
    # look through all the objects in graphics a sub class
    if { $kit != "graphics"} {
-      set inFiles [lsort [glob -nocomplain graphics/*.h]]
+      set inFiles [lsort [glob -nocomplain ../../graphics/*.h]]
       foreach f $inFiles {
 	 set subClass [file rootname [file tail $f]]
 	 if { [CheckSubclassRelationship $class $subClass "graphics"] == 1} {
@@ -498,7 +500,7 @@ proc ConcreteNew {class kit} {
 
    # look through all the objects in imaging a sub class
    if { $kit != "imaging"} {
-      set inFiles [lsort [glob -nocomplain imaging/*.h]]
+      set inFiles [lsort [glob -nocomplain ../../imaging/*.h]]
       foreach f $inFiles {
 	 set subClass [file rootname [file tail $f]]
 	 if { [CheckSubclassRelationship $class $subClass "imaging"] == 1} {
@@ -519,12 +521,25 @@ proc ConcreteNew {class kit} {
 
 
 proc CheckSubclassRelationship {class subClass subClassKit} {
+   #puts "    CheckSubclassRelationship $class $subClass"
    # look in the header file.
-   set fileName "$subClassKit/$subClass.h"
+   set fileName "../../$subClassKit/$subClass.h"
    if { ! [file exists $fileName] } {
-      return 0
+      # ok look in common
+      set fileName "../../common/$subClass.h"
+      if { ! [file exists $fileName] } {
+	 # ok look in graphics
+	 set fileName "../../graphics/$subClass.h"
+	 if { ! [file exists $fileName] } {
+	 # ok look in imaging
+	    set fileName "../../imaging/$subClass.h"
+	    if { ! [file exists $fileName] } {
+	       #puts "Could not find .h file"
+	       return 0
+	    }
+	 }
+      }
    }
-
    # scan file
    set fd [open $fileName]
    set str [getline $fd]
@@ -537,19 +552,22 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
 	 # no superclass
 	 if { $idx == -1} {
 	    return 0
+	    #puts "No Supper class"
 	 }
 	 set str [string trim [string range $str [expr $idx + 7] end]]
 	 set str [lindex $str 0]
 	 if { $str == $class} {
 	    return 1
+	    #puts "return 1"
 	 } else {
-	    return 0
+	    return [CheckSubclassRelationship $class $str $subClassKit]
 	 }
       }
       set str [getline $fd]
    }
    close $fd
    
+   #puts "Could not find superclass"
    return 0
 }
 
@@ -597,7 +615,7 @@ vtkImageCanvasSource2D canvas
   canvas SetScalarType 4
   canvas SetExtent 0 1200 0 40 0 0
   canvas SetDrawColor 0
-  canvas FillBox 0 511 0 511
+  canvas FillBox 0 1200 0 40 
 
 vtkImageViewer viewer
   viewer SetInput [canvas GetOutput]
@@ -622,7 +640,6 @@ TestKit graphics
 TestKit imaging
 TestKit patented
 TestKit common
-
 
 
 

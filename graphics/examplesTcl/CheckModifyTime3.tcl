@@ -1,11 +1,8 @@
-# this just looks at sub objects.
-# my first idea was to look at the get methods (vtkTemp1)
-# This might get some of the sub objects, but others could return NULL.
-# This approach is to set the object first, then modify it.
+# Check that the modified times of pipeline objects change when a
+# set method is called.
 
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
-
 
 
 proc debug {} {
@@ -19,6 +16,8 @@ proc debug {} {
    }
    wm withdraw .vtkInteract
 }
+
+
 
 
 
@@ -38,14 +37,14 @@ proc TestKit {kit} {
 
 proc TestObject {kit objectClass} {
 
-   #puts "    Object: $objectClass"
-
    if { [CheckSubclassRelationship "vtkImageSource" $objectClass $kit] == 0 \
 	&& [CheckSubclassRelationship "vtkSource" $objectClass $kit] == 0} {
       # dont' bother to check non pipeline objects.
-      #puts "            Is not a pipeline object"
+      puts "            Is not a pipeline object"
       return
    }
+
+   puts "    Object: $objectClass"
 
    # make sure we can actualy create the object
    set objectName [new $objectClass]
@@ -83,7 +82,7 @@ proc TestObject {kit objectClass} {
       set str [lindex $methodList $idx]
    }
 
-   $objectName Delete
+   #$objectName Delete
 }
 
 
@@ -92,34 +91,21 @@ proc TestObject {kit objectClass} {
 proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
    global ERROR_LOG_FD ERROR_STRING
 
-   # do not duplicate calls
-   set token "$methodClass::$methodName"
-   global $token
-   if {[info exists $token]} {
-      return
-   } else {
-      set $token 1
-   }
+   puts "        Method: $methodName with $numberOfArgs args"
 
    if {[CheckException $methodName]} {
       return
    }
 
-   # only 1 vtk objects as arguments
-   if { $numberOfArgs != 1} {
+   if { $numberOfArgs == 0} {
+      set argTypes ""
       return
-   }
-   set argTypes [GetArgTypes $methodName $numberOfArgs $methodClass $kit]
-   # error checking
-   if { $argTypes == ""} {
-      return
-   }
-   if { [string range [lindex $argTypes 0] 0 2] != "vtk"} {
-      return
-   }
-   # if arg is a dataset, then modify time rule does not apply
-   if {[CheckArgExceptions [lindex $argTypes 0]]} {
-      return
+   } else {
+      set argTypes [GetArgTypes $methodName $numberOfArgs $methodClass $kit]
+      # error checking
+      if { $argTypes == ""} {
+	 return
+      }
    }
 
    # sanity check
@@ -129,85 +115,98 @@ proc TestMethod {methodName numberOfArgs methodClass kit objectName} {
       return
    }
 
-   #puts "*        Method: $methodName with $numberOfArgs args"
    #puts "                 args [llength $argTypes] : $argTypes"
 
-   # format first call
-   set argValues [GetArgValues $argTypes 1 $kit]
-   set subObject [lindex $argValues 0]
-   #puts "                 $argValues"
-
-   set call1 "$objectName $methodName $subObject"
-   #puts "             call1: $call1"
-   # set the subobject
-   if { [catch {eval $call1}] != 0} {
-      #puts "---- call1 did not work !!!!!"
-      #puts "$call1"
-      # debug
-      return
-   }
-
-   # record the original mtime
    if {[catch {set modifyTime0 [$objectName GetMTime]}] != 0} {
-      #puts "--- GetMTime did not work !"
-      # not a subclass of vtkObject.
       return
    }
 
-   # modify the subobject
-   # record the original mtime
-   if {[catch {$subObject Modified}] != 0} {
-      #puts "--- Modified did not work !"
+   # first call
+   set argValues [GetArgValues $argTypes 0 $kit]
+
+   set call1 "$objectName $methodName $argValues"
+   if { [catch {eval $call1}] != 0} {
       return
    }
-
-   # record the new mtime
    if {[catch {set modifyTime1 [$objectName GetMTime]}] != 0} {
-      # not a subclass of vtkObject.
+      return
+   }
+   # second call
+   set argValues [GetArgValues $argTypes 1 $kit]
+   set call2 "$objectName $methodName $argValues"
+   if { [catch {eval $call2}] != 0} {
+      return
+   }
+   if {[catch {set modifyTime2 [$objectName GetMTime]}] != 0} {
+      return
+   }
+   # third call
+   set argValues [GetArgValues $argTypes 2 $kit]
+   set call3 "$objectName $methodName $argValues"
+   if { [catch {eval $call3}] != 0} {
+      return
+   }
+   if {[catch {set modifyTime3 [$objectName GetMTime]}] != 0} {
       return
    }
 
-   #puts "             MTime: $modifyTime0, $modifyTime1"  
-   if { $modifyTime0 == $modifyTime1} {
+   if { $modifyTime0 == $modifyTime1 && $modifyTime0 == $modifyTime2 && \
+	  $modifyTime0 == $modifyTime3} {
       set ERROR_STRING [format "%s   %s %s," $ERROR_STRING \
-			  $call1, $methodClass]      
-      #puts "--------------------------- error -------------------------------"
-      #puts $ERROR_LOG_FD "---------------------------------------------------" 
-      #puts $ERROR_LOG_FD " $call1   (method class: $methodClass)"
-      flush $ERROR_LOG_FD
+			  $methodClass $methodName]
+      puts "--------------------------- error -------------------------------"
+      puts "MTime did not changed : ------------------------"
+      puts "MTime: $modifyTime0, $modifyTime1, $modifyTime2, $modifyTime3"  
+      puts " $call2"
+      puts " method class: $methodClass"
+      puts " $call1"
+      puts " $call2"
+      puts " $call3"
+      #debug
    }
+
 }
 
 
 
 # I am not going to worry about deleting old objects created as arguments.
 proc GetArgValues {argTypes val kit} {
+   puts "GetArgValues $argTypes $val $kit"
+
    # create an empty list
    if { [llength $argTypes] == 0} {
       return {}
    }
 
+   set count -1
    foreach type $argTypes {
+      incr count
       switch $type {
-	 "int" {lappend argValues $val} 
-	 "float" {lappend argValues $val} 
-	 "short" {lappend argValues $val} 
-	 "unsigned char" {lappend argValues $val} 
-	 "char *" {lappend argValues "a$val"} 
+	 "int" {lappend argValues [expr $val + $count]} 
+	 "float" {lappend argValues [expr $val + $count]} 
+	 "short" {lappend argValues [expr $val + $count]} 
+	 "unsigned char" {lappend argValues [expr $val + $count]} 
+	 "char *" {
+	    if {$val == 2} {
+	       lappend argValues "c$val"
+	    } else {
+	       lappend argValues "a$val"
+	    } 
+	 }
 	 "default" {
 	    if { [string range $type 0 2] != "vtk"} {
-	       #puts "--- Cannot handle type:$type"
-	       #debug
+	       # puts "--- Cannot handle type:$type"
+	       # debug
 	       return ""
 	    }
 	    # this must be an object
 	    set argName [ConcreteNew $type $kit]
 	    if { $argName == ""} {
 	       #puts "--- Could not create arg of type $type !!!"
-	       #debug
+	       # debug
 	       lappend argValues {}
 	    } else {
-	       #puts "            -Create concrete object ($argName) of class ($type)"
+	       # puts "            -Create concrete object ($argName) of class ($type)"
 	       lappend argValues $argName
 	    }
 	 }
@@ -235,7 +234,7 @@ proc GetArgTypes {methodName numberOfArgs methodClass kit} {
 	    "304" {set type "int"}
 	    "313" {set type "unsigned char"}
 	    "default" {
-	       #puts "Can not find type for [lindex $str 2] in hints file"
+	       # puts "Can not find type for [lindex $str 2] in hints file"
 	       close $fd
 	       return ""
 	    }
@@ -254,17 +253,13 @@ proc GetArgTypes {methodName numberOfArgs methodClass kit} {
    set fileName "../../$kit/$methodClass.h"
    if { ! [file exists $fileName] } {
       # could not find header in kit.  Check Common.
-      set fileName "../../common/$methodClass.h"
+      set fileName "common/$methodClass.h"
       if { ! [file exists $fileName] } {
-	 # could not find header in common.  Check graphics.
-	 set fileName "../../graphics/$methodClass.h"
+      # could not find header in common.  Check graphics.
+	 set fileName "graphics/$methodClass.h"
 	 if { ! [file exists $fileName] } {
-	    # could not find header in common.  Check imaging
-	    set fileName "../../imaging/$methodClass.h"
-	    if { ! [file exists $fileName] } {
-	       #puts "--Could not find $methodClass.h."
-	       return ""
-	    }
+	    # puts "--Could not find $methodClass.h."
+	    return ""
 	 }
       }
    }
@@ -292,6 +287,8 @@ proc GetArgTypes {methodName numberOfArgs methodClass kit} {
    }
    close $fd
 
+   # puts "            -- Could not find method $methodName $numberOfArgs args in $fileName"
+
    return ""
 }
 
@@ -302,13 +299,15 @@ proc getline { fd } {
     while {$s == "" && ![eof $fd]} {
 	set s [string trim [gets $fd]]
     }
-    #puts "<$s"
+    ## puts "<$s"
     return $s
 }
 
 # this procedure creates a list of arguement types from
 # a method prototype.
 proc GetArgTypesFromPrototype {prototype} {
+
+   # puts "           GetArgTypesFromPrototype: $prototype"
 
    # inline bodies can match (so many darn special cases)
    if {[string index $prototype 0] == "\{" } {
@@ -317,7 +316,7 @@ proc GetArgTypesFromPrototype {prototype} {
 
    set idx [string first "(" $prototype]
    if { $idx == -1} {
-      #puts "------- Could not parse prototype: $prototype"
+      # puts "------- Could not parse prototype: $prototype"
       return {}
    }
 
@@ -462,19 +461,18 @@ proc ConcreteNew {class kit} {
       return $objectName
    }
 
-   #puts "               Searching for concrete subclass of $class"
-
    # have we found a concrete subclass before?
    if {[catch {set concrete_class $CONCRETE_ARRAY($class)}] == 0} {
-      #puts "                  concete for $class: $concrete_class found before"
+      #puts "                 concete for $class: $concrete_class found before"
       set objectName [new $concrete_class]
       if { $objectName == "" } {
 	 #puts "---Cannot create concrete class $concrete_class !!!!"
-	 #debug
+	 # debug
 	 return ""
       }
       return $objectName
    }
+   
 
    # look through all the objects in the kit to find a sub class
    set inFiles [lsort [glob -nocomplain ../../$kit/*.h]]
@@ -535,11 +533,10 @@ proc ConcreteNew {class kit} {
    }
 
 
-   # could not find a concrete subclass !!!
+   #puts "could not find a concrete subclass !!!"
 
    return ""
 }
-
 
 proc CheckSubclassRelationship {class subClass subClassKit} {
    #puts "    CheckSubclassRelationship $class $subClass"
@@ -592,6 +589,7 @@ proc CheckSubclassRelationship {class subClass subClassKit} {
    return 0
 }
 
+
 # A method to make an instance of a class with a unique name.
 proc new {className} {
    set counterName [format {%sCounter} $className]
@@ -613,76 +611,8 @@ proc new {className} {
 }
 
 
-# Chekcing if arg is a data set is easier than check for all set input methods.
-proc CheckArgExceptions {argType} {
-  if {$argType == "vtkDataSet"} {
-    return 1
-  }
-  if {$argType == "vtkPointSet"} {
-    return 1
-  }
-  if {$argType == "vtkStructuredGrid"} {
-    return 1
-  }
-  if {$argType == "vtkUnstructuredGrid"} {
-    return 1
-  }
-  if {$argType == "vtkPolyData"} {
-    return 1
-  }
-  if {$argType == "vtkRectilinearGrid"} {
-    return 1
-  }
-  if {$argType == "vtkStructuredPoints"} {
-    return 1
-  }
-  if {$argType == "vtkImageData"} {
-    return 1
-  }
-  if {$argType == "vtkImageCache"} {
-    return 1
-  }
-  if {$argType == "vtkImageSimpleCache"} {
-    return 1
-  }
-  return 0
-}
-
 # do not test certain methods (with no error checking)
-# leave this check around any way
 proc CheckException {methodName} {
-   if {$methodName == "SetInput"} {
-      return 1
-   }
-
-   if {$methodName == "SetInput1"} {
-      return 1
-   }
-
-   if {$methodName == "SetInput2"} {
-      return 1
-   }
-
-   if {$methodName == "SetImageInput"} {
-      return 1
-   }
-
-   if {$methodName == "SetMaskInput"} {
-      return 1
-   }
-
-   if {$methodName == "SetMagnitudeInput"} {
-      return 1
-   }
-
-   if {$methodName == "SetOutput"} {
-      return 1
-   }
-
-   if {$methodName == "SetCache"} {
-      return 1
-   }
-
    if {$methodName == "SetScalar"} {
       return 1
    }
@@ -692,10 +622,14 @@ proc CheckException {methodName} {
       return 1
    }
 
+   if {$methodName == "SetFilteredAxes"} {
+      # 0 0 and 1 1 are not valid
+      return 1
+   }
+
    return 0
 }
 
-   
 
 wm withdraw .
 
@@ -722,16 +656,20 @@ vtkActor2D actor
 set imager [viewer GetImager]
   $imager AddActor2D actor
 
-set ERROR_STRING "Subobject Modify Time Bugs:"
+set ERROR_STRING "Change Modify Time Bugs:"
 
 
-TestKit common
+#TestObject graphics vtkPlaneSource
+
+TestKit imaging
 TestKit graphics
 TestKit imaging
 TestKit patented
+TestKit common
 
 mapper SetInput $ERROR_STRING
 viewer Render
+
 
 
 
