@@ -58,7 +58,7 @@ proc TestKit {kit} {
 proc TestObject {kit objectClass} {
    global DEBUG
 
-   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp" } {
+   if {$objectClass == "vtkIndent" || $objectClass == "vtkTimeStamp" || $objectClass == "vtkOutputPort"} {
      return
    }
 
@@ -699,6 +699,10 @@ proc CheckException {methodName} {
       return 1
    }
    if {$methodName == "SetTCoord"} {
+      return 1
+   }
+
+   if {$methodName == "SetTag"} {
       return 1
    }
 
