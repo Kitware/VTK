@@ -43,7 +43,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.48.2.2");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.48.2.3");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -51,7 +51,7 @@ vtkStandardNewMacro(vtkCompositeManager);
 struct vtkCompositeRenderWindowInfo 
 {
   int Size[2];
-  int ReductionFactor;
+  int ImageReductionFactor;
   int NumberOfRenderers;
   float DesiredUpdateRate;
 };
@@ -117,7 +117,7 @@ vtkCompositeManager::vtkCompositeManager()
   this->UseRGB = 1;
   this->UseCompositing = 1;
   
-  this->ReductionFactor = 1;
+  this->ImageReductionFactor = 1;
   
   this->GetBuffersTime = 0.0;
   this->SetBuffersTime = 0.0;
@@ -288,7 +288,7 @@ void vtkCompositeManagerSatelliteEndRender(vtkObject* vtkNotUsed(caller),
   self->SatelliteEndRender();
 }
 
-//----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 void vtkCompositeManagerComputeVisiblePropBoundsRMI(void *arg, void *, 
                                                     int, int)
 {
@@ -297,14 +297,15 @@ void vtkCompositeManagerComputeVisiblePropBoundsRMI(void *arg, void *,
   self->ComputeVisiblePropBoundsRMI();
 }
 
-void vtkCompositeManager::SetReductionFactor(int factor)
+//-----------------------------------------------------------------------------
+void vtkCompositeManager::SetImageReductionFactor(int factor)
 {
-  if (factor == this->ReductionFactor)
+  if (factor == this->ImageReductionFactor)
     {
     return;
     }
   
-  this->ReductionFactor = factor;
+  this->ImageReductionFactor = factor;
 }
 
 //-------------------------------------------------------------------------
@@ -641,12 +642,12 @@ void vtkCompositeManager::SatelliteStartRender()
         light->SetFocalPoint(renInfo.LightFocalPoint);
         }
       ren->SetBackground(renInfo.Background);
-      ren->SetViewport(0, 0, 1.0/(float)winInfo.ReductionFactor, 
-                       1.0/(float)winInfo.ReductionFactor);
+      ren->SetViewport(0, 0, 1.0/(float)winInfo.ImageReductionFactor, 
+                       1.0/(float)winInfo.ImageReductionFactor);
       }
     }
-  this->SetRendererSize(winInfo.Size[0]/winInfo.ReductionFactor, 
-                        winInfo.Size[1]/winInfo.ReductionFactor);
+  this->SetRendererSize(winInfo.Size[0]/winInfo.ImageReductionFactor, 
+                        winInfo.Size[1]/winInfo.ImageReductionFactor);
 }
 
 //-------------------------------------------------------------------------
@@ -771,21 +772,21 @@ void vtkCompositeManager::StartRender()
   rens = this->RenderWindow->GetRenderers();
   numProcs = this->NumberOfProcesses;
   size = this->RenderWindow->GetSize();
-  if (this->ReductionFactor > 0)
+  if (this->ImageReductionFactor > 0)
     {
     winInfo.Size[0] = size[0];
     winInfo.Size[1] = size[1];
-    winInfo.ReductionFactor = this->ReductionFactor;
+    winInfo.ImageReductionFactor = this->ImageReductionFactor;
     vtkRenderer* renderer =
       ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
-    renderer->SetViewport(0, 0, 1.0/this->ReductionFactor, 
-                          1.0/this->ReductionFactor);
+    renderer->SetViewport(0, 0, 1.0/this->ImageReductionFactor, 
+                          1.0/this->ImageReductionFactor);
     }
   else
     {
     winInfo.Size[0] = size[0];
     winInfo.Size[1] = size[1];
-    winInfo.ReductionFactor = 1;
+    winInfo.ImageReductionFactor = 1;
     }
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
   winInfo.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
@@ -797,8 +798,8 @@ void vtkCompositeManager::StartRender()
     return;
     }
 
-  this->SetRendererSize(winInfo.Size[0]/this->ReductionFactor, 
-                        winInfo.Size[1]/this->ReductionFactor);
+  this->SetRendererSize(winInfo.Size[0]/this->ImageReductionFactor, 
+                        winInfo.Size[1]/this->ImageReductionFactor);
   
   for (id = 1; id < numProcs; ++id)
     {
@@ -1319,7 +1320,7 @@ float vtkCompositeManager::GetZ(int x, int y)
     int *size = this->RenderWindow->GetSize();
     
     // Make sure we have default values.
-    this->ReductionFactor = 1;
+    this->ImageReductionFactor = 1;
     this->SetRendererSize(size[0], size[1]);
     
     // Get the z buffer.
@@ -1333,10 +1334,10 @@ float vtkCompositeManager::GetZ(int x, int y)
     return 0.0;
     }
   
-  if (this->ReductionFactor > 1)
+  if (this->ImageReductionFactor > 1)
     {
-    idx = (x + (y * this->RendererSize[0] / this->ReductionFactor)) 
-             / this->ReductionFactor;
+    idx = (x + (y * this->RendererSize[0] / this->ImageReductionFactor)) 
+             / this->ImageReductionFactor;
     }
   else 
     {
@@ -1434,7 +1435,7 @@ void vtkCompositeManager::Composite()
 
     vtkDataArray* magPdata = 0;
     
-    if (this->ReductionFactor > 1 && this->DoMagnifyBuffer)
+    if (this->ImageReductionFactor > 1 && this->DoMagnifyBuffer)
       {
       // localPdata gets freed (new memory is allocated and returned.
       // windowSize get modified.
@@ -1541,8 +1542,8 @@ void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP,
   
   xInDim = this->RendererSize[0];
   yInDim = this->RendererSize[1];
-  xOutDim = windowSize[0] = this->ReductionFactor * this->RendererSize[0];
-  yOutDim = windowSize[1] = this->ReductionFactor * this->RendererSize[1];
+  xOutDim = windowSize[0] = this->ImageReductionFactor * this->RendererSize[0];
+  yOutDim = windowSize[1] = this->ImageReductionFactor * this->RendererSize[1];
   
   magP->SetNumberOfComponents(numComp);
   magP->SetNumberOfTuples(xOutDim*yOutDim);
@@ -1559,13 +1560,13 @@ void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP,
       for (y = 0; y < yInDim; y++)
         {
         // Duplicate the row rowp N times.
-        for (yi = 0; yi < this->ReductionFactor; ++yi)
+        for (yi = 0; yi < this->ImageReductionFactor; ++yi)
           {
           pp1 = rowp;
           for (x = 0; x < xInDim; x++)
             {
             // Duplicate the pixel p11 N times.
-            for (xi = 0; xi < this->ReductionFactor; ++xi)
+            for (xi = 0; xi < this->ImageReductionFactor; ++xi)
               {
               *pp2++ = *pp1;
               }
@@ -1585,13 +1586,13 @@ void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP,
       for (y = 0; y < yInDim; y++)
         {
         // Duplicate the row rowp N times.
-        for (yi = 0; yi < this->ReductionFactor; ++yi)
+        for (yi = 0; yi < this->ImageReductionFactor; ++yi)
           {
           cpp1 = crowp;
           for (x = 0; x < xInDim; x++)
             {
             // Duplicate the pixel p11 N times.
-            for (xi = 0; xi < this->ReductionFactor; ++xi)
+            for (xi = 0; xi < this->ImageReductionFactor; ++xi)
               {
               csubp = cpp1;
               *cpp2++ = *csubp++;
@@ -1614,13 +1615,13 @@ void vtkCompositeManager::MagnifyBuffer(vtkDataArray* localP,
     for (y = 0; y < yInDim; y++)
       {
       // Duplicate the row rowp N times.
-      for (yi = 0; yi < this->ReductionFactor; ++yi)
+      for (yi = 0; yi < this->ImageReductionFactor; ++yi)
         {
         pp1 = rowp;
         for (x = 0; x < xInDim; x++)
           {
           // Duplicate the pixel p11 N times.
-          for (xi = 0; xi < this->ReductionFactor; ++xi)
+          for (xi = 0; xi < this->ImageReductionFactor; ++xi)
             {
             subp = pp1;
             if (numComp == 4)
@@ -1646,7 +1647,8 @@ void vtkCompositeManager::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
   
-  os << indent << "ReductionFactor: " << this->ReductionFactor << endl;
+  os << indent << "ImageReductionFactor: " << this->ImageReductionFactor << endl;
+  os << indent << "ReductionFactor: " << this->ImageReductionFactor << endl;
   if (this->UseChar)
     {
     os << indent << "UseChar: On\n";
