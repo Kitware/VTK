@@ -37,7 +37,7 @@ vtkWeightedTransformFilter
 
 WRAP_EXCLUDE_FILES(vtkVRML)
 
-INCLUDE (${CMAKE_SOURCE_DIR}/CMake/Modules/FindOpenGL.cmake)
+INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
 IF (WIN32)
   SOURCE_FILES(Hybrid_SRCS vtkWin32OffscreenRenderWindow)
