@@ -15,11 +15,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkOpenGLFreeTypeTextMapper - 2D Text annotation support for windows
+// .NAME vtkOpenGLFreeTypeTextMapper - 2D Text annotation support
 // .SECTION Description
-// vtkOpenGLFreeTypeTextMapper provides 2D text annotation support for vtk under
-// Xwindows.  Normally the user should use vtktextMapper which in turn will
-// use this class.
+// vtkOpenGLFreeTypeTextMapper provides 2D text annotation support for VTK
+// using the FreeType and FTGL libraries. Normally the user should use 
+// vtktextMapper which in turn will use this class.
 
 // .SECTION See Also
 // vtkTextMapper

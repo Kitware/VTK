@@ -99,7 +99,13 @@ IF (VTK_USE_FREETYPE)
     ${VTKFTGL_BINARY_DIR}
   )
   SET(Rendering_SRCS ${Rendering_SRCS}
-    vtkOpenGLFreeTypeTextMapper.cxx)
+    vtkFreeTypeFontCache.cxx
+    vtkOpenGLFreeTypeTextMapper.cxx
+  )
+  SET_SOURCE_FILES_PROPERTIES(
+	vtkFreeTypeFontCache
+    WRAP_EXCLUDE
+  )
   SET(Rendering_FT_SRCS 
     fonts/face_arial.cxx
     fonts/face_arial_bold.cxx
