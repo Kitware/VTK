@@ -79,7 +79,7 @@ ren1 AddActor outlineActor
 ren1 AddActor isoLinesActor
 ren1 AddActor isoActor
 ren1 SetBackground 1 1 1
-renWin SetSize 500 500
+renWin SetSize 640 480
 ren1 SetBackground 0.1 0.2 0.4
 
 set cam1 [ren1 GetActiveCamera]
@@ -88,6 +88,7 @@ $cam1 SetFocalPoint 9.71821 0.458166 29.3999
 $cam1 SetPosition 2.7439 -37.3196 38.7167
 $cam1 ComputeViewPlaneNormal
 $cam1 SetViewUp -0.16123 0.264271 0.950876
+$cam1 Dolly 1.2
 
 # render the image
 #
