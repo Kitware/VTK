@@ -87,7 +87,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.38");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.39");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -547,50 +547,8 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
     this->MakeCurrent();
     this->Mapped = 0;
     }
-    
-  vtkDebugMacro(<< " glMatrixMode ModelView\n");
-  glMatrixMode( GL_MODELVIEW );
-    
-  vtkDebugMacro(<< " zbuffer enabled\n");
-  glDepthFunc( GL_LEQUAL );
-  glEnable( GL_DEPTH_TEST );
-    
-  vtkDebugMacro(" texture stuff\n");
-  glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-    
-  // initialize blending for transparency
-  vtkDebugMacro(<< " blend func stuff\n");
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-  glEnable(GL_BLEND);
-    
-  if (this->PointSmoothing)
-    {
-    glEnable(GL_POINT_SMOOTH);
-    }
-  else
-    {
-    glDisable(GL_POINT_SMOOTH);
-    }
 
-  if (this->LineSmoothing)
-    {
-    glEnable(GL_LINE_SMOOTH);
-    }
-  else
-    {
-    glDisable(GL_LINE_SMOOTH);
-    }
-
-  if (this->PolygonSmoothing)
-    {
-    glEnable(GL_POLYGON_SMOOTH);
-    }
-  else
-    {
-    glDisable(GL_POLYGON_SMOOTH);
-    }
-
-  glEnable( GL_NORMALIZE );
+  this->OpenGLInit();
   glAlphaFunc(GL_GREATER,0);
 }
 
