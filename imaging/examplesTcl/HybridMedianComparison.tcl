@@ -63,10 +63,10 @@ viewer1 SetInput [canvas GetOutput]
 viewer1 SetColorWindow 256
 viewer1 SetColorLevel 128
 
-vtkImageViewer viewer2
-viewer2 SetInput [add GetOutput]
-viewer2 SetColorWindow 256
-viewer2 SetColorLevel 128
+vtkImageViewer viewer
+viewer SetInput [add GetOutput]
+viewer SetColorWindow 256
+viewer SetColorLevel 128
 
 vtkImageViewer viewer3
 viewer3 SetInput [hybrid2 GetOutput]
@@ -86,7 +86,7 @@ frame .top.f1
 frame .top.f2
 
 vtkTkImageViewerWidget .top.f1.r1 -width 256 -height 256 -iv viewer1
-vtkTkImageViewerWidget .top.f1.r2 -width 256 -height 256 -iv viewer2
+vtkTkImageViewerWidget .top.f1.r2 -width 256 -height 256 -iv viewer
 vtkTkImageViewerWidget .top.f2.r3 -width 256 -height 256 -iv viewer3
 vtkTkImageViewerWidget .top.f2.r4 -width 256 -height 256 -iv viewer4
 
