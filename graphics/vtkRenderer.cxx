@@ -575,7 +575,7 @@ void vtkRenderer::CreateLight(void)
   this->CreatedLight->SetFocalPoint(this->ActiveCamera->GetFocalPoint());
 }
 
-// Compute the bounds of the visibile props
+// Compute the bounds of the visible props
 void vtkRenderer::ComputeVisiblePropBounds( float allBounds[6] )
 {
   vtkProp    *prop;
