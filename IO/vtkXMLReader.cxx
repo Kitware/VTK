@@ -31,7 +31,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.5");
+vtkCxxRevisionMacro(vtkXMLReader, "1.6");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -263,13 +263,13 @@ void vtkXMLReader::ExecuteData(vtkDataObject* vtkNotUsed(output))
     // If there was an error, provide empty output.
     if(this->DataError)
       {
-      this->SetupEmptyOutput();
+      this->GetOutputAsDataSet()->Initialize();
       }
     }
   else
     {
     // There was an error reading the file.  Provide empty output.
-    this->SetupEmptyOutput();
+    this->GetOutputAsDataSet()->Initialize();
     }
   
   // Close the file to prevent resource leaks.
@@ -292,7 +292,7 @@ void vtkXMLReader::ReadXMLInformation()
     {
     // There was an error reading the file.  Provide empty output.
     this->InformationError = 1;
-    this->SetupEmptyOutput();
+    this->GetOutputAsDataSet()->Initialize();
     }
 }
 
