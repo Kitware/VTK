@@ -1,85 +1,87 @@
-/* 
- * here is where system comupted values get stored these values should only
- * change when the target compile platform changes 
- */
+/*=========================================================================
 
-/* what byte order */
-#cmakedefine CMAKE_WORDS_BIGENDIAN
-#ifdef CMAKE_WORDS_BIGENDIAN
-  #define VTK_WORDS_BIGENDIAN 
-#endif
+  Program:   Visualization Toolkit
+  Module:    vtkConfigure.h.in
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
 
-/* what threading system are we using */
-#cmakedefine CMAKE_USE_PTHREADS
-#ifdef CMAKE_USE_PTHREADS
-#define VTK_USE_PTHREADS
-#endif
+  Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-#cmakedefine CMAKE_USE_SPROC
-#ifdef CMAKE_USE_SPROC
-#define VTK_USE_SPROC
-#endif
+     This software is distributed WITHOUT ANY WARRANTY; without even 
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+     PURPOSE.  See the above copyright notice for more information.
 
-#cmakedefine CMAKE_HP_PTHREADS
-#ifdef CMAKE_HP_PTHREADS
-#define VTK_HP_PTHREADS
-#endif
+=========================================================================*/
+#ifndef __vtkConfigure_h
+#define __vtkConfigure_h
 
-#cmakedefine CMAKE_USE_WIN32_THREADS
-#ifdef CMAKE_USE_WIN32_THREADS
-#define VTK_USE_WIN32_THREADS
-#endif
+/* This header is configured by VTK's build process.  */
 
-#cmakedefine VTK_EXPLICIT_TEMPLATES
-#ifndef VTK_EXPLICIT_TEMPLATES
-#define VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-#endif
+/*--------------------------------------------------------------------------*/
+/* Platform Features                                                        */
 
-#cmakedefine CMAKE_NO_ANSI_STRING_STREAM
-#ifdef CMAKE_NO_ANSI_STRING_STREAM
-#define VTK_NO_ANSI_STRING_STREAM
-#endif
+/* Byte order.  */
+#cmakedefine VTK_WORDS_BIGENDIAN
 
-#cmakedefine CMAKE_NO_STD_NAMESPACE
-#ifdef CMAKE_NO_STD_NAMESPACE
-#define VTK_NO_STD_NAMESPACE
-#endif
+/* Threading system.  */
+#cmakedefine VTK_USE_PTHREADS
+#cmakedefine VTK_USE_SPROC
+#cmakedefine VTK_HP_PTHREADS
+#cmakedefine VTK_USE_WIN32_THREADS
 
+/* Size of fundamental data types.  */
+#cmakedefine VTK_SIZEOF_CHAR   @VTK_SIZEOF_CHAR@
+#cmakedefine VTK_SIZEOF_DOUBLE @VTK_SIZEOF_DOUBLE@
+#cmakedefine VTK_SIZEOF_FLOAT  @VTK_SIZEOF_FLOAT@
+#cmakedefine VTK_SIZEOF_INT    @VTK_SIZEOF_INT@
+#cmakedefine VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
+#cmakedefine VTK_SIZEOF_SHORT  @VTK_SIZEOF_SHORT@
+
+/* Compiler features.  */
+#cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+#cmakedefine VTK_NO_ANSI_STRING_STREAM
+#cmakedefine VTK_NO_STD_NAMESPACE
+#cmakedefine VTK_COMPILER_HAS_BOOL
+
+/*--------------------------------------------------------------------------*/
+/* VTK Platform Configuration                                               */
+
+/* Whether we are building shared libraries.  */
 #cmakedefine VTK_BUILD_SHARED_LIBS
-#ifdef VTK_BUILD_SHARED_LIBS
-#define VTKDLL
-#else
-#define VTKSTATIC
-#endif
 
+/* Whether vtkIdType is a 64-bit integer type (or a 32-bit integer type).  */
 #cmakedefine VTK_USE_64BIT_IDS
 
+/* Whether we are using ANSI C++ streams (or old-style streams).  */
 #cmakedefine VTK_USE_ANSI_STDLIB
 
 /* Whether VTK was built to support Carbon or Cocoa on the Mac.  */
 #cmakedefine VTK_USE_CARBON
 #cmakedefine VTK_USE_COCOA
 
-#ifdef VTK_USE_CARBON
-# define USE_NON_CONST
-# define MAC_OSX_TK
-#endif
+/*--------------------------------------------------------------------------*/
+/* VTK Versioning                                                           */
 
-/* compiler used */
-#define VTK_CXX_COMPILER "${CMAKE_CXX_COMPILER}"
-
+/* Version number.  */
 #define VTK_MAJOR_VERSION @VTK_MAJOR_VERSION@
 #define VTK_MINOR_VERSION @VTK_MINOR_VERSION@
 #define VTK_BUILD_VERSION @VTK_BUILD_VERSION@
 #define VTK_VERSION "@VTK_VERSION@"
 
-/* Size of fundamental data types.  */
-#cmakedefine VTK_SIZEOF_CHAR   ${VTK_SIZEOF_CHAR}
-#cmakedefine VTK_SIZEOF_DOUBLE ${VTK_SIZEOF_DOUBLE}
-#cmakedefine VTK_SIZEOF_FLOAT  ${VTK_SIZEOF_FLOAT}
-#cmakedefine VTK_SIZEOF_INT    ${VTK_SIZEOF_INT}
-#cmakedefine VTK_SIZEOF_LONG   ${VTK_SIZEOF_LONG}
-#cmakedefine VTK_SIZEOF_SHORT  ${VTK_SIZEOF_SHORT}
+/* C++ compiler used.  */
+#define VTK_CXX_COMPILER "@CMAKE_CXX_COMPILER@"
 
-/* Whether type "bool" is supported by the compiler.  */
-#cmakedefine VTK_COMPILER_HAS_BOOL
+/*--------------------------------------------------------------------------*/
+/* Setup VTK based on platform features and configuration.                  */
+
+/* Setup vtkstd, a portable namespace for std.  */
+#ifndef VTK_NO_STD_NAMESPACE
+# define vtkstd std
+#else
+# define vtkstd
+#endif
+
+#endif

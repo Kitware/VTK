@@ -81,11 +81,23 @@ IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
   ENDIF(VTK_EXPLICIT_TEMPLATES)
 ENDIF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
 
-IF(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
-  # GCC on Cygwin cannot do explicit template instantiation correctly with
-  # DLLs.
-  SET(CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION 1)
-ENDIF(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
+# Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
+MACRO(VTK_PREPARE_CMAKEDEFINE not invar outvar)
+  IF(${not} ${invar})
+    SET(${outvar} 1)
+  ELSE(${not} ${invar})
+    SET(${outvar})
+  ENDIF(${not} ${invar})
+ENDMACRO(VTK_PREPARE_CMAKEDEFINE)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_PTHREADS VTK_USE_PTHREADS)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_SPROC VTK_USE_SPROC)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_HP_PTHREADS VTK_HP_PTHREADS)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_WIN32_THREADS VTK_USE_WIN32_THREADS)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
+VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_STD_NAMESPACE VTK_NO_STD_NAMESPACE)
+VTK_PREPARE_CMAKEDEFINE(NOT VTK_EXPLICIT_TEMPLATES
+                  VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension modules.
@@ -402,6 +414,8 @@ IF(VTK_USE_RENDERING)
   INCLUDE(${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 ENDIF(VTK_USE_RENDERING)
 
+VTK_PREPARE_CMAKEDEFINE("" OPENGL_LIBRARY VTK_USE_OPENGL_LIBRARY)
+
 #-----------------------------------------------------------------------------
 # Configure Mangled MESA support.
 IF(VTK_USE_MANGLED_MESA)
@@ -537,6 +551,8 @@ IF(VTK_WRAP_TCL)
 
 ENDIF(VTK_WRAP_TCL)
 
+VTK_PREPARE_CMAKEDEFINE("" TCL_TK_STATIC VTK_TCL_TK_STATIC)
+
 #-----------------------------------------------------------------------------
 # Configure Python wrapping support.
 IF(VTK_WRAP_PYTHON)
@@ -583,6 +599,8 @@ IF(VTK_WRAP_JAVA)
   SET(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
   MAKE_DIRECTORY(${VTK_JAVA_HOME})
 ENDIF(VTK_WRAP_JAVA)
+
+VTK_PREPARE_CMAKEDEFINE("" JAVA_AWT_INCLUDE_PATH VTK_USE_JAWT)
 
 #-----------------------------------------------------------------------------
 # Configure the Tk library for vtkRendering.
@@ -677,17 +695,14 @@ FIND_PATH(VTK_DATA_ROOT VTKData.readme ${VTK_SOURCE_DIR}/../VTKData $ENV{VTK_DAT
 
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
-CONFIGURE_FILE(
-${VTK_SOURCE_DIR}/vtkConfigure.h.in 
-${VTK_BINARY_DIR}/vtkConfigure.h)
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkConfigure.h.in
+               ${VTK_BINARY_DIR}/vtkConfigure.h @ONLY IMMEDIATE)
 
-CONFIGURE_FILE(
-${VTK_SOURCE_DIR}/UseVTK.cmake.in 
-${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY IMMEDIATE)
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/UseVTK.cmake.in 
+               ${VTK_BINARY_DIR}/UseVTK.cmake COPYONLY IMMEDIATE)
 
-CONFIGURE_FILE(
-${VTK_SOURCE_DIR}/vtkToolkits.h.in 
-${VTK_BINARY_DIR}/vtkToolkits.h)
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/vtkToolkits.h.in 
+               ${VTK_BINARY_DIR}/vtkToolkits.h @ONLY IMMEDIATE)
 
 #-----------------------------------------------------------------------------
 # The entire VTK tree should use the same include path.

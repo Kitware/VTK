@@ -15,16 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #ifndef __vtkTcl_h
 #define __vtkTcl_h
 
 #include "vtkToolkits.h"
 
-#ifdef TCL_TK_STATIC
-#ifndef STATIC_BUILD
-#define STATIC_BUILD
-#endif
+#ifdef VTK_TCL_TK_STATIC
+# ifndef STATIC_BUILD
+#  define STATIC_BUILD
+# endif
 #endif
 
 #include <tcl.h>

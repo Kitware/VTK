@@ -63,7 +63,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 
 #endif
 
-#if defined(WIN32) && !defined(VTKSTATIC)
+#if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
  #define VTK_EXPORT __declspec( dllexport )
 
  #if defined(vtkCommon_EXPORTS)
