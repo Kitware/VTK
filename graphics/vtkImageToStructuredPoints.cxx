@@ -214,6 +214,7 @@ int vtkImageToStructuredPoints::SplitExecute(vtkImageRegion *outRegion)
   
   // Split output into two pieces and update separately.
   inRegion = new vtkImageRegion;
+  inRegion->SetAxes(this->SplitOrder.GetAxes());
   outRegion->GetBounds(splitBounds);
 
   splitAxisIdx = 0;
