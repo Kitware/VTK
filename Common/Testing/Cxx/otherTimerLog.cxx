@@ -24,7 +24,7 @@ void Test(ostream& strm)
   strm << "Test vtkTimerLog Start" << endl;
   vtkTimerLog *timer1 = vtkTimerLog::New();
 
-  timer1->SetMaxEntries (5);
+  timer1->SetMaxEntries (3);
   timer1->StartTimer();
   for (j = 0; j < 10; j++)
     {
@@ -41,6 +41,7 @@ void Test(ostream& strm)
     timer1->FormatAndMarkEvent("%s%d", "end", j);
     }
   timer1->StopTimer();
+  strm << *timer1;
   strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
   strm << "GetCPUTime: " << timer1->GetCPUTime() << endl;
   timer1->DumpLog( "timing" );
