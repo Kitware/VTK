@@ -299,6 +299,10 @@ protected:
 
   int ByteOrder;
   
+  // The EnSight file version being read.  Valid after
+  // UpdateInformation.  Value is -1 for unknown version.
+  int EnSightVersion;
+  
   // The array selections.  These map over the variables and complex
   // variables to hide the details of EnSight behind VTK terminology.
   vtkDataArraySelection* PointDataArraySelection;
