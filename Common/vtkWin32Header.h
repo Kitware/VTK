@@ -62,11 +62,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NOMINMAX
 #endif
 
-// winsock2.h has to be included before windows.h
-#if !defined(__CYGWIN__)
-#include <winsock2.h>
-#endif
-
 #include <windows.h>
 
 // Handle compiler warning messages, etc.

@@ -57,15 +57,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __vtkSocketCommunicator_h
 #define __vtkSocketCommunicator_h
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#include <winsock2.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
+#if !defined(_WIN32)
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <netdb.h>
+ #include <unistd.h>
 #endif
 
 #include "vtkObject.h"
