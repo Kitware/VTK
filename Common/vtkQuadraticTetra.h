@@ -24,7 +24,7 @@
 // the size edges of the tetrahedron. The ordering of the ten points defining
 // the cell is point ids (0-3,4-9) where ids 0-3 are the four tetra
 // vertices; and point ids 4-9 are the midedge nodes between (0,1), (1,2), 
-// (2,3), (3,0), (0,3), (1,3), and (2,3).
+// (2,0), (0,3), (1,3), and (2,3).
 //
 // .SECTION See Also
 // vtkQuadraticEdge vtkQuadraticTriangle 
