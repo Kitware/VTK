@@ -184,6 +184,8 @@ vtkTransformFilter.o \
 vtkTransformPolyFilter.o \
 vtkTransformStructuredPoints.o \
 vtkTransformTextureCoords.o \
+vtkTriangularTCoords.o \
+vtkTriangularTexture.o \
 vtkTriangleFilter.o \
 vtkTubeFilter.o \
 vtkUGFacetReader.o \
@@ -392,6 +394,8 @@ tcl/vtkTransformFilterTcl.o \
 tcl/vtkTransformPolyFilterTcl.o \
 tcl/vtkTransformStructuredPointsTcl.o \
 tcl/vtkTransformTextureCoordsTcl.o \
+tcl/vtkTriangularTextureTcl.o \
+tcl/vtkTriangularTCoordsTcl.o \
 tcl/vtkTriangleFilterTcl.o \
 tcl/vtkTubeFilterTcl.o \
 tcl/vtkUGFacetReaderTcl.o \
@@ -591,6 +595,8 @@ vtkTransformFilter.h \
 vtkTransformPolyFilter.h \
 vtkTransformStructuredPoints.h \
 vtkTransformTextureCoords.h \
+vtkTriangularTexture.h \
+vtkTriangularTCoords.h \
 vtkTriangleFilter.h \
 vtkTubeFilter.h \
 vtkUGFacetReader.h \
@@ -1315,6 +1321,12 @@ tcl/vtkTransformStructuredPointsTcl.cxx: vtkTransformStructuredPoints.h ../tcl/c
 
 tcl/vtkTransformTextureCoordsTcl.cxx: vtkTransformTextureCoords.h ../tcl/cpp_parse 
 	rm -f tcl/vtkTransformTextureCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTransformTextureCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkTransformTextureCoordsTcl.cxx
+
+tcl/vtkTriangularTCoordsTcl.cxx: vtkTriangularTCoords.h ../tcl/cpp_parse 
+	rm -f tcl/vtkTriangularTCoordsTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTriangularTCoords.h $(srcdir)/../tcl/hints 1 > tcl/vtkTriangularTCoordsTcl.cxx
+
+tcl/vtkTriangularTextureTcl.cxx: vtkTriangularTexture.h ../tcl/cpp_parse 
+	rm -f tcl/vtkTriangularTextureTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTriangularTexture.h $(srcdir)/../tcl/hints 1 > tcl/vtkTriangularTextureTcl.cxx
 
 tcl/vtkTriangleFilterTcl.cxx: vtkTriangleFilter.h ../tcl/cpp_parse 
 	rm -f tcl/vtkTriangleFilterTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTriangleFilter.h $(srcdir)/../tcl/hints 1 > tcl/vtkTriangleFilterTcl.cxx
