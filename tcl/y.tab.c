@@ -924,7 +924,6 @@ char * yyreds[] =
 	"brackets : '[' maybe_other ']'",
 };
 #endif /* YYDEBUG */
-# line	1 "/usr/ccs/bin/yaccpar"
 /*
  * Copyright (c) 1993 by Sun Microsystems, Inc.
  */
@@ -2338,7 +2337,6 @@ case 97:
     numFuncs++;
     }
    } break;
-# line	532 "/usr/ccs/bin/yaccpar"
 	}
 	goto yystack;		/* reset registers in driver code */
 }
