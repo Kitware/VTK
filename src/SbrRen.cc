@@ -24,6 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SbrTri.hh"
 #include "SbrLine.hh"
 #include "SbrPnt.hh"
+#include "VolRen.hh"
 
 #define MAX_LIGHTS 16
 
@@ -164,6 +165,11 @@ void vlSbrRenderer::Render(void)
   this->DoCameras();
   this->DoLights();
   this->DoActors();
+
+  if (this->VolumeRenderer)
+    {
+    this->VolumeRenderer->Render((vlRenderer *)this);
+    }
 }
 
 // Description:
