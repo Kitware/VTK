@@ -238,8 +238,7 @@ public:
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
   // For legacy compatibility. Do not use.
-  int InsertNextCell(vtkIdList &pts)
-    {VTK_LEGACY_METHOD(InsertNextCell,"3.2"); return this->InsertNextCell(&pts);}
+  int InsertNextCell(vtkIdList &pts);
 #endif
   
 protected:

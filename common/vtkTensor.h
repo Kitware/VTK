@@ -85,17 +85,16 @@ public:
   // Deep copy of one tensor to another tensor.
   void DeepCopy(vtkTensor *t);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // For legacy compatibility. Do not use.
+  void DeepCopy(vtkTensor &t);
+#endif
+
   // Description:
   // Provide float * type conversion.
   operator float*() {return this->T;};
 
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // For legacy compatibility. Do not use.
-  void DeepCopy(vtkTensor &t)
-    {VTK_LEGACY_METHOD(DeepCopy,"3.2"); this->DeepCopy(&t);}
-#endif
-  
   // Description:
   // Data member left public for efficiency.
   float *T;
