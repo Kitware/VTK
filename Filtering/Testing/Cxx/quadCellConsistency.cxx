@@ -76,6 +76,12 @@ int CompareCellFaces(vtkCell *linear, vtkCell *quadratic)
     vtkCell *qFace = quadratic->GetFace(face);
 
     int n = lFace->GetNumberOfPoints();
+    // Check that linear Triangle match quad Tri
+    if( lFace->GetCellType() == VTK_TRIANGLE )
+      sum += (qFace->GetCellType() != VTK_QUADRATIC_TRIANGLE);
+    // Check that linear Quad match quad Quad
+    if( lFace->GetCellType() == VTK_QUAD )
+      sum += (qFace->GetCellType() != VTK_QUADRATIC_QUAD );
     // Check that the points of the linear cell match the one from the quadratic one
     for( int i=0; i<n; i++)
       {
