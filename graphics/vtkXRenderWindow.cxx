@@ -50,6 +50,8 @@ vtkXRenderWindow::vtkXRenderWindow()
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)NULL;
+  this->ScreenSize[0] = 0;
+  this->ScreenSize[1] = 0;
 }
 
 vtkXRenderWindow::~vtkXRenderWindow()
