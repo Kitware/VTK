@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.7");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.8");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -181,12 +181,7 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
 // Override from vtkDataObject because we have to handle the Spacing
 // and Origin as well as the UpdateExtent.
 void vtkImageStencilData::PropagateUpdateExtent()
-{
-  if (this->UpdateExtentIsEmpty())
-    {
-    return;
-    }
-  
+{  
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the update extent to the source 
   // if there is one.
@@ -211,12 +206,6 @@ void vtkImageStencilData::PropagateUpdateExtent()
 // and Origin as well as the UpdateExtent.
 void vtkImageStencilData::TriggerAsynchronousUpdate()
 {
-  // I want to find out if the requested extent is empty.
-  if (this->UpdateExtentIsEmpty())
-    {
-    return;
-    }
-  
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the trigger to the source
   // if there is one.
@@ -234,13 +223,6 @@ void vtkImageStencilData::TriggerAsynchronousUpdate()
 //----------------------------------------------------------------------------
 void vtkImageStencilData::UpdateData()
 {
-  // I want to find out if the requested extent is empty.
-  if (this->UpdateExtentIsEmpty())
-    {
-    this->Initialize();
-    return;
-    }
-  
   // If we need to update due to PipelineMTime, or the fact that our
   // data was released, then propagate the UpdateData to the source
   // if there is one.
