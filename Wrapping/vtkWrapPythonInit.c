@@ -30,7 +30,7 @@ void stuffit()
           kitName);
   
   fprintf(stdout,"  d = PyModule_GetDict(m);\n");
-  fprintf(stdout,"  if (!d) Py_FatalError(\"can't get dictionary for module %s!\");\n\n",
+  fprintf(stdout,"  if (!d) Py_FatalError((char*)\"can't get dictionary for module %s!\");\n\n",
           kitName);
 
   for (i = 0; i < anindex; i++)
@@ -38,7 +38,7 @@ void stuffit()
     fprintf(stdout,"  if ((c = PyVTKClass_%sNew(modulename)))\n",names[i]);
     fprintf(stdout,"    if (-1 == PyDict_SetItemString(d, \"%s\", c))\n",
             names[i]);
-    fprintf(stdout,"      Py_FatalError(\"can't add class %s to dictionary!\");\n\n",
+    fprintf(stdout,"      Py_FatalError((char*)\"can't add class %s to dictionary!\");\n\n",
             names[i]);
     }
   fprintf(stdout,"}\n\n");

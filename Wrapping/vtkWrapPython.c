@@ -36,7 +36,7 @@ void use_hints(FILE *fp)
   switch (currentFunction->ReturnType%1000)
     {
     case 301:
-      fprintf(fp,"    return Py_BuildValue(\"");
+      fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"f");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++)
@@ -46,7 +46,7 @@ void use_hints(FILE *fp)
       fprintf(fp,");\n");
       break;
     case 307:  
-      fprintf(fp,"    return Py_BuildValue(\"");
+      fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"d");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++)
@@ -56,7 +56,7 @@ void use_hints(FILE *fp)
       fprintf(fp,");\n");
       break;
     case 304: 
-      fprintf(fp,"    return Py_BuildValue(\"");
+      fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"i");
       fprintf(fp,"\"");
       for (i = 0; i < currentFunction->HintSize; i++) 
@@ -1047,7 +1047,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  char *temp0;\n");
     fprintf(fp,"  PyObject *temp1;\n");
     fprintf(fp,"  unsigned long     temp20 = 0;\n");
-    fprintf(fp,"  if ((op = (vtkObject *)PyArg_VTKParseTuple(self, args, \"zO\", &temp0, &temp1)))\n");
+    fprintf(fp,"  if ((op = (vtkObject *)PyArg_VTKParseTuple(self, args, (char*)\"zO\", &temp0, &temp1)))\n");
     fprintf(fp,"    {\n");
     fprintf(fp,"    if (!PyCallable_Check(temp1) && temp1 != Py_None)\n");
     fprintf(fp,"      {\n");
@@ -1076,7 +1076,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
 
     /* handle unbound method call if 'self' is a PyVTKClass */
     fprintf(fp,"  char *typecast;\n\n");
-    fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"s\", &typecast)))\n",data->ClassName);
+    fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"s\", &typecast)))\n",data->ClassName);
     fprintf(fp,"    {\n    char temp20[256];\n");
     fprintf(fp,"    sprintf(temp20,\"Addr=%%p\",op);\n");
     fprintf(fp,"    return PyString_FromString(temp20);\n");
@@ -1087,7 +1087,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"PyObject *PyvtkObjectBase_PrintRevisions(PyObject *self, PyObject *args)\n");
     fprintf(fp,"{\n");
     fprintf(fp,"  %s *op;\n",data->ClassName);
-    fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, \"\")))\n",data->ClassName);
+    fprintf(fp,"  if ((op = (%s *)PyArg_VTKParseTuple(self, args, (char*)\"\")))\n",data->ClassName);
     fprintf(fp,"    {\n");
     fprintf(fp,"    ostrstream vtkmsg_with_warning_C4701;\n");
     fprintf(fp,"    op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
@@ -1165,7 +1165,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   else if (!data->IsAbstract)
     { /* wrapping of 'special' non-vtkObject classes */
     fprintf(fp,"PyObject *PyVTKObject_%sNew(PyObject *, PyObject *args)\n{\n",data->ClassName);
-    fprintf(fp,"  if (!(PyArg_ParseTuple(args, \"\")))\n    {\n");
+    fprintf(fp,"  if (!(PyArg_ParseTuple(args, (char*)\"\")))\n    {\n");
     fprintf(fp,"    return NULL;\n    }\n\n");
     fprintf(fp,"  %s *obj = new %s;\n",data->ClassName,data->ClassName);
     fprintf(fp,"  return PyVTKSpecialObject_New(obj, Py%sMethods, (char*)\"%s\",(char**)%sDoc);\n",data->ClassName,data->ClassName,data->ClassName);
