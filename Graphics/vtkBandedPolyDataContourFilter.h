@@ -102,7 +102,8 @@ protected:
   ~vtkBandedPolyDataContourFilter();
 
   void Execute();
-  int ComputeScalarIndex(float);
+  int ComputeLowerScalarIndex(float);
+  int ComputeUpperScalarIndex(float);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
                vtkPointData *inPD, vtkPointData *outPD);
 
