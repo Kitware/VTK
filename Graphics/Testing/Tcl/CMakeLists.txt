@@ -139,6 +139,7 @@ IF (VTK_USE_RENDERING)
       TestQuadricClustering
       testReflect
       TestRuledSurface
+      TestRuledSurface2
       TestSpherePuzzle
       TestSpherePuzzleArrows
       TestSplineFilter
