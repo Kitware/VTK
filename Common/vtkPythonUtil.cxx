@@ -33,10 +33,6 @@
 
 //--------------------------------------------------------------------
 // There are two hash tables associated with the Python wrappers
-static inline vtkIdType vtkHashMapHashMethod(const vtkObject *const &x)
-{
-  return reinterpret_cast<vtkIdType>(x);
-}
 
 class vtkPythonUtil
 {
