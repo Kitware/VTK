@@ -46,6 +46,7 @@ class vtkMultiProcessController;
 class vtkCommunicator;
 class vtkSubGroup;
 class vtkIntArray;
+class vtkKdNode;
 
 class VTK_PARALLEL_EXPORT vtkPKdTree : public vtkKdTree
 {
@@ -93,25 +94,6 @@ public:
   //   Returns 1 on error, 0 when no error.
 
   int CreateGlobalDataArrayBounds();
-
-  // Description:
-  //   Set/Get the number of spatial regions you want to get close
-  //   to without going over.  (The number of spatial regions is normally
-  //   a power of two.)  Call this before BuildLocator().
-
-  vtkGetMacro(NumRegionsOrLess, int);
-  vtkSetMacro(NumRegionsOrLess, int);
-
-  // Description:
-  //   Set/Get the number of spatial regions you want to get close
-  //   to while having at least this many regions.  (The number of 
-  //   spatial regions is normally a power of two.)  Performance
-  //   hint:  Request just enough regions so you have at least one
-  //   spatial region per processor.  Further subdividing the
-  //   space takes time.  Call this before BuildLocator().
-
-  vtkGetMacro(NumRegionsOrMore, int);
-  vtkSetMacro(NumRegionsOrMore, int);
 
   // Description:
   //   Set/Get the communicator object
@@ -307,8 +289,6 @@ protected:
 
 private:
 
-  int NumRegionsOrLess;
-  int NumRegionsOrMore;
   int RegionAssignment;
 
   vtkMultiProcessController *Controller;
@@ -384,7 +364,6 @@ private:
   int AllCheckForFailure(int rc, const char *where, const char *how);
   void AllCheckParameters();
   double *VolumeBounds();
-  int DivideTest(int L, int R, int level);
   int DivideRegion(vtkKdNode *kd, int L, int level, int tag);
   int BreadthFirstDivide(double *bounds);
   void enQueueNode(vtkKdNode *kd, int L, int level, int tag);
@@ -409,8 +388,8 @@ private:
 
   static int FillOutTree(vtkKdNode *kd, int level);
   static int ComputeDepth(vtkKdNode *kd);
-  static void PackData(vtkKdNode *kd, float *data);
-  static void UnpackData(vtkKdNode *kd, float *data);
+  static void PackData(vtkKdNode *kd, double *data);
+  static void UnpackData(vtkKdNode *kd, double *data);
   static void CheckFixRegionBoundaries(vtkKdNode *tree);
 
   // list management
