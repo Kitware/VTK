@@ -101,7 +101,7 @@ inline int vlAGraymap::InsertNextColor(unsigned char *rgb)
 // Description:
 // Get pointer to data. Useful for direct writes into object. MaxId is bumped
 // by number (and memory allocated if necessary).
-unsigned char *vlAGraymap::WriteInto(int id, int number)
+inline unsigned char *vlAGraymap::WriteInto(int id, int number)
 {
   return this->S.WriteInto(id, number);
 }
