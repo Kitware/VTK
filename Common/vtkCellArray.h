@@ -191,7 +191,7 @@ public:
 
   // Description:
   // Return the underlying data as a data array.
-  vtkDataArray *GetData() 
+  vtkIdTypeArray* GetData() 
     {return this->Ia;}
 
   // Description:
