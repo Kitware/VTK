@@ -411,7 +411,7 @@ case $system in
 	    SHLIB_LD_LIBS=""
 	    SHLIB_SUFFIX=".so"
 	    DL_LIBS=""
-	    VTK_SHLIB_LINK_FLAGS=""
+	    VTK_SHLIB_LINK_FLAGS="-shared"
 	else
 	    SHLIB_CFLAGS=""
 	    SHLIB_LD_LIBS=""
@@ -614,6 +614,10 @@ case $system in
         THREAD_FLAGS=""
         THREAD_LIBS=""
         ;;
+    FreeBSD*)
+	THREAD_FLAGS=""
+	THREAD_LIBS=""
+	;;
 esac
 fi
 
