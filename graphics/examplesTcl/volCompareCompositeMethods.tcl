@@ -140,7 +140,7 @@ ren1 AddLight light2
 [ren1 GetActiveCamera] SetParallelScale 24
 
 renWin Render
-renWin SetFileName "valid/volCompareCompositeMethods.tcl.ppm"
-renWin SaveImageAsPPM
+#renWin SetFileName "valid/volCompareCompositeMethods.tcl.ppm"
+#renWin SaveImageAsPPM
 
 
