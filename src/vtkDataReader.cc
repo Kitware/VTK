@@ -268,7 +268,7 @@ int vtkDataReader::ReadHeader()
     vtkDebugMacro(<< "Opening vtk file as binary");
     delete this->IS;
 #ifdef _WIN32
-    if (!(this->IS = new ifstream(this->Filename, ios::in | ios::bin)))
+    if (!(this->IS = new ifstream(this->Filename, ios::in | ios::binary)))
 #else
     if (!(this->IS = new ifstream(this->Filename, ios::in)))
 #endif

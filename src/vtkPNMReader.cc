@@ -153,12 +153,11 @@ vtkColorScalars *vtkPNMReader::ReadImage(int dim[3])
 
 vtkColorScalars *vtkPNMReader::ReadVolume(int dim[3])
 {
-  vtkColorScalars *s, *image;
-  int size, imageSize, xsize, ysize, imageNum, numBytes, type;
+  vtkColorScalars *s;
+  int size, imageSize, imageNum, type;
   int numImages=this->ImageRange[1] - this->ImageRange[0] + 1;
   char filename[1024];
   FILE *fp;
-  unsigned char *vptr, *iptr;
 
   dim[2] = numImages;
   sprintf (filename, "%s.%d", this->Filename, this->ImageRange[0]);
