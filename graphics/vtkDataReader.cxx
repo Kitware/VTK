@@ -1612,7 +1612,7 @@ int vtkDataReader::ReadCells(int size, int *data,
     vtkByteSwap::Swap4BERange(tmp,size);
     if (tmp == data)
       {
-      return;
+      return 1;
       }
     // skip cells before the piece
     pTmp = tmp;
