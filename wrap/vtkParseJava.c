@@ -352,6 +352,12 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     {
     fprintf(fp,"  public native void   VTKInit();\n");
     }
+
+  if (!strcmp("vtkObject",data->ClassName))
+    {
+    fprintf(fp,"  public native String Print();\n");
+    }
+  
   fprintf(fp,"}\n");
 }
 
