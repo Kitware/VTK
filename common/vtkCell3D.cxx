@@ -86,7 +86,7 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
       
     // Currently all points are injected because of the possibility 
     // of intersection point merging.
-    s1 = cellScalars->GetScalar(ptId);
+    s1 = cellScalars->GetScalar(i);
     if ( (s1 >= value && !insideOut) || (s1 < value && insideOut) )
       {
       type = 0; //inside
@@ -101,7 +101,7 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
       {
       outPD->CopyData(inPD,ptId, id);
       }
-    internalId[ptId] = this->Triangulator->InsertPoint(id, xPtr, type);
+    internalId[i] = this->Triangulator->InsertPoint(id, xPtr, type);
     }//for eight voxel corner points
   
   // For each edge intersection point, insert into triangulation. Edge
@@ -131,7 +131,8 @@ void vtkCell3D::Clip(float value, vtkScalars *cellScalars,
 
       // generate edge intersection point
       this->Points->GetPoint(edges[0],p1);
-      this->Points->GetPoint(edges[1],p2);
+  
+    this->Points->GetPoint(edges[1],p2);
       for (i=0; i<3; i++)
         {
         x[i] = p1[i] + t * (p2[i] - p1[i]);
