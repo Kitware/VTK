@@ -57,6 +57,7 @@ class vtkVertices;
 class vtkSimpleScreenEdge;
 class vtkDoubleScreenEdge;
 class vtkVertexEntry;
+class vtkPixelListEntryMemory;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeZsweepMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -358,6 +359,11 @@ protected:
   vtkDoubleArray *NearIntersections;
   vtkDoubleArray *FarIntersections;
   
+  // Benchmark
+  vtkIdType MaxRecordedPixelListSize;
+  
+  
+  vtkPixelListEntryMemory *MemoryManager;
 private:
   vtkUnstructuredGridVolumeZsweepMapper(const vtkUnstructuredGridVolumeZsweepMapper&);  // Not implemented.
   void operator=(const vtkUnstructuredGridVolumeZsweepMapper&);  // Not implemented.

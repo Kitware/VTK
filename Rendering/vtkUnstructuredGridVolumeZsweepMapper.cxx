@@ -63,10 +63,14 @@ enum
 class vtkPixelListEntry
 {
 public:
-  vtkPixelListEntry(double values[VTK_VALUES_SIZE],
-                    double zView)
-    : Zview(zView)
+  vtkPixelListEntry()
     {
+    }
+  
+  void Init(double values[VTK_VALUES_SIZE],
+            double zView)
+    {
+      this->Zview=zView;
       int i=0;
       while(i<VTK_VALUES_SIZE)
         {
@@ -74,15 +78,28 @@ public:
         ++i;
         }
     }
+  
+  
   // Return the interpolated values at this pixel.
   double *GetValues() { return this->Values; }
   // Return the interpolated z coordinate in view space at this pixel.
   double GetZview() const { return this->Zview; }
   
+  vtkPixelListEntry *GetPrevious() { return this->Previous; }
+  vtkPixelListEntry *GetNext() { return this->Next; }
+  
+  void SetPrevious(vtkPixelListEntry *e) { this->Previous=e; }
+  void SetNext(vtkPixelListEntry *e) { this->Next=e; }
+  
 protected:
   double Values[VTK_VALUES_SIZE];
   double Zview;
   
+  // List structure: both for the free block list (one-way) and any
+  // pixel list (two-way)
+  vtkPixelListEntry *Next;
+  // List structure: only for the pixel list (two-way)
+  vtkPixelListEntry *Previous;
 private:
   vtkPixelListEntry(const vtkPixelListEntry &other);
   vtkPixelListEntry &operator=(const vtkPixelListEntry &other);
@@ -1610,7 +1627,229 @@ protected:
 
 // Pimpl (i.e. private implementation) idiom
 
-typedef vtkstd::list<vtkPixelListEntry *> vtkPixelList;
+//typedef vtkstd::list<vtkPixelListEntry *> vtkPixelList;
+
+class vtkPixelListEntryBlock
+{
+public:
+  vtkPixelListEntryBlock(vtkIdType size)
+    {
+      assert("pre: positive_size" && size>0);
+      this->Size=size;
+      this->Next=0;
+      this->Array=new vtkPixelListEntry[size];
+      this->Last=this->Array+size-1;
+      // link each entry to the next one
+      vtkPixelListEntry *p;
+      vtkPixelListEntry *q;
+      p=this->Array;
+      q=p+1;
+      vtkIdType i=1;
+      while(i<size)
+        {
+        p->SetNext(q);
+        ++i;
+        p=q;
+        ++q;
+        }
+      p->SetNext(0);
+    }
+  ~vtkPixelListEntryBlock()
+    {
+      delete[] this->Array;
+    }
+  vtkIdType GetSize() { return this->Size; }
+  vtkPixelListEntryBlock *GetNext() { return this->Next; }
+  vtkPixelListEntry *GetFirst() { return this->Array; }
+  vtkPixelListEntry *GetLast() { return this->Last; }
+  void SetNext(vtkPixelListEntryBlock *other) { this->Next=other; }
+  
+protected:
+  vtkIdType Size;
+  vtkPixelListEntryBlock *Next;
+  vtkPixelListEntry *Array;
+  vtkPixelListEntry *Last;
+};
+
+const vtkIdType VTK_PIXEL_BLOCK_SIZE=64;
+
+class vtkPixelListEntryMemory
+{
+public:
+  vtkPixelListEntryMemory()
+    {
+      this->FirstBlock=new vtkPixelListEntryBlock(VTK_PIXEL_BLOCK_SIZE);
+      this->FirstFreeElement=this->FirstBlock->GetFirst();
+      this->Size=VTK_PIXEL_BLOCK_SIZE;
+    }
+  ~vtkPixelListEntryMemory()
+    {
+      vtkPixelListEntryBlock *p=this->FirstBlock;
+      vtkPixelListEntryBlock *q;
+      while(p!=0)
+        {
+        q=p->GetNext();
+        delete p;
+        p=q;
+        }
+    }
+  vtkPixelListEntry *AllocateEntry()
+    {
+      if(this->FirstFreeElement==0)
+        {
+        this->AllocateBlock(this->Size<<1);
+//        this->AllocateBlock(BLOCK_SIZE);
+        }
+      vtkPixelListEntry *result=this->FirstFreeElement;
+      this->FirstFreeElement=result->GetNext();
+      assert("post: result_exists" && result!=0);
+      return result;
+    }
+  void FreeEntry(vtkPixelListEntry *e)
+    {
+      assert("pre: e_exists" && e!=0);
+      
+      // the following line works even if this->FirstFreeElement==0
+      e->SetNext(this->FirstFreeElement);
+      this->FirstFreeElement=e;
+    }
+  void FreeSubList(vtkPixelListEntry *first,
+                   vtkPixelListEntry *last)
+    {
+      assert("pre: first_exists" && first!=0);
+      assert("pre: last_exists" && last!=0);
+      // pre: first==last can be true
+      // the following line works even if this->FirstFreeElement==0
+      last->SetNext(this->FirstFreeElement);
+      this->FirstFreeElement=first;
+    }
+protected:
+  
+  void AllocateBlock(vtkIdType size)
+    {
+      assert("pre: positive_size" && size>0);
+      vtkPixelListEntryBlock *b=new vtkPixelListEntryBlock(size);
+      this->Size+=size;
+      // Update the block linked list: starts with the new block
+      b->SetNext(this->FirstBlock);
+      this->FirstBlock=b;
+      
+      // Update the free element linked list.
+      // It works even if this->FirstFreeElement==0
+      b->GetLast()->SetNext(this->FirstFreeElement);
+      this->FirstFreeElement=b->GetFirst();
+    }
+  
+  vtkPixelListEntryBlock *FirstBlock;
+  vtkPixelListEntry *FirstFreeElement;
+  vtkIdType Size; // overall size, in number of elements, not in bytes
+};
+
+
+class vtkPixelList
+{
+public:
+  vtkPixelList()
+    {
+      this->Size=0;
+    }
+  vtkPixelListEntry *GetFirst()
+    {
+      assert("pre: not_empty" && this->Size>0);
+      return this->First;
+    }
+  vtkIdType GetSize() { return this->Size; }
+  
+  void AddAndSort(vtkPixelListEntry *p)
+    {
+      assert("pre: p_exists" && p!=0);
+      if(this->Size==0)
+        {
+        p->SetPrevious(0);
+        p->SetNext(0);
+        this->First=p;
+        this->Last=p;
+        }
+      else
+        {
+        vtkPixelListEntry *it=this->Last;
+        int sorted=0;
+        double z=p->GetZview();
+        while(!sorted && it!=0)
+          {
+#ifdef BACK_TO_FRONT
+          sorted=it->GetZview()>=z;
+#else
+          sorted=it->GetZview()<=z;
+#endif
+          if(!sorted)
+            {
+            it=it->GetPrevious();
+            }
+          }
+        if(it==0) // first element
+          {
+          p->SetPrevious(0);
+          p->SetNext(this->First);
+          // this->First==0 is handled by case size==0
+          this->First->SetPrevious(p);
+          this->First=p;
+          }
+        else
+          {
+          if(it->GetNext()==0) // last element
+            {
+            it->SetNext(p);
+            p->SetPrevious(it);
+            p->SetNext(0);
+            this->Last=p;
+            }
+          else // general case
+            {
+            vtkPixelListEntry *q=it->GetNext();
+            q->SetPrevious(p);
+            p->SetNext(q);
+            p->SetPrevious(it);
+            it->SetNext(p);
+            }
+          }
+        }
+      ++this->Size;
+    }
+  
+  // the return pointer is used by the memory manager.
+  void RemoveFirst(vtkPixelListEntryMemory *mm)
+    {
+      assert("pre: not_empty" && this->Size>0);
+      assert("pre: mm_exists" && mm!=0);
+      
+      vtkPixelListEntry *p=this->First;
+      if(this->Size>1)
+        {
+        this->First=p->GetNext();
+        this->First->SetPrevious(0);
+        }
+      --this->Size;
+      mm->FreeEntry(p);
+    }
+  
+  // the return pointer on the first element is used by the memory manager.
+  void Clear(vtkPixelListEntryMemory *mm)
+    {
+      assert("pre: mm_exists" && mm!=0);
+      if(this->Size>0)
+        {
+        // it works even if first==last
+        mm->FreeSubList(this->First,this->Last);
+        this->Size=0;
+        }
+    }
+
+protected:
+  vtkIdType Size;
+  vtkPixelListEntry *First;
+  vtkPixelListEntry *Last;
+};
 
 //-----------------------------------------------------------------------------
 // Store the pixel lists for all the frame.
@@ -1620,14 +1859,8 @@ public:
   typedef vtkstd::vector<vtkPixelList> VectorType;
  
   vtkPixelListFrame(int size)
-    :Vector(size),Sizes(size)
+    :Vector(size)
     {
-      int i=0;
-      while(i<size)
-        {
-        this->Sizes[i]=0;
-        ++i;
-        }
     }
   
   // Return width*height
@@ -1637,7 +1870,7 @@ public:
   vtkIdType GetListSize(int i)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
-      return this->Sizes[i];
+      return this->Vector[i].GetSize();
     }
   
   // Add a value the pixel list of pixel `i' and sort it in the list.
@@ -1647,36 +1880,7 @@ public:
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       assert("pre: pixelEntry_exists" &&  pixelEntry!=0);
       
-      if( this->Vector[i].empty())
-        {
-        this->Vector[i].push_back(pixelEntry);
-        this->Sizes[i]=1;
-        }
-      else
-        {
-        this->It=this->Vector[i].end();
-        this->PreviousIt=this->It;
-        --this->It; // last valid element
-        
-        this->ItEnd=this->Vector[i].begin();
-        --this->ItEnd; // before the first valid element
-        int sorted=0;
-        while(!sorted && this->It!=this->ItEnd)
-          {
-#ifdef BACK_TO_FRONT
-          sorted=(*this->It)->GetZview()>=pixelEntry->GetZview();
-#else
-          sorted=(*this->It)->GetZview()<=pixelEntry->GetZview();
-#endif
-          if(!sorted)
-            {
-            --this->It;
-            --this->PreviousIt;
-            }
-          }
-        this->Vector[i].insert(this->PreviousIt,pixelEntry);
-        ++this->Sizes[i];
-        }
+      this->Vector[i].AddAndSort(pixelEntry);
     }
   
   // Return the first entry for pixel `i'.
@@ -1684,47 +1888,43 @@ public:
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       assert("pre: not_empty" && this->GetListSize(i)>0);
-      return this->Vector[i].front();
+      return this->Vector[i].GetFirst();
     }
   
   // Remove the first entry for pixel `i'.
-  void PopFront(int i)
+  void PopFront(int i,
+                vtkPixelListEntryMemory *mm)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       assert("pre: not_empty" && this->GetListSize(i)>0);
-      this->Vector[i].pop_front();
-      this->Sizes[i]--;
+      assert("pre: mm_exists" && mm!=0);
+      this->Vector[i].RemoveFirst(mm);
     }
   
   // Return the begin iterator for pixel `i'.
-  vtkstd::list<vtkPixelListEntry *>::iterator GetIterator(int i)
+  vtkPixelListEntry *GetFirst(int i)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
-      return this->Vector[i].begin();
+      return this->Vector[i].GetFirst();
     }
-  
+#if 0
   // Return the end iterator for pixel `i'.
   vtkstd::list<vtkPixelListEntry *>::iterator GetEndIterator(int i)
     {
       assert("pre: valid_i" && i>=0 && i<this->GetSize());
       return this->Vector[i].end();
     }
-  
+#endif
   // Clear the list of each pixel of the frame.
-  void Clean()
+  void Clean(vtkPixelListEntryMemory *mm)
     {
+      assert("pre: mm_exists" && mm!=0);
       vtkIdType i=0;
       vtkIdType c=this->Vector.size();
       while(i<c)
         {
         vtkPixelList *l=&(Vector[i]);
-        
-        while(!l->empty())
-          {
-          delete l->front();
-          l->pop_front();
-          }
-        this->Sizes[i]=0;
+        l->Clear(mm);
         ++i;
         }
     }
@@ -1732,6 +1932,7 @@ public:
   // Destructor.
   ~vtkPixelListFrame()
     {
+#if 0
       vtkIdType i=0;
       vtkIdType c=this->Vector.size();
       while(i<c)
@@ -1744,18 +1945,25 @@ public:
           }
         ++i;
         }
+#endif
     }
 
+  vtkPixelList *GetList(int i)
+    {
+      assert("pre: valid_i" && i>=0 && i<this->GetSize());
+      return &(this->Vector[i]);
+    }
+  
 protected:
   VectorType Vector;
   
   // the STL specification claims that
   // size() on a std: :list is permitted to be O(n)!!!!
-  vtkstd::vector<vtkIdType> Sizes;
+//  vtkstd::vector<vtkIdType> Sizes;
   
-  vtkstd::list<vtkPixelListEntry *>::iterator It;
-  vtkstd::list<vtkPixelListEntry *>::iterator PreviousIt;
-  vtkstd::list<vtkPixelListEntry *>::iterator ItEnd;
+//  vtkstd::list<vtkPixelListEntry *>::iterator It;
+//  vtkstd::list<vtkPixelListEntry *>::iterator PreviousIt;
+//  vtkstd::list<vtkPixelListEntry *>::iterator ItEnd;
 };
 
 //-----------------------------------------------------------------------------
@@ -1922,7 +2130,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
@@ -1934,7 +2142,7 @@ vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
 // Set MaxPixelListSize to 32.
 vtkUnstructuredGridVolumeZsweepMapper::vtkUnstructuredGridVolumeZsweepMapper()
 {
-  this->MaxPixelListSize=32; // default value.
+  this->MaxPixelListSize=64; // default value.
   
   this->ImageSampleDistance        =  1.0;
   this->MinimumImageSampleDistance =  1.0;
@@ -1992,11 +2200,17 @@ vtkUnstructuredGridVolumeZsweepMapper::vtkUnstructuredGridVolumeZsweepMapper()
   this->IntersectionLengths=vtkDoubleArray::New();
   this->NearIntersections=vtkDoubleArray::New();
   this->FarIntersections=vtkDoubleArray::New();
+  
+  this->MemoryManager=0;
 }
 
 //-----------------------------------------------------------------------------
 vtkUnstructuredGridVolumeZsweepMapper::~vtkUnstructuredGridVolumeZsweepMapper()
 {
+  if(this->MemoryManager!=0)
+    {
+    delete this->MemoryManager;
+    }
   if(this->PixelListFrame!=0)
     {
     delete this->PixelListFrame;
@@ -2619,8 +2833,8 @@ void vtkUnstructuredGridVolumeZsweepMapper::BuildUseSets()
     return;
     }
   
-  vtkIdType numberOfCells=this->GetInput()->GetNumberOfCells();
-  vtkIdType numberOfPoints=this->GetInput()->GetNumberOfPoints();
+  vtkIdType numberOfCells=input->GetNumberOfCells();
+  vtkIdType numberOfPoints=input->GetNumberOfPoints();
   
   // init the use set of each vertex
   this->AllocateUseSet(numberOfPoints);
@@ -2629,7 +2843,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::BuildUseSets()
   vtkIdType cellIdx=0;
   while(cellIdx<numberOfCells)
     {
-    this->GetInput()->GetCell(cellIdx,this->Cell);
+    input->GetCell(cellIdx,this->Cell);
     
     vtkIdType faces=this->Cell->GetNumberOfFaces();
     vtkIdType faceidx=0;
@@ -2711,7 +2925,8 @@ void vtkUnstructuredGridVolumeZsweepMapper::ProjectAndSortVertices(
   vtkRenderer *ren,
   vtkVolume *vol)
 {
-  vtkIdType numberOfPoints=this->GetInput()->GetNumberOfPoints();
+  vtkUnstructuredGrid *input = this->GetInput();
+  vtkIdType numberOfPoints=input->GetNumberOfPoints();
   
   vtkIdType pointId=0;
   vtkVertexEntry *vertex=0;
@@ -2742,7 +2957,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::ProjectAndSortVertices(
     // Projection
     //
     double inPoint[4];
-    this->GetInput()->GetPoint(pointId,inPoint);
+    input->GetPoint(pointId,inPoint);
     inPoint[3] = 1.0;
     
     double outPoint[4];
@@ -2843,6 +3058,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
   vtkstd::list<vtkFace *>::iterator it;
   vtkstd::list<vtkFace *>::iterator itEnd;
   
+//  this->MaxRecordedPixelListSize=0;
   this->MaxPixelListSizeReached=0;
   this->XBounds[0]=this->ImageInUseSize[0];
   this->XBounds[1]=0;
@@ -2851,6 +3067,11 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
   
   vtkIdType progressCount=0;
   vtkIdType sum=this->EventList->GetNumberOfItems();
+  
+  if(this->MemoryManager==0)
+    {
+    this->MemoryManager=new vtkPixelListEntryMemory;
+    }
   
   int aborded=0;
   // for each vertex of the "event list"
@@ -3005,7 +3226,8 @@ void vtkUnstructuredGridVolumeZsweepMapper::MainLoop(vtkRenderWindow *renWin)
     this->CompositeFunction(2);
 #endif
     }
-  this->PixelListFrame->Clean();
+  this->PixelListFrame->Clean(this->MemoryManager);
+//  vtkDebugMacro(<<"MaxRecordedPixelListSize="<<this->MaxRecordedPixelListSize);
 }
 
 //-----------------------------------------------------------------------------
@@ -3015,8 +3237,6 @@ void vtkUnstructuredGridVolumeZsweepMapper::SavePixelListFrame()
   
   vtkIdType height=this->ImageInUseSize[1];
   vtkIdType width=this->ImageInUseSize[0];
-  vtkstd::list<vtkPixelListEntry *>::iterator it;
-  vtkstd::list<vtkPixelListEntry *>::iterator itEnd;
   vtkPixelListEntry *current;
   vtkIdType i;
   
@@ -3027,21 +3247,19 @@ void vtkUnstructuredGridVolumeZsweepMapper::SavePixelListFrame()
   vtkCellArray *vertices=vtkCellArray::New();
   vtkIdType pointId=0;
   
-  height=151;
-  width=151;
+//  height=151;
+//  width=151;
   
-  vtkIdType y=150;
+  vtkIdType y=0; //150;
   while(y<height)
     {
-    vtkIdType x=150;
+    vtkIdType x=0; //150;
     while(x<width)
       {     
       i=y*this->ImageInUseSize[0]+x;
-      it=this->PixelListFrame->GetIterator(i);
-      itEnd=this->PixelListFrame->GetEndIterator(i);
-      while(it!=itEnd)
+      current=this->PixelListFrame->GetFirst(i);
+      while(current!=0)
         {
-        current=*it;
         double *values=current->GetValues();
         
         double point[3];
@@ -3052,7 +3270,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::SavePixelListFrame()
         pts->InsertNextPoint(point);
         dataArray->InsertNextValue(values[3]);
         vertices->InsertNextCell(1,&pointId);
-        ++it;
+        current=current->GetNext();
         ++pointId;
         }
       ++x;
@@ -3084,7 +3302,6 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeFace(vtkIdType faceIds[3])
   // second vertex v1 (y-order)
   // Hence, on one side there one edge (v0v2), on the other side there are two
   // edges (v0v1 and v1v2).
-  
   vtkVertexEntry *v0=&(this->Vertices->Vector[faceIds[0]]);
   vtkVertexEntry *v1=&(this->Vertices->Vector[faceIds[1]]);
   vtkVertexEntry *v2=&(this->Vertices->Vector[faceIds[2]]);
@@ -3271,15 +3488,22 @@ void  vtkUnstructuredGridVolumeZsweepMapper::RasterizeTriangle(
         {
         vtkIdType i=y*this->ImageInUseSize[0]+x;
         // Write the pixel
-        vtkPixelListEntry *p0=new vtkPixelListEntry(v0->GetValues(),
-                                                    v0->GetZview());
+        vtkPixelListEntry *p0=this->MemoryManager->AllocateEntry();
+        p0->Init(v0->GetValues(),v0->GetZview());
         this->PixelListFrame->AddAndSort(i,p0);
-        vtkPixelListEntry *p1=new vtkPixelListEntry(v1->GetValues(),
-                                                    v1->GetZview());
+        
+        vtkPixelListEntry *p1=this->MemoryManager->AllocateEntry();
+        p1->Init(v1->GetValues(),v1->GetZview());
         this->PixelListFrame->AddAndSort(i,p1);
-        vtkPixelListEntry *p2=new vtkPixelListEntry(v2->GetValues(),
-                                                    v2->GetZview());
+        
+        vtkPixelListEntry *p2=this->MemoryManager->AllocateEntry();
+        p2->Init(v2->GetValues(),v2->GetZview());
         this->PixelListFrame->AddAndSort(i,p2);
+        
+//        if(this->PixelListFrame->GetListSize(i)>this->MaxRecordedPixelListSize)
+//          {
+//          this->MaxRecordedPixelListSize=this->PixelListFrame->GetListSize(i);
+//          }
         
         if(!this->MaxPixelListSizeReached)
           {
@@ -3397,9 +3621,13 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeSpan(int y,
       {
       vtkIdType j=i+x;
       // Write the pixel
-      vtkPixelListEntry *p=new vtkPixelListEntry(this->Span->GetValues(),
-                                                 this->Span->GetZview());
+      vtkPixelListEntry *p=this->MemoryManager->AllocateEntry();
+      p->Init(this->Span->GetValues(),this->Span->GetZview());
       this->PixelListFrame->AddAndSort(j,p);
+//      if(this->PixelListFrame->GetListSize(j)>this->MaxRecordedPixelListSize)
+//        {
+//        this->MaxRecordedPixelListSize=this->PixelListFrame->GetListSize(j);
+//        }
       
       if(!this->MaxPixelListSizeReached)
         {
@@ -3509,13 +3737,13 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeLine(vtkVertexEntry *v0,
           {
           vtkIdType j=y*this->ImageInUseSize[0]+x; // mult==bad!!
           // Write the pixel
-          vtkPixelListEntry *p0=new vtkPixelListEntry(v0->GetValues(),
-                                                      v0->GetZview());
+          vtkPixelListEntry *p0=this->MemoryManager->AllocateEntry();
+          p0->Init(v0->GetValues(),v0->GetZview());
           this->PixelListFrame->AddAndSort(j,p0);
           
           // Write the pixel
-          vtkPixelListEntry *p1=new vtkPixelListEntry(v1->GetValues(),
-                                                      v1->GetZview());
+          vtkPixelListEntry *p1=this->MemoryManager->AllocateEntry();
+          p1->Init(v1->GetValues(),v1->GetZview());
           this->PixelListFrame->AddAndSort(j,p1);
           
           if(!this->MaxPixelListSizeReached)
@@ -3573,8 +3801,8 @@ void vtkUnstructuredGridVolumeZsweepMapper::RasterizeLine(vtkVertexEntry *v0,
       {
       vtkIdType j=y*this->ImageInUseSize[0]+x; // mult==bad!!
       // Write the pixel
-      vtkPixelListEntry *p0=new vtkPixelListEntry(values,
-                                                  zView);
+      vtkPixelListEntry *p0=this->MemoryManager->AllocateEntry();
+      p0->Init(values,zView);
       this->PixelListFrame->AddAndSort(j,p0);
       if(!this->MaxPixelListSizeReached)
         {
@@ -3667,10 +3895,9 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
   int y=this->YBounds[0];
   vtkIdType i=y*this->ImageInUseSize[0]+this->XBounds[0];
   
-  vtkIdType index=(y*this->ImageMemorySize[0]+this->XBounds[0])*4;
-  vtkIdType indexStep=4*this->ImageMemorySize[0];
+  vtkIdType index=(y*this->ImageMemorySize[0]+this->XBounds[0])<< 2; // *4
+  vtkIdType indexStep=this->ImageMemorySize[0]<<2; // *4
   
-  vtkstd::list<vtkPixelListEntry *>::iterator it;
   vtkPixelListEntry *current;
   vtkPixelListEntry *next;
   double zBuffer=0;
@@ -3691,13 +3918,12 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
     vtkIdType index2=index;
     while(x<=this->XBounds[1])
       {
+      vtkPixelList *pixel=this->PixelListFrame->GetList(j);
       // we need at least two entries per pixel to perform compositing
-      if(this->PixelListFrame->GetListSize(j)>=2)
-        {        
-        it=this->PixelListFrame->GetIterator(j);
-        current=*it;
-        ++it;
-        next=*it;
+      if(pixel->GetSize()>=2)
+        {
+        current=pixel->GetFirst();
+        next=current->GetNext();
 #ifdef BACK_TO_FRONT
         int done=current->GetZview()<=zTarget || next->GetZview()<=zTarget;
 #else
@@ -3751,7 +3977,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
 #else
                 this->RealRayIntegrator->Integrate(this->IntersectionLengths,
                                                    this->NearIntersections,
-                                                   this->FarIntersections,
+                                                                  this->FarIntersections,
                                                    color);
 #endif
                 } // length!=0
@@ -3759,15 +3985,13 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
             } // doIntegration
           
           // Next entry
-          this->PixelListFrame->PopFront(j); // remove current
-          delete current;
+          pixel->RemoveFirst(this->MemoryManager); // remove current
           
-          done=this->PixelListFrame->GetListSize(j)<2; // empty queue?
+          done=pixel->GetSize()<2; // empty queue?
           if(!done)
             {
-            ++it;
             current=next;
-            next=*it;
+            next=current->GetNext();
 #ifdef BACK_TO_FRONT
             done=next->GetZview()<=zTarget;
 #else
@@ -3776,7 +4000,7 @@ void vtkUnstructuredGridVolumeZsweepMapper::CompositeFunction(double zTarget)
             }
           } // while(!done)
         }
-      if(this->PixelListFrame->GetListSize(j)>=2)
+      if(pixel->GetSize()>=2)
         {
         if(x<newXBounds[0])
           {
