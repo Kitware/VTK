@@ -526,7 +526,7 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
+    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
       vals->m_WhereVTK);
     }
   else
@@ -670,7 +670,7 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int doAddedValue)
        }
   if (vals->m_Patented)
     {
-    fprintf(fp,"-DUSE_PATENTED -I%s\\patented\n",
+    fprintf(fp,"-DVTK_USE_PATENTED -I%s\\patented\n",
       vals->m_WhereVTK);
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL\n",
@@ -835,7 +835,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
+    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
       vals->m_WhereVTK);
     }
   else
@@ -1034,7 +1034,7 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
        }
   if (vals->m_Patented)
     {
-    fprintf(fp,"-DUSE_PATENTED -I%s\\patented\n",
+    fprintf(fp,"-DVTK_USE_PATENTED -I%s\\patented\n",
       vals->m_WhereVTK);
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL\n",
@@ -1237,7 +1237,7 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
+    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
       vals->m_WhereVTK);
     }
   else
@@ -1418,7 +1418,7 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
        }
   if (vals->m_Patented)
     {
-    fprintf(fp,"-DUSE_PATENTED -I%s\\patented\n",
+    fprintf(fp,"-DVTK_USE_PATENTED -I%s\\patented\n",
       vals->m_WhereVTK);
     }
  fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;VTKJAVA\n",
