@@ -27,7 +27,7 @@ vtkCellLocator.cxx
 vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
 vtkCompositeDataIterator.cxx
-#vtkCompositeDataPipeline.cxx
+vtkCompositeDataPipeline.cxx
 vtkCompositeDataSet.cxx
 vtkCone.cxx
 vtkConvexPointSet.cxx
@@ -73,10 +73,10 @@ vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
 vtkHierarchicalBoxDataSet.cxx
-#vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
+vtkHierarchicalDataSetAlgorithm.cxx
 vtkImageAlgorithm.cxx
 vtkImageData.cxx
 vtkImageDataToPolyDataAlgorithm.cxx
@@ -118,7 +118,7 @@ vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMergePoints.cxx
 vtkMultiBlockDataSet.cxx
-#vtkMultiBlockDataSetAlgorithm.cxx
+vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataIterator.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
@@ -224,7 +224,6 @@ vtkGenericDataSetToUnstructuredGridFilter
 vtkGenericDataSetToPolyDataFilter
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
-vtkHierarchicalDataSet
 vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator
