@@ -120,6 +120,7 @@ IF(VTK_WRAP_JAVA)
   SET(VTK_WRAP_JAVA_EXE_CONFIG ${VTK_WRAP_JAVA_EXE})
   SET(VTK_JAVA_HOME_CONFIG ${VTK_JAVA_HOME})
 ENDIF(VTK_WRAP_JAVA)
+SET(VTK_DOXYGEN_HOME_CONFIG ${VTK_SOURCE_DIR}/Utilities/Doxygen)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
@@ -149,6 +150,7 @@ SET(VTK_PARSE_JAVA_EXE_CONFIG "")
 SET(VTK_WRAP_JAVA_EXE_CONFIG "")
 SET(VTK_WRAP_PYTHON_EXE_CONFIG "")
 SET(VTK_WRAP_TCL_EXE_CONFIG "")
+SET(VTK_DOXYGEN_HOME_CONFIG "")
 IF(VTK_WRAP_TCL)
   SET(VTK_TCL_EXE_CONFIG ${CMAKE_INSTALL_PREFIX}/bin/vtk)
   SET(VTK_WRAP_TCL_EXE_CONFIG ${CMAKE_INSTALL_PREFIX}/bin/vtkWrapTcl)
@@ -165,6 +167,7 @@ IF(VTK_WRAP_JAVA)
   SET(VTK_WRAP_JAVA_EXE_CONFIG ${CMAKE_INSTALL_PREFIX}/bin/vtkWrapJava)
   #SET(VTK_JAVA_HOME_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/java})
 ENDIF(VTK_WRAP_JAVA)
+SET(VTK_DOXYGEN_HOME_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/doxygen)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.

@@ -24,6 +24,7 @@
 # VTK_WRAP_JAVA_EXE   - Location of vtkWrapJava executable.
 # VTK_WRAP_PYTHON_EXE - Location of vtkWrapPython executable.
 # VTK_WRAP_TCL_EXE    - Location of vtkWrapTcl executable.
+# VTK_DOXYGEN_HOME    - Location of VTK doxygen helper perl scripts.
 #
 # There are many configuration settings controlling how VTK is built.
 # These settings are available through the following settings:
@@ -219,6 +220,7 @@ SET(VTK_PARSE_JAVA_EXE "@VTK_PARSE_JAVA_EXE_CONFIG@")
 SET(VTK_WRAP_JAVA_EXE "@VTK_WRAP_JAVA_EXE_CONFIG@")
 SET(VTK_WRAP_PYTHON_EXE "@VTK_WRAP_PYTHON_EXE_CONFIG@")
 SET(VTK_WRAP_TCL_EXE "@VTK_WRAP_TCL_EXE_CONFIG@")
+SET(VTK_DOXYGEN_HOME "@VTK_DOXYGEN_HOME_CONFIG@")
 
 # The list of library dependencies used by CMake for automatic
 # chainging of dependent libraries.
