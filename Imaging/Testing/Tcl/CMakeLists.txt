@@ -16,8 +16,8 @@ IF (HAVE_PNG)
         TestAllLogic
         TestAllMaskBits
         TestAllShrinks
-        TestButterworthLowPass.tcl
-        TestButterworthHighPass.tcl
+        TestButterworthLowPass
+        TestButterworthHighPass
         TestCityBlockDistance
         TestCorrelation
         TestFFT
