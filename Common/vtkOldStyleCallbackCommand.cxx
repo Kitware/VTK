@@ -29,8 +29,6 @@ vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()
   this->ClientData = NULL;
   this->Callback = NULL; 
   this->ClientDataDeleteCallback = NULL;
-  vtkGenericWarningMacro("vtkOldStyleCallbackCommand is deprecated in VTK 4.2 and "
-                         "will be removed in a future version.");
 }
   
 vtkOldStyleCallbackCommand::~vtkOldStyleCallbackCommand() 
