@@ -4,7 +4,7 @@ package require vtkinteraction
 vtkRenderer ren1
 vtkRenderWindow renWin
     renWin AddRenderer ren1
-    renWin SetSize 480 480
+    renWin SetSize 300 300
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 

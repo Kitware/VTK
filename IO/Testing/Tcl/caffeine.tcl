@@ -6,7 +6,7 @@ vtkRenderer ren1
   ren1 SetBackground 0 0 0
 vtkRenderWindow renWin
   renWin AddRenderer ren1
-  renWin SetSize 640 640
+  renWin SetSize 300 300
 vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
