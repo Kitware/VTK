@@ -29,36 +29,16 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.5");
+vtkCxxRevisionMacro(vtkTesting, "1.6");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
-
-char* vtkTestUtilities::GetDataRoot(int argc, char* argv[])
-{
-  return vtkTestUtilities::GetArgOrEnvOrDefault(
-    "-D", argc, argv, 
-    "VTK_DATA_ROOT", 
-    "../../../../VTKData");
-}
-
-
-char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
-                                           const char* fname,
-                                           int slash)
-{
-  return vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(
-    "-D", argc, argv, 
-    "VTK_DATA_ROOT", 
-    "../../../../VTKData",
-    fname,
-    slash);
-}
-
-
-char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg, 
-                                             int argc, char* argv[], 
-                                             const char* env, 
-                                             const char *def)
+// Function returning either a command line argument, an environment variable
+// or a default value.  The returned string has to be deleted (with delete[])
+// by the user.
+char* vtkTestUtilitiesGetArgOrEnvOrDefault(const char* arg, 
+                                           int argc, char* argv[], 
+                                           const char* env, 
+                                           const char *def)
 {
   int index = -1;
 
@@ -95,20 +75,23 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
   return value;
 } 
 
-
-char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                            int argc, 
-                                                            char* argv[], 
-                                                            const char* env, 
-                                                            const char *def, 
-                                                            const char* fname,
-                                                            int slash)
+// Given a file name, this function returns a new string which is (in theory)
+// the full path. This path is constructed by prepending the file name with a
+// command line argument, an environment variable or a default value.  If
+// slash is true, appends a slash to the resulting string.  The returned
+// string has to be deleted (with delete[]) by the user.
+char* vtkTestUtilitiesExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
+                                                          int argc, 
+                                                          char* argv[], 
+                                                          const char* env, 
+                                                          const char *def, 
+                                                          const char* fname,
+                                                          int slash)
 {
   char* fullName = 0;
 
-  char* value = vtkTestUtilities::GetArgOrEnvOrDefault(arg, argc, argv, 
-                                                       env,
-                                                       def);
+  char* value = vtkTestUtilitiesGetArgOrEnvOrDefault(arg, argc, argv, 
+                                                     env, def);
   if (value)
     {
     fullName = new char[strlen(value) + strlen(fname) + 2 + (slash ? 1 : 0)];
@@ -135,6 +118,24 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
   return fullName;
 }
 
+// Given a file name, this function returns a new string which is (in theory)
+// the full path. This path is constructed by prepending the file name with a
+// command line argument (-D path) or VTK_DATA_ROOT env. variable.  If slash
+// is true, appends a slash to the resulting string.  The returned string has
+// to be deleted (with delete[]) by the user.
+char* vtkTestUtilities::ExpandDataFileName(int argc, char* argv[], 
+                                           const char* fname,
+                                           int slash)
+{
+  return vtkTestUtilitiesExpandFileNameWithArgOrEnvOrDefault(
+    "-D", argc, argv, 
+    "VTK_DATA_ROOT", 
+    "../../../../VTKData",
+    fname,
+    slash);
+}
+
+
 vtkTesting::vtkTesting()
 {
   this->FrontBuffer = 0;
@@ -143,7 +144,8 @@ vtkTesting::vtkTesting()
   this->ImageDifference = 0;
   this->LastResultText = 0;
   this->DataRoot = 0;
-
+  this->TempDirectory = 0;
+  
   // on construction we start the timer
   this->StartCPUTime = vtkTimerLog::GetCPUTime();
   this->StartWallTime = vtkTimerLog::GetCurrentTime();
@@ -155,6 +157,7 @@ vtkTesting::~vtkTesting()
   this->SetValidImageFileName(0);
   this->SetLastResultText(0);
   this->SetDataRoot(0);
+  this->SetTempDirectory(0);
 }
 
 void vtkTesting::AddArgument(const char *arg)
@@ -174,8 +177,13 @@ const char *vtkTesting::GetDataRoot()
       argv[i] = strdup(this->Args[i].c_str());
       }
     }
-  this->SetDataRoot(
-    vtkTestUtilities::GetDataRoot(this->Args.size(),argv));
+  char *dr = vtkTestUtilitiesGetArgOrEnvOrDefault(
+    "-D", this->Args.size(), argv, "VTK_DATA_ROOT", 
+    "../../../../VTKData");
+  
+  this->SetDataRoot(dr);
+  delete [] dr;
+  
   if (argv)
     {
     for (i = 0; i < this->Args.size(); ++i)
@@ -185,6 +193,34 @@ const char *vtkTesting::GetDataRoot()
     delete [] argv;
     }
   return this->DataRoot;
+}
+
+const char *vtkTesting::GetTempDirectory()
+{
+  unsigned int i;
+  char **argv = 0;
+  if (this->Args.size())
+    {
+    argv = new char * [this->Args.size()];
+    for (i = 0; i < this->Args.size(); ++i)
+      {
+      argv[i] = strdup(this->Args[i].c_str());
+      }
+    }
+  char *td = vtkTestUtilitiesGetArgOrEnvOrDefault(
+      "-T", this->Args.size(), argv, "VTK_TEMP_DIR", 
+      "../../../Testing/Temporary");
+  this->SetTempDirectory(td);
+  delete [] td;
+  if (argv)
+    {
+    for (i = 0; i < this->Args.size(); ++i)
+      {
+      free(argv[i]);
+      }
+    delete [] argv;
+    }
+  return this->TempDirectory;
 }
 
 const char *vtkTesting::GetValidImageFileName()
@@ -206,7 +242,7 @@ const char *vtkTesting::GetValidImageFileName()
       }
     }
   
-  vtkstd::string viname = vtkTestUtilities::GetArgOrEnvOrDefault(
+  vtkstd::string viname = vtkTestUtilitiesGetArgOrEnvOrDefault(
     "-B", this->Args.size(), argv, 
     "VTK_BASELINE_ROOT", 
     this->GetDataRoot());
@@ -335,7 +371,8 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
 {
   // do a get to compute the real value
   this->GetValidImageFileName();
-
+  const char * tmpDir = this->GetTempDirectory();
+  
   vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
   rt_w2if->SetInput(this->RenderWindow);
   // perform and extra render to make sure it is displayed
@@ -471,6 +508,15 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
   if (rt_dout) 
     { 
     fclose(rt_dout);
+    
+    // construct the names for the error images
+    vtkstd::string validName = this->ValidImageFileName;
+    vtkstd::string::size_type slash_pos = validName.rfind("/");
+    if(slash_pos != vtkstd::string::npos)
+      {
+      validName = validName.substr(slash_pos + 1);
+      }
+    
     vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
     rt_pngw->SetFileName(rt_diffName);
     rt_pngw->SetInput(rt_id->GetOutput());
@@ -496,8 +542,8 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
     rt_gamma->SetScale(10);
 
     vtkJPEGWriter* rt_jpegw_dashboard = vtkJPEGWriter::New();
-    char* diff_small = new char[strlen(this->ValidImageFileName) + 30];
-    sprintf(diff_small, "%s.diff.small.jpg", this->ValidImageFileName);
+    char* diff_small = new char[strlen(tmpDir) + validName.size() + 30];
+    sprintf(diff_small, "%s/%s.diff.small.jpg", tmpDir, validName.c_str());
     rt_jpegw_dashboard->SetFileName( diff_small );
     rt_jpegw_dashboard->SetInput(rt_gamma->GetOutput());
     rt_jpegw_dashboard->SetQuality(85);
@@ -506,16 +552,17 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
     // write out the image that was generated
     rt_shrink->SetInput(rt_id->GetInput());
     rt_jpegw_dashboard->SetInput(rt_shrink-> GetOutput());
-    char* valid_test_small = new char[strlen(this->ValidImageFileName) + 30];
-    sprintf(valid_test_small, "%s.test.small.jpg", this->ValidImageFileName);
+    char* valid_test_small = new char[strlen(tmpDir) + validName.size() + 30];
+    sprintf(valid_test_small, "%s/%s.test.small.jpg", tmpDir, 
+            validName.c_str());
     rt_jpegw_dashboard->SetFileName(valid_test_small);
     rt_jpegw_dashboard->Write();
 
     // write out the valid image that matched
     rt_shrink->SetInput(rt_id->GetImage());
     rt_jpegw_dashboard-> SetInput (rt_shrink->GetOutput());
-    char* valid = new char[strlen(this->ValidImageFileName) + 30];
-    sprintf(valid, "%s.small.jpg", this->ValidImageFileName);
+    char* valid = new char[strlen(tmpDir) + validName.size() + 30];
+    sprintf(valid, "%s/%s.small.jpg", tmpDir, validName.c_str());
     rt_jpegw_dashboard-> SetFileName( valid);
     rt_jpegw_dashboard->Write();
     rt_jpegw_dashboard->Delete();
@@ -594,4 +641,5 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ImageDifference: " << this->ImageDifference << endl;
   // dont print the this->LastResultText, it could be a bit long
   os << indent << "DataRoot: " << this->GetDataRoot() << endl;
+  os << indent << "Temp Directory: " << this->GetTempDirectory() << endl;
 }

@@ -241,6 +241,7 @@ ENDIF(VTK_WRAP_JAVA)
 
 # Testing.
 IF(BUILD_TESTING)
+  MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
   SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing Imaging/Testing
           IO/Testing)
   IF(VTK_USE_RENDERING)

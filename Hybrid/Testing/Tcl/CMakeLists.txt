@@ -58,6 +58,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/cursor3D.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Hybrid/cursor3D.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDIF(NOT VTK_USE_COCOA)
@@ -85,6 +86,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Hybrid/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Hybrid/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )

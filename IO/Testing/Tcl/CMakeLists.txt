@@ -24,6 +24,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/IO/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/IO/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
@@ -41,6 +42,7 @@ IF (VTK_USE_PARALLEL)
     ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
     ${VTK_SOURCE_DIR}/IO/Testing/Tcl/TestMHD.tcl
     -D ${VTK_DATA_ROOT}
+    -T ${VTK_BINARY_DIR}/Testing/Temporary
     -V Baseline/IO/TestMHD.png
     -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ENDIF (VTK_USE_PARALLEL)

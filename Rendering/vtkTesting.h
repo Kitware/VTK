@@ -23,19 +23,11 @@
 #include <vtkstd/vector> // used for argv
 #include <vtkstd/string> // used for argv
 
-class vtkLine;
-class vtkTriangle;
 class vtkRenderWindow;
 
 //BTX
 struct VTK_RENDERING_EXPORT vtkTestUtilities
 {
-  // Description:
-  // Function necessary for accessing the root directory for VTK data.
-  // Try the -D command line argument or VTK_DATA_ROOT or a default value.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* GetDataRoot(int argc, char* argv[]);
-
   // Description:
   // Given a file name, this function returns a new string which
   // is (in theory) the full path. This path is constructed by
@@ -46,28 +38,6 @@ struct VTK_RENDERING_EXPORT vtkTestUtilities
   static char* ExpandDataFileName(int argc, char* argv[], 
                                   const char* fname,
                                   int slash = 0);
-  // Description:
-  // Function returning either a command line argument, an environment 
-  // variable or a default value.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* GetArgOrEnvOrDefault(const char* arg, 
-                                    int argc, char* argv[], 
-                                    const char* env, 
-                                    const char* def);
-
-  // Description:
-  // Given a file name, this function returns a new string which
-  // is (in theory) the full path. This path is constructed by
-  // prepending the file name with a command line argument, an environment 
-  // variable or a default value.
-  // If slash is true, appends a slash to the resulting string.
-  // The returned string has to be deleted (with delete[]) by the user.
-  static char* ExpandFileNameWithArgOrEnvOrDefault(const char* arg, 
-                                                   int argc, char* argv[], 
-                                                   const char* env, 
-                                                   const char* def, 
-                                                   const char* fname,
-                                                   int slash = 0);
 };
 //ETX
 
@@ -133,6 +103,11 @@ public:
   vtkSetStringMacro(DataRoot);
 
   // Description:
+  // Get some paramters from the command line arguments, env, or defaults
+  const char *GetTempDirectory();
+  vtkSetStringMacro(TempDirectory);
+
+  // Description:
   // Is a valid image specified on the command line areguments?
   int IsValidImageSpecified();
   
@@ -149,6 +124,8 @@ protected:
   char* ValidImageFileName;
   double ImageDifference;
   char *LastResultText;
+  char *TempDirectory;
+  
 //BTX
   vtkstd::vector<vtkstd::string> Args;
 //ETX

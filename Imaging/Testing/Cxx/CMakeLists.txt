@@ -17,6 +17,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     IF (VTK_DATA_ROOT)
       ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/${KIT}/${TName}.png)
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test) 

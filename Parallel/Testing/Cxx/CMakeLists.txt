@@ -37,6 +37,7 @@ IF (VTK_DATA_ROOT)
       ADD_TEST(ThreadedCommunicator-image 
                ${CXX_TEST_PATH}/ThreadedCommunicator
                -D ${VTK_DATA_ROOT}
+               -T ${VTK_BINARY_DIR}/Testing/Temporary
                -V Baseline/Parallel/ThreadedCommunicator.cxx.png)
     ENDIF (VTK_HAS_THREADS)
 
@@ -46,16 +47,19 @@ IF (VTK_DATA_ROOT)
         ADD_TEST(ParallelIsoMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
+                 -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/ParallelIso.cxx.png
                  ${VTK_MPI_POSTFLAGS})
         ADD_TEST(TestCommunicatorMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
+                 -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/GenericCommunicator.cxx.png
                  ${VTK_MPI_POSTFLAGS})
         ADD_TEST(TestPStreamMPI-image ${VTK_MPIRUN_EXE} ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/TestPStream
                  -D ${VTK_DATA_ROOT}
+                 -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/TestPStream.cxx.png
                  ${VTK_MPI_POSTFLAGS})
         IF (VTK_MPI_MAX_NUMPROCS)
@@ -63,6 +67,7 @@ IF (VTK_DATA_ROOT)
            ADD_TEST(MPIGroups-image ${VTK_MPIRUN_EXE} -np ${VTK_MPI_MAX_NUMPROCS}
                    ${CXX_TEST_PATH}/MPIGroups
                    -D ${VTK_DATA_ROOT}
+                   -T ${VTK_BINARY_DIR}/Testing/Temporary
                    -V Baseline/Parallel/MPIGroups.cxx.png
                    ${VTK_MPI_POSTFLAGS})
           ENDIF (VTK_MPI_MAX_NUMPROCS MATCHES "[1-9]*(0|[4-9])$")
@@ -73,9 +78,11 @@ IF (VTK_DATA_ROOT)
       IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
+                 -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/ParallelIso.cxx.png)
         ADD_TEST(TestCommunicator-image ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
+                 -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/GenericCommunicator.cxx.png)
       ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
     ENDIF (VTK_USE_MPI)

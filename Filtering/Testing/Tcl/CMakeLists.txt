@@ -16,6 +16,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Filtering/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
@@ -24,6 +25,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Filtering/Testing/Tcl/squadViewer.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Filtering/squadViewer.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDIF(NOT VTK_USE_COCOA)

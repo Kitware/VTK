@@ -52,6 +52,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Rendering/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDFOREACH( tfile )
@@ -61,6 +62,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/MesaText.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Rendering/MesaText.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
     ENDIF (VTK_USE_MANGLED_MESA)

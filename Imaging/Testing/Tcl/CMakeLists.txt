@@ -84,6 +84,7 @@ IF (VTK_USE_RENDERING)
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Imaging/Testing/Tcl/${tfile}.tcl
         -D ${VTK_DATA_ROOT}
+        -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Imaging/${tfile}.png
         -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
         )
