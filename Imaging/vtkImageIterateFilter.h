@@ -24,13 +24,12 @@
 #ifndef __vtkImageIterateFilter_h
 #define __vtkImageIterateFilter_h
 
+#include "vtkThreadedImageAlgorithm.h"
 
-#include "vtkImageToImageFilter.h"
-
-class VTK_IMAGING_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageIterateFilter : public vtkThreadedImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkImageIterateFilter,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageIterateFilter,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -39,35 +38,35 @@ public:
   vtkGetMacro(Iteration,int);
   vtkGetMacro(NumberOfIterations,int);  
 
-  void ComputeInputUpdateExtents( vtkDataObject *output );
-  //BTX
-  void ComputeInputUpdateExtent( int [6], int [6] )
-    { vtkErrorMacro( << "ComputeInputUpdateExtent should be implemented in subclass" );};
-  //ETX
-
 protected:
   vtkImageIterateFilter();
   ~vtkImageIterateFilter();
 
-  // Superclass API. Sets defaults, then calls 
-  // ExecuteInformation(vtkImageData *inData, vtkImageData *outData)
-  // for each iteration
-  void ExecuteInformation();
-  // Called for each iteration (differs from superclass in arguments).
-  // You should override this method if needed.
-  virtual void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  
-  // Superclass API: Calls Execute(vtkImageData *inData, vtkImageData *outData)
-  // for each iteration.
-  void ExecuteData(vtkDataObject *output);
-  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) = 0;
-  
-  // Replaces "EnlargeOutputUpdateExtent"
-  virtual void AllocateOutputScalars(vtkImageData *outData);
-  
-  // Allows subclass to specify the number of iterations  
+  // Implement standard requests by calling iterative versions the
+  // specified number of times.
+  virtual void RequestUpdateExtent(vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
+  virtual void RequestInformation (vtkInformation*,
+                                   vtkInformationVector**,
+                                   vtkInformationVector*);
+  virtual void RequestData(vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
+
+  // Iterative versions of standard requests.  These are given the
+  // pipeline information object for the in/out pair at each
+  // iteration.
+  virtual void IterativeRequestInformation(vtkInformation* in,
+                                           vtkInformation* out);
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
+  virtual void IterativeRequestData(vtkInformation*,
+                                    vtkInformationVector**,
+                                    vtkInformationVector*);
+
   virtual void SetNumberOfIterations(int num);
-  
+
   // for filters that execute multiple times.
   int NumberOfIterations;
   int Iteration;
@@ -78,6 +77,9 @@ protected:
   // returns correct vtkImageDatas based on current iteration.
   vtkImageData *GetIterationInput();
   vtkImageData *GetIterationOutput();
+
+  vtkInformationVector* InputVector;
+  vtkInformationVector* OutputVector;
 private:
   vtkImageIterateFilter(const vtkImageIterateFilter&);  // Not implemented.
   void operator=(const vtkImageIterateFilter&);  // Not implemented.

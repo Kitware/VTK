@@ -38,18 +38,18 @@ public:
   vtkTypeRevisionMacro(vtkImageSeparableConvolution,vtkImageDecomposeFilter);
 
 
-  // Set the X convolution kernel, a null value indicates no convolution to be done.
-  // The kernel must be of odd length
+  // Set the X convolution kernel, a null value indicates no convolution to
+  // be done.  The kernel must be of odd length
   virtual void SetXKernel(vtkFloatArray*);
   vtkGetObjectMacro ( XKernel, vtkFloatArray );
 
-  // Set the Y convolution kernel, a null value indicates no convolution to be done
-  // The kernel must be of odd length
+  // Set the Y convolution kernel, a null value indicates no convolution to
+  // be done The kernel must be of odd length
   virtual void SetYKernel(vtkFloatArray*);
   vtkGetObjectMacro ( YKernel, vtkFloatArray );
 
-  // Set the Z convolution kernel, a null value indicates no convolution to be done
-  // The kernel must be of odd length
+  // Set the Z convolution kernel, a null value indicates no convolution to
+  // be done The kernel must be of odd length
   virtual void SetZKernel(vtkFloatArray*);
   vtkGetObjectMacro ( ZKernel, vtkFloatArray );
 
@@ -68,17 +68,15 @@ protected:
   vtkFloatArray* YKernel;
   vtkFloatArray* ZKernel;
 
-  // void AllocateOutputScalars(vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void IterativeExecuteData(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation()
-    {this->vtkImageIterateFilter::ExecuteInformation();}
+  virtual void IterativeRequestData(vtkInformation*,
+                                    vtkInformationVector**,
+                                    vtkInformationVector*);
 
+  virtual void IterativeRequestInformation(vtkInformation* in,
+                                           vtkInformation* out);
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
 
-  //void AllocateOutputScalars(vtkImageData *outData);
-
-  
 private:
   vtkImageSeparableConvolution(const vtkImageSeparableConvolution&);  // Not implemented.
   void operator=(const vtkImageSeparableConvolution&);  // Not implemented.

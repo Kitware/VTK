@@ -14,10 +14,14 @@
 =========================================================================*/
 #include "vtkImageSkeleton2D.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.33");
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.34");
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
@@ -33,44 +37,42 @@ void vtkImageSkeleton2D::SetNumberOfIterations(int num)
   this->vtkImageIterateFilter::SetNumberOfIterations(num);
 }
 
-
 //----------------------------------------------------------------------------
 // This method computes the extent of the input region necessary to generate
-// an output region.  Before this method is called "region" should have the 
-// extent of the output region.  After this method finishes, "region" should 
+// an output region.  Before this method is called "region" should have the
+// extent of the output region.  After this method finishes, "region" should
 // have the extent of the required input region.
-void vtkImageSkeleton2D::ComputeInputUpdateExtent(int inExt[6], 
-                                                  int outExt[6])
+void vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in,
+                                                      vtkInformation* out)
 {
-  int idx;
-  int *wholeExtent;
-  
-  wholeExtent = this->GetInput()->GetWholeExtent();
+  int wholeExtent[6];
+  int outExt[6];
+  in->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent);
+  out->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
 
+  int inExt[6];
   inExt[4] = outExt[4];
   inExt[5] = outExt[5];
-  
-  for (idx = 0; idx < 2; ++idx)
+  for(int idx=0; idx < 2; ++idx)
     {
     inExt[idx*2] = outExt[idx*2] - 1;
     inExt[idx*2+1] = outExt[idx*2+1] + 1;
-    
+
     // If the expanded region is out of the IMAGE Extent (grow min)
     if (inExt[idx*2] < wholeExtent[idx*2])
       {
       inExt[idx*2] = wholeExtent[idx*2];
       }
-    // If the expanded region is out of the IMAGE Extent (shrink max)      
+    // If the expanded region is out of the IMAGE Extent (shrink max)
     if (inExt[idx*2+1] > wholeExtent[idx*2+1])
       {
       // shrink the required region extent
       inExt[idx*2+1] = wholeExtent[idx*2+1];
       }
     }
+
+  in->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 }
-
-
-
 
 //----------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
@@ -321,14 +323,15 @@ void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData,
       << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-  
-  this->ComputeInputUpdateExtent(inExt, outExt); 
+
+  vtkInformation* inInfo = inData->GetPipelineInformation();
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt);
 
   // Make a temporary copy of the input data
   tempData = vtkImageData::New();
-  tempData->SetScalarType(inData->GetScalarType());
+  tempData->SetScalarType(inInfo->Get(vtkImageData::SCALAR_TYPE()));
   tempData->SetExtent(inExt);
-  tempData->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
+  tempData->SetNumberOfScalarComponents(inInfo->Get(vtkImageData::SCALAR_NUMBER_OF_COMPONENTS()));
   tempData->CopyAndCastFrom(inData, inExt);
 
   inPtr = tempData->GetScalarPointerForExtent(outExt);

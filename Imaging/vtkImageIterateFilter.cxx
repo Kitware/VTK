@@ -15,8 +15,11 @@
 #include "vtkImageIterateFilter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIterateFilter, "1.37");
+vtkCxxRevisionMacro(vtkImageIterateFilter, "1.38");
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::vtkImageIterateFilter()
@@ -26,12 +29,16 @@ vtkImageIterateFilter::vtkImageIterateFilter()
   this->NumberOfIterations = 0;
   this->IterationData = NULL;
   this->SetNumberOfIterations(1);
+  this->InputVector = vtkInformationVector::New();
+  this->OutputVector = vtkInformationVector::New();
 }
 
 //----------------------------------------------------------------------------
 vtkImageIterateFilter::~vtkImageIterateFilter()
 {
   this->SetNumberOfIterations(0);
+  this->InputVector->Delete();
+  this->OutputVector->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -53,7 +60,7 @@ vtkImageData *vtkImageIterateFilter::GetIterationInput()
   if (this->IterationData == NULL || this->Iteration == 0)
     {
     // error, or return input ???
-    return this->GetInput();
+    return vtkImageData::SafeDownCast(this->GetInput());
     }
   return this->IterationData[this->Iteration];
 }
@@ -72,137 +79,118 @@ vtkImageData *vtkImageIterateFilter::GetIterationOutput()
 }
 
 //----------------------------------------------------------------------------
-
-void vtkImageIterateFilter::ComputeInputUpdateExtents( vtkDataObject *output )
+void
+vtkImageIterateFilter
+::RequestInformation(vtkInformation* request,
+                     vtkInformationVector** inputVector,
+                     vtkInformationVector* outputVector)
 {
-  vtkImageData *in, *out = (vtkImageData*)output;
-  int inExt[6], idx;
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkImageData* input =
+    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData* output =
+    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (!this->GetInput())
+  this->IterationData[0] = input;
+  this->IterationData[this->NumberOfIterations] = output;
+
+  vtkInformation* in = inInfo;
+  for(int i=0; i < this->NumberOfIterations; ++i)
     {
-    vtkErrorMacro(<< "Input not set.");
-    return;
+    this->Iteration = i;
+
+    vtkInformation* out = this->IterationData[i+1]->GetPipelineInformation();
+    vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
+    outData->CopyInformationToPipeline(request, in);
+    out->CopyEntry(in, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+
+    this->IterativeRequestInformation(in, out);
+
+    in = out;
     }
+}
 
-  for (idx = this->NumberOfIterations - 1; idx >= 0; --idx)
+//----------------------------------------------------------------------------
+void
+vtkImageIterateFilter
+::RequestUpdateExtent(vtkInformation*,
+                      vtkInformationVector**,
+                      vtkInformationVector* outputVector)
+{
+  vtkInformation* out = outputVector->GetInformationObject(0);
+  for(int i=this->NumberOfIterations-1; i >= 0; --i)
     {
-    this->Iteration = idx;
-    in = this->GetIterationInput();
-    
-    if (!in)
-      {
-      return;
-      }
-    /* default value */
-    out->GetUpdateExtent(inExt);
-    this->ComputeInputUpdateExtent(inExt, out->GetUpdateExtent());
-    in->SetUpdateExtent(inExt);
+    this->Iteration = i;
+
+    vtkInformation* in = this->IterationData[i]->GetPipelineInformation();
+    in->CopyEntry(out, vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+
+    this->IterativeRequestUpdateExtent(in, out);
+
     out = in;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageIterateFilter::AllocateOutputScalars(vtkImageData *outData)
+void vtkImageIterateFilter::RequestData(vtkInformation* request,
+                                        vtkInformationVector** inputVector,
+                                        vtkInformationVector*)
 {
-  outData->SetExtent(outData->GetUpdateExtent());
-  outData->AllocateScalars();
-}
-
-//----------------------------------------------------------------------------
-// Some filters (decomposes, anisotropic difusion ...) have execute 
-// called multiple times per update.
-void vtkImageIterateFilter::ExecuteData(vtkDataObject *out)
-{
-  int idx;
-  vtkImageData *inData, *outData;
-
-  // Too many filters have floating point exceptions to execute
-  // with empty input/ no request.
-  // Make sure the Input has been set.
-  if ( ! this->GetInput())
+  vtkInformation* in = inputVector[0]->GetInformationObject(0);
+  for(int i=0; i < this->NumberOfIterations; ++i)
     {
-    vtkErrorMacro(<< "ExecuteData: Input is not set.");
-    return;
-    }
+    this->Iteration = i;
 
-   // make sure UpdateExtent will generate data
-   if (this->UpdateExtentIsEmpty(out))
-    {
-    return;
-    }
+    vtkInformation* out = this->IterationData[i+1]->GetPipelineInformation();
+    vtkDataObject* outData = out->Get(vtkDataObject::DATA_OBJECT());
+    outData->CopyInformationFromPipeline(request);
 
-  // IterationData are all set up 
-  // see: SetNumberOfIterations() and UpdateInformation()
-  for (idx = 0; idx < this->NumberOfIterations; ++idx)
-    {
-    this->Iteration = idx;
-    // temporarily change input and output
-    inData = this->IterationData[idx];
-    outData = this->IterationData[idx + 1];
-    
-    this->AllocateOutputScalars(outData);
+    this->InputVector->SetInformationObject(0, in);
+    this->OutputVector->SetInformationObject(0, out);
+    this->IterativeRequestData(request, &this->InputVector,
+                               this->OutputVector);
 
-    // execute for this iteration
-    this->IterativeExecuteData(inData, outData);
-    
-    // Part of me thinks we should always release the 
-    // intermediate (iteration) data.  But saving it could speed execution ...
-    // Like the graphics pipeline this source releases inputs data.
-    if (inData->ShouldIReleaseData())
+    if(in->Get(vtkDemandDrivenPipeline::RELEASE_DATA()))
       {
+      vtkDataObject* inData = in->Get(vtkDataObject::DATA_OBJECT());
       inData->ReleaseData();
       }
+
+    in = out;
     }
-}
-
-
-//----------------------------------------------------------------------------
-// This method sets the WholeExtent, Spacing and Origin of the output.
-void vtkImageIterateFilter::ExecuteInformation()
-{
-  vtkImageData *in, *out;
-  int idx;
-  
-  // Make sure the Input has been set.
-  if ( ! this->GetInput())
-    {
-    vtkErrorMacro(<< "UpdateInformation: Input is not set.");
-    return;
-    }
-
-  // put the input and output into the cache list.
-  // Iteration caches
-  this->IterationData[0] = this->GetInput();
-  this->IterationData[this->NumberOfIterations] = this->GetOutput();
-  
-  for (idx = 0; idx < this->NumberOfIterations; ++idx)
-    {
-    this->Iteration = idx;
-    in = this->GetIterationInput();
-    out = this->GetIterationOutput();
-    
-    // Set up the defaults
-    out->SetWholeExtent(in->GetWholeExtent());
-    out->SetSpacing(in->GetSpacing());
-    out->SetOrigin(in->GetOrigin());
-    out->SetScalarType(in->GetPipelineScalarType());
-    out->SetNumberOfScalarComponents(
-      in->GetPipelineNumberOfScalarComponents());
-
-    // Let the subclass modify the default.
-    this->ExecuteInformation(in, out);
-    }
+  this->InputVector->SetNumberOfInformationObjects(0);
+  this->OutputVector->SetNumberOfInformationObjects(0);
 }
 
 //----------------------------------------------------------------------------
-//  Called by the above for each decomposition.  Subclass can modify
+// Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
-void vtkImageIterateFilter::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
-                                       vtkImageData *vtkNotUsed(outData))
+void vtkImageIterateFilter::IterativeRequestInformation(vtkInformation*,
+                                                        vtkInformation*)
 {
 }
 
+//----------------------------------------------------------------------------
+// Called by the above for each decomposition.  Subclass can modify
+// the defaults by implementing this method.
+void vtkImageIterateFilter::IterativeRequestUpdateExtent(vtkInformation*,
+                                                         vtkInformation*)
+{
+}
 
+//----------------------------------------------------------------------------
+// Called by the above for each decomposition.  Subclass can modify
+// the defaults by implementing this method.
+void
+vtkImageIterateFilter::IterativeRequestData(vtkInformation* request,
+                                            vtkInformationVector** inputVector,
+                                            vtkInformationVector* outputVector)
+{
+  this->Superclass::RequestData(request, inputVector, outputVector);
+}
+
+//----------------------------------------------------------------------------
 // Filters that execute multiple times per update use this internal method.
 void vtkImageIterateFilter::SetNumberOfIterations(int num)
 {
@@ -239,17 +227,9 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     {
     this->IterationData[idx] = vtkImageData::New();
     this->IterationData[idx]->ReleaseDataFlagOn();
+    this->IterationData[idx]->GetProducerPort();
     }
 
   this->NumberOfIterations = num;
   this->Modified();
 }
-
-
-
-
-
-
-
-
-

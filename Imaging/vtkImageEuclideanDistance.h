@@ -100,7 +100,9 @@ public:
   void SetAlgorithmToSaitoCached () 
     { this->SetAlgorithm(VTK_EDT_SAITO_CACHED); }   
 
-  void IterativeExecuteData(vtkImageData *in, vtkImageData *out);
+  virtual void IterativeRequestData(vtkInformation*,
+                                    vtkInformationVector**,
+                                    vtkInformationVector*);
   
 protected:
   vtkImageEuclideanDistance();
@@ -114,10 +116,11 @@ protected:
   // Replaces "EnlargeOutputUpdateExtent"
   virtual void AllocateOutputScalars(vtkImageData *outData);
   
-  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation()
-    {this->vtkImageIterateFilter::ExecuteInformation();}
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  virtual void IterativeRequestInformation(vtkInformation* in,
+                                           vtkInformation* out);
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
+
 private:
   vtkImageEuclideanDistance(const vtkImageEuclideanDistance&);  // Not implemented.
   void operator=(const vtkImageEuclideanDistance&);  // Not implemented.

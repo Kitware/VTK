@@ -15,9 +15,12 @@
 #include "vtkImageCityBlockDistance.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.24");
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.25");
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
@@ -31,12 +34,6 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData)
 {
   int *wholeExtent, updateExtent[6], idx;
   
-  if ( ! this->GetInput())
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
-
   outData->GetUpdateExtent(updateExtent);
   wholeExtent = outData->GetWholeExtent();
   for (idx = 0; idx < this->Dimensionality; ++idx)
@@ -52,29 +49,36 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData)
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageCityBlockDistance::ComputeInputUpdateExtent(int inExt[6],
-                                                         int outExt[6])
+void vtkImageCityBlockDistance::IterativeRequestUpdateExtent(
+  vtkInformation* input, vtkInformation* output)
 {
-  int *wholeExtent;
-
-  if ( ! this->GetInput())
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
+  int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  int *wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int inExt[6];
 
   memcpy(inExt, outExt, 6 * sizeof(int));
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
-  inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
+  inExt[this->Iteration * 2] = wExt[this->Iteration * 2];
+  inExt[this->Iteration * 2 + 1] = wExt[this->Iteration * 2 + 1];
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 }
 
 
 //----------------------------------------------------------------------------
 // This is writen as a 1D execute method, but is called several times.
-void vtkImageCityBlockDistance::IterativeExecuteData(vtkImageData *inData, 
-                                                     vtkImageData *outData)
+void vtkImageCityBlockDistance::IterativeRequestData(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  this->AllocateOutputScalars(outData);
+  
   short *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   short *outPtr0, *outPtr1, *outPtr2, *outPtrC;
   int inInc0, inInc1, inInc2;
@@ -87,7 +91,7 @@ void vtkImageCityBlockDistance::IterativeExecuteData(vtkImageData *inData,
   unsigned long count = 0;
   unsigned long target;
   
-  this->GetOutput()->GetUpdateExtent(outExt);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),outExt);
 
   // this filter expects that inputand output are short
   if (inData->GetScalarType() != VTK_SHORT ||

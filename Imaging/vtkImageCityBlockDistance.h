@@ -42,8 +42,11 @@ protected:
   vtkImageCityBlockDistance();
   ~vtkImageCityBlockDistance() {};
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void IterativeExecuteData(vtkImageData *inData, vtkImageData *outData);
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
+  virtual void IterativeRequestData(vtkInformation*,
+                                    vtkInformationVector**,
+                                    vtkInformationVector*);
 
   void AllocateOutputScalars(vtkImageData *outData);
 

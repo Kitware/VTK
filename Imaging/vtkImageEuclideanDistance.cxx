@@ -15,11 +15,14 @@
 #include "vtkImageEuclideanDistance.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.17");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.18");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -34,30 +37,21 @@ vtkImageEuclideanDistance::vtkImageEuclideanDistance()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageEuclideanDistance::ExecuteInformation(
-  vtkImageData *vtkNotUsed(input), vtkImageData *output)
+void vtkImageEuclideanDistance::IterativeRequestInformation(
+  vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
-  output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_DOUBLE);
+  output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  output->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
 }
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageEuclideanDistance::ComputeInputUpdateExtent(int inExt[6], 
-                                                         int outExt[6])
+void vtkImageEuclideanDistance::IterativeRequestUpdateExtent(
+  vtkInformation* input, vtkInformation* vtkNotUsed(output) )
 {
-  memcpy(inExt, outExt, 6 * sizeof(int));
-
-  // Assumes that the input update extent has been initialized to output ...
-  if ( this->GetInput() != NULL ) 
-    {
-    this->GetInput()->GetWholeExtent(inExt);
-    } 
-  else 
-    {
-    vtkErrorMacro( "Input is NULL" );
-    }
+  int *wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),wExt,6);
 }
 
 //----------------------------------------------------------------------------
@@ -564,12 +558,24 @@ void vtkImageEuclideanDistance::AllocateOutputScalars(vtkImageData *outData)
   outData->SetExtent(outData->GetWholeExtent());
   outData->AllocateScalars();
 }
+
 //----------------------------------------------------------------------------
 // This method is passed input and output Datas, and executes the
 // EuclideanDistance algorithm to fill the output from the input.
-void vtkImageEuclideanDistance::IterativeExecuteData(vtkImageData *inData,
-                                                     vtkImageData *outData)
+void vtkImageEuclideanDistance::IterativeRequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  this->AllocateOutputScalars(outData);
+  
   void *inPtr;
   void *outPtr;
 

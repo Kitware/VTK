@@ -15,41 +15,43 @@
 #include "vtkImageFFT.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.35");
+vtkCxxRevisionMacro(vtkImageFFT, "1.36");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageFFT::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
-                                     vtkImageData *outData)
+void vtkImageFFT::IterativeRequestInformation(
+  vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
-  outData->SetNumberOfScalarComponents(2);
-  outData->SetScalarType(VTK_DOUBLE);
+  output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),2);
+  output->Set(vtkDataObject::SCALAR_TYPE(),VTK_DOUBLE);
+}
+
+void vtkImageFFTInternalRequestUpdateExtent(int *inExt, int *outExt, int *wExt,
+                                            int iteration)
+{
+  memcpy(inExt, outExt, 6 * sizeof(int));
+  inExt[iteration*2] = wExt[iteration*2];
+  inExt[iteration*2 + 1] = wExt[iteration*2 + 1];  
 }
 
 //----------------------------------------------------------------------------
-
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
-void vtkImageFFT::ComputeInputUpdateExtent(int inExt[6], 
-                                           int outExt[6])
+void vtkImageFFT::IterativeRequestUpdateExtent(
+  vtkInformation* input, vtkInformation* output)
 {
-  int *extent;
-  
-  if (!this->GetInput())
-    {
-      vtkErrorMacro(<< "Input not set.");
-      return;
-    }
-  // Assumes that the input update extent has been initialized to output ...
-  extent = this->GetInput()->GetWholeExtent();
-  memcpy(inExt, outExt, 6 * sizeof(int));
-  inExt[this->Iteration*2] = extent[this->Iteration*2];
-  inExt[this->Iteration*2 + 1] = extent[this->Iteration*2 + 1];
+  int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  int *wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int inExt[6];
+  vtkImageFFTInternalRequestUpdateExtent(inExt,outExt,wExt,this->Iteration);
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 }
 
 //----------------------------------------------------------------------------
@@ -172,8 +174,9 @@ void vtkImageFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 {
   void *inPtr, *outPtr;
   int inExt[6];
+  int *wExt = inData->GetWholeExtent();
+  vtkImageFFTInternalRequestUpdateExtent(inExt,outExt,wExt,this->Iteration);
 
-  this->ComputeInputUpdateExtent(inExt, outExt);  
   inPtr = inData->GetScalarPointerForExtent(inExt);
   outPtr = outData->GetScalarPointerForExtent(outExt);
   

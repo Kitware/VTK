@@ -47,9 +47,6 @@ public:
   // Description:
   // Sets the number of cycles in the erosion.
   void SetNumberOfIterations(int num);
-  
-  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) 
-    { this->MultiThread(in,out);};
 
 protected:
   vtkImageSkeleton2D();
@@ -57,7 +54,8 @@ protected:
 
   int Prune;
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6] );
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);
 private:

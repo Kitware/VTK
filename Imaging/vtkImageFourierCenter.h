@@ -32,16 +32,13 @@ public:
   static vtkImageFourierCenter *New();
   vtkTypeRevisionMacro(vtkImageFourierCenter,vtkImageDecomposeFilter);
 
-  // Description:
-  // This is an internal method that should not be called by the user.
-  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) {
-    this->MultiThread(in, out); };
-  
 protected:
   vtkImageFourierCenter();
   ~vtkImageFourierCenter() {};
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
+
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int threadId);
 private:

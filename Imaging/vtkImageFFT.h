@@ -48,17 +48,14 @@ public:
   int SplitExtent(int splitExt[6], int startExt[6], 
                   int num, int total);
 
-  virtual void IterativeExecuteData(vtkImageData *in, vtkImageData *out) 
-    { this->MultiThread(in,out); };
-  
-
 protected:
   vtkImageFFT() {};
   ~vtkImageFFT() {};
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(){this->vtkImageIterateFilter::ExecuteInformation();};
+  virtual void IterativeRequestInformation(vtkInformation* in,
+                                           vtkInformation* out);
+  virtual void IterativeRequestUpdateExtent(vtkInformation* in,
+                                            vtkInformation* out);
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int threadId);

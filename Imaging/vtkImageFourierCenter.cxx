@@ -15,11 +15,13 @@
 #include "vtkImageFourierCenter.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierCenter, "1.18");
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.19");
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
@@ -32,16 +34,16 @@ vtkImageFourierCenter::vtkImageFourierCenter()
 //----------------------------------------------------------------------------
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
-void vtkImageFourierCenter::ComputeInputUpdateExtent(int inExt[6], 
-                                                     int outExt[6])
+void vtkImageFourierCenter::IterativeRequestUpdateExtent(
+  vtkInformation* input, vtkInformation* output)
 {
-  int *extent;
-
-  // Assumes that the input update extent has been initialized to output ...
-  extent = this->GetInput()->GetWholeExtent();
+  int *outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  int *wExt = input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
-  inExt[this->Iteration*2] = extent[this->Iteration*2];
-  inExt[this->Iteration*2 + 1] = extent[this->Iteration*2 + 1];
+  inExt[this->Iteration*2] = wExt[this->Iteration*2];
+  inExt[this->Iteration*2 + 1] = wExt[this->Iteration*2 + 1];  
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 }
 
 //----------------------------------------------------------------------------

@@ -14,11 +14,14 @@
 =========================================================================*/
 #include "vtkImageSeparableConvolution.h"
 
-#include "vtkImageData.h"
-#include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.14");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.15");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
@@ -126,27 +129,22 @@ vtkImageSeparableConvolution::vtkImageSeparableConvolution()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageSeparableConvolution::ExecuteInformation(vtkImageData *, 
-                                                      vtkImageData *output)
+void vtkImageSeparableConvolution::IterativeRequestInformation(
+  vtkInformation* vtkNotUsed(input), vtkInformation* output)
 {
-  output->SetNumberOfScalarComponents(1);
-  output->SetScalarType(VTK_FLOAT);
+  output->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  output->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
 }
 
 //----------------------------------------------------------------------------
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 
-void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
-                                                            int outExt[6])
+void vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
+  vtkInformation* input, vtkInformation* output)
 {
-  int *wholeExtent;
-
-  if ( ! this->GetInput())
-    {
-    vtkErrorMacro(<< "Input not set.");
-    return;
-    }
+  int *wholeExtent = 
+    input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
   vtkFloatArray* KernelArray = NULL;
   switch ( this->GetIteration() )
@@ -168,22 +166,25 @@ void vtkImageSeparableConvolution::ComputeInputUpdateExtent(int inExt[6],
     kernelSize = (int) ( ( kernelSize - 1 ) / 2.0 ); 
     }
   
-  
+  int* outExt = output->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   
   // Assumes that the input update extent has been initialized to output ...
+  int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
-  wholeExtent = this->GetInput()->GetWholeExtent();
   inExt[this->Iteration * 2] = outExt[this->Iteration * 2] - kernelSize;
   if ( inExt[this->Iteration * 2] < wholeExtent[this->Iteration * 2] )
     {
     inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
     }
   
-  inExt[this->Iteration * 2 + 1] = outExt[this->Iteration * 2 + 1] + kernelSize;
+  inExt[this->Iteration * 2 + 1] = 
+    outExt[this->Iteration * 2 + 1] + kernelSize;
   if ( inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1] )
     {
     inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
     }
+  
+  input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
 }
 
 template <class T>
@@ -316,9 +317,20 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
 
 //----------------------------------------------------------------------------
 // This is writen as a 1D execute method, but is called several times.
-void vtkImageSeparableConvolution::IterativeExecuteData(vtkImageData *inData, 
-                                                        vtkImageData *outData)
+void vtkImageSeparableConvolution::IterativeRequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *outData = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  outData->SetExtent(outData->GetWholeExtent());
+  outData->AllocateScalars();
 
   if ( XKernel )
     {
