@@ -58,7 +58,7 @@ public:
   vtkShortArray(const int sz, const int ext=1000);
   vtkShortArray(const vtkShortArray& ia);
   ~vtkShortArray();
-  virtual vtkShortArray *New() {return new vtkShortArray;};
+  vtkShortArray *New() {return new vtkShortArray;};
   char *GetClassName() {return "vtkShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
