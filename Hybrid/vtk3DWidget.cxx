@@ -19,27 +19,13 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.4");
+vtkCxxRevisionMacro(vtk3DWidget, "1.5");
 
 vtk3DWidget::vtk3DWidget()
 {
+  this->Placed = 1;
   this->Prop3D = NULL;
   this->Input = NULL;
-  this->Mode = 1;
-  this->State = vtk3DWidget::Start;
-  this->Placed = 0;
-
-  this->Interactor = NULL;
-  this->WidgetCallbackCommand = vtkCallbackCommand::New();
-  this->WidgetCallbackCommand->SetClientData(this); 
- 
-  this->CurrentRenderer = NULL;
-  this->OldX = 0.0;
-  this->OldY = 0.0;
-  
-  this->Priority = 1.0;
-  this->KeyPressActivation = 1;
-  this->KeyPressActivationValue = 'W';
 }
 
 vtk3DWidget::~vtk3DWidget()
@@ -49,7 +35,11 @@ vtk3DWidget::~vtk3DWidget()
     this->Input->Delete();
     this->Input = NULL;
     }
-  this->WidgetCallbackCommand->Delete();
+  if ( this->Prop3D )
+    {
+    this->Prop3D->Delete();
+    this->Prop3D = NULL;
+    }
 }
 
 void vtk3DWidget::PlaceWidget()
@@ -79,67 +69,12 @@ void vtk3DWidget::PlaceWidget()
   this->PlaceWidget(bounds);
 }
 
-// Description:
-// Transform from display to world coordinates.
-// WorldPt has to be allocated as 4 vector
-void vtk3DWidget::ComputeDisplayToWorld(double x, double y,
-                                         double z, double *worldPt)
-{
-  this->CurrentRenderer->SetDisplayPoint(x, y, z);
-  this->CurrentRenderer->DisplayToWorld();
-  this->CurrentRenderer->GetWorldPoint(worldPt);
-  if (worldPt[3])
-    {
-    worldPt[0] /= worldPt[3];
-    worldPt[1] /= worldPt[3];
-    worldPt[2] /= worldPt[3];
-    worldPt[3] = 1.0;
-    }
-}
-
-// Description:
-// Transform from world to display coordinates.
-// displayPt has to be allocated as 3 vector
-void vtk3DWidget::ComputeWorldToDisplay(double x, double y,
-                                         double z, double *displayPt)
-{
-  this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
-  this->CurrentRenderer->WorldToDisplay();
-  this->CurrentRenderer->GetDisplayPoint(displayPt);
-}
-
-void vtk3DWidget::OnChar(int ctrl, int shift, char keycode, int repeatcount) 
-{
-  // catch additional keycodes otherwise
-  if ( this->KeyPressActivation )
-    {
-    if (keycode == this->KeyPressActivationValue )
-      {
-      if ( this->Mode == vtk3DWidget::WidgetOff )
-        {
-        this->On();
-        }
-      else
-        {
-        this->Off();
-        }
-      this->WidgetCallbackCommand->SetAbortFlag(1);
-      }
-    }//if activation enabled
-}
-
 void vtk3DWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "Interactor: " << this->Interactor << "\n";
   os << indent << "Prop3D: " << this->Prop3D << "\n";
   os << indent << "Input: " << this->Input << "\n";
-  os << indent << "Priority: " << this->Priority << "\n";
-  os << indent << "Key Press Activation: " 
-     << (this->KeyPressActivation ? "On" : "Off") << "\n";
-  os << indent << "Key Press Activation Value: " 
-     << this->KeyPressActivationValue << "\n";
 }
 
 

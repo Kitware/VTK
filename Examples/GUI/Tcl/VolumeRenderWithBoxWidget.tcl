@@ -79,7 +79,7 @@ ren1 SetBackground 0 0 0
 renWin SetSize 300 300
 
 # Place the interactor initially. The output of the reader is used to place
-
+# the box widget.
 boxWidget SetInput [v16 GetOutput]
 boxWidget PlaceWidget
 boxWidget InsideOutOn
@@ -97,7 +97,7 @@ set selectedOutlineProperty [boxWidget GetSelectedOutlineProperty]
     $selectedOutlineProperty SetAmbientColor 1 0 0
     $selectedOutlineProperty SetLineWidth 3
 
-# render the image
+# This adds the "u" keypress event...it pops up a Tcl interpreter.
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
@@ -111,7 +111,7 @@ proc StartInteraction {} {
 }
 
 # When interaction ends, the requested frame rate is decreased to
-# normal levels. THis causes a full resolution render to occur.
+# normal levels. This causes a full resolution render to occur.
 proc EndInteraction {} {
    renWin SetDesiredUpdateRate 0.001
 }

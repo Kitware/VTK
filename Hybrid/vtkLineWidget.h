@@ -93,10 +93,8 @@ public:
 
   // Description:
   // Methods that satisfy the superclass' API.
-  virtual void On();
-  virtual void Off();
+  virtual void SetEnabled(int);
   virtual void PlaceWidget(float bounds[6]);
-  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
 
   // Description:
   // Set/Get the resolution (number of subdivisions) of the line.
@@ -168,6 +166,17 @@ protected:
   vtkLineWidget();
   ~vtkLineWidget();
 
+//BTX - manage the state of the widget
+  int State;
+  enum WidgetState
+  {
+    Start=0,
+    Moving,
+    Scaling,
+    Outside
+  };
+//ETX
+    
   //handles the events
   static void ProcessEvents(vtkObject* object, unsigned long event,
                             void* clientdata, void* calldata);

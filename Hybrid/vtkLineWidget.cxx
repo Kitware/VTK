@@ -28,12 +28,13 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.2");
+vtkCxxRevisionMacro(vtkLineWidget, "1.3");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
 {
-  this->WidgetCallbackCommand->SetCallback(vtkLineWidget::ProcessEvents);
+  this->State = vtkLineWidget::Start;
+  this->EventCallbackCommand->SetCallback(vtkLineWidget::ProcessEvents);
   
   this->AlignWithXAxis = 0;
   this->AlignWithYAxis = 0;
@@ -90,7 +91,6 @@ vtkLineWidget::vtkLineWidget()
   this->LinePicker->AddPickList(this->LineActor);
   this->LinePicker->PickFromListOn();
   
-  this->Mode = vtk3DWidget::WidgetOff;
   this->CurrentHandle = NULL;
 
   // Set up the initial properties
@@ -138,103 +138,86 @@ vtkLineWidget::~vtkLineWidget()
     }
 }
 
-void vtkLineWidget::PositionHandles()
+void vtkLineWidget::SetEnabled(int enabling)
 {
-  int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
-  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
-
-  this->HandleGeometry[0]->SetCenter(pt1);
-  this->HandleGeometry[1]->SetCenter(pt2);
-}
-
-void vtkLineWidget::On()
-{
-  vtkDebugMacro(<<"On");
-
-  if (this->Mode != vtk3DWidget::WidgetOn)
+  if ( ! this->Interactor )
     {
-    this->Mode = vtk3DWidget::WidgetOn;
+    vtkErrorMacro(<<"The interactor must be set prior to enabling/disabling widget");
+    return;
+    }
+
+  if ( enabling ) //------------------------------------------------------------
+    {
+    vtkDebugMacro(<<"Enabling line widget");
+
+    if ( this->Enabled ) //already enabled, just return
+      {
+      return;
+      }
+    
     this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->OldX,this->OldY);
     if (this->CurrentRenderer == NULL)
       {
       return;
       }
 
+    this->Enabled = 1;
+
+    // listen for the following events
+    vtkRenderWindowInteractor *i = this->Interactor;
+    i->AddObserver(vtkCommand::MouseMoveEvent, this->EventCallbackCommand, 
+                   this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::RightButtonPressEvent, this->EventCallbackCommand,
+                   this->Priority);
+    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->EventCallbackCommand,
+                   this->Priority);
+
     // Add the line
     this->CurrentRenderer->AddActor(this->LineActor);
     this->LineActor->SetProperty(this->LineProperty);
-    
+
     // turn on the handles
+    for (int j=0; j<2; j++)
+      {
+      this->CurrentRenderer->AddActor(this->Handle[j]);
+      this->Handle[j]->SetProperty(this->HandleProperty);
+      }
+
+    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    }
+  
+  else //disabling----------------------------------------------------------
+    {
+    vtkDebugMacro(<<"Disabling line widget");
+
+    if ( ! this->Enabled ) //already disabled, just return
+      {
+      return;
+      }
+    
+    this->Enabled = 0;
+
+    // don't listen for events any more
+    this->Interactor->RemoveObserver(this->EventCallbackCommand);
+
+    // turn off the line
+    this->CurrentRenderer->RemoveActor(this->LineActor);
+
+    // turn off the handles
     for (int i=0; i<2; i++)
       {
-      this->CurrentRenderer->AddActor(this->Handle[i]);
-      this->Handle[i]->SetProperty(this->HandleProperty);
+      this->CurrentRenderer->RemoveActor(this->Handle[i]);
       }
+
+    this->CurrentHandle = NULL;
+    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
     }
 
   this->Interactor->Render();
-}
-
-void vtkLineWidget::Off()
-{
-  vtkDebugMacro(<<"Off");
-
-  this->Mode = vtk3DWidget::WidgetOff;
-
-  // turn off the line
-  this->CurrentRenderer->RemoveActor(this->LineActor);
-
-  // turn off the handles
-  for (int i=0; i<2; i++)
-    {
-    this->CurrentRenderer->RemoveActor(this->Handle[i]);
-    }
-
-  this->CurrentHandle = NULL;
-
-  this->Interactor->Render();
-}
-
-
-void vtkLineWidget::SetInteractor(vtkRenderWindowInteractor *i)
-{
-  if ( i == this->Interactor )
-    {
-    return;
-    }
-
-  // if we already have an Interactor then stop observing it
-  if ( this->Interactor )
-    {
-    this->Interactor->RemoveObserver(this->WidgetCallbackCommand);
-    }
-  this->Interactor = i;
-
-  // add observers for each of the events handled in ProcessEvents
-  if (i != NULL)
-    {
-    i->AddObserver(vtkCommand::MouseMoveEvent, this->WidgetCallbackCommand, 
-                   this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonPressEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::LeftButtonReleaseEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::RightButtonPressEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::RightButtonReleaseEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::StartInteractionEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::InteractionEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::EndInteractionEvent, this->WidgetCallbackCommand,
-                   this->Priority);
-    i->AddObserver(vtkCommand::CharEvent, this->WidgetCallbackCommand,
-                   this->Priority); //from superclass
-    i->AddObserver(vtkCommand::DeleteEvent, this->WidgetCallbackCommand,
-                   this->Priority); //needed in case interactor goes away
-    }
 }
 
 void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
@@ -247,9 +230,6 @@ void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
   //okay, let's do the right thing
   switch(event)
     {
-    case vtkCommand::MouseMoveEvent:
-      self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
-      break;
     case vtkCommand::LeftButtonPressEvent:
       self->OnLeftButtonDown(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
       break;
@@ -262,12 +242,8 @@ void vtkLineWidget::ProcessEvents(vtkObject* object, unsigned long event,
     case vtkCommand::RightButtonReleaseEvent:
       self->OnRightButtonUp(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
       break;
-    case vtkCommand::CharEvent:
-      self->OnChar(rwi->GetControlKey(), rwi->GetShiftKey(),
-                   rwi->GetKeyCode(), rwi->GetRepeatCount()); //will invoke superclass'
-      break;
-    case vtkCommand::DeleteEvent:
-      self->Interactor = 0;
+    case vtkCommand::MouseMoveEvent:
+      self->OnMouseMove(rwi->GetControlKey(), rwi->GetShiftKey(), XY[0], XY[1]);
       break;
     }
 }
@@ -332,6 +308,16 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
                                << pt2[2] << ")\n";
 }
 
+void vtkLineWidget::PositionHandles()
+{
+  int res = this->LineSource->GetResolution();
+  float *pt1 = this->LineSource->GetOutput()->GetPoints()->GetPoint(0);
+  float *pt2 = this->LineSource->GetOutput()->GetPoints()->GetPoint(res);
+
+  this->HandleGeometry[0]->SetCenter(pt1);
+  this->HandleGeometry[1]->SetCenter(pt2);
+}
+
 int vtkLineWidget::HighlightHandle(vtkProp *prop)
 {
   // first unhighlight anything picked
@@ -372,12 +358,8 @@ void vtkLineWidget::HighlightLine(int highlight)
 void vtkLineWidget::OnLeftButtonDown (int ctrl, int shift, 
                                       int X, int Y)
 {
-  if ( this->Mode == vtk3DWidget::WidgetOff )
-    {
-    return;
-    }
-
-  this->State = vtk3DWidget::Moving;
+  // We're only here is we are enabled
+  this->State = vtkLineWidget::Moving;
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the line.
@@ -400,12 +382,12 @@ void vtkLineWidget::OnLeftButtonDown (int ctrl, int shift,
     else
       {
       this->HighlightHandle(NULL);
-      this->State = vtk3DWidget::Outside;
+      this->State = vtkLineWidget::Outside;
       return;
       }
     }
   
-  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
 
@@ -416,8 +398,7 @@ void vtkLineWidget::OnLeftButtonDown (int ctrl, int shift,
 void vtkLineWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
 {
   // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside ||
-       this->State == vtk3DWidget::Start )
+  if ( this->State == vtkLineWidget::Outside || this->State == vtkLineWidget::Start )
     {
     return;
     }
@@ -443,7 +424,7 @@ void vtkLineWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
-  if ( this->State == vtk3DWidget::Moving )
+  if ( this->State == vtkLineWidget::Moving )
     {
     // Okay to process
     if ( this->CurrentHandle )
@@ -462,13 +443,13 @@ void vtkLineWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
       this->Translate(prevPickPoint, pickPoint);
       }
     }
-  else if ( this->State == vtk3DWidget::Scaling )
+  else if ( this->State == vtkLineWidget::Scaling )
     {
     this->Scale(prevPickPoint, pickPoint, X, Y);
     }
 
   // Interact, if desired
-  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
   
   this->Interactor->Render();
@@ -478,34 +459,23 @@ void vtkLineWidget::OnMouseMove (int ctrl, int shift, int X, int Y)
 
 void vtkLineWidget::OnLeftButtonUp (int ctrl, int shift, int X, int Y)
 {
-  // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
+  if ( this->State == vtkLineWidget::Outside )
     {
-    if ( this->State == vtk3DWidget::Outside )
-      {
-      this->State = vtk3DWidget::Start;
-      }
     return;
     }
 
-  this->State = vtk3DWidget::Start;
+  this->State = vtkLineWidget::Start;
   this->HighlightHandle(NULL);
   this->HighlightLine(0);
 
-  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }
 
 void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
 {
-  // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff )
-    {
-    return;
-    }
-
-  this->State = vtk3DWidget::Scaling;
+  this->State = vtkLineWidget::Scaling;
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
@@ -519,7 +489,7 @@ void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
     path = this->LinePicker->GetPath();
     if ( path == NULL )
       {
-      this->State = vtk3DWidget::Outside;
+      this->State = vtkLineWidget::Outside;
       this->HighlightLine(0);
       return;
       }
@@ -529,7 +499,7 @@ void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
       }
     }
   
-  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
   this->Interactor->Render();
   
@@ -539,20 +509,15 @@ void vtkLineWidget::OnRightButtonDown (int ctrl, int shift, int X, int Y)
 
 void vtkLineWidget::OnRightButtonUp (int ctrl, int shift, int X, int Y)
 {
-  // See whether we're active
-  if ( this->Mode == vtk3DWidget::WidgetOff || this->State == vtk3DWidget::Outside )
+  if ( this->State == vtkLineWidget::Outside )
     {
-    if ( this->State == vtk3DWidget::Outside )
-      {
-      this->State = vtk3DWidget::Start;
-      }
     return;
     }
 
-  this->State = vtk3DWidget::Start;
+  this->State = vtkLineWidget::Start;
   this->HighlightLine(0);
   
-  this->WidgetCallbackCommand->SetAbortFlag(1);
+  this->EventCallbackCommand->SetAbortFlag(1);
   this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
   this->Interactor->Render();
 }

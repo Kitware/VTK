@@ -50,6 +50,7 @@ vtkRenderWindow renWin
 
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
+
 # The SetInteractor method is how 3D widgets are associated with the render
 # window interactor. Internally, SetInteractor sets up a bunch of callbacks
 # using the Command/Observer mechanism (AddObserver()).
@@ -79,8 +80,8 @@ iren Initialize
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-# This does the actual work: updates the vtkPlanes implicit function
-# and then re-renders. The render causes the pipeline to update.
+# This does the actual work: updates the vtkPlanes implicit function.
+# This in turn causes the pipeline to update.
 proc SelectPolygons {} {
    boxWidget GetPlanes planes
    selectActor VisibilityOn

@@ -17,12 +17,16 @@
 =========================================================================*/
 // .NAME vtk3DWidget - an abstract superclass for 3D widgets
 // .SECTION Description
-// vtk3DWidget is an abstract superclass for 3D interactor widgets. These
+// vtk3DWidget is an abstract superclass for 3D interactor observers. These
 // 3D widgets represent themselves in the scene, and have special callbacks
 // associated with them that allows interactive manipulation of the widget.
-// 3D widgets also provide auxiliary functions like producing a transformation,
-// creating polydata (for seeding streamlines, probes, etc.) or creating
-// implicit functions. See the concrete subclasses for particulars.
+// Inparticular, the difference between a vtk3DWidget and its abstract
+// superclass vtkInteractorObserver is that vtk3DWidgets are "placed" in 3D
+// space.  vtkInteractorObservers have no notion of where they are placed,
+// and may not exist in 3D space at all.  3D widgets also provide auxiliary
+// functions like producing a transformation, creating polydata (for seeding
+// streamlines, probes, etc.) or creating implicit functions. See the
+// concrete subclasses for particulars.
 //
 // Typically the widget is used by specifying a vtkProp3D or VTK dataset as
 // input, and then invoking the "On" method to activate it. (You can also
@@ -47,24 +51,13 @@
 #ifndef __vtk3DWidget_h
 #define __vtk3DWidget_h
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkCommand.h"
+#include "vtkInteractorObserver.h"
 
-class vtkCallbackCommand;
-
-class VTK_EXPORT vtk3DWidget : public vtkObject
+class VTK_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
-  vtkTypeRevisionMacro(vtk3DWidget,vtkObject);
+  vtkTypeRevisionMacro(vtk3DWidget,vtkInteractorObserver);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Turn the widget on.
-  virtual void On() = 0;
-
-  // Description:
-  // Turn the widget off.
-  virtual void Off() = 0;
 
   // Description:
   // This method is used to initially place the widget.  The placement of the
@@ -93,100 +86,17 @@ public:
   vtkSetObjectMacro(Input,vtkDataSet);
   vtkGetObjectMacro(Input,vtkDataSet);
   
-  // Description:
-  // This method is used to associate the widget with the render window
-  // interactor.  Observers of the appropriate events invoked in the render
-  // window interactor are set up as a result of this method invocation.
-  virtual void SetInteractor(vtkRenderWindowInteractor *interactor) = 0;
-  vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
-
-  // Description:
-  // Set/Get the priority at which events are processed. This is used when
-  // multiple widgets are used simultaneously. The default value is 1.0
-  // (highest priority.) Note that when multiple widgets (or observers) have
-  // the same priority, then the last observer added will process the event
-  // first.
-  vtkSetClampMacro(Priority,float,0.0,1.0);
-  vtkGetMacro(Priority,float);
-
-  // Description:
-  // Enable/Disable of the use of a keypress to turn on and off the
-  // widget. (By default, the keypress is 'W' for "widget"...note the capital
-  // letter W. This may interfere with the 'W' key for wireframe in the
-  // interactor style. Set the KeyPressActivationValue to change which
-  // key is pressed.)
-  vtkSetMacro(KeyPressActivation,int);
-  vtkGetMacro(KeyPressActivation,int);
-  vtkBooleanMacro(KeyPressActivation,int);
-  
-  // Description:
-  // Specify which key press value to use to activate the widget (if key press
-  // activation is enabled). By default, the key press activation value is 'W'.
-  // Note: once the SetInteractor() method is invoked, changing the key press
-  // activation value will not affect the key press until SetInteractor is 
-  // called again.
-  vtkSetMacro(KeyPressActivationValue,char);
-  vtkGetMacro(KeyPressActivationValue,char);
-
 protected:
   vtk3DWidget();
   ~vtk3DWidget();
 
-//BTX
-  // Description:
-  // Various enums for controlling states and invoking events.
-  enum WidgetVisibility
-  {
-    WidgetOff=0,
-    WidgetOn
-  };
-  enum WidgetState
-  {
-    Start=0,
-    Moving,
-    Scaling,
-    Outside
-  };
-//ETX
-
-  // Sets up the keypress-W event. 
-  // Should be invoked by subclass' ProcessEvents()
-  void OnChar(int ctrl, int shift, char keycode, int repeatcount);
-  
-  // helper method for subclasses
-  void ComputeDisplayToWorld(double x, double y, double z, double *worldPt);
-  void ComputeWorldToDisplay(double x, double y, double z, double *displayPt);
-    
   // Used to position and scale the widget initially
   vtkProp3D *Prop3D;
   vtkDataSet *Input;
   
-  // Maintain internal state in the widgets
-  int Mode;
-  int State;
-  
   //has the widget ever been placed
   int Placed; 
   
-  // Used to process events
-  vtkCallbackCommand* WidgetCallbackCommand;
-
-  // Priority at which events are processed
-  float Priority;
-
-  // Keypress activation controls
-  int KeyPressActivation;
-  char KeyPressActivationValue;
-
-  // Used to associate observers with the interactor
-  vtkRenderWindowInteractor *Interactor;
-  
-  // Internal ivars for processing events
-  vtkRenderer *CurrentRenderer;
-  vtkCamera *CurrentCamera;
-  float OldX;
-  float OldY;
-
 private:
   vtk3DWidget(const vtk3DWidget&);  // Not implemented.
   void operator=(const vtk3DWidget&);  // Not implemented.

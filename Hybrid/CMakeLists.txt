@@ -10,6 +10,7 @@ vtkEarthSource
 vtkGridTransform 
 vtkImplicitModeller
 vtkImageToPolyDataFilter 
+vtkInteractorObserver
 vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
@@ -32,6 +33,7 @@ vtkWeightedTransformFilter
 
 ABSTRACT_FILES(
 vtk3DWidget
+vtkInteractorObserver
 )
 
 IF (WIN32)
