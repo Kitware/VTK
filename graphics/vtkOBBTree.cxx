@@ -220,15 +220,13 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
 
   vtkDebugMacro(<<"Computing OBB");
 
-  // what was the value of this supposed to be?
-  numCells = 1000;
-
   if ( input == NULL || (numPts = input->GetNumberOfPoints()) < 1 ||
       (input->GetNumberOfCells()) < 1 )
     {
     vtkErrorMacro(<<"Can't compute OBB - no data available!");
     return;
     }
+  numCells = input->GetNumberOfCells();
 
   // save previous value of DataSet and reset after calling ComputeOBB because
   // computeOBB used this->DataSet internally
@@ -266,19 +264,20 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, float corner[3], float max[3],
 // a sorted list of relative "sizes" of axes for comparison purposes.
 void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
                             float mid[3], float min[3], float size[3])
-{
+  {
   int numCells, i, j, k, cellId, numPts, type, ptId, pId, qId, rId;
   int *ptIds;
   float *p, *q, *r, mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   float *a[3], a0[3], a1[3], a2[3];
   float tMin[3], tMax[3], closest[3], t;
   float dp0[3], dp1[3], tri_mass, tot_mass, c[3];
-
+  
   this->OBBCount++;
   this->PointsList->Reset();
   //
   // Compute mean & moments
   //
+  
   numCells = cells->GetNumberOfIds();
   mean[0] = mean[1] = mean[2] = 0.0;
   tot_mass = 0.0;
@@ -312,12 +311,12 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       tri_mass = 0.5*vtkMath::Norm( xp );
       tot_mass += tri_mass;
       for ( k=0; k<3; k++ ) mean[k] += tri_mass*c[k];
-
+      
       // on-diagonal terms
       a0[0] += tri_mass*(9*c[0]*c[0] + p[0]*p[0] + q[0]*q[0] + r[0]*r[0])/12;
       a1[1] += tri_mass*(9*c[1]*c[1] + p[1]*p[1] + q[1]*q[1] + r[1]*r[1])/12;
       a2[2] += tri_mass*(9*c[2]*c[2] + p[2]*p[2] + q[2]*q[2] + r[2]*r[2])/12;
-
+      
       // off-diagonal terms
       a0[1] += tri_mass*(9*c[0]*c[1] + p[0]*p[1] + q[0]*q[1] + r[0]*r[1])/12;
       a0[2] += tri_mass*(9*c[0]*c[2] + p[0]*p[2] + q[0]*q[2] + r[0]*r[2])/12;
@@ -327,6 +326,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
     // While computing cell moments, gather all the cell's
     // point coordinates into a single list.
     //
+    
     for ( j=0; j < numPts; j++ )
       {
       if ( this->InsertedPoints[ptIds[j]] != this->OBBCount )
@@ -337,64 +337,65 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, float corner[3], float max[3],
       }//for all points of this cell
     } // end foreach cell
 
+  
   // normalize data
   for ( i=0; i<3; i++ )
     {
     mean[i] = mean[i]/tot_mass;
     }
-
+  
   // matrix is symmetric
   a1[0] = a0[1];
   a2[0] = a0[2];
   a2[1] = a1[2];
-
+  
   // get covariance from moments
   for ( i=0; i<3; i++ )
     for ( j=0; j<3; j++ )
       a[i][j] = a[i][j]/tot_mass - mean[i]*mean[j];
-
-  //
-  // Extract axes (i.e., eigenvectors) from covariance matrix. 
-  //
-  v[0] = v0; v[1] = v1; v[2] = v2; 
-  vtkMath::Jacobi(a,size,v);
-  max[0] = v[0][0]; max[1] = v[1][0]; max[2] = v[2][0];
-  mid[0] = v[0][1]; mid[1] = v[1][1]; mid[2] = v[2][1];
-  min[0] = v[0][2]; min[1] = v[1][2]; min[2] = v[2][2];
-
-  for (i=0; i < 3; i++)
-    {
-    a[0][i] = mean[i] + max[i];
-    a[1][i] = mean[i] + mid[i];
-    a[2][i] = mean[i] + min[i];
-    }
-
-  //
-  // Create oriented bounding box by projecting points onto eigenvectors.
-  //
-  tMin[0] = tMin[1] = tMin[2] = VTK_LARGE_FLOAT;
-  tMax[0] = tMax[1] = tMax[2] = -VTK_LARGE_FLOAT;
-
-  numPts = this->PointsList->GetNumberOfPoints();
-  for (ptId=0; ptId < numPts; ptId++ )
-    {
-    p = this->PointsList->GetPoint(ptId);
+    
+    //
+    // Extract axes (i.e., eigenvectors) from covariance matrix. 
+    //
+    v[0] = v0; v[1] = v1; v[2] = v2; 
+    vtkMath::Jacobi(a,size,v);
+    max[0] = v[0][0]; max[1] = v[1][0]; max[2] = v[2][0];
+    mid[0] = v[0][1]; mid[1] = v[1][1]; mid[2] = v[2][1];
+    min[0] = v[0][2]; min[1] = v[1][2]; min[2] = v[2][2];
+    
     for (i=0; i < 3; i++)
       {
-      vtkLine::DistanceToLine(p, mean, a[i], t, closest);
-      if ( t < tMin[i] ) tMin[i] = t;
-      if ( t > tMax[i] ) tMax[i] = t;
+      a[0][i] = mean[i] + max[i];
+      a[1][i] = mean[i] + mid[i];
+      a[2][i] = mean[i] + min[i];
       }
-    }//for all points
-
-  for (i=0; i < 3; i++)
-    {
-    corner[i] = mean[i] + tMin[0]*max[i] + tMin[1]*mid[i] + tMin[2]*min[i];
-
-    max[i] = (tMax[0] - tMin[0]) * max[i];
-    mid[i] = (tMax[1] - tMin[1]) * mid[i];
-    min[i] = (tMax[2] - tMin[2]) * min[i];
-    }
+    
+    //
+    // Create oriented bounding box by projecting points onto eigenvectors.
+    //
+    tMin[0] = tMin[1] = tMin[2] = VTK_LARGE_FLOAT;
+    tMax[0] = tMax[1] = tMax[2] = -VTK_LARGE_FLOAT;
+    
+    numPts = this->PointsList->GetNumberOfPoints();
+    for (ptId=0; ptId < numPts; ptId++ )
+      {
+      p = this->PointsList->GetPoint(ptId);
+      for (i=0; i < 3; i++)
+        {
+        vtkLine::DistanceToLine(p, mean, a[i], t, closest);
+        if ( t < tMin[i] ) tMin[i] = t;
+        if ( t > tMax[i] ) tMax[i] = t;
+        }
+      }//for all points
+    
+    for (i=0; i < 3; i++)
+      {
+      corner[i] = mean[i] + tMin[0]*max[i] + tMin[1]*mid[i] + tMin[2]*min[i];
+      
+      max[i] = (tMax[0] - tMin[0]) * max[i];
+      mid[i] = (tMax[1] - tMin[1]) * mid[i];
+      min[i] = (tMax[2] - tMin[2]) * min[i];
+      }
 }
 
 // Return intersection point of line defined by two points (a0,a1) in dataset
