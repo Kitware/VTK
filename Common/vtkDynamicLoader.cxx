@@ -24,7 +24,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.17");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.18");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -154,7 +154,7 @@ const char* vtkDynamicLoader::LastError()
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
 {
 #ifdef UNICODE
-        wchar_t *libn = new wchar_t [mbstowcs(NULL, libname, 32000)];
+        wchar_t *libn = new wchar_t [mbstowcs(NULL, libname, 32000)+1];
         mbstowcs(libn, libname, 32000);
         vtkLibHandle ret = LoadLibrary(libn);
         delete [] libn;
@@ -171,8 +171,8 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 { 
-#ifdef UNICODE
-        wchar_t *wsym = new wchar_t [mbstowcs(NULL, sym, 32000)];
+#if defined (UNICODE) && !defined(_MSC_VER)
+        wchar_t *wsym = new wchar_t [mbstowcs(NULL, sym, 32000)+1];
         mbstowcs(wsym, sym, 32000);
         // Force GetProcAddress to return void* with a c style cast
         // This is because you can not cast a function to a void* without

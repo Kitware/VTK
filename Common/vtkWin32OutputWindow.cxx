@@ -15,7 +15,7 @@
 #include "vtkWin32OutputWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.18");
+vtkCxxRevisionMacro(vtkWin32OutputWindow, "1.19");
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
 HWND vtkWin32OutputWindow::OutputWindow = 0;
@@ -101,9 +101,19 @@ void vtkWin32OutputWindow::AddText(const char* someText)
   // move to the end of the text area
   SendMessage( vtkWin32OutputWindow::OutputWindow, EM_SETSEL, 
                (WPARAM)-1, (LPARAM)-1 );  
+
+#ifdef UNICODE
+  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, someText, 32000)+1];
+  mbstowcs(wmsg, someText, 32000);
+  // Append the text to the control
+  SendMessage( vtkWin32OutputWindow::OutputWindow, EM_REPLACESEL, 
+               0, (LPARAM)wmsg );
+  delete [] wmsg;
+#else
   // Append the text to the control
   SendMessage( vtkWin32OutputWindow::OutputWindow, EM_REPLACESEL, 
                0, (LPARAM)someText );
+#endif
 }
 
 
@@ -155,6 +165,12 @@ int vtkWin32OutputWindow::Initialize()
     WS_OVERLAPPED | WS_CLIPCHILDREN,
     0, 0, 512, 512,
     NULL, NULL, GetModuleHandle(NULL), NULL);
+#elif UNICODE
+  HWND win = CreateWindow(
+    L"vtkOutputWindow", L"vtkOutputWindow",
+    WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+    0, 0, 512, 512,
+    NULL, NULL, GetModuleHandle(NULL), NULL);
 #else
   HWND win = CreateWindow(
     "vtkOutputWindow", "vtkOutputWindow",
@@ -172,22 +188,27 @@ int vtkWin32OutputWindow::Initialize()
   lpParam.cy = 512;
   lpParam.x = 0;
   lpParam.y = 0;
+#if defined(_WIN32_WCE) || defined(UNICODE)
+  lpParam.lpszName = L"Output Control";
+  lpParam.lpszClass = L"EDIT"; // use the RICHEDIT control widget
+#else
+  lpParam.lpszName = "Output Control";
+  lpParam.lpszClass = "EDIT"; // use the RICHEDIT control widget
+#endif  
+
 #ifdef _WIN32_WCE
   lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD 
     | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE
     | WS_VSCROLL | WS_HSCROLL;
-  lpParam.lpszName = L"Output Control";
-  lpParam.lpszClass = L"EDIT"; // use the RICHEDIT control widget
 #else
   lpParam.style = ES_MULTILINE | ES_READONLY | WS_CHILD 
     | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VISIBLE | WS_MAXIMIZE
     | WS_VSCROLL | WS_HSCROLL;
-  lpParam.lpszName = "Output Control";
-  lpParam.lpszClass = "EDIT"; // use the RICHEDIT control widget
 #endif  
+
   lpParam.dwExStyle = 0;
   // Create the EDIT window as a child of win
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) || defined(UNICODE)
   vtkWin32OutputWindow::OutputWindow = CreateWindow(
     lpParam.lpszClass,  // pointer to registered class name
     L"", // pointer to window name
@@ -235,14 +256,14 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
   sprintf(vtkmsg,"%s\nPress Cancel to suppress any further messages.",
           someText);
 #ifdef UNICODE
-        wchar_t *wmsg = new wchar_t [mbstowcs(NULL, vtkmsg, 32000)];
-        mbstowcs(wmsg, vtkmsg, 32000);
-    if (MessageBox(NULL, wmsg, L"Error",
-                  MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
-        { 
-      vtkObject::GlobalWarningDisplayOff(); 
-        }
-        delete [] wmsg;
+  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, vtkmsg, 32000)+1];
+  mbstowcs(wmsg, vtkmsg, 32000);
+  if (MessageBox(NULL, wmsg, L"Error",
+                 MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 
+    { 
+    vtkObject::GlobalWarningDisplayOff(); 
+    }
+  delete [] wmsg;
 #else
   if (MessageBox(NULL, vtkmsg, "Error",
                  MB_ICONERROR | MB_OKCANCEL) == IDCANCEL) 

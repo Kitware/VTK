@@ -35,7 +35,7 @@
 #include <GL/gl.h>
 #endif
 
-vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.122");
+vtkCxxRevisionMacro(vtkWin32OpenGLRenderWindow, "1.123");
 vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -159,7 +159,14 @@ void vtkWin32OpenGLRenderWindow::SetWindowName( const char * _arg )
   vtkWindow::SetWindowName(_arg);
   if (this->WindowId)
     {
-      SetWindowText(this->WindowId,this->WindowName);
+#ifdef UNICODE
+                wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
+                mbstowcs(wname, this->WindowName, 32000);
+                SetWindowText(this->WindowId, wname);
+                delete [] wname;
+#else
+                SetWindowText(this->WindowId, this->WindowName);
+#endif
     }
 }
 
@@ -212,9 +219,19 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
           0,
           NULL 
           );
-        vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
+#ifdef UNICODE
+                wchar_t *wmsg = new wchar_t [mbstowcs(NULL, (const char*)lpMsgBuf, 32000)+1];
+                wchar_t *wtemp = new wchar_t [mbstowcs(NULL, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
+                mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
+                mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
+                vtkErrorMacro(<< wcscat(wtemp, wmsg));
+                delete [] wmsg;
+                delete [] wtemp;
+#else
+                vtkErrorMacro("wglMakeCurrent failed in MakeCurrent(), error: " 
                       << (LPCTSTR)lpMsgBuf);
-        ::LocalFree( lpMsgBuf );
+#endif
+                ::LocalFree( lpMsgBuf );
         }
       }
     }
@@ -235,7 +252,11 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
         {
         resizing = 1;
         this->CleanUpOffScreenRendering();
+#ifdef UNICODE
+        HDC dc = CreateDC(L"DISPLAY", 0, 0, 0);
+#else
         HDC dc = CreateDC("DISPLAY", 0, 0, 0);
+#endif
         this->CreateOffScreenDC(x, y, dc);
         DeleteDC(dc);
         resizing = 0;
@@ -450,11 +471,18 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
       DescribePixelFormat(hDC, currentPixelFormat,sizeof(pfd), &pfd);
       if (!(pfd.dwFlags & PFD_SUPPORT_OPENGL))
         {
+#ifdef UNICODE
+          MessageBox(WindowFromDC(hDC), 
+                     L"Invalid pixel format, no OpenGL support",
+                     L"Error",
+                     MB_ICONERROR | MB_OK);
+#else
           MessageBox(WindowFromDC(hDC), 
                      "Invalid pixel format, no OpenGL support",
                      "Error",
                      MB_ICONERROR | MB_OK);
-          if (this->HasObserver(vtkCommand::ExitEvent))
+#endif
+                  if (this->HasObserver(vtkCommand::ExitEvent))
             {
               this->InvokeEvent(vtkCommand::ExitEvent, NULL);
               return;
@@ -471,8 +499,13 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
       pixelFormat = ChoosePixelFormat(hDC, &pfd);
       if (pixelFormat == 0)
         {
+#ifdef UNICODE
+          MessageBox(WindowFromDC(hDC), L"ChoosePixelFormat failed.", L"Error",
+                     MB_ICONERROR | MB_OK);
+#else
           MessageBox(WindowFromDC(hDC), "ChoosePixelFormat failed.", "Error",
                      MB_ICONERROR | MB_OK);
+#endif
           if (this->HasObserver(vtkCommand::ExitEvent))
             {
               this->InvokeEvent(vtkCommand::ExitEvent, NULL);
@@ -487,9 +520,14 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormat(HDC hDC, DWORD dwFlags,
       if (SetPixelFormat(hDC, pixelFormat, &pfd) != TRUE) 
         {
           // int err = GetLastError();
+#ifdef UNICODE
+          MessageBox(WindowFromDC(hDC), L"SetPixelFormat failed.", L"Error",
+                     MB_ICONERROR | MB_OK);
+#else
           MessageBox(WindowFromDC(hDC), "SetPixelFormat failed.", "Error",
                      MB_ICONERROR | MB_OK);
-          if (this->HasObserver(vtkCommand::ExitEvent))
+#endif
+                        if (this->HasObserver(vtkCommand::ExitEvent))
             {
               this->InvokeEvent(vtkCommand::ExitEvent, NULL);
               return;
@@ -662,11 +700,15 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
       + 1; 
     windowName = new char [ len ];
     sprintf(windowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
-    this->SetWindowName(windowName);
+        this->SetWindowName(windowName);
     delete [] windowName;
     
     // has the class been registered ?
+#ifdef UNICODE
+    if (!GetClassInfo(this->ApplicationInstance,L"vtkOpenGL",&wndClass))
+#else
     if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
+#endif
       {
       wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
       wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
@@ -676,7 +718,11 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
       wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
       wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
       wndClass.lpszMenuName = NULL;
+#ifdef UNICODE
+      wndClass.lpszClassName = L"vtkOpenGL";
+#else
       wndClass.lpszClassName = "vtkOpenGL";
+#endif
       // vtk doesn't use the first extra 4 bytes, but app writers
       // may want them, so we provide them. VTK does use the second 
       // four bytes of extra space.
@@ -684,14 +730,28 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
       RegisterClass(&wndClass);
       }
     
-    /* create window */
+#ifdef UNICODE
+      wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
+      mbstowcs(wname, this->WindowName, 32000);
+      SetWindowText(this->WindowId, wname);
+#endif
+
+        /* create window */
     if (this->ParentId)
       {
+#ifdef UNICODE
+      this->WindowId = CreateWindow(
+        L"vtkOpenGL", wname,
+        WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+        x, y, width, height,
+        this->ParentId, NULL, this->ApplicationInstance, NULL);
+#else
       this->WindowId = CreateWindow(
         "vtkOpenGL", this->WindowName,
         WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
         x, y, width, height,
         this->ParentId, NULL, this->ApplicationInstance, NULL);
+#endif
       }
     else
       {
@@ -704,12 +764,24 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow(int x, int y, int width,
         {
         style = WS_POPUP | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/;
         }
+#ifdef UNICODE
+      this->WindowId = CreateWindow(
+        L"vtkOpenGL", wname, style,
+        x,y, width+2*GetSystemMetrics(SM_CXFRAME),
+        height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
+        NULL, NULL, this->ApplicationInstance, NULL);
+#else
       this->WindowId = CreateWindow(
         "vtkOpenGL", this->WindowName, style,
         x,y, width+2*GetSystemMetrics(SM_CXFRAME),
         height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
         NULL, NULL, this->ApplicationInstance, NULL);
+#endif
       }
+#ifdef UNICODE
+    delete [] wname;
+#endif
+
     if (!this->WindowId)
       {
       vtkErrorMacro("Could not create window, error:  " << GetLastError());
@@ -1107,7 +1179,11 @@ void vtkWin32OpenGLRenderWindow::SetOffScreenRendering(int offscreen)
       size[0] = (this->Size[0] > 0) ? this->Size[0] : 300;
       size[1] = (this->Size[1] > 0) ? this->Size[1] : 300;
 
+#ifdef UNICODE
+      HDC dc = CreateDC(L"DISPLAY", 0, 0, 0);
+#else
       HDC dc = CreateDC("DISPLAY", 0, 0, 0);
+#endif
       this->SetupMemoryRendering(size[0], size[1], dc);
       DeleteDC(dc); 
     }
@@ -1227,7 +1303,11 @@ void vtkWin32OpenGLRenderWindow::SetupMemoryRendering(int xsize, int ysize,
 
 void vtkWin32OpenGLRenderWindow::SetupMemoryRendering(HBITMAP hbmp)
 {
+#ifdef UNICODE
+  HDC dc = CreateDC(L"DISPLAY", 0, 0, 0);
+#else
   HDC dc = CreateDC("DISPLAY", 0, 0, 0);
+#endif
 
   // save the current state
   this->ScreenMapped = this->Mapped;

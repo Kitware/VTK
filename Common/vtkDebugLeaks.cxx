@@ -35,7 +35,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.25");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.26");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 // A hash function for converting a string to a long
@@ -325,7 +325,7 @@ void vtkDebugLeaks::PrintCurrentLeaks()
 int vtkDebugLeaks::DisplayMessageBox(const char* msg)
 {
 #ifdef UNICODE
-  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, msg, 32000)];
+  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, msg, 32000)+1];
   mbstowcs(wmsg, msg, 32000);
   int result = (MessageBox(NULL, wmsg, L"Error",
                            MB_ICONERROR | MB_OKCANCEL) == IDCANCEL);
