@@ -89,12 +89,11 @@ void vtkThresholdPoints::ThresholdBetween(float lower, float upper)
   
 void vtkThresholdPoints::Execute()
 {
-  int cellId;
   vtkScalars *inScalars;
   vtkFloatPoints *newPoints;
   vtkPointData *pd;
   vtkCellArray *verts;
-  int i, ptId, pts[1], numPts;
+  int ptId, pts[1], numPts;
   float *x;
 
   vtkDebugMacro(<< "Executing threshold points filter");
