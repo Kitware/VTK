@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.27");
+vtkCxxRevisionMacro(vtkImageReslice, "1.28");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -514,14 +514,17 @@ void vtkImageReslice::ExecuteInformation()
 {
   this->Superclass::ExecuteInformation();
 
-  this->GetIndexMatrix();
-
   vtkImageData *input = this->GetInput();
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil && input)
+  if (input)
     {
-    stencil->SetSpacing(input->GetSpacing());
-    stencil->SetOrigin(input->GetOrigin());
+    this->GetIndexMatrix();
+
+    vtkImageStencilData *stencil = this->GetStencil();
+    if (stencil)
+      {
+      stencil->SetSpacing(input->GetSpacing());
+      stencil->SetOrigin(input->GetOrigin());
+      }
     }
 }
 
@@ -1733,11 +1736,11 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
     }
 
   int inExt[6];
-  void *inPtr = 0;
   inData->GetExtent(inExt);
+  void *inPtr = 0;
   if (inExt[0] <= inExt[1] && inExt[2] <= inExt[3] && inExt[4] <= inExt[5])
     {
-    inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+    inPtr = inData->GetScalarPointerForExtent(inExt);
     }
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
@@ -3479,11 +3482,11 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
                                                int outExt[6], int id)
 {
   int inExt[6];
-  void *inPtr = 0;
   inData->GetExtent(inExt);
+  void *inPtr = 0;
   if (inExt[0] <= inExt[1] && inExt[2] <= inExt[3] && inExt[4] <= inExt[5])
     {
-    inPtr = inData->GetScalarPointerForExtent(inData->GetExtent());
+    inPtr = inData->GetScalarPointerForExtent(inExt);
     }
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
   
