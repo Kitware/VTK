@@ -80,6 +80,10 @@ public:
   vtkGetMacro(ScalarType,int);
 
   // Description:
+  // Set the size of the scalar type in bytes.
+  int GetScalarSize();
+
+  // Description:
   // Different ways to get the increments for moving around the data.
   vtkGetVector3Macro(Increments,int);
   

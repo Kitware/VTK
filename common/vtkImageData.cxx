@@ -83,7 +83,7 @@ void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
   os << ")\n";
 
   os << indent << "Increments: (" << this->Increments[0];
-  for (idx = 1; idx < 4; ++idx)
+  for (idx = 1; idx < 3; ++idx)
     {
     os << ", " << this->Increments[idx];
     }
@@ -362,7 +362,28 @@ void vtkImageData::AllocateScalars()
 }
 
 
-
+int vtkImageData::GetScalarSize()
+{
+  // allocate the new scalars
+  switch (this->ScalarType)
+    {
+    case VTK_FLOAT:
+      return sizeof(float);
+      break;
+    case VTK_INT:
+      return sizeof(int);
+      break;
+    case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
+      return 2;
+      break;
+    case VTK_UNSIGNED_CHAR:
+      return 1;
+      break;
+    }
+  
+  return 1;
+}
 
 
 
