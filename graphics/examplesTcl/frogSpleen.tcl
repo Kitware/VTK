@@ -10,10 +10,10 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-vtkDataSetReader reader
+vtkPolyDataReader reader
     reader SetFileName ../../../vtkdata/spleen.color.vtk
 
-vtkDataSetMapper   frogMapper
+vtkPolyDataMapper   frogMapper
     frogMapper SetInput [reader GetOutput]
 vtkActor frogActor
     frogActor SetMapper frogMapper
