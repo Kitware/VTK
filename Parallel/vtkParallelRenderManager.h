@@ -175,11 +175,11 @@ public:
   // may ignore the image reduction factor if it will result in little or
   // no performance enhancements (eg. it does not do image space
   // manipulations).
-  virtual void SetImageReductionFactor(int factor);
-  vtkGetMacro(ImageReductionFactor, int);
+  virtual void SetImageReductionFactor(double factor);
+  vtkGetMacro(ImageReductionFactor, double);
 
-  vtkSetMacro(MaxImageReductionFactor, int);
-  vtkGetMacro(MaxImageReductionFactor, int);
+  vtkSetMacro(MaxImageReductionFactor, double);
+  vtkGetMacro(MaxImageReductionFactor, double);
 
   // Description:
   // Sets the ReductionFactor based on the given desired update rate and
@@ -308,8 +308,8 @@ protected:
   unsigned long ResetCameraClippingRangeTag;
   unsigned long AbortRenderCheckTag;
 
-  int ImageReductionFactor;
-  int MaxImageReductionFactor;
+  double ImageReductionFactor;
+  double MaxImageReductionFactor;
   int AutoImageReductionFactor;
 
   int WriteBackImages;
@@ -399,12 +399,12 @@ protected:
     int FullSize[2];
     int ReducedSize[2];
     int NumberOfRenderers;
-    int ImageReductionFactor;
     int UseCompositing;
   };
 
   struct RenderWindowInfoDouble
   {
+    double ImageReductionFactor;
     double DesiredUpdateRate;
   };
   

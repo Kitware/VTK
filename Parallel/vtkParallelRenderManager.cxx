@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.31");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.32");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -558,9 +558,9 @@ void vtkParallelRenderManager::StartRender()
   this->FullImageSize[1] = size[1];
   //Round up.
   this->ReducedImageSize[0] =
-    (size[0]+this->ImageReductionFactor-1)/this->ImageReductionFactor;
+    (int)((size[0]+this->ImageReductionFactor-1)/this->ImageReductionFactor);
   this->ReducedImageSize[1] =
-    (size[1]+this->ImageReductionFactor-1)/this->ImageReductionFactor;
+    (int)((size[1]+this->ImageReductionFactor-1)/this->ImageReductionFactor);
 
   // Collect and distribute information about current state of RenderWindow
   vtkRendererCollection *rens = this->RenderWindow->GetRenderers();
@@ -570,7 +570,7 @@ void vtkParallelRenderManager::StartRender()
   winInfoInt.ReducedSize[1] = this->ReducedImageSize[1];
 //  winInfoInt.NumberOfRenderers = rens->GetNumberOfItems();
   winInfoInt.NumberOfRenderers = 1;
-  winInfoInt.ImageReductionFactor = this->ImageReductionFactor;
+  winInfoDouble.ImageReductionFactor = this->ImageReductionFactor;
   winInfoInt.UseCompositing = this->UseCompositing;
   winInfoDouble.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
 
@@ -990,7 +990,7 @@ void vtkParallelRenderManager::ResetAllCameras()
     }
 }
 
-void vtkParallelRenderManager::SetImageReductionFactor(int factor)
+void vtkParallelRenderManager::SetImageReductionFactor(double factor)
 {
   // Clamp factor.
   factor = (factor < 1) ? 1 : factor;
@@ -1043,7 +1043,7 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
   int *size = this->RenderWindow->GetSize();
   int numPixels = size[0]*size[1];
   int numReducedPixels
-    = numPixels/(this->ImageReductionFactor*this->ImageReductionFactor);
+    = (int)(numPixels/(this->ImageReductionFactor*this->ImageReductionFactor));
 
   double renderTime = this->GetRenderTime();
   double pixelTime = this->GetImageProcessingTime();
@@ -1635,11 +1635,11 @@ void vtkParallelRenderManager::SatelliteStartRender()
 
   this->RenderWindow->SetDesiredUpdateRate(winInfoDouble.DesiredUpdateRate);
   this->SetUseCompositing(winInfoInt.UseCompositing);
-  if (this->MaxImageReductionFactor < winInfoInt.ImageReductionFactor)
+  if (this->MaxImageReductionFactor < winInfoDouble.ImageReductionFactor)
     {
-    this->SetMaxImageReductionFactor(winInfoInt.ImageReductionFactor);
+    this->SetMaxImageReductionFactor(winInfoDouble.ImageReductionFactor);
     }
-  this->SetImageReductionFactor(winInfoInt.ImageReductionFactor);
+  this->SetImageReductionFactor(winInfoDouble.ImageReductionFactor);
   this->FullImageSize[0] = winInfoInt.FullSize[0];
   this->FullImageSize[1] = winInfoInt.FullSize[1];
   this->ReducedImageSize[0] = winInfoInt.ReducedSize[0];
