@@ -1,3 +1,5 @@
+#include "Precompiled_Header.h"
+#pragma hdrstop
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -276,7 +278,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   tensors = cd->GetTensors();
   field = cd->GetFieldData();
 
-  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || tensors ))
+  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || tensors || field))
     {
     vtkDebugMacro(<<"No cell data to write!");
     return 1;
@@ -370,7 +372,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   tensors = pd->GetTensors();
   field = pd->GetFieldData();
 
-  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors ))
+  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors || field))
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
