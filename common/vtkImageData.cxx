@@ -1221,6 +1221,38 @@ int vtkImageData::GetNumberOfScalarComponents()
 }
 
 
+int *vtkImageData::GetIncrements()
+{
+  // Make sure the increments are up to date. The filter bypass and update
+  // mechanism make it tricky to update the increments anywhere other than here
+  this->ComputeIncrements();
+
+  return this->Increments;
+}
+
+void vtkImageData::GetIncrements(int &incX, int &incY, int &incZ)
+{
+  // Make sure the increments are up to date. The filter bypass and update
+  // mechanism make it tricky to update the increments anywhere other than here
+  this->ComputeIncrements();
+
+  incX = this->Increments[0];
+  incY = this->Increments[1];
+  incZ = this->Increments[2];
+}
+
+void vtkImageData::GetIncrements(int inc[3])
+{
+  // Make sure the increments are up to date. The filter bypass and update
+  // mechanism make it tricky to update the increments anywhere other than here
+  this->ComputeIncrements();
+
+  inc[0] = this->Increments[0];
+  inc[1] = this->Increments[1];
+  inc[2] = this->Increments[2];
+}
+
+
 //----------------------------------------------------------------------------
 void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
 					   int &incY, int &incZ)
@@ -1249,7 +1281,10 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
     {
     e3 = this->Extent[3];
     }
-  
+
+  // Make sure the increments are up to date
+  this->ComputeIncrements();
+
   incY = this->Increments[1] - (e1 - e0 + 1)*this->Increments[0];
   incZ = this->Increments[2] - (e3 - e2 + 1)*this->Increments[1];
 }

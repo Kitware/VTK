@@ -256,7 +256,11 @@ public:
 
   // Description:
   // Different ways to get the increments for moving around the data.
-  vtkGetVector3Macro(Increments,int);
+  // GetIncrements() calls ComputeIncrements() to ensure the increments are
+  // up to date.
+  int *GetIncrements();
+  void GetIncrements(int &incX, int &incY, int &incZ);
+  void GetIncrements(int inc[3]);
   
   // Description:
   // Different ways to get the increments for moving around the data.
