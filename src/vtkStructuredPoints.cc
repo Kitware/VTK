@@ -46,6 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredPoints::vtkStructuredPoints()
 {
+  this->Dimensions[0] = 1;
+  this->Dimensions[1] = 1;
+  this->Dimensions[2] = 1;
+  this->DataDescription = VTK_SINGLE_POINT;
+  
   this->AspectRatio[0] = 1.0;
   this->AspectRatio[1] = 1.0;
   this->AspectRatio[2] = 1.0;
@@ -56,7 +61,7 @@ vtkStructuredPoints::vtkStructuredPoints()
 }
 
 vtkStructuredPoints::vtkStructuredPoints(const vtkStructuredPoints& v) :
-vtkStructuredData(v)
+vtkDataSet(v)
 {
 
   this->AspectRatio[1] = v.AspectRatio[1];
@@ -241,21 +246,6 @@ float *vtkStructuredPoints::GetPoint(int ptId)
     x[i] = this->Origin[i] + loc[i] * this->AspectRatio[i];
 
   return x;
-}
-
-unsigned long vtkStructuredPoints::GetMtime()
-{
-  unsigned long dtime = this->vtkDataSet::GetMTime();
-  unsigned long ftime = this->vtkStructuredData::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vtkStructuredPoints::Initialize()
-{
-  vtkStructuredData::_Initialize();
-
-  this->SetAspectRatio(1,1,1);
-  this->SetOrigin(0,0,0);
 }
 
 int vtkStructuredPoints::FindPoint(float x[3])
@@ -467,15 +457,45 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     }
 }
 
+// Description:
+// Set dimensions of structured points dataset.
+void vtkStructuredPoints::SetDimensions(int i, int j, int k)
+{
+  int dim[3];
+
+  dim[0] = i;
+  dim[1] = j;
+  dim[2] = k;
+  this->SetDimensions(dim);
+}
+
+// Description:
+// Set dimensions of structured points dataset.
+void vtkStructuredPoints::SetDimensions(int dim[3])
+{
+  int returnStatus=this->StructuredData.SetDimensions(dim,this->Dimensions);
+
+  if ( returnStatus > -1 ) 
+    {
+    this->DataDescription = returnStatus;
+    this->Modified();
+    }
+}
+
 void vtkStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);
 
-  os << indent << "Origin: (" << this->Origin[0] << ", "
-                                  << this->Origin[1] << ", "
-                                  << this->Origin[2] << ")\n";
+  os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
+                                  << this->Dimensions[1] << ", "
+                                  << this->Dimensions[2] << ")\n";
+
   os << indent << "AspectRatio: (" << this->AspectRatio[0] << ", "
                                   << this->AspectRatio[1] << ", "
                                   << this->AspectRatio[2] << ")\n";
+
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+                                  << this->Origin[1] << ", "
+                                  << this->Origin[2] << ")\n";
 }
 

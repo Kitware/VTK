@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSet.hh"
 #include "vtkStructuredData.hh"
 
-class vtkStructuredPoints : public vtkDataSet, public vtkStructuredData 
+class vtkStructuredPoints : public vtkDataSet
 {
 public:
   vtkStructuredPoints();
@@ -60,8 +60,6 @@ public:
   char *GetClassName() {return "vtkStructuredPoints";};
   char *GetDataType() {return "vtkStructuredPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  unsigned long GetMtime();
 
   // dataset interface
   vtkDataSet *MakeObject() {return new vtkStructuredPoints(*this);};
@@ -78,11 +76,18 @@ public:
   void GetCellPoints(int cellId, vtkIdList& ptIds);
   void GetPointCells(int ptId, vtkIdList& cellIds);
   void ComputeBounds();
-  void Initialize();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
 
-  void GetVoxelGradient(int i, int j, int k, vtkScalars *s, vtkFloatVectors& g);
+  // specific to structured data
+  void GetVoxelGradient(int i,int j,int k, vtkScalars *s, vtkFloatVectors& g);
   void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
+  void SetDimensions(int i, int j, int k);
+  void SetDimensions(int dim[3]);
+  int GetDataDimension();
+
+  // Description:
+  // Get dimensions of this structured points dataset.
+  vtkGetVectorMacro(Dimensions,int,3);
 
   // Description:
   // Set the aspect ratio of the cubical cells that compose the structured
@@ -97,8 +102,12 @@ public:
   vtkGetVectorMacro(Origin,float,3);
 
 protected:
+  int Dimensions[3];
+  int DataDescription;
   float Origin[3];
   float AspectRatio[3];
+
+  vtkStructuredData StructuredData; //helper class for structured data
 };
 
 inline void vtkStructuredPoints::GetPoint(int id, float x[3])
@@ -109,22 +118,35 @@ inline void vtkStructuredPoints::GetPoint(int id, float x[3])
 
 inline int vtkStructuredPoints::GetNumberOfCells() 
 {
-  return this->vtkStructuredData::_GetNumberOfCells();
+  int nCells=1;
+  int i;
+
+  for (i=0; i<3; i++)
+    if (this->Dimensions[i] > 1)
+      nCells *= (this->Dimensions[i]-1);
+
+  return nCells;
 }
 
 inline int vtkStructuredPoints::GetNumberOfPoints()
 {
-  return this->vtkStructuredData::_GetNumberOfPoints();
+  return this->Dimensions[0]*this->Dimensions[1]*this->Dimensions[2];
+}
+
+inline int vtkStructuredPoints::GetDataDimension()
+{
+  return this->StructuredData.GetDataDimension(this->DataDescription);
 }
 
 inline void vtkStructuredPoints::GetCellPoints(int cellId, vtkIdList& ptIds)
 {
-  this->vtkStructuredData::_GetCellPoints(cellId, ptIds);
+  this->StructuredData.GetCellPoints(cellId,ptIds,this->DataDescription,
+                                     this->Dimensions);
 }
 
 inline void vtkStructuredPoints::GetPointCells(int ptId, vtkIdList& cellIds)
 {
-  this->vtkStructuredData::_GetPointCells(ptId, cellIds);
+  this->StructuredData.GetPointCells(ptId,cellIds,this->Dimensions);
 }
 
 #endif

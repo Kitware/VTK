@@ -98,17 +98,14 @@ void vtkStructuredPointsGeometryFilter::Execute()
 
     case 0: // --------------------- build point -----------------------
 
-      if ( input->IsPointVisible(startIdx) )
-        {
-        newPts = new vtkFloatPoints(1);
-        newVerts = new vtkCellArray;
-        newVerts->Allocate(newVerts->EstimateSize(1,1));
-        outPD->CopyAllocate(pd,1);
+      newPts = new vtkFloatPoints(1);
+      newVerts = new vtkCellArray;
+      newVerts->Allocate(newVerts->EstimateSize(1,1));
+      outPD->CopyAllocate(pd,1);
 
-        ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
-        outPD->CopyData(pd,startIdx,ptIds[0]);
-        newVerts->InsertNextCell(1,ptIds);
-        }
+      ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
+      outPD->CopyData(pd,startIdx,ptIds[0]);
+      newVerts->InsertNextCell(1,ptIds);
       break;
 
     case 1: // --------------------- build line -----------------------
@@ -146,12 +143,9 @@ void vtkStructuredPointsGeometryFilter::Execute()
 
       for (idx=0,i=0; i<(totPoints-1); i++) 
         {
-        if ( input->IsPointVisible(idx) || input->IsPointVisible(idx+offset[0]) )
-          {
-          ptIds[0] = i;
-          ptIds[1] = i + 1;
-          newLines->InsertNextCell(2,ptIds);
-          }
+        ptIds[0] = i;
+        ptIds[1] = i + 1;
+        newLines->InsertNextCell(2,ptIds);
         }
       break;
 
@@ -187,8 +181,6 @@ void vtkStructuredPointsGeometryFilter::Execute()
           offset[i] = dims[0]*dims[1];
         }
 
-      // create points whether visible or not.  Makes coding easier but generates
-      // extra data.
       for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
         {
         for (i=0; i < (diff[dir[0]]+1); i++) 
@@ -201,23 +193,15 @@ void vtkStructuredPointsGeometryFilter::Execute()
         pos += offset[1];
         }
 
-      // create any polygon who has a visible vertex.  To turn off a polygon, all 
-      // vertices have to be blanked.
       for (pos=startIdx, j=0; j < diff[dir[1]]; j++) 
         {
         for (i=0; i < diff[dir[0]]; i++) 
           {
-          if (input->IsPointVisible(pos+i*offset[0])
-          || input->IsPointVisible(pos+(i+1)*offset[0])
-          || input->IsPointVisible(pos+i*offset[0]+offset[1]) 
-          || input->IsPointVisible(pos+(i+1)*offset[0]+offset[1]) ) 
-            {
-            ptIds[0] = i + j*(diff[dir[0]]+1);
-            ptIds[1] = ptIds[0] + 1;
-            ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
-            ptIds[3] = ptIds[2] - 1;
-            newPolys->InsertNextCell(4,ptIds);
-            }
+          ptIds[0] = i + j*(diff[dir[0]]+1);
+          ptIds[1] = ptIds[0] + 1;
+          ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
+          ptIds[3] = ptIds[2] - 1;
+          newPolys->InsertNextCell(4,ptIds);
           }
         pos += offset[1];
         }
@@ -249,13 +233,10 @@ void vtkStructuredPointsGeometryFilter::Execute()
           pos = startIdx + j*offset[0] + k*offset[1];
           for (i=0; i < (diff[0]+1); i++) 
             {
-            if ( input->IsPointVisible(pos+i) ) 
-              {
-              x = input->GetPoint(pos+i);
-              ptIds[0] = newPts->InsertNextPoint(x);
-              outPD->CopyData(pd,pos+i,ptIds[0]);
-              newVerts->InsertNextCell(1,ptIds);
-              }
+            x = input->GetPoint(pos+i);
+            ptIds[0] = newPts->InsertNextPoint(x);
+            outPD->CopyData(pd,pos+i,ptIds[0]);
+            newVerts->InsertNextCell(1,ptIds);
             }
           }
         }

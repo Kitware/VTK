@@ -52,8 +52,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPointSet.hh"
 #include "vtkStructuredData.hh"
+#include "vtkBitScalars.hh"
 
-class vtkStructuredGrid : public vtkPointSet, public vtkStructuredData {
+class vtkStructuredGrid : public vtkPointSet {
 public:
   vtkStructuredGrid();
   vtkStructuredGrid(const vtkStructuredGrid& sg);
@@ -62,8 +63,6 @@ public:
   char *GetDataType() {return "vtkStructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
  
-  unsigned long GetMtime();
-
   // dataset interface
   vtkDataSet *MakeObject() {return new vtkStructuredGrid(*this);};
   void CopyStructure(vtkDataSet *ds);
@@ -80,10 +79,29 @@ public:
   void Initialize();
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
 
+  // methods specific to structured grid
+  void SetDimensions(int i, int j, int k);
+  void SetDimensions(int dim[3]);
+
+  // Description:
+  // Get dimensions of this structured points dataset.
+  vtkGetVectorMacro(Dimensions,int,3);
+
+  int GetDataDimension();
+  void BlankingOn();
+  void BlankingOff();
+  int GetBlanking() {return this->Blanking;};
+  void BlankPoint(int ptId);
+  void UnBlankPoint(int ptId);
+  int IsPointVisible(int ptId);
+
 protected:
-  // points inherited
-  // point data (i.e., scalars, vectors, normals, tcoords) inherited
-  // blanking information inherited
+  int Dimensions[3];
+  int DataDescription;
+  int Blanking;
+  vtkBitScalars *PointVisibility;
+
+  vtkStructuredData StructuredData; //helper class
 };
 
 inline float *vtkStructuredGrid::GetPoint(int ptId) 
@@ -98,17 +116,30 @@ inline void vtkStructuredGrid::GetPoint(int ptId, float p[3])
 
 inline int vtkStructuredGrid::GetNumberOfCells() 
 {
-  return this->vtkStructuredData::_GetNumberOfCells();
+  int nCells=1;
+  int i;
+
+  for (i=0; i<3; i++)
+    if (this->Dimensions[i] > 1)
+      nCells *= (this->Dimensions[i]-1);
+
+  return nCells;
+}
+
+inline int vtkStructuredGrid::GetDataDimension()
+{
+  return this->StructuredData.GetDataDimension(this->DataDescription);
 }
 
 inline void vtkStructuredGrid::GetCellPoints(int cellId, vtkIdList& ptIds) 
 {
-  this->vtkStructuredData::_GetCellPoints(cellId,ptIds);
+  this->StructuredData.GetCellPoints(cellId,ptIds,this->DataDescription,
+                                     this->Dimensions);
 }
 
 inline void vtkStructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds) 
 {
-  this->vtkStructuredData::_GetPointCells(ptId,cellIds);
+  this->StructuredData.GetPointCells(ptId,cellIds,this->Dimensions);
 }
 
 inline int vtkStructuredGrid::FindCell(float x[3], vtkCell *cell, float tol2, 
@@ -116,6 +147,14 @@ inline int vtkStructuredGrid::FindCell(float x[3], vtkCell *cell, float tol2,
                                       float *weights)
 {
   return this->vtkPointSet::FindCell(x,cell,tol2,subId,pcoords,weights);
+}
+
+// Description:
+// Return non-zero value if specified point is visible.
+inline int vtkStructuredGrid::IsPointVisible(int ptId) 
+{
+  if (!this->Blanking) return 1; 
+  else return (int) this->PointVisibility->GetScalar(ptId);
 }
 
 #endif

@@ -248,11 +248,7 @@ void vtkDelaunay3D::Execute()
     return;
     }
 
-  if ( (numPoints=inPoints->GetNumberOfPoints()) <= 0 )
-    {
-    vtkErrorMacro("<<Cannot triangulate; need at least 4 input points");
-    return;
-    }
+  numPoints = inPoints->GetNumberOfPoints();
   NumberOfDuplicatePoints = 0;
 //
 // Create initial bounding triangulation. Have to create bounding points.
@@ -304,15 +300,15 @@ void vtkDelaunay3D::Execute()
 
   //create bounding tetras (there are six)
   pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints ; pts[3] = numPoints + 1;
+  pts[2] = numPoints ; pts[3] = numPoints + 2;
   Mesh->InsertNextCell(VTK_TETRA,4,pts);
 
   pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints + 1; pts[3] = numPoints + 2;
+  pts[2] = numPoints + 2; pts[3] = numPoints + 1;
   Mesh->InsertNextCell(VTK_TETRA,4,pts);
 
   pts[0] = numPoints + 4; pts[1] = numPoints + 5; 
-  pts[2] = numPoints + 2; pts[3] = numPoints + 3;
+  pts[2] = numPoints + 1; pts[3] = numPoints + 3;
   Mesh->InsertNextCell(VTK_TETRA,4,pts);
 
   pts[0] = numPoints + 4; pts[1] = numPoints + 5; 

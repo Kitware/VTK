@@ -46,23 +46,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredGrid::vtkStructuredGrid()
 {
+  this->Dimensions[0] = 1;
+  this->Dimensions[1] = 1;
+  this->Dimensions[2] = 1;
+  this->DataDescription = VTK_SINGLE_POINT;
+  
+  this->Blanking = 0;
+  this->PointVisibility = NULL;
 }
 
 vtkStructuredGrid::vtkStructuredGrid(const vtkStructuredGrid& sg) :
-vtkPointSet(sg), vtkStructuredData(sg)
+vtkPointSet(sg)
 {
+  this->Dimensions[0] = sg.Dimensions[0];
+  this->Dimensions[1] = sg.Dimensions[1];
+  this->Dimensions[2] = sg.Dimensions[2];
+  this->DataDescription = sg.DataDescription;
+
+  this->Blanking = sg.Blanking;
+  if ( sg.PointVisibility != NULL )
+    {
+    this->PointVisibility->UnRegister((vtkObject *)this);
+    this->PointVisibility = sg.PointVisibility;
+    this->PointVisibility->Register((vtkObject *)this);
+    }
+  else
+    {
+    this->PointVisibility = NULL;
+    }
 }
 
 vtkStructuredGrid::~vtkStructuredGrid()
 {
   this->Initialize();
-}
-
-unsigned long vtkStructuredGrid::GetMtime()
-{
-  unsigned long dtime = this->vtkPointSet::GetMTime();
-  unsigned long ftime = this->vtkStructuredData::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
 }
 
 // Description:
@@ -76,12 +92,25 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
     {
     this->Dimensions[i] = sg->Dimensions[i];
     }
+  this->DataDescription = sg->DataDescription;
+
+  this->Blanking = sg->Blanking;
+  if ( sg->PointVisibility != NULL && 
+  sg->PointVisibility != this->PointVisibility )
+    {
+    if ( this->PointVisibility ) 
+      {
+      this->PointVisibility->UnRegister((vtkObject *)this);
+      }
+    this->PointVisibility = sg->PointVisibility;
+    this->PointVisibility->Register((vtkObject *)this);
+    }
 }
 
 void vtkStructuredGrid::Initialize()
 {
   vtkPointSet::Initialize(); 
-  vtkStructuredData::_Initialize();
+  if ( this->PointVisibility ) delete [] this->PointVisibility;
 }
 
 int vtkStructuredGrid::GetCellType(int cellId)
@@ -225,9 +254,85 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
   return cell;
 }
 
+// Description:
+// Turn on data blanking. Data blanking is the ability to turn off
+// portions of the grid when displaying or operating on it. Some data
+// (like finite difference data) routinely turns off data to simulate
+// solid obstacles.
+void vtkStructuredGrid::BlankingOn()
+{
+  this->Blanking = 1;
+  this->Modified();
+
+  if ( !this->PointVisibility )
+    {
+    this->PointVisibility = new vtkBitScalars(this->GetNumberOfPoints(),1000);
+    this->PointVisibility->Register((vtkObject *)this);
+    for (int i=0; i<this->GetNumberOfPoints(); i++)
+      {
+      this->PointVisibility->InsertScalar(i,1);
+      }
+    this->PointVisibility->Delete();
+    }
+}
+
+// Description:
+// Turn off data blanking.
+void vtkStructuredGrid::BlankingOff()
+{
+  this->Blanking = 0;
+  this->Modified();
+}
+
+// Description:
+// Turn off a particular data point.
+void vtkStructuredGrid::BlankPoint(int ptId)
+{
+  if ( !this->PointVisibility ) this->BlankingOn();
+  this->PointVisibility->InsertScalar(ptId,0);
+}
+
+// Description:
+// Turn on a particular data point.
+void vtkStructuredGrid::UnBlankPoint(int ptId)
+{
+  if ( !this->PointVisibility ) this->BlankingOn();
+  this->PointVisibility->InsertScalar(ptId,1);
+}
+
+// Description:
+// Set dimensions of structured grid dataset.
+void vtkStructuredGrid::SetDimensions(int i, int j, int k)
+{
+  int dim[3];
+
+  dim[0] = i;
+  dim[1] = j;
+  dim[2] = k;
+  this->SetDimensions(dim);
+}
+
+// Description:
+// Set dimensions of structured grid dataset.
+void vtkStructuredGrid::SetDimensions(int dim[3])
+{
+  int returnStatus=this->StructuredData.SetDimensions(dim,this->Dimensions);
+
+  if ( returnStatus > -1 ) 
+    {
+    this->DataDescription = returnStatus;
+    this->Modified();
+    }
+}
+
 void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPointSet::PrintSelf(os,indent);
-//    vtkStructuredData::PrintSelf(os,indent);
+
+  os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
+                                  << this->Dimensions[1] << ", "
+                                  << this->Dimensions[2] << ")\n";
+
+  os << indent << "Blanking: " << (this->Blanking ? "On\n" : "Off\n");
 }
 

@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredData_h
 #define __vtkStructuredData_h
 
-#include "vtkLWObject.hh"
-#include "vtkBitArray.hh"
+#include "vtkObject.hh"
 #include "vtkIdList.hh"
+#include "vtkDataSet.hh"
 
 #define VTK_SINGLE_POINT 0
 #define VTK_X_LINE 1
@@ -61,49 +61,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_XZ_PLANE 6
 #define VTK_XYZ_GRID 7
 
-class vtkStructuredData : public vtkLWObject 
+class vtkStructuredData : public vtkObject 
 {
 public:
-  vtkStructuredData();
-  vtkStructuredData(const vtkStructuredData& sds);
-  virtual ~vtkStructuredData();
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  int GetDataDimension(int dataDescription);
+  int SetDimensions(int inDim[3], int dim[3]);
 
-  // setting object dimensions
-  void SetDimensions(int i, int j, int k);
-  void SetDimensions(int dim[3]);
-  int *GetDimensions();
-  void GetDimensions(int dim[3]);
-
-  int GetDataDimension();
-
-  void BlankingOn();
-  void BlankingOff();
-  int GetBlanking() {return this->Blanking;};
-  void BlankPoint(int ptId);
-  void UnBlankPoint(int ptId);
-  int IsPointVisible(int ptId);
-
-protected:
-  // methods to support datasets (done because of MI problems)
-  int _GetNumberOfCells();
-  int _GetNumberOfPoints(); 
-  void _Initialize();
-  void _GetCellPoints(int cellId, vtkIdList& ptIds);
-  void _GetPointCells(int ptId, vtkIdList& cellIds);
-
-  int Dimensions[3];
-  int DataDescription;
-  int Blanking;
-  vtkBitArray *PointVisibility;
+  void GetCellPoints(int cellId, vtkIdList& ptIds, 
+                     int dataDescription, int dim[3]);
+  void GetPointCells(int ptId, vtkIdList& cellIds, int dim[3]);
 };
 
-// Description:
-// Return non-zero value if specified point is visible.
-inline int vtkStructuredData::IsPointVisible(int ptId) 
-{
-  if (!this->Blanking) return 1; 
-  else return this->PointVisibility->GetValue(ptId);
-}
 
 #endif

@@ -40,40 +40,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredData.hh"
 
-vtkStructuredData::vtkStructuredData()
-{
-  this->Dimensions[0] = 1;
-  this->Dimensions[1] = 1;
-  this->Dimensions[2] = 1;
-  this->DataDescription = VTK_SINGLE_POINT;
-  
-  this->Blanking = 0;
-  this->PointVisibility = NULL;
-}
-
-vtkStructuredData::vtkStructuredData(const vtkStructuredData& sds)
-{
-  this->Dimensions[0] = sds.Dimensions[0];
-  this->Dimensions[1] = sds.Dimensions[1];
-  this->Dimensions[2] = sds.Dimensions[2];
-  this->DataDescription = sds.DataDescription;
-
-  this->Blanking = sds.Blanking;
-  if ( sds.PointVisibility != NULL )
-    this->PointVisibility = new vtkBitArray(*sds.PointVisibility);
-  else
-    this->PointVisibility = NULL;
-}
-
-vtkStructuredData::~vtkStructuredData()
-{
-}
-
 // Description:
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
-int vtkStructuredData::GetDataDimension()
+int vtkStructuredData::GetDataDimension(int dataDescription)
 {
-  switch (this->DataDescription)
+  switch (dataDescription)
     {
     case VTK_SINGLE_POINT: return 0;
 
@@ -89,157 +60,68 @@ int vtkStructuredData::GetDataDimension()
 }
 
 // Description:
-// Set the i-j-k dimensions of the data.
-void vtkStructuredData::SetDimensions(int i, int j, int k)
-{
-  int dim[3];
-
-  dim[0] = i;
-  dim[1] = j;
-  dim[2] = k;
-
-  this->SetDimensions(dim);
-}
-
-void vtkStructuredData::SetDimensions(int dim[3])
+// Specify the dimensions of a regular, rectangular dataset. The input is
+// the new dimensions (inDim) and the current dimensions (dim). The function 
+// returns the dimension of the dataset (0-3D). If the dimensions are 
+// improperly specified or are unchanged, a -1 is returned.
+int vtkStructuredData::SetDimensions(int inDim[3], int dim[3])
 {
   int dataDim, i;
+  int dataDescription=(-1);
 
-  vtk_DebugMacro(<< " setting Dimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
+  vtkDebugMacro(<< " setting Dimensions to (" << inDim[0] << "," << inDim[1] << "," << inDim[2] << ")");
 
-  if ( dim[0] != this->Dimensions[0] || dim[1] != this->Dimensions[1] ||
-  dim[2] != this->Dimensions[2] )
+  if ( inDim[0] != dim[0] || inDim[1] != dim[1] || inDim[2] != dim[2] )
     {
-    if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
+    if ( inDim[0]<1 || inDim[1]<1 || inDim[2]<1 )
       {
-      vtk_ErrorMacro (<< "Bad Dimensions, retaining previous values");
-      return;
+      vtkErrorMacro (<< "Bad Dimensions, retaining previous values");
+      return -1;
       }
 
     for (dataDim=0, i=0; i<3 ; i++)
       {
-      this->Dimensions[i] = dim[i];
-      if (dim[i] > 1) dataDim++;
+      dim[i] = inDim[i];
+      if (inDim[i] > 1) dataDim++;
       }
 
     if ( dataDim == 3 )
       {
-      this->DataDescription = VTK_XYZ_GRID;
+      dataDescription = VTK_XYZ_GRID;
       }
     else if ( dataDim == 2)
       {
-      if ( dim[0] == 1 ) this->DataDescription = VTK_YZ_PLANE;
-      else if ( dim[1] == 1 ) this->DataDescription = VTK_XZ_PLANE;
-      else this->DataDescription = VTK_XY_PLANE;
+      if ( inDim[0] == 1 ) dataDescription = VTK_YZ_PLANE;
+      else if ( inDim[1] == 1 ) dataDescription = VTK_XZ_PLANE;
+      else dataDescription = VTK_XY_PLANE;
       }
     else if ( dataDim == 1 )
       {
-      if ( dim[0] != 1 ) this->DataDescription = VTK_X_LINE;
-      else if ( dim[1] != 1 ) this->DataDescription = VTK_Y_LINE;
-      else this->DataDescription = VTK_Z_LINE;
+      if ( inDim[0] != 1 ) dataDescription = VTK_X_LINE;
+      else if ( inDim[1] != 1 ) dataDescription = VTK_Y_LINE;
+      else dataDescription = VTK_Z_LINE;
       }
     else
       {
-      this->DataDescription = VTK_SINGLE_POINT;
-      }
-
-    this->_Modified();
-    }
-}
-
-int *vtkStructuredData::GetDimensions() 
-{ 
-  return this->Dimensions;
-}
-
-void vtkStructuredData::GetDimensions(int dim[3])
-{ 
-  for (int i=0; i<3; i++) dim[i] = this->Dimensions[i];
-}
-
-
-// Description:
-// Turn on data blanking. Data blanking is the ability to turn off
-// portions of the grid when displaying or operating on it. Some data
-// (like finite difference data) routinely turns off data to simulate
-// solid obstacles.
-void vtkStructuredData::BlankingOn()
-{
-  this->Blanking = 1;
-  this->_Modified();
-
-  if ( !this->PointVisibility )
-    {
-    this->PointVisibility = new vtkBitArray(this->_GetNumberOfPoints(),1000);
-    for (int i=0; i<this->_GetNumberOfPoints(); i++)
-      {
-      this->PointVisibility->InsertValue(i,1);
+      dataDescription = VTK_SINGLE_POINT;
       }
     }
+
+  return dataDescription;
 }
 
 // Description:
-// Turn off data blanking.
-void vtkStructuredData::BlankingOff()
-{
-  this->Blanking = 0;
-  this->_Modified();
-}
-
-// Description:
-// Turn off a particular data point.
-void vtkStructuredData::BlankPoint(int ptId)
-{
-  if ( !this->PointVisibility ) this->BlankingOn();
-  this->PointVisibility->InsertValue(ptId,0);
-}
-
-// Description:
-// Turn on a particular data point.
-void vtkStructuredData::UnBlankPoint(int ptId)
-{
-  if ( !this->PointVisibility ) this->BlankingOn();
-  this->PointVisibility->InsertValue(ptId,1);
-}
-
-int vtkStructuredData::_GetNumberOfCells()
-{
-  int nCells=1;
-  int i;
-
-  for (i=0; i<3; i++)
-    if (this->Dimensions[i] > 1)
-      nCells *= (this->Dimensions[i]-1);
-
-  return nCells;
-}
-
-int vtkStructuredData::_GetNumberOfPoints()
-{
-  return Dimensions[0]*Dimensions[1]*Dimensions[2];
-}
-
-void vtkStructuredData::_Initialize()
-{
-  this->SetDimensions(1,1,1);
-  this->Blanking = 0;
-
-  if ( this->PointVisibility )
-    {
-    this->PointVisibility->Delete();
-    this->PointVisibility = NULL;
-    }
-}
-
-void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
+// Get the points defining a cell. (See vtkDataSet for more info.)
+void vtkStructuredData::GetCellPoints(int cellId, vtkIdList& ptIds,
+                                      int dataDescription, int dim[3])
 {
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  int d01 = this->Dimensions[0]*this->Dimensions[1];
+  int d01 = dim[0]*dim[1];
  
   ptIds.Reset();
 
-  switch (this->DataDescription)
+  switch (dataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
       iMin = iMax = jMin = jMax = kMin = kMax = 0;
@@ -265,34 +147,34 @@ void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
 
     case VTK_XY_PLANE:
       kMin = kMax = 0;
-      iMin = cellId % (this->Dimensions[0]-1);
+      iMin = cellId % (dim[0]-1);
       iMax = iMin + 1;
-      jMin = cellId / (this->Dimensions[0]-1);
+      jMin = cellId / (dim[0]-1);
       jMax = jMin + 1;
       break;
 
     case VTK_YZ_PLANE:
       iMin = iMax = 0;
-      jMin = cellId % (this->Dimensions[1]-1);
+      jMin = cellId % (dim[1]-1);
       jMax = jMin + 1;
-      kMin = cellId / (this->Dimensions[1]-1);
+      kMin = cellId / (dim[1]-1);
       kMax = kMin + 1;
       break;
 
     case VTK_XZ_PLANE:
       jMin = jMax = 0;
-      iMin = cellId % (this->Dimensions[0]-1);
+      iMin = cellId % (dim[0]-1);
       iMax = iMin + 1;
-      kMin = cellId / (this->Dimensions[0]-1);
+      kMin = cellId / (dim[0]-1);
       kMax = kMin + 1;
       break;
 
     case VTK_XYZ_GRID:
-      iMin = cellId % (this->Dimensions[0] - 1);
+      iMin = cellId % (dim[0] - 1);
       iMax = iMin + 1;
-      jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
+      jMin = (cellId / (dim[0] - 1)) % (dim[1] - 1);
       jMax = jMin + 1;
-      kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
+      kMin = cellId / ((dim[0] - 1) * (dim[1] - 1));
       kMax = kMin + 1;
       break;
     }
@@ -304,14 +186,16 @@ void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
       {
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
-        idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
+        idx = loc[0] + loc[1]*dim[0] + loc[2]*d01;
         ptIds.InsertId(npts++,idx);
         }
       }
     }
 }
 
-void vtkStructuredData::_GetPointCells(int ptId, vtkIdList& cellIds)
+// Description:
+// Get the cells using a point. (See vtkDataSet for more info.)
+void vtkStructuredData::GetPointCells(int ptId, vtkIdList& cellIds, int dim[3])
 {
   int ptDim[3], cellDim[3];
   int ptLoc[3], cellLoc[3];
@@ -321,7 +205,7 @@ void vtkStructuredData::_GetPointCells(int ptId, vtkIdList& cellIds)
 
   for (i=0; i<3; i++) 
     {
-    ptDim[i] = this->Dimensions[i];
+    ptDim[i] = dim[i];
     cellDim[i] = ptDim[i] - 1;
     }
 //
@@ -355,11 +239,3 @@ void vtkStructuredData::_GetPointCells(int ptId, vtkIdList& cellIds)
   return;
 }
 
-void vtkStructuredData::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkLWObject::_PrintSelf(os,indent);
-
-  os << indent << "Dimensions: (" << this->Dimensions[0] << ", "
-                                  << this->Dimensions[1] << ", "
-                                  << this->Dimensions[2] << ")\n";
-}
