@@ -17,7 +17,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkVolume16Reader v16;
     v16 SetDataDimensions 256 256
-    v16 SwapBytesOff;
+    v16 SetFileTypeBigEndian;
     v16 SetFilePrefix "../../data/pineRoot/pine_root";
     v16 SetImageRange 1 256;
     v16 SetDataAspectRatio 0.3125 0.3125 0.390625;
