@@ -316,8 +316,13 @@ void vtkObjectFactory::UnRegisterFactory(vtkObjectFactory* factory)
 // unregister all factories and delete the RegisteredFactories list
 void vtkObjectFactory::UnRegisterAllFactories()
 {
-  vtkObjectFactory* factory = 0;
+  // do not do anything if this is null
+  if( ! vtkObjectFactory::RegisteredFactories )
+    {
+    return;
+    }
   
+  vtkObjectFactory* factory = 0;
   vtkObjectFactory::RegisteredFactories->InitTraversal();
   while((factory =
 	 vtkObjectFactory::RegisteredFactories->GetNextItem()))
