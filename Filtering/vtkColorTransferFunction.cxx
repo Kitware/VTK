@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.53");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.54");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 //----------------------------------------------------------------------------
@@ -451,7 +451,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap &&
+          if ( this->HSVWrap &&
                (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
@@ -584,7 +584,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap &&
+          if ( this->HSVWrap &&
                (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
@@ -732,7 +732,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap &&
+          if ( this->HSVWrap &&
                (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
@@ -1165,3 +1165,11 @@ void vtkColorTransferFunction::FillFromDataPointer(int nb, double *ptr)
     }
 }
 
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void vtkColorTransferFunction::SetColorSpaceToHSVNoWrap()
+{
+  this->SetColorSpace(VTK_CTF_HSV);
+  this->SetHSVWrap(0);
+};
+#endif

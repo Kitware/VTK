@@ -106,25 +106,19 @@ public:
   vtkBooleanMacro( Clamping, int );
   
   // Description:
-  // How should we interpolate - in RGB, or HSV. The HSV mode will
-  // take the shortest path in Hue (going back through 0 if that is
-  // the shortest way around the hue circle) whereas HSVNoWrap
-  // will not go through 0 (in order the match the current functionality
-  // of vtkLookupTable)
+  // Set/Get the color space used for interpolation: RGB, or HSV.
+  // In HSV mode, if HSVWrap is on, it  will take the shortest path in Hue
+  // (going back through 0 if that is the shortest way around the hue circle)
+  // whereas if HSVWrap is off it will not go through 0 (in order the match
+  // the current functionality of vtkLookupTable)
   vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_HSV );
   void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
-  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);
-                            this->SetHSVWrap(1);};
+  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
   vtkGetMacro( ColorSpace, int );
-
-  // You can select it the HSV space is wrap or not
   vtkSetMacro(HSVWrap, int);
   vtkGetMacro(HSVWrap, int);
   vtkBooleanMacro(HSVWrap, int);
- 
-  // Should be deprecated at some point:
-  void SetColorSpaceToHSVNoWrap(){this->SetColorSpace(VTK_CTF_HSV);
-                                  this->SetHSVWrap(0);};
+  VTK_LEGACY(void SetColorSpaceToHSVNoWrap());
     
   // Description:
   // Returns a list of all nodes
