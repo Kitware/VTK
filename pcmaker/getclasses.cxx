@@ -227,8 +227,81 @@ void removeUNIXOnlyFiles(CPcmakerDlg *vals)
 }
 
 
+/* warning this code is also in getclasses.cxx under pcmaker */
+void stuffitPython(FILE *fp, CPcmakerDlg *vals)
+{
+  int i;
+  
+  for (i = 0; i < anindex; i++)
+    {
+    fprintf(fp,"extern  \"C\" {__declspec( dllexport) void init%s(); }\n",names[i]);
+    }
+
+  fprintf(fp,"\nstatic PyMethodDef Py%s_ClassMethods[] = {\n",
+	  kitName);
+  fprintf(fp,"{NULL, NULL}};\n\n");
+  
+  fprintf(fp,"extern  \"C\" {__declspec( dllexport) void init%s();}\n\n",kitName);
+
+  /* module init function */
+  fprintf(fp,"void init%s()\n{\n",kitName);
+  fprintf(fp,"  PyObject *m1, *d1, *d2, *n, *m2, *meth;\n\n");
+  fprintf(fp,"  m1 = Py_InitModule(\"%s\", Py%s_ClassMethods);\n",
+	  kitName, kitName);
+  
+  fprintf(fp,"  d1 = PyModule_GetDict(m1);\n");
+  fprintf(fp,"  if (!d1) Py_FatalError(\"can't get dictionary for module %s!\");\n\n",
+	  kitName);
+  fprintf(fp,"  n = PyString_FromString(\"New\");\n");
+
+  for (i = 0; i < anindex; i++)
+    {
+      fprintf(fp,"  init%s();\n",names[i]);
+      fprintf(fp,"  m2 = PyImport_ImportModule(\"%s\");\n", names[i]);
+      fprintf(fp,"  if (!m2) Py_FatalError(\"can't initialize module %s!\");\n",
+	      names[i]);
+      fprintf(fp,"  d2 = PyModule_GetDict(m2);\n");
+      fprintf(fp,"  meth = PyDict_GetItem(d2, n);\n");
+      fprintf(fp,"  if (-1 == PyDict_SetItemString(d1, \"%s\", (meth?meth:m2)))\n",names[i]);
+      fprintf(fp,"    Py_FatalError(\"can't add module %s to dictionary!\");\n\n",
+	      names[i]);
+    }
+
+  fprintf(fp,"  Py_DECREF(n);\n");
+  fprintf(fp,"}\n\n");
+};
+
+
+void MakePythonInit(char *fname, char *argv1, CPcmakerDlg *vals)
+{
+  int i;
+  FILE *fp;
+
+  kitName = strdup(argv1);
+ 
+  /* fill in the correct arrays */
+  anindex = 0;
+  for (i = 0; i < num_concrete; i++)
+    {
+    names[anindex++] = concrete[i];
+    }
+  for (i = 0; i < num_concrete_h; i++)
+    {
+    names[anindex++] = concrete_h[i];
+    }
+  
+  fp = fopen(fname,"w");
+  if (fp)
+    {
+    fprintf(fp,"#include <string.h>\n");
+    fprintf(fp,"#include \"Python.h\"\n\n");
+    stuffitPython(fp,vals);
+    fclose(fp);
+    }
+}
+
 // warning this code is also in kit_init.cxx under tcl
-void stuffit(FILE *fp, CPcmakerDlg *vals)
+void stuffitTcl(FILE *fp, CPcmakerDlg *vals)
 {
   int i;
   
@@ -424,7 +497,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 
 
 
-void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
+void MakeTclInit(char *fname, char *argv1, CPcmakerDlg *vals)
 {
   int i;
   FILE *fp;
@@ -459,7 +532,7 @@ void MakeInit(char *fname, char *argv1, CPcmakerDlg *vals)
     fprintf(fp,"#include <tcl.h>\n");
     fprintf(fp,"#include \"vtkObject.h\"\n");
     fprintf(fp,"#include \"vtkWin32RenderWindowInteractor.h\"\n\n");
-    stuffit(fp,vals);
+    stuffitTcl(fp,vals);
     fclose(fp);
     }
 }
@@ -539,6 +612,8 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag);
 void doBorTclHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag);
 void doMSCJavaHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag);
 void doBorJavaHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag);
+void doMSCPythonHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag);
+void doBorPythonHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag);
 
 
 // generate depend info for a .cxx file
@@ -735,12 +810,23 @@ void CreateRequiredFiles(CPcmakerDlg *vals)
     MakeForce(fname,LT_CONTRIB);
     }
 
+  if (vals->m_BuildPython)
+    {
+    // we must create CommonInit.cxx etc
+    sprintf(fname,"%s\\Debug\\vtkpython\\src\\vtkpython.cxx",vals->m_WhereBuild);
+    MakePythonInit(fname,"vtkpython",vals);
+    sprintf(fname,"%s\\vtkpython\\src\\vtkpython.cxx",vals->m_WhereBuild);
+    MakePythonInit(fname,"vtkpython",vals);
+    }
 
-  // we must create CommonInit.cxx etc
-  sprintf(fname,"%s\\Debug\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
-  MakeInit(fname,"Vtktcl",vals);
-  sprintf(fname,"%s\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
-  MakeInit(fname,"Vtktcl",vals);
+  if (vals->m_BuildTcl)
+    {
+    // we must create CommonInit.cxx etc
+    sprintf(fname,"%s\\Debug\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
+    MakeTclInit(fname,"Vtktcl",vals);
+    sprintf(fname,"%s\\vtktcl\\src\\vtktcl.cxx",vals->m_WhereBuild);
+    MakeTclInit(fname,"Vtktcl",vals);
+    }
 }
 
 
@@ -774,7 +860,7 @@ void makeMakefiles(CPcmakerDlg *vals)
   // set up the progress indicator... total is approximate
   // 1st for computing depends....
   total = 2 * (1 + vals->m_Graphics + vals->m_Imaging + vals->m_Contrib +
-	       2*num_concrete + 2*num_abstract + num_abstract_h + num_concrete_h);
+	       num_concrete + num_abstract + num_abstract_h + num_concrete_h);
 
 
   // extra for split graphics stuff
@@ -782,8 +868,15 @@ void makeMakefiles(CPcmakerDlg *vals)
     total += 5 * 2 * (concreteEnd[LT_GRAPHICS] + abstractEnd[LT_GRAPHICS] -
 		      concreteStart[LT_GRAPHICS] - abstractStart[LT_GRAPHICS]);
 
-
-  if (strlen(vals->m_WhereJDK) > 1)
+  if (vals->m_BuildTcl)
+    {
+    total += 2 * (num_concrete + num_abstract + num_abstract_h + num_concrete_h);
+    } 
+  if (vals->m_BuildJava && strlen(vals->m_WhereJDK) > 1)
+    {
+    total += 2 * (num_concrete + num_abstract + num_abstract_h + num_concrete_h);
+    } 
+  if (vals->m_BuildPython)
     {
     total += 2 * (num_concrete + num_abstract + num_abstract_h + num_concrete_h);
     } 
@@ -827,18 +920,20 @@ void makeNonIncrementalMakefile(CPcmakerDlg *vals, int debugFlag)
     }
 
 
-  if ( debugFlag )
-    sprintf(fname,"%s\\Debug\\vtktcl\\makefile",vals->m_WhereBuild);
-  else
-    sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
-  ofp = fopen(fname,"w");
-  if (vals->m_MSComp) doMSCTclHeader(ofp, vals, debugFlag);
-  if (vals->m_BorlandComp) doBorTclHeader(ofp, vals, debugFlag);
-  fclose(ofp);
-
+  if (vals->m_BuildTcl)
+    {
+    if ( debugFlag )
+      sprintf(fname,"%s\\Debug\\vtktcl\\makefile",vals->m_WhereBuild);
+    else
+      sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
+    ofp = fopen(fname,"w");
+    if (vals->m_MSComp) doMSCTclHeader(ofp, vals, debugFlag);
+    if (vals->m_BorlandComp) doBorTclHeader(ofp, vals, debugFlag);
+    fclose(ofp);
+    }
 
   // generate the java makefiles if requested
-  if (strlen(vals->m_WhereJDK) > 1)
+  if (vals->m_BuildJava && strlen(vals->m_WhereJDK) > 1)
     {
     if ( debugFlag )
       sprintf(fname,"%s\\Debug\\vtkjava\\makefile",vals->m_WhereBuild);
@@ -847,6 +942,19 @@ void makeNonIncrementalMakefile(CPcmakerDlg *vals, int debugFlag)
     ofp = fopen(fname,"w");
     if (vals->m_MSComp ) doMSCJavaHeader(ofp, vals, debugFlag);
     if (vals->m_BorlandComp) doBorJavaHeader(ofp, vals, debugFlag);
+    fclose(ofp);
+    }
+
+  // generate the python makefiles if requested
+  if (vals->m_BuildPython)
+    {
+    if ( debugFlag )
+      sprintf(fname,"%s\\Debug\\vtkpython\\makefile",vals->m_WhereBuild);
+    else
+      sprintf(fname,"%s\\vtkpython\\makefile",vals->m_WhereBuild);
+    ofp = fopen(fname,"w");
+    if (vals->m_MSComp ) doMSCPythonHeader(ofp, vals, debugFlag);
+    if (vals->m_BorlandComp) doBorPythonHeader(ofp, vals, debugFlag);
     fclose(ofp);
     }
 }
@@ -880,13 +988,23 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
 
 
   // Java?
-  if (strlen(vals->m_WhereJDK) > 1)
+  if (vals->m_BuildJava &&strlen(vals->m_WhereJDK) > 1)
+    {
     fprintf(fp,"vtkJavaLib ");
+    }
 
+  if (vals->m_BuildPython)
+    {
+    fprintf(fp,"vtkPythonLib ");
+    }
 
-  // always TCL.. but last
-  fprintf(fp,"vtkTclLib\n\n");
+  // TCL.. but last
+  if (vals->m_BuildTcl)
+    {
+    fprintf(fp,"vtkTclLib  ");
+    }
 
+  fprintf(fp,"\n\n");
 
   fprintf(fp,"vtkLibs :\n");
   fprintf(fp,"   cd vtkdll\n");
@@ -895,7 +1013,7 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"   cd ../\n\n");
 
 
-  if (strlen(vals->m_WhereJDK) > 1)
+  if (vals->m_BuildJava && strlen(vals->m_WhereJDK) > 1)
     {
     fprintf(fp,"vtkJavaLib :\n");
     fprintf(fp,"   cd vtkjava\n");
@@ -904,18 +1022,34 @@ void makeIncrementalMakefiles(CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"   cd ../\n\n");
     }
 
+  if (vals->m_BuildPython)
+    {
+    fprintf(fp,"vtkPythonLib :\n");
+    fprintf(fp,"   cd vtkpython\n");
+    if (debugFlag)
+      {
+      fprintf(fp,"   nmake ..\\lib\\vtkpython_d.dll\n");
+      fprintf(fp,"   nmake ..\\lib\\vtkpython_d.dll\n");
+      }
+    else
+      {
+      fprintf(fp,"   nmake ..\\lib\\vtkpython.dll\n");
+      fprintf(fp,"   nmake ..\\lib\\vtkpython.dll\n");
+      }
+    fprintf(fp,"   cd ../\n\n");
+    }
 
   // tcl
-  fprintf(fp,"vtkTclLib :\n");
-  fprintf(fp,"   cd vtktcl\n");
-  fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
-  fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
-  fprintf(fp,"   cd ../\n\n");
+  if (vals->m_BuildTcl)
+    {
+    fprintf(fp,"vtkTclLib :\n");
+    fprintf(fp,"   cd vtktcl\n");
+    fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
+    fprintf(fp,"   nmake ..\\lib\\vtktcl.dll\n");
+    fprintf(fp,"   cd ../\n\n");
+    }
+
   fclose(fp);
-
-
-
-
   if ( debugFlag )
     sprintf(fname,"%s\\Debug\\vtkdll\\makefile",vals->m_WhereBuild);
   else
@@ -1494,7 +1628,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
 
 
-  if (strlen(vals->m_WhereTcl) > 1)
+  if (strlen(vals->adlg.m_WhereTcl) > 1)
     {
     fprintf(fp," /I \"%s\" /I \"%s\\..\\xlib\" /I \"%s\\..\\generic\" /I \"%s\" /I \"%s\\..\\generic\" ",
             vals->TkRoot, vals->TkRoot, vals->TkRoot, vals->TclRoot, vals->TclRoot);
@@ -1540,9 +1674,9 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
 
 
-  if (strlen(vals->m_WhereTcl) > 1)
+  if (strlen(vals->adlg.m_WhereTcl) > 1)
     {
-    fprintf(fp," \"%s\" \"%s\" \n",vals->m_WhereTk, vals->m_WhereTcl);
+    fprintf(fp," \"%s\" \"%s\" \n",vals->adlg.m_WhereTk, vals->adlg.m_WhereTcl);
     }
   else
     {
@@ -2535,6 +2669,330 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 }
 
 
+// links in ALL the vtk libraries (now that they are split up)... also writes output to ../lib directory
+// may only want to write the dll to that directory????
+// makefile handles both incremental and non-incremental linking
+void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
+{
+  int i;
+  char file [256];
+  char targetName[256];
+
+  fprintf(fp,"# VTK Generic makefile\n");
+  fprintf(fp,"!MESSAGE making python library...\n");
+  fprintf(fp,"CPP=cl.exe\n");
+  fprintf(fp,"PATH=$(PATH);\"%s\\pcmaker\\\"\n",vals->m_WhereVTK);
+  fprintf(fp,"CPP_PARSE=vtkWrapPython.exe\n");
+  fprintf(fp,"OUTDIR=obj\n\n");
+
+  fprintf(fp,"LIBDIR=..\\lib\n\n");
+
+  if (debugFlag)
+    {
+    fprintf(fp,"ALL : vtkpython_d.dll\n\n");
+    sprintf(targetName,"vtkpython_d");
+    }
+  else
+    {
+    fprintf(fp,"ALL : vtkpython.dll\n\n");
+    sprintf(targetName,"vtkpython");
+    }
+
+  fprintf(fp,"\"$(OUTDIR)\" :\n");
+  fprintf(fp,"    if not exist \"$(OUTDIR)/$(NULL)\" mkdir \"$(OUTDIR)\"\n");
+  fprintf(fp,"\n");
+
+  if (debugFlag)
+    {
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /D \"_DEBUG\" /nologo /MDd /Od /Zi /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    }
+  else
+    {
+    fprintf(fp,"CPP_PROJ=/D \"STRICT\" /nologo /MD /O2 /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" /D \"_WINDOWS\" \\\n",
+	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
+    }
+
+  fprintf(fp," /I \"%s\\Include\" ", vals->m_WherePy);
+
+  if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
+				vals->m_WhereVTK);
+  if (vals->m_Contrib) fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
+			       vals->m_WhereVTK);
+
+
+  fprintf(fp," /D \"_WINDLL\" /D \"_MBCS\" \\\n");
+
+
+  if (!debugFlag && vals->m_Lean)
+    {
+    fprintf(fp," /D \"VTK_LEAN_AND_MEAN\" /Fo$(OUTDIR)\\ /c \n");
+    }
+  else
+    {
+    fprintf(fp," /Fo$(OUTDIR)\\ /c \n");
+    }
+
+
+  //fprintf(fp,"CPP_PROJ2=$(CPP_PROJ) /D \"VTKDLL\"\n");
+  fprintf(fp,"CPP_PROJ2=$(CPP_PROJ) \n");
+  
+  fprintf(fp,"LINK32=link.exe\n");
+  if (debugFlag)
+    {
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /debug /libpath:\"%s\\lib\"  \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    }
+  else
+    {
+    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /libpath:\"%s\\lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows",
+	    vals->m_WhereCompiler, vals->m_WhereCompiler, vals->m_WhereCompiler);
+    }
+
+  fprintf(fp," /libpath:\"%s\\PCbuild\" \n",vals->m_WherePy);
+  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/%s.pdb\" /machine:I386\\\n",targetName);
+  fprintf(fp," /out:\"$(LIBDIR)/%s.dll\" /implib:\"$(LIBDIR)/%s.lib\" \n\n",targetName,targetName); 
+  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:%s.pdb /machine:I386\\\n", targetName);
+  fprintf(fp," /out:%s.dll /implib:%s.lib \n\n", targetName, targetName); 
+  fprintf(fp,"LIB_FLAGS=/machine:I386\n\n"); 
+
+
+  fprintf(fp,"PYTHONOBJLIBS=vtkpythonotherobjs.lib vtkpythongraphicsobjs.lib\n\n");
+
+
+  fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\vtkdll.lib \n\n");
+
+
+  fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
+  if (vals->m_Graphics) 
+    {
+    for (i = 0; i < NumOfGraphicsLibs; i++)
+      fprintf(fp,"..\\lib\\vtkGraphics%d.lib  ",i);
+    }
+  else if (vals->m_Patented)
+    fprintf(fp,"..\\lib\\vtkPatented.lib ");
+  if (vals->m_Imaging) 
+    fprintf(fp,"..\\lib\\vtkImaging.lib ");
+  if (vals->m_Contrib)
+    fprintf(fp,"..\\lib\\vtkContrib.lib ");     
+  fprintf(fp,"\n\n");
+
+
+  // All the graphics Python objects
+  if (vals->m_Graphics)
+    {
+    fprintf(fp,"GRAPHICSPYTHON_OBJS= \\\n");
+    //fprintf(fp,"    \"$(OUTDIR)\\vtkTkRenderWidget.obj\" \\\n");
+    for (i = abstractStart[LT_GRAPHICS]; i < abstractEnd[LT_GRAPHICS]; i++)
+      fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",abstract[i]);
+
+
+    for (i = concreteStart[LT_GRAPHICS]; i < concreteEnd[LT_GRAPHICS]; i++)
+      fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",concrete[i]);
+
+
+    for (i = abstractHStart[LT_GRAPHICS]; i < abstractHEnd[LT_GRAPHICS]; i++)
+      fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",abstract_h[i]);
+
+
+    for (i = concreteHStart[LT_GRAPHICS]; i < concreteHEnd[LT_GRAPHICS]; i++)
+      fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",concrete_h[i]);
+    fprintf(fp,"\n");
+    }
+
+
+
+
+  // Now all the PYTHON objects other than graphics
+  fprintf(fp,"OTHERPYTHON_OBJS= \\\n");
+  fprintf(fp,"    \"$(OUTDIR)\\vtkPythonUtil.obj\" \\\n");
+  if (vals->m_Imaging)  
+    {
+    //fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
+    //fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" \\\n");
+    }
+
+
+  for (i = (vals->m_Graphics ? abstractEnd[LT_GRAPHICS] : 0); 
+       i < abstractEnd[LT_COMMON]; i++)
+    fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",abstract[i]);
+
+
+  for (i = (vals->m_Graphics ? concreteEnd[LT_GRAPHICS] : 0); 
+       i < concreteEnd[LT_COMMON]; i++)
+    fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",concrete[i]);
+
+
+  for (i = (vals->m_Graphics ? abstractHEnd[LT_GRAPHICS] : 0);
+       i < abstractHEnd[LT_COMMON]; i++)
+    fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",abstract_h[i]);
+
+
+  for (i = (vals->m_Graphics ? concreteHEnd[LT_GRAPHICS] : 0);
+       i < concreteHEnd[LT_COMMON]; i++)
+    fprintf(fp,"    \"$(OUTDIR)\\%sPython.obj\" \\\n",concrete_h[i]);
+  fprintf(fp,"\n");
+  
+  fprintf(fp,"%s.dll : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkpython.obj\" $(PYTHONOBJLIBS)\n", targetName);
+  fprintf(fp,"    $(LINK32) @<<\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS2) $(PYTHONOBJLIBS) $(VTKDLL_LIB)\n");
+  fprintf(fp,"<<\n\n");
+
+
+  fprintf(fp,"\"$(LIBDIR)\\%s.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkpython.obj\" $(PYTHONOBJLIBS)\n", targetName);
+  fprintf(fp,"    $(LINK32) @<<\n");
+  fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS1) $(PYTHONOBJLIBS) $(VTK_LIBRARIES)\n");
+  fprintf(fp,"<<\n\n");
+
+
+  if (vals->m_Graphics)
+    {
+    fprintf(fp,"vtkpythongraphicsobjs.lib : \"$(OUTDIR)\" $(DEF_FILE) $(GRAPHICSPYTHON_OBJS) \n");
+    fprintf(fp,"    lib.exe @<<\n");
+    fprintf(fp,"  /out:vtkpythongraphicsobjs.lib $(LIB_FLAGS) $(GRAPHICSPYTHON_OBJS)\n");
+    fprintf(fp,"<<\n\n");
+    }
+
+
+  fprintf(fp,"vtkpythonotherobjs.lib : \"$(OUTDIR)\" $(DEF_FILE) $(OTHERPYTHON_OBJS) \n");
+  fprintf(fp,"    lib.exe @<<\n");
+  fprintf(fp,"  /out:vtkpythonotherobjs.lib $(LIB_FLAGS) $(OTHERPYTHON_OBJS)\n");
+  fprintf(fp,"<<\n");
+
+
+
+
+  fprintf(fp,"\n");
+  fprintf(fp,".c{$(CPP_OBJS)}.obj:\n");
+  fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
+  fprintf(fp,"\n");
+  fprintf(fp,".cpp{$(CPP_OBJS)}.obj:\n");
+  fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
+  fprintf(fp,"\n");
+  fprintf(fp,".cxx{$(CPP_OBJS)}.obj:\n");
+  fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
+  fprintf(fp,"\n");
+  fprintf(fp,".c{$(CPP_SBRS)}.sbr:\n");
+  fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
+  fprintf(fp,"\n");
+  fprintf(fp,".cpp{$(CPP_SBRS)}.sbr:\n");
+  fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
+  fprintf(fp,"\n");
+  fprintf(fp,".cxx{$(CPP_SBRS)}.sbr:\n");
+  fprintf(fp,"   $(CPP) $(CPP_PROJ) $<  \n");
+  fprintf(fp,"\n");
+  fprintf(fp,"################################################################################\n");
+  fprintf(fp,"\n");
+  fprintf(fp,"\"$(OUTDIR)\\vtkPythonUtil.obj\" : \"%s\\common\\vtkPythonUtil.cxx\" \"$(OUTDIR)\"\n",
+	  vals->m_WhereVTK);
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\common\\vtkPythonUtil.cxx\"\n\n",vals->m_WhereVTK);
+  if (vals->m_Graphics)
+    {
+    //sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
+    //OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    //fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : \"%s\\graphics\\vtkTkRenderWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	  //  vals->m_WhereVTK);
+    //fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
+  if (vals->m_Imaging)
+    {
+    //sprintf(file,"%s\\imaging\\vtkTkImageViewerWidget.cxx",vals->m_WhereVTK);
+    //OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    //fprintf(fp,"\"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" : \"%s\\imaging\\vtkTkImageViewerWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	  //  vals->m_WhereVTK);
+    //fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
+    //sprintf(file,"%s\\imaging\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
+    //OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    //fprintf(fp,"\"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" : \"%s\\imaging\\vtkTkImageWindowWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	  //  vals->m_WhereVTK);
+    //fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageWindowWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
+
+
+  fprintf(fp,"\"$(OUTDIR)\\vtkpython.obj\" : src\\vtkpython.cxx \"$(OUTDIR)\"\n");
+  fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtkpython.cxx\n\n");
+
+
+  for (i = 0; i < num_abstract; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_lib[i],abstract[i]);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sPython.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkPythonUtil.h\" \"%s\\wrap\\vtkParse.y\" \"%s\\wrap\\hints\" \"$(OUTDIR)\"\n",
+	    abstract[i],vals->m_WhereVTK,abstract_lib[i],abstract[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp," $(CPP_PARSE)  \"%s\\%s\\%s.h\"\\\n",
+	    vals->m_WhereVTK, abstract_lib[i], abstract[i]);
+    fprintf(fp,"  \"%s\\wrap\\hints\" 0 > src\\%sPython.cxx\n\n",
+	    vals->m_WhereVTK, abstract[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sPython.obj\" : src\\%sPython.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+	    abstract[i],abstract[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sPython.cxx\n\n",abstract[i]);
+    }
+
+
+  for (i = 0; i < num_concrete; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_lib[i],concrete[i]);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sPython.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkPythonUtil.h\" \"%s\\wrap\\vtkParse.y\" \"%s\\wrap\\hints\" \"$(OUTDIR)\"\n",
+	    concrete[i],vals->m_WhereVTK,concrete_lib[i],concrete[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+	    vals->m_WhereVTK, concrete_lib[i], concrete[i]);
+    fprintf(fp,"  \"%s\\wrap\\hints\" 1 > src\\%sPython.cxx\n\n",
+	    vals->m_WhereVTK, concrete[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sPython.obj\" : src\\%sPython.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+	    concrete[i],concrete[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sPython.cxx\n\n",concrete[i]);
+    }
+
+
+  for (i = 0; i < num_abstract_h; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i]);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sPython.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkPythonUtil.h\" \"%s\\wrap\\vtkParse.y\" \"%s\\wrap\\hints\" \"$(OUTDIR)\"\n",
+	    abstract_h[i],vals->m_WhereVTK,abstract_h_lib[i],abstract_h[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+	    vals->m_WhereVTK, abstract_h_lib[i], abstract_h[i]);
+    fprintf(fp,"  \"%s\\wrap\\hints\" 0 > src\\%sPython.cxx\n\n",
+	    vals->m_WhereVTK, abstract_h[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sPython.obj\" : src\\%sPython.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+	    abstract_h[i],abstract_h[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sPython.cxx\n\n",abstract_h[i]);
+    }
+
+
+  for (i = 0; i < num_concrete_h; i++)
+    {
+    sprintf(file,"%s\\%s\\%s.h",vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i]);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    vals->m_Progress.OffsetPos(1);
+    fprintf(fp,"\"src\\%sPython.cxx\" : \"%s\\%s\\%s.h\" \"%s\\common\\vtkPythonUtil.h\" \"%s\\wrap\\vtkParse.y\" \"%s\\wrap\\hints\" \"$(OUTDIR)\"\n",
+	    concrete_h[i],vals->m_WhereVTK,concrete_h_lib[i],concrete_h[i],vals->m_WhereVTK,vals->m_WhereVTK,vals->m_WhereVTK);
+    fprintf(fp," $(CPP_PARSE) \"%s\\%s\\%s.h\"\\\n",
+	    vals->m_WhereVTK, concrete_h_lib[i], concrete_h[i]);
+    fprintf(fp,"  \"%s\\wrap\\hints\" 1 > src\\%sPython.cxx\n\n",
+	    vals->m_WhereVTK, concrete_h[i]);
+    fprintf(fp,"\"$(OUTDIR)\\%sPython.obj\" : src\\%sPython.cxx $(DEPENDS) \"$(OUTDIR)\"\n",
+	    concrete_h[i],concrete_h[i]);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sPython.cxx\n\n",concrete_h[i]);
+    }
+
+
+  fprintf(fp,"################################################################################\n");
+}
+
+// links in ALL the vtk libraries (now that they are split up)... also writes output to ../lib directory
+// may only want to write the dll to that directory????
+// makefile handles both incremental and non-incremental linking
+void doBorPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
+{
+  fprintf(fp,"### Not Implemented Yet\n");
+
+  fprintf(fp,"################################################################################\n");
+}
 
 
 

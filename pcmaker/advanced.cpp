@@ -21,6 +21,8 @@ advanced::advanced(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(advanced)
 	m_EXTRA_CFLAGS = _T("");
 	m_EXTRA_LINK_FLAGS = _T("");
+	m_WhereTcl = _T("");
+	m_WhereTk = _T("");
 	//}}AFX_DATA_INIT
 }
 
@@ -33,6 +35,10 @@ void advanced::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_EXTRA_CFLAGS, 512);
 	DDX_Text(pDX, IDC_EXTRA_LINK_FLAGS, m_EXTRA_LINK_FLAGS);
 	DDV_MaxChars(pDX, m_EXTRA_LINK_FLAGS, 512);
+	DDX_Text(pDX, IDC_WHERETCL, m_WhereTcl);
+	DDV_MaxChars(pDX, m_WhereTcl, 512);
+	DDX_Text(pDX, IDC_WHERETK, m_WhereTk);
+	DDV_MaxChars(pDX, m_WhereTk, 512);
 	//}}AFX_DATA_MAP
 }
 

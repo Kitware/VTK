@@ -30,8 +30,10 @@ public:
 	CString	m_WhereCompiler;
 	BOOL	m_Patented;
 	BOOL	m_Lean;
-	CString	m_WhereTcl;
-	CString	m_WhereTk;
+	BOOL	m_BuildTcl;
+	BOOL	m_BuildJava;
+	BOOL	m_BuildPython;
+	CString	m_WherePy;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

@@ -13,6 +13,7 @@
 #define IDC_WHERECOMPILER               1005
 #define IDC_WHEREJDK                    1006
 #define IDC_WHERETK                     1007
+#define IDC_WHEREPYTHON                 1007
 #define IDC_WHEREBUILD                  1009
 #define IDC_MSCOMP                      1010
 #define IDC_BORLANDCOMP                 1011
@@ -38,6 +39,9 @@
 #define IDC_WHERETCL                    1031
 #define IDC_EXTRA_CFLAGS                1032
 #define IDC_EXTRA_LINK_FLAGS            1033
+#define IDC_BUILDTCL                    1033
+#define IDC_BUILDJAVA                   1034
+#define IDC_BUILDPYTHON                 1035
 
 // Next default values for new objects
 // 
@@ -45,7 +49,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1034
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -15,6 +15,8 @@ public:
 	enum { IDD = IDD_ADVANCED };
 	CString	m_EXTRA_CFLAGS;
 	CString	m_EXTRA_LINK_FLAGS;
+	CString	m_WhereTcl;
+	CString	m_WhereTk;
 	//}}AFX_DATA
 
 

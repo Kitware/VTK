@@ -118,14 +118,15 @@ int ReadRegistry(CPcmakerDlg &dlg)
     ReadAValue(hKey, &(dlg.m_WhereVTK),"WhereVTK","C:\\vtk");
     ReadAValue(hKey, &(dlg.m_WhereBuild),"WhereBuild", "C:\\vtkbin");
     ReadAValue(hKey, &(dlg.m_WhereJDK),"WhereJDK","");
-    ReadAValue(hKey, &(dlg.m_WhereTcl),"WhereTcl","");
-    ReadAValue(hKey, &(dlg.m_WhereTk),"WhereTk","");
+    ReadAValue(hKey, &(dlg.m_WherePy),"WherePy","");
     ReadAValue(hKey, &(dlg.m_WhereCompiler),"WhereCompiler",
       "C:\\Program Files\\DevStudio\\vc");
 
     // read the advanced options
     ReadAValue(hKey, &(dlg.adlg.m_EXTRA_CFLAGS),"EXTRA_CFLAGS","");
     ReadAValue(hKey, &(dlg.adlg.m_EXTRA_LINK_FLAGS),"EXTRA_LINK_FLAGS","");
+    ReadAValue(hKey, &(dlg.adlg.m_WhereTcl),"WhereTcl","");
+    ReadAValue(hKey, &(dlg.adlg.m_WhereTk),"WhereTk","");
 
     // save which compiler
     dwType = REG_DWORD;
@@ -153,6 +154,9 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_Imaging = TRUE;
       dlg.m_Patented = FALSE;
       dlg.m_Lean = TRUE;
+      dlg.m_BuildJava = FALSE;
+      dlg.m_BuildPython = FALSE;
+      dlg.m_BuildTcl = FALSE;
       }
     else
       {
@@ -161,6 +165,9 @@ int ReadRegistry(CPcmakerDlg &dlg)
       dlg.m_Imaging = (dwData&0x4)?TRUE:FALSE;
       dlg.m_Patented = (dwData&0x8)?TRUE:FALSE;
       dlg.m_Lean = (dwData&0x10)?TRUE:FALSE;
+      dlg.m_BuildJava = (dwData&0x20)?TRUE:FALSE;
+      dlg.m_BuildPython = (dwData&0x40)?TRUE:FALSE;
+      dlg.m_BuildTcl = (dwData&0x80)?TRUE:FALSE;
       }
     }
 
@@ -195,12 +202,9 @@ void WriteRegistry(CPcmakerDlg &dlg)
     RegSetValueEx(hKey, _T("WhereJDK"), 0, REG_SZ, 
 		  (CONST BYTE *)(const char *)dlg.m_WhereJDK, 
 		  dlg.m_WhereJDK.GetLength());
-    RegSetValueEx(hKey, _T("WhereTcl"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.m_WhereTcl, 
-		  dlg.m_WhereTcl.GetLength());
-    RegSetValueEx(hKey, _T("WhereTk"), 0, REG_SZ, 
-		  (CONST BYTE *)(const char *)dlg.m_WhereTk, 
-		  dlg.m_WhereTk.GetLength());
+    RegSetValueEx(hKey, _T("WherePy"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.m_WherePy, 
+		  dlg.m_WherePy.GetLength());
     RegSetValueEx(hKey, _T("WhereCompiler"), 0, REG_SZ, 
 		  (CONST BYTE *)(const char *)dlg.m_WhereCompiler, 
 		  dlg.m_WhereCompiler.GetLength());
@@ -212,6 +216,12 @@ void WriteRegistry(CPcmakerDlg &dlg)
     RegSetValueEx(hKey, _T("EXTRA_LINK_FLAGS"), 0, REG_SZ, 
 		  (CONST BYTE *)(const char *)dlg.adlg.m_EXTRA_LINK_FLAGS, 
 		  dlg.adlg.m_EXTRA_LINK_FLAGS.GetLength());
+    RegSetValueEx(hKey, _T("WhereTcl"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_WhereTcl, 
+		  dlg.adlg.m_WhereTcl.GetLength());
+    RegSetValueEx(hKey, _T("WhereTk"), 0, REG_SZ, 
+		  (CONST BYTE *)(const char *)dlg.adlg.m_WhereTk, 
+		  dlg.adlg.m_WhereTk.GetLength());
 
     dwData = 0;
     dwData |= (dlg.m_MSComp)?1:0;
@@ -224,6 +234,9 @@ void WriteRegistry(CPcmakerDlg &dlg)
     dwData |= (dlg.m_Imaging)?4:0;
     dwData |= (dlg.m_Patented)?8:0;
     dwData |= (dlg.m_Lean)?0x10:0;
+    dwData |= (dlg.m_BuildJava)?0x20:0;
+    dwData |= (dlg.m_BuildPython)?0x40:0;
+    dwData |= (dlg.m_BuildTcl)?0x80:0;
     RegSetValueEx(hKey, _T("Flags"), 0, REG_DWORD, 
 		  (CONST BYTE *)&dwData, sizeof(DWORD));
     }
@@ -257,8 +270,9 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WhereBuild = "C:\\vtkbin";
     dlg.m_WhereCompiler = "C:\\msdev";
     dlg.m_WhereJDK = "";
-    dlg.m_WhereTcl = "";
-    dlg.m_WhereTk  = "";
+    dlg.m_WherePy = "";
+    dlg.adlg.m_WhereTcl = "";
+    dlg.adlg.m_WhereTk  = "";
     }
    if (strncmp(m_lpCmdLine, "qualityNT", 9) == 0)  // skip any trailing characters
     {
@@ -266,8 +280,9 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WhereVTK = "d:\\production\\vtk";
     dlg.m_WhereBuild = "d:\\production\\vtkbin";
     dlg.m_WhereJDK = "";
-    dlg.m_WhereTcl = "";
-    dlg.m_WhereTk  = "";
+    dlg.m_WherePy = "";
+    dlg.adlg.m_WhereTcl = "";
+    dlg.adlg.m_WhereTk  = "";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
     }
@@ -277,8 +292,9 @@ BOOL CPcmakerApp::InitInstance()
     dlg.m_WhereVTK = "c:\\production\\vtk";
     dlg.m_WhereBuild = "c:\\production\\vtkbin";
     dlg.m_WhereJDK = "";
-    dlg.m_WhereTcl = "";
-    dlg.m_WhereTk  = "";
+    dlg.m_WherePy = "";
+    dlg.adlg.m_WhereTcl = "";
+    dlg.adlg.m_WhereTk  = "";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
     }

@@ -33,8 +33,10 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_WhereCompiler = _T("");
 	m_Patented = FALSE;
 	m_Lean = FALSE;
-	m_WhereTcl = _T("");
-	m_WhereTk = _T("");
+	m_BuildTcl = FALSE;
+	m_BuildJava = FALSE;
+	m_BuildPython = FALSE;
+	m_WherePy = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -60,10 +62,11 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MaxChars(pDX, m_WhereCompiler, 512);
 	DDX_Check(pDX, IDC_PATENTED, m_Patented);
 	DDX_Check(pDX, IDC_LEAN, m_Lean);
-	DDX_Text(pDX, IDC_WHERETCL, m_WhereTcl);
-	DDV_MaxChars(pDX, m_WhereTcl, 512);
-	DDX_Text(pDX, IDC_WHERETK, m_WhereTk);
-	DDV_MaxChars(pDX, m_WhereTk, 512);
+	DDX_Check(pDX, IDC_BUILDTCL, m_BuildTcl);
+	DDX_Check(pDX, IDC_BUILDJAVA, m_BuildJava);
+	DDX_Check(pDX, IDC_BUILDPYTHON, m_BuildPython);
+	DDX_Text(pDX, IDC_WHEREPYTHON, m_WherePy);
+	DDV_MaxChars(pDX, m_WherePy, 512);
 	//}}AFX_DATA_MAP
 }
 
@@ -158,7 +161,6 @@ void CPcmakerDlg::DoOKStuff()
   fclose(fp);
 
 
-
   // make sure we can find the include files
   sprintf(fname,"%s\\include\\stdio.h",this->m_WhereCompiler);
   fp = fopen(fname,"r");
@@ -186,13 +188,30 @@ void CPcmakerDlg::DoOKStuff()
    }
 
   // make sure we can find JDK
-  if (strlen(this->m_WhereJDK) > 1)
-    {
-    sprintf(fname,"%s\\include\\jni.h",this->m_WhereJDK);
+  if (this->m_BuildJava)
+	  {
+	  if (strlen(this->m_WhereJDK) > 1)
+		  {
+      sprintf(fname,"%s\\include\\jni.h",this->m_WhereJDK);
+      fp = fopen(fname,"r");
+      if (!fp)
+        {
+        sprintf(msg, "Unable to find JDK1.1 at: %s",this->m_WhereJDK);
+        AfxMessageBox(msg);
+        return;
+        }
+      fclose(fp);
+      }
+    }
+
+  // make sure we can find Python
+  if (this->m_BuildPython)
+	  {
+    sprintf(fname,"%s\\include\\Python.h",this->m_WherePy);
     fp = fopen(fname,"r");
     if (!fp)
       {
-      sprintf(msg, "Unable to find JDK1.1 at: %s",this->m_WhereJDK);
+      sprintf(msg, "Unable to find Python at: %s",this->m_WherePy);
       AfxMessageBox(msg);
       return;
       }
@@ -200,29 +219,29 @@ void CPcmakerDlg::DoOKStuff()
     }
 
   // make sure we can find tcl
-  if (strlen(this->m_WhereTcl) > 1)
+  if (this->m_BuildTcl && strlen(this->adlg.m_WhereTcl) > 1)
     {
     int i;
-    sprintf(fname,"%s",this->m_WhereTcl);
+    sprintf(fname,"%s",this->adlg.m_WhereTcl);
     fp = fopen(fname,"r");
     if (!fp)
       {
-      sprintf(msg, "Unable to find libtcl at: %s",this->m_WhereTcl);
+      sprintf(msg, "Unable to find libtcl at: %s",this->adlg.m_WhereTcl);
       AfxMessageBox(msg);
       return;
       }
     fclose(fp);
 
-    i = strlen(this->m_WhereTcl);
+    i = strlen(this->adlg.m_WhereTcl);
     while (i >= 2)
       {
-      if (_strnicmp((const char *)this->m_WhereTcl + i - 2,
+      if (_strnicmp((const char *)this->adlg.m_WhereTcl + i - 2,
                     "win",3) == 0)
         {
         int j;
         for (j = 0; j <= i; j++)
           {
-          this->TclRoot[j] = this->m_WhereTcl[j];
+          this->TclRoot[j] = this->adlg.m_WhereTcl[j];
           }
         this->TclRoot[j] = '\0';
         i = 0;
@@ -232,29 +251,29 @@ void CPcmakerDlg::DoOKStuff()
     }
 
   // make sure we can find tk
-  if (strlen(this->m_WhereTk) > 1)
+  if (this->m_BuildTcl && strlen(this->adlg.m_WhereTk) > 1)
     {
     int i;
-    sprintf(fname,"%s",this->m_WhereTk);
+    sprintf(fname,"%s",this->adlg.m_WhereTk);
     fp = fopen(fname,"r");
     if (!fp)
       {
-      sprintf(msg, "Unable to find libtk at: %s",this->m_WhereTk);
+      sprintf(msg, "Unable to find libtk at: %s",this->adlg.m_WhereTk);
       AfxMessageBox(msg);
       return;
       }
     fclose(fp);
 
-    i = strlen(this->m_WhereTk);
+    i = strlen(this->adlg.m_WhereTk);
     while (i >= 2)
       {
-      if (_strnicmp((const char *)this->m_WhereTk + i - 2,
+      if (_strnicmp((const char *)this->adlg.m_WhereTk + i - 2,
                     "win",3) == 0)
         {
         int j;
         for (j = 0; j <= i; j++)
           {
-          this->TkRoot[j] = this->m_WhereTk[j];
+          this->TkRoot[j] = this->adlg.m_WhereTk[j];
           }
         this->TkRoot[j] = '\0';
         i = 0;
@@ -292,7 +311,6 @@ void CPcmakerDlg::DoOKStuff()
     }
 
   // make the subdirectories if they don't exist
-
   for (int i = 0; i < 2; i++)
     {
     if (i == 0)   // Debug subDirecteries
@@ -301,7 +319,9 @@ void CPcmakerDlg::DoOKStuff()
   	  if (stat(where,&statBuff) == -1) mkdir(where);
       }
     else
+      {
       sprintf(where,"%s",this->m_WhereBuild);
+      }
 
   	sprintf(fname,"%s\\vtkdll",where);
 	  if (stat(fname,&statBuff) == -1) mkdir(fname);
@@ -309,17 +329,30 @@ void CPcmakerDlg::DoOKStuff()
 	  if (stat(fname,&statBuff) == -1) mkdir(fname);
   	sprintf(fname,"%s\\vtkdll\\src",where);
 	  if (stat(fname,&statBuff) == -1) mkdir(fname);
-	  sprintf(fname,"%s\\vtktcl",where);
-	  if (stat(fname,&statBuff) == -1) mkdir(fname);
-	  sprintf(fname,"%s\\vtktcl\\src",where);
-	  if (stat(fname,&statBuff) == -1) mkdir(fname);
-	  sprintf(fname,"%s\\vtkjava",where);
-	  if (stat(fname,&statBuff) == -1) mkdir(fname);
-	  sprintf(fname,"%s\\vtkjava\\src",where);
-	  if (stat(fname,&statBuff) == -1) mkdir(fname);
-	  sprintf(fname,"%s\\vtkjava\\vtk",where);
-	  if (stat(fname,&statBuff) == -1) mkdir(fname);
-	  sprintf(fname,"%s\\lib",where);
+    if (this->m_BuildTcl)
+      {
+      sprintf(fname,"%s\\vtktcl",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+	    sprintf(fname,"%s\\vtktcl\\src",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+      }
+    if (this->m_BuildJava)
+      {
+	    sprintf(fname,"%s\\vtkjava",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+	    sprintf(fname,"%s\\vtkjava\\src",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+	    sprintf(fname,"%s\\vtkjava\\vtk",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+      }
+    if (this->m_BuildPython)
+      {
+      sprintf(fname,"%s\\vtkpython",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+	    sprintf(fname,"%s\\vtkpython\\src",where);
+	    if (stat(fname,&statBuff) == -1) mkdir(fname);
+      }
+    sprintf(fname,"%s\\lib",where);
 	  if (stat(fname,&statBuff) == -1) mkdir(fname);
 		}
 
