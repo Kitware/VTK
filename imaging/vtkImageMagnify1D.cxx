@@ -138,6 +138,9 @@ void vtkImageMagnify1DExecute(vtkImageMagnify1D *self,
   int interpolate, magFactor, magStart, magIdx;
   float step, val;
 
+  // Avoid warnings.
+  step = 0.0;
+
   // Get information to march through data 
   inRegion->GetIncrements(inInc0, inInc1);
   outRegion->GetIncrements(outInc0, outInc1);

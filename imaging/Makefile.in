@@ -33,6 +33,7 @@ vtkImageDilate1D \
 vtkImageDilateErode \
 vtkImageDistance1D \
 vtkImageDistance \
+vtkImageDivergence \
 vtkImageDotProduct \
 vtkImageDraw \
 vtkImageFFT \
@@ -48,6 +49,7 @@ vtkImageHarrWavelet2D \
 vtkImageHistogram \
 vtkImageHistogramEqualization \
 vtkImageIslandRemoval2D \
+vtkImageLaplacian \
 vtkImageMagnify1D \
 vtkImageMagnify \
 vtkImageMagnitude \

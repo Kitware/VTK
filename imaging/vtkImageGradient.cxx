@@ -222,19 +222,12 @@ void vtkImageGradientExecute(vtkImageGradient *self,
   float *outPtr0, *outPtr1, *outPtr2, *outPtr3, *outPtrV;
   int inInc0, inInc1, inInc2, inInc3;
   T *inPtr0, *inPtr1, *inPtr2, *inPtr3;
-  // Boundary of input image
-  int inImageMin0, inImageMax0, inImageMin1, inImageMax1;
-  int inImageMin2, inImageMax2, inImageMin3, inImageMax3;
   // For computation of gradient (everything has to be arrays for loop).
   int *incs, *imageExtent, *idxs, outIdxs[VTK_IMAGE_DIMENSIONS];
 
   
   // Get the dimensionality of the gradient.
   axesNum = self->GetDimensionality();
-  
-  // Get boundary information 
-  inRegion->GetImageExtent(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
-			   inImageMin2,inImageMax2, inImageMin3,inImageMax3);
   
   // Get information to march through data (skip component)
   inRegion->GetIncrements(inInc0, inInc1, inInc2, inInc3); 
@@ -284,11 +277,9 @@ void vtkImageGradientExecute(vtkImageGradient *self,
 	  for(axisIdx = 0; axisIdx < axesNum; ++axisIdx)
 	    {
 	    // Compute difference using central differences (if in extent).
-	    d = ((*idxs - 1) < *imageExtent) ? *inPtr0 : inPtr0[-*incs];
-	    ++imageExtent;  // now points to max.
-	    d -= ((*idxs + 1) > *imageExtent) ? *inPtr0 : inPtr0[*incs];
+	    d = (*idxs == *imageExtent++) ? *inPtr0 : inPtr0[-*incs];
+	    d -= (*idxs == *imageExtent++) ? *inPtr0 : inPtr0[*incs];
 	    d *= r[axisIdx]; // divide by aspect ratio
-	    ++imageExtent;
 	    ++idxs;
 	    ++incs;
 	    *outPtrV = d;

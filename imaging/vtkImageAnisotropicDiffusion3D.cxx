@@ -217,6 +217,10 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
   inRegion->GetIncrements(inInc0, inInc1, inInc2);
   outRegion->GetIncrements(outInc0, outInc1, outInc2);
 
+  // Avoid the warnings.
+  th0 = th1 = th2 = th01 = th02 = th12 = th012 =
+    df0 = df1 = df2 = df01 = df02 = df12 = df012 = 0.0;
+  
   // Compute direction specific diffusion thresholds and factors.
   sum = 0.0;
   if (this->Faces)
@@ -251,7 +255,6 @@ void vtkImageAnisotropicDiffusion3D::Iterate(vtkImageRegion *inRegion,
     df012 = 1 / temp;
     // eight corners in a cube
     sum += 8 * df012;
-
     }
   if (sum > 0.0)
     {

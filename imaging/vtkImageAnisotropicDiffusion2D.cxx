@@ -205,6 +205,9 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageRegion *inRegion,
   inRegion->GetIncrements(inInc0, inInc1);
   outRegion->GetIncrements(outInc0, outInc1);
 
+  // Avoid warnings.
+  th0 = th1 = th01 = df0 = df1 = df01 = 0.0;
+  
   // Compute direction specific diffusion thresholds and factors.
   sum = 0.0;
   if (this->Edges)
