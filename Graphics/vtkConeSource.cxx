@@ -16,14 +16,17 @@
 
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 #include "vtkCellArray.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.67");
+vtkCxxRevisionMacro(vtkConeSource, "1.68");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -44,11 +47,19 @@ vtkConeSource::vtkConeSource(int res)
   this->Direction[0] = 1.0;
   this->Direction[1] = 0.0;
   this->Direction[2] = 0.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
 //----------------------------------------------------------------------------
-void vtkConeSource::Execute()
-{
+int vtkConeSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
+  {
+  // get the info objects
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   double angle;
   int numLines, numPolys, numPts;
   double x[3], xbot;
@@ -57,7 +68,8 @@ void vtkConeSource::Execute()
   vtkPoints *newPoints; 
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
-  vtkPolyData *output = this->GetOutput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
   // for streaming
   int piece;
   int numPieces;
@@ -68,7 +80,7 @@ void vtkConeSource::Execute()
   piece = output->GetUpdatePiece();
   if (piece >= this->Resolution)
     {
-    return;
+    return 0;
     }
   numPieces = output->GetUpdateNumberOfPieces();
   maxPieces = this->Resolution != 0 ? this->Resolution : 1;
@@ -80,7 +92,7 @@ void vtkConeSource::Execute()
     {
     // Super class should do this for us, 
     // but I put this condition in any way.
-    return;
+    return 0;
     }
   start = maxPieces * piece / numPieces;
   end = (maxPieces * (piece+1) / numPieces) - 1;
@@ -262,12 +274,20 @@ void vtkConeSource::Execute()
     output->SetLines(newLines);
     newLines->Delete();
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkConeSource::ExecuteInformation()
+int vtkConeSource::ExecuteInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
-  this->GetOutput()->SetMaximumNumberOfPieces(-1);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+               -1);
+  return 1;
 }
 
 

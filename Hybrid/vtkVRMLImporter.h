@@ -66,11 +66,11 @@
 #include "vtkImporter.h"
 
 class vtkActor;
+class vtkAlgorithm;
 class vtkProperty;
 class vtkCamera;
 class vtkLight;
 class vtkTransform;
-class vtkSource;
 class vtkLookupTable;
 class vtkFloatArray;
 class vtkPolyDataMapper;
@@ -140,7 +140,7 @@ private:
   vtkCamera            *CurrentCamera;
   vtkLight             *CurrentLight;
   vtkTransform         *CurrentTransform;
-  vtkSource            *CurrentSource;
+  vtkAlgorithm         *CurrentSource;
   vtkPoints            *CurrentPoints;
   vtkFloatArray        *CurrentNormals;
   vtkFloatArray        *CurrentTCoords;
