@@ -11,9 +11,6 @@ a Delete
 
 set exceptions {
 vtkAssembly-GetNextPath
-vtkExtractVectorComponents-GetVxComponent
-vtkExtractVectorComponents-GetVyComponent
-vtkExtractVectorComponents-GetVzComponent
 vtkImageExport-GetDataMemorySize
 vtkImageExport-GetDataDimensions
 vtkImageExport-GetDataNumberOfScalarComponents
@@ -31,6 +28,7 @@ vtkRenderWindow-GetEventPending
 vtkSubPixelPositionEdgels-GetGradMaps
 vtkViewRays-GetParallelStartPosition
 vtkXOpenGLRenderWindow-GetEventPending
+vtkMPICommunicator-GetWorldCommunicator
 }
 
 proc TestOne {cname} {
@@ -44,7 +42,7 @@ proc TestOne {cname} {
          if {$i < $len - 1 && [lindex $methods [expr $i + 1]] != "with"} {
             if {[lsearch $exceptions "$cname-[lindex $methods $i]"] == -1} {
                # invoke the GetMethod
-               #puts "  Invoking Get$name"
+	       #puts "  Invoking Get$name"
                set tmp [b Get$name]
                # find matching set method
                for {set j 0} {$j < $len} {incr j} {
@@ -83,7 +81,7 @@ proc rtSetGetTest { fileid } {
    foreach a $all {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
-         puts "Testing -- $a"
+         #puts "Testing -- $a"
          TestOne $a
       }
    }
