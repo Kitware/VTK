@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 #include "vtkObject.h"
 #define VTK_LOG_EVENT_LENGTH 40
