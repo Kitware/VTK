@@ -16,6 +16,7 @@
 #include "vtkSystemIncludes.h"
 #include "vtkToolkits.h"
 
+#cmakedefine VTK_MAKE_INSTANTIATOR
 #ifdef VTK_MAKE_INSTANTIATOR
 /*
  * Make sure all the kits register their classes with vtkInstantiator.
