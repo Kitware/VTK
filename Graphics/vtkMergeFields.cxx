@@ -20,7 +20,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkMergeFields, "1.11");
+vtkCxxRevisionMacro(vtkMergeFields, "1.12");
 vtkStandardNewMacro(vtkMergeFields);
 
 char vtkMergeFields::FieldLocationNames[3][12] 
@@ -280,7 +280,7 @@ void vtkMergeFields::Execute()
 
 // fast pointer copy
 template <class T>
-void vtkCopyTuples(T* input, T* output, vtkIdType numTuples, 
+void vtkMergeFieldsCopyTuples(T* input, T* output, vtkIdType numTuples, 
                 int numInComp, int numOutComp, int inComp, int outComp)
 {
   for (int i=0; i<numTuples; i++)
@@ -309,7 +309,7 @@ int vtkMergeFields::MergeArray(vtkDataArray* in, vtkDataArray* out,
       {
       switch (out->GetDataType())
         {
-        vtkTemplateMacro7(vtkCopyTuples, (VTK_TT *)in->GetVoidPointer(0), 
+        vtkTemplateMacro7(vtkMergeFieldsCopyTuples, (VTK_TT *)in->GetVoidPointer(0), 
                           (VTK_TT *)out->GetVoidPointer(0), numTuples,
                           in->GetNumberOfComponents(), 
                           out->GetNumberOfComponents(), inComp, outComp );
