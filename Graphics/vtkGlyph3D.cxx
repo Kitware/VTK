@@ -76,7 +76,7 @@ vtkGlyph3D::vtkGlyph3D()
   this->VectorMode = VTK_USE_VECTOR;
   this->Clamping = 0;
   this->IndexMode = VTK_INDEXING_OFF;
-  this->NumberOfRequiredInputs = 2;
+  this->NumberOfRequiredInputs = 1;
 }
 
 vtkGlyph3D::~vtkGlyph3D()
@@ -111,6 +111,7 @@ void vtkGlyph3D::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkDataSet *input = this->GetInput();
   int numberOfSources = this->GetNumberOfSources();
+  vtkPolyData *defaultSource = NULL;
   
   vtkDebugMacro(<<"Generating glyphs");
 
@@ -187,6 +188,28 @@ void vtkGlyph3D::Execute()
   outputPD->CopyScalarsOff();
   outputPD->CopyVectorsOff();
   outputPD->CopyNormalsOff();
+
+  if (!this->GetSource(0))
+    {
+    defaultSource = vtkPolyData::New();
+    defaultSource->Allocate();
+    vtkPoints *defaultPoints = vtkPoints::New();
+    defaultPoints->Allocate(6);
+    defaultPoints->InsertNextPoint(0, 0, 0);
+    defaultPoints->InsertNextPoint(1, 0, 0);
+    int defaultPointIds[2];
+    defaultPointIds[0] = 0;
+    defaultPointIds[1] = 1;
+    defaultSource->SetPoints(defaultPoints);
+    defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
+    defaultSource->SetUpdateExtent(0, 1, 0);
+    this->SetSource(defaultSource);
+    defaultSource->Delete();
+    defaultSource = NULL;
+    defaultPoints->Delete();
+    defaultPoints = NULL;
+    }
+  
   if ( this->IndexMode != VTK_INDEXING_OFF )
     {
     pd = NULL;
@@ -527,9 +550,9 @@ void vtkGlyph3D::Execute()
 // should average the size of the sources instead of using 0).
 void vtkGlyph3D::ExecuteInformation()
 {
-  if (this->GetInput() == NULL || this->GetSource(0) == NULL)
+  if (this->GetInput() == NULL)
     {
-    vtkErrorMacro("Missing input or source");
+    vtkErrorMacro("Missing input");
     return;
     }
 }
@@ -644,7 +667,10 @@ void vtkGlyph3D::ComputeInputUpdateExtents( vtkDataObject *output )
 
   output = output;
   outPd = this->GetOutput();
-  this->GetSource()->SetUpdateExtent(0, 1, 0);
+  if (this->GetSource())
+    {
+    this->GetSource()->SetUpdateExtent(0, 1, 0);
+    }
   this->GetInput()->SetUpdateExtent(outPd->GetUpdatePiece(), 
                                     outPd->GetUpdateNumberOfPieces(),
                                     outPd->GetUpdateGhostLevel());
