@@ -5,6 +5,27 @@ IF (HAVE_PNG)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
+    ADD_TEST(nacaBinary-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/nacaBinary.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/nacaBinary.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(EnSight6Elements-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/EnSight6Elements.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/EnSight6Elements.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
+    ADD_TEST(EnSightGoldElements-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/EnSightGoldElements.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/EnSightGoldElements.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     ADD_TEST(clipArt-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/clipArt.tcl
