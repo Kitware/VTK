@@ -25,6 +25,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <math.h>
 #include "tk.h"
 
+extern "C" {
+extern int TkXFileProc(ClientData clientData, int mask, int flags);
+}
+
 #define TK_IS_DISPLAY   32
 
 // returns 1 if done
@@ -186,10 +190,12 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Size[1] = size[1];
 
   // add in tcl init stuff
-  Tk_CreateFileHandler(ConnectionNumber(display),
-		       TK_READABLE|TK_IS_DISPLAY, 
-		       (void (*)(void *,int)) NULL,
-		       (ClientData) display);
+  Tk_CreateFileHandler2(ConnectionNumber(display), TkXFileProc,
+			(ClientData) display);
+//  Tk_CreateFileHandler(ConnectionNumber(display),
+//		       TK_READABLE|TK_IS_DISPLAY, 
+//		       (void (*)(void *,int)) NULL,
+//		       (ClientData) display);
   Tk_CreateGenericHandler((Tk_GenericProc *)vtkTclEventProc,(ClientData)this);
 }
 
