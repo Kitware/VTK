@@ -29,16 +29,16 @@ public:
   // Description:
   // Initialize smart pointer to NULL.
   vtkSmartPointer() {}
-  
+
   // Description:
   // Initialize smart pointer to given object.
   vtkSmartPointer(T* r): vtkSmartPointerBase(r) {}
-  
+
   // Description:
   // Initialize smart pointer with a new reference to the same object
   // referenced by given smart pointer.
   vtkSmartPointer(const vtkSmartPointerBase& r): vtkSmartPointerBase(r) {}
-  
+
   // Description:
   // Assign object to reference.  This removes any reference to an old
   // object.
@@ -47,7 +47,7 @@ public:
     this->vtkSmartPointerBase::operator=(r);
     return *this;
     }
-  
+
   // Description:
   // Assign object to reference.  This removes any reference to an old
   // object.
@@ -55,15 +55,15 @@ public:
     {
     this->vtkSmartPointerBase::operator=(r);
     return *this;
-    }  
-  
+    }
+
   // Description:
   // Get the contained pointer.
   T* GetPointer() const
     {
     return static_cast<T*>(this->Object);
     }
-  
+
   // Description:
   // Dereference the pointer and return a reference to the contained
   // object.
@@ -71,7 +71,7 @@ public:
     {
     return *static_cast<T*>(this->Object);
     }
-  
+
   // Description:
   // Provides normal pointer target member access using operator ->.
   T* operator->() const
