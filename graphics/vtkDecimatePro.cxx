@@ -74,15 +74,16 @@ static int Split, DeferSplit; // Controls whether and when vertex splitting occu
 // Helper functions
 static float ComputeSimpleError(float x[3], float normal[3], float point[3]);
 static float ComputeEdgeError(float x[3], float x1[3], float x2[3]);
+static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3]);
 static int EvaluateVertex(int ptId, unsigned short int numTris, int *tris,
                           int fedges[2]);
-static int FindSplit(int ptId, int type, int fedges[2], int& pt1, int& pt2, 
-                      vtkIdList& CollapseTris);
-static int IsValidSplit(int type, int index);
+static int FindSplit(int type, int fedges[2], int& pt1, int& pt2, 
+                     vtkIdList& CollapseTris);
+static int IsValidSplit(int index);
 static void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2);
 static void SplitVertex(int ptId,int type, unsigned short int numTris, int *tris);
 static int CollapseEdge(int type, int ptId, int collapseId, int pt1, int pt2,
-                        vtkIdList& CollapseTris, float &error);
+                        vtkIdList& CollapseTris);
 
 
 // -------------------Define Priority Queue---------------------------------------
@@ -237,10 +238,11 @@ static vtkVertexQueue *VertexQueue; // sorts verts according to error
 //
 // Description:
 // Create object with specified reduction of 90% and feature angle of 
-// 30 degrees. Edge splitting is turned off.
+// 45 degrees. Edge splitting is on, and defer splitting is on. The
+// inflection point ratio is 10.
 vtkDecimatePro::vtkDecimatePro()
 {
-  this->Reduction = 0.99;
+  this->Reduction = 0.90;
   this->FeatureAngle = 30.0;
   this->Splitting = 1;
   this->DeferSplitting = 1;
@@ -368,12 +370,12 @@ void vtkDecimatePro::Execute()
 
       // FindSplit finds the edge to collapse - and if it fails, we
       // split the vertex.
-      collapseId = FindSplit (ptId, type, fedges, pt1, pt2, CollapseTris);
+      collapseId = FindSplit (type, fedges, pt1, pt2, CollapseTris);
 
       if ( collapseId >= 0 )
         {
         totalEliminated += CollapseEdge(type, ptId, collapseId, pt1, pt2, 
-                                        CollapseTris, error);
+                                        CollapseTris);
 
         reduction = (float) totalEliminated / numTris;
 
@@ -401,7 +403,7 @@ void vtkDecimatePro::Execute()
                 <<"\n\tFound " << this->GetNumberOfInflectionPoints() 
                     <<" inflection points"
                 <<"\n\tPerformed " << NumSplits << " vertex splits"
-                <<"\n\tRecycles " << numRecycles << " points"
+                <<"\n\tRecycled " << numRecycles << " points"
                 <<"\n\tAdded " << Mesh->GetNumberOfPoints() - numPts 
                     << " new points");
 
@@ -437,6 +439,14 @@ static float ComputeEdgeError(float x[3], float x1[3], float x2[3])
   float edgeLength = vtkMath::Distance2BetweenPoints(x1,x2);
 
   return (projDist < edgeLength ? projDist : edgeLength);
+}
+
+//
+// Computes triangle area
+//
+static float ComputeSingleTriangleError(float x[3], float x1[3], float x2[3])
+{
+  return vtkTriangle::TriangleArea(x, x1, x2);
 }
 
 //
@@ -866,8 +876,11 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
   //
   else
     {
+    static int triCopy[VTK_MAX_TRIS_PER_VERTEX]; //need to copy list since list changes
+    for ( i=0; i < numTris; i++ ) triCopy[i] = tris[i];
+
     // First triangle is detached from other vertices
-    Mesh->GetCellPoints(tris[0],nverts,verts);
+    Mesh->GetCellPoints(triCopy[0],nverts,verts);
     p1 = ( verts[0] != ptId ? verts[0] : verts[1] );
     p2 = ( verts[1] != ptId && verts[1] != p1 ? verts[1] : verts[2] );
     Mesh->GetPoint(p1,x1);
@@ -877,21 +890,21 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
 
     // Other connected triangles are detached by creating a new vertex and
     // attaching triangles to it (and detaching from old).
-    for ( i=(numTris-1); i > 0; i-- ) 
+    for ( i=1; i < numTris; i++ )
       {
-      Mesh->RemoveReferenceToCell(ptId,tris[i]);
+      Mesh->RemoveReferenceToCell(ptId,triCopy[i]);
 
       id = Mesh->InsertNextLinkedPoint(X,1);
-      Mesh->AddReferenceToCell(id,tris[i]);
-      Mesh->ReplaceCellPoint(tris[i], ptId, id);
+      Mesh->AddReferenceToCell(id,triCopy[i]);
+      Mesh->ReplaceCellPoint(triCopy[i], ptId, id);
 
       // Compute error and insert into priority queue
-      Mesh->GetCellPoints(tris[i],nverts,verts);
+      Mesh->GetCellPoints(triCopy[i],nverts,verts);
       p1 = ( verts[0] != id ? verts[0] : verts[1] );
       p2 = ( verts[1] != id && verts[1] != p1 ? verts[1] : verts[2] );
       Mesh->GetPoint(p1,x1);
       Mesh->GetPoint(p2,x2);
-      error = ComputeEdgeError(X, x1, x2);
+      error = ComputeSingleTriangleError(X, x1, x2);
       VertexQueue->Insert(id,error);    
       }
     }
@@ -904,7 +917,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
 // Find a way to split this loop. If -1 is returned, then we have a real
 // bad situation and we'll split the vertex.
 //
-static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2, 
+static int FindSplit (int type, int fedges[2], int& pt1, int& pt2, 
                       vtkIdList& CollapseTris)
 {
   int i, maxI;
@@ -939,7 +952,7 @@ static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2,
       // See whether the collapse is okay
       while ( (maxI = EdgeLengths.Pop(dist2)) >= 0 )
         {
-        if ( IsValidSplit(type,maxI) ) break;
+        if ( IsValidSplit(maxI) ) break;
         }
 
       if ( maxI >= 0 )
@@ -971,13 +984,13 @@ static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2,
       maxI = -1;
       if ( dist2 <= e2dist2 )
         {
-        if ( IsValidSplit(type,0) ) maxI = 0;
-        else if ( IsValidSplit(type,V->MaxId) ) maxI = V->MaxId;
+        if ( IsValidSplit(0) ) maxI = 0;
+        else if ( IsValidSplit(V->MaxId) ) maxI = V->MaxId;
         }
       else
         {
-        if ( IsValidSplit(type,V->MaxId) ) maxI = V->MaxId;
-        else if ( IsValidSplit(type,0) ) maxI = 0;
+        if ( IsValidSplit(V->MaxId) ) maxI = V->MaxId;
+        else if ( IsValidSplit(0) ) maxI = 0;
         }
 
       if ( maxI >= 0 )
@@ -999,6 +1012,16 @@ static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2,
 
 
     case VTK_CRACK_TIP_VERTEX: //-------------------------------------------
+      V->MaxId--;
+      if ( IsValidSplit(0) )
+        {
+        CollapseTris.SetId(0,T->Array[0].id);
+        pt1 = V->Array[1].id;
+        pt2 = V->Array[V->MaxId].id;
+        CollapseTris.SetId(1,T->Array[T->MaxId].id);
+        return V->Array[0].id;
+        }
+      else V->MaxId++;
       break;
 
 
@@ -1028,26 +1051,16 @@ static int FindSplit (int ptId, int type, int fedges[2], int& pt1, int& pt2,
 //
 //  Determine whether the loop can be split at the vertex indicated
 //
-static int IsValidSplit(int type, int index)
+static int IsValidSplit(int index)
 {
   int i, j, sign, fedges[2];
   int nverts=V->MaxId+1;
   float *x, val, absVal, sPt[3], v21[3], sN[3];
-  float dist=VTK_LARGE_FLOAT;
   int l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   int n1, n2;
 
   // For a edge collapse to be valid, all edges to that vertex must
   // divide the loop cleanly.
-
-  if ( type == VTK_CRACK_TIP_VERTEX )
-    {
-    }
-    
-  else
-    {
-    }
-
   fedges[0] = index;
   for ( j=0; j < (nverts-3); j++ )
     {
@@ -1127,7 +1140,7 @@ static void SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2)
 // Collapse the point to the specified vertex. Distribute the error
 // and update neighborhood vertices.
 int CollapseEdge(int type, int ptId, int collapseId, int pt1, 
-                 int pt2, vtkIdList& CollapseTris, float &error)
+                 int pt2, vtkIdList& CollapseTris)
 {
   int i, numDeleted=CollapseTris.GetNumberOfIds();
   int ntris=T->MaxId+1;
@@ -1135,8 +1148,14 @@ int CollapseEdge(int type, int ptId, int collapseId, int pt1,
 
   for ( i=0; i < numDeleted; i++ ) tri[i] = CollapseTris.GetId(i);
 
-  if ( numDeleted == 2 ) //e.g., type == VTK_SIMPLE_VERTEX
+  if ( numDeleted == 2 ) // type == VTK_CRACK_TIP_VERTEX || type == VTK_SIMPLE_VERTEX
     {
+    if ( type == VTK_CRACK_TIP_VERTEX ) //got to seal the crack first
+      {
+      Mesh->RemoveReferenceToCell(V->Array[V->MaxId+1].id, tri[1]);
+      Mesh->ReplaceCellPoint(tri[1],V->Array[V->MaxId+1].id, collapseId);
+      }
+
     // delete two triangles
     Mesh->RemoveReferenceToCell(pt1, tri[0]);
     Mesh->RemoveReferenceToCell(pt2, tri[1]);
