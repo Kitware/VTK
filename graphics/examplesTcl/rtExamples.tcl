@@ -60,7 +60,7 @@ set noTest {
     ShotNoiseInclude.tcl TestFeatureAnd.tcl TestHistogram.tcl 
     TestHistogramEqualization.tcl TestMIPFilter.tcl
     TestSubsample3D.tcl
-    TkImageViewerInteractor.tcl TkViewer.tcl
+    TkImageViewerInteractor.tcl TkViewer.tcl TkViewer2.tcl
     TestWriter.tcl Timing.tcl WindowLevelInterface.tcl
     vtkImageInclude.tcl}
 
@@ -233,6 +233,7 @@ foreach afile $files {
 
     vtkCommand DeleteAllObjects
     catch {destroy .top}
+    catch {destroy .geo}
 }
 
 exit
