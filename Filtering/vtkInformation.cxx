@@ -30,7 +30,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.1.2.5");
+vtkCxxRevisionMacro(vtkInformation, "1.1.2.6");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -131,6 +131,54 @@ void vtkInformation::Copy(vtkInformation* from)
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationExecutiveKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key)
+{
+  key->Copy(from, this);
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* key)
 {
   key->Copy(from, this);
 }
