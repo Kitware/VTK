@@ -109,7 +109,7 @@ static PyObject *PyVTKObject_PyString(PyVTKObject *self)
   self->vtk_ptr->Print(buf);
   buf.put('\0');
   PyObject *res = PyString_FromString(buf.str());
-  delete [] buf.str();
+  buf.rdbuf()->freeze(0);
   return res;
 }
 
@@ -381,7 +381,11 @@ void vtkPythonDeleteCommand::Execute(vtkObject *caller,
   vtkPythonDeleteObjectFromHash((PyObject *)this->Self);
   Py_DECREF((PyObject *)this->Self->vtk_class);
   Py_DECREF(this->Self->vtk_dict);
+#if (PY_MAJOR_VERSION >= 2)
+  PyObject_Del(this->Self);
+#else
   PyMem_DEL(this->Self);
+#endif  
 }
 
 //--------------------------------------------------------------------
@@ -393,7 +397,11 @@ static void PyVTKObject_PyDelete(PyVTKObject *self)
   vtkPythonDeleteObjectFromHash((PyObject *)self);
   Py_DECREF((PyObject *)self->vtk_class);
   Py_DECREF(self->vtk_dict);
+#if (PY_MAJOR_VERSION >= 2)
+  PyObject_Del(self);
+#else
   PyMem_DEL(self);
+#endif  
 }
 
 //--------------------------------------------------------------------
@@ -446,7 +454,11 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
                     "this is an abstract class and cannot be instantiated");
     return 0;
     }
+#if (PY_MAJOR_VERSION >= 2)
+  PyVTKObject *self = PyObject_New(PyVTKObject, &PyVTKObjectType);
+#else
   PyVTKObject *self = PyObject_NEW(PyVTKObject, &PyVTKObjectType);
+#endif  
   self->vtk_ptr = ptr;
   PyObject *cls = NULL;
   vtkstd::map<vtkstd::string, PyObject*>::iterator i =
@@ -703,7 +715,11 @@ static void PyVTKClass_PyDelete(PyVTKClass *self)
   Py_XDECREF(self->vtk_module);
   Py_XDECREF(self->vtk_doc);
     
+#if (PY_MAJOR_VERSION >= 2)
+  PyObject_Del(self);
+#else
   PyMem_DEL(self);
+#endif  
 }
 
 //--------------------------------------------------------------------
@@ -871,7 +887,11 @@ PyObject *PyVTKClass_New(vtknewfunc constructor,
     }
   else
     {
+#if (PY_MAJOR_VERSION >= 2)
+    PyVTKClass *class_self = PyObject_New(PyVTKClass, &PyVTKClassType);
+#else
     PyVTKClass *class_self = PyObject_NEW(PyVTKClass, &PyVTKClassType);
+#endif  
     self = (PyObject *)class_self;
     
     if (base)
@@ -972,7 +992,11 @@ static PyObject *PyVTKClass_NewSubclass(PyObject *, PyObject *args,
       return NULL;
       }
 
+#if (PY_MAJOR_VERSION >= 2)
+    newclass = PyObject_New(PyVTKClass, &PyVTKClassType);
+#else
     newclass = PyObject_NEW(PyVTKClass, &PyVTKClassType);
+#endif  
 
     Py_INCREF(bases);
     Py_INCREF(attributes);
@@ -1123,7 +1147,11 @@ static void PyVTKSpecialObject_PyDelete(PyVTKSpecialObject *self)
   self->vtk_ptr = NULL;
   Py_XDECREF(self->vtk_name);
   Py_XDECREF(self->vtk_doc);
+#if (PY_MAJOR_VERSION >= 2)
+  PyObject_Del(self);
+#else
   PyMem_DEL(self);
+#endif  
 }
 
 //--------------------------------------------------------------------
@@ -1161,8 +1189,13 @@ int PyVTKSpecialObject_Check(PyObject *obj)
 PyObject *PyVTKSpecialObject_New(void *ptr, PyMethodDef *methods,
                                  char *classname, char *docstring[])
 {
+#if (PY_MAJOR_VERSION >= 2)
+  PyVTKSpecialObject *self = PyObject_New(PyVTKSpecialObject, 
+                                          &PyVTKSpecialObjectType);
+#else
   PyVTKSpecialObject *self = PyObject_NEW(PyVTKSpecialObject, 
                                           &PyVTKSpecialObjectType);
+#endif  
   self->vtk_ptr = ptr;
   self->vtk_methods = methods;
   self->vtk_name = PyString_FromString(classname);
