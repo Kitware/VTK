@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMarchingCubes.hh"
-#include "MC_Cases.h"
+#include "vtkMarchingCubesCases.hh"
 #include "vtkStructuredPoints.hh"
 #include "vtkShortScalars.hh"
 #include "vtkMath.hh"

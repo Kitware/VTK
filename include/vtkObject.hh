@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <iostream.h>
 #include "vtkTimeStamp.hh"
-#include "SetGet.hh"
+#include "vtkSetGet.hh"
 #include "vtkIndent.hh"
 
 class vtkObject 

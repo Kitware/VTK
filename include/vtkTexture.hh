@@ -52,7 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTexture_hh
 #define __vtkTexture_hh
 
-#include "Render.hh"
 #include "vtkObject.hh"
 #include "vtkStructuredPoints.hh"
 

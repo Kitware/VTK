@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkProperty_hh
 #define __vtkProperty_hh
 
-#include "Render.hh"
+#include "vtkRender.hh"
 #include "vtkObject.hh"
 #include "vtkStructuredPoints.hh"
 

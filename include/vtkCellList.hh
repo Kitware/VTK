@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkCellList_h
 
 #include "vtkRefCount.hh"
-#include "CellType.hh"
+#include "vtkCellType.hh"
 
 struct _vtkCell_s {
     unsigned char type; //from CellTypes.hh

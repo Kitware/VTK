@@ -222,7 +222,7 @@ static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
 //
 // Marching cubes case table
 //
-#include "MC_Cases.h"
+#include "vtkMarchingCubesCases.hh"
 
 void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars, 
                       vtkFloatPoints *points,
