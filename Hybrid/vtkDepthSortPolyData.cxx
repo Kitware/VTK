@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 
-vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.30");
+vtkCxxRevisionMacro(vtkDepthSortPolyData, "1.31");
 vtkStandardNewMacro(vtkDepthSortPolyData);
 
 vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);
@@ -37,7 +37,7 @@ vtkDepthSortPolyData::vtkDepthSortPolyData()
   this->Direction = VTK_DIRECTION_BACK_TO_FRONT;
   this->DepthSortMode = VTK_SORT_FIRST_POINT;
   this->Vector[0] = this->Vector[1] = 0.0;
-  this->Vector[2] = 0,0;
+  this->Vector[2] = 0.0;
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   this->Transform = vtkTransform::New();
   this->SortScalars = 0;
