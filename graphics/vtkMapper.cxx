@@ -165,6 +165,7 @@ void vtkMapper::ShallowCopy(vtkMapper *m)
   this->SetColorMode(m->GetColorMode());
   this->SetScalarMode(m->GetScalarMode());
   this->SetImmediateModeRendering(m->GetImmediateModeRendering());
+  this->SetResolveCoincidentPrimitives(m->GetResolveCoincidentPrimitives());
 }
 
 // a side effect of this is that this->Colors is also set
