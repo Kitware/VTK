@@ -69,7 +69,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.6");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.7");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -381,6 +381,24 @@ int vtkBridgeCell::EvaluatePosition(double x[3],
   this->AllocateWeights();
   int result=this->Cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,
                                           this->Weights);
+  
+  if(result)
+    {
+    // clamp pcoords
+    int i=0;
+    while(i<3)
+      {
+      if(pcoords[i]<0)
+        {
+        pcoords[i]=0;
+        }
+      else if(pcoords[i]>1)
+        {
+        pcoords[i]=1;
+        }
+      ++i;
+      }
+    }
   
   assert("post: valid_result" && result==-1 || result==0 || result==1);
   assert("post: positive_distance" && (!(result!=-1) || (!(closestPoint!=0)||dist2>=0))); // A=>B: !A || B
