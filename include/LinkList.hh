@@ -14,6 +14,7 @@ public:
   vlLinkList():Array(0),Size(0),MaxId(-1),Extend(1000) {};
   vlLinkList(const int sz, const int ext);
   ~vlLinkList();
+  virtual char *GetClassName() {return "vlLinkList";};
   vlLink &GetLink(const int id) {return this->Array[id];};
   unsigned short GetNcells(const int id) {return this->Array[id].ncells;};
   int *GetCells(const int id) {return this->Array[id].cells;};

@@ -13,6 +13,7 @@ class vlPolyMapper : public vlMapper
 public:
   vlPolyMapper();
   ~vlPolyMapper();
+  virtual char *GetClassName() {return "vlPolyMapper";};
   void Render(vlRenderer *ren);
   virtual void SetInput(vlPolyData *in);
   virtual vlPolyData* GetInput();

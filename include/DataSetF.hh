@@ -12,6 +12,7 @@ class vlDataSetFilter : public vlFilter
 public:
   vlDataSetFilter();
   ~vlDataSetFilter();
+  virtual char *GetClassName() {return "vlDataSetFilter";};
   virtual void SetInput(vlDataSet *in);
   virtual vlDataSet*  GetInput();
   void Execute();

@@ -20,6 +20,7 @@ public:
   vlFloatTCoords(const int sz, const int d=2, const int ext=1000);
   vlFloatTCoords(vlFloatArray& fa);
   ~vlFloatTCoords();
+  virtual char *GetClassName() {return "vlFloatTCoords";};
   int NumTCoords();
   void Reset();
   vlFloatTCoords &operator=(const vlFloatTCoords& ftc);
