@@ -42,13 +42,13 @@ $prop SetDiffuse 0.6;
 $prop SetSpecularPower 5;
 $prop SetSpecular 0.5;
 $renWin Render;
-$renWin SetFilename f1.ppm;
+$renWin SetFileName f1.ppm;
 #$renWin SaveImageAsPPM;
 
 $prop SetSpecular 1.0;
 $renWin Render;
 
-#$renWin SetFilename specular.tcl.ppm;
+#$renWin SetFileName specular.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

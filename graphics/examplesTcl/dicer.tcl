@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkSTLReader reader;
-    reader SetFilename ../../data/42400-IDGH.stl;
+    reader SetFileName ../../data/42400-IDGH.stl;
 vtkDicer dicer;
     dicer SetInput [reader GetOutput];
     dicer SetNumberOfPointsPerPiece 1000;
@@ -47,7 +47,7 @@ eval $ren1 SetBackground $slate_grey;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin Render;
 
-#$renWin SetFilename "dicer.tcl.ppm";
+#$renWin SetFileName "dicer.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

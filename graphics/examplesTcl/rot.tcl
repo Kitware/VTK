@@ -45,7 +45,6 @@ $renWin Render;
 test RotateY 45.0;
 $renWin Render;
 
-#$renWin SetFilename rot.tcl.ppm;
+#$renWin SetFileName rot.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
-wm withdraw .;

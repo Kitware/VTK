@@ -43,7 +43,7 @@ $ren1 AddActors vertActor;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename "cubeEdges.tcl.ppm";
+#$renWin SetFileName "cubeEdges.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

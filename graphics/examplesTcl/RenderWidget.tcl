@@ -11,7 +11,13 @@ frame .top.f1
 
 vtkRenderWidget .top.f1.o1 -width 300 -height 300 
 button .top.btn  -text Quit -command exit
-bind .top.f1.o1 <B1-Motion> {puts "button1 motion (%x, %y)"}
+bind .top.f1.o1 <Any-ButtonPress> {puts "button %b press (%x, %y)"}
+bind .top.f1.o1 <Any-ButtonRelease> {puts "button %b release (%x, %y)"}
+bind .top.f1.o1 <B1-Motion> {puts "B%b-Motion (%x, %y)"}
+bind .top.f1.o1 <B2-Motion> {puts "B%b-Motion (%x, %y)"}
+bind .top.f1.o1 <B3-Motion> {puts "B%b-Motion (%x, %y)"}
+
+puts [bind .top.f1.o1]
 
 pack .top.f1.o1 -side left -padx 3 -pady 3 -fill both -expand t
 pack .top.f1  -fill both -expand t

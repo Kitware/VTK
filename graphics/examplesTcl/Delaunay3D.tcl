@@ -56,7 +56,7 @@ $cam1 Zoom 1.5;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
-#$renWin SetFilename Delaunay3D.tcl.ppm;
+#$renWin SetFileName Delaunay3D.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

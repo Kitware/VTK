@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create a cyberware source
 #
 vtkCyberReader cyber;
-    cyber SetFilename "../../data/fran_cut"
+    cyber SetFileName "../../data/fran_cut"
 vtkDecimate deci;
     deci SetInput [cyber GetOutput];
     deci SetTargetReduction 0.90;
@@ -53,7 +53,7 @@ $ren1 SetActiveCamera cam1;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename "uStripeF.tcl.ppm";
+#$renWin SetFileName "uStripeF.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

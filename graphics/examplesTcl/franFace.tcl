@@ -15,12 +15,12 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create a cyberware source
 #
 vtkCyberReader cyber;
-    cyber SetFilename "../../data/fran_cut";
+    cyber SetFileName "../../data/fran_cut";
 vtkPolyMapper cyberMapper;
     cyberMapper SetInput [cyber GetOutput];
 
 vtkPNMReader pnm1;
-    pnm1 SetFilename "../../data/fran_cut.ppm";
+    pnm1 SetFileName "../../data/fran_cut.ppm";
 
 vtkTexture atext;
   atext SetInput [pnm1 GetOutput];
@@ -42,7 +42,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 [$ren1 GetActiveCamera] Azimuth 90;
 $iren Initialize;
 
-#$renWin SetFilename "franFace.tcl.ppm";
+#$renWin SetFileName "franFace.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

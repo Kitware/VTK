@@ -15,7 +15,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create a cyberware source
 #
 vtkPolyReader reader;
-    reader SetFilename "../../data/honolulu.vtk"
+    reader SetFileName "../../data/honolulu.vtk"
 vtkDecimate deci; 
     deci SetInput [reader GetOutput];
     deci SetTargetReduction 0.9;

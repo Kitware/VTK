@@ -52,7 +52,7 @@ $ren1 SetBackground 1 1 1;
 $renWin SetSize 500 500;
 $renWin Render;
 
-#$renWin SetFilename "strip.tcl.ppm";
+#$renWin SetFileName "strip.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # render the image

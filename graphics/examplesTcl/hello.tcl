@@ -11,7 +11,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 
 # create lines
 vtkPolyReader reader;
-    reader SetFilename "../../data/hello.vtk"
+    reader SetFileName "../../data/hello.vtk"
 vtkPolyMapper lineMapper;
     lineMapper SetInput [reader GetOutput];
 vtkActor lineActor;
@@ -56,7 +56,7 @@ $iren Initialize;
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-#$renWin SetFilename "hello.tcl.ppm";
+#$renWin SetFileName "hello.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkStructuredPointsReader reader;
-    reader SetFilename "../../data/ironProt.vtk"
+    reader SetFileName "../../data/ironProt.vtk"
 #vtkRecursiveDividingCubes iso;
 vtkDividingCubes iso;
     iso SetInput [reader GetOutput];
@@ -58,7 +58,7 @@ $iren Initialize;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-#$renWin SetFilename "dcubes.tcl.ppm";
+#$renWin SetFileName "dcubes.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

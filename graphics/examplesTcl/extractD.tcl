@@ -62,7 +62,7 @@ $iren Initialize;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-#$renWin SetFilename "extractD.tcl.ppm";
+#$renWin SetFileName "extractD.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -161,7 +161,7 @@ $renWin SetSize 500 500;
 $renWin Render;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-#$renWin SetFilename Hyper.tcl.ppm;
+#$renWin SetFileName Hyper.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

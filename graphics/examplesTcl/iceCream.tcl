@@ -76,7 +76,7 @@ $renWin SetSize 500 500
 [$ren1 GetActiveCamera] Roll 90
 $iren Initialize
 
-#$renWin SetFilename "iceCream.tcl.ppm"
+#$renWin SetFileName "iceCream.tcl.ppm"
 #$renWin SaveImageAsPPM
 
 # render the image

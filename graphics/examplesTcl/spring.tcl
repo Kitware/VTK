@@ -69,7 +69,7 @@ set cam1 [$ren1 GetActiveCamera];
 $cam1 Azimuth 90;
 
 $renWin Render;
-#$renWin SetFilename "spring.tcl.ppm";
+#$renWin SetFileName "spring.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};

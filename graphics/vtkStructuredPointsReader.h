@@ -63,6 +63,8 @@ public:
 
   void SetFilename(char *name);
   char *GetFilename();
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
   // Description:
   // Specify the InputString for use when reading from a character array.

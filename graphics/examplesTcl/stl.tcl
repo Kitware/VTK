@@ -11,7 +11,7 @@ set ren1   [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
 
 vtkSTLReader sr;
-    sr SetFilename ../../data/42400-IDGH.stl;
+    sr SetFileName ../../data/42400-IDGH.stl;
 
 vtkPolyMapper   stlMapper;
     stlMapper SetInput [sr GetOutput];
@@ -30,7 +30,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 set cam1 [$ren1 GetActiveCamera];
 $cam1 Zoom 1.4;
 $iren Initialize;
-#$renWin SetFilename "stl.tcl.ppm";
+#$renWin SetFileName "stl.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

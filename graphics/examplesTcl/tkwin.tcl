@@ -57,4 +57,3 @@ pack .top.label .top.renwin -expand 1 -fill both;
 
 $renWin1 SetTkWindow .top.renwin;
 $iren1 Initialize;
- 

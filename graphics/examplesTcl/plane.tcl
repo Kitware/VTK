@@ -59,7 +59,7 @@ $renWin SetSize 450 450;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin Render;
-#$renWin SetFilename "plane.tcl.ppm";
+#$renWin SetFileName "plane.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

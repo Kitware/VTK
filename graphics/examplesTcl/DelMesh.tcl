@@ -86,7 +86,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 [$ren1 GetActiveCamera] Zoom 1.5;
 $iren Initialize;
 
-$renWin SetFilename "DelMesh.ppm";
+$renWin SetFileName "DelMesh.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

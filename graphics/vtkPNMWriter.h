@@ -65,6 +65,8 @@ public:
   // Specify name of file to write.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
 protected:
   void WriteData();

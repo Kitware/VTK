@@ -61,6 +61,8 @@ public:
   // Specify Cyberware file name.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
 protected:
   void Execute();

@@ -18,14 +18,14 @@ vtkVolume16Reader v16;
 vtkSliceCubes mcubes;
     mcubes SetReader v16;
     mcubes SetValue 1150;
-    mcubes SetFilename "fullHead.tri"
-    mcubes SetLimitsFilename "fullHead.lim"
+    mcubes SetFileName "fullHead.tri"
+    mcubes SetLimitsFileName "fullHead.lim"
     mcubes Update;
 
 # read from file
 vtkMCubesReader reader;
-reader SetFilename "fullHead.tri"
-reader SetLimitsFilename "fullHead.lim"
+reader SetFileName "fullHead.tri"
+reader SetLimitsFileName "fullHead.lim"
 
 vtkPolyMapper mapper;
     mapper SetInput [reader GetOutput];
@@ -59,7 +59,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $iren Initialize;
 
-#$renWin SetFilename "genHead.tcl.ppm";
+#$renWin SetFileName "genHead.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

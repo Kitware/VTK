@@ -33,7 +33,7 @@ $renWin SetSize 400 400;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename ColorSph.tcl.ppm;
+#$renWin SetFileName ColorSph.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 wm withdraw .

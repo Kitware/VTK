@@ -224,7 +224,8 @@ public:
   // method.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
-
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
   // Description:
   // Save the current image as a PPM file.

@@ -56,7 +56,7 @@ $cam1 SetWindowCenter -1.01 0;
 $cam2 SetWindowCenter 1.01 0;
 
 $renWin Render;
-#$renWin SetFilename OffAxis.tcl.ppm;
+#$renWin SetFileName OffAxis.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

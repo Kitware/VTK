@@ -13,7 +13,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkStructuredPointsReader reader;
-    reader SetFilename "../../data/ironProt.vtk"
+    reader SetFileName "../../data/ironProt.vtk"
 vtkContourFilter iso;
     iso SetInput [reader GetOutput];
     iso SetValue 0 128;
@@ -49,7 +49,7 @@ $iren Initialize;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
-#$renWin SetFilename "ironPIso.tcl.ppm";
+#$renWin SetFileName "ironPIso.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

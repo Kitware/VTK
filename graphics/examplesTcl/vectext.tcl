@@ -58,7 +58,7 @@ over three years.";
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename "vectext.tcl.ppm";
+#$renWin SetFileName "vectext.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

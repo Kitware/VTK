@@ -79,6 +79,8 @@ public:
   // Specify file name of pnm file(s).
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
   vtkStructuredPoints *GetImage(int ImageNum);
   

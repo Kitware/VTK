@@ -88,7 +88,7 @@ $renWin SetSize 400 400;
 $renWin Render;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};
-$renWin SetFilename "sweptCurve.tcl.ppm";
+$renWin SetFileName "sweptCurve.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -6,7 +6,7 @@ source vtkInt.tcl
 # load in the texture map
 #
 vtkPNMReader pnmReader;
-  pnmReader SetFilename "../../data/masonry.ppm";
+  pnmReader SetFileName "../../data/masonry.ppm";
 vtkTexture atext;
   atext SetInput [pnmReader GetOutput];
   atext InterpolateOn;
@@ -37,7 +37,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 $renWin SetSize 500 500;
 $renWin Render;
 
-#$renWin SetFilename "texTrans.tcl.ppm";
+#$renWin SetFileName "texTrans.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

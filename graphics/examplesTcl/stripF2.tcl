@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create a cyberware source
 #
 vtkCyberReader cyber;
-    cyber SetFilename "../../data/fran_cut"
+    cyber SetFileName "../../data/fran_cut"
 vtkDecimate deci;
     deci SetInput [cyber GetOutput];
     deci SetTargetReduction 0.90;
@@ -52,7 +52,7 @@ set sphereProp [cyberActor GetProperty];
 $cam1 Zoom 1.4;
 $renWin Render;
 
-#$renWin SetFilename "stripF2.tcl.ppm";
+#$renWin SetFileName "stripF2.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

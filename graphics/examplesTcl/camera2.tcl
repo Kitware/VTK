@@ -249,7 +249,7 @@ $cam1 Azimuth 150;
 $cam1 Elevation 30;
 
 $iren Initialize;
-#$renWin SetFilename camera2.tcl.ppm;
+#$renWin SetFileName camera2.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -83,7 +83,7 @@ $iren Initialize;
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-#$renWin SetFilename bottle.tcl.ppm;
+#$renWin SetFileName bottle.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 

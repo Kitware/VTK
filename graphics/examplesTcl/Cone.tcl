@@ -22,7 +22,7 @@ $ren1 AddActors coneActor;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename Cone.tcl.ppm;
+#$renWin SetFileName Cone.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

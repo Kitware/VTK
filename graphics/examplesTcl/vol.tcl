@@ -12,7 +12,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 set ren1 [$renWin MakeRenderer];
 
 # Read data
-reader SetFilename "../../data/ironProt.vtk";
+reader SetFileName "../../data/ironProt.vtk";
 reader Update;
 set range [[reader GetOutput] GetScalarRange];
 
@@ -36,7 +36,7 @@ vol SetInput [reader GetOutput];
 eval vol SetScalarRange $range;
 
 $renWin Render;
-#$renWin SetFilename "vol.tcl.ppm";
+#$renWin SetFileName "vol.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 wm withdraw .;

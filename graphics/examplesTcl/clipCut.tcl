@@ -168,7 +168,7 @@ $iren Initialize;
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-$renWin SetFilename "clipCut.tcl.ppm";
+$renWin SetFileName "clipCut.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -13,7 +13,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkStructuredPointsReader reader;
-    reader SetFilename "../../data/carotid.vtk"
+    reader SetFileName "../../data/carotid.vtk"
 vtkHedgeHog hhog;
     hhog SetInput [reader GetOutput];
     hhog SetScaleFactor 0.3;
@@ -51,7 +51,7 @@ $iren Initialize;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 [$ren1 GetActiveCamera] Zoom 1.5;
 $renWin Render;
-#$renWin SetFilename "complexV.tcl.ppm";
+#$renWin SetFileName "complexV.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -33,7 +33,7 @@ textActor SetCamera [$ren1 GetActiveCamera];
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-$renWin SetFilename "textOrigin.tcl.ppm";
+$renWin SetFileName "textOrigin.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 wm withdraw .;

@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read a vtk file
 #
 vtkPolyReader plate;
-    plate SetFilename "../../data/plate.vtk";
+    plate SetFileName "../../data/plate.vtk";
     plate SetVectorsName "mode2";
 vtkPolyNormals normals;
     normals SetInput [plate GetOutput];
@@ -50,7 +50,7 @@ $renWin SetSize 500 500;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-#$renWin SetFilename "vib.tcl.ppm";
+#$renWin SetFileName "vib.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -15,9 +15,9 @@ vtkLineSource line2;
 #  asource AddInput [line2 GetOutput];
 
 vtkSTLReader asource;
-  asource SetFilename ../../data/42400-IDGH.stl;
+  asource SetFileName ../../data/42400-IDGH.stl;
 #vtkCyberReader asource;
-#  asource SetFilename ../../data/fran_cut
+#  asource SetFileName ../../data/fran_cut
 vtkPolyMapper dataMapper;
   dataMapper SetInput [asource GetOutput];
 vtkActor model;
@@ -59,7 +59,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 [$ren1 GetActiveCamera] Zoom 1.4;
 $iren Initialize;
 
-#$renWin SetFilename SpatialRep.tcl.ppm;
+#$renWin SetFileName SpatialRep.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

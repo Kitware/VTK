@@ -10,7 +10,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read data
 #
 vtkStructuredGridReader reader;
-    reader SetFilename "../../data/office.vtk"
+    reader SetFileName "../../data/office.vtk"
     reader Update;#force a read to occur
 
 set length [[reader GetOutput] GetLength];
@@ -273,7 +273,7 @@ $ren1 SetActiveCamera aCamera;
 $renWin SetSize 500 300;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-#$renWin SetFilename "office.tcl.ppm";
+#$renWin SetFileName "office.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # interact with data

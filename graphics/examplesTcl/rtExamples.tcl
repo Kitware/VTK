@@ -72,7 +72,7 @@ foreach afile $files {
    renSrc WholeWindowOn;
    renSrc SetInput $ren1;
    vtkPNMReader pnm;
-   pnm SetFilename "valid/$afile.ppm";
+   pnm SetFileName "valid/$afile.ppm";
    
    vtkImageDifference imgDiff;
    imgDiff SetInput [renSrc GetOutput];
@@ -86,15 +86,14 @@ foreach afile $files {
        puts "Failed Test for $afile with an error of [imgDiff GetThresholdedError]"
       #   vtkPNMWriter pnmw;
       #   pnmw SetInput [imgDiff GetOutput];
-      #   pnmw SetFilename "$afile.error.ppm";
+      #   pnmw SetFileName "$afile.error.ppm";
       #   pnmw Write;
       #   vtkPNMWriter pnmw2;
       #   pnmw2 SetInput [renSrc GetOutput];
-      #   pnmw2 SetFilename "$afile.test.ppm";
+      #   pnmw2 SetFileName "$afile.test.ppm";
       #   pnmw2 Write;
    }
    
    vtkCommand DeleteAllObjects;
 }
 
-exit

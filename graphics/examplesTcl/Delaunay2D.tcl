@@ -56,7 +56,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 
 $renWin Render;
 
-#$renWin SetFilename Delaunay2D.tcl.ppm;
+#$renWin SetFileName Delaunay2D.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

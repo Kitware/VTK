@@ -112,6 +112,9 @@ void vtkTIFFWriter::WriteData()
     }
 
   buffer = newScalars->GetPtr(0);
+
+  vtkDebugMacro("Write tiff: width: " << dims[0] << ", height: " << dims[1] 
+		<< ", bpp: " << bpp);
   
   if (bpp == 1)
     {

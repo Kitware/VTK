@@ -56,7 +56,7 @@ $ren1 AddActors outlineActor;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;;
 
-#$renWin SetFilename MSquares.tcl.ppm;
+#$renWin SetFileName MSquares.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 wm withdraw .;

@@ -74,6 +74,8 @@ public:
   // Specify file name of stereo lithography file.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
   // Description:
   // Turn on/off merging of points/triangles.

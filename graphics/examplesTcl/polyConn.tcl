@@ -14,8 +14,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read data
 #
 vtkPLOT3DReader pl3d;
-    pl3d SetXYZFilename "../../data/bluntfinxyz.bin"
-    pl3d SetQFilename "../../data/bluntfinq.bin"
+    pl3d SetXYZFileName "../../data/bluntfinxyz.bin"
+    pl3d SetQFileName "../../data/bluntfinq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
     pl3d Update;
@@ -93,7 +93,7 @@ $iren Initialize;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-$renWin SetFilename "polyConn.tcl.ppm";
+$renWin SetFileName "polyConn.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

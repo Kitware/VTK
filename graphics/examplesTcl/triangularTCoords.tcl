@@ -67,7 +67,7 @@ $ren1 AddActors texturedActor
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-$renWin SetFilename "triangularTCoords.tcl.ppm";
+$renWin SetFileName "triangularTCoords.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

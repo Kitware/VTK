@@ -14,8 +14,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkPLOT3DReader pl3d;
-    pl3d SetXYZFilename "../../data/combxyz.bin"
-    pl3d SetQFilename "../../data/combq.bin"
+    pl3d SetXYZFileName "../../data/combxyz.bin"
+    pl3d SetQFileName "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
     pl3d Update;
@@ -62,7 +62,7 @@ for {set j 0} {$j<3} {incr j 1} {
     }
 }
 
-#$renWin SetFilename "movePlane.tcl.ppm";
+#$renWin SetFileName "movePlane.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

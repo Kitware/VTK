@@ -64,7 +64,7 @@ $ren1 AddActors outlineActor;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-$renWin SetFilename scalarConn.tcl.ppm;
+$renWin SetFileName scalarConn.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 wm withdraw .;

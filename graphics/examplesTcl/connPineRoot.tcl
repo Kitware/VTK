@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkMCubesReader reader;
-    reader SetFilename "../../data/pineRoot/pine_root.tri";
+    reader SetFileName "../../data/pineRoot/pine_root.tri";
 vtkPolyConnectivityFilter connect;
     connect SetInput [reader GetOutput];
     connect ExtractLargestRegion;

@@ -66,21 +66,29 @@ public:
   // Specify the name of the geometry file to write.
   vtkSetStringMacro(GeometryFilename);
   vtkGetStringMacro(GeometryFilename);
+  void SetGeometryFileName(char *str){this->SetGeometryFilename(str);}
+  char *GetGeometryFileName(){return this->GetGeometryFilename();}
 
   // Description:
   // Specify the name of the displacement file to write.
   vtkSetStringMacro(DisplacementFilename);
   vtkGetStringMacro(DisplacementFilename);
+  void SetDisplacementFileName(char *str){this->SetDisplacementFilename(str);}
+  char *GetDisplacementFileName(){return this->GetDisplacementFilename();}
 
   // Description:
   // Specify the name of the scalar file to write.
   vtkSetStringMacro(ScalarFilename);
   vtkGetStringMacro(ScalarFilename);
+  void SetScalarFileName(char *str){this->SetScalarFilename(str);}
+  char *GetScalarFileName(){return this->GetScalarFilename();}
 
   // Description:
   // Specify the name of the texture file to write.
   vtkSetStringMacro(TextureFilename);
   vtkGetStringMacro(TextureFilename);
+  void SetTextureFileName(char *str){this->SetTextureFilename(str);}
+  char *GetTextureFileName(){return this->GetTextureFilename();}
 
   // Description:
   // Turn on/off writing the displacement file.

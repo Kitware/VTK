@@ -67,6 +67,8 @@ public:
   // Specify file name of vtk data file to read.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
   // Description:
   // Specify the InputString for use when reading from a character array.

@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read a vtk file
 #
 vtkBYUReader byu;
-    byu SetGeometryFilename "../../data/fohe.g"
+    byu SetGeometryFileName "../../data/fohe.g"
 vtkPolyNormals normals;
     normals SetInput [byu GetOutput];
 vtkPolyMapper byuMapper;
@@ -33,7 +33,7 @@ $renWin SetSize 500 500;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename "fohe.tcl.ppm";
+#$renWin SetFileName "fohe.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

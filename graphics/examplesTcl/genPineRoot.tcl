@@ -26,13 +26,13 @@ vtkVolume16Reader v16;
 vtkSliceCubes mcubes;
     mcubes SetReader v16;
     mcubes SetValue 1750;
-    mcubes SetFilename "pine_root.tri"
-    mcubes SetLimitsFilename "pine_root.lim"
+    mcubes SetFileName "pine_root.tri"
+    mcubes SetLimitsFileName "pine_root.lim"
     mcubes Update;
 
 vtkMCubesReader reader;
-    reader SetFilename "pine_root.tri"
-    reader SetLimitsFilename "pine_root.lim"
+    reader SetFileName "pine_root.tri"
+    reader SetLimitsFileName "pine_root.lim"
 
 vtkPolyMapper mapper;
     mapper SetInput [reader GetOutput];

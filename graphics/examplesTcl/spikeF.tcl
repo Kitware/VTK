@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create a cyberware source
 #
 vtkCyberReader cyber;
-    cyber SetFilename "../../data/fran_cut"
+    cyber SetFileName "../../data/fran_cut"
 vtkPolyNormals normals;
     normals SetInput [cyber GetOutput];
 vtkPolyMapper cyberMapper;
@@ -68,7 +68,7 @@ set spikeProp [spikeActor GetProperty];
 $cam1 Zoom 1.4;
 $cam1 Azimuth 110;
 $renWin Render;
-#$renWin SetFilename "spikeF.tcl.ppm";
+#$renWin SetFileName "spikeF.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

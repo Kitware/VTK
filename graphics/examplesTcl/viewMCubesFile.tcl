@@ -21,8 +21,8 @@ gets stdin limitsName;
 
 # read from file
 vtkMCubesReader reader;
-    reader SetFilename $fileName;
-    reader SetLimitsFilename $limitsName;
+    reader SetFileName $fileName;
+    reader SetLimitsFileName $limitsName;
     reader DebugOn;
 
 vtkPolyMapper mapper;

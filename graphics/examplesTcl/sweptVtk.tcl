@@ -9,7 +9,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 
 # ingest data file
 vtkPolyReader reader;
-  reader SetFilename "../../data/vtk.vtk"
+  reader SetFileName "../../data/vtk.vtk"
 
 # create implicit model of vtk
 vtkImplicitModeller imp;
@@ -55,7 +55,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 [$ren1 GetActiveCamera] Zoom 1.5;
 $iren Initialize;
 
-#$renWin SetFilename "sweptVtk.tcl.ppm";
+#$renWin SetFileName "sweptVtk.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

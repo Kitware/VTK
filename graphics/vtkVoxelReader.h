@@ -62,6 +62,8 @@ public:
   // Set the name of the file to read.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
 protected:
   char *Filename;

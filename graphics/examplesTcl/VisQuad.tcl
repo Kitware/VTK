@@ -51,7 +51,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 
-#$renWin SetFilename VisQuad.tcl.ppm;
+#$renWin SetFileName VisQuad.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 wm withdraw .;

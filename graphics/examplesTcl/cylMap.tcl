@@ -31,7 +31,7 @@ vtkDataSetMapper mapper;
 # load in the texture map and assign to actor
 #
 vtkPNMReader pnmReader;
-  pnmReader SetFilename "../../data/masonry.ppm";
+  pnmReader SetFileName "../../data/masonry.ppm";
 vtkTexture atext;
   atext SetInput [pnmReader GetOutput];
   atext InterpolateOn;

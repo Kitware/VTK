@@ -6,7 +6,7 @@ source vtkInt.tcl
 # load in the texture map
 #
 vtkPNMReader pnmReader;
-  pnmReader SetFilename "../../data/billBoard.pgm";
+  pnmReader SetFileName "../../data/billBoard.pgm";
 vtkTexture atext;
   atext SetInput [pnmReader GetOutput];
   atext InterpolateOn;
@@ -59,7 +59,7 @@ for {set i 0} {$i < 112} {incr i} {
    $renWin Render;
 }
 
-#$renWin SetFilename billBoard.tcl.ppm;
+#$renWin SetFileName billBoard.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

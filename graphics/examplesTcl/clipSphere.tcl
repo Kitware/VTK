@@ -42,7 +42,7 @@ $iren Initialize;
 # render the image
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
-$renWin SetFilename "clipSphere.tcl.ppm";
+$renWin SetFileName "clipSphere.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

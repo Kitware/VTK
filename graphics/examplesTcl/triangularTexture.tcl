@@ -73,7 +73,7 @@ $ren1 AddActors triangleActor
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-$renWin SetFilename "triangularTexture.tcl.ppm";
+$renWin SetFileName "triangularTexture.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

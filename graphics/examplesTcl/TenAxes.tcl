@@ -92,7 +92,7 @@ $ren1 SetActiveCamera camera;
 $renWin SetSize 500 500;
 $renWin Render;
 
-#$renWin SetFilename TenAxes.tcl.ppm;
+#$renWin SetFileName TenAxes.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};

@@ -90,7 +90,7 @@ $renWin SetSize 450 450;
 $renWin Render;
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-#$renWin SetFilename TenEllip.tcl.ppm;
+#$renWin SetFileName TenEllip.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

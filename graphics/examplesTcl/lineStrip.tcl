@@ -55,7 +55,7 @@ $ren1 SetBackground 0.1 0.2 0.4;
 
 $iren Initialize;
 
-$renWin SetFilename "lineStrip.tcl.ppm";
+$renWin SetFileName "lineStrip.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 $iren SetUserMethod {wm deiconify .vtkInteract};

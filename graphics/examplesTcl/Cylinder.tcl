@@ -33,7 +33,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
 $renWin Render;
 
-#$renWin SetFilename Cylinder.tcl.ppm;
+#$renWin SetFileName Cylinder.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 set coneProp [coneActor GetProperty];

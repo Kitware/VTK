@@ -2,7 +2,7 @@
 source vtkInt.tcl
 
 vtkSTLReader reader;
-  reader SetFilename ../../data/42400-IDGH.stl;
+  reader SetFileName ../../data/42400-IDGH.stl;
 vtkPolyMapper dataMapper;
   dataMapper SetInput [reader GetOutput];
 vtkActor model;
@@ -38,7 +38,7 @@ $renWin SetSize 500 500;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
-#$renWin SetFilename OBBTree.tcl.ppm;
+#$renWin SetFileName OBBTree.tcl.ppm;
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

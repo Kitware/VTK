@@ -66,6 +66,8 @@ public:
   // Specify file name of vtk polygon data file to write.
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
+  void SetFileName(char *str){this->SetFilename(str);}
+  char *GetFileName(){return this->GetFilename();}
 
   // Description:
   // Specify the header for the vtk data file.

@@ -12,7 +12,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkStructuredPointsReader reader;
-    reader SetFilename "../../data/carotid.vtk"
+    reader SetFileName "../../data/carotid.vtk"
 vtkThresholdPoints threshold;
     threshold SetInput [reader GetOutput];
     threshold ThresholdByUpper 200;
@@ -76,7 +76,7 @@ $iren Initialize;
 #
 $iren SetUserMethod {wm deiconify .vtkInteract};
 
-#$renWin SetFilename "thrshldV.tcl.ppm";
+#$renWin SetFileName "thrshldV.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

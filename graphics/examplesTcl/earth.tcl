@@ -23,7 +23,7 @@ earthActor SetMapper earthMapper;
 #
 vtkTexture atext;
 vtkPNMReader pnmReader;
-pnmReader SetFilename "../../data/earth.ppm";
+pnmReader SetFileName "../../data/earth.ppm";
 atext SetInput [pnmReader GetOutput];
 atext InterpolateOn;
 earthActor SetTexture atext;
@@ -51,7 +51,7 @@ $iren SetUserMethod {wm deiconify .vtkInteract};
 set cam1 [$ren1 GetActiveCamera];
 $cam1 Zoom 1.4;
 $iren Initialize;
-#$renWin SetFilename "earth.tcl.ppm";
+#$renWin SetFileName "earth.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

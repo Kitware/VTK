@@ -11,7 +11,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkStructuredPointsReader reader;
-    reader SetFilename "../../data/carotid.vtk"
+    reader SetFileName "../../data/carotid.vtk"
 vtkPointSource psource;
     psource SetNumberOfPoints 25;
     psource SetCenter 133.1 116.3 5.0;
@@ -88,7 +88,7 @@ $iren SetUserMethod {
   commandloop "puts -nonewline vtki>"; puts cont};
 
 $renWin Render;
-#$renWin SetFilename "streamV.tcl.ppm";
+#$renWin SetFileName "streamV.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

@@ -14,7 +14,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkMCubesReader reader;
-    reader SetFilename "../../data/pineRoot/pine_root.tri";
+    reader SetFileName "../../data/pineRoot/pine_root.tri";
 vtkPolyMapper isoMapper;
     isoMapper SetInput [reader GetOutput];
     isoMapper ScalarsVisibleOff;
@@ -50,7 +50,7 @@ set cam [$ren1 GetActiveCamera];
   $cam SetViewAngle 20.9219;
   $cam SetViewUp 0.0 0.0 1.0
 $renWin Render;
-#$renWin SetFilename "pineRoot.tcl.ppm";
+#$renWin SetFileName "pineRoot.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop

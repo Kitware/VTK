@@ -14,8 +14,8 @@ set iren [$renWin MakeRenderWindowInteractor];
 # create pipeline
 #
 vtkPLOT3DReader pl3d;
-    pl3d SetXYZFilename "../../data/combxyz.bin"
-    pl3d SetQFilename "../../data/combq.bin"
+    pl3d SetXYZFileName "../../data/combxyz.bin"
+    pl3d SetQFileName "../../data/combq.bin"
     pl3d SetScalarFunctionNumber 100;
     pl3d SetVectorFunctionNumber 202;
     pl3d Update;
@@ -110,7 +110,7 @@ $cam1 CalcViewPlaneNormal;
 $cam1 SetViewUp 0.060772 -0.319905 0.945498;
 $iren Initialize;
 
-#$renWin SetFilename "probeComb.tcl.ppm";
+#$renWin SetFileName "probeComb.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # render the image

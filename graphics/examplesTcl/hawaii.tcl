@@ -16,7 +16,7 @@ set iren [$renWin MakeRenderWindowInteractor];
 # read a vtk file
 #
 vtkPolyReader hawaii;
-    hawaii SetFilename "../../data/honolulu.vtk";
+    hawaii SetFileName "../../data/honolulu.vtk";
     hawaii Update;
 vtkElevationFilter elevation;
     elevation SetInput [hawaii GetOutput];
@@ -59,7 +59,7 @@ $iren Initialize;
 
 [$ren1 GetActiveCamera] Zoom 1.8;
 $renWin Render;
-#$renWin SetFilename "hawaii.tcl.ppm";
+#$renWin SetFileName "hawaii.tcl.ppm";
 #$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
