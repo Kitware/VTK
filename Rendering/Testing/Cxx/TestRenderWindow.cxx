@@ -111,6 +111,10 @@ int main( int argc, char *argv[] )
   fdata = renWin->GetRGBAPixelData( 0, 0, 99, 99, 1 );
   renWin->SetRGBAPixelData( 100, 100, 199, 199, fdata, 1, 0 );
   renWin->ReleaseRGBAPixelData( fdata );
+
+  vtkUnsignedCharArray *ucArray = vtkUnsignedCharArray::New();
+  renWin->GetRGBACharPixelData( 20, 150, 40, 170, 1, ucArray );
+  renWin->SetRGBACharPixelData( 160, 31, 180, 51, ucArray, 1, 0 );
   
   renWin->SwapBuffersOff();
   
@@ -124,7 +128,9 @@ int main( int argc, char *argv[] )
     {
     iren->Start();
     }
-  
+
+  floatArray->Delete();
+  ucArray->Delete();
   sphereSource->Delete();
   actor->Delete();
   mapper->Delete();
