@@ -79,7 +79,7 @@ vtkMesaActor* vtkMesaActor::New()
   return new vtkMesaActor;
 }
 
-vtkProperty* MakeProperty()
+vtkProperty* vtkMesaActor::MakeProperty()
 {
   return vtkMesaProperty::New();
 }
