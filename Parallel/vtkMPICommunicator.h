@@ -186,6 +186,9 @@ public:
   static void Free(char* ptr);
 
 protected:
+  vtkMPICommunicator();
+  ~vtkMPICommunicator();
+
   virtual void SetGroup(vtkMPIGroup*);
 
   // Description:
@@ -229,12 +232,9 @@ protected:
   int Initialized;
   int KeepHandle;
 
-private:
-  vtkMPICommunicator();
-  ~vtkMPICommunicator();
-
   static int CheckForMPIError(int err);
 
+private:
   vtkMPICommunicator(const vtkMPICommunicator&);  // Not implemented.
   void operator=(const vtkMPICommunicator&);  // Not implemented.
 };
