@@ -34,7 +34,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkDataWriter, "1.92");
+vtkCxxRevisionMacro(vtkDataWriter, "1.93");
 vtkStandardNewMacro(vtkDataWriter);
 
 // this undef is required on the hp. vtkMutexLock ends up including
@@ -674,10 +674,6 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
       this->SetScalarsName(buffer);
       delete [] buffer;
       }
-    else
-      {
-      this->SetScalarsName("scalars");
-      }
     if (numComp == 1) 
       {
       sprintf(format,"%s %%s\nLOOKUP_TABLE %s\n",this->ScalarsName, name);
@@ -763,10 +759,6 @@ int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
     this->SetVectorsName(buffer);
     delete [] buffer;
     }
-  else
-    {
-    this->SetVectorsName("vectors");
-    }
   sprintf(format, "%s %s\n", this->VectorsName, "%s");
   return this->WriteArray(fp, vectors->GetDataType(), vectors, format, num, 3);
 }
@@ -785,11 +777,6 @@ int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
     this->SetNormalsName(buffer);
     delete [] buffer;
     }
-  else
-    {
-    this->SetNormalsName("normals");
-    }
-
   *fp << "NORMALS ";
   sprintf(format, "%s %s\n", this->NormalsName, "%s");
   return this->WriteArray(fp, normals->GetDataType(), normals, format, num, 3);
@@ -809,10 +796,6 @@ int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
     this->EncodeArrayName(buffer, tcoords->GetName());
     this->SetTCoordsName(buffer);
     delete [] buffer;
-    }
-  else
-    {
-    this->SetTCoordsName("tcoords");
     }
 
   *fp << "TEXTURE_COORDINATES ";
@@ -834,10 +817,6 @@ int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
     this->EncodeArrayName(buffer, tensors->GetName());
     this->SetTensorsName(buffer);
     delete [] buffer;
-    }
-  else
-    {
-    this->SetTensorsName("tensors");
     }
   *fp << "TENSORS "; 
   sprintf(format, "%s %s\n", this->TensorsName, "%s");
