@@ -77,16 +77,17 @@ public:
   void Initialize(int argc, char *arcv[]);
 
   // Description:
-  // Description:
   // This method returns an integer from 0 to (NumberOfProcesses-1)
   // indicating which process we are in.  
   // Note: The correct controller is passed as an argument to
-  // the initial function (SingleMethod/MultipleMethod).
+  // the initial function (SingleMethod/MultipleMethod).  Calling this
+  // method on another controller may give wrong results.
   vtkGetMacro(LocalProcessId, int);
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
-  // this->NumberOfProcesses processes.  You should not expect this to return.
+  // this->NumberOfProcesses processes.  This will only return when
+  // all the processes finish executing their methods.
   void SingleMethodExecute();
   
   // Description:
@@ -99,7 +100,7 @@ public:
   
   // Description:
   // This method sends data to another process.  Tag eliminates ambiguity
-  // when multiple sends ar receives exist in the same process.
+  // and is used to match sends with receives.
   int Send(vtkDataObject *data, int remoteProcessId, int tag);
   int Send(int *data, int length, int remoteProcessId, int tag);
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
@@ -108,8 +109,7 @@ public:
 
   // Description:
   // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
+  // until the receive is finished.  
   int Receive(vtkDataObject *data, int remoteProcessId, int tag);
   int Receive(int *data, int length, int remoteProcessId, int tag);
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);

@@ -57,7 +57,7 @@ class vtkImageData;
 class vtkCollection;
 
 
-#define VTK_MP_CONTROLLER_MAX_PROCESSES 256
+#define VTK_MP_CONTROLLER_MAX_PROCESSES 1024
 #define VTK_MP_CONTROLLER_ANY_SOURCE -1
 #define VTK_MP_CONTROLLER_INVALID_SOURCE -2
 
@@ -104,20 +104,23 @@ public:
   // Description:
   // Set the SingleMethod to f() and the UserData of the
   // for the method to be executed by all of the processes
-  // when SingleMethodExecute is called.
+  // when SingleMethodExecute is called.  All the processes will
+  // start by calling this function.
   void SetSingleMethod(vtkProcessFunctionType, void *data);
   //ETX
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
-  // this->NumberOfProcesses processes.  You should not expect this to return.
+  // this->NumberOfProcesses processes.  This will only return when
+  // all the processes finish executing their methods.
   virtual void SingleMethodExecute() = 0;
   
   //BTX
   // Description:
   // Set the MultipleMethod to f() and the UserData of the
   // for the method to be executed by the process index
-  // when MultipleMethodExecute is called.
+  // when MultipleMethodExecute is called.  This is for having each 
+  // process start with a different function and data argument.
   void SetMultipleMethod(int index, vtkProcessFunctionType, void *data); 
   //ETX
 
@@ -134,13 +137,15 @@ public:
   // Description:
   // This convenience method returns the controller associated with the 
   // local process.  It reutrns NULL until the processes are spawned.
+  // It is better if you hang on to the controller passed as an argument to the
+  // SingleMethod or MultipleMethod functions.
   static vtkMultiProcessController *GetGlobalController();
   
   //------------------ Communication --------------------
   
   // Description:
   // This method sends an object to another process.  Tag eliminates ambiguity
-  // when multiple sends or receives exist in the same process.
+  // and is used to match sends to receives.
   virtual int Send(vtkDataObject *data, int remoteProcessId, int tag);
   
   // Description:
@@ -154,9 +159,8 @@ public:
 		   int remoteProcessId, int tag) = 0;
 
   // Description:
-  // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
+  // This method receives a data object from a corresponding send. It blocks
+  // until the receive is finished. 
   virtual int Receive(vtkDataObject *data, int remoteProcessId, int tag);
 
   // Description:
@@ -175,10 +179,8 @@ public:
   // By default, sending objects use shallow copy whenever possible.
   // This flag forces the controller to use deep copies instead.
   // This is necessary when asyncronous processing occurs 
-  // (i.e. pipeline parallism). Right now, it is important that all the
-  // controllers in the different processes agree to force a deep copy.
-  // Deep copy is not implmented and just uses mashalling in the threaded
-  // controller.
+  // (i.e. pipeline parallism). This is only important when using
+  // vtkThreadedController.
   vtkSetMacro(ForceDeepCopy, int);
   vtkGetMacro(ForceDeepCopy, int);
   vtkBooleanMacro(ForceDeepCopy, int);
@@ -219,7 +221,7 @@ public:
   void ProcessRMIs();
 
   // Description:
-  // This will cause the ProcessRMIs loop to return.
+  // Setting this flag to 1 will cause the ProcessRMIs loop to return.
   // This also causes vtkUpStreamPorts to return from
   // their WaitForUpdate loops.
   vtkSetMacro(BreakFlag, int);

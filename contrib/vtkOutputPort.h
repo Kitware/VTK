@@ -38,7 +38,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkOutputPort - Sends data from this process to another process.
+// .NAME vtkOutputPort - Connects pipelines in different processes.
 // .SECTION Description
 // OutputPort Connects the pipeline in this process to one in another 
 // processes.  It communicates all the pipeline protocol so that
@@ -82,13 +82,17 @@ public:
   // Description:
   // This just forwards the wait onto the controller, which will wait
   // for a message for any of its ports (or any RMI).
-  // For now, this method does not return.  I need to find an elegant
-  // way to break this loop. (maybe a message between controllers)
+  // Since this method is implmeneted in the controller, multiple
+  // output ports can be waiting at once (as long as they share a controller).
+  // This method will only return if the BreakFlag is turned on in the 
+  // controller.  The controller automatically creates a break rmi with 
+  // the VTK_BREAK_RMI_TAG for doing this remotely.
   void WaitForUpdate() {this->Controller->ProcessRMIs();}
   
   // Description:
   // Access to the global controller.
   vtkMultiProcessController *GetController() {return this->Controller;}
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
 
   // Description:
   // RMI function needs to call this.  Should make function a friend.
@@ -97,14 +101,14 @@ public:
   void TriggerUpdate(int remoteProcessId);
   
   // Description:
-  // Trying to get pipeline parallism.
+  // Trying to get pipeline parallism working.
   vtkSetMacro(PipelineFlag, int);
   vtkGetMacro(PipelineFlag, int);
   vtkBooleanMacro(PipelineFlag, int);  
   
   // Description:
   // This method is called after the port updates.  It is meant to change
-  // a parameter if a series is being processed.
+  // a parameter if a series is being processed (for pipeline parallism).
   void SetParameterMethod(void (*f)(void *), void *arg);
 
   // Description:

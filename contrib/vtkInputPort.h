@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // (specified by RemoteProcessId).
 
 // .SECTION see also
-// vtkInputPort vtkMultiProcessController
+// vtkOutputPort vtkMultiProcessController
 
 #ifndef __vtkInputPort_h
 #define __vtkInputPort_h
@@ -92,8 +92,8 @@ public:
   vtkImageData *GetImageDataOutput();
   
   // Description:
-  // Output is specified by the process the output port is in,
-  // and a tag so there can be more than one output port per process.
+  // The matching OutputPort is specified by the output port's process
+  // and a tag.  There can be more than one output port per process.
   // THE TAG MUST BE EVEN BECAUSE TWO RMIs ARE CREATED FROM IT!!!
   vtkSetMacro(RemoteProcessId, int);
   vtkGetMacro(RemoteProcessId, int);
@@ -101,11 +101,11 @@ public:
   vtkGetMacro(Tag, int);
   
   // Description:
-  // Need to override to propagate across port
+  // Need to override to propagate across port.
   void UpdateInformation();
 
   // Description:
-  // Need to override to propagate across port
+  // Need to override to propagate across port.
   void PropagateUpdateExtent(vtkDataObject *vtkNotUsed(output)) {};
 
   // Description:
@@ -117,9 +117,11 @@ public:
   void TriggerAsynchronousUpdate();  
   
   // Description:
-  // Access to the global controller.
+  // Access to the controller used for communication.  By default, the
+  // global controller is used.
   vtkMultiProcessController *GetController() {return this->Controller;}
-
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  
 protected:
   vtkInputPort();
   ~vtkInputPort();  
