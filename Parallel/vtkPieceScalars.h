@@ -28,6 +28,9 @@
 
 #include "vtkDataSetToDataSetFilter.h"
 
+class vtkFloatArray;
+class vtkIntArray;
+
 class VTK_PARALLEL_EXPORT vtkPieceScalars : public vtkDataSetToDataSetFilter
 {
 public:

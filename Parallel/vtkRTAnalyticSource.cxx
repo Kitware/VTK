@@ -15,12 +15,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <math.h>
-
 #include "vtkRTAnalyticSource.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.11");
+#include <math.h>
+
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.12");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------

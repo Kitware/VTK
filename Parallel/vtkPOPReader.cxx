@@ -17,18 +17,19 @@
 =========================================================================*/
 #include "vtkPOPReader.h"
 
-#include "vtkMath.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkImageReader.h"
 #include "vtkImageWrapPad.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.13");
+vtkCxxRevisionMacro(vtkPOPReader, "1.14");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------

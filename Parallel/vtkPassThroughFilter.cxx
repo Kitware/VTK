@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPassThroughFilter.h"
+
+#include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPassThroughFilter, "1.1");
+vtkCxxRevisionMacro(vtkPassThroughFilter, "1.2");
 vtkStandardNewMacro(vtkPassThroughFilter);
 
 void vtkPassThroughFilter::Execute()

@@ -16,12 +16,14 @@
 
 =========================================================================*/
 #include "vtkPieceScalars.h"
-#include "vtkObjectFactory.h"
-#include "vtkIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkPieceScalars, "1.10");
+#include "vtkDataSet.h"
+#include "vtkFloatArray.h"
+#include "vtkIntArray.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+vtkCxxRevisionMacro(vtkPieceScalars, "1.11");
 vtkStandardNewMacro(vtkPieceScalars);
 
 //----------------------------------------------------------------------------

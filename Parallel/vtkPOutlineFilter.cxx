@@ -15,12 +15,15 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMultiProcessController.h"
 #include "vtkPOutlineFilter.h"
-#include "vtkOutlineSource.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPOutlineFilter, "1.2");
+#include "vtkDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
+#include "vtkOutlineSource.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkPOutlineFilter, "1.3");
 vtkStandardNewMacro(vtkPOutlineFilter);
 vtkCxxSetObjectMacro(vtkPOutlineFilter, Controller, vtkMultiProcessController);
 

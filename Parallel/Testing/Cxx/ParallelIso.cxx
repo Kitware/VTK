@@ -23,12 +23,12 @@
 // processes. It then appends the polygonal output from all input 
 // ports and it's own pipeline and renders the result ISO_NUM times,
 // each time setting a different scalar value to be contoured.
-
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCamera.h"
 #include "vtkConeSource.h"
 #include "vtkContourFilter.h"
+#include "vtkDataSet.h"
 #include "vtkElevationFilter.h"
 #include "vtkImageReader.h"
 #include "vtkInputPort.h"
@@ -36,6 +36,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkOutputPort.h"
 #include "vtkParallelFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"

@@ -21,6 +21,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
 #include "vtkInputPort.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRegressionTestImage.h"

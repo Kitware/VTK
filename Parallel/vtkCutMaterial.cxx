@@ -21,10 +21,11 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPolyData.h"
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.10");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.11");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
