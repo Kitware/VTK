@@ -7,7 +7,7 @@ vtkSLCReader reader
     reader SetFileName "../../../vtkdata/nut.slc"
 
 vtkStructuredPointsReader rgbreader
-    rgbreader SetFileName rgbdata.vtk
+    rgbreader SetFileName "../../../vtkdata/hipipTexture.vtk"
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction
