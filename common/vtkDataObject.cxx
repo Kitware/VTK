@@ -165,6 +165,13 @@ void vtkDataObject::DataHasBeenGenerated()
 {
   this->DataReleased = 0;
   this->UpdateTime.Modified();
+
+  // This is here so that the data can be easlily marked as up to date.
+  // It is used specifically when the filter vtkQuadricClustering
+  // is executed manually with the append methods. 
+  this->Piece = this->UpdatePiece;
+  this->NumberOfPieces = this->UpdateNumberOfPieces;
+  this->GhostLevel = this->UpdateGhostLevel;
 }
 
 //----------------------------------------------------------------------------
@@ -308,9 +315,8 @@ void vtkDataObject::UpdateData()
     if (this->Source)
       {
       this->Source->UpdateData(this);
-      // This is here for the unstructured data.
-      // It has no effect on the structured data.
-      // The alternative is to have it in every execute method.
+      // This is now douplicated in the method "DataHasBeenGenerated"
+      // It can probably be removed from this method.
       this->Piece = this->UpdatePiece;
       this->NumberOfPieces = this->UpdateNumberOfPieces;
       this->GhostLevel = this->UpdateGhostLevel;
