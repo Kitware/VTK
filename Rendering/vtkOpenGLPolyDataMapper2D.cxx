@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.50");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.51");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -183,9 +183,6 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   glDisable( GL_TEXTURE_2D );
   glDisable( GL_LIGHTING );
   
-  // Assume we want to do Zbuffering for now.
-  // we may turn this off later
-  glDepthMask(GL_TRUE);
 
   int *winSize = viewport->GetVTKWindow()->GetSize();
   
@@ -197,11 +194,13 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if ( actor->GetProperty()->GetDisplayLocation() == 
        VTK_FOREGROUND_LOCATION )
     {
+    glDepthMask(GL_FALSE);
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff +size[1], 0, 1);
     }  
   else
     {
+    glDepthMask(GL_TRUE);
     glOrtho(-xoff,-xoff + size[0],
             -yoff, -yoff + size[1], -1, 0);
     }
