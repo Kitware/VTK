@@ -70,9 +70,9 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 
 
 // default implementation outputs to cerr only
-void vtkOutputWindow::DisplayText(const char* text)
+void vtkOutputWindow::DisplayText(const char* txt)
 {
-  cerr << text;
+  cerr << txt;
   if(this->PromptUser)
     {
     char c = 'n';
