@@ -13,6 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlGlrLight - SGI gl light
+// .SECTION Description
+// vlGlrLight is a concrete implementation of the abstract class vlLight.
+// vlGlrLight interfaces to the Silicon Graphics gl rendering library.
+
 #ifndef __vlGlrLight_hh
 #define __vlGlrLight_hh
 
@@ -27,9 +32,9 @@ protected:
   
 public:
   char *GetClassName() {return "vlGlrLight";};
-  void Render(vlRenderer *ren,int light_index); // overides base 
-  void Render(vlGlrRenderer *ren,int light_index); // real function 
-  
+
+  void Render(vlRenderer *ren,int light_index);
+  void Render(vlGlrRenderer *ren,int light_index);
 };
 
 #endif

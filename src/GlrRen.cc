@@ -35,6 +35,8 @@ vlGlrRenderer::vlGlrRenderer()
 {
 }
 
+// Description:
+// Ask actors to build and draw themselves.
 int vlGlrRenderer::UpdateActors()
 {
   vlActor *anActor;
@@ -73,6 +75,8 @@ int vlGlrRenderer::UpdateActors()
   return count;
 }
 
+// Description:
+// Ask active camera to load its view matrix.
 int vlGlrRenderer::UpdateCameras ()
 {
   // update the viewing transformation 
@@ -82,6 +86,9 @@ int vlGlrRenderer::UpdateCameras ()
   return 1;
 }
 
+// Description:
+// Internal method temporarily removes lights before reloading them
+// into graphics pipeline.
 void vlGlrRenderer::ClearLights (void)
 {
   short cur_light;
@@ -107,6 +114,8 @@ void vlGlrRenderer::ClearLights (void)
   this->NumberOfLightsBound = 0;
 }
 
+// Description:
+// Ask lights to load themselves into graphics pipeline.
 int vlGlrRenderer::UpdateLights ()
 {
   vlLight *light;
@@ -154,6 +163,8 @@ int vlGlrRenderer::UpdateLights ()
   return count;
 }
  
+// Description:
+// Concrete gl render method.
 void vlGlrRenderer::Render(void)
 {
   // standard render method 
@@ -166,6 +177,8 @@ void vlGlrRenderer::Render(void)
   popmatrix();
 }
 
+// Description:
+// Create particular type of gl geometry primitive.
 vlGeometryPrimitive *vlGlrRenderer::GetPrimitive(char *type)
 {
   vlGeometryPrimitive *prim;
@@ -193,7 +206,6 @@ vlGeometryPrimitive *vlGlrRenderer::GetPrimitive(char *type)
 
   return((vlGeometryPrimitive *)NULL);
 }
-
 
 void vlGlrRenderer::PrintSelf(ostream& os, vlIndent indent)
 {

@@ -13,6 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlGlrProperty - SGI gl property
+// .SECTION Description
+// vlGlrProperty is a concrete implementation of the abstract class vlProperty.
+// vlGlrProperty interfaces to the Silicon Graphics gl rendering library.
+
 #ifndef __vlGlrProperty_hh
 #define __vlGlrProperty_hh
 
@@ -25,7 +30,8 @@ class vlGlrProperty : public vlProperty
 {
  public:
   char *GetClassName() {return "vlGlrProperty";};
-  void Render(vlRenderer *ren); // overides base 
+
+  void Render(vlRenderer *ren);
   void Render(vlGlrRenderer *ren);
 };
 

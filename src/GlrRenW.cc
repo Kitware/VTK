@@ -95,6 +95,19 @@ static void set_window(int buffer,Window W,GLXconfig *conf)
 	    conf[i].arg = (int)W;
 }
 
+vlGlrRenderWindow::vlGlrRenderWindow()
+{
+  this->Gid = -2;
+  this->DisplayId = (Display *)NULL;
+  this->WindowId = (Window)NULL;
+  this->NextWindowId = (Window)NULL;
+  this->ColorMap = (Colormap)0;
+
+  strcpy(this->Name,"Visualization Library - GL");
+}
+
+// Description:
+// Create a gl-specific actor.
 vlActor *vlGlrRenderWindow::MakeActor()
 {
   vlActor *actor;
@@ -107,6 +120,8 @@ vlActor *vlGlrRenderWindow::MakeActor()
   return (vlActor *)actor;
 }
 
+// Description:
+// Create a gl specific light.
 vlLight *vlGlrRenderWindow::MakeLight()
 {
   vlGlrLight *light;
@@ -115,6 +130,8 @@ vlLight *vlGlrRenderWindow::MakeLight()
   return (vlLight *)light;
 }
 
+// Description:
+// Create a gl specific renderer.
 vlRenderer *vlGlrRenderWindow::MakeRenderer()
 {
   vlGlrRenderer *ren;
@@ -127,6 +144,8 @@ vlRenderer *vlGlrRenderWindow::MakeRenderer()
   return (vlRenderer *)ren;
 }
 
+// Description:
+// Create a gl specific camera.
 vlCamera *vlGlrRenderWindow::MakeCamera()
 {
   vlGlrCamera *camera;
@@ -135,17 +154,8 @@ vlCamera *vlGlrRenderWindow::MakeCamera()
   return (vlCamera *)camera;
 }
 
-vlGlrRenderWindow::vlGlrRenderWindow()
-{
-  this->Gid = -2;
-  this->DisplayId = (Display *)NULL;
-  this->WindowId = (Window)NULL;
-  this->NextWindowId = (Window)NULL;
-  this->ColorMap = (Colormap)0;
-
-  strcpy(this->Name,"Visualization Library - GL");
-}
-
+// Description:
+// Begin the rendering process.
 void vlGlrRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
@@ -155,6 +165,8 @@ void vlGlrRenderWindow::Start(void)
   winset(this->Gid);
 }
 
+// Description:
+// End the rendering process and display the image.
 void vlGlrRenderWindow::Frame(void)
 {
   if (this->DoubleBuffer)
@@ -164,6 +176,8 @@ void vlGlrRenderWindow::Frame(void)
     }
 }
  
+// Description:
+// Specify various window parameters.
 void vlGlrRenderWindow::WindowConfigure()
 {
   if (this->DoubleBuffer)
@@ -200,6 +214,8 @@ void vlGlrRenderWindow::WindowConfigure()
 }
 
 
+// Description:
+// Initialize the window for rendering.
 void vlGlrRenderWindow::WindowInitialize (void)
 {
   GLXconfig  *conf;
@@ -324,6 +340,8 @@ void vlGlrRenderWindow::WindowInitialize (void)
   this->Mapped = 1;
 }
 
+// Description:
+// Initialize the rendering window.
 void vlGlrRenderWindow::Initialize (void)
 {
   // make sure we havent already been initialized 
@@ -339,6 +357,8 @@ void vlGlrRenderWindow::Initialize (void)
   this->Gid = 1;
 }
 
+// Description:
+// Make the connection to the window manager.
 void vlGlrRenderWindow::Connect()
 {
   int status = -1;
@@ -380,6 +400,8 @@ void vlGlrRenderWindow::Connect()
   this->Gid = -1;
 }
 
+// Description:
+// Change the window to fill the entire screen.
 void vlGlrRenderWindow::SetFullScreen(int arg)
 {
   int *temp;
@@ -437,7 +459,8 @@ void vlGlrRenderWindow::SetFullScreen(int arg)
   this->Modified();
 }
 
-
+// Description:
+// Set the preferred window size to full screen.
 void vlGlrRenderWindow::PrefFullScreen()
 {
   this->Connect();
@@ -452,7 +475,8 @@ void vlGlrRenderWindow::PrefFullScreen()
   this->Borders = 0;
 }
 
-
+// Description:
+// Resize the window.
 void vlGlrRenderWindow::WindowRemap()
 {
   short cur_light;
@@ -475,7 +499,8 @@ void vlGlrRenderWindow::WindowRemap()
   this->WindowInitialize();
 }
 
-
+// Description:
+// Get the current size of the window.
 int *vlGlrRenderWindow::GetSize(void)
 {
   XWindowAttributes attribs;
@@ -496,6 +521,8 @@ int *vlGlrRenderWindow::GetSize(void)
   return this->Size;
 }
 
+// Description:
+// Get the position in screen coordinates of the window.
 int *vlGlrRenderWindow::GetPosition(void)
 {
   XWindowAttributes attribs;
@@ -520,6 +547,8 @@ int *vlGlrRenderWindow::GetPosition(void)
   return this->Position;
 }
 
+// Description:
+// Specify the size of the rendering window.
 void vlGlrRenderWindow::SetSize(int x,int y)
 {
   // if we arent mappen then just set the ivars 
@@ -539,6 +568,8 @@ void vlGlrRenderWindow::SetSize(int x,int y)
 }
 
 
+// Description:
+// Get the window display id.
 Display *vlGlrRenderWindow::GetDisplayId()
 {
   vlDebugMacro(<< "Returning DisplayId of " << (void *)this->DisplayId << "\n"); 
@@ -546,6 +577,8 @@ Display *vlGlrRenderWindow::GetDisplayId()
   return this->DisplayId;
 }
 
+// Description:
+// Get the window id.
 Window vlGlrRenderWindow::GetWindowId()
 {
   vlDebugMacro(<< "Returning WindowId of " << (void *)this->WindowId << "\n"); 
@@ -553,6 +586,8 @@ Window vlGlrRenderWindow::GetWindowId()
   return this->WindowId;
 }
 
+// Description:
+// Set the window id to a pre-existing window.
 void vlGlrRenderWindow::SetWindowId(Window arg)
 {
   vlDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
@@ -560,6 +595,8 @@ void vlGlrRenderWindow::SetWindowId(Window arg)
   this->WindowId = arg;
 }
 
+// Description:
+// Set the display id of the window to a pre-exisiting display id.
 void vlGlrRenderWindow::SetDisplayId(Display  *arg)
 {
   vlDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 

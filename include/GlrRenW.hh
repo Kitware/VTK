@@ -13,6 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlGlrRenderWindow - SGI gl rendering window
+// .SECTION Description
+// vlGlrRenderWindow is a concrete implementation of the abstract class
+// vlRenderWindow. vlGlrRenderer interfaces to the Silicon Graphics gl
+// graphics library.
+
 #ifndef __vlGlrRenderWindow_hh
 #define __vlGlrRenderWindow_hh
 

@@ -25,13 +25,15 @@ static float light_info[] = {
   };
 
 
-// typecast if neccessary 
+// Description:
+// Implement base class method.
 void vlGlrLight::Render(vlRenderer *ren,int light_index)
 {
   this->Render((vlGlrRenderer *)ren,light_index);
 }
 
-// set the appropriate attributes in Glr for this light
+// Description:
+// Actual light render method.
 void vlGlrLight::Render(vlGlrRenderer *ren,int light_index)
 {
   float	dx, dy, dz;

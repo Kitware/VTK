@@ -28,13 +28,15 @@ static float mat[] = {
   LMNULL
   };
 
-// typecast if neccessary 
+// Description:
+// Implement base class method.
 void vlGlrProperty::Render(vlRenderer *ren)
 {
   this->Render((vlGlrRenderer *)ren);
 }
 
-// set the appropriate attributes in Glr for this property
+// Description:
+// Actual property render method.
 void vlGlrProperty::Render(vlGlrRenderer *ren)
 {
   int i, method;

@@ -13,6 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlGlrRenderer - SGI gl renderer
+// .SECTION Description
+// vlGlrRenderer is a concrete implementation of the abstract class
+// vlRenderer. vlGlrRenderer interfaces to the Silicon Graphics gl
+// graphics library.
+
 #ifndef __vlGlrRenderer_hh
 #define __vlGlrRenderer_hh
 
@@ -33,6 +39,7 @@ class vlGlrRenderer : public vlRenderer
   void Render(void); // overides base 
   char *GetClassName() {return "vlGlrRenderer";};
   void PrintSelf(ostream& os, vlIndent indent);
+
   vlGeometryPrimitive *GetPrimitive(char *);
   void ClearLights(void);
   int UpdateActors(void);

@@ -17,14 +17,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrRen.hh"
 #include "GlrCam.hh"
 
-// typecast if neccessary 
+// Description:
+// Implement base class method.
 void vlGlrCamera::Render(vlRenderer *ren)
 {
   this->Render((vlGlrRenderer *)ren);
 }
 
-// set the appropriate attributes in Glr for this camera
-//
+// Description:
+// Actual camera render method.
 void vlGlrCamera::Render(vlGlrRenderer *ren)
 {
   float aspect[3];
