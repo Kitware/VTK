@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkUnstructuredGridWriter.hh"
+#include "vtkByteSwap.hh"
 
 // Description:
 // Specify the input data or filter.
@@ -57,6 +58,7 @@ void vtkUnstructuredGridWriter::WriteData()
   FILE *fp;
   vtkUnstructuredGrid *input=(vtkUnstructuredGrid *)this->Input;
   int *types, ncells, cellId;
+  vtkByteSwap swap;
 
   vtkDebugMacro(<<"Writing vtk unstructured grid data...");
 
@@ -88,7 +90,8 @@ void vtkUnstructuredGridWriter::WriteData()
     }
   else
     {
-    fwrite (types,sizeof(int),ncells,fp);
+    // swap the bytes if necc
+    swap.SwapWrite4BERange(types,ncells,fp);
     }
   fprintf (fp,"\n");
     
