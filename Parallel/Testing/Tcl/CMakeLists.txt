@@ -71,3 +71,8 @@ ENDIF (VTK_DATA_ROOT)
 ADD_TEST(PrintSelf-Parallel ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/Parallel)
+
+ADD_TEST(TestSetObjectMacro-Parallel ${TCL_TCLSH}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+	 "${VTK_SOURCE_DIR}/Parallel/vtk\\\\*.h"
+	 "vtkSetObjectMacro")

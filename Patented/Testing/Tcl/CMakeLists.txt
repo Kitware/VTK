@@ -42,3 +42,8 @@ ENDIF (VTK_USE_RENDERING)
 ADD_TEST(PrintSelf-Patented ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
          ${VTK_SOURCE_DIR}/Patented)
+
+ADD_TEST(TestSetObjectMacro-Patented ${TCL_TCLSH}
+         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+	 "${VTK_SOURCE_DIR}/Patented/vtk\\\\*.h"
+	 "vtkSetObjectMacro")
