@@ -121,7 +121,7 @@ proc SetLevel level {
    viewer Render
 }
 
-puts "Done"
+
 
 
 #$renWin Render

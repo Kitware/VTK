@@ -94,7 +94,7 @@ proc SetSlice {} {
    
 
 }
-puts "Done"
+
 
 proc  Cancelwl {} {
     wm withdraw .wl

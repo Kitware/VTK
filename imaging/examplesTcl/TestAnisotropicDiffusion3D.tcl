@@ -22,7 +22,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 # Image pipeline
 
 vtkImageSeriesReader reader
-reader SwapBytesOn
+reader SetFileTypeLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
@@ -117,7 +117,7 @@ proc SetInverseVideo {} {
 }
 
 
-puts "Done"
+
 
 
 #$renWin Render

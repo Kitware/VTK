@@ -27,7 +27,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageSeriesReader reader
 #reader DebugOn
-reader SwapBytesOn
+reader SetFileTypeLittleEndian
 reader SetDataDimensions 256 256 93
 reader SetFilePrefix "../../../data/fullHead/headsq"
 reader SetPixelMask 0x7fff
@@ -41,7 +41,7 @@ thresh ReplaceOutOn
 
 vtkImageShortWriter writer
 writer SetInput [thresh GetOutput]
-writer SwapBytesOn
+writer SetFileTypeLittleEndian
 writer SetFilePrefix "test"
 writer SetInputMemoryLimit 500
 writer DebugOn
@@ -54,7 +54,7 @@ writer Write
 vtkImageSeriesReader reader2
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff
-reader2 SwapBytesOn
+reader2 SetFileTypeLittleEndian
 reader2 SetDataDimensions 256 256 93
 reader2 SetFilePrefix "test"
 
@@ -135,7 +135,7 @@ proc SetInverseVideo {} {
 }
 
 
-puts "Done"
+
 
 
 #$renWin Render

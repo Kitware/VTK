@@ -23,7 +23,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageSeriesReader reader
         reader DebugOn
-	#reader SwapBytesOff
+	#reader SetFileTypeBigEndian
 	reader SetDataDimensions 128 128 $numslices 1
         reader  SetFirst $firstslice
 	reader SetFilePrefix $prefix 
@@ -147,7 +147,7 @@ proc SetST st {
 }
 
 
-puts "Done"
+
 
 
 

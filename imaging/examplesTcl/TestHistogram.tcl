@@ -34,7 +34,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 vtkImageSeriesReader reader
 	#reader DebugOn
-	#reader SwapBytesOn
+	#reader SetFileTypeLittleEndian
 	reader SetDataDimensions $xdim $ydim $numslices 1
 	reader SetFilePrefix $prefix
 	reader SetPixelMask 0x7fff
@@ -175,7 +175,7 @@ proc Setoffsetlevel leveloffset {
    viewer1 Render
 }
 
-puts "Done"
+
 
 
 #$renWin Render

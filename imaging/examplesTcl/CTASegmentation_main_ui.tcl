@@ -422,7 +422,7 @@ proc CHGMIP {} {
    viewer Render
 }
 
-puts "Done"
+
 
 
 

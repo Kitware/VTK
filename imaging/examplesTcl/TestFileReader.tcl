@@ -72,7 +72,7 @@ proc SetInverseVideo {} {
 }
 
 
-puts "Done"
+
 
 
 #$renWin Render
