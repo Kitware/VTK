@@ -123,10 +123,14 @@ foreach afile $files {
 	set threshold 0
 	if {[info commands viewer] == "viewer"} {
 	    w2if SetInput [viewer GetImageWindow]
+	    # reset random seed for the render
+	    rtExMath RandomSeed 6
 	    viewer Render
 	} else {
 	    if {[info commands imgWin] == "imgWin"} {
+		# reset random seed for the render
 		w2if SetInput imgWin
+		rtExMath RandomSeed 6
 		imgWin Render
 	    }
 	}
