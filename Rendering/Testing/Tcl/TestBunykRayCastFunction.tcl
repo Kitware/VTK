@@ -76,7 +76,7 @@ vtkPolyDataMapper mapper
 vtkActor actor
     actor SetMapper mapper
 
-ren1 AddProp actor
+ren1 AddViewProp actor
 
 ren1 AddVolume volume
 renWin SetSize 300 300
