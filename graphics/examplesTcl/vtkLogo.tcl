@@ -21,6 +21,12 @@ vtkRenderWindowInteractor iren
 vtkVectorText letterV
   letterV SetText v
 
+vtkTriangleFilter letterVTris
+  letterVTris SetInput [letterV GetOutput]
+
+vtkStripper letterVStrips
+  letterVStrips SetInput [letterVTris GetOutput]
+
 # read the geometry file containing the letter t
 vtkVectorText letterT
   letterT SetText t
@@ -32,7 +38,7 @@ vtkVectorText letterK
 # create a transform and transform filter for each letter
 vtkTransform VTransform
 vtkTransformPolyDataFilter VTransformFilter
-  VTransformFilter SetInput [letterV GetOutput ]
+  VTransformFilter SetInput [letterVStrips GetOutput ]
   VTransformFilter SetTransform VTransform
 
 vtkTransform TTransform
