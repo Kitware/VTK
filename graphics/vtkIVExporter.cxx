@@ -290,6 +290,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
   else
     {
+    ds->Update();
     pd = (vtkPolyData *)ds;
     }
 
@@ -312,8 +313,10 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   prop = anActor->GetProperty();
   // the following is based on a guess about how VTK's GetAmbient
   // property corresponds to SoMaterial's ambientColor
-  fprintf(fp,"%sambientColor %g %g %g\n", indent, prop->GetAmbient(), 
-	  prop->GetAmbient(), prop->GetAmbient());
+  tempf2 = prop->GetAmbient();
+  tempf = prop->GetAmbientColor();
+  fprintf(fp,"%sambientColor %g %g %g\n", indent,
+	  tempf[0]*tempf2, tempf[1]*tempf2, tempf[2]*tempf2);
   tempf2 = prop->GetDiffuse();
   tempf = prop->GetDiffuseColor();
   fprintf(fp,"%sdiffuseColor %g %g %g\n", indent,
@@ -392,6 +395,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
 
     fprintf(fp, "%sTexture2 {\n", indent);
     indent_more;
+    bpp = mappedScalars->GetNumberOfValuesPerScalar();
     fprintf(fp, "%simage %d %d %d\n", indent, xsize, ysize, bpp);
     indent_more;
     txtrData = mappedScalars->GetPointer(0);
@@ -425,7 +429,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     }
 
   // write out point data if any
-  this->WritePointData(points, NULL, tcoords, colors, fp);
+  this->WritePointData(points, normals, tcoords, colors, fp);
 
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
