@@ -333,8 +333,8 @@ FillTable(TIFFFaxTabEnt *T, int Size, struct proto *P, int State)
 static  char* storage_class = "";
 static  char* const_class = "";
 static  int packoutput = 1;
-static  char* prebrace = "";
-static  char* postbrace = "";
+static  char* prebrace = "{ ";
+static  char* postbrace = " }";
 
 void
 WriteTable(FILE* fd, const TIFFFaxTabEnt* T, int Size, const char* name)
