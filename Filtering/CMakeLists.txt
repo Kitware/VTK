@@ -40,7 +40,6 @@ vtkRectilinearGridToPolyDataFilter
 vtkScalarTree
 vtkSimpleImageToImageFilter 
 vtkSphere
-vtkSphereSource
 vtkSpline
 vtkStructuredGridSource
 vtkStructuredGridToPolyDataFilter

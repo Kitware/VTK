@@ -98,6 +98,7 @@ vtkShrinkPolyData
 vtkSimpleElevationFilter
 vtkSmoothPolyDataFilter
 vtkSpatialRepresentationFilter
+vtkSphereSource
 vtkStreamLine
 vtkStreamPoints
 vtkStreamer
