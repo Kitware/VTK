@@ -30,8 +30,8 @@ vtkKochanekSpline.cxx
 vtkMergePoints.cxx
 vtkPerlinNoise.cxx
 vtkPiecewiseFunction.cxx
-vtkPiecewiseFunctionSource.cxx
 vtkPiecewiseFunctionShiftScale.cxx
+vtkPiecewiseFunctionSource.cxx
 vtkPiecewiseFunctionToPiecewiseFunctionFilter.cxx
 vtkPointSetSource.cxx
 vtkPointSetToPointSetFilter.cxx
@@ -41,8 +41,8 @@ vtkPolyDataToPolyDataFilter.cxx
 vtkRectilinearGridSource.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
-vtkSimpleScalarTree.cxx
 vtkSimpleImageToImageFilter.cxx
+vtkSimpleScalarTree.cxx
 vtkSphere.cxx
 vtkSpline.cxx
 vtkStructuredGridSource.cxx
@@ -98,17 +98,13 @@ vtkUnstructuredGridToUnstructuredGridFilter
 ABSTRACT
 )
 
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
-                        ${Filtering_SRCS}
-                        EXPORT_MACRO VTK_FILTERING_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkFilteringInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkFiltering ${Filtering_SRCS})
-ENDIF(VTK_MAKE_INSTANTIATOR)
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkFilteringInstantiator FilteringInstantiator_SRCS
+                      ${Filtering_SRCS}
+                      EXPORT_MACRO VTK_FILTERING_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkFilteringInstantiator)
 
 TARGET_LINK_LIBRARIES (vtkFiltering vtkCommon)
 

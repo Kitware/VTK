@@ -152,8 +152,8 @@ SET( RenderingOpenGL_SRCS
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
-  vtkOpenGLRenderer.cxx
   vtkOpenGLRenderWindow.cxx
+  vtkOpenGLRenderer.cxx
   vtkOpenGLTexture.cxx
   vtkOpenGLVolumeRayCastMapper.cxx
   vtkOpenGLVolumeTextureMapper2D.cxx
@@ -167,8 +167,8 @@ vtkCuller
 vtkDirectionEncoder
 vtkEncodedGradientEstimator
 vtkExporter
-vtkInteractorObserver
 vtkImporter
+vtkInteractorObserver
 vtkMapper
 vtkOpenGLRenderWindow
 vtkProp3D
@@ -248,11 +248,11 @@ IF (VTK_MANGLE_MESA)
                  vtkMesaPolyDataMapper.cxx
                  vtkMesaPolyDataMapper2D.cxx
                  vtkMesaProperty.cxx
+                 vtkMesaRenderWindow.cxx
                  vtkMesaRenderer.cxx
                  vtkMesaTexture.cxx
                  vtkMesaVolumeRayCastMapper.cxx
                  vtkMesaVolumeTextureMapper2D.cxx
-                 vtkMesaRenderWindow.cxx
                  vtkXMesaRenderWindow.cxx
                  vtkXMesaTextMapper.cxx
                 )
@@ -271,31 +271,23 @@ ELSE (VTK_MANGLE_MESA)
   ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
 ENDIF(VTK_MANGLE_MESA)
 
-IF(VTK_MAKE_INSTANTIATOR)
-  IF(HAVE_OPENGL_SRCS)
-    # Setup vtkInstantiator registration for this library's classes.
-    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
-                          ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
-                          EXPORT_MACRO VTK_RENDERING_EXPORT
-                          HEADER_LOCATION ${VTK_BINARY_DIR})
-    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
-                             ${RenderingInstantiator_SRCS})
-  ELSE(HAVE_OPENGL_SRCS)
-    # Setup vtkInstantiator registration for this library's classes.
-    VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
-                          ${Rendering_SRCS}
-                          EXPORT_MACRO VTK_RENDERING_EXPORT
-                          HEADER_LOCATION ${VTK_BINARY_DIR})
-    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingInstantiator_SRCS})
-  ENDIF(HAVE_OPENGL_SRCS)
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkRenderingInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  IF (HAVE_OPENGL_SRCS)
-    ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS})
-  ELSE (HAVE_OPENGL_SRCS)
-    ADD_LIBRARY(vtkRendering ${Rendering_SRCS})
-  ENDIF (HAVE_OPENGL_SRCS)
-ENDIF(VTK_MAKE_INSTANTIATOR)
+IF(HAVE_OPENGL_SRCS)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
+                        ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
+                        EXPORT_MACRO VTK_RENDERING_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingOpenGL_SRCS}
+                           ${RenderingInstantiator_SRCS})
+ELSE(HAVE_OPENGL_SRCS)
+  # Setup vtkInstantiator registration for this library's classes.
+  VTK_MAKE_INSTANTIATOR(vtkRenderingInstantiator RenderingInstantiator_SRCS
+                        ${Rendering_SRCS}
+                        EXPORT_MACRO VTK_RENDERING_EXPORT
+                        HEADER_LOCATION ${VTK_BINARY_DIR})
+  ADD_LIBRARY(vtkRendering ${Rendering_SRCS} ${RenderingInstantiator_SRCS})
+ENDIF(HAVE_OPENGL_SRCS)
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkRenderingInstantiator)
 
 # Allow the user to customize their build with some local options
 #

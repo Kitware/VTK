@@ -1,4 +1,3 @@
-
 SET( Graphics_SRCS
 vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
@@ -118,8 +117,8 @@ vtkSphereSource.cxx
 vtkSplitField.cxx
 vtkStreamLine.cxx
 vtkStreamPoints.cxx
-vtkStreamer.cxx
 vtkStreamTracer.cxx
+vtkStreamer.cxx
 vtkStripper.cxx
 vtkStructuredGridGeometryFilter.cxx
 vtkStructuredGridOutlineFilter.cxx
@@ -160,17 +159,13 @@ vtkStreamer
 ABSTRACT
 )
 
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
-                        ${Graphics_SRCS}
-                        EXPORT_MACRO VTK_GRAPHICS_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkGraphicsInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkGraphics ${Graphics_SRCS})
-ENDIF(VTK_MAKE_INSTANTIATOR)
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkGraphicsInstantiator GraphicsInstantiator_SRCS
+                      ${Graphics_SRCS}
+                      EXPORT_MACRO VTK_GRAPHICS_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkGraphics ${Graphics_SRCS} ${GraphicsInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkGraphicsInstantiator)
 
 # Allow the user to customize their build with some local options
 #

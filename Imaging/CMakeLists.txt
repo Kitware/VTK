@@ -13,8 +13,8 @@ vtkImageButterworthLowPass.cxx
 vtkImageCacheFilter.cxx
 vtkImageCanvasSource2D.cxx
 vtkImageCast.cxx
-vtkImageCheckerboard.cxx
 vtkImageChangeInformation.cxx
+vtkImageCheckerboard.cxx
 vtkImageCityBlockDistance.cxx
 vtkImageClip.cxx
 vtkImageConnector.cxx
@@ -48,7 +48,6 @@ vtkImageHSVToRGB.cxx
 vtkImageHybridMedian2D.cxx
 vtkImageIdealHighPass.cxx
 vtkImageIdealLowPass.cxx
-vtkImageToImageStencil.cxx
 vtkImageImport.cxx
 vtkImageIslandRemoval2D.cxx
 vtkImageIterateFilter.cxx
@@ -74,11 +73,11 @@ vtkImageOpenClose3D.cxx
 vtkImagePadFilter.cxx
 vtkImagePermute.cxx
 vtkImageQuantizeRGBToIndex.cxx
-vtkImageReslice.cxx
 vtkImageRFFT.cxx
 vtkImageRGBToHSV.cxx
 vtkImageRange3D.cxx
 vtkImageResample.cxx
+vtkImageReslice.cxx
 vtkImageSeedConnectivity.cxx
 vtkImageSeparableConvolution.cxx
 vtkImageShiftScale.cxx
@@ -92,6 +91,7 @@ vtkImageStencil.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
 vtkImageThreshold.cxx
+vtkImageToImageStencil.cxx
 vtkImageTranslateExtent.cxx
 vtkImageVariance3D.cxx
 vtkImageWrapPad.cxx
@@ -107,24 +107,20 @@ vtkVoxelModeller.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkImageDecomposeFilter
+vtkImageFourierFilter
 vtkImageIterateFilter
 vtkImagePadFilter
 vtkImageSpatialFilter
-vtkImageFourierFilter
 ABSTRACT
 )
 
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
-                        ${Imaging_SRCS}
-                        EXPORT_MACRO VTK_IMAGING_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkImagingInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkImaging ${Imaging_SRCS})
-ENDIF(VTK_MAKE_INSTANTIATOR)
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkImagingInstantiator ImagingInstantiator_SRCS
+                      ${Imaging_SRCS}
+                      EXPORT_MACRO VTK_IMAGING_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkImaging ${Imaging_SRCS} ${ImagingInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkImagingInstantiator)
 
 # Allow the user to customize their build with some local options
 #

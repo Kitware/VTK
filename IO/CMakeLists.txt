@@ -74,17 +74,13 @@ ABSTRACT
 #
 SET_SOURCE_FILES_PROPERTIES(vtkPLY WRAP_EXCLUDE)
 
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
-                        ${IO_SRCS}
-                        EXPORT_MACRO VTK_IO_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkIOInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkIO IO_SRCS)
-ENDIF(VTK_MAKE_INSTANTIATOR)
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkIOInstantiator IOInstantiator_SRCS
+                      ${IO_SRCS}
+                      EXPORT_MACRO VTK_IO_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkIO ${IO_SRCS} ${IOInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkIOInstantiator)
 
 # Allow the user to customize their build with some local options
 #

@@ -1,4 +1,4 @@
-SOURCE_FILES ( Hybrid_SRCS
+SET ( Hybrid_SRCS
 vtk3DSImporter.cxx
 vtk3DWidget.cxx
 vtkAmoebaMinimizer.cxx
@@ -9,9 +9,9 @@ vtkCubeAxesActor2D.cxx
 vtkDepthSortPolyData.cxx
 vtkEarthSource.cxx
 vtkGridTransform.cxx
-vtkImplicitModeller.cxx
-vtkImageToPolyDataFilter.cxx
 vtkImagePlaneWidget.cxx
+vtkImageToPolyDataFilter.cxx
+vtkImplicitModeller.cxx
 vtkIterativeClosestPointTransform.cxx
 vtkLandmarkTransform.cxx
 vtkLegendBoxActor.cxx
@@ -22,51 +22,48 @@ vtkPointWidget.cxx
 vtkPolyDataSourceWidget.cxx
 vtkPolyDataToImageStencil.cxx
 vtkProcrustesAlignmentFilter.cxx
-vtkRenderLargeImage.cxx
 vtkRIBExporter.cxx
 vtkRIBLight.cxx
 vtkRIBProperty.cxx
+vtkRenderLargeImage.cxx
 vtkSphereWidget.cxx
 vtkThinPlateSplineTransform.cxx
 vtkTransformToGrid.cxx
+vtkVRMLImporter.cxx
 vtkVectorText.cxx
 vtkVideoSource.cxx
-vtkVRMLImporter.cxx
-vtkXYPlotActor.cxx
 vtkWeightedTransformFilter.cxx
+vtkXYPlotActor.cxx
 )
 
-ABSTRACT_FILES(
+SET_SOURCE_FILES_PROPERTIES(
 vtk3DWidget
 vtkPolyDataSourceWidget
+ABSTRACT
 )
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
-    SOURCE_FILES (Hybrid_SRCS vtkWin32VideoSource.cxx)
+    SET (Hybrid_SRCS ${Hybrid_SRCS} vtkWin32VideoSource.cxx)
   ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
 
   IF (VTK_USE_MATROX_IMAGING)
-    SOURCE_FILES (Hybrid_SRCS vtkMILVideoSource.cxx)
+    SET (Hybrid_SRCS ${Hybrid_SRCS} vtkMILVideoSource.cxx)
     INCLUDE_DIRECTORIES (${MIL_INCLUDE_PATH})
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
 
-WRAP_EXCLUDE_FILES(vtkVRML)
+SET_SOURCE_FILES_PROPERTIES(vtkVRML WRAP_EXCLUDE)
 
 INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
 
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
-                        Hybrid_SRCS
-                        EXPORT_MACRO VTK_HYBRID_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkHybrid Hybrid_SRCS HybridInstantiator_SRCS)
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkHybridInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkHybrid Hybrid_SRCS)
-ENDIF(VTK_MAKE_INSTANTIATOR)
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkHybridInstantiator HybridInstantiator_SRCS
+                      ${Hybrid_SRCS}
+                      EXPORT_MACRO VTK_HYBRID_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkHybridInstantiator)
 
 # Allow the user to customize their build with some local options
 #
@@ -74,20 +71,13 @@ INCLUDE (${VTK_BINARY_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Hybrid/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS Hybrid_SRCS)
+  VTK_WRAP_TCL(vtkHybridTCL HybridTCL_SRCS ${Hybrid_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkHybridTCL SHARED HybridTCL_SRCS)
+    ADD_LIBRARY(vtkHybridTCL SHARED ${HybridTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkHybridTCL HybridTCL_SRCS)
+    ADD_LIBRARY(vtkHybridTCL ${HybridTCL_SRCS})
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkHybridTCL
-                         vtkRenderingTCL
-                         vtkIOTCL
-                         vtkGraphicsTCL
-                         vtkImagingTCL
-                         vtkFilteringTCL
-                         vtkCommonTCL
-                         ${TCL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkHybridTCL vtkRenderingTCL vtkIOTCL)
   IF (WIN32)
     IF (VTK_USE_VIDEO_FOR_WINDOWS)
       TARGET_LINK_LIBRARIES (vtkHybridTCL vfw32)
@@ -104,21 +94,14 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkHybridPython HybridPython_SRCS Hybrid_SRCS)
+  VTK_WRAP_PYTHON(vtkHybridPython HybridPython_SRCS ${Hybrid_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkHybridPython MODULE HybridPython_SRCS)
+    ADD_LIBRARY(vtkHybridPython MODULE ${HybridPython_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkHybridPython SHARED HybridPython_SRCS)
-    TARGET_LINK_LIBRARIES (vtkHybridPython
-                           vtkRenderingPython
-                           vtkIOPython
-                           vtkGraphicsPython
-                           vtkImagingPython
-                           vtkFilteringPython
-                           vtkCommonPython)
+    ADD_LIBRARY(vtkHybridPython SHARED ${HybridPython_SRCS})
+    TARGET_LINK_LIBRARIES (vtkHybridPython vtkRenderingPython vtkIOPython)
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkHybridPython
-			 ${OPENGL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkHybridPython ${OPENGL_LIBRARY})
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkHybridPython
                            debug ${PYTHON_DEBUG_LIBRARY}
@@ -139,16 +122,9 @@ IF (VTK_WRAP_PYTHON)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkHybridJava HybridJava_SRCS Hybrid_SRCS)
-  ADD_LIBRARY(vtkHybridJava SHARED HybridJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkHybridJava
-                         vtkCommonJava
-                         vtkFilteringJava
-                         vtkImagingJava
-                         vtkGraphicsJava
-                         vtkRenderingJava
-                         vtkIOJava
-			 ${OPENGL_LIBRARY})
+  VTK_WRAP_JAVA(vtkHybridJava HybridJava_SRCS ${Hybrid_SRCS})
+  ADD_LIBRARY(vtkHybridJava SHARED ${HybridJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtkHybridJava vtkRenderingJava vtkIOJava)
   IF (WIN32)
     IF (VTK_USE_VIDEO_FOR_WINDOWS)
       TARGET_LINK_LIBRARIES (vtkHybridJava vfw32)
@@ -161,24 +137,16 @@ IF (VTK_WRAP_JAVA)
   INSTALL_TARGETS(/lib/vtk vtkHybridJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
-vtkImaging
-vtkGraphics
-vtkIO
-vtkRendering
-vtkHybrid
-)
+TARGET_LINK_LIBRARIES (vtkHybrid vtkRendering vtkIO)
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
-    LINK_LIBRARIES (vfw32)
+    TARGET_LINK_LIBRARIES (vtkHybrid vfw32)
   ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
   IF (VTK_USE_MATROX_IMAGING)
-    LINK_LIBRARIES (${MIL_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtkHybrid ${MIL_LIBRARY})
   ENDIF (VTK_USE_MATROX_IMAGING)
 ENDIF (WIN32)
 
 INSTALL_TARGETS(/lib/vtk vtkHybrid)
-INSTALL_FILES(/include/vtk .h Hybrid_SRCS)
+INSTALL_FILES(/include/vtk .h ${Hybrid_SRCS})

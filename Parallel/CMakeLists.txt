@@ -1,4 +1,4 @@
-SOURCE_FILES ( Parallel_SRCS
+SET ( Parallel_SRCS
 vtkBranchExtentTranslator.cxx
 vtkCollectPolyData.cxx
 vtkCommunicator.cxx
@@ -13,61 +13,57 @@ vtkInputPort.cxx
 vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
 vtkOutputPort.cxx
-vtkParallelFactory.cxx
+vtkPCellDataToPointData.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
-vtkPieceScalars.cxx
-vtkPipelineSize.cxx
 vtkPImageWriter.cxx
-vtkPCellDataToPointData.cxx
 vtkPLinearExtrusionFilter.cxx
-vtkPPolyDataNormals.cxx
 vtkPOPReader.cxx
+vtkPPolyDataNormals.cxx
 vtkPSphereSource.cxx
 vtkPVGeometryFilter.cxx
-vtkRectilinearGridOutlineFilter.cxx
+vtkParallelFactory.cxx
+vtkPieceScalars.cxx
+vtkPipelineSize.cxx
 vtkRTAnalyticSource.cxx
+vtkRectilinearGridOutlineFilter.cxx
 vtkSharedMemoryCommunicator.cxx
+vtkSocketCommunicator.cxx
+vtkSocketController.cxx
 vtkThreadedController.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeComposite.cxx
 vtkTreeCompositer.cxx
-vtkSocketCommunicator.cxx
-vtkSocketController.cxx
 )
 
-ABSTRACT_FILES(
-vtkCommunicator
-)
+SET_SOURCE_FILES_PROPERTIES(vtkCommunicator ABSTRACT)
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
-  SOURCE_FILES ( Parallel_SRCS
+  SET ( Parallel_SRCS
     vtkMPICommunicator.cxx
     vtkMPIController.cxx 
     vtkMPIGroup.cxx)
+ENDIF (VTK_USE_MPI)
 
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
+                      ${Parallel_SRCS}
+                      EXPORT_MACRO VTK_PARALLEL_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkParallel ${Parallel_SRCS} ${ParallelInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkParallelInstantiator)
+
+IF (VTK_USE_MPI)
   IF (MPI_LIBRARY)
-    LINK_LIBRARIES (${MPI_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtkParallel ${MPI_LIBRARY})
   ENDIF (MPI_LIBRARY)
   IF (MPI_EXTRA_LIBRARY)
-    LINK_LIBRARIES (${MPI_EXTRA_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtkParallel ${MPI_EXTRA_LIBRARY})
   ENDIF (MPI_EXTRA_LIBRARY)
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF (VTK_USE_MPI)
-
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkParallelInstantiator ParallelInstantiator_SRCS
-                        Parallel_SRCS
-                        EXPORT_MACRO VTK_PARALLEL_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkParallel Parallel_SRCS ParallelInstantiator_SRCS)
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkParallelInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkParallel Parallel_SRCS)
-ENDIF(VTK_MAKE_INSTANTIATOR)
 
 # Allow the user to customize their build with some local options
 #
@@ -75,36 +71,19 @@ INCLUDE (${VTK_BINARY_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Parallel/LocalUserOptions.cmake OPTIONAL)
 
 IF (WIN32)
-  LINK_LIBRARIES( wsock32 )
+  TARGET_LINK_LIBRARIES(vtkParallel wsock32)
 ENDIF (WIN32)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS Parallel_SRCS)
-  ADD_LIBRARY(vtkParallelTCL ParallelTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelTCL
-                         vtkIOTCL
-                         vtkRenderingTCL
-                         vtkGraphicsTCL
-                         vtkImagingTCL
-                         vtkFilteringTCL
-                         vtkCommonTCL
-                         ${TCL_LIBRARY})
+  VTK_WRAP_TCL(vtkParallelTCL ParallelTCL_SRCS ${Parallel_SRCS})
+  ADD_LIBRARY(vtkParallelTCL ${ParallelTCL_SRCS})
+  TARGET_LINK_LIBRARIES (vtkParallelTCL vtkIOTCL vtkRenderingTCL)
   INSTALL_TARGETS(/lib/vtk vtkParallelTCL)
 
   IF (VTK_USE_MPI)
 
     ADD_EXECUTABLE(pvtk paraTkAppInit.cxx)
-    TARGET_LINK_LIBRARIES (pvtk
-			 vtkParallelTCL
-                         vtkRenderingTCL
-                         vtkIOTCL
-                         vtkGraphicsTCL
-                         vtkImagingTCL
-                         vtkFilteringTCL
-                         vtkCommonTCL
-			 ${TCL_LIBRARY}
-			 ${TK_LIBRARY})
-    TARGET_LINK_LIBRARIES(pvtk vtkpng vtkzlib vtkjpeg vtktiff vtkexpat)
+    TARGET_LINK_LIBRARIES (pvtk vtkParallelTCL)
 
     IF (VTK_USE_PATENTED)
       TARGET_LINK_LIBRARIES(pvtk vtkPatentedTCL vtkPatented)
@@ -151,20 +130,13 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS Parallel_SRCS)
+  VTK_WRAP_PYTHON(vtkParallelPython ParallelPython_SRCS ${Parallel_SRCS})
   IF (APPLE) 
-    ADD_LIBRARY(vtkParallelPython MODULE ParallelPython_SRCS)
+    ADD_LIBRARY(vtkParallelPython MODULE ${ParallelPython_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkParallelPython SHARED ParallelPython_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelPython
-                         vtkIOPython
-                         vtkRenderingPython
-                         vtkGraphicsPython
-                         vtkImagingPython
-                         vtkFilteringPython
-                         vtkCommonPython)
-  TARGET_LINK_LIBRARIES (vtkParallelPython
-			 ${OPENGL_LIBRARY})
+    ADD_LIBRARY(vtkParallelPython SHARED ${ParallelPython_SRCS})
+  TARGET_LINK_LIBRARIES (vtkParallelPython vtkIOPython vtkRenderingPython)
+  TARGET_LINK_LIBRARIES (vtkParallelPython ${OPENGL_LIBRARY})
   ENDIF (APPLE)
 
   IF(WIN32)
@@ -179,27 +151,13 @@ IF (VTK_WRAP_PYTHON)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS Parallel_SRCS)
-  ADD_LIBRARY(vtkParallelJava SHARED ParallelJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkParallelJava
-                         vtkCommonJava
-                         vtkFilteringJava
-                         vtkImagingJava
-                         vtkGraphicsJava
-                         vtkRenderingJava
-                         vtkIOJava)
+  VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS ${Parallel_SRCS})
+  ADD_LIBRARY(vtkParallelJava SHARED ${ParallelJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtkParallelJava vtkRenderingJava vtkIOJava)
   INSTALL_TARGETS(/lib/vtk vtkParallelJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkParallel
-vtkRendering
-vtkImaging
-vtkGraphics
-vtkIO
-vtkFiltering
-vtkCommon
-)
+TARGET_LINK_LIBRARIES (vtkParallel vtkRendering vtkIO)
 
 INSTALL_TARGETS(/lib/vtk vtkParallel)
 INSTALL_FILES(/include/vtk .h Parallel_SRCS)

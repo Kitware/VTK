@@ -1,76 +1,51 @@
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j|Task|Pipe).*$")
 
-LINK_LIBRARIES (
-vtkParallel
-vtkRendering
-vtkIO
-vtkGraphics
-vtkImaging
-vtkFiltering 
-vtkCommon 
-)
-
-IF (HAVE_PNG)
-  LINK_LIBRARIES( ${PNG_LIBRARY} ) 
-  IF (ZLIB_LIBRARY)
-    LINK_LIBRARIES( ${ZLIB_LIBRARY} )
-  ENDIF (ZLIB_LIBRARY)
-ENDIF (HAVE_PNG)
-
-IF (VTK_USE_HYBRID)
-  ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
-  TARGET_LINK_LIBRARIES(ParallelIso vtkHybrid)
-ENDIF (VTK_USE_HYBRID)
-
+# Build a list of libraries to link.
+SET(LIBS vtkParallel)
 
 IF (VTK_MANGLE_MESA)
-  LINK_LIBRARIES( ${MESA_LIBRARY})
+  SET(LIBS ${LIBS} ${MESA_LIBRARY})
   IF ( MESA_OS_LIBRARY )
-    LINK_LIBRARIES(${MESA_OS_LIBRARY})
+    SET(LIBS ${LIBS} ${MESA_OS_LIBRARY})
   ENDIF ( MESA_OS_LIBRARY )
 ELSE (VTK_MANGLE_MESA)
   IF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
-    LINK_LIBRARIES(${MESA_OS_LIBRARY})
+    SET(LIBS ${LIBS} ${MESA_OS_LIBRARY})
   ENDIF (MESA_OS_LIBRARY AND VTK_OPENGL_HAS_OSMESA)
 ENDIF (VTK_MANGLE_MESA)
-LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
+
+SET(LIBS ${LIBS} ${OPENGL_LIBRARY})
 
 IF (VTK_USE_X)
-  LINK_LIBRARIES(-lXt)
-  LINK_LIBRARIES(${CMAKE_X_LIBS})
+  SET(LIBS ${LIBS} -lXt)
+  SET(LIBS ${LIBS} ${CMAKE_X_LIBS})
 ENDIF (VTK_USE_X)
 
 IF (VTK_USE_MPI)
   IF (MPI_LIBRARY)
-    LINK_LIBRARIES (${MPI_LIBRARY})
+    SET(LIBS ${LIBS} ${MPI_LIBRARY})
   ENDIF (MPI_LIBRARY)
   IF (MPI_EXTRA_LIBRARY)
-    LINK_LIBRARIES (${MPI_EXTRA_LIBRARY})
+    SET(LIBS ${LIBS} ${MPI_EXTRA_LIBRARY})
   ENDIF (MPI_EXTRA_LIBRARY)
   IF (MPI_INCLUDE_PATH) 
     INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
   ENDIF(MPI_INCLUDE_PATH)
 ENDIF (VTK_USE_MPI)
 
-SOURCE_FILES( TaskPara_SRCS
-TaskParallelism.cxx
-task1.cxx
-task2.cxx)
+IF (VTK_USE_HYBRID)
+  ADD_EXECUTABLE(ParallelIso ParallelIso.cxx)
+  TARGET_LINK_LIBRARIES(ParallelIso vtkHybrid ${LIBS})
+ENDIF (VTK_USE_HYBRID)
 
-SOURCE_FILES( TaskParaPorts_SRCS
-TaskParallelismWithPorts.cxx
-task3.cxx
-task4.cxx)
+SET(TaskPara_SRCS TaskParallelism.cxx task1.cxx task2.cxx)
+SET(TaskParaPorts_SRCS TaskParallelismWithPorts.cxx task3.cxx task4.cxx)
+SET(PipePara_SRCS PipelineParallelism.cxx pipe1.cxx pipe2.cxx)
 
-ADD_EXECUTABLE(TaskParallelism TaskPara_SRCS)
+ADD_EXECUTABLE(TaskParallelism          ${TaskPara_SRCS})
+ADD_EXECUTABLE(TaskParallelismWithPorts ${TaskParaPorts_SRCS})
+ADD_EXECUTABLE(PipelineParallelism      ${PipePara_SRCS})
 
-ADD_EXECUTABLE(TaskParallelismWithPorts TaskParaPorts_SRCS)
-
-SOURCE_FILES( PipePara_SRCS
-PipelineParallelism.cxx
-pipe1.cxx
-pipe2.cxx)
-
-ADD_EXECUTABLE(PipelineParallelism PipePara_SRCS)
-
-
+TARGET_LINK_LIBRARIES (TaskParallelism          ${LIBS})
+TARGET_LINK_LIBRARIES (TaskParallelismWithPorts ${LIBS})
+TARGET_LINK_LIBRARIES (PipelineParallelism      ${LIBS})

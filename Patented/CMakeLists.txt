@@ -1,4 +1,4 @@
-SOURCE_FILES ( Patented_SRCS
+SET ( Patented_SRCS
 vtkDecimate.cxx
 vtkDividingCubes.cxx
 vtkGridSynchronizedTemplates3D.cxx
@@ -17,17 +17,13 @@ IF(CMAKE_BUILD_TOOL MATCHES devenv)
   SET_SOURCE_FILES_PROPERTIES(vtkSweptSurface COMPILE_FLAGS /Op)
 ENDIF(CMAKE_BUILD_TOOL MATCHES devenv)
 
-IF(VTK_MAKE_INSTANTIATOR)
-  # Setup vtkInstantiator registration for this library's classes.
-  VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
-                        Patented_SRCS
-                        EXPORT_MACRO VTK_PATENTED_EXPORT
-                        HEADER_LOCATION ${VTK_BINARY_DIR})
-  ADD_LIBRARY(vtkPatented Patented_SRCS PatentedInstantiator_SRCS)
-  INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkPatentedInstantiator)
-ELSE(VTK_MAKE_INSTANTIATOR)
-  ADD_LIBRARY(vtkPatented Patented_SRCS)
-ENDIF(VTK_MAKE_INSTANTIATOR)
+# Setup vtkInstantiator registration for this library's classes.
+VTK_MAKE_INSTANTIATOR(vtkPatentedInstantiator PatentedInstantiator_SRCS
+                      ${Patented_SRCS}
+                      EXPORT_MACRO VTK_PATENTED_EXPORT
+                      HEADER_LOCATION ${VTK_BINARY_DIR})
+ADD_LIBRARY(vtkPatented ${Patented_SRCS} ${PatentedInstantiator_SRCS})
+INSTALL_FILES(/include/vtk .h ${VTK_BINARY_DIR}/vtkPatentedInstantiator)
 
 # Allow the user to customize their build with some local options
 #
@@ -35,16 +31,13 @@ INCLUDE (${VTK_BINARY_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
 INCLUDE (${VTK_SOURCE_DIR}/Patented/LocalUserOptions.cmake OPTIONAL)
 
 IF (VTK_WRAP_TCL)
-  VTK_WRAP_TCL(vtkPatentedTCL PatentedTCL_SRCS Patented_SRCS)
+  VTK_WRAP_TCL(vtkPatentedTCL PatentedTCL_SRCS ${Patented_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkPatentedTCL SHARED PatentedTCL_SRCS)
+    ADD_LIBRARY(vtkPatentedTCL SHARED ${PatentedTCL_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkPatentedTCL PatentedTCL_SRCS)
+    ADD_LIBRARY(vtkPatentedTCL ${PatentedTCL_SRCS})
   ENDIF (APPLE)
-  TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL
-                         vtkGraphicsTCL vtkImagingTCL vtkFilteringTCL
-                         vtkCommonTCL
-                         ${TCL_LIBRARY})
+  TARGET_LINK_LIBRARIES (vtkPatentedTCL vtkIOTCL vtkGraphicsTCL vtkImagingTCL)
   INSTALL_TARGETS(/lib/vtk vtkPatentedTCL)
 ENDIF (VTK_WRAP_TCL)
 
@@ -52,16 +45,14 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkPatentedPython PatentedPython_SRCS Patented_SRCS)
+  VTK_WRAP_PYTHON(vtkPatentedPython PatentedPython_SRCS ${Patented_SRCS})
   IF (APPLE)
-    ADD_LIBRARY(vtkPatentedPython MODULE PatentedPython_SRCS)
+    ADD_LIBRARY(vtkPatentedPython MODULE ${PatentedPython_SRCS})
   ELSE (APPLE)
-    ADD_LIBRARY(vtkPatentedPython SHARED PatentedPython_SRCS)
+    ADD_LIBRARY(vtkPatentedPython SHARED ${PatentedPython_SRCS})
     TARGET_LINK_LIBRARIES (vtkPatentedPython
                            vtkGraphicsPython
-                           vtkImagingPython
-                           vtkFilteringPython
-                           vtkCommonPython)
+                           vtkImagingPython)
   ENDIF (APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkPatentedPython
@@ -78,22 +69,17 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkPatentedJava PatentedJava_SRCS Patented_SRCS)
-  ADD_LIBRARY(vtkPatentedJava SHARED PatentedJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkPatentedJava vtkCommonJava vtkFilteringJava
-                         vtkImagingJava vtkGraphicsJava)
+  VTK_WRAP_JAVA(vtkPatentedJava PatentedJava_SRCS ${Patented_SRCS})
+  ADD_LIBRARY(vtkPatentedJava SHARED ${PatentedJava_SRCS})
+  TARGET_LINK_LIBRARIES (vtkPatentedJava vtkImagingJava vtkGraphicsJava)
   INSTALL_TARGETS(/lib/vtk vtkPatentedJava)
 ENDIF (VTK_WRAP_JAVA)
 
-LINK_LIBRARIES (
-vtkCommon
-vtkFiltering
+TARGET_LINK_LIBRARIES ( vtkPatented
 vtkImaging
 vtkGraphics
 vtkIO
-vtkPatented
 )
-
 
 INSTALL_TARGETS(/lib/vtk vtkPatented)
 INSTALL_FILES(/include/vtk .h Patented_SRCS)
