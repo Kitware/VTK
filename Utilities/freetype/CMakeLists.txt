@@ -77,6 +77,8 @@ IF (UNIX)
     SET (VTKFREETYPE_HPUX_SOURCE 1)
   ENDIF (CMAKE_SYSTEM MATCHES "HP-UX.*")
   SET (FREETYPE_SRCS ${FREETYPE_SRCS} builds/unix/ftsystem.c)
+  INCLUDE (${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
+  CHECK_INCLUDE_FILE_CXX("fcntl.h" HAVE_FCNTL_H)
   CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/builds/unix/ftconfig.h.in
                   ${VTKFREETYPE_BINARY_DIR}/builds/unix/ftconfig.h)
   INCLUDE_DIRECTORIES (

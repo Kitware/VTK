@@ -58,7 +58,7 @@ FT_BEGIN_HEADER
 
 
 #undef HAVE_UNISTD_H
-#undef HAVE_FCNTL_H
+#cmakedefine HAVE_FCNTL_H ${HAVE_FCNTL_H}
 
 #undef SIZEOF_INT
 #undef SIZEOF_LONG
@@ -203,8 +203,8 @@ FT_BEGIN_HEADER
   /* Since `#undef' doesn't survive in configuration header files */
   /* we use the postprocessing facility of AC_CONFIG_HEADERS to   */
   /* replace the leading `/' with `#'.                            */
-/undef FT_LONG64
-/undef FT_INT64
+#undef FT_LONG64
+#undef FT_INT64
 
 #endif /* __STDC__ */
 
