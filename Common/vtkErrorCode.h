@@ -22,9 +22,10 @@
 
 #ifndef __vtkErrorCode_h
 #define __vtkErrorCode_h
+#include "vtkSystemIncludes.h"
 
 // The superclass that all commands should be subclasses of
-class vtkErrorCode
+class VTK_COMMON_EXPORT vtkErrorCode
 {
 public:
   static const char *GetStringFromErrorCode(unsigned long event);
