@@ -152,7 +152,7 @@ void vtkExtractGrid::ExecuteInformation()
 {
   vtkStructuredGrid *input= this->GetInput();
   vtkStructuredGrid *output= this->GetOutput();
-  int i, dims[3], outDims[3], voi[6], wholeExtent[6];
+  int i, outDims[3], voi[6], wholeExtent[6];
   int mins[3];
   int rate[3];
 
@@ -165,9 +165,6 @@ void vtkExtractGrid::ExecuteInformation()
   this->vtkStructuredGridToStructuredGridFilter::ExecuteInformation();
 
   input->GetWholeExtent(wholeExtent);
-  dims[0] = wholeExtent[1] - wholeExtent[0] + 1;
-  dims[1] = wholeExtent[3] - wholeExtent[2] + 1;
-  dims[2] = wholeExtent[5] - wholeExtent[4] + 1;
 
   for ( i=0; i < 6; i++ )
     {
@@ -250,7 +247,7 @@ void vtkExtractGrid::Execute()
   vtkStructuredGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
-  int i, j, k, dims[3], *uExt, voi[6];
+  int i, j, k, *uExt, voi[6];
   int *inExt;
   int iIn, jIn, kIn;
   int outSize, jOffset, kOffset, *rate;
@@ -263,9 +260,6 @@ void vtkExtractGrid::Execute()
   inPts = input->GetPoints();
 
   uExt = output->GetUpdateExtent();
-  dims[0] = uExt[1]-uExt[0]+1;
-  dims[1] = uExt[3]-uExt[2]+1;
-  dims[2] = uExt[5]-uExt[4]+1;
   rate = this->SampleRate;
   inExt = input->GetExtent();
   inInc1 = (inExt[1]-inExt[0]+1);
