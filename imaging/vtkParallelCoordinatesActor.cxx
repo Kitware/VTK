@@ -85,6 +85,12 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
+  this->PlotData = vtkPolyData::New();
+  this->PlotMapper = vtkPolyDataMapper2D::New();
+  this->PlotMapper->SetInput(this->PlotData);
+  this->PlotActor = vtkActor2D::New();
+  this->PlotActor->SetMapper(this->PlotMapper);
+
   int   NumberOfLabels; //along each axis
   int	Bold;
   int   Italic;
@@ -114,6 +120,10 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 
   this->Initialize();
   
+  this->PlotData->Delete();
+  this->PlotMapper->Delete();
+  this->PlotActor->Delete();
+
   if (this->Title)
     {
     delete [] this->Title;
@@ -311,6 +321,15 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *size)
     this->Xs[i] = p1[0] + (float)i/((float)this->N-1) * (p2[0]-p1[0]);
     this->Axes[i]->GetPoint1Coordinate()->SetValue(this->Xs[i], YMin);
     this->Axes[i]->GetPoint2Coordinate()->SetValue(this->Xs[i], YMax);
+    }
+
+  // Now generate the lines to plot
+  this->PlotData->Initialize();
+  if ( this->IndependentVariables == VTK_IV_COLUMN )
+    {
+    }
+  else //row
+    {
     }
 
   return 1;

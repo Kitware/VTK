@@ -180,6 +180,10 @@ private:
   vtkTextMapper *TitleMapper;
   vtkActor2D    *TitleActor;
 
+  vtkPolyData         *PlotData; //the lines drawn within the axes
+  vtkPolyDataMapper2D *PlotMapper;
+  vtkActor2D          *PlotActor;
+  
   // font characteristics
   int   NumberOfLabels; //along each axis
   int	Bold;
