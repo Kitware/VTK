@@ -175,7 +175,6 @@ public:
   
   // Description:
   // Initialize OpenGL for this window.
-  virtual void OpenGLInit();
   virtual void SetupPalette(void *hDC);
   virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
                                 int bpp=16, int zbpp=16);
