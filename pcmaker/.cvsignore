@@ -5,3 +5,6 @@
 *.ilk
 *.idb
 *.pdb
+*.res
+*.exp
+*.clw
