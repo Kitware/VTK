@@ -618,10 +618,10 @@ virtual float *Get##name() \
 
 // Version of vtkTypeMacro that adds the CollectRevisions method.
 #define vtkTypeRevisionMacro(thisClass,superclass) \
-  vtkTypeMacro(thisClass,superclass) \
   protected: \
   void CollectRevisions(ostream& os); \
-  public:
+  public: \
+  vtkTypeMacro(thisClass,superclass)
 
 // Macro to implement the standard CollectRevisions method.
 #define vtkCxxRevisionMacro(thisClass, revision) \
