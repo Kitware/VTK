@@ -658,6 +658,9 @@ proc CheckArgExceptions {argType} {
   if {$argType == "vtkDataSet"} {
     return 1
   }
+  if {$argType == "vtkOutputPort"} {
+    return 1
+  }
   if {$argType == "vtkPointSet"} {
     return 1
   }
