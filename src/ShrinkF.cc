@@ -79,7 +79,11 @@ void vlShrinkFilter::Execute()
 //
 // Update ourselves
 //
+  
+  newPts->Squeeze();
   this->SetPoints(newPts);
+
+  this->PointData.Squeeze();
 }
 
 void vlShrinkFilter::PrintSelf(ostream& os, vlIndent indent)
