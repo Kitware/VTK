@@ -66,6 +66,10 @@ public:
   vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
 
+  // Description:
+  // We need to check the modified time of the lookup table too.
+  unsigned long GetMTime();
+
 protected:
   vtkScalarsToColors *LookupTable;
   

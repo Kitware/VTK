@@ -59,6 +59,23 @@ vtkImageMapToRGBA::~vtkImageMapToRGBA()
 }
 
 //----------------------------------------------------------------------------
+unsigned long vtkImageMapToRGBA::GetMTime()
+{
+  unsigned long t1, t2;
+
+  t1 = this->vtkImageToImageFilter::GetMTime();
+  if (this->LookupTable)
+    {
+    t2 = this->LookupTable->GetMTime();
+    if (t2 > t1)
+      {
+      t1 = t2;
+      }
+    }
+  return t1;
+}
+
+//----------------------------------------------------------------------------
 void vtkImageMapToRGBA::ExecuteInformation()
 {
   if (this->LookupTable == 0)
