@@ -203,13 +203,13 @@ VectorType<VrmlNodeType*> VrmlNodeType::typeList;
 VrmlNodeType::VrmlNodeType(const char *nm)
 {
   assert(nm != NULL);
-  name = strdup(nm);
+  name = static_cast<char*>(
+    vrmlPointerList::AllocateMemory((strlen(nm)+1)*sizeof(char)));
+  strcpy(name, nm);
 }
 
 VrmlNodeType::~VrmlNodeType()
 {
-  free(name);
-
   // Free strings duplicated when fields/eventIns/eventOuts added:
   
   int i;
@@ -4437,7 +4437,8 @@ int yylex ( vtkVRMLImporter* self )
         /* Legal identifiers: */
       case 14:
 	YY_USER_ACTION
-	  { yylval.string = strdup(yytext); 
+	  { 
+	  yylval.string = strdup(yytext);
 	  return IDENTIFIER; }
         /* All fields may have an IS declaration: */
       case 15:
