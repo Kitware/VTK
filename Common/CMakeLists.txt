@@ -1,10 +1,9 @@
-SUBDIRS(examplesCxx)
-
 SOURCE_FILES( LIBRARY_SRCS
 vtkAbstractMapper 
 vtkAbstractTransform 
 vtkAttributeData 
 vtkCell 
+vtkCell3D
 vtkCommand 
 vtkDataArray 
 vtkDataSet 
@@ -17,6 +16,7 @@ vtkObjectFactory
 vtkObjectFactoryCollection
 vtkOverrideInformation 
 vtkOverrideInformationCollection 
+vtkPlanes
 vtkPointSet 
 vtkScalarsToColors 
 vtkViewport 
@@ -146,6 +146,7 @@ vtkAbstractMapper
 vtkAbstractTransform 
 vtkAttributeData 
 vtkCell 
+vtkCell3D
 vtkCommand 
 vtkDataArray 
 vtkDataSet 
@@ -193,13 +194,5 @@ IF (VTK_WRAP_PYTHON)
 ENDIF (VTK_WRAP_PYTHON)
 
 LINK_LIBRARIES (vtkCommon )
-
-CONFIGURE_FILE_NOAUTOCONF(
-${VTK_SOURCE_DIR}/common/vtkConfigure.h.in 
-${VTK_BINARY_DIR}/vtkConfigure.h)
-
-CONFIGURE_FILE_NOAUTOCONF(
-${VTK_SOURCE_DIR}/common/vtkToolkits.h.in 
-${VTK_BINARY_DIR}/vtkToolkits.h)
 
 
