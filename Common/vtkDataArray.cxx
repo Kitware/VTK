@@ -57,10 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-unsigned long vtkDataArray::ArrayNamePostfix = 0;
-
-static vtkSimpleCriticalSection DataArrayCritSec;
-
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
 {
@@ -377,6 +373,83 @@ void vtkDataArray::InsertTuple(const vtkIdType i, const double * tuple)
   delete [] ftuple;
 }
 
+void vtkDataArray::InsertTuple1(const vtkIdType i, float value)
+{
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 1)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 1");
+    }
+  this->InsertTuple(i, &value);
+}
+void vtkDataArray::InsertTuple2(const vtkIdType i, float val0, float val1)
+{
+  float tuple[2];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 2)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 2");
+    }
+  tuple[0] = val0;
+  tuple[1] = val0;
+  this->InsertTuple(i, tuple);
+}
+void vtkDataArray::InsertTuple3(const vtkIdType i, float val0, float val1, 
+				float val2)
+{
+  float tuple[3];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 3)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 3");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  this->InsertTuple(i, tuple);
+}
+void vtkDataArray::InsertTuple4(const vtkIdType i, float val0, float val1, 
+				float val2, float val3)
+{
+  float tuple[4];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 4)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 4");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  this->InsertTuple(i, tuple);
+}
+void vtkDataArray::InsertTuple9(const vtkIdType i, float val0, float val1, 
+				float val2,  float val3, float val4, 
+				float val5, float val6,float val7, float val8)
+{
+  float tuple[9];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 9)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 9");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  tuple[4] = val4;
+  tuple[5] = val5;
+  tuple[6] = val6;
+  tuple[7] = val7;
+  tuple[8] = val8;
+  this->InsertTuple(i, tuple);
+}
+
 vtkIdType vtkDataArray::InsertNextTuple(const double * tuple)
 {
   int c;
@@ -389,6 +462,84 @@ vtkIdType vtkDataArray::InsertNextTuple(const double * tuple)
   int ret = this->InsertNextTuple(ftuple);
   delete [] ftuple;
   return ret;
+}
+
+void vtkDataArray::InsertNextTuple1(float value)
+{
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 1)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 1");
+    }
+  this->InsertNextTuple(&value);
+}
+void vtkDataArray::InsertNextTuple2(float val0, float val1)
+{
+  float tuple[2];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 2)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 2");
+    }
+  tuple[0] = val0;
+  tuple[1] = val0;
+  this->InsertNextTuple(tuple);
+}
+void vtkDataArray::InsertNextTuple3(float val0, float val1, 
+				    float val2)
+{
+  float tuple[3];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 3)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 3");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  this->InsertNextTuple(tuple);
+}
+void vtkDataArray::InsertNextTuple4(float val0, float val1, 
+				    float val2, float val3)
+{
+  float tuple[4];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 4)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 4");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  this->InsertNextTuple(tuple);
+}
+void vtkDataArray::InsertNextTuple9(float val0, float val1, 
+				    float val2,  float val3, float val4, 
+				    float val5, float val6,float val7, 
+				    float val8)
+{
+  float tuple[9];
+  int numComp = this->GetNumberOfComponents();
+  if (numComp != 9)
+    {
+    vtkErrorMacro("The number of components do not match the number requested: "
+		  << numComp << " != 9");
+    }
+  tuple[0] = val0;
+  tuple[1] = val1;
+  tuple[2] = val2;
+  tuple[3] = val3;
+  tuple[4] = val4;
+  tuple[5] = val5;
+  tuple[6] = val6;
+  tuple[7] = val7;
+  tuple[8] = val8;
+  this->InsertNextTuple(tuple);
 }
 
 unsigned long vtkDataArray::GetActualMemorySize()

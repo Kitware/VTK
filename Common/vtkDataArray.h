@@ -177,11 +177,37 @@ public:
   virtual void InsertTuple(const vtkIdType i, const double * tuple);
 
   // Description:
+  // These methods are included as convenience for the wrappers.
+  // InsertTuple() which takes arrays can not be 
+  // used from wrapped languages. These methods can be used instead.
+  void InsertTuple1(const vtkIdType i, float value);
+  void InsertTuple2(const vtkIdType i, float val0, float val1);
+  void InsertTuple3(const vtkIdType i, float val0, float val1, float val2);
+  void InsertTuple4(const vtkIdType i, float val0, float val1, float val2,
+		    float val3);
+  void InsertTuple9(const vtkIdType i, float val0, float val1, float val2,
+		    float val3, float val4, float val5, float val6,
+		    float val7, float val8);
+
+  // Description:
   // Insert the data tuple at the end of the array and return the location at
   // which the data was inserted. Memory is allocated as necessary to hold
   // the data.
   virtual vtkIdType InsertNextTuple(const float * tuple) = 0;
   virtual vtkIdType InsertNextTuple(const double * tuple);
+
+  // Description:
+  // These methods are included as convenience for the wrappers.
+  // InsertTuple() which takes arrays can not be 
+  // used from wrapped languages. These methods can be used instead.
+  void InsertNextTuple1(float value);
+  void InsertNextTuple2(float val0, float val1);
+  void InsertNextTuple3(float val0, float val1, float val2);
+  void InsertNextTuple4(float val0, float val1, float val2,
+			float val3);
+  void InsertNextTuple9(float val0, float val1, float val2,
+			float val3, float val4, float val5, float val6,
+			float val7, float val8);
 
   // Description:
   // Return the data component at the ith tuple and jth component location.
@@ -339,7 +365,6 @@ protected:
   vtkIdType MaxId;     // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
 
-  static unsigned long ArrayNamePostfix;
   char* Name;
 
 private:
