@@ -64,6 +64,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkRenderWindowInteractor;
 
+
+
 // lets define the different types of stereo
 #define VTK_STEREO_CRYSTAL_EYES 1
 #define VTK_STEREO_RED_BLUE     2
@@ -396,6 +398,10 @@ protected:
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
+
+  // This is used to try to avoid extra make current calls.
+  // Make current calls are expensive on Win32.
+  static vtkRenderWindow *CurrentRenderWindow;
 };
 
 // Description:

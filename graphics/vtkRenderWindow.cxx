@@ -48,6 +48,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMath.h"
 #include "vtkGraphicsFactory.h"
 
+
+// This is used to try to avoid extra make current calls.
+// Make current calls are expensive on Win32.
+vtkRenderWindow *vtkRenderWindow::CurrentRenderWindow = NULL;
+
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
 // buffering turned on, stereo capable off.

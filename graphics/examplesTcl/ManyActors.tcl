@@ -1,5 +1,5 @@
 # This test creates 1000 actors and renders an animation.
-
+# The equivalent faster version of this script is OneActor.tcl
 
 
 

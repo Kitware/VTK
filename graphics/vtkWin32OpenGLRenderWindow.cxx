@@ -204,6 +204,13 @@ void vtkWin32OpenGLRenderWindow::Start(void)
 
 void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
+  // Try to avoid doing anything (for performance).
+  if (this->CurrentRenderWindow == this)
+    {
+    return;
+    }
+  this->CurrentRenderWindow = this;
+
   wglMakeCurrent(this->DeviceContext, this->ContextId);
 }
 

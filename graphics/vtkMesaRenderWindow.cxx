@@ -1322,6 +1322,14 @@ void vtkMesaRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 
 void vtkMesaRenderWindow::MakeCurrent()
 {
+  // Try to avoid doing anything (for performance).
+  // Do we need to do anything if the Offscreen flag has changed?
+  if (this->CurrentRenderWindow == this)
+    {
+    return;
+    }
+  this->CurrentRenderWindow = this;
+
   // set the current window 
   if (this->OffScreenRendering)
     {
