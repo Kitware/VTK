@@ -44,7 +44,9 @@ viewer SetInput [magnify GetOutput]
 viewer SetZSlice 1
 viewer SetColorWindow 200.0
 viewer SetColorLevel  0.0
-[viewer GetImageWindow] DoubleBufferOn
+if { [[viewer GetImageWindow] GetClassName] != "vtkXImageWindow" } {
+    [viewer GetImageWindow] DoubleBufferOn
+}
 #viewer DebugOn
 
 # make interface
