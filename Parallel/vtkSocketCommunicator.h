@@ -182,6 +182,16 @@ protected:
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
   void operator=(const vtkSocketCommunicator&);  // Not implemented.
+
+//BTX
+  // SwapBytesInReceiveData needs an invalid / not set.
+  // This avoids checking length of endian handshake.
+  enum ErrorIds {
+    SwapOff = 0,
+    SwapOn,
+    SwapNotSet
+  };
+//ETX
 };
 
 #endif
