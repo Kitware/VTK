@@ -553,17 +553,14 @@ void vtkRenderWindow::DoFDRender()
     vtkRenderer *aren;
     vtkCamera *acam;
     float focalDisk;
-    double viewUp[4];
-    double *vpn;
-    double *dpoint;
+    double *vpn, *dpoint;
+    double vec[3];
     vtkTransform *aTrans = vtkTransform::New();
     double offsets[2];
     double *orig;
 
     // get the size
     size = this->GetSize();
-
-    viewUp[3] = 1.0;
 
     orig = new double [3*this->Renderers->GetNumberOfItems()];
 
@@ -581,7 +578,6 @@ void vtkRenderWindow::DoFDRender()
 	acam = aren->GetActiveCamera();
 	focalDisk = acam->GetFocalDisk()*offsets[0];
 
-	acam->GetViewUp(viewUp);
 	vpn = acam->GetViewPlaneNormal();
 	aTrans->Identity();
 	aTrans->Scale(focalDisk,focalDisk,focalDisk);
@@ -590,16 +586,17 @@ void vtkRenderWindow::DoFDRender()
 	// Inverse() and TransformNormal() -- it is mathematically
 	// equivalent and but is more efficient
 	aTrans->Transpose();
-	aTrans->TransformVector(viewUp,vpn);
+	aTrans->TransformVector(acam->GetViewUp(),vec);
+
 	dpoint = acam->GetPosition();
 
 	// store the position for later
 	memcpy(orig + j*3,dpoint,3 * sizeof (double));
 	j++;
 
-	acam->SetPosition(dpoint[0]+vpn[0],
-			  dpoint[1]+vpn[1],
-			  dpoint[2]+vpn[2]);
+	acam->SetPosition(dpoint[0]+vec[0],
+			  dpoint[1]+vec[1],
+			  dpoint[2]+vec[2]);
 	}
 
       // draw the images
