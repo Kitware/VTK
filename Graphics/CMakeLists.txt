@@ -135,6 +135,7 @@ vtkWindowedSincPolyDataFilter
 ABSTRACT_FILES(
 vtkApproximatingSubdivisionFilter
 vtkDicer
+vtkInterpolatingSubdivisionFilter
 )
 
 ADD_LIBRARY(vtkGraphics Graphics_SRCS)
