@@ -361,6 +361,12 @@ public:
   virtual void MakeCurrent() = 0;
 
   // Description:
+  // If called, allow MakeCurrent() to skip cache-check when called.
+  // MakeCurrent() reverts to original behavior of cache-checking
+  // on the next render.
+  virtual void SetForceMakeCurrent() {};
+
+  // Description:
   // This method should be defined by the subclass. How many bits of
   // precision are there in the zbuffer?
   virtual int GetDepthBufferSize() = 0;

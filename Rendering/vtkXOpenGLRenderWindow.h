@@ -89,6 +89,12 @@ public:
   // Description:
   // Make this window the current OpenGL context.
   void MakeCurrent();
+
+  // Description:
+  // If called, allow MakeCurrent() to skip cache-check when called.
+  // MakeCurrent() reverts to original behavior of cache-checking
+  // on the next render.
+  void SetForceMakeCurrent();
   
   // Description:
   // Xwindow get set functions
@@ -188,6 +194,7 @@ protected:
   int      OwnDisplay;
   int      ScreenSize[2];
   int      CursorHidden;
+  int      ForceMakeCurrent;
 
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.

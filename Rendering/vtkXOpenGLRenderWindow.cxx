@@ -86,7 +86,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.24");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.25");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -224,6 +224,7 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->ScreenSize[1] = 0;
   this->OwnDisplay = 0;
   this->CursorHidden = 0;
+  this->ForceMakeCurrent = 0;
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
   this->NextWindowId = (Window)NULL;
@@ -350,10 +351,10 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
     }
 }
 
-
 // Initialize the window for rendering.
 void vtkXOpenGLRenderWindow::WindowInitialize (void)
 {
+  cout << "WINDOWINITIALIZE" << endl;
   XVisualInfo  *v, matcher;
   XSetWindowAttributes  attr;
   int x, y, width, height, nItems;
@@ -539,6 +540,7 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
 // Initialize the rendering window.
 void vtkXOpenGLRenderWindow::Initialize (void)
 {
+  cout << "INITIALIZE" << endl;
   // make sure we havent already been initialized 
   if (this->Internal->ContextId 
 #ifdef VTK_OPENGL_HAS_OSMESA
@@ -681,6 +683,7 @@ void vtkXOpenGLRenderWindow::WindowRemap()
 // Begin the rendering process.
 void vtkXOpenGLRenderWindow::Start(void)
 {
+  cout << "START" << endl;
   // if the renderer has not been initialized, do so now
   if (!this->Internal->ContextId
 #ifdef VTK_OPENGL_HAS_OSMESA
@@ -862,14 +865,20 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
   else
 #endif
     {
-    if (this->Internal->ContextId && (this->Internal->ContextId != glXGetCurrentContext()))
+    if (this->Internal->ContextId && (this->Internal->ContextId != glXGetCurrentContext()) || this->ForceMakeCurrent)
       {
+        cout << "MAKING CURRENT" << endl;
       glXMakeCurrent(this->DisplayId,this->WindowId,this->Internal->ContextId);
+      this->ForceMakeCurrent = 0;
       }
     }
 }
 
 
+void vtkXOpenGLRenderWindow::SetForceMakeCurrent()
+{
+  this->ForceMakeCurrent = 1;
+}
 
 
 int vtkXOpenGLRenderWindowFoundMatch;
