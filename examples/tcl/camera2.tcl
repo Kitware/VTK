@@ -1,8 +1,7 @@
-# create camera example
-
+# create camera figure
 source vtkInt.tcl
 
-# Create create the render master
+# create the render master
 vtkRenderMaster rm;
 
 # Now create the RenderWindow, Renderer and both Actors
@@ -30,8 +29,7 @@ vtkPolyMapper camMapper;
     camMapper SetInput [camAPD GetOutput];
 vtkLODActor camActor;
     camActor SetMapper camMapper;
-camActor SetScale 0.8 0.8 0.8;
-camActor SetPosition 0.3 0 0;
+camActor SetScale 2 2 2;
 
 # draw the arrows
 vtkPolyData pd;
@@ -55,6 +53,21 @@ ca InsertCellPoint 6;
 pd SetPoints fp;
 pd SetPolys ca;
 
+vtkPolyData pd2;
+vtkCellArray ca2;
+vtkFloatPoints fp2;
+fp2 InsertNextPoint 0 1 0;
+fp2 InsertNextPoint 8 1 0;
+fp2 InsertNextPoint 8 2 0;
+fp2 InsertNextPoint 10 0 0;
+ca2 InsertNextCell 4;
+ca2 InsertCellPoint 0;
+ca2 InsertCellPoint 1;
+ca2 InsertCellPoint 2;
+ca2 InsertCellPoint 3;
+pd2 SetPoints fp2;
+pd2 SetLines ca2;
+
 vtkImplicitModeller arrowIM;
 arrowIM SetInput pd;
 arrowIM SetSampleDimensions 50 20 8;
@@ -70,9 +83,9 @@ arrowWT SetScaleFactor 0.85;
 arrowWT AbsoluteOn;
 
 vtkTransform arrowT;
+arrowT RotateY 60;
+arrowT Translate -1.33198 0 -1.479;
 arrowT Scale 1 0.5 1;
-arrowT RotateY -20;
-arrowT Translate -3.63576 0 -3.69263;
 
 vtkTransformFilter arrowTF;
 arrowTF SetInput [arrowWT GetOutput];
@@ -85,8 +98,7 @@ arrowMapper ScalarsVisibleOff;
 # draw the azimuth arrows
 vtkLODActor a1Actor;
 a1Actor SetMapper arrowMapper;
-a1Actor RotateY 90;
-a1Actor SetPosition -6 0 -1;
+a1Actor SetPosition -9 0 -1;
 [a1Actor GetProperty] SetColor 1 0.3 0.3;
 [a1Actor GetProperty] SetSpecularColor 1 1 1;
 [a1Actor GetProperty] SetSpecular 0.3;
@@ -96,9 +108,8 @@ a1Actor SetPosition -6 0 -1;
 
 vtkLODActor a2Actor;
 a2Actor SetMapper arrowMapper;
-a2Actor RotateY 90;
 a2Actor RotateX 180;
-a2Actor SetPosition -6 0 1;
+a2Actor SetPosition -9 0 1;
 [a2Actor GetProperty] SetColor 1 0.3 0.3;
 [a2Actor GetProperty] SetSpecularColor 1 1 1;
 [a2Actor GetProperty] SetSpecular 0.3;
@@ -109,9 +120,8 @@ a2Actor SetPosition -6 0 1;
 # draw the elevation arrows
 vtkLODActor a3Actor;
 a3Actor SetMapper arrowMapper;
-a3Actor RotateY 90;
-a3Actor RotateX 270;
-a3Actor SetPosition -6 1 0;
+a3Actor RotateX -90;
+a3Actor SetPosition -9 -1 0;
 [a3Actor GetProperty] SetColor 0.3 1 0.3;
 [a3Actor GetProperty] SetSpecularColor 1 1 1;
 [a3Actor GetProperty] SetSpecular 0.3;
@@ -121,9 +131,8 @@ a3Actor SetPosition -6 1 0;
 
 vtkLODActor a4Actor;
 a4Actor SetMapper arrowMapper;
-a4Actor RotateY 90;
 a4Actor RotateX 90;
-a4Actor SetPosition -6 -1 0;
+a4Actor SetPosition -9 1 0;
 [a4Actor GetProperty] SetColor 0.3 1 0.3;
 [a4Actor GetProperty] SetSpecularColor 1 1 1;
 [a4Actor GetProperty] SetSpecular 0.3;
@@ -137,22 +146,22 @@ arrowT2 Scale 1 0.6 1;
 arrowT2 RotateY 90;
 
 vtkTransformPolyFilter arrowTF2;
-arrowTF2 SetInput pd;
+arrowTF2 SetInput pd2;
 arrowTF2 SetTransform arrowT2;
 
 vtkRotationalExtrusionFilter arrowREF;
 arrowREF SetInput [arrowTF2 GetOutput];
-arrowREF SetAngle 390;
 arrowREF CappingOff;
+arrowREF SetResolution 30;
 
 vtkPolyMapper spikeMapper;
 spikeMapper SetInput [arrowREF GetOutput];
 
 vtkLODActor a5Actor;
 a5Actor SetMapper spikeMapper;
-a5Actor SetScale 0.2 0.2 0.4;
+a5Actor SetScale 0.3 0.3 0.6;
 a5Actor RotateY -90;
-a5Actor SetPosition -5 0 0;
+a5Actor SetPosition -8 0 0;
 [a5Actor GetProperty] SetColor 1 0.3 1;
 [a5Actor GetProperty] SetSpecularColor 1 1 1;
 [a5Actor GetProperty] SetSpecular 0.3;
@@ -162,10 +171,10 @@ a5Actor SetPosition -5 0 0;
 
 vtkLODActor a7Actor;
 a7Actor SetMapper spikeMapper;
-a7Actor SetScale 0.15 0.15 0.4;
-a7Actor RotateX 90;
+a7Actor SetScale 0.2 0.2 0.7;
+a7Actor RotateZ 90;
 a7Actor RotateY -90;
-a7Actor SetPosition -6 1 0;
+a7Actor SetPosition -9 1 0;
 [a7Actor GetProperty] SetColor 0.3 1 1;
 [a7Actor GetProperty] SetSpecularColor 1 1 1;
 [a7Actor GetProperty] SetSpecular 0.3;
@@ -175,12 +184,12 @@ a7Actor SetPosition -6 1 0;
 
 # focal point
 vtkSphereSource fps;
-fps SetRadius 0.4;
+fps SetRadius 0.5;
 vtkPolyMapper fpMapper;
 fpMapper SetInput [fps GetOutput];
 vtkLODActor fpActor;
 fpActor SetMapper fpMapper;
-fpActor SetPosition -6 0 0;
+fpActor SetPosition -9 0 0;
 [fpActor GetProperty] SetSpecularColor 1 1 1;
 [fpActor GetProperty] SetSpecular 0.3;
 [fpActor GetProperty] SetAmbient 0.2;
@@ -210,7 +219,7 @@ arrowMapper2 ScalarsVisibleOff;
 vtkLODActor a6Actor;
 a6Actor SetMapper arrowMapper2;
 a6Actor RotateZ 90;
-a6Actor SetPosition -3 0 0;
+a6Actor SetPosition -4 0 0;
 a6Actor SetScale 1.5 1.5 1.5;
 [a6Actor GetProperty] SetColor 1 1 0.3;
 [a6Actor GetProperty] SetSpecularColor 1 1 1;
@@ -234,13 +243,15 @@ $renWin SetSize 500 500;
 
 # render the image
 $iren SetUserMethod {wm deiconify .vtkInteract};
-$iren Initialize;
 set cam1 [$ren1 GetActiveCamera];
+$cam1 Zoom 1.5;
+$cam1 Azimuth 150;
+$cam1 Elevation 30;
 
-$renWin SetFilename camera2.ppm;
+$iren Initialize;
+#$renWin SetFilename camera2.tcl.ppm;
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-$iren Start;
-
 
