@@ -624,12 +624,15 @@ INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
 CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
 
+# Save library dependencies.
+EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
+
 # Create the VTKConfig.cmake file containing the VTK configuration.
 INCLUDE (${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
 
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
-INSTALL_FILES(/lib/vtk .cmake UseVTK)
+INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
 
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be

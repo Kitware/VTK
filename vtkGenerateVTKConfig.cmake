@@ -79,6 +79,9 @@ ENDIF(VTK_RENDERING_NEED_TK_INTERNAL)
 # CMake extension module directory.
 SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_SOURCE_DIR}/CMake)
 
+# Library dependencies file.
+SET(VTK_LIBRARY_DEPENDS_FILE "${VTK_BINARY_DIR}/VTKLibraryDepends.cmake")
+
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
@@ -178,12 +181,10 @@ SET(VTK_TK_INTERNAL_ROOT_CONFIG ${CMAKE_INSTALL_PREFIX}/include/vtk)
 # CMake extension module directory.
 SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/CMake)
 
+# Library dependencies file.
+SET(VTK_LIBRARY_DEPENDS_FILE "${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKLibraryDepends.cmake")
+
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the install tree.
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
-
-#-----------------------------------------------------------------------------
-# Append library dependencies to VTKConfig.cmake for both trees.
-EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKConfig.cmake APPEND)
-EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake APPEND)

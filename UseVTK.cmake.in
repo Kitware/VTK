@@ -19,11 +19,3 @@ INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
 
 # Add link directories needed to use VTK.
 LINK_DIRECTORIES(${VTK_LIBRARY_DIRS})
-
-IF(vtkFiltering_LIB_DEPENDS MATCHES "^VTK-FILTERING-FAKE-DEPENDS$")
-  MESSAGE(SEND_ERROR
-          "The specified VTK did not finish configuring correctly "
-          "during the last run of CMake on its build tree.  Library "
-          "dependencies will not work correctly.")
-  SET(vtkFiltering_LIB_DEPENDS "")
-ENDIF(vtkFiltering_LIB_DEPENDS MATCHES "^VTK-FILTERING-FAKE-DEPENDS$")
