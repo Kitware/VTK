@@ -157,6 +157,10 @@ public:
   int GetNumberOfInputConnections(int port);
 
   // Description:
+  // Get the total number of inputs for this algorithm
+  int GetTotalNumberOfInputConnections();
+
+  // Description:
   // Get the algorithm output port connected to an input port.
   vtkAlgorithmOutput* GetInputConnection(int port, int index);
 
@@ -207,6 +211,12 @@ public:
   static vtkInformationInformationVectorKey* INPUT_CONNECTION_INFORMATION();
   static vtkInformationInformationVectorKey* INPUT_REQUIRED_FIELDS();
   static vtkInformationStringKey* INPUT_REQUIRED_DATA_TYPE();
+
+  // Description:
+  // Conviniance routine to convert from a linrar ordering of input
+  // connections to a port, connecction pair
+  void ConvertTotalInputToPortConnection(int ind, int &port, int &conn);
+  
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();

@@ -73,6 +73,7 @@ public:
   // Description:
   // Return the size of the underlying data type.  For a bit, 0 is returned.
   virtual int GetDataTypeSize() = 0;
+  static unsigned long GetDataTypeSize(int type);
 
   // Description:
   // Set/Get the dimension (n) of the components. Must be >= 1. Make sure that

@@ -29,7 +29,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.3");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.1.2.4");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -625,6 +625,18 @@ int vtkAlgorithm::GetNumberOfInputConnections(int port)
 }
 
 //----------------------------------------------------------------------------
+int vtkAlgorithm::GetTotalNumberOfInputConnections()
+{
+  int i;
+  int total = 0;
+  for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
+    {
+    total += this->GetNumberOfInputConnections(i);
+    }
+  return total;
+}
+
+//----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
   if(!this->InputPortIndexInRange(port, "get number of connections for"))
@@ -769,3 +781,25 @@ void vtkAlgorithm::RemoveReferences()
     }
   this->Superclass::RemoveReferences();
 }
+
+void vtkAlgorithm::ConvertTotalInputToPortConnection(
+  int ind, int &port, int &conn)
+{
+  port = 0;
+  conn = 0;
+  while (ind && port < this->GetNumberOfInputPorts())
+    {
+    int pNumCon;
+    pNumCon = this->GetNumberOfInputConnections(port);
+    if (ind >= pNumCon)
+      {
+      port++;
+      ind -= pNumCon;
+      }
+    else
+      {
+      return;
+      }
+    }
+}
+
