@@ -10,7 +10,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkRenderWindowInteractor.h"
 
-VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
+void process_a( vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
   vtkConeSource *cone = vtkConeSource::New();
   vtkElevationFilter *elev = vtkElevationFilter::New();
@@ -28,18 +28,14 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   cone->Delete();
   elev->Delete();
   upStreamPort->Delete();
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
-VTK_THREAD_RETURN_TYPE process_b( void *arg )
+void  process_b( vtkMultiProcessController *controller, void *arg )
 {
-  vtkMultiProcessController *controller;
   int myid, otherid;
   char *save_filename = (char*)arg;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   myid = controller->GetLocalProcessId();
   if (myid == 0)
     {
@@ -98,7 +94,6 @@ VTK_THREAD_RETURN_TYPE process_b( void *arg )
   coneMapper->Delete();
   coneActor->Delete();
 
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
@@ -113,7 +108,7 @@ void main( int argc, char *argv[] )
     sprintf( save_filename, "%s.cxx.ppm", argv[0] );
     }
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::New();
 
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(2);
@@ -121,7 +116,7 @@ void main( int argc, char *argv[] )
   controller->SetMultipleMethod(0, process_b, save_filename);
   controller->MultipleMethodExecute();
 
-  controller->UnRegister(NULL);
+  controller->Delete();
   
   exit( 1 );
 }
