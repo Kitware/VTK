@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
   
 //----------------------------------------------------------------------------
-// Description:
 // This method is called by the cache.  It eventually calls the
 // Execute(vtkImageData *, vtkImageData *) method.
 // ImageInformation has already been updated by this point, 
@@ -141,7 +140,6 @@ void vtkImageInPlaceFilter::InternalUpdate(vtkImageData *outData)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be called recursively for streaming.
 // The extent of the outRegion changes, dim remains the same.
 // Same as the one in Filter except that it copies the data

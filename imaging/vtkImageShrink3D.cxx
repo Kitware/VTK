@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor: Sets default filter to be identity.
 vtkImageShrink3D::vtkImageShrink3D()
 {
@@ -68,7 +67,6 @@ void vtkImageShrink3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the Region of input necessary to generate outRegion.
 void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6], 
 							int outExt[6])
@@ -93,7 +91,6 @@ void vtkImageShrink3D::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Computes any global image information associated with regions.
 // Any problems with roundoff or negative numbers ???
 void vtkImageShrink3D::ExecuteImageInformation()
@@ -229,7 +226,6 @@ static void vtkImageShrink3DExecute(vtkImageShrink3D *self,
 
     
 //----------------------------------------------------------------------------
-// Description:
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.

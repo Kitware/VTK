@@ -50,7 +50,6 @@ vtkImageTwoInputFilter::vtkImageTwoInputFilter()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Set the Input1 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
 void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
@@ -82,7 +81,6 @@ void vtkImageTwoInputFilter::SetInput1(vtkImageCache *input)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Set the Input2 of this filter. If a ScalarType has not been set,
 // then the ScalarType of the input is used.
 void vtkImageTwoInputFilter::SetInput2(vtkImageCache *input)

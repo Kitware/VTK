@@ -47,7 +47,6 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Intercepts the caches Update to make the region larger than requested.
 // Create the whole output array.
 void vtkImageCityBlockDistance::InterceptCacheUpdate()
@@ -79,7 +78,6 @@ void vtkImageCityBlockDistance::InterceptCacheUpdate()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 void vtkImageCityBlockDistance::ComputeRequiredInputUpdateExtent(int inExt[6],
@@ -95,7 +93,6 @@ void vtkImageCityBlockDistance::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This is writen as a 1D execute method, but is called several times.
 void vtkImageCityBlockDistance::Execute(vtkImageData *inData, 
 					vtkImageData *outData)

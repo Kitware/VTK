@@ -71,7 +71,6 @@ void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method returns the MTime of the pipeline upto and including this filter
 // Note: current implementation may create a cascade of GetPipelineMTime calls.
 // Each GetPipelineMTime call propagates the call all the way to the original
@@ -103,7 +102,6 @@ unsigned long int vtkImageFilter::GetPipelineMTime()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Set the Input of a filter. 
 void vtkImageFilter::SetInput(vtkImageCache *input)
 {
@@ -133,7 +131,6 @@ void vtkImageFilter::SetInput(vtkImageCache *input)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is called by the cache.  It eventually calls the
 // Execute(vtkImageData *, vtkImageData *) method.
 // ImageInformation has already been updated by this point, 
@@ -198,7 +195,6 @@ void vtkImageFilter::InternalUpdate(vtkImageData *outData)
 
   
 //----------------------------------------------------------------------------
-// Description:
 // This method can be called recursively for streaming.
 // The extent of the outRegion changes, dim remains the same.
 void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData)
@@ -272,7 +268,6 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageData *outData)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the WholeExtent, Spacing and Origin of the output.
 void vtkImageFilter::UpdateImageInformation()
 {
@@ -304,7 +299,6 @@ void vtkImageFilter::UpdateImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be overriden in a subclass to compute the output
 // ImageInformation: WholeExtent, Spacing and Origin.
 void vtkImageFilter::ExecuteImageInformation()
@@ -313,7 +307,6 @@ void vtkImageFilter::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be overriden in a subclass to compute the input
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
@@ -387,7 +380,6 @@ void vtkImageFilter::Execute(vtkImageData *inData,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // The execute method created by the subclass.
 void vtkImageFilter::ThreadedExecute(vtkImageData *vtkNotUsed(inData), 
 				     vtkImageData *vtkNotUsed(outData),

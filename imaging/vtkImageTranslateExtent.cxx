@@ -96,7 +96,6 @@ void vtkImageTranslateExtent::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method simply copies by reference the input data to the output.
 void vtkImageTranslateExtent::InternalUpdate(vtkImageData *outData)
 {

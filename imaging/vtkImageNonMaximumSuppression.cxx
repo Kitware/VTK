@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageNonMaximumSuppression fitler.
 vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
@@ -53,7 +52,6 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a region that holds the image extent of this filters
 // input, and changes the region to hold the image extent of this filters
 // output.
@@ -81,7 +79,6 @@ void vtkImageNonMaximumSuppression::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the input extent necessary to generate the output.
 void vtkImageNonMaximumSuppression::
 ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
@@ -119,7 +116,6 @@ ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -289,7 +285,6 @@ static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *
 	  
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

@@ -71,7 +71,6 @@ void vtkImageIterateFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   
 //----------------------------------------------------------------------------
-// Description:
 // This method can be called recursively for streaming.
 // The extent of the outRegion changes, dim remains the same.
 void vtkImageIterateFilter::RecursiveStreamUpdate(vtkImageData *outData)
@@ -133,7 +132,6 @@ void vtkImageIterateFilter::RecursiveStreamUpdate(vtkImageData *outData)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Some filters (decomposes, anisotropic difusion ...) have execute 
 // called multiple times per update.
 void vtkImageIterateFilter::IterateExecute(vtkImageData *inData, 
@@ -169,7 +167,6 @@ void vtkImageIterateFilter::IterateExecute(vtkImageData *inData,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the WholeExtent, Spacing and Origin of the output.
 void vtkImageIterateFilter::UpdateImageInformation()
 {
@@ -224,7 +221,6 @@ void vtkImageIterateFilter::UpdateImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be overriden in a subclass to compute the input
 // UpdateExtent needed to generate the output UpdateExtent.
 // By default the input is set to the same as the output before this
@@ -255,7 +251,6 @@ void vtkImageIterateFilter::IterateRequiredInputUpdateExtent()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Filters that execute multiple times per update use this internal method.
 void vtkImageIterateFilter::SetNumberOfIterations(int num)
 {

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageMedian3D fitler.
 vtkImageMedian3D::vtkImageMedian3D()
 {
@@ -52,7 +51,6 @@ vtkImageMedian3D::vtkImageMedian3D()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood 
 void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
@@ -82,7 +80,6 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Add a sample to the median computation
 double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 					 int &UpMax, int &DownMax,
@@ -182,7 +179,6 @@ double *vtkImageMedian3DAccumulateMedian(int &UpNum, int &DownNum,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 template <class T>
@@ -354,7 +350,6 @@ static void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageMedian3D::ThreadedExecute(vtkImageData *inData, 

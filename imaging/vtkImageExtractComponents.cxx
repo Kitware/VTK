@@ -122,7 +122,6 @@ void vtkImageExtractComponents::SetComponents(int c1)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method tells the superclass that only one component will remain.
 void vtkImageExtractComponents::ExecuteImageInformation()
 {
@@ -222,7 +221,6 @@ static void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed input and output datas, and executes the
 // ExtractComponents function on each line.  
 void vtkImageExtractComponents::ThreadedExecute(vtkImageData *inData, 

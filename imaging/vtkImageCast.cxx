@@ -59,7 +59,6 @@ void vtkImageCast::ExecuteImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // The update method first checks to see is a cast is necessary.
 void vtkImageCast::InternalUpdate(vtkImageData *data)
 {
@@ -87,7 +86,6 @@ void vtkImageCast::InternalUpdate(vtkImageData *data)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageCastExecute(vtkImageCast *self,
@@ -219,7 +217,6 @@ static void vtkImageCastExecute(vtkImageCast *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor: Sets default filter to be identity.
 vtkImageMagnify::vtkImageMagnify()
 {
@@ -58,7 +57,6 @@ vtkImageMagnify::vtkImageMagnify()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Computes any global image information associated with regions.
 void vtkImageMagnify::ExecuteImageInformation()
 {
@@ -86,7 +84,6 @@ void vtkImageMagnify::ExecuteImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
 void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],

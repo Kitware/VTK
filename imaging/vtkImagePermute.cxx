@@ -95,7 +95,6 @@ void vtkImagePermute::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImagePermuteExecute(vtkImagePermute *self,
@@ -168,7 +167,6 @@ static void vtkImagePermuteExecute(vtkImagePermute *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

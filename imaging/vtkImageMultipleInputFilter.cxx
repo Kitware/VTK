@@ -133,7 +133,6 @@ void vtkImageMultipleInputFilter::SetNumberOfInputs(int num)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method returns the MTime of the pipeline upto and including this filter
 // Note: current implementation may create a cascade of GetPipelineMTime calls.
 // Each GetPipelineMTime call propagates the call all the way to the original
@@ -173,7 +172,6 @@ unsigned long int vtkImageMultipleInputFilter::GetPipelineMTime()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Adds an input to the first null position in the input list.
 // Expands the list memory if necessary
 void vtkImageMultipleInputFilter::AddInput(vtkImageCache *input)
@@ -200,7 +198,6 @@ void vtkImageMultipleInputFilter::AddInput(vtkImageCache *input)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Set an Input of this filter. 
 void vtkImageMultipleInputFilter::SetInput(int idx, vtkImageCache *input)
 {
@@ -240,7 +237,6 @@ void vtkImageMultipleInputFilter::SetInput(int idx, vtkImageCache *input)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Called by cache
 void vtkImageMultipleInputFilter::InternalUpdate(vtkImageData *outData)
 {
@@ -297,7 +293,6 @@ void vtkImageMultipleInputFilter::InternalUpdate(vtkImageData *outData)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method can be called recursively for streaming.
 // The extent of the outRegion changes, dim remains the same.
 void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
@@ -396,7 +391,6 @@ void vtkImageMultipleInputFilter::RecursiveStreamUpdate(vtkImageData *outData)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method gets the boundary of the inputs then computes and returns 
 // the boundary of the largest region that can be generated. 
 void vtkImageMultipleInputFilter::UpdateImageInformation()
@@ -439,7 +433,6 @@ void vtkImageMultipleInputFilter::UpdateImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed an inRegion that holds the image information
 // (image extent ...) of this filters input, and fills outRegion with
 // the image information after this filter is finished.
@@ -453,7 +446,6 @@ void vtkImageMultipleInputFilter::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
@@ -514,7 +506,6 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // The execute method created by the subclass.
 void vtkImageMultipleInputFilter::Execute(vtkImageData **inDatas, 
 					  vtkImageData *outData)
@@ -533,7 +524,6 @@ void vtkImageMultipleInputFilter::Execute(vtkImageData **inDatas,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // The execute method created by the subclass.
 void vtkImageMultipleInputFilter::ThreadedExecute(vtkImageData 
 				  **vtkNotUsed(inData), 

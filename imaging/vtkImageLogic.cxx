@@ -53,7 +53,6 @@ vtkImageLogic::vtkImageLogic()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
@@ -138,7 +137,6 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -259,7 +257,6 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output regions, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

@@ -75,7 +75,6 @@ void vtkImageVariance3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood and computes the Elliptical foot print.
 void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
@@ -137,7 +136,6 @@ void vtkImageVariance3D::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -293,7 +291,6 @@ static void vtkImageVariance3DExecute(vtkImageVariance3D *self,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.

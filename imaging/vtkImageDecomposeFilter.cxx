@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageDecomposeFilter fitler.
 vtkImageDecomposeFilter::vtkImageDecomposeFilter()
 {

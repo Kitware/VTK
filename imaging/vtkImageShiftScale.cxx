@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor sets default values
 vtkImageShiftScale::vtkImageShiftScale()
 {
@@ -68,7 +67,6 @@ void vtkImageShiftScale::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
@@ -198,7 +196,6 @@ static void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

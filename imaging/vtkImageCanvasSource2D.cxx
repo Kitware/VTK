@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCanvasSource2D.h"
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageCanvasSource2D with no data.
 vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 {
@@ -58,7 +57,6 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the associated
 // vtkImageData.  However, since the data is reference counted, it may not 
 // actually be deleted.
@@ -122,7 +120,6 @@ static void vtkImageCanvasSource2DFillBox(vtkImageData *image,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Draw a data.  Only implentented for 2D extents.
 void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
 {
@@ -246,7 +243,6 @@ static void vtkImageCanvasSource2DFillTube(vtkImageData *image,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Fill a tube (thick line for initial 2D implementation).
 void vtkImageCanvasSource2D::FillTube(int a0, int a1, int b0, int b1, float radius)
 {
@@ -397,7 +393,6 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageData *image,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Fill a tube (thick line for initial 2D implementation).
 void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1, int c0,int c1)
 {
@@ -468,7 +463,6 @@ static void vtkImageCanvasSource2DDrawPoint(vtkImageData *image,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Draw a circle
 void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 {
@@ -558,7 +552,6 @@ static void vtkImageCanvasSource2DDrawCircle(vtkImageData *image,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Draw a circle
 void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, float radius)
 {
@@ -686,7 +679,6 @@ static void vtkImageCanvasSource2DDrawSegment(vtkImageData *image,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Draw a Segment from point a to point b.
 void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
 {
@@ -741,7 +733,6 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Clips a line segment so it will be in bounds.
 // If the entire segment is out of bounds, the method returns 0.
 int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
@@ -947,7 +938,6 @@ static void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Draw a Segment from point a to point b.
 // No clipping or bounds checking.
 void vtkImageCanvasSource2D::DrawSegment3D(float *a, float *b)
@@ -1255,7 +1245,6 @@ static void vtkImageCanvasSource2DFill(vtkImageData *image, float *color,
   
   
 //----------------------------------------------------------------------------
-// Description:
 // Fill a colored area with another color. (like connectivity)
 // All pixels connected to pixel (x, y) get replaced by draw color.
 void vtkImageCanvasSource2D::FillPixel(int x, int y)

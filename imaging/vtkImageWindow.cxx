@@ -49,7 +49,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImagerCollection.h"
 
-// Description:
 // Creates a vtkImageWindow with 
 // background erasing disabled and gray scale hint off
 vtkImageWindow::vtkImageWindow()

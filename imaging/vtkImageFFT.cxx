@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This extent of the components changes to real and imaginary values.
 void vtkImageFFT::ExecuteImageInformation()
 {
@@ -53,7 +52,6 @@ void vtkImageFFT::ExecuteImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method tells the superclass that the whole input array is needed
 // to compute any output region.
 void vtkImageFFT::ComputeRequiredInputUpdateExtent(int inExt[6], 
@@ -69,7 +67,6 @@ void vtkImageFFT::ComputeRequiredInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated execute method handles any type input, but the output
 // is always floats.
 template <class T>
@@ -163,7 +160,6 @@ static void vtkImageFFTExecute(vtkImageFFT *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed input and output Datas, and executes the fft
 // algorithm to fill the output from the input.
 // Not threaded yet.
@@ -224,7 +220,6 @@ void vtkImageFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // For streaming and threads.  Splits output update extent into num pieces.
 // This method needs to be called num times.  Results must not overlap for
 // consistent starting extent.  Subclass can override this method.

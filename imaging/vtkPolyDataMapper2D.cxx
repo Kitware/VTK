@@ -82,7 +82,6 @@ vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
 }
 
 
-// Description:
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.
 unsigned long vtkPolyDataMapper2D::GetMTime()
@@ -160,7 +159,6 @@ vtkScalars *vtkPolyDataMapper2D::GetColors()
   return this->Colors;
 }
 
-// Description:
 // Specify a lookup table for the mapper to use.
 void vtkPolyDataMapper2D::SetLookupTable(vtkLookupTable *lut)
 {
@@ -197,7 +195,6 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
   this->LookupTable = vtkLookupTable::New();
 }
 
-// Description:
 // Return the method of coloring scalar data.
 char *vtkPolyDataMapper2D::GetColorModeAsString(void)
 {

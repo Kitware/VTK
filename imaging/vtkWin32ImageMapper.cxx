@@ -161,7 +161,6 @@ static void vtkWin32ImageMapperClamps ( vtkImageData *data, float w,
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // A templated function that handles gray scale images.
 template <class T>
 static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self, 
@@ -237,7 +236,6 @@ static void vtkWin32ImageMapperRenderGray(vtkWin32ImageMapper *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
 static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self, 
@@ -366,7 +364,6 @@ static void vtkWin32ImageMapperRenderColor(vtkWin32ImageMapper *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // A templated function that handles gray scale images.
 
 template <class T>

@@ -257,7 +257,6 @@ void vtkXImageMapper::GetXWindowColors(vtkWindow* window, XColor colors[], int n
 
 
 //----------------------------------------------------------------------------
-// Description:
 // A templated function that handles gray scale images.
 template <class T>
 static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper, 
@@ -450,7 +449,6 @@ static void vtkXImageMapperRenderGray(vtkXImageMapper *mapper,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // A templated function that handles color images. (only True Color 24 bit)
 template <class T>
 static void vtkXImageMapperRenderColor(vtkXImageMapper *mapper,

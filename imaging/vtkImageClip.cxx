@@ -159,7 +159,6 @@ void vtkImageClip::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Sets the output whole extent to be the input whole extent.
 void vtkImageClip::ResetOutputWholeExtent()
 {
@@ -176,7 +175,6 @@ void vtkImageClip::ResetOutputWholeExtent()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method simply copies by reference the input data to the output.
 void vtkImageClip::InternalUpdate(vtkImageData *outData)
 {

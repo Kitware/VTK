@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageRange3D fitler.
 // By default zero values are dilated.
 vtkImageRange3D::vtkImageRange3D()
@@ -79,7 +78,6 @@ void vtkImageRange3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood and computes the eliptical foot print.
 void vtkImageRange3D::SetKernelSize(int size0, int size1, int size2)
@@ -135,7 +133,6 @@ void vtkImageRange3D::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -298,7 +295,6 @@ static void vtkImageRange3DExecute(vtkImageRange3D *self,
 		
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It hanldes image boundaries, so the image does not shrink.

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor sets default values
 vtkImageThreshold::vtkImageThreshold()
 {
@@ -83,7 +82,6 @@ void vtkImageThreshold::SetOutValue(float val)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // The values greater than or equal to the value match.
 void vtkImageThreshold::ThresholdByUpper(float thresh)
 {
@@ -97,7 +95,6 @@ void vtkImageThreshold::ThresholdByUpper(float thresh)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // The values less than or equal to the value match.
 void vtkImageThreshold::ThresholdByLower(float thresh)
 {
@@ -111,7 +108,6 @@ void vtkImageThreshold::ThresholdByLower(float thresh)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // The values in a range (inclusive) match
 void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 {
@@ -135,7 +131,6 @@ void vtkImageThreshold::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class IT, class OT>
 static void vtkImageThresholdExecute(vtkImageThreshold *self,
@@ -262,7 +257,6 @@ static void vtkImageThresholdExecute1(vtkImageThreshold *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

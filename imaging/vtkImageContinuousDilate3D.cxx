@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageContinuousDilate3D fitler.
 // By default zero values are dilated.
 vtkImageContinuousDilate3D::vtkImageContinuousDilate3D()
@@ -79,7 +78,6 @@ void vtkImageContinuousDilate3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood and computes the elliptical foot print.
 void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
@@ -127,7 +125,6 @@ void vtkImageContinuousDilate3D::SetKernelSize(int size0, int size1, int size2)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter on any region,
 // whether it needs boundary checking or not.
 // If the filter needs to be faster, the function could be duplicated
@@ -284,7 +281,6 @@ static void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
 		
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output Data types.
 // It handles image boundaries, so the image does not shrink.

@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageAnisotropicDiffusion3D fitler.
 vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
 {
@@ -110,7 +109,6 @@ vtkImageAnisotropicDiffusion3D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method sets the number of inputs which also affects the
 // input neighborhood needed to compute one output pixel.
 void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
@@ -137,7 +135,6 @@ void vtkImageAnisotropicDiffusion3D::SetNumberOfIterations(int num)
 }
   
 //----------------------------------------------------------------------------
-// Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The input and output regions
 // must have the same data type.
@@ -206,7 +203,6 @@ void vtkImageAnisotropicDiffusion3D::ThreadedExecute(vtkImageData *inData,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method performs one pass of the diffusion filter.
 // The inData and outData are assumed to have data type float,
 // and have the same extent.

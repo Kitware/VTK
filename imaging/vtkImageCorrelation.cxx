@@ -51,7 +51,6 @@ vtkImageCorrelation::vtkImageCorrelation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Grow the output image 
 void vtkImageCorrelation::ExecuteImageInformation()
 {
@@ -66,7 +65,6 @@ void vtkImageCorrelation::ExecuteImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Grow
 void vtkImageCorrelation::ComputeRequiredInputUpdateExtent(int inExt[6], 
 							   int outExt[6],
@@ -101,7 +99,6 @@ void vtkImageCorrelation::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -216,7 +213,6 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

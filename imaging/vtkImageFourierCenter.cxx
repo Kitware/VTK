@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageFourierCenter fitler.
 vtkImageFourierCenter::vtkImageFourierCenter()
 {
@@ -52,7 +51,6 @@ vtkImageFourierCenter::vtkImageFourierCenter()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method tells the superclass which input extent is needed.
 // This gets the whole input (even though it may not be needed).
 void vtkImageFourierCenter::ComputeRequiredInputUpdateExtent(int inExt[6], 
@@ -68,7 +66,6 @@ void vtkImageFourierCenter::ComputeRequiredInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed input and output regions, and executes the fft
 // algorithm to fill the output from the input.
 void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData, 

@@ -42,7 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImager.h"
 #include "vtkImageWindow.h"
 
-// Description:
 // Create an imager with viewport (0, 0, 1, 1)
 vtkImager::vtkImager()
 {

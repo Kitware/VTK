@@ -243,7 +243,6 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method convolves over one axis. It loops over the convolved axis,
 // and handles boundary conditions.
 void vtkImageGaussianSmooth::ExecuteAxis(int axis, 
@@ -390,7 +389,6 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
 }
   
 //----------------------------------------------------------------------------
-// Description:
 // This method decomposes the gaussian and smooths along each axis.
 void vtkImageGaussianSmooth::ThreadedExecute(vtkImageData *inData, 
 					     vtkImageData *outData,

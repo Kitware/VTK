@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method tells the superclass that the first axis will collapse.
 void vtkImageLuminance::ExecuteImageInformation()
 {
@@ -51,7 +50,6 @@ void vtkImageLuminance::ExecuteImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
@@ -111,7 +109,6 @@ static void vtkImageLuminanceExecute(vtkImageLuminance *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.

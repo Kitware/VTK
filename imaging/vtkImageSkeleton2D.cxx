@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageSkeleton2D fitler.
 vtkImageSkeleton2D::vtkImageSkeleton2D()
 {
@@ -58,7 +57,6 @@ void vtkImageSkeleton2D::SetNumberOfIterations(int num)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the extent of the input region necessary to generate
 // an output region.  Before this method is called "region" should have the 
 // extent of the output region.  After this method finishes, "region" should 
@@ -97,7 +95,6 @@ void vtkImageSkeleton2D::ComputeRequiredInputUpdateExtent(int *inExt,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
 // This is my best attempt at skeleton.  The rules are a little hacked up,
@@ -284,7 +281,6 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageSkeleton2D::ThreadedExecute(vtkImageData *inData, 

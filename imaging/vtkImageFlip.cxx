@@ -50,7 +50,6 @@ vtkImageFlip::vtkImageFlip()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Image extent is modified by this filter.
 void vtkImageFlip::ExecuteImageInformation()
 {
@@ -68,7 +67,6 @@ void vtkImageFlip::ExecuteImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // What input should be requested.
 void vtkImageFlip::ComputeRequiredInputUpdateExtent(int inExt[6], 
 						    int outExt[6])
@@ -96,7 +94,6 @@ void vtkImageFlip::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageFlipExecute(vtkImageFlip *self, int id,
@@ -185,7 +182,6 @@ static void vtkImageFlipExecute(vtkImageFlip *self, int id,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

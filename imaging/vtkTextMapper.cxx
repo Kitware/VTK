@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   #include "vtkXTextMapper.h"
 #endif
 
-// Description:
 // Creates a new text mapper with Font size 12, bold off, italic off,
 // and Arial font
 vtkTextMapper::vtkTextMapper()

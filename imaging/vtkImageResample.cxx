@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor: Sets default filter to be identity.
 vtkImageResample::vtkImageResample()
 {
@@ -134,7 +133,6 @@ float vtkImageResample::GetAxisMagnificationFactor(int axis)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the Region of input necessary to generate outRegion.
 // It assumes offset and size are multiples of Magnify Factors.
 void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6], 
@@ -163,7 +161,6 @@ void vtkImageResample::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Computes any global image information associated with regions.
 void vtkImageResample::ExecuteImageInformation() 
 {
@@ -291,7 +288,6 @@ static void vtkImageResampleExecute(vtkImageResample *self,
 
     
 //----------------------------------------------------------------------------
-// Description:
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // scalar type.

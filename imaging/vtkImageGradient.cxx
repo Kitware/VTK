@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageGradient fitler.
 vtkImageGradient::vtkImageGradient()
 {
@@ -86,7 +85,6 @@ void vtkImageGradient::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the input extent necessary to generate the output.
 void vtkImageGradient::ComputeRequiredInputUpdateExtent(int inExt[6],
 							int outExt[6])
@@ -120,7 +118,6 @@ void vtkImageGradient::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
@@ -224,7 +221,6 @@ static void vtkImageGradientExecute(vtkImageGradient *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.

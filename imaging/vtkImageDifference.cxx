@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageDifference.h"
 #include "stdlib.h"
 
-// Description:
 // Construct object to extract all of the input data.
 vtkImageDifference::vtkImageDifference()
 {
@@ -106,7 +105,6 @@ vtkImageDifference::vtkImageDifference()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method computes the input extent necessary to generate the output.
 void vtkImageDifference::ComputeRequiredInputUpdateExtent(int inExt[6],
 							  int outExt[6],

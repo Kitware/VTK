@@ -114,7 +114,6 @@ vtkImageReader::~vtkImageReader()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This function sets the name of the file. 
 void vtkImageReader::ComputeInternalFileName(int slice)
 {
@@ -150,7 +149,6 @@ void vtkImageReader::ComputeInternalFileName(int slice)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This function sets the name of the file. 
 void vtkImageReader::SetFileName(char *name)
 {
@@ -177,7 +175,6 @@ void vtkImageReader::SetFileName(char *name)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This function sets the prefix of the file name. "image" would be the
 // name of a series: image.1, image.2 ...
 void vtkImageReader::SetFilePrefix(char *prefix)
@@ -205,7 +202,6 @@ void vtkImageReader::SetFilePrefix(char *prefix)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This function sets the pattern of the file name which turn a prefix
 // into a file name. "%s.%3d" would be the
 // pattern of a series: image.001, image.002 ...
@@ -390,7 +386,6 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method returns the largest data that can be generated.
 void vtkImageReader::UpdateImageInformation()
 {
@@ -444,7 +439,6 @@ void vtkImageReader::SetHeaderSize(int size)
   
 
 //----------------------------------------------------------------------------
-// Description:
 // This function opens a file to determine the file size, and to
 // automatically determine the header size.
 void vtkImageReader::ComputeDataIncrements()
@@ -587,7 +581,6 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This function reads in one data of data.
 // templated to handle different data types.
 template <class IT, class OT>
@@ -745,7 +738,6 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This function reads in one data of one slice.
 // templated to handle different data types.
 template <class T>
@@ -778,7 +770,6 @@ static void vtkImageReaderUpdate1(vtkImageReader *self,
     }  
 }
 //----------------------------------------------------------------------------
-// Description:
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkImageReader::Execute(vtkImageData *data)
@@ -813,7 +804,6 @@ void vtkImageReader::Execute(vtkImageData *data)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Set the data type of pixles in the file.  
 // As a convienience, the OutputScalarType is set to the same value.
 // If you want the output scalar type to have a different value, set it
@@ -833,7 +823,6 @@ void vtkImageReader::SetDataScalarType(int type)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Returns the cache.
 vtkImageCache *vtkImageReader::GetOutput()
 {

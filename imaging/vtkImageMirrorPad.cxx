@@ -70,7 +70,6 @@ void vtkImageMirrorPad::ComputeRequiredInputUpdateExtent(int inExt[6],
 
 
 //----------------------------------------------------------------------------
-// Description:
 template <class T>
 static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 				     vtkImageData *inData,
@@ -240,7 +239,6 @@ static void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for

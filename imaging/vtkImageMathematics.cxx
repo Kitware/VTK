@@ -53,7 +53,6 @@ vtkImageMathematics::vtkImageMathematics()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // The output extent is the intersection.
 void vtkImageMathematics::ExecuteImageInformation()
 {
@@ -88,7 +87,6 @@ void vtkImageMathematics::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 // Handles the one input operations
 template <class T>
@@ -175,7 +173,6 @@ static void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 // Handles the two input operations
 template <class T>
@@ -281,7 +278,6 @@ static void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method is passed a input and output datas, and executes the filter
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for

@@ -358,7 +358,6 @@ void vtkXImageWindow::EraseWindow()
 }
 
 
-// Description:
 // Get this RenderWindow's X window id.
 Window vtkXImageWindow::GetWindowId()
 {
@@ -367,7 +366,6 @@ Window vtkXImageWindow::GetWindowId()
   return this->WindowId;
 }
 
-// Description:
 // Get this RenderWindow's parent X window id.
 Window vtkXImageWindow::GetParentId()
 {
@@ -375,7 +373,6 @@ Window vtkXImageWindow::GetParentId()
   return this->ParentId;
 }
 
-// Description:
 // Sets the parent of the window that WILL BE created.
 void vtkXImageWindow::SetParentId(Window arg)
 {
@@ -396,7 +393,6 @@ void vtkXImageWindow::SetParentId(void* arg)
 }
 
 
-// Description:
 // Get the position in screen coordinates (pixels) of the window.
 int *vtkXImageWindow::GetPosition(void)
 {
@@ -428,7 +424,6 @@ int *vtkXImageWindow::GetPosition(void)
   return this->Position;
 }
 
-// Description:
 // Move the window to a new position on the display.
 void vtkXImageWindow::SetPosition(int x, int y)
 {
@@ -764,7 +759,6 @@ int vtkXImageWindow::GetDesiredDepth()
   return v.depth;  
 }
 
-// Description:
 // Get a visual from the windowing system.
 Visual *vtkXImageWindow::GetDesiredVisual ()
 {
@@ -779,7 +773,6 @@ Visual *vtkXImageWindow::GetDesiredVisual ()
 }
 
 
-// Description:
 // Get a colormap from the windowing system.
 Colormap vtkXImageWindow::GetDesiredColormap ()
 {
@@ -819,7 +812,6 @@ void vtkXImageWindow::SetWindowId(Window arg)
   // Here to allow me to compile
 }
 
-// Description:
 // Set the X display id for this ImageXWindow to use to a pre-existing 
 // X display id.
 void vtkXImageWindow::SetDisplayId(Display  *arg)

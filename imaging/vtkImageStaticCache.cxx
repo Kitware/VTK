@@ -74,7 +74,6 @@ void vtkImageStaticCache::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This Method deletes any data in cache. For a static cache the data cannot be
 // released except by deleteing the instance or providing a new CachedData
 void vtkImageStaticCache::ReleaseData()
@@ -87,7 +86,6 @@ vtkImageData *vtkImageStaticCache::UpdateAndReturnData()
 }
 
 
-// Description:
 // This method updates the region specified by "UpdateExtent".  
 void vtkImageStaticCache::Update()
 {
@@ -100,7 +98,6 @@ void vtkImageStaticCache::Update()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // return the un filled data of the UpdateExtent in this cache.
 vtkImageData *vtkImageStaticCache::GetData()
 {
@@ -113,7 +110,6 @@ vtkImageData *vtkImageStaticCache::GetData()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This method updates the instance variables "WholeExtent", "Spacing", 
 // "Origin", "Bounds" etc.
 // It needs to be separate from "Update" because the image information
@@ -133,7 +129,6 @@ void vtkImageStaticCache::UpdateImageInformation()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Make this a separate method to avoid another GetPipelineMTime call.
 unsigned long vtkImageStaticCache::GetPipelineMTime()
 {

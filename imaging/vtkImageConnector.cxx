@@ -131,7 +131,6 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // Input a data of 0's and "UnconnectedValue"s. Seeds of this object are 
 // used to find connected pixels.
 // All pixels connected to seeds are set to ConnectedValue.  

@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Construct an instance of vtkImageSobel2D fitler.
 vtkImageSobel2D::vtkImageSobel2D()
 {
@@ -75,7 +74,6 @@ void vtkImageSobel2D::ExecuteImageInformation()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values 
 // out of extent.
@@ -187,7 +185,6 @@ static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This method contains a switch statement that calls the correct
 // templated function for the input region type.  The output region
 // must be of type float.  This method does handle boundary conditions.

@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Constructor: Sets default filter to be identity.
 vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
 {
@@ -78,7 +77,6 @@ void vtkImageIslandRemoval2D::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-// Description:
 // Intercepts the caches Update to make the region larger than requested.
 // The whole image is generated when any region is requested.
 void vtkImageIslandRemoval2D::InterceptCacheUpdate()
@@ -515,7 +513,6 @@ static void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
 
     
 //----------------------------------------------------------------------------
-// Description:
 // This method uses the input data to fill the output data.
 // It can handle any type data, but the two datas must have the same 
 // data type.  Assumes that in and out have the same lower extent.

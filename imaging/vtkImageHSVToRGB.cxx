@@ -51,7 +51,6 @@ vtkImageHSVToRGB::vtkImageHSVToRGB()
 
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageHSVToRGBExecute(vtkImageHSVToRGB *self,

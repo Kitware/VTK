@@ -50,7 +50,6 @@ vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 }
 
 //----------------------------------------------------------------------------
-// Description:
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
