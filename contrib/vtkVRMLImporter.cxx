@@ -6021,7 +6021,7 @@ void
 vtkVRMLImporter::useNode(const char *name) {
 
   vtkObject *useO;
-  if (useO = this->GetVRMLDEFObject(name)) 
+  if ((useO = this->GetVRMLDEFObject(name))) 
     {
     if (strstr(useO->GetClassName(), "Actor")) 
       {

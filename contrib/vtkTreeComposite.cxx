@@ -531,8 +531,6 @@ void vtkTreeComposite::ComputeVisiblePropBounds(vtkRenderer *ren,
   //float tmp[6];
   int id, num;
   
-  vtkMultiProcessController *controller = this->Controller;
-  
   num = this->Controller->GetNumberOfProcesses();  
   for (id = 1; id < num; ++id)
     {

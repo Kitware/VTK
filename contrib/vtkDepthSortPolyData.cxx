@@ -142,7 +142,6 @@ void vtkDepthSortPolyData::Execute()
   vtkPolyData *output=this->GetOutput();
   vtkGenericCell *cell=vtkGenericCell::New();
   int numCells=input->GetNumberOfCells();
-  int numPts=input->GetNumberOfPoints();
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkScalars *sortScalars;

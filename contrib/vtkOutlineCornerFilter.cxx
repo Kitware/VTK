@@ -98,8 +98,6 @@ void vtkOutlineCornerFilter::Execute()
 
 void vtkOutlineCornerFilter::ExecuteInformation()
 {
-  vtkPolyData *output = this->GetOutput();
-  
   vtkDebugMacro(<< "Creating dataset outline");
 
   //

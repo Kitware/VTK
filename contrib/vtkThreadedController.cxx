@@ -449,7 +449,7 @@ void vtkThreadedController::DeleteMessage(vtkThreadedControllerMessage *message)
 
   if (message->Data)
     {
-    delete [] message->Data;
+    delete [] (unsigned char*)message->Data;
     message->Data = NULL;
     message->DataLength = 0;
     }
