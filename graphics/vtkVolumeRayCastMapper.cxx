@@ -63,7 +63,6 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->RGBAImage               = NULL;
   this->ZImage                  = NULL;
   this->SampleDistance          = 1.0;
-  this->ThreadCount             = this->Threader.GetThreadCount();
   this->RayBounder              = NULL;
   this->VolumeRayCastFunction   = NULL;
   this->OpacityTFArray          = NULL;
@@ -84,18 +83,9 @@ vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
     delete this->ZImage;
 }
 
-struct vtkVolumeRayCastMapperInfo
-{
-  vtkVolumeRayCastMapper *Caster;
-  vtkRenderWindow        *RenderWindow;
-};
-
-
 void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
   vtkTimerLog        *timer;
-  int                thread_loop;
-  vtkVolumeRayCastMapperInfo info;
   
   // make sure that we have scalar input and update the scalar input
   if ( this->ScalarInput == NULL ) 
@@ -110,11 +100,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
   // Create the time object
   timer = vtkTimerLog::New();
-  
-  // set up the info object for the thread
-  info.Caster = this;
-  info.RenderWindow = ren->GetRenderWindow();
-  
+    
   // Give the concrete depth parc volume mapper a chance to do any
   // per-render stuff that it may need to do (such as update normals,
   // set up transfer function arrays, etc)
@@ -141,15 +127,14 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     // are cast
     this->GeneralImageInitialization( ren, vol );
     this->InitializeParallelImage( ren );
-    this->VolumeRayCastFunction->FunctionInitialize( ren, vol, this,
-						     this->CorrectedOpacityTFArray,
-						     this->RGBTFArray,
-						     this->GrayTFArray,
-						     this->TFArraySize );
+    this->VolumeRayCastFunction->FunctionInitialize( 
+					       ren, vol, this,
+					       this->CorrectedOpacityTFArray,
+					       this->RGBTFArray,
+					       this->GrayTFArray,
+					       this->TFArraySize );
 
-    this->Threader.SetThreadCount( this->ThreadCount );
-    this->Threader.SetSingleMethod( RenderParallelImage, (void *)&info);
-    this->Threader.SingleMethodExecute();
+    this->RenderParallelImage( ren );
     }
   else
     {
@@ -158,24 +143,18 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     // are cast
     this->GeneralImageInitialization( ren, vol );
     this->InitializePerspectiveImage( ren );
-    this->VolumeRayCastFunction->FunctionInitialize( ren, vol, this,
-						     this->CorrectedOpacityTFArray,
-						     this->RGBTFArray,
-						     this->GrayTFArray,
-						     this->TFArraySize );
-
-    this->Threader.SetThreadCount( this->ThreadCount );
-    this->Threader.SetSingleMethod( RenderPerspectiveImage, (void *)&info);
-    this->Threader.SingleMethodExecute();
+    this->VolumeRayCastFunction->FunctionInitialize( 
+					       ren, vol, this,
+					       this->CorrectedOpacityTFArray,
+					       this->RGBTFArray,
+					       this->GrayTFArray,
+					       this->TFArraySize );
+    
+    this->RenderPerspectiveImage( ren );
     }
 
-  this->TotalRaysCast   = 0;
-  this->TotalStepsTaken = 0;
-  for ( thread_loop = 0; thread_loop < this->ThreadCount; thread_loop++ )
-    {
-    this->TotalRaysCast   += this->TotalRaysCastPerId[thread_loop];
-    this->TotalStepsTaken += this->TotalStepsTakenPerId[thread_loop];
-    }
+  this->TotalRaysCast   = this->TotalRaysCastPerId[0];
+  this->TotalStepsTaken = this->TotalStepsTakenPerId[0];
 
   timer->StopTimer();
 
@@ -185,7 +164,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 }
 
 int vtkVolumeRayCastMapper::ClipRayAgainstVolume( float ray_info[12], 
-					      float bound_info[12] )
+						  float bound_info[12] )
 {
   int    loop;
   float  diff;
@@ -568,15 +547,8 @@ void vtkVolumeRayCastMapper::InitializeParallelImage( vtkRenderer *ren )
 // Cast a ray for each pixel in the image plane using a parallel viewing
 // transform.  The rays are obtained from the vtkRenderer and they define 
 // the size of the image to be computed. At the end of this, we have an 
-// RGBAImage and a ZImage.  This is a friend function and not a member
-// function because it may be an argument to pthread_create or sproc for
-// multi-threading.  Each row j of the image is computed if 
-// j % thread_count is equal to the thread_id given to this routine.
-// For thread_count = 1, the entire image will be computed by
-// thread_id = 0. If, for example, this->ThreadCount = 2, the even rows
-// will be computed by thread_id = 0 and the odd rows will be computed by
-// thread_id = 1.
-VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
+// RGBAImage and a ZImage.  
+void vtkVolumeRayCastMapper::RenderParallelImage( vtkRenderer *ren )
 {
   int                     i, j, last_i;
   float                   unit_ray_direction[3], ray_origin[3];
@@ -596,61 +568,53 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
   float		          *pixel_offset_y;
   float		          *pixel_offset_z;
   float                   *ren_z_ptr = NULL;
-  int                     thread_id;
-  int                     thread_count;
-  vtkVolumeRayCastMapper  *mapper;
   int                     largest_increment_index;
   float                   clipping_range[2];
   float                   ray_info[12];
   int                     noAbort = 1;
   vtkRenderWindow         *renWin;
+  int                     count_loc = 0;
   
-  // Get the info out of the input structure
-  thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
-  thread_count = ((ThreadInfoStruct *)(arg))->ThreadCount;
-  mapper = ((vtkVolumeRayCastMapperInfo *)
-	    ((ThreadInfoStruct *)arg)->UserData)->Caster;
-  renWin = ((vtkVolumeRayCastMapperInfo *)
-	    ((ThreadInfoStruct *)arg)->UserData)->RenderWindow;
-
+  renWin = ren->GetRenderWindow();
+	   
   // Initialize some statistics
-  mapper->TotalRaysCastPerId[thread_id]   = 0;
-  mapper->TotalStepsTakenPerId[thread_id] = 0;
+  this->TotalRaysCastPerId[count_loc]   = 0;
+  this->TotalStepsTakenPerId[count_loc] = 0;
 
   // Pull some info out of instance variables into local variables
 
   // These are the pointers to the image (RGBA and Z) and all the
   // z buffers
-  iptr = mapper->RGBAImage;
-  zptr = mapper->ZImage;
-  z_range_ptr = mapper->DepthRangeBufferPointer;
-  ren_z_ptr = mapper->RenderZData;
+  iptr = this->RGBAImage;
+  zptr = this->ZImage;
+  z_range_ptr = this->DepthRangeBufferPointer;
+  ren_z_ptr = this->RenderZData;
 
   // This is the scale factor used to convert z buffer values to 
   // z distance values
-  zscale = mapper->ParallelZScale;
-  zbias  = mapper->ParallelZBias;
+  zscale = this->ParallelZScale;
+  zbias  = this->ParallelZBias;
 
   // This is the length of the ray in the local volume space
-  world_sample_distance = mapper->WorldSampleDistance;
+  world_sample_distance = this->WorldSampleDistance;
 
   // This is the unit direction of the ray in the local volume space
-  memcpy( unit_ray_direction, mapper->LocalUnitRayDirection, 
+  memcpy( unit_ray_direction, this->LocalUnitRayDirection, 
 	  3 * sizeof( float ) );
 
   // This is the direction of the ray in the local volume space 
-  memcpy( ray_direction, mapper->LocalRayDirection, 3 * sizeof( float ) );
+  memcpy( ray_direction, this->LocalRayDirection, 3 * sizeof( float ) );
 
   // The clipping range of the camera is used to clip the rays
-  memcpy( clipping_range, mapper->CameraClippingRange, 2 * sizeof( float) );
+  memcpy( clipping_range, this->CameraClippingRange, 2 * sizeof( float) );
 
   memcpy( ray_info + 6, ray_direction, 3 * sizeof( float ) );
   memcpy( ray_info + 9, unit_ray_direction, 3 * sizeof( float ) );
 
   // This is the local ray start
-  start_ray[0] = mapper->LocalRayStart[0];
-  start_ray[1] = mapper->LocalRayStart[1];
-  start_ray[2] = mapper->LocalRayStart[2];
+  start_ray[0] = this->LocalRayStart[0];
+  start_ray[1] = this->LocalRayStart[1];
+  start_ray[2] = this->LocalRayStart[2];
 
   // Compute the ray increments in x, y, and z 
   // accounted for interaction scale, 
@@ -668,32 +632,32 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
     largest_increment_index = 2;
 
   // Compute ray origin offsets for a scan line
-  pixel_offset_x = new float[(mapper->ViewRaysSize[0])];
-  pixel_offset_y = new float[(mapper->ViewRaysSize[0])];
-  pixel_offset_z = new float[(mapper->ViewRaysSize[0])];
+  pixel_offset_x = new float[(this->ViewRaysSize[0])];
+  pixel_offset_y = new float[(this->ViewRaysSize[0])];
+  pixel_offset_z = new float[(this->ViewRaysSize[0])];
 
-  for( i = 0; i < mapper->ViewRaysSize[0]; i++ )
+  for( i = 0; i < this->ViewRaysSize[0]; i++ )
     {
-    pixel_offset_x[i] = mapper->XOriginIncrement[0] * (float)i;
-    pixel_offset_y[i] = mapper->XOriginIncrement[1] * (float)i;
-    pixel_offset_z[i] = mapper->XOriginIncrement[2] * (float)i;
+    pixel_offset_x[i] = this->XOriginIncrement[0] * (float)i;
+    pixel_offset_y[i] = this->XOriginIncrement[1] * (float)i;
+    pixel_offset_z[i] = this->XOriginIncrement[2] * (float)i;
     }
 
   // Set the bounds of the volume
   for ( i = 0; i < 3; i++ )
     {
     bounds[2*i] = 0.0;
-    bounds[2*i+1] = mapper->ScalarDataSize[i] - 1;
+    bounds[2*i+1] = this->ScalarDataSize[i] - 1;
     }
 
-  if ( mapper->Clipping )
+  if ( this->Clipping )
     {
     for ( i = 0; i < 3; i++ )
       {
-      if ( mapper->ClippingPlanes[2*i] > bounds[2*i] )
-	bounds[2*i] = mapper->ClippingPlanes[2*i];
-      if ( mapper->ClippingPlanes[2*i+1] < bounds[2*i+1] )
-	bounds[2*i+1] = mapper->ClippingPlanes[2*i+1];
+      if ( this->ClippingPlanes[2*i] > bounds[2*i] )
+	bounds[2*i] = this->ClippingPlanes[2*i];
+      if ( this->ClippingPlanes[2*i+1] < bounds[2*i+1] )
+	bounds[2*i+1] = this->ClippingPlanes[2*i+1];
       }
     }
 
@@ -713,30 +677,18 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
   pixel_value[5] = 0.0;
 
   // Loop through all pixels and cast rays where necessary
-  for ( j = 0; j < mapper->ViewRaysSize[1]; j++ )
+  for ( j = 0; j < this->ViewRaysSize[1]; j++ )
     {
-    // If we want this row to be computed by this thread_id
-    // also need to check on abort status
-    if (!thread_id)
+    noAbort = !(renWin->GetAbortRender());
+    if (noAbort)
       {
-      if (noAbort && renWin->CheckAbortStatus())
-	{
-	noAbort = 0;
-	}
-      }
-    else
-      {
-      noAbort = !(renWin->GetAbortRender());
-      }
-    if (noAbort && (( j % thread_count ) == thread_id ))
-      {
-      ray_origin[0] = start_ray[0] + (float)j * mapper->YOriginIncrement[0];
-      ray_origin[1] = start_ray[1] + (float)j * mapper->YOriginIncrement[1];
-      ray_origin[2] = start_ray[2] + (float)j * mapper->YOriginIncrement[2];
+      ray_origin[0] = start_ray[0] + (float)j * this->YOriginIncrement[0];
+      ray_origin[1] = start_ray[1] + (float)j * this->YOriginIncrement[1];
+      ray_origin[2] = start_ray[2] + (float)j * this->YOriginIncrement[2];
 
       last_i = 0;
 
-      for ( i = 0; i < mapper->ViewRaysSize[0]; i++ )
+      for ( i = 0; i < this->ViewRaysSize[0]; i++ )
 	{
 	// If there is no z range buffer or it points to a value other than
 	// 0.0 for this pixel, then we need to cast this ray
@@ -783,18 +735,19 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
 	  ray_info[4] = ray_origin[1] + far_z * ray_direction[1];
 	  ray_info[5] = ray_origin[2] + far_z * ray_direction[2];
 
-	  if ( mapper->ClipRayAgainstVolume( ray_info, bounds ) )
+	  if ( this->ClipRayAgainstVolume( ray_info, bounds ) )
 	    {
 	    num_samples = (int)( ( ray_info[3+largest_increment_index] - 
 				   ray_info[largest_increment_index] ) /
 				 ray_increment[largest_increment_index] ) + 1;
 
-	    mapper->TotalRaysCastPerId[thread_id]++;
+	    this->TotalRaysCastPerId[count_loc]++;
 	    
-	    mapper->VolumeRayCastFunction->CastARay( mapper->ScalarDataType, 
-						     mapper->ScalarDataPointer,
+	    this->VolumeRayCastFunction->CastARay( this->ScalarDataType, 
+						     this->ScalarDataPointer,
 						     ray_info, ray_increment, 
-						     num_samples, pixel_value );
+						     num_samples, 
+						     pixel_value );
 	    
 	    // Set the pixel value to the value returned by the ray cast
 	    *(iptr++) = pixel_value[0];
@@ -804,7 +757,7 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
 	    *(zptr++) = pixel_value[4];
 
 	    // Increment the number of samples taken
-	    mapper->TotalStepsTakenPerId[thread_id] += (int)pixel_value[5];
+	    this->TotalStepsTakenPerId[count_loc] += (int)pixel_value[5];
 	    
 	    }
 	  else
@@ -834,17 +787,6 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
 	  ren_z_ptr++;
 	}
       }
-    else  // This is the wrong thread to compute this row of the image
-      {
-      iptr        += 4 * mapper->ViewRaysSize[0];
-      zptr        +=     mapper->ViewRaysSize[0];
-
-      if ( z_range_ptr )
-	z_range_ptr += 2 * mapper->ViewRaysSize[0];
-
-      if ( ren_z_ptr )
-	ren_z_ptr +=  mapper->ViewRaysSize[0];
-      }
     } // For each pixel loop
 
   // Delete the objects we created
@@ -852,9 +794,6 @@ VTK_THREAD_RETURN_TYPE RenderParallelImage( void *arg )
   delete pixel_offset_y;
   delete pixel_offset_z;
 
-  // Bogus return statement because the SUN compiler won't compile this
-  // code unless I return something
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 // Description:
@@ -927,7 +866,7 @@ void vtkVolumeRayCastMapper::InitializePerspectiveImage( vtkRenderer *ren )
 // Cast a ray for each pixel in the image plane.  The rays are obtained
 // from the vtkRenderer and they define the size of the image to be
 // computed.  At the end of this, we have an RGBAImage and a ZImage.
-VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
+void vtkVolumeRayCastMapper::RenderPerspectiveImage( vtkRenderer *ren )
 {
   int                      i, j;
   float                    *ray_ptr, in[4];
@@ -943,68 +882,60 @@ VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
   float                    ray_increment[3];
   float                    pixel_value[6];
   float                    *ren_z_ptr = NULL;
-  int                      thread_id;
-  int                      thread_count;
-  vtkVolumeRayCastMapper   *mapper;
   float                    world_sample_distance;
   float                    bounds[12];
   float                    ray_info[12];
   float                    clipping_range[2];
   int                      noAbort = 1;
   vtkRenderWindow          *renWin;
+  int                      count_loc = 0;
 
-  // Get the info out of the input structure
-  thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
-  thread_count = ((ThreadInfoStruct *)(arg))->ThreadCount;
-  mapper = ((vtkVolumeRayCastMapperInfo *)
-	    ((ThreadInfoStruct *)arg)->UserData)->Caster;
-  renWin = ((vtkVolumeRayCastMapperInfo *)
-	    ((ThreadInfoStruct *)arg)->UserData)->RenderWindow;
+  renWin = ren->GetRenderWindow();
 
   // Initialize some statistics
-  mapper->TotalRaysCastPerId[thread_id]   = 0;
-  mapper->TotalStepsTakenPerId[thread_id] = 0;
+  this->TotalRaysCastPerId[count_loc]   = 0;
+  this->TotalStepsTakenPerId[count_loc] = 0;
 
   // Pull some info out of instance variables into local variables
 
   // These are the pointers to the image (RGBA and Z) and all the
   // z buffers
-  iptr        = mapper->RGBAImage;
-  zptr        = mapper->ZImage;
-  z_range_ptr = mapper->DepthRangeBufferPointer;
-  ren_z_ptr   = mapper->RenderZData;
+  iptr        = this->RGBAImage;
+  zptr        = this->ZImage;
+  z_range_ptr = this->DepthRangeBufferPointer;
+  ren_z_ptr   = this->RenderZData;
 
   // These are the values used to  convert z buffer values to 
   // z distance values
-  znum1   = mapper->ZNumerator;
-  zdenom1 = mapper->ZDenomMult;
-  zdenom2 = mapper->ZDenomAdd;
+  znum1   = this->ZNumerator;
+  zdenom1 = this->ZDenomMult;
+  zdenom2 = this->ZDenomAdd;
 
   // This is the length of the ray in the local volume space
-  world_sample_distance = mapper->WorldSampleDistance;
+  world_sample_distance = this->WorldSampleDistance;
 
-  ray_ptr = mapper->ViewRays;
+  ray_ptr = this->ViewRays;
 
-  memcpy( ray_origin, mapper->LocalRayOrigin, 3 * sizeof(float) );
+  memcpy( ray_origin, this->LocalRayOrigin, 3 * sizeof(float) );
 
   // The clipping range of the camera is used to clip the rays
-  memcpy( clipping_range, mapper->CameraClippingRange, 2 * sizeof( float) );
+  memcpy( clipping_range, this->CameraClippingRange, 2 * sizeof( float) );
 
   // Set the bounds of the volume
   for ( i = 0; i < 3; i++ )
     {
     bounds[2*i] = 0.0;
-    bounds[2*i+1] = mapper->ScalarDataSize[i] - 1;
+    bounds[2*i+1] = this->ScalarDataSize[i] - 1;
     }
 
-  if ( mapper->Clipping )
+  if ( this->Clipping )
     {
     for ( i = 0; i < 3; i++ )
       {
-      if ( mapper->ClippingPlanes[2*i] > bounds[2*i] )
-	bounds[2*i] = mapper->ClippingPlanes[2*i];
-      if ( mapper->ClippingPlanes[2*i+1] < bounds[2*i+1] )
-	bounds[2*i+1] = mapper->ClippingPlanes[2*i+1];
+      if ( this->ClippingPlanes[2*i] > bounds[2*i] )
+	bounds[2*i] = this->ClippingPlanes[2*i];
+      if ( this->ClippingPlanes[2*i+1] < bounds[2*i+1] )
+	bounds[2*i+1] = this->ClippingPlanes[2*i+1];
       }
     }
 
@@ -1015,24 +946,12 @@ VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
     }
 
   // Loop through all pixel    
-  for ( j = 0; j < mapper->ViewRaysSize[1]; j++ )
+  for ( j = 0; j < this->ViewRaysSize[1]; j++ )
     {
-    // If we want this row to be computed by this thread_id
-    // also need to check on abort status
-    if (!thread_id)
+    noAbort = !(renWin->GetAbortRender());
+    if (noAbort)
       {
-      if (noAbort && renWin->CheckAbortStatus())
-	{
-	noAbort = 0;
-	}
-      }
-    else
-      {
-      noAbort = !(renWin->GetAbortRender());
-      }
-    if (noAbort && (( j % thread_count ) == thread_id ))
-      {
-      for ( i = 0; i < mapper->ViewRaysSize[0]; i++ )
+      for ( i = 0; i < this->ViewRaysSize[0]; i++ )
 	{
 	// If there is no z range buffer or it points to a value other than
 	// 0.0 for this pixel, then we need to cast this ray
@@ -1043,7 +962,7 @@ VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
 	  in[1] = *(ray_ptr++);
 	  in[2] = *(ray_ptr++);
 	  in[3] = 1.0;
-	  mapper->ViewRaysTransform.MultiplyPoint( in, ray_direction );
+	  this->ViewRaysTransform.MultiplyPoint( in, ray_direction );
 	  
 	  ray_direction[0] -= ray_origin[0];
 	  ray_direction[1] -= ray_origin[1];
@@ -1110,22 +1029,23 @@ VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
 	  ray_info[4] = ray_origin[1] + far_z * ray_direction[1];
 	  ray_info[5] = ray_origin[2] + far_z * ray_direction[2];
 
-	  if ( mapper->ClipRayAgainstVolume( ray_info, bounds ) )
+	  if ( this->ClipRayAgainstVolume( ray_info, bounds ) )
 	    {
 	      num_samples = (int)( ( ray_info[3+largest_increment_index] - 
 				     ray_info[largest_increment_index] ) /
-				   ray_increment[largest_increment_index] ) + 1;
+				  ray_increment[largest_increment_index] ) + 1;
 
-	    mapper->TotalRaysCastPerId[thread_id]++;
+	    this->TotalRaysCastPerId[count_loc]++;
 	    
-	    mapper->VolumeRayCastFunction->CastARay( mapper->ScalarDataType, 
-						     mapper->ScalarDataPointer,
+	    this->VolumeRayCastFunction->CastARay( this->ScalarDataType, 
+						     this->ScalarDataPointer,
 						     ray_info, 
 						     ray_increment, 
-						     num_samples, pixel_value );
+						     num_samples, 
+						     pixel_value );
 	    
 	    // Increment the number of samples taken
-	    mapper->TotalStepsTakenPerId[thread_id] += (int)pixel_value[5];
+	    this->TotalStepsTakenPerId[count_loc] += (int)pixel_value[5];
 	    
 	    // Set the pixel value to the value returned by the ray cast
 	    memcpy( iptr, pixel_value, 4*sizeof(float) );
@@ -1162,22 +1082,7 @@ VTK_THREAD_RETURN_TYPE RenderPerspectiveImage( void *arg )
 	  ren_z_ptr++;
 	}
       }
-    else  // This is the wrong thread to compute this row of the image
-      {
-      ray_ptr     += 3 * mapper->ViewRaysSize[0];
-      iptr        += 4 * mapper->ViewRaysSize[0];
-      zptr        +=     mapper->ViewRaysSize[0];
-      if ( z_range_ptr )
-	z_range_ptr += 2 * mapper->ViewRaysSize[0];
-      if ( ren_z_ptr )
-	ren_z_ptr +=  mapper->ViewRaysSize[0];
-      }
-
     } // For each pixel loop
-
-  // Bogus return statement because the SUN compiler won't compile this
-  // code unless I return something
-  return VTK_THREAD_RETURN_VALUE;
 
 }
 
@@ -1529,8 +1434,6 @@ float vtkVolumeRayCastMapper::GetZeroOpacityThreshold( vtkVolume *vol )
 void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Sample Distance: " << this->SampleDistance << "\n";
-
-  os << indent << "Thread Count: " << this->ThreadCount << "\n";
 
   os << indent << "Total Steps Taken: " << this->TotalStepsTaken << "\n";
 

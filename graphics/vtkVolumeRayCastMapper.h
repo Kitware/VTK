@@ -133,11 +133,6 @@ public:
   // hardware part of the method.
   vtkGetMacro( CastTime, float );
 
-  // Description:
-  // Get/Set the number of threads to create when rendering
-  vtkSetClampMacro( ThreadCount, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( ThreadCount, int );
-
   vtkSetObjectMacro( RayBounder, vtkRayBounder );
   vtkGetObjectMacro( RayBounder, vtkRayBounder );
 
@@ -185,9 +180,6 @@ protected:
 
   // The distance between sample points along the ray
   float                      SampleDistance;
-
-  // The number of threads to use when ray casting
-  int                        ThreadCount;
 
   // The view rays, their size, and a transformation that will bring them
   // into the volume's coordinate system. These rays are only valid for 
@@ -296,7 +288,7 @@ protected:
   // must be reentrant. It is a friend function instead of a member
   // function since it must be of void type to be used as an argument
   // in sproc or pthread_create
-  friend VTK_THREAD_RETURN_TYPE  RenderParallelImage(void *arg);
+  void RenderParallelImage( vtkRenderer *ren );
   
   // Initialize perspective rendering
   // This includes building the transformation matrix from camera to
@@ -310,7 +302,7 @@ protected:
   // must be reentrant. It is a friend function instead of a member
   // function since it must be of void type to be used as an argument
   // in sproc or pthread_create
-  friend VTK_THREAD_RETURN_TYPE RenderPerspectiveImage(void *arg );
+  void RenderPerspectiveImage( vtkRenderer *ren );
 
   // Description:
   // This is called from the Render method.  Its purpose is to
@@ -325,8 +317,6 @@ protected:
 
 
   void UpdateOpacityTFforSampleSize(vtkRenderer *ren, vtkVolume *vol);
-
-  vtkMultiThreader           Threader;
 
   vtkRayBounder              *RayBounder;
 };
