@@ -155,7 +155,8 @@ void vtkParticleReader::Execute()
   vtkPoints *points;
   vtkFloatArray *array;
   vtkCellArray *verts;
-  unsigned long fileLength, start, next, length, idx;
+  unsigned long fileLength, start, next, length, ptIdx, cellPtIdx;
+  unsigned long cellLength;
   int piece, numPieces;
   float *data, *ptr;
 
@@ -169,6 +170,12 @@ void vtkParticleReader::Execute()
     
   // Get the size of the header from the size of the image
   this->File->seekg(0,ios::end);
+  if (this->File->fail())
+    {
+    vtkErrorMacro("Could not seek to end of file.");
+    return;
+    }
+
   
   fileLength = (unsigned long)this->File->tellg();
   this->NumberOfPoints = fileLength / (4 * sizeof(float));
@@ -180,7 +187,7 @@ void vtkParticleReader::Execute()
     {
     numPieces = (int)(this->NumberOfPoints);
     }
-  if (piece > numPieces)
+  if (numPieces <= 0 || piece < 0 || piece >= numPieces)
     {
     return;
     }
@@ -223,14 +230,29 @@ void vtkParticleReader::Execute()
   array = vtkFloatArray::New();
   array->SetName("Count");
   verts = vtkCellArray::New();
-  verts->Allocate(length+1);
-  verts->InsertNextCell(length);
-  for (idx = 0; idx < length; ++idx)
+  // Each cell will have 1000 points.  Leave a little extra space just in case.
+  // We break up the cell this way so that the render will check for aborts
+  // at a reasonable rate.
+  verts->Allocate((int)((float)length * 1.002));
+  // Keep adding cells until we run out of points.
+  ptIdx = 0;
+  while (length > 0)
     {
-    points->SetPoint(idx, ptr[0], ptr[1], ptr[2]);
-    array->InsertNextValue(ptr[3]);
-    verts->InsertCellPoint(idx);
-    ptr += 4;
+    cellLength = 1000;
+    if (cellLength > length)
+      {
+      cellLength = length;
+      }
+    length = length - cellLength;
+    verts->InsertNextCell((int)cellLength);
+    for (cellPtIdx = 0; cellPtIdx < cellLength; ++cellPtIdx)
+      {
+      points->SetPoint(ptIdx, ptr[0], ptr[1], ptr[2]);
+      array->InsertNextValue(ptr[3]);
+      verts->InsertCellPoint(ptIdx);
+      ptr += 4;
+      ++ptIdx;
+      }
     }
   delete [] data;
   data = ptr = NULL;
