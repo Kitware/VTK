@@ -18,7 +18,7 @@
 #include "vtkString.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkString, "1.1");
+vtkCxxRevisionMacro(vtkString, "1.2");
 vtkStandardNewMacro(vtkString);
  
 // Description:
@@ -56,10 +56,14 @@ void vtkString::Copy(char* dest, const char* src)
 // you can use delete to remove it. It returns empty string 
 // "" if the input is empty.
 char* vtkString::Duplicate(const char* str)
-{  
-  char *newstr = new char [ vtkString::Length(str) + 1 ];
-  vtkString::Copy(newstr, str);
-  return newstr;
+{    
+  if ( str )
+    {
+    char *newstr = new char [ vtkString::Length(str) + 1 ];
+    vtkString::Copy(newstr, str);
+    return newstr;
+    }
+  return 0;
 }
 
 // Description:
