@@ -69,6 +69,13 @@ class vlActor : public vlObject
   vlGetObjectMacro(Mapper,vlMapper);
 
   // Description:
+  // Set a user defined matrix to concatenate with.  
+  vlSetObjectMacro(UserMatrix,vlMatrix4x4);
+  // Description:
+  // Returns the user defined transformation matrix.
+  vlGetObjectMacro(UserMatrix,vlMatrix4x4);
+
+  // Description:
   // Get the position of the actor.
   vlGetVectorMacro(Position,float,3);
   // Description:
@@ -160,6 +167,7 @@ class vlActor : public vlObject
   void AddOrientation(float a[3]);
 
 protected:
+  vlMatrix4x4 *UserMatrix;
   vlProperty *Property; 
   vlTexture *Texture; 
   vlMapper *Mapper;

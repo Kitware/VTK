@@ -27,6 +27,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // automatically created. Try to use MakeActor() whenever possible.
 vlActor::vlActor()
 {
+  this->UserMatrix = NULL;
   this->Mapper = NULL;
   this->Property = NULL;
   this->Texture = NULL;
@@ -227,6 +228,12 @@ void vlActor::GetMatrix(vlMatrix4x4& result)
   this->Transform.Push();  
   this->Transform.Identity();  
   this->Transform.PreMultiply();  
+
+  // apply user defined matrix last if there is one 
+  if (this->UserMatrix)
+    {
+    this->Transform.Concatenate(*this->UserMatrix);
+    }
 
   // first translate
   this->Transform.Translate(this->Position[0],
