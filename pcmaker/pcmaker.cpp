@@ -250,8 +250,9 @@ BOOL CPcmakerApp::InitInstance()
 	CPcmakerDlg dlg;
 	m_pMainWnd = &dlg;
 
-if(!ReadRegistry(dlg))
-    {
+   if(!ReadRegistry(dlg))
+    { 
+    // no registry, use default values
     dlg.m_WhereVTK = "C:\\vtk";
     dlg.m_WhereBuild = "C:\\vtkbin";
     dlg.m_WhereCompiler = "C:\\msdev";
@@ -259,12 +260,24 @@ if(!ReadRegistry(dlg))
     dlg.m_WhereTcl = "";
     dlg.m_WhereTk  = "";
     }
-  if (m_lpCmdLine[0] != '\0')
+   if (strcmp(m_lpCmdLine, "quality") == 0)
     {
+    // use the quality testing effort defaults
+    dlg.m_WhereVTK = "d:\\production\\vtk";
+    dlg.m_WhereBuild = "d:\\production\\vtkbin";
+    dlg.m_WhereJDK = "";
+    dlg.m_WhereTcl = "";
+    dlg.m_WhereTk  = "";
     dlg.Create(IDD_PCMAKER_DIALOG,NULL);
     dlg.DoOKStuff();
     }
-  else
+   else if (m_lpCmdLine[0] != '\0')
+    {
+    // use the registry alues
+    dlg.Create(IDD_PCMAKER_DIALOG,NULL);
+    dlg.DoOKStuff();
+    }
+   else
     {
     if(dlg.DoModal() == IDOK)
       {
