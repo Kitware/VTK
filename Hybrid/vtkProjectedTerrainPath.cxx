@@ -46,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.8");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.9");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -132,13 +132,18 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   vtkPoints *inPoints = lines->GetPoints();
   vtkIdType numPts = inPoints->GetNumberOfPoints();
   vtkCellArray *inLines = lines->GetLines();
-  vtkIdType numLines = inLines->GetNumberOfCells();
-  if ( numLines <= 0 )
+  vtkIdType numLines;
+  if ( ! inLines || (numLines=inLines->GetNumberOfCells()) <= 0 )
     {
     vtkErrorMacro("This filter requires lines as input");
     return 1;
     }
   
+  if ( ! image )
+    {
+    vtkErrorMacro("This filter requires an image as input");
+    return 1;
+    }
   image->GetDimensions(this->Dimensions);
   image->GetOrigin(this->Origin);
   image->GetSpacing(this->Spacing);
