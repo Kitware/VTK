@@ -106,7 +106,7 @@ void vtkPolyMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   if (numPts == 0)
     {
-    vtkWarningMacro(<< "No points!");
+    vtkDebugMacro(<< "No points!");
     return;
     }
   
