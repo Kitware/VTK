@@ -5,14 +5,15 @@ accessed under the names 'vtkTkRenderWidget' or 'vtkRenderWidget'
  
 Created by David Gobbi, April 1999
 
-May ??, 1999 -  Modifications peformed by Heather Drury,
+May ??, 1999  - Modifications peformed by Heather Drury,
                 to rewrite _pan to match method in TkInteractor.tcl
-May 11, 1999 -  Major rewrite by David Gobbi to make the
+May 11, 1999  - Major rewrite by David Gobbi to make the
                 interactor bindings identical to the TkInteractor.tcl 
                 bindings.
 July 14, 1999 - Added modification by Ken Martin for VTK 2.4, to
                 use vtk widgets instead of Togl.
-Aug 29, 1999 -  Renamed file to vtkRenderWidget.py
+Aug 29, 1999  - Renamed file to vtkRenderWidget.py
+Nov 14, 1999  - Added support for keyword 'rw'
 """
 
 import Tkinter
@@ -39,7 +40,10 @@ class vtkTkRenderWidget(Tkinter.Widget):
         except: # try tcl/tk load path
             master.tk.call('load','vtkTkRenderWidget')
 
-        self.__RenderWindow = vtkRenderWindow()
+        try: # check to see if a render window was specified
+            self.__RenderWindow = kw['rw']
+        except KeyError:
+            self.__RenderWindow = vtkRenderWindow()
 
         try:  # was a stereo rendering context requested?
             if kw['stereo']:
