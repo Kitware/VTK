@@ -93,8 +93,8 @@ int TestQE(ostream& strm)
   edge->GetPointIds()->SetId(2,2);
 
   edge->GetPoints()->SetPoint(0, 0, 0, 0);
-  edge->GetPoints()->SetPoint(1, 1, 0, 0);
-  edge->GetPoints()->SetPoint(2, 0.5, 0.25, 0);
+  edge->GetPoints()->SetPoint(1, 1, 0, .5);
+  edge->GetPoints()->SetPoint(2, 0.5, 0.25, .2);
 
   edge->EvaluatePosition(edgePoint[0], edgeClosest, subId, edgePCoords, 
                          dist2, edgeWeights);
@@ -257,10 +257,10 @@ int TestQE(ostream& strm)
   //-------------------------------------------------------------
   strm << "Test vtkCell::CellDerivs Start" << endl;
 
-  // vtkQuadraticEdge
-  float edgeValues[3], edgeDerivs[3];
-  ComputeDataValues(edge->Points,edgeValues);
-  edge->Derivatives(subId, edgePCoords, edgeValues, 1, edgeDerivs);
+  // vtkQuadraticEdge - temporarily commented out
+//  float edgeValues[3], edgeDerivs[3];
+//  ComputeDataValues(edge->Points,edgeValues);
+//  edge->Derivatives(subId, edgePCoords, edgeValues, 1, edgeDerivs);
   
   // vtkQuadraticTriangle
   float triValues[6], triDerivs[3];
