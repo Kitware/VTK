@@ -188,7 +188,8 @@ public:
   // Add/Remove an Actor2D to this viewport.
   void AddActor2D(vtkActor2D* actor);
   void RemoveActor2D(vtkActor2D* actor);
-
+  vtkActor2DCollection *GetActors2D() { return this->Actors2D; };
+  
   // Description:
   // Get the size and origin of the viewport in display coordinates
   int *GetSize();
