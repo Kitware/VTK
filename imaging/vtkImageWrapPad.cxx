@@ -156,20 +156,38 @@ static void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 	}
       inPtr0 = inPtr1;
       inIdx0 = start0;
-      for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
+      // if components are same much faster
+      if ((maxC == inMaxC) && (maxC == 1))
 	{
-	if (inIdx0 > imageMax0) 
-	  { // we need to wrap(rewind) the input on this axis
-	  inIdx0 = imageMin0;
-	  inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
-	  }
-	for (idxC = 0; idxC < maxC; idxC++)
+	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
 	  {
+	  if (inIdx0 > imageMax0) 
+	    { // we need to wrap(rewind) the input on this axis
+	    inIdx0 = imageMin0;
+	    inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
+	    }
 	  // Copy Pixel
-	  *outPtr = inPtr0[idxC%inMaxC];
-	  outPtr++;
+	  *outPtr = *inPtr0;
+	  outPtr++; inPtr0++;
 	  }
-	inPtr0 += inInc0;
+	}
+      else
+	{
+	for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0, ++inIdx0)
+	  {
+	  if (inIdx0 > imageMax0) 
+	    { // we need to wrap(rewind) the input on this axis
+	    inIdx0 = imageMin0;
+	    inPtr0 -= (imageMax0-imageMin0+1)*inInc0;
+	    }	
+	  for (idxC = 0; idxC < maxC; idxC++)
+	    {
+	    // Copy Pixel
+	    *outPtr = inPtr0[idxC%inMaxC];
+	    outPtr++;
+	    }
+	  inPtr0 += inInc0;
+	  }
 	}
       outPtr += outIncY;
       inPtr1 += inInc1;

@@ -501,7 +501,7 @@ void vtkImageMultipleInputFilter::Execute(vtkImageData **inDatas,
   str.Inputs = inDatas;
   str.Output = outData;
   
-  this->Threader->SetNumberOfThreads(1/*this->NumberOfThreads*/);
+  this->Threader->SetNumberOfThreads(this->NumberOfThreads);
   
   // setup threading and the invoke threadedExecute
   this->Threader->SetSingleMethod(vtkImageMultiThreadedExecute, &str);
