@@ -210,7 +210,7 @@ void vtkXglrTexture::Load(vtkTexture *txt, vtkXglrRenderer *ren)
       }
 
     xgl_mipmap_texture_build(this->MipMap, setRas, uBound, vBound);
-//    xgl_object_destroy(setRas);
+    xgl_object_destroy(setRas);
     
     if (this->TMap)
       {
