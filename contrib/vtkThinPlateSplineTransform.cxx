@@ -324,6 +324,16 @@ void vtkThinPlateSplineTransform::InternalUpdate()
     MatrixTranspose(V,U,N+D+1,N+D+1);
     
     int i,j;
+    double maxValue = 0.0; // maximum eigenvalue
+    for (i = 0; i < N+D+1; i++)
+      {
+      double tmp = fabs(values[i]);
+      if (tmp > maxValue)
+	{
+	maxValue = tmp;
+	}
+      } 
+
     for (i = 0; i < N+D+1; i++)
       {
       for (j = 0; j < N+D+1; j++)
@@ -331,7 +341,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         w[i][j] = 0.0;
 	}
       // here's the trick: don't invert the singular values
-      if (values[i] != 0)
+      if (fabs(values[i]/maxValue) > 1e-16)
 	{
         w[i][i] = 1.0/values[i];
 	}
@@ -467,9 +477,10 @@ void vtkThinPlateSplineTransform::InternalUpdate()
 	{
 	// rotate around a vector perpendicular to ds
 	vtkMath::Perpendiculars(ds,dt,0,0);
-	x = dt[0];
-	y = dt[1];
-	z = dt[2];
+	r = sin(theta/2);
+	x = dt[0]*r;
+	y = dt[1]*r;
+	z = dt[2]*r;
 	}
       
       // now r is scale factor for matrix
@@ -524,12 +535,15 @@ void vtkThinPlateSplineTransform::InternalUpdate()
       }
     }
 
-  // left in for debug purposes, I wasn't sure how to fit
-  //   this into a debug macro
-  // for (int i = 0; i < N+1+D; i++)
-  //   {
-  //   cerr << W[i][0] << ' ' << W[i][1] << ' ' << W[i][2] << '\n';
-  //   }
+  // left in for debug purposes
+  /*
+  cerr << "W =\n";
+  for (int i = 0; i < N+1+D; i++)
+    {
+    cerr << W[i][0] << ' ' << W[i][1] << ' ' << W[i][2] << '\n';
+    }
+  cerr << "\n";
+  */
 
   if (this->MatrixW)
     {
