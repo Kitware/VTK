@@ -203,7 +203,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   for (i=0; i < numPts; i++)
     {
     s = inScalars->GetScalar(i);
-    fprintf(scalarFp, "%e", s);
+    fprintf(scalarFp, "%e ", s);
     if ( i != 0 && !(i % 6) ) fprintf (scalarFp, "\n");
     }
 
