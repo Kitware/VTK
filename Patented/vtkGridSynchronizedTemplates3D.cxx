@@ -50,7 +50,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.74");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.75");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -172,6 +172,11 @@ void vtkGridSynchronizedTemplates3DInitializeOutput(
     }
 
 
+  // if we did not ask for scalars to be computed, don't copy them
+  if (!self->GetComputeScalars())
+    {
+    o->GetPointData()->CopyScalarsOff();
+    }
   // It is more efficient to just create the scalar array 
   o->GetPointData()->InterpolateAllocate(input->GetPointData(),
                                          estimatedSize,estimatedSize/2);  

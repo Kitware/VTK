@@ -49,7 +49,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.14");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.15");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -144,6 +144,11 @@ void vtkRectilinearSynchronizedTemplatesInitializeOutput(
     scalars->SetName("Scalars");
     }
   
+  // if we did not ask for scalars to be computed, don't copy them
+  if (!self->GetComputeScalars())
+    {
+    o->GetPointData()->CopyScalarsOff();
+    }
   o->GetPointData()->InterpolateAllocate(input->GetPointData(),
                                          estimatedSize,estimatedSize/2);
   o->GetCellData()->CopyAllocate(input->GetCellData(),
