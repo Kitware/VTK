@@ -1842,6 +1842,10 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp," /I \"%s\\pcmaker\\xlib\" ",vals->m_WhereVTK);
     }
 
+  if (vals->adlg.m_UseMPI) 
+    {
+    fprintf(fp," /I \"%s\" \\\n",vals->adlg.m_WhereMPIInclude);
+    }
 
   if (vals->m_Patented) fprintf(fp," /I \"%s\\patented\" \\\n",
 				vals->m_WhereVTK);
