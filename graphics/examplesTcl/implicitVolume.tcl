@@ -100,10 +100,18 @@ vtkPolyDataMapper skinMapper
 
 vtkActor skin
   skin SetMapper skinMapper
-eval [skin GetProperty] SetDiffuseColor $flesh
-eval [skin GetProperty] SetDiffuse .8
-eval [skin GetProperty] SetSpecular .5
-eval [skin GetProperty] SetSpecularPower 30
+  eval [skin GetProperty] SetDiffuseColor $flesh
+  eval [skin GetProperty] SetDiffuse .8
+  eval [skin GetProperty] SetSpecular .5
+  eval [skin GetProperty] SetSpecularPower 30
+
+vtkProperty backProp
+  eval backProp SetDiffuseColor $flesh
+  backProp SetDiffuse .2
+  backProp SetSpecular .5
+  backProp SetSpecularPower 30
+
+skin SetBackfaceProperty backProp
 
 ren1 AddActor skin
 ren1 AddActor cut
