@@ -39,8 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include <math.h>
+
+#ifdef _WIN32
+#include <sys/types.h>
+#include <sys/timeb.h>
+#else
 #include <time.h>
 #include <sys/time.h>
+#endif
+
 #include "vtkLODActor.hh"
 #include "vtkMath.hh"
 
@@ -67,9 +74,14 @@ void vtkLODActor::Render(vtkRenderer *ren)
 {
   static vtkMath math;
   int choice;
+#ifdef _WIN32
+  astruct timeb time1, time2;
+#else
   struct timeval time1,time2;
   struct timezone zone;
+#endif  
   float myTime;
+  static int refreshCount = 0; // every 97 calls decay some timings
   
   // figure out how much time we have to rtender
   myTime = ren->GetAllocatedRenderTime();
@@ -111,7 +123,11 @@ void vtkLODActor::Render(vtkRenderer *ren)
     {
     choice = 2;
     }
+#ifdef _WIN32
+  ftime(&time1);
+#else
   gettimeofday(&time1,&zone);
+#endif
   
   /* render the property */
   if (!this->Property)
@@ -143,10 +159,27 @@ void vtkLODActor::Render(vtkRenderer *ren)
     }
   else
     {
+    if (!(refreshCount % 97))
+      {
+      if (this->Timings[0] < (myTime*2.0))
+	{
+	this->Timings[0] = -1;
+	}
+      this->Timings[1] = -1;
+      this->Timings[2] = -1;
+      }
+#ifdef _WIN32
+    ftime(&time2);
+    this->Timings[choice] = time2.time - time1.time;
+    this->Timings[choice] += (time2.millitm - time1.millitm)/1000.0;
+#else
     gettimeofday(&time2,&zone);
     this->Timings[choice] = time2.tv_sec - time1.tv_sec;
     this->Timings[choice] += (time2.tv_usec - time1.tv_usec)/1000000.0;
+#endif
     }
+
+  refreshCount++;
 }
 
 void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
