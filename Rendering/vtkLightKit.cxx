@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLightKit, "1.9");
+vtkCxxRevisionMacro(vtkLightKit, "1.10");
 vtkStandardNewMacro(vtkLightKit);
 
 vtkLightKit::vtkLightKit() {
@@ -229,6 +229,7 @@ void vtkLightKit::PrintSelf(ostream& os, vtkIndent indent) {
   os << indent << "KeyLightIntensity: " << this->KeyLightIntensity << "\n";
   os << indent << "KeyToFillRatio: " << this->KeyToFillRatio << "\n";
   os << indent << "KeyToHeadRatio: " << this->KeyToHeadRatio << "\n";
+  os << indent << "KeyToBackRatio: " << this->KeyToBackRatio << "\n";
 
   os << indent << "KeyLightWarmth: " << this->KeyLightWarmth << "\n";
   os << indent << "KeyLightAngle: (" 
