@@ -62,22 +62,19 @@ USE_GEMSIO_DEPENDS = @USE_GEMSIO_DEPENDS@
 USE_GEMSVOLUME_FLAG  = @USE_GEMSVOLUME_FLAG@
 USE_GEMSVOLUME_LIBS  = @USE_GEMSVOLUME_LIBS@
 USE_GEMSVOLUME_DEPENDS = @USE_GEMSVOLUME_DEPENDS@
+XGLR_LIBS	= @XGLR_LIBS@
+XGLR_FLAGS 	= @XGLR_FLAGS@
+GLR_LIBS	= @GLR_LIBS@
+GLR_FLAGS 	= @GLR_FLAGS@
+OGLR_LIBS	= @OGLR_LIBS@
+OGLR_FLAGS 	= @OGLR_FLAGS@
+SBR_LIBS	= @SBR_LIBS@
+SBR_FLAGS 	= @SBR_FLAGS@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
 
 @MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
-
-#-----------------------------------------------------------------------------
-# include objects for the supported rendering libraries on this system
-  
-@sbr_obj@
-
-@glr_obj@
-
-@oglr_obj@
-
-@xglr_obj@
 
 #------------------------------------------------------------------------------
 LDLIBS = -L../common -lVTKCommonTcl ${USE_GRAPHICS_LIBS}	\

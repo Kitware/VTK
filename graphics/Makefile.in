@@ -110,6 +110,7 @@ vtkLight \
 vtkLineSource \
 vtkLinearExtrusionFilter \
 vtkLinkEdgels \
+vtkLinkSurfels \
 vtkMCubesReader \
 vtkMCubesWriter \
 vtkMarchingCubes \
@@ -224,6 +225,49 @@ vtkWarpScalar \
 vtkWarpTo \
 vtkWarpVector 
 
+
+SBR_OBJ = \
+vtkSbrActor \
+vtkSbrCamera \
+vtkSbrLight \
+vtkSbrPolyMapper \
+vtkSbrProperty \
+vtkSbrRenderWindow \
+vtkSbrRenderer \
+vtkSbrTexture 
+
+GLR_OBJ = \
+vtkGlrActor \
+vtkGlrCamera \
+vtkGlrLight \
+vtkGlrPolyMapper \
+vtkGlrProperty \
+vtkGlrRenderWindow \
+vtkGlrRenderer \
+vtkGlrTexture 
+
+OGLR_OBJ = \
+vtkOglrActor \
+vtkOglrCamera \
+vtkOglrLight \
+vtkOglrPolyMapper \
+vtkOglrProperty \
+vtkOglrRenderWindow \
+vtkOglrRenderer \
+vtkOglrTexture 
+
+XGLR_OBJ = \
+vtkXglrActor \
+vtkXglrCamera \
+vtkXglrLight \
+vtkXglrPolyMapper \
+vtkXglrProperty \
+vtkXglrRenderWindow \
+vtkXglrRenderer \
+vtkXglrTexture 
+
+CONCRETE := ${CONCRETE} @OGLR_OBJ@ @GLR_OBJ@ @XGLR_OBJ@ @SBR_OBJ@
+
 # The following is all boiler plate 
 #------------------------------------------------------------------------------
 # Include the generated targets
@@ -276,16 +320,11 @@ java/vtk_vtkPanel.c: ../java/vtk/vtkPanel.java
 vtkJavaPanel.o: java/vtk_vtkPanel.h java/vtk_vtkPanel.c
 
 # standard stuff here
-KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} \
-	${SBR_OBJ} ${OGLR_OBJ} ${XGLR_OBJ} ${GLR_OBJ}
+KIT_OBJ = vtkXRenderWindowInteractor.o ${SRC_OBJ} 
 
-KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} \
-	${TCL_SBR_OBJ} ${TCL_OGLR_OBJ} \
-	${TCL_XGLR_OBJ} ${TCL_GLR_OBJ} ${SRC_OBJ} \
-	${SBR_OBJ} ${OGLR_OBJ} ${XGLR_OBJ} ${GLR_OBJ}
+KIT_TCL_OBJ = vtkXRenderTclWindowInteractor.o ${TCL_OBJ} ${SRC_OBJ} 
 
-KIT_NEWS = ${TCL_NEWS} ${TCL_SBR_NEWS} ${TCL_OGLR_NEWS} \
-	${TCL_XGLR_NEWS} ${TCL_GLR_NEWS}
+KIT_NEWS = ${TCL_NEWS} 
 
 KIT_FLAGS = ${SBR_FLAGS} ${XGLR_FLAGS} ${GLR_FLAGS} ${OGLR_FLAGS}
 
@@ -293,17 +332,6 @@ KIT_FLAGS = ${SBR_FLAGS} ${XGLR_FLAGS} ${GLR_FLAGS} ${OGLR_FLAGS}
 # Include user-editable defines.
 
 @MAKEINCLUDE@ @MAKEQUOTE@../Config.mk@MAKEQUOTE@
-
-#-----------------------------------------------------------------------------
-# include objects for the supported rendering libraries on this system
-  
-@sbr_obj@
- 
-@glr_obj@
- 
-@oglr_obj@
- 
-@xglr_obj@
  
 #------------------------------------------------------------------------------
 # Include the generic stuff here
