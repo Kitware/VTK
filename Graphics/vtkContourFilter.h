@@ -55,6 +55,8 @@
 
 class vtkPointLocator;
 class vtkScalarTree;
+class vtkSynchronizedTemplates2D;
+class vtkSynchronizedTemplates3D;
 
 class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
 {
@@ -161,7 +163,9 @@ protected:
   
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
-
+  vtkSynchronizedTemplates2D *SynchronizedTemplates2D;
+  vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
+  
 private:
   vtkContourFilter(const vtkContourFilter&);  // Not implemented.
   void operator=(const vtkContourFilter&);  // Not implemented.

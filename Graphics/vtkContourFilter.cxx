@@ -29,13 +29,16 @@
 #include "vtkPolyData.h"
 #include "vtkSimpleScalarTree.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSynchronizedTemplates2D.h"
+#include "vtkSynchronizedTemplates3D.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCutter.h"
+#include "vtkImageData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.115");
+vtkCxxRevisionMacro(vtkContourFilter, "1.116");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -54,6 +57,9 @@ vtkContourFilter::vtkContourFilter()
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
   this->InputScalarsSelection = NULL;
+
+  this->SynchronizedTemplates2D = vtkSynchronizedTemplates2D::New();
+  this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
 }
 
 vtkContourFilter::~vtkContourFilter()
@@ -70,6 +76,8 @@ vtkContourFilter::~vtkContourFilter()
     this->ScalarTree = 0;
     }
   this->SetInputScalarsSelection(NULL);
+  this->SynchronizedTemplates2D->Delete();
+  this->SynchronizedTemplates3D->Delete();
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -93,11 +101,72 @@ unsigned long vtkContourFilter::GetMTime()
   return mTime;
 }
 
-int vtkContourFilter::RequestUpdateExtent(vtkInformation*,
+int vtkContourFilter::RequestUpdateExtent(vtkInformation* request,
                                           vtkInformationVector** inputVector,
-                                          vtkInformationVector*)
+                                          vtkInformationVector* outputVector)
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = 
+    vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  int numContours=this->ContourValues->GetNumberOfContours();
+  double *values=this->ContourValues->GetValues();
+
+  vtkInformation *fInfo = 
+    vtkDataObject::GetActiveFieldInformation(inInfo, 
+                                             vtkDataObject::FIELD_ASSOCIATION_POINTS, 
+                                             vtkDataSetAttributes::SCALARS);
+  int sType = VTK_DOUBLE;
+  if (fInfo)
+    {
+    sType = fInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+    }
+
+  // handle 2D images
+  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT)
+    {
+    int i;
+    int dim = 3;
+    int *uExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+    if (uExt[0] == uExt[1])
+      {
+      --dim;
+      }
+    if (uExt[2] == uExt[3])
+      {
+      --dim;
+      }
+    if (uExt[4] == uExt[5])
+      {
+      --dim;
+      }
+    
+    if ( dim == 2 ) 
+      {
+      this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->SynchronizedTemplates2D->SetValue(i,values[i]);
+        }
+      this->SynchronizedTemplates2D->SetComputeScalars(this->ComputeScalars);
+      return this->SynchronizedTemplates2D->
+        ProcessRequest(request,inputVector,outputVector);
+      }
+    else if (dim == 3)
+      {
+      this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->SynchronizedTemplates3D->SetValue(i,values[i]);
+        }
+      this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
+      this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
+      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);      
+      return this->SynchronizedTemplates3D->
+        ProcessRequest(request,inputVector,outputVector);
+      }
+    } //if image data
+
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
   return 1;
 }
@@ -105,19 +174,84 @@ int vtkContourFilter::RequestUpdateExtent(vtkInformation*,
 // General contouring filter.  Handles arbitrary input.
 //
 int vtkContourFilter::RequestData(
-  vtkInformation*,
+  vtkInformation* request,
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  // get the input
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input) 
+    {
+    return 0;
+    }
+
+  // get the contours
+  int numContours=this->ContourValues->GetNumberOfContours();
+  double *values=this->ContourValues->GetValues();
+  int i;
+  
+  vtkInformation *fInfo = 
+    vtkDataObject::GetActiveFieldInformation(inInfo, 
+                                             vtkDataObject::FIELD_ASSOCIATION_POINTS, 
+                                             vtkDataSetAttributes::SCALARS);
+  int sType = VTK_DOUBLE;
+  if (fInfo)
+    {
+    sType = fInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+    }
+
+  // handle 2D images
+  if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT)
+    {
+    int dim = 3;
+    int *uExt = input->GetUpdateExtent();
+    if (uExt[0] == uExt[1])
+      {
+      --dim;
+      }
+    if (uExt[2] == uExt[3])
+      {
+      --dim;
+      }
+    if (uExt[4] == uExt[5])
+      {
+      --dim;
+      }
+    
+    if ( dim == 2 ) 
+      {
+      this->SynchronizedTemplates2D->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->SynchronizedTemplates2D->SetValue(i,values[i]);
+        }
+      return 
+        this->SynchronizedTemplates2D->ProcessRequest(request,inputVector,outputVector);
+      }
+    else if ( dim == 3 ) 
+      {
+      this->SynchronizedTemplates3D->SetNumberOfContours(numContours);
+      for (i=0; i < numContours; i++)
+        {
+        this->SynchronizedTemplates3D->SetValue(i,values[i]);
+        }
+      this->SynchronizedTemplates3D->SetComputeNormals(this->ComputeNormals);
+      this->SynchronizedTemplates3D->SetComputeGradients(this->ComputeGradients);
+      this->SynchronizedTemplates3D->SetComputeScalars(this->ComputeScalars);      
+      return 
+        this->SynchronizedTemplates3D->ProcessRequest(request,inputVector,outputVector);
+      }
+    } //if image data
+  
   vtkIdType cellId;
-  int i, abortExecute=0;
+  int abortExecute=0;
   vtkIdList *cellPts;
   vtkDataArray *inScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkIdType numCells, estimatedSize;
-  int numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
   vtkDataArray *cellScalars;
 
   vtkInformation* info = outputVector->GetInformationObject(0);
@@ -125,10 +259,6 @@ int vtkContourFilter::RequestData(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output) {return 0;}
 
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input) {return 0;}
 
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
