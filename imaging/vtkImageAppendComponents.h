@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAppendComponents : public vtkImageMultipleInputFilter
 {
 public:
-  static vtkImageAppendComponents *New(){return new vtkImageAppendComponents;};
+  static vtkImageAppendComponents *New();
   const char *GetClassName() {return "vtkImageAppendComponents";};
 
   // Description:

@@ -66,8 +66,7 @@ public:
 
   // Description:
   // Construct a new vtkVolumeRayCastIsosurfaceFunction
-  static vtkVolumeRayCastIsosurfaceFunction *New() {
-    return new vtkVolumeRayCastIsosurfaceFunction;};
+  static vtkVolumeRayCastIsosurfaceFunction *New();
 
   // Description:
   // Get the scalar value below which all scalar values have 0 opacity

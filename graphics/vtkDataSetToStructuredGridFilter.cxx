@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataSetToStructuredGridFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataSetToStructuredGridFilter* vtkDataSetToStructuredGridFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetToStructuredGridFilter");
+  if(ret)
+    {
+    return (vtkDataSetToStructuredGridFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataSetToStructuredGridFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

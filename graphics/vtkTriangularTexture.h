@@ -65,7 +65,7 @@ public:
   // Description:
   // Instantiate object with XSize and YSize = 64; the texture pattern =1
   // (opaque at centroid); and the scale factor set to 1.0.
-  static vtkTriangularTexture *New() {return new vtkTriangularTexture;};
+  static vtkTriangularTexture *New();
 
   // Description:
   // Set a Scale Factor.

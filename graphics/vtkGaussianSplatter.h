@@ -62,7 +62,7 @@ public:
   // Construct object with dimensions=(50,50,50); automatic computation of 
   // bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 
   // scalar warping turned on.
-  static vtkGaussianSplatter *New() {return new vtkGaussianSplatter;};
+  static vtkGaussianSplatter *New();
 
   // Description:
   // Compute the size of the sample bounding box automatically from the

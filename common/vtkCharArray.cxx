@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCharArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCharArray* vtkCharArray::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCharArray");
+  if(ret)
+    {
+    return (vtkCharArray*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCharArray;
+}
+
+
+
 
 // Instantiate object.
 vtkCharArray::vtkCharArray(int numComp)

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataInformation : public vtkObject
 {
 public:
-  static vtkDataInformation *New() {return new vtkDataInformation;};
+  static vtkDataInformation *New();
   const char *GetClassName() {return "vtkDataInformation";}
   void PrintSelf(ostream& os, vtkIndent indent);
 

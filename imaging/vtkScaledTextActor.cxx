@@ -38,6 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkScaledTextActor.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkScaledTextActor* vtkScaledTextActor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkScaledTextActor");
+  if(ret)
+    {
+    return (vtkScaledTextActor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkScaledTextActor;
+}
+
+
+
 
 vtkScaledTextActor::vtkScaledTextActor()
 {

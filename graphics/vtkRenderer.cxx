@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
+#include "vtkObjectFactory.h"
 
 // Create a vtkRenderer with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -132,7 +133,15 @@ vtkRenderer::~vtkRenderer()
 #endif
 // return the correct type of Renderer 
 vtkRenderer *vtkRenderer::New()
-{
+{ 
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderer");
+  if(ret)
+    {
+    return (vtkRenderer*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

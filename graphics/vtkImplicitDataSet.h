@@ -75,7 +75,7 @@ public:
   // Description
   // Construct an vtkImplicitDataSet with no initial dataset; the OutValue
   // set to a large negative number; and the OutGradient set to (0,0,1).
-  static vtkImplicitDataSet *New() {return new vtkImplicitDataSet;};
+  static vtkImplicitDataSet *New();
 
   // Description:
   // Return the MTime also considering the DataSet dependency.

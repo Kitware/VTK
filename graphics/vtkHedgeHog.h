@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
 public:
-  static vtkHedgeHog *New() {return new vtkHedgeHog;};
+  static vtkHedgeHog *New();
   const char *GetClassName() {return "vtkHedgeHog";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMagnitude : public vtkImageToImageFilter
 {
 public:
-  static vtkImageMagnitude *New() {return new vtkImageMagnitude;};
+  static vtkImageMagnitude *New();
   const char *GetClassName() {return "vtkImageMagnitude";};
 
 protected:

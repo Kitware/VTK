@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkIntArray.h"
 #include "vtkPolyData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPointLocator* vtkPointLocator::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointLocator");
+  if(ret)
+    {
+    return (vtkPointLocator*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPointLocator;
+}
+
+
+
 
 class vtkNeighborPoints
 {

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSubdivideTetra : public vtkUnstructuredGridToUnstructuredGridFilter
 {
 public:
-  static vtkSubdivideTetra *New() {return new vtkSubdivideTetra;};
+  static vtkSubdivideTetra *New();
   const char *GetClassName() {return "vtkSubdivideTetra";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

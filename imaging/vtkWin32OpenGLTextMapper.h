@@ -56,8 +56,7 @@ class VTK_EXPORT vtkWin32OpenGLTextMapper : public vtkWin32TextMapper
 {
 public:
   const char *GetClassName() {return "vtkWin32OpenGLTextMapper";};
-  static vtkWin32OpenGLTextMapper *New() {
-    return new vtkWin32OpenGLTextMapper;};
+  static vtkWin32OpenGLTextMapper *New();
 
   // Description:
   // Actally draw the text.

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAxes.h"
 #include "vtkScalars.h"
 #include "vtkNormals.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkAxes* vtkAxes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAxes");
+  if(ret)
+    {
+    return (vtkAxes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkAxes;
+}
+
+
+
 
 // Construct with origin=(0,0,0) and scale factor=1.
 vtkAxes::vtkAxes()

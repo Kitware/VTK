@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageImport : public vtkImageSource
 {
 public:
-  static vtkImageImport *New() {return new vtkImageImport;};
+  static vtkImageImport *New();
   const char *GetClassName() {return "vtkImageImport";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 

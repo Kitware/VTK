@@ -56,7 +56,7 @@ class vtkActor;
 class VTK_EXPORT vtkActorCollection : public vtkPropCollection
 {
 public:
-  static vtkActorCollection *New() {return new vtkActorCollection;};
+  static vtkActorCollection *New();
   const char *GetClassName() {return "vtkActorCollection";};
 
   // Description:

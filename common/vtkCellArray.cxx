@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCellArray* vtkCellArray::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellArray");
+  if(ret)
+    {
+    return (vtkCellArray*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCellArray;
+}
+
+
+
 
 vtkCellArray::vtkCellArray()
 {

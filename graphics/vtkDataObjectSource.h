@@ -85,7 +85,7 @@ class vtkDataObject;
 class VTK_EXPORT vtkDataObjectSource : public vtkSource
 {
 public:
-  static vtkDataObjectSource *New() {return new vtkDataObjectSource;};
+  static vtkDataObjectSource *New();
   const char *GetClassName() {return "vtkDataObjectSource";};
 
   // Description:

@@ -57,7 +57,7 @@ class VTK_EXPORT vtkEdgeTable : public vtkObject
 public:
   // Description:
   // Instantiate object assuming that 1000 edges are to be inserted.
-  static vtkEdgeTable *New() {return new vtkEdgeTable;};
+  static vtkEdgeTable *New();
 
   const char *GetClassName() {return "vtkEdgeTable";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVertex* vtkVertex::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVertex");
+  if(ret)
+    {
+    return (vtkVertex*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVertex;
+}
+
+
+
 
 // Construct the vertex with a single point.
 vtkVertex::vtkVertex()

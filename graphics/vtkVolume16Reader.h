@@ -88,7 +88,7 @@ public:
   // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
   // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;
   // header size 0; and byte swapping turned off.
-  static vtkVolume16Reader *New() {return new vtkVolume16Reader;};
+  static vtkVolume16Reader *New();
 
   // Description:
   // Specify the dimensions for the data.

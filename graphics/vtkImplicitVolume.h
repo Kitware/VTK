@@ -74,7 +74,7 @@ public:
   // Description
   // Construct an vtkImplicitVolume with no initial volume; the OutValue
   // set to a large negative number; and the OutGradient set to (0,0,1).
-  static vtkImplicitVolume *New() {return new vtkImplicitVolume;}
+  static vtkImplicitVolume *New();
 
   // Description:
   // Returns the mtime also considering the volume.

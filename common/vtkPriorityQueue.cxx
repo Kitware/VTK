@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPriorityQueue.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPriorityQueue* vtkPriorityQueue::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPriorityQueue");
+  if(ret)
+    {
+    return (vtkPriorityQueue*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPriorityQueue;
+}
+
+
+
 
 // Instantiate priority queue with default size and extension size of 1000.
 vtkPriorityQueue::vtkPriorityQueue()

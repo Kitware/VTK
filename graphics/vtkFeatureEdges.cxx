@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkNormals.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkFeatureEdges* vtkFeatureEdges::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFeatureEdges");
+  if(ret)
+    {
+    return (vtkFeatureEdges*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkFeatureEdges;
+}
+
+
+
 
 // Construct object with feature angle = 30; all types of edges extracted
 // and colored.

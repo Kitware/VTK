@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkUnsignedShortArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnsignedShortArray* vtkUnsignedShortArray::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnsignedShortArray");
+  if(ret)
+    {
+    return (vtkUnsignedShortArray*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnsignedShortArray;
+}
+
+
+
 
 // Instantiate object.
 vtkUnsignedShortArray::vtkUnsignedShortArray(int numComp)

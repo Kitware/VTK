@@ -60,7 +60,7 @@ class VTK_EXPORT vtkContourValues : public vtkObject
 public:
   // Description:
   // Construct object with a single contour value at 0.0.
-  static vtkContourValues *New() {return new vtkContourValues;};
+  static vtkContourValues *New();
 
   const char *GetClassName() {return "vtkContourValues";};
   void PrintSelf(ostream& os, vtkIndent indent);

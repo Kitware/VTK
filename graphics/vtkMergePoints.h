@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMergePoints : public vtkPointLocator
 {
 public:
-  static vtkMergePoints *New() {return new vtkMergePoints;};
+  static vtkMergePoints *New();
   const char *GetClassName() {return "vtkMergePoints";};
 
   // Description:

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkGaussianSplatter.h"
 #include "vtkScalars.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkGaussianSplatter* vtkGaussianSplatter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGaussianSplatter");
+  if(ret)
+    {
+    return (vtkGaussianSplatter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkGaussianSplatter;
+}
+
+
+
 
 // Construct object with dimensions=(50,50,50); automatic computation of 
 // bounds; a splat radius of 0.1; an exponent factor of -5; and normal and 

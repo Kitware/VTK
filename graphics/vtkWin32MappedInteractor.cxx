@@ -48,6 +48,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWin32MappedInteractor.h"
 #include "vtkActor.h" 
 #include <gl\gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32MappedInteractor* vtkWin32MappedInteractor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32MappedInteractor");
+  if(ret)
+    {
+    return (vtkWin32MappedInteractor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32MappedInteractor;
+}
+
+
+
 
 // states
 #define VTKXI_START  0

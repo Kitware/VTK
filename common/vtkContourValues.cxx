@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkContourValues.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkContourValues* vtkContourValues::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkContourValues");
+  if(ret)
+    {
+    return (vtkContourValues*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkContourValues;
+}
+
+
+
 
 // Construct object with a single contour value at 0.0.
 vtkContourValues::vtkContourValues()

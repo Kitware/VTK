@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageResample.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageResample* vtkImageResample::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageResample");
+  if(ret)
+    {
+    return (vtkImageResample*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageResample;
+}
+
+
+
 
 
 // Macro for trilinear interpolation - do four linear interpolations on

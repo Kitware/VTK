@@ -27,15 +27,7 @@ vtkCuller \
 vtkDirectionEncoder \
 vtkRayBounder 
 
-CONCRETE_H = \
-vtkActorCollection \
-vtkAssemblyPaths \
-vtkCullerCollection \
-vtkMapperCollection \
-vtkPolyDataCollection \
-vtkRenderWindowCollection \
-vtkStructuredPointsCollection \
-vtkVolumeCollection
+CONCRETE_H = 
 
 ABSTRACT = \
 vtkAbstractMapper3D \
@@ -57,9 +49,11 @@ vtkXRenderWindow
 CONCRETE = \
 vtk3DSImporter \
 vtkActor \
+vtkActorCollection \
 vtkAppendFilter \
 vtkAppendPolyData \
 vtkAssembly \
+vtkAssemblyPaths \
 vtkAttributeDataToFieldDataFilter \
 vtkAxes \
 vtkBYUReader \
@@ -83,6 +77,7 @@ vtkConnectivityFilter \
 vtkContourFilter \
 vtkCubeSource \
 vtkCursor3D \
+vtkCullerCollection \
 vtkCutter \
 vtkCylinder \
 vtkCylinderSource \
@@ -152,6 +147,7 @@ vtkLinearExtrusionFilter \
 vtkLinkEdgels \
 vtkMCubesReader \
 vtkMCubesWriter \
+vtkMapperCollection \
 vtkMaskPoints \
 vtkMaskPolyData \
 vtkMergeFilter \
@@ -173,6 +169,7 @@ vtkPointPicker \
 vtkPointSetSource \
 vtkPointSetToPointSetFilter \
 vtkPointSource \
+vtkPolyDataCollection \
 vtkPolyDataConnectivityFilter \
 vtkPolyDataMapper \
 vtkPolyDataNormals \
@@ -198,6 +195,7 @@ vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
 vtkRecursiveSphereDirectionEncoder \
 vtkRenderWindow \
+vtkRenderWindowCollection \
 vtkRenderWindowInteractor \
 vtkRenderer \
 vtkRendererCollection \
@@ -231,6 +229,7 @@ vtkStructuredGridToPolyDataFilter \
 vtkStructuredGridToStructuredGridFilter \
 vtkStructuredGridWriter \
 vtkStructuredPointsGeometryFilter \
+vtkStructuredPointsCollection \
 vtkStructuredPointsReader \
 vtkStructuredPointsSource \
 vtkStructuredPointsToPolyDataFilter \
@@ -266,6 +265,7 @@ vtkVectorNorm \
 vtkVectorText \
 vtkViewRays \
 vtkVolume \
+vtkVolumeCollection \
 vtkVolumeProperty \
 vtkVolumeRayCastCompositeFunction \
 vtkVolumeRayCastIsosurfaceFunction \

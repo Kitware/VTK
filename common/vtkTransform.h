@@ -74,7 +74,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Constructs a transform and sets the following defaults
   // preMultiplyFlag = 1 stackSize = 10. It then
   // creates an identity matrix as the top matrix on the stack.
-  static vtkTransform *New() {return new vtkTransform;};
+  static vtkTransform *New();
 
   const char *GetClassName () {return "vtkTransform";};
   void PrintSelf (ostream& os, vtkIndent indent);

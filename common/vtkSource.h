@@ -74,7 +74,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSource : public vtkProcessObject
 {
 public:
-  static vtkSource *New() {return new vtkSource;};
+  static vtkSource *New();
 
   const char *GetClassName() {return "vtkSource";};
   void PrintSelf(ostream& os, vtkIndent indent);

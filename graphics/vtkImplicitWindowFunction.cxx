@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImplicitWindowFunction.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImplicitWindowFunction* vtkImplicitWindowFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitWindowFunction");
+  if(ret)
+    {
+    return (vtkImplicitWindowFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImplicitWindowFunction;
+}
+
+
+
 
 // Construct object with window range (0,1) and window values (0,1).
 vtkImplicitWindowFunction::vtkImplicitWindowFunction()

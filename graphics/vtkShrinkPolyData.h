@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShrinkPolyData : public vtkPolyDataToPolyDataFilter 
 {
 public:
-  static vtkShrinkPolyData *New() {return new vtkShrinkPolyData;};
+  static vtkShrinkPolyData *New();
   const char *GetClassName() {return "vtkShrinkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

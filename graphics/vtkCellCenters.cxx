@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCellCenters.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCellCenters* vtkCellCenters::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellCenters");
+  if(ret)
+    {
+    return (vtkCellCenters*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCellCenters;
+}
+
+
+
 
 // Construct object with vertex cell generation turned off.
 vtkCellCenters::vtkCellCenters()

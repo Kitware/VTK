@@ -291,6 +291,25 @@ static int faces[6][4] = { {2,0,6,4}, {1,3,5,7},
 // Marching cubes case table
 //
 #include "vtkMarchingCubesCases.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVoxel* vtkVoxel::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVoxel");
+  if(ret)
+    {
+    return (vtkVoxel*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVoxel;
+}
+
+
+
 
 void vtkVoxel::Contour(float value, vtkScalars *cellScalars, 
 		       vtkPointLocator *locator,

@@ -97,8 +97,7 @@ class VTK_EXPORT vtkOpenGLVolumeProVG500Mapper : public vtkVolumeProVG500Mapper
 {
 public:
   const char *GetClassName() {return "vtkOpenGLVolumeProVG500Mapper";};
-  static vtkOpenGLVolumeProVG500Mapper *New() 
-    {return new vtkOpenGLVolumeProVG500Mapper;};
+  static vtkOpenGLVolumeProVG500Mapper *New();
 
 protected:
   vtkOpenGLVolumeProVG500Mapper() {};

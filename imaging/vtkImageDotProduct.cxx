@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageDotProduct.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageDotProduct* vtkImageDotProduct::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDotProduct");
+  if(ret)
+    {
+    return (vtkImageDotProduct*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageDotProduct;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVectorDot.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVectorDot* vtkVectorDot::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVectorDot");
+  if(ret)
+    {
+    return (vtkVectorDot*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVectorDot;
+}
+
+
+
 
 // Construct object with scalar range is (-1,1).
 vtkVectorDot::vtkVectorDot()

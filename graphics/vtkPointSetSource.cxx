@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPointSetSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPointSetSource* vtkPointSetSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointSetSource");
+  if(ret)
+    {
+    return (vtkPointSetSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPointSetSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkPointSetSource::vtkPointSetSource()

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCleanPolyData.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCleanPolyData* vtkCleanPolyData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCleanPolyData");
+  if(ret)
+    {
+    return (vtkCleanPolyData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCleanPolyData;
+}
+
+
+
 
 // Construct object with initial tolerance of 0.0.
 vtkCleanPolyData::vtkCleanPolyData()

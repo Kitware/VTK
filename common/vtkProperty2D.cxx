@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkProperty2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProperty2D* vtkProperty2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProperty2D");
+  if(ret)
+    {
+    return (vtkProperty2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProperty2D;
+}
+
+
+
 
 // Creates a vtkProperty2D with the following default values:
 // Opacity 1, Color (1,0,0), CompositingOperator VTK_SRC

@@ -49,6 +49,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkActor.h"
 #include <X11/Shell.h>
 #include <math.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXRenderWindowInteractor* vtkXRenderWindowInteractor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXRenderWindowInteractor");
+  if(ret)
+    {
+    return (vtkXRenderWindowInteractor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXRenderWindowInteractor;
+}
+
+
+
 
 typedef struct
 {

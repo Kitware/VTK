@@ -68,7 +68,7 @@ class vtkDataInformation;
 class VTK_EXPORT vtkDataObject : public vtkObject
 {
 public:
-  static vtkDataObject *New() {return new vtkDataObject;};
+  static vtkDataObject *New();
 
   const char *GetClassName() {return "vtkDataObject";};
   void PrintSelf(ostream& os, vtkIndent indent);

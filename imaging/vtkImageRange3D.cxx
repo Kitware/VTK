@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageRange3D.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageRange3D* vtkImageRange3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageRange3D");
+  if(ret)
+    {
+    return (vtkImageRange3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageRange3D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

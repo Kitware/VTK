@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImagerCollection : public vtkCollection
 {
  public:
-  static vtkImagerCollection *New() {return new vtkImagerCollection;};
+  static vtkImagerCollection *New();
   const char *GetClassName() {return "vtkImagerCollection";};
 
   // Description:

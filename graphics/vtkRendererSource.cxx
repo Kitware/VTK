@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRendererSource.h"
 #include "vtkRenderWindow.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRendererSource* vtkRendererSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRendererSource");
+  if(ret)
+    {
+    return (vtkRendererSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRendererSource;
+}
+
+
+
 
 vtkRendererSource::vtkRendererSource()
 {

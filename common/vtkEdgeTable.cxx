@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkEdgeTable.h"
 #include "vtkPoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkEdgeTable* vtkEdgeTable::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEdgeTable");
+  if(ret)
+    {
+    return (vtkEdgeTable*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkEdgeTable;
+}
+
+
+
 
 // Instantiate object based on maximum point id.
 vtkEdgeTable::vtkEdgeTable()

@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageSource : public vtkSource
 {
 public:
   const char *GetClassName() {return "vtkImageSource";};
-  static vtkImageSource *New() {return new vtkImageSource;};
+  static vtkImageSource *New();
 
   // Description:
   // Get the output of this source.

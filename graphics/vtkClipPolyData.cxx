@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkLine.h"
 #include "vtkTriangle.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkClipPolyData* vtkClipPolyData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkClipPolyData");
+  if(ret)
+    {
+    return (vtkClipPolyData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkClipPolyData;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value

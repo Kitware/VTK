@@ -56,7 +56,7 @@ class vtkActor2D;
 class VTK_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
 {
 public:
-  static vtkOpenGLImageMapper *New() {return new vtkOpenGLImageMapper;};
+  static vtkOpenGLImageMapper *New();
   const char *GetClassName() {return "vtkOpenGLImageMapper";};
   
   // Description:

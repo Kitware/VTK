@@ -55,8 +55,7 @@ class VTK_EXPORT vtkWin32PolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
   const char *GetClassName() {return "vtkWin32PolyDataMapper2D";};
-  static vtkWin32PolyDataMapper2D *New() 
-    {return new vtkWin32PolyDataMapper2D;};
+  static vtkWin32PolyDataMapper2D *New();
 
   // Description:
   // Actually draw the poly data.

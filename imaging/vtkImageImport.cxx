@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkByteSwap.h"
 #include "vtkImageImport.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageImport* vtkImageImport::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageImport");
+  if(ret)
+    {
+    return (vtkImageImport*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageImport;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageImport::vtkImageImport()

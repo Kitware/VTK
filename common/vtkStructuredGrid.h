@@ -62,7 +62,7 @@ class vtkStructuredInformation;
 
 class VTK_EXPORT vtkStructuredGrid : public vtkPointSet {
 public:
-  static vtkStructuredGrid *New() {return new vtkStructuredGrid;};
+  static vtkStructuredGrid *New();
 
   const char *GetClassName() {return "vtkStructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCompositeFilter* vtkCompositeFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCompositeFilter");
+  if(ret)
+    {
+    return (vtkCompositeFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCompositeFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkCompositeFilter::vtkCompositeFilter()

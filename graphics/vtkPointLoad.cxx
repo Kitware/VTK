@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointLoad.h"
 #include "vtkMath.h"
 #include "vtkTensors.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPointLoad* vtkPointLoad::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointLoad");
+  if(ret)
+    {
+    return (vtkPointLoad*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPointLoad;
+}
+
+
+
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // and LoadValue = 1.

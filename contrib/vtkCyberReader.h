@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCyberReader : public vtkPolyDataSource 
 {
 public:
-  static vtkCyberReader *New() {return new vtkCyberReader;};
+  static vtkCyberReader *New();
   const char *GetClassName() {return "vtkCyberReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

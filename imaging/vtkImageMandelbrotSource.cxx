@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageMandelbrotSource* vtkImageMandelbrotSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMandelbrotSource");
+  if(ret)
+    {
+    return (vtkImageMandelbrotSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageMandelbrotSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageMandelbrotSource::vtkImageMandelbrotSource()

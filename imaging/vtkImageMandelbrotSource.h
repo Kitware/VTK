@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMandelbrotSource : public vtkImageSource
 {
 public:
-  static vtkImageMandelbrotSource *New() {return new vtkImageMandelbrotSource;};
+  static vtkImageMandelbrotSource *New();
   const char *GetClassName() {return "vtkImageMandelbrotSource";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   

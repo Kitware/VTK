@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyDataSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyDataSource* vtkPolyDataSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataSource");
+  if(ret)
+    {
+    return (vtkPolyDataSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyDataSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()

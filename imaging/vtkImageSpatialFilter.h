@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSpatialFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageSpatialFilter *New() {return new vtkImageSpatialFilter;};
+  static vtkImageSpatialFilter *New();
   const char *GetClassName() {return "vtkImageSpatialFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

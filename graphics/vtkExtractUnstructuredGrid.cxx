@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkExtractUnstructuredGrid.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractUnstructuredGrid* vtkExtractUnstructuredGrid::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractUnstructuredGrid");
+  if(ret)
+    {
+    return (vtkExtractUnstructuredGrid*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractUnstructuredGrid;
+}
+
+
+
 
 // Construct with all types of clipping turned off.
 vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()

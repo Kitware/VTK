@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOpenGLImager : public vtkImager
 { 
 public:
-  static vtkOpenGLImager *New() {return new vtkOpenGLImager;};
+  static vtkOpenGLImager *New();
   const char *GetClassName() {return "vtkOpenGLImager";};
 
   // Description:

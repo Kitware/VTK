@@ -63,7 +63,7 @@ public:
   // Description:
   // Construct object so that behavior is to reverse cell ordering and
   // leave normal orientation as is.
-  static vtkReverseSense *New() {return new vtkReverseSense;};
+  static vtkReverseSense *New();
 
   // Description:
   // Flag controls whether to reverse cell ordering.

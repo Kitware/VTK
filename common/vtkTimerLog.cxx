@@ -59,6 +59,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <sys/types.h>
 #include <time.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTimerLog* vtkTimerLog::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTimerLog");
+  if(ret)
+    {
+    return (vtkTimerLog*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTimerLog;
+}
+
+
+
 
 // initialze the class variables
 int vtkTimerLog::MaxEntries = 100;

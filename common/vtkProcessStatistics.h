@@ -53,7 +53,7 @@ class VTK_EXPORT vtkProcessStatistics : public vtkObject
 public:
   // Description:
   // Construct the ProcessStatistics with eight points.
-  static vtkProcessStatistics *New() {return new vtkProcessStatistics;};
+  static vtkProcessStatistics *New();
 
   const char *GetClassName() {return "vtkProcessStatistics";};
 

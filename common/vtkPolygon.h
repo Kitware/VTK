@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolygon : public vtkCell
 {
 public:
-  static vtkPolygon *New() {return new vtkPolygon;};
+  static vtkPolygon *New();
   const char *GetClassName() {return "vtkPolygon";};
 
   // Description:

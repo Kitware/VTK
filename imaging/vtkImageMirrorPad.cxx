@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageMirrorPad.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageMirrorPad* vtkImageMirrorPad::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMirrorPad");
+  if(ret)
+    {
+    return (vtkImageMirrorPad*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageMirrorPad;
+}
+
+
+
 
 
 

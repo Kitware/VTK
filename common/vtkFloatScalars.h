@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatScalars : public vtkScalars
 {
 public:
-  static vtkFloatScalars *New() {return new vtkFloatScalars;};
+  static vtkFloatScalars *New();
   
   // Description:
   // Set the data type for this object.

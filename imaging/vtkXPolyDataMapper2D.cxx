@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkXPolyDataMapper2D.h"
 #include "vtkXImageWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXPolyDataMapper2D* vtkXPolyDataMapper2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXPolyDataMapper2D");
+  if(ret)
+    {
+    return (vtkXPolyDataMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXPolyDataMapper2D;
+}
+
+
+
 
 void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {

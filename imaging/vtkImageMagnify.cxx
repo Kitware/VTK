@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageMagnify.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageMagnify* vtkImageMagnify::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMagnify");
+  if(ret)
+    {
+    return (vtkImageMagnify*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageMagnify;
+}
+
+
+
 
 
 

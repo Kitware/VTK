@@ -68,7 +68,7 @@ public:
 
   // Description:
   // Instantiate cell array (connectivity list).
-  static vtkCellArray *New() {return new vtkCellArray;};
+  static vtkCellArray *New();
 
   // Description:
   // Allocate memory and set the size to extend by.

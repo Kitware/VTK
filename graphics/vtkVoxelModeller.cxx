@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include <stdio.h>
 #include "vtkVoxelModeller.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVoxelModeller* vtkVoxelModeller::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVoxelModeller");
+  if(ret)
+    {
+    return (vtkVoxelModeller*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVoxelModeller;
+}
+
+
+
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
 // set to (50,50,50), and so that the model bounds are

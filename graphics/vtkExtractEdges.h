@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractEdges : public vtkDataSetToPolyDataFilter
 {
 public:
-  static vtkExtractEdges *New() {return new vtkExtractEdges;};
+  static vtkExtractEdges *New();
   const char *GetClassName() {return "vtkExtractEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

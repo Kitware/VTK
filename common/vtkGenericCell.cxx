@@ -54,6 +54,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkGenericCell* vtkGenericCell::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGenericCell");
+  if(ret)
+    {
+    return (vtkGenericCell*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkGenericCell;
+}
+
+
+
 
 // Construct cell.
 vtkGenericCell::vtkGenericCell()

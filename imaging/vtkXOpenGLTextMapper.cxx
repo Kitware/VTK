@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXOpenGLTextMapper.h"
 #include <GL/gl.h>
 #include <GL/glx.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXOpenGLTextMapper* vtkXOpenGLTextMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXOpenGLTextMapper");
+  if(ret)
+    {
+    return (vtkXOpenGLTextMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXOpenGLTextMapper;
+}
+
+
+
 
 struct vtkFontStruct
 {

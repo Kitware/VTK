@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMCubesWriter.h"
 #include "vtkByteSwap.h"
 #include "vtkNormals.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMCubesWriter* vtkMCubesWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMCubesWriter");
+  if(ret)
+    {
+    return (vtkMCubesWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMCubesWriter;
+}
+
+
+
 
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()

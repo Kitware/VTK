@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProjectedTexture.h"
 #include "vtkMath.h"
 #include "vtkTCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProjectedTexture* vtkProjectedTexture::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProjectedTexture");
+  if(ret)
+    {
+    return (vtkProjectedTexture*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProjectedTexture;
+}
+
+
+
 
 // Description:
 // Initialize the projected texture filter with a position of (0, 0, 1),

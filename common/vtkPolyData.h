@@ -83,7 +83,7 @@ class vtkUnstructuredInformation;
 class VTK_EXPORT vtkPolyData : public vtkPointSet 
 {
 public:
-  static vtkPolyData *New() {return new vtkPolyData;};
+  static vtkPolyData *New();
 
   const char *GetClassName() {return "vtkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // generic vtkPolyData structure (it builds a display list) and for rendering
 // its internal structure and creating near and far depth buffers.
 // It has no public methods, and should not be created directly - the
-// New() method of vtkProjectedPolyDataRayBounder will automatically
+// New();
 // create the correct subclass given the current VTK_RENDERER
 
 // .SECTION see also
@@ -73,8 +73,7 @@ public:
   // Description:
   // Construct a new vtkOpenGLProjectedPolyDataRayBounder.  The depth range
   // buffer is initially NULL and no display list has been created
-  static vtkOpenGLProjectedPolyDataRayBounder *New() {
-    return new vtkOpenGLProjectedPolyDataRayBounder;};
+  static vtkOpenGLProjectedPolyDataRayBounder *New();
 
   // Description:
   // Release any graphics resources that are being consumed by this ray bounder.
@@ -86,7 +85,6 @@ public:
 protected:
   vtkOpenGLProjectedPolyDataRayBounder();
   ~vtkOpenGLProjectedPolyDataRayBounder();
-  vtkOpenGLProjectedPolyDataRayBounder(const vtkOpenGLProjectedPolyDataRayBounder&) {};
   void operator=(const vtkOpenGLProjectedPolyDataRayBounder&) {};
 
   GLuint    DisplayList;

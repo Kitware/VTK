@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPixel : public vtkCell
 {
 public:
-  static vtkPixel *New() {return new vtkPixel;};
+  static vtkPixel *New();
   const char *GetClassName() {return "vtkPixel";};
 
   // Description:

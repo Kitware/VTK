@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkElevationFilter* vtkElevationFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkElevationFilter");
+  if(ret)
+    {
+    return (vtkElevationFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkElevationFilter;
+}
+
+
+
 
 // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
 // range is (0,1).

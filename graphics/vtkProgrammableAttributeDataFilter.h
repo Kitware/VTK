@@ -103,8 +103,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableAttributeDataFilter : public vtkDataSetToDataSetFilter 
 {
 public:
-  static vtkProgrammableAttributeDataFilter *New() {
-    return new vtkProgrammableAttributeDataFilter;};
+  static vtkProgrammableAttributeDataFilter *New();
   const char *GetClassName() {return "vtkProgrammableAttributeDataFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkCursor3D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCursor3D* vtkCursor3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCursor3D");
+  if(ret)
+    {
+    return (vtkCursor3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCursor3D;
+}
+
+
+
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
 // all parts of cursor visible, and wrapping off.

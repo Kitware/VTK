@@ -58,7 +58,7 @@ class VTK_EXPORT vtkTCoords : public vtkAttributeData
 {
 public:
   static vtkTCoords *New(int dataType, int dim=2);
-  static vtkTCoords *New() {return new vtkTCoords;};
+  static vtkTCoords *New();
 
 
   const char *GetClassName() {return "vtkTCoords";};

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImagePadFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImagePadFilter *New() {return new vtkImagePadFilter;};
+  static vtkImagePadFilter *New();
   const char *GetClassName() {return "vtkImagePadFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

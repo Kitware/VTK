@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageToImageFilter
 {
 public:
-  static vtkImageQuantizeRGBToIndex *New() {return new vtkImageQuantizeRGBToIndex;};
+  static vtkImageQuantizeRGBToIndex *New();
   const char *GetClassName() {return "vtkImageQuantizeRGBToIndex";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSTLWriter.h"
 #include "vtkTriangle.h"
 #include "vtkByteSwap.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSTLWriter* vtkSTLWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSTLWriter");
+  if(ret)
+    {
+    return (vtkSTLWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSTLWriter;
+}
+
+
+
 
 vtkSTLWriter::vtkSTLWriter()
 {

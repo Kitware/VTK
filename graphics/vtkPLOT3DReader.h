@@ -108,7 +108,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPLOT3DReader : public vtkStructuredGridSource 
 {
 public:
-  static vtkPLOT3DReader *New() {return new vtkPLOT3DReader;};
+  static vtkPLOT3DReader *New();
   const char *GetClassName() {return "vtkPLOT3DReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

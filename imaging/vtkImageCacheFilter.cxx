@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageCacheFilter.h"
 #include "vtkExtent.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageCacheFilter* vtkImageCacheFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCacheFilter");
+  if(ret)
+    {
+    return (vtkImageCacheFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageCacheFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageCacheFilter::vtkImageCacheFilter()

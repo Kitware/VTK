@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageInPlaceFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageInPlaceFilter *New() {return new vtkImageInPlaceFilter;};
+  static vtkImageInPlaceFilter *New();
   const char *GetClassName() {return "vtkImageInPlaceFilter";};
 
   // Description:

@@ -72,7 +72,7 @@ public:
   // Description:
   // Construct object with feature angle = 30; all types of edges extracted
   // and colored.
-  static vtkFeatureEdges *New() {return new vtkFeatureEdges;};
+  static vtkFeatureEdges *New();
 
   // Description:
   // Turn on/off the extraction of boundary edges.

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFourierCenter : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageFourierCenter *New() {return new vtkImageFourierCenter;};
+  static vtkImageFourierCenter *New();
   const char *GetClassName() {return "vtkImageFourierCenter";};
   
 protected:

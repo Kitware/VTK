@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridReader : public vtkStructuredGridSource
 {
 public:
-  static vtkStructuredGridReader *New() {return new vtkStructuredGridReader;}
+  static vtkStructuredGridReader *New();
   const char *GetClassName() {return "vtkStructuredGridReader";}
   void PrintSelf(ostream& os, vtkIndent indent);
 

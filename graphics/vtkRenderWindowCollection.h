@@ -56,8 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRenderWindowCollection : public vtkCollection
 {
  public:
-  static vtkRenderWindowCollection *New() {
-    return new vtkRenderWindowCollection;};
+  static vtkRenderWindowCollection *New();
   const char *GetClassName() {return "vtkRenderWindowCollection";};
 
   // Description:

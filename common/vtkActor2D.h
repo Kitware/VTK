@@ -67,7 +67,7 @@ public:
   // Creates an actor2D with the following defaults: 
   // position -1, -1 (view coordinates)
   // orientation 0, scale (1,1), layer 0, visibility on
-  static vtkActor2D* New() {return new vtkActor2D;};
+  static vtkActor2D* New();
   
   // Description:
   // Support the standard render methods.

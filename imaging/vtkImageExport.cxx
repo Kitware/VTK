@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkImageExport.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageExport* vtkImageExport::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageExport");
+  if(ret)
+    {
+    return (vtkImageExport*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageExport;
+}
+
+
+
 
 
 

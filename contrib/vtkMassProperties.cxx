@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMassProperties.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMassProperties* vtkMassProperties::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMassProperties");
+  if(ret)
+    {
+    return (vtkMassProperties*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMassProperties;
+}
+
+
+
 
 #define  VTK_CUBE_ROOT(x) ((x<0.0)?(-pow((-x),0.333333333333333)):(pow((x),0.333333333333333)))
 

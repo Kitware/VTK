@@ -145,7 +145,7 @@ public:
   // Construct object to start from position (0,0,0); integrate forward;
   // terminal speed 0.0; vorticity computation off; integrations step length
   // 0.2; and maximum propagation time 100.0.
-  static vtkStreamer *New() {return new vtkStreamer;};
+  static vtkStreamer *New();
   
   // Description:
   // Specify the start of the streamline in the cell coordinate system. That

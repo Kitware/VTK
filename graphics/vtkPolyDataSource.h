@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataSource : public vtkSource
 {
 public:
-  static vtkPolyDataSource *New() {return new vtkPolyDataSource;};
+  static vtkPolyDataSource *New();
   const char *GetClassName() {return "vtkPolyDataSource";};
 
   // Description:

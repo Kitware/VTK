@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkExtent.h"
 #include "vtkStructuredExtent.h"
 #include "vtkUnstructuredExtent.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtent* vtkExtent::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtent");
+  if(ret)
+    {
+    return (vtkExtent*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtent;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Construct a new vtkExtent 

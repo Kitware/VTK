@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkAppendPolyData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkAppendPolyData* vtkAppendPolyData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAppendPolyData");
+  if(ret)
+    {
+    return (vtkAppendPolyData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkAppendPolyData;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkAppendPolyData::vtkAppendPolyData()

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkViewRays.h"
 #include <math.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkViewRays* vtkViewRays::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkViewRays");
+  if(ret)
+    {
+    return (vtkViewRays*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkViewRays;
+}
+
+
+
 
 // Constructor for vtkViewRays. Default everything to NULL or 0
 vtkViewRays::vtkViewRays(void)

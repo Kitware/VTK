@@ -64,7 +64,7 @@ public:
 // Construct the object. Initialize the index table which will be
 // used to map the normal into a patch on the recursively subdivided
 // sphere.
-  static vtkRecursiveSphereDirectionEncoder *New() {return new vtkRecursiveSphereDirectionEncoder;};
+  static vtkRecursiveSphereDirectionEncoder *New();
 
 
   // Description:

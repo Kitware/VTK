@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCubeAxesActor2D.h"
 #include "vtkAxisActor2D.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCubeAxesActor2D* vtkCubeAxesActor2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCubeAxesActor2D");
+  if(ret)
+    {
+    return (vtkCubeAxesActor2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCubeAxesActor2D;
+}
+
+
+
 
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()

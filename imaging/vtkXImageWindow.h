@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXImageWindow : public vtkImageWindow
 {
 public:
-  static vtkXImageWindow *New() {return new vtkXImageWindow;};
+  static vtkXImageWindow *New();
   const char *GetClassName() {return "vtkXImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

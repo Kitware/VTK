@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAppend : public vtkImageMultipleInputFilter
 {
 public:
-  static vtkImageAppend *New(){return new vtkImageAppend;};
+  static vtkImageAppend *New();
   const char *GetClassName() {return "vtkImageAppend";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

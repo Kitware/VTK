@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Instantiate object with no initial loop.
-  static vtkImplicitSelectionLoop *New() {return new vtkImplicitSelectionLoop;}
+  static vtkImplicitSelectionLoop *New();
 
   // Description:
   // Evaluate selection loop returning a signed distance.

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkExtractGeometry.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractGeometry* vtkExtractGeometry::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractGeometry");
+  if(ret)
+    {
+    return (vtkExtractGeometry*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractGeometry;
+}
+
+
+
 
 // Construct object with ExtractInside turned on.
 vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)

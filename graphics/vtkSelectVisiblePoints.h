@@ -80,7 +80,7 @@ public:
   // Description:
   // Instantiate object with no renderer; window selection turned off; 
   // tolerance set to 0.01; and select invisible off.
-  static vtkSelectVisiblePoints *New() {return new vtkSelectVisiblePoints;};
+  static vtkSelectVisiblePoints *New();
 
   // Description:
   // Specify the renderer in which the visibility computation is to be

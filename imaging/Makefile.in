@@ -17,14 +17,14 @@ vtkOpenGLImageWindow \
 vtkXOpenGLTextMapper \
 vtkOpenGLPolyDataMapper2D 
 
-ABSTRACT_H = \
-vtkImageFilter 
+ABSTRACT_H = 
 
-CONCRETE_H = \
-vtkImagerCollection
+
+CONCRETE_H = 
 
 ABSTRACT = \
 vtkImageDecomposeFilter \
+vtkImageFilter \
 vtkImageInPlaceFilter \
 vtkImageIterateFilter \
 vtkImageMultipleInputFilter \
@@ -98,6 +98,7 @@ vtkImageOpenClose3D \
 vtkImagePermute \
 vtkImageQuantizeRGBToIndex \
 vtkImager \
+vtkImagerCollection \
 vtkImageReader \
 vtkImageResample \
 vtkImageRFFT \

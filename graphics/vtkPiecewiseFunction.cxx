@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPiecewiseFunction.h"
 #include "vtkSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPiecewiseFunction* vtkPiecewiseFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPiecewiseFunction");
+  if(ret)
+    {
+    return (vtkPiecewiseFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPiecewiseFunction;
+}
+
+
+
 
 // Construct a new vtkPiecewiseFunction with default values
 vtkPiecewiseFunction::vtkPiecewiseFunction()

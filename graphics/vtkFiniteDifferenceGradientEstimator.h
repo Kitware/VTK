@@ -73,8 +73,7 @@ public:
   // Description:
   // Construct a vtkFiniteDifferenceGradientEstimator with
   // a SampleSpacingInVoxels of 1.
-  static vtkFiniteDifferenceGradientEstimator *New() {
-    return new vtkFiniteDifferenceGradientEstimator;};
+  static vtkFiniteDifferenceGradientEstimator *New();
 
   // Description:
   // Set/Get the spacing between samples for the finite differences

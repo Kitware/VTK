@@ -49,6 +49,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMFCInteractor.h"
 #include "vtkActor.h" 
 #include <gl/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMFCInteractor* vtkMFCInteractor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMFCInteractor");
+  if(ret)
+    {
+    return (vtkMFCInteractor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMFCInteractor;
+}
+
+
+
 
 // states
 #define VTKXI_START  0

@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageCanvasSource2DPixel { //;prevent man page generation
 public:
   static vtkImageCanvasSource2DPixel *New() 
-    {return new vtkImageCanvasSource2DPixel;};
+    { return new vtkImageCanvasSource2DPixel ;}
   int X;
   int Y;
   void *Pointer;
@@ -75,7 +75,7 @@ class VTK_EXPORT vtkImageCanvasSource2D : public vtkStructuredPoints
 public:
   // Description:
   // Construct an instance of vtkImageCanvasSource2D with no data.
-  static vtkImageCanvasSource2D *New() {return new vtkImageCanvasSource2D;};
+  static vtkImageCanvasSource2D *New();
 
   const char *GetClassName() {return "vtkImageCanvasSource2D";};
   void PrintSelf(ostream& os, vtkIndent indent);

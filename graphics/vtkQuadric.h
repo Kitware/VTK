@@ -57,7 +57,7 @@ public:
   
   // Description
   // Construct quadric with all coefficients = 1.
-  static vtkQuadric *New() {return new vtkQuadric;};
+  static vtkQuadric *New();
 
   // Description
   // Evaluate quadric equation.

@@ -84,8 +84,7 @@ public:
   // Description:
   // Create object with texture dimension=2 and no r-s-t implicit functions
   // defined and FlipTexture turned off.
-  static vtkImplicitTextureCoords *New() {
-    return new vtkImplicitTextureCoords;};
+  static vtkImplicitTextureCoords *New();
   
   // Description:
   // Specify an implicit function to compute the r texture coordinate.

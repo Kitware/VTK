@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include "vtkIVWriter.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkIVWriter* vtkIVWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIVWriter");
+  if(ret)
+    {
+    return (vtkIVWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkIVWriter;
+}
+
+
+
 
 void vtkIVWriter::WriteData()
 {

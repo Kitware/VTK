@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFlip : public vtkImageToImageFilter
 {
 public:
-  static vtkImageFlip *New() {return new vtkImageFlip;};
+  static vtkImageFlip *New();
 
   const char *GetClassName() {return "vtkImageFlip";};
   void PrintSelf(ostream& os, vtkIndent indent);

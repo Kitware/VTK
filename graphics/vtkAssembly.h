@@ -86,7 +86,7 @@ class vtkAssemblyPaths;
 class VTK_EXPORT vtkAssembly : public vtkActor
 {
 public:
-  static vtkAssembly *New() {return new vtkAssembly;};
+  static vtkAssembly *New();
 
   const char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -82,7 +82,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRIBExporter : public vtkExporter
 {
 public:
-  static vtkRIBExporter *New() {return new vtkRIBExporter;};
+  static vtkRIBExporter *New();
   const char *GetClassName() {return "vtkRIBExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

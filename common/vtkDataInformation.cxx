@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataInformation.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataInformation* vtkDataInformation::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataInformation");
+  if(ret)
+    {
+    return (vtkDataInformation*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataInformation;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Construct a new vtkDataInformation 

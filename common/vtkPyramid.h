@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Create an instance of this class.
-  static vtkPyramid *New() {return new vtkPyramid;};
+  static vtkPyramid *New();
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

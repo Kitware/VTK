@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredExtent : public vtkExtent
 {
 public:
-  static vtkUnstructuredExtent *New() {return new vtkUnstructuredExtent;};
+  static vtkUnstructuredExtent *New();
 
   const char *GetClassName() {return "vtkUnstructuredExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);

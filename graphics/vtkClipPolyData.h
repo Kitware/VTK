@@ -94,7 +94,7 @@ public:
   // Description:
   // Construct with user-specified implicit function; InsideOut turned off;
   // value set to 0.0; and generate clip scalars turned off.
-  static vtkClipPolyData *New() {return new vtkClipPolyData;};
+  static vtkClipPolyData *New();
 
   // Description:
   // Set the clipping value of the implicit function (if clipping with

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageEllipsoidSource : public vtkImageSource
 {
 public:
-  static vtkImageEllipsoidSource *New() {return new vtkImageEllipsoidSource;};
+  static vtkImageEllipsoidSource *New();
   const char *GetClassName() {return "vtkImageEllipsoidSource";};
   void PrintSelf(ostream& os, vtkIndent indent);   
   

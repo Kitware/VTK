@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShrinkFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  static vtkShrinkFilter *New() {return new vtkShrinkFilter;};
+  static vtkShrinkFilter *New();
   const char *GetClassName() {return "vtkShrinkFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

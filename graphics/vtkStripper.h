@@ -71,7 +71,7 @@ public:
   
   // Description:
   // Construct object with MaximumLength set to 1000.
-  static vtkStripper *New() {return new vtkStripper;};
+  static vtkStripper *New();
 
   // Description:
   // Specify the maximum number of triangles in a triangle strip,

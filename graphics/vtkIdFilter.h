@@ -64,7 +64,7 @@ public:
   // Description:
   // Construct object with PointIds and CellIds on; and ids being generated
   // as scalars.
-  static vtkIdFilter *New() {return new vtkIdFilter;};
+  static vtkIdFilter *New();
 
   // Description:
   // Enable/disable the generation of point ids.

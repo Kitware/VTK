@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkVolumeRayCastMIPFunction.h"
 #include "vtkVolume.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVolumeRayCastMIPFunction* vtkVolumeRayCastMIPFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeRayCastMIPFunction");
+  if(ret)
+    {
+    return (vtkVolumeRayCastMIPFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVolumeRayCastMIPFunction;
+}
+
+
+
 
 #define vtkRoundFuncMacro(x)   (int)((x)+0.5)
 

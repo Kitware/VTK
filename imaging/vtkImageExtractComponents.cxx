@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageExtractComponents.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageExtractComponents* vtkImageExtractComponents::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageExtractComponents");
+  if(ret)
+    {
+    return (vtkImageExtractComponents*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageExtractComponents;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

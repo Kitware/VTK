@@ -46,6 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPriorityQueue.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolygon* vtkPolygon::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolygon");
+  if(ret)
+    {
+    return (vtkPolygon*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolygon;
+}
+
+
+
 
 // Instantiate polygon.
 vtkPolygon::vtkPolygon()

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageContinuousErode3D.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageContinuousErode3D* vtkImageContinuousErode3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageContinuousErode3D");
+  if(ret)
+    {
+    return (vtkImageContinuousErode3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageContinuousErode3D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

@@ -88,8 +88,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSpatialRepresentationFilter : public vtkPolyDataSource
 {
 public:
-  static vtkSpatialRepresentationFilter *New() {
-    return new vtkSpatialRepresentationFilter;};
+  static vtkSpatialRepresentationFilter *New();
   const char *GetClassName() {return "vtkSpatialRepresentationFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

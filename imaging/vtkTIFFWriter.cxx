@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTIFFWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTIFFWriter* vtkTIFFWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTIFFWriter");
+  if(ret)
+    {
+    return (vtkTIFFWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTIFFWriter;
+}
+
+
+
 
 #ifdef write
 #undef write

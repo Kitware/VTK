@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLogLookupTable : public vtkLookupTable
 {
 public:
-  static vtkLogLookupTable *New() {return new vtkLogLookupTable;};
+  static vtkLogLookupTable *New();
 
   const char *GetClassName() {return "vtkLogLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);

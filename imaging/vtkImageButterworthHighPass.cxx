@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageButterworthHighPass.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageButterworthHighPass* vtkImageButterworthHighPass::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageButterworthHighPass");
+  if(ret)
+    {
+    return (vtkImageButterworthHighPass*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageButterworthHighPass;
+}
+
+
+
 
 
 

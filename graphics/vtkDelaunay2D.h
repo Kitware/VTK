@@ -135,7 +135,7 @@ public:
   // Description:
   // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 1.25;
   // BoundingTriangulation turned off.
-  static vtkDelaunay2D *New() {return new vtkDelaunay2D;};
+  static vtkDelaunay2D *New();
 
   // Description:
   // Specify the source object used to specify constrained edges and loops.

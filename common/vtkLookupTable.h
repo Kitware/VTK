@@ -71,7 +71,7 @@ public:
   // Description:
   // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
   // (from red to blue).
-  static vtkLookupTable *New() {return new vtkLookupTable;};
+  static vtkLookupTable *New();
   
   const char *GetClassName() {return "vtkLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);

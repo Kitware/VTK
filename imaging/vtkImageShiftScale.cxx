@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageShiftScale.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageShiftScale* vtkImageShiftScale::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageShiftScale");
+  if(ret)
+    {
+    return (vtkImageShiftScale*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageShiftScale;
+}
+
+
+
 
 
 

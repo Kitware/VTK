@@ -132,7 +132,7 @@ public:
   // angle 45 degrees; edge angle 15 degrees; and boundary smoothing turned 
   // on. Error scalars and vectors are not generated (by default). The 
   // convergence criterion is 0.0 of the bounding box diagonal.
-  static vtkSmoothPolyDataFilter *New() {return new vtkSmoothPolyDataFilter;};
+  static vtkSmoothPolyDataFilter *New();
 
   // Description:
   // Specify a convergence criterion for the iteration

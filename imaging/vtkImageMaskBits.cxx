@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageMaskBits.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageMaskBits* vtkImageMaskBits::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMaskBits");
+  if(ret)
+    {
+    return (vtkImageMaskBits*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageMaskBits;
+}
+
+
+
 
 vtkImageMaskBits::vtkImageMaskBits()
 {

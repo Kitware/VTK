@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProgrammableFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  static vtkProgrammableFilter *New() {return new vtkProgrammableFilter;};
+  static vtkProgrammableFilter *New();
   const char *GetClassName() {return "vtkProgrammableFilter";};
 
   // Description:

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkVolumeProperty.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVolumeProperty* vtkVolumeProperty::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeProperty");
+  if(ret)
+    {
+    return (vtkVolumeProperty*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVolumeProperty;
+}
+
+
+
 
 // Construct a new vtkVolumeProperty with default values
 vtkVolumeProperty::vtkVolumeProperty()

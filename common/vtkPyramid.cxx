@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPyramid* vtkPyramid::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPyramid");
+  if(ret)
+    {
+    return (vtkPyramid*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPyramid;
+}
+
+
+
 
 // Construct the pyramid with five points.
 vtkPyramid::vtkPyramid()

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkOBJExporter.h"
 #include "vtkGeometryFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOBJExporter* vtkOBJExporter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOBJExporter");
+  if(ret)
+    {
+    return (vtkOBJExporter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOBJExporter;
+}
+
+
+
 
 vtkOBJExporter::vtkOBJExporter()
 {

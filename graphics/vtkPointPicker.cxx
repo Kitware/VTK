@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPointPicker.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPointPicker* vtkPointPicker::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointPicker");
+  if(ret)
+    {
+    return (vtkPointPicker*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPointPicker;
+}
+
+
+
 
 vtkPointPicker::vtkPointPicker()
 {

@@ -52,6 +52,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLLight.h"
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32OpenGLRenderWindow* vtkWin32OpenGLRenderWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32OpenGLRenderWindow");
+  if(ret)
+    {
+    return (vtkWin32OpenGLRenderWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32OpenGLRenderWindow;
+}
+
+
+
 
 #define VTK_MAX_LIGHTS 8
 

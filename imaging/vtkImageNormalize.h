@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNormalize : public vtkImageToImageFilter
 {
 public:
-  static vtkImageNormalize *New() {return new vtkImageNormalize;};
+  static vtkImageNormalize *New();
   const char *GetClassName() {return "vtkImageNormalize";};
 
 protected:

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDivergence : public vtkImageToImageFilter
 {
 public:
-  static vtkImageDivergence *New() {return new vtkImageDivergence;};
+  static vtkImageDivergence *New();
   const char *GetClassName() {return "vtkImageDivergence";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

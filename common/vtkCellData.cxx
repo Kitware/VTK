@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCellData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCellData* vtkCellData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellData");
+  if(ret)
+    {
+    return (vtkCellData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCellData;
+}
+
+
+
 
 void vtkCellData::NullCell (int ptId)
 {

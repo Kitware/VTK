@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkNormals.h"
 #include "vtkTCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractTensorComponents* vtkExtractTensorComponents::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractTensorComponents");
+  if(ret)
+    {
+    return (vtkExtractTensorComponents*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractTensorComponents;
+}
+
+
+
 
 // Construct object to extract nothing and to not pass tensor data
 // through the pipeline.

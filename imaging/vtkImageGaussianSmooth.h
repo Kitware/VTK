@@ -59,7 +59,7 @@ public:
   // Creates an instance of vtkImageGaussianSmmoth with the following
   // defaults: Dimensioonality 3, StandardDeviations( 2, 2, 2), 
   // Radius Factors ( 1.5, 1.5, 1.5)
-  static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
+  static vtkImageGaussianSmooth *New();
   
   
   // Description:

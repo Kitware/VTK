@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProcessStatistics* vtkProcessStatistics::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProcessStatistics");
+  if(ret)
+    {
+    return (vtkProcessStatistics*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProcessStatistics;
+}
+
+
+
 
 
 /* This mess was copied from the GNU getpagesize.h.  */

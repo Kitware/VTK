@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTensor : public vtkObject
 {
 public:
-  static vtkTensor *New() {return new vtkTensor;};
+  static vtkTensor *New();
   const char *GetClassName() {return "vtkTensor";};
 
   // Description:

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkReferenceCount.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkReferenceCount* vtkReferenceCount::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkReferenceCount");
+  if(ret)
+    {
+    return (vtkReferenceCount*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkReferenceCount;
+}
+
+
+
 
 vtkReferenceCount::vtkReferenceCount() 
 {

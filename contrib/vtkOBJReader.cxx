@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkOBJReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOBJReader* vtkOBJReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOBJReader");
+  if(ret)
+    {
+    return (vtkOBJReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOBJReader;
+}
+
+
+
 
 // Description:
 // Instantiate object with NULL filename.

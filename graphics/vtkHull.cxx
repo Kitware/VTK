@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkHull.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkHull* vtkHull::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHull");
+  if(ret)
+    {
+    return (vtkHull*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkHull;
+}
+
+
+
 
 // Construct an the hull object with no planes
 vtkHull::vtkHull()

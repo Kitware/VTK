@@ -61,9 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXRenderWindow : public vtkRenderWindow
 {
 public:
-  static vtkXRenderWindow *New() 
-  {return (vtkXRenderWindow *)(vtkRenderWindow::New());};
-  const char *GetClassName() {return "vtkXRenderWindow";};
+  static vtkXRenderWindow *New();
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:

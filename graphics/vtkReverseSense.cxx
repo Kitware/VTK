@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkReverseSense.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkReverseSense* vtkReverseSense::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkReverseSense");
+  if(ret)
+    {
+    return (vtkReverseSense*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkReverseSense;
+}
+
+
+
 
 // Construct object so that behavior is to reverse cell ordering and
 // leave normal orientation as is.

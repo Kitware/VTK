@@ -56,7 +56,7 @@ public:
 
   // Description
   // Construct sphere with center at (0,0,0) and radius=0.5.
-  static vtkSphere *New() {return new vtkSphere;};
+  static vtkSphere *New();
 
   // Description
   // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.

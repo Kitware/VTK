@@ -56,8 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageHSVToRGB : public vtkImageToImageFilter
 {
 public:
-  static vtkImageHSVToRGB *New() 
-    {return new vtkImageHSVToRGB;};
+  static vtkImageHSVToRGB *New();
   const char *GetClassName() {return "vtkImageHSVToRGB";};
 
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -58,7 +58,7 @@ class vtkActor2D;
 class VTK_EXPORT vtkMapper2D : public vtkAbstractMapper
 {
 public:
-  static vtkMapper2D* New() {return new vtkMapper2D;};
+  static vtkMapper2D* New();
 
   const char *GetClassName() {return "vtkMapper2D";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -72,7 +72,7 @@ public:
   // Construct with sample dimensions=(50,50,50) and so that model bounds are
   // automatically computed from input. Null value for each unvisited output 
   // point is 0.0. Maximum distance is 0.25.
-  static vtkShepardMethod *New() {return new vtkShepardMethod;};
+  static vtkShepardMethod *New();
   
   // Description:
   // Compute ModelBounds from input geometry.

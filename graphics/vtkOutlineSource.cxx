@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkOutlineSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOutlineSource* vtkOutlineSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOutlineSource");
+  if(ret)
+    {
+    return (vtkOutlineSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOutlineSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkOutlineSource::vtkOutlineSource()

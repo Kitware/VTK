@@ -53,7 +53,7 @@ class vtkOpenGLRenderer;
 class VTK_EXPORT vtkOpenGLLight : public vtkLight
 {
 public:
-  static vtkOpenGLLight *New() {return new vtkOpenGLLight;};
+  static vtkOpenGLLight *New();
   const char *GetClassName() {return "vtkOpenGLLight";};
 
   // Description:

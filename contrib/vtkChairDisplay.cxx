@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkChairDisplay.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkChairDisplay* vtkChairDisplay::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkChairDisplay");
+  if(ret)
+    {
+    return (vtkChairDisplay*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkChairDisplay;
+}
+
+
+
 
 // Description:
 // Construct object with initial range (0,1) and single contour value of

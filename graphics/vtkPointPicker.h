@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointPicker : public vtkPicker
 {
 public:
-  static vtkPointPicker *New() {return new vtkPointPicker;};
+  static vtkPointPicker *New();
   const char *GetClassName() {return "vtkPointPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -81,7 +81,7 @@ public:
   vtkSimpleMutexLock();
   ~vtkSimpleMutexLock();
 
-  static vtkSimpleMutexLock *New() {return new vtkSimpleMutexLock;}
+  static vtkSimpleMutexLock *New();
   const char *GetClassName() {return "vtkSimpleMutexLock";}
   void Delete() {delete this;}
   
@@ -102,7 +102,7 @@ protected:
 class VTK_EXPORT vtkMutexLock : public vtkObject
 {
 public:
-  static vtkMutexLock *New() {return new vtkMutexLock;}
+  static vtkMutexLock *New();
 
   const char *GetClassName() {return "vtkMutexLock";}
   void PrintSelf(ostream& os, vtkIndent indent);

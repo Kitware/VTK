@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkWin32PolyDataMapper2D.h"
 #include "vtkWin32ImageWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32PolyDataMapper2D* vtkWin32PolyDataMapper2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32PolyDataMapper2D");
+  if(ret)
+    {
+    return (vtkWin32PolyDataMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32PolyDataMapper2D;
+}
+
+
+
 
 void vtkWin32PolyDataMapper2D::RenderOverlay(vtkViewport* viewport, 
 					     vtkActor2D* actor)

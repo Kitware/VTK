@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNoiseSource : public vtkImageSource 
 {
 public:
-  static vtkImageNoiseSource *New() {return new vtkImageNoiseSource;};
+  static vtkImageNoiseSource *New();
   const char *GetClassName() {return "vtkImageNoiseSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

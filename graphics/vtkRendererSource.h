@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
-  static vtkRendererSource *New() {return new vtkRendererSource;};
+  static vtkRendererSource *New();
   const char *GetClassName() {return "vtkRendererSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

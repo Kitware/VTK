@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageWriter : public vtkProcessObject
 {
 public:
-  static vtkImageWriter *New() {return new vtkImageWriter;};
+  static vtkImageWriter *New();
   const char *GetClassName() {return "vtkImageWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMath : public vtkObject
 {
 public:
-  static vtkMath *New() {return new vtkMath;};
+  static vtkMath *New();
   virtual const char *GetClassName() {return "vtkMath";};
   
   // Description:

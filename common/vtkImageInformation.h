@@ -52,8 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageInformation : public vtkStructuredInformation
 {
 public:
-  static vtkImageInformation *New() 
-    {return new vtkImageInformation;};
+  static vtkImageInformation *New();
 
   const char *GetClassName() {return "vtkImageInformation";}
   void PrintSelf(ostream& os, vtkIndent indent);

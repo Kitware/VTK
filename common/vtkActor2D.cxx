@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkProperty2D.h"
 #include "vtkMapper2D.h"
 #include "vtkPropCollection.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkActor2D* vtkActor2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkActor2D");
+  if(ret)
+    {
+    return (vtkActor2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkActor2D;
+}
+
+
+
 
 // Creates an actor2D with the following defaults: 
 // position -1, -1 (view coordinates)

@@ -1,5 +1,24 @@
 #include "vtkWin32OffscreenRenderWindow.h"
 #include <gl/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32OffscreenRenderWindow* vtkWin32OffscreenRenderWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32OffscreenRenderWindow");
+  if(ret)
+    {
+    return (vtkWin32OffscreenRenderWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32OffscreenRenderWindow;
+}
+
+
+
 
 vtkWin32OffscreenRenderWindow::vtkWin32OffscreenRenderWindow()
 {

@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFFT : public vtkImageFourierFilter
 {
 public:
-  static vtkImageFFT *New() {return new vtkImageFFT;};
+  static vtkImageFFT *New();
   const char *GetClassName() {return "vtkImageFFT";};
 
 

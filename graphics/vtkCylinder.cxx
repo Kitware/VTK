@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkCylinder.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCylinder* vtkCylinder::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCylinder");
+  if(ret)
+    {
+    return (vtkCylinder*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCylinder;
+}
+
+
+
 
 // Construct cylinder radius of 0.5.
 vtkCylinder::vtkCylinder()

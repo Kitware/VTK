@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkSubPixelPositionEdgels.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSubPixelPositionEdgels* vtkSubPixelPositionEdgels::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSubPixelPositionEdgels");
+  if(ret)
+    {
+    return (vtkSubPixelPositionEdgels*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSubPixelPositionEdgels;
+}
+
+
+
 
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDEMReader : public vtkImageSource
 {
 public:
-  static vtkDEMReader *New() {return new vtkDEMReader;};
+  static vtkDEMReader *New();
   const char *GetClassName() {return "vtkDEMReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

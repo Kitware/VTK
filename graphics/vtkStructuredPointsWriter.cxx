@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredPointsWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredPointsWriter* vtkStructuredPointsWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPointsWriter");
+  if(ret)
+    {
+    return (vtkStructuredPointsWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredPointsWriter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

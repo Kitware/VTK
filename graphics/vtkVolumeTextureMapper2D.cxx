@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkVolumeTextureMapper2D.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLVolumeTextureMapper2D.h"
@@ -862,6 +863,13 @@ vtkVolumeTextureMapper2D::~vtkVolumeTextureMapper2D()
 
 vtkVolumeTextureMapper2D *vtkVolumeTextureMapper2D::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeTextureMapper2D");
+  if(ret)
+    {
+    return (vtkVolumeTextureMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

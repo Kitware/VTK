@@ -61,7 +61,7 @@ public:
 
   // Description:
   // Construct object with time increment set to 1.0.
-  static vtkStreamPoints *New() {return new vtkStreamPoints;};
+  static vtkStreamPoints *New();
 
   // Description:
   // Specify the separation of points in terms of absolute time.

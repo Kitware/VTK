@@ -13,19 +13,8 @@ VPATH         = @srcdir@
 ABSTRACT_H = 
 
 CONCRETE_H = \
-vtkDataSetCollection \
-vtkFloatNormals \
-vtkFloatPoints \
-vtkFloatScalars \
-vtkFloatTCoords \
-vtkFloatTensors \
-vtkFloatVectors \
-vtkImplicitFunctionCollection \
-vtkObjectFactoryCollection \
-vtkPlaneCollection \
-vtkPropCollection \
-vtkTransformCollection \
-vtkVersion
+vtkObjectFactoryCollection 
+
 
 ABSTRACT = \
 vtkAbstractMapper \
@@ -59,6 +48,7 @@ vtkCoordinate \
 vtkDataInformation \
 vtkDataObject \
 vtkDataSetAttributes \
+vtkDataSetCollection \
 vtkDirectory \
 vtkDynamicLoader \
 vtkDoubleArray \
@@ -66,6 +56,12 @@ vtkEdgeTable \
 vtkEmptyCell \
 vtkFieldData \
 vtkFloatArray \
+vtkFloatNormals \
+vtkFloatPoints \
+vtkFloatScalars \
+vtkFloatTCoords \
+vtkFloatTensors \
+vtkFloatVectors \
 vtkGenericCell \
 vtkHexahedron \
 vtkIdList \
@@ -73,6 +69,7 @@ vtkImageData \
 vtkImageInformation \
 vtkImageSource \
 vtkImageToStructuredPoints \
+vtkImplicitFunctionCollection \
 vtkIndent \
 vtkIntArray \
 vtkLine \
@@ -89,6 +86,7 @@ vtkNormals \
 vtkObject \
 vtkPixel \
 vtkPlane \
+vtkPlaneCollection \
 vtkPointData \
 vtkPointLocator \
 vtkPointLocator2D \
@@ -101,6 +99,7 @@ vtkPriorityQueue \
 vtkProcessObject \
 vtkProp \
 vtkPropAssembly \
+vtkPropCollection \
 vtkProperty2D \
 vtkPyramid \
 vtkQuad \
@@ -122,6 +121,7 @@ vtkTetra \
 vtkTimerLog \
 vtkTimeStamp \
 vtkTransform \
+vtkTransformCollection \
 vtkTriangle \
 vtkTriangleStrip \
 vtkUnsignedCharArray \

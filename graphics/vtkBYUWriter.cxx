@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkBYUWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkBYUWriter* vtkBYUWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBYUWriter");
+  if(ret)
+    {
+    return (vtkBYUWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkBYUWriter;
+}
+
+
+
 
 // Create object so that it writes displacement, scalar, and texture files
 // (if data is available).

@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 {
 public:
-  static vtkStructuredPointsWriter *New() {
-    return new vtkStructuredPointsWriter;};
+  static vtkStructuredPointsWriter *New();
   const char *GetClassName() {return "vtkStructuredPointsWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

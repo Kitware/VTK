@@ -84,7 +84,7 @@ public:
   // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
   // extracted, glyphs are colored with input scalar data, and logarithmic
   // scaling is turned off.
-  static vtkTensorGlyph *New() {return new vtkTensorGlyph;};
+  static vtkTensorGlyph *New();
 
   // Description:
   // Override update method because execution can branch two ways (via Input 

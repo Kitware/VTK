@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVRMLExporter : public vtkExporter
 {
 public:
-  static vtkVRMLExporter *New() {return new vtkVRMLExporter;};
+  static vtkVRMLExporter *New();
   const char *GetClassName() {return "vtkVRMLExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

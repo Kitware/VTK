@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkLogLookupTable.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLogLookupTable* vtkLogLookupTable::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLogLookupTable");
+  if(ret)
+    {
+    return (vtkLogLookupTable*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLogLookupTable;
+}
+
+
+
 
 // Construct with (minimum,maximum) range 1 to 10 (based on 
 // logarithmic values).

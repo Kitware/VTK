@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTetra* vtkTetra::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTetra");
+  if(ret)
+    {
+    return (vtkTetra*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTetra;
+}
+
+
+
 
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()

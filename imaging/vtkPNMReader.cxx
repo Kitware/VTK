@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkPNMReader.h"
 #include <stdio.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPNMReader* vtkPNMReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPNMReader");
+  if(ret)
+    {
+    return (vtkPNMReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPNMReader;
+}
+
+
+
 
 char vtkPNMReaderGetChar(FILE *fp)
 {

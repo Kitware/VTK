@@ -55,7 +55,7 @@ class VTK_EXPORT vtkTimeStamp
 {
 public:
   vtkTimeStamp() {this->ModifiedTime = 0;};
-  static vtkTimeStamp *New() {return new vtkTimeStamp;};
+  static vtkTimeStamp *New();
   void Delete() {delete this;};
   virtual const char *GetClassName() {return "vtkTimeStamp";};
 

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkKochanekSpline.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkKochanekSpline* vtkKochanekSpline::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkKochanekSpline");
+  if(ret)
+    {
+    return (vtkKochanekSpline*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkKochanekSpline;
+}
+
+
+
 
 // Construct a KochanekSpline wth the following defaults:
 // DefaultBias = 0,

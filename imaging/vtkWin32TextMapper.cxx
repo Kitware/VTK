@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkWin32TextMapper.h"
 #include "vtkWin32ImageWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32TextMapper* vtkWin32TextMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32TextMapper");
+  if(ret)
+    {
+    return (vtkWin32TextMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32TextMapper;
+}
+
+
+
 
 vtkWin32TextMapper::vtkWin32TextMapper()
 {

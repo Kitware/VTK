@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkLine.h"
 #include "vtkOBBTree.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTextureMapToCylinder* vtkTextureMapToCylinder::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToCylinder");
+  if(ret)
+    {
+    return (vtkTextureMapToCylinder*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTextureMapToCylinder;
+}
+
+
+
 
 // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
 // and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 

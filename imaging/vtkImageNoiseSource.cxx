@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 
 #include "vtkImageNoiseSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageNoiseSource* vtkImageNoiseSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageNoiseSource");
+  if(ret)
+    {
+    return (vtkImageNoiseSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageNoiseSource;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

@@ -67,7 +67,7 @@ class VTK_EXPORT vtkAsynchronousBuffer : public vtkDataSetToDataSetFilter
 public:
   const char *GetClassName() {return "vtkAsynchronousBuffer";};
   void PrintSelf(ostream& os, vtkIndent indent);
-  static vtkAsynchronousBuffer *New() {return new vtkAsynchronousBuffer;}
+  static vtkAsynchronousBuffer *New();
 
   // Description:
   // A flag to change the behavior of the standard "Update" call.  When blocking

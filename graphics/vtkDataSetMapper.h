@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetMapper : public vtkMapper 
 {
 public:
-  static vtkDataSetMapper *New() {return new vtkDataSetMapper;};
+  static vtkDataSetMapper *New();
   const char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkExtractVectorComponents.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractVectorComponents* vtkExtractVectorComponents::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractVectorComponents");
+  if(ret)
+    {
+    return (vtkExtractVectorComponents*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractVectorComponents;
+}
+
+
+
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
 {

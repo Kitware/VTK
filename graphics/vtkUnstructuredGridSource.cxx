@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkUnstructuredGridSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnstructuredGridSource* vtkUnstructuredGridSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredGridSource");
+  if(ret)
+    {
+    return (vtkUnstructuredGridSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnstructuredGridSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()

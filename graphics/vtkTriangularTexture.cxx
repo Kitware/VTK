@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangularTexture.h"
 #include "vtkMath.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTriangularTexture* vtkTriangularTexture::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangularTexture");
+  if(ret)
+    {
+    return (vtkTriangularTexture*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTriangularTexture;
+}
+
+
+
 
 // Instantiate object with XSize and YSize = 64; the texture pattern =1
 // (opaque at centroid); and the scale factor set to 1.0.

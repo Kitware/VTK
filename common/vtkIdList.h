@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIdList : public vtkObject
 {
  public:
-  static vtkIdList *New() {return new vtkIdList(8);};
+  static vtkIdList *New();
 
   int Allocate(const int sz=512, const int ext=1000) {return this->Ia->Allocate(sz,ext);};
   const char *GetClassName() {return "vtkIdList";};

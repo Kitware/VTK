@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkShortArray : public vtkDataArray
 {
 public:
-  static vtkShortArray *New() {return new vtkShortArray;};
+  static vtkShortArray *New();
 
   const char *GetClassName() {return "vtkShortArray";};
   void PrintSelf(ostream& os, vtkIndent indent);

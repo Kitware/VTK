@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRectilinearGridGeometryFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRectilinearGridGeometryFilter* vtkRectilinearGridGeometryFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridGeometryFilter");
+  if(ret)
+    {
+    return (vtkRectilinearGridGeometryFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRectilinearGridGeometryFilter;
+}
+
+
+
 
 // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
 vtkRectilinearGridGeometryFilter::vtkRectilinearGridGeometryFilter()

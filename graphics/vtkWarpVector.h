@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpVector : public vtkPointSetToPointSetFilter
 {
 public:
-  static vtkWarpVector *New() {return new vtkWarpVector;};
+  static vtkWarpVector *New();
   const char *GetClassName() {return "vtkWarpVector";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

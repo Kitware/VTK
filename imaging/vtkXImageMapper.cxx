@@ -2,6 +2,25 @@
 #include "vtkImageWindow.h"
 #include "vtkXImageWindow.h"
 #include "vtkProperty2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXImageMapper* vtkXImageMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXImageMapper");
+  if(ret)
+    {
+    return (vtkXImageMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXImageMapper;
+}
+
+
+
 
 vtkXImageMapper::vtkXImageMapper()
 {

@@ -74,7 +74,7 @@ public:
   // Description:
   // Construct with automatic computation of divisions, averaging
   // 25 cells per bucket.
-  static vtkCellLocator *New() {return new vtkCellLocator;};
+  static vtkCellLocator *New();
 
   // Description:
   // Specify the average number of cells in each octant.

@@ -58,8 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGradientMagnitude : public vtkImageToImageFilter
 {
 public:
-  static vtkImageGradientMagnitude *New() 
-    {return new vtkImageGradientMagnitude;};
+  static vtkImageGradientMagnitude *New();
   const char *GetClassName() {return "vtkImageGradientMagnitude";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

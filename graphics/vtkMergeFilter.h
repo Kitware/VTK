@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMergeFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  static vtkMergeFilter *New() {return new vtkMergeFilter;};
+  static vtkMergeFilter *New();
   const char *GetClassName() {return "vtkMergeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.h"
 #include "vtkExtent.h"
 #include "vtkDataInformation.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataObject* vtkDataObject::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObject");
+  if(ret)
+    {
+    return (vtkDataObject*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataObject;
+}
+
+
+
 
 // Initialize static member that controls global data release after use by filter
 static int vtkDataObjectGlobalReleaseDataFlag = 0;

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkReferenceCount : public vtkObject
 {
 public:
-  static vtkReferenceCount *New() {return new vtkReferenceCount;};
+  static vtkReferenceCount *New();
 
   const char *GetClassName() {return "vtkReferenceCount";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridSource : public vtkSource
 {
 public:
-  static vtkRectilinearGridSource *New() {
-    return new vtkRectilinearGridSource;};
+  static vtkRectilinearGridSource *New();
   const char *GetClassName() {return "vtkRectilinearGridSource";};
 
   // Description:

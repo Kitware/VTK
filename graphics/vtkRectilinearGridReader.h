@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridReader : public vtkRectilinearGridSource
 {
 public:
-  static vtkRectilinearGridReader *New() {return new vtkRectilinearGridReader;}
+  static vtkRectilinearGridReader *New();
   const char *GetClassName() {return "vtkRectilinearGridReader";}
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -66,7 +66,7 @@ class VTK_EXPORT vtkImageOpenClose3D : public vtkImageToImageFilter
 public:
   // Description:
   // Default open value is 0, and default close value is 255.
-  static vtkImageOpenClose3D *New() {return new vtkImageOpenClose3D;};
+  static vtkImageOpenClose3D *New();
   const char *GetClassName() {return "vtkImageOpenClose3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkCone : public vtkImplicitFunction
 public:
   // Description
   // Construct cone with angle of 45 degrees.
-  static vtkCone *New() {return new vtkCone;};
+  static vtkCone *New();
 
   const char *GetClassName() {return "vtkCone";};
   void PrintSelf(ostream& os, vtkIndent indent);

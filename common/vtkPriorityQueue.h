@@ -77,7 +77,7 @@ class VTK_EXPORT vtkPriorityQueue : public vtkObject
 public:
   // Description:
   // Instantiate priority queue with default size and extension size of 1000.
-  static vtkPriorityQueue *New() {return new vtkPriorityQueue;};
+  static vtkPriorityQueue *New();
 
   const char *GetClassName() {return "vtkPriorityQueue";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -38,6 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMPIController.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMPIController* vtkMPIController::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMPIController");
+  if(ret)
+    {
+    return (vtkMPIController*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMPIController;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

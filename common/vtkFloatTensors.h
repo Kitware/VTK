@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatTensors : public vtkTensors
 {
 public:
-  static vtkFloatTensors *New() {return new vtkFloatTensors;};
+  static vtkFloatTensors *New();
   
   // Description:
   // Set the data type for this object.

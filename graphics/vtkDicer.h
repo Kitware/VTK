@@ -77,7 +77,7 @@ class VTK_EXPORT vtkDicer : public vtkDataSetToDataSetFilter
 public:
   // Description:
   // Instantiate an object.
-  static vtkDicer *New() {return new vtkDicer;};
+  static vtkDicer *New();
 
   const char *GetClassName() {return "vtkDicer";};
   void PrintSelf(ostream& os, vtkIndent indent);

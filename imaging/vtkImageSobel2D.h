@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSobel2D : public vtkImageSpatialFilter
 {
 public:
-  static vtkImageSobel2D *New() {return new vtkImageSobel2D;};
+  static vtkImageSobel2D *New();
   const char *GetClassName() {return "vtkImageSobel2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

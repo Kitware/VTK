@@ -108,7 +108,7 @@ public:
   // Description:
   // Construct with automatic computation of divisions, averaging
   // 25 cells per octant.
-  static vtkOBBTree *New() {return new vtkOBBTree;};
+  static vtkOBBTree *New();
 
   // Description:
   // Compute an OBB from the list of points given. Return the corner point

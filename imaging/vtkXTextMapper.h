@@ -63,7 +63,7 @@ class VTK_EXPORT vtkXTextMapper : public vtkTextMapper
 {
 public:
   const char *GetClassName() {return "vtkXTextMapper";};
-  static vtkXTextMapper *New() {return new vtkXTextMapper;};
+  static vtkXTextMapper *New();
 
   // Description:
   // Set the font size used by the mapper.  If the font size is 

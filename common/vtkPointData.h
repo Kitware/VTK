@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointData : public vtkDataSetAttributes
 {
 public:
-  static vtkPointData *New() {return new vtkPointData;};
+  static vtkPointData *New();
 
   const char *GetClassName() {return "vtkPointData";};
   void PrintSelf(ostream& os, vtkIndent indent);

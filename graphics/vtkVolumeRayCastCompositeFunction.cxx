@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolumeProperty.h"
 #include "vtkVolumeRayCastMapper.h"
 #include "vtkVolume.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVolumeRayCastCompositeFunction* vtkVolumeRayCastCompositeFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeRayCastCompositeFunction");
+  if(ret)
+    {
+    return (vtkVolumeRayCastCompositeFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVolumeRayCastCompositeFunction;
+}
+
+
+
 
 #define VTK_REMAINING_OPACITY		0.02
 

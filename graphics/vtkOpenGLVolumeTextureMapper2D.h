@@ -58,7 +58,7 @@ public:
   const char *GetClassName() {return "vtkOpenGLVolumeTextureMapper2D";};
   void PrintSelf( ostream& os, vtkIndent index );
 
-  static vtkOpenGLVolumeTextureMapper2D *New() {return new vtkOpenGLVolumeTextureMapper2D;};
+  static vtkOpenGLVolumeTextureMapper2D *New();
   
 //BTX
 

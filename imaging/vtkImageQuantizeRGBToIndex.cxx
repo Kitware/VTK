@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTimerLog.h"
 #include <math.h>
 #include <stdlib.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageQuantizeRGBToIndex* vtkImageQuantizeRGBToIndex::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageQuantizeRGBToIndex");
+  if(ret)
+    {
+    return (vtkImageQuantizeRGBToIndex*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageQuantizeRGBToIndex;
+}
+
+
+
 
 class vtkColorQuantizeNode
 {

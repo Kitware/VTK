@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangleStrip.h"
 #include "vtkCellArray.h"
 #include "vtkLine.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTriangleStrip* vtkTriangleStrip::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangleStrip");
+  if(ret)
+    {
+    return (vtkTriangleStrip*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTriangleStrip;
+}
+
+
+
 
 
 vtkTriangleStrip::vtkTriangleStrip()

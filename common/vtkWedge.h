@@ -57,7 +57,7 @@ class vtkUnstructuredGrid;
 class VTK_EXPORT vtkWedge : public vtkCell
 {
 public:
-  static vtkWedge *New() {return new vtkWedge;};
+  static vtkWedge *New();
   const char *GetClassName() {return "vtkWedge";};
 
   // Description:

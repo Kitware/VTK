@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMFCInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkMFCInteractor *New() {return new vtkMFCInteractor;};
+  static vtkMFCInteractor *New();
   const char *GetClassName() {return "vtkMFCInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

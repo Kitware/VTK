@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAccumulate : public vtkImageToImageFilter
 {
 public:
-  static vtkImageAccumulate *New() {return new vtkImageAccumulate;};
+  static vtkImageAccumulate *New();
   const char *GetClassName() {return "vtkImageAccumulate";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyLine.h"
 #include "vtkMath.h"
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyLine* vtkPolyLine::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyLine");
+  if(ret)
+    {
+    return (vtkPolyLine*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyLine;
+}
+
+
+
 
 vtkPolyLine::vtkPolyLine()
 {

@@ -61,8 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSeedConnectivity : public vtkImageToImageFilter
 {
 public:
-  static vtkImageSeedConnectivity *New() 
-    {return new vtkImageSeedConnectivity;};
+  static vtkImageSeedConnectivity *New();
   const char *GetClassName() {return "vtkImageSeedConnectivity";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

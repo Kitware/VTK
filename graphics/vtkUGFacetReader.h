@@ -60,7 +60,7 @@ public:
   // Description:
   // Construct object to extract all parts, and with point merging
   // turned on.
-  static vtkUGFacetReader *New() {return new vtkUGFacetReader;};
+  static vtkUGFacetReader *New();
 
   // Description:
   // Overload standard modified time function. If locator is modified,

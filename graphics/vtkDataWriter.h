@@ -74,7 +74,7 @@ public:
   // Description:
   // Created object with default header, ASCII format, and default names for 
   // scalars, vectors, tensors, normals, and texture coordinates.
-  static vtkDataWriter *New() {return new vtkDataWriter;};
+  static vtkDataWriter *New();
 
   // Description:
   // Specify file name of vtk polygon data file to write.

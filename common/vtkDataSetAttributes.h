@@ -63,7 +63,7 @@ class VTK_EXPORT vtkDataSetAttributes : public vtkObject
 public:
   // Description:
   // Construct object with copying turned on for all data.
-  static vtkDataSetAttributes *New() {return new vtkDataSetAttributes;};
+  static vtkDataSetAttributes *New();
   
   const char *GetClassName() {return "vtkDataSetAttributes";};
   void PrintSelf(ostream& os, vtkIndent indent);

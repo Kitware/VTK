@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridToPolyDataFilter : public vtkPolyDataSource
 {
 public:
-  static vtkRectilinearGridToPolyDataFilter *New() {
-    return new vtkRectilinearGridToPolyDataFilter;};
+  static vtkRectilinearGridToPolyDataFilter *New();
   const char *GetClassName() {return "vtkRectilinearGridToPolyDataFilter";};
 
   // Description:

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkBooleanTexture.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkBooleanTexture* vtkBooleanTexture::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBooleanTexture");
+  if(ret)
+    {
+    return (vtkBooleanTexture*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkBooleanTexture;
+}
+
+
+
 
 vtkBooleanTexture::vtkBooleanTexture()
 {

@@ -78,7 +78,7 @@ public:
   // Description:
   // Create object with Center (0,0,0) and the PreventSeam ivar is set to
   // true. The sphere center is automatically computed.
-  static vtkTextureMapToSphere *New() {return new vtkTextureMapToSphere;};
+  static vtkTextureMapToSphere *New();
 
   // Description:
   // Specify a point defining the center of the sphere.

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageData.h"
 #include "vtkDEMReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDEMReader* vtkDEMReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDEMReader");
+  if(ret)
+    {
+    return (vtkDEMReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDEMReader;
+}
+
+
+
 
 #define VTK_SW	0
 #define VTK_NW	1

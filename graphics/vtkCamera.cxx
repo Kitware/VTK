@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimeStamp.h"
+#include "vtkObjectFactory.h"
 
 // Construct camera instance with its focal point at the origin, 
 // and position=(0,0,1). The view up is along the y-axis, 
@@ -111,6 +112,14 @@ vtkCamera::~vtkCamera()
 // return the correct type of Camera 
 vtkCamera *vtkCamera::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCamera");
+  if(ret)
+    {
+    return (vtkCamera*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkSubdivideTetra.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSubdivideTetra* vtkSubdivideTetra::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSubdivideTetra");
+  if(ret)
+    {
+    return (vtkSubdivideTetra*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSubdivideTetra;
+}
+
+
+
 
 // Description:
 // Construct with all types of clipping turned off.

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredGridToPolyDataFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredGridToPolyDataFilter* vtkStructuredGridToPolyDataFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridToPolyDataFilter");
+  if(ret)
+    {
+    return (vtkStructuredGridToPolyDataFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredGridToPolyDataFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

@@ -81,7 +81,7 @@ public:
   // Create object with cylinder axis parallel to z-axis (points (0,0,-0.5) 
   // and (0,0,0.5)). The PreventSeam ivar is set to true. The cylinder is 
   // automatically generated.
-  static vtkTextureMapToCylinder *New() {return new vtkTextureMapToCylinder;};
+  static vtkTextureMapToCylinder *New();
 
   // Description:
   // Specify the first point defining the cylinder axis,

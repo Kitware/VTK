@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkColorTransferFunction.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkColorTransferFunction* vtkColorTransferFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkColorTransferFunction");
+  if(ret)
+    {
+    return (vtkColorTransferFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkColorTransferFunction;
+}
+
+
+
 
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()

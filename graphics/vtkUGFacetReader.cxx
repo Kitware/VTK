@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUGFacetReader.h"
 #include "vtkByteSwap.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUGFacetReader* vtkUGFacetReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUGFacetReader");
+  if(ret)
+    {
+    return (vtkUGFacetReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUGFacetReader;
+}
+
+
+
 
 // Construct object to extract all parts, and with point merging
 // turned on.

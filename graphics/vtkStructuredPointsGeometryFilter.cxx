@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredPointsGeometryFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredPointsGeometryFilter* vtkStructuredPointsGeometryFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPointsGeometryFilter");
+  if(ret)
+    {
+    return (vtkStructuredPointsGeometryFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredPointsGeometryFilter;
+}
+
+
+
 
 // Construct with initial extent of all the data
 vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageFFT.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageFFT* vtkImageFFT::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFFT");
+  if(ret)
+    {
+    return (vtkImageFFT*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageFFT;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

@@ -56,8 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
 {
 public:
-  static vtkColorTransferFunction *New() {
-    return new vtkColorTransferFunction;};
+  static vtkColorTransferFunction *New();
   const char *GetClassName() {return "vtkColorTransferFunction";};
   void DeepCopy( vtkColorTransferFunction *f );
 

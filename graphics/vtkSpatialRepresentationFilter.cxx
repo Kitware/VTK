@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkSpatialRepresentationFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSpatialRepresentationFilter* vtkSpatialRepresentationFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSpatialRepresentationFilter");
+  if(ret)
+    {
+    return (vtkSpatialRepresentationFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSpatialRepresentationFilter;
+}
+
+
+
 
 vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 {

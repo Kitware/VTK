@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredGridReader.h"
 #include "vtkByteSwap.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnstructuredGridReader* vtkUnstructuredGridReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredGridReader");
+  if(ret)
+    {
+    return (vtkUnstructuredGridReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnstructuredGridReader;
+}
+
+
+
 
 #ifdef read
 #undef read

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageCacheFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageCacheFilter *New() {return new vtkImageCacheFilter;};
+  static vtkImageCacheFilter *New();
   const char *GetClassName() {return "vtkImageCacheFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageToStructuredPoints.h"
 #include "vtkScalars.h"
 #include "vtkStructuredPoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageToStructuredPoints* vtkImageToStructuredPoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageToStructuredPoints");
+  if(ret)
+    {
+    return (vtkImageToStructuredPoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageToStructuredPoints;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()

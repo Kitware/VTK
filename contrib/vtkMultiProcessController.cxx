@@ -51,6 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkExtent.h"
 #include "vtkDataInformation.h"
 #include "vtkTimerLog.h"
+#include "vtkObjectFactory.h"
+
 
 // The special tag used for RMI communication.
 #define VTK_MP_CONTROLLER_RMI_TAG 315167
@@ -121,7 +123,13 @@ vtkMultiProcessController::~vtkMultiProcessController()
 //----------------------------------------------------------------------------
 vtkMultiProcessController *vtkMultiProcessController::New()
 {
-  //return vtkThreadController::New();
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMultiProcessController");
+  if(ret)
+    {
+    return (vtkMultiProcessController*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
   return vtkMPIController::New();
 }
 

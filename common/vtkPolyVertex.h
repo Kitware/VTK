@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyVertex : public vtkCell
 {
 public:
-  static vtkPolyVertex *New() {return new vtkPolyVertex;};
+  static vtkPolyVertex *New();
   const char *GetClassName() {return "vtkPolyVertex";};
 
   // Description:

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkWindowLevelLookupTable.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWindowLevelLookupTable* vtkWindowLevelLookupTable::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWindowLevelLookupTable");
+  if(ret)
+    {
+    return (vtkWindowLevelLookupTable*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWindowLevelLookupTable;
+}
+
+
+
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
 // (from red to blue).

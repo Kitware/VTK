@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageLogarithmicScale.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageLogarithmicScale* vtkImageLogarithmicScale::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageLogarithmicScale");
+  if(ret)
+    {
+    return (vtkImageLogarithmicScale*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageLogarithmicScale;
+}
+
+
+
 
 
 

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkUnsignedIntArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnsignedIntArray* vtkUnsignedIntArray::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnsignedIntArray");
+  if(ret)
+    {
+    return (vtkUnsignedIntArray*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnsignedIntArray;
+}
+
+
+
 
 // Instantiate object.
 vtkUnsignedIntArray::vtkUnsignedIntArray(int numComp)

@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProjectedTexture : public vtkDataSetToDataSetFilter 
 {
 public:
-  static vtkProjectedTexture *New() {return new vtkProjectedTexture;};
+  static vtkProjectedTexture *New();
   const char *GetClassName() {return "vtkProjectedTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

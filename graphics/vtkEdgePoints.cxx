@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkEdgePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkEdgePoints* vtkEdgePoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEdgePoints");
+  if(ret)
+    {
+    return (vtkEdgePoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkEdgePoints;
+}
+
+
+
 
 // Construct object with contour value of 0.0.
 vtkEdgePoints::vtkEdgePoints()

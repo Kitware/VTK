@@ -62,7 +62,7 @@ public:
   // Description:
   // Creates a vtkProperty2D with the following default values:
   // Opacity 1, Color (1,1,1)
-  static vtkProperty2D *New() {return new vtkProperty2D;};
+  static vtkProperty2D *New();
 
   // Description:
   // Set/Get the RGB color of this property.

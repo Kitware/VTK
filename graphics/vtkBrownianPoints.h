@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBrownianPoints : public vtkDataSetToDataSetFilter
 {
 public:
-  static vtkBrownianPoints *New() {return new vtkBrownianPoints;};
+  static vtkBrownianPoints *New();
   const char *GetClassName() {return "vtkBrownianPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

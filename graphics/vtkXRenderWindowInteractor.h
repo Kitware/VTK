@@ -66,8 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkXRenderWindowInteractor *New() {
-    return new vtkXRenderWindowInteractor;};
+  static vtkXRenderWindowInteractor *New();
   const char *GetClassName() {return "vtkXRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

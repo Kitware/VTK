@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkPolyData.h"
 #include "vtkMatrix4x4.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOBBTree* vtkOBBTree::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOBBTree");
+  if(ret)
+    {
+    return (vtkOBBTree*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOBBTree;
+}
+
+
+
 
 #define vtkCELLTRIANGLES(CELLPTIDS, TYPE, IDX, PTID0, PTID1, PTID2) \
 	{ switch( TYPE ) \

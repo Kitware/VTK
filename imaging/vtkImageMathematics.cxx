@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageData.h"
 #include "vtkImageMathematics.h"
 #include <math.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageMathematics* vtkImageMathematics::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMathematics");
+  if(ret)
+    {
+    return (vtkImageMathematics*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageMathematics;
+}
+
+
+
 
 
 

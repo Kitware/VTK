@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageSpatialFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageSpatialFilter* vtkImageSpatialFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSpatialFilter");
+  if(ret)
+    {
+    return (vtkImageSpatialFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageSpatialFilter;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

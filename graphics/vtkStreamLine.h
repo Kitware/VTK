@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Construct object with step size set to 1.0.
-  static vtkStreamLine *New() {return new vtkStreamLine;};
+  static vtkStreamLine *New();
 
   // Description:
   // Specify the length of a line segment. The length is expressed in terms of

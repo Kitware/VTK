@@ -78,7 +78,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImporter : public vtkObject
 {
 public:
-  static vtkImporter *New() {return new vtkImporter;};
+  static vtkImporter *New();
   const char *GetClassName() {return "vtkImporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

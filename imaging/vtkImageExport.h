@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageExport : public vtkProcessObject
 {
 public:
-  static vtkImageExport *New() {return new vtkImageExport;};
+  static vtkImageExport *New();
   const char *GetClassName() {return "vtkImageExport";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -75,7 +75,7 @@ public:
   // Description
   // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
   // scale (1,1,1), size 0.5, phi roundness 1.0, and theta roundness 0.0.
-  static vtkSuperquadric *New() {return new vtkSuperquadric;};
+  static vtkSuperquadric *New();
 
   const char *GetClassName() {return "vtkSuperquadric";};
   void PrintSelf(ostream& os, vtkIndent indent);

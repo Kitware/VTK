@@ -55,7 +55,7 @@ protected:
   int NumberOfLightsBound;
 
 public:
-  static vtkOpenGLRenderer *New() {return new vtkOpenGLRenderer;};
+  static vtkOpenGLRenderer *New();
   const char *GetClassName() {return "vtkOpenGLRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

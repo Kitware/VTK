@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include <string.h>
 #include "vtkImageWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageWriter* vtkImageWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageWriter");
+  if(ret)
+    {
+    return (vtkImageWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageWriter;
+}
+
+
+
 
 #ifdef write
 #undef write

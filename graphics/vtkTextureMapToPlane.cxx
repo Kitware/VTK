@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTextureMapToPlane.h"
 #include "vtkMath.h"
 #include "vtkTCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTextureMapToPlane* vtkTextureMapToPlane::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToPlane");
+  if(ret)
+    {
+    return (vtkTextureMapToPlane*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTextureMapToPlane;
+}
+
+
+
 
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
 vtkTextureMapToPlane::vtkTextureMapToPlane()

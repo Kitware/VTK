@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include "vtkTransform.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTransform* vtkTransform::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransform");
+  if(ret)
+    {
+    return (vtkTransform*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTransform;
+}
+
+
+
 
 // Useful for viewing a double[16] as a double[4][4]
 typedef double (*SqMatPtr)[4];

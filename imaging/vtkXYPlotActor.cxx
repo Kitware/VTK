@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkXYPlotActor.h"
 #include "vtkDataSetCollection.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXYPlotActor* vtkXYPlotActor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXYPlotActor");
+  if(ret)
+    {
+    return (vtkXYPlotActor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXYPlotActor;
+}
+
+
+
 
 // Instantiate object
 vtkXYPlotActor::vtkXYPlotActor()

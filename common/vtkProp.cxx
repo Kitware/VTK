@@ -38,6 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkProp.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProp* vtkProp::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProp");
+  if(ret)
+    {
+    return (vtkProp*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProp;
+}
+
+
+
 
 // Creates an Prop with the following defaults: visibility on.
 vtkProp::vtkProp()

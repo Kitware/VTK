@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredExtent : public vtkExtent
 {
 public:
-  static vtkStructuredExtent *New() {return new vtkStructuredExtent;};
+  static vtkStructuredExtent *New();
 
   const char *GetClassName() {return "vtkStructuredExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);

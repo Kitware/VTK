@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageShrink3D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageShrink3D* vtkImageShrink3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageShrink3D");
+  if(ret)
+    {
+    return (vtkImageShrink3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageShrink3D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

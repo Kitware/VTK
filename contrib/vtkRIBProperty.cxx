@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRIBProperty.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRIBProperty* vtkRIBProperty::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRIBProperty");
+  if(ret)
+    {
+    return (vtkRIBProperty*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRIBProperty;
+}
+
+
+
 
 vtkRIBProperty::vtkRIBProperty ()
 {

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkFieldDataToAttributeDataFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkFieldDataToAttributeDataFilter* vtkFieldDataToAttributeDataFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFieldDataToAttributeDataFilter");
+  if(ret)
+    {
+    return (vtkFieldDataToAttributeDataFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkFieldDataToAttributeDataFilter;
+}
+
+
+
 
 // Instantiate object with no input and no defined output.
 vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()

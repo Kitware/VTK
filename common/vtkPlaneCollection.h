@@ -55,8 +55,7 @@ class VTK_EXPORT vtkPlaneCollection : public vtkCollection
 {
 public:
   const char *GetClassName() {return "vtkPlaneCollection";};
-  static vtkPlaneCollection *New() 
-    {return new vtkPlaneCollection;};
+  static vtkPlaneCollection *New();
 
   // Description:
   // Add a plane to the list.

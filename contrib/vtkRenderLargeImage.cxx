@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkRenderLargeImage.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRenderLargeImage* vtkRenderLargeImage::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderLargeImage");
+  if(ret)
+    {
+    return (vtkRenderLargeImage*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRenderLargeImage;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkRenderLargeImage::vtkRenderLargeImage()

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCubeSource : public vtkPolyDataSource 
 {
 public:
-  static vtkCubeSource *New() {return new vtkCubeSource;};
+  static vtkCubeSource *New();
   const char *GetClassName() {return "vtkCubeSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

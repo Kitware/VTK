@@ -71,8 +71,7 @@ public:
 
   // Description:
   // Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
-  static vtkRectilinearGridGeometryFilter *New() {
-    return new vtkRectilinearGridGeometryFilter;};
+  static vtkRectilinearGridGeometryFilter *New();
 
   // Description:
   // Get the extent in topological coordinate range (imin,imax, jmin,jmax,

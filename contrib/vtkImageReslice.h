@@ -71,7 +71,7 @@ class vtkMatrix4x4;
 class VTK_EXPORT vtkImageReslice : public vtkImageToImageFilter
 {
 public:
-  static vtkImageReslice *New() {return new vtkImageReslice;};
+  static vtkImageReslice *New();
   const char *GetClassName() {return "vtkImageReslice";};
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);

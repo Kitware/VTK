@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Construct with r-s-t range=(0,1) and automatic box generation turned on.
-  static vtkTextureMapToBox *New() {return new vtkTextureMapToBox;};
+  static vtkTextureMapToBox *New();
   
   // Description:
   // Specify the bounding box to map into.

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageSkeleton2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageSkeleton2D* vtkImageSkeleton2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSkeleton2D");
+  if(ret)
+    {
+    return (vtkImageSkeleton2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageSkeleton2D;
+}
+
+
+
 
 
 

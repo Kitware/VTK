@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyDataFilter
 {
 public:
-  static vtkThresholdPoints *New() {return new vtkThresholdPoints;};
+  static vtkThresholdPoints *New();
   const char *GetClassName() {return "vtkThresholdPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

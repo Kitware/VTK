@@ -53,8 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetToStructuredGridFilter : public vtkStructuredGridSource
 {
 public:
-  static vtkDataSetToStructuredGridFilter *New() {
-    return new vtkDataSetToStructuredGridFilter;};
+  static vtkDataSetToStructuredGridFilter *New();
   const char *GetClassName() {return "vtkDataSetToStructuredGridFilter";};
 
   // Description:

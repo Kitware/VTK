@@ -39,11 +39,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTensors.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTensors* vtkTensors::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTensors");
+  if(ret)
+    {
+    return (vtkTensors*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTensors;
+}
+
+
+
 
 
 vtkTensors *vtkTensors::New(int dataType)
 {
-  vtkTensors *res = new vtkTensors();
+  vtkTensors *res = vtkTensors::New();
   res->SetDataType(dataType);
   res->GetData()->SetNumberOfComponents(9);
   return res;

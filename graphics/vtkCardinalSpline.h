@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCardinalSpline : public vtkSpline
 {
 public:
-  static vtkCardinalSpline *New() {return new vtkCardinalSpline;};
+  static vtkCardinalSpline *New();
 
   const char *GetClassName() {return "vtkCardinalSpline";};
   void PrintSelf(ostream& os, vtkIndent indent);

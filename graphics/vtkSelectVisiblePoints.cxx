@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSelectVisiblePoints.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSelectVisiblePoints* vtkSelectVisiblePoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSelectVisiblePoints");
+  if(ret)
+    {
+    return (vtkSelectVisiblePoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSelectVisiblePoints;
+}
+
+
+
 
 // Instantiate object with no renderer; window selection turned off; 
 // tolerance set to 0.01; and select invisible off.

@@ -82,7 +82,7 @@ public:
 
   // Description:
   // Construct to compute the gradient of the scalars and vectors.
-  static vtkCellDerivatives *New() {return new vtkCellDerivatives;};
+  static vtkCellDerivatives *New();
 
   // Description:
   // Control how the filter works to generate vector cell data. You

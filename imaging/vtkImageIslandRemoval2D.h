@@ -66,7 +66,7 @@ class VTK_EXPORT vtkImageIslandRemoval2D : public vtkImageToImageFilter
 public:
   // Description:
   // Constructor: Sets default filter to be identity.
-  static vtkImageIslandRemoval2D *New() {return new vtkImageIslandRemoval2D;};
+  static vtkImageIslandRemoval2D *New();
   const char *GetClassName() {return "vtkImageIslandRemoval2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

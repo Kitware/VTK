@@ -54,8 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsReader : public vtkStructuredPointsSource
 {
 public:
-  static vtkStructuredPointsReader *New() 
-    {return new vtkStructuredPointsReader;}
+  static vtkStructuredPointsReader *New();
   const char *GetClassName() {return "vtkStructuredPointsReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

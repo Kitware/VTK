@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkVoxel.h"
 #include "vtkDelaunay3D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkClipVolume* vtkClipVolume::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkClipVolume");
+  if(ret)
+    {
+    return (vtkClipVolume*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkClipVolume;
+}
+
+
+
 
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off. The merge tolerance is set

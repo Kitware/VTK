@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageIslandRemoval2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageIslandRemoval2D* vtkImageIslandRemoval2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageIslandRemoval2D");
+  if(ret)
+    {
+    return (vtkImageIslandRemoval2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageIslandRemoval2D;
+}
+
+
+
 
 
 

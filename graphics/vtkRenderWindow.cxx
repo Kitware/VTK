@@ -45,6 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTransform.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -186,6 +187,14 @@ char *vtkRenderWindow::GetRenderLibrary()
 // return the correct type of RenderWindow 
 vtkRenderWindow *vtkRenderWindow::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRenderWindow");
+  if(ret)
+    {
+    return (vtkRenderWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

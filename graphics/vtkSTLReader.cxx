@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSTLReader.h"
 #include "vtkByteSwap.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSTLReader* vtkSTLReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSTLReader");
+  if(ret)
+    {
+    return (vtkSTLReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSTLReader;
+}
+
+
+
 
 #define VTK_ASCII 0
 #define VTK_BINARY 1

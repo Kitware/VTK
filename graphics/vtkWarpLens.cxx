@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkWarpLens.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWarpLens* vtkWarpLens::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWarpLens");
+  if(ret)
+    {
+    return (vtkWarpLens*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWarpLens;
+}
+
+
+
 
 vtkWarpLens::vtkWarpLens()
 {

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStreamPoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStreamPoints* vtkStreamPoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStreamPoints");
+  if(ret)
+    {
+    return (vtkStreamPoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStreamPoints;
+}
+
+
+
 
 // Construct object with time increment set to 1.0.
 vtkStreamPoints::vtkStreamPoints()

@@ -68,8 +68,7 @@ public:
 
   // Description:
   // Construct with all types of clipping turned off.
-  static vtkExtractUnstructuredGrid *New() {
-    return new vtkExtractUnstructuredGrid;};
+  static vtkExtractUnstructuredGrid *New();
 
   // Description:
   // Turn on/off selection of geometry by point id.

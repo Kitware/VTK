@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLODProp3D.h"
 #include "vtkActor.h"
 #include "vtkVolume.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLODProp3D* vtkLODProp3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLODProp3D");
+  if(ret)
+    {
+    return (vtkLODProp3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLODProp3D;
+}
+
+
+
 
 #define VTK_INDEX_NOT_IN_USE    -1
 

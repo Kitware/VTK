@@ -60,7 +60,7 @@ public:
   // Description:
   // Construct object with LowPoint=(0,0,0) and HighPoint=(0,0,1). Scalar
   // range is (0,1).
-  static vtkElevationFilter *New() {return new vtkElevationFilter;};
+  static vtkElevationFilter *New();
 
   // Description:
   // Define one end of the line (small scalar values).

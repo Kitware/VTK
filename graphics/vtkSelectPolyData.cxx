@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangleFilter.h"
 #include "vtkCharArray.h"
 #include "vtkTriangleStrip.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSelectPolyData* vtkSelectPolyData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSelectPolyData");
+  if(ret)
+    {
+    return (vtkSelectPolyData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSelectPolyData;
+}
+
+
+
 
 // Description:
 // Instantiate object with InsideOut turned off.

@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMatrix4x4* vtkMatrix4x4::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMatrix4x4");
+  if(ret)
+    {
+    return (vtkMatrix4x4*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMatrix4x4;
+}
+
+
+
 
 // Useful for viewing a double[16] as a double[4][4]
 typedef double (*SqMatPtr)[4];

@@ -72,7 +72,7 @@ class vtkStructuredInformation;
 class VTK_EXPORT vtkRectilinearGrid : public vtkDataSet
 {
 public:
-  static vtkRectilinearGrid *New() {return new vtkRectilinearGrid;};
+  static vtkRectilinearGrid *New();
 
   const char *GetClassName() {return "vtkRectilinearGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);

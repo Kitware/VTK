@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredExtent.h"
 #include "vtkUnstructuredExtent.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnstructuredExtent* vtkUnstructuredExtent::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredExtent");
+  if(ret)
+    {
+    return (vtkUnstructuredExtent*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnstructuredExtent;
+}
+
+
+
 // Construct a new vtkUnstructuredExtent 
 vtkUnstructuredExtent::vtkUnstructuredExtent()
 {

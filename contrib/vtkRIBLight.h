@@ -57,7 +57,7 @@ class vtkRIBRenderer;
 class VTK_EXPORT vtkRIBLight : public vtkLight
 {
 public:
-  static vtkRIBLight *New() {return new vtkRIBLight;};
+  static vtkRIBLight *New();
   const char *GetClassName() {return "vtkRIBLight";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

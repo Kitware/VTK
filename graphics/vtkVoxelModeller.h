@@ -65,7 +65,7 @@ public:
   // automatically computed from its input. The maximum distance is set to 
   // examine the whole grid. This could be made much faster, and probably
   // will be in the future.
-  static vtkVoxelModeller *New() {return new vtkVoxelModeller;};
+  static vtkVoxelModeller *New();
 
   // Description:
   // Compute the ModelBounds based on the input geometry.

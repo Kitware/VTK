@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkByteSwap : public vtkObject
 {
 public:
-  static vtkByteSwap *New() {return new vtkByteSwap;};
+  static vtkByteSwap *New();
   const char *GetClassName() {return "vtkByteSwap";};
 
   // Description:

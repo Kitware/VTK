@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdlib.h>
 #include "vtkRendererCollection.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRendererCollection* vtkRendererCollection::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRendererCollection");
+  if(ret)
+    {
+    return (vtkRendererCollection*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRendererCollection;
+}
+
+
+
 
 // Forward the Render() method to each renderer in the list.
 void vtkRendererCollection::Render()

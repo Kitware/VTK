@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTextMapper.h"
+#include "vtkObjectFactory.h"
 
 #ifdef _WIN32
   #include "vtkWin32OpenGLTextMapper.h"
@@ -72,6 +73,14 @@ vtkTextMapper::vtkTextMapper()
 
 vtkTextMapper *vtkTextMapper::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextMapper");
+  if(ret)
+    {
+    return (vtkTextMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
 #ifdef _WIN32
 #ifndef VTK_USE_NATIVE_IMAGING
   return vtkWin32OpenGLTextMapper::New();

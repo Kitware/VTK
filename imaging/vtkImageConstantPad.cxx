@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageConstantPad.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageConstantPad* vtkImageConstantPad::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageConstantPad");
+  if(ret)
+    {
+    return (vtkImageConstantPad*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageConstantPad;
+}
+
+
+
 
 
 

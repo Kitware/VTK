@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageFourierFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageFourierFilter* vtkImageFourierFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFourierFilter");
+  if(ret)
+    {
+    return (vtkImageFourierFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageFourierFilter;
+}
+
+
+
 
 
 

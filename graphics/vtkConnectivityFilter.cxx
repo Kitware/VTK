@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkConnectivityFilter.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkConnectivityFilter* vtkConnectivityFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkConnectivityFilter");
+  if(ret)
+    {
+    return (vtkConnectivityFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkConnectivityFilter;
+}
+
+
+
 
 // Construct with default extraction mode to extract largest regions.
 vtkConnectivityFilter::vtkConnectivityFilter()

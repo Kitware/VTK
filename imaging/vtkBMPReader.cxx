@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkBMPReader.h"
 #include "vtkByteSwap.h"
 #include <stdio.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkBMPReader* vtkBMPReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkBMPReader");
+  if(ret)
+    {
+    return (vtkBMPReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkBMPReader;
+}
+
+
+
 
 #ifdef read
 #undef read

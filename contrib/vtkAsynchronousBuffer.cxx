@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //#include <unistd.h>
 #include "vtkAsynchronousBuffer.h"
 #include "vtkDataInformation.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkAsynchronousBuffer* vtkAsynchronousBuffer::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAsynchronousBuffer");
+  if(ret)
+    {
+    return (vtkAsynchronousBuffer*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkAsynchronousBuffer;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkAsynchronousBuffer::vtkAsynchronousBuffer()

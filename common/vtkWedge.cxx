@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWedge* vtkWedge::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWedge");
+  if(ret)
+    {
+    return (vtkWedge*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWedge;
+}
+
+
+
 
 // Construct the wedge with six points.
 vtkWedge::vtkWedge()

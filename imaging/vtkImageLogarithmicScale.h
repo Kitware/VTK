@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageLogarithmicScale : public vtkImageToImageFilter
 {
 public:
-  static vtkImageLogarithmicScale *New() {return new vtkImageLogarithmicScale;};
+  static vtkImageLogarithmicScale *New();
   const char *GetClassName() {return "vtkImageLogarithmicScale";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

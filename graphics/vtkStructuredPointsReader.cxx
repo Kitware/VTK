@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredPointsReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredPointsReader* vtkStructuredPointsReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPointsReader");
+  if(ret)
+    {
+    return (vtkStructuredPointsReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredPointsReader;
+}
+
+
+
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
 {

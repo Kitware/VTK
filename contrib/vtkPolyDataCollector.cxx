@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataCollector.h"
 #include "vtkExtent.h"
 #include "vtkUnstructuredInformation.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyDataCollector* vtkPolyDataCollector::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataCollector");
+  if(ret)
+    {
+    return (vtkPolyDataCollector*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyDataCollector;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkPolyDataCollector::vtkPolyDataCollector()

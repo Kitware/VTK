@@ -56,7 +56,7 @@ class VTK_EXPORT vtkTensors : public vtkAttributeData
 {
 public:
   static vtkTensors *New(int dataType);
-  static vtkTensors *New() {return new vtkTensors;};
+  static vtkTensors *New();
 
   const char *GetClassName() {return "vtkTensors";};
   void PrintSelf(ostream& os, vtkIndent indent);

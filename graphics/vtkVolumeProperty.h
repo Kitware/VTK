@@ -80,7 +80,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeProperty : public vtkObject
 {
 public:
-  static vtkVolumeProperty *New() {return new vtkVolumeProperty;};
+  static vtkVolumeProperty *New();
   const char *GetClassName() {return "vtkVolumeProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

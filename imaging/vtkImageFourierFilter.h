@@ -114,7 +114,7 @@ typedef struct{
 class VTK_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageFourierFilter *New() {return new vtkImageFourierFilter;};
+  static vtkImageFourierFilter *New();
   const char *GetClassName() {return "vtkImageFourierFilter";};
   
   // public for templated functions of this object

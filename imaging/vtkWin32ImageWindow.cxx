@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkWin32ImageWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32ImageWindow* vtkWin32ImageWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32ImageWindow");
+  if(ret)
+    {
+    return (vtkWin32ImageWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32ImageWindow;
+}
+
+
+
 
 
 unsigned char *vtkWin32ImageWindow::GetPixelData(int x1, int y1, 

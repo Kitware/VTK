@@ -60,8 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVolumeRayCastFunction
 {
 public:
-  static vtkVolumeRayCastCompositeFunction *New() {
-    return new vtkVolumeRayCastCompositeFunction;};
+  static vtkVolumeRayCastCompositeFunction *New();
   const char *GetClassName() {return "vtkVolumeRayCastCompositeFunction";};
   void PrintSelf( ostream& os, vtkIndent index );
 

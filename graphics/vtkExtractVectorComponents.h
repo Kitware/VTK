@@ -59,8 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractVectorComponents : public vtkSource
 {
 public:
-  static vtkExtractVectorComponents *New() {
-    return new vtkExtractVectorComponents;};
+  static vtkExtractVectorComponents *New();
   const char *GetClassName() {return "vtkExtractVectorComponents";};
 
   // Description:

@@ -82,7 +82,7 @@ public:
   // Instantiate object with bold, italic, and shadow enabled; font family
   // set to Arial; and label format "6.3g". The number of labels per axis
   // is set to 3.
-  static vtkCubeAxesActor2D *New() {return new vtkCubeAxesActor2D;};
+  static vtkCubeAxesActor2D *New();
   
   // Description:
   // Draw the axes as per the vtkProp superclass' API.

@@ -38,6 +38,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkThreadController.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkThreadController* vtkThreadController::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreadController");
+  if(ret)
+    {
+    return (vtkThreadController*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkThreadController;
+}
+
+
+
 
 
 

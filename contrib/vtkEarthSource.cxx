@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkEarthSource* vtkEarthSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEarthSource");
+  if(ret)
+    {
+    return (vtkEarthSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkEarthSource;
+}
+
+
+
 
 // Description:
 // Construct an Earth with radius = 1.0 and OnRatio set at 10. The outlines are drawn

@@ -54,8 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageRGBToHSV : public vtkImageToImageFilter
 {
 public:
-  static vtkImageRGBToHSV *New() 
-    {return new vtkImageRGBToHSV;};
+  static vtkImageRGBToHSV *New();
   const char *GetClassName() {return "vtkImageRGBToHSV";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

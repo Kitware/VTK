@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkInteractorStyleUser : public vtkInteractorStyleTrackball 
 {
 public:
-  static vtkInteractorStyleUser *New() {return new vtkInteractorStyleUser;}
+  static vtkInteractorStyleUser *New();
   const char *GetClassName() {return "vtkInteractorStyleUser";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

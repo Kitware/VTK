@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.h"
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkQuad* vtkQuad::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuad");
+  if(ret)
+    {
+    return (vtkQuad*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkQuad;
+}
+
+
+
 
 // Construct the quad with four points.
 vtkQuad::vtkQuad()

@@ -78,7 +78,7 @@ class vtkScalarsToColors;
 class VTK_EXPORT vtkScalars : public vtkAttributeData
 {
 public:
-  static vtkScalars *New() {return new vtkScalars;};
+  static vtkScalars *New();
   static vtkScalars *New(int dataType, int numComp=1);
 
   const char *GetClassName() {return "vtkScalars";};

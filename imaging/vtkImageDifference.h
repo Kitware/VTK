@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDifference : public vtkImageTwoInputFilter
 {
 public:
-  static vtkImageDifference *New() {return new vtkImageDifference;};
+  static vtkImageDifference *New();
   const char *GetClassName() {return "vtkImageDifference";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

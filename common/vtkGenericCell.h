@@ -57,7 +57,7 @@ class VTK_EXPORT vtkGenericCell : public vtkCell
 public:
   // Description:
   // Create handle to any type of cell; by default a vtkEmptyCell.
-  static vtkGenericCell *New() {return new vtkGenericCell;};
+  static vtkGenericCell *New();
 
   const char *GetClassName() {return "vtkGenericCell";};
 

@@ -60,8 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMultipleInputFilter : public vtkImageSource
 {
 public:
-  static vtkImageMultipleInputFilter *New() 
-    {return new vtkImageMultipleInputFilter;};
+  static vtkImageMultipleInputFilter *New();
   const char *GetClassName() {return "vtkImageMultipleInputFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

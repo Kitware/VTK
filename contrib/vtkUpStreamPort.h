@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUpStreamPort : public vtkProcessObject
 {
 public:
-  static vtkUpStreamPort *New() {return new vtkUpStreamPort;};
+  static vtkUpStreamPort *New();
   const char *GetClassName() {return "vtkUpStreamPort";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -81,8 +81,7 @@ public:
 
   // Description:
   // Instantiate the object to transform all data into a data object.
-  static vtkDataSetToDataObjectFilter *New() {
-    return new vtkDataSetToDataObjectFilter;};
+  static vtkDataSetToDataObjectFilter *New();
 
   // Description:
   // Turn on/off the conversion of dataset geometry to a data object.

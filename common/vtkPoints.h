@@ -54,7 +54,7 @@ class vtkPoints;
 class VTK_EXPORT vtkPoints : public vtkAttributeData
 {
 public:
-  static vtkPoints *New() {return new vtkPoints;};
+  static vtkPoints *New();
 
   const char *GetClassName() {return "vtkPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);

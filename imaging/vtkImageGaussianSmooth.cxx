@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageGaussianSmooth.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageGaussianSmooth* vtkImageGaussianSmooth::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageGaussianSmooth");
+  if(ret)
+    {
+    return (vtkImageGaussianSmooth*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageGaussianSmooth;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageGaussianSmooth::vtkImageGaussianSmooth()

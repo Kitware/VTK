@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkAppendFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkAppendFilter* vtkAppendFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAppendFilter");
+  if(ret)
+    {
+    return (vtkAppendFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkAppendFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkAppendFilter::vtkAppendFilter()

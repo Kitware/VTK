@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageSkeleton2D : public vtkImageIterateFilter
 {
 public:
-  static vtkImageSkeleton2D *New() {return new vtkImageSkeleton2D;};
+  static vtkImageSkeleton2D *New();
   const char *GetClassName() {return "vtkImageSkeleton2D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

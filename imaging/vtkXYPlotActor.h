@@ -94,7 +94,7 @@ public:
   // on; arial font family; the number of labels set to 5 for the x and y
   // axes; a label format of "%-#6.3g"; and x coordinates computed from point
   // ids.
-  static vtkXYPlotActor *New() {return new vtkXYPlotActor;};
+  static vtkXYPlotActor *New();
   
   // Description: Access the Position2 instance variable. This variable
   // controls the upper right corner of the x-y plot. It is by default

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkLinearExtrusionFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLinearExtrusionFilter* vtkLinearExtrusionFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLinearExtrusionFilter");
+  if(ret)
+    {
+    return (vtkLinearExtrusionFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLinearExtrusionFilter;
+}
+
+
+
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
 // vector (0,0,1), and extrusion point (0,0,0).

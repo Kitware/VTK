@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
-  static vtkHexahedron *New() {return new vtkHexahedron;};
+  static vtkHexahedron *New();
   const char *GetClassName() {return "vtkHexahedron";};
 
   // Description:

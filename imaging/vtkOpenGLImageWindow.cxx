@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLImager.h"
 #include "GL/gl.h"
 #include "GL/glu.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOpenGLImageWindow* vtkOpenGLImageWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLImageWindow");
+  if(ret)
+    {
+    return (vtkOpenGLImageWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLImageWindow;
+}
+
+
+
 
 XVisualInfo *vtkOpenGLImageWindowTryForVisual(Display *DisplayId,
 					      int doublebuff)

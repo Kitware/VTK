@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkImplicitFunction.h"
 #include "vtkContourValues.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCutter* vtkCutter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCutter");
+  if(ret)
+    {
+    return (vtkCutter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCutter;
+}
+
+
+
 
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.

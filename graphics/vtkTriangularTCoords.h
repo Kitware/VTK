@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangularTCoords : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkTriangularTCoords *New() {return new vtkTriangularTCoords;};
+  static vtkTriangularTCoords *New();
   const char *GetClassName() {return "vtkTriangularTCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataObjectWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataObjectWriter* vtkDataObjectWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObjectWriter");
+  if(ret)
+    {
+    return (vtkDataObjectWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataObjectWriter;
+}
+
+
+
 
 vtkDataObjectWriter::vtkDataObjectWriter()
 {

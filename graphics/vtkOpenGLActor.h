@@ -55,7 +55,7 @@ class VTK_EXPORT vtkOpenGLActor : public vtkActor
 protected:
   
 public:
-  static vtkOpenGLActor *New() {return new vtkOpenGLActor;};
+  static vtkOpenGLActor *New();
   const char *GetClassName() {return "vtkOpenGLActor";};
 
   // Description:

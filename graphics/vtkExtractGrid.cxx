@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkExtractGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractGrid* vtkExtractGrid::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractGrid");
+  if(ret)
+    {
+    return (vtkExtractGrid*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractGrid;
+}
+
+
+
 
 // Construct object to extract all of the input data.
 vtkExtractGrid::vtkExtractGrid()

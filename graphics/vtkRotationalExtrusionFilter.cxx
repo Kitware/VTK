@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRotationalExtrusionFilter.h"
 #include "vtkMath.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRotationalExtrusionFilter* vtkRotationalExtrusionFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRotationalExtrusionFilter");
+  if(ret)
+    {
+    return (vtkRotationalExtrusionFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRotationalExtrusionFilter;
+}
+
+
+
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
 // no translation along z-axis.

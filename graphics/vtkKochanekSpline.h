@@ -81,7 +81,7 @@ public:
   // Description:
   // Construct a KochanekSpline wth the following defaults: DefaultBias = 0,
   // DefaultTension = 0, DefaultContinuity = 0.
-  static vtkKochanekSpline *New() {return new vtkKochanekSpline;};
+  static vtkKochanekSpline *New();
 
   // Description:
   // Compute Kochanek Spline coefficients.

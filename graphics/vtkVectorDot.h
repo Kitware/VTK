@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Construct object with scalar range is (-1,1).
-  static vtkVectorDot *New() {return new vtkVectorDot;};
+  static vtkVectorDot *New();
 
   // Description:
   // Specify range to map scalars into.

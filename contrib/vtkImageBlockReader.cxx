@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageBlockReader.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkImageTranslateExtent.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageBlockReader* vtkImageBlockReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageBlockReader");
+  if(ret)
+    {
+    return (vtkImageBlockReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageBlockReader;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageBlockReader::vtkImageBlockReader()

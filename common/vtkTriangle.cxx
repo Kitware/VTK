@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkLine.h"
 #include "vtkPointLocator.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTriangle* vtkTriangle::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangle");
+  if(ret)
+    {
+    return (vtkTriangle*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTriangle;
+}
+
+
+
 
 // Construct the triangle with three points.
 vtkTriangle::vtkTriangle()

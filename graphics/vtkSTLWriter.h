@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSTLWriter : public vtkPolyDataWriter
 {
 public:
-  static vtkSTLWriter *New() {return new vtkSTLWriter;};
+  static vtkSTLWriter *New();
   const char *GetClassName() {return "vtkSTLWriter";};
 
 protected:

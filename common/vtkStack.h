@@ -62,7 +62,7 @@ class vtkStackElement //;prevents pick-up by man page generator
 class VTK_EXPORT vtkStack : public vtkObject
 {
 public:
-  static vtkStack *New() {return new vtkStack;};
+  static vtkStack *New();
 
   const char *GetClassName() {return "vtkStack";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkProgrammableAttributeDataFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProgrammableAttributeDataFilter* vtkProgrammableAttributeDataFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProgrammableAttributeDataFilter");
+  if(ret)
+    {
+    return (vtkProgrammableAttributeDataFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProgrammableAttributeDataFilter;
+}
+
+
+
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
 {

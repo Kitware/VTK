@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridToStructuredGridFilter : public vtkStructuredGridSource
 {
 public:
-  static vtkStructuredGridToStructuredGridFilter *New() {
-    return new vtkStructuredGridToStructuredGridFilter;};
+  static vtkStructuredGridToStructuredGridFilter *New();
   const char *GetClassName() {return "vtkStructuredGridToStructuredGridFilter";};
 
   // Description:

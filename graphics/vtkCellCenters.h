@@ -68,7 +68,7 @@ public:
 
   // Description:
   // Construct object with vertex cell generation turned off.
-  static vtkCellCenters *New() {return new vtkCellCenters;};
+  static vtkCellCenters *New();
 
   // Description:
   // Enable/disable the generation of vertex cells.

@@ -48,6 +48,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageConstantPad.h"
 #include "vtkImageExtractComponents.h"
 #include "vtkImageAppendComponents.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRIBExporter* vtkRIBExporter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRIBExporter");
+  if(ret)
+    {
+    return (vtkRIBExporter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRIBExporter;
+}
+
+
+
 
 typedef float RtColor[3];
 typedef float RtPoint[3];

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImplicitTextureCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImplicitTextureCoords* vtkImplicitTextureCoords::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitTextureCoords");
+  if(ret)
+    {
+    return (vtkImplicitTextureCoords*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImplicitTextureCoords;
+}
+
+
+
 
 // Create object with texture dimension=2 and no r-s-t implicit functions
 // defined and FlipTexture turned off.

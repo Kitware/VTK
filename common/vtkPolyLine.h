@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyLine : public vtkCell
 {
 public:
-  static vtkPolyLine *New() {return new vtkPolyLine;};
+  static vtkPolyLine *New();
   const char *GetClassName() {return "vtkPolyLine";};
 
   // Description:

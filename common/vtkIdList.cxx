@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkIdList* vtkIdList::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIdList");
+  if(ret)
+    {
+    return (vtkIdList*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkIdList;
+}
+
+
+
 
 vtkIdList::vtkIdList(const int sz, const int ext)
 {

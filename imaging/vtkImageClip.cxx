@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageClip.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageClip* vtkImageClip::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageClip");
+  if(ret)
+    {
+    return (vtkImageClip*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageClip;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

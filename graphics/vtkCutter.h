@@ -67,7 +67,7 @@ public:
   // Description:
   // Construct with user-specified implicit function; initial value of 0.0; and
   // generating cut scalars turned off.
-  static vtkCutter *New() {return new vtkCutter;};
+  static vtkCutter *New();
 
   // Description:
   // Set a particular contour value at contour number i. The index i ranges 

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkExtractPolyDataGeometry.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractPolyDataGeometry* vtkExtractPolyDataGeometry::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractPolyDataGeometry");
+  if(ret)
+    {
+    return (vtkExtractPolyDataGeometry*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractPolyDataGeometry;
+}
+
+
+
 
 // Construct object with ExtractInside turned on.
 vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkScalarTree.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkScalarTree* vtkScalarTree::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkScalarTree");
+  if(ret)
+    {
+    return (vtkScalarTree*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkScalarTree;
+}
+
+
+
 
 // Instantiate scalar tree with maximum level of 20 and branching
 // factor of 5.

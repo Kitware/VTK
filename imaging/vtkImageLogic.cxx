@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageLogic.h"
 #include <math.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageLogic* vtkImageLogic::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageLogic");
+  if(ret)
+    {
+    return (vtkImageLogic*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageLogic;
+}
+
+
+
 
 
 

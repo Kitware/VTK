@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageCursor3D : public vtkImageInPlaceFilter
 {
 public:
-  static vtkImageCursor3D *New() {return new vtkImageCursor3D;};
+  static vtkImageCursor3D *New();
   const char *GetClassName() {return "vtkImageCursor3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

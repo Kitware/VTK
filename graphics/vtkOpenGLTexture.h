@@ -55,7 +55,7 @@ class vtkRenderWindow;
 class VTK_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
-  static vtkOpenGLTexture *New() {return new vtkOpenGLTexture;};
+  static vtkOpenGLTexture *New();
   const char *GetClassName() {return "vtkOpenGLTexture";};
 
   // Description:

@@ -56,7 +56,7 @@ class vtkCuller;
 class VTK_EXPORT vtkCullerCollection : public vtkCollection
 {
  public:
-  static vtkCullerCollection *New() {return new vtkCullerCollection;};
+  static vtkCullerCollection *New();
   const char *GetClassName() {return "vtkCullerCollection";};
 
   // Description:

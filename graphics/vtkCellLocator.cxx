@@ -43,6 +43,25 @@
 #include "vtkCellLocator.h"
 #include "vtkPolyData.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCellLocator* vtkCellLocator::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellLocator");
+  if(ret)
+    {
+    return (vtkCellLocator*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCellLocator;
+}
+
+
+
 
 #define VTK_CELL_OUTSIDE 0
 #define VTK_CELL_INSIDE 1

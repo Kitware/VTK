@@ -56,7 +56,7 @@ class vtkMapper;
 class VTK_EXPORT vtkMapperCollection : public vtkCollection
 {
  public:
-  static vtkMapperCollection *New() {return new vtkMapperCollection;};
+  static vtkMapperCollection *New();
   const char *GetClassName() {return "vtkMapperCollection";};
 
   // Description:

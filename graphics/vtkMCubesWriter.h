@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMCubesWriter : public vtkPolyDataWriter
 {
 public:
-  static vtkMCubesWriter *New() {return new vtkMCubesWriter;};
+  static vtkMCubesWriter *New();
   const char *GetClassName() {return "vtkMCubesWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTextureMapToSphere.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTextureMapToSphere* vtkTextureMapToSphere::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToSphere");
+  if(ret)
+    {
+    return (vtkTextureMapToSphere*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTextureMapToSphere;
+}
+
+
+
 
 // Create object with Center (0,0,0) and the PreventSeam ivar is set to true. The 
 // sphere center is automatically computed.

@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataObjectReader : public vtkDataObjectSource
 {
 public:
-  static vtkDataObjectReader *New() {return new vtkDataObjectReader;}
+  static vtkDataObjectReader *New();
   const char *GetClassName() {return "vtkDataObjectReader";}
   void PrintSelf(ostream& os, vtkIndent indent);
 

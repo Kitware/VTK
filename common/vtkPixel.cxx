@@ -211,6 +211,25 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList *p
 // Marching squares
 //
 #include "vtkMarchingSquaresCases.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPixel* vtkPixel::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPixel");
+  if(ret)
+    {
+    return (vtkPixel*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPixel;
+}
+
+
+
 
 static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
 

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTIFFWriter : public vtkImageWriter
 {
 public:
-  static vtkTIFFWriter *New() {return new vtkTIFFWriter;};
+  static vtkTIFFWriter *New();
   const char *GetClassName() {return "vtkTIFFWriter";};
 
 protected:

@@ -55,8 +55,7 @@ class VTK_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
 public:
   const char *GetClassName() {return "vtkOpenGLPolyDataMapper2D";};
-  static vtkOpenGLPolyDataMapper2D *New() 
-    {return new vtkOpenGLPolyDataMapper2D;};
+  static vtkOpenGLPolyDataMapper2D *New();
 
   // Description:
   // Actually draw the poly data.

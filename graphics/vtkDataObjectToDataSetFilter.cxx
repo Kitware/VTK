@@ -46,6 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRectilinearGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataObjectToDataSetFilter* vtkDataObjectToDataSetFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObjectToDataSetFilter");
+  if(ret)
+    {
+    return (vtkDataObjectToDataSetFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataObjectToDataSetFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Instantiate object with no input and no defined output.

@@ -57,7 +57,7 @@ class vtkActor;
 class VTK_EXPORT vtkAssemblyPaths : public vtkCollection
 {
 public:
-  static vtkAssemblyPaths *New() {return new vtkAssemblyPaths;};
+  static vtkAssemblyPaths *New();
   const char *GetClassName() {return "vtkAssemblyPaths";};
 
   // Description:

@@ -122,7 +122,7 @@ public:
   // Description:
   // Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
   // BoundingTriangulation turned off.
-  static vtkDelaunay3D *New() {return new vtkDelaunay3D;};
+  static vtkDelaunay3D *New();
 
   // Description:
   // Specify alpha (or distance) value to control output of this filter.

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkOBBDicer.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOBBDicer* vtkOBBDicer::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOBBDicer");
+  if(ret)
+    {
+    return (vtkOBBDicer*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOBBDicer;
+}
+
+
+
 
 void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 {

@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Instantiate object.
-  static vtkAbstractMapper *New() {return new vtkAbstractMapper;};
+  static vtkAbstractMapper *New();
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

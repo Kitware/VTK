@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkXTextMapper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXTextMapper* vtkXTextMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXTextMapper");
+  if(ret)
+    {
+    return (vtkXTextMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXTextMapper;
+}
+
+
+
 
 void vtkXTextMapper::SetFontSize(int size)
 {

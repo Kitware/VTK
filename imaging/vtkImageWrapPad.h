@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
-  static vtkImageWrapPad *New() {return new vtkImageWrapPad;};
+  static vtkImageWrapPad *New();
   const char *GetClassName() {return "vtkImageWrapPad";};
 
 protected:

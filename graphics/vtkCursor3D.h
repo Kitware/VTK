@@ -64,7 +64,7 @@ public:
   // Description:
   // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
   // all parts of cursor visible, and wrapping off.
-  static vtkCursor3D *New() {return new vtkCursor3D;};
+  static vtkCursor3D *New();
 
   // Description:
   // Set / get the boundary of the 3D cursor.

@@ -72,7 +72,7 @@ public:
 
   // Description:
   // Construct object to extract all of the input data.
-  static vtkExtractVOI *New() {return new vtkExtractVOI;};
+  static vtkExtractVOI *New();
 
   // Description:
   // Specify i-j-k (min,max) pairs to extract. The resulting structured points

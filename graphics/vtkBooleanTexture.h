@@ -72,7 +72,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBooleanTexture : public vtkStructuredPointsSource
 {
 public:
-  static vtkBooleanTexture *New() {return new vtkBooleanTexture;};
+  static vtkBooleanTexture *New();
 
   const char *GetClassName() {return "vtkBooleanTexture";};
   void PrintSelf(ostream& os, vtkIndent indent);

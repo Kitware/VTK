@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetCollection : public vtkCollection
 {
 public:
-  static vtkDataSetCollection *New() {return new vtkDataSetCollection;};
+  static vtkDataSetCollection *New();
   const char *GetClassName() {return "vtkDataSetCollection";};
 
   // Description:

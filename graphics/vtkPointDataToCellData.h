@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPointDataToCellData : public vtkDataSetToDataSetFilter
 {
 public:
-  static vtkPointDataToCellData *New() {return new vtkPointDataToCellData;};
+  static vtkPointDataToCellData *New();
   const char *GetClassName() {return "vtkPointDataToCellData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPNMReader : public vtkImageReader
 {
 public:
-  static vtkPNMReader *New() {return new vtkPNMReader;};
+  static vtkPNMReader *New();
   const char *GetClassName() {return "vtkPNMReader";};
   
 protected:

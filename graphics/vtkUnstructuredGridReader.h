@@ -54,8 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredGridReader : public vtkUnstructuredGridSource
 {
 public:
-  static vtkUnstructuredGridReader *New() 
-    {return new vtkUnstructuredGridReader;}
+  static vtkUnstructuredGridReader *New();
   const char *GetClassName() {return "vtkUnstructuredGridReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

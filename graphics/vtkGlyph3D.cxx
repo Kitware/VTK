@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkNormals.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkGlyph3D* vtkGlyph3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGlyph3D");
+  if(ret)
+    {
+    return (vtkGlyph3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkGlyph3D;
+}
+
+
+
 
 // Construct object with scaling on, scaling mode is by scalar value, 
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and

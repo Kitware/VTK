@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMask : public vtkImageTwoInputFilter
 {
 public:
-  static vtkImageMask *New() {return new vtkImageMask;};
+  static vtkImageMask *New();
   const char *GetClassName() {return "vtkImageMask";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

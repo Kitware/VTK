@@ -59,7 +59,7 @@ class vtkThreadControllerProcessInfo;
 class VTK_EXPORT vtkThreadController : public vtkMultiProcessController
 {
 public:
-  static vtkThreadController *New() {return new vtkThreadController;};
+  static vtkThreadController *New();
   const char *GetClassName() {return "vtkThreadController";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

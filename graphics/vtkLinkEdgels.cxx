@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLinkEdgels.h"
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLinkEdgels* vtkLinkEdgels::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLinkEdgels");
+  if(ret)
+    {
+    return (vtkLinkEdgels*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLinkEdgels;
+}
+
+
+
 
 // Construct instance of vtkLinkEdgels with GradientThreshold set to 
 // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImplicitVolume.h"
 #include "vtkVoxel.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImplicitVolume* vtkImplicitVolume::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitVolume");
+  if(ret)
+    {
+    return (vtkImplicitVolume*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImplicitVolume;
+}
+
+
+
 
 // Construct an vtkImplicitVolume with no initial volume; the OutValue
 // set to a large negative number; and the OutGradient set to (0,0,1).

@@ -57,6 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkImageData.h"
+#include "vtkObjectFactory.h"
 
 #define VTK_RINT(x) ((x > 0.0) ? (int)(x + 0.5) : (int)(x - 0.5))
 
@@ -96,6 +97,14 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkImageMapper* vtkImageMapper::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageMapper");
+  if(ret)
+    {
+    return (vtkImageMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
 #ifdef _WIN32
 #ifndef VTK_USE_NATIVE_IMAGING
   return vtkOpenGLImageMapper::New();

@@ -85,7 +85,7 @@ public:
 
   // Description:
   // Instantiate object.
-  static vtkAxisActor2D *New() {return new vtkAxisActor2D;};
+  static vtkAxisActor2D *New();
   
   // Description:
   // Specify the position of the first point defining the axis.

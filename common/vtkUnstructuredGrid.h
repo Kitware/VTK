@@ -72,7 +72,7 @@ class vtkPyramid;
 
 class VTK_EXPORT vtkUnstructuredGrid : public vtkPointSet {
 public:
-  static vtkUnstructuredGrid *New() {return new vtkUnstructuredGrid;};
+  static vtkUnstructuredGrid *New();
 
   const char *GetClassName() {return "vtkUnstructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <iostream.h>
 #include "vtkXRenderWindow.h"
 #include "vtkXRenderWindowInteractor.h"
+#include "vtkObjectFactory.h"
 
 vtkXRenderWindow::vtkXRenderWindow()
 {
@@ -331,4 +332,17 @@ void vtkXRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Display Id: " << this->GetDisplayId() << "\n";
   os << indent << "Next Window Id: " << this->NextWindowId << "\n";
   os << indent << "Window Id: " << this->GetWindowId() << "\n";
+}
+
+vtkXRenderWindow * vtkXRenderWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXRenderWindow");
+  if(ret)
+    {
+    return (vtkXRenderWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
+  return (vtkXRenderWindow *)(vtkRenderWindow::New());
 }

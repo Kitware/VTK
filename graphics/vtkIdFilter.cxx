@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkIdFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkIdFilter* vtkIdFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIdFilter");
+  if(ret)
+    {
+    return (vtkIdFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkIdFilter;
+}
+
+
+
 
 // Construct object with PointIds and CellIds on; and ids being generated
 // as scalars.

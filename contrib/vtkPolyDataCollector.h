@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataCollector : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkPolyDataCollector *New() {return new vtkPolyDataCollector;}
+  static vtkPolyDataCollector *New();
 
   const char *GetClassName() {return "vtkPolyDataCollector";}
   void PrintSelf(ostream& os, vtkIndent indent);

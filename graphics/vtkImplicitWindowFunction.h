@@ -67,8 +67,7 @@ public:
 
   // Description:
   // Construct object with window range (0,1) and window values (0,1).
-  static vtkImplicitWindowFunction *New() {
-    return new vtkImplicitWindowFunction;};
+  static vtkImplicitWindowFunction *New();
 
   // Description
   // Evaluate window function.

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLightCollection : public vtkCollection
 {
  public:
-  static vtkLightCollection *New() {return new vtkLightCollection;};
+  static vtkLightCollection *New();
   const char *GetClassName() {return "vtkLightCollection";};
 
   // Description:

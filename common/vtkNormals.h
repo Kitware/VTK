@@ -56,7 +56,7 @@ class VTK_EXPORT vtkNormals : public vtkAttributeData
 {
 public:
   static vtkNormals *New(int dataType);
-  static vtkNormals *New() {return new vtkNormals;};
+  static vtkNormals *New();
 
   const char *GetClassName() {return "vtkNormals";};
   void PrintSelf(ostream& os, vtkIndent indent);

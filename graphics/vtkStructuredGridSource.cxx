@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredGridSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredGridSource* vtkStructuredGridSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridSource");
+  if(ret)
+    {
+    return (vtkStructuredGridSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredGridSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkStructuredGridSource::vtkStructuredGridSource()

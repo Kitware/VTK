@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkGeometryFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVRMLExporter* vtkVRMLExporter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVRMLExporter");
+  if(ret)
+    {
+    return (vtkVRMLExporter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVRMLExporter;
+}
+
+
+
 
 vtkVRMLExporter::vtkVRMLExporter()
 {

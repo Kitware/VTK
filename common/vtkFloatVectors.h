@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatVectors : public vtkVectors
 {
 public:
-  static vtkFloatVectors *New() {return new vtkFloatVectors;};
+  static vtkFloatVectors *New();
   
   // Description:
   // Set the data type for this object.

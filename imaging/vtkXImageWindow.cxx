@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkXImageWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXImageWindow* vtkXImageWindow::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXImageWindow");
+  if(ret)
+    {
+    return (vtkXImageWindow*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXImageWindow;
+}
+
+
+
 
 
 void vtkXImageWindow::GetShiftsScalesAndMasks(int &rshift, int &gshift, 

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnsignedIntArray : public vtkDataArray 
 {
 public:
-  static vtkUnsignedIntArray *New() {return new vtkUnsignedIntArray;};
+  static vtkUnsignedIntArray *New();
 
   const char *GetClassName() {return "vtkUnsignedIntArray";};
   void PrintSelf(ostream& os, vtkIndent indent);

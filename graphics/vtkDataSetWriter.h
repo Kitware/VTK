@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetWriter : public vtkDataWriter
 {
 public:
-  static vtkDataSetWriter *New() {return new vtkDataSetWriter;};
+  static vtkDataSetWriter *New();
   const char *GetClassName() {return "vtkDataSetWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageNonMaximumSuppression : public vtkImageTwoInputFilter
 {
 public:
-  static vtkImageNonMaximumSuppression *New() {return new vtkImageNonMaximumSuppression;};
+  static vtkImageNonMaximumSuppression *New();
   const char *GetClassName() {return "vtkImageNonMaximumSuppression";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

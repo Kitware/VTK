@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPointData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPointData* vtkPointData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPointData");
+  if(ret)
+    {
+    return (vtkPointData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPointData;
+}
+
+
+
 
 void vtkPointData::NullPoint (int ptId)
 {

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMutexLock.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMutexLock* vtkMutexLock::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMutexLock");
+  if(ret)
+    {
+    return (vtkMutexLock*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMutexLock;
+}
+
+
+
 
 // Construct a new vtkMutexLock 
 vtkSimpleMutexLock::vtkSimpleMutexLock()

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkShrinkFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkShrinkFilter* vtkShrinkFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkShrinkFilter");
+  if(ret)
+    {
+    return (vtkShrinkFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkShrinkFilter;
+}
+
+
+
 
 vtkShrinkFilter::vtkShrinkFilter(float sf)
 {

@@ -74,8 +74,7 @@ public:
 
   // Description:
   // Construct this object.
-  static vtkAttributeDataToFieldDataFilter *New() {
-    return new vtkAttributeDataToFieldDataFilter;};
+  static vtkAttributeDataToFieldDataFilter *New();
 
   // Description:
   // Turn on/off the passing of point and cell non-field attribute data to the

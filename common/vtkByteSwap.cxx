@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkByteSwap.h"
 #include <memory.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkByteSwap* vtkByteSwap::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkByteSwap");
+  if(ret)
+    {
+    return (vtkByteSwap*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkByteSwap;
+}
+
+
+
 
 // Swap four byte word.
 #ifdef VTK_WORDS_BIGENDIAN

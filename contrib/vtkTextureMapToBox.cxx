@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTextureMapToBox.h"
 #include "vtkTCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTextureMapToBox* vtkTextureMapToBox::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTextureMapToBox");
+  if(ret)
+    {
+    return (vtkTextureMapToBox*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTextureMapToBox;
+}
+
+
+
 
 // Construct with r-s-t range=(0,1) and automatic box generation turned on.
 vtkTextureMapToBox::vtkTextureMapToBox()

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMirrorPad : public vtkImagePadFilter
 {
 public:
-  static vtkImageMirrorPad *New() {return new vtkImageMirrorPad;};
+  static vtkImageMirrorPad *New();
   const char *GetClassName() {return "vtkImageMirrorPad";};
 
 protected:

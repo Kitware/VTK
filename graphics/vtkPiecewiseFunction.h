@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
 public:
-  static vtkPiecewiseFunction *New() {return new vtkPiecewiseFunction;};
+  static vtkPiecewiseFunction *New();
   const char *GetClassName() {return "vtkPiecewiseFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

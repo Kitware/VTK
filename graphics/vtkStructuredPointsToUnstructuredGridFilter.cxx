@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredPointsToUnstructuredGridFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredPointsToUnstructuredGridFilter* vtkStructuredPointsToUnstructuredGridFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredPointsToUnstructuredGridFilter");
+  if(ret)
+    {
+    return (vtkStructuredPointsToUnstructuredGridFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredPointsToUnstructuredGridFilter;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

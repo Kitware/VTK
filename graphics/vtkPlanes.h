@@ -65,7 +65,7 @@ class vtkCamera;
 class VTK_EXPORT vtkPlanes : public vtkImplicitFunction
 {
 public:
-  static vtkPlanes *New() {return new vtkPlanes;};
+  static vtkPlanes *New();
   const char *GetClassName() {return "vtkPlanes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

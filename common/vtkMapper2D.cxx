@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMapper2D.h"
 #include "vtkViewport.h"
 #include "vtkActor2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMapper2D* vtkMapper2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMapper2D");
+  if(ret)
+    {
+    return (vtkMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMapper2D;
+}
+
+
+
 
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {

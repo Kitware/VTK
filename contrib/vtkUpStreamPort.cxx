@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDownStreamPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkExtent.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUpStreamPort* vtkUpStreamPort::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUpStreamPort");
+  if(ret)
+    {
+    return (vtkUpStreamPort*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUpStreamPort;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkUpStreamPort::vtkUpStreamPort()

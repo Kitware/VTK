@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRayCaster : public vtkObject
 {
 public:
-  static vtkRayCaster *New() {return new vtkRayCaster;};
+  static vtkRayCaster *New();
   const char *GetClassName() {return "vtkRayCaster";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

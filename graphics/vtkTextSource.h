@@ -69,7 +69,7 @@ public:
 
   // Description:
   // Construct object with no string set and backing enabled.
-  static vtkTextSource *New() {return new vtkTextSource;};
+  static vtkTextSource *New();
 
   // Description:
   // Set/Get the text to be drawn.

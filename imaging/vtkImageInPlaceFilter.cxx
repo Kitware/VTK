@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageInPlaceFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageInPlaceFilter* vtkImageInPlaceFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageInPlaceFilter");
+  if(ret)
+    {
+    return (vtkImageInPlaceFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageInPlaceFilter;
+}
+
+
+
 
   
   

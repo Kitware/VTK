@@ -79,7 +79,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPicker : public vtkObject
 {
 public:
-  static vtkPicker *New() {return new vtkPicker;};
+  static vtkPicker *New();
   const char *GetClassName() {return "vtkPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

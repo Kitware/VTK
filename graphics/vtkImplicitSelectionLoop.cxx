@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkPlane.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImplicitSelectionLoop* vtkImplicitSelectionLoop::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitSelectionLoop");
+  if(ret)
+    {
+    return (vtkImplicitSelectionLoop*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImplicitSelectionLoop;
+}
+
+
+
 
 // Instantiate object with no initial loop.
 vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()

@@ -52,6 +52,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataSetAttributes* vtkDataSetAttributes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetAttributes");
+  if(ret)
+    {
+    return (vtkDataSetAttributes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataSetAttributes;
+}
+
+
+
 
 // Construct object with copying turned on for all data.
 vtkDataSetAttributes::vtkDataSetAttributes()

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkNormals.h"
 #include "vtkVectors.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTransformPolyDataFilter* vtkTransformPolyDataFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransformPolyDataFilter");
+  if(ret)
+    {
+    return (vtkTransformPolyDataFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTransformPolyDataFilter;
+}
+
+
+
 
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
 {

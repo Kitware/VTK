@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkWin32OpenGLTextMapper.h"
 #include <GL/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32OpenGLTextMapper* vtkWin32OpenGLTextMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32OpenGLTextMapper");
+  if(ret)
+    {
+    return (vtkWin32OpenGLTextMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32OpenGLTextMapper;
+}
+
+
+
 
 struct vtkFontStruct
 {

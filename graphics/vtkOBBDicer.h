@@ -65,7 +65,7 @@ public:
 
   // Description:
   // Instantiate an object.
-  static vtkOBBDicer *New() {return new vtkOBBDicer;};
+  static vtkOBBDicer *New();
 
 protected:
   vtkOBBDicer() {};

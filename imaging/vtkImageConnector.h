@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // For the breadth first search
 class vtkImageConnectorSeed { //;prevent man page generation
 public:
-  static vtkImageConnectorSeed *New() {return new vtkImageConnectorSeed;};
+  static vtkImageConnectorSeed *New() { return new vtkImageConnectorSeed;}
   void *Pointer;
   int  Index[3];
   vtkImageConnectorSeed *Next;
@@ -76,7 +76,7 @@ public:
 class VTK_EXPORT vtkImageConnector : public vtkObject
 {
 public:
-  static vtkImageConnector *New() {return new vtkImageConnector;};
+  static vtkImageConnector *New();
 
   const char *GetClassName() {return "vtkImageConnector";};
   void PrintSelf(ostream& os, vtkIndent indent);

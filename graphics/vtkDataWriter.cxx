@@ -55,6 +55,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataWriter* vtkDataWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataWriter");
+  if(ret)
+    {
+    return (vtkDataWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataWriter;
+}
+
+
+
 
 // this undef is required on the hp. vtkMutexLock ends up including
 // /usr/inclue/dce/cma_ux.h which has the gall to #define write as cma_write

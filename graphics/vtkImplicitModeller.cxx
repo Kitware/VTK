@@ -50,6 +50,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImplicitModeller* vtkImplicitModeller::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitModeller");
+  if(ret)
+    {
+    return (vtkImplicitModeller*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImplicitModeller;
+}
+
+
+
 
 struct vtkImplicitModellerAppendInfo
 {

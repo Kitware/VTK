@@ -56,8 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageIdealHighPass : public vtkImageToImageFilter
 {
 public:
-  static vtkImageIdealHighPass *New() 
-    {return new vtkImageIdealHighPass;};
+  static vtkImageIdealHighPass *New();
   const char *GetClassName() {return "vtkImageIdealHighPass";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

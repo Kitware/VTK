@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyDataConnectivityFilter.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyDataConnectivityFilter* vtkPolyDataConnectivityFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataConnectivityFilter");
+  if(ret)
+    {
+    return (vtkPolyDataConnectivityFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyDataConnectivityFilter;
+}
+
+
+
 
 // Construct with default extraction mode to extract largest regions.
 vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()

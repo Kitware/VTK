@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCollection.h"
 #include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkActor2DCollection* vtkActor2DCollection::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkActor2DCollection");
+  if(ret)
+    {
+    return (vtkActor2DCollection*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkActor2DCollection;
+}
+
+
+
 
 // protected function to delete an element. Internal use only.
 void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)

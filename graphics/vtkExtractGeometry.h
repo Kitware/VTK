@@ -63,7 +63,7 @@ public:
 
   // Description:
   // Construct object with ExtractInside turned on.
-  static vtkExtractGeometry *New() {return new vtkExtractGeometry;};
+  static vtkExtractGeometry *New();
 
   // Description:
   // Return the MTime taking into account changes to the implicit function

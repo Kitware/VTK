@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPlanes.h"
 #include "vtkPlane.h"
 #include "vtkCamera.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPlanes* vtkPlanes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPlanes");
+  if(ret)
+    {
+    return (vtkPlanes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPlanes;
+}
+
+
+
 
 vtkPlanes::vtkPlanes()
 {

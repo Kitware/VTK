@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Create with an empty parts list.
-  static vtkPropAssembly *New() {return new vtkPropAssembly;};
+  static vtkPropAssembly *New();
 
   // Description:
   // Add a part to the list of parts.

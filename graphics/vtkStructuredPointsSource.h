@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsSource : public vtkSource
 {
 public:
-  static vtkStructuredPointsSource *New() {return new vtkStructuredPointsSource;}
+  static vtkStructuredPointsSource *New();
   const char *GetClassName() {return "vtkStructuredPointsSource";}
 
   // Description:

@@ -56,8 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDataSetToStructuredPointsFilter : public vtkStructuredPointsSource
 {
 public:
-  static vtkDataSetToStructuredPointsFilter *New() {
-    return new vtkDataSetToStructuredPointsFilter;};
+  static vtkDataSetToStructuredPointsFilter *New();
   const char *GetClassName() {return "vtkDataSetToStructuredPointsFilter";};
 
   // Description:

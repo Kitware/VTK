@@ -71,8 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32MappedInteractor : public vtkRenderWindowInteractor
 {
 public:
-  static vtkWin32MappedInteractor *New() {
-    return new vtkWin32MappedInteractor;};
+  static vtkWin32MappedInteractor *New();
   const char *GetClassName() {return "vtkWin32MappedInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

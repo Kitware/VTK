@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkConeSource.h"
 #include "vtkUnstructuredInformation.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkConeSource* vtkConeSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkConeSource");
+  if(ret)
+    {
+    return (vtkConeSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkConeSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Construct with default resolution 6, height 1.0, radius 0.5, and capping

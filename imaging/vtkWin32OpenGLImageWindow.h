@@ -54,8 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWin32OpenGLImageWindow : public vtkImageWindow
 {
 public:
-  static vtkWin32OpenGLImageWindow *New() {
-    return new vtkWin32OpenGLImageWindow;};
+  static vtkWin32OpenGLImageWindow *New();
   const char *GetClassName() {return "vtkWin32OpenGLImageWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

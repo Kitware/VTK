@@ -6,7 +6,7 @@
 class VTK_EXPORT vtkWin32OffscreenRenderWindow : public vtkWin32OpenGLRenderWindow
 {
 public:
-  static vtkWin32OffscreenRenderWindow *New() { return new vtkWin32OffscreenRenderWindow; }
+  static vtkWin32OffscreenRenderWindow *New();
   const char *GetClassName() { return "vtkWin32OffscreenRenderWindow"; }
   void PrintSelf(ostream &os, vtkIndent indent);
   

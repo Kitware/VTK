@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLine : public vtkCell
 {
 public:
-  static vtkLine *New() {return new vtkLine;};
+  static vtkLine *New();
   const char *GetClassName() {return "vtkLine";};
 
   // Description:

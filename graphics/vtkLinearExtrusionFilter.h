@@ -89,8 +89,7 @@ public:
   // Description:
   // Create object with normal extrusion type, capping on, scale factor=1.0,
   // vector (0,0,1), and extrusion point (0,0,0).
-  static vtkLinearExtrusionFilter *New() {
-    return new vtkLinearExtrusionFilter;};
+  static vtkLinearExtrusionFilter *New();
 
   // Description:
   // Set/Get the type of extrusion.

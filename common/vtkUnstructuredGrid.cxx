@@ -56,6 +56,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkUnstructuredGrid::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredGrid");
+  if(ret)
+    {
+    return (vtkUnstructuredGrid*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnstructuredGrid;
+}
+
+
+
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {

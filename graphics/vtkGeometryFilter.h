@@ -75,7 +75,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkGeometryFilter : public vtkDataSetToPolyDataFilter
 {
 public:
-  static vtkGeometryFilter *New() {return new vtkGeometryFilter;};
+  static vtkGeometryFilter *New();
   const char *GetClassName() {return "vtkGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

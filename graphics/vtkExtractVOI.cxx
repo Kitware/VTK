@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkExtractVOI.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractVOI* vtkExtractVOI::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractVOI");
+  if(ret)
+    {
+    return (vtkExtractVOI*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractVOI;
+}
+
+
+
 
 // Construct object to extract all of the input data.
 vtkExtractVOI::vtkExtractVOI()

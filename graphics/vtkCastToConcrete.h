@@ -70,7 +70,7 @@ class VTK_EXPORT vtkCastToConcrete : public vtkDataSetToDataSetFilter
 {
 
 public:
-  static vtkCastToConcrete *New() {return new vtkCastToConcrete;};
+  static vtkCastToConcrete *New();
   const char *GetClassName() {return "vtkCastToConcrete";};
 
 protected:

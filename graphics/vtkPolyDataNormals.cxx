@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkNormals.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyDataNormals* vtkPolyDataNormals::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataNormals");
+  if(ret)
+    {
+    return (vtkPolyDataNormals*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyDataNormals;
+}
+
+
+
 
 // Construct with feature angle=30, splitting and consistency turned on, 
 // flipNormals turned off, and non-manifold traversal turned on.

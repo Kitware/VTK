@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageViewer : public vtkObject 
 {
 public:
-  static vtkImageViewer *New() {return new vtkImageViewer;};
+  static vtkImageViewer *New();
   
   const char *GetClassName() {return "vtkImageViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);

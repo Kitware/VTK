@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDiskSource.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDiskSource* vtkDiskSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDiskSource");
+  if(ret)
+    {
+    return (vtkDiskSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDiskSource;
+}
+
+
+
 
 vtkDiskSource::vtkDiskSource()
 {

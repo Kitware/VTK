@@ -64,8 +64,7 @@ public:
 
   // Description:
   // Construct with NeighborhoodSize=20.
-  static vtkSurfaceReconstructionFilter* New() 
-    { return new vtkSurfaceReconstructionFilter; }
+  static vtkSurfaceReconstructionFilter* New();
 
   // Description: 
   // Specify the number of neighbors each point has, used for estimating the

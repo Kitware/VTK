@@ -62,8 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageCityBlockDistance : public vtkImageDecomposeFilter
 {
 public:
-  static vtkImageCityBlockDistance *New() 
-    {return new vtkImageCityBlockDistance;};
+  static vtkImageCityBlockDistance *New();
   const char *GetClassName() {return "vtkImageCityBlockDistance";};
   
 protected:

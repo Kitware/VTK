@@ -92,8 +92,7 @@ public:
   // Create object with capping on, angle of 360 degrees, resolution = 12, and
   // no translation along z-axis.
   // vector (0,0,1), and point (0,0,0).
-  static vtkRotationalExtrusionFilter *New() {
-    return new vtkRotationalExtrusionFilter;};
+  static vtkRotationalExtrusionFilter *New();
 
   // Description:
   // Set/Get resolution of sweep operation. Resolution controls the number

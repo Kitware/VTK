@@ -78,8 +78,7 @@ class VTK_EXPORT vtkDataSetToDataSetFilter : public vtkDataSetSource
 {
 
 public:
-  static vtkDataSetToDataSetFilter *New() {
-    return new vtkDataSetToDataSetFilter;};
+  static vtkDataSetToDataSetFilter *New();
   const char *GetClassName() {return "vtkDataSetToDataSetFilter";};
 
   // Description:

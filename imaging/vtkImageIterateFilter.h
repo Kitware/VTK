@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageIterateFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageIterateFilter *New() {return new vtkImageIterateFilter;};
+  static vtkImageIterateFilter *New();
   const char *GetClassName() {return "vtkImageIterateFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

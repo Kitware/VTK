@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkTCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCylinderSource* vtkCylinderSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCylinderSource");
+  if(ret)
+    {
+    return (vtkCylinderSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCylinderSource;
+}
+
+
+
 
 vtkCylinderSource::vtkCylinderSource (int res)
 {

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredGridWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredGridWriter* vtkStructuredGridWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridWriter");
+  if(ret)
+    {
+    return (vtkStructuredGridWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredGridWriter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

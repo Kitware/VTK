@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTIFFReader.h"
 #include "vtkByteSwap.h"
 #include <stdio.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTIFFReader* vtkTIFFReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTIFFReader");
+  if(ret)
+    {
+    return (vtkTIFFReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTIFFReader;
+}
+
+
+
 
 void vtkTIFFReader::Swap2(short *stmp)
 {

@@ -64,9 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
 public:
-  static vtkWindowLevelLookupTable *New() {
-    return new vtkWindowLevelLookupTable;};
-
+  static vtkWindowLevelLookupTable *New();
   const char *GetClassName() {return "vtkWindowLevelLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

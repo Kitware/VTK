@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataSetMapper.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataSetMapper* vtkDataSetMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetMapper");
+  if(ret)
+    {
+    return (vtkDataSetMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataSetMapper;
+}
+
+
+
 
 vtkDataSetMapper::vtkDataSetMapper()
 {

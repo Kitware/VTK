@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStreamer.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStreamer* vtkStreamer::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStreamer");
+  if(ret)
+    {
+    return (vtkStreamer*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStreamer;
+}
+
+
+
 
 #define VTK_START_FROM_POSITION 0
 #define VTK_START_FROM_LOCATION 1

@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMagnify : public vtkImageToImageFilter
 {
 public:
-  static vtkImageMagnify *New() {return new vtkImageMagnify;};
+  static vtkImageMagnify *New();
   const char *GetClassName() {return "vtkImageMagnify";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

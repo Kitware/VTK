@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkProjectedPolyDataRayBounder.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
@@ -76,7 +77,15 @@ vtkProjectedPolyDataRayBounder::~vtkProjectedPolyDataRayBounder()
 // New method for the class which will return the correct type of 
 // ProjectPolyDataRayBounder
 vtkProjectedPolyDataRayBounder *vtkProjectedPolyDataRayBounder::New()
-{
+{  
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProjectedPolyDataRayBounder");
+  if(ret)
+    {
+    return (vtkProjectedPolyDataRayBounder*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

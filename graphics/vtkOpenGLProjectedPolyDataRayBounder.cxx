@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkRenderer.h"
 #include "vtkRayCaster.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOpenGLProjectedPolyDataRayBounder* vtkOpenGLProjectedPolyDataRayBounder::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLProjectedPolyDataRayBounder");
+  if(ret)
+    {
+    return (vtkOpenGLProjectedPolyDataRayBounder*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLProjectedPolyDataRayBounder;
+}
+
+
+
 
 // Construct a new vtkOpenGLProjectedPolyDataRayBounder.  The depth range
 // buffer is initially NULL and no display list has been created

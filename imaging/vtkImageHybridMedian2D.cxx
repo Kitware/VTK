@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageHybridMedian2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageHybridMedian2D* vtkImageHybridMedian2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageHybridMedian2D");
+  if(ret)
+    {
+    return (vtkImageHybridMedian2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageHybridMedian2D;
+}
+
+
+
 
 
 

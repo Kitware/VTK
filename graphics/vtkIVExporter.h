@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIVExporter : public vtkExporter
 {
 public:
-  static vtkIVExporter *New() {return new vtkIVExporter;};
+  static vtkIVExporter *New();
   const char *GetClassName() {return "vtkIVExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

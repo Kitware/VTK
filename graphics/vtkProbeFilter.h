@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
-  static vtkProbeFilter *New() {return new vtkProbeFilter;};
+  static vtkProbeFilter *New();
   const char *GetClassName() {return "vtkProbeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

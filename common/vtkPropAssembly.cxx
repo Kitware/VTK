@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPropAssembly.h"
 #include "vtkViewport.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPropAssembly* vtkPropAssembly::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPropAssembly");
+  if(ret)
+    {
+    return (vtkPropAssembly*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPropAssembly;
+}
+
+
+
 
 // Construct object with no children.
 vtkPropAssembly::vtkPropAssembly()

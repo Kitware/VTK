@@ -66,7 +66,7 @@ class VTK_EXPORT vtkFollower : public vtkActor
 
   // Description:
   // Creates a follower with no camera set
-  static vtkFollower *New() {return new vtkFollower;};
+  static vtkFollower *New();
 
   // Description:
   // This causes the actor to be rendered. It in turn will render the actor's

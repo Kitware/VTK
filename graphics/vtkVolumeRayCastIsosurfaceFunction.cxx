@@ -47,6 +47,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkVolumeProperty.h"
 #include "vtkVolume.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVolumeRayCastIsosurfaceFunction* vtkVolumeRayCastIsosurfaceFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeRayCastIsosurfaceFunction");
+  if(ret)
+    {
+    return (vtkVolumeRayCastIsosurfaceFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVolumeRayCastIsosurfaceFunction;
+}
+
+
+
 
 /*    Is x between y and z?                                     */
 #define VTK_In_Range(x,y,z)      ((x) >= (y) && (x) <= (z))

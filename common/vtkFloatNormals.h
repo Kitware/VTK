@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatNormals : public vtkNormals
 {
 public:
-  static vtkFloatNormals *New() {return new vtkFloatNormals;};
+  static vtkFloatNormals *New();
   
   // Description:
   // Set the data type for this object.

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageBlockReader : public vtkImageSource
 {
 public:
-  static vtkImageBlockReader *New() {return new vtkImageBlockReader;};
+  static vtkImageBlockReader *New();
   const char *GetClassName() {return "vtkImageBlockReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

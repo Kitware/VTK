@@ -211,6 +211,13 @@ vtkVolumeProMapper::~vtkVolumeProMapper()
 // Simplified version - just assume the mapper type
 vtkVolumeProMapper *vtkVolumeProMapper::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolumeProMapper");
+  if(ret)
+    {
+    return (vtkVolumeProMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
   return vtkVolumeProVG500Mapper::New();
 }
 

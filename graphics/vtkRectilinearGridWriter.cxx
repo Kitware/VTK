@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRectilinearGridWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRectilinearGridWriter* vtkRectilinearGridWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridWriter");
+  if(ret)
+    {
+    return (vtkRectilinearGridWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRectilinearGridWriter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
-  static vtkImageConstantPad *New() {return new vtkImageConstantPad;};
+  static vtkImageConstantPad *New();
   const char *GetClassName() {return "vtkImageConstantPad";};
 
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkFloatArray* vtkFloatArray::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFloatArray");
+  if(ret)
+    {
+    return (vtkFloatArray*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkFloatArray;
+}
+
+
+
 
 // Instantiate object with 1 components.
 vtkFloatArray::vtkFloatArray(int numComp)

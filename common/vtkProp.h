@@ -63,7 +63,7 @@ public:
   // Description:
   // Creates an instance with visibility=1, pickable=1,
   // and dragable=1.
-  static vtkProp* New() {return new vtkProp;};
+  static vtkProp* New();
 
   const char *GetClassName() {return "vtkProp";};
   void PrintSelf(ostream& os, vtkIndent indent);

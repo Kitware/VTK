@@ -64,7 +64,7 @@ public:
 
   // Description
   // Construct cylinder radius of 0.5.
-  static vtkCylinder *New() {return new vtkCylinder;};
+  static vtkCylinder *New();
 
   // Description
   // Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.

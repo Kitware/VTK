@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStreamLine.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStreamLine* vtkStreamLine::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStreamLine");
+  if(ret)
+    {
+    return (vtkStreamLine*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStreamLine;
+}
+
+
+
 
 // Construct object with step size set to 1.0.
 vtkStreamLine::vtkStreamLine()

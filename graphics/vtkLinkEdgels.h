@@ -81,7 +81,7 @@ public:
   // Description:
   // Construct instance of vtkLinkEdgels with GradientThreshold set to 
   // 0.1, PhiThreshold set to 90 degrees and LinkThreshold set to 90 degrees.
-  static vtkLinkEdgels *New() {return new vtkLinkEdgels;};
+  static vtkLinkEdgels *New();
 
   // Description:
   // Set/Get the threshold for Phi vs. Alpha link thresholding.

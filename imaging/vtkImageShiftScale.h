@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageShiftScale : public vtkImageToImageFilter
 {
 public:
-  static vtkImageShiftScale *New() {return new vtkImageShiftScale;};
+  static vtkImageShiftScale *New();
   const char *GetClassName() {return "vtkImageShiftScale";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

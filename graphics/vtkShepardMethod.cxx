@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkShepardMethod.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkShepardMethod* vtkShepardMethod::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkShepardMethod");
+  if(ret)
+    {
+    return (vtkShepardMethod*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkShepardMethod;
+}
+
+
+
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
 // automatically computed from input. Null value for each unvisited output 

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredGridWriter.h"
 #include "vtkByteSwap.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkUnstructuredGridWriter* vtkUnstructuredGridWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkUnstructuredGridWriter");
+  if(ret)
+    {
+    return (vtkUnstructuredGridWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkUnstructuredGridWriter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

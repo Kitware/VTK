@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageAnisotropicDiffusion2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageAnisotropicDiffusion2D* vtkImageAnisotropicDiffusion2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageAnisotropicDiffusion2D");
+  if(ret)
+    {
+    return (vtkImageAnisotropicDiffusion2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageAnisotropicDiffusion2D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

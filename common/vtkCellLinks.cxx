@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCellLinks.h"
 #include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCellLinks* vtkCellLinks::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCellLinks");
+  if(ret)
+    {
+    return (vtkCellLinks*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCellLinks;
+}
+
+
+
 
 void vtkCellLinks::Allocate(int sz, int ext)
 {

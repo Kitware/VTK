@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkLightCollection.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLightCollection* vtkLightCollection::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLightCollection");
+  if(ret)
+    {
+    return (vtkLightCollection*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLightCollection;
+}
+
+
+
 
 // Add a light to the list.
 void vtkLightCollection::AddItem(vtkLight *a) 

@@ -146,7 +146,7 @@ struct ThreadInfoStruct
 class VTK_EXPORT vtkMultiThreader : public vtkObject 
 {
 public:
-  static vtkMultiThreader *New() {return new vtkMultiThreader;};
+  static vtkMultiThreader *New();
 
   const char *GetClassName() {return "vtkMultiThreader";};
   void PrintSelf(ostream& os, vtkIndent indent);

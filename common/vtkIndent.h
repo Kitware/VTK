@@ -56,7 +56,7 @@ class VTK_EXPORT vtkIndent
 public:
   void Delete() {delete this;};
   vtkIndent(int ind=0) {this->Indent=ind;};
-  static vtkIndent *New() {return new vtkIndent;};
+  static vtkIndent *New();
 
   // Description:
   // Determine the next indentation level. Keep indenting by two until the 

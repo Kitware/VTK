@@ -59,8 +59,7 @@ public:
   // Description:
   // Construct an instance of vtkImageContinuousErode3D fitler.
   // By default zero values are eroded.
-  static vtkImageContinuousErode3D *New() 
-    {return new vtkImageContinuousErode3D;};
+  static vtkImageContinuousErode3D *New();
   const char *GetClassName() {return "vtkImageContinuousErode3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

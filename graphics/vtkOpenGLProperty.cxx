@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLProperty.h"
 #include <GL/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOpenGLProperty* vtkOpenGLProperty::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLProperty");
+  if(ret)
+    {
+    return (vtkOpenGLProperty*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLProperty;
+}
+
+
+
 
 // Implement base class method.
 void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),

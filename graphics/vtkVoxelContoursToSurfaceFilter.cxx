@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkContourFilter.h"
 #include "vtkAppendPolyData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVoxelContoursToSurfaceFilter* vtkVoxelContoursToSurfaceFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVoxelContoursToSurfaceFilter");
+  if(ret)
+    {
+    return (vtkVoxelContoursToSurfaceFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVoxelContoursToSurfaceFilter;
+}
+
+
+
 
 vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
 {

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkHedgeHog.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkHedgeHog* vtkHedgeHog::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHedgeHog");
+  if(ret)
+    {
+    return (vtkHedgeHog*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkHedgeHog;
+}
+
+
+
 
 void vtkHedgeHog::Execute()
 {

@@ -70,7 +70,7 @@ struct _vtkCell_s {
 class VTK_EXPORT vtkCellTypes : public vtkObject 
 {
 public:
-  static vtkCellTypes *New() {return new vtkCellTypes;};
+  static vtkCellTypes *New();
   const char *GetClassName() {return "vtkCellTypes";};
 
   // Description:

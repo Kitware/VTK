@@ -64,7 +64,7 @@ public:
   // Description:
   // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
   // and LoadValue = 1.
-  static vtkPointLoad *New() {return new vtkPointLoad;};
+  static vtkPointLoad *New();
 
   // Description:
   // Set/Get value of applied load.

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageVariance3D.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageVariance3D* vtkImageVariance3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageVariance3D");
+  if(ret)
+    {
+    return (vtkImageVariance3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageVariance3D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

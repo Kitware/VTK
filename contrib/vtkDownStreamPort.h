@@ -69,7 +69,7 @@ class vtkImageData;
 class VTK_EXPORT vtkDownStreamPort : public vtkSource
 {
 public:
-  static vtkDownStreamPort *New() {return new vtkDownStreamPort;};
+  static vtkDownStreamPort *New();
   const char *GetClassName() {return "vtkDownStreamPort";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

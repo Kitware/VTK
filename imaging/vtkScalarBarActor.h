@@ -91,7 +91,7 @@ public:
   // of font Arial (bolding, italic, shadows on); %%-#6.3g label
   // format, no title, and vertical orientation. The initial scalar bar
   // size is (0.05 x 0.8) of the viewport size.
-  static vtkScalarBarActor *New() {return new vtkScalarBarActor;};
+  static vtkScalarBarActor *New();
   
   // Description:
   // Access the Position2 instance variable. This variable controls

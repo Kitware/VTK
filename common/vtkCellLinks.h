@@ -62,7 +62,7 @@ struct _vtkLink_s {
 class VTK_EXPORT vtkCellLinks : public vtkObject 
 {
 public:
-  static vtkCellLinks *New() {return new vtkCellLinks;};
+  static vtkCellLinks *New();
   const char *GetClassName() {return "vtkCellLinks";};
 
   // Description:

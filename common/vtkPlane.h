@@ -56,7 +56,7 @@ class VTK_EXPORT vtkPlane : public vtkImplicitFunction
 public:
   // Description
   // Construct plane passing through origin and normal to z-axis.
-  static vtkPlane *New() {return new vtkPlane;};
+  static vtkPlane *New();
 
   const char *GetClassName() {return "vtkPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);

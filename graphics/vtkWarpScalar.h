@@ -67,7 +67,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:
-  static vtkWarpScalar *New() {return new vtkWarpScalar;};
+  static vtkWarpScalar *New();
   const char *GetClassName() {return "vtkWarpScalar";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

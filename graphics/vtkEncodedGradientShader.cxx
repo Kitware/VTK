@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVolume.h"
 #include "vtkRenderer.h"
 #include "vtkEncodedGradientEstimator.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkEncodedGradientShader* vtkEncodedGradientShader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkEncodedGradientShader");
+  if(ret)
+    {
+    return (vtkEncodedGradientShader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkEncodedGradientShader;
+}
+
+
+
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
 {

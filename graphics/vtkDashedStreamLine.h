@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
-  static vtkDashedStreamLine *New() {return new vtkDashedStreamLine;};
+  static vtkDashedStreamLine *New();
   const char *GetClassName() {return "vtkDashedStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

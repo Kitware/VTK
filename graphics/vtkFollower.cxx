@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkFollower.h"
 #include "vtkCamera.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkFollower* vtkFollower::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFollower");
+  if(ret)
+    {
+    return (vtkFollower*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkFollower;
+}
+
+
+
 
 // Creates a follower with no camera set
 vtkFollower::vtkFollower()

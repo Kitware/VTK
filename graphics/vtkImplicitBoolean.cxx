@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImplicitBoolean.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImplicitBoolean* vtkImplicitBoolean::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImplicitBoolean");
+  if(ret)
+    {
+    return (vtkImplicitBoolean*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImplicitBoolean;
+}
+
+
+
 
 // Construct with union operation.
 vtkImplicitBoolean::vtkImplicitBoolean()

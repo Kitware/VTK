@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPlane.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPlane* vtkPlane::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPlane");
+  if(ret)
+    {
+    return (vtkPlane*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPlane;
+}
+
+
+
 
 
 // Construct plane passing through origin and normal to z-axis.

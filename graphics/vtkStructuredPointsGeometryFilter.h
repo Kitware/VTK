@@ -71,8 +71,7 @@ public:
   
   // Description:
   // Construct with initial extent of all the data
-  static vtkStructuredPointsGeometryFilter *New() {
-    return new vtkStructuredPointsGeometryFilter;};
+  static vtkStructuredPointsGeometryFilter *New();
 
   
   // Description:

@@ -60,8 +60,7 @@ public:
   // Description:
   // Construct an instance of vtkImageContinuousDilate3D fitler.
   // By default zero values are dilated.
-  static vtkImageContinuousDilate3D *New() 
-    {return new vtkImageContinuousDilate3D;};
+  static vtkImageContinuousDilate3D *New();
   const char *GetClassName() {return "vtkImageContinuousDilate3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

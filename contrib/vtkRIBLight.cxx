@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRIBLight.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRIBLight* vtkRIBLight::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRIBLight");
+  if(ret)
+    {
+    return (vtkRIBLight*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRIBLight;
+}
+
+
+
 
 vtkRIBLight::vtkRIBLight ()
 {

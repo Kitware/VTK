@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkPlane.h"
 #include "vtkDoubleArray.h" 
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDelaunay2D* vtkDelaunay2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDelaunay2D");
+  if(ret)
+    {
+    return (vtkDelaunay2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDelaunay2D;
+}
+
+
+
 
 // Construct object with Alpha = 0.0; Tolerance = 0.00001; Offset = 1.25;
 // BoundingTriangulation turned off.

@@ -102,7 +102,7 @@ class vtkCellArray;
 class VTK_EXPORT vtkDataObjectToDataSetFilter : public vtkSource
 {
 public:
-  static vtkDataObjectToDataSetFilter *New() {return new vtkDataObjectToDataSetFilter;};
+  static vtkDataObjectToDataSetFilter *New();
   const char *GetClassName() {return "vtkDataObjectToDataSetFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

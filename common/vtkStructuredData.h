@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredData : public vtkObject 
 {
 public:
-  static vtkStructuredData *New() {return new vtkStructuredData;};
+  static vtkStructuredData *New();
   const char *GetClassName() {return "vtkStructuredData";};
 
   // Description:

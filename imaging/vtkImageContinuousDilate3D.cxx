@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkImageContinuousDilate3D.h"
 #include "vtkImageEllipsoidSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageContinuousDilate3D* vtkImageContinuousDilate3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageContinuousDilate3D");
+  if(ret)
+    {
+    return (vtkImageContinuousDilate3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageContinuousDilate3D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

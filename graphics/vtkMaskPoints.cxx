@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMaskPoints.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMaskPoints* vtkMaskPoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMaskPoints");
+  if(ret)
+    {
+    return (vtkMaskPoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMaskPoints;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkMaskPoints::vtkMaskPoints()

@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Construct object with merging set to true.
-  static vtkSTLReader *New() {return new vtkSTLReader;};
+  static vtkSTLReader *New();
 
   // Description:
   // Overload standard modified time function. If locator is modified,

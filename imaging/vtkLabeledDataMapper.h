@@ -89,7 +89,7 @@ public:
   // Instantiate object with font size 12 of font Arial (bolding,
   // italic, shadows on) and %%-#6.3g label format. By default, point ids
   // are labeled.
-  static vtkLabeledDataMapper *New() {return new vtkLabeledDataMapper;};
+  static vtkLabeledDataMapper *New();
 
   const char *GetClassName() {return "vtkLabeledDataMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);

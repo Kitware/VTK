@@ -81,8 +81,7 @@ public:
   // Description:
   // Construct object to extract nothing and to not pass tensor data
   // through the pipeline.
-  static vtkExtractTensorComponents *New() {
-    return new vtkExtractTensorComponents;};
+  static vtkExtractTensorComponents *New();
 
   // Description:
   // Boolean controls whether tensor data is passed through to output.

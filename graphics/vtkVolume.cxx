@@ -46,6 +46,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRenderer.h"
 #include "vtkRayCaster.h"
 #include "vtkVolumeRayCastMapper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkVolume* vtkVolume::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkVolume");
+  if(ret)
+    {
+    return (vtkVolume*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkVolume;
+}
+
+
+
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
 // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataObjectSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataObjectSource* vtkDataObjectSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObjectSource");
+  if(ret)
+    {
+    return (vtkDataObjectSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataObjectSource;
+}
+
+
+
 
 vtkDataObjectSource::vtkDataObjectSource()
 {

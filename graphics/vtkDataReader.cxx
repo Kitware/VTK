@@ -56,6 +56,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataReader* vtkDataReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataReader");
+  if(ret)
+    {
+    return (vtkDataReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataReader;
+}
+
+
+
 
 
 // this undef is required on the hp. vtkMutexLock ends up including

@@ -48,6 +48,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 #include "vtkSuperquadric.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSuperquadric* vtkSuperquadric::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSuperquadric");
+  if(ret)
+    {
+    return (vtkSuperquadric*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSuperquadric;
+}
+
+
+
 
 // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
 // scale (1,1,1), size 0.5, phi roundness 1.0, and theta roundness 0.0.

@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGridReader.h"
 #include "vtkRectilinearGridReader.h"
 #include "vtkUnstructuredGridReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataSetReader* vtkDataSetReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetReader");
+  if(ret)
+    {
+    return (vtkDataSetReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataSetReader;
+}
+
+
+
 
 
 vtkDataSetReader::vtkDataSetReader()

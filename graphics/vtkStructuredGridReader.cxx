@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredInformation.h"
 #include "vtkStructuredGridReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredGridReader* vtkStructuredGridReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridReader");
+  if(ret)
+    {
+    return (vtkStructuredGridReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredGridReader;
+}
+
+
+
 
 vtkStructuredGridReader::vtkStructuredGridReader()
 {

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageFilter : public vtkImageToImageFilter
 {
 public:
-  static vtkImageFilter *New() {return new vtkImageFilter;};
+  static vtkImageFilter *New();
   const char *GetClassName() {return "vtkImageFilter";};
 
 protected:  

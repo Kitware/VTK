@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyDataMapper2D.h"
+#include "vtkObjectFactory.h"
 
 #ifdef _WIN32
   #include "vtkOpenGLPolyDataMapper2D.h"
@@ -87,6 +88,14 @@ vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 
 vtkPolyDataMapper2D *vtkPolyDataMapper2D::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataMapper2D");
+  if(ret)
+    {
+    return (vtkPolyDataMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
 #ifdef _WIN32
 #ifndef VTK_USE_NATIVE_IMAGING
     return vtkOpenGLPolyDataMapper2D::New();

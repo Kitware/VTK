@@ -45,6 +45,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkHexahedron.h"
 #include "vtkStructuredExtent.h"
 #include "vtkStructuredInformation.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredGrid* vtkStructuredGrid::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGrid");
+  if(ret)
+    {
+    return (vtkStructuredGrid*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredGrid;
+}
+
+
+
 
 #define vtkAdjustBoundsMacro( A, B ) \
   A[0] = (B[0] < A[0] ? B[0] : A[0]);   A[1] = (B[0] > A[1] ? B[0] : A[1]); \

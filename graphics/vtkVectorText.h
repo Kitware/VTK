@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVectorText : public vtkPolyDataSource 
 {
 public:
-  static vtkVectorText *New() {return new vtkVectorText;};
+  static vtkVectorText *New();
   const char *GetClassName() {return "vtkVectorText";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

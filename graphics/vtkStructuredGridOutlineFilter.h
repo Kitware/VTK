@@ -52,8 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyDataFilter
 {
 public:
-  static vtkStructuredGridOutlineFilter *New() {
-    return new vtkStructuredGridOutlineFilter;};
+  static vtkStructuredGridOutlineFilter *New();
   const char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
 
   //========================== Streaming stuff ===========================

@@ -84,7 +84,7 @@ public:
   // Description:
   // Create a default superquadric with a radius of 0.5, non-toroidal, 
   // spherical, and centered at the origin.
-  static vtkSuperquadricSource *New() {return new vtkSuperquadricSource;};
+  static vtkSuperquadricSource *New();
 
   const char *GetClassName() {return "vtkSuperquadricSource";};
   void PrintSelf(ostream& os, vtkIndent indent);

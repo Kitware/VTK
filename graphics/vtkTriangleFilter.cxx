@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangleFilter.h"
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTriangleFilter* vtkTriangleFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangleFilter");
+  if(ret)
+    {
+    return (vtkTriangleFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTriangleFilter;
+}
+
+
+
 
 void vtkTriangleFilter::Execute()
 {

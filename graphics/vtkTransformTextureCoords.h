@@ -69,8 +69,7 @@ public:
   // Description:
   // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
   // set to (1,1,1). Rotation of the texture coordinates is turned off.
-  static vtkTransformTextureCoords *New() {
-    return new vtkTransformTextureCoords;};
+  static vtkTransformTextureCoords *New();
 
   // Description:
   // Set/Get the position of the texture map. Setting the position translates

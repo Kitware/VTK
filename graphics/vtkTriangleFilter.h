@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkTriangleFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkTriangleFilter *New() {return new vtkTriangleFilter;};
+  static vtkTriangleFilter *New();
   const char *GetClassName() {return "vtkTriangleFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -59,7 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  static vtkAppendFilter *New() {return new vtkAppendFilter;}
+  static vtkAppendFilter *New();
 
   const char *GetClassName() {return "vtkAppendFilter";}
   void PrintSelf(ostream& os, vtkIndent indent);

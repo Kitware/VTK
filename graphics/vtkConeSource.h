@@ -63,7 +63,7 @@ public:
   // Description:
   // Construct with default resolution 6, height 1.0, radius 0.5, and
   // capping on.
-  static vtkConeSource *New() {return new vtkConeSource;};
+  static vtkConeSource *New();
 
   // Description:
   // Set the height of the cone.

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataObjectReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataObjectReader* vtkDataObjectReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataObjectReader");
+  if(ret)
+    {
+    return (vtkDataObjectReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataObjectReader;
+}
+
+
+
 
 vtkDataObjectReader::vtkDataObjectReader()
 {

@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSphereSource* vtkSphereSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSphereSource");
+  if(ret)
+    {
+    return (vtkSphereSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSphereSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Construct sphere with radius=0.5 and default resolution 8 in both Phi

@@ -75,7 +75,7 @@ public:
   // Creates a Volume with the following defaults: origin(0,0,0) 
   // position=(0,0,0) scale=1 visibility=1 pickable=1 dragable=1
   // orientation=(0,0,0).
-  static vtkVolume *New() {return new vtkVolume;};
+  static vtkVolume *New();
 
   // Description: 
   // For some exporters and other other operations we must be

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredData* vtkStructuredData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredData");
+  if(ret)
+    {
+    return (vtkStructuredData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredData;
+}
+
+
+
 
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).
 int vtkStructuredData::GetDataDimension(int dataDescription)

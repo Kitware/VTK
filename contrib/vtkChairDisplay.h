@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkChairDisplay : public vtkPolyDataSource
 {
 public:
-  static vtkChairDisplay *New() {return new vtkChairDisplay;};
+  static vtkChairDisplay *New();
   const char *GetClassName() {return "vtkChairDisplay";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

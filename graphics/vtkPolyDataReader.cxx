@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPolyDataReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyDataReader* vtkPolyDataReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataReader");
+  if(ret)
+    {
+    return (vtkPolyDataReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyDataReader;
+}
+
+
+
 
 vtkPolyDataReader::vtkPolyDataReader()
 {

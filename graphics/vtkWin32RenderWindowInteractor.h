@@ -58,8 +58,7 @@ class VTK_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteract
 public:
   // Description:
   // Construct object so that light follows camera motion.
-  static vtkWin32RenderWindowInteractor *New() {
-    return new vtkWin32RenderWindowInteractor;};
+  static vtkWin32RenderWindowInteractor *New();
 
   const char *GetClassName() {return "vtkWin32RenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);

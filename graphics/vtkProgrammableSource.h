@@ -72,7 +72,7 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkProgrammableSource : public vtkSource
 {
 public:
-  static vtkProgrammableSource *New() {return new vtkProgrammableSource;};
+  static vtkProgrammableSource *New();
   const char *GetClassName() {return "vtkProgrammableSource";};
 
   // Description:

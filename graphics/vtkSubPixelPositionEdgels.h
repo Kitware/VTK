@@ -65,8 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkSubPixelPositionEdgels : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkSubPixelPositionEdgels *New() {
-    return new vtkSubPixelPositionEdgels;};
+  static vtkSubPixelPositionEdgels *New();
   const char *GetClassName() {return "vtkSubPixelPositionEdgels";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkScalars.h"
 #include "vtkLookupTable.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkScalars* vtkScalars::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkScalars");
+  if(ret)
+    {
+    return (vtkScalars*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkScalars;
+}
+
+
+
 
 vtkScalars::vtkScalars() 
 {
@@ -57,7 +76,7 @@ vtkScalars::vtkScalars()
 
 vtkScalars *vtkScalars::New(int dataType, int numComp)
 {
-  vtkScalars *res = new vtkScalars();
+  vtkScalars *res = vtkScalars::New();
   res->SetDataType(dataType);
   res->SetNumberOfComponents(numComp);
   return res;

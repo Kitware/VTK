@@ -103,7 +103,7 @@ typedef struct
 class VTK_EXPORT vtkTimerLog : public vtkObject 
 {
 public:
-  static vtkTimerLog *New() {return new vtkTimerLog;};
+  static vtkTimerLog *New();
 
   const char *GetClassName() {return "vtkTimerLog";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkInterpolateDataSetAttributes* vtkInterpolateDataSetAttributes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInterpolateDataSetAttributes");
+  if(ret)
+    {
+    return (vtkInterpolateDataSetAttributes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkInterpolateDataSetAttributes;
+}
+
+
+
 
 // Create object with no input or output.
 vtkInterpolateDataSetAttributes::vtkInterpolateDataSetAttributes()

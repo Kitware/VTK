@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGridWriter.h"
 #include "vtkUnstructuredGridWriter.h"
 #include "vtkRectilinearGridWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDataSetWriter* vtkDataSetWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDataSetWriter");
+  if(ret)
+    {
+    return (vtkDataSetWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDataSetWriter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

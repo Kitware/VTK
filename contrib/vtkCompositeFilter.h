@@ -62,7 +62,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkCompositeFilter : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
-  static vtkCompositeFilter *New() {return new vtkCompositeFilter;}
+  static vtkCompositeFilter *New();
 
   const char *GetClassName() {return "vtkCompositeFilter";}
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMergeDataObjectFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMergeDataObjectFilter* vtkMergeDataObjectFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergeDataObjectFilter");
+  if(ret)
+    {
+    return (vtkMergeDataObjectFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMergeDataObjectFilter;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Create object with no input or output.

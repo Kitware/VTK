@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStructuredGridGeometryFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStructuredGridGeometryFilter* vtkStructuredGridGeometryFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStructuredGridGeometryFilter");
+  if(ret)
+    {
+    return (vtkStructuredGridGeometryFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStructuredGridGeometryFilter;
+}
+
+
+
 
 // Construct with initial extent of all the data
 vtkStructuredGridGeometryFilter::vtkStructuredGridGeometryFilter()

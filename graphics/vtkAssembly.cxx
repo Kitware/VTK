@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAssembly.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkAssembly* vtkAssembly::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAssembly");
+  if(ret)
+    {
+    return (vtkAssembly*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkAssembly;
+}
+
+
+
 
 // Construct object with no children.
 vtkAssembly::vtkAssembly()

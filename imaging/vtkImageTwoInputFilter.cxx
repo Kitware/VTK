@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageTwoInputFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageTwoInputFilter* vtkImageTwoInputFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageTwoInputFilter");
+  if(ret)
+    {
+    return (vtkImageTwoInputFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageTwoInputFilter;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

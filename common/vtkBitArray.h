@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBitArray : public vtkDataArray
 {
 public:
-  static vtkBitArray *New() {return new vtkBitArray;};
+  static vtkBitArray *New();
   virtual const char *GetClassName() {return "vtkBitArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRectilinearGridSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRectilinearGridSource* vtkRectilinearGridSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridSource");
+  if(ret)
+    {
+    return (vtkRectilinearGridSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRectilinearGridSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()

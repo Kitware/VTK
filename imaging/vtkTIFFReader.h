@@ -72,7 +72,7 @@ struct _vtkTifTag
 class VTK_EXPORT vtkTIFFReader : public vtkImageReader
 {
 public:
-  static vtkTIFFReader *New() {return new vtkTIFFReader;};
+  static vtkTIFFReader *New();
   const char *GetClassName() {return "vtkTIFFReader";};
   
 protected:

@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
 {
 public:
-  static vtkExtractGrid *New() {return new vtkExtractGrid;};
+  static vtkExtractGrid *New();
   const char *GetClassName() {return "vtkExtractGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

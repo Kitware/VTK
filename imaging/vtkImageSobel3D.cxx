@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageData.h"
 
 #include "vtkImageSobel3D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageSobel3D* vtkImageSobel3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSobel3D");
+  if(ret)
+    {
+    return (vtkImageSobel3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageSobel3D;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

@@ -61,7 +61,7 @@ public:
   // Description:
   // Instantiate object with a rectangle in normaled view coordinates
   // of (0.2,0.85, 0.8, 0.95).
-  static vtkScaledTextActor *New() {return new vtkScaledTextActor;};
+  static vtkScaledTextActor *New();
   
   // Description:
   // Access the Position2 instance variable. This variable controls

@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Construct with empty list.
-  static vtkCollection *New() {return new vtkCollection;};
+  static vtkCollection *New();
 
   // Description:
   // Add an object to the list. Does not prevent duplicate entries.

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkScalars.h"
 #include "vtkNormals.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSampleFunction* vtkSampleFunction::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSampleFunction");
+  if(ret)
+    {
+    return (vtkSampleFunction*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSampleFunction;
+}
+
+
+
 
 // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
 // Capping turned off, and normal generation on.

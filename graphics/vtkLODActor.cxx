@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLODActor.h"
 #include "vtkRenderWindow.h"
 #include "vtkTimerLog.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLODActor* vtkLODActor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLODActor");
+  if(ret)
+    {
+    return (vtkLODActor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLODActor;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkLODActor::vtkLODActor()

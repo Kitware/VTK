@@ -47,6 +47,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkInteractorStyle.h"
 #include "vtkActor.h"
 #include <gl\gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32RenderWindowInteractor* vtkWin32RenderWindowInteractor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32RenderWindowInteractor");
+  if(ret)
+    {
+    return (vtkWin32RenderWindowInteractor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32RenderWindowInteractor;
+}
+
+
+
 
 void (*vtkWin32RenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
 void *vtkWin32RenderWindowInteractor::ClassExitMethodArg = (void *)NULL;

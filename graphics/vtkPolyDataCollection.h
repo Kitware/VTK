@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyDataCollection : public vtkCollection
 {
 public:
-  static vtkPolyDataCollection *New() {return new vtkPolyDataCollection;};
+  static vtkPolyDataCollection *New();
   const char *GetClassName() {return "vtkPolyDataCollection";};
 
   // Description:

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkQuadric.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkQuadric* vtkQuadric::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuadric");
+  if(ret)
+    {
+    return (vtkQuadric*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkQuadric;
+}
+
+
+
 
 // Construct quadric with all coefficients = 1.
 vtkQuadric::vtkQuadric()

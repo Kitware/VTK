@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 
 #include "vtkSLCReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSLCReader* vtkSLCReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSLCReader");
+  if(ret)
+    {
+    return (vtkSLCReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSLCReader;
+}
+
+
+
 
 // Constructor for a vtkSLCReader.
 vtkSLCReader::vtkSLCReader()

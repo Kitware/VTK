@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkSphere.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSphere* vtkSphere::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSphere");
+  if(ret)
+    {
+    return (vtkSphere*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSphere;
+}
+
+
+
 
 // Construct sphere with center at (0,0,0) and radius=0.5.
 vtkSphere::vtkSphere()

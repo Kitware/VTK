@@ -77,7 +77,7 @@ public:
   // Description:
   // Instantiate scalar tree with maximum level of 20 and branching
   // factor of 5.
-  static vtkScalarTree *New() {return new vtkScalarTree;};
+  static vtkScalarTree *New();
 
   // Description:
   // Build the tree from the points/cells defining this dataset.

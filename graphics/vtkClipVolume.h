@@ -92,7 +92,7 @@ public:
   // Construct with user-specified implicit function; InsideOut turned off;
   // value set to 0.0; and generate clip scalars turned off. The merge
   // tolerance is set to 0.01.
-  static vtkClipVolume *New() {return new vtkClipVolume;};
+  static vtkClipVolume *New();
 
   // Description:
   // Set the clipping value of the implicit function (if clipping with

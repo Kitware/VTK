@@ -55,8 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 {
 public:
-  static vtkRectilinearGridWriter *New() {
-    return new vtkRectilinearGridWriter;};
+  static vtkRectilinearGridWriter *New();
   const char *GetClassName() {return "vtkRectilinearGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

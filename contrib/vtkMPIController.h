@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMPIController : public vtkMultiProcessController
 {
 public:
-  static vtkMPIController *New() {return new vtkMPIController;};
+  static vtkMPIController *New();
   const char *GetClassName() {return "vtkMPIController";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

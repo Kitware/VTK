@@ -96,8 +96,7 @@ public:
   // Description:
   // Construct object with input field set to the data object field, and the
   // output attribute data set to generate point data.
-  static vtkFieldDataToAttributeDataFilter *New() 
-    {return new vtkFieldDataToAttributeDataFilter;};
+  static vtkFieldDataToAttributeDataFilter *New();
 
   // Description:
   // Specify which field data to use to generate the output attribute

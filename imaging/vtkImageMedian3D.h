@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMedian3D : public vtkImageSpatialFilter
 {
 public:
-  static vtkImageMedian3D *New() {return new vtkImageMedian3D;};
+  static vtkImageMedian3D *New();
   const char *GetClassName() {return "vtkImageMedian3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -1,6 +1,25 @@
 #include "vtkWin32ImageMapper.h"
 #include "vtkWin32ImageWindow.h"
 #include "vtkProperty2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWin32ImageMapper* vtkWin32ImageMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWin32ImageMapper");
+  if(ret)
+    {
+    return (vtkWin32ImageMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWin32ImageMapper;
+}
+
+
+
 
 vtkWin32ImageMapper::vtkWin32ImageMapper()
 {

@@ -85,7 +85,7 @@ class vtkRenderer;
 class VTK_EXPORT vtkViewRays :public vtkObject
   {
 public:
-  static vtkViewRays *New() {return new vtkViewRays;};
+  static vtkViewRays *New();
   const char *GetClassName() {return "vtkViewRays";};
   void PrintSelf(ostream& os,vtkIndent indent);
 

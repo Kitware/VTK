@@ -97,7 +97,7 @@ public:
   // Description
   // Construct object with NULL GlyphMethod() and no source object. The ColorMode
   // is set to color by the input.
-  static vtkProgrammableGlyphFilter *New() {return new vtkProgrammableGlyphFilter;};
+  static vtkProgrammableGlyphFilter *New();
 
   // Description:
   // Set/Get the source to use for this glyph. 

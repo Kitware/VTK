@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkProcessObject.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProcessObject* vtkProcessObject::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProcessObject");
+  if(ret)
+    {
+    return (vtkProcessObject*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProcessObject;
+}
+
+
+
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()

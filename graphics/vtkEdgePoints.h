@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Construct object with contour value of 0.0.
-  static vtkEdgePoints *New() {return new vtkEdgePoints;};
+  static vtkEdgePoints *New();
 
   // Description:
   // Set/get the contour value.

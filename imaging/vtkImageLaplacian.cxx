@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageLaplacian.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageLaplacian* vtkImageLaplacian::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageLaplacian");
+  if(ret)
+    {
+    return (vtkImageLaplacian*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageLaplacian;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

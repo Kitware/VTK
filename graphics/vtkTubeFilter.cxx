@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTubeFilter.h"
 #include "vtkPolyLine.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTubeFilter* vtkTubeFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTubeFilter");
+  if(ret)
+    {
+    return (vtkTubeFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTubeFilter;
+}
+
+
+
 
 // Construct object with radius 0.5, radius variation turned off, the number 
 // of sides set to 3, and radius factor of 10.

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkVoxel.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRecursiveDividingCubes* vtkRecursiveDividingCubes::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRecursiveDividingCubes");
+  if(ret)
+    {
+    return (vtkRecursiveDividingCubes*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRecursiveDividingCubes;
+}
+
+
+
 
 vtkRecursiveDividingCubes::vtkRecursiveDividingCubes()
 {

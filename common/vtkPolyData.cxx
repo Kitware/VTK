@@ -50,6 +50,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkEmptyCell.h"
 #include "vtkUnstructuredExtent.h"
 #include "vtkUnstructuredInformation.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPolyData* vtkPolyData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyData");
+  if(ret)
+    {
+    return (vtkPolyData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPolyData;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Initialize static member.  This member is used to simplify traversal

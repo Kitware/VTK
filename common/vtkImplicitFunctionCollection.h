@@ -55,8 +55,7 @@ class VTK_EXPORT vtkImplicitFunctionCollection : public vtkCollection
 {
 public:
   const char *GetClassName() {return "vtkImplicitFunctionCollection";};
-  static vtkImplicitFunctionCollection *New() 
-    {return new vtkImplicitFunctionCollection;};
+  static vtkImplicitFunctionCollection *New();
 
   // Description:
   // Add an implicit function to the list.

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkLongArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLongArray* vtkLongArray::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLongArray");
+  if(ret)
+    {
+    return (vtkLongArray*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLongArray;
+}
+
+
+
 
 // Instantiate object.
 vtkLongArray::vtkLongArray(int numComp)

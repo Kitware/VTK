@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkOutlineFilter.h"
 #include "vtkOutlineSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOutlineFilter* vtkOutlineFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOutlineFilter");
+  if(ret)
+    {
+    return (vtkOutlineFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOutlineFilter;
+}
+
+
+
 
 vtkOutlineFilter::vtkOutlineFilter ()
 {

@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPlane.h"
 #include "vtkLine.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDecimatePro* vtkDecimatePro::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDecimatePro");
+  if(ret)
+    {
+    return (vtkDecimatePro*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDecimatePro;
+}
+
+
+
 
 #define VTK_TOLERANCE 1.0e-05
 #define VTK_MAX_TRIS_PER_VERTEX VTK_CELL_SIZE

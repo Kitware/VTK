@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkLabeledDataMapper.h"
 #include "vtkDataSet.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkLabeledDataMapper* vtkLabeledDataMapper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLabeledDataMapper");
+  if(ret)
+    {
+    return (vtkLabeledDataMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkLabeledDataMapper;
+}
+
+
+
 
 // Instantiate object with font size 12 of font Arial (bolding,
 // italic, shadows on) and %%-#6.3g label format. By default, point ids

@@ -64,7 +64,7 @@ protected:
   long OldMonitorSetting;
 
 public:
-  static vtkOpenGLRenderWindow *New() {return new vtkOpenGLRenderWindow;};
+  static vtkOpenGLRenderWindow *New();
   const char *GetClassName() {return "vtkOpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

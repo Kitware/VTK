@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkIndent.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkIndent* vtkIndent::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkIndent");
+  if(ret)
+    {
+    return (vtkIndent*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkIndent;
+}
+
+
+
 #define VTK_STD_INDENT 2
 #define VTK_NUMBER_OF_BLANKS 40
 

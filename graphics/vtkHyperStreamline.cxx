@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkHyperStreamline.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkHyperStreamline* vtkHyperStreamline::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkHyperStreamline");
+  if(ret)
+    {
+    return (vtkHyperStreamline*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkHyperStreamline;
+}
+
+
+
 
 //
 // Special classes for manipulating data

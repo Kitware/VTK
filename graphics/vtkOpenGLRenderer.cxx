@@ -47,6 +47,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkRayCaster.h"
 #include "vtkCuller.h"
 #include <GL/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOpenGLRenderer* vtkOpenGLRenderer::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLRenderer");
+  if(ret)
+    {
+    return (vtkOpenGLRenderer*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLRenderer;
+}
+
+
+
 
 
 #define VTK_MAX_LIGHTS 8

@@ -84,8 +84,7 @@ public:
 
   // Description:
   // Construct with default extraction mode to extract largest regions.
-  static vtkPolyDataConnectivityFilter *New() {
-    return new vtkPolyDataConnectivityFilter;};
+  static vtkPolyDataConnectivityFilter *New();
 
   // Description:
   // Turn on/off connectivity based on scalar value. If on, cells are connected

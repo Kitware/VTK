@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageSinusoidSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageSinusoidSource* vtkImageSinusoidSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageSinusoidSource");
+  if(ret)
+    {
+    return (vtkImageSinusoidSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageSinusoidSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageSinusoidSource::vtkImageSinusoidSource()

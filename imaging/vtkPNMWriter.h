@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPNMWriter : public vtkImageWriter
 {
 public:
-  static vtkPNMWriter *New() {return new vtkPNMWriter;};
+  static vtkPNMWriter *New();
   const char *GetClassName() {return "vtkPNMWriter";};
 
 protected:

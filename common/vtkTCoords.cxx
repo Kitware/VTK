@@ -39,10 +39,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkTCoords.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTCoords* vtkTCoords::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTCoords");
+  if(ret)
+    {
+    return (vtkTCoords*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTCoords;
+}
+
+
+
 
 vtkTCoords *vtkTCoords::New(int dataType, int numComp)
 {
-  vtkTCoords *res = new vtkTCoords();
+  vtkTCoords *res = vtkTCoords::New();
   res->SetDataType(dataType);
   res->SetNumberOfComponents(numComp);
   return res;

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkQuad : public vtkCell
 {
 public:
-  static vtkQuad *New() {return new vtkQuad;};
+  static vtkQuad *New();
   const char *GetClassName() {return "vtkQuad";};
 
   // Description:

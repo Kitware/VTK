@@ -65,8 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRayCastFunction
 {
 public:
-  static vtkVolumeRayCastMIPFunction *New() {
-    return new vtkVolumeRayCastMIPFunction;};
+  static vtkVolumeRayCastMIPFunction *New();
   const char *GetClassName() {return "vtkVolumeRayCastMIPFunction";};
   void PrintSelf( ostream& os, vtkIndent index );
 

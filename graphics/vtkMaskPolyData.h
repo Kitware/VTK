@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkMaskPolyData : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkMaskPolyData *New() {return new vtkMaskPolyData;};
+  static vtkMaskPolyData *New();
   const char *GetClassName() {return "vtkMaskPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangleFilter.h"
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWindowedSincPolyDataFilter* vtkWindowedSincPolyDataFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWindowedSincPolyDataFilter");
+  if(ret)
+    {
+    return (vtkWindowedSincPolyDataFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWindowedSincPolyDataFilter;
+}
+
+
+
 
 
 

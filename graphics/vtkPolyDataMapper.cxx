@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLPolyDataMapper.h"
@@ -50,6 +51,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // return the correct type of PolyDataMapper 
 vtkPolyDataMapper *vtkPolyDataMapper::New()
 {
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPolyDataMapper");
+  if(ret)
+    {
+    return (vtkPolyDataMapper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

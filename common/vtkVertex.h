@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVertex : public vtkCell
 {
 public:
-  static vtkVertex *New() {return new vtkVertex;};
+  static vtkVertex *New();
   const char *GetClassName() {return "vtkVertex";};
   
   // Description:

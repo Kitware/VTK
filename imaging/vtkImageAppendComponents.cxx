@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 
 #include "vtkImageAppendComponents.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageAppendComponents* vtkImageAppendComponents::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageAppendComponents");
+  if(ret)
+    {
+    return (vtkImageAppendComponents*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageAppendComponents;
+}
+
+
+
 
 
 

@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkThresholdPoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkThresholdPoints* vtkThresholdPoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThresholdPoints");
+  if(ret)
+    {
+    return (vtkThresholdPoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkThresholdPoints;
+}
+
+
+
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
 // function=upper.

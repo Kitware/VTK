@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkPLOT3DReader.h"
 #include "vtkByteSwap.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPLOT3DReader* vtkPLOT3DReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPLOT3DReader");
+  if(ret)
+    {
+    return (vtkPLOT3DReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPLOT3DReader;
+}
+
+
+
 
 #define VTK_BINARY 0
 #define VTK_ASCII 1

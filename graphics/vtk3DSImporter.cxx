@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkStripper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtk3DSImporter* vtk3DSImporter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtk3DSImporter");
+  if(ret)
+    {
+    return (vtk3DSImporter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtk3DSImporter;
+}
+
+
+
 
 static Colour Black = {0.0, 0.0, 0.0};
 static char   obj_name[80] = "";

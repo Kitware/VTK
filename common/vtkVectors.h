@@ -55,7 +55,7 @@ class VTK_EXPORT vtkVectors : public vtkAttributeData
 {
 public:
   static vtkVectors *New(int dataType);
-  static vtkVectors *New() {return new vtkVectors;};
+  static vtkVectors *New();
 
 
   const char *GetClassName() {return "vtkVectors";};

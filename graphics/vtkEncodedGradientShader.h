@@ -67,8 +67,7 @@ class vtkEncodedGradientEstimator;
 class VTK_EXPORT vtkEncodedGradientShader : public vtkObject
 {
 public:
-  static vtkEncodedGradientShader *New() {
-    return new vtkEncodedGradientShader;};
+  static vtkEncodedGradientShader *New();
   const char *GetClassName() {return "vtkEncodedGradientShader";};
 
   // Description:

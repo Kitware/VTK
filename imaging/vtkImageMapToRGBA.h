@@ -57,7 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageMapToRGBA : public vtkImageToImageFilter
 {
 public:
-  static vtkImageMapToRGBA *New() {return new vtkImageMapToRGBA;};
+  static vtkImageMapToRGBA *New();
   const char *GetClassName() {return "vtkImageMapToRGBA";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

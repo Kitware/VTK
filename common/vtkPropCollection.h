@@ -56,7 +56,7 @@ class vtkProp;
 class VTK_EXPORT vtkPropCollection : public vtkCollection
 {
  public:
-  static vtkPropCollection *New() {return new vtkPropCollection;};
+  static vtkPropCollection *New();
   const char *GetClassName() {return "vtkPropCollection";};
 
   // Description:

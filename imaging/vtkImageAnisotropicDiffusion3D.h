@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageSpatialFilter
 {
 public:
-  static vtkImageAnisotropicDiffusion3D *New() {return new vtkImageAnisotropicDiffusion3D;};
+  static vtkImageAnisotropicDiffusion3D *New();
   const char *GetClassName() {return "vtkImageAnisotropicDiffusion3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

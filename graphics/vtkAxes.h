@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkAxes : public vtkPolyDataSource 
 {
 public:
-  static vtkAxes *New() {return new vtkAxes;};
+  static vtkAxes *New();
 
   const char *GetClassName() {return "vtkAxes";};
   void PrintSelf(ostream& os, vtkIndent indent);

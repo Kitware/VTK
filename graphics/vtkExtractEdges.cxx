@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkExtractEdges.h"
 #include "vtkEdgeTable.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkExtractEdges* vtkExtractEdges::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkExtractEdges");
+  if(ret)
+    {
+    return (vtkExtractEdges*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkExtractEdges;
+}
+
+
+
 
 // Construct object.
 vtkExtractEdges::vtkExtractEdges()

@@ -50,8 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageLuminance : public vtkImageToImageFilter
 {
 public:
-  static vtkImageLuminance *New()
-    {return new vtkImageLuminance;};
+  static vtkImageLuminance *New();
   const char *GetClassName() {return "vtkImageLuminance";};
 
 protected:

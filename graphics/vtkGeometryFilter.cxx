@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkGeometryFilter.h"
 #include "vtkMergePoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkGeometryFilter* vtkGeometryFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkGeometryFilter");
+  if(ret)
+    {
+    return (vtkGeometryFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkGeometryFilter;
+}
+
+
+
 
 // Construct with all types of clipping turned off.
 vtkGeometryFilter::vtkGeometryFilter()

@@ -52,6 +52,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "tk.h"
 #include "vtkActorCollection.h"
 #include "vtkPoints.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkXRenderWindowTclInteractor* vtkXRenderWindowTclInteractor::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkXRenderWindowTclInteractor");
+  if(ret)
+    {
+    return (vtkXRenderWindowTclInteractor*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkXRenderWindowTclInteractor;
+}
+
+
+
 
 // steal the first two elements of the TkMainInfo stuct
 // we don't care about the rest of the elements.

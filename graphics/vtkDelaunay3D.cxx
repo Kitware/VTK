@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangle.h"
 #include "vtkEdgeTable.h"
 #include "vtkPolyData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDelaunay3D* vtkDelaunay3D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDelaunay3D");
+  if(ret)
+    {
+    return (vtkDelaunay3D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDelaunay3D;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Specify the input data or filter.

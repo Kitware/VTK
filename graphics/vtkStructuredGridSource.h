@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridSource : public vtkSource
 {
 public:
-  static vtkStructuredGridSource *New() {return new vtkStructuredGridSource;}
+  static vtkStructuredGridSource *New();
   const char *GetClassName() {return "vtkStructuredGridSource";}
 
   // Description:

@@ -71,7 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
-  static vtkVoxelContoursToSurfaceFilter *New() {return new vtkVoxelContoursToSurfaceFilter;};
+  static vtkVoxelContoursToSurfaceFilter *New();
   const char *GetClassName() {return "vtkVoxelContoursToSurfaceFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkNormals.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProgrammableGlyphFilter* vtkProgrammableGlyphFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProgrammableGlyphFilter");
+  if(ret)
+    {
+    return (vtkProgrammableGlyphFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProgrammableGlyphFilter;
+}
+
+
+
 
 // Construct object with scaling on, scaling mode is by scalar value, 
 // scale factor = 1.0, the range is (0,1), orient geometry is on, and

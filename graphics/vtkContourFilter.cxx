@@ -45,6 +45,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMergePoints.h"
 #include "vtkContourValues.h"
 #include "vtkScalarTree.h"
+#include "vtkObjectFactory.h"
+
+
+
+
+//------------------------------------------------------------------------------
+vtkContourFilter* vtkContourFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkContourFilter");
+  if(ret)
+    {
+    return (vtkContourFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkContourFilter;
+}
+
+
+
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.

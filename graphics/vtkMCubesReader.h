@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Construct object with FlipNormals turned off and Normals set to true.
-  static vtkMCubesReader *New() {return new vtkMCubesReader;};
+  static vtkMCubesReader *New();
 
   // Description:
   // Specify file name of marching cubes file.

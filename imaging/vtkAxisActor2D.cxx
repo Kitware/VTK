@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkAxisActor2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkAxisActor2D* vtkAxisActor2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkAxisActor2D");
+  if(ret)
+    {
+    return (vtkAxisActor2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkAxisActor2D;
+}
+
+
+
 
 // Instantiate this object.
 vtkAxisActor2D::vtkAxisActor2D()

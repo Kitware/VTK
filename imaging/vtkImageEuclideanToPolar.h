@@ -52,8 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageEuclideanToPolar : public vtkImageToImageFilter
 {
 public:
-  static vtkImageEuclideanToPolar *New() 
-    {return new vtkImageEuclideanToPolar;};
+  static vtkImageEuclideanToPolar *New();
   const char *GetClassName() {return "vtkImageEuclideanToPolar";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

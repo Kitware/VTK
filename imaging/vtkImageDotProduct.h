@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageDotProduct : public vtkImageTwoInputFilter
 {
 public:
-  static vtkImageDotProduct *New() {return new vtkImageDotProduct;};
+  static vtkImageDotProduct *New();
   const char *GetClassName() {return "vtkImageDotProduct";};
 
 protected:

@@ -62,7 +62,7 @@ public:
   // Description:
   // Construct sphere with radius=0.5 and default resolution 8 in both Phi
   // and Theta directions.
-  static vtkTexturedSphereSource *New() {return new vtkTexturedSphereSource;};
+  static vtkTexturedSphereSource *New();
 
   // Description:
   // Set radius of sphere.

@@ -61,7 +61,7 @@ class vtkRectilinearGrid;
 class VTK_EXPORT vtkDataSetReader : public vtkSource
 {
 public:
-  static vtkDataSetReader *New() {return new vtkDataSetReader;};
+  static vtkDataSetReader *New();
   const char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
   unsigned long int GetMTime();

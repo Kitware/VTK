@@ -57,7 +57,7 @@ class VTK_EXPORT vtkTransformCollection : public vtkCollection
 {
 public:
   const char *GetClassName() {return "vtkTransformCollection";};
-  static vtkTransformCollection *New() {return new vtkTransformCollection;};
+  static vtkTransformCollection *New();
 
   // Description:
   // Add a Transform to the list.

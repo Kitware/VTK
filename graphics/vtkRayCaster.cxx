@@ -48,6 +48,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVoxel.h"
 #include "vtkTimerLog.h"
 #include "vtkVolumeRayCastMapper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRayCaster* vtkRayCaster::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRayCaster");
+  if(ret)
+    {
+    return (vtkRayCaster*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRayCaster;
+}
+
+
+
 
 // Swap two values
 #define VTK_SWAP_VALUES( A, B, T ) T=A; A=B; B=T

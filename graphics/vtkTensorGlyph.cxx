@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkVectors.h"
 #include "vtkNormals.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTensorGlyph* vtkTensorGlyph::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTensorGlyph");
+  if(ret)
+    {
+    return (vtkTensorGlyph*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTensorGlyph;
+}
+
+
+
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
 // extracted, glyphs are colored with input scalar data, and logarithmic

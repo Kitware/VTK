@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkLineSource : public vtkPolyDataSource 
 {
 public:
-  static vtkLineSource *New() {return new vtkLineSource;};
+  static vtkLineSource *New();
   const char *GetClassName() {return "vtkLineSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

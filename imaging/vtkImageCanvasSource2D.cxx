@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageCanvasSource2D.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageCanvasSource2D* vtkImageCanvasSource2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageCanvasSource2D");
+  if(ret)
+    {
+    return (vtkImageCanvasSource2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageCanvasSource2D;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageCanvasSource2D with no data.

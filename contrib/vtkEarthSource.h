@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEarthSource : public vtkPolyDataSource 
 {
 public:
-  static vtkEarthSource *New() {return new vtkEarthSource;};
+  static vtkEarthSource *New();
   const char *GetClassName() {return "vtkEarthSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

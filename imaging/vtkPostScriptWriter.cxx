@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkPostScriptWriter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkPostScriptWriter* vtkPostScriptWriter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPostScriptWriter");
+  if(ret)
+    {
+    return (vtkPostScriptWriter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkPostScriptWriter;
+}
+
+
+
 #define VTK_MARGIN 0.95
 
 void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 

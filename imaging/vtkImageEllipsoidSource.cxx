@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageData.h"
 
 #include "vtkImageEllipsoidSource.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageEllipsoidSource* vtkImageEllipsoidSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageEllipsoidSource");
+  if(ret)
+    {
+    return (vtkImageEllipsoidSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageEllipsoidSource;
+}
+
+
+
 
 //----------------------------------------------------------------------------
 vtkImageEllipsoidSource::vtkImageEllipsoidSource()

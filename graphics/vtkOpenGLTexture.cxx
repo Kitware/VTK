@@ -50,6 +50,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLTexture.h"
 #include <GL/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOpenGLTexture* vtkOpenGLTexture::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLTexture");
+  if(ret)
+    {
+    return (vtkOpenGLTexture*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLTexture;
+}
+
+
+
 
 // shared increasing counter
 long vtkOpenGLTexture::GlobalIndex = 0;

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageTranslateExtent : public vtkImageToImageFilter
 {
 public:
-  static vtkImageTranslateExtent *New() {return new vtkImageTranslateExtent;};
+  static vtkImageTranslateExtent *New();
   const char *GetClassName() {return "vtkImageTranslateExtent";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

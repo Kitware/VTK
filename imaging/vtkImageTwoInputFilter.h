@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageTwoInputFilter : public vtkImageMultipleInputFilter
 {
 public:
-  static vtkImageTwoInputFilter *New() {return new vtkImageTwoInputFilter;};
+  static vtkImageTwoInputFilter *New();
   const char *GetClassName() {return "vtkImageTwoInputFilter";};
   
   // Description:

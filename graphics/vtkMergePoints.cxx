@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMergePoints.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkMergePoints* vtkMergePoints::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergePoints");
+  if(ret)
+    {
+    return (vtkMergePoints*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkMergePoints;
+}
+
+
+
 
 // Determine whether point given by x[3] has been inserted into points list.
 // Return id of previously inserted point if this is true, otherwise return

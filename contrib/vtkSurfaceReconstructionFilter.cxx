@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkScalars.h"
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSurfaceReconstructionFilter* vtkSurfaceReconstructionFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSurfaceReconstructionFilter");
+  if(ret)
+    {
+    return (vtkSurfaceReconstructionFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSurfaceReconstructionFilter;
+}
+
+
+
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 {

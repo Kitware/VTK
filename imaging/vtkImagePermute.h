@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImagePermute : public vtkImageToImageFilter
 {
 public:
-  static vtkImagePermute *New() {return new vtkImagePermute;};
+  static vtkImagePermute *New();
   const char *GetClassName() {return "vtkImagePermute";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

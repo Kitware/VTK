@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPostScriptWriter : public vtkImageWriter
 {
 public:
-  static vtkPostScriptWriter *New() {return new vtkPostScriptWriter;};
+  static vtkPostScriptWriter *New();
   const char *GetClassName() {return "vtkPostScriptWriter";};
 
 protected:

@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 
 #include "vtkImageGradient.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageGradient* vtkImageGradient::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageGradient");
+  if(ret)
+    {
+    return (vtkImageGradient*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageGradient;
+}
+
+
+
 
 
 //----------------------------------------------------------------------------

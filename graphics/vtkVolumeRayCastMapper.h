@@ -82,7 +82,7 @@ class vtkPlaneCollection;
 class VTK_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
-  static vtkVolumeRayCastMapper *New() {return new vtkVolumeRayCastMapper;};
+  static vtkVolumeRayCastMapper *New();
   const char *GetClassName() {return "vtkVolumeRayCastMapper";};
   void PrintSelf( ostream& os, vtkIndent index );
 

@@ -184,7 +184,7 @@ public:
   // boundary vertices is on, and the maximum error is set to
   // VTK_LARGE_FLOAT. The inflection point ratio is 10 and the vertex
   // degree is 25. Error accumulation is turned off.
-  static vtkDecimatePro *New() {return new vtkDecimatePro;};
+  static vtkDecimatePro *New();
 
   // Description:
   // Specify the desired reduction in the total number of polygons. Because

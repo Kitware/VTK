@@ -52,8 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkUnstructuredGridToUnstructuredGridFilter : public vtkUnstructuredGridSource
 {
 public:
-  static vtkUnstructuredGridToUnstructuredGridFilter *New() {
-    return new vtkUnstructuredGridToUnstructuredGridFilter;};
+  static vtkUnstructuredGridToUnstructuredGridFilter *New();
   const char *GetClassName() {return "vtkUnstructuredGridToUnstructuredGridFilter";};
 
   // Description:

@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpLens : public vtkPointSetToPointSetFilter
 {
 public:
-  static vtkWarpLens *New() {return new vtkWarpLens;};
+  static vtkWarpLens *New();
   const char *GetClassName() {return "vtkWarpLens";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

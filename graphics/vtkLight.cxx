@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLight.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkObjectFactory.h"
 
 // Create a light with the focal point at the origin and its position
 // set to (0,0,1). The lights color is white, intensity=1, and the light 
@@ -80,7 +81,15 @@ vtkLight::vtkLight()
 #endif
 // return the correct type of light 
 vtkLight *vtkLight::New()
-{
+{ 
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkLight");
+  if(ret)
+    {
+    return (vtkLight*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+
   char *temp = vtkRenderWindow::GetRenderLibrary();
   
 #ifdef VTK_USE_OGLR

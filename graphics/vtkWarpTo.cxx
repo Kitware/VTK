@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkWarpTo.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkWarpTo* vtkWarpTo::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkWarpTo");
+  if(ret)
+    {
+    return (vtkWarpTo*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkWarpTo;
+}
+
+
+
 
 vtkWarpTo::vtkWarpTo() 
 {

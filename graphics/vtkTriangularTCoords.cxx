@@ -41,6 +41,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangularTCoords.h"
 #include "vtkTCoords.h"
 #include <math.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTriangularTCoords* vtkTriangularTCoords::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTriangularTCoords");
+  if(ret)
+    {
+    return (vtkTriangularTCoords*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTriangularTCoords;
+}
+
+
+
 
 void vtkTriangularTCoords::Execute()
 {

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkMassProperties : public vtkProcessObject
 public:
   // Description:
   // Constructs with initial values of zero.
-  static vtkMassProperties *New() {return new  vtkMassProperties;};
+  static vtkMassProperties *New();
 
   const char *GetClassName() {return "vtkMassProperties";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -57,8 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageButterworthHighPass : public vtkImageToImageFilter
 {
 public:
-  static vtkImageButterworthHighPass *New() 
-    {return new vtkImageButterworthHighPass;};
+  static vtkImageButterworthHighPass *New();
   const char *GetClassName() {return "vtkImageButterworthHighPass";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

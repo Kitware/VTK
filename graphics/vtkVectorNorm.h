@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Construct with normalize flag off.
-  static vtkVectorNorm *New() {return new vtkVectorNorm;};
+  static vtkVectorNorm *New();
 
   // Description:
   // Specify whether to normalize scalar values.

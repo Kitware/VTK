@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkFieldData.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkFieldData* vtkFieldData::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFieldData");
+  if(ret)
+    {
+    return (vtkFieldData*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkFieldData;
+}
+
+
+
 
 // Construct object with no data initially.
 vtkFieldData::vtkFieldData()

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkCone.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCone* vtkCone::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCone");
+  if(ret)
+    {
+    return (vtkCone*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCone;
+}
+
+
+
 
 // Construct cone with angle of 45 degrees.
 vtkCone::vtkCone()

@@ -66,7 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
 public:
-  static vtkThreshold *New() {return new vtkThreshold;};
+  static vtkThreshold *New();
   const char *GetClassName() {return "vtkThreshold";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

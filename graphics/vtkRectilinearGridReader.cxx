@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkRectilinearGridReader.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRectilinearGridReader* vtkRectilinearGridReader::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRectilinearGridReader");
+  if(ret)
+    {
+    return (vtkRectilinearGridReader*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRectilinearGridReader;
+}
+
+
+
 
 vtkRectilinearGridReader::vtkRectilinearGridReader()
 {

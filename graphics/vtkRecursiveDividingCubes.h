@@ -65,8 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
-  static vtkRecursiveDividingCubes *New() {
-    return new vtkRecursiveDividingCubes;}
+  static vtkRecursiveDividingCubes *New();
   const char *GetClassName() {return "vtkRecursiveDividingCubes";}
   void PrintSelf(ostream& os, vtkIndent indent);
 

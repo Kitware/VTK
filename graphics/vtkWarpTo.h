@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkWarpTo : public vtkPointSetToPointSetFilter
 {
 public:
-  static vtkWarpTo *New() {return new vtkWarpTo;};
+  static vtkWarpTo *New();
   const char *GetClassName() {return "vtkWarpTo";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

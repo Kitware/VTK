@@ -44,6 +44,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkProgrammableSource* vtkProgrammableSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkProgrammableSource");
+  if(ret)
+    {
+    return (vtkProgrammableSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkProgrammableSource;
+}
+
+
+
 
 // Construct programmable filter with empty execute method.
 vtkProgrammableSource::vtkProgrammableSource()

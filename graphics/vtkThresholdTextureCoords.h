@@ -66,8 +66,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
-  static vtkThresholdTextureCoords *New() {
-    return new vtkThresholdTextureCoords;};
+  static vtkThresholdTextureCoords *New();
   const char *GetClassName() {return "vtkThresholdTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

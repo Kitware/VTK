@@ -74,7 +74,7 @@ public:
   // Description:
   // Construct with automatic computation of divisions, averaging
   // 25 points per bucket.
-  static vtkPointLocator *New() {return new vtkPointLocator;};
+  static vtkPointLocator *New();
 
   const char *GetClassName() {return "vtkPointLocator";};
   void PrintSelf(ostream& os, vtkIndent indent);

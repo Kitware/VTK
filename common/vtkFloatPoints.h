@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkFloatPoints : public vtkPoints
 {
 public:
-  static vtkFloatPoints *New() {return new vtkFloatPoints;};
+  static vtkFloatPoints *New();
   
   // Description:
   // Set the data type for this object.

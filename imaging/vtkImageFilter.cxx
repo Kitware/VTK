@@ -39,4 +39,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkImageFilter.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageFilter* vtkImageFilter::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageFilter");
+  if(ret)
+    {
+    return (vtkImageFilter*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageFilter;
+}
 

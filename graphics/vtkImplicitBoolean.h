@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Default boolean method is union.
-  static vtkImplicitBoolean *New() {return new vtkImplicitBoolean;};
+  static vtkImplicitBoolean *New();
 
   // Description:
   // Evaluate boolean combinations of implicit function using current operator.

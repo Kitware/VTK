@@ -49,6 +49,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkUnsignedLongArray.h"
 #include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkFiniteDifferenceGradientEstimator* vtkFiniteDifferenceGradientEstimator::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkFiniteDifferenceGradientEstimator");
+  if(ret)
+    {
+    return (vtkFiniteDifferenceGradientEstimator*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkFiniteDifferenceGradientEstimator;
+}
+
+
+
 
 // This is the templated function that actually computes the EncodedNormal
 // and the GradientMagnitude

@@ -50,6 +50,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPoints.h"
 #include "vtkNormals.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkSuperquadricSource* vtkSuperquadricSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkSuperquadricSource");
+  if(ret)
+    {
+    return (vtkSuperquadricSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkSuperquadricSource;
+}
+
+
+
 
 static void evalSuperquadric(float u, float v, 
 			     float du, float dv,

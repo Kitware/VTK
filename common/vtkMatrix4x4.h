@@ -68,7 +68,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
 
   // Description:
   // Construct a 4x4 identity matrix.
-  static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
+  static vtkMatrix4x4 *New();
 
   const char *GetClassName() {return "vtkMatrix4x4";};
   void PrintSelf (ostream& os, vtkIndent indent);

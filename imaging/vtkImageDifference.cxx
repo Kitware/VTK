@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkImageDifference.h"
 #include "stdlib.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkImageDifference* vtkImageDifference::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageDifference");
+  if(ret)
+    {
+    return (vtkImageDifference*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkImageDifference;
+}
+
+
+
 
 // Construct object to extract all of the input data.
 vtkImageDifference::vtkImageDifference()

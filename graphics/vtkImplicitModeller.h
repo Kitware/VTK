@@ -113,7 +113,7 @@ public:
   // Construct with sample dimensions=(50,50,50), and so that model bounds are
   // automatically computed from the input. Capping is turned on with CapValue
   // equal to a large positive number.
-  static vtkImplicitModeller *New() {return new vtkImplicitModeller;};
+  static vtkImplicitModeller *New();
 
   // Description:
   // Compute ModelBounds from input geometry. If input is not specified, the input

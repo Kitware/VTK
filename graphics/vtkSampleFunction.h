@@ -65,7 +65,7 @@ public:
   // Description:
   // Construct with ModelBounds=(-1,1,-1,1,-1,1), SampleDimensions=(50,50,50),
   // Capping turned off, and normal generation on.
-  static vtkSampleFunction *New() {return new vtkSampleFunction;};
+  static vtkSampleFunction *New();
 
   // Description:
   // Specify the implicit function to use to generate data.

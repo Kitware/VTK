@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDashedStreamLine.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkDashedStreamLine* vtkDashedStreamLine::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkDashedStreamLine");
+  if(ret)
+    {
+    return (vtkDashedStreamLine*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkDashedStreamLine;
+}
+
+
+
 
 vtkDashedStreamLine::vtkDashedStreamLine()
 {

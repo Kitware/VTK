@@ -39,6 +39,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkStripper.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkStripper* vtkStripper::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkStripper");
+  if(ret)
+    {
+    return (vtkStripper*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkStripper;
+}
+
+
+
 
 // Construct object with MaximumLength set to 1000.
 vtkStripper::vtkStripper()

@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkTransformTextureCoords.h"
 #include "vtkTransform.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkTransformTextureCoords* vtkTransformTextureCoords::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkTransformTextureCoords");
+  if(ret)
+    {
+    return (vtkTransformTextureCoords*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkTransformTextureCoords;
+}
+
+
+
 
 // Create instance with Origin (0.5,0.5,0.5); Position (0,0,0); and Scale
 // set to (1,1,1). Rotation of the texture coordinates is turned off.

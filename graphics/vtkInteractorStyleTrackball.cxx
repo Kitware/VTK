@@ -43,6 +43,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkCellPicker.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkInteractorStyleTrackball* vtkInteractorStyleTrackball::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkInteractorStyleTrackball");
+  if(ret)
+    {
+    return (vtkInteractorStyleTrackball*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkInteractorStyleTrackball;
+}
+
+
+
 
 vtkInteractorStyleTrackball::vtkInteractorStyleTrackball()
 {

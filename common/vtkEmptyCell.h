@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkEmptyCell : public vtkCell
 {
 public:
-  static vtkEmptyCell *New() {return new vtkEmptyCell;};
+  static vtkEmptyCell *New();
   const char *GetClassName() {return "vtkEmptyCell";};
 
   // Description:

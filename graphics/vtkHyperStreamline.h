@@ -90,7 +90,7 @@ public:
   // step length 0.2; step length 0.01; forward integration; terminal
   // eigenvalue 0.0; number of sides 6; radius 0.5; and logarithmic scaling
   // off.
-  static vtkHyperStreamline *New() {return new vtkHyperStreamline;};
+  static vtkHyperStreamline *New();
 
   // Description:
   // Specify the start of the hyperstreamline in the cell coordinate system. 

@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageGaussianSource : public vtkImageSource
 {
 public:
-  static vtkImageGaussianSource *New() {return new vtkImageGaussianSource;};
+  static vtkImageGaussianSource *New();
   const char *GetClassName() {return "vtkImageGaussianSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

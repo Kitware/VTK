@@ -40,6 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkRecursiveSphereDirectionEncoder.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkRecursiveSphereDirectionEncoder* vtkRecursiveSphereDirectionEncoder::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkRecursiveSphereDirectionEncoder");
+  if(ret)
+    {
+    return (vtkRecursiveSphereDirectionEncoder*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkRecursiveSphereDirectionEncoder;
+}
+
+
+
 
 
 // Construct the object. Initialize the index table which will be

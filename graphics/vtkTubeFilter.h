@@ -78,7 +78,7 @@ public:
   // Description:
   // Construct object with radius 0.5, radius variation turned off, the number 
   // of sides set to 3, and radius factor of 10.
-  static vtkTubeFilter *New() {return new vtkTubeFilter;};
+  static vtkTubeFilter *New();
 
   // Description:
   // Set the minimum tube radius (minimum because the tube radius may vary).

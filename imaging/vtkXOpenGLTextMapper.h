@@ -56,8 +56,7 @@ class VTK_EXPORT vtkXOpenGLTextMapper : public vtkXTextMapper
 {
 public:
   const char *GetClassName() {return "vtkXOpenGLTextMapper";};
-  static vtkXOpenGLTextMapper *New() {
-    return new vtkXOpenGLTextMapper;};
+  static vtkXOpenGLTextMapper *New();
 
   // Description:
   // Actally draw the text.

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkBMPWriter : public vtkImageWriter
 {
 public:
-  static vtkBMPWriter *New() {return new vtkBMPWriter;};
+  static vtkBMPWriter *New();
   const char *GetClassName() {return "vtkBMPWriter";};
 
 protected:

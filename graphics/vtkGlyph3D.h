@@ -120,7 +120,7 @@ public:
   // scale factor = 1.0, the range is (0,1), orient geometry is on, and
   // orientation is by vector. Clamping and indexing are turned off. No
   // initial sources are defined.
-  static vtkGlyph3D *New() {return new vtkGlyph3D;};
+  static vtkGlyph3D *New();
 
   // Description:
   // Get the number of source objects used to define the glyph

@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkOpenGLPolyDataMapper2D.h"
 #include <GL/gl.h>
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkOpenGLPolyDataMapper2D* vtkOpenGLPolyDataMapper2D::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkOpenGLPolyDataMapper2D");
+  if(ret)
+    {
+    return (vtkOpenGLPolyDataMapper2D*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkOpenGLPolyDataMapper2D;
+}
+
+
+
 
 void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
 						     vtkActor2D* actor)

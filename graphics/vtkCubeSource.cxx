@@ -42,6 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCubeSource.h"
 #include "vtkPoints.h"
 #include "vtkNormals.h"
+#include "vtkObjectFactory.h"
+
+
+
+//------------------------------------------------------------------------------
+vtkCubeSource* vtkCubeSource::New()
+{
+  // First try to create the object from the vtkObjectFactory
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkCubeSource");
+  if(ret)
+    {
+    return (vtkCubeSource*)ret;
+    }
+  // If the factory was unable to create the object, then create it here.
+  return new vtkCubeSource;
+}
+
+
+
 
 vtkCubeSource::vtkCubeSource(float xL, float yL, float zL)
 {

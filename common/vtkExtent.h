@@ -57,7 +57,7 @@ class vtkUnstructuredExtent;
 class VTK_EXPORT vtkExtent : public vtkObject
 {
 public:
-  static vtkExtent *New() {return new vtkExtent;};
+  static vtkExtent *New();
 
   const char *GetClassName() {return "vtkExtent";}
   void PrintSelf(ostream& os, vtkIndent indent);
