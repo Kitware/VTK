@@ -16,28 +16,28 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "HyperStr.hh"
 #include "vtkMath.hh"
 
-vtkStreamArray::vtkStreamArray()
+vtkHyperArray::vtkHyperArray()
 {
   this->MaxId = -1; 
-  this->Array = new vtkStreamPoint[1000];
+  this->Array = new vtkHyperPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
   this->Direction = INTEGRATE_FORWARD;
 }
 
-vtkStreamPoint *vtkStreamArray::Resize(int sz)
+vtkHyperPoint *vtkHyperArray::Resize(int sz)
 {
-  vtkStreamPoint *newArray;
+  vtkHyperPoint *newArray;
   int newSize;
 
   if (sz >= this->Size) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  newArray = new vtkStreamPoint[newSize];
+  newArray = new vtkHyperPoint[newSize];
 
   memcpy(newArray, this->Array,
-         (sz < this->Size ? sz : this->Size) * sizeof(vtkStreamPoint));
+         (sz < this->Size ? sz : this->Size) * sizeof(vtkHyperPoint));
 
   this->Size = newSize;
   delete [] this->Array;
@@ -150,7 +150,7 @@ void vtkHyperStreamline::Execute()
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
   vtkVectors *inVectors;
-  vtkStreamPoint *sNext, *sPtr;
+  vtkHyperPoint *sNext, *sPtr;
   int i, j, ptId, offset, numSteps, subId;
   vtkCell *cell;
   vtkFloatVectors cellVectors(MAX_CELL_SIZE);
@@ -184,11 +184,11 @@ void vtkHyperStreamline::Execute()
     this->NumberOfStreamers *= 2;
     }
 
-  this->Streamers = new vtkStreamArray[this->NumberOfStreamers];
+  this->Streamers = new vtkHyperArray[this->NumberOfStreamers];
 
   if ( this->StartFrom == START_FROM_POSITION )
     {
-    sPtr = this->Streamers[0].InsertNextStreamPoint();
+    sPtr = this->Streamers[0].InsertNextHyperPoint();
     for (i=0; i<3; i++) sPtr->x[i] = this->StartPosition[i];
     sPtr->cellId = input->FindCell(this->StartPosition, NULL, 0.0, 
                                    sPtr->subId, sPtr->p, w);
@@ -196,7 +196,7 @@ void vtkHyperStreamline::Execute()
 
   else //START_FROM_LOCATION
     {
-    sPtr = this->Streamers[0].InsertNextStreamPoint();
+    sPtr = this->Streamers[0].InsertNextHyperPoint();
     cell =  input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, sPtr->x, w);
     }
@@ -204,7 +204,7 @@ void vtkHyperStreamline::Execute()
 // Finish initializing each streamer
 //
   this->Streamers[0].Direction = 1.0;
-  sPtr = this->Streamers[0].GetStreamPoint(0);
+  sPtr = this->Streamers[0].GetHyperPoint(0);
   sPtr->d = 0.0;
   sPtr->t = 0.0;
   if ( sPtr->cellId >= 0 ) //starting point in dataset
@@ -224,7 +224,7 @@ void vtkHyperStreamline::Execute()
     if ( this->IntegrationDirection == INTEGRATE_BOTH_DIRECTIONS )
       {
       this->Streamers[1].Direction = -1.0;
-      sNext = this->Streamers[1].InsertNextStreamPoint();
+      sNext = this->Streamers[1].InsertNextHyperPoint();
       *sNext = *sPtr;
       }
     } //for each streamer
@@ -234,7 +234,7 @@ void vtkHyperStreamline::Execute()
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
     //get starting step
-    sPtr = this->Streamers[ptId].GetStreamPoint(0);
+    sPtr = this->Streamers[ptId].GetHyperPoint(0);
     if ( sPtr->cellId < 0 ) continue;
 
     dir = this->Streamers[ptId].Direction;
@@ -270,7 +270,7 @@ void vtkHyperStreamline::Execute()
         xNext[i] = sPtr->x[i] +   
                    dir * (step/2.0) * (sPtr->v[i] + vNext[i]) / sPtr->speed;
 
-      sNext = this->Streamers[ptId].InsertNextStreamPoint();
+      sNext = this->Streamers[ptId].InsertNextHyperPoint();
 
       if ( cell->EvaluatePosition(xNext, closestPoint, sNext->subId, 
       sNext->p, dist2, w) )
