@@ -11,6 +11,7 @@ public:
     }
   ~vtkPrintLeaksAtExit()
     {
+      vtkObjectFactory::UnRegisterAllFactories();
       vtkDebugLeaks::PrintCurrentLeaks();
       vtkDebugLeaks::DeleteTable();
     }  
