@@ -1114,8 +1114,8 @@ void vtkVolumeRayCastMapper::UpdateShadingTables( vtkRenderer *ren,
   shading = volume_property->GetShade();
 
   // Update the normals if necessary
-  if ( shading && this->NormalEncoder.GetEncodedNormals () == NULL ||
-       this->NormalEncoder.GetMTime() < this->ScalarInput->GetMTime() )
+  if ( shading && ( this->NormalEncoder.GetEncodedNormals () == NULL ||
+       this->NormalEncoder.GetMTime() < this->ScalarInput->GetMTime() ) )
     {
     this->NormalEncoder.SetScalarInput( this->ScalarInput );
     this->NormalEncoder.UpdateNormals();
