@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // turned off.
 vtkRenderer::vtkRenderer()
 {
-  this->PickedProp = NULL;
+  this->PickedProp   = NULL;
   this->ActiveCamera = NULL;
 
   this->Ambient[0] = 1;
@@ -74,18 +74,23 @@ vtkRenderer::vtkRenderer()
   
   this->CreatedLight = NULL;
   
-  this->TwoSidedLighting = 1;
-  this->BackingStore = 0;
-  this->BackingImage = NULL;
+  this->TwoSidedLighting        = 1;
+  this->BackingStore            = 0;
+  this->BackingImage            = NULL;
   this->LastRenderTimeInSeconds = -1.0;
   
   this->RenderWindow = NULL;
-  this->Lights = vtkLightCollection::New();
-  this->Actors = vtkActorCollection::New();
+  this->Lights  =  vtkLightCollection::New();
+  this->Actors  =  vtkActorCollection::New();
   this->Volumes = vtkVolumeCollection::New();
 
-  this->NumberOfPropsToRayCast = 0;
+  this->NumberOfPropsToRayCast         = 0;
   this->NumberOfPropsToRenderIntoImage = 0;
+
+  this->PropArray                = NULL;
+  this->RayCastPropArray         = NULL;
+  this->RenderIntoImagePropArray = NULL;   
+
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();
   this->Cullers->AddItem(cull);
@@ -142,6 +147,7 @@ void vtkRenderer::Render(void)
   double   t1, t2;
   int      i;
   vtkProp  *aProp;
+  float    *oldTimes = NULL;
 
   t1 = vtkTimerLog::GetCurrentTime();
 
@@ -214,12 +220,7 @@ void vtkRenderer::Render(void)
     this->PropArray                = new vtkProp *[this->Props->GetNumberOfItems()];
     this->RayCastPropArray         = new vtkProp *[this->Props->GetNumberOfItems()];
     this->RenderIntoImagePropArray = new vtkProp *[this->Props->GetNumberOfItems()];
-    }
-  else
-    {
-    this->PropArray = NULL;
-    this->RayCastPropArray = NULL;
-    this->RenderIntoImagePropArray = NULL;
+    oldTimes                       = new   float  [this->Props->GetNumberOfItems()];
     }
 
   this->PropArrayCount = 0;
@@ -228,6 +229,7 @@ void vtkRenderer::Render(void)
     {
     if ( aProp->GetVisibility() )
       {
+      oldTimes[this->PropArrayCount] = aProp->GetEstimatedRenderTime();
       this->PropArray[this->PropArrayCount++] = aProp;
       }
     }
@@ -240,7 +242,7 @@ void vtkRenderer::Render(void)
     }
   else
     {
-    // Call all the outer culling methods to set allocated time
+    // Call all the culling methods to set allocated time
     // for each prop and re-order the prop list if desired
 
     this->AllocateTime();
@@ -249,6 +251,19 @@ void vtkRenderer::Render(void)
   // do the render library specific stuff
   this->DeviceRender();
 
+  // If we aborted, restore old estimated times
+  // Setting the allocated render time to zero also sets the 
+  // estimated render time to zero, so that when we add back
+  // in the old value we have set it correctly.
+  if ( this->RenderWindow->GetAbortRender() )
+    {
+    for ( i = 0; i < this->PropArrayCount; i++ )
+      {
+      this->PropArray[i]->SetAllocatedRenderTime(0.0 );
+      this->PropArray[i]->AddEstimatedRenderTime( oldTimes[i] );
+      }
+    }
+
   // Clean up the space we allocated before. If the PropArray exists,
   // they all should exist
   if ( this->PropArray)
@@ -256,6 +271,11 @@ void vtkRenderer::Render(void)
     delete [] this->PropArray;
     delete [] this->RayCastPropArray;
     delete [] this->RenderIntoImagePropArray;
+    delete [] oldTimes;
+
+    this->PropArray                = NULL;
+    this->RayCastPropArray         = NULL;
+    this->RenderIntoImagePropArray = NULL;   
     }
 
   if (this->BackingStore)

@@ -1453,7 +1453,7 @@ void vtkRayCaster::Render( vtkRenderer *ren,
 
     // Fudge for now - divide the time among all the volumes rendered
     // so that they can return an estimated render time.
-    renderTime = this->TotalRenderTime / ( softwareCount + raycastCount );
+    renderTime = this->TotalRenderTime / (float)(softwareCount + raycastCount);
     for ( i = 0; i < this->SoftwareBufferPropCount; i++ )
       {
       this->SoftwareProps[i]->AddEstimatedRenderTime( renderTime );
@@ -1461,13 +1461,6 @@ void vtkRayCaster::Render( vtkRenderer *ren,
     for ( i = 0; i < this->RayCastPropCount; i++ )
       {
       this->RayCastProps[i]->AddEstimatedRenderTime( renderTime );
-      }  
-    }
-  else 
-    {
-    for ( i = 0; i < this->RayCastPropCount; i++ )
-      {
-      this->RayCastProps[i]->AddEstimatedRenderTime( 5.0 );
       }  
     }
   
