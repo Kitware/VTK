@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_MAJOR_VERSION 2
 #define VTK_MINOR_VERSION 2
 #define VTK_BUILD_VERSION 2
-#define VTK_VERSION_ID "vtk running source id $Revision: 1.4 $, $Date: 1998-11-18 14:24:50 $"
+#define VTK_SOURCE_VERSION "vtk source version $Revision: 1.5 $, $Date: 1998-11-18 15:06:19 $ (GMT)"
 
 
 class VTK_EXPORT vtkVersion : public vtkObject {
@@ -74,7 +74,7 @@ class VTK_EXPORT vtkVersion : public vtkObject {
   static int GetVTKMajorVersion() { return VTK_MAJOR_VERSION; };
   static int GetVTKMinorVersion() { return VTK_MINOR_VERSION; };
   static int GetVTKBuildVersion() { return VTK_BUILD_VERSION; };
-  static const char *GetVTKVersionID() { return VTK_VERSION_ID; };
+  static const char *GetVTKSourceVersion() { return VTK_SOURCE_VERSION; };
   
  protected:
 
