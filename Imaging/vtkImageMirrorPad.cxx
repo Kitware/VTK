@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.33");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.34");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
@@ -213,6 +213,14 @@ void vtkImageMirrorPad::ThreadedRequestData(
   vtkImageData **outData,
   int outExt[6], int id)
 {
+  // return if nothing to do
+  if (outExt[1] < outExt[0] ||
+      outExt[3] < outExt[2] ||
+      outExt[5] < outExt[4])
+    {
+    return;
+    }
+  
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   
    // get the whole extent
