@@ -98,7 +98,7 @@ void vlAppendPolyData::Execute()
   int i, ptId, ptOffset;
   int numPts, numCells;
   vlPointData *pd;
-  int npts, *pts, newPtIds[MAX_CELL_SIZE];
+  int npts, *pts;
 
   vlDebugMacro(<<"Appending data together");
   this->Initialize();
@@ -176,42 +176,46 @@ void vlAppendPolyData::Execute()
 
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
       {
-      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
-      newVerts->InsertNextCell(npts,newPtIds);
+      newVerts->InsertNextCell(npts);
+      for (i=0; i < npts; i++) newVerts->InsertCellPoint(pts[i]+ptOffset);
       }
   
     for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
       {
-      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
-      newLines->InsertNextCell(npts,newPtIds);
+      newLines->InsertNextCell(npts);
+      for (i=0; i < npts; i++) newLines->InsertCellPoint(pts[i]+ptOffset);
       }
   
     for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
       {
-      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
-      newPolys->InsertNextCell(npts,newPtIds);
+      newPolys->InsertNextCell(npts);
+      for (i=0; i < npts; i++) newPolys->InsertCellPoint(pts[i]+ptOffset);
       }
   
     for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
       {
-      for (i=0; i < npts; i++)  newPtIds[i] = pts[i] + ptOffset;
-      newStrips->InsertNextCell(npts,newPtIds);
+      newStrips->InsertNextCell(npts);
+      for (i=0; i < npts; i++) newStrips->InsertCellPoint(pts[i]+ptOffset);
       }
     }
 //
 // Update ourselves
 //
-  newVerts->Squeeze();  
-  newLines->Squeeze();  
-  newPolys->Squeeze();  
-  newStrips->Squeeze();  
-
   this->SetPoints(newPts);
-  this->SetVerts(newVerts);
-  this->SetLines(newLines);
-  this->SetPolys(newPolys);
-  this->SetStrips(newStrips);
 
+  if ( newVerts->GetNumberOfCells() > 0 ) this->SetVerts(newVerts);
+  else delete newVerts;
+
+  if ( newLines->GetNumberOfCells() > 0 ) this->SetLines(newLines);
+  else delete newLines;
+
+  if ( newPolys->GetNumberOfCells() > 0 ) this->SetPolys(newPolys);
+  else delete newPolys;
+
+  if ( newStrips->GetNumberOfCells() > 0 ) this->SetStrips(newStrips);
+  else delete newStrips;
+
+  this->Squeeze();
 }
 
 int vlAppendPolyData::GetDataReleased()
