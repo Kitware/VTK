@@ -56,6 +56,7 @@ vtkRenderWindowInteractor iren
 # using the Command/Observer mechanism (AddObserver()).
 vtkBoxWidget boxWidget
     boxWidget SetInteractor iren
+    boxWidget SetPlaceFactor 1.25
 
 ren1 AddActor maceActor
 ren1 AddActor selectActor
