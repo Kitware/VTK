@@ -168,7 +168,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
     switch (numComp)
       {
       case 1:
-        alpha = this->Alpha*255;
+        alpha = (unsigned char)(this->Alpha*255);
         for (i=0; i<numTuples; i++)
           {
           *nptr++ = *cptr;
@@ -184,12 +184,12 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
           *nptr++ = *cptr;
           *nptr++ = *cptr;
           *nptr++ = *cptr++;
-          *nptr++ = (*cptr)*this->Alpha; cptr++;
+          *nptr++ = (unsigned char) ((*cptr)*this->Alpha); cptr++;
           }
         break;
 
       case 3:
-        alpha = this->Alpha*255;
+        alpha = (unsigned char)(this->Alpha*255);
         for (i=0; i<numTuples; i++)
           {
           *nptr++ = *cptr++;
@@ -205,7 +205,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
           *nptr++ = *cptr++;
           *nptr++ = *cptr++;
           *nptr++ = *cptr++;
-          *nptr++ = (*cptr)*this->Alpha; cptr++;
+          *nptr++ = (unsigned char)((*cptr)*this->Alpha); cptr++;
           }
         break;
 
