@@ -88,7 +88,6 @@ vtkStreamer::vtkStreamer()
   this->Vorticity = 0;
   this->TerminalSpeed = 0.0;
   this->SpeedScalars = 0;
-  this->Output = new vtkPolyData;
 }
 
 // Description:
@@ -193,8 +192,8 @@ void vtkStreamer::Update()
   if ( this->Source ) this->Source->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->GetMTime() || 
-  (this->Source && this->Source->GetMTime() > this->GetMTime()) || 
+  if (this->Input->GetMTime() > this->ExecuteTime || 
+  (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
   this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);

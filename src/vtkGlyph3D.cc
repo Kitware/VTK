@@ -295,9 +295,9 @@ void vtkGlyph3D::Update()
   this->Source->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->GetMTime() || 
-  this->Source->GetMTime() > this->GetMTime() || 
-  this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
+  if (this->Input->GetMTime() > this->ExecuteTime || 
+      this->Source->GetMTime() > this->ExecuteTime || 
+      this->GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
