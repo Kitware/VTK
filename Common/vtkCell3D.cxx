@@ -22,7 +22,7 @@
 #include "vtkMarchingCubesCases.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.25");
+vtkCxxRevisionMacro(vtkCell3D, "1.26");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -43,12 +43,12 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   vtkCell3D *cell3D = (vtkCell3D *)this; //has to be to be in this method
   int numPts=this->GetNumberOfPoints();
   int numEdges=this->GetNumberOfEdges();
-  int *edges;
-  int i;
+  int *verts, v1, v2;
+  int i, j;
   int type;
   vtkIdType id, ptId;
   int internalId[VTK_CELL_SIZE];
-  float s1, s2, *xPtr, t, p1[3], p2[3], x[3];
+  float s1, s2, *xPtr, t, p1[3], p2[3], x[3], deltaScalar;
   
   // Create a triangulator if necessary.
   if ( ! this->Triangulator )
@@ -94,57 +94,57 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   // intersections near exisiting points (causes bad Delaunay behavior).
   for (int edgeNum=0; edgeNum < numEdges; edgeNum++)
     {
-    cell3D->GetEdgePoints(edgeNum, edges);
-    s1 = cellScalars->GetComponent(edges[0],0);
-    s2 = cellScalars->GetComponent(edges[1],0);
+    cell3D->GetEdgePoints(edgeNum, verts);
+
+    // calculate a preferred interpolation direction
+    s1 = cellScalars->GetComponent(verts[0],0);
+    s2 = cellScalars->GetComponent(verts[1],0);
+
     if ( (s1 < value && s2 >= value) || (s1 >= value && s2 < value) )
       {
-      t = (value - s1) / (s2 - s1);
+      deltaScalar = s2 - s1;
 
-      // Check to see whether near the intersection is near a voxel corner. 
-      // If so,have to merge requiring a change of type to type=boundary.
+      if (deltaScalar > 0)
+        {
+        v1 = verts[0]; v2 = verts[1];
+        }
+      else
+        {
+        v1 = verts[1]; v2 = verts[0];
+        deltaScalar = -deltaScalar;
+        }
+
+      // linear interpolation
+      t = ( deltaScalar == 0.0 ? 0.0 :
+            (value - cellScalars->GetComponent(v1,0)) / deltaScalar );
+
       if ( t < 0.01 )
         {
-        this->Triangulator->UpdatePointType(internalId[edges[0]], 2);
+        this->Triangulator->UpdatePointType(internalId[v1], 2);
         continue;
         }
       else if ( t > 0.99 )
         {
-        this->Triangulator->UpdatePointType(internalId[edges[1]], 2);
+        this->Triangulator->UpdatePointType(internalId[v2], 2);
         continue;
         }
 
-      // generate edge intersection point
-      this->Points->GetPoint(edges[0],p1);
-      this->Points->GetPoint(edges[1],p2);
+      this->Points->GetPoint(v1, p1);
+      this->Points->GetPoint(v2, p2);
 
-      // Got to compute the intersection point identically or the
-      // point merging (with the locator) will not work correctly due
-      // to precision problems in the last decimal place.
-      if ( s1 < s2 )
+      for (j=0; j<3; j++)
         {
-        for (i=0; i<3; i++)
-          {
-          x[i] = p1[i] + t * (p2[i] - p1[i]);
-          }
-        }
-      else
-        {
-        t = (value - s2) / (s1 - s2);
-        for (i=0; i<3; i++)
-          {
-          x[i] = p2[i] + t * (p1[i] - p2[i]);
-          }
+        x[j] = p1[j] + t*(p2[j] - p1[j]);
         }
       
       // Incorporate point into output and interpolate edge data as necessary
       if ( locator->InsertUniquePoint(x, ptId) )
         {
-        outPD->InterpolateEdge(inPD, ptId, this->PointIds->GetId(edges[0]),
-                               this->PointIds->GetId(edges[1]), t);
+        outPD->InterpolateEdge(inPD, ptId, this->PointIds->GetId(v1),
+                               this->PointIds->GetId(v2), t);
         }
 
-      //Insert into Delaunay triangulation
+      //Insert boundary point into Delaunay triangulation
       this->Triangulator->InsertPoint(ptId,x,2);
 
       }//if edge intersects value
