@@ -99,7 +99,7 @@ static int vtkPythonAppInitFileExists(const char* filename);
 
 int main(int argc, char **argv)
 {
-  void vtkPythonAppInitEnableMSVCDebugHook();
+  vtkPythonAppInitEnableMSVCDebugHook();
   
 #ifdef VTK_COMPILED_USING_MPI
   VTKMPICleanup.Initialize(&argc, &argv);
