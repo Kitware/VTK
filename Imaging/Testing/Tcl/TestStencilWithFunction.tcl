@@ -6,6 +6,7 @@ package require vtktcl
 
 vtkPNGReader reader
 reader SetDataSpacing 0.8 0.8 1.5
+reader SetDataOrigin  0.0 0.0 0.0
 reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkSphere sphere
@@ -15,6 +16,16 @@ sphere SetRadius 80
 vtkImplicitFunctionToImageStencil functionToStencil
 functionToStencil SetInput sphere
 
+# test manual updating of stencil
+set stencilOriginal [functionToStencil GetOutput]
+$stencilOriginal SetSpacing 0.8 0.8 1.5
+$stencilOriginal SetOrigin  0.0 0.0 0.0
+$stencilOriginal SetUpdateExtent 0 255 0 255 0 0
+$stencilOriginal Update
+
+# test making a copying of the stencil (for coverage)
+set stencilCopy [$stencilOriginal MakeObject]
+
 vtkImageShiftScale shiftScale
 shiftScale SetInput [reader GetOutput]
 shiftScale SetScale 0.2
@@ -22,7 +33,7 @@ shiftScale SetScale 0.2
 vtkImageStencil stencil
 stencil SetInput [reader GetOutput]
 stencil SetBackgroundInput [shiftScale GetOutput]
-stencil SetStencil [functionToStencil GetOutput]
+stencil SetStencil $stencilCopy
 
 vtkImageViewer viewer
 viewer SetInput [stencil GetOutput]
