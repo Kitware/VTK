@@ -55,7 +55,7 @@ vtkDelaunay3D::vtkDelaunay3D()
   this->BoundingTriangulation = 0;
   this->Offset = 2.5;
 
-  this->Output = new vtkUnstructuredGrid;
+  this->Output = vtkUnstructuredGrid::New();
   this->Output->SetSource(this);
 }
 
@@ -371,7 +371,7 @@ void vtkDelaunay3D::Execute()
   int ptId;
   vtkPoints *inPoints;
   vtkFloatPoints *points;
-  vtkUnstructuredGrid *Mesh=new vtkUnstructuredGrid;
+  vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
   float x[3];

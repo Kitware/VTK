@@ -165,7 +165,7 @@ vtkImageTwoOutputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     }
   
   // Make the input region that will be used to generate the output region
-  inRegion = new vtkImageRegion;
+  inRegion = vtkImageRegion::New();
   // Fill in image information (ComputeRequiredInputExtent may need it)
   this->Input->UpdateImageInformation(inRegion);
   // Set the coordinate system
@@ -176,8 +176,8 @@ vtkImageTwoOutputFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
   this->Input->UpdateRegion(inRegion);
 
   // Make the two output regions
-  outRegion0 = new vtkImageRegion;
-  outRegion1 = new vtkImageRegion;
+  outRegion0 = vtkImageRegion::New();
+  outRegion1 = vtkImageRegion::New();
   // Copy every thing but the data (there is no data)
   // The two regions do have to have the same extent,
   // (because we do not know which caches is making the original request).
@@ -355,7 +355,7 @@ void vtkImageTwoOutputFilter::CheckCache1()
   // create a default cache if one has not been set
   if ( ! this->Output1)
     {
-    this->Output1 = new vtkImageSimpleCache;
+    this->Output1 = vtkImageSimpleCache::New();
     this->Output1->ReleaseDataFlagOn();
     this->Output1->SetSource(this);
     this->Modified();

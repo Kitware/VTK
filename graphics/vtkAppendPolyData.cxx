@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkAppendPolyData::vtkAppendPolyData()
 {
-  this->Output = new vtkPolyData;
+  this->Output = vtkPolyData::New();
   this->Output->SetSource(this);
 }
 
@@ -174,16 +174,16 @@ void vtkAppendPolyData::Execute()
   newPts = new vtkFloatPoints(numPts);
   newPts->SetNumberOfPoints(numPts);
 
-  newVerts = new vtkCellArray;
+  newVerts = vtkCellArray::New();
   newVerts->Allocate(numCells*4);
 
-  newLines = new vtkCellArray;
+  newLines = vtkCellArray::New();
   newLines->Allocate(numCells*4);
 
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(numCells*4);
 
-  newStrips = new vtkCellArray;
+  newStrips = vtkCellArray::New();
   newStrips->Allocate(numCells*4);
 
   // loop over all input sets

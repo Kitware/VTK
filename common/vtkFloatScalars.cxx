@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFloatScalars::vtkFloatScalars()
 {
-  this->S = new vtkFloatArray;
+  this->S = vtkFloatArray::New();
 }
 
 vtkFloatScalars::vtkFloatScalars(const vtkFloatScalars& fs)
 {
-  this->S = new vtkFloatArray;
+  this->S = vtkFloatArray::New();
   *(this->S) = *(fs.S);
 }
 

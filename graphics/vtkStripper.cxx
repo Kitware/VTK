@@ -87,7 +87,7 @@ void vtkStripper::Execute()
   // pre-load existing strips
   if ( inStrips->GetNumberOfCells() > 0 || inPolys->GetNumberOfCells() > 0 )
     {
-    newStrips = new vtkCellArray;
+    newStrips = vtkCellArray::New();
     newStrips->Allocate(newStrips->EstimateSize(numCells,6));
     for(inStrips->InitTraversal(); inStrips->GetNextCell(numStripPts,stripPts);)
       {
@@ -98,7 +98,7 @@ void vtkStripper::Execute()
   // pre-load existing poly-lines
   if ( inLines->GetNumberOfCells() > 0 )
     {
-    newLines = new vtkCellArray;
+    newLines = vtkCellArray::New();
     newLines->Allocate(newStrips->EstimateSize(numCells,6));
     for (inLines->InitTraversal(); inLines->GetNextCell(numLinePts,linePts); )
       {

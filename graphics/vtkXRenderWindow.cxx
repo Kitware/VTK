@@ -144,7 +144,7 @@ Display *vtkXRenderWindow::GetDisplayId()
 Window vtkXRenderWindow::GetParentId()
 {
   vtkDebugMacro(<< "Returning ParentId of " << (void *)this->ParentId << "\n");
-  return this->WindowId;
+  return this->ParentId;
 }
 
 // Description:

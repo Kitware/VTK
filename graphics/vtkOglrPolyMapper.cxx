@@ -104,7 +104,9 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   int *pts;
   vtkTCoords *t;
   int tDim, primType;
-
+  int count = 0;
+  int noAbort = 1;
+  
   if ( ! this->Data || (npts=this->Data->GetNumberOfPoints()) < 1)
     {
     return;
@@ -225,7 +227,8 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	}
       }
     
-    for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); )
+    for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
+	 count++)
       { 
       glBegin(aGlFunction);
       
@@ -349,6 +352,16 @@ void vtkOglrPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
 	  glVertex3fv(p->GetPoint(pts[j]));
 	  }
 	glEnd();
+	}
+
+      // check for abort condition
+      if (count == 100)
+	{
+	count = 0;
+	if (ren->GetRenderWindow()->CheckAbortStatus())
+	  {
+	  noAbort = 0;
+	  }
 	}
       }
     if (primType < 2)

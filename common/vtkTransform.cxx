@@ -51,7 +51,7 @@ vtkTransform::vtkTransform ()
   this->PreMultiplyFlag = 1;
   this->StackSize = 10;
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
-  *this->Stack = new vtkMatrix4x4;
+  *this->Stack = vtkMatrix4x4::New();
   this->StackBottom = this->Stack;
   this->Identity ();
 
@@ -89,7 +89,7 @@ vtkTransform& vtkTransform::operator=(const vtkTransform& t)
   this->Stack = new vtkMatrix4x4 *[this->StackSize];
   for ( n=t.Stack-t.StackBottom+1, i=0; i < n; i++ )
     {
-    this->Stack[i] = new vtkMatrix4x4;
+    this->Stack[i] = vtkMatrix4x4::New();
     *(this->Stack[i]) = *(t.Stack[i]);
     }
   this->StackBottom = this->Stack + (n - 1);
@@ -167,7 +167,7 @@ void vtkTransform::Push ()
     }
 
   // allocate a new matrix on the stack
-  *this->Stack = new vtkMatrix4x4;
+  *this->Stack = vtkMatrix4x4::New();
 
   // set the new matrix to the previous top of stack matrix
   **this->Stack = ctm;
@@ -511,7 +511,7 @@ void vtkTransform::GetPosition (float & x,float & y,float & z)
 float *vtkTransform::GetOrientationWXYZ ()
 {
   float	scaleX, scaleY, scaleZ;
-  vtkTransform *temp1 = new vtkTransform;
+  vtkTransform *temp1 = vtkTransform::New();
   vtkMatrix4x4 temp;
   float quat[4];
   static float WXYZ[4];

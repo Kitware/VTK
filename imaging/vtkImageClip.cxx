@@ -160,7 +160,7 @@ void vtkImageClip::ResetOutputImageExtent()
     return;
     }
 
-  region = new vtkImageRegion;
+  region = vtkImageRegion::New();
   this->Input->UpdateImageInformation(region);
   this->SetOutputImageExtent(VTK_IMAGE_DIMENSIONS, region->GetImageExtent());
   region->Delete();

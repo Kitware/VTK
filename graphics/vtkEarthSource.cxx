@@ -6854,7 +6854,7 @@ void vtkEarthSource::Execute()
 
   newPoints = new vtkFloatPoints(maxPts);
   newNormals = new vtkFloatNormals(maxPts);
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(maxPolys,4000/this->OnRatio));
 
   //

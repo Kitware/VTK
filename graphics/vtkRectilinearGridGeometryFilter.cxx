@@ -99,7 +99,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
     case 0: // --------------------- build point -----------------------
 
       newPts = new vtkFloatPoints(1);
-      newVerts = new vtkCellArray;
+      newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(1,1));
       outPD->CopyAllocate(pd,1);
 
@@ -120,7 +120,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
           }
         }
       newPts = new vtkFloatPoints(totPoints);
-      newLines = new vtkCellArray;
+      newLines = vtkCellArray::New();
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
       outPD->CopyAllocate(pd,totPoints);
 //
@@ -165,7 +165,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
       numPolys = diff[dir[0]]  * diff[dir[1]];
 
       newPts = new vtkFloatPoints(totPoints);
-      newPolys = new vtkCellArray;
+      newPolys = vtkCellArray::New();
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
       outPD->CopyAllocate(pd,totPoints);
 //
@@ -221,7 +221,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
       totPoints = (diff[0]+1) * (diff[1]+1) * (diff[2]+1);
 
       newPts = new vtkFloatPoints(totPoints);
-      newVerts = new vtkCellArray;
+      newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
       outPD->CopyAllocate(pd,totPoints);
 //

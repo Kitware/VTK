@@ -247,7 +247,7 @@ void vtkImageToStructuredPoints::Update()
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::Execute()
 {
-  vtkImageRegion *region = new vtkImageRegion;
+  vtkImageRegion *region = vtkImageRegion::New();
   vtkScalars *scalars = NULL;
   vtkVectors *vectors = NULL;
   int regionExtent[8], *extent, dim[3];
@@ -411,7 +411,7 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
       dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
     {
     vtkImageRegion *temp = region;
-    region = new vtkImageRegion;
+    region = vtkImageRegion::New();
     region->SetExtent(4, regionExtent);
     region->CopyRegionData(temp);
     temp->Delete();
@@ -455,7 +455,7 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion,
   outRegion->SetAxes(this->NumberOfSplitAxes, this->SplitOrder);
   
   // Split output into two pieces and update separately.
-  inRegion = new vtkImageRegion;
+  inRegion = vtkImageRegion::New();
   inRegion->SetAxes(this->NumberOfSplitAxes, this->SplitOrder);
   outRegion->GetExtent(splitExtent);
 
@@ -568,7 +568,7 @@ vtkImageToStructuredPoints::CopyToColorScalars(vtkImageRegion *region)
   
   region->GetExtent(min0, max0, min1, max1, min2, max2);
   region->GetIncrements(inc0, inc1, inc2);
-  scalars = new vtkGraymap;
+  scalars = vtkGraymap::New();
   scalars->Allocate((max0-min0+1)*(max1-min1+1)*(max2-min2+1));
 
   ptr2 = (unsigned char *)(region->GetScalarPointer());

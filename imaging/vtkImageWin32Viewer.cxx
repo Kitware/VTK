@@ -347,7 +347,7 @@ void vtkImageWin32Viewer::Render(void)
     }
   
   // Get the region form the input
-  region = new vtkImageRegion;
+  region = vtkImageRegion::New();
   region->SetAxes(this->Region.GetAxes());
   region->SetExtent(4, extent);
   this->Input->UpdateRegion(region);
@@ -671,7 +671,7 @@ LRESULT APIENTRY vtkImageWin32ViewerWndProc(HWND hWnd, UINT message,
         // easy way to tget the this pointer during the create call
         // we'll pass the created info back out
         vtkImageWin32ViewerCreateInfo *info = 
-	      new vtkImageWin32ViewerCreateInfo;
+	      vtkImageWin32ViewerCreateInfo::New();
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)info);
         info->DeviceContext = GetDC(hWnd);
         if (vtkImageWin32DoGrey)

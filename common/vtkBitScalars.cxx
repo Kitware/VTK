@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkBitScalars::vtkBitScalars()
 {
-  this->S = new vtkBitArray;
+  this->S = vtkBitArray::New();
 }
 
 vtkBitScalars::vtkBitScalars(const vtkBitScalars& cs)
 {
-  this->S = new vtkBitArray;
+  this->S = vtkBitArray::New();
   *(this->S) = *(cs.S);
 }
 

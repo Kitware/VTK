@@ -89,7 +89,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
   if (!strncmp("sbr",type,4))
     {
     vtkSbrRenderWindow *ren;
-    ren = new vtkSbrRenderWindow;
+    ren = vtkSbrRenderWindow::New();
     this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
@@ -99,7 +99,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
   if (!strncmp("glr",type,3))
     {
     vtkGlrRenderWindow *ren;
-    ren = new vtkGlrRenderWindow;
+    ren = vtkGlrRenderWindow::New();
     this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
@@ -109,7 +109,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
   if (!strncmp("oglr",type,4))
     {
     vtkOglrRenderWindow *ren;
-    ren = new vtkOglrRenderWindow;
+    ren = vtkOglrRenderWindow::New();
     this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
@@ -119,7 +119,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
   if (!strncmp("woglr",type,5))
     {
     vtkWin32OglrRenderWindow *ren;
-    ren = new vtkWin32OglrRenderWindow;
+    ren = vtkWin32OglrRenderWindow::New();
     this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }
@@ -129,7 +129,7 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
   if (!strncmp("xglr",type,4))
     {
     vtkXglrRenderWindow *ren;
-    ren = new vtkXglrRenderWindow;
+    ren = vtkXglrRenderWindow::New();
     this->RenderWindows.AddItem(ren);
     return (vtkRenderWindow *)ren;
     }

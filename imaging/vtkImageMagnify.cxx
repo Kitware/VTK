@@ -68,7 +68,7 @@ void vtkImageMagnify::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageMagnify1D;
+    this->Filters[idx] = vtkImageMagnify1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     // Get the default values for the MagnificationFactors.
     this->MagnificationFactors[idx] 

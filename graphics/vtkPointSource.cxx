@@ -63,7 +63,7 @@ void vtkPointSource::Execute()
   vtkDebugMacro(<< "Generating random cloud of points...");
 
   newPoints = new vtkFloatPoints(this->NumberOfPoints);
-  newVerts = new vtkCellArray;
+  newVerts = vtkCellArray::New();
   newVerts->Allocate(newVerts->EstimateSize(1,this->NumberOfPoints));
 
   newVerts->InsertNextCell(this->NumberOfPoints);

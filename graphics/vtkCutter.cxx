@@ -263,7 +263,7 @@ void vtkCutter::SetLocator(vtkPointLocator *locator)
 void vtkCutter::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = new vtkMergePoints;
+  this->Locator = vtkMergePoints::New();
   this->SelfCreatedLocator = 1;
 }
 

@@ -72,7 +72,7 @@ void vtkImageMean::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageMean1D;
+    this->Filters[idx] = vtkImageMean1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     ((vtkImageMean1D *)
      (this->Filters[idx]))->SetKernelSize(this->KernelSize[idx]);

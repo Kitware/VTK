@@ -438,7 +438,7 @@ void vtkMarchingSquares::SetLocator(vtkPointLocator *locator)
 void vtkMarchingSquares::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = new vtkMergePoints;
+  this->Locator = vtkMergePoints::New();
   this->SelfCreatedLocator = 1;
 }
 

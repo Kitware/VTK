@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkShortScalars::vtkShortScalars()
 {
-  this->S = new vtkShortArray;
+  this->S = vtkShortArray::New();
 }
 
 vtkShortScalars::vtkShortScalars(const vtkShortScalars& ss)
 {
-  this->S = new vtkShortArray;
+  this->S = vtkShortArray::New();
   *(this->S) = *(ss.S);
 }
 

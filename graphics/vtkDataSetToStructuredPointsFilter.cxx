@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkDataSetToStructuredPointsFilter::vtkDataSetToStructuredPointsFilter()
 {
-  this->Output = new vtkStructuredPoints;
+  this->Output = vtkStructuredPoints::New();
   this->Output->SetSource(this);
 }
 

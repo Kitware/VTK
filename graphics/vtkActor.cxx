@@ -338,7 +338,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
 
   previous = path->GetLastItem();
 
-  vtkMatrix4x4 *matrix = new vtkMatrix4x4;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   *matrix = previous->vtkProp::GetMatrix();
   copy->SetUserMatrix(matrix);
 

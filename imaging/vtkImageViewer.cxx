@@ -102,9 +102,9 @@ void vtkImageViewer::SetPosition(int x, int y)
 vtkImageViewer *vtkImageViewer::New()
 {
 #ifdef _WIN32
-  return new vtkImageWin32Viewer;
+  return vtkImageWin32Viewer::New();
 #else
-  return new vtkImageXViewer;
+  return vtkImageXViewer::New();
 #endif  
   return NULL;
 }

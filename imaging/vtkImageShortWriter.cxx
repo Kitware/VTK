@@ -271,7 +271,7 @@ void vtkImageShortWriter::GetExtent(int num, int *extent)
 // WholeImage flag and Extent.
 void vtkImageShortWriter::Write()
 {
-  vtkImageRegion *region = new vtkImageRegion;
+  vtkImageRegion *region = vtkImageRegion::New();
   int *extent;
   
   // Error checking

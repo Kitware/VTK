@@ -181,7 +181,7 @@ void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
     }
   
   // Make the input region that will be used to generate the output region
-  inRegion = new vtkImageRegion;
+  inRegion = vtkImageRegion::New();
   // Fill in image information (ComputeRequiredInputExtent may need it)
   this->Input->UpdateImageInformation(inRegion);
   // Set the coordinate system
@@ -514,7 +514,7 @@ vtkImageRegion *vtkImageFilter::GetInputRegion(int dim, int *extent)
     return NULL;
     }
 
-  region = new vtkImageRegion;
+  region = vtkImageRegion::New();
 
   // This step is just error checking, and may be wastefull.  The Image
   // Information is automatically computed when UpdateRegion is called.

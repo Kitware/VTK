@@ -66,7 +66,7 @@ void vtkImageDistance::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageDistance1D;
+    this->Filters[idx] = vtkImageDistance1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     }
   

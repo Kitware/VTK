@@ -262,7 +262,7 @@ void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
 // property and then mapper.  
 void vtkFollower::Render(vtkRenderer *ren)
 {
-  vtkMatrix4x4 *matrix = new vtkMatrix4x4;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
   /* render the property */
   if (!this->Property)

@@ -72,7 +72,7 @@ void vtkImageDilate::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageDilate1D;
+    this->Filters[idx] = vtkImageDilate1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     ((vtkImageDilate1D *)
      (this->Filters[idx]))->SetKernelSize(this->KernelSize[idx]);

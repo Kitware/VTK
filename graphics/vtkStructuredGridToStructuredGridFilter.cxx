@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredGridToStructuredGridFilter::vtkStructuredGridToStructuredGridFilter()
 {
-  this->Output = new vtkStructuredGrid;
+  this->Output = vtkStructuredGrid::New();
   this->Output->SetSource(this);
 }
 

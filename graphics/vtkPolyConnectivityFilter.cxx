@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with default extraction mode to extract largest regions.
 vtkPolyConnectivityFilter::vtkPolyConnectivityFilter()
 {
-  this->RegionSizes = new vtkIntArray;
+  this->RegionSizes = vtkIntArray::New();
   this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
   this->MaxRecursionDepth = 10000;
@@ -112,7 +112,7 @@ void vtkPolyConnectivityFilter::Execute()
   //
   // Build cell structure
   //
-  Mesh = new vtkPolyData;
+  Mesh = vtkPolyData::New();
   Mesh->CopyStructure(input);
   Mesh->BuildLinks();
 

@@ -640,7 +640,7 @@ vtkStructuredPointsToImage *vtkStructuredPoints::GetStructuredPointsToImage()
 {
   if ( ! this->StructuredPointsToImage)
     {
-    this->StructuredPointsToImage = new vtkStructuredPointsToImage;
+    this->StructuredPointsToImage = vtkStructuredPointsToImage::New();
     this->StructuredPointsToImage->SetInput(this);
     }
   

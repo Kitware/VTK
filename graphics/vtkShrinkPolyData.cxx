@@ -105,10 +105,10 @@ void vtkShrinkPolyData::Execute()
 
   newVerts = new vtkCellArray(input->GetNumberOfVerts());
 
-  newLines = new vtkCellArray;
+  newLines = vtkCellArray::New();
   newLines->Allocate(numNewLines*3);
  
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(polyAllocSize);
 
   pointData->CopyAllocate(pd);

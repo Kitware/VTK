@@ -157,7 +157,7 @@ void vtkImageFourierWavelet2D::InitializeWavelets(int dim)
     this->Wavelets->Delete();
     }
   // Allocate new region for the wavelets
-  this->Wavelets = new vtkImageRegion;
+  this->Wavelets = vtkImageRegion::New();
   this->Wavelets->SetScalarType(VTK_FLOAT);
   this->Wavelets->SetAxes(VTK_IMAGE_COMPONENT_AXIS, 
 			  VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);

@@ -48,7 +48,7 @@ vtkCursor3D::vtkCursor3D()
 {
   vtkFloatPoints *pts;
 
-  this->Focus = new vtkPolyData;
+  this->Focus = vtkPolyData::New();
   pts = new vtkFloatPoints(1);
   pts->vtkPoints::InsertPoint(0, 0.0, 0.0, 0.0);
   this->Focus->SetPoints(pts);

@@ -96,7 +96,7 @@ void vtkImageDilateErode::SetKernelSize(int num, int *size)
     {
     this->Mask->Delete();
     }
-  this->Mask = new vtkImageRegion;
+  this->Mask = vtkImageRegion::New();
   this->Mask->SetScalarType(VTK_UNSIGNED_CHAR);
   this->Mask->SetAxes(this->GetAxes());
   this->Mask->SetExtent(0, this->KernelSize[0]-1, 

@@ -119,8 +119,8 @@ void vtkGeometryFilter::Execute()
   vtkCell *cell, *face, *cellCopy;
   float *x;
   vtkIdList *ptIds;
-  vtkIdList *cellIds = new vtkIdList;
-  vtkIdList *pts = new vtkIdList;
+  vtkIdList *cellIds = vtkIdList::New();
+  vtkIdList *pts = vtkIdList::New();
   vtkFloatPoints *newPts;
   int ptId;
   int npts, pt;
@@ -286,7 +286,7 @@ void vtkGeometryFilter::SetLocator(vtkPointLocator *locator)
 void vtkGeometryFilter::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = new vtkMergePoints;
+  this->Locator = vtkMergePoints::New();
   this->SelfCreatedLocator = 1;
 }
 

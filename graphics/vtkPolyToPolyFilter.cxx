@@ -42,6 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkPolyToPolyFilter::vtkPolyToPolyFilter()
 {
-  this->Output = new vtkPolyData;
+  this->Output = vtkPolyData::New();
   this->Output->SetSource(this);
 }

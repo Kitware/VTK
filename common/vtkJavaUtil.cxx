@@ -82,7 +82,7 @@ void vtkHashTable::AddHashEntry(void *key,void *value)
   vtkHashNode *newpos;
   int loc;
   
-  newpos = new vtkHashNode;
+  newpos = vtkHashNode::New();
   newpos->key = key;
   newpos->value = value;
   newpos->next = NULL;
@@ -179,10 +179,10 @@ void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
 { 
   if (!vtkInstanceLookup)
     {
-    vtkInstanceLookup = new vtkHashTable;
-    vtkTypecastLookup = new vtkHashTable;
-    vtkPointerLookup = new vtkHashTable;
-    vtkDeleteLookup = new vtkHashTable;
+    vtkInstanceLookup = vtkHashTable::New();
+    vtkTypecastLookup = vtkHashTable::New();
+    vtkPointerLookup = vtkHashTable::New();
+    vtkDeleteLookup = vtkHashTable::New();
 #ifdef _WIN32
     vtkGlobalMutex = CreateMutex(NULL, FALSE, NULL);
 #endif

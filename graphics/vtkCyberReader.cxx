@@ -368,7 +368,7 @@ void vtkCyberReader::Execute()
 //  Build polygons.  Have no more than number of vertex polygons.
 //
   vtkDebugMacro(<<"Creating triangles...");
-  newTris = new vtkCellArray;
+  newTris = vtkCellArray::New();
   newTris->Allocate(newTris->EstimateSize(2*nvertex,3));
 
   nlt = (vtx->ltmax - vtx->ltmin + 1) / vtx->ltresol;// verticies in y 

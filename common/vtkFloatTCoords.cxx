@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFloatTCoords::vtkFloatTCoords()
 {
-  this->TC = new vtkFloatArray;
+  this->TC = vtkFloatArray::New();
 }
 
 vtkFloatTCoords::vtkFloatTCoords(const vtkFloatTCoords& ftc)
 {
-  this->TC = new vtkFloatArray;
+  this->TC = vtkFloatArray::New();
   *(this->TC) = *(ftc.TC);
   this->Dimension = ftc.Dimension;
 }

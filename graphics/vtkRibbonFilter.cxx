@@ -123,7 +123,7 @@ void vtkRibbonFilter::Execute()
 
   newPts = new vtkFloatPoints(numNewPts);
   newNormals = new vtkFloatNormals(numNewPts);
-  newStrips = new vtkCellArray;
+  newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
 //
 //  Create pairs of points along the line that are later connected into a 

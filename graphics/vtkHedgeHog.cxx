@@ -69,7 +69,7 @@ void vtkHedgeHog::Execute()
   outputPD->CopyAllocate(pd, 2*numPts);
 
   newPts = new vtkFloatPoints(2*numPts); newPts->SetNumberOfPoints(2*numPts);
-  newLines = new vtkCellArray;
+  newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numPts,2));
 //
 // Loop over all points, creating oriented line

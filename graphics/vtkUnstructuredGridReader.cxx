@@ -218,7 +218,7 @@ void vtkUnstructuredGridReader::Execute()
           return;
           }
 
-        cells = new vtkCellArray;
+        cells = vtkCellArray::New();
         if (!this->Reader.ReadCells(size, cells->WritePtr(ncells,size)) )
 	  {
           this->Reader.CloseVTKFile ();

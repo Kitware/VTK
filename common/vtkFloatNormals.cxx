@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFloatNormals::vtkFloatNormals()
 {
-  this->N = new vtkFloatArray;
+  this->N = vtkFloatArray::New();
 }
 
 vtkFloatNormals::vtkFloatNormals(const vtkFloatNormals& fn)
 {
-  this->N = new vtkFloatArray;
+  this->N = vtkFloatArray::New();
   *(this->N) = *(fn.N);
 }
 

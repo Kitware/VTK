@@ -57,7 +57,7 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
   this->SelfCreatedLocator = 0;
 
   this->GenerateClippedOutput = 0;
-  this->ClippedOutput = new vtkPolyData;
+  this->ClippedOutput = vtkPolyData::New();
   this->ClippedOutput->SetSource(this);
 }
 
@@ -295,7 +295,7 @@ void vtkClipPolyData::SetLocator(vtkPointLocator *locator)
 void vtkClipPolyData::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = new vtkMergePoints;
+  this->Locator = vtkMergePoints::New();
   this->SelfCreatedLocator = 1;
 }
 

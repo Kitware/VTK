@@ -90,7 +90,7 @@ void vtkRendererSource::Execute()
 
   // Allocate data.  Scalar type is FloatScalars.
   numOutPts = dims[0] * dims[1];
-  outScalars = new vtkPixmap;
+  outScalars = vtkPixmap::New();
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
 							  (int)x2,(int)y2,1);

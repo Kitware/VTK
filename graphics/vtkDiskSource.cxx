@@ -69,7 +69,7 @@ void vtkDiskSource::Execute()
            (this->CircumferentialResolution + 1);
   numPolys = this->RadialResolution * this->CircumferentialResolution;
   newPoints = new vtkFloatPoints(numPts);
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Create disk

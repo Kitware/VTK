@@ -134,7 +134,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkProperty *prop;
   float *tempf, *p;
   vtkCellArray *cells;
-  vtkTransform *trans = new vtkTransform;
+  vtkTransform *trans = vtkTransform::New();
   int npts, *indx;
   
   // write out the material properties to the mat file
@@ -159,7 +159,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   // we really want polydata
   if (strcmp(ds->GetClassName(),"vtkPolyData"))
     {
-    gf = new vtkGeometryFilter;
+    gf = vtkGeometryFilter::New();
     gf->SetInput(ds);
     gf->Update();
     pd = gf->GetOutput();
@@ -170,7 +170,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
     }
 
   // write out the points
-  points = new vtkFloatPoints;
+  points = vtkFloatPoints::New();
   trans->MultiplyPoints(pd->GetPoints(),points);
   for (i = 0; i < points->GetNumberOfPoints(); i++)
     {
@@ -184,7 +184,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   pntData = pd->GetPointData();
   if (pntData->GetNormals())
     {
-    normals = new vtkFloatNormals;
+    normals = vtkFloatNormals::New();
     trans->MultiplyNormals(pntData->GetNormals(),normals);
     for (i = 0; i < normals->GetNumberOfNormals(); i++)
       {

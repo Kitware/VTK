@@ -97,19 +97,19 @@ void vtkMaskPolyData::Execute()
 
   if ( numNewLines )
     {
-    newLines = new vtkCellArray;
+    newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(numNewLines,2));
     }
 
   if ( numNewPolys )
     {
-    newPolys = new vtkCellArray;
+    newPolys = vtkCellArray::New();
     newPolys->Allocate(newPolys->EstimateSize(numNewPolys,4));
     }
 
   if ( numNewStrips )
     {
-    newStrips = new vtkCellArray;
+    newStrips = vtkCellArray::New();
     newStrips->Allocate(newStrips->EstimateSize(numNewStrips,6));
     }
 //

@@ -204,7 +204,7 @@ void vtkPolyReader::Execute()
 
       else if ( ! strncmp(line,"vertices",8) )
         {
-        vtkCellArray *verts = new vtkCellArray;
+        vtkCellArray *verts = vtkCellArray::New();
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read vertices!");
@@ -220,7 +220,7 @@ void vtkPolyReader::Execute()
 
       else if ( ! strncmp(line,"lines",5) )
         {
-        vtkCellArray *lines = new vtkCellArray;
+        vtkCellArray *lines = vtkCellArray::New();
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read lines!");
@@ -236,7 +236,7 @@ void vtkPolyReader::Execute()
 
       else if ( ! strncmp(line,"polygons",8) )
         {
-        vtkCellArray *polys = new vtkCellArray;
+        vtkCellArray *polys = vtkCellArray::New();
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read polygons!");
@@ -252,7 +252,7 @@ void vtkPolyReader::Execute()
 
       else if ( ! strncmp(line,"triangle_strips",15) )
         {
-        vtkCellArray *tris = new vtkCellArray;
+        vtkCellArray *tris = vtkCellArray::New();
         if (!(this->Reader.ReadInt(&ncells) && this->Reader.ReadInt(&size)))
           {
           vtkErrorMacro(<<"Cannot read triangle strips!");

@@ -15,29 +15,39 @@ proc BindTkRenderWidget {widget} {
     bind $widget <KeyPress-s> Surface
     bind $widget <Enter> {Enter %W}
     bind $widget <Leave> {focus $oldFocus}
+    bind $widget <Expose> {Expose %W}
+    bind $widget <Configure> {Expose %W}
 }
 
 # Create event bindings
 #
 proc Render {} {
-    global CurrentCamera CurrentLight CurrentRenderWindow
+puts "Starting Render"
+   global CurrentCamera CurrentLight CurrentRenderWindow
+   global MissedExpose;
 
-    eval $CurrentLight SetPosition [$CurrentCamera GetPosition]
-    eval $CurrentLight SetFocalPoint [$CurrentCamera GetFocalPoint]
+   if {$CurrentLight != ""} {
+      eval $CurrentLight SetPosition [$CurrentCamera GetPosition]
+      eval $CurrentLight SetFocalPoint [$CurrentCamera GetFocalPoint]
+   }
 
-    $CurrentRenderWindow Render
+   set MissedExpose 0;
+   $CurrentRenderWindow Render
+puts "Done Render"
+   if {$MissedExpose == 1}  Render
+puts "Exiting Render"
 }
 
 proc UpdateRenderer {widget} {
-    global CurrentCamera CurrentLight 
-    global CurrentRenderWindow CurrentRenderer
-
-    set CurrentRenderWindow [$widget GetRenderWindow]
-    set renderers [$CurrentRenderWindow GetRenderers]
-    $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
-    set CurrentCamera [$CurrentRenderer GetActiveCamera]
-    set lights [$CurrentRenderer GetLights]
-    $lights InitTraversal; set CurrentLight [$lights GetNextItem]
+   global CurrentCamera CurrentLight 
+   global CurrentRenderWindow CurrentRenderer
+   
+   set CurrentRenderWindow [$widget GetRenderWindow]
+   set renderers [$CurrentRenderWindow GetRenderers]
+   $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
+   set CurrentCamera [$CurrentRenderer GetActiveCamera]
+   set lights [$CurrentRenderer GetLights]
+   $lights InitTraversal; set CurrentLight [$lights GetNextItem]
 }
 
 proc Enter {widget} {
@@ -47,6 +57,14 @@ proc Enter {widget} {
     focus $widget
     UpdateRenderer $widget
 }
+proc Expose {widget} {
+puts "In expose handler"
+   global MissedExpose
+   if {[[$widget GetRenderWindow] GetInAbortCheck] != 0} {
+      set MissedExpose 1
+      [$widget GetRenderWindow]  SetAbortRender 1 
+   } else {UpdateRenderer $widget; Render}
+}
 
 proc StartMotion {widget x y} {
     global CurrentCamera CurrentLight 
@@ -55,12 +73,21 @@ proc StartMotion {widget x y} {
     global WindowX WindowY 
 
     UpdateRenderer $widget
-    $CurrentRenderWindow SetDesiredUpdateRate 5.0
 
-    set LastX $x
-    set LastY $y
-    set WindowX [lindex [$widget configure -width] 4]
-    set WindowY [lindex [$widget configure -height] 4]
+   if {[$CurrentRenderWindow GetInAbortCheck] == 0} {
+      $CurrentRenderWindow SetDesiredUpdateRate 5.0
+      set LastX $x
+      set LastY $y
+      set WindowX [lindex [$widget configure -width] 4]
+      set WindowY [lindex [$widget configure -height] 4]
+   } else {
+      $CurrentRenderWindow SetAbortRender 1
+      $CurrentRenderWindow SetDesiredUpdateRate 5.0
+      set LastX $x
+      set LastY $y
+      set WindowX [lindex [$widget configure -width] 4]
+      set WindowY [lindex [$widget configure -height] 4]
+   }
 }
 
 set CurrentRenderWindow ""
@@ -156,14 +183,16 @@ proc Zoom {widget x y} {
 }
 
 proc Reset {widget x y} {
-    global CurrentRenderWindow
-    set CurrentRenderWindow [$widget GetRenderWindow]
-
-    set renderers [$CurrentRenderWindow GetRenderers]
-    $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
-    $CurrentRenderer ResetCamera
-
-    Render
+   global CurrentRenderWindow
+   set CurrentRenderWindow [$widget GetRenderWindow]
+   
+   if {[$CurrentRenderWindow GetInAbortCheck] == 0} {
+      set renderers [$CurrentRenderWindow GetRenderers]
+      $renderers InitTraversal; set CurrentRenderer [$renderers GetNextItem]
+      $CurrentRenderer ResetCamera
+      
+      Render
+   }
 }
 
 proc Wireframe {} {
@@ -195,3 +224,4 @@ proc Surface {} {
 
     Render
 }
+

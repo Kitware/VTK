@@ -200,7 +200,7 @@ void vtkImageRegion::MakeDataWritable()
   if ( ! this->Data)
     {
     this->Modified();
-    this->Data = new vtkImageData;
+    this->Data = vtkImageData::New();
     this->Data->SetScalarType(this->ScalarType);
     this->GetExtent(extent);
     this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
@@ -219,7 +219,7 @@ void vtkImageRegion::MakeDataWritable()
     vtkScalars *scalars = this->Data->GetPointData()->GetScalars();
     // Data has more than one reference. Make a new data object.
     this->Modified();
-    newData = new vtkImageData;
+    newData = vtkImageData::New();
     newData->SetAxes(this->Data->GetAxes());
     newData->SetExtent(this->Data->GetExtent());
     // But what if the scalars have more than one reference?
@@ -352,7 +352,7 @@ vtkImageData *vtkImageRegion::GetData()
   if ( ! this->Data)
     {
     int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-    this->Data = new vtkImageData;
+    this->Data = vtkImageData::New();
     this->Data->SetScalarType(this->ScalarType);
     this->GetExtent(extent);
     this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
@@ -658,7 +658,7 @@ void vtkImageRegion::Translate(int dim, int *vector)
   // Since the data might have multiple references, we can not just modify it.
   if (this->Data && this->Data->GetRefCount() > 1)
     {
-    newData = new vtkImageData;
+    newData = vtkImageData::New();
     newData->SetAxes(this->Data->GetAxes());
     newData->SetExtent(this->Data->GetExtent());
     newData->SetScalars(this->Data->GetPointData()->GetScalars());

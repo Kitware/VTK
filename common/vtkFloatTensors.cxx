@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFloatTensors::vtkFloatTensors()
 {
-  this->T = new vtkFloatArray;
+  this->T = vtkFloatArray::New();
 }
 
 vtkFloatTensors::vtkFloatTensors(const vtkFloatTensors& ft)
 {
-  this->T = new vtkFloatArray;
+  this->T = vtkFloatArray::New();
   *(this->T) = *(ft.T);
   this->Dimension = ft.Dimension;
 }

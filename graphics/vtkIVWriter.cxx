@@ -86,7 +86,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkPolyMapper *pm;
   vtkColorScalars *colors;
   
-  pm = new vtkPolyMapper;
+  pm = vtkPolyMapper::New();
   pm->SetInput(pd);
   
   points = pd->GetPoints();

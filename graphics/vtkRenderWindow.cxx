@@ -77,6 +77,11 @@ vtkRenderWindow::vtkRenderWindow()
   this->Erase = 1;
   this->SwapBuffers = 1;
   this->PPMImageFilePtr = NULL;
+  this->AbortRender = 0;
+  this->InAbortCheck = 0;
+  this->AbortCheckMethod = NULL;
+  this->AbortCheckMethodArg = NULL;
+  this->AbortCheckMethodArgDelete = NULL;
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -102,6 +107,35 @@ vtkRenderWindow::~vtkRenderWindow()
     }
   if( WindowName ) 
     delete [] this->WindowName;
+}
+
+// Description:
+// Specify a function to be called to check and see if an abort
+// of the rendering in progress is desired.
+void vtkRenderWindow::SetAbortCheckMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->AbortCheckMethod || arg != this->AbortCheckMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->AbortCheckMethodArg)&&(this->AbortCheckMethodArgDelete))
+      {
+      (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
+      }
+    this->AbortCheckMethod = f;
+    this->AbortCheckMethodArg = arg;
+    this->Modified();
+    }
+}
+
+// Description:
+// Set the arg delete method. This is used to free user memory.
+void vtkRenderWindow::SetAbortCheckMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->AbortCheckMethodArgDelete)
+    {
+    this->AbortCheckMethodArgDelete = f;
+    this->Modified();
+    }
 }
 
 char *vtkRenderWindow::GetRenderLibrary()
@@ -251,6 +285,10 @@ void vtkRenderWindow::Render()
 
   vtkDebugMacro(<< "Starting Render Method.\n");
 
+  // if we are in the middle of an abort check the return now
+  if (this->InAbortCheck) return;
+  // reset the Abort flag
+  this->AbortRender = 0;
   
   if ( this->Interactor && ! this->Interactor->GetInitialized() )
     this->Interactor->Initialize();
@@ -676,6 +714,17 @@ void vtkRenderWindow::SetPosition(int x, int y)
     }
 }
 
+int vtkRenderWindow::CheckAbortStatus()
+{
+  this->InAbortCheck = 1;
+  if (this->AbortCheckMethod) 
+    {
+    (*this->AbortCheckMethod)(this->AbortCheckMethodArg);
+    }
+  this->InAbortCheck = 0;
+  return this->AbortRender;
+}
+
 void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   int *temp;
@@ -698,15 +747,25 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Filename: " 
      << (this->Filename ? this->Filename : "(none)") << "\n";
+
+  if ( this->AbortCheckMethod )
+    {
+    os << indent << "AbortCheck method defined.\n";
+    }
+  else
+    {
+    os << indent << "No AbortCheck method.\n";
+    }
 }
 
 
 void vtkRenderWindow::SaveImageAsPPM()
 {
-  if( this->OpenPPMImageFile() ){
+  if( this->OpenPPMImageFile() )
+    {
     this->WritePPMImageFile();
     this->ClosePPMImageFile();
-  }
+    }
 }
 
 

@@ -73,7 +73,7 @@ void vtkLineSource::Execute()
   newPoints = new vtkFloatPoints(numPts);
   newTCoords = new vtkFloatTCoords(numPts,2);
 
-  newLines = new vtkCellArray;
+  newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(numLines,2));
 //
 // Generate points and texture coordinates

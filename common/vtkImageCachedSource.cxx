@@ -361,7 +361,7 @@ void vtkImageCachedSource::CheckCache()
   // create a default cache if one has not been set
   if ( ! this->Output)
     {
-    this->Output = new vtkImageSimpleCache;
+    this->Output = vtkImageSimpleCache::New();
     this->Output->ReleaseDataFlagOn();
     this->Output->SetSource(this);
     this->Modified();

@@ -52,7 +52,7 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
 
-  this->Output = new vtkPolyData;
+  this->Output = vtkPolyData::New();
   this->Output->SetSource(this);
 }
 
@@ -239,7 +239,7 @@ void vtkDelaunay2D::Execute()
   vtkPoints *inPoints;
   vtkFloatPoints *points;
   vtkCellArray *triangles;
-  vtkPolyData *Mesh=new vtkPolyData;
+  vtkPolyData *Mesh=vtkPolyData::New();
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   float x[3];
@@ -288,7 +288,7 @@ void vtkDelaunay2D::Execute()
     points->SetPoint(numPoints+ptId,x);
     }
 
-  triangles = new vtkCellArray;
+  triangles = vtkCellArray::New();
   triangles->Allocate(triangles->EstimateSize(2*numPoints,3));
 
   //create bounding triangles (there are six)

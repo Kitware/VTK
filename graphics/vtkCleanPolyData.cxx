@@ -256,9 +256,9 @@ void vtkCleanPolyData::CreateDefaultLocator()
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
 
   if ( this->Tolerance <= 0.0 )
-    this->Locator = new vtkMergePoints;
+    this->Locator = vtkMergePoints::New();
   else
-    this->Locator = new vtkPointLocator;
+    this->Locator = vtkPointLocator::New();
 
   this->SelfCreatedLocator = 1;
 }

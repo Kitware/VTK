@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkUnsignedCharScalars::vtkUnsignedCharScalars()
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
 }
 
 vtkUnsignedCharScalars::vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs)
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
   *(this->S) = *(cs.S);
   }
 

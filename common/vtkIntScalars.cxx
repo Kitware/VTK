@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkIntScalars::vtkIntScalars()
 {
-  this->S = new vtkIntArray;
+  this->S = vtkIntArray::New();
 }
 
 vtkIntScalars::vtkIntScalars(const vtkIntScalars& ss)
 {
-  this->S = new vtkIntArray;
+  this->S = vtkIntArray::New();
   *(this->S) = *(ss.S);
 }
 

@@ -213,7 +213,7 @@ void vtkSmoothPolyFilter::Execute()
     float normal[3], neiNormal[3];
     vtkIdList neighbors(VTK_CELL_SIZE);
 
-    inMesh = new vtkPolyData;
+    inMesh = vtkPolyData::New();
     inMesh->SetPoints(inPts);
     inMesh->SetPolys(inPolys);
     Mesh = inMesh;
@@ -221,7 +221,7 @@ void vtkSmoothPolyFilter::Execute()
     if ( (numStrips = inStrips->GetNumberOfCells()) > 0 )
       { // convert data to triangles
       inMesh->SetStrips(inStrips);
-      toTris = new vtkTriangleFilter;
+      toTris = vtkTriangleFilter::New();
       toTris->SetInput(inMesh);
       toTris->Update();
       Mesh = toTris->GetOutput();

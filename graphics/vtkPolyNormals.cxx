@@ -108,7 +108,7 @@ void vtkPolyNormals::Execute()
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
 
-  OldMesh = new vtkPolyData;
+  OldMesh = vtkPolyData::New();
   OldMesh->SetPoints(inPts);
   if ( numStrips > 0 ) //have to decompose strips into triangles
     {
@@ -134,7 +134,7 @@ void vtkPolyNormals::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
     
-  NewMesh = new vtkPolyData;
+  NewMesh = vtkPolyData::New();
   NewMesh->SetPoints(inPts);
   // create a copy because we're modifying it
   newPolys = new vtkCellArray(*(polys));

@@ -122,7 +122,7 @@ int vtkPointSet::FindPoint(float x[3])
 
   if ( !this->Locator )
     {
-    this->Locator = new vtkPointLocator;
+    this->Locator = vtkPointLocator::New();
     this->Locator->SetDataSet(this);
     }
 
@@ -150,7 +150,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
 
   if ( !this->Locator )
     {
-    this->Locator = new vtkPointLocator;
+    this->Locator = vtkPointLocator::New();
     this->Locator->SetDataSet(this);
     }
 

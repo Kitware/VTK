@@ -467,27 +467,27 @@ int vtkImageData::AllocateScalars()
       vtkErrorMacro(<< "AllocateScalars: ScalarType Unknown");
       break;
     case VTK_FLOAT:
-      scalars = new vtkFloatScalars;
+      scalars = vtkFloatScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
       ((vtkFloatScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_INT:
-      scalars = new vtkIntScalars;
+      scalars = vtkIntScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
       ((vtkIntScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_SHORT:
-      scalars = new vtkShortScalars;
+      scalars = vtkShortScalars::New();
       this->ScalarsAllocated =  scalars->Allocate(this->Volume);
       ((vtkShortScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_UNSIGNED_SHORT:
-      scalars = new vtkUnsignedShortScalars;
+      scalars = vtkUnsignedShortScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
       ((vtkUnsignedShortScalars *)(scalars))->WritePtr(0,this->Volume);
       break;
     case VTK_UNSIGNED_CHAR:
-      scalars = new vtkUnsignedCharScalars;
+      scalars = vtkUnsignedCharScalars::New();
       this->ScalarsAllocated = scalars->Allocate(this->Volume);
       ((vtkUnsignedCharScalars *)(scalars))->WritePtr(0,this->Volume);
       break;

@@ -98,7 +98,7 @@ vtkImageRegion *vtkImageSource::Update()
 {
   vtkImageRegion *region;
   
-  region = new vtkImageRegion;
+  region = vtkImageRegion::New();
   this->UpdateImageInformation(region);
   region->SetExtent(region->GetImageExtent());
   this->UpdateRegion(region);
@@ -114,7 +114,7 @@ vtkImageToStructuredPoints *vtkImageSource::GetImageToStructuredPoints()
 {
   if ( ! this->ImageToStructuredPoints)
     {
-    this->ImageToStructuredPoints = new vtkImageToStructuredPoints;
+    this->ImageToStructuredPoints = vtkImageToStructuredPoints::New();
     this->ImageToStructuredPoints->SetScalarInput(this);
     }
   

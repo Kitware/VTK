@@ -165,14 +165,14 @@ void vtkLinearExtrusionFilter::Execute()
   newPts = new vtkFloatPoints(2*numPts); newPts->SetNumberOfPoints(2*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
-    newLines = new vtkCellArray;
+    newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(ncells,2));
     }
   // arbitrary initial allocation size
   ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
            inStrips->GetNumberOfCells()/10;
   ncells = (ncells < 100 ? 100 : ncells);
-  newStrips = new vtkCellArray;
+  newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(ncells,4));
 
   // copy points

@@ -101,7 +101,7 @@ void vtkTriangularTCoords::Execute()
 //
   newPoints = new vtkFloatPoints(numNewPts);
 
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(polyAllocSize);
 
   pointData->CopyTCoordsOff();

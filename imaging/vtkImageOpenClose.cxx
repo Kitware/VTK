@@ -45,8 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageOpenClose::vtkImageOpenClose()
 {
   // create the filter chain 
-  this->Filter0 = new vtkImageDilateErode;
-  this->Filter1 = new vtkImageDilateErode;
+  this->Filter0 = vtkImageDilateErode::New();
+  this->Filter1 = vtkImageDilateErode::New();
   this->SetOpenValue(0.0);
   this->SetCloseValue(255.0);
 

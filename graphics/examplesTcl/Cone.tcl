@@ -3,10 +3,9 @@ catch {load vtktcl}
 source vtkInt.tcl
 
 # create a rendering window and renderer
-vtkRenderMaster rm
-set renWin [rm MakeRenderWindow]
-set ren1 [$renWin MakeRenderer]
-set iren [$renWin MakeRenderWindowInteractor]
+vtkRenderWindow renWin
+set ren1 [renWin MakeRenderer]
+set iren [renWin MakeRenderWindowInteractor]
 
 # create an actor and give it cone geometry
 vtkConeSource cone

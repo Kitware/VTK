@@ -78,7 +78,7 @@ void vtkExtractEdges::Execute()
   numEdges = 0;
   edgeTable = new vtkEdgeTable(numPts);
   newPts = new vtkFloatPoints(numPts);
-  newLines = new vtkCellArray;
+  newLines = vtkCellArray::New();
   newLines->EstimateSize(numPts*4,2);
 
   pd = input->GetPointData();

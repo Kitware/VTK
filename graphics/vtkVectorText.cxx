@@ -3761,7 +3761,7 @@ void vtkVectorText::Execute()
   
   // Set things up; allocate memory
   newPoints = new vtkFloatPoints();
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   ftmp[2] = 0.0;
   
   // Create Text

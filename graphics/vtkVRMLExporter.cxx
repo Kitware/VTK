@@ -224,7 +224,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   int totalValues;
   
   // first stuff out the transform
-  trans = new vtkTransform;
+  trans = vtkTransform::New();
   trans->SetMatrix(anActor->vtkProp::GetMatrix());
   
   fprintf(fp,"    Transform {\n");
@@ -244,7 +244,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   // we really want polydata
   if (strcmp(ds->GetClassName(),"vtkPolyData"))
     {
-    gf = new vtkGeometryFilter;
+    gf = vtkGeometryFilter::New();
     gf->SetInput(ds);
     gf->Update();
     pd = gf->GetOutput();
@@ -254,7 +254,7 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
     pd = (vtkPolyData *)ds;
     }
 
-  pm = new vtkPolyMapper;
+  pm = vtkPolyMapper::New();
   pm->SetInput(pd);
   pm->SetScalarRange(anActor->GetMapper()->GetScalarRange());
   pm->SetScalarsVisible(anActor->GetMapper()->GetScalarsVisible());

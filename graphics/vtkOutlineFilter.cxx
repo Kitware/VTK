@@ -58,7 +58,7 @@ void vtkOutlineFilter::Execute()
 // Allocate storage and create outline
 //
   newPts = new vtkFloatPoints(8);
-  newLines = new vtkCellArray;
+  newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(12,2));
 
   x[0] = bounds[0]; x[1] = bounds[2]; x[2] = bounds[4];

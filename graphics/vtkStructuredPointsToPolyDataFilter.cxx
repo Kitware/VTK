@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredPointsToPolyDataFilter::vtkStructuredPointsToPolyDataFilter()
 {
-  this->Output = new vtkPolyData;
+  this->Output = vtkPolyData::New();
   this->Output->SetSource(this);
 }
 

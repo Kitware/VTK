@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Instantiate priority queue with default size and extension size of 1000.
 vtkPriorityQueue::vtkPriorityQueue()
 {
-  this->ItemLocation = new vtkIntArray;
+  this->ItemLocation = vtkIntArray::New();
   this->Size = this->Extend = 1000;
   this->Array = new vtkPriorityItem[this->Size];
   this->MaxId = -1;

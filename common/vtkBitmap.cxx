@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkBitmap::vtkBitmap()
 {
-  this->S = new vtkBitArray;
+  this->S = vtkBitArray::New();
 }
 
 vtkBitmap::vtkBitmap(const vtkBitmap& fs)
 {
-  this->S = new vtkBitArray;
+  this->S = vtkBitArray::New();
   *(this->S) = *(fs.S);
 }
 

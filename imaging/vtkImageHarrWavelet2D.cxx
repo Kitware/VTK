@@ -222,7 +222,7 @@ void vtkImageHarrWavelet2D::Execute(vtkImageRegion *inRegion,
       outMax1 = outMin1 + qSize1 - 1;
       if ( ! tempRegion)
 	{
-	tempRegion = new vtkImageRegion;
+	tempRegion = vtkImageRegion::New();
 	tempRegion->SetScalarType(outRegion->GetScalarType());
 	// A sore point with me (default coordinates !!!)
 	tempRegion->SetExtent(outRegion->GetExtent());

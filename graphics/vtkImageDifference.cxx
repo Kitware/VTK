@@ -67,7 +67,7 @@ void vtkImageDifference::Execute()
   unsigned char *color1, color2[4], outColor[4];
   int tr, tg, tb, r1, g1, b1;
   int threshold = 51;
-  vtkPixmap *outScalars = new vtkPixmap;
+  vtkPixmap *outScalars = vtkPixmap::New();
   
   vtkDebugMacro(<< "Comparing Images");
 

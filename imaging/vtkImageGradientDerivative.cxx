@@ -117,7 +117,7 @@ void vtkImageGradientDerivative::Execute(vtkImageRegion *inRegion,
     }
   
   // Get the magnitude image.
-  magnitudes = new vtkImageRegion;
+  magnitudes = vtkImageRegion::New();
   this->ComputeMagnitudes(inRegion, magnitudes);
 
   // Compute the derivative information

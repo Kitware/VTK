@@ -227,7 +227,7 @@ void vtkImageMultipleInputFilter::UpdatePointData(int dim,
   // Make the input regions that will be used to generate the output region
   for (idx = 0; idx < this->NumberOfInputs; ++idx)
     {
-    this->Regions[idx] = new vtkImageRegion;
+    this->Regions[idx] = vtkImageRegion::New();
     // Fill in image information
     this->Inputs[idx]->UpdateImageInformation(this->Regions[idx]);
     // Translate to local coordinate system
@@ -292,7 +292,7 @@ void vtkImageMultipleInputFilter::UpdateImageInformation(
   this->Inputs[0]->UpdateImageInformation(outRegion);
   for (idx = 1; idx < this->NumberOfInputs; ++idx)
     {
-    this->Regions[idx] = new vtkImageRegion;
+    this->Regions[idx] = vtkImageRegion::New();
     this->Inputs[idx]->UpdateImageInformation(this->Regions[idx]);
     }
   

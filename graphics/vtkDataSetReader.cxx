@@ -174,7 +174,7 @@ void vtkDataSetReader::Execute()
     this->Reader.CloseVTKFile();
     if ( ! strncmp(this->Reader.LowerCase(line),"polydata",8) )
       {
-      vtkPolyReader *preader = new vtkPolyReader;
+      vtkPolyReader *preader = vtkPolyReader::New();
       preader->SetFilename(this->Reader.GetFilename());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
@@ -190,7 +190,7 @@ void vtkDataSetReader::Execute()
 
     else if ( ! strncmp(line,"structured_points",17) )
       {
-      vtkStructuredPointsReader *preader = new vtkStructuredPointsReader;
+      vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
       preader->SetFilename(this->Reader.GetFilename());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
@@ -206,7 +206,7 @@ void vtkDataSetReader::Execute()
 
     else if ( ! strncmp(line,"structured_grid",15) )
       {
-      vtkStructuredGridReader *preader = new vtkStructuredGridReader;
+      vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
       preader->SetFilename(this->Reader.GetFilename());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
@@ -222,7 +222,7 @@ void vtkDataSetReader::Execute()
 
     else if ( ! strncmp(line,"unstructured_grid",17) )
       {
-      vtkUnstructuredGridReader *preader = new vtkUnstructuredGridReader;
+      vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
       preader->SetFilename(this->Reader.GetFilename());
       preader->SetInputString(this->Reader.GetInputString());
       preader->SetReadFromInputString(this->Reader.GetReadFromInputString());

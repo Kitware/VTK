@@ -79,21 +79,21 @@ void vtkConeSource::Execute()
   case 0:
     numPts = 2;
     numLines =  1;
-    newLines = new vtkCellArray;
+    newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(numLines,numPts));
     break;
   
   case 1: case 2:
     numPts = 2*this->Resolution + 1;
     numPolys = this->Resolution;
-    newPolys = new vtkCellArray;
+    newPolys = vtkCellArray::New();
     newPolys->Allocate(newPolys->EstimateSize(numPolys,3));
     break;
 
   default:
     numPts = this->Resolution + 1;
     numPolys = this->Resolution + 1;
-    newPolys = new vtkCellArray;
+    newPolys = vtkCellArray::New();
     newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
     break;
   }

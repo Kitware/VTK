@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkAPixmap::vtkAPixmap()
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
 }
 
 vtkAPixmap::vtkAPixmap(const vtkAPixmap& fs)
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
   *(this->S) = *(fs.S);
 }
 

@@ -283,7 +283,7 @@ void vtkSTLReader::SetLocator(vtkPointLocator *locator)
 void vtkSTLReader::CreateDefaultLocator()
 {
   if ( this->SelfCreatedLocator ) this->Locator->Delete();
-  this->Locator = new vtkMergePoints;
+  this->Locator = vtkMergePoints::New();
   this->SelfCreatedLocator = 1;
 }
 

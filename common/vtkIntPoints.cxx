@@ -42,12 +42,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkIntPoints::vtkIntPoints()
 {
-  this->P = new vtkIntArray;
+  this->P = vtkIntArray::New();
 }
 
 vtkIntPoints::vtkIntPoints(const vtkIntPoints& ss)
 {
-  this->P = new vtkIntArray;
+  this->P = vtkIntArray::New();
   *(this->P) = *(ss.P);
 }
 

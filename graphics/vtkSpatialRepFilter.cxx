@@ -46,7 +46,7 @@ vtkSpatialRepFilter::vtkSpatialRepFilter()
   this->Level = 0;
   this->TerminalNodesRequested = 0;
 
-  this->Output = (vtkDataSet *) new vtkPolyData; //leaf representation
+  this->Output = (vtkDataSet *) vtkPolyData::New(); //leaf representation
   this->Output->SetSource(this);
   for (int i=0; i <= VTK_MAX_SPATIALREP_LEVEL; i++) //intermediate representations
     {
@@ -84,7 +84,7 @@ vtkPolyData *vtkSpatialRepFilter::GetOutput(int level)
 
   if ( this->OutputList[level] == NULL )
     {
-    this->OutputList[level] = new vtkPolyData;
+    this->OutputList[level] = vtkPolyData::New();
     this->OutputList[level]->SetSource(this);
     this->Modified(); //asking for new output
     }

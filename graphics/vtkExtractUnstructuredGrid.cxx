@@ -62,7 +62,7 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
   this->CellClipping = 0;
   this->ExtentClipping = 0;
 
-  this->Output = new vtkUnstructuredGrid;
+  this->Output = vtkUnstructuredGrid::New();
   this->Output->SetSource(this);
 }
 

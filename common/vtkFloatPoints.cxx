@@ -43,12 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFloatPoints::vtkFloatPoints()
 {
-  this->P = new vtkFloatArray;
+  this->P = vtkFloatArray::New();
 }
 
 vtkFloatPoints::vtkFloatPoints(const vtkFloatPoints& fp)
 {
-  this->P = new vtkFloatArray;
+  this->P = vtkFloatArray::New();
   *(this->P) = *(fp.P);
 }
 

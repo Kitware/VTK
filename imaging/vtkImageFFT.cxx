@@ -70,7 +70,7 @@ void vtkImageFFT::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageFFT1D;
+    this->Filters[idx] = vtkImageFFT1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     // Splitting the principle axis will do no good (reverse order).
     axes = this->Filters[idx]->GetAxes();

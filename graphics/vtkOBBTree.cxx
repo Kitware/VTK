@@ -372,8 +372,8 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 
     if ( splitAcceptable ) //otherwise recursion terminates
       {
-      vtkOBBNode *LHnode=new vtkOBBNode;
-      vtkOBBNode *RHnode=new vtkOBBNode;
+      vtkOBBNode *LHnode= new vtkOBBNode;
+      vtkOBBNode *RHnode= new vtkOBBNode;
       OBBptr->Kids = new vtkOBBNode *[2];
       OBBptr->Kids[0] = LHnode;
       OBBptr->Kids[1] = RHnode;

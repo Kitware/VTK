@@ -233,7 +233,7 @@ vtkLookupTable *vtkMapper::GetLookupTable()
 void vtkMapper::CreateDefaultLookupTable()
 {
   if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
-  this->LookupTable = new vtkLookupTable;
+  this->LookupTable = vtkLookupTable::New();
   this->SelfCreatedLookupTable = 1;
 }
 

@@ -87,7 +87,7 @@ void vtkCylinderSource::Execute()
   newNormals = new vtkFloatNormals(numPts);
   newTCoords = new vtkFloatTCoords(numPts,2);
 
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
 //
 // Generate points and point data for sides

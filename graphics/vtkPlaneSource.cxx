@@ -118,7 +118,7 @@ void vtkPlaneSource::Execute()
   newNormals = new vtkFloatNormals(numPts);
   newTCoords = new vtkFloatTCoords(numPts,2);
 
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,4));
 //
 // Generate points and point data

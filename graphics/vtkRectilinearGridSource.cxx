@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkRectilinearGridSource::vtkRectilinearGridSource()
 {
-  this->Output = new vtkRectilinearGrid;
+  this->Output = vtkRectilinearGrid::New();
   this->Output->SetSource(this);
 }
 

@@ -124,7 +124,7 @@ void vtkScalars::GetRange(float range[2])
 void vtkScalars::CreateDefaultLookupTable()
 {
   if ( this->LookupTable ) this->LookupTable->UnRegister(this);
-  this->LookupTable = new vtkLookupTable;
+  this->LookupTable = vtkLookupTable::New();
   // make sure it is built 
   // otherwise problems with InsertScalar trying to map through 
   // non built lut

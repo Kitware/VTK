@@ -258,6 +258,17 @@ public:
   vtkSetMacro(SubFrames,int);
 
   // Description:
+  // This is a flag that can be set to interrupt a rendering that is in
+  // progress.
+  vtkGetMacro(AbortRender,int);
+  vtkSetMacro(AbortRender,int);
+  vtkGetMacro(InAbortCheck,int);
+  virtual int CheckAbortStatus();
+  
+  void SetAbortCheckMethod(void (*f)(void *), void *arg);
+  void SetAbortCheckMethodArgDelete(void (*f)(void *));
+
+  // Description:
   // Set/Get the desired update rate. This is used with
   // the vtkLODActor class. When using level of detail actors you
   // need to specify what update rate you require. The LODActors then
@@ -302,6 +313,11 @@ protected:
   int   SwapBuffers;
   float DesiredUpdateRate;
   FILE* PPMImageFilePtr;
+  int   AbortRender;
+  int   InAbortCheck;
+  void (*AbortCheckMethod)(void *);
+  void (*AbortCheckMethodArgDelete)(void *);
+  void *AbortCheckMethodArg;
 };
 
 #endif

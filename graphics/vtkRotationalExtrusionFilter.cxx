@@ -109,14 +109,14 @@ void vtkRotationalExtrusionFilter::Execute()
   newPts = new vtkFloatPoints((this->Resolution+1)*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
-    newLines = new vtkCellArray;
+    newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(ncells,this->Resolution+1));
     }
   // arbitrary initial allocation size
   ncells = inLines->GetNumberOfCells() + inPolys->GetNumberOfCells()/10 +
            inStrips->GetNumberOfCells()/10;
   ncells = (ncells < 100 ? 100 : ncells);
-  newStrips = new vtkCellArray;
+  newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(ncells,2*(this->Resolution+1)));
 
   // copy points

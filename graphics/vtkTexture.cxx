@@ -129,7 +129,7 @@ unsigned char *vtkTexture::MapScalarsToColors (vtkScalars *scalars)
   // if there is no lookup table, create one
   if (this->LookupTable == NULL)
     {
-    this->LookupTable = new vtkLookupTable;
+    this->LookupTable = vtkLookupTable::New();
     this->LookupTable->Build ();
     this->SelfCreatedLookupTable = 1;
     }

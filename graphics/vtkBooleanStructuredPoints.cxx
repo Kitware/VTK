@@ -58,7 +58,7 @@ vtkBooleanStructuredPoints::vtkBooleanStructuredPoints()
 
   this->OperationType = VTK_UNION_OPERATOR;
   // this->Operator = this->Union;
-  this->Output = new vtkStructuredPoints;
+  this->Output = vtkStructuredPoints::New();
   this->Output->SetSource(this);
 }
 

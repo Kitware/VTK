@@ -370,7 +370,7 @@ void vtkImageXViewer::Render(void)
     }
   
   // Get the region form the input
-  region = new vtkImageRegion;
+  region = vtkImageRegion::New();
   region->SetAxes(this->Region.GetAxes());
   region->SetExtent(4, extent);
   this->Input->UpdateRegion(region);

@@ -76,7 +76,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
   float myTime;
   double aTime;
   static int refreshCount = 0; // every 97 calls decay some timings
-  vtkMatrix4x4 *matrix = new vtkMatrix4x4;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
   // figure out how much time we have to render
   myTime = ren->GetAllocatedRenderTime();

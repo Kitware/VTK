@@ -189,7 +189,7 @@ void vtkDecimate::Execute()
     {
     inPts = input->GetPoints();
     inPolys = input->GetPolys();
-    Mesh = new vtkPolyData;
+    Mesh = vtkPolyData::New();
     Mesh->SetPoints(inPts);
     newPolys = new vtkCellArray(*(inPolys));
     Mesh->SetPolys(newPolys);
@@ -430,7 +430,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     }
 
   // Now renumber connectivity
-  newPolys = new vtkCellArray;
+  newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(3,numTris-numEliminated));
 
   for (cellId=0; cellId < numTris; cellId++)

@@ -42,13 +42,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkAGraymap::vtkAGraymap()
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
 }
 
 
 vtkAGraymap::vtkAGraymap(const vtkAGraymap& fs)
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
   *(this->S) = *(fs.S);
 }
 

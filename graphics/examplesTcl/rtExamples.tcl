@@ -21,6 +21,9 @@ if {[set pos [lsearch $files "TkInteractor.tcl"]] != -1} {
 if {[set pos [lsearch $files "TkRenderWidget.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }
+if {[set pos [lsearch $files "RenderWidget.tcl"]] != -1} {
+   set files [lreplace $files $pos $pos ]
+}
 if {[set pos [lsearch $files "colors.tcl"]] != -1} {
    set files [lreplace $files $pos $pos ]
 }

@@ -228,7 +228,7 @@ vtkPicker *vtkRenderWindowInteractor::CreateDefaultPicker()
 {
   if ( this->SelfCreatedPicker ) this->Picker->Delete();
   this->SelfCreatedPicker = 1;
-  return new vtkCellPicker;
+  return vtkCellPicker::New();
 }
 
 // Description:

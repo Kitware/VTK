@@ -43,12 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkGraymap::vtkGraymap()
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
 }
 
 vtkGraymap::vtkGraymap(const vtkGraymap& fs)
 {
-  this->S = new vtkUnsignedCharArray;
+  this->S = vtkUnsignedCharArray::New();
   *(this->S) = *(fs.S);
 }
 

@@ -83,10 +83,10 @@ void vtkLinkEdgels::Execute()
   inDataPtr = inScalars->GetPtr(0);
 
   // Finally do edge following to extract the edge data from the Thin image
-  newPts = new vtkFloatPoints;
-  newLines = new vtkCellArray;
-  outScalars = new vtkFloatScalars;
-  outVectors = new vtkFloatVectors;
+  newPts = vtkFloatPoints::New();
+  newLines = vtkCellArray::New();
+  outScalars = vtkFloatScalars::New();
+  outVectors = vtkFloatVectors::New();
 
   vtkDebugMacro("doing edge linking\n");
   //

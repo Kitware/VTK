@@ -562,7 +562,7 @@ void vtkHyperStreamline::BuildTube()
     newScalars = new vtkFloatScalars(2500);
   newVectors  = new vtkFloatVectors(2500);
   newNormals  = new vtkFloatNormals(2500);
-  newStrips = new vtkCellArray;
+  newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(3*this->NumberOfStreamers,
                                               VTK_CELL_SIZE));
 //

@@ -69,8 +69,8 @@ void vtkSubPixelPositionEdgels::Execute()
     return;
     }
 
-  newPts = new vtkFloatPoints;
-  newNormals = new vtkFloatNormals;
+  newPts = vtkFloatPoints::New();
+  newNormals = vtkFloatNormals::New();
   
   dimensions = this->GradMaps->GetDimensions();
   aspect = this->GradMaps->GetAspectRatio();

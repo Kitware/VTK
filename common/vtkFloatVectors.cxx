@@ -43,12 +43,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFloatVectors::vtkFloatVectors()
 {
-  this->V = new vtkFloatArray;
+  this->V = vtkFloatArray::New();
 }
 
 vtkFloatVectors::vtkFloatVectors(const vtkFloatVectors& fv)
 {
-  this->V = new vtkFloatArray;
+  this->V = vtkFloatArray::New();
   *(this->V) = *(fv.V);
 }
 

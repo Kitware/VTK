@@ -71,7 +71,7 @@ void vtkImageRFFT::SetDimensionality(int num)
       {
       this->Filters[idx]->Delete();
       }
-    this->Filters[idx] = new vtkImageRFFT1D;
+    this->Filters[idx] = vtkImageRFFT1D::New();
     this->Filters[idx]->SetAxes(this->Axes[idx]);
     // Splitting the principle axis will do no good (reverse order).
     axes = this->Filters[idx]->GetAxes();
