@@ -104,6 +104,8 @@ vtkParametricFigure8Klein.cxx
 vtkParametricFunction.cxx
 vtkParametricKlein.cxx
 vtkParametricMobius.cxx
+vtkParametricRandomHills.cxx
+vtkParametricRoman.cxx
 vtkParametricSuperEllipsoid.cxx
 vtkParametricSuperToroid.cxx
 vtkParametricTorus.cxx
