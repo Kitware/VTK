@@ -30,6 +30,7 @@ EXAMPLES = otherJacobi \
 	otherLotkin \
 	otherCellBoundaries \
 	otherCellPosition \
+	otherRectilinearGrid \
 	otherArrays
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -68,6 +69,9 @@ otherMath: otherMath.o rtOtherTestBase.o ${VTKLIB}
 	rtOtherTestBase.o ${LDLIBS} -lm
 otherMatrix4x4: otherMatrix4x4.o rtOtherTestBase.o ${VTKLIB}
 	${CXX} -o otherMatrix4x4 ${CXX_FLAGS} otherMatrix4x4.o \
+	rtOtherTestBase.o ${LDLIBS} -lm
+otherRectilinearGrid: otherRectilinearGrid.o rtOtherTestBase.o ${VTKLIB}
+	${CXX} -o otherRectilinearGrid ${CXX_FLAGS} otherRectilinearGrid.o \
 	rtOtherTestBase.o ${LDLIBS} -lm
 # ${XLDFLAGS}
 #------------------------------------------------------------------------------
