@@ -31,7 +31,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.15.4.1");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.15.4.2");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -750,6 +750,13 @@ void vtkPDataSetReader::ReadVTKFileInformation(ifstream *file)
     this->DataType = VTK_STRUCTURED_GRID;
     vtkStructuredGrid *grid = (vtkStructuredGrid*)(this->CheckOutput());
     file->getline(str, 1024, ' ');
+
+    if (! strncmp(str, "FIELD", 5))
+      {
+      this->SkipFieldData(file);
+      file->getline(str, 1024, ' ');
+      }
+
     if (strncmp(str, "DIMENSIONS", 10) != 0)
       {
       vtkErrorMacro("Expecting 'DIMENSIONS' insted of: " << str);
@@ -817,6 +824,86 @@ void vtkPDataSetReader::ReadVTKFileInformation(ifstream *file)
   if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
     {
     output->SetMaximumNumberOfPieces(1);
+    }
+}
+
+void vtkPDataSetReader::SkipFieldData(ifstream *file)
+{
+  int i, numArrays;
+  char name[256], type[256];
+  int numComp, numTuples;
+
+  file->width(256);
+  *file >> name;
+  *file >> numArrays;
+
+  if (file->fail())
+    {
+    vtkErrorMacro("Could not read field.");
+    return;
+    }
+  
+  // Read the number of arrays specified
+  for (i=0; i<numArrays; i++)
+    {
+    long length;
+    char buffer[256];
+    *file >> buffer; 
+    *file >> numComp;
+    *file >> numTuples;
+    *file >> type;
+    // What a pain.
+    if (strcmp(type, "double") == 0)
+      {
+      length = sizeof(double) * numComp * numTuples;
+      }
+    if (strcmp(type, "float") == 0)
+      {
+      length = sizeof(float) * numComp * numTuples;
+      }
+    if (strcmp(type, "long") == 0)
+      {
+      length = sizeof(long) * numComp * numTuples;
+      }
+    if (strcmp(type, "unsigned long") == 0)
+      {
+      length = sizeof(unsigned long) * numComp * numTuples;
+      }
+    if (strcmp(type, "int") == 0)
+      {
+      length = sizeof(int) * numComp * numTuples;
+      }
+    if (strcmp(type, "unsigned int") == 0)
+      {
+      length = sizeof(unsigned int) * numComp * numTuples;
+      }
+    if (strcmp(type, "short") == 0)
+      {
+      length = sizeof(short) * numComp * numTuples;
+      }
+    if (strcmp(type, "unsigned short") == 0)
+      {
+      length = sizeof(unsigned short) * numComp * numTuples;
+      }
+    if (strcmp(type, "char") == 0)
+      {
+      length = sizeof(char) * numComp * numTuples;
+      }
+    if (strcmp(type, "unsigned char") == 0)
+      {
+      length = sizeof(unsigned char) * numComp * numTuples;
+      }
+
+    // suckup new line.
+    file->getline(name,256);
+    file->seekg(length, ios::cur);
+    // suckup new line.
+    file->getline(name,256);
+    if (file->fail())
+      {
+      vtkErrorMacro("Could not seek past field.");
+      return;
+      }
     }
 }
 
