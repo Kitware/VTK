@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -32,7 +30,7 @@ vlBYUReader::vlBYUReader()
   this->ReadScalar = 1;
   this->ReadTexture = 1;
 
-  this->PartNumber = 1;
+  this->PartNumber = 0;
 }
 
 vlBYUReader::~vlBYUReader()
@@ -98,10 +96,26 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 //
   fscanf (geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
 
-  // skip over unwanted parts
-  for (i=0; i < (this->PartNumber-1); i++) fscanf (geomFile, "%*d %*d");
-  fscanf (geomFile, "%d %d", &partStart, &partEnd);
-  for (i=this->PartNumber; i < numParts; i++) fscanf (geomFile, "%*d %*d");
+  if ( this->PartNumber > numParts )
+    {
+    vlWarningMacro(<<"Specified part number > number of parts");
+    this->PartNumber = 0;
+    }
+
+  if ( this->PartNumber > 0 ) // read just part specified
+    {
+    vlDebugMacro(<<"Reading part number: " << this->PartNumber);
+    for (i=0; i < (this->PartNumber-1); i++) fscanf (geomFile, "%*d %*d");
+    fscanf (geomFile, "%d %d", &partStart, &partEnd);
+    for (i=this->PartNumber; i < numParts; i++) fscanf (geomFile, "%*d %*d");
+    }
+  else // read all parts
+    {
+    vlDebugMacro(<<"Reading all parts.");
+    for (i=0; i < numParts; i++) fscanf (geomFile, "%*d %*d");
+    partStart = 1;
+    partEnd = LARGE_INTEGER;
+    }
 
   if ( numParts < 1 || numPts < 1 || numPolys < 1 )
     {
@@ -151,8 +165,8 @@ void vlBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
       }
     }
 
-  vlDebugMacro(<<"Read " << numPts << " points, " << newPolys->GetNumberOfCells() 
-               << " polygons");
+  vlDebugMacro(<<"Reading:" << numPts << " points, "
+                 << numPolys << " polygons.");
 
   this->SetPoints(newPts);
   this->SetPolys(newPolys);
