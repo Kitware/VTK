@@ -10,6 +10,9 @@ SET (DROP_SITE_PASSWORD "public")
 SET (TRIGGER_SITE 
        "http://${DROP_SITE}/cgi-bin/Submit-vtk-TestingResults.pl")
 
+# Project Home Page
+SET (PROJECT_URL "http://www.visualizationtoolkit.org/")
+
 # Dart server configuration 
 SET (CVS_WEB_URL "http://${DROP_SITE}/cgi-bin/cvsweb.cgi/VTK/")
 SET (CVS_WEB_CVSROOT "VTK")
