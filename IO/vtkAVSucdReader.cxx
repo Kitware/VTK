@@ -40,7 +40,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.1");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.2");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -109,12 +109,6 @@ const char *vtkAVSucdReader::GetByteOrderAsString()
 
 void vtkAVSucdReader::Execute()
 {
-  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->GetOutput();
-  
-  this->ReleaseDataFlagOff ();
-  output->GlobalReleaseDataFlagOff();
-  output->SetSource(this);
-  
   if ( this->fs == NULL )
     {
     vtkErrorMacro(<< "No file specified!");
