@@ -573,8 +573,7 @@ void HandleDataArray(FILE *fp, FileInfo *data)
   fprintf(fp,"  length = env->GetArrayLength(id0);\n");
   fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n", 
     data->ClassName, data->ClassName);
-  fprintf(fp,"  op->SetNumberOfComponents(1);\n");
-  fprintf(fp,"  op->SetNumberOfTuples(length);\n");
+  fprintf(fp,"  op->SetNumberOfTuples(length/op->GetNumberOfComponents());\n");
   fprintf(fp,"  memcpy(op->GetVoidPointer(0), tempArray0, length*sizeof(%s));\n", type);
   fprintf(fp,"  env->Release%sArrayElements(id0,(j%s *)tempArray0,0);\n", jfromtype, jtype);
   fprintf(fp,"}\n");
