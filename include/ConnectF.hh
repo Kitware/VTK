@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,14 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Extracts geometry connected at common vertices.
-//
+// .NAME vlConnectivityFilter - extract geometry based on geometric connectivity
+// .SECTION Description
+// vlConnectivityFilter is a filter that extracts cells that share common 
+// points. The filter works in one of four ways: 1) extract the largest
+// connected region in the dataset, 2) extract specified region numbers,
+// 3) extract all regions sharing specified point ids, and 4) extract
+// all regions sharing specified cell ids.
+
 #ifndef __vlConnectivityFilter_h
 #define __vlConnectivityFilter_h
 
@@ -36,17 +39,6 @@ public:
   char *GetClassName() {return "vlConnectivityFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  vlSetClampMacro(RecursionDepth,int,10,LARGE_INTEGER);
-  vlGetMacro(RecursionDepth,int);
-
-  vlSetMacro(ColorRegions,int);
-  vlGetMacro(ColorRegions,int);
-  vlBooleanMacro(ColorRegions,int);
-
-  void InitializeSeedList();
-  void AddSeed(int id);
-  void DeleteSeed(int id);
-
   void ExtractPointSeededRegions();
   void ExtractCellSeededRegions();
 
@@ -58,6 +50,22 @@ public:
   void DeleteSpecifiedRegion(int id);
 
   int GetNumberOfExtractedRegions();
+
+  void InitializeSeedList();
+  void AddSeed(int id);
+  void DeleteSeed(int id);
+
+  // Description:
+  // Extraction algorithm works recursively. In some systems the stack depth
+  // is limited. This methods specifies the maximum recursion depth.
+  vlSetClampMacro(RecursionDepth,int,10,LARGE_INTEGER);
+  vlGetMacro(RecursionDepth,int);
+
+  // Description:
+  // Turn on/off the coloring of connected regions.
+  vlSetMacro(ColorRegions,int);
+  vlGetMacro(ColorRegions,int);
+  vlBooleanMacro(ColorRegions,int);
 
 protected:
   // Usual data generation method

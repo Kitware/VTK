@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -34,10 +32,14 @@ public:
   char *GetClassName() {return "vlTriangleFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Turn on/off passing vertices through filter.
   vlBooleanMacro(PassVerts,int);
   vlSetMacro(PassVerts,int);
   vlGetMacro(PassVerts,int);
 
+  // Description:
+  // Turn on/off passing lines through filter.
   vlBooleanMacro(PassLines,int);
   vlSetMacro(PassLines,int);
   vlGetMacro(PassLines,int);

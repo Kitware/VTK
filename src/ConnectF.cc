@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,6 +15,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "ConnectF.hh"
 
+// Description:
+// Construct with default extraction mode to extract largest regions.
 vlConnectivityFilter::vlConnectivityFilter()
 {
   this->ExtractionMode = EXTRACT_LARGEST_REGIONS;
@@ -228,11 +228,15 @@ void vlConnectivityFilter::TraverseAndMark (int cellId)
   return;
 }
 
+// Description:
+// Obtain the number of connected regions.
 int vlConnectivityFilter::GetNumberOfExtractedRegions()
 {
   return this->RegionSizes.GetSize();
 }
 
+// Description:
+// Set the extraction mode to extract regions sharing specified point ids.
 void vlConnectivityFilter::ExtractPointSeededRegions()
 {
   if ( this->ExtractionMode != EXTRACT_POINT_SEEDED_REGIONS )
@@ -242,6 +246,8 @@ void vlConnectivityFilter::ExtractPointSeededRegions()
     }
 }
 
+// Description:
+// Set the extraction mode to extract regions sharing specified cell ids.
 void vlConnectivityFilter::ExtractCellSeededRegions()
 {
   if ( this->ExtractionMode != EXTRACT_CELL_SEEDED_REGIONS )
@@ -251,6 +257,9 @@ void vlConnectivityFilter::ExtractCellSeededRegions()
     }
 }
 
+// Description:
+// Set the extraction mode to extract regions of specified id. You may 
+// have to execute filter first to determine region ids.
 void vlConnectivityFilter::ExtractSpecifiedRegions()
 {
   if ( this->ExtractionMode != EXTRACT_SPECIFIED_REGIONS )
@@ -260,6 +269,8 @@ void vlConnectivityFilter::ExtractSpecifiedRegions()
     }
 }
 
+// Description:
+// Set the extraction mode to extract the largest region found.
 void vlConnectivityFilter::ExtractLargestRegions(int numRegions)
 {
   if ( this->ExtractionMode != EXTRACT_LARGEST_REGIONS 
@@ -271,36 +282,48 @@ void vlConnectivityFilter::ExtractLargestRegions(int numRegions)
     }
 }
 
+// Description:
+// Initialize list of point ids/cell ids used to seed regions.
 void vlConnectivityFilter::InitializeSeedList()
 {
   this->Modified();
   this->Seeds.Reset();
 }
 
+// Description:
+// Add a seed id (point or cell id).
 void vlConnectivityFilter::AddSeed(int id)
 {
   this->Modified();
   this->Seeds.InsertNextId(id);
 }
 
+// Description:
+// Delete a seed id (point or cell id).
 void vlConnectivityFilter::DeleteSeed(int id)
 {
   this->Modified();
   this->Seeds.DeleteId(id);
 }
 
+// Description:
+// Initialize list of region ids to extract.
 void vlConnectivityFilter::InitializeSpecifiedRegionList()
 {
   this->Modified();
   this->SpecifiedRegionIds.Reset();
 }
 
+// Description:
+// Add a region id to extract.
 void vlConnectivityFilter::AddSpecifiedRegion(int id)
 {
   this->Modified();
   this->SpecifiedRegionIds.InsertNextId(id);
 }
 
+// Description:
+// Delete a region id to extract.
 void vlConnectivityFilter::DeleteSpecifiedRegion(int id)
 {
   this->Modified();
