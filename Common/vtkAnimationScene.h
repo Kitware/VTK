@@ -101,6 +101,9 @@ public:
   // Triggers Finalize on all contained cues.
   virtual void Finalize();
 
+  // Description:
+  // Returns if the animation is being played.
+  int IsInPlay() { return this->InPlay; } 
 protected:
   vtkAnimationScene();
   ~vtkAnimationScene();

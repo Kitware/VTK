@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.2");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.3");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -142,35 +142,44 @@ void vtkAnimationScene::Play()
     vtkErrorMacro("Cannot play a scene with normalized time mode");
     return;
     }
+  if (this->EndTime <= this->StartTime)
+    {
+    vtkErrorMacro("Scene start and end times are not suitable for playing");
+    return;
+    }
 
   this->InPlay = 1;
   this->StopPlay = 0;
   this->FrameRate = (!this->FrameRate)? 1.0 : this->FrameRate;
   // the actual play loop, check for StopPlay flag.
+  double deltatime = 0.0;
+  double currenttime = this->CurrentTime;
+  double span = this->EndTime - this->StartTime;
+  
+  // adjust currenttime to a valid time.
+  currenttime = (currenttime < this->StartTime || currenttime >= this->EndTime)?
+    this->StartTime : currenttime;
+  double clocktime = currenttime;
+  double oldclocktime = clocktime;
+  double time_adjustment = 0;
+  this->AnimationTimer->StartTimer();
   do
     {
-    double deltatime = 0.0;
-    double oldcurrenttime = 0.0;
-    double currenttime = this->CurrentTime;
-    if (currenttime < this->StartTime || currenttime >= this->EndTime)
-      {
-      currenttime = this->StartTime;
-      }
-    this->AnimationTimer->StartTimer();
     this->Initialize();
     do
       {
+      currenttime = clocktime - time_adjustment;
       this->Tick(currenttime, deltatime);
-      oldcurrenttime = currenttime;
+      oldclocktime = clocktime;
       if (this->PlayMode == VTK_ANIMATION_SCENE_PLAYMODE_REALTIME)
         {
         this->AnimationTimer->StopTimer();
-        currenttime = this->AnimationTimer->GetElapsedTime() + 
+        clocktime = this->AnimationTimer->GetElapsedTime() + 
           this->StartTime;
         }
       else if (this->PlayMode == VTK_ANIMATION_SCENE_PLAYMODE_SEQUENCE)
         {
-        currenttime += 1.0 / this->FrameRate;
+        clocktime += 1.0 / this->FrameRate;
         }
       else
         {
@@ -178,15 +187,12 @@ void vtkAnimationScene::Play()
         this->StopPlay = 1;
         break;
         }
-      deltatime = currenttime - oldcurrenttime;
+      deltatime = clocktime - oldclocktime;
       deltatime = (deltatime < 0)? -1*deltatime : deltatime;
       }
     while (!this->StopPlay && this->CueState != vtkAnimationCue::INACTIVE);
     this->Finalize();
-    if (this->Loop)
-      {
-      this->CurrentTime = this->StartTime;
-      }
+    time_adjustment += span;
     }
   while (this->Loop && !this->StopPlay);
   this->StopPlay = 0;
