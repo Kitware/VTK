@@ -267,7 +267,7 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
     this->Renderers->InitTraversal();
     for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
 	  ren != NULL;
-	  vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
+	  ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
       {
       ren->SetRenderWindow(NULL);
       }
