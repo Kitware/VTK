@@ -1,74 +1,102 @@
+# In this example we show the use of the vtkBandedPolyDataContourFilter.
+# This filter creates separate, constant colored bands for a range of scalar
+# values. Each band is bounded by two scalar values, and the cell data lying
+# within the value has the same cell scalar value.
+
 package require vtk
 package require vtkinteraction
+package require vtktesting
 
-set Scale 5
-vtkLookupTable lut
-  lut SetHueRange 0.6 0
-  lut SetSaturationRange 1.0 0
-  lut SetValueRange 0.5 1.0
+# The lookup table is similar to that used by maps. Two hues are used: a
+# brown for land, and a blue for water. The value of the hue is changed to
+# give the effect of elevation.
+set Scale 5 
+vtkLookupTable lutWater
+  lutWater SetNumberOfColors 10
+  lutWater SetHueRange 0.58 0.58
+  lutWater SetSaturationRange 0.5 0.1
+  lutWater SetValueRange 0.5 1.0
+  lutWater Build
+vtkLookupTable lutLand
+  lutLand SetNumberOfColors 10
+  lutLand SetHueRange 0.1 0.1
+  lutLand SetSaturationRange 0.4 0.1
+  lutLand SetValueRange 0.55 0.9
+  lutLand Build
 
+
+# The DEM reader reads data and creates an output image.
 vtkDEMReader demModel
   demModel SetFileName $VTK_DATA_ROOT/Data/SainteHelens.dem
   demModel Update
 
-demModel Print
+# We shrink the terrain data down a bit to yield better performance for 
+# this example.
+set shrinkFactor 4
+vtkImageShrink3D shrink
+  shrink SetShrinkFactors $shrinkFactor $shrinkFactor 1
+  shrink SetInput [demModel GetOutput]
+  shrink AveragingOn
 
-set lo [expr $Scale * [lindex [demModel GetElevationBounds] 0]]
-set hi [expr $Scale * [lindex [demModel GetElevationBounds] 1]]
+# Convert the image into polygons.
+vtkImageDataGeometryFilter geom
+  geom SetInput [shrink GetOutput]
+
+# Warp the polygons based on elevation.
+vtkWarpScalar warp
+  warp SetInput [geom GetOutput]
+  warp SetNormal 0 0 1
+  warp UseNormalOn
+  warp SetScaleFactor $Scale
+
+# Create the contour bands.
+vtkBandedPolyDataContourFilter bcf
+  bcf SetInput [warp GetPolyDataOutput]
+  eval bcf GenerateValues 15 [[demModel GetOutput] GetScalarRange]
+  bcf SetScalarModeToIndex
+
+# Compute normals to give a better look.
+vtkPolyDataNormals normals
+  normals SetInput [bcf GetOutput]
+  normals SetFeatureAngle 60
+  normals ConsistencyOff
+  normals SplittingOff
+
+vtkPolyDataMapper demMapper
+  demMapper SetInput [normals GetOutput]
+  eval demMapper SetScalarRange 0 10
+  demMapper SetLookupTable lutLand
+  demMapper SetScalarModeToUseCellData
 
 vtkLODActor demActor
+  demActor SetMapper demMapper
 
-# create a pipeline for each lod mapper
-set lods {4}
-foreach lod $lods {
-  vtkImageShrink3D shrink$lod
-    shrink$lod SetShrinkFactors $lod $lod 1
-    shrink$lod SetInput [demModel GetOutput]
-    shrink$lod AveragingOn
+## Test clipping
+# Create the contour bands.
+vtkBandedPolyDataContourFilter bcf2
+  bcf2 SetInput [warp GetPolyDataOutput]
+  bcf2 ClippingOn
+  eval bcf2 GenerateValues 10 1000 2000
+  bcf2 SetScalarModeToValue
 
-  vtkImageDataGeometryFilter geom$lod
-    geom$lod SetInput [shrink$lod GetOutput]
-#    geom$lod ReleaseDataFlagOn
+# Compute normals to give a better look.
+vtkPolyDataNormals normals2
+  normals2 SetInput [bcf2 GetOutput]
+  normals2 SetFeatureAngle 60
+  normals2 ConsistencyOff
+  normals2 SplittingOff
 
-  vtkWarpScalar warp$lod
-    warp$lod SetInput [geom$lod GetOutput]
-    warp$lod SetNormal 0 0 1
-    warp$lod UseNormalOn
-    warp$lod SetScaleFactor $Scale
-#    warp$lod ReleaseDataFlagOn
+vtkLookupTable lut
+lut SetNumberOfColors 10
+vtkPolyDataMapper demMapper2
+  demMapper2 SetInput [normals2 GetOutput]
+  eval demMapper2 SetScalarRange [[demModel GetOutput] GetScalarRange]
+  demMapper2 SetLookupTable lut
+  demMapper2 SetScalarModeToUseCellData
 
-  vtkElevationFilter elevation$lod
-    elevation$lod SetInput [warp$lod GetOutput]
-    elevation$lod SetLowPoint 0 0 $lo
-    elevation$lod SetHighPoint 0 0 $hi
-    eval elevation$lod SetScalarRange $lo $hi
-#    elevation$lod ReleaseDataFlagOn
-
-  vtkBandedPolyDataContourFilter bcf$lod
-    bcf$lod SetInput [elevation$lod GetPolyDataOutput]
-    bcf$lod GenerateValues 15 $lo $hi
-
-  vtkPolyDataNormals normals$lod
-    normals$lod SetInput [bcf$lod GetOutput]
-#    normals$lod SetInput [elevation$lod GetOutput]
-    normals$lod SetFeatureAngle 60
-    normals$lod ConsistencyOff
-    normals$lod SplittingOff
-#    normals$lod ReleaseDataFlagOn
-
-  vtkPolyDataMapper demMapper$lod
-    demMapper$lod SetInput [normals$lod GetOutput]
-    demMapper$lod SetInput [bcf$lod GetOutput]
-#    demMapper$lod SetInput [elevation$lod GetPolyDataOutput]
-#    eval demMapper$lod SetScalarRange $lo $hi
-    eval demMapper$lod SetScalarRange 0 15
-#    demMapper$lod SetLookupTable lut
-    demMapper$lod SetScalarModeToUseCellData
-
-demMapper$lod Update
-
-demActor AddLODMapper demMapper$lod
-}
+vtkLODActor demActor2
+  demActor2 SetMapper demMapper2
+  demActor2 AddPosition 0 15000 0
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -81,23 +109,25 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor demActor
+ren1 AddActor demActor2
 ren1 SetBackground .4 .4 .4
+renWin SetSize 375 200
 
+vtkCamera cam
+  cam SetPosition -17438.8 2410.62 25470.8
+  cam SetFocalPoint 3985.35 11930.6 5922.14
+  cam SetViewUp 0 0 1
+ren1 SetActiveCamera cam
+ren1 ResetCameraClippingRange
+ 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren SetDesiredUpdateRate 1
 
-wm withdraw .
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
     if {$foo != 0} {renWin SetAbortRender 1}
 }
 renWin AddObserver AbortCheckEvent {TkCheckAbort}
-
-[ren1 GetActiveCamera] SetViewUp 0 0 1
-[ren1 GetActiveCamera] SetPosition -99900 -21354 131801
-[ren1 GetActiveCamera] SetFocalPoint 41461 41461 2815
-ren1 ResetCamera
-[ren1 GetActiveCamera] Dolly 1.2
-ren1 ResetCameraClippingRange
-
 renWin Render
+
+wm withdraw .
