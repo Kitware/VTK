@@ -95,6 +95,8 @@ protected:
   
   int Tag;
   
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
   vtkMultiProcessController *Controller;
   vtkTimeStamp UpdateTime;
 

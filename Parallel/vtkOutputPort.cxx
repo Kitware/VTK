@@ -16,12 +16,14 @@
 
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 #include "vtkInputPort.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.8");
+vtkCxxRevisionMacro(vtkOutputPort, "1.9");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
@@ -39,6 +41,9 @@ vtkOutputPort::vtkOutputPort()
   this->ParameterMethod = NULL;
   this->ParameterMethodArgDelete = NULL;
   this->ParameterMethodArg = NULL;
+
+  this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -93,7 +98,22 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   // Include it in the information for efficiency.
   unsigned long t1, t2;
   t1 = input->GetMTime();
+#ifdef VTK_USE_EXECUTIVES
+  vtkDemandDrivenPipeline *ddp = 
+    vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (ddp)
+    {
+    ddp->UpdateInformation();
+    t2 = ddp->GetPipelineMTime();
+    input->SetPipelineMTime(t2);
+    }
+  else
+    {
+    t2 = t1;
+    }
+#else
   t2 = input->GetPipelineMTime();
+#endif
   if (t1 > t2)
     {
     input->SetPipelineMTime(t1);
@@ -314,4 +334,18 @@ void vtkOutputPort::SetParameterMethodArgDelete(void (*f)(void *))
 
 //----------------------------------------------------------------------------
 void vtkOutputPort::WaitForUpdate() 
-{this->Controller->ProcessRMIs();}
+{
+  this->Controller->ProcessRMIs();
+}
+
+//----------------------------------------------------------------------------
+int vtkOutputPort
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
