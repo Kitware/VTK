@@ -750,6 +750,9 @@ void ReadMakefiles(CPcmakerDlg *vals)
     concrete[num_concrete] = strdup("vtkOpenGLLight");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
+    concrete[num_concrete] = strdup("vtkOpenGLVolumeTextureMapper2D");
+    concrete_lib[num_concrete] = strdup("graphics");
+    num_concrete++;
     concrete[num_concrete] = strdup("vtkWin32OpenGLRenderWindow");
     concrete_lib[num_concrete] = strdup("graphics");
     num_concrete++;
