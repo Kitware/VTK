@@ -45,6 +45,7 @@ vtkLogLookupTable lut
 vtkPolyDataMapper ellipMapper
     ellipMapper SetInput [ellipsoids GetOutput]
     ellipMapper SetLookupTable lut
+    ellipMapper ImmediateModeRenderingOn
     plane Update;#force update for scalar range
     eval ellipMapper SetScalarRange [[plane GetOutput] GetScalarRange]
 

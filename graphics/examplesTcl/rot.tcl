@@ -20,6 +20,8 @@ vtkPolyDataMapper testmapper
 
 originsource SetScaleFactor 4000.0
 originmapper SetInput [originsource GetOutput]
+originmapper ImmediateModeRenderingOn
+
 origin SetMapper originmapper
 [origin GetProperty] SetAmbient 1.0
 [origin GetProperty] SetDiffuse 0.0
@@ -27,6 +29,7 @@ ren1 AddActor origin
 
 testsource SetScaleFactor 2000.0
 testmapper SetInput [testsource GetOutput]
+testmapper ImmediateModeRenderingOn
 test SetMapper testmapper
 [test GetProperty] SetAmbient 1.0
 [test GetProperty] SetDiffuse 0.0
