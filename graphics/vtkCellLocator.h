@@ -66,9 +66,9 @@ class VTK_EXPORT vtkCellLocator : public vtkLocator
 {
 public:
 
-// Description:
-// Construct with automatic computation of divisions, averaging
-// 25 cells per bucket.
+  // Description:
+  // Construct with automatic computation of divisions, averaging
+  // 25 cells per bucket.
   vtkCellLocator();
 
   ~vtkCellLocator();
@@ -83,18 +83,25 @@ public:
 
   // methods that all cell locators must provide
 
-// Description:
-// Return intersection point (if any) of finite line with cells contained
-// in cell locator.
+  // Description:
+  // Return intersection point (if any) of finite line with cells contained
+  // in cell locator.
   virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
 				float& t, float x[3], float pcoords[3],
 				int &subId);
 
+
+  // Return intersection point (if any) AND the cell which was intersected by
+  // the finite line.
+  virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
+				float& t, float x[3], float pcoords[3],
+				int &subId, int &cellId);
+
   virtual vtkIdList *GetCells(int bucket);
 
-// Description:
-// Intersect against another vtkCellLocator returning cells that lie in 
-// intersecting octants. Not implimented yet.
+  // Description:
+  // Intersect against another vtkCellLocator returning cells that lie in 
+  // intersecting octants. Not implimented yet.
   virtual void InitializeIntersection(vtkCellLocator& locator);
 
   virtual int GetNextIntersection(int& bucket1, int& bucket2);

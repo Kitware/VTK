@@ -104,11 +104,25 @@ int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, int k,
   return 0;
 }
 
+
 // Return intersection point (if any) of finite line with cells contained
 // in cell locator.
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 				      float& t, float x[3], float pcoords[3],
 				      int &subId)
+{
+  int cellId = -1;
+
+  return this->IntersectWithLine( a0, a1, tol, t, x, pcoords,
+                                  subId, cellId);
+}
+
+
+// Return intersection point (if any) AND the cell which was intersected by
+// finite line
+int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
+				      float& t, float x[3], float pcoords[3],
+				      int &subId, int &cellId)
 {
   float origin[3];
   float direction2[3];
@@ -120,7 +134,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   int i, leafStart, prod, loop;
   vtkCell *cell;
   int bestCellId = -1;
-  int idx, cellId;
+  int idx;
   float tMax, dist[3];
   float hits[3];
   int npos[3];
@@ -167,10 +181,14 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
     for (loop = 0; loop <3; loop++)
       {
       hitPosition[loop] = hitPosition[loop]*this->NumberOfDivisions + 1.0;
+      pos[loop] = (int)hitPosition[loop];
+      // Adjust right boundary condition: if we intersect from the top, right,
+      // or back; then pos must be adjusted to a valid octant index 
+      if (pos[loop] > this->NumberOfDivisions)
+        {
+        pos[loop] = this->NumberOfDivisions;
+        }
       }
-    pos[0] = (int)hitPosition[0];
-    pos[1] = (int)hitPosition[1];
-    pos[2] = (int)hitPosition[2];
 
     idx = leafStart + pos[0] - 1 + (pos[1] - 1)*this->NumberOfDivisions 
       + (pos[2] - 1)*prod;
@@ -199,6 +217,7 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 		  *this->NumberOfDivisions/
 		  (bounds[loop*2+1] - bounds[loop*2]);
 		}
+              // Is intersection pt within the current octant?
 	      if (
 		  (((int)(hits[0] + 1.01) == pos[0])||
 		   ((int)(hits[0] + 1.0) == pos[0])||
@@ -279,6 +298,9 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
     {
     this->DataSet->GetCell(bestCellId)->
       IntersectWithLine(a0, a1, tol, t, x, pcoords, subId);
+
+    // store the best cell id in the return "parameter"
+    cellId = bestCellId;
     return 1;
     }
   
